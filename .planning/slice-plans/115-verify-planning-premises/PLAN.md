@@ -164,6 +164,16 @@ and Cursor", naming these three cases as reusable definitions and ADR 0005 as
 the reason Claude Code evidence does not transfer. Queue it at the end of the
 backlog list with the installed backlog tool. The backlog's validation passes.
 
+## Execution complete
+
+Product advice: Decide whether the queued Codex and Cursor native acceptance
+story runs before the next release: ADR 0005 asks native acceptance to finish
+before releasing affected behavior, and it is last in the queue. Watch later
+plans for over-observation (the control ran focused suites as premise
+observations; Pygardon planning cost rose from $1.54 to $6.59) and tighten
+"smallest safe observation" if it recurs. Sibling readiness and the planning
+format validator stay separate and unaffected.
+
 ## Promise coverage
 
 | Seed promise or example | Owning slice | Observation |

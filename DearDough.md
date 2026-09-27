@@ -972,8 +972,24 @@ publication, and a start retry all preceded any work.
   - Evidence: refusal `source-refused` / "published preparation is needs-reassessment"; `git diff eaa69a4 HEAD` on the seed showed only the sibling `dashboard-port-race` refinement and wording; reconfirmed basis published as `ff3534c`; the retried start published the claim.
   - Observed effect: one basis-hash diagnosis, one record-state, one trunk publication, and a repeated start before the claim. SEED-043#preserve-sibling-readiness is the queued product response.
 
+## DD-121 — A ready plan named a validation command the backlog tool does not have
+
+Plan 115 slice 2's proof said "The backlog's validation passes", but the
+installed backlog tool has no validate operation; the implementation agent
+substituted write-time checks, a `read-state` read-back and manual checks.
+
+### Occurrences
+- Execution: SEED-044#verify-planning-premises (plan 115; first implementation commit `2c5ff71f`)
+  - Timestamp: 2026-09-27T14:17:23+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `6882aeb3` guidance at planning time
+  - Evidence: plan 115 slice 2 text at `6882aeb3`; `product-backlog.mjs` usage lists add, place, take, complete, refresh, direction, adopt, merge, record-state, read-state
+  - Observed effect: small detour and an equivalent-proof judgment at acceptance; no rework
+  - Inference: same class as the unobserved planning premises this story addresses (catalog ODF-074); plan 115 was written before its own rule
+
 ## Retention
 
-- Highest allocated local number: 120
+- Highest allocated local number: 121
 - Recovery: `70386eb:DearDough.md` (ODF-061, addressed by `c897488` requiring Bash 5 and by the runner's stop-location report); `3e611d2:DearDough.md` (DD-110, removed for size; later checkpoints lead with a recommendation); `2b18837:DearDough.md` (ODF-003 `SEED-004#execute-in-worktree-and-merge-at-wrap-up` occurrence, removed for size; three later same-mechanism rows remain); `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial
