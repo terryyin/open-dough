@@ -45,7 +45,7 @@ dashboard or research stories.
 
 **Identity:** SEED-028#one-shot-work
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/112-one-shot-work/PLAN.md","assessment":"not-ready","reasons":["Shared admission is still Taken; inspect its delivered retained-work continuation interface and bind the escalation proof before execution."],"basis":{"document":"ce36d6d44c965d602d1479d6b3a251eb381a26521a087deb082b1691dd0433de","plan":"59863aaa03a9ac8413cd14e3804953ddb5b6beb6d2ea652fdb075e8891b57d5f"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/112-one-shot-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"514897d9222618a48d0daa3e076f884a315f061dd705f1275c09d3755c0f5903","plan":"dfe15874566cef7441163efacd751e0b07580e5e499059adc9300139aa23b9d5"}}
 ```
 
 **Goal:** Developers can explicitly request a genuinely trivial change without
@@ -85,8 +85,8 @@ required review, publication authority or unresolved architectural decisions.
   erase existing claims or their history, and completing quickly alone does not
   silently select the option.
 
-**Depends on:** delivered [shared admission](../../src/skills/dough-execute-plan/references/admit-accepted-work.md)
-for safe escalation into ordinary admission. Existing workspace/publication
+**Builds on:** delivered [shared admission](../../src/skills/dough-execute-plan/references/admit-accepted-work.md)
+for escalation into ordinary admission. Existing workspace/publication
 contracts apply; exclusive access to the default checkout is not required when
 an owned workspace can publish safely.
 
@@ -132,25 +132,31 @@ editing prerequisite or a new workspace manager.
 
 #### Existing solutions and the remaining gap
 
-`dough-execute-plan` already supports contextual planless execution, focused proof,
-ordinary publication, completion/CI handling and wrap-up. Its oversized-slice
-procedure preserves compatible work and proof, but currently treats replanning
-permission independently and can continue without a canonical story. One-shot
-escalation must converge on the admission story's ordinary canonical home and
-claim instead of creating another continuation mechanism.
+`dough-execute-plan` supports planless execution, focused proof, managed
+increment delivery, completion/CI handling and wrap-up. Since shared admission
+landed, an accepted independent mission in Story Branch or Trunk Mode is always
+admitted before its work: nothing today gives an owned workspace without a
+claim. One-shot adds exactly that entry to the same startup command, publishing
+nothing until its verified result.
 
-The current shared admission work is Taken, not delivered. Its published plan
-owns atomic story/claim publication and ordinary continuation; this story owns
-the transition from an already-started unclaimed attempt, including preserved
-edits and proof. Inspect the delivered admission boundary before implementation;
-do not invent its API or duplicate it while it is still being built.
+Admission publishes a story drafted in the originating checkout, its Taken
+entry and agent profile in one trunk commit, from a claim workspace that is
+clean at fetched trunk and that then becomes the story's checkout. It refuses a
+story already in the Backlog list. The oversized-slice procedure still
+continues quick work without a canonical story. Escalation therefore parks the
+attempt's owned edits, lets the same workspace become the clean claim
+workspace, restores the edits over the Take, and extends admission to accept a
+queued story without a readiness assessment. Continuation into implementation
+keeps admission's ordinary readiness gate.
 
-The current contextual path creates a workspace without a claim and the common
-publication helpers already handle remote reconciliation and safe local refresh.
-Reuse these responsibilities. One-shot success must leave no published temporary
-tracking, so validate the result plus cleanup before the result is published.
-Keep any necessary interrupted-attempt recovery with existing workspace/conversation
-state rather than adding a one-shot registry or dashboard state.
+Wrap-up removes spent records through separate before-cleanup and closure
+commits. A queued one-shot instead composes backlog completion and spent-record
+removal into its single result candidate, guarded at managed delivery's
+existing pre-push seam so a Preparing or Taken holder that appears on trunk,
+even during reconciliation, stops the publication. Keep any interrupted-attempt
+recovery in the workspace and conversation rather than a one-shot registry or
+dashboard state. [North Star](../NORTH-STAR.md#one-admission-path-for-accepted-work)
+records these owners.
 
 #### Agreed boundaries
 
@@ -186,10 +192,8 @@ retains ordinary verification ownership without fabricating a backlog entry.
 
 **Plan:** [Complete one-shot work or admit its continuation](../slice-plans/112-one-shot-work/PLAN.md).
 
-No product question remains from this refinement. The first story's published
-implementation remains an execution dependency; reconcile the admission
-interface and retained-work continuation against that delivered version before
-execution. Planning does not assume it has already landed.
+No product question remains. The plan was re-bound on 2026-09-27 to the
+delivered admission interface and current publication owners.
 
 ## Ordering and Scope Reduction
 

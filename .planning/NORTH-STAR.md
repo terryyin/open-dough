@@ -71,6 +71,20 @@ original authority. Recheck queued ownership before publishing cleanup so a
 concurrent claim is preserved. This is a policy at work entry and completion,
 not another execution engine, branch mode or persistent tracking state.
 
+Concretely, the startup command owns all three entries: Take, admission and
+one-shot. `--one-shot` reuses its request validation, published-source reading
+and owned-workspace selection, then publishes nothing. Its result goes through
+ordinary managed increment delivery; a queued story's backlog completion and
+spent-record removal join that same candidate, and an ownership guard at the
+publisher's existing pre-push seam rereads fetched trunk after every
+reconciliation. On growth the one-shot workspace becomes the admitted story's
+checkout: park the attempt's owned edits under a workspace-owned ref, return
+the workspace to clean fetched trunk, run the ordinary admission claim there,
+then restore the edits over the Take. Admission accepts a queued story too,
+moving its existing entry to Taken without a readiness assessment; continuing
+into implementation keeps the ordinary readiness gate. Entry workflows pass the
+flag through and keep no one-shot rules of their own.
+
 ## One backlog interpretation, separate observation and presentation
 
 For the first dashboard, keep the existing pure backlog document, identity, and

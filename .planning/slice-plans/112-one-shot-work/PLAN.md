@@ -6,8 +6,10 @@
 
 [Refined story](../../seeds/SEED-028-track-ad-hoc-work.md#one-shot-work).
 The developer accepted queued-story eligibility and automatic escalation with
-continuation inside the original authorization. This request authorizes refinement
-and planning, not implementation or publication of the preparation draft.
+continuation inside the original authorization. On 2026-09-27 the developer
+asked to re-check this plan against the current product, redo its architecture
+where needed, and then execute it. This revision re-binds the plan to the
+delivered shared admission and current publication owners.
 
 ## Goal and scope
 
@@ -18,7 +20,7 @@ attempt grows, preserve owned edits and valid proof, publish ordinary admission,
 and continue within the original scope and authority.
 
 One-shot is a tracking policy, distinct from planless execution and branching
-mode. Use it at independently invoked work-entry workflows: direct contextual
+mode. It applies at independently invoked work-entry workflows: direct contextual
 work, bug investigation/repair, profiling/optimization, exploratory testing and
 standalone review. Supporting work inherits its existing story. Already-Taken
 work keeps its ordinary lifecycle; the option never erases published history.
@@ -27,44 +29,17 @@ not grant permission to implement findings, publish drafts or expand scope.
 
 Eligibility: one understood coherent outcome, no known need for multiple slices
 or unresolved domain/architecture decisions, and a credible focused verification
-path. An ordinary test/fix loop or short diagnosis may fit. Known larger work goes
-straight to normal admission; newly discovered complexity, separate outcomes or
-failure to converge triggers escalation before further substantive work. No
-universal time, line-count or file-count limit is added. Honor project limits and
-explicit stop/no-replan instructions; they limit continuation without authorizing
-oversized untracked work.
+path. A queued story whose recorded preparation carries a `not-ready` reason, or
+whose plan has more than one slice, is not eligible. An ordinary test/fix loop
+or short diagnosis may fit. Known larger work goes straight to normal admission;
+newly discovered complexity, separate outcomes or failure to converge triggers
+escalation before further substantive work. No universal time, line-count or
+file-count limit is added.
 
-Successful changed work publishes the complete result and applicable spent-record
-cleanup together. A supported no-change result requires no empty commit; queued
-work still publishes its ordinary completion cleanup if records must change.
-Verification, required review, CI ownership, publication recovery and safe workspace
-retirement remain normal obligations. Local main need not be edited directly.
-
-Excluded: a one-shot registry or dashboard state, hidden claims, another publisher
-or execution engine, extra branch modes, completed-story history, migration of
-existing identities, configurable size thresholds, and redesign of ordinary CI,
-default-checkout coordination or preparation publishing.
-
-## Dependency and execution gate
-
-[Shared admission](../../../src/skills/dough-execute-plan/references/admit-accepted-work.md)
-is Taken, with its implementation not yet established on the inspected published
-revision `2f7ed7c`. Before executing this plan, verify its delivered canonical
-story admission, atomic claim publication, source evolution and recovery behavior.
-Inspect the actual delivered interface and adapt references in this same plan.
-Do not implement a substitute admission protocol or assume the planned API exists.
-
-This story owns transferring an already-started unclaimed attempt, including
-uncommitted edits, into that admission. Admission must publish only its canonical
-tracking content, not unfinished product edits. Preserve the existing checkout
-when supported; if the delivered contract requires a separate publication
-workspace, use its existing mechanism and retain the owned implementation edits
-and identity without creating two execution lifecycles. An unresolved ownership
-or interface mismatch blocks that handoff until this plan is aligned.
-
-New plans use the established `.planning/slice-plans/` convention. Existing
-artifact links continue to name their actual locations; folder migration is not
-part of this story.
+Excluded: a one-shot registry, profile or dashboard state, hidden claims,
+another publisher or execution engine, extra branch modes, completed-story
+history, migration of existing identities, configurable size thresholds, and
+redesign of ordinary CI, default-checkout coordination or preparation publishing.
 
 ## Architecture and existing solutions
 
@@ -74,243 +49,184 @@ one identity, direct domain mapping and one owner per responsibility. Follow
 [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) for evidence
 reuse and native behavior proof, and [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
 plus [AGENTS.md](../../../AGENTS.md) for agent-facing shared guidance. Proposed
-ADR 0007 records the one-shot direction but changes no ADR acceptance status.
+ADR 0007 records the one-shot direction; its acceptance status is unchanged.
 
-Use [One admission path for accepted work](../../NORTH-STAR.md#one-admission-path-for-accepted-work).
-Its one-shot paragraph records the consequential choice: reuse ordinary execution,
-publication and cleanup, and transfer growing work into the same admission path.
-No new ADR or architecture layer is needed.
+[One admission path for accepted work](../../NORTH-STAR.md#one-admission-path-for-accepted-work)
+now names the owners below. No new ADR or architecture layer is needed.
 
-| Responsibility | Reuse/change decision |
+| Responsibility | Owner and decision |
 | --- | --- |
-| Explicit selection and a bounded attempt | Extend `dough-execute-plan` and its shared entry/decision guidance; callers pass one meaning rather than implementing their own policies. |
-| Workspace ownership and setup | Reuse execution-location and exploration-workspace selection, ordinary verified base and runtime setup. Do not require access to a dirty shared default checkout. |
-| Result publication and recovery | Reuse `execution-increment-publication.mjs`, `publication-resume.mjs`, applicable-candidate proof and safe-refresh owners. One-shot supplies its complete candidate and actual target. |
-| Owned work transfer on growth | Change the existing oversized-slice handoff to use delivered admission, preserving source, edits and proof; do not reuse its current no-story continuation unchanged. |
-| Queued completion | Reuse backlog completion, canonical-home cleanup and ordinary wrap-up knowledge assimilation; compose them into the same result candidate. |
-| Completion/CI and resource retirement | Reuse finish-or-stop and closure resource gates. Acceptance, verdict and cleanup remain separate facts; no false success on an unconfirmed push. |
+| Entry selection | `execution-start.mjs start --one-shot`: third entry beside Take and `--admit`, reusing `startRequest`, published-source reading and `selectOwnedWorkspace`; publishes nothing. `--one-shot` excludes `--admit`. |
+| Shared meaning for callers | One new reference, `dough-execute-plan/references/one-shot.md`; `SKILL.md`, bug fixing, test optimization, manual testing and admission guidance link to it instead of restating rules. |
+| Result publication and recovery | Existing managed delivery (`execution-increment-delivery.mjs`, `execution-increment-publication.mjs`, `execution-increment-resume.mjs`) with `previouslyPublishedBase` = the start's `startingRevision`. No one-shot publisher. |
+| Queued completion | Existing `product-backlog.mjs complete` plus ordinary wrap-up cleanup rules, composed into the one result candidate. An ownership guard at the publisher's existing `beforePush` seam rereads fetched trunk after each reconciliation. |
+| Growth | The startup command's admission claim, run in the same workspace after a carry step parks owned edits under a workspace-owned ref and returns the workspace to clean fetched trunk; edits are restored over the Take. Admission accepts a queued story, moving its entry to Taken without a readiness assessment. |
+| Explicit no-replan | Existing oversized-slice no-replan stop, unchanged. |
+| Completion, CI, retirement | Existing finish-or-stop and closure resource gates. |
 
-Code inspection shows contextual planless work already selects a workspace
-without a claim, ordinary result publication accepts a validated owned suffix,
-and wrap-up can close planless work. Oversized execution preserves compatible
-proof but currently treats replanning permission separately and can continue
-without a story. These owners need policy alignment, not parallel abstractions.
+### Decisive premises
 
-For queued work, optimistic ownership checks must use freshly fetched trunk and
-repeat after reconciliation/rejected push. A concurrent Taken or Preparing owner,
-changed story scope, or competing removal cannot be overwritten by stale cleanup.
-Preserve the local candidate and stop for the established ownership/conflict
-resolution. Do not solve this by publishing a hidden one-shot assignment.
+| Premise | Observation (2026-09-27, trunk `9c02dc4a`) | Result |
+| --- | --- | --- |
+| Workspace selection can run without a claim | `workspace-publication-select.mjs:66-110` `selectOwnedWorkspace` fetches, validates or creates the worktree at fetched trunk, and commits nothing | Holds |
+| Managed delivery needs no claim or profile | `execution-increment-delivery.mjs:15-60` requires only workspace, branch, previouslyPublishedBase, targetRef and repo | Holds |
+| `beforePush` runs after every reconciliation, before each push | `execution-increment-publication.mjs:143-197`: attempt 0 after the initial rebase, attempt 1 after the rejected-push rebase | Holds; the guard can throw to stop |
+| The admission claim needs a clean workspace at fetched trunk | `workspace-publication-claim.mjs:67-79` and `workspace-publication-select.mjs:69-91` refuse pending changes or a moved HEAD | Holds; growth needs the carry step |
+| Admission refuses a queued story | `execution-admission-source.mjs` `readAdmissionSource`: "already queued on fetched trunk; start it as queued work" | Holds; slice 3 changes it |
+| `complete` removes an entry from either list | `dough-product-backlog/SKILL.md:119-130`; `tests/support/product-backlog-complete.test.mjs` | Holds |
+| Contextual missions always admit today | `dough-execute-plan/SKILL.md` Establish execution context; `references/execution-location.md:12-14` | Holds; one-shot is the only unclaimed exception |
+| Focused proof commands run locally | `node --test` over admission, managed-delivery stop and backlog-complete tests: 11 pass in ~4.7 s | Holds |
+| No one-shot code exists | Search of `src/`, `tests/`, `scripts/` for one-shot spellings: none | Holds |
+
+The shared Git stash is visible to every worktree, so the carry step must not
+use `git stash`; it records a commit object under a ref named for the workspace
+branch.
 
 ## Outside-in proof
 
-Start with disposable Git repositories and local bare remotes. Drive the actual
-public workflow boundary; observe remote commit contents/history, backlog and
-assignment records, checkout preservation, CI receipt and resource state. Never
-seed a successful claim or cleanup when that is what the case must prove.
+Use disposable Git repositories and local bare remotes through the existing
+fixtures (`workspace-publication-fixtures.mjs`,
+`workspace-publication-admission-fixtures.mjs`,
+`workspace-publication-startup-test-fixtures.mjs`,
+`publication-test-fixtures.mjs`). Drive the startup command and managed
+delivery entry points; observe remote commit contents and history, backlog and
+profile records, workspace bytes and default-checkout preservation. Never seed
+the success state a case must prove.
 
-Inspected existing owners:
-
-- `src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs`
-  and reconciliation tests prove candidate publication; `publication-resume.test.mjs`
-  and racing-suffix tests prove exact accepted-revision recovery.
-- `current-branch-publication.test.mjs` covers the explicitly selected checkout
-  variant; it is not the default one-shot route.
-- `tests/support/product-backlog-complete.test.mjs` and shared identity/home tests
-  own membership and canonical interpretation.
-- `src/skills/dough-story-wrap-up/scripts/closure-resource-cleanup.test.mjs`
-  and closure publication/resume tests own retention and retirement boundaries.
-- `tests/git-publication-native.sh` supplies installed fresh-agent journeys and
-  substitute-process assessor checks. Its default run is harness proof, not
-  native behavioral evidence.
-
-Add focused one-shot journeys at the existing publication test boundary. Proposed
-new file: `src/skills/dough-execute-plan/scripts/one-shot.test.mjs`; this is a
-planned file, not existing evidence. Command after implementation:
-`node --test src/skills/dough-execute-plan/scripts/one-shot.test.mjs`.
-Assertions must observe the policy's complete caller behavior, not only invoke a
-publisher directly and infer the skill chose it correctly.
+New test file: `src/skills/dough-execute-plan/scripts/one-shot.test.mjs`,
+run with `node --test src/skills/dough-execute-plan/scripts/one-shot.test.mjs`.
+Split by scenario family if it grows past the project's file size norms.
 
 For changed Markdown, walk invocation, required context and useful outcome under
-AGENTS.md. Use one shared native scenario per distinct unresolved behavior, with
-risk-selected host runs and justified reuse for Codex, Cursor and Claude Code.
-Proposed native cases below extend the existing harness; they do not exist yet.
-Counterexample assessment must reject transcripts that merely claim completion
-or publish tracking accidentally. Static text checks are not behavior proof.
-Record any missing native evidence honestly and satisfy it before release; no
-new acceptance-story inventory or routine per-skill discovery matrix is needed.
+AGENTS.md. Native cases in `tests/git-publication-native.sh` cost money: add
+them as manual-only cases, run each at most once with the developer's
+agreement, and record missing native evidence honestly before release.
 
 ## Ordered slices
 
-### 1. Finish an explicit one-shot request with only its complete result
+### 1. Finish an unlisted one-shot request with only its result
 Type: Behavior
 Status: planned
 
-Behavior: An unlisted, eligible request explicitly selects one-shot → the shared
-execution path performs one coherent attempt → the verified complete result
-reaches remote trunk without a story, plan, assignment or Taken commit, and its
-owned resources retire after normal completion gates. A supported no-change
-outcome completes without a manufactured empty commit.
+Behavior: an unlisted, eligible request explicitly selects one-shot → the
+startup command prepares an owned workspace at fetched trunk and publishes
+nothing → the verified result goes through managed delivery → remote trunk
+gains only the result, and the workspace retires after normal gates. A
+supported no-change result publishes nothing and retires the workspace.
 
-Wire explicit selection, eligibility and successful completion through the
-existing planless path, including shared caller references and normal setup,
-focused verification/refactoring, CI and cleanup. Ordinary planless work without
-the flag retains the admission story's tracking behavior. Publish to the authorized
-trunk; resolve contradictory explicit branch/target instructions before mutation.
-Do not infer one-shot because a task appears small. Do not auto-publish a
-preparation-only draft. Growth must stop substantive work pending the handoff
-implemented in slice 3; do not release the complete feature before that slice.
+Add `--one-shot` to the startup command (request validation, mutually exclusive
+with `--admit`, receipt `status: "prepared"` with `startingRevision`), refusing
+an identity that fetched trunk lists as Taken. Write `references/one-shot.md`
+(eligibility, entry, delivery, no-change, recovery through the existing managed
+resume, and a placeholder growth stop until slice 3 that preserves edits) and
+link it from `SKILL.md`, admission guidance and the entry skills. Without the
+flag, contextual work still admits.
 
-Proof: New one-shot journey starts with no matching backlog item, runs a small
-real change, and observes only the complete result on remote trunk and clean
-retirement. Include no-change, ineligible-at-entry normal admission and a missing
-publication-authority refusal with preserved work. Inspect all accepted history
-for absence of attempt-created tracking, not only the final tree. Extend the
-existing completion boundary so a failed required check cannot report success.
-Run the one-shot test plus applicable publication and resource-cleanup tests.
-Fresh native case `publication/one-shot-result` must demonstrate explicit flag
-use and actual result/cleanup; ordinary contextual work remains a countercase.
+Proof: `one-shot.test.mjs` starts with no backlog entry, runs start
+`--one-shot`, commits a real change, delivers, and asserts remote history since
+start contains only that commit (no backlog, seed, plan or profile change) and
+that the default checkout refreshed. Cases: no-change (no remote change, clean
+retirement), `--one-shot` with `--admit` refused, missing push authority refused
+with nothing created, Taken identity refused, and a lost push response recovered
+through the existing managed resume without a duplicate commit. Run the
+one-shot test plus `workspace-publication-admission.test.mjs` and the managed
+delivery tests. Manual native case `publication/one-shot-result`.
 
-Safe stop: The successful outcome is usable in the bounded proof fixture. Until
-slice 3, unsupported growth safely stops with edits preserved; this interim stop
-is not the completed user contract.
+Safe stop: unlisted one-shot success works; growth stops with edits preserved.
 
-### 2. Complete a queued story without an intermediate Taken state
+### 2. Complete a queued story in its own result commit
 Type: Behavior
 Status: planned
 
-Behavior: An eligible queued story explicitly selects one-shot → its result and
-ordinary spent-record cleanup publish in one candidate → the queue entry and its
-spent source/plan disappear while unfinished siblings and unrelated order remain.
-Existing Taken work retains its ordinary ownership and history.
+Behavior: an eligible queued story explicitly selects one-shot → its result,
+backlog completion and spent story/plan removal form one candidate → remote
+trunk shows them in one commit with no Taken transition; unfinished siblings and
+unrelated queue order remain. A competing Preparing or Taken holder appearing on
+trunk before either push attempt stops publication with the local candidate
+preserved.
 
-Reuse the canonical story identity and existing completion/cleanup responsibilities.
-Keep lasting product knowledge before source removal. Check current queued content
-and ownership before the attempt and at publication/reconciliation. A competing
-claim/preparation assignment or changed scope stops stale completion rather than
-removing another agent's work. No extra one-shot status or assignment is published.
+Extend start `--one-shot` for a Backlog-list identity: refuse when fetched trunk
+shows a holder or a recorded `not-ready` reason. The multi-slice rule stays an
+eligibility judgement in `one-shot.md`, not a plan parser. Add the queued
+ownership guard to managed delivery (CLI flag naming the identity, wired to
+`beforePush`), rereading the candidate's fetched trunk with the shared backlog
+and profile readers. Document composing `complete` and spent-record removal
+into the result commit in `one-shot.md`, keeping lasting product knowledge
+before source removal. A queued no-change conclusion publishes the cleanup
+alone.
 
-Proof: Extend the one-shot journey with a queued story, a temporary plan and an
-unfinished sibling. Observe result plus cleanup in the same accepted commit and
-no Taken transition in its history. A remote writer taking the story before push
-must preserve that claim and the one-shot candidate; unrelated remote queue changes
-must survive reconciliation. Include already-Taken invocation and a no-change
-queued conclusion. Run the one-shot test and
-`node --test tests/support/product-backlog-complete.test.mjs`
-plus affected closure/publication reconciliation tests. Native case
-`publication/one-shot-queued` verifies that the caller actually composes completion
-rather than publishing result and cleanup as separate intermediate states.
+Proof: extend `one-shot.test.mjs` with a queued story, its plan and an
+unfinished sibling. Assert one accepted commit containing result and cleanup,
+sibling and order intact, and no Taken in history. A remote Take, and separately
+a remote Preparing announcement, pushed between start and publication, and one
+landing only before the retry push, each stop with that holder intact and the
+candidate preserved. An unrelated remote queue change survives reconciliation.
+Run the one-shot test, `tests/support/product-backlog-complete.test.mjs` and
+the managed delivery reconciliation tests. Manual native case
+`publication/one-shot-queued`.
 
-Safe stop: Queued success and ownership races are covered; automatic growth still
-awaits the next slice.
+Safe stop: queued success and ownership races are covered; growth still stops.
 
-### 3. Admit a growing attempt and continue without losing its work
+### 3. Admit a growing attempt in its own workspace and continue
 Type: Behavior
 Status: planned
 
-Behavior: An unlisted or queued attempt discovers work beyond a coherent one-shot
-completion → it stops untracked substantive work, preserves owned edits and valid
-proof, publishes ordinary Taken admission → it plans when needed and continues
-under the same outcome and original authorization.
+Behavior: an unlisted or queued one-shot attempt proves larger → owned edits
+are parked and the workspace returns to clean fetched trunk → ordinary
+admission publishes the story, Taken entry and profile in one commit from that
+workspace → the edits are restored over the Take, and work continues through
+ordinary planning under the same claim and the original authority.
 
-Use the first story's delivered admission interface. For unlisted work create or
-reuse a suitable seed story; for queued work keep its identity. The admission
-commit includes only canonical tracking and necessary preparation facts, never
-unfinished implementation edits. Transfer current scope, failed sizing assumption,
-completed proof and pending changes into normal continuation without inventing
-completed slices or replaying valid work. Reuse existing workspace/ownership
-mechanisms; no second identity or special executor is introduced.
+Add a carry step to the startup command for `--admit` from a one-shot
+workspace: record owned edits (tracked and untracked) as a commit under
+`refs/dough/carried/<branch>`, reset the workspace to fetched trunk, run the
+existing claim, then restore and delete the ref; a restore conflict keeps the
+ref and stops for human judgment. Interrupted runs resume through the existing
+`--starting-revision/--candidate-sha` recovery and finish the restore. Extend
+admission to accept a queued identity by moving its existing entry. Replace
+the placeholder growth stop in `one-shot.md` and route the oversized-slice quick
+path through it; explicit `--no-replan` keeps the existing no-replan stop.
 
-Automatic continuation is authorized within scope by the option. An explicit
-stop/no-replan instruction limits continuation; scope expansion, disputed decisions
-or ambiguous ownership follows the normal human-decision path. Missing permission
-must not result in continued oversized untracked work. Existing Taken work never
-gets another claim. Failed or uncertain admission preserves work and stops dependent
-continuation until the existing recovery confirms acceptance.
+Proof: modify real files (including an untracked one) in a one-shot workspace,
+escalate, and assert the admission commit carries only story, entry and
+profile; the restored workspace bytes equal the pre-escalation bytes; one
+identity and profile exist; continuation without `--admit` then reports
+`existing`. Cover an unlisted and a queued source, an interruption after the
+park and after the push, a restore conflict preserving the ref, and a
+`--no-replan` stop. Run the one-shot test, the admission and admission-recovery
+tests, and the admission continuation tests. Manual native case
+`publication/one-shot-escalation`.
 
-Proof: New journey modifies a real file and establishes focused proof before the
-size decision, then invokes admission. Inspect remote claim content (no unfinished
-product edits), retained local bytes/proof, one identity/profile and subsequent
-ordinary planned execution. Cover both unlisted and queued sources, admission
-interruption/resume, and explicit no-replan or out-of-scope stops. Reuse delivered
-admission fixtures rather than precreating a success state. Run the one-shot test
-and affected admission recovery tests identified from the dependency's delivered
-version. Native case `publication/one-shot-escalation` observes admission before
-further substantive edits and continued work without an unnecessary approval stop.
+Safe stop: the full one-shot contract holds; success and growth share ordinary
+publication and closure.
 
-Safe stop: The complete one-shot growth contract is present; successful and growing
-attempts share normal downstream publication and completion.
-
-### 4. Recover result delivery without inventing an oversized task
-Type: Behavior
-Status: planned
-
-Behavior: A complete one-shot candidate encounters a push interruption, concurrent
-unrelated remote update, or delayed required CI verdict → normal delivery/verification
-recovery settles the actual candidate → completion and cleanup reflect real remote
-acceptance and verification, with no duplicate result or fabricated tracking claim.
-
-Keep transport failure distinct from changed product scope. Revalidate when replay
-changes the candidate, register the actual accepted revision with the ordinary
-observer, and retain resources until normal shutdown/cleanup gates pass. A failed
-check that reveals larger corrective work re-enters the growth decision from
-slice 3; neither a waiting verdict nor one focused repair alone implies growth.
-For queued work, recovery repeats its ownership checks. Preserve conflicting
-candidates for resolution instead of retrying indefinitely or forcing publication.
-
-Proof: Extend one-shot journeys using existing publication/CI fixtures for lost
-push response, rejected push followed by revalidation, pending/failing verdict and
-interrupted retirement. Assert accepted ancestry, exact candidate attribution,
-no repeated commit, honest completion and preservation until safe cleanup. Run
-`node --test src/skills/dough-execute-plan/scripts/publication-resume.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-publication-reconciliation.test.mjs`
-and affected closure-resource/completion tests alongside the one-shot test.
-Reuse sufficient native recovery evidence where the unchanged caller contract
-supports it; add `publication/one-shot-recovery` only for an uncovered behavior.
-
-Safe stop: Result completion, tracked escalation and failed delivery each have one
-honest outcome with recoverable work and ordinary cleanup.
-
-## Proof coverage and execution checks
+## Proof coverage
 
 | Promise | Slice / observation |
 | --- | --- |
-| Explicit selection; one shared meaning; no implicit quick bypass | 1: actual entry and ordinary-contextual countercase |
-| Verified unlisted result or no-change without tracking artifacts/history | 1: remote commit history, check verdict and cleanup |
-| Queued result and spent-record removal together, siblings preserved | 2: accepted candidate and unchanged sibling records |
-| Existing/concurrent owners and scope changes preserved | 2, 4: fresh remote ownership and retry checks |
-| Preserved edits/proof plus atomic ordinary admission on growth | 3: real attempted edits through delivered admission |
-| Automatic scoped continuation; no added authority | 3: normal continuation and explicit-limits countercases |
-| Recovery/CI distinct from complexity; no duplicate publication | 4: actual accepted SHA, verdict and retirement evidence |
-| Safe default refresh and unrelated local-work preservation | 1, 4: ordinary maintenance receipt and unchanged dirty checkout |
-| Applicable skills work across hosts | Per-slice behavior review and native evidence/reuse under ADR 0005 |
+| Explicit selection, one shared meaning, no implicit bypass | 1: start refusals and unchanged admission without the flag |
+| Unlisted result or no-change without tracking history | 1: remote history since start |
+| Queued result and spent records together, siblings preserved | 2: one accepted commit |
+| Concurrent owners preserved, including during retry | 2: `beforePush` guard cases |
+| Growth keeps edits and proof and admits atomically | 3: admission commit contents and restored bytes |
+| Scoped continuation, no added authority | 3: `existing` continuation and no-replan stop |
+| Delivery recovery without duplicates | 1: lost push response; 3: interrupted carry |
+| Applicable skills work across hosts | Behavior review per slice; manual native evidence under ADR 0005 |
 
-Every slice carries its caller guidance, necessary shared structural changes and
-focused proof. Author product guidance only in `src/skills/`; do not hand-edit
-installed copies. If payload files are added, update declarations and reuse the
-existing payload install/update checks. New host discovery mechanisms, product
-storage or installation redesign are unnecessary.
-
-Follow ordinary execute-plan post-change refactoring, focused testing, delivery,
-CI and retrospective gates when execution is authorized. No new time budget or
-sizing exception is supplied. Reassess a nonconvergent slice through the existing
-oversized-slice procedure, including its proof and cleanup cost. Do not split by
-technical layer or add general infrastructure for hypothetical uses.
+Author product guidance only in `src/skills/`; do not hand-edit installed
+copies. If payload files are added, update declarations and reuse the existing
+payload checks.
 
 ## Slice review and readiness
 
-Four Behavior slices retained. Result plus cleanup stay together in each success
-journey; recovery has its own failure proof loop. Queued work is a separate useful
-variation because canonical cleanup and competing ownership differ from unlisted
-work. Escalation remains one transfer of owned work rather than separate seed,
-claim and implementation-preparation slices. No speculative Structure slice or
-story resplit is proposed. The interim growth stop in slices 1–2 is explicitly
-replaced by slice 3 and cannot be reported as completed one-shot behavior.
+Three Behavior slices. Recovery joins the result slices because it reuses the
+existing managed resume and admission recovery. Queued completion stays separate
+from unlisted success because its cleanup composition and ownership guard differ.
+The interim growth stop in slices 1–2 is replaced by slice 3 and is not reported
+as the completed contract. No Structure slice is needed: every change extends an
+existing owner.
 
-No unanswered product choice remains. Execution readiness is not yet established:
-shared admission is still being implemented and its final continuation interface
-must be inspected before this plan's handoff proof can bind to it. Once delivered,
-align this plan with the actual interface and reassess; do not mark ready merely
-because all slices are written. No runtime or native tests have run for this plan.
+No slice-specific concern remains. All decisive premises are observed above.
 
 ## Learnings
 
