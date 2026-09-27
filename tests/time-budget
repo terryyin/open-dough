@@ -1,10 +1,10 @@
 # The suite's time budget on CI's runner: no single job may take longer than
 # per-job-seconds, and all jobs together no more than total-job-seconds.
-# scripts/test.sh compares each run's job times with it; a breach fails CI's
-# `test` check and is only reported locally. Set from CI's test-times artifact
-# at 1.5x or more of the largest observed values (largest job 46.3 s,
-# git-publication-native.sh; largest total 554.4 job-seconds over four CI runs
-# of 146c373, the suite as integrated with main). Raising either
+# scripts/test.sh compares each CI run's job times with it, and a breach fails
+# CI's `test` check; a local run is not judged against it. Set from CI's
+# test-times artifact at 1.5x or more of the largest observed values (largest
+# job 46.3 s, git-publication-native.sh; largest total 554.4 job-seconds over
+# four CI runs of 146c373, the suite as integrated with main). Raising either
 # number is a reviewed edit, not a way to make a slow change pass.
 per-job-seconds=70
 total-job-seconds=840

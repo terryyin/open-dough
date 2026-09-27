@@ -209,7 +209,8 @@ for index in "${!labels[@]}"; do
   seconds=$(job_seconds "${index}")
   printf '%s\t%s\n' "${seconds}" "${labels[index]}"
 done | sort -rn > "${times_file}"
+# The time budget is CI's: only a CI run (`CI=true`) is judged against it.
 budget="${OPEN_DOUGH_TEST_DIR:-tests}/time-budget"
-[[ ! -f ${budget} ]] || "${test_bash}" scripts/test-budget.sh "${budget}" "${times_file}" || status=1
+[[ ${CI:-} != true || ! -f ${budget} ]] || "${test_bash}" scripts/test-budget.sh "${budget}" "${times_file}" || status=1
 
 exit "${status}"

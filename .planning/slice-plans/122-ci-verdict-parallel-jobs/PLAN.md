@@ -111,11 +111,17 @@ describes the variable next to `OPEN_DOUGH_TEST_JOBS`.
 
 ### 2. The time budget is judged only on CI
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/test-runner-budget.sh` updated: over budget with `CI=true`, the
 run exits 1 with exactly the two breach lines, as today; over budget without
 `CI=true`, the run exits 0 and prints nothing; within budget on CI it is
 silent. The full local suite passes and prints no budget report.
+
+Accepted proof: `tests/test-runner-budget.sh` runs the runner with
+`env CI=true` or `env -u CI`: `ci-over` exits 1 with exactly the two breach
+lines, `local-over` exits 0 with an empty log (it failed against the previous
+runner), `within` on CI is silent; it passes with and without `CI=true`. Full
+local `env -u CI npm test`: exit 0, no `OVER BUDGET` output.
 
 Behavior: A run whose job times exceed `tests/time-budget` → the runner
 finishes → on CI it fails with the budget report; elsewhere it prints nothing

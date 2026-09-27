@@ -2,13 +2,14 @@
 # Compares the runner's per-job times with a two-number time budget:
 #   scripts/test-budget.sh <budget-file> <times-file>
 # scripts/test.sh always writes the times file, one `<seconds><TAB><job>` line
-# per job, longest first (to OPEN_DOUGH_TEST_TIMES when set), and runs this
-# after its failure reports whenever its test directory has a `time-budget`.
+# per job, longest first (to OPEN_DOUGH_TEST_TIMES when set), and on CI
+# (`CI=true`) runs this after its failure reports whenever its test directory
+# has a `time-budget`; elsewhere the budget is not judged at all.
 # The budget file sets `per-job-seconds=<n>` and `total-job-seconds=<n>`;
 # `#` lines and blank lines are ignored. Within budget, nothing is printed.
 # Each job over the per-job ceiling, and a total over the total ceiling, is
-# reported on stderr. A breach fails only in CI
-# (`CI=true`); elsewhere the report is a diagnostic and the exit status is 0.
+# reported on stderr. A breach fails only in CI (`CI=true`); run by hand
+# elsewhere, the report is a diagnostic and the exit status is 0.
 # A budget file without both numbers always fails.
 set -euo pipefail
 
