@@ -84,6 +84,13 @@ each, and give `run_split` `OPEN_DOUGH_TEST_JOBS=1` and
 stated positively for every `OPEN_DOUGH_TEST_*` setting. Record the delivered
 response and commit on DD-114 in `ProjectFindings.md`.
 
+## Execution complete
+
+Product advice: no backlog change for this story. The plan-number collision
+recorded as DD-155 is a fourth occurrence of catalog ODF-106 and the first in
+this repository, with no queued response; route it to finding reconciliation
+and triage at wrap-up.
+
 ## Current decisions
 
 - Prefix `OPEN_DOUGH_TEST_` is the runner's own namespace: anything under it
