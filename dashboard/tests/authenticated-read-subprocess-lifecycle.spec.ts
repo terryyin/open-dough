@@ -23,7 +23,7 @@
 // journeys' own servers.
 
 import { expect, test } from "@playwright/test";
-import { processAlive } from "./support/fakeGh.ts";
+import { processAlive } from "./support/processGroup.ts";
 import { everyRepository, hangs } from "./support/fakeGitHub.ts";
 import {
   authenticatedReadKinds,
@@ -134,11 +134,11 @@ test.describe("authenticated read boundary: subprocess ownership across server s
         timeoutMs: 5_000,
       });
       expect(becameAlive).toBe(true);
+      const ghPid = server.ghPid();
       await server.close();
-      const died = await waitUntil(() => !processAlive(server.ghPid()), {
-        timeoutMs: 5_000,
-      });
-      expect(died).toBe(true);
+      // Already over once `close()` resolves: the harness removes the
+      // directory this `gh` writes into, so it must not outlive the close.
+      expect(processAlive(ghPid)).toBe(false);
     });
   }
 });

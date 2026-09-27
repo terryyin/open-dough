@@ -82,15 +82,3 @@ export function readPid(pidPath: string): number | undefined {
     return undefined;
   }
 }
-
-export function processAlive(pid: number | undefined): boolean {
-  if (pid === undefined) {
-    return false;
-  }
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch {
-    return false;
-  }
-}

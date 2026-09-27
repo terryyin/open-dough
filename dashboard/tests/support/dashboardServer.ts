@@ -5,13 +5,14 @@
 // boundary specs start their own, so PATH/env mutation and each fake
 // GitHub's answers never leak between tests.
 
-import { spawn, spawnSync, type ChildProcess } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { createServer, type AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
+import { endGroup, spawnGroupLeader } from "./processGroup.ts";
 
 // Playwright runs this suite from the repository root (as `npm run
 // test:dashboard` does); paths are built from that rather than from
@@ -71,24 +72,6 @@ async function waitUntilListening(
   throw new Error(
     `Server at ${baseURL} did not answer within ${String(deadlineMs)}ms: ${String(lastError)}`,
   );
-}
-
-async function terminate(child: ChildProcess): Promise<void> {
-  if (child.exitCode !== null || child.signalCode !== null) {
-    return;
-  }
-  await new Promise<void>((resolve) => {
-    const onExit = () => {
-      resolve();
-    };
-    child.once("exit", onExit);
-    child.kill("SIGTERM");
-    setTimeout(() => {
-      if (child.exitCode === null && child.signalCode === null) {
-        child.kill("SIGKILL");
-      }
-    }, 5_000);
-  });
 }
 
 // Builds into `outDir` rather than the shared `dashboard/dist`, which other
@@ -176,11 +159,8 @@ export async function startDashboardServer(options: {
     ];
   }
 
-  const child = spawn(viteBin, args, {
-    cwd: repoRoot,
-    env,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  // Its own process group, so closing can wait for every `gh` it launched.
+  const child = spawnGroupLeader(viteBin, args, { cwd: repoRoot, env });
   const stderr: Buffer[] = [];
   child.stderr.on("data", (chunk: Buffer) => {
     stderr.push(chunk);
@@ -198,7 +178,7 @@ export async function startDashboardServer(options: {
   try {
     await waitUntilListening(baseURL, 20_000);
   } catch (error) {
-    await terminate(child);
+    await endGroup(child);
     await closeOwned();
     throw new Error(`stderr:\n${Buffer.concat(stderr).toString("utf8")}`, {
       cause: error,
@@ -224,7 +204,7 @@ export async function startDashboardServer(options: {
       }
     },
     async close() {
-      await terminate(child);
+      await endGroup(child);
       await closeOwned();
     },
   };

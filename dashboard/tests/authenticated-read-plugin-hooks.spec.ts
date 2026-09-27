@@ -10,12 +10,8 @@ import http from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { authenticatedReadPlugin } from "../server/authenticatedReadPlugin.ts";
-import {
-  fakeGhEnv,
-  installFakeGh,
-  processAlive,
-  readPid,
-} from "./support/fakeGh.ts";
+import { fakeGhEnv, installFakeGh, readPid } from "./support/fakeGh.ts";
+import { processAlive } from "./support/processGroup.ts";
 import {
   everyRepository,
   hangs,
