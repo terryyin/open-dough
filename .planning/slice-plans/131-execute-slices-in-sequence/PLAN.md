@@ -32,7 +32,7 @@ each addition needs a matching cut.
 
 ### 1. Execute a plan's slices one after another in plan order
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a coordinator executing a plan whose unfinished slices touch
 different files selects the first unfinished slice in plan order, delivers it
@@ -59,6 +59,13 @@ Red first: the new case fails against the current `SKILL.md`. Then
 `node --test src/skills/dough-execute-plan/scripts/shared-checkout-writers-guidance.test.mjs`
 and `npm test`. Check `wc -l src/skills/dough-execute-plan/SKILL.md` ≤ 250.
 
+Accepted proof (2026-09-27): red first, the new case "the coordinator runs the
+next unfinished slice in plan order and delivers it before starting another"
+failed against the old `SKILL.md` (1 fail, 3 pass); after the edits
+`node --test src/skills/dough-execute-plan/scripts/shared-checkout-writers-guidance.test.mjs`
+passed 4/4, `PATH=/opt/homebrew/bin:$PATH npm test` exited 0, and `SKILL.md` is
+249 lines. The refactor pass only re-wrapped the test's header comment.
+
 ## Current decisions
 
 - No opt-in for concurrent or reordered slices (Terry, 2026-09-27).
@@ -66,4 +73,5 @@ and `npm test`. Check `wc -l src/skills/dough-execute-plan/SKILL.md` ≤ 250.
 
 ## Learnings
 
-None yet.
+- `scripts/test.sh` needs Bash 5; on macOS run `npm test` with a modern bash
+  first on `PATH` (for example `/opt/homebrew/bin`).
