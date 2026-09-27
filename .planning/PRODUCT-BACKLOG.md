@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep product guards provable and the CI-platform command faithful](seeds/SEED-048-explicit-test-environment.md#test-environment-correction) — SEED-048#test-environment-correction ([plan](slice-plans/127-test-environment-correction/PLAN.md))
-- [Verify planning premises and proof setup before declaring readiness](seeds/SEED-044-verify-planning-premises.md#verify-planning-premises) — SEED-044#verify-planning-premises ([plan](slice-plans/115-verify-planning-premises/PLAN.md))
 - [Report conflicting CI repair restores truthfully and drop through the script](seeds/SEED-008-worktree-branch-trunk-sync.md#truthful-repair-restore) — SEED-008#truthful-repair-restore ([plan](slice-plans/115-truthful-repair-restore/PLAN.md))
 
 ## Backlog list
@@ -28,3 +27,4 @@ operational visibility for multiple agents working in worktrees on one machine.
 - [Continue test optimization plans into execution or the backlog](seeds/SEED-004-extract-and-adopt-project-guidance.md#continue-test-optimization-plans) — SEED-004#continue-test-optimization-plans
 - [Coordinate direct edits and refreshes of the default checkout](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
+- [Accept premise verification natively on Codex and Cursor](seeds/SEED-044-verify-planning-premises.md#native-premise-acceptance-codex-cursor) — SEED-044#native-premise-acceptance-codex-cursor
