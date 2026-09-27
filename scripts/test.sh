@@ -84,8 +84,11 @@ run_job() {
 }
 
 # scripts/test-jobs.sh lists this run's jobs in start order, from the checks in
-# OPEN_DOUGH_TEST_DIR (default `tests`) and OPEN_DOUGH_TEST_SPLIT's share.
+# OPEN_DOUGH_TEST_DIR (default `tests`) and OPEN_DOUGH_TEST_SPLIT's share. Like
+# OPEN_DOUGH_TEST_TIMES, jobs do not inherit the split, so a runner that a
+# check starts runs all of its own checks.
 "${test_bash}" scripts/test-jobs.sh > "${output_root}/jobs"
+unset OPEN_DOUGH_TEST_SPLIT
 kinds=()
 labels=()
 while IFS=$'\t' read -r -d '' kind label; do

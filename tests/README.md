@@ -39,13 +39,13 @@ that order round-robin across `n` shares, so every job lands in exactly one
 share whatever order the file system lists the tests in, and a failure or time
 is reported only for the share's own jobs. A malformed value, or `i` outside
 `1..n`, fails the run naming the value before any job starts. Unset, every job
-runs. `OPEN_DOUGH_TEST_TIMES=<file>`
-writes every job's wall seconds and name, longest first, which is how that
-list is refreshed (see its header). Jobs do not inherit it, so a check that
-runs the runner itself keeps its own times. CI runs the suite as two split
-jobs, `test (1/2)` and `test (2/2)`, each with `OPEN_DOUGH_TEST_SPLIT` set to
-its share; each fails on its own share's failures or budget breach and keeps
-its times file for seven days as its `test-times-1` or `test-times-2` workflow
+runs. `OPEN_DOUGH_TEST_TIMES=<file>` writes every job's wall seconds and name,
+longest first, which is how that list is refreshed (see its header). Jobs
+inherit neither setting, so a check that runs the runner itself runs all of its
+own checks and keeps its own times. CI runs the suite as two split jobs,
+`test (1/2)` and `test (2/2)`, each with `OPEN_DOUGH_TEST_SPLIT` set to its
+share; each fails on its own share's failures or budget breach and keeps its
+times file for seven days as its `test-times-1` or `test-times-2` workflow
 artifact.
 
 The suite's time budget lives in `tests/time-budget`: two numbers, a per-job

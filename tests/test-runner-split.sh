@@ -10,15 +10,16 @@ trap 'rm -rf -- "${temporary_dir}"' EXIT
 checks="${temporary_dir}/checks"
 mkdir -p -- "${checks}"
 
-# Each substitute check appends its own name to SPLIT_RECORD. They are created
-# in an order other than sorted, and `longest-first` names one of them, so the
-# expected shares follow only from the runner's partition order: mu, then
-# alpha, beta, delta, zeta.
+# Each substitute check appends its own name to SPLIT_RECORD, and fails if it
+# inherited OPEN_DOUGH_TEST_SPLIT: a check that runs the runner itself must get
+# every one of its own checks. They are created in an order other than sorted,
+# and `longest-first` names one of them, so the expected shares follow only
+# from the runner's partition order: mu, then alpha, beta, delta, zeta.
 write_checks() {
   local name
   for name in "$@"; do
     # shellcheck disable=SC2016 # The substitute check expands its own names.
-    printf '#!/usr/bin/env bash\nset -euo pipefail\nprintf "%%s\\n" "${BASH_SOURCE[0]##*/}" >> "${SPLIT_RECORD}"\n' \
+    printf '#!/usr/bin/env bash\nset -euo pipefail\nprintf "%%s\\n" "${BASH_SOURCE[0]##*/}" >> "${SPLIT_RECORD}"\n[[ -z ${OPEN_DOUGH_TEST_SPLIT+set} ]] || { echo "inherited OPEN_DOUGH_TEST_SPLIT=${OPEN_DOUGH_TEST_SPLIT}"; exit 1; }\n' \
       > "${checks}/${name}.sh"
   done
 }
