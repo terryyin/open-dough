@@ -15,9 +15,11 @@ import {
   type FocusedWork,
 } from "./workFocus.ts";
 
-// Where Back from the roster returns the keyboard: the portrait that opened
-// it, or, once that portrait is gone, its work's card in the same project.
-type RosterOpener = {
+// A portrait's opening of the roster: its agent, and the project it was opened
+// in. Back returns the keyboard to that portrait, or, once it is gone, to its
+// work's card in the same project.
+type RosterOpening = {
+  readonly agent: string;
   readonly element: HTMLElement;
   readonly sourceId: string;
   readonly work: FocusedWork | undefined;
@@ -26,24 +28,25 @@ type RosterOpener = {
 export function App() {
   const { source, work, attempt, notice, reading, refresh, selectSource } =
     usePublishedObservation();
-  // The agent whose portrait opened the roster, while it is shown. The stories
-  // stay mounted behind it, so their reading state is there on the way back.
-  const [rosterAgent, setRosterAgent] = useState<string | undefined>();
-  const rosterOpener = useRef<RosterOpener | undefined>(undefined);
-  const openRoster: OpenRoster = (name, element) => {
-    rosterOpener.current = {
+  // The opening of the roster while it is shown. The stories stay mounted
+  // behind it, so their reading state is there on the way back.
+  const [opening, setOpening] = useState<RosterOpening | undefined>();
+  // The opening Back just closed, until the keyboard is returned from it.
+  const closed = useRef<RosterOpening | undefined>(undefined);
+  const openRoster: OpenRoster = (agent, element) => {
+    setOpening({
+      agent,
       element,
       sourceId: source.id,
       work: workHolding(element),
-    };
-    setRosterAgent(name);
+    });
   };
   useLayoutEffect(() => {
-    const opener = rosterOpener.current;
-    if (rosterAgent !== undefined || opener === undefined) {
+    const opener = closed.current;
+    if (opening !== undefined || opener === undefined) {
       return;
     }
-    rosterOpener.current = undefined;
+    closed.current = undefined;
     // Work identities never carry focus into another project.
     if (opener.sourceId !== source.id) {
       focusStages();
@@ -52,8 +55,8 @@ export function App() {
     } else if (opener.work !== undefined) {
       returnFocusTo({ ...opener.work, link: undefined });
     }
-  }, [rosterAgent, source.id]);
-  const showsRoster = rosterAgent !== undefined;
+  }, [opening, source.id]);
+  const showsRoster = opening !== undefined;
   const showsPreparation =
     work &&
     [...work.taken, ...work.backlog].some(
@@ -166,9 +169,11 @@ export function App() {
           <AgentRoster
             source={source}
             work={work}
-            agent={rosterAgent}
+            problem={attempt.status === "failed" ? attempt.problem : undefined}
+            agent={opening.sourceId === source.id ? opening.agent : undefined}
             onBack={() => {
-              setRosterAgent(undefined);
+              closed.current = opening;
+              setOpening(undefined);
             }}
           />
         </main>

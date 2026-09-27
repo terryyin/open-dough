@@ -26,8 +26,9 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 // listing with the published files directly in that directory. A commit list
 // for a path at that revision is observed and answered with the commit time
 // `committed` gives that path, or with the commits `history` lists for it,
-// each of which answers for its own change to that path; for any other path
-// the connection fails.
+// as many as it asks for, each of which answers for its own change to that
+// path; a published agent profile nothing else dates was added by a commit of
+// its own (./pathHistoryAnswers.ts); for any other path the connection fails.
 // Each of `branches` is a published branch head, answered and observed the
 // same way at its own revision; any other branch is not published. A check
 // lists `main` and every published branch head; checks are answered but not
@@ -36,7 +37,8 @@ export type PublishedRevision = {
   readonly revision: string;
   readonly files: Readonly<Record<string, string>>;
   readonly committed?: Readonly<Record<string, Date>>;
-  // Each path's history as of this revision, newest first.
+  // Each path's history as of this revision, newest first; null when it is
+  // not published.
   readonly history?: PathHistories;
 };
 
@@ -96,10 +98,7 @@ export function publishMovingFiles(
       );
     }
     if (request.kind === "commit") {
-      const answer = commitAnswerIn(
-        revisions.map(({ history }) => history),
-        request.sha,
-      );
+      const answer = commitAnswerIn(revisions, request.sha);
       if (answer === undefined) {
         return Promise.resolve(noConnection);
       }
@@ -115,7 +114,9 @@ export function publishMovingFiles(
     }
     observe(requests, call);
     if (request.kind === "commit-list") {
-      return Promise.resolve(commitListIn(at, request.path) ?? noConnection);
+      return Promise.resolve(
+        commitListIn(at, request.path, request.perPage) ?? noConnection,
+      );
     }
     if (request.kind === "listing") {
       return Promise.resolve(

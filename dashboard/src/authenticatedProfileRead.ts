@@ -2,8 +2,9 @@
 // authenticated read boundary (`../server/authenticatedRead.ts`), at a
 // revision already resolved: with `agents=profiles`, every profile its
 // directory listing names, and with a listed profile's `path` and
-// `committed=added`, which commit added that profile's current allocation and
-// who committed it; and where the page shows that committer's GitHub avatar.
+// `committed=added`, which commit added that profile's current allocation,
+// when, and who committed it; and where the page shows that committer's
+// GitHub avatar.
 
 import { z } from "zod";
 import {
@@ -56,21 +57,29 @@ const okAddition = z.object({
     .object({
       commit: commitSha,
       committerName: z.string().min(1).nullable(),
+      committedAt: z.iso.datetime({ offset: true }).nullable(),
       login: z.string().min(1).nullable(),
     })
     .nullable(),
 });
 
 // The commit that added a published agent profile's current allocation, with
-// its Git committer's name and the GitHub account matched to that committer,
-// each null when unusable or unmatched; null when the boundary found no
-// commit adding it in the profile's recent history.
+// its Git committer's name, its committer date (when the allocation was made:
+// the Take of the work it records), and the GitHub account matched to that
+// committer, each null when unusable or unmatched; null when the boundary
+// found no commit adding it in the profile's recent history.
 export type ProfileAddition = z.infer<typeof okAddition>["added"];
+
+// Which commit added each published agent profile's current allocation, as of
+// one snapshot's revision.
+export type ProfileAdditions = (
+  profilePath: string,
+) => Promise<ProfileAddition>;
 
 // Which commit added the agent profile at `profilePath` as of `revision`, as
 // the local boundary walked that profile's history back from the revision.
 // An answer for another revision or profile is never taken for this one.
-export async function readProfileAdditionAt(
+async function readProfileAdditionAt(
   source: PublishedSource,
   profilePath: string,
   revision: string,
@@ -91,6 +100,25 @@ export async function readProfileAdditionAt(
     throw unexpectedAnswer(reading);
   }
   return parsed.data.added;
+}
+
+// One read's additions at `revision`: each profile's addition is asked once,
+// however many details of the read need it (its assignment's human and its
+// Take's slice clock), and each asker waits only for its own profile's.
+export function profileAdditionsAt(
+  source: PublishedSource,
+  revision: string,
+  signal: AbortSignal,
+): ProfileAdditions {
+  const asked = new Map<string, Promise<ProfileAddition>>();
+  return (profilePath) => {
+    let addition = asked.get(profilePath);
+    if (addition === undefined) {
+      addition = readProfileAdditionAt(source, profilePath, revision, signal);
+      asked.set(profilePath, addition);
+    }
+    return addition;
+  };
 }
 
 // Where the local boundary serves the GitHub avatar of the account matched to

@@ -5,10 +5,12 @@
 // trunk at one revision, with Taken stories, their plans, and the agent
 // profiles recording where each is published (spelled by the shared
 // profile renderer), and the story branches published beside it, each at its
-// own head. Commit times are relative to the page's opening time.
+// own head. Commit times, of plans and of the commits adding each profile
+// (its Take), are relative to the page's opening time.
 
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
+import { addedAt } from "./pathHistoryAnswers.ts";
 
 export const repository = "terryyin/open-dough";
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
@@ -186,10 +188,12 @@ export const trunk: PublishedRevision = {
   files: trunkFiles,
   committed: {
     [planPath("on-branch")]: minutesBefore(3 * 24 * 60),
-    [profilePath("Akiho")]: minutesBefore(60),
     [planPath("on-trunk")]: minutesBefore(12),
-    [profilePath("Yuma")]: minutesBefore(30),
     [planPath("before-profiles")]: minutesBefore(40),
+  },
+  history: {
+    [profilePath("Akiho")]: [addedAt(0x61, minutesBefore(60))],
+    [profilePath("Yuma")]: [addedAt(0x62, minutesBefore(30))],
   },
 };
 
@@ -202,10 +206,7 @@ export const branches: Readonly<Record<string, PublishedRevision>> = {
   "story/example": {
     revision: branchHead,
     files: { ...trunkFiles, [planPath("on-branch")]: slicePlan(8, 6) },
-    committed: {
-      [planPath("on-branch")]: minutesBefore(7),
-      [profilePath("Akiho")]: minutesBefore(60),
-    },
+    committed: { [planPath("on-branch")]: minutesBefore(7) },
   },
   "story/two-owners": { revision: "f1".repeat(20), files: trunkFiles },
   "story/two-owners-again": { revision: "f2".repeat(20), files: trunkFiles },

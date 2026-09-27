@@ -41,7 +41,7 @@ export function isSafeBranchName(branch: string): boolean {
 }
 
 // How long one read may wait for GitHub: the browser's whole read
-// (`./publishedWork.ts`) and each boundary request's owned `gh` subprocesses
+// (`./publishedWorkRead.ts`) and each boundary request's owned `gh` subprocesses
 // (`../server/ghRead.ts`) are both given up after this.
 export const readWaitLimitMs = 30_000;
 

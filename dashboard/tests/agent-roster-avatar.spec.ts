@@ -1,15 +1,20 @@
-// A credited human's GitHub avatar appears beside their name on the Taken or
-// Preparing card and in the agent roster, served by the local boundary from
-// one read of GitHub's avatar host however often it is shown. Without a
-// matched account, a usable avatar source, or a fetched image, the name
-// stays with its initials. The fake GitHub publishes files, each profile's
-// history (agentAvatarRecords.ts), and the avatar host's images
-// (avatarAnswers.ts); the boundary finds each account and fetches its avatar,
-// and the page decides everything shown.
+// Each current assignment credits the human developer who made it: the Git
+// committer of the commit that added its agent profile's current allocation,
+// with their GitHub avatar, on its Taken or Preparing card and in the agent
+// roster. The avatar is served by the local boundary from one read of
+// GitHub's avatar host per avatar source however often it is shown; without
+// a matched account, a usable avatar source, or a fetched image, the name
+// stays with its initials, and without a found addition the human is a gap.
+// The fake GitHub publishes files, each profile's history, and the avatar
+// host's images (agentAttributionRecords.ts); the boundary walks each history
+// at the pinned revision (authenticated-read-profile-addition.spec.ts) and
+// fetches each avatar (authenticated-avatar.spec.ts), and the page decides
+// everything shown. How a slow or stalled walk delays only its own profile's
+// details is profile-addition-latency.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { avatarPathsRead } from "./avatarAnswers.ts";
 import {
@@ -18,17 +23,20 @@ import {
   creditedAvatar,
   creditedWidth,
   firstRevision,
+  modifier,
   modifierAvatar,
   offHost,
+  offHostAvatar,
+  olderAllocator,
   olderAvatar,
+  preparer,
   reallocator,
   reallocatorAvatar,
   reallocatorWidth,
   secondRevision,
   unfetched,
   unfetchedAvatar,
-  unmatched,
-} from "./agentAvatarRecords.ts";
+} from "./agentAttributionRecords.ts";
 import {
   doughnut,
   publishUnlistableProfiles,
@@ -80,7 +88,7 @@ async function expectInitials(holder: Locator, name: string, shown: string) {
   await expect(image).toHaveCount(0);
 }
 
-test("a credited human's avatar is read once through the local boundary and shown on cards and the roster, and a missing, rejected, or failed avatar leaves the name with initials", async ({
+test("each assignment credits the committer who added its profile's current allocation, with an avatar read once through the local boundary, on cards and the roster, and says when that cannot be established", async ({
   page,
 }) => {
   const github = githubFor(page);
@@ -95,26 +103,22 @@ test("a credited human's avatar is read once through the local boundary and show
   await expectMembership(page, { taken: [takenStory], backlog: [queuedStory] });
   const takenCard = taken.getByRole("article", { name: takenStory });
   const preparingCard = backlog.getByRole("article", { name: queuedStory });
-  const roster = page.getByRole("region", { name: "Agent roster" });
-  const member = (agent: string) =>
-    roster.getByRole("listitem").filter({
-      has: page.getByRole("heading", { name: agent, exact: true }),
-    });
-  const openRoster = (agent: string) =>
-    page
-      .getByRole("button", { name: `Show ${agent} in the agent roster` })
-      .click();
-  const back = roster.getByRole("button", { name: "Back to stories" });
+  const { roster, member, opener, back } = rosterParts(page);
+  const openRoster = (agent: string) => opener(agent).click();
   const reads = (path: string) =>
     avatarPathsRead(github.avatarReads).filter((read) => read === path);
 
-  await test.step("the Taken card shows the addition committer's avatar from the local boundary, and the unmatched Preparing human keeps initials", async () => {
+  await test.step("the Taken card shows the addition committer with their avatar from the local boundary, and the unmatched Preparing human keeps initials", async () => {
     const { revision } = firstRevision;
     await expectAvatar(page, takenCard, credited, creditedWidth, revision);
-    await expectInitials(preparingCard, unmatched, "PP");
+    await expectInitials(preparingCard, preparer, "PP");
+    for (const card of [takenCard, preparingCard]) {
+      await expect(card).not.toContainText(modifier);
+      await expect(card).not.toContainText(olderAllocator);
+    }
   });
 
-  await test.step("the roster shows the same avatar, and a rejected or failed avatar leaves the name with initials", async () => {
+  await test.step("the roster credits the same humans, a rejected or failed avatar leaves the name with initials, and a missing addition or a failed read is unknown without guessing", async () => {
     await openRoster("Akiho-chan");
     const { revision } = firstRevision;
     await expectAvatar(
@@ -124,9 +128,21 @@ test("a credited human's avatar is read once through the local boundary and show
       creditedWidth,
       revision,
     );
-    await expectInitials(member("Kirara-chan"), unmatched, "PP");
+    await expectInitials(member("Kirara-chan"), preparer, "PP");
     await expectInitials(member("Yuma-chan"), offHost, "RR");
     await expectInitials(member("Sola-chan"), unfetched, "FF");
+    await expect(
+      member("Rina-chan").locator(".owner-human.assignment-gap"),
+    ).toHaveText(
+      "Human developer unknown: no commit adding this agent profile was found in its recent published history.",
+    );
+    await expect(member("Nana-chan").locator(".owner-human")).toHaveText(
+      `Human developer unknown. The local GitHub CLI could not reach GitHub while reading the commit that added .planning/agents/nana-chan.json at ${revision}.`,
+    );
+    await expect(roster).not.toContainText(modifier);
+    await expect(roster).not.toContainText(olderAllocator);
+    // An unreadable profile has no assignment to credit.
+    await expect(member("Mana-chan").locator(".owner-human")).toHaveCount(0);
   });
 
   await test.step("showing the avatar again, after Back and a Refresh at the same revision, reads the avatar host no more", async () => {
@@ -158,7 +174,7 @@ test("a credited human's avatar is read once through the local boundary and show
     // modifier's or the older allocation's, nor an avatar off GitHub's host.
     expect(reads(modifierAvatar)).toEqual([]);
     expect(reads(olderAvatar)).toEqual([]);
-    expect(avatarPathsRead(github.avatarReads)).not.toContain("/u/102");
+    expect(reads(offHostAvatar)).toEqual([]);
   });
 
   await test.step("at a new revision, each card shows only its new allocation's human, and an account already fetched is not read again", async () => {
@@ -173,6 +189,7 @@ test("a credited human's avatar is read once through the local boundary and show
       reallocatorWidth,
       revision,
     );
+    await expect(takenCard).not.toContainText(credited);
     // The Preparing agent's new allocation credits the account the Taken
     // card showed before: its avatar is served from the boundary's memory.
     await expectAvatar(page, preparingCard, credited, creditedWidth, revision);
@@ -195,13 +212,15 @@ test("a credited human's avatar is read once through the local boundary and show
     expect(reads(creditedAvatar)).toHaveLength(1);
   });
 
-  await test.step("another project's roster and cards show no human avatar from the previous project", async () => {
+  await test.step("another project's roster and cards show no human or avatar from the previous project", async () => {
     await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
     await expect(roster).toContainText(
       `Doughnut: agent profiles published at revision ${doughnut.revision.slice(0, 7)}.`,
     );
+    await expect(roster).not.toContainText("Human developer");
     await expect(roster.locator(".human-avatar")).toHaveCount(0);
     await back.click();
+    await expect(taken).not.toContainText("Human developer");
     await expect(taken.locator(".human-avatar")).toHaveCount(0);
   });
 

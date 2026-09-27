@@ -5,9 +5,9 @@
 // recorded at that revision name now (`watch`); the backlog at an already
 // resolved revision; one repository path at a pinned revision; when one repository
 // path was last committed at a pinned revision (`committed=last`); which
-// commit added one agent profile's current allocation, and who committed it,
-// at a pinned revision (`committed=added`); the agent profiles published
-// beside the backlog at a pinned revision; which
+// commit added one agent profile's current allocation, when, and who
+// committed it, at a pinned revision (`committed=added`); the agent profiles
+// published beside the backlog at a pinned revision; which
 // commit a story branch recorded at a pinned revision names now (`branch`);
 // or one path, or its last commit, at a head of that branch (`branch` and
 // `head`). Malformed or mixed parameters are refused here, before any `gh`
@@ -188,6 +188,17 @@ export function parseRequestedRead(
   if (watch.length > 0 && !onlyRevisionCheck) {
     return refused("Watched branches are named only with a revision check.");
   }
+  // An addition read is asked only on trunk, so a branch or head is refused
+  // as part of it.
+  if (committed === "added") {
+    return [since, branch, params.get("head"), agents].every(
+      (other) => other === null,
+    )
+      ? parseAdditionRead(revision, path)
+      : refused(
+          "An addition read names only a pinned revision and an agent profile path.",
+        );
+  }
   if (branch !== null || params.get("head") !== null) {
     return parseBranchRead(params, branch);
   }
@@ -204,13 +215,6 @@ export function parseRequestedRead(
       return unpinnedRevision;
     }
     return { kind: "agent-profiles-at", revision };
-  }
-  if (committed === "added") {
-    return since === null
-      ? parseAdditionRead(revision, path)
-      : refused(
-          "An addition read names only a pinned revision and an agent profile path.",
-        );
   }
   if (since !== null) {
     if (revision !== null || path !== null || committed !== null) {

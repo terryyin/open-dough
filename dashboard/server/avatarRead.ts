@@ -82,11 +82,7 @@ export async function performAvatarRead(
   try {
     return {
       kind: "image",
-      image: await boundary.avatars.image(
-        added.login,
-        added.avatar,
-        boundary.tracked,
-      ),
+      image: await boundary.avatars.image(added.avatar, boundary.tracked),
     };
   } catch {
     // Refused as not a bounded image, or not fetched at all.

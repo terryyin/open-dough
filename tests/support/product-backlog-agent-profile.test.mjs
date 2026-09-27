@@ -16,6 +16,7 @@ const {
   agentNames,
   agentReportError,
   parseAgentProfile,
+  parseAgentProfileFile,
   profileAgentName,
   renderAgentProfile,
   selectAgentName,
@@ -186,6 +187,24 @@ test("a preparation profile records its activity and no execution mode or branch
   );
   const withBranch = JSON.stringify({ ...JSON.parse(text), branch: "x" });
   assert.match(parseAgentProfile(withBranch).error, /no execution mode/);
+});
+
+test("a profile read at its file is unreadable when its text names another agent", () => {
+  const sola = renderAgentProfile({
+    name: "Sola",
+    identity: "SEED-A#a",
+    activity: "preparation",
+  });
+  assert.deepEqual(
+    parseAgentProfileFile("sola-chan.json", sola),
+    parseAgentProfile(sola),
+  );
+  for (const fileName of ["yui-chan.json", "notes.json"])
+    assert.deepEqual(parseAgentProfileFile(fileName, sola), {
+      ok: false,
+      error: "profile names another agent",
+    });
+  assert.match(parseAgentProfileFile("yui-chan.json", "{").error, /not JSON/);
 });
 
 test("an unreadable profile says why instead of yielding facts", () => {

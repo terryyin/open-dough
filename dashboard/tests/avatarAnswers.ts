@@ -58,9 +58,10 @@ export function avatarsAt(
   };
 }
 
-// The address GitHub names for the avatar at `path` on its avatar host.
-export function onAvatarHost(path: string): string {
-  return `https://avatars.githubusercontent.com${path}?v=4`;
+// The address GitHub names for the avatar at `path` on its avatar host, at
+// avatar `version`.
+export function onAvatarHost(path: string, version = 4): string {
+  return `https://avatars.githubusercontent.com${path}?v=${String(version)}`;
 }
 
 // Only the avatar paths among `reads`, their queries left out.

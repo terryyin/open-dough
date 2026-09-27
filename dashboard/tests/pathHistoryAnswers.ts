@@ -1,8 +1,11 @@
 // GitHub's answers about a published path's history: the commits that
-// changed it, newest first, and each commit's own change to it. Composed with
-// ./originAnswers.ts's answers by ./support/fakeGitHub.ts and
-// ./publishedFiles.ts.
+// changed it, newest first, as many as a commit list asks for, and each
+// commit's own change to it. A published agent profile no history names was
+// added once, by one commit of its own, so every journey's profiles credit a
+// human without saying so. Composed with ./originAnswers.ts's answers by
+// ./support/fakeGitHub.ts, ./publishedFiles.ts, and ./committedOrigin.ts.
 
+import { createHash } from "node:crypto";
 import { onAvatarHost } from "./avatarAnswers.ts";
 import {
   commitListFor,
@@ -11,13 +14,16 @@ import {
 } from "./originAnswers.ts";
 
 // One commit's change to a path as a history of that path records it: the
-// commit, GitHub's file status for the path, and the Git committer, with the
-// GitHub account GitHub matched to that committer, if any, and the avatar
-// address GitHub names for that account.
+// commit, GitHub's file status for the path (null when the commit's file list
+// does not name the path), and the Git committer, with the commit's committer
+// date when it matters (null when GitHub names none), the GitHub account
+// GitHub matched to that committer, if any, and the avatar address GitHub
+// names for that account.
 export type PathChange = {
   readonly sha: string;
-  readonly status: "added" | "modified" | "removed";
+  readonly status: "added" | "modified" | "changed" | "removed" | null;
   readonly committer: string;
+  readonly committedAt?: Date | null;
   readonly login?: string;
   readonly avatarUrl?: string;
 };
@@ -38,16 +44,71 @@ export function pathChange(
   };
 }
 
-// Each published path's history, newest first.
-export type PathHistories = Readonly<Record<string, readonly PathChange[]>>;
+// Commit number `n` adding a path at `committedAt`, as when an agent profile
+// records a Take then.
+export function addedAt(n: number, committedAt: Date | null): PathChange {
+  return { ...pathChange(n, "added", "Fixture Committer"), committedAt };
+}
 
-const committedAt = new Date("2026-09-20T08:00:00Z");
+// Each published path's history, newest first; null when its history is not
+// published, so its commit list fails.
+export type PathHistories = Readonly<
+  Record<string, readonly PathChange[] | null>
+>;
+
+// What a published revision tells about its paths' histories: its files,
+// when each path was last committed, and each path's history.
+type PublishedHistories = {
+  readonly files?: Readonly<Record<string, string>>;
+  readonly committed?: Readonly<Record<string, Date>>;
+  readonly history?: PathHistories;
+};
+
+// When a history's commits were made, unless one says.
+const committedByDefault = new Date("2026-09-20T08:00:00Z");
+
+const agentProfile = /^\.planning\/agents\/[^/]+\.json$/;
+
+// The history of `path` as `published` tells it: the one it lists, or, for a
+// published agent profile nothing else dates, its addition by a commit of its
+// own; undefined when neither applies.
+function historyOf(
+  published: PublishedHistories,
+  path: string,
+): readonly PathChange[] | null | undefined {
+  const { files, committed, history } = published;
+  if (history !== undefined && Object.hasOwn(history, path)) {
+    return history[path];
+  }
+  if (
+    files === undefined ||
+    !Object.hasOwn(files, path) ||
+    !agentProfile.test(path) ||
+    (committed !== undefined && Object.hasOwn(committed, path))
+  ) {
+    return undefined;
+  }
+  const sha = createHash("sha1").update(path).digest("hex");
+  return [{ sha, status: "added", committer: "Fixture Committer" }];
+}
 
 // A commit of a path's history as GitHub describes it, with the account
 // GitHub matched to its committer.
 function historyCommit(change: PathChange) {
+  const described = fixtureCommit(
+    change.sha,
+    change.committer,
+    change.committedAt ?? committedByDefault,
+  );
   return {
-    ...fixtureCommit(change.sha, change.committer, committedAt),
+    ...described,
+    commit: {
+      ...described.commit,
+      committer: {
+        ...described.commit.committer,
+        ...(change.committedAt === null && { date: null }),
+      },
+    },
     committer:
       change.login === undefined
         ? null
@@ -66,37 +127,46 @@ function jsonAnswer(body: unknown): RawAnswer {
   };
 }
 
-// The commit list for `path`: the commits `history` lists for it, or else
-// its time in `committed`; undefined when neither names it.
+// The commit list for `path`, at most `perPage` commits of it: the commits
+// its history lists, or else its time in `committed`; undefined when neither
+// names it or its history is not published.
 export function commitListIn(
-  published: {
-    readonly history?: PathHistories;
-    readonly committed?: Readonly<Record<string, Date>>;
-  },
+  published: PublishedHistories,
   path: string,
+  perPage?: number,
 ): RawAnswer | undefined {
-  const history = published.history?.[path];
+  const history = historyOf(published, path);
+  if (history === null) {
+    return undefined;
+  }
   return history === undefined
     ? commitListFor(published.committed, path)
-    : jsonAnswer(history.map(historyCommit));
+    : jsonAnswer(history.slice(0, perPage).map(historyCommit));
 }
 
-// GitHub's answer for commit `sha` when one of `histories` lists it, naming
-// its change to that path among the files it changed; undefined when none
-// does.
+// GitHub's answer for commit `sha` when a history of one of `publications`
+// lists it, naming its change to that path among the files it changed;
+// undefined when none does.
 export function commitAnswerIn(
-  histories: readonly (PathHistories | undefined)[],
+  publications: readonly PublishedHistories[],
   sha: string,
 ): RawAnswer | undefined {
-  for (const history of histories) {
-    for (const [path, changes] of Object.entries(history ?? {})) {
-      const change = changes.find((each) => each.sha === sha);
+  for (const published of publications) {
+    const paths = new Set([
+      ...Object.keys(published.history ?? {}),
+      ...Object.keys(published.files ?? {}),
+    ]);
+    for (const path of paths) {
+      const change = historyOf(published, path)?.find(
+        (each) => each.sha === sha,
+      );
       if (change !== undefined) {
+        const { status } = change;
         return jsonAnswer({
           ...historyCommit(change),
           files: [
             { filename: ".planning/PRODUCT-BACKLOG.md", status: "modified" },
-            { filename: path, status: change.status },
+            ...(status === null ? [] : [{ filename: path, status }]),
           ],
         });
       }

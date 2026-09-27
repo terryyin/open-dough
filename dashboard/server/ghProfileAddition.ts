@@ -8,7 +8,7 @@
 // name never supplies the addition. How `gh` runs and fails is `./ghRead.ts`;
 // remembering answers per commit is `./pinnedTexts.ts`.
 
-import { GhFailure, runGh } from "./ghRead.ts";
+import { GhFailure, runGh, usableCommitterDate } from "./ghRead.ts";
 import { usableAvatarSource } from "./avatarImages.ts";
 import { commitShaPattern } from "../src/authenticatedReadRules.ts";
 
@@ -19,12 +19,15 @@ const additionWalkLimit = 10;
 
 // One commit's change to one path: GitHub's file status for it, or undefined
 // when the commit's file list does not name the path; the Git committer's
-// name when usable; and the GitHub account GitHub matched to that committer,
+// name when usable, and the committer date when usable, which for the
+// addition is when the allocation was made (the Take of the work it records);
+// and the GitHub account GitHub matched to that committer,
 // when it matched one, with that account's avatar source when GitHub named a
 // usable one (`./avatarImages.ts`).
 type CommitChange = {
   readonly status: string | undefined;
   readonly committerName: string | null;
+  readonly committedAt: string | null;
   readonly login: string | null;
   readonly avatar: string | null;
 };
@@ -34,6 +37,7 @@ type CommitChange = {
 export type ProfileAddition = {
   readonly commit: string;
   readonly committerName: string | null;
+  readonly committedAt: string | null;
   readonly login: string | null;
   readonly avatar: string | null;
 } | null;
@@ -100,7 +104,7 @@ export async function commitChangeViaGh(
     await runGh(["api", `repos/${repository}/commits/${commit}`], signal),
   ) as {
     sha?: unknown;
-    commit?: { committer?: { name?: unknown } };
+    commit?: { committer?: { name?: unknown; date?: unknown } };
     committer?: { login?: unknown; avatar_url?: unknown } | null;
     files?: unknown;
   } | null;
@@ -115,6 +119,7 @@ export async function commitChangeViaGh(
   return {
     status: typeof file?.status === "string" ? file.status : undefined,
     committerName: usableName(answer.commit?.committer?.name),
+    committedAt: usableCommitterDate(answer.commit?.committer?.date),
     login: matched ? login : null,
     avatar: matched ? usableAvatarSource(answer.committer?.avatar_url) : null,
   };
@@ -128,9 +133,9 @@ export async function findAddition(
   changeOf: (commit: string) => Promise<CommitChange>,
 ): Promise<ProfileAddition> {
   for (const commit of commits) {
-    const { status, committerName, login, avatar } = await changeOf(commit);
+    const { status, ...committed } = await changeOf(commit);
     if (status === "added") {
-      return { commit, committerName, login, avatar };
+      return { commit, ...committed };
     }
     if (status !== "modified" && status !== "changed") {
       return null;

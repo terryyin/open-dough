@@ -1,12 +1,14 @@
 // The records the Taken slice clock journey (taken-slice-clock.spec.ts)
 // publishes at one revision: Taken stories with counted plans, the agent
-// profiles recording their Takes (spelled by the shared profile renderer), and
-// when each path was last committed, relative to the page's opening time.
+// profiles recording their Takes (spelled by the shared profile renderer),
+// when each plan was last committed, and when each profile was added (its
+// Take), relative to the page's opening time.
 
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { addedAt, type PathHistories } from "./pathHistoryAnswers.ts";
 
 export const repository = "terryyin/open-dough";
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
+export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 const seedPath = ".planning/seeds/SEED-091-clock.md";
 export const revision = "c3".repeat(20);
 export const opened = new Date("2026-09-23T09:00:00.000Z");
@@ -96,13 +98,21 @@ for (const { anchor, agent } of stories) {
   }
 }
 
-// When each path was last committed at the revision. The unreadable story's
+// When each plan was last committed at the revision. The unreadable story's
 // plan has no answer: its commit list fails.
 export const committed: Record<string, Date> = {
   [planPath("after-take")]: minutesBefore(12),
-  [profilePath("Akiho")]: minutesBefore(30),
   [planPath("just-taken")]: minutesBefore(2 * 24 * 60),
-  [profilePath("Yuma")]: minutesBefore(5),
   [planPath("before-profiles")]: minutesBefore(40),
-  [profilePath("Sola")]: minutesBefore(20),
 };
+
+// Each profile's history at the revision: the one commit that added it, the
+// Take.
+export const takes = {
+  Akiho: addedAt(0x51, minutesBefore(30)),
+  Yuma: addedAt(0x52, minutesBefore(5)),
+  Sola: addedAt(0x53, minutesBefore(20)),
+};
+export const history: PathHistories = Object.fromEntries(
+  Object.entries(takes).map(([agent, take]) => [profilePath(agent), [take]]),
+);

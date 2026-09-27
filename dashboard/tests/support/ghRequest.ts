@@ -4,8 +4,8 @@
 // What one `gh` invocation asked GitHub for. A ref request asks which
 // commit a ref names. A contents request asks for a file's raw bytes when it accepts GitHub's raw
 // media type, and otherwise for a directory's JSON listing. A commit list
-// asks for the commits that changed one path in a revision's history, or only
-// the latest of them. A
+// asks for the commits that changed one path in a revision's history, as many
+// as one page holds. A
 // branch request asks which commit one published branch head names; a
 // matching-refs request lists every published branch head, conditionally on
 // an `If-None-Match` header's entity tag when one is given.
@@ -41,9 +41,9 @@ export type GhRequest =
       readonly repository: string;
       readonly path: string;
       readonly revision: string;
-      // Whether only the latest commit is asked for: when the path was last
-      // committed, rather than its history.
-      readonly latestOnly: boolean;
+      // How many of the latest commits are asked for (`per_page`), when
+      // said: 1 asks when the path was last committed rather than its history.
+      readonly perPage: number | undefined;
     }
   | { readonly kind: "unknown" };
 
@@ -103,7 +103,9 @@ export function parseRequest(argv: readonly string[]): GhRequest {
       repository: commitList[1],
       path: query.get("path") ?? "",
       revision: query.get("sha") ?? "",
-      latestOnly: query.get("per_page") === "1",
+      perPage: query.has("per_page")
+        ? Number(query.get("per_page"))
+        : undefined,
     };
   }
   const content = /^repos\/([^/]+\/[^/]+)\/contents\/([^?]+)\?ref=(.+)$/.exec(

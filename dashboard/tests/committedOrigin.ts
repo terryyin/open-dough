@@ -3,7 +3,9 @@
 // journey records preparation through the real CLI, commits those files, and
 // answers contents requests with `git show <revision>:path` and directory
 // listings with `git ls-tree` at that revision — never with hand-constructed
-// display state. A listing is answered but not observed.
+// display state; each listed agent profile's history is its addition by a
+// commit of its own (./pathHistoryAnswers.ts). A listing and a history read
+// are answered but not observed.
 
 import { execFileSync } from "node:child_process";
 import type { Page } from "@playwright/test";
@@ -18,6 +20,7 @@ import {
   type OriginAnswer,
 } from "./originAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
+import { commitAnswerIn, commitListIn } from "./pathHistoryAnswers.ts";
 
 function showAt(repoDir: string, revision: string, repositoryPath: string) {
   try {
@@ -31,14 +34,28 @@ function showAt(repoDir: string, revision: string, repositoryPath: string) {
   }
 }
 
+// The directory's paths at the revision; undefined once the journey's
+// repository is gone, as it is for a request arriving after the journey ends.
 function listAt(repoDir: string, revision: string, directory: string) {
-  return execFileSync(
-    "git",
-    ["-C", repoDir, "ls-tree", "--name-only", revision, "--", `${directory}/`],
-    { encoding: "utf8" },
-  )
-    .split("\n")
-    .filter((path) => path !== "");
+  try {
+    return execFileSync(
+      "git",
+      [
+        "-C",
+        repoDir,
+        "ls-tree",
+        "--name-only",
+        revision,
+        "--",
+        `${directory}/`,
+      ],
+      { encoding: "utf8" },
+    )
+      .split("\n")
+      .filter((path) => path !== "");
+  } catch {
+    return undefined;
+  }
 }
 
 export type CommittedOrigin = {
@@ -79,13 +96,32 @@ export function publishCommittedOrigin(
       return asHeadsListing(instead.get("main") ?? commitAnswer(revision));
     }
     if (request.kind === "listing" && request.revision === revision) {
+      const overridden = instead.get(request.path);
+      if (overridden !== undefined) {
+        return overridden;
+      }
+      const listed = listAt(repoDir, revision, request.path);
+      return listed === undefined
+        ? noConnection
+        : directoryListingAnswer(request.path, listed);
+    }
+    // Each agent profile listed at the revision was added by a commit of its
+    // own; these history reads are answered but not observed.
+    const profiles = () => ({
+      files: Object.fromEntries(
+        (listAt(repoDir, revision, ".planning/agents") ?? []).map((path) => [
+          path,
+          "",
+        ]),
+      ),
+    });
+    if (request.kind === "commit-list" && request.revision === revision) {
       return (
-        instead.get(request.path) ??
-        directoryListingAnswer(
-          request.path,
-          listAt(repoDir, revision, request.path),
-        )
+        commitListIn(profiles(), request.path, request.perPage) ?? noConnection
       );
+    }
+    if (request.kind === "commit") {
+      return commitAnswerIn([profiles()], request.sha) ?? noConnection;
     }
     // Only the currently published revision is readable; any other gets no
     // answer and is not observed.

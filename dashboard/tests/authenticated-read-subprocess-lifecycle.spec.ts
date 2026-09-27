@@ -75,7 +75,7 @@ test.describe("authenticated read boundary: bounded timeout without changing the
   // A short deadline for this isolated server only, via the same environment
   // seam `../server/ghRead.ts`'s `readTimeoutMs` reads; the 30-second
   // production default is untouched (see that module and
-  // `../src/publishedWork.ts`'s `readWaitLimitMs`, which it mirrors).
+  // `../src/authenticatedReadRules.ts`'s `readWaitLimitMs`, which it mirrors).
   const shortTimeoutMs = 300;
 
   test.beforeAll(async () => {

@@ -1,5 +1,5 @@
 // The human developer credited for a published assignment: who committed its
-// profile's current allocation (`./commissionAttribution.ts`), or why that is
+// profile's current allocation (`./assignmentAttribution.ts`), or why that is
 // not known, with the matched GitHub account's avatar beside a credited name.
 // Shown on story cards and in the agent roster.
 
@@ -46,7 +46,7 @@ function HumanAvatar({
 }
 
 // Who committed the assignment's profile allocation, or why that is not
-// known. A name credits the commission, never presence.
+// known. A name credits the assignment, never presence.
 export function HumanCredit({ developer }: { developer: AgentAssignment }) {
   const { human } = developer;
   switch (human.status) {
@@ -65,21 +65,21 @@ export function HumanCredit({ developer }: { developer: AgentAssignment }) {
       );
     case "no-addition":
       return (
-        <p className="owner-human preparation-problem">
+        <p className="owner-human assignment-gap">
           Human developer unknown: no commit adding this agent profile was found
           in its recent published history.
         </p>
       );
     case "unnamed":
       return (
-        <p className="owner-human preparation-problem">
+        <p className="owner-human assignment-gap">
           Human developer unknown: the commit that added this agent profile
           names no usable committer.
         </p>
       );
     case "unavailable":
       return (
-        <p className="owner-human preparation-problem">
+        <p className="owner-human assignment-gap">
           Human developer unknown. {human.problem}
         </p>
       );

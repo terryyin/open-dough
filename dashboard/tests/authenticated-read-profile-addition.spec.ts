@@ -5,7 +5,7 @@
 // GitHub recording every invocation. It is asked only for a profile the
 // pinned revision lists, walks that profile's history no further than its
 // addition, and refuses anything else before asking GitHub. What the page
-// shows from it is covered in ./agent-roster-attribution.spec.ts. Shares this
+// shows from it is covered in ./agent-roster-avatar.spec.ts. Shares this
 // suite's harness (./support/dashboardServer.ts) and
 // ./authenticated-read-boundary.spec.ts's approach.
 
@@ -17,6 +17,7 @@ import {
 import { everyRepository, publishes } from "./support/fakeGitHub.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { rawRequest } from "./support/rawHttp.ts";
+import { pathChange } from "./pathHistoryAnswers.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -25,6 +26,12 @@ const knownRepository = "terryyin/open-dough";
 const revision = "fa".repeat(20);
 const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
 const agents = ".planning/agents";
+const profile = (name: string) =>
+  renderAgentProfile({
+    name,
+    identity: "SEED-clock#story",
+    activity: "preparation",
+  });
 
 test.describe("authenticated profile addition read (dev launch mode)", () => {
   let server: DashboardServer;
@@ -41,12 +48,6 @@ test.describe("authenticated profile addition read (dev launch mode)", () => {
     const yuiPath = `${agents}/yui-chan.json`;
     const akihoPath = `${agents}/akiho-chan.json`;
     const commit = (pair: string) => pair.repeat(20);
-    const profile = (name: string) =>
-      renderAgentProfile({
-        name,
-        identity: "SEED-clock#story",
-        activity: "preparation",
-      });
     server.github.serve(
       everyRepository,
       publishes({
@@ -60,6 +61,7 @@ test.describe("authenticated profile addition read (dev launch mode)", () => {
               sha: commit("e2"),
               status: "added",
               committer: "Terry Yin",
+              committedAt: new Date("2026-09-23T08:30:00Z"),
               login: "terryyin",
             },
             { sha: commit("e3"), status: "removed", committer: "Olde" },
@@ -86,6 +88,7 @@ test.describe("authenticated profile addition read (dev launch mode)", () => {
       added: {
         commit: commit("e2"),
         committerName: "Terry Yin",
+        committedAt: "2026-09-23T08:30:00.000Z",
         login: "terryyin",
       },
     });
@@ -114,7 +117,12 @@ test.describe("authenticated profile addition read (dev launch mode)", () => {
     expect(JSON.parse(unnamed.body)).toEqual({
       revision,
       path: akihoPath,
-      added: { commit: commit("e5"), committerName: null, login: null },
+      added: {
+        commit: commit("e5"),
+        committerName: null,
+        committedAt: "2026-09-20T08:00:00.000Z",
+        login: null,
+      },
     });
 
     // A profile-shaped path the revision does not list is never asked about.
@@ -125,6 +133,57 @@ test.describe("authenticated profile addition read (dev launch mode)", () => {
       error: "That path is not reachable from this source revision.",
     });
     expect(server.ghCalls()).toHaveLength(callsBefore);
+  });
+
+  test("walks at most ten commits, continues past a changed profile, and ends at a commit whose files do not name it", async () => {
+    const path = (name: string) => `${agents}/${name.toLowerCase()}-chan.json`;
+    // Another revision, whose own profile listing names these profiles.
+    const walked = "fb".repeat(20);
+    const tenModified = [...Array(10).keys()].map((at) =>
+      pathChange(0xa0 + at, "modified", "Mo Modifier"),
+    );
+    const pastChanged = pathChange(0xb1, "added", "Chang Ed");
+    server.github.serve(
+      everyRepository,
+      publishes({
+        revision: walked,
+        backlog,
+        files: Object.fromEntries(
+          ["Rina", "Nana", "Maki"].map((name) => [path(name), profile(name)]),
+        ),
+        history: {
+          [path("Rina")]: [...tenModified, pathChange(0xaa, "added", "Deep")],
+          [path("Nana")]: [pathChange(0xb0, "changed", "Mo"), pastChanged],
+          [path("Maki")]: [
+            pathChange(0xc0, null, "Mo"),
+            pathChange(0xc1, "added", "Hidden Adder"),
+          ],
+        },
+      }),
+    );
+    const additionOf = async (name: string) => {
+      const response = await rawRequest({
+        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${walked}&path=${encodeURIComponent(path(name))}&committed=added`,
+        headers: { Origin: server.origin },
+      });
+      return (JSON.parse(response.body) as { added: unknown }).added;
+    };
+    const asked = () =>
+      server.github.calls.flatMap(({ request }) =>
+        request.kind === "commit" ? [request.sha] : [],
+      );
+
+    // Only the ten latest commits are listed and asked about.
+    const before = asked().length;
+    expect(await additionOf("Rina")).toBeNull();
+    expect(asked().slice(before)).toEqual(tenModified.map(({ sha }) => sha));
+    expect(await additionOf("Nana")).toEqual({
+      commit: pastChanged.sha,
+      committerName: "Chang Ed",
+      committedAt: "2026-09-20T08:00:00.000Z",
+      login: null,
+    });
+    expect(await additionOf("Maki")).toBeNull();
   });
 
   // An addition read asks which commit added one agent profile, only at a
@@ -163,7 +222,7 @@ test.describe("authenticated profile addition read (dev launch mode)", () => {
       read: "on a story branch",
       query: `revision=${revision}&branch=story%2Fexample&head=${revision}&path=${yuiProfile}`,
       error:
-        "A commit time read names only a pinned revision and repository path.",
+        "An addition read names only a pinned revision and an agent profile path.",
     },
   ]) {
     test(`refuses an addition read ${refused.read} before launching gh`, async () => {

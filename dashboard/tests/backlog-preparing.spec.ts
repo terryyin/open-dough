@@ -153,7 +153,8 @@ test("a queued card shows Preparing and its developer from published assignments
     const restore = origin.answerWith(".planning/agents", noConnection);
     await show(journey.conflicting);
     for (const title of order) {
-      const unknown = card(title).getByText(
+      const unknown = card(title).locator(".assignment-gap");
+      await expect(unknown).toHaveText(
         "Preparation assignment unknown. Agent profiles could not be read.",
       );
       await expect(unknown).toBeVisible();
@@ -170,7 +171,7 @@ test("a queued card shows Preparing and its developer from published assignments
       `${first} · host not recorded · model not recorded`,
       `${second} · host not recorded · model not recorded`,
     ]);
-    await expect(card(storyA)).toContainText(
+    await expect(card(storyA).locator(".assignment-gap")).toHaveText(
       "Conflicting records: 2 preparation assignments name this entry.",
     );
     await expect(card(storyA)).not.toContainText(

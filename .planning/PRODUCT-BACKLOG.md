@@ -13,7 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Keep roster and human credit honest under slow or odd evidence](seeds/SEED-049-project-agent-roster.md#roster-evidence-correction) — SEED-049#roster-evidence-correction ([plan](slice-plans/125-roster-evidence-correction/PLAN.md))
 - [Keep product guards provable and the CI-platform command faithful](seeds/SEED-048-explicit-test-environment.md#test-environment-correction) — SEED-048#test-environment-correction ([plan](slice-plans/127-test-environment-correction/PLAN.md))
 - [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers ([plan](slice-plans/118-plan-link-readers/PLAN.md))
 

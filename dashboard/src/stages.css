@@ -138,7 +138,11 @@
   margin-top: 0.35rem;
 }
 
-.preparation-problem {
+/* A gap in the published records beside the fact it leaves unknown; an
+   assignment gap is one the agent profiles leave, or a credited human who
+   cannot be named. */
+.preparation-problem,
+.assignment-gap {
   color: var(--problem);
   font-size: 0.9rem;
 }

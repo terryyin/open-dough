@@ -3,9 +3,10 @@
 // (the commit that added the entry's agent profile), both at the snapshot's
 // revision, ticking with page time and asking GitHub nothing more. The fake
 // GitHub only publishes files, profiles spelled by the shared profile
-// renderer, and when each path was last committed; the page clock is paused so
-// page time passes only when the journey says. The local read boundary, the
-// shared readers, and the page decide everything shown.
+// renderer, when each plan was last committed, and each profile's history;
+// the page clock is paused so page time passes only when the journey says.
+// The local read boundary, the shared readers, and the page decide
+// everything shown.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
@@ -15,11 +16,13 @@ import { publishFiles } from "./publishedOrigin.ts";
 import { callsSince, checksAskedWhilePassing } from "./autoRefreshJourney.ts";
 import { publishes } from "./support/fakeGitHub.ts";
 import { noConnection } from "./originAnswers.ts";
+import { addedAt, pathChange } from "./pathHistoryAnswers.ts";
 import {
   afterTake,
   beforeProfiles,
   committed,
   files,
+  history,
   justTaken,
   opened,
   planPath,
@@ -27,6 +30,7 @@ import {
   repository,
   revision,
   stories,
+  takes,
   timeUnread,
 } from "./sliceClockRecords.ts";
 
@@ -59,6 +63,7 @@ test("each Taken card's clock measures from the later of its last plan commit an
     revision,
     files,
     committed,
+    history,
   });
 
   const { taken, problem } = await openedTaken(page);
@@ -96,24 +101,36 @@ test("each Taken card's clock measures from the later of its last plan commit an
 
   // A failed plan commit shows its card's gap without waiting for that card's
   // Take time, whose ask may still be on its way.
-  await test.step("each commit time was asked once, for the plan and the single profile at the revision", async () => {
+  await test.step("each plan's last commit time was asked once, and each Take only through its profile's addition, which also names its human", async () => {
     const asked = () =>
       requests
-        .flatMap(({ request }) =>
-          request.kind === "commit-list" && request.latestOnly
-            ? [`${request.path}@${request.revision}`]
-            : [],
-        )
+        .flatMap(({ request }) => {
+          switch (request.kind) {
+            case "commit-list":
+              return [
+                `${request.perPage === 1 ? "last commit" : "history"} ${request.path}@${request.revision}`,
+              ];
+            case "commit":
+              return [`commit ${request.sha}`];
+            default:
+              return [];
+          }
+        })
         .sort();
+    // Two `gh` requests per Taken profile, its history and its addition
+    // commit: no last commit time of a profile is asked.
     await expect
       .poll(asked)
       .toEqual(
         [
-          ...stories.map(({ anchor }) => planPath(anchor)),
-          ...["Akiho", "Yuma", "Sola"].map(profilePath),
-        ]
-          .map((path) => `${path}@${revision}`)
-          .sort(),
+          ...stories.map(
+            ({ anchor }) => `last commit ${planPath(anchor)}@${revision}`,
+          ),
+          ...Object.entries(takes).flatMap(([agent, { sha }]) => [
+            `history ${profilePath(agent)}@${revision}`,
+            `commit ${sha}`,
+          ]),
+        ].sort(),
       );
   });
 
@@ -148,7 +165,7 @@ test("when agent profiles cannot be read, the clock is a gap rather than a plan-
 }) => {
   await pausePageClockAt(page, opened);
   // The same records, but the profile directory cannot be listed.
-  const published = publishes({ revision, files, committed });
+  const published = publishes({ revision, files, committed, history });
   githubFor(page).serve(repository, (call) =>
     call.request.kind === "listing"
       ? Promise.resolve(noConnection)
@@ -164,4 +181,37 @@ test("when agent profiles cannot be read, the clock is a gap rather than a plan-
   await expect(card).not.toContainText("Current slice started");
   await expect(taken).not.toContainText(noProfileLabel);
   await expectBarStays(card);
+});
+
+test("a Take whose profile addition is not found, or names no usable time, is a clock gap", async ({
+  page,
+}) => {
+  await pausePageClockAt(page, opened);
+  await publishFiles(page, {
+    repository,
+    revision,
+    files,
+    committed,
+    history: {
+      ...history,
+      [profilePath("Akiho")]: [
+        pathChange(0x61, "modified", "Mo Modifier"),
+        pathChange(0x62, "removed", "Olde Allocator"),
+      ],
+      [profilePath("Yuma")]: [addedAt(0x63, null)],
+    },
+  });
+
+  const { taken } = await openedTaken(page);
+  const card = (title: string) => taken.getByRole("article", { name: title });
+  await expect(card(afterTake)).toContainText(
+    "Current slice time unavailable: The Take time cannot be determined: no commit adding the agent profile was found in its recent published history.",
+  );
+  await expect(card(justTaken)).toContainText(
+    "Current slice time unavailable: The Take time cannot be determined: the commit that added the agent profile names no usable commit time.",
+  );
+  for (const title of [afterTake, justTaken]) {
+    await expect(card(title)).not.toContainText("Current slice started");
+    await expectBarStays(card(title));
+  }
 });

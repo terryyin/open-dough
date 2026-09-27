@@ -2,10 +2,12 @@
 // reads of trunk: which of them a revision check found at another head, and
 // the progress of only the entries on those, read again at the heads found
 // (`./progressSource.ts`) with their clocks restarted from commit times there
-// (`./sliceClockStart.ts`). Every other entry, and the snapshot's revision and
+// (`./sliceClockStart.ts`), each Take still the addition of its profile at the
+// shown revision. Every other entry, and the snapshot's revision and
 // retrieval time, stay as shown.
 
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
+import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
 import { withProgressSources } from "./progressSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { withSliceClocks } from "./sliceClockStart.ts";
@@ -39,6 +41,7 @@ export async function readMovedProgress(
     );
     const clocked = await withSliceClocks(
       { ...resourced, taken: reread },
+      profileAdditionsAt(work.source, work.revision, untilEither),
       untilEither,
     );
     signal.throwIfAborted();

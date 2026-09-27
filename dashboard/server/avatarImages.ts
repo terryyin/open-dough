@@ -1,10 +1,11 @@
 // GitHub avatar images for the local authenticated read boundary
 // (`./authenticatedRead.ts`): which avatar source GitHub named for a matched
-// committer account is usable, and the image itself, fetched once per account
-// and kept in this server process. Only an account the boundary itself found
-// matched to a profile's addition commit (`./avatarRead.ts`) is ever fetched;
-// the browser never names an image source or reaches GitHub. The kept images
-// are disposable display aids, never an assignment or identity authority.
+// committer account is usable, and the image itself, fetched once per usable
+// source and kept in this server process. Only an account the boundary itself
+// found matched to a profile's addition commit (`./avatarRead.ts`) is ever
+// fetched; the browser never names an image source or reaches GitHub. The kept
+// images are disposable display aids, never an assignment or identity
+// authority.
 
 // Where GitHub serves account avatars, as its commit answers name them.
 const avatarHost = "avatars.githubusercontent.com";
@@ -126,19 +127,18 @@ async function fetchAvatar(
   return { contentType, bytes: await boundedBytes(response) };
 }
 
-// Each matched account's avatar, fetched at most once while this process
-// keeps it: concurrent displays of one account share the same fetch. A failed
-// fetch is not kept, so a later display may ask again.
+// Each usable avatar source's image, fetched at most once while this process
+// keeps it: concurrent displays of one source share the same fetch. Kept by
+// source rather than login, so a changed avatar version, or a login reused by
+// another account, is fetched afresh instead of showing an earlier image. A
+// failed fetch is not kept, so a later display may ask again.
 export class AvatarImages {
   private readonly kept = new Map<string, Promise<AvatarImage>>();
 
-  // `tracked` lets closing the boundary abort a fetch still in flight.
-  image(
-    login: string,
-    source: string,
-    tracked: Set<AbortController>,
-  ): Promise<AvatarImage> {
-    const known = this.kept.get(login);
+  // `source` is a usable avatar source (`usableAvatarSource`); `tracked` lets
+  // closing the boundary abort a fetch still in flight.
+  image(source: string, tracked: Set<AbortController>): Promise<AvatarImage> {
+    const known = this.kept.get(source);
     if (known !== undefined) {
       return known;
     }
@@ -151,10 +151,10 @@ export class AvatarImages {
       clearTimeout(timer);
       tracked.delete(controller);
     });
-    this.kept.set(login, fetched);
+    this.kept.set(source, fetched);
     fetched.catch(() => {
-      if (this.kept.get(login) === fetched) {
-        this.kept.delete(login);
+      if (this.kept.get(source) === fetched) {
+        this.kept.delete(source);
       }
     });
     while (this.kept.size > keptAvatarLimit) {

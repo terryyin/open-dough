@@ -1,9 +1,10 @@
 // The records the agent roster journey (agent-roster.spec.ts) publishes: an
 // Open Dough revision whose profiles, spelled by the shared profile renderer,
-// commission one Taken and one Preparing agent, one agent for work its backlog
-// no longer lists and with nothing recorded about host or model, and one
-// malformed profile; and a Doughnut revision whose profile directory cannot be
-// listed at all.
+// assign one Taken and one Preparing agent, one agent for work its backlog
+// no longer lists and with nothing recorded about host or model, one
+// malformed profile, and one profile filed under Yui whose text names Sola;
+// and a Doughnut revision whose profile directory cannot be
+// listed at all; and a Pygardon revision that publishes no backlog.
 
 import type { Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -64,6 +65,14 @@ export const openDoughFiles = {
     branch: "codex/retired-story",
   }),
   [`${agents}/mana-chan.json`]: '{ "agent": "Mana-chan", ',
+  // Filed under Yui, it names Sola preparing the queued story: evidence about
+  // Yui that contradicts itself, and no assignment for Sola or that story.
+  [`${agents}/yui-chan.json`]: renderAgentProfile({
+    name: "Sola",
+    identity: queuedIdentity,
+    activity: "preparation",
+    host: "codex",
+  }),
 };
 
 export const doughnut = {
@@ -95,3 +104,11 @@ export function publishUnlistableProfiles(page: Page) {
     return Promise.resolve(noConnection);
   });
 }
+
+// Pygardon publishes no backlog, so its read fails before any published work
+// is known.
+export const pygardon = {
+  repository: "terryyin/pygardon",
+  revision: "e5".repeat(20),
+  files: {},
+};
