@@ -39,6 +39,13 @@ dashboard or research stories.
 
 ## Story Decomposition
 
+**One-shot native acceptance on Claude Code** is complete. Claude Code runs of
+`publication/one-shot-result`, `publication/one-shot-queued` and
+`publication/admission-investigation` passed with fresh proof against guidance
+revision `5181d769` on 2026-09-27. Codex, Cursor and escalation remain pending,
+so one-shot is not yet natively accepted for release under
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+
 <a id="native-one-shot-acceptance"></a>
 
 ### 4. Accept one-shot natively on Claude Code
@@ -119,6 +126,13 @@ an unnecessary approval stop (`publication/one-shot-escalation`).
 without the prompt supplying the expected answer; admitting up front is a
 legitimate outcome, not a failure.
 
+**Harness limits:** `tests/support/git-publication-native-one-shot.sh` (249
+lines) and `tests/support/git-publication-native-assess.sh` (250) are at the
+250-line limit, so an escalation case needs its own support file. The native
+job measured 52.2 s on CI against `per-job-seconds=71`; if a further substitute
+journey would breach that, move the one-shot substitute journeys into their own
+test job.
+
 <a id="native-one-shot-other-hosts"></a>
 
 ### 6. Accept one-shot natively on Codex and Cursor
@@ -131,8 +145,10 @@ legitimate outcome, not a failure.
 **Goal:** Codex and Cursor agents pass the one-shot cases already accepted on
 Claude Code; evidence from Claude Code does not transfer.
 
-**Depends on:** [Claude Code acceptance](#native-one-shot-acceptance) and, for
-escalation, [its feasibility](#native-one-shot-escalation).
+**Depends on:** Claude Code acceptance, now complete, and, for escalation,
+[its feasibility](#native-one-shot-escalation). The result and queued cases
+need no new fixture: run them with `--native codex` and `--native cursor`.
+This story gates release of the one-shot guidance under ADR 0005.
 
 ## Breadcrumbs
 
