@@ -202,20 +202,20 @@ explicit anchor. Agreeing references produce one plan action; conflicting
 references are qualified as disputed evidence without choosing a plan.
 Navigation does not require readiness or successfully read plan contents.
 Canonical and associated plan contents are read at the same revision for
-preparation and detail; opening detail requires no additional fetch.
-
-An `http(s)` address stays an external reference that is not tied to the
-revision. Unsafe schemes, repository escapes, and targets naming no file stay
-readable as text with the reason they cannot be opened. Titles, direction, and
-targets are always rendered as text.
+preparation and detail; opening detail requires no additional fetch. Following
+a repository file or ordinary external reference opens in a new tab
+(`target="_blank"`, `rel="noopener noreferrer"`), leaving the dashboard tab,
+selected project, and open detail in place. An `http(s)` address stays an
+external reference not tied to the revision. Unsafe schemes, repository escapes,
+and unusable targets stay text with the reason; titles and targets stay text.
 
 Keyboard focus follows a work item across a refresh by its identity. When a
-derived plan link arrives after the backlog, focus returns to that link only
-if the user has not moved focus elsewhere. Reading,
-the read result, and a work item that is no longer listed are announced through
-live regions that stay in the page; a read problem is announced as an alert.
-The page reflows to a single column and needs no sideways scrolling down to a
-320 px wide window, which is also 400% browser zoom.
+derived plan link arrives after the backlog, focus returns to that link only if
+the user has not moved focus elsewhere. Reading, the read result, and a work
+item that is no longer listed are announced through live regions that stay in
+the page; a read problem is announced as an alert. The page reflows to a single
+column and needs no sideways scrolling down to a 320 px wide window, which is
+also 400% browser zoom.
 
 What the backlog means is decided by the shared backlog reader under
 `src/skills/dough-product-backlog/scripts/`; the dashboard holds no Markdown

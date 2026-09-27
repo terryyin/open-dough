@@ -75,3 +75,28 @@ export function card(stages: Locator, title: string | RegExp): Locator {
 export async function destination(link: Locator): Promise<URL> {
   return new URL((await link.getAttribute("href")) ?? "");
 }
+
+// Click an outbound link: destination opens in a new tab; this page keeps its
+// URL and selected project.
+export async function followLeavingDashboard(
+  page: Page,
+  link: Locator,
+): Promise<URL> {
+  const dashboardUrl = page.url();
+  const { project } = parts(page);
+  const [popup, leaving] = await Promise.all([
+    page.waitForEvent("popup"),
+    page
+      .context()
+      .waitForEvent("request", (request) => request.isNavigationRequest()),
+    link.click(),
+  ]);
+  const dest = new URL(leaving.url());
+  await popup.close();
+  expect(page.url()).toBe(dashboardUrl);
+  await expect(project.getByRole("radio", { checked: true })).toHaveAttribute(
+    "value",
+    "open-dough",
+  );
+  return dest;
+}

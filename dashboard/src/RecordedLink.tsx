@@ -6,6 +6,12 @@ import { shortRevision } from "./publishedWork.ts";
 import type { SourceLink } from "./sourceLink.ts";
 import { workLinkMarks } from "./workFocus.ts";
 
+// Destinations that leave the dashboard open in another tab with a safe opener.
+const leaveDashboard = {
+  target: "_blank",
+  rel: "noopener noreferrer",
+} as const;
+
 export function RecordedLink({
   role,
   link,
@@ -25,7 +31,7 @@ export function RecordedLink({
     case "snapshot":
       return (
         <li>
-          <a href={link.url} {...workLinkMarks(focusRole)}>
+          <a href={link.url} {...leaveDashboard} {...workLinkMarks(focusRole)}>
             {recorded}
           </a>
           <p className="link-note">
@@ -36,11 +42,7 @@ export function RecordedLink({
     case "external":
       return (
         <li>
-          <a
-            href={link.url}
-            rel="noopener noreferrer"
-            {...workLinkMarks(focusRole)}
-          >
+          <a href={link.url} {...leaveDashboard} {...workLinkMarks(focusRole)}>
             {recorded}
           </a>
           <p className="link-note">

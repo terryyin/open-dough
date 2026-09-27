@@ -47,12 +47,13 @@ labels another project's roster with the invalid route.
 
 ### 1. Keep the dashboard available when following outbound links
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `dashboard/tests/source-navigation.spec.ts` to observe a new tab
 for a snapshot file link and an ordinary external reference, verify their
 destinations, verify the original dashboard URL, project, and expanded detail
 remain, and check the rendered outbound anchors. Run the focused Playwright
 spec, `npm run typecheck:dashboard`, and `npm run lint`.
+Accepted: Playwright journey in `dashboard/tests/source-navigation.spec.ts` passes, proving new-tab popups and destinations for snapshot files and external references, verifying original dashboard URL, selected project, and expanded detail are preserved, and confirming all rendered outbound anchors have `target="_blank"` and `rel="noopener noreferrer"`. `npm run typecheck:dashboard` and `npm run lint` passed cleanly.
 
 Behavior: a developer viewing a card or detail follows any dashboard link to
 GitHub source or an ordinary external web address → the destination opens in a
@@ -95,7 +96,8 @@ and view; transient portrait origin and story-detail state can remain in memory.
 - Back to stories follows the history entry made by portrait opening. On a
 direct roster visit without such an entry, it navigates to that project's
 stories rather than leaving the dashboard.
+- Consolidated outbound new-tab policy into `leaveDashboard` in `RecordedLink.tsx`.
 
 ## Learnings
 
-None yet.
+- Chromium / Playwright requires listening to request events across the context when following outbound links to capture the destination navigation request.

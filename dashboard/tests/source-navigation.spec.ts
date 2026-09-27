@@ -3,6 +3,7 @@ import { openDirection, parts } from "./dashboardPage.ts";
 import {
   card,
   destination,
+  followLeavingDashboard,
   openDashboard,
   revision,
   snapshotRoot,
@@ -101,14 +102,33 @@ test("source navigation opens canonical and plan records at the inspected revisi
     );
   });
 
-  await test.step("following the link leaves for that GitHub page", async () => {
-    const [leaving] = await Promise.all([
-      page.waitForRequest((request) => request.isNavigationRequest()),
-      storyRecord.click(),
-    ]);
-    expect(new URL(leaving.url()).pathname).toBe(
+  await test.step("following a snapshot link opens that GitHub page in a new tab while dashboard stays in place", async () => {
+    await story.getByRole("button", { name: "Inspect story" }).click();
+    const detail = story.getByRole("region", {
+      name: "Detail for See the project's published work in a story dashboard",
+    });
+    await expect(detail).toBeVisible();
+    const dest = await followLeavingDashboard(
+      page,
+      detail.getByRole("link", { name: /^Canonical record / }),
+    );
+    expect(dest.origin).toBe("https://github.com");
+    expect(dest.pathname).toBe(
       `${snapshotRoot}/.planning/seeds/SEED-021-observe-published-story-progress.md`,
     );
+    await expect(detail).toBeVisible();
+    await expect(
+      story.getByRole("button", { name: "Hide detail" }),
+    ).toHaveAttribute("aria-expanded", "true");
+  });
+
+  await test.step("all rendered outbound anchors open in a new tab with safe opener policy", async () => {
+    const anchors = await page.locator("a[href]").all();
+    expect(anchors.length).toBeGreaterThan(0);
+    for (const anchor of anchors) {
+      await expect(anchor).toHaveAttribute("target", "_blank");
+      await expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
+    }
   });
 });
 
@@ -123,7 +143,6 @@ test("source navigation keeps an external reference apart from files in this sna
     "href",
     "https://status.example.com/notes/2026-09?view=full#api",
   );
-  await expect(canonical).toHaveAttribute("rel", "noopener noreferrer");
   await expect(
     note.getByRole("link", { name: /^Slice plan / }),
   ).toHaveAttribute("href", "http://plans.example.org/note-7");
@@ -134,6 +153,13 @@ test("source navigation keeps an external reference apart from files in this sna
   ).toHaveCount(2);
   await expect(note).not.toContainText("File in this snapshot");
   await expect(note).not.toContainText(revision.slice(0, 7));
+
+  await test.step("following an external reference opens in a new tab while dashboard stays in place", async () => {
+    const dest = await followLeavingDashboard(page, canonical);
+    expect(dest.origin).toBe("https://status.example.com");
+    expect(dest.pathname).toBe("/notes/2026-09");
+    expect(dest.search).toBe("?view=full");
+  });
 });
 
 test("source navigation shows unsafe or invalid targets as text that cannot be followed", async ({
