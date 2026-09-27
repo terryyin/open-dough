@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep product guards provable and the CI-platform command faithful](seeds/SEED-048-explicit-test-environment.md#test-environment-correction) — SEED-048#test-environment-correction ([plan](slice-plans/127-test-environment-correction/PLAN.md))
-- [Keep paused work when a conflicting restore applied nothing](seeds/SEED-008-worktree-branch-trunk-sync.md#unapplied-restore-kept) — SEED-008#unapplied-restore-kept ([plan](slice-plans/128-unapplied-restore-kept/PLAN.md))
 
 ## Backlog list
 
