@@ -84,7 +84,7 @@ recorded): whole-workflow wall 163, 154, 156 s and `Run test` 143, 140, 140,
 
 ### 1. The runner runs one share of the discovered checks
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `tests/test-runner-split.sh` runs the runner over substitute checks
 (`OPEN_DOUGH_TEST_DIR`) whose files record their own names, created in an
 order that differs from sorted order and including a `longest-first` entry.
@@ -93,6 +93,15 @@ exactly once; the same split always runs the same checks; each split's times
 file lists only its own checks; a failing substitute fails its own split,
 naming it; `3/2`, `0/2`, and `x` fail naming the value before any check runs.
 Unset, every check runs. The full local suite passes.
+
+Accepted proof: `bash tests/test-runner-split.sh` (Bash 5 on `PATH`) passes
+silently; its `expect_share` cases pin shares `1/2` = mu, beta, zeta and
+`2/2` = alpha, delta over checks created out of sorted order, with each
+share's times file, the union, the recreated-order rerun, the failing
+`epsilon.sh` split, and the `3/2`, `0/2`, `x` loop. The other runner tests
+pass. Full local `npm test`: exit 0, 219 jobs (local budget report still
+printed; slice 2 removes it). Over the real suite `scripts/test-jobs.sh`
+lists 110 jobs for `1/2` and 109 for `2/2`.
 
 Behavior: A suite with discovered checks → the runner starts with
 `OPEN_DOUGH_TEST_SPLIT=i/n` → it runs exactly share `i` of a partition that
@@ -162,3 +171,14 @@ verdict arrives at a median of at most 120 s, and the budget describes the
 split jobs it judges.
 
 ## Learnings
+
+- Slice 1: job selection (discovery, `longest-first` order, the sorted rest,
+  and the split share) now lives in `scripts/test-jobs.sh`, which
+  `scripts/test.sh` reads as NUL-separated `<kind>\t<label>` records; the
+  runner exceeded the 250-line limit otherwise. Plan 120's chosen-paths work
+  belongs there when it rebases. Unsplit runs now also start the non-longest
+  checks in sorted order.
+- Slice 1: the full local suite failed whenever a developer's
+  `npm run dev:dashboard` held port 43127, because
+  `tests/support/dashboard-dev-port.test.mjs` bound it. The test now asserts
+  the configured port and `strictPort` and serves on an ephemeral port.

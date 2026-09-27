@@ -11,7 +11,7 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 fixture="${temporary_dir}/source"
 mkdir -p -- "${fixture}/tests" "${fixture}/scripts" "${temporary_dir}/bin"
-cp -- "${source_dir}/scripts/test.sh" "${fixture}/scripts/"
+cp -- "${source_dir}/scripts/test.sh" "${source_dir}/scripts/test-jobs.sh" "${fixture}/scripts/"
 markers="${temporary_dir}/markers"
 mkdir -p -- "${markers}"
 printf '#!/usr/bin/env bash\ntouch -- %q\n' "${markers}/self-check" \

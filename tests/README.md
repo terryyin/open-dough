@@ -33,7 +33,13 @@ under `output from passing <file>:`. No job starts a worker pool of its own.
 The runner runs one job per online CPU at a time; each job keeps its own
 temporary directory. `OPEN_DOUGH_TEST_JOBS` selects another count, 1 or more.
 Jobs named in `tests/longest-first` start first, in that order, so the longest
-job does not start last; the rest follow. `OPEN_DOUGH_TEST_TIMES=<file>`
+job does not start last; the rest follow, sorted bytewise.
+`OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of `n`: the runner deals
+that order round-robin across `n` shares, so every job lands in exactly one
+share whatever order the file system lists the tests in, and a failure or time
+is reported only for the share's own jobs. A malformed value, or `i` outside
+`1..n`, fails the run naming the value before any job starts. Unset, every job
+runs. `OPEN_DOUGH_TEST_TIMES=<file>`
 writes every job's wall seconds and name, longest first, which is how that
 list is refreshed (see its header). Jobs do not inherit it, so a check that
 runs the runner itself keeps its own times. CI's `test` check keeps that file

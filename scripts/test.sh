@@ -83,53 +83,15 @@ run_job() {
   printf '\n' >&3
 }
 
-# OPEN_DOUGH_TEST_DIR names another directory of checks, such as substitutes
-# in a runner test; it replaces the suite's own checks entirely.
-test_dir=${OPEN_DOUGH_TEST_DIR:-tests}
-declare -A job_kinds=()
-discovered=()
-add_job() {
-  job_kinds[$2]=$1
-  discovered+=("$2")
-}
-
-find "${test_dir}" -type f -name '*.sh' ! -path "${test_dir}/support/*" -print0 \
-  > "${output_root}/tests"
-while IFS= read -r -d '' test_file; do
-  add_job shell "${test_file}"
-done < "${output_root}/tests"
-
-# `node-test-files` lists glob patterns, relative to the repository root, of
-# `node --test` files; each matching file is scheduled as its own job.
-if [[ -f ${test_dir}/node-test-files ]]; then
-  while read -r pattern; do
-    [[ -z ${pattern} || ${pattern} == '#'* ]] && continue
-    while IFS= read -r node_file; do
-      add_job node "${node_file}"
-    done < <(compgen -G "${pattern}" || true)
-  done < "${test_dir}/node-test-files"
-fi
-
-if [[ -z ${OPEN_DOUGH_TEST_DIR:-} ]]; then
-  add_job shell 'scripts/check-self-installation.sh'
-fi
-
-# `longest-first` names known long jobs, longest first. They start before the
-# rest so the longest job does not begin last; unknown names are ignored.
+# scripts/test-jobs.sh lists this run's jobs in start order, from the checks in
+# OPEN_DOUGH_TEST_DIR (default `tests`) and OPEN_DOUGH_TEST_SPLIT's share.
+"${test_bash}" scripts/test-jobs.sh > "${output_root}/jobs"
+kinds=()
 labels=()
-declare -A scheduled=()
-if [[ -f ${test_dir}/longest-first ]]; then
-  while read -r label; do
-    [[ -z ${label} || ${label} == '#'* ]] && continue
-    if [[ -n ${job_kinds[${label}]+set} && -z ${scheduled[${label}]+set} ]]; then
-      labels+=("${label}")
-      scheduled[${label}]=1
-    fi
-  done < "${test_dir}/longest-first"
-fi
-for label in "${discovered[@]}"; do
-  [[ -n ${scheduled[${label}]+set} ]] || labels+=("${label}")
-done
+while IFS=$'\t' read -r -d '' kind label; do
+  kinds+=("${kind}")
+  labels+=("${label}")
+done < "${output_root}/jobs"
 
 # Prints one started job's wall seconds: those its job recorded, or, when the
 # job left none, the time from its start until the runner observed it ended.
@@ -229,7 +191,7 @@ for index in "${!labels[@]}"; do
   launching="${output_root}/${index}.launch"
   exec 2> "${launching}"
   set -m
-  run_job "${index}" "${job_kinds[${labels[index]}]}" "${labels[index]}" < /dev/null &
+  run_job "${index}" "${kinds[index]}" "${labels[index]}" < /dev/null &
   set +m
   exec 2>&4
   launching=''
@@ -247,7 +209,7 @@ for index in "${!labels[@]}"; do
   seconds=$(job_seconds "${index}")
   printf '%s\t%s\n' "${seconds}" "${labels[index]}"
 done | sort -rn > "${times_file}"
-[[ ! -f ${test_dir}/time-budget ]] \
-  || "${test_bash}" scripts/test-budget.sh "${test_dir}/time-budget" "${times_file}" || status=1
+budget="${OPEN_DOUGH_TEST_DIR:-tests}/time-budget"
+[[ ! -f ${budget} ]] || "${test_bash}" scripts/test-budget.sh "${budget}" "${times_file}" || status=1
 
 exit "${status}"
