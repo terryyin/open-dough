@@ -15,7 +15,10 @@ interpretation, and the page are the real ones, and a browser request to
 GitHub itself fails the test. The boundary specs
 (`authenticated-read-*.spec.ts`) and
 `authenticated-project-overview.spec.ts` also start their own dev and
-built-preview servers. Nothing here ever calls the real `gh` CLI or contacts
+built-preview servers. Every server binds a port the operating system
+chooses, so the suite can run beside another checkout's suite on the same
+machine, and a server that cannot start fails its test with its own output
+(`support/dashboardServer.ts`). Nothing here ever calls the real `gh` CLI or contacts
 GitHub. Select one journey with, for example,
 `npm run test:dashboard -- --grep 'published overview'` or
 `npm run test:dashboard -- --grep 'authenticated project overview'`.
