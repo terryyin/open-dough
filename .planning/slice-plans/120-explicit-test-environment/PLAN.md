@@ -283,3 +283,17 @@ the four affected specs repeated five times natively passed.
   replaced this machine's Docker context mid-execution; the container command
   uses whatever `docker` resolves, and `DOCKER_HOST` selects Colima's `work`
   profile explicitly.
+
+## Execution complete
+
+Product advice: Plan 122 (SEED-046) also edits `scripts/test.sh`, the runner
+tests, `tests/time-budget`, and `tests/support/dashboard-dev-port.test.mjs`;
+whichever story integrates second needs a real merge, reconciling the two
+dev-port fixes into one. Execute the ready correction
+[plan 127](../127-test-environment-correction/PLAN.md) next, since the
+agent-credit check no longer proves the product's own identity guard. Decide
+whether the runner forwards options for a chosen check or native launches
+source the runner's Git state, so direct `--native` runs keep maintenance off.
+An amd64 run under Rosetta (a Colima VM restart) remains the only untried way
+to reproduce CI's font layout. ODF-061's Bash-floor gap is now also closed for
+chosen runs.

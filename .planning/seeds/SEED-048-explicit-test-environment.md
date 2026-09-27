@@ -133,6 +133,25 @@ container.
   from a PPA, and the worktree's `.git` file not resolving inside the
   container.
 
+<a id="test-environment-correction"></a>
+
+### Keep product guards provable and the CI-platform command faithful
+
+**Identity:** SEED-048#test-environment-correction
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/127-test-environment-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"614236f5432c4854dbbea4e441900d983ce785c8a33994f144550989a9d9e9d3","plan":"58b76aa1fe2a9647b95910ea02fb5dbef26924043189ab0aa13ee0157454311b"}}
+```
+
+**Goal:** A maintainer or agent can trust that a passing local check still
+proves the product's own safeguards, and that `scripts/ci-container.sh` runs
+chosen checks and the dashboard suite as CI does or says clearly why it
+cannot, without the test documentation growing past what readers can use.
+
+**Scope:** The bounded retrospective correction of
+[plan 120](../slice-plans/120-explicit-test-environment/PLAN.md) described in
+[its correction plan](../slice-plans/127-test-environment-correction/PLAN.md).
+It adds no feature promise.
+
 ## When to Surface
 
 Now: first in the product backlog, per the maintainer on 2026-09-27.
