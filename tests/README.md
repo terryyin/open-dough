@@ -62,8 +62,17 @@ change. A substitute test directory (`OPEN_DOUGH_TEST_DIR`) is held to its own
 behavior that way.
 
 A passing job must write nothing, so a passing suite prints nothing. For each
-failing job the runner prints `FAIL: <job>` and that job's captured output. A
-job that exits 0 but wrote anything to stdout or stderr also fails the run,
+failing job the runner prints `FAIL: <job>` and that job's captured output.
+A shell check that stopped on a failing command under `set -e` has, in that
+output, `stopped at <file>:<line>: <command>`, naming the check or the support
+file it sourced. A command that failed inside `$(...)` is named by the line
+running that substitution, for example
+`stopped at tests/x.sh:12: attempt=$(awk ...)`. The runner starts each shell
+check with `tests/support/check-stop-report.bash` through `BASH_ENV`, so no
+check carries a trap of its own. A failure the check handles (under `set +e`,
+in an `if`, after `||`) and a check's own `exit 1` get no such line, and
+scripts a check launches do not load the reporter. A job that exits 0 but
+wrote anything to stdout or stderr also fails the run,
 reported as `FAIL: <job> (passed but printed output)` with that output. A job
 whose shell ends without recording an exit status (for example because it was
 killed) is reported as `FAIL: <job> (ended without recording an exit status)`

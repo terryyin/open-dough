@@ -84,7 +84,7 @@ enforces it), locally and on CI's Ubuntu Bash.
 
 ### 1. The runner names where a failing shell check stopped
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/test-runner-failure-report.sh` extended with substitute checks
 for every row of the proof table, run through the runner
 (`bash scripts/test.sh` with `OPEN_DOUGH_TEST_DIR`); then the whole local
@@ -99,6 +99,25 @@ launches print nothing new. `tests/native-delivery-updated-use.sh` no longer
 carries its own `ERR` trap, and the tests README's failure-report section
 says what the report shows.
 
+Accepted proof, on this branch's base and again on trunk's runner after plan
+122 landed its split (the change applied unchanged; `scripts/test.sh` is 218
+lines there):
+`PATH=/opt/homebrew/bin:$PATH bash tests/test-runner-failure-report.sh`
+exit 0 — the `stops` block writes `bare.sh`, `sourced.sh` with
+`support/stop-helper.bash` called as `stop_helper 2> /dev/null`,
+`substitution.sh`, `handled.sh`, `own-fail.sh`, and `launched.sh`, runs them
+through `run_suite stops`, and asserts the exact lines
+`stopped at <dir>/bare.sh:3: [[ a == b ]]`,
+`stopped at <dir>/substitution.sh:3: attempt=$(awk 'BEGIN { exit 1 }')`, and
+`stopped at <dir>/support/stop-helper.bash:2: [[ 1 -eq 2 ]]`, and that no other
+`stopped at` line appears (own-fail keeps only its own `FAIL:` message;
+launched asserts its child's stderr is exactly `child-line`);
+`bash tests/native-delivery-updated-use.sh` exit 0 without its trap; the whole
+local suite `bash scripts/test.sh` exit 0 and silent. The report reads
+`stopped at <file>:<line>: <command>` under the runner's `FAIL: <job>`
+heading, without its own `FAIL:` prefix. CI `test` verdict is observed on the
+published revision.
+
 ## Learnings
 
 - Inside a command substitution `errexit` is off (no `inherit_errexit`), so
@@ -107,3 +126,10 @@ says what the report shows.
   reports `success=$(run_selected "${host}" 0)`, not the `awk` parse inside.
   Turning on `inherit_errexit` would change which existing checks pass and is
   not part of this story.
+- A child `( ... )` subshell that fails under errexit reports twice: once for
+  the inner command and once for the subshell's line. Both are true and no
+  test pins it.
+- The dashboard port test that bound the real port 43127 failed locally
+  whenever a developer's dashboard server was running; trunk fixed it
+  independently (`a034dfd`) while this slice ran, so this execution adopted
+  that fix instead of its own equivalent one.
