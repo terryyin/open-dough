@@ -181,7 +181,7 @@ workspace publication suite (72/72 pass);
 
 ### 3. Guard the backlog modules the dashboard bundles
 Type: Structure
-Status: planned
+Status: done
 Proof: a test using `tests/support/pure-module-imports.mjs` asserts that
 importing `product-backlog-document.mjs` (and through it
 `product-backlog-plan.mjs`) pulls in no `node:` or store module; temporarily
@@ -191,6 +191,19 @@ adding `import "node:path"` to `product-backlog-plan.mjs` makes it fail
 Structure: keeps the dashboard's browser graph honest; behavior unchanged.
 
 Safe stop: independent of slices 1 and 2.
+
+Accepted proof (2026-09-27): new test
+`tests/support/product-backlog-browser-import.test.mjs` walks imports of
+`product-backlog-document.mjs` and transitive `product-backlog-plan.mjs`,
+asserting neither pulls in `node:`, store, or home modules. The guard was
+proven to bite by temporarily adding `import "node:path";` to
+`product-backlog-plan.mjs`, which failed with:
+`AssertionError [ERR_ASSERTION]: unexpected Node built-in import: node:path`
+(1 test, 0 pass, 1 fail, exit 1). After reverting the temporary import:
+`node --test tests/support/product-backlog-browser-import.test.mjs` (1/1 pass);
+`node --test tests/support/*.test.mjs` (201/201 pass);
+workspace publication suite (72/72 pass);
+`npm run typecheck:dashboard` passes. Test file is 46 lines (≤ 250).
 
 ## Promise coverage
 
