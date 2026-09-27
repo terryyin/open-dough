@@ -218,7 +218,7 @@ in `detailGapProblem` (`readWaitBound.ts`).
 
 ### 5. A changed avatar is fetched afresh
 Type: Behavior
-Status: planned
+Status: done
 Proof: `authenticated-avatar.spec.ts` serves one login whose validated source
 changes version between two revisions: the second read fetches the new image
 once; repeats of each source are served from the process without upstream
@@ -227,6 +227,14 @@ reads.
 Behavior: The credited account's avatar source changes → the next display
 fetches that source → no image of an earlier source or another account is
 reused under the same login.
+
+Accepted proof: `authenticated-avatar.spec.ts` "fetches a changed avatar source
+afresh under the same login, and keeps each source": two revisions credit the
+same login with `v=4` then `v=5`; the later read returns the newer image
+through exactly one new upstream read, and repeats of each revision return
+their own image without upstream reads; red against login keying.
+`AvatarImages` keys by the validated source; fixtures live in
+`authenticatedAvatarRecords.ts`.
 
 ### 6. Cards and roster speak one commission vocabulary
 Type: Behavior

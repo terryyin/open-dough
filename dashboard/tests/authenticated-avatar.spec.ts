@@ -1,111 +1,39 @@
 // The GitHub avatar of the human credited for one agent profile, as the local
 // authenticated read boundary (../server/avatarRead.ts) serves it, tested
 // directly against real HTTP with a synthetic `gh` and a fake avatar host on
-// this spec's own isolated server process. Only the account GitHub matched to
-// the committer of a listed profile's addition is fetched, from the avatar
-// source GitHub named for it, once while the boundary keeps it; anything
-// else is refused before asking GitHub or its avatar host. What the page
-// shows is covered in ./agent-roster-avatar.spec.ts.
+// this spec's own isolated server process (authenticatedAvatarRecords.ts).
+// Only the account GitHub matched to the committer of a listed profile's
+// addition is fetched, from the avatar source GitHub named for it, once per
+// source while the boundary keeps it, so a changed source is fetched afresh;
+// anything else is refused before asking GitHub or its avatar host. What the
+// page shows is covered in ./agent-roster-avatar.spec.ts.
 
 import { expect, test } from "@playwright/test";
 import {
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
+import { everyRepository } from "./support/fakeGitHub.ts";
+import { avatarPathsRead } from "./avatarAnswers.ts";
 import {
-  everyRepository,
-  publishes,
-  type AvatarAnswer,
-} from "./support/fakeGitHub.ts";
-import { pathChange, type PathHistories } from "./pathHistoryAnswers.ts";
-import {
-  avatarPathsRead,
-  avatarPng,
-  avatarServerError,
-  avatarsAt,
-  onAvatarHost,
-} from "./avatarAnswers.ts";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+  additions,
+  agents,
+  avatarHost,
+  laterRevision,
+  newerAvatar,
+  publishedRevisions,
+  revision,
+} from "./authenticatedAvatarRecords.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
-
-const revision = "f1".repeat(20);
-const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
-const agents = ".planning/agents";
-
-// Each listed profile's addition, by its agent's file name: the account it
-// matched, if any, and the avatar address GitHub named for that account.
-const additions: Readonly<Record<string, Parameters<typeof pathChange>[3]>> = {
-  "yui-chan.json": { login: "terryyin", avatarUrl: onAvatarHost("/u/301") },
-  "akiho-chan.json": undefined,
-  "yuma-chan.json": {
-    login: "rae",
-    avatarUrl: "https://avatars.example.com/u/302?v=4",
-  },
-  "sola-chan.json": {
-    login: "hugh",
-    avatarUrl: "http://avatars.githubusercontent.com/u/303?v=4",
-  },
-  "kirara-chan.json": {
-    login: "quinn",
-    avatarUrl: "https://avatars.githubusercontent.com/u/304?v=4&s=9999",
-  },
-  "mana-chan.json": { login: "fay", avatarUrl: onAvatarHost("/u/305") },
-  "rina-chan.json": { login: "svg", avatarUrl: onAvatarHost("/u/306") },
-  "nana-chan.json": { login: "big", avatarUrl: onAvatarHost("/u/307") },
-  "maki-chan.json": { login: "moved", avatarUrl: onAvatarHost("/u/308") },
-};
-
-const oversized: AvatarAnswer = {
-  status: 200,
-  contentType: "image/png",
-  body: Buffer.alloc(1024 * 1024 + 1),
-};
-
-const avatarHost = avatarsAt({
-  "/u/301": avatarPng(4),
-  "/u/302": avatarPng(4),
-  "/u/303": avatarPng(4),
-  "/u/304": avatarPng(4),
-  "/u/305": avatarServerError,
-  "/u/306": {
-    status: 200,
-    contentType: "image/svg+xml",
-    body: Buffer.from("<svg xmlns='http://www.w3.org/2000/svg'/>"),
-  },
-  "/u/307": oversized,
-  "/u/308": {
-    status: 302,
-    contentType: "text/plain",
-    body: Buffer.from("elsewhere"),
-  },
-});
-
-function published() {
-  const files: Record<string, string> = {};
-  const history: Record<string, PathHistories[string]> = {};
-  let n = 0x80;
-  for (const [file, account] of Object.entries(additions)) {
-    const name = file.split("-")[0] ?? "";
-    const path = `${agents}/${file}`;
-    files[path] = renderAgentProfile({
-      name: `${name.charAt(0).toUpperCase()}${name.slice(1)}`,
-      identity: "SEED-avatar#story",
-      activity: "preparation",
-    });
-    n += 1;
-    history[path] = [pathChange(n, "added", "Some Human", account)];
-  }
-  return publishes({ revision, backlog, files, history });
-}
 
 test.describe("authenticated avatar read (dev launch mode)", () => {
   let server: DashboardServer;
 
   test.beforeAll(async () => {
     server = await startDashboardServer({ mode: "dev" });
-    server.github.serve(everyRepository, published());
+    server.github.serve(everyRepository, publishedRevisions());
     server.github.serveAvatars(avatarHost);
   });
 
@@ -118,8 +46,8 @@ test.describe("authenticated avatar read (dev launch mode)", () => {
       url: `${server.baseURL}/__authenticated-avatar?${query}`,
       headers: { Origin: origin },
     });
-  const profileQuery = (file: string) =>
-    `source=open-dough&revision=${revision}&path=${encodeURIComponent(`${agents}/${file}`)}`;
+  const profileQuery = (file: string, at = revision) =>
+    `source=open-dough&revision=${at}&path=${encodeURIComponent(`${agents}/${file}`)}`;
   const avatarReads = () => avatarPathsRead(server.github.avatarReads);
 
   test("serves the matched account's avatar, fetched once from the avatar source GitHub named, with no GitHub read on repeat", async () => {
@@ -133,11 +61,34 @@ test.describe("authenticated avatar read (dev launch mode)", () => {
     const callsBefore = server.ghCalls().length;
     const again = await avatarOf(profileQuery("yui-chan.json"));
     expect(again.status).toBe(200);
-    expect(again.headers["content-length"]).toBe(
-      first.headers["content-length"],
-    );
+    expect(again.body).toBe(first.body);
     expect(server.ghCalls()).toHaveLength(callsBefore);
     expect(avatarReads()).toEqual(["/u/301"]);
+  });
+
+  test("fetches a changed avatar source afresh under the same login, and keeps each source", async () => {
+    const earlier = await avatarOf(profileQuery("yui-chan.json"));
+    expect(earlier.status).toBe(200);
+    const readsBefore = server.github.avatarReads.length;
+
+    const later = await avatarOf(profileQuery("yui-chan.json", laterRevision));
+    expect(later.status).toBe(200);
+    expect(later.body).toBe(newerAvatar.body.toString("utf8"));
+    expect(later.body).not.toBe(earlier.body);
+    expect(server.github.avatarReads.slice(readsBefore)).toEqual([
+      "/u/301?v=5&s=64",
+    ]);
+
+    for (const [at, image] of [
+      [revision, earlier],
+      [laterRevision, later],
+    ] as const) {
+      const again = await avatarOf(profileQuery("yui-chan.json", at));
+      expect(again.body).toBe(image.body);
+    }
+    expect(server.github.avatarReads.slice(readsBefore)).toEqual([
+      "/u/301?v=5&s=64",
+    ]);
   });
 
   for (const refused of [
