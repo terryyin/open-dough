@@ -96,6 +96,45 @@ test("an owned published claim resumes naming its agent and restores missing wor
   assert.equal(await workspaceCommitAuthor(first.workspace), akiho);
 });
 
+test("a claim whose profile commit the developer authored with the agent as co-author still resumes under that agent", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  await interruptFirstPush(trunk);
+  const interrupted = await startProcess(trunk, "a", identityA).result;
+  assert.equal(interrupted.receipt.status, "unpublished");
+  const { workspace } = interrupted;
+  const developer = "Integration Checkout <integration@example.test>";
+  const yui = "Yui-chan <yui-chan@example.org>";
+  await git(
+    workspace,
+    "commit",
+    "--quiet",
+    "--amend",
+    "--no-edit",
+    `--author=${developer}`,
+    "--trailer",
+    `Co-authored-by: ${yui}`,
+  );
+  const resumed = await startProcess(
+    trunk,
+    "a",
+    identityA,
+    resumeArgs({
+      ...interrupted.receipt.recovery,
+      candidateSha: (await git(workspace, "rev-parse", "HEAD")).stdout.trim(),
+    }),
+  ).result;
+  assert.equal(resumed.receipt.ok, true, JSON.stringify(resumed));
+  // The published profile, not the Git author, names the claim's agent.
+  assert.equal(resumed.receipt.agent, "Yui-chan");
+  const people = "--format=%an <%ae>|%(trailers:key=Co-authored-by,valueonly)";
+  assert.equal(
+    (await git(trunk.origin, "log", "-1", people, "main")).stdout.trim(),
+    `${developer}|${developer}\n${yui}`,
+  );
+  assert.equal(await workspaceCommitAuthor(workspace), yui);
+});
+
 test("a resumed Story Branch claim publishes the branch its interrupted start left unpublished", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);

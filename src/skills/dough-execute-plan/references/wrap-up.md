@@ -156,11 +156,13 @@ and continue that unfinished obligation only.
    not block delivery. Resolve unrelated staged content or ambiguous ownership
    with its owner; never stash, reset, restage, or revert a sibling writer's
    work to isolate this commit, or silently unstage it.
-7. Commit CI-safe work using this project's check-only lint hook on staged
-   components, with no formatting or index mutation. Resolve a different hook
-   contract before committing. Fix mechanical findings; stop for semantic or
-   design judgment. Do not run hook-owned lint independently. If hook repairs
-   invalidate preparation, rerun formatting before restaging and retrying.
+7. Commit CI-safe work, as an [agent commit](agent-commits.md) when that
+   reference applies. The commit runs this project's check-only lint hook on
+   staged components, with no formatting or index mutation. Resolve a different
+   hook contract before committing. Fix mechanical findings; stop for semantic
+   or design judgment. Do not run hook-owned lint independently. If hook
+   repairs invalidate preparation, rerun formatting before restaging and
+   retrying.
 8. Immediately before publishing, resolve the owned unpublished suffix in the
    execution workspace. Publish it through managed
    [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair)
