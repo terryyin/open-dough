@@ -196,3 +196,49 @@ owns the proposed Git contract. Both retain Proposed status. ADR 0007 records
 the unresolved relationship between Story Branch Mode's delayed integration and
 Accepted ADR 0002; human resolution of that question remains separate from this
 Git migration.
+
+<a id="run-guided-commits-through-skill-alias"></a>
+
+### Run guided commits through supported skill aliases
+
+**Identity:** SEED-008#run-guided-commits-through-skill-alias
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Beneficiary:** Execution coordinators invoking installed commit commands through Codex, Cursor or Claude skill paths.
+
+**Goal:** A guided commit or amend invoked through a supported alias performs the intended operation and returns an observable result, with the same semantics as the real path.
+
+**Scope candidate:** Correct direct-entry recognition for the observed agent-commit failure and check the directly implicated new startup/repair entrypoints. Reuse the existing realpath-aware CLI entry contract; keep imports non-executing. Exclude CI discovery, session identity, release automation and a general audit of unrelated commands.
+
+**Evaluation:** In a disposable repository, invoke commit and amend through the real path and a .claude-to-.agents alias from the worktree root; observe the commit/trailer and receipt. Invalid arguments fail visibly; importing a module makes no commit. Establish actual behavior for other implicated entrypoints before expanding the correction.
+
+**Findings:** [ODF-127](../../docs/maintainer/finding-names.md#odf-127).
+
+**Completion:** Record the actual response, implementation commit and first containing release on each addressed finding in the catalog; distinguish delivered proof from later effectiveness.
+
+**Depends on:** No unfinished product prerequisite identified; reuse existing delivery and CLI entry mechanisms.
+
+<a id="isolate-parallel-slice-delivery"></a>
+
+### Keep parallel slices from interfering with proof and delivery
+
+**Identity:** SEED-008#isolate-parallel-slice-delivery
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Beneficiary:** Developers and coordinators running independent slices concurrently.
+
+**Goal:** Each slice’s proof, formatting and commit applies to its owned candidate while sibling work and test artifacts remain intact.
+
+**Scope candidate:** Bound the response to the shared execution-checkout hazards evidenced here: formatter selection, proof snapshot, test output and staged ownership. Choose the smallest coherent ownership/isolation approach during refinement, consistent with the direction of one owned worktree per agent. Do not add a scheduler, merge queue, default-checkout lock or automatic recovery of foreign work; the existing default-checkout story remains separate.
+
+**Evaluation:** Run two independent slices with one still editing while the other proves, formats and commits. The first’s verdict is attributable to its own candidate, no sibling output or source is changed, and no sibling staged deletion enters its commit. Where safe independence cannot be established, report an explicit bounded wait before mutation. Verify ordinary sequential delivery still works.
+
+**Findings:** [ODF-128](../../docs/maintainer/finding-names.md#odf-128), [ODF-129](../../docs/maintainer/finding-names.md#odf-129), [ODF-130](../../docs/maintainer/finding-names.md#odf-130), [ODF-131](../../docs/maintainer/finding-names.md#odf-131), with related baseline practice [ODF-155](../../docs/maintainer/finding-names.md#odf-155).
+
+**Completion:** Record the actual response, implementation commit and first containing release on each addressed finding in the catalog; distinguish delivered proof from later effectiveness.
+
+**Depends on:** No unfinished product prerequisite identified; reuse existing delivery and CLI entry mechanisms.

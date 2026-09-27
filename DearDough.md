@@ -416,64 +416,6 @@ dependents run correctly from inside the nested worktree with no setup step.
     check, before reporting a tooling gap") would prevent recurrence was not
     tested here.
 
-## ODF-092 — Claude Code managed delivery lacked session identity; a refused retry left a hidden observer
-
-Former local code: DD-095.
-
-Delivery without `--session-json` returned `pendingCi: unobserved`; no guidance
-names Claude Code's `$CLAUDE_CODE_SESSION_ID`. A retry for the accepted SHA was
-refused ("rebase left the pre-rebase SHA") after starting an unreported observer.
-Seven older occurrences (plans 089, 092, 096, 097 twice, 099, 100) are pruned; see Retention.
-
-### Occurrences
-
-- Execution: `slice-plans/088-dough-land/PLAN.md @ 647ff01`
-  - Timestamp: 2026-09-24T10:50:57+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: 0.3.36
-  - Evidence: retry-created `watch-Vcl3dH` reused at 5650123; plus `watch-ljLxgl`.
-  - Observed effect: two observers for one branch until one was stopped.
-- Execution: `SEED-042#rename-slice-plan-folder-references` / plan 111, first related implementation commit `e7b7ad1`
-  - Timestamp: unknown (first increment delivery, after commit `e7b7ad1` at 2026-09-26T14:11:57+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
-  - Evidence: `e7b7ad1` receipt `unobserved` ("host session identity is required"); no retry; explicit `ci-mailbox.mjs start` + `register-push` attached `watch-1QARos`.
-  - Observed effect: no duplicate observer, but recovery again needed a read of `ci-host-bridge.mjs`.
-
-- Execution: `SEED-028#track-ad-hoc-work` / plan 110, first related implementation commit `4286761`
-  - Timestamp: unknown (first increment delivery, after commit `4286761` at 2026-09-26T13:30:10+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
-  - Evidence: `4286761` receipt `observation.state: unobserved` ("host session identity is required"); later deliveries passed `--session-json` from `CLAUDE_CODE_SESSION_ID` and attached `watch-KacOun`. Source `trunk-publication.md` already reads that variable; the installed copy did not.
-  - Observed effect: slice 1 never observed; no duplicate observer (no retry of the accepted SHA).
-
-- Execution: `SEED-008#preserve-other-executions-work` / plan 114, first related implementation commit `f157f0e`
-  - Timestamp: unknown (first increment delivery, after commit `f157f0e` at 2026-09-26T17:09:03+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
-  - Evidence: `f157f0e` receipt `observation.state: unobserved` ("host session identity is required"); no retry; slice 2 delivery with `--session-json` from `CLAUDE_CODE_SESSION_ID` attached `watch-3NF61x`. Installed `trunk-publication.md` lacks the source's env-var sentence.
-  - Observed effect: slice 1 never observed individually; recovery needed a read of `ci-host-bridge.mjs`.
-
-- Execution: `SEED-037#fourfold-local-suite` / plan 107, first related implementation commit `273ae9a`
-  - Timestamp: unknown (first increment delivery, after commit `273ae9a` at 2026-09-26T11:06:26+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
-  - Evidence: `273ae9a` receipt `unobserved` ("host session identity is required"); `ci-host-bridge.mjs` read, then manual `start` + `register-push` (`watch-20kX7p`); later deliveries passed `--session-json` from `CLAUDE_CODE_SESSION_ID`.
-  - Observed effect: a ninth occurrence; no retry, so no hidden duplicate observer.
-
-- Execution: `SEED-046#ci-verdict-correction` / plan 126, first related implementation commit `9fa45de`
-  - Timestamp: unknown (first increment delivery, between commit `9fa45de` at 2026-09-27T12:43:54+08:00 and the observer start minutes later)
-  - Tool: Cursor
-  - Model: kimi-k3
-  - Open Dough release: modified; revision `ff3534c`; base 0.3.42
-  - Evidence: `9fa45de` delivery receipt `observation.state: unobserved` ("host session identity is required to verify the notification bridge"); a manual probe then showed `CI_MONITOR_READY`; explicit `ci-mailbox.mjs start` + `register-push` attached `watch-7YVAZ1`; the next managed delivery reported `observation.state: reused`.
-  - Observed effect: first Cursor occurrence; slice 1's increment was unobserved until the manual start, and the finding's `$CLAUDE_CODE_SESSION_ID` recovery does not apply to Cursor's conversation/generation identity.
-
 ## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
 
 Former local code: DD-094.
@@ -520,39 +462,6 @@ surfaced only at the coordinator's formatting step, after refactoring.
     say what applies when no hook owns lint. Cost was small per slice
     (minutes), and it compounds with ODF-064 because the fixes landed after
     the refactor pass.
-
-## ODF-095 — Behavior-only delivery-evidence slices cloned native run scaffolding four times
-
-Former local code: DD-092.
-
-Plan 085 told slice 1 to create the smallest shared fixture/runner adaptation
-and keep it with the behavior rather than a standalone framework slice. Slices
-2–4 each shipped near-complete `delivery-evidence-*-native-run.sh` clones (and
-largely duplicated fixture scaffolding) instead of extending one harness.
-Aggregate residue is ~3.3k LOC across 20 support files; claims↔gaps run scripts
-are nearly identical rename-only diffs. Credential-free assessors and
-case-specific observe/assess/scenario bodies remain sound; orchestration is the
-waste.
-
-### Occurrences
-
-- Execution: `SEED-004#accept-delivery-evidence` / plan 085 @ `2e96700a5e2aae750950fe7095e788cd605ef1bd` (first implementation commit; clones completed through `a36f7ffd2050e23c1395438f9e389220be0b2787`)
-  - Timestamp: 2026-09-23T17:25:45+08:00
-  - Tool: Cursor
-  - Model: unknown
-  - Open Dough release: modified; revision a36f7ffd2050e23c1395438f9e389220be0b2787; base 0.3.32
-  - Evidence: Aggregate diff `59b76944..a36f7ffd` adds four parallel
-    `tests/support/delivery-evidence-{selection,claims,consumers,gaps}-native-*.sh`
-    sets; plan 085 Proof approach said first slice creates the shared
-    adaptation; retrospective correction plan
-    `8c2fa5aad53c1189f0bc86b6cc4289fc26e8b4d4:.planning/slice-plans/086-share-delivery-evidence-native-harness/PLAN.md`.
-  - Observed effect: Four Behavior slices delivered acceptance mechanisms with
-    Cursor native proof, but left shotgun run/fixture residue requiring a
-    follow-up Structure correction before maintainable extension.
-  - Inference: Keeping the fixture “with the behavior” plus Behavior-only
-    decomposition, without a Structure consolidation slice, induced copy-paste
-    across slices; per-slice post-change refactor could not see the later clones
-    as one concept until aggregate review.
 
 ## ODF-096 — Native acceptance fixtures' sufficient side was not credible, and each case paid a failed run to learn it
 
@@ -706,28 +615,25 @@ Pipeline exit status hid the failed lint command; the earlier semicolon-chain oc
     `1e648d9` was published, CI run `36147702793` `lint` failed; repair `decb252`.
   - Observed effect: one extra commit, push, and failed CI lint job.
 
-## DD-105 — Two binding plan decisions conflicted, and only implementation found it
+## ODF-154 — Cursor managed delivery lacks its coordinator session identity
 
-The plan's decision to call the backlog domain's listing check and its rule to
-keep refusal messages the tests assert could not both hold, because the domain
-refuses with different wording.
+Former local code: DD-095 (plan 126 Cursor occurrence only).
+
+Cursor conversation/generation identity was absent on first delivery. The Claude-only environment fallback does not resolve this host identity.
 
 ### Occurrences
 
-- Execution: `SEED-028#admission-coherence` / plan 113, first related implementation commit `733fe46`
-  - Timestamp: unknown
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: modified; revision 1b66466; base 0.3.41
-  - Evidence: slice 2 return (before `c7893ac`, 2026-09-26) stopped on the
-    conflict; the coordinator chose the domain wording and one regex was
-    loosened.
-  - Observed effect: one stop and resume of the slice 2 agent; the stop was
-    correct behavior.
-  - Inference: Plans that move a message-bearing rule to another owner could
-    say whether that owner's wording may replace the asserted one.
+- Execution: `SEED-046#ci-verdict-correction` / plan 126, first related implementation commit `9fa45de`
+  - Timestamp: unknown (first increment delivery, between commit `9fa45de` at 2026-09-27T12:43:54+08:00 and the observer start minutes later)
+  - Tool: Cursor
+  - Model: kimi-k3
+  - Open Dough release: modified; revision `ff3534c`; base 0.3.42
+  - Evidence: `9fa45de` delivery receipt `observation.state: unobserved` ("host session identity is required to verify the notification bridge"); a manual probe then showed `CI_MONITOR_READY`; explicit `ci-mailbox.mjs start` + `register-push` attached `watch-7YVAZ1`; the next managed delivery reported `observation.state: reused`.
+  - Observed effect: first Cursor occurrence; slice 1's increment was unobserved until the manual start, and the finding's `$CLAUDE_CODE_SESSION_ID` recovery does not apply to Cursor's conversation/generation identity.
 
-## DD-106 — Concurrent slices in one checkout shared Playwright's output directory
+## ODF-130 — Concurrent slices in one checkout shared Playwright's output directory
+
+Former local code: DD-106.
 
 Running disjoint slices concurrently in one execution checkout let one agent's
 Playwright run delete artifacts another run was writing.
@@ -748,43 +654,9 @@ Playwright run delete artifacts another run was writing.
   - Inference: Concurrent slices were otherwise useful here; file-disjoint
     changes do not make shared test output directories disjoint.
 
-## DD-107 — A CI repair was committed without pausing live writers
+## ODF-129 — Full-suite proof in a checkout another agent was editing reported false failures
 
-The CI repair protocol pauses every writer and stashes unfinished work before
-repairing; the coordinator instead committed an index-only repair while two
-agents kept editing the checkout.
-
-### Occurrences
-
-- Execution: `SEED-028#admission-coherence` / plan 113, first related implementation commit `733fe46`
-  - Timestamp: 2026-09-26T17:21:53+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: modified; revision 1b66466; base 0.3.41
-  - Evidence: CI run `36232460397` failed at checkout on gitlinks committed
-    by `1b66466`; repair `56ae2aa` (`git rm --cached` plus `.gitignore`) was
-    staged and committed alongside the unstaged work of two live agents.
-  - Observed effect: the repair published and CI went green; no agent work
-    was lost.
-  - Inference: A deliberate deviation. The protocol has no lighter path for
-    a repair that cannot touch other writers' files; whether it should is
-    open.
-
-## DD-108 — A host permission check refused maintainer-approved test removals relayed to an agent
-
-The maintainer approved a coverage map through the coordinator; the implementation agent's first run-removing edit was refused by Claude Code auto mode as "Security Test Removal", since relayed approval is not user consent.
-
-### Occurrences
-
-- Execution: `SEED-037#fourfold-local-suite` / plan 107, first related implementation commit `273ae9a`
-  - Timestamp: unknown (between `8da97ee` at 2026-09-26T12:56:27+08:00 and `cee3f07` at 2026-09-26T14:09:29+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
-  - Evidence: agent report "refused … Security Test Removal", no edits made; maintainer's direct instruction; coordinator applied the removals in `cee3f07`.
-  - Observed effect: slice 3 blocked for one extra maintainer round trip.
-
-## DD-109 — Full-suite proof in a checkout another agent was editing reported false failures
+Former local code: DD-109.
 
 `npm test` in the shared execution checkout, while a parallel slice edited `src/skills`, failed three payload-comparing checks; an isolated worktree with only the finished slice passed.
 
@@ -798,7 +670,9 @@ The maintainer approved a coverage map through the coordinator; the implementati
   - Evidence: failures in `install-all-tools.sh`, `native-delivery-updated-use{,-adapters}.sh`; isolated rerun at `c2e340d` plus slice 3 passed; slice 5's final candidate passed all three.
   - Observed effect: one wasted full suite and a diagnosis detour; later proof used detached worktrees.
 
-## DD-111 — A delegated implementation agent handed back before finishing its own required proof
+## ODF-132 — A delegated implementation agent handed back before finishing its own required proof
+
+Former local code: DD-111.
 
 Slice 2's agent returned three times with its ablation and paired measurement unfinished while its background runs continued, asking the coordinator to finish them. Possibly related to ODF-059 (a stall after editing), but here the agent returned.
 
@@ -812,7 +686,9 @@ Slice 2's agent returned three times with its ablation and paired measurement un
   - Evidence: reports "measurement incomplete" and "I had to hand back before your remaining steps were finished"; the coordinator stopped it and ran the reruns and 3×3 pairs; later briefs saying "finish all required proof yourself" returned complete.
   - Observed effect: about an hour of coordinator-driven measurement on slice 2.
 
-## DD-112 — A fixable sizing concern recorded as not-ready stopped execution for a human round trip
+## ODF-133 — A fixable sizing concern recorded as not-ready stopped execution for a human round trip
+
+Former local code: DD-112.
 
 Planning recorded `not-ready` for a slice-sizing concern its own refinement could resolve, so execute-plan startup refused and the split needed a separate preparation cycle and an explicit keep before any work started.
 
@@ -826,7 +702,9 @@ Planning recorded `not-ready` for a slice-sizing concern its own refinement coul
   - Evidence: `ee563d5` recorded reason "Slice 1 … sizing is uncertain"; `execution-start.mjs start` → `source-refused`, "published preparation is needs-reassessment"; refinement split slice 1 by its two independent outcomes (`a6e6ef7`).
   - Observed effect: one human round trip plus an announce/land publication cycle before the claim. Qualified inference: the concern named its own remedy (split); refinement at planning time would have recorded ready.
 
-## DD-115 — A Story Branch execution rebased onto trunk, and managed delivery rebased it back
+## ODF-134 — A Story Branch execution rebased onto trunk, and managed delivery rebased it back
+
+Former local code: DD-115.
 
 The plan said to integrate onto whichever sibling runner change had landed. In
 Story Branch Mode the coordinator rebased its unpublished commit onto
@@ -844,7 +722,9 @@ execution branch tip, dropping the trunk base, and returned `needs-validation`.
   - Observed effect: one full local suite run proved a base the branch never published; plan proof text was rewritten and re-proved before delivery.
   - Inference: Qualified. Trunk integration belongs to Story Branch wrap-up; a plan's "integrate onto whichever landed" reads as a mid-execution rebase.
 
-## DD-116 — An out-of-scope local failure was fixed without first fetching trunk, duplicating a sibling's fix
+## ODF-136 — An out-of-scope local failure was fixed without first fetching trunk, duplicating a sibling's fix
+
+Former local code: DD-116.
 
 The full local suite failed on `tests/support/dashboard-dev-port.test.mjs`
 because a developer's dashboard server held port 43127. The coordinator wrote
@@ -861,7 +741,9 @@ an equivalent fix; trunk already carried one from a sibling execution.
   - Observed effect: one rewrite and focused run wasted; found only when a later fetch showed the file size gap.
   - Inference: Qualified. With parallel agents on trunk, fetching before fixing an unrelated failure is cheap and may find it already fixed.
 
-## DD-120 — A sibling story's refinement invalidated readiness, costing a reassessment cycle before the claim
+## ODF-116 — A sibling story's refinement invalidated readiness, costing a reassessment cycle before the claim
+
+Former local code: DD-120.
 
 Execution-start refused a ready, queued correction with `source-refused`
 ("published preparation is needs-reassessment") because a sibling story's
@@ -879,7 +761,9 @@ publication, and a start retry all preceded any work.
   - Evidence: refusal `source-refused` / "published preparation is needs-reassessment"; `git diff eaa69a4 HEAD` on the seed showed only the sibling `dashboard-port-race` refinement and wording; reconfirmed basis published as `ff3534c`; the retried start published the claim.
   - Observed effect: one basis-hash diagnosis, one record-state, one trunk publication, and a repeated start before the claim. SEED-043#preserve-sibling-readiness is the queued product response.
 
-## DD-121 — A ready plan named a validation command the backlog tool does not have
+## ODF-074 — A ready plan named a validation command the backlog tool does not have
+
+Former local code: DD-121.
 
 Plan 115 slice 2's proof said "The backlog's validation passes", but the
 installed backlog tool has no validate operation; the implementation agent
@@ -895,7 +779,9 @@ substituted write-time checks, a `read-state` read-back and manual checks.
   - Observed effect: small detour and an equivalent-proof judgment at acceptance; no rework
   - Inference: same class as the unobserved planning premises this story addresses (catalog ODF-074); plan 115 was written before its own rule
 
-## DD-122 — Execution start accepts a Take while a preparation of the same story is announced but not kept
+## ODF-137 — Execution start accepts a Take while a preparation of the same story is announced but not kept
+
+Former local code: DD-122.
 
 The start command checks only the published readiness state, so a
 coordinator can Take a story whose live preparation is still editing its plan.
@@ -910,7 +796,9 @@ coordinator can Take a story whose live preparation is still editing its plan.
   - Observed effect: the coordinator waited by judgment and messaged a peer session that did not hold the preparation, since the agent profile names no session
   - Inference: without that wait, execution would have started from the stale plan and the keep would have collided with the Take
 
-## DD-123 — A reported guidance gap was accepted without checking its consequence, hiding a data-loss path
+## ODF-138 — A reported guidance gap was accepted without checking its consequence, hiding a data-loss path
+
+Former local code: DD-123.
 
 ### Occurrences
 - Execution: `SEED-008#truthful-repair-restore` / plan 115 (truthful-repair-restore), first related implementation commit `8f88364`
@@ -922,9 +810,33 @@ coordinator can Take a story whose live preparation is still editing its plan.
   - Observed effect: two refactor passes and slice 2 shipped guidance that finishes every conflict with a drop; follow-up SEED-008#unapplied-restore-kept
   - Inference: the plan named guidance only for `partial`, so the gap looked like missing polish rather than a safety promise
 
+## ODF-128 — A whole-repository formatter coupled concurrent slices' deliveries
+
+Former local code: DD-117.
+
+Delivery says to run the project's selective formatting command once before
+staging, and file-disjoint slices may run concurrently. Here that command
+checks every file in the checkout, so one slice's delivery also judged the
+other slice's unreviewed, uncommitted work.
+
+### Occurrences
+
+- Execution: `SEED-048#test-environment-correction` / plan 127, first related implementation commit `23a3a75`
+  - Timestamp: unknown; before slice 1's commit at 2026-09-27T13:06:01+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac7`
+  - Evidence: slice 1's `npm run format` failed on SC2312 at
+    `scripts/ci-container.sh:58`, slice 2's file, while slice 2 awaited its
+    refactor pass.
+  - Observed effect: slice 1's delivery stopped until the coordinator edited
+    slice 2's uncommitted code; one extra formatter run.
+  - Inference: Qualified; small cost here. Like DD-106, file-disjoint changes
+    did not make shared tooling disjoint. Concurrent slices 1 and 2 still
+    saved wall time.
+
 ## Retention
 
-- Highest allocated local number: 123
-- Moved to [ProjectFindings.md](ProjectFindings.md) as project-owned: DD-113, DD-114; ODF-060 was resolved and removed there (recoverable at `7ebcb07c:DearDough.md`)
-- Recovery: `48a0415:DearDough.md` (plan 127's DD-117, a whole-repository formatter coupling concurrent slices' deliveries; not retained at the 1,000-line ceiling); `ab3cb42:DearDough.md` (ODF-003 `SEED-008#publish-shared-backlog-claims` occurrence, removed for size; three later same-mechanism rows remain); `70386eb:DearDough.md` (ODF-061, addressed by `c897488` requiring Bash 5 and by the runner's stop-location report); `3e611d2:DearDough.md` (DD-110, removed for size; later checkpoints lead with a recommendation); `2b18837:DearDough.md` (ODF-003 `SEED-004#execute-in-worktree-and-merge-at-wrap-up` occurrence, removed for size; three later same-mechanism rows remain); `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
-- Occurrence history is partial
+- Highest allocated local number: 123. Removed local codes are never reused.
+- Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`.
+- Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.
