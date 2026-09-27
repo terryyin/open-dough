@@ -46,73 +46,13 @@ about 1.5× apart, so use at least five runs per measurement.
 
 ## Stories
 
-<a id="ci-verdict-round-2"></a>
-
-### Bring the integrated CI verdict back under 120 s by splitting CI's checks across parallel jobs
-
-**Identity:** SEED-046#ci-verdict-round-2
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/122-ci-verdict-parallel-jobs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c6a785b720a4eedede4d7857d3f1d42dbedf48ad6a5aa8b1c043feb77f355437","plan":"90fdb395a2d5ac71eb3b21566c1a1cc3c4b718fef61010ffd523706c1d862208"}}
-```
-
-**Goal:** Every revision published to trunk gets its CI verdict — the whole
-CI workflow finishing — at a median of at most 120 s over at least five runs,
-from about 155–163 s now, with every check still running on CI exactly as
-strictly as before. Agents at completion points wait less, and a red trunk
-shows sooner to every agent publishing to it.
-
-**Scope:**
-
-1. **Checks split across parallel CI jobs.** CI runs the shell and node
-   checks as several jobs on separate runners, two expected. Every check the
-   runner discovers, including the self-installation check, runs in exactly
-   one of them, without a hand-maintained list, so a new check file is
-   covered automatically. A local `npm test` still runs every check.
-2. **The dashboard job no longer sets the verdict.** The browser suite
-   finishes within the target too, by Playwright's own sharding across CI
-   jobs, or within one job when using the runner's cores is enough.
-3. **The time budget belongs to CI.** `tests/time-budget` applies to each
-   split job and is recalibrated from the split runs by its existing rule
-   (1.5× the largest observed values). A breach still fails CI. Local runs no
-   longer print the budget report: its ceilings describe CI's runner, and
-   local times on a loaded machine measure contention. CI keeps each split
-   job's `test-times`, and the `longest-first` refresh instructions cover
-   them.
-
-**Key examples:**
-
-1. A revision reaches `main` → CI runs lint, the split test jobs, and the
-   dashboard in parallel → across at least five runs the workflow's median
-   wall time is at most 120 s, and every discovered check appears in exactly
-   one split job's `test-times`.
-2. A maintainer adds `tests/new-check.sh` → next CI run → it runs in exactly
-   one split job, with no list edited; a local `npm test` runs it too.
-3. A check fails in one split job → that job fails naming the check, as the
-   `test` job does today, and the verdict is red.
-4. A split job's total exceeds its ceiling on CI → that job fails with the
-   budget report. The same over-ceiling times in a local `npm test` on a
-   loaded laptop print nothing and exit 0 when every check passes.
-
-**Rejection constraints:** no retries, loosened assertions, skips, or longer
-timeouts to gain speed; no check is removed or merged away (removing a run
-needs another run that observes the same promise at the same boundary, with
-the maintainer's approval of the coverage map).
-
-**Out of scope:** reducing test work, including profiling
-`tests/git-publication-native.sh`; fewer `git fetch` calls per
-`execution-start` (that changes remote-state freshness, a product decision
-for its own story); tightening the per-job ceiling or a per-check time
-target; local test speed; larger or paid runners; the native adapter check's
-silent `run_selected` failure and the copied result-path parse, now
-[SEED-049#native-result-path-diagnosis](SEED-049-native-result-path-diagnosis.md#native-result-path-diagnosis).
-
 <a id="ci-verdict-correction"></a>
 
 ### Keep the split test runner and CI's split in one place each
 
 **Identity:** SEED-046#ci-verdict-correction
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/126-ci-verdict-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"77e9a2f6983b56ef7661febc70e8f2ec3ccbed0fbfc7561f0ea7c402e8009cb8","plan":"79ed2c42a644ccb93f4e3c80febac51163b7cffd9e6448b5957ede57f4acbc84"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/126-ci-verdict-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0158ba38631e33e91923039bf9f29185394b14fbe9c0e6cc5b7b072bdde34914","plan":"29804ac75be4ecc2c3a4f1d25ca9a890dc2cd4a014be6375dcbeec04b0b97eaf"}}
 ```
 
 **Goal:** A maintainer changing the test runner, the CI split, or the time
@@ -121,7 +61,7 @@ is CI's, one helper copies the runner into test fixtures, the test directory
 default is resolved once, the split count is stated once per workflow matrix,
 and the contributor documentation describes the split generically and
 accurately. This corrects the CI verdict round 2 execution
-([ci-verdict-round-2](#ci-verdict-round-2), plan 122) and adds no feature
+(`SEED-046#ci-verdict-round-2`, plan 122, recoverable at `c9585be:.planning/slice-plans/122-ci-verdict-parallel-jobs/PLAN.md`) and adds no feature
 promise: every CI job name, split, and budget verdict stays as delivered.
 
 **Scope:** the budget checker's exit rule, the runner's copy in test
@@ -172,8 +112,8 @@ occupying a returned port before Vite starts) before repairing it.
 
 ## When to Surface
 
-Now: second in the product backlog, after SEED-048, per the maintainer on
-2026-09-27.
+Now: the dashboard port race first and the CI verdict correction second in
+the product backlog, per the maintainer on 2026-09-27.
 
 ## Breadcrumbs
 
@@ -182,7 +122,7 @@ Now: second in the product backlog, after SEED-048, per the maintainer on
   earlier leftovers list is at
   `f10d52e:.planning/slice-plans/117-observer-stop-and-test-infrastructure-cleanup/PLAN.md`.
 - [SEED-048#explicit-test-environment](SEED-048-explicit-test-environment.md#explicit-test-environment)
-  also changes `scripts/test.sh` (chosen checks, Git environment) and is
-  queued first.
+  also changes the test runner (chosen checks, Git environment); job
+  selection now lives in `scripts/test-jobs.sh`.
 - Tests README "Installation and update coverage gaps" lists four installer
   promises no check observes yet.

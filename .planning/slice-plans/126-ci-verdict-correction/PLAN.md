@@ -6,8 +6,9 @@
 
 [Correction story](../../seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-correction),
 from the execution retrospective of plan 122
-([SEED-046#ci-verdict-round-2](../../seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-round-2),
-[plan 122](../122-ci-verdict-parallel-jobs/PLAN.md)). Reviewed commits, all on
+(`SEED-046#ci-verdict-round-2`, recoverable at
+`c9585be:.planning/seeds/SEED-046-test-and-ci-optimization-round-2.md`, and
+plan 122 at `c9585be:.planning/slice-plans/122-ci-verdict-parallel-jobs/PLAN.md`). Reviewed commits, all on
 `claude/122-ci-verdict-parallel-jobs` after its Take `3e611d2`: `a034dfd`
 through `bbc1b8f`. Every promise of the reviewed story was met (CI verdict
 median 98 s over five runs of `37679c6`; `bbc1b8f` green in 92 s); the findings
