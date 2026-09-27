@@ -41,8 +41,8 @@ published planning-premise response covers it.
 
 ## Test-runner settings reaching what the runner starts (first priority)
 
-**Follow-up:** delivered:
-[Keep the test runner's own settings from reaching the checks it starts](.planning/seeds/SEED-051-isolate-test-runner-settings.md#isolate-runner-settings)
+**Follow-up:** delivered: "Keep the test runner's own settings from reaching
+the checks it starts" (story at `6ddfcf01`:`.planning/seeds/SEED-051-isolate-test-runner-settings.md`)
 covers the split occurrence (plan 122). The plan 120 occurrence, a setting the
 runner shares with every check on purpose reaching product code under test, is
 not part of it: `23a3a759` repaired that case, and the general proof-design
