@@ -940,6 +940,14 @@ observer launch recipes went unused.
   - Evidence: coordinator conversation: persisted reads of `delegation.md` + `execution-decisions.md` + `agent-commits.md` + `runtime-setup.md` (31.6KB) and `wrap-up.md` + `ci-monitor.md` (29.9KB), plus `execution-location.md`, `trunk-publication.md`, `finish-or-stop.md`, `ci-completion-wait.md`
   - Observed effect: no rework or error; context spent on paths not taken
   - Inference: Qualified. The skill ties reads to boundaries ("before arming observation", "before a claim"), but managed delivery and the start command now own those mechanics, so a boundary reached through them still triggers full reads. Cost only; this run gives no evidence of harm to quality
+- Execution: `SEED-008#restate-ci-pause-ownership` / plan 132, first related implementation commit `bab3ac9b`
+  - Timestamp: unknown (between Take `89dd4bfe` committed 2026-09-27T20:23:12+08:00 and `bab3ac9b` committed 2026-09-27T20:29:32+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac7` (v0.3.42)
+  - Evidence: coordinator conversation: full reads of `execution-location.md` + `trunk-publication.md`, `delegation.md` + `execution-decisions.md`, `wrap-up.md` + `ci-monitor.md` (both halves), `finish-or-stop.md`, `ci-completion-wait.md`, `agent-commits.md`, part of `publish-the-candidate.md`; the one slice replaced one sentence and added one test
+  - Observed effect: same as above; the start command and managed delivery owned the claim, observer, and publication, and no CI event, repair, or stash occurred
+  - Inference: Qualified. Second consecutive one-slice prose execution with the same read set, so the cost recurs rather than being a one-off
 
 ## Retention
 

@@ -63,3 +63,9 @@ None yet.
 ## Learnings
 
 None yet.
+
+## Execution complete
+
+Product advice: no change. The correction fits the near-future direction of
+agents in separate worktrees that preserve other sessions' work; the related
+queued `SEED-008#same-machine-merge-queue` keeps its priority.
