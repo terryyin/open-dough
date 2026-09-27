@@ -6,7 +6,7 @@
 
 [Correction story](../../seeds/SEED-028-track-ad-hoc-work.md#one-shot-entry-coherence),
 from the execution retrospective of
-[one-shot work](../../seeds/SEED-028-track-ad-hoc-work.md#one-shot-work)
+one-shot work (story recoverable at `89836961:.planning/seeds/SEED-028-track-ad-hoc-work.md`)
 (plan 112; commits `d0101737`, `6f350f28`, `70f6cde1`, reviewed at `70f6cde1`).
 
 ## Findings (current at `70f6cde1`)
