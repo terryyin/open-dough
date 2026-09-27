@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Hitomi-chan",
-  "email": "hitomi-chan@example.org",
-  "identity": "SEED-053#dashboard-browser-navigation",
-  "mode": "story-branch",
-  "branch": "dough/dashboard-browser-navigation",
-  "host": "cursor"
-}
