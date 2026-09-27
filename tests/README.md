@@ -28,7 +28,9 @@ environment in `scripts/test-environment.bash`, before any check starts:
   requirement; the product installer still supports Bash 3.2.
 - **CI's Git state.** No global, system, or inherited configuration or
   identity variables; automatic maintenance off, so no detached repack
-  rewrites `.git/objects` while a check snapshots or removes a fixture; no
+  rewrites `.git/objects` while a check snapshots or removes a fixture (a push
+  over Git's local transport drops these settings, so a fixture that copies a
+  pushed-to bare remote turns maintenance off in that remote's own config); no
   identity or default branch, so a commit fails unless the check sets one (a
   shell fixture gets it from `tests/helpers/release-fixture.bash`'s
   `configure_fixture_git`).
