@@ -55,10 +55,7 @@ destination_for /dev/null "${platform}" > /dev/null
 if [[ "${recorded_source}" == /* && -d "${recorded_source}" ]]; then
   recorded_source=$(cd -- "${recorded_source}" && pwd -P)
 elif [[ -d "${original_pwd}/${recorded_source}" ]]; then recorded_source=$(cd -- "${original_pwd}/${recorded_source}" && pwd -P); fi
-[[ -d "${target}" ]] || {
-  echo "Client project directory does not exist: ${target}" >&2
-  exit 1
-}
+[[ -d "${target}" ]] || { echo "Client project directory does not exist: ${target}" >&2 && exit 1; }
 target=$(cd -- "${target}" && pwd -P)
 managed_files=(
   dough-update/SKILL.md
@@ -209,6 +206,8 @@ managed_files=(
   dough-execute-plan/scripts/execution-start-source.mjs
   dough-execute-plan/scripts/execution-source.mjs
   dough-execute-plan/scripts/execution-admission-source.mjs
+  dough-execute-plan/scripts/execution-admission-reconcile.mjs
+  dough-execute-plan/scripts/execution-start-carry.mjs
   dough-execute-plan/scripts/one-shot-ownership.mjs
   dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
   dough-execute-plan/scripts/history-preserving-publication.mjs

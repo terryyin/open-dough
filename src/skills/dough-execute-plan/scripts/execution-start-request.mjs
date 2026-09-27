@@ -50,6 +50,10 @@ export function startRequest(requestInput) {
       candidateSha: request.candidateSha,
     };
   }
+  if (request.carry === true && request.admit !== true)
+    return stopped("invalid-request", {
+      error: "--carry carries a one-shot attempt's edits into --admit",
+    });
   if (request.admit === true)
     for (const field of ["link", "title"])
       if (!request[field])

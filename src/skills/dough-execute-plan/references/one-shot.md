@@ -109,11 +109,43 @@ conclusion, retire the clean workspace and its branch under Dough Land's
 [Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree). Nothing
 remains to wrap up: the delivered commit already closed any queued story.
 
-## Stop when the work grows
+## Escalate when the work grows
 
 When the attempt proves larger than one-shot allows, through newly discovered
 complexity, a separate outcome, or failure to converge, stop substantive work
-before going further. Keep every owned edit and valid proof in the workspace,
-uncommitted and unpublished, and report its path, branch, `startingRevision`,
-and that continuing it as tracked work is pending a developer decision. Do not
-admit, publish, or discard it on your own.
+and escalate it into tracked work before going further. If the developer
+stopped the work or replanning is disabled (`--no-replan`), do not escalate:
+take the [no-replan stop](oversized-slice.md) instead.
+
+Keep the attempt's edits uncommitted in the workspace: only uncommitted edits
+are carried, so undo a result commit you already made while keeping its
+changes. For a queued story, first revert any completion or spent-record
+removal you composed for it; the story stays in the backlog. An unlisted
+request needs its story: draft it in a suitable seed in the originating
+checkout as [Prepare the story](admit-accepted-work.md#prepare-the-story)
+describes. A queued story keeps its identity, link and title.
+
+Then run the start command with the same workspace and branch, `--identity`,
+`--publisher-id`, and `--admit --link <link> --title <title> --carry`. The
+command parks your edits under `refs/dough/carried/<branch>`, returns the
+workspace to clean fetched trunk, and publishes the ordinary
+[admission](admit-accepted-work.md#act-on-the-result) there; a queued story's
+existing entry moves to Taken without a readiness assessment. It then restores
+your edits, uncommitted, over the claim and reports `carried: {restored:
+true}`. A queued story that another owner now holds stops with
+`source-refused` or `conflict` and leaves your edits untouched.
+
+Any other stop that names `carried.ref` keeps your edits under that ref:
+
+- an interrupted publication resumes as the start command describes, with the
+  same flags; if the start ended without a result, run it again unchanged,
+  and if that refuses a workspace commit fetched trunk lacks, resume with
+  `--starting-revision` set to your one-shot `startingRevision` and
+  `--candidate-sha` set to the workspace's `HEAD`;
+- `carry-conflict` means the claim was accepted but your edits conflict with
+  it in the listed `paths`: report it and leave the merge to a human.
+
+Once restored, the workspace is the claimed story's checkout. Continue through
+[Continue into implementation](admit-accepted-work.md#continue-into-implementation)
+within the original instruction's authority, reusing your proof while its
+boundary is unchanged.

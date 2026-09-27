@@ -55,6 +55,17 @@ export function startSource(request) {
     admitting: false,
     read: readPublishedExecutionSource,
     changed: (refreshed, selected) => !sameSelectedSource(refreshed, selected),
+    // A resumed claim's source must still be the one its claim was built on.
+    async retainedBasis(reader, selected) {
+      const original = await readPublishedExecutionSource(
+        reader,
+        reader.retained.startingRevision,
+      );
+      if (!sameSelectedSource(original, selected))
+        throw new Error(
+          "selected published source changed since retained claim basis",
+        );
+    },
   };
 }
 

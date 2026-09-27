@@ -4,6 +4,7 @@
 // fetched trunk; managed delivery rereads it on each fetched target tip, never
 // on a rebased candidate that could hide a competing holder. Delivery loads it
 // only for one-shot work, so it otherwise never needs the product-backlog skill.
+// Escalating a grown queued attempt into admission rechecks the same holders.
 import {
   parseBacklog,
   queueHeading,
@@ -58,6 +59,13 @@ async function notReadyReasons(cwd, rev, entry) {
   const notReady =
     assessment.status === "not-ready" || assessment.recorded === "not-ready";
   return notReady ? assessment.reasons : undefined;
+}
+
+// Throws the refusal for work another owner holds on `rev`: a Taken entry or
+// an agent profile (execution or preparation) naming it.
+export async function requireUnheld(cwd, rev, identity, backlogPath) {
+  const held = heldBy(await holdingAt(cwd, rev, identity, backlogPath));
+  if (held) throw new Error(held.error);
 }
 
 // The start's check: throws the refusal for work that is Taken, held by a

@@ -81,9 +81,10 @@ replaying that completion over a competing Take would otherwise surface as a
 backlog merge conflict. On growth the one-shot workspace becomes the admitted story's
 checkout: park the attempt's owned edits under a workspace-owned ref, return
 the workspace to clean fetched trunk, run the ordinary admission claim there,
-then restore the edits over the Take. Admission accepts a queued story too,
-moving its existing entry to Taken without a readiness assessment; continuing
-into implementation keeps the ordinary readiness gate. Entry workflows pass the
+then restore the edits over the Take. Admission carrying such an attempt
+accepts a queued story too, moving its existing entry to Taken without a
+readiness assessment; ordinary queued starts and continuing into
+implementation keep the readiness gate. Entry workflows pass the
 flag through and keep no one-shot rules of their own.
 
 ## One backlog interpretation, separate observation and presentation

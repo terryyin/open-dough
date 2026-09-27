@@ -169,7 +169,7 @@ Safe stop: queued success and ownership races are covered; growth still stops.
 
 ### 3. Admit a growing attempt in its own workspace and continue
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: an unlisted or queued one-shot attempt proves larger → owned edits
 are parked and the workspace returns to clean fetched trunk → ordinary
@@ -263,3 +263,19 @@ No slice-specific concern remains. All decisive premises are observed above.
 - For slice 3: a parked queued attempt must not carry a composed `complete`
   into admission; park before cleanup is composed. The guard can recheck queued
   ownership during escalation.
+- Slice 3 (2026-09-27): `--carry` with `--admit` (`execution-start-carry.mjs`)
+  parks owned uncommitted edits under `refs/dough/carried/<branch>` with a
+  temporary-index commit, resets the workspace to fetched trunk, runs the
+  ordinary claim, and restores through `git apply --cached` on a temporary
+  index (portable to Git older than 2.40; `merge-tree --merge-base` was
+  rejected for that reason). A local result commit refuses; an overlap stops as
+  `carry-conflict` with the ref kept. Reruns after a kill at park, reset or ref
+  deletion finish once without re-parking. Queued admission is accepted only
+  with `--carry`, so ordinary queued starts keep the readiness gate; the North
+  Star wording was narrowed to match. Accepted proof: `node --test
+  src/skills/dough-execute-plan/scripts/one-shot-escalation*.test.mjs` (12)
+  plus one-shot, admission, startup, workspace-publication and delivery suites
+  (131). The `--no-replan` route is guidance only, reusing the existing stop.
+- Missing native evidence: the manual paid cases `publication/one-shot-result`,
+  `publication/one-shot-queued` and `publication/one-shot-escalation` were not
+  added or run; they need the developer's agreement before release.
