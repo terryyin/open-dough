@@ -222,6 +222,34 @@ acceptance evidence and consolidating backlog-holder readers across skills.
 
 **Plan:** [Make one-shot read the same from every entry workflow](../slice-plans/130-one-shot-entry-coherence/PLAN.md).
 
+<a id="native-one-shot-acceptance"></a>
+
+### 4. Accept one-shot natively on Claude Code, Codex and Cursor
+
+**Identity:** SEED-028#native-one-shot-acceptance
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** An agent on each supported host that is asked for explicit one-shot
+work publishes only its verified result, completes a queued story in one
+commit, and escalates a growing attempt through admission without losing edits.
+
+**Why:** [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+requires native behavior evidence before release; the one-shot guidance has
+mechanical proof only. Its planned native cases were never added.
+
+**Cases** (named in plan 112, recoverable at
+`36e62435:.planning/slice-plans/112-one-shot-work/PLAN.md`), as manual cases in
+`tests/git-publication-native.sh`: `publication/one-shot-result` (explicit flag,
+only the result on trunk, workspace retired; ordinary contextual work still
+admits), `publication/one-shot-queued` (result and cleanup in one commit, no
+intermediate Taken), `publication/one-shot-escalation` (admission before further
+edits, restored edits, continuation without an unnecessary approval stop).
+
+**Constraints:** Paid native runs are manually triggered only, once per case
+per guidance version, after [entry coherence](#one-shot-entry-coherence) lands.
+
 ## Ordering and Scope Reduction
 
 Queue these two stories in this order at the original story's current position:

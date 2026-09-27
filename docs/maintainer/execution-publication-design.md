@@ -1,7 +1,7 @@
 # Execution and publication with less agent coordination
 
-**Status:** Maintained design context. Queued-start and admission publication
-use the installed `dough-execute-plan/scripts/execution-start.mjs` command; delivery,
+**Status:** Maintained design context. Queued-start, admission, and one-shot
+starts use the installed `dough-execute-plan/scripts/execution-start.mjs` command; delivery,
 preparation, closure, and local checkout coordination remain separate work. Not
 an executable plan or a new Accepted ADR. The
 [seed](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md)
@@ -37,8 +37,8 @@ publisher at their own boundaries.
 | --- | --- |
 | Backlog | [`product-backlog.mjs`](../../src/skills/dough-product-backlog/scripts/product-backlog.mjs) is a real CLI. Its domain API owns identity, membership, preparation state, and semantic reconciliation; local Take alone does not publish. Reuse its Git adapters even for textually clean backlog merges. |
 | Publication | [`publish-the-candidate.md`](../../src/skills/dough-execute-plan/references/publish-the-candidate.md) owns the shared contract. The startup command uses production Git helpers; other publication callers still have their existing paths. |
-| Startup | [`execution-start.mjs`](../../src/skills/dough-execute-plan/scripts/execution-start.mjs) owns queued-start and admission publication through one orchestration and publisher. [`execution-worktree-preparation-readiness-gate.mjs`](../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs) is a separate project-command substitute used by tests. |
-| Delivery | [`execution-increment-delivery.mjs`](../../src/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs) owns managed execution increment and repair delivery, runtime resolution, and observation attachment. |
+| Startup | [`execution-start.mjs`](../../src/skills/dough-execute-plan/scripts/execution-start.mjs) owns queued-start and admission publication, and the one-shot start that publishes nothing, through one orchestration and publisher. `--admit --carry` parks a one-shot attempt's uncommitted edits under `refs/dough/carried/<branch>`, returns that workspace to fetched trunk for the ordinary claim, and restores the edits over the Take; only a carried admission may move a queued story to Taken without a readiness assessment. [`execution-worktree-preparation-readiness-gate.mjs`](../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs) is a separate project-command substitute used by tests. |
+| Delivery | [`execution-increment-delivery.mjs`](../../src/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs) owns managed execution increment and repair delivery, runtime resolution, and observation attachment. A queued one-shot result passes `--one-shot-identity`; the publisher's `onFetchedTarget` seam rereads each fetched trunk tip before anything is rewritten and stops with `ownership-changed` when a Taken entry or agent profile names the story. |
 | Landing | [`dough-land`](../../src/skills/dough-land/SKILL.md) owns landing a reviewed worktree: commit everything, publish through the shared contract, refresh, and retire the worktree once trunk contains it. It has no runtime of its own. Preparation keep and bug-triage keep land through it. Wrap-up applies only its refresh and retirement sections, behind wrap-up's CI completion gate, because wrap-up must also publish before deleting history, register each SHA with its observer, and integrate Story Branch history. |
 | Local checkout | [`maintain-default-checkout.mjs`](../../src/skills/dough-execute-plan/scripts/maintain-default-checkout.mjs) honors a declared competing owner and checks Git state for automatic refresh; missing owner declarations do not block it. Direct edits still require declared access. It does not acquire exclusive interprocess access. |
 | CI | [`ci-mailbox.mjs`](../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs), its worker, host hooks, and Codex stream own observation and delivery. Reuse them and the active completion story's result; no second lifecycle. |

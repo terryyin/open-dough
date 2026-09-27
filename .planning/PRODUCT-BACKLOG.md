@@ -18,6 +18,8 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Make one-shot read the same from every entry workflow](seeds/SEED-028-track-ad-hoc-work.md#one-shot-entry-coherence) — SEED-028#one-shot-entry-coherence
+- [Accept one-shot natively on Claude Code, Codex and Cursor](seeds/SEED-028-track-ad-hoc-work.md#native-one-shot-acceptance) — SEED-028#native-one-shot-acceptance
 - [Preserve readiness when an unrelated sibling story changes](seeds/SEED-043-preserve-relevant-readiness.md#preserve-sibling-readiness) — SEED-043#preserve-sibling-readiness
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008#claude-code-background-mode
 - [Catch malformed planning materials at the point of change](seeds/SEED-024-validate-planning-material-format.md#validate-planning-material-format) — SEED-024#validate-planning-material-format
