@@ -41,7 +41,11 @@ published planning-premise response covers it.
 ## Test-runner settings reaching what the runner starts (first priority)
 
 **Follow-up:** queued, not resolved:
-[Keep the test runner's own settings from reaching the checks and product code it starts](.planning/seeds/SEED-051-isolate-test-runner-settings.md#isolate-runner-settings).
+[Keep the test runner's own settings from reaching the checks it starts](.planning/seeds/SEED-051-isolate-test-runner-settings.md#isolate-runner-settings)
+covers the split occurrence (plan 122). The plan 120 occurrence, a setting the
+runner shares with every check on purpose reaching product code under test, is
+not part of it: `23a3a759` repaired that case, and the general proof-design
+concern stays with the published guidance tracked as ODF-003 and ODF-118.
 
 ### DD-114 — A new runner setting reached checks that start the runner; only CI's split jobs showed it
 
