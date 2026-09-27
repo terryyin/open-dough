@@ -21,8 +21,8 @@ operational visibility for multiple agents working in worktrees on one machine.
 - [Give each dashboard browser test a server port no other worker can take](seeds/SEED-046-test-and-ci-optimization-round-2.md#dashboard-port-race) — SEED-046#dashboard-port-race
 - [Keep the split test runner and CI's split in one place each](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-correction) — SEED-046#ci-verdict-correction
 - [Keep product guards provable and the CI-platform command faithful](seeds/SEED-048-explicit-test-environment.md#test-environment-correction) — SEED-048#test-environment-correction
-- [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers
 - [Report conflicting CI repair restores truthfully and drop through the script](seeds/SEED-008-worktree-branch-trunk-sync.md#truthful-repair-restore) — SEED-008#truthful-repair-restore
+- [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers
 - [Verify planning premises and proof setup before declaring readiness](seeds/SEED-044-verify-planning-premises.md#verify-planning-premises) — SEED-044#verify-planning-premises
 - [Preserve readiness when an unrelated sibling story changes](seeds/SEED-043-preserve-relevant-readiness.md#preserve-sibling-readiness) — SEED-043#preserve-sibling-readiness
 - [Complete trivial work with --one-shot and track it if it grows](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work) — SEED-028#one-shot-work

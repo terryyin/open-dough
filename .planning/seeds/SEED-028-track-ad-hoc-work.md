@@ -197,22 +197,56 @@ execution. Planning does not assume it has already landed.
 
 **Identity:** SEED-028#plan-link-readers
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/118-plan-link-readers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3b8f65f06e56e096dca85eee41b577fde5e7663c5a36084f922d3e566af84278","plan":"c17f6f53daaf7dcff3d26a6af5f5a6fe04dd955c9d353c33d584f5f25e4850cf"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/118-plan-link-readers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a3edb95f4c3c36a4009d63c720300bf6a3a991c318e16d326b225a235d033737","plan":"407aa996bac004cfee425a91358aed087828d8c8314e4681cdb99a3723e302a8"}}
 ```
 
-**Goal:** Developers whose backlog or recorded preparation links a section of
-a plan get the same answer from every reader — the listing checks, `adopt`,
-and the dashboard — as from take, record-state and startup, so a backlog the
-product's own commands write is never refused or misreported elsewhere.
+**Goal:** Developers whose backlog links a section of a plan get the same
+answer from the backlog's own readers as from take, record-state and startup:
+the listing checks again refuse a plan link that duplicates another entry's
+home, and `adopt` accepts a backlog `take` wrote, so the product's own commands
+never refuse or silently permit what another command wrote.
 
 **Scope:** A bounded retrospective correction of the delivered plan-link rule
-correction (`SEED-028#plan-link-rule`, commits `c97afbb..6b3f02b`). The
-listing checks again refuse a plan link that exactly names another entry's
-anchored home; `adopt` opens a section-linked plan by its file; the dashboard
-reads a recorded story-state plan with a `#section` by its file; and a lasting
-test keeps the backlog modules the dashboard bundles free of Node-only
-imports. Excluded: refresh repoint semantics, merge comparison in
-`product-backlog-version.mjs`, and test consolidation.
+correction (`SEED-028#plan-link-rule`, commits `c97afbb..6b3f02b`), limited to
+backlog scripts:
+
+- The listing checks (`take --plan`, `add`, and parsing a backlog) again refuse
+  a plan link that exactly equals another entry's anchored home (F1, a
+  regression of the duplicate-listing guard).
+- `adopt` opens a section-linked plan by its file (F2).
+- A lasting test keeps the backlog modules the dashboard bundles free of
+  Node-only imports (F4).
+
+Deferred (2026-09-27, maintainer): the dashboard reading a recorded
+story-state plan with a `#section` by its file (F3). No record in this
+repository writes a section plan link and no skill instructs one, so the
+dashboard misreport has no current input; its Playwright proof is the most
+expensive of the four. Also deferred: a plan link naming another story's seed
+file without an anchor (for example `seeds/X.md` while another entry is homed
+at `seeds/X.md#first-story`), which neither the old nor the restored rule
+refuses. Excluded as before: refresh repoint semantics, merge comparison in
+`product-backlog-version.mjs`, test consolidation, and unifying the declared-plan
+resolvers. Refusing `#section` in plan links altogether was considered and not
+chosen: it would change take, record-state and startup, more work than the
+readers' fixes.
+
+**Key examples:**
+
+- `SEED-021#first-story` is queued; `take --plan
+  seeds/SEED-021-two-stories.md#first-story` for another story is refused
+  ("already lists the same work twice") and the backlog is unchanged; the same
+  holds for `add` of that home while another entry links it as its plan, and
+  for parsing a backlog that lists both.
+- A Taken entry linking `slice-plans/N/PLAN.md#ordered-slices` is adopted like
+  one linking the bare `slice-plans/N/PLAN.md`, the plan's identity recorded
+  once.
+- A plan link `slice-plans/N/PLAN.md#ordered-slices` for its own entry is still
+  accepted by take, record-state and startup (plan 116's promises unchanged).
+
+**Execution note:** run with `--skip-retro`. This is the third correction in
+the admission-coherence → plan-link-rule → plan-link-readers chain; a further
+automatic retrospective would likely queue another correction for a link shape
+no one writes. Report incidental findings once instead.
 
 **Plan:** [Read every plan link by its file](../slice-plans/118-plan-link-readers/PLAN.md).
 

@@ -18,10 +18,12 @@ only; execution needs its own authority.
 
 ## Goal and scope
 
-Every reader of a plan link names the plan by its file, as take,
+The backlog's own readers of a plan link name the plan by its file, as take,
 record-state, refresh own-home and startup already do through
-`product-backlog-plan.mjs`. Four findings, each reproduced at `6b3f02b` by a
-scratch probe.
+`product-backlog-plan.mjs`. Four findings were reproduced at `6b3f02b` by a
+scratch probe; none of their files changed on main through `238644b`.
+Narrowed on 2026-09-27 (maintainer refinement) to F1, F2 and F4; F3 is
+deferred (see Excluded).
 
 ### Current findings
 
@@ -40,7 +42,7 @@ scratch probe.
   anchor: a Taken entry linking `slice-plans/N/PLAN.md#ordered-slices` makes
   `adopt --all` refuse "has no story anchored at 'ordered-slices'" and record
   nothing, although `take` now writes that link.
-- **F3 — the dashboard keeps a recorded plan's section (medium-low;
+- **F3 (deferred) — the dashboard keeps a recorded plan's section (medium-low;
   regression from `9bf7393`).** `record-state` and startup accept
   `--plan E.md#e` (own home, anchored) and `--plan ../slice-plans/N/PLAN.md#x`;
   the dashboard's `recordedPlanPathFor` → `resolveBesideFile`
@@ -72,15 +74,21 @@ scratch probe.
   [One backlog interpretation](../../NORTH-STAR.md#one-backlog-interpretation-separate-observation-and-presentation):
   the backlog domain owns what a plan link names; the dashboard consumes it.
 
-### Authorized cross-subsystem change
+### Authorized change
 
-The backlog domain (`src/skills/dough-product-backlog/scripts/`), the
-dashboard's plan reading (`dashboard/src/workEntryFacts.ts`,
-`preparationEnrichment.ts`, `planAssociation.ts`, `repositoryPath.ts` as
-needed) and their tests.
+The backlog domain (`src/skills/dough-product-backlog/scripts/`) and its
+tests. No dashboard code changes.
 
 ### Excluded
 
+- F3, the dashboard reading a recorded story-state plan with a `#section` by
+  its file (deferred 2026-09-27): no record in this repository writes a
+  section plan link and no skill instructs one, so the misreport has no
+  current input, and its Playwright proof is the costliest of the four.
+- A plan link naming another story's seed file without an anchor (for
+  example `seeds/X.md` while another entry is homed at
+  `seeds/X.md#first-story`); neither the pre-116 nor the restored rule
+  refuses it.
 - Refresh repoint comparisons (`product-backlog-refresh.mjs`) and merge
   comparison in `product-backlog-version.mjs`.
 - Consolidating overlapping own-home tests (owned by `dough-test-optimization`).
@@ -91,34 +99,37 @@ needed) and their tests.
 
 ## Current decisions
 
-- **The dashboard reads anchored recorded plans by file (retrospective
-  recommendation, 2026-09-26; developer to confirm at wrap-up).** Follows plan
-  116's developer-confirmed decision that section links are supported, and
-  changes no promise record-state or startup already delivered. Rejected
-  alternative: refuse `#fragment` in story-state `--plan` — would reverse
-  delivered and tested behavior.
+- **Keep section plan links supported; fix only the backlog's readers
+  (maintainer, 2026-09-27).** Rejected alternative: refuse `#fragment` in
+  plan links, which would change take, record-state and startup and cost more
+  than the readers' fixes. The dashboard's reading (F3) is deferred, not
+  decided against.
+- **Execute with `--skip-retro` (maintainer, 2026-09-27).** Third correction
+  in the admission-coherence → plan-link-rule → plan-link-readers chain;
+  report incidental findings once instead of queueing another correction.
 - **F1 rule.** A plan link names another entry's home when its file equals
   that home as written, or the link equals that home exactly.
-- **Shared predicate.** The dashboard imports `planFileOf` from the pure
-  `product-backlog-plan.mjs`, as it already imports the document model.
+- **Shared predicate.** `adopt` reads the plan file through `planFileOf`
+  from `product-backlog-plan.mjs`, as take and record-state do.
 
 ## Outside-in proof and verification
 
 Reuse the real backlog CLI (`tests/support/`), the adoption fixture
-(`tests/support/product-backlog-adoption-fixture.mjs`), the dashboard
-readiness fixtures (`dashboard/tests/storyReadinessFixture.ts`), and
-`tests/support/pure-module-imports.mjs`. No new framework.
+(`tests/support/product-backlog-adoption-fixture.mjs`), and
+`tests/support/pure-module-imports.mjs` (already used by the story-state,
+home-reader, plan-reader and agent-profile guards). No new framework.
 
 Focused suites:
 
 - `node --test tests/support/*.test.mjs`
 - `node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-*.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-admission*.test.mjs`
-- `npx playwright test --config dashboard/playwright.config.ts --reporter=line dashboard/tests/source-navigation.spec.ts dashboard/tests/preparation-legend.spec.ts dashboard/tests/story-readiness-accessible.spec.ts dashboard/tests/story-readiness-gaps.spec.ts dashboard/tests/story-readiness.spec.ts`
-- `npm run typecheck:dashboard`
+- `npm run typecheck:dashboard` (the dashboard bundles
+  `product-backlog-document.mjs`, which imports `product-backlog-plan.mjs`)
 
 Each slice runs its focused commands after edits and independent post-change
 refactoring, plus `git diff --check` and a line-count check on touched test
-files. Keep ordinary delivery, CI observation, retrospective and wrap-up gates.
+files. Keep ordinary delivery, CI observation and wrap-up gates; the
+retrospective is skipped (see Current decisions).
 
 ## Ordered slices
 
@@ -136,7 +147,7 @@ plan-home and plan-link rows stay green.
 Behavior: a plan link equal to another entry's anchored home → take, add,
 parse → refused, nothing written.
 
-Safe stop: independent of slices 2–4.
+Safe stop: independent of slices 2 and 3.
 
 ### 2. Adopt a backlog whose plan link names a section
 Type: Behavior
@@ -149,23 +160,9 @@ existing adoption tests stay green.
 Behavior: section plan link → `adopt --all` → the plan file is opened and
 adopted.
 
-Safe stop: independent of slices 1, 3 and 4.
+Safe stop: independent of slices 1 and 3.
 
-### 3. Read a recorded plan with a section by its file in the dashboard
-Type: Behavior
-Status: planned
-Proof: a dashboard readiness spec case using `storyReadinessFixture.ts`: a
-story recorded ready with `--plan ../slice-plans/N/PLAN.md#ordered-slices`
-and one recorded with its own anchored home as plan both show ready with no
-plan-association conflict; the existing readiness specs above stay green;
-`npm run typecheck:dashboard` passes.
-
-Behavior: recorded plan `…#section` → dashboard readiness → read by its file,
-no conflict.
-
-Safe stop: independent of slices 1, 2 and 4.
-
-### 4. Guard the backlog modules the dashboard bundles
+### 3. Guard the backlog modules the dashboard bundles
 Type: Structure
 Status: planned
 Proof: a test using `tests/support/pure-module-imports.mjs` asserts that
@@ -176,7 +173,7 @@ adding `import "node:path"` to `product-backlog-plan.mjs` makes it fail
 
 Structure: keeps the dashboard's browser graph honest; behavior unchanged.
 
-Safe stop: independent of slices 1–3.
+Safe stop: independent of slices 1 and 2.
 
 ## Promise coverage
 
@@ -184,17 +181,23 @@ Safe stop: independent of slices 1–3.
 | --- | --- |
 | F1 | 1: take, add and parse refusals, unchanged |
 | F2 | 2: adopt of a section-linked plan |
-| F3 | 3: dashboard readiness with anchored recorded plans |
-| F4 | 4: import-graph purity test that bites |
-| Plan 116 promises | 1–3: existing plan-link, plan-home, startup and readiness suites green |
+| F3 | deferred; no owner in this plan |
+| F4 | 3: import-graph purity test that bites |
+| Plan 116 promises | 1–2: existing plan-link, plan-home, adoption and startup suites green |
 
 ## Plan review
 
-Four slices, one proof loop each, all independent — each closes one reader
-with its own observable proof, so none is a special case of another. They
-share one rule: a plan link names the plan by its file, owned by
-`product-backlog-plan.mjs`. No numeric slice target was supplied; each is a
-small, cohesive change with focused proof.
+Refined 2026-09-27 after the maintainer narrowed the correction: former
+slice 3 (dashboard, F3) removed; former slice 4 renumbered 3. Three slices,
+none started. Slices 1 and 2 each close one backlog reader with its own
+real-CLI proof loop, and share one rule owned by `product-backlog-plan.mjs`:
+a plan link names the plan by its file, and a listing clash also counts an
+exact match with another entry's home. Slice 3 is a Structure slice that owns
+the F4 test-suite weakness directly and proves it by making the guard bite.
+The boundaries are independent, so no consolidation is needed; none combines
+independent outcomes, so no split is needed. No numeric slice target was
+supplied; touched test files have room under the 250-line limit
+(plan-home 163, adopt 153, adopt-refusals 150).
 
 ## Learnings
 
