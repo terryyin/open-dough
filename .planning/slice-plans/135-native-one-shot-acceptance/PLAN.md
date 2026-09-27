@@ -109,6 +109,15 @@ guidance failure is fixed in `src/skills/dough-execute-plan/` within this
 story; that makes a new guidance version, so all three cases rerun on it.
 Stop for the developer before any paid run and before a second rerun.
 
+## Execution complete
+
+Product advice: Story 6 (Codex and Cursor) gates release of the one-shot
+guidance under ADR 0005; its non-escalation half can reuse both new cases now
+and could be split ahead of story 5. Story 5 (escalation) will need to split
+`git-publication-native-one-shot.sh` (249 lines) and
+`git-publication-native-assess.sh` (250), and the native job (52.2 s on CI
+against 71 s) may need its one-shot substitute journeys in their own job.
+
 ## Current decisions
 
 - The one-shot request is plain language; the prompt names neither the
