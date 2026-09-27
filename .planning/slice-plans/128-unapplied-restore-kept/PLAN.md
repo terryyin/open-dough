@@ -118,8 +118,15 @@ says to keep it and stop. An identical repair reports `all`.
 
 ### 2. Step 5 guidance proof has one home
 Type: Structure
-Status: planned
+Status: done
 Proof: R3 row above.
+
+Accepted proof: the focused command above, exit 0. The five step 5 phrase
+assertions left "execution entry routes name the same increment and repair
+owner" unchanged in regex; `restore`, not `pop`, and `stash@{0}` now read
+step 5 only, while `save` and "never nest stash/repair cycles" read the whole
+reference, where that wording lives. The routing test keeps only "Do not use
+a second repair push".
 
 Structure: the step 5 phrase assertions move into the focused guidance test
 without weakening any of them.
