@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Accept one-shot natively on Claude Code](seeds/SEED-028-track-ad-hoc-work.md#native-one-shot-acceptance) — SEED-028#native-one-shot-acceptance ([plan](slice-plans/135-native-one-shot-acceptance/PLAN.md))
-
 ## Backlog list
 
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective
