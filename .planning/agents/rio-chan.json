@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rio-chan",
+  "email": "rio-chan@example.org",
+  "identity": "SEED-004#preserve-rules-from-story-sections",
+  "mode": "story-branch",
+  "branch": "dough/preserve-rules-from-story-sections",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
