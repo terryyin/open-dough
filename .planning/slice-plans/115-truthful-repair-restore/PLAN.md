@@ -43,8 +43,9 @@ findings below, each checked against `86e5069`.
   drops by selector; another writer's push in between would shift the
   selector. Git cannot drop by OID, but `stash drop` reports the dropped OID,
   so a mismatch can be detected and reported.
-- **F5 — test file size (residue).** `ci-repair-stash.test.mjs` is 255 lines,
-  over the 250-line file-size check; new cases must not grow it further.
+- **F5 — test file size (residue).** `ci-repair-stash.test.mjs` is 250 lines
+  (reassessed at `53e023a`; it was 255 at `86e5069`), at the 250-line
+  file-size limit; new cases must not grow it past that.
 
 ### Preserved promises and constraints
 
@@ -75,7 +76,7 @@ findings below, each checked against `86e5069`.
   drop uses the same confirmation.
 - **Guidance.** `ci-monitor.md` step 5 names `drop --record` after a resolved
   conflict and says what to do with `partial` (restage the listed paths, do
-  not reapply). Keep the file within 250 lines.
+  not reapply). The file is 251 lines at `53e023a`; bring it to 250 or fewer.
 - **Tests.** Extend the existing conflict case rather than adding a parallel
   one; move fixture helpers to a sibling support module if needed to keep the
   test file under 250 lines.
@@ -88,7 +89,12 @@ findings below, each checked against `86e5069`.
 | F2 | same file: after resolving the conflict, `drop --record` removes only the recorded entry while a foreign entry pushed after the save stays; guidance test on `ci-monitor.md` step 5 (paraphrase tolerant) finds the drop command and no hand `stash drop` |
 | F3 | same file: a drop whose recorded OID is gone reports `missing` and changes nothing; mismatch detection proved at the parsing boundary (unit-level) if a deterministic race fixture is not practical |
 
-Focused commands: `node --test src/skills/dough-execute-plan/scripts/ci-repair-stash.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs`.
+Focused commands, through the runner (direct `node --test` runs are
+unsupported, see `tests/README.md`): `npm test --
+src/skills/dough-execute-plan/scripts/ci-repair-stash.test.mjs
+src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs
+src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs`,
+with Bash 5 first on `PATH`.
 Full gate before delivery: `npm test` and `npm run lint`.
 
 ## Ordered slices

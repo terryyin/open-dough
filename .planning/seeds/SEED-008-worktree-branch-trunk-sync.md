@@ -240,7 +240,7 @@ and ref-watching proposals; do not implement those historical mechanisms.
 
 **Identity:** SEED-008#truthful-repair-restore
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/115-truthful-repair-restore/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0e27f550a7582277febcd49cce3df408827ee53e99101cc695f03c3ee2aecb57","plan":"77bd39ef621099c92e2007cfd796594834ac0c87a65c65298a0819f42d9980da"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/115-truthful-repair-restore/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d4a101f877454f67e87ebf8edaef6baf7bc0e20bd1a83142a0825b8e4a19d70c","plan":"a871a27263dcfd8ece24c35da5e50e6b3b6903bc070c17715a0ce5dae6832f82"}}
 ```
 
 **Goal:** A coordinator resuming after a CI repair knows exactly what a
