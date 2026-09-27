@@ -6,7 +6,8 @@
 
 [Correction story](../../seeds/SEED-008-worktree-branch-trunk-sync.md#unapplied-restore-kept).
 A bounded retrospective correction of the completed execution of
-`SEED-008#truthful-repair-restore` under plan 115: claim `b11bb98`,
+`SEED-008#truthful-repair-restore` under plan 115 (recoverable at
+`f6a3d4c:.planning/slice-plans/115-truthful-repair-restore/PLAN.md`): claim `b11bb98`,
 attributable commits `8f88364` (slice 1) and `ab3cb42` (slice 2) on branch
 `claude/115-truthful-repair-restore`, starting revision `a1c2375`. That
 correction's promises stay as delivered; this one adds no feature promise.
