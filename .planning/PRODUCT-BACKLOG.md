@@ -17,7 +17,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 - [Make one-shot read the same from every entry workflow](seeds/SEED-028-track-ad-hoc-work.md#one-shot-entry-coherence) — SEED-028#one-shot-entry-coherence
 - [Accept one-shot natively on Claude Code, Codex and Cursor](seeds/SEED-028-track-ad-hoc-work.md#native-one-shot-acceptance) — SEED-028#native-one-shot-acceptance
-- [Keep parallel slices from interfering with proof and delivery](seeds/SEED-008-worktree-branch-trunk-sync.md#isolate-parallel-slice-delivery) — SEED-008#isolate-parallel-slice-delivery
+- [Execute a plan's slices in sequence](seeds/SEED-008-worktree-branch-trunk-sync.md#isolate-parallel-slice-delivery) — SEED-008#isolate-parallel-slice-delivery
 - [Keep the test runner's own settings from reaching the checks and product code it starts](seeds/SEED-051-isolate-test-runner-settings.md#isolate-runner-settings) — SEED-051#isolate-runner-settings
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective
 - [Strengthen architectural review after using the lightweight guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design) — SEED-004#proudly-found-elsewhere-design
