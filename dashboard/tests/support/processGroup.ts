@@ -7,6 +7,7 @@
 
 import {
   spawn,
+  spawnSync,
   type ChildProcessByStdio,
   type SpawnOptions,
 } from "node:child_process";
@@ -24,6 +25,20 @@ export function processAlive(pid: number | undefined): boolean {
   } catch {
     return false;
   }
+}
+
+// Whether the process can still run code. On macOS a process that has exited
+// but is not yet reaped (orphans are reaped by launchd, late under load) still
+// answers `kill(pid, 0)`, although its group no longer counts it; `ps` shows it
+// exiting (E) or as a zombie (Z).
+export function processRunning(pid: number | undefined): boolean {
+  if (!processAlive(pid)) {
+    return false;
+  }
+  const state = spawnSync("ps", ["-o", "stat=", "-p", String(pid)], {
+    encoding: "utf8",
+  }).stdout.trim();
+  return state !== "" && !/[EZ]/.test(state);
 }
 
 // stdout and stderr are piped for the caller to read or drain.
