@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-008#truthful-repair-restore",
+  "mode": "story-branch",
+  "branch": "claude/115-truthful-repair-restore",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
