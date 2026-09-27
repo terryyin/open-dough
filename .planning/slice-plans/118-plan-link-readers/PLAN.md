@@ -159,7 +159,7 @@ workspace publication suite (72/72 pass);
 
 ### 2. Adopt a backlog whose plan link names a section
 Type: Behavior
-Status: planned
+Status: done
 Proof: a row in `tests/support/product-backlog-adopt.test.mjs` (or its
 refusals sibling): a Taken entry linking `slice-plans/N/PLAN.md#ordered-slices`
 is adopted like one linking the bare file, the plan's identity recorded once;
@@ -169,6 +169,15 @@ Behavior: section plan link → `adopt --all` → the plan file is opened and
 adopted.
 
 Safe stop: independent of slices 1 and 3.
+
+Accepted proof (2026-09-27): `tests/support/product-backlog-adopt.test.mjs`
+added a test row with a Taken entry linking `${takenLink}#ordered-slices`;
+`adopt --all` opened and adopted the plan file, preserving the link text as
+written and recording the plan identity once.
+`node --test tests/support/product-backlog-adopt.test.mjs` (6/6 pass);
+`node --test tests/support/*.test.mjs` (200/200 pass);
+workspace publication suite (72/72 pass);
+`npm run typecheck:dashboard` passes. Test file is 177 lines (≤ 250).
 
 ### 3. Guard the backlog modules the dashboard bundles
 Type: Structure

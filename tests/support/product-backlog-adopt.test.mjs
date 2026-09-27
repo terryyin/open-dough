@@ -61,6 +61,30 @@ test("adopt identity: one identity per work item in its canonical homes", async 
   assert.match(result.stdout, /Recorded 5 identities for 4 active entries/);
 });
 
+test("adopt identity: a plan link naming a section adopts the plan file", async (t) => {
+  const sectionPlan = `${takenLink}#ordered-slices`;
+  const backlog = legacyBacklog.replace(
+    `([plan](${takenLink}))`,
+    `([plan](${sectionPlan}))`,
+  );
+  const project = legacyProject(t, { backlog });
+  const before = project.snapshot();
+
+  const result = await run(project, adopt);
+  assert.equal(result.code, 0, result.stderr);
+  assert.equal(
+    project.read(),
+    adoptedBacklog.replace(
+      `([plan](${takenLink}))`,
+      `([plan](${sectionPlan}))`,
+    ),
+  );
+  recordsOnly(project.readHome(takenLink), before[takenLink], [
+    { heading: headings.plan, identity: identities.taken },
+  ]);
+  assert.match(result.stdout, /Recorded 5 identities for 4 active entries/);
+});
+
 test("adopt identity: recording identities never queues, takes, or reorders work", async (t) => {
   const project = legacyProject(t);
   const result = await run(project, adopt);
