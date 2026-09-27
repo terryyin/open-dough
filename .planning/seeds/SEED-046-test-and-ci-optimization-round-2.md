@@ -46,30 +46,6 @@ about 1.5× apart, so use at least five runs per measurement.
 
 ## Stories
 
-<a id="ci-verdict-correction"></a>
-
-### Keep the split test runner and CI's split in one place each
-
-**Identity:** SEED-046#ci-verdict-correction
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/126-ci-verdict-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c1441c84c51c4117988349da0b3e10e8d9422144b4af05c6f591bb3cc7a02635","plan":"29804ac75be4ecc2c3a4f1d25ca9a890dc2cd4a014be6375dcbeec04b0b97eaf"}}
-```
-
-**Goal:** A maintainer changing the test runner, the CI split, or the time
-budget edits each fact in one place: the runner alone decides that the budget
-is CI's, one helper copies the runner into test fixtures, the test directory
-default is resolved once, the split count is stated once per workflow matrix,
-and the contributor documentation describes the split generically and
-accurately. This corrects the CI verdict round 2 execution
-(`SEED-046#ci-verdict-round-2`, plan 122, recoverable at `c9585be:.planning/slice-plans/122-ci-verdict-parallel-jobs/PLAN.md`) and adds no feature
-promise: every CI job name, split, and budget verdict stays as delivered.
-
-**Scope:** the budget checker's exit rule, the runner's copy in test
-fixtures, the test directory default, the CI workflow's split count, and the
-split and budget wording in `tests/`, the tests README, and the installation
-guide's contributor checks. Correction plan:
-[126-ci-verdict-correction](../slice-plans/126-ci-verdict-correction/PLAN.md).
-
 <a id="dashboard-port-race"></a>
 
 ### Keep each dashboard test on a server it started, even beside another worktree's suite
@@ -124,7 +100,7 @@ bind, the harness accepted the other server's answer, and the test failed as
 
 ## When to Surface
 
-Now: the dashboard test server isolation story first and the CI verdict correction second in
+Now: the dashboard test server isolation story first in
 the product backlog, per the maintainer on 2026-09-27.
 
 ## Breadcrumbs
