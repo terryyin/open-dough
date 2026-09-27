@@ -31,25 +31,59 @@ release identity and the maintainer's version choice.
 
 <a id="default-skip-process-retrospective"></a>
 
-### 9. Skip process retrospectives by default for new installations
+### 9. Run process retrospectives only when a project enables them
 
-**Status:** Backlog; mid priority.
-**Goal:** A client installing Open Dough starts with process retrospectives
-skipped unless the project has deliberately chosen otherwise.
-**Scope:** Set `skipProcessRetrospective` to boolean `true` in
-`.planning/open-dough.json` for a new installation. When updating an
-installation that predates the setting, add the same default only when the key
-is absent. Preserve an existing boolean `true` or `false` and all unrelated
-configuration; do not treat the new default as authority to replace the
-project's choice. Keep malformed or invalid configuration on the existing
-refusal path rather than overwriting it. Update the directly affected
-installation and update checks and documentation.
-**Evaluation:** A fresh installation records `true`; an older installation
-without the key gains `true` on update; updates preserve explicit `true` and
-`false` values and unrelated keys; malformed or invalid configuration is
-reported without replacement.
-**Effort:** S–M, medium confidence; the write is small, but safe migration,
-preservation, refusal, and install/update coverage make this more than a
-one-line quick fix.
-**Depends on:** The existing merge-and-preserve behavior for
-`.planning/open-dough.json`.
+**Identity:** SEED-001#default-skip-process-retrospective
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/137-default-skip-process-retrospective/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"72cf8aaaaeda94167779922ac9b024f4ee3755884615b93997d4f86dc22168cb","plan":"fbe5999a9b2280a079e21b9e1d68ae460ee2338edd5a888a87aa2eafe084f554"}}
+```
+
+**Status:** Refined on 2026-09-28; mid priority.
+
+**Goal:** A project using Open Dough stops paying for process retrospectives it
+did not ask for. Process review mainly produces `DearDough.md` feedback for
+Open Dough's maintainers, so it runs only when the project enables it; product
+and code/design review stay on by default. Terry accepted on 2026-09-28 that
+this reduces default process feedback from other projects.
+
+**Scope:**
+
+- In `dough-execution-retrospective` review selection, a missing
+  `.planning/open-dough.json` or missing `skipProcessRetrospective` key skips
+  process review; `false` enables it; `true` skips it. Explicit invocation
+  selection (`--skip-process`, an include-process request) still overrides
+  storage. Malformed or invalid configuration keeps its current
+  unresolved-selection path.
+- Update the statements of the old default: the skill's own description and
+  body, `docs/installation-and-updates.md` (showing `false` as the enabling
+  example), and SEED-010's recorded default.
+- This repository keeps its process practice by recording
+  `{ "skipProcessRetrospective": false }` in its own
+  `.planning/open-dough.json`.
+
+**Rejected design:** Having the installer or updater write `true` into the
+project's configuration. [ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md)
+item 4 forbids creating the file to materialize defaults and requires updates
+to preserve configuration; changing the standard behavior reaches new and
+existing installations without touching project files.
+
+**Deferred:** New flags, install-time prompts, and CHANGELOG wording (owned by
+the release). Paid native acceptance stays manual and outside this story.
+
+**Key examples:**
+
+- No `.planning/open-dough.json` → planned execution completes → the automatic
+  retrospective runs code/design and product review, performs no process
+  analysis or agent-history access, and writes no `DearDough.md`.
+- File with `"skipProcessRetrospective": false` → retrospective → process review
+  runs and records findings as today.
+- No file, invoked with an explicit request to include process review → process
+  review runs.
+- File with `"skipProcessRetrospective": "yes"` or malformed JSON → the error is
+  reported, process review is omitted, other reviews continue (unchanged).
+- A project updated from an earlier release without the key → next
+  retrospective skips process review; the updater leaves the file byte-for-byte
+  as it was, or absent.
+
+**Effort:** S, high confidence; prose and configuration only, no installer
+change.
