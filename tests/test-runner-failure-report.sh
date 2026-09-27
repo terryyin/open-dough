@@ -10,8 +10,12 @@ trap 'rm -rf -- "${temporary_dir}"' EXIT
 checks="${temporary_dir}/checks"
 mkdir -p -- "${checks}/support"
 
+# Writes a substitute check, named second, into the directory named first.
+write_check_in() {
+  printf '#!/usr/bin/env bash\nset -euo pipefail\n%s\n' "$3" > "$1/$2"
+}
 write_check() {
-  printf '#!/usr/bin/env bash\nset -euo pipefail\n%s\n' "$2" > "${checks}/$1"
+  write_check_in "${checks}" "$@"
 }
 
 # Runs the runner over the checks, or over the directory given second, logging
@@ -47,6 +51,61 @@ if grep -E -- 'Running |helper-ran|failing-continued|FAIL: .*(first|second|helpe
   exit 1
 fi
 rm -- "${checks}/failing.sh"
+
+# A shell check that stops on a failing command under `set -e` has the file,
+# line, and command where it stopped in its log: in the check, in a support
+# file it sources, or, for a failure inside `$(...)`, the substitution's line.
+# Handled failures, a check's own `exit 1`, and scripts a check launches get
+# no such line.
+stops="${temporary_dir}/stops"
+mkdir -p -- "${stops}/support"
+write_check_in "${stops}" bare.sh '[[ a == b ]]'
+printf 'stop_helper() {\n  [[ 1 -eq 2 ]]\n}\n' > "${stops}/support/stop-helper.bash"
+# shellcheck disable=SC2016 # The substitute check expands its own path.
+write_check_in "${stops}" sourced.sh 'source "$(dirname -- "${BASH_SOURCE[0]}")/support/stop-helper.bash"
+stop_helper 2> /dev/null'
+write_check_in "${stops}" substitution.sh "attempt=\$(awk 'BEGIN { exit 1 }')"
+# shellcheck disable=SC2016 # The substitute check expands its own variable.
+write_check_in "${stops}" handled.sh 'set +e
+false
+set -e
+if false; then :; fi
+false || true
+after=$(false; echo after)
+[[ ${after} == after ]]'
+write_check_in "${stops}" own-fail.sh 'set +e
+false
+set -e
+echo "FAIL: own-fail message" >&2
+exit 1'
+write_check_in "${stops}" launched.sh "set +e
+child_stderr=\$(bash -c 'set -e; echo child-line >&2; false' 2>&1 > /dev/null)
+set -e
+[[ \${child_stderr} == child-line ]]"
+run_suite stops "${stops}"
+if ((suite_status != 1)); then
+  printf 'FAIL: the runner exited %s for checks that stopped, not 1.\n' "${suite_status}" >&2
+  cat -- "${temporary_dir}/stops.log" >&2
+  exit 1
+fi
+expected_stops=(
+  "stopped at ${stops}/bare.sh:3: [[ a == b ]]"
+  "stopped at ${stops}/substitution.sh:3: attempt=\$(awk 'BEGIN { exit 1 }')"
+  "stopped at ${stops}/support/stop-helper.bash:2: [[ 1 -eq 2 ]]"
+)
+for expected in "FAIL: ${stops}/bare.sh" "FAIL: ${stops}/sourced.sh" \
+  "FAIL: ${stops}/substitution.sh" "FAIL: ${stops}/own-fail.sh" \
+  'FAIL: own-fail message' "${expected_stops[@]}"; do
+  expect_in_log "${temporary_dir}/stops.log" -F -x -- "${expected}"
+done
+grep -F -- 'stopped at' "${temporary_dir}/stops.log" | LC_ALL=C sort > "${temporary_dir}/reported-stops"
+mapfile -t reported_stops < "${temporary_dir}/reported-stops"
+if [[ ${reported_stops[*]} != "${expected_stops[*]}" ]] \
+  || grep -E -- 'FAIL: .*(handled|launched)' "${temporary_dir}/stops.log"; then
+  echo 'FAIL: the runner reported a stop location for a handled or launched failure.' >&2
+  cat -- "${temporary_dir}/stops.log" >&2
+  exit 1
+fi
 
 # A check that passes but prints, on either stream, fails the run and is shown.
 write_check noisy-stderr.sh 'echo stderr-warning >&2'

@@ -54,6 +54,7 @@ elapsed_seconds() {
 }
 
 node_reporter="${source_dir}/tests/support/node-test-failures-reporter.mjs"
+check_stop_report="${source_dir}/tests/support/check-stop-report.bash"
 run_job() {
   exec 2>&4 4>&-
   local index=$1 kind=$2 label=$3
@@ -63,7 +64,8 @@ run_job() {
     node --test --test-reporter="${node_reporter}" "${label}" > "${log}" 2>&1 \
       || job_status=$?
   else
-    "${test_bash}" "${label}" > "${log}" 2>&1 || job_status=$?
+    BASH_ENV="${check_stop_report}" "${test_bash}" "${label}" > "${log}" 2>&1 \
+      || job_status=$?
   fi
   # Only a lost setpgid race's launch line is emptied; any other launch output
   # stays and fails the run.
