@@ -77,3 +77,8 @@ Accepted proof (behavior review walk over the changed source):
 ## Learnings
 
 None beyond the plan; the two-sentence change held.
+
+## Execution complete
+
+Product advice: no change. The correction met its goal with no residue; no
+queued story touches wrap-up's preservation rule, so existing priorities stand.

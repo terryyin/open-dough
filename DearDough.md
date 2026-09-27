@@ -940,9 +940,35 @@ observer launch recipes went unused.
   - Evidence: coordinator conversation: persisted reads of `delegation.md` + `execution-decisions.md` + `agent-commits.md` + `runtime-setup.md` (31.6KB) and `wrap-up.md` + `ci-monitor.md` (29.9KB), plus `execution-location.md`, `trunk-publication.md`, `finish-or-stop.md`, `ci-completion-wait.md`
   - Observed effect: no rework or error; context spent on paths not taken
   - Inference: Qualified. The skill ties reads to boundaries ("before arming observation", "before a claim"), but managed delivery and the start command now own those mechanics, so a boundary reached through them still triggers full reads. Cost only; this run gives no evidence of harm to quality
+- Execution: `SEED-004#preserve-rules-from-story-sections` / plan 134, first related implementation commit `65b08168`
+  - Timestamp: 2026-09-27T20:28:21+08:00 (implementation commit)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac7` (v0.3.42)
+  - Evidence: coordinator conversation: `trunk-publication.md` + `execution-location.md` read together, then `delegation.md` + `execution-decisions.md` + `wrap-up.md` (35.9KB, persisted over the display limit), then `finish-or-stop.md` + `agent-commits.md` + `ci-monitor.md`; one two-sentence prose slice, one managed `deliver`, no CI event or repair
+  - Observed effect: same as the first occurrence; no rework or error
+
+## DD-129 — Managed delivery's target argument format is not stated where the coordinator composes it
+
+Trunk publication tells the coordinator to pass the "authorized target ref" to
+`execution-increment-delivery.mjs deliver`, and the start command takes the
+remote and target as separate names. The coordinator passed
+`origin/<execution branch>`; `deliver` refused it with "authorized target must
+be a branch ref", and the retry with `refs/heads/<execution branch>` was
+accepted.
+
+### Occurrences
+- Execution: `SEED-004#preserve-rules-from-story-sections` / plan 134, first related implementation commit `65b08168`
+  - Timestamp: unknown (between implementation commit 2026-09-27T20:28:21+08:00 and review 2026-09-27T20:30:05+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac7` (v0.3.42)
+  - Evidence: coordinator conversation: first `deliver --target-ref origin/dough/preserve-rules-from-story-sections` exit 2; second `--target-ref refs/heads/dough/preserve-rules-from-story-sections` accepted `65b08168`; `trunk-publication.md` "Publish the candidate" says only "authorized target ref"
+  - Observed effect: one refused, non-mutating call; no state change
+  - Inference: Qualified. Cheap because the refusal was early and clear; a one-off from a single run
 
 ## Retention
 
-- Highest allocated local number: 128. Removed local codes are never reused.
+- Highest allocated local number: 129. Removed local codes are never reused.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.
