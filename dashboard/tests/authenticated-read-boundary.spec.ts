@@ -11,7 +11,9 @@
 // reads and failure reporting. Resolve-then-read for every catalog source, in
 // both dev and preview launch modes with pinned `gh` arguments, is covered by
 // ./authenticated-project-overview.spec.ts. Which requests it refuses before
-// launching `gh` is covered in ./authenticated-read-refusal.spec.ts; its
+// launching `gh` is covered in ./authenticated-read-refusal.spec.ts, and
+// which commit added an agent profile in
+// ./authenticated-read-profile-addition.spec.ts; its
 // subprocess lifecycle -- cancellation on disconnect, timeout, and shutdown
 // -- in ./authenticated-read-subprocess-lifecycle.spec.ts; reads on a story
 // branch in ./authenticated-branch-read-boundary.spec.ts. All share this

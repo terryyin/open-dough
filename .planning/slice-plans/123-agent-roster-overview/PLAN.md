@@ -108,7 +108,13 @@ the roster's source rather than mixing two projects' assignments.
 
 ### 2. The current commission names its credited human
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run test:dashboard -- agent-roster-attribution.spec.ts
+authenticated-read-profile-addition.spec.ts` (fixtures in
+`dashboard/tests/agentAttributionRecords.ts`). The boundary's `committed=added`
+read walks at most ten path-filtered commits back from the pinned revision and
+stops at the first `added`; a removal, rename, or unclassified change ends the
+walk with a no-addition gap. The matched `login` reaches the page for slice 3.
 Proof: The dashboard browser test's fake GitHub serves a profile history
 with `added`, `modified`, and an older allocation. The local boundary reads
 the current addition at the pinned revision, and the roster plus Taken or
@@ -141,5 +147,9 @@ Without a usable image, the name remains readable.
 
 ## Learnings
 
-None yet. Record only discoveries that change the attribution assumption or
-remaining slice boundaries.
+- `sliceClockStart.ts` dates a Take from its profile's latest commit, while
+  attribution uses the allocation's addition; a modified profile would restart
+  the slice clock. Left unchanged here as a separate behavior decision.
+- A profile added through GitHub's web UI or a squash merge has committer
+  `GitHub` (`web-flow`) and would be credited as the human. Open Dough's own
+  claim commits are pushed directly, so this story keeps the committer rule.

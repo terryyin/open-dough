@@ -1,6 +1,7 @@
 /* Who holds a Taken card's work, or is preparing a queued card's work: the
    developer summary with its agent portrait opener and the mode and host marks
-   beside their labels, branch context, and unreadable profiles. */
+   beside their labels, the credited human developer, branch context, and
+   unreadable profiles. */
 
 .card-owner {
   margin-top: 0.35rem;
@@ -39,6 +40,7 @@
   object-fit: contain;
 }
 
+.owner-human,
 .owner-branch {
   font-size: 0.9rem;
 }

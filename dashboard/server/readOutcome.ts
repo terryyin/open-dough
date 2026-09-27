@@ -2,6 +2,7 @@
 // (`./authenticatedRead.ts`) comes to: an answer, a refusal, or a reported
 // failure. Shared by `./performedRead.ts` and `./performedBranchRead.ts`.
 
+import type { ProfileAddition } from "./ghProfileAddition.ts";
 import type { ReportedFailure } from "./readFailureMessage.ts";
 
 // What a successful read answers, as the browser reader
@@ -27,6 +28,13 @@ type Answer =
       readonly committedAt: string;
     }
   | { readonly revision: string; readonly profiles: readonly PinnedFile[] }
+  // The commit that added a listed profile's current allocation, or null
+  // when its walked history has none.
+  | {
+      readonly revision: string;
+      readonly path: string;
+      readonly added: ProfileAddition;
+    }
   // A recorded branch's head, or null when it is no longer published.
   | {
       readonly revision: string;

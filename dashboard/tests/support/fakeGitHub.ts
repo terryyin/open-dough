@@ -13,13 +13,17 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import {
   commitAnswer,
-  commitListFor,
   directoryListingAnswer,
   headsAnswer,
   noConnection,
   rawFileAnswer,
   type OriginAnswer,
 } from "../originAnswers.ts";
+import {
+  commitAnswerIn,
+  commitListIn,
+  type PathHistories,
+} from "../pathHistoryAnswers.ts";
 import { asGhReply } from "./ghReply.ts";
 import { parseRequest, type GhRequest } from "./ghRequest.ts";
 
@@ -59,20 +63,28 @@ export function failsWith(stderr: string): RepositoryAnswerer {
 // Answers `revision` for any ref, and as the only branch head `main` of a
 // head listing; for any content read, the named file in
 // `files` or else `backlog`; for a directory listing, the `files` in that
-// directory; and for a path's commit list, its time in `committed`.
+// directory; and for a path's commit list, the commits `history` lists for
+// it, or else its time in `committed`, each listed commit answering for its
+// own change to that path.
 export function publishes(published: {
   readonly revision: string;
   readonly backlog?: string;
   readonly files?: Readonly<Record<string, string>>;
   readonly committed?: Readonly<Record<string, Date>>;
+  readonly history?: PathHistories;
 }): RepositoryAnswerer {
   return ({ request }) => {
     const commitList =
       request.kind === "commit-list"
-        ? commitListFor(published.committed, request.path)
+        ? commitListIn(published, request.path)
         : undefined;
     if (commitList !== undefined) {
       return Promise.resolve(commitList);
+    }
+    if (request.kind === "commit") {
+      return Promise.resolve(
+        commitAnswerIn([published.history], request.sha) ?? noConnection,
+      );
     }
     if (request.kind === "ref") {
       return Promise.resolve(commitAnswer(published.revision));

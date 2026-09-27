@@ -6,6 +6,8 @@
 // heads the story branches recorded there name now, read
 // the agent profiles its directory listing names beside the backlog, ask
 // when one reachable record or listed profile was last committed there, or
+// which commit added a listed profile and who committed it
+// (`./ghProfileAddition.ts`), or
 // resolve the story branch a Taken entry's profile records there and read
 // that entry's plan, or its last commit, at the head found.
 // Request refusal: `./localOrigin.ts`; which read a request asks for:

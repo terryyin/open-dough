@@ -144,6 +144,19 @@ the cards and makes no read of its own; selecting another project replaces its
 source. **Back to stories** at the top returns to the stories with any open
 story detail still open and focus on the portrait that opened the roster.
 
+Each commission, on its Taken or Preparing card and in the roster, names the
+**human developer** credited for it: the Git committer of the commit that
+added its profile's current allocation. The local boundary lists that
+profile's history at the shown revision (its ten latest changes) and walks it
+back until the change that added the file, so a later modification of the
+profile names nobody, and a removal ends the walk before an older allocation of
+the same rotating name. When no addition is found, the adding commit names no
+usable committer, or the history cannot be read, the card and roster say the
+human developer is unknown and why, never guessing from another commit. The
+GitHub account GitHub matched to that committer is carried with the name but
+not yet shown. A name credits the commission; it never says anyone is working
+now.
+
 Each Taken card with a readable plan also shows its recorded slice progress: a
 bar with one segment per slice, filled for each slice recorded complete, and
 "N of M slices recorded complete". It counts recorded statuses, not how much
@@ -226,19 +239,6 @@ and how journeys step page time.
 
 ## GitHub requests
 
-Each load of the dashboard, and each Refresh, makes two authenticated `gh`
-requests for membership, plus one per record not already read at that
-revision for preparation and detail, and, once per revision, one listing of
-the agent profile directory plus one per profile listed there. Each Taken
-entry with a counted plan adds one last-commit-time request for its plan and
-one for its agent profile, and each Story Branch Mode entry adds one branch
-head request and one plan read on that branch. These count against the
-launching person's own GitHub API allowance. Each revision check is one more
-`gh` request, whatever the number of branches, or two when the listing fails
-and `main` is asked alone (at most four a minute per visible page, none while
-it is hidden, and none before a rate limit's directed time). GitHub documents an unchanged `304` as not counting
-against the primary allowance, but that has not been confirmed here, so count
-each check as a request. A newly published commit then costs one backlog read
-plus its records, without resolving `main` again; a recorded story branch
-that moved costs one read of its plan and one of its last commit time at the
-new head.
+What each load, Refresh, and revision check asks GitHub, and so what the
+dashboard costs the launching person's API allowance, is described in
+[GitHub requests](GITHUB-REQUESTS.md).

@@ -4,7 +4,8 @@
 // What one `gh` invocation asked GitHub for. A ref request asks which
 // commit a ref names. A contents request asks for a file's raw bytes when it accepts GitHub's raw
 // media type, and otherwise for a directory's JSON listing. A commit list
-// asks for the commits that changed one path in a revision's history. A
+// asks for the commits that changed one path in a revision's history, or only
+// the latest of them. A
 // branch request asks which commit one published branch head names; a
 // matching-refs request lists every published branch head, conditionally on
 // an `If-None-Match` header's entity tag when one is given.
@@ -13,6 +14,11 @@ export type GhRequest =
       readonly kind: "ref";
       readonly repository: string;
       readonly ref: string;
+    }
+  | {
+      readonly kind: "commit";
+      readonly repository: string;
+      readonly sha: string;
     }
   | {
       readonly kind: "matching-refs";
@@ -25,10 +31,19 @@ export type GhRequest =
       readonly branch: string;
     }
   | {
-      readonly kind: "content" | "listing" | "commit-list";
+      readonly kind: "content" | "listing";
       readonly repository: string;
       readonly path: string;
       readonly revision: string;
+    }
+  | {
+      readonly kind: "commit-list";
+      readonly repository: string;
+      readonly path: string;
+      readonly revision: string;
+      // Whether only the latest commit is asked for: when the path was last
+      // committed, rather than its history.
+      readonly latestOnly: boolean;
     }
   | { readonly kind: "unknown" };
 
@@ -51,6 +66,9 @@ export function parseRequest(argv: readonly string[]): GhRequest {
   const endpoint = argv.find((arg) => arg.startsWith("repos/")) ?? "";
   const ref = /^repos\/([^/]+\/[^/]+)\/commits\/(.+)$/.exec(endpoint);
   if (ref?.[1] !== undefined && ref[2] !== undefined) {
+    if (/^[0-9a-f]{40}$/.test(ref[2])) {
+      return { kind: "commit", repository: ref[1], sha: ref[2] };
+    }
     return {
       kind: "ref",
       repository: ref[1],
@@ -85,6 +103,7 @@ export function parseRequest(argv: readonly string[]): GhRequest {
       repository: commitList[1],
       path: query.get("path") ?? "",
       revision: query.get("sha") ?? "",
+      latestOnly: query.get("per_page") === "1",
     };
   }
   const content = /^repos\/([^/]+\/[^/]+)\/contents\/([^?]+)\?ref=(.+)$/.exec(

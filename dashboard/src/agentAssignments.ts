@@ -18,7 +18,11 @@ import {
 import {
   readAgentProfilesAt,
   type PublishedProfile,
-} from "./authenticatedRead.ts";
+} from "./authenticatedProfileRead.ts";
+import {
+  attributionLoading,
+  type HumanAttribution,
+} from "./commissionAttribution.ts";
 import { rosterMembers } from "./commissionRoster.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -55,13 +59,15 @@ export type AgentHost = z.infer<typeof agentHost>;
 // One published assignment's developer facts, and the repository path its
 // profile is published at; host and model stay undefined when the profile
 // does not record them. `name` is the agent's place in the shared rotation;
-// `agent` is how it is shown.
+// `agent` is how it is shown. `human` is who committed the profile's current
+// allocation (`./commissionAttribution.ts`), loading until that is read.
 export type AgentAssignment = {
   readonly profilePath: string;
   readonly name: string;
   readonly agent: string;
   readonly host: AgentHost | undefined;
   readonly model: string | undefined;
+  readonly human: HumanAttribution;
 };
 
 // An execution assignment also records where its work is published.
@@ -143,6 +149,7 @@ function interpretProfiles(
       agent: agentIdentity(name).agent,
       host,
       model,
+      human: attributionLoading,
     };
     if (profile.activity === "preparation") {
       commissions.push({ ...assignment, activity: "preparation", identity });

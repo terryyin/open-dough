@@ -1,6 +1,7 @@
-// Server-side memo of repository file text, directory listings, and last
-// commit times at a resolved commit, for the local authenticated read
-// boundary (`./authenticatedRead.ts`).
+// Server-side memo of repository file text, directory listings, last
+// commit times, and profile additions at a resolved commit, and of each
+// commit's change to a path, for the local authenticated read boundary
+// (`./authenticatedRead.ts`).
 
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
@@ -8,6 +9,12 @@ import {
   readRepositoryFileViaGh,
 } from "./ghContents.ts";
 import { lastCommitTimeViaGh } from "./ghRead.ts";
+import {
+  commitChangeViaGh,
+  findAddition,
+  listPathCommitsViaGh,
+  type ProfileAddition,
+} from "./ghProfileAddition.ts";
 
 // File text at a commit never changes, so what one request already read at a
 // pinned revision can decide a later request's reachability (or answer it)
@@ -39,62 +46,83 @@ export class PinnedTexts {
     }
   }
 
+  // What is kept under `entry` at `revision`, or else what `read` answers,
+  // then kept there. Every memo below shares this rule; each kind of answer
+  // is kept under its own `entry` shape.
+  private async recalled(
+    source: PublishedSource,
+    revision: string,
+    entry: string,
+    read: () => Promise<string>,
+  ): Promise<string> {
+    const known = this.texts.get(PinnedTexts.key(source, revision, entry));
+    if (known !== undefined) {
+      return known;
+    }
+    const text = await read();
+    this.remember(source, revision, entry, text);
+    return text;
+  }
+
+  private async recalledJson<T>(
+    source: PublishedSource,
+    revision: string,
+    entry: string,
+    read: () => Promise<T>,
+  ): Promise<T> {
+    return JSON.parse(
+      await this.recalled(source, revision, entry, async () =>
+        JSON.stringify(await read()),
+      ),
+    ) as T;
+  }
+
   reader(source: PublishedSource, revision: string, signal: AbortSignal) {
-    return async (path: string): Promise<string> => {
-      const known = this.texts.get(PinnedTexts.key(source, revision, path));
-      if (known !== undefined) {
-        return known;
-      }
-      const text = await readRepositoryFileViaGh(
-        source.repository,
-        path,
-        revision,
-        signal,
+    return (path: string): Promise<string> =>
+      this.recalled(source, revision, path, () =>
+        readRepositoryFileViaGh(source.repository, path, revision, signal),
       );
-      this.remember(source, revision, path, text);
-      return text;
-    };
   }
 
   // A directory's listed file names at a commit, remembered the same way. A
   // listing is kept under its directory with a trailing `/`, which no file
   // path ever has.
   lister(source: PublishedSource, revision: string, signal: AbortSignal) {
-    return async (directory: string): Promise<readonly string[]> => {
-      const key = PinnedTexts.key(source, revision, `${directory}/`);
-      const known = this.texts.get(key);
-      if (known !== undefined) {
-        return JSON.parse(known) as string[];
-      }
-      const names = await listRepositoryDirectoryViaGh(
-        source.repository,
-        directory,
-        revision,
-        signal,
+    return (directory: string): Promise<readonly string[]> =>
+      this.recalledJson(source, revision, `${directory}/`, () =>
+        listRepositoryDirectoryViaGh(
+          source.repository,
+          directory,
+          revision,
+          signal,
+        ),
       );
-      this.remember(source, revision, `${directory}/`, JSON.stringify(names));
-      return names;
-    };
   }
 
   // When a path was last committed as of a commit, remembered the same way:
   // the history behind a commit never changes either. Kept under the path
   // with a trailing NUL, which no file path ever has.
   committer(source: PublishedSource, revision: string, signal: AbortSignal) {
-    return async (path: string): Promise<string> => {
-      const key = PinnedTexts.key(source, revision, `${path}\0committed`);
-      const known = this.texts.get(key);
-      if (known !== undefined) {
-        return known;
-      }
-      const committedAt = await lastCommitTimeViaGh(
-        source.repository,
-        path,
-        revision,
-        signal,
+    return (path: string): Promise<string> =>
+      this.recalled(source, revision, `${path}\0committed`, () =>
+        lastCommitTimeViaGh(source.repository, path, revision, signal),
       );
-      this.remember(source, revision, `${path}\0committed`, committedAt);
-      return committedAt;
-    };
+  }
+
+  // Which commit added a profile's current allocation as of a commit, and
+  // who committed it, remembered the same way under the path with a trailing
+  // NUL. What each walked commit changed about the path is remembered under
+  // that commit, so a later revision's walk asks GitHub only for its list.
+  adder(source: PublishedSource, revision: string, signal: AbortSignal) {
+    return (path: string): Promise<ProfileAddition> =>
+      this.recalledJson(source, revision, `${path}\0added`, async () =>
+        findAddition(
+          await listPathCommitsViaGh(source.repository, path, revision, signal),
+          (commit) =>
+            this.recalledJson(source, commit, `${path}\0change`, () =>
+              commitChangeViaGh(source.repository, commit, path, signal),
+            ),
+        ),
+      );
   }
 }

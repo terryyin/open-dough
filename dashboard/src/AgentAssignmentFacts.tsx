@@ -2,7 +2,8 @@
 // work, from the recorded agent profile facts, or the explicit gap when none
 // is recorded or readable. Branch context is shown as context only; it never
 // says that branch work has reached trunk. Preparing is an annotation on the
-// queued card, never a stage or a claim that an agent is running.
+// queued card, never a stage or a claim that an agent is running. The human
+// developer credited for an assignment is shown beside it (`./HumanCredit.tsx`).
 
 import type {
   AgentAssignment,
@@ -14,6 +15,7 @@ import type {
   UnreadableProfile,
 } from "./agentAssignments.ts";
 import { AgentPortrait } from "./AgentPortrait.tsx";
+import { HumanCredit } from "./HumanCredit.tsx";
 import "./agent-assignment.css";
 
 // How each recorded mode and host is presented: its label, and the local mark
@@ -169,6 +171,7 @@ export function TakenOwnerFacts({
       {owner.assignments.map((each) => (
         <div key={each.agent}>
           <DeveloperSummary developer={each} onOpenRoster={onOpenRoster} />
+          <HumanCredit developer={each} />
           <BranchContext owner={each} />
         </div>
       ))}
@@ -202,11 +205,10 @@ export function PreparingFacts({
     <div className="card-owner card-preparing">
       <p className="preparing-activity">Preparing</p>
       {preparers.map((each) => (
-        <DeveloperSummary
-          key={each.agent}
-          developer={each}
-          onOpenRoster={onOpenRoster}
-        />
+        <div key={each.agent}>
+          <DeveloperSummary developer={each} onOpenRoster={onOpenRoster} />
+          <HumanCredit developer={each} />
+        </div>
       ))}
       {preparers.length > 1 && (
         <p className="preparation-problem">

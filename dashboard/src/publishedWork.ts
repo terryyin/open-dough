@@ -39,6 +39,7 @@ import {
   type UnreadableProfile,
 } from "./agentAssignments.ts";
 import type { AgentRoster } from "./commissionRoster.ts";
+import { readAttributedAssignments } from "./commissionAttribution.ts";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
 // the fields this dashboard shows rather than trusted by assertion.
@@ -206,6 +207,13 @@ export async function readPublishedWork(
         enrichPreparation(work, untilEither),
         readAssignments(source, revision, untilEither),
       ]);
+      // Each commission's human is read while progress and clocks are.
+      const attributed = readAttributedAssignments(
+        source,
+        revision,
+        assignments,
+        untilEither,
+      );
       const owned = awaitingProgressSources(
         withAssignments(prepared, assignments),
       );
@@ -218,9 +226,12 @@ export async function readPublishedWork(
       );
       signal.throwIfAborted();
       onPartial?.(sourced);
-      // Each counted plan's clock starts from commit times where its slices
-      // were read, once owners say which profile records the Take.
-      const enriched = await withSliceClocks(sourced, untilEither);
+      // Each clock starts from commit times where its plan's slices were read,
+      // once owners name the Take's profile; then commissions get their humans.
+      const enriched = withAssignments(
+        await withSliceClocks(sourced, untilEither),
+        await attributed,
+      );
       signal.throwIfAborted();
       // Shown even when the wait bound ended it: each detail left unread is
       // an explicit gap, and the bound is still reported as the read problem.

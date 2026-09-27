@@ -29,12 +29,14 @@ import {
 import {
   agentProfileDirectoryOf,
   commitTimeReachableFromRevision,
+  isListedAgentProfile,
   listedAgentProfilePaths,
   pathReachableFromRevision,
 } from "./reachablePaths.ts";
 import type { RequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
+  readingAdditionAt,
   readingBranchHeadOf,
   readingLastCommitAt,
   readingPathAt,
@@ -65,6 +67,8 @@ function readingOf(source: PublishedSource, read: RequestedRead): string {
       return readingPathAt(read.path, read.onBranch?.head ?? read.revision);
     case "agent-profiles-at":
       return readingPathAt(agentProfileDirectoryOf(source), read.revision);
+    case "addition-at":
+      return readingAdditionAt(read.path, read.revision);
     case "backlog-at":
       return readingPathAt(source.backlogPath, read.revision);
   }
@@ -108,6 +112,23 @@ export async function perform(
             profiles.push({ path, text: await readPinned(path) });
           }
           return answered({ revision: read.revision, profiles });
+        }
+        case "addition-at": {
+          // Only a profile the revision's directory listing names is asked
+          // about, as when profiles themselves are read.
+          const listed = await isListedAgentProfile(
+            source,
+            read.path,
+            pinned.lister(source, read.revision, signal),
+          );
+          if (!listed) {
+            return unreachable;
+          }
+          return answered({
+            revision: read.revision,
+            path: read.path,
+            added: await pinned.adder(source, read.revision, signal)(read.path),
+          });
         }
         case "branch-head-at":
           return await performBranchHeadRead(

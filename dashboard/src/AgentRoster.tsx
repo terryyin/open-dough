@@ -10,6 +10,7 @@ import type {
   RosterMember,
 } from "./commissionRoster.ts";
 import { RecordedFacts } from "./AgentAssignmentFacts.tsx";
+import { HumanCredit } from "./HumanCredit.tsx";
 import { AgentPortrait } from "./AgentPortrait.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { shortRevision, type PublishedWork } from "./publishedWork.ts";
@@ -67,6 +68,7 @@ function Commissions({ member }: { member: RosterMember }) {
           <p className="owner-summary">
             <RecordedFacts developer={commission} />
           </p>
+          <HumanCredit developer={commission} />
         </div>
       ))}
       {commissions.length + unreadable.length > 1 && (

@@ -7,8 +7,10 @@
 // `committed=last` when that file (or a listed agent profile) was last
 // committed as of that revision; `since` instead asks only whether the ref
 // still names the revision shown, and with `watch` which heads story branches
-// recorded there name now; `branch` asks about a story branch recorded
-// at that revision (`./authenticatedBranchRead.ts`). Every read makes the
+// recorded there name now; `agents=profiles` and `committed=added` read the
+// published agent profiles (`./authenticatedProfileRead.ts`); `branch` asks
+// about a story branch recorded at that revision
+// (`./authenticatedBranchRead.ts`). Every read makes the
 // same one request (`./authenticatedGet.ts`). No extra header or
 // credential is sent; the page is served by the same Vite process that
 // answers this endpoint, so the request is same-origin by construction, and the endpoint's own Origin/Host check
@@ -207,36 +209,4 @@ export async function readLastCommitTimeAt(
     throw unexpectedAnswer(reading);
   }
   return new Date(parsed.data.committedAt);
-}
-
-const okProfiles = z.object({
-  revision: commitSha,
-  profiles: z.array(z.object({ path: z.string().min(1), text: z.string() })),
-});
-
-// A published agent profile's repository path and raw text.
-export type PublishedProfile = {
-  readonly path: string;
-  readonly text: string;
-};
-
-// The agent profiles published beside the backlog at `revision`, as the local
-// boundary found them listed there; none when the revision has no profile
-// directory. What a profile says is left to the shared profile reader.
-export async function readAgentProfilesAt(
-  source: PublishedSource,
-  revision: string,
-  signal: AbortSignal,
-): Promise<readonly PublishedProfile[]> {
-  const reading = `the agent profiles of ${source.repository} at ${revision}`;
-  const body = await authenticatedGet(
-    `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&agents=profiles`,
-    reading,
-    signal,
-  );
-  const parsed = okProfiles.safeParse(body);
-  if (!parsed.success || parsed.data.revision !== revision) {
-    throw unexpectedAnswer(reading);
-  }
-  return parsed.data.profiles;
 }

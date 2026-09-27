@@ -176,10 +176,24 @@ export async function listedAgentProfilePaths(
     .map((name) => `${directory}/${name}`);
 }
 
+// Whether `requestedPath` is one of the agent profiles listed beside the
+// backlog at a pinned revision. The profile directory is listed only for a
+// path inside it.
+export async function isListedAgentProfile(
+  source: PublishedSource,
+  requestedPath: string,
+  listPinned: PinnedLister,
+): Promise<boolean> {
+  if (!requestedPath.startsWith(`${agentProfileDirectoryOf(source)}/`)) {
+    return false;
+  }
+  return (await listedAgentProfilePaths(source, listPinned)).includes(
+    requestedPath,
+  );
+}
+
 // Whether the pinned revision's records allow asking when `requestedPath` was
-// last committed: any path a file read may reach, or one of the agent profiles
-// listed beside the backlog. The profile directory is listed only for a path
-// inside it.
+// last committed: any path a file read may reach, or a listed agent profile.
 export async function commitTimeReachableFromRevision(
   source: PublishedSource,
   revision: string,
@@ -187,15 +201,12 @@ export async function commitTimeReachableFromRevision(
   readPinned: PinnedReader,
   listPinned: PinnedLister,
 ): Promise<boolean> {
-  if (
-    await pathReachableFromRevision(source, revision, requestedPath, readPinned)
-  ) {
-    return true;
-  }
-  if (!requestedPath.startsWith(`${agentProfileDirectoryOf(source)}/`)) {
-    return false;
-  }
-  return (await listedAgentProfilePaths(source, listPinned)).includes(
-    requestedPath,
+  return (
+    (await pathReachableFromRevision(
+      source,
+      revision,
+      requestedPath,
+      readPinned,
+    )) || (await isListedAgentProfile(source, requestedPath, listPinned))
   );
 }
