@@ -8,6 +8,11 @@
 // No request from the page may leave the loopback server. A request to
 // GitHub's API from the browser itself would mean the page bypassed the
 // local boundary, so it fails the test that made it.
+//
+// A journey hands its scratch repositories to `afterGitHubStops`, which
+// removes them once the page, its dashboard server, and the fake GitHub have
+// stopped, so a read still in flight when the journey ends never finds its
+// repository gone.
 
 import {
   test as base,
@@ -25,6 +30,7 @@ import { startFakeGitHub, type FakeGitHub } from "./support/fakeGitHub.ts";
 export { expect };
 
 const githubServing = new WeakMap<BrowserContext, FakeGitHub>();
+const removalsAfterStop = new WeakMap<FakeGitHub, Array<() => void>>();
 
 // Page time stands still at `at` until a journey lets it pass. The clock is
 // installed an hour earlier because it runs until paused, and Playwright
@@ -49,6 +55,7 @@ export const test = base.extend<{
   // stalled read; the server's own bound when unset. A journey that waits
   // the bound out sets a short one with `test.use`.
   readTimeoutMs: number | undefined;
+  afterGitHubStops: (removal: () => void) => void;
   github: FakeGitHub;
   dashboard: DashboardServer;
 }>({
@@ -57,8 +64,15 @@ export const test = base.extend<{
   // eslint-disable-next-line no-empty-pattern
   github: async ({}, use) => {
     const github = await startFakeGitHub();
+    const removals: Array<() => void> = [];
+    removalsAfterStop.set(github, removals);
     await use(github);
     await github.close();
+    for (const removal of removals.reverse()) removal();
+  },
+  afterGitHubStops: async ({ github }, use) => {
+    const removals = removalsAfterStop.get(github) ?? [];
+    await use((removal) => removals.push(removal));
   },
   dashboard: async ({ github, readTimeoutMs }, use) => {
     const server = await startDashboardServer({
