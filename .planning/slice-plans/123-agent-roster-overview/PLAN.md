@@ -162,3 +162,15 @@ Without a usable image, the name remains readable.
   claim commits are pushed directly, so this story keeps the committer rule.
 - Chromium reuses an image URL within a document despite `no-store`; proving a
   server-side image cache needs distinct URLs that share one cache key.
+
+## Execution complete
+
+Product advice: Queue the correction
+[SEED-049#roster-evidence-correction](../../seeds/SEED-049-project-agent-roster.md#roster-evidence-correction)
+([plan 125](../125-roster-evidence-correction/PLAN.md)) near the top: it fixes a
+false "Not commissioned" for a mismatched profile, slice clocks held back by
+human attribution, and a roster stuck on "reading" after a failed read. At
+wrap-up, assimilate the roster, commission, and credited human into
+`.planning/NORTH-STAR.md`. Consider exploring the planned dashboard unit-test
+layer so detailed boundary rules (avatar source validation, the addition walk)
+need not be proved only through browser and HTTP specs.

@@ -92,6 +92,32 @@ GitHub's commit response distinguishes the Git committer name from the matched
 GitHub account; the latter may be absent. Attribution and avatar reads are
 bounded to profiles in the selected project's published snapshot.
 
+<a id="roster-evidence-correction"></a>
+
+### Keep roster and human credit honest under slow or odd evidence
+
+**Identity:** SEED-049#roster-evidence-correction
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/125-roster-evidence-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e43ef3139833f3d60f999904568d5c2852a081592e772fae91d7fe99cc8c56fe","plan":"77c86066b5629e2399917be332c349617423fdaa19b8a14ca0521d14fc58b3fb"}}
+```
+
+**Goal:** A developer reading the agent roster and story cards gets slice
+clocks as promptly as before human credit existed, never sees a rotation
+name falsely called not commissioned, reads uncertainty rather than a
+perpetual "reading" state, and sees the current avatar of the credited
+account. The roster's facts and the Take's slice clock follow one allocation
+rule, with one vocabulary and a suite free of repeated proof. This corrects
+the [project agent roster](#project-agent-roster) execution and adds no
+feature promise.
+
+**Scope:** attribution timing within the snapshot read; profile-name
+validation shared with the execution scripts; the roster without a readable
+snapshot; avatar cache keying; dating the Take from the allocation's
+addition; commission wording across cards, roster, code, and the UX North
+Star; and consolidation of the roster, attribution, avatar, and boundary
+tests. Correction plan:
+[125-roster-evidence-correction](../slice-plans/125-roster-evidence-correction/PLAN.md).
+
 ## Ordering and When to Surface
 
 First in the product backlog as requested. Refinement and planning do not
