@@ -197,65 +197,6 @@ the unresolved relationship between Story Branch Mode's delayed integration and
 Accepted ADR 0002; human resolution of that question remains separate from this
 Git migration.
 
-<a id="run-guided-commits-through-skill-alias"></a>
-
-### Open Dough scripts run, or fail visibly, through a symlinked skill directory
-
-**Identity:** SEED-008#run-guided-commits-through-skill-alias
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"fccbfcae5b23d40aabe52d74221bf2738aa35604dafd5800a4455fc8427f33cc"}}
-```
-
-**Beneficiary:** Agents invoking installed Open Dough scripts through a skill
-directory that is a symlink, typically Claude Code in a worktree whose project
-links `.claude/skills/<name>` to `.agents/skills/<name>` (Donut's own worktree
-setup does this, and our runtime guidance prefers the `.claude/skills` path for
-Claude Code).
-
-**Goal:** A script run directly through such a symlinked path behaves exactly as
-through its real path: it performs the command or reports a visible refusal.
-It never exits 0 silently having done nothing.
-
-**Scope:** The three installed CLI scripts whose direct-entry check still
-compares path strings literally — `agent-commit.mjs`, `execution-start.mjs` and
-`ci-repair-stash.mjs` — use the existing realpath-aware direct-entry helper that
-the other CLI entrypoints already use. One behavioral test runs every Open Dough
-CLI entrypoint through a symlinked skill directory and requires a non-silent
-result, so a future entrypoint that copies a literal check fails in this
-repository rather than in a project. Importing a module stays free of side
-effects.
-
-Excluded: projects' own symlink setup; changing which skill path the runtime
-guidance prefers; moving to `import.meta.main` (Node 20 remains supported);
-native host runs; a source-text lint for the check; CI discovery, session
-identity and release automation. Renaming the CI-specific helper module is left
-to the refactor pass.
-
-**Evaluation / key examples:**
-
-- In a disposable repository whose `.claude/skills/<name>` links to
-  `.agents/skills/<name>`, `agent-commit.mjs` run through the link with staged
-  content commits and prints its receipt, exactly as through the real path;
-  in a checkout with no assigned agent it prints the same JSON refusal and
-  non-zero exit as the real path.
-- `execution-start.mjs start` and `ci-repair-stash.mjs` through the link report
-  their JSON result or usage error instead of exiting 0 with no output.
-- Every CLI entrypoint invoked through a symlinked skill directory produces
-  output or a non-zero exit; none is silent with exit 0.
-- Importing any of these modules performs no command.
-
-**Findings:** [ODF-127](../../docs/maintainer/finding-names.md#odf-127).
-An earlier correction (ODF-056, 0.3.27) fixed three CI entrypoints; `agent-commit.mjs` later reintroduced the literal
-check.
-
-**Completion:** Record the actual response, implementation commit and first
-containing release on ODF-127 in the catalog; distinguish delivered proof from
-later effectiveness.
-
-**Depends on:** Nothing unfinished; reuses the existing direct-entry helper.
-
-**Effort hypothesis:** One slice; approach selected by Terry as planless.
-
 <a id="isolate-parallel-slice-delivery"></a>
 
 ### Keep parallel slices from interfering with proof and delivery

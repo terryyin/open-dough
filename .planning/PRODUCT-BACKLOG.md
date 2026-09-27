@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Complete trivial work with --one-shot and track it if it grows](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work) — SEED-028#one-shot-work ([plan](slice-plans/112-one-shot-work/PLAN.md))
-- [Open Dough scripts run, or fail visibly, through a symlinked skill directory](seeds/SEED-008-worktree-branch-trunk-sync.md#run-guided-commits-through-skill-alias) — SEED-008#run-guided-commits-through-skill-alias
 
 ## Backlog list
 
