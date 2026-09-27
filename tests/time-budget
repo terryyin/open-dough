@@ -1,7 +1,7 @@
 # The suite's time budget on CI's runner, judged per split job: no single job
 # may take longer than per-job-seconds, and one split job's jobs together no
 # more than total-job-seconds. scripts/test.sh compares each CI split job's
-# per-job times with it, and a breach fails that `test (<i>/2)` job; a local
+# per-job times with it, and a breach fails that split job; a local
 # run is not judged against it. Set from CI's split test-times artifacts at
 # 1.5x or more of the largest observed values over five CI runs of 37679c6
 # (36289883048, 36289980256, 36290082744, 36290195759, 36290300040): largest

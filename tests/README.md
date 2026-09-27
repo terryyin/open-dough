@@ -61,11 +61,10 @@ is reported only for the share's own jobs. A malformed value, or `i` outside
 runs. `OPEN_DOUGH_TEST_TIMES=<file>` writes every job's wall seconds and name,
 longest first, which is how that list is refreshed (see its header). Jobs
 inherit neither setting, so a check that runs the runner itself runs all of its
-own checks and keeps its own times. CI runs the suite as two split jobs,
-`test (1/2)` and `test (2/2)`, each with `OPEN_DOUGH_TEST_SPLIT` set to its
-share; each fails on its own share's failures or budget breach and keeps its
-times file for seven days as its `test-times-1` or `test-times-2` workflow
-artifact.
+own checks and keeps its own times. CI runs the suite as split jobs, each with
+`OPEN_DOUGH_TEST_SPLIT` set to its share; each fails on its own share's
+failures or budget breach and keeps its times file for seven days as its
+`test-times-<i>` workflow artifact.
 
 The suite's time budget lives in `tests/time-budget`: two numbers, a per-job
 ceiling (`per-job-seconds`) and a total ceiling over one run's jobs
@@ -78,8 +77,8 @@ one line per job over the per-job ceiling and one for a total over the total
 ceiling, for example:
 
 ```text
-OVER BUDGET: tests/install.sh took 78.4s; the per-job ceiling is 71s (tests/time-budget).
-OVER BUDGET: all jobs took 482.4 job-seconds; the total ceiling is 470 (tests/time-budget).
+OVER BUDGET: tests/install.sh took 78.4s; the per-job ceiling is <per-job-seconds>s (tests/time-budget).
+OVER BUDGET: all jobs took 482.4 job-seconds; the total ceiling is <total-job-seconds> (tests/time-budget).
 ```
 
 A breach fails that split job. The ceilings are calibrated to CI's runner, so
@@ -122,7 +121,7 @@ signal ended, `INTERRUPTED: <job> (after <seconds>s)` and the last lines of its
 output; it then exits 130 for INT or 143 for TERM. Workers a check detaches
 from its process group are that check's own teardown.
 `tests/test-runner-interrupt.sh` proves this with substitute checks.
-`npm test` execs the runner (`package.json`), and CI's check step execs `npm`,
+`npm test` execs the runner (`package.json`), and CI's test step execs `npm`,
 so a signal sent only to the step's top process, as a cancelled Actions run
 does, still reaches the runner (see that step's comment in
 `.github/workflows/ci.yml`).

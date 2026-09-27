@@ -128,7 +128,7 @@ default — with no change to what `npm test` or a CI split job runs or reports.
 
 ### 2. CI states its split once and the docs describe it generically
 Type: Structure
-Status: planned
+Status: done
 Proof: one CI run of the slice's revision: jobs exactly `lint`, `test (1/2)`,
 `test (2/2)`, `dashboard (1/2)`, `dashboard (2/2)`, all green; artifacts
 `test-times-1`, `test-times-2`, and both shards' Playwright reports present;
@@ -153,3 +153,8 @@ with CI's job names, artifacts, and verdict unchanged.
 - The runner fixture copy set is `scripts/test.sh`, `scripts/test-jobs.sh`,
   and `scripts/*.bash` (which also covers `scripts/test-environment.bash`);
   `tests/helpers/copy-runner.bash` (`copy_runner`) is its one home.
+- Slice 2 (delivered): each CI matrix lists only its shares and derives the
+  count through `strategy.job-total`; `lint` is its own job so it does not
+  count toward the test matrix's job-total. The CI-run proof (five exact job
+  names, artifacts, longest-first refresh) is verified against the run of the
+  delivered revision.
