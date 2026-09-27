@@ -158,3 +158,12 @@ with CI's job names, artifacts, and verdict unchanged.
   count toward the test matrix's job-total. The CI-run proof (five exact job
   names, artifacts, longest-first refresh) is verified against the run of the
   delivered revision.
+
+## Execution complete
+
+Product advice: the sibling-refinement readiness invalidation recurred as
+DD-120 (one reassessment publication before the claim), the cost
+SEED-043#preserve-sibling-readiness is queued to remove; plan 127
+(`SEED-048#test-environment-correction`, planning-only) builds on this
+correction's runner files and is unblocked by it. No other product change
+recommended.
