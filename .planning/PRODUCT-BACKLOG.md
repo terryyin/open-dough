@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Run process retrospectives only when a project enables them](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective ([plan](slice-plans/137-default-skip-process-retrospective/PLAN.md))
-
 ## Backlog list
 
 - [Coordinate direct edits and refreshes of the default checkout](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
