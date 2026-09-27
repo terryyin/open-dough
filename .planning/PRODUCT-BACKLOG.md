@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep roster and human credit honest under slow or odd evidence](seeds/SEED-049-project-agent-roster.md#roster-evidence-correction) — SEED-049#roster-evidence-correction ([plan](slice-plans/125-roster-evidence-correction/PLAN.md))
-- [Keep each dashboard test on a server it started, even beside another worktree's suite](seeds/SEED-046-test-and-ci-optimization-round-2.md#dashboard-port-race) — SEED-046#dashboard-port-race
 
 ## Backlog list
 
