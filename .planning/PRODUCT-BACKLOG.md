@@ -13,7 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Keep paused work when a conflicting restore applied nothing](seeds/SEED-008-worktree-branch-trunk-sync.md#unapplied-restore-kept) — SEED-008#unapplied-restore-kept ([plan](slice-plans/128-unapplied-restore-kept/PLAN.md))
 - [Complete trivial work with --one-shot and track it if it grows](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work) — SEED-028#one-shot-work ([plan](slice-plans/112-one-shot-work/PLAN.md))
 
 ## Backlog list

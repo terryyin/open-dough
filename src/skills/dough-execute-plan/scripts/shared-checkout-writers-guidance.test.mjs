@@ -79,11 +79,20 @@ test("the coordinator isolates a commit beside a sibling writer by staging owned
 });
 
 test("the coordinator finishes a resolved repair conflict through the stash script, never dropping by hand", () => {
+  const monitor = reference("ci-monitor.md");
   const stepFive = section(
-    reference("ci-monitor.md"),
+    monitor,
     / 5\. \*\*Restore unfinished/,
     /On an unresolved repair/,
   );
+
+  // One saved entry per repair cycle, restored by its recorded OID through
+  // the script rather than by `pop` or the top-of-stack selector.
+  assert.match(monitor, /ci-repair-stash\.mjs'?\s+save\b/);
+  assert.match(monitor, /never nest stash\/repair cycles/);
+  assert.match(stepFive, /ci-repair-stash\.mjs'?\s+restore\b/);
+  assert.match(stepFive, /never\s+(?:use\s+)?`?pop`?|not\s+`?pop`?/);
+  assert.match(stepFive, /never\s+assuming\s+`stash@\{0\}`/);
 
   assert.match(stepFive, /ci-repair-stash\.mjs'? drop --record\b/);
   assert.doesNotMatch(stepFive, /git stash drop/);
@@ -92,4 +101,13 @@ test("the coordinator finishes a resolved repair conflict through the stash scri
   // A drop that removed another writer's entry, or found none, stops.
   assert.match(stepFive, /`mismatch`[^.]*another writer's entry/);
   assert.match(stepFive, /`missing`[^.]*stop/);
+  // A restore that put nothing back reports its OID and paths and keeps its
+  // entry instead of being dropped.
+  const none = stepFive.match(
+    /`none`[^.]*(?:nothing|no work)[^.]*(?:put back|restored|applied)[^.]*\./i,
+  );
+  assert.ok(none, "step 5 says what to do when nothing was put back");
+  for (const act of [/\bOID\b/, /\bpaths?\b/i, /keep[^.]*entry[^.]*stop/i]) {
+    assert.match(none[0], act);
+  }
 });

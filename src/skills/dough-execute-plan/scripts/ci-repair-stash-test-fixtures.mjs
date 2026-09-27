@@ -79,9 +79,12 @@ export async function createSharedStashFixture(t) {
     read: (name) => readFileSync(join(execution, name), "utf8"),
     // The execution checkout's index (staged) content of one path.
     staged: async (name) => (await git(execution, "show", `:${name}`)).stdout,
-    async commit(name, content) {
+    async stage(name, content) {
       writeFileSync(join(execution, name), content);
       await git(execution, "add", name);
+    },
+    async commit(name, content) {
+      await this.stage(name, content);
       await git(execution, "commit", "-q", "-m", `repair ${name}`);
     },
   };

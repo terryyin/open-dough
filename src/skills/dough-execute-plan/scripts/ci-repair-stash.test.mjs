@@ -206,3 +206,42 @@ test("a successful push that creates no entry of its own reports ambiguous, not 
   assert.equal(restored.applied, false);
   assert.deepEqual(await fixture.stack(), [foreign]);
 });
+
+test("a restore whose staged work conflicts in the index applies nothing, names the path, and its drop is refused with the entry and tree kept", async (t) => {
+  const fixture = await createSharedStashFixture(t);
+  await fixture.stage("staged.txt", "staged owned\n");
+  const saved = await fixture.save();
+  assert.equal(saved.status, "stashed");
+
+  await fixture.commit("staged.txt", "repair line\n");
+
+  const restored = await fixture.restore(saved.record);
+  assert.equal(restored.status, "conflict");
+  assert.equal(restored.applied, "none");
+  assert.deepEqual(restored.paths, ["staged.txt"]);
+
+  const dropped = await fixture.drop(saved.record);
+  assert.equal(dropped.status, "unapplied");
+  assert.equal(dropped.exitCode, 1);
+  assert.equal(dropped.oid, saved.oid);
+  assert.deepEqual(await fixture.stack(), [saved.oid]);
+  assert.equal(await fixture.status(), "");
+  assert.equal(fixture.read("staged.txt"), "repair line\n");
+});
+
+test("a restore whose repair committed the identical staged change reports all applied, and its drop proceeds", async (t) => {
+  const fixture = await createSharedStashFixture(t);
+  await fixture.stage("staged.txt", "staged owned\n");
+  const saved = await fixture.save();
+  assert.equal(saved.status, "stashed");
+
+  await fixture.commit("staged.txt", "staged owned\n");
+
+  const restored = await fixture.restore(saved.record);
+  assert.equal(restored.applied, "all");
+  assert.deepEqual(await fixture.stack(), [saved.oid]);
+
+  const dropped = await fixture.drop(saved.record);
+  assert.equal(dropped.status, "dropped");
+  assert.deepEqual(await fixture.stack(), []);
+});

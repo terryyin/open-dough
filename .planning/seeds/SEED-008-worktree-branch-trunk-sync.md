@@ -234,30 +234,6 @@ Later source review corrected the claimed production readiness command: it was
 a test substitute. Current story scope replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.
 
-<a id="unapplied-restore-kept"></a>
-
-### Correction: Keep paused work when a conflicting restore applied nothing
-
-**Identity:** SEED-008#unapplied-restore-kept
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/128-unapplied-restore-kept/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ad006cdb8a8ee98ee15b9101859ee35c0cefae2a41200496701ccedee75bb17f","plan":"30ee0752946a0af1e912c26765538703849c01fb5066b8746e6fbfe847af8e34"}}
-```
-
-**Goal:** A coordinator finishing a conflicting CI repair restore never
-discards paused work that the restore did not put back in the tree.
-
-**Scope:** A bounded retrospective correction of the delivered
-`SEED-008#truthful-repair-restore` (recoverable at
-`f6a3d4c:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`; plan 115,
-commits `8f88364`, `ab3cb42`).
-A restore that applied nothing names its conflicting paths and is remembered
-in its record; `drop --record` refuses to drop that unapplied entry;
-`ci-monitor.md` step 5 says to keep the entry and stop on `none`. The step 5
-guidance assertions live in one focused test. Excluded: retrying an apply
-without `--index`, and reporting unstaged paths that come back staged.
-
-**Plan:** [Keep paused work when a conflicting restore applied nothing](../slice-plans/128-unapplied-restore-kept/PLAN.md).
-
 ## Architectural Context
 
 [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
