@@ -5,6 +5,7 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
+import { configureDeveloper } from "../../dough-execute-plan/scripts/workspace-publication-startup-test-fixtures.mjs";
 import {
   abandonPreparation,
   backlogFile,
@@ -19,11 +20,13 @@ import {
   refineStoryC,
   releasePreparation,
   remoteChanges,
+  remoteCredit,
   remoteFile,
   remoteProfileNames,
   revParse,
   seedC,
   startPreparation,
+  yuiCredited,
 } from "./preparation-assignment-test-fixtures.mjs";
 import {
   loseNextResponse,
@@ -43,6 +46,7 @@ async function pausedPreparation(t) {
   const trunk = await createPreparationTrunk();
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
+  await configureDeveloper(trunk.integration);
   const { receipt: announced } = await startPreparation(
     trunk,
     workspace,
@@ -86,6 +90,8 @@ test("resuming a paused preparation continues its assignment; abandoning publish
   assert.deepEqual(await remoteChanges(trunk, ended), [
     `D\t${profileOf("Yui")}`,
   ]);
+  // The agent authors the end; the configured developer is its co-author.
+  assert.deepEqual(await remoteCredit(trunk, ended), yuiCredited);
   assert.equal(await remoteFile(trunk, ended, backlogFile), queue);
   assert.doesNotMatch(await remoteFile(trunk, ended, seedC), /C is useful/);
   assert.equal(await remoteFile(trunk, ended, planC), null);
@@ -117,12 +123,15 @@ test("an abandonment whose accepted push loses its response is settled from the 
   assert.equal(receipt.publishedSha, ended);
   assert.equal(await revParse(trunk.origin, `${ended}^`), announced.allocation);
   assert.deepEqual(await endings(trunk), [endSubject]);
+  assert.deepEqual(await remoteCredit(trunk, ended), yuiCredited);
   assert.equal(await remoteFile(trunk, ended, backlogFile), queue);
   assert.deepEqual(await snapshot(workspace, [seedC, planC]), draft);
 
   const rerun = await abandonPreparation(trunk, workspace, identityC);
   assert.equal(rerun.receipt.status, "already-released");
   assert.deepEqual(await endings(trunk), [endSubject]);
+  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), ended);
+  assert.deepEqual(await remoteCredit(trunk, ended), yuiCredited);
 });
 
 test("a refused abandonment reports the assignment still published, and a rerun once the remote accepts ends it once", async (t) => {
@@ -176,4 +185,34 @@ test("when another writer advances trunk during the abandonment push, its end is
   );
   assert.deepEqual(await endings(trunk), [endSubject]);
   assert.deepEqual(await snapshot(workspace, [seedC, planC]), draft);
+});
+
+test("an abandonment whose committer is the agent itself is refused with the assignment still published", async (t) => {
+  const { trunk, workspace, announced } = await pausedPreparation(t);
+  const draft = await snapshot(workspace, [seedC, planC]);
+  const head = await revParse(workspace, "HEAD");
+  await git(trunk.integration, "config", "user.name", "Yui-chan");
+  await git(trunk.integration, "config", "user.email", "yui-chan@example.org");
+
+  const refused = await abandonPreparation(trunk, workspace, identityC);
+  assert.equal(refused.code, 1, JSON.stringify(refused.receipt));
+  assert.equal(refused.receipt.status, "developer-identity-refused");
+  assert.match(refused.receipt.error, /agent's own/);
+  assert.equal(refused.receipt.allocation, announced.allocation);
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    announced.allocation,
+  );
+  assert.notEqual(await remoteFile(trunk, "main", profileOf("Yui")), null);
+  assert.equal(await revParse(workspace, "HEAD"), head);
+  assert.deepEqual(await snapshot(workspace, [seedC, planC]), draft);
+
+  await configureDeveloper(trunk.integration);
+  const { receipt } = await abandonPreparation(trunk, workspace, identityC);
+  assert.equal(receipt.status, "abandoned", JSON.stringify(receipt));
+  assert.deepEqual(
+    await remoteCredit(trunk, receipt.publishedSha),
+    yuiCredited,
+  );
+  assert.deepEqual(await endings(trunk), [endSubject]);
 });

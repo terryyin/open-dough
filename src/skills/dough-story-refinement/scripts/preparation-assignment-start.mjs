@@ -19,7 +19,11 @@ import {
   revParse,
   tryPushExactRef,
 } from "../../dough-execute-plan/scripts/publication-git.mjs";
-import { configureAgentAuthorship } from "../../dough-execute-plan/scripts/workspace-agent-authorship.mjs";
+import {
+  configureAgentAuthorship,
+  creditDeveloper,
+  DeveloperIdentityRefused,
+} from "../../dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import {
   backlogPath,
   isAncestor,
@@ -40,8 +44,16 @@ import {
 
 // Commits only the new profile on top of fetched trunk, from a clean
 // workspace whose history trunk already contains; nothing else is staged.
+// The agent authors it and the developer committing it is credited; an
+// unusable developer throws DeveloperIdentityRefused before anything changes.
 async function commitAnnouncement(request, base, agent) {
   const { workspace } = request;
+  const identity = agentIdentity(agent.name);
+  const message = await creditDeveloper(
+    workspace,
+    `Announce preparation: ${request.identity}\n\nPreparation-Identity: ${request.identity}\n`,
+    identity,
+  );
   await git(workspace, "merge", "--ff-only", "--quiet", base);
   const path = profilePathOf(agent.name);
   mkdirSync(dirname(join(workspace, path)), { recursive: true });
@@ -56,14 +68,13 @@ async function commitAnnouncement(request, base, agent) {
     }),
   );
   await git(workspace, "add", "--", path);
-  const { agent: author, email } = agentIdentity(agent.name);
   await git(
     workspace,
     "commit",
     "--quiet",
-    `--author=${author} <${email}>`,
+    `--author=${identity.agent} <${identity.email}>`,
     "-m",
-    `Announce preparation: ${request.identity}\n\nPreparation-Identity: ${request.identity}\n`,
+    message,
   );
   const sha = await revParse(workspace, "HEAD");
   // Recorded before the push, so a rerun after a lost response recognizes
@@ -149,6 +160,13 @@ export async function startPreparation(input) {
       error:
         "a new announcement needs a clean workspace whose commits trunk already contains; nothing was published",
     });
+  // Stops with the workspace back where it started, even when a rebuild
+  // moved it onto newer trunk.
+  const unannounced = async (status, fields) => {
+    await git(workspace, "reset", "--keep", "--quiet", startHead);
+    await restoreAllocation(workspace, previous);
+    return stop(status, { workspace, fetched: base, ...fields });
+  };
   let agent, announced;
   for (let attempt = 1; ; attempt += 1) {
     const chosen = await selectAgent(
@@ -157,14 +175,18 @@ export async function startPreparation(input) {
       backlogPath,
     );
     if (!chosen.ok) {
-      // A rebuild moved the workspace onto newer trunk; put it back.
-      await git(workspace, "reset", "--keep", "--quiet", startHead);
-      await restoreAllocation(workspace, previous);
       const { status, error, occupied } = chosen;
-      return stop(status, { workspace, fetched: base, error, occupied });
+      return unannounced(status, { error, occupied });
     }
     agent = chosen.agent;
-    announced = await commitAnnouncement(request, base, agent);
+    try {
+      announced = await commitAnnouncement(request, base, agent);
+    } catch (error) {
+      if (!(error instanceof DeveloperIdentityRefused)) throw error;
+      return unannounced("developer-identity-refused", {
+        error: error.message,
+      });
+    }
     let rejected = false;
     try {
       ({ rejected } = await tryPushExactRef(
@@ -199,16 +221,12 @@ export async function startPreparation(input) {
       error: `announcement acceptance is unconfirmed: ${errorText(error)}`,
     });
   }
-  if (!accepted) {
-    // Remote trunk has not taken the announcement: leave the workspace as it
-    // was found, with no coordination commit to mistake for a published one.
-    await git(workspace, "reset", "--keep", "--quiet", startHead);
-    await restoreAllocation(workspace, previous);
-    return stop("unpublished", {
-      workspace,
+  // Remote trunk has not taken the announcement: leave the workspace as it
+  // was found, with no coordination commit to mistake for a published one.
+  if (!accepted)
+    return unannounced("unpublished", {
       error: "remote trunk did not accept the preparation announcement",
     });
-  }
   const authorship = await configureAgentAuthorship(
     workspace,
     agentIdentity(agent.name),

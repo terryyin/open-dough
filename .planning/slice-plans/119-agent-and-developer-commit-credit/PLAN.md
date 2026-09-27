@@ -127,7 +127,7 @@ that agent.
 
 ### 2. Preparation coordination commits carry the same credit
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the existing announcement and abandonment CLI cases to inspect
 published commit messages and people. The preparation end made with
 `commit-tree` uses the same trailer operation; a repeated or lost-response
@@ -140,6 +140,21 @@ co-author. Preserve the refusal and recovery behavior of these commands.
 
 Safe stop: both kinds of coordination commit carry correct credit; guided
 implementation and closure commits still need slices 3–4.
+
+Accepted proof: before repair, the announce and end trailer assertions got
+`''`, and both refusal cases exited 0. After repair,
+`node --test src/skills/dough-story-refinement/scripts/preparation-assignment-announce.test.mjs src/skills/dough-story-refinement/scripts/preparation-assignment-abandon.test.mjs src/skills/dough-story-refinement/scripts/preparation-assignment-stops.test.mjs`
+passes 17/17, and `node --test src/skills/dough-story-refinement/scripts/*.test.mjs`
+passes 33/33.
+
+`remoteCredit` observes each published commit on origin: the announcement,
+the end, and the end after a lost response and rerun. Each has the agent as
+author, the developer as committer, and one developer trailer. The lost-response
+rerun also keeps a single end commit.
+
+The refusal tests observe `developer-identity-refused` with the remote,
+workspace, and draft unchanged. They then show that configuring the
+developer makes the command succeed.
 
 ### 3. Ordinary guided work commits credit both contributors
 Type: Behavior

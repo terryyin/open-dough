@@ -8,10 +8,12 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { startCliResult } from "../../dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { configureDeveloper } from "../../dough-execute-plan/scripts/workspace-publication-startup-test-fixtures.mjs";
 import {
   backlogFile,
   createPreparationTrunk,
   createWorkspace,
+  git,
   identityC,
   lsRemoteSha,
   profileOf,
@@ -19,11 +21,13 @@ import {
   read,
   refineStoryC,
   remoteChanges,
+  remoteCredit,
   remoteFile,
   remoteProfileNames,
   revParse,
   seedC,
   startPreparation,
+  yuiCredited,
 } from "./preparation-assignment-test-fixtures.mjs";
 import {
   raceNextPush,
@@ -34,6 +38,7 @@ test("the announcement publishes only the assignment before draft work, refreshe
   const trunk = await createPreparationTrunk();
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
+  await configureDeveloper(trunk.integration);
   const queue = await remoteFile(trunk, "main", backlogFile);
 
   const { code, receipt } = await startPreparation(
@@ -49,6 +54,9 @@ test("the announcement publishes only the assignment before draft work, refreshe
   assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), announced);
   assert.equal(receipt.allocation, announced);
   assert.equal(await revParse(trunk.origin, `${announced}^`), trunk.trunkSha);
+  // The agent authors the announcement; the configured developer commits it
+  // and is credited once as its co-author.
+  assert.deepEqual(await remoteCredit(trunk, announced), yuiCredited);
   assert.deepEqual(await remoteChanges(trunk, announced), [
     "A\t.planning/agents/yui-chan.json",
   ]);
@@ -163,4 +171,35 @@ test("when a rival claims the selected name during the push, the announcement is
   ]);
   assert.equal(await remoteFile(trunk, "main", profileOf("Yui")), rivalYui);
   assert.equal(await revParse(workspace, "HEAD"), tip);
+});
+
+test("an announcement whose committer is the agent itself is refused before anything is published or committed", async (t) => {
+  const trunk = await createPreparationTrunk();
+  t.after(trunk.cleanup);
+  const { workspace } = await createWorkspace(trunk, "c");
+  await git(trunk.integration, "config", "user.name", "Yui-chan");
+  await git(trunk.integration, "config", "user.email", "yui-chan@example.org");
+  const head = await revParse(workspace, "HEAD");
+
+  const { code, receipt } = await startPreparation(trunk, workspace, identityC);
+  assert.equal(code, 1, JSON.stringify(receipt));
+  assert.equal(receipt.status, "developer-identity-refused");
+  assert.match(receipt.error, /agent's own/);
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    trunk.trunkSha,
+  );
+  assert.deepEqual(await remoteProfileNames(trunk), []);
+  assert.equal(await revParse(workspace, "HEAD"), head);
+  assert.equal((await git(workspace, "status", "--porcelain")).stdout, "");
+
+  // Once a developer is configured, the same workspace announces normally.
+  await configureDeveloper(trunk.integration);
+  const again = await startPreparation(trunk, workspace, identityC);
+  assert.equal(
+    again.receipt.status,
+    "announced",
+    JSON.stringify(again.receipt),
+  );
+  assert.deepEqual(await remoteCredit(trunk, "main"), yuiCredited);
 });
