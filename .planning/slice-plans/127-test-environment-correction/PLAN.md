@@ -100,8 +100,9 @@ native runs stay manual.
   `scripts/test-jobs.sh`, and the budget applies only to a CI run without
   chosen checks. Compare with the dashboard job's commands minus any shard
   argument, and run the container's suite unsplit. `SEED-046#ci-verdict-correction`
-  is queued ahead and also touches the runner and CI's split; build on it if
-  it lands first.
+  has landed (recoverable at
+  `417ed2c:.planning/slice-plans/126-ci-verdict-correction/PLAN.md`); build on
+  its single budget gate, runner-copy helper, and derived split count.
 - Delete the redundant check and its README paragraph;
   `tests/test-runner-bash.sh` keeps copying the runner, `scripts/test-jobs.sh`,
   and `scripts/*.bash`.

@@ -531,6 +531,14 @@ Seven older occurrences (plans 089, 092, 096, 097 twice, 099, 100) are pruned; s
   - Evidence: `273ae9a` receipt `unobserved` ("host session identity is required"); `ci-host-bridge.mjs` read, then manual `start` + `register-push` (`watch-20kX7p`); later deliveries passed `--session-json` from `CLAUDE_CODE_SESSION_ID`.
   - Observed effect: a ninth occurrence; no retry, so no hidden duplicate observer.
 
+- Execution: `SEED-046#ci-verdict-correction` / plan 126, first related implementation commit `9fa45de`
+  - Timestamp: unknown (first increment delivery, between commit `9fa45de` at 2026-09-27T12:43:54+08:00 and the observer start minutes later)
+  - Tool: Cursor
+  - Model: kimi-k3
+  - Open Dough release: modified; revision `ff3534c`; base 0.3.42
+  - Evidence: `9fa45de` delivery receipt `observation.state: unobserved` ("host session identity is required to verify the notification bridge"); a manual probe then showed `CI_MONITOR_READY`; explicit `ci-mailbox.mjs start` + `register-push` attached `watch-7YVAZ1`; the next managed delivery reported `observation.state: reused`.
+  - Observed effect: first Cursor occurrence; slice 1's increment was unobserved until the manual start, and the finding's `$CLAUDE_CODE_SESSION_ID` recovery does not apply to Cursor's conversation/generation identity.
+
 ## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
 
 Former local code: DD-094.
@@ -946,8 +954,26 @@ an equivalent fix; trunk already carried one from a sibling execution.
   - Observed effect: one rewrite and focused run wasted; found only when a later fetch showed the file size gap.
   - Inference: Qualified. With parallel agents on trunk, fetching before fixing an unrelated failure is cheap and may find it already fixed.
 
+## DD-120 — A sibling story's refinement invalidated readiness, costing a reassessment cycle before the claim
+
+Execution-start refused a ready, queued correction with `source-refused`
+("published preparation is needs-reassessment") because a sibling story's
+refinement in the same seed had changed the document digest; the correction's
+own story section and plan were untouched. Readiness reassessment, a trunk
+publication, and a start retry all preceded any work.
+
+### Occurrences
+
+- Execution: `SEED-046#ci-verdict-correction` / plan 126, before its claim `8aeb0ee`
+  - Timestamp: unknown; the refusal followed the 2026-09-27T12:26+08:00 invocation and preceded reassessment commit `ff3534c` (2026-09-27T12:28:14+08:00)
+  - Tool: Cursor
+  - Model: kimi-k3
+  - Open Dough release: modified; revision `ff3534c`; base 0.3.42
+  - Evidence: refusal `source-refused` / "published preparation is needs-reassessment"; `git diff eaa69a4 HEAD` on the seed showed only the sibling `dashboard-port-race` refinement and wording; reconfirmed basis published as `ff3534c`; the retried start published the claim.
+  - Observed effect: one basis-hash diagnosis, one record-state, one trunk publication, and a repeated start before the claim. SEED-043#preserve-sibling-readiness is the queued product response.
+
 ## Retention
 
-- Highest allocated local number: 116
+- Highest allocated local number: 120
 - Recovery: `70386eb:DearDough.md` (ODF-061, addressed by `c897488` requiring Bash 5 and by the runner's stop-location report); `3e611d2:DearDough.md` (DD-110, removed for size; later checkpoints lead with a recommendation); `2b18837:DearDough.md` (ODF-003 `SEED-004#execute-in-worktree-and-merge-at-wrap-up` occurrence, removed for size; three later same-mechanism rows remain); `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

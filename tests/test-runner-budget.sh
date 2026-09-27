@@ -2,7 +2,8 @@
 # On CI the runner holds job times to its checks' `time-budget`: a breach names
 # each job over the per-job ceiling and a total over the total ceiling and fails
 # the run; a run within budget is silent. Elsewhere the budget is not judged: an
-# over-budget run prints nothing and passes.
+# over-budget run prints nothing and passes. The checker itself exits 1 on any
+# breach wherever it runs; only the runner decides that the budget is CI's.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -47,6 +48,20 @@ if ((suite_status != 1)); then
   exit 1
 fi
 expect_breaches ci-over
+
+# The checker itself fails on any breach wherever it runs, CI set or not;
+# only the runner decides that the budget is CI's.
+printf '0.3\t%s/slow.sh\n' "${checks}" > "${temporary_dir}/times"
+checker_status=0
+env -u CI "${BASH}" "${source_dir}/scripts/test-budget.sh" \
+  "${checks}/time-budget" "${temporary_dir}/times" \
+  > "${temporary_dir}/direct.log" 2>&1 || checker_status=$?
+if ((checker_status != 1)); then
+  printf 'FAIL: the checker accepted a breach with CI unset (exit %s).\n' "${checker_status}" >&2
+  cat -- "${temporary_dir}/direct.log" >&2
+  exit 1
+fi
+expect_breaches direct
 
 run_suite local-over local
 if ((suite_status != 0)) || [[ -s ${temporary_dir}/local-over.log ]]; then

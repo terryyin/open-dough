@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep roster and human credit honest under slow or odd evidence](seeds/SEED-049-project-agent-roster.md#roster-evidence-correction) — SEED-049#roster-evidence-correction ([plan](slice-plans/125-roster-evidence-correction/PLAN.md))
-- [Keep the split test runner and CI's split in one place each](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-correction) — SEED-046#ci-verdict-correction ([plan](slice-plans/126-ci-verdict-correction/PLAN.md))
 - [Keep product guards provable and the CI-platform command faithful](seeds/SEED-048-explicit-test-environment.md#test-environment-correction) — SEED-048#test-environment-correction ([plan](slice-plans/127-test-environment-correction/PLAN.md))
 
 ## Backlog list

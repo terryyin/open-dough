@@ -78,12 +78,14 @@ run_job() {
 }
 
 # scripts/test-jobs.sh lists this run's jobs in start order: the named checks,
-# resolved from the caller's directory, or with none every check in
-# OPEN_DOUGH_TEST_DIR (default `tests`), and OPEN_DOUGH_TEST_SPLIT's share. A
-# bad path fails the run here, before any job starts. Like
+# resolved from the caller's directory, or with none every check in the test
+# directory, and OPEN_DOUGH_TEST_SPLIT's share. The runner resolves the test
+# directory once — OPEN_DOUGH_TEST_DIR, default `tests` — and hands it over.
+# A bad path fails the run here, before any job starts. Like
 # OPEN_DOUGH_TEST_TIMES, jobs do not inherit the split, so a runner that a
 # check starts runs all of its own checks.
-"${test_bash}" scripts/test-jobs.sh --from "${caller_dir}" "$@" > "${output_root}/jobs"
+test_dir=${OPEN_DOUGH_TEST_DIR:-tests}
+OPEN_DOUGH_TEST_DIR=${test_dir} "${test_bash}" scripts/test-jobs.sh --from "${caller_dir}" "$@" > "${output_root}/jobs"
 unset OPEN_DOUGH_TEST_SPLIT
 kinds=()
 labels=()
@@ -210,7 +212,7 @@ for index in "${!labels[@]}"; do
 done | sort -rn > "${times_file}"
 # The time budget is CI's and the whole suite's (or a split share's): only a CI
 # run (`CI=true`) without chosen checks is judged against it.
-budget="${OPEN_DOUGH_TEST_DIR:-tests}/time-budget"
+budget=${test_dir}/time-budget
 [[ ${CI:-} != true ]] || (($#)) || [[ ! -f ${budget} ]] \
   || "${test_bash}" scripts/test-budget.sh "${budget}" "${times_file}" || status=1
 

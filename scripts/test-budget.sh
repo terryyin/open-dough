@@ -8,8 +8,8 @@
 # The budget file sets `per-job-seconds=<n>` and `total-job-seconds=<n>`;
 # `#` lines and blank lines are ignored. Within budget, nothing is printed.
 # Each job over the per-job ceiling, and a total over the total ceiling, is
-# reported on stderr. A breach fails only in CI (`CI=true`); run by hand
-# elsewhere, the report is a diagnostic and the exit status is 0.
+# reported on stderr. A breach exits 1 wherever this checker runs; the runner
+# alone decides that the budget is CI's, running this only when `CI=true`.
 # A budget file without both numbers always fails.
 set -euo pipefail
 
@@ -47,4 +47,4 @@ awk -F '\t' -v per_job="${per_job}" -v total_ceiling="${total}" -v budget="${bud
     }
     exit over
   }
-' "${times_file}" >&2 || [[ ${CI:-} != true ]]
+' "${times_file}" >&2

@@ -15,27 +15,11 @@ permissions:
   contents: read
 
 jobs:
-  # lint runs once; `npm test` runs as two split jobs, each running one share
-  # of the discovered checks (OPEN_DOUGH_TEST_SPLIT, see tests/README.md) and
-  # failing on its own failing check or its own time-budget breach.
-  check:
-    name: ${{ matrix.name }}
+  # lint runs once, as its own job so it does not count toward the test
+  # matrix's job-total.
+  lint:
     runs-on: ubuntu-24.04
     timeout-minutes: 8
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: lint
-            check: lint
-          - name: test (1/2)
-            check: test
-            share: 1
-            split: 1/2
-          - name: test (2/2)
-            check: test
-            share: 2
-            split: 2/2
     steps:
       - uses: actions/checkout@v7
         with:
@@ -48,7 +32,6 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
       - name: Install shell lint tools
-        if: matrix.check == 'lint'
         env:
           SHELLCHECK_VERSION: "0.11.0"
           SHFMT_VERSION: "3.14.0"
@@ -66,19 +49,47 @@ jobs:
           sudo install -m 755 "${tool_dir}/shfmt" /usr/local/bin/shfmt
           shellcheck --version
           shfmt --version
+      - name: Run lint
+        run: exec npm run lint
+
+  # `npm test` runs as one split job per share in the matrix, each running one
+  # share of the discovered checks (OPEN_DOUGH_TEST_SPLIT, see
+  # tests/README.md) and failing on its own failing check or its own
+  # time-budget breach. The matrix lists only the shares; the job-name suffix,
+  # the split value, and the times artifact derive the count from the matrix
+  # (strategy.job-total).
+  test:
+    name: test (${{ matrix.share }}/${{ strategy.job-total }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        share: [1, 2]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install npm dependencies
+        run: npm ci
       # On cancellation the Actions runner signals only the step shell's pid
       # (INT, then TERM 7.5 s later). `exec` makes npm that process; npm
       # forwards the signal to its `sh -c`, which the `exec` in package.json's
       # test script replaces with the runner, so it reports what was running.
-      - name: Run ${{ matrix.check }}
+      - name: Run test
         env:
-          OPEN_DOUGH_TEST_SPLIT: ${{ matrix.split }}
+          OPEN_DOUGH_TEST_SPLIT: ${{ matrix.share }}/${{ strategy.job-total }}
           OPEN_DOUGH_TEST_TIMES: ${{ runner.temp }}/test-times.txt
-        run: exec npm run "${{ matrix.check }}"
-      # The test runner's per-job seconds for this job's share on this runner
-      # (lint writes none), for calibrating the time budget and longest-first.
+        run: exec npm run test
+      # The test runner's per-job seconds for this job's share on this runner,
+      # for calibrating the time budget and longest-first.
       - name: Keep per-job test times
-        if: matrix.check == 'test' && !cancelled()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
           name: test-times-${{ matrix.share }}
@@ -88,14 +99,15 @@ jobs:
 
   # The dashboard's browser suite is not a shell test, so `npm test` never
   # discovers it. It runs here as its own check, against controlled GitHub
-  # responses: no credentials and no live project contents. Two Playwright
-  # shard jobs each run one share of the browser tests (`--shard`, balanced
-  # per test by `fullyParallel`) and fail on their own failing test. The
+  # responses: no credentials and no live project contents. One Playwright
+  # shard job per shard in the matrix each runs one share of the browser
+  # tests (`--shard`, balanced per test by `fullyParallel`; the count derives
+  # from the matrix) and fails on its own failing test. The
   # type-check does not depend on the shard, so it runs once, in the first.
   # The suite's globalSetup runs `npm run build:dashboard` itself and fails
   # the shard when the build fails, so no separate build step is needed.
   dashboard:
-    name: dashboard (${{ matrix.shard }}/2)
+    name: dashboard (${{ matrix.shard }}/${{ strategy.job-total }})
     runs-on: ubuntu-24.04
     timeout-minutes: 8
     strategy:
@@ -118,7 +130,7 @@ jobs:
         if: matrix.shard == 1
         run: npm run typecheck:dashboard
       - name: Run the dashboard browser suite
-        run: npm run test:dashboard -- --shard=${{ matrix.shard }}/2
+        run: npm run test:dashboard -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
       # The HTML report records how many browser tests each shard executed,
       # and on failure it and test-results/ keep the diagnostics, so each
       # shard keeps its own whenever the suite was not cancelled.
