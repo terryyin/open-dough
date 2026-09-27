@@ -412,20 +412,6 @@ explicit contract in the focused CI runtime suite.
 
 ### Occurrences
 
-- Execution: `SEED-004#execute-in-worktree-and-merge-at-wrap-up @ 8a1be3c`
-  - Timestamp: unknown
-  - Tool: Codex
-  - Model: GPT-5
-  - Open Dough release: 0.3.8
-  - Evidence: Slice 2 changed the observer identity phrase in
-    `ci-monitor.md`; runs `34550693158` and `34551244098` failed
-    `ci-supported-host-contract.test.mjs`; repair `2272133` restored the stable
-    phrase and all later branch runs passed.
-  - Observed effect: Slice 4 paused, its work was stashed and restored, and a
-    repair commit was required before execution could continue.
-  - Inference: Selecting focused proof from file type instead of tracing the
-    changed contract to maintained tests caused avoidable CI repair churn.
-
 - Execution: `SEED-008#publish-shared-backlog-claims @ 06504a5`
   - Timestamp: 2026-09-20T11:22:27+08:00
   - Tool: Claude Code
@@ -993,8 +979,21 @@ Planning recorded `not-ready` for a slice-sizing concern its own refinement coul
   - Evidence: `ee563d5` recorded reason "Slice 1 … sizing is uncertain"; `execution-start.mjs start` → `source-refused`, "published preparation is needs-reassessment"; refinement split slice 1 by its two independent outcomes (`a6e6ef7`).
   - Observed effect: one human round trip plus an announce/land publication cycle before the claim. Qualified inference: the concern named its own remedy (split); refinement at planning time would have recorded ready.
 
+## DD-113 — The planning audit of commit paths missed commits made by following guidance
+
+The planning audit listed only the scripts that create agent-authored commits. It missed the merge commit that guidance tells the agent to make in its owned workspace, so a scope promise went unplanned until the retrospective.
+
+### Occurrences
+
+- Execution: `SEED-047#agent-and-developer-credit` / plan 119, first related implementation commit `01a3e2c`
+  - Timestamp: 2026-09-27T07:47:40+08:00 (plan `e023a7f`)
+  - Tool: Codex
+  - Open Dough release: modified; revision 1b66466; base 0.3.41
+  - Evidence: plan 119's PFE names the scripts that create commits (`--author` / `commit-tree`). `publish-the-candidate.md` "Preserve published history" and `product-backlog-git-merge.mjs` `commitAcceptedMerge` still make an agent-authored integration merge without the credit, as merge `199ae44` shows. Correction plan 121.
+  - Observed effect: one follow-up correction story. Qualified inference: an audit that greps scripts for commit creation cannot see commits that guidance directs.
+
 ## Retention
 
-- Highest allocated local number: 112
-- Recovery: `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 113
+- Recovery: `2b18837:DearDough.md` (ODF-003 `SEED-004#execute-in-worktree-and-merge-at-wrap-up` occurrence, removed for size; three later same-mechanism rows remain); `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

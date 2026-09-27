@@ -87,6 +87,34 @@ requires one shared, project-relative agent-facing rule across hosts. Proposed
 ADRs 0008 and 0009 are nonbinding; this change should preserve their
 distinction between durable Git evidence and current assignment ownership.
 
+<a id="integration-merge-credit"></a>
+
+### Correction: Credit the developer on Story Branch integration merges
+
+**Identity:** SEED-047#integration-merge-credit
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/121-integration-merge-credit/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"067cfee760ebbe66ed3fda852d3df43eb20ed7b4330238bb9b72338e4eb08f3c","plan":"9e15d1bdba248385ca195a5972411d95fd3919aff94c7c0610fbbfc227d65b64"}}
+```
+
+**Goal:** When an agent integrates its Story Branch into trunk, the developer
+gets the same GitHub credit on the integration merge commit as on the
+agent's other commits.
+
+**Scope:** A bounded retrospective correction of the delivered
+`SEED-047#agent-and-developer-credit` (plan 119, commits `4c23f11..87e019f`).
+In the owned workspace, the integration merge commit keeps the agent as Git
+author and credits the configured developer once through the shared credit
+rule. This covers both the plain merge and the product-backlog merge
+adapter's commit. An unusable developer identity stops the integration
+before publication. The correction adds no feature promise.
+
+Excluded:
+- merges in checkouts that name no agent;
+- Dough Land's rebase path, which already keeps messages;
+- historical merges.
+
+[Plan](../slice-plans/121-integration-merge-credit/PLAN.md).
+
 ## When to Surface
 
 First in the backlog while the reported attribution bug remains open.

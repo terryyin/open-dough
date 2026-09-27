@@ -229,6 +229,20 @@ What the tests observe:
 Execute-plan start, preparation `start` and `abandon`, wrap-up closure, the
 execution-complete record, and Dough Land's commit link `agent-commits.md`.
 
+## Execution complete
+
+Product advice: queue the correction
+[SEED-047#integration-merge-credit](../../seeds/SEED-047-credit-agent-and-developer-commits.md#integration-merge-credit)
+(plan 121, ready) near the top at wrap-up. It gives Story Branch integration
+merges the same developer credit and so completes the reported attribution
+bug. Unresolved choices for the developer:
+
+- whether to split `docs/project-visibility-requirements.md`, which is 517
+  lines and was already over the file bound. Splitting it touches the
+  ADR 0008, ADR 0009, and North Star links.
+- how to keep the `install.sh` managed-file list under the file bound as
+  payload files are added.
+
 ## Learnings
 
 - Planning audit found no current assignment reader that depends solely on the
