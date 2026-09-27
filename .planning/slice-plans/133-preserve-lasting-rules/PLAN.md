@@ -69,7 +69,7 @@ mechanisms are unchanged and outside this story's scope.
 ### 1. Retire temporary records without losing lasting rules
 
 Type: Behavior
-Status: planned
+Status: done
 
 When ordinary closure selects temporary records for removal, keep still-needed
 rules in their appropriate maintained home before deleting the last temporary
@@ -94,6 +94,26 @@ Safe stopping point: the complete preservation rule works through ordinary
 closure, without a later slice needed to make it usable. The change is bounded
 to two existing prose homes and one review loop; no numeric slice limit was
 found in the project's maintainer guidance.
+
+Accepted proof (behavior review, walked against the changed source):
+
+- One rule now lives in architectural-thinking's `Preserve lasting rules before
+  deletion`; wrap-up's Assimilate section and the North Star paragraph link to it.
+- Case 1: the feature-local bullet writes the rule into the existing feature
+  documentation, no ADR; unchanged retirement text deletes the topic and repairs
+  references.
+- Case 2: the ADR bullet keeps the retiring record and references, names the
+  decision, and withholds closure; humans own ADR acceptance.
+- Case 3: an already-preserved rule or spent-only sequencing is deleted without
+  a copy or approval; the unchanged active-story check keeps a needed topic.
+- Unclear home or conflicting Accepted decision: the boundary paragraph keeps
+  the record, names the gap or conflict, and withholds closure.
+- Refactor removed wrap-up's "or current Accepted decisions" destination, which
+  contradicted human ADR ownership, and moved the tests-do-not-replace-docs guard
+  into the rule.
+- `git diff --check` clean; changed relative links and anchors resolve;
+  `tests/install-all-tools.sh` and `tests/install-repeat-force-public-payload.sh`
+  pass (copy checks only). Native closure runners not run (paid, manual only).
 
 ## Current decisions
 
