@@ -130,7 +130,7 @@ and `scripts/test-budget.sh`'s header say the budget is CI's.
 
 ### 3. CI runs the checks as two split jobs
 Type: Behavior
-Status: planned
+Status: done
 Proof: CI run of this slice's revision: jobs `lint`, `test (1/2)`, and
 `test (2/2)` succeed; artifacts `test-times-1` and `test-times-2` exist; the
 union of their check names equals a local full run's times-file names, with
@@ -139,6 +139,16 @@ no name in both. Record both `Run test` times and the workflow wall time.
 to the expected share (per-job 70 unchanged; total 1.5 × the larger share
 of `199ae44`'s 569.5 job-seconds under the partition), with the calibration
 source stated in its header.
+
+Accepted proof: CI run 36288480473 of `ceae01c` (slice 3 plus its repair):
+`lint`, `test (1/2)`, `test (2/2)`, and `dashboard` succeeded;
+`test-times-1` holds 110 jobs (234.0 job-seconds) and `test-times-2` 109
+(277.2); their union equals `scripts/test-jobs.sh`'s full 219-job listing with
+no name in both. `Run test` 60 s and 70 s; split jobs 80 s and 79 s; dashboard
+job 124 s; workflow wall 127 s. Provisional `total-job-seconds=460` (1.5 ×
+303.7, the larger share of `199ae44`'s 569.5). The first run (36287963592 of
+`a2a3765`) failed: runner checks that start the runner inherited
+`OPEN_DOUGH_TEST_SPLIT`; `ceae01c` stops the runner passing it to its jobs.
 
 Behavior: A revision is pushed → CI's workflow runs → the shell and node
 checks run as two parallel split jobs, each failing on its own failing check
@@ -188,3 +198,14 @@ split jobs it judges.
   `npm run dev:dashboard` held port 43127, because
   `tests/support/dashboard-dev-port.test.mjs` bound it. The test now asserts
   the configured port and `strictPort` and serves on an ephemeral port.
+- Slice 3: nested runners inherited the split job's `OPEN_DOUGH_TEST_SPLIT`
+  and ran only a share of their substitutes; like `OPEN_DOUGH_TEST_TIMES`, the
+  runner no longer passes it to its jobs. With the checks split, the dashboard
+  job (124 s) sets the verdict.
+- `tests/test-runner-interrupt.sh` could print Bash's macOS
+  `child setpgid ... Operation not permitted` line from its own `set -m`
+  launch and fail inside the runner; the lost-race rule now lives once in
+  `scripts/lost-setpgid-race.bash`, used by the runner and that test.
+- Slice 4 risk: `freePort()` in `dashboard/tests/support/dashboardServer.ts`
+  binds port 0, closes it, and returns the number, so more workers widen an
+  existing window for another worker to take that port first.
