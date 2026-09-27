@@ -645,7 +645,7 @@ A newly added agent-commit CLI compares literal paths, so invocation through the
 
 - **Sources:** [doughnut / DD-133](../../../doughnut/DearDough.md#odf-127--agent-commitmjs-run-through-the-claudeskills-symlink-exits-0-without-committing).
 - **Assessment (2026-09-27):** Five distinct Donut executions on 0.3.42 (plans 011, 010, 015, 018, 020), each recovered through the real path; no wrong commit published. Prior ODF-056 corrected three CI entrypoints at eff69eb / 0.3.27; agent-commit was introduced later by 61054431 / 0.3.42 with a literal guard. v0.3.42..2d2c4cda leaves it unchanged. This is a new entrypoint defect after a demonstrated earlier correction, not recurrence in those repaired CI scripts.
-- **Follow-up:** queued, not resolved: [Run guided commits through supported skill aliases](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#run-guided-commits-through-skill-alias).
+- **Response:** `108fb545`, unreleased after 0.3.42: `agent-commit.mjs`, `execution-start.mjs` and `ci-repair-stash.mjs` now use the realpath-aware direct-entry helper, and a sweep test runs every directly invoked Open Dough script through a symlinked skill directory, failing on a silent exit 0. Delivered proof only; effectiveness needs relevant Donut use of a release containing it.
 
 <a id="odf-128"></a>
 
