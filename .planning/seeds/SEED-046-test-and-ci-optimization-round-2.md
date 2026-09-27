@@ -72,7 +72,7 @@ guide's contributor checks. Correction plan:
 
 ## When to Surface
 
-Now: the CI verdict correction is queued in the product backlog.
+Now: the CI verdict correction, in the product backlog.
 
 ## Breadcrumbs
 
