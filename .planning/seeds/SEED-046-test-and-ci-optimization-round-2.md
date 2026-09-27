@@ -117,8 +117,8 @@ Now: second in the product backlog, after SEED-048, per the maintainer on
   `e67796d:.planning/quick/107-cut-test-work-and-ci-wait/PLAN.md`; the
   earlier leftovers list is at
   `f10d52e:.planning/slice-plans/117-observer-stop-and-test-infrastructure-cleanup/PLAN.md`.
-- [SEED-048#explicit-test-environment](SEED-048-explicit-test-environment.md#explicit-test-environment)
-  also changes `scripts/test.sh` (chosen checks, Git environment) and is
-  queued first.
+- SEED-048#explicit-test-environment (recoverable at
+  `8de2d7f:.planning/seeds/SEED-048-explicit-test-environment.md`) also
+  changed `scripts/test.sh` (chosen checks, Git environment).
 - Tests README "Installation and update coverage gaps" lists four installer
   promises no check observes yet.

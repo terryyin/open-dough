@@ -6,8 +6,8 @@
 
 [Correction story](../../seeds/SEED-048-explicit-test-environment.md#test-environment-correction),
 from the execution retrospective of
-[plan 120](../120-explicit-test-environment/PLAN.md)
-(SEED-048#explicit-test-environment) on 2026-09-27. Reviewed commits on
+plan 120 (SEED-048#explicit-test-environment, recoverable at
+`8de2d7f:.planning/slice-plans/120-explicit-test-environment/PLAN.md`) on 2026-09-27. Reviewed commits on
 `claude/120-explicit-test-environment`: `c22256e`, `c5b8de3`, `818907d`,
 `192b703`, `31c5435`, `6132490`, `1e2d7e4` (claim `c79cb5d` is provenance).
 Planning only; executing it needs a separate instruction.
