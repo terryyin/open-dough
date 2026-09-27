@@ -301,6 +301,12 @@ commit walk limit, a `changed` commit, a commit not naming the path, and clock
 gaps for a missing addition or unusable date. Both READMEs updated;
 `dashboard/README.md` is 249 lines.
 
+CI repair (run 36295137684 at `594608f`): the committed origin's default
+profile histories listed the journey's temporary repository on every request,
+so a request arriving after the journey removed it threw inside the fake
+GitHub handler (`story-readiness-accessible.spec.ts`); `listAt` now answers no
+connection once the repository is gone.
+
 ## Execution complete
 
 Product advice: retrospective skipped

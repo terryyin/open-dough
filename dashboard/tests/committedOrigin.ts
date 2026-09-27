@@ -34,14 +34,28 @@ function showAt(repoDir: string, revision: string, repositoryPath: string) {
   }
 }
 
+// The directory's paths at the revision; undefined once the journey's
+// repository is gone, as it is for a request arriving after the journey ends.
 function listAt(repoDir: string, revision: string, directory: string) {
-  return execFileSync(
-    "git",
-    ["-C", repoDir, "ls-tree", "--name-only", revision, "--", `${directory}/`],
-    { encoding: "utf8" },
-  )
-    .split("\n")
-    .filter((path) => path !== "");
+  try {
+    return execFileSync(
+      "git",
+      [
+        "-C",
+        repoDir,
+        "ls-tree",
+        "--name-only",
+        revision,
+        "--",
+        `${directory}/`,
+      ],
+      { encoding: "utf8" },
+    )
+      .split("\n")
+      .filter((path) => path !== "");
+  } catch {
+    return undefined;
+  }
 }
 
 export type CommittedOrigin = {
@@ -82,19 +96,23 @@ export function publishCommittedOrigin(
       return asHeadsListing(instead.get("main") ?? commitAnswer(revision));
     }
     if (request.kind === "listing" && request.revision === revision) {
-      return (
-        instead.get(request.path) ??
-        directoryListingAnswer(
-          request.path,
-          listAt(repoDir, revision, request.path),
-        )
-      );
+      const overridden = instead.get(request.path);
+      if (overridden !== undefined) {
+        return overridden;
+      }
+      const listed = listAt(repoDir, revision, request.path);
+      return listed === undefined
+        ? noConnection
+        : directoryListingAnswer(request.path, listed);
     }
     // Each agent profile listed at the revision was added by a commit of its
     // own; these history reads are answered but not observed.
     const profiles = () => ({
       files: Object.fromEntries(
-        listAt(repoDir, revision, ".planning/agents").map((path) => [path, ""]),
+        (listAt(repoDir, revision, ".planning/agents") ?? []).map((path) => [
+          path,
+          "",
+        ]),
       ),
     });
     if (request.kind === "commit-list" && request.revision === revision) {
