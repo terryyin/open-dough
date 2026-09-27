@@ -201,7 +201,7 @@ increment, or repair with
 [interrupted publication](references/trunk-publication.md#resume-an-interrupted-publication)
 before any further commit or push. Plan status or a compact report proves none
 of those later boundaries. When pushed commit, retained delivery result, and
-required registration agree, select the next dependency-ready slice.
+required registration agree, select the next unfinished slice in plan order.
 Missing/contradictory execution identity requires the recovery decision above.
 
 ## Execute the next slice
@@ -212,7 +212,7 @@ Missing/contradictory execution identity requires the recovery decision above.
    reread the source and conversation's scope, decisions, progress, proof, and remaining
    uncertainty; it is the only slice, with no separate state artifact. Confirm current
    execution authority. Recover an existing CI observer before considering a new one.
-2. Select the next unfinished dependency-ready planned slice, or the one quick slice. Apply
+2. Select the next unfinished planned slice in plan order, or the one quick slice. Apply
    [execution decisions](references/execution-decisions.md); for behavior/state removal or
    disablement, also run the [destructive later-outcome check](references/destructive-later-outcome-check.md).
 3. When planned refinement is needed and learning escalation permits, invoke
@@ -239,9 +239,8 @@ Missing/contradictory execution identity requires the recovery decision above.
    After successful delivery, restart for remaining planned slices; a delivered
    quick slice has no successor.
 
-Planned slices may run concurrently only with disjoint file changes, mutable state, and
-plan writes. Quick execution has one slice. Each slice completes coordinator-owned delivery
-before a dependent slice starts.
+Slices run one at a time in plan order, each finishing its delivery before the next
+starts; quick execution has one slice.
 
 ## Finish or stop
 

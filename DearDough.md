@@ -903,8 +903,26 @@ and acceptance passes did not check it.
   - Observed effect: the retrospective found contradictory closure guidance and planned a correction
   - Inference: Qualified. Learnings are free text; nothing ties an acceptance obligation to the slice that must satisfy it
 
+## DD-127 — A "no other location" premise was swept with the removed rule's words, missing the concept's other wording
+
+Plan 131 recorded that concurrent-writer wording existed only in delegation,
+delivery staging and one test, from a sweep for concurrent, parallel, wave,
+disjoint and sibling-slice. The CI pause contract said "Preserve other agents'
+work in this execution checkout" and matched none of those words; the
+implementer and refactor sweeps reused the same words and also missed it.
+
+### Occurrences
+- Execution: `SEED-008#isolate-parallel-slice-delivery` / plan 131, first related implementation commit `1d3a26cd`
+  - Timestamp: 2026-09-27T18:03:28+08:00 (premise recorded in plan commit `9f8b82b0`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac7` (v0.3.42)
+  - Evidence: plan 131 premise row "Concurrent-writer wording exists beyond the permission"; `src/skills/dough-execute-plan/references/ci-monitor.md:249` at `1d3a26cd`; the retrospective's search for `writers|other agents` found it
+  - Observed effect: the leftover shipped in the slice commit and needed correction story `SEED-008#restate-ci-pause-ownership` and plan 132 instead of a one-line edit in slice 1
+  - Inference: Qualified. The search terms described the removed permission, not the concept it relied on (who else writes in the checkout); searching for that concept's actors ("agents", "writers") would have found it
+
 ## Retention
 
-- Highest allocated local number: 126. Removed local codes are never reused.
+- Highest allocated local number: 127. Removed local codes are never reused.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.

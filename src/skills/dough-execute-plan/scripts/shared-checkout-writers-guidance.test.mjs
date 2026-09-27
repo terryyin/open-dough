@@ -4,15 +4,20 @@ import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-// Guidance proof for agents sharing one execution checkout with another
-// writer (a sibling slice's agent, or another session's stash entry). Per
-// ADR 0005 section 2 these assertions check the intended behavior with
-// paraphrase-tolerant patterns, not exact sentences.
+// Guidance proof for slice order and for agents sharing one execution
+// checkout, or the worktree-wide stash stack, with another writer (a human,
+// or another session). Per ADR 0005 section 2 these assertions check the
+// intended behavior with paraphrase-tolerant patterns, not exact sentences.
 
 const skill = dirname(dirname(fileURLToPath(import.meta.url)));
 // Collapsed to single spaces so line wrapping does not affect matching.
 const reference = (name) =>
   readFileSync(join(skill, "references", name), "utf8").replace(/\s+/g, " ");
+
+const skillBody = readFileSync(join(skill, "SKILL.md"), "utf8").replace(
+  /\s+/g,
+  " ",
+);
 
 const section = (text, start, end) => {
   const from = text.search(start);
@@ -22,6 +27,27 @@ const section = (text, start, end) => {
   return to === -1 ? rest : rest.slice(0, to + 1);
 };
 
+test("the coordinator runs the next unfinished slice in plan order and delivers it before starting another", () => {
+  const next = section(
+    skillBody,
+    /## Execute the next slice/,
+    /## Finish or stop/,
+  );
+
+  // Selection follows plan order, not a readiness judgment the coordinator
+  // makes among later slices.
+  assert.match(next, /next unfinished (?:planned )?slice[^.]{0,40}plan order/i);
+  assert.doesNotMatch(skillBody, /dependency-ready/i);
+
+  // One slice at a time: each finishes its delivery before the next starts.
+  assert.match(next, /one (?:at a time|after another)/i);
+  assert.match(
+    next,
+    /finish\w* (?:its |their )?delivery before (?:the next|another)[^.]{0,20}start/i,
+  );
+  assert.doesNotMatch(next, /concurrent|in parallel/i);
+});
+
 test("a delegated agent needing a baseline uses a separate checkout instead of stashing in the shared one", () => {
   const ownership = section(
     reference("delegation.md"),
@@ -29,12 +55,16 @@ test("a delegated agent needing a baseline uses a separate checkout instead of s
     / - [A-Z]/,
   );
 
-  // Other writers' work in the shared checkout is preserved.
-  assert.match(ownership, /other agents may share the execution checkout/i);
-  assert.match(ownership, /preserved/i);
+  // The stash stack is shared across worktrees, and unowned work in the
+  // checkout is preserved.
+  assert.match(
+    ownership,
+    /stash stack[^.]{0,40}shared across[^.]{0,20}worktrees/i,
+  );
+  assert.match(ownership, /unowned work[^.]*preserved/i);
 
-  // Every improvised Git housekeeping act that reaches a sibling's files or
-  // the shared stash stack is forbidden in the shared checkout.
+  // Every improvised Git housekeeping act that reaches another writer's files
+  // or the shared stash stack is forbidden in the shared checkout.
   const forbidden = ownership.match(
     /(?:does not|do not|never|must not)[^.]*shared checkout/i,
   );
@@ -62,19 +92,19 @@ test("a delegated agent needing a baseline uses a separate checkout instead of s
   );
 });
 
-test("the coordinator isolates a commit beside a sibling writer by staging owned paths only", () => {
+test("the coordinator isolates a commit beside another writer by staging owned paths only", () => {
   const wrapUp = reference("wrap-up.md");
   const stepSix = section(wrapUp, / 6\. Stage only owned/, / 7\. /);
 
   assert.match(stepSix, /stag\w* (?:only )?owned (?:files|paths)/i);
   assert.match(stepSix, /owned paths only|only owned (?:files|paths)/i);
 
-  // A sibling writer's files are never stashed, reset, or restaged to make
+  // Another writer's files are never stashed, reset, or restaged to make
   // the commit.
-  const sibling = stepSix.match(/never[^.]*sibling[^.]*\./i);
-  assert.ok(sibling, "step 6 names what never happens to a sibling's files");
+  const other = stepSix.match(/never[^.]*another writer[^.]*\./i);
+  assert.ok(other, "step 6 names what never happens to another writer's files");
   for (const act of [/stash/i, /reset/i, /restag/i]) {
-    assert.match(sibling[0], act);
+    assert.match(other[0], act);
   }
 });
 
