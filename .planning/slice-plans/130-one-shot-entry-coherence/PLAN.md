@@ -107,6 +107,12 @@ and leaves its workspace to the developer, since the oversized-slice stop now
 routes one-shot back to escalation. Once-only Git wrapper tests use
 `onceAtGit` in `one-shot-escalation-test-fixtures.mjs`.
 
+CI repair (run 36312169455, `49b81831`): the race test's other-writer clone
+committed without an identity, which CI runners lack. Other-writer clones now
+share `cloneAsAnotherWriter` in `publication-test-fixtures.mjs`; one-shot and
+fixture-caller suites pass 42/42 with `user.useConfigOnly=true` and no global
+Git identity, the setting that reproduced the CI failure locally.
+
 ## Proof coverage
 
 | Finding | Observation |

@@ -15,6 +15,7 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
 import {
+  cloneAsAnotherWriter,
   exec,
   git,
   lsRemoteSha,
@@ -178,9 +179,7 @@ export async function createBacklogSuffixFixture(ownedBacklog) {
 
 export async function advanceOriginBacklog(origin, backlog, message) {
   const writer = (await exec("mktemp", ["-d"])).stdout.trim();
-  await exec("git", ["clone", origin, writer]);
-  await git(writer, "config", "user.name", "Another Writer");
-  await git(writer, "config", "user.email", "another@example.test");
+  await cloneAsAnotherWriter(origin, writer);
   mkdirSync(join(writer, ".planning"), { recursive: true });
   writeFileSync(join(writer, backlogPath), backlog);
   await git(writer, "add", backlogPath);

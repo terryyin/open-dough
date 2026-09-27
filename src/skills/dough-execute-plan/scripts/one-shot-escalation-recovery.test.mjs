@@ -8,7 +8,12 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
+import {
+  cloneAsAnotherWriter,
+  git,
+  lsRemoteSha,
+  revParse,
+} from "./publication-test-fixtures.mjs";
 import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
 import {
   interruptFirstPush,
@@ -126,7 +131,7 @@ test("an escalation killed after its claim reached trunk resumes as owned and re
 // selection. Returns the environment and that commit.
 async function advanceTrunkAfterPark(trunk) {
   const clone = join(trunk.fixture, "other-writer");
-  await git(trunk.fixture, "clone", "-q", trunk.origin, clone);
+  await cloneAsAnotherWriter(trunk.origin, clone);
   writeFileSync(join(clone, "unrelated.txt"), "their work\n");
   await git(clone, "add", "unrelated.txt");
   await git(clone, "commit", "-qm", "unrelated trunk work");
