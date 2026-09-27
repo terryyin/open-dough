@@ -53,10 +53,16 @@ already-published tip supplies that tip instead of a suffix. In the owned
 workspace, merge it onto the fetched authorized target. Fast-forward when
 that tip already contains the fetched target; otherwise create a merge
 commit so both published histories remain. Do not rebase those published
-commits. When the merge touches the product backlog, run
+commits. When [agent commits](agent-commits.md) apply to that workspace, the
+merge commit is one: for example, run
+`git merge --no-ff --no-commit <published-tip>`, then commit the in-progress
+merge through `agent-commit.mjs`; `-F "$(git rev-parse --git-path MERGE_MSG)"`
+keeps Git's prepared message. When the merge
+touches the product backlog, run
 `product-backlog-git-merge.mjs merge --ref <published-tip> --cwd <owned-workspace>`
 rather than a raw `git merge`, following
-[reconcile product backlog Git operations](../../dough-product-backlog/references/merge-conflicts.md).
+[reconcile product backlog Git operations](../../dough-product-backlog/references/merge-conflicts.md);
+it credits its merge commit the same way.
 Push, confirmation, and the receipt stay the candidate SHA and its target.
 A rejected push recomputes this merge once onto the newly fetched target
 and pushes once. A superseded candidate is not the receipt. Resume treats

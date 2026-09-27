@@ -1,6 +1,7 @@
 // Whether and how an owned workspace's ordinary commits name its agent as
 // author through per-worktree Git config, and the developer credit every
 // agent-enabled commit carries as a co-author trailer.
+import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   agentIdentity,
@@ -145,4 +146,26 @@ export async function creditDeveloper(checkout, message, identity) {
     "--trailer",
     `Co-authored-by: ${person}`,
   );
+}
+
+// Credits the developer on the merge in progress in `workspace` when it is an
+// agent's owned workspace: Git's prepared merge message gains the developer
+// credit, so the ordinary `git commit` that concludes the merge is credited
+// like any other agent commit. A checkout that names no agent keeps Git's
+// message as it is. Throws DeveloperIdentityRefused, leaving the merge
+// uncommitted, when that developer is unusable.
+export async function creditMergeInProgress(workspace) {
+  const identity = await workspaceAgent(workspace);
+  if (!identity) return;
+  const path = (
+    await git(
+      workspace,
+      "rev-parse",
+      "--path-format=absolute",
+      "--git-path",
+      "MERGE_MSG",
+    )
+  ).stdout.trim();
+  const message = await readFile(path, "utf8");
+  await writeFile(path, await creditDeveloper(workspace, message, identity));
 }
