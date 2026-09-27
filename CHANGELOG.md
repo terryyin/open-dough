@@ -1,3 +1,13 @@
+## 0.3.42 - 2026-09-27
+
+- Keep shared execution workspaces safe for concurrent writers: isolate delegated-agent and coordinator commits to owned paths, pause CI repair with one exact private stash entry, and stop tracking local execution-worktree pointers in published history.
+- Make admitted and queued work follow one canonical plan rule, including plans stored under `.planning/slice-plans/`, section-linked plans, own-home plan declarations, no-change investigations, and explicit refusals for missing or conflicting record links.
+- Credit the configured developer exactly once alongside the assigned agent on published Takes, preparation boundaries, guided commits, closure and replay commits, Story Branch integration merges, and backlog merge commits; refuse publication when required attribution is unusable.
+- Speed up and strengthen deterministic feedback with event-driven CI observation, immediate checks for newly registered revisions, shared installer and updater payload comparisons, reused fixtures, longest-first scheduling, per-job timing artifacts, and enforceable CI time budgets.
+- Give the dashboard a dedicated development port, a more compact project header, and safe bottom clearance for revealed or keyboard-focused content.
+
+Native acceptance was explicitly skipped for `0.3.42` at the maintainer's request as an exception to ADR 0005. Native acceptance for the changed execution, planning-record, attribution, CI-observer, and dashboard behavior, along with previously pending native requirements, remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.41 - 2026-09-26
 
 - Admit accepted standalone work that no backlog list holds into one published Taken claim before implementation, resume that exact claim, and close it through ordinary wrap-up; give new retrospective corrections a seed-backed story instead of a plan-only identity.
