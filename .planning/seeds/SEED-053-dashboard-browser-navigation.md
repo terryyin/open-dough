@@ -24,36 +24,47 @@ browser's normal navigation history.
 
 **Identity:** SEED-053#dashboard-browser-navigation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/136-dashboard-browser-navigation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"01732ad0a6f859777ee54a88ccd305386ef5924a8f051c69f870ad7e692a0fbd","plan":"e597d5b63f7059845f3338d3ebeea57057a4641ec0aff82162a53493a35b47bb"}}
 ```
 
 **Beneficiary:** Developers reviewing published work in the Open Dough
 dashboard.
 
-**Goal:** Open every dashboard link to an external destination in a new browser
-tab, and make navigation from a dashboard project to its agent roster and back
-work through an addressable route and browser history.
+**Goal:** Follow dashboard source and external-reference links without losing
+the dashboard tab, and navigate to and from each project's agent roster with
+URLs and browser history that match the visible view.
 
-**Evaluation examples:**
+**Scope:** Every dashboard link whose destination is outside the dashboard,
+including revision-pinned repository files and ordinary external references,
+opens in a new tab. Dashboard-internal navigation stays in the current tab.
+The stories and agent-roster views have project-aware URLs. Opening a portrait,
+using Back to stories, switching projects, loading or refreshing a URL, and
+using browser Back/Forward keep the URL, selected project, and visible view in
+agreement. Preserve the roster's use of the selected project's published
+snapshot and the existing focus return to an opener when it is still present.
+An unknown project URL returns to a valid dashboard view without displaying a
+different project's roster under that URL.
 
-- Following a dashboard link to published source or another external website
-  opens that destination in a new tab while the dashboard remains available in
-  its current tab. This applies consistently wherever external links appear in
-  the dashboard.
-- Opening an agent roster changes the dashboard URL to a route for that
-  project's roster. Browser Back returns to the project stories, and browser
-  Forward returns to the roster.
-- The roster's own Back to stories control follows the same navigation model:
-  after using it, browser history and the visible view agree.
-- Loading or refreshing a roster URL directly shows the corresponding project's
-  roster, including when no published snapshot has yet been read. Moving
-  between projects does not show a roster for the wrong project.
-- Keyboard focus remains useful after opening a roster and returning to the
-  stories, including through browser Back and Forward.
+**Key examples:**
 
-**Boundary for refinement:** Choose the route shape and decide how a direct
-roster visit selects its project and handles an unknown project. Keep existing
-published-snapshot and read-failure behavior truthful while navigating.
+- Given a card's canonical source or plan link, following it opens the
+  revision-pinned GitHub page in a new tab; the original dashboard tab keeps
+  its selected project and open story detail. The same applies to an ordinary
+  external-reference link.
+- Given a selected project's stories, opening an agent portrait changes the
+  URL to that project's roster and shows its assignments. Browser Back returns
+  to that project's stories; browser Forward reopens the roster. Back to
+  stories also updates the URL and history consistently.
+- Loading or refreshing a project's roster URL directly selects that project
+  and shows its roster, including a truthful reading or failure state before a
+  snapshot is available. Switching projects while there changes both the URL
+  and roster source. Browser Back restores the previous project and view.
+- Opening a roster from the keyboard focuses the opened agent. Returning to
+  stories restores focus to the portrait when it remains available; a direct
+  roster visit or vanished opener still leaves a useful focus location.
+
+**Deferred:** This story does not commit to shareable routes for individual
+stories, persisted open details, or new data reads for the roster.
 
 ## Breadcrumbs
 
