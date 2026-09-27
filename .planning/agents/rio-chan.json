@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Rio-chan",
-  "email": "rio-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-049#native-result-path-diagnosis",
-  "host": "claude",
-  "model": "claude-opus-5-5"
-}
