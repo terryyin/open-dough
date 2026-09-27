@@ -88,6 +88,10 @@ route can select the project through its existing reset/read path. Preserve
 the roster's current snapshot and no-extra-read behavior. Update
 `dashboard/README.md` for the routes and browser navigation.
 
+## Execution complete
+
+Product advice: No backlog change. Delivered navigation (new-tab outbound links; project-aware stories/roster URLs and history) satisfies SEED-053 and fits the North Star separation of observation vs presentation. Keep SEED-052#start-agent-work-from-dashboard deferred at the bottom of the backlog: this story supplies the browser navigation foundation that epic will build on, but does not change its priority or readiness. Deferred items (per-story routes, persisted detail, extra roster reads) stay out of scope.
+
 ## Current decisions
 
 - A dashboard-internal project/view route stays in the current tab; a link

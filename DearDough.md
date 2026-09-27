@@ -647,6 +647,14 @@ Cursor conversation/generation identity was absent on first delivery. The Claude
   - Evidence: `9fa45de` delivery receipt `observation.state: unobserved` ("host session identity is required to verify the notification bridge"); a manual probe then showed `CI_MONITOR_READY`; explicit `ci-mailbox.mjs start` + `register-push` attached `watch-7YVAZ1`; the next managed delivery reported `observation.state: reused`.
   - Observed effect: first Cursor occurrence; slice 1's increment was unobserved until the manual start, and the finding's `$CLAUDE_CODE_SESSION_ID` recovery does not apply to Cursor's conversation/generation identity.
 
+- Execution: `SEED-053#dashboard-browser-navigation` / plan 136, first related implementation commit `8ca2f7eb`
+  - Timestamp: 2026-09-27T22:11:50+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.43
+  - Evidence: completion input `pendingCi: unobserved` ("host session identity required for Cursor notification bridge"); retained tip `777b797926acfab373a6cd45766e3066cbd9da95`
+  - Observed effect: managed delivery left the story-branch tip unobserved; no Cursor session identity was available to arm the notification bridge
+  - Inference: Same Cursor host-identity gap as the plan 126 occurrence; Claude-only recovery remains inapplicable
+
 ## ODF-130 — Concurrent slices in one checkout shared Playwright's output directory
 
 Former local code: DD-106.
@@ -968,27 +976,25 @@ as catalog ODF-106 (colliding plan numbers), now in this repository.
   - Observed effect: the executor had to infer the intended plan (the one at the default checkout's HEAD when the session started) and could have Taken the other queued story
   - Inference: Qualified. Allocation from checkout-visible numbers cannot see another checkout's unpublished plan; the collision went unnoticed at merge because directory names differ
 
-## DD-156 — Managed delivery's target argument format is not stated where the coordinator composes it
+## DD-157 — Documenting approved behavior in a README already at the 250-line ceiling forced unrelated compression
 
-Trunk publication tells the coordinator to pass the "authorized target ref" to
-`execution-increment-delivery.mjs deliver`, and the start command takes the
-remote and target as separate names. The coordinator passed
-`origin/<execution branch>`; `deliver` refused it with "authorized target must
-be a branch ref", and the retry with `refs/heads/<execution branch>` was
-accepted.
+Slice 1 required documenting new-tab outbound links in `dashboard/README.md`,
+which was already exactly 250 lines. The mandatory post-change refactor pass
+treated the ceiling as a hard gate and compressed unrelated README paragraphs
+(keyboard focus and reflow wording) so the new sentence would fit, rather than
+only consolidating the outbound-link policy and test helper.
 
 ### Occurrences
-- Execution: `SEED-004#preserve-rules-from-story-sections` / plan 134, first related implementation commit `65b08168`
-  - Timestamp: unknown (between implementation commit 2026-09-27T20:28:21+08:00 and review 2026-09-27T20:30:05+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `707f3ac7` (v0.3.42)
-  - Evidence: coordinator conversation: first `deliver --target-ref origin/dough/preserve-rules-from-story-sections` exit 2; second `--target-ref refs/heads/dough/preserve-rules-from-story-sections` accepted `65b08168`; `trunk-publication.md` "Publish the candidate" says only "authorized target ref"
-  - Observed effect: one refused, non-mutating call; no state change
-  - Inference: Qualified. Cheap because the refusal was early and clear; a one-off from a single run
+- Execution: `SEED-053#dashboard-browser-navigation` / plan 136, first related implementation commit `8ca2f7eb`
+  - Timestamp: unknown (slice-1 refactor subagent started ~2026-09-27T21:41+08:00; before delivery commit `8ca2f7eb` at 2026-09-27T21:47:50+08:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.43
+  - Evidence: pre-slice README `wc -l` 250 at `1f29fc12`; slice-1 refactor subagent `46ce6b72-fb2d-479f-8ec7-3e2dd05843fb` edited README repeatedly until `wc -l` reported ≤250 while also extracting `leaveDashboard` and `followLeavingDashboard`; delivered README remained 250 lines
+  - Observed effect: gate-driven rewrite of adjacent README prose on a one-policy documentation update; useful link-policy consolidation still happened
+  - Inference: Qualified. Related to catalog ODF-152's absolute file-size versus approved-scope composition; here the conflict is documenting into a ceiling-full maintained file, not an oversized intermediate caller
 
 ## Retention
 
-- Highest allocated local number: 156. Removed local codes are never reused.
-- Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`.
+- Highest allocated local number: 157. Removed local codes are never reused.
+- Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.
