@@ -118,6 +118,15 @@ local suite `bash scripts/test.sh` exit 0 and silent. The report reads
 heading, without its own `FAIL:` prefix. CI `test` verdict is observed on the
 published revision.
 
+## Execution complete
+
+Product advice: no queue change. The report serves the near-future direction:
+parallel agents diagnose a red CI verdict from it. Keep the deferred wrapper
+output and result-path parse consolidation unqueued until a real failure shows
+the named `attempt=$(awk ...)` line is not enough. Whichever of this story and
+plan 120 integrates second keeps the runner's `BASH_ENV` reporter when it
+changes how `run_job` starts a shell job.
+
 ## Learnings
 
 - Inside a command substitution `errexit` is off (no `inherit_errexit`), so

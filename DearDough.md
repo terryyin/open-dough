@@ -139,88 +139,6 @@ self-consistent.
     edit location but not the declaration obligation; whether a reminder in
     `AGENTS.md` would have prevented it cannot be established from this record.
 
-## ODF-061 — A shell assertion silently enforced nothing on the developer's bash
-
-Former local code: DD-059.
-
-`tests/story-payload-update.sh` walks every Markdown link in the installed story
-guidance and asserts each target exists. On macOS, which ships bash 3.2, a bare
-`[[ ]]` as the last command of a `while` body does not abort under `set -e`, so
-the assertion was already false locally and reported nothing. Only the Linux CI
-runner's bash 5 aborted — and because the failing command is a bare test, it
-aborted with no diagnostic at all.
-
-### Occurrences
-
-- Execution: `.planning/slice-plans/058-preserve-backlog-merge-intent/PLAN.md @ a242412`
-  - Timestamp: 2026-09-18T23:13:21+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5
-  - Open Dough release: 0.3.25
-  - Evidence: `bash tests/story-payload-update.sh` exited 0 at the failing
-    revision `848f793` on macOS while CI failed on the same revision, printing
-    only `FAIL: tests/story-payload-update.sh` about 2.7s in. Reproduced
-    directly: `bash --version` reports 3.2.57, and
-    `set -euo pipefail; while IFS= read -r l; do [[ -f "/nope/$l" ]]; done < file`
-    survives. A bash-5-semantics re-walk of the same fixture targets reported
-    156 links checked, 12 unresolved, all on the undeclared file.
-  - Observed effect: The defect reached CI despite a passing local run of the
-    very test that owns it, and the CI failure carried no diagnostic, so
-    classification needed the branch's run history and a manifest inspection
-    rather than the log.
-  - Inference: Qualified. This is the same family as DD-055 and DD-056 — a proof
-    that passes while establishing nothing — but a distinct mechanism: not an
-    empty selection or an absent assertion, a present assertion the local shell
-    declines to enforce.
-  - Correction during the same retrospective, from decisive new evidence: the
-    condition is broader than the loop body first recorded. On bash 3.2.57 a
-    failing `[[ ]]` does not trigger `set -e` in any context tested — inside a
-    `while` body, inside a `for` body, inside an `if` body, and at top level —
-    while `false`, `[ ]`, `test`, and `grep -q` all abort correctly in the same
-    shell. The earlier loop-body framing was the first observed instance, not
-    the rule. A survey of this repository then found 128 bare `[[ ]]` assertion
-    lines across 27 shell test files, 13 of which sit inside a loop body. Every
-    one of those assertions is therefore inert for any developer on macOS's
-    system bash and enforcing only on the Linux runner's bash 5, so a local
-    green run of the shell suite is not evidence that its `[[ ]]` assertions
-    hold. The first occurrence note above is retained as written.
-
-- Execution: `.planning/slice-plans/060-gate-and-deliver-scripted-backlog/PLAN.md @ de7d819`
-  - Timestamp: 2026-09-19T18:37:57+08:00
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.25
-  - Evidence: `tests/install-ci-host-hooks.sh` exited 0 on every local run
-    (this machine's default `bash`, macOS system 3.2.57) across two separate
-    full-suite runs and a standalone run, while GitHub Actions' bash 5.2.21
-    failed it deterministically twice on the same commit (`d2e394e`), with
-    zero diagnostic output before the step's own generic exit-1 report.
-    Reproduced directly: `bash -c 'set -euo pipefail; [[ "a" == "b" ]]; echo
-    reached'` prints `reached` and exits 0 on `/bin/bash` here, but aborts
-    correctly under a Homebrew-installed `/opt/homebrew/bin/bash` (5.3.20).
-    The failing assertion itself was a real, previously-undetected defect in
-    the test's own fixture (corrected in the same commit).
-  - Observed effect: two additional full round-trip CI pushes (with
-    temporary `-x` tracing, reverted afterward) were needed to locate the
-    actual failing test, since local verification gave no signal anything
-    was wrong.
-  - Inference: Qualified. A second, independently-discovered instance of the
-    same bash 3.2/5 `set -e` divergence, in a different test file — this is
-    not a one-off. Using a real Homebrew-installed modern bash explicitly for
-    local shell-test verification is now this session's own adopted
-    practice, recorded separately as a durable lesson.
-- Execution: `SEED-037#diagnosable-test-hangs` / plan 104, first related implementation commit `044c88f`
-  - Timestamp: 2026-09-25T22:30:43+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
-  - Evidence: `1e648d9` runner tests passed on macOS Bash 5.3.20; CI run
-    `36147702793` `test` printed only `FAIL: tests/test-runner-interrupt.sh`;
-    Docker ubuntu:24.04 Bash 5.2.21 failed 3/3; repair `a64138e`.
-  - Observed effect: two failed CI runs, a pause-and-stash cycle, one repair.
-  - Inference: Other mechanism, same gap: before Bash 5.3 a bare `return` in a
-    trap-called function takes the interrupted `wait`'s status.
-
 ## ODF-062 — A CI repair was delivered without the refactor pass its own delivery gate requires
 
 Former local code: DD-060.
@@ -992,8 +910,43 @@ The planning audit listed only the scripts that create agent-authored commits. I
   - Evidence: plan 119's PFE names the scripts that create commits (`--author` / `commit-tree`). `publish-the-candidate.md` "Preserve published history" and `product-backlog-git-merge.mjs` `commitAcceptedMerge` still make an agent-authored integration merge without the credit, as merge `199ae44` shows. Correction plan 121.
   - Observed effect: one follow-up correction story. Qualified inference: an audit that greps scripts for commit creation cannot see commits that guidance directs.
 
+## DD-114 — A Story Branch execution rebased onto trunk, and managed delivery rebased it back
+
+The plan said to integrate onto whichever sibling runner change had landed. In
+Story Branch Mode the coordinator rebased its unpublished commit onto
+`origin/main`; managed delivery then reconciled that suffix onto the remote
+execution branch tip, dropping the trunk base, and returned `needs-validation`.
+
+### Occurrences
+
+- Execution: `SEED-049#native-result-path-diagnosis` / plan 124, first related implementation commit `70386eb`
+  - Timestamp: 2026-09-27T11:46:54+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac`
+  - Evidence: rebased `1749032` on `80ba4e4`; `deliver` gave candidate `6781c03` on `d50bd27`, `suffixBase` `d50bd27`; accepted `70386eb`.
+  - Observed effect: one full local suite run proved a base the branch never published; plan proof text was rewritten and re-proved before delivery.
+  - Inference: Qualified. Trunk integration belongs to Story Branch wrap-up; a plan's "integrate onto whichever landed" reads as a mid-execution rebase.
+
+## DD-115 — An out-of-scope local failure was fixed without first fetching trunk, duplicating a sibling's fix
+
+The full local suite failed on `tests/support/dashboard-dev-port.test.mjs`
+because a developer's dashboard server held port 43127. The coordinator wrote
+an equivalent fix; trunk already carried one from a sibling execution.
+
+### Occurrences
+
+- Execution: `SEED-049#native-result-path-diagnosis` / plan 124, first related implementation commit `70386eb`
+  - Timestamp: unknown; between the claim at 2026-09-27T11:18 and commit `f67f671` at 2026-09-27T11:43:11+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac`
+  - Evidence: trunk fix `a034dfd` committed 2026-09-27T09:58:29+08:00; local rewrite discarded before `f67f671`.
+  - Observed effect: one rewrite and focused run wasted; found only when a later fetch showed the file size gap.
+  - Inference: Qualified. With parallel agents on trunk, fetching before fixing an unrelated failure is cheap and may find it already fixed.
+
 ## Retention
 
-- Highest allocated local number: 113
-- Recovery: `2b18837:DearDough.md` (ODF-003 `SEED-004#execute-in-worktree-and-merge-at-wrap-up` occurrence, removed for size; three later same-mechanism rows remain); `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 115
+- Recovery: `70386eb:DearDough.md` (ODF-061, addressed by `c897488` requiring Bash 5 and by plan 124's stop-location report); `2b18837:DearDough.md` (ODF-003 `SEED-004#execute-in-worktree-and-merge-at-wrap-up` occurrence, removed for size; three later same-mechanism rows remain); `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial
