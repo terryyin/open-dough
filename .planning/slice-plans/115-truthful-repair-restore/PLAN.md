@@ -101,13 +101,28 @@ Full gate before delivery: `npm test` and `npm run lint`.
 
 ### 1. A conflicting restore reports exactly what it applied
 Type: Behavior
-Status: planned
+Status: done
 Proof: F1 rows above.
 
 Behavior: saved work whose restore conflicts with the repair → the coordinator
 runs `restore --record` → the receipt states `partial`/`all`/`none` applied,
 the conflicting paths, and the saved staged paths not restored; the entry
 stays on the stack.
+
+Accepted proof: `ci-repair-stash.test.mjs` "a restore that conflicts with the
+repair names the path and OID, reports a partial apply with the staging it
+lost, and keeps the entry" and "a restore whose repair added the paused work's
+untracked path applies the tracked work, reports partial, and keeps the
+entry", through the focused runner command above (exit 0). `applied` is
+judged by content against the entry's trees (`<oid>`, `^2`, `^3`); the lost
+staged state is named `stagedNotRestored`. `all` and `none` were observed
+through the CLI only, not by an automated test; a `none` conflict ("conflicts
+in index") names no path because "patch failed" parsing stays excluded.
+Learnings: Git's "Index was not unstashed" loss is only visible when staged
+content differs from the worktree; the untracked-collision case is `partial`,
+not a full apply. Stack primitives and `dropExact` now live in
+`ci-repair-stash-git.mjs` (declared in `install.sh`); `ci-monitor.md` is at
+250 lines with step 5 wrapping left for slice 2.
 
 ### 2. The coordinator finishes a resolved conflict through the script
 Type: Behavior

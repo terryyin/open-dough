@@ -187,8 +187,7 @@ until that missing history is accounted for.
    delegation, formatting, and commits. Require every implementation and
    refactor agent to satisfy [the pause contract](#pause-and-resume-writers)
    before stashing. A sent message or interrupt does not prove subprocesses
-   stopped; verify quiescence after an interrupt. Never stash under a live
-   writer.
+   stopped; verify quiescence after an interrupt. Never stash under a live writer.
 3. **Preserve unfinished owned work in the execution checkout.** Once all
    writers are quiescent, run `node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-repair-stash.mjs'
    save --checkout EXECUTION_CHECKOUT --label 'dough-execute-plan CI repair RUN_ID/ATTEMPT'`
@@ -218,19 +217,19 @@ until that missing history is accounted for.
    repair, the coordinator runs [wrap-up](wrap-up.md), which publishes through
    [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair).
    Do not use a second repair push. Preserve the same observer through it.
-5. **Restore unfinished owned work and resume the same execution.**
-   Publish a new repair first; otherwise proceed as soon as focused proof shows
-   HEAD is already fixed or analysis proves all failures were infrastructure.
-   Then run `node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-repair-stash.mjs' restore --record RECORD_FILE`.
+5. **Restore unfinished owned work and resume the same execution.** Publish a
+   new repair first; otherwise proceed once focused proof shows HEAD is already
+   fixed or analysis proves all failures were infrastructure. Then run `node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-repair-stash.mjs' restore --record RECORD_FILE`.
    It applies the recorded OID with its index state, not `pop`, verifies the
-   saved paths returned, and drops only that entry by its current selector,
-   never assuming `stash@{0}`. On `resumed`, resume the same agents with the
-   repair commit or no-change finding, affected files, and saved handoff
-   under the pause contract. `conflict` keeps the entry and names its paths,
-   OID, and whether it was `applied`: resolve straightforward overlaps
-   preserving both changes, then drop only that OID's entry by its current
-   selector; if meaning is ambiguous, leave it and report. On `missing`
-   (nothing applied) or `ambiguous`, report the OID and stop.
+   saved content returned, and drops only that entry, never assuming
+   `stash@{0}`. On `resumed`, resume the same agents with the repair commit or
+   no-change finding, affected files, and saved handoff under the pause
+   contract. `conflict` keeps the entry and names its paths, OID, and what was
+   `applied` (`none`, `partial`, or `all`); never apply it again. On `partial`,
+   restage each `stagedNotRestored` path: `git restore --staged --source=OID^2 -- PATH`.
+   Resolve straightforward overlaps preserving both changes, then drop only
+   that OID's entry by its current selector; if meaning is ambiguous, leave it
+   and report. On `missing` (nothing applied) or `ambiguous`, report the OID and stop.
 
 On an unresolved repair, decision stop, or push failure, keep the stash entry
 and its record file and report the exact state. Restore original work when it
