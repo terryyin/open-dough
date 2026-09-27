@@ -12,7 +12,12 @@ import {
   identityB,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
-import { publishProfiles } from "./workspace-publication-startup-test-fixtures.mjs";
+import {
+  coAuthors,
+  configureDeveloper,
+  developer,
+  publishProfiles,
+} from "./workspace-publication-startup-test-fixtures.mjs";
 import { agentNames } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 async function remoteShow(trunk, ...args) {
@@ -22,6 +27,7 @@ async function remoteShow(trunk, ...args) {
 test("Take publishes the agent's profile and makes the agent the workspace author", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const { receipt, workspace } = await startCliResult(trunk, "trunk", [
     "--host",
     "claude",
@@ -52,23 +58,25 @@ test("Take publishes the agent's profile and makes the agent the workspace autho
     },
   );
   const people = "--format=%an <%ae>|%cn <%ce>";
-  const human = "Integration Checkout <integration@example.test>";
   assert.equal(
     (await remoteShow(trunk, "log", "-1", people, "main")).trim(),
-    `Yui-chan <yui-chan@example.org>|${human}`,
+    `Yui-chan <yui-chan@example.org>|${developer}`,
   );
+  // The agent authors the Take; the configured developer is its co-author.
+  assert.equal(await coAuthors(trunk.origin, "main"), developer);
   writeFileSync(join(workspace, "slice.txt"), "slice\n");
   await git(workspace, "add", "slice.txt");
   await git(workspace, "commit", "-m", "slice work");
   assert.equal(
     (await git(workspace, "log", "-1", people)).stdout.trim(),
-    `Yui-chan <yui-chan@example.org>|${human}`,
+    `Yui-chan <yui-chan@example.org>|${developer}`,
   );
   await git(trunk.integration, "commit", "--allow-empty", "-m", "integration");
   assert.equal(
     (await git(trunk.integration, "log", "-1", people)).stdout.trim(),
-    `${human}|${human}`,
+    `${developer}|${developer}`,
   );
+  assert.equal(await coAuthors(trunk.integration, "HEAD"), "");
 });
 
 test("Take from a bare repository's linked worktree authors only the Take commit and leaves every checkout working", async (t) => {
@@ -100,6 +108,10 @@ test("Take from a bare repository's linked worktree authors only the Take commit
       await remoteShow(trunk, "log", "-1", "--format=%an <%ae>|%cn", "main")
     ).trim(),
     "Yui-chan <yui-chan@example.org>|Integration Checkout",
+  );
+  assert.equal(
+    await coAuthors(trunk.origin, "main"),
+    "Integration Checkout <integration@example.test>",
   );
   await git(workspace, "status");
   await git(checkout, "status");

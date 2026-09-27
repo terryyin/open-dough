@@ -179,7 +179,7 @@ assignment ends, whatever else applies: it is what identifies that
 assignment, so keep it or
 [abandon the preparation](preparation-assignment.md#abandon-the-preparation)
 before retiring it. If it was lost anyway, the assignment ends only as
-[Release a lost workspace's assignment](preparation-assignment.md#release-a-lost-workspaces-assignment)
+[Release a lost workspace's assignment](preparation-lost-workspace.md)
 describes.
 
 Once a confirmed disposition applies, retire the workspace under Dough Land's

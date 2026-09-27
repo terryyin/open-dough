@@ -275,15 +275,32 @@ file.
   refinement or planning of a queued story begins, publishing a commit that
   adds only its preparation profile; the story stays queued. Each profile is
   one allocation, identified by its path and the commit that added it.
-- **Authorship.** The agent is the Git author of the Take commit and of
-  ordinary commits in its owned workspace; the configured Git user remains the
-  committer. Startup configures this through per-worktree Git config, so other
-  checkouts keep their usual author. In a bare repository whose shared config
+- **Authorship.** The agent is the Git author of its coordination commits (the
+  Take and the preparation announcement and end) and, through the guided agent
+  commit, of the commits it makes for its own work in its owned workspace,
+  including closure and amended commits; the configured Git user remains the
+  committer. Each such commit credits that developer once as a
+  `Co-authored-by` trailer, read at commit time from the effective committer
+  identity of the checkout making it, never from a fixed account, beside any
+  co-authors the message already names, such as a model trailer. A message
+  that already credits the developer's email, whatever the trailer key case,
+  email case, or display name, keeps that one credit, and a rebase replays an
+  owned commit's message unchanged, so neither amendment nor replay duplicates
+  or drops a trailer. A missing, malformed, or agent-equal committer refuses
+  the commit before anything is committed or published
+  (`developer-identity-refused`). Startup and preparation start configure the
+  agent author through per-worktree Git config, so other checkouts keep their
+  usual author and gain no trailer. In a bare repository whose shared config
   sets `core.bare=true` or `core.worktree`, enabling per-worktree config would
-  break every checkout, so startup leaves that config untouched: only the Take
-  commit is authored by the agent, and the receipt reports
-  `workspaceAuthorship: "not-configured"` (otherwise `"configured"`). Commit
-  authors are the history trace; the profile records current ownership.
+  break every checkout, so it is left untouched: only coordination commits are
+  authored by the agent, the receipt reports
+  `workspaceAuthorship: "not-configured"` (otherwise `"configured"`), and
+  ordinary commits there are the developer's own. Historical commits are not
+  rewritten. GitHub attributes the credit only when the configured email
+  belongs to the developer's account, which is their Git setup, not checked
+  locally. Commit authors and co-authors are the history trace; the profile
+  records current ownership, so a developer-authored commit naming the agent
+  as co-author still belongs to the assignment its published profile names.
 - **Resume and release.** Resume keeps the profile and restores the
   workspace's authorship from it. Completing the Taken entry through
   `product-backlog complete` deletes its execution profile in the same change,

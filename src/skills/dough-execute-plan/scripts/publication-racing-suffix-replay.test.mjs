@@ -36,6 +36,20 @@ test("a rejection after the suffix was already rewritten replays only that suffi
   const { origin, integration, execution, trunkSha, cleanup } =
     await createBacklogSuffixFixture(ownedBacklog);
   t.after(cleanup);
+  // The owned increment already credits its model and developer co-authors.
+  const credit =
+    "Co-Authored-By: Claude <noreply@anthropic.com>\n" +
+    "Co-authored-by: Dana Developer <dana@example.test>";
+  await git(
+    execution,
+    "commit",
+    "--quiet",
+    "--amend",
+    "-m",
+    "verified increment",
+    "-m",
+    credit,
+  );
 
   const before = await captureCheckout(integration);
   const firstWriter = await advanceOriginBacklog(
@@ -86,6 +100,13 @@ test("a rejection after the suffix was already rewritten replays only that suffi
       )
     ).stdout,
     "verified increment\n",
+  );
+  // Each replay kept the credit exactly as it was: nothing added or lost.
+  assert.equal(
+    (
+      await git(execution, "log", "-1", "--format=%(trailers)", candidate)
+    ).stdout.trim(),
+    credit,
   );
   assert.equal(
     (

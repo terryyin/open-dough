@@ -17,6 +17,10 @@ import {
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { createQueuedTrunk } from "../../dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import {
+  coAuthors,
+  developer,
+} from "../../dough-execute-plan/scripts/workspace-publication-startup-test-fixtures.mjs";
 
 export { exec, git, lsRemoteSha, revParse };
 
@@ -193,6 +197,21 @@ export async function remoteChanges(trunk, rev) {
     .trim()
     .split("\n");
 }
+
+// Who a published commit names: its author and committer, then each
+// co-author it credits.
+export const remoteCredit = async (trunk, rev) => [
+  (
+    await git(trunk.origin, "log", "-1", "--format=%an <%ae>|%cn <%ce>", rev)
+  ).stdout.trim(),
+  await coAuthors(trunk.origin, rev),
+];
+
+// Yui-chan authors; the configured developer commits and is credited.
+export const yuiCredited = [
+  `Yui-chan <yui-chan@example.org>|${developer}`,
+  developer,
+];
 
 export async function remoteProfileNames(trunk, rev = "main") {
   const { stdout } = await git(

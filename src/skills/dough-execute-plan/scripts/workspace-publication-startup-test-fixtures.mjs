@@ -220,3 +220,17 @@ export async function assertPublishedAgent(workspace, name, identity) {
   );
   assert.equal(log.stdout.trim(), `${agent} <${email}>`);
 }
+
+// The developer's Git configuration, read at commit time rather than fixed.
+export const developer = "Dana Developer <dana@example.test>";
+
+export async function configureDeveloper(checkout) {
+  await git(checkout, "config", "user.name", "Dana Developer");
+  await git(checkout, "config", "user.email", "dana@example.test");
+}
+
+// Co-authors the commit's message credits, one per line.
+export async function coAuthors(cwd, rev) {
+  const format = "--format=%(trailers:key=Co-authored-by,valueonly)";
+  return (await git(cwd, "log", "-1", format, rev)).stdout.trim();
+}

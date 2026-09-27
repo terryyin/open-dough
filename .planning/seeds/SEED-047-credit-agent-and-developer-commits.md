@@ -20,72 +20,33 @@ performed work; changing attribution must preserve that meaning.
 
 ## Stories
 
-<a id="agent-and-developer-credit"></a>
+<a id="integration-merge-credit"></a>
 
-### Credit the developer and agent on agent-enabled commits
+### Correction: Credit the developer on Story Branch integration merges
 
-**Identity:** SEED-047#agent-and-developer-credit
+**Identity:** SEED-047#integration-merge-credit
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/119-agent-and-developer-commit-credit/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a47b63384d55c04ecbb6bf3c255cf837902fae9967a9d58103042db3e65792dd","plan":"a72554dd5f1367dd15cd9b57f081f943142b38118d86504ab9d7909442e9b589"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/121-integration-merge-credit/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ec3d50f04f6aa5cef16ed6bcdb68450ccfd87694d3538464c0de2226573f4a0f","plan":"8df4188f0daf7c497320861002e2c74ff90d676ebee99cf0f9db6d912c8bebf7"}}
 ```
 
-**Goal:** An agent-enabled commit credits both the configured developer and
-the assigned agent as authors on GitHub, while project logic still recognizes
-the assigned agent when it appears as Git author or co-author.
+**Goal:** When an agent integrates its Story Branch into trunk, the developer
+gets the same GitHub credit on the integration merge commit as on the
+agent's other commits.
 
-**Expected behavior:** In an agent-enabled workflow, keep the assigned agent
-as Git author and derive the developer's name and email from the actual Git
-committer identity for that checkout. Add the developer as a distinct
-`Co-authored-by` trailer. Preserve other legitimate co-author trailers,
-including model credit, and do not add the same person twice. Do not infer
-co-authorship from the committer field alone. When a commit has the developer
-as Git author and the assigned agent in a co-author trailer, agent work
-recognition still attributes it to that agent.
+**Scope:** A bounded retrospective correction of the delivered
+`SEED-047#agent-and-developer-credit` (plan 119, commits `4c23f11..87e019f`).
+In the owned workspace, the integration merge commit keeps the agent as Git
+author and credits the configured developer once through the shared credit
+rule. This covers both the plain merge and the product-backlog merge
+adapter's commit. An unusable developer identity stops the integration
+before publication. The correction adds no feature promise.
 
-**Actual behavior:** At `15362af`, the Git author is
-`Aino-chan <aino-chan@example.org>` and the committer is the configured
-developer. Its only `Co-Authored-By` trailer names Claude Opus. Startup sets
-per-worktree agent author config in
-`src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs`;
-Take and preparation announcement commands set an explicit agent author.
-Ordinary commits made inside those worktrees inherit the agent author without
-automatically adding the developer as co-author.
+Excluded:
+- merges in checkouts that name no agent;
+- Dough Land's rebase path, which already keeps messages;
+- historical merges.
 
-**Scope:** Cover commits created by Open Dough's agent-enabled execution and
-preparation paths: Take, preparation announcement and end, guided implementation
-and closure commits, including the bare-repository fallback. Derive credit
-from Git at commit time; do not hardcode an account or change other checkouts'
-identity and hooks. Keep current assignment ownership tied to the published
-profile. Audit historical agent-work readers: where a reader interprets commit
-contributors, agent author and agent co-author both count; where it reads the
-assignment profile, keep that stronger source. Update the authorship contract
-and agent-facing guidance in the shared release source. Historical commits are
-not rewritten. GitHub association of the configured email is a developer Git
-setup prerequisite, not something the product can prove locally.
-
-**Key examples:**
-
-1. A queued story is Taken in a checkout configured for a developer → the
-   published Take commit names the agent as author and the developer as
-   co-author; a normal commit in that agent-owned worktree has the same credit,
-   while another checkout keeps its ordinary Git identity.
-2. A queued story enters and exits preparation → both coordination commits
-   credit the assigned agent and configured developer, including the end
-   commit made without a working-tree commit operation.
-3. A guided agent commit already credits a model or is amended/replayed →
-   existing co-authors remain, the developer appears once, and a replay does
-   not add duplicate trailers.
-4. A developer-authored commit names the assigned agent in a co-author
-   trailer → a history reader counts that agent as a contributor, while the
-   current assignment still comes from its published profile.
-5. Git has no usable committer name or email for an agent-enabled commit →
-   that path refuses before publishing a misleadingly credited commit.
-
-**Architecture check:** [ADR 0000](../../docs/adrs/0000-use-adrs-accepted.md)
-keeps feature behavior and implementation design with this story. [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-requires one shared, project-relative agent-facing rule across hosts. Proposed
-ADRs 0008 and 0009 are nonbinding; this change should preserve their
-distinction between durable Git evidence and current assignment ownership.
+[Plan](../slice-plans/121-integration-merge-credit/PLAN.md).
 
 ## When to Surface
 
