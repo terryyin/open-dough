@@ -45,7 +45,7 @@ dashboard or research stories.
 
 **Identity:** SEED-028#native-one-shot-acceptance
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/135-native-one-shot-acceptance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1334a483e4843b3b38f7937885c92d4f1d0c55acf5e28ee49a630794d7237ce1","plan":"5fbd2b799d381263e5b7215bdd2659f89d9e262b6deb06f68f14e1794ec60bd2"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/135-native-one-shot-acceptance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d8819fa7bb52a8687e6c260b55385d2e59f9913934568558c770c9d666d6ac8d","plan":"5fbd2b799d381263e5b7215bdd2659f89d9e262b6deb06f68f14e1794ec60bd2"}}
 ```
 
 **Goal:** A Claude Code agent asked for explicit one-shot work publishes only
