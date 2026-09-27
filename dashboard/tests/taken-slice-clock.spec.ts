@@ -3,9 +3,10 @@
 // (the commit that added the entry's agent profile), both at the snapshot's
 // revision, ticking with page time and asking GitHub nothing more. The fake
 // GitHub only publishes files, profiles spelled by the shared profile
-// renderer, and when each path was last committed; the page clock is paused so
-// page time passes only when the journey says. The local read boundary, the
-// shared readers, and the page decide everything shown.
+// renderer, when each plan was last committed, and each profile's history;
+// the page clock is paused so page time passes only when the journey says.
+// The local read boundary, the shared readers, and the page decide
+// everything shown.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
@@ -20,6 +21,7 @@ import {
   beforeProfiles,
   committed,
   files,
+  history,
   justTaken,
   opened,
   planPath,
@@ -27,6 +29,7 @@ import {
   repository,
   revision,
   stories,
+  takes,
   timeUnread,
 } from "./sliceClockRecords.ts";
 
@@ -59,6 +62,7 @@ test("each Taken card's clock measures from the later of its last plan commit an
     revision,
     files,
     committed,
+    history,
   });
 
   const { taken, problem } = await openedTaken(page);
@@ -96,24 +100,36 @@ test("each Taken card's clock measures from the later of its last plan commit an
 
   // A failed plan commit shows its card's gap without waiting for that card's
   // Take time, whose ask may still be on its way.
-  await test.step("each commit time was asked once, for the plan and the single profile at the revision", async () => {
+  await test.step("each plan's last commit time was asked once, and each Take only through its profile's addition, which also names its human", async () => {
     const asked = () =>
       requests
-        .flatMap(({ request }) =>
-          request.kind === "commit-list" && request.latestOnly
-            ? [`${request.path}@${request.revision}`]
-            : [],
-        )
+        .flatMap(({ request }) => {
+          switch (request.kind) {
+            case "commit-list":
+              return [
+                `${request.latestOnly ? "last commit" : "history"} ${request.path}@${request.revision}`,
+              ];
+            case "commit":
+              return [`commit ${request.sha}`];
+            default:
+              return [];
+          }
+        })
         .sort();
+    // Two `gh` requests per Taken profile, its history and its addition
+    // commit: no last commit time of a profile is asked.
     await expect
       .poll(asked)
       .toEqual(
         [
-          ...stories.map(({ anchor }) => planPath(anchor)),
-          ...["Akiho", "Yuma", "Sola"].map(profilePath),
-        ]
-          .map((path) => `${path}@${revision}`)
-          .sort(),
+          ...stories.map(
+            ({ anchor }) => `last commit ${planPath(anchor)}@${revision}`,
+          ),
+          ...Object.entries(takes).flatMap(([agent, { sha }]) => [
+            `history ${profilePath(agent)}@${revision}`,
+            `commit ${sha}`,
+          ]),
+        ].sort(),
       );
   });
 
@@ -148,7 +164,7 @@ test("when agent profiles cannot be read, the clock is a gap rather than a plan-
 }) => {
   await pausePageClockAt(page, opened);
   // The same records, but the profile directory cannot be listed.
-  const published = publishes({ revision, files, committed });
+  const published = publishes({ revision, files, committed, history });
   githubFor(page).serve(repository, (call) =>
     call.request.kind === "listing"
       ? Promise.resolve(noConnection)

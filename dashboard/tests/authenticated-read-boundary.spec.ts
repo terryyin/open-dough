@@ -142,11 +142,11 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
     expect(body.text).toBe(seedBody);
   });
 
-  test("answers when a listed agent profile was last committed, pinned once per revision and path, and refuses an unreached path before asking GitHub", async () => {
+  test("answers when a reachable record was last committed, pinned once per revision and path, and refuses an agent profile or an unreached path before asking GitHub", async () => {
     const revision = "ef".repeat(20);
     const seedPath = ".planning/seeds/SEED-clock.md";
     const profilePath = ".planning/agents/yui-chan.json";
-    const takenAt = "2026-09-23T08:30:00Z";
+    const updatedAt = "2026-09-23T08:30:00Z";
     const backlogTaken = `# Product backlog
 
 ## Taken
@@ -172,7 +172,10 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
             model: undefined,
           }),
         },
-        committed: { [profilePath]: new Date(takenAt) },
+        committed: {
+          [seedPath]: new Date(updatedAt),
+          [profilePath]: new Date(updatedAt),
+        },
       }),
     );
     const read = (query: string) =>
@@ -188,27 +191,21 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
         .status,
     ).toBe(200);
 
-    const commitTime = `&revision=${revision}&path=${encodeURIComponent(profilePath)}&committed=last`;
+    const commitTime = `&revision=${revision}&path=${encodeURIComponent(seedPath)}&committed=last`;
     let callsBefore = server.ghCalls().length;
     const answered = await read(commitTime);
     expect(answered.status).toBe(200);
     expect(JSON.parse(answered.body)).toEqual({
       revision,
-      path: profilePath,
+      path: seedPath,
       committedAt: "2026-09-23T08:30:00.000Z",
     });
-    // The profile directory's listing authorizes the path; the commit list
-    // is asked at the pinned revision for that one path.
+    // The pinned backlog authorizes the path; the commit list is asked at the
+    // pinned revision for that one path.
     expect(server.ghCalls().slice(callsBefore)).toEqual([
       [
         "api",
-        "-H",
-        "Accept: application/vnd.github+json",
-        `repos/${knownRepository}/contents/.planning/agents?ref=${revision}`,
-      ],
-      [
-        "api",
-        `repos/${knownRepository}/commits?sha=${revision}&path=${encodeURIComponent(profilePath)}&per_page=1`,
+        `repos/${knownRepository}/commits?sha=${revision}&path=${encodeURIComponent(seedPath)}&per_page=1`,
         "--jq",
         ".[0].commit.committer.date",
       ],
@@ -216,6 +213,17 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
 
     callsBefore = server.ghCalls().length;
     expect((await read(commitTime)).status).toBe(200);
+    expect(server.ghCalls()).toHaveLength(callsBefore);
+
+    // A listed agent profile's Take is its addition (`committed=added`),
+    // never its last commit.
+    const profileCommitTime = await read(
+      `&revision=${revision}&path=${encodeURIComponent(profilePath)}&committed=last`,
+    );
+    expect(profileCommitTime.status).toBe(404);
+    expect(JSON.parse(profileCommitTime.body)).toEqual({
+      error: "That path is not reachable from this source revision.",
+    });
     expect(server.ghCalls()).toHaveLength(callsBefore);
 
     const unreached = await read(

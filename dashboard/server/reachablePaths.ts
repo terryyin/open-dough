@@ -7,8 +7,9 @@
 // (`./performedRead.ts`), so already-read text at the same revision is
 // not fetched again. Agent profiles beside the backlog are reachable only as
 // the profile files the pinned revision's directory listing names. When a
-// path was last committed may be asked for a reachable record or a listed
-// profile: a plan's last recorded update, or the Take that added a profile.
+// path was last committed may be asked only for a reachable record, such as
+// a plan's last recorded update; a profile's Take is the commit that added
+// it (`./ghProfileAddition.ts`), asked only for a listed profile.
 // What may be read on a story branch is decided from the same records in
 // `./branchReachability.ts`.
 
@@ -189,24 +190,5 @@ export async function isListedAgentProfile(
   }
   return (await listedAgentProfilePaths(source, listPinned)).includes(
     requestedPath,
-  );
-}
-
-// Whether the pinned revision's records allow asking when `requestedPath` was
-// last committed: any path a file read may reach, or a listed agent profile.
-export async function commitTimeReachableFromRevision(
-  source: PublishedSource,
-  revision: string,
-  requestedPath: string,
-  readPinned: PinnedReader,
-  listPinned: PinnedLister,
-): Promise<boolean> {
-  return (
-    (await pathReachableFromRevision(
-      source,
-      revision,
-      requestedPath,
-      readPinned,
-    )) || (await isListedAgentProfile(source, requestedPath, listPinned))
   );
 }

@@ -12,13 +12,12 @@
 
 import {
   profileAvatarUrl,
-  readProfileAdditionAt,
   type ProfileAddition,
+  type ProfileAdditions,
 } from "./authenticatedProfileRead.ts";
 import type { ProfileAssignments } from "./agentAssignments.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import { ReadProblem } from "./readProblem.ts";
-import { unansweredWithinReadWait } from "./readWaitBound.ts";
+import { detailGapProblem } from "./readWaitBound.ts";
 
 export type HumanAttribution =
   | { readonly status: "loading" }
@@ -61,34 +60,37 @@ async function attributionAt(
   source: PublishedSource,
   profilePath: string,
   revision: string,
+  additionOf: ProfileAdditions,
   signal: AbortSignal,
 ): Promise<HumanAttribution> {
   try {
     return attributionOf(
-      await readProfileAdditionAt(source, profilePath, revision, signal),
+      await additionOf(profilePath),
       profileAvatarUrl(source, profilePath, revision),
     );
   } catch (error) {
     return {
       status: "unavailable",
-      problem:
-        error instanceof ReadProblem
-          ? error.message
-          : signal.aborted
-            ? `${unansweredWithinReadWait} while reading the commit that added this agent profile.`
-            : "The commit that added this agent profile could not be read.",
+      problem: detailGapProblem(
+        error,
+        signal,
+        "the commit that added this agent profile",
+        "The commit that added this agent profile could not be read.",
+      ),
     };
   }
 }
 
 // The snapshot's commissions, each with the human its own profile credits,
-// read once per readable profile; `withAssignments` places them wherever
-// assignments are shown. Each human is passed on to `onAttributed` as soon as
-// its own walk ends, so a slow walk delays only its own credit.
+// from the read's one addition per readable profile (`additionOf`, shared with
+// the Take's slice clock); `withAssignments` places them wherever assignments
+// are shown. Each human is passed on to `onAttributed` as soon as its own walk
+// ends, so a slow walk delays only its own credit.
 export async function readAttributedAssignments(
   source: PublishedSource,
   revision: string,
   assignments: ProfileAssignments | undefined,
+  additionOf: ProfileAdditions,
   signal: AbortSignal,
   onAttributed?: (assignments: ProfileAssignments) => void,
 ): Promise<ProfileAssignments | undefined> {
@@ -98,7 +100,13 @@ export async function readAttributedAssignments(
   let attributed = assignments;
   await Promise.all(
     assignments.commissions.map(async ({ profilePath }, index) => {
-      const human = await attributionAt(source, profilePath, revision, signal);
+      const human = await attributionAt(
+        source,
+        profilePath,
+        revision,
+        additionOf,
+        signal,
+      );
       attributed = {
         ...attributed,
         commissions: attributed.commissions.map((commission, each) =>

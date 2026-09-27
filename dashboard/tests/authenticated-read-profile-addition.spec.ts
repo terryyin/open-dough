@@ -60,6 +60,7 @@ test.describe("authenticated profile addition read (dev launch mode)", () => {
               sha: commit("e2"),
               status: "added",
               committer: "Terry Yin",
+              committedAt: new Date("2026-09-23T08:30:00Z"),
               login: "terryyin",
             },
             { sha: commit("e3"), status: "removed", committer: "Olde" },
@@ -86,6 +87,7 @@ test.describe("authenticated profile addition read (dev launch mode)", () => {
       added: {
         commit: commit("e2"),
         committerName: "Terry Yin",
+        committedAt: "2026-09-23T08:30:00.000Z",
         login: "terryyin",
       },
     });
@@ -114,7 +116,12 @@ test.describe("authenticated profile addition read (dev launch mode)", () => {
     expect(JSON.parse(unnamed.body)).toEqual({
       revision,
       path: akihoPath,
-      added: { commit: commit("e5"), committerName: null, login: null },
+      added: {
+        commit: commit("e5"),
+        committerName: null,
+        committedAt: "2026-09-20T08:00:00.000Z",
+        login: null,
+      },
     });
 
     // A profile-shaped path the revision does not list is never asked about.

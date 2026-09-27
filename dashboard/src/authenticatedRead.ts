@@ -4,9 +4,9 @@
 // for any catalog source (`./publishedSource.ts`). An optional `revision`
 // reads the backlog at a commit already resolved, and with `path` one further
 // file already reachable from that revision's records, or with `path` and
-// `committed=last` when that file (or a listed agent profile) was last
-// committed as of that revision; `since` instead asks only whether the ref
-// still names the revision shown, and with `watch` which heads story branches
+// `committed=last` when that file was last committed as of that revision;
+// `since` instead asks only whether the ref still names the revision shown,
+// and with `watch` which heads story branches
 // recorded there name now; `agents=profiles` and `committed=added` read the
 // published agent profiles (`./authenticatedProfileRead.ts`); `branch` asks
 // about a story branch recorded at that revision

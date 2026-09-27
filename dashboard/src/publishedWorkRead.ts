@@ -34,6 +34,7 @@ import {
   withAssignments,
 } from "./agentAssignments.ts";
 import { readAttributedAssignments } from "./commissionAttribution.ts";
+import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
 // the fields this dashboard shows rather than trusted by assertion.
@@ -106,9 +107,10 @@ function interpret(
 // a read problem, so a stalled connection leaves the person able to retry;
 // nothing retries for them. When the bound ends a read after its membership
 // was shown, the snapshot is finished with a gap for each detail left unread
-// before the problem is reported. Each commission's human is a later detail
-// of the same read: its latency and failure, the bound included, stay that
-// commission's own.
+// before the problem is reported. Each commission's human and each Taken
+// card's slice clock are later details of the same read, sharing one addition
+// read per agent profile: their latency and failure, the bound included, stay
+// their own.
 export async function readPublishedWork(
   source: PublishedSource,
   signal: AbortSignal,
@@ -139,9 +141,11 @@ export async function readPublishedWork(
         enrichPreparation(work, untilEither),
         readAssignments(source, revision, untilEither),
       ]);
-      // Each commission's human is read while progress and clocks are, and
-      // is shown as soon as its own walk ends, in whatever snapshot is shown
-      // by then.
+      // Each profile's addition is read once, for both its commission's human
+      // and its Take's slice clock. Each human is read while progress and
+      // clocks are, and is shown as soon as its own walk ends, in whatever
+      // snapshot is shown by then.
+      const additionOf = profileAdditionsAt(source, revision, untilEither);
       let credited = assignments;
       let shown: PublishedWork | undefined;
       const show = (next: PublishedWork) => {
@@ -154,6 +158,7 @@ export async function readPublishedWork(
         source,
         revision,
         assignments,
+        additionOf,
         untilEither,
         (partial) => {
           credited = partial;
@@ -174,14 +179,19 @@ export async function readPublishedWork(
       );
       signal.throwIfAborted();
       show(sourced);
-      // Each clock starts from commit times where its plan's slices were read,
-      // once owners name the Take's profile. Clocks never wait for humans.
-      const clocked = await withSliceClocks(sourced, untilEither);
-      signal.throwIfAborted();
-      show(clocked);
-      // Only the snapshot's own reads can fail it at the wait bound; a human
-      // still unread then is that commission's gap.
+      // Only the snapshot's own reads can fail it at the wait bound; a clock
+      // or human still unread then is that detail's gap.
       const snapshotUnread = bound.aborted;
+      // Each clock starts from commit times where its plan's slices were read,
+      // once owners name the Take's profile, and is shown as soon as its own
+      // reads end. Clocks never wait for other profiles' humans.
+      const clocked = await withSliceClocks(
+        sourced,
+        additionOf,
+        untilEither,
+        show,
+      );
+      signal.throwIfAborted();
       const enriched = withAssignments(clocked, await attributed);
       signal.throwIfAborted();
       // Shown even when the wait bound ended it: each detail left unread is

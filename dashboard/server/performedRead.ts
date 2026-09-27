@@ -30,7 +30,6 @@ import {
 } from "./readOutcome.ts";
 import {
   agentProfileDirectoryOf,
-  commitTimeReachableFromRevision,
   isListedAgentProfile,
   listedAgentProfilePaths,
   pathReachableFromRevision,
@@ -154,6 +153,7 @@ export async function perform(
             added: added && {
               commit: added.commit,
               committerName: added.committerName,
+              committedAt: added.committedAt,
               login: added.login,
             },
           });
@@ -175,12 +175,11 @@ export async function perform(
               signal,
             );
           }
-          const reachable = await commitTimeReachableFromRevision(
+          const reachable = await pathReachableFromRevision(
             source,
             read.revision,
             read.path,
             pinned.reader(source, read.revision, signal),
-            pinned.lister(source, read.revision, signal),
           );
           if (!reachable) {
             return unreachable;

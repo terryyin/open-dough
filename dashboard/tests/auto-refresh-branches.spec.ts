@@ -27,8 +27,6 @@ import {
   branches,
   completedPlan,
   planPath,
-  profilePath,
-  opened,
   repository,
   revision,
   slicePlan,
@@ -86,7 +84,6 @@ test("the automatic check follows each recorded story branch, reading only the p
       files: { ...trunk.files, [planPath("on-branch")]: slicePlan(8, 7) },
       committed: {
         [planPath("on-branch")]: new Date(now - 2 * 60_000),
-        [profilePath("Akiho")]: new Date(opened.getTime() - 60 * 60_000),
       },
     };
     origin.moveBranch(example, published[example]);
@@ -149,7 +146,6 @@ test("the automatic check follows each recorded story branch, reading only the p
       },
       committed: {
         [planPath("on-branch")]: new Date(now - 60_000),
-        [profilePath("Akiho")]: new Date(opened.getTime() - 60 * 60_000),
       },
     };
     origin.moveBranch(example, published[example]);

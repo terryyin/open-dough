@@ -5,9 +5,9 @@
 // recorded at that revision name now (`watch`); the backlog at an already
 // resolved revision; one repository path at a pinned revision; when one repository
 // path was last committed at a pinned revision (`committed=last`); which
-// commit added one agent profile's current allocation, and who committed it,
-// at a pinned revision (`committed=added`); the agent profiles published
-// beside the backlog at a pinned revision; which
+// commit added one agent profile's current allocation, when, and who
+// committed it, at a pinned revision (`committed=added`); the agent profiles
+// published beside the backlog at a pinned revision; which
 // commit a story branch recorded at a pinned revision names now (`branch`);
 // or one path, or its last commit, at a head of that branch (`branch` and
 // `head`). Malformed or mixed parameters are refused here, before any `gh`

@@ -3,26 +3,13 @@
 // shown on its Taken or Preparing card and in the agent roster. The fake
 // GitHub only publishes files and each profile's history
 // (agentAttributionRecords.ts); the local read boundary walks that history
-// at the pinned revision, and the page decides everything shown. A slow or
-// stalled history walk delays or leaves a gap in only its own human's credit,
-// never the Taken card's slice clock or the snapshot's read.
+// at the pinned revision, and the page decides everything shown. How a slow
+// or stalled walk delays only its own profile's details is
+// profile-addition-latency.spec.ts.
 
-import type { Page } from "@playwright/test";
-import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
+import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
-import { publishes, type RepositoryAnswerer } from "./support/fakeGitHub.ts";
-import { pathChange } from "./pathHistoryAnswers.ts";
-import {
-  afterTake,
-  committed,
-  files,
-  opened,
-  profilePath,
-  repository,
-  revision,
-  stories,
-} from "./sliceClockRecords.ts";
 import {
   credited,
   firstRevision,
@@ -142,88 +129,4 @@ test("each commission credits the committer of its profile allocation's addition
     await back.click();
     await expect(taken).not.toContainText("Human developer");
   });
-});
-
-// The slice clock records (sliceClockRecords.ts), where the Taken work's
-// profile was added by `credited`, and GitHub answers that addition commit
-// only when `held` settles.
-const addition = pathChange(0x12, "added", credited, { login: "terryyin" });
-
-async function openedWithHeldAddition(page: Page, held: Promise<unknown>) {
-  await pausePageClockAt(page, opened);
-  const published = publishes({
-    revision,
-    files,
-    committed,
-    history: { [profilePath("Akiho")]: [addition] },
-  });
-  const answer: RepositoryAnswerer = async (call) => {
-    if (call.request.kind === "commit" && call.request.sha === addition.sha) {
-      await held;
-    }
-    return published(call);
-  };
-  const github = githubFor(page);
-  github.serve(repository, answer);
-  await page.goto("/");
-  await expectMembership(page, {
-    taken: stories.map(({ title }) => title),
-    backlog: [],
-  });
-  // The held addition commit has reached GitHub through the local `gh`.
-  await expect
-    .poll(() =>
-      github.calls.some(
-        ({ request }) =>
-          request.kind === "commit" && request.sha === addition.sha,
-      ),
-    )
-    .toBe(true);
-  const { taken, problem } = parts(page);
-  return {
-    card: taken.getByRole("article", { name: afterTake }),
-    problem,
-  };
-}
-
-test("a slow human credit never holds back the Taken card's slice clock, and fills in when its addition commit answers", async ({
-  page,
-}) => {
-  let release: () => void = () => undefined;
-  const held = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  const { card, problem } = await openedWithHeldAddition(page, held);
-
-  await test.step("while the addition commit is held, the clock is shown and the human is still being read", async () => {
-    await expect(card).toContainText("Current slice started 12 min ago");
-    await expect(card.locator(".owner-human")).toHaveText(
-      "Reading human developer…",
-    );
-  });
-
-  await test.step("the addition commit's answer names the human, and the clock stays", async () => {
-    release();
-    await expect(card.locator(".owner-human")).toHaveText(
-      `Human developer: ${credited}`,
-    );
-    await expect(card).toContainText("Current slice started 12 min ago");
-    await expect(problem).toHaveCount(0);
-  });
-});
-
-test("a human's addition walk still unanswered at the wait bound is that human's gap, not the snapshot's read problem", async ({
-  page,
-}) => {
-  const { card, problem } = await openedWithHeldAddition(
-    page,
-    new Promise<never>(() => undefined),
-  );
-  await expect(card).toContainText("Current slice started 12 min ago");
-  await page.clock.runFor(30_000);
-  await expect(card.locator(".owner-human")).toHaveText(
-    "Human developer unknown. GitHub did not answer within 30 seconds while reading the commit that added this agent profile.",
-  );
-  await expect(card).toContainText("Current slice started 12 min ago");
-  await expect(problem).toHaveCount(0);
 });

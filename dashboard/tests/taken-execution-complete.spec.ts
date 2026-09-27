@@ -5,9 +5,9 @@
 // All slices done without the record is ordinary slice progress, a record
 // without advice is the record's gap, and queued work shows no progress at
 // all. The fake GitHub only publishes trunk, one story branch, profiles
-// spelled by the shared profile renderer, and when each path was last
-// committed; the page clock is paused. The local read boundary, the shared
-// readers, and the page decide everything shown.
+// spelled by the shared profile renderer, when each plan was last committed,
+// and the commit adding each profile; the page clock is paused. The local
+// read boundary, the shared readers, and the page decide everything shown.
 
 import type { Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -19,6 +19,7 @@ import {
   profilePath,
   slicePlan,
 } from "./branchProgressRecords.ts";
+import { addedAt } from "./pathHistoryAnswers.ts";
 
 const repository = "terryyin/open-dough";
 const revision = "a7".repeat(20);
@@ -125,13 +126,15 @@ async function openedAtOpening(page: Page) {
     files: trunkFiles,
     committed: {
       [planPath("on-branch")]: minutesBefore(3 * 24 * 60),
-      [profilePath("Akiho")]: minutesBefore(90),
       [planPath("on-trunk")]: minutesBefore(15),
-      [profilePath("Yuma")]: minutesBefore(60),
       [planPath("all-done")]: minutesBefore(20),
-      [profilePath("Sola")]: minutesBefore(60),
       [planPath("adviceless")]: minutesBefore(25),
-      [profilePath("Mana")]: minutesBefore(60),
+    },
+    history: {
+      [profilePath("Akiho")]: [addedAt(0x71, minutesBefore(90))],
+      [profilePath("Yuma")]: [addedAt(0x72, minutesBefore(60))],
+      [profilePath("Sola")]: [addedAt(0x73, minutesBefore(60))],
+      [profilePath("Mana")]: [addedAt(0x74, minutesBefore(60))],
     },
     branches: {
       [branch]: {
@@ -143,10 +146,7 @@ async function openedAtOpening(page: Page) {
             "Queue a story to show the advice on the card.",
           ),
         },
-        committed: {
-          [planPath("on-branch")]: minutesBefore(40),
-          [profilePath("Akiho")]: minutesBefore(90),
-        },
+        committed: { [planPath("on-branch")]: minutesBefore(40) },
       },
     },
   });

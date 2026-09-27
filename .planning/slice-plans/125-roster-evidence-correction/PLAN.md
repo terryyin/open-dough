@@ -101,6 +101,18 @@ plans one), live presence, historical commissions, and any new roster feature.
   rotation name.
 - Attribution is its own later partial of the same pinned read; its failures and
   latency stay per profile.
+- Execution decision (slice 4): a Taken card's clock and its human come from
+  the same per-snapshot addition read of its profile, so that clock waits only
+  for its own profile's addition, never for other profiles' credit. Slice 1's
+  held-addition proof moves to a Preparing profile's addition; holding the
+  Taken profile's addition leaves its clock and human reading until both fill,
+  and a walk unanswered at the bound is that clock's and that human's gap,
+  never the snapshot's read problem. A profile whose walk finds no addition
+  (more than the walk limit of changes, or a removal first) leaves the Take's
+  time a gap; no current flow modifies a profile. Each clock is
+  a later detail of the read: any of its reads still unanswered at the bound,
+  including its plan's last commit, is that clock's gap, and clocks appear one
+  by one instead of waiting for the slowest.
 - Execution chooses the single vocabulary (commission or assignment) and applies
   it to UI text, code identifiers, the gap CSS class, and the UX North Star, keeping
   wording consistent across surfaces.
@@ -176,16 +188,33 @@ project with no published files fakes an unreadable backlog.
 
 ### 4. One allocation rule dates the Take and names the human
 Type: Structure
-Status: planned
+Status: done
 Proof: The `committed=added` answer also carries the addition commit's
-committer date; the slice clock dates a Take from it. The profile branch of
+committer date; one addition read per profile per snapshot read feeds both the
+Take's slice clock and its human. The profile branch of
 `commitTimeReachableFromRevision` and the profile use of `committed=last` are
-removed. `taken-slice-clock.spec.ts` and the attribution journey keep their
-outcomes; a request-count assertion shows one fewer `gh` request per Taken
+removed. `taken-slice-clock.spec.ts` keeps its outcomes with per-commit fixture
+dates; slice 1's journey holds a Preparing profile's addition to show clocks do
+not wait for other credit, and holding the Taken profile's addition leaves its
+clock and human reading, then both fill, with the bound leaving gaps and no read
+problem. A request-count assertion shows one fewer `gh` request per Taken
 profile. Boundary refusals stay green.
 
-Correction: removes the split allocation rule (finding 4) under ADR 0002; no
-Behavior change.
+Correction: removes the split allocation rule (finding 4) under ADR 0002; the
+Taken clock now waits for its own profile's addition read, per the execution
+decision above.
+
+Accepted proof: the `committed=added` answer carries `committedAt`; one
+`profileAdditionsAt` memo per snapshot read feeds each commission's human and
+each Taken card's clock; `commitTimeReachableFromRevision` and the profile
+`committed=last` read are gone. `taken-slice-clock.spec.ts` keeps its
+outcomes and its request-list step shows two `gh` requests per Taken profile
+(was three). `profile-addition-latency.spec.ts` (split from the attribution
+spec): another profile's held addition never holds back a Taken clock; a held
+Taken addition keeps only that card's clock and human reading until both fill;
+the bound leaves their gaps and no read problem. Boundary refusals green;
+whole `npm run test:dashboard` 150/150. Gap wording for a later detail lives
+in `detailGapProblem` (`readWaitBound.ts`).
 
 ### 5. A changed avatar is fetched afresh
 Type: Behavior

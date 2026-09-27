@@ -1,19 +1,26 @@
 // When a Taken card's current slice started: the later of the associated
 // plan's last commit and the Take, the commit that added the entry's agent
-// profile. The plan's commit is read where its slices were read (the shown
-// revision, or the recorded branch head); the Take on trunk, at the shown
-// revision, where the profile was read. When no profile
-// records the Take the clock starts at the plan commit and says so; when the
-// profiles cannot say which commit was the Take, the clock is a gap. Commit
-// times come through the local authenticated boundary; how long ago that was
-// is left to the page clock (`./SliceClock.tsx`), so time passing asks
-// nothing further.
+// profile's current allocation. The plan's commit is read where its slices
+// were read (the shown revision, or the recorded branch head); the Take is
+// the read's one addition of that profile at the shown revision, where the
+// profile was read, the same addition that names its human
+// (`./commissionAttribution.ts`). When no profile records the Take the clock
+// starts at the plan commit and says so; when the profiles cannot say which
+// commit was the Take, or its addition cannot be found, the clock is a gap.
+// Commit times come through the local authenticated boundary; how long ago
+// that was is left to the page clock (`./SliceClock.tsx`), so time passing
+// asks nothing further.
 
+import type {
+  ProfileAddition,
+  ProfileAdditions,
+} from "./authenticatedProfileRead.ts";
 import { readLastCommitTimeAt } from "./authenticatedRead.ts";
 import { countedPlanBranch } from "./progressSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
 import { ReadProblem } from "./readProblem.ts";
+import { detailGapProblem } from "./readWaitBound.ts";
 
 export type SliceClock =
   | { readonly status: "loading" }
@@ -67,18 +74,35 @@ function countedPlanPathOf(entry: WorkEntry): string | undefined {
     : undefined;
 }
 
+// When the Take was: the committer date of the commit that added the
+// profile's current allocation. An addition the walk did not find, or one
+// without a usable date, leaves the Take time unknown.
+function takeTimeOf(addition: ProfileAddition): Date {
+  if (addition === null) {
+    throw new ReadProblem(
+      "The Take time cannot be determined: no commit adding the agent profile was found in its recent published history.",
+    );
+  }
+  if (addition.committedAt === null) {
+    throw new ReadProblem(
+      "The Take time cannot be determined: the commit that added the agent profile names no usable commit time.",
+    );
+  }
+  return new Date(addition.committedAt);
+}
+
 async function startOf(
   entry: WorkEntry,
   planPath: string,
   source: PublishedSource,
   revision: string,
+  additionOf: ProfileAdditions,
   signal: AbortSignal,
 ): Promise<SliceClock> {
   const take = takeSourceOf(entry);
   if (take.kind === "unknown") {
     return { status: "unavailable", problem: take.problem };
   }
-  const takeProfile = take.kind === "profile" ? take.path : undefined;
   try {
     const [planCommitted, taken] = await Promise.all([
       readLastCommitTimeAt(
@@ -88,9 +112,9 @@ async function startOf(
         signal,
         countedPlanBranch(entry),
       ),
-      takeProfile === undefined
-        ? undefined
-        : readLastCommitTimeAt(source, takeProfile, revision, signal),
+      take.kind === "profile"
+        ? additionOf(take.path).then(takeTimeOf)
+        : undefined,
     ]);
     return {
       status: "started",
@@ -100,10 +124,12 @@ async function startOf(
   } catch (error) {
     return {
       status: "unavailable",
-      problem:
-        error instanceof ReadProblem
-          ? error.message
-          : "The last plan commit or Take time could not be read.",
+      problem: detailGapProblem(
+        error,
+        signal,
+        "the last plan commit or the Take",
+        "The last plan commit or Take time could not be read.",
+      ),
     };
   }
 }
@@ -121,30 +147,40 @@ export function awaitingSliceClocks(work: PublishedWork): PublishedWork {
   };
 }
 
-// Reads each clock's start; a failed or abandoned read is that clock's gap.
+// Reads each clock's start from the read's profile additions (`additionOf`);
+// a failed or abandoned read is that clock's gap. Each clock is passed on to
+// `onClocked` as soon as its own reads end, so a slow Take delays only its own
+// clock.
 export async function withSliceClocks(
   work: PublishedWork,
+  additionOf: ProfileAdditions,
   signal: AbortSignal,
+  onClocked?: (work: PublishedWork) => void,
 ): Promise<PublishedWork> {
   const { source, revision } = work;
-  return {
-    ...work,
-    taken: await Promise.all(
-      work.taken.map(async (entry) => {
-        const planPath = countedPlanPathOf(entry);
-        return planPath === undefined
-          ? entry
-          : {
-              ...entry,
-              sliceClock: await startOf(
-                entry,
-                planPath,
-                source,
-                revision,
-                signal,
-              ),
-            };
-      }),
-    ),
-  };
+  let clocked = work;
+  await Promise.all(
+    work.taken.map(async (entry, index) => {
+      const planPath = countedPlanPathOf(entry);
+      if (planPath === undefined) {
+        return;
+      }
+      const sliceClock = await startOf(
+        entry,
+        planPath,
+        source,
+        revision,
+        additionOf,
+        signal,
+      );
+      clocked = {
+        ...clocked,
+        taken: clocked.taken.map((each, at) =>
+          at === index ? { ...each, sliceClock } : each,
+        ),
+      };
+      onClocked?.(clocked);
+    }),
+  );
+  return clocked;
 }

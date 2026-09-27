@@ -156,8 +156,17 @@ export async function lastCommitTimeViaGh(
       signal,
     )
   ).trim();
-  if (!committerDatePattern.test(committed)) {
+  const at = usableCommitterDate(committed);
+  if (at === null) {
     throw new GhFailure({ kind: "no-commit" });
   }
-  return new Date(committed).toISOString();
+  return at;
+}
+
+// A committer date GitHub named, as an ISO instant; null when it named none
+// in its own spelling.
+export function usableCommitterDate(date: unknown): string | null {
+  return typeof date === "string" && committerDatePattern.test(date)
+    ? new Date(date).toISOString()
+    : null;
 }

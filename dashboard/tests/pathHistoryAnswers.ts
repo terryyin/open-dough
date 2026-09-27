@@ -12,12 +12,14 @@ import {
 
 // One commit's change to a path as a history of that path records it: the
 // commit, GitHub's file status for the path, and the Git committer, with the
-// GitHub account GitHub matched to that committer, if any, and the avatar
-// address GitHub names for that account.
+// commit's committer date when it matters, the GitHub account GitHub matched
+// to that committer, if any, and the avatar address GitHub names for that
+// account.
 export type PathChange = {
   readonly sha: string;
   readonly status: "added" | "modified" | "removed";
   readonly committer: string;
+  readonly committedAt?: Date;
   readonly login?: string;
   readonly avatarUrl?: string;
 };
@@ -38,16 +40,27 @@ export function pathChange(
   };
 }
 
+// Commit number `n` adding a path at `committedAt`, as when an agent profile
+// records a Take then.
+export function addedAt(n: number, committedAt: Date): PathChange {
+  return { ...pathChange(n, "added", "Fixture Committer"), committedAt };
+}
+
 // Each published path's history, newest first.
 export type PathHistories = Readonly<Record<string, readonly PathChange[]>>;
 
-const committedAt = new Date("2026-09-20T08:00:00Z");
+// When a history's commits were made, unless one says.
+const committedByDefault = new Date("2026-09-20T08:00:00Z");
 
 // A commit of a path's history as GitHub describes it, with the account
 // GitHub matched to its committer.
 function historyCommit(change: PathChange) {
   return {
-    ...fixtureCommit(change.sha, change.committer, committedAt),
+    ...fixtureCommit(
+      change.sha,
+      change.committer,
+      change.committedAt ?? committedByDefault,
+    ),
     committer:
       change.login === undefined
         ? null
