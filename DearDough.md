@@ -415,6 +415,22 @@ dependents run correctly from inside the nested worktree with no setup step.
     instruction (e.g. "run the command, not a `node_modules` existence
     check, before reporting a tooling gap") would prevent recurrence was not
     tested here.
+- Execution: `SEED-028#one-shot-entry-coherence @ 49b81831`
+  - Timestamp: unknown; 2026-09-27 between 9447617c and 49b81831
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance VERSION 0.3.42 at 9447617c
+  - Evidence: the slice 1 implementation report said `node scripts/lint.mjs`
+    "cannot run in this worktree because it has no `node_modules`" and ran the
+    main checkout's `prettier --check` and `eslint` instead; the coordinator
+    had run `npm ci` in `.worktrees/one-shot-entry-coherence` at setup, then
+    `ls node_modules` there listed packages and `npm run format` passed.
+  - Observed effect: an implementation agent, not only a refactor pass, made
+    the false absence claim, this time with the worktree's own locked install
+    present, and substituted tooling from another checkout, which execution
+    location guidance rules out; coordinator formatting caught nothing wrong.
+  - Inference: Qualified. Delegation for this run named no lint command to
+    run in the workspace; the check that produced the claim was not recorded.
 
 ## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
 

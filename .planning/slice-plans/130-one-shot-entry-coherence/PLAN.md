@@ -114,3 +114,14 @@ routes one-shot back to escalation. Once-only Git wrapper tests use
 | 1 | Behavior walk of both entry skills with one-shot; `--no-replan` growth reads as escalate-then-stop |
 | 2 | Edited sentences name the fetched-trunk one-shot base; guidance tests pass |
 | 3 | Trunk-advance race case |
+
+## Execution complete
+
+Product advice: keep priorities. [Native one-shot acceptance](../../seeds/SEED-028-track-ad-hoc-work.md#native-one-shot-acceptance)
+is unblocked once this correction reaches trunk; when refining it, extend the
+`publication/one-shot-escalation` case to growth under `--no-replan` from bug
+fixing (escalate, then stop before planning with the edits restored). The
+trunk-advance escalation race keeps mechanical proof only. Scheduling its paid
+manual runs alongside
+[native premise acceptance](../../seeds/SEED-044-verify-planning-premises.md#native-premise-acceptance-codex-cursor)
+is an option, not a priority change.
