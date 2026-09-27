@@ -655,7 +655,7 @@ Formatting selected by checkout state touches or judges another live slice’s u
 
 - **Sources:** [pygardon / DD-121](../../../pygardon/DearDough.md#odf-128--selective-formatting-of-the-whole-checkout-conflicts-with-concurrent-slices-in-one-execution-worktree); [open-dough / DD-117 (recovered from 48a0415)](../../DearDough.md#odf-128--a-whole-repository-formatter-coupled-concurrent-slices-deliveries).
 - **Assessment (2026-09-27):** Six distinct executions: Pygardon plans 212, 214, 215, 219, 216 and Open Dough plan 127. Releases 0.3.41, 0.3.42 and unknown; no lost edits, but repeated deviations, a held delivery and one formatter failure. Recovery of Open Dough plan 127 is historical evidence, not an additional new execution.
-- **Follow-up:** queued, not resolved: [Execute a plan's slices in sequence](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#isolate-parallel-slice-delivery).
+- **Response:** `1d3a26cd`, unreleased after 0.3.42: execution runs a plan's slices one at a time in plan order, each finishing its delivery before the next starts, so no second slice of the same plan writes in its checkout; delegation and delivery keep the stash, separate-baseline and owned-staging protections for their independent reasons. Delivered proof only: the guidance test `shared-checkout-writers-guidance.test.mjs`, red first. Effectiveness is unobserved until an execution using a release containing it runs a multi-slice plan.
 
 <a id="odf-129"></a>
 
@@ -665,7 +665,7 @@ Whole-suite proof runs against a checkout another slice is changing, producing f
 
 - **Sources:** [open-dough / DD-109](../../DearDough.md#odf-129--full-suite-proof-in-a-checkout-another-agent-was-editing-reported-false-failures).
 - **Assessment (2026-09-27):** One execution, plan 107; release unknown. One wasted full suite and diagnosis. Unlike ODF-082, the unstable observer is a test run rather than a refactor reviewer; no common cause beyond shared-checkout mutation is asserted.
-- **Follow-up:** queued, not resolved: [Execute a plan's slices in sequence](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#isolate-parallel-slice-delivery).
+- **Response:** `1d3a26cd`, unreleased after 0.3.42: execution runs a plan's slices one at a time in plan order, each finishing its delivery before the next starts, so no second slice of the same plan writes in its checkout; delegation and delivery keep the stash, separate-baseline and owned-staging protections for their independent reasons. Delivered proof only: the guidance test `shared-checkout-writers-guidance.test.mjs`, red first. Effectiveness is unobserved until an execution using a release containing it runs a multi-slice plan.
 
 <a id="odf-130"></a>
 
@@ -675,7 +675,7 @@ File-disjoint concurrent slices share a test output directory, allowing one run 
 
 - **Sources:** [open-dough / DD-106](../../DearDough.md#odf-130--concurrent-slices-in-one-checkout-shared-playwrights-output-directory).
 - **Assessment (2026-09-27):** One plan 113 execution, modified 1b66466 based on 0.3.41; one Playwright ENOENT proof run, isolated rerun 4/4. Different resource from ODF-129’s source snapshot.
-- **Follow-up:** queued, not resolved: [Execute a plan's slices in sequence](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#isolate-parallel-slice-delivery).
+- **Response:** `1d3a26cd`, unreleased after 0.3.42: execution runs a plan's slices one at a time in plan order, each finishing its delivery before the next starts, so no second slice of the same plan writes in its checkout; delegation and delivery keep the stash, separate-baseline and owned-staging protections for their independent reasons. Delivered proof only: the guidance test `shared-checkout-writers-guidance.test.mjs`, red first. Effectiveness is unobserved until an execution using a release containing it runs a multi-slice plan.
 
 <a id="odf-131"></a>
 
@@ -685,7 +685,7 @@ A delegated git rm stages unfinished sibling work; committing the whole index in
 
 - **Sources:** [pygardon / DD-127](../../../pygardon/DearDough.md#odf-131--a-concurrent-slices-staged-deletion-was-swept-into-another-slices-commit).
 - **Assessment (2026-09-27):** One plan 215 execution; release unknown. One amend before publication, no incorrect publication. Distinct from ODF-029 owner catch-all staging and ODF-105 stashing live files. The latter’s 86e5069 / 0.3.42 response does not prohibit delegated index writes; this unknown-release report cannot establish post-fix recurrence.
-- **Follow-up:** queued, not resolved: [Execute a plan's slices in sequence](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#isolate-parallel-slice-delivery).
+- **Response:** `1d3a26cd`, unreleased after 0.3.42: execution runs a plan's slices one at a time in plan order, each finishing its delivery before the next starts, so no second slice of the same plan writes in its checkout; delegation and delivery keep the stash, separate-baseline and owned-staging protections for their independent reasons. Delivered proof only: the guidance test `shared-checkout-writers-guidance.test.mjs`, red first. Effectiveness is unobserved until an execution using a release containing it runs a multi-slice plan.
 
 <a id="odf-132"></a>
 
@@ -902,4 +902,4 @@ An implementer temporarily replaces its shared-checkout files with HEAD versions
 
 - **Sources:** [Donut / DD-141](../../../doughnut/DearDough.md#odf-155--an-implementer-proved-fails-first-by-putting-head-versions-back-in-the-shared-execution-checkout).
 - **Assessment (2026-09-27):** One plan 021 / f8087d5845 execution, release unknown; no other writer active, no damage, intended diff restored. The return demonstrates bypass of the supplied rule; unknown release cannot establish recurrence after `86e5069` / 0.3.42. Distinct from foreign stash restoration (ODF-093) and concurrent proof reading sibling edits (ODF-129).
-- **Follow-up:** queued, not resolved: [Execute a plan's slices in sequence](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#isolate-parallel-slice-delivery). This is a related baseline practice, not a ninth observed interference execution.
+- **Follow-up:** none. Sequential slice execution (`1d3a26cd`) did not address it: no other writer was active, and the supplied separate-baseline rule was bypassed. This is a related baseline practice, not a ninth observed interference execution.

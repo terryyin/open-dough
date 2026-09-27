@@ -6,8 +6,10 @@
 
 [Correction story](../../seeds/SEED-008-worktree-branch-trunk-sync.md#restate-ci-pause-ownership)
 from the execution retrospective of
-[Execute a plan's slices in sequence](../../seeds/SEED-008-worktree-branch-trunk-sync.md#isolate-parallel-slice-delivery)
-(plan 131; implementation commit `1d3a26cd`, Take `cc9a60e0`).
+"Execute a plan's slices in sequence" (SEED-008#isolate-parallel-slice-delivery;
+story `.planning/seeds/SEED-008-worktree-branch-trunk-sync.md` and plan
+`.planning/slice-plans/131-execute-slices-in-sequence/PLAN.md` at `92703196`;
+implementation commit `1d3a26cd`, Take `cc9a60e0`).
 
 ## Goal and scope
 

@@ -197,79 +197,13 @@ the unresolved relationship between Story Branch Mode's delayed integration and
 Accepted ADR 0002; human resolution of that question remains separate from this
 Git migration.
 
-<a id="isolate-parallel-slice-delivery"></a>
-
-### Execute a plan's slices in sequence
-
-**Identity:** SEED-008#isolate-parallel-slice-delivery
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/131-execute-slices-in-sequence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e3fd7b45fc3270795c544792ed8892c74e786a59022bd9ad3a93ca6b50c5e156","plan":"eaefb0f15de9fe12ffe9d278c02cba6c7938269e2745d7be589213150264e193"}}
-```
-
-**Beneficiary:** Developers and coordinators executing a plan, whose slice
-proof, formatting and commits must describe that slice's own candidate.
-
-**Goal:** Within one plan, slices execute one after another in plan order, each
-completing its delivery before the next starts. Parallelism comes from separate
-stories in separate worktrees, now and as Trunk Mode gains better support for
-several concurrent stories. Terry confirmed on 2026-09-27 that running a plan's
-slices concurrently was never intended: the permission arrived with the
-2026-09-09 extraction from Doughnut, where it had been added on 2026-07-15 for
-GSD's parallel waves of whole plans with declared touch sets.
-
-**Scope:** Execution guidance states the sequential default and loses the
-permission to run a plan's slices concurrently. Guidance written for a
-concurrent sibling slice sharing the execution checkout (delegation's ownership
-statement, delivery's staging step, and their guidance test) is restated for
-sequential execution. Protections with an independent reason stay: the Git
-stash stack is shared across worktrees, a pre-change baseline comes from a
-separate checkout, and humans or other sessions may still leave unowned work.
-Planning and plan refinement already describe an ordered sequence of slices;
-change them only where wording encourages concurrent or reordered slice
-execution. Removed behavior is deleted, not replaced by a statement that it no
-longer happens. Work inside one slice may still use parallel helpers.
-
-Excluded: any opt-in for concurrent or reordered slices (Terry, 2026-09-27);
-isolation machinery such as per-slice worktrees, owned-path formatting or
-per-slice test output; parallel stories and Trunk Mode support for them; ADR
-changes (the check found no Accepted ADR governing slice concurrency, and ADR
-0002 principles 2 and 5 support story-level parallelism decided in advance);
-native host runs. [ODF-155](../../docs/maintainer/finding-names.md#odf-155)
-involved no concurrent writer and is not addressed here.
-
-**Key examples:**
-
-- A plan has two slices that touch different files → execution delegates the
-  first, delivers it (proof, formatting, commit, publication), then starts the
-  second from that result; the second slice's proof and commit contain only its
-  own candidate.
-- A delegated implementer needs a pre-change baseline → it still takes it from
-  a separate temporary checkout or reports the need, and still leaves the
-  shared stash stack alone.
-- A human's unrelated staged file is present at delivery → the coordinator
-  still stages only owned paths and resolves the unrelated content with its
-  owner.
-- An ordinary single-slice or quick execution delivers exactly as before.
-
-**Findings:** [ODF-128](../../docs/maintainer/finding-names.md#odf-128),
-[ODF-129](../../docs/maintainer/finding-names.md#odf-129),
-[ODF-130](../../docs/maintainer/finding-names.md#odf-130),
-[ODF-131](../../docs/maintainer/finding-names.md#odf-131).
-
-**Completion:** Record the actual response, implementation commit and first
-containing release on ODF-128 to ODF-131 in the catalog, distinguishing
-delivered proof from later effectiveness. Record on ODF-155 that this story did
-not address it, so its follow-up no longer points here.
-
-**Depends on:** Nothing unfinished.
-
 <a id="restate-ci-pause-ownership"></a>
 
 ### Restate the CI pause's preservation for sequential slices
 
 **Identity:** SEED-008#restate-ci-pause-ownership
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/132-restate-ci-pause-ownership/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bb3f5720f430c3c4aa82ccfb50a055bfecd4576f6cabc9f919bd5bd51eed9cbf","plan":"3ac6e7381bbcacae748e0cefcbb8f80be35c0d565ccc6c560e41b92555745a28"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/132-restate-ci-pause-ownership/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"44411498e7bcd6eebd01498cbd306decc86bb02ed6febd8c406d95b7e6d1a382","plan":"f16ae36b5ddeedacb2ef059b4b699d64da121e193e29c8f0497cf815add12e88"}}
 ```
 
 **Goal:** A paused implementation or refactor agent reads the same reason to
@@ -277,7 +211,8 @@ preserve unowned work in the execution checkout as its delegation gives it:
 unowned work from humans or other sessions may be present, not a concurrent
 agent of the same execution.
 
-**Scope:** Correction of [Execute a plan's slices in sequence](#isolate-parallel-slice-delivery)
+**Scope:** Correction of "Execute a plan's slices in sequence" (story section
+`.planning/seeds/SEED-008-worktree-branch-trunk-sync.md` at `92703196`)
 from its execution retrospective (commit `1d3a26cd`). That story restated
 concurrent-writer guidance for sequential execution in delegation and delivery
 staging, but the CI pause contract in `dough-execute-plan/references/ci-monitor.md`
