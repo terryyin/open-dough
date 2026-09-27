@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Honoka-chan",
+  "email": "honoka-chan@example.org",
+  "identity": "SEED-046#ci-verdict-correction",
+  "mode": "story-branch",
+  "branch": "cursor/126-ci-verdict-correction",
+  "host": "cursor",
+  "model": "kimi-k3"
+}

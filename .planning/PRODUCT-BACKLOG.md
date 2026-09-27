@@ -15,10 +15,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 - [Keep roster and human credit honest under slow or odd evidence](seeds/SEED-049-project-agent-roster.md#roster-evidence-correction) — SEED-049#roster-evidence-correction ([plan](slice-plans/125-roster-evidence-correction/PLAN.md))
 - [Keep each dashboard test on a server it started, even beside another worktree's suite](seeds/SEED-046-test-and-ci-optimization-round-2.md#dashboard-port-race) — SEED-046#dashboard-port-race
+- [Keep the split test runner and CI's split in one place each](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-correction) — SEED-046#ci-verdict-correction ([plan](slice-plans/126-ci-verdict-correction/PLAN.md))
 
 ## Backlog list
 
-- [Keep the split test runner and CI's split in one place each](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-correction) — SEED-046#ci-verdict-correction
 - [Keep product guards provable and the CI-platform command faithful](seeds/SEED-048-explicit-test-environment.md#test-environment-correction) — SEED-048#test-environment-correction
 - [Report conflicting CI repair restores truthfully and drop through the script](seeds/SEED-008-worktree-branch-trunk-sync.md#truthful-repair-restore) — SEED-008#truthful-repair-restore
 - [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers
