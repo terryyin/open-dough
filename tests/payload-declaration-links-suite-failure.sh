@@ -10,8 +10,9 @@ cp -- "${source_dir}/install.sh" "${fixture}/"
 cp -- "${source_dir}/src/install/open-dough-release-version.sh" "${fixture}/src/install/"
 cp -R -- "${source_dir}/src/skills" "${fixture}/src/"
 cp -- "${source_dir}/tests/payload-declaration-links.sh" "${fixture}/tests/"
+# The runner and the parts it sources or runs.
 cp -- "${source_dir}/scripts/test.sh" "${source_dir}/scripts/test-jobs.sh" \
-  "${source_dir}/scripts/lost-setpgid-race.bash" "${fixture}/scripts/"
+  "${source_dir}"/scripts/*.bash "${fixture}/scripts/"
 # This disposable suite owns only payload-declaration-links.sh. Self-installation
 # of the maintainer checkout is independent of the story-link declaration check.
 printf '#!/usr/bin/env bash\nexit 0\n' > "${fixture}/scripts/check-self-installation.sh"

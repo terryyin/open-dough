@@ -1,24 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# scripts/test.sh [path…] runs the named checks, or with none, the whole suite.
+caller_dir=${PWD}
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 cd -- "${source_dir}"
 # shellcheck disable=SC1091
 # shellcheck source=scripts/lost-setpgid-race.bash
 source scripts/lost-setpgid-race.bash
 
-# Tests run in child shells, so check the bash they will actually use. Bash 5
-# is the floor: this runner, normally that same PATH bash, reads EPOCHREALTIME.
-test_bash=$(command -v bash)
-# Expand BASH_VERSION in the child shell, not this runner.
-# shellcheck disable=SC2016
-test_bash_version=$("${test_bash}" -c 'printf "%s" "${BASH_VERSION}"')
-if [[ ${test_bash_version%%.*} -lt 5 ]]; then
-  printf 'FAIL: shell tests require Bash 5 or newer; resolved %s (version %s).\n' \
-    "${test_bash}" "${test_bash_version}" >&2
-  printf 'Install Bash 5 or newer and put its bin directory first on PATH, then rerun the tests.\n' >&2
-  exit 1
-fi
+# shellcheck disable=SC1091
+# shellcheck source=scripts/test-environment.bash
+source "${source_dir}/scripts/test-environment.bash"
+# The sourced environment resolves the Bash every check runs in.
+readonly test_bash
 
 # The runner is the one scheduler: every shell check and every `node --test`
 # file is its own job, and no job runs a worker pool of its own. Each job keeps
@@ -80,11 +75,13 @@ run_job() {
   printf '\n' >&3
 }
 
-# scripts/test-jobs.sh lists this run's jobs in start order, from the checks in
-# OPEN_DOUGH_TEST_DIR (default `tests`) and OPEN_DOUGH_TEST_SPLIT's share. Like
+# scripts/test-jobs.sh lists this run's jobs in start order: the named checks,
+# resolved from the caller's directory, or with none every check in
+# OPEN_DOUGH_TEST_DIR (default `tests`), and OPEN_DOUGH_TEST_SPLIT's share. A
+# bad path fails the run here, before any job starts. Like
 # OPEN_DOUGH_TEST_TIMES, jobs do not inherit the split, so a runner that a
 # check starts runs all of its own checks.
-"${test_bash}" scripts/test-jobs.sh > "${output_root}/jobs"
+"${test_bash}" scripts/test-jobs.sh --from "${caller_dir}" "$@" > "${output_root}/jobs"
 unset OPEN_DOUGH_TEST_SPLIT
 kinds=()
 labels=()
@@ -209,8 +206,10 @@ for index in "${!labels[@]}"; do
   seconds=$(job_seconds "${index}")
   printf '%s\t%s\n' "${seconds}" "${labels[index]}"
 done | sort -rn > "${times_file}"
-# The time budget is CI's: only a CI run (`CI=true`) is judged against it.
+# The time budget is CI's and the whole suite's (or a split share's): only a CI
+# run (`CI=true`) without chosen checks is judged against it.
 budget="${OPEN_DOUGH_TEST_DIR:-tests}/time-budget"
-[[ ${CI:-} != true || ! -f ${budget} ]] || "${test_bash}" scripts/test-budget.sh "${budget}" "${times_file}" || status=1
+[[ ${CI:-} != true ]] || (($#)) || [[ ! -f ${budget} ]] \
+  || "${test_bash}" scripts/test-budget.sh "${budget}" "${times_file}" || status=1
 
 exit "${status}"

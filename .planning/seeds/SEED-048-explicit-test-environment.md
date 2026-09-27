@@ -38,100 +38,25 @@ check and a suite-wide "assert behavior, not wording" sweep.
 
 ## Stories
 
-<a id="explicit-test-environment"></a>
+<a id="test-environment-correction"></a>
 
-### Make every check's shell and Git environment explicit and reproduce CI's platform with one command
+### Keep product guards provable and the CI-platform command faithful
 
-**Identity:** SEED-048#explicit-test-environment
+**Identity:** SEED-048#test-environment-correction
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/120-explicit-test-environment/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"51cff6f6fe636c31e1cb3c20d5c52a3169b4fd52f5476efd0aded70e0be04c15","plan":"d2357ccca00d4a10800359a2f6c3339a52b85a51ab23262b91671d826d358474"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/127-test-environment-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"28f3a38dfdf850c1efe0ef2e9f38b67296a7f18746da46c35e573a6aa430c02b","plan":"05bfa801099db93433499aedf0caa91fdddd7f0363879e8879a843a3217a8e07"}}
 ```
 
-**Goal:** A maintainer or agent running checks locally gets the result CI
-would give, whatever their machine's Git configuration or default Bash, and
-when a CI-only difference remains, reproduces it on CI's platform with one
-command instead of hand-building a container. This keeps trunk's CI verdict
-trustworthy for parallel agents publishing to it.
+**Goal:** A maintainer or agent can trust that a passing local check still
+proves the product's own safeguards, and that `scripts/ci-container.sh` runs
+chosen checks and the dashboard suite as CI does or says clearly why it
+cannot, without the test documentation growing past what readers can use.
 
-**Scope:**
-
-1. **One Git environment where checks start.** `scripts/test.sh` gives every
-   check it runs CI's Git state: no global or system configuration, and
-   background maintenance off. It supplies no Git identity, because CI has
-   none; a check that commits without setting one fails locally as it does on
-   CI. Fixture helpers no longer need to turn off maintenance themselves.
-2. **Chosen checks through the runner.** `scripts/test.sh` (and `npm test --`)
-   accepts shell-check and `node --test` file paths and runs only those, with
-   the same Bash-5 check and Git environment as a full run. A focused run is
-   not judged against the suite's time budget. The tests README names the
-   runner as the way to run any check; running a check file directly is
-   unsupported.
-3. **One CI-matching diagnosis command.** A script runs chosen checks, the
-   whole shell and node suite, or the dashboard browser suite in an Ubuntu
-   24.04 container with CI's Git version, Node 24, `jq`, and Playwright
-   Chromium installed as CI installs it. It works from the default checkout or
-   any linked worktree, and stops with a clear message when no container
-   runtime is available. It is for diagnosis only and not part of `npm test`
-   or CI.
-4. **The stash check asserts behavior, not Git's wording.**
-   `ci-repair-stash.test.mjs` proves a failed save by its status, recorded
-   `oid`, and unchanged files, not by Git's error text, so it passes under
-   Ubuntu 24.04's stock Git 2.43 as well as CI's Git.
-
-**Key examples:**
-
-1. A maintainer's `~/.gitconfig` sets `maintenance.auto true`, a user
-   identity, and `init.defaultBranch trunk` → `npm test` → fixture
-   repositories run no background maintenance and see the defaults CI sees;
-   a check that commits without its own identity fails locally as on CI.
-2. An agent's `PATH` resolves `/bin/bash` 3.2 → `npm test -- tests/<name>.sh`
-   → the run stops at once naming the Bash it needs. With Bash 5 first on
-   `PATH`, only that check runs, under the same Git environment as a full run.
-3. A check fails only on CI → the maintainer runs the diagnosis command with
-   that check from a linked worktree → it runs on CI's platform without manual
-   container setup. Reverting `15362af`'s fix and running the dashboard
-   browser suite through it shows the 320 px failure CI showed. If CI's fonts
-   cannot be matched, the command still runs the browser suite, and the
-   tests README says font-dependent layout differences are not reproduced.
-
-**Constraints:**
-
-- Shipped product and installer scripts keep running under macOS Bash 3.2;
-  `src/install/open-dough-release-version.sh` already guards for it. The Bash-5
-  floor applies to the test runner and checks only.
-- Paid native-agent runs (`--native …`) stay manually triggered. They inherit
-  the runner's Git environment when started through it, but no automated run
-  verifies them.
-
-**Out of scope:** running every check in a container; a macOS CI runner;
-pinning CI's Git version; a Bash-version prelude in every check file; a
-suite-wide sweep for message-text or output-format assertions beyond the stash
-check; the macOS `/usr/bin/git` launcher's effect on local timing (SEED-046's
-measurement concern); running lint (`shellcheck`, `shfmt`) in the diagnosis
-container.
-
-**Evidence (SEED-037, 2026-09-26 and 2026-09-27):**
-
-- **Git background maintenance.** CI's Git 2.55 ran a detached auto-maintenance
-  repack after a fixture commit, removing `.git/objects/xx` directories while
-  a snapshot walked them; `tests/native-delivery-updated-use.sh` failed on CI
-  in 1 of 4 runs and never locally. Repaired for that fixture by
-  `configure_fixture_git` and pruning `.git` in snapshots; fixtures that
-  commit with inline `-c` identity still leave maintenance on.
-- **Git message text.** `ci-repair-stash.test.mjs` fails under Git 2.39 and
-  2.43 because it matches Git's error wording.
-- **Bash 3.2.** macOS `/bin/bash` 3.2 lets a failing standalone `[[ ]]` pass
-  under `set -e` (finding ODF-061). `scripts/test.sh` refuses Bash older than
-  5, but always runs the whole suite, so focused runs bypass it; every agent
-  brief prepended `PATH=/opt/homebrew/bin`, and one measurement run silently
-  did nothing under 3.2.
-- **Operating-system output.** The dashboard's 320 px checks clipped a
-  fraction of a pixel only with CI's fonts (red main at `762253a` and
-  `bfdf893`, repaired in `15362af`).
-- **Hand-built Linux reproduction.** Agents rebuilt a CI-matching container
-  three times and each tripped on setup: a missing `jq`, installing Git 2.55
-  from a PPA, and the worktree's `.git` file not resolving inside the
-  container.
+**Scope:** The bounded retrospective correction of
+plan 120 (recoverable at
+`8de2d7f:.planning/slice-plans/120-explicit-test-environment/PLAN.md`) described in
+[its correction plan](../slice-plans/127-test-environment-correction/PLAN.md).
+It adds no feature promise.
 
 ## When to Surface
 
