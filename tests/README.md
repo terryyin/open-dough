@@ -35,8 +35,9 @@ temporary directory. `OPEN_DOUGH_TEST_JOBS` selects another count, 1 or more.
 Jobs named in `tests/longest-first` start first, in that order, so the longest
 job does not start last; the rest follow. `OPEN_DOUGH_TEST_TIMES=<file>`
 writes every job's wall seconds and name, longest first, which is how that
-list is refreshed (see its header). CI's `test` check keeps that file for
-seven days as its `test-times` workflow artifact.
+list is refreshed (see its header). Jobs do not inherit it, so a check that
+runs the runner itself keeps its own times. CI's `test` check keeps that file
+for seven days as its `test-times` workflow artifact.
 
 The suite's time budget lives in `tests/time-budget`: two numbers, a per-job
 ceiling (`per-job-seconds`) and a total ceiling over all jobs

@@ -28,6 +28,11 @@ if ((job_slots < 1)); then
 fi
 
 output_root=$(mktemp -d)
+# Each job's seconds and label, longest first; see scripts/test-budget.sh.
+# OPEN_DOUGH_TEST_TIMES names this run's file; jobs do not inherit it, so a
+# runner that a check starts keeps its times in its own output.
+times_file=${OPEN_DOUGH_TEST_TIMES:-${output_root}/times}
+unset OPEN_DOUGH_TEST_TIMES
 # fd 4 keeps the runner's stderr while it goes to a launching job's launch file
 # (see the launch loop); an exit mid-launch restores it and shows that file.
 exec 4>&2
@@ -238,8 +243,6 @@ for index in "${!labels[@]}"; do
   report_job "${index}"
 done
 
-# Each job's seconds and label, longest first; see scripts/test-budget.sh.
-times_file=${OPEN_DOUGH_TEST_TIMES:-${output_root}/times}
 for index in "${!labels[@]}"; do
   seconds=$(job_seconds "${index}")
   printf '%s\t%s\n' "${seconds}" "${labels[index]}"
