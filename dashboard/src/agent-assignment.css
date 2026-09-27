@@ -1,7 +1,7 @@
 /* Who holds a Taken card's work, or is preparing a queued card's work: the
    developer summary with its agent portrait opener and the mode and host marks
-   beside their labels, the credited human developer, branch context, and
-   unreadable profiles. */
+   beside their labels, the credited human developer with their avatar,
+   branch context, and unreadable profiles. */
 
 .card-owner {
   margin-top: 0.35rem;
@@ -43,6 +43,33 @@
 .owner-human,
 .owner-branch {
   font-size: 0.9rem;
+}
+
+/* A credited human's GitHub avatar, or its initials when there is none,
+   beside the name. */
+.owner-human-credit {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.human-avatar {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.human-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--edge);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 0.65rem;
+  font-weight: 600;
 }
 
 .unreadable-profiles {

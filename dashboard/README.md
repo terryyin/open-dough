@@ -152,10 +152,17 @@ back until the change that added the file, so a later modification of the
 profile names nobody, and a removal ends the walk before an older allocation of
 the same rotating name. When no addition is found, the adding commit names no
 usable committer, or the history cannot be read, the card and roster say the
-human developer is unknown and why, never guessing from another commit. The
-GitHub account GitHub matched to that committer is carried with the name but
-not yet shown. A name credits the commission; it never says anyone is working
-now.
+human developer is unknown and why, never guessing from another commit.
+Beside a credited name is the avatar of the GitHub account GitHub matched to
+that same committer. The local boundary fetches it from the avatar address
+GitHub named for that account (only an https address on GitHub's avatar host,
+bounded in size, time, and image type) and keeps it in the running dashboard
+process, so each account's avatar is read from GitHub once however often cards
+and the roster show it; the page asks only the local boundary, naming a
+profile and revision, never an account or image address. When no account was
+matched, or its avatar is refused or cannot be fetched, the name stays with its
+initials. A name or avatar credits the commission; neither says anyone is
+working now.
 
 Each Taken card with a readable plan also shows its recorded slice progress: a
 bar with one segment per slice, filled for each slice recorded complete, and

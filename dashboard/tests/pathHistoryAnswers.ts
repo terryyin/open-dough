@@ -3,6 +3,7 @@
 // ./originAnswers.ts's answers by ./support/fakeGitHub.ts and
 // ./publishedFiles.ts.
 
+import { onAvatarHost } from "./avatarAnswers.ts";
 import {
   commitListFor,
   fixtureCommit,
@@ -11,13 +12,31 @@ import {
 
 // One commit's change to a path as a history of that path records it: the
 // commit, GitHub's file status for the path, and the Git committer, with the
-// GitHub account GitHub matched to that committer, if any.
+// GitHub account GitHub matched to that committer, if any, and the avatar
+// address GitHub names for that account.
 export type PathChange = {
   readonly sha: string;
   readonly status: "added" | "modified" | "removed";
   readonly committer: string;
   readonly login?: string;
+  readonly avatarUrl?: string;
 };
+
+// Commit number `n`'s change to a path, by `committer`, matched to `account`
+// when given.
+export function pathChange(
+  n: number,
+  status: PathChange["status"],
+  committer: string,
+  account?: { readonly login: string; readonly avatarUrl?: string },
+): PathChange {
+  return {
+    sha: n.toString(16).padStart(2, "0").repeat(20),
+    status,
+    committer,
+    ...account,
+  };
+}
 
 // Each published path's history, newest first.
 export type PathHistories = Readonly<Record<string, readonly PathChange[]>>;
@@ -34,7 +53,7 @@ function historyCommit(change: PathChange) {
         ? null
         : {
             login: change.login,
-            avatar_url: `https://avatars.githubusercontent.com/u/1?v=4`,
+            avatar_url: change.avatarUrl ?? onAvatarHost("/u/1"),
           },
   };
 }

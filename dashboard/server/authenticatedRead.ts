@@ -18,8 +18,11 @@
 // pinned-text memo: `./pinnedTexts.ts`; revision checks:
 // `./performedRevisionCheck.ts` and `./revisionChecks.ts`; resolved branch
 // heads: `./branchHeads.ts`; one request's `gh` lifetime: `./trackedGh.ts`;
-// failure wording and any directed wait: `./readFailureMessage.ts`. Node-only; never returns credentials, raw
-// stderr, or an arbitrary path proxy.
+// failure wording and any directed wait: `./readFailureMessage.ts`. Beside
+// it, a second path serves the GitHub avatar of the human credited for one
+// listed profile (`./avatarRead.ts`, images kept by `./avatarImages.ts`).
+// Node-only; never returns credentials, raw stderr, or an arbitrary path or
+// image proxy.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect } from "vite";
@@ -27,21 +30,28 @@ import { RefusedRead, verifyLocalOrigin } from "./localOrigin.ts";
 import { PinnedTexts } from "./pinnedTexts.ts";
 import { RevisionChecks } from "./revisionChecks.ts";
 import { BranchHeads } from "./branchHeads.ts";
+import { AvatarImages } from "./avatarImages.ts";
+import { performAvatarRead, type AvatarOutcome } from "./avatarRead.ts";
 import { perform, type Boundary } from "./performedRead.ts";
 import type { Outcome } from "./readOutcome.ts";
 import { parseRequestedRead } from "./requestedRead.ts";
-import { sourceById } from "../src/publishedSource.ts";
-// The one endpoint path, shared with the browser reader.
-import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
+import { sourceById, type PublishedSource } from "../src/publishedSource.ts";
+// The endpoint paths, shared with the browser.
+import {
+  authenticatedAvatarEndpoint,
+  authenticatedReadEndpoint,
+} from "../src/authenticatedReadRules.ts";
 
 // Only a request naming a catalog source already known to
 // `../src/publishedSource.ts` is answered; there is no arbitrary
 // repository, path, or shell command acceptance here. Extra file reads must
 // name a pinned revision and a path reachable from that revision's records.
-async function answer(
+// The catalog source an accepted request names, or why it is refused: both
+// endpoints answer only a local same-origin GET naming a known source.
+function admitted(
   req: IncomingMessage,
-  boundary: Boundary,
-): Promise<Outcome> {
+  params: URLSearchParams,
+): PublishedSource | Extract<Outcome, { readonly kind: "refused" }> {
   try {
     verifyLocalOrigin(req);
   } catch (error) {
@@ -57,26 +67,53 @@ async function answer(
       message: "Only GET is accepted here.",
     };
   }
-  const url = new URL(req.url ?? "", "http://placeholder");
-  const id = url.searchParams.get("source");
+  const id = params.get("source");
   const source = id === null ? undefined : sourceById(id);
-  if (!source) {
-    return { kind: "refused", status: 404, message: "Unknown catalog source." };
+  return (
+    source ?? {
+      kind: "refused",
+      status: 404,
+      message: "Unknown catalog source.",
+    }
+  );
+}
+
+async function answer(
+  req: IncomingMessage,
+  boundary: Boundary,
+  url: URL,
+): Promise<Outcome | AvatarOutcome> {
+  const source = admitted(req, url.searchParams);
+  if ("kind" in source) {
+    return source;
+  }
+  if (url.pathname === authenticatedAvatarEndpoint) {
+    return performAvatarRead(req, boundary, source, url.searchParams);
   }
   const read = parseRequestedRead(url.searchParams);
   return read.kind === "refused" ? read : perform(req, boundary, source, read);
 }
 
-function respond(res: ServerResponse, outcome: Outcome): void {
+function respond(res: ServerResponse, outcome: Outcome | AvatarOutcome): void {
   // Disconnect is a cancellation trigger; a closed response has no audience.
   if (res.writableEnded || res.destroyed) {
     return;
   }
-  // Never cache: answers may differ per invocation and must not linger.
+  // Never cache: answers may differ per invocation and must not linger. An
+  // avatar is kept by this process instead.
   const headers = {
     "Cache-Control": "no-store",
     "Content-Type": "application/json",
   };
+  if (outcome.kind === "image") {
+    res.writeHead(200, {
+      ...headers,
+      "Content-Type": outcome.image.contentType,
+      "X-Content-Type-Options": "nosniff",
+    });
+    res.end(outcome.image.bytes);
+    return;
+  }
   if (outcome.kind === "answered") {
     res.writeHead(200, headers);
     res.end(JSON.stringify(outcome.answer));
@@ -93,14 +130,9 @@ function respond(res: ServerResponse, outcome: Outcome): void {
   );
 }
 
-function matchesEndpoint(req: IncomingMessage): boolean {
-  const url = new URL(req.url ?? "", "http://placeholder");
-  return url.pathname === authenticatedReadEndpoint;
-}
-
-// Mounted identically by both Vite launch modes. Requests outside this
-// endpoint's exact path are passed on untouched; only a request that names it
-// is ever inspected, let alone answered.
+// Mounted identically by both Vite launch modes. Requests outside these
+// endpoints' exact paths are passed on untouched; only a request that names
+// one is ever inspected, let alone answered.
 export function installAuthenticatedReadMiddleware(
   middlewares: Connect.Server,
 ): () => void {
@@ -109,13 +141,18 @@ export function installAuthenticatedReadMiddleware(
     pinned: new PinnedTexts(),
     checks: new RevisionChecks(),
     branches: new BranchHeads(),
+    avatars: new AvatarImages(),
   };
   const handler: Connect.NextHandleFunction = (req, res, next) => {
-    if (!matchesEndpoint(req)) {
+    const url = new URL(req.url ?? "", "http://placeholder");
+    if (
+      url.pathname !== authenticatedReadEndpoint &&
+      url.pathname !== authenticatedAvatarEndpoint
+    ) {
       next();
       return;
     }
-    void answer(req, boundary).then((outcome) => {
+    void answer(req, boundary, url).then((outcome) => {
       respond(res, outcome);
     });
   };

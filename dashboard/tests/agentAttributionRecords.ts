@@ -14,7 +14,7 @@ import {
   openDoughFiles,
   takenIdentity,
 } from "./agentRosterRecords.ts";
-import type { PathChange, PathHistories } from "./pathHistoryAnswers.ts";
+import { pathChange, type PathHistories } from "./pathHistoryAnswers.ts";
 
 const agents = ".planning/agents";
 
@@ -26,35 +26,23 @@ export const reallocator = "Nova Newcomer";
 // Work the unattributable profile names; the backlog does not list it.
 const retiredIdentity = "SEED-098#another-retired-story";
 
-const change = (
-  n: number,
-  status: PathChange["status"],
-  committer: string,
-  login?: string,
-): PathChange => ({
-  sha: n.toString(16).padStart(2, "0").repeat(20),
-  status,
-  committer,
-  ...(login !== undefined && { login }),
-});
-
 // Akiho's allocation for the Taken work, after an older allocation of the
 // same name was added by someone else and released.
 const akihoHistory = [
-  change(0x11, "modified", modifier, "mo-modifier"),
-  change(0x12, "added", credited, "terryyin"),
-  change(0x13, "removed", olderAllocator),
-  change(0x14, "added", olderAllocator, "olde"),
+  pathChange(0x11, "modified", modifier, { login: "mo-modifier" }),
+  pathChange(0x12, "added", credited, { login: "terryyin" }),
+  pathChange(0x13, "removed", olderAllocator),
+  pathChange(0x14, "added", olderAllocator, { login: "olde" }),
 ];
 
 const history: PathHistories = {
   [`${agents}/akiho-chan.json`]: akihoHistory,
-  [`${agents}/kirara-chan.json`]: [change(0x21, "added", preparer)],
+  [`${agents}/kirara-chan.json`]: [pathChange(0x21, "added", preparer)],
   // Only a modification is found before an older allocation's removal.
   [`${agents}/yuma-chan.json`]: [
-    change(0x31, "modified", modifier),
-    change(0x32, "removed", olderAllocator),
-    change(0x33, "added", olderAllocator),
+    pathChange(0x31, "modified", modifier),
+    pathChange(0x32, "removed", olderAllocator),
+    pathChange(0x33, "added", olderAllocator),
   ],
   // Sola's history is not published: its commit list fails.
 };
@@ -91,8 +79,8 @@ export const secondRevision = {
   history: {
     ...history,
     [`${agents}/akiho-chan.json`]: [
-      change(0x15, "added", reallocator, "nova"),
-      change(0x16, "removed", credited),
+      pathChange(0x15, "added", reallocator, { login: "nova" }),
+      pathChange(0x16, "removed", credited),
       ...akihoHistory,
     ],
   },

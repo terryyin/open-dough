@@ -3,7 +3,7 @@
 // revision already resolved: with `agents=profiles`, every profile its
 // directory listing names, and with a listed profile's `path` and
 // `committed=added`, which commit added that profile's current allocation and
-// who committed it.
+// who committed it; and where the page shows that committer's GitHub avatar.
 
 import { z } from "zod";
 import {
@@ -11,7 +11,10 @@ import {
   commitSha,
   unexpectedAnswer,
 } from "./authenticatedGet.ts";
-import { readingAdditionAt } from "./authenticatedReadRules.ts";
+import {
+  authenticatedAvatarEndpoint,
+  readingAdditionAt,
+} from "./authenticatedReadRules.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 const okProfiles = z.object({
@@ -88,4 +91,15 @@ export async function readProfileAdditionAt(
     throw unexpectedAnswer(reading);
   }
   return parsed.data.added;
+}
+
+// Where the local boundary serves the GitHub avatar of the account matched to
+// the human who added the profile at `profilePath` as of `revision`: a
+// same-origin image, so the page never asks GitHub itself.
+export function profileAvatarUrl(
+  source: PublishedSource,
+  profilePath: string,
+  revision: string,
+): string {
+  return `${authenticatedAvatarEndpoint}?source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&path=${encodeURIComponent(profilePath)}`;
 }

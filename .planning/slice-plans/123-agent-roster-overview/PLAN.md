@@ -131,7 +131,14 @@ uncertain attribution is named without guessing from other commits.
 
 ### 3. A matched human has a cached GitHub avatar
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run test:dashboard -- agent-roster-avatar.spec.ts
+authenticated-avatar.spec.ts` (fixtures in `dashboard/tests/agentAvatarRecords.ts`).
+The browser names only a listed profile at a pinned revision; the boundary
+derives the matched login and a validated `avatars.githubusercontent.com`
+source, fetches once per login with size, time, type, and redirect bounds, and
+keeps no failure. On 2026-09-27 the real host answered this repository's
+committer avatar at `/u/<id>?v=4&s=64` with `200 image/jpeg` and no redirect.
 Proof: A local-boundary and Playwright journey serves one matched account's
 avatar for repeated card and roster use, proving one upstream image read and
 no browser request to GitHub. The image is displayed beside its human name.
@@ -153,3 +160,5 @@ Without a usable image, the name remains readable.
 - A profile added through GitHub's web UI or a squash merge has committer
   `GitHub` (`web-flow`) and would be credited as the human. Open Dough's own
   claim commits are pushed directly, so this story keeps the committer rule.
+- Chromium reuses an image URL within a document despite `no-store`; proving a
+  server-side image cache needs distinct URLs that share one cache key.

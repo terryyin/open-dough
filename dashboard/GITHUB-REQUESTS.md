@@ -10,6 +10,10 @@ profile directory plus one per profile listed there, and, for each readable
 profile, one listing of its history and one request per commit walked back to
 its addition (usually one). What a commit changed is remembered by commit, so
 at a later revision an unchanged profile costs only its history listing. Each
+GitHub account matched to a credited human costs one unauthenticated read of
+its avatar image from GitHub's avatar host while the dashboard process runs,
+which does not use the `gh` allowance; a failed avatar read is asked again
+when the avatar is next shown. Each
 Taken entry with a counted plan adds one last-commit-time request for its plan
 and one for its agent profile, and each Story Branch Mode entry adds one
 branch head request and one plan read on that branch. These count against the

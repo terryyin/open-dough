@@ -7,7 +7,9 @@
 // a test only decides what GitHub would answer, per repository, and observes
 // the `gh` calls that reached it. How `gh api` prints each answer, a `304
 // Not Modified` to a still-matching `If-None-Match` included, is
-// ./ghReply.ts.
+// ./ghReply.ts. It also stands in for GitHub's avatar host: the dashboard
+// server under test fetches avatars from here (`DOUGH_AVATAR_ORIGIN`), and a
+// test decides each image answer and observes each image read.
 
 import http from "node:http";
 import type { AddressInfo } from "node:net";
@@ -24,6 +26,7 @@ import {
   commitListIn,
   type PathHistories,
 } from "../pathHistoryAnswers.ts";
+import { avatarsAt } from "../avatarAnswers.ts";
 import { asGhReply } from "./ghReply.ts";
 import { parseRequest, type GhRequest } from "./ghRequest.ts";
 
@@ -41,13 +44,29 @@ export type RepositoryAnswerer = (call: GhCall) => Promise<OriginAnswer>;
 // read boundary itself rather than a published project.
 export const everyRepository = "*";
 
+// GitHub's avatar host's answer to one image read.
+export type AvatarAnswer = {
+  readonly status: number;
+  readonly contentType: string;
+  readonly body: Buffer;
+};
+
+// Decides the avatar host's answer for one requested path and query.
+export type AvatarAnswerer = (path: string) => AvatarAnswer;
+
 export type FakeGitHub = {
-  // Where the synthetic `gh` hands its argv (`FAKE_GH_ORIGIN`).
+  // Where the synthetic `gh` hands its argv (`FAKE_GH_ORIGIN`), and where
+  // avatars are fetched from (`DOUGH_AVATAR_ORIGIN`).
   readonly url: string;
   // Every `gh` invocation, in arrival order.
   readonly calls: readonly GhCall[];
+  // Every avatar image read's path and query, in arrival order.
+  readonly avatarReads: readonly string[];
   // Answers `repository` (or `everyRepository`) with `answerer` from now on.
   serve(repository: string, answerer: RepositoryAnswerer): void;
+  // Answers avatar image reads with `answerer` from now on; until then every
+  // avatar is not found.
+  serveAvatars(answerer: AvatarAnswerer): void;
   close(): Promise<void>;
 };
 
@@ -117,7 +136,9 @@ export function publishes(published: {
 
 export async function startFakeGitHub(): Promise<FakeGitHub> {
   const calls: GhCall[] = [];
+  const avatarReads: string[] = [];
   const served = new Map<string, RepositoryAnswerer>();
+  let avatars = avatarsAt({});
 
   const decide = (call: GhCall): Promise<OriginAnswer> => {
     const { request } = call;
@@ -133,6 +154,15 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
   };
 
   const server = http.createServer((req, res) => {
+    // Only the avatar host is asked with a GET; the synthetic `gh` posts.
+    if (req.method === "GET") {
+      const path = req.url ?? "";
+      avatarReads.push(path);
+      const answer = avatars(path);
+      res.writeHead(answer.status, { "content-type": answer.contentType });
+      res.end(answer.body);
+      return;
+    }
     const chunks: Buffer[] = [];
     req.on("data", (chunk: Buffer) => chunks.push(chunk));
     req.on("end", () => {
@@ -158,8 +188,12 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
   return {
     url: `http://127.0.0.1:${String(port)}/`,
     calls,
+    avatarReads,
     serve(repository, answerer) {
       served.set(repository, answerer);
+    },
+    serveAvatars(answerer) {
+      avatars = answerer;
     },
     async close() {
       server.closeAllConnections();

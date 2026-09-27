@@ -33,7 +33,7 @@ type Answer =
   | {
       readonly revision: string;
       readonly path: string;
-      readonly added: ProfileAddition;
+      readonly added: Omit<NonNullable<ProfileAddition>, "avatar"> | null;
     }
   // A recorded branch's head, or null when it is no longer published.
   | {
@@ -61,7 +61,7 @@ export function answered(answer: Answer): Outcome {
   return { kind: "answered", answer };
 }
 
-export const unreachable: Outcome = {
+export const unreachable: Extract<Outcome, { readonly kind: "refused" }> = {
   kind: "refused",
   status: 404,
   message: "That path is not reachable from this source revision.",

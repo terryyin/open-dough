@@ -7,7 +7,9 @@ preview server with a synthetic `gh` on its PATH (`fixtures/fake-gh`)
 that answers from the test's own fake GitHub (`support/fakeGitHub.ts`,
 published through `publishedOrigin.ts` or
 `committedOrigin.ts`), which can also fail, hold, or rate-limit an
-answer. Only GitHub's answers to `gh` are replaced; the
+answer. The same fake stands in for GitHub's avatar host, from which the
+server fetches credited humans' avatars (`avatarAnswers.ts`). Only GitHub's
+answers are replaced; the
 local read boundary, the `gh` invocation, reading, the shared backlog
 interpretation, and the page are the real ones, and a browser request to
 GitHub itself fails the test. The boundary specs

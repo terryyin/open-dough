@@ -149,11 +149,12 @@ function parseBranchRead(
 // Which commit added an agent profile, asked only on trunk at a pinned
 // revision and only for a path the shared profile module names as a profile;
 // whether that profile is listed at the revision is the performed read's to
-// decide.
-function parseAdditionRead(
+// decide. An avatar read (`./avatarRead.ts`) names its profile the same way.
+export function parseAdditionRead(
   revision: string | null,
   path: string | null,
-): RequestedRead | RefusedParameters {
+):
+  Extract<RequestedRead, { readonly kind: "addition-at" }> | RefusedParameters {
   if (!isPinnedRevision(revision)) {
     return unpinnedRevision;
   }

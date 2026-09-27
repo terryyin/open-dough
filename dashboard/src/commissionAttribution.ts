@@ -5,10 +5,13 @@
 // profiles are asked about, each once per read. A later modification of the
 // profile, an older allocation of the same rotating agent name, or any other
 // commit never supplies the human; when the addition or a usable name cannot
-// be established, the gap is said, never guessed. Attribution says who
-// commissioned the work, never that anyone is working now.
+// be established, the gap is said, never guessed. A matched GitHub account's
+// avatar is shown only through the local boundary, which finds the account
+// itself. Attribution says who commissioned the work, never that anyone is
+// working now.
 
 import {
+  profileAvatarUrl,
   readProfileAdditionAt,
   type ProfileAddition,
 } from "./authenticatedProfileRead.ts";
@@ -27,14 +30,17 @@ export type HumanAttribution =
   | {
       readonly status: "credited";
       readonly name: string;
-      // The GitHub account GitHub matched to the committer, when it matched
-      // one.
-      readonly login: string | undefined;
+      // Where the local boundary serves the avatar of the GitHub account
+      // GitHub matched to the committer, when it matched one.
+      readonly avatar: string | undefined;
     };
 
 export const attributionLoading: HumanAttribution = { status: "loading" };
 
-function attributionOf(addition: ProfileAddition): HumanAttribution {
+function attributionOf(
+  addition: ProfileAddition,
+  avatar: string,
+): HumanAttribution {
   if (addition === null) {
     return { status: "no-addition" };
   }
@@ -43,7 +49,7 @@ function attributionOf(addition: ProfileAddition): HumanAttribution {
     : {
         status: "credited",
         name: addition.committerName,
-        login: addition.login ?? undefined,
+        avatar: addition.login === null ? undefined : avatar,
       };
 }
 
@@ -58,6 +64,7 @@ async function attributionAt(
   try {
     return attributionOf(
       await readProfileAdditionAt(source, profilePath, revision, signal),
+      profileAvatarUrl(source, profilePath, revision),
     );
   } catch (error) {
     return {

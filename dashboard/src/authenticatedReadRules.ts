@@ -1,6 +1,6 @@
 // The read rules the browser and the local server side share for the local
-// authenticated read boundary (`../server/authenticatedRead.ts`): its one
-// path, what names a commit or a usable branch, how long one read may wait,
+// authenticated read boundary (`../server/authenticatedRead.ts`): its
+// paths, what names a commit or a usable branch, how long one read may wait,
 // and how a failure words what was being read. Kept in its own module, with
 // no Node import, so the browser bundle can reference the exact same rules
 // without pulling in server-only code: `../server/authenticatedRead.ts`
@@ -10,6 +10,10 @@
 import type { PublishedSource } from "./publishedSource.ts";
 
 export const authenticatedReadEndpoint = "/__authenticated-read";
+
+// Beside it, the boundary serves the GitHub avatar of the human credited for
+// one listed agent profile at a pinned revision.
+export const authenticatedAvatarEndpoint = "/__authenticated-avatar";
 
 // The longest wait, in whole seconds, the boundary ever passes on from a
 // GitHub rate limit's direction (`../server/rateLimitDirection.ts`): GitHub's

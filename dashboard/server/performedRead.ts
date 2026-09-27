@@ -8,9 +8,11 @@
 // `./readOutcome.ts`.
 
 import type { IncomingMessage } from "node:http";
+import type { AvatarImages } from "./avatarImages.ts";
 import type { BranchHeads } from "./branchHeads.ts";
 import { resolveRevisionViaGh } from "./ghRevision.ts";
 import { readRepositoryFileViaGh } from "./ghContents.ts";
+import type { ProfileAddition } from "./ghProfileAddition.ts";
 import {
   performBranchHeadRead,
   performOnBranch,
@@ -48,7 +50,28 @@ export type Boundary = {
   readonly pinned: PinnedTexts;
   readonly checks: RevisionChecks;
   readonly branches: BranchHeads;
+  readonly avatars: AvatarImages;
 };
+
+// Which commit added a profile's current allocation, asked only about a
+// profile the revision's directory listing names, as when profiles themselves
+// are read; undefined when it does not. The avatar read (`./avatarRead.ts`)
+// finds its account the same way.
+export async function listedProfileAddition(
+  pinned: PinnedTexts,
+  source: PublishedSource,
+  { revision, path }: { readonly revision: string; readonly path: string },
+  signal: AbortSignal,
+): Promise<ProfileAddition | undefined> {
+  const listed = await isListedAgentProfile(
+    source,
+    path,
+    pinned.lister(source, revision, signal),
+  );
+  return listed
+    ? await pinned.adder(source, revision, signal)(path)
+    : undefined;
+}
 
 // What a read failure names as being read when the request was made.
 function readingOf(source: PublishedSource, read: RequestedRead): string {
@@ -114,20 +137,25 @@ export async function perform(
           return answered({ revision: read.revision, profiles });
         }
         case "addition-at": {
-          // Only a profile the revision's directory listing names is asked
-          // about, as when profiles themselves are read.
-          const listed = await isListedAgentProfile(
+          const added = await listedProfileAddition(
+            pinned,
             source,
-            read.path,
-            pinned.lister(source, read.revision, signal),
+            read,
+            signal,
           );
-          if (!listed) {
+          if (added === undefined) {
             return unreachable;
           }
+          // The avatar source stays here: the page asks for the image
+          // through `./avatarRead.ts`, never from GitHub itself.
           return answered({
             revision: read.revision,
             path: read.path,
-            added: await pinned.adder(source, read.revision, signal)(read.path),
+            added: added && {
+              commit: added.commit,
+              committerName: added.committerName,
+              login: added.login,
+            },
           });
         }
         case "branch-head-at":
