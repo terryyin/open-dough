@@ -13,9 +13,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Credit the developer on Story Branch integration merges](seeds/SEED-047-credit-agent-and-developer-commits.md#integration-merge-credit) — SEED-047#integration-merge-credit ([plan](slice-plans/121-integration-merge-credit/PLAN.md))
+
 ## Backlog list
 
-- [Credit the developer on Story Branch integration merges](seeds/SEED-047-credit-agent-and-developer-commits.md#integration-merge-credit) — SEED-047#integration-merge-credit
 - [Make every check's shell and Git environment explicit and reproduce CI's platform with one command](seeds/SEED-048-explicit-test-environment.md#explicit-test-environment) — SEED-048#explicit-test-environment
 - [Bring the integrated CI verdict back under 120 s and clear SEED-037's leftovers](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-round-2) — SEED-046#ci-verdict-round-2
 - [Confirm and repair backlog driver registration when the Git directory lacks info/](seeds/SEED-045-backlog-driver-without-info-dir.md#driver-without-info-dir) — SEED-045#driver-without-info-dir
