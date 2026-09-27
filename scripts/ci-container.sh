@@ -2,8 +2,8 @@
 # scripts/ci-container.sh [--dashboard] [path…]
 #
 # Diagnosis only: runs chosen checks (scripts/test.sh with the given paths, or
-# the whole suite when none) on CI's platform, or with --dashboard the
-# dashboard typecheck, build, and browser suite as CI's dashboard job does.
+# the whole suite when none) on CI's platform, or with --dashboard CI's
+# dashboard job's commands, unsharded and with CI=true as CI sets it.
 # Neither `npm test` nor CI uses it. It builds a cached image once, mounts this
 # checkout (and a linked worktree's common Git directory) at their host paths,
 # keeps node_modules in a container volume so host modules are neither used
@@ -16,6 +16,12 @@ set -euo pipefail
 # .github/workflows/ci.yml.
 readonly ubuntu_version=24.04
 readonly node_version=24
+# CI's dashboard job's commands after `npm ci`, without its --shard argument,
+# stated once and checked the same way. The image runs the Playwright install
+# as root, pinned to the locked version; the container runs the rest.
+readonly dashboard_install='npx playwright install --with-deps chromium'
+readonly dashboard_steps='npm run typecheck:dashboard
+npm run test:dashboard'
 
 if ! command -v docker > /dev/null 2>&1; then
   printf 'ci-container.sh: no container runtime: docker is not on PATH.\n' >&2
@@ -95,7 +101,7 @@ RUN arch=\$(dpkg --print-architecture) && [ "\$arch" != amd64 ] || arch=x64; \\
  && file=\$(curl -fsSL "\$base/SHASUMS256.txt" | awk -v a="linux-\$arch.tar.xz" '\$2 ~ a"\$" { print \$2 }') \\
  && curl -fsSL "\$base/\$file" | tar -xJ -C /usr/local --strip-components=1 \\
       --exclude=CHANGELOG.md --exclude=LICENSE --exclude=README.md
-RUN npx --yes playwright@${playwright_version} install --with-deps chromium \\
+RUN ${dashboard_install/npx playwright/npx --yes playwright@${playwright_version}} \\
  && chmod -R a+rX /ms-playwright && rm -rf /root/.npm
 DOCKERFILE
 )
@@ -120,7 +126,7 @@ run_args=(run --rm --init --user "${user}" --workdir "${work_dir}"
   --env HOME=/tmp/home --env npm_config_cache=/npm-cache
   --env npm_config_update_notifier=false
   --env "SOURCE_DIR=${source_dir}" --env "COMMON_DIR=${common_dir}"
-  --env "DASHBOARD=${dashboard}"
+  --env "DASHBOARD=${dashboard}" --env "DASHBOARD_STEPS=${dashboard_steps}"
   --volume "${source_dir}:${source_dir}"
   --volume "${modules_volume}:${source_dir}/node_modules"
   --volume "${cache_volume}:/npm-cache")
@@ -144,9 +150,7 @@ mkdir -p -- "${HOME}"
 printf "ci-container: %s, node %s\n" "$(git --version)" "$(node --version)"
 if [[ ${DASHBOARD} == true ]]; then
   cd -- "${SOURCE_DIR}"
-  npm run --silent typecheck:dashboard
-  npm run --silent build:dashboard
-  exec npm run --silent test:dashboard
+  CI=true exec bash -euo pipefail -c "${DASHBOARD_STEPS}"
 fi
 exec bash "${SOURCE_DIR}/scripts/test.sh" "$@"
 '

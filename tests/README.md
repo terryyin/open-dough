@@ -158,16 +158,17 @@ stay native. It needs `docker` on `PATH` (for example Colima on macOS) and
 stops naming the missing runtime otherwise. On first use it builds a cached
 image from CI's Ubuntu with Git from the `git-core` PPA, `jq`, CI's Node, and
 the locked Playwright Chromium with its system dependencies; the Ubuntu and
-Node versions are stated once in the script, and `tests/ci-container.sh`
-checks them against `.github/workflows/ci.yml`. Each run mounts the checkout,
-and a linked worktree's common Git directory, at their host paths, keeps
-`node_modules` in a container volume so host modules are neither used nor
-overwritten, runs `npm ci`, prints the Git and Node versions, and then runs
-`scripts/test.sh` with the given paths, or the dashboard typecheck, build, and
-browser suite. It runs as the host user with a container-local `HOME`, so
-files it writes in the checkout stay yours. The image uses the host's native
-architecture, which may differ from CI's x86_64. `CI` is not set, so the time
-budget is not applied, as on any local run.
+Node versions and the dashboard job's commands are stated once in the script,
+and `tests/ci-container.sh` checks them against `.github/workflows/ci.yml`.
+Each run mounts the checkout, and a linked worktree's common Git directory, at
+their host paths, keeps `node_modules` in a container volume so host modules
+are neither used nor overwritten, runs `npm ci`, prints the Git and Node
+versions, and then runs `scripts/test.sh` with the given paths, or the dashboard
+job's commands, unsharded, with `CI=true` (so Playwright's `forbidOnly` and HTML
+report apply). It runs as the host user with a container-local `HOME`, so files
+it writes in the checkout stay yours. The image uses the host's native
+architecture, which may differ from CI's x86_64. For `scripts/test.sh`, `CI` is
+not set, so the time budget is not applied, as on any local run.
 
 Font-dependent layout differences are not reproduced. With `15362af`'s layout
 fix reverted, CI failed two 320 CSS pixel checks by a fraction of a pixel

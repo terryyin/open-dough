@@ -134,7 +134,7 @@ Behavior: `docker` present but no daemon, or an outside path →
 
 ### 3. The container's dashboard run matches CI's job
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/ci-container.sh` checks that the script's stated dashboard
 commands equal the `run:` commands of `ci.yml`'s `dashboard` job after
 `npm ci`. Manual: a scratch `test.only` in a temporary worktree makes
@@ -179,3 +179,14 @@ into one section. Directly owned retrospective correction.
   `tests/../../nope/x`) is not refused up front, because only existing
   directories are resolved; it still fails inside the container, after image
   work.
+- Slice 3 accepted proof: `scripts/ci-container.sh` states
+  `dashboard_install` and `dashboard_steps` once; `tests/ci-container.sh`
+  reads them with one `stated` reader and diffs them against `ci.yml`'s
+  `dashboard` job `run:` lines after `npm ci`, less ` -- --shard…`; the
+  runner check exits 0 and mutated copies (added, dropped, or changed step;
+  renamed job) fail. It also passes against origin/main's split `ci.yml`
+  (plan 126). Manual, in a temporary worktree: a scratch `test.only` made
+  `scripts/ci-container.sh --dashboard` fail on `forbidOnly`; clean, it passed
+  and wrote the HTML report. The container's separate `build:dashboard` step is
+  gone, as in CI, where Playwright's globalSetup builds.
+- `tests/README.md` is 268 lines after slice 3.

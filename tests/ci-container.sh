@@ -2,7 +2,8 @@
 # scripts/ci-container.sh stops, naming the missing runtime, when no `docker`
 # is on PATH or its daemon cannot be reached, and refuses by name a directory
 # or path outside the checkout, each before any image work; and the Ubuntu and
-# Node versions it states are the ones .github/workflows/ci.yml runs on.
+# Node versions and the dashboard commands it states are the ones
+# .github/workflows/ci.yml runs.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -71,9 +72,18 @@ expect_refusal "${temporary_dir}/caller.log" "${temporary_dir}" up
 expect_in_log "${temporary_dir}/caller.log" -F -- \
   "the current directory ${outside_dir} is outside this checkout"
 
-# Prints the value the script states once for NAME.
+# Prints the value the script states once for NAME, without its quotes and
+# across every line a quoted value spans.
 stated() {
-  sed -n "s/^readonly $1=\([^[:space:]]*\)$/\1/p" "${script}"
+  awk -v prefix="readonly $1=" -v q="'" '
+    !found && index($0, prefix) == 1 {
+      found = 1
+      $0 = substr($0, length(prefix) + 1)
+      quoted = sub("^" q, "")
+    }
+    found && (!quoted || sub(q "$", "")) { print; exit }
+    found { print }
+  ' "${script}"
 }
 ubuntu_version=$(stated ubuntu_version)
 node_version=$(stated node_version)
@@ -91,5 +101,27 @@ if grep -vFx -- "ubuntu-${ubuntu_version}" "${temporary_dir}/runners" \
   || grep -vFx -- "\"${node_version}\"" "${temporary_dir}/nodes"; then
   printf 'FAIL: ci.yml runs on a version other than ubuntu-%s and Node %s (above).\n' \
     "${ubuntu_version}" "${node_version}" >&2
+  exit 1
+fi
+
+# The dashboard commands the script states, in order, must be the `run:`
+# commands of ci.yml's dashboard job after `npm ci`, less the --shard argument
+# that splits CI's run across jobs.
+{
+  stated dashboard_install
+  stated dashboard_steps
+} > "${temporary_dir}/stated-dashboard"
+awk '
+  /^  [^ #]/ { job = ($0 ~ /^  dashboard:[[:space:]]*$/); next }
+  job && /^[[:space:]]*(- )?run:/ {
+    sub(/^[[:space:]]*(- )?run:[[:space:]]*/, "")
+    if (installed) print
+    else if ($0 == "npm ci") installed = 1
+  }
+' "${workflow}" | sed 's/ -- --shard[= ].*$//' > "${temporary_dir}/ci-dashboard"
+if [[ ! -s ${temporary_dir}/ci-dashboard ]] \
+  || ! diff -- "${temporary_dir}/stated-dashboard" "${temporary_dir}/ci-dashboard" >&2; then
+  echo 'FAIL: the dashboard commands scripts/ci-container.sh states (<) are not' \
+    "ci.yml's dashboard job after npm ci (>)." >&2
   exit 1
 fi
