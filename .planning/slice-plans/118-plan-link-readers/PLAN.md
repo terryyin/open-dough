@@ -135,7 +135,7 @@ retrospective is skipped (see Current decisions).
 
 ### 1. Refuse a plan link that exactly names another entry's anchored home
 Type: Behavior
-Status: planned
+Status: done
 Proof: rows in `tests/support/product-backlog-plan-home.test.mjs`, real CLI:
 `take --plan seeds/SEED-021-two-stories.md#first-story` for another story
 while `SEED-021#first-story` is queued is refused; `add` of
@@ -148,6 +148,14 @@ Behavior: a plan link equal to another entry's anchored home → take, add,
 parse → refused, nothing written.
 
 Safe stop: independent of slices 2 and 3.
+
+Accepted proof (2026-09-27): `tests/support/product-backlog-plan-home.test.mjs`
+added 3 real CLI tests for take, add, and parse refusals when a plan link
+equals an anchored home; each refused and left the backlog byte-unchanged.
+`node --test tests/support/product-backlog-plan-home.test.mjs` (9/9 pass);
+`node --test tests/support/*.test.mjs` (199/199 pass);
+workspace publication suite (72/72 pass);
+`npm run typecheck:dashboard` passes. Test file is 225 lines (≤ 250).
 
 ### 2. Adopt a backlog whose plan link names a section
 Type: Behavior

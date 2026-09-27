@@ -2,7 +2,7 @@
 // the backlog's listing checks apply one plan-link rule to homes: a declared
 // plan that is the story's own home file, with or without a section, is never
 // linked, and a plan link names the same work as another entry's home when it
-// names that home's file, whichever section of the plan it points into.
+// names that home's file or equals that home exactly.
 import assert from "node:assert/strict";
 import { dirname } from "node:path";
 import { test } from "node:test";
@@ -17,6 +17,7 @@ import {
   run,
   scratchProject,
   takenEntry,
+  trunkQueue,
 } from "./product-backlog-fixture.mjs";
 import {
   backlogBytes,
@@ -24,10 +25,12 @@ import {
   plantSeed,
   readState,
   recordArgs,
+  second,
   seedRelative,
 } from "./story-state-fixture.mjs";
 
 const firstLine = `- [${first.title}](${first.link}) — ${first.identity}`;
+const secondLine = `- [${second.title}](${second.link}) — ${second.identity}`;
 const planPath = "slice-plans/076-repair/PLAN.md";
 const sectionLink = `${planPath}#ordered-slices`;
 const correctionLine = `- [Repair the release notes](${planPath})`;
@@ -159,5 +162,61 @@ test("plan home: a backlog listing a home and a section of it as another plan is
   const before = backlogBytes(project);
 
   const refused = await run(project, take(first.identity, sectionLink));
+  assertRefused(project, refused, before, /already lists the same work twice/);
+});
+
+test("plan home: take refuses a plan equal to another queued anchored home", async (t) => {
+  const project = projectWith(
+    t,
+    backlogOf([takenEntry], [...queued, firstLine]),
+  );
+  const before = backlogBytes(project);
+
+  const refused = await run(project, take(trunkQueue, first.link));
+  assertRefused(
+    project,
+    refused,
+    before,
+    /the plan "seeds\/SEED-021-two-stories\.md#first-story" is already listed in "## Backlog list" .* as the canonical home of "SEED-021#first-story"/s,
+  );
+});
+
+test("plan home: add refuses a home another entry links exactly as its plan", async (t) => {
+  const project = projectWith(
+    t,
+    backlogOf([takenEntry, `${secondLine} ([plan](${first.link}))`], queued),
+  );
+  const before = backlogBytes(project);
+
+  const listed = await run(project, [
+    "add",
+    "--identity",
+    first.identity,
+    "--title",
+    first.title,
+    "--link",
+    first.link,
+    "--position",
+    "first",
+  ]);
+  assertRefused(
+    project,
+    listed,
+    before,
+    /"seeds\/SEED-021-two-stories\.md#first-story" is already the plan of "SEED-021#second-story"/,
+  );
+});
+
+test("plan home: a backlog listing an anchored home and that exact plan is refused", async (t) => {
+  const project = projectWith(
+    t,
+    backlogOf(
+      [takenEntry, `${secondLine} ([plan](${first.link}))`, firstLine],
+      queued,
+    ),
+  );
+  const before = backlogBytes(project);
+
+  const refused = await run(project, take(second.identity, first.link));
   assertRefused(project, refused, before, /already lists the same work twice/);
 });
