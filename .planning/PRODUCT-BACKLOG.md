@@ -20,7 +20,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Backlog list
 
 - [Name the file, line, and command where a failing shell check stopped](seeds/SEED-049-native-result-path-diagnosis.md#native-result-path-diagnosis) — SEED-049#native-result-path-diagnosis
-- [Confirm and repair backlog driver registration when the Git directory lacks info/](seeds/SEED-045-backlog-driver-without-info-dir.md#driver-without-info-dir) — SEED-045#driver-without-info-dir
+- [Register the backlog merge driver when the Git directory lacks info/](seeds/SEED-045-backlog-driver-without-info-dir.md#driver-without-info-dir) — SEED-045#driver-without-info-dir
 - [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers
 - [Report conflicting CI repair restores truthfully and drop through the script](seeds/SEED-008-worktree-branch-trunk-sync.md#truthful-repair-restore) — SEED-008#truthful-repair-restore
 - [Verify planning premises and proof setup before declaring readiness](seeds/SEED-044-verify-planning-premises.md#verify-planning-premises) — SEED-044#verify-planning-premises
