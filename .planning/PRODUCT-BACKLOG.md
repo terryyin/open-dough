@@ -19,6 +19,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Keep roster and human credit honest under slow or odd evidence](seeds/SEED-049-project-agent-roster.md#roster-evidence-correction) — SEED-049#roster-evidence-correction
 - [Explain a missing native result path in every check that reads one](seeds/SEED-049-native-result-path-diagnosis.md#native-result-path-diagnosis) — SEED-049#native-result-path-diagnosis
 - [Confirm and repair backlog driver registration when the Git directory lacks info/](seeds/SEED-045-backlog-driver-without-info-dir.md#driver-without-info-dir) — SEED-045#driver-without-info-dir
 - [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers

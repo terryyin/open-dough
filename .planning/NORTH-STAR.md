@@ -99,7 +99,11 @@ following [ADR 0001](../docs/adrs/0001-ubiquitous-language-accepted.md) and
 [ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
 Agent assignments are published facts like any other: an execution or
 preparation assignment is the agent profile on trunk, and the page derives
-Taken owners and Preparing from that profile's presence. Keep later feature,
+Taken owners and Preparing from that profile's presence. The agent roster is
+one more view of that snapshot, and a commission's human developer is the
+committer of the commit that added its profile's current allocation; avatar
+images, like every GitHub read, come through the local boundary and never
+become assignment evidence. Keep later feature,
 structure, and local-lock models out until their selected behavior needs them.
 UI choices stay in the separate
 [UX/UI North Star](../docs/dashboard-ux-ui-north-star.md).
