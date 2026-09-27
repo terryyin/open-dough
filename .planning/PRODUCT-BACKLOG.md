@@ -14,10 +14,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Complete trivial work with --one-shot and track it if it grows](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work) — SEED-028#one-shot-work ([plan](slice-plans/112-one-shot-work/PLAN.md))
+- [Open Dough scripts run, or fail visibly, through a symlinked skill directory](seeds/SEED-008-worktree-branch-trunk-sync.md#run-guided-commits-through-skill-alias) — SEED-008#run-guided-commits-through-skill-alias
 
 ## Backlog list
 
-- [Open Dough scripts run, or fail visibly, through a symlinked skill directory](seeds/SEED-008-worktree-branch-trunk-sync.md#run-guided-commits-through-skill-alias) — SEED-008#run-guided-commits-through-skill-alias
 - [Keep parallel slices from interfering with proof and delivery](seeds/SEED-008-worktree-branch-trunk-sync.md#isolate-parallel-slice-delivery) — SEED-008#isolate-parallel-slice-delivery
 - [Keep the test runner's own settings from reaching the checks and product code it starts](seeds/SEED-051-isolate-test-runner-settings.md#isolate-runner-settings) — SEED-051#isolate-runner-settings
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective
