@@ -193,7 +193,7 @@ contract.
 
 ### 4. Closure and replay preserve contributor credit
 Type: Behavior
-Status: planned
+Status: done
 Proof: A representative wrap-up closure commit uses the guided-commit path.
 Amend or replay an owned commit with existing model and developer trailers;
 each resulting Git message contains the developer exactly once. Run focused
@@ -207,6 +207,27 @@ loss of existing co-authors.
 
 Safe stop: the story's current agent-enabled commit paths share one credit
 rule; no historical rewrite is required.
+
+Accepted proof: before repair, amending a message that credited the
+developer's email under another display name added a second developer
+trailer. After repair,
+`node --test src/skills/dough-execute-plan/scripts/agent-commit.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-credit.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-resume.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs src/skills/dough-execute-plan/scripts/publication-racing-suffix-replay.test.mjs src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs`
+passes 23/23. The story-refinement, wrap-up, and guidance suites pass 33/33,
+14/14, and 29/29.
+
+What the tests observe:
+- A wrap-up closure commit through `agent-commit.mjs` in a real Taken workspace
+  is authored by the agent and credits the model and the developer once each.
+- `--amend`, with or without a new message, and with the developer trailer
+  spelled with a different key case, email case, or display name, keeps
+  exactly one developer credit.
+- An owned suffix replayed twice by publication rebase keeps its trailers
+  unchanged.
+- A replayed agent Take keeps one developer credit.
+
+`docs/project-visibility-requirements.md` states the authorship contract.
+Execute-plan start, preparation `start` and `abandon`, wrap-up closure, the
+execution-complete record, and Dough Land's commit link `agent-commits.md`.
 
 ## Learnings
 
@@ -222,8 +243,16 @@ rule; no historical rewrite is required.
   Later slices call it with the committing workspace and turn a refusal into
   their own stop before any ref update. The Take commit moved from
   `workspace-publication-select.mjs` to `workspace-publication-claim.mjs`.
-  `addIfDifferent` compares exact values, so slice 4 must prove that replay
-  does not duplicate the trailer.
+- Git's `addIfDifferent` compares trailer keys and values case-insensitively.
+  It still duplicates the same email under a different display name, so
+  slice 4 changed `creditDeveloper` to skip any message whose `Co-authored-by`
+  trailers already name the developer's email.
+- A later session such as wrap-up cannot see the start result. `agent-commits.md`
+  therefore applies while the workspace's `git config --worktree author.name`
+  still names the agent.
+- `docs/project-visibility-requirements.md` was already over the 250-line
+  file bound before this story. Splitting it would touch ADR 0008, ADR 0009,
+  and the dashboard North Star links, so it is left for a separate decision.
 
 ## Execution state
 

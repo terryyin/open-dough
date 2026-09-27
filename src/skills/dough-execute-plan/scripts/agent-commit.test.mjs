@@ -1,7 +1,7 @@
-// Ordinary work an assigned agent commits in its owned workspace through the
-// guided commit entry point: the agent authors it, the configured developer
-// is credited once beside existing co-authors, and the checkout's own Git
-// hooks still run.
+// Work and closure an assigned agent commits or amends in its owned workspace
+// through the guided commit entry point: the agent authors it, the configured
+// developer is credited once beside existing co-authors, and the checkout's
+// own Git hooks still run.
 import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -16,6 +16,7 @@ import {
   coAuthors,
   configureDeveloper,
   developer,
+  profilePath,
 } from "./workspace-publication-startup-test-fixtures.mjs";
 
 const model = "Claude Opus 5.5 (1M context) <noreply@anthropic.com>";
@@ -111,6 +112,29 @@ test("guided work commit is authored by the agent, credits the developer once be
   assert.equal(await coAuthors(workspace, "HEAD"), `${model}\n${developer}`);
 });
 
+test("a wrap-up closure commit that deletes spent history is authored by the agent and credits the developer once", async (t) => {
+  const { workspace } = await takenWorkspace(t);
+  // Completing the story deletes its spent records, such as the agent profile.
+  await git(workspace, "rm", "--quiet", profilePath("Yui"));
+  const closed = await agentCommit(
+    workspace,
+    ["-F", "-"],
+    `Close the story and delete spent history\n\nCo-Authored-By: ${model}\n`,
+  );
+  assert.equal(closed.code, 0, JSON.stringify(closed.receipt));
+  assert.equal(
+    (await git(workspace, "log", "-1", people)).stdout.trim(),
+    `Yui-chan <yui-chan@example.org>|${developer}`,
+  );
+  assert.equal(await coAuthors(workspace, "HEAD"), `${model}\n${developer}`);
+  assert.equal(
+    (
+      await git(workspace, "show", "--name-status", "--format=", "HEAD")
+    ).stdout.trim(),
+    `D\t${profilePath("Yui")}`,
+  );
+});
+
 test("guided work commit is refused and commits nothing when the committer is the agent itself", async (t) => {
   const { workspace } = await takenWorkspace(t);
   await stageWork(workspace, "slice.txt");
@@ -145,4 +169,46 @@ test("guided work commit is refused and commits nothing in a checkout that names
     result,
     "no-workspace-agent",
   );
+});
+
+test("amending an owned commit keeps its co-authors and credits the developer once, with or without a new message", async (t) => {
+  const { workspace } = await takenWorkspace(t);
+  await stageWork(workspace, "slice.txt");
+  const first = await agentCommit(workspace, [
+    "-m",
+    "Slice work",
+    "-m",
+    `Co-Authored-By: ${model}`,
+  ]);
+  assert.equal(first.code, 0, JSON.stringify(first.receipt));
+  // Without a message the amend replays HEAD's own, already credited one.
+  await stageWork(workspace, "fixup.txt");
+  const kept = await agentCommit(workspace, ["--amend"]);
+  assert.equal(kept.code, 0, JSON.stringify(kept.receipt));
+  assert.equal(kept.receipt.status, "amended");
+  assert.equal(
+    (await git(workspace, "log", "-1", `--format=%s|%an <%ae>`)).stdout.trim(),
+    "Slice work|Yui-chan <yui-chan@example.org>",
+  );
+  assert.equal(await coAuthors(workspace, "HEAD"), `${model}\n${developer}`);
+  // A new message may already credit the developer under another key case,
+  // email case, or display name; the developer is still credited once.
+  for (const spelled of [
+    `Co-Authored-By: ${developer}`,
+    "co-authored-by: Dana Developer <DANA@example.test>",
+    "Co-authored-by: Dana D. <dana@example.test>",
+  ]) {
+    const renamed = await agentCommit(workspace, [
+      "--amend",
+      "-m",
+      "Slice work, reworded",
+      "-m",
+      `Co-Authored-By: ${model}\n${spelled}`,
+    ]);
+    assert.equal(renamed.code, 0, JSON.stringify(renamed.receipt));
+    assert.equal(
+      await coAuthors(workspace, "HEAD"),
+      `${model}\n${spelled.replace(/^[^:]*: /, "")}`,
+    );
+  }
 });

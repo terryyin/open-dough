@@ -140,16 +140,17 @@ writes nothing and returns that claim's `publishedSha`. A deferred or stopped
 `maintenance` or an `earlierMaintenance` issue leaves accepted publication
 intact. A refusal or unconfirmed result (`ok: false`, non-zero exit) stops
 before implementation; report and act on its `status`, `error`, and any
-`recovery` or `provenance`. Inspect current Git state only when a reported
-reason needs it; never repeat a mutating command to obtain diagnostics. If
-publication is interrupted, invoke the same installed command with the retained
-workspace, branch, publisher ID, identity, `--starting-revision` and
-`--candidate-sha` from the last result (or its `recovery`) or confirmed pre-push
-candidate. Use the latest candidate SHA after a replay. A `resumed` result
-confirms current ownership through remote ancestry, even when trunk has
-advanced; it may finish eligible local refresh without another Take or push. A
-rival or ambiguous provenance stops implementation. Preserve the stopped
-candidate and exact recovery fields on an uncertain result.
+`recovery` or `provenance`, handling `developer-identity-refused` as under
+[agent commits](references/agent-commits.md). Inspect current Git state only
+when a reported reason needs it; never repeat a mutating command to obtain
+diagnostics. If publication is interrupted, invoke the same installed command
+with the retained workspace, branch, publisher ID, identity,
+`--starting-revision` and `--candidate-sha` from the last result (or its
+`recovery`) or confirmed pre-push candidate. Use the latest candidate SHA after
+a replay. A `resumed` result confirms current ownership through remote ancestry,
+even when trunk has advanced; it may finish eligible local refresh without
+another Take or push. A rival or ambiguous provenance stops implementation.
+Preserve the stopped candidate and exact recovery fields on an uncertain result.
 
 Every accepted start, new or resumed, then requires this project's
 checkout-bound setup and applicable command under [execution

@@ -13,6 +13,11 @@ import {
   storyA,
   storyB,
 } from "./workspace-publication-fixtures.mjs";
+import {
+  coAuthors,
+  configureDeveloper,
+  developer,
+} from "./workspace-publication-startup-test-fixtures.mjs";
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 
 async function claimPair(trunk) {
@@ -36,9 +41,10 @@ async function claimPair(trunk) {
   return { workspaceA, workspaceB, selectedA, selectedB };
 }
 
-test("concurrent claims for distinct identities both remain published", async (t) => {
+test("concurrent claims for distinct identities both remain published, and the replayed agent Take keeps one developer credit", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const { workspaceB, selectedA, selectedB } = await claimPair(trunk);
   const committedA = await commitWorkspaceClaim({
     ...selectedA,
@@ -49,6 +55,8 @@ test("concurrent claims for distinct identities both remain published", async (t
     ...selectedB,
     identity: identityB,
     publisherId: "exec-b",
+    mode: "trunk",
+    agent: { name: "Akiho" },
   });
   const publishedA = await publishClaimSha({
     ...selectedA,
@@ -92,6 +100,15 @@ test("concurrent claims for distinct identities both remain published", async (t
     .stdout;
   assert.match(log, /Claim-Publisher: exec-a/);
   assert.match(log, /Claim-Publisher: exec-b/);
+  // B's agent Take was replayed onto A's; its credit is replayed unchanged.
+  assert.notEqual(publishedB.publishedSha, committedB.candidateSha);
+  assert.equal(
+    (
+      await git(workspaceB, "log", "-1", "--format=%an|%cn", "origin/main")
+    ).stdout.trim(),
+    "Akiho-chan|Dana Developer",
+  );
+  assert.equal(await coAuthors(workspaceB, "origin/main"), developer);
 });
 
 test("competing claims for one identity keep one owner and a recoverable conflict", async (t) => {

@@ -69,7 +69,8 @@ const emailShape = /^[^\s@<>]+@[^\s@<>]+$/;
 // The developer an agent-enabled commit in `checkout` credits: the effective
 // committer Git would record there, configured rather than guessed from the
 // host, and distinct from the authoring `agent` ({ agent, email }). Returns
-// "Name <email>" or throws DeveloperIdentityRefused.
+// that `person` ("Name <email>") and its email `address`, or throws
+// DeveloperIdentityRefused.
 async function developerCoAuthor(checkout, { agent, email }) {
   let ident;
   try {
@@ -101,26 +102,47 @@ async function developerCoAuthor(checkout, { agent, email }) {
     throw new DeveloperIdentityRefused(
       `Git committer identity is the agent's own, so no developer can be credited: ${person}`,
     );
-  return person;
+  return { person, address };
+}
+
+// Runs `git interpret-trailers` in `checkout` over `message`.
+async function interpretTrailers(checkout, message, ...args) {
+  const running = exec("git", ["interpret-trailers", ...args], {
+    cwd: checkout,
+  });
+  running.child.stdin.end(message);
+  return (await running).stdout;
+}
+
+// Whether `message` already credits the person at `address` as a co-author,
+// however it spells the trailer key, the email's case, or the display name.
+async function coAuthorCredited(checkout, message, address) {
+  const parsed = await interpretTrailers(checkout, message, "--parse");
+  return parsed.split("\n").some((line) => {
+    const [, key = "", credited = ""] =
+      line.match(/^([^:]*):.*<([^<>]*)>\s*$/) ?? [];
+    return (
+      key.trim().toLowerCase() === "co-authored-by" &&
+      credited.toLowerCase() === address.toLowerCase()
+    );
+  });
 }
 
 // `message` with the developer committing in `checkout` credited once as a
-// `Co-authored-by` trailer beside any co-authors it already names. Throws
-// DeveloperIdentityRefused before any commit when that developer is unusable
-// beside the authoring agent `identity` ({ agent, email }).
+// `Co-authored-by` trailer beside any co-authors it already names; a message
+// that already credits that developer's email, as an amended or replayed one
+// does, is returned as it is. Throws DeveloperIdentityRefused before any
+// commit when that developer is unusable beside the authoring agent
+// `identity` ({ agent, email }).
 export async function creditDeveloper(checkout, message, identity) {
-  const person = await developerCoAuthor(checkout, identity);
-  const credited = exec(
-    "git",
-    [
-      "interpret-trailers",
-      "--if-exists",
-      "addIfDifferent",
-      "--trailer",
-      `Co-authored-by: ${person}`,
-    ],
-    { cwd: checkout },
+  const { person, address } = await developerCoAuthor(checkout, identity);
+  if (await coAuthorCredited(checkout, message, address)) return message;
+  return interpretTrailers(
+    checkout,
+    message,
+    "--if-exists",
+    "add",
+    "--trailer",
+    `Co-authored-by: ${person}`,
   );
-  credited.child.stdin.end(message);
-  return (await credited).stdout;
 }
