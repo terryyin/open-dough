@@ -80,3 +80,10 @@ all five key examples against "Select reviews" in
 `src/skills/dough-execution-retrospective/SKILL.md` (missing file/key or
 `true` skips like `--skip-process`; `false` enables; override and
 unresolved-selection sentences unchanged). Refactor pass: no edits.
+
+## Execution complete
+
+Product advice: no backlog change. The next release's CHANGELOG should call
+out that process retrospectives now run only when a project sets
+`"skipProcessRetrospective": false`, so projects relying on the old default
+know to opt in.
