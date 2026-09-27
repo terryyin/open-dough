@@ -158,7 +158,7 @@ developer makes the command succeed.
 
 ### 3. Ordinary guided work commits credit both contributors
 Type: Behavior
-Status: planned
+Status: done
 Proof: A representative execute-plan work commit uses the shared guided-commit
 path, retains a pre-existing model trailer, and contains the configured
 developer trailer exactly once. An existing `commit-msg` hook still runs.
@@ -171,6 +171,25 @@ co-authors and Git hooks, and remains attributable to the published profile.
 
 Safe stop: ordinary guided implementation commits are credited; closure and
 replay still need slice 4.
+
+Accepted proof: before repair, a plain workspace commit's co-authors were only
+the model. After repair,
+`node --test src/skills/dough-execute-plan/scripts/agent-commit.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent.test.mjs`
+passes 8/8. In a real Taken workspace, a commit through
+`scripts/agent-commit.mjs` is authored by the agent and committed by the
+configured developer. It carries the model trailer and then the developer
+trailer, once each, even when the message already credits the developer. The
+fixture's `commit-msg` hook saw the credited message. The
+`developer-identity-refused` and `no-workspace-agent` refusals leave HEAD
+unchanged and the content staged. The guidance tests that read `wrap-up.md`
+and `tests/payload-declaration-links.sh` pass.
+
+The runtime rule lives in `references/agent-commits.md`, which delivery step 7
+links. It applies only when the start or announce result named an agent and
+did not report `workspaceAuthorship: "not-configured"`. Every other execution,
+including the bare-repository fallback, commits with plain `git commit`,
+because those commits are the developer's own under the current worktree
+contract.
 
 ### 4. Closure and replay preserve contributor credit
 Type: Behavior

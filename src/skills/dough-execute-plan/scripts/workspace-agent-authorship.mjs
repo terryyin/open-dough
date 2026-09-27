@@ -2,6 +2,10 @@
 // author through per-worktree Git config, and the developer credit every
 // agent-enabled commit carries as a co-author trailer.
 import { join } from "node:path";
+import {
+  agentIdentity,
+  agentNameOf,
+} from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { exec, git } from "./publication-git.mjs";
 
 // "configured" when the workspace's ordinary commits can be authored through
@@ -33,6 +37,26 @@ export async function configureAgentAuthorship(workspace, { agent, email }) {
   await git(workspace, "config", "--worktree", "author.name", agent);
   await git(workspace, "config", "--worktree", "author.email", email);
   return authorship;
+}
+
+// The rotation agent this workspace's own Git config names as author, or
+// undefined when it names none (another checkout, or a workspace whose
+// authorship could not be configured). Reads what configureAgentAuthorship
+// writes.
+export async function workspaceAgent(workspace) {
+  const read = async (key) => {
+    try {
+      return (
+        await git(workspace, "config", "--worktree", "--get", key)
+      ).stdout.trim();
+    } catch {
+      return "";
+    }
+  };
+  const name = agentNameOf(await read("author.name"));
+  if (!name) return undefined;
+  const identity = agentIdentity(name);
+  return (await read("author.email")) === identity.email ? identity : undefined;
 }
 
 // Refuses an agent-enabled commit whose developer credit would be missing or

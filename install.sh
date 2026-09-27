@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034,SC2310,SC2312
+# shellcheck disable=SC1091,SC2034,SC2310,SC2312
 # SC2034: force, replace_verified, and version are read by install_declared_payload.
 set -euo pipefail
 original_pwd=$(pwd -P)
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-# shellcheck disable=SC1091
 source "${source_dir}/src/install/open-dough-platform.sh"
-# shellcheck disable=SC1091
 source "${source_dir}/src/install/open-dough-register-hooks.sh"
 usage() {
   echo "Usage: $0 --target <project> --source <url-or-path> [--platform <codex|cursor|claude>] [--force]" >&2
@@ -147,6 +145,7 @@ managed_files=(
   dough-execute-plan/assets/cursor-hooks.json
   dough-execute-plan/manuals/custom-ci.md
   dough-execute-plan/references/admit-accepted-work.md
+  dough-execute-plan/references/agent-commits.md
   dough-execute-plan/references/ci-completion-wait.md
   dough-execute-plan/references/ci-monitor.md
   dough-execute-plan/references/ci-notify-codex.md
@@ -195,6 +194,7 @@ managed_files=(
   dough-execute-plan/scripts/execution-increment-resume.mjs
   dough-execute-plan/scripts/execution-start.mjs
   dough-execute-plan/scripts/agent-assignments.mjs
+  dough-execute-plan/scripts/agent-commit.mjs
   dough-execute-plan/scripts/execution-start-agent.mjs
   dough-execute-plan/scripts/execution-start-maintenance.mjs
   dough-execute-plan/scripts/execution-start-operation.mjs
@@ -243,7 +243,6 @@ release_helper="${source_dir}/src/install/open-dough-release.sh"
   exit 1
 }
 version=$(bash "${release_helper}" validate-checkout "${source_dir}")
-# shellcheck disable=SC1091
 # shellcheck source=src/install/open-dough-install-payload.sh
 source "${source_dir}/src/install/open-dough-install-payload.sh"
 install_declared_payload
