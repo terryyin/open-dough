@@ -130,6 +130,40 @@ and that developer, keeping its priority and badges; it is never a Taken owner.
 It disappears when preparation lands or is abandoned. Unreadable profiles show
 "Preparation assignment unknown"; two assignments show as conflicting records.
 
+Each agent portrait on a Taken or Preparing card is a control that opens the
+selected project's **Agent roster**: all 29 agents of the shared rotation with
+their portraits, the clicked agent marked and focused. Each agent shows the
+commission its published profile records at the shown revision -- Taken or
+Preparing, the task's title and identity, and the recorded mode, host, and
+model -- or "Not commissioned" when the profile directory was read and names
+none. Work the backlog at that revision does not list keeps its identity with
+a title gap; an unreadable profile leaves its agent uncertain, and a failed
+profile read leaves every agent's commission unknown. A commission is not a
+claim that an agent is working now. The roster comes from the same snapshot as
+the cards and makes no read of its own; selecting another project replaces its
+source. **Back to stories** at the top returns to the stories with any open
+story detail still open and focus on the portrait that opened the roster.
+
+Each commission, on its Taken or Preparing card and in the roster, names the
+**human developer** credited for it: the Git committer of the commit that
+added its profile's current allocation. The local boundary lists that
+profile's history at the shown revision (its ten latest changes) and walks it
+back until the change that added the file, so a later modification of the
+profile names nobody, and a removal ends the walk before an older allocation of
+the same rotating name. When no addition is found, the adding commit names no
+usable committer, or the history cannot be read, the card and roster say the
+human developer is unknown and why, never guessing from another commit.
+Beside a credited name is the avatar of the GitHub account GitHub matched to
+that same committer. The local boundary fetches it from the avatar address
+GitHub named for that account (only an https address on GitHub's avatar host,
+bounded in size, time, and image type) and keeps it in the running dashboard
+process, so each account's avatar is read from GitHub once however often cards
+and the roster show it; the page asks only the local boundary, naming a
+profile and revision, never an account or image address. When no account was
+matched, or its avatar is refused or cannot be fetched, the name stays with its
+initials. A name or avatar credits the commission; neither says anyone is
+working now.
+
 Each Taken card with a readable plan also shows its recorded slice progress: a
 bar with one segment per slice, filled for each slice recorded complete, and
 "N of M slices recorded complete". It counts recorded statuses, not how much
@@ -206,50 +240,12 @@ The browser suite needs Chromium once per machine:
 
 ## Tests
 
-`tests/` holds one Playwright suite. Every run builds the app once; each page
-journey (`tests/dashboardTest.ts`) then serves that build from its own
-preview server with a synthetic `gh` on its PATH (`tests/fixtures/fake-gh`)
-that answers from the test's own fake GitHub (`tests/support/fakeGitHub.ts`,
-published through `tests/publishedOrigin.ts` or
-`tests/committedOrigin.ts`), which can also fail, hold, or rate-limit an
-answer. Only GitHub's answers to `gh` are replaced; the
-local read boundary, the `gh` invocation, reading, the shared backlog
-interpretation, and the page are the real ones, and a browser request to
-GitHub itself fails the test. The boundary specs
-(`tests/authenticated-read-*.spec.ts`) and
-`tests/authenticated-project-overview.spec.ts` also start their own dev and
-built-preview servers. Nothing here ever calls the real `gh` CLI or contacts
-GitHub. Select one journey with, for example,
-`npm run test:dashboard -- --grep 'published overview'` or
-`npm run test:dashboard -- --grep 'authenticated project overview'`.
+`tests/` holds one Playwright suite that replaces only GitHub's answers to
+`gh`; [its README](tests/README.md) describes the harness, its silence rule,
+and how journeys step page time.
 
-A passing run prints nothing (`tests/support/quietReporter.ts`). A failing
-spec is shown with its error, output, and retained trace; a passing spec that
-writes output, or output from the run itself such as global setup, fails the
-run and is shown. Keep specs and their helpers silent.
+## GitHub requests
 
-The automatic-freshness journeys (`tests/auto-refresh*.spec.ts`) pause the
-page's clock and step it with the helpers in `tests/autoRefreshJourney.ts`, so
-the 15-second pace, the 30-second target, hidden-page pauses, and a rate
-limit's directed wait are observed in page time; they read the fake GitHub's
-`gh` call log to prove what was and was not asked. Assert that no `gh` call
-was made only after real network turns (`checksAskedWhilePassing`, or
-`expect.poll`), and give each scenario its own revisions: the boundary answers
-a repeated pinned revision from memory without calling `gh`.
-
-Each load of the dashboard, and each Refresh, makes two authenticated `gh`
-requests for membership, plus one per record not already read at that
-revision for preparation and detail, and, once per revision, one listing of
-the agent profile directory plus one per profile listed there. Each Taken
-entry with a counted plan adds one last-commit-time request for its plan and
-one for its agent profile, and each Story Branch Mode entry adds one branch
-head request and one plan read on that branch. These count against the
-launching person's own GitHub API allowance. Each revision check is one more
-`gh` request, whatever the number of branches, or two when the listing fails
-and `main` is asked alone (at most four a minute per visible page, none while
-it is hidden, and none before a rate limit's directed time). GitHub documents an unchanged `304` as not counting
-against the primary allowance, but that has not been confirmed here, so count
-each check as a request. A newly published commit then costs one backlog read
-plus its records, without resolving `main` again; a recorded story branch
-that moved costs one read of its plan and one of its last commit time at the
-new head.
+What each load, Refresh, and revision check asks GitHub, and so what the
+dashboard costs the launching person's API allowance, is described in
+[GitHub requests](GITHUB-REQUESTS.md).

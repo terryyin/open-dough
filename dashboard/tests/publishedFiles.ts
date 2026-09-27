@@ -7,13 +7,17 @@ import { githubFor } from "./dashboardTest.ts";
 import {
   branchRefAnswer,
   commitAnswer,
-  commitListFor,
   directoryListingAnswer,
   headsAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
 } from "./originAnswers.ts";
+import {
+  commitAnswerIn,
+  commitListIn,
+  type PathHistories,
+} from "./pathHistoryAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 
 // A repository whose `main` names one revision at which these files are
@@ -21,7 +25,9 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 // with the file's bytes, or not-found for any other path, and a directory
 // listing with the published files directly in that directory. A commit list
 // for a path at that revision is observed and answered with the commit time
-// `committed` gives that path; for any other path the connection fails.
+// `committed` gives that path, or with the commits `history` lists for it,
+// each of which answers for its own change to that path; for any other path
+// the connection fails.
 // Each of `branches` is a published branch head, answered and observed the
 // same way at its own revision; any other branch is not published. A check
 // lists `main` and every published branch head; checks are answered but not
@@ -30,6 +36,8 @@ export type PublishedRevision = {
   readonly revision: string;
   readonly files: Readonly<Record<string, string>>;
   readonly committed?: Readonly<Record<string, Date>>;
+  // Each path's history as of this revision, newest first.
+  readonly history?: PathHistories;
 };
 
 function publishedAt(
@@ -87,6 +95,17 @@ export function publishMovingFiles(
           : branchRefAnswer(request.branch, head.revision),
       );
     }
+    if (request.kind === "commit") {
+      const answer = commitAnswerIn(
+        revisions.map(({ history }) => history),
+        request.sha,
+      );
+      if (answer === undefined) {
+        return Promise.resolve(noConnection);
+      }
+      observe(requests, call);
+      return Promise.resolve(answer);
+    }
     if (request.kind === "unknown" || request.kind === "ref") {
       return Promise.resolve(noConnection);
     }
@@ -96,9 +115,7 @@ export function publishMovingFiles(
     }
     observe(requests, call);
     if (request.kind === "commit-list") {
-      return Promise.resolve(
-        commitListFor(at.committed, request.path) ?? noConnection,
-      );
+      return Promise.resolve(commitListIn(at, request.path) ?? noConnection);
     }
     if (request.kind === "listing") {
       return Promise.resolve(

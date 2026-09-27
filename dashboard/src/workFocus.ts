@@ -33,9 +33,14 @@ export type FocusedWork = {
 
 export function focusedWork(): FocusedWork | undefined {
   const focused = document.activeElement;
-  const card = focused?.closest<HTMLElement>(`[${workAttribute}]`);
+  return focused ? workHolding(focused) : undefined;
+}
+
+// The work whose card holds `focused`, as focus on it would be held.
+export function workHolding(focused: Element): FocusedWork | undefined {
+  const card = focused.closest<HTMLElement>(`[${workAttribute}]`);
   const identity = card?.getAttribute(workAttribute);
-  if (!focused || !card || !identity) {
+  if (!card || !identity) {
     return undefined;
   }
   return {
@@ -53,7 +58,7 @@ export function returnFocusTo(held: FocusedWork): void {
     ...document.querySelectorAll<HTMLElement>(`[${workAttribute}]`),
   ].find((shown) => shown.getAttribute(workAttribute) === held.identity);
   if (!card) {
-    document.querySelector<HTMLElement>(`[${stagesAttribute}]`)?.focus();
+    focusStages();
     return;
   }
   const link =
@@ -63,6 +68,11 @@ export function returnFocusTo(held: FocusedWork): void {
           (shown) => shown.getAttribute(workLinkAttribute) === held.link,
         );
   (link ?? card).focus();
+}
+
+// The stages hold the keyboard position when no particular work does.
+export function focusStages(): void {
+  document.querySelector<HTMLElement>(`[${stagesAttribute}]`)?.focus();
 }
 
 // Membership arrives before derived links. Retain a missing role while its

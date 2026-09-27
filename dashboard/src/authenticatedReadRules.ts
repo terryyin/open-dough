@@ -1,6 +1,6 @@
 // The read rules the browser and the local server side share for the local
-// authenticated read boundary (`../server/authenticatedRead.ts`): its one
-// path, what names a commit or a usable branch, how long one read may wait,
+// authenticated read boundary (`../server/authenticatedRead.ts`): its
+// paths, what names a commit or a usable branch, how long one read may wait,
 // and how a failure words what was being read. Kept in its own module, with
 // no Node import, so the browser bundle can reference the exact same rules
 // without pulling in server-only code: `../server/authenticatedRead.ts`
@@ -10,6 +10,10 @@
 import type { PublishedSource } from "./publishedSource.ts";
 
 export const authenticatedReadEndpoint = "/__authenticated-read";
+
+// Beside it, the boundary serves the GitHub avatar of the human credited for
+// one listed agent profile at a pinned revision.
+export const authenticatedAvatarEndpoint = "/__authenticated-avatar";
 
 // The longest wait, in whole seconds, the boundary ever passes on from a
 // GitHub rate limit's direction (`../server/rateLimitDirection.ts`): GitHub's
@@ -44,7 +48,8 @@ export const readWaitLimitMs = 30_000;
 // What was being read, as a read failure names it: the source's ref while
 // it is still to be resolved, a recorded story branch while its head is
 // resolved, one repository path at a resolved revision, or when that path was
-// last committed as of a resolved revision.
+// last committed as of a resolved revision, or which commit added an agent
+// profile's current allocation as of a resolved revision.
 export function readingRefOf(
   source: Pick<PublishedSource, "ref" | "repository">,
 ): string {
@@ -64,4 +69,8 @@ export function readingPathAt(path: string, revision: string): string {
 
 export function readingLastCommitAt(path: string, revision: string): string {
   return `the last commit of ${path} at ${revision}`;
+}
+
+export function readingAdditionAt(path: string, revision: string): string {
+  return `the commit that added ${path} at ${revision}`;
 }

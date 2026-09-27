@@ -100,7 +100,7 @@ test("each Taken card's clock measures from the later of its last plan commit an
     const asked = () =>
       requests
         .flatMap(({ request }) =>
-          request.kind === "commit-list"
+          request.kind === "commit-list" && request.latestOnly
             ? [`${request.path}@${request.revision}`]
             : [],
         )

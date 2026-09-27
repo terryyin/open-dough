@@ -5,7 +5,8 @@
 // this spec's own isolated server process's PATH records every invocation
 // through a fake GitHub, so each refusal can prove no `gh` call was made.
 // What the boundary reads and reports once a request is accepted is covered
-// in ./authenticated-read-boundary.spec.ts.
+// in ./authenticated-read-boundary.spec.ts; malformed addition reads in
+// ./authenticated-read-profile-addition.spec.ts.
 
 import { expect, test } from "@playwright/test";
 import {

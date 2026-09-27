@@ -18,7 +18,12 @@ import {
 import {
   readAgentProfilesAt,
   type PublishedProfile,
-} from "./authenticatedRead.ts";
+} from "./authenticatedProfileRead.ts";
+import {
+  attributionLoading,
+  type HumanAttribution,
+} from "./commissionAttribution.ts";
+import { rosterMembers } from "./commissionRoster.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 
@@ -54,13 +59,15 @@ export type AgentHost = z.infer<typeof agentHost>;
 // One published assignment's developer facts, and the repository path its
 // profile is published at; host and model stay undefined when the profile
 // does not record them. `name` is the agent's place in the shared rotation;
-// `agent` is how it is shown.
+// `agent` is how it is shown. `human` is who committed the profile's current
+// allocation (`./commissionAttribution.ts`), loading until that is read.
 export type AgentAssignment = {
   readonly profilePath: string;
   readonly name: string;
   readonly agent: string;
   readonly host: AgentHost | undefined;
   readonly model: string | undefined;
+  readonly human: HumanAttribution;
 };
 
 // An execution assignment also records where its work is published.
@@ -90,23 +97,25 @@ export type UnreadableProfile = {
   readonly problem: string;
 };
 
-type ProfileAssignments = {
-  readonly owners: ReadonlyMap<string, readonly AgentOwner[]>;
-  readonly preparers: ReadonlyMap<string, readonly AgentAssignment[]>;
+// A readable published profile as its agent's commission: the work it names
+// by identity, and whether that work is being prepared or is Taken.
+export type Commission = (
+  | (AgentAssignment & { readonly activity: "preparation" })
+  | (AgentOwner & { readonly activity: "execution" })
+) & { readonly identity: string };
+
+// The readable profiles as commissions, and the unreadable ones by file.
+export type ProfileAssignments = {
+  readonly commissions: readonly Commission[];
   readonly unreadable: readonly UnreadableProfile[];
 };
 
 const profilesUnreadProblem = "Agent profiles could not be read.";
 
-function add<T>(map: Map<string, T[]>, identity: string, value: T) {
-  map.set(identity, [...(map.get(identity) ?? []), value]);
-}
-
 function interpretProfiles(
   profiles: readonly PublishedProfile[],
 ): ProfileAssignments {
-  const owners = new Map<string, AgentOwner[]>();
-  const preparers = new Map<string, AgentAssignment[]>();
+  const commissions: Commission[] = [];
   const unreadable: UnreadableProfile[] = [];
   for (const { path, text } of profiles) {
     const file = path.split("/").pop() ?? path;
@@ -140,34 +149,43 @@ function interpretProfiles(
       agent: agentIdentity(name).agent,
       host,
       model,
+      human: attributionLoading,
     };
     if (profile.activity === "preparation") {
-      add(preparers, identity, assignment);
+      commissions.push({ ...assignment, activity: "preparation", identity });
     } else {
-      const { mode, branch } = profile;
-      add(owners, identity, { ...assignment, mode, branch });
+      const { activity, mode, branch } = profile;
+      commissions.push({ ...assignment, mode, branch, activity, identity });
     }
   }
-  return { owners, preparers, unreadable };
+  return { commissions, unreadable };
 }
 
-function assignmentsOf<T extends AgentAssignment>(
+// The commissions of one activity naming an entry, or the gap when none is
+// recorded or the profiles could not be read.
+function assignmentsOf<A extends Commission["activity"]>(
   identity: string,
-  byIdentity: ReadonlyMap<string, readonly T[]> | undefined,
-): Assignments<T> {
-  if (byIdentity === undefined) {
+  activity: A,
+  assignments: ProfileAssignments | undefined,
+): Assignments<Extract<Commission, { readonly activity: A }>> {
+  if (assignments === undefined) {
     return { status: "unavailable", problem: profilesUnreadProblem };
   }
-  const assignments = byIdentity.get(identity);
-  return assignments === undefined
+  const named = assignments.commissions.filter(
+    (commission): commission is Extract<Commission, { readonly activity: A }> =>
+      commission.activity === activity && commission.identity === identity,
+  );
+  return named.length === 0
     ? { status: "not-recorded" }
-    : { status: "recorded", assignments };
+    : { status: "recorded", assignments: named };
 }
 
-// Every Taken entry waits for its owner while profiles are read.
+// Every Taken entry waits for its owner, and the roster for every agent's
+// commission, while profiles are read.
 export function awaitingOwners(work: PublishedWork): PublishedWork {
   return {
     ...work,
+    roster: { status: "loading" },
     taken: work.taken.map((entry) => ({
       ...entry,
       owner: { status: "loading" },
@@ -199,12 +217,16 @@ export function withAssignments(
     ...work,
     taken: work.taken.map((entry) => ({
       ...entry,
-      owner: assignmentsOf(entry.identity, assignments?.owners),
+      owner: assignmentsOf(entry.identity, "execution", assignments),
     })),
     backlog: work.backlog.map((entry) => ({
       ...entry,
-      preparing: assignmentsOf(entry.identity, assignments?.preparers),
+      preparing: assignmentsOf(entry.identity, "preparation", assignments),
     })),
     unreadableProfiles: assignments?.unreadable ?? [],
+    roster:
+      assignments === undefined
+        ? { status: "unavailable", problem: profilesUnreadProblem }
+        : { status: "read", members: rosterMembers(work, assignments) },
   };
 }

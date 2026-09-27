@@ -8,6 +8,7 @@ import {
   PreparingFacts,
   TakenOwnerFacts,
   UnreadableProfiles,
+  type OpenRoster,
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
 import { stagesMarks, workCardMarks } from "./workFocus.ts";
@@ -22,6 +23,7 @@ function WorkCard({
   showsSliceProgress,
   selected,
   onSelect,
+  onOpenRoster,
 }: {
   entry: WorkEntry;
   priority: number | undefined;
@@ -29,6 +31,7 @@ function WorkCard({
   showsSliceProgress: boolean;
   selected: boolean;
   onSelect: (identity: string) => void;
+  onOpenRoster: OpenRoster;
 }) {
   const cardRef = useRef<HTMLElement>(null);
   const detailId = `story-detail-${entry.identity.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
@@ -44,8 +47,8 @@ function WorkCard({
       )}
       <h3>{entry.title}</h3>
       <p className="card-identity">{entry.identity}</p>
-      <TakenOwnerFacts owner={entry.owner} />
-      <PreparingFacts preparing={entry.preparing} />
+      <TakenOwnerFacts owner={entry.owner} onOpenRoster={onOpenRoster} />
+      <PreparingFacts preparing={entry.preparing} onOpenRoster={onOpenRoster} />
       <PreparationFacts preparation={entry.preparation} />
       {showsSliceProgress && (
         <SliceProgress
@@ -92,6 +95,7 @@ function Stage({
   showsSliceProgress,
   selectedIdentity,
   onSelect,
+  onOpenRoster,
   unreadableProfiles,
 }: {
   name: string;
@@ -100,6 +104,7 @@ function Stage({
   showsSliceProgress: boolean;
   selectedIdentity: string | undefined;
   onSelect: (identity: string) => void;
+  onOpenRoster: OpenRoster;
   unreadableProfiles?: readonly UnreadableProfile[] | undefined;
 }) {
   const headingId = `stage-${name.toLowerCase()}`;
@@ -122,6 +127,7 @@ function Stage({
                 showsSliceProgress={showsSliceProgress}
                 selected={selectedIdentity === entry.identity}
                 onSelect={onSelect}
+                onOpenRoster={onOpenRoster}
               />
             </li>
           ))}
@@ -136,7 +142,13 @@ function Stage({
 // stages, or marks work as active. Cards are keyed by work identity so the same
 // work is one card across snapshots, and carry the marks `workFocus` defines so
 // keyboard focus can follow that work.
-export function WorkStages({ work }: { work: PublishedWork }) {
+export function WorkStages({
+  work,
+  onOpenRoster,
+}: {
+  work: PublishedWork;
+  onOpenRoster: OpenRoster;
+}) {
   const [selectedIdentity, setSelectedIdentity] = useState<string | undefined>(
     undefined,
   );
@@ -155,6 +167,7 @@ export function WorkStages({ work }: { work: PublishedWork }) {
           showsSliceProgress={false}
           selectedIdentity={selectedIdentity}
           onSelect={select}
+          onOpenRoster={onOpenRoster}
         />
         <div className="connector">
           {/* No viewBox: the line is as long as the arrow is given room, and
@@ -178,6 +191,7 @@ export function WorkStages({ work }: { work: PublishedWork }) {
           showsSliceProgress
           selectedIdentity={selectedIdentity}
           onSelect={select}
+          onOpenRoster={onOpenRoster}
           unreadableProfiles={work.unreadableProfiles}
         />
       </section>

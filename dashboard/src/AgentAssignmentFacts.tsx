@@ -2,9 +2,9 @@
 // work, from the recorded agent profile facts, or the explicit gap when none
 // is recorded or readable. Branch context is shown as context only; it never
 // says that branch work has reached trunk. Preparing is an annotation on the
-// queued card, never a stage or a claim that an agent is running.
+// queued card, never a stage or a claim that an agent is running. The human
+// developer credited for an assignment is shown beside it (`./HumanCredit.tsx`).
 
-import type { CSSProperties } from "react";
 import type {
   AgentAssignment,
   AgentHost,
@@ -14,7 +14,8 @@ import type {
   TakenOwner,
   UnreadableProfile,
 } from "./agentAssignments.ts";
-import { agentNames } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { AgentPortrait } from "./AgentPortrait.tsx";
+import { HumanCredit } from "./HumanCredit.tsx";
 import "./agent-assignment.css";
 
 // How each recorded mode and host is presented: its label, and the local mark
@@ -50,44 +51,38 @@ function OwnerMark({ file }: { file: string | undefined }) {
   );
 }
 
-const portraitsPerAtlas = 6;
+// Opens the agent roster at the named agent, from the control that asked, so
+// that closing the roster can return focus to it.
+export type OpenRoster = (name: string, opener: HTMLElement) => void;
 
-// The approved portrait for a recorded agent, by its rotation name. Portraits
-// follow the shared agent rotation, six to an atlas in a three-column, two-row
-// grid of taller cells; the square shown is each cell's center. The portrait
-// is decorative: the agent name beside it carries the meaning.
-function AgentPortrait({ name }: { name: string }) {
-  const index = agentNames.indexOf(name);
-  if (index < 0) {
-    return null;
-  }
-  const atlas = Math.floor(index / portraitsPerAtlas) + 1;
-  const tile = index % portraitsPerAtlas;
-  const column = tile % 3;
-  const row = Math.floor(tile / 3);
-  const atlasUrl = (suffix: string) =>
-    `url("${import.meta.env.BASE_URL}agent-avatars/atlas-${atlas}${suffix}.webp")`;
+// A card's portrait opens the agent roster at its agent: a control named for
+// what it does, holding the decorative portrait.
+function PortraitOpener({
+  developer,
+  onOpenRoster,
+}: {
+  developer: AgentAssignment;
+  onOpenRoster: OpenRoster;
+}) {
   return (
-    <span
-      className="agent-portrait"
-      aria-hidden="true"
-      style={
-        {
-          "--portrait": atlasUrl(""),
-          "--portrait-large": atlasUrl("-large"),
-          "--portrait-tile": `${column * 50}% ${row === 0 ? 12.5 : 87.5}%`,
-        } as CSSProperties
-      }
-    />
+    <button
+      type="button"
+      className="portrait-opener"
+      aria-label={`Show ${developer.agent} in the agent roster`}
+      onClick={(event) => {
+        onOpenRoster(developer.name, event.currentTarget);
+      }}
+    >
+      <AgentPortrait name={developer.name} />
+    </button>
   );
 }
 
-// The one-line developer summary, for example
-// "Akiho-chan · Trunk Mode · Claude Code · claude-opus"; a preparation
-// assignment records no mode. Each fact is its own group so a visual mark
-// stays beside the label it belongs to; an unrecorded host keeps its text gap
-// and gets no mark.
-function DeveloperSummary({
+// What an assignment records beyond its agent, for example
+// "Trunk Mode · Claude Code · claude-opus"; a preparation assignment records
+// no mode. Each fact is its own group so a visual mark stays beside the label
+// it belongs to; an unrecorded host keeps its text gap and gets no mark.
+export function RecordedFacts({
   developer,
 }: {
   developer: AgentAssignment & { readonly mode?: AgentMode };
@@ -108,21 +103,35 @@ function DeveloperSummary({
       mark: undefined,
     },
   ];
+  return facts.map(({ kind, label, mark }, index) => (
+    <span key={kind}>
+      {index > 0 && " · "}
+      <span className={`owner-fact owner-${kind}`}>
+        <OwnerMark file={mark} />
+        {label}
+      </span>
+    </span>
+  ));
+}
+
+// The one-line developer summary, for example
+// "Akiho-chan · Trunk Mode · Claude Code · claude-opus", led by the agent's
+// portrait.
+function DeveloperSummary({
+  developer,
+  onOpenRoster,
+}: {
+  developer: AgentAssignment & { readonly mode?: AgentMode };
+  onOpenRoster: OpenRoster;
+}) {
   return (
     <p className="owner-summary">
       <span className="owner-fact owner-agent">
-        <AgentPortrait name={developer.name} />
+        <PortraitOpener developer={developer} onOpenRoster={onOpenRoster} />
         {developer.agent}
       </span>
-      {facts.map(({ kind, label, mark }) => (
-        <span key={kind}>
-          {" · "}
-          <span className={`owner-fact owner-${kind}`}>
-            <OwnerMark file={mark} />
-            {label}
-          </span>
-        </span>
-      ))}
+      {" · "}
+      <RecordedFacts developer={developer} />
     </p>
   );
 }
@@ -138,7 +147,13 @@ function BranchContext({ owner }: { owner: AgentOwner }) {
   );
 }
 
-export function TakenOwnerFacts({ owner }: { owner: TakenOwner | undefined }) {
+export function TakenOwnerFacts({
+  owner,
+  onOpenRoster,
+}: {
+  owner: TakenOwner | undefined;
+  onOpenRoster: OpenRoster;
+}) {
   if (owner === undefined) {
     return null;
   }
@@ -155,7 +170,8 @@ export function TakenOwnerFacts({ owner }: { owner: TakenOwner | undefined }) {
     <div className="card-owner">
       {owner.assignments.map((each) => (
         <div key={each.agent}>
-          <DeveloperSummary developer={each} />
+          <DeveloperSummary developer={each} onOpenRoster={onOpenRoster} />
+          <HumanCredit developer={each} />
           <BranchContext owner={each} />
         </div>
       ))}
@@ -169,8 +185,10 @@ export function TakenOwnerFacts({ owner }: { owner: TakenOwner | undefined }) {
 // one assignment for the entry are shown as uncertainty.
 export function PreparingFacts({
   preparing,
+  onOpenRoster,
 }: {
   preparing: Preparing | undefined;
+  onOpenRoster: OpenRoster;
 }) {
   if (preparing === undefined || preparing.status === "not-recorded") {
     return null;
@@ -187,7 +205,10 @@ export function PreparingFacts({
     <div className="card-owner card-preparing">
       <p className="preparing-activity">Preparing</p>
       {preparers.map((each) => (
-        <DeveloperSummary key={each.agent} developer={each} />
+        <div key={each.agent}>
+          <DeveloperSummary developer={each} onOpenRoster={onOpenRoster} />
+          <HumanCredit developer={each} />
+        </div>
       ))}
       {preparers.length > 1 && (
         <p className="preparation-problem">

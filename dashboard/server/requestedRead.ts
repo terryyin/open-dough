@@ -4,8 +4,10 @@
 // the revision already shown (`since`), and which heads the story branches
 // recorded at that revision name now (`watch`); the backlog at an already
 // resolved revision; one repository path at a pinned revision; when one repository
-// path was last committed at a pinned revision (`committed=last`); the
-// agent profiles published beside the backlog at a pinned revision; which
+// path was last committed at a pinned revision (`committed=last`); which
+// commit added one agent profile's current allocation, and who committed it,
+// at a pinned revision (`committed=added`); the agent profiles published
+// beside the backlog at a pinned revision; which
 // commit a story branch recorded at a pinned revision names now (`branch`);
 // or one path, or its last commit, at a head of that branch (`branch` and
 // `head`). Malformed or mixed parameters are refused here, before any `gh`
@@ -16,6 +18,7 @@ import {
   isSafeBranchName,
 } from "../src/authenticatedReadRules.ts";
 import { parseSafeRepositoryPath } from "./reachablePaths.ts";
+import { profileAgentName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 // A story branch as a read names it: the branch, and the head commit this
 // boundary already resolved it to.
@@ -31,6 +34,11 @@ export type RequestedRead =
     }
   | { readonly kind: "backlog-at"; readonly revision: string }
   | { readonly kind: "agent-profiles-at"; readonly revision: string }
+  | {
+      readonly kind: "addition-at";
+      readonly revision: string;
+      readonly path: string;
+    }
   | {
       readonly kind: "branch-head-at";
       readonly revision: string;
@@ -54,6 +62,13 @@ export type RefusedParameters = {
 function refused(message: string): RefusedParameters {
   return { kind: "refused", status: 400, message };
 }
+
+// A revision a read is pinned to must already be a resolved commit.
+function isPinnedRevision(revision: string | null): revision is string {
+  return revision !== null && commitShaPattern.test(revision);
+}
+
+const unpinnedRevision = refused("The pinned revision is not a commit sha.");
 
 // At most this many story branches are watched by one check: far more than
 // a project's Taken entries.
@@ -114,8 +129,8 @@ function parseBranchRead(
   if (!isSafeBranchName(branch)) {
     return refused("The branch name is not usable.");
   }
-  if (revision === null || !commitShaPattern.test(revision)) {
-    return refused("The pinned revision is not a commit sha.");
+  if (!isPinnedRevision(revision)) {
+    return unpinnedRevision;
   }
   if (head === null) {
     return path === null && committed === null
@@ -129,6 +144,30 @@ function parseBranchRead(
   return read.kind === "refused"
     ? read
     : { ...read, revision, onBranch: { branch, head } };
+}
+
+// Which commit added an agent profile, asked only on trunk at a pinned
+// revision and only for a path the shared profile module names as a profile;
+// whether that profile is listed at the revision is the performed read's to
+// decide. An avatar read (`./avatarRead.ts`) names its profile the same way.
+export function parseAdditionRead(
+  revision: string | null,
+  path: string | null,
+):
+  Extract<RequestedRead, { readonly kind: "addition-at" }> | RefusedParameters {
+  if (!isPinnedRevision(revision)) {
+    return unpinnedRevision;
+  }
+  const repositoryPath = parseSafeRepositoryPath(path);
+  const file = repositoryPath?.split("/").pop();
+  if (
+    repositoryPath === undefined ||
+    file === undefined ||
+    profileAgentName(file) === undefined
+  ) {
+    return refused("An addition read names only an agent profile path.");
+  }
+  return { kind: "addition-at", revision, path: repositoryPath };
 }
 
 export function parseRequestedRead(
@@ -161,10 +200,17 @@ export function parseRequestedRead(
     ) {
       return refused("An agent profile read names only a pinned revision.");
     }
-    if (revision === null || !commitShaPattern.test(revision)) {
-      return refused("The pinned revision is not a commit sha.");
+    if (!isPinnedRevision(revision)) {
+      return unpinnedRevision;
     }
     return { kind: "agent-profiles-at", revision };
+  }
+  if (committed === "added") {
+    return since === null
+      ? parseAdditionRead(revision, path)
+      : refused(
+          "An addition read names only a pinned revision and an agent profile path.",
+        );
   }
   if (since !== null) {
     if (revision !== null || path !== null || committed !== null) {
@@ -183,8 +229,8 @@ export function parseRequestedRead(
       ? { kind: "ref" }
       : refused("A pinned revision and repository path are both required.");
   }
-  if (!commitShaPattern.test(revision)) {
-    return refused("The pinned revision is not a commit sha.");
+  if (!isPinnedRevision(revision)) {
+    return unpinnedRevision;
   }
   if (path === null && committed === null) {
     // The backlog at a revision the caller already resolved, so a changed

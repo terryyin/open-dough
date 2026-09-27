@@ -130,6 +130,12 @@ main {
   max-width: 60rem;
 }
 
+/* While the agent roster is shown, the stories and their direction stay in
+   place behind it, keeping what was open. */
+.direction-row[hidden] {
+  display: none;
+}
+
 .direction-row {
   display: flex;
   align-items: flex-start;

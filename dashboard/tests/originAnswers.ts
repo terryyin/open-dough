@@ -117,6 +117,25 @@ export function branchRefAnswer(branch: string, sha: string): RawAnswer {
   };
 }
 
+// A commit as GitHub describes one: its sha, and its Git committer's name
+// and time.
+export function fixtureCommit(
+  sha: string,
+  committer: string,
+  committedAt: Date,
+) {
+  return {
+    sha,
+    commit: {
+      message: "Fixture commit",
+      committer: {
+        name: committer,
+        date: committedAt.toISOString().replace(/\.\d{3}Z$/, "Z"),
+      },
+    },
+  };
+}
+
 // GitHub's commit list for a path, newest first, as far as `per_page=1`
 // asks: the one commit that last changed it, committed at `committedAt`.
 function commitListAnswer(committedAt: Date): RawAnswer {
@@ -124,16 +143,7 @@ function commitListAnswer(committedAt: Date): RawAnswer {
     status: 200,
     contentType: "application/json; charset=utf-8",
     body: JSON.stringify([
-      {
-        sha: "c0".repeat(20),
-        commit: {
-          message: "Fixture commit",
-          committer: {
-            name: "Fixture Committer",
-            date: committedAt.toISOString().replace(/\.\d{3}Z$/, "Z"),
-          },
-        },
-      },
+      fixtureCommit("c0".repeat(20), "Fixture Committer", committedAt),
     ]),
   };
 }

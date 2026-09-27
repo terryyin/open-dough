@@ -1,6 +1,7 @@
 /* Who holds a Taken card's work, or is preparing a queued card's work: the
-   developer summary with its agent portrait and the mode and host marks
-   beside their labels, branch context, and unreadable profiles. */
+   developer summary with its agent portrait opener and the mode and host marks
+   beside their labels, the credited human developer with their avatar,
+   branch context, and unreadable profiles. */
 
 .card-owner {
   margin-top: 0.35rem;
@@ -20,64 +21,16 @@
   vertical-align: middle;
 }
 
-.agent-portrait {
-  --portrait-size: 2rem;
-  --portrait-edge: 1px;
-  position: relative;
+/* A portrait that opens the roster stays exactly where the decorative
+   portrait stood: the control adds no box of its own, only a focus ring. */
+.portrait-opener {
+  display: inline-flex;
   flex: none;
-  width: var(--portrait-size);
-  height: var(--portrait-size);
-  border: var(--portrait-edge) solid var(--edge);
+  padding: 0;
+  border: 0;
   border-radius: 50%;
-  background-image: var(--portrait);
-  background-position: var(--portrait-tile);
-  background-size: 300% 300%;
-  background-repeat: no-repeat;
-}
-
-/* Hovering the portrait shows it three times larger, over its neighbors,
-   without moving the line it sits on. It grows from its left edge so it stays
-   inside the card. The enlarged view is laid out at its full size and only
-   ever scaled down, so the browser paints the high-resolution atlas sharply
-   rather than stretching the small portrait's pixels; the small atlas stays
-   underneath while the large one loads. */
-.agent-portrait::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: calc(-1 * var(--portrait-edge));
-  box-sizing: border-box;
-  width: calc(3 * (var(--portrait-size) + 2 * var(--portrait-edge)));
-  height: calc(3 * (var(--portrait-size) + 2 * var(--portrait-edge)));
-  border: inherit;
-  border-radius: inherit;
-  background-image: var(--portrait-large), var(--portrait);
-  background-position: var(--portrait-tile), var(--portrait-tile);
-  background-size: inherit;
-  background-repeat: inherit;
-  box-shadow: 0 0.3rem 1.2rem rgb(0 0 0 / 0.3);
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-50%) scale(calc(1 / 3));
-  transform-origin: left center;
-  transition:
-    transform 0.15s ease-out,
-    opacity 0.15s ease-out;
-}
-
-.agent-portrait:hover {
-  z-index: 1;
-}
-
-.agent-portrait:hover::after {
-  opacity: 1;
-  transform: translateY(-50%);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .agent-portrait::after {
-    transition: none;
-  }
+  background: none;
+  cursor: pointer;
 }
 
 .owner-mark {
@@ -87,8 +40,36 @@
   object-fit: contain;
 }
 
+.owner-human,
 .owner-branch {
   font-size: 0.9rem;
+}
+
+/* A credited human's GitHub avatar, or its initials when there is none,
+   beside the name. */
+.owner-human-credit {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.human-avatar {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.human-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--edge);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 0.65rem;
+  font-weight: 600;
 }
 
 .unreadable-profiles {

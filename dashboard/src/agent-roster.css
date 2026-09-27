@@ -1,0 +1,67 @@
+/* The agent roster: every agent of the rotation with its larger portrait and
+   published commission, the agent it was opened from marked, and Back at the
+   top. Members reflow from a grid to one column at narrow widths. */
+
+.agent-roster > * + * {
+  margin-top: 0.75rem;
+}
+
+.roster-back {
+  font: inherit;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 0.25rem;
+  padding: 0.2rem 0.55rem;
+  cursor: pointer;
+}
+
+.roster-source {
+  color: var(--quiet);
+}
+
+.roster-members {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: 0.75rem;
+}
+
+.roster-member {
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+  border: 1px solid var(--line);
+  border-radius: 0.35rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--panel);
+  overflow-wrap: anywhere;
+}
+
+.roster-opened {
+  border: 2px solid var(--accent);
+}
+
+.roster-opened-note {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.roster-agent {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.roster-agent .agent-portrait {
+  --portrait-size: 3rem;
+}
+
+.roster-activity {
+  font-weight: 600;
+}
+
+.roster-commission {
+  display: grid;
+  gap: 0.15rem;
+}

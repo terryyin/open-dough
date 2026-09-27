@@ -8,9 +8,11 @@
 // `./readOutcome.ts`.
 
 import type { IncomingMessage } from "node:http";
+import type { AvatarImages } from "./avatarImages.ts";
 import type { BranchHeads } from "./branchHeads.ts";
 import { resolveRevisionViaGh } from "./ghRevision.ts";
 import { readRepositoryFileViaGh } from "./ghContents.ts";
+import type { ProfileAddition } from "./ghProfileAddition.ts";
 import {
   performBranchHeadRead,
   performOnBranch,
@@ -29,12 +31,14 @@ import {
 import {
   agentProfileDirectoryOf,
   commitTimeReachableFromRevision,
+  isListedAgentProfile,
   listedAgentProfilePaths,
   pathReachableFromRevision,
 } from "./reachablePaths.ts";
 import type { RequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
+  readingAdditionAt,
   readingBranchHeadOf,
   readingLastCommitAt,
   readingPathAt,
@@ -46,7 +50,28 @@ export type Boundary = {
   readonly pinned: PinnedTexts;
   readonly checks: RevisionChecks;
   readonly branches: BranchHeads;
+  readonly avatars: AvatarImages;
 };
+
+// Which commit added a profile's current allocation, asked only about a
+// profile the revision's directory listing names, as when profiles themselves
+// are read; undefined when it does not. The avatar read (`./avatarRead.ts`)
+// finds its account the same way.
+export async function listedProfileAddition(
+  pinned: PinnedTexts,
+  source: PublishedSource,
+  { revision, path }: { readonly revision: string; readonly path: string },
+  signal: AbortSignal,
+): Promise<ProfileAddition | undefined> {
+  const listed = await isListedAgentProfile(
+    source,
+    path,
+    pinned.lister(source, revision, signal),
+  );
+  return listed
+    ? await pinned.adder(source, revision, signal)(path)
+    : undefined;
+}
 
 // What a read failure names as being read when the request was made.
 function readingOf(source: PublishedSource, read: RequestedRead): string {
@@ -65,6 +90,8 @@ function readingOf(source: PublishedSource, read: RequestedRead): string {
       return readingPathAt(read.path, read.onBranch?.head ?? read.revision);
     case "agent-profiles-at":
       return readingPathAt(agentProfileDirectoryOf(source), read.revision);
+    case "addition-at":
+      return readingAdditionAt(read.path, read.revision);
     case "backlog-at":
       return readingPathAt(source.backlogPath, read.revision);
   }
@@ -108,6 +135,28 @@ export async function perform(
             profiles.push({ path, text: await readPinned(path) });
           }
           return answered({ revision: read.revision, profiles });
+        }
+        case "addition-at": {
+          const added = await listedProfileAddition(
+            pinned,
+            source,
+            read,
+            signal,
+          );
+          if (added === undefined) {
+            return unreachable;
+          }
+          // The avatar source stays here: the page asks for the image
+          // through `./avatarRead.ts`, never from GitHub itself.
+          return answered({
+            revision: read.revision,
+            path: read.path,
+            added: added && {
+              commit: added.commit,
+              committerName: added.committerName,
+              login: added.login,
+            },
+          });
         }
         case "branch-head-at":
           return await performBranchHeadRead(

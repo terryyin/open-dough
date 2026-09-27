@@ -139,6 +139,8 @@ export async function startDashboardServer(options: {
   const env: NodeJS.ProcessEnv = {
     ...process.env,
     ...fakeGhEnv(gh, github.url),
+    // Avatars are fetched from the same fake GitHub, never GitHub itself.
+    DOUGH_AVATAR_ORIGIN: github.url.replace(/\/$/, ""),
     ...options.extraEnv,
   };
   if (options.readTimeoutMs !== undefined) {
