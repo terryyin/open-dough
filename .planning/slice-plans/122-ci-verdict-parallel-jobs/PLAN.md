@@ -209,3 +209,11 @@ split jobs it judges.
 - Slice 4 risk: `freePort()` in `dashboard/tests/support/dashboardServer.ts`
   binds port 0, closes it, and returns the number, so more workers widen an
   existing window for another worker to take that port first.
+- Slice 4 first option measured: five CI runs of `690d121` (all cores for
+  Playwright on CI, report kept on every run), runs 36289040316, 36289169218,
+  36289322169, 36289440546, 36289539440: dashboard job 133, 165, 118, 90,
+  116 s (suite step 88, 92, 82, 57, 70 s; Chromium install 20–33 s), every
+  run 120 expected of `--list`'s 120, none skipped or failed. Workflow wall
+  136, 169, 122, 93, 120 s (median 122 s); split jobs 60–91 s, share totals
+  195.0–306.7 job-seconds. Workers alone miss 105 s in three runs, so per the
+  Dashboard decision the suite runs as two `--shard` jobs.

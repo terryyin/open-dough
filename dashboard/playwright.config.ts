@@ -5,9 +5,9 @@ export default defineConfig({
   testDir: "./tests",
   outputDir: "./test-results",
   fullyParallel: true,
-  // Playwright's default uses half the cores. CI's dashboard job must finish
-  // within the CI verdict target, so there it uses every core; local runs keep
-  // the default.
+  // Playwright's default uses half the cores. Each CI dashboard shard job must
+  // finish within the CI verdict target, so there it uses every core; local
+  // runs keep the default.
   ...(process.env["CI"] ? { workers: availableParallelism() } : {}),
   forbidOnly: Boolean(process.env["CI"]),
   retries: 0,
