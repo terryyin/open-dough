@@ -52,7 +52,7 @@ about 1.5× apart, so use at least five runs per measurement.
 
 **Identity:** SEED-046#ci-verdict-correction
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/126-ci-verdict-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0158ba38631e33e91923039bf9f29185394b14fbe9c0e6cc5b7b072bdde34914","plan":"29804ac75be4ecc2c3a4f1d25ca9a890dc2cd4a014be6375dcbeec04b0b97eaf"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/126-ci-verdict-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c1441c84c51c4117988349da0b3e10e8d9422144b4af05c6f591bb3cc7a02635","plan":"29804ac75be4ecc2c3a4f1d25ca9a890dc2cd4a014be6375dcbeec04b0b97eaf"}}
 ```
 
 **Goal:** A maintainer changing the test runner, the CI split, or the time
