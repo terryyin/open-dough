@@ -11,12 +11,12 @@ scope: 1 story
 
 ## Why This Matters
 
-The dashboard currently shows an agent beside an individual story, but a
-developer cannot start from that agent and see the full roster for the selected
-client project. They also cannot see the human developer working with the agent
-beside the agent on the current dashboard. A project-wide view would make
-commissions and their human partnerships easier to understand without opening
-each story or interpreting raw records.
+The dashboard identifies agents beside individual stories, but a developer
+cannot open an agent-centered view of the selected client project. It also
+omits the human developer who commissioned an agent, although that person is
+credited in the assignment commit. The developer needs one place to see the
+roster, each current commission, and the human beside the agent on the existing
+story cards.
 
 ## Story
 
@@ -26,70 +26,76 @@ each story or interpreting raw records.
 
 **Identity:** SEED-049#project-agent-roster
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/123-agent-roster-overview/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cc564d80946600a1b3b19cccfe6e7340e0f3e1a40f9feb32c351e5a56cd25ac4","plan":"00a28e39f7de95fe5719f1baa0863fce6bbce3822288a123fc125ad8eb508b60"}}
 ```
 
-- **For / why:** A developer viewing a client project can see which agents are
-  commissioned, what they are undertaking, and which human developer is
-  credited with their work.
-- **Goal:** Clicking an agent's portrait in the current dashboard opens a
-  project-scoped agent overview. It shows a thumbnail and name for every agent
-  in the roster, whether each is commissioned, and, for commissioned agents,
-  the recorded task, preparation or execution activity, credited human
-  developer, IDE/host tool, and model. A Back button at the top returns to the
-  project dashboard. The current dashboard also shows the human developer's
-  name and avatar beside the agent's identity.
-- **Evaluation:** From a Taken or Preparing card, a developer can open the
-  roster through the agent portrait, find that agent among all roster members,
-  inspect its commission and return to the same project view. An uncommissioned
-  agent is visibly distinguished from an agent with a published assignment.
-  The human developer shown beside an agent is supported by the relevant Git
-  commit attribution; the avatar is obtained from GitHub and cached. If the
-  commission, host, model, human identity, or GitHub avatar cannot be established,
-  the dashboard shows the known facts and an honest missing or uncertain state.
-- **Value / learning:** Lets developers understand agent capacity and human
-  collaboration across the project, and tests whether an agent-centered view
-  complements the existing story-centered dashboard.
-- **Effort hypothesis:** Unestimated; refine the commit-to-commission and
-  GitHub identity lookup before sizing.
-- **Depends on:** The existing published agent profiles, agent portraits, and
-  dashboard project selection. No new product prerequisite is established
-  during capture.
-- **Safe stopping point:** The roster and human identity are readable for the
-  selected project without requiring live agent presence or a dashboard control
-  for assigning work.
+**Goal:** A developer viewing one client project can open its agent roster
+from an agent portrait, see which of the 29 named agents have published
+commissions and what each is preparing or executing, recognize the human
+developer credited for a commission, and return to the story dashboard.
 
-## Key Examples and Boundaries
+**Scope:**
 
-- All 29 named agents appear for the selected project. A published preparation
-  profile shows a preparation commission; an execution profile shows its Taken
-  task. An agent without a published profile shows no current commission.
-- The overview uses the profile's recorded host tool and model when present.
-  It does not infer them from a portrait, commit, or currently open IDE.
-- Human developer identity comes from the commission's relevant commit
-  attribution, including the existing developer credit on agent commits.
-  GitHub supplies a matched person's avatar, cached for display. A missing or
-  ambiguous attribution or GitHub match remains explicit; the dashboard does
-  not attach an unrelated person's portrait to the agent.
-- A commission is a recorded assignment, not evidence that the agent is
-  online or currently working. Back navigation retains the selected project
-  and returns to the prior dashboard context.
+- Each agent portrait on a Taken or Preparing card opens the roster for the
+  selected project and identifies the agent clicked. The roster shows all 29
+  existing portraits and names. A Back button at the top returns to the same
+  project's story dashboard and its prior reading context.
+- A readable current agent profile supplies a commission's task title and
+  identity, Preparing or Taken activity, and the recorded IDE/host tool and
+  model. If its story cannot be read, show the recorded identity and a title
+  gap. When profiles are read successfully, a roster member without one is
+  labelled not commissioned.
+  Unreadable or conflicting profile evidence stays uncertain rather than
+  becoming a negative or a live-presence claim.
+- For a current commission, the human developer's name comes from the Git
+  committer of the published commit that added that profile allocation.
+  GitHub's matched committer account supplies its avatar. Show the human name
+  and avatar beside the agent on the existing Taken or Preparing card and in
+  the roster. Cache the retrieved avatar for display without making it a
+  separate authority for project state. If GitHub cannot match an account or
+  supply an avatar, retain a supported human name and a text fallback; if the
+  assignment commit or human identity cannot be established, say so.
+- The view uses the dashboard's selected project and existing published
+  revision, local authenticated GitHub read boundary, agent roster and
+  portraits. It does not require a new project selector, agent profile field,
+  database, or direct browser API call to GitHub.
 
-## Open Decisions for Refinement
+**Key examples:**
 
-- Which commits identify the human developer for a preparation versus an
-  execution commission, especially before the agent has made a work commit or
-  when multiple humans are credited?
-- How should GitHub identity matching and avatar caching work across the
-  dashboard's supported projects and its existing source-access boundaries?
-- How should the roster present unreadable or conflicting agent profiles and
-  preserve navigation context across refreshes or project switches?
+1. A project has one Taken and one Preparing agent profile. The developer
+   activates the Taken agent's portrait → the roster opens with that agent
+   identified, both commissions show their respective tasks and recorded
+   host/model, and the other named agents show no commission. Back returns to
+   the same project's story dashboard.
+2. The profile addition commit credits a human committer with a matched
+   GitHub account → the human's name and cached GitHub avatar appear beside
+   the agent on the story card and roster. A profile whose host or model was
+   never recorded says so without guessing from the current IDE or model.
+3. GitHub has no account match for the recorded human → the supported Git
+   committer name remains visible with a text fallback. An unreadable profile
+   or an attribution read failure is shown as uncertain, not as an available
+   agent or an anonymous human with a guessed avatar.
+4. The selected project changes, or its published revision changes → the
+   roster and human attribution reflect only that project's current published
+   assignments; an old response cannot attach a person to a different
+   project or allocation.
+
+**Deferred promises:** Historical commissions, an aggregate across projects,
+live presence, local worktree state, commission controls, and a general people
+directory are outside this story. Existing portrait artwork and the 29-name
+rotation remain the roster source.
+
+**Source decision for this story:** The profile allocation's addition commit
+identifies the commissioning human. This is the commit that established the
+current assignment, not an arbitrary later work commit by the same agent.
+GitHub's commit response distinguishes the Git committer name from the matched
+GitHub account; the latter may be absent. Attribution and avatar reads are
+bounded to profiles in the selected project's published snapshot.
 
 ## Ordering and When to Surface
 
-First in the product backlog as requested. Refine the attribution and source
-behavior before implementation; this capture does not change existing
-dashboard or agent-profile rules.
+First in the product backlog as requested. Refinement and planning do not
+authorize execution.
 
 ## Breadcrumbs
 
