@@ -40,44 +40,36 @@ function CommissionUnknown({
   return <p className="quiet">Reading agent profile…</p>;
 }
 
-// What a read member's published profiles commission it to.
-function Commissions({ member }: { member: RosterMember }) {
-  const { commissions, unreadable } = member;
-  if (commissions.length === 0 && unreadable.length === 0) {
+// What a read member's published profile commissions it to.
+function Commission({ member: { profile } }: { member: RosterMember }) {
+  if (profile === undefined) {
     return <p className="quiet">Not commissioned</p>;
   }
+  if ("problem" in profile) {
+    return (
+      <p className="preparation-problem">
+        Commission uncertain: agent profile {profile.file} is unreadable:{" "}
+        {profile.problem}.
+      </p>
+    );
+  }
   return (
-    <>
-      {unreadable.map(({ file, problem }) => (
-        <p key={file} className="preparation-problem">
-          Commission uncertain: agent profile {file} is unreadable: {problem}.
-        </p>
-      ))}
-      {commissions.map((commission) => (
-        <div key={commission.profilePath} className="roster-commission">
-          <p className="roster-activity">{activities[commission.activity]}</p>
-          {commission.title === undefined ? (
-            <p className="preparation-problem">
-              Task title not found: the published backlog at this revision lists
-              no entry with this identity.
-            </p>
-          ) : (
-            <p className="roster-title">{commission.title}</p>
-          )}
-          <p className="card-identity">{commission.identity}</p>
-          <p className="owner-summary">
-            <RecordedFacts developer={commission} />
-          </p>
-          <HumanCredit developer={commission} />
-        </div>
-      ))}
-      {commissions.length + unreadable.length > 1 && (
+    <div className="roster-commission">
+      <p className="roster-activity">{activities[profile.activity]}</p>
+      {profile.title === undefined ? (
         <p className="preparation-problem">
-          Conflicting records: {commissions.length + unreadable.length} agent
-          profiles name this agent.
+          Task title not found: the published backlog at this revision lists no
+          entry with this identity.
         </p>
+      ) : (
+        <p className="roster-title">{profile.title}</p>
       )}
-    </>
+      <p className="card-identity">{profile.identity}</p>
+      <p className="owner-summary">
+        <RecordedFacts developer={profile} />
+      </p>
+      <HumanCredit developer={profile} />
+    </div>
   );
 }
 
@@ -139,7 +131,7 @@ export function AgentRoster({
       <ol className="roster-members">
         {roster?.status === "read"
           ? roster.members.map((member) =>
-              row(member.name, <Commissions member={member} />),
+              row(member.name, <Commission member={member} />),
             )
           : agentNames.map((name) =>
               row(name, <CommissionUnknown roster={roster} />),

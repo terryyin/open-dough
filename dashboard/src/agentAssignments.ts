@@ -4,16 +4,18 @@
 // `src/skills/dough-product-backlog/scripts/`; its answer is checked here for
 // the fields this dashboard shows. A profile refers to its work by identity.
 // An unreadable profile names no identity, so it is reported as unreadable and
-// never matched to an entry by guess. A preparation assignment records no
-// execution mode or branch: it is only ever a queued entry's preparer, never
-// an execution owner, so it cannot route progress or start a slice clock.
+// never matched to an entry by guess; a profile whose text names another agent
+// than its file is unreadable for the file's agent and commissions no one. A
+// preparation assignment records no execution mode or branch: it is only ever
+// a queued entry's preparer, never an execution owner, so it cannot route
+// progress or start a slice clock.
 
 import { z } from "zod";
 import {
   agentHosts,
   agentIdentity,
   agentModes,
-  parseAgentProfile,
+  parseAgentProfileFile,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   readAgentProfilesAt,
@@ -121,7 +123,7 @@ function interpretProfiles(
     const file = path.split("/").pop() ?? path;
     let raw: unknown;
     try {
-      raw = parseAgentProfile(text);
+      raw = parseAgentProfileFile(file, text);
     } catch (error) {
       raw = {
         ok: false,

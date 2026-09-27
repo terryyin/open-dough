@@ -133,7 +133,7 @@ roster avatar spec.
 
 ### 2. A profile naming another agent stays uncertain
 Type: Behavior
-Status: planned
+Status: done
 Proof: A roster fixture with `yui-chan.json` naming Mio shows Yui's profile as
 unreadable ("names another agent") and Mio with no commission from it; the
 "Conflicting records" branch, reachable only through this mismatch, is removed
@@ -144,6 +144,16 @@ Behavior: A published profile's text names another agent than its file → the
 roster and cards treat it as unreadable for the file's name → no rotation name
 is called not commissioned on contrary evidence, and no other agent gains a
 commission.
+
+Accepted proof: `agent-roster.spec.ts` "a card's agent portrait opens the
+project's agent roster…" with `yui-chan.json` naming Sola (Mio is no rotation
+name, so it was already unreadable): Yui shows the "names another agent" gap,
+Sola stays not commissioned, and the queued card shows no conflict; red against
+the prior reader. `node --test tests/support/product-backlog-agent-profile.test.mjs`
+proves `parseAgentProfileFile`, now used by `occupiedAssignments`,
+`interpretProfiles`, and the lost-workspace check. The roster's conflict
+branch is gone and a roster member holds at most one profile; the card's
+conflict for two agents naming one entry stays.
 
 ### 3. A roster without a read snapshot says commissions are unknown
 Type: Behavior
@@ -219,4 +229,9 @@ attribution noise (finding 7) with no product behavior change.
 
 ## Learnings
 
-None yet.
+- Readers that still use plain `parseAgentProfile` with a known file name,
+  where switching would change behavior and was left for a later decision:
+  `addedProfile` (the execution claim does not check the name),
+  `releaseAgentProfiles` (removes a misfiled profile at completion), and
+  `dashboard/server/branchReachability.ts` (a misfiled Story Branch profile
+  still makes its branch readable).

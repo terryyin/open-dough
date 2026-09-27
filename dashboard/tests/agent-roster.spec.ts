@@ -99,11 +99,19 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     );
     await expect(member("Mana-chan")).not.toContainText("Not commissioned");
 
+    // A profile filed under Yui that names Sola is Yui's unreadable
+    // profile: Yui is not called uncommissioned, and Sola gains nothing.
+    await expect(member("Yui-chan")).toContainText(
+      "Commission uncertain: agent profile yui-chan.json is unreadable: profile names another agent.",
+    );
+    await expect(member("Yui-chan")).not.toContainText("Not commissioned");
+    await expect(member("Sola-chan")).toContainText("Not commissioned");
+    await expect(member("Sola-chan")).not.toContainText(queuedIdentity);
+
     // Every other agent was read to have no profile.
     await expect(members.filter({ hasText: "Not commissioned" })).toHaveCount(
-      25,
+      24,
     );
-    await expect(member("Yui-chan")).toContainText("Not commissioned");
     await expect(roster.getByRole("list")).not.toContainText(
       /online|offline|live|away|active|busy|idle/i,
     );
@@ -120,6 +128,12 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
   });
 
   await test.step("the Preparing card's portrait opens the roster from the keyboard, and Back returns there", async () => {
+    // The profile filed under Yui that names Sola prepares nothing here.
+    const queuedCard = backlog.getByRole("article", { name: queuedStory });
+    await expect(queuedCard.locator(".card-preparing")).toContainText(
+      "Kirara-chan",
+    );
+    await expect(queuedCard).not.toContainText(/Sola-chan|Conflicting records/);
     await opener("Kirara-chan").focus();
     await page.keyboard.press("Enter");
     await expect(member("Kirara-chan")).toBeFocused();

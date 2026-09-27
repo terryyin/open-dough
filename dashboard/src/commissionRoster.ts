@@ -21,14 +21,14 @@ export type RosterCommission = Commission & {
   readonly title: string | undefined;
 };
 
-// One agent of the shared rotation, by its rotation name, with the published
-// profiles that name it: none means not commissioned, since members exist only
-// once the profile directory was read. An unreadable profile leaves the agent
-// uncertain.
+// One agent of the shared rotation, by its rotation name, with what the one
+// published profile filed under that name records: a commission, an
+// unreadable profile that leaves the agent uncertain, or nothing, which means
+// not commissioned, since members exist only once the profile directory was
+// read.
 export type RosterMember = {
   readonly name: string;
-  readonly commissions: readonly RosterCommission[];
-  readonly unreadable: readonly UnreadableProfile[];
+  readonly profile: RosterCommission | UnreadableProfile | undefined;
 };
 
 // Every agent of the rotation as the snapshot's profiles commission it, or
@@ -38,25 +38,27 @@ export type AgentRoster =
   | { readonly status: "unavailable"; readonly problem: string }
   | { readonly status: "read"; readonly members: readonly RosterMember[] };
 
-// Each agent of the rotation with the commissions naming it, titled from the
+// Each agent of the rotation with its profile's commission, titled from the
 // same snapshot's backlog. Profiles are read only at rotation names' paths,
-// so every unreadable profile belongs to one member.
+// and a readable one names the agent its file belongs to, so each agent has
+// at most one.
 export function rosterMembers(
   work: PublishedWork,
   { commissions, unreadable }: ProfileAssignments,
 ): readonly RosterMember[] {
   const entries = [...work.taken, ...work.backlog];
-  return agentNames.map((name) => ({
-    name,
-    commissions: commissions
-      .filter((commission) => commission.name === name)
-      .map((commission) => ({
-        ...commission,
-        title: entries.find((entry) => entry.identity === commission.identity)
-          ?.title,
-      })),
-    unreadable: unreadable.filter(
-      ({ file }) => profileAgentName(file) === name,
-    ),
-  }));
+  return agentNames.map((name) => {
+    const commission = commissions.find((each) => each.name === name);
+    return {
+      name,
+      profile: commission
+        ? {
+            ...commission,
+            title: entries.find(
+              (entry) => entry.identity === commission.identity,
+            )?.title,
+          }
+        : unreadable.find(({ file }) => profileAgentName(file) === name),
+    };
+  });
 }
