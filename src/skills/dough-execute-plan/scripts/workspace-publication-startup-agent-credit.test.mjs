@@ -16,7 +16,10 @@ import {
 } from "./workspace-publication-startup-test-fixtures.mjs";
 
 // Git in `checkout` has no committer identity of its own or from the
-// environment: the user's global and system configuration are hidden.
+// environment: the user's global and system configuration are hidden. Git
+// settings inherited from the environment (such as the test runner's
+// user.useConfigOnly) are dropped too, so a refusal proves the product's own
+// guard rather than the runner's.
 async function withoutDeveloper(trunk) {
   await git(trunk.integration, "config", "--unset", "user.name");
   await git(trunk.integration, "config", "--unset", "user.email");
@@ -24,6 +27,9 @@ async function withoutDeveloper(trunk) {
     ...process.env,
     GIT_CONFIG_GLOBAL: join(trunk.fixture, "none"),
   };
+  for (const name of Object.keys(env))
+    if (/^GIT_CONFIG_(COUNT|KEY_\d+|VALUE_\d+|PARAMETERS)$/.test(name))
+      delete env[name];
   for (const name of [
     "GIT_COMMITTER_NAME",
     "GIT_COMMITTER_EMAIL",

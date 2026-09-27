@@ -110,7 +110,7 @@ native runs stay manual.
 
 ### 1. The agent-credit check proves the product's own guard
 Type: Behavior
-Status: planned
+Status: done
 Proof: With `-c user.useConfigOnly=true` removed from `developerCoAuthor`,
 `PATH=/opt/homebrew/bin:$PATH npm test --
 src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-credit.test.mjs`
@@ -158,3 +158,12 @@ README paragraph; consolidate the Bash floor, Git state, and chosen-run rules
 into one section. Directly owned retrospective correction.
 
 ## Learnings
+
+- Slice 1 accepted proof: `withoutDeveloper` in
+  `workspace-publication-startup-agent-credit.test.mjs` drops inherited
+  `GIT_CONFIG_COUNT`/`KEY_n`/`VALUE_n`/`PARAMETERS`. With the product's
+  `-c user.useConfigOnly=true` removed, the refused-Take case fails at
+  `assertRefusedTake` (macOS: status `claim-failed`; where Git guesses an
+  identity, the `ok === false` assertion fails instead); restored, it passes.
+- `tests/README.md` is 267 lines at the claim (`cadcc27`), not 247: slice 4
+  must remove more than the finding assumed to meet the 250-line limit.
