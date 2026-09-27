@@ -1,24 +1,43 @@
 # Tests
 
+Run every check through the runner. `npm test` (or `bash scripts/test.sh`)
+runs the whole suite; naming paths runs exactly those shell checks (`.sh`) or
+`node --test` files (`.mjs`, `.js`), with the same scheduling and silence rule
+and without the suite's time budget:
+
+```sh
+npm test -- tests/payload-declaration-links.sh tests/support/dashboard-dev-port.test.mjs
+bash scripts/test.sh tests/payload-declaration-links.sh
+```
+
+A relative path is resolved from the directory `scripts/test.sh` starts in;
+`npm test` starts it at the repository root. A path that is not a file, or not one of those kinds, fails the run naming it before
+any check starts. Running a check directly (`bash tests/<name>.sh` or
+`node --test <file>`) is unsupported: checks and their fixtures rely on the
+Bash and Git environment the runner gives them, described below.
+The exception is a check's own options, such as the manually triggered paid
+native runs and inventories in `tests/native-adr-awareness-wrappers.md`: the
+runner passes no options, so invoke those wrappers directly with Bash 5 first
+on `PATH`, outside the runner's Git environment.
+
 Shell tests require **Bash 5 or newer**, with that `bash` first on `PATH`.
 macOS's bundled Bash 3.2 can silently ignore failing `[[ ... ]]` assertions
 under `set -e`, and the runner times each check with `EPOCHREALTIME`, which
-Bash 5 introduced. `npm test` (or `bash scripts/test.sh`) therefore checks the
-resolved child Bash before running any checks and refuses unsupported versions.
-Launching the runner with an explicit newer Bash path alone is insufficient:
-the tests also launch `bash` through `PATH`.
+Bash 5 introduced. The runner therefore checks the resolved child Bash before
+running any checks, for the suite or chosen checks alike, and refuses
+unsupported versions. Launching the runner with an explicit newer Bash path
+alone is insufficient: the tests also launch `bash` through `PATH`.
 
-Install a current Bash using your preferred package manager, then use its bin
-directory for both the full suite and direct focused tests, for example:
+Install a current Bash using your preferred package manager, then put its bin
+directory first on `PATH`, for example:
 
 ```sh
 PATH="/path/to/current-bash/bin:$PATH" npm test
-PATH="/path/to/current-bash/bin:$PATH" bash tests/payload-declaration-links-suite-failure.sh
+PATH="/path/to/current-bash/bin:$PATH" npm test -- tests/payload-declaration-links-suite-failure.sh
 ```
 
-Direct test scripts rely on this prerequisite; the version guard lives in the
-suite runner. This is a contributor test requirement; the product installer
-continues to support Bash 3.2.
+This is a contributor test requirement; the product installer continues to
+support Bash 3.2.
 
 The runner is the suite's one scheduler. Its jobs are each `tests/*.sh` outside
 `tests/support/`, plus each `node --test` file matched by a glob in
@@ -42,7 +61,8 @@ for seven days as its `test-times` workflow artifact.
 The suite's time budget lives in `tests/time-budget`: two numbers, a per-job
 ceiling (`per-job-seconds`) and a total ceiling over all jobs
 (`total-job-seconds`), set from CI's `test-times` with headroom. After every
-run the runner compares the same job times with it (`scripts/test-budget.sh`).
+full run the runner compares the same job times with it
+(`scripts/test-budget.sh`); a run of chosen checks is not held to it.
 Within budget it prints nothing. A breach prints, after any failure reports,
 one line per job over the per-job ceiling and one for a total over the total
 ceiling, for example:
@@ -71,9 +91,9 @@ with its output, and the run still finishes. Silence such output at its source (
 setting on the noisy command) rather than filtering it. `OPEN_DOUGH_TEST_DIR`
 names another directory of checks, with its own optional `node-test-files` and
 `longest-first`, to run instead of the suite's own, which is how
-`tests/test-runner-failure-report.sh` runs substitute checks. To run one node
-suite directly, pass its files to `node --test`, optionally with that
-reporter.
+`tests/test-runner-failure-report.sh` runs substitute checks. Chosen paths
+replace that discovery, and `tests/test-runner-selection.sh` proves a chosen
+run.
 
 Each job runs in a process group of its own, so a terminal's Ctrl-C reaches
 the runner rather than the jobs. On INT or TERM the runner stops the process
@@ -143,12 +163,12 @@ described in `tests/native-adr-awareness-wrappers.md`.
 
 ## Payload declaration link checks
 
-`bash tests/payload-declaration-links.sh` checks that every relative link in a
+`tests/payload-declaration-links.sh` checks that every relative link in a
 declared Markdown file under `src/skills/` points at a file declared in
 `install.sh`'s `managed_files`, without running the installer. An undeclared
 target fails explicitly and names the linking file and the link.
 
-`bash tests/payload-declaration-links-suite-failure.sh` adds a deliberately
+`tests/payload-declaration-links-suite-failure.sh` adds a deliberately
 missing link to story guidance in a disposable fixture and checks that the real
 declaration check reports it and that the failure propagates through
 `scripts/test.sh`. This is focused coverage of that check, not certification of

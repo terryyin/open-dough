@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# The suite runner stops under a child Bash older than 5 before any check runs;
+# The suite runner stops under a child Bash older than 5 before any check runs,
+# whether it runs the suite or chosen checks;
 # under supported Bash it propagates a failed assertion and passes valid checks.
 set -euo pipefail
 
@@ -11,8 +12,8 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 fixture="${temporary_dir}/source"
 mkdir -p -- "${fixture}/tests" "${fixture}/scripts" "${temporary_dir}/bin"
-cp -- "${source_dir}/scripts/test.sh" "${source_dir}/scripts/test-environment.bash" \
-  "${fixture}/scripts/"
+# The runner and the parts it sources.
+cp -- "${source_dir}/scripts/test.sh" "${source_dir}"/scripts/test-*.bash "${fixture}/scripts/"
 markers="${temporary_dir}/markers"
 mkdir -p -- "${markers}"
 printf '#!/usr/bin/env bash\ntouch -- %q\n' "${markers}/self-check" \
@@ -38,18 +39,22 @@ else
 fi
 OLD_BASH
   chmod +x "${temporary_dir}/bin/bash"
-  if PATH="${temporary_dir}/bin:${PATH}" "${BASH}" "${fixture}/scripts/test.sh" > "${temporary_dir}/old.log" 2>&1; then
-    echo "FAIL: the runner accepted unsupported child Bash ${version}." >&2
-    exit 1
-  fi
-  expect_in_log "${temporary_dir}/old.log" -F -- 'require Bash 5 or newer'
-  expect_in_log "${temporary_dir}/old.log" -F -- "${temporary_dir}/bin/bash (version ${version})"
-  expect_in_log "${temporary_dir}/old.log" -F -- 'put its bin directory first on PATH'
-  if [[ -e ${markers}/test-started || -e ${markers}/self-check ]] \
-    || grep -E -- 'test-started|unsupported-child-ran' "${temporary_dir}/old.log"; then
-    echo "FAIL: unsupported Bash ${version} reached a suite check." >&2
-    exit 1
-  fi
+  # A full run and a run of one chosen check stop alike.
+  for chosen in '' "${fixture}/tests/assertion.sh"; do
+    if PATH="${temporary_dir}/bin:${PATH}" "${BASH}" "${fixture}/scripts/test.sh" ${chosen:+"${chosen}"} \
+      > "${temporary_dir}/old.log" 2>&1; then
+      echo "FAIL: the runner accepted unsupported child Bash ${version} (chosen: ${chosen:-none})." >&2
+      exit 1
+    fi
+    expect_in_log "${temporary_dir}/old.log" -F -- 'require Bash 5 or newer'
+    expect_in_log "${temporary_dir}/old.log" -F -- "${temporary_dir}/bin/bash (version ${version})"
+    expect_in_log "${temporary_dir}/old.log" -F -- 'put its bin directory first on PATH'
+    if [[ -e ${markers}/test-started || -e ${markers}/self-check ]] \
+      || grep -E -- 'test-started|unsupported-child-ran' "${temporary_dir}/old.log"; then
+      echo "FAIL: unsupported Bash ${version} reached a check (chosen: ${chosen:-none})." >&2
+      exit 1
+    fi
+  done
 done
 
 # Use the real supported interpreter, including real set -e assertion behavior.

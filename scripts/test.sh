@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# scripts/test.sh [path…] runs the named checks, or with none, the whole suite.
+caller_dir=${PWD}
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 cd -- "${source_dir}"
 
@@ -9,6 +11,9 @@ cd -- "${source_dir}"
 source "${source_dir}/scripts/test-environment.bash"
 # The sourced environment resolves the Bash every check runs in.
 readonly test_bash
+# shellcheck disable=SC1091
+# shellcheck source=scripts/test-jobs.bash
+source "${source_dir}/scripts/test-jobs.bash"
 
 # The runner is the one scheduler: every shell check and every `node --test`
 # file is its own job, and no job runs a worker pool of its own. Each job keeps
@@ -77,52 +82,12 @@ run_job() {
 }
 
 # OPEN_DOUGH_TEST_DIR names another directory of checks, such as substitutes
-# in a runner test; it replaces the suite's own checks entirely.
+# in a runner test; it replaces the suite's own checks entirely. Named paths
+# replace discovery (scripts/test-jobs.bash).
 test_dir=${OPEN_DOUGH_TEST_DIR:-tests}
 declare -A job_kinds=()
-discovered=()
-add_job() {
-  job_kinds[$2]=$1
-  discovered+=("$2")
-}
-
-find "${test_dir}" -type f -name '*.sh' ! -path "${test_dir}/support/*" -print0 \
-  > "${output_root}/tests"
-while IFS= read -r -d '' test_file; do
-  add_job shell "${test_file}"
-done < "${output_root}/tests"
-
-# `node-test-files` lists glob patterns, relative to the repository root, of
-# `node --test` files; each matching file is scheduled as its own job.
-if [[ -f ${test_dir}/node-test-files ]]; then
-  while read -r pattern; do
-    [[ -z ${pattern} || ${pattern} == '#'* ]] && continue
-    while IFS= read -r node_file; do
-      add_job node "${node_file}"
-    done < <(compgen -G "${pattern}" || true)
-  done < "${test_dir}/node-test-files"
-fi
-
-if [[ -z ${OPEN_DOUGH_TEST_DIR:-} ]]; then
-  add_job shell 'scripts/check-self-installation.sh'
-fi
-
-# `longest-first` names known long jobs, longest first. They start before the
-# rest so the longest job does not begin last; unknown names are ignored.
 labels=()
-declare -A scheduled=()
-if [[ -f ${test_dir}/longest-first ]]; then
-  while read -r label; do
-    [[ -z ${label} || ${label} == '#'* ]] && continue
-    if [[ -n ${job_kinds[${label}]+set} && -z ${scheduled[${label}]+set} ]]; then
-      labels+=("${label}")
-      scheduled[${label}]=1
-    fi
-  done < "${test_dir}/longest-first"
-fi
-for label in "${discovered[@]}"; do
-  [[ -n ${scheduled[${label}]+set} ]] || labels+=("${label}")
-done
+collect_jobs "${test_dir}" "${output_root}/tests" "${caller_dir}" "$@"
 
 # Prints one started job's wall seconds: those its job recorded, or, when the
 # job left none, the time from its start until the runner observed it ended.
@@ -240,7 +205,8 @@ for index in "${!labels[@]}"; do
   seconds=$(job_seconds "${index}")
   printf '%s\t%s\n' "${seconds}" "${labels[index]}"
 done | sort -rn > "${times_file}"
-[[ ! -f ${test_dir}/time-budget ]] \
+# The time budget is the whole suite's, so a run of chosen checks skips it.
+(($#)) || [[ ! -f ${test_dir}/time-budget ]] \
   || "${test_bash}" scripts/test-budget.sh "${test_dir}/time-budget" "${times_file}" || status=1
 
 exit "${status}"

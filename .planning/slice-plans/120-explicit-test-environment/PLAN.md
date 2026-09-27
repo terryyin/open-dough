@@ -134,7 +134,7 @@ the local budget report. The environment lives in the sourced
 
 ### 3. Chosen checks run alone through the runner
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `tests/test-runner-selection.sh` over substitute checks, with a
 budget that a full run breaches: selecting one shell check and one
 `.test.mjs` file runs only those, reports no budget breach, and exits 0; the
@@ -147,6 +147,17 @@ Behavior: `npm test -- tests/<name>.sh` → only that check runs, under the
 Bash floor and Git environment, without the suite budget. The tests README
 names the runner as the way to run any check and states that a direct
 `bash tests/<name>.sh` is unsupported.
+
+Accepted proof (2026-09-27): `tests/test-runner-selection.sh` failed before
+the change (the runner ignored the paths and reported both OVER BUDGET lines)
+and passes after it; it also proves caller-relative paths (red under a
+mutated caller directory) and the unknown-kind refusal. `PATH=/opt/homebrew/bin:$PATH
+npm test -- tests/test-runner-selection.sh tests/test-runner-bash.sh
+tests/test-runner-git-environment.sh tests/test-runner-budget.sh
+tests/test-runner-failure-report.sh tests/test-runner-interrupt.sh
+tests/payload-declaration-links-suite-failure.sh` exits 0 silently, and the
+full suite exits 0 with only the local budget report. Discovery lives in the
+sourced `scripts/test-jobs.bash`; runner fixtures copy `scripts/test-*.bash`.
 
 ### 4. One command runs chosen checks on CI's platform
 Type: Behavior
@@ -222,3 +233,10 @@ Behavior: a dashboard check fails only on CI → `scripts/ci-container.sh
   and proves serving on an ephemeral port; delivered as its own commit.
 - **`scripts/test.sh` is near the file-size limit (slice 2).** Slice 3's path
   selection may need its own seam.
+- **Wrapper options stay direct runs (slice 3, 2026-09-27).** The runner
+  passes no options to a check, so the paid native runs and inventories in
+  `tests/native-adr-awareness-wrappers.md` remain direct manual invocations,
+  outside the runner's Git environment; the tests README names that exception.
+- **`npm test` resolves relative paths from the repository root (slice 3).**
+  npm starts the runner there; using `INIT_CWD` instead would leak into nested
+  runner runs, so the README documents the root-relative behavior.
