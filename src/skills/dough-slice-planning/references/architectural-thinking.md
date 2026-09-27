@@ -93,9 +93,9 @@ completion record for the removed direction.
 ### Preserve lasting rules before deletion
 
 Apply this whenever wrap-up is about to delete a temporary record, including a
-North Star topic, spent plan, execution record, or review. Before deleting the
-last copy of a still-needed rule or current product fact, put it in its
-maintained home in this project:
+North Star topic, spent plan, execution record, review, completed story section,
+or spent seed. Before deleting the last copy of a still-needed rule or current
+product fact, put it in its maintained home in this project:
 
 - A product-wide architectural decision belongs in this project's ADR process.
   If it is not already Accepted there, keep the temporary record and its

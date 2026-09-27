@@ -32,7 +32,7 @@ new record kinds, wording tests, native host runs.
 ### 1. Wrap-up preserves rules held only in the completed story
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a product-wide decision or feature rule written only in the
 completed story's section (for example its Architecture field) reaches the
@@ -53,10 +53,27 @@ already documented (delete without a copy). Record the observations here. Then
 
 Safe stopping point: the one slice leaves the rule complete.
 
+Accepted proof (behavior review walk over the changed source):
+
+- Trigger: wrap-up's Assimilate step now reads "Before this closure deletes
+  any spent record, preserve its lasting rules"; Delete spent history deletes
+  the canonical story section and a spent seed; the rule's scope sentence lists
+  "North Star topic, spent plan, execution record, review, completed story
+  section, or spent seed" as its only enumeration.
+- Product-wide decision only in the story's Architecture field: the rule's ADR
+  bullet keeps the record, names the decision needed, and withholds closure.
+- Feature rule only in the story's key examples with a feature document: the
+  feature-documentation bullet writes it there with no ADR.
+- Rules already documented: "When the rule already has its maintained home"
+  deletes the section without a copy.
+- `git diff --check` clean; the `preserve-lasting-rules-before-deletion` anchor
+  resolves from wrap-up and from architectural-thinking.md. Refactor search
+  found no other partial record-kind list in `src/skills/`.
+
 ## Current decisions
 
 - One slice; the change is two sentences in the two existing homes.
 
 ## Learnings
 
-None yet.
+None beyond the plan; the two-sentence change held.

@@ -74,9 +74,8 @@ Move lasting behavior and design into this project's maintained code, tests,
 and documentation. Describe the current product without execution narration,
 impact chronology, story or plan identity, or retrospective judgments. Preserve
 existing product tests and documents that already state current behavior. Do not
-invent product knowledge. Before deleting a spent plan, execution context,
-review, or North Star topic, [preserve its lasting
-rules](../dough-slice-planning/references/architectural-thinking.md#preserve-lasting-rules-before-deletion).
+invent product knowledge. Before this closure deletes any spent record,
+[preserve its lasting rules](../dough-slice-planning/references/architectural-thinking.md#preserve-lasting-rules-before-deletion).
 
 For North Star topics cited, added, or revised by the completed work, apply the
 shared [topic-retirement instructions](../dough-slice-planning/references/architectural-thinking.md#retire-temporary-direction-during-ordinary-wrap-up)
