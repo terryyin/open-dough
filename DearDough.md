@@ -946,8 +946,31 @@ an equivalent fix; trunk already carried one from a sibling execution.
   - Observed effect: one rewrite and focused run wasted; found only when a later fetch showed the file size gap.
   - Inference: Qualified. With parallel agents on trunk, fetching before fixing an unrelated failure is cheap and may find it already fixed.
 
+## DD-117 — A whole-repository formatter coupled concurrent slices' deliveries
+
+Delivery says to run the project's selective formatting command once before
+staging, and file-disjoint slices may run concurrently. Here that command
+checks every file in the checkout, so one slice's delivery also judged the
+other slice's unreviewed, uncommitted work.
+
+### Occurrences
+
+- Execution: `SEED-048#test-environment-correction` / plan 127, first related implementation commit `23a3a75`
+  - Timestamp: unknown; before slice 1's commit at 2026-09-27T13:06:01+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac7`
+  - Evidence: slice 1's `npm run format` failed on SC2312 at
+    `scripts/ci-container.sh:58`, slice 2's file, while slice 2 awaited its
+    refactor pass.
+  - Observed effect: slice 1's delivery stopped until the coordinator edited
+    slice 2's uncommitted code; one extra formatter run.
+  - Inference: Qualified; small cost here. Like DD-106, file-disjoint changes
+    did not make shared tooling disjoint. Concurrent slices 1 and 2 still
+    saved wall time.
+
 ## Retention
 
-- Highest allocated local number: 116
+- Highest allocated local number: 117
 - Recovery: `70386eb:DearDough.md` (ODF-061, addressed by `c897488` requiring Bash 5 and by the runner's stop-location report); `3e611d2:DearDough.md` (DD-110, removed for size; later checkpoints lead with a recommendation); `2b18837:DearDough.md` (ODF-003 `SEED-004#execute-in-worktree-and-merge-at-wrap-up` occurrence, removed for size; three later same-mechanism rows remain); `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

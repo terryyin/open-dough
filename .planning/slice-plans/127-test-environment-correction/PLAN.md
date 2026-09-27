@@ -157,6 +157,17 @@ Structure: delete `tests/payload-declaration-links-suite-failure.sh` and its
 README paragraph; consolidate the Bash floor, Git state, and chosen-run rules
 into one section. Directly owned retrospective correction.
 
+## Execution complete
+
+Product advice: no change. The correction serves the near-future direction
+(parallel agents need local runs that agree with CI); SEED-044's queued
+premise verification already covers the one stale planning premise
+(`tests/README.md` grew from 247 to 267 lines between planning and Take).
+Wrap-up integration must reconcile plan 126's trunk edits: keep this
+deletion of `tests/payload-declaration-links-suite-failure.sh`, decide
+whether `tests/helpers/copy-runner.bash` keeps its one remaining caller, and
+merge 126's `tests/README.md` wording while staying under 250 lines.
+
 ## Learnings
 
 - Slice 1 accepted proof: `withoutDeveloper` in
