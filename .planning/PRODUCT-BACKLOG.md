@@ -14,7 +14,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep product guards provable and the CI-platform command faithful](seeds/SEED-048-explicit-test-environment.md#test-environment-correction) — SEED-048#test-environment-correction ([plan](slice-plans/127-test-environment-correction/PLAN.md))
-- [Verify planning premises and proof setup before declaring readiness](seeds/SEED-044-verify-planning-premises.md#verify-planning-premises) — SEED-044#verify-planning-premises ([plan](slice-plans/115-verify-planning-premises/PLAN.md))
 
 ## Backlog list
 
