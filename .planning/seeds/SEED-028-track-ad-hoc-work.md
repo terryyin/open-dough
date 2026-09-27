@@ -90,7 +90,9 @@ mechanical proof only. Its planned native cases were never added.
 only the result on trunk, workspace retired; ordinary contextual work still
 admits), `publication/one-shot-queued` (result and cleanup in one commit, no
 intermediate Taken), `publication/one-shot-escalation` (admission before further
-edits, restored edits, continuation without an unnecessary approval stop).
+edits, restored edits, continuation without an unnecessary approval stop; and
+from bug fixing under `--no-replan`, a stop before planning with the edits
+restored in the Taken story's workspace).
 
 **Constraints:** Paid native runs are manually triggered only, once per case
 per guidance version, after [entry coherence](#one-shot-entry-coherence) lands.
