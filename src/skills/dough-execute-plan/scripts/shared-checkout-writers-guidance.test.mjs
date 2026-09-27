@@ -92,4 +92,13 @@ test("the coordinator finishes a resolved repair conflict through the stash scri
   // A drop that removed another writer's entry, or found none, stops.
   assert.match(stepFive, /`mismatch`[^.]*another writer's entry/);
   assert.match(stepFive, /`missing`[^.]*stop/);
+  // A restore that put nothing back reports its OID and paths and keeps its
+  // entry instead of being dropped.
+  const none = stepFive.match(
+    /`none`[^.]*(?:nothing|no work)[^.]*(?:put back|restored|applied)[^.]*\./i,
+  );
+  assert.ok(none, "step 5 says what to do when nothing was put back");
+  for (const act of [/\bOID\b/, /\bpaths?\b/i, /keep[^.]*entry[^.]*stop/i]) {
+    assert.match(none[0], act);
+  }
 });

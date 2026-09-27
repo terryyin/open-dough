@@ -92,8 +92,24 @@ Full gate before delivery: `npm test` and `npm run lint`.
 
 ### 1. A restore that applied nothing is never finished by a drop
 Type: Behavior
-Status: planned
+Status: done
 Proof: R1 and R2 rows above.
+
+Accepted proof: the focused command above plus
+`execution-increment-publication.test.mjs` (a `restoreRepairStash`
+consumer), exit 0; full `npm test` and lint, exit 0.
+`ci-repair-stash.test.mjs` "a restore whose staged work conflicts in the
+index applies nothing, names the path, and its drop is refused with the entry
+and tree kept" (`applied: "none"`, `paths: ["staged.txt"]`, drop `unapplied`
+exit 1, stack and tree unchanged) and "a restore whose repair committed the
+identical staged change reports all applied, and its drop proceeds"; the step 5
+test in `shared-checkout-writers-guidance.test.mjs` requires `none` to report
+OID and paths, keep the entry, and stop.
+
+Learnings: `conflictPaths` and the applied-state reading moved to
+`ci-repair-stash-applied.mjs` to keep the script under its size limit; a new
+script module must also be listed in `install.sh`. The `all` case pinned
+existing behavior and did not fail first.
 
 Behavior: paused staged work conflicting in the index → the coordinator runs
 `restore --record` → the receipt reports `none` with the conflicting path and
