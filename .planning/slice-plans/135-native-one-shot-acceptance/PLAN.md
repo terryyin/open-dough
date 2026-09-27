@@ -92,7 +92,7 @@ approach.
 
 ### 3. Accept one-shot natively on Claude Code
 Type: Behavior
-Status: planned
+Status: done
 Proof: one paid run each, with the developer's agreement:
 `tests/git-publication-native.sh --native claude --case publication/one-shot-result`,
 `… --case publication/one-shot-queued`, and
@@ -158,3 +158,20 @@ Stop for the developer before any paid run and before a second rerun.
   result and closure separately, or deleting the whole seed and so the
   sibling's section. Identity matching must anchor at line end
   (`SEED-B#b` prefixes `SEED-B#b2`).
+- Slice 3 native evidence (developer-approved paid runs, first attempt each,
+  no rerun; artifacts under the job's `tmp/native/<case>` results directories
+  deleted after acceptance). Host `claude`, installed candidate `5181d769`:
+  - `publication/one-shot-result` — FRESH PROOF, pass: one trunk commit
+    holding `notes.txt` with no planning path, one push with nothing Taken,
+    workspace and branch retired, human edit preserved;
+    `one-shot-start-observed: true`.
+  - `publication/one-shot-queued` — FRESH PROOF, pass: one trunk commit with
+    the result, the backlog removal, seed B's spent section and plan B; one
+    push with nothing Taken; sibling section and queue order kept; workspace
+    and branch retired; human edit preserved.
+  - `publication/admission-investigation` — FRESH PROOF, pass: the same
+    kind of unlisted request without one-shot was admitted to Taken on origin
+    before its first probe (`admit-cli-observed: true`,
+    `plain-start-observed: false`, `probe-after-claim: true`).
+  No guidance change was needed, so the guidance version stayed `5181d769`
+  for all three.
