@@ -130,6 +130,46 @@ split and budget wording in `tests/`, the tests README, and the installation
 guide's contributor checks. Correction plan:
 [126-ci-verdict-correction](../slice-plans/126-ci-verdict-correction/PLAN.md).
 
+<a id="dashboard-port-race"></a>
+
+### Give each dashboard browser test a server port no other worker can take
+
+**Identity:** SEED-046#dashboard-port-race
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** A dashboard browser test always runs against the preview or dev
+server it started, or fails saying that server could not start, however many
+Playwright workers run at once. A maintainer never chases a failure caused by
+another worker's server.
+
+**Expected:** each test's server binds its own port, and a test starts only
+once its own server is listening.
+
+**Actual (by mechanism; not yet observed):** `freePort()` in
+`dashboard/tests/support/dashboardServer.ts` binds `127.0.0.1:0`, closes the
+socket, and returns the number; Vite is spawned later with `--strictPort`,
+for an unbuilt preview only after a whole dashboard build. In that window a
+concurrent worker's port-0 bind (for example `fakeGitHub.ts`) can take the
+port, Vite exits, and `waitUntilListening` accepts any HTTP answer without
+checking that its own child is alive, so the test can run against another
+worker's server and fail misleadingly.
+
+**Evidence and uncertainty:** found by plan 122's execution retrospective.
+Plan 122 raised Playwright to every core per CI shard, widening the window.
+No failure seen in 11+ green CI runs (120 of 120 tests each); the collision
+rate is unmeasured. Refinement first confirms the race (for example by
+occupying a returned port before Vite starts) before repairing it.
+
+**Acceptance examples (to confirm in refinement):**
+
+1. A port returned for a test is taken by another listener before Vite binds
+   it → the test fails naming its server's start failure, or its server
+   starts on a port it owns; it never runs against the other listener.
+2. The dashboard suite runs with every core on CI → every test talks to its
+   own server, and the executed count still equals `--list`'s.
+
 ## When to Surface
 
 Now: second in the product backlog, after SEED-048, per the maintainer on
