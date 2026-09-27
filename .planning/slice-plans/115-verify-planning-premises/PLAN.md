@@ -110,7 +110,7 @@ retrospective and wrap-up gates.
 ### 1. Plans establish their decisive premises before readiness
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior review of all seven seed key examples against the revised
 text; deterministic prose checks above.
 
@@ -181,6 +181,48 @@ backlog list with the installed backlog tool. The backlog's validation passes.
 Limits: the diarization, dataset, reassessment and pull-then-publish examples
 are proved by review only, not native runs.
 
+## Accepted proof
+
+Pre-change baseline (2026-09-27), guidance installed from `6882aeb3` (claim
+revision, unchanged guidance) with Claude Code 2.1.283, model
+`claude-opus-5-5`, one run per case. Each case ran
+`$CLAUDE_JOB_DIR/tmp/native/run-case.sh <case> baseline <guidance-checkout>`:
+local clone, `git remote remove origin`, `git checkout -B main <plan-commit>^`,
+restore the seed (and Pygardon's backlog) from the planning commit with the
+story state reset to `refined`/`unselected`, `install.sh --target <clone>
+--source <guidance> --platform claude --force`, commit that setup, then
+`claude --print --model claude-opus-5-5 --permission-mode bypassPermissions
+--output-format stream-json --verbose "/dough-slice-planning <story link>
+Planning only in this disposable checkout: do not implement the story, commit,
+push, or publish anything, and do not leave this repository."`
+
+- Doughnut: **fail**. Plan 045 (`ready`) never names
+  `scripts/test/quality_changed.test`; it plans a new
+  `scripts/commit-gate.test.mjs` harness. The transcript's test search covered
+  only `scripts/*.test.mjs`. The recorded false premise reproduces.
+- Pygardon: **pass (weak attribution)**. Plan 208 (`not-ready` for sizing
+  concerns) proves the moved seeding genome (its slice 11) with
+  `live_strategies.feature`, after reading the seeding script's caller in
+  `e2e_test/step_definitions/live_strategies_steps.ts`, not with
+  `strategy_verify.feature`. The observation is only partly recorded in the
+  plan. Per the proof rule, execution continued; this case cannot show that
+  the guidance change produces the catch.
+
+Slice 1: behavior review maps every seed key example and the control to the
+revised sentences in `dough-slice-planning` "Write the plan" (decisive-premise
+definition, "Observe the thing the claim is about…", probe-slice paragraph)
+and `record-preparation.md` "Criteria" (unobserved premise as blocking reason,
+journey coverage, fresh observation). The control gains only "observed"
+premises with "Do not inspect claims the approach does not depend on"; no
+probe, approval or suite. `dough-slice-plan-refinement` and
+`dough-story-refinement/references/planning.md` have no contradiction.
+`npm run lint`, `/opt/homebrew/bin/bash tests/payload-declaration-links.sh`,
+`/opt/homebrew/bin/bash tests/compare-payload.sh` and `git diff --check`
+pass. The refactor pass only rewrapped one line.
+
 ## Learnings
 
-None yet.
+- The baseline Doughnut miss came from searching where tests were expected
+  (`scripts/*.test.mjs`) rather than for callers of the changed script, so
+  slice 1's rule says to search for existing tests and callers wherever they
+  live.

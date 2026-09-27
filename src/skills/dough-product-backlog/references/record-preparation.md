@@ -73,13 +73,23 @@ now. Then choose:
 
 | Assessment | Requires |
 | --- | --- |
-| `ready` | Refinement `refined`; approach is a selected `planned` path with bounded slices and mapped proof, or an explicitly authorized `planless` path; and no blocking concern remains |
+| `ready` | Refinement `refined`; approach is a selected `planned` path with bounded slices, mapped proof, and decisive premises observed or bounded by an early probe slice, or an explicitly authorized `planless` path; and no blocking concern remains |
 | `not-ready` | At least one blocking reason naming what still blocks readiness |
 
 A remaining slice-specific concern, unresolved goal/scope/examples, missing or
-unmapped proof, or an unselected approach is a blocking reason — record
-`not-ready` with `--reason`, not `ready`. After the blocking concern is gone,
-re-read the current basis and record `ready` without reasons.
+unmapped proof, an unselected approach, or a cheaply observable decisive
+premise that was not observed is a blocking reason — record `not-ready` with
+`--reason`, not `ready`. Decisive premises, their observations, and probe
+slices are defined under
+[slice planning](../../dough-slice-planning/SKILL.md#write-the-plan).
+
+An observation or replay settles a premise only when it covers the slice's
+promised journey through the next operation that consumes its result, not only
+the seam a concern named: a replay proving pull alone does not settle a slice
+that promises pull then publish. Clear a premise-based reason only with a fresh
+observation of that premise; citing earlier evidence again does not clear it.
+After the blocking concern is gone, re-read the current basis and record
+`ready` without reasons.
 
 ### Planless authority
 
