@@ -3,6 +3,9 @@ set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 cd -- "${source_dir}"
+# shellcheck disable=SC1091
+# shellcheck source=scripts/lost-setpgid-race.bash
+source scripts/lost-setpgid-race.bash
 
 # Tests run in child shells, so check the bash they will actually use. Bash 5
 # is the floor: this runner, normally that same PATH bash, reads EPOCHREALTIME.
@@ -67,15 +70,9 @@ run_job() {
   else
     "${test_bash}" "${label}" > "${log}" 2>&1 || job_status=$?
   fi
-  # Job control has the runner and the job each put the job into a new group
-  # led by the job. On macOS those two calls can race; the loser fails with
-  # EPERM, and when that is the job, Bash prints one `child setpgid` line
-  # before the job starts. A group whose id is this job's pid exists only if
-  # one of the two calls moved the job into it, so only then is a launch file
-  # of exactly that line emptied. Any other launch output stays and fails the run.
-  local lost_race="${0}: child setpgid (${BASHPID} to ${BASHPID}): Operation not permitted"
-  if [[ -s ${launch} ]] && kill -0 -- "-${BASHPID}" 2> /dev/null \
-    && cmp -s - "${launch}" <<< "${lost_race}"; then
+  # Only a lost setpgid race's launch line is emptied; any other launch output
+  # stays and fails the run.
+  if [[ -s ${launch} ]] && lost_setpgid_race "${BASHPID}" "${launch}"; then
     : > "${launch}"
   fi
   printf '%s\n' "${job_status}" > "${output_root}/${index}.status"
