@@ -53,9 +53,15 @@ export function publishTwoSlicesDone(repo: ReadinessRepo): string {
 export function publishAssessedContentChange(repo: ReadinessRepo): string {
   const seedPath = join(repo.directory, ".planning", seedRelative);
   const current = readFileSync(seedPath, "utf8");
+  // Shared seed context is part of every story's basis, so both assessed
+  // stories need reassessment; a sibling-only edit would not affect them.
   writeFileSync(
     seedPath,
-    `${current}\n\nAssessed scope changed without a fresh assessment.\n`,
+    current.replace(
+      "Shared scope for three stories in one seed.",
+      "Shared scope for three stories in one seed. Assessed scope changed " +
+        "without a fresh assessment.",
+    ),
     "utf8",
   );
   const next = commitPaths(

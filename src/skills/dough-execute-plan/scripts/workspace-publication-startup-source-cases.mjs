@@ -7,10 +7,12 @@ import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import {
   createQueuedTrunk,
   identityA,
+  remoteBacklog,
   startCliResult,
   storyA,
 } from "./workspace-publication-fixtures.mjs";
 import { startExecution } from "./execution-start.mjs";
+import { takenIdentities } from "./workspace-publication-ownership.mjs";
 
 test("startup preserves unrelated staged, tracked, untracked, and sibling source edits", async (t) => {
   const trunk = await createQueuedTrunk();
@@ -107,6 +109,29 @@ test("stale published readiness stops without a Taken claim", async (t) => {
   assert.equal("publishedSha" in receipt, false);
   assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), tip);
   assert.equal(existsSync(workspace), false);
+});
+
+test("a published sibling story added after readiness still takes the ready story", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const seed = join(trunk.integration, ".planning/seeds/A.md");
+  writeFileSync(
+    seed,
+    `${readFileSync(seed, "utf8")}\n<a id="sibling"></a>\n\n### Sibling story\n\n**Identity:** SEED-A#sibling\n\nPrepared after A was assessed.\n`,
+  );
+  await git(trunk.integration, "add", ".planning/seeds/A.md");
+  await git(trunk.integration, "commit", "-m", "add sibling story");
+  await git(trunk.integration, "push", "origin", "main");
+  const { receipt, workspace } = await startCliResult(trunk, "trunk");
+  assert.equal(receipt.ok, true, JSON.stringify(receipt));
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    receipt.publishedSha,
+  );
+  assert.equal(
+    takenIdentities(await remoteBacklog(workspace)).includes(identityA),
+    true,
+  );
 });
 
 test("an unlisted identity is refused with a pointer to admission", async (t) => {

@@ -113,7 +113,10 @@ node <installed>/scripts/product-backlog.mjs read-state --link <href>
 ```
 
 Use the returned `basis.document` and, when planned with a distinct plan file,
-`basis.plan` as the digests you actually reviewed.
+`basis.plan` as the digests you actually reviewed. The basis covers the story's
+own section, the seed's shared context outside other stories' sections, and
+the distinct plan, so review those; other stories in the same seed do not
+affect it.
 
 2. Record the assessment on the same refinement and approach the review still
 supports:

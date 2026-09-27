@@ -93,7 +93,7 @@ then `npm test` before delivery.
 
 ### 1. A sibling's preparation or closure leaves a ready story startable
 Type: Behavior
-Status: planned
+Status: done
 Proof: examples 1–7 above, through `read-state`/`record-state` in a new focused
 `tests/support/story-state-sibling-readiness.test.mjs` (example 6 plants a
 block whose `document` is the whole-document digest) and one new startup case
@@ -110,3 +110,25 @@ an edit to the first story's own section, shared context or plan reports
 story-scoped digest, the two-digest match, fixture switches, and the guidance
 and usage sentences.
 
+
+Accepted proof: `node --test tests/support/story-state*.test.mjs` (18 pass;
+`story-state-sibling-readiness.test.mjs` covers examples 1, 2, 3, 5, 6);
+`node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs`
+(30 pass; "a published sibling story added after readiness still takes the
+ready story" fails on the pre-change code); other importers of the home reader
+and story-state (16 pass); dashboard readiness Playwright specs (10 pass).
+
+## Learnings
+
+- The story-scoped text drops trailing blank lines on an anchored home, so
+  closing the last sibling reads the same whether or not its separating blank
+  line went with it. A closure leaving uneven blank lines mid-seed still reads
+  a conservative `needs-reassessment`.
+- The assumption that only direct `computeBasis` fixtures were affected missed
+  `dashboard/tests/storyReadinessPublications.ts`: its "assessed content
+  change" appended to the seed's end, which touches only the last story. It
+  now edits the shared-context sentence so every assessed story still needs
+  reassessment.
+- Pre-existing: `regionFor` matches the story's own anchor on a trimmed line,
+  while section boundaries are detected untrimmed, so an indented sibling
+  anchor would not end a section. Left unchanged.
