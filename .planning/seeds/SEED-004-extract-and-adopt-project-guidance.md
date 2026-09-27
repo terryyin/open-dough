@@ -92,40 +92,56 @@ profile-only behavior and backlog ownership rules remain intact.
 
 ### 19. Strengthen architectural review after using the lightweight guidance
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/133-preserve-lasting-rules/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2009248b86e296b2c36b14662dfdf18ca7057f65cc3fa6f0ac33c978b54f723d","plan":"bfe0f2bd035a82bc6b5cf4419d474da8932578f2addfcec24a907f5d8036eb66"}}
 ```
 
-**Status:** Decomposed; deferred and not refined.
+**Identity:** SEED-004#proudly-found-elsewhere-design
 
-**Goal:** A developer gets useful architectural corrections and maintained
-direction from normal review after the initial PFE and North Star guidance has
-been used, without accumulating duplicate review work or stale instructions.
+**Goal:** A developer can let an agent retire completed planning and temporary
+direction without losing rules needed to maintain the product.
 
-**Scope candidate:** Carry the remaining broader architecture-review work here:
-review PFE use, whole-product domain cohesion, and North Star alignment in
-post-change refactoring and execution retrospective; propose evidence-backed
-corrections or direction updates; refine lifecycle handling where actual use
-shows the minimal flow insufficient. Consider broader refactoring-authorization
-alignment only for a demonstrated obstacle. Basic planning, execution stops,
-coordinator updates, and ordinary retirement are already delivered by the
-lightweight guidance. Do not assume every candidate extension is worth
-implementing.
+**Scope:** Clarify where lasting rules belong and preserve them during ordinary
+wrap-up. Reuse the existing architectural-thinking reference and wrap-up skill;
+replace ambiguous or duplicated wording instead of adding another procedure.
+Product-wide architectural decisions belong in the project's ADR process;
+feature-local behavior and design belong in maintained feature documentation.
+Use existing project formats. Keep instructions short, direct, and conditional
+on the records being retired.
 
-**Evaluation:** From actual use of the lightweight guidance, identify a concrete
-missed architectural issue or unnecessary process step; refine this story around
-a review result or simplification the developer can evaluate. Existing review
-that already supplies the outcome is evidence to drop that extension.
-**Depends on:** Evidence from using the delivered lightweight guidance. Its
-completed source contract and plan are recoverable at
-`7f672bf:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` and
-`7f672bf:.planning/slice-plans/044-lightweight-pfe-and-direction/PLAN.md`.
-**Safe stopping point:** Any selected review improvement delivers its own useful
-correction or reduced burden; no further process rollout is required.
-**Effort hypothesis:** Uncertain until a concrete review gap is observed; no
-S/M/L estimate without repository definitions and a refined outcome.
-**Deferred decisions:** Which remaining extensions are justified, their concrete
-examples, and the final bounded delivery scope. Tracking machinery, mandatory
-per-story documents, partial wrap-up, and early termination remain excluded.
+**Key examples:**
+
+1. A completed migration topic mixes spent rollout order with a still-needed
+   feature rule to verify production conversion before deleting old storage.
+   Wrap-up preserves that rule in maintained feature documentation before
+   removing the topic; the feature rule alone does not require a new ADR.
+2. A retiring plan or topic contains a product-wide decision needing human
+   resolution. The agent keeps that context and reports the specific decision;
+   it neither accepts an ADR nor claims closure while the decision is unresolved.
+3. The lasting rule already has a maintained home, or the record contains only
+   spent sequencing. Wrap-up removes eligible temporary material without a
+   duplicate document or extra approval. Direction another active story still
+   needs remains in place.
+
+**Evaluation:** Walk these cases through the revised guidance under AGENTS.md's
+behavior review: invocation and required project context are clear, the lasting
+rule survives in the right home, and ordinary cleanup remains simple. A missing
+destination or conflicting decision produces a specific stop, not an invented
+policy. Existing code, tests, and documentation are preserved.
+
+**Architecture:** The accompanying ADR 0000 clarification defines document
+ownership; ADR 0002 points to it. ADR 0006 requires one authoritative behavioral
+home and instructions addressed to the executing project's agent. These internal
+ADRs guide authoring, not runtime dependencies imposed on other projects.
+
+**Excluded:** New document formats, required per-story architecture sections,
+registries, review stages, broad document audits, new ADR amendment policy,
+consumer-proof changes, and changes to the file-size or refactoring gates.
+Architectural assumptions during refinement and broader review improvements
+remain candidates in the retained evidence, not promises of this story.
+
+**Safe stopping point:** Ordinary closure preserves lasting rules without any
+further architecture-process rollout. No S/M/L estimate is assigned without
+repository definitions.
 
 #### Retained experience for later refinement — 2026-09-27
 
@@ -142,8 +158,8 @@ The developer describes this as **partially real-life experience of using the
 current architecture guidance**. Retain it as input to this story's later
 refinement alongside retrospective findings still to be collected. These are
 the report's observations and proposals, not independently verified findings
-or accepted changes to Open Dough. The story remains deferred and not refined;
-this evidence capture does not select a solution or expand delivery scope.
+or accepted changes to Open Dough. That evidence capture did not select a
+solution; the scope above records the developer's later, narrower selection.
 
 **What worked, according to the report:**
 

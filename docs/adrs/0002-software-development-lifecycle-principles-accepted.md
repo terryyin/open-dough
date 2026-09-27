@@ -201,10 +201,10 @@ we treat a North Star as a disposable decision cache: record only consequential
 direction for relevant upcoming work that has supporting evidence. Keep
 uncertainty explicit rather than turning a possibility into a constraint.
 Retire the record when it is substantially realized or no longer useful.
-Indispensable assumptions and durable human-owned constraints belong in ADRs;
-the temporary record must not be their sole home. This cache and effort/token
-rationale is maintainer-only; public guidance describes the required behavior
-and lifecycle. Actor permissions and update procedures remain workflow choices.
+Preserve lasting rules before retiring temporary records, using the document
+ownership defined in [ADR 0000](./0000-use-adrs-accepted.md). This cache and
+effort/token rationale is maintainer-only; public guidance describes the required
+behavior and lifecycle. Actor permissions and update procedures remain workflow choices.
 
 We measure the total weight of our payload—the codebase—by the total amount
 of judgment-intensive work it leaves for the future. Reducing that burden

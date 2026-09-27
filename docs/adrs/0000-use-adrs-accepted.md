@@ -39,9 +39,12 @@ guidance but are not imposed on projects using it.
    and keep delivery prioritization separate from architectural acceptance.
    Remove obsolete process instructions from current guidance rather than
    retaining them as explanatory archive; decision records stay.
-6. Keep temporary North Star direction separate from durable ADR decisions.
-   It may be revised or retired under delegated judgment, but cannot override
-   Accepted ADRs. Preserve indispensable architectural assumptions in ADRs.
+6. Keep temporary North Star direction separate from durable decisions. It
+   cannot override Accepted ADRs. Before removing temporary direction or
+   planning records, preserve any still-needed rules: product-wide
+   architectural decisions in ADRs, and feature-local behavior and design in
+   maintained feature documentation. Follow the existing human decision
+   process when an ADR change is needed.
 
 ## Consequences
 
