@@ -10,16 +10,17 @@ trap 'rm -rf -- "${temporary_dir}"' EXIT
 checks="${temporary_dir}/checks"
 mkdir -p -- "${checks}"
 
-# Each substitute check appends its own name to SPLIT_RECORD, and fails if it
-# inherited OPEN_DOUGH_TEST_SPLIT: a check that runs the runner itself must get
-# every one of its own checks. They are created in an order other than sorted,
-# and `longest-first` names one of them, so the expected shares follow only
-# from the runner's partition order: mu, then alpha, beta, delta, zeta.
+# Each substitute check appends its own name to SPLIT_RECORD, and fails naming
+# every OPEN_DOUGH_TEST_* variable it inherited: the runner's settings stay with
+# the runner, so a check that runs the runner itself gets every one of its own
+# checks. They are created in an order other than sorted, and `longest-first`
+# names one of them, so the expected shares follow only from the runner's
+# partition order: mu, then alpha, beta, delta, zeta.
 write_checks() {
   local name
   for name in "$@"; do
     # shellcheck disable=SC2016 # The substitute check expands its own names.
-    printf '#!/usr/bin/env bash\nset -euo pipefail\nprintf "%%s\\n" "${BASH_SOURCE[0]##*/}" >> "${SPLIT_RECORD}"\n[[ -z ${OPEN_DOUGH_TEST_SPLIT+set} ]] || { echo "inherited OPEN_DOUGH_TEST_SPLIT=${OPEN_DOUGH_TEST_SPLIT}"; exit 1; }\n' \
+    printf '#!/usr/bin/env bash\nset -euo pipefail\nprintf "%%s\\n" "${BASH_SOURCE[0]##*/}" >> "${SPLIT_RECORD}"\ninherited=$(compgen -e OPEN_DOUGH_TEST_ || true)\n[[ -z ${inherited} ]] || { for name in ${inherited}; do echo "inherited ${name}=${!name}"; done; exit 1; }\n' \
       > "${checks}/${name}.sh"
   done
 }
@@ -28,13 +29,16 @@ printf '# longest first\n%s\n' "${checks}/mu.sh" > "${checks}/longest-first"
 
 # Runs the runner over the checks with OPEN_DOUGH_TEST_SPLIT set to the second
 # argument, or unset when it is empty, logging to <name>.log, recording the
-# checks that ran in <name>.record, and their times in <name>.times.
+# checks that ran in <name>.record, and their times in <name>.times. It also
+# gives the runner a job count and a setting the runner does not know, neither
+# of which a check may inherit.
 run_split() {
   local setting=()
   [[ -z $2 ]] || setting=("OPEN_DOUGH_TEST_SPLIT=$2")
   suite_status=0
   env "${setting[@]}" SPLIT_RECORD="${temporary_dir}/$1.record" \
     OPEN_DOUGH_TEST_TIMES="${temporary_dir}/$1.times" OPEN_DOUGH_TEST_DIR="${checks}" \
+    OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_ANYTHING=x \
     "${BASH}" "${source_dir}/scripts/test.sh" > "${temporary_dir}/$1.log" 2>&1 \
     || suite_status=$?
 }

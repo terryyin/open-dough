@@ -115,9 +115,10 @@ share whatever order the file system lists the tests in, and a failure or time
 is reported only for the share's own jobs. A malformed value, or `i` outside
 `1..n`, fails the run naming the value before any job starts. Unset, every job
 runs. `OPEN_DOUGH_TEST_TIMES=<file>` writes every job's wall seconds and name,
-longest first, which is how that list is refreshed (see its header). Jobs
-inherit neither setting, so a check that runs the runner itself runs all of its
-own checks and keeps its own times. CI runs the suite as split jobs, each with
+longest first, which is how that list is refreshed (see its header). Every
+`OPEN_DOUGH_TEST_*` setting stays with the runner that was given it, so a check
+that runs the runner itself gives it only the settings it chooses, runs all of
+its own checks, and keeps its own times. CI runs the suite as split jobs, each with
 `OPEN_DOUGH_TEST_SPLIT` set to its share; each fails on its own share's
 failures or budget breach and keeps its times for seven days as workflow
 artifact `test-times-<i>`.

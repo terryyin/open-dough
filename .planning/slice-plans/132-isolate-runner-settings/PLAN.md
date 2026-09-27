@@ -50,10 +50,23 @@ scrubs environment by prefix. No North Star topic or ADR is affected.
 
 ### 1. The runner keeps every one of its own settings from its jobs
 Type: Behavior
-Status: planned
+Status: done
 Proof: see the outside-in proof table; focused loop
 `scripts/test.sh tests/test-runner-*.sh`, then the whole suite as itself and
 as each CI share, and lint.
+
+Accepted proof (2026-09-27, Homebrew Bash 5 first on `PATH`):
+`bash scripts/test.sh tests/test-runner-*.sh` exits 0 silently; the substitute
+checks' assertion (`tests/test-runner-split.sh`, `compgen -e OPEN_DOUGH_TEST_`)
+observes promises 1–3 with `run_split` supplying `SPLIT`, `TIMES`, `DIR`,
+`JOBS=1`, and `ANYTHING=x`. Mutation with the prefix-wide unset removed fails
+the split check naming `inherited OPEN_DOUGH_TEST_ANYTHING=x`, `…_DIR`, `…_JOBS`,
+and `…_TIMES`. `npm test` plain and as `OPEN_DOUGH_TEST_SPLIT=1/2` and `2/2`
+exit 0; `npm run format` passes.
+
+Learning: the refactor pass removed `tests/test-runner-failure-report.sh`'s own
+`OPEN_DOUGH_TEST_TIMES` inheritance guard, now covered by the split check's
+general assertion.
 
 Behavior: a caller runs `scripts/test.sh` with any `OPEN_DOUGH_TEST_*`
 variables set (including CI's split, a job count, a test directory, and a
