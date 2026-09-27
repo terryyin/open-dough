@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yua-chan",
-  "email": "yua-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-043#preserve-sibling-readiness",
-  "host": "claude",
-  "model": "claude-opus-5-5"
-}

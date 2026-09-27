@@ -569,7 +569,7 @@ A performance guard times a different calculation path or workload from the chan
 Readiness hashes a whole shared seed, so an unrelated sibling edit or closure forces reassessment of an unchanged ready story.
 
 - **Sources:** [Pygardon / ODF-116](../../../pygardon/DearDough.md#odf-116--a-sibling-storys-edit-to-a-shared-seed-made-a-ready-plan-unclaimable); [Doughnut / ODF-116](../../../doughnut/DearDough.md#odf-116--closing-one-story-in-a-shared-seed-made-a-sibling-storys-ready-assessment-stale).
-- **Assessment:** Two distinct 0.3.40 executions across Pygardon and Doughnut. v0.3.40 and a951fc0 product-backlog-story-state-basis.mjs computeBasis digest the whole document; no intervening correction.
+- **Assessment:** 14 occurrences across Pygardon and Doughnut on 0.3.40–0.3.42 (2026-09-26/27), Claude Code and Codex; sibling preparation as well as closure, about 6–12 tool calls each, two raced a concurrent Take. One Pygardon plan was genuinely stale through code drift, which neither whole-seed nor section digests detect. `computeBasis` digests the whole document; no intervening correction.
 - **Follow-up:** queued, not resolved: [Preserve readiness when an unrelated sibling story changes](../../.planning/seeds/SEED-043-preserve-relevant-readiness.md#preserve-sibling-readiness).
 
 <a id="odf-117"></a>
