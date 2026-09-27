@@ -14,12 +14,13 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Make every check's shell and Git environment explicit and reproduce CI's platform with one command](seeds/SEED-048-explicit-test-environment.md#explicit-test-environment) — SEED-048#explicit-test-environment ([plan](slice-plans/120-explicit-test-environment/PLAN.md))
-- [Bring the integrated CI verdict back under 120 s by splitting CI's checks across parallel jobs](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-round-2) — SEED-046#ci-verdict-round-2 ([plan](slice-plans/122-ci-verdict-parallel-jobs/PLAN.md))
 - [Keep roster and human credit honest under slow or odd evidence](seeds/SEED-049-project-agent-roster.md#roster-evidence-correction) — SEED-049#roster-evidence-correction ([plan](slice-plans/125-roster-evidence-correction/PLAN.md))
 - [Name the file, line, and command where a failing shell check stopped](seeds/SEED-049-native-result-path-diagnosis.md#native-result-path-diagnosis) — SEED-049#native-result-path-diagnosis ([plan](slice-plans/124-failing-check-location/PLAN.md))
 
 ## Backlog list
 
+- [Give each dashboard browser test a server port no other worker can take](seeds/SEED-046-test-and-ci-optimization-round-2.md#dashboard-port-race) — SEED-046#dashboard-port-race
+- [Keep the split test runner and CI's split in one place each](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-correction) — SEED-046#ci-verdict-correction
 - [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers
 - [Report conflicting CI repair restores truthfully and drop through the script](seeds/SEED-008-worktree-branch-trunk-sync.md#truthful-repair-restore) — SEED-008#truthful-repair-restore
 - [Verify planning premises and proof setup before declaring readiness](seeds/SEED-044-verify-planning-premises.md#verify-planning-premises) — SEED-044#verify-planning-premises

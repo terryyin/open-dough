@@ -1,9 +1,14 @@
+import { availableParallelism } from "node:os";
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests",
   outputDir: "./test-results",
   fullyParallel: true,
+  // Playwright's default uses half the cores. Each CI dashboard shard job must
+  // finish within the CI verdict target, so there it uses every core; local
+  // runs keep the default.
+  ...(process.env["CI"] ? { workers: availableParallelism() } : {}),
   forbidOnly: Boolean(process.env["CI"]),
   retries: 0,
   // A passing run prints nothing; a failure, or output from a passing test

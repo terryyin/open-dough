@@ -10,10 +10,12 @@ const configFile = fileURLToPath(
 test("the dashboard development server uses its dedicated port", async () => {
   const server = await createServer({ configFile });
   try {
-    await server.listen();
-    const address = server.resolvedUrls?.local[0];
-    assert.equal(new URL(address).port, "43127");
-    const response = await fetch(address);
+    assert.equal(server.config.server.port, 43127);
+    assert.equal(server.config.server.strictPort, true);
+    // Serve on an ephemeral port so a developer's running dashboard, which
+    // holds the dedicated port, cannot make this check fail.
+    await server.listen(0);
+    const response = await fetch(server.resolvedUrls?.local[0]);
     assert.equal(response.status, 200);
   } finally {
     await server.close();

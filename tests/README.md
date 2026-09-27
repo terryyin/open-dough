@@ -33,31 +33,40 @@ under `output from passing <file>:`. No job starts a worker pool of its own.
 The runner runs one job per online CPU at a time; each job keeps its own
 temporary directory. `OPEN_DOUGH_TEST_JOBS` selects another count, 1 or more.
 Jobs named in `tests/longest-first` start first, in that order, so the longest
-job does not start last; the rest follow. `OPEN_DOUGH_TEST_TIMES=<file>`
-writes every job's wall seconds and name, longest first, which is how that
-list is refreshed (see its header). Jobs do not inherit it, so a check that
-runs the runner itself keeps its own times. CI's `test` check keeps that file
-for seven days as its `test-times` workflow artifact.
+job does not start last; the rest follow, sorted bytewise.
+`OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of `n`: the runner deals
+that order round-robin across `n` shares, so every job lands in exactly one
+share whatever order the file system lists the tests in, and a failure or time
+is reported only for the share's own jobs. A malformed value, or `i` outside
+`1..n`, fails the run naming the value before any job starts. Unset, every job
+runs. `OPEN_DOUGH_TEST_TIMES=<file>` writes every job's wall seconds and name,
+longest first, which is how that list is refreshed (see its header). Jobs
+inherit neither setting, so a check that runs the runner itself runs all of its
+own checks and keeps its own times. CI runs the suite as two split jobs,
+`test (1/2)` and `test (2/2)`, each with `OPEN_DOUGH_TEST_SPLIT` set to its
+share; each fails on its own share's failures or budget breach and keeps its
+times file for seven days as its `test-times-1` or `test-times-2` workflow
+artifact.
 
 The suite's time budget lives in `tests/time-budget`: two numbers, a per-job
-ceiling (`per-job-seconds`) and a total ceiling over all jobs
-(`total-job-seconds`), set from CI's `test-times` with headroom. After every
-run the runner compares the same job times with it (`scripts/test-budget.sh`).
+ceiling (`per-job-seconds`) and a total ceiling over one run's jobs
+(`total-job-seconds`), set from CI's `test-times-<i>` with headroom. The budget
+is CI's: after a CI run (`CI=true`) the runner compares the same job times with
+it (`scripts/test-budget.sh`), so each split job is judged on its own share.
 Within budget it prints nothing. A breach prints, after any failure reports,
 one line per job over the per-job ceiling and one for a total over the total
 ceiling, for example:
 
 ```text
-OVER BUDGET: tests/install.sh took 78.4s; the per-job ceiling is 70s (tests/time-budget).
-OVER BUDGET: all jobs took 902.4 job-seconds; the total ceiling is 840 (tests/time-budget).
+OVER BUDGET: tests/install.sh took 78.4s; the per-job ceiling is 71s (tests/time-budget).
+OVER BUDGET: all jobs took 482.4 job-seconds; the total ceiling is 470 (tests/time-budget).
 ```
 
-In CI (`CI=true`) a breach fails the `test` check; elsewhere it is only
-reported and the run's exit status is unchanged. The ceilings are calibrated
-to CI's runner, so a local run on a slower or loaded machine will usually
-print the report while still passing; only CI enforces the budget. Fix the slow job rather than the number: raising a
-ceiling is an explicit edit of `tests/time-budget`, reviewed like any other
-change. A substitute test directory (`OPEN_DOUGH_TEST_DIR`) is held to its own
+A breach fails that split job. The ceilings are calibrated to CI's runner, so
+a run anywhere else is not judged against them: it prints no budget report and
+its exit status comes only from the checks. Fix the slow job rather than the
+number: raising a ceiling is an explicit edit of `tests/time-budget`, reviewed
+like any other change. A substitute test directory (`OPEN_DOUGH_TEST_DIR`) is held to its own
 `time-budget` if it has one; `tests/test-runner-budget.sh` proves the
 behavior that way.
 

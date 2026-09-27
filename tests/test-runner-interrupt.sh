@@ -11,6 +11,9 @@ source "${source_dir}/tests/helpers/wait-for.bash"
 # shellcheck disable=SC1091
 # shellcheck source=tests/helpers/expect-in-log.bash
 source "${source_dir}/tests/helpers/expect-in-log.bash"
+# shellcheck disable=SC1091
+# shellcheck source=scripts/lost-setpgid-race.bash
+source "${source_dir}/scripts/lost-setpgid-race.bash"
 temporary_dir=$(mktemp -d)
 checks="${temporary_dir}/checks"
 cleanup() {
@@ -45,13 +48,28 @@ order() {
 
 # Job control starts the runner in its own process group with INT not ignored;
 # a non-interactive shell otherwise starts background commands ignoring INT.
+# What Bash writes while starting the runner, before the runner's own
+# redirection, goes to the run's launch file; await_ready checks it.
 start_runner() {
   rm -f -- "${temporary_dir}"/*.ready
+  launch="${temporary_dir}/$1.launch"
+  exec 5>&2 2> "${launch}"
   set -m
   OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_DIR="${checks}" \
     "${BASH}" "${source_dir}/scripts/test.sh" > "${temporary_dir}/$1.log" 2>&1 &
   set +m
+  exec 2>&5 5>&-
   runner=$!
+}
+
+# Only a lost setpgid race's launch line is accepted; any other launch output
+# fails the test.
+expect_quiet_launch() {
+  if [[ -s ${launch} ]] && ! lost_setpgid_race "${runner}" "${launch}"; then
+    printf 'FAIL: starting the runner printed:\n' >&2
+    cat -- "${launch}" >&2
+    exit 1
+  fi
 }
 
 await_ready() {
@@ -66,6 +84,8 @@ await_ready() {
     printf 'FAIL: %s announced it was running, but no process runs it.\n' "$1" >&2
     exit 1
   fi
+  # A running check means the runner started, so its launch output is complete.
+  expect_quiet_launch
 }
 
 # Sends SIGNAL to the runner started for RUN, then asserts that the runner
