@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Mana-chan",
+  "email": "mana-chan@example.org",
+  "identity": "SEED-043#preserve-sibling-readiness",
+  "mode": "story-branch",
+  "branch": "claude/129-preserve-sibling-readiness",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
