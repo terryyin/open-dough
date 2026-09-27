@@ -108,4 +108,3 @@ escalation, [its feasibility](#native-one-shot-escalation).
 
 - Maintainer capture on 2026-09-24; refinement decisions on 2026-09-26.
 - [Product backlog](../PRODUCT-BACKLOG.md).
-- [Existing test optimization continuation](SEED-004-extract-and-adopt-project-guidance.md#continue-test-optimization-plans).
