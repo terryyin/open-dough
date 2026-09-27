@@ -14,6 +14,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Credit the developer and agent on agent-enabled commits](seeds/SEED-047-credit-agent-and-developer-commits.md#agent-and-developer-credit) — SEED-047#agent-and-developer-credit ([plan](slice-plans/119-agent-and-developer-commit-credit/PLAN.md))
+- [Move the dashboard development server to a distinct port](seeds/SEED-049-dashboard-dev-port.md#dashboard-dev-port) — SEED-049#dashboard-dev-port
 
 ## Backlog list
 
