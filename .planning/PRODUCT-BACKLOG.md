@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Credit the developer on Story Branch integration merges](seeds/SEED-047-credit-agent-and-developer-commits.md#integration-merge-credit) — SEED-047#integration-merge-credit ([plan](slice-plans/121-integration-merge-credit/PLAN.md))
-
 ## Backlog list
 
 - [Make every check's shell and Git environment explicit and reproduce CI's platform with one command](seeds/SEED-048-explicit-test-environment.md#explicit-test-environment) — SEED-048#explicit-test-environment

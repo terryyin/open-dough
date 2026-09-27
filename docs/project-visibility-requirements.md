@@ -278,7 +278,9 @@ file.
 - **Authorship.** The agent is the Git author of its coordination commits (the
   Take and the preparation announcement and end) and, through the guided agent
   commit, of the commits it makes for its own work in its owned workspace,
-  including closure and amended commits; the configured Git user remains the
+  including closure and amended commits and the merge commit that integrates
+  its published Story Branch into trunk, whether made directly or by the
+  product-backlog merge adapter; the configured Git user remains the
   committer. Each such commit credits that developer once as a
   `Co-authored-by` trailer, read at commit time from the effective committer
   identity of the checkout making it, never from a fixed account, beside any
