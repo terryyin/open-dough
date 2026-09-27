@@ -23,9 +23,6 @@ source "${source_dir}/tests/helpers/install-target-fixture.bash"
 configure_fixture_git() {
   git -C "$1" config user.email 'fixture@example.com'
   git -C "$1" config user.name 'Open Dough Fixture'
-  # Commits otherwise start a detached auto-maintenance repack (Git 2.55)
-  # that can still be writing .git/objects when the test removes the fixture.
-  git -C "$1" config maintenance.auto false
 }
 
 init_fixture_repo() {

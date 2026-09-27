@@ -106,7 +106,7 @@ repository-local identity, bringing the file to the 250-line limit.
 
 ### 2. Every check the runner starts sees CI's Git state
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `tests/test-runner-git-environment.sh` runs the runner over
 substitute checks with `HOME` holding a `.gitconfig` that sets
 `maintenance.auto true`, a user identity, and `init.defaultBranch trunk`.
@@ -120,6 +120,17 @@ runs with no global or system configuration, background maintenance off,
 and identity only from what the check itself sets. Remove the maintenance
 line from `configure_fixture_git` and replace the README's manual export
 advice with the runner's guarantee.
+
+Accepted proof (2026-09-27): `tests/test-runner-git-environment.sh` also
+injects `GIT_CONFIG_PARAMETERS`, an inherited `GIT_CONFIG_COUNT`, an XDG
+config, and `GIT_AUTHOR_*`/`GIT_COMMITTER_*`. It failed before the runner
+change (inherited identity, `maintenance.auto=true`, `branch=trunk`,
+`commit=made`) and again with only the identity-variable unset removed
+(`commit=made`); it passes with the change. `PATH=/opt/homebrew/bin:$PATH npm
+test` exited 0 with the maintainer's real global configuration, printing only
+the local budget report. The environment lives in the sourced
+`scripts/test-environment.bash` (Bash floor and Git state), keeping
+`scripts/test.sh` under the file-size limit; the runner fixtures copy both.
 
 ### 3. Chosen checks run alone through the runner
 Type: Behavior
@@ -200,3 +211,14 @@ Behavior: a dashboard check fails only on CI → `scripts/ci-container.sh
   reported node "Could not find" the file at the host path and succeeded with
   `/work`; slice 4 must confirm host-path mounting from this worktree before
   relying on it.
+- **Inherited identity variables (slice 2, 2026-09-27).** `GIT_CONFIG_GLOBAL`
+  and `user.useConfigOnly` do not hide `GIT_AUTHOR_*`/`GIT_COMMITTER_*`, so the
+  runner unsets them too; otherwise a caller's exported identity would let an
+  identity-less commit pass locally.
+- **The dashboard port check bound the live port (slice 2, 2026-09-27).**
+  `tests/support/dashboard-dev-port.test.mjs` (from `7684780`) listened on
+  43127 and failed every local full run while the maintainer's dashboard dev
+  server ran. It now checks the resolved port, `strictPort`, and loopback host
+  and proves serving on an ephemeral port; delivered as its own commit.
+- **`scripts/test.sh` is near the file-size limit (slice 2).** Slice 3's path
+  selection may need its own seam.

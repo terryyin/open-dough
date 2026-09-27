@@ -93,10 +93,10 @@ event fails naming what it awaited. A wait for a signal from a started process
 lasts while that process lives and fails, naming its exit, if it ends first
 (`src/skills/dough-execute-plan/scripts/process-lifetime-test-fixtures.mjs`).
 File timestamps that must differ are set explicitly, and the dashboard's timed
-journeys step a paused page clock. CI's Git has no global or system
-configuration, so a local run can hide output CI would fail on (such as Git's
-default-branch hint); check with
-`GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 npm test`. CI's Bash can
+journeys step a paused page clock. The runner gives every check CI's Git
+state: no global, system, or inherited configuration, automatic maintenance
+off, and no identity or default branch, so a commit fails unless the check
+sets an identity (`scripts/test-environment.bash`). CI's Bash can
 be older than a local Homebrew Bash and behave differently inside traps (for
 example, before Bash 5.3 a bare `return` in a function called from a trap takes
 the interrupted command's status); check runner and trap changes in a Linux
@@ -129,11 +129,11 @@ example in `gh`) or its stop fails, so failing-path checks create that
 condition. Observer stream processes retitle themselves `dough-ci:<hash>`, so
 a process sweep for leftovers matches that title as well as `ci-mailbox.mjs`.
 
-A shell Git fixture repository is configured with `configure_fixture_git`
-(`tests/helpers/release-fixture.bash`), which also turns off Git's automatic
-maintenance so no detached repack is still rewriting `.git/objects` while the
-check snapshots or removes the fixture. Fixture snapshots prune `.git` rather
-than walking it.
+A shell Git fixture repository gets its identity from `configure_fixture_git`
+(`tests/helpers/release-fixture.bash`). The runner's Git state keeps automatic
+maintenance off, so no detached repack is still rewriting `.git/objects` while
+the check snapshots or removes the fixture. Fixture snapshots prune `.git`
+rather than walking it.
 A payload-update check builds its older and newer tagged releases with
 `build_upgrade_releases` from the same helper, withholding the older release's
 declarations and sources instead of editing a copied installer by hand.
