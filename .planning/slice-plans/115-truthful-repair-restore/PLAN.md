@@ -147,3 +147,12 @@ restore's own `mismatch` receipt end to end, and a `git stash drop` that
 fails outright (exits 2 with Git's message rather than a receipt).
 Learnings: plain `git stash drop` prints the full dropped OID, so
 confirmation needs no second stack read. `ci-monitor.md` has no spare lines.
+
+## Execution complete
+
+Product advice: queue the follow-up correction
+[Keep paused work when a conflicting restore applied nothing](../../seeds/SEED-008-worktree-branch-trunk-sync.md#unapplied-restore-kept)
+(plan 128) ahead of other SEED-008 work: the delivered step 5 guidance can
+drop paused work that a conflicting restore never applied. Other priorities
+unchanged; route DD-121 (start accepts a Take during a live same-story
+preparation) through finding triage.

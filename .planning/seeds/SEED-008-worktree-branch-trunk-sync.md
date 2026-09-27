@@ -259,6 +259,28 @@ concurrent stash pushes, and branch or HEAD checks on restore.
 
 **Plan:** [Report conflicting repair restores truthfully](../slice-plans/115-truthful-repair-restore/PLAN.md).
 
+<a id="unapplied-restore-kept"></a>
+
+### Correction: Keep paused work when a conflicting restore applied nothing
+
+**Identity:** SEED-008#unapplied-restore-kept
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/128-unapplied-restore-kept/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"95deef5428166c26bf83fb1377a8f6810b8bf7060e7a7808a6331c8e5c88a654","plan":"6e2d317488fb879b094072e5e4a0dbf3fc1f197e2aadef4a0ae032a2d2bdc9ea"}}
+```
+
+**Goal:** A coordinator finishing a conflicting CI repair restore never
+discards paused work that the restore did not put back in the tree.
+
+**Scope:** A bounded retrospective correction of the delivered
+`SEED-008#truthful-repair-restore` (plan 115, commits `8f88364`, `ab3cb42`).
+A restore that applied nothing names its conflicting paths and is remembered
+in its record; `drop --record` refuses to drop that unapplied entry;
+`ci-monitor.md` step 5 says to keep the entry and stop on `none`. The step 5
+guidance assertions live in one focused test. Excluded: retrying an apply
+without `--index`, and reporting unstaged paths that come back staged.
+
+**Plan:** [Keep paused work when a conflicting restore applied nothing](../slice-plans/128-unapplied-restore-kept/PLAN.md).
+
 ## Architectural Context
 
 [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
