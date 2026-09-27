@@ -43,7 +43,9 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
 # Only the checkout is mounted, so the caller's directory, from which relative
 # paths resolve as scripts/test.sh resolves them, and every path must be in it.
 work_dir=$(pwd -P)
-# Prints DIR's physical path when it exists, or DIR as given.
+# Prints DIR's physical path when it exists, or DIR as given, so a missing
+# directory whose `..` leaves the checkout is not refused here; it fails later
+# in the container as any missing path does.
 physical_dir() {
   (cd -- "$1" 2> /dev/null && pwd -P) || printf '%s\n' "$1"
 }
