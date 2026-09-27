@@ -15,10 +15,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 - [Make every check's shell and Git environment explicit and reproduce CI's platform with one command](seeds/SEED-048-explicit-test-environment.md#explicit-test-environment) — SEED-048#explicit-test-environment ([plan](slice-plans/120-explicit-test-environment/PLAN.md))
 - [Bring the integrated CI verdict back under 120 s by splitting CI's checks across parallel jobs](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-round-2) — SEED-046#ci-verdict-round-2 ([plan](slice-plans/122-ci-verdict-parallel-jobs/PLAN.md))
+- [Keep roster and human credit honest under slow or odd evidence](seeds/SEED-049-project-agent-roster.md#roster-evidence-correction) — SEED-049#roster-evidence-correction ([plan](slice-plans/125-roster-evidence-correction/PLAN.md))
 
 ## Backlog list
 
-- [Keep roster and human credit honest under slow or odd evidence](seeds/SEED-049-project-agent-roster.md#roster-evidence-correction) — SEED-049#roster-evidence-correction
 - [Name the file, line, and command where a failing shell check stopped](seeds/SEED-049-native-result-path-diagnosis.md#native-result-path-diagnosis) — SEED-049#native-result-path-diagnosis
 - [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers
 - [Report conflicting CI repair restores truthfully and drop through the script](seeds/SEED-008-worktree-branch-trunk-sync.md#truthful-repair-restore) — SEED-008#truthful-repair-restore
