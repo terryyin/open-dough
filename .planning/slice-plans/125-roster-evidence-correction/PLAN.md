@@ -301,6 +301,10 @@ commit walk limit, a `changed` commit, a commit not naming the path, and clock
 gaps for a missing addition or unusable date. Both READMEs updated;
 `dashboard/README.md` is 249 lines.
 
+## Execution complete
+
+Product advice: retrospective skipped
+
 ## Learnings
 
 - Readers that still use plain `parseAgentProfile` with a known file name,
