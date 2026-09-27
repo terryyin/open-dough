@@ -15,7 +15,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 - [Make every check's shell and Git environment explicit and reproduce CI's platform with one command](seeds/SEED-048-explicit-test-environment.md#explicit-test-environment) — SEED-048#explicit-test-environment ([plan](slice-plans/120-explicit-test-environment/PLAN.md))
 - [Bring the integrated CI verdict back under 120 s by splitting CI's checks across parallel jobs](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-round-2) — SEED-046#ci-verdict-round-2 ([plan](slice-plans/122-ci-verdict-parallel-jobs/PLAN.md))
-- [See all project agents, their commissions, and human partners](seeds/SEED-049-project-agent-roster.md#project-agent-roster) — SEED-049#project-agent-roster ([plan](slice-plans/123-agent-roster-overview/PLAN.md))
 
 ## Backlog list
 

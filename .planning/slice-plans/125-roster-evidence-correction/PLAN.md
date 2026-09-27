@@ -5,8 +5,10 @@
 **Identity:** SEED-049#roster-evidence-correction
 
 [Correction story](../../seeds/SEED-049-project-agent-roster.md#roster-evidence-correction),
-from the execution retrospective of
-[plan 123](../123-agent-roster-overview/PLAN.md) (SEED-049#project-agent-roster).
+from the execution retrospective of plan 123 (SEED-049#project-agent-roster),
+whose story and plan are recoverable at commit `74e2a91` under
+`.planning/seeds/SEED-049-project-agent-roster.md#project-agent-roster` and
+`.planning/slice-plans/123-agent-roster-overview/PLAN.md`.
 Reviewed commits, all on `claude/123-agent-roster-overview`: `78a0fbb`
 (roster view), `37694d1` (human attribution from the profile's addition
 commit), `279132f` (cached avatar); claim `0d1c694`. Planning provenance
@@ -90,7 +92,7 @@ plans one), live presence, historical commissions, and any new roster feature.
 
 ## Current decisions
 
-- Keep plan 123's decisions: commission meaning, human credit from the current
+- Keep plan 123's decisions (recoverable as above): commission meaning, human credit from the current
   allocation's addition commit's Git committer, and the avatar boundary.
 - The shared profile-name check lives in
   `src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs`
