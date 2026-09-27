@@ -106,7 +106,7 @@ agreement, and record missing native evidence honestly before release.
 
 ### 1. Finish an unlisted one-shot request with only its result
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: an unlisted, eligible request explicitly selects one-shot → the
 startup command prepares an owned workspace at fetched trunk and publishes
@@ -230,4 +230,21 @@ No slice-specific concern remains. All decisive premises are observed above.
 
 ## Learnings
 
-No execution learning; implementation has not started.
+- Slice 1 (2026-09-27): `--one-shot` is a third source strategy in
+  `execution-start-source.mjs` (`readOneShotSource`, `prepareOneShot`), with
+  optional `--identity`/`--publisher-id`; receipt `status: "prepared"` echoes no
+  supplied values. Accepted proof: `node --test
+  src/skills/dough-execute-plan/scripts/one-shot.test.mjs` (4 cases) plus the
+  start/admission suites. Managed delivery only inspects the default checkout;
+  refresh is the separate `refreshDefaultCheckout` step. A lost push response
+  makes the delivery CLI exit without JSON, so the caller retains the workspace
+  HEAD as the candidate to resume. Slice 2 replaces the queued refusal in
+  `readOneShotSource`.
+- `SKILL.md` files for dough-execute-plan and dough-bug-fixing, the start
+  operation module and `install.sh` sit at the 250-line limit; later additions
+  need matching cuts.
+- Open for slices 2–3: `status: "prepared"` sits close to the Preparing
+  vocabulary; reconsider it only if guidance or dashboard wording collides. The
+  entry skills route one-shot through `one-shot.md`; slice 3's guidance walk
+  must confirm bug-fixing and test-optimization no-change and repair steps read
+  correctly for a one-shot mission.

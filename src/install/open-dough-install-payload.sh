@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2154,SC2310,SC2312
-# Copy the caller's managed_files declaration into each native destination.
+# Check the caller's managed_files declaration against the source checkout and
+# copy it into each native destination.
 # Sourced by install.sh after platform and host-hook helpers. The declaration
 # stays in install.sh: historical checkouts are read from that literal array.
 # Caller assigns managed_files, source_dir, target, recorded_source, force,
@@ -11,6 +12,17 @@
 declared_payload_bytes() {
   local mode=$1 root=$2
   payload_bytes_run "${mode}" "${source_dir}/src/skills" "${root}" "${managed_files[@]}"
+}
+
+# Refuses a source checkout that lacks any declared file.
+require_declared_payload() {
+  local managed_file
+  for managed_file in "${managed_files[@]}"; do
+    [[ -f "${source_dir}/src/skills/${managed_file}" ]] || {
+      echo "Client payload is incomplete: missing ${managed_file}" >&2
+      exit 1
+    }
+  done
 }
 
 create_payload_directories() {

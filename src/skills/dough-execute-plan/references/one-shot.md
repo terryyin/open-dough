@@ -1,0 +1,90 @@
+# One-shot work
+
+One-shot work completes an explicitly requested, genuinely trivial outcome and
+publishes only its verified result to remote trunk: no Taken entry, story,
+plan, or agent profile. It is a way of tracking the work, not a separate
+execution path: planless execution, verification, refactoring, delivery, and
+closure stay as they are. It grants no permission beyond the current
+instruction: implementing findings, publishing drafts, and widening scope still
+need their own authority.
+
+## Decide whether one-shot applies
+
+Use it only when the developer or parent instruction explicitly selects one-shot
+(`--one-shot` or a clear equivalent) for an independently invoked outcome, such
+as direct contextual work, a bug investigation or repair, test profiling or
+optimization, exploratory testing, or a standalone review. Never infer it from
+apparent smallness. Without that selection, accepted work is
+[admitted](admit-accepted-work.md) as usual.
+
+The outcome must be eligible: one understood, coherent outcome with no known
+need for multiple slices, no unresolved domain or architecture decision, and a
+credible focused verification path. An ordinary test-and-fix loop or a short
+diagnosis may fit. Known larger work is admitted instead.
+
+These are not one-shot, even when selected:
+
+- preparation-only requests, which keep their existing keep and disposition
+  rules;
+- work already Taken, which keeps its claim's lifecycle;
+- a supporting step of an active story, which continues under that story; and
+- work already queued in the **Backlog list**, which starts as queued work.
+
+## Start in an owned workspace
+
+Resolve the same execution context and
+[publication preconditions](trunk-publication.md#preconditions) as any Story
+Branch or Trunk Mode start, including the authority to push the result. Then
+invoke the start command from [Take or admit work](../SKILL.md#take-or-admit-work)
+with `--one-shot` instead of `--admit`: the originating integration checkout,
+owned workspace path and branch, mode, actual remote and trunk branch, and
+`--push-authorized --workspace-authorized`. An unlisted request needs no
+`--identity` or `--publisher-id`; supply `--identity` only when the request
+names existing work, so the command can check how fetched trunk lists it.
+
+The command fetches trunk, selects or creates the owned workspace at fetched
+trunk, and publishes nothing: no commit, push, profile, or backlog change. Its
+one-line result `ok: true, status: "prepared"` carries `startingRevision`,
+`created`, and the default checkout's `maintenance`; retain
+`startingRevision`. A refusal (`ok: false`) starts no work: `invalid-request`
+also names `--one-shot` combined with `--admit`, `authority-required` names
+missing publication authority, and `source-refused` names work fetched trunk
+already lists. Then run this project's checkout-bound setup under
+[execution location](execution-location.md) before implementation.
+
+## Verify and deliver the result
+
+Work only in that workspace. Run the focused verification the outcome needs
+and the [post-change refactor](../../dough-post-change-refactor/SKILL.md) pass,
+then commit the result with plain `git commit`: the start named no agent.
+
+Deliver it through
+[increment publication](trunk-publication.md#publish-an-execution-increment-or-repair)
+with `previouslyPublishedBase` set to the retained `startingRevision` and the
+target set to remote trunk, even in Story Branch Mode: one-shot work has no
+execution branch or claim to deliver to. After acceptance, refresh the default
+checkout and complete CI observation as for any trunk publication. If the
+delivery result is lost or interrupted,
+[resume the interrupted publication](trunk-publication.md#resume-an-interrupted-publication)
+with the candidate you retained, never by committing or pushing again.
+
+## Finish with no change
+
+A supported no-change conclusion, such as behavior that already matches its
+intent, publishes nothing. Report the evidence and retire the workspace.
+
+## Retire the workspace
+
+After the result's delivery and CI completion gates pass, or after a no-change
+conclusion, retire the clean workspace and its branch under Dough Land's
+[Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree). Nothing
+remains to wrap up: no story, plan, or backlog entry was created.
+
+## Stop when the work grows
+
+When the attempt proves larger than one-shot allows, through newly discovered
+complexity, a separate outcome, or failure to converge, stop substantive work
+before going further. Keep every owned edit and valid proof in the workspace,
+uncommitted and unpublished, and report its path, branch, `startingRevision`,
+and that continuing it as tracked work is pending a developer decision. Do not
+admit, publish, or discard it on your own.

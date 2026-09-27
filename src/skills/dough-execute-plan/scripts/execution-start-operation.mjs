@@ -1,6 +1,6 @@
-// Authoritative startup orchestration for queued work and for admission of
-// accepted work no backlog list holds yet. The CLI adapter stays in
-// execution-start.mjs.
+// Authoritative startup orchestration for queued work, for admission of
+// accepted work no backlog list holds yet, and for one-shot work. The CLI
+// adapter stays in execution-start.mjs.
 import { git, lsRemoteSha, revParse } from "./publication-git.mjs";
 import {
   maintenance,
@@ -12,7 +12,11 @@ import {
   retainedCandidate,
   sameSelectedSource,
 } from "./execution-start-recovery.mjs";
-import { existingClaim, startSource } from "./execution-start-source.mjs";
+import {
+  existingClaim,
+  prepareOneShot,
+  startSource,
+} from "./execution-start-source.mjs";
 import { acceptedReceipt } from "./execution-start-receipt.mjs";
 import { startRequest } from "./execution-start-request.mjs";
 import { selectAgent } from "./agent-assignments.mjs";
@@ -65,6 +69,7 @@ export async function startExecution(requestInput) {
   } catch (error) {
     return sourceStopped(error, { error: error.stderr || error.message });
   }
+  if (source.oneShot) return prepareOneShot(request, origin, fetched);
   if (selectedSource.existing && !request.retained)
     return existingClaim(request, ref, selectedSource);
   // The rotation is read in the integration checkout, which fetched trunk.

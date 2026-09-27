@@ -4,7 +4,8 @@ When the current instruction accepts a mission for tracked work and no backlog
 list holds it, admit it through the startup command in
 [Take or admit work](../SKILL.md#take-or-admit-work) before its substantive work.
 Work already queued starts as queued work; work already Taken continues under
-its existing claim.
+its existing claim. A mission explicitly selected as
+[one-shot work](one-shot.md) is not admitted.
 
 ## Decide whether a mission was accepted
 
