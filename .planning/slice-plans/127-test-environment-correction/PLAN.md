@@ -147,7 +147,7 @@ before CI.
 
 ### 4. The tests README states each environment rule once
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/payload-declaration-links.sh` and
 `tests/test-runner-failure-report.sh` pass through the runner after the
 redundant check is deleted; the full suite passes; the README is under 250
@@ -190,3 +190,13 @@ into one section. Directly owned retrospective correction.
   and wrote the HTML report. The container's separate `build:dashboard` step is
   gone, as in CI, where Playwright's globalSetup builds.
 - `tests/README.md` is 268 lines after slice 3.
+- Slice 4 accepted proof: `tests/payload-declaration-links-suite-failure.sh`
+  is deleted; its assertions remain in `tests/payload-declaration-links.sh`
+  (`expect_undeclared`) and `tests/test-runner-failure-report.sh`
+  (`run_suite failing`, `expect_in_log … FAIL:`). `PATH=/opt/homebrew/bin:$PATH
+  npm test -- tests/payload-declaration-links.sh
+  tests/test-runner-failure-report.sh` and the full `npm test` exit 0.
+  `tests/README.md` is 249 lines with one `## Check environment` section and
+  an image refresh that removes the image and prunes all of Docker's build
+  cache, since BuildKit's cache outlives `docker image rm` and cannot be pruned
+  per image; a per-image refresh would need a script option.
