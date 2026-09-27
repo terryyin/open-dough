@@ -195,6 +195,33 @@ retains ordinary verification ownership without fabricating a backlog entry.
 No product question remains. The plan was re-bound on 2026-09-27 to the
 delivered admission interface and current publication owners.
 
+<a id="one-shot-entry-coherence"></a>
+
+### 3. Make one-shot read the same from every entry workflow
+
+**Identity:** SEED-028#one-shot-entry-coherence
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/130-one-shot-entry-coherence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"526fbe50c1db615544662c7fe1c535e3385f18ab2eb0facafe70c005da9375fe","plan":"5b91a2df8d457dafd144f2026cb2ef7a8465dc06d9f7ad1d729a9b26c4654a2d"}}
+```
+
+**Goal:** An agent that selects one-shot from bug fixing or test optimization
+gets one consistent path: its repair or no-change conclusion finishes through
+one-shot delivery and retirement, and a growing attempt becomes visible
+tracked work even when continuation is limited, while escalation survives a
+trunk push that lands during it.
+
+**Scope:** Correction of [one-shot work](#one-shot-work) from its execution
+retrospective (commits `d0101737`, `6f350f28`, `70f6cde1`). Adapt the
+bug-fixing repair and no-change steps and the test-optimization no-change step
+for one-shot; under `--no-replan` a growing one-shot attempt escalates through
+admission and stops before planning instead of leaving evidence in an
+unclaimed workspace. Replace the stale "no claim uses verified current HEAD"
+rules with the one-shot start's fetched-trunk base. Make carried escalation use
+one fetched trunk for park, reset and workspace selection. Excludes native
+acceptance evidence and consolidating backlog-holder readers across skills.
+
+**Plan:** [Make one-shot read the same from every entry workflow](../slice-plans/130-one-shot-entry-coherence/PLAN.md).
+
 ## Ordering and Scope Reduction
 
 Queue these two stories in this order at the original story's current position:

@@ -808,20 +808,6 @@ agents kept editing the checkout.
     a repair that cannot touch other writers' files; whether it should is
     open.
 
-## DD-108 — A host permission check refused maintainer-approved test removals relayed to an agent
-
-The maintainer approved a coverage map through the coordinator; the implementation agent's first run-removing edit was refused by Claude Code auto mode as "Security Test Removal", since relayed approval is not user consent.
-
-### Occurrences
-
-- Execution: `SEED-037#fourfold-local-suite` / plan 107, first related implementation commit `273ae9a`
-  - Timestamp: unknown (between `8da97ee` at 2026-09-26T12:56:27+08:00 and `cee3f07` at 2026-09-26T14:09:29+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
-  - Evidence: agent report "refused … Security Test Removal", no edits made; maintainer's direct instruction; coordinator applied the removals in `cee3f07`.
-  - Observed effect: slice 3 blocked for one extra maintainer round trip.
-
 ## DD-109 — Full-suite proof in a checkout another agent was editing reported false failures
 
 `npm test` in the shared execution checkout, while a parallel slice edited `src/skills`, failed three payload-comparing checks; an isolated worktree with only the finished slice passed.
@@ -910,23 +896,6 @@ execution branch tip, dropping the trunk base, and returned `needs-validation`.
   - Observed effect: one full local suite run proved a base the branch never published; plan proof text was rewritten and re-proved before delivery.
   - Inference: Qualified. Trunk integration belongs to Story Branch wrap-up; a plan's "integrate onto whichever landed" reads as a mid-execution rebase.
 
-## DD-116 — An out-of-scope local failure was fixed without first fetching trunk, duplicating a sibling's fix
-
-The full local suite failed on `tests/support/dashboard-dev-port.test.mjs`
-because a developer's dashboard server held port 43127. The coordinator wrote
-an equivalent fix; trunk already carried one from a sibling execution.
-
-### Occurrences
-
-- Execution: `SEED-049#native-result-path-diagnosis` / plan 124, first related implementation commit `70386eb`
-  - Timestamp: unknown; between the claim at 2026-09-27T11:18 and commit `f67f671` at 2026-09-27T11:43:11+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `707f3ac`
-  - Evidence: trunk fix `a034dfd` committed 2026-09-27T09:58:29+08:00; local rewrite discarded before `f67f671`.
-  - Observed effect: one rewrite and focused run wasted; found only when a later fetch showed the file size gap.
-  - Inference: Qualified. With parallel agents on trunk, fetching before fixing an unrelated failure is cheap and may find it already fixed.
-
 ## DD-120 — A sibling story's refinement invalidated readiness, costing a reassessment cycle before the claim
 
 Execution-start refused a ready, queued correction with `source-refused`
@@ -944,22 +913,6 @@ publication, and a start retry all preceded any work.
   - Open Dough release: modified; revision `ff3534c`; base 0.3.42
   - Evidence: refusal `source-refused` / "published preparation is needs-reassessment"; `git diff eaa69a4 HEAD` on the seed showed only the sibling `dashboard-port-race` refinement and wording; reconfirmed basis published as `ff3534c`; the retried start published the claim.
   - Observed effect: one basis-hash diagnosis, one record-state, one trunk publication, and a repeated start before the claim. SEED-043#preserve-sibling-readiness is the queued product response.
-
-## DD-121 — A ready plan named a validation command the backlog tool does not have
-
-Plan 115 slice 2's proof said "The backlog's validation passes", but the
-installed backlog tool has no validate operation; the implementation agent
-substituted write-time checks, a `read-state` read-back and manual checks.
-
-### Occurrences
-- Execution: SEED-044#verify-planning-premises (plan 115; first implementation commit `2c5ff71f`)
-  - Timestamp: 2026-09-27T14:17:23+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision `6882aeb3` guidance at planning time
-  - Evidence: plan 115 slice 2 text at `6882aeb3`; `product-backlog.mjs` usage lists add, place, take, complete, refresh, direction, adopt, merge, record-state, read-state
-  - Observed effect: small detour and an equivalent-proof judgment at acceptance; no rework
-  - Inference: same class as the unobserved planning premises this story addresses (catalog ODF-074); plan 115 was written before its own rule
 
 ## DD-122 — Execution start accepts a Take while a preparation of the same story is announced but not kept
 
@@ -988,8 +941,60 @@ coordinator can Take a story whose live preparation is still editing its plan.
   - Observed effect: two refactor passes and slice 2 shipped guidance that finishes every conflict with a drop; follow-up SEED-008#unapplied-restore-kept
   - Inference: the plan named guidance only for `partial`, so the gap looked like missing polish rather than a safety promise
 
+## DD-124 — A publisher-seam premise was observed by reading the seam, not the race it had to stop
+
+Plan 112 recorded "`beforePush` runs after every reconciliation, before each
+push" as a held decisive premise from a code read. Slice 2 found a competing
+Take conflicts in the backlog merge driver before any pre-push hook runs, so
+the guard needed a new post-fetch seam. Same class as catalog ODF-110; its
+journey rule (`2c5ff71`) was already installed when the plan was re-bound.
+
+### Occurrences
+- Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737`
+  - Timestamp: unknown; between re-bind `e8ce93b9` (2026-09-27T15:50:01+08:00) and slice 2 commit `6f350f28` (2026-09-27T16:40:20+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42)
+  - Evidence: plan 112 premise table at `e8ce93b9` cites `execution-increment-publication.mjs:143-197`; slice 2 first return reported the merge-driver conflict; corrected premise row and North Star wording in `6f350f28`
+  - Observed effect: one extra implementation round in slice 2 (an added pre-reconciliation fetch, then consolidation into `onFetchedTarget`) and a North Star correction
+  - Inference: Qualified. A race premise is cheap to observe with the existing racing-push fixtures; reading the hook's call sites observed the seam, not the Take-then-replay journey
+
+## DD-125 — An implementation agent used a Git feature newer than common client hosts
+
+Slice 3's first return restored carried edits with
+`git merge-tree --write-tree --merge-base`, which needs Git 2.40; Debian 12
+ships 2.39 and Ubuntu 22.04 ships 2.34. No guidance or check names a minimum
+Git version for installed scripts; the coordinator's review caught it.
+
+### Occurrences
+- Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737`
+  - Timestamp: unknown; before slice 3 commit `70f6cde1` (2026-09-27T17:05:36+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42)
+  - Evidence: first slice 3 return (`execution-start-carry.mjs:110`); portable `git apply --cached` replacement in `70f6cde1`
+  - Observed effect: one correction round before acceptance; local Git 2.50 passed every test either way
+  - Inference: Qualified. Without the review, escalation would fail only on older client hosts, where no test runs
+
+## DD-126 — A slice-acceptance obligation recorded as a plan learning never reached the next delegation
+
+After slice 1 the coordinator recorded that slice 3's guidance walk must
+confirm bug-fixing and test-optimization repair and no-change steps for a
+one-shot mission; the slice 3 delegation prompt omitted it, and the refactor
+and acceptance passes did not check it.
+
+### Occurrences
+- Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737`
+  - Timestamp: unknown; slice 3 delegated after `6f350f28` (2026-09-27T16:40:20+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42)
+  - Evidence: plan 112 Learnings at `d0101737`; `dough-bug-fixing/SKILL.md:98` still forces `--no-replan` and its closure steps still route through wrap-up at `70f6cde1`
+  - Observed effect: the retrospective found contradictory closure guidance and planned a correction
+  - Inference: Qualified. Learnings are free text; nothing ties an acceptance obligation to the slice that must satisfy it
+
 ## Retention
 
-- Highest allocated local number: 123
-- Recovery: `48a0415:DearDough.md` (plan 127's DD-117, a whole-repository formatter coupling concurrent slices' deliveries; not retained at the 1,000-line ceiling); `ab3cb42:DearDough.md` (ODF-003 `SEED-008#publish-shared-backlog-claims` occurrence, removed for size; three later same-mechanism rows remain); `70386eb:DearDough.md` (ODF-061, addressed by `c897488` requiring Bash 5 and by the runner's stop-location report); `3e611d2:DearDough.md` (DD-110, removed for size; later checkpoints lead with a recommendation); `2b18837:DearDough.md` (ODF-003 `SEED-004#execute-in-worktree-and-merge-at-wrap-up` occurrence, removed for size; three later same-mechanism rows remain); `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 126
+- Recovery: `70f6cde1:DearDough.md` (DD-108, a host permission check refusing relayed maintainer approval of test removals, one round trip; DD-116, an out-of-scope failure fixed without fetching trunk first, duplicating a sibling's fix; DD-121, a ready plan naming a validation command the backlog tool lacks; small detour, and slice planning now observes named proof commands); `48a0415:DearDough.md` (plan 127's DD-117, a whole-repository formatter coupling concurrent slices' deliveries; not retained at the 1,000-line ceiling); `ab3cb42:DearDough.md` (ODF-003 `SEED-008#publish-shared-backlog-claims` occurrence, removed for size; three later same-mechanism rows remain); `70386eb:DearDough.md` (ODF-061, addressed by `c897488` requiring Bash 5 and by the runner's stop-location report); `3e611d2:DearDough.md` (DD-110, removed for size; later checkpoints lead with a recommendation); `2b18837:DearDough.md` (ODF-003 `SEED-004#execute-in-worktree-and-merge-at-wrap-up` occurrence, removed for size; three later same-mechanism rows remain); `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

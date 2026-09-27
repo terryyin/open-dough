@@ -200,6 +200,17 @@ tests, and the admission continuation tests. Manual native case
 Safe stop: the full one-shot contract holds; success and growth share ordinary
 publication and closure.
 
+## Execution complete
+
+Product advice: record a native-acceptance story for one-shot (the
+`publication/one-shot-result`, `-queued` and `-escalation` cases) before this
+plan is removed, following SEED-044's native-acceptance pattern; feed DD-124
+into the queued premise-verification native acceptance as effectiveness
+evidence for the journey rule; consider declaring a minimum Git version in the
+install stories (DD-125, hypothesis). The correction
+[SEED-028#one-shot-entry-coherence](../../seeds/SEED-028-track-ad-hoc-work.md#one-shot-entry-coherence)
+awaits a queueing decision. Other queued stories are unaffected.
+
 ## Proof coverage
 
 | Promise | Slice / observation |
