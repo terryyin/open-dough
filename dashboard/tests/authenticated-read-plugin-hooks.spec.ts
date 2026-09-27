@@ -7,6 +7,7 @@
 import { expect, test } from "@playwright/test";
 import { mkdtempSync, rmSync } from "node:fs";
 import http from "node:http";
+import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { authenticatedReadPlugin } from "../server/authenticatedReadPlugin.ts";
@@ -82,10 +83,10 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
         res.end();
       });
     });
-    const port = 4294;
     await new Promise<void>((resolve) => {
-      rawServer.listen(port, "127.0.0.1", resolve);
+      rawServer.listen(0, "127.0.0.1", resolve);
     });
+    const { port } = rawServer.address() as AddressInfo;
 
     try {
       abandonedRequest({

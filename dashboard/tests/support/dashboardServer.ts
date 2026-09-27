@@ -7,9 +7,9 @@
 
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { createServer, type AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { stripVTControlCharacters } from "node:util";
 import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
 import { endGroup, spawnGroupLeader } from "./processGroup.ts";
@@ -40,38 +40,55 @@ export type DashboardServer = {
   close(): Promise<void>;
 };
 
-async function freePort(): Promise<number> {
-  const probe = createServer();
-  await new Promise<void>((resolve) => {
-    probe.listen(0, "127.0.0.1", resolve);
-  });
-  const { port } = probe.address() as AddressInfo;
-  await new Promise<void>((resolve) => {
-    probe.close(() => {
-      resolve();
-    });
-  });
-  return port;
-}
-
-async function waitUntilListening(
-  baseURL: string,
+// Vite binds a free port itself (`--port 0`) and reports the address it
+// bound on stdout, so no other listener can take the port between choosing
+// and binding it. Only this server's own report counts: if the process exits
+// or stays silent, the start fails with its output rather than letting a test
+// run against whatever else answers.
+async function ownAddress(
+  child: ReturnType<typeof spawnGroupLeader>,
+  output: () => string,
   deadlineMs: number,
-): Promise<void> {
-  const start = Date.now();
-  let lastError: unknown;
-  while (Date.now() - start < deadlineMs) {
-    try {
-      await fetch(baseURL);
-      return;
-    } catch (error) {
-      lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, 50));
-    }
-  }
-  throw new Error(
-    `Server at ${baseURL} did not answer within ${String(deadlineMs)}ms: ${String(lastError)}`,
-  );
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const settle = (finish: () => void) => {
+      clearTimeout(timer);
+      child.stdout.off("data", onData);
+      child.off("exit", onExit);
+      finish();
+    };
+    const onData = () => {
+      const local = /Local:\s+(http:\/\/\S+)/.exec(
+        stripVTControlCharacters(output()),
+      );
+      if (local?.[1] !== undefined) {
+        const origin = new URL(local[1]).origin;
+        settle(() => {
+          resolve(origin);
+        });
+      }
+    };
+    const onExit = (code: number | null, signal: string | null) => {
+      settle(() => {
+        reject(
+          new Error(
+            `Vite exited (${signal ?? `code ${String(code)}`}) before reporting its address`,
+          ),
+        );
+      });
+    };
+    const timer = setTimeout(() => {
+      settle(() => {
+        reject(
+          new Error(
+            `Vite did not report its address within ${String(deadlineMs)}ms`,
+          ),
+        );
+      });
+    }, deadlineMs);
+    child.stdout.on("data", onData);
+    child.on("exit", onExit);
+  });
 }
 
 // Builds into `outDir` rather than the shared `dashboard/dist`, which other
@@ -95,8 +112,6 @@ export function buildDashboardTo(outDir: string): void {
 
 export async function startDashboardServer(options: {
   readonly mode: "dev" | "preview";
-  // A fixed port, or any free one.
-  readonly port?: number;
   // The server's own bound when unset.
   readonly readTimeoutMs?: number | undefined;
   // The fake GitHub this server's `gh` asks; a fresh one, closed with the
@@ -117,7 +132,6 @@ export async function startDashboardServer(options: {
   const ownsGitHub = options.github === undefined;
   const github = options.github ?? (await startFakeGitHub());
   const gh = installFakeGh(tempRoot);
-  const port = options.port ?? (await freePort());
 
   const env: NodeJS.ProcessEnv = {
     ...process.env,
@@ -130,43 +144,31 @@ export async function startDashboardServer(options: {
     env["DOUGH_READ_TIMEOUT_MS"] = String(options.readTimeoutMs);
   }
 
+  // Any free port, bound by Vite itself (see `ownAddress`).
+  const serverArgs = ["--config", "dashboard/vite.config.mts", "--port", "0"];
   let args: string[];
   let outDir: string | undefined;
   if (options.mode === "dev") {
     // Dev mode compiles on the fly; it never reads or writes `dist`.
-    args = [
-      "--config",
-      "dashboard/vite.config.mts",
-      "--port",
-      String(port),
-      "--strictPort",
-    ];
+    args = serverArgs;
   } else {
     outDir = options.prebuilt;
     if (outDir === undefined) {
       outDir = path.join(tempRoot, "dist");
       buildDashboardTo(outDir);
     }
-    args = [
-      "preview",
-      "--config",
-      "dashboard/vite.config.mts",
-      "--port",
-      String(port),
-      "--strictPort",
-      "--outDir",
-      outDir,
-    ];
+    args = ["preview", ...serverArgs, "--outDir", outDir];
   }
 
   // Its own process group, so closing can wait for every `gh` it launched.
   const child = spawnGroupLeader(viteBin, args, { cwd: repoRoot, env });
-  const stderr: Buffer[] = [];
-  child.stderr.on("data", (chunk: Buffer) => {
-    stderr.push(chunk);
-  });
-  child.stdout.resume();
-  const baseURL = `http://127.0.0.1:${String(port)}`;
+  const output: Buffer[] = [];
+  const collect = (chunk: Buffer) => {
+    output.push(chunk);
+  };
+  child.stdout.on("data", collect);
+  child.stderr.on("data", collect);
+  const outputText = () => Buffer.concat(output).toString("utf8");
 
   const closeOwned = async () => {
     if (ownsGitHub) {
@@ -175,14 +177,16 @@ export async function startDashboardServer(options: {
     rmSync(tempRoot, { recursive: true, force: true });
   };
 
+  let baseURL: string;
   try {
-    await waitUntilListening(baseURL, 20_000);
+    baseURL = await ownAddress(child, outputText, 20_000);
   } catch (error) {
     await endGroup(child);
     await closeOwned();
-    throw new Error(`stderr:\n${Buffer.concat(stderr).toString("utf8")}`, {
-      cause: error,
-    });
+    throw new Error(
+      `The ${options.mode} server this test started could not start:\n${outputText()}`,
+      { cause: error },
+    );
   }
 
   return {

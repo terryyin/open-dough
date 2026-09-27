@@ -41,10 +41,9 @@ const secretMarker = "gho_should-never-reach-a-browser-1234567890";
 
 test.describe("authenticated read boundary (dev launch mode)", () => {
   let server: DashboardServer;
-  const port = 4290;
 
   test.beforeAll(async () => {
-    server = await startDashboardServer({ mode: "dev", port });
+    server = await startDashboardServer({ mode: "dev" });
   });
 
   test.afterAll(async () => {

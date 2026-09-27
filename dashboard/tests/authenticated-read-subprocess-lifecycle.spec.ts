@@ -23,7 +23,7 @@
 // journeys' own servers.
 
 import { expect, test } from "@playwright/test";
-import { processAlive } from "./support/processGroup.ts";
+import { processAlive, processRunning } from "./support/processGroup.ts";
 import { everyRepository, hangs } from "./support/fakeGitHub.ts";
 import {
   authenticatedReadKinds,
@@ -40,10 +40,9 @@ test.describe.configure({ mode: "serial" });
 
 test.describe("authenticated read boundary: cancels the held subprocess on client disconnect (dev mode)", () => {
   let server: DashboardServer;
-  const port = 4295;
 
   test.beforeAll(async () => {
-    server = await startDashboardServer({ mode: "dev", port });
+    server = await startDashboardServer({ mode: "dev" });
   });
 
   test.afterAll(async () => {
@@ -73,7 +72,6 @@ test.describe("authenticated read boundary: cancels the held subprocess on clien
 
 test.describe("authenticated read boundary: bounded timeout without changing the production bound", () => {
   let server: DashboardServer;
-  const port = 4291;
   // A short deadline for this isolated server only, via the same environment
   // seam `../server/ghRead.ts`'s `readTimeoutMs` reads; the 30-second
   // production default is untouched (see that module and
@@ -83,7 +81,6 @@ test.describe("authenticated read boundary: bounded timeout without changing the
   test.beforeAll(async () => {
     server = await startDashboardServer({
       mode: "dev",
-      port,
       readTimeoutMs: shortTimeoutMs,
     });
   });
@@ -119,12 +116,7 @@ test.describe("authenticated read boundary: subprocess ownership across server s
   // these prove no owned subprocess survives a real shutdown.
   for (const { kind, label } of authenticatedReadKinds) {
     test(`ends a held ${label} when the server itself closes`, async () => {
-      const port = {
-        membership: 4292,
-        "extra-path": 4302,
-        "revision-check": 4303,
-      }[kind];
-      const server = await startDashboardServer({ mode: "dev", port });
+      const server = await startDashboardServer({ mode: "dev" });
       server.github.serve(everyRepository, hangs);
       abandonedRequest({
         url: authenticatedReadUrl(server.baseURL, kind),
@@ -138,7 +130,7 @@ test.describe("authenticated read boundary: subprocess ownership across server s
       await server.close();
       // Already over once `close()` resolves: the harness removes the
       // directory this `gh` writes into, so it must not outlive the close.
-      expect(processAlive(ghPid)).toBe(false);
+      expect(processRunning(ghPid)).toBe(false);
     });
   }
 });
