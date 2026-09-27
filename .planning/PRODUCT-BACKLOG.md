@@ -14,10 +14,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep product guards provable and the CI-platform command faithful](seeds/SEED-048-explicit-test-environment.md#test-environment-correction) — SEED-048#test-environment-correction ([plan](slice-plans/127-test-environment-correction/PLAN.md))
+- [Keep paused work when a conflicting restore applied nothing](seeds/SEED-008-worktree-branch-trunk-sync.md#unapplied-restore-kept) — SEED-008#unapplied-restore-kept ([plan](slice-plans/128-unapplied-restore-kept/PLAN.md))
 
 ## Backlog list
 
-- [Keep paused work when a conflicting restore applied nothing](seeds/SEED-008-worktree-branch-trunk-sync.md#unapplied-restore-kept) — SEED-008#unapplied-restore-kept
 - [Preserve readiness when an unrelated sibling story changes](seeds/SEED-043-preserve-relevant-readiness.md#preserve-sibling-readiness) — SEED-043#preserve-sibling-readiness
 - [Complete trivial work with --one-shot and track it if it grows](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work) — SEED-028#one-shot-work
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008#claude-code-background-mode
