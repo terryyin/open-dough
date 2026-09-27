@@ -149,6 +149,14 @@ files it writes in the checkout stay yours. The image uses the host's native
 architecture, which may differ from CI's x86_64. `CI` is not set, so the time
 budget is reported rather than enforced, as on any local run.
 
+Font-dependent layout differences are not reproduced. With `15362af`'s layout
+fix reverted, CI failed two 320 CSS pixel checks by a fraction of a pixel
+(`toBeInViewport` ratios of 0.99), while `--dashboard` on an aarch64 host
+passed them; running the image as `linux/amd64` under the runtime's QEMU
+emulation crashed Chromium throughout the suite. For such a failure, CI's
+retained trace (`dashboard-playwright-diagnostics`) is the evidence; the
+command still runs the whole dashboard suite as CI does.
+
 A test stops or releases what it started before removing the fixture those
 things run from. `node:test` runs `t.after` hooks in registration order, so a
 fixture builds its cleanup with `fixtureTeardown(...roots)`
@@ -175,6 +183,11 @@ it already ended. A leak usually appears only when the worker is blocked (for
 example in `gh`) or its stop fails, so failing-path checks create that
 condition. Observer stream processes retitle themselves `dough-ci:<hash>`, so
 a process sweep for leftovers matches that title as well as `ci-mailbox.mjs`.
+
+A dashboard journey hands its scratch repositories to the `afterGitHubStops`
+fixture (`dashboard/tests/dashboardTest.ts`), which removes them only after
+the page, its dashboard server, and the fake GitHub have stopped, so a read
+still in flight when the journey ends never finds its repository gone.
 
 A shell Git fixture repository gets its identity from `configure_fixture_git`
 (`tests/helpers/release-fixture.bash`). The runner's Git state keeps automatic

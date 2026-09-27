@@ -195,7 +195,7 @@ built and ran the browser suite; its one container-only output is slice 5's.
 
 ### 5. The dashboard browser suite runs on CI's platform
 Type: Behavior
-Status: planned
+Status: done
 Proof: Manual demonstration: on a scratch commit reverting `15362af`'s
 layout fix, `scripts/ci-container.sh --dashboard` fails the 320 px checks
 that CI failed at `762253a` and `bfdf893`; on the current revision it passes.
@@ -208,6 +208,22 @@ never leaves the workspace.
 
 Behavior: a dashboard check fails only on CI → `scripts/ci-container.sh
 --dashboard` → the typecheck, build, and browser suite run as CI runs them.
+
+Accepted proof (2026-09-27): on the current revision `scripts/ci-container.sh
+--dashboard` exits 0 and prints only `npm ci`, the version line, and Vite's
+build summary. With `15362af` reverted in a temporary detached worktree
+(removed afterwards), the aarch64 container passed both 320 px checks that CI
+failed at `bfdf893` (viewport ratios 0.9898 and 0.9915). Running the image as
+`linux/amd64` under Colima's QEMU emulation crashed Chromium throughout the
+suite (`p_rcu_reader->depth != 0`, SIGABRT), so it says nothing about layout;
+no `--amd64` option was added and the tests README states that font-dependent
+layout differences are not reproduced. The first `--dashboard` run exposed a
+container-only failure: journeys removed their scratch repositories while a
+read was still in flight, and a late `git show` wrote `fatal: cannot change
+to …`, failing the quiet reporter (3 of 4 full-suite repeats). The dashboard
+fixture `afterGitHubStops` now removes them after the page, dashboard server,
+and fake GitHub stop; the full suite repeated four times in the container and
+the four affected specs repeated five times natively passed.
 
 ## Learnings
 
@@ -260,3 +276,10 @@ Behavior: a dashboard check fails only on CI → `scripts/ci-container.sh
 - **The dashboard's container steps mirror CI's dashboard job by hand (slice
   4).** A new CI dashboard step needs the same change in
   `scripts/ci-container.sh`.
+- **Layout under CI's fonts stays unreproduced (slice 5, 2026-09-27).** An
+  amd64 run under Rosetta (Colima `--vz-rosetta`, a shared-VM restart) is
+  untried and is the maintainer's call.
+- **The Docker context can change under a run (slice 5).** Another process
+  replaced this machine's Docker context mid-execution; the container command
+  uses whatever `docker` resolves, and `DOCKER_HOST` selects Colima's `work`
+  profile explicitly.
