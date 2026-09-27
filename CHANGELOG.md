@@ -1,3 +1,13 @@
+## 0.3.43 - 2026-09-27
+
+- Add explicitly selected one-shot execution for trivial unlisted or queued work, publishing only the verified result, closing queued work atomically, and escalating growing attempts into ordinary tracked execution without leaving partial claims behind.
+- Make planned execution proceed one slice at a time in plan order, verify decisive planning premises before readiness, preserve a story's readiness when sibling work changes, and read section-linked plan homes without accepting links owned by another entry.
+- Strengthen delivery and CI recovery: report what repair-stash restoration actually applied, keep paused work when a conflicting restore applies nothing, preserve CI-pause ownership across delegation, isolate every runner setting, reproduce selected checks in CI's container environment, and identify the exact failing shell check.
+- Expand the dashboard's assignment view into an agent roster with refreshed human avatars, source-backed human credit, honest unknown and uncertain states, independent slice clocks, and isolated parallel browser-test servers.
+- Preserve lasting product rules and architectural knowledge before temporary story, plan, execution, and retrospective records are retired, and carry Proudly Found Elsewhere analysis through a maintained design boundary.
+
+No additional native acceptance was run for `0.3.43` at the maintainer's request. Native evidence completed within the included premise-verification work is retained; native acceptance for the new one-shot, sequential execution, planning-record, CI-recovery, dashboard, and cleanup behavior, along with previously pending native requirements, remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.42 - 2026-09-27
 
 - Keep shared execution workspaces safe for concurrent writers: isolate delegated-agent and coordinator commits to owned paths, pause CI repair with one exact private stash entry, and stop tracking local execution-worktree pointers in published history.
