@@ -223,3 +223,29 @@ context, not an added architectural-review promise. The report also cites
 existing Donut findings ODF-092, ODF-106, ODF-110–113, ODF-116, ODF-120–125,
 and DD-126–136 rather than duplicating them; it reports no additional evidence
 for the unchecked-plan-claim issues in DD-126, DD-129, DD-130, and DD-134.
+
+<a id="preserve-rules-from-story-sections"></a>
+
+### Preserve lasting rules from every record wrap-up deletes
+
+**Identity:** SEED-004#preserve-rules-from-story-sections
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/134-preserve-rules-from-story-sections/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ebf84c648a4961b61aeb0c8526a3e1e2761bf42a75c526bb909a7b0cd01dc677","plan":"9079ce6a41b9b77fe923c066a799b17073e066202b91ece68876690eb30360b1"}}
+```
+
+**Goal:** An agent wrapping up keeps a still-needed rule written only in the
+completed story's section or seed, not only in a plan, execution record,
+review, or North Star topic.
+
+**Scope:** Correction of "Strengthen architectural review after using the
+lightweight guidance" (story section
+`.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` at `29d0c909`)
+from its execution retrospective (implementation commit `29d0c909`, Take
+`848db9fd`). Wrap-up's Assimilate step triggers the shared preservation rule
+only before deleting "a spent plan, execution context, review, or North Star
+topic", while its Delete spent history step also deletes the canonical story
+section and a spent seed. Make the trigger cover every record wrap-up deletes,
+and keep one enumeration of record kinds, in the rule. Excludes changes to the
+rule's destinations, stops, deletion steps, and any new record kinds.
+
+**Plan:** [Preserve lasting rules from every record wrap-up deletes](../slice-plans/134-preserve-rules-from-story-sections/PLAN.md).

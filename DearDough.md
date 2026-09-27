@@ -921,8 +921,28 @@ implementer and refactor sweeps reused the same words and also missed it.
   - Observed effect: the leftover shipped in the slice commit and needed correction story `SEED-008#restate-ci-pause-ownership` and plan 132 instead of a one-line edit in slice 1
   - Inference: Qualified. The search terms described the removed permission, not the concept it relied on (who else writes in the checkout); searching for that concept's actors ("agents", "writers") would have found it
 
+## DD-128 — Execute-plan's required reference reads cost more than a clean one-slice run used
+
+Before its first delegation, the coordinator of a single prose-only slice read
+the references execute-plan requires at startup (delegation, execution
+decisions, wrap-up, CI observation, trunk publication, execution location, agent
+commits, runtime setup; about 90KB, two outputs over the display limit). Managed
+delivery then established the observer itself, no CI event or repair occurred,
+and wrap-up closure, Story Branch integration, the repair stash protocol, and
+observer launch recipes went unused.
+
+### Occurrences
+- Execution: `SEED-004#proudly-found-elsewhere-design` / plan 133, first related implementation commit `29d0c909`
+  - Timestamp: unknown (after Take `848db9fd` committed 2026-09-27T18:56:02+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac7` (v0.3.42)
+  - Evidence: coordinator conversation: persisted reads of `delegation.md` + `execution-decisions.md` + `agent-commits.md` + `runtime-setup.md` (31.6KB) and `wrap-up.md` + `ci-monitor.md` (29.9KB), plus `execution-location.md`, `trunk-publication.md`, `finish-or-stop.md`, `ci-completion-wait.md`
+  - Observed effect: no rework or error; context spent on paths not taken
+  - Inference: Qualified. The skill ties reads to boundaries ("before arming observation", "before a claim"), but managed delivery and the start command now own those mechanics, so a boundary reached through them still triggers full reads. Cost only; this run gives no evidence of harm to quality
+
 ## Retention
 
-- Highest allocated local number: 127. Removed local codes are never reused.
+- Highest allocated local number: 128. Removed local codes are never reused.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.

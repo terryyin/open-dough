@@ -115,6 +115,16 @@ Accepted proof (behavior review, walked against the changed source):
   `tests/install-all-tools.sh` and `tests/install-repeat-force-public-payload.sh`
   pass (copy checks only). Native closure runners not run (paid, manual only).
 
+## Execution complete
+
+Product advice: queue the follow-up correction
+[SEED-004#preserve-rules-from-story-sections](../../seeds/SEED-004-extract-and-adopt-project-guidance.md#preserve-rules-from-story-sections)
+first. Before deleting this story's section, keep its retained-experience
+suggestions 1, 2, 4, 5, and 6 (still unselected candidates) in a maintained
+home, such as a not-refined SEED-004 story, or get the developer's decision to
+drop them. No other priority change; this story was a developer-selected
+digression from the near-future direction.
+
 ## Current decisions
 
 - ADR 0000 owns internal document classification; ADR 0002 references it.
