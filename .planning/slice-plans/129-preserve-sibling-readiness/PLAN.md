@@ -132,3 +132,13 @@ and story-state (16 pass); dashboard readiness Playwright specs (10 pass).
 - Pre-existing: `regionFor` matches the story's own anchor on a trimmed line,
   while section boundaries are detected untrimmed, so an indented sibling
   anchor would not end a section. Left unchanged.
+
+## Execution complete
+
+Product advice: no reprioritization. At wrap-up, update ODF-116 with the
+response commit, first containing release and effectiveness limits: a former
+whole-seed record in a multi-story seed reads `needs-reassessment` once after
+any sibling edit; a closure leaving uneven blank lines mid-seed reads
+conservatively as changed; code drift stays undetected (SEED-044). DD-120 is
+this story's local occurrence. Judge effectiveness after release in projects
+with multi-story seeds. ODF-120 (satisfied dependencies) stays separate.
