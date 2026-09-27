@@ -131,3 +131,7 @@ Git's prepared `MERGE_MSG` through `creditDeveloper` before the ordinary
 commit. Guidance commits an in-progress merge with
 `agent-commit.mjs -F "$(git rev-parse --git-path MERGE_MSG)"`. An identity
 refusal leaves the merge in progress, as a conflict does.
+
+## Execution complete
+
+Product advice: retrospective skipped
