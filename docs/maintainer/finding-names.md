@@ -258,7 +258,7 @@ Concrete only-caller and host-state premises enter a plan without inspection, fo
 
 - **Sources:** [pygardon / DD-061](../../../pygardon/DearDough.md#odf-074--plan-statements-about-existing-code-and-host-state-were-not-verified-at-planning-time).
 - **2026-09-26 evidence:** Eight distinct Pygardon executions now retained, including plans 193, 196 and 198 (0.3.39, unknown and 0.3.40 respectively). Current-code, proof-path and workload premises remain actionable; no generic correction is claimed.
-- **Follow-up:** queued, not resolved: [Verify planning premises and proof setup before declaring readiness](../../.planning/seeds/SEED-044-verify-planning-premises.md#verify-planning-premises).
+- **Response:** `2c5ff71` / unreleased makes slice planning establish each decisive premise (existing code and tests, host state, fixtures, workload data, named proof commands) with the smallest safe observation, searching for existing tests and callers wherever they live, and record it before `ready`; an unobserved cheap premise is a `not-ready` reason. Native Claude Code 2.1.283 re-planning of Doughnut plan 045 from its pre-plan revision caught the recorded "no test" premise the unchanged guidance missed; the Pygardon plan 196 seeding-proof case passed before and after, so its attribution is weak. One run per case. Remaining: [native acceptance on Codex and Cursor](../../.planning/seeds/SEED-044-verify-planning-premises.md#native-premise-acceptance-codex-cursor) is queued; effectiveness in client projects is unobserved.
 
 <a id="odf-077"></a>
 
@@ -512,7 +512,7 @@ A new observer reports a recent ancestor revision's failure that this execution 
 A replay resolves the named readiness seam without exercising the rest of the slice's promised journey, leaving a later operation to force a scope stop.
 
 - **Sources:** [doughnut / DD-109](../../../doughnut/DearDough.md#odf-110--a-readiness-replay-observed-only-the-plans-named-seam-not-the-rest-of-the-slices-journey).
-- **Follow-up:** queued, not resolved: [Verify planning premises and proof setup before declaring readiness](../../.planning/seeds/SEED-044-verify-planning-premises.md#verify-planning-premises).
+- **Response:** `2c5ff71` / unreleased: readiness settles a premise only with an observation covering the slice's promised journey through the next operation that consumes its result, and clears a premise-based reason only on a fresh observation, not re-cited evidence. Proof is behavior review only; no native case exercised it, and [native acceptance on Codex and Cursor](../../.planning/seeds/SEED-044-verify-planning-premises.md#native-premise-acceptance-codex-cursor) is queued. Effectiveness is unobserved.
 
 <a id="odf-111"></a>
 
@@ -551,7 +551,7 @@ Preparation checks token and fixture presence without exercising the claimed exi
 
 - **Sources:** [pygardon / DD-096](../../../pygardon/DearDough.md#odf-114--a-live-proofs-works-as-today-premise-and-fixture-were-never-exercised-before-execution).
 - **Current evidence:** About five paid transcription calls instead of one, extra production changes and an owner stop. Cheap local fixture/runtime exercise could have exposed the defects; not evidence of bypassing an explicit live-transition regression gate.
-- **Follow-up:** queued, not resolved: [Verify planning premises and proof setup before declaring readiness](../../.planning/seeds/SEED-044-verify-planning-premises.md#verify-planning-premises).
+- **Response:** `2c5ff71` / unreleased counts story-inherited premises such as "works as today" as decisive, observed by one unpaid, side-effect-free local run; a paid, credentialed or owner-held remainder becomes an early probe slice that stops dependent work. Proof is behavior review only (the diarization example); no native case exercised it, and [native acceptance on Codex and Cursor](../../.planning/seeds/SEED-044-verify-planning-premises.md#native-premise-acceptance-codex-cursor) is queued. Effectiveness is unobserved.
 
 <a id="odf-115"></a>
 
