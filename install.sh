@@ -184,6 +184,7 @@ managed_files=(
   dough-execute-plan/scripts/ci-observer-stream.mjs
   dough-execute-plan/scripts/ci-path-applicability.mjs
   dough-execute-plan/scripts/ci-revision-applicability-classification.mjs
+  dough-execute-plan/scripts/ci-repair-stash-git.mjs
   dough-execute-plan/scripts/ci-repair-stash.mjs
   dough-execute-plan/scripts/ci-revisions.mjs
   dough-execute-plan/scripts/ci-runs.mjs

@@ -330,33 +330,6 @@ explicit contract in the focused CI runtime suite.
 
 ### Occurrences
 
-- Execution: `SEED-008#publish-shared-backlog-claims @ 06504a5`
-  - Timestamp: 2026-09-20T11:22:27+08:00
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.26
-  - Evidence: Slice 2 (`8e6c41d`) extracted `SKILL.md`'s "Finish or stop"
-    section, including the phrase "stop observers without waiting for CI",
-    into a new `references/finish-or-stop.md` to satisfy the file-size
-    refactor check. `ci-supported-host-contract.test.mjs` regex-matches that
-    exact phrase across a fixed join of `SKILL.md` plus several
-    `references/*.md` files, which was not updated to include the new file.
-    CI runs `35486408307` (`8e6c41d`) and `35486945925` (`be94345`, built on
-    top) both failed on this assertion; repair `7217999` added
-    `reference("references/finish-or-stop.md")` to the test's join list.
-  - Observed effect: two commits shipped failing CI in sequence, and both the
-    refactor pass that performed the extraction and the coordinator's own
-    proof acceptance for that slice missed it, since the diff and its rerun
-    tests (`trunk-publication-local-main.test.mjs`,
-    `ci-target-branch-worktree.test.mjs`) were both unaffected and green.
-  - Inference: A second, independent recurrence of the same mechanism in the
-    same test file: a file-size-driven Markdown extraction was judged for
-    internal consistency and cross-reference correctness but not checked
-    against the focused CI runtime suite that treats the extracted content as
-    a fixed-file contract. Qualified: this project's own file-size refactor
-    check does not name checking for such tests, so the omission is
-    consistent with an unnamed check rather than a skipped one.
-
 - Execution: `SEED-008#script-driven-ci-observation @ 02991a5`
   - Timestamp: 2026-09-23T16:30:28+08:00
   - Tool: Cursor
@@ -988,8 +961,35 @@ substituted write-time checks, a `read-state` read-back and manual checks.
   - Observed effect: small detour and an equivalent-proof judgment at acceptance; no rework
   - Inference: same class as the unobserved planning premises this story addresses (catalog ODF-074); plan 115 was written before its own rule
 
+## DD-122 — Execution start accepts a Take while a preparation of the same story is announced but not kept
+
+The start command checks only the published readiness state, so a
+coordinator can Take a story whose live preparation is still editing its plan.
+
+### Occurrences
+- Execution: `SEED-008#truthful-repair-restore` / plan 115 (truthful-repair-restore), first related implementation commit `8f88364`
+  - Timestamp: 2026-09-27T13:43:11+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42)
+  - Evidence: trunk tip `00a0dba` announced the preparation while its worktree held unkept plan edits (the focused command used unsupported direct `node --test`); `execution-start-source.mjs` reads only published state; keep `a1c2375` landed about three minutes later; claim `b11bb98`
+  - Observed effect: the coordinator waited by judgment and messaged a peer session that did not hold the preparation, since the agent profile names no session
+  - Inference: without that wait, execution would have started from the stale plan and the keep would have collided with the Take
+
+## DD-123 — A reported guidance gap was accepted without checking its consequence, hiding a data-loss path
+
+### Occurrences
+- Execution: `SEED-008#truthful-repair-restore` / plan 115 (truthful-repair-restore), first related implementation commit `8f88364`
+  - Timestamp: unknown (between claim `b11bb98` at 13:46 and commit `8f88364` at 14:02 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42)
+  - Evidence: the slice 1 return listed "Step 5 gives no specific guidance for `none`" and the coordinator recorded it as an untested limit; the retrospective reproduced a staged change conflicting in the index: `restore` reported `applied: "none"`, `paths: []`, and the guided `drop --record` removed the only copy of the paused work
+  - Observed effect: two refactor passes and slice 2 shipped guidance that finishes every conflict with a drop; follow-up SEED-008#unapplied-restore-kept
+  - Inference: the plan named guidance only for `partial`, so the gap looked like missing polish rather than a safety promise
+
 ## Retention
 
-- Highest allocated local number: 121
-- Recovery: `70386eb:DearDough.md` (ODF-061, addressed by `c897488` requiring Bash 5 and by the runner's stop-location report); `3e611d2:DearDough.md` (DD-110, removed for size; later checkpoints lead with a recommendation); `2b18837:DearDough.md` (ODF-003 `SEED-004#execute-in-worktree-and-merge-at-wrap-up` occurrence, removed for size; three later same-mechanism rows remain); `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
+- Highest allocated local number: 123
+- Recovery: `ab3cb42:DearDough.md` (ODF-003 `SEED-008#publish-shared-backlog-claims` occurrence, removed for size; three later same-mechanism rows remain); `70386eb:DearDough.md` (ODF-061, addressed by `c897488` requiring Bash 5 and by the runner's stop-location report); `3e611d2:DearDough.md` (DD-110, removed for size; later checkpoints lead with a recommendation); `2b18837:DearDough.md` (ODF-003 `SEED-004#execute-in-worktree-and-merge-at-wrap-up` occurrence, removed for size; three later same-mechanism rows remain); `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

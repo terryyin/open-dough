@@ -2,119 +2,17 @@
 // repository share a stash stack, and saving or restoring the execution's work
 // touches only the entry that save created.
 import assert from "node:assert/strict";
-import {
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  statSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { readFileSync, statSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
-import { exec, git } from "./publication-git.mjs";
+import { git } from "./publication-git.mjs";
 import { indexLockPath } from "./publication-test-fixtures.mjs";
-
-const script = fileURLToPath(new URL("./ci-repair-stash.mjs", import.meta.url));
-
-async function stashTool(...args) {
-  try {
-    const { stdout } = await exec("node", [script, ...args]);
-    return { exitCode: 0, ...JSON.parse(stdout) };
-  } catch (error) {
-    if (error.code !== 1) throw error;
-    return { exitCode: 1, ...JSON.parse(error.stdout) };
-  }
-}
-
-async function initFixtureRepo(parent, repo) {
-  await git(parent, "init", "-q", "-b", "main", repo);
-  await git(repo, "config", "user.email", "fixture@example.com");
-  await git(repo, "config", "user.name", "Fixture");
-}
-
-async function createSharedStashFixture(t) {
-  const root = mkdtempSync(join(tmpdir(), "ci-repair-stash-"));
-  const records = [];
-  t.after(() => {
-    for (const path of [root, ...records.map((record) => dirname(record))])
-      rmSync(path, { recursive: true, force: true });
-  });
-  const execution = join(root, "execution");
-  const other = join(root, "other");
-  await initFixtureRepo(root, execution);
-  for (const name of ["tracked.txt", "staged.txt", "shared.txt"])
-    writeFileSync(join(execution, name), `${name} base\n`);
-  await git(execution, "add", ".");
-  await git(execution, "commit", "-q", "-m", "base");
-  await git(execution, "worktree", "add", "-q", "-b", "other", other);
-  return {
-    root,
-    execution,
-    other,
-    async save(label = "dough-execute-plan CI repair 1/1") {
-      const receipt = await stashTool(
-        "save",
-        "--checkout",
-        execution,
-        "--label",
-        label,
-      );
-      records.push(receipt.record);
-      return receipt;
-    },
-    restore: (record) => stashTool("restore", "--record", record),
-    async foreignStash(name) {
-      writeFileSync(join(other, "shared.txt"), `${name}\n`);
-      await git(other, "stash", "push", "-q", "-m", name);
-      return (await git(other, "rev-parse", "refs/stash")).stdout.trim();
-    },
-    async stack() {
-      return (await git(execution, "stash", "list", "--format=%H")).stdout
-        .split("\n")
-        .filter(Boolean);
-    },
-    status: async () =>
-      (
-        await git(
-          execution,
-          "status",
-          "--porcelain=v1",
-          "--untracked-files=all",
-        )
-      ).stdout,
-    read: (name) => readFileSync(join(execution, name), "utf8"),
-  };
-}
-
-// Submodule content changes show as dirt that `git stash` cannot save.
-async function addDirtySubmodule({ root, execution }) {
-  const library = join(root, "library");
-  await initFixtureRepo(root, library);
-  writeFileSync(join(library, "lib.txt"), "library base\n");
-  await git(library, "add", ".");
-  await git(library, "commit", "-q", "-m", "library");
-  await git(
-    execution,
-    "-c",
-    "protocol.file.allow=always",
-    "submodule",
-    "add",
-    "-q",
-    library,
-    "sub",
-  );
-  await git(execution, "commit", "-q", "-m", "submodule");
-  writeFileSync(join(execution, "sub", "lib.txt"), "submodule dirt\n");
-}
-
-async function dirtyAllKinds({ execution }) {
-  writeFileSync(join(execution, "staged.txt"), "staged owned\n");
-  await git(execution, "add", "staged.txt");
-  writeFileSync(join(execution, "tracked.txt"), "unstaged owned\n");
-  writeFileSync(join(execution, "new.txt"), "untracked owned\n");
-}
+import { dropConfirmation } from "./ci-repair-stash-git.mjs";
+import {
+  addDirtySubmodule,
+  createSharedStashFixture,
+  dirtyAllKinds,
+} from "./ci-repair-stash-test-fixtures.mjs";
 
 test("a failed save records no stash and leaves the foreign stash and dirty files as they were", async (t) => {
   const fixture = await createSharedStashFixture(t);
@@ -154,9 +52,7 @@ test("a paused round trip restores staged, unstaged, and untracked work and drop
   assert.equal(statSync(saved.record).mode & 0o777, 0o600);
   assert.ok(!saved.record.startsWith(fixture.execution));
 
-  writeFileSync(join(fixture.execution, "repair.txt"), "repair\n");
-  await git(fixture.execution, "add", "repair.txt");
-  await git(fixture.execution, "commit", "-q", "-m", "repair");
+  await fixture.commit("repair.txt", "repair\n");
   const secondForeign = await fixture.foreignStash("second foreign");
   assert.notEqual((await fixture.stack())[0], saved.oid);
 
@@ -183,20 +79,59 @@ test("a clean checkout saves no stash and resumes without touching the foreign t
   assert.deepEqual(await fixture.stack(), [foreign]);
 });
 
-test("a restore that conflicts with the repair names the path and OID and keeps the entry", async (t) => {
+test("a restore that conflicts with the repair names the path and OID, reports a partial apply with the staging it lost, and keeps the entry until its resolved drop", async (t) => {
   const fixture = await createSharedStashFixture(t);
-  writeFileSync(join(fixture.execution, "tracked.txt"), "owned line\n");
+  await dirtyAllKinds(fixture);
+  // Staged content differs from the worktree, so losing the index shows.
+  writeFileSync(join(fixture.execution, "staged.txt"), "later edit\n");
   const saved = await fixture.save();
   assert.equal(saved.status, "stashed");
 
-  writeFileSync(join(fixture.execution, "tracked.txt"), "repair line\n");
-  await git(fixture.execution, "commit", "-q", "-am", "repair");
+  await fixture.commit("tracked.txt", "repair line\n");
+  const foreign = await fixture.foreignStash("foreign after save");
 
   const restored = await fixture.restore(saved.record);
   assert.equal(restored.status, "conflict");
   assert.equal(restored.exitCode, 1);
   assert.equal(restored.oid, saved.oid);
   assert.deepEqual(restored.paths, ["tracked.txt"]);
+  assert.equal(restored.applied, "partial");
+  assert.deepEqual(restored.stagedNotRestored, ["staged.txt"]);
+  assert.match(fixture.read("tracked.txt"), /^<<<<<<< /m);
+  assert.equal(fixture.read("new.txt"), "untracked owned\n");
+  assert.equal(fixture.read("staged.txt"), "later edit\n");
+  assert.equal(await fixture.staged("staged.txt"), "later edit\n");
+  assert.deepEqual(await fixture.stack(), [foreign, saved.oid]);
+
+  writeFileSync(join(fixture.execution, "tracked.txt"), "resolved\n");
+  await git(fixture.execution, "add", "tracked.txt");
+  const resolved = await fixture.status();
+  const dropped = await fixture.drop(saved.record);
+  assert.equal(dropped.status, "dropped");
+  assert.equal(dropped.exitCode, 0);
+  assert.equal(dropped.oid, saved.oid);
+  assert.equal(dropped.selector, "stash@{1}");
+  assert.deepEqual(await fixture.stack(), [foreign]);
+  assert.equal(await fixture.status(), resolved);
+});
+
+test("a restore whose repair added the paused work's untracked path applies the tracked work, reports partial, and keeps the entry", async (t) => {
+  const fixture = await createSharedStashFixture(t);
+  await dirtyAllKinds(fixture);
+  const saved = await fixture.save();
+  assert.equal(saved.status, "stashed");
+
+  await fixture.commit("new.txt", "repair content\n");
+
+  const restored = await fixture.restore(saved.record);
+  assert.equal(restored.status, "conflict");
+  assert.deepEqual(restored.paths, ["new.txt"]);
+  assert.equal(restored.applied, "partial");
+  assert.deepEqual(restored.stagedNotRestored, []);
+  assert.equal(await fixture.status(), "M  staged.txt\n M tracked.txt\n");
+  assert.equal(await fixture.staged("staged.txt"), "staged owned\n");
+  assert.equal(fixture.read("tracked.txt"), "unstaged owned\n");
+  assert.equal(fixture.read("new.txt"), "repair content\n");
   assert.deepEqual(await fixture.stack(), [saved.oid]);
 });
 
@@ -214,6 +149,29 @@ test("a restore whose entry was dropped elsewhere reports its OID, applies nothi
   assert.equal(restored.applied, false);
   assert.equal(await fixture.status(), "");
   assert.deepEqual(await fixture.stack(), [foreign]);
+
+  const dropped = await fixture.drop(saved.record);
+  assert.equal(dropped.status, "missing");
+  assert.equal(dropped.exitCode, 1);
+  assert.equal(dropped.selector, null);
+  assert.deepEqual(await fixture.stack(), [foreign]);
+});
+
+test("a drop is confirmed only when Git reports dropping the recorded OID", () => {
+  const [recorded, other] = ["a".repeat(40), "b".repeat(40)];
+  assert.deepEqual(
+    dropConfirmation(
+      recorded,
+      "stash@{1}",
+      `Dropped stash@{1} (${recorded})\n`,
+    ),
+    { status: "dropped", selector: "stash@{1}" },
+  );
+  assert.deepEqual(
+    dropConfirmation(recorded, "stash@{1}", `Dropped stash@{1} (${other})\n`),
+    { status: "mismatch", selector: "stash@{1}", droppedOid: other },
+  );
+  assert.equal(dropConfirmation(recorded, "stash@{1}", "").status, "mismatch");
 });
 
 test("a save that leaves submodule dirt behind reports unclean with its entry recorded and the foreign entry kept", async (t) => {

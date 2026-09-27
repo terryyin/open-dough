@@ -64,7 +64,7 @@ After persistent polling errors produce a normal terminal result, later push reg
 - **Response:** `f157f0e` (CI repair pause through `ci-repair-stash.mjs`, own entry by OID only) and `86e5069` (delegated agents barred from stash, pop, reset, clean, path checkout, and branch switch in a shared checkout); not yet released after 0.3.41.
 - **Watch start:** 2026-09-26 (date-only; delivered, unreleased). Exercised only by deterministic tests and a behavior review walk; no real CI repair pause or shared-stack incident observed yet.
 - **Review after:** seven days after the first release containing `f157f0e`.
-- **Last assessed:** 2026-09-26; a conflicting restore still misreports what it applied and leaves the final drop to the coordinator, owned by the queued correction `SEED-008#truthful-repair-restore`.
+- **Last assessed:** 2026-09-27; `8f88364` makes a conflicting restore report what it applied and `ab3cb42` finishes a resolved conflict through the script's OID-confirmed drop. A restore that applied nothing can still be finished by that drop, discarding paused work, owned by the queued correction `SEED-008#unapplied-restore-kept`.
 
 <a id="odf-099"></a>
 

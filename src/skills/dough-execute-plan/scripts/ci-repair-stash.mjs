@@ -1,74 +1,27 @@
 #!/usr/bin/env node
 // Installed CLI for the CI repair pause: saves this execution checkout's
 // unfinished work as one stash entry and later restores and drops only that
-// entry, identified by OID, so every other writer's stash entries survive.
+// entry, identified by OID and confirmed by the OID Git reports dropping, so
+// every other writer's stash entries survive.
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  dropExact,
+  gitOutputOrNull,
+  inventory,
+  isDirty,
+  stashEntries,
+  stashEntryByOid,
+} from "./ci-repair-stash-git.mjs";
 import { git } from "./publication-git.mjs";
 
 const usage =
-  "usage: ci-repair-stash.mjs save --checkout PATH --label TEXT | restore --record FILE";
-
-async function optional(cwd, ...args) {
-  try {
-    return (await git(cwd, ...args)).stdout.trim() || null;
-  } catch {
-    return null;
-  }
-}
+  "usage: ci-repair-stash.mjs save --checkout PATH --label TEXT | restore --record FILE | drop --record FILE";
 
 function failureText(error) {
   return `${error.stdout ?? ""}\n${error.stderr ?? ""}\n${error.message ?? ""}`.trim();
-}
-
-// Staged, unstaged, and untracked paths (ignored files are never included).
-async function inventory(checkout) {
-  const { stdout } = await git(
-    checkout,
-    "status",
-    "--porcelain=v1",
-    "-z",
-    "--untracked-files=all",
-  );
-  const result = { staged: [], unstaged: [], untracked: [] };
-  const fields = stdout.split("\0");
-  for (let index = 0; index < fields.length; index += 1) {
-    const entry = fields[index];
-    if (entry.length < 4) continue;
-    const [x, y, path] = [entry[0], entry[1], entry.slice(3)];
-    if (x === "R" || x === "C") index += 1; // skip the rename source field
-    if (x === "?") {
-      result.untracked.push(path);
-      continue;
-    }
-    if (x !== " ") result.staged.push(path);
-    if (y !== " ") result.unstaged.push(path);
-  }
-  return result;
-}
-
-function isDirty(paths) {
-  return (
-    paths.staged.length + paths.unstaged.length + paths.untracked.length > 0
-  );
-}
-
-async function stashEntries(checkout) {
-  const listed = await optional(
-    checkout,
-    "stash",
-    "list",
-    "--format=%gd%x00%H%x00%gs",
-  );
-  return (listed ?? "")
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => {
-      const [selector, oid, subject] = line.split("\0");
-      return { selector, oid, subject };
-    });
 }
 
 async function writeRecord(record) {
@@ -89,7 +42,13 @@ export async function saveRepairStash({ checkout, label }) {
   const record = {
     checkout: root,
     label,
-    branch: await optional(root, "symbolic-ref", "--short", "-q", "HEAD"),
+    branch: await gitOutputOrNull(
+      root,
+      "symbolic-ref",
+      "--short",
+      "-q",
+      "HEAD",
+    ),
     head: (await git(root, "rev-parse", "HEAD")).stdout.trim(),
     ...(await inventory(root)),
     previousTop: before[0]?.oid ?? null,
@@ -134,7 +93,12 @@ export async function saveRepairStash({ checkout, label }) {
 
 async function conflictPaths(checkout, output) {
   const unmerged = (
-    (await optional(checkout, "diff", "--name-only", "--diff-filter=U")) ?? ""
+    (await gitOutputOrNull(
+      checkout,
+      "diff",
+      "--name-only",
+      "--diff-filter=U",
+    )) ?? ""
   )
     .split("\n")
     .filter(Boolean);
@@ -160,16 +124,46 @@ function unrestored(record, current) {
   );
 }
 
-async function dropExact(checkout, oid) {
-  const entry = (await stashEntries(checkout)).find((item) => item.oid === oid);
-  if (!entry) return null;
-  await git(checkout, "stash", "drop", "-q", entry.selector);
-  return entry.selector;
+// What an attempt put back, judged by content against the entry's own trees
+// (worktree at the OID, index at ^2, untracked files at ^3), not by Git's exit
+// code: a conflict can leave some paths applied and the saved index unstaged.
+async function appliedState({ checkout, oid, staged, unstaged, untracked }) {
+  const tracked = [...new Set([...staged, ...unstaged])];
+  const differing = async (...args) => {
+    if (tracked.length === 0) return [];
+    const diff = ["diff", "--name-only", "-z", ...args, "--", ...tracked];
+    const { stdout } = await git(checkout, "--literal-pathspecs", ...diff);
+    return stdout.split("\0").filter(Boolean);
+  };
+  const notApplied = await differing(oid);
+  for (const path of untracked) {
+    const saved = await gitOutputOrNull(
+      checkout,
+      "rev-parse",
+      `${oid}^3:${path}`,
+    );
+    const current = await gitOutputOrNull(checkout, "hash-object", "--", path);
+    if (!saved || saved !== current) notApplied.push(path);
+  }
+  const stagedNotRestored = (await differing("--cached", `${oid}^2`)).filter(
+    (path) => staged.includes(path),
+  );
+  const applied =
+    notApplied.length + stagedNotRestored.length === 0
+      ? "all"
+      : notApplied.length === tracked.length + untracked.length
+        ? "none"
+        : "partial";
+  return { applied, stagedNotRestored };
+}
+
+async function readRecord(file) {
+  if (!file) throw new Error(usage);
+  return JSON.parse(await readFile(file, "utf8"));
 }
 
 export async function restoreRepairStash({ record: file }) {
-  if (!file) throw new Error(usage);
-  const record = JSON.parse(await readFile(file, "utf8"));
+  const record = await readRecord(file);
   const receipt = {
     record: file,
     oid: record.oid,
@@ -180,10 +174,8 @@ export async function restoreRepairStash({ record: file }) {
     return { ok: false, status: "ambiguous", ...receipt, paths: [] };
   if (!record.oid) return { ok: true, status: "resumed", ...receipt };
   const checkout = record.checkout;
-  const entry = (await stashEntries(checkout)).find(
-    (item) => item.oid === record.oid,
-  );
-  if (!entry) return { ok: false, status: "missing", ...receipt, paths: [] };
+  if (!(await stashEntryByOid(checkout, record.oid)))
+    return { ok: false, status: "missing", ...receipt, paths: [] };
   try {
     await git(checkout, "stash", "apply", "--index", record.oid);
   } catch (error) {
@@ -192,6 +184,7 @@ export async function restoreRepairStash({ record: file }) {
       ok: false,
       status: "conflict",
       ...receipt,
+      ...(await appliedState(record)),
       paths: await conflictPaths(checkout, output),
       error: output,
     };
@@ -202,17 +195,23 @@ export async function restoreRepairStash({ record: file }) {
       ok: false,
       status: "conflict",
       ...receipt,
-      applied: true,
+      ...(await appliedState(record)),
       paths: missingPaths,
       error: "applied work does not match the saved inventory; entry kept",
     };
-  return {
-    ok: true,
-    status: "resumed",
-    ...receipt,
-    applied: true,
-    dropped: await dropExact(checkout, record.oid),
-  };
+  // A vanished entry reports no drop; a mismatch keeps the entry and names
+  // the other writer's entry Git dropped instead of claiming this one went.
+  receipt.applied = true;
+  const drop = await dropExact(checkout, record.oid);
+  if (drop.status === "mismatch") return { ok: false, ...receipt, ...drop };
+  return { ok: true, status: "resumed", ...receipt, dropped: drop.selector };
+}
+
+// Finishes a resolved conflict: drops only the recorded OID's entry.
+export async function dropRepairStash({ record: file }) {
+  const { checkout, oid } = await readRecord(file);
+  const drop = await dropExact(checkout, oid);
+  return { ok: drop.status === "dropped", record: file, oid, ...drop };
 }
 
 function argumentsOf(argv) {
@@ -231,9 +230,11 @@ if (
 ) {
   try {
     const { command, ...options } = argumentsOf(process.argv.slice(2));
-    const operation = { save: saveRepairStash, restore: restoreRepairStash }[
-      command
-    ];
+    const operation = {
+      save: saveRepairStash,
+      restore: restoreRepairStash,
+      drop: dropRepairStash,
+    }[command];
     if (!operation) throw new Error(usage);
     const result = await operation(options);
     process.stdout.write(`${JSON.stringify(result)}\n`);

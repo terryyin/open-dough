@@ -234,30 +234,29 @@ Later source review corrected the claimed production readiness command: it was
 a test substitute. Current story scope replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.
 
-<a id="truthful-repair-restore"></a>
+<a id="unapplied-restore-kept"></a>
 
-### Correction: Report conflicting CI repair restores truthfully and drop through the script
+### Correction: Keep paused work when a conflicting restore applied nothing
 
-**Identity:** SEED-008#truthful-repair-restore
+**Identity:** SEED-008#unapplied-restore-kept
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/115-truthful-repair-restore/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d4a101f877454f67e87ebf8edaef6baf7bc0e20bd1a83142a0825b8e4a19d70c","plan":"a871a27263dcfd8ece24c35da5e50e6b3b6903bc070c17715a0ce5dae6832f82"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/128-unapplied-restore-kept/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ad006cdb8a8ee98ee15b9101859ee35c0cefae2a41200496701ccedee75bb17f","plan":"30ee0752946a0af1e912c26765538703849c01fb5066b8746e6fbfe847af8e34"}}
 ```
 
-**Goal:** A coordinator resuming after a CI repair knows exactly what a
-conflicting restore already put back in the tree, and finishes that restore
-without handling the shared stash stack by hand, so it neither applies the
-saved work twice nor drops another writer's entry.
+**Goal:** A coordinator finishing a conflicting CI repair restore never
+discards paused work that the restore did not put back in the tree.
 
 **Scope:** A bounded retrospective correction of the delivered
-`SEED-008#preserve-other-executions-work` (recoverable at
-`d96674e:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`; plan 114,
-commits `f157f0e`, `86e5069`). The restore script reports what a failed apply
-changed, including saved staged state it could not restore; a script command
-drops the recorded entry after a resolved conflict and confirms the dropped OID;
-`ci-monitor.md` step 5 uses that command. Excluded: detecting other sessions'
-concurrent stash pushes, and branch or HEAD checks on restore.
+`SEED-008#truthful-repair-restore` (recoverable at
+`f6a3d4c:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`; plan 115,
+commits `8f88364`, `ab3cb42`).
+A restore that applied nothing names its conflicting paths and is remembered
+in its record; `drop --record` refuses to drop that unapplied entry;
+`ci-monitor.md` step 5 says to keep the entry and stop on `none`. The step 5
+guidance assertions live in one focused test. Excluded: retrying an apply
+without `--index`, and reporting unstaged paths that come back staged.
 
-**Plan:** [Report conflicting repair restores truthfully](../slice-plans/115-truthful-repair-restore/PLAN.md).
+**Plan:** [Keep paused work when a conflicting restore applied nothing](../slice-plans/128-unapplied-restore-kept/PLAN.md).
 
 ## Architectural Context
 
