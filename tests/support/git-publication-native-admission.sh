@@ -29,12 +29,7 @@ git_publication_fixture_create_admission() {
   local prepared
   prepared=$(node "${source_dir}/tests/support/git-publication-native-admission-fixture.mjs" \
     "${source_dir}" "${journey}" "${parent}")
-  git_publication_fixture_root=$(jq -r .root <<< "${prepared}")
-  git_publication_fixture_origin=$(jq -r .origin <<< "${prepared}")
-  git_publication_fixture_integration=$(jq -r .integration <<< "${prepared}")
-  git_publication_fixture_workspace=$(jq -r .workspace <<< "${prepared}")
-  git_publication_fixture_trunk_sha=$(jq -r .base <<< "${prepared}")
-  git_publication_fixture_candidate_sha=
+  git_publication_fixture_adopt_prepared "${prepared}"
   export NATIVE_ADMISSION_EXECUTION=${git_publication_fixture_workspace}
   NATIVE_ADMISSION_BRANCH=$(jq -r .branch <<< "${prepared}")
   NATIVE_ADMISSION_PUBLISHER=$(jq -r .publisher <<< "${prepared}")
@@ -84,12 +79,7 @@ git_publication_admission_not_before() {
 git_publication_fixture_observe_admission() {
   local journey=$1 stream_status=$2 transcript=$3
   local root=${git_publication_fixture_root} commands outputs human_after
-  commands=$(
-    {
-      jq -r 'select(.type == "item.started" and .item.type == "command_execution") | .item.command // empty' "${transcript}"
-      jq -r '.. | objects | .command? // empty' "${transcript}"
-    } 2> /dev/null | grep -F 'execution-start.mjs start' | sort -u || true
-  )
+  commands=$(git_publication_transcript_start_commands "${transcript}")
   outputs=$(
     jq -r 'select(.type == "item.completed" and .item.type == "command_execution") | .item.aggregated_output // empty' "${transcript}" 2> /dev/null || true
     jq -r 'select(.type == "user") | .message.content[]? | select(.type == "tool_result") | (.content | if type == "string" then . else tostring end)' "${transcript}" 2> /dev/null || true

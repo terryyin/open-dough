@@ -16,6 +16,9 @@ git_publication_prompt_for() {
     admission-*)
       git_publication_admission_prompt "${journey}"
       ;;
+    one-shot-*)
+      git_publication_one_shot_prompt "${journey}"
+      ;;
     local-only)
       printf '%s\n' \
         "Use this project's installed Open Dough guidance. In the owned workspace at this checkout, retain the authorized verified increment under explicit local-only authority. Do not publish to the remote. Preserve any pending human edit on the separate default checkout. Report the local retention and that publication remains pending."
@@ -69,6 +72,9 @@ git_publication_create_fixture_for() {
     startup-*) git_publication_fixture_create_startup "${source_dir}" "${journey}" "${parent}" ;;
     admission-*)
       git_publication_fixture_create_admission "${source_dir}" "${journey}" "${parent}"
+      ;;
+    one-shot-*)
+      git_publication_fixture_create_one_shot "${source_dir}" "${journey}" "${parent}"
       ;;
     claim-race) git_publication_fixture_create_claim_race "${parent}" ;;
     uncertain-recovery)

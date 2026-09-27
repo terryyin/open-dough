@@ -45,7 +45,7 @@ with the developer's agreement at the time of the run.
 
 ### 1. Judge an unlisted one-shot run by what origin accepted
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash tests/git-publication-native.sh` passes, including new
 counterexamples; `scripts/test.sh tests/git-publication-native.sh` within
 budget; `npm run lint`.
@@ -117,4 +117,27 @@ Stop for the developer before any paid run and before a second rerun.
 
 ## Learnings
 
-None yet.
+- Slice 1 accepted proof: `bash tests/git-publication-native.sh` (default
+  mode) passes with `run_substitute_one_shot_journey`
+  (`tests/support/git-publication-native-substitute-suite.sh`, real start
+  `--one-shot` plus managed delivery, assessor passes) and
+  `run_one_shot_state_counterexamples`
+  (`tests/support/git-publication-native-one-shot.sh`, 10 real-state
+  mutations each failing `git_publication_assess_one_shot` with a named
+  reason). Paired A/B under load: the job takes about 1.15x its baseline,
+  roughly 55 s against the 47.3 s CI figure and the 71 s budget, so the
+  substitute stays in this job. `npm run lint` passes.
+- Managed delivery resolves its runtime in the execution workspace, so the
+  one-shot fixture commits and pushes the installed guidance and uses that
+  commit as the base; `.planning/open-dough.json` `ciAdapter` pointing at the
+  fixture's `scripts/ci-check.mjs` is all delivery needs.
+- Slice 2 reuse: `git_publication_record_pushes`,
+  `git-publication-native-push-log-observe.mjs` (`pushed-taken`, one
+  `pushed-tip` line per trunk tip), `git_publication_fixture_adopt_prepared`
+  in `git-publication-native-prepared.sh`. Add the queued assessor to
+  `git-publication-native-one-shot.sh`; `git-publication-native-assess.sh` is
+  at the 250-line limit.
+- For slice 3: branch deletion with `-d` refuses while the default checkout
+  stays behind (maintenance deferred by the human edit); retirement sets the
+  upstream to `origin/main` first. Origin is a local path, so the agent picks
+  its own `--repo` for `deliver`, and the prompt names no mode.

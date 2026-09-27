@@ -14,7 +14,8 @@ run_substitute_host_journeys() {
       "${sentinel_bin}/${host}"
     chmod a+x "${sentinel_bin}/${host}"
   done
-  cp -- "${source_dir}/tests/support/native-agent-admission.sh" "${sentinel_bin}/"
+  cp -- "${source_dir}/tests/support/native-agent-admission.sh" \
+    "${source_dir}/tests/support/native-agent-one-shot.sh" "${sentinel_bin}/"
 
   export PATH="${sentinel_bin}:${PATH}"
   # Credential-free counterexamples do not retain attempt directories.
@@ -108,6 +109,29 @@ run_substitute_host_journeys() {
   done
 
   run_substitute_admission_journeys "${work}" "${run_log}"
+  run_substitute_one_shot_journey "${work}" "${run_log}"
+}
+
+# One unlisted one-shot journey through the installed start, delivery and CI
+# completion CLIs, then real-state counterexamples on its kept fixture.
+run_substitute_one_shot_journey() {
+  local work=$1 run_log=$2 artifact status
+  artifact=$(mktemp -d "${work}/claude-one-shot-result.XXXXXX")
+  set +e
+  NATIVE_AGENT_SENTINEL_LOG="${run_log}" GIT_PUBLICATION_KEEP=1 \
+    git_publication_run_journey "${source_dir}" claude one-shot-result \
+    "${artifact}"
+  status=$?
+  set -e
+  if [[ ${status} -ne 0 || ${git_publication_assess_status} != 'pass' ]]; then
+    echo "FAIL: substitute claude one-shot-result exited ${status}, assessment ${git_publication_assess_status}: ${git_publication_assess_reason}" >&2
+    cat "${artifact}/observations.txt" >&2 || true
+    cat "${artifact}/events.jsonl" >&2 || true
+    git_publication_fixture_cleanup
+    exit 1
+  fi
+  run_one_shot_state_counterexamples "${artifact}/events.jsonl"
+  git_publication_fixture_cleanup
 }
 
 # Admission journeys through the installed CLIs in both stream shapes, plus
