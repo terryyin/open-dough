@@ -41,11 +41,12 @@ function git(directory, args) {
 
 // A real scratch Git repository, already holding one commit with the
 // established backlog shape, so every test starts from real Git history
-// rather than an assumption about one.
-export function scratchRepo(t, backlog) {
+// rather than an assumption about one. `initArgs` adds to its `git init`, for
+// a repository Git sets up differently, such as one made without templates.
+export function scratchRepo(t, backlog, initArgs = []) {
   const directory = mkdtempSync(join(tmpdir(), "dough-backlog-git-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
-  git(directory, ["init", "-q", "-b", "main"]);
+  git(directory, ["init", "-q", "-b", "main", ...initArgs]);
   git(directory, ["config", "user.email", "test@example.com"]);
   git(directory, ["config", "user.name", "Test"]);
   const file = join(directory, backlogPath);

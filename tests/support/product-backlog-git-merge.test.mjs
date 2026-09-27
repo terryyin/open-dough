@@ -88,6 +88,31 @@ test("merge reconciles through the registered driver when run from a linked Git 
   assert.equal(isMidMerge(repo), false, "the primary checkout was not merged");
 });
 
+test("merge reconciles through the registered driver in a repository whose Git directory has no info/", async (t) => {
+  // A repository made without templates (`git init --template=`, or under an
+  // `init.templateDir` holding only hooks) has no `info/`, where the driver's
+  // attribute is registered. The adjacent sibling closures conflict in a
+  // plain text merge, so the empty Taken is only reachable through the
+  // registered driver.
+  const ancestor = backlogOf([itemA, itemB], [itemC]);
+  const repo = scratchRepo(t, ancestor, ["--template="]);
+  commitBranch(repo, "close-a", backlogOf([itemB], [itemC]));
+  commitBranch(repo, "close-b", backlogOf([itemA], [itemC]));
+  checkout(repo, "close-a");
+
+  const merged = await run(repo, ["merge", "--ref", "close-b"]);
+
+  assert.equal(merged.stderr, "");
+  assert.equal(merged.code, 0);
+  assert.equal(repo.read(), backlogOf([], [itemC]));
+  assert.equal(isMidMerge(repo), false, "the merge was committed");
+  assert.match(
+    repo.git(["check-attr", "merge", "--", ".planning/PRODUCT-BACKLOG.md"]),
+    /merge: dough-product-backlog/,
+    "the driver is in effect for the backlog path",
+  );
+});
+
 test("merge stops the historical clean-duplicate case a plain text merge lets through", async (t) => {
   // The case an ordinary text merge accepts and then duplicates: each
   // branch moved B to a different place, and neither move is the ancestor's
