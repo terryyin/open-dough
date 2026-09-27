@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 // Installed CLI for authorized queued startup, or admission of accepted work
 // that no backlog list holds yet.
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { isDirectCliEntry } from "./ci-direct-entry.mjs";
 import { startExecution } from "./execution-start-operation.mjs";
 
 export { startExecution } from "./execution-start-operation.mjs";
@@ -34,10 +33,7 @@ function argumentsOf(argv) {
   return result;
 }
 
-if (
-  process.argv[1] &&
-  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
-) {
+if (isDirectCliEntry(import.meta.url, process.argv[1])) {
   try {
     const result = await startExecution(argumentsOf(process.argv.slice(2)));
     process.stdout.write(`${JSON.stringify(result)}\n`);

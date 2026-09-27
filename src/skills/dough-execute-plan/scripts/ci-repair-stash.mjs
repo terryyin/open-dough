@@ -6,7 +6,7 @@
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { isDirectCliEntry } from "./ci-direct-entry.mjs";
 import {
   appliedState,
   conflictPaths,
@@ -185,10 +185,7 @@ function argumentsOf(argv) {
   return result;
 }
 
-if (
-  process.argv[1] &&
-  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
-) {
+if (isDirectCliEntry(import.meta.url, process.argv[1])) {
   try {
     const { command, ...options } = argumentsOf(process.argv.slice(2));
     const operation = {

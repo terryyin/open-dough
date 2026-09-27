@@ -3,15 +3,18 @@
 // developer is credited once beside existing co-authors, and the checkout's
 // own Git hooks still run.
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
-import { exec, git } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
-  startCliResult,
-} from "./workspace-publication-fixtures.mjs";
+  agentCommit,
+  assertNothingCommitted,
+  head,
+  stageWork,
+  takenWorkspace,
+} from "./agent-commit-test-fixtures.mjs";
+import { git } from "./publication-test-fixtures.mjs";
+import { installLinkedSkills } from "./symlinked-skill-test-fixtures.mjs";
+import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
 import {
   coAuthors,
   configureDeveloper,
@@ -21,63 +24,6 @@ import {
 
 const model = "Claude Opus 5.5 (1M context) <noreply@anthropic.com>";
 const people = "--format=%an <%ae>|%cn <%ce>";
-const cli = fileURLToPath(new URL("./agent-commit.mjs", import.meta.url));
-
-// Runs the installed entry point from `cwd`; `input` is its standard input.
-async function agentCommit(cwd, args, input) {
-  const running = exec(process.execPath, [cli, ...args], { cwd });
-  running.child.stdin.end(input ?? "");
-  try {
-    const { stdout } = await running;
-    return { code: 0, receipt: JSON.parse(stdout) };
-  } catch (error) {
-    return { code: error.code, receipt: JSON.parse(error.stdout) };
-  }
-}
-
-const head = async (cwd) => (await git(cwd, "rev-parse", "HEAD")).stdout.trim();
-
-// The refusal left HEAD where it was and the staged work still staged.
-async function assertNothingCommitted(cwd, before, { code, receipt }, status) {
-  assert.equal(code, 1, JSON.stringify(receipt));
-  assert.equal(receipt.ok, false);
-  assert.equal(receipt.status, status);
-  assert.equal(await head(cwd), before);
-  assert.equal(
-    (await git(cwd, "diff", "--cached", "--name-only")).stdout,
-    "slice.txt\n",
-  );
-}
-
-// A Taken workspace with the developer configured and a commit-msg hook that
-// keeps a copy of each message it checks.
-async function takenWorkspace(t) {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  await configureDeveloper(trunk.integration);
-  const { receipt, workspace } = await startCliResult(trunk, "trunk");
-  assert.equal(receipt.ok, true, JSON.stringify(receipt));
-  const common = (
-    await git(
-      workspace,
-      "rev-parse",
-      "--path-format=absolute",
-      "--git-common-dir",
-    )
-  ).stdout.trim();
-  const checked = join(trunk.fixture, "checked-message");
-  writeFileSync(
-    join(common, "hooks", "commit-msg"),
-    `#!/bin/sh\ncp "$1" '${checked}'\n`,
-    { mode: 0o755 },
-  );
-  return { trunk, workspace, checked };
-}
-
-async function stageWork(workspace, name) {
-  writeFileSync(join(workspace, name), `${name}\n`);
-  await git(workspace, "add", name);
-}
 
 test("guided work commit is authored by the agent, credits the developer once beside the model, and runs the commit-msg hook, also when the message already credits the developer", async (t) => {
   const { workspace, checked } = await takenWorkspace(t);
@@ -211,4 +157,60 @@ test("amending an owned commit keeps its co-authors and credits the developer on
       `${model}\n${spelled.replace(/^[^:]*: /, "")}`,
     );
   }
+});
+
+test("guided work commit through a symlinked skill directory commits, or refuses, exactly as through its real path", async (t) => {
+  const { trunk, workspace } = await takenWorkspace(t);
+  const { real, linked } = installLinkedSkills(trunk.fixture)(
+    "dough-execute-plan/scripts/agent-commit.mjs",
+  );
+  await stageWork(workspace, "slice.txt");
+  const throughLink = await agentCommit(
+    workspace,
+    ["-m", "Slice work"],
+    "",
+    linked,
+  );
+  assert.equal(throughLink.code, 0, JSON.stringify(throughLink.receipt));
+  assert.deepEqual(throughLink.receipt, {
+    ok: true,
+    status: "committed",
+    agent: "Yui-chan",
+    sha: await head(workspace),
+  });
+  await stageWork(workspace, "more.txt");
+  const throughReal = await agentCommit(
+    workspace,
+    ["-m", "More work"],
+    "",
+    real,
+  );
+  assert.deepEqual(
+    { ...throughReal, receipt: { ...throughReal.receipt, sha: undefined } },
+    { ...throughLink, receipt: { ...throughLink.receipt, sha: undefined } },
+  );
+  assert.equal(
+    (await git(workspace, "log", "-2", people)).stdout.trim(),
+    `Yui-chan <yui-chan@example.org>|${developer}\n`.repeat(2).trim(),
+  );
+  // A checkout that names no agent refuses the same way through either path.
+  await stageWork(trunk.integration, "slice.txt");
+  const before = await head(trunk.integration);
+  const refusals = [];
+  for (const entry of [linked, real]) {
+    const result = await agentCommit(
+      trunk.integration,
+      ["-m", "Slice work"],
+      "",
+      entry,
+    );
+    await assertNothingCommitted(
+      trunk.integration,
+      before,
+      result,
+      "no-workspace-agent",
+    );
+    refusals.push(result);
+  }
+  assert.deepEqual(refusals[0], refusals[1]);
 });
