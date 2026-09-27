@@ -130,6 +130,20 @@ and that developer, keeping its priority and badges; it is never a Taken owner.
 It disappears when preparation lands or is abandoned. Unreadable profiles show
 "Preparation assignment unknown"; two assignments show as conflicting records.
 
+Each agent portrait on a Taken or Preparing card is a control that opens the
+selected project's **Agent roster**: all 29 agents of the shared rotation with
+their portraits, the clicked agent marked and focused. Each agent shows the
+commission its published profile records at the shown revision -- Taken or
+Preparing, the task's title and identity, and the recorded mode, host, and
+model -- or "Not commissioned" when the profile directory was read and names
+none. Work the backlog at that revision does not list keeps its identity with
+a title gap; an unreadable profile leaves its agent uncertain, and a failed
+profile read leaves every agent's commission unknown. A commission is not a
+claim that an agent is working now. The roster comes from the same snapshot as
+the cards and makes no read of its own; selecting another project replaces its
+source. **Back to stories** at the top returns to the stories with any open
+story detail still open and focus on the portrait that opened the roster.
+
 Each Taken card with a readable plan also shows its recorded slice progress: a
 bar with one segment per slice, filled for each slice recorded complete, and
 "N of M slices recorded complete". It counts recorded statuses, not how much
@@ -206,36 +220,11 @@ The browser suite needs Chromium once per machine:
 
 ## Tests
 
-`tests/` holds one Playwright suite. Every run builds the app once; each page
-journey (`tests/dashboardTest.ts`) then serves that build from its own
-preview server with a synthetic `gh` on its PATH (`tests/fixtures/fake-gh`)
-that answers from the test's own fake GitHub (`tests/support/fakeGitHub.ts`,
-published through `tests/publishedOrigin.ts` or
-`tests/committedOrigin.ts`), which can also fail, hold, or rate-limit an
-answer. Only GitHub's answers to `gh` are replaced; the
-local read boundary, the `gh` invocation, reading, the shared backlog
-interpretation, and the page are the real ones, and a browser request to
-GitHub itself fails the test. The boundary specs
-(`tests/authenticated-read-*.spec.ts`) and
-`tests/authenticated-project-overview.spec.ts` also start their own dev and
-built-preview servers. Nothing here ever calls the real `gh` CLI or contacts
-GitHub. Select one journey with, for example,
-`npm run test:dashboard -- --grep 'published overview'` or
-`npm run test:dashboard -- --grep 'authenticated project overview'`.
+`tests/` holds one Playwright suite that replaces only GitHub's answers to
+`gh`; [its README](tests/README.md) describes the harness, its silence rule,
+and how journeys step page time.
 
-A passing run prints nothing (`tests/support/quietReporter.ts`). A failing
-spec is shown with its error, output, and retained trace; a passing spec that
-writes output, or output from the run itself such as global setup, fails the
-run and is shown. Keep specs and their helpers silent.
-
-The automatic-freshness journeys (`tests/auto-refresh*.spec.ts`) pause the
-page's clock and step it with the helpers in `tests/autoRefreshJourney.ts`, so
-the 15-second pace, the 30-second target, hidden-page pauses, and a rate
-limit's directed wait are observed in page time; they read the fake GitHub's
-`gh` call log to prove what was and was not asked. Assert that no `gh` call
-was made only after real network turns (`checksAskedWhilePassing`, or
-`expect.poll`), and give each scenario its own revisions: the boundary answers
-a repeated pinned revision from memory without calling `gh`.
+## GitHub requests
 
 Each load of the dashboard, and each Refresh, makes two authenticated `gh`
 requests for membership, plus one per record not already read at that

@@ -38,6 +38,7 @@ import {
   type TakenOwner,
   type UnreadableProfile,
 } from "./agentAssignments.ts";
+import type { AgentRoster } from "./commissionRoster.ts";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
 // the fields this dashboard shows rather than trusted by assertion.
@@ -104,6 +105,9 @@ export type PublishedWork = {
   // Published agent profiles that could not be read; none are matched to an
   // entry.
   readonly unreadableProfiles?: readonly UnreadableProfile[];
+  // Every agent of the rotation and its published commissions at this
+  // revision; loading until the profiles are read.
+  readonly roster?: AgentRoster;
 };
 
 // Receives each more complete snapshot of one read as it becomes known.

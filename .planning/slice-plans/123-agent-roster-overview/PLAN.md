@@ -84,7 +84,13 @@ project registration. Existing agent portraits and rotation are retained.
 
 ### 1. A portrait opens the project roster and returns to the story
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run test:dashboard -- agent-roster.spec.ts` (fixtures in
+`dashboard/tests/agentRosterRecords.ts`) plus the card specs
+`taken-agent-profile*.spec.ts` and `backlog-preparing.spec.ts`. The roster is
+`commissionRoster.ts` over the single commission list that also feeds cards.
+Back after switching project while the roster is open shows the newly
+selected project's stories, as key example 4 requires.
 Proof: A Playwright journey from Taken and Preparing cards opens a roster
 with all 29 named portraits, identifies the clicked agent, and shows the
   selected project's published task, activity, and recorded host/model. It
