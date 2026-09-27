@@ -55,7 +55,7 @@ across dough-execute-plan and dough-story-refinement.
 
 ### 1. Escalate race-safely and finish one-shot the same way from every entry
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a carried escalation whose trunk advances between the start's fetch
 and workspace selection still publishes one claim and restores the edits; a
@@ -85,6 +85,27 @@ one-shot selected, reporting each step's resulting action; guidance tests that
 read the edited Markdown.
 
 Safe stop: the correction is complete.
+
+Accepted proof (2026-09-27): the carry path passes the start's fetched trunk
+SHA to both the park and `selectOwnedWorkspace` (`base`), and a trunk that
+moves afterwards is rebuilt through the existing push-reject `reselectClaim`.
+`one-shot-escalation-recovery.test.mjs` "an escalation whose trunk moves after
+the park still claims once and restores the edits" failed before the fix with
+`setup-failed` and passes after; `node --test
+src/skills/dough-execute-plan/scripts/one-shot*.test.mjs` 27/27; startup,
+admission and execution suites (`workspace-publication*`,
+`watch-ci-execution-startup`, `execution-*`) 132/132;
+`workspace-ownership-lifecycle.test.mjs` asserts the one-shot fetched-trunk
+base and no "verified current HEAD". Behavior walk: bug repair and no-change
+end in one-shot delivery or no-change finish plus retirement; growth under
+`--no-replan` escalates through admission and stops before planning with the
+edits restored; test-optimization no-change follows one-shot's no-change
+finish.
+
+Learning: a developer stop of a growing one-shot attempt reports the attempt
+and leaves its workspace to the developer, since the oversized-slice stop now
+routes one-shot back to escalation. Once-only Git wrapper tests use
+`onceAtGit` in `one-shot-escalation-test-fixtures.mjs`.
 
 ## Proof coverage
 

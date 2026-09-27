@@ -113,9 +113,9 @@ remains to wrap up: the delivered commit already closed any queued story.
 
 When the attempt proves larger than one-shot allows, through newly discovered
 complexity, a separate outcome, or failure to converge, stop substantive work
-and escalate it into tracked work before going further. If the developer
-stopped the work or replanning is disabled (`--no-replan`), do not escalate:
-take the [no-replan stop](oversized-slice.md) instead.
+and escalate it into tracked work before going further, also when replanning
+is disabled (`--no-replan`). If the developer stopped the work, do not
+escalate: report the attempt and its evidence and leave its workspace to them.
 
 Keep the attempt's edits uncommitted in the workspace: only uncommitted edits
 are carried, so undo a result commit you already made while keeping its
@@ -148,4 +148,6 @@ Any other stop that names `carried.ref` keeps your edits under that ref:
 Once restored, the workspace is the claimed story's checkout. Continue through
 [Continue into implementation](admit-accepted-work.md#continue-into-implementation)
 within the original instruction's authority, reusing your proof while its
-boundary is unchanged.
+boundary is unchanged. Under `--no-replan`, or without authority to plan, stop
+there before planning: report the Taken story, the evidence, and the edits
+restored uncommitted in its workspace.

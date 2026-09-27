@@ -196,10 +196,11 @@ authority, with no assessment not actually made. Implementation later
 authorized for it attaches its plan and assessment to that same story through
 the procedures above; admission and Taken never renew or imply ready.
 
-Contextual quick execution with no claim to publish, and a supporting step of
-an active story, create no canonical home, plan file, story-state block, or
-queue entry. They keep scope, decisions, progress, and proof in the
-conversation or the active story. Do not fabricate a seed, plan, or
+[One-shot work](../../dough-execute-plan/references/one-shot.md), which
+starts on fetched remote trunk without a claim, and a supporting step of an
+active story create no canonical home, plan file, story-state block, or queue
+entry. They keep scope, decisions, progress, and proof in the conversation or
+the active story. Do not fabricate a seed, plan, or
 `record-state` write to satisfy this procedure.
 
 ### Wrap-up cleanup

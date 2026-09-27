@@ -146,21 +146,25 @@ export async function assertOneClaim(trunk, rev, base, identity) {
   assert.deepEqual(log.trim().split("\n").filter(Boolean), [identity]);
 }
 
-// An environment whose Git kills the startup process once, at the first Git
+// An environment whose Git runs the shell `action` once, at the first Git
 // command whose arguments match the shell `pattern`: right after that command
-// ran, or instead of it when `before`.
-export function killOnce(trunk, pattern, { before = false } = {}) {
+// ran, or instead of it when `before`. The action ends with its own `exit`.
+export function onceAtGit(trunk, pattern, action, { before = false } = {}) {
   const bin = join(trunk.fixture, "bin");
-  const marker = join(trunk.fixture, "killed");
+  const marker = join(trunk.fixture, "once");
   mkdirSync(bin);
   const run = before ? "" : '/usr/bin/git "$@" || exit $?\n    ';
   writeFileSync(
     join(bin, "git"),
-    `#!/bin/sh\ncase "$*" in\n  ${pattern})\n    if [ ! -e '${marker}' ]; then\n    touch '${marker}'\n    ${run}kill -9 $PPID\n    exit 1\n    fi ;;\nesac\nexec /usr/bin/git "$@"\n`,
+    `#!/bin/sh\ncase "$*" in\n  ${pattern})\n    if [ ! -e '${marker}' ]; then\n    touch '${marker}'\n    ${run}${action}\n    fi ;;\nesac\nexec /usr/bin/git "$@"\n`,
     { mode: 0o755 },
   );
   return { ...process.env, PATH: `${bin}:${process.env.PATH}` };
 }
+
+// An environment whose Git kills the startup process once, as `onceAtGit`.
+export const killOnce = (trunk, pattern, options) =>
+  onceAtGit(trunk, pattern, "kill -9 $PPID\n    exit 1", options);
 
 // Kills the startup process right after its first push reaches the remote.
 export const killAfterPush = (trunk) => killOnce(trunk, "push*");
