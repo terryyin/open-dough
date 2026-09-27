@@ -42,23 +42,27 @@ is reported only for the share's own jobs. A malformed value, or `i` outside
 runs. `OPEN_DOUGH_TEST_TIMES=<file>`
 writes every job's wall seconds and name, longest first, which is how that
 list is refreshed (see its header). Jobs do not inherit it, so a check that
-runs the runner itself keeps its own times. CI's `test` check keeps that file
-for seven days as its `test-times` workflow artifact.
+runs the runner itself keeps its own times. CI runs the suite as two split
+jobs, `test (1/2)` and `test (2/2)`, each with `OPEN_DOUGH_TEST_SPLIT` set to
+its share; each fails on its own share's failures or budget breach and keeps
+its times file for seven days as its `test-times-1` or `test-times-2` workflow
+artifact.
 
 The suite's time budget lives in `tests/time-budget`: two numbers, a per-job
-ceiling (`per-job-seconds`) and a total ceiling over all jobs
-(`total-job-seconds`), set from CI's `test-times` with headroom. The budget is
-CI's: after a CI run (`CI=true`) the runner compares the same job times with it
-(`scripts/test-budget.sh`). Within budget it prints nothing. A breach prints,
-after any failure reports, one line per job over the per-job ceiling and one
-for a total over the total ceiling, for example:
+ceiling (`per-job-seconds`) and a total ceiling over one run's jobs
+(`total-job-seconds`), set from CI's `test-times-<i>` with headroom. The budget
+is CI's: after a CI run (`CI=true`) the runner compares the same job times with
+it (`scripts/test-budget.sh`), so each split job is judged on its own share.
+Within budget it prints nothing. A breach prints, after any failure reports,
+one line per job over the per-job ceiling and one for a total over the total
+ceiling, for example:
 
 ```text
 OVER BUDGET: tests/install.sh took 78.4s; the per-job ceiling is 70s (tests/time-budget).
-OVER BUDGET: all jobs took 902.4 job-seconds; the total ceiling is 840 (tests/time-budget).
+OVER BUDGET: all jobs took 482.4 job-seconds; the total ceiling is 460 (tests/time-budget).
 ```
 
-A breach fails the `test` check. The ceilings are calibrated to CI's runner, so
+A breach fails that split job. The ceilings are calibrated to CI's runner, so
 a run anywhere else is not judged against them: it prints no budget report and
 its exit status comes only from the checks. Fix the slow job rather than the
 number: raising a ceiling is an explicit edit of `tests/time-budget`, reviewed
