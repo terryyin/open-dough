@@ -130,3 +130,7 @@ a second repair push".
 
 Structure: the step 5 phrase assertions move into the focused guidance test
 without weakening any of them.
+
+## Execution complete
+
+Product advice: retrospective skipped
