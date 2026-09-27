@@ -106,6 +106,30 @@ target; local test speed; larger or paid runners; the native adapter check's
 silent `run_selected` failure and the copied result-path parse, now
 [SEED-049#native-result-path-diagnosis](SEED-049-native-result-path-diagnosis.md#native-result-path-diagnosis).
 
+<a id="ci-verdict-correction"></a>
+
+### Keep the split test runner and CI's split in one place each
+
+**Identity:** SEED-046#ci-verdict-correction
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/126-ci-verdict-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"77e9a2f6983b56ef7661febc70e8f2ec3ccbed0fbfc7561f0ea7c402e8009cb8","plan":"79ed2c42a644ccb93f4e3c80febac51163b7cffd9e6448b5957ede57f4acbc84"}}
+```
+
+**Goal:** A maintainer changing the test runner, the CI split, or the time
+budget edits each fact in one place: the runner alone decides that the budget
+is CI's, one helper copies the runner into test fixtures, the test directory
+default is resolved once, the split count is stated once per workflow matrix,
+and the contributor documentation describes the split generically and
+accurately. This corrects the CI verdict round 2 execution
+([ci-verdict-round-2](#ci-verdict-round-2), plan 122) and adds no feature
+promise: every CI job name, split, and budget verdict stays as delivered.
+
+**Scope:** the budget checker's exit rule, the runner's copy in test
+fixtures, the test directory default, the CI workflow's split count, and the
+split and budget wording in `tests/`, the tests README, and the installation
+guide's contributor checks. Correction plan:
+[126-ci-verdict-correction](../slice-plans/126-ci-verdict-correction/PLAN.md).
+
 ## When to Surface
 
 Now: second in the product backlog, after SEED-048, per the maintainer on

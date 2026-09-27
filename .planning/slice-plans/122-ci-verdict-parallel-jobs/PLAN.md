@@ -181,7 +181,7 @@ decision.
 
 ### 5. The CI verdict median is at most 120 s and the budget is recalibrated
 Type: Behavior
-Status: planned
+Status: done
 Proof: At least five CI runs of the candidate revision: median workflow wall
 time at most 120 s; every run green. Then `tests/time-budget` is set from
 those runs' split `test-times` by its rule (1.5 × the largest job and the
@@ -196,10 +196,30 @@ Measured (candidate `37679c6`, five sequential runs, all green): workflow wall
 (`Run test` 57, 59, 63, 69, 71 s); `lint` 36–48 s. Share totals 303.3/226.4,
 307.6/233.7, 310.6/250.1, 238.3/270.4, 312.1/283.2 job-seconds; largest job
 47.3 s (`tests/git-publication-native.sh`).
+Recalibration (`bbc1b8f`): `per-job-seconds=71` (1.5 × 47.3) and
+`total-job-seconds=470` (1.5 × 312.1), naming those runs; `longest-first`
+refreshed from run 36290300040's merged artifacts (58 names). All ten measured
+shares pass the new budget under `CI=true`. CI run 36290628180 of `bbc1b8f`:
+every job green, workflow wall 92 s.
 
 Behavior: Trunk has the split workflow → a revision is published → its CI
 verdict arrives at a median of at most 120 s, and the budget describes the
 split jobs it judges.
+
+## Execution complete
+
+Product advice: The CI verdict now arrives at a median of 98 s, which serves
+the near-future direction of parallel agents publishing to trunk; no further
+CI-speed story is needed while that holds. Coordinate SEED-048's plan 120 with
+this change: test discovery moved to `scripts/test-jobs.sh`, where its chosen
+paths belong when whichever lands second rebases. Consider a small bug story
+for the dashboard tests' `freePort()` bind-close race (older, latent, more
+exposed with more workers per shard; `waitUntilListening` accepts any server).
+Slice 4's proof assumed a count CI did not keep on green runs, further
+evidence for SEED-044#verify-planning-premises. Correction
+[SEED-046#ci-verdict-correction](../../seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-correction)
+([plan 126](../126-ci-verdict-correction/PLAN.md)) removes this execution's
+structural residue.
 
 ## Learnings
 
