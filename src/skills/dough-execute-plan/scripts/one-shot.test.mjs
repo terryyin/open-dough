@@ -16,7 +16,6 @@ import {
 import {
   createQueuedTrunk,
   identityA,
-  identityB,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
 import { lostPushResponse } from "./workspace-publication-startup-test-fixtures.mjs";
@@ -137,7 +136,7 @@ test("a one-shot start with no change publishes nothing and retires cleanly", as
   assert.equal(await remoteHeads(trunk.origin), headsBefore);
 });
 
-test("one-shot refuses admission, missing authority, and listed work without creating a workspace", async (t) => {
+test("one-shot refuses admission, missing authority, and Taken work without creating a workspace", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const taken = await startCliResult(trunk, "trunk");
@@ -162,12 +161,6 @@ test("one-shot refuses admission, missing authority, and listed work without cre
       startOneShot(trunk, [], { name: "taken", identity: identityA }),
       "source-refused",
       /already Taken on fetched trunk/,
-    ],
-    [
-      "queued identity",
-      startOneShot(trunk, [], { name: "queued", identity: identityB }),
-      "source-refused",
-      /already queued on fetched trunk; start it as queued work/,
     ],
   ];
   for (const [label, pending, status, error] of refusals) {

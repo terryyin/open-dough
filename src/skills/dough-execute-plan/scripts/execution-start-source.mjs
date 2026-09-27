@@ -1,16 +1,12 @@
 // The selected source a start reads from fetched trunk: queued work,
 // admission of accepted work that no backlog list holds yet, or one-shot work.
-import {
-  parseBacklog,
-  queueHeading,
-  takenHeading,
-} from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import { readAdmissionSource } from "./execution-admission-source.mjs";
 import {
   maintenance,
   reportedMaintenance,
 } from "./execution-start-maintenance.mjs";
-import { readPublishedExecutionSource, show } from "./execution-source.mjs";
+import { readPublishedExecutionSource } from "./execution-source.mjs";
+import { requireOneShotStart } from "./one-shot-ownership.mjs";
 import { preparedReceipt } from "./execution-start-receipt.mjs";
 import { sameSelectedSource } from "./execution-start-recovery.mjs";
 import { selectOwnedWorkspace } from "./workspace-publication-select.mjs";
@@ -20,24 +16,12 @@ import {
   stopped,
 } from "./workspace-publication-ownership.mjs";
 
-// A one-shot start claims nothing: it reads only whether fetched trunk already
-// lists a supplied identity. Taken work keeps its claim's lifecycle, and queued
-// work starts as queued work. An unlisted request, with no identity or one no
-// backlog list holds, has nothing to read.
+// A one-shot start claims nothing: it only checks how fetched trunk holds a
+// supplied identity. An unlisted request, with no identity or one no backlog
+// list holds, has nothing to check.
 async function readOneShotSource({ integration, identity }, ref) {
-  if (!identity) return {};
-  const backlog = await show(integration, ref, backlogPath);
-  const entry =
-    backlog !== null &&
-    parseBacklog(backlog).entries.find((item) => item.identity === identity);
-  if (entry?.list === takenHeading)
-    throw new Error(
-      "selected identity is already Taken on fetched trunk; continue it under its existing claim",
-    );
-  if (entry?.list === queueHeading)
-    throw new Error(
-      "selected identity is already queued on fetched trunk; start it as queued work",
-    );
+  if (identity)
+    await requireOneShotStart(integration, ref, identity, backlogPath);
   return {};
 }
 

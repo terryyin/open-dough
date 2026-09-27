@@ -209,6 +209,7 @@ managed_files=(
   dough-execute-plan/scripts/execution-start-source.mjs
   dough-execute-plan/scripts/execution-source.mjs
   dough-execute-plan/scripts/execution-admission-source.mjs
+  dough-execute-plan/scripts/one-shot-ownership.mjs
   dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
   dough-execute-plan/scripts/history-preserving-publication.mjs
   dough-execute-plan/scripts/maintain-default-checkout.mjs

@@ -70,7 +70,7 @@ now names the owners below. No new ADR or architecture layer is needed.
 | --- | --- | --- |
 | Workspace selection can run without a claim | `workspace-publication-select.mjs:66-110` `selectOwnedWorkspace` fetches, validates or creates the worktree at fetched trunk, and commits nothing | Holds |
 | Managed delivery needs no claim or profile | `execution-increment-delivery.mjs:15-60` requires only workspace, branch, previouslyPublishedBase, targetRef and repo | Holds |
-| `beforePush` runs after every reconciliation, before each push | `execution-increment-publication.mjs:143-197`: attempt 0 after the initial rebase, attempt 1 after the rejected-push rebase | Holds; the guard can throw to stop |
+| `beforePush` runs after every reconciliation, before each push | `execution-increment-publication.mjs:143-197`: attempt 0 after the initial rebase, attempt 1 after the rejected-push rebase | Holds, but insufficient: slice 2 found that replaying completion over a competing Take conflicts in the backlog merge driver before `beforePush`; the guard uses a new `onFetchedTarget` seam instead |
 | The admission claim needs a clean workspace at fetched trunk | `workspace-publication-claim.mjs:67-79` and `workspace-publication-select.mjs:69-91` refuse pending changes or a moved HEAD | Holds; growth needs the carry step |
 | Admission refuses a queued story | `execution-admission-source.mjs` `readAdmissionSource`: "already queued on fetched trunk; start it as queued work" | Holds; slice 3 changes it |
 | `complete` removes an entry from either list | `dough-product-backlog/SKILL.md:119-130`; `tests/support/product-backlog-complete.test.mjs` | Holds |
@@ -136,7 +136,7 @@ Safe stop: unlisted one-shot success works; growth stops with edits preserved.
 
 ### 2. Complete a queued story in its own result commit
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: an eligible queued story explicitly selects one-shot → its result,
 backlog completion and spent story/plan removal form one candidate → remote
@@ -248,3 +248,18 @@ No slice-specific concern remains. All decisive premises are observed above.
   entry skills route one-shot through `one-shot.md`; slice 3's guidance walk
   must confirm bug-fixing and test-optimization no-change and repair steps read
   correctly for a one-shot mission.
+- Slice 2 (2026-09-27): the queued guard is `queuedOwnershipGuard` in
+  `one-shot-ownership.mjs`, applied through a new optional publisher seam
+  `onFetchedTarget({attempt, candidate, remoteTip})` that runs after the initial
+  fetch and the rejected-push re-fetch, before any rewrite; `beforePush` keeps
+  its original contract. The resume path takes the same seam. Delivery and
+  resume CLIs gained `--one-shot-identity`; a stop is `ownership-changed` with
+  nothing rebased or pushed. `requireOneShotStart` refuses a Taken entry, any
+  profile naming the identity, or a recorded not-ready assessment. Accepted
+  proof: `node --test src/skills/dough-execute-plan/scripts/one-shot*.test.mjs
+  tests/support/product-backlog-complete.test.mjs` (20) plus delivery, resume,
+  start/admission, closure and preparation-assignment suites. The North Star
+  wording was corrected to the post-fetch seam.
+- For slice 3: a parked queued attempt must not carry a composed `complete`
+  into admission; park before cleanup is composed. The guard can recheck queued
+  ownership during escalation.
