@@ -101,44 +101,6 @@ third-party changes in the worktree and no account of what they were or why.
     without a refactor report (compare ODF-062); slice 6's refactor, told to
     run tests only in the foreground with timeouts, reported normally.
 
-## ODF-060 — A new payload file was published without being declared, and only CI noticed
-
-Former local code: DD-058.
-
-Maintainer guidance says to edit client-payload guidance under `src/skills/` and
-never to hand-synchronize installed copies. It does not say that adding a *new*
-file there requires declaring it in the installer's manifest and the three other
-lists that must agree with it. A skill can therefore gain a reference that links
-to a file no installed project ever receives, with the source tree entirely
-self-consistent.
-
-### Occurrences
-
-- Execution: `.planning/slice-plans/058-preserve-backlog-merge-intent/PLAN.md @ a242412`
-  - Timestamp: 2026-09-18T22:37:13+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5
-  - Open Dough release: 0.3.25
-  - Evidence: Slice 4 (`848f793`) added
-    `src/skills/dough-product-backlog/references/identity.md` and two links to
-    it from `dough-story-refinement/references/planning.md` and
-    `dough-story-decomposition/references/seed-format.md`, without adding it to
-    `managed_files` in `install.sh`, the file list in
-    `src/install/open-dough-release-version.sh`, the `managed_files` in
-    `tests/helpers/public-payload-fixture.bash`, or the two enumerations in
-    `docs/installation-and-updates.md` that
-    `tests/dough-update-guidance-payload.sh` holds the manifest against. CI run
-    35357372158 failed on `tests/story-payload-update.sh`; the repair commit
-    `b6f9515` was five one-line insertions.
-  - Observed effect: One failed CI run, one pause-stash-repair-restore cycle,
-    and a repair commit interleaved between two feature slices on the branch.
-    `AGENTS.md` was consulted during the slice and its "Layout" section named
-    only the source directory to edit.
-  - Inference: Qualified. The four declaration sites are discoverable by reading
-    `install.sh`, so the omission is consistent with guidance that names the
-    edit location but not the declaration obligation; whether a reminder in
-    `AGENTS.md` would have prevented it cannot be established from this record.
-
 ## ODF-062 — A CI repair was delivered without the refactor pass its own delivery gate requires
 
 Former local code: DD-060.
@@ -864,34 +826,6 @@ Planning recorded `not-ready` for a slice-sizing concern its own refinement coul
   - Evidence: `ee563d5` recorded reason "Slice 1 … sizing is uncertain"; `execution-start.mjs start` → `source-refused`, "published preparation is needs-reassessment"; refinement split slice 1 by its two independent outcomes (`a6e6ef7`).
   - Observed effect: one human round trip plus an announce/land publication cycle before the claim. Qualified inference: the concern named its own remedy (split); refinement at planning time would have recorded ready.
 
-## DD-113 — The planning audit of commit paths missed commits made by following guidance
-
-The planning audit listed only the scripts that create agent-authored commits. It missed the merge commit that guidance tells the agent to make in its owned workspace, so a scope promise went unplanned until the retrospective.
-
-### Occurrences
-
-- Execution: `SEED-047#agent-and-developer-credit` / plan 119, first related implementation commit `01a3e2c`
-  - Timestamp: 2026-09-27T07:47:40+08:00 (plan `e023a7f`)
-  - Tool: Codex
-  - Open Dough release: modified; revision 1b66466; base 0.3.41
-  - Evidence: plan 119's PFE names the scripts that create commits (`--author` / `commit-tree`). `publish-the-candidate.md` "Preserve published history" and `product-backlog-git-merge.mjs` `commitAcceptedMerge` still make an agent-authored integration merge without the credit, as merge `199ae44` shows. Correction plan 121.
-  - Observed effect: one follow-up correction story. Qualified inference: an audit that greps scripts for commit creation cannot see commits that guidance directs.
-
-## DD-114 — A new runner setting reached checks that start the runner; only CI's split jobs showed it
-
-Slice 1 proved `OPEN_DOUGH_TEST_SPLIT` over substitute checks, but runner tests that start the runner themselves inherited the CI job's split and ran only a share of their own substitutes. The existing precedent that jobs do not inherit `OPEN_DOUGH_TEST_TIMES` was not applied to the new setting.
-
-### Occurrences
-
-- Execution: `SEED-046#ci-verdict-round-2` / plan 122, first related implementation commit `a034dfd`
-  - Timestamp: 2026-09-27T02:16:29Z (CI run 36287963592 `test (1/2)` failed)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `707f3ac`
-  - Evidence: run 36287963592 of `a2a3765`: five `tests/test-runner-*.sh` failures, e.g. `all.record names [alpha.sh delta.sh]`; repair `ceae01c` unsets the split after listing jobs and asserts no substitute inherits it.
-  - Observed effect: one red CI run, two agents paused behind a repair stash, and a repair plus refactor pass (about 10 minutes).
-  - Inference: Qualified. Slice 1's proof could have run the suite as each share (`OPEN_DOUGH_TEST_SPLIT=1/2 npm test`), which reproduced the failure locally during the repair.
-
 ## DD-115 — A Story Branch execution rebased onto trunk, and managed delivery rebased it back
 
 The plan said to integrate onto whichever sibling runner change had landed. In
@@ -991,5 +925,6 @@ coordinator can Take a story whose live preparation is still editing its plan.
 ## Retention
 
 - Highest allocated local number: 123
+- Moved to [ProjectFindings.md](ProjectFindings.md) as project-owned: DD-113, DD-114; ODF-060 was resolved and removed there (recoverable at `7ebcb07c:DearDough.md`)
 - Recovery: `48a0415:DearDough.md` (plan 127's DD-117, a whole-repository formatter coupling concurrent slices' deliveries; not retained at the 1,000-line ceiling); `ab3cb42:DearDough.md` (ODF-003 `SEED-008#publish-shared-backlog-claims` occurrence, removed for size; three later same-mechanism rows remain); `70386eb:DearDough.md` (ODF-061, addressed by `c897488` requiring Bash 5 and by the runner's stop-location report); `3e611d2:DearDough.md` (DD-110, removed for size; later checkpoints lead with a recommendation); `2b18837:DearDough.md` (ODF-003 `SEED-004#execute-in-worktree-and-merge-at-wrap-up` occurrence, removed for size; three later same-mechanism rows remain); `6b3f02b:DearDough.md` (ODF-117 plan 096 idle-machine baseline, removed for size; the relative-measurement practice covers it); `388bcea:DearDough.md` (ODF-092 plans 089, 092, 097 avatar, 099, 100 occurrences); `e7b7ad1:DearDough.md` (ODF-092 plans 097 ci-verdict-delivery and 096 occurrences); `fa1549a:DearDough.md` (DD-101 plan 099 finding); `b633e1d:DearDough.md` (ODF-099, addressed by `075e955`; historical detail recoverable in Git); `876a0b0:DearDough.md` (ODF-099 plan 100 occurrence); `bde06c7:DearDough.md` (ODF-099 plans 097 and 099 occurrences); `dedd650:DearDough.md` (ODF-092 plan 091 occurrence); `6494de2:DearDough.md` (ODF-099 plans 094 and 097 avatar occurrences); `e11c09a:DearDough.md` (ODF-099 plan 094 occurrence; ODF-092 plan 089 inference); `1415ecc950748103ba1b7aa6aaf14b5914fec1d0:DearDough.md` (ODF-088, addressed by `6d7f7f3`; historical detail recoverable in Git); `a4bd89746388630af49a32750b1af1d51e3a3db2:DearDough.md` (ODF-052, addressed and released); `e77aead21cc3a05139d8000962059e29d283fc8c:DearDough.md`; earlier retention `98bfa80bb45a2a0156318230c75f7964ec0291e6:DearDough.md`; 070 before-cleanup `52a7e630037aa0bca1295a3399758aba15aba29e:DearDough.md`
 - Occurrence history is partial

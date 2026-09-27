@@ -178,15 +178,6 @@ A host-terminated refactor agent leaves changes without a report, requiring reco
 
 - **Sources:** [open-dough / DD-057](../../DearDough.md#odf-059--delegated-refactor-pass-stalled-after-editing-and-before-reporting); [doughnut / DD-062](../../../doughnut/DearDough.md#odf-059--delegation-guidance-has-no-protocol-for-a-subagent-that-dies-mid-edit-from-an-infrastructure-error-leaving-a-silent-partial-change).
 
-<a id="odf-060"></a>
-
-## ODF-060 — Missing payload declarations
-
-Adding a referenced source file without the matching delivery declarations creates an incomplete installable payload, discovered only in CI.
-
-- **Sources:** [open-dough / DD-058](../../DearDough.md#odf-060--a-new-payload-file-was-published-without-being-declared-and-only-ci-noticed).
-- **Current evidence:** `b6f9515` / 0.3.26 and `128b404` / 0.3.28 repair particular declarations; general omission prevention remains open.
-
 <a id="odf-061"></a>
 
 ## ODF-061 — Ineffective shell assertions
@@ -395,6 +386,7 @@ Successive behavior slices clone native run and fixture scaffolding instead of s
 Nominally sufficient native acceptance fixtures do not actually satisfy their promises, and the same fault class is rediscovered through paid failing runs.
 
 - **Sources:** [open-dough / DD-096](../../DearDough.md#odf-096--native-acceptance-fixtures-sufficient-side-was-not-credible-and-each-case-paid-a-failed-run-to-learn-it).
+- **2026-09-27 assessment:** Kept as a published-skill finding, not project-owned: plan 089's own rule deferred test-support fixes until a paid run diagnosed a fault. The related planning-premise response `2c5ff71` / unreleased treats fixture content as a decisive premise and makes a paid-only remainder an early probe slice ([ODF-074](#odf-074), [ODF-114](#odf-114)); no native acceptance fixture has exercised it. [Native acceptance on Codex and Cursor](../../.planning/seeds/SEED-044-verify-planning-premises.md#native-premise-acceptance-codex-cursor) is queued; no separate story.
 
 <a id="odf-097"></a>
 
