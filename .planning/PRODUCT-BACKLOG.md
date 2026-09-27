@@ -14,11 +14,11 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Make every check's shell and Git environment explicit and reproduce CI's platform with one command](seeds/SEED-048-explicit-test-environment.md#explicit-test-environment) — SEED-048#explicit-test-environment ([plan](slice-plans/120-explicit-test-environment/PLAN.md))
+- [Bring the integrated CI verdict back under 120 s by splitting CI's checks across parallel jobs](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-round-2) — SEED-046#ci-verdict-round-2 ([plan](slice-plans/122-ci-verdict-parallel-jobs/PLAN.md))
 
 ## Backlog list
 
 - [See all project agents, their commissions, and human partners](seeds/SEED-049-project-agent-roster.md#project-agent-roster) — SEED-049#project-agent-roster
-- [Bring the integrated CI verdict back under 120 s by splitting CI's checks across parallel jobs](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-round-2) — SEED-046#ci-verdict-round-2
 - [Explain a missing native result path in every check that reads one](seeds/SEED-049-native-result-path-diagnosis.md#native-result-path-diagnosis) — SEED-049#native-result-path-diagnosis
 - [Confirm and repair backlog driver registration when the Git directory lacks info/](seeds/SEED-045-backlog-driver-without-info-dir.md#driver-without-info-dir) — SEED-045#driver-without-info-dir
 - [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers
