@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsukasa-chan",
+  "email": "tsukasa-chan@example.org",
+  "identity": "SEED-028#one-shot-entry-coherence",
+  "mode": "story-branch",
+  "branch": "exec/one-shot-entry-coherence",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

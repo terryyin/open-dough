@@ -13,9 +13,10 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Make one-shot read the same from every entry workflow](seeds/SEED-028-track-ad-hoc-work.md#one-shot-entry-coherence) — SEED-028#one-shot-entry-coherence ([plan](slice-plans/130-one-shot-entry-coherence/PLAN.md))
+
 ## Backlog list
 
-- [Make one-shot read the same from every entry workflow](seeds/SEED-028-track-ad-hoc-work.md#one-shot-entry-coherence) — SEED-028#one-shot-entry-coherence
 - [Accept one-shot natively on Claude Code, Codex and Cursor](seeds/SEED-028-track-ad-hoc-work.md#native-one-shot-acceptance) — SEED-028#native-one-shot-acceptance
 - [Execute a plan's slices in sequence](seeds/SEED-008-worktree-branch-trunk-sync.md#isolate-parallel-slice-delivery) — SEED-008#isolate-parallel-slice-delivery
 - [Keep the test runner's own settings from reaching the checks and product code it starts](seeds/SEED-051-isolate-test-runner-settings.md#isolate-runner-settings) — SEED-051#isolate-runner-settings
