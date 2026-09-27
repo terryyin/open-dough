@@ -8,13 +8,14 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
 # shellcheck source=tests/helpers/expect-in-log.bash
 source "${source_dir}/tests/helpers/expect-in-log.bash"
+# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/copy-runner.bash
+source "${source_dir}/tests/helpers/copy-runner.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 fixture="${temporary_dir}/source"
 mkdir -p -- "${fixture}/tests" "${fixture}/scripts" "${temporary_dir}/bin"
-# The runner and the parts it sources or runs.
-cp -- "${source_dir}/scripts/test.sh" "${source_dir}/scripts/test-jobs.sh" \
-  "${source_dir}"/scripts/*.bash "${fixture}/scripts/"
+copy_runner "${fixture}"
 markers="${temporary_dir}/markers"
 mkdir -p -- "${markers}"
 printf '#!/usr/bin/env bash\ntouch -- %q\n' "${markers}/self-check" \

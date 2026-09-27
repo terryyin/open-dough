@@ -26,9 +26,15 @@ if [[ -n ${split} ]]; then
   split_share=${BASH_REMATCH[1]} split_count=${BASH_REMATCH[2]}
 fi
 
-# OPEN_DOUGH_TEST_DIR names another directory of checks, such as substitutes
-# in a runner test; it replaces the suite's own checks entirely.
-test_dir=${OPEN_DOUGH_TEST_DIR:-tests}
+# scripts/test.sh resolves the test directory once (OPEN_DOUGH_TEST_DIR,
+# default `tests`) and hands it over. Another directory names substitute
+# checks, such as in a runner test; it replaces the suite's own checks
+# entirely.
+if [[ -z ${OPEN_DOUGH_TEST_DIR:-} ]]; then
+  printf 'FAIL: OPEN_DOUGH_TEST_DIR is unset; scripts/test.sh resolves the test directory and hands it over.\n' >&2
+  exit 1
+fi
+test_dir=${OPEN_DOUGH_TEST_DIR}
 declare -A job_kinds=()
 discovered=()
 # Adds one job once, as the kind given first.
@@ -88,7 +94,9 @@ else
     done < "${test_dir}/node-test-files"
   fi
 
-  if [[ -z ${OPEN_DOUGH_TEST_DIR:-} ]]; then
+  # The suite's own run also checks its installation; a substitute directory
+  # replaces the suite's own checks entirely.
+  if [[ ${test_dir} == tests ]]; then
     add_job shell 'scripts/check-self-installation.sh'
   fi
 fi

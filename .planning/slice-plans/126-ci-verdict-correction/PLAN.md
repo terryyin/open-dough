@@ -111,7 +111,7 @@ round-robin shares; narrowing `tests/payload-declaration-links-suite-failure.sh`
 
 ### 1. The runner alone owns its budget gate, its files, and its test directory
 Type: Structure
-Status: planned
+Status: done
 Proof: `PATH=/opt/homebrew/bin:$PATH bash tests/test-runner-budget.sh` shows
 the direct checker, with `CI` unset, exits 1 printing both `OVER BUDGET` lines,
 while the runner's CI-breach, local-breach, and within-budget cases keep their
@@ -146,4 +146,10 @@ with CI's job names, artifacts, and verdict unchanged.
 
 ## Learnings
 
-None yet.
+- Slice 1 (delivered): `scripts/test.sh` hands the resolved test directory to
+  `scripts/test-jobs.sh`, which now refuses an unset `OPEN_DOUGH_TEST_DIR` by
+  name. Slice 2's listing proof runs as
+  `OPEN_DOUGH_TEST_DIR=tests bash scripts/test-jobs.sh`.
+- The runner fixture copy set is `scripts/test.sh`, `scripts/test-jobs.sh`,
+  and `scripts/*.bash` (which also covers `scripts/test-environment.bash`);
+  `tests/helpers/copy-runner.bash` (`copy_runner`) is its one home.
