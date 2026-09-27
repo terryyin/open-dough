@@ -33,13 +33,14 @@ skill directory and not in the Open Dough source checkout. The file is not part
 of the release-declared managed payload.
 
 A project opts in by creating the file. The installer does not prompt, merge,
-or create a default. The JSON contract — including defaults, invocation
-overrides, and invalid-file handling — lives once in
+or create a default. When the file or its `skipProcessRetrospective` key is
+absent, process retrospectives are skipped. The JSON contract — including
+defaults, invocation overrides, and invalid-file handling — lives once in
 [Select reviews](../src/skills/dough-execution-retrospective/SKILL.md#select-reviews).
-A project that wants to skip process retrospectives uses that skill's example:
+A project that wants process retrospectives enables them:
 
 ```json
-{ "skipProcessRetrospective": true }
+{ "skipProcessRetrospective": false }
 ```
 
 Ordinary installation and update preserve an existing file byte-for-byte,

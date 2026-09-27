@@ -53,7 +53,7 @@ evidence.
 
 ### 1. Process review runs only when the project enables it
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior review walk of all five key examples against the changed
 skill text; `/opt/homebrew/bin/bash tests/install-preserves-open-dough-json.sh`
 exit 0; `node -e 'process.exit(require("./.planning/open-dough.json").skipProcessRetrospective===false?0:1)'`
@@ -72,3 +72,11 @@ absence means skipped. Update SEED-010's "on by default" bullet. Add this
 repository's `.planning/open-dough.json`. One slice: the documentation, record,
 and repository setting only restate or preserve the same rule, so separating
 them would not give independent progress or proof.
+
+Accepted proof: `/opt/homebrew/bin/bash tests/install-preserves-open-dough-json.sh`
+exit 0; the `node -e` check exit 0 on this repository's
+`.planning/open-dough.json`; `npm run lint` exit 0; behavior review walk of
+all five key examples against "Select reviews" in
+`src/skills/dough-execution-retrospective/SKILL.md` (missing file/key or
+`true` skips like `--skip-process`; `false` enables; override and
+unresolved-selection sentences unchanged). Refactor pass: no edits.

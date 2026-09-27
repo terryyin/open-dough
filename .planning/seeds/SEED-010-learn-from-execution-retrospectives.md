@@ -61,10 +61,11 @@ assumptions against its established near-future direction.
   retrospective has three focuses: code and design review leading to corrective
   planning when needed; process review recording experience for Open Dough;
   and product review informing the executing project's product backlog.
-- Process and product review are on by default. `--skip-process` skips process
-  review and its recording; `--skip-product` skips product review and its backlog
-  suggestions or changes. Both may be supplied together; neither skips code and
-  design review.
+- Product review is on by default; process review runs only when the project
+  sets `skipProcessRetrospective: false` or the request asks to include it.
+  `--skip-process` skips process review and its recording; `--skip-product`
+  skips product review and its backlog suggestions or changes. Both may be
+  supplied together; neither skips code and design review.
 - Product review may suggest or directly apply backlog changes: reprioritize,
   propose new stories, remove stories from the queue, or update canonical story
   details. Apply changes within the user's established authority and project
