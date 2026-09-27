@@ -19,6 +19,7 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Backlog list
 
 - [Give each dashboard browser test a server port no other worker can take](seeds/SEED-046-test-and-ci-optimization-round-2.md#dashboard-port-race) — SEED-046#dashboard-port-race
+- [Keep the split test runner and CI's split in one place each](seeds/SEED-046-test-and-ci-optimization-round-2.md#ci-verdict-correction) — SEED-046#ci-verdict-correction
 - [See all project agents, their commissions, and human partners](seeds/SEED-049-project-agent-roster.md#project-agent-roster) — SEED-049#project-agent-roster
 - [Explain a missing native result path in every check that reads one](seeds/SEED-049-native-result-path-diagnosis.md#native-result-path-diagnosis) — SEED-049#native-result-path-diagnosis
 - [Confirm and repair backlog driver registration when the Git directory lacks info/](seeds/SEED-045-backlog-driver-without-info-dir.md#driver-without-info-dir) — SEED-045#driver-without-info-dir
