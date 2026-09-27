@@ -7,7 +7,9 @@
 # Neither `npm test` nor CI uses it. It builds a cached image once, mounts this
 # checkout (and a linked worktree's common Git directory) at their host paths,
 # keeps node_modules in a container volume so host modules are neither used
-# nor overwritten, and runs as the host user with a container-local HOME.
+# nor overwritten, and runs as the host user with a container-local HOME. It
+# refuses, before any image work, a runtime it cannot reach and a directory or
+# path outside the checkout.
 set -euo pipefail
 
 # CI's platform, stated once; tests/ci-container.sh checks these against
@@ -32,16 +34,43 @@ if [[ ${1:-} == --dashboard ]]; then
 fi
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
-caller_dir=$(pwd -P)
+# Only the checkout is mounted, so the caller's directory, from which relative
+# paths resolve as scripts/test.sh resolves them, and every path must be in it.
+work_dir=$(pwd -P)
+# Prints DIR's physical path when it exists, or DIR as given.
+physical_dir() {
+  (cd -- "$1" 2> /dev/null && pwd -P) || printf '%s\n' "$1"
+}
+refuse_outside() {
+  case $2/ in
+    "${source_dir}"/*) ;;
+    *)
+      printf 'ci-container.sh: %s %s is outside this checkout (%s), which is all the container mounts.\n' \
+        "$1" "$3" "${source_dir}" >&2
+      exit 2
+      ;;
+  esac
+}
+refuse_outside 'the current directory' "${work_dir}" "${work_dir}"
+for path in "$@"; do
+  resolved=${path}
+  [[ ${resolved} == /* ]] || resolved=${work_dir}/${resolved}
+  parent=$(dirname -- "${resolved}")
+  parent=$(physical_dir "${parent}")
+  refuse_outside path "${parent}" "${path}"
+done
+
+# A runtime whose daemon cannot be reached is as absent as a missing one.
+if ! docker info > /dev/null 2>&1; then
+  printf 'ci-container.sh: no container runtime: docker cannot reach its daemon (docker info failed).\n' >&2
+  printf 'Start the Docker-compatible runtime (for example colima start on macOS), then rerun.\n' >&2
+  exit 1
+fi
+
 # A linked worktree's `.git` file points into the common Git directory, so it
 # is mounted too; in a main checkout it is inside the checkout already.
 common_dir=$(git -C "${source_dir}" rev-parse --path-format=absolute --git-common-dir)
 common_dir=$(cd -- "${common_dir}" && pwd -P)
-# Relative paths resolve from the caller's directory, as scripts/test.sh does.
-case ${caller_dir}/ in
-  "${source_dir}"/*) work_dir=${caller_dir} ;;
-  *) work_dir=${source_dir} ;;
-esac
 
 # CI installs the Playwright Chromium matching the project's locked version.
 playwright_version=$(awk '

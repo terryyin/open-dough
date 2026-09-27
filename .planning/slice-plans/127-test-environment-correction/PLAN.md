@@ -122,7 +122,7 @@ because the product itself forbids a guessed identity.
 
 ### 2. The container command refuses what it cannot run
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/ci-container.sh` gains a substitute `docker` on `PATH` whose
 daemon probe fails: the script exits non-zero naming the unavailable runtime
 and never attempts a build; a path outside the checkout exits non-zero
@@ -167,3 +167,15 @@ into one section. Directly owned retrospective correction.
   identity, the `ok === false` assertion fails instead); restored, it passes.
 - `tests/README.md` is 267 lines at the claim (`cadcc27`), not 247: slice 4
   must remove more than the finding assumed to meet the 250-line limit.
+- Slice 2 accepted proof: `PATH=/opt/homebrew/bin:$PATH npm test --
+  tests/ci-container.sh` exits 0; `expect_refusal` cases (daemon down,
+  absolute and relative outside paths, caller directory outside) each assert a
+  non-zero exit, the named refusal, and no `docker` call but `info`. The new
+  cases fail against the pre-change script; manual
+  `DOCKER_HOST=tcp://127.0.0.1:1 scripts/ci-container.sh tests/ci-container.sh`
+  printed only the refusal. A caller directory outside the checkout is refused
+  even with no paths, per the recorded decision.
+- Known limit: a nonexistent path whose `..` escapes the checkout (for example
+  `tests/../../nope/x`) is not refused up front, because only existing
+  directories are resolved; it still fails inside the container, after image
+  work.
