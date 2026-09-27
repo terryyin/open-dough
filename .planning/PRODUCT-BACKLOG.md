@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Preserve lasting rules from every record wrap-up deletes](seeds/SEED-004-extract-and-adopt-project-guidance.md#preserve-rules-from-story-sections) — SEED-004#preserve-rules-from-story-sections ([plan](slice-plans/134-preserve-rules-from-story-sections/PLAN.md))
-
 ## Backlog list
 
 - [Accept one-shot natively on Claude Code](seeds/SEED-028-track-ad-hoc-work.md#native-one-shot-acceptance) — SEED-028#native-one-shot-acceptance
