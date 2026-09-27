@@ -83,7 +83,7 @@ by this plan.
 
 ### 1. The stash check proves a failed save by behavior
 Type: Behavior
-Status: planned
+Status: done
 Proof: Before editing, run the check in `node:24-bookworm` (Git 2.39) with
 the worktree mounted, and record the wording failure at
 `ci-repair-stash.test.mjs:135`. After the change, the same command, the
@@ -93,6 +93,16 @@ Behavior: an index lock blocks the save → the stash helper saves →
 status `failed`, exit 1, no recorded `oid`, and the foreign stash and dirty
 files unchanged, asserted without Git's error text. Keep the helper's
 reported error non-empty so a maintainer still sees Git's reason.
+
+Accepted proof (2026-09-27): before the edit, `docker run --rm --user
+$(id -u):$(id -g) -e HOME=/tmp -v $W:$W -w $W node:24-bookworm bash -c 'git
+--version && node --test src/skills/dough-execute-plan/scripts/ci-repair-stash.test.mjs'`
+(Git 2.39.5) failed only at line 135: `saved.error` was `Command failed: git
+stash push --include-untracked -m …`, not matching `/could not write
+index|index\.lock/`. After the edit (`assert.match(saved.error, /\S/)`), the
+same file passes 7/7 in that container and 7/7 locally (Apple Git 2.50.1). The
+refactor pass gave both fixture repositories one `initFixtureRepo` helper with
+repository-local identity, bringing the file to the 250-line limit.
 
 ### 2. Every check the runner starts sees CI's Git state
 Type: Behavior
@@ -179,3 +189,14 @@ Behavior: a dashboard check fails only on CI → `scripts/ci-container.sh
   (the machine was loaded; SEED-046 owns that report). Slice 2 therefore
   needs no check repairs for identity or configuration; its runner check
   still owns the proof.
+- **Git 2.39 does not always carry Git's reason into the stash helper's error
+  (slice 1, 2026-09-27).** Under Debian's Git 2.39.5 the failed save's error
+  held only Node's `Command failed: …` line. The check now asserts a non-empty
+  error, which holds; making the helper surface Git's stderr on every version
+  is outside this story.
+- **Container mounts (slice 1, 2026-09-27).** A linked worktree mounted alone
+  cannot resolve its `.git` file (`fatal: not a git repository`), as slice 4
+  plans. One agent's host-path mount under Colima ran the tests while another
+  reported node "Could not find" the file at the host path and succeeded with
+  `/work`; slice 4 must confirm host-path mounting from this worktree before
+  relying on it.
