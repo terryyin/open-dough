@@ -17,7 +17,7 @@ scope: 1 story
 
 **Identity:** SEED-049#dashboard-dev-port
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planless"}
+{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"aec1f6bfdeed02bc6db5a13efb2f109f64f103b73641666e32df12d82296811f"}}
 ```
 
 **Goal:** Running the dashboard development server does not compete with the donut project's development server for its port.
