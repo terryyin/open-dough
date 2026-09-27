@@ -161,7 +161,7 @@ sourced `scripts/test-jobs.bash`; runner fixtures copy `scripts/test-*.bash`.
 
 ### 4. One command runs chosen checks on CI's platform
 Type: Behavior
-Status: planned
+Status: done
 Proof: Automated `tests/ci-container.sh` (no container runtime needed): with
 no `docker` on `PATH`, the script exits non-zero naming the missing runtime;
 and its stated Ubuntu and Node versions match `.github/workflows/ci.yml`.
@@ -181,6 +181,17 @@ Behavior: a check fails only on CI → `scripts/ci-container.sh <path>` from
 any checkout → it runs on CI's platform without manual setup. The tests
 README replaces its "check in a Linux container such as `ubuntu:24.04`"
 advice with this command and states that it is for diagnosis only.
+
+Accepted proof (2026-09-27): `npm test -- tests/ci-container.sh` failed before
+the script existed and passes after it. From this linked worktree,
+`scripts/ci-container.sh tests/test-runner-bash.sh` and
+`scripts/ci-container.sh scripts/check-self-installation.sh` print
+`ci-container: git version 2.55.0, node v24.21.0` and exit 0; `git status`
+showed no new files and no file owned by another user; host `node_modules`
+was untouched. The whole suite in the container exited 0 in 1m37s with only a
+budget report (the budget is not enforced outside CI). The first image build
+took about 2.5 minutes; cached runs start in seconds. The `--dashboard` smoke
+built and ran the browser suite; its one container-only output is slice 5's.
 
 ### 5. The dashboard browser suite runs on CI's platform
 Type: Behavior
@@ -240,3 +251,12 @@ Behavior: a dashboard check fails only on CI → `scripts/ci-container.sh
 - **`npm test` resolves relative paths from the repository root (slice 3).**
   npm starts the runner there; using `INIT_CWD` instead would leak into nested
   runner runs, so the README documents the root-relative behavior.
+- **Colima's virtiofs shows a mount root as root-owned until it is read
+  (slice 4, 2026-09-27).** Git then refused the worktree as "dubious
+  ownership", and the runner's Git environment rules out `safe.directory`, so
+  the container lists both mount roots first. Ownership seen inside the
+  container is meaningless under Colima; check it on the host. Host-path
+  mounting itself proved reliable here.
+- **The dashboard's container steps mirror CI's dashboard job by hand (slice
+  4).** A new CI dashboard step needs the same change in
+  `scripts/ci-container.sh`.

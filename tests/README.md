@@ -119,8 +119,35 @@ off, and no identity or default branch, so a commit fails unless the check
 sets an identity (`scripts/test-environment.bash`). CI's Bash can
 be older than a local Homebrew Bash and behave differently inside traps (for
 example, before Bash 5.3 a bare `return` in a function called from a trap takes
-the interrupted command's status); check runner and trap changes in a Linux
-container such as `ubuntu:24.04`.
+the interrupted command's status); check runner and trap changes on CI's
+platform, as below.
+
+### Reproducing CI's platform
+
+When a check fails only on CI, or a runner or trap change needs CI's Bash and
+Git, run it on CI's platform:
+
+```sh
+scripts/ci-container.sh tests/test-runner-bash.sh   # chosen checks
+scripts/ci-container.sh                             # the whole suite
+scripts/ci-container.sh --dashboard                 # the dashboard job
+```
+
+It is for diagnosis only: neither `npm test` nor CI uses it, and ordinary runs
+stay native. It needs `docker` on `PATH` (for example Colima on macOS) and
+stops naming the missing runtime otherwise. On first use it builds a cached
+image from CI's Ubuntu with Git from the `git-core` PPA, `jq`, CI's Node, and
+the locked Playwright Chromium with its system dependencies; the Ubuntu and
+Node versions are stated once in the script, and `tests/ci-container.sh`
+checks them against `.github/workflows/ci.yml`. Each run mounts the checkout,
+and a linked worktree's common Git directory, at their host paths, keeps
+`node_modules` in a container volume so host modules are neither used nor
+overwritten, runs `npm ci`, prints the Git and Node versions, and then runs
+`scripts/test.sh` with the given paths, or the dashboard typecheck, build, and
+browser suite. It runs as the host user with a container-local `HOME`, so
+files it writes in the checkout stay yours. The image uses the host's native
+architecture, which may differ from CI's x86_64. `CI` is not set, so the time
+budget is reported rather than enforced, as on any local run.
 
 A test stops or releases what it started before removing the fixture those
 things run from. `node:test` runs `t.after` hooks in registration order, so a
