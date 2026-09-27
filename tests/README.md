@@ -2,52 +2,108 @@
 
 Run every check through the runner. `npm test` (or `bash scripts/test.sh`)
 runs the whole suite; naming paths runs exactly those shell checks (`.sh`) or
-`node --test` files (`.mjs`, `.js`), with the same scheduling and silence rule
-and without the suite's time budget:
+`node --test` files (`.mjs`, `.js`):
 
 ```sh
-npm test -- tests/payload-declaration-links.sh tests/support/dashboard-dev-port.test.mjs
+npm test -- tests/payload-declaration-links.sh \
+  tests/support/dashboard-dev-port.test.mjs
 bash scripts/test.sh tests/payload-declaration-links.sh
 ```
 
 A relative path is resolved from the directory `scripts/test.sh` starts in;
-`npm test` starts it at the repository root. A path that is not a file, or not one of those kinds, fails the run naming it before
-any check starts. Running a check directly (`bash tests/<name>.sh` or
-`node --test <file>`) is unsupported: checks and their fixtures rely on the
-Bash and Git environment the runner gives them, described below.
-The exception is a check's own options, such as the manually triggered paid
-native runs and inventories in `tests/native-adr-awareness-wrappers.md`: the
-runner passes no options, so invoke those wrappers directly with Bash 5 first
-on `PATH`, outside the runner's Git environment.
+`npm test` starts it at the repository root. A path that is not a file, or not
+one of those kinds, fails the run naming it before any check starts.
 
-Shell tests require **Bash 5 or newer**, with that `bash` first on `PATH`.
-macOS's bundled Bash 3.2 can silently ignore failing `[[ ... ]]` assertions
-under `set -e`, and the runner times each check with `EPOCHREALTIME`, which
-Bash 5 introduced. The runner therefore checks the resolved child Bash before
-running any checks, for the suite or chosen checks alike, and refuses
-unsupported versions. Launching the runner with an explicit newer Bash path
-alone is insufficient: the tests also launch `bash` through `PATH`.
+## Check environment
 
-Install a current Bash using your preferred package manager, then put its bin
-directory first on `PATH`, for example:
+The runner gives every check, in the whole suite or a chosen run alike, the
+environment in `scripts/test-environment.bash`, before any check starts:
+
+- **Bash 5 or newer, first on `PATH`.** macOS's Bash 3.2 can silently ignore
+  failing `[[ ... ]]` assertions under `set -e`, and the runner times checks
+  with Bash 5's `EPOCHREALTIME`. Checks launch `bash` through `PATH`, so the
+  runner refuses an older `bash` there even when a newer one started it; put a
+  current Bash's bin directory first, for example
+  `PATH="/path/to/current-bash/bin:$PATH" npm test`. This is a contributor
+  requirement; the product installer still supports Bash 3.2.
+- **CI's Git state.** No global, system, or inherited configuration or
+  identity variables; automatic maintenance off, so no detached repack
+  rewrites `.git/objects` while a check snapshots or removes a fixture; no
+  identity or default branch, so a commit fails unless the check sets one (a
+  shell fixture gets it from `tests/helpers/release-fixture.bash`'s
+  `configure_fixture_git`).
+- **Chosen checks follow the same rules**, silence included, but are not held
+  to the time budget (`tests/test-runner-selection.sh` proves a chosen run).
+
+Running a check directly (`bash tests/<name>.sh`, `node --test <file>`) is
+unsupported, except for a check's own options, which the runner never passes:
+invoke the native ADR-awareness wrappers (manually triggered paid runs and
+inventories, described with their proof scripts in
+`tests/native-adr-awareness-wrappers.md`) directly, with Bash 5 first on
+`PATH`, outside the runner's Git state. CI's Bash can be older than a local
+one and behave differently inside traps (before Bash 5.3 a bare `return` in a
+function called from a trap takes the interrupted command's status).
+
+### Reproducing CI's platform
+
+When a check fails only on CI, or a runner or trap change needs CI's Bash and
+Git, check it on CI's platform:
 
 ```sh
-PATH="/path/to/current-bash/bin:$PATH" npm test
-PATH="/path/to/current-bash/bin:$PATH" npm test -- tests/payload-declaration-links-suite-failure.sh
+scripts/ci-container.sh tests/test-runner-bash.sh   # chosen checks
+scripts/ci-container.sh                             # the whole suite
+scripts/ci-container.sh --dashboard                 # the dashboard job
 ```
 
-This is a contributor test requirement; the product installer continues to
-support Bash 3.2.
+It is for diagnosis only: neither `npm test` nor CI uses it, and ordinary runs
+stay native. It needs `docker` on `PATH` (for example Colima on macOS) with a
+reachable daemon, and otherwise stops naming the unavailable runtime before
+any image work. On first use it builds a cached image from CI's Ubuntu with
+Git from the `git-core` PPA, `jq`, CI's Node, and the locked Playwright
+Chromium with its system dependencies. The script states the Ubuntu and Node
+versions and the dashboard job's commands once, and `tests/ci-container.sh`
+checks them against `.github/workflows/ci.yml`. The image tag follows the
+build recipe, so a new Ubuntu, Node, or Playwright version builds a new image;
+Git and Node releases are fixed at build. A rebuild reuses Docker's build
+cache, which cannot be pruned per image, so to refresh them remove the image
+and prune all of Docker's build cache, every project's; the next run rebuilds:
 
-The runner is the suite's one scheduler. Its jobs are each `tests/*.sh` outside
-`tests/support/`, plus each `node --test` file matched by a glob in
+```sh
+docker image rm $(docker image ls -q open-dough-ci) && docker builder prune
+```
+
+Each run mounts the checkout, and a linked worktree's common Git directory, at
+their host paths, keeps `node_modules` in a container volume so host modules
+are neither used nor overwritten, runs `npm ci`, prints the Git and Node
+versions, and then runs `scripts/test.sh` with the given paths, or the
+dashboard job's commands unsharded with `CI=true` (so Playwright's
+`forbidOnly` and HTML report apply). `scripts/test.sh` runs with `CI` unset,
+as on any local run. A path or caller directory outside the checkout is
+refused by name. It runs as the host user with a container-local `HOME`, so
+files it writes in the checkout stay yours. The image uses the host's native
+architecture, which may differ from CI's x86_64.
+
+Font-dependent layout is not reproduced: with `15362af`'s layout fix reverted,
+CI failed two 320 CSS pixel checks by a fraction of a pixel (`toBeInViewport`
+ratios of 0.99) that `--dashboard` passed on an aarch64 host, and the image
+run as `linux/amd64` under QEMU crashed Chromium. For such a failure, CI's
+retained trace (`dashboard-playwright-diagnostics`) is the evidence.
+
+## Runner
+
+The runner is the suite's one scheduler. Its jobs are each `tests/*.sh`
+outside `tests/support/`, plus each `node --test` file matched by a glob in
 `tests/node-test-files` (relative to the repository root), such as the suites
-beside a skill's scripts under `src/skills/`. A new `*.test.mjs` under a listed
-glob runs without further wiring. Each node file runs alone through
-`tests/support/node-test-failures-reporter.mjs`, which prints nothing when
-every test passes silently. It shows each failing test's name, location,
-error, and its file's captured output, and any output a passing file wrote,
-under `output from passing <file>:`. No job starts a worker pool of its own.
+beside a skill's scripts under `src/skills/`. A new `*.test.mjs` under a
+listed glob runs without further wiring. Each node file runs alone through
+`tests/support/node-test-failures-reporter.mjs`: silent when every test passes
+silently, it shows each failing test's name, location, error, and its file's
+output, and a passing file's output under `output from passing <file>:`. No
+job starts a worker pool of its own.
+`OPEN_DOUGH_TEST_DIR` names another directory of checks, with its own optional
+`node-test-files`, `longest-first`, and `time-budget`, to run instead of the
+suite's own, which is how `tests/test-runner-failure-report.sh` runs
+substitute checks. Chosen paths replace that discovery.
 
 The runner runs one job per online CPU at a time; each job keeps its own
 temporary directory. `OPEN_DOUGH_TEST_JOBS` selects another count, 1 or more.
@@ -63,68 +119,57 @@ longest first, which is how that list is refreshed (see its header). Jobs
 inherit neither setting, so a check that runs the runner itself runs all of its
 own checks and keeps its own times. CI runs the suite as split jobs, each with
 `OPEN_DOUGH_TEST_SPLIT` set to its share; each fails on its own share's
-failures or budget breach and keeps its times file for seven days as its
-`test-times-<i>` workflow artifact.
+failures or budget breach and keeps its times for seven days as workflow
+artifact `test-times-<i>`.
 
-The suite's time budget lives in `tests/time-budget`: two numbers, a per-job
-ceiling (`per-job-seconds`) and a total ceiling over one run's jobs
-(`total-job-seconds`), set from CI's `test-times-<i>` with headroom. The budget
-is CI's: after a CI run (`CI=true`) of the whole suite or a split share, the
-runner compares the same job times with it (`scripts/test-budget.sh`), so each
-split job is judged on its own share; a run of chosen checks is not held to it.
-Within budget it prints nothing. A breach prints, after any failure reports,
-one line per job over the per-job ceiling and one for a total over the total
-ceiling, for example:
+The suite's time budget lives in `tests/time-budget`: a per-job ceiling
+(`per-job-seconds`) and a total ceiling over one run's jobs
+(`total-job-seconds`), set from CI's `test-times-<i>` with headroom. The
+ceilings are calibrated to CI's runner, so only after a CI run (`CI=true`) of
+the whole suite or a split share does the runner compare that run's job times
+with them (`scripts/test-budget.sh`); elsewhere it prints no budget report and
+the exit status comes only from the checks. Within budget it prints nothing. A
+breach fails the run and prints, after any failure reports, one line per job
+over the per-job ceiling and one for a total over the total ceiling:
 
 ```text
 OVER BUDGET: tests/install.sh took 78.4s; the per-job ceiling is <per-job-seconds>s (tests/time-budget).
 OVER BUDGET: all jobs took 482.4 job-seconds; the total ceiling is <total-job-seconds> (tests/time-budget).
 ```
 
-A breach fails that split job. The ceilings are calibrated to CI's runner, so
-a run anywhere else is not judged against them: it prints no budget report and
-its exit status comes only from the checks. Fix the slow job rather than the
-number: raising a ceiling is an explicit edit of `tests/time-budget`, reviewed
-like any other change. A substitute test directory (`OPEN_DOUGH_TEST_DIR`) is held to its own
-`time-budget` if it has one; `tests/test-runner-budget.sh` proves the
-behavior that way.
+Fix the slow job rather than the number: raising a ceiling is an explicit,
+reviewed edit of `tests/time-budget`. `tests/test-runner-budget.sh` proves
+the budget with a substitute directory.
 
 A passing job must write nothing, so a passing suite prints nothing. For each
-failing job the runner prints `FAIL: <job>` and that job's captured output.
-A shell check that stopped on a failing command under `set -e` has, in that
+failing job the runner prints `FAIL: <job>` and that job's captured output. A
+shell check that stopped on a failing command under `set -e` has, in that
 output, `stopped at <file>:<line>: <command>`, naming the check or the support
-file it sourced. A command that failed inside `$(...)` is named by the line
-running that substitution, for example
-`stopped at tests/x.sh:12: attempt=$(awk ...)`. A command that failed inside a
-`( ... )` subshell is named twice: at that command and at the subshell's line.
-The runner starts each shell
-check with `tests/support/check-stop-report.bash` through `BASH_ENV`, so no
-check carries a trap of its own. A failure the check handles (under `set +e`,
-in an `if`, after `||`) and a check's own `exit 1` get no such line, and
-scripts a check launches do not load the reporter. A job that exits 0 but
-wrote anything to stdout or stderr also fails the run,
-reported as `FAIL: <job> (passed but printed output)` with that output. A job
-whose shell ends without recording an exit status (for example because it was
-killed) is reported as `FAIL: <job> (ended without recording an exit status)`
-with its output, and the run still finishes. Silence such output at its source (for example `grep -q`, or a quiet flag or
-setting on the noisy command) rather than filtering it. `OPEN_DOUGH_TEST_DIR`
-names another directory of checks, with its own optional `node-test-files` and
-`longest-first`, to run instead of the suite's own, which is how
-`tests/test-runner-failure-report.sh` runs substitute checks. Chosen paths
-replace that discovery, and `tests/test-runner-selection.sh` proves a chosen
-run.
+file it sourced; a failure inside `$(...)` is named by the substitution's line
+(`stopped at tests/x.sh:12: attempt=$(awk ...)`), and one inside a `( ... )`
+subshell both at that command and at the subshell's line. The runner loads
+`tests/support/check-stop-report.bash` into each shell check through
+`BASH_ENV`, so no check carries a trap of its own. A failure the check handles
+(under `set +e`, in an `if`, after `||`), a check's own `exit 1`, and scripts a
+check launches get no such line. A job that exits 0 but wrote to stdout or
+stderr fails as `FAIL: <job> (passed but printed output)`, and one whose shell
+ends without recording an exit status (for example, killed) as
+`FAIL: <job> (ended without recording an exit status)`, each with its output;
+the run still finishes. Silence output at its source (`grep -q`, a quiet flag)
+rather than filtering it.
 
 Each job runs in a process group of its own, so a terminal's Ctrl-C reaches
-the runner rather than the jobs. On INT or TERM the runner stops the process
-group of each job still running and prints, for it and for any job the same
-signal ended, `INTERRUPTED: <job> (after <seconds>s)` and the last lines of its
-output; it then exits 130 for INT or 143 for TERM. Workers a check detaches
-from its process group are that check's own teardown.
-`tests/test-runner-interrupt.sh` proves this with substitute checks.
-`npm test` execs the runner (`package.json`), and CI's test step execs `npm`,
-so a signal sent only to the step's top process, as a cancelled Actions run
-does, still reaches the runner (see that step's comment in
+the runner rather than the jobs. On INT or TERM the runner stops each running
+job's process group and prints, for it and for any job the same signal ended,
+`INTERRUPTED: <job> (after <seconds>s)` and the last lines of its output; it
+then exits 130 for INT or 143 for TERM (`tests/test-runner-interrupt.sh`).
+Workers a check detaches from its process group are that check's own
+teardown. `npm test` execs the runner (`package.json`) and CI's test step
+execs `npm`, so a signal sent only to the step's top process, as a cancelled
+Actions run does, still reaches the runner (see that step's comment in
 `.github/workflows/ci.yml`).
+
+## Waits, fixtures, and teardown
 
 Tests wait for an observable event, never for elapsed wall time. Shell checks
 use `wait_for` or `poll_until` from `tests/helpers/wait-for.bash`; a missed
@@ -132,49 +177,7 @@ event fails naming what it awaited. A wait for a signal from a started process
 lasts while that process lives and fails, naming its exit, if it ends first
 (`src/skills/dough-execute-plan/scripts/process-lifetime-test-fixtures.mjs`).
 File timestamps that must differ are set explicitly, and the dashboard's timed
-journeys step a paused page clock. The runner gives every check CI's Git
-state: no global, system, or inherited configuration, automatic maintenance
-off, and no identity or default branch, so a commit fails unless the check
-sets an identity (`scripts/test-environment.bash`). CI's Bash can
-be older than a local Homebrew Bash and behave differently inside traps (for
-example, before Bash 5.3 a bare `return` in a function called from a trap takes
-the interrupted command's status); check runner and trap changes on CI's
-platform, as below.
-
-### Reproducing CI's platform
-
-When a check fails only on CI, or a runner or trap change needs CI's Bash and
-Git, run it on CI's platform:
-
-```sh
-scripts/ci-container.sh tests/test-runner-bash.sh   # chosen checks
-scripts/ci-container.sh                             # the whole suite
-scripts/ci-container.sh --dashboard                 # the dashboard job
-```
-
-It is for diagnosis only: neither `npm test` nor CI uses it, and ordinary runs
-stay native. It needs `docker` on `PATH` (for example Colima on macOS) and
-stops naming the missing runtime otherwise. On first use it builds a cached
-image from CI's Ubuntu with Git from the `git-core` PPA, `jq`, CI's Node, and
-the locked Playwright Chromium with its system dependencies; the Ubuntu and
-Node versions are stated once in the script, and `tests/ci-container.sh`
-checks them against `.github/workflows/ci.yml`. Each run mounts the checkout,
-and a linked worktree's common Git directory, at their host paths, keeps
-`node_modules` in a container volume so host modules are neither used nor
-overwritten, runs `npm ci`, prints the Git and Node versions, and then runs
-`scripts/test.sh` with the given paths, or the dashboard typecheck, build, and
-browser suite. It runs as the host user with a container-local `HOME`, so
-files it writes in the checkout stay yours. The image uses the host's native
-architecture, which may differ from CI's x86_64. `CI` is not set, so the time
-budget is not applied, as on any local run.
-
-Font-dependent layout differences are not reproduced. With `15362af`'s layout
-fix reverted, CI failed two 320 CSS pixel checks by a fraction of a pixel
-(`toBeInViewport` ratios of 0.99), while `--dashboard` on an aarch64 host
-passed them; running the image as `linux/amd64` under the runtime's QEMU
-emulation crashed Chromium throughout the suite. For such a failure, CI's
-retained trace (`dashboard-playwright-diagnostics`) is the evidence; the
-command still runs the whole dashboard suite as CI does.
+journeys step a paused page clock.
 
 A test stops or releases what it started before removing the fixture those
 things run from. `node:test` runs `t.after` hooks in registration order, so a
@@ -187,10 +190,8 @@ removed, and then a failing step fails the test; no stop swallows its failure.
 A shared fixture that starts something owns this teardown and hands it to
 its callers. The steps are:
 
-- `deferWorkerStop` requests an in-process mailbox worker's stop and awaits
-  it;
-- `deferChildExit` signals one of the test's own child processes and awaits
-  its exit;
+- `deferWorkerStop` requests an in-process mailbox worker's stop, awaiting it;
+- `deferChildExit` signals a test's own child process and awaits its exit;
 - `deferObserverStop` (`watch-ci-test-fixtures.mjs`) runs a CI observer's real
   `stop`, skipped when its worker is already dead, and asserts that the
   recorded worker exited;
@@ -208,30 +209,10 @@ fixture (`dashboard/tests/dashboardTest.ts`), which removes them only after
 the page, its dashboard server, and the fake GitHub have stopped, so a read
 still in flight when the journey ends never finds its repository gone.
 
-A shell Git fixture repository gets its identity from `configure_fixture_git`
-(`tests/helpers/release-fixture.bash`). The runner's Git state keeps automatic
-maintenance off, so no detached repack is still rewriting `.git/objects` while
-the check snapshots or removes the fixture. Fixture snapshots prune `.git`
-rather than walking it.
-A payload-update check builds its older and newer tagged releases with
-`build_upgrade_releases` from the same helper, withholding the older release's
+Fixture snapshots prune `.git` rather than walking it. A payload-update check
+builds its older and newer tagged releases with `build_upgrade_releases` from
+`tests/helpers/release-fixture.bash`, withholding the older release's
 declarations and sources instead of editing a copied installer by hand.
-
-The native ADR-awareness check wrappers and their focused proof scripts are
-described in `tests/native-adr-awareness-wrappers.md`.
-
-## Payload declaration link checks
-
-`tests/payload-declaration-links.sh` checks that every relative link in a
-declared Markdown file under `src/skills/` points at a file declared in
-`install.sh`'s `managed_files`, without running the installer. An undeclared
-target fails explicitly and names the linking file and the link.
-
-`tests/payload-declaration-links-suite-failure.sh` adds a deliberately
-missing link to story guidance in a disposable fixture and checks that the real
-declaration check reports it and that the failure propagates through
-`scripts/test.sh`. This is focused coverage of that check, not certification of
-every shell assertion.
 
 ## Shared installation and update protections
 
@@ -247,15 +228,17 @@ check proves only what its own payload adds:
 | Ordinary update refuses an unrelated file at a newly managed path | `tests/story-payload-update.sh` |
 | Linked supporting files are declared | `tests/payload-declaration-links.sh` |
 
-A new payload file needs a declaration, not another copy of these proofs.
+`tests/payload-declaration-links.sh` reads `install.sh`'s `managed_files`
+without running the installer and fails naming each relative link, in a
+declared Markdown file, to an undeclared file. A new payload file needs a
+declaration, not another copy of these proofs.
 
 ## Installation and update coverage gaps
 
-The installer and updater checks prove each promise once at its boundary:
-the codex and cursor hints share the `.agents` entry root, so one of them
-represents both, and each shared protection above is proved once by its owning
-check, including in the sibling `.claude` root. No check yet observes these
-installation and update promises:
+The installer and updater checks prove each promise once at its boundary: the
+codex and cursor hints share the `.agents` entry root, so one represents both,
+and each shared protection above is proved once by its owning check, also in
+the sibling `.claude` root. No check yet observes these promises:
 
 - refusing a requested version (`--version`, `--tag`, or `v1.2.3`) instead of
   installing the latest numeric release;
