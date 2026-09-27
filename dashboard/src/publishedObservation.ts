@@ -13,7 +13,8 @@ import { readMovedProgress } from "./movedBranchProgress.ts";
 import { watchedBranchHeads } from "./progressSource.ts";
 import { usePageVisibility } from "./pageVisibility.ts";
 import { defaultSource, type PublishedSource } from "./publishedSource.ts";
-import { readPublishedWork, type PublishedWork } from "./publishedWork.ts";
+import type { PublishedWork } from "./publishedWork.ts";
+import { readPublishedWork } from "./publishedWorkRead.ts";
 import { useObservationAttempt } from "./observationAttempt.ts";
 import { useRevisionCheckSchedule } from "./revisionCheckSchedule.ts";
 import {

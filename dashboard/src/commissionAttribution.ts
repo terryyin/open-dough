@@ -18,6 +18,7 @@ import {
 import type { ProfileAssignments } from "./agentAssignments.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { ReadProblem } from "./readProblem.ts";
+import { unansweredWithinReadWait } from "./readWaitBound.ts";
 
 export type HumanAttribution =
   | { readonly status: "loading" }
@@ -54,7 +55,8 @@ function attributionOf(
 }
 
 // One profile's attribution at the snapshot's revision; a failed or
-// abandoned read is its gap.
+// abandoned read is its gap, and so is a walk still unanswered at the
+// snapshot's wait bound: the snapshot itself was read.
 async function attributionAt(
   source: PublishedSource,
   profilePath: string,
@@ -72,34 +74,39 @@ async function attributionAt(
       problem:
         error instanceof ReadProblem
           ? error.message
-          : "The commit that added this agent profile could not be read.",
+          : signal.aborted
+            ? `${unansweredWithinReadWait} while reading the commit that added this agent profile.`
+            : "The commit that added this agent profile could not be read.",
     };
   }
 }
 
 // The snapshot's commissions, each with the human its own profile credits,
 // read once per readable profile; `withAssignments` places them wherever
-// assignments are shown.
+// assignments are shown. Each human is passed on to `onAttributed` as soon as
+// its own walk ends, so a slow walk delays only its own credit.
 export async function readAttributedAssignments(
   source: PublishedSource,
   revision: string,
   assignments: ProfileAssignments | undefined,
   signal: AbortSignal,
+  onAttributed?: (assignments: ProfileAssignments) => void,
 ): Promise<ProfileAssignments | undefined> {
-  return (
-    assignments && {
-      ...assignments,
-      commissions: await Promise.all(
-        assignments.commissions.map(async (commission) => ({
-          ...commission,
-          human: await attributionAt(
-            source,
-            commission.profilePath,
-            revision,
-            signal,
-          ),
-        })),
-      ),
-    }
+  if (assignments === undefined) {
+    return undefined;
+  }
+  let attributed = assignments;
+  await Promise.all(
+    assignments.commissions.map(async ({ profilePath }, index) => {
+      const human = await attributionAt(source, profilePath, revision, signal);
+      attributed = {
+        ...attributed,
+        commissions: attributed.commissions.map((commission, each) =>
+          each === index ? { ...commission, human } : commission,
+        ),
+      };
+      onAttributed?.(attributed);
+    }),
   );
+  return attributed;
 }

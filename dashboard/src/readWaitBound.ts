@@ -1,8 +1,11 @@
 // The shared wait bound (`./authenticatedReadRules.ts`'s `readWaitLimitMs`) on
-// one read the page makes: of a snapshot (`./publishedWork.ts`), or of only
+// one read the page makes: of a snapshot (`./publishedWorkRead.ts`), or of only
 // the progress on moved story branches (`./movedBranchProgress.ts`).
 
 import { readWaitLimitMs } from "./authenticatedReadRules.ts";
+
+// How a read, or one detail of it, still unanswered at the bound is said.
+export const unansweredWithinReadWait = `GitHub did not answer within ${readWaitLimitMs / 1000} seconds`;
 
 // Runs `read` with a signal that aborts when `signal` does or when the bound
 // passes, whichever comes first; `bound` aborts only when the bound passed.

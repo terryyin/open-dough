@@ -109,7 +109,7 @@ plans one), live presence, historical commissions, and any new roster feature.
 
 ### 1. Clocks do not wait for human credit
 Type: Behavior
-Status: planned
+Status: done
 Proof: A Playwright step in the roster attribution/avatar journey holds one
 commit read: the Taken card's slice clock is shown while its human reads
 "Reading human developer…"; releasing the read fills the name. A walk that
@@ -119,6 +119,17 @@ snapshot's read problem. Existing clock and attribution specs stay green.
 Behavior: A snapshot's clocks are read and a profile's addition walk is slow →
 the page shows the clocked snapshot first → the human appears when its walk
 ends, and a walk that never ends is that human's gap, not the read's failure.
+
+Accepted proof: `npx playwright test --config dashboard/playwright.config.ts
+dashboard/tests/agent-roster-attribution.spec.ts` — tests "a slow human credit
+never holds back the Taken card's slice clock…" (clock shown while
+`.owner-human` reads "Reading human developer…", then the name with no read
+problem) and "a human's addition walk still unanswered at the wait bound…"
+(that human's gap, no read problem); both red against the prior read. Whole
+`npm run test:dashboard` green. The snapshot read moved to
+`dashboard/src/publishedWorkRead.ts`; the bound wording is shared as
+`unansweredWithinReadWait`. Slice 7 carries these two tests into the merged
+roster avatar spec.
 
 ### 2. A profile naming another agent stays uncertain
 Type: Behavior
