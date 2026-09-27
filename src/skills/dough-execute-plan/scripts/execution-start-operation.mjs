@@ -74,9 +74,11 @@ async function startRequested(request) {
   const beforeMaintenance = await maintenance(request);
   // Stops report only this compact local outcome; acceptance reports both.
   const stopMaintenance = reportedMaintenance(beforeMaintenance);
-  const parked = request.carry && (await parkCarriedEdits(request, ref));
+  // A carried park, its reset and the workspace selection share one trunk.
+  const parked = request.carry && (await parkCarriedEdits(request, fetched));
   if (parked && !parked.ok) return { ...parked, ...stopMaintenance };
-  const selected = await selectOwnedWorkspace({ ...request, origin });
+  const base = parked ? fetched : undefined;
+  const selected = await selectOwnedWorkspace({ ...request, origin, base });
   if (!selected.ok) return { ...selected, fetched, ...stopMaintenance };
   // Trunk can move between the source fetch and the workspace's base; the
   // claim names the rotation's next agent on the trunk it is built on.

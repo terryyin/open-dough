@@ -34,7 +34,9 @@ and approach `unselected`. A pass explicitly selected as
 instead. A pass requested as a step of an active story
 continues under that story. Findings with no worthwhile change, in profiling
 or resolve-only triage,
-[finish the mission](../dough-execute-plan/references/admit-accepted-work.md#finish-the-mission).
+[finish the mission](../dough-execute-plan/references/admit-accepted-work.md#finish-the-mission),
+or under one-shot its
+[no-change finish](../dough-execute-plan/references/one-shot.md#finish-with-no-change).
 
 Before assessing tests, read the shared
 [behavioral test guidance](../dough-post-change-refactor/references/refactor-checks.md#tests-as-behavioral-documentation).

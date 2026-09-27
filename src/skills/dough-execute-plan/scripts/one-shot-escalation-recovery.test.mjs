@@ -1,11 +1,19 @@
 // An interrupted escalation keeps the grown attempt's edits under its carried
 // ref and resumes through the startup command's ordinary
 // `--starting-revision/--candidate-sha` recovery: the claim is published or
-// confirmed once and the edits are restored exactly once. Driven through the
-// real startup CLI against a local bare remote.
+// confirmed once and the edits are restored exactly once, also when trunk moves
+// under the escalation. Driven through the real startup CLI against a local
+// bare remote.
 import assert from "node:assert/strict";
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { test } from "node:test";
-import { lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
+import {
+  cloneAsAnotherWriter,
+  git,
+  lsRemoteSha,
+  revParse,
+} from "./publication-test-fixtures.mjs";
 import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
 import {
   interruptFirstPush,
@@ -21,6 +29,7 @@ import {
   escalate,
   growAttempt,
   killAfterPush,
+  onceAtGit,
   startUnlistedOneShot,
   unlisted,
   workspaceBytes,
@@ -114,4 +123,41 @@ test("an escalation killed after its claim reached trunk resumes as owned and re
   });
   assert.equal(resumed.status, "resumed");
   assert.equal(resumed.publishedSha, candidateSha);
+});
+
+// An environment whose Git, right after the escalation parks the attempt and
+// resets the workspace, publishes an unrelated trunk commit prepared in
+// another clone: remote trunk moves between the start's fetch and workspace
+// selection. Returns the environment and that commit.
+async function advanceTrunkAfterPark(trunk) {
+  const clone = join(trunk.fixture, "other-writer");
+  await cloneAsAnotherWriter(trunk.origin, clone);
+  writeFileSync(join(clone, "unrelated.txt"), "their work\n");
+  await git(clone, "add", "unrelated.txt");
+  await git(clone, "commit", "-qm", "unrelated trunk work");
+  const push = `/usr/bin/git -C '${clone}' push -q origin HEAD:refs/heads/main >&2`;
+  const env = onceAtGit(trunk, "clean*", `${push}\n    exit $?`);
+  return { env, advanced: await revParse(clone, "HEAD") };
+}
+
+test("an escalation whose trunk moves after the park still claims once and restores the edits", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const { workspace, attempt } = await grownAttempt(trunk);
+  const { env, advanced } = await advanceTrunkAfterPark(trunk);
+
+  const { receipt } = await escalate(trunk, "trunk", "grow", unlisted, { env });
+  assert.equal(receipt.ok, true, JSON.stringify(receipt));
+  assert.deepEqual(receipt.carried, { restored: true });
+  const sha = receipt.publishedSha;
+  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), sha);
+  assert.equal(await revParse(workspace, `${sha}^`), advanced);
+  await assertOneClaim(trunk, sha, trunk.trunkSha, unlisted.identity);
+  assert.equal(await revParse(workspace, "HEAD"), sha);
+  const restored = await attemptOverClaim(trunk, attempt, sha);
+  assert.deepEqual(workspaceBytes(workspace), {
+    ...restored,
+    "unrelated.txt": "their work\n",
+  });
+  assert.equal(await carriedSha(workspace, "grow"), undefined);
 });

@@ -13,7 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Make one-shot read the same from every entry workflow](seeds/SEED-028-track-ad-hoc-work.md#one-shot-entry-coherence) — SEED-028#one-shot-entry-coherence ([plan](slice-plans/130-one-shot-entry-coherence/PLAN.md))
 - [Execute a plan's slices in sequence](seeds/SEED-008-worktree-branch-trunk-sync.md#isolate-parallel-slice-delivery) — SEED-008#isolate-parallel-slice-delivery ([plan](slice-plans/131-execute-slices-in-sequence/PLAN.md))
 
 ## Backlog list

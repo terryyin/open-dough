@@ -129,18 +129,17 @@ test("contextual execution and queued execution keep their own continuations", (
     execution,
     /An accepted independent mission, including contextual planless work, is\s+\[admitted\]\(admit-accepted-work\.md\)/,
   );
+  // The only unclaimed Story Branch or Trunk Mode start is one-shot, based on
+  // the fetched trunk its start command selects.
   assert.match(
     execution,
-    /When no claim applies, use verified current HEAD and create no story, plan, or queue/,
+    /\[one-shot work\]\(one-shot\.md\), the only Story Branch or\s+Trunk Mode start without a claim/,
   );
   assert.match(
     execution,
-    /Work with no claim to publish supplies verified current HEAD/,
+    /\[One-shot work\]\(one-shot\.md\) supplies the same path and authority with\s+`--one-shot`; the operation bases the workspace on fetched remote trunk/,
   );
-  assert.match(
-    execution,
-    /\[Refresh eligibility\]\(maintain-default-checkout\.md#refresh-eligibility\)/,
-  );
+  assert.doesNotMatch(execution, /verified current HEAD/);
 
   assert.match(execution, /creates no\s+worktree/);
   assert.match(execution, /separate local roles/);
