@@ -65,7 +65,7 @@ export async function expectPlanKeyboardDestination(
     });
   const before = status();
   const destination = planHref("terryyin/open-dough", repo.revision);
-  await page.route(destination, (route) =>
+  await page.context().route(destination, (route) =>
     route.fulfill({
       contentType: "text/html",
       body: "<h1>Published blocked slice plan</h1>",
@@ -75,11 +75,15 @@ export async function expectPlanKeyboardDestination(
   await card.getByRole("link", { name: /^Canonical record / }).focus();
   await page.keyboard.press("Tab");
   await expect(card.getByRole("link", { name: /^Slice plan / })).toBeFocused();
-  await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(destination);
+  const [popup] = await Promise.all([
+    page.waitForEvent("popup"),
+    page.keyboard.press("Enter"),
+  ]);
+  await expect(popup).toHaveURL(destination);
   await expect(
-    page.getByRole("heading", { name: "Published blocked slice plan" }),
+    popup.getByRole("heading", { name: "Published blocked slice plan" }),
   ).toBeVisible();
+  await popup.close();
   expect(status()).toBe(before);
 }
 

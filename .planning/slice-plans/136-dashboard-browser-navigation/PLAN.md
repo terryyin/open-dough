@@ -66,13 +66,14 @@ documentation in `dashboard/README.md`.
 
 ### 2. Navigate project stories and rosters through browser history
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `dashboard/tests/agent-roster.spec.ts` with portrait → URL →
 browser Back/Forward, Back to stories, direct roster load and reload, project
 switch while on roster and history back, unknown project fallback, loading and
 failed-read states, and keyboard focus assertions. Run that focused Playwright
 spec, `npm run typecheck:dashboard`, and `npm run lint`; run the dashboard suite
 once after the shared project-selection behavior changes.
+Accepted: Extended `dashboard/tests/agent-roster.spec.ts` passes with portrait navigation, URL agreement, browser Back/Forward, Back to stories, direct roster load/reload, project switching on roster with history back, unknown project fallback normalizing to `/`, and focus handling (portrait opener, roster heading on direct visits, and stages fallback). `npm run typecheck:dashboard`, `npm run lint`, and the full dashboard suite (`npm run test:dashboard`) all passed cleanly.
 
 Behavior: a developer opens a roster from a project's stories, visits a
 project-aware URL directly, switches projects, or walks browser history → the
@@ -97,7 +98,10 @@ and view; transient portrait origin and story-detail state can remain in memory.
 direct roster visit without such an entry, it navigates to that project's
 stories rather than leaving the dashboard.
 - Consolidated outbound new-tab policy into `leaveDashboard` in `RecordedLink.tsx`.
+- Extracted dashboard routing and popstate management into `dashboardRoute.ts` with `parseRoute`, `buildRouteUrl`, and `useDashboardRoute`.
+- Direct roster visits without a portrait opener focus the roster heading; returning to stories when no opener is present focuses Work stages.
 
 ## Learnings
 
 - Chromium / Playwright requires listening to request events across the context when following outbound links to capture the destination navigation request.
+- Focus restoration when returning from roster to stories must wait until work snapshot renders WorkStages before focusing the stages element.

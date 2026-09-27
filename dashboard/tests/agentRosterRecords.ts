@@ -6,9 +6,15 @@
 // and a Doughnut revision whose profile directory cannot be
 // listed at all; and a Pygardon revision that publishes no backlog.
 
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { githubFor } from "./dashboardTest.ts";
+import { expect, githubFor } from "./dashboardTest.ts";
+import {
+  expectProblemAndNoSnapshot,
+  parts,
+  rosterParts,
+} from "./dashboardPage.ts";
+import { publishFiles } from "./publishedOrigin.ts";
 import {
   commitAnswer,
   headsAnswer,
@@ -112,3 +118,91 @@ export const pygardon = {
   revision: "e5".repeat(20),
   files: {},
 };
+
+export async function publishRosterOrigins(page: Page) {
+  await publishFiles(page, { ...openDough, files: openDoughFiles });
+  publishUnlistableProfiles(page);
+  await publishFiles(page, pygardon);
+}
+
+export function expectRoute(
+  page: Page,
+  expected: { project?: string; view?: string | null },
+) {
+  const url = new URL(page.url());
+  if (expected.project !== undefined) {
+    expect(url.searchParams.get("project")).toBe(expected.project);
+  }
+  if (expected.view !== undefined) {
+    expect(url.searchParams.get("view")).toBe(expected.view);
+  }
+}
+
+export const backlogUnreadable = `GitHub answered HTTP 404 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${pygardon.revision}.`;
+
+export async function expectOpenDoughAssignments(
+  members: Locator,
+  member: (name: string) => Locator,
+) {
+  const akiho = member("Akiho-chan");
+  await expect(akiho.locator(".roster-activity")).toHaveText("Taken");
+  await expect(akiho).toContainText(takenStory);
+  await expect(akiho).toContainText(takenIdentity);
+  await expect(akiho.locator(".owner-summary")).toHaveText(
+    "Trunk Mode · Claude Code · claude-opus-5-5",
+  );
+
+  const kirara = member("Kirara-chan");
+  await expect(kirara.locator(".roster-activity")).toHaveText("Preparing");
+  await expect(kirara).toContainText(queuedStory);
+  await expect(kirara).toContainText(queuedIdentity);
+
+  const yuma = member("Yuma-chan");
+  await expect(yuma.locator(".roster-activity")).toHaveText("Taken");
+  await expect(yuma).toContainText(unlistedIdentity);
+  await expect(yuma).toContainText(
+    "Task title not found: the published backlog at this revision lists no entry with this identity.",
+  );
+
+  await expect(member("Mana-chan").locator(".assignment-gap")).toHaveText(
+    "Assignment uncertain: agent profile mana-chan.json is unreadable: profile is not JSON.",
+  );
+  await expect(member("Mana-chan")).not.toContainText("No assignment recorded");
+  await expect(member("Yui-chan")).toContainText(
+    "Assignment uncertain: agent profile yui-chan.json is unreadable: profile names another agent.",
+  );
+  await expect(member("Yui-chan")).not.toContainText("No assignment recorded");
+  await expect(member("Sola-chan")).toContainText("No assignment recorded");
+  await expect(member("Sola-chan")).not.toContainText(queuedIdentity);
+
+  await expect(
+    members.filter({ hasText: "No assignment recorded" }),
+  ).toHaveCount(24);
+}
+
+export async function expectDirectRosterFailure(page: Page) {
+  await page.goto("/?project=pygardon&view=roster");
+  const { project } = parts(page);
+  const { roster, back } = rosterParts(page);
+
+  await expect(project.getByRole("radio", { checked: true })).toHaveAttribute(
+    "value",
+    "pygardon",
+  );
+  await expect(roster).toBeVisible();
+  await expect(roster).toContainText(
+    "Pygardon: no published work has been read, so no assignment is known.",
+  );
+  await expect(
+    roster.getByRole("heading", { name: "Agent roster" }),
+  ).toBeFocused();
+
+  await back.click();
+  await expect(roster).toHaveCount(0);
+  expectRoute(page, { project: "pygardon", view: null });
+  await expectProblemAndNoSnapshot(
+    page,
+    backlogUnreadable,
+    pygardon.repository,
+  );
+}

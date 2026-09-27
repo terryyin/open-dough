@@ -49,10 +49,12 @@ type ReadRequest = {
   readonly movedBranches?: StoryBranchHeads;
 };
 
-export function usePublishedObservation() {
+export function usePublishedObservation(
+  initialSource: PublishedSource = defaultSource,
+) {
   // The project this dashboard is currently observing. Selecting another
   // project replaces this whole, never merges into what is already shown.
-  const [source, setSource] = useState<PublishedSource>(defaultSource);
+  const [source, setSource] = useState<PublishedSource>(initialSource);
   const [retrieval, setRetrieval] = useState<Retrieval>({
     work: undefined,
     notice: "",

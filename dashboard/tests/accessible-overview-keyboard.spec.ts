@@ -84,13 +84,17 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
-    const [leaving] = await Promise.all([
-      page.waitForRequest((request) => request.isNavigationRequest()),
+    const [popup, leaving] = await Promise.all([
+      page.waitForEvent("popup"),
+      page
+        .context()
+        .waitForEvent("request", (request) => request.isNavigationRequest()),
       page.keyboard.press("Enter"),
     ]);
     expect(new URL(leaving.url()).pathname).toBe(
       `/terryyin/open-dough/blob/${revisionB}/.planning/seeds/SEED-008-sync.md`,
     );
+    await popup.close();
   });
 });
 

@@ -130,19 +130,18 @@ and that developer, keeping its priority and badges; it is never a Taken owner.
 It disappears when preparation lands or is abandoned. Unreadable profiles show
 "Preparation assignment unknown"; two assignments show as conflicting records.
 
-Each agent portrait on a Taken or Preparing card is a control that opens the
-selected project's **Agent roster**: all 29 agents of the shared rotation with
-their portraits, the clicked agent marked and focused. Each agent shows the
-assignment its published profile records at the shown revision -- Taken or
-Preparing, the task's title and identity, and the recorded mode, host, and model
--- or "No assignment recorded" when the profile directory was read and names
-none. Work the backlog at that revision does not list keeps its identity with a
-title gap; an unreadable profile leaves its agent uncertain, and a failed
-snapshot or profile read leaves every assignment unknown. An assignment is not a
-claim that an agent is working now. The roster comes from the same snapshot as
-the cards and makes no read of its own; selecting another project replaces its
-source. **Back to stories** at the top returns to the stories with any open
-story detail still open and focus on the portrait that opened the roster.
+Each agent portrait on a Taken or Preparing card opens the selected project's
+**Agent roster**: all 29 agents with portraits and assignments recorded at the
+shown revision (Taken or Preparing, task title/identity, mode, host, model, or
+"No assignment recorded"). Work not in the backlog keeps identity with a title
+gap; an unreadable profile leaves its agent uncertain, and a failed snapshot or
+profile read leaves every assignment unknown. It comes from the same snapshot as
+cards, with no read of its own; selecting another project replaces its source.
+Stories and roster views have project-aware URLs (`/?project=<id>` and
+`/?project=<id>&view=roster`, with default stories at `/`). Browser
+Back/Forward and **Back to stories** keep the URL, selected project, view, and
+focus coherent; direct roster visits focus the roster heading. An invalid
+project URL resolves to the default project's stories and normalizes the URL.
 
 Each assignment, on its Taken or Preparing card and in the roster, names the
 **human developer** credited for it: the Git committer of the commit that

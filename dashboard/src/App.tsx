@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { shortRevision } from "./publishedWork.ts";
 import { Moment } from "./Moment.tsx";
 import { DashboardBanner } from "./DashboardBanner.tsx";
@@ -8,6 +8,11 @@ import { WorkStages } from "./WorkStages.tsx";
 import { PreparationLegend } from "./PreparationLegend.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
 import type { OpenRoster } from "./AgentAssignmentFacts.tsx";
+import {
+  isFromPortrait,
+  parseRoute,
+  useDashboardRoute,
+} from "./dashboardRoute.ts";
 import {
   focusStages,
   returnFocusTo,
@@ -26,37 +31,89 @@ type RosterOpening = {
 };
 
 export function App() {
-  const { source, work, attempt, notice, reading, refresh, selectSource } =
-    usePublishedObservation();
-  // The opening of the roster while it is shown. The stories stay mounted
-  // behind it, so their reading state is there on the way back.
   const [opening, setOpening] = useState<RosterOpening | undefined>();
-  // The opening Back just closed, until the keyboard is returned from it.
+  const latestOpening = useRef<RosterOpening | undefined>(undefined);
   const closed = useRef<RosterOpening | undefined>(undefined);
+  const returningFromRoster = useRef(false);
+
+  const initialSource = useRef(parseRoute(window.location).route.source);
+  const { source, work, attempt, notice, reading, refresh, selectSource } =
+    usePublishedObservation(initialSource.current);
+
+  const onReturnToStories = useCallback(() => {
+    returningFromRoster.current = true;
+    closed.current = opening ?? latestOpening.current;
+    setOpening(undefined);
+  }, [opening]);
+
+  const onForwardToRoster = useCallback((targetSourceId: string) => {
+    if (latestOpening.current?.sourceId === targetSourceId) {
+      setOpening(latestOpening.current);
+    }
+  }, []);
+
+  const {
+    route,
+    selectProject,
+    openRoster: navigateToRoster,
+    backToStories,
+  } = useDashboardRoute({
+    sourceId: source.id,
+    selectSource,
+    onReturnToStories,
+    onForwardToRoster,
+  });
+
   const openRoster: OpenRoster = (agent, element) => {
-    setOpening({
+    const openingInfo: RosterOpening = {
       agent,
       element,
       sourceId: source.id,
       work: workHolding(element),
-    });
+    };
+    latestOpening.current = openingInfo;
+    setOpening(openingInfo);
+    navigateToRoster(source);
   };
+
+  const onBack = () => {
+    if (
+      isFromPortrait(window.history.state) &&
+      opening?.sourceId === source.id
+    ) {
+      window.history.back();
+    } else {
+      onReturnToStories();
+      backToStories(source);
+    }
+  };
+
   useLayoutEffect(() => {
-    const opener = closed.current;
-    if (opening !== undefined || opener === undefined) {
+    if (route.view === "roster") {
       return;
     }
+    if (!returningFromRoster.current) {
+      return;
+    }
+    if (work === undefined && closed.current === undefined) {
+      return;
+    }
+    returningFromRoster.current = false;
+    const opener = closed.current;
     closed.current = undefined;
     // Work identities never carry focus into another project.
-    if (opener.sourceId !== source.id) {
+    if (opener === undefined || opener.sourceId !== source.id) {
       focusStages();
     } else if (opener.element.isConnected) {
       opener.element.focus();
     } else if (opener.work !== undefined) {
       returnFocusTo({ ...opener.work, link: undefined });
+    } else {
+      focusStages();
     }
-  }, [opening, source.id]);
-  const showsRoster = opening !== undefined;
+  }, [route.view, source.id, work]);
+
+  const showsRoster = route.view === "roster";
   const showsPreparation =
     work &&
     [...work.taken, ...work.backlog].some(
@@ -69,7 +126,7 @@ export function App() {
         work={work}
         reading={reading}
         failed={attempt.status === "failed"}
-        onSelect={selectSource}
+        onSelect={selectProject}
         onRefresh={refresh}
       />
       <div className="page-header">
@@ -170,11 +227,8 @@ export function App() {
             source={source}
             work={work}
             problem={attempt.status === "failed" ? attempt.problem : undefined}
-            agent={opening.sourceId === source.id ? opening.agent : undefined}
-            onBack={() => {
-              closed.current = opening;
-              setOpening(undefined);
-            }}
+            agent={opening?.sourceId === source.id ? opening.agent : undefined}
+            onBack={onBack}
           />
         </main>
       )}

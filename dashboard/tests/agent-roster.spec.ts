@@ -11,35 +11,30 @@ import {
   parts,
   rosterParts,
 } from "./dashboardPage.ts";
-import { publishFiles } from "./publishedOrigin.ts";
 import {
   agentIdentity,
   agentNames,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
+  backlogUnreadable,
   doughnut,
   doughnutStory,
+  expectDirectRosterFailure,
+  expectOpenDoughAssignments,
+  expectRoute,
   openDough,
-  openDoughFiles,
-  publishUnlistableProfiles,
+  publishRosterOrigins,
   pygardon,
-  queuedIdentity,
   queuedStory,
-  takenIdentity,
   takenStory,
-  unlistedIdentity,
 } from "./agentRosterRecords.ts";
 
 const everyAgent = agentNames.map((name) => agentIdentity(name).agent);
-// Why Pygardon's read failed, as the page says it.
-const backlogUnreadable = `GitHub answered HTTP 404 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${pygardon.revision}.`;
 
 test("a card's agent portrait opens the project's agent roster, and Back returns to the stories as they were left", async ({
   page,
 }) => {
-  await publishFiles(page, { ...openDough, files: openDoughFiles });
-  publishUnlistableProfiles(page);
-  await publishFiles(page, pygardon);
+  await publishRosterOrigins(page);
   await page.goto("/");
 
   const { taken, backlog, project } = parts(page);
@@ -48,11 +43,12 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
   const takenCard = taken.getByRole("article", { name: takenStory });
   const { roster, members, member, opener, back } = rosterParts(page);
 
-  await test.step("the Taken card's portrait opens the roster with every agent and the clicked one identified", async () => {
+  await test.step("the Taken card's portrait opens the roster and history walks back and forward", async () => {
     await takenCard.getByRole("button", { name: "Inspect story" }).click();
     await opener("Akiho-chan").click();
     await expect(roster).toBeVisible();
     await expect(taken).toBeHidden();
+    expectRoute(page, { project: "open-dough", view: "roster" });
     await expect(members.getByRole("heading")).toHaveText(everyAgent);
     await expect(members.locator(".agent-portrait")).toHaveCount(29);
     for (const portrait of await members.locator(".agent-portrait").all()) {
@@ -64,65 +60,32 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await expect(roster).toContainText(
       `Open Dough: agent profiles published at revision ${openDough.revision.slice(0, 7)}.`,
     );
+
+    await page.goBack();
+    expectRoute(page, { view: null });
+    await expect(roster).toBeHidden();
+    await expect(taken).toBeVisible();
+    await expect(
+      takenCard.getByRole("button", { name: "Hide detail" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    await expect(opener("Akiho-chan")).toBeFocused();
+
+    await page.goForward();
+    expectRoute(page, { project: "open-dough", view: "roster" });
+    await expect(roster).toBeVisible();
+    await expect(member("Akiho-chan")).toHaveAttribute("aria-current", "true");
+    await expect(member("Akiho-chan")).toBeFocused();
   });
 
-  // How a card or roster member words a host or model its profile never
-  // recorded is taken-agent-profile.spec.ts's and backlog-preparing.spec.ts's.
   await test.step("each assignment shows its task, activity, and recorded facts, and unknowns stay distinct", async () => {
-    const akiho = member("Akiho-chan");
-    await expect(akiho.locator(".roster-activity")).toHaveText("Taken");
-    await expect(akiho).toContainText(takenStory);
-    await expect(akiho).toContainText(takenIdentity);
-    await expect(akiho.locator(".owner-summary")).toHaveText(
-      "Trunk Mode · Claude Code · claude-opus-5-5",
-    );
-
-    const kirara = member("Kirara-chan");
-    await expect(kirara.locator(".roster-activity")).toHaveText("Preparing");
-    await expect(kirara).toContainText(queuedStory);
-    await expect(kirara).toContainText(queuedIdentity);
-
-    // Its work is not in the backlog read: the recorded identity and a title
-    // gap.
-    const yuma = member("Yuma-chan");
-    await expect(yuma.locator(".roster-activity")).toHaveText("Taken");
-    await expect(yuma).toContainText(unlistedIdentity);
-    await expect(yuma).toContainText(
-      "Task title not found: the published backlog at this revision lists no entry with this identity.",
-    );
-
-    // Assignment gaps look alike on the roster and on cards.
-    await expect(member("Mana-chan").locator(".assignment-gap")).toHaveText(
-      "Assignment uncertain: agent profile mana-chan.json is unreadable: profile is not JSON.",
-    );
-    await expect(member("Mana-chan")).not.toContainText(
-      "No assignment recorded",
-    );
-
-    // A profile filed under Yui that names Sola is Yui's unreadable
-    // profile: Yui is not called unassigned, and Sola gains nothing.
-    await expect(member("Yui-chan")).toContainText(
-      "Assignment uncertain: agent profile yui-chan.json is unreadable: profile names another agent.",
-    );
-    await expect(member("Yui-chan")).not.toContainText(
-      "No assignment recorded",
-    );
-    await expect(member("Sola-chan")).toContainText("No assignment recorded");
-    await expect(member("Sola-chan")).not.toContainText(queuedIdentity);
-
-    // Every other agent was read to have no profile.
-    await expect(
-      members.filter({ hasText: "No assignment recorded" }),
-    ).toHaveCount(24);
-    await expect(roster.getByRole("list")).not.toContainText(
-      /online|offline|live|away|active|busy|idle/i,
-    );
+    await expectOpenDoughAssignments(members, member);
   });
 
   await test.step("Back returns to the same project with the story detail open and focus on the portrait that opened the roster", async () => {
     await back.click();
     await expect(roster).toHaveCount(0);
     await expect(taken).toBeVisible();
+    expectRoute(page, { view: null });
     await expect(
       takenCard.getByRole("button", { name: "Hide detail" }),
     ).toHaveAttribute("aria-expanded", "true");
@@ -130,7 +93,6 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
   });
 
   await test.step("the Preparing card's portrait opens the roster from the keyboard, and Back returns there", async () => {
-    // The profile filed under Yui that names Sola prepares nothing here.
     const queuedCard = backlog.getByRole("article", { name: queuedStory });
     await expect(queuedCard.locator(".card-preparing")).toContainText(
       "Kirara-chan",
@@ -138,6 +100,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await expect(queuedCard).not.toContainText(/Sola-chan|Conflicting records/);
     await opener("Kirara-chan").focus();
     await page.keyboard.press("Enter");
+    expectRoute(page, { project: "open-dough", view: "roster" });
     await expect(member("Kirara-chan")).toBeFocused();
     await expect(member("Kirara-chan")).toHaveAttribute("aria-current", "true");
     await expect(member("Akiho-chan")).not.toHaveAttribute(
@@ -148,16 +111,18 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await expect(back).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(backlog).toBeVisible();
+    expectRoute(page, { view: null });
     await expect(opener("Kirara-chan")).toBeFocused();
     await expect(
       takenCard.getByRole("button", { name: "Hide detail" }),
     ).toBeVisible();
   });
 
-  await test.step("selecting another project replaces the roster's source, and a failed profile read leaves every assignment unknown", async () => {
+  await test.step("selecting another project replaces the roster's source, and history back restores the previous project and view", async () => {
     await opener("Akiho-chan").click();
     await expect(roster).toBeVisible();
     await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+    expectRoute(page, { project: "doughnut", view: "roster" });
     await expect(roster).toContainText(
       `Doughnut: agent profiles published at revision ${doughnut.revision.slice(0, 7)}.`,
     );
@@ -170,7 +135,18 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await expect(roster).not.toContainText(takenStory);
     await expect(roster).not.toContainText(/Taken|Preparing/);
 
+    await page.goBack();
+    expectRoute(page, { project: "open-dough", view: "roster" });
+    await expect(roster).toContainText(
+      `Open Dough: agent profiles published at revision ${openDough.revision.slice(0, 7)}.`,
+    );
+    await expect(member("Akiho-chan")).toHaveAttribute("aria-current", "true");
+
+    await page.goForward();
+    expectRoute(page, { project: "doughnut", view: "roster" });
+
     await back.click();
+    expectRoute(page, { project: "doughnut", view: null });
     await expectMembership(page, { taken: [doughnutStory], backlog: [] });
     await expect(taken).toBeVisible();
   });
@@ -186,6 +162,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await opener("Akiho-chan").click();
     await expect(member("Akiho-chan")).toHaveAttribute("aria-current", "true");
     await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
+    expectRoute(page, { project: "pygardon", view: "roster" });
     await expect(roster).toContainText(
       "Pygardon: no published work has been read, so no assignment is known.",
     );
@@ -198,10 +175,70 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
 
     await back.click();
     await expect(roster).toHaveCount(0);
+    expectRoute(page, { project: "pygardon", view: null });
     await expectProblemAndNoSnapshot(
       page,
       backlogUnreadable,
       pygardon.repository,
     );
+  });
+});
+
+test("direct roster load, reload, unknown project fallback, and direct failure keep URL, view, and focus coherent", async ({
+  page,
+}) => {
+  await publishRosterOrigins(page);
+
+  await test.step("direct roster load selects project and focuses heading, reload keeps it, and Back returns to project stories", async () => {
+    await page.goto("/?project=doughnut&view=roster");
+    const { project, stages } = parts(page);
+    const { roster, back } = rosterParts(page);
+
+    await expect(project.getByRole("radio", { checked: true })).toHaveAttribute(
+      "value",
+      "doughnut",
+    );
+    await expect(roster).toBeVisible();
+    await expect(
+      roster.getByRole("heading", { name: "Agent roster" }),
+    ).toBeFocused();
+    await expect(roster.locator('[aria-current="true"]')).toHaveCount(0);
+    await expect(roster).toContainText(
+      `Doughnut: agent profiles published at revision ${doughnut.revision.slice(0, 7)}.`,
+    );
+
+    await page.reload();
+    await expect(roster).toBeVisible();
+    await expect(
+      roster.getByRole("heading", { name: "Agent roster" }),
+    ).toBeFocused();
+    expectRoute(page, { project: "doughnut", view: "roster" });
+    await expect(roster).toContainText(
+      `Doughnut: agent profiles published at revision ${doughnut.revision.slice(0, 7)}.`,
+    );
+
+    await back.click();
+    expectRoute(page, { project: "doughnut", view: null });
+    await expectMembership(page, { taken: [doughnutStory], backlog: [] });
+    await expect(stages).toBeFocused();
+  });
+
+  await test.step("unknown project route resolves to default project stories and normalizes URL", async () => {
+    await page.goto("/?project=unknown-project&view=roster");
+    expect(page.url()).toBe(new URL("/", page.url()).href);
+    const { project } = parts(page);
+    await expect(project.getByRole("radio", { checked: true })).toHaveAttribute(
+      "value",
+      "open-dough",
+    );
+    await expect(rosterParts(page).roster).toHaveCount(0);
+    await expectMembership(page, {
+      taken: [takenStory],
+      backlog: [queuedStory],
+    });
+  });
+
+  await test.step("direct load of an unreadable project shows truthful failure on roster and stories", async () => {
+    await expectDirectRosterFailure(page);
   });
 });

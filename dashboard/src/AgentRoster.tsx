@@ -79,9 +79,15 @@ export function AgentRoster({
   onBack: () => void;
 }) {
   const opened = useRef<HTMLLIElement>(null);
-  // Opening the roster brings the keyboard to the agent it was opened from.
+  const heading = useRef<HTMLHeadingElement>(null);
+  // Opening the roster brings the keyboard to the agent it was opened from,
+  // or the heading on direct visits.
   useLayoutEffect(() => {
-    opened.current?.focus();
+    if (agent !== undefined) {
+      opened.current?.focus();
+    } else {
+      heading.current?.focus();
+    }
   }, [agent]);
   const roster = work?.roster;
   // Without a snapshot, no profile read is under way: the read failed, or the
@@ -121,7 +127,9 @@ export function AgentRoster({
           Back to stories
         </button>
       </p>
-      <h2 id="agent-roster-heading">Agent roster</h2>
+      <h2 id="agent-roster-heading" ref={heading} tabIndex={-1}>
+        Agent roster
+      </h2>
       <p className="roster-source">
         {work === undefined
           ? `${source.label}: no published work has been read, so no assignment is known.`
