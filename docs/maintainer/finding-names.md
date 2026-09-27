@@ -839,6 +839,7 @@ Key examples promise new rewrite results while excluding changes to the current 
 
 - **Sources:** [doughnut / DD-128](../../../doughnut/DearDough.md#odf-148--refined-key-examples-promised-link-rewrite-outcomes-that-the-existing-rewrite-rules-do-not-produce).
 - **Assessment (2026-09-27):** One plan 047 execution on 0.3.41; seed promise remained inconsistent at closure. Distinct from ODF-074’s planning factual premises: this also loses a human-owned scope decision.
+- **2026-09-27 related evidence:** Donut's closing review of SEED-048#story-1 ([report](https://claude.ai/artifact/5zjpVg4o5yvTtRQNn3LWjB); retained at `facb0ce8:.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md`) links this pattern to a candidate story that silently relied on the no-cross-notebook-deduplication North Star rule and was dropped after an owner question (transcripts `8ed5aa4e`, `6806d413`; `506c267839`). Candidate premise against a North Star rule, not key examples against code: related, not a second occurrence.
 
 <a id="odf-149"></a>
 
