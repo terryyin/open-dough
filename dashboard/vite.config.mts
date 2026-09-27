@@ -22,6 +22,8 @@ export default defineConfig({
   plugins: [react(), authenticatedReadPlugin()],
   server: {
     host: loopbackOnly,
+    port: 43127,
+    strictPort: true,
     fs: { allow: [dashboardRoot, sharedBacklogReader] },
   },
   preview: {

@@ -195,7 +195,7 @@ Run these from the repository root after `npm ci`.
 
 | Command                       | Purpose                                                                                    |
 | ----------------------------- | ------------------------------------------------------------------------------------------ |
-| `npm run dev:dashboard`       | Launch the dashboard locally; open the URL Vite prints (normally `http://localhost:5173`). |
+| `npm run dev:dashboard`       | Launch the dashboard locally at `http://127.0.0.1:43127/`.                                 |
 | `npm run typecheck:dashboard` | Strict TypeScript check of the application, the browser tests, and the tool configuration. |
 | `npm run test:dashboard`      | Build the production app, serve it, and run the Playwright suite against it in Chromium.   |
 | `npm run build:dashboard`     | Write production assets to `dashboard/dist/`.                                              |
