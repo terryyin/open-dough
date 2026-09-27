@@ -87,29 +87,3 @@ continuation and queue placement at the optimization handoff.
 **Safe stopping point:** Every created optimization plan is either being
 executed or is recoverable as explicitly prioritized product work; existing
 profile-only behavior and backlog ownership rules remain intact.
-
-<a id="preserve-rules-from-story-sections"></a>
-
-### Preserve lasting rules from every record wrap-up deletes
-
-**Identity:** SEED-004#preserve-rules-from-story-sections
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/134-preserve-rules-from-story-sections/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"39358067be37e765e7fac3febb68e9093fff1c109dc07646f2801ba6b167eb95","plan":"9079ce6a41b9b77fe923c066a799b17073e066202b91ece68876690eb30360b1"}}
-```
-
-**Goal:** An agent wrapping up keeps a still-needed rule written only in the
-completed story's section or seed, not only in a plan, execution record,
-review, or North Star topic.
-
-**Scope:** Correction of "Strengthen architectural review after using the
-lightweight guidance" (story section
-`.planning/seeds/SEED-004-extract-and-adopt-project-guidance.md` at `29d0c909`)
-from its execution retrospective (implementation commit `29d0c909`, Take
-`848db9fd`). Wrap-up's Assimilate step triggers the shared preservation rule
-only before deleting "a spent plan, execution context, review, or North Star
-topic", while its Delete spent history step also deletes the canonical story
-section and a spent seed. Make the trigger cover every record wrap-up deletes,
-and keep one enumeration of record kinds, in the rule. Excludes changes to the
-rule's destinations, stops, deletion steps, and any new record kinds.
-
-**Plan:** [Preserve lasting rules from every record wrap-up deletes](../slice-plans/134-preserve-rules-from-story-sections/PLAN.md).
