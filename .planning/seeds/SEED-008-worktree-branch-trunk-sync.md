@@ -196,30 +196,3 @@ owns the proposed Git contract. Both retain Proposed status. ADR 0007 records
 the unresolved relationship between Story Branch Mode's delayed integration and
 Accepted ADR 0002; human resolution of that question remains separate from this
 Git migration.
-
-<a id="restate-ci-pause-ownership"></a>
-
-### Restate the CI pause's preservation for sequential slices
-
-**Identity:** SEED-008#restate-ci-pause-ownership
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/132-restate-ci-pause-ownership/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"44411498e7bcd6eebd01498cbd306decc86bb02ed6febd8c406d95b7e6d1a382","plan":"f16ae36b5ddeedacb2ef059b4b699d64da121e193e29c8f0497cf815add12e88"}}
-```
-
-**Goal:** A paused implementation or refactor agent reads the same reason to
-preserve unowned work in the execution checkout as its delegation gives it:
-unowned work from humans or other sessions may be present, not a concurrent
-agent of the same execution.
-
-**Scope:** Correction of "Execute a plan's slices in sequence" (story section
-`.planning/seeds/SEED-008-worktree-branch-trunk-sync.md` at `92703196`)
-from its execution retrospective (commit `1d3a26cd`). That story restated
-concurrent-writer guidance for sequential execution in delegation and delivery
-staging, but the CI pause contract in `dough-execute-plan/references/ci-monitor.md`
-still tells a paused agent to "Preserve other agents' work in this execution
-checkout". Restate that sentence with the delegation reason and prove it in the
-shared-checkout guidance test. Excludes other CI repair steps, whose writer
-pause and quiescence checks hold for one live agent, and any opt-in for
-concurrent slices.
-
-**Plan:** [Restate the CI pause's preservation for sequential slices](../slice-plans/132-restate-ci-pause-ownership/PLAN.md).

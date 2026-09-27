@@ -246,5 +246,5 @@ next action. Remain idle until explicitly resumed. If the host cannot pause an
 agent until its command returns, the coordinator waits for that safe handoff.
 On resume, reread files affected by the repair or conflict resolution and rerun
 only invalidated proof. Continue the same slice with its elapsed budget
-excluding the repair pause. Preserve other agents' work in this execution
-checkout.
+excluding the repair pause. Unowned work, from humans or other sessions, may
+be present in this execution checkout and must be preserved.

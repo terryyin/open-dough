@@ -13,7 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Restate the CI pause's preservation for sequential slices](seeds/SEED-008-worktree-branch-trunk-sync.md#restate-ci-pause-ownership) — SEED-008#restate-ci-pause-ownership ([plan](slice-plans/132-restate-ci-pause-ownership/PLAN.md))
 - [Preserve lasting rules from every record wrap-up deletes](seeds/SEED-004-extract-and-adopt-project-guidance.md#preserve-rules-from-story-sections) — SEED-004#preserve-rules-from-story-sections ([plan](slice-plans/134-preserve-rules-from-story-sections/PLAN.md))
 
 ## Backlog list
