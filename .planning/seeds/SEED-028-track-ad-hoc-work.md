@@ -39,34 +39,6 @@ dashboard or research stories.
 
 ## Story Decomposition
 
-<a id="one-shot-entry-coherence"></a>
-
-### 3. Make one-shot read the same from every entry workflow
-
-**Identity:** SEED-028#one-shot-entry-coherence
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/130-one-shot-entry-coherence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5955c8781d093c16410685f904764b9b08b3d5dd54e11674b78c5b5d769526e5","plan":"09963ca6d98c795f34af996e05a8f8186ec1ad4bd005963d55328a6de9cc4be4"}}
-```
-
-**Goal:** An agent that selects one-shot from bug fixing or test optimization
-gets one consistent path: its repair or no-change conclusion finishes through
-one-shot delivery and retirement, and a growing attempt becomes visible
-tracked work even when continuation is limited, while escalation survives a
-trunk push that lands during it.
-
-**Scope:** Correction of one-shot work (story recoverable at
-`89836961:.planning/seeds/SEED-028-track-ad-hoc-work.md`) from its execution
-retrospective (commits `d0101737`, `6f350f28`, `70f6cde1`). Adapt the
-bug-fixing repair and no-change steps and the test-optimization no-change step
-for one-shot; under `--no-replan` a growing one-shot attempt escalates through
-admission and stops before planning instead of leaving evidence in an
-unclaimed workspace. Replace the stale "no claim uses verified current HEAD"
-rules with the one-shot start's fetched-trunk base. Make carried escalation use
-one fetched trunk for park, reset and workspace selection. Excludes native
-acceptance evidence and consolidating backlog-holder readers across skills.
-
-**Plan:** [Make one-shot read the same from every entry workflow](../slice-plans/130-one-shot-entry-coherence/PLAN.md).
-
 <a id="native-one-shot-acceptance"></a>
 
 ### 4. Accept one-shot natively on Claude Code, Codex and Cursor
@@ -95,7 +67,7 @@ from bug fixing under `--no-replan`, a stop before planning with the edits
 restored in the Taken story's workspace).
 
 **Constraints:** Paid native runs are manually triggered only, once per case
-per guidance version, after [entry coherence](#one-shot-entry-coherence) lands.
+per guidance version.
 
 ## Breadcrumbs
 
