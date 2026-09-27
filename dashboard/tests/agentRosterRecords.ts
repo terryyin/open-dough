@@ -4,7 +4,7 @@
 // no longer lists and with nothing recorded about host or model, one
 // malformed profile, and one profile filed under Yui whose text names Sola;
 // and a Doughnut revision whose profile directory cannot be
-// listed at all.
+// listed at all; and a Pygardon revision that publishes no backlog.
 
 import type { Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -104,3 +104,11 @@ export function publishUnlistableProfiles(page: Page) {
     return Promise.resolve(noConnection);
   });
 }
+
+// Pygardon publishes no backlog, so its read fails before any published work
+// is known.
+export const pygardon = {
+  repository: "terryyin/pygardon",
+  revision: "e5".repeat(20),
+  files: {},
+};

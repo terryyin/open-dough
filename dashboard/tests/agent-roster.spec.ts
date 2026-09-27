@@ -5,7 +5,11 @@
 // profile reader, and the page decide everything shown.
 
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import {
+  expectMembership,
+  expectProblemAndNoSnapshot,
+  parts,
+} from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import {
   agentIdentity,
@@ -17,6 +21,7 @@ import {
   openDough,
   openDoughFiles,
   publishUnlistableProfiles,
+  pygardon,
   queuedIdentity,
   queuedStory,
   takenIdentity,
@@ -25,12 +30,15 @@ import {
 } from "./agentRosterRecords.ts";
 
 const everyAgent = agentNames.map((name) => agentIdentity(name).agent);
+// Why Pygardon's read failed, as the page says it.
+const backlogUnreadable = `GitHub answered HTTP 404 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${pygardon.revision}.`;
 
 test("a card's agent portrait opens the project's agent roster, and Back returns to the stories as they were left", async ({
   page,
 }) => {
   await publishFiles(page, { ...openDough, files: openDoughFiles });
   publishUnlistableProfiles(page);
+  await publishFiles(page, pygardon);
   await page.goto("/");
 
   const { taken, backlog, project } = parts(page);
@@ -171,5 +179,35 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await back.click();
     await expectMembership(page, { taken: [doughnutStory], backlog: [] });
     await expect(taken).toBeVisible();
+  });
+
+  await test.step("selecting a project whose backlog cannot be read says why no commission is known, and marks no agent as opened", async () => {
+    await project
+      .getByRole("radio", { name: "Open Dough", exact: true })
+      .check();
+    await expectMembership(page, {
+      taken: [takenStory],
+      backlog: [queuedStory],
+    });
+    await opener("Akiho-chan").click();
+    await expect(member("Akiho-chan")).toHaveAttribute("aria-current", "true");
+    await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
+    await expect(roster).toContainText(
+      "Pygardon: no published work has been read, so no commission is known.",
+    );
+    await expect(
+      members.filter({ hasText: `Commission unknown. ${backlogUnreadable}` }),
+    ).toHaveCount(29);
+    await expect(roster).not.toContainText("Reading agent profile…");
+    await expect(roster.locator('[aria-current="true"]')).toHaveCount(0);
+    await expect(roster).not.toContainText("Opened from its portrait");
+
+    await back.click();
+    await expect(roster).toHaveCount(0);
+    await expectProblemAndNoSnapshot(
+      page,
+      backlogUnreadable,
+      pygardon.repository,
+    );
   });
 });

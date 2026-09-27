@@ -5,10 +5,7 @@
 // Back returns to the stories the roster was opened from.
 
 import { useLayoutEffect, useRef, type ReactNode } from "react";
-import type {
-  AgentRoster as Roster,
-  RosterMember,
-} from "./commissionRoster.ts";
+import type { RosterMember } from "./commissionRoster.ts";
 import { RecordedFacts } from "./AgentAssignmentFacts.tsx";
 import { HumanCredit } from "./HumanCredit.tsx";
 import { AgentPortrait } from "./AgentPortrait.tsx";
@@ -23,19 +20,11 @@ import "./agent-roster.css";
 const activities = { execution: "Taken", preparation: "Preparing" } as const;
 
 // Why no agent's commission is known: the profiles are still being read, or
-// could not be. Only a profile directory that was read can show an agent has
-// none.
-function CommissionUnknown({
-  roster,
-}: {
-  roster: Exclude<Roster, { status: "read" }> | undefined;
-}) {
-  if (roster?.status === "unavailable") {
-    return (
-      <p className="preparation-problem">
-        Commission unknown. {roster.problem}
-      </p>
-    );
+// could not be, or no snapshot was read to hold them. Only a profile directory
+// that was read can show an agent has none.
+function CommissionUnknown({ reason }: { reason: string | undefined }) {
+  if (reason !== undefined) {
+    return <p className="preparation-problem">Commission unknown. {reason}</p>;
   }
   return <p className="quiet">Reading agent profile…</p>;
 }
@@ -76,13 +65,17 @@ function Commission({ member: { profile } }: { member: RosterMember }) {
 export function AgentRoster({
   source,
   work,
+  problem,
   agent,
   onBack,
 }: {
   source: PublishedSource;
   work: PublishedWork | undefined;
-  // The rotation name whose portrait opened the roster.
-  agent: string;
+  // Why the selected project's latest read failed, if it did.
+  problem: string | undefined;
+  // The rotation name whose portrait opened the roster, while its project is
+  // still the selected one.
+  agent: string | undefined;
   onBack: () => void;
 }) {
   const opened = useRef<HTMLLIElement>(null);
@@ -91,6 +84,14 @@ export function AgentRoster({
     opened.current?.focus();
   }, [agent]);
   const roster = work?.roster;
+  // Without a snapshot, no profile read is under way: the read failed, or the
+  // project's published work is still being read.
+  const unknownReason =
+    work === undefined
+      ? (problem ?? "Published work is still being read.")
+      : roster?.status === "unavailable"
+        ? roster.problem
+        : undefined;
   // One agent of the rotation, marked when its portrait opened the roster.
   const row = (name: string, commission: ReactNode) => {
     const current = name === agent;
@@ -134,7 +135,7 @@ export function AgentRoster({
               row(member.name, <Commission member={member} />),
             )
           : agentNames.map((name) =>
-              row(name, <CommissionUnknown roster={roster} />),
+              row(name, <CommissionUnknown reason={unknownReason} />),
             )}
       </ol>
     </section>

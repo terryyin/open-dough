@@ -157,7 +157,7 @@ conflict for two agents naming one entry stays.
 
 ### 3. A roster without a read snapshot says commissions are unknown
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-roster.spec.ts` switches, with the roster open, to a project whose
 backlog read fails: every row says the commission is unknown with the read's
 reason, none says "Reading agent profile…", and no row is marked as opened
@@ -165,6 +165,14 @@ from its portrait. Back returns to that project's stories.
 
 Behavior: The roster is open and the selected project's snapshot is unread or
 failed → the roster says why no commission is known → Back behaves as before.
+
+Accepted proof: `agent-roster.spec.ts` step "selecting a project whose backlog
+cannot be read says why no commission is known, and marks no agent as opened":
+all 29 rows say "Commission unknown." with the read's problem, none says
+"Reading agent profile…", no row is marked opened from its portrait, and Back
+shows that project's read problem; red against the prior roster. The roster
+opening is one `{agent, element, sourceId, work}` record in `App.tsx`; a
+project with no published files fakes an unreadable backlog.
 
 ### 4. One allocation rule dates the Take and names the human
 Type: Structure
