@@ -45,7 +45,7 @@ dashboard or research stories.
 
 **Identity:** SEED-028#native-one-shot-acceptance
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/135-native-one-shot-acceptance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1334a483e4843b3b38f7937885c92d4f1d0c55acf5e28ee49a630794d7237ce1","plan":"5fbd2b799d381263e5b7215bdd2659f89d9e262b6deb06f68f14e1794ec60bd2"}}
 ```
 
 **Goal:** A Claude Code agent asked for explicit one-shot work publishes only
@@ -57,13 +57,43 @@ mechanical proof only. The remaining risk is agent judgment the scripts do not
 cover: selecting `--one-shot` only when asked, and composing a queued story's
 closure into the result commit.
 
-**Cases** (named in plan 112, recoverable at
-`36e62435:.planning/slice-plans/112-one-shot-work/PLAN.md`), as manual cases in
-`tests/git-publication-native.sh`: `publication/one-shot-result` (explicit flag,
-only the result on trunk, workspace retired; ordinary contextual work still
-admits, reusing the admission native evidence where entry coherence left it
-valid), `publication/one-shot-queued` (result and cleanup in one commit, no
-intermediate Taken on origin).
+**Scope:**
+
+- Two manual native cases in `tests/git-publication-native.sh`, named in plan
+  112 (recoverable at
+  `36e62435:.planning/slice-plans/112-one-shot-work/PLAN.md`):
+  `publication/one-shot-result` and `publication/one-shot-queued`. Each has a
+  fixture, a prompt that asks for one-shot work without naming the command or
+  flag, observation of every push origin accepts, and an assessor.
+- Credential-free assessor counterexamples for both cases in the harness's
+  default mode, so a wrong assessment fails without a paid run.
+- The "only when asked" half reuses the existing
+  `publication/admission-investigation` case: the same kind of unlisted
+  request without a one-shot request is admitted to Taken first. It needs no
+  new case, only a Claude Code run under the current guidance.
+- One paid Claude Code run of each of the three cases, with the developer's
+  agreement, recorded with its results directory and verdict.
+- A failure caused by the fixture or prompt is fixed there and rerun once. A
+  failure caused by the installed guidance is fixed in the guidance within
+  this story, because the goal needs it; that changes the guidance version, so
+  every case is rerun on it.
+
+**Key examples:**
+
+- An unlisted small request ("add a line to `notes.txt`, as one-shot work")
+  with a human edit in the integration checkout → origin trunk gains exactly
+  one commit, the result, with no backlog, seed, plan or agent-profile change;
+  the owned workspace is retired; the human edit is intact.
+- The same kind of unlisted request with no one-shot request
+  (`admission-investigation`) → the story is admitted to Taken on origin
+  before the first substantive action, as before.
+- Queued story A with its plan, and queued sibling B below it; the developer
+  asks to complete A as one-shot work → origin trunk gains one commit holding
+  A's result, A's removal from the backlog, and A's spent story section and
+  plan; no push ever shows A under Taken; B stays queued in its place.
+- Failing counterexamples: a second commit on trunk, any Taken entry or agent
+  profile on origin, a surviving workspace, or a changed human edit each fail
+  their case's assessor.
 
 **Excludes:** Codex and Cursor, and escalation (stories 5 and 6); bug-fixing
 and test-optimization entry routes; the ownership-changed race, interrupted
