@@ -14,11 +14,11 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep product guards provable and the CI-platform command faithful](seeds/SEED-048-explicit-test-environment.md#test-environment-correction) — SEED-048#test-environment-correction ([plan](slice-plans/127-test-environment-correction/PLAN.md))
+- [Verify planning premises and proof setup before declaring readiness](seeds/SEED-044-verify-planning-premises.md#verify-planning-premises) — SEED-044#verify-planning-premises ([plan](slice-plans/115-verify-planning-premises/PLAN.md))
 
 ## Backlog list
 
 - [Report conflicting CI repair restores truthfully and drop through the script](seeds/SEED-008-worktree-branch-trunk-sync.md#truthful-repair-restore) — SEED-008#truthful-repair-restore
-- [Verify planning premises and proof setup before declaring readiness](seeds/SEED-044-verify-planning-premises.md#verify-planning-premises) — SEED-044#verify-planning-premises
 - [Preserve readiness when an unrelated sibling story changes](seeds/SEED-043-preserve-relevant-readiness.md#preserve-sibling-readiness) — SEED-043#preserve-sibling-readiness
 - [Complete trivial work with --one-shot and track it if it grows](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work) — SEED-028#one-shot-work
 - [Complete execution and wrap-up in fresh Claude Code background mode](seeds/SEED-008-worktree-branch-trunk-sync.md#claude-code-background-mode) — SEED-008#claude-code-background-mode
