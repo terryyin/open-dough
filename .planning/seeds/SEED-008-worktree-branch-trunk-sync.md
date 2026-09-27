@@ -101,9 +101,7 @@ The [product backlog](../PRODUCT-BACKLOG.md) is the sole ordered queue.
   serve the remote-first dashboard direction and retain higher value than
   migrating every occasional publication caller immediately.
 - Local coordination remains below remote work, matching the existing direction.
-  The Claude background story consumes the common contracts and owns only the
-  remaining host-specific restriction/handoff outcome. Neither warrants a second
-  publication or observation implementation.
+  It does not warrant a second publication or observation implementation.
 - Planning-format validation and existing process follow-ups retain their relative
   order below this cluster. They are not prerequisites for publication.
 
@@ -162,59 +160,6 @@ access and recoverable stops; isolated publication stays independent of it.
 execution worktrees kept under an unignored in-checkout `.worktrees/` make every
 automatic refresh of the default checkout defer with `pending-edit`, and a stale
 published copy left there blocked a later execution startup.
-
-<a id="claude-code-background-mode"></a>
-
-### Complete execution and wrap-up in fresh Claude Code background mode
-
-**Identity:** SEED-008#claude-code-background-mode
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Bounded scope is aligned; story refinement and execution approach selection remain."],"basis":{"document":"9239143b63c468cdeff76f2fe96856bd52dc8e88f756f995a5785b8239372b64"}}
-```
-
-**Status:** Retained for its host-specific outcome; scope aligned on 2026-09-23,
-renewed refinement and native observation required before planning.
-
-**Partial evidence (2026-09-25):** a Claude Code background job ran queued
-Story Branch startup in its own worktree, subagent delegation, hook readiness,
-and CI observer attachment; it had branch-push authority, so restricted
-publication and closure handoff were not exercised.
-
-**Goal:** A developer using Claude Code background mode can execute in the
-session's owned checkout and finish with committed closure on its execution
-branch while retaining developer ownership of branch publication and any PR.
-
-**Scope candidate:** Reuse the common startup, publication, and completion
-contracts. Supply only the host's actual workspace, authority, and handoff
-context; do not implement a second Take/push/CI lifecycle. A suitable host
-worktree is reused without nesting. With shared-claim authority, startup publishes
-Taken to trunk before implementation. Execution-branch publication restrictions
-remain effective: commit authorized work and closure locally and report the
-precise remaining developer publication/integration obligations.
-
-**Key examples / evaluation:**
-
-- Fresh background session supplies a suitable worktree and claim authority →
-  shared startup publishes Taken → work and closure stay on the provided branch.
-- Shared claim publication is authorized but execution-branch pushes are owned
-  by the developer → no forbidden branch push → durable closure commits and an
-  explicit developer handoff identify remaining shared-record reconciliation.
-- Claim authority or context is missing → preserve preparation and stop before
-  implementation with the required decision identified.
-
-Observe actual native background settings, remote history, backlog state, and
-closure commits under ADR 0005. Shared claim mechanics are already proved by
-startup; this story proves the remaining restricted-publication/closure journey.
-Drop any redundant adaptation that those existing native proofs already establish.
-
-**Boundary / dependencies:** Consume the startup and subsequent shared delivery
-contracts. No new default-checkout editing mode, cloud lifecycle, PR automation,
-or general host-workspace manager. Local checkout coordination is not required
-for the isolated background journey. Resolve the host's actual restrictions and
-closure handoff in refinement rather than assuming them from its name.
-
-**Safe stopping point:** The supported native session leaves durable work and
-truthful publication ownership without bypassing host restrictions.
 
 <a id="reduce-ci-observer-overhead"></a>
 
