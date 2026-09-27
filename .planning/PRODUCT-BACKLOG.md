@@ -13,8 +13,6 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Credit the developer and agent on agent-enabled commits](seeds/SEED-047-credit-agent-and-developer-commits.md#agent-and-developer-credit) — SEED-047#agent-and-developer-credit ([plan](slice-plans/119-agent-and-developer-commit-credit/PLAN.md))
-
 ## Backlog list
 
 - [Credit the developer on Story Branch integration merges](seeds/SEED-047-credit-agent-and-developer-commits.md#integration-merge-credit) — SEED-047#integration-merge-credit

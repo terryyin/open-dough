@@ -7,7 +7,9 @@
 [Correction story](../../seeds/SEED-047-credit-agent-and-developer-commits.md#integration-merge-credit).
 This is a bounded retrospective correction of the completed execution of
 `SEED-047#agent-and-developer-credit` under plan 119, where all four slices
-are done:
+are done. Plan 119 is recoverable at
+`01c504c:.planning/slice-plans/119-agent-and-developer-commit-credit/PLAN.md`.
+Its execution record:
 
 - claim `4c23f11`;
 - attributable commits `01a3e2c`, `ed9a77e`, `6105443`, and `87e019f`;
