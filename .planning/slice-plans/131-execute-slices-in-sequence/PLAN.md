@@ -66,6 +66,15 @@ failed against the old `SKILL.md` (1 fail, 3 pass); after the edits
 passed 4/4, `PATH=/opt/homebrew/bin:$PATH npm test` exited 0, and `SKILL.md` is
 249 lines. The refactor pass only re-wrapped the test's header comment.
 
+## Execution complete
+
+Product advice: queue the retrospective's one-slice correction
+[Restate the CI pause's preservation for sequential slices](../../seeds/SEED-008-worktree-branch-trunk-sync.md#restate-ci-pause-ownership)
+(plan 132) at the top of the Backlog list, since it finishes this story's
+restatement of concurrent-writer guidance; other priorities are unchanged. At
+wrap-up, record the response on ODF-128 to ODF-131 and the non-response on
+ODF-155, as the story's Completion requires.
+
 ## Current decisions
 
 - No opt-in for concurrent or reordered slices (Terry, 2026-09-27).

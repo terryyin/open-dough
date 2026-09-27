@@ -262,3 +262,29 @@ delivered proof from later effectiveness. Record on ODF-155 that this story did
 not address it, so its follow-up no longer points here.
 
 **Depends on:** Nothing unfinished.
+
+<a id="restate-ci-pause-ownership"></a>
+
+### Restate the CI pause's preservation for sequential slices
+
+**Identity:** SEED-008#restate-ci-pause-ownership
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/132-restate-ci-pause-ownership/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bb3f5720f430c3c4aa82ccfb50a055bfecd4576f6cabc9f919bd5bd51eed9cbf","plan":"3ac6e7381bbcacae748e0cefcbb8f80be35c0d565ccc6c560e41b92555745a28"}}
+```
+
+**Goal:** A paused implementation or refactor agent reads the same reason to
+preserve unowned work in the execution checkout as its delegation gives it:
+unowned work from humans or other sessions may be present, not a concurrent
+agent of the same execution.
+
+**Scope:** Correction of [Execute a plan's slices in sequence](#isolate-parallel-slice-delivery)
+from its execution retrospective (commit `1d3a26cd`). That story restated
+concurrent-writer guidance for sequential execution in delegation and delivery
+staging, but the CI pause contract in `dough-execute-plan/references/ci-monitor.md`
+still tells a paused agent to "Preserve other agents' work in this execution
+checkout". Restate that sentence with the delegation reason and prove it in the
+shared-checkout guidance test. Excludes other CI repair steps, whose writer
+pause and quiescence checks hold for one live agent, and any opt-in for
+concurrent slices.
+
+**Plan:** [Restate the CI pause's preservation for sequential slices](../slice-plans/132-restate-ci-pause-ownership/PLAN.md).
