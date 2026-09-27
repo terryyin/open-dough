@@ -17,8 +17,8 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
-- [Accept one-shot natively on Claude Code, Codex and Cursor](seeds/SEED-028-track-ad-hoc-work.md#native-one-shot-acceptance) — SEED-028#native-one-shot-acceptance
 - [Execute a plan's slices in sequence](seeds/SEED-008-worktree-branch-trunk-sync.md#isolate-parallel-slice-delivery) — SEED-008#isolate-parallel-slice-delivery
+- [Accept one-shot natively on Claude Code](seeds/SEED-028-track-ad-hoc-work.md#native-one-shot-acceptance) — SEED-028#native-one-shot-acceptance
 - [Keep the test runner's own settings from reaching the checks and product code it starts](seeds/SEED-051-isolate-test-runner-settings.md#isolate-runner-settings) — SEED-051#isolate-runner-settings
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective
 - [Strengthen architectural review after using the lightweight guidance](seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design) — SEED-004#proudly-found-elsewhere-design
@@ -27,3 +27,5 @@ operational visibility for multiple agents working in worktrees on one machine.
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
 - [Accept premise verification natively on Codex and Cursor](seeds/SEED-044-verify-planning-premises.md#native-premise-acceptance-codex-cursor) — SEED-044#native-premise-acceptance-codex-cursor
 - [Start agent work from the Open Dough dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#start-agent-work-from-dashboard) — SEED-052#start-agent-work-from-dashboard
+- [Accept one-shot escalation natively on Claude Code](seeds/SEED-028-track-ad-hoc-work.md#native-one-shot-escalation) — SEED-028#native-one-shot-escalation
+- [Accept one-shot natively on Codex and Cursor](seeds/SEED-028-track-ad-hoc-work.md#native-one-shot-other-hosts) — SEED-028#native-one-shot-other-hosts
