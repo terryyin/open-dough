@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 # One-shot journeys for the publication native harness: explicitly requested
 # one-shot work publishes only its verified result to remote trunk and retires
-# its owned workspace.
+# its owned workspace; a queued story completed that way reaches trunk as one
+# commit holding its result and its closure, never shown Taken.
 # Fixture, observation, prompt and assessment. Sourced by the runner.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture and assessor globals.
+
+# shellcheck source=tests/support/git-publication-native-one-shot-queued.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-one-shot-queued.sh"
 
 git_publication_fixture_create_one_shot() {
   local source_dir=$1 journey=$2 parent=$3
@@ -13,7 +18,11 @@ git_publication_fixture_create_one_shot() {
   git_publication_fixture_adopt_prepared "${prepared}"
   NATIVE_ONE_SHOT_WORKSPACE=${git_publication_fixture_workspace}
   NATIVE_ONE_SHOT_BRANCH=$(jq -r .branch <<< "${prepared}")
-  export NATIVE_ONE_SHOT_WORKSPACE NATIVE_ONE_SHOT_BRANCH
+  NATIVE_ONE_SHOT_IDENTITY=$(jq -r '.identity // empty' <<< "${prepared}")
+  export NATIVE_ONE_SHOT_WORKSPACE NATIVE_ONE_SHOT_BRANCH NATIVE_ONE_SHOT_IDENTITY
+  git_publication_one_shot_sibling=$(jq -r '.sibling // empty' <<< "${prepared}")
+  git_publication_one_shot_seed=$(jq -r '.seed // empty' <<< "${prepared}")
+  git_publication_one_shot_plan=$(jq -r '.plan // empty' <<< "${prepared}")
   # The session's CI observers live inside the fixture, so a leftover one is
   # found and stopped with it.
   export DOUGH_CI_MAILBOX_ROOT="${git_publication_fixture_root}/mailboxes"
@@ -46,20 +55,25 @@ EOF
 }
 
 git_publication_one_shot_prompt() {
+  local request
   case $1 in
     one-shot-result)
-      printf '%s\n' \
-        "Use this project's installed Open Dough guidance. As one-shot work, add the line 'One-shot line' to the end of notes.txt. The originating and integration checkout is ${git_publication_fixture_integration}; use ${NATIVE_ONE_SHOT_WORKSPACE} on local branch ${NATIVE_ONE_SHOT_BRANCH} as the owned execution workspace. Remote origin trunk is refs/heads/main. You have explicit authority to create that workspace and publish to remote trunk. Preserve existing local changes. Report the outcome."
+      request="As one-shot work, add the line 'One-shot line' to the end of notes.txt."
+      ;;
+    one-shot-queued)
+      request="Complete the queued story Story B (${NATIVE_ONE_SHOT_IDENTITY}) from the product backlog as one-shot work."
       ;;
     *) return 2 ;;
   esac
+  printf '%s\n' \
+    "Use this project's installed Open Dough guidance. ${request} The originating and integration checkout is ${git_publication_fixture_integration}; use ${NATIVE_ONE_SHOT_WORKSPACE} on local branch ${NATIVE_ONE_SHOT_BRANCH} as the owned execution workspace. Remote origin trunk is refs/heads/main. You have explicit authority to create that workspace and publish to remote trunk. Preserve existing local changes. Report the outcome."
 }
 
 git_publication_fixture_observe_one_shot() {
   local journey=$1 stream_status=$2 transcript=$3
   local origin=${git_publication_fixture_origin}
   local base=${git_publication_fixture_trunk_sha} tip ancestor=false
-  local branch=${NATIVE_ONE_SHOT_BRANCH} human_after commands
+  local branch=${NATIVE_ONE_SHOT_BRANCH} human_after commands planning_paths
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
   if git -C "${origin}" merge-base --is-ancestor "${base}" "${tip}"; then
     ancestor=true
@@ -75,10 +89,12 @@ git_publication_fixture_observe_one_shot() {
   printf 'base-ancestor: %s\n' "${ancestor}"
   printf 'trunk-commit-count: %s\n' \
     "$(git -C "${origin}" rev-list --count "${base}..${tip}")"
-  printf 'planning-record-paths: %s\n' "$(
+  planning_paths=$(
     git -C "${origin}" log --format= --name-only "${base}..${tip}" \
-      | grep -Ec '^\.planning/(PRODUCT-BACKLOG\.md$|seeds/|slice-plans/|agents/)' || true
-  )"
+      | grep -E '^\.planning/(PRODUCT-BACKLOG\.md$|seeds/|slice-plans/|agents/)' \
+      | LC_ALL=C sort -u || true
+  )
+  printf 'planning-paths: %s\n' "$(paste -sd, - <<< "${planning_paths}")"
   printf 'result-changed: %s\n' \
     "$(git -C "${origin}" diff --quiet "${base}" "${tip}" -- notes.txt && echo false || echo true)"
   printf 'workspace-present: %s\n' \
@@ -92,6 +108,9 @@ git_publication_fixture_observe_one_shot() {
     "$([[ ${human_after} == "${git_publication_fixture_human_before}" ]] && echo true || echo false)"
   node "${source_dir}/tests/support/git-publication-native-push-log-observe.mjs" \
     "${source_dir}" "${origin}" "${git_publication_fixture_root}/push.log"
+  if [[ ${journey} == one-shot-queued ]]; then
+    git_publication_one_shot_observe_closure "${base}" "${tip}" "${planning_paths}"
+  fi
 }
 
 # Stops CI observers the session left running in the fixture's mailbox root.
@@ -110,11 +129,11 @@ git_publication_one_shot_stop_observers() {
 
 git_publication_assess_one_shot() {
   local obs=$1 key
-  local stream_status human_edit_preserved base_ancestor trunk_commit_count
-  local planning_record_paths result_changed pushed_taken workspace_present
-  local branch_present
-  for key in stream-status human-edit-preserved base-ancestor \
-    trunk-commit-count planning-record-paths result-changed pushed-taken \
+  local journey stream_status human_edit_preserved base_ancestor
+  local trunk_commit_count planning_paths result_changed pushed_taken
+  local workspace_present branch_present
+  for key in journey stream-status human-edit-preserved base-ancestor \
+    trunk-commit-count planning-paths result-changed pushed-taken \
     workspace-present branch-present; do
     printf -v "${key//-/_}" '%s' "$(git_publication_assess_field "${obs}" "${key}")"
   done
@@ -124,32 +143,35 @@ git_publication_assess_one_shot() {
     git_publication_assess_fail 'human edits in the originating checkout changed'
   elif [[ ${base_ancestor} != true || ${trunk_commit_count} != 1 ]]; then
     git_publication_assess_fail 'remote trunk did not gain exactly one commit since the base'
-  elif [[ ${planning_record_paths} != 0 ]]; then
-    git_publication_assess_fail 'the trunk commit touched backlog, seed, plan or agent profile records'
   elif [[ ${result_changed} != true ]]; then
     git_publication_assess_fail 'the trunk commit does not hold the requested result'
   elif [[ -n ${pushed_taken} ]]; then
     git_publication_assess_fail 'a push accepted by remote trunk listed work under Taken'
   elif [[ ${workspace_present} != false || ${branch_present} != false ]]; then
     git_publication_assess_fail 'the owned workspace or its branch survived'
+  elif [[ ${journey} == one-shot-queued ]]; then
+    git_publication_assess_one_shot_closure "${obs}"
+  elif [[ -n ${planning_paths} ]]; then
+    git_publication_assess_fail 'the trunk commit touched backlog, seed, plan or agent profile records'
   else
     git_publication_assess_status=pass
     git_publication_assess_reason='only the one-shot result reached remote trunk and its workspace retired'
   fi
 }
 
-# Real-state counterexamples on a passing one-shot fixture: each mutation
-# alone makes the assessor fail, and undoing them all passes again.
+# Real-state counterexamples on a passing fixture of one-shot journey $2: each
+# mutation alone makes the assessor fail, and undoing them all passes again.
 run_one_shot_state_counterexamples() {
-  local transcript=$1 origin=${git_publication_fixture_origin}
+  local transcript=$1 journey=$2 origin=${git_publication_fixture_origin}
   local integration=${git_publication_fixture_integration}
-  local base=${git_publication_fixture_trunk_sha} tip commit path
+  local base=${git_publication_fixture_trunk_sha} tip commit path entry
   local obs="${git_publication_fixture_root}/counterexample.txt"
   local index="${git_publication_fixture_root}/counterexample.index"
   local push_log="${git_publication_fixture_root}/push.log"
+  local backlog=.planning/PRODUCT-BACKLOG.md taken=${NATIVE_ONE_SHOT_IDENTITY:-SEED-A#a}
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
   one_shot_reassess() {
-    git_publication_fixture_observe_one_shot one-shot-result complete \
+    git_publication_fixture_observe_one_shot "${journey}" complete \
       "${transcript}" > "${obs}"
     git_publication_assess "${obs}"
     git_publication_suite_expect_assess "$@"
@@ -166,28 +188,44 @@ run_one_shot_state_counterexamples() {
       "100644,$(git -C "${origin}" hash-object -w --stdin),$1"
     GIT_INDEX_FILE=${index} git -C "${origin}" write-tree
   }
-  one_shot_reassess pass 'only the one-shot result'
+  # Trunk as the one result commit with path $1 holding standard input.
+  one_shot_rewrite() {
+    commit=$(one_shot_commit "$(one_shot_tip_tree_with "$1")" "${base}" 'rewritten result')
+    git -C "${origin}" update-ref refs/heads/main "${commit}"
+  }
+  # Standard input's backlog with entry line $1 moved under heading $2.
+  one_shot_move_entry() {
+    awk -v line="$1" -v heading="$2" \
+      '$0 == line { next } { print } $0 == heading { print ""; print line }'
+  }
+  one_shot_reassess pass 'reached remote trunk'
 
   commit=$(one_shot_commit "${tip}^{tree}" "${tip}" 'second commit')
   git -C "${origin}" update-ref refs/heads/main "${commit}"
   one_shot_reassess fail 'exactly one commit'
 
-  # The result commit rewritten to also change one planning record.
-  for path in .planning/PRODUCT-BACKLOG.md .planning/seeds/one-shot.md \
-    .planning/slice-plans/one-shot/PLAN.md .planning/agents/native.json; do
-    commit=$(one_shot_commit "$(printf 'changed\n' | one_shot_tip_tree_with "${path}")" \
-      "${base}" 'result with a planning record')
-    git -C "${origin}" update-ref refs/heads/main "${commit}"
-    one_shot_reassess fail 'touched backlog, seed, plan or agent profile'
-  done
+  git -C "${origin}" show "${base}:notes.txt" | one_shot_rewrite notes.txt
+  one_shot_reassess fail 'does not hold the requested result'
+
+  if [[ ${journey} == one-shot-queued ]]; then
+    run_one_shot_queued_closure_counterexamples
+  else
+    # The result commit rewritten to also change one planning record.
+    for path in "${backlog}" .planning/seeds/one-shot.md \
+      .planning/slice-plans/one-shot/PLAN.md .planning/agents/native.json; do
+      printf 'changed\n' | one_shot_rewrite "${path}"
+      one_shot_reassess fail 'touched backlog, seed, plan or agent profile'
+    done
+  fi
   git -C "${origin}" update-ref refs/heads/main "${tip}"
 
-  # A pushed tip that listed story A under Taken, later replaced.
+  # A pushed tip that listed the work under Taken, later replaced.
+  entry=$(git -C "${origin}" show "${base}:${backlog}" | grep -e "— ${taken}\$")
   commit=$(one_shot_commit "$(
-    git -C "${origin}" show "${tip}:.planning/PRODUCT-BACKLOG.md" \
-      | awk '/^- \[Story A\]/ { next } { print } /^## Taken$/ { print ""; print "- [Story A](seeds/A.md#a) — SEED-A#a" }' \
-      | one_shot_tip_tree_with .planning/PRODUCT-BACKLOG.md
-  )" "${base}" 'Take story A')
+    git -C "${origin}" show "${base}:${backlog}" \
+      | one_shot_move_entry "${entry}" '## Taken' \
+      | one_shot_tip_tree_with "${backlog}"
+  )" "${base}" "Take ${taken}")
   cp -- "${push_log}" "${push_log}.kept"
   printf '%s %s refs/heads/main\n' "${base}" "${commit}" >> "${push_log}"
   one_shot_reassess fail 'listed work under Taken'
@@ -207,5 +245,5 @@ run_one_shot_state_counterexamples() {
   one_shot_reassess fail 'human edits'
   git_publication_fixture_plant_human_edit "${integration}"
 
-  one_shot_reassess pass 'only the one-shot result'
+  one_shot_reassess pass 'reached remote trunk'
 }

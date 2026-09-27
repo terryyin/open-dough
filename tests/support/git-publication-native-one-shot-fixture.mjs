@@ -7,10 +7,14 @@
 // whatever revision the checked remote branch holds. No backlog entry names
 // the requested work.
 //
+// one-shot-queued: the same project whose queued story B, described as adding
+// a line to `notes.txt` with a one-slice plan, sits between story A and its
+// unfinished sibling B2 in the same seed.
+//
 // Usage: node git-publication-native-one-shot-fixture.mjs <source-dir>
 //   <journey> <parent>
 import { execFileSync } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -19,15 +23,52 @@ const scripts = join(sourceDir, "src/skills/dough-execute-plan/scripts");
 const { createQueuedTrunk, readyContributing } = await import(
   pathToFileURL(join(scripts, "workspace-publication-fixtures.mjs")).href
 );
+const queued = await import(
+  pathToFileURL(join(scripts, "one-shot-queued-test-fixtures.mjs")).href
+);
 
 const git = (cwd, ...args) =>
   execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
-const trunk = await createQueuedTrunk({
+const isQueued = journey === "one-shot-queued";
+const trunkOptions = {
   contributing: readyContributing,
   durableCommandEvidence: true,
   parent,
-});
+};
+const trunk = isQueued
+  ? await queued.createSiblingTrunk(trunkOptions)
+  : await createQueuedTrunk(trunkOptions);
 const { fixture, origin, integration } = trunk;
+
+// Gives queued story B a concrete trivial outcome and a one-slice plan, and
+// records its readiness again over them.
+async function describeStoryB() {
+  const seedPath = join(integration, queued.seedB);
+  writeFileSync(
+    seedPath,
+    readFileSync(seedPath, "utf8").replace(
+      "Execute B.\n",
+      "Add the line 'Story B line' to the end of notes.txt.\n",
+    ),
+  );
+  writeFileSync(
+    join(integration, queued.planB),
+    `# Story B plan
+
+## Ordered slices
+
+### 1. Add the Story B line
+Type: Behavior
+Status: planned
+Proof: notes.txt ends with the line 'Story B line'.
+
+Append the line 'Story B line' to notes.txt.
+`,
+  );
+  await queued.recordStoryBReady(integration);
+}
+
+if (isQueued) await describeStoryB();
 writeFileSync(join(integration, "notes.txt"), "Release notes\n");
 writeFileSync(
   join(integration, "scripts/ci-check.mjs"),
@@ -62,5 +103,13 @@ process.stdout.write(
     branch: "exec/native-one-shot",
     journey,
     base: git(origin, "rev-parse", "refs/heads/main"),
+    ...(isQueued
+      ? {
+          identity: queued.identityB,
+          sibling: queued.identityB2,
+          seed: queued.seedB,
+          plan: queued.planB,
+        }
+      : {}),
   }),
 );

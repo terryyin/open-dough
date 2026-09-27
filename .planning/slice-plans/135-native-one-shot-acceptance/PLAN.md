@@ -74,7 +74,7 @@ otherwise move it to its own `tests/*.sh` job.
 
 ### 2. Judge a queued one-shot run by every push origin accepted
 Type: Behavior
-Status: planned
+Status: done
 Proof: as slice 1.
 
 Behavior: a queued fixture (story with its plan, an unfinished sibling below
@@ -141,3 +141,20 @@ Stop for the developer before any paid run and before a second rerun.
   stays behind (maintenance deferred by the human edit); retirement sets the
   upstream to `origin/main` first. Origin is a local path, so the agent picks
   its own `--repo` for `deliver`, and the prompt names no mode.
+- Slice 2 accepted proof: `bash tests/git-publication-native.sh` passes
+  with `run_substitute_one_shot_journey` for `one-shot-queued` (real start
+  `--one-shot --identity`, closure composed into the result commit,
+  `deliver --one-shot-identity`) and
+  `run_one_shot_queued_closure_counterexamples`
+  (`tests/support/git-publication-native-one-shot-queued.sh`: second commit,
+  result missing, backlog entry, story section or plan left, extra planning
+  record, sibling moved, removed or its section removed, a pushed tip listing
+  the story Taken, surviving workspace or branch, changed human edit — each
+  fails `git_publication_assess_one_shot_closure` or the shared checks).
+  `node --test` on the three one-shot-queued script tests passes 14/14;
+  `npm run lint` passes. Concurrent A/B under load: about 1.13x slice 1,
+  roughly 62 s against the 71 s budget.
+- For slice 3's queued run, watch for the agent Taking the story, committing
+  result and closure separately, or deleting the whole seed and so the
+  sibling's section. Identity matching must anchor at line end
+  (`SEED-B#b` prefixes `SEED-B#b2`).
