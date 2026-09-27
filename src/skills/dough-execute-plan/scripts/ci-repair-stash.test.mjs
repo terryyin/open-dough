@@ -126,7 +126,7 @@ test("a failed save records no stash and leaves the foreign stash and dirty file
   const saved = await fixture.save();
   assert.equal(saved.status, "failed");
   assert.equal(saved.exitCode, 1);
-  assert.match(saved.error, /\S/);
+  assert.match(saved.error, /\S/); // Its wording varies with Git version.
   assert.equal(saved.oid, null);
   assert.equal(JSON.parse(readFileSync(saved.record, "utf8")).oid, null);
 
