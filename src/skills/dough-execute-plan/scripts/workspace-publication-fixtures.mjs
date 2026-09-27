@@ -202,12 +202,13 @@ const startCli = fileURLToPath(
 );
 
 // `name` distinguishes the workspace, branch, and publisher of several starts
-// in one mode; it defaults to the mode. `env` is the command's environment.
+// in one mode; it defaults to the mode. `env` is the command's environment. A
+// null `identity` starts without one, as an unlisted one-shot request does.
 export async function startCliResult(
   trunk,
   mode,
   extra = [],
-  { cli = startCli, name = mode, env = process.env } = {},
+  { cli = startCli, name = mode, env = process.env, identity = identityA } = {},
 ) {
   const workspace = join(trunk.fixture, `start-${name}`);
   const branch = `exec/${name}`;
@@ -220,8 +221,7 @@ export async function startCliResult(
     workspace,
     "--branch",
     branch,
-    "--identity",
-    identityA,
+    ...(identity === null ? [] : ["--identity", identity]),
     "--publisher-id",
     `publisher-${name}`,
     "--mode",

@@ -39,182 +39,61 @@ dashboard or research stories.
 
 ## Story Decomposition
 
-<a id="one-shot-work"></a>
+<a id="one-shot-entry-coherence"></a>
 
-### 2. Complete trivial work with --one-shot and track it if it grows
+### 3. Make one-shot read the same from every entry workflow
 
-**Identity:** SEED-028#one-shot-work
+**Identity:** SEED-028#one-shot-entry-coherence
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/112-one-shot-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"514897d9222618a48d0daa3e076f884a315f061dd705f1275c09d3755c0f5903","plan":"dfe15874566cef7441163efacd751e0b07580e5e499059adc9300139aa23b9d5"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/130-one-shot-entry-coherence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5955c8781d093c16410685f904764b9b08b3d5dd54e11674b78c5b5d769526e5","plan":"09963ca6d98c795f34af996e05a8f8186ec1ad4bd005963d55328a6de9cc4be4"}}
 ```
 
-**Goal:** Developers can explicitly request a genuinely trivial change without
-publishing a Taken claim, while work that grows becomes visible through ordinary
-story admission before further execution.
+**Goal:** An agent that selects one-shot from bug fixing or test optimization
+gets one consistent path: its repair or no-change conclusion finishes through
+one-shot delivery and retirement, and a growing attempt becomes visible
+tracked work even when continuation is limited, while escalation survives a
+trunk push that lands during it.
 
-**Scope:** Provide `--one-shot` as an explicit option at the applicable work-entry
-workflows, using one shared meaning. Attempt one coherent, verifiable result and
-publish that result to remote main with ordinary reconciliation and verification.
-Successful one-shot work leaves no Taken claim history or temporary seed, plan
-or assignment for that attempt. For a queued story, its result commit also removes
-the entry and spent source/plan while preserving unfinished siblings. Its result
-commit and enduring product changes remain. This is distinct from planless execution and is not another
-branching mode.
+**Scope:** Correction of one-shot work (story recoverable at
+`89836961:.planning/seeds/SEED-028-track-ad-hoc-work.md`) from its execution
+retrospective (commits `d0101737`, `6f350f28`, `70f6cde1`). Adapt the
+bug-fixing repair and no-change steps and the test-optimization no-change step
+for one-shot; under `--no-replan` a growing one-shot attempt escalates through
+admission and stops before planning instead of leaving evidence in an
+unclaimed workspace. Replace the stale "no claim uses verified current HEAD"
+rules with the one-shot start's fetched-trunk base. Make carried escalation use
+one fetched trunk for park, reset and workspace selection. Excludes native
+acceptance evidence and consolidating backlog-holder readers across skills.
 
-When the attempt proves too large or uncertain to finish coherently in one go,
-preserve attributable edits and proof, create or reuse its canonical story, and
-publish ordinary Taken admission before continuing. Use the first story's
-publication, refresh, ownership and closure behavior. Do not first publish an
-incomplete result merely to maintain the one-shot label. No forced reset or
-reversion of unrelated work is allowed.
+**Plan:** [Make one-shot read the same from every entry workflow](../slice-plans/130-one-shot-entry-coherence/PLAN.md).
 
-Delivering to main does not require modifying the shared default checkout.
-Use the ordinary safe workspace and remote-publication contract; attempt safe
-local refresh after successful publication. The option does not bypass tests,
-required review, publication authority or unresolved architectural decisions.
+<a id="native-one-shot-acceptance"></a>
 
-**Evaluation / key examples:**
+### 4. Accept one-shot natively on Claude Code, Codex and Cursor
 
-- An explicit `--one-shot` request yields one complete, verified small change:
-  remote main contains the result and no Taken announcement or spent planning
-  artifact was published for the attempt.
-- Investigation reveals a larger change or additional coordinated steps:
-  publish the ordinary story and Taken claim before continuing, keeping valid
-  work and evidence rather than restarting or creating duplicate identities.
-- An ordinary Taken story is planless: it stays tracked. `--one-shot` does not
-  erase existing claims or their history, and completing quickly alone does not
-  silently select the option.
+**Identity:** SEED-028#native-one-shot-acceptance
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
 
-**Builds on:** delivered [shared admission](../../src/skills/dough-execute-plan/references/admit-accepted-work.md)
-for escalation into ordinary admission. Existing workspace/publication
-contracts apply; exclusive access to the default checkout is not required when
-an owned workspace can publish safely.
+**Goal:** An agent on each supported host that is asked for explicit one-shot
+work publishes only its verified result, completes a queued story in one
+commit, and escalates a growing attempt through admission without losing edits.
 
-**Safe stopping point:** Trivial requests can finish without tracking ceremony,
-and every oversized attempt has an honest tracked continuation. No further
-story or completed-work archive is needed.
+**Why:** [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+requires native behavior evidence before release; the one-shot guidance has
+mechanical proof only. Its planned native cases were never added.
 
-**Effort hypothesis:** Smaller than shared admission, but with meaningful recovery
-and escalation risk; low confidence until eligibility and applicable entry
-workflows are refined. S/M/L remains unset because project bands are undefined.
+**Cases** (named in plan 112, recoverable at
+`36e62435:.planning/slice-plans/112-one-shot-work/PLAN.md`), as manual cases in
+`tests/git-publication-native.sh`: `publication/one-shot-result` (explicit flag,
+only the result on trunk, workspace retired; ordinary contextual work still
+admits), `publication/one-shot-queued` (result and cleanup in one commit, no
+intermediate Taken), `publication/one-shot-escalation` (admission before further
+edits, restored edits, continuation without an unnecessary approval stop).
 
-#### One coherent attempt
-
-Use `--one-shot` explicitly for an independently requested outcome that the agent
-can reasonably complete and verify in one bounded attempt. Keep its meaning shared
-across direct contextual work and the mission entry workflows covered by admission
-(bug work, optimization, observation and reviews), rather than adding a per-skill
-meaning. The option selects tracking behavior; ordinary task authority, validation,
-workspace ownership and remote publication still apply.
-
-Eligibility rule: understood outcome and expected result, no known need
-for a multi-slice plan or unresolved product/architecture choice, and a credible
-focused verification path. No universal time, file-count or lines-changed threshold
-is proposed. Brief diagnosis and a normal test/fix loop can belong to one coherent
-attempt. Repeated failure to converge, discovery of separate outcomes or need for
-substantial investigation is evidence to leave the one-shot path. Existing
-project-specific limits still apply.
-
-A supported no-change finding can complete the request without manufacturing an
-empty commit. Successful changed work publishes its complete result and performs
-normal verification/CI and resource-cleanup obligations. No plan, completion note,
-assignment or claim is manufactured solely to satisfy a workflow. A transport
-failure or delayed CI verdict alone is publication/verification recovery, not
-proof the product task has become larger. Preserve the owned result and recover
-publication without duplicating it; report completion only on actual evidence.
-
-Existing Taken work retains its identity, owner and lifecycle. The flag must not
-remove another agent's claim or rewrite published history. A branch flag cannot
-silently redirect a successful one-shot result away from the authorized trunk;
-contradictory explicit delivery instructions need resolution before work starts.
-Default to the existing safe owned-workspace mechanism; do not add a direct-main
-editing prerequisite or a new workspace manager.
-
-#### Existing solutions and the remaining gap
-
-`dough-execute-plan` supports planless execution, focused proof, managed
-increment delivery, completion/CI handling and wrap-up. Since shared admission
-landed, an accepted independent mission in Story Branch or Trunk Mode is always
-admitted before its work: nothing today gives an owned workspace without a
-claim. One-shot adds exactly that entry to the same startup command, publishing
-nothing until its verified result.
-
-Admission publishes a story drafted in the originating checkout, its Taken
-entry and agent profile in one trunk commit, from a claim workspace that is
-clean at fetched trunk and that then becomes the story's checkout. It refuses a
-story already in the Backlog list. The oversized-slice procedure still
-continues quick work without a canonical story. Escalation therefore parks the
-attempt's owned edits, lets the same workspace become the clean claim
-workspace, restores the edits over the Take, and extends admission to accept a
-queued story without a readiness assessment. Continuation into implementation
-keeps admission's ordinary readiness gate.
-
-Wrap-up removes spent records through separate before-cleanup and closure
-commits. A queued one-shot instead composes backlog completion and spent-record
-removal into its single result candidate, guarded at managed delivery's
-existing pre-push seam so a Preparing or Taken holder that appears on trunk,
-even during reconciliation, stops the publication. Keep any interrupted-attempt
-recovery in the workspace and conversation rather than a one-shot registry or
-dashboard state. [North Star](../NORTH-STAR.md#one-admission-path-for-accepted-work)
-records these owners.
-
-#### Agreed boundaries
-
-- Both unlisted requests and queued stories may use `--one-shot`. A queued
-  story finishes with its result and ordinary spent-record cleanup in the same
-  commit, without an intermediate Taken claim. Already-Taken work keeps its
-  current owner and lifecycle; do not remove or conceal its history.
-- Escalation automatically admits the work and continues within the original
-  authorization, including ordinary planning when needed. Ask only when the
-  scope, authority, disputed constraint or ownership requires a human decision.
-  An explicit stop or `--no-replan` instruction still limits continuation; it
-  cannot authorize silently continuing oversized untracked work.
-- Recheck queued ownership against freshly fetched trunk before publishing or
-  escalating. Another agent's intervening claim or preparation assignment is
-  competing ownership; preserve local work and stop that publication rather
-  than deleting the other's record. This supplies safe optimistic coordination
-  without inventing a hidden one-shot claim.
-- Eligibility is judged from an understood, coherent outcome and credible
-  verification path. An agent that already knows the work is larger enters
-  normal admission before starting. A short diagnosis/test/fix loop can remain
-  one attempt; failure to converge or discovery of multiple outcomes triggers
-  escalation. Verification and delivery recovery alone do not establish growth.
-- Use the common option at independently invoked mission entry workflows, with
-  shared semantics. It grants no additional action permission. Preparation-only
-  requests keep their existing publication/disposition contract; the flag does
-  not automatically land a draft or implement a recommendation.
-
-**Additional key examples:** A queued tiny change publishes its result and
-removes only its own spent story; a concurrent Taken claim stops that cleanup;
-an oversized unlisted attempt publishes a new minimal story and claim while
-preserving local edits, then plans/continues within scope; a delayed CI verdict
-retains ordinary verification ownership without fabricating a backlog entry.
-
-**Plan:** [Complete one-shot work or admit its continuation](../slice-plans/112-one-shot-work/PLAN.md).
-
-No product question remains. The plan was re-bound on 2026-09-27 to the
-delivered admission interface and current publication owners.
-
-## Ordering and Scope Reduction
-
-Queue these two stories in this order at the original story's current position:
-shared admission first, then one-shot execution with escalation. Preserve unrelated
-queue order and existing Taken assignments. Admission directly advances the
-backlog's shared-progress visibility direction and supplies the second story's
-fallback. Drop or defer one-shot first if scope must shrink; admission remains a
-complete useful outcome on its own.
-
-The original story keeps its identity and its ordinary-lifecycle outcome. Only
-one new story is introduced. Completed-story retention, historical dashboards,
-new lifecycle categories and separate per-process tracking implementations remain
-outside both stories. Research into qualifying processes is part of refining
-the first story, not an additional queued research deliverable.
-
-The agreed name is `--one-shot` (2026-09-26). Architecture direction is recorded
-in [Proposed ADR 0007](../../docs/adrs/0007-software-development-lifecycles.md).
-Decomposition and backlog placement authorize neither executable planning nor
-implementation. Surface the first story when accepted work would bypass shared
-tracking; surface the second when tracking overhead overwhelms a trivial request.
+**Constraints:** Paid native runs are manually triggered only, once per case
+per guidance version, after [entry coherence](#one-shot-entry-coherence) lands.
 
 ## Breadcrumbs
 

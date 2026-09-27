@@ -6,6 +6,8 @@ original_pwd=$(pwd -P)
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "${source_dir}/src/install/open-dough-platform.sh"
 source "${source_dir}/src/install/open-dough-register-hooks.sh"
+# shellcheck source=src/install/open-dough-install-payload.sh
+source "${source_dir}/src/install/open-dough-install-payload.sh"
 usage() {
   echo "Usage: $0 --target <project> --source <url-or-path> [--platform <codex|cursor|claude>] [--force]" >&2
   exit 1
@@ -53,10 +55,7 @@ destination_for /dev/null "${platform}" > /dev/null
 if [[ "${recorded_source}" == /* && -d "${recorded_source}" ]]; then
   recorded_source=$(cd -- "${recorded_source}" && pwd -P)
 elif [[ -d "${original_pwd}/${recorded_source}" ]]; then recorded_source=$(cd -- "${original_pwd}/${recorded_source}" && pwd -P); fi
-[[ -d "${target}" ]] || {
-  echo "Client project directory does not exist: ${target}" >&2
-  exit 1
-}
+[[ -d "${target}" ]] || { echo "Client project directory does not exist: ${target}" >&2 && exit 1; }
 target=$(cd -- "${target}" && pwd -P)
 managed_files=(
   dough-update/SKILL.md
@@ -158,6 +157,7 @@ managed_files=(
   dough-execute-plan/references/execution-location.md
   dough-execute-plan/references/finish-or-stop.md
   dough-execute-plan/references/maintain-default-checkout.md
+  dough-execute-plan/references/one-shot.md
   dough-execute-plan/references/oversized-slice.md
   dough-execute-plan/references/publication-rebase-conflict.md
   dough-execute-plan/references/publish-the-candidate.md
@@ -207,6 +207,9 @@ managed_files=(
   dough-execute-plan/scripts/execution-start-source.mjs
   dough-execute-plan/scripts/execution-source.mjs
   dough-execute-plan/scripts/execution-admission-source.mjs
+  dough-execute-plan/scripts/execution-admission-reconcile.mjs
+  dough-execute-plan/scripts/execution-start-carry.mjs
+  dough-execute-plan/scripts/one-shot-ownership.mjs
   dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
   dough-execute-plan/scripts/history-preserving-publication.mjs
   dough-execute-plan/scripts/maintain-default-checkout.mjs
@@ -236,16 +239,11 @@ managed_files=(
   dough-story-wrap-up/scripts/closure-publication.mjs
   dough-story-wrap-up/scripts/closure-resources.mjs
 )
-for managed_file in "${managed_files[@]}"; do [[ -f "${source_dir}/src/skills/${managed_file}" ]] || {
-  echo "Client payload is incomplete: missing ${managed_file}" >&2
-  exit 1
-}; done
+require_declared_payload
 release_helper="${source_dir}/src/install/open-dough-release.sh"
 [[ -f "${release_helper}" ]] || {
   echo "This installer requires src/install/open-dough-release.sh in the source checkout." >&2
   exit 1
 }
 version=$(bash "${release_helper}" validate-checkout "${source_dir}")
-# shellcheck source=src/install/open-dough-install-payload.sh
-source "${source_dir}/src/install/open-dough-install-payload.sh"
 install_declared_payload

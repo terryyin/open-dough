@@ -58,7 +58,7 @@ plan to that same story. New corrections use a seed story linked to their plan;
 retain compatibility for existing plan-homed identities without migration. New canonical
 content must survive claim retry and agent reselection together with the claim.
 The dashboard continues to derive its view from those published records. This
-direction serves [one-shot escalation](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work);
+direction serves [one-shot escalation](seeds/SEED-028-track-ad-hoc-work.md#one-shot-entry-coherence);
 it creates no ad hoc entity, origin flag, parallel publisher or speculative
 one-shot machinery. Follow the separate-facts and cohesion principles in
 [ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
@@ -75,14 +75,16 @@ Concretely, the startup command owns all three entries: Take, admission and
 one-shot. `--one-shot` reuses its request validation, published-source reading
 and owned-workspace selection, then publishes nothing. Its result goes through
 ordinary managed increment delivery; a queued story's backlog completion and
-spent-record removal join that same candidate, and an ownership guard at the
-publisher's existing pre-push seam rereads fetched trunk after every
-reconciliation. On growth the one-shot workspace becomes the admitted story's
+spent-record removal join that same candidate, and an ownership guard
+rereads each fetched trunk tip before the publisher rewrites anything, since
+replaying that completion over a competing Take would otherwise surface as a
+backlog merge conflict. On growth the one-shot workspace becomes the admitted story's
 checkout: park the attempt's owned edits under a workspace-owned ref, return
 the workspace to clean fetched trunk, run the ordinary admission claim there,
-then restore the edits over the Take. Admission accepts a queued story too,
-moving its existing entry to Taken without a readiness assessment; continuing
-into implementation keeps the ordinary readiness gate. Entry workflows pass the
+then restore the edits over the Take. Admission carrying such an attempt
+accepts a queued story too, moving its existing entry to Taken without a
+readiness assessment; ordinary queued starts and continuing into
+implementation keep the readiness gate. Entry workflows pass the
 flag through and keep no one-shot rules of their own.
 
 ## One backlog interpretation, separate observation and presentation

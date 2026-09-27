@@ -835,8 +835,60 @@ other slice's unreviewed, uncommitted work.
     did not make shared tooling disjoint. Concurrent slices 1 and 2 still
     saved wall time.
 
+## DD-124 — A publisher-seam premise was observed by reading the seam, not the race it had to stop
+
+Plan 112 recorded "`beforePush` runs after every reconciliation, before each
+push" as a held decisive premise from a code read. Slice 2 found a competing
+Take conflicts in the backlog merge driver before any pre-push hook runs, so
+the guard needed a new post-fetch seam. Same class as catalog ODF-110; its
+journey rule (`2c5ff71`) was already installed when the plan was re-bound.
+
+### Occurrences
+- Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737`
+  - Timestamp: unknown; between re-bind `e8ce93b9` (2026-09-27T15:50:01+08:00) and slice 2 commit `6f350f28` (2026-09-27T16:40:20+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42)
+  - Evidence: plan 112 premise table at `e8ce93b9` cites `execution-increment-publication.mjs:143-197`; slice 2 first return reported the merge-driver conflict; corrected premise row and North Star wording in `6f350f28`
+  - Observed effect: one extra implementation round in slice 2 (an added pre-reconciliation fetch, then consolidation into `onFetchedTarget`) and a North Star correction
+  - Inference: Qualified. A race premise is cheap to observe with the existing racing-push fixtures; reading the hook's call sites observed the seam, not the Take-then-replay journey
+
+## DD-125 — An implementation agent used a Git feature newer than common client hosts
+
+Slice 3's first return restored carried edits with
+`git merge-tree --write-tree --merge-base`, which needs Git 2.40; Debian 12
+ships 2.39 and Ubuntu 22.04 ships 2.34. No guidance or check names a minimum
+Git version for installed scripts; the coordinator's review caught it.
+
+### Occurrences
+- Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737`
+  - Timestamp: unknown; before slice 3 commit `70f6cde1` (2026-09-27T17:05:36+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42)
+  - Evidence: first slice 3 return (`execution-start-carry.mjs:110`); portable `git apply --cached` replacement in `70f6cde1`
+  - Observed effect: one correction round before acceptance; local Git 2.50 passed every test either way
+  - Inference: Qualified. Without the review, escalation would fail only on older client hosts, where no test runs
+
+## DD-126 — A slice-acceptance obligation recorded as a plan learning never reached the next delegation
+
+After slice 1 the coordinator recorded that slice 3's guidance walk must
+confirm bug-fixing and test-optimization repair and no-change steps for a
+one-shot mission; the slice 3 delegation prompt omitted it, and the refactor
+and acceptance passes did not check it.
+
+### Occurrences
+- Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737`
+  - Timestamp: unknown; slice 3 delegated after `6f350f28` (2026-09-27T16:40:20+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42)
+  - Evidence: plan 112 Learnings at `d0101737`; `dough-bug-fixing/SKILL.md:98` still forces `--no-replan` and its closure steps still route through wrap-up at `70f6cde1`
+  - Observed effect: the retrospective found contradictory closure guidance and planned a correction
+  - Inference: Qualified. Learnings are free text; nothing ties an acceptance obligation to the slice that must satisfy it
+
 ## Retention
 
-- Highest allocated local number: 123. Removed local codes are never reused.
+- Highest allocated local number: 126. Removed local codes are never reused.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.

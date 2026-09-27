@@ -2,17 +2,17 @@
 name: dough-execute-plan
 description: >-
   Executes one selected story or bounded retrospective correction through an
-  executable plan, or one authorized planless slice from a selected simple story
-  or a contextual instruction, with independent refactoring, delivery, and
-  asynchronous CI repair. Use to execute a plan, run slices, execute a canonical
-  story when the caller explicitly skips slice planning, or execute a small
-  instruction from context without a story or plan. Also admits an accepted
-  mission that no backlog list holds, such as a standalone review,
-  investigation, or maintenance request, into Taken before its work starts.
-  Does not decide story scope or quick-path eligibility. `--trunk` selects
-  Trunk Mode; omitted mode keeps Story Branch Mode. `--skip-retro` skips the
-  automatic planned-execution retrospective. `--replan` and `--no-replan` choose
-  whether an oversized attempt may continue through planning.
+  executable plan, or one authorized planless slice from a selected simple story or
+  a contextual instruction, with independent refactoring, delivery, and asynchronous
+  CI repair. Use to execute a plan, run slices, execute a canonical story when the
+  caller explicitly skips slice planning, or execute a small instruction from
+  context without a story or plan. Also admits an accepted mission that no backlog
+  list holds, such as a standalone review, investigation, or maintenance request,
+  into Taken before its work starts. Does not decide story scope or quick-path
+  eligibility. `--trunk` selects Trunk Mode; omitted mode keeps Story Branch Mode.
+  `--one-shot` publishes only the result of explicitly selected trivial work.
+  `--skip-retro` skips the automatic planned-execution retrospective. `--replan` and
+  `--no-replan` choose whether an oversized attempt may continue through planning.
 ---
 
 # Execute planned or planless work
@@ -164,9 +164,9 @@ failures, completion, and retrospective; wrap-up removes it.
 ### Admit accepted work that no backlog list holds
 
 When the current instruction accepts a mission that no backlog list holds,
-follow [admit accepted work](references/admit-accepted-work.md) before its
-substantive work. It admits the story with this start command and `--admit`,
-and later continues that claim into authorized implementation.
+follow [admit accepted work](references/admit-accepted-work.md), which admits it
+with this start command and `--admit` before its substantive work. Explicitly
+selected [one-shot work](references/one-shot.md) starts with `--one-shot` instead.
 
 ## Choose the execution location
 

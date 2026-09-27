@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Installed CLI for authorized queued startup, or admission of accepted work
-// that no backlog list holds yet.
+// Installed CLI for authorized queued startup, admission of accepted work
+// that no backlog list holds yet, or preparation of one-shot work.
 import { isDirectCliEntry } from "./ci-direct-entry.mjs";
 import { startExecution } from "./execution-start-operation.mjs";
 
@@ -9,7 +9,7 @@ export { startExecution } from "./execution-start-operation.mjs";
 function argumentsOf(argv) {
   if (argv[0] !== "start")
     throw new Error(
-      "usage: execution-start.mjs start --integration PATH --workspace PATH --branch NAME --identity ID --publisher-id ID --mode trunk|story-branch --remote NAME --target BRANCH --push-authorized --workspace-authorized [--admit --link HREF --title TEXT] [--plan PATH] [--host claude|codex|cursor] [--model TEXT] [--declared-owner ID --requester ID] [--starting-revision SHA --candidate-sha SHA]",
+      "usage: execution-start.mjs start --integration PATH --workspace PATH --branch NAME [--identity ID] [--publisher-id ID] --mode trunk|story-branch --remote NAME --target BRANCH --push-authorized --workspace-authorized [--admit --link HREF --title TEXT [--carry] | --one-shot] [--plan PATH] [--host claude|codex|cursor] [--model TEXT] [--declared-owner ID --requester ID] [--starting-revision SHA --candidate-sha SHA]",
     );
   const result = {};
   for (let index = 1; index < argv.length; index += 1) {
@@ -18,6 +18,8 @@ function argumentsOf(argv) {
       "--push-authorized": "pushAuthorized",
       "--workspace-authorized": "workspaceAuthorized",
       "--admit": "admit",
+      "--carry": "carry",
+      "--one-shot": "oneShot",
     }[flag];
     if (toggle) {
       result[toggle] = true;

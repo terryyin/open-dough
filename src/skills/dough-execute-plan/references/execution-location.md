@@ -11,6 +11,8 @@ Caller-selected current-branch
 work commits its claim on the current checkout, which is never published.
 An accepted independent mission, including contextual planless work, is
 [admitted](admit-accepted-work.md) through that same startup operation.
+Explicitly selected [one-shot work](one-shot.md) prepares its workspace there
+without a claim.
 When no claim applies, use verified current HEAD and create no story, plan, or queue entry; still
 create the local execution workspace from that HEAD unless the caller selected
 the current branch. When that HEAD is the default checkout, verify it first under
