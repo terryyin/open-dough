@@ -27,10 +27,8 @@ fi
 
 output_root=$(mktemp -d)
 # Each job's seconds and label, longest first; see scripts/test-budget.sh.
-# OPEN_DOUGH_TEST_TIMES names this run's file; jobs do not inherit it, so a
-# runner that a check starts keeps its times in its own output.
+# OPEN_DOUGH_TEST_TIMES names this run's file.
 times_file=${OPEN_DOUGH_TEST_TIMES:-${output_root}/times}
-unset OPEN_DOUGH_TEST_TIMES
 # fd 4 keeps the runner's stderr while it goes to a launching job's launch file
 # (see the launch loop); an exit mid-launch restores it and shows that file.
 exec 4>&2
@@ -81,12 +79,13 @@ run_job() {
 # resolved from the caller's directory, or with none every check in the test
 # directory, and OPEN_DOUGH_TEST_SPLIT's share. The runner resolves the test
 # directory once — OPEN_DOUGH_TEST_DIR, default `tests` — and hands it over.
-# A bad path fails the run here, before any job starts. Like
-# OPEN_DOUGH_TEST_TIMES, jobs do not inherit the split, so a runner that a
-# check starts runs all of its own checks.
+# A bad path fails the run here, before any job starts.
 test_dir=${OPEN_DOUGH_TEST_DIR:-tests}
 OPEN_DOUGH_TEST_DIR=${test_dir} "${test_bash}" scripts/test-jobs.sh --from "${caller_dir}" "$@" > "${output_root}/jobs"
-unset OPEN_DOUGH_TEST_SPLIT
+# Every OPEN_DOUGH_TEST_* setting is the runner's own: it has read each one it
+# uses by now, and none reaches a job, so a runner that a check starts runs all
+# of its own checks with only the settings that check gives it.
+unset "${!OPEN_DOUGH_TEST_@}"
 kinds=()
 labels=()
 while IFS=$'\t' read -r -d '' kind label; do

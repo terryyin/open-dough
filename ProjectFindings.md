@@ -16,7 +16,8 @@ executions, not commands, retries, or repairs.
 1. **Test-runner settings reaching what the runner starts (DD-114) — first.**
    Two executions on 2026-09-27 (plans 122 and 120): one red CI run, and one
    product guard whose test passed even with the guard removed. Both concrete
-   leaks are repaired; nothing yet stops the next runner setting from leaking.
+   leaks are repaired, and the runner now keeps every `OPEN_DOUGH_TEST_*`
+   setting from its jobs (SEED-051#isolate-runner-settings, `6b2ca78f`).
    Its generic facet, a consumer check that misses non-import consumers, is
    already published guidance tracked as ODF-003 and ODF-118 in
    [DearDough.md](DearDough.md); this file owns the runner's own design.
@@ -40,8 +41,8 @@ published planning-premise response covers it.
 
 ## Test-runner settings reaching what the runner starts (first priority)
 
-**Follow-up:** queued, not resolved:
-[Keep the test runner's own settings from reaching the checks it starts](.planning/seeds/SEED-051-isolate-test-runner-settings.md#isolate-runner-settings)
+**Follow-up:** delivered: "Keep the test runner's own settings from reaching
+the checks it starts" (story at `6ddfcf01`:`.planning/seeds/SEED-051-isolate-test-runner-settings.md`)
 covers the split occurrence (plan 122). The plan 120 occurrence, a setting the
 runner shares with every check on purpose reaching product code under test, is
 not part of it: `23a3a759` repaired that case, and the general proof-design
@@ -50,6 +51,8 @@ concern stays with the published guidance tracked as ODF-003 and ODF-118.
 ### DD-114 — A new runner setting reached checks that start the runner; only CI's split jobs showed it
 
 Slice 1 proved `OPEN_DOUGH_TEST_SPLIT` over substitute checks, but runner tests that start the runner themselves inherited the CI job's split and ran only a share of their own substitutes. The existing precedent that jobs do not inherit `OPEN_DOUGH_TEST_TIMES` was not applied to the new setting.
+
+**Response:** SEED-051#isolate-runner-settings (plan 132, `6b2ca78f`). `scripts/test.sh` unsets every `OPEN_DOUGH_TEST_*` variable in one prefix-wide `unset` after listing the jobs, in place of one `unset` per setting, so a setting added later stays with the runner too. `tests/test-runner-split.sh` gives the runner a job count and an unknown `OPEN_DOUGH_TEST_ANYTHING`, and its substitute checks fail naming any `OPEN_DOUGH_TEST_*` variable they inherited.
 
 #### Occurrences
 

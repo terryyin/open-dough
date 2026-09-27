@@ -941,8 +941,27 @@ observer launch recipes went unused.
   - Observed effect: no rework or error; context spent on paths not taken
   - Inference: Qualified. The skill ties reads to boundaries ("before arming observation", "before a claim"), but managed delivery and the start command now own those mechanics, so a boundary reached through them still triggers full reads. Cost only; this run gives no evidence of harm to quality
 
+## DD-155 — Two plans planned concurrently on different checkouts both took number 132
+
+Story refinement of SEED-051#isolate-runner-settings in the default checkout
+numbered its plan 132 after the highest visible plan, 131, while the
+SEED-008#isolate-parallel-slice-delivery retrospective, in its own execution
+worktree, also created correction plan 132. Both reached trunk, so the
+number-only request `/dough-execute-plan 132` named two plans. Same mechanism
+as catalog ODF-106 (colliding plan numbers), now in this repository.
+
+### Occurrences
+- Execution: `SEED-051#isolate-runner-settings` / plan 132, first related implementation commit `6b2ca78f`
+  - Timestamp: 2026-09-27T18:36:56+08:00 (plan commit `77a8ca0f`; the sibling `132-restate-ci-pause-ownership` was committed at 18:32:11+08:00 in `9060ff71` on the execution branch and reached trunk via merge `54b5f025`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac7` (v0.3.42)
+  - Evidence: `.planning/slice-plans/132-isolate-runner-settings/` and `.planning/slice-plans/132-restate-ci-pause-ownership/` on trunk at `54b5f025`
+  - Observed effect: the executor had to infer the intended plan (the one at the default checkout's HEAD when the session started) and could have Taken the other queued story
+  - Inference: Qualified. Allocation from checkout-visible numbers cannot see another checkout's unpublished plan; the collision went unnoticed at merge because directory names differ
+
 ## Retention
 
-- Highest allocated local number: 128. Removed local codes are never reused.
+- Highest allocated local number: 155. Removed local codes are never reused.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.
