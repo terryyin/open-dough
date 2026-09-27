@@ -83,7 +83,7 @@ blocked-merge behavior do not change.
 | A checkout with no agent keeps today's merge commit | 1: existing adapter cases stay unchanged and green |
 
 Focused checks:
-`node --test src/skills/dough-story-wrap-up/scripts/closure-story-integration.test.mjs tests/support/product-backlog-git-merge.test.mjs`,
+`node --test src/skills/dough-story-wrap-up/scripts/closure-story-integration.test.mjs src/skills/dough-story-wrap-up/scripts/closure-story-integration-agent-credit.test.mjs tests/support/product-backlog-git-merge.test.mjs tests/support/product-backlog-git-merge-agent-credit.test.mjs`,
 plus the tests that import any changed file, and
 `/opt/homebrew/bin/bash tests/payload-declaration-links.sh` when guidance
 links change.
@@ -92,7 +92,7 @@ links change.
 
 ### 1. Story Branch integration merges credit the developer
 Type: Behavior
-Status: planned
+Status: done
 Proof: Reproduce the missing trailer on an agent-workspace integration merge,
 both plain and through the adapter, as a failing assertion. Then route both
 through `creditDeveloper` and assert:
@@ -111,3 +111,23 @@ unusable developer stops the integration before publication.
 
 Safe stop: every agent-enabled commit the product guides carries the
 developer credit.
+
+Accepted proof (focused command above, 11/11 pass):
+
+- `closure-story-integration-agent-credit.test.mjs`: the agent's
+  history-preserving merge is agent-authored with the developer as committer
+  and exactly one developer trailer; an agent-equal developer returns
+  `preserved` / `developer-identity-refused` with no commit and no push.
+- `product-backlog-git-merge-agent-credit.test.mjs`: the adapter's merge
+  commit credits the developer once; an agent-equal developer leaves the merge
+  uncommitted (`refused-before-commit`), and `continue` after fixing the
+  identity commits it with one developer trailer.
+- Existing non-agent adapter, conflict, hook, rebase, and cherry-pick cases
+  stay green; `tests/payload-declaration-links.sh` and the payload-update
+  shell tests pass.
+
+Learnings: both merge paths share `creditMergeInProgress`, which credits
+Git's prepared `MERGE_MSG` through `creditDeveloper` before the ordinary
+commit. Guidance commits an in-progress merge with
+`agent-commit.mjs -F "$(git rev-parse --git-path MERGE_MSG)"`. An identity
+refusal leaves the merge in progress, as a conflict does.

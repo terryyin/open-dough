@@ -9,7 +9,8 @@
 // in for one identically) in a scratch repository and asserts on real Git
 // and file-system state afterward: index stages, `MERGE_HEAD`, ref
 // positions, and the worktree's own bytes. A successful merge shows only its
-// receipt; `product-backlog-git-merge-hook.test.mjs` covers a project hook.
+// receipt; `product-backlog-git-merge-hook.test.mjs` covers a project hook,
+// and `product-backlog-git-merge-agent-credit.test.mjs` an agent's workspace.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { backlogOf } from "./product-backlog-fixture.mjs";
