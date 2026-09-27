@@ -141,3 +141,19 @@ test("the coordinator finishes a resolved repair conflict through the stash scri
     assert.match(none[0], act);
   }
 });
+
+test("an agent paused for a CI repair preserves unowned work from humans or other sessions", () => {
+  const pause = section(
+    reference("ci-monitor.md"),
+    /## Pause and resume writers/,
+    / ## /,
+  );
+
+  // The pause contract matches delegation: the checkout may hold unowned
+  // work from humans or other sessions, and it is preserved.
+  assert.match(
+    pause,
+    /unowned work[^.]*humans or other sessions[^.]*preserved/i,
+  );
+  assert.doesNotMatch(pause, /other agents' work/i);
+});

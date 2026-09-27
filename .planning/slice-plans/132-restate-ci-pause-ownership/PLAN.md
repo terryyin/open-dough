@@ -32,7 +32,7 @@ reason; add no sentence saying agents no longer run concurrently.
 
 ### 1. A paused agent preserves unowned work for the delegation's reason
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: an implementation agent paused for a CI repair reads, in the pause
 contract, that unowned work from humans or other sessions may be present in
@@ -47,6 +47,14 @@ section and asserting that unowned work from humans or other sessions is
 preserved there. Red first against the current text. Then
 `node --test src/skills/dough-execute-plan/scripts/shared-checkout-writers-guidance.test.mjs`
 and `npm test` with Bash 5 on `PATH`.
+
+Accepted proof: new test "an agent paused for a CI repair preserves unowned
+work from humans or other sessions" in `shared-checkout-writers-guidance.test.mjs`
+reads the "Pause and resume writers" section of `ci-monitor.md` (no setup) and
+asserts unowned work from humans or other sessions is preserved and that
+"other agents' work" is gone. Red first against the old text (4 pass, 1 fail);
+green after the change (5 pass). `PATH=/opt/homebrew/bin:$PATH npm test` with
+GNU bash 5.3 exits 0. Post-change refactor: no edits.
 
 ## Current decisions
 
