@@ -15,11 +15,11 @@ operational visibility for multiple agents working in worktrees on one machine.
 
 - [Keep roster and human credit honest under slow or odd evidence](seeds/SEED-049-project-agent-roster.md#roster-evidence-correction) — SEED-049#roster-evidence-correction ([plan](slice-plans/125-roster-evidence-correction/PLAN.md))
 - [Keep product guards provable and the CI-platform command faithful](seeds/SEED-048-explicit-test-environment.md#test-environment-correction) — SEED-048#test-environment-correction ([plan](slice-plans/127-test-environment-correction/PLAN.md))
+- [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers ([plan](slice-plans/118-plan-link-readers/PLAN.md))
 
 ## Backlog list
 
 - [Report conflicting CI repair restores truthfully and drop through the script](seeds/SEED-008-worktree-branch-trunk-sync.md#truthful-repair-restore) — SEED-008#truthful-repair-restore
-- [Read every plan link by its file](seeds/SEED-028-track-ad-hoc-work.md#plan-link-readers) — SEED-028#plan-link-readers
 - [Verify planning premises and proof setup before declaring readiness](seeds/SEED-044-verify-planning-premises.md#verify-planning-premises) — SEED-044#verify-planning-premises
 - [Preserve readiness when an unrelated sibling story changes](seeds/SEED-043-preserve-relevant-readiness.md#preserve-sibling-readiness) — SEED-043#preserve-sibling-readiness
 - [Complete trivial work with --one-shot and track it if it grows](seeds/SEED-028-track-ad-hoc-work.md#one-shot-work) — SEED-028#one-shot-work

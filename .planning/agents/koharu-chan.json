@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Koharu-chan",
+  "email": "koharu-chan@example.org",
+  "identity": "SEED-028#plan-link-readers",
+  "mode": "story-branch",
+  "branch": "cursor/118-plan-link-readers",
+  "host": "cursor",
+  "model": "gemini-3.8-flash"
+}
