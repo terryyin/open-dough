@@ -71,37 +71,37 @@ it is larger than that -- that check asks only which commit `main` names
 but no story branch is seen to move until the next listing that succeeds, when
 watching branches resumes.
 
-A read that fails, finds a backlog the shared reader refuses, or waits more
-than 30 seconds for GitHub (`readWaitLimitMs` in
-`src/authenticatedReadRules.ts`, the bound the local boundary shares) ends as a
-read problem, never as an empty or partial backlog. The snapshot read earlier
-stays shown with its own revision and retrieval time -- it is the last
-successful snapshot, not a claim that `main` still names it -- the problem says
-what failed and when, and the read control is named **Retry** until a read
-succeeds. A failed revision check, or a failed read of a newly found commit's
-backlog, is reported the same way and keeps that snapshot. While a snapshot is
-shown the page keeps checking, but only at the 15-second pace, never at once: a
-new commit whose backlog could not be read is found again by the next check and
-read then. When GitHub answers a check with a rate limit that says when to ask
-again (`Retry-After`, or `X-RateLimit-Reset` once `X-RateLimit-Remaining` is
-`0`), the page asks nothing more until that time -- even when the page is seen
-again -- and the problem says when checks resume. The boundary passes on only
-the validated wait, at most one hour. A later check or read that succeeds lifts
-any such wait and clears the problem, unless the problem stands with its
-snapshot as described below. **Retry** reads the project's `main` afresh at
-once, whenever it is pressed. A record detail that could not be read stays
-labeled on its card rather than borrowing an older one; checks that find `main`
-unchanged never read it again, so press **Refresh** to retry it at the same
-revision. When the 30-second bound ends a read after the new commit's backlog
-was shown, each detail still unread is shown as such a gap on that snapshot,
-and the problem stands with it: a check that finds `main` unchanged does not
-clear it, and only a later read that replaces that snapshot does. Selecting
-another project stays available throughout: a failed or still-reading project
-never blocks switching to another, and returning to a project starts a fresh
-read rather than replaying the failure. Switching projects abandons the
+A read that fails, finds a backlog the shared reader refuses, or waits more than
+30 seconds for GitHub (`readWaitLimitMs` in `src/authenticatedReadRules.ts`, the
+bound the local boundary shares) ends as a read problem, never as an empty or
+partial backlog. The snapshot read earlier stays shown with its own revision and
+retrieval time -- it is the last successful snapshot, not a claim that `main`
+still names it -- the problem says what failed and when, and the read control is
+named **Retry** until a read succeeds. A failed revision check, or a failed read
+of a newly found commit's backlog, is reported the same way and keeps that
+snapshot. While a snapshot is shown the page keeps checking, but only at the
+15-second pace, never at once: a new commit whose backlog could not be read is
+found again by the next check and read then. When GitHub answers a check with a
+rate limit that says when to ask again (`Retry-After`, or `X-RateLimit-Reset`
+once `X-RateLimit-Remaining` is `0`), the page asks nothing more until that time
+-- even when the page is seen again -- and the problem says when checks resume.
+The boundary passes on only the validated wait, at most one hour. A later check
+or read that succeeds lifts any such wait and clears the problem, unless the
+problem stands with its snapshot as described below. **Retry** reads the
+project's `main` afresh at once, whenever it is pressed. A record detail that
+could not be read stays labeled on its card rather than borrowing an older one;
+checks that find `main` unchanged never read it again, so press **Refresh** to
+retry it at the same revision. When the 30-second bound ends a read after the
+new commit's backlog was shown, each detail still unread is shown as such a gap
+on that snapshot, and the problem stands with it (a slice clock or credited
+human still unread is only its own gap): a check that finds `main` unchanged
+does not clear it, and only a later read that replaces that snapshot does.
+Selecting another project stays available throughout: a failed or still-reading
+project never blocks switching to another, and returning to a project starts a
+fresh read rather than replaying the failure. Switching projects abandons the
 previous project's read, detail reads, and revision check; a late answer from
-any of them changes nothing, and only the newly selected project is checked
-from then on.
+any of them changes nothing, and only the newly selected project is checked from
+then on.
 
 If reading a project fails, the read problem names that project's repository
 and what the local `gh` could establish -- for example that it is not logged
@@ -114,16 +114,16 @@ There is no dashboard sign-in, no token-entry UI, and no automatic login: the
 dashboard only reuses whatever access the launching person's own `gh` already
 has.
 
-Each **Taken** card shows who holds that work, from the agent profile
-published beside the backlog (`.planning/agents/<name>-chan.json`) at the same
-revision, for example "Akiho-chan · Trunk Mode · Claude Code · <model>". A
-Story Branch Mode profile's branch is shown as branch context, never as work
-on trunk. A host or model the profile does not record is shown as not
-recorded, and a Taken entry without a profile shows "Owner not recorded". A
-profile the shared profile reader cannot read is listed with the Taken stage
-as unreadable and is not matched to any entry. A revision without a profile
-directory simply has no profiles. What a profile means is decided by the
-shared profile module under `src/skills/dough-product-backlog/scripts/`.
+Each **Taken** card shows who holds that work, from the agent profile published
+beside the backlog (`.planning/agents/<name>-chan.json`) at the same revision,
+for example "Akiho-chan · Trunk Mode · Claude Code · <model>". A Story Branch
+Mode profile's branch is shown as branch context, never as work on trunk. A host
+or model the profile does not record is shown as not recorded, and a Taken entry
+without a profile shows "Owner not recorded". A profile the shared reader cannot
+read, or one naming another agent than its file, is listed with the Taken stage
+as unreadable and matched to no entry. A revision without a profile directory
+simply has no profiles. What a profile means is decided by the shared profile
+module under `src/skills/dough-product-backlog/scripts/`.
 
 A queued card named by a published preparation assignment shows **Preparing**
 and that developer, keeping its priority and badges; it is never a Taken owner.
@@ -134,11 +134,11 @@ Each agent portrait on a Taken or Preparing card is a control that opens the
 selected project's **Agent roster**: all 29 agents of the shared rotation with
 their portraits, the clicked agent marked and focused. Each agent shows the
 assignment its published profile records at the shown revision -- Taken or
-Preparing, the task's title and identity, and the recorded mode, host, and
-model -- or "No assignment recorded" when the profile directory was read and
-names none. Work the backlog at that revision does not list keeps its identity
-with a title gap; an unreadable profile leaves its agent uncertain, and a failed
-profile read leaves every agent's assignment unknown. An assignment is not a
+Preparing, the task's title and identity, and the recorded mode, host, and model
+-- or "No assignment recorded" when the profile directory was read and names
+none. Work the backlog at that revision does not list keeps its identity with a
+title gap; an unreadable profile leaves its agent uncertain, and a failed
+snapshot or profile read leaves every assignment unknown. An assignment is not a
 claim that an agent is working now. The roster comes from the same snapshot as
 the cards and makes no read of its own; selecting another project replaces its
 source. **Back to stories** at the top returns to the stories with any open
@@ -163,16 +163,17 @@ local boundary. Without a matched account or a usable, fetched avatar, the
 name keeps its initials. Neither name nor avatar says anyone is working now.
 
 Each Taken card with a readable plan also shows its recorded slice progress: a
-bar with one segment per slice, filled for each slice recorded complete, and
-"N of M slices recorded complete". It counts recorded statuses, not how much
-of the story is done. The shared plan reader decides what a plan's slices are
-(under `## Ordered slices` or `## Slices`); a missing, unreadable, or
-uninterpretable plan is shown as that gap instead of a count. Beside the bar,
-"Current slice started N min ago" measures from the later of the plan's last
-commit and the Take (the commit that added the entry's agent profile), and
-advances with page time without asking GitHub again. It is time since the last
-recorded update, not evidence that an agent is active. A Taken entry without a
-profile measures from the plan commit and says so.
+bar with one segment per slice, filled for each slice recorded complete, and "N
+of M slices recorded complete". It counts recorded statuses, not how much of the
+story is done. The shared plan reader decides what a plan's slices are (under
+`## Ordered slices` or `## Slices`); a missing, unreadable, or uninterpretable
+plan is shown as that gap instead of a count. Beside the bar, "Current slice
+started N min ago" measures from the later of the plan's last commit and the
+Take (the commit that added the entry's agent profile; none found is a gap),
+shows once its own reads end, and advances with page time without asking GitHub
+again. It is time since the last recorded update, not evidence that an agent is
+active. A Taken entry without a profile measures from the plan commit and says
+so.
 
 Progress comes from where the story's work is published. A single Trunk Mode
 profile reads the plan at the shown revision of `main`. A single Story Branch
