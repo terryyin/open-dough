@@ -14,7 +14,7 @@ import type {
   TakenOwner,
   UnreadableProfile,
 } from "./agentAssignments.ts";
-import type { AgentRoster } from "./commissionRoster.ts";
+import type { AgentRoster } from "./assignmentRoster.ts";
 
 export type WorkEntry = {
   readonly identity: string;
@@ -66,7 +66,7 @@ export type PublishedWork = {
   // Published agent profiles that could not be read; none are matched to an
   // entry.
   readonly unreadableProfiles?: readonly UnreadableProfile[];
-  // Every agent of the rotation and its published commissions at this
+  // Every agent of the rotation and its published assignments at this
   // revision; loading until the profiles are read.
   readonly roster?: AgentRoster;
 };

@@ -1,7 +1,6 @@
 # Dashboard UX/UI North Star
 
-**Status:** Temporary design direction for discussion and incremental development.
-**Updated:** 2026-09-23.
+**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-09-27.
 
 Help a developer understand the project's published story progress, then inspect
 the evidence behind it. The first useful experience should be small enough to
@@ -75,10 +74,8 @@ Do not require readers to interpret raw Git history to answer the ordinary
 questions. Make the underlying records available when they need to verify an
 answer. Keep the initial interaction observational: browse, inspect, refresh,
 and follow source links. Assignment, reprioritization, and agent controls are
-outside this initial design.
-
-The first story answers the backlog/Taken and source questions. The other
-questions guide later increments; zoom must not invent facts to answer them.
+outside this initial design. Zoom must not invent facts to answer these
+questions.
 
 ## Connected stages and spatial navigation
 
@@ -119,6 +116,8 @@ reason to introduce an animation engine now.
 | Backlog / Outside backlog | Membership in selected work. “Outside backlog” requires sufficient membership evidence; a failed backlog read means membership is unknown. |
 | Taken | Recorded claim for execution. Avoid “Running,” “Online,” or an animated activity dot. |
 | Developer | Recorded assignment, potentially an agent's rotating name. Missing assignment is “Not recorded,” not an inferred commit author. A queued story's published preparation assignment shows “Preparing” with its developer on the backlog card: an undertaking, not live activity, a stage, or readiness; unreadable or conflicting assignments stay visibly uncertain. |
+| Agent roster / Assignment | The roster shows every agent of the rotation with the assignment its published profile records at the shown revision, opened from a card's portrait and left with “Back to stories”: one more view of the same snapshot, not a presence list. “Assignment” is the one term on cards, roster, and detail for what a published agent profile records: its task, activity, and recorded host and model. A read directory without the agent's profile shows “No assignment recorded”; an unread one, “Assignment unknown” with its reason; an unreadable profile, “Assignment uncertain.” Conflicting preparation assignments are named as conflicting records, never resolved by picking one. |
+| Credited human / Human avatar | “Human developer: Name” is the committer of the commit that added the profile's current assignment, never a later commit author. Otherwise say “Human developer unknown” with why. It credits the assignment, not presence. Its avatar, or the name's initials, is decorative beside the name and never implies that the person or agent is online or working now. |
 | Refinement / Slice plan | Separate facts, not obligatory sequential gates. Show “Refinement recorded” or “Plan recorded” only with evidence; otherwise distinguish absence from unreadable evidence. |
 | Story Branch Mode | Show the recorded origin execution branch, not a guessed branch or the branch it was created from. Missing branch metadata is “Execution branch not recorded.” |
 | Trunk Mode | Show the observed project's trunk ref. Absence of a story branch is expected, not an error. Missing mode is “Mode not recorded”; do not infer it from branch absence. |

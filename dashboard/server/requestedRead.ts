@@ -188,6 +188,17 @@ export function parseRequestedRead(
   if (watch.length > 0 && !onlyRevisionCheck) {
     return refused("Watched branches are named only with a revision check.");
   }
+  // An addition read is asked only on trunk, so a branch or head is refused
+  // as part of it.
+  if (committed === "added") {
+    return [since, branch, params.get("head"), agents].every(
+      (other) => other === null,
+    )
+      ? parseAdditionRead(revision, path)
+      : refused(
+          "An addition read names only a pinned revision and an agent profile path.",
+        );
+  }
   if (branch !== null || params.get("head") !== null) {
     return parseBranchRead(params, branch);
   }
@@ -204,13 +215,6 @@ export function parseRequestedRead(
       return unpinnedRevision;
     }
     return { kind: "agent-profiles-at", revision };
-  }
-  if (committed === "added") {
-    return since === null
-      ? parseAdditionRead(revision, path)
-      : refused(
-          "An addition read names only a pinned revision and an agent profile path.",
-        );
   }
   if (since !== null) {
     if (revision !== null || path !== null || committed !== null) {

@@ -1,4 +1,4 @@
-// The human developer credited for each published commission: the Git
+// The human developer credited for each published assignment: the Git
 // committer of the commit that added its agent profile's current allocation,
 // as the local authenticated boundary found it by walking that profile's
 // history back from the snapshot's revision. Only the snapshot's own readable
@@ -7,7 +7,7 @@
 // commit never supplies the human; when the addition or a usable name cannot
 // be established, the gap is said, never guessed. A matched GitHub account's
 // avatar is shown only through the local boundary, which finds the account
-// itself. Attribution says who commissioned the work, never that anyone is
+// itself. Attribution says who assigned the work, never that anyone is
 // working now.
 
 import {
@@ -81,7 +81,7 @@ async function attributionAt(
   }
 }
 
-// The snapshot's commissions, each with the human its own profile credits,
+// The snapshot's assignments, each with the human its own profile credits,
 // from the read's one addition per readable profile (`additionOf`, shared with
 // the Take's slice clock); `withAssignments` places them wherever assignments
 // are shown. Each human is passed on to `onAttributed` as soon as its own walk
@@ -89,17 +89,17 @@ async function attributionAt(
 export async function readAttributedAssignments(
   source: PublishedSource,
   revision: string,
-  assignments: ProfileAssignments | undefined,
+  profiles: ProfileAssignments | undefined,
   additionOf: ProfileAdditions,
   signal: AbortSignal,
-  onAttributed?: (assignments: ProfileAssignments) => void,
+  onAttributed?: (profiles: ProfileAssignments) => void,
 ): Promise<ProfileAssignments | undefined> {
-  if (assignments === undefined) {
+  if (profiles === undefined) {
     return undefined;
   }
-  let attributed = assignments;
+  let attributed = profiles;
   await Promise.all(
-    assignments.commissions.map(async ({ profilePath }, index) => {
+    profiles.assignments.map(async ({ profilePath }, index) => {
       const human = await attributionAt(
         source,
         profilePath,
@@ -109,8 +109,8 @@ export async function readAttributedAssignments(
       );
       attributed = {
         ...attributed,
-        commissions: attributed.commissions.map((commission, each) =>
-          each === index ? { ...commission, human } : commission,
+        assignments: attributed.assignments.map((assignment, each) =>
+          each === index ? { ...assignment, human } : assignment,
         ),
       };
       onAttributed?.(attributed);

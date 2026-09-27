@@ -4,7 +4,7 @@
 // were read (the shown revision, or the recorded branch head); the Take is
 // the read's one addition of that profile at the shown revision, where the
 // profile was read, the same addition that names its human
-// (`./commissionAttribution.ts`). When no profile records the Take the clock
+// (`./assignmentAttribution.ts`). When no profile records the Take the clock
 // starts at the plan commit and says so; when the profiles cannot say which
 // commit was the Take, or its addition cannot be found, the clock is a gap.
 // Commit times come through the local authenticated boundary; how long ago

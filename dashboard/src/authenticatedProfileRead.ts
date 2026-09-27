@@ -103,7 +103,7 @@ async function readProfileAdditionAt(
 }
 
 // One read's additions at `revision`: each profile's addition is asked once,
-// however many details of the read need it (its commission's human and its
+// however many details of the read need it (its assignment's human and its
 // Take's slice clock), and each asker waits only for its own profile's.
 export function profileAdditionsAt(
   source: PublishedSource,

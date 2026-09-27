@@ -73,7 +73,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     );
   });
 
-  await test.step("each commission shows its task, activity, and recorded host and model, and unknowns stay distinct", async () => {
+  await test.step("each assignment shows its task, activity, and recorded host and model, and unknowns stay distinct", async () => {
     const akiho = member("Akiho-chan");
     await expect(akiho.locator(".roster-activity")).toHaveText("Taken");
     await expect(akiho).toContainText(takenStory);
@@ -102,24 +102,29 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
       "Story Branch Mode · host not recorded · model not recorded",
     );
 
-    await expect(member("Mana-chan")).toContainText(
-      "Commission uncertain: agent profile mana-chan.json is unreadable: profile is not JSON.",
+    // Assignment gaps look alike on the roster and on cards.
+    await expect(member("Mana-chan").locator(".assignment-gap")).toHaveText(
+      "Assignment uncertain: agent profile mana-chan.json is unreadable: profile is not JSON.",
     );
-    await expect(member("Mana-chan")).not.toContainText("Not commissioned");
+    await expect(member("Mana-chan")).not.toContainText(
+      "No assignment recorded",
+    );
 
     // A profile filed under Yui that names Sola is Yui's unreadable
-    // profile: Yui is not called uncommissioned, and Sola gains nothing.
+    // profile: Yui is not called unassigned, and Sola gains nothing.
     await expect(member("Yui-chan")).toContainText(
-      "Commission uncertain: agent profile yui-chan.json is unreadable: profile names another agent.",
+      "Assignment uncertain: agent profile yui-chan.json is unreadable: profile names another agent.",
     );
-    await expect(member("Yui-chan")).not.toContainText("Not commissioned");
-    await expect(member("Sola-chan")).toContainText("Not commissioned");
+    await expect(member("Yui-chan")).not.toContainText(
+      "No assignment recorded",
+    );
+    await expect(member("Sola-chan")).toContainText("No assignment recorded");
     await expect(member("Sola-chan")).not.toContainText(queuedIdentity);
 
     // Every other agent was read to have no profile.
-    await expect(members.filter({ hasText: "Not commissioned" })).toHaveCount(
-      24,
-    );
+    await expect(
+      members.filter({ hasText: "No assignment recorded" }),
+    ).toHaveCount(24);
     await expect(roster.getByRole("list")).not.toContainText(
       /online|offline|live|away|active|busy|idle/i,
     );
@@ -160,7 +165,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     ).toBeVisible();
   });
 
-  await test.step("selecting another project replaces the roster's source, and a failed profile read leaves every commission unknown", async () => {
+  await test.step("selecting another project replaces the roster's source, and a failed profile read leaves every assignment unknown", async () => {
     await opener("Akiho-chan").click();
     await expect(roster).toBeVisible();
     await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
@@ -169,10 +174,10 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     );
     await expect(
       members.filter({
-        hasText: "Commission unknown. Agent profiles could not be read.",
+        hasText: "Assignment unknown. Agent profiles could not be read.",
       }),
     ).toHaveCount(29);
-    await expect(roster).not.toContainText("Not commissioned");
+    await expect(roster).not.toContainText("No assignment recorded");
     await expect(roster).not.toContainText(takenStory);
     await expect(roster).not.toContainText(/Taken|Preparing/);
 
@@ -181,7 +186,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await expect(taken).toBeVisible();
   });
 
-  await test.step("selecting a project whose backlog cannot be read says why no commission is known, and marks no agent as opened", async () => {
+  await test.step("selecting a project whose backlog cannot be read says why no assignment is known, and marks no agent as opened", async () => {
     await project
       .getByRole("radio", { name: "Open Dough", exact: true })
       .check();
@@ -193,10 +198,10 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await expect(member("Akiho-chan")).toHaveAttribute("aria-current", "true");
     await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
     await expect(roster).toContainText(
-      "Pygardon: no published work has been read, so no commission is known.",
+      "Pygardon: no published work has been read, so no assignment is known.",
     );
     await expect(
-      members.filter({ hasText: `Commission unknown. ${backlogUnreadable}` }),
+      members.filter({ hasText: `Assignment unknown. ${backlogUnreadable}` }),
     ).toHaveCount(29);
     await expect(roster).not.toContainText("Reading agent profile…");
     await expect(roster.locator('[aria-current="true"]')).toHaveCount(0);

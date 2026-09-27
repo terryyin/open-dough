@@ -133,18 +133,18 @@ It disappears when preparation lands or is abandoned. Unreadable profiles show
 Each agent portrait on a Taken or Preparing card is a control that opens the
 selected project's **Agent roster**: all 29 agents of the shared rotation with
 their portraits, the clicked agent marked and focused. Each agent shows the
-commission its published profile records at the shown revision -- Taken or
+assignment its published profile records at the shown revision -- Taken or
 Preparing, the task's title and identity, and the recorded mode, host, and
-model -- or "Not commissioned" when the profile directory was read and names
-none. Work the backlog at that revision does not list keeps its identity with
-a title gap; an unreadable profile leaves its agent uncertain, and a failed
-profile read leaves every agent's commission unknown. A commission is not a
+model -- or "No assignment recorded" when the profile directory was read and
+names none. Work the backlog at that revision does not list keeps its identity
+with a title gap; an unreadable profile leaves its agent uncertain, and a failed
+profile read leaves every agent's assignment unknown. An assignment is not a
 claim that an agent is working now. The roster comes from the same snapshot as
 the cards and makes no read of its own; selecting another project replaces its
 source. **Back to stories** at the top returns to the stories with any open
 story detail still open and focus on the portrait that opened the roster.
 
-Each commission, on its Taken or Preparing card and in the roster, names the
+Each assignment, on its Taken or Preparing card and in the roster, names the
 **human developer** credited for it: the Git committer of the commit that
 added its profile's current allocation. The local boundary lists that
 profile's history at the shown revision (its ten latest changes) and walks it
@@ -161,7 +161,7 @@ process, so each account's avatar is read from GitHub once however often cards
 and the roster show it; the page asks only the local boundary, naming a
 profile and revision, never an account or image address. When no account was
 matched, or its avatar is refused or cannot be fetched, the name stays with its
-initials. A name or avatar credits the commission; neither says anyone is
+initials. A name or avatar credits the assignment; neither says anyone is
 working now.
 
 Each Taken card with a readable plan also shows its recorded slice progress: a

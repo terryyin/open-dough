@@ -1,11 +1,11 @@
 // The selected project's agent roster: every agent of the shared rotation, and
-// the commissions its published profiles record at the shown revision. It is
-// one more view of the snapshot the stages show, never a separate read, and a
-// commission says what an agent was assigned, never that it is working now.
+// the assignments its published profiles record at the shown revision. It is
+// one more view of the snapshot the stages show, never a separate read, and an
+// assignment says what a profile records, never that its agent is working now.
 // Back returns to the stories the roster was opened from.
 
 import { useLayoutEffect, useRef, type ReactNode } from "react";
-import type { RosterMember } from "./commissionRoster.ts";
+import type { RosterMember } from "./assignmentRoster.ts";
 import { RecordedFacts } from "./AgentAssignmentFacts.tsx";
 import { HumanCredit } from "./HumanCredit.tsx";
 import { AgentPortrait } from "./AgentPortrait.tsx";
@@ -19,34 +19,34 @@ import "./agent-roster.css";
 
 const activities = { execution: "Taken", preparation: "Preparing" } as const;
 
-// Why no agent's commission is known: the profiles are still being read, or
+// Why no agent's assignment is known: the profiles are still being read, or
 // could not be, or no snapshot was read to hold them. Only a profile directory
 // that was read can show an agent has none.
-function CommissionUnknown({ reason }: { reason: string | undefined }) {
+function AssignmentUnknown({ reason }: { reason: string | undefined }) {
   if (reason !== undefined) {
-    return <p className="preparation-problem">Commission unknown. {reason}</p>;
+    return <p className="assignment-gap">Assignment unknown. {reason}</p>;
   }
   return <p className="quiet">Reading agent profile…</p>;
 }
 
-// What a read member's published profile commissions it to.
-function Commission({ member: { profile } }: { member: RosterMember }) {
+// What a read member's published profile assigns it to.
+function MemberAssignment({ member: { profile } }: { member: RosterMember }) {
   if (profile === undefined) {
-    return <p className="quiet">Not commissioned</p>;
+    return <p className="quiet">No assignment recorded</p>;
   }
   if ("problem" in profile) {
     return (
-      <p className="preparation-problem">
-        Commission uncertain: agent profile {profile.file} is unreadable:{" "}
+      <p className="assignment-gap">
+        Assignment uncertain: agent profile {profile.file} is unreadable:{" "}
         {profile.problem}.
       </p>
     );
   }
   return (
-    <div className="roster-commission">
+    <div className="roster-assignment">
       <p className="roster-activity">{activities[profile.activity]}</p>
       {profile.title === undefined ? (
-        <p className="preparation-problem">
+        <p className="assignment-gap">
           Task title not found: the published backlog at this revision lists no
           entry with this identity.
         </p>
@@ -93,7 +93,7 @@ export function AgentRoster({
         ? roster.problem
         : undefined;
   // One agent of the rotation, marked when its portrait opened the roster.
-  const row = (name: string, commission: ReactNode) => {
+  const row = (name: string, assignment: ReactNode) => {
     const current = name === agent;
     return (
       <li
@@ -110,7 +110,7 @@ export function AgentRoster({
         {current && (
           <p className="roster-opened-note">Opened from its portrait</p>
         )}
-        {commission}
+        {assignment}
       </li>
     );
   };
@@ -124,18 +124,18 @@ export function AgentRoster({
       <h2 id="agent-roster-heading">Agent roster</h2>
       <p className="roster-source">
         {work === undefined
-          ? `${source.label}: no published work has been read, so no commission is known.`
+          ? `${source.label}: no published work has been read, so no assignment is known.`
           : `${source.label}: agent profiles published at revision ${shortRevision(work.revision)}.`}{" "}
-        A commission is what a published profile records, not whether its agent
+        An assignment is what a published profile records, not whether its agent
         is working now.
       </p>
       <ol className="roster-members">
         {roster?.status === "read"
           ? roster.members.map((member) =>
-              row(member.name, <Commission member={member} />),
+              row(member.name, <MemberAssignment member={member} />),
             )
           : agentNames.map((name) =>
-              row(name, <CommissionUnknown reason={unknownReason} />),
+              row(name, <AssignmentUnknown reason={unknownReason} />),
             )}
       </ol>
     </section>

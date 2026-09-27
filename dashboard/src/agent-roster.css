@@ -1,5 +1,5 @@
 /* The agent roster: every agent of the rotation with its larger portrait and
-   published commission, the agent it was opened from marked, and Back at the
+   published assignment, the agent it was opened from marked, and Back at the
    top. Members reflow from a grid to one column at narrow widths. */
 
 .agent-roster > * + * {
@@ -61,7 +61,7 @@
   font-weight: 600;
 }
 
-.roster-commission {
+.roster-assignment {
   display: grid;
   gap: 0.15rem;
 }

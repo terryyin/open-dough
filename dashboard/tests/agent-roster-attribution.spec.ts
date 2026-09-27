@@ -1,4 +1,4 @@
-// Each current commission names the human developer credited for it: the Git
+// Each current assignment names the human developer credited for it: the Git
 // committer of the commit that added its agent profile's current allocation,
 // shown on its Taken or Preparing card and in the agent roster. The fake
 // GitHub only publishes files and each profile's history
@@ -26,7 +26,7 @@ import {
   takenStory,
 } from "./agentRosterRecords.ts";
 
-test("each commission credits the committer of its profile allocation's addition on its card and in the roster, and says when that cannot be established", async ({
+test("each assignment credits the committer of its profile allocation's addition on its card and in the roster, and says when that cannot be established", async ({
   page,
 }) => {
   const origin = publishMovingFiles(page, firstRevision);
@@ -69,7 +69,9 @@ test("each commission credits the committer of its profile allocation's addition
     await expect(member("Kirara-chan").locator(".owner-human")).toHaveText(
       `Human developer: ${preparer}`,
     );
-    await expect(member("Yuma-chan").locator(".owner-human")).toHaveText(
+    await expect(
+      member("Yuma-chan").locator(".owner-human.assignment-gap"),
+    ).toHaveText(
       "Human developer unknown: no commit adding this agent profile was found in its recent published history.",
     );
     await expect(member("Sola-chan").locator(".owner-human")).toHaveText(
@@ -77,7 +79,7 @@ test("each commission credits the committer of its profile allocation's addition
     );
     await expect(roster).not.toContainText(modifier);
     await expect(roster).not.toContainText(olderAllocator);
-    // An unreadable profile has no commission to credit.
+    // An unreadable profile has no assignment to credit.
     await expect(member("Mana-chan").locator(".owner-human")).toHaveCount(0);
   });
 

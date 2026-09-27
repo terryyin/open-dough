@@ -238,7 +238,7 @@ their own image without upstream reads; red against login keying.
 
 ### 6. Cards and roster speak one commission vocabulary
 Type: Behavior
-Status: planned
+Status: done
 Proof: The card and roster journeys assert the chosen wording for unknown,
 conflicting, and absent commissions and for the credited human's gaps; code
 identifiers and the gap CSS class use the same term; the UX North Star gains
@@ -248,6 +248,20 @@ branch-scoped addition refusal names the addition read.
 Behavior: A developer reads a commission gap on a card and on the roster → both
 use the same term and the North Star describes it → no surface calls one
 concept by two names.
+
+Accepted proof: the one term is "assignment" (ADR 0008's "Developer
+assignment", the tech-stack domain names, the North Star Developer row, and
+the `preparation-assignment` CLI already used it; "commission" was only plan
+123's roster). `agent-roster.spec.ts` asserts "Assignment uncertain…", "No
+assignment recorded", and "Assignment unknown…" through `.assignment-gap`;
+`backlog-preparing.spec.ts` asserts "Preparation assignment unknown…" and
+"Conflicting records: 2 preparation assignments name this entry." through the
+same class; the attribution journey asserts the human's gap with it;
+`authenticated-read-profile-addition.spec.ts` refuses a branch-scoped
+addition read as "An addition read names only…". Identifiers and modules use
+assignment (`assignmentRoster.ts`, `assignmentAttribution.ts`), and the North
+Star gains "Agent roster / Assignment" and "Credited human / Human avatar"
+rows. Whole `npm run test:dashboard` 151 green.
 
 ### 7. The roster suite proves each behavior once, without noise
 Type: Structure

@@ -161,7 +161,7 @@ export function TakenOwnerFacts({
     return <p className="card-owner quiet">Reading agent profile…</p>;
   }
   if (owner.status === "unavailable") {
-    return <p className="card-owner preparation-problem">{owner.problem}</p>;
+    return <p className="card-owner assignment-gap">{owner.problem}</p>;
   }
   if (owner.status === "not-recorded") {
     return <p className="card-owner">Owner not recorded</p>;
@@ -195,7 +195,7 @@ export function PreparingFacts({
   }
   if (preparing.status === "unavailable") {
     return (
-      <p className="card-owner preparation-problem">
+      <p className="card-owner assignment-gap">
         Preparation assignment unknown. {preparing.problem}
       </p>
     );
@@ -211,7 +211,7 @@ export function PreparingFacts({
         </div>
       ))}
       {preparers.length > 1 && (
-        <p className="preparation-problem">
+        <p className="assignment-gap">
           Conflicting records: {preparers.length} preparation assignments name
           this entry.
         </p>
@@ -233,7 +233,7 @@ export function UnreadableProfiles({
   return (
     <ul className="unreadable-profiles" aria-label="Unreadable agent profiles">
       {profiles.map(({ file, problem }) => (
-        <li key={file} className="preparation-problem">
+        <li key={file} className="assignment-gap">
           Agent profile {file} is unreadable: {problem}. It is not matched to
           any entry.
         </li>

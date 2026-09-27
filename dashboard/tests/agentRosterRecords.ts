@@ -1,6 +1,6 @@
 // The records the agent roster journey (agent-roster.spec.ts) publishes: an
 // Open Dough revision whose profiles, spelled by the shared profile renderer,
-// commission one Taken and one Preparing agent, one agent for work its backlog
+// assign one Taken and one Preparing agent, one agent for work its backlog
 // no longer lists and with nothing recorded about host or model, one
 // malformed profile, and one profile filed under Yui whose text names Sola;
 // and a Doughnut revision whose profile directory cannot be
@@ -66,7 +66,7 @@ export const openDoughFiles = {
   }),
   [`${agents}/mana-chan.json`]: '{ "agent": "Mana-chan", ',
   // Filed under Yui, it names Sola preparing the queued story: evidence about
-  // Yui that contradicts itself, and no commission for Sola or that story.
+  // Yui that contradicts itself, and no assignment for Sola or that story.
   [`${agents}/yui-chan.json`]: renderAgentProfile({
     name: "Sola",
     identity: queuedIdentity,

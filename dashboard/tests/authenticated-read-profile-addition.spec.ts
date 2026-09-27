@@ -170,7 +170,7 @@ test.describe("authenticated profile addition read (dev launch mode)", () => {
       read: "on a story branch",
       query: `revision=${revision}&branch=story%2Fexample&head=${revision}&path=${yuiProfile}`,
       error:
-        "A commit time read names only a pinned revision and repository path.",
+        "An addition read names only a pinned revision and an agent profile path.",
     },
   ]) {
     test(`refuses an addition read ${refused.read} before launching gh`, async () => {

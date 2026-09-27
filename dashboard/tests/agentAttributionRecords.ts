@@ -1,4 +1,4 @@
-// The profile histories the commission attribution journey
+// The profile histories the assignment attribution journey
 // (agent-roster-attribution.spec.ts) publishes beside the agent roster's
 // records (agentRosterRecords.ts): at the first revision, a Taken profile
 // modified after the commit that added its current allocation, which follows

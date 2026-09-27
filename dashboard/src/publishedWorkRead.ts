@@ -33,7 +33,7 @@ import {
   readAssignments,
   withAssignments,
 } from "./agentAssignments.ts";
-import { readAttributedAssignments } from "./commissionAttribution.ts";
+import { readAttributedAssignments } from "./assignmentAttribution.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
 
 // The shared reader is untyped JavaScript, so its result is checked here for
@@ -107,7 +107,7 @@ function interpret(
 // a read problem, so a stalled connection leaves the person able to retry;
 // nothing retries for them. When the bound ends a read after its membership
 // was shown, the snapshot is finished with a gap for each detail left unread
-// before the problem is reported. Each commission's human and each Taken
+// before the problem is reported. Each assignment's human and each Taken
 // card's slice clock are later details of the same read, sharing one addition
 // read per agent profile: their latency and failure, the bound included, stay
 // their own.
@@ -141,7 +141,7 @@ export async function readPublishedWork(
         enrichPreparation(work, untilEither),
         readAssignments(source, revision, untilEither),
       ]);
-      // Each profile's addition is read once, for both its commission's human
+      // Each profile's addition is read once, for both its assignment's human
       // and its Take's slice clock. Each human is read while progress and
       // clocks are, and is shown as soon as its own walk ends, in whatever
       // snapshot is shown by then.
