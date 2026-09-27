@@ -17,7 +17,7 @@ executions, not commands, retries, or repairs.
    Two executions on 2026-09-27 (plans 122 and 120): one red CI run, and one
    product guard whose test passed even with the guard removed. Both concrete
    leaks are repaired, and the runner now keeps every `OPEN_DOUGH_TEST_*`
-   setting from its jobs (SEED-051#isolate-runner-settings, commit pending).
+   setting from its jobs (SEED-051#isolate-runner-settings, `6b2ca78f`).
    Its generic facet, a consumer check that misses non-import consumers, is
    already published guidance tracked as ODF-003 and ODF-118 in
    [DearDough.md](DearDough.md); this file owns the runner's own design.
@@ -52,7 +52,7 @@ concern stays with the published guidance tracked as ODF-003 and ODF-118.
 
 Slice 1 proved `OPEN_DOUGH_TEST_SPLIT` over substitute checks, but runner tests that start the runner themselves inherited the CI job's split and ran only a share of their own substitutes. The existing precedent that jobs do not inherit `OPEN_DOUGH_TEST_TIMES` was not applied to the new setting.
 
-**Response:** SEED-051#isolate-runner-settings (plan 132, commit pending). `scripts/test.sh` unsets every `OPEN_DOUGH_TEST_*` variable in one prefix-wide `unset` after listing the jobs, in place of one `unset` per setting, so a setting added later stays with the runner too. `tests/test-runner-split.sh` gives the runner a job count and an unknown `OPEN_DOUGH_TEST_ANYTHING`, and its substitute checks fail naming any `OPEN_DOUGH_TEST_*` variable they inherited.
+**Response:** SEED-051#isolate-runner-settings (plan 132, `6b2ca78f`). `scripts/test.sh` unsets every `OPEN_DOUGH_TEST_*` variable in one prefix-wide `unset` after listing the jobs, in place of one `unset` per setting, so a setting added later stays with the runner too. `tests/test-runner-split.sh` gives the runner a job count and an unknown `OPEN_DOUGH_TEST_ANYTHING`, and its substitute checks fail naming any `OPEN_DOUGH_TEST_*` variable they inherited.
 
 #### Occurrences
 
