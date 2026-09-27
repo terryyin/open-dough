@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Aino-chan",
+  "email": "aino-chan@example.org",
+  "identity": "SEED-008#restate-ci-pause-ownership",
+  "mode": "story-branch",
+  "branch": "dough/restate-ci-pause-ownership",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

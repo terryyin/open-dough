@@ -14,11 +14,11 @@ operational visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep the test runner's own settings from reaching the checks it starts](seeds/SEED-051-isolate-test-runner-settings.md#isolate-runner-settings) — SEED-051#isolate-runner-settings ([plan](slice-plans/132-isolate-runner-settings/PLAN.md))
+- [Restate the CI pause's preservation for sequential slices](seeds/SEED-008-worktree-branch-trunk-sync.md#restate-ci-pause-ownership) — SEED-008#restate-ci-pause-ownership ([plan](slice-plans/132-restate-ci-pause-ownership/PLAN.md))
 
 ## Backlog list
 
 - [Preserve lasting rules from every record wrap-up deletes](seeds/SEED-004-extract-and-adopt-project-guidance.md#preserve-rules-from-story-sections) — SEED-004#preserve-rules-from-story-sections
-- [Restate the CI pause's preservation for sequential slices](seeds/SEED-008-worktree-branch-trunk-sync.md#restate-ci-pause-ownership) — SEED-008#restate-ci-pause-ownership
 - [Accept one-shot natively on Claude Code](seeds/SEED-028-track-ad-hoc-work.md#native-one-shot-acceptance) — SEED-028#native-one-shot-acceptance
 - [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective
 - [Continue test optimization plans into execution or the backlog](seeds/SEED-004-extract-and-adopt-project-guidance.md#continue-test-optimization-plans) — SEED-004#continue-test-optimization-plans
