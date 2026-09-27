@@ -9,7 +9,7 @@ import {
   nextAgentName,
 } from "./agent-assignments.mjs";
 import { git, revParse } from "./publication-git.mjs";
-import { commitWorkspaceClaim } from "./workspace-publication-select.mjs";
+import { commitWorkspaceClaim } from "./workspace-publication-claim.mjs";
 import { isAncestor } from "./workspace-publication-ownership.mjs";
 import {
   configureAgentAuthorship,

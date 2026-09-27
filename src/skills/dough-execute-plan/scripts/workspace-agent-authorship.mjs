@@ -1,7 +1,8 @@
 // Whether and how an owned workspace's ordinary commits name its agent as
-// author through per-worktree Git config.
+// author through per-worktree Git config, and the developer credit every
+// agent-enabled commit carries as a co-author trailer.
 import { join } from "node:path";
-import { git } from "./publication-git.mjs";
+import { exec, git } from "./publication-git.mjs";
 
 // "configured" when the workspace's ordinary commits can be authored through
 // per-worktree config. A bare repository's worktrees rely on `core.bare` or
@@ -32,4 +33,70 @@ export async function configureAgentAuthorship(workspace, { agent, email }) {
   await git(workspace, "config", "--worktree", "author.name", agent);
   await git(workspace, "config", "--worktree", "author.email", email);
   return authorship;
+}
+
+// Refuses an agent-enabled commit whose developer credit would be missing or
+// misleading. Its message names the committer problem for the developer.
+export class DeveloperIdentityRefused extends Error {}
+
+const identLine = /^(.*) <([^<>]*)> \d+ [+-]\d{4}$/;
+const emailShape = /^[^\s@<>]+@[^\s@<>]+$/;
+
+// The developer an agent-enabled commit in `checkout` credits: the effective
+// committer Git would record there, configured rather than guessed from the
+// host, and distinct from the authoring `agent` ({ agent, email }). Returns
+// "Name <email>" or throws DeveloperIdentityRefused.
+async function developerCoAuthor(checkout, { agent, email }) {
+  let ident;
+  try {
+    ident = (
+      await git(
+        checkout,
+        "-c",
+        "user.useConfigOnly=true",
+        "var",
+        "GIT_COMMITTER_IDENT",
+      )
+    ).stdout.trim();
+  } catch (error) {
+    const reason = (error.stderr || error.message).trim().split("\n").at(-1);
+    throw new DeveloperIdentityRefused(
+      `Git has no usable committer identity for developer credit: ${reason}`,
+    );
+  }
+  const [, name = "", address = ""] = ident.match(identLine) ?? [];
+  const person = `${name} <${address}>`;
+  if (name.trim() === "" || !emailShape.test(address))
+    throw new DeveloperIdentityRefused(
+      `Git committer identity is malformed for developer credit: ${person}`,
+    );
+  if (
+    name.toLowerCase() === agent.toLowerCase() ||
+    address.toLowerCase() === email.toLowerCase()
+  )
+    throw new DeveloperIdentityRefused(
+      `Git committer identity is the agent's own, so no developer can be credited: ${person}`,
+    );
+  return person;
+}
+
+// `message` with the developer committing in `checkout` credited once as a
+// `Co-authored-by` trailer beside any co-authors it already names. Throws
+// DeveloperIdentityRefused before any commit when that developer is unusable
+// beside the authoring agent `identity` ({ agent, email }).
+export async function creditDeveloper(checkout, message, identity) {
+  const person = await developerCoAuthor(checkout, identity);
+  const credited = exec(
+    "git",
+    [
+      "interpret-trailers",
+      "--if-exists",
+      "addIfDifferent",
+      "--trailer",
+      `Co-authored-by: ${person}`,
+    ],
+    { cwd: checkout },
+  );
+  credited.child.stdin.end(message);
+  return (await credited).stdout;
 }

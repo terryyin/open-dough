@@ -97,7 +97,7 @@ invocation, required-context, and useful-outcome checks.
 
 ### 1. A published Take credits the developer and assigned agent
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add a failing assertion to
 `workspace-publication-startup-agent.test.mjs` for a real published Take's
 `%an`, `%cn`, and `Co-authored-by` trailer; reproduce the current absence
@@ -113,6 +113,17 @@ one claim commit with agent author and developer co-author; invalid identity
 
 Safe stop: newly published Takes carry correct credit; existing ordinary and
 preparation paths still need slices 2–4.
+
+Accepted proof: before repair, the new co-author assertion failed with
+`actual: ''`. After repair,
+`node --test src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-credit.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-resume.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs`
+passes 14/14. The Take tests observe the published `main` author, committer,
+and `Co-authored-by` for a fixture-configured developer, the bare-clone
+fallback, and an unrelated checkout without a trailer. The credit tests
+observe `developer-identity-refused` with an unchanged remote and a clean
+workspace for missing, malformed, and agent-equal identities. The resume test
+shows a developer-authored, agent-co-authored profile commit resumes under
+that agent.
 
 ### 2. Preparation coordination commits carry the same credit
 Type: Behavior
@@ -169,3 +180,23 @@ rule; no historical rewrite is required.
   Git author field. `agent-assignments.mjs` and
   `execution-start-agent.mjs` read the profile added by a commit. Keep the
   contributor rule explicit without introducing an unused history parser.
+- Slice 1 added `creditDeveloper(checkout, message, { agent, email })` in
+  `workspace-agent-authorship.mjs`. It reads
+  `git -c user.useConfigOnly=true var GIT_COMMITTER_IDENT` in the committing
+  checkout and appends the trailer with `git interpret-trailers --if-exists
+  addIfDifferent`. It throws `DeveloperIdentityRefused` before any commit.
+  Later slices call it with the committing workspace and turn a refusal into
+  their own stop before any ref update. The Take commit moved from
+  `workspace-publication-select.mjs` to `workspace-publication-claim.mjs`.
+  `addIfDifferent` compares exact values, so slice 4 must prove that replay
+  does not duplicate the trailer.
+
+## Execution state
+
+- Mode: Story Branch. Checkout:
+  `.worktrees/119-agent-and-developer-commit-credit`, branch
+  `claude/119-agent-and-developer-commit-credit`. Remote `origin`, trunk
+  `main`.
+- Take claim: `4c23f11032bd88e9640cf20980020a565a057479`, published on
+  `main` and on the execution branch. Agent: Tsubomi-chan.
+

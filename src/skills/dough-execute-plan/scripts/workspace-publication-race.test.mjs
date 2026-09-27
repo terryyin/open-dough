@@ -3,10 +3,8 @@ import assert from "node:assert/strict";
 import { join } from "node:path";
 import { test } from "node:test";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
-import {
-  commitWorkspaceClaim,
-  selectOwnedWorkspace,
-} from "./workspace-publication-select.mjs";
+import { commitWorkspaceClaim } from "./workspace-publication-claim.mjs";
+import { selectOwnedWorkspace } from "./workspace-publication-select.mjs";
 import { publishClaimSha } from "./workspace-publication-push.mjs";
 import {
   createQueuedTrunk,

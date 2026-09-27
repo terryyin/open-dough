@@ -202,12 +202,12 @@ const startCli = fileURLToPath(
 );
 
 // `name` distinguishes the workspace, branch, and publisher of several starts
-// in one mode; it defaults to the mode.
+// in one mode; it defaults to the mode. `env` is the command's environment.
 export async function startCliResult(
   trunk,
   mode,
   extra = [],
-  { cli = startCli, name = mode } = {},
+  { cli = startCli, name = mode, env = process.env } = {},
 ) {
   const workspace = join(trunk.fixture, `start-${name}`);
   const branch = `exec/${name}`;
@@ -235,7 +235,7 @@ export async function startCliResult(
     ...extra,
   ];
   try {
-    const { stdout } = await exec(process.execPath, args);
+    const { stdout } = await exec(process.execPath, args, { env });
     return { receipt: JSON.parse(stdout), stdout, code: 0, workspace, branch };
   } catch (error) {
     return {

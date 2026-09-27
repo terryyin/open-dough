@@ -214,6 +214,7 @@ managed_files=(
   dough-execute-plan/scripts/watch-ci-execution.mjs
   dough-execute-plan/scripts/watch-ci.mjs
   dough-execute-plan/scripts/workspace-agent-authorship.mjs
+  dough-execute-plan/scripts/workspace-publication-claim.mjs
   dough-execute-plan/scripts/workspace-publication-ownership.mjs
   dough-execute-plan/scripts/workspace-publication-push.mjs
   dough-execute-plan/scripts/workspace-publication-select.mjs
