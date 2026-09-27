@@ -47,10 +47,7 @@ source "${git_publication_assess_support_dir}/git-publication-native-startup-ass
 git_publication_assess() {
   local observations=$1
   local response=${2-}
-  local obs stream remote_accepted remote_sha candidate_sha
-  local human_preserved ownership authority journey maintenance target_ref
-  local trunk_remote_sha trunk_sha integration_head_sha containing_head_count
-  local exact_push_count target_push_count forced_target_push_count
+  local obs journey
 
   git_publication_assess_status=fail
   git_publication_assess_reason='missing observations'
@@ -63,14 +60,21 @@ git_publication_assess() {
   fi
 
   journey=$(git_publication_assess_field "${obs}" journey)
-  if [[ ${journey} == startup-* ]]; then
-    git_publication_assess_startup "${obs}" "${journey}"
-    return 0
-  fi
-  if [[ ${journey} == admission-* ]]; then
-    git_publication_assess_admission "${obs}" "${journey}"
-    return 0
-  fi
+  case ${journey} in
+    startup-*) git_publication_assess_startup "${obs}" "${journey}" ;;
+    admission-*) git_publication_assess_admission "${obs}" "${journey}" ;;
+    one-shot-*) git_publication_assess_one_shot "${obs}" ;;
+    *) git_publication_assess_candidate "${obs}" "${journey}" "${response}" ;;
+  esac
+}
+
+# Journeys around a prepared verified candidate and the remote boundary.
+git_publication_assess_candidate() {
+  local obs=$1 journey=$2 response=$3
+  local stream remote_accepted remote_sha candidate_sha
+  local human_preserved ownership authority maintenance target_ref
+  local trunk_remote_sha trunk_sha integration_head_sha containing_head_count
+  local exact_push_count target_push_count forced_target_push_count
 
   stream=$(git_publication_assess_field "${obs}" stream-status)
   remote_accepted=$(git_publication_assess_field "${obs}" remote-accepted)
@@ -79,7 +83,6 @@ git_publication_assess() {
   human_preserved=$(git_publication_assess_field "${obs}" human-edit-preserved)
   ownership=$(git_publication_assess_field "${obs}" claim-ownership)
   authority=$(git_publication_assess_field "${obs}" authority)
-  journey=$(git_publication_assess_field "${obs}" journey)
   maintenance=$(git_publication_assess_field "${obs}" maintenance-result)
   target_ref=$(git_publication_assess_field "${obs}" target-ref)
   trunk_remote_sha=$(git_publication_assess_field "${obs}" trunk-remote-sha)

@@ -35,9 +35,10 @@ const siblingSection =
 export const backlog = (cwd, ...args) =>
   exec(process.execPath, [backlogCli, ...args], { cwd });
 
-// Queued trunk A, B, B2, where B2 is B's unfinished sibling in seed B.
-export async function createSiblingTrunk() {
-  const trunk = await createQueuedTrunk();
+// Queued trunk A, B, B2, where B2 is B's unfinished sibling in seed B;
+// `options` are createQueuedTrunk's.
+export async function createSiblingTrunk(options) {
+  const trunk = await createQueuedTrunk(options);
   const { integration } = trunk;
   appendFileSync(join(integration, seedB), siblingSection);
   await backlog(
@@ -53,6 +54,16 @@ export async function createSiblingTrunk() {
     "last",
   );
   // B stays ready for an ordinary Take after its seed gained the sibling.
+  await recordStoryBReady(integration);
+  await git(integration, "add", ".planning");
+  await git(integration, "commit", "-qm", "queue sibling B2");
+  await git(integration, "push", "-q", "origin", "main");
+  await configureDeveloper(integration);
+  return { ...trunk, trunkSha: await revParse(integration, "HEAD") };
+}
+
+// Records story B's readiness again over its current seed section and plan.
+export async function recordStoryBReady(integration) {
   const link = "seeds/B.md#b";
   const { basis } = JSON.parse(
     (await backlog(integration, "read-state", "--link", link)).stdout,
@@ -63,11 +74,6 @@ export async function createSiblingTrunk() {
     ...["--plan", "../slice-plans/B/PLAN.md", "--assessment", "ready"],
     ...["--expect-document", basis.document, "--expect-plan", basis.plan],
   );
-  await git(integration, "add", ".planning");
-  await git(integration, "commit", "-qm", "queue sibling B2");
-  await git(integration, "push", "-q", "origin", "main");
-  await configureDeveloper(integration);
-  return { ...trunk, trunkSha: await revParse(integration, "HEAD") };
 }
 
 // The one-shot start for queued story B; its branch is the delivery

@@ -140,6 +140,12 @@ case ${journey} in
     source "${0%/*}/native-agent-admission.sh"
     native_admission_substitute
     ;;
+  one-shot-*)
+    # shellcheck source=tests/support/native-agent-one-shot.sh
+    # shellcheck disable=SC1091
+    source "${0%/*}/native-agent-one-shot.sh"
+    native_one_shot_substitute
+    ;;
   story-branch-increment)
     if [[ -z ${NATIVE_PUBLICATION_SKIP_PUSH:-} ]]; then
       git -C "${workspace}" push --quiet origin \

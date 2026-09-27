@@ -26,6 +26,10 @@ executions, not commands, retries, or repairs.
    (`178e0346`), and no recurrence is recorded. A story would buy little until
    it recurs.
 
+3. **Local time-budget measurement under load (DD-158) — low, not
+   queued.** One execution (plan 135): agent time spent on paired A/B runs
+   overestimated the CI job time that CI's own test-times artifact reports.
+
 No other project-owned problem is supported, so only one story is queued.
 
 Resolved and removed on 2026-09-27: ODF-060 (a new payload file published
@@ -90,6 +94,28 @@ The planning audit listed only the scripts that create agent-authored commits. I
   - Open Dough release: modified; revision 1b66466; base 0.3.41
   - Evidence: plan 119's PFE names the scripts that create commits (`--author` / `commit-tree`). `publish-the-candidate.md` "Preserve published history" and `product-backlog-git-merge.mjs` `commitAcceptedMerge` still make an agent-authored integration merge without the credit, as merge `199ae44` shows. Correction plan 121.
   - Observed effect: one follow-up correction story. Qualified inference: an audit that greps scripts for commit creation cannot see commits that guidance directs.
+
+## Local time-budget measurement under load (low priority, not selected)
+
+`tests/time-budget` is judged only on CI, and CI's `test-times-*` artifacts
+report each job's seconds.
+
+### DD-158 — Local paired A/B runs under load were spent proving a CI-judged budget, and overestimated it
+
+Plan 135's slices required the native job to stay inside `per-job-seconds=71`.
+Both implementation agents measured it locally under heavy load and projected
+the CI time from ratios; CI's measurement after the push was lower.
+
+#### Occurrences
+
+- Execution: `SEED-028#native-one-shot-acceptance` / plan 135, first related implementation commit `d44069f1`
+  - Timestamp: 2026-09-27 (slice 1 and slice 2 implementation, between Take `fc3393d2` and `5181d769`); exact times unknown
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision 2b46e651; base 0.3.43
+  - Evidence: slice 1 ran 3 paired A/B runs (estimate 54–56 s); slice 2 ran 5+5 sequential runs judged too noisy, then 3 concurrent pairs (estimate 61–62 s; agent total 1,708 s). CI run 36325895856 of `5181d769`, artifact `test-times-*`: `52.2 tests/git-publication-native.sh`.
+  - Observed effect: a large share of slice 2's agent time went to timing, and the projection was about 10 s high.
+  - Inference: Qualified. With a wide projected margin, the pushed revision's CI test-times artifact settles the budget more cheaply; a CI breach already fails the split job.
 
 ## Retention
 
