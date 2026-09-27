@@ -7,6 +7,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { git } from "./publication-git.mjs";
 import { indexLockPath } from "./publication-test-fixtures.mjs";
+import { dropConfirmation } from "./ci-repair-stash-git.mjs";
 import {
   addDirtySubmodule,
   createSharedStashFixture,
@@ -78,7 +79,7 @@ test("a clean checkout saves no stash and resumes without touching the foreign t
   assert.deepEqual(await fixture.stack(), [foreign]);
 });
 
-test("a restore that conflicts with the repair names the path and OID, reports a partial apply with the staging it lost, and keeps the entry", async (t) => {
+test("a restore that conflicts with the repair names the path and OID, reports a partial apply with the staging it lost, and keeps the entry until its resolved drop", async (t) => {
   const fixture = await createSharedStashFixture(t);
   await dirtyAllKinds(fixture);
   // Staged content differs from the worktree, so losing the index shows.
@@ -87,6 +88,7 @@ test("a restore that conflicts with the repair names the path and OID, reports a
   assert.equal(saved.status, "stashed");
 
   await fixture.commit("tracked.txt", "repair line\n");
+  const foreign = await fixture.foreignStash("foreign after save");
 
   const restored = await fixture.restore(saved.record);
   assert.equal(restored.status, "conflict");
@@ -99,7 +101,18 @@ test("a restore that conflicts with the repair names the path and OID, reports a
   assert.equal(fixture.read("new.txt"), "untracked owned\n");
   assert.equal(fixture.read("staged.txt"), "later edit\n");
   assert.equal(await fixture.staged("staged.txt"), "later edit\n");
-  assert.deepEqual(await fixture.stack(), [saved.oid]);
+  assert.deepEqual(await fixture.stack(), [foreign, saved.oid]);
+
+  writeFileSync(join(fixture.execution, "tracked.txt"), "resolved\n");
+  await git(fixture.execution, "add", "tracked.txt");
+  const resolved = await fixture.status();
+  const dropped = await fixture.drop(saved.record);
+  assert.equal(dropped.status, "dropped");
+  assert.equal(dropped.exitCode, 0);
+  assert.equal(dropped.oid, saved.oid);
+  assert.equal(dropped.selector, "stash@{1}");
+  assert.deepEqual(await fixture.stack(), [foreign]);
+  assert.equal(await fixture.status(), resolved);
 });
 
 test("a restore whose repair added the paused work's untracked path applies the tracked work, reports partial, and keeps the entry", async (t) => {
@@ -136,6 +149,29 @@ test("a restore whose entry was dropped elsewhere reports its OID, applies nothi
   assert.equal(restored.applied, false);
   assert.equal(await fixture.status(), "");
   assert.deepEqual(await fixture.stack(), [foreign]);
+
+  const dropped = await fixture.drop(saved.record);
+  assert.equal(dropped.status, "missing");
+  assert.equal(dropped.exitCode, 1);
+  assert.equal(dropped.selector, null);
+  assert.deepEqual(await fixture.stack(), [foreign]);
+});
+
+test("a drop is confirmed only when Git reports dropping the recorded OID", () => {
+  const [recorded, other] = ["a".repeat(40), "b".repeat(40)];
+  assert.deepEqual(
+    dropConfirmation(
+      recorded,
+      "stash@{1}",
+      `Dropped stash@{1} (${recorded})\n`,
+    ),
+    { status: "dropped", selector: "stash@{1}" },
+  );
+  assert.deepEqual(
+    dropConfirmation(recorded, "stash@{1}", `Dropped stash@{1} (${other})\n`),
+    { status: "mismatch", selector: "stash@{1}", droppedOid: other },
+  );
+  assert.equal(dropConfirmation(recorded, "stash@{1}", "").status, "mismatch");
 });
 
 test("a save that leaves submodule dirt behind reports unclean with its entry recorded and the foreign entry kept", async (t) => {

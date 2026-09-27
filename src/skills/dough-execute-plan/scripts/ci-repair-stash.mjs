@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Installed CLI for the CI repair pause: saves this execution checkout's
 // unfinished work as one stash entry and later restores and drops only that
-// entry, identified by OID, so every other writer's stash entries survive.
+// entry, identified by OID and confirmed by the OID Git reports dropping, so
+// every other writer's stash entries survive.
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -12,11 +13,12 @@ import {
   inventory,
   isDirty,
   stashEntries,
+  stashEntryByOid,
 } from "./ci-repair-stash-git.mjs";
 import { git } from "./publication-git.mjs";
 
 const usage =
-  "usage: ci-repair-stash.mjs save --checkout PATH --label TEXT | restore --record FILE";
+  "usage: ci-repair-stash.mjs save --checkout PATH --label TEXT | restore --record FILE | drop --record FILE";
 
 function failureText(error) {
   return `${error.stdout ?? ""}\n${error.stderr ?? ""}\n${error.message ?? ""}`.trim();
@@ -155,9 +157,13 @@ async function appliedState({ checkout, oid, staged, unstaged, untracked }) {
   return { applied, stagedNotRestored };
 }
 
-export async function restoreRepairStash({ record: file }) {
+async function readRecord(file) {
   if (!file) throw new Error(usage);
-  const record = JSON.parse(await readFile(file, "utf8"));
+  return JSON.parse(await readFile(file, "utf8"));
+}
+
+export async function restoreRepairStash({ record: file }) {
+  const record = await readRecord(file);
   const receipt = {
     record: file,
     oid: record.oid,
@@ -168,10 +174,8 @@ export async function restoreRepairStash({ record: file }) {
     return { ok: false, status: "ambiguous", ...receipt, paths: [] };
   if (!record.oid) return { ok: true, status: "resumed", ...receipt };
   const checkout = record.checkout;
-  const entry = (await stashEntries(checkout)).find(
-    (item) => item.oid === record.oid,
-  );
-  if (!entry) return { ok: false, status: "missing", ...receipt, paths: [] };
+  if (!(await stashEntryByOid(checkout, record.oid)))
+    return { ok: false, status: "missing", ...receipt, paths: [] };
   try {
     await git(checkout, "stash", "apply", "--index", record.oid);
   } catch (error) {
@@ -195,13 +199,19 @@ export async function restoreRepairStash({ record: file }) {
       paths: missingPaths,
       error: "applied work does not match the saved inventory; entry kept",
     };
-  return {
-    ok: true,
-    status: "resumed",
-    ...receipt,
-    applied: true,
-    dropped: await dropExact(checkout, record.oid),
-  };
+  // A vanished entry reports no drop; a mismatch keeps the entry and names
+  // the other writer's entry Git dropped instead of claiming this one went.
+  receipt.applied = true;
+  const drop = await dropExact(checkout, record.oid);
+  if (drop.status === "mismatch") return { ok: false, ...receipt, ...drop };
+  return { ok: true, status: "resumed", ...receipt, dropped: drop.selector };
+}
+
+// Finishes a resolved conflict: drops only the recorded OID's entry.
+export async function dropRepairStash({ record: file }) {
+  const { checkout, oid } = await readRecord(file);
+  const drop = await dropExact(checkout, oid);
+  return { ok: drop.status === "dropped", record: file, oid, ...drop };
 }
 
 function argumentsOf(argv) {
@@ -220,9 +230,11 @@ if (
 ) {
   try {
     const { command, ...options } = argumentsOf(process.argv.slice(2));
-    const operation = { save: saveRepairStash, restore: restoreRepairStash }[
-      command
-    ];
+    const operation = {
+      save: saveRepairStash,
+      restore: restoreRepairStash,
+      drop: dropRepairStash,
+    }[command];
     if (!operation) throw new Error(usage);
     const result = await operation(options);
     process.stdout.write(`${JSON.stringify(result)}\n`);

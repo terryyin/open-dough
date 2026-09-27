@@ -34,7 +34,7 @@ Verify binding against the retained execution identity. Recover from the
 A published SHA absent from those receipts is
 [missing CI registration](trunk-publication.md#resume-an-interrupted-publication).
 An unavailable host bridge is missing coverage: report it once and continue
-without promising notifications.
+without AI polling or promised notifications.
 
 The observer uses no AI calls. It emits failure, incomplete, and lost-coverage
 records incrementally; it never dispatches or retries a check, observes
@@ -58,9 +58,7 @@ Select the **non-model notification bridge for the current host**:
   bridge unavailable as described there.
 
 Notifications arrive at the current host's next safe boundary. Act after a
-foreground agent or command returns; do not assume interruption. Without a
-working bridge, report missing coverage once and continue without AI polling
-or promised notifications.
+foreground agent or command returns; do not assume interruption.
 
 At a stop requiring human judgment, cancellation, or coordinator replacement,
 use the host adapter to stop the exact observer and confirm local shutdown. At
@@ -218,26 +216,28 @@ until that missing history is accounted for.
    [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair).
    Do not use a second repair push. Preserve the same observer through it.
 5. **Restore unfinished owned work and resume the same execution.** Publish a
-   new repair first; otherwise proceed once focused proof shows HEAD is already
-   fixed or analysis proves all failures were infrastructure. Then run `node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-repair-stash.mjs' restore --record RECORD_FILE`.
-   It applies the recorded OID with its index state, not `pop`, verifies the
+   new repair first, or proceed once focused proof shows HEAD already fixed or
+   all failures proved infrastructure. Then run
+   `node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-repair-stash.mjs' restore --record RECORD_FILE`:
+   it applies the recorded OID with its index state, not `pop`, verifies the
    saved content returned, and drops only that entry, never assuming
    `stash@{0}`. On `resumed`, resume the same agents with the repair commit or
-   no-change finding, affected files, and saved handoff under the pause
-   contract. `conflict` keeps the entry and names its paths, OID, and what was
-   `applied` (`none`, `partial`, or `all`); never apply it again. On `partial`,
-   restage each `stagedNotRestored` path: `git restore --staged --source=OID^2 -- PATH`.
-   Resolve straightforward overlaps preserving both changes, then drop only
-   that OID's entry by its current selector; if meaning is ambiguous, leave it
-   and report. On `missing` (nothing applied) or `ambiguous`, report the OID and stop.
+   no-change finding, affected files, and saved handoff under the pause contract.
+   `conflict` keeps the entry, names its paths and OID, and reports `applied`
+   (`none`, `partial`, `all`); never apply it again. On `partial`, restage each
+   `stagedNotRestored` path: `git restore --staged --source=OID^2 -- PATH`.
+   Resolve plain overlaps keeping both changes, then finish with
+   `node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-repair-stash.mjs' drop --record RECORD_FILE`,
+   never a hand drop; if meaning is ambiguous, keep the entry and report. On
+   `missing` (entry gone, nothing changed), `ambiguous`, or `mismatch` (Git
+   dropped another writer's entry, recoverable by `droppedOid`), report OIDs and stop.
 
 On an unresolved repair, decision stop, or push failure, keep the stash entry
-and its record file and report the exact state. Restore original work when it
-can be done without mixing or losing unfinished repair edits; otherwise keep
-agents paused with both sets of work preserved. Do not silently resume with
-missing changes or pretend the failure was repaired. Ordinary CI defects,
-including flaky tests, use this recovery flow; only unresolved value, design,
-or credential decisions need the developer.
+and record file and report the exact state. Restore original work only without
+mixing or losing unfinished repair edits; otherwise keep agents paused with both
+sets of work preserved. Never silently resume with missing changes or pretend
+the failure was repaired. Ordinary CI defects, flaky tests included, use this
+flow; only unresolved value, design, or credential decisions need the developer.
 ## Pause and resume writers
 When the coordinator requests a CI pause, stop editing and finish or terminate
 write-capable commands. Return `## PAUSED FOR CI` with the current slice,

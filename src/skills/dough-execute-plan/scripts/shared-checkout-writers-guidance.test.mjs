@@ -77,3 +77,19 @@ test("the coordinator isolates a commit beside a sibling writer by staging owned
     assert.match(sibling[0], act);
   }
 });
+
+test("the coordinator finishes a resolved repair conflict through the stash script, never dropping by hand", () => {
+  const stepFive = section(
+    reference("ci-monitor.md"),
+    / 5\. \*\*Restore unfinished/,
+    /On an unresolved repair/,
+  );
+
+  assert.match(stepFive, /ci-repair-stash\.mjs'? drop --record\b/);
+  assert.doesNotMatch(stepFive, /git stash drop/);
+  assert.doesNotMatch(stepFive, /drop[^.;]{0,60}(?:current|its) selector/i);
+  assert.match(stepFive, /never (?:a hand drop|drop[^.;]{0,30}by hand)/i);
+  // A drop that removed another writer's entry, or found none, stops.
+  assert.match(stepFive, /`mismatch`[^.]*another writer's entry/);
+  assert.match(stepFive, /`missing`[^.]*stop/);
+});

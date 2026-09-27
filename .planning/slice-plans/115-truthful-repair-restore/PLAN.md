@@ -126,10 +126,24 @@ not a full apply. Stack primitives and `dropExact` now live in
 
 ### 2. The coordinator finishes a resolved conflict through the script
 Type: Behavior
-Status: planned
+Status: done
 Proof: F2 and F3 rows above.
 
 Behavior: a resolved conflict with the entry still on the stack and a foreign
 entry above it → the coordinator runs `drop --record` → only the recorded OID
 is dropped and confirmed; a vanished entry reports `missing`; `ci-monitor.md`
 step 5 directs this command instead of a hand drop.
+
+Accepted proof: `ci-repair-stash.test.mjs` "a restore that conflicts with the
+repair … keeps the entry until its resolved drop" (foreign entry pushed after
+the save; `drop --record` reports `dropped` at `stash@{1}` and leaves only the
+foreign entry), "a restore whose entry was dropped elsewhere…" (`drop` reports
+`missing`, exit 1, stack unchanged), and the unit test "a drop is confirmed
+only when Git reports dropping the recorded OID" for `mismatch`;
+`shared-checkout-writers-guidance.test.mjs` "the coordinator finishes a
+resolved repair conflict through the stash script, never dropping by hand";
+focused runner command above plus that guidance test (exit 0). Untested:
+restore's own `mismatch` receipt end to end, and a `git stash drop` that
+fails outright (exits 2 with Git's message rather than a receipt).
+Learnings: plain `git stash drop` prints the full dropped OID, so
+confirmation needs no second stack read. `ci-monitor.md` has no spare lines.

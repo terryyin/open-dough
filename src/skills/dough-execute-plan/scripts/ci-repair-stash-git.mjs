@@ -1,5 +1,6 @@
 // Git reads of the execution checkout and the shared stash stack for the CI
-// repair pause, plus the one drop it performs: only an entry found by OID.
+// repair pause, plus the one drop it performs: only an entry found by OID,
+// confirmed by the OID Git reports dropping.
 import { git } from "./publication-git.mjs";
 
 // Trimmed stdout, or null when the command fails or prints nothing.
@@ -59,9 +60,30 @@ export async function stashEntries(checkout) {
     });
 }
 
+// Git drops by selector, which another writer's push between listing and drop
+// would shift, so the OID Git reports dropping ("Dropped stash@{n} (<oid>)")
+// confirms whether the dropped entry was the recorded one.
+export function dropConfirmation(oid, selector, output) {
+  const droppedOid = output.match(/\(([0-9a-f]{40,64})\)/)?.[1] ?? null;
+  return droppedOid === oid
+    ? { status: "dropped", selector }
+    : { status: "mismatch", selector, droppedOid };
+}
+
+// The recorded entry wherever other writers' pushes have moved it, or undefined.
+export async function stashEntryByOid(checkout, oid) {
+  return (await stashEntries(checkout)).find((item) => item.oid === oid);
+}
+
+// `missing` when the OID is no longer on the stack; nothing is dropped then.
 export async function dropExact(checkout, oid) {
-  const entry = (await stashEntries(checkout)).find((item) => item.oid === oid);
-  if (!entry) return null;
-  await git(checkout, "stash", "drop", "-q", entry.selector);
-  return entry.selector;
+  const entry = await stashEntryByOid(checkout, oid);
+  if (!entry) return { status: "missing", selector: null };
+  const { stdout, stderr } = await git(
+    checkout,
+    "stash",
+    "drop",
+    entry.selector,
+  );
+  return dropConfirmation(oid, entry.selector, `${stdout}\n${stderr}`);
 }

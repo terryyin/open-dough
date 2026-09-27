@@ -56,6 +56,7 @@ export async function createSharedStashFixture(t) {
       return receipt;
     },
     restore: (record) => stashTool("restore", "--record", record),
+    drop: (record) => stashTool("drop", "--record", record),
     async foreignStash(name) {
       writeFileSync(join(other, "shared.txt"), `${name}\n`);
       await git(other, "stash", "push", "-q", "-m", name);
