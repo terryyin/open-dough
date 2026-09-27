@@ -67,7 +67,9 @@ A shell check that stopped on a failing command under `set -e` has, in that
 output, `stopped at <file>:<line>: <command>`, naming the check or the support
 file it sourced. A command that failed inside `$(...)` is named by the line
 running that substitution, for example
-`stopped at tests/x.sh:12: attempt=$(awk ...)`. The runner starts each shell
+`stopped at tests/x.sh:12: attempt=$(awk ...)`. A command that failed inside a
+`( ... )` subshell is named twice: at that command and at the subshell's line.
+The runner starts each shell
 check with `tests/support/check-stop-report.bash` through `BASH_ENV`, so no
 check carries a trap of its own. A failure the check handles (under `set +e`,
 in an `if`, after `||`) and a check's own `exit 1` get no such line, and
