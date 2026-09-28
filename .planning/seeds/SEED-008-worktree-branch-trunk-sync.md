@@ -122,7 +122,7 @@ registry is selected. No new execution authority or ADR acceptance is implied.
 
 **Identity:** SEED-008#finish-removing-checkout-coordination
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/145-finish-removing-checkout-coordination/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8f131a5a9f9117bf7c272beeef9a2fc98144c663fb16ef05a2de54c1c9c972b2","plan":"9da32da76562e9fb49eabde0190e3eb26ecda34abafe7a14a1fe92ed33115daf"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/145-finish-removing-checkout-coordination/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5d9add05d59d2a4cd9cfa7a7b245ca945f59c69b722e9f8988b24b224b769815","plan":"acccecaf1287e4374bc27da26eb798516a07ad6798eb5bb6047abf161ae5e769"}}
 ```
 
 **Decision (2026-09-28):** Terry accepted these recommendations after the
@@ -132,21 +132,25 @@ journey per host, and execution only after
 `SEED-008#owned-context-start-and-truthful-refresh` (closed at `2a3e0ba2`)
 lands, because both change the same refresh code, guidance, and startup cases.
 
+**Decision (2026-09-29):** At execution start Terry narrowed the story. The
+guard must also keep delivery from removing the developer's unpublished
+commits. Proceeding around unrelated staged content is deferred, and the
+three-host native journey is dropped: releases 0.3.43–0.3.46 shipped under
+maintainer exceptions, host-specific acceptance stories already exist, the
+remaining guidance change only removes text, and deterministic tests own the
+guard.
+
 **Goal:** A developer who explicitly selects their current checkout for an
-agent's edit can let the agent commit and publish around their own staged
-files, and never has their private unpublished commits pushed to trunk by it.
-Removing the unused declared-owner concept leaves fewer instructions. The
-current-checkout change already made on trunk, together with this one, becomes
-releasable under ADR 0005's native acceptance.
+agent's edit never has their private unpublished commits pushed to trunk or
+removed from their branch by the agent's delivery. Removing the unused
+declared-owner concept leaves fewer instructions.
 
 **Scope:**
 
-- Direct-edit guidance proceeds when unrelated content is staged, as the
-  runtime already commits only authorized paths; it stops before editing when
-  an authorized path already carries the developer's staged change.
 - A push-authorized current-checkout delivery, including closure, refuses
-  before pushing unless every commit over the fetched target was created by
-  this operation. This guard lives in the runtime, not only in guidance.
+  before any reconciliation or push unless every commit over the fetched
+  target was created by this operation. This guard lives in the runtime, not
+  only in guidance.
 - Remove the declared-owner concept end to end: `--declared-owner` and
   `--requester`, refresh's owner step and its `another-writer` and
   `unclear-ownership` results, and their tests and guidance.
@@ -155,22 +159,22 @@ releasable under ADR 0005's native acceptance.
   keeps one own-state refusal and the stopped-rebase refusal.
 - Guidance sections this story edits call the developer's checkout the default
   checkout; the `--integration` flag keeps its name.
-- Native acceptance, run manually as the final slice, of one direct-edit
-  journey per host on Codex, Cursor, and Claude Code, covering both the earlier
-  and this story's current-checkout guidance.
 - Deferred: product-wide checkout vocabulary unification.
 
-**Key examples:**
+**Deferred promises:** Direct edits proceeding around the developer's
+unrelated staged content, committing only the authorized paths, and stopping
+before editing a path that already carries the developer's staged change.
+Direct edit keeps its current stop on unrelated staged content. Direct edits
+commit with plain `git commit` (`agent-commits.md`); the owned-path
+`commitOwned` exists only in modules without an entry point, so this promise
+needs a runtime commit path as well as guidance.
 
-1. The developer has staged an unrelated file and asks an agent to commit one
-   authorized file → the agent proceeds; the commit holds only that file, and
-   the staged file remains staged with identical bytes.
-2. The developer has an unpublished local commit and authorizes publication of
-   an agent's edit → delivery refuses before pushing, and remote and local
-   history are unchanged. A current-checkout closure whose two commits are both
-   its own publishes.
-3. An authorized path already has the developer's staged change → the agent
-   stops before editing, and the index and working tree are unchanged.
+**Key example:** The developer has an unpublished local commit and authorizes
+publication of an agent's edit → delivery refuses before pushing, and remote
+and local history are unchanged. When trunk has also advanced, delivery
+refuses before any rebase or push, and the developer's commit stays on their
+branch. A current-checkout closure whose two commits are both its own
+publishes.
 
 **Slice plan:** [Finish removing default-checkout coordination](../slice-plans/145-finish-removing-checkout-coordination/PLAN.md).
 

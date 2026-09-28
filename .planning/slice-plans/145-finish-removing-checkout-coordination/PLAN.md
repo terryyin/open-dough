@@ -5,18 +5,20 @@
 - **Identity:** SEED-008#finish-removing-checkout-coordination.
 - **Source:** [story](../../seeds/SEED-008-worktree-branch-trunk-sync.md#finish-removing-checkout-coordination),
   refined on 2026-09-28 with Terry's decisions: naming limited to the guidance
-  this story edits, native acceptance as one direct-edit journey per host, and
-  a start gate after plan 142.
+  this story edits and a start gate after plan 142. On 2026-09-29, relayed
+  from refinement session b9f90f, Terry narrowed it: the guard also keeps
+  delivery from removing the developer's unpublished commits; proceeding
+  around unrelated staged content is a deferred promise; the three-host native
+  journey is dropped.
 - **Provenance:** plan 140's slice 6 (`b3dfd569`, recoverable at
   `199c579f:.planning/slice-plans/140-remote-history-workflows/PLAN.md`) left
   the declared-owner concept, the staged-content guidance mismatch, and a
   guidance-only push guard as human decisions. Plan 142 excludes them in favor
   of this story (its F3, F4, F5). On 2026-09-28 Terry also assimilated plan
   142's retrospective test-redundancy finding (installed-startup reuse
-  refusals duplicating refresh-boundary eligibility proof) into slice 3.
+  refusals duplicating refresh-boundary eligibility proof) into slice 2.
 - **Authority:** On 2026-09-29 Terry asked to start execution after bringing
-  the story and plan up to date. Slice 4's paid host runs still need his
-  separate run authority.
+  the story and plan up to date.
 - **Execution:** Story Branch Mode. Taken by agent Airi-chan at `5769c023`
   (starting revision `5affbd14`, publisher `claude-201e2caa-plan145`) in
   `.worktrees/finish-removing-checkout-coordination` on branch
@@ -29,27 +31,20 @@ Satisfied: SEED-008#owned-context-start-and-truthful-refresh (plan 142)
 closed at `2a3e0ba2`, and SEED-053#proportionate-local-verification (plan 143)
 at `162b5fb4`. At the Take (`5769c023`) the premises below were re-read
 against trunk and their line references refreshed. The declared-owner
-reference set and the guidance sections were unchanged. The native harness now
-has plan 142's owned-context journeys, and slice 4 names its extension point
-accordingly.
+reference set and the guidance sections were unchanged.
 
 ## Outcome and boundaries
 
 A developer who explicitly selects their current checkout for an agent's edit
-can let the agent commit and publish around their own staged files, and never
-has their private unpublished commits pushed to trunk by it. The unused
-declared-owner concept is gone. Plan 140's current-checkout change and this
-one become releasable under ADR 0005's native acceptance.
+never has their private unpublished commits pushed to trunk or removed from
+their branch by the agent's delivery. The unused declared-owner concept is
+gone.
 
-Key examples (from the story):
-
-1. Unrelated file staged → the agent proceeds; the commit holds only the
-   authorized file, and the staged file stays staged with identical bytes.
-2. An unpublished local commit plus push authority → delivery refuses before
-   pushing; remote and local history are unchanged. A current-checkout closure
-   whose commits are all its own publishes.
-3. An authorized path already has the developer's staged change → the agent
-   stops before editing; index and working tree are unchanged.
+Key example (from the story): an unpublished local commit plus push authority
+→ delivery refuses before pushing; remote and local history are unchanged.
+When trunk has also advanced, delivery refuses before any rebase or push, and
+the developer's commit stays on their branch. A current-checkout closure whose
+commits are all its own publishes.
 
 Preserved promises and constraints: current-checkout work never gains push
 authority it was not given; unrelated staged and unstaged bytes are never
@@ -60,8 +55,11 @@ behavior, do not add "no longer" prose.
 
 Excluded: product-wide checkout vocabulary unification (only edited sections
 use "default checkout"); an entry point for the shipped closure modules
-(plan 142's F7); new ownership, locking, or coordination mechanisms; a
-native journey for the refusal case (deterministic proof owns it).
+(plan 142's F7); new ownership, locking, or coordination mechanisms; native
+acceptance (deterministic tests own the guard). Deferred promise, kept in the
+story: direct edits proceeding around unrelated staged content. Direct edit
+keeps its stop on unrelated staged content (`maintain-default-checkout.md`
+Direct edit steps 1–2 stay unchanged).
 
 ## Existing solutions (PFE)
 
@@ -75,10 +73,11 @@ native journey for the refusal case (deterministic proof owns it).
   `closure-publication.mjs` (also no entry point) call it. A guard there alone
   would protect no real run, so the guard goes in `publishExecutionIncrement`,
   shared by every caller.
-- **Owned-path commits already exist.** `commitOwned` runs
-  `git commit --only -- <paths>`; `current-branch-publication.test.mjs:29,79`
-  prove unrelated staged bytes stay staged. Current-branch work commits with
-  plain Git (`agent-commits.md:9-12`). Slice 2 changes guidance only.
+- **Owned-path commits exist only without an entry point.** `commitOwned`
+  runs `git commit --only -- <paths>` in modules no agent runs; direct edits
+  commit with plain `git commit` (`agent-commits.md:9-12`). This is why
+  proceeding around unrelated staged content is deferred rather than a
+  guidance-only change.
 - **Refresh eligibility** already defers on pending edits, unpublished
   commits, and ongoing operations without any owner step; the owner step is
   additive (`maintain-default-checkout.mjs:11-21,176-194`).
@@ -94,7 +93,7 @@ native journey for the refusal case (deterministic proof owns it).
 | No test covers an unrelated unpublished commit under the suffix in a checkout that is both workspace and default checkout. | Searched `current-branch-publication.test.mjs`, `current-branch-local-operation.test.mjs`, `publication.test.mjs`, `publication-checkout-maintenance.test.mjs`, `closure-current-branch.test.mjs`. | None; `publication.test.mjs:130` covers it only from a separate workspace. |
 | Declared-owner removal is bounded. | `grep -rln -E "declared-owner\|declaredOwner\|another-writer\|unclear-ownership\|--requester" src docs`. | Rechecked at `5769c023`: about 30 code lines (`maintain-default-checkout.mjs:11-21,176-194`, `execution-start-maintenance.mjs:8-9`, `closure-publication.mjs:31-38,66-90`, usage in `execution-start.mjs:12`, `preparation-assignment.mjs:22-25`), about 60 test lines (`publication-checkout-maintenance.test.mjs`, `workspace-publication-startup-maintenance-cases.mjs:75-146`, `workspace-publication-startup-claim-cases.mjs:25-27`, `workspace-publication-startup-local-copy-cases.mjs:98-100`, `closure-publication-fixtures.mjs:101,117`), guidance in `dough-execute-plan/SKILL.md:123-125`, `maintain-default-checkout.md:73-77`, `preparation-assignment.md:41,60,199`, and one maintainer record at `docs/maintainer/near-term-watch-list.md:81`. The case "accepted claim with deferred refresh resumes local maintenance only" (`workspace-publication-startup-maintenance-cases.mjs:130-158`) is built on `another-writer`; it also proves that a resumed start finishes a deferred local refresh without another Take or push. |
 | Startup reuse and refresh share one eligibility rule, so the five startup reuse refusals repeat refresh-boundary proof. | Read `workspace-publication-select.mjs:90-110` and `maintain-default-checkout.mjs:176-252` at `af1d260a`; mapped `workspace-publication-startup-reuse-cases.mjs:106-182` against `publication-checkout-maintenance.test.mjs:60-133` and `publication-checkout-ongoing-operation.test.mjs:24-120`; ran those two refresh files (5 pass). | Confirmed: reuse calls `fastForwardToFetchedTrunk`, which refresh also calls. Refresh already proves `pending-edit`, `unpublished-commits`, and `diverged` with state and remote unchanged, and recognizes `MERGE_HEAD`, the other in-progress refs, the index lock, and a real rebase through the shared `ongoingOperation`. Only startup proves the `setup-failed` mapping with nothing published, and only a stopped rebase on the detached `HEAD` it leaves (observed in a scratch repository: empty `branch --show-current`, `rebase-merge` present) proves the operation check precedes the `unexpected-branch` check. Refresh's pre-fetch operation check returns before that ordering. `one-shot-escalation.test.mjs:85-105` separately proves a `pending-edit` refusal at installed admission. |
-| No native journey covers current-checkout work. | `ls tests/support \| grep native`; read `tests/git-publication-native.sh` usage and `tests/support/git-publication-native-{owned-context-suite,evidence}.sh` at `5769c023`. | Confirmed. The harness has startup, admission, one-shot, owned-context (startup, preparation Land, Trunk Mode closure), and closure journeys. Plan 142 left one credential-free pattern: `tests/git-publication-native-owned-context.sh` runs each journey through a substitute host and the shared supervisor/stream/retention path, then real-state assessor counterexamples on the kept fixture. The owned-context evidence profile hashes the guidance its journeys prove. |
+| With the correct pre-edit base and an advanced trunk, reconciliation would drop the developer's unpublished commit. | Relayed from refinement session b9f90f (2026-09-29): owned-suffix reconciliation runs `git rebase --onto <remoteTip> <pre-edit base> <branch>` in the developer's checkout. Read `execution-increment-delivery.mjs` and `execution-increment-publication.mjs:111-185` at `852b6c8d`. | Confirmed. `deliver` rewrites nothing before calling `publishExecutionIncrement` (`execution-increment-delivery.mjs:103`); inside it, `reconcileAndRequireProof` runs only after the first fetch (line 126). The pre-edit base is the developer's unpublished commit, which no remote ref contains, so a check right after that fetch refuses before any rebase. Slice 1's trunk-advanced tests prove the ordering. |
 
 ## Slices
 
@@ -108,12 +107,16 @@ an agent commits its authorized edit there and `deliver` runs with push
 authority and the checkout's `HEAD` from before the agent's first commit as
 the previously published base → delivery returns an `unpublished-base` refusal
 before any rebase or push; remote refs, local branch, commits, index, and
-working tree are unchanged. A current-checkout closure whose before-cleanup
-and final-closure commits are both its own publishes both.
+working tree are unchanged. The same holds when remote trunk has advanced: the
+refusal comes before any reconciliation, and the developer's commit stays on
+their branch. A current-checkout closure whose before-cleanup and
+final-closure commits are both its own publishes both.
 
 Add the check to `publishExecutionIncrement` right after the first fetch, as
 one rule for every caller: the previously published base must be contained in
-a fetched ref of the named remote. Surface the stop through `deliver`'s
+a fetched ref of the named remote. It must run before every reconciliation or
+rewrite on the `deliver` path, including any before
+`publishExecutionIncrement`'s first fetch. Surface the stop through `deliver`'s
 receipt like other publication stops. Guidance: current-branch and host-owned
 publication (`trunk-publication.md`, `wrap-up.md` step 8, wrap-up closure) and
 direct edit (`maintain-default-checkout.md` step 3) pass the `HEAD` recorded
@@ -125,7 +128,9 @@ checkout" in the sections edited.
 
 Proof: in `current-branch-publication.test.mjs`, a developer commit under the
 agent's commit with push authority refuses, and remote/local state is
-byte-for-byte unchanged; the same through the `deliver` CLI in
+byte-for-byte unchanged, both with trunk unchanged and with trunk advanced
+(local branch tip and commit list asserted unchanged); the same through the
+`deliver` CLI in
 `execution-increment-delivery.test.mjs`; in `closure-current-branch.test.mjs`,
 two own closure commits publish. Then rerun every publication-reaching test
 file, selected as the `src/skills/*/scripts/*.test.mjs` files that name
@@ -137,30 +142,7 @@ payload declaration checks named under Delivery checks. Any failure there
 that the guard causes disproves the common-rule premise and stops for
 reassessment rather than a caller-specific exception.
 
-### 2. Direct edits proceed around unrelated staged content
-Type: Behavior
-Status: planned
-Proof: guidance walk of examples 1 and 3 plus the existing runtime tests; native confirmation in slice 4.
-
-Behavior: The developer has staged an unrelated file and selects their
-current checkout for an agent's edit → the agent edits and commits only the
-authorized path with `git commit --only -- <paths>`; the staged file stays
-staged with identical bytes. When an authorized path already has staged
-content before the edit → the agent stops before editing, with nothing
-changed.
-
-Change `maintain-default-checkout.md` Direct edit steps 1–2 and `wrap-up.md`
-step 6 for the current checkout accordingly; an unpublished unrelated commit
-and an ongoing operation still stop the edit at step 1. Keep the runtime as is:
-`current-branch-publication.test.mjs:29,79` already prove the commit shape.
-Add a guidance assertion only where an existing guidance test already covers
-these sections. Use "default checkout" in the sections edited.
-
-Proof: rerun `current-branch-publication.test.mjs` and
-`closure-current-branch.test.mjs`; walk examples 1 and 3 through the edited
-guidance under the maintainer behavior review, recording each decision point.
-
-### 3. Refresh and startup carry no ownership declaration
+### 2. Refresh and startup carry no ownership declaration
 Type: Behavior
 Status: planned
 Proof: refresh, startup, preparation, and closure suites green, with zero remaining references.
@@ -214,50 +196,16 @@ refusals above; and
 `grep -rn -E "declared-owner|declaredOwner|another-writer|unclear-ownership|--requester" src`
 returns nothing.
 
-### 4. Native acceptance of current-checkout guidance
-Type: Behavior
-Status: planned
-Proof: one fresh direct-edit journey per host on Claude Code, Codex, and Cursor, judged by the harness assessor. Paid and manual; needs Terry's run authority at execution time.
-
-Behavior: On each host, from installed candidate guidance, a developer's
-default checkout holds an unrelated staged file and an unrelated unstaged
-edit; the developer asks the agent to change one file there and publish it →
-the agent proceeds without an owner declaration, commits only that file,
-publishes through `deliver` with the pre-edit `HEAD` as base, and the staged
-and unstaged bytes, branch, and worktree list are unchanged.
-
-Add this one journey as live case `publication/direct-edit` of
-`tests/git-publication-native.sh`, with a fixture whose default checkout is
-the selected checkout, an observer, and an assessor. It is not an
-owned-context journey, since that entry covers repositories without a default
-checkout. Prove it credential-free the way plan 142's owned-context journeys
-are proved: one run through a substitute host on the shared
-supervisor/stream/retention path, then real-state counterexamples on the kept
-fixture that the assessor rejects: staged or unstaged bytes changed, an
-unrelated file in the published commit, and a pushed SHA that reaches a
-commit the agent did not create. Its evidence identity hashes the guidance it
-proves (`maintain-default-checkout.md`, `wrap-up.md`, `trunk-publication.md`,
-and `publish-the-candidate.md`). This covers plan 140's current-checkout
-guidance and this plan's slices 1–3. The refusal case stays with slice 1's
-deterministic proof.
-
-Proof: the credential-free substitute run and its counterexamples pass
-unpaid; three fresh host runs judged accepted, with host version and
-candidate SHA recorded here; run output deleted after judging.
-
 ## Proof ownership
 
 | Final-state promise | Owning slice and decisive observation |
 | --- | --- |
-| Example 2: unpublished developer commit is never pushed | 1: refusal through `publishExecutionIncrement` and the `deliver` CLI, remote and local unchanged |
+| Unpublished developer commit is never pushed or removed, including when trunk advanced | 1: refusal through `publishExecutionIncrement` and the `deliver` CLI before any reconciliation, remote and local unchanged |
 | Current-checkout closure with only its own commits still publishes | 1: two-commit closure test |
-| Example 1: agent proceeds around unrelated staged content | 2: guidance walk + existing runtime tests; 4: native journey |
-| Example 3: staged change on an authorized path stops the edit | 2: guidance walk |
-| Declared-owner concept removed end to end | 3: suites green, zero references |
-| Refresh of a clean, behind checkout needs no owner input | 3: refresh and startup suites |
-| Startup reuse keeps its refusal guarantees with redundant cases removed | 3: two surviving startup refusals plus the named refresh and admission tests |
-| Edited sections name the default checkout; `--integration` unchanged | 1–3: behavior review of edited sections |
-| Plan 140 and this plan's current-checkout guidance accepted natively on three hosts | 4 |
+| Declared-owner concept removed end to end | 2: suites green, zero references |
+| Refresh of a clean, behind checkout needs no owner input | 2: refresh and startup suites |
+| Startup reuse keeps its refusal guarantees with redundant cases removed | 2: two surviving startup refusals plus the named refresh and admission tests |
+| Edited sections name the default checkout; `--integration` unchanged | 1–2: behavior review of edited sections |
 | One shared payload across hosts | every slice: payload checks below |
 
 ## Delivery checks
@@ -275,9 +223,7 @@ Use independent post-change refactoring and ordinary managed delivery.
 
 No blocking slice-specific concern was identified in this review. The guard
 is one common rule whose premise was observed across every existing caller.
-Slice 2 is guidance-only because the runtime already behaves as promised.
-Slice 4 follows the credential-free pattern plan 142 left in the harness; its
-paid runs need separate authority at execution time. The
-assimilated test consolidation stays in slice 3 because it edits the same
-eligibility tests and runs in the proof loop slice 3 already owns. It adds no
-slice and no product behavior. The resulting plan has four slices.
+The assimilated test consolidation stays in slice 2 because it edits the same
+eligibility tests and runs in the proof loop slice 2 already owns. It adds no
+slice and no product behavior. After the 2026-09-29 narrowing the plan has two
+slices.
