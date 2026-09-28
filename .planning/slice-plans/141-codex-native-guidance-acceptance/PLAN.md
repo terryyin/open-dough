@@ -142,7 +142,7 @@ Fixture hides growth until released-settings check; counterexamples cover untrac
 - Exact-checkout setup passed: locked `PATH="/opt/homebrew/bin:$PATH" npm ci` and `PATH="/opt/homebrew/bin:$PATH" bash tests/git-publication-native.sh --help`. No commit hook; Markdown needs no formatter, whitespace checked before staging.
 - No applicable earlier Codex acceptance proof found in retained records/Git; Claude evidence is fixture reference only. Keep established in-scope plan-refinement authority; no hard limit/exceptions. All runs retain 900/15-second bounds.
 - Default checkout refresh deferred for pending dashboard edits. Preparation update accepted as starting revision above; claim's trunk CI unobserved.
-- CI observer: GitHub Actions, selector `ci.yml` verified by `gh run list` (no branch push run yet), target `codex/plan-141-execution` in `terryyin/open-dough`; runtime `.agents/skills/dough-execute-plan` in this exact checkout. Codex yielded cell `28`, session `55077`, directory `/tmp/dough-ci-501/watch-2OeRvN`, PID `2304`, coordinator `codex-plan-141-20260928`. Managed deliveries reuse this live observer; unobserved trunk claim CI is not registered on it.
+- CI observer: GitHub Actions, selector `ci.yml` verified by `gh run list`, target `codex/plan-141-execution` in `terryyin/open-dough`; exact-checkout runtime `.agents/skills/dough-execute-plan`. Original cell `28`/session `55077`, directory `/tmp/dough-ci-501/watch-2OeRvN`, PID `2304` stopped with unobserved coverage for `8373b163`/`b765473f`, shutdown confirmed. Resumed observer cell `72`, session `17764`, directory `/tmp/dough-ci-501/watch-M7dAHE`, PID `23794`, coordinator `codex-plan-141-20260928`; managed deliveries reuse it. Unobserved trunk claim CI is not registered on this branch observer.
 
 ## Accepted proof — slice 1 (2026-09-28)
 
@@ -209,9 +209,11 @@ Slice 1 delivered: `8373b163be94f2b6244c7c0c0e1e8e501877afa6` accepted on the re
 
 Verdict: candidate failed the proportionate control; baseline is mixed/limited,
 not a clean historical-plan-111 burden match. Slice 2 remains planned and
-unaccepted; slices 3–7 were not launched. No guidance fix, candidate retry,
-retrospective, readiness renewal or completion claim is authorized by this
-result. The story remains Taken; a separate correction decision is needed.
+unaccepted. Terry subsequently authorized continuing independent slices 3–7 and
+queuing the [local-verification correction](../../seeds/SEED-053-native-guidance-acceptance.md#proportionate-local-verification)
+first with known evidence for later decisions; accepted on `origin/main` at
+`e78a7618fb29d223eaa014aefb9dae5243fb3d1b`. No guidance fix or unchanged retry.
+The story remains Taken and whole-plan acceptance remains incomplete.
 
 - Guidance is unchanged: candidate `v0.3.45`/`f3f75d0b`, baseline `6882aeb3`; harness `8373b163be94f2b6244c7c0c0e1e8e501877afa6`, CLI `0.157.0`, same default/ignore-user-config settings, actual model unknown. Relevant installed skill bytes matched each pinned source.
 - Setup command: `/opt/homebrew/bin/bash /tmp/plan141-slice2-setup.sh`; two independent shared Open Dough clones at `f2b974afb5367b7f8cbe3a2b5ebd246ec166bf02` (`e7107e5^`), selected refined SEED-042 restored from `e7107e5`, origin removed, separate pinned guidance installation and installed recorder reset to refined/unselected. Both setup journeys passed before launch; no product implementation.
@@ -220,4 +222,4 @@ result. The story remains Taken; a separate correction decision is needed.
 - The observed failure is in the resulting prospective plan, not runtime: candidate `.planning/slice-plans/111-rename-slice-plan-folder-references/PLAN.md` lines 119–125 unconditionally require `npm test`, `npm run lint`, `npm run typecheck:dashboard`, `npm run build:dashboard` and the full `npm run test:dashboard` as existing delivery checks, beyond its focused proof. Its seven premise observations are relevant but heavier than brief.
 - Historical plan 111's proof table and final verification paragraph prescribe focused reader/navigation checks plus existing repository requirements. Historical AGENTS representative behavior review, README and contributor test instructions supply no every-change full-suite mandate; hosted `ci.yml` lists those five checks. Candidate installed wrap-up line 86 says not to run full CI before commit unless explicitly required. Hosted checks do not alone establish that local mandate. These source observations leave the added unconditional burden unjustified.
 - Baseline plan lines 116–124 also adds full `npm test` for distributed fixture consumers, but conditions full dashboard testing on affected reach and omits candidate's build/typecheck additions. This provides limited comparison, not acceptance of the candidate or a causal improvement claim.
-- Coordinator independently inspected final plans, skill-read command items, terminal outcomes, matching preparation states and requirement sources. Raw root `/private/tmp/plan141-slice2.7YSVP3` has been judged and will be removed after publishing this compact failed/outstanding record. Native acceptance and this plan remain incomplete; do not retry the same candidate to obtain a pass.
+- Coordinator independently inspected final plans, skill-read command items, terminal outcomes, matching preparation states and requirement sources. Raw root `/private/tmp/plan141-slice2.7YSVP3` was deleted after publication of `b765473fda8c544c135458dbbb9ed75990b5f64c`. Native acceptance and this plan remain incomplete; do not retry the same candidate to obtain a pass.
