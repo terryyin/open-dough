@@ -245,6 +245,53 @@ which removes owner arguments the closure modules still pass.
 
 **Slice plan:** [Close stories through an installed wrap-up command](../slice-plans/146-installed-wrap-up-command/PLAN.md).
 
+<a id="durable-workspace-creation-fact"></a>
+
+### Retire a workspace created for the work in any later session
+
+**Identity:** SEED-008#durable-workspace-creation-fact
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** A developer whose story or preparation spans several agent sessions
+gets its owned worktree retired when that work lands or closes, instead of
+finding it retained as "ambiguous" because the session that created it is gone.
+
+**Context (2026-09-28):** Terry decided that retirement ownership follows the
+work, not the session: a worktree an earlier session created for the same
+story, preparation, or execution is retired with that work, while reused and
+host-owned worktrees stay with their owners. The shared lifecycle
+(`src/skills/dough-manual-testing/references/exploration-workspace.md`,
+"Close or retain it") now says so, but accepts only two records of creation: a
+`created: true` selection result kept in the plan or conversation, or the
+caller's statement. Preparation keeps neither across sessions (its assignment
+profile records name, story, activity, host, and model; its worktree ref names
+only the held assignment, which a host-owned worktree can hold too), and
+executions do not write their created-versus-reused fact into the plan's resume
+context in practice. A later session therefore usually retains the worktree.
+The native preparation-land and trunk-closure journeys pass only because their
+prompts state that an earlier session created the worktree for this work.
+`src/skills/dough-story-refinement/references/preparation-assignment.md` still
+says to record the workspace "as created by this session".
+
+**Open scope decision:** where the durable "created for this work" fact lives.
+Options found so far:
+
+1. A per-worktree Git ref (for example beside the preparation assignment ref)
+   written by startup or preparation when it creates the workspace and removed
+   with the worktree. Git-native, survives sessions and hosts, needs no
+   registry; a reused or host-owned worktree never gets it. Recommended.
+2. A field in a published record (the preparation assignment profile or the
+   execution claim). Visible to other developers, but the profile is released
+   before Land retires the worktree, and a claim does not prove creation.
+3. Require the fact in the work's own record (the plan's resume context, a
+   preparation record). Works only where such a record exists and is kept.
+
+**Relation to queued work:** SEED-008#installed-wrap-up-command makes the
+shipped retirement gate follow the work-scoped rule; it can consume this fact
+once decided. Until then the rule fails safe by retaining the worktree.
+
 <a id="reduce-ci-observer-overhead"></a>
 
 ### Reduce CI observer overhead across execution and wrap-up
