@@ -77,6 +77,11 @@ function run(args, { cwd, input = "", env = process.env }) {
       stderr += chunk;
     });
     child.on("error", reject);
+    // An entry point that refuses its arguments can exit before its input is
+    // written; its exit and output are what this test observes.
+    child.stdin.on("error", (error) => {
+      if (error.code !== "EPIPE") reject(error);
+    });
     child.on("close", (code) => resolve({ code, stdout, stderr }));
     child.stdin.end(input);
   });

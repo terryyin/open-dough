@@ -343,6 +343,15 @@ through `rebaseInProgress` in `product-backlog-git-operation-state.mjs`. Land's
 model also stops on `index.lock`; Land guidance names only unfinished Git
 operations, for slice 5's read-through.
 
+CI repair (run 36398824771, 3ca457cb; the same failure on another branch's run
+36394508899): `project-keyboard-navigation-focus.spec.ts` waited for any
+Doughnut request although an earlier step had already read `main`, so on slow
+runners the held read arrived and the count assertion saw `["main","main"]`; it
+now waits for the held read itself and asserts it is never retried. The local
+`symlinked-skill-entry.test.mjs` flake was an unhandled `EPIPE` when a refusing
+entry point exited before its empty input was written (13 of 180 under load,
+0 fixed); `run()` now tolerates only `EPIPE`.
+
 ### 4. A clean reused workspace that trunk has moved past is fast-forwarded
 Type: Behavior
 Status: planned
