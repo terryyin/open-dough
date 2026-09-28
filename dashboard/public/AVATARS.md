@@ -37,6 +37,19 @@ are the unaltered tile, so the gesture starts from and settles on the approved
 portrait. The strip is lossy WebP (`cwebp -q 82`). The maintainer kept it
 after review.
 
+`agent-avatars/akiho-gesture.webp` is Akiho's 1.8-second hover reaction: a
+small head tilt, smile, wink, and peace sign, followed by a return to her
+original pose. Its illustrated poses were generated with the built-in image
+generation tool on 2026-09-28, using her exact square crop from the approved
+atlas as the identity and framing reference. The generated sheet was cut into
+16 poses and packed between two copies of the original atlas tile, producing
+an 18-frame horizontal strip, 418 × 418 per frame. Lossless WebP preserves the
+original tile's pixels in the first and last frames. Like Yui's gesture, it
+plays once per hover in the enlarged portrait and is disabled for reduced
+motion. An overlay of the approved still eases out at the beginning and back
+in during the settling pose, avoiding a snap between the generated drawings
+and the original portrait.
+
 ## Tool marks
 
 The files in `tool-avatars/` are official vendor assets saved locally for

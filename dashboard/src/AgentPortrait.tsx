@@ -6,8 +6,11 @@ const portraitsPerAtlas = 6;
 
 // The agents whose enlarged portrait plays a short gesture on hover, by
 // rotation name: a strip of frames beginning and ending on the approved tile.
-const gestureStrips: Readonly<Record<string, string>> = {
-  Yui: "yui-gesture.webp",
+const gestureStrips: Readonly<
+  Record<string, { file: string; duration: string; blend?: boolean }>
+> = {
+  Yui: { file: "yui-gesture.webp", duration: "1.5s" },
+  Akiho: { file: "akiho-gesture.webp", duration: "1.8s", blend: true },
 };
 
 // The approved portrait for a recorded agent, by its rotation name. Portraits
@@ -31,7 +34,7 @@ export function AgentPortrait({ name }: { name: string }) {
       className={
         gesture === undefined
           ? "agent-portrait"
-          : "agent-portrait portrait-gesture"
+          : `agent-portrait portrait-gesture${gesture.blend ? " portrait-gesture-blend" : ""}`
       }
       aria-hidden="true"
       style={
@@ -41,7 +44,10 @@ export function AgentPortrait({ name }: { name: string }) {
           "--portrait-tile": `${column * 50}% ${row === 0 ? 12.5 : 87.5}%`,
           ...(gesture === undefined
             ? {}
-            : { "--portrait-gesture": avatarUrl(gesture) }),
+            : {
+                "--portrait-gesture": avatarUrl(gesture.file),
+                "--portrait-gesture-duration": gesture.duration,
+              }),
         } as CSSProperties
       }
     />

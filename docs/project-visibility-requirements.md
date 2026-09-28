@@ -323,7 +323,7 @@ file.
   identity marks sit beside their own text labels: the agent's portrait beside
   its name, the mode symbol beside the mode, and the host tool's mark beside
   the host. Hovering the portrait shows it larger in place, over the card,
-  without moving the owner line; an agent with a gesture strip (only Yui) plays
+  without moving the owner line; an agent with a gesture strip (Yui and Akiho) plays
   it once in that enlargement on each hover and settles on the still portrait,
   which reduced motion shows without the gesture. Text alone carries each fact; no mark is
   drawn for an unrecorded or unreadable fact, and no mark implies that an
