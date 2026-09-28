@@ -19,6 +19,9 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Start from owned repository context and refresh truthfully](seeds/SEED-008-worktree-branch-trunk-sync.md#owned-context-start-and-truthful-refresh) — SEED-008#owned-context-start-and-truthful-refresh
+- [Finish removing default-checkout coordination](seeds/SEED-008-worktree-branch-trunk-sync.md#finish-removing-checkout-coordination) — SEED-008#finish-removing-checkout-coordination
+- [Close stories through an installed wrap-up command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command) — SEED-008#installed-wrap-up-command
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
 - [Accept existing guidance natively on Codex](seeds/SEED-053-native-guidance-acceptance.md#native-acceptance-codex) — SEED-044#native-premise-acceptance-codex-cursor
 - [Start agent work from the Open Dough dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#start-agent-work-from-dashboard) — SEED-052#start-agent-work-from-dashboard

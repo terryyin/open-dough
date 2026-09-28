@@ -199,9 +199,9 @@ work is blocked or checkout ownership is missing.
 
 Installed execute-plan publication and default-checkout maintenance guidance
 own the implemented contract for callers, recovery, and proof.
-[Run worktree workflows from remote history](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
-owns the migration to remote-based startup and a shared remote-first lifecycle
-with optional local refresh. The
+[Start from owned repository context and refresh truthfully](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#owned-context-start-and-truthful-refresh)
+owns the remaining migration to remote-based startup and a shared remote-first
+lifecycle with optional local refresh. The
 [visibility requirements](../project-visibility-requirements.md) distinguish
 published progress from local operational evidence. These records express the
 selected planning direction; execution follows its own authorization.

@@ -292,6 +292,85 @@ representation each.
 
 **Slice plan:** [Start from owned repository context and refresh truthfully](../slice-plans/142-owned-context-start-and-refresh/PLAN.md).
 
+<a id="finish-removing-checkout-coordination"></a>
+
+### Finish removing default-checkout coordination
+
+**Identity:** SEED-008#finish-removing-checkout-coordination
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Decision (2026-09-28):** Terry accepted these recommendations after the
+remote-history retrospective.
+
+**Goal:** A developer who explicitly selects their current checkout for an
+agent's edit keeps their own staged and committed work private and in place,
+with no ownership declaration, while guidance names that checkout consistently.
+
+**Scope:**
+
+- Explicit current-checkout delivery commits only its authorized paths and
+  leaves unrelated staged content staged and untouched; it stops only when an
+  authorized path itself carries someone else's staged change.
+- Before a push-authorized current-checkout delivery, refuse unless the only
+  commit over the fetched target is the one this delivery created.
+- Remove the declared-owner concept end to end: `--declared-owner` and
+  `--requester`, refresh's owner step and its `another-writer` and
+  `unclear-ownership` results, and their tests.
+- Guidance calls that checkout the default checkout throughout; the
+  `--integration` flag keeps its name.
+- Native acceptance of the changed current-checkout guidance on Codex, Cursor,
+  and Claude Code, run manually as the story's final slice.
+
+**Key examples:**
+
+1. The developer has staged an unrelated file and asks an agent to commit one
+   authorized file locally → the commit holds only that file, and the staged
+   file remains staged with identical bytes.
+2. The developer has an unpublished local commit and authorizes publication of
+   an agent's edit → delivery refuses before pushing, and the remote and local
+   history are unchanged.
+3. A default checkout is clean and behind trunk after an accepted publication →
+   refresh advances it without any owner or requester argument.
+
+<a id="installed-wrap-up-command"></a>
+
+### Close stories through an installed wrap-up command
+
+**Identity:** SEED-008#installed-wrap-up-command
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Decision (2026-09-28):** Terry accepted this recommendation after the
+remote-history retrospective.
+
+**Goal:** Agents closing a story run the same tested wrap-up publication and
+cleanup mechanics that the project's tests prove, instead of re-enacting them
+from prose, so closure behaves identically across hosts.
+
+**Scope:**
+
+- An installed wrap-up command, invoked from story wrap-up guidance, performs
+  before-cleanup and final-closure publication, Story Branch integration, and
+  gated resource retirement through the existing shipped closure modules.
+- Current-checkout closure uses the same command under its own authority.
+- Wrap-up guidance calls the command and keeps its judgment steps
+  (assimilation, queue decisions, deletion scope) in prose.
+- Native acceptance of the changed wrap-up guidance, run manually as the
+  story's final slice.
+
+**Key examples:**
+
+1. A completed Trunk Mode story → the agent runs the wrap-up command → both
+   closure commits are accepted on the remote, the completion receipt gates
+   cleanup, and the worktree and branch are retired.
+2. A completed Story Branch story → the command integrates the published tip
+   into trunk with history preserved, observes trunk CI, then retires resources.
+3. A publication conflict → the command stops, preserving the worktree, branch,
+   and candidate, and reports the recovery step.
+
 <a id="reduce-ci-observer-overhead"></a>
 
 ### Reduce CI observer overhead across execution and wrap-up

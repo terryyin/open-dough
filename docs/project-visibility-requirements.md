@@ -481,10 +481,8 @@ CI, alongside type checking, lint, and a production build.
 
 The [product backlog](../.planning/PRODUCT-BACKLOG.md) retains the near-future
 direction of parallel story execution through trunk-based development in
-separate worktrees. The
-[remote-history workflow story](../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
-makes owned workspaces independent of the default checkout and keeps its
-refresh optional. Installed execute-plan
+separate worktrees. Owned workspaces are independent of the default checkout, and its refresh is
+optional. Installed execute-plan
 publication and default-checkout maintenance guidance apply the shared remote
 publication contract to implemented workflows.
 These requirements supply refinement context; the backlog owns priority and
