@@ -90,7 +90,7 @@ git_publication_fixture_observe_startup() {
   local remote_sha remote_backlog message human_after human_preserved
   local source_after source_preserved feature_exists first_edit_after_claim
   local startup_calls setup_exists command_exists setup_after_claim claim_owned taken_on_remote
-  local refusal_receipt conflict_receipt command_outputs
+  local conflict_receipt command_outputs workspace_source_published
   remote_sha=$(git ls-remote "${git_publication_fixture_origin}" refs/heads/main | awk '{print $1}')
   remote_backlog=$(git --git-dir="${git_publication_fixture_origin}" show \
     "${remote_sha}:.planning/PRODUCT-BACKLOG.md")
@@ -112,6 +112,13 @@ git_publication_fixture_observe_startup() {
   claim_owned=false
   if git --git-dir="${git_publication_fixture_origin}" log --format=%B "${remote_sha}" \
     | grep -Fq "Claim-Publisher: native-startup-${journey}"; then claim_owned=true; fi
+  workspace_source_published=false
+  if [[ -f ${git_publication_fixture_workspace}/.planning/seeds/A.md ]] \
+    && git --git-dir="${git_publication_fixture_origin}" show \
+      "${remote_sha}:.planning/seeds/A.md" 2> /dev/null \
+    | cmp -s - "${git_publication_fixture_workspace}/.planning/seeds/A.md"; then
+    workspace_source_published=true
+  fi
   feature_exists=false
   [[ -f ${git_publication_fixture_workspace}/feature.txt ]] && feature_exists=true
   setup_exists=false
@@ -145,7 +152,6 @@ git_publication_fixture_observe_startup() {
     startup_calls=$(jq -r '.. | objects | .command? // empty' "${transcript}" 2> /dev/null \
       | sort -u | grep -Fc 'execution-start.mjs start' || true)
   fi
-  refusal_receipt=false
   conflict_receipt=false
   command_outputs=$(
     jq -r 'select(.type == "item.completed" and .item.type == "command_execution" and
@@ -159,9 +165,6 @@ git_publication_fixture_observe_startup() {
       .content
     ' "${transcript}" 2> /dev/null || true
   )
-  if grep -Eq '^\{"ok":false,"status":"source-refused"' <<< "${command_outputs}"; then
-    refusal_receipt=true
-  fi
   if grep -Eq '^\{"ok":false,"status":"conflict"' <<< "${command_outputs}"; then
     conflict_receipt=true
   fi
@@ -183,11 +186,11 @@ git_publication_fixture_observe_startup() {
   printf 'rival-owned: %s\n' "$(grep -Fq 'Claim-Publisher: rival' <<< "$(git --git-dir="${git_publication_fixture_origin}" log --format=%B "${remote_sha}")" && echo true || echo false)"
   printf 'human-edit-preserved: %s\n' "${human_preserved}"
   printf 'selected-source-preserved: %s\n' "${source_preserved}"
+  printf 'workspace-source-published: %s\n' "${workspace_source_published}"
   printf 'feature-exists: %s\n' "${feature_exists}"
   printf 'setup-exists: %s\n' "${setup_exists}"
   printf 'command-exists: %s\n' "${command_exists}"
   printf 'setup-after-claim: %s\n' "${setup_after_claim}"
-  printf 'startup-refusal-observed: %s\n' "${refusal_receipt}"
   printf 'startup-conflict-observed: %s\n' "${conflict_receipt}"
   printf 'first-edit-after-claim: %s\n' "${first_edit_after_claim}"
   printf 'workspace: %s\n' "${git_publication_fixture_workspace}"

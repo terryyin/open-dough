@@ -1,5 +1,5 @@
 // The projects this dashboard can observe, each independently. Terry
-// consumes time on all three; this is not a combined or coordinated view of
+// consumes time on these projects; this is not a combined or coordinated view of
 // them. Metadata is hardcoded on purpose, by explicit human decision: there
 // is no project-registration service, config file, or admin UI here.
 //
@@ -41,12 +41,21 @@ const pygardon: PublishedSource = {
   backlogPath: ".planning/PRODUCT-BACKLOG.md",
 };
 
+const terryTalks: PublishedSource = {
+  id: "terry-talks",
+  label: "Terry Talks",
+  repository: "terryyin/terry-talks",
+  ref: "master",
+  backlogPath: ".planning/PRODUCT-BACKLOG.md",
+};
+
 // Open Dough is where this dashboard itself is developed; it is the default
 // selection so its own published work is the first thing shown.
 export const catalog: readonly PublishedSource[] = [
   openDough,
   doughnut,
   pygardon,
+  terryTalks,
 ];
 export const defaultSource: PublishedSource = openDough;
 

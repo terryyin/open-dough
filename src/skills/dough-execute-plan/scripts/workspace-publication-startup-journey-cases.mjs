@@ -14,11 +14,11 @@ import {
   revParse,
 } from "./publication-test-fixtures.mjs";
 import {
-  busyCheckout,
   createQueuedTrunk,
   readyContributing,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
+import { busyCheckout } from "./default-checkout-test-fixtures.mjs";
 import { runReadinessGate } from "./execution-worktree-preparation-readiness-gate.mjs";
 import { installManagedDelivery } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { agentModes } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";

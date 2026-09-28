@@ -116,149 +116,117 @@ registry is selected. No new execution authority or ADR acceptance is implied.
 
 ## Existing related stories
 
-<a id="same-machine-merge-queue"></a>
+<a id="owned-context-start-and-truthful-refresh"></a>
 
-### Run worktree workflows from remote history
+### Start from owned repository context and refresh truthfully
 
-**Identity:** SEED-008#same-machine-merge-queue
+**Identity:** SEED-008#owned-context-start-and-truthful-refresh
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/140-remote-history-workflows/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4731eb082e2ebb5b82a654af62f695090ec7d5d2d390aeaf8eab6c39726f7eaf","plan":"1c414f41e6a2dcd85adea49938c3e9beb3eb806c060f510d7ea6cafa3852e49c"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/142-owned-context-start-and-refresh/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"624a6722a707be78d3f9dc7a167d031997cfde4ab28ba345dd0af099057131f9","plan":"66d6e8787b9337141398cfa4969a3cc4f4204df4931bc05c8e5ef272eba8ae32"}}
 ```
 
-**Decision (2026-09-28):** Terry repurposed this first-priority story after
-finding insufficient value in coordinating the default checkout. Keep its
-recorded identity and anchor. The intended model is bare-like: worktrees pivot
-around remote history without requiring a default checkout. This describes
-workflow behavior, not a request to convert repositories to bare Git.
-
-**Goal:** Developers can prepare and execute work in owned worktrees and land
-completed changes on the authorized remote branch regardless of the presence,
-revision, or pending work of a default checkout. This supports parallel story
-execution with fewer local coordination obligations.
+**Goal:** Developers can start and land owned work from an owned repository
+context alone and receive a truthful, fast-forwarding default-checkout refresh.
+This bounded retrospective correction of
+Run worktree workflows from remote history (`SEED-008#same-machine-merge-queue`, recoverable at
+`199c579f:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`)
+completes that story's example 3 and its "clean and behind → fast-forward"
+promise, while retirement mechanics and refresh-result guidance keep one
+representation each.
 
 **Scope:**
 
-- Fresh preparation and execution workspaces use fetched remote trunk as their
-  ordinary baseline. Queued execution reads the selected story, plan,
-  preparation facts, and claim ownership from published history. Local default
-  checkout copies do not supply or veto that source. Existing owned workspaces
-  retain their work and resume identity; a fresh remote baseline does not
-  authorize resetting them.
-- Resolve the project's actual remote and authorized branch. `origin/main`
-  names the usual trunk here; Story Branch Mode still publishes progress to
-  its authorized remote story branch and integrates through its existing
-  authorized trunk boundary. This story does not change mode timing.
-- Dough Land and story wrap-up reconcile and publish their owned candidates
-  directly to the authorized remote target. Neither requires local `main` to
-  contain the result before publication or retirement. Wrap-up includes its
-  before-cleanup and final-closure changes in that same remote contract.
-- After accepted trunk publication, attempt to fast-forward a supplied default
-  checkout only when it is on the expected branch, clean, and equal to or behind
-  fetched trunk. Preserve pending edits, staged content, unpublished commits,
-  and unexpected or divergent state. With no default checkout, skip this
-  optional step. Contention or refresh failure reports an independent local
-  outcome and never invalidates remote acceptance or blocks independent work.
-- Keep one cohesive solution for remote reconciliation, publication acceptance
-  and recovery, optional checkout refresh, and safe worktree retirement. Land
-  and wrap-up consume those shared responsibilities. Their different duties
-  remain explicit: Land commits the reviewed worktree; wrap-up preserves Git
-  recovery, removes spent records, and observes its required CI completion.
-  Sharing those responsibilities does not require one combined workflow.
-- Explicit developer selection of current-checkout work remains deliberate
-  local work under its established authority, with no automated ownership,
-  lease, or handoff prerequisite. Preserve unrelated work and publication
-  authority. Deliberately supplied unpublished preparation or carried edits
-  remain owned inputs under admission and resume; never sweep the default
-  checkout's unrelated content into a remote candidate.
-- Align affected shared guidance and maintained planning/design context with
-  this direction. A default checkout may supply Git repository access when
-  present; its working tree is neither a required source nor an integration
-  stage. Use an owned repository/worktree context when it is absent.
+- Create a new owned workspace at fetched trunk from an existing owned worktree
+  or the repository's common Git directory, for queued startup and preparation,
+  with local refresh not applicable. Existing refusals remain.
+- Recognize an in-progress rebase by Git's rebase state, not a leftover
+  `REBASE_HEAD`, in one recognizer shared by refresh and the Land model.
+- Refresh-result guidance links its single owner; the Land model retires
+  through the shared retirement mechanics.
+- Remove the startup and Land test redundancy the review found, and prove that
+  a ready-looking local copy cannot override unready remote preparation.
+- Human-owned decisions listed in the plan remain excluded.
 
-**Key examples / evaluation:**
+**Slice plan:** [Start from owned repository context and refresh truthfully](../slice-plans/142-owned-context-start-and-refresh/PLAN.md).
 
-1. Remote trunk has a ready story and plan; local `main` is behind and holds
-   different staged or unstaged versions of that selected source → start queued
-   execution → use the published versions, publish the claim, and prepare the
-   owned workspace from remote history; leave all local content intact.
-2. A fresh preparation begins from a stale default checkout → select its owned
-   workspace → draft against fetched trunk, preserving the developer's local
-   files. Continuing an existing preparation retains its owned draft.
-3. An owned worktree has repository access and installed guidance, but no
-   default checkout is supplied → start execution, land work, or wrap up a
-   completed story → use the authorized remote and owned workspace; report
-   local refresh as not applicable without demanding another checkout.
-4. A reviewed Land candidate or completed wrap-up candidate is ready; local
-   `main` is clean and behind → publish → origin contains the accepted result
-   before optional local advancement. Both callers use the shared publication
-   and refresh behavior, with their own completion duties preserved.
-5. Local `main` has a developer edit, unpublished commit, unexpected branch, or
-   divergent history → Land or wrap-up publishes from its owned workspace →
-   remote acceptance stands, local state is preserved, and refresh is deferred
-   or stopped. Cleanup remains governed by remote containment and the caller's
-   existing completion gates.
-6. Another writer advances the remote or a push response is lost → publish or
-   resume through either Land or wrap-up → use the same reconciliation,
-   revalidation, and remote-containment rules. Local checkout movement is never
-   evidence of acceptance; unresolved conflict preserves the owned candidate.
-7. Published preparation is missing or not ready → queued startup → refuse on
-   the remote facts, even if a newer ready-looking copy exists locally. An
-   explicitly authorized admission remains the route for unpublished owned work.
+<a id="finish-removing-checkout-coordination"></a>
 
-**Constraints and limits:** The previous cooperative access/merge-queue feature
-is abandoned. This story adds no default-checkout lock, owner registry,
-takeover policy, scheduler, background catch-up, or second publication engine.
-It does not convert repository storage, provision a new bare-repository hosting
-mode, change branch protections or force-push policy, or redesign CI. Existing
-project setup, owned-workspace preservation, and required CI checks still apply.
+### Finish removing default-checkout coordination
 
-**Existing solutions and alignment:**
-[Startup](../../src/skills/dough-execute-plan/SKILL.md#take-or-admit-work)
-already selects workspaces from fetched trunk, but its
-[source reader](../../src/skills/dough-execute-plan/scripts/execution-source.mjs)
-can refuse because of originating-checkout versions.
-[Dough Land](../../src/skills/dough-land/SKILL.md) and
-[wrap-up](../../src/skills/dough-story-wrap-up/SKILL.md) already share
-[candidate publication](../../src/skills/dough-execute-plan/references/publish-the-candidate.md)
-and Land's refresh/retirement guidance. Extend these existing owners where
-needed; establish cohesion across their runtime and prose without assuming a
-second publisher is needed. The shared preparation workspace/base selection,
-[checkout maintenance](../../src/skills/dough-execute-plan/references/maintain-default-checkout.md),
-[publication design](../../docs/maintainer/execution-publication-design.md), and
-[visibility requirements](../../docs/project-visibility-requirements.md)
-still contain local-checkout assumptions to align during delivery. The wording
-of Proposed ADRs 0008 and 0009 is aligned in this preparation draft; both retain
-their status. Their earlier coordination proposal is not an Accepted constraint
-or this story's selected requirement.
+**Identity:** SEED-008#finish-removing-checkout-coordination
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
 
-**Depends on:** Existing startup, shared publication, and checkout-maintenance
-owners; no new prerequisite story is selected.
+**Decision (2026-09-28):** Terry accepted these recommendations after the
+remote-history retrospective.
 
-**Safe stopping point:** Owned-worktree startup and publication work without a
-default checkout dependency; an optional local refresh cannot change their
-acceptance or cleanup evidence.
+**Goal:** A developer who explicitly selects their current checkout for an
+agent's edit keeps their own staged and committed work private and in place,
+with no ownership declaration, while guidance names that checkout consistently.
 
-**Evidence:** [ODF-119](../../docs/maintainer/finding-names.md#odf-119) records
-three stale-checkout incidents, including a startup refusal and repeated refresh
-deferral from unignored nested worktrees. This supports removing local-state
-dependencies, not introducing mutual exclusion; no contention incident is
-claimed. Removing startup's dependence on local copies does not itself clean
-the developer's checkout or promise that every deferred refresh will advance.
+**Scope:**
 
-**Open scope decisions:** None. The linked slice plan defines the planned
-approach; preparation does not authorize implementation.
+- Explicit current-checkout delivery commits only its authorized paths and
+  leaves unrelated staged content staged and untouched; it stops only when an
+  authorized path itself carries someone else's staged change.
+- Before a push-authorized current-checkout delivery, refuse unless the only
+  commit over the fetched target is the one this delivery created.
+- Remove the declared-owner concept end to end: `--declared-owner` and
+  `--requester`, refresh's owner step and its `another-writer` and
+  `unclear-ownership` results, and their tests.
+- Guidance calls that checkout the default checkout throughout; the
+  `--integration` flag keeps its name.
+- Native acceptance of the changed current-checkout guidance on Codex, Cursor,
+  and Claude Code, run manually as the story's final slice.
 
-**ADR review (2026-09-28):** No new conflict with the current Accepted ADRs.
-ADR 0002 supports shared remote integration, cohesion, and reducing unnecessary
-coordination; ADRs 0004, 0005, and 0006 govern standalone delivery, truthful
-cross-tool evidence, and one authoritative behavioral source. No Accepted ADR
-needs amendment for this outcome. Proposed ADRs 0008 and 0009 have their
-default-checkout coordination wording aligned with Terry's decision in this
-preparation draft and retain Proposed status. ADR 0007's existing Story Branch
-timing tension with ADR 0002 is separate and gains no exception or resolution
-from this story.
+**Key examples:**
 
-**Slice plan:** [Run worktree workflows from remote history](../slice-plans/140-remote-history-workflows/PLAN.md).
+1. The developer has staged an unrelated file and asks an agent to commit one
+   authorized file locally → the commit holds only that file, and the staged
+   file remains staged with identical bytes.
+2. The developer has an unpublished local commit and authorizes publication of
+   an agent's edit → delivery refuses before pushing, and the remote and local
+   history are unchanged.
+3. A default checkout is clean and behind trunk after an accepted publication →
+   refresh advances it without any owner or requester argument.
+
+<a id="installed-wrap-up-command"></a>
+
+### Close stories through an installed wrap-up command
+
+**Identity:** SEED-008#installed-wrap-up-command
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Decision (2026-09-28):** Terry accepted this recommendation after the
+remote-history retrospective.
+
+**Goal:** Agents closing a story run the same tested wrap-up publication and
+cleanup mechanics that the project's tests prove, instead of re-enacting them
+from prose, so closure behaves identically across hosts.
+
+**Scope:**
+
+- An installed wrap-up command, invoked from story wrap-up guidance, performs
+  before-cleanup and final-closure publication, Story Branch integration, and
+  gated resource retirement through the existing shipped closure modules.
+- Current-checkout closure uses the same command under its own authority.
+- Wrap-up guidance calls the command and keeps its judgment steps
+  (assimilation, queue decisions, deletion scope) in prose.
+- Native acceptance of the changed wrap-up guidance, run manually as the
+  story's final slice.
+
+**Key examples:**
+
+1. A completed Trunk Mode story → the agent runs the wrap-up command → both
+   closure commits are accepted on the remote, the completion receipt gates
+   cleanup, and the worktree and branch are retired.
+2. A completed Story Branch story → the command integrates the published tip
+   into trunk with history preserved, observes trunk CI, then retires resources.
+3. A publication conflict → the command stops, preserving the worktree, branch,
+   and candidate, and reports the recovery step.
 
 <a id="reduce-ci-observer-overhead"></a>
 

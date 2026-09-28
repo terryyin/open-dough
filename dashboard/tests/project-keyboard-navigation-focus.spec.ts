@@ -3,7 +3,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { filesOf, projects } from "./catalogProjectRecords.ts";
+import { filesOf } from "./catalogProjectRecords.ts";
 import {
   pathsRead,
   publishMovingOrigin,
@@ -21,7 +21,11 @@ test("focus stays useful across switches and held previous reads stay isolated",
   page,
 }) => {
   const origins = new Map<string, MovingOrigin>();
-  for (const published of projects) {
+  for (const published of [
+    openDoughProject,
+    doughnutProject,
+    pygardonProject,
+  ]) {
     const origin = await publishMovingOrigin(page, published.repository);
     const backlogText = filesOf(published)[".planning/PRODUCT-BACKLOG.md"];
     if (backlogText === undefined) {

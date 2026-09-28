@@ -169,7 +169,7 @@ test("before-cleanup and final-closure land on remote trunk and eligible cleanup
 
   const closureShas = [beforePublished.receipt.sha, finalPublished.receipt.sha];
   const blocked = await removeExecutionResources({
-    integration,
+    repository: integration,
     execution,
     branch: executionBranch,
     observer,
@@ -187,7 +187,7 @@ test("before-cleanup and final-closure land on remote trunk and eligible cleanup
   writeFileSync(join(other, "other.txt"), "other workspace\n");
   const publishedCount = await remoteCommitCount(origin);
   const removed = await removeExecutionResources({
-    integration,
+    repository: integration,
     execution,
     branch: executionBranch,
     observer,
@@ -228,7 +228,7 @@ test("before-cleanup and final-closure land on remote trunk and eligible cleanup
   );
 
   const retry = await removeExecutionResources({
-    integration,
+    repository: integration,
     execution,
     branch: executionBranch,
     observer,

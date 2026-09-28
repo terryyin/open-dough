@@ -178,6 +178,70 @@ joins only after
   shared assessor → Cursor escalation accepted. Claude Code takes the exit →
   escalation case removed from this story with the shared one-shot cases.
 
+<a id="proportionate-local-verification"></a>
+
+### Keep planned local verification proportionate to the change
+
+**Identity:** SEED-053#proportionate-local-verification
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** Developers receive slice plans whose local verification follows the
+affected behavior and explicit project requirements, so a narrow change does
+not acquire the cost of every hosted CI check without justification.
+
+**Scope:** Decide and correct how planning guidance selects local checks and
+assesses readiness. Preserve required repository checks and meaningful proof;
+broader checks need an affected-behavior reason or a cited local requirement.
+This queued story does not change guidance, rerun native acceptance, or close
+plan 141's failed control. Refinement and a separate correction decision remain.
+
+**Known evidence — 2026-09-28:**
+
+- [Plan 141 slice 2](../slice-plans/141-codex-native-guidance-acceptance/PLAN.md#slice-2-observation-and-execution-stop-2026-09-28),
+  published on `codex/plan-141-execution` at
+  `b765473fda8c544c135458dbbb9ed75990b5f64c`, records the historical
+  folder-reference control. Candidate guidance was `v0.3.45` (`f3f75d0b`);
+  baseline was `6882aeb3`. Both Codex 0.157.0 sessions completed, read their
+  installed planning skill, wrote one Behavior plan, and recorded `ready` with
+  matching digests. Actual model was unavailable; settings were equivalent.
+- Candidate plan lines 119–125 unconditionally required `npm test`, lint,
+  dashboard typecheck, build, and the full dashboard suite beyond focused proof.
+  Historical plan 111 (`e7107e5`) mapped focused reader/navigation checks and
+  existing repository requirements. Historical project guidance did not supply
+  an every-change full-suite mandate. The five candidate commands match hosted
+  `ci.yml`; installed execution wrap-up explicitly discourages full CI before
+  commit unless required. The candidate's readiness assessment missed this cost.
+- Suspected cause: hosted CI checks were treated as mandatory local delivery
+  checks. This is an inference from the written plan, not a proven internal
+  cause. The baseline also added `npm test`, but made the full dashboard suite
+  conditional and omitted candidate build/typecheck checks. It is mixed evidence,
+  so these runs establish neither a regression nor an improvement claim.
+- Implication: avoidable verification work and slower feedback. No native runtime
+  failure or product defect was observed; neither session ran the full suite,
+  implemented the change, or published target-product edits. Candidate ran one
+  focused reader check (10 passing tests). Slice 1's existing-test selection
+  passed for both versions and remains compatible evidence.
+
+**Decision inputs for refinement:** Consider making the local-versus-hosted
+distinction explicit in planning and readiness review. Alternatively assess
+whether existing guidance is sufficient and the observed failure needs another
+response. Preserve required checks; do not solve cost by removing meaningful
+coverage. A corrected guidance version may be evaluated once on the same control
+under separate native-run authority; do not retry unchanged guidance to seek a
+pass. Recheck slice 1 only if its accepted proof becomes inapplicable.
+
+**Evaluation examples:** A narrow folder-reference change selects its focused
+reader/navigation proof; a hosted CI list alone does not create a local blanket
+gate. An explicit local full-suite mandate remains required. A change affecting
+broader consumers explains the added proof. Readiness review exposes unjustified
+verification additions before recording `ready`.
+
+**Current decision:** Terry requested first backlog priority and preservation of
+these facts for later decision making, while independently continuing plan 141
+slices 3–7. The failed slice 2 remains outstanding.
+
 ## Shared premise-verification cases
 
 These cases belong to the [Codex](#native-acceptance-codex) and

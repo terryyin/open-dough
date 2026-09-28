@@ -36,6 +36,9 @@ executions, not commands, retries, or repairs.
 5. **Paid native runs refused by the host's permission check (DD-161) — low,
    not queued.** One execution (plan 139): the developer's approval did not
    let the coordinator start the run; the developer had to request it again.
+6. **Direct shell-check runs with macOS Bash 3.2 (DD-162) — low, not
+   queued.** One execution (plan 140): a coordinator-prescribed direct run
+   bypassed the runner's Bash 5 guard and cost one diagnosis agent.
 
 No other project-owned problem is supported, so only one story is queued.
 
@@ -175,6 +178,26 @@ had to request the run explicitly.
   - Evidence: the coordinator conversation: "approve all" → `tests/git-publication-native.sh --native claude` refused by the host's auto-mode classifier as agent creation. Run 1 started once the developer sent the command as a message; run 2 on "run 2".
   - Observed effect: two extra developer round trips before paid runs started.
   - Inference: Qualified. The request for go-ahead could offer the exact command, or the permission rule, the developer can use, instead of assuming approval lets the coordinator launch it.
+
+## Direct shell-check runs with macOS Bash 3.2 (low priority, not selected)
+
+### DD-162 — A shell check run directly failed locally because its substitute host resolved macOS Bash 3.2
+
+`tests/README.md` requires Bash 5 first on `PATH` and running checks through
+`scripts/test.sh`, whose guard refuses Bash 3.2. A direct
+`/opt/homebrew/bin/bash tests/git-publication-native.sh` bypassed that guard;
+its substitute `claude` host (`#!/usr/bin/env bash`) resolved `/bin/bash` 3.2
+and aborted on an empty-array expansion under `set -u`.
+
+#### Occurrences
+
+- Execution: `SEED-008#same-machine-merge-queue` / plan 140, first related implementation commit `9597bf61`
+  - Timestamp: unknown (slice 1 return, before `9597bf61` at 2026-09-28T12:45:56+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: slice 1 return reported `substitute claude one-shot-result exited 1 … stream-status: missing`, identical at claim `5a5087c6`; `native-agent-one-shot.sh` line 35 `named[@]: unbound variable` under `/bin/bash`; `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/git-publication-native.sh` passed.
+  - Observed effect: one diagnosis agent (about 66k tokens) spent on a failure CI never had.
+  - Inference: Qualified. The coordinator's delegation prompt prescribed the direct absolute-Bash run; later prompts named `scripts/test.sh` with Homebrew Bash first on `PATH` and saw no recurrence.
 
 ## Retention
 

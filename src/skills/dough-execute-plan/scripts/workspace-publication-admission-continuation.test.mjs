@@ -107,14 +107,10 @@ test("an admitted investigation continues into planned implementation under its 
   });
   assert.deepEqual(await takenAt(readySha), linkedTaken);
 
-  // An unpublished local story edit stops continuation; the admission draft
-  // left in the originating checkout does not.
-  writeFileSync(
-    join(trunk.integration, seedPath),
-    draft.replace("Find why", "Locally, find why"),
-  );
-  await refusal(/unpublished selected story source/, readySha);
-  writeFileSync(join(trunk.integration, seedPath), draft);
+  // Continuation follows published preparation; a different local copy of
+  // the story stays in the originating checkout as it was.
+  const localEdit = draft.replace("Find why", "Locally, find why");
+  writeFileSync(join(trunk.integration, seedPath), localEdit);
 
   const continued = await startCliResult(trunk, "trunk", continueArgs);
   assert.equal(
@@ -126,6 +122,10 @@ test("an admitted investigation continues into planned implementation under its 
   assert.equal(continued.receipt.plan, "slice-plans/N/PLAN.md");
   assert.equal(continued.receipt.created, false);
   await tipIs(readySha);
+  assert.equal(
+    readFileSync(join(trunk.integration, seedPath), "utf8"),
+    localEdit,
+  );
 
   // Another publisher cannot continue this claim.
   const rival = await startCliResult(trunk, "rival", [
@@ -179,7 +179,10 @@ test("an admitted investigation continues into planned implementation under its 
     .trim()
     .split("\n");
   assert.deepEqual(profiles, [".planning/agents/yui-chan.json"]);
-  assert.equal(readFileSync(join(trunk.integration, seedPath), "utf8"), draft);
+  assert.equal(
+    readFileSync(join(trunk.integration, seedPath), "utf8"),
+    localEdit,
+  );
 });
 
 test("the same publisher continues its admitted claim; another publisher is refused", async (t) => {

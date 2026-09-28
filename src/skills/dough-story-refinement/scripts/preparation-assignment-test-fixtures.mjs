@@ -135,9 +135,9 @@ function assignment(operation, workspace, identity, extra) {
 }
 
 // Operations that publish run with trunk authority from a separate workspace.
+// A null `trunk.integration` supplies no default checkout.
 const publishing = (trunk) => [
-  "--integration",
-  trunk.integration,
+  ...(trunk.integration === null ? [] : ["--integration", trunk.integration]),
   "--push-authorized",
 ];
 

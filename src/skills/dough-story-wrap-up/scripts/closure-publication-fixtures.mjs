@@ -106,11 +106,13 @@ export function publishArgs(
   };
 }
 
+// The fixture's retained repository management context is its integration
+// checkout's Git directory; proofs without one override `repository`.
 export function resumeArgs(fixture, fields) {
   return {
     ownedWorkspace: fixture.execution,
     defaultCheckout: fixture.integration,
-    integration: fixture.integration,
+    repository: fixture.integration,
     branch: executionBranch,
     declaredOwner: "coordinator",
     requester: "coordinator",

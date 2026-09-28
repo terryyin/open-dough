@@ -179,41 +179,33 @@ export async function createQueuedTrunk({
   };
 }
 
-// Commits `files` unrelated tracked files to trunk, then leaves staged and
-// unstaged patches of `lines` lines each in the integration checkout.
-export async function busyCheckout(trunk, files, lines) {
-  mkdirSync(join(trunk.integration, "inventory"));
-  for (let index = 0; index < files; index += 1)
-    writeFileSync(join(trunk.integration, "inventory", `${index}.txt`), "x\n");
-  await git(trunk.integration, "add", "inventory");
-  await git(trunk.integration, "commit", "-m", "unrelated inventory");
-  await git(trunk.integration, "push", "origin", "main");
-  const patch = `${"unrelated patch line".padEnd(79, ".")}\n`.repeat(lines);
-  writeFileSync(join(trunk.integration, "staged.txt"), patch);
-  await git(trunk.integration, "add", "staged.txt");
-  writeFileSync(join(trunk.integration, "trunk.txt"), patch);
-}
-
 const startCli = fileURLToPath(
   new URL("./execution-start.mjs", import.meta.url),
 );
 
 // `name` distinguishes the workspace, branch, and publisher of several starts
 // in one mode; it defaults to the mode. `env` is the command's environment. A
-// null `identity` starts without one, as an unlisted one-shot request does.
+// null `identity` starts without one, as an unlisted one-shot request does. A
+// null `integration` supplies no default checkout; `workspace` and `branch`
+// name an existing owned worktree instead of the default new one.
 export async function startCliResult(
   trunk,
   mode,
   extra = [],
-  { cli = startCli, name = mode, env = process.env, identity = identityA } = {},
+  {
+    cli = startCli,
+    name = mode,
+    env = process.env,
+    identity = identityA,
+    integration = trunk.integration,
+    workspace = join(trunk.fixture, `start-${name}`),
+    branch = `exec/${name}`,
+  } = {},
 ) {
-  const workspace = join(trunk.fixture, `start-${name}`);
-  const branch = `exec/${name}`;
   const args = [
     cli,
     "start",
-    "--integration",
-    trunk.integration,
+    ...(integration === null ? [] : ["--integration", integration]),
     "--workspace",
     workspace,
     "--branch",

@@ -1,14 +1,15 @@
 // Git mechanics (not guidance-following): explicit current-branch and
-// host-owned execution stay in the recorded checkout. Local-only authority
-// commits and leaves remote refs unchanged. Publish authority uses the
-// common increment publisher from that checkout. Native agent behavior is
-// not this file.
+// host-owned execution stay in the recorded checkout under the caller's own
+// authority. Local-only authority commits only the authorized paths and leaves
+// remote refs unchanged. Publish authority uses the common increment publisher
+// from that checkout. Native agent behavior is not this file.
 import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { deliverRecordedCheckout } from "./current-branch-publication.mjs";
 import {
+  commitParentsAndPaths,
   createCleanTrunkFixture,
   git,
   lsRemoteSha,
@@ -25,7 +26,7 @@ function writeOwned(checkout) {
   writeFileSync(join(checkout, "owned.txt"), "owned change\n");
 }
 
-test("local-only current-branch work commits in the recorded checkout and does not publish", async (t) => {
+test("explicit local-only current-checkout work commits only its authorized paths and does not publish", async (t) => {
   const fixture = await createCleanTrunkFixture();
   t.after(fixture.cleanup);
   const { origin, integration, trunkSha } = fixture;
@@ -38,8 +39,6 @@ test("local-only current-branch work commits in the recorded checkout and does n
   const delivered = await deliverRecordedCheckout({
     checkout: integration,
     defaultCheckout: integration,
-    declaredOwner: "caller",
-    requester: "caller",
     authority: "local-only",
     operation: "publish",
     paths: ["owned.txt"],
@@ -57,8 +56,11 @@ test("local-only current-branch work commits in the recorded checkout and does n
   assert.deepEqual(await recordedCheckoutIdentity(integration), beforeIdentity);
   assert.equal(await remoteHeads(origin), beforeRemote);
   assert.equal(await lsRemoteSha(origin, trunkTarget), trunkSha);
-  assert.notEqual(await revParse(integration, "HEAD"), trunkSha);
   assert.equal(await revParse(integration, "HEAD"), delivered.sha);
+  assert.deepEqual(await commitParentsAndPaths(integration, delivered.sha), {
+    parents: [trunkSha],
+    paths: ["owned.txt"],
+  });
   assert.equal(
     (await git(integration, "show", `${delivered.sha}:owned.txt`)).stdout,
     "owned change\n",
@@ -74,7 +76,7 @@ test("local-only current-branch work commits in the recorded checkout and does n
   assert.equal(await lsRemoteSha(origin, "refs/heads/exec/story"), "");
 });
 
-test("publish-authorized current-branch work publishes from the default checkout and preserves the pending edit", async (t) => {
+test("explicit publish-authorized current-checkout work publishes only its authorized commit and preserves unrelated edits", async (t) => {
   const fixture = await createCleanTrunkFixture();
   t.after(fixture.cleanup);
   const { origin, integration, trunkSha } = fixture;
@@ -90,8 +92,6 @@ test("publish-authorized current-branch work publishes from the default checkout
   const delivered = await deliverRecordedCheckout({
     checkout: integration,
     defaultCheckout: integration,
-    declaredOwner: "caller",
-    requester: "caller",
     authority: "publish",
     operation: "publish",
     paths: ["owned.txt"],
@@ -128,12 +128,10 @@ test("publish-authorized current-branch work publishes from the default checkout
     (await remoteHeads(origin)).split("\n").map((line) => line.split(/\s+/)[1]),
     beforeNames,
   );
-  assert.equal(
-    (
-      await git(integration, "log", "--format=%P", "-1", delivered.sha)
-    ).stdout.trim(),
-    trunkSha,
-  );
+  assert.deepEqual(await commitParentsAndPaths(integration, delivered.sha), {
+    parents: [trunkSha],
+    paths: ["owned.txt"],
+  });
   assert.equal(
     (await git(integration, "show", `${delivered.sha}:owned.txt`)).stdout,
     "owned change\n",
@@ -180,33 +178,40 @@ test("host-owned execution stays in its recorded checkout when authority is loca
   assert.notEqual(delivered.sha, trunkSha);
 });
 
-test("another declared owner does not commit or publish the default checkout", async (t) => {
+test("an in-progress merge stops explicit current-checkout work without committing or publishing", async (t) => {
   const fixture = await createCleanTrunkFixture();
   t.after(fixture.cleanup);
   const { origin, integration, trunkSha } = fixture;
+  await git(integration, "checkout", "-b", "local-topic");
+  writeFileSync(join(integration, "topic.txt"), "topic\n");
+  await git(integration, "add", "topic.txt");
+  await git(integration, "commit", "-m", "local topic");
+  await git(integration, "checkout", "main");
+  await git(integration, "merge", "--no-ff", "--no-commit", "local-topic");
   writeOwned(integration);
-  const beforeHead = await revParse(integration, "HEAD");
+  const beforeIdentity = await recordedCheckoutIdentity(integration);
   const beforeRemote = await remoteHeads(origin);
 
-  const delivered = await deliverRecordedCheckout({
-    checkout: integration,
-    defaultCheckout: integration,
-    declaredOwner: "other-writer",
-    requester: "caller",
-    authority: "publish",
-    operation: "publish",
-    paths: ["owned.txt"],
-    message: "should not commit",
-    targetRef: trunkTarget,
-    previouslyPublishedBase: trunkSha,
-  });
+  await assert.rejects(
+    deliverRecordedCheckout({
+      checkout: integration,
+      defaultCheckout: integration,
+      authority: "publish",
+      operation: "publish",
+      paths: ["owned.txt"],
+      message: "should not commit during a merge",
+      targetRef: trunkTarget,
+      previouslyPublishedBase: trunkSha,
+    }),
+    /partial commit during a merge/,
+  );
 
-  assert.equal(delivered.ok, false);
-  assert.equal(delivered.classification, "local");
-  assert.equal(delivered.publication, "pending");
-  assert.equal(delivered.receipt, null);
-  assert.equal(delivered.maintenance.reason, "another-writer");
-  assert.equal(await revParse(integration, "HEAD"), beforeHead);
+  assert.equal(await revParse(integration, "HEAD"), trunkSha);
+  assert.equal(
+    await revParse(integration, "MERGE_HEAD"),
+    await revParse(integration, "local-topic"),
+  );
+  assert.deepEqual(await recordedCheckoutIdentity(integration), beforeIdentity);
   assert.equal(await remoteHeads(origin), beforeRemote);
   assert.equal(
     readFileSync(join(integration, "owned.txt"), "utf8"),

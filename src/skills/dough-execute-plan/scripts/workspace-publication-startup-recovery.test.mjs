@@ -11,10 +11,10 @@ import {
   revParse,
 } from "./publication-test-fixtures.mjs";
 import {
-  busyCheckout,
   createQueuedTrunk,
   identityA,
 } from "./workspace-publication-fixtures.mjs";
+import { busyCheckout } from "./default-checkout-test-fixtures.mjs";
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 import {
   computeBasis,

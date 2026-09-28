@@ -1,4 +1,4 @@
-// Page-wide Left/Right cycles the three catalog projects through the same
+// Page-wide Left/Right cycles the four catalog projects through the same
 // selection journey as a pointer choice. The fake GitHub supplies published
 // facts only; key handling, routing, and UI updates stay production.
 
@@ -23,6 +23,7 @@ import {
   openDoughProject,
   publishCatalogProjects,
   pygardonProject,
+  terryTalksProject,
 } from "./projectKeyboardNavigationJourney.ts";
 
 test("unmodified Left and Right cycle catalog projects with wrap without selector focus", async ({
@@ -38,10 +39,11 @@ test("unmodified Left and Right cycle catalog projects with wrap without selecto
   await refresh.focus();
   await expect(refresh).toBeFocused();
 
-  await test.step("Right advances Open Dough → Doughnut → Pygardon → Open Dough", async () => {
+  await test.step("Right advances Open Dough → Doughnut → Pygardon → Terry Talks → Open Dough", async () => {
     for (const published of [
       doughnutProject,
       pygardonProject,
+      terryTalksProject,
       openDoughProject,
     ]) {
       await page.keyboard.press("ArrowRight");
@@ -51,8 +53,9 @@ test("unmodified Left and Right cycle catalog projects with wrap without selecto
     }
   });
 
-  await test.step("Left reverses Open Dough → Pygardon → Doughnut → Open Dough", async () => {
+  await test.step("Left reverses Open Dough → Terry Talks → Pygardon → Doughnut → Open Dough", async () => {
     for (const published of [
+      terryTalksProject,
       pygardonProject,
       doughnutProject,
       openDoughProject,
@@ -88,22 +91,26 @@ test("focused project radio advances exactly once with wrap and keeps focus", as
     await expectSelectedProject(page, doughnutProject);
   });
 
-  await test.step("Right from Pygardon wraps once to Open Dough", async () => {
-    await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
-    await expectSelectedProject(page, pygardonProject);
-    await project.getByRole("radio", { name: "Pygardon", exact: true }).focus();
+  await test.step("Right from Terry Talks wraps once to Open Dough", async () => {
+    await project
+      .getByRole("radio", { name: "Terry Talks", exact: true })
+      .check();
+    await expectSelectedProject(page, terryTalksProject);
+    await project
+      .getByRole("radio", { name: "Terry Talks", exact: true })
+      .focus();
     await page.keyboard.press("ArrowRight");
     await expectFocusedRadio(page, "Open Dough");
     await expectSelectedProject(page, openDoughProject);
   });
 
-  await test.step("Left from Open Dough wraps once to Pygardon", async () => {
+  await test.step("Left from Open Dough wraps once to Terry Talks", async () => {
     await project
       .getByRole("radio", { name: "Open Dough", exact: true })
       .focus();
     await page.keyboard.press("ArrowLeft");
-    await expectFocusedRadio(page, "Pygardon");
-    await expectSelectedProject(page, pygardonProject);
+    await expectFocusedRadio(page, "Terry Talks");
+    await expectSelectedProject(page, terryTalksProject);
   });
 });
 

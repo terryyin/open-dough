@@ -10,6 +10,7 @@ const profileDirectory = `.planning/${agentProfileDirectory}`;
 
 export type Project = {
   readonly label: string;
+  readonly ref: string;
   readonly repository: string;
   readonly revision: string;
   readonly taken: string;
@@ -25,9 +26,11 @@ function project(
   repository: string,
   revision: string,
   number: number,
+  ref = "main",
 ): Project {
   return {
     label,
+    ref,
     repository,
     revision,
     taken: `${label}'s own taken story`,
@@ -45,6 +48,13 @@ export const projects: readonly Project[] = [
   project("Open Dough", "terryyin/open-dough", "0d".repeat(20), 301),
   project("Doughnut", "nerds-odd-e/doughnut", "d7".repeat(20), 302),
   project("Pygardon", "terryyin/pygardon", "c1".repeat(20), 303),
+  project(
+    "Terry Talks",
+    "terryyin/terry-talks",
+    "a4".repeat(20),
+    304,
+    "master",
+  ),
 ];
 
 export function filesOf(published: Project): Record<string, string> {
@@ -73,13 +83,22 @@ ${published.direction}
   };
 }
 
+export function publicationOf(published: Project) {
+  return {
+    repository: published.repository,
+    ref: published.ref,
+    revision: published.revision,
+    files: filesOf(published),
+  };
+}
+
 export function expectPinnedGhCalls(
   calls: readonly ObservedRequest[],
   published: Project,
 ): void {
   expect(calls[0]?.argv).toEqual([
     "api",
-    `repos/${published.repository}/commits/main`,
+    `repos/${published.repository}/commits/${published.ref}`,
     "--jq",
     ".sha",
   ]);

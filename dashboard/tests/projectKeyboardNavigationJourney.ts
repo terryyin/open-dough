@@ -5,7 +5,11 @@ import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { expectRoute } from "./agentRosterRecords.ts";
 import { expectMembership, openDirection, parts } from "./dashboardPage.ts";
-import { filesOf, projects, type Project } from "./catalogProjectRecords.ts";
+import {
+  publicationOf,
+  projects,
+  type Project,
+} from "./catalogProjectRecords.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 
 function catalogProject(label: string): Project {
@@ -19,6 +23,7 @@ function catalogProject(label: string): Project {
 export const openDoughProject = catalogProject("Open Dough");
 export const doughnutProject = catalogProject("Doughnut");
 export const pygardonProject = catalogProject("Pygardon");
+export const terryTalksProject = catalogProject("Terry Talks");
 
 function urlProjectId(published: Project): string | null {
   if (published === openDoughProject) {
@@ -33,11 +38,7 @@ function urlProjectId(published: Project): string | null {
 
 export async function publishCatalogProjects(page: Page): Promise<void> {
   for (const published of projects) {
-    await publishFiles(page, {
-      repository: published.repository,
-      revision: published.revision,
-      files: filesOf(published),
-    });
+    await publishFiles(page, publicationOf(published));
   }
 }
 
