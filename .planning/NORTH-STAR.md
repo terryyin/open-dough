@@ -28,9 +28,9 @@ publication ownership, and CI attribution in active plans or conversation
 context. Report a coverage gap when the configured observer covers a different
 target from a published claim.
 
-[Start from owned repository context and refresh truthfully](seeds/SEED-008-worktree-branch-trunk-sync.md#owned-context-start-and-truthful-refresh)
-and
 [Finish removing default-checkout coordination](seeds/SEED-008-worktree-branch-trunk-sync.md#finish-removing-checkout-coordination)
+and
+[Close stories through an installed wrap-up command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command)
 own the remaining alignment under Terry's 2026-09-28 decision. After accepted
 trunk publication, attempt a safe fast-forward when a default checkout is
 supplied; preserve pending local work and report a skipped, deferred, stopped,

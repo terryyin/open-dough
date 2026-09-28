@@ -192,6 +192,9 @@ with no ownership declaration, while guidance names that checkout consistently.
   `unclear-ownership` results, and their tests.
 - Guidance calls that checkout the default checkout throughout; the
   `--integration` flag keeps its name.
+- When refresh eligibility tests change, keep at the installed startup only
+  one own-state reuse refusal and the stopped-rebase refusal; the refresh
+  boundary tests already prove the other eligibility variations.
 - Native acceptance of the changed current-checkout guidance on Codex, Cursor,
   and Claude Code, run manually as the story's final slice.
 
@@ -230,8 +233,26 @@ from prose, so closure behaves identically across hosts.
 - Current-checkout closure uses the same command under its own authority.
 - Wrap-up guidance calls the command and keeps its judgment steps
   (assimilation, queue decisions, deletion scope) in prose.
+- The shipped retirement gate follows the work-scoped ownership rule in the
+  exploration workspace lifecycle instead of its session-named `sessionOwned`
+  flag.
+- Native evidence identity hashes the retirement and refresh guidance its
+  journeys prove (the exploration workspace lifecycle, preparation workspace,
+  default-checkout maintenance, and Dough Land), and the identity check covers
+  the owned-context evidence writer.
+- The Story Branch closure and CI-completion native harnesses stop their
+  observer by its recorded root, record Codex node calls, and keep harness
+  logs and transcript paths out of the agent's view, as trunk closure does,
+  before any paid run.
 - Native acceptance of the changed wrap-up guidance, run manually as the
   story's final slice.
+
+**Open scope decision:** where a workspace's "created for this work" fact is
+durably recorded, so a later session can retire it under the work-scoped rule
+instead of retaining it as ambiguous. Recommendation: a per-worktree Git ref
+written when startup or preparation creates the workspace, removed with it.
+The leftover "record the workspace as created by this session" wording in
+preparation-assignment guidance follows that decision.
 
 **Key examples:**
 
