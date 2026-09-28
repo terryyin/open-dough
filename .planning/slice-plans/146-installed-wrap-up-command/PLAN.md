@@ -7,7 +7,10 @@
   refined on 2026-09-28 with Terry's decisions: an entry point rather than
   dropping the shipped closure modules, Trunk Mode closure plus shared
   retirement only, both closure publications kept, Story Branch integration
-  and current-checkout closure deferred.
+  and current-checkout closure deferred. Enriched on 2026-09-28 with three
+  plan 142 retrospective findings Terry assimilated into this story: native
+  evidence identity gaps, harness repairs that reached only trunk closure, and
+  the session-named retirement gate.
 - **Provenance:** plan 140's retrospective finding F7 (recoverable at
   `199c579f:.planning/slice-plans/140-remote-history-workflows/PLAN.md`);
   plan 142 hands its payload part to this story (its F7 exclusion). The
@@ -18,27 +21,34 @@
   no Take, implementation, or publication.
 - **Preparation workspace:** `.worktrees/plan-installed-wrap-up-command`
   (branch `claude/plan-installed-wrap-up-command`), announced as agent
-  Maria-chan at `0137fae2`.
+  Maria-chan at `0137fae2`; the enrichment used
+  `.worktrees/prep-installed-wrap-up-command`
+  (branch `claude/prep-installed-wrap-up-command`), announced as Aino-chan at
+  `6e6fbcc8`.
 
 ## Start gate
 
 **Do not Take or execute this plan until
-[SEED-008#owned-context-start-and-truthful-refresh](../142-owned-context-start-and-refresh/PLAN.md)
-(plan 142) and
 [SEED-008#finish-removing-checkout-coordination](../145-finish-removing-checkout-coordination/PLAN.md)
-(plan 145) have both left Taken on remote trunk.** Plan 142 extracts the
-retirement core this plan installs, rewrites the wrap-up and Land refresh
-wording, and adds the `trunk-closure/owned-context` native journey slice 6
-reruns. Plan 145 removes the `declaredOwner`/`requester` arguments that
+(plan 145) has left Taken on remote trunk.** Plan 142
+(SEED-008#owned-context-start-and-truthful-refresh) closed at `2a3e0ba2`: it
+extracted the retirement core this plan installs, rewrote the wrap-up and Land
+refresh wording, and added the `trunk-closure/owned-context` and
+`publication/preparation-land` native journeys slice 8 reruns. Plan 145
+removes the `declaredOwner`/`requester` arguments that
 `closure-publication.mjs` still forwards and puts the unpublished-base guard in
 `publishExecutionIncrement`, which slice 3 reuses. The story's accepted
 ordering names both.
 
-This plan is written against their planned end state. At start, re-read the
-files each slice names against the then-current trunk, confirm the extracted
-retirement core's actual name, location, and result shape, and refresh line
-references before editing. If either plan landed a different shape, update the
-affected slices here before implementing.
+This plan is written against plan 145's planned end state and plan 142's
+landed one. At start, re-read the files each slice names against the
+then-current trunk and refresh line references before editing. If plan 145
+landed a different shape, update the affected slices here before implementing.
+Also check whether
+[SEED-008#durable-workspace-creation-fact](../../seeds/SEED-008-worktree-branch-trunk-sync.md#durable-workspace-creation-fact),
+queued ahead of this story, has landed where a workspace's created-for-this-work
+fact lives; slice 1's ownership gate consumes that record if so. This plan does
+not decide it.
 
 ## Outcome and boundaries
 
@@ -60,6 +70,9 @@ Key examples (from the story):
    recovery step.
 4. Retirement is asked for a branch whose tip trunk does not contain → the
    command refuses and removes nothing.
+5. Retirement is asked for a reused, host-owned, or unrecorded worktree →
+   the command retains it and removes nothing; one an earlier session created
+   for this same work is retired.
 
 Preserved promises and constraints:
 
@@ -102,9 +115,22 @@ library; Story Branch native journeys beyond keeping the existing one green.
   host-specific, and already handles an already-terminal mailbox.
 - **Publication and resume** reuse `publishExecutionIncrement` and
   `resumeInterruptedPublication`, as `settleClosureCandidate` does today.
-- **Retirement core** is plan 142 slice 6's extraction from
-  `removeExecutionResources`. This plan moves it to Dough Land, which owns
-  "Retire the worktree", and gives it the entry point.
+- **Retirement core** is plan 142's landed extraction, `retireWorktree`
+  (`closure-resources.mjs:112`), which `removeExecutionResources` and the Land
+  test model (`dough-land-test-fixtures.mjs:73`) already call. This plan moves
+  it to Dough Land, which owns "Retire the worktree", and gives it the entry
+  point.
+- **Ownership gate:** two exist today. `removeExecutionResources` refuses
+  unless `sessionOwned === true` (`closure-resources.mjs:198`, reason "another
+  workspace"); the Land model refuses unless `createdForWork`
+  (`dough-land-test-fixtures.mjs:66`). The lifecycle rule
+  (`exploration-workspace.md` "Close or retain it") is work-scoped. Slice 1
+  keeps one gate, the Land model's work-scoped one, inside the core.
+- **Native harness repairs** already exist in trunk closure only:
+  `trunk_closure_stop_observer` stops by mailbox without entering the
+  worktree (`trunk-closure-native-run.sh:86`), `native-node-call-recorder.mjs`
+  loaded through `NODE_OPTIONS` (`trunk-closure-native-fixture.sh:55-61`), and
+  harness logs under a separate `${harness}` directory. Slice 7 shares them.
 - **Direction:** [North Star "Remote history and optional local refresh"](../../NORTH-STAR.md#remote-history-and-optional-local-refresh)
   says Dough Land and wrap-up consume one cohesive publication, refresh, and
   retirement solution with their distinct duties intact. Slices 1–3 follow it:
@@ -127,18 +153,24 @@ library; Story Branch native journeys beyond keeping the existing one green.
 | A command can run completion itself | `ci-mailbox-complete.mjs:121` export; `ci-completion-wait.md`, `ci-monitor.md:77` | In-process export, bounded, foreground; the coordinator owns one call; nothing requires a host background wait |
 | Rerunning completion on a stopped mailbox is safe | `ci-mailbox-complete-success-cases.mjs:47` | "complete-revision handles already-terminal success without a separate stop" |
 | Observer recovery exists for reuse | `execution-increment-observation.mjs:65`, `ci-mailbox-match.mjs:59` | `establishObservation` reuses a live matching mailbox or arms one |
-| Native trunk-closure assessor expects the agent's own completion call | `tests/support/trunk-closure-native-assess.sh:53`, `trunk-closure-native-run.sh:39-66,118` | Greps the transcript for `complete-revision`; must observe the new command instead |
+| Native trunk-closure assessor expects the agent's own completion call | `tests/support/trunk-closure-native-assess.sh:54`, `trunk-closure-native-run.sh:39-66,118` | Greps the transcript for `complete-revision`; must observe the new command instead |
 | Story Branch native assessor also checks completion | `tests/support/story-branch-closure-native-assess.sh:82` | Agent still runs completion there; unchanged by this plan |
 | Payload is an explicit list without a JS import check | `install.sh` `managed_files` (:60-241); `tests/payload-declaration-links.sh` checks Markdown links only | New scripts are declared line by line; removed modules must be removed there and from `publication-update-proof.bash` |
-| Land's retirement is proved only by a test model | `dough-story-refinement/scripts/dough-land-test-fixtures.mjs:49-97` ("Git model … not guidance-following"); `dough-land/` holds only `SKILL.md` | After plan 142 the model is a thin adapter over the core; no installed Land script exists |
-| Plan 142's core, wording, and journey are the starting shape | Plan 142 slices 5–8 (`:391-597`), all `planned` on 2026-09-28 | Assumed done at start; the start gate re-verifies the landed shape |
+| Land's retirement is proved only by a test model | `dough-story-refinement/scripts/dough-land-test-fixtures.mjs:49-97` ("Git model … not guidance-following"); `dough-land/` holds only `SKILL.md` | Observed at HEAD: the model is a thin adapter over `retireWorktree` with its own `createdForWork` check (`:66-78`); no installed Land script exists |
+| Plan 142's core, wording, and journeys are the starting shape | `git log` (`2a3e0ba2` closes it); `closure-resources.mjs:112-182` read | Landed: `retireWorktree({repository, execution, branch, remote, targetRef, holdReason})` returns `{removed, partial, worktree, branch, reason, repository}` |
+| Retirement ownership is session-named in shipped code, work-scoped in the Land model | `grep -rn "sessionOwned\|createdForWork" src` | `sessionOwned` only in `closure-resources.mjs:189,198`, `closure-publication.mjs:163`, and wrap-up tests; `createdForWork` only in the Land model and Land/preparation tests; no guidance names either |
+| Native identities miss guidance their journeys prove | Unpaid probe on a scratch copy of `tests/` and `src/`: appended a line to each file and compared `git_publication_write_evidence_identity owned-context` and `trunk_closure_write_evidence_identity` input hashes | `exploration-workspace.md`, `preparation-workspace.md`, `maintain-default-checkout.md` changed neither identity; `dough-land/SKILL.md` changed owned-context only. `tests/native-evidence-identity.sh:24-36` lists no owned-context writer and checks only supervision inputs |
+| Story Branch closure's observer stop can fail after successful cleanup | `story-branch-closure-native-run.sh:116-121` | Stops with `(cd "${story_closure_workspace}" && node … stop)`, the worktree cleanup removes |
+| Node-call recording covers Codex login shells only in trunk closure | `grep -rn "NODE_OPTIONS\|native-node-call-recorder" tests` | Only `trunk-closure-native-fixture.sh:55-61,192-193` and its assessor test |
+| Harness logs sit in the agent-visible fixture root outside trunk closure | `story-branch-closure-native-fixture.sh:61-64`, `ci-completion-native-fixture.sh:66-67` | `node-calls.log`, `gh-calls.log`, `control.log` under `${root}`, the agent workspace's parent |
+| Transcript variables need no export | `grep -rn "CLOSURE_TRANSCRIPT\|CI_COMPLETION_TRANSCRIPT" tests` | Exported at `trunk-closure-native-run.sh:127`, `story-branch-closure-native-run.sh:106`, `ci-completion-native-run.sh:154`; read only by the runner's own controllers and `ci-completion-native-fixture.sh:24` in the same shell |
 
 ## Slices
 
 ### 1. Land retires through an installed command
 Type: Behavior
 Status: planned
-Proof: child-process CLI tests for contained, uncontained, dirty, and already-absent retirement; Land and preparation-landing suites green through the command.
+Proof: child-process CLI tests for contained, uncontained, dirty, already-absent, created-for-this-work, and unrecorded-ownership retirement; Land, preparation-landing, and wrap-up cleanup suites green through the one gate.
 
 Behavior: A landed, owned worktree whose branch tip trunk contains → the agent
 runs `node <installed>/dough-land/scripts/worktree-retirement.mjs retire
@@ -147,16 +179,30 @@ runs `node <installed>/dough-land/scripts/worktree-retirement.mjs retire
 the JSON result says so. An uncontained tip is refused with nothing removed
 (example 4); a dirty, ambiguous, or other-branch worktree is preserved with a
 reason; a rerun after removal reports already absent and pushes nothing.
+Ownership follows the work (example 5): the command retires only a workspace
+whose created-for-this-work fact is present, whichever session created it, and
+retains a reused, host-owned, or unrecorded one with that reason.
 
-Move plan 142's extracted core into `src/skills/dough-land/scripts/worktree-retirement.mjs`
-with its CLI, and import it from wrap-up. Replace Land's raw-Git steps 1–4 in
+Move `retireWorktree` into `src/skills/dough-land/scripts/worktree-retirement.mjs`
+with its CLI, and import it from wrap-up. Put the one ownership gate in that
+core, replacing both `removeExecutionResources`' `sessionOwned` check and the
+Land model's `createdForWork` check; callers pass the fact through. Its source
+is the durable record if
+[SEED-008#durable-workspace-creation-fact](../../seeds/SEED-008-worktree-branch-trunk-sync.md#durable-workspace-creation-fact)
+has landed by start; otherwise a `--created-for-work` flag the agent sets only
+from what the work recorded, per `exploration-workspace.md` "Close or retain
+it". Its absence retains a present worktree; an already-absent one needs no
+fact on a rerun. Replace Land's raw-Git steps 1–4 in
 "Retire the worktree" with the command and how to act on each result, keeping
 the rerun, never-force, and caller-gate rules. The Land test model's retirement
 adapter calls the installed command, deleting the duplicated model logic.
 Declare the script in `install.sh`.
 
 Proof: new `worktree-retirement.test.mjs` runs the CLI as a child process on
-`createCleanTrunkFixture` repositories for the four cases above.
+`createCleanTrunkFixture` repositories for the four cases above, plus a
+worktree created for this work by an earlier session (retired) and one without
+the fact (retained, nothing removed). Wrap-up tests and `closure-publication.mjs`
+passing `sessionOwned` pass the work-scoped fact instead.
 `dough-land*.test.mjs`, `preparation-assignment-{land,landing-retry,remote-base,reuse}.test.mjs`,
 `preparation-publication.test.mjs`, and `retained-artifacts.test.mjs` stay
 green. Behavior review of the rewritten Land section.
@@ -174,8 +220,8 @@ execution tip trunk does not contain keeps all three.
 
 Remote-branch deletion and extra-SHA containment move from
 `removeExecutionResources` into the core. Wrap-up's "Remove execution resources
-safely" calls the command for Story Branch Mode; the receipt gate stays the
-agent's check before calling it, as today.
+safely" calls the command for Story Branch Mode with the slice 1 ownership
+fact; the receipt gate stays the agent's check before calling it, as today.
 
 Proof: `closure-story-branch-cleanup.test.mjs` exercises the CLI; 
 `closure-story-integration*.test.mjs` stay green;
@@ -193,13 +239,14 @@ Behavior: A Trunk Mode wrap-up whose before-cleanup commit was accepted through
 `node <installed>/dough-story-wrap-up/scripts/trunk-closure.mjs finish
 --workspace <path> --branch <name> --before-cleanup <sha> --final <sha>
 --previously-published-base <sha> --target-ref <ref> --repo <owner/repo>
---host <host> [--session-json <json>] [--default-checkout <path>]` → it
+--host <host> [--created-for-work] [--session-json <json>]
+[--default-checkout <path>]` → it
 confirms trunk contains the before-cleanup SHA, publishes the final closure
 through `publishExecutionIncrement` on the recovered or armed observer and
 registers it, runs `completeRevision` once for the final accepted SHA, attempts
 the default-checkout refresh when one is given, and only on a receipt with
 confirmed shutdown retires the worktree and branch through the slice 1 core
-(example 1). A publication conflict stops with the worktree, branch, and both
+and its ownership gate (example 1). A publication conflict stops with the worktree, branch, and both
 commits preserved and names the recovery step (example 3); a before-cleanup SHA
 trunk lacks stops before publishing; failure, retained, or unconfirmed
 shutdown preserves resources and reports the receipt.
@@ -258,20 +305,65 @@ and `dough-land/scripts/` has `isDirectCliEntry` or is imported by one that
 does; `tests/execution-payload-update.sh` and `tests/story-payload-update.sh`
 pass; the focused suites above stay green.
 
-### 6. Native acceptance of the changed closure and Land guidance
+### 6. Native evidence identity covers what each closure journey proves
+Type: Structure
+Status: planned
+Proof: `tests/native-evidence-identity.sh` fails when a named guidance or command input of the owned-context, trunk-closure, or Story Branch closure identity changes without changing that identity, and passes after the fix.
+
+Correction: plan 142's retrospective found recorded native evidence stays
+bound after the guidance it proved changes (ADR 0005 §5), because identities
+omit inputs their journeys exercise (premise table). Enables slice 8, whose
+recorded evidence must go stale when that guidance next changes.
+
+Add to the owned-context identity `exploration-workspace.md`,
+`preparation-workspace.md`, `maintain-default-checkout.md`, and this story's
+`dough-land/scripts/worktree-retirement.mjs`; to the trunk-closure identity
+`dough-land/SKILL.md`, `exploration-workspace.md`, `worktree-retirement.mjs`,
+and `trunk-closure.mjs`; to the Story Branch closure identity
+`dough-land/SKILL.md`, `exploration-workspace.md`, and
+`worktree-retirement.mjs`. Keep each journey's
+guidance inputs in one list its writer prints. Add the owned-context writer to
+`tests/native-evidence-identity.sh`'s writers, and extend that test so changing
+each listed guidance input changes its journey's identity, as it already does
+for supervision inputs. No journey behavior changes.
+
+### 7. Closure harnesses observe the agent from outside its fixture
+Type: Structure
+Status: planned
+Proof: credential-free `tests/git-publication-native.sh` default mode green for trunk closure, Story Branch closure, and execution review; a substitute run whose worktree is already removed still stops its observer; a Codex-shaped substitute whose PATH drops the node wrapper still records the command calls.
+
+Correction: plan 142's harness repairs reached only trunk closure, and their
+absence caused four false native failures there (premise table). Enables
+slice 8's paid runs, which judge the Story Branch and trunk-closure journeys
+through these observations.
+
+Share trunk closure's repairs with the Story Branch closure and
+`execution-review` (ci-completion) fixtures through one helper rather than a
+copy per fixture: stop a live observer by mailbox without entering the
+possibly-removed worktree; record node calls in process through
+`native-node-call-recorder.mjs` via `NODE_OPTIONS`, restoring it afterwards;
+keep node, gh, control, and transcript files in a harness directory outside the
+agent-visible fixture root; and stop exporting `TRUNK_CLOSURE_TRANSCRIPT`,
+`STORY_CLOSURE_TRANSCRIPT`, and `CI_COMPLETION_TRANSCRIPT`, which only the
+runner's own controllers read. Add the helper to the identities slice 6 lists.
+Assessors keep their counterexamples.
+
+### 8. Native acceptance of the changed closure and Land guidance
 Type: Behavior
 Status: planned
-Proof: fresh host runs judged accepted on Claude Code, Codex, and Cursor, with host version and candidate SHA recorded here. Paid and manual; needs Terry's run authority at execution time.
+Proof: fresh host runs judged accepted on Claude Code, Codex, and Cursor, with host version and candidate SHA recorded here. Paid and manual; needs Terry's run authority at execution time, and slices 6 and 7 done first.
 
 Behavior: On each host, from installed candidate guidance, a completed Trunk
 Mode story is wrapped up → the agent publishes the before-cleanup commit
 through `deliver`, runs `finish` once, and the assessor observes final
 acceptance, one completion receipt with confirmed shutdown before cleanup, and
 the worktree and branch retired. A preparation keep lands and retires its
-worktree through the `retire` command.
+worktree through the `retire` command, and a Story Branch wrap-up
+integrates and then retires through it.
 
-Run `trunk-closure/source` and `trunk-closure/owned-context` on each host, plus
-one plan 142 slice 8 journey that lands and retires through Dough Land. One
+Run `trunk-closure/source`, `trunk-closure/owned-context`,
+`story-branch-closure/source-conflict` (its wrap-up retirement guidance
+changed in slice 2), and `publication/preparation-land` on each host. One
 attempt per host and case; pin the candidate SHA and CLI version; delete run
 output after judging. Command:
 `PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native <codex|cursor|claude> --case <case> --results-dir <dir>`.
@@ -281,17 +373,20 @@ Never in `scripts/test.sh`, CI, or a loop.
 
 | Final-state promise | Owning slice and decisive observation |
 | --- | --- |
-| Example 1: Trunk closure publishes both, one receipt, then retires | 3: `finish` CLI test; 6: native trunk-closure journeys |
-| Example 2: Story Branch retirement removes worktree, local and remote branch | 2: `retire --remote-branch` CLI test |
+| Example 1: Trunk closure publishes both, one receipt, then retires | 3: `finish` CLI test; 8: native trunk-closure journeys |
+| Example 2: Story Branch retirement removes worktree, local and remote branch | 2: `retire --remote-branch` CLI test; 8: native Story Branch closure journey |
 | Example 3: publication conflict preserves resources and names recovery | 3: `finish` conflict CLI test |
 | Example 4: uncontained tip refused, nothing removed | 1: `retire` CLI test |
+| Example 5: one work-scoped ownership gate retires created-for-this-work, retains reused, host-owned, or unrecorded | 1: `retire` created-by-earlier-session and unrecorded CLI tests; 2, 3: wrap-up callers pass the fact |
 | Before-cleanup accepted before spent history is deleted | 3: `finish` stops when trunk lacks it; guidance keeps `deliver` first |
 | Retirement only after confirmed shutdown in wrap-up | 3: retained and unconfirmed receipt tests; native counterexample |
 | Rerun pushes nothing twice and completes cleanup | 1: already-absent rerun; 4: interruption reruns |
 | Land and wrap-up retire through one installed core | 1, 2, 3: all retirement tests reach `worktree-retirement.mjs` |
 | No shipped closure module without an entry point | 5: payload scan of declared wrap-up and Land scripts |
 | Wrap-up and Land guidance keep only judgment steps | 1–4: behavior review of edited sections |
-| Changed guidance accepted natively on three hosts | 6 |
+| Native evidence goes stale when the guidance or commands it proved change | 6: `tests/native-evidence-identity.sh` per-input check |
+| Closure harness observations hold across hosts before paid runs | 7: default-mode substitutes for removed worktree and PATH-dropping login shell |
+| Changed guidance accepted natively on three hosts | 8 |
 | One shared payload across hosts | every slice: payload checks below |
 
 ## Delivery checks
@@ -314,10 +409,19 @@ ordinary managed delivery.
   command, its guidance, and its CLI proof. Between slices 3 and 5 the old
   modules ship unwired exactly as they do today; no delivery boundary makes
   that worse.
-- **Unlanded predecessors.** Slices 1 and 6 build on plan 142's extracted core
-  and native journey, and slice 3 on plan 145's owner-argument removal. The
-  start gate covers both and requires re-verifying their landed shape, as
-  plan 145 does for plan 142.
-- **Paid runs.** Slice 6 needs separate run authority at execution time.
+- **Unlanded predecessor.** Slice 3 builds on plan 145's owner-argument
+  removal; the start gate covers it. Plan 142 has landed and its shape is
+  observed above.
+- **Paid runs.** Slice 8 needs separate run authority at execution time, and
+  runs only after slices 6 and 7, so a failure reflects the guidance, not the
+  harness.
+- **Ownership fact source.** Slice 1 consumes the durable creation fact only
+  if its separate decision has landed by start; otherwise the flag keeps the
+  gate failing safe. Either way the gate and its tests are the same; only the
+  fact's source differs.
+- **Size.** The enrichment adds two small Structure slices and one gate to
+  slice 1, for eight slices. Slice 7 touches three fixtures but applies one
+  shared helper; the ci-completion fixture is included so the harness keeps
+  one observation rule, though this story runs no `execution-review` journey.
 
 No blocking slice-specific concern remains in this review.

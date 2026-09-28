@@ -180,7 +180,7 @@ releasable under ADR 0005's native acceptance.
 
 **Identity:** SEED-008#installed-wrap-up-command
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/146-installed-wrap-up-command/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d3a1b545befec0470b7ad669a5ae0a4ac14731027ec0d2ae208f19d9797c0911","plan":"8463f580f3ebc848f6e96a4bca0e163136853836f7cd916c3cad53a8a6e47f7b"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/146-installed-wrap-up-command/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2f6d20f8e377855186cb4541e8143ed2f01e7e51f578e926c006d2964d89e2a6","plan":"207782bafd9f895097afa5e5efd2730dcee951b44e6c9bdebc104c5e798061a3"}}
 ```
 
 **Decision (2026-09-28):** Terry chose an entry point over removing the
@@ -217,8 +217,18 @@ has been observed to behave differently across hosts.
 - Wrap-up and Dough Land guidance call these commands and drop the procedure
   prose they replace; assimilation, queue decisions, and deletion scope stay in
   prose.
+- That retirement command holds the one ownership gate, following the
+  work-scoped lifecycle rule: a clean workspace created for this work, by any
+  session, is retired; a reused, host-owned, or unrecorded one is retained. It
+  consumes the durable creation fact once
+  [the separate decision](#durable-workspace-creation-fact) lands; until then
+  it fails safe by retaining.
 - No shipped closure module remains without an entry point: each backs a
   command or leaves the payload with its tests.
+- Before any paid run, each affected native journey's evidence identity covers
+  the guidance and commands it proves, and the closure harnesses observe the
+  agent from outside its visible fixture on every host (plan 142's
+  retrospective found both gaps).
 - Native acceptance of the changed wrap-up and Land guidance on Codex, Cursor,
   and Claude Code, run manually as the story's final slice.
 
@@ -227,8 +237,8 @@ through the backlog merge adapter, with hand-resolved conflicts) and
 current-checkout closure keep their current guidance. The single-commit
 closure alternative is not pursued.
 
-**Ordering:** Starts after plan 142, which changes the same retirement module,
-wording, and native closure acceptance, and after
+**Ordering:** Starts after plan 142 (closed at `2a3e0ba2`), which changed the
+same retirement module, wording, and native closure acceptance, and after
 [Finish removing default-checkout coordination](#finish-removing-checkout-coordination),
 which removes owner arguments the closure modules still pass.
 
@@ -245,6 +255,9 @@ which removes owner arguments the closure modules still pass.
    recovery step.
 4. Retirement is asked for a branch whose tip trunk does not contain → the
    command refuses and removes nothing.
+5. Retirement is asked for a reused, host-owned, or unrecorded worktree →
+   the command retains it and removes nothing; one an earlier session created
+   for this same work is retired.
 
 **Slice plan:** [Close stories through an installed wrap-up command](../slice-plans/146-installed-wrap-up-command/PLAN.md).
 
