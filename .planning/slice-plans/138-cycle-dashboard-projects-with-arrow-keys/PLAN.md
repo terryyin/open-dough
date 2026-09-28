@@ -83,7 +83,7 @@ Use one implementation rule for cyclic order, not project-specific handlers.
 
 ### 1. Browse dashboard projects cyclically by keyboard
 Type: Behavior
-Status: planned
+Status: delivered 2026-09-28
 Proof: new project-keyboard-navigation browser journey plus retained
 selection/read-isolation, keyboard accessibility, modal, and routing journeys;
 `npm run typecheck:dashboard` and `npm run lint`.
@@ -122,4 +122,7 @@ story by the shared preparation recorder and grants no execution authority.
 
 ## Learnings
 
-None changing the selected outcome or remaining work.
+- Playwright preview uses prebuilt `dashboard/dist`; rebuild (`npm run build:dashboard`) before running dashboard browser tests.
+- Refresh button can briefly show `aria-disabled` during a destination read; focus restore targets the read control by aria-label after switch.
+- Post-change refactoring split the initial browser spec into three focused specs (`project-keyboard-navigation.spec.ts`, `project-keyboard-navigation-eligibility.spec.ts`, `project-keyboard-navigation-focus.spec.ts`) sharing setup/assertion helpers in `projectKeyboardNavigationJourney.ts`.
+- Exported `projectRadioName` from `ProjectSelect.tsx` to provide a single authoritative radio group identifier for native selection and keyboard eligibility.

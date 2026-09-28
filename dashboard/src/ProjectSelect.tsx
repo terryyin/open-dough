@@ -1,5 +1,9 @@
 import { catalog, type PublishedSource } from "./publishedSource.ts";
 
+// Shared with page-wide project arrow navigation so native radios and the
+// shortcut recognize the same control group.
+export const projectRadioName = "project";
+
 // Which project this dashboard observes, chosen from the fixed catalog.
 // Selecting one is the only effect this control has: what happens when the
 // selection changes belongs to the caller, not here.
@@ -16,7 +20,7 @@ export function ProjectSelect({
         <label key={option.id} className="project-choice">
           <input
             type="radio"
-            name="project"
+            name={projectRadioName}
             value={option.id}
             checked={source.id === option.id}
             onChange={() => {

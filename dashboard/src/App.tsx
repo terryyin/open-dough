@@ -13,6 +13,7 @@ import {
   parseRoute,
   useDashboardRoute,
 } from "./dashboardRoute.ts";
+import { useProjectKeyboardNavigation } from "./projectKeyboardNavigation.ts";
 import {
   focusStages,
   returnFocusTo,
@@ -63,6 +64,8 @@ export function App() {
     onReturnToStories,
     onForwardToRoster,
   });
+
+  useProjectKeyboardNavigation({ source, selectProject });
 
   const openRoster: OpenRoster = (agent, element) => {
     const openingInfo: RosterOpening = {
