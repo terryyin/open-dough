@@ -103,34 +103,84 @@ or claims of readiness.
 
 <a id="launch-claude-planned-execution"></a>
 
-### 1. Launch planned execution in a Claude Code background session
+### 1. Launch execution in a Claude Code background session
 
 **Identity:** SEED-052#launch-claude-planned-execution
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/144-launch-claude-execution/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"351ed21502f7cbf460eb5118e363dd8ec1226ce57039f51a456912d4165b1d5f","plan":"b8fe5f06dd23b6f3c7a979c8d2f3bfd479603c7ffd178b20fea386b374a72eed"}}
 ```
 
-- **For / why:** A developer can act on a chosen planned story without manually
-  assembling and issuing the initial CLI instruction.
-- **Evaluation:** Select a story with an executable plan, choose execution in
-  the launch dialog, optionally add instructions, and start. A named Claude
-  Code background session receives the selected project, story, plan, and
-  execution intent using the tool's default model. The developer can identify
-  and access that session through Claude Code's CLI. The agent performs its
-  ordinary setup and workflow; origin updates continue to appear as today.
-- **Boundary:** The dashboard distinguishes starting, confirmed launch, failure,
-  and an uncertain launch result as applicable; launch success never claims
-  execution success or published Taken state. It does not silently launch a
-  second session to resolve uncertainty. Missing prerequisites have a useful
-  explanation. No embedded terminal, live monitoring, or durable session list
-  is required yet.
-- **Value / learning:** Tests the actual launch-to-useful-work journey with the
-  least transfer of workflow responsibilities.
-- **Effort hypothesis:** Unestimated; local project resolution, launch receipt,
-  session identification, and background permission behavior need observation.
-- **Depends on:** Existing planned execution workflow and agreed local setup.
-- **Safe stopping point:** Execution can be initiated from the dashboard and
-  followed in the CLI even if all later stories are cancelled.
+**Goal:** The developer looking at a project's backlog in the dashboard starts
+execution of a chosen story there, instead of switching to a terminal, changing
+to the project's folder, and typing the execution instruction with the story's
+identity. It is the first test of whether dashboard-initiated agent work is
+actually used; the agent's ordinary workflow keeps every responsibility after
+launch.
+
+**Scope:**
+
+- Every card in the **Backlog** list, whatever its preparation state, offers
+  **Start execution**. Taken entries do not. A card not shown as **Ready for
+  execution** still offers it, visibly distinguished as not ready; the developer
+  may still start it. Getting a story ready first is something the developer
+  can ask for in the extra instructions, not a dashboard feature.
+- Starting opens a small dialog: the story, Claude Code as the tool, and an
+  optional free-text instruction, normally empty. There is no skill, tool,
+  model, or permission choice.
+- Each of the four observable projects has one fixed local folder on this
+  machine, defined in the dashboard's code: `~/git/open-dough`,
+  `~/git/doughnut`, `~/git/pygardon`, and `~/git/terry-talks`. The local
+  dashboard server starts a Claude Code background session (`claude --bg`) in
+  that folder, named to identify the project and story, instructed to execute
+  the story through the project's execution skill by its identity, followed by
+  any extra instruction. Claude Code's own default model and the developer's
+  configured permissions apply. Worktrees, fetching origin, Take, execution,
+  and publishing are the agent's own business.
+- The dashboard reports the launch as starting, launched (with the session id
+  and a copyable `claude attach <id>`), failed (with the reason, and no local
+  pending state), or uncertain (with advice to check `claude agents` before
+  starting again). It never starts a second session on its own, and launched
+  never claims Taken or execution success.
+- After a confirmed launch the card shows a temporary local **Started** state
+  (when, and the session id) in place of **Start execution**, clearly marked
+  as local, until an origin snapshot shows the story Taken or gone from the
+  backlog. A Preparing assignment does not end it: the launched agent may
+  first ready a story before taking it. Origin remains the only source of story
+  progress. The local state is kept by the running
+  dashboard server, so reloading the page or switching projects keeps it; it
+  does not expire on its own.
+- A project whose folder is missing, or a machine without the `claude`
+  command, gets an explanation instead of a launch.
+- The launch endpoint accepts requests only from the dashboard's own page.
+  It starts an agent with the developer's permissions, so another website
+  open in the browser must not be able to trigger it.
+
+**Deferred:** a list of launched sessions that survives a dashboard restart
+(story 2), in-dashboard interaction (story 3), other skills or tools, model
+choice, configurable project folders, cancelling or monitoring a session, and
+resuming Taken work.
+
+**Key examples:**
+
+- The Open Dough backlog shows a **Ready for execution** story. The developer
+  clicks **Start execution**, leaves the instruction empty, and starts. A
+  background session named for Open Dough and that story begins in
+  `~/git/open-dough`; the card shows **Started** with its id and attach
+  command. A minute later the agent's Take reaches origin, the story appears
+  under **Taken** with its owner, and the local state is gone.
+- A **Not refined** story shows **Start execution** styled as not ready. The
+  developer adds "refine and plan it first, then execute" and starts; the
+  session receives the execution instruction followed by that text.
+- The developer reloads the page while a story shows **Started**, and origin
+  has not changed yet: it still shows **Started**.
+- The Doughnut folder does not exist on this machine: starting a Doughnut story
+  explains that its folder `~/git/doughnut` was not found, and nothing is
+  launched.
+- `claude --bg` does not answer within the launch wait: the dashboard reports an
+  uncertain launch and suggests `claude agents`; the card offers **Start
+  execution** again without having started anything else.
+- A web page from another site posts to the launch endpoint: it is refused and
+  no session starts.
 
 <a id="revisit-dashboard-sessions"></a>
 
@@ -384,10 +434,6 @@ Recently done is related work with its own value and priority decision.
 
 - Define project S/M/L bands before assigning comparative estimates; none were
   found, so there is no defensible numerical or band distribution yet.
-- Refine project-to-local-folder selection, session naming, launch failures and
-  uncertain results, and the execution-mode instruction using existing workflow
-  rules. Observe that a launched background session can do the intended work
-  under the user's configured permissions before promising unattended execution.
 - Define recent-session retention and recovery after a dashboard restart. Local
   navigation state must not replace origin as authority for story progress.
 - Observe real attachment/reconnection for the embedded terminal; decide its

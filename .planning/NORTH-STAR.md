@@ -144,3 +144,41 @@ assets. Catalog identity bounds the local reader's requests; no arbitrary proxy
 or new state authority is needed. Selection is transient UI state, with one
 project's observation visible at a time. This direction does not create
 coordination between the observed projects or adopt Proposed ADR 0008.
+
+## Agent launch as a requested assignment
+
+Starting agent work from the dashboard (SEED-052, beginning with
+[launch execution](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-planned-execution))
+adds the dashboard's first action. Model it in the vocabulary the dashboard
+already reads, so later launch stories extend one model instead of adding
+parallel ones:
+
+- An **agent launch** requests an *agent assignment* of one published activity
+  (`execution` now, `preparation` for refinement later, from
+  `agentActivities`) on one work item, through one host (`claude` now, `codex`
+  and `cursor` later, from `agentHosts`), with an optional developer
+  instruction. The agent's ordinary workflow still owns workspaces, Take,
+  preparation, and publication.
+- A **launch record** is machine-local operational evidence (ADR 0008's later
+  local layer): the request, when it was launched, and the host **session** it
+  started. It never becomes story state. A launch *awaits publication* until
+  the published snapshot shows the assignment its activity asks for (an
+  execution assignment, i.e. Taken) or the work leaves the backlog. Later
+  stories list, persist, and attach to these same records rather than inventing
+  a session registry.
+- Each **host** owns how to start and identify its sessions (for Claude Code:
+  `claude --bg` with a chosen `--session-id`, confirmed through
+  `claude agents --json`) and how a developer reaches one (`claude attach`).
+  Host-specific code stays in one module per host, added when that host is
+  delivered; no adapter interface is built ahead of a second host.
+- Each catalog project's **local folder** is a machine-local fact held by the
+  local server, not by the published catalog the browser shares.
+
+Process and filesystem responsibility stays in the existing local loopback
+boundary: the launch endpoint sits beside the read endpoint in the same Vite
+launch, reuses its loopback and same-origin refusal before any process starts,
+passes fixed argument arrays (never a shell string), and keeps launch records
+in the running server process, with no database or daemon. The browser holds
+only transient dialog and request state and derives what a card shows from the
+published snapshot plus launch records. This extends, and does not replace,
+the read boundary topic above and ADR 0008's origin authority.
