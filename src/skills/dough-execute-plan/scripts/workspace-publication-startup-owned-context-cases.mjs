@@ -3,7 +3,7 @@
 // the work continues there, and local refresh is not applicable. Admission
 // without one is covered with the other admission cases.
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
@@ -17,8 +17,7 @@ import {
 import { ownedWorktreeOnly } from "./default-checkout-test-fixtures.mjs";
 import { resumeArgs } from "./workspace-publication-startup-test-fixtures.mjs";
 import { startExecution } from "./execution-start.mjs";
-import { runReadinessGate } from "./execution-worktree-preparation-readiness-gate.mjs";
-import { installManagedDelivery } from "./execution-increment-managed-delivery-test-fixtures.mjs";
+import { deliverFirstIncrement } from "./workspace-publication-startup-delivery-test-fixtures.mjs";
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 
 const notApplicable = { result: "not applicable" };
@@ -100,39 +99,11 @@ test("an owned worktree without a default checkout takes queued work, resumes it
     receipt.publishedSha,
   );
 
-  const readiness = await runReadinessGate(owned.workspace, process.env);
-  assert.equal(readiness.ok, true, readiness.report);
-  assert.equal(
-    readiness.invocations.every(({ cwd }) => cwd === owned.workspace),
-    true,
-  );
-  for (const marker of [".setup-ran", ".command-ran"])
-    assert.equal(existsSync(join(owned.workspace, marker)), true, marker);
-
-  writeFileSync(join(owned.workspace, "feature.txt"), "first increment\n");
-  await git(owned.workspace, "add", "feature.txt");
-  await git(owned.workspace, "commit", "-m", "first verified increment");
-  const increment = await revParse(owned.workspace, "HEAD");
-  const delivery = await installManagedDelivery(
-    trunk,
-    trunk.fixture,
-    owned.workspace,
-  );
-  const delivered = await delivery.deliverManagedExecutionIncrement({
-    ...delivery.requestBase,
+  await deliverFirstIncrement(trunk, {
     workspace: owned.workspace,
     branch: owned.branch,
-    previouslyPublishedBase: receipt.publishedSha,
-    targetRef: "refs/heads/main",
-    repo: "owner/project",
+    publishedSha: receipt.publishedSha,
   });
-  assert.equal(delivered.ok, true, JSON.stringify(delivered));
-  assert.equal(delivered.publication, "accepted");
-  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), increment);
-  assert.equal(
-    await revParse(owned.workspace, `${increment}^`),
-    receipt.publishedSha,
-  );
 });
 
 test("one-shot work starts in an owned worktree without a default checkout and publishes nothing", async (t) => {

@@ -31,6 +31,10 @@ export async function remoteBacklog(workspace) {
   ).stdout;
 }
 
+// Files the ready contributing setup and command leave where they ran.
+const [setupMarker, commandMarker] = [".setup-ran", ".command-ran"];
+export const setupMarkers = [setupMarker, commandMarker];
+
 export const readyContributing = [
   "Locked setup: `node scripts/setup.js`",
   "Applicable command: `node scripts/command.js`",
@@ -111,11 +115,11 @@ async function buildQueuedTrunk(
       durableCommandEvidence ? join(fixture, name) : name;
     writeFileSync(
       join(integration, "scripts/setup.js"),
-      `require('fs').writeFileSync(${JSON.stringify(marker(".setup-ran"))},'1')\n`,
+      `require('fs').writeFileSync(${JSON.stringify(marker(setupMarker))},'1')\n`,
     );
     writeFileSync(
       join(integration, "scripts/command.js"),
-      `require('fs').writeFileSync(${JSON.stringify(marker(".command-ran"))},'1')\n`,
+      `require('fs').writeFileSync(${JSON.stringify(marker(commandMarker))},'1')\n`,
     );
     writeFileSync(join(integration, "scripts/fail.js"), "process.exit(1)\n");
     writeFileSync(join(integration, "CONTRIBUTING.md"), contributing);

@@ -181,7 +181,7 @@ Observed on `c8ab090a` in the preparation workspace on 2026-09-28:
 
 ### 1. Startup proof suite shares one first-delivery journey and covers a ready local copy
 Type: Structure
-Status: planned
+Status: done
 
 Correction: removes the test-suite weaknesses F9a, F9b, and F9d while product
 behavior stays unchanged. It also enables slice 2's creation journey without a
@@ -208,6 +208,14 @@ passes with every prior assertion still present (compare assertion lists before
 and after). The new stale-readiness parameter passes because published
 readiness governs. Then run the whole `node --test`. Safe stop: the suite is
 leaner and key example 7 is proven, with no product change.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs`
+(33 pass) with the first-delivery assertions moved into
+`deliverFirstIncrement` (`workspace-publication-startup-delivery-test-fixtures.mjs`)
+and slightly strengthened; the all-layers local-copy test survives the deleted
+per-layer loop; the stale-readiness case also refuses beside a ready-looking
+local worktree and index copy with local bytes deep-equal. Whole `node --test`
+698 pass. Setup marker names live once in `workspace-publication-fixtures.mjs`.
 
 ### 2. A new owned workspace starts from an owned repository context
 Type: Behavior
