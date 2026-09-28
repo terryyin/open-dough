@@ -531,6 +531,14 @@ known fault class was rediscovered with a paid failing run per case.
   - Open Dough release: modified; revision `bd38782`; base `0.3.40`
   - Evidence: native results `codex/publication/admission-investigation/20260926T061332-6642` assessed fail; the prompt said not to write outside planning records while the probe writes a marker, so Codex rightly skipped the probe. Prompt fixed; rerun `20260926T063848-77f6` passed.
   - Observed effect: one paid failed native run to learn that the fixture could not credibly show the promised ordering.
+- Execution: `SEED-008#owned-context-start-and-truthful-refresh` / plan 142, first related implementation commit `7e86f615`
+  - Timestamp: 2026-09-28T18:53:18+08:00 (first paid native run)
+  - Tool: Claude Code (coordinator; hosts Claude, Codex, Cursor)
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision `c0f6dfca`; base `0.3.45`
+  - Evidence: 12 runs, 6 failed; four only in observation: registration was detected from a `register-push` command though managed delivery registers in process (the substitute used the old path), Codex's login shell bypassed the node wrapper, its `item.started` events went uncounted, and Cursor's multi-line then quoted start commands were missed (repairs `ddbcb90a`, `a2f9862f`).
+  - Observed effect: 9 further paid runs; substitutes had followed a path current guidance forbids.
+
 
 ## ODF-097 — Coordinator published a commit after the formatter failed
 
@@ -970,9 +978,23 @@ An implementation agent blamed Playwright on a stale `dashboard/dist` and record
   - Observed effect: extra rebuild/debug cycles; a false rebuild learning remained in plan 138
   - Inference: Qualified. Focus/test-structure failure misread as harness staleness; not a suite build-contract defect
 
+## DD-165 — Cursor ran story wrap-up after execution although guidance says to leave it
+
+Execute-plan's finish guidance retains the plan and worktree for story wrap-up
+and says not to invoke it; Cursor proceeded into wrap-up anyway.
+
+### Occurrences
+
+- Execution: `SEED-008#owned-context-start-and-truthful-refresh` / plan 142, first related implementation commit `7e86f615`
+  - Timestamp: 2026-09-28T19:26:04+08:00 (native Cursor startup-owned-context)
+  - Tool: Cursor
+  - Open Dough release: modified; revision `c0f6dfca`; base `0.3.45`
+  - Evidence: response "Proceeding with story wrap-up for SEED-A#a" after reading `finish-or-stop.md`; it deleted the fixture story, plan, and Taken entry; Claude and Codex stopped at `## PLAN EXECUTION COMPLETE`.
+  - Observed effect: a 27-minute run and a missing workspace source in the assessment.
+
 ## Retention
 
-- Highest allocated local number: 162. Removed local codes are never reused.
+- Highest allocated local number: 165. Removed local codes are never reused.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
 - Resolved and removed on 2026-09-28: ODF-119 (startup source veto and nested-worktree refresh deferral); recovery: `aa771c5d:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.

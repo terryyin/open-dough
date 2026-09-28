@@ -835,3 +835,18 @@ Slice 10's outcome depends on host behavior that cannot be observed without paid
 runs. A failed run is reported as outstanding, and guidance is not changed
 within that slice without the developer's decision. That makes it an
 evaluation risk, not a readiness gap.
+
+## Execution complete
+
+Product advice: Execute SEED-008#finish-removing-checkout-coordination and
+SEED-008#installed-wrap-up-command next, homing the retrospective's findings
+there: the native evidence identity should hash the retirement and refresh
+guidance its journeys prove; the Story Branch closure and CI-completion harnesses
+need the trunk-closure root-bound stop, node-call recorder, and hidden harness
+paths; the shipped `sessionOwned` retirement gate should follow the work-scoped
+rule (all with the installed wrap-up command); the startup reuse refusal cases
+can shrink to two once refresh eligibility tests are rewritten (with checkout
+coordination). Before relying on work-scoped retirement across sessions, decide
+where a workspace's creation-for-this-work fact is durably recorded; without it
+later sessions retain the workspace. Execute-plan, wrap-up, and bug-fixing
+`SKILL.md` are at the 250-line limit.
