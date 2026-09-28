@@ -239,7 +239,12 @@ has been observed to behave differently across hosts.
 **Deferred promises:** Story Branch integration (history-preserving merge
 through the backlog merge adapter, with hand-resolved conflicts) and
 current-checkout closure keep their current guidance. The single-commit
-closure alternative is not pursued.
+closure alternative is not pursued. Direct edits proceeding around the
+developer's unrelated staged content stay deferred as well (Terry, 2026-09-29).
+Direct edits commit with plain `git commit`, and the owned-path commit
+(`commitOwned`) exists only in `current-branch-publication.mjs`, which has no
+entry point. So deciding that module's fate here also decides that promise's
+runtime commit path.
 
 **Ordering:** Starts after plan 142 (closed at `2a3e0ba2`), which changed the
 same retirement module, wording, and native closure acceptance, and after
