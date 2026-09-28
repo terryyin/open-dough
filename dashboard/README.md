@@ -4,7 +4,7 @@ A locally launched page that shows the selected project's published work: the
 near-future direction, the **Backlog** in priority order, and the **Taken**
 entries, as connected stages.
 
-The pinned banner shows the selected project in a disclosure and keeps the three
+The pinned banner shows the selected project in a disclosure and keeps the four
 **Project** choices and SVG **Refresh** control reachable while scrolling. The disclosure opens the repository/ref, full
 source revision, retrieval time (not commit time), and publication warning.
 Close that disclosure to return space to the work, especially at narrow widths
@@ -25,10 +25,10 @@ at narrow widths or high browser zoom.
 One project is observed at a time. Click its tab-shaped **Project** choice in the
 banner; the selected project is highlighted. Keyboard users can Tab to the
 selected choice and use arrow keys to switch projects.
-`src/publishedSource.ts` is the one catalog of the three observable projects
-(Open Dough, Doughnut, and Pygardon) and what each one needs to be read. It
-reads `.planning/PRODUCT-BACKLOG.md` from `main` of the selected project's
-GitHub repository, resolves `main` to one commit, and reads the backlog at
+`src/publishedSource.ts` is the one catalog of the four observable projects
+(Open Dough, Doughnut, Pygardon, and Terry Talks) and what each one needs to be read. It
+reads `.planning/PRODUCT-BACKLOG.md` from the selected project's
+GitHub repository (`master` for Terry Talks, `main` for the others), resolves that ref to one commit, and reads the backlog at
 that commit. Every project -- public Open Dough and Doughnut as much as
 private Pygardon -- is read the same way: through a small local
 authenticated read boundary (`server/authenticatedRead.ts`, reached from the
@@ -47,12 +47,12 @@ separate setup.
 Selecting a project replaces the whole view and reads that project afresh. It
 reads once on opening and again when **Refresh** is pressed. While a snapshot
 is shown and the page is visible, it also asks every 15 seconds whether the
-project's `main` still names the shown revision -- one conditional listing of
+project's configured ref still names the shown revision -- one conditional listing of
 every published branch head, which GitHub answers with `304 Not Modified` when
-no branch moved, so an unchanged `main` reads no backlog or record and changes
-neither the revision nor the retrieval time. When `main` names a new commit,
+no branch moved, so an unchanged ref reads no backlog or record and changes
+neither the revision nor the retrieval time. When the configured ref names a new commit,
 the page reads exactly that commit, so newly published work appears within
-about 30 seconds. While `main` is unchanged, a story branch that a shown Taken
+about 30 seconds. While the configured ref is unchanged, a story branch that a shown Taken
 entry's Story Branch Mode profile records and that names a new head (or is no
 longer published) has only that entry's plan and its last commit time read
 again at the new head; any other branch moving reads nothing. A hidden page (another tab,
@@ -66,8 +66,8 @@ The branch-head listing (`matching-refs/heads/`) is one unpaginated answer, and
 the local boundary accepts at most 1 MiB of `gh` output (`maxBuffer` in
 `server/ghRead.ts`), about 2,700 branches. When that listing fails for any
 reason but a rate limit -- GitHub gives up on it (for example with a `504`), or
-it is larger than that -- that check asks only which commit `main` names
-(`commits/main`) and reports no branch heads: a move of `main` is still found,
+it is larger than that -- that check asks only which commit the configured ref names
+(`commits/<ref>`) and reports no branch heads: a move of the configured ref is still found,
 but no story branch is seen to move until the next listing that succeeds, when
 watching branches resumes.
 
@@ -75,7 +75,7 @@ A read that fails, finds a backlog the shared reader refuses, or waits more than
 30 seconds for GitHub (`readWaitLimitMs` in `src/authenticatedReadRules.ts`, the
 bound the local boundary shares) ends as a read problem, never as an empty or
 partial backlog. The snapshot read earlier stays shown with its own revision and
-retrieval time -- it is the last successful snapshot, not a claim that `main`
+retrieval time -- it is the last successful snapshot, not a claim that the configured ref
 still names it -- the problem says what failed and when, and the read control is
 named **Retry** until a read succeeds. A failed revision check, or a failed read
 of a newly found commit's backlog, is reported the same way and keeps that
@@ -88,13 +88,13 @@ once `X-RateLimit-Remaining` is `0`), the page asks nothing more until that time
 The boundary passes on only the validated wait, at most one hour. A later check
 or read that succeeds lifts any such wait and clears the problem, unless the
 problem stands with its snapshot as described below. **Retry** reads the
-project's `main` afresh at once, whenever it is pressed. A record detail that
+project's configured ref afresh at once, whenever it is pressed. A record detail that
 could not be read stays labeled on its card rather than borrowing an older one;
-checks that find `main` unchanged never read it again, so press **Refresh** to
+checks that find the configured ref unchanged never read it again, so press **Refresh** to
 retry it at the same revision. When the 30-second bound ends a read after the
 new commit's backlog was shown, each detail still unread is shown as such a gap
 on that snapshot, and the problem stands with it (a slice clock or credited
-human still unread is only its own gap): a check that finds `main` unchanged
+human still unread is only its own gap): a check that finds the configured ref unchanged
 does not clear it, and only a later read that replaces that snapshot does.
 Selecting another project stays available throughout: a failed or still-reading
 project never blocks switching to another, and returning to a project starts a
@@ -175,7 +175,7 @@ active. A Taken entry without a profile measures from the plan commit and says
 so.
 
 Progress comes from where the story's work is published. A single Trunk Mode
-profile reads the plan at the shown revision of `main`. A single Story Branch
+profile reads the plan at the shown revision of the configured ref. A single Story Branch
 Mode profile reads the same plan path at the recorded branch's head and labels
 the card "From branch <branch> at <short revision>; not in trunk." Without a
 profile, or when profiles cannot be read, the card shows trunk's plan labelled

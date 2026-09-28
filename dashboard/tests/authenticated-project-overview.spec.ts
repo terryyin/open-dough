@@ -4,9 +4,9 @@
 // which launches a synthetic `gh` on this test's own isolated PATH
 // (./support/dashboardServer.ts) answering from this test's fake GitHub
 // (./support/fakeGitHub.ts). Nothing here stubs the boundary or hands the
-// page a prebuilt `PublishedWork`: opening, selecting, and refreshing each of
-// Open Dough, Doughnut, and Pygardon must resolve that project's `main`, read
-// its backlog and reachable records pinned to that exact revision, and render
+// page a prebuilt `PublishedWork`: opening, selecting, and refreshing a project
+// must resolve its configured ref, read its backlog and reachable records
+// pinned to that exact revision, and render
 // them -- with no read of GitHub from the browser itself.
 
 import { readFileSync } from "node:fs";
@@ -19,7 +19,7 @@ import {
 } from "./publishedOrigin.ts";
 import {
   expectPinnedGhCalls,
-  filesOf,
+  publicationOf,
   projects,
 } from "./catalogProjectRecords.ts";
 import {
@@ -39,7 +39,7 @@ const credentialMarker = "gho_should-never-reach-a-browser-4c3b2a1f0e9d";
 test.use({ baseURL: undefined });
 
 for (const mode of ["dev", "preview"] as const) {
-  test(`authenticated project overview: Open Dough, Doughnut, and Pygardon each open, refresh, and fail without gh login through the one local boundary (${mode} launch mode)`, async ({
+  test(`authenticated project overview: each catalog project opens and refreshes through the local boundary; missing gh login reports a read failure (${mode} launch mode)`, async ({
     page,
     github,
   }) => {
@@ -64,11 +64,7 @@ for (const mode of ["dev", "preview"] as const) {
     for (const published of projects) {
       observed.set(
         published.repository,
-        await publishFiles(page, {
-          repository: published.repository,
-          revision: published.revision,
-          files: filesOf(published),
-        }),
+        await publishFiles(page, publicationOf(published)),
       );
     }
     const server = await startDashboardServer({
@@ -140,14 +136,14 @@ for (const mode of ["dev", "preview"] as const) {
           expectPinnedGhCalls(calls, published);
         });
 
-        await test.step(`refreshing ${published.label} resolves main again through local gh`, async () => {
+        await test.step(`refreshing ${published.label} resolves ${published.ref} again through local gh`, async () => {
           const before = calls.length;
           await refresh.click();
           await expect(source).toContainText(published.revision);
           await expect.poll(() => calls.length).toBeGreaterThan(before);
           expect(calls[before]?.argv).toEqual([
             "api",
-            `repos/${published.repository}/commits/main`,
+            `repos/${published.repository}/commits/${published.ref}`,
             "--jq",
             ".sha",
           ]);

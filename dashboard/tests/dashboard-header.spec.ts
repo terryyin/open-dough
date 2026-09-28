@@ -51,7 +51,7 @@ for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
           return text.getClientRects().length;
         }),
       ),
-    ).toEqual([1, 1, 1]);
+    ).toEqual([1, 1, 1, 1]);
     await expect(sourceEvidence).toContainText("Open Dough");
     await expect(refresh).toHaveAccessibleName("Refresh");
     await expect(refresh.locator("svg")).toHaveAttribute("aria-hidden", "true");
@@ -110,7 +110,7 @@ test("banner project selection and icon refresh read the selected project's actu
     name: "Doughnut",
     exact: true,
   });
-  await expect(project.getByRole("radio")).toHaveCount(3);
+  await expect(project.getByRole("radio")).toHaveCount(4);
   await expect(openDoughChoice).toBeChecked();
   await doughnutChoice.click();
   await expect(doughnutChoice).toBeChecked();

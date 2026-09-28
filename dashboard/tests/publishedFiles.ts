@@ -20,7 +20,7 @@ import {
 } from "./pathHistoryAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 
-// A repository whose `main` names one revision at which these files are
+// A repository whose configured ref (default `main`) names one revision at which these files are
 // published: every contents read at that revision is observed and answered
 // with the file's bytes, or not-found for any other path, and a directory
 // listing with the published files directly in that directory. A commit list
@@ -31,7 +31,7 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 // its own (./pathHistoryAnswers.ts); for any other path the connection fails.
 // Each of `branches` is a published branch head, answered and observed the
 // same way at its own revision; any other branch is not published. A check
-// lists `main` and every published branch head; checks are answered but not
+// lists the configured ref and every published branch head; checks are answered but not
 // observed (./originObservation.ts).
 export type PublishedRevision = {
   readonly revision: string;
@@ -49,11 +49,11 @@ function publishedAt(
   return revisions.find((each) => each.revision === revision);
 }
 
-// Published files whose `main` and branch heads move while the page is open.
+// Published files whose configured ref and branch heads move while the page is open.
 // Every revision ever published stays readable, as commits do.
 export type MovingFiles = {
   readonly requests: ObservedRequest[];
-  // `main` names `at` from now on.
+  // The configured ref names `at` from now on.
   moveTrunk(at: PublishedRevision): void;
   // `branch` is published at `at` from now on, or, given undefined, deleted.
   moveBranch(branch: string, at: PublishedRevision | undefined): void;
@@ -63,17 +63,18 @@ export function publishMovingFiles(
   page: Page,
   published: PublishedRevision & {
     readonly repository: string;
+    readonly ref?: string;
     readonly branches?: Readonly<Record<string, PublishedRevision>>;
   },
 ): MovingFiles {
   const requests: ObservedRequest[] = [];
-  const { repository } = published;
+  const { repository, ref = "main" } = published;
   let trunk: PublishedRevision = published;
   const branches = new Map(Object.entries(published.branches ?? {}));
   const revisions = [published, ...branches.values()];
   githubFor(page).serve(repository, (call) => {
     const { request } = call;
-    if (request.kind === "ref" && request.ref === "main") {
+    if (request.kind === "ref" && request.ref === ref) {
       observe(requests, call);
       return Promise.resolve(commitAnswer(trunk.revision));
     }
@@ -84,7 +85,7 @@ export function publishMovingFiles(
           ...Object.fromEntries(
             [...branches].map(([branch, at]) => [branch, at.revision]),
           ),
-          main: trunk.revision,
+          [ref]: trunk.revision,
         }),
       );
     }
