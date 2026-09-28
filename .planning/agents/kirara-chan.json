@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kirara-chan",
+  "email": "kirara-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-052#start-agent-work-from-dashboard",
+  "host": "codex"
+}
