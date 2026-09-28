@@ -50,6 +50,32 @@ test("the shared lifecycle owns selection, local checkout role, and target selec
   assert.doesNotMatch(shared, /Take (?:queued|or admit) work/);
 });
 
+test("the shared lifecycle retires a workspace with the work that created it", () => {
+  const words = (phrase) => new RegExp(phrase.trim().split(/\s+/).join("\\s+"));
+  for (const phrase of [
+    "Remove only a clean, unambiguous workspace created for this work",
+    "the story, preparation, execution, or exploration it serves",
+    "one an earlier session created for this same work is removed with it",
+    // A later session can read the fact: a retained selection result or a
+    // caller's or developer's statement; a held claim or assignment is not it.
+    "reporting the workspace as created \\(`created: true`\\)",
+    "caller's or developer's statement that the workspace was created for this work",
+    "A claim or preparation assignment the workspace holds shows which work it serves, not whether that work created it",
+    "A reused or host-owned workspace stays with its owning workflow",
+  ]) {
+    assert.match(shared, words(phrase));
+  }
+  for (const guidance of [
+    shared,
+    preparation,
+    disposition,
+    read("dough-manual-testing/SKILL.md"),
+    read("dough-bug-fixing/SKILL.md"),
+  ]) {
+    assert.doesNotMatch(guidance, /session-created|this\s+session\s+created/);
+  }
+});
+
 test("preparation continues from the shared rule into its own disposition", () => {
   assert.match(
     preparation,

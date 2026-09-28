@@ -115,9 +115,9 @@ the repository's last one, leaves them usable:
    (`git merge-base --is-ancestor <tip> <remote>/<branch>`).
    Remote acceptance is what makes retirement safe. A default checkout being
    behind the target, or absent, does not make the branch unmerged.
-2. Remove the worktree (`git worktree remove <worktree>`) only as that
-   section allows: clean and created by this work. Otherwise retain it and
-   report its path, branch, and reason.
+2. Remove the worktree (`git worktree remove <worktree>`) only when that
+   section allows it. Otherwise retain it and report its path, branch, and
+   reason.
 3. Delete the local branch with a safe, non-force delete once the target
    contains its tip (for example, point its upstream at
    `<remote>/<branch>`, then `git branch -d`).

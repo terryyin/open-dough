@@ -181,7 +181,7 @@ test("a local draft that is not explicitly retained stays in the workspace, stay
     preparation,
     preparationBranch,
     confirmedDisposition: false,
-    sessionCreated: true,
+    createdForWork: true,
   });
   assert.equal(resources.removed, false);
   assert.match(resources.reason, /no confirmed disposition/);

@@ -152,8 +152,8 @@ below.
 
 ## Close or retain the workspace
 
-Cleanup runs only after one of these decisions for this session's draft under [Decide
-what happens to the written result](preparation-disposition.md#decide-what-happens-to-the-written-result)
+Cleanup runs only after one of these decisions for this preparation's draft
+under [Decide what happens to the written result](preparation-disposition.md#decide-what-happens-to-the-written-result)
 is actually **confirmed**, never merely attempted or merely because the
 session is ending:
 
@@ -196,11 +196,11 @@ describes.
 Once a confirmed disposition applies, retire the workspace under Dough Land's
 [Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree): a keep
 already did so as part of its landing, and a confirmed discard or finished
-no-publish applies the same rule. Removal depends on the session-created
-versus reused or host-owned identity recorded in [Select or reuse the
-workspace](#select-or-reuse-the-workspace), never on a clean directory alone:
-a reused or host-owned workspace may still hold another story's, plan's, or
-session's in-progress work, and stays with its owner. State any retained
+no-publish applies the same rule. Which workspace this preparation removes
+follows the shared lifecycle's
+[Close or retain it](../../dough-manual-testing/references/exploration-workspace.md#close-or-retain-it),
+applied to the identity recorded in [Select or reuse the
+workspace](#select-or-reuse-the-workspace). State any retained
 workspace's path, branch, and reason alongside, not instead of, any
 disposition report already owed to the developer.
 

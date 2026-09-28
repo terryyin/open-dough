@@ -633,7 +633,7 @@ wrap-up after execution despite `finish-or-stop.md`.
 
 ### 8. Retirement ownership follows the work, not the session
 Type: Behavior
-Status: planned
+Status: done
 
 Decision (Terry, 2026-09-28, after native acceptance's first attempt): a worktree
 an earlier session created for the same story or preparation belongs to that
@@ -657,6 +657,17 @@ guidance-text tests (`workspace-ownership-lifecycle.test.mjs`,
 `dough-land-guidance.test.mjs`) updated to assert the work-scoped rule; payload
 checks and whole `node --test`. Native proof is slice 10's preparation-land
 rerun.
+
+Accepted proof: `exploration-workspace.md` "Close or retain it" removes only a
+clean, unambiguous workspace created for this work (including by an earlier
+session), names the readable records (a kept `created: true` selection result or
+the caller's statement), and keeps reused and host-owned workspaces; Land,
+preparation, disposition, manual testing, and bug fixing link it.
+`workspace-ownership-lifecycle.test.mjs` and `dough-land-guidance.test.mjs`
+assert the rule and reject session-scoped wording; the test flag is
+`createdForWork`. Payload checks and whole `node --test` (713) pass. Learning:
+preparation keeps no cross-session record of creation; without the kept receipt
+or a caller's statement ownership is ambiguous and the workspace is retained.
 
 ### 9. CI observation survives a sandbox that denies process inspection
 Type: Behavior

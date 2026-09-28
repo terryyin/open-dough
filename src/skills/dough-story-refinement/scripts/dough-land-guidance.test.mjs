@@ -78,8 +78,18 @@ test("preparation keep and workspace retirement link Dough Land instead of descr
       /git worktree remove|git branch -d|--is-ancestor/,
     );
     assert.doesNotMatch(guidance, /Resume an interrupted keep-and-publish/);
-    assert.doesNotMatch(guidance, /Delete a removed session-created branch/);
+    assert.doesNotMatch(guidance, /session-created|this\s+session\s+created/);
   }
+  // Land retires under the shared lifecycle's work-scoped rule by link.
+  assert.match(
+    land,
+    /Remove\s+the\s+worktree\s+\(`git worktree remove <worktree>`\)\s+only\s+when\s+that\s+section\s+allows\s+it/,
+  );
+  assert.doesNotMatch(land, /session-created|this\s+session\s+created/);
+  assert.match(
+    preparation,
+    /\[Close or retain it\]\(\.\.\/\.\.\/dough-manual-testing\/references\/exploration-workspace\.md#close-or-retain-it\)/,
+  );
   assert.doesNotMatch(disposition, /\*\*Commit the retained result\.\*\*/);
   assert.doesNotMatch(bug, /Workspace removal stays with the shared/);
 });

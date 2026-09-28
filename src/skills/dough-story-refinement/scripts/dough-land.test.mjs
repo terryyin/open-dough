@@ -197,7 +197,7 @@ test("Dough Land publishes a reused workspace's reviewed content and leaves the 
     worktree: preparation,
     branch: preparationBranch,
     defaultCheckout: integration,
-    sessionCreated: false,
+    createdForWork: false,
   });
 
   assert.equal(landed.stopped, null);

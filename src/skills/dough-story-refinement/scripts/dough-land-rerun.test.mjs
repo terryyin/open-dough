@@ -207,7 +207,7 @@ test("rerunning retirement from the recorded management context reports an alrea
       preparation,
       preparationBranch,
       confirmedDisposition: true,
-      sessionCreated: true,
+      createdForWork: true,
       repository,
     });
 
@@ -216,7 +216,7 @@ test("rerunning retirement from the recorded management context reports an alrea
   const kept = await landWorktree({
     worktree: preparation,
     branch: preparationBranch,
-    sessionCreated: false,
+    createdForWork: false,
   });
   const acceptedSha = kept.publication.receipt.sha;
   await git(kept.repository, "worktree", "remove", preparation);

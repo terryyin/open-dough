@@ -45,13 +45,13 @@ export async function assertRetiredFrom(
 
 // Dough Land "Retire the worktree", which preparation's "Close or retain the
 // workspace" links, through the shipped retirement mechanics. The
-// confirmed-disposition and session-created facts are supplied by the caller,
-// not derived by scanning file content.
+// confirmed-disposition and created-for-this-work facts are supplied by the
+// caller, not derived by scanning file content.
 export async function closeOrRetainWorkspace({
   preparation,
   preparationBranch,
   confirmedDisposition,
-  sessionCreated,
+  createdForWork,
   repository,
   remote = "origin",
   targetBranch = "main",
@@ -63,9 +63,9 @@ export async function closeOrRetainWorkspace({
       preparationBranch,
     );
   }
-  if (!sessionCreated) {
+  if (!createdForWork) {
     return preserved(
-      "reused or host-owned workspace, not created by this session",
+      "reused or host-owned workspace, not created for this work",
       preparation,
       preparationBranch,
     );
@@ -102,7 +102,7 @@ export async function landWorktree({
   defaultCheckout,
   remote = "origin",
   target = "refs/heads/main",
-  sessionCreated = true,
+  createdForWork = true,
   message = "Land reviewed worktree changes",
   beforePush,
 }) {
@@ -170,7 +170,7 @@ export async function landWorktree({
     preparation: worktree,
     preparationBranch: branch,
     confirmedDisposition: true,
-    sessionCreated,
+    createdForWork,
     repository,
     remote,
     targetBranch,
