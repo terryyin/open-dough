@@ -403,3 +403,22 @@ one trigger and one proof loop, and extend one model:
 Nothing in slice 3 is reworked in slice 4. The rename of `RefusedRead` is
 included in slice 2 as the second caller's necessary change, not a separate
 Structure slice.
+
+## Execution complete
+
+Product advice: keep the SEED-052 order and choose the next story from real use
+of **Start execution**, as the seed's open decisions ask.
+- Recent sessions (story 2) should settle or relaunch from `claude agents`
+  state. Started today follows Backlog membership only, so a session that dies
+  before its Take, or a story returned to the Backlog, keeps Started until the
+  dashboard restarts. `claude agents --json` keeps finished sessions with their
+  `state`, which supports reporting an unavailable session.
+- Terminal attach (story 3) uses the id `--bg` prints; `--session-id` is not
+  available with `--bg`.
+- The next host story should move the remaining Claude Code wording out of the
+  browser (`claude attach`, the `claude agents` advice, `/dough-execute-plan`,
+  the host label) behind the host.
+- Small cleanups for whoever next edits these files: one shared unknown-source
+  admission for both local boundaries; `read-failure*.spec.ts` assert the
+  failure's own controls instead of the page's total button count; and
+  `dashboard/tests/README.md` should name `agent-launch-settlement.spec.ts`.

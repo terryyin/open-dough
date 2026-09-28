@@ -978,9 +978,23 @@ An implementation agent blamed Playwright on a stale `dashboard/dist` and record
   - Observed effect: extra rebuild/debug cycles; a false rebuild learning remained in plan 138
   - Inference: Qualified. Focus/test-structure failure misread as harness staleness; not a suite build-contract defect
 
+## DD-163 — A local flake already fixed on trunk was left off the story branch, which then failed CI on it
+
+Slice 3 saw `project-keyboard-navigation-focus` fail locally, found trunk's fix `25c4a514`, and deferred it to Story Branch integration; branch CI failed on it.
+
+### Occurrences
+- Execution: `SEED-052#launch-claude-planned-execution` / plan 144, first related implementation commit `31cd0530`
+  - Timestamp: 2026-09-28T17:53:08+08:00 (deferral delivered in `bd893320`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision `b8c27fb7`; base 0.3.45
+  - Evidence: CI run 36406315898 failed at `project-keyboard-navigation-focus.spec.ts:100`; repair `dc402362` ported `25c4a514`
+  - Observed effect: one CI failure and a stash, repair, publish, and restore cycle
+  - Inference: Qualified. Guidance (ODF-134) defers trunk integration to wrap-up but names no path to take a published trunk fix for a failure the branch's CI will also hit
+
 ## Retention
 
-- Highest allocated local number: 162. Removed local codes are never reused.
+- Highest allocated local number: 163. Removed local codes are never reused.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
 - Resolved and removed on 2026-09-28: ODF-119 (startup source veto and nested-worktree refresh deferral); recovery: `aa771c5d:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.
