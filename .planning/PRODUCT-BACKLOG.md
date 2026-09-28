@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Start from owned repository context and refresh truthfully](seeds/SEED-008-worktree-branch-trunk-sync.md#owned-context-start-and-truthful-refresh) — SEED-008#owned-context-start-and-truthful-refresh ([plan](slice-plans/142-owned-context-start-and-refresh/PLAN.md))
 - [Launch execution in a Claude Code background session](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-planned-execution) — SEED-052#launch-claude-planned-execution ([plan](slice-plans/144-launch-claude-execution/PLAN.md))
-- [Animate the first agent's enlarged portrait on hover](seeds/SEED-054-animated-agent-portraits.md#animate-first-agent-portrait) — SEED-054#animate-first-agent-portrait ([plan](slice-plans/147-animate-first-agent-portrait/PLAN.md))
 
 ## Backlog list
 
