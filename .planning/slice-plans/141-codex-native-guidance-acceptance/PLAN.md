@@ -101,7 +101,7 @@ Behavior: historical folder-reference story with sound premises → installed-gu
 ### 3. Codex chooses proof that actually executes the moved seeding
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Pygardon baseline/candidate plans and observed caller chain; `live_strategies.feature` or equivalent traced proof owns moved seeding.
 Behavior: named-genome/live-strategy removal story → planning observes executable chain → selected proof runs `seed_named_genome_live_strategy_pair.py`, not `strategy_verify.feature` alone. Baseline success limits attribution. Full target E2E suite need not run for this planning-only acceptance.
 
@@ -141,8 +141,10 @@ Fixture hides growth until released-settings check; counterexamples cover untrac
 - Publisher `codex-plan-141-20260928`; agent Sola-chan. Claim accepted on `origin/refs/heads/main`: `b5a6017a966d088c7fbb700ce17833ae8e3b5eda`. Increments target `origin/refs/heads/codex/plan-141-execution`.
 - Exact-checkout setup passed: locked `PATH="/opt/homebrew/bin:$PATH" npm ci` and `PATH="/opt/homebrew/bin:$PATH" bash tests/git-publication-native.sh --help`. No commit hook; Markdown needs no formatter, whitespace checked before staging.
 - No applicable earlier Codex acceptance proof found in retained records/Git; Claude evidence is fixture reference only. Keep established in-scope plan-refinement authority; no hard limit/exceptions. All runs retain 900/15-second bounds.
+- Host thread limit rejected further fresh-agent creation after slice 3. Continue through separate bounded turns of existing agents, with an independent reviewer distinct from the current implementation agent; disclose this delegation limitation without weakening native proof.
 - Default checkout refresh deferred for pending dashboard edits. Preparation update accepted as starting revision above; claim's trunk CI unobserved.
 - CI observer: GitHub Actions, selector `ci.yml` verified by `gh run list`, target `codex/plan-141-execution` in `terryyin/open-dough`; exact-checkout runtime `.agents/skills/dough-execute-plan`. Original cell `28`/session `55077`, directory `/tmp/dough-ci-501/watch-2OeRvN`, PID `2304` stopped with unobserved coverage for `8373b163`/`b765473f`, shutdown confirmed. Resumed observer cell `72`, session `17764`, directory `/tmp/dough-ci-501/watch-M7dAHE`, PID `23794`, coordinator `codex-plan-141-20260928`; managed deliveries reuse it. Unobserved trunk claim CI is not registered on this branch observer.
+- CI `36394508899` attempt 1, registered `6b6074ae`: dashboard job `108837614825` failed `project-keyboard-navigation-focus.spec.ts:100` (expected one Doughnut `main` read; got two). Assertion/test-timeout failure, not infrastructure or a native acceptance verdict. Read-only comparison and chat `Add terry-talks to dashboard` (`01a0e6c5-b7ad-7ce3-905a-fe712559ff2f`) establish another execution's ownership of the dashboard changes imported from `d5d9d1a9`; this execution's authored increments change planning records only. No duplicate repair, stash, CI rerun or claim of green; leave dashboard diagnosis with that owner and continue independent acceptance under the CI non-owner rule.
 
 ## Accepted proof — slice 1 (2026-09-28)
 
@@ -203,7 +205,7 @@ or statistical reliability.
   `/private/tmp/plan141-slice1.KTBlZf` were judged for this active decision and
   are deleted after this slice's proof record is published under ADR 0005.
 
-Slice 1 delivered: `8373b163be94f2b6244c7c0c0e1e8e501877afa6` accepted on the recorded execution-branch target; observer reused and exact revision registered. Raw slice-1 artifacts were deleted after judgment/publication. This is the next increment's previously published base.
+Slice 1 delivered: `8373b163be94f2b6244c7c0c0e1e8e501877afa6` accepted on the recorded execution-branch target; observer reused and exact revision registered. Raw slice-1 artifacts were deleted after judgment/publication. This supplied slice 2's previously published base.
 
 ## Slice 2 observation and execution stop (2026-09-28)
 
@@ -223,3 +225,14 @@ The story remains Taken and whole-plan acceptance remains incomplete.
 - Historical plan 111's proof table and final verification paragraph prescribe focused reader/navigation checks plus existing repository requirements. Historical AGENTS representative behavior review, README and contributor test instructions supply no every-change full-suite mandate; hosted `ci.yml` lists those five checks. Candidate installed wrap-up line 86 says not to run full CI before commit unless explicitly required. Hosted checks do not alone establish that local mandate. These source observations leave the added unconditional burden unjustified.
 - Baseline plan lines 116–124 also adds full `npm test` for distributed fixture consumers, but conditions full dashboard testing on affected reach and omits candidate's build/typecheck additions. This provides limited comparison, not acceptance of the candidate or a causal improvement claim.
 - Coordinator independently inspected final plans, skill-read command items, terminal outcomes, matching preparation states and requirement sources. Raw root `/private/tmp/plan141-slice2.7YSVP3` was deleted after publication of `b765473fda8c544c135458dbbb9ed75990b5f64c`. Native acceptance and this plan remain incomplete; do not retry the same candidate to obtain a pass.
+
+## Accepted proof — slice 3 (2026-09-28)
+
+Verdict: candidate pass for deliberate executable proof selection; baseline final proof is compatible but its mapped seeding proof is limited. No causal improvement or reliability claim.
+
+- Guidance remains candidate `v0.3.45`/`f3f75d0b`, baseline `6882aeb3`; harness `b765473fda8c544c135458dbbb9ed75990b5f64c` (adapter/supervisor/stream bytes unchanged after trunk merge), Codex `0.157.0`, equivalent default/ignore-user-config settings, actual model unknown, deadline/grace 900/15. Each installed planning skill matched its pinned source.
+- Setup: `/opt/homebrew/bin/bash /tmp/plan141-slice3-setup.sh`; independent shared Pygardon clones at `546df0d94e84d7107d5e0f8a611fd0e9f5da6d76` (`b2ad7c394^`), selected refined seed/backlog restored from `b2ad7c394`, origin removed, separate pinned installs and refined/unselected recorder reset; passed before paid launch.
+- Literal launches: `/opt/homebrew/bin/bash /private/tmp/plan141-slice3.B0i1N9/run.sh candidate` and `/opt/homebrew/bin/bash /private/tmp/plan141-slice3.B0i1N9/run.sh baseline`. Exact prompt uses the protocol template with story `seeds/SEED-047-tfdc-search-and-verify-simplification.md#story-tfdc-dead-behavior-removal` and fixture `/private/tmp/plan141-slice3.B0i1N9/candidate-pygardon` or `/private/tmp/plan141-slice3.B0i1N9/baseline-pygardon`; no desired proof supplied. No retry or implementation/E2E suite run.
+- Candidate actual planning-skill read item_1 and E2E consumer inspection item_9 exited 0. Its `.planning/quick/179-tfdc-dead-behavior-removal/PLAN.md:171–175` explicitly updates `e2e_test/support/seed_named_genome_live_strategy_pair.py` and selects `nix develop -c scripts/check-worktree.sh pnpm exec cucumber-js e2e_test/features/live_strategies.feature` for moved test-genome proof. Independent chain inspection: feature scenario at lines 94–97 invokes the Given in `live_strategies_steps.ts:19–33`, which runs that helper. Native did not explicitly read every TS caller hop; claim stays at correct proof selection and observed E2E consumer.
+- Baseline actual skill read item_1 exited 0; its same-relative plan's seeding slice 7 at lines 236–244 maps only Python proof and omits that helper. Final verification at line 347 nevertheless includes `live_strategies.feature`, so it will execute the helper eventually; no clean deliberate caller-trace acceptance for baseline and no established regression/improvement attribution.
+- Both original supervised native commands exited 0 with `turn.completed`; independently classified `complete` through existing `native_run_classify_stream` without a pipe (the run script's tee output was empty because classification is a shell variable, not stdout). Both final planned/ready states matched current document/plan digests; coordinator independently inspected plans, items, state and executable chain. Raw root retained for judgment, to be deleted after this compact record is published under ADR 0005.
