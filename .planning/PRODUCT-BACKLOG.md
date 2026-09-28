@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Start from owned repository context and refresh truthfully](seeds/SEED-008-worktree-branch-trunk-sync.md#owned-context-start-and-truthful-refresh) — SEED-008#owned-context-start-and-truthful-refresh ([plan](slice-plans/142-owned-context-start-and-refresh/PLAN.md))
 - [Launch execution in a Claude Code background session](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-planned-execution) — SEED-052#launch-claude-planned-execution ([plan](slice-plans/144-launch-claude-execution/PLAN.md))
-- [Start queued work whose backlog link percent-encodes its path](seeds/SEED-008-worktree-branch-trunk-sync.md#percent-encoded-home-links) — SEED-008#percent-encoded-home-links
 
 ## Backlog list
 
