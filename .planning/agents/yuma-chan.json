@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-053#cycle-dashboard-projects-with-arrow-keys",
+  "mode": "story-branch",
+  "branch": "cursor/cycle-dashboard-projects-with-arrow-keys",
+  "host": "cursor",
+  "model": "gemini-3.8-flash"
+}
