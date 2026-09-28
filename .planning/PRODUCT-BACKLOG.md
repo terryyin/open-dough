@@ -22,6 +22,13 @@ visibility for multiple agents working in worktrees on one machine.
 - [Keep planned local verification proportionate to the change](seeds/SEED-053-native-guidance-acceptance.md#proportionate-local-verification) — SEED-053#proportionate-local-verification
 - [Finish removing default-checkout coordination](seeds/SEED-008-worktree-branch-trunk-sync.md#finish-removing-checkout-coordination) — SEED-008#finish-removing-checkout-coordination
 - [Close stories through an installed wrap-up command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command) — SEED-008#installed-wrap-up-command
+- [Launch planned execution in a Claude Code background session](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-planned-execution) — SEED-052#launch-claude-planned-execution
+- [Find recent dashboard-launched sessions after leaving the story](seeds/SEED-052-start-agent-work-from-dashboard.md#revisit-dashboard-sessions) — SEED-052#revisit-dashboard-sessions
+- [Interact with a launched Claude Code session inside the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#interact-with-claude-terminal) — SEED-052#interact-with-claude-terminal
+- [Start story refinement and answer its questions in the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-refinement) — SEED-052#launch-claude-refinement
+- [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
+- [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
+- [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
+- [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
-- [Start agent work from the Open Dough dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#start-agent-work-from-dashboard) — SEED-052#start-agent-work-from-dashboard
 - [Accept existing guidance natively on Cursor](seeds/SEED-053-native-guidance-acceptance.md#native-acceptance-cursor) — SEED-028#native-one-shot-other-hosts
