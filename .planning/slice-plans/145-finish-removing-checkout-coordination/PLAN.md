@@ -261,3 +261,20 @@ The assimilated test consolidation stays in slice 2 because it edits the same
 eligibility tests and runs in the proof loop slice 2 already owns. It adds no
 slice and no product behavior. After the 2026-09-29 narrowing the plan has two
 slices.
+
+## Execution complete
+
+Product advice:
+
+- Plan 146's start gate and premises (owner-argument removal and the
+  `publishExecutionIncrement` guard) landed in the expected shape. At its
+  start, decide whether `current-branch-publication.mjs` gets an entry point
+  or leaves the payload: plan 146 would otherwise keep a module only tests
+  call. The deferred staged-content promise would need its `commitOwned`.
+- Under ADR 0005 the next release carrying this current-checkout and
+  direct-edit guidance needs a recorded maintainer exception or native
+  evidence. Native evidence identities hashing `wrap-up.md` and
+  `maintain-default-checkout.md` are stale.
+- Accepted residual risk: only guidance keeps an agent from passing
+  `origin/<target>` as the base. Revisit only if real use shows it.
+- No queue reordering.
