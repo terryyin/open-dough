@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yua-chan",
-  "email": "yua-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-008#owned-context-start-and-truthful-refresh",
-  "host": "claude",
-  "model": "claude-opus-5-5"
-}

@@ -122,11 +122,13 @@ registry is selected. No new execution authority or ADR acceptance is implied.
 
 **Identity:** SEED-008#owned-context-start-and-truthful-refresh
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/142-owned-context-start-and-refresh/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"624a6722a707be78d3f9dc7a167d031997cfde4ab28ba345dd0af099057131f9","plan":"66d6e8787b9337141398cfa4969a3cc4f4204df4931bc05c8e5ef272eba8ae32"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/142-owned-context-start-and-refresh/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ddb4c48ec330d303d06b4ff534bdc2cc1cc52785a2cf221b098ed548edcfb5e6","plan":"5c844baf27bd8008cfd3704eea93c822742bc74ac8c1c641b4a9bf2192668c70"}}
 ```
 
 **Goal:** Developers can start and land owned work from an owned repository
-context alone and receive a truthful, fast-forwarding default-checkout refresh.
+context alone, reuse a clean owned workspace that trunk has moved past, and
+receive a truthful, fast-forwarding default-checkout refresh, with the changed
+guidance accepted natively on Codex, Cursor, and Claude Code.
 This bounded retrospective correction of
 Run worktree workflows from remote history (`SEED-008#same-machine-merge-queue`, recoverable at
 `199c579f:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`)
@@ -139,13 +141,21 @@ representation each.
 - Create a new owned workspace at fetched trunk from an existing owned worktree
   or the repository's common Git directory, for queued startup and preparation,
   with local refresh not applicable. Existing refusals remain.
+- When startup or preparation reuses an existing clean owned or host worktree
+  that has no commits of its own and is strictly behind fetched trunk,
+  fast-forward it under the shared refresh eligibility and continue. Local
+  commits, divergence, pending edits, or an ongoing Git operation still refuse.
 - Recognize an in-progress rebase by Git's rebase state, not a leftover
   `REBASE_HEAD`, in one recognizer shared by refresh and the Land model.
 - Refresh-result guidance links its single owner; the Land model retires
   through the shared retirement mechanics.
 - Remove the startup and Land test redundancy the review found, and prove that
   a ready-looking local copy cannot override unready remote preparation.
-- Human-owned decisions listed in the plan remain excluded.
+- Native acceptance on Codex, Cursor, and Claude Code of the startup,
+  preparation, Land, and wrap-up guidance changed by the original story and by
+  this correction, run manually as the final slice.
+- Current-checkout coordination and shipped-module payload decisions stay with
+  the queued sibling stories below.
 
 **Slice plan:** [Start from owned repository context and refresh truthfully](../slice-plans/142-owned-context-start-and-refresh/PLAN.md).
 
