@@ -250,6 +250,14 @@ needs a supplied default checkout. `refreshDefaultCheckout` returns
 workspace must still equal clean fetched trunk; a merely behind host worktree is
 refused rather than advanced, unchanged by this slice.
 
+CI repair (run 36381588951, 600f5f45): `workspace-publication-race.test.mjs`
+still passed only `integration` to `selectOwnedWorkspace`, which now reads
+`repository`, so Git ran in the runner's own repository; re-wrapped guidance
+broke three `workspace-ownership-lifecycle.test.mjs` regexes. The repair supplies
+`repository`, makes selection stop with `setup-failed` when it is missing, and
+tolerates line breaks; `node --test` on those two files plus startup and
+preparation suites passes (48) with no leaked branches.
+
 ### 4. Land publishes and retires without a default checkout
 Type: Behavior
 Status: planned

@@ -24,13 +24,13 @@ async function claimPair(trunk) {
   const workspaceA = join(trunk.fixture, "exec-a");
   const workspaceB = join(trunk.fixture, "exec-b");
   const selectedA = await selectOwnedWorkspace({
-    integration: trunk.integration,
+    repository: trunk.integration,
     origin: trunk.origin,
     workspace: workspaceA,
     branch: "exec/a",
   });
   const selectedB = await selectOwnedWorkspace({
-    integration: trunk.integration,
+    repository: trunk.integration,
     origin: trunk.origin,
     workspace: workspaceB,
     branch: "exec/b",

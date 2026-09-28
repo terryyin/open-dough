@@ -66,8 +66,18 @@ async function verifyRetained(request) {
 
 // A supplied `base` is fetched trunk the caller already reset the workspace
 // to, such as a carried escalation's park; it is used without fetching again.
+// `repository` is the Git context for fetching and creating the workspace; it
+// is required so that Git never falls back to the process working directory.
 export async function selectOwnedWorkspace(request) {
   if (request.retained?.workspace) return verifyRetained(request);
+  if (!request.repository)
+    return stopped("setup-failed", {
+      recovery: {
+        workspace: request.workspace,
+        branch: request.branch,
+        error: "workspace selection needs a repository",
+      },
+    });
   try {
     let { base } = request;
     if (!base) {
