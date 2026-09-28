@@ -69,8 +69,9 @@ Keep the receipt with this session and act on its `status`:
   refresh of the integration checkout as Dough Land's
   [Refresh the default checkout](../../dough-land/SKILL.md#refresh-the-default-checkout)
   and reports it in `refresh`; with no integration checkout supplied, its
-  `result` is `not applicable`. A deferred or stopped refresh preserves that
-  checkout without undoing the announcement. Begin preparing in the workspace.
+  `result` is `not applicable`. No refresh
+  [result](../../dough-execute-plan/references/maintain-default-checkout.md#independent-maintenance-outcome)
+  undoes the announcement. Begin preparing in the workspace.
 - `continued`: this workspace already holds the story's published assignment;
   nothing new is published. Run `start` at each preparation skill's first write
   in the session, and again on resuming after a pause, so slice planning after

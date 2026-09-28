@@ -10,10 +10,11 @@ replace a caller's disposition, cleanup, or CI policy.
 ## Independent maintenance outcome
 
 Successful remote publication and default-checkout maintenance are
-independently reportable. A deferred, stopped, or unfinished refresh does
-not erase an accepted remote publication. A publication that never reached
-remote acceptance leaves any outstanding maintenance obligation unchanged
-and does not authorize treating the remote as updated.
+independently reportable. No maintenance result below erases an accepted
+remote publication, leaves it unfinished, or authorizes another push. A
+publication that never reached remote acceptance leaves any outstanding
+maintenance obligation unchanged and does not authorize treating the remote
+as updated.
 
 When reporting, name the maintenance result separately from publication
 acceptance:

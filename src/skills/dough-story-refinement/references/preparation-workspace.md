@@ -160,8 +160,9 @@ session is ending:
 - a **keep** whose landed SHA the fetched authorized remote target contains,
   per
   [Keep and publish the retained result](preparation-disposition.md#keep-and-publish-the-retained-result).
-  The default checkout need not match that SHA. A deferred refresh does not
-  withhold this confirmation;
+  The default checkout need not match that SHA. No refresh
+  [result](../../dough-execute-plan/references/maintain-default-checkout.md#independent-maintenance-outcome)
+  withholds this confirmation;
 - an explicit **discard** that actually removed the identified draft under
   [Discard an identified draft](preparation-disposition.md#discard-an-identified-draft),
   not one that stopped because the content could not be unambiguously

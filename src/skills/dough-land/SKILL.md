@@ -48,8 +48,8 @@ Stop before committing, and name the gap, when:
   or pushes from it;
 - the target is missing, contradictory, or not a branch on an authorized
   remote; or
-- the worktree has an unfinished merge, rebase, cherry-pick, or revert. Name
-  it; the developer resolves it, then reruns.
+- the worktree has an `index.lock` or an unfinished merge, rebase,
+  cherry-pick, or revert. Name it; the developer resolves it, then reruns.
 
 ## Commit everything in the worktree
 
@@ -91,10 +91,10 @@ loop.
 After acceptance, attempt
 [Refresh eligibility](../dough-execute-plan/references/maintain-default-checkout.md#refresh-eligibility)
 on the supplied default checkout for the landed remote and branch.
-Report its result and reason separately from publication. A not applicable,
-deferred, or stopped refresh, such as no supplied checkout, a pending human
-edit in that checkout, or a checkout path that no longer exists, is not a
-failed landing and does not block retirement.
+Report its
+[maintenance result](../dough-execute-plan/references/maintain-default-checkout.md#independent-maintenance-outcome)
+and reason separately from publication. No refresh result is a failed landing
+or blocks retirement.
 
 Another skill may apply this section on its own after its own accepted
 publication.

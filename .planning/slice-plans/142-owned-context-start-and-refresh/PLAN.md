@@ -438,7 +438,7 @@ before the branch so a stopped rebase's detached HEAD reports truthfully.
 
 ### 5. Refresh-result guidance links its single owner
 Type: Structure
-Status: planned
+Status: done
 
 Correction: removes F6's divergent subset enumerations (a guidance
 representation weakness). Behavior stays the same:
@@ -465,6 +465,14 @@ these texts: `dough-land-guidance.test.mjs`,
 `rg -l "Refresh the default checkout|trunk-publication" src/skills --glob
 '*.test.mjs'`. Then run the whole `node --test` and `payload-declaration-links`.
 Safe stop: one vocabulary owner.
+
+Accepted proof: read-through of each changed section; `rg` finds refresh-result
+lists only in `maintain-default-checkout.md#independent-maintenance-outcome`,
+which also states once that no result undoes acceptance or authorizes another
+push; Land, wrap-up, trunk and candidate publication, execute-plan startup, and
+preparation link it. Land's stop list names an `index.lock`, matching the
+shared recognizer. Guidance tests, payload checks, and whole `node --test`
+(712) pass.
 
 ### 6. Land's model retires through the shared retirement mechanics
 Type: Structure
