@@ -30,10 +30,10 @@ executions, not commands, retries, or repairs.
    queued.** Two executions (plans 135 and 139): agent time spent on paired
    A/B runs misjudged the CI job time that CI's own test-times artifact
    reports, once about 10 s high and once about 11 s low.
-4. **Assessor counterexamples narrower than the planned state (DD-159) —
+4. **Assessor counterexamples narrower than the planned state (DD-160) —
    low, not queued.** One execution (plan 139): a paid run's inconclusive
    shape was first assessed fail; corrected in `afa43926`.
-5. **Paid native runs refused by the host's permission check (DD-160) — low,
+5. **Paid native runs refused by the host's permission check (DD-161) — low,
    not queued.** One execution (plan 139): the developer's approval did not
    let the coordinator start the run; the developer had to request it again.
 
@@ -135,7 +135,7 @@ Plan 139 repeated the method and its projection came out low instead.
 
 ## Assessor counterexamples narrower than the planned state (low priority, not selected)
 
-### DD-159 — An escalation counterexample removed two signals at once, hiding an assessor ordering defect
+### DD-160 — An escalation counterexample removed two signals at once, hiding an assessor ordering defect
 
 Plan 139 slice 1 planned "admission with no prior one-shot edits (admitted up
 front) → inconclusive". The counterexample removed the `--one-shot` start and
@@ -158,7 +158,7 @@ inconclusive.
 
 ## Paid native runs refused by the host's permission check (low priority, not selected)
 
-### DD-160 — The developer's approval of paid runs did not let the coordinator start them
+### DD-161 — The developer's approval of paid runs did not let the coordinator start them
 
 Paid native runs are manual-only and need the developer's go-ahead. On Claude
 Code in auto mode, the host's permission check refused the coordinator's

@@ -8,14 +8,25 @@ Its authority, scope, and revision policy apply to this guidance.
 Keep one story overview with an always-visible banner pinned to the viewport top.
 Show the selected project's name as the banner's Source evidence disclosure.
 Show the three project choices as tab-shaped radio controls, with the selected
-project highlighted and native arrow-key switching. Keep manual refresh in this
-banner. Keep repository/ref, full source revision, and retrieval time available
-through the Source evidence disclosure, so detailed metadata does not fill the
-viewport at browser zoom. Render refresh as an SVG icon
-with the accessible name Refresh, changing to Retry after a failed read; preserve
-its focus and guarded behavior during reads. Keep readable loading and source
-problems near the source context. Make the header wrap without covering focused
-content or consuming the usable reading area at narrow widths or browser zoom.
+project highlighted. Unmodified Left and Right arrow keys cycle the three
+projects page-wide in displayed catalog order (Open Dough, Doughnut, Pygardon),
+wrapping at both ends, while browsing stories or the agent roster; each step
+uses the same project selection, URL history, and published-data read as a
+pointer choice. When a project radio holds focus, native arrow-key switching
+consumes that step once and keeps useful focus on the selected control.
+Elsewhere, the page-wide shortcut selects the adjacent project; controls that
+survive the switch keep focus, and when focused project content disappears,
+focus moves to the selected project radio. Editable fields, other
+arrow-operated controls, already-handled key events, modified shortcuts, and
+an open modal help dialog keep their own keyboard behavior and do not change
+the project. Keep manual refresh in this banner. Keep repository/ref, full
+source revision, and retrieval time available through the Source evidence
+disclosure, so detailed metadata does not fill the viewport at browser zoom.
+Render refresh as an SVG icon with the accessible name Refresh, changing to
+Retry after a failed read; preserve its focus and guarded behavior during
+reads. Keep readable loading and source problems near the source context. Make
+the header wrap without covering focused content or consuming the usable
+reading area at narrow widths or browser zoom.
 
 Below the banner, show **Near-future direction** as an initially collapsed
 disclosure. Activation reveals its full published text or the existing

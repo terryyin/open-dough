@@ -53,3 +53,14 @@ export const defaultSource: PublishedSource = openDough;
 export function sourceById(id: string): PublishedSource | undefined {
   return catalog.find((source) => source.id === id);
 }
+
+// One step through the displayed catalog order, wrapping at both ends.
+export function adjacentSource(
+  current: PublishedSource,
+  step: 1 | -1,
+): PublishedSource {
+  const index = catalog.findIndex((source) => source.id === current.id);
+  const at = index === -1 ? 0 : index;
+  const next = catalog[(at + step + catalog.length) % catalog.length];
+  return next ?? defaultSource;
+}
