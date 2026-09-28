@@ -267,46 +267,66 @@ which removes owner arguments the closure modules still pass.
 
 **Identity:** SEED-008#durable-workspace-creation-fact
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/147-durable-workspace-creation-fact/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"36d29df87101ced63bd4a0ab5e5d8c06335e425d0deef34adf5727c9b94cd9d8","plan":"fbf8afc26c57d13f62d2e90d8f8f49a439059b80e9fb96e849b26911cfcdc4fd"}}
 ```
 
+**Decision (2026-09-29):** Terry asked for refinement and a slice plan with
+this story first. The open storage decision takes the recommended per-worktree
+Git ref, following the existing `refs/worktree/dough/preparation-assignment`
+pattern. The fact names the work it was created for, because execution startup
+reuses any existing workspace path whose branch can fast-forward, so a worktree
+created for one story can later serve another.
+
 **Goal:** A developer whose story or preparation spans several agent sessions
-gets its owned worktree retired when that work lands or closes, instead of
-finding it retained as "ambiguous" because the session that created it is gone.
+gets its worktree retired when that work lands or closes, instead of finding it
+retained as ambiguous because the session that created it is gone. Worktrees
+the work reused or a host owns still stay. The fact is also what the installed
+retirement command of
+[Close stories through an installed wrap-up command](#installed-wrap-up-command)
+reads instead of an agent-set flag.
 
 **Context (2026-09-28):** Terry decided that retirement ownership follows the
-work, not the session: a worktree an earlier session created for the same
-story, preparation, or execution is retired with that work, while reused and
-host-owned worktrees stay with their owners. The shared lifecycle
+work, not the session. The shared lifecycle
 (`src/skills/dough-manual-testing/references/exploration-workspace.md`,
-"Close or retain it") now says so, but accepts only two records of creation: a
-`created: true` selection result kept in the plan or conversation, or the
-caller's statement. Preparation keeps neither across sessions (its assignment
-profile records name, story, activity, host, and model; its worktree ref names
-only the held assignment, which a host-owned worktree can hold too), and
-executions do not write their created-versus-reused fact into the plan's resume
-context in practice. A later session therefore usually retains the worktree.
-The native preparation-land and trunk-closure journeys pass only because their
-prompts state that an earlier session created the worktree for this work.
-`src/skills/dough-story-refinement/references/preparation-assignment.md` still
-says to record the workspace "as created by this session".
+"Close or retain it") says so, but accepts only a `created: true` selection
+result kept in the plan or conversation, or the caller's statement.
+Preparation keeps neither across sessions, and executions do not write the
+fact into the plan in practice, so a later session usually retains the
+worktree. The native preparation-land and trunk-closure journeys pass only
+because their prompts state that an earlier session created the worktree.
 
-**Open scope decision:** where the durable "created for this work" fact lives.
-Options found so far:
+**Scope:**
 
-1. A per-worktree Git ref (for example beside the preparation assignment ref)
-   written by startup or preparation when it creates the workspace and removed
-   with the worktree. Git-native, survives sessions and hosts, needs no
-   registry; a reused or host-owned worktree never gets it. Recommended.
-2. A field in a published record (the preparation assignment profile or the
-   execution claim). Visible to other developers, but the profile is released
-   before Land retires the worktree, and a claim does not prove creation.
-3. Require the fact in the work's own record (the plan's resume context, a
-   preparation record). Works only where such a record exists and is kept.
+- When execution startup or preparation `start` creates a worktree for a work
+  item with an identity, it records
+  `refs/worktree/dough/created-for/<identity>` in that worktree, pointing at
+  the starting revision. Reusing an existing worktree records nothing. Git
+  removes the ref with the worktree.
+- "Close or retain it" reads that ref as the durable creation record: a ref
+  naming this work settles created-for-this-work in any session; a ref naming
+  other work, or no ref and no other record, retains and reports the worktree.
+  The existing same-session `created: true` and caller-statement records stay.
+- Preparation guidance stops telling the agent to record the workspace as
+  created by this session.
+- Deferred: backfilling worktrees that already exist; manual-testing and
+  bug-fixing exploration workspaces, which guidance creates without a runtime;
+  work without an identity, which keeps today's records; the installed
+  retirement command, owned by the wrap-up-command story; new native journeys,
+  and any change to the existing journeys' prompts.
 
-**Relation to queued work:** SEED-008#installed-wrap-up-command makes the
-shipped retirement gate follow the work-scoped rule; it can consume this fact
-once decided. Until then the rule fails safe by retaining the worktree.
+**Key examples:**
+
+1. Preparation `start` created a worktree for story S in one session; a later
+   session keeps and lands S's preparation → Land retires that worktree and
+   its branch.
+2. Execution startup created a worktree for story S; a later session closes S
+   → closure retires the worktree and branch once trunk contains them.
+3. A later Take for story T reuses the worktree created for S → T's closure
+   retains it and reports it as created for S.
+4. A host-owned worktree holds S's work → it has no creation ref, so it is
+   retained and reported whichever session closes S.
+
+**Slice plan:** [Retire a workspace created for the work in any later session](../slice-plans/147-durable-workspace-creation-fact/PLAN.md).
 
 <a id="reduce-ci-observer-overhead"></a>
 
