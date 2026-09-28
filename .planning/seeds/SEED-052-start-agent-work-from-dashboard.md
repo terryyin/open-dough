@@ -101,6 +101,47 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
+<a id="launch-claude-refinement-background"></a>
+
+### 1a. Launch refinement in a Claude Code background session
+
+**Identity:** SEED-052#launch-claude-refinement-background
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer looking at a project's backlog starts refinement
+  of a chosen story there, instead of switching to a terminal, changing to the
+  project's folder, and typing the refinement instruction with the story's
+  identity. It mirrors the delivered execution launch for the other main
+  workflow.
+- **Evaluation:** Every **Backlog** card offers **Start refinement** beside
+  **Start execution**; Taken cards offer neither. The dialog names the story,
+  Claude Code, and an optional instruction. Starting launches a Claude Code
+  background session in the project's folder with the project's refinement
+  skill and the story's identity, followed by any instruction. The card reports
+  starting, launched (session id and copyable `claude attach <id>`), failed, or
+  uncertain exactly as execution launch does, and shows local **Started** until
+  origin publishes what the session does. The developer answers the interview
+  by attaching from a terminal; published refinement facts then appear from
+  origin.
+- **Boundary:** Same scope as the execution launch
+  ([Agent launch](../../dashboard/AGENT-LAUNCH.md)): launch and forget, fixed
+  project folders, no model, tool, or permission choice, and the same
+  same-page-only launch boundary. Launching refinement does not imply Taken,
+  completed refinement, acceptance, or execution; preparation, workspace, and
+  publication stay with the agent's normal workflow. Answering inside the
+  dashboard is story 4.
+- **Value / learning:** Tests whether dashboard initiation is used for
+  conversational work when answering happens through the ordinary CLI.
+- **Effort hypothesis:** Unestimated; reuse of the execution launch is expected
+  to dominate. How local **Started** ends for a refinement (a Preparing
+  assignment or a refined story rather than Taken) and how the two actions sit
+  on one card need refinement.
+- **Depends on:** The dashboard launch.
+- **Safe stopping point:** Both main workflows start from the dashboard even if
+  embedded interaction is never added.
+
 <a id="revisit-dashboard-sessions"></a>
 
 ### 2. Find recent dashboard-launched sessions after leaving the story
@@ -176,8 +217,9 @@ or claims of readiness.
   unrefined story and continue the interview where they selected it.
 - **Evaluation:** Select an unrefined story, choose refinement from the
   state-aware skill chooser, optionally add context, and launch Claude Code.
-  Open the terminal to answer its questions and review its result through the
-  ordinary workflow. Published refinement facts subsequently appear from origin.
+  Open the embedded terminal to answer its questions and review its result
+  through the ordinary workflow. Published refinement facts subsequently
+  appear from origin.
 - **Boundary:** The agent still owns its normal preparation workflow; launching
   refinement does not imply Taken, completed refinement, acceptance, or execution.
   Unavailable actions explain their prerequisite. Decomposition, planning-only,
@@ -187,8 +229,8 @@ or claims of readiness.
   tests whether skill selection and native terminal interaction are sufficient.
 - **Effort hypothesis:** Unestimated; skill applicability and interview-to-
   publication behavior need refinement.
-- **Depends on:** The dashboard launch and, for this chosen in-dashboard experience, story 3.
-  CLI-only refinement remains a smaller alternative if interaction proves costly.
+- **Depends on:** Story 1a for the refinement launch and story 3 for the
+  embedded terminal.
 - **Safe stopping point:** Refinement and execution are useful without moving
   preparation responsibilities into the dashboard.
 
@@ -245,7 +287,7 @@ or claims of readiness.
   testing its different lifecycle rather than treating refinement as execution.
 - **Effort hypothesis:** Unestimated; preparation handoff and recovery are the
   main uncertainties; reuse execution's proven common behavior where applicable.
-- **Depends on:** Story 4 and existing preparation tooling. Story 5 offers reuse
+- **Depends on:** Story 1a and existing preparation tooling. Story 5 offers reuse
   and learning but is not established as a required product prerequisite.
 - **Safe stopping point:** Both selected workflows reduce setup overhead without
   requiring completion monitoring or support for another tool.
@@ -354,8 +396,8 @@ once the Claude experience and each tool's feasibility are known.
 
 For scope reduction, defer tool expansion first, then further scripted setup;
 retain launch and useful interaction in Claude Code. If embedded interaction is
-too costly, retain launch and recent-session access through the external CLI;
-reconsider a CLI-only refinement launch with the developer. Automatic attention
+too costly, retain launch and recent-session access through the external CLI,
+which story 1a already gives refinement. Automatic attention
 indicators, completion callbacks, done-prefix naming, model selection, other
 skills, externally started sessions, and full project/tool setup remain deferred.
 Recently done is related work with its own value and priority decision.
@@ -376,7 +418,9 @@ Recently done is related work with its own value and priority decision.
 ## When to Surface
 
 The maintainer selected the eight child stories for backlog priorities 4–11
-on 2026-09-28, replacing the original epic entry. The related Recently done
+on 2026-09-28, replacing the original epic entry. On 2026-09-29 the maintainer
+inserted story 1a, a launch-and-forget refinement launch matching the delivered
+execution launch, ahead of the remaining stories. The related Recently done
 candidate remains unqueued. This selection does not Take any story or authorize
 implementation; refinement and executable planning are later selections.
 
