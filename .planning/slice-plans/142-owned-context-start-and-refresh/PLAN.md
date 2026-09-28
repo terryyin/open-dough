@@ -699,7 +699,7 @@ and delivery suites (112), payload checks, and whole `node --test` pass.
 
 ### 10. The changed guidance is accepted natively on Codex, Cursor, and Claude Code
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: the installed candidate that contains slices 1-7, on each of Codex,
 Cursor, and Claude Code, in fresh isolated sessions → run each selected
@@ -772,6 +772,19 @@ unchanged retained worktree) all met the assessor, and an offline
 re-assessment with the fixed matcher passes but cannot bind because the matcher
 files' hashes changed. `git_publication_start_pattern` now tolerates quoted
 paths; the product-backlog take matcher had the same blind spot and is fixed.
+
+Accepted native evidence (Terry approved all paid runs, each developer-triggered
+through this conversation): Cursor publication/startup-owned-context passed on
+a2f9862f with the quoted-path matcher. Current acceptance per journey and host:
+startup-owned-context passes on Claude and Codex (c0f6dfca) and Cursor
+(a2f9862f); preparation-land and trunk-closure/owned-context pass on all three
+hosts (5b23b328); trunk-closure/source passes on Claude and Cursor (c0f6dfca)
+and Codex (5b23b328). Justified reuse, accepted by Terry instead of rerunning:
+the matcher repair only widens command recognition and cannot turn a recorded
+pass into a failure; slice 8 changed only retirement ownership wording and
+slice 9 only sandbox liveness, neither exercised by the startup journeys, and
+the existing closure journey was rerun on the current candidate for Codex, the
+host slice 9 affects.
 
 ## Current decisions
 
