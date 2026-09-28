@@ -977,8 +977,21 @@ only consolidating the outbound-link policy and test helper.
   - Observed effect: gate-driven rewrite of adjacent README prose on a one-policy documentation update; useful link-policy consolidation still happened
   - Inference: Qualified. Related to catalog ODF-152's absolute file-size versus approved-scope composition; here the conflict is documenting into a ceiling-full maintained file, not an oversized intermediate caller
 
+## DD-159 — Keyboard proof failures were blamed on stale dist despite per-run rebuilds
+
+An implementation agent blamed Playwright on a stale `dashboard/dist` and recorded a plan learning to rebuild before browser tests, although `test:dashboard`'s `globalSetup` already rebuilds each run. Decisive causes were focus remount and `openDirection` stealing focus between keypresses.
+
+### Occurrences
+- Execution: `SEED-053#cycle-dashboard-projects-with-arrow-keys` / plan 138, first related implementation commit `796bebaf6c43928105f58feea358f163116f89bd`
+  - Timestamp: unknown (between 2026-09-28T12:47+08:00 impl start and ~12:56+08:00 slice report)
+  - Tool: Cursor
+  - Open Dough release: 0.3.45
+  - Evidence: impl subagent `ffa400d5-2c0e-4f83-aec0-7b2a740b4031` narrated a rebuild after the focus-remount fix, later diagnosed `openDirection` between keypresses; plan 138 Learnings contradict `dashboard/tests/README.md` and `dashboard/tests/support/globalSetup.ts`
+  - Observed effect: extra rebuild/debug cycles; a false rebuild learning remained in plan 138
+  - Inference: Qualified. Focus/test-structure failure misread as harness staleness; not a suite build-contract defect
+
 ## Retention
 
-- Highest allocated local number: 158. Removed local codes are never reused.
+- Highest allocated local number: 159. Removed local codes are never reused.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.

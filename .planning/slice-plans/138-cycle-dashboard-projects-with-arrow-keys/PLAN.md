@@ -126,3 +126,7 @@ story by the shared preparation recorder and grants no execution authority.
 - Refresh button can briefly show `aria-disabled` during a destination read; focus restore targets the read control by aria-label after switch.
 - Post-change refactoring split the initial browser spec into three focused specs (`project-keyboard-navigation.spec.ts`, `project-keyboard-navigation-eligibility.spec.ts`, `project-keyboard-navigation-focus.spec.ts`) sharing setup/assertion helpers in `projectKeyboardNavigationJourney.ts`.
 - Exported `projectRadioName` from `ProjectSelect.tsx` to provide a single authoritative radio group identifier for native selection and keyboard eligibility.
+
+## Execution complete
+
+Product advice: Reasoned no-change to backlog priorities. The story fulfills a small keyboard UX gap on the three-project dashboard; deferred promises (configurable shortcuts, catalog/registration, read policy) stay deferred. Page-wide shortcut assumption remains the refined interpretation unless the developer revises focus scope. Near-future direction is aligned.
