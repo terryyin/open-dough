@@ -287,7 +287,7 @@ refuses without changes. Payload checks and whole `node --test` (702) pass.
 
 ### 3. Refresh recognizes a rebase by Git's rebase state
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A supplied default checkout on the integration branch is clean and
 strictly behind fetched trunk, with a leftover `REBASE_HEAD` and no rebase
@@ -332,6 +332,16 @@ that import the operation-state module, and `payload-declaration-links` plus
 `execution-payload-update` through `scripts/test.sh`. Then run the whole
 `node --test`. Safe stop: refresh is truthful, and one recognizer serves refresh
 and the Land model.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/publication-checkout-*.test.mjs`
+(the real-rebase deferral and leftover-`REBASE_HEAD` advance now live in
+`publication-checkout-ongoing-operation.test.mjs`; the new case fails on
+3ca457cb) plus Land, startup maintenance, closure refresh, and product-backlog
+rebase/cherry-pick suites (81, then 23 after refactoring) and payload checks.
+Refresh and the Land model share `ongoingOperation`, which reads rebase state
+through `rebaseInProgress` in `product-backlog-git-operation-state.mjs`. Land's
+model also stops on `index.lock`; Land guidance names only unfinished Git
+operations, for slice 5's read-through.
 
 ### 4. A clean reused workspace that trunk has moved past is fast-forwarded
 Type: Behavior

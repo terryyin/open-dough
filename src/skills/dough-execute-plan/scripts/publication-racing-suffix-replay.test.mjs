@@ -5,6 +5,7 @@
 // is not this file.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { rebaseInProgress } from "../../dough-product-backlog/scripts/product-backlog-git-operation-state.mjs";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
 import {
   advanceOriginBacklog,
@@ -16,7 +17,6 @@ import {
   itemD,
   ownedD,
   pushRejected,
-  rebaseInProgress,
   rebaseOwnedSuffix,
   siblingB,
 } from "./publication-racing-suffix-fixtures.mjs";
@@ -118,5 +118,5 @@ test("a rejection after the suffix was already rewritten replays only that suffi
   await git(execution, "fetch", "origin");
   await assertRemoteCandidate(origin, candidate);
   assertCheckoutUnchanged(before, await captureCheckout(integration));
-  assert.equal(await rebaseInProgress(execution), false);
+  assert.equal(rebaseInProgress(execution), undefined);
 });

@@ -1,9 +1,12 @@
 // Git model of the Dough Land sequence for tests (not guidance-following).
 import assert from "node:assert/strict";
-import { existsSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { publishExecutionIncrement } from "../../dough-execute-plan/scripts/execution-increment-publication.mjs";
-import { refreshDefaultCheckout } from "../../dough-execute-plan/scripts/maintain-default-checkout.mjs";
+import {
+  ongoingOperation,
+  refreshDefaultCheckout,
+} from "../../dough-execute-plan/scripts/maintain-default-checkout.mjs";
 import {
   git,
   revParse,
@@ -106,26 +109,6 @@ async function isAncestor(cwd, ancestor, descendant) {
   }
 }
 
-// A rebase is unfinished while its state directory exists; Git can leave
-// REBASE_HEAD behind after `rebase --continue` completes.
-async function unfinishedOperation(worktree) {
-  for (const ref of ["MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD"]) {
-    try {
-      await git(worktree, "rev-parse", "-q", "--verify", ref);
-      return ref;
-    } catch {
-      // absent
-    }
-  }
-  const gitDir = (
-    await git(worktree, "rev-parse", "--absolute-git-dir")
-  ).stdout.trim();
-  for (const dir of ["rebase-merge", "rebase-apply"]) {
-    if (existsSync(join(gitDir, dir))) return dir;
-  }
-  return null;
-}
-
 async function topLevel(checkout) {
   try {
     return (await git(checkout, "rev-parse", "--show-toplevel")).stdout.trim();
@@ -165,7 +148,7 @@ export async function landWorktree({
     return { stopped: "default-checkout", commit: "none", ...notDone };
   }
   const repository = await managementContext(worktree);
-  const operation = await unfinishedOperation(worktree);
+  const operation = await ongoingOperation(worktree);
   if (operation) {
     return {
       stopped: "unfinished-operation",

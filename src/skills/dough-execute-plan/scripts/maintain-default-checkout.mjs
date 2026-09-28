@@ -3,14 +3,10 @@
 // and has no declared competing writer. Installed guidance is the agent's contract.
 import { existsSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
+import { rebaseInProgress } from "../../dough-product-backlog/scripts/product-backlog-git-operation-state.mjs";
 import { git, inspectCheckout, revParse } from "./publication-git.mjs";
 
-const IN_PROGRESS_REFS = [
-  "MERGE_HEAD",
-  "REBASE_HEAD",
-  "CHERRY_PICK_HEAD",
-  "REVERT_HEAD",
-];
+const IN_PROGRESS_REFS = ["MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD"];
 
 function singleOwner(owner) {
   return typeof owner === "string" && owner.trim() !== "";
@@ -98,8 +94,10 @@ async function lockAndFirstRef(checkout, ref) {
   }
 }
 
-// An index lock takes precedence over any in-progress ref.
-async function ongoingOperation(checkout) {
+// The Git operation in progress in a checkout, or null: an index lock (which
+// takes precedence), an in-progress merge, cherry-pick, or revert ref, or a
+// rebase state directory.
+export async function ongoingOperation(checkout) {
   const [first, ...rest] = IN_PROGRESS_REFS;
   const { lock, verified } = await lockAndFirstRef(checkout, first);
   if (existsSync(lock)) return "index.lock";
@@ -107,7 +105,7 @@ async function ongoingOperation(checkout) {
   for (const ref of rest) {
     if (await present(checkout, ref)) return ref;
   }
-  return null;
+  return rebaseInProgress(checkout) ?? null;
 }
 
 // HEAD, the fetched trunk, and the current branch after the refresh's fetch.

@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { rebaseInProgress } from "../../dough-product-backlog/scripts/product-backlog-git-operation-state.mjs";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
 import { readRevisionCoverage } from "./ci-mailbox.mjs";
 import {
@@ -20,7 +21,6 @@ import {
   itemC,
   itemD,
   ownedD,
-  rebaseInProgress,
   siblingB,
 } from "./publication-racing-suffix-fixtures.mjs";
 import {
@@ -143,7 +143,7 @@ test("conflict stops and preserves recoverable work without pushing", async (t) 
   assert.equal(delivered.status, "conflict");
   assert.equal(await lsRemoteSha(fixture.origin, trunkTarget), siblingSha);
   assert.equal(await revParse(fixture.execution, "exec/story"), candidateSha);
-  assert.equal(await rebaseInProgress(fixture.execution), true);
+  assert.equal(rebaseInProgress(fixture.execution), "rebase-merge");
   assert.match(
     (await git(fixture.execution, "ls-files", "-u", "--", backlogPath)).stdout,
     /PRODUCT-BACKLOG/,
@@ -183,5 +183,5 @@ test("second push rejection stops after one reconciliation retry", async (t) => 
     await lsRemoteSha(fixture.origin, trunkTarget),
     delivered.candidate,
   );
-  assert.equal(await rebaseInProgress(fixture.execution), false);
+  assert.equal(rebaseInProgress(fixture.execution), undefined);
 });

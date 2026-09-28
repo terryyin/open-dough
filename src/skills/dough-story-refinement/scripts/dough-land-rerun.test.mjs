@@ -62,6 +62,7 @@ test("Dough Land keeps every resource after a push rejected into a conflict, and
     defaultCheckout: integration,
   });
   assert.equal(unresolved.stopped, "unfinished-operation");
+  assert.equal(unresolved.operation, "rebase-merge");
   assert.equal(unresolved.commit, "none");
   assert.equal(await lsRemoteSha(origin, "refs/heads/main"), conflictingSha);
   assert.equal(existsSync(preparation), true);

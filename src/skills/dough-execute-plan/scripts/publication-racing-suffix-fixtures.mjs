@@ -3,7 +3,6 @@
 // push. A conflict or a second rejection returns without another replay.
 import assert from "node:assert/strict";
 import {
-  existsSync,
   mkdirSync,
   mkdtempSync,
   realpathSync,
@@ -11,7 +10,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
 import {
@@ -74,18 +73,6 @@ export async function pushRejected(workspace, sha) {
     }
     return true;
   }
-}
-
-export async function rebaseInProgress(cwd) {
-  for (const name of ["rebase-merge", "rebase-apply"]) {
-    const path = (
-      await git(cwd, "rev-parse", "--git-path", name)
-    ).stdout.trim();
-    if (existsSync(resolve(cwd, path))) {
-      return true;
-    }
-  }
-  return false;
 }
 
 export async function publishRacingSuffix({
