@@ -11,11 +11,7 @@ import {
   declaredOwnerRefusal,
   refreshDefaultCheckout,
 } from "./maintain-default-checkout.mjs";
-import {
-  git,
-  recordedCheckoutIdentity,
-  revParse,
-} from "./publication-test-fixtures.mjs";
+import { git, recordedCheckoutIdentity, revParse } from "./publication-git.mjs";
 
 function sameCheckout(left, right) {
   if (!left || !right) {

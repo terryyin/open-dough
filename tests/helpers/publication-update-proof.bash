@@ -38,7 +38,6 @@ assert_installed_publication_modules() {
       "dough-execute-plan/scripts/owned-suffix-reconciliation.mjs",
       "dough-execute-plan/scripts/publication-resume.mjs",
       "dough-execute-plan/scripts/publication-git.mjs",
-      "dough-execute-plan/scripts/publication-test-fixtures.mjs",
       "dough-bug-fixing/scripts/retained-artifacts.mjs",
       "dough-story-refinement/scripts/preparation-assignment.mjs",
       "dough-story-wrap-up/scripts/closure-candidate-settlement.mjs",

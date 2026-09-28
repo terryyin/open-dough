@@ -303,7 +303,7 @@ is unchanged and outside this story.
 
 ### 5. Wrap-up completes through the same remote lifecycle
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Completed execution has recoverable before-cleanup and final-closure
 candidates, with optional default checkout → wrap up → publish through the
@@ -328,6 +328,28 @@ idempotent resume with no default or refresh failure. Run affected
 the controlled native closure harness for invalidated skill behavior. Safe stop:
 Land and wrap-up share publication/recovery/refresh/retirement meanings while
 their own review, recovery-history and CI gates remain intact.
+
+Accepted proof: `node --test src/skills/dough-story-wrap-up/scripts/closure-publication-remote-context.test.mjs src/skills/dough-story-wrap-up/scripts/closure-named-target.test.mjs`
+(4 pass; all fail on 4d0c94a2). Without a default checkout, both closure
+revisions land on the remote with refresh `not applicable`, cleanup waits for
+the completion receipt and shutdown, retires the repository's last worktree
+from its retained Git directory, and reruns push nothing; an unusable checkout
+yields `deferred`/`refresh-failed` with bytes preserved and cleanup intact; a
+named `upstream`/`trunk` target carries Trunk Mode closure and Story Branch
+integration without touching `origin`. Closure, Land, shared maintenance, and
+resume suites (50), the whole `node --test` suite (698), credential-free
+`git-publication-native.sh`, and payload checks pass.
+
+Learnings: `managementContext`/`resolveManagementContext` and
+`recordedCheckoutIdentity` now live in `publication-git.mjs`; shipped modules no
+longer import `publication-test-fixtures.mjs`, which left the payload.
+History-preserving publication previously always pushed to `origin`. Resume
+classification tolerates an unborn HEAD in a retained Git directory. One
+whole-suite run failed `symlinked-skill-entry.test.mjs` while the refactor was
+moving imports between the modules it loads from the working tree; the final
+tree passed the whole suite and eight parallel reruns.
+`docs/project-visibility-requirements.md` remains over the 250-line convention
+from before this story.
 
 ### 6. Explicit current-checkout edits need only their own authority
 Type: Behavior

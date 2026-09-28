@@ -217,7 +217,6 @@ managed_files=(
   dough-execute-plan/scripts/owned-suffix-reconciliation.mjs
   dough-execute-plan/scripts/publication-resume.mjs
   dough-execute-plan/scripts/publication-git.mjs
-  dough-execute-plan/scripts/publication-test-fixtures.mjs
   dough-execute-plan/scripts/watch-ci-execution.mjs
   dough-execute-plan/scripts/watch-ci.mjs
   dough-execute-plan/scripts/workspace-agent-authorship.mjs

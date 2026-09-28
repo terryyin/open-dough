@@ -8,6 +8,10 @@ import {
   git,
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import {
+  managementContext,
+  resolveManagementContext,
+} from "../../dough-execute-plan/scripts/publication-git.mjs";
 
 // The reviewed worktree holds a committed seed draft plus uncommitted edits: a
 // changed tracked file and a new untracked plan.
@@ -17,21 +21,6 @@ export function planReviewedEdits(worktree) {
     "SEED-1: refined goal, scope, and key examples\n",
   );
   writeFileSync(join(worktree, "plan-draft.md"), "PLAN-1: two slices\n");
-}
-
-// The repository's management Git directory, read from the worktree before
-// anything removes it. Retirement runs from there, so removing the last
-// worktree of a repository without a default checkout still leaves fetch,
-// containment, and branch deletion usable, and acceptance inspectable.
-export async function managementContext(worktree) {
-  return (
-    await git(
-      worktree,
-      "rev-parse",
-      "--path-format=absolute",
-      "--git-common-dir",
-    )
-  ).stdout.trim();
 }
 
 // Retirement observed from the repository: the fetched target contains the
@@ -86,7 +75,7 @@ export async function closeOrRetainWorkspace({
   if (status !== "") {
     return retained("workspace is not clean");
   }
-  const management = repository ?? (await managementContext(preparation));
+  const management = await resolveManagementContext(repository, preparation);
   const remoteRef = `${remote}/${targetBranch}`;
   await git(management, "fetch", remote);
   if (!(await isAncestor(management, preparationBranch, remoteRef))) {

@@ -51,6 +51,7 @@ export async function lsRemoteSha(remote, ref) {
 export {
   maintenanceFromInspection,
   originTrackingRef,
+  recordedCheckoutIdentity,
   targetBranchName,
 } from "./publication-git.mjs";
 
@@ -80,21 +81,6 @@ export async function plantHumanEdit(checkout) {
 export async function remoteHeads(origin) {
   const { stdout } = await exec("git", ["ls-remote", "--heads", origin]);
   return stdout.trim();
-}
-
-export async function recordedCheckoutIdentity(checkout) {
-  const porcelain = (await git(checkout, "worktree", "list", "--porcelain"))
-    .stdout;
-  return {
-    toplevel: await revParse(checkout, "--show-toplevel"),
-    branch: (await git(checkout, "branch", "--show-current")).stdout.trim(),
-    worktrees: porcelain
-      .split("\n")
-      .filter(
-        (line) => line.startsWith("worktree ") || line.startsWith("branch "),
-      )
-      .join("\n"),
-  };
 }
 
 export async function plantedHumanEditBytes(checkout) {

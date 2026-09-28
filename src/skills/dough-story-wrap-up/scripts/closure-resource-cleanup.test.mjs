@@ -51,7 +51,7 @@ test("preservation keeps a dirty checkout, another workspace, unpublished work, 
   writeFileSync(join(other, "other.txt"), "other workspace\n");
 
   const resources = {
-    integration,
+    repository: integration,
     execution,
     branch: executionBranch,
     observer,

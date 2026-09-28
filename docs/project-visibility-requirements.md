@@ -369,11 +369,15 @@ checkout's files and Git state.
 
 ### Refreshing the default checkout
 
-After each trunk publication, attempt a coordinated refresh. A clean checkout
-that is only behind fetched trunk advances by fast-forward. Pending edits,
-unpublished commits, active operations, or unclear ownership preserve their
-state and produce a visible deferred-refresh result. Publication success and
-checkout freshness are reported separately.
+A default checkout is optional. After each trunk publication, attempt a
+coordinated refresh of a supplied one; without one, refresh is not applicable.
+A clean checkout that is only behind fetched trunk advances by fast-forward.
+Pending edits, unpublished commits, active operations, unclear ownership, or a
+checkout Git cannot read or refresh preserve their state and produce a visible
+deferred-refresh result. Publication success and checkout freshness are
+reported separately. Neither a missing checkout nor a deferred refresh undoes
+remote acceptance or blocks retiring owned workspaces, which runs from the
+repository's own Git directory.
 
 Before using the default checkout's revision as a new task's base, verify it
 against freshly fetched trunk. A task can create its owned worktree directly
