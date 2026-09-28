@@ -116,6 +116,20 @@ explicit applicability review before reuse.
   use the installed guidance? These are evaluation questions answered by the
   cases, not additional acceptance scope.
 
+**Known evidence — 2026-09-28:** Plan 141 slice 2 (published on
+`codex/plan-141-execution` at `b765473fda8c544c135458dbbb9ed75990b5f64c`) ran
+the folder-reference control on Codex 0.157.0 with candidate `v0.3.45`
+(`f3f75d0b`) and baseline `6882aeb3`. The candidate plan unconditionally
+required `npm test`, lint, dashboard typecheck, dashboard build and the full
+dashboard suite, matching hosted `ci.yml`. Historical plan 111 (`e7107e5`) used
+focused checks. The baseline also added `npm test`, but made the dashboard suite
+conditional. Neither session executed its plan. Slice planning later gained a
+rule that hosted CI configuration alone does not make a check a local gate
+(`8cafa49d`). Rerun the control on a release that contains that rule, under
+separate paid-run authority. Do not retry it on unchanged guidance. If the rerun
+still adds unconditional hosted-CI gates, decide then whether to add a readiness
+criterion.
+
 **Slice plan:** [Codex native guidance acceptance](../slice-plans/141-codex-native-guidance-acceptance/PLAN.md).
 
 <a id="native-acceptance-cursor"></a>
