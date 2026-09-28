@@ -205,6 +205,12 @@ resuming Taken work.
   a completed-story view or an embedded terminal.
 - **Effort hypothesis:** Unestimated; persistence, retention, and stale session
   access are the sizing uncertainties.
+- **Known from launch:** Started follows Backlog membership only, so a session
+  that ends before its Take, or a story returned to the Backlog after a Take,
+  keeps Started until the dashboard restarts. Settling or relaunching from
+  Claude Code's own state belongs here: `claude agents --json` keeps finished
+  sessions with their `state`, which also supports reporting an unavailable
+  session.
 - **Depends on:** Story 1 provides identified dashboard-launched sessions.
 - **Safe stopping point:** Users can find and revisit sessions through the CLI
   without any browser interaction integration.
@@ -231,6 +237,8 @@ resuming Taken work.
   provides sufficient interaction before designing tool-specific status flows.
 - **Effort hypothesis:** Unestimated; attachment behavior, reconnecting, and
   browser terminal usability are the main uncertainties.
+- **Known from launch:** A session is reached by the short id `claude --bg`
+  prints; `--bg` ignores `--session-id`, so the id cannot be chosen upfront.
 - **Depends on:** Story 1; story 2 supplies the promised access after card removal.
 - **Safe stopping point:** Existing execution conversations are usable inside
   the dashboard even if refinement launch is never added.
@@ -343,6 +351,9 @@ resuming Taken work.
   of the established experience transfers.
 - **Effort hypothesis:** Unestimated; launch/attach continuity and workspace
   conventions require a feasibility observation before planning or further split.
+- **Known from launch:** The browser still spells out Claude Code specifics:
+  `claude attach`, the `claude agents` advice, `/dough-execute-plan`, and the
+  host label. A second host moves them behind the host module.
 - **Depends on:** The chosen Claude Code experience; no dependency on Cursor.
 - **Safe stopping point:** Claude Code and Codex remain independently usable.
 
