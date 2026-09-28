@@ -25,6 +25,18 @@ approved images at their original 1254 × 1254 generated resolution, with the
 same tile layout. The enlarged portrait shown on hover uses them so it stays
 sharp.
 
+`agent-avatars/yui-gesture.webp` is Yui's wink, played once in the enlarged
+portrait on hover. It is a horizontal strip of 18 frames, 418 × 418 each, shown
+at 12 frames per second (1.5 seconds). Every frame is derived from Yui's tile
+of `atlas-1-large.webp` (the 418 × 418 square at x 0, y 104): Claude Code
+warped that tile's pixels with Python Pillow, NumPy, and SciPy, sliding the
+upper lid of the eye on the image's left down onto the lower lid, lowering the
+brow slightly, and reopening it; it used no external image or video
+generation service, and the generator was not kept. The first and last frames
+are the unaltered tile, so the gesture starts from and settles on the approved
+portrait. The strip is lossy WebP (`cwebp -q 82`). Maintainer approval:
+pending.
+
 ## Tool marks
 
 The files in `tool-avatars/` are official vendor assets saved locally for

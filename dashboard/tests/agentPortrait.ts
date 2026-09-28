@@ -132,7 +132,11 @@ function backgroundImages(visual: Locator, pseudo: string | null = null) {
 }
 
 // The image behind a mark or portrait is actually served, as its type.
-async function expectServed(card: Locator, url: string, contentType: string) {
+export async function expectServed(
+  card: Locator,
+  url: string,
+  contentType: string,
+) {
   const served = await card.page().request.get(url);
   expect(served.ok()).toBe(true);
   expect(served.headers()["content-type"]).toContain(contentType);

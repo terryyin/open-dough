@@ -4,6 +4,12 @@ import "./agent-portrait.css";
 
 const portraitsPerAtlas = 6;
 
+// The agents whose enlarged portrait plays a short gesture on hover, by
+// rotation name: a strip of frames beginning and ending on the approved tile.
+const gestureStrips: Readonly<Record<string, string>> = {
+  Yui: "yui-gesture.webp",
+};
+
 // The approved portrait for a recorded agent, by its rotation name. Portraits
 // follow the shared agent rotation, six to an atlas in a three-column, two-row
 // grid of taller cells; the square shown is each cell's center. The portrait
@@ -17,17 +23,25 @@ export function AgentPortrait({ name }: { name: string }) {
   const tile = index % portraitsPerAtlas;
   const column = tile % 3;
   const row = Math.floor(tile / 3);
-  const atlasUrl = (suffix: string) =>
-    `url("${import.meta.env.BASE_URL}agent-avatars/atlas-${atlas}${suffix}.webp")`;
+  const avatarUrl = (file: string) =>
+    `url("${import.meta.env.BASE_URL}agent-avatars/${file}")`;
+  const gesture = gestureStrips[name];
   return (
     <span
-      className="agent-portrait"
+      className={
+        gesture === undefined
+          ? "agent-portrait"
+          : "agent-portrait portrait-gesture"
+      }
       aria-hidden="true"
       style={
         {
-          "--portrait": atlasUrl(""),
-          "--portrait-large": atlasUrl("-large"),
+          "--portrait": avatarUrl(`atlas-${atlas}.webp`),
+          "--portrait-large": avatarUrl(`atlas-${atlas}-large.webp`),
           "--portrait-tile": `${column * 50}% ${row === 0 ? 12.5 : 87.5}%`,
+          ...(gesture === undefined
+            ? {}
+            : { "--portrait-gesture": avatarUrl(gesture) }),
         } as CSSProperties
       }
     />

@@ -5,6 +5,8 @@
 .agent-portrait {
   --portrait-size: 2rem;
   --portrait-edge: 1px;
+  /* An atlas is three portrait squares wide and three tall. */
+  --portrait-atlas-size: 300% 300%;
   position: relative;
   flex: none;
   width: var(--portrait-size);
@@ -13,7 +15,7 @@
   border-radius: 50%;
   background-image: var(--portrait);
   background-position: var(--portrait-tile);
-  background-size: 300% 300%;
+  background-size: var(--portrait-atlas-size);
   background-repeat: no-repeat;
 }
 
@@ -56,8 +58,46 @@
   transform: translateY(-50%);
 }
 
+/* A portrait with a gesture strip plays it once in the enlarged view each
+   time it is hovered: the strip's frames, side by side, step over the still
+   layers and then leave them showing. The strip starts and ends on the
+   approved portrait, 18 frames at 12 per second. */
+.agent-portrait.portrait-gesture:hover::after {
+  animation: portrait-gesture 1.5s steps(18, jump-none);
+}
+
+@keyframes portrait-gesture {
+  from,
+  to {
+    background-image:
+      var(--portrait-gesture), var(--portrait-large), var(--portrait);
+    background-size:
+      1800% 100%,
+      var(--portrait-atlas-size),
+      var(--portrait-atlas-size);
+  }
+
+  from {
+    background-position:
+      0% 0%,
+      var(--portrait-tile),
+      var(--portrait-tile);
+  }
+
+  to {
+    background-position:
+      100% 0%,
+      var(--portrait-tile),
+      var(--portrait-tile);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .agent-portrait::after {
     transition: none;
+  }
+
+  .agent-portrait.portrait-gesture:hover::after {
+    animation: none;
   }
 }

@@ -85,7 +85,7 @@ roster, plus the recording. It gets no separate card fixture.
 ### 1. Yui winks in the enlarged portrait on hover
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new Playwright journey
 `npm run test:dashboard -- --grep 'portrait gesture'`, plus the unchanged
 `npm run test:dashboard -- --grep 'agent profile|agent roster'`,
@@ -108,6 +108,25 @@ Order within the slice:
    the roster fixture and `rosterParts`).
 4. Record the card and roster hover in the running dashboard for Terry.
 
+Accepted proof: `dashboard/tests/agent-portrait-gesture.spec.ts` (one
+journey, four steps: Yui plays one 1.5 s `::after` animation from a served
+`image/webp` strip and rests on `atlas-1-large`/`atlas-1`; a re-hover restarts
+near `currentTime` 0; Akiho and reduced-motion Yui show the two still layers
+with no animation). The 10 `agent profile|agent roster` tests,
+`typecheck:dashboard`, and `lint` pass. The first, closed, and last frames were
+viewed; frames 0, 1, 15–17 equal the tile before lossy encoding. The recording
+of the Taken-card and roster hovers was handed to Terry for judgment.
+
 ## Learnings
 
-None yet.
+- The gesture is a wink of the eye on the image's left (no hair overlaps it):
+  a per-column vertical warp of the approved tile slides the upper lid and
+  lash line onto the lower lid and lowers the brow slightly. That makes 18 frames
+  at 12 fps, 1.5 s, about 0.35 s closed, in a 272 KB `cwebp -q 82` strip. It reads
+  as a natural wink at hover size; at 4× zoom the closed lid is a slightly
+  thick dark band rather than a crisp crease — not artist quality.
+- A gesture rule keyed only on the custom property would also animate agents
+  without a strip and blank their layers mid-animation, so `AgentPortrait`
+  also adds a generic `portrait-gesture` modifier class alongside
+  `--portrait-gesture`.
+- The strip loads on first hover; until it arrives, the still shows.
