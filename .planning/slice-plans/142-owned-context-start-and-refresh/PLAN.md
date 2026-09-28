@@ -671,7 +671,7 @@ or a caller's statement ownership is ambiguous and the workspace is retained.
 
 ### 9. CI observation survives a sandbox that denies process inspection
 Type: Behavior
-Status: planned
+Status: done
 
 Observed in native acceptance's first attempt: under Codex's `sandbox-exec`, `/bin/ps`
 fails with EPERM; `workerIsRunning` in
@@ -686,6 +686,16 @@ completion continuing (worker considered running, no throw), plus the existing
 mailbox liveness tests; a credential-free `sandbox-exec` probe on macOS when
 available; whole `node --test`. Native proof is slice 10's Codex trunk-closure
 reruns.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/ci-mailbox-denied-inspection.test.mjs`
+(8 pass; 7 fail before the fix) denies the real `ps` with EPERM/EACCES: a live
+worker stays alive and an exited one dead, an unverifiable worker is never
+signaled, stop records lost coverage, stream identity is recorded, completion
+confirms success, and managed delivery attaches then reuses its observer; other
+`ps` errors still throw. The `sandbox-exec` probe on macOS moved from
+`liveness threw spawnSync ps EPERM` to `liveness alive`. Mailbox, completion,
+and delivery suites (112), payload checks, and whole `node --test` pass.
+`inspectionDenied` in `ci-mailbox-worker-process.mjs` owns the rule.
 
 ### 10. The changed guidance is accepted natively on Codex, Cursor, and Claude Code
 Type: Behavior
