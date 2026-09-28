@@ -396,7 +396,8 @@ established publication authority.
 - The change can be verified and committed promptly.
 
 Updating a known backlog field is a representative quick action. Story
-refinement and slice planning use owned workspaces. Reuse a suitable workspace
+refinement and slice planning use owned workspaces started from freshly fetched
+remote trunk, whatever the default checkout's state. Reuse a suitable workspace
 through related preparation, publish explicitly retained results to remote
 trunk, then clean up when publication and session ownership permit it.
 The origin-based dashboard observes the published records.

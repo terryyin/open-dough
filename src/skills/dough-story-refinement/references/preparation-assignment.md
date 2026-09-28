@@ -28,19 +28,28 @@ substantive work. Reading, discussing, answering questions, decomposing a
 candidate without a queued identity, bug triage, and a standalone
 retrospective record announce nothing.
 
-After selecting the workspace and before its first record write, run:
+After selecting the workspace, or to select a new one, and before its first
+record write, run:
 
 ```text
 node <installed>/scripts/preparation-assignment.mjs start \
   --integration <integration checkout> --workspace <owned workspace> \
+  [--branch <new workspace branch>] \
   --identity <queued story identity> --remote <remote> --target <trunk branch> \
   --push-authorized [--host claude|codex|cursor] [--model <model>] \
   [--declared-owner <id> --requester <id>]
 ```
 
-Use the recorded paths and target. Supply `--push-authorized` only when
-publishing to that target is authorized; without it the command stops. Supply
-your own host and model, omitting either you cannot state rather than guessing.
+Use the recorded paths and target. When no suitable owned workspace exists
+yet, name the new workspace path and supply `--branch` with a new branch
+name: `start` fetches the target and, once it finds the story queued there,
+creates the workspace on that branch at fetched trunk before announcing. Its
+receipt then carries `selection` with `created: true`, the branch, and the
+starting revision; record the workspace as created by this session. An
+existing path is the owned workspace you already selected or are resuming,
+used as it is. Supply `--push-authorized` only when publishing to that target
+is authorized; without it the command stops. Supply your own host and model,
+omitting either you cannot state rather than guessing.
 Supply `--declared-owner` and a matching `--requester` only when access to the
 default checkout has actually been established.
 
@@ -59,7 +68,11 @@ Keep the receipt with this session and act on its `status`:
   refinement or a resumed session keeps the same assignment instead of taking
   another name.
 - Any stop (`ok: false`): do not begin substantive preparation. Report the
-  receipt and preserve the workspace. `unpublished`: remote trunk did not
+  receipt and preserve the workspace. A stop before a new workspace was
+  created leaves no workspace or branch behind.
+  `workspace-selection-failed`: the new workspace could not be created at
+  fetched trunk; report its `error` and whatever path or branch partly exists,
+  without retrying or removing it. `unpublished`: remote trunk did not
   accept an announcement, so nothing is assigned; when the receipt carries a
   `candidateSha`, acceptance could not be checked, so rerun `start` in the same
   workspace, which settles it from the remote instead of announcing twice.

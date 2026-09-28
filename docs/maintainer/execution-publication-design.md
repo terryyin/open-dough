@@ -191,11 +191,15 @@ Completion still returns truthful evidence when CI succeeds or remains unresolve
 The first delivery solves startup without new CI automation. The second extends
 that concrete publisher to repeated execution delivery and automatic observation,
 removing the overlapping CI startup/registration recipe in the same story.
-Preparation keep and closure later use the same publisher with their own existing
-authority and validation. Keep those separate: preparation has a leave-uncommitted
-choice; closure has published-history, target-change, and cleanup obligations.
-Shared-main direct edits consume the publisher and the one access owner through
-the existing coordination story; there is no fifth publication engine.
+Fresh preparation starts its owned workspace at fetched trunk:
+`preparation-assignment start` creates a new one there for a queued story, and
+other preparation supplies that base to the shared workspace lifecycle.
+Preparation keep and closure later use the same publisher with their own
+existing authority and validation. Keep those separate: preparation has a
+leave-uncommitted choice; closure has published-history, target-change, and
+cleanup obligations. Shared-main direct edits consume the publisher and the one
+access owner through the existing coordination story; there is no fifth
+publication engine.
 
 Dashboard ownership extends the existing claim domain and startup result when
 that story is delivered; it does not add another Git publication path. The first

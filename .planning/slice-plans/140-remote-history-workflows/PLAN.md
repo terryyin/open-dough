@@ -157,15 +157,15 @@ shared reader; admission keeps reading its deliberate local drafts.
 
 Learnings: a local commit ahead of trunk reports startup maintenance
 `stopped`/`diverged` while the accepted claim stands. The credential-free
-`tests/git-publication-native.sh` fails locally at the substitute Claude
-`one-shot-result` journey on the unchanged claim revision while CI is green;
-it is diagnosed and repaired as a separate defect in this execution. Native
+`tests/git-publication-native.sh` failed only when launched directly with
+macOS Bash 3.2 first on `PATH`; through `scripts/test.sh` with Bash 5 first on
+`PATH`, as `tests/README.md` requires, it passes like CI. Native
 guidance proof for the changed `startup-selected-source` journey remains a
 release obligation under ADR 0005.
 
 ### 2. Preparation begins at current remote trunk
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A fresh refinement/planning invocation begins in a stale developer
 checkout → select its owned preparation workspace, announce Preparing, and make
@@ -187,6 +187,22 @@ through existing keep/release/Land with established authority. Commands include
 and affected `preparation-assignment-*.test.mjs`. Safe stop: fresh preparation
 has the remote baseline while continuation and unpublished disposition retain
 their existing owners.
+
+Accepted proof: `node --test src/skills/dough-story-refinement/scripts/preparation-assignment-remote-base.test.mjs`
+(2 pass; both fail on 9597bf61). Through the installed `start` command with a
+new workspace path and `--branch`, a stale developer checkout (local commit,
+staged and unstaged edits) and an advanced remote yield an owned workspace at
+fetched trunk, the announcement on that tip, a draft on the published story,
+`continued` reuse of that draft on resume, and release plus Land model landing
+exactly the draft; developer bytes stay deep-equal throughout. Refused
+requests create no workspace or branch. Preparation, assignment, one-shot, and
+installed-entry regressions (39 pass) plus `story-payload-update.sh` and
+`payload-declaration-links.sh` pass.
+
+Learnings: `preparation-assignment.mjs start` now owns selection for a queued
+story's new workspace (`preparation-assignment-trunk.mjs`); unqueued
+preparation still selects its base from guidance only. Native proof of an
+agent selecting and drafting remains a release obligation.
 
 ### 3. Owned workspace startup needs only repository context
 Type: Behavior

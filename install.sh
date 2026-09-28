@@ -134,6 +134,7 @@ managed_files=(
   dough-story-refinement/scripts/preparation-assignment-ownership.mjs
   dough-story-refinement/scripts/preparation-assignment-release.mjs
   dough-story-refinement/scripts/preparation-assignment-start.mjs
+  dough-story-refinement/scripts/preparation-assignment-trunk.mjs
   dough-land/SKILL.md
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
