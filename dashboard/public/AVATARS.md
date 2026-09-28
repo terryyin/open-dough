@@ -34,8 +34,8 @@ upper lid of the eye on the image's left down onto the lower lid, lowering the
 brow slightly, and reopening it; it used no external image or video
 generation service, and the generator was not kept. The first and last frames
 are the unaltered tile, so the gesture starts from and settles on the approved
-portrait. The strip is lossy WebP (`cwebp -q 82`). Maintainer approval:
-pending.
+portrait. The strip is lossy WebP (`cwebp -q 82`). The maintainer kept it
+after review.
 
 ## Tool marks
 

@@ -183,7 +183,8 @@ weight; metadata is secondary but remains legible. Reserve warning/error styling
 for evidence or retrieval problems, not unknown ownership or old timestamps.
 Avoid decorative charts, percentage rings, avatars implying presence, and
 unrelated looping animation. Use motion for the navigation and observed changes
-above. Text must carry every status conveyed by color.
+above; the one decorative exception is an agent portrait's single hover gesture
+in its enlargement, which never loops, implies presence, or carries meaning. Text must carry every status conveyed by color.
 
 Keep stage headings and work groups semantic, links and controls keyboard accessible,
 focus visible, and navigation order consistent with the visual reading order.
