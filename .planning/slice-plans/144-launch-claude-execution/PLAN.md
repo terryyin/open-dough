@@ -308,7 +308,14 @@ Proof: new `agent-launch-card.spec.ts` on a committed-origin journey (as in
 
 ### 4. Started survives reloads and ends when origin publishes the Take
 Type: Behavior
-Status: planned
+Status: done — accepted proof: `npx playwright test --config
+dashboard/playwright.config.ts --reporter=line agent-launch-card
+agent-launch-boundary agent-launch-refusal agent-launch-settlement` (70
+passed; the settlement journey in `agent-launch-settlement.spec.ts` covers
+reload, project switch and return, Preparing beside Started, the Take, and a
+story leaving the backlog; the boundary answers each project only its own
+records and refuses a cross-site or unknown-project read), `npm run
+typecheck:dashboard`, and the whole `npm run test:dashboard` (226 passed).
 
 Behavior: A card shows Started, and origin has not published a Take. Then:
 - Reloading the page, or selecting another project and back, still shows
@@ -373,7 +380,14 @@ refused cross-origin.
   `src/agentLaunch.ts`), so slice 4 filters it with `launchAwaitsPublication`
   and replaces a project's records from the GET answer on selection. A known
   intermittent `project-keyboard-navigation-focus` failure is fixed on main by
-  `25c4a514` and reaches this branch at integration.
+  `25c4a514`; it failed CI run 36406315898 on this branch, and the repair
+  `dc402362` ports that fix here.
+- Slice 4: `launchAwaitsPublication` is applied once in `WorkStages` to the
+  Backlog stage's records. On cards it is always true today, because a Taken
+  or removed story has no Backlog card; it becomes observable when later
+  stories list records outside the cards or add preparation settlement. A
+  story that returned to the Backlog after being Taken would show its old
+  Started again; neither this story nor the plan covers that case.
 
 ## Concern review
 

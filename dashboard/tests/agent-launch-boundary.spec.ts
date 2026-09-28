@@ -1,7 +1,8 @@
 // The local launch boundary (../server/agentLaunchPlugin.ts) over raw HTTP,
 // in dev and preview: a same-origin launch request starts one Claude Code
 // background session in the project's folder and answers with the record it
-// keeps, and each failure answers failed or uncertain and keeps no record.
+// keeps, and each failure answers failed or uncertain and keeps no record. A
+// GET answers only the requested project's records.
 // Refused requests are ./agent-launch-refusal.spec.ts. The synthetic `claude`
 // (./fixtures/fake-claude) on each server's PATH records every call; the
 // real one is never reached.
@@ -36,7 +37,7 @@ for (const mode of ["dev", "preview"] as const) {
       server = await startDashboardServer({
         mode,
         prebuilt,
-        projectFolders: ["open-dough"],
+        projectFolders: ["open-dough", "pygardon"],
         launchTimeoutMs: launchWaitMs,
       });
     });
@@ -185,6 +186,22 @@ for (const mode of ["dev", "preview"] as const) {
       ).toBe(true);
       expect(server.heldClaudeEndedBy()).toBe("SIGTERM");
       expect(await recordsOf(server, "open-dough")).toHaveLength(recordsBefore);
+    });
+    test("answers each project only its own records", async () => {
+      server.claudeScenario("launched");
+      const response = await launch(server, {
+        ...launchRequest,
+        source: "pygardon",
+      });
+      const { record } = JSON.parse(response.body) as { record: unknown };
+
+      expect(await recordsOf(server, "pygardon")).toEqual([record]);
+      const openDough = await recordsOf(server, "open-dough");
+      expect(openDough.length).toBeGreaterThan(0);
+      for (const kept of openDough) {
+        expect(kept).toMatchObject({ request: { source: "open-dough" } });
+      }
+      expect(await recordsOf(server, "doughnut")).toEqual([]);
     });
   });
 

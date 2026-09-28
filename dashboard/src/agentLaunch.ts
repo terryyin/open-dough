@@ -9,6 +9,7 @@
 // values are the shared profile vocabulary.
 
 import { z } from "zod";
+import type { PublishedWork } from "./publishedWork.ts";
 import {
   agentActivities,
   agentHosts,
@@ -64,6 +65,21 @@ export function latestRecordOf(
   identity: string,
 ): LaunchRecord | undefined {
   return records.findLast((record) => record.request.identity === identity);
+}
+
+// Whether a launch still awaits publication in this snapshot: origin has not
+// yet published the assignment its activity asks for, and the work item is
+// still queued. An execution launch settles once its work item is Taken or
+// gone from the backlog; a published preparation assignment does not settle
+// it, because the launched agent may ready a story before taking it. Only
+// execution is launched, so no other activity's settlement is spelled here.
+export function launchAwaitsPublication(
+  record: LaunchRecord,
+  work: Pick<PublishedWork, "backlog">,
+): boolean {
+  return work.backlog.some(
+    (entry) => entry.identity === record.request.identity,
+  );
 }
 
 // Why nothing was launched.

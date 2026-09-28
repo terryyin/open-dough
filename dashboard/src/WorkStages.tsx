@@ -12,7 +12,7 @@ import {
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
 import { stagesMarks, workCardMarks } from "./workFocus.ts";
-import { latestRecordOf } from "./agentLaunch.ts";
+import { launchAwaitsPublication, latestRecordOf } from "./agentLaunch.ts";
 import type { ProjectLaunches } from "./agentLaunches.ts";
 import { readyBadge } from "./storyPreparation.ts";
 import { StartExecution } from "./StartExecution.tsx";
@@ -22,8 +22,8 @@ function count(entries: readonly WorkEntry[]): string {
   return entries.length === 1 ? "1 entry" : `${entries.length} entries`;
 }
 
-// A Backlog card's launch: Started once this project's launch records hold
-// one for the entry, otherwise the Start execution action.
+// A Backlog card's launch: Started once the launch records still awaiting
+// publication hold one for the entry, otherwise the Start execution action.
 function CardLaunch({
   entry,
   launches,
@@ -203,6 +203,9 @@ export function WorkStages({
       current === identity ? undefined : identity,
     );
   };
+  const awaiting = launches.records.filter((record) =>
+    launchAwaitsPublication(record, work),
+  );
   return (
     <>
       <section className="stages" aria-label="Work stages" {...stagesMarks}>
@@ -211,7 +214,7 @@ export function WorkStages({
           entries={work.backlog}
           prioritized
           showsSliceProgress={false}
-          launches={launches}
+          launches={{ ...launches, records: awaiting }}
           selectedIdentity={selectedIdentity}
           onSelect={select}
           onOpenRoster={onOpenRoster}

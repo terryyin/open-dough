@@ -30,3 +30,18 @@ does not trust yet, or a refusal) says why, and nothing was launched. An
 uncertain one (no answer within the launch wait, or no session to confirm)
 advises checking `claude agents` before starting again. Both keep the action
 on the card.
+
+Started lasts while origin still shows the story in the Backlog. Reloading the
+page or selecting another project and back keeps it, because the page reads
+the project's launch records again from the local server
+(`GET /__agent-launch?source=<project id>`). A published **Preparing**
+assignment does not end it, since the session may ready the story before taking
+it; the card then shows both. Once origin shows the story under **Taken**, or no
+longer lists it at all, Started is gone and the published card speaks for the
+story.
+
+Launch records are kept only by the running dashboard server, in memory.
+Restarting `npm run dev:dashboard` or `npm run preview:dashboard` forgets them,
+so a card offers **Start execution** again even though its session may still be
+running; check `claude agents` before starting it again. Origin still shows the
+story truthfully, because nothing about the story itself was ever kept here.

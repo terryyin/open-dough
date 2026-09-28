@@ -2,9 +2,10 @@
 // refuses before it starts any `claude`, over raw HTTP in dev and preview:
 // another site or Host, an unknown project, an activity or host it does not
 // launch, malformed text, a body that is not a JSON launch request, and any
-// method but GET and POST. The synthetic `claude` (./fixtures/fake-claude)
-// records every call, so each refusal proves none was made. What an admitted
-// launch answers is ./agent-launch-boundary.spec.ts.
+// method but GET and POST; and a read of a project's launch records from
+// another site or for an unknown project. The synthetic `claude`
+// (./fixtures/fake-claude) records every call, so each refusal proves none was
+// made. What an admitted request answers is ./agent-launch-boundary.spec.ts.
 
 import { expect, test } from "@playwright/test";
 import {
@@ -124,6 +125,37 @@ for (const mode of ["dev", "preview"] as const) {
           expect(JSON.parse(response.body)).toHaveProperty("error");
         }
         expect(server.claudeCalls()).toHaveLength(callsBefore);
+      });
+    }
+
+    for (const refused of [
+      {
+        read: "from another site",
+        status: 403,
+        headers: { Origin: "http://evil.example" },
+      },
+      { read: "with no Origin", status: 403, headers: {} },
+      {
+        read: "a browser marks cross-site",
+        status: 403,
+        headers: { "Sec-Fetch-Site": "cross-site" },
+      },
+      {
+        read: "for an unknown project",
+        status: 404,
+        source: "not-a-real-project",
+      },
+    ]) {
+      test(`refuses a launch records read ${refused.read}`, async () => {
+        const response = await rawRequest({
+          url: `${server.baseURL}${agentLaunchEndpoint}?source=${refused.source ?? "open-dough"}`,
+          headers: refused.headers ?? { Origin: server.origin },
+        });
+
+        expect(response.status).toBe(refused.status);
+        expect(JSON.parse(response.body)).toEqual({
+          error: expect.any(String) as unknown,
+        });
       });
     }
 

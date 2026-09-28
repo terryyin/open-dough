@@ -1,13 +1,19 @@
 // The browser's side of agent launches (`./agentLaunch.ts`): each project's
 // launch records, and each work item's launch in flight or its last failed or
 // uncertain answer. Records are kept per project, so an answer arriving after
-// another project was selected lands with the project it was asked for. A
-// launched answer joins the same record list the boundary keeps; nothing here
-// decides a story fact, which origin still publishes.
+// another project was selected lands with the project it was asked for.
+// Selecting a project, a page load included, reads that project's records
+// again from the running server, which keeps them across reloads; a launched
+// answer joins the same record list. Nothing here decides a story fact, which
+// origin still publishes.
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { AgentLaunchRequest, LaunchRecord } from "./agentLaunch.ts";
-import { requestAgentLaunch, type LaunchProblem } from "./agentLaunchClient.ts";
+import {
+  readLaunchRecords,
+  requestAgentLaunch,
+  type LaunchProblem,
+} from "./agentLaunchClient.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 // A launch the developer asked for that has no record: still starting, or
@@ -29,6 +35,25 @@ export type ProjectLaunches = {
 const attemptKey = (sourceId: string, identity: string) =>
   JSON.stringify([sourceId, identity]);
 
+// The server's records replace what the page knew, except a launch recorded
+// after the read was asked, which the answer may not include yet. The server
+// runs on this machine, so both sides read the same clock.
+function replaced(
+  kept: readonly LaunchRecord[],
+  known: readonly LaunchRecord[],
+  askedAt: number,
+): readonly LaunchRecord[] {
+  const sessions = new Set(kept.map((record) => record.session.sessionId));
+  return [
+    ...kept,
+    ...known.filter(
+      (record) =>
+        !sessions.has(record.session.sessionId) &&
+        Date.parse(record.launchedAt) >= askedAt,
+    ),
+  ];
+}
+
 export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
   const [records, setRecords] = useState<
     ReadonlyMap<string, readonly LaunchRecord[]>
@@ -36,6 +61,23 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
   const [attempts, setAttempts] = useState<ReadonlyMap<string, LaunchAttempt>>(
     new Map(),
   );
+
+  useEffect(() => {
+    let current = true;
+    const askedAt = Date.now();
+    void readLaunchRecords(source.id).then((kept) => {
+      if (!current || kept === undefined) return;
+      setRecords((known) =>
+        new Map(known).set(
+          source.id,
+          replaced(kept, known.get(source.id) ?? [], askedAt),
+        ),
+      );
+    });
+    return () => {
+      current = false;
+    };
+  }, [source.id]);
 
   const setAttempt = useCallback(
     (key: string, attempt: LaunchAttempt | undefined) => {

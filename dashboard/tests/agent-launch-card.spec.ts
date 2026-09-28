@@ -2,7 +2,8 @@
 // commands published (./launchJourney.ts): two queued stories, one Ready for
 // execution and one not refined, and one Taken. The page's own dashboard
 // server launches the synthetic `claude` (./fixtures/fake-claude), which
-// records what it was asked; the real one is never reached.
+// records what it was asked; the real one is never reached. How Started lasts
+// and settles is ./agent-launch-settlement.spec.ts.
 
 import { realpathSync } from "node:fs";
 import path from "node:path";

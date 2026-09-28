@@ -1,15 +1,18 @@
-// The one request the browser makes to the local launch boundary
-// (`../server/agentLaunchPlugin.ts`): an ordinary same-origin JSON POST. Every
-// launch outcome answers with a launch result; a refusal answers an error the
-// boundary explains. What it answers crossed a process/HTTP boundary, so it is
-// checked as external input. When no answer can be trusted, the launch may or
+// The browser's requests to the local launch boundary
+// (`../server/agentLaunchPlugin.ts`): an ordinary same-origin JSON POST that
+// launches, and a GET of one project's launch records. Every launch outcome
+// answers with a launch result; a refusal answers an error the boundary
+// explains. What it answers crossed a process/HTTP boundary, so it is checked
+// as external input. When no launch answer can be trusted, the launch may or
 // may not have started a session, and the result says so.
 
 import { z } from "zod";
 import {
   agentLaunchEndpoint,
+  launchRecordsSchema,
   launchResultSchema,
   type AgentLaunchRequest,
+  type LaunchRecord,
   type LaunchResult,
 } from "./agentLaunch.ts";
 
@@ -63,4 +66,21 @@ export async function requestAgentLaunch(
   return result.success
     ? result.data
     : noTrustedAnswer("answered in a shape this dashboard does not understand");
+}
+
+// The launch records the running server keeps for one project, oldest first,
+// or undefined when no trustworthy answer came.
+export async function readLaunchRecords(
+  sourceId: string,
+): Promise<readonly LaunchRecord[] | undefined> {
+  try {
+    const response = await fetch(
+      `${agentLaunchEndpoint}?source=${encodeURIComponent(sourceId)}`,
+    );
+    if (!response.ok) return undefined;
+    const answer = launchRecordsSchema.safeParse(await response.json());
+    return answer.success ? answer.data.records : undefined;
+  } catch {
+    return undefined;
+  }
 }
