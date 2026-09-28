@@ -253,3 +253,30 @@ Former local code: DD-107.
   - Inference: the fix recorded in earlier rows (pass `--session-json` from `CLAUDE_CODE_SESSION_ID` on the first delivery) is still not in the delivery guidance, so each execution rediscovers it.
 
 Historical Open Dough identity evidence removed before this run remains recoverable from the source retention snapshots recorded at `2d2c4cda:DearDough.md`; that partial history is not counted as newly harvested occurrences.
+
+<a id="odf-133"></a>
+
+## ODF-133 — Repairable sizing concern left at preparation handoff
+
+Planning records not-ready for a sizing concern its own refinement can settle, leaving execution to initiate another preparation cycle.
+
+- **Source mapping:** Open Dough / DD-112 (former local code).
+- **Source snapshot:** `6c3dfa19016d2646f8ccd6e8ba7402864d02af93:DearDough.md`, ODF-133; active catalog assessment retained below.
+- **Assessment (2026-09-27):** One plan 116 execution, release unknown; one owner round trip and publication cycle. The refusal correctly enforced readiness; the actionable gap is the earlier preparation handoff.
+- **Response:** [Conditional refinement during slice planning](../../src/skills/dough-slice-planning/SKILL.md#resolve-fixable-plan-concerns) resolves fixable plan concerns before the final report and readiness assessment, retaining scope, human decision, and execution boundaries. First containing release pending.
+- **Watch disposition (2026-09-28):** Moved here at Terry Yin's instruction after the bounded source update and verification, before release or relevant use. Not resolved; effectiveness remains unverified.
+- **Watch start:** Unknown; pending relevant use of guidance containing this response.
+- **Review after:** Pending a verified watch start plus seven calendar days.
+- **Last assessed:** 2026-09-28 (Asia/Singapore); authoring review covered a sound plan, a fixable split, and an unresolved scope dispute; skill validation and payload-reference checks passed. No post-change project execution has been observed.
+
+### Retained occurrence evidence
+
+Planning recorded `not-ready` for a slice-sizing concern its own refinement could resolve, so execute-plan startup refused and the split needed a separate preparation cycle and an explicit keep before any work started.
+
+- Execution: `SEED-028#plan-link-rule` / plan 116, first related implementation commit `7af15d4`
+  - Timestamp: 2026-09-26T20:25:46+08:00 (Preparing announcement `eba94c3` after the refusal)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `1b66466`
+  - Evidence: `ee563d5` recorded reason "Slice 1 … sizing is uncertain"; `execution-start.mjs start` → `source-refused`, "published preparation is needs-reassessment"; refinement split slice 1 by its two independent outcomes (`a6e6ef7`).
+  - Observed effect: one human round trip plus an announce/land publication cycle before the claim. Qualified inference: the concern named its own remedy (split); refinement at planning time would have recorded ready.

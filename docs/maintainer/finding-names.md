@@ -696,15 +696,6 @@ An implementer returns normally with required measurements unfinished and asks t
 - **Sources:** [open-dough / DD-111](../../DearDough.md#odf-132--a-delegated-implementation-agent-handed-back-before-finishing-its-own-required-proof).
 - **Assessment (2026-09-27):** One plan 107 execution, release unknown; three incomplete returns, about one hour of coordinator measurement. Unlike ODF-059’s host termination, the agent returned voluntarily; shared cause is unestablished.
 
-<a id="odf-133"></a>
-
-## ODF-133 — Repairable sizing concern left at preparation handoff
-
-Planning records not-ready for a sizing concern its own refinement can settle, leaving execution to initiate another preparation cycle.
-
-- **Sources:** [open-dough / DD-112](../../DearDough.md#odf-133--a-fixable-sizing-concern-recorded-as-not-ready-stopped-execution-for-a-human-round-trip).
-- **Assessment (2026-09-27):** One plan 116 execution, release unknown; one owner round trip and publication cycle. The refusal correctly enforced readiness; the actionable gap is the earlier preparation handoff.
-
 <a id="odf-134"></a>
 
 ## ODF-134 — Story branch delivery undoes a manual trunk rebase

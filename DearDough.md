@@ -710,22 +710,6 @@ Slice 2's agent returned three times with its ablation and paired measurement un
   - Evidence: reports "measurement incomplete" and "I had to hand back before your remaining steps were finished"; the coordinator stopped it and ran the reruns and 3×3 pairs; later briefs saying "finish all required proof yourself" returned complete.
   - Observed effect: about an hour of coordinator-driven measurement on slice 2.
 
-## ODF-133 — A fixable sizing concern recorded as not-ready stopped execution for a human round trip
-
-Former local code: DD-112.
-
-Planning recorded `not-ready` for a slice-sizing concern its own refinement could resolve, so execute-plan startup refused and the split needed a separate preparation cycle and an explicit keep before any work started.
-
-### Occurrences
-
-- Execution: `SEED-028#plan-link-rule` / plan 116, first related implementation commit `7af15d4`
-  - Timestamp: 2026-09-26T20:25:46+08:00 (Preparing announcement `eba94c3` after the refusal)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `1b66466`
-  - Evidence: `ee563d5` recorded reason "Slice 1 … sizing is uncertain"; `execution-start.mjs start` → `source-refused`, "published preparation is needs-reassessment"; refinement split slice 1 by its two independent outcomes (`a6e6ef7`).
-  - Observed effect: one human round trip plus an announce/land publication cycle before the claim. Qualified inference: the concern named its own remedy (split); refinement at planning time would have recorded ready.
-
 ## ODF-134 — A Story Branch execution rebased onto trunk, and managed delivery rebased it back
 
 Former local code: DD-115.

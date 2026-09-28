@@ -4,7 +4,7 @@
 
 **Date:** 2026-09-13
 
-**Revised:** 2026-09-26, at Terry Yin's direction.
+**Revised:** 2026-09-28, at Terry Yin's direction.
 
 **Decision makers:** Terry Yin
 
@@ -51,6 +51,11 @@ result, without a Taken claim or temporary planning records. If the work grows,
 admit it into the ordinary story lifecycle before continuing. This exception
 changes tracking overhead; the same workspace, validation and publication rules
 apply.
+
+Slice planning includes conditional plan refinement before its final readiness
+assessment when concerns can be resolved within the understood outcome and
+scope; unresolved human-owned decisions remain explicit, and preparation grants
+neither execution nor publication authority.
 
 ### Story Branch Mode
 
