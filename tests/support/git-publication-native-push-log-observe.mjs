@@ -4,16 +4,18 @@
 // Prints `field: value` lines: `ref-update-count` (all ref updates),
 // `trunk-push-count`, one `pushed-tip: <sha> taken=<identities>` line per
 // pushed trunk tip, and `pushed-taken` (every identity any pushed trunk tip
-// listed under Taken, comma-separated).
+// listed under Taken, comma-separated). Given a base revision, also prints
+// `taken-added`: the identities the current trunk tip lists under Taken that
+// the base did not, comma-separated.
 //
 // Usage: node git-publication-native-push-log-observe.mjs <source-dir>
-//   <origin> <push-log>
+//   <origin> <push-log> [base]
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
-const [sourceDir, origin, pushLog] = process.argv.slice(2);
+const [sourceDir, origin, pushLog, base] = process.argv.slice(2);
 const trunkRef = "refs/heads/main";
 const { parseBacklog, takenHeading } = await import(
   pathToFileURL(
@@ -55,4 +57,13 @@ const lines = [
   ...tips.map(([sha, taken]) => `pushed-tip: ${sha} taken=${taken.join(",")}`),
   `pushed-taken: ${[...new Set(tips.flatMap(([, taken]) => taken))].join(",")}`,
 ];
+if (base) {
+  const before = new Set(takenAt(base));
+  const tip = execFileSync("git", ["rev-parse", trunkRef], {
+    cwd: origin,
+    encoding: "utf8",
+  }).trim();
+  const added = takenAt(tip).filter((identity) => !before.has(identity));
+  lines.push(`taken-added: ${added.join(",")}`);
+}
 process.stdout.write(`${lines.join("\n")}\n`);

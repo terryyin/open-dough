@@ -80,11 +80,7 @@ git_publication_fixture_observe_admission() {
   local journey=$1 stream_status=$2 transcript=$3
   local root=${git_publication_fixture_root} commands outputs human_after
   commands=$(git_publication_transcript_start_commands "${transcript}")
-  outputs=$(
-    jq -r 'select(.type == "item.completed" and .item.type == "command_execution") | .item.aggregated_output // empty' "${transcript}" 2> /dev/null || true
-    jq -r 'select(.type == "user") | .message.content[]? | select(.type == "tool_result") | (.content | if type == "string" then . else tostring end)' "${transcript}" 2> /dev/null || true
-    jq -r '.. | objects | .stdout? // empty | strings' "${transcript}" 2> /dev/null || true
-  )
+  outputs=$(git_publication_transcript_outputs "${transcript}")
   human_after=$(git_publication_admission_capture_human "${git_publication_fixture_integration}")
   printf 'journey: %s\n' "${journey}"
   printf 'stream-status: %s\n' "${stream_status}"

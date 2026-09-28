@@ -16,6 +16,9 @@ git_publication_prompt_for() {
     admission-*)
       git_publication_admission_prompt "${journey}"
       ;;
+    one-shot-escalation)
+      git_publication_one_shot_escalation_prompt
+      ;;
     one-shot-*)
       git_publication_one_shot_prompt "${journey}"
       ;;

@@ -10,8 +10,7 @@ git_publication_assess_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &
 
 git_publication_assess_print_fields() {
   printf 'assessment-status: %s\n' "${git_publication_assess_status:-not-run}"
-  printf 'assessment-reason: %s\n' \
-    "${git_publication_assess_reason:-behavior not assessed}"
+  printf 'assessment-reason: %s\n' "${git_publication_assess_reason:-behavior not assessed}"
 }
 
 # Prints the value of the first line containing "KEY: ", or an empty line.
@@ -63,6 +62,7 @@ git_publication_assess() {
   case ${journey} in
     startup-*) git_publication_assess_startup "${obs}" "${journey}" ;;
     admission-*) git_publication_assess_admission "${obs}" "${journey}" ;;
+    one-shot-escalation) git_publication_assess_one_shot_escalation "${obs}" ;;
     one-shot-*) git_publication_assess_one_shot "${obs}" ;;
     *) git_publication_assess_candidate "${obs}" "${journey}" "${response}" ;;
   esac

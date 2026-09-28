@@ -11,12 +11,16 @@
 // a line to `notes.txt` with a one-slice plan, sits between story A and its
 // unfinished sibling B2 in the same seed.
 //
+// one-shot-escalation: the one-shot-result project plus the notes tool from
+// git-publication-native-one-shot-escalation-fixture.mjs.
+//
 // Usage: node git-publication-native-one-shot-fixture.mjs <source-dir>
 //   <journey> <parent>
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { writeEscalationProduct } from "./git-publication-native-one-shot-escalation-fixture.mjs";
 
 const [sourceDir, journey, parent] = process.argv.slice(2);
 const scripts = join(sourceDir, "src/skills/dough-execute-plan/scripts");
@@ -69,6 +73,7 @@ Append the line 'Story B line' to notes.txt.
 }
 
 if (isQueued) await describeStoryB();
+if (journey === "one-shot-escalation") writeEscalationProduct(integration);
 writeFileSync(join(integration, "notes.txt"), "Release notes\n");
 writeFileSync(
   join(integration, "scripts/ci-check.mjs"),

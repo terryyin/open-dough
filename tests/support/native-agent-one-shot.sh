@@ -15,6 +15,9 @@
 # shellcheck source=tests/support/native-agent-admission.sh
 # shellcheck disable=SC1091
 source "${0%/*}/native-agent-admission.sh"
+# shellcheck source=tests/support/native-agent-one-shot-escalation.sh
+# shellcheck disable=SC1091
+source "${0%/*}/native-agent-one-shot-escalation.sh"
 
 native_one_shot_substitute() {
   local execution=${NATIVE_ONE_SHOT_WORKSPACE} branch=${NATIVE_ONE_SHOT_BRANCH}
@@ -29,6 +32,10 @@ native_one_shot_substitute() {
       line='Story B line' message="Complete ${identity} as one-shot work"
       named=(--identity "${identity}")
       guard=(--one-shot-identity "${identity}")
+      ;;
+    one-shot-escalation)
+      native_one_shot_escalation_substitute
+      return
       ;;
     *) return 1 ;;
   esac

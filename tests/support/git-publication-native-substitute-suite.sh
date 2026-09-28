@@ -15,7 +15,9 @@ run_substitute_host_journeys() {
     chmod a+x "${sentinel_bin}/${host}"
   done
   cp -- "${source_dir}/tests/support/native-agent-admission.sh" \
-    "${source_dir}/tests/support/native-agent-one-shot.sh" "${sentinel_bin}/"
+    "${source_dir}/tests/support/native-agent-one-shot.sh" \
+    "${source_dir}/tests/support/native-agent-one-shot-escalation.sh" \
+    "${sentinel_bin}/"
 
   export PATH="${sentinel_bin}:${PATH}"
   # Credential-free counterexamples do not retain attempt directories.
@@ -111,10 +113,12 @@ run_substitute_host_journeys() {
   run_substitute_admission_journeys "${work}" "${run_log}"
   run_substitute_one_shot_journey "${work}" "${run_log}" one-shot-result
   run_substitute_one_shot_journey "${work}" "${run_log}" one-shot-queued
+  run_substitute_one_shot_journey "${work}" "${run_log}" one-shot-escalation
 }
 
 # One-shot journey $3 through the installed start, delivery and CI completion
-# CLIs, then real-state counterexamples on its kept fixture.
+# CLIs (or, escalating, start and admission), then real-state counterexamples
+# on its kept fixture.
 run_substitute_one_shot_journey() {
   local work=$1 run_log=$2 journey=$3 artifact status
   artifact=$(mktemp -d "${work}/claude-${journey}.XXXXXX")
@@ -131,7 +135,11 @@ run_substitute_one_shot_journey() {
     git_publication_fixture_cleanup
     exit 1
   fi
-  run_one_shot_state_counterexamples "${artifact}/events.jsonl" "${journey}"
+  if [[ ${journey} == one-shot-escalation ]]; then
+    run_one_shot_escalation_state_counterexamples "${artifact}/events.jsonl"
+  else
+    run_one_shot_state_counterexamples "${artifact}/events.jsonl" "${journey}"
+  fi
   git_publication_fixture_cleanup
 }
 

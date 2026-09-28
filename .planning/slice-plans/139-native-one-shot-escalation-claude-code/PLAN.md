@@ -52,7 +52,7 @@ Terry's explicit go-ahead at execution time, and none joins `npm test`,
 ### 1. Judge one-shot escalation from real state without a host
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/git-publication-native.sh` credential-free default passes with the
 escalation substitute journey and its counterexamples; CI's native job stays
 within `per-job-seconds=71`.
@@ -78,6 +78,16 @@ grants no planning authority and does not mention growth, migration or
 escalation. If the substitute journey pushes the native job past
 `per-job-seconds`, move the one-shot substitute journeys into their own test
 job in this slice.
+
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+tests/git-publication-native.sh` exits 0. `run_substitute_one_shot_journey
+one-shot-escalation` requires pass, and
+`run_one_shot_escalation_state_counterexamples` in
+`tests/support/git-publication-native-one-shot-escalation.sh` asserts each
+verdict (result on trunk, no admission, edits missing, edits committed, human
+edits changed → fail; up-front admission → inconclusive; restored → pass).
+Local paired A/B under load added about 8 s (72.5 s → 80.5 s), projecting
+about 58 s on CI; no job split. CI confirms the budget.
 
 ### 2. Probe and accept escalation natively on Claude Code
 
@@ -110,3 +120,11 @@ between runs, each after investigating the previous result) → one of:
 - A single paid pass is the acceptance claim; it covers only the observed run.
 
 ## Learnings
+
+- The native prompt is `git_publication_one_shot_escalation_prompt`: rename
+  `notesDir` to `notesDirectory`; growth is discoverable only from
+  `src/settings.mjs`'s comment and `docs/settings.md`.
+- The assessor fails a run that publishes more than the admission claim, so a
+  native run that plans past the stop fails rather than being inconclusive.
+- Up-front admission is judged from the transcript (no `--one-shot` start or
+  nothing carried); repository state cannot distinguish it.

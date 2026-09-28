@@ -18,6 +18,9 @@ source "${git_publication_run_support_dir}/git-publication-native-admission.sh"
 # shellcheck source=tests/support/git-publication-native-one-shot.sh
 # shellcheck disable=SC1091
 source "${git_publication_run_support_dir}/git-publication-native-one-shot.sh"
+# shellcheck source=tests/support/git-publication-native-one-shot-escalation.sh
+# shellcheck disable=SC1091
+source "${git_publication_run_support_dir}/git-publication-native-one-shot-escalation.sh"
 # shellcheck source=tests/support/git-publication-native-prompt.sh
 # shellcheck disable=SC1091
 source "${git_publication_run_support_dir}/git-publication-native-prompt.sh"
@@ -141,6 +144,9 @@ git_publication_run_journey() {
     if [[ ${journey} == one-shot-* ]]; then
       git_publication_one_shot_publish_install
     fi
+    if [[ ${journey} == one-shot-escalation ]]; then
+      git_publication_one_shot_escalation_prepare
+    fi
     git_publication_fixture_human_before=$(
       git_publication_fixture_capture_human "${git_publication_fixture_integration}"
     )
@@ -177,6 +183,10 @@ git_publication_run_journey() {
   elif [[ ${journey} == admission-* ]]; then
     git_publication_fixture_observe_admission "${journey}" \
       "${stream_status}" "${transcript}" > "${observations_file}"
+  elif [[ ${journey} == one-shot-escalation ]]; then
+    git_publication_fixture_observe_one_shot_escalation "${journey}" \
+      "${stream_status}" "${transcript}" > "${observations_file}"
+    git_publication_one_shot_stop_observers
   elif [[ ${journey} == one-shot-* ]]; then
     git_publication_fixture_observe_one_shot "${journey}" \
       "${stream_status}" "${transcript}" > "${observations_file}"
