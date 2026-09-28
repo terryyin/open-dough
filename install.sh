@@ -134,6 +134,7 @@ managed_files=(
   dough-story-refinement/scripts/preparation-assignment-ownership.mjs
   dough-story-refinement/scripts/preparation-assignment-release.mjs
   dough-story-refinement/scripts/preparation-assignment-start.mjs
+  dough-story-refinement/scripts/preparation-assignment-trunk.mjs
   dough-land/SKILL.md
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
@@ -216,7 +217,6 @@ managed_files=(
   dough-execute-plan/scripts/owned-suffix-reconciliation.mjs
   dough-execute-plan/scripts/publication-resume.mjs
   dough-execute-plan/scripts/publication-git.mjs
-  dough-execute-plan/scripts/publication-test-fixtures.mjs
   dough-execute-plan/scripts/watch-ci-execution.mjs
   dough-execute-plan/scripts/watch-ci.mjs
   dough-execute-plan/scripts/workspace-agent-authorship.mjs

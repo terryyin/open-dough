@@ -158,3 +158,39 @@ test("rerunning Dough Land after an accepted push whose refresh and retirement n
   assert.equal(rerun.cleanup.removed, true);
   assert.equal(existsSync(preparation), false);
 });
+
+test("rerunning Dough Land after an accepted push whose default checkout path became unusable pushes nothing again, reports the failed refresh, and retires", async (t) => {
+  const {
+    fixture,
+    origin,
+    integration,
+    preparation,
+    preparationBranch,
+    cleanup,
+  } = await createPreparationFixture("preparation-publication-");
+  t.after(cleanup);
+
+  writeFileSync(join(preparation, "plan-draft.md"), "PLAN-1: two slices\n");
+  await git(preparation, "add", "-A");
+  await git(preparation, "commit", "-m", "Land reviewed SEED-1 refinement");
+  const landedSha = await revParse(preparation, preparationBranch);
+  await pushCandidate(preparation, landedSha);
+  const before = await captureCheckout(integration);
+
+  const rerun = await landWorktree({
+    worktree: preparation,
+    branch: preparationBranch,
+    defaultCheckout: join(fixture, "renamed-default-checkout"),
+  });
+
+  assert.equal(rerun.stopped, null);
+  assert.equal(rerun.commit, "nothing-to-commit");
+  assert.equal(rerun.publication.publication, "already-accepted");
+  assert.equal(rerun.publication.pushed, false);
+  assert.equal(await lsRemoteSha(origin, "refs/heads/main"), landedSha);
+  assert.equal(rerun.refresh.result, "deferred");
+  assert.equal(rerun.refresh.reason, "refresh-failed");
+  assertCheckoutUnchanged(before, await captureCheckout(integration));
+  assert.equal(rerun.cleanup.removed, true);
+  assert.equal(existsSync(preparation), false);
+});

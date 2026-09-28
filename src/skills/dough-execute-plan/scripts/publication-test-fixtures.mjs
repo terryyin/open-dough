@@ -51,6 +51,7 @@ export async function lsRemoteSha(remote, ref) {
 export {
   maintenanceFromInspection,
   originTrackingRef,
+  recordedCheckoutIdentity,
   targetBranchName,
 } from "./publication-git.mjs";
 
@@ -82,21 +83,6 @@ export async function remoteHeads(origin) {
   return stdout.trim();
 }
 
-export async function recordedCheckoutIdentity(checkout) {
-  const porcelain = (await git(checkout, "worktree", "list", "--porcelain"))
-    .stdout;
-  return {
-    toplevel: await revParse(checkout, "--show-toplevel"),
-    branch: (await git(checkout, "branch", "--show-current")).stdout.trim(),
-    worktrees: porcelain
-      .split("\n")
-      .filter(
-        (line) => line.startsWith("worktree ") || line.startsWith("branch "),
-      )
-      .join("\n"),
-  };
-}
-
 export async function plantedHumanEditBytes(checkout) {
   return {
     staged: readFileSync(join(checkout, "human-staged.txt"), "utf8"),
@@ -104,6 +90,17 @@ export async function plantedHumanEditBytes(checkout) {
     untracked: readFileSync(join(checkout, "human-unstaged.txt"), "utf8"),
     status: (await git(checkout, "status", "--porcelain")).stdout,
   };
+}
+
+// The parents and changed paths of one commit.
+export async function commitParentsAndPaths(checkout, sha) {
+  const [parents, ...paths] = (
+    await git(checkout, "show", "--format=%P", "--name-only", sha)
+  ).stdout
+    .trim()
+    .split("\n")
+    .filter(Boolean);
+  return { parents: parents.split(" "), paths };
 }
 
 export async function captureCheckout(checkout) {
@@ -132,23 +129,26 @@ export async function cloneAsAnotherWriter(origin, checkout) {
   await git(checkout, "config", "user.email", "another@example.test");
 }
 
-// Another writer advances the authorized remote with one disjoint commit from
-// a separate clone. The clone is removed after the push.
+// Another writer advances the authorized remote's branch (main by default)
+// with one disjoint commit from a separate clone. The clone is removed after
+// the push.
 export async function advanceOriginFromAnotherWriter(
   origin,
   {
     file = "other-writer.txt",
     body = "their work\n",
     message = "another writer's own increment",
+    branch = "main",
   } = {},
 ) {
   const thirdCheckout = (await exec("mktemp", ["-d"])).stdout.trim();
   await cloneAsAnotherWriter(origin, thirdCheckout);
+  await git(thirdCheckout, "checkout", "-q", branch);
   writeFileSync(join(thirdCheckout, file), body);
   await git(thirdCheckout, "add", file);
   await git(thirdCheckout, "commit", "-m", message);
-  await git(thirdCheckout, "push", "origin", "main");
-  const disjointSha = await lsRemoteSha(origin, "refs/heads/main");
+  await git(thirdCheckout, "push", "origin", branch);
+  const disjointSha = await lsRemoteSha(origin, `refs/heads/${branch}`);
   rmSync(thirdCheckout, { recursive: true, force: true });
   return disjointSha;
 }

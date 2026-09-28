@@ -59,7 +59,7 @@ test("preparation continues from the shared rule into its own disposition", () =
   assert.match(preparation, /using\s+the actual established paths/);
   assert.match(
     preparation,
-    /Target selection is the authorized remote\s+target, recorded separately from that path/,
+    /Target selection is the authorized remote\s+target, recorded separately from that\s+path/,
   );
   assert.match(preparation, /never the\s+owned preparation\s+workspace itself/);
   assert.match(
@@ -76,7 +76,7 @@ test("preparation continues from the shared rule into its own disposition", () =
   assert.match(disposition, /local checkout role and the target\s+selection/);
   assert.match(
     disposition,
-    /The integration checkout path is the default checkout/,
+    /The recorded integration checkout, when there is one, is the default checkout\s+Dough Land may refresh; with none recorded, its refresh is not applicable/,
   );
   assert.match(
     disposition,
@@ -110,7 +110,7 @@ test("contextual execution and queued execution keep their own continuations", (
   );
   assert.match(
     execution,
-    /identical \*\*Taken\*\* text alone proves no ownership/,
+    /identical\s+\*\*Taken\*\*\s+text alone proves no ownership/,
   );
   assert.match(
     publication,
@@ -145,7 +145,7 @@ test("contextual execution and queued execution keep their own continuations", (
   assert.match(execution, /separate local roles/);
   assert.match(
     execution,
-    /The authorized remote target is target selection and is\s+not one of those paths/,
+    /The authorized remote target is target\s+selection and is\s+not one of those paths/,
   );
   assert.match(execution, /selected mode/);
   assert.match(execution, /\*\*Taken\*\* alone supplies no location/);

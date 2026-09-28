@@ -87,7 +87,7 @@ test("eligible cleanup removes the remote execution branch after its tip is on t
   );
 
   const resources = {
-    integration,
+    repository: integration,
     execution,
     branch: executionBranch,
     observer,
@@ -178,7 +178,7 @@ test("remote execution branch stays when its tip is not on remote trunk", async 
   const observer = createClosureObserver(execution);
   observer.stop();
   const kept = await removeExecutionResources({
-    integration,
+    repository: integration,
     execution,
     branch: executionBranch,
     observer,

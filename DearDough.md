@@ -338,6 +338,22 @@ explicit contract in the focused CI runtime suite.
     command-line callers, and a concurrency convenience removed the suite
     that would have caught it.
 
+- Execution: `SEED-008#same-machine-merge-queue` / plan 140, first related implementation commit `9597bf61`
+  - Timestamp: 2026-09-28T13:21:44+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `2b46e651`; VERSION 0.3.45
+  - Evidence: slice 3 (`600f5f45`) moved workspace selection onto a new
+    `repository` field and re-wrapped guidance; focused proof globbed
+    `workspace-publication-startup-*`. CI run `36381588951` failed
+    `workspace-publication-race.test.mjs` (still passed only `integration`, so
+    Git ran in the runner's repository) and three
+    `workspace-ownership-lifecycle.test.mjs` phrase regexes; repair `615df2ad`.
+  - Observed effect: one failed CI run, a stash-and-repair cycle with one extra agent.
+  - Inference: Qualified. Consumers were chosen by name pattern and skill
+    directory; later slices that also ran the whole `node --test` suite (698)
+    before return sent no further consumer break to CI.
+
 ## ODF-069 — A genuinely failed CI run was reported as merely uncovered, not failed
 
 Former local code: DD-065.
@@ -577,42 +593,6 @@ Slice 1 moved installed link walking to a new declaration check; `tests/story-pa
   - Evidence: CI run 36215060849 ("the suite accepted a failed story payload test"); repair `3dc3e85`; the slice 1 return said "No shared helper changed" for the consumer check.
   - Observed effect: one failed CI run, a stash and repair cycle with two extra agents; a dependent-test search added to slices 2–4 prompts found nothing more.
   - Inference: Qualified. The consumer check covers changed helpers, not assertions removed from a test; resembles ODF-003 and ODF-098 without the same cause.
-
-## ODF-119 — Leftover state in the default checkout blocked execution startup and never let it refresh
-
-Former local code: DD-104.
-
-Startup refused a queued story ("unpublished selected story source in originating
-checkout"): the default checkout held an untracked seed and backlog edit
-byte-identical to published `d021218`, and the refusal did not say so. That
-checkout also keeps in-checkout execution worktrees under an unignored
-`.worktrees/`, so automatic refresh always defers with `pending-edit`.
-
-### Occurrences
-
-- Execution: `SEED-042#rename-slice-plan-folder-references` / plan 111, first related implementation commit `e7b7ad1`
-  - Timestamp: unknown (startup refusal before claim `b1f5dc8` at 2026-09-26T13:53:24+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
-  - Evidence: `execution-start.mjs start` → `source-refused`; leftover blobs equal `d021218`'s; local commit `2de5b10` (kept on `backup/2de5b10-local-seed-042`) swept in three `.worktrees/*` gitlinks; claim and delivery reported `maintenance: deferred`.
-  - Observed effect: one human round trip and a manual reset of the default checkout to `origin/main` before the claim.
-  - Inference: Qualified. The source check compares only local HEAD, index and worktree, so a stale published copy looks unpublished; ignoring the worktree root would end the deferral and the gitlink risk.
-- Execution: `SEED-008#preserve-other-executions-work` / plan 114, first related implementation commit `f157f0e`
-  - Timestamp: unknown (startup refusal before claim `b22ecab` at 2026-09-26T16:53:33+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
-  - Evidence: `execution-start.mjs start` → `source-refused`, "SEED-008… has no story anchored at preserve-other-executions-work"; the default checkout's uncommitted and untracked planning edits equalled published `5668d56` (minus its SEED-044 lines) while local `main` was 12 commits behind; `execution-source.mjs` `unpublishedSource` parses the merge-base version, which predates the story, and throws before its own refusal message. The developer approved discarding; the auto-mode classifier blocked `git checkout -- .`, so the six paths went into a labelled pathspec stash in the default checkout for the developer to drop. Start then reported `maintenance: deferred`, `pending-edit`.
-  - Observed effect: one human round trip, about eight coordinator calls to diagnose, and a stash left on the shared stack.
-  - Inference: Qualified. A second occurrence in one day; the misleading message is a new symptom of the same source check.
-- Execution: `SEED-028#plan-link-rule` / plan 116, first related implementation commit `7af15d4`
-  - Timestamp: unknown (every refresh this session, from Preparing announcement `eba94c3` at 2026-09-26T20:25:46+08:00 onward)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `1b66466`
-  - Evidence: announce, land, claim `c97afbb` and all five deliveries reported refresh `deferred`, `pending-edit`, the only status being `?? .worktrees/`; the default checkout stayed at `a063e9f`, 18 behind trunk, whose `56ae2aa` already ignores `/.worktrees/`; local `read-state` then misreported the story as absent.
-  - Observed effect: the default checkout never refreshed, so the ignore rule that would end the deferral cannot arrive by itself. Qualified inference: self-perpetuating until a manual fast-forward; any untracked path the incoming tree does not touch blocks refresh.
 
 ## ODF-100 — A piped lint failure did not stop publication
 
@@ -992,6 +972,7 @@ An implementation agent blamed Playwright on a stale `dashboard/dist` and record
 
 ## Retention
 
-- Highest allocated local number: 161. Removed local codes are never reused.
+- Highest allocated local number: 162. Removed local codes are never reused.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
+- Resolved and removed on 2026-09-28: ODF-119 (startup source veto and nested-worktree refresh deferral); recovery: `aa771c5d:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.

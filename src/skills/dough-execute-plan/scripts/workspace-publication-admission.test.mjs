@@ -11,6 +11,7 @@ import {
   createQueuedTrunk,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
+import { ownedWorktreeOnly } from "./default-checkout-test-fixtures.mjs";
 import {
   admitArgs,
   changedPaths,
@@ -98,33 +99,60 @@ test("a new seed's unselected investigation is admitted to Taken with its story 
   assert.equal(await revParse(workspace, "HEAD"), sha);
 });
 
-test("an already published, unlisted planless story is admitted without rewriting its home", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const identity = "SEED-B#tidy";
-  const link = "seeds/B.md#tidy";
+// Publishes story SEED-B#tidy, unlisted, onto trunk; resolves to the
+// revision that holds it.
+async function publishUnlistedTidy(trunk) {
   const seedPath = ".planning/seeds/B.md";
   const seed = withFacts(
-    `${readFileSync(join(trunk.integration, seedPath), "utf8")}\n${storySection("tidy", identity, "Tidy B", "Tidy the B wording.")}`,
-    link,
-    identity,
+    `${readFileSync(join(trunk.integration, seedPath), "utf8")}\n${storySection("tidy", tidy.identity, "Tidy B", "Tidy the B wording.")}`,
+    tidy.link,
+    tidy.identity,
     "planless",
   );
   writeFileSync(join(trunk.integration, seedPath), seed);
   await git(trunk.integration, "commit", "-qam", "story tidy");
   await git(trunk.integration, "push", "-q", "origin", "main");
-  const base = await revParse(trunk.integration, "HEAD");
-  const { receipt } = await startCliResult(
-    trunk,
-    "trunk",
-    admitArgs(identity, link, "Tidy B"),
-  );
+  return revParse(trunk.integration, "HEAD");
+}
+
+const tidy = { identity: "SEED-B#tidy", link: "seeds/B.md#tidy" };
+const tidyAdmission = admitArgs(tidy.identity, tidy.link, "Tidy B");
+const claimOnly = [
+  "A\t.planning/agents/yui-chan.json",
+  "M\t.planning/PRODUCT-BACKLOG.md",
+];
+
+test("an already published, unlisted planless story is admitted without rewriting its home", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const base = await publishUnlistedTidy(trunk);
+  const { receipt } = await startCliResult(trunk, "trunk", tidyAdmission);
   assert.equal(receipt.status, "published", JSON.stringify(receipt));
   assert.deepEqual(receipt.admitted, []);
   assert.equal(await revParse(trunk.origin, `${receipt.publishedSha}^`), base);
-  assert.deepEqual(await changedPaths(trunk, receipt.publishedSha), [
-    "A\t.planning/agents/yui-chan.json",
-    "M\t.planning/PRODUCT-BACKLOG.md",
-  ]);
+  assert.deepEqual(await changedPaths(trunk, receipt.publishedSha), claimOnly);
   assert.deepEqual(receipt.maintenance, { result: "advanced" });
+});
+
+test("without a default checkout, an owned worktree admits only the published story", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const base = await publishUnlistedTidy(trunk);
+  const owned = await ownedWorktreeOnly(trunk, "owned-tidy", "exec/owned-tidy");
+  const { receipt, stdout } = await startCliResult(
+    trunk,
+    "story-branch",
+    tidyAdmission,
+    { integration: null, workspace: owned.workspace, branch: owned.branch },
+  );
+  assert.equal(receipt.status, "published", stdout);
+  assert.deepEqual(receipt.admitted, []);
+  const sha = receipt.publishedSha;
+  assert.equal(await revParse(trunk.origin, `${sha}^`), base);
+  assert.deepEqual(await changedPaths(trunk, sha), claimOnly);
+  assert.deepEqual(receipt.maintenance, { result: "not applicable" });
+  assert.equal(
+    await lsRemoteSha(trunk.origin, `refs/heads/${owned.branch}`),
+    sha,
+  );
 });
