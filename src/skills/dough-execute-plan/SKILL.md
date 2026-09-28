@@ -111,11 +111,13 @@ current-branch and host-owned checkout restrictions still apply.
 
 For authorized queued Story Branch or Trunk Mode work, invoke the installed
 `scripts/execution-start.mjs start` once with the originating integration
-checkout as `--integration` when one exists (without one, an existing owned
-worktree supplies repository access), owned workspace path and branch, selected
-identity, stable execution publisher ID, mode (`trunk` or `story-branch`),
-actual remote and trunk branch, and the established `--push-authorized
---workspace-authorized` flags. Supply your own `--host` (`claude`, `codex`, or
+checkout as `--integration` when one exists. Without one, an existing owned
+workspace supplies repository access; to create a new workspace, supply an
+owned worktree of the repository or its common Git directory as
+`--repository`, which is only read from, never refreshed. Also supply the
+owned workspace path and branch, selected identity, stable execution publisher
+ID, mode (`trunk` or `story-branch`), actual remote and trunk branch, and the
+established `--push-authorized --workspace-authorized` flags. Supply your own `--host` (`claude`, `codex`, or
 `cursor`) and `--model`; omit either you cannot state rather than guess. Supply
 `--plan` as a path relative to the backlog directory when explicitly selected;
 the command also resolves the canonical published plan. Supply

@@ -1,12 +1,20 @@
 // Startup with no default checkout: an owned worktree of a repository that
-// has no default working tree supplies Git access, the claim is published and
-// the work continues there, and local refresh is not applicable. Admission
-// without one is covered with the other admission cases.
+// has no default working tree, or that repository's Git directory, supplies
+// Git access, the claim is published and the work continues in the owned
+// workspace (reused or created), and local refresh is not applicable.
+// Refusals are covered with the owned-context refusal cases, and admission
+// without one with the other admission cases.
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
+import {
+  advanceOriginFromAnotherWriter,
+  captureCheckout,
+  git,
+  lsRemoteSha,
+  revParse,
+} from "./publication-test-fixtures.mjs";
 import {
   createQueuedTrunk,
   identityA,
@@ -14,31 +22,16 @@ import {
   remoteBacklog,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
-import { ownedWorktreeOnly } from "./default-checkout-test-fixtures.mjs";
+import {
+  ownedWorktreeOnly,
+  startOwned,
+  worktreePaths,
+} from "./default-checkout-test-fixtures.mjs";
 import { resumeArgs } from "./workspace-publication-startup-test-fixtures.mjs";
-import { startExecution } from "./execution-start.mjs";
 import { deliverFirstIncrement } from "./workspace-publication-startup-delivery-test-fixtures.mjs";
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 
 const notApplicable = { result: "not applicable" };
-
-// Starts in `owned` with no --integration.
-const startOwned = (trunk, owned, mode, extra = [], options = {}) =>
-  startCliResult(trunk, mode, extra, {
-    integration: null,
-    workspace: owned.workspace,
-    branch: owned.branch,
-    ...options,
-  });
-
-// The checkouts the repository has: its own Git directory and each worktree.
-async function worktreePaths(repository) {
-  const { stdout } = await git(repository, "worktree", "list", "--porcelain");
-  return stdout
-    .split("\n")
-    .filter((line) => line.startsWith("worktree "))
-    .map((line) => line.slice("worktree ".length));
-}
 
 test("an owned worktree without a default checkout takes queued work, resumes it, sets up, and delivers its first increment", async (t) => {
   const trunk = await createQueuedTrunk({ contributing: readyContributing });
@@ -106,6 +99,55 @@ test("an owned worktree without a default checkout takes queued work, resumes it
   });
 });
 
+for (const context of ["workspace", "repository"])
+  test(`the owned ${context === "workspace" ? "worktree" : "Git directory"} alone creates a new owned workspace at fetched trunk, which sets up and delivers its first increment`, async (t) => {
+    const trunk = await createQueuedTrunk({ contributing: readyContributing });
+    t.after(trunk.cleanup);
+    const owned = await ownedWorktreeOnly(trunk, "owned-kept", "exec/kept");
+    const fetched = await advanceOriginFromAnotherWriter(trunk.origin);
+    const retained = await captureCheckout(owned.workspace);
+    const workspace = join(trunk.fixture, "start-fresh");
+
+    const started = await startCliResult(
+      trunk,
+      "trunk",
+      ["--repository", owned[context]],
+      { integration: null, workspace, branch: "exec/fresh" },
+    );
+    const { receipt } = started;
+    assert.equal(receipt.ok, true, started.stdout);
+    assert.equal(receipt.status, "published");
+    assert.equal(receipt.created, true);
+    assert.equal(receipt.startingRevision, fetched);
+    assert.deepEqual(receipt.maintenance, notApplicable);
+    assert.equal(
+      await lsRemoteSha(trunk.origin, "refs/heads/main"),
+      receipt.publishedSha,
+    );
+    assert.equal(
+      await revParse(trunk.origin, `${receipt.publishedSha}^`),
+      fetched,
+    );
+    assert.equal(await revParse(workspace, "HEAD"), receipt.publishedSha);
+    assert.equal(
+      (await git(workspace, "branch", "--show-current")).stdout.trim(),
+      "exec/fresh",
+    );
+    assert.deepEqual(await captureCheckout(owned.workspace), retained);
+    assert.deepEqual(await worktreePaths(owned.repository), [
+      owned.repository,
+      owned.workspace,
+      workspace,
+    ]);
+
+    await deliverFirstIncrement(trunk, {
+      workspace,
+      branch: "exec/fresh",
+      publishedSha: receipt.publishedSha,
+    });
+    assert.deepEqual(await captureCheckout(owned.workspace), retained);
+  });
+
 test("one-shot work starts in an owned worktree without a default checkout and publishes nothing", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
@@ -128,66 +170,4 @@ test("one-shot work starts in an owned worktree without a default checkout and p
     await lsRemoteSha(trunk.origin, "refs/heads/main"),
     trunk.trunkSha,
   );
-});
-
-test("without a default checkout, an unusable repository, remote, workspace, or authority starts nothing", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const owned = await ownedWorktreeOnly(trunk, "owned-r", "exec/owned-r");
-  const unchanged = async (label) => {
-    assert.equal(
-      await lsRemoteSha(trunk.origin, "refs/heads/main"),
-      trunk.trunkSha,
-      label,
-    );
-    assert.equal(
-      await revParse(owned.workspace, "HEAD"),
-      trunk.trunkSha,
-      label,
-    );
-    assert.deepEqual(
-      await worktreePaths(owned.repository),
-      [owned.repository, owned.workspace],
-      label,
-    );
-  };
-
-  const absent = join(trunk.fixture, "absent");
-  const missing = await startOwned(trunk, owned, "trunk", [], {
-    workspace: absent,
-  });
-  assert.equal(missing.receipt.status, "invalid-request", missing.stdout);
-  assert.match(missing.receipt.error, /--integration/);
-  assert.equal(existsSync(absent), false);
-  await unchanged("missing workspace");
-
-  const plain = join(trunk.fixture, "not-a-repository");
-  mkdirSync(plain);
-  const notRepository = await startOwned(trunk, owned, "trunk", [], {
-    workspace: plain,
-  });
-  assert.equal(notRepository.code, 1, notRepository.stdout);
-  assert.equal(notRepository.receipt.status, "source-refused");
-  await unchanged("not a repository");
-
-  const wrongRemote = await startOwned(trunk, owned, "trunk", [
-    "--remote",
-    "upstream",
-  ]);
-  assert.equal(wrongRemote.code, 1, wrongRemote.stdout);
-  assert.equal(wrongRemote.receipt.status, "source-refused");
-  await unchanged("wrong remote");
-
-  const unauthorized = await startExecution({
-    workspace: owned.workspace,
-    branch: owned.branch,
-    identity: identityA,
-    publisherId: "publisher-trunk",
-    mode: "trunk",
-    remote: "origin",
-    target: "main",
-    workspaceAuthorized: true,
-  });
-  assert.equal(unauthorized.status, "authority-required");
-  await unchanged("missing authority");
 });

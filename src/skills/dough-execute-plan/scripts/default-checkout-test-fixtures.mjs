@@ -1,8 +1,9 @@
 // Default-checkout states for startup tests: one holding pending edits, and
-// a repository with none at all.
+// a repository with none at all, started in and observed through its checkouts.
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { exec, git } from "./publication-test-fixtures.mjs";
+import { startCliResult } from "./workspace-publication-fixtures.mjs";
 
 // Commits `files` unrelated tracked files to trunk, then leaves staged and
 // unstaged patches of `lines` lines each in the integration checkout.
@@ -43,4 +44,22 @@ export async function ownedWorktreeOnly(trunk, name, branch) {
   );
   rmSync(trunk.integration, { recursive: true, force: true });
   return { repository, workspace, branch };
+}
+
+// Starts in `owned` with no --integration.
+export const startOwned = (trunk, owned, mode, extra = [], options = {}) =>
+  startCliResult(trunk, mode, extra, {
+    integration: null,
+    workspace: owned.workspace,
+    branch: owned.branch,
+    ...options,
+  });
+
+// The checkouts the repository has: its own Git directory and each worktree.
+export async function worktreePaths(repository) {
+  const { stdout } = await git(repository, "worktree", "list", "--porcelain");
+  return stdout
+    .split("\n")
+    .filter((line) => line.startsWith("worktree "))
+    .map((line) => line.slice("worktree ".length));
 }

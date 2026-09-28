@@ -58,8 +58,10 @@ function addressingError(input) {
 export function requestOf(operation, input) {
   const addressed = operation === "abandon" && input.profile !== undefined;
   // A lost workspace's assignment is ended from the integration checkout; an
-  // existing owned workspace supplies its own repository access, and a
-  // supplied integration checkout only gets a local refresh.
+  // existing owned workspace supplies its own repository access, a supplied
+  // repository context (an owned worktree or the common Git directory) only
+  // gives Git access, and a supplied integration checkout also gets a local
+  // refresh.
   const required = addressed
     ? ["profile", "target", "integration"]
     : ["workspace", "identity", "target"];
@@ -73,6 +75,7 @@ export function requestOf(operation, input) {
     remote: input.remote ?? "origin",
     ...(input.workspace ? { workspace: resolve(input.workspace) } : {}),
     ...(input.integration ? { integration: resolve(input.integration) } : {}),
+    ...(input.repository ? { repository: resolve(input.repository) } : {}),
   };
   const reportError = agentReportError(request);
   if (reportError) return stop("invalid-request", { error: reportError });

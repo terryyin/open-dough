@@ -33,8 +33,9 @@ record write, run:
 
 ```text
 node <installed>/scripts/preparation-assignment.mjs start \
-  [--integration <integration checkout>] --workspace <owned workspace> \
-  [--branch <new workspace branch>] \
+  [--integration <integration checkout>] \
+  [--repository <owned worktree or common Git directory>] \
+  --workspace <owned workspace> [--branch <new workspace branch>] \
   --identity <queued story identity> --remote <remote> --target <trunk branch> \
   --push-authorized [--host claude|codex|cursor] [--model <model>] \
   [--declared-owner <id> --requester <id>]
@@ -43,13 +44,14 @@ node <installed>/scripts/preparation-assignment.mjs start \
 Use the recorded paths and target. Supply `--integration` when this project
 has an integration checkout; without one, the owned workspace supplies
 repository access. When no suitable owned workspace exists yet, name the new
-workspace path, supply the integration checkout it is created from, and supply
-`--branch` with a new branch name: `start` fetches the target and, once it
-finds the story queued there, creates the workspace on that branch at fetched
-trunk before announcing. Its
-receipt then carries `selection` with `created: true`, the branch, and the
-starting revision; record the workspace as created by this session. An
-existing path is the owned workspace you already selected or are resuming,
+workspace path and supply `--branch` with a new branch name; without an
+integration checkout, also supply an owned worktree of the repository or its
+common Git directory as `--repository`, which is only read from, never
+refreshed. `start` fetches the target and, once it finds the story queued
+there, creates the workspace on that branch at fetched trunk before
+announcing. Its receipt then carries `selection` with `created: true`, the
+branch, and the starting revision; record the workspace as created by this
+session. An existing path is the owned workspace you already selected or are resuming,
 used as it is. Supply `--push-authorized` only when publishing to that target
 is authorized; without it the command stops. Supply your own host and model,
 omitting either you cannot state rather than guessing.

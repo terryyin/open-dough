@@ -219,7 +219,7 @@ local worktree and index copy with local bytes deep-equal. Whole `node --test`
 
 ### 2. A new owned workspace starts from an owned repository context
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The repository has no default checkout, only an owned worktree and
 its common Git directory → run installed queued startup, or preparation
@@ -275,6 +275,15 @@ Run `workspace-publication.test.mjs`,
 representative guidance use (behavior review in `AGENTS.md`). Safe stop: owned
 startup and preparation need no default checkout, including to create a
 workspace.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-admission.test.mjs src/skills/dough-execute-plan/scripts/one-shot-*.test.mjs src/skills/dough-story-refinement/scripts/preparation-assignment-*.test.mjs`
+(91 pass; the six new cases fail on 7e86f615). From `ownedWorktreeOnly`, with
+`--repository` naming the owned worktree or the common Git directory and a new
+workspace path, startup publishes `created: true` at the fetched (advanced)
+trunk with maintenance `not applicable` and delivers a first increment;
+preparation announces with `selection` at fetched trunk and continues its
+draft; the retained worktree stays deep-equal. A non-repository `--repository`
+refuses without changes. Payload checks and whole `node --test` (702) pass.
 
 ### 3. Refresh recognizes a rebase by Git's rebase state
 Type: Behavior

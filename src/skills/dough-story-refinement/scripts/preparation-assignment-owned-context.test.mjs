@@ -1,12 +1,18 @@
 // Preparation with no default checkout: the production `start` command
 // announces from an owned worktree of a repository that has no default
-// working tree, the draft is written there and continued, and its release is
-// staged beside it; local refresh is not applicable.
+// working tree, or creates a new owned workspace at fetched trunk from that
+// worktree or the repository's Git directory; the draft is written there and
+// continued, and its release is staged beside it; local refresh is not
+// applicable.
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { ownedWorktreeOnly } from "../../dough-execute-plan/scripts/default-checkout-test-fixtures.mjs";
+import {
+  advanceOriginFromAnotherWriter,
+  captureCheckout,
+} from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
   abandonLostPreparation,
   createPreparationTrunk,
@@ -36,7 +42,7 @@ test("an owned worktree without a default checkout announces preparation, contin
     "prep/absent",
   ]);
   assert.equal(missing.receipt.status, "invalid-request");
-  assert.match(missing.receipt.error, /--integration/);
+  assert.match(missing.receipt.error, /--repository/);
   assert.equal(existsSync(absent), false);
   const lost = await abandonLostPreparation(trunk, profileOf("Yui"));
   assert.equal(lost.receipt.status, "invalid-request");
@@ -72,3 +78,51 @@ test("an owned worktree without a default checkout announces preparation, contin
   assert.equal(read(workspace, seedC), draft);
   assert.equal(await lsRemoteSha(created.origin, "refs/heads/main"), announced);
 });
+
+for (const context of ["workspace", "repository"])
+  test(`the owned ${context === "workspace" ? "worktree" : "Git directory"} alone creates a new preparation workspace at fetched trunk and continues its draft`, async (t) => {
+    const created = await createPreparationTrunk();
+    t.after(created.cleanup);
+    const owned = await ownedWorktreeOnly(created, "prep-kept", "prep/kept");
+    const trunk = { ...created, integration: null };
+    const fetched = await advanceOriginFromAnotherWriter(created.origin);
+    const retained = await captureCheckout(owned.workspace);
+    const workspace = join(created.fixture, "prep-fresh");
+    const branch = "prep/fresh";
+
+    const { code, receipt } = await startPreparation(
+      trunk,
+      workspace,
+      identityC,
+      ["--branch", branch, "--repository", owned[context]],
+    );
+    assert.equal(code, 0, JSON.stringify(receipt));
+    assert.equal(receipt.status, "announced");
+    assert.deepEqual(receipt.selection, {
+      created: true,
+      branch,
+      startingRevision: fetched,
+    });
+    assert.deepEqual(receipt.refresh, { result: "not applicable" });
+    const announced = receipt.publishedSha;
+    assert.equal(
+      await lsRemoteSha(created.origin, "refs/heads/main"),
+      announced,
+    );
+    assert.equal(await revParse(created.origin, `${announced}^`), fetched);
+    assert.equal(await revParse(workspace, "HEAD"), announced);
+    assert.deepEqual(await captureCheckout(owned.workspace), retained);
+
+    refineStoryC(workspace);
+    const draft = read(workspace, seedC);
+    const resumed = await startPreparation(trunk, workspace, identityC);
+    assert.equal(resumed.receipt.status, "continued", JSON.stringify(resumed));
+    assert.equal(resumed.receipt.allocation, announced);
+    assert.equal(resumed.receipt.selection, undefined);
+    assert.equal(read(workspace, seedC), draft);
+    assert.equal(
+      await lsRemoteSha(created.origin, "refs/heads/main"),
+      announced,
+    );
+    assert.deepEqual(await captureCheckout(owned.workspace), retained);
+  });
