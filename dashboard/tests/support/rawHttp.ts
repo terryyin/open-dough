@@ -1,4 +1,4 @@
-// A minimal raw HTTP client for the authenticated read boundary tests. `fetch`
+// A minimal raw HTTP client for the local boundary tests (read and launch). `fetch`
 // refuses to send some headers a browser could never send either (Origin
 // among them), but this suite's refusal cases are about what the *server*
 // does when a header disagrees -- not about re-proving what browsers already
@@ -17,6 +17,7 @@ export type RawRequestOptions = {
   readonly url: string;
   readonly method?: string;
   readonly headers?: Readonly<Record<string, string>>;
+  readonly body?: string;
 };
 
 export function rawRequest(options: RawRequestOptions): Promise<RawResponse> {
@@ -43,7 +44,7 @@ export function rawRequest(options: RawRequestOptions): Promise<RawResponse> {
       },
     );
     req.on("error", reject);
-    req.end();
+    req.end(options.body);
   });
 }
 

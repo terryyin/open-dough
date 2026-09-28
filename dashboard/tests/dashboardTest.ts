@@ -55,11 +55,19 @@ export const test = base.extend<{
   // stalled read; the server's own bound when unset. A journey that waits
   // the bound out sets a short one with `test.use`.
   readTimeoutMs: number | undefined;
+  // Folders under this page's dashboard HOME's `git/`, as catalog projects'
+  // folders for its synthetic `claude`; none when unset. A journey that
+  // launches an agent names them with `test.use`, and may shorten the
+  // server's launch wait the same way.
+  projectFolders: readonly string[] | undefined;
+  launchTimeoutMs: number | undefined;
   afterGitHubStops: (removal: () => void) => void;
   github: FakeGitHub;
   dashboard: DashboardServer;
 }>({
   readTimeoutMs: [undefined, { option: true }],
+  projectFolders: [undefined, { option: true }],
+  launchTimeoutMs: [undefined, { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
   github: async ({}, use) => {
@@ -74,12 +82,17 @@ export const test = base.extend<{
     const removals = removalsAfterStop.get(github) ?? [];
     await use((removal) => removals.push(removal));
   },
-  dashboard: async ({ github, readTimeoutMs }, use) => {
+  dashboard: async (
+    { github, readTimeoutMs, projectFolders, launchTimeoutMs },
+    use,
+  ) => {
     const server = await startDashboardServer({
       mode: "preview",
       prebuilt: builtDashboardDir,
       github,
       readTimeoutMs,
+      projectFolders,
+      launchTimeoutMs,
     });
     await use(server);
     await server.close();

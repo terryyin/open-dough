@@ -1,7 +1,9 @@
 // Launches one isolated Vite dev or preview server process with the
 // synthetic `gh` (../fixtures/fake-gh, via ./fakeGh.ts) first on that
-// process's PATH, answering from a fake GitHub (./fakeGitHub.ts). Every page
-// journey gets its own server this way (../dashboardTest.ts), and the
+// process's PATH, answering from a fake GitHub (./fakeGitHub.ts), and the
+// synthetic `claude` (../fixtures/fake-claude, via ./fakeClaude.ts) before
+// it, in a temporary HOME holding only the project folders a test chooses.
+// Every page journey gets its own server this way (../dashboardTest.ts), and the
 // boundary specs start their own, so PATH/env mutation and each fake
 // GitHub's answers never leak between tests.
 
@@ -10,6 +12,11 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { stripVTControlCharacters } from "node:util";
+import {
+  installFakeClaude,
+  type FakeClaudeControls,
+  type FakeClaudeOptions,
+} from "./fakeClaude.ts";
 import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
 import { endGroup, spawnGroupLeader } from "./processGroup.ts";
@@ -38,7 +45,7 @@ export type DashboardServer = {
   ghPid(): number | undefined;
   ghExitedBy(): string | undefined;
   close(): Promise<void>;
-};
+} & FakeClaudeControls;
 
 // Vite binds a free port itself (`--port 0`) and reports the address it
 // bound on stdout, so no other listener can take the port between choosing
@@ -110,32 +117,40 @@ export function buildDashboardTo(outDir: string): void {
   }
 }
 
-export async function startDashboardServer(options: {
-  readonly mode: "dev" | "preview";
-  // The server's own bound when unset.
-  readonly readTimeoutMs?: number | undefined;
-  // The fake GitHub this server's `gh` asks; a fresh one, closed with the
-  // server, when omitted.
-  readonly github?: FakeGitHub;
-  // Preview only: serve this already-built directory instead of building a
-  // private copy.
-  readonly prebuilt?: string;
-  // Extra environment for the spawned Vite process only, merged over the
-  // harness's own PATH/fake-`gh` wiring below. A test uses this to place a
-  // credential-shaped value somewhere the production code's own subprocess
-  // invocation (`../../server/ghRead.ts`, which forwards its whole
-  // environment to `gh`) would see it, without touching this process's own
-  // real environment.
-  readonly extraEnv?: Readonly<Record<string, string>>;
-}): Promise<DashboardServer> {
+export async function startDashboardServer(
+  options: FakeClaudeOptions & {
+    readonly mode: "dev" | "preview";
+    // The server's own bound when unset.
+    readonly readTimeoutMs?: number | undefined;
+    // The fake GitHub this server's `gh` asks; a fresh one, closed with the
+    // server, when omitted.
+    readonly github?: FakeGitHub;
+    // Preview only: serve this already-built directory instead of building a
+    // private copy.
+    readonly prebuilt?: string | undefined;
+    // Extra environment for the spawned Vite process only, merged over the
+    // harness's own PATH/fake-`gh` wiring below. A test uses this to place a
+    // credential-shaped value somewhere the production code's own subprocess
+    // invocation (`../../server/ghRead.ts`, which forwards its whole
+    // environment to `gh`) would see it, without touching this process's own
+    // real environment.
+    readonly extraEnv?: Readonly<Record<string, string>>;
+  },
+): Promise<DashboardServer> {
   const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-dashboard-"));
   const ownsGitHub = options.github === undefined;
   const github = options.github ?? (await startFakeGitHub());
   const gh = installFakeGh(tempRoot);
-
+  const ghEnv = fakeGhEnv(gh, github.url);
+  const claude = installFakeClaude(
+    tempRoot,
+    { binDir: gh.binDir, path: ghEnv["PATH"] ?? "" },
+    options,
+  );
   const env: NodeJS.ProcessEnv = {
     ...process.env,
-    ...fakeGhEnv(gh, github.url),
+    ...ghEnv,
+    ...claude.env,
     // Avatars are fetched from the same fake GitHub, never GitHub itself.
     DOUGH_AVATAR_ORIGIN: github.url.replace(/\/$/, ""),
     ...options.extraEnv,
@@ -207,6 +222,7 @@ export async function startDashboardServer(options: {
         return undefined;
       }
     },
+    ...claude.controls,
     async close() {
       await endGroup(child);
       await closeOwned();

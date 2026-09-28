@@ -1,0 +1,114 @@
+/* A Backlog card's Start execution action, its dialog, a launch's answer, and
+   the local Started state that replaces the action. Text carries every
+   meaning; the dashed edge of a not-ready action only repeats its note. */
+
+.start-execution {
+  margin-top: 0.45rem;
+}
+
+.start-execution-action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.6rem;
+}
+
+.start-execution-button,
+.launch-attach button,
+.start-execution-dialog-actions button {
+  font: inherit;
+  color: var(--accent);
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 0.25rem;
+  padding: 0.2rem 0.55rem;
+  cursor: pointer;
+}
+
+.start-execution-not-ready {
+  color: var(--quiet);
+  border-color: var(--edge);
+  border-style: dashed;
+}
+
+.start-execution-button:disabled,
+.start-execution-dialog-actions button:disabled {
+  color: var(--quiet);
+  border-color: var(--line);
+  cursor: default;
+}
+
+.start-execution-note {
+  font-size: 0.9rem;
+  color: var(--quiet);
+}
+
+.launch-answer {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.launch-problem {
+  color: var(--problem);
+}
+
+.start-execution-dialog {
+  box-sizing: border-box;
+  width: min(32rem, calc(100% - 1.5rem));
+  max-height: calc(100dvh - 1.5rem);
+  border: 1px solid var(--edge);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  color: var(--text);
+  background: var(--panel);
+}
+
+.start-execution-dialog::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+.start-execution-dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.start-execution-dialog label {
+  font-weight: 600;
+}
+
+.start-execution-dialog textarea {
+  box-sizing: border-box;
+  width: 100%;
+  font: inherit;
+  resize: vertical;
+}
+
+.start-execution-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.launch-started {
+  margin-top: 0.45rem;
+  border: 1px dashed var(--edge);
+  border-radius: 0.25rem;
+  padding: 0.35rem 0.55rem;
+  background: var(--panel);
+  font-size: 0.9rem;
+}
+
+.launch-started-state {
+  font-weight: 600;
+}
+
+.launch-started-local,
+.launch-copy-result {
+  color: var(--quiet);
+}
+
+.launch-copy-result:not(:empty) {
+  margin-left: 0.4rem;
+}

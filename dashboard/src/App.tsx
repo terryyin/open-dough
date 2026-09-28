@@ -5,6 +5,7 @@ import { DashboardBanner } from "./DashboardBanner.tsx";
 import { usePublishedObservation } from "./publishedObservation.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import { WorkStages } from "./WorkStages.tsx";
+import { useAgentLaunches } from "./agentLaunches.ts";
 import { PreparationLegend } from "./PreparationLegend.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
 import type { OpenRoster } from "./AgentAssignmentFacts.tsx";
@@ -40,6 +41,7 @@ export function App() {
   const initialSource = useRef(parseRoute(window.location).route.source);
   const { source, work, attempt, notice, reading, refresh, selectSource } =
     usePublishedObservation(initialSource.current);
+  const launches = useAgentLaunches(source);
 
   const onReturnToStories = useCallback(() => {
     returningFromRoster.current = true;
@@ -221,7 +223,11 @@ export function App() {
       </div>
       {work && (
         <main hidden={showsRoster}>
-          <WorkStages work={work} onOpenRoster={openRoster} />
+          <WorkStages
+            work={work}
+            launches={launches}
+            onOpenRoster={openRoster}
+          />
         </main>
       )}
       {showsRoster && (

@@ -1,6 +1,6 @@
 # Dashboard UX/UI North Star
 
-**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-09-27.
+**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-09-28.
 
 Help a developer understand the project's published story progress, then inspect
 the evidence behind it. The first useful experience should be small enough to
@@ -70,12 +70,12 @@ override Accepted decisions. No exception is proposed.
 3. Who is assigned, if recorded, and where does this execution mode publish work?
 4. What evidence supports this view, when was it retrieved, and what is unknown?
 
-Do not require readers to interpret raw Git history to answer the ordinary
-questions. Make the underlying records available when they need to verify an
-answer. Keep the initial interaction observational: browse, inspect, refresh,
-and follow source links. Assignment, reprioritization, and agent controls are
-outside this initial design. Zoom must not invent facts to answer these
-questions.
+Do not require readers to interpret raw Git history to answer the ordinary questions.
+Make the underlying records available when they need to verify an answer. Keep the
+interaction observational: browse, inspect, refresh, and follow source links. The one
+action, **Start execution** on a Backlog card, asks Claude Code on this machine to
+execute the story and changes no published fact. Assignment and reprioritization stay
+outside this design. Zoom must not invent facts to answer these questions.
 
 ## Connected stages and spatial navigation
 
@@ -123,6 +123,7 @@ reason to introduce an animation engine now.
 | Trunk Mode | Show the observed project's trunk ref. Absence of a story branch is expected, not an error. Missing mode is “Mode not recorded”; do not infer it from branch absence. |
 | Completed slices | Use “2 of 5 slices recorded complete” on cards and detail alike, only for a known plan and supported completion records. Counts describe slices, not effort, elapsed time, or percentage of the story outcome achieved. |
 | Current slice clock | Use “Current slice started 12 min ago”: time since the later of the last recorded plan update and the Take, not evidence that an agent is active. Avoid “running.” |
+| Start execution / Started | Every Backlog card offers “Start execution”; a card not marked Ready for execution says “Not marked Ready for execution” beside it, and Taken cards offer none. A confirmed launch shows “Started” with its launch time, session id, and `claude attach <id>`, marked local: evidence from this machine that a session was started, not live activity, a stage, or a Take. The story stays in the Backlog until origin publishes what the session does; Started stays through reloads, project switches, and a published Preparing, and is gone once origin shows the story Taken or no longer in the Backlog. A launch that did not start says “Launch failed” with why; one that may or may not have started says “Launch uncertain” and advises checking `claude agents`. Both keep the action. |
 | Execution complete | When the plan records its execution as complete with product advice, a Taken card uses “Execution complete, awaiting wrap-up” and “Completed 40 min ago” (time since the plan's last commit where its progress is read, the completion commit) in place of the current slice clock. A record without readable advice is shown as that gap, not as complete. It is not story closure. |
 
 When no plan is recorded, say so instead of “0%” or “0 of 0.” If planless

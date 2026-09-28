@@ -89,7 +89,7 @@ a change to global backlog priority.
 ```
 
 The original identity remains a historical parent reference, covering the
-eight child stories below. On 2026-09-28 the maintainer replaced its backlog
+child stories below. On 2026-09-28 the maintainer replaced its backlog
 entry with these children at priorities 4–11, in their listed order. The parent
 is no longer separately queued and is not redefined as the first child.
 
@@ -100,87 +100,6 @@ journey. All effort bands remain unassigned: the repository supplies no S/M/L
 definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
-
-<a id="launch-claude-planned-execution"></a>
-
-### 1. Launch execution in a Claude Code background session
-
-**Identity:** SEED-052#launch-claude-planned-execution
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/144-launch-claude-execution/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"351ed21502f7cbf460eb5118e363dd8ec1226ce57039f51a456912d4165b1d5f","plan":"b8fe5f06dd23b6f3c7a979c8d2f3bfd479603c7ffd178b20fea386b374a72eed"}}
-```
-
-**Goal:** The developer looking at a project's backlog in the dashboard starts
-execution of a chosen story there, instead of switching to a terminal, changing
-to the project's folder, and typing the execution instruction with the story's
-identity. It is the first test of whether dashboard-initiated agent work is
-actually used; the agent's ordinary workflow keeps every responsibility after
-launch.
-
-**Scope:**
-
-- Every card in the **Backlog** list, whatever its preparation state, offers
-  **Start execution**. Taken entries do not. A card not shown as **Ready for
-  execution** still offers it, visibly distinguished as not ready; the developer
-  may still start it. Getting a story ready first is something the developer
-  can ask for in the extra instructions, not a dashboard feature.
-- Starting opens a small dialog: the story, Claude Code as the tool, and an
-  optional free-text instruction, normally empty. There is no skill, tool,
-  model, or permission choice.
-- Each of the four observable projects has one fixed local folder on this
-  machine, defined in the dashboard's code: `~/git/open-dough`,
-  `~/git/doughnut`, `~/git/pygardon`, and `~/git/terry-talks`. The local
-  dashboard server starts a Claude Code background session (`claude --bg`) in
-  that folder, named to identify the project and story, instructed to execute
-  the story through the project's execution skill by its identity, followed by
-  any extra instruction. Claude Code's own default model and the developer's
-  configured permissions apply. Worktrees, fetching origin, Take, execution,
-  and publishing are the agent's own business.
-- The dashboard reports the launch as starting, launched (with the session id
-  and a copyable `claude attach <id>`), failed (with the reason, and no local
-  pending state), or uncertain (with advice to check `claude agents` before
-  starting again). It never starts a second session on its own, and launched
-  never claims Taken or execution success.
-- After a confirmed launch the card shows a temporary local **Started** state
-  (when, and the session id) in place of **Start execution**, clearly marked
-  as local, until an origin snapshot shows the story Taken or gone from the
-  backlog. A Preparing assignment does not end it: the launched agent may
-  first ready a story before taking it. Origin remains the only source of story
-  progress. The local state is kept by the running
-  dashboard server, so reloading the page or switching projects keeps it; it
-  does not expire on its own.
-- A project whose folder is missing, or a machine without the `claude`
-  command, gets an explanation instead of a launch.
-- The launch endpoint accepts requests only from the dashboard's own page.
-  It starts an agent with the developer's permissions, so another website
-  open in the browser must not be able to trigger it.
-
-**Deferred:** a list of launched sessions that survives a dashboard restart
-(story 2), in-dashboard interaction (story 3), other skills or tools, model
-choice, configurable project folders, cancelling or monitoring a session, and
-resuming Taken work.
-
-**Key examples:**
-
-- The Open Dough backlog shows a **Ready for execution** story. The developer
-  clicks **Start execution**, leaves the instruction empty, and starts. A
-  background session named for Open Dough and that story begins in
-  `~/git/open-dough`; the card shows **Started** with its id and attach
-  command. A minute later the agent's Take reaches origin, the story appears
-  under **Taken** with its owner, and the local state is gone.
-- A **Not refined** story shows **Start execution** styled as not ready. The
-  developer adds "refine and plan it first, then execute" and starts; the
-  session receives the execution instruction followed by that text.
-- The developer reloads the page while a story shows **Started**, and origin
-  has not changed yet: it still shows **Started**.
-- The Doughnut folder does not exist on this machine: starting a Doughnut story
-  explains that its folder `~/git/doughnut` was not found, and nothing is
-  launched.
-- `claude --bg` does not answer within the launch wait: the dashboard reports an
-  uncertain launch and suggests `claude agents`; the card offers **Start
-  execution** again without having started anything else.
-- A web page from another site posts to the launch endpoint: it is refused and
-  no session starts.
 
 <a id="revisit-dashboard-sessions"></a>
 
@@ -205,7 +124,14 @@ resuming Taken work.
   a completed-story view or an embedded terminal.
 - **Effort hypothesis:** Unestimated; persistence, retention, and stale session
   access are the sizing uncertainties.
-- **Depends on:** Story 1 provides identified dashboard-launched sessions.
+- **Known from launch:** Started follows Backlog membership only, so a session
+  that ends before its Take, or a story returned to the Backlog after a Take,
+  keeps Started until the dashboard restarts. Settling or relaunching from
+  Claude Code's own state belongs here: `claude agents --json` keeps finished
+  sessions with their `state`, which also supports reporting an unavailable
+  session.
+- **Depends on:** The dashboard launch ([Agent launch](../../dashboard/AGENT-LAUNCH.md))
+  provides identified dashboard-launched sessions.
 - **Safe stopping point:** Users can find and revisit sessions through the CLI
   without any browser interaction integration.
 
@@ -231,7 +157,9 @@ resuming Taken work.
   provides sufficient interaction before designing tool-specific status flows.
 - **Effort hypothesis:** Unestimated; attachment behavior, reconnecting, and
   browser terminal usability are the main uncertainties.
-- **Depends on:** Story 1; story 2 supplies the promised access after card removal.
+- **Known from launch:** A session is reached by the short id `claude --bg`
+  prints; `--bg` ignores `--session-id`, so the id cannot be chosen upfront.
+- **Depends on:** The dashboard launch; story 2 supplies the promised access after card removal.
 - **Safe stopping point:** Existing execution conversations are usable inside
   the dashboard even if refinement launch is never added.
 
@@ -259,7 +187,7 @@ resuming Taken work.
   tests whether skill selection and native terminal interaction are sufficient.
 - **Effort hypothesis:** Unestimated; skill applicability and interview-to-
   publication behavior need refinement.
-- **Depends on:** Story 1 and, for this chosen in-dashboard experience, story 3.
+- **Depends on:** The dashboard launch and, for this chosen in-dashboard experience, story 3.
   CLI-only refinement remains a smaller alternative if interaction proves costly.
 - **Safe stopping point:** Refinement and execution are useful without moving
   preparation responsibilities into the dashboard.
@@ -289,7 +217,7 @@ resuming Taken work.
   without creating two competing startup workflows.
 - **Effort hypothesis:** Unestimated; handoff, ownership, publication recovery,
   and tool-selected workspace ordering are consequential uncertainties.
-- **Depends on:** Story 1 and existing shared execution coordination tooling;
+- **Depends on:** The dashboard launch and existing shared execution coordination tooling;
   stories 2–4 are ordering preferences, not technical prerequisites.
 - **Safe stopping point:** Planned execution has deterministic preparation while
   refinement and direct CLI startup continue through their existing paths.
@@ -343,6 +271,9 @@ resuming Taken work.
   of the established experience transfers.
 - **Effort hypothesis:** Unestimated; launch/attach continuity and workspace
   conventions require a feasibility observation before planning or further split.
+- **Known from launch:** The browser still spells out Claude Code specifics:
+  `claude attach`, the `claude agents` advice, `/dough-execute-plan`, and the
+  host label. A second host moves them behind the host module.
 - **Depends on:** The chosen Claude Code experience; no dependency on Cursor.
 - **Safe stopping point:** Claude Code and Codex remain independently usable.
 
@@ -408,8 +339,7 @@ silently added to the launch critical path.
 
 ## Ordering and Scope Reduction
 
-Recommend story 1 first: it is independently usable and tests the central
-assumption with the least workflow relocation. Stories 2 and 3 make return and
+Stories 2 and 3 make return and
 interaction useful before story 4 introduces the more conversational workflow.
 Recent-session navigation can be delivered alongside terminal interaction if
 refinement shows that separate delivery adds no useful stopping point; neither

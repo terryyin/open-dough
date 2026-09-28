@@ -12,15 +12,53 @@ import {
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
 import { stagesMarks, workCardMarks } from "./workFocus.ts";
+import { launchAwaitsPublication, latestRecordOf } from "./agentLaunch.ts";
+import type { ProjectLaunches } from "./agentLaunches.ts";
+import { readyBadge } from "./storyPreparation.ts";
+import { StartExecution } from "./StartExecution.tsx";
+import { LaunchStarted } from "./LaunchStarted.tsx";
 
 function count(entries: readonly WorkEntry[]): string {
   return entries.length === 1 ? "1 entry" : `${entries.length} entries`;
+}
+
+// A Backlog card's launch: Started once the launch records still awaiting
+// publication hold one for the entry, otherwise the Start execution action.
+function CardLaunch({
+  entry,
+  launches,
+}: {
+  entry: WorkEntry;
+  launches: ProjectLaunches;
+}) {
+  const [startedHere, setStartedHere] = useState(false);
+  const record = latestRecordOf(launches.records, entry.identity);
+  if (record !== undefined) {
+    return <LaunchStarted record={record} takesFocus={startedHere} />;
+  }
+  const preparation = entry.preparation;
+  return (
+    <StartExecution
+      work={entry}
+      ready={
+        preparation?.status === "loading"
+          ? undefined
+          : preparation !== undefined && readyBadge(preparation) !== undefined
+      }
+      attempt={launches.attemptOf(entry.identity)}
+      onStart={(instruction) => {
+        setStartedHere(true);
+        return launches.startExecution(entry, instruction);
+      }}
+    />
+  );
 }
 
 function WorkCard({
   entry,
   priority,
   showsSliceProgress,
+  launches,
   selected,
   onSelect,
   onOpenRoster,
@@ -29,6 +67,8 @@ function WorkCard({
   priority: number | undefined;
   // Taken cards only: queued work shows no progress.
   showsSliceProgress: boolean;
+  // Backlog cards only: Taken work offers no launch.
+  launches: ProjectLaunches | undefined;
   selected: boolean;
   onSelect: (identity: string) => void;
   onOpenRoster: OpenRoster;
@@ -57,6 +97,7 @@ function WorkCard({
           sliceClock={entry.sliceClock}
         />
       )}
+      {launches && <CardLaunch entry={entry} launches={launches} />}
       <p>
         <button
           type="button"
@@ -93,6 +134,7 @@ function Stage({
   entries,
   prioritized,
   showsSliceProgress,
+  launches,
   selectedIdentity,
   onSelect,
   onOpenRoster,
@@ -102,6 +144,7 @@ function Stage({
   entries: readonly WorkEntry[];
   prioritized: boolean;
   showsSliceProgress: boolean;
+  launches?: ProjectLaunches | undefined;
   selectedIdentity: string | undefined;
   onSelect: (identity: string) => void;
   onOpenRoster: OpenRoster;
@@ -125,6 +168,7 @@ function Stage({
                 entry={entry}
                 priority={prioritized ? index + 1 : undefined}
                 showsSliceProgress={showsSliceProgress}
+                launches={launches}
                 selected={selectedIdentity === entry.identity}
                 onSelect={onSelect}
                 onOpenRoster={onOpenRoster}
@@ -144,9 +188,11 @@ function Stage({
 // keyboard focus can follow that work.
 export function WorkStages({
   work,
+  launches,
   onOpenRoster,
 }: {
   work: PublishedWork;
+  launches: ProjectLaunches;
   onOpenRoster: OpenRoster;
 }) {
   const [selectedIdentity, setSelectedIdentity] = useState<string | undefined>(
@@ -157,6 +203,9 @@ export function WorkStages({
       current === identity ? undefined : identity,
     );
   };
+  const awaiting = launches.records.filter((record) =>
+    launchAwaitsPublication(record, work),
+  );
   return (
     <>
       <section className="stages" aria-label="Work stages" {...stagesMarks}>
@@ -165,6 +214,7 @@ export function WorkStages({
           entries={work.backlog}
           prioritized
           showsSliceProgress={false}
+          launches={{ ...launches, records: awaiting }}
           selectedIdentity={selectedIdentity}
           onSelect={select}
           onOpenRoster={onOpenRoster}

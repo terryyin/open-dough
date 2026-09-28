@@ -217,8 +217,10 @@ test("accessible overview reads a backlog longer than one screen by scrolling th
   await test.step("keyboard focus moving back up is never hidden under that heading", async () => {
     await lastLink.focus();
     for (let place = queuedCount - 1; place >= 1; place -= 1) {
-      // Each card offers Inspect before its Canonical link, so two Shift+Tab
-      // steps reach the previous card's recorded link.
+      // Each queued card offers Start execution and Inspect before its
+      // Canonical link, so three Shift+Tab steps reach the previous card's
+      // recorded link.
+      await page.keyboard.press("Shift+Tab");
       await page.keyboard.press("Shift+Tab");
       await page.keyboard.press("Shift+Tab");
       const link = backlog

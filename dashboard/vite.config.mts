@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { agentLaunchPlugin } from "./server/agentLaunchPlugin.ts";
 import { authenticatedReadPlugin } from "./server/authenticatedReadPlugin.ts";
 
 const dashboardRoot = fileURLToPath(new URL(".", import.meta.url));
@@ -12,14 +13,15 @@ const sharedBacklogReader = fileURLToPath(
 );
 
 // The local authenticated read boundary (`./server/authenticatedRead.ts`) answers
-// with whatever existing local `gh` credentials can already read; it must
-// only ever be reachable on loopback, never on a network interface a shared
-// machine exposes.
+// with whatever existing local `gh` credentials can already read, and the
+// local launch boundary (`./server/agentLaunchPlugin.ts`) starts agent
+// sessions on this machine; both must only ever be reachable on loopback,
+// never on a network interface a shared machine exposes.
 const loopbackOnly = "127.0.0.1";
 
 export default defineConfig({
   root: dashboardRoot,
-  plugins: [react(), authenticatedReadPlugin()],
+  plugins: [react(), authenticatedReadPlugin(), agentLaunchPlugin()],
   server: {
     host: loopbackOnly,
     port: 43127,

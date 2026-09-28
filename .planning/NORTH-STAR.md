@@ -147,9 +147,10 @@ coordination between the observed projects or adopt Proposed ADR 0008.
 
 ## Agent launch as a requested assignment
 
-Starting agent work from the dashboard (SEED-052, beginning with
-[launch execution](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-planned-execution))
-adds the dashboard's first action. Model it in the vocabulary the dashboard
+Starting agent work from the dashboard
+([SEED-052](seeds/SEED-052-start-agent-work-from-dashboard.md), beginning with
+[launch execution](../dashboard/AGENT-LAUNCH.md)) adds the dashboard's first
+action. Model it in the vocabulary the dashboard
 already reads, so later launch stories extend one model instead of adding
 parallel ones:
 
@@ -167,8 +168,8 @@ parallel ones:
   stories list, persist, and attach to these same records rather than inventing
   a session registry.
 - Each **host** owns how to start and identify its sessions (for Claude Code:
-  `claude --bg` with a chosen `--session-id`, confirmed through
-  `claude agents --json`) and how a developer reaches one (`claude attach`).
+  `claude --bg`, which chooses and prints its own session id, confirmed
+  through `claude agents --json`) and how a developer reaches one (`claude attach`).
   Host-specific code stays in one module per host, added when that host is
   delivered; no adapter interface is built ahead of a second host.
 - Each catalog project's **local folder** is a machine-local fact held by the
