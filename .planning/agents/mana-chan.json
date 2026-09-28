@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Mana-chan",
+  "email": "mana-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-053#proportionate-local-verification",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
