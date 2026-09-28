@@ -53,8 +53,9 @@ existing path is the owned workspace you already selected or are resuming,
 used as it is. Supply `--push-authorized` only when publishing to that target
 is authorized; without it the command stops. Supply your own host and model,
 omitting either you cannot state rather than guessing.
-Supply `--declared-owner` and a matching `--requester` only when access to the
-default checkout has actually been established.
+Supply `--declared-owner` and a matching `--requester` only when your context
+declares the default checkout's owner for
+[refresh eligibility](../../dough-execute-plan/references/maintain-default-checkout.md#refresh-eligibility).
 
 Keep the receipt with this session and act on its `status`:
 

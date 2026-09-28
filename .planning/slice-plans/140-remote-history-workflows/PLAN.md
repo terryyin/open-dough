@@ -353,7 +353,7 @@ from before this story.
 
 ### 6. Explicit current-checkout edits need only their own authority
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A developer explicitly selects the current checkout and authorizes a
 bounded local edit or publication → deliver without declaring checkout-owner
@@ -373,6 +373,23 @@ unstaged bytes, no unauthorized remote change, and no branch/worktree switch.
 Walk one representative explicit-current-checkout guidance use. Safe stop: the
 developer's checkout remains an explicitly selected playground, while all six
 slices' remote-worktree behavior is complete.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/current-branch-publication.test.mjs src/skills/dough-execute-plan/scripts/current-branch-local-operation.test.mjs src/skills/dough-story-wrap-up/scripts/closure-current-branch.test.mjs`
+(8 pass; 7 fail on be1ba87f). Without owner tokens, explicit local-only and
+push-authorized current-checkout deliveries and their closure variants commit
+exactly the authorized paths on the trunk parent, preserve unrelated staged and
+unstaged bytes, keep branch and worktree identity, and change the remote only
+with push authority; an in-progress merge refuses without committing or
+publishing. The whole `node --test` suite (698) and payload checks pass. A
+read-through of the explicit current-checkout path (execute-plan location,
+wrap-up steps 6 and 8, `maintain-default-checkout.md` Direct edit) reaches the
+intended result with no access or handoff step.
+
+Learnings: optional declared-owner honoring remains only in the shared refresh
+and the startup/preparation CLIs; no guidance procedure now produces a declared
+owner, so its retention is a product decision beyond this story. The
+current-checkout runtime relies on guidance, not code, to stop an unrelated
+unpublished local commit before a push-authorized delivery, as before.
 
 ## Delivery checks and proof limits
 

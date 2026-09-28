@@ -24,7 +24,7 @@ purposes; another public CLI family is unnecessary for an internal seam.
 | A broad startup command could grow into an environment/provisioning framework. | Bound it to authorized queued work, source verification, suitable workspace selection, Take, publication, and refresh. Keep project setup and semantic readiness judgment with their existing owners. |
 | The CI story assumed a real readiness command and treated remote-tracking movement as proof of this workspace's push. | The readiness script is a test substitute; fetch and fast-forward can also move refs. Use the actual publication receipt for managed delivery, with no raw-Git watcher. |
 | A detailed result schema and optional host automation could become speculative infrastructure. | Define only facts the caller needs. Keep one explicit invocation per existing workflow boundary; no promise of invisible startup or arbitrary-command interception. |
-| Local coordination included waiting/fairness and could become a scheduler. | One immediate acquisition attempt, preserve work, and return deferred when busy. No queue, fairness policy, automatic takeover, or background catch-up. |
+| Local checkout maintenance could become a scheduler. | One refresh attempt, preserve work, and return deferred when unsafe. |
 | Four new publication stories plus the existing CI story overstated the migration set. | Retain startup, the existing CI/delivery story, preparation, and closure. Queue the last two below the remote dashboard outcomes; keep each independently useful. |
 
 ## Existing owners and constraints
@@ -41,7 +41,7 @@ publisher at their own boundaries.
 | Delivery | [`execution-increment-delivery.mjs`](../../src/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs) owns managed execution increment and repair delivery, runtime resolution, and observation attachment. A queued one-shot result passes `--one-shot-identity`; the publisher's `onFetchedTarget` seam rereads each fetched trunk tip before anything is rewritten and stops with `ownership-changed` when a Taken entry or agent profile names the story. |
 | Landing | [`dough-land`](../../src/skills/dough-land/SKILL.md) owns landing a reviewed worktree: commit everything, publish through the shared contract, refresh a supplied default checkout when eligible, and retire the worktree from its retained repository management context once trunk contains it. It has no runtime of its own. Preparation keep and bug-triage keep land through it. Wrap-up applies only its refresh and retirement sections, behind wrap-up's CI completion gate, because wrap-up must also publish before deleting history, register each SHA with its observer, and integrate Story Branch history. |
 | Closure | [`closure-publication.mjs`](../../src/skills/dough-story-wrap-up/scripts/closure-publication.mjs) and its settlement and resource helpers publish Trunk Mode closure revisions to the authorized remote target through the shared publisher, apply the shared optional refresh after each acceptance, and retire only after the completion receipt and shutdown. Retirement and resume run from the repository management context recorded from the owned workspace and returned for a rerun, so no default checkout is required. Story Branch integration publishes through [`history-preserving-publication.mjs`](../../src/skills/dough-execute-plan/scripts/history-preserving-publication.mjs) to the same named remote and target. |
-| Local checkout | [`maintain-default-checkout.mjs`](../../src/skills/dough-execute-plan/scripts/maintain-default-checkout.mjs) honors a declared competing owner and checks Git state for automatic refresh; missing owner declarations do not block it. Direct edits still require declared access. It does not acquire exclusive interprocess access. |
+| Local checkout | [`maintain-default-checkout.mjs`](../../src/skills/dough-execute-plan/scripts/maintain-default-checkout.mjs) checks Git state for automatic refresh and honors an optionally declared competing owner. [`current-branch-publication.mjs`](../../src/skills/dough-execute-plan/scripts/current-branch-publication.mjs) delivers explicit current-checkout work under the caller's own local or publication authority, committing only authorized paths. |
 | CI | [`ci-mailbox.mjs`](../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs), its worker, host hooks, and Codex stream own observation and delivery. Reuse them and the active completion story's result; no second lifecycle. |
 
 The startup command imports backlog domain functions rather than parsing CLI
@@ -103,12 +103,8 @@ current. Failed fetch or failure to establish fresh execution input stops startu
 deferred local maintenance does not. Report the fetched head observed, not a
 promise to remain equal to a continuously moving remote.
 
-Startup honors existing declared access where available; missing declarations
-do not block automatic refresh. Checkout coordination will establish cooperative
-access for direct edits and refreshes when that story is delivered. Remote
-publication from another worktree does not acquire local access. Nonparticipating
-human/tool edits still require preservation and conservative refusal; a cooperative lock cannot
-promise to prevent them.
+Startup passes an optionally declared checkout owner to refresh. Human and
+tool edits require preservation and conservative refusal.
 
 ## Admission: accepted work no backlog list holds
 
@@ -202,9 +198,8 @@ other preparation supplies that base to the shared workspace lifecycle.
 Preparation keep and closure later use the same publisher with their own
 existing authority and validation. Keep those separate: preparation has a
 leave-uncommitted choice; closure has published-history, target-change, and
-cleanup obligations. Shared-main direct edits consume the publisher and the one
-access owner through the existing coordination story; there is no fifth
-publication engine.
+cleanup obligations. Explicit current-checkout edits consume the same publisher and
+preservation owner; there is no fifth publication engine.
 
 Dashboard ownership extends the existing claim domain and startup result when
 that story is delivered; it does not add another Git publication path. The first

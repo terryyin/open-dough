@@ -1,5 +1,6 @@
-// Git mechanics (not guidance-following): current-branch closure stays in
-// the recorded checkout. Local-only closure is committed and pending
+// Git mechanics (not guidance-following): explicit current-branch closure
+// stays in the recorded checkout under the caller's own authority and commits
+// only its authorized paths. Local-only closure is committed and pending
 // publication. Publish-authorized closure uses the common publisher from
 // that checkout. Native agent behavior is not this file.
 import assert from "node:assert/strict";
@@ -7,6 +8,7 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  commitParentsAndPaths,
   plantedHumanEditBytes,
   recordedCheckoutIdentity,
   remoteHeads,
@@ -25,7 +27,7 @@ function prepare(checkout) {
   writeFileSync(join(checkout, "owned.txt"), "owned closure\n");
 }
 
-test("local-only current-branch closure commits and leaves remote refs unchanged", async (t) => {
+test("explicit local-only current-branch closure commits only its authorized paths and leaves remote refs unchanged", async (t) => {
   const fixture = await createCleanTrunkFixture();
   t.after(fixture.cleanup);
   const { origin, integration, trunkSha } = fixture;
@@ -38,8 +40,6 @@ test("local-only current-branch closure commits and leaves remote refs unchanged
   const delivered = await deliverCurrentBranchClosure({
     checkout: integration,
     defaultCheckout: integration,
-    declaredOwner: "caller",
-    requester: "caller",
     authority: "local-only",
     operation: "publish",
     paths: ["owned.txt"],
@@ -58,6 +58,10 @@ test("local-only current-branch closure commits and leaves remote refs unchanged
   assert.equal(await remoteHeads(origin), beforeRemote);
   assert.equal(await lsRemoteSha(origin, trunkTarget), trunkSha);
   assert.equal(await revParse(integration, "HEAD"), delivered.sha);
+  assert.deepEqual(await commitParentsAndPaths(integration, delivered.sha), {
+    parents: [trunkSha],
+    paths: ["owned.txt"],
+  });
   assert.equal(
     (await git(integration, "show", `${delivered.sha}:owned.txt`)).stdout,
     "owned closure\n",
@@ -68,7 +72,7 @@ test("local-only current-branch closure commits and leaves remote refs unchanged
   assert.deepEqual(await plantedHumanEditBytes(integration), beforeHuman);
 });
 
-test("publish-authorized current-branch closure records the accepted receipt from the same checkout", async (t) => {
+test("explicit publish-authorized current-branch closure publishes only its authorized commit from the same checkout", async (t) => {
   const fixture = await createCleanTrunkFixture();
   t.after(fixture.cleanup);
   const { origin, integration, trunkSha } = fixture;
@@ -81,8 +85,6 @@ test("publish-authorized current-branch closure records the accepted receipt fro
   const delivered = await deliverCurrentBranchClosure({
     checkout: integration,
     defaultCheckout: integration,
-    declaredOwner: "caller",
-    requester: "caller",
     authority: "publish",
     operation: "publish",
     paths: ["owned.txt"],
@@ -106,8 +108,13 @@ test("publish-authorized current-branch closure records the accepted receipt fro
     (await recordedCheckoutIdentity(integration)).worktrees,
     beforeIdentity.worktrees,
   );
+  assert.equal((await recordedCheckoutIdentity(integration)).branch, "main");
   assert.equal(await lsRemoteSha(origin, trunkTarget), delivered.sha);
   assert.equal(await revParse(integration, "HEAD"), delivered.sha);
+  assert.deepEqual(await commitParentsAndPaths(integration, delivered.sha), {
+    parents: [trunkSha],
+    paths: ["owned.txt"],
+  });
   assert.equal(
     (await git(integration, "show", `${delivered.sha}:trunk.txt`)).stdout,
     "base\n",

@@ -74,7 +74,7 @@ Resolve project context at the first boundary that needs it:
   [trunk publication's Preconditions](references/trunk-publication.md#preconditions) before
   selecting the owned workspace and taking or admitting work, and before publishing a
   claim, validated increment, or owned repair — those preconditions resolve
-  publication inputs and defer shared-checkout access and preservation to
+  publication inputs and defer shared-checkout preservation to
   [maintain the default checkout](references/maintain-default-checkout.md);
 - generation triggers and commands when affected; and
 - [refactor context](../dough-post-change-refactor/SKILL.md) before refactor delegation.
@@ -119,9 +119,9 @@ actual remote and trunk branch, and the established `--push-authorized
 `cursor`) and `--model`; omit either you cannot state rather than guess. Supply
 `--plan` as a path relative to the backlog directory when explicitly selected;
 the command also resolves the canonical published plan. Supply
-`--declared-owner` and matching `--requester` only when default-checkout access
-has actually been established. Missing declarations do not prevent a safe
-automatic refresh. The command fetches trunk, checks the published selected
+`--declared-owner` and matching `--requester` only when your context declares
+the default checkout's owner for [refresh eligibility](references/maintain-default-checkout.md#refresh-eligibility).
+The command fetches trunk, checks the published selected
 source and preparation, selects or reuses the workspace, names you as an agent,
 commits an isolated Take that publishes your agent profile, makes that agent the
 author of your workspace commits (`workspaceAuthorship: "not-configured"` means

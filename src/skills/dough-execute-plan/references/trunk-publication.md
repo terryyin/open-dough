@@ -62,8 +62,8 @@ worktree. For a claim, the supplied validation confirms the selected entry is
 **Taken** on the candidate and that no empty commit was invented. For an increment or
 repair, it reuses accepted proof whose promise, boundary, implementation,
 setup, and observations still match.
-[Default-checkout access and preservation](maintain-default-checkout.md)
-apply only when this publication mutates that checkout. A maintenance stop
+[Default-checkout preservation](maintain-default-checkout.md#preserve-pending-local-work)
+applies only when this publication mutates that checkout. A maintenance stop
 follows
 [human judgment](execution-decisions.md#stop-for-human-judgment),
 [delivery staging](wrap-up.md#deliver-the-change), and

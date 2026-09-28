@@ -32,8 +32,6 @@ test("a local commit request stays local when a destination and publication auth
   const delivered = await deliverRecordedCheckout({
     checkout: integration,
     defaultCheckout: integration,
-    declaredOwner: "caller",
-    requester: "caller",
     authority: "publish",
     operation: "commit",
     paths: ["owned.txt"],
@@ -67,8 +65,6 @@ test("a local merge request stays local and does not publish", async (t) => {
   const delivered = await deliverRecordedCheckout({
     checkout: integration,
     defaultCheckout: integration,
-    declaredOwner: "caller",
-    requester: "caller",
     authority: "publish",
     operation: "merge",
     mergeRef: "local-topic",

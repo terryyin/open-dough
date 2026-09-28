@@ -90,8 +90,7 @@ loop.
 
 After acceptance, attempt
 [Refresh eligibility](../dough-execute-plan/references/maintain-default-checkout.md#refresh-eligibility)
-on the supplied default checkout for the landed remote and branch, without
-acquiring exclusive access to it or requiring an ownership declaration.
+on the supplied default checkout for the landed remote and branch.
 Report its result and reason separately from publication. A not applicable,
 deferred, or stopped refresh, such as no supplied checkout, a pending human
 edit in that checkout, or a checkout path that no longer exists, is not a

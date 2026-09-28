@@ -20,7 +20,7 @@ boundaries will become less obvious. The view should help the developer
 understand the project across stories and agents.
 
 The dashboard will develop incrementally. This document captures its intended
-perspectives, sources of state, and local coordination requirement, without
+perspectives, sources of state, and local maintenance requirement, without
 prescribing a complete dashboard or its implementation.
 
 ## Three perspectives
@@ -135,15 +135,13 @@ the dashboard reads its published evidence.
 
 ### Stage 2: multiple agents sharing one machine
 
-Extend local coordination and visibility to multiple agents working in separate
-worktrees of the same repository. Coordinate direct edits and refreshes of the
-default checkout and use machine-local evidence to show its ownership and
-freshness. Each owned workspace publishes through the same remote Git contract
-used across independent machines.
+Extend local visibility to multiple agents working in separate worktrees of the
+same repository. Use machine-local evidence to show the default checkout's
+freshness and any deferred refresh. Each owned workspace publishes through the
+same remote Git contract used across independent machines.
 
-This stage includes default-checkout coordination as described below. Its
-mechanism remains to be designed. The remote Git view remains independently
-useful, with local information supplementing published progress.
+The remote Git view remains independently useful, with local information
+supplementing published progress.
 
 These stages describe the intended order of capability development. They do
 not commit to building the feature or structural perspectives, or make the
@@ -351,26 +349,16 @@ Some operational state belongs to a development machine and its local
 repository. It need not be committed to Git. Git-ignored files are one possible
 representation; the storage mechanism is not selected here.
 
-The first identified example is exclusive access to the default local checkout
-for direct edits and refreshes. Participating writers share one local ownership
-mechanism across worktrees:
-
-- Acquire access before inspecting and mutating the checkout, index, or branch
-  for a direct edit or refresh.
-- Retain access through the owned operation until safe release or explicit
-  recovery/handoff.
-- Writers awaiting this checkout continue independent work and remote
-  publication from their own workspaces.
-
-The remote trunk is the integration authority under the direction in
-[ADR 0009](adrs/0009-git-branching-and-integration.md). Reconciliation and
-publication happen in owned workspaces. Local ownership protects the default
-checkout's files and Git state.
+The first identified example is the default checkout's freshness and any
+deferred refresh. The remote trunk is the integration authority under the
+direction in [ADR 0009](adrs/0009-git-branching-and-integration.md).
+Reconciliation and publication happen in owned workspaces. Preservation checks
+protect the default checkout's files and Git state.
 
 ### Refreshing the default checkout
 
 A default checkout is optional. After each trunk publication, attempt a
-coordinated refresh of a supplied one; without one, refresh is not applicable.
+refresh of a supplied one; without one, refresh is not applicable.
 A clean checkout that is only behind fetched trunk advances by fast-forward.
 Pending edits, unpublished commits, active operations, unclear ownership, or a
 checkout Git cannot read or refresh preserve their state and produce a visible
@@ -386,17 +374,17 @@ unpublished work requires a deliberate ownership and dependency decision.
 
 ### Quick edits in the default checkout
 
-Allow short, prepared changes directly in the default checkout under the same
-local ownership mechanism used for refreshes. Inspect the current state, apply
-the bounded change, verify and commit the owned result, and leave a recoverable
-state at release. Preserve other writers' staged and working-tree content.
-The direct-edit owner follows the shared remote publication contract and its
-established publication authority.
+Allow short, prepared changes directly in a default checkout the developer
+explicitly selects, under that task's established authority. Inspect the
+current state, apply the bounded change, verify and commit only the authorized
+result, and leave a recoverable state. Preserve other writers' staged and
+working-tree content. Publication follows the shared remote publication
+contract and its separately established publication authority.
 
 “Quick” describes the operation's shape:
 
 - The intended change is already decided and bounded.
-- Required discussion and investigation are complete before acquiring access.
+- Required discussion and investigation are complete before the edit starts.
 - The change can be verified and committed promptly.
 
 Updating a known backlog field is a representative quick action. Story
@@ -407,42 +395,39 @@ trunk, then clean up when publication and session ownership permit it.
 The origin-based dashboard observes the published records.
 
 If a direct edit is interrupted or needs further discussion, preserve its work
-and establish a safe recovery or handoff before another writer mutates the
-checkout. A timeout can identify an operation needing attention; release
-requires evidence that ownership has been resolved.
+and report its recoverable state.
 
 ### Coexistence with human edits and other tools
 
-Human developers and other tools can change the default checkout independently
-of the participating agents' coordination mechanism. Inspect its state after
-acquiring access and revalidate before a mutation where practical. Preserve
+Human developers and other tools can change the default checkout at any time.
+Inspect its state and revalidate before a mutation where practical. Preserve
 unowned edits, staged content, unfinished Git operations, and unexpected branch
 or revision changes; report the observed ownership issue and resume after it is
 resolved. Re-read current state when resuming and reconcile the owned work with
 fresh remote history.
 
 Representative cases include a human's staged edit before refresh, a commit
-made while an agent awaits checkout access, and an edit made during an agent's
-owned operation. Each case preserves the human's work and the agent's prepared
+made between an agent's inspection and its refresh, and an edit made during an
+agent's direct edit. Each case preserves the human's work and the agent's prepared
 result, with a visible maintenance outcome. Another agent's owned worktree can
 continue publishing independently.
 
-An advisory mechanism coordinates its participants. Detection of external edits
-is limited by observable state and races between inspection and mutation.
-Refinement owns the precise checks, waiting behavior, and recovery interaction.
+Detection of external edits is limited by observable state and races between
+inspection and mutation. Refinement owns the precise checks and recovery
+interaction.
 
 ## Combining the two sources in the dashboard
 
 The dashboard should provide useful project visibility from repository state
 alone. When it also has access to a machine's local operational state, it should
 use that evidence to provide more detailed information about activity on that
-machine, such as default-checkout ownership, deferred refresh, or waiting where
-those facts are recorded.
+machine, such as default-checkout freshness or a deferred refresh where those
+facts are recorded.
 
 | Source | Intended information | Availability |
 | --- | --- | --- |
 | Git origin | Durable published backlog and execution progress | Without access to a developer's local clone |
-| Machine-local state | Default-checkout ownership, freshness, and deferred refresh | When that machine's state is accessible |
+| Machine-local state | Default-checkout freshness and deferred refresh | When that machine's state is accessible |
 
 The local layer supplements the repository layer; durable project progress
 should not become dependent on the local layer.
@@ -463,12 +448,6 @@ decisions:
   does not establish that an agent is currently running.
 - How to show freshness and missing evidence. A remote view cannot see
   unpublished local changes, and unavailable local state does not mean idle.
-- Where to store default-checkout ownership shared across worktrees, how to
-  acquire it atomically, and how to recover safely after interruption.
-- How to detect and recover from edits by writers who bypass the lock, including
-  races during an operation and safe handoff when a quick edit becomes blocked.
-- Whether waiting needs an explicit queue, including ordering and fairness.
-  Exclusive access alone does not define these behaviors.
 - How existing backlog and plan records expose sufficient information without
   introducing a duplicate status representation that can drift.
 - Whether completed-work views should reconstruct deleted plans from Git
@@ -492,7 +471,7 @@ scheduler, or dashboard control interface is selected by this document.
 ## Relationship to existing work and decisions
 
 The remote-only [story dashboard](../dashboard/README.md) precedes
-same-machine coordination. Its overview uses existing backlog membership and
+same-machine visibility. Its overview uses existing backlog membership and
 links; new entry metadata and persisted story states remain outside it.
 It begins the connected-stage direction with readable entry facts from the same
 snapshot rather than fetched story/plan detail. The broader zoom and animation
@@ -502,9 +481,10 @@ CI, alongside type checking, lint, and a production build.
 
 The [product backlog](../.planning/PRODUCT-BACKLOG.md) retains the near-future
 direction of parallel story execution through trunk-based development in
-separate worktrees. The existing
-[default-checkout coordination story](../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
-captures local access for direct edits and refreshes. Installed execute-plan
+separate worktrees. The
+[remote-history workflow story](../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
+makes owned workspaces independent of the default checkout and keeps its
+refresh optional. Installed execute-plan
 publication and default-checkout maintenance guidance apply the shared remote
 publication contract to implemented workflows.
 These requirements supply refinement context; the backlog owns priority and

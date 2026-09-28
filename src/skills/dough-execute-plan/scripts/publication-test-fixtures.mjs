@@ -92,6 +92,17 @@ export async function plantedHumanEditBytes(checkout) {
   };
 }
 
+// The parents and changed paths of one commit.
+export async function commitParentsAndPaths(checkout, sha) {
+  const [parents, ...paths] = (
+    await git(checkout, "show", "--format=%P", "--name-only", sha)
+  ).stdout
+    .trim()
+    .split("\n")
+    .filter(Boolean);
+  return { parents: parents.split(" "), paths };
+}
+
 export async function captureCheckout(checkout) {
   return {
     head: await revParse(checkout, "HEAD"),
