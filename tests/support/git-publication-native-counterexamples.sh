@@ -57,8 +57,7 @@ run_assessor_counterexamples() {
     'taken-on-remote: true' 'claim-owned: true' \
     'human-edit-preserved: true' 'selected-source-preserved: true' \
     'feature-exists: true' 'setup-exists: true' 'command-exists: true' \
-    'setup-after-claim: true' \
-    'startup-refusal-observed: false' \
+    'setup-after-claim: true' 'workspace-source-published: true' \
     'startup-conflict-observed: false' 'rival-owned: false' \
     'candidate-contained: false' \
     'first-edit-after-claim: true'
@@ -78,27 +77,21 @@ run_assessor_counterexamples() {
     git_publication_assess "${work}/startup-bad.txt"
     git_publication_suite_expect_assess fail "${reason}"
   done
-  sed -e 's/^journey: .*/journey: startup-selected-source/' \
-    -e 's/^remote-sha: .*/remote-sha: base/' \
-    -e 's/^taken-on-remote: .*/taken-on-remote: false/' \
-    -e 's/^claim-owned: .*/claim-owned: false/' \
-    -e 's/^feature-exists: .*/feature-exists: false/' \
-    -e 's/^setup-exists: .*/setup-exists: false/' \
-    -e 's/^command-exists: .*/command-exists: false/' \
-    -e 's/^setup-after-claim: .*/setup-after-claim: false/' \
-    -e 's/^startup-refusal-observed: .*/startup-refusal-observed: true/' \
-    -e 's/^first-edit-after-claim: .*/first-edit-after-claim: false/' \
+  sed 's/^journey: .*/journey: startup-selected-source/' \
     "${work}/startup-valid.txt" > "${work}/selected-valid.txt"
   git_publication_assess "${work}/selected-valid.txt"
-  git_publication_suite_expect_assess pass 'selected source stopped before claim'
-  sed 's/^startup-refusal-observed: .*/startup-refusal-observed: false/' \
-    "${work}/selected-valid.txt" > "${work}/selected-no-refusal.txt"
-  git_publication_assess "${work}/selected-no-refusal.txt"
-  git_publication_suite_expect_assess fail 'selected local source was published'
-  sed 's/^taken-on-remote: .*/taken-on-remote: true/' \
-    "${work}/selected-valid.txt" > "${work}/selected-local-take.txt"
-  git_publication_assess "${work}/selected-local-take.txt"
-  git_publication_suite_expect_assess fail 'selected local source was published'
+  git_publication_suite_expect_assess pass 'installed startup invoked'
+  for override in \
+    'workspace-source-published: false|owned workspace does not hold the published selected source' \
+    'selected-source-preserved: false|human or selected source' \
+    'taken-on-remote: false|remote trunk lacks'; do
+    local field=${override%%|*} reason=${override#*|}
+    local key=${field%%:*}
+    sed "s/^${key}: .*/${field}/" "${work}/selected-valid.txt" \
+      > "${work}/selected-bad.txt"
+    git_publication_assess "${work}/selected-bad.txt"
+    git_publication_suite_expect_assess fail "${reason}"
+  done
 
   sed -e 's/^journey: .*/journey: startup-claim-race/' \
     -e 's/^claim-owned: .*/claim-owned: false/' \
@@ -115,17 +108,15 @@ run_assessor_counterexamples() {
   git_publication_assess "${work}/race-no-receipt.txt"
   git_publication_suite_expect_assess fail 'rival claim did not stop'
   # Either marker alone proves unsafe continuation; absence must be explicit.
-  for refusal_case in selected race; do
-    for marker in setup command; do
-      sed "s/^${marker}-exists: .*/${marker}-exists: true/" \
-        "${work}/${refusal_case}-valid.txt" > "${work}/refusal-continued.txt"
-      git_publication_assess "${work}/refusal-continued.txt"
-      git_publication_suite_expect_assess fail
-      sed "/^${marker}-exists:/d" "${work}/${refusal_case}-valid.txt" \
-        > "${work}/refusal-unobserved.txt"
-      git_publication_assess "${work}/refusal-unobserved.txt"
-      git_publication_suite_expect_assess fail
-    done
+  for marker in setup command; do
+    sed "s/^${marker}-exists: .*/${marker}-exists: true/" \
+      "${work}/race-valid.txt" > "${work}/refusal-continued.txt"
+    git_publication_assess "${work}/refusal-continued.txt"
+    git_publication_suite_expect_assess fail
+    sed "/^${marker}-exists:/d" "${work}/race-valid.txt" \
+      > "${work}/refusal-unobserved.txt"
+    git_publication_assess "${work}/refusal-unobserved.txt"
+    git_publication_suite_expect_assess fail
   done
   sed -e 's/^journey: .*/journey: startup-resume/' \
     -e 's/^candidate-contained: .*/candidate-contained: true/' \
@@ -143,18 +134,17 @@ run_assessor_counterexamples() {
     git_publication_fixture_create_startup "${source_dir}" startup-selected-source "${work}"
     printf '%s\n' \
       '{"type":"item.started","item":{"type":"command_execution","command":"execution-start.mjs start"}}' \
-      '{"type":"item.completed","item":{"type":"command_execution","command":"execution-start.mjs start","aggregated_output":"{\"ok\":false,\"status\":\"source-refused\"}"}}' \
-      > "${work}/refusal-events.jsonl"
+      > "${work}/start-events.jsonl"
     for marker in setup command; do
       touch "${git_publication_fixture_root}/.${marker}-ran"
       git_publication_fixture_observe_startup startup-selected-source complete \
-        "${work}/refusal-events.jsonl" > "${work}/single-marker.txt"
+        "${work}/start-events.jsonl" > "${work}/single-marker.txt"
       grep -Fxq "${marker}-exists: true" "${work}/single-marker.txt"
       local other=setup
       [[ ${marker} == setup ]] && other='command'
       grep -Fxq "${other}-exists: false" "${work}/single-marker.txt"
       git_publication_assess "${work}/single-marker.txt"
-      git_publication_suite_expect_assess fail 'selected local source was published'
+      git_publication_suite_expect_assess fail 'remote trunk lacks'
       rm "${git_publication_fixture_root}/.${marker}-ran"
     done
   )

@@ -5,7 +5,7 @@
 git_publication_assess_startup() {
   local obs=$1 journey=$2
   local stream startup_calls remote_sha trunk_sha taken claim_owned human_preserved
-  local source_preserved feature setup command setup_after first_edit refusal conflict rival contained
+  local source_preserved workspace_source feature setup command setup_after first_edit conflict rival contained
   stream=$(git_publication_assess_field "${obs}" stream-status)
   startup_calls=$(git_publication_assess_field "${obs}" startup-cli-count)
   remote_sha=$(git_publication_assess_field "${obs}" remote-sha)
@@ -14,11 +14,11 @@ git_publication_assess_startup() {
   claim_owned=$(git_publication_assess_field "${obs}" claim-owned)
   human_preserved=$(git_publication_assess_field "${obs}" human-edit-preserved)
   source_preserved=$(git_publication_assess_field "${obs}" selected-source-preserved)
+  workspace_source=$(git_publication_assess_field "${obs}" workspace-source-published)
   feature=$(git_publication_assess_field "${obs}" feature-exists)
   setup=$(git_publication_assess_field "${obs}" setup-exists)
   command=$(git_publication_assess_field "${obs}" command-exists)
   setup_after=$(git_publication_assess_field "${obs}" setup-after-claim)
-  refusal=$(git_publication_assess_field "${obs}" startup-refusal-observed)
   conflict=$(git_publication_assess_field "${obs}" startup-conflict-observed)
   rival=$(git_publication_assess_field "${obs}" rival-owned)
   contained=$(git_publication_assess_field "${obs}" candidate-contained)
@@ -27,14 +27,6 @@ git_publication_assess_startup() {
     git_publication_assess_fail 'native startup command was not observed in a complete stream'
   elif [[ ${human_preserved} != true || ${source_preserved} != true ]]; then
     git_publication_assess_fail 'human or selected source bytes changed'
-  elif [[ ${journey} == startup-selected-source ]]; then
-    if [[ ${remote_sha} != "${trunk_sha}" || ${taken} != false || ${feature} != false ||
-      ${setup} != false || ${command} != false || ${refusal} != true ]]; then
-      git_publication_assess_fail 'selected local source was published or implementation started'
-    else
-      git_publication_assess_status=pass
-      git_publication_assess_reason='selected source stopped before claim with preserved bytes'
-    fi
   elif [[ ${journey} == startup-claim-race ]]; then
     if [[ ${remote_sha} == "${trunk_sha}" || ${taken} != true ||
       ${rival} != true || ${claim_owned} != false || ${contained} != false ||
@@ -52,6 +44,8 @@ git_publication_assess_startup() {
   elif [[ ${feature} != true || ${setup} != true || ${command} != true || ${setup_after} != true ||
     ${first_edit} != true ]]; then
     git_publication_assess_fail 'implementation or project setup crossed claim boundary incorrectly'
+  elif [[ ${journey} == startup-selected-source && ${workspace_source} != true ]]; then
+    git_publication_assess_fail 'owned workspace does not hold the published selected source'
   else
     git_publication_assess_status=pass
     git_publication_assess_reason='installed startup invoked before implementation with remote Taken and preserved human work'

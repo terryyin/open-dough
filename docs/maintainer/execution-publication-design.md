@@ -71,11 +71,10 @@ established execution/publication authority. Resolve canonical paths and project
 remote names through existing context. An invocation does not itself grant
 permission, declare prose ready, or authorize another push destination.
 
-1. Fetch remote trunk. Check the selected story section and active plan against
-   local unpublished commits, staged content, and working-tree edits in the
-   originating checkout. Stop for unpublished selected-source changes or an
-   ambiguous source. Sibling-story edits alone do not block. Use existing
-   canonical readers, not another Markdown grammar or dependency analyzer.
+1. Fetch remote trunk and read the selected story section, its ready
+   preparation, and the active plan from it. Stop for missing or unready
+   published preparation or an ambiguous source. Use existing canonical
+   readers, not another Markdown grammar or dependency analyzer.
 2. Select or reuse a suitable owned workspace based on fetched trunk. Preserve
    host-established workspaces and their authority; do not reset them or create
    nested worktrees by default. Stop if reconciling the intended source requires
@@ -125,9 +124,7 @@ therefore publishes the preserved candidate, not later drafts.
 
 Ordinary startup continues a Taken story only for the claim's own publisher,
 from ready published preparation, and returns `existing` without a second
-claim. A local copy that matches this publisher's claim commit counts as
-published, so the admission draft left in the originating checkout does not
-block continuation. Closure uses ordinary wrap-up and backlog completion.
+claim. Closure uses ordinary wrap-up and backlog completion.
 
 ## Publication, recovery, and CI
 

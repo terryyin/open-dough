@@ -4,17 +4,14 @@
 // and a whole declared plan. Sibling sections on trunk survive, other local
 // edits stay local, and an edit trunk also made differently stops with both
 // versions intact for a human decision.
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   joinSource,
   splitSource,
 } from "../../dough-product-backlog/scripts/product-backlog-source.mjs";
-import {
-  mergeBase,
-  sectionOf,
-  show,
-  worktreeSource,
-} from "./execution-source.mjs";
-import { revParse } from "./publication-git.mjs";
+import { sectionOf, show } from "./execution-source.mjs";
+import { git, revParse } from "./publication-git.mjs";
 
 // A refusal that names its stop status, such as a reconciliation conflict.
 export class AdmissionRefusal extends Error {
@@ -28,6 +25,15 @@ export class AdmissionRefusal extends Error {
 export const refused = (message, fields) =>
   new AdmissionRefusal("source-refused", message, fields);
 
+// The originating checkout's working-tree copy, or null when it has none.
+function worktreeSource(root, path) {
+  try {
+    return readFileSync(join(root, path), "utf8");
+  } catch {
+    return null;
+  }
+}
+
 // Where admitted content is drafted, and the revision it was drafted from:
 // the originating worktree against its merge base with trunk, or a preserved
 // claim candidate against its own parent. Recovery reconciles that candidate
@@ -39,7 +45,9 @@ export async function draftsOf(integration, remoteRef, candidateSha) {
       read: (path) => show(integration, candidateSha, path),
     };
   return {
-    base: await mergeBase(integration, remoteRef),
+    base: (
+      await git(integration, "merge-base", "HEAD", remoteRef)
+    ).stdout.trim(),
     read: async (path) => worktreeSource(integration, path),
   };
 }

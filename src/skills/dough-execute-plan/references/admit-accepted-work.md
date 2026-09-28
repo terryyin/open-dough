@@ -85,9 +85,7 @@ backlog change with the plan and story. Then run the start command without
 refuses, starting nothing, while the published approach is unselected, the
 published preparation is not ready, the published Taken entry lacks the plan
 link its preparation declares (record the planned approach again with
-`record-state` and publish it), the originating checkout holds an unpublished
-edit of the story or plan (the draft your admission published is not one), or
-another agent holds the claim.
+`record-state` and publish it), or another agent holds the claim.
 
 ## Finish the mission
 

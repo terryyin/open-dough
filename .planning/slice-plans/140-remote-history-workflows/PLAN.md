@@ -125,7 +125,7 @@ node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs
 
 ### 1. Queued startup follows published preparation
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Remote has ready queued preparation while a default checkout contains
 different selected-source versions → invoke installed startup → publish the
@@ -144,6 +144,24 @@ Continue the successful result through existing setup and first-delivery cases;
 inspect origin and all three local layers independently. Run the affected
 admission/continuation suites when the shared reader changes. Safe stop: queued
 startup is independent of local copies, with the original remote gates intact.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs`
+(30 pass) observes, through the installed start CLI, that different selected
+story/plan copies in the default checkout's worktree, index, and a local commit
+leave the published sources in the owned workspace, a remote Taken claim,
+setup plus first managed delivery, and deep-equal local state before and after
+(`workspace-publication-startup-local-copy-cases.mjs`). Remote-readiness,
+unlisted-identity, fetch, authority, and plan-link refusals still pass. The
+admission/startup/one-shot/preparation consumer suites (80 pass) cover the
+shared reader; admission keeps reading its deliberate local drafts.
+
+Learnings: a local commit ahead of trunk reports startup maintenance
+`stopped`/`diverged` while the accepted claim stands. The credential-free
+`tests/git-publication-native.sh` fails locally at the substitute Claude
+`one-shot-result` journey on the unchanged claim revision while CI is green;
+it is diagnosed and repaired as a separate defect in this execution. Native
+guidance proof for the changed `startup-selected-source` journey remains a
+release obligation under ADR 0005.
 
 ### 2. Preparation begins at current remote trunk
 Type: Behavior
