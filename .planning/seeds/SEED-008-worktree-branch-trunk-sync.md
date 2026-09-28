@@ -151,6 +151,11 @@ representation each.
   through the shared retirement mechanics.
 - Remove the startup and Land test redundancy the review found, and prove that
   a ready-looking local copy cannot override unready remote preparation.
+- Retirement guidance scopes a removable workspace to the work (the story or
+  preparation), including one an earlier session created for it, not to the
+  current session (Terry, 2026-09-28).
+- CI observation tolerates a sandbox that denies process inspection, so
+  sandboxed Codex delivery and completion keep their observer.
 - Native acceptance on Codex, Cursor, and Claude Code of the startup,
   preparation, Land, and wrap-up guidance changed by the original story and by
   this correction, run manually as the final slice.

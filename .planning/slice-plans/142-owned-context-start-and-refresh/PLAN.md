@@ -155,10 +155,10 @@ Observed on `c8ab090a` in the preparation workspace on 2026-09-28:
 | Startup refuses a clean, strictly-behind reused workspace; preparation fast-forwards one; neither gate recognizes an ongoing operation the same way. | A Node probe under `/Users/terryyin/.claude/jobs/06628f74/tmp` (removed afterwards) used `createQueuedTrunk`, `createPreparationTrunk`, `ownedWorktreeOnly`, and a clone that pushed one commit to origin, with Git 2.50.1. (a) Installed start with no `--integration`, reusing the behind owned worktree: exit 1, `setup-failed`, "existing workspace does not match clean fetched trunk and owned branch", HEAD unchanged. (b) With `--integration` and a behind host worktree: the same `setup-failed`, while maintenance reported `advanced`. (c) Preparation `start` in a behind owned worktree: `announced`, the announcement's parent is the advanced tip, and the workspace HEAD is the announcement. (d) The same with one local commit: `workspace-not-isolated`. (e) A clean owned worktree stopped mid-rebase (`rebase -i` with `break`: detached HEAD, `rebase-merge` present, empty status): `announced`, origin `main` moved to the announcement, and the rebase state remained. | Slice 4 makes startup selection fast-forward through the shared eligibility, and gives preparation the same eligibility. Its preparation change is the ongoing-operation refusal; its fast-forward already exists. |
 | Callers of reused-workspace selection. | `rg -n "selectOwnedWorkspace\|does not match clean fetched trunk"` finds `execution-start-operation.mjs:81` (queued and admitted start), `execution-start-source.mjs:32` (one-shot), `preparation-assignment-trunk.mjs:54` (new paths only; an existing path returns early at `:45`), and `workspace-publication-race.test.mjs` (new paths). The only reuse-refusal assertion is `one-shot-escalation.test.mjs:103`, a workspace with edits, which stays refused. | One-shot starts gain the same fast-forward through the shared selection. Slice 4's proof runs the one-shot and admission suites, and the edits assertion is kept, with its message updated if the reason text changes. |
 | Size headroom. | `wc -l`: `preparation-assignment-start.mjs` 250, `maintain-default-checkout.mjs` 234, `workspace-publication-select.mjs` 143, `…owned-context-cases.mjs` 222, `preparation-assignment-owned-context.test.mjs` 74; `tests/support/git-publication-native-assess.sh` 250, `…-fixture.sh` 246, `…-one-shot.sh` 249, `…-startup-fixture.sh` 198, `…-host.sh` 160. | Slice 4 replaces preparation's isolation check rather than adding to it, and puts new startup reuse cases in their own cases module. Slice 7 puts new journeys in their own support files. |
-| Land and wrap-up are carried out by the agent from guidance. | `ls src/skills/dough-land` shows only `SKILL.md`; wrap-up `SKILL.md` names no closure script entry point. The shipped closure modules have no entry point (F7). | Their changed retirement and refresh-reporting behavior carries native risk that deterministic model tests do not cover. Slice 8 must observe Land and wrap-up natively. |
+| Land and wrap-up are carried out by the agent from guidance. | `ls src/skills/dough-land` shows only `SKILL.md`; wrap-up `SKILL.md` names no closure script entry point. The shipped closure modules have no entry point (F7). | Their changed retirement and refresh-reporting behavior carries native risk that deterministic model tests do not cover. Slice 10 must observe Land and wrap-up natively. |
 | Native harness coverage. | Read `git-publication-native-host.sh` (`host_fresh_journeys`, `native_case_known`), `…-prompt.sh`, `…-startup-fixture.sh`, and `trunk-closure-native-fixture.sh`/`-run.sh`. Every `startup-*` fixture supplies `--integration` and a pending human edit. The `preparation` journey only publishes a retained result. No journey runs preparation `start`, Land, or any path without a default checkout. The trunk closure fixture keeps a default checkout with a pending edit. The credential-free default mode runs in the whole `scripts/test.sh` suite and is first in `tests/longest-first`. | Slice 7 adds three journeys for the new obligations and proves their assessors with counterexamples, keeping default-mode cost measured. `trunk-closure/source` is reused unchanged. |
 | How native journeys get installed guidance. | `git-publication-native-run.sh:107-160`: `startup-*`, `admission-*`, and `one-shot-*` install with `install.sh --target` into the integration checkout and run the host there. Other journeys install into the fixture workspace. `git_publication_one_shot_publish_install` (`…-one-shot.sh:35-44`) commits and pushes the install to fixture trunk, and `git_publication_record_pushes` logs every accepted push. An uncommitted install would leave a reused worktree dirty. | Slice 7 publishes the install to fixture trunk before creating the retained worktree, and uses the push log for push order and force. |
-| Native obligations inherited from plan 140. | `git show 199c579f:.planning/slice-plans/140-remote-history-workflows/PLAN.md`: slice 1 and 2 learnings leave native proof of `startup-selected-source` and of preparation workspace selection pending. The execution-complete record asks for native acceptance of the changed startup, preparation, Land, wrap-up, and current-checkout guidance. The current-checkout part is in the scope of SEED-008#finish-removing-checkout-coordination. | Slice 8 covers startup, preparation, Land, and wrap-up. |
+| Native obligations inherited from plan 140. | `git show 199c579f:.planning/slice-plans/140-remote-history-workflows/PLAN.md`: slice 1 and 2 learnings leave native proof of `startup-selected-source` and of preparation workspace selection pending. The execution-complete record asks for native acceptance of the changed startup, preparation, Land, wrap-up, and current-checkout guidance. The current-checkout part is in the scope of SEED-008#finish-removing-checkout-coordination. | Slice 10 covers startup, preparation, Land, and wrap-up. |
 
 ## Proof ownership
 
@@ -175,7 +175,9 @@ Observed on `c8ab090a` in the preparation workspace on 2026-09-28:
 | Land and wrap-up retire through one mechanics representation, including already-absent resources on a rerun. | 6: Land, preparation, bug-fixing, and closure suites pass through the shared core. A new Land rerun case with an already-removed worktree or branch reports already retired from the recorded management context. |
 | No redundant unusable-path Land test; `dough-land.test.mjs` is at most 250 lines. | 6: the rerun case and the `publication-checkout-unavailable` unit remain; line count checked. |
 | The native harness can observe and assess each new native obligation, and its assessors reject the failures that matter. | 7: credential-free default mode of `tests/git-publication-native.sh` runs each new observer once against a scripted substitute run, and rejects each named counterexample. |
-| On each of Codex, Cursor, and Claude Code, the changed startup, preparation, Land, and wrap-up guidance produces its intended outcome, or has justified reuse. | 8: the per-host journey table in slice 8, each run manually triggered and judged from the native trace and independent Git observations. |
+| A workspace an earlier session created for the same work is retired with that work, while reused and host-owned workspaces stay with their owners. | 8: guidance-text tests and read-through; native preparation-land rerun in 10. |
+| Sandbox-denied process inspection keeps CI delivery and completion observing. | 9: injected-EPERM unit proof; native Codex trunk-closure reruns in 10. |
+| On each of Codex, Cursor, and Claude Code, the changed startup, preparation, Land, and wrap-up guidance produces its intended outcome, or has justified reuse. | 10: the per-host journey table in slice 10, each run manually triggered and judged from the native trace and independent Git observations. |
 
 ## Ordered slices
 
@@ -534,7 +536,7 @@ Status: done
 
 Internal change: extend the existing publication and trunk-closure native
 harness with three journeys for obligations no journey covers. External
-product behavior is unchanged. This enables slice 8, which runs them. Existing
+product behavior is unchanged. This enables slice 10, which runs them. Existing
 journeys, prompts, and assessors stay unchanged.
 
 - `publication/startup-owned-context`: a repository with no default checkout,
@@ -575,7 +577,7 @@ origin pushes with `git_publication_record_pushes` to observe push order and
 force.
 
 Register the cases in `native_case_known` and the usage text. Do not add them
-to `host_fresh_journeys` defaults: slice 8 selects each run with `--case`. Put
+to `host_fresh_journeys` defaults: slice 10 selects each run with `--case`. Put
 each journey's fixture, observer, and assessor in its own support files, each
 at most 250 lines, reusing the existing supervisor, stream, retention, and
 host adapters. Add no new runner, selection registry, or host adapter.
@@ -607,13 +609,13 @@ scripted substitute run each passes its assessor, and every assessor rejects its
 counterexamples (disabling a clause fails the check). Shared push-log, ordering,
 Taken, and repository helpers live in `git-publication-native-shared.sh`. The
 trunk-closure fallback observer stop no longer enters a removed worktree; it
-stops the mailbox by its recorded root. Slice 8 invokes each journey with
+stops the mailbox by its recorded root. Slice 10 invokes each journey with
 `bash tests/git-publication-native.sh --native HOST --case CASE --results-dir DIR`
 under Homebrew Bash for `codex`, `cursor`, and `claude`. Once a real agent
 removes the worktree before shutdown, only that harness fallback can stop the
 observer, and the assessor still fails the run.
 
-Slice 8 first attempt (2026-09-28, candidate c0f6dfca, 12 paid runs): passes on
+Native acceptance's first attempt (2026-09-28, candidate c0f6dfca, 12 paid runs): passes on
 Claude and Codex startup-owned-context and preparation-land, Claude and Cursor
 trunk-closure/source. Four failures were harness defects: registration was
 detected only from a literal `register-push` although managed delivery
@@ -629,7 +631,52 @@ retirement guidance scopes ownership to "this session"; a sandboxed `ps` EPERM
 in `workerIsRunning` breaks Codex delivery and completion. Cursor also ran story
 wrap-up after execution despite `finish-or-stop.md`.
 
-### 8. The changed guidance is accepted natively on Codex, Cursor, and Claude Code
+### 8. Retirement ownership follows the work, not the session
+Type: Behavior
+Status: planned
+
+Decision (Terry, 2026-09-28, after native acceptance's first attempt): a worktree
+an earlier session created for the same story or preparation belongs to that
+work and is retired with it. Cursor kept such a worktree because
+`exploration-workspace.md` "Close or retain it" says to remove only a workspace
+"this session created", `preparation-workspace.md` ties removal to
+"session-created versus reused or host-owned identity", and Land step 2 says
+"created by this work" beside that link; Claude and Codex retired it.
+
+Change the shared lifecycle's ownership rule in `exploration-workspace.md` to
+the work that created the workspace (recorded as created for this story,
+preparation, or execution, including by an earlier session), keep reused and
+host-owned workspaces with their owners, and make `preparation-workspace.md`
+and Land step 2 link that rule rather than restating it. Check the other
+callers of that retirement wording (execution location, wrap-up, bug fixing,
+manual testing) for the same scope and align them by link. Executing-agent
+voice; no negation prose.
+
+Proof: read-through and `rg` for session-scoped removal wording; affected
+guidance-text tests (`workspace-ownership-lifecycle.test.mjs`,
+`dough-land-guidance.test.mjs`) updated to assert the work-scoped rule; payload
+checks and whole `node --test`. Native proof is slice 10's preparation-land
+rerun.
+
+### 9. CI observation survives a sandbox that denies process inspection
+Type: Behavior
+Status: planned
+
+Observed in native acceptance's first attempt: under Codex's `sandbox-exec`, `/bin/ps`
+fails with EPERM; `workerIsRunning` in
+`src/skills/dough-execute-plan/scripts/ci-mailbox-worker-process.mjs` does not
+tolerate it, so managed delivery exited 2 and `complete-revision` returned
+`evidence_unreadable`, while the adjacent command read already treats
+permission-denied inspection as "keep waiting". Treat EPERM/EACCES from `ps` as
+a live worker in the same way, without broadening other errors.
+
+Proof: a unit test that injects an EPERM `ps` and observes delivery and
+completion continuing (worker considered running, no throw), plus the existing
+mailbox liveness tests; a credential-free `sandbox-exec` probe on macOS when
+available; whole `node --test`. Native proof is slice 10's Codex trunk-closure
+reruns.
+
+### 10. The changed guidance is accepted natively on Codex, Cursor, and Claude Code
 Type: Behavior
 Status: planned
 
@@ -709,7 +756,7 @@ reuse on all three hosts.
 - Verification: focused suites per slice, then the whole `node --test` before
   each slice returns. Shell checks run only through
   `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh <check>`. Paid native runs
-  (`claude --print`, `codex exec`, `cursor agent`) happen only in slice 8, each
+  (`claude --print`, `codex exec`, `cursor agent`) happen only in slice 10, each
   on the developer's explicit trigger, and never in `scripts/test.sh`, CI, or a
   repeated suite.
 - Use independent post-change refactoring and ordinary managed delivery when
@@ -727,19 +774,19 @@ model each: the request's Git context, the in-progress recognizer, and
 reused-workspace eligibility, which reuses refresh's decision instead of adding
 a second rule. The Structure slices 1, 5, and 6 each remove one evidenced
 duplicate representation and prove preserved behavior at the affected external
-boundaries. Slice 7 is test-harness Structure that enables only slice 8.
+boundaries. Slice 7 is test-harness Structure that enables only slice 10.
 Order: slice 1 precedes slice 2, whose proof uses its helper. Slice 4 follows
 slice 3, whose recognizer it calls. Slice 6 touches the Land model after
 slice 3. Slices 7 and 8 come last, so that native runs evaluate all changed
 guidance once. Slice 4 is its own slice, not part of slice 2: it has a
 different trigger (reuse rather than creation) and its own refusal proof.
-Slice 7 is split from slice 8 because the credential-free assessor proof is
+Slice 7 is split from slice 10 because the credential-free assessor proof is
 an independent loop and a useful stop before any paid run.
 
 The request separation, Git's leftover-ref behavior, and today's reuse and
 preparation behavior were observed directly. The proof that the product adopts
 them, and all native results, are owned by the slices above and not claimed.
-Slice 8's outcome depends on host behavior that cannot be observed without paid
+Slice 10's outcome depends on host behavior that cannot be observed without paid
 runs. A failed run is reported as outstanding, and guidance is not changed
 within that slice without the developer's decision. That makes it an
 evaluation risk, not a readiness gap.
