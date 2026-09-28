@@ -66,10 +66,14 @@ recorded in Proposed ADR 0007; this work creates no further exception.
 
 ## Startup: one bounded operation
 
-The caller supplies the selected work identity, mode, originating checkout, and
-established execution/publication authority. Resolve canonical paths and project
-remote names through existing context. An invocation does not itself grant
-permission, declare prose ready, or authorize another push destination.
+The caller supplies the selected work identity, mode, originating checkout
+when one exists, and established execution/publication authority. Without an
+originating checkout, an existing owned worktree supplies repository access
+and local refresh is not applicable; admission then carries no local drafts,
+and creating a new workspace still needs a checkout to create it from.
+Resolve canonical paths and project remote names through existing context. An
+invocation does not itself grant permission, declare prose ready, or authorize
+another push destination.
 
 1. Fetch remote trunk and read the selected story section, its ready
    preparation, and the active plan from it. Stop for missing or unready

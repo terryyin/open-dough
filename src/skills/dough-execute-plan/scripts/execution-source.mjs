@@ -63,9 +63,9 @@ export function sectionOf(source, href) {
 // links it. Any other plan is its own file, linked by `planTarget`. `read`
 // reads the preparation recorded in a home's text, digesting the declared
 // plan's `planSource` when one is given.
-export function selectedPreparation(integration, href) {
+export function selectedPreparation(repository, href) {
   const homePath = within(
-    integration,
+    repository,
     posix.join(dirname(backlogPath), splitHref(href).path),
   );
   return {
@@ -73,7 +73,7 @@ export function selectedPreparation(integration, href) {
     declaredPlan(approach) {
       if (approach.kind !== "planned") return {};
       const declared = within(
-        integration,
+        repository,
         posix.join(dirname(homePath), approach.plan),
       );
       const planPath = planFileOf(declared);
@@ -89,7 +89,7 @@ export function selectedPreparation(integration, href) {
 }
 
 export async function readPublishedExecutionSource(request, remoteRef) {
-  const backlog = await show(request.integration, remoteRef, backlogPath);
+  const backlog = await show(request.repository, remoteRef, backlogPath);
   if (backlog === null) throw new Error("fetched trunk has no product backlog");
   const entry = parseBacklog(backlog).entries.find(
     (item) => item.identity === request.identity,
@@ -103,7 +103,7 @@ export async function readPublishedExecutionSource(request, remoteRef) {
   let claim;
   if (entry.list === takenHeading && !request.retained) {
     claim = await claimProvenance(
-      request.integration,
+      request.repository,
       remoteRef,
       request.identity,
       backlogPath,
@@ -111,9 +111,9 @@ export async function readPublishedExecutionSource(request, remoteRef) {
     if (!claim?.publisher || claim.publisher !== request.publisherId)
       return { existing: entry, claim };
   }
-  const selection = selectedPreparation(request.integration, entry.href);
+  const selection = selectedPreparation(request.repository, entry.href);
   const { homePath } = selection;
-  const home = await show(request.integration, remoteRef, homePath);
+  const home = await show(request.repository, remoteRef, homePath);
   if (home === null)
     throw new Error("selected canonical home is absent on fetched trunk");
   const preview = selection.read(home);
@@ -124,7 +124,7 @@ export async function readPublishedExecutionSource(request, remoteRef) {
   let plan;
   if (preview.approach.kind === "planned") {
     if (!planIsCanonical) {
-      plan = await show(request.integration, remoteRef, planPath);
+      plan = await show(request.repository, remoteRef, planPath);
       if (plan === null) throw new Error("published plan is absent");
     }
     // A link to a section of the declared plan links that plan.

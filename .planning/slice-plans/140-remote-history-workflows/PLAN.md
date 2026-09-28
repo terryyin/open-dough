@@ -206,7 +206,7 @@ agent selecting and drafting remains a release obligation.
 
 ### 3. Owned workspace startup needs only repository context
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Valid owned repository context and installed guidance exist, with no
 default checkout supplied → start queued/one-shot/admitted execution or announce
@@ -230,6 +230,25 @@ remote, missing authority, and mismatched resume refusal. Run
 `preparation-assignment-*.test.mjs`; update candidate installation checks.
 Safe stop: startup/preparation have no mandatory default-checkout path, while
 Land/wrap-up still await adoption in slices 4–5.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs`
+(33 pass) and `workspace-publication-admission.test.mjs` use `ownedWorktreeOnly`
+(a bare repository whose only worktree is the owned one; the default checkout is
+deleted). Without `--integration`, installed startup publishes and resumes the
+claim with `created: false` and maintenance `not applicable`, runs setup and a
+first managed delivery there; one-shot prepares without publishing; admission
+takes only published content; invalid repository, remote, workspace, and
+authority refuse without changes. `preparation-assignment-owned-context.test.mjs`
+announces, continues, and stages release from an owned worktree alone. All five
+new cases fail on 80ab5df2. Startup/admission/one-shot (69), preparation (28),
+shared-maintenance callers (18), and payload checks pass.
+
+Learnings: `--integration` is now optional; omitted, the owned worktree supplies
+repository access and must already exist, so creating a new workspace still
+needs a supplied default checkout. `refreshDefaultCheckout` returns
+`not applicable` without a checkout for slices 4–5 to reuse. A reused owned
+workspace must still equal clean fetched trunk; a merely behind host worktree is
+refused rather than advanced, unchanged by this slice.
 
 ### 4. Land publishes and retires without a default checkout
 Type: Behavior

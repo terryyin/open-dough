@@ -61,8 +61,9 @@ the actual established paths. The owned workspace path is the preparation
 workspace. The integration checkout path is the checkout this preparation was
 invoked from, or a reused host workspace's already-recorded integration
 checkout — the project's established checkout for ordinary work, never the
-owned preparation workspace itself. Target selection is the authorized remote
-target, recorded separately from that path. A later keep decision publishes
+owned preparation workspace itself. When no such checkout exists, record none.
+Target selection is the authorized remote target, recorded separately from that
+path. A later keep decision publishes
 onto this recorded target; see
 [Decide what happens to the written result](preparation-disposition.md#decide-what-happens-to-the-written-result).
 Preparation's continuation after this selection is the record write and that

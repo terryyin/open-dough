@@ -44,7 +44,10 @@ operation: approach `unselected` while the approach is undecided, `planless`
 only under explicit planless authority, or `planned` with its plan. Record no
 assessment you have not made. Then add
 `--admit --link <seed path>#<anchor> --title <entry title>` to the start
-command's flags, with the link relative to the backlog directory.
+command's flags, with the link relative to the backlog directory, and supply
+the checkout holding those drafts as its `--integration`. Drafts are read only
+from that supplied checkout; without it, the command admits the story as
+published on remote trunk.
 
 ## Act on the result
 

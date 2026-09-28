@@ -33,17 +33,20 @@ record write, run:
 
 ```text
 node <installed>/scripts/preparation-assignment.mjs start \
-  --integration <integration checkout> --workspace <owned workspace> \
+  [--integration <integration checkout>] --workspace <owned workspace> \
   [--branch <new workspace branch>] \
   --identity <queued story identity> --remote <remote> --target <trunk branch> \
   --push-authorized [--host claude|codex|cursor] [--model <model>] \
   [--declared-owner <id> --requester <id>]
 ```
 
-Use the recorded paths and target. When no suitable owned workspace exists
-yet, name the new workspace path and supply `--branch` with a new branch
-name: `start` fetches the target and, once it finds the story queued there,
-creates the workspace on that branch at fetched trunk before announcing. Its
+Use the recorded paths and target. Supply `--integration` when this project
+has an integration checkout; without one, the owned workspace supplies
+repository access. When no suitable owned workspace exists yet, name the new
+workspace path, supply the integration checkout it is created from, and supply
+`--branch` with a new branch name: `start` fetches the target and, once it
+finds the story queued there, creates the workspace on that branch at fetched
+trunk before announcing. Its
 receipt then carries `selection` with `created: true`, the branch, and the
 starting revision; record the workspace as created by this session. An
 existing path is the owned workspace you already selected or are resuming,
@@ -60,7 +63,8 @@ Keep the receipt with this session and act on its `status`:
   queue and your draft are unchanged. The command then attempts the same safe
   refresh of the integration checkout as Dough Land's
   [Refresh the default checkout](../../dough-land/SKILL.md#refresh-the-default-checkout)
-  and reports it in `refresh`. A deferred or stopped refresh preserves that
+  and reports it in `refresh`; with no integration checkout supplied, its
+  `result` is `not applicable`. A deferred or stopped refresh preserves that
   checkout without undoing the announcement. Begin preparing in the workspace.
 - `continued`: this workspace already holds the story's published assignment;
   nothing new is published. Run `start` at each preparation skill's first write
@@ -184,7 +188,7 @@ From the owned workspace that announced it, run:
 
 ```text
 node <installed>/scripts/preparation-assignment.mjs abandon \
-  --integration <integration checkout> --workspace <owned workspace> \
+  [--integration <integration checkout>] --workspace <owned workspace> \
   --identity <queued story identity> --remote <remote> --target <trunk branch> \
   --push-authorized [--declared-owner <id> --requester <id>]
 ```

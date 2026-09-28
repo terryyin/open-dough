@@ -23,6 +23,7 @@ acceptance:
 - **already current** — the checkout is clean and its `HEAD` is that fetched revision.
 - **deferred** — a pending human edit, staged or unstaged change, unpublished commit, ongoing operation, another writer's ownership, or ambiguous ownership. Name the preserved `HEAD`, index, and working tree.
 - **stopped** — the checked-out branch is not the integration branch, or local history has diverged from fetched trunk. Preserve that state and name it.
+- **not applicable** — no default checkout was supplied; there is nothing to refresh or preserve locally.
 
 Owned-workspace publication records an inspection result and does not
 fast-forward. Inspection reports **already current** only when the checkout

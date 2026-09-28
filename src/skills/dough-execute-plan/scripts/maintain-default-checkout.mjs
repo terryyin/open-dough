@@ -158,6 +158,7 @@ async function fetchedState(checkout, remoteRef) {
 // Ownership declarations are optional for refresh. A declared owner must match
 // the requester; this module does not acquire exclusive access or create a lock.
 // A missing snapshot argument is intentional: callers cannot supply a stale one.
+// With no default checkout supplied there is nothing to refresh.
 export async function refreshDefaultCheckout({
   checkout,
   declaredOwner,
@@ -165,6 +166,7 @@ export async function refreshDefaultCheckout({
   integrationBranch = "main",
   remote = "origin",
 }) {
+  if (!checkout) return { result: "not applicable" };
   const ongoing = await ongoingOperation(checkout);
   const ownerRefusal = singleOwner(declaredOwner)
     ? declaredOwnerRefusal(declaredOwner, requester)

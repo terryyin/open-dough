@@ -71,8 +71,8 @@ export async function selectOwnedWorkspace(request) {
   try {
     let { base } = request;
     if (!base) {
-      await git(request.integration, "fetch", remoteOf(request));
-      base = await revParse(request.integration, remoteRef(request));
+      await git(request.repository, "fetch", remoteOf(request));
+      base = await revParse(request.repository, remoteRef(request));
     }
     if (existsSync(request.workspace)) {
       const actual = await revParse(request.workspace, "--show-toplevel");
@@ -106,7 +106,7 @@ export async function selectOwnedWorkspace(request) {
       };
     }
     await git(
-      request.integration,
+      request.repository,
       "worktree",
       "add",
       "-b",
