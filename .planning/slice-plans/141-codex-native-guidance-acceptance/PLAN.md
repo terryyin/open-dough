@@ -167,7 +167,8 @@ Slice 1 delivered: `8373b163be94f2b6244c7c0c0e1e8e501877afa6` accepted on the re
 Verdict: candidate failed the proportionate control; baseline is mixed/limited,
 not a clean historical-plan-111 burden match. Slice 2 remains planned and
 unaccepted. Terry subsequently authorized continuing independent slices 3–7 and
-queuing the [local-verification correction](../../seeds/SEED-053-native-guidance-acceptance.md#proportionate-local-verification)
+queuing the local-verification correction (`SEED-053#proportionate-local-verification`;
+recoverable at `c91c69a5`, `.planning/seeds/SEED-053-native-guidance-acceptance.md`)
 first with known evidence for later decisions; accepted on `origin/main` at
 `e78a7618fb29d223eaa014aefb9dae5243fb3d1b`. No guidance fix or unchanged retry.
 The story remains Taken and whole-plan acceptance remains incomplete.
@@ -242,4 +243,4 @@ Verdict: inconclusive, not a behavior failure; safe admission happened before pr
 
 ## Incomplete execution boundary
 
-Cases 1 and 3–6 accepted; case 2 remains failed/unaccepted and case 7 inconclusive. The first backlog correction `SEED-053#proportionate-local-verification` retains case 2's evidence and decision options; its implementation is deferred by the maintainer. Future decisions must address that correction and adequate after-edit carry proof, without weakening this plan's promises or repeating unchanged paid runs. Preserve this Taken identity, plan and owned worktree; no completion marker, automatic retrospective or wrap-up. Publish this evidence, then stop the exact observer under the host's human-judgment-stop contract without waiting for CI; the separately owned dashboard assertion failure remains a CI limitation.
+Cases 1 and 3–6 accepted; case 2 remains failed/unaccepted and case 7 inconclusive. The first backlog correction `SEED-053#proportionate-local-verification` was later delivered at `8cafa49d` and closed; case 2's rerun decision is in the Codex story's known evidence. Future decisions must address that correction and adequate after-edit carry proof, without weakening this plan's promises or repeating unchanged paid runs. Preserve this Taken identity, plan and owned worktree; no completion marker, automatic retrospective or wrap-up. Publish this evidence, then stop the exact observer under the host's human-judgment-stop contract without waiting for CI; the separately owned dashboard assertion failure remains a CI limitation.
