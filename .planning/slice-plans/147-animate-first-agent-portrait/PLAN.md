@@ -130,3 +130,13 @@ of the Taken-card and roster hovers was handed to Terry for judgment.
   also adds a generic `portrait-gesture` modifier class alongside
   `--portrait-gesture`.
 - The strip loads on first hover; until it arrives, the still shows.
+
+## Execution complete
+
+Product advice: the learning outcome rests on Terry's judgment of the wink
+recording. If he accepts it, mark `AVATARS.md` approval as approved and decide
+whether other agents get gestures; until then, no further animation stories
+ahead of the SEED-008/SEED-052 near-future direction. A follow-up for other
+agents would need per-strip frame count and duration (the CSS rule fixes 18
+frames and 1.5 s) and should reuse `expectEnlargedSharply` for the still
+enlargement instead of the gesture spec's own `stillLayers`.
