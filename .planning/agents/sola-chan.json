@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Sola-chan",
-  "email": "sola-chan@example.org",
-  "identity": "SEED-044#native-premise-acceptance-codex-cursor",
-  "mode": "story-branch",
-  "branch": "codex/plan-141-execution",
-  "host": "codex"
-}

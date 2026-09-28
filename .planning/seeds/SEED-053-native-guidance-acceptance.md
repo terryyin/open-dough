@@ -26,7 +26,7 @@ additional acceptance cases or implementation scope.
 
 **Identity:** SEED-044#native-premise-acceptance-codex-cursor
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/141-codex-native-guidance-acceptance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c429ffb0777c48be92d0930d55c8db9132021b699bd7255216759cc62390daf8","plan":"e2c9b27d8bd9e7baa0e3dd19c0f6542688745d9891414b5ca753669f84190f66"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/141-codex-native-guidance-acceptance/PLAN.md","assessment":"not-ready","reasons":["Select a released guidance revision containing 8cafa49d and review proof applicability before rerunning the control.","Resolve slice 7 fixture visibility so the native case exercises growth after owned edits and their uncommitted restoration."],"basis":{"document":"3dccbe0f93ffafd53e6192bb9a33ffddff9d3afc7afa983043807af1f2141af1","plan":"ef9ca34266069377928b923ea4525df9c8ec5de8cf75608e51403f1cd04a3482"}}
 ```
 
 **Goal:** Developers using Codex can rely on the selected planning and
@@ -124,6 +124,23 @@ make a check a local gate (`8cafa49d`). Rerun the control on a release that
 contains that rule, under separate paid-run authority. Do not retry it on
 unchanged guidance. If the rerun still adds unconditional hosted-CI gates,
 decide then whether to add a readiness criterion.
+
+**Deferred acceptance — 2026-09-28:** Terry returned this incomplete story
+from Taken to third priority in the Backlog list, after the owned-checkout and
+installed wrap-up fixes, ahead of further dashboard launch work. The original
+execution was landed at `b065a8b9`; its worktree and execution branch were
+retired. Release the obsolete Sola-chan execution assignment; this story is
+queued for a later, explicitly selected run, not complete or currently executing.
+
+**Resume conditions:** Select and pin a released guidance revision containing
+`8cafa49d` before rerunning slice 2. For slice 7, resolve the fixture's early
+migration visibility so the nonleading case actually exercises growth after
+owned edits and their uncommitted restoration; unchanged early admission is
+still inconclusive. Review the remaining plan and readiness before execution.
+Retain passes for slices 1 and 3–6 and reuse them only after checking their
+applicability to the selected guidance, fixture, adapter and runtime. Preserve
+slice 2's failure and slice 7's inconclusive evidence. This queue decision does
+not authorize a paid run now or an unchanged retry.
 
 **Slice plan:** [Codex native guidance acceptance](../slice-plans/141-codex-native-guidance-acceptance/PLAN.md).
 
