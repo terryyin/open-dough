@@ -167,8 +167,8 @@ parallel ones:
   stories list, persist, and attach to these same records rather than inventing
   a session registry.
 - Each **host** owns how to start and identify its sessions (for Claude Code:
-  `claude --bg` with a chosen `--session-id`, confirmed through
-  `claude agents --json`) and how a developer reaches one (`claude attach`).
+  `claude --bg`, which chooses and prints its own session id, confirmed
+  through `claude agents --json`) and how a developer reaches one (`claude attach`).
   Host-specific code stays in one module per host, added when that host is
   delivered; no adapter interface is built ahead of a second host.
 - Each catalog project's **local folder** is a machine-local fact held by the

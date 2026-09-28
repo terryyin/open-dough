@@ -24,7 +24,10 @@ GitHub. Select one journey with, for example,
 `npm run test:dashboard -- --grep 'authenticated project overview'`.
 
 The launch boundary specs (`agent-launch-boundary.spec.ts` and
-`agent-launch-refusal.spec.ts`) drive a synthetic `claude`
+`agent-launch-refusal.spec.ts`) and the card journey
+(`agent-launch-card.spec.ts`, which names its folders and launch wait through
+the `projectFolders` and `launchTimeoutMs` options of `dashboardTest.ts`)
+drive a synthetic `claude`
 (`fixtures/fake-claude`, `support/fakeClaude.ts`) that every server puts first
 on its PATH, in a temporary HOME holding only the project folders a test
 chooses. A per-server scenario decides whether it launches, refuses, finds

@@ -260,7 +260,15 @@ runs in dev and preview. Existing `authenticated-read-refusal.spec.ts` and
 
 ### 3. Start execution from a Backlog card and see its launch result
 Type: Behavior
-Status: planned
+Status: done — accepted proof: `npx playwright test --config
+dashboard/playwright.config.ts --reporter=line agent-launch-card` (5 passed:
+ready, not-ready, and Taken presence; dialog focus, Escape, and Cancel send
+nothing; argv with the instruction after a blank line in the Open Dough folder
+and Started with time, local marker, session id, and copyable attach command;
+folder-not-found; uncertain with Start disabled in flight), `npm run
+typecheck:dashboard`, and the whole `npm run test:dashboard` (215 passed).
+The not-installed, untrusted, and refused answers share the card's failed
+rendering and are observed at the boundary in slice 2.
 
 Behavior: The dashboard shows a committed origin with a ready queued story, a
 not-refined queued story, and a Taken story.
@@ -317,7 +325,8 @@ Changes:
 - `launchAwaitsPublication(record, work)` in `src/agentLaunch.ts`: execution
   awaits while the identity is in `work.backlog`. When there is more than one
   record per identity, the latest one is shown.
-- The README states the local nature and the restart limit.
+- `dashboard/AGENT-LAUNCH.md` (linked from the README) states the local
+  nature and the restart limit.
 
 Proof: extend `agent-launch-card.spec.ts` with a journey that advances the
 committed origin through a preparation announcement and then a Take, using
@@ -357,6 +366,14 @@ refused cross-origin.
   cross-project and cross-origin proof. Both local boundaries now share
   `server/localBoundaryPlugin.ts`, and the refusals live in
   `agent-launch-refusal.spec.ts`.
+- Slice 3: the North Star launch topic named a chosen `--session-id`; slice 1
+  disproved it, so the topic now says `--bg` chooses and prints its own id.
+  The launch guide lives in `dashboard/AGENT-LAUNCH.md` to keep the README
+  within its size limit. `CardLaunch` shows `latestRecordOf` (in
+  `src/agentLaunch.ts`), so slice 4 filters it with `launchAwaitsPublication`
+  and replaces a project's records from the GET answer on selection. A known
+  intermittent `project-keyboard-navigation-focus` failure is fixed on main by
+  `25c4a514` and reaches this branch at integration.
 
 ## Concern review
 

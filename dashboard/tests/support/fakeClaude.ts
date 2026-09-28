@@ -20,7 +20,7 @@ export type ClaudeCall = {
 
 export type FakeClaudeOptions = {
   // Folder names created under `<home>/git/`, as catalog projects' folders.
-  readonly projectFolders?: readonly string[];
+  readonly projectFolders?: readonly string[] | undefined;
   // `absent`: no `claude` anywhere on the server's PATH, which then holds
   // only the fake `gh` and Node.
   readonly claude?: "fake" | "absent";

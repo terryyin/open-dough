@@ -58,6 +58,14 @@ export const launchRecordSchema = z.object({
 
 export type LaunchRecord = z.infer<typeof launchRecordSchema>;
 
+// The latest record of one work item among a project's records, oldest first.
+export function latestRecordOf(
+  records: readonly LaunchRecord[],
+  identity: string,
+): LaunchRecord | undefined {
+  return records.findLast((record) => record.request.identity === identity);
+}
+
 // Why nothing was launched.
 export const launchFailureReasons = [
   "folder-not-found",
