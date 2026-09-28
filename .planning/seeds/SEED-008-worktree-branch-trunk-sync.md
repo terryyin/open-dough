@@ -122,7 +122,7 @@ registry is selected. No new execution authority or ADR acceptance is implied.
 
 **Identity:** SEED-008#finish-removing-checkout-coordination
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/145-finish-removing-checkout-coordination/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"41caa32a8aa7a868ca29fa499556ac0d634e18f8781b738a0aa2cace3dfd0f89","plan":"ece4fefb68e3b6aceff4a79aa11d8d594a2d1e5af97a304b6b341f097a656ce8"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/145-finish-removing-checkout-coordination/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8f131a5a9f9117bf7c272beeef9a2fc98144c663fb16ef05a2de54c1c9c972b2","plan":"9da32da76562e9fb49eabde0190e3eb26ecda34abafe7a14a1fe92ed33115daf"}}
 ```
 
 **Decision (2026-09-28):** Terry accepted these recommendations after the
@@ -150,6 +150,9 @@ releasable under ADR 0005's native acceptance.
 - Remove the declared-owner concept end to end: `--declared-owner` and
   `--requester`, refresh's owner step and its `another-writer` and
   `unclear-ownership` results, and their tests and guidance.
+- While rewriting refresh eligibility tests, drop installed-startup reuse
+  refusal cases whose variations the refresh boundary already proves; startup
+  keeps one own-state refusal and the stopped-rebase refusal.
 - Guidance sections this story edits call the developer's checkout the default
   checkout; the `--integration` flag keeps its name.
 - Native acceptance, run manually as the final slice, of one direct-edit

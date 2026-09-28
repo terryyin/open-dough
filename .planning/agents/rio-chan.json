@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Rio-chan",
-  "email": "rio-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-008#finish-removing-checkout-coordination",
-  "host": "claude",
-  "model": "claude-opus-5-5"
-}

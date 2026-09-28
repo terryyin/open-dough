@@ -11,25 +11,25 @@
   `199c579f:.planning/slice-plans/140-remote-history-workflows/PLAN.md`) left
   the declared-owner concept, the staged-content guidance mismatch, and a
   guidance-only push guard as human decisions. Plan 142 excludes them in favor
-  of this story (its F3, F4, F5).
+  of this story (its F3, F4, F5). On 2026-09-28 Terry also assimilated plan
+  142's retrospective test-redundancy finding (installed-startup reuse
+  refusals duplicating refresh-boundary eligibility proof) into slice 3.
 - **Authority:** Terry asked for refinement and then a slice plan. This plan is
   planning only. It grants no Take, implementation, or publication.
-- **Preparation workspace:** `.worktrees/prep-finish-checkout-coordination`
-  (branch `claude/prep-finish-checkout-coordination`), announced as agent
-  Julia-chan at `cd0027ca`.
+- **Preparation workspace:** `.worktrees/prep-finish-removing-checkout-coordination`
+  (branch `claude/prep-finish-removing-checkout-coordination`), announced as
+  agent Rio-chan at `af1d260a` for the finding assimilation.
 
 ## Start gate
 
-**Do not Take or execute this plan until
-[SEED-008#owned-context-start-and-truthful-refresh](../142-owned-context-start-and-refresh/PLAN.md)
-(plan 142) has left Taken on remote trunk.** It changes the same refresh code
-and results list, `maintain-default-checkout.md`, `preparation-assignment.md`,
-the startup cases that carry the owner flags, and the native publication
-harness this plan's slice 4 extends. Terry also named
-SEED-053#proportionate-local-verification (plan 143) as a gate; it closed at
-`162b5fb4` before this plan landed. At start, re-read the files each slice
-names against the then-current trunk and refresh line references before
-editing.
+Satisfied: SEED-008#owned-context-start-and-truthful-refresh (plan 142)
+closed at `2a3e0ba2`, and SEED-053#proportionate-local-verification (plan 143)
+at `162b5fb4`. Plan 142 changed the refresh code and results list,
+`maintain-default-checkout.md`, `preparation-assignment.md`, the startup cases
+that carry the owner flags, and the native publication harness this plan's
+slice 4 extends. On 2026-09-28 the declared-owner reference set still matched
+the premise below. At start, re-read the files each slice names against the
+then-current trunk and refresh line references before editing.
 
 ## Outcome and boundaries
 
@@ -91,6 +91,7 @@ native journey for the refusal case (deterministic proof owns it).
 | Every existing caller supplies a base already published on the remote, so "the previously published base must be contained in a fetched remote ref" is a common rule, not a new special case. | In a scratch worktree at `f510358e`, added that check (`git for-each-ref --contains <base> refs/remotes/<remote>/`) with a marker log at the top of `publishExecutionIncrement`, then ran `node --test` over the 39 test files that reach publication, delivery, closure, Land, or preparation publication. Scratch removed afterwards. | 107 pass, 0 fail; the marker never fired. |
 | No test covers an unrelated unpublished commit under the suffix in a checkout that is both workspace and default checkout. | Searched `current-branch-publication.test.mjs`, `current-branch-local-operation.test.mjs`, `publication.test.mjs`, `publication-checkout-maintenance.test.mjs`, `closure-current-branch.test.mjs`. | None; `publication.test.mjs:130` covers it only from a separate workspace. |
 | Declared-owner removal is bounded. | `grep -rln -E "declared-owner\|declaredOwner\|another-writer\|unclear-ownership\|--requester" src docs`. | About 30 code lines (`maintain-default-checkout.mjs`, `execution-start-maintenance.mjs:8-9`, `closure-publication.mjs:31-39,66-91`, usage in `execution-start.mjs:12`, `preparation-assignment.mjs:22-25`), about 60 test lines (`publication-checkout-maintenance.test.mjs`, `workspace-publication-startup-{maintenance,claim,local-copy}-cases.mjs`, `closure-publication-fixtures.mjs`), and guidance in `dough-execute-plan/SKILL.md:121-123`, `maintain-default-checkout.md:23,70-74`, `preparation-assignment.md:40,56-58,194`. `startup-maintenance-cases.mjs:129-158` is built on `another-writer`. |
+| Startup reuse and refresh share one eligibility rule, so the five startup reuse refusals repeat refresh-boundary proof. | Read `workspace-publication-select.mjs:90-110` and `maintain-default-checkout.mjs:176-252` at `af1d260a`; mapped `workspace-publication-startup-reuse-cases.mjs:106-182` against `publication-checkout-maintenance.test.mjs:60-133` and `publication-checkout-ongoing-operation.test.mjs:24-120`; ran those two refresh files (5 pass). | Confirmed: reuse calls `fastForwardToFetchedTrunk`, which refresh also calls. Refresh already proves `pending-edit`, `unpublished-commits`, and `diverged` with state and remote unchanged, and recognizes `MERGE_HEAD`, the other in-progress refs, the index lock, and a real rebase through the shared `ongoingOperation`. Only startup proves the `setup-failed` mapping with nothing published, and only a stopped rebase on the detached `HEAD` it leaves (observed in a scratch repository: empty `branch --show-current`, `rebase-merge` present) proves the operation check precedes the `unexpected-branch` check. Refresh's pre-fetch operation check returns before that ordering. `one-shot-escalation.test.mjs:85-105` separately proves a `pending-edit` refusal at installed admission. |
 | No native journey covers current-checkout work. | `ls tests/support \| grep native`; the `git-publication-native-*` harness has startup, admission, one-shot, prepared, and closure journeys only. | Confirmed. Slice 4 adds one after plan 142's slice 7 reshapes the harness. |
 
 ## Slices
@@ -170,9 +171,34 @@ also proved, or delete it if it proved only ownership. Update the watch-list
 entry at `docs/maintainer/near-term-watch-list.md:81` only as far as its
 wording names a removed result.
 
-Proof: `publication-checkout-maintenance.test.mjs`, the
-`workspace-publication-startup-*` suites, preparation-assignment suites, and
-`closure-publication*.test.mjs` pass;
+While rewriting `publication-checkout-maintenance.test.mjs`'s preservation
+test, drop only its owner assertions: its `pending-edit`,
+`unpublished-commits`, `diverged` (clean and dirty), and `unexpected-branch`
+observations stay, since they now own the eligibility variations for startup
+reuse too. In the same change, reduce the `refusals` table in
+`workspace-publication-startup-reuse-cases.mjs` to two installed-startup
+cases, and align its header comment:
+
+- **its own commit** — `setup-failed` with the `unpublished-commits` reason,
+  the worktree unchanged, and remote trunk unchanged (nothing published);
+- **a rebase stopped at a break** — `ongoing-operation`, not
+  `unexpected-branch`, on the detached `HEAD`, with the rebase state kept.
+
+Delete the diverged, unstaged-edit, and `MERGE_HEAD` cases. Surviving
+coverage for them: refresh `diverged` and `pending-edit` in
+`publication-checkout-maintenance.test.mjs`; `MERGE_HEAD`, the other
+in-progress refs, and the index lock in
+`publication-checkout-ongoing-operation.test.mjs`; installed `pending-edit`
+refusal in `one-shot-escalation.test.mjs`. The two fast-forward reuse tests
+and the preparation reuse cases in
+`preparation-assignment-owned-context.test.mjs` stay unchanged.
+
+Proof: `publication-checkout-maintenance.test.mjs`,
+`publication-checkout-ongoing-operation.test.mjs`,
+`one-shot-escalation.test.mjs`, the `workspace-publication-startup-*` suites
+(through `workspace-publication.test.mjs`), preparation-assignment suites, and
+`closure-publication*.test.mjs` pass; the reuse file runs exactly the two
+refusals above; and
 `grep -rn -E "declared-owner|declaredOwner|another-writer|unclear-ownership|--requester" src`
 returns nothing.
 
@@ -208,6 +234,7 @@ deleted after judging.
 | Example 3: staged change on an authorized path stops the edit | 2: guidance walk |
 | Declared-owner concept removed end to end | 3: suites green, zero references |
 | Refresh of a clean, behind checkout needs no owner input | 3: refresh and startup suites |
+| Startup reuse keeps its refusal guarantees with redundant cases removed | 3: two surviving startup refusals plus the named refresh and admission tests |
 | Edited sections name the default checkout; `--integration` unchanged | 1–3: behavior review of edited sections |
 | Plan 140 and this plan's current-checkout guidance accepted natively on three hosts | 4 |
 | One shared payload across hosts | every slice: payload checks below |
@@ -229,4 +256,7 @@ No blocking slice-specific concern was identified in this review. The guard
 is one common rule whose premise was observed across every existing caller.
 Slice 2 is guidance-only because the runtime already behaves as promised.
 Slice 4's harness shape depends on plan 142's slice 7, which the start gate
-covers; its paid runs need separate authority at execution time.
+covers; its paid runs need separate authority at execution time. The
+assimilated test consolidation stays in slice 3 because it edits the same
+eligibility tests and runs in the proof loop slice 3 already owns. It adds no
+slice and no product behavior. The resulting plan has four slices.
