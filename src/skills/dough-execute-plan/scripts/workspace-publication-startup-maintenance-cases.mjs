@@ -1,6 +1,6 @@
 // Local default-checkout maintenance remains separate from accepted claims.
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { test } from "node:test";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
@@ -48,7 +48,7 @@ test("the start reports an earlier distinct refresh issue only while refresh rem
   assert.deepEqual(reportedMaintenance(failed), { maintenance: failed });
 });
 
-test("clean main without ownership declarations refreshes after the remote claim succeeds", async (t) => {
+test("clean main refreshes after the remote claim succeeds", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const { receipt } = await startCliResult(trunk, "trunk");
@@ -71,12 +71,7 @@ test("an ongoing local index operation defers refresh without erasing accepted r
     ).stdout.trim(),
   );
   writeFileSync(lock, "other writer\n");
-  const { receipt } = await startCliResult(trunk, "trunk", [
-    "--declared-owner",
-    "owner",
-    "--requester",
-    "owner",
-  ]);
+  const { receipt } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
   assert.deepEqual(receipt.maintenance, {
     result: "deferred",
@@ -105,12 +100,7 @@ test("divergent local main is preserved while the remote claim is accepted", asy
   await git(other, "add", "remote.txt");
   await git(other, "commit", "-m", "unrelated remote commit");
   await git(other, "push", "origin", "main");
-  const { receipt } = await startCliResult(trunk, "trunk", [
-    "--declared-owner",
-    "owner",
-    "--requester",
-    "owner",
-  ]);
+  const { receipt } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
   assert.deepEqual(receipt.maintenance, {
     result: "stopped",
@@ -130,22 +120,22 @@ test("divergent local main is preserved while the remote claim is accepted", asy
 test("accepted claim with deferred refresh resumes local maintenance only", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
-  const first = await startProcess(trunk, "a", identityA, [
-    "--declared-owner",
-    "other",
-    "--requester",
-    "owner",
-  ]).result;
+  const pending = join(trunk.integration, "pending.txt");
+  writeFileSync(pending, "pending edit\n");
+  const first = await startProcess(trunk, "a", identityA).result;
   assert.equal(first.receipt.ok, true, JSON.stringify(first));
-  assert.equal(first.receipt.maintenance.reason, "another-writer");
+  assert.deepEqual(first.receipt.maintenance, {
+    result: "deferred",
+    reason: "pending-edit",
+  });
   assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
-  const resumed = await startProcess(trunk, "a", identityA, [
-    ...resumeArgs(first.receipt),
-    "--declared-owner",
-    "owner",
-    "--requester",
-    "owner",
-  ]).result;
+  rmSync(pending);
+  const resumed = await startProcess(
+    trunk,
+    "a",
+    identityA,
+    resumeArgs(first.receipt),
+  ).result;
   assert.equal(resumed.receipt.ok, true, JSON.stringify(resumed));
   assert.equal(resumed.receipt.status, "resumed");
   assert.equal(

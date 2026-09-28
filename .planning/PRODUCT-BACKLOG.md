@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Finish removing default-checkout coordination](seeds/SEED-008-worktree-branch-trunk-sync.md#finish-removing-checkout-coordination) — SEED-008#finish-removing-checkout-coordination ([plan](slice-plans/145-finish-removing-checkout-coordination/PLAN.md))
 - [Launch story refinement from the dashboard in a Claude Code background session](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-refinement-background) — SEED-052#launch-claude-refinement-background ([plan](slice-plans/148-launch-claude-refinement/PLAN.md))
 
 ## Backlog list

@@ -7,17 +7,25 @@ import { promisify } from "node:util";
 import { invokeHostHook } from "./ci-host-bridge.mjs";
 
 // Runs the taught `deliver` for one increment of the fixture's execution
-// branch with only the supplied environment; `extra` adds flags such as
-// `--session-json` or `--authority`. The reported observer stops at teardown.
+// branch, or of the supplied `workspace` and `branch`, with only the supplied
+// environment; `extra` adds flags such as `--session-json` or `--authority`.
+// The reported observer stops at teardown.
 export async function deliverThroughCli(
   fixture,
-  { base, host = "claude", extra = [], env = fixture.env },
+  {
+    base,
+    host = "claude",
+    extra = [],
+    env = fixture.env,
+    workspace = fixture.execution,
+    branch = "exec/story",
+  },
 ) {
   const args = [
     "--workspace",
-    fixture.execution,
+    workspace,
     "--branch",
-    "exec/story",
+    branch,
     "--previously-published-base",
     base,
     "--target-ref",
@@ -37,7 +45,7 @@ export async function deliverThroughCli(
   const { stdout, stderr, code } = await promisify(execFile)(
     process.execPath,
     [script, "deliver", ...args],
-    { cwd: fixture.execution, env },
+    { cwd: workspace, env },
   ).catch((error) => error);
   const delivered = stdout.trim()
     ? JSON.parse(stdout.trim().split("\n").at(-1))

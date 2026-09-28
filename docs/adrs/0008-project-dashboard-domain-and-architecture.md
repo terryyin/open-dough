@@ -153,9 +153,7 @@ Use the [requirements](../project-visibility-requirements.md) for local-edit,
 freshness, and recovery examples. Recheck observable checkout state around
 local mutations and preserve changes from human developers and other tools.
 Terry's 2026-09-28 direction replaces this draft's earlier default-checkout
-ownership and coordination proposal. Align older detailed requirements through
-[Finish removing default-checkout coordination](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#finish-removing-checkout-coordination);
-the wording change does not claim that runtime delivery is complete.
+ownership and coordination proposal.
 
 ### Incremental scope
 

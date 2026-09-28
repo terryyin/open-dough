@@ -94,12 +94,7 @@ test("startup preserves unrelated staged, tracked, untracked, and sibling source
     seed: readFileSync(seed, "utf8"),
     untracked: readFileSync(join(trunk.integration, "untracked.txt"), "utf8"),
   };
-  const { receipt } = await startCliResult(trunk, "trunk", [
-    "--declared-owner",
-    "owner",
-    "--requester",
-    "owner",
-  ]);
+  const { receipt } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
   assert.deepEqual(receipt.maintenance, {
     result: "deferred",

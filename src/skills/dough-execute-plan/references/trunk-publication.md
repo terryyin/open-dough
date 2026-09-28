@@ -48,7 +48,11 @@ current-branch work and host-owned execution enter this
 sequence only from the recorded checkout, and only when that caller already
 supplied publication authority. Without it, do not push; report the commit
 as pending publication. A local commit or local merge does not enter this
-sequence.
+sequence. Their previously published base is the recorded checkout's `HEAD`
+from before the operation's first commit. An `unpublished-base` stop means
+the remote does not hold that base, such as when the developer has their own
+unpublished commits in the default checkout: report that work for the
+developer to resolve, and never choose a different base to get past it.
 
 ## Preconditions
 
@@ -111,7 +115,10 @@ verified increment whose target remains the authorized remote trunk. Publish it
 immediately through [the common sequence](#publish-the-candidate) before the
 next wrap-up mutation that depends on its recovery from shared trunk. That
 closure target is not the Story Branch increment destination above. Do not
-merge the execution branch.
+merge the execution branch. A caller-selected current-branch closure publishes
+each closure commit with the checkout's `HEAD` from before that commit as its
+previously published base, and handles an `unpublished-base` stop as
+[current-branch publication](#publish-an-execution-increment-or-repair) does.
 
 Resolve observation ownership before the first wrap-up publication: recover
 the matching execution observer when it still exists; if observation already

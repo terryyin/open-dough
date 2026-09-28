@@ -116,64 +116,6 @@ registry is selected. No new execution authority or ADR acceptance is implied.
 
 ## Existing related stories
 
-<a id="finish-removing-checkout-coordination"></a>
-
-### Finish removing default-checkout coordination
-
-**Identity:** SEED-008#finish-removing-checkout-coordination
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/145-finish-removing-checkout-coordination/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8f131a5a9f9117bf7c272beeef9a2fc98144c663fb16ef05a2de54c1c9c972b2","plan":"9da32da76562e9fb49eabde0190e3eb26ecda34abafe7a14a1fe92ed33115daf"}}
-```
-
-**Decision (2026-09-28):** Terry accepted these recommendations after the
-remote-history retrospective, then accepted a narrowed refinement: naming
-limited to the guidance this story edits, native acceptance as one direct-edit
-journey per host, and execution only after
-`SEED-008#owned-context-start-and-truthful-refresh` (closed at `2a3e0ba2`)
-lands, because both change the same refresh code, guidance, and startup cases.
-
-**Goal:** A developer who explicitly selects their current checkout for an
-agent's edit can let the agent commit and publish around their own staged
-files, and never has their private unpublished commits pushed to trunk by it.
-Removing the unused declared-owner concept leaves fewer instructions. The
-current-checkout change already made on trunk, together with this one, becomes
-releasable under ADR 0005's native acceptance.
-
-**Scope:**
-
-- Direct-edit guidance proceeds when unrelated content is staged, as the
-  runtime already commits only authorized paths; it stops before editing when
-  an authorized path already carries the developer's staged change.
-- A push-authorized current-checkout delivery, including closure, refuses
-  before pushing unless every commit over the fetched target was created by
-  this operation. This guard lives in the runtime, not only in guidance.
-- Remove the declared-owner concept end to end: `--declared-owner` and
-  `--requester`, refresh's owner step and its `another-writer` and
-  `unclear-ownership` results, and their tests and guidance.
-- While rewriting refresh eligibility tests, drop installed-startup reuse
-  refusal cases whose variations the refresh boundary already proves; startup
-  keeps one own-state refusal and the stopped-rebase refusal.
-- Guidance sections this story edits call the developer's checkout the default
-  checkout; the `--integration` flag keeps its name.
-- Native acceptance, run manually as the final slice, of one direct-edit
-  journey per host on Codex, Cursor, and Claude Code, covering both the earlier
-  and this story's current-checkout guidance.
-- Deferred: product-wide checkout vocabulary unification.
-
-**Key examples:**
-
-1. The developer has staged an unrelated file and asks an agent to commit one
-   authorized file → the agent proceeds; the commit holds only that file, and
-   the staged file remains staged with identical bytes.
-2. The developer has an unpublished local commit and authorizes publication of
-   an agent's edit → delivery refuses before pushing, and remote and local
-   history are unchanged. A current-checkout closure whose two commits are both
-   its own publishes.
-3. An authorized path already has the developer's staged change → the agent
-   stops before editing, and the index and working tree are unchanged.
-
-**Slice plan:** [Finish removing default-checkout coordination](../slice-plans/145-finish-removing-checkout-coordination/PLAN.md).
-
 <a id="installed-wrap-up-command"></a>
 
 ### Close stories through an installed wrap-up command
@@ -235,12 +177,17 @@ has been observed to behave differently across hosts.
 **Deferred promises:** Story Branch integration (history-preserving merge
 through the backlog merge adapter, with hand-resolved conflicts) and
 current-checkout closure keep their current guidance. The single-commit
-closure alternative is not pursued.
+closure alternative is not pursued. Direct edits proceeding around the
+developer's unrelated staged content stay deferred as well (Terry, 2026-09-29).
+Direct edits commit with plain `git commit`, and the owned-path commit
+(`commitOwned`) exists only in `current-branch-publication.mjs`, which has no
+entry point. So deciding that module's fate here also decides that promise's
+runtime commit path.
 
 **Ordering:** Starts after plan 142 (closed at `2a3e0ba2`), which changed the
 same retirement module, wording, and native closure acceptance, and after
-[Finish removing default-checkout coordination](#finish-removing-checkout-coordination),
-which removes owner arguments the closure modules still pass.
+SEED-008#finish-removing-checkout-coordination (recoverable at `bae283d2`),
+which removed the owner arguments the closure modules passed.
 
 **Key examples:**
 

@@ -37,8 +37,7 @@ node <installed>/scripts/preparation-assignment.mjs start \
   [--repository <owned worktree or common Git directory>] \
   --workspace <owned workspace> [--branch <new workspace branch>] \
   --identity <queued story identity> --remote <remote> --target <trunk branch> \
-  --push-authorized [--host claude|codex|cursor] [--model <model>] \
-  [--declared-owner <id> --requester <id>]
+  --push-authorized [--host claude|codex|cursor] [--model <model>]
 ```
 
 Use the recorded paths and target. Supply `--integration` when this project
@@ -57,9 +56,6 @@ a new announcement uses it under
 fast-forwarding it when trunk has moved past it. Supply `--push-authorized` only when publishing to that target
 is authorized; without it the command stops. Supply your own host and model,
 omitting either you cannot state rather than guessing.
-Supply `--declared-owner` and a matching `--requester` only when your context
-declares the default checkout's owner for
-[refresh eligibility](../../dough-execute-plan/references/maintain-default-checkout.md#refresh-eligibility).
 
 Keep the receipt with this session and act on its `status`:
 
@@ -196,7 +192,7 @@ From the owned workspace that announced it, run:
 node <installed>/scripts/preparation-assignment.mjs abandon \
   [--integration <integration checkout>] --workspace <owned workspace> \
   --identity <queued story identity> --remote <remote> --target <trunk branch> \
-  --push-authorized [--declared-owner <id> --requester <id>]
+  --push-authorized
 ```
 
 It publishes a commit on the fetched target that only removes this

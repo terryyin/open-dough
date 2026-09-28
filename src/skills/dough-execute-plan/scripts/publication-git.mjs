@@ -109,6 +109,25 @@ export async function fetchedTarget(workspace, targetRef, remote = "origin") {
   }
 }
 
+// Whether any fetched ref of `remote` already contains `sha`. A revision the
+// workspace cannot resolve is not held there either.
+export async function remoteHolds(workspace, sha, remote = "origin") {
+  try {
+    const { stdout } = await git(
+      workspace,
+      "for-each-ref",
+      "--count=1",
+      "--format=%(refname)",
+      "--contains",
+      sha,
+      `refs/remotes/${remote}/`,
+    );
+    return stdout.trim() !== "";
+  } catch {
+    return false;
+  }
+}
+
 function isNonFastForward(error) {
   const text = `${error.message ?? ""}\n${error.stderr ?? ""}`;
   return /rejected|non-fast-forward|fetch first/i.test(text);

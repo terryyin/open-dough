@@ -1,26 +1,12 @@
 // Git mechanics for maintain-default-checkout.md "Refresh eligibility".
-// Fast-forwards only a clean checkout that is strictly behind fetched trunk
-// and has no declared competing writer. Installed guidance is the agent's contract.
+// Fast-forwards only a clean checkout that is strictly behind fetched trunk.
+// Installed guidance is the agent's contract.
 import { existsSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { rebaseInProgress } from "../../dough-product-backlog/scripts/product-backlog-git-operation-state.mjs";
 import { git, inspectCheckout, revParse } from "./publication-git.mjs";
 
 const IN_PROGRESS_REFS = ["MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD"];
-
-function singleOwner(owner) {
-  return typeof owner === "string" && owner.trim() !== "";
-}
-
-function declaredOwnerRefusal(declaredOwner, requester) {
-  if (!singleOwner(declaredOwner) || !singleOwner(requester)) {
-    return "unclear-ownership";
-  }
-  if (declaredOwner !== requester) {
-    return "another-writer";
-  }
-  return null;
-}
 
 function decision(result, reason, state, remoteSha) {
   return { result, reason, remoteSha, ...state };
@@ -152,12 +138,11 @@ async function fetchedState(checkout, remoteRef) {
   return { current, remoteSha, branch };
 }
 
-// Ownership declarations are optional for refresh. A declared owner must match
-// the requester. A missing snapshot argument is intentional: callers cannot
-// supply a stale one. With no default checkout supplied there is nothing to
-// refresh. A supplied checkout that cannot be read or refreshed (a missing
-// path, or Git failing there) reports `refresh-failed`; the caller's accepted
-// publication stands.
+// A missing snapshot argument is intentional: callers cannot supply a stale
+// one. With no default checkout supplied there is nothing to refresh. A
+// supplied checkout that cannot be read or refreshed (a missing path, or Git
+// failing there) reports `refresh-failed`; the caller's accepted publication
+// stands.
 export async function refreshDefaultCheckout(request) {
   if (!request.checkout) return { result: "not applicable" };
   try {
@@ -175,23 +160,13 @@ export async function refreshDefaultCheckout(request) {
 
 async function attemptRefresh({
   checkout,
-  declaredOwner,
-  requester,
   integrationBranch = "main",
   remote = "origin",
 }) {
-  const ongoing = await ongoingOperation(checkout);
-  const ownerRefusal = singleOwner(declaredOwner)
-    ? declaredOwnerRefusal(declaredOwner, requester)
-    : null;
-  // The pre-fetch state is read only for a refresh that stops here.
-  if (ownerRefusal || ongoing) {
-    const state = ongoing
-      ? { head: await revParse(checkout, "HEAD"), status: null }
-      : await inspectCheckout(checkout);
-    return ownerRefusal
-      ? decision("deferred", ownerRefusal, state, null)
-      : decision("deferred", "ongoing-operation", state, null);
+  // An ongoing operation stops refresh before the fetch.
+  if (await ongoingOperation(checkout)) {
+    const state = { head: await revParse(checkout, "HEAD"), status: null };
+    return decision("deferred", "ongoing-operation", state, null);
   }
 
   await git(checkout, "fetch", remote);

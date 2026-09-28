@@ -126,3 +126,42 @@ test("explicit publish-authorized current-branch closure publishes only its auth
   assert.equal(delivered.maintenance.result, "deferred");
   assert.equal(delivered.maintenance.reason, "pending-edit");
 });
+
+test("a current-branch closure publishes its before-cleanup and final-closure commits, each over its own published base", async (t) => {
+  const fixture = await createCleanTrunkFixture();
+  t.after(fixture.cleanup);
+  const { origin, integration, trunkSha } = fixture;
+  await plantHumanEdit(integration);
+  const beforeHuman = await plantedHumanEditBytes(integration);
+  const close = async (path, message) => {
+    const base = await revParse(integration, "HEAD");
+    writeFileSync(join(integration, path), `${message}\n`);
+    return deliverCurrentBranchClosure({
+      checkout: integration,
+      defaultCheckout: integration,
+      authority: "publish",
+      operation: "publish",
+      paths: [path],
+      message,
+      targetRef: trunkTarget,
+      previouslyPublishedBase: base,
+    });
+  };
+
+  const beforeCleanup = await close("recovery.txt", "before-cleanup closure");
+  const finalClosure = await close("closure.txt", "final closure");
+
+  assert.equal(beforeCleanup.publication, "accepted");
+  assert.equal(finalClosure.publication, "accepted");
+  assert.deepEqual(
+    await commitParentsAndPaths(integration, beforeCleanup.sha),
+    { parents: [trunkSha], paths: ["recovery.txt"] },
+  );
+  assert.deepEqual(await commitParentsAndPaths(integration, finalClosure.sha), {
+    parents: [beforeCleanup.sha],
+    paths: ["closure.txt"],
+  });
+  assert.equal(await lsRemoteSha(origin, trunkTarget), finalClosure.sha);
+  assert.equal(await revParse(integration, "HEAD"), finalClosure.sha);
+  assert.deepEqual(await plantedHumanEditBytes(integration), beforeHuman);
+});
