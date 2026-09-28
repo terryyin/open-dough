@@ -38,9 +38,9 @@ defects require a separate correction decision rather than changing this
 story into implementation.
 
 All seven slices are Behavior slices with independent observable outcomes.
-The first six can establish partial acceptance. Slice 7 retains the inherited
-Claude Code fixture prerequisite and prevents whole-story acceptance while
-unresolved. No Structure slice, architecture change or new framework is needed.
+The first six can establish partial acceptance. Slice 7 uses the inherited
+Claude Code escalation fixture, now accepted on 2026-09-28 and recoverable from
+`d05d9937`; host-specific Codex proof remains required. No Structure slice, architecture change or new framework is needed.
 
 ## Existing solutions and decisions
 
@@ -259,17 +259,23 @@ fixture and assessor; add no broader ownership-race journey.
 
 Type: Behavior
 Status: planned
-Proof: one Codex run of the inherited `publication/one-shot-escalation` fixture
-after its feasibility and complete observation path are accepted by the Claude
-Code story; independent transcript, origin claim and carried-edit observations.
+Proof: `PATH="/opt/homebrew/bin:$PATH" bash tests/git-publication-native.sh
+--native codex --case publication/one-shot-escalation --results-dir <results>`
+from the inherited harness at `f7a7637c`, installing the pinned `v0.3.45`
+guidance through the existing fixture-install function seam. Inspect the native
+trace, accepted origin claim, carried edits and assessor verdict independently.
 
-Precondition: the sibling story supplies an accepted, non-leading fixture,
-credential-free proof, its invocation and rubric. It is currently absent from
-the maintained runner. Do not invent a substitute fixture in this story or
-launch the unsupported case. Recheck guidance identity/applicability when the
-fixture arrives, revise this slice's literal command if its interface differs,
-and reassess readiness. A sibling proposal to drop escalation requires human
-scope review here rather than automatic promise removal.
+Precondition resolved: `d05d9937` accepted the non-leading fixture on Claude
+Code, and `133b4f9d` assimilated its result in SEED-028. The maintained runner
+now dispatches this case through
+`tests/support/git-publication-native-one-shot-escalation.sh`; its fixture hides
+the growth until the released-settings check. Its state counterexamples cover
+untracked results, missing admission, missing/committed edits, admission before
+editing and changed human edits. The fixture permits publication but withholds
+planning, so the prescribed stop after carrying the edits is valid. Keep the
+harness revision distinct from installed guidance; use a disposable harness
+copy with only its fixture-install source redirected to the release checkout.
+Do not modify the evaluated guidance to obtain acceptance.
 
 Behavior: Codex starts eligible one-shot work, makes owned edits and discovers
 growth → before further edits it selects ordinary admission with carry →
@@ -292,8 +298,24 @@ deadline bounds a process, not a promise of slice effort.
 Six available cases are a useful stopping point with escalation explicitly
 pending. Actual Codex exposure remains a priority question, not an invented
 execution prerequisite. Scope and examples are established; applicable reuse
-and live outcomes are execution questions. Slice 7's unavailable dependency is
-the remaining blocking concern for whole-plan readiness. Preparation records
-`not-ready`; it does not Take the story or run any slice. No additional concerns
-about cumulative design, boundary fragmentation or sizing were identified in
-this review, so no slice-plan-refinement rewrite is needed.
+and live outcomes are execution questions. The inherited dependency is now available: the accepted Claude Code observation
+at `d05d9937`, current SEED-028 record and maintained fixture/runner establish
+its feasibility, invocation and rubric. Its availability removes the recorded
+blocking concern; all seven slices remain cohesive, separately judged Behavior
+proof loops. No scope, slice boundaries, PFE decision or guidance revision
+changes. Readiness is reassessed against these observations, while the first
+bounded Codex run still owns authentication, isolation and stream compatibility.
+
+## Dependency reassessment (2026-09-28)
+
+- Observation: `git ls-tree -r --name-only f7a7637c tests/support` lists the
+  escalation fixture and support file; `tests/git-publication-native.sh --help`
+  and `native_case_known` dispatch `publication/one-shot-escalation`.
+- Accepted upstream proof: SEED-028 records the Claude Code run against
+  `23563ee0`, admission with carry after owned edits, uncommitted restoration,
+  no result on trunk and the stop before planning. This establishes fixture
+  feasibility, not Codex acceptance.
+- Consequence: the missing-fixture assumption is invalidated. Retain all seven
+  promises and run bounds; replace only slice 7's unavailable command path.
+- Publication and execution are authorized by the maintainer's execute-plan
+  instruction and subsequent request to resume after the dependency landed.

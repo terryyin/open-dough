@@ -26,7 +26,7 @@ additional acceptance cases or implementation scope.
 
 **Identity:** SEED-044#native-premise-acceptance-codex-cursor
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/141-codex-native-guidance-acceptance/PLAN.md","assessment":"not-ready","reasons":["Slice 7 requires the Claude Code story to supply an accepted non-leading escalation fixture, supported native invocation and complete proof path; the maintained runner does not yet provide that case. The first six cases can establish partial acceptance independently."],"basis":{"document":"bd98842a9cdf645fbfbe5e12780cf6849c1b257558ffe770d3a0d20eeb0d2e14","plan":"250c42391b163744254389f7cfc9e8602b660d1964af3c4ea92e942f7ba8c837"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/141-codex-native-guidance-acceptance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c429ffb0777c48be92d0930d55c8db9132021b699bd7255216759cc62390daf8","plan":"e2c9b27d8bd9e7baa0e3dd19c0f6542688745d9891414b5ca753669f84190f66"}}
 ```
 
 **Goal:** Developers using Codex can rely on the selected planning and
