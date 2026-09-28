@@ -27,8 +27,15 @@ executions, not commands, retries, or repairs.
    it recurs.
 
 3. **Local time-budget measurement under load (DD-158) — low, not
-   queued.** One execution (plan 135): agent time spent on paired A/B runs
-   overestimated the CI job time that CI's own test-times artifact reports.
+   queued.** Two executions (plans 135 and 139): agent time spent on paired
+   A/B runs misjudged the CI job time that CI's own test-times artifact
+   reports, once about 10 s high and once about 11 s low.
+4. **Assessor counterexamples narrower than the planned state (DD-159) —
+   low, not queued.** One execution (plan 139): a paid run's inconclusive
+   shape was first assessed fail; corrected in `afa43926`.
+5. **Paid native runs refused by the host's permission check (DD-160) — low,
+   not queued.** One execution (plan 139): the developer's approval did not
+   let the coordinator start the run; the developer had to request it again.
 
 No other project-owned problem is supported, so only one story is queued.
 
@@ -105,6 +112,7 @@ report each job's seconds.
 Plan 135's slices required the native job to stay inside `per-job-seconds=71`.
 Both implementation agents measured it locally under heavy load and projected
 the CI time from ratios; CI's measurement after the push was lower.
+Plan 139 repeated the method and its projection came out low instead.
 
 #### Occurrences
 
@@ -116,6 +124,57 @@ the CI time from ratios; CI's measurement after the push was lower.
   - Evidence: slice 1 ran 3 paired A/B runs (estimate 54–56 s); slice 2 ran 5+5 sequential runs judged too noisy, then 3 concurrent pairs (estimate 61–62 s; agent total 1,708 s). CI run 36325895856 of `5181d769`, artifact `test-times-*`: `52.2 tests/git-publication-native.sh`.
   - Observed effect: a large share of slice 2's agent time went to timing, and the projection was about 10 s high.
   - Inference: Qualified. With a wide projected margin, the pushed revision's CI test-times artifact settles the budget more cheaply; a CI breach already fails the split job.
+- Execution: `SEED-028#native-one-shot-escalation` / plan 139, first related implementation commit `23663a21`
+  - Timestamp: 2026-09-28 (slice 1 implementation, between Take `0466e5ba` and `23663a21`); exact times unknown
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision 0466e5ba
+  - Evidence: slice 1's agent ran 3 paired A/B runs under load (72.5 s → 80.5 s) and scaled the seed's recorded 52.2 s to a 58 s projection. CI run 36379953372 of `23663a21`, artifact `test-times-*`: `69.0 tests/git-publication-native.sh`; recent main runs 48.5–61.2 s. Follow-up split `82fbd2ec` measured 41.5 s and 17.2 s on CI.
+  - Observed effect: the projection was about 11 s low. It hid a 2 s margin, which needed a further split commit and refactor pass.
+  - Inference: Qualified. Scaling one stale CI number ignores CI's own spread; recent CI `test-times-*` for trunk gives the baseline range without local timing.
+
+## Assessor counterexamples narrower than the planned state (low priority, not selected)
+
+### DD-159 — An escalation counterexample removed two signals at once, hiding an assessor ordering defect
+
+Plan 139 slice 1 planned "admission with no prior one-shot edits (admitted up
+front) → inconclusive". The counterexample removed the `--one-shot` start and
+the carried edits together, so an assessor that checked a clean workspace
+before checking whether anything was carried still passed it. The first paid
+run showed the uncovered shape: the agent started one-shot, edited nothing, and
+admitted with `--carry`, and the assessor reported fail instead of the story's
+inconclusive.
+
+#### Occurrences
+
+- Execution: `SEED-028#native-one-shot-escalation` / plan 139, first related implementation commit `23663a21`
+  - Timestamp: 2026-09-28 (paid run 1, results `test-results/native-escalation-1`, before `afa43926`); exact time unknown
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision 0466e5ba
+  - Evidence: `23663a21:tests/support/git-publication-native-one-shot-escalation.sh` counterexample "Admitted up front" and assessor order. Run 1 observations `one-shot-start-observed: true`, `edits-carried: false`, `workspace-edits:` empty → `fail`. Corrected in `afa43926` with a separate "admitted before editing" counterexample.
+  - Observed effect: a transcript investigation and a correction commit before run 2; the paid run itself was needed anyway, because its fixture also had to change.
+  - Inference: Qualified. Counterexamples that vary one planned signal at a time would have exposed the ordering; proof acceptance checked each named case, not whether each case isolated its signal.
+
+## Paid native runs refused by the host's permission check (low priority, not selected)
+
+### DD-160 — The developer's approval of paid runs did not let the coordinator start them
+
+Paid native runs are manual-only and need the developer's go-ahead. On Claude
+Code in auto mode, the host's permission check refused the coordinator's
+native run after the developer approved all planned runs. The developer then
+had to request the run explicitly.
+
+#### Occurrences
+
+- Execution: `SEED-028#native-one-shot-escalation` / plan 139, first related implementation commit `23663a21`
+  - Timestamp: 2026-09-28 (slice 2 start, after "approve all"); exact time unknown
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision 0466e5ba
+  - Evidence: the coordinator conversation: "approve all" → `tests/git-publication-native.sh --native claude` refused by the host's auto-mode classifier as agent creation. Run 1 started once the developer sent the command as a message; run 2 on "run 2".
+  - Observed effect: two extra developer round trips before paid runs started.
+  - Inference: Qualified. The request for go-ahead could offer the exact command, or the permission rule, the developer can use, instead of assuming approval lets the coordinator launch it.
 
 ## Retention
 

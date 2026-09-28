@@ -979,6 +979,6 @@ only consolidating the outbound-link policy and test helper.
 
 ## Retention
 
-- Highest allocated local number: 158. Removed local codes are never reused.
+- Highest allocated local number: 160. Removed local codes are never reused.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.

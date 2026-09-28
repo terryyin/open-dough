@@ -131,6 +131,15 @@ trunk commit (the admission), no product paths on trunk, edits
 `docs/settings.md,src/notes.mjs,src/settings.mjs` uncommitted over the claim,
 human edits preserved. Recorded in SEED-053's Claude Code story.
 
+## Execution complete
+
+Product advice: Escalation is feasible natively; the Codex and Cursor
+acceptance stories can run `publication/one-shot-escalation` with the current
+fixture. At wrap-up, update SEED-053's "escalation case once feasible" and
+"Escalation sequencing" wording and SEED-028's "escalation remain pending"
+status. One-shot guidance release stays gated on Codex and Cursor under
+ADR 0005; priorities unchanged.
+
 ## Current decisions
 
 - The prompt withholds planning authority, so the guidance's own stop before
