@@ -18,6 +18,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Keep planned local verification proportionate to the change](seeds/SEED-053-native-guidance-acceptance.md#proportionate-local-verification) — SEED-053#proportionate-local-verification
 - [Start from owned repository context and refresh truthfully](seeds/SEED-008-worktree-branch-trunk-sync.md#owned-context-start-and-truthful-refresh) — SEED-008#owned-context-start-and-truthful-refresh
 - [Finish removing default-checkout coordination](seeds/SEED-008-worktree-branch-trunk-sync.md#finish-removing-checkout-coordination) — SEED-008#finish-removing-checkout-coordination
 - [Close stories through an installed wrap-up command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command) — SEED-008#installed-wrap-up-command
