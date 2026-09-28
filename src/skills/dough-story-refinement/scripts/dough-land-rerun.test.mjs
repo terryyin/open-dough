@@ -18,6 +18,8 @@ import {
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
+  assertRetiredFrom,
+  closeOrRetainWorkspace,
   landWorktree,
   planReviewedEdits,
 } from "./dough-land-test-fixtures.mjs";
@@ -194,4 +196,46 @@ test("rerunning Dough Land after an accepted push whose default checkout path be
   assertCheckoutUnchanged(before, await captureCheckout(integration));
   assert.equal(rerun.cleanup.removed, true);
   assert.equal(existsSync(preparation), false);
+});
+
+test("rerunning retirement from the recorded management context reports an already-removed worktree and branch as already retired and pushes nothing", async (t) => {
+  const { origin, preparation, preparationBranch, cleanup } =
+    await createPreparationFixture("preparation-publication-");
+  t.after(cleanup);
+  const retireAgain = (repository) =>
+    closeOrRetainWorkspace({
+      preparation,
+      preparationBranch,
+      confirmedDisposition: true,
+      sessionCreated: true,
+      repository,
+    });
+
+  // Only the worktree was removed before an interruption; the branch remains.
+  planReviewedEdits(preparation);
+  const kept = await landWorktree({
+    worktree: preparation,
+    branch: preparationBranch,
+    sessionCreated: false,
+  });
+  const acceptedSha = kept.publication.receipt.sha;
+  await git(kept.repository, "worktree", "remove", preparation);
+  const partial = await retireAgain(kept.repository);
+  assert.equal(partial.removed, true);
+  assert.equal(partial.worktree, "already-absent");
+  assert.equal(partial.branch, "removed");
+
+  // Both are gone: the rerun changes nothing and reports already retired.
+  const retired = await retireAgain(kept.repository);
+  assert.equal(retired.removed, true);
+  assert.equal(retired.worktree, "already-absent");
+  assert.equal(retired.branch, "already-absent");
+  assert.equal(await lsRemoteSha(origin, "refs/heads/main"), acceptedSha);
+  assert.equal(existsSync(preparation), false);
+  await assertRetiredFrom(
+    kept.repository,
+    preparationBranch,
+    acceptedSha,
+    "origin/main",
+  );
 });

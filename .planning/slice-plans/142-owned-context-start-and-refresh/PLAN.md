@@ -476,7 +476,7 @@ shared recognizer. Guidance tests, payload checks, and whole `node --test`
 
 ### 6. Land's model retires through the shared retirement mechanics
 Type: Structure
-Status: planned
+Status: done
 
 Correction: removes F7's duplicated retirement representation (ADR 0002) and
 F9c's overlapping Land test. Behavior at Land, preparation, bug-fixing, and
@@ -516,6 +516,17 @@ is at most 250 each. Run `payload-declaration-links` and `story-payload-update`
 through `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh`, then the whole
 `node --test`. Safe stop: one retirement representation serves Land's model and
 wrap-up.
+
+Accepted proof: `node --test src/skills/dough-story-refinement/scripts/dough-land*.test.mjs src/skills/dough-story-refinement/scripts/preparation-publication.test.mjs src/skills/dough-story-refinement/scripts/preparation-assignment-*.test.mjs src/skills/dough-bug-fixing/scripts/retained-artifacts.test.mjs src/skills/dough-story-wrap-up/scripts/*.test.mjs src/skills/dough-execute-plan/scripts/publication-checkout-unavailable.test.mjs`
+(69 pass). `retireWorktree` in `closure-resources.mjs` is the one retirement
+core; wrap-up's `removeExecutionResources` supplies its gates through
+`holdReason`, and the Land model's `closeOrRetainWorkspace` adapts to it. The
+new rerun case retires an already-removed worktree and its remaining branch from
+the recorded Git directory, then reports both already absent; it failed on
+d9f7b9d7 because the old model ran Git inside the removed worktree. The
+overlapping unusable-path Land case is gone. Whole `node --test` (712) and
+payload checks pass. Git refuses to delete a branch still checked out, so the
+reachable partial state is worktree gone with branch remaining.
 
 ### 7. The native harness observes owned-context startup, preparation through Land, and wrap-up without a default checkout
 Type: Structure
