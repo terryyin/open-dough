@@ -58,7 +58,9 @@ toward fetched trunk. Callers invoke a refresh only when their own
 procedure requests one: after an accepted trunk publication, or before
 using this checkout's commit as a new task base. A new owned workspace may
 start from fetched remote trunk without advancing the default checkout.
-Publication success does not decide eligibility.
+Publication success does not decide eligibility. Startup and preparation
+apply steps 2 and 4–8 to a reused owned workspace after their own fetch;
+startup checks its owned branch in place of the integration branch.
 
 Inspect current checkout state on every refresh attempt. With no default
 checkout supplied, report **not applicable** and stop. When the supplied path

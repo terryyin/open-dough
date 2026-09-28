@@ -195,20 +195,36 @@ async function attemptRefresh({
   }
 
   await git(checkout, "fetch", remote);
-  const remoteRef = `${remote}/${integrationBranch}`;
+  return fastForwardToFetchedTrunk(
+    checkout,
+    `${remote}/${integrationBranch}`,
+    integrationBranch,
+  );
+}
+
+// Refresh eligibility after a fetch, shared by refresh and by callers that
+// reuse an existing workspace: a checkout on `expectedBranch` (when one is
+// required) with no ongoing Git operation, no edits, and no commits of its
+// own that is strictly behind `fetchedRef` is fast-forwarded to it. Anything
+// else is left unchanged and reported with the reason it stopped.
+export async function fastForwardToFetchedTrunk(
+  checkout,
+  fetchedRef,
+  expectedBranch,
+) {
   const { current, remoteSha, branch } = await fetchedState(
     checkout,
-    remoteRef,
+    fetchedRef,
   );
 
-  if (branch !== integrationBranch) {
-    return decision("stopped", "unexpected-branch", current, remoteSha);
-  }
   if (await ongoingOperation(checkout)) {
     return decision("deferred", "ongoing-operation", current, remoteSha);
   }
-  const behind = await isAncestor(checkout, current.head, remoteRef);
-  const ahead = await isAncestor(checkout, remoteRef, current.head);
+  if (expectedBranch !== undefined && branch !== expectedBranch) {
+    return decision("stopped", "unexpected-branch", current, remoteSha);
+  }
+  const behind = await isAncestor(checkout, current.head, fetchedRef);
+  const ahead = await isAncestor(checkout, fetchedRef, current.head);
   if (!behind && !ahead) {
     return decision("stopped", "diverged", current, remoteSha);
   }
@@ -219,7 +235,7 @@ async function attemptRefresh({
     return decision("already current", null, current, remoteSha);
   }
   if (behind) {
-    await git(checkout, "merge", "--ff-only", remoteRef);
+    await git(checkout, "merge", "--ff-only", fetchedRef);
     const advanced = await inspectCheckout(checkout);
     if (advanced.head !== remoteSha || advanced.status !== "") {
       throw new Error(

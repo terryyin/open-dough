@@ -124,7 +124,8 @@ the command also resolves the canonical published plan. Supply
 `--declared-owner` and matching `--requester` only when your context declares
 the default checkout's owner for [refresh eligibility](references/maintain-default-checkout.md#refresh-eligibility).
 The command fetches trunk, checks the published selected
-source and preparation, selects or reuses the workspace, names you as an agent,
+source and preparation, selects the workspace or reuses it under [refresh
+eligibility](references/maintain-default-checkout.md#refresh-eligibility), names you as an agent,
 commits an isolated Take that publishes your agent profile, makes that agent the
 author of your workspace commits (`workspaceAuthorship: "not-configured"` means
 only the Take commit names the agent), confirms publication on remote trunk,
@@ -239,11 +240,8 @@ Missing/contradictory execution identity requires the recovery decision above.
 5. Run [delivery](references/wrap-up.md#deliver-the-change) end to end. That
    delivery publishes through
    [increment and repair publication](references/trunk-publication.md#publish-an-execution-increment-or-repair).
-   After successful delivery, restart for remaining planned slices; a delivered
-   quick slice has no successor.
-
-Slices run one at a time in plan order, each finishing its delivery before the next
-starts; quick execution has one slice.
+   After successful delivery, restart for the next planned slice, one at a time:
+   each finishes its delivery before the next starts; a quick slice has no successor.
 
 ## Finish or stop
 

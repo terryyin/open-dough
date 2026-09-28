@@ -51,8 +51,10 @@ refreshed. `start` fetches the target and, once it finds the story queued
 there, creates the workspace on that branch at fetched trunk before
 announcing. Its receipt then carries `selection` with `created: true`, the
 branch, and the starting revision; record the workspace as created by this
-session. An existing path is the owned workspace you already selected or are resuming,
-used as it is. Supply `--push-authorized` only when publishing to that target
+session. An existing path is the owned workspace you already selected or are resuming;
+a new announcement uses it under
+[refresh eligibility](../../dough-execute-plan/references/maintain-default-checkout.md#refresh-eligibility),
+fast-forwarding it when trunk has moved past it. Supply `--push-authorized` only when publishing to that target
 is authorized; without it the command stops. Supply your own host and model,
 omitting either you cannot state rather than guessing.
 Supply `--declared-owner` and a matching `--requester` only when your context
@@ -83,8 +85,8 @@ Keep the receipt with this session and act on its `status`:
   accept an announcement, so nothing is assigned; when the receipt carries a
   `candidateSha`, acceptance could not be checked, so rerun `start` in the same
   workspace, which settles it from the remote instead of announcing twice.
-  `workspace-not-isolated`: the workspace already holds edits or unpublished
-  commits; the announcement comes before the first write and never carries a
+  `workspace-not-isolated`: the workspace is not eligible, for the reason in
+  `error`; the announcement comes before the first write and never carries a
   draft. `workspace-assigned-elsewhere`: this workspace still holds a published
   assignment the request does not name, such as another story's; keep or
   abandon that preparation first.

@@ -2,6 +2,7 @@
 // claim there is workspace-publication-claim.mjs; publication of that SHA is a
 // separate step.
 import { existsSync } from "node:fs";
+import { fastForwardToFetchedTrunk } from "./maintain-default-checkout.mjs";
 import { git, revParse } from "./publication-git.mjs";
 import {
   isAncestor,
@@ -10,6 +11,8 @@ import {
   stopped,
   trailers,
 } from "./workspace-publication-ownership.mjs";
+
+const continuable = new Set(["advanced", "already current"]);
 
 async function verifyRetained(request) {
   const { retained } = request;
@@ -86,24 +89,23 @@ export async function selectOwnedWorkspace(request) {
     }
     if (existsSync(request.workspace)) {
       const actual = await revParse(request.workspace, "--show-toplevel");
-      const branch = (
-        await git(request.workspace, "branch", "--show-current")
-      ).stdout.trim();
-      const head = await revParse(request.workspace, "HEAD");
-      const status = (await git(request.workspace, "status", "--porcelain"))
-        .stdout;
-      if (
-        actual !== request.workspace ||
-        branch !== request.branch ||
-        head !== base ||
-        status !== ""
-      ) {
+      // A reused workspace continues on fetched trunk only through refresh's
+      // fast-forward eligibility; its own commits, edits, and any ongoing Git
+      // operation stay as they are.
+      const reused =
+        actual === request.workspace
+          ? await fastForwardToFetchedTrunk(
+              request.workspace,
+              base,
+              request.branch,
+            )
+          : { reason: "not-the-workspace-toplevel" };
+      if (!continuable.has(reused.result)) {
         return stopped("setup-failed", {
           recovery: {
             workspace: request.workspace,
             branch: request.branch,
-            error:
-              "existing workspace does not match clean fetched trunk and owned branch",
+            error: `existing workspace cannot continue on fetched trunk as ${request.branch}: ${reused.reason}`,
           },
         });
       }
@@ -111,7 +113,7 @@ export async function selectOwnedWorkspace(request) {
         ok: true,
         created: false,
         workspace: request.workspace,
-        branch,
+        branch: request.branch,
         startingRevision: base,
       };
     }

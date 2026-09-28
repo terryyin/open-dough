@@ -3,7 +3,8 @@
 // working tree, or creates a new owned workspace at fetched trunk from that
 // worktree or the repository's Git directory; the draft is written there and
 // continued, and its release is staged beside it; local refresh is not
-// applicable.
+// applicable. A reused worktree that trunk moved past is fast-forwarded
+// first, and one with an ongoing Git operation is not announced from.
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -12,6 +13,7 @@ import { ownedWorktreeOnly } from "../../dough-execute-plan/scripts/default-chec
 import {
   advanceOriginFromAnotherWriter,
   captureCheckout,
+  exec,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
   abandonLostPreparation,
@@ -126,3 +128,65 @@ for (const context of ["workspace", "repository"])
     );
     assert.deepEqual(await captureCheckout(owned.workspace), retained);
   });
+
+test("a clean owned worktree that trunk moved past is fast-forwarded, announced on the advanced tip, and continues its draft", async (t) => {
+  const created = await createPreparationTrunk();
+  t.after(created.cleanup);
+  const owned = await ownedWorktreeOnly(created, "prep-behind", "prep/behind");
+  const trunk = { ...created, integration: null };
+  const { workspace } = owned;
+  const advanced = await advanceOriginFromAnotherWriter(created.origin);
+
+  const { code, receipt } = await startPreparation(trunk, workspace, identityC);
+  assert.equal(code, 0, JSON.stringify(receipt));
+  assert.equal(receipt.status, "announced");
+  const announced = receipt.publishedSha;
+  assert.equal(await lsRemoteSha(created.origin, "refs/heads/main"), announced);
+  assert.equal(await revParse(created.origin, `${announced}^`), advanced);
+  assert.equal(await revParse(workspace, "HEAD"), announced);
+  assert.equal(
+    (await git(workspace, "branch", "--show-current")).stdout.trim(),
+    owned.branch,
+  );
+
+  refineStoryC(workspace);
+  const draft = read(workspace, seedC);
+  const resumed = await startPreparation(trunk, workspace, identityC);
+  assert.equal(resumed.receipt.status, "continued", JSON.stringify(resumed));
+  assert.equal(resumed.receipt.allocation, announced);
+  assert.equal(read(workspace, seedC), draft);
+});
+
+test("an owned worktree stopped mid-rebase is not announced from, and its rebase is preserved", async (t) => {
+  const created = await createPreparationTrunk();
+  t.after(created.cleanup);
+  const owned = await ownedWorktreeOnly(created, "prep-rebase", "prep/rebase");
+  const trunk = { ...created, integration: null };
+  const { workspace } = owned;
+  await exec(
+    "git",
+    ["-c", "sequence.editor=echo break >", "rebase", "-q", "-i", "HEAD"],
+    { cwd: workspace },
+  );
+  const rebaseState = (
+    await git(
+      workspace,
+      "rev-parse",
+      "--path-format=absolute",
+      "--git-path",
+      "rebase-merge",
+    )
+  ).stdout.trim();
+  assert.equal(existsSync(rebaseState), true);
+  const advanced = await advanceOriginFromAnotherWriter(created.origin);
+  const before = await captureCheckout(workspace);
+
+  const { code, receipt } = await startPreparation(trunk, workspace, identityC);
+  assert.equal(code, 1, JSON.stringify(receipt));
+  assert.equal(receipt.status, "workspace-not-isolated");
+  assert.match(receipt.error, /ongoing-operation/);
+  assert.equal(await lsRemoteSha(created.origin, "refs/heads/main"), advanced);
+  assert.deepEqual(await remoteProfileNames(created), []);
+  assert.deepEqual(await captureCheckout(workspace), before);
+  assert.equal(existsSync(rebaseState), true);
+});

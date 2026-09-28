@@ -354,7 +354,7 @@ entry point exited before its empty input was written (13 of 180 under load,
 
 ### 4. A clean reused workspace that trunk has moved past is fast-forwarded
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: An existing owned or host worktree on the requested branch is clean,
 has no commits of its own, and is strictly behind fetched trunk, with no
@@ -423,6 +423,18 @@ plus `execution-payload-update` and `story-payload-update` through
 `node --test`. Walk one representative startup reuse through the guidance
 (behavior review in `AGENTS.md`). Safe stop: startup and preparation share
 refresh's fast-forward eligibility for a reused workspace.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs`
+with the new `workspace-publication-startup-reuse-cases.mjs` (7 pass) and
+`preparation-assignment-owned-context.test.mjs` (5 pass): a clean behind owned
+worktree, with or without `--integration`, is fast-forwarded and continues with
+`created: false` through a first delivery; ahead, diverged, edited,
+`MERGE_HEAD`, and a real stopped rebase refuse with their reason and unchanged
+bytes, and preparation stopped mid-rebase no longer announces. The success and
+mid-rebase cases fail on 4d84c270. Focused suites (132), payload checks, and
+whole `node --test` (712) pass. `fastForwardToFetchedTrunk` in
+`maintain-default-checkout.mjs` owns the rule; it checks an ongoing operation
+before the branch so a stopped rebase's detached HEAD reports truthfully.
 
 ### 5. Refresh-result guidance links its single owner
 Type: Structure
