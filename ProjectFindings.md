@@ -30,6 +30,10 @@ executions, not commands, retries, or repairs.
    queued.** One execution (plan 135): agent time spent on paired A/B runs
    overestimated the CI job time that CI's own test-times artifact reports.
 
+4. **Direct shell-check runs with macOS Bash 3.2 (DD-159) — low, not
+   queued.** One execution (plan 140): a coordinator-prescribed direct run
+   bypassed the runner's Bash 5 guard and cost one diagnosis agent.
+
 No other project-owned problem is supported, so only one story is queued.
 
 Resolved and removed on 2026-09-27: ODF-060 (a new payload file published
@@ -116,6 +120,26 @@ the CI time from ratios; CI's measurement after the push was lower.
   - Evidence: slice 1 ran 3 paired A/B runs (estimate 54–56 s); slice 2 ran 5+5 sequential runs judged too noisy, then 3 concurrent pairs (estimate 61–62 s; agent total 1,708 s). CI run 36325895856 of `5181d769`, artifact `test-times-*`: `52.2 tests/git-publication-native.sh`.
   - Observed effect: a large share of slice 2's agent time went to timing, and the projection was about 10 s high.
   - Inference: Qualified. With a wide projected margin, the pushed revision's CI test-times artifact settles the budget more cheaply; a CI breach already fails the split job.
+
+## Direct shell-check runs with macOS Bash 3.2 (low priority, not selected)
+
+### DD-159 — A shell check run directly failed locally because its substitute host resolved macOS Bash 3.2
+
+`tests/README.md` requires Bash 5 first on `PATH` and running checks through
+`scripts/test.sh`, whose guard refuses Bash 3.2. A direct
+`/opt/homebrew/bin/bash tests/git-publication-native.sh` bypassed that guard;
+its substitute `claude` host (`#!/usr/bin/env bash`) resolved `/bin/bash` 3.2
+and aborted on an empty-array expansion under `set -u`.
+
+#### Occurrences
+
+- Execution: `SEED-008#same-machine-merge-queue` / plan 140, first related implementation commit `9597bf61`
+  - Timestamp: unknown (slice 1 return, before `9597bf61` at 2026-09-28T12:45:56+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: slice 1 return reported `substitute claude one-shot-result exited 1 … stream-status: missing`, identical at claim `5a5087c6`; `native-agent-one-shot.sh` line 35 `named[@]: unbound variable` under `/bin/bash`; `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/git-publication-native.sh` passed.
+  - Observed effect: one diagnosis agent (about 66k tokens) spent on a failure CI never had.
+  - Inference: Qualified. The coordinator's delegation prompt prescribed the direct absolute-Bash run; later prompts named `scripts/test.sh` with Homebrew Bash first on `PATH` and saw no recurrence.
 
 ## Retention
 

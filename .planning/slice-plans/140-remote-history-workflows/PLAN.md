@@ -430,3 +430,17 @@ feasibility were observed in isolated Git probes; actual product adoption and
 new guidance proof are owned by the slices above, not claimed as already green.
 Readiness is recorded through the canonical preparation recorder after reviewing
 the completed story and plan. That assessment supplies no execution authority.
+
+## Execution complete
+
+Product advice: Put the follow-up correction
+[SEED-008#owned-context-start-and-truthful-refresh](../../seeds/SEED-008-worktree-branch-trunk-sync.md#owned-context-start-and-truthful-refresh)
+(plan 142: owned-context workspace creation, truthful rebase-aware refresh,
+single retirement mechanics, startup test consolidation) ahead of new feature
+work. Assign native acceptance for this story's changed startup, preparation,
+Land, wrap-up, and current-checkout guidance before release (ADR 0005). Human
+decisions remain on fast-forwarding a behind owned worktree, direct edits with
+unrelated staged content, the vestigial declared-owner concept, and shipped
+mechanics modules without an entry point. ODF-119's startup cause is resolved.
+The direction's next step, local operational visibility for multiple agents,
+has no queued story yet.

@@ -338,6 +338,22 @@ explicit contract in the focused CI runtime suite.
     command-line callers, and a concurrency convenience removed the suite
     that would have caught it.
 
+- Execution: `SEED-008#same-machine-merge-queue` / plan 140, first related implementation commit `9597bf61`
+  - Timestamp: 2026-09-28T13:21:44+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `2b46e651`; VERSION 0.3.45
+  - Evidence: slice 3 (`600f5f45`) moved workspace selection onto a new
+    `repository` field and re-wrapped guidance; focused proof globbed
+    `workspace-publication-startup-*`. CI run `36381588951` failed
+    `workspace-publication-race.test.mjs` (still passed only `integration`, so
+    Git ran in the runner's repository) and three
+    `workspace-ownership-lifecycle.test.mjs` phrase regexes; repair `615df2ad`.
+  - Observed effect: one failed CI run, a stash-and-repair cycle with one extra agent.
+  - Inference: Qualified. Consumers were chosen by name pattern and skill
+    directory; later slices that also ran the whole `node --test` suite (698)
+    before return sent no further consumer break to CI.
+
 ## ODF-069 — A genuinely failed CI run was reported as merely uncovered, not failed
 
 Former local code: DD-065.
@@ -979,6 +995,6 @@ only consolidating the outbound-link policy and test helper.
 
 ## Retention
 
-- Highest allocated local number: 158. Removed local codes are never reused.
+- Highest allocated local number: 159. Removed local codes are never reused.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.

@@ -260,6 +260,38 @@ from this story.
 
 **Slice plan:** [Run worktree workflows from remote history](../slice-plans/140-remote-history-workflows/PLAN.md).
 
+<a id="owned-context-start-and-truthful-refresh"></a>
+
+### Start from owned repository context and refresh truthfully
+
+**Identity:** SEED-008#owned-context-start-and-truthful-refresh
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/142-owned-context-start-and-refresh/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"624a6722a707be78d3f9dc7a167d031997cfde4ab28ba345dd0af099057131f9","plan":"66d6e8787b9337141398cfa4969a3cc4f4204df4931bc05c8e5ef272eba8ae32"}}
+```
+
+**Goal:** Developers can start and land owned work from an owned repository
+context alone and receive a truthful, fast-forwarding default-checkout refresh.
+This bounded retrospective correction of
+[Run worktree workflows from remote history](#same-machine-merge-queue)
+completes that story's example 3 and its "clean and behind → fast-forward"
+promise, while retirement mechanics and refresh-result guidance keep one
+representation each.
+
+**Scope:**
+
+- Create a new owned workspace at fetched trunk from an existing owned worktree
+  or the repository's common Git directory, for queued startup and preparation,
+  with local refresh not applicable. Existing refusals remain.
+- Recognize an in-progress rebase by Git's rebase state, not a leftover
+  `REBASE_HEAD`, in one recognizer shared by refresh and the Land model.
+- Refresh-result guidance links its single owner; the Land model retires
+  through the shared retirement mechanics.
+- Remove the startup and Land test redundancy the review found, and prove that
+  a ready-looking local copy cannot override unready remote preparation.
+- Human-owned decisions listed in the plan remain excluded.
+
+**Slice plan:** [Start from owned repository context and refresh truthfully](../slice-plans/142-owned-context-start-and-refresh/PLAN.md).
+
 <a id="reduce-ci-observer-overhead"></a>
 
 ### Reduce CI observer overhead across execution and wrap-up
