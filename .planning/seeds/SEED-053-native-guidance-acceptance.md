@@ -48,18 +48,54 @@ independently.
 
 **Identity:** SEED-028#native-one-shot-escalation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/139-native-one-shot-escalation-claude-code/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f433b0d83dcf62f586a91723fb32b816fbfca58a34f7393476523d7249b00b73","plan":"c971c1f52709e695742712e0fa35990ae371402954e064ba466b0dc8675b5708"}}
 ```
 
-**Goal:** A Claude Code one-shot attempt that proves larger than one-shot
-allows is admitted before further edits, keeps its edits, and continues without
-an unnecessary approval stop (`publication/one-shot-escalation`). Premise
-verification and the other recorded one-shot cases are already accepted on
-Claude Code; this story retains only the pending escalation work.
+**Goal:** Maintainers learn whether a Claude Code agent notices when an
+explicitly selected one-shot attempt grows and escalates it instead of landing
+larger work untracked, which would hide it from the progress view. Carry,
+restore and conflict mechanics already have credential-free tests, so the
+native run judges only the agent's recognition and choice
+(`publication/one-shot-escalation`). Premise verification and the other
+recorded one-shot cases are already accepted on Claude Code.
 
-**Feasibility first:** Find a fixture where the agent discovers the growth
-without the prompt supplying the expected answer; admitting up front is a
-legitimate outcome, not a failure.
+**Scope:**
+
+- **Feasibility first, with an exit.** Within a bounded attempt, find one
+  unlisted `--one-shot` fixture whose growth emerges from the code, not the
+  prompt. For example, a request to rename a configuration key turns out to
+  need a migration of persisted data, a separate outcome. If no fixture
+  exercises escalation without supplying the answer, stop and drop native
+  escalation acceptance entirely, including the escalation case the
+  [Codex](#native-acceptance-codex) and [Cursor](#native-acceptance-cursor)
+  stories wait for; deterministic tests and real use then stand as the
+  evidence.
+- **One observed run per guidance version**, manually triggered, judged by
+  automated checks on origin and workspace state: the admission reached origin
+  before any result commit, the attempt's edits are restored uncommitted in the
+  claimed workspace, and the agent continued without asking for approval.
+- **Observation ends at continuation.** The request grants publication but not
+  planning, so after admission and restored edits the guidance's own next step
+  is to stop before planning and report the Taken story. The run ends there,
+  and escalating without first asking for approval is what "no unnecessary
+  approval stop" means. It does not complete the grown story.
+- **Deferred:** queued-story escalation, a developer stop, carried edits that
+  conflict with the claim, the `--no-replan` bug-fixing variant (all share the
+  deterministically tested admission path), Codex and Cursor (their own
+  stories), and repeated runs or statistics.
+
+**Key examples:**
+
+- Fixture's one-shot request, agent discovers growth mid-attempt → origin shows
+  the admission commit and no result commit, the workspace holds the restored
+  edits over the claim, and the agent carried them itself and stopped before
+  planning without asking to escalate → pass.
+- Agent admits the work before editing anything → inconclusive, not a pass:
+  escalation was not exercised; adjust the fixture within the bounded retries.
+- Agent lands the grown result as one-shot without admission → fail; the
+  escalation guidance needs a fix.
+- No non-leading fixture found within the bound → exit: the native escalation
+  case is dropped from all three host stories.
 
 **Harness limits:** `tests/support/git-publication-native-one-shot.sh` (249
 lines) and `tests/support/git-publication-native-assess.sh` (250) are at the
