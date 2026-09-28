@@ -220,7 +220,7 @@ releasable under ADR 0005's native acceptance.
 
 **Identity:** SEED-008#installed-wrap-up-command
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/146-installed-wrap-up-command/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d3a1b545befec0470b7ad669a5ae0a4ac14731027ec0d2ae208f19d9797c0911","plan":"8463f580f3ebc848f6e96a4bca0e163136853836f7cd916c3cad53a8a6e47f7b"}}
 ```
 
 **Decision (2026-09-28):** Terry chose an entry point over removing the
@@ -285,6 +285,8 @@ which removes owner arguments the closure modules still pass.
    recovery step.
 4. Retirement is asked for a branch whose tip trunk does not contain → the
    command refuses and removes nothing.
+
+**Slice plan:** [Close stories through an installed wrap-up command](../slice-plans/146-installed-wrap-up-command/PLAN.md).
 
 <a id="reduce-ci-observer-overhead"></a>
 
