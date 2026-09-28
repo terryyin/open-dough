@@ -3,20 +3,22 @@
 Temporary direction for current work; revise when evidence changes it and retire
 realized topics after checking affected stories. Accepted ADRs remain authoritative.
 
-## Remote publication and default-checkout ownership
+## Remote history and optional local refresh
 
 The selected direction uses the project's remote trunk as the integration
 boundary for every owned workspace. Before isolated story implementation starts,
-publish its Taken claim to that trunk. Publication, execution ownership,
-default-checkout freshness, and CI coverage each retain their own evidence.
+publish its Taken claim to that trunk. Fresh workspaces and queued source
+selection use fetched remote history. A default checkout is optional and may
+remain the developer's playground. Publication, execution ownership,
+checkout freshness when applicable, and CI coverage retain their own evidence.
 
 | Concept | Meaning and owner |
 | --- | --- |
 | Work identity and Taken membership | Stable story identity and queue selection, owned by the backlog contract and mutation/reconciliation scripts. |
 | Execution identity and workspace | Mode, owned checkout/branch, base revision, publication destination, and publication authority, owned by execution-location guidance. |
 | Publication | Reconcile owned changes with fetched remote history, validate the candidate, publish through the authorized destination, and retain the accepted revision. |
-| Default-checkout access | Exclusive local ownership for direct edits and refreshes, with recoverable handoff and preservation of pending work. |
-| Checkout freshness | The observed local relationship to fetched trunk and any deferred refresh. |
+| Optional default checkout | A developer's local checkout, whose content and revision neither supply nor veto owned-worktree startup or remote publication. |
+| Checkout freshness | The observed local relationship to fetched trunk and any optional refresh outcome, when a checkout is supplied. |
 | CI coverage | Observation of a specific published revision on a particular target, owned by the existing observer. |
 
 Publication, default-checkout maintenance, claim-before-implementation, and
@@ -26,12 +28,15 @@ publication ownership, and CI attribution in active plans or conversation
 context. Report a coverage gap when the configured observer covers a different
 target from a published claim.
 
-[Default-checkout coordination](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
-owns automated access and interruption recovery for that workspace. Each trunk
-publication attempts a safe local refresh; pending local work is preserved and
-its refresh is reported as deferred. New workspaces can start from fetched
-remote trunk. Owned workspaces use the same remote publication contract across
-machines and worktrees.
+[Run worktree workflows from remote history](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
+owns the remaining alignment under Terry's 2026-09-28 decision. After accepted
+trunk publication, attempt a safe fast-forward when a default checkout is
+supplied; preserve pending local work and report a skipped, deferred, stopped,
+or failed refresh separately. Its absence never blocks owned work. Dough Land
+and wrap-up consume one cohesive publication, refresh, and retirement solution,
+with their distinct review, history-recovery, and CI duties intact. Explicit
+current-checkout work needs no automated ownership or handoff mechanism. Owned
+workspaces use the same remote contract across machines and worktrees.
 
 Keep this direction while the selected stories need it; retire it when lasting
 behavior is established in authoritative guidance. Describe the intended
@@ -120,7 +125,8 @@ one more view of that snapshot, and a commission's human developer is the
 committer of the commit that added its profile's current allocation; avatar
 images, like every GitHub read, come through the local boundary and never
 become assignment evidence. Keep later feature,
-structure, and local-lock models out until their selected behavior needs them.
+structure, and local operational models out until their selected behavior needs
+them.
 UI choices stay in the separate
 [UX/UI North Star](../docs/dashboard-ux-ui-north-star.md).
 

@@ -47,7 +47,7 @@ The following is proposed architectural intent, not an accepted decision.
 | Feature | Implemented external behavior that users care about, with maintained definition and design, protected by automated tests. It describes capability rather than a promise that a particular user's goal has been satisfied. |
 | Structure | The logical organization of the product's implementation, expressed through its domain model and mapped to packages, folders, files, and functions. |
 | Local workspace | An owned checkout in which a developer prepares changes and publishes to an authorized remote destination. Several worktrees can share one local repository. |
-| Default-checkout ownership | Machine-local access for direct edits and refreshes of the default checkout, with its own recovery and freshness evidence. |
+| Optional default checkout | A developer's checkout that may be refreshed after remote trunk publication. Its presence, edits, and freshness are local operational facts, not workflow authority. |
 
 A story changes the product; features and structure remain descriptions of the
 product after the story is complete. These are three related dimensions, not
@@ -88,14 +88,16 @@ origin so the reader can locate published progress. Trunk Mode needs no remote
 story-branch field. Local branch and worktree locations belong to the local
 operational view rather than required remote backlog metadata.
 
-Machine-local evidence later supplements this view with workspace and
-default-checkout activity. Its absence means that local activity is unknown.
-Published progress remains visible independently of that local evidence.
+Machine-local evidence later supplements this view with owned-workspace activity
+and optional default-checkout refresh outcomes. Missing observation means local
+activity is unknown; an observed absence of a default checkout is a normal
+condition, not blocked work. Published progress remains visible independently
+of that local evidence.
 
 ```mermaid
 flowchart LR
     G["Git origin: records, branches, history"] --> V["Derived project view"]
-    L["Local workspace and coordination evidence: later"] -.-> V
+    L["Local workspace and refresh evidence: later"] -.-> V
     V --> S["Story perspective: first"]
     V -.-> F["Feature perspective: later possibility"]
     V -.-> A["Structural perspective: later possibility"]
@@ -113,17 +115,18 @@ persisted state, a dependency between stories, or a mandatory linear lifecycle.
 Story identity and source evidence remain stable independently of card placement.
 
 Viewport position, zoom, focused work, and animation are presentation state,
-separate from published project facts and later machine-local coordination
+separate from published project facts and later machine-local operational
 evidence. Losing them loses no project progress. Motion can explain a change
 between observed snapshots; it cannot establish unobserved activity. This
 intention does not prescribe canvas, a graph library, or stored layout data.
 Build these interactions just in time for the selected story's reading goal;
 the visual direction does not justify advance navigation infrastructure.
 
-### Observe coordination without owning it
+### Observe workflow outcomes without owning them
 
-Keep record maintenance and integration coordination in the workflow. Let the
-dashboard observe their evidence without requiring a GUI for agent cooperation.
+Keep record maintenance, remote integration, and local workspace management in
+the workflow. Let the dashboard observe their evidence without requiring a GUI
+for agent cooperation.
 
 Follow the branching and integration direction in
 [ADR 0009](./0009-git-branching-and-integration.md), which remains Proposed.
@@ -131,24 +134,36 @@ Owned workspaces publish to remote destinations; remote trunk is the shared
 integration authority. The dashboard observes accepted remote revisions for
 published progress and uses machine-local evidence for checkout activity.
 
-For participating writers on one machine, coordinate default-checkout access
-for direct edits and refreshes. Preparation uses an owned workspace under the
-[workspace procedure](../../src/skills/dough-story-refinement/references/preparation-workspace.md).
-A deferred local refresh preserves pending work and remains visible separately
-from successful remote publication. Independent publication follows the same
-Git reconciliation contract across worktrees and machines.
+Fresh preparation and execution use fetched remote history in an owned workspace
+under the applicable workflow procedure, including the
+[preparation workspace procedure](../../src/skills/dough-story-refinement/references/preparation-workspace.md).
+They do not depend on a default checkout. Land and wrap-up share the remote
+publication and recovery contract across worktrees and machines; a dashboard
+must not infer successful integration merely from a local branch advancing.
+
+After remote trunk accepts work, optional local refresh may advance a clean
+checkout on the expected branch. Deferred or failed refresh preserves local
+work and remains visible separately from successful remote publication. A
+missing default checkout requires no ownership or handoff state and does not
+prevent owned-workspace retirement. Explicit developer checkout edits use their
+existing task authority; this model requires no automated checkout coordination
+protocol.
 
 Use the [requirements](../project-visibility-requirements.md) for local-edit,
 freshness, and recovery examples. Recheck observable checkout state around
 local mutations and preserve changes from human developers and other tools.
+Terry's 2026-09-28 direction replaces this draft's earlier default-checkout
+ownership and coordination proposal. Align older detailed requirements through
+[Run worktree workflows from remote history](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue);
+the wording change does not claim that runtime delivery is complete.
 
 ### Incremental scope
 
 1. Deliver the story perspective from published Git state alone, treating
    developers as using independent machines. This describes the available
    evidence, not a requirement for physically separate machines.
-2. Add coordination and operational visibility for multiple agents sharing a
-   local repository through worktrees.
+2. Add local operational visibility for multiple agents sharing a repository
+   through owned worktrees, including optional checkout refresh outcomes.
 
 Feature and structural perspectives remain future possibilities, not
 prerequisites for either stage. Their domain distinctions should stay clear
@@ -165,14 +180,15 @@ without building their machinery in advance.
   this proposal does not make today's records sufficient by declaration.
 - Story identity, developer assignment, execution mode, and workspace ownership
   remain distinguishable, avoiding accidental coupling to a temporary branch,
-  recycled name, or lock holder.
-- Local coordination adds recovery obligations and cannot eliminate semantic
-  conflicts or prevent arbitrary writers from bypassing its protocol.
+  recycled name, or default checkout.
+- Local evidence can explain workspace activity and deferred refresh, but
+  cannot establish unobserved activity or imply that a default checkout is
+  required for remote work.
 
 ## Open design and related decisions
 
-Record formats, messaging and takeover, recently
-finished story views, North Star placement, lock protocols, and detailed stage
+Record formats, assignment messaging and takeover, recently
+finished story views, North Star placement, and detailed stage
 layout remain open in the [requirements](../project-visibility-requirements.md#questions-retained-for-later-design).
 No GUI framework, daemon, database, schema, or distributed scheduler is selected.
 

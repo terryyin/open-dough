@@ -18,9 +18,10 @@ their work with the same shared product history.
 
 Remote reconciliation is required across machines and worktrees. Each owned
 workspace can prepare and validate a candidate against fetched remote history
-and publish it to the designated destination. The default local checkout also
-serves direct edits and task startup, so it needs its own ownership, refresh,
-and recovery rules.
+and publish it to the designated destination. Fresh preparation and execution
+must use that remote history rather than depend on the state of a default local
+checkout. A developer may use a default checkout for explicitly requested edits;
+it is an optional workspace, not a required workflow authority.
 
 Workspace isolation, shared integration, and maintenance of the default local
 checkout are separate responsibilities. Keeping those boundaries explicit
@@ -59,6 +60,18 @@ Perform substantial or uncertain-duration work in an owned workspace, normally
 a worktree with its own branch. A local branch provides isolation and recovery;
 its existence does not make it another integration authority. Retain its
 identity across interruptions while work remains unfinished.
+
+Start a fresh preparation or execution workspace from freshly fetched remote
+trunk. Select queued work and its preparation records from the authorized remote
+source, including the published story branch when applicable. A stale, dirty,
+diverged, or absent default checkout must not veto a valid remote source.
+
+Resuming an existing owned workspace preserves its unfinished work. Deliberately
+supplied unpublished preparation or carried edits remain explicit owned inputs;
+do not replace them during resume or silently include unrelated default-checkout
+content. Repository access may come from an owned worktree or retained Git
+repository context; a default checkout is not required. This does not require
+converting existing projects into bare repositories.
 
 | Mode | Working branch | Publication and integration |
 | --- | --- | --- |
@@ -103,61 +116,71 @@ Successful publication is a remote fact. Local checkout refresh and CI results
 are separate facts, with their own reported outcomes. Their remaining obligations
 do not erase a publication that has already succeeded.
 
+Land and story wrap-up share the publication, recovery, optional local refresh,
+and owned-workspace retirement responsibilities. Keep one contract for these
+responsibilities rather than separate integration policies in each caller.
+Land's reviewed-content boundary and wrap-up's story completion, recovery, and
+CI obligations remain specific to their lifecycles. Closure changes publish to
+the authorized remote destination before any local refresh, including changes
+made at the final cleanup boundary.
+
+Shared workflow records, including backlog claims and preparation publication,
+also use an owned publication path without a mandatory local-main integration
+stage. Claim success is established by its authorized remote publication, not
+merely a local commit.
+
 Git's rejection of conflicting branch updates protects history; it does not
 resolve semantic conflicts or guarantee fair scheduling. Add a publication queue
 only when observed contention or project requirements justify one. Sharing a
 machine alone does not require a second integration queue through local `main`.
 
-### Maintain the default local checkout separately
+### Optional default-checkout refresh
 
-The default checkout remains a convenient starting point for tasks and a place
-for bounded direct edits. Keep it current with remote trunk whenever safe.
-After each successful trunk publication, attempt a coordinated refresh. Before
-using the checkout's commit as a new task's base, check it against freshly
-fetched trunk.
+After successful remote trunk publication, attempt to advance a supplied
+default checkout when safe. This is a convenience for the developer, not an
+integration stage or a prerequisite for startup, publication, or retirement.
+Report its outcome separately from the accepted remote revision.
 
 | Checkout state | Required handling |
 | --- | --- |
-| Clean and equal to, or only behind, fetched trunk | Leave it current or fast-forward it through normal checkout-aware Git operations. |
+| No default checkout supplied | Skip local refresh; the remote workflow continues normally. |
+| On the expected branch, clean and equal to, or only behind, fetched trunk | Leave it current or fast-forward it through normal checkout-aware Git operations. |
 | Uncommitted edits or unpublished commits | Preserve the work and defer automatic advancement; its owner handles reconciliation and publication. |
-| Another writer or operation is using it | Defer refresh until access can be coordinated safely. |
-| Diverged, unexpected branch, or unclear ownership | Preserve state and report the unresolved checkout maintenance. |
+| Another writer or Git operation is using it, or refresh fails | Preserve state and report deferred or failed refresh independently of publication. |
+| Diverged, unexpected branch, or uncertain state | Preserve state and report the unresolved checkout maintenance. |
 
-Deferred refresh must be visible, but must not block another owned workspace's
-publication. A new task can start its worktree from the fetched remote trunk
-without advancing the default checkout. Including local unpublished work in a
-new task's base requires an explicit ownership and dependency decision.
+Deferred or failed refresh must be visible, but must not block an owned
+workspace's publication or retirement once its remote containment and own
+lifecycle conditions are satisfied. Retain repository management context before
+removing an owned worktree, including when no default checkout is available.
 
-Direct edits and refreshes of the default checkout share one local coordination
-boundary. Establish exclusive access before mutating its working tree, index,
-or checked-out branch, and retain that access throughout a direct edit. A local
-coordination mechanism protects this workspace; agents publishing from other
-workspaces do not acquire it merely to publish. Recheck state and preserve work
-from humans or tools that do not participate in that mechanism.
+Explicitly requested edits in a developer's checkout use the existing task
+authority. Do not require an automated checkout owner registry, exclusive-access
+token, or handoff protocol for these edits or for optional refresh. Recheck
+observable state around local mutations and preserve work from humans and other
+tools. If safe advancement cannot be established, defer it.
 
 Direct edits follow the same remote reconciliation and publication rules. Do
 not silently include unrelated local commits in a push, or stash, reset, or
 discard another writer's work to make refresh possible. In particular, do not
 move a checked-out branch ref without updating its checkout safely.
 
-These rules also apply to shared workflow records, including backlog claims and
-preparation publication. Such writes need an owned publication path; they must
-not reintroduce a mandatory local-main integration stage. Claim success is
-established by its authorized remote publication, not merely a local commit.
-
 ## Consequences
 
 - Multiple worktrees and separate clones use the same remote integration
   contract. Worktrees still share local Git resources, so workspace ownership
   and safe local operations remain necessary.
-- Dirty or busy default checkouts no longer prevent independent work from
-  reaching remote trunk. The checkout can temporarily lag, and that state must
-  be reported separately from publication success.
+- An absent, dirty, or busy default checkout does not prevent fresh work from
+  starting or owned work from reaching remote trunk and retiring. A supplied
+  checkout can temporarily lag; its refresh outcome is separate from publication
+  success.
 - Remote races remain normal. Reconciliation and validation may need repeating;
   a local lock cannot eliminate updates from other machines.
-- Local coordination has a narrower purpose: protecting direct edits and
-  refreshes. This proposal selects no lock implementation, daemon, queue service,
-  retry limit, or CI scheduling policy. Executable procedures belong in skills.
+- No mandatory default-checkout coordination service is introduced. Local
+  preservation checks support optional refresh without making the developer's
+  checkout a shared workflow gate. This proposal selects no daemon, queue
+  service, retry limit, or CI scheduling policy. Executable procedures belong
+  in skills.
 
 ## Relationship to existing decisions and guidance
 
@@ -171,15 +194,22 @@ nor grants an exception to ADR 0002.
 ADR 0007 should reference this record for branching and integration mechanics.
 [Proposed ADR 0008](./0008-project-dashboard-domain-and-architecture.md) should
 observe remote publication and local checkout maintenance as separate facts;
-its shared integration-lock language would need alignment with this boundary.
+an absent default checkout is a normal workflow condition, not evidence that
+work is blocked or checkout ownership is missing.
 
 Installed execute-plan publication and default-checkout maintenance guidance
 own the implemented contract for callers, recovery, and proof.
-[Default-checkout coordination](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
-owns automated local access and recovery. The
+[Run worktree workflows from remote history](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
+owns the migration to remote-based startup and a shared remote-first lifecycle
+with optional local refresh. The
 [visibility requirements](../project-visibility-requirements.md) distinguish
 published progress from local operational evidence. These records express the
 selected planning direction; execution follows its own authorization.
+
+Terry's 2026-09-28 direction replaces this draft's earlier default-checkout
+coordination proposal. Existing runtime guidance and detailed visibility
+requirements still need alignment through the selected story's delivery; this wording
+change does not claim that implementation is complete.
 
 No Accepted ADR is superseded by this proposal. Human consultation, acceptance,
 and communication follow the [ADR process](./README.md). Maintainer guidance and

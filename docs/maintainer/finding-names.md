@@ -566,8 +566,8 @@ Removing an assertion changes a test consumed by a mutation meta-test, but proof
 Already-published planning bytes left in the default checkout look unpublished to startup; unignored nested worktrees also keep refresh deferred.
 
 - **Sources:** [Open Dough / ODF-119](../../DearDough.md#odf-119--leftover-state-in-the-default-checkout-blocked-execution-startup-and-never-let-it-refresh).
-- **Assessment:** Three executions, releases unknown. Existing default-checkout coordination story covers the shared maintenance boundary; preserve its bounded scope.
-- **Follow-up:** queued, not resolved: [Coordinate direct edits and refreshes of the default checkout](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue). Existing scope and queue position retained.
+- **Assessment:** Three executions, releases unknown. The evidence establishes stale-checkout dependencies and repeated refresh deferral; it does not establish a need for mutual exclusion.
+- **Follow-up:** queued, not resolved: [Run worktree workflows from remote history](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue). Terry repurposed the existing story on 2026-09-28 to remove default-checkout dependencies, retaining its identity and queue position. No default-checkout coordination mechanism is selected; the original occurrences remain evidence, not proof that a lock would fix them.
 - **2026-09-27 harvest:** Three Open Dough executions (111, 114, 116), not one; the latter two retain repeated stale-checkout/refresh evidence. Existing queue response remains unresolved.
 
 <a id="odf-120"></a>
