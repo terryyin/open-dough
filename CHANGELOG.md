@@ -1,3 +1,9 @@
+## 0.3.45 - 2026-09-28
+
+- Let slice planning resolve fixable boundary, sizing, cumulative-design, and proof-ownership concerns through in-scope plan refinement before its final readiness assessment, while preserving explicit stops for missing inputs and human-owned decisions and granting no execution or publication authority.
+
+No additional native acceptance was run for `0.3.45` at the maintainer's request as an exception to ADR 0005. Native acceptance for the conditional slice-plan refinement behavior and previously pending native requirements remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.44 - 2026-09-28
 
 - Give dashboard story and agent-roster views project-aware URLs, preserve the selected project, view, and focus through browser Back and Forward navigation, normalize invalid routes, and open external and repository links in new tabs.
