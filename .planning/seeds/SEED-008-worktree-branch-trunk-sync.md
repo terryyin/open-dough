@@ -304,6 +304,32 @@ Later source review corrected the claimed production readiness command: it was
 a test substitute. Current story scope replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.
 
+<a id="percent-encoded-home-links"></a>
+
+### Start queued work whose backlog link percent-encodes its path
+
+**Identity:** SEED-008#percent-encoded-home-links
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"40b293201cd5edf2a6f28eb3374ba41d19c3c75043be1da803a1d4965d8b6fb8"}}
+```
+
+**Goal:** Developers can start queued work in Story Branch or Trunk Mode when
+its backlog link percent-encodes characters in the canonical home or plan path,
+such as a space written as `%20`, the same way a Markdown renderer and the
+product backlog's own Take read that link.
+
+**Scope:**
+
+- Reported against Open Dough 0.3.45 (Claude Code install): a backlog entry
+  `[...](../TPS%20and%20AI/seed.md#storyline)` refused startup with
+  `source-refused` / "selected canonical home is absent on fetched trunk"
+  although `TPS and AI/seed.md` existed on fetched trunk with a ready recorded
+  state; `product-backlog.mjs take` with the same identity succeeded.
+- Startup resolves the percent-decoded project path for the canonical home and
+  for a declared plan. Identities and anchors stay as written.
+- Key example: a queued story whose home is `Story Notes/seed.md`, linked as
+  `../Story%20Notes/seed.md#story`, starts and publishes its Take.
+
 ## Architectural Context
 
 [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
