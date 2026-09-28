@@ -202,3 +202,22 @@ or statistical reliability.
 - Raw plans, state, command argv, exact prompts and JSON traces at
   `/private/tmp/plan141-slice1.KTBlZf` were judged for this active decision and
   are deleted after this slice's proof record is published under ADR 0005.
+
+Slice 1 delivered: `8373b163be94f2b6244c7c0c0e1e8e501877afa6` accepted on the recorded execution-branch target; observer reused and exact revision registered. Raw slice-1 artifacts were deleted after judgment/publication. This is the next increment's previously published base.
+
+## Slice 2 observation and execution stop (2026-09-28)
+
+Verdict: candidate failed the proportionate control; baseline is mixed/limited,
+not a clean historical-plan-111 burden match. Slice 2 remains planned and
+unaccepted; slices 3–7 were not launched. No guidance fix, candidate retry,
+retrospective, readiness renewal or completion claim is authorized by this
+result. The story remains Taken; a separate correction decision is needed.
+
+- Guidance is unchanged: candidate `v0.3.45`/`f3f75d0b`, baseline `6882aeb3`; harness `8373b163be94f2b6244c7c0c0e1e8e501877afa6`, CLI `0.157.0`, same default/ignore-user-config settings, actual model unknown. Relevant installed skill bytes matched each pinned source.
+- Setup command: `/opt/homebrew/bin/bash /tmp/plan141-slice2-setup.sh`; two independent shared Open Dough clones at `f2b974afb5367b7f8cbe3a2b5ebd246ec166bf02` (`e7107e5^`), selected refined SEED-042 restored from `e7107e5`, origin removed, separate pinned guidance installation and installed recorder reset to refined/unselected. Both setup journeys passed before launch; no product implementation.
+- Literal launches: `/opt/homebrew/bin/bash /private/tmp/plan141-slice2.7YSVP3/run.sh candidate` and `/opt/homebrew/bin/bash /private/tmp/plan141-slice2.7YSVP3/run.sh baseline`, using the same adapter/supervisor protocol with deadline/grace 900/15 seconds. Exact planning prompt is the template above with story `seeds/SEED-042-rename-slice-plan-folder-references.md#rename-slice-plan-folder-references` and fixture `/private/tmp/plan141-slice2.7YSVP3/candidate-open-dough` or `/private/tmp/plan141-slice2.7YSVP3/baseline-open-dough`, respectively.
+- Both native processes exited 0, ended with `turn.completed` and classified `complete`. Each item_1 actually reads the installed planning skill; each wrote one Behavior plan and recorded planned/ready with matching digests. Candidate ran one focused plan-reader check (10 tests); neither native session ran a full suite, made product edits or published.
+- The observed failure is in the resulting prospective plan, not runtime: candidate `.planning/slice-plans/111-rename-slice-plan-folder-references/PLAN.md` lines 119–125 unconditionally require `npm test`, `npm run lint`, `npm run typecheck:dashboard`, `npm run build:dashboard` and the full `npm run test:dashboard` as existing delivery checks, beyond its focused proof. Its seven premise observations are relevant but heavier than brief.
+- Historical plan 111's proof table and final verification paragraph prescribe focused reader/navigation checks plus existing repository requirements. Historical AGENTS representative behavior review, README and contributor test instructions supply no every-change full-suite mandate; hosted `ci.yml` lists those five checks. Candidate installed wrap-up line 86 says not to run full CI before commit unless explicitly required. Hosted checks do not alone establish that local mandate. These source observations leave the added unconditional burden unjustified.
+- Baseline plan lines 116–124 also adds full `npm test` for distributed fixture consumers, but conditions full dashboard testing on affected reach and omits candidate's build/typecheck additions. This provides limited comparison, not acceptance of the candidate or a causal improvement claim.
+- Coordinator independently inspected final plans, skill-read command items, terminal outcomes, matching preparation states and requirement sources. Raw root `/private/tmp/plan141-slice2.7YSVP3` has been judged and will be removed after publishing this compact failed/outstanding record. Native acceptance and this plan remain incomplete; do not retry the same candidate to obtain a pass.
