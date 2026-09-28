@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # One-shot escalation journey for the publication native harness: an unlisted
-# one-shot request whose code and docs reveal a separate outcome is admitted
+# one-shot request whose project check reveals a separate outcome is admitted
 # to Taken as its own story, carrying the attempt's edits back uncommitted
 # over the claim, and stops before planning; no result reaches remote trunk.
 # Fixture, prompt, observation, assessment and state counterexamples. Sourced
@@ -91,12 +91,12 @@ git_publication_assess_one_shot_escalation() {
     git_publication_assess_fail 'remote trunk did not gain exactly one admitted Taken story'
   elif [[ ${trunk_commit_count} != 1 ]]; then
     git_publication_assess_fail 'remote trunk gained more than the admission claim'
-  elif [[ ${workspace_on_claim} != true || -z ${workspace_edits} ]]; then
-    git_publication_assess_fail "the attempt's edits are not uncommitted over the claim in its workspace"
   elif [[ ${one_shot_start_observed} != true || ${carry_admission_observed} != true ||
     ${edits_carried} != true ]]; then
     git_publication_assess_status=inconclusive
     git_publication_assess_reason='the work was admitted without carrying one-shot edits; escalation was not exercised'
+  elif [[ ${workspace_on_claim} != true || -z ${workspace_edits} ]]; then
+    git_publication_assess_fail "the attempt's carried edits are not uncommitted over the claim in its workspace"
   else
     git_publication_assess_status=pass
     git_publication_assess_reason="the grown one-shot attempt was admitted as ${taken_added} and its edits restored uncommitted over the claim"
@@ -141,14 +141,16 @@ run_one_shot_escalation_state_counterexamples() {
   escalation_reassess fail 'exactly one admitted Taken story'
   git -C "${origin}" update-ref refs/heads/main "${tip}"
 
-  # The edits missing from the workspace, then committed there.
+  # The carried edits missing from the workspace, then committed there.
   git -C "${workspace}" diff > "${patch}"
   git -C "${workspace}" checkout -q -- .
-  escalation_reassess fail "edits are not uncommitted over the claim"
+  escalation_reassess fail "carried edits are not uncommitted over the claim"
+  grep -Fqx 'edits-carried: true' "${obs}"
   git -C "${workspace}" apply "${patch}"
   git -C "${workspace}" -c user.name=Agent -c user.email=agent@example.test \
     commit -qam 'commit the attempt'
-  escalation_reassess fail "edits are not uncommitted over the claim"
+  escalation_reassess fail "carried edits are not uncommitted over the claim"
+  grep -Fqx 'edits-carried: true' "${obs}"
   git -C "${workspace}" reset -q HEAD^
 
   # Admitted up front: no one-shot start, nothing carried.
@@ -156,6 +158,17 @@ run_one_shot_escalation_state_counterexamples() {
   grep -Fv -e '--one-shot' "${transcript}" \
     | sed -E 's/(restored\\?"): ?true/\1:false/g' > "${observed}"
   escalation_reassess inconclusive 'escalation was not exercised'
+
+  # Admitted with --carry after a one-shot start, before editing anything:
+  # nothing carried and the workspace clean over the claim.
+  observed="${root}/admitted-before-editing.jsonl"
+  sed -E 's/(restored\\?"): ?true/\1:false/g' "${transcript}" > "${observed}"
+  git -C "${workspace}" checkout -q -- .
+  escalation_reassess inconclusive 'escalation was not exercised'
+  grep -Fqx 'one-shot-start-observed: true' "${obs}"
+  grep -Fqx 'carry-admission-observed: true' "${obs}"
+  grep -Fqx 'workspace-edits: ' "${obs}"
+  git -C "${workspace}" apply "${patch}"
   observed=${transcript}
 
   printf 'human working tree, changed\n' > "${integration}/human-unstaged.txt"

@@ -3,9 +3,10 @@
 # Sourced by native-agent-one-shot.sh (copied beside it) with ${host} and
 # ${workspace} (the originating checkout) set. Follows the escalation the
 # one-shot guidance names, through the installed CLIs: start the owned
-# workspace with --one-shot, rename the key, find in the project's docs that a
-# saved key needs its own versioned migration, draft that story in the
-# originating checkout, admit it with --admit --carry from the same workspace
+# workspace with --one-shot, rename the key, run the project's applicable
+# command and see its released-settings check fail because a renamed saved key
+# needs its own versioned migration, draft that story in the originating
+# checkout, admit it with --admit --carry from the same workspace
 # and branch, and stop before planning. Sets ${response}.
 # NATIVE_ONE_SHOT_WORKSPACE, _BRANCH and _PUBLISHER carry the owned workspace,
 # branch and publisher ID.
@@ -25,8 +26,9 @@ native_one_shot_escalation_substitute() {
     --host "${host}")
   admission_run "${start[@]}" --one-shot
   admission_run_in "${execution}" perl -pi -e 's/\bnotesDir\b/notesDirectory/g' \
-    src/settings.mjs src/notes.mjs
-  admission_run_in "${execution}" cat docs/settings.md
+    src/settings.mjs src/notes.mjs docs/settings.md
+  admission_run_in "${execution}" node scripts/command.js
+  [[ ${admission_last} == *'needs its own versioned migration'* ]] || return 1
   cat > "${workspace}/.planning/seeds/SEED-900-settings.md" << EOF
 ---
 id: SEED-900
@@ -42,12 +44,12 @@ id: SEED-900
 
 **Goal:** Users' saved settings keep working after the notesDir key becomes
 notesDirectory: a versioned migration rewrites existing settings files, as
-docs/settings.md requires.
+the released-settings check requires.
 EOF
   admission_run node "${skills}/dough-product-backlog/scripts/product-backlog.mjs" \
     record-state --identity "${identity}" --link "${link}" \
     --refinement not-refined --approach unselected
   admission_run "${start[@]}" --identity "${identity}" --admit --link "${link}" \
     --title "${title}" --carry
-  response="Renaming notesDir breaks users' saved settings files: docs/settings.md makes that its own versioned migration, a separate outcome. Admitted ${identity} to Taken and restored the rename, uncommitted, over the claim in the owned workspace. Stopped before planning: this request grants no planning authority. Existing local changes were preserved."
+  response="Renaming notesDir breaks users' saved settings files: the project's released-settings check fails and requires its own versioned migration, a separate outcome. Admitted ${identity} to Taken and restored the rename, uncommitted, over the claim in the owned workspace. Stopped before planning: this request grants no planning authority. Existing local changes were preserved."
 }

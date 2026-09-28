@@ -94,7 +94,7 @@ moved to `tests/git-publication-native-one-shot.sh`, sharing
 ### 2. Probe and accept escalation natively on Claude Code
 
 Type: Behavior
-Status: planned
+Status: in progress
 Proof: retained `tests/git-publication-native.sh --native claude --case
 publication/one-shot-escalation --results-dir <dir>` observations, assessed
 by slice 1's assessor, recorded in SEED-053.
@@ -112,6 +112,15 @@ between runs, each after investigating the previous result) → one of:
   the exit. Remove the native escalation case from the Codex and Cursor stories
   and from the shared one-shot cases in SEED-053, leaving deterministic tests
   and real use as the evidence.
+
+Run 1 (2026-09-28, guidance at `0466e5ba`, results
+`test-results/native-escalation-1`): inconclusive. The agent grepped `notesDir`,
+read `docs/settings.md`'s migration rule before editing, started `--one-shot`,
+then admitted with `--carry` carrying nothing and stopped before planning. The
+assessor first reported fail because its workspace-edits check preceded the
+not-exercised check; corrected so nothing carried is inconclusive. For run 2
+the fixture drops the docs rule and pointer comment: the rule surfaces only
+when the project command's released-settings check fails after the rename.
 
 ## Current decisions
 
