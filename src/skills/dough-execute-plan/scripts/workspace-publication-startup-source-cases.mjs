@@ -62,6 +62,33 @@ test("a published sibling story added after readiness still takes the ready stor
   );
 });
 
+test("a percent-encoded home link takes the story at its decoded path", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  await git(
+    trunk.integration,
+    "mv",
+    ".planning/seeds",
+    ".planning/story notes",
+  );
+  const backlog = join(trunk.integration, ".planning/PRODUCT-BACKLOG.md");
+  writeFileSync(
+    backlog,
+    readFileSync(backlog, "utf8").replaceAll("seeds/", "story%20notes/"),
+  );
+  await git(trunk.integration, "commit", "-am", "home under a spaced path");
+  await git(trunk.integration, "push", "origin", "main");
+  const { receipt, workspace } = await startCliResult(trunk, "trunk");
+  assert.deepEqual(
+    { ok: receipt.ok, status: receipt.status, error: receipt.error },
+    { ok: true, status: "published", error: undefined },
+  );
+  assert.equal(
+    takenIdentities(await remoteBacklog(workspace)).includes(identityA),
+    true,
+  );
+});
+
 test("an unlisted identity is refused with a pointer to admission", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
