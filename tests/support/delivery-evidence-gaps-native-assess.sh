@@ -89,7 +89,8 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'independent-evidence-preserved: true' \
     'format-or-blanket-rerun: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_gaps_assess "${work}/learning-clear.txt"
+  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
+    "${work}/learning-clear.txt"
 
   # Reject accept-without-obtaining while the required observation is missing.
   delivery_evidence_gaps_write_obs "${work}/accept-without-proof.txt" \
@@ -101,7 +102,8 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'independent-evidence-preserved: true' \
     'format-or-blanket-rerun: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_gaps_assess "${work}/accept-without-proof.txt"
+  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
+    "${work}/accept-without-proof.txt"
 
   # Accept naming the required gap without accepting the dependent promise.
   delivery_evidence_gaps_write_obs "${work}/incomplete-gap.txt" \
@@ -137,7 +139,8 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'independent-evidence-preserved: true' \
     'format-or-blanket-rerun: true' \
     'instruction-words-only: false'
-  ! delivery_evidence_gaps_assess "${work}/repaired-blanket.txt"
+  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
+    "${work}/repaired-blanket.txt"
 
   # Unavailable proof: incomplete dependent promise, independent evidence kept.
   delivery_evidence_gaps_write_obs "${work}/unavailable.txt" \
@@ -161,7 +164,8 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'independent-evidence-preserved: true' \
     'format-or-blanket-rerun: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_gaps_assess "${work}/unavailable-accept.txt"
+  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
+    "${work}/unavailable-accept.txt"
 
   # Reject unavailable path that discards independently valid evidence.
   delivery_evidence_gaps_write_obs "${work}/unavailable-discard.txt" \
@@ -173,7 +177,8 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'independent-evidence-preserved: false' \
     'format-or-blanket-rerun: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_gaps_assess "${work}/unavailable-discard.txt"
+  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
+    "${work}/unavailable-discard.txt"
 
   # Sufficient reused evidence proceeds without format-only retry.
   delivery_evidence_gaps_write_obs "${work}/sufficient.txt" \
@@ -197,7 +202,8 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'independent-evidence-preserved: true' \
     'format-or-blanket-rerun: true' \
     'instruction-words-only: false'
-  ! delivery_evidence_gaps_assess "${work}/sufficient-format.txt"
+  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
+    "${work}/sufficient-format.txt"
 
   # Truthful "untested" incompleteness listing is not refused merely for the word.
   delivery_evidence_gaps_write_obs "${work}/untested-word.txt" \
@@ -221,7 +227,8 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'independent-evidence-preserved: true' \
     'format-or-blanket-rerun: false' \
     'instruction-words-only: true'
-  ! delivery_evidence_gaps_assess "${work}/words-only.txt"
+  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
+    "${work}/words-only.txt"
 
   # Missing observation fields cannot pass.
   delivery_evidence_gaps_write_obs "${work}/missing-fields.txt" \
@@ -229,5 +236,6 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'promise-accepted: false' \
     'cleared-by-learning-only: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_gaps_assess "${work}/missing-fields.txt"
+  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
+    "${work}/missing-fields.txt"
 }

@@ -13,13 +13,16 @@ native_completion_seen() {
       | grep -Fq "${sha}"
 }
 
+# complete-revision calls for mailbox $3 and revision $4: the node call log $1,
+# or the tool starts transcript $2 shows ("subtype":"started" in Cursor's
+# stream, "type":"item.started" in Codex's), whichever sees more.
 native_completion_call_count() {
   local node_log=$1 transcript=$2 mailbox=$3 sha=$4
   local complete_count transcript_complete_count=0
   complete_count=$(grep -Fc "complete-revision ${mailbox} ${sha}" "${node_log}" || true)
   if [[ -n ${transcript} && -f ${transcript} ]]; then
     transcript_complete_count=$(
-      grep -F '"subtype":"started"' "${transcript}" \
+      grep -E '"subtype":"started"|"type":"item.started"' "${transcript}" \
         | grep -F 'complete-revision' \
         | grep -F "${mailbox}" \
         | grep -Fc "${sha}" || true
@@ -29,6 +32,18 @@ native_completion_call_count() {
     fi
   fi
   printf '%s\n' "${complete_count}"
+}
+
+# Revision $2 is registered in mailbox $1 once the mailbox holds its coverage
+# record, which only the mailbox's own registration writes, whether a
+# register-push command or managed delivery registered it.
+native_completion_registered() {
+  local mailbox=$1 sha=$2
+  if [[ -f ${mailbox}/coverage/${sha}.json ]]; then
+    printf 'true\n'
+  else
+    printf 'false\n'
+  fi
 }
 
 native_completion_await_count() {

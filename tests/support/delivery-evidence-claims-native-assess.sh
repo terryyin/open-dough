@@ -80,7 +80,8 @@ run_delivery_evidence_claims_assessor_counterexamples() {
     'assertion-observes-no-link: false' \
     'format-resend-required: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_claims_assess "${work}/unsupported-covered.txt"
+  git_publication_suite_expect_rejected delivery_evidence_claims_assess \
+    "${work}/unsupported-covered.txt"
 
   # Reject accepting without returning the gap when still unsupported.
   delivery_evidence_claims_write_obs "${work}/unsupported-accept.txt" \
@@ -92,7 +93,8 @@ run_delivery_evidence_claims_assessor_counterexamples() {
     'assertion-observes-no-link: false' \
     'format-resend-required: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_claims_assess "${work}/unsupported-accept.txt"
+  git_publication_suite_expect_rejected delivery_evidence_claims_assess \
+    "${work}/unsupported-accept.txt"
 
   # Accept naming the required behavior without calling it covered.
   delivery_evidence_claims_write_obs "${work}/unsupported-incomplete.txt" \
@@ -140,7 +142,8 @@ run_delivery_evidence_claims_assessor_counterexamples() {
     'assertion-observes-no-link: false' \
     'format-resend-required: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_claims_assess "${work}/corrected-no-assertion.txt"
+  git_publication_suite_expect_rejected delivery_evidence_claims_assess \
+    "${work}/corrected-no-assertion.txt"
 
   # Equivalent substantiated layout accepted without a formatting-only resend.
   delivery_evidence_claims_write_obs "${work}/equivalent.txt" \
@@ -164,7 +167,8 @@ run_delivery_evidence_claims_assessor_counterexamples() {
     'assertion-observes-no-link: true' \
     'format-resend-required: true' \
     'instruction-words-only: false'
-  ! delivery_evidence_claims_assess "${work}/equivalent-resend.txt"
+  git_publication_suite_expect_rejected delivery_evidence_claims_assess \
+    "${work}/equivalent-resend.txt"
 
   # Instruction words / green-exit alone cannot pass.
   delivery_evidence_claims_write_obs "${work}/words-only.txt" \
@@ -176,7 +180,8 @@ run_delivery_evidence_claims_assessor_counterexamples() {
     'assertion-observes-no-link: true' \
     'format-resend-required: false' \
     'instruction-words-only: true'
-  ! delivery_evidence_claims_assess "${work}/words-only.txt"
+  git_publication_suite_expect_rejected delivery_evidence_claims_assess \
+    "${work}/words-only.txt"
 
   # Missing observation fields cannot pass.
   delivery_evidence_claims_write_obs "${work}/missing-fields.txt" \
@@ -184,7 +189,8 @@ run_delivery_evidence_claims_assessor_counterexamples() {
     'promise-accepted: false' \
     'relayed-covered: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_claims_assess "${work}/missing-fields.txt"
+  git_publication_suite_expect_rejected delivery_evidence_claims_assess \
+    "${work}/missing-fields.txt"
 
   # Observer reads a status that opens its line, and a leading incomplete
   # status still wins over later accepted words.

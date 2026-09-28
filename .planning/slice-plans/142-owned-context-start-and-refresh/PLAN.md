@@ -613,6 +613,22 @@ under Homebrew Bash for `codex`, `cursor`, and `claude`. Once a real agent
 removes the worktree before shutdown, only that harness fallback can stop the
 observer, and the assessor still fails the run.
 
+Slice 8 first attempt (2026-09-28, candidate c0f6dfca, 12 paid runs): passes on
+Claude and Codex startup-owned-context and preparation-land, Claude and Cursor
+trunk-closure/source. Four failures were harness defects: registration was
+detected only from a literal `register-push` although managed delivery
+registers in process; Codex's login shell bypassed the node wrapper and its
+`item.started` events were uncounted; a backslash-continued start command lost
+`--repository`. The harness repair reads registration from the mailbox coverage
+record, counts Codex events, records Codex node calls, matches whole start
+commands, keeps harness logs out of the agent's view, and enforces all 38
+assessor counterexamples through `git_publication_suite_expect_rejected` (the
+earlier `! assess` lines under `set -e` never failed). Open for the developer:
+Cursor kept a preparation worktree created by an earlier session because
+retirement guidance scopes ownership to "this session"; a sandboxed `ps` EPERM
+in `workerIsRunning` breaks Codex delivery and completion. Cursor also ran story
+wrap-up after execution despite `finish-or-stop.md`.
+
 ### 8. The changed guidance is accepted natively on Codex, Cursor, and Claude Code
 Type: Behavior
 Status: planned

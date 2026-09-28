@@ -87,7 +87,8 @@ run_delivery_evidence_consumers_assessor_counterexamples() {
     'unrelated-boundary-unchanged: true' \
     'unrelated-proof-retained: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_consumers_assess "${work}/stale-accept.txt"
+  git_publication_suite_expect_rejected delivery_evidence_consumers_assess \
+    "${work}/stale-accept.txt"
 
   # Reject accept-without-gap while stand-in remains incompatible.
   delivery_evidence_consumers_write_obs "${work}/accept-unaligned.txt" \
@@ -101,7 +102,8 @@ run_delivery_evidence_consumers_assessor_counterexamples() {
     'unrelated-boundary-unchanged: true' \
     'unrelated-proof-retained: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_consumers_assess "${work}/accept-unaligned.txt"
+  git_publication_suite_expect_rejected delivery_evidence_consumers_assess \
+    "${work}/accept-unaligned.txt"
 
   # Accept naming the consumer gap without accepting the stale claim.
   delivery_evidence_consumers_write_obs "${work}/incomplete-gap.txt" \
@@ -143,7 +145,8 @@ run_delivery_evidence_consumers_assessor_counterexamples() {
     'unrelated-boundary-unchanged: true' \
     'unrelated-proof-retained: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_consumers_assess "${work}/corrected-no-exec.txt"
+  git_publication_suite_expect_rejected delivery_evidence_consumers_assess \
+    "${work}/corrected-no-exec.txt"
 
   # Corrected consumer with matching executed proof is accepted.
   delivery_evidence_consumers_write_obs "${work}/corrected.txt" \
@@ -185,7 +188,8 @@ run_delivery_evidence_consumers_assessor_counterexamples() {
     'unrelated-boundary-unchanged: true' \
     'unrelated-proof-retained: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_consumers_assess "${work}/unchanged-reject.txt"
+  git_publication_suite_expect_rejected delivery_evidence_consumers_assess \
+    "${work}/unchanged-reject.txt"
 
   # Instruction words / green-exit alone cannot pass.
   delivery_evidence_consumers_write_obs "${work}/words-only.txt" \
@@ -199,7 +203,8 @@ run_delivery_evidence_consumers_assessor_counterexamples() {
     'unrelated-boundary-unchanged: true' \
     'unrelated-proof-retained: false' \
     'instruction-words-only: true'
-  ! delivery_evidence_consumers_assess "${work}/words-only.txt"
+  git_publication_suite_expect_rejected delivery_evidence_consumers_assess \
+    "${work}/words-only.txt"
 
   # Missing observation fields cannot pass.
   delivery_evidence_consumers_write_obs "${work}/missing-fields.txt" \
@@ -207,7 +212,8 @@ run_delivery_evidence_consumers_assessor_counterexamples() {
     'promise-accepted: false' \
     'accepted-on-stale-exclusion: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_consumers_assess "${work}/missing-fields.txt"
+  git_publication_suite_expect_rejected delivery_evidence_consumers_assess \
+    "${work}/missing-fields.txt"
 
   # Observer reads a status that opens its line, including a numbered item,
   # and a leading incomplete status still wins over later accepted words.

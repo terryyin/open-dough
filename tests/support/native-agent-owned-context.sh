@@ -8,8 +8,8 @@
 # retained worktree as repository context, runs project setup there and
 # writes the feature; preparation-land announces, refines, records and
 # releases Story C in the retained worktree, then lands and retires it;
-# trunk-closure-owned-context publishes the final closure, registers and
-# completes CI observation, then retires the worktree. Emits each command
+# trunk-closure-owned-context publishes the final closure through managed
+# delivery, completes CI observation, then retires the worktree. Emits each command
 # through the admission substitute's recorder and sets ${response}.
 # NATIVE_OWNED_WORKSPACE, _BRANCH and _IDENTITY carry the journey's workspace,
 # branch and story; TRUNK_CLOSURE_MAILBOX and _CANDIDATE_SHA the closure's.
@@ -72,13 +72,19 @@ native_owned_context_prepare_and_land() {
   native_owned_context_retire "${NATIVE_OWNED_BRANCH}"
 }
 
+# Managed delivery publishes the candidate and registers it with the matching
+# observer in process, with no register-push command.
 native_owned_context_close_trunk() {
-  local launcher="$1/dough-execute-plan/scripts/ci-mailbox.mjs"
-  local sha=${TRUNK_CLOSURE_CANDIDATE_SHA} mailbox=${TRUNK_CLOSURE_MAILBOX} branch
+  local scripts="$1/dough-execute-plan/scripts"
+  local sha=${TRUNK_CLOSURE_CANDIDATE_SHA} mailbox=${TRUNK_CLOSURE_MAILBOX} branch base
   branch=$(git -C "${workspace}" branch --show-current)
-  admission_run git push -q origin "${sha}:refs/heads/main"
-  admission_run node "${launcher}" register-push "${mailbox}" "${sha}"
-  admission_run node "${launcher}" complete-revision "${mailbox}" "${sha}"
+  admission_run git fetch -q origin
+  base=$(git -C "${workspace}" rev-parse origin/main)
+  admission_run node "${scripts}/execution-increment-delivery.mjs" deliver \
+    --workspace "${workspace}" --branch "${branch}" --previously-published-base "${base}" \
+    --target-ref refs/heads/main --repo owner/project --host "${host}" \
+    --validated-candidate "${sha}"
+  admission_run node "${scripts}/ci-mailbox.mjs" complete-revision "${mailbox}" "${sha}"
   native_owned_context_retire "${branch}"
 }
 

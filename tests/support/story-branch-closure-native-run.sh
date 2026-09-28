@@ -45,7 +45,7 @@ story_closure_controller() {
   printf '%s\n' "${remote_sha}" > "${story_closure_integrated_sha_file}"
   printf 'integration-publication\n' >> "${story_closure_control_log}"
   wait_for trunk-registration "${story_closure_wait_limit}" \
-    "grep -Fq 'register-push ${trunk_mailbox} ${remote_sha}' '${story_closure_node_log}'" || return
+    "[[ \$(native_completion_registered '${trunk_mailbox}' '${remote_sha}') == true ]]" || return
   printf 'trunk-registration\n' >> "${story_closure_control_log}"
   wait_for trunk-complete "${story_closure_wait_limit}" \
     "story_closure_complete_seen '${trunk_mailbox}' '${remote_sha}'" || return

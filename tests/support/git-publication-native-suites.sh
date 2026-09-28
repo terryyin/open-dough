@@ -88,3 +88,12 @@ git_publication_suite_expect_assess() {
     grep -Fq "${want_reason_fragment}" <<< "${git_publication_assess_reason}"
   fi
 }
+
+# Fails, naming the counterexample, when assessor command "$@" accepts it. A
+# negated command never stops a set -e caller, so each rejection is checked here.
+git_publication_suite_expect_rejected() {
+  if "$@"; then
+    printf 'FAIL: assessor accepted counterexample: %s\n' "$*" >&2
+    return 1
+  fi
+}

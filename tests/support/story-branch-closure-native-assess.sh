@@ -33,10 +33,10 @@ story_closure_observe() {
     -name request.json -exec jq -r 'select(.probe != true) | 1' {} + \
     | wc -l | tr -d ' ')
   branch_complete=$(native_completion_call_count \
-    "${story_closure_node_log}" "" \
+    "${story_closure_node_log}" "${transcript}" \
     "${story_closure_branch_mailbox}" "${story_closure_branch_sha}")
   trunk_complete=$(native_completion_call_count \
-    "${story_closure_node_log}" "" "${trunk_mailbox}" "${candidate}")
+    "${story_closure_node_log}" "${transcript}" "${trunk_mailbox}" "${candidate}")
   branch_await=$(native_completion_await_count \
     "${story_closure_node_log}" "${story_closure_branch_mailbox}" \
     "${story_closure_branch_sha}")
@@ -67,7 +67,7 @@ story_closure_observe() {
     printf 'branch-complete-count: %s\n' "${branch_complete}"
     printf 'branch-await-count: %s\n' "${branch_await}"
     printf 'branch-stop-count: %s\n' "${branch_stop}"
-    printf 'trunk-register-count: %s\n' "$(grep -Fc "register-push ${trunk_mailbox} ${candidate}" "${story_closure_node_log}" || true)"
+    printf 'trunk-registered: %s\n' "$(native_completion_registered "${trunk_mailbox}" "${candidate}")"
     printf 'trunk-complete-count: %s\n' "${trunk_complete}"
     printf 'trunk-await-count: %s\n' "${trunk_await}"
     printf 'trunk-stop-count: %s\n' "${trunk_stop}"
@@ -104,7 +104,7 @@ story_closure_assess() {
   grep -Fqx 'branch-complete-count: 1' "${observations}" || return 1
   grep -Fqx 'branch-await-count: 0' "${observations}" || return 1
   grep -Fqx 'branch-stop-count: 0' "${observations}" || return 1
-  grep -Fqx 'trunk-register-count: 1' "${observations}" || return 1
+  grep -Fqx 'trunk-registered: true' "${observations}" || return 1
   grep -Fqx 'trunk-complete-count: 1' "${observations}" || return 1
   grep -Fqx 'trunk-await-count: 0' "${observations}" || return 1
   grep -Fqx 'trunk-stop-count: 0' "${observations}" || return 1
@@ -120,6 +120,13 @@ story_closure_assess() {
   awk '/branch-complete/{a=NR} /branch-shutdown/{b=NR} /trunk-setup/{c=NR} /integration-publication/{d=NR} /trunk-registration/{e=NR} /trunk-complete/{f=NR} /trunk-ci-release/{g=NR} /trunk-coverage-success/{h=NR} /trunk-shutdown/{i=NR} /cleanup-complete/{j=NR} END{exit !(a<b && b<c && c<d && d<e && e<f && f<g && g<h && h<i && i<j)}' "${observations}"
 }
 
+# Requires the assessor to reject valid observations $1 edited by sed script
+# $3 (counterexample $2).
+story_closure_expect_rejected() {
+  sed "$3" "$1" > "$1.$2"
+  git_publication_suite_expect_rejected story_closure_assess "$1.$2"
+}
+
 run_story_closure_assessor_counterexamples() {
   local work valid
   work=$(mktemp -d)
@@ -132,7 +139,7 @@ run_story_closure_assessor_counterexamples() {
     'branch-target: exec/story' 'trunk-target: main' 'observer-count: 2' \
     'branch-terminal: stopped' 'trunk-terminal: stopped' \
     'trunk-coverage-state: success' 'branch-complete-count: 1' \
-    'branch-await-count: 0' 'branch-stop-count: 0' 'trunk-register-count: 1' \
+    'branch-await-count: 0' 'branch-stop-count: 0' 'trunk-registered: true' \
     'trunk-complete-count: 1' 'trunk-await-count: 0' 'trunk-stop-count: 0' \
     'branch-product-shutdown: true' 'trunk-product-shutdown: true' \
     'forced-stop: false' 'branch-remote: absent' 'cleanup-complete: true' \
@@ -143,14 +150,16 @@ run_story_closure_assessor_counterexamples() {
     '  trunk-ci-release' '  trunk-coverage-success' '  trunk-shutdown' \
     '  cleanup-complete' > "${valid}"
   story_closure_assess "${valid}"
-  sed 's/integrated-sha: integrated/integrated-sha: branch/' "${valid}" \
-    > "${work}/branch-tip" && ! story_closure_assess "${work}/branch-tip"
-  sed 's/trunk-target: main/trunk-target: exec\/story/' "${valid}" \
-    > "${work}/retargeted" && ! story_closure_assess "${work}/retargeted"
-  sed 's/observer-count: 2/observer-count: 3/' "${valid}" \
-    > "${work}/duplicate" && ! story_closure_assess "${work}/duplicate"
-  sed 's/harness-inspected: false/harness-inspected: true/' "${valid}" \
-    > "${work}/contaminated" && ! story_closure_assess "${work}/contaminated"
-  sed 's/forced-stop: false/forced-stop: true/' "${valid}" \
-    > "${work}/forced" && ! story_closure_assess "${work}/forced"
+  story_closure_expect_rejected "${valid}" branch-tip \
+    's/integrated-sha: integrated/integrated-sha: branch/'
+  story_closure_expect_rejected "${valid}" retargeted \
+    's/trunk-target: main/trunk-target: exec\/story/'
+  story_closure_expect_rejected "${valid}" duplicate \
+    's/observer-count: 2/observer-count: 3/'
+  story_closure_expect_rejected "${valid}" contaminated \
+    's/harness-inspected: false/harness-inspected: true/'
+  story_closure_expect_rejected "${valid}" forced \
+    's/forced-stop: false/forced-stop: true/'
+  story_closure_expect_rejected "${valid}" unregistered \
+    's/trunk-registered: true/trunk-registered: false/'
 }

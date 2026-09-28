@@ -58,6 +58,17 @@ run_startup_owned_context_counterexamples() {
   jq -n -c --arg c "node execution-start.mjs start --integration ${retained} --repository ${retained}" \
     '{type:"item.started",item:{type:"command_execution",command:$c}}' >> "${transcript}"
   owned_context_reassess fail 'given a default checkout (--integration)'
+
+  # The same start split by line continuations names --repository on a later
+  # line, and a --help probe beside it is not a startup.
+  jq -c 'if (.item.command? // "" | test("execution-start.mjs start"))
+    then .item.command |= gsub(" --"; " \\\n  --") else . end' \
+    "${transcript}.kept" > "${transcript}"
+  owned_context_reassess pass 'left the retained worktree untouched'
+  jq -n -c --arg c "node execution-start.mjs start --integration ${retained} --help" \
+    '{type:"tool_call",subtype:"started",tool_call:{shellToolCall:{args:{command:$c}}}}' \
+    >> "${transcript}"
+  owned_context_reassess pass 'left the retained worktree untouched'
   mv -- "${transcript}.kept" "${transcript}"
 
   printf 'changed\n' >> "${retained}/trunk.txt"

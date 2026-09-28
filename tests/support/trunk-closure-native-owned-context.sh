@@ -31,9 +31,9 @@ trunk_closure_owned_context_worktree() {
 }
 
 # Writes the execution state beside the worktree, so the worktree stays clean,
-# and starts the cleanup watcher.
+# and starts the cleanup watcher, which records into harness directory $2.
 trunk_closure_owned_context_state() {
-  local root=$1
+  local root=$1 harness=$2
   trunk_closure_owned_context_state_file="${root}/execution-state.txt"
   printf '%s\n' \
     'Execution mode: Trunk Mode' \
@@ -48,7 +48,7 @@ trunk_closure_owned_context_state() {
   (
     while [[ -d ${trunk_closure_workspace} ]]; do sleep 0.05; done
     jq -r .status "${trunk_closure_mailbox}/result.json" 2> /dev/null \
-      > "${root}/cleanup-observer-state" || echo missing > "${root}/cleanup-observer-state"
+      > "${harness}/cleanup-observer-state" || echo missing > "${harness}/cleanup-observer-state"
     printf 'cleanup\n' >> "${trunk_closure_control_log}"
     : > "${trunk_closure_cleanup_marker}"
   ) &
@@ -67,9 +67,9 @@ trunk_closure_owned_context_prompt() {
 }
 
 trunk_closure_owned_context_observe() {
-  local root=${trunk_closure_workspace%/*} repository=${trunk_closure_repository}
+  local repository=${trunk_closure_repository}
   printf 'cleanup-observer-state: %s\n' \
-    "$(cat "${root}/cleanup-observer-state" 2> /dev/null || echo none)"
+    "$(cat "${trunk_closure_harness}/cleanup-observer-state" 2> /dev/null || echo none)"
   printf 'branch-present: %s\n' "$(
     git -C "${repository}" show-ref --quiet --verify refs/heads/exec/trunk \
       && echo true || echo false

@@ -65,12 +65,15 @@ git_publication_repository_intact() {
     && echo true || echo false
 }
 
-# Distinct execution-start commands transcript $1 shows, in either stream shape.
+# Distinct execution-start invocations transcript $1 shows, in any stream
+# shape: each command with its line continuations joined, split at its
+# command separators, without --help probes.
 git_publication_transcript_start_commands() {
-  {
-    jq -r 'select(.type == "item.started" and .item.type == "command_execution") | .item.command // empty' "$1"
-    jq -r '.. | objects | .command? // empty' "$1"
-  } 2> /dev/null | grep -F 'execution-start.mjs start' | sort -u || true
+  # shellcheck disable=SC2016 # jq program, not shell expansion.
+  jq -r '.. | objects | .command? // empty | strings
+    | gsub("\\\\\n[ \t]*"; " ") | splits("&&|\\|\\||[;|\n]")
+    | gsub("^[ \t]+|[ \t]+$"; "")' "$1" 2> /dev/null \
+    | grep -F 'execution-start.mjs start' | grep -Fv -- '--help' | sort -u || true
 }
 
 # Every command output transcript $1 shows, in either stream shape.

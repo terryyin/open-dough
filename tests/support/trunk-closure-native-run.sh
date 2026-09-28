@@ -25,6 +25,7 @@ trunk_closure_write_evidence_identity() {
     tests/support/native-completion-observation.sh \
     tests/support/trunk-closure-native-fixture.sh \
     tests/support/trunk-closure-native-owned-context.sh \
+    tests/support/native-node-call-recorder.mjs \
     tests/support/git-publication-native-shared.sh \
     tests/support/git-publication-native-run.sh
   native_result_supervision_input_hash_lines
@@ -51,7 +52,7 @@ trunk_closure_controller() {
     "[[ \$(git ls-remote '${trunk_closure_origin}' refs/heads/main | awk '{print \$1}') == '${trunk_closure_candidate_sha}' ]]" || return
   printf 'publication\n' >> "${trunk_closure_control_log}"
   wait_for registration "${trunk_closure_wait_limit}" \
-    "test -f '${trunk_closure_registered}'" || return
+    "[[ \$(native_completion_registered '${trunk_closure_mailbox}' '${trunk_closure_candidate_sha}') == true ]]" || return
   printf 'registration\n' >> "${trunk_closure_control_log}"
   coverage="${trunk_closure_mailbox}/coverage/${trunk_closure_candidate_sha}.json"
   if [[ ${scenario} == source ]]; then
@@ -105,22 +106,24 @@ trunk_closure_prompt_for() {
 
 trunk_closure_run_journey() {
   local source_dir=$1 host=$2 scenario=$3 results_dir=$4
-  local root prompt controller_pid run_status=0 stop_status=0
+  local root harness prompt controller_pid run_status=0 stop_status=0
   root=$(mktemp -d)
-  trunk_closure_create_fixture "${source_dir}" "${host}" "${scenario}" "${root}"
+  harness=$(mktemp -d)
+  trunk_closure_create_fixture "${source_dir}" "${host}" "${scenario}" \
+    "${root}" "${harness}"
   prompt=$(trunk_closure_prompt_for "${scenario}")
   native_case_host=${host}
   native_case_id="trunk-closure/${scenario}"
   native_case_results_dir=${results_dir}
   temporary_dir=${root}
   candidate=${source_dir}
-  transcript="${root}/events.jsonl"
-  output_file="${root}/response.md"
-  native_stderr="${root}/stderr.log"
+  transcript="${harness}/events.jsonl"
+  output_file="${harness}/response.md"
+  native_stderr="${harness}/stderr.log"
   target=${trunk_closure_workspace}
   native_run_workspace=${trunk_closure_workspace}
   platform=${host}
-  trunk_closure_forced_stop_file="${root}/forced-stop.txt"
+  trunk_closure_forced_stop_file="${harness}/forced-stop.txt"
   export TRUNK_CLOSURE_TRANSCRIPT="${transcript}"
   : > "${transcript}"
   : > "${native_stderr}"
@@ -130,9 +133,9 @@ trunk_closure_run_journey() {
   wait "${controller_pid}" || run_status=1
   # Observe product shutdown before any fixture cleanup/stop.
   trunk_closure_observe "${scenario}" "${transcript}" "${output_file}" \
-    > "${root}/observations.txt"
+    > "${harness}/observations.txt"
   trunk_closure_stop_observer "${source_dir}" || stop_status=$?
-  if trunk_closure_assess "${scenario}" "${root}/observations.txt"; then
+  if trunk_closure_assess "${scenario}" "${harness}/observations.txt"; then
     git_publication_assess_status=pass
     git_publication_assess_reason='final publication, one complete-revision, confirmed shutdown, and cleanup order observed'
   else
@@ -142,12 +145,12 @@ trunk_closure_run_journey() {
   fi
   git_publication_retain_attempt "${source_dir}" "${prompt}" \
     "${transcript}" "${output_file}" "${native_stderr}" \
-    "${root}/observations.txt" trunk-closure
+    "${harness}/observations.txt" trunk-closure
   printf 'run-status: %s\nassessment-status: %s\nassessment-reason: %s\n' \
     "${run_status}" "${git_publication_assess_status}" \
     "${git_publication_assess_reason}"
   printf 'observations:\n'
-  cat "${root}/observations.txt"
+  cat "${harness}/observations.txt"
   if [[ ${run_status} -ne 0 ]]; then
     printf 'response:\n'
     cat "${output_file}" 2> /dev/null || true
@@ -156,6 +159,6 @@ trunk_closure_run_journey() {
   fi
   unset TRUNK_CLOSURE_TRANSCRIPT trunk_closure_forced_stop_file
   trunk_closure_cleanup_fixture
-  rm -rf -- "${root}"
+  rm -rf -- "${root}" "${harness}"
   [[ ${stop_status} -eq 0 && ${run_status} -eq 0 ]]
 }
