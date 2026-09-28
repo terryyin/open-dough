@@ -104,6 +104,16 @@ job measured 52.2 s on CI against `per-job-seconds=71`; if a further substitute
 journey would breach that, move the one-shot substitute journeys into their own
 test job.
 
+**Evidence:** A Claude Code run of `publication/one-shot-escalation` passed
+against guidance revision `23563ee0` (candidate `afa43926`) on 2026-09-28. The
+agent renamed the key in a `--one-shot` workspace, saw the project's
+released-settings check fail, admitted its own story with `--carry` without
+asking, and stopped before planning; the edits were restored uncommitted over
+the claim and nothing reached trunk. An earlier run that read a documented
+migration rule before editing was inconclusive, so the fixture reveals the
+growth only through that check. Escalation is feasible natively; the case is
+open to Codex and Cursor.
+
 <a id="native-acceptance-cursor"></a>
 
 ### Accept existing guidance natively on Cursor

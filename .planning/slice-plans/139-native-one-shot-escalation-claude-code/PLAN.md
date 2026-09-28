@@ -94,7 +94,7 @@ moved to `tests/git-publication-native-one-shot.sh`, sharing
 ### 2. Probe and accept escalation natively on Claude Code
 
 Type: Behavior
-Status: in progress
+Status: done
 Proof: retained `tests/git-publication-native.sh --native claude --case
 publication/one-shot-escalation --results-dir <dir>` observations, assessed
 by slice 1's assessor, recorded in SEED-053.
@@ -121,6 +121,15 @@ assessor first reported fail because its workspace-edits check preceded the
 not-exercised check; corrected so nothing carried is inconclusive. For run 2
 the fixture drops the docs rule and pointer comment: the rule surfaces only
 when the project command's released-settings check fails after the rename.
+
+Run 2 (2026-09-28, guidance `23563ee0`, candidate `afa43926`, results
+`test-results/native-escalation-2`): pass. The agent started `--one-shot`,
+renamed the key, ran `node scripts/command.js`, saw the released-settings
+failure, drafted and admitted `SEED-NOTES-DIRECTORY#rename-notes-dir` with
+`--carry` without asking, and stopped before planning. Observations: one
+trunk commit (the admission), no product paths on trunk, edits
+`docs/settings.md,src/notes.mjs,src/settings.mjs` uncommitted over the claim,
+human edits preserved. Recorded in SEED-053's Claude Code story.
 
 ## Current decisions
 
