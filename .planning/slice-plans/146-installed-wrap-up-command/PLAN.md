@@ -29,8 +29,9 @@
 ## Start gate
 
 **Do not Take or execute this plan until
-[SEED-008#finish-removing-checkout-coordination](../145-finish-removing-checkout-coordination/PLAN.md)
-(plan 145) has left Taken on remote trunk.** Plan 142
+SEED-008#finish-removing-checkout-coordination (plan 145, recoverable at
+`bae283d2:.planning/slice-plans/145-finish-removing-checkout-coordination/PLAN.md`)
+has left Taken on remote trunk.** Plan 142
 (SEED-008#owned-context-start-and-truthful-refresh) closed at `2a3e0ba2`: it
 extracted the retirement core this plan installs, rewrote the wrap-up and Land
 refresh wording, and added the `trunk-closure/owned-context` and

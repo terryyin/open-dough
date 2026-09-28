@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Finish removing default-checkout coordination](seeds/SEED-008-worktree-branch-trunk-sync.md#finish-removing-checkout-coordination) — SEED-008#finish-removing-checkout-coordination ([plan](slice-plans/145-finish-removing-checkout-coordination/PLAN.md))
-
 ## Backlog list
 
 - [Retire a workspace created for the work in any later session](seeds/SEED-008-worktree-branch-trunk-sync.md#durable-workspace-creation-fact) — SEED-008#durable-workspace-creation-fact

@@ -116,68 +116,6 @@ registry is selected. No new execution authority or ADR acceptance is implied.
 
 ## Existing related stories
 
-<a id="finish-removing-checkout-coordination"></a>
-
-### Finish removing default-checkout coordination
-
-**Identity:** SEED-008#finish-removing-checkout-coordination
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/145-finish-removing-checkout-coordination/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5d9add05d59d2a4cd9cfa7a7b245ca945f59c69b722e9f8988b24b224b769815","plan":"acccecaf1287e4374bc27da26eb798516a07ad6798eb5bb6047abf161ae5e769"}}
-```
-
-**Decision (2026-09-28):** Terry accepted these recommendations after the
-remote-history retrospective, then accepted a narrowed refinement: naming
-limited to the guidance this story edits, native acceptance as one direct-edit
-journey per host, and execution only after
-`SEED-008#owned-context-start-and-truthful-refresh` (closed at `2a3e0ba2`)
-lands, because both change the same refresh code, guidance, and startup cases.
-
-**Decision (2026-09-29):** At execution start Terry narrowed the story. The
-guard must also keep delivery from removing the developer's unpublished
-commits. Proceeding around unrelated staged content is deferred, and the
-three-host native journey is dropped: releases 0.3.43–0.3.46 shipped under
-maintainer exceptions, host-specific acceptance stories already exist, the
-remaining guidance change only removes text, and deterministic tests own the
-guard.
-
-**Goal:** A developer who explicitly selects their current checkout for an
-agent's edit never has their private unpublished commits pushed to trunk or
-removed from their branch by the agent's delivery. Removing the unused
-declared-owner concept leaves fewer instructions.
-
-**Scope:**
-
-- A push-authorized current-checkout delivery, including closure, refuses
-  before any reconciliation or push unless every commit over the fetched
-  target was created by this operation. This guard lives in the runtime, not
-  only in guidance.
-- Remove the declared-owner concept end to end: `--declared-owner` and
-  `--requester`, refresh's owner step and its `another-writer` and
-  `unclear-ownership` results, and their tests and guidance.
-- While rewriting refresh eligibility tests, drop installed-startup reuse
-  refusal cases whose variations the refresh boundary already proves; startup
-  keeps one own-state refusal and the stopped-rebase refusal.
-- Guidance sections this story edits call the developer's checkout the default
-  checkout; the `--integration` flag keeps its name.
-- Deferred: product-wide checkout vocabulary unification.
-
-**Deferred promises:** Direct edits proceeding around the developer's
-unrelated staged content, committing only the authorized paths, and stopping
-before editing a path that already carries the developer's staged change.
-Direct edit keeps its current stop on unrelated staged content. Direct edits
-commit with plain `git commit` (`agent-commits.md`); the owned-path
-`commitOwned` exists only in modules without an entry point, so this promise
-needs a runtime commit path as well as guidance.
-
-**Key example:** The developer has an unpublished local commit and authorizes
-publication of an agent's edit → delivery refuses before pushing, and remote
-and local history are unchanged. When trunk has also advanced, delivery
-refuses before any rebase or push, and the developer's commit stays on their
-branch. A current-checkout closure whose two commits are both its own
-publishes.
-
-**Slice plan:** [Finish removing default-checkout coordination](../slice-plans/145-finish-removing-checkout-coordination/PLAN.md).
-
 <a id="installed-wrap-up-command"></a>
 
 ### Close stories through an installed wrap-up command
@@ -248,8 +186,8 @@ runtime commit path.
 
 **Ordering:** Starts after plan 142 (closed at `2a3e0ba2`), which changed the
 same retirement module, wording, and native closure acceptance, and after
-[Finish removing default-checkout coordination](#finish-removing-checkout-coordination),
-which removes owner arguments the closure modules still pass.
+SEED-008#finish-removing-checkout-coordination (recoverable at `bae283d2`),
+which removed the owner arguments the closure modules passed.
 
 **Key examples:**
 
