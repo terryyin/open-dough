@@ -28,15 +28,11 @@ export { removeExecutionResources };
 
 async function refreshAfterAcceptance({
   defaultCheckout,
-  declaredOwner,
-  requester,
   remote = "origin",
   targetRef = trunkTarget,
 }) {
   return refreshDefaultCheckout({
     checkout: defaultCheckout,
-    declaredOwner,
-    requester,
     remote,
     integrationBranch: targetBranchName(targetRef),
   });
@@ -63,8 +59,6 @@ export async function publishTrunkClosureRevision({
   previouslyPublishedBase,
   observer,
   defaultCheckout,
-  declaredOwner,
-  requester,
   validate,
   validatedCandidate,
   backlogPath,
@@ -87,8 +81,6 @@ export async function publishTrunkClosureRevision({
   }
   const maintenance = await refreshAfterAcceptance({
     defaultCheckout,
-    declaredOwner,
-    requester,
     remote,
     targetRef,
   });

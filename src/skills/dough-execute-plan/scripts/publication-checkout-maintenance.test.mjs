@@ -1,7 +1,6 @@
 // Git mechanics (not guidance-following): refresh eligibility fast-forwards
-// only a clean checkout without a declared competing writer, strictly behind fetched
-// trunk. Publication acceptance stays independent of that result. Native
-// agent behavior is not this file.
+// only a clean checkout strictly behind fetched trunk. Publication acceptance
+// stays independent of that result. Native agent behavior is not this file.
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -21,13 +20,8 @@ import {
   revParse,
 } from "./publication-test-fixtures.mjs";
 
-function refresh(checkout, declaredOwner, requester) {
-  return refreshDefaultCheckout({
-    checkout,
-    declaredOwner,
-    requester,
-    integrationBranch: "main",
-  });
+function refresh(checkout) {
+  return refreshDefaultCheckout({ checkout, integrationBranch: "main" });
 }
 
 test("an eligible clean checkout fast-forwards to fetched trunk and a second attempt is already current", async (t) => {
@@ -57,7 +51,7 @@ test("an eligible clean checkout fast-forwards to fetched trunk and a second att
   assert.equal(again.head, disjointSha);
 });
 
-test("refresh preserves a pending edit, unpublished commits, and another writer's ownership", async (t) => {
+test("refresh preserves a pending edit, unpublished commits, a diverged history, and another branch", async (t) => {
   const edit = await createCleanTrunkFixture();
   const local = await createCleanTrunkFixture();
   const other = await createCleanTrunkFixture();
@@ -105,34 +99,16 @@ test("refresh preserves a pending edit, unpublished commits, and another writer'
   );
 
   const remoteAhead = await advanceOriginFromAnotherWriter(other.origin);
-  const otherBefore = await captureCheckout(other.integration);
-  const otherResult = await refresh(other.integration, "agent-a", "agent-b");
-  assert.equal(otherResult.result, "deferred");
-  assert.equal(otherResult.reason, "another-writer");
-  assertCheckoutUnchanged(
-    otherBefore,
-    await captureCheckout(other.integration),
-  );
-  assert.notEqual(otherBefore.head, remoteAhead);
-
-  const unidentified = await refresh(other.integration, "agent-a");
-  assert.equal(unidentified.result, "deferred");
-  assert.equal(unidentified.reason, "unclear-ownership");
-  assertCheckoutUnchanged(
-    otherBefore,
-    await captureCheckout(other.integration),
-  );
-
   await git(other.integration, "checkout", "-b", "side");
   const sideHead = await revParse(other.integration, "HEAD");
-  const side = await refresh(other.integration, "agent-b", "agent-b");
+  const side = await refresh(other.integration);
   assert.equal(side.result, "stopped");
   assert.equal(side.reason, "unexpected-branch");
   assert.equal(await revParse(other.integration, "HEAD"), sideHead);
   assert.notEqual(sideHead, remoteAhead);
 });
 
-test("a busy checkout accepts a remote publication and a later refresh fast-forwards to current remote history", async (t) => {
+test("a remote publication leaves the default checkout unchanged and a later refresh fast-forwards it to current remote history", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
     await createCleanTrunkFixture();
   t.after(cleanup);
@@ -143,13 +119,7 @@ test("a busy checkout accepts a remote publication and a later refresh fast-forw
   const inspected = await captureCheckout(integration);
   assertCheckoutUnchanged(before, inspected);
   assert.equal(maintenanceFromInspection(inspected, candidateSha), "deferred");
-
-  const held = await refresh(integration, "agent-a", "agent-b");
-  assert.equal(held.result, "deferred");
-  assert.equal(held.reason, "another-writer");
-  assert.equal(held.head, trunkSha);
-  assertCheckoutUnchanged(before, await captureCheckout(integration));
-  await assertRemoteCandidate(origin, candidateSha);
+  assert.equal(inspected.head, trunkSha);
 
   const laterSha = await advanceOriginFromAnotherWriter(origin);
   assert.notEqual(laterSha, candidateSha);
@@ -158,7 +128,7 @@ test("a busy checkout accepts a remote publication and a later refresh fast-forw
     candidateSha,
   );
 
-  const released = await refresh(integration, "agent-b", "agent-b");
+  const released = await refresh(integration);
   assert.equal(released.result, "advanced");
   assert.equal(released.head, laterSha);
   assert.equal(released.remoteSha, laterSha);

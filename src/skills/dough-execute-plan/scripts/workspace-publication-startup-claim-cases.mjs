@@ -21,12 +21,7 @@ for (const mode of agentModes) {
   test(`installed startup publishes an isolated ${mode} claim to remote trunk`, async (t) => {
     const trunk = await createQueuedTrunk();
     t.after(trunk.cleanup);
-    const { receipt, workspace } = await startCliResult(trunk, mode, [
-      "--declared-owner",
-      "owner",
-      "--requester",
-      "owner",
-    ]);
+    const { receipt, workspace } = await startCliResult(trunk, mode);
     assert.equal(receipt.ok, true, JSON.stringify(receipt));
     assert.equal(receipt.plan, "slice-plans/A/PLAN.md");
     assert.equal(

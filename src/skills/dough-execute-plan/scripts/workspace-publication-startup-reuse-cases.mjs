@@ -1,7 +1,9 @@
 // Startup reusing an existing owned or host worktree that trunk has moved
 // past: a clean one with no commits of its own is fast-forwarded to fetched
-// trunk and the work continues there; its own commits, edits, or an ongoing
-// Git operation refuse with the workspace and remote trunk unchanged.
+// trunk and the work continues there. Refresh eligibility owns the other
+// refusal variations; startup proves that its own commits fail setup with
+// nothing published, and that a stopped rebase on its detached HEAD reports
+// the ongoing operation rather than the branch.
 import assert from "node:assert/strict";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -96,43 +98,18 @@ const gitPath = async (workspace, name) =>
     )
   ).stdout.trim();
 
-// Each state is made in the owned worktree on real Git state, planting the
-// merge ref where Git itself leaves it; `advance` then moves trunk past it.
-const commitOwn = async (workspace) => {
-  writeFileSync(join(workspace, "own.txt"), "own work\n");
-  await git(workspace, "add", "own.txt");
-  await git(workspace, "commit", "-q", "-m", "own unpublished work");
-};
+// Each state is made in the owned worktree on real Git state; `advance` then
+// moves trunk past it.
 const refusals = [
   {
     name: "its own commit",
     advance: false,
     reason: "unpublished-commits",
-    make: commitOwn,
-  },
-  {
-    name: "diverged history",
-    advance: true,
-    reason: "diverged",
-    make: commitOwn,
-  },
-  {
-    name: "an unstaged edit",
-    advance: true,
-    reason: "pending-edit",
-    make: (workspace) =>
-      writeFileSync(join(workspace, "trunk.txt"), "edited\n"),
-  },
-  {
-    name: "an in-progress merge",
-    advance: true,
-    reason: "ongoing-operation",
-    make: async (workspace) =>
-      writeFileSync(
-        await gitPath(workspace, "MERGE_HEAD"),
-        `${await revParse(workspace, "HEAD")}\n`,
-      ),
-    state: "MERGE_HEAD",
+    make: async (workspace) => {
+      writeFileSync(join(workspace, "own.txt"), "own work\n");
+      await git(workspace, "add", "own.txt");
+      await git(workspace, "commit", "-q", "-m", "own unpublished work");
+    },
   },
   {
     name: "a rebase stopped at a break",
@@ -147,6 +124,7 @@ const refusals = [
         },
       ),
     state: "rebase-merge",
+    detached: true,
   },
 ];
 
@@ -164,6 +142,11 @@ for (const refusal of refusals)
       : trunk.trunkSha;
     if (refusal.state)
       assert.equal(await statePresent(owned.workspace, refusal.state), true);
+    if (refusal.detached)
+      assert.equal(
+        (await git(owned.workspace, "branch", "--show-current")).stdout.trim(),
+        "",
+      );
     const before = await captureCheckout(owned.workspace);
 
     const started = await startOwned(trunk, owned, "trunk");

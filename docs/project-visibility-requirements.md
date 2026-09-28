@@ -362,8 +362,8 @@ protect the default checkout's files and Git state.
 A default checkout is optional. After each trunk publication, attempt a
 refresh of a supplied one; without one, refresh is not applicable.
 A clean checkout that is only behind fetched trunk advances by fast-forward.
-Pending edits, unpublished commits, active operations, unclear ownership, or a
-checkout Git cannot read or refresh preserve their state and produce a visible
+Pending edits, unpublished commits, active operations, or a checkout Git
+cannot read or refresh preserve their state and produce a visible
 deferred-refresh result. Publication success and checkout freshness are
 reported separately. Neither a missing checkout nor a deferred refresh undoes
 remote acceptance or blocks retiring owned workspaces, which runs from the

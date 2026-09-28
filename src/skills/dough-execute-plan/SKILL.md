@@ -120,9 +120,7 @@ ID, mode (`trunk` or `story-branch`), actual remote and trunk branch, and the
 established `--push-authorized --workspace-authorized` flags. Supply your own `--host` (`claude`, `codex`, or
 `cursor`) and `--model`; omit either you cannot state rather than guess. Supply
 `--plan` as a path relative to the backlog directory when explicitly selected;
-the command also resolves the canonical published plan. Supply
-`--declared-owner` and matching `--requester` only when your context declares
-the default checkout's owner for [refresh eligibility](references/maintain-default-checkout.md#refresh-eligibility).
+the command also resolves the canonical published plan.
 The command fetches trunk, checks the published selected
 source and preparation, selects the workspace or reuses it under [refresh
 eligibility](references/maintain-default-checkout.md#refresh-eligibility), names you as an agent,

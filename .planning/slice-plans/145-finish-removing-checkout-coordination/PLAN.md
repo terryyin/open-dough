@@ -23,7 +23,8 @@
   (starting revision `5affbd14`, publisher `claude-201e2caa-plan145`) in
   `.worktrees/finish-removing-checkout-coordination` on branch
   `claude/finish-removing-checkout-coordination`, target `origin/main`.
-  Published revisions: `5769c023` (Take).
+  Published revisions on `claude/finish-removing-checkout-coordination`:
+  `5769c023` (Take), `3239c49a` (slice 1).
 
 ## Start gate
 
@@ -161,7 +162,7 @@ suffix, and only guidance covers that choice.
 
 ### 2. Refresh and startup carry no ownership declaration
 Type: Behavior
-Status: planned
+Status: done
 Proof: refresh, startup, preparation, and closure suites green, with zero remaining references.
 
 Behavior: A default checkout that is clean and strictly behind trunk after an
@@ -212,6 +213,22 @@ Proof: `publication-checkout-maintenance.test.mjs`,
 refusals above; and
 `grep -rn -E "declared-owner|declaredOwner|another-writer|unclear-ownership|--requester" src`
 returns nothing.
+
+Accepted proof: the owner step, both flags, and both results are gone from
+refresh, startup, preparation, closure, and their guidance. Refresh
+eligibility is renumbered to steps 1–7, and startup reuse applies "steps 1
+and 3–7". The requirements doc's deferred-refresh list and the "competing
+writer" wording in "Preserve pending local work" were also ownership residue
+and are gone. The watch-list entry keeps its quoted historical receipt
+verbatim. The resume case now defers on an untracked file, removes it, and
+proves the resumed start leaves the default checkout and the remote at the
+claim's `publishedSha` with no second Take or push. The reuse file runs
+exactly the two named refusals. Targeted run 119/119. The 35 files
+referencing refresh, startup, closure, Land, or preparation pass 86/86. The
+removed-names grep over `src` is empty, and the three payload checks pass.
+Learning: a resumed start refreshes both before and after the claim and
+reports only the later result, so a finished deferred refresh reports
+`already current`. Tests prove completion through `HEAD`.
 
 ## Proof ownership
 

@@ -98,8 +98,6 @@ export function publishArgs(
     previouslyPublishedBase,
     observer,
     defaultCheckout: fixture.integration,
-    declaredOwner: "coordinator",
-    requester: "coordinator",
     // Closure proofs that race another writer renew applicable proof explicitly.
     validate: async () => ({ ok: true }),
     ...extras,
@@ -114,8 +112,6 @@ export function resumeArgs(fixture, fields) {
     defaultCheckout: fixture.integration,
     repository: fixture.integration,
     branch: executionBranch,
-    declaredOwner: "coordinator",
-    requester: "coordinator",
     sessionOwned: true,
     supersededShas: [],
     validate: async () => ({ ok: true }),
