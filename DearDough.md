@@ -920,6 +920,14 @@ observer launch recipes went unused.
   - Evidence: coordinator conversation: full reads of `execution-location.md` + `trunk-publication.md`, `delegation.md` + `execution-decisions.md`, `wrap-up.md` + `ci-monitor.md` (both halves), `finish-or-stop.md`, `ci-completion-wait.md`, `agent-commits.md`, part of `publish-the-candidate.md`; the one slice replaced one sentence and added one test
   - Observed effect: same as above; the start command and managed delivery owned the claim, observer, and publication, and no CI event, repair, or stash occurred
   - Inference: Qualified. Second consecutive one-slice prose execution with the same read set, so the cost recurs rather than being a one-off
+- Execution: `SEED-053#proportionate-local-verification` / plan 143, first related implementation commit `8cafa49d`
+  - Timestamp: unknown (between Take `f510358e` committed 2026-09-28T16:46:40+08:00 and `8cafa49d` committed 2026-09-28T16:51:36+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `2b46e651`
+  - Evidence: coordinator conversation: full reads of `execution-location.md`, `delegation.md`, `execution-decisions.md`, `wrap-up.md`, `finish-or-stop.md`, part of `trunk-publication.md` and `agent-commits.md`. The only slice added one 10-line paragraph. The coordinator skipped the required `ci-monitor.md` read before arming, and managed delivery attached the observer without it
+  - Observed effect: same as above; no CI event, repair, stash, or rework occurred, and skipping `ci-monitor.md` caused no visible harm
+  - Inference: Qualified. Third consecutive one-slice prose execution. The skipped read shows that "before arming observation" still names a read that managed delivery has made unnecessary on the normal path
 
 ## DD-155 — Two plans planned concurrently on different checkouts both took number 132
 

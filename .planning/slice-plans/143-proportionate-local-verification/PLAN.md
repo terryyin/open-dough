@@ -121,3 +121,11 @@ instructions or" to match the gate bullet's sources.
   plan 141's control, reconsider one then, as a separate decision.
 - A release and the Codex control rerun follow separately. The rerun needs its
   own paid-run authority and belongs to plan 141.
+
+## Execution complete
+
+Product advice: No backlog change. The corrected slice-planning rule reaches
+plan 141 only through a release after v0.3.45. Then plan 141 slice 2 can rerun
+the Codex folder-reference control, which needs its own paid-run authority.
+If that control still adds unconditional hosted-CI gates, reconsider the
+deferred readiness criterion then.
