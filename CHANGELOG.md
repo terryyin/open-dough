@@ -1,3 +1,12 @@
+## 0.3.46 - 2026-09-28
+
+- Let preparation, execution, landing, and story wrap-up operate from owned repository context and the authorized remote target without requiring a default checkout, while keeping any supplied default-checkout refresh optional, truthful, and separate from publication and cleanup.
+- Choose local verification from the behavior a change affects instead of treating hosted CI configuration as a universal local gate, and harden one-shot escalation admission, substitute journeys, and assessment around the state actually accepted by the remote.
+- Add page-wide Left and Right Arrow project cycling to the dashboard with focus preservation and control-aware exclusions, add the Terry Talks project, and resolve percent-encoded backlog link paths during startup.
+- Complete Claude Code native acceptance for one-shot escalation, retain the accepted Codex cases, and reorganize the remaining Codex and Cursor work into explicit host-specific acceptance stories.
+
+No additional native acceptance was run for `0.3.46` at the maintainer's request as an exception to ADR 0005. The included Claude Code one-shot escalation evidence and accepted Codex cases are retained; remaining Codex and Cursor acceptance, native acceptance for the changed remote-first workflow, local-verification, dashboard-navigation, and percent-encoded-link behavior, and previously pending native requirements remain pending and are not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.45 - 2026-09-28
 
 - Let slice planning resolve fixable boundary, sizing, cumulative-design, and proof-ownership concerns through in-scope plan refinement before its final readiness assessment, while preserving explicit stops for missing inputs and human-owned decisions and granting no execution or publication authority.
