@@ -1,0 +1,219 @@
+// The local launch boundary (../server/agentLaunchPlugin.ts) over raw HTTP,
+// in dev and preview: a same-origin launch request starts one Claude Code
+// background session in the project's folder and answers with the record it
+// keeps, and each failure answers failed or uncertain and keeps no record.
+// Refused requests are ./agent-launch-refusal.spec.ts. The synthetic `claude`
+// (./fixtures/fake-claude) on each server's PATH records every call; the
+// real one is never reached.
+
+import { expect, test } from "@playwright/test";
+import {
+  identity,
+  launch,
+  launchRequest,
+  openDoughFolder,
+  recordsOf,
+  title,
+} from "./agentLaunchBoundary.ts";
+import {
+  builtDashboardDir,
+  startDashboardServer,
+  waitUntil,
+  type DashboardServer,
+} from "./support/dashboardServer.ts";
+import { processRunning } from "./support/processGroup.ts";
+
+const launchWaitMs = 4_000;
+
+for (const mode of ["dev", "preview"] as const) {
+  const prebuilt = mode === "preview" ? builtDashboardDir : undefined;
+
+  test.describe(`agent launch boundary (${mode} launch mode)`, () => {
+    test.describe.configure({ mode: "serial" });
+    let server: DashboardServer;
+
+    test.beforeAll(async () => {
+      server = await startDashboardServer({
+        mode,
+        prebuilt,
+        projectFolders: ["open-dough"],
+        launchTimeoutMs: launchWaitMs,
+      });
+    });
+
+    test.afterAll(async () => {
+      await server.close();
+    });
+
+    test("launches Claude Code in the project folder and keeps the confirmed record", async () => {
+      server.claudeScenario("launched");
+      const response = await launch(server, launchRequest);
+
+      expect(response.status).toBe(200);
+      const answer = JSON.parse(response.body) as {
+        kind: string;
+        record: { session: { shortId: string; sessionId: string } };
+      };
+      expect(answer).toMatchObject({
+        kind: "launched",
+        record: {
+          request: launchRequest,
+          session: {
+            host: "claude",
+            name: `Open Dough · ${title}`,
+          },
+        },
+      });
+      const { shortId, sessionId } = answer.record.session;
+      expect(shortId).toMatch(/^[0-9a-f]{8}$/);
+      expect(sessionId.startsWith(shortId)).toBe(true);
+      const folder = openDoughFolder(server);
+      expect(server.claudeCalls()).toEqual([
+        {
+          argv: [
+            "--bg",
+            "--name",
+            `Open Dough · ${title}`,
+            `/dough-execute-plan ${identity}`,
+          ],
+          cwd: folder,
+        },
+        { argv: ["agents", "--json"], cwd: folder },
+      ]);
+      expect(await recordsOf(server, "open-dough")).toEqual([answer.record]);
+      expect(await recordsOf(server, "doughnut")).toEqual([]);
+    });
+
+    test("passes the developer's instruction after the execution instruction and a blank line", async () => {
+      server.claudeScenario("launched");
+      const callsBefore = server.claudeCalls().length;
+      const instruction = "refine and plan it first, then execute";
+      const response = await launch(server, { ...launchRequest, instruction });
+
+      expect(JSON.parse(response.body)).toMatchObject({
+        kind: "launched",
+        record: { request: { instruction } },
+      });
+      expect(server.claudeCalls()[callsBefore]?.argv).toEqual([
+        "--bg",
+        "--name",
+        `Open Dough · ${title}`,
+        `/dough-execute-plan ${identity}\n\n${instruction}`,
+      ]);
+    });
+
+    test("names the missing project folder and starts no claude", async () => {
+      const callsBefore = server.claudeCalls().length;
+      const response = await launch(server, {
+        ...launchRequest,
+        source: "doughnut",
+      });
+
+      expect(response.status).toBe(200);
+      const answer = JSON.parse(response.body) as { explanation: string };
+      expect(answer).toMatchObject({
+        kind: "failed",
+        reason: "folder-not-found",
+      });
+      expect(answer.explanation).toContain("~/git/doughnut");
+      expect(server.claudeCalls()).toHaveLength(callsBefore);
+      expect(await recordsOf(server, "doughnut")).toEqual([]);
+    });
+
+    for (const failure of [
+      { scenario: "untrusted", reason: "folder-not-trusted" },
+      { scenario: "refused", reason: "refused" },
+    ] as const) {
+      test(`answers ${failure.reason} without forwarding claude's own words, and keeps no record`, async () => {
+        server.claudeScenario(failure.scenario);
+        const recordsBefore = (await recordsOf(server, "open-dough")).length;
+        const response = await launch(server, launchRequest);
+
+        expect(response.status).toBe(200);
+        const answer = JSON.parse(response.body) as { explanation: string };
+        expect(answer).toMatchObject({
+          kind: "failed",
+          reason: failure.reason,
+        });
+        expect(answer.explanation).toContain(
+          "Run `claude` in that folder once",
+        );
+        expect(answer.explanation).toContain("~/git/open-dough");
+        expect(response.body).not.toContain(server.home);
+        expect(response.body).not.toContain("secret-marker-from-claude-stderr");
+        expect(await recordsOf(server, "open-dough")).toHaveLength(
+          recordsBefore,
+        );
+      });
+    }
+
+    test("answers uncertain when claude reports a session its listing does not show", async () => {
+      server.claudeScenario("unlisted");
+      const recordsBefore = (await recordsOf(server, "open-dough")).length;
+      const callsBefore = server.claudeCalls().length;
+      const response = await launch(server, launchRequest);
+
+      const answer = JSON.parse(response.body) as { explanation: string };
+      expect(answer).toMatchObject({
+        kind: "uncertain",
+        reason: "unconfirmed",
+      });
+      expect(answer.explanation).toContain("claude agents");
+      expect(
+        server
+          .claudeCalls()
+          .slice(callsBefore)
+          .map((call) => call.argv[0]),
+      ).toEqual(["--bg", "agents"]);
+      expect(await recordsOf(server, "open-dough")).toHaveLength(recordsBefore);
+    });
+
+    test("answers uncertain once the launch wait expires, and ends the waiting claude", async () => {
+      server.claudeScenario("hang");
+      const recordsBefore = (await recordsOf(server, "open-dough")).length;
+      const started = Date.now();
+      const response = await launch(server, launchRequest);
+
+      expect(Date.now() - started).toBeGreaterThanOrEqual(launchWaitMs - 100);
+      const answer = JSON.parse(response.body) as { explanation: string };
+      expect(answer).toMatchObject({ kind: "uncertain", reason: "timed-out" });
+      expect(answer.explanation).toContain("claude agents");
+      expect(
+        await waitUntil(() => !processRunning(server.heldClaudePid()), {
+          timeoutMs: 5_000,
+        }),
+      ).toBe(true);
+      expect(server.heldClaudeEndedBy()).toBe("SIGTERM");
+      expect(await recordsOf(server, "open-dough")).toHaveLength(recordsBefore);
+    });
+  });
+
+  test.describe(`agent launch boundary without Claude Code (${mode} launch mode)`, () => {
+    let server: DashboardServer;
+
+    test.beforeAll(async () => {
+      server = await startDashboardServer({
+        mode,
+        prebuilt,
+        projectFolders: ["open-dough"],
+        claude: "absent",
+      });
+    });
+
+    test.afterAll(async () => {
+      await server.close();
+    });
+
+    test("answers not-installed and keeps no record", async () => {
+      const response = await launch(server, launchRequest);
+
+      expect(response.status).toBe(200);
+      expect(JSON.parse(response.body)).toMatchObject({
+        kind: "failed",
+        reason: "not-installed",
+      });
+      expect(server.claudeCalls()).toEqual([]);
+      expect(await recordsOf(server, "open-dough")).toEqual([]);
+    });
+  });
+}

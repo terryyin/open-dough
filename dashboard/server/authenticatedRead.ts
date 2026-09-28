@@ -25,7 +25,7 @@
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect } from "vite";
-import { RefusedRead, verifyLocalOrigin } from "./localOrigin.ts";
+import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { PinnedTexts } from "./pinnedTexts.ts";
 import { RevisionChecks } from "./revisionChecks.ts";
 import { BranchHeads } from "./branchHeads.ts";
@@ -54,7 +54,7 @@ function admitted(
   try {
     verifyLocalOrigin(req);
   } catch (error) {
-    if (error instanceof RefusedRead) {
+    if (error instanceof RefusedRequest) {
       return { kind: "refused", status: error.status, message: error.message };
     }
     throw error;

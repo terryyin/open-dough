@@ -203,7 +203,14 @@ replan.
 
 ### 2. The local launch boundary starts and confirms a Claude Code execution session
 Type: Behavior
-Status: planned
+Status: done — accepted proof: `npx playwright test --config
+dashboard/playwright.config.ts --reporter=line agent-launch-boundary
+agent-launch-refusal authenticated-read-refusal authenticated-read-plugin-hooks`
+(launched argv, cwd, and record; one case per failure category; every refusal
+with zero fake-`claude` calls, in dev and preview), `npm run
+typecheck:dashboard`, and the whole `npm run test:dashboard` (210 passed). A
+non-loopback socket is not observable in the harness and stays covered by the
+unchanged `verifyLocalOrigin`.
 
 Behavior: A running dashboard (dev or preview) and a same-origin POST to
 `/__agent-launch` with `{source, identity, title, activity: "execution",
@@ -342,6 +349,14 @@ refused cross-origin.
   it prints. The plan's fallback (match by name, cwd, and start time) was
   replaced by reading that printed id, which identifies the launch exactly;
   the listing still confirms it. The fake `claude` prints the same line.
+- Slice 2: every launch outcome answers HTTP 200 with a `launchResultSchema`
+  body (`launched`, `failed`, or `uncertain` with `reason` and
+  `explanation`); refusals are 4xx with `{error}`, and POST requires
+  `Content-Type: application/json`. The GET `?source=` route already exists,
+  because slice 2 needed it to observe kept records; slice 4 still owns its
+  cross-project and cross-origin proof. Both local boundaries now share
+  `server/localBoundaryPlugin.ts`, and the refusals live in
+  `agent-launch-refusal.spec.ts`.
 
 ## Concern review
 

@@ -1,0 +1,107 @@
+#!/usr/bin/env node
+"use strict";
+
+// A synthetic `claude` this suite puts first on PATH for one isolated
+// dashboard server (see ../support/fakeClaude). It never starts a real
+// session: it appends its argv and working directory to a calls file, answers
+// the way the test's scenario file says, and lists the sessions it
+// "launched" through `claude agents --json`. A launch prints the line the
+// real `claude --bg` prints, its id colored for a terminal.
+//
+// Scenarios: `launched` (default), `refused`, `untrusted`, `hang`, and
+// `unlisted` (reports a session that `agents --json` does not list).
+
+const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
+
+const dir = process.env.FAKE_CLAUDE_DIR;
+if (!dir) {
+  process.stderr.write("fake claude: FAKE_CLAUDE_DIR is not set\n");
+  process.exitCode = 1;
+  return;
+}
+const args = process.argv.slice(2);
+const cwd = process.cwd();
+const agentsPath = path.join(dir, "agents.json");
+
+fs.appendFileSync(
+  path.join(dir, "calls.jsonl"),
+  `${JSON.stringify({ argv: args, cwd })}\n`,
+);
+
+function listed() {
+  try {
+    return JSON.parse(fs.readFileSync(agentsPath, "utf8"));
+  } catch {
+    return [];
+  }
+}
+
+if (args[0] === "agents") {
+  process.stdout.write(`${JSON.stringify(listed())}\n`);
+  return;
+}
+
+let scenario = "launched";
+try {
+  scenario = fs.readFileSync(path.join(dir, "scenario"), "utf8").trim();
+} catch {
+  // No scenario file: the default.
+}
+
+const nameAt = args.indexOf("--name");
+const name = nameAt === -1 ? "" : args[nameAt + 1];
+
+switch (scenario) {
+  case "refused":
+    process.stderr.write(
+      `Error: fake claude refused in ${cwd} (secret-marker-from-claude-stderr)\n`,
+    );
+    process.exitCode = 1;
+    return;
+  case "untrusted":
+    process.stderr.write(
+      `Workspace not trusted. Run \`claude\` in ${cwd} once and accept the trust prompt, then retry.\n`,
+    );
+    process.exitCode = 1;
+    return;
+  case "hang":
+    fs.writeFileSync(path.join(dir, "pid"), String(process.pid));
+    for (const signal of ["SIGTERM", "SIGINT"]) {
+      process.on(signal, () => {
+        fs.writeFileSync(path.join(dir, "pid.exited"), signal);
+        process.exit(143);
+      });
+    }
+    setInterval(() => {}, 1000);
+    return;
+  default: {
+    const sessionId = crypto.randomUUID();
+    const id = sessionId.slice(0, 8);
+    if (scenario !== "unlisted") {
+      fs.writeFileSync(
+        agentsPath,
+        JSON.stringify([
+          ...listed(),
+          {
+            pid: process.pid,
+            id,
+            cwd,
+            kind: "bg",
+            startedAt: Date.now(),
+            sessionId,
+            name,
+            status: "running",
+            state: "working",
+          },
+        ]),
+      );
+    }
+    process.stdout.write(
+      `backgrounded · \u001b[36m${id}\u001b[39m · ${name} · trusted\n` +
+        `  claude attach ${id}   open the session\n` +
+        `  claude logs ${id}     show its output\n`,
+    );
+  }
+}
