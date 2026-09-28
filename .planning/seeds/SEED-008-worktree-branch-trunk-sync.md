@@ -223,33 +223,68 @@ releasable under ADR 0005's native acceptance.
 {"schemaVersion":1,"refinement":"refined","approach":"unselected"}
 ```
 
-**Decision (2026-09-28):** Terry accepted this recommendation after the
-remote-history retrospective.
+**Decision (2026-09-28):** Terry chose an entry point over removing the
+shipped closure modules from the payload (finding F7 of the remote-history
+retrospective), then accepted the narrowed goal, scope, and ordering below in
+refinement the same day.
 
-**Goal:** Agents closing a story run the same tested wrap-up publication and
-cleanup mechanics that the project's tests prove, instead of re-enacting them
-from prose, so closure behaves identically across hosts.
+**Goal:** Agents closing a story run the closure mechanics that this project's
+tests prove, Trunk Mode closure publication and execution-resource retirement,
+through installed commands instead of re-enacting them from prose and raw Git.
+Wrap-up and Dough Land guidance then keep only judgment steps, and closed work
+stops leaving worktrees and branches behind.
+
+**Evidence:** The closure modules under
+`src/skills/dough-story-wrap-up/scripts/` ship in the payload with no entry
+point and no caller outside tests, so their tests prove code agents never run.
+On 2026-09-28 the Story Branch closure of
+`SEED-053#proportionate-local-verification` left its worktree, local branch,
+and remote branch in place although trunk contained all of them. No closure
+has been observed to behave differently across hosts.
 
 **Scope:**
 
-- An installed wrap-up command, invoked from story wrap-up guidance, performs
-  before-cleanup and final-closure publication, Story Branch integration, and
-  gated resource retirement through the existing shipped closure modules.
-- Current-checkout closure uses the same command under its own authority.
-- Wrap-up guidance calls the command and keeps its judgment steps
-  (assimilation, queue decisions, deletion scope) in prose.
-- Native acceptance of the changed wrap-up guidance, run manually as the
-  story's final slice.
+- An installed Trunk Mode closure command publishes the before-cleanup commit,
+  then the final-closure commit, runs the CI completion operation once for the
+  final accepted SHA, and retires execution resources only on its confirmed
+  receipt. A rerun recognizes commits already accepted on the remote.
+- Both closure publications stay: delivery rebases unpublished commits when
+  trunk advances, and the final closure cites the before-cleanup SHA as a
+  recovery locator, so that SHA must be accepted before cleanup cites it.
+- One installed retirement command, shared by wrap-up in every mode and by
+  Dough Land, replaces the raw-Git retirement procedure. It builds on the
+  removal core that plan 142 extracts.
+- Wrap-up and Dough Land guidance call these commands and drop the procedure
+  prose they replace; assimilation, queue decisions, and deletion scope stay in
+  prose.
+- No shipped closure module remains without an entry point: each backs a
+  command or leaves the payload with its tests.
+- Native acceptance of the changed wrap-up and Land guidance on Codex, Cursor,
+  and Claude Code, run manually as the story's final slice.
+
+**Deferred promises:** Story Branch integration (history-preserving merge
+through the backlog merge adapter, with hand-resolved conflicts) and
+current-checkout closure keep their current guidance. The single-commit
+closure alternative is not pursued.
+
+**Ordering:** Starts after plan 142, which changes the same retirement module,
+wording, and native closure acceptance, and after
+[Finish removing default-checkout coordination](#finish-removing-checkout-coordination),
+which removes owner arguments the closure modules still pass.
 
 **Key examples:**
 
-1. A completed Trunk Mode story → the agent runs the wrap-up command → both
-   closure commits are accepted on the remote, the completion receipt gates
-   cleanup, and the worktree and branch are retired.
-2. A completed Story Branch story → the command integrates the published tip
-   into trunk with history preserved, observes trunk CI, then retires resources.
-3. A publication conflict → the command stops, preserving the worktree, branch,
-   and candidate, and reports the recovery step.
+1. A completed Trunk Mode story → the agent runs the closure command → both
+   closure commits are accepted on the remote, one completion receipt covers
+   the final SHA, and the worktree and branch are then retired.
+2. A Story Branch story whose integrated SHA has an accepted receipt → the
+   agent runs the retirement command → the worktree, local branch, and remote
+   branch are removed.
+3. Trunk advanced and the closure publication conflicts → the command stops,
+   preserving the worktree, branch, and closure commits, and reports the
+   recovery step.
+4. Retirement is asked for a branch whose tip trunk does not contain → the
+   command refuses and removes nothing.
 
 <a id="reduce-ci-observer-overhead"></a>
 
