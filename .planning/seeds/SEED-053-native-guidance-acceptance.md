@@ -116,6 +116,20 @@ explicit applicability review before reuse.
   use the installed guidance? These are evaluation questions answered by the
   cases, not additional acceptance scope.
 
+**Known evidence — 2026-09-28:** Plan 141 slice 2 (published on
+`codex/plan-141-execution` at `b765473fda8c544c135458dbbb9ed75990b5f64c`) ran
+the folder-reference control on Codex 0.157.0 with candidate `v0.3.45`
+(`f3f75d0b`) and baseline `6882aeb3`. The candidate plan unconditionally
+required `npm test`, lint, dashboard typecheck, dashboard build and the full
+dashboard suite, matching hosted `ci.yml`. Historical plan 111 (`e7107e5`) used
+focused checks. The baseline also added `npm test`, but made the dashboard suite
+conditional. Neither session executed its plan. Slice planning later gained a
+rule that hosted CI configuration alone does not make a check a local gate
+(`8cafa49d`). Rerun the control on a release that contains that rule, under
+separate paid-run authority. Do not retry it on unchanged guidance. If the rerun
+still adds unconditional hosted-CI gates, decide then whether to add a readiness
+criterion.
+
 **Slice plan:** [Codex native guidance acceptance](../slice-plans/141-codex-native-guidance-acceptance/PLAN.md).
 
 <a id="native-acceptance-cursor"></a>
@@ -177,79 +191,6 @@ joins only after
 - Claude Code records escalation pass → same case on Cursor passes under the
   shared assessor → Cursor escalation accepted. Claude Code takes the exit →
   escalation case removed from this story with the shared one-shot cases.
-
-<a id="proportionate-local-verification"></a>
-
-### Keep planned local verification proportionate to the change
-
-**Identity:** SEED-053#proportionate-local-verification
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/143-proportionate-local-verification/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f2f70e25017ecbd31526967dc3cc406cea271bfe2644c8f4b29199251191385f","plan":"565253856217de5084114428add8a18a56e6f5839d52b354d87f441e1f1906a6"}}
-```
-
-**Goal:** Agents and developers executing a slice plan run local checks chosen
-for the affected behavior and this project's explicit local requirements, so a
-narrow change does not inherit every hosted CI check as an unconditional
-pre-commit gate. Planning then agrees with execution's existing rule not to run
-full CI before commit unless explicitly required, and a corrected guidance
-revision can be evaluated on plan 141's failed Codex control.
-
-**Why now:** Kept first by Terry's decision on 2026-09-28. The cost of
-over-verification is inferred from one unexecuted Codex plan and is not
-measured; the priority rests on three other facts. Slice planning resolves
-"required verification … gates" from the project without distinguishing hosted
-CI from local requirements, while execution wrap-up already makes that
-distinction, so the guidance contradicts itself. The Taken Codex acceptance
-story cannot complete slice 2 on unchanged guidance. The correction is a small
-guidance change. If Codex acceptance stops being wanted soon, this story's
-priority should be reconsidered with it.
-
-**Scope:**
-
-- One rule in slice planning's resolution of verification gates: hosted CI
-  configuration shows which commands exist, not which ones every change must
-  run locally. Local proof follows the affected behavior plus local
-  requirements this project states; a broader local check carries its reason
-  in the plan. The rule links to execution wrap-up's existing principle instead
-  of restating it, and states that hosted CI still runs after publication with
-  its failures owned, which is why proportionate local checks are safe.
-- A maintainer behavior review walks the folder-reference example through the
-  changed guidance.
-
-**Key examples:**
-
-| Precondition and trigger | Required result |
-| --- | --- |
-| A narrow folder-reference change is planned in a project whose hosted CI runs `npm test`, lint, typecheck, build and the full dashboard suite, and whose local guidance mandates none of them | The plan selects focused reader and navigation proof; the CI list alone adds no unconditional local check. |
-| The project's own guidance states that every change runs the full suite locally | The plan keeps that check and cites the requirement. |
-| The change alters a fixture that distributed consumers load | The plan adds the broader `npm test` and names the consumers as the reason. |
-| A project documents its test commands only in hosted CI | The planner uses that file to find the relevant commands and runs the ones the affected behavior needs. |
-
-**Genuine constraints:** Preserve meaningful coverage and any explicit local
-requirement; cost is not reduced by removing proof. Hosted CI remains the
-backstop, and local and hosted results must still agree.
-
-**Excluded and deferred promises:** A new readiness criterion (add one only if
-the planning rule fails the control); execution-time behavior; CI
-configuration; test optimization; a verification tiering framework; rewriting
-existing plans; and rerunning the Codex control, which stays with
-[plan 141 slice 2](../slice-plans/141-codex-native-guidance-acceptance/PLAN.md)
-on the corrected release under separate paid-run authority. Unchanged guidance
-is not retried.
-
-**Known evidence — 2026-09-28:** Plan 141 slice 2 (published on
-`codex/plan-141-execution` at `b765473fda8c544c135458dbbb9ed75990b5f64c`) ran
-the historical folder-reference control on Codex 0.157.0 with candidate
-`v0.3.45` (`f3f75d0b`) and baseline `6882aeb3`. The candidate plan
-unconditionally required `npm test`, lint, dashboard typecheck, dashboard build
-and the full dashboard suite, matching hosted `ci.yml`; historical plan 111
-(`e7107e5`) used focused checks, and historical guidance held no every-change
-full-suite mandate. The baseline also added `npm test` but made the dashboard
-suite conditional, so the runs show neither a regression nor an improvement.
-Neither session executed the plan. The suspected cause is inferred from the
-written plan. Slice 1's accepted proof is unaffected.
-
-**Slice plan:** [Proportionate local verification](../slice-plans/143-proportionate-local-verification/PLAN.md).
 
 ## Shared premise-verification cases
 
