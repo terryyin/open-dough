@@ -147,9 +147,10 @@ coordination between the observed projects or adopt Proposed ADR 0008.
 
 ## Agent launch as a requested assignment
 
-Starting agent work from the dashboard (SEED-052, beginning with
-[launch execution](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-planned-execution))
-adds the dashboard's first action. Model it in the vocabulary the dashboard
+Starting agent work from the dashboard
+([SEED-052](seeds/SEED-052-start-agent-work-from-dashboard.md), beginning with
+[launch execution](../dashboard/AGENT-LAUNCH.md)) adds the dashboard's first
+action. Model it in the vocabulary the dashboard
 already reads, so later launch stories extend one model instead of adding
 parallel ones:
 
