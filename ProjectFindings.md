@@ -39,6 +39,9 @@ executions, not commands, retries, or repairs.
 6. **Direct shell-check runs with macOS Bash 3.2 (DD-162) — low, not
    queued.** One execution (plan 140): a coordinator-prescribed direct run
    bypassed the runner's Bash 5 guard and cost one diagnosis agent.
+7. **Negated assessor counterexamples never failed (DD-164) — resolved in plan
+   142.** `! assess` lines under `set -e` were not enforced; all 38 now run
+   through `git_publication_suite_expect_rejected`.
 
 No other project-owned problem is supported, so only one story is queued.
 
@@ -198,6 +201,27 @@ and aborted on an empty-array expansion under `set -u`.
   - Evidence: slice 1 return reported `substitute claude one-shot-result exited 1 … stream-status: missing`, identical at claim `5a5087c6`; `native-agent-one-shot.sh` line 35 `named[@]: unbound variable` under `/bin/bash`; `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/git-publication-native.sh` passed.
   - Observed effect: one diagnosis agent (about 66k tokens) spent on a failure CI never had.
   - Inference: Qualified. The coordinator's delegation prompt prescribed the direct absolute-Bash run; later prompts named `scripts/test.sh` with Homebrew Bash first on `PATH` and saw no recurrence.
+
+## Negated assessor counterexamples never failed (resolved)
+
+### DD-164 — `! assess` counterexamples under `set -e` were never enforced
+
+Bash exempts negated commands and all but the last command of `&&` lists from
+`set -e`, so native-harness counterexamples written as `! …assess` passed even
+when the assessor accepted them; this also hid an unenforced live `ignored-only`
+clause.
+
+**Response:** plan 142 (`ddbcb90a`) routes every counterexample through
+`git_publication_suite_expect_rejected`; a mutation check shows all 38 enforced.
+
+#### Occurrences
+
+- Execution: `SEED-008#owned-context-start-and-truthful-refresh` / plan 142, first related implementation commit `7e86f615`
+  - Timestamp: unknown (harness repair after the 2026-09-28 native runs)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: trunk-closure, story-branch, and delivery-evidence assessors; mutation check in the repair's refactor report.
+  - Observed effect: 38 counterexamples provided no protection until repaired.
 
 ## Retention
 

@@ -98,8 +98,9 @@ publication whose target is remote trunk, attempt a refresh under
 [Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).
 A publication whose target is the remote execution branch does not refresh
 the default checkout. Report the publication acceptance, observation result,
-and any maintenance result separately. A deferred or stopped refresh does not
-erase the accepted publication and does not authorize another push. An
+and any
+[maintenance result](maintain-default-checkout.md#independent-maintenance-outcome)
+separately. An
 unavailable bridge is a coverage gap on the delivery receipt, not a reason to
 undo acceptance.
 

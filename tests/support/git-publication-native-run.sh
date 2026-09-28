@@ -9,9 +9,9 @@ git_publication_run_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && p
 # shellcheck source=tests/support/git-publication-native-fixture.sh
 # shellcheck disable=SC1091
 source "${git_publication_run_support_dir}/git-publication-native-fixture.sh"
-# shellcheck source=tests/support/git-publication-native-prepared.sh
+# shellcheck source=tests/support/git-publication-native-shared.sh
 # shellcheck disable=SC1091
-source "${git_publication_run_support_dir}/git-publication-native-prepared.sh"
+source "${git_publication_run_support_dir}/git-publication-native-shared.sh"
 # shellcheck source=tests/support/git-publication-native-admission.sh
 # shellcheck disable=SC1091
 source "${git_publication_run_support_dir}/git-publication-native-admission.sh"
@@ -21,6 +21,9 @@ source "${git_publication_run_support_dir}/git-publication-native-one-shot.sh"
 # shellcheck source=tests/support/git-publication-native-one-shot-escalation.sh
 # shellcheck disable=SC1091
 source "${git_publication_run_support_dir}/git-publication-native-one-shot-escalation.sh"
+# shellcheck source=tests/support/git-publication-native-owned-context.sh
+# shellcheck disable=SC1091
+source "${git_publication_run_support_dir}/git-publication-native-owned-context.sh"
 # shellcheck source=tests/support/git-publication-native-prompt.sh
 # shellcheck disable=SC1091
 source "${git_publication_run_support_dir}/git-publication-native-prompt.sh"
@@ -135,9 +138,19 @@ git_publication_run_journey() {
   : > "${native_stderr}"
   : > "${transcript}"
 
-  git_publication_create_fixture_for "${journey}" "${artifact_root}"
+  if git_publication_owned_context_journey "${journey}"; then
+    git_publication_fixture_create_owned_context "${source_dir}" "${host}" \
+      "${journey}" "${artifact_root}"
+  else
+    git_publication_create_fixture_for "${journey}" "${artifact_root}"
+  fi
   prompt=$(git_publication_prompt_for "${journey}")
-  if [[ ${journey} == startup-* || ${journey} == admission-* ||
+  if git_publication_owned_context_journey "${journey}"; then
+    # The fixture already committed the installed guidance to trunk; with no
+    # default checkout, the host runs in the retained owned worktree.
+    target=${git_publication_owned_retained}
+    native_run_workspace=${git_publication_owned_retained}
+  elif [[ ${journey} == startup-* || ${journey} == admission-* ||
     ${journey} == one-shot-* ]]; then
     git_publication_fixture_install_skills "${source_dir}" "${host}" \
       "${git_publication_fixture_integration}"
@@ -177,7 +190,10 @@ git_publication_run_journey() {
 
   observations_file="${artifact_root}/observations.txt"
   # Ownership and remote acceptance come only from post-session Git state.
-  if [[ ${journey} == startup-* ]]; then
+  if git_publication_owned_context_journey "${journey}"; then
+    git_publication_fixture_observe_owned_context "${journey}" \
+      "${stream_status}" "${transcript}" > "${observations_file}"
+  elif [[ ${journey} == startup-* ]]; then
     git_publication_fixture_observe_startup "${journey}" \
       "${stream_status}" "${transcript}" > "${observations_file}"
   elif [[ ${journey} == admission-* ]]; then
@@ -211,7 +227,8 @@ git_publication_run_journey() {
   if [[ -n ${native_case_results_dir:-} ]]; then
     git_publication_retain_attempt "${source_dir}" "${prompt}" \
       "${transcript}" "${output_file}" "${native_stderr}" \
-      "${observations_file}"
+      "${observations_file}" "$(git_publication_owned_context_journey \
+        "${journey}" && echo owned-context || echo publication)"
   fi
 
   if [[ -z ${GIT_PUBLICATION_KEEP:-} ]]; then

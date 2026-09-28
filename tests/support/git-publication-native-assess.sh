@@ -16,9 +16,7 @@ git_publication_assess_print_fields() {
 # Prints the value of the first line containing "KEY: ", or an empty line.
 # Parsed in the shell: assessors read many fields per journey.
 git_publication_assess_field() {
-  local text=$1
-  local key=$2
-  local line
+  local text=$1 key=$2 line
   while IFS= read -r line; do
     if [[ ${line} == *"${key}: "* ]]; then
       printf '%s\n' "${line#"${key}: "}"
@@ -60,6 +58,7 @@ git_publication_assess() {
 
   journey=$(git_publication_assess_field "${obs}" journey)
   case ${journey} in
+    startup-owned-context | preparation-land) git_publication_assess_owned_context "${obs}" "${journey}" ;;
     startup-*) git_publication_assess_startup "${obs}" "${journey}" ;;
     admission-*) git_publication_assess_admission "${obs}" "${journey}" ;;
     one-shot-escalation) git_publication_assess_one_shot_escalation "${obs}" ;;

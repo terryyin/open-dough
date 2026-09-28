@@ -146,6 +146,12 @@ case ${journey} in
     source "${0%/*}/native-agent-one-shot.sh"
     native_one_shot_substitute
     ;;
+  startup-owned-context | preparation-land | trunk-closure-owned-context)
+    # shellcheck source=tests/support/native-agent-owned-context.sh
+    # shellcheck disable=SC1091
+    source "${0%/*}/native-agent-owned-context.sh"
+    native_owned_context_substitute
+    ;;
   story-branch-increment)
     if [[ -z ${NATIVE_PUBLICATION_SKIP_PUSH:-} ]]; then
       git -C "${workspace}" push --quiet origin \

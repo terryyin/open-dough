@@ -3,14 +3,10 @@
 // and has no declared competing writer. Installed guidance is the agent's contract.
 import { existsSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
+import { rebaseInProgress } from "../../dough-product-backlog/scripts/product-backlog-git-operation-state.mjs";
 import { git, inspectCheckout, revParse } from "./publication-git.mjs";
 
-const IN_PROGRESS_REFS = [
-  "MERGE_HEAD",
-  "REBASE_HEAD",
-  "CHERRY_PICK_HEAD",
-  "REVERT_HEAD",
-];
+const IN_PROGRESS_REFS = ["MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD"];
 
 function singleOwner(owner) {
   return typeof owner === "string" && owner.trim() !== "";
@@ -98,8 +94,10 @@ async function lockAndFirstRef(checkout, ref) {
   }
 }
 
-// An index lock takes precedence over any in-progress ref.
-async function ongoingOperation(checkout) {
+// The Git operation in progress in a checkout, or null: an index lock (which
+// takes precedence), an in-progress merge, cherry-pick, or revert ref, or a
+// rebase state directory.
+export async function ongoingOperation(checkout) {
   const [first, ...rest] = IN_PROGRESS_REFS;
   const { lock, verified } = await lockAndFirstRef(checkout, first);
   if (existsSync(lock)) return "index.lock";
@@ -107,7 +105,7 @@ async function ongoingOperation(checkout) {
   for (const ref of rest) {
     if (await present(checkout, ref)) return ref;
   }
-  return null;
+  return rebaseInProgress(checkout) ?? null;
 }
 
 // HEAD, the fetched trunk, and the current branch after the refresh's fetch.
@@ -197,20 +195,36 @@ async function attemptRefresh({
   }
 
   await git(checkout, "fetch", remote);
-  const remoteRef = `${remote}/${integrationBranch}`;
+  return fastForwardToFetchedTrunk(
+    checkout,
+    `${remote}/${integrationBranch}`,
+    integrationBranch,
+  );
+}
+
+// Refresh eligibility after a fetch, shared by refresh and by callers that
+// reuse an existing workspace: a checkout on `expectedBranch` (when one is
+// required) with no ongoing Git operation, no edits, and no commits of its
+// own that is strictly behind `fetchedRef` is fast-forwarded to it. Anything
+// else is left unchanged and reported with the reason it stopped.
+export async function fastForwardToFetchedTrunk(
+  checkout,
+  fetchedRef,
+  expectedBranch,
+) {
   const { current, remoteSha, branch } = await fetchedState(
     checkout,
-    remoteRef,
+    fetchedRef,
   );
 
-  if (branch !== integrationBranch) {
-    return decision("stopped", "unexpected-branch", current, remoteSha);
-  }
   if (await ongoingOperation(checkout)) {
     return decision("deferred", "ongoing-operation", current, remoteSha);
   }
-  const behind = await isAncestor(checkout, current.head, remoteRef);
-  const ahead = await isAncestor(checkout, remoteRef, current.head);
+  if (expectedBranch !== undefined && branch !== expectedBranch) {
+    return decision("stopped", "unexpected-branch", current, remoteSha);
+  }
+  const behind = await isAncestor(checkout, current.head, fetchedRef);
+  const ahead = await isAncestor(checkout, fetchedRef, current.head);
   if (!behind && !ahead) {
     return decision("stopped", "diverged", current, remoteSha);
   }
@@ -221,7 +235,7 @@ async function attemptRefresh({
     return decision("already current", null, current, remoteSha);
   }
   if (behind) {
-    await git(checkout, "merge", "--ff-only", remoteRef);
+    await git(checkout, "merge", "--ff-only", fetchedRef);
     const advanced = await inspectCheckout(checkout);
     if (advanced.head !== remoteSha || advanced.status !== "") {
       throw new Error(

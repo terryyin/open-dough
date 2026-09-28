@@ -100,7 +100,7 @@ test("ordinary admission still refuses a workspace with edits unless they are ca
   assert.equal(admitted.receipt.status, "setup-failed", admitted.stdout);
   assert.match(
     admitted.receipt.recovery.error,
-    /does not match clean fetched trunk/,
+    /cannot continue on fetched trunk as .*: pending-edit/,
   );
   const unpaired = await startCliResult(
     trunk,

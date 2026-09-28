@@ -4,10 +4,10 @@
 // and the local candidate preserved.
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { promisify } from "node:util";
+import { rebaseInProgress } from "../../dough-product-backlog/scripts/product-backlog-git-operation-state.mjs";
 import {
   commitQueuedResult,
   createSiblingTrunk,
@@ -55,16 +55,7 @@ async function assertHeld(trunk, fixture, stopped, holderTip) {
   );
   assert.equal(stdout, "B's result\n");
   assert.equal((await git(fixture.execution, "ls-files", "-u")).stdout, "");
-  const rebase = await git(
-    fixture.execution,
-    "rev-parse",
-    "--git-path",
-    "rebase-merge",
-  );
-  assert.equal(
-    existsSync(join(fixture.execution, rebase.stdout.trim())),
-    false,
-  );
+  assert.equal(rebaseInProgress(fixture.execution), undefined);
 }
 
 test("a Take published after the start stops the guarded delivery", async (t) => {

@@ -1,12 +1,11 @@
 // Git mechanics (not guidance-following): Dough Land commits everything in a
 // reviewed worktree, publishes it through the shared publisher, refreshes the
-// default checkout when one is supplied and eligible, reporting a deferred or
-// failed refresh separately, and retires the worktree once the remote contains
-// it. Missing context stops before any commit. Native agent evidence is not
-// this file.
+// default checkout when one is supplied and eligible, reporting a deferred
+// refresh separately, and retires the worktree once the remote contains it.
+// Missing context stops before any commit. Native agent evidence is not this
+// file.
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { test } from "node:test";
 import {
   advanceOriginFromAnotherWriter,
@@ -20,7 +19,6 @@ import {
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
-  assertRetiredFrom,
   landWorktree,
   planReviewedEdits,
 } from "./dough-land-test-fixtures.mjs";
@@ -199,7 +197,7 @@ test("Dough Land publishes a reused workspace's reviewed content and leaves the 
     worktree: preparation,
     branch: preparationBranch,
     defaultCheckout: integration,
-    sessionCreated: false,
+    createdForWork: false,
   });
 
   assert.equal(landed.stopped, null);
@@ -215,43 +213,4 @@ test("Dough Land publishes a reused workspace's reviewed content and leaves the 
   assert.match(landed.cleanup.reason, /reused or host-owned/);
   assert.equal(existsSync(preparation), true);
   assert.equal(await revParse(preparation, preparationBranch), acceptedSha);
-});
-
-test("Dough Land reports a failed refresh of an unusable default checkout path separately and still retires the worktree after acceptance", async (t) => {
-  const {
-    fixture,
-    origin,
-    integration,
-    preparation,
-    preparationBranch,
-    cleanup,
-  } = await createPreparationFixture("preparation-publication-");
-  t.after(cleanup);
-  planReviewedEdits(preparation);
-  const before = await captureCheckout(integration);
-  const missing = join(fixture, "moved-default-checkout");
-
-  const landed = await landWorktree({
-    worktree: preparation,
-    branch: preparationBranch,
-    defaultCheckout: missing,
-  });
-
-  assert.equal(landed.stopped, null);
-  assert.equal(landed.publication.publication, "accepted");
-  const acceptedSha = landed.publication.receipt.sha;
-  await assertRemoteCandidate(origin, acceptedSha);
-  assert.equal(landed.refresh.result, "deferred");
-  assert.equal(landed.refresh.reason, "refresh-failed");
-  assert.match(landed.refresh.error, /moved-default-checkout/);
-  assert.equal(existsSync(missing), false);
-  assertCheckoutUnchanged(before, await captureCheckout(integration));
-  assert.equal(landed.cleanup.removed, true);
-  assert.equal(existsSync(preparation), false);
-  await assertRetiredFrom(
-    integration,
-    preparationBranch,
-    acceptedSha,
-    "origin/main",
-  );
 });

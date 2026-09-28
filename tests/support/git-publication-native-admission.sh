@@ -35,15 +35,8 @@ git_publication_fixture_create_admission() {
   NATIVE_ADMISSION_PUBLISHER=$(jq -r .publisher <<< "${prepared}")
   NATIVE_ADMISSION_IDENTITY=$(jq -r .identity <<< "${prepared}")
   export NATIVE_ADMISSION_BRANCH NATIVE_ADMISSION_PUBLISHER NATIVE_ADMISSION_IDENTITY
-  cat > "${git_publication_fixture_origin}/hooks/post-receive" << EOF
-#!/bin/sh
-while read -r old new ref; do
-  if [ "\${ref}" = refs/heads/main ] && [ ! -e "${git_publication_fixture_root}/claim-accepted" ]; then
-    touch "${git_publication_fixture_root}/claim-accepted"
-  fi
-done
-EOF
-  chmod +x "${git_publication_fixture_origin}/hooks/post-receive"
+  git_publication_record_pushes "${git_publication_fixture_origin}" \
+    "${git_publication_fixture_root}"
   git_publication_fixture_plant_human_edit "${git_publication_fixture_integration}"
   git_publication_admission_human_before=$(
     git_publication_admission_capture_human "${git_publication_fixture_integration}"
@@ -67,15 +60,6 @@ git_publication_admission_prompt() {
   esac
 }
 
-# Newer-or-equal modification time of $2 relative to $1, both present.
-git_publication_admission_not_before() {
-  [[ -f $1 && -f $2 ]] && node -e '
-    const fs = require("fs");
-    const [first, then] = process.argv.slice(1).map((path) => fs.statSync(path, { bigint: true }).mtimeNs);
-    process.exit(then >= first ? 0 : 1);
-  ' "$1" "$2"
-}
-
 git_publication_fixture_observe_admission() {
   local journey=$1 stream_status=$2 transcript=$3
   local root=${git_publication_fixture_root} commands outputs human_after
@@ -92,7 +76,7 @@ git_publication_fixture_observe_admission() {
   printf 'existing-receipt-observed: %s\n' \
     "$(grep -Eq '\\?"status\\?": ?\\?"existing' <<< "${outputs}" && echo true || echo false)"
   printf 'probe-after-claim: %s\n' \
-    "$(git_publication_admission_not_before "${root}/claim-accepted" "${root}/.probe-ran" && echo true || echo false)"
+    "$(git_publication_in_order "${root}/claim-accepted" "${root}/.probe-ran" && echo true || echo false)"
   printf 'feature-exists: %s\n' \
     "$([[ -f ${git_publication_fixture_workspace}/feature.txt ]] && echo true || echo false)"
   printf 'human-edit-preserved: %s\n' \

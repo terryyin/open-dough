@@ -101,7 +101,7 @@ test("a landing accepted with its response lost is recognized on rerun: the rele
 
   // The workspace is retained, so the rerun happens in it. The push reports
   // a dropped connection, not an acceptance.
-  await assert.rejects(land({ sessionCreated: false }), /hung up/);
+  await assert.rejects(land({ createdForWork: false }), /hung up/);
   assert.equal(lost(), true);
   const landed = await lsRemoteSha(trunk.origin, "refs/heads/main");
   assert.equal(
@@ -119,7 +119,7 @@ test("a landing accepted with its response lost is recognized on rerun: the rele
   assert.equal(release.receipt.endedBy, landed);
   assert.equal("successor" in release.receipt, false);
 
-  const rerun = await land({ sessionCreated: false });
+  const rerun = await land({ createdForWork: false });
   assert.equal(rerun.stopped, null, JSON.stringify(rerun));
   assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), landed);
   assert.deepEqual(await landings(trunk), [message]);

@@ -140,12 +140,13 @@ native_case_known() {
       publication/admission-correction | publication/admission-closure | \
       publication/one-shot-result | publication/one-shot-queued | \
       publication/one-shot-escalation | \
+      publication/startup-owned-context | publication/preparation-land | \
       story-branch-increment | \
       execution-review/pending | execution-review/ready | \
       execution-review/failure | execution-review/skip-retro)
       return 0
       ;;
-    trunk-closure/source | trunk-closure/ignored-only)
+    trunk-closure/source | trunk-closure/ignored-only | trunk-closure/owned-context)
       return 0
       ;;
     story-branch-closure/source-conflict)

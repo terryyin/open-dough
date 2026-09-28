@@ -116,63 +116,20 @@ registry is selected. No new execution authority or ADR acceptance is implied.
 
 ## Existing related stories
 
-<a id="owned-context-start-and-truthful-refresh"></a>
-
-### Start from owned repository context and refresh truthfully
-
-**Identity:** SEED-008#owned-context-start-and-truthful-refresh
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/142-owned-context-start-and-refresh/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ddb4c48ec330d303d06b4ff534bdc2cc1cc52785a2cf221b098ed548edcfb5e6","plan":"5c844baf27bd8008cfd3704eea93c822742bc74ac8c1c641b4a9bf2192668c70"}}
-```
-
-**Goal:** Developers can start and land owned work from an owned repository
-context alone, reuse a clean owned workspace that trunk has moved past, and
-receive a truthful, fast-forwarding default-checkout refresh, with the changed
-guidance accepted natively on Codex, Cursor, and Claude Code.
-This bounded retrospective correction of
-Run worktree workflows from remote history (`SEED-008#same-machine-merge-queue`, recoverable at
-`199c579f:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`)
-completes that story's example 3 and its "clean and behind → fast-forward"
-promise, while retirement mechanics and refresh-result guidance keep one
-representation each.
-
-**Scope:**
-
-- Create a new owned workspace at fetched trunk from an existing owned worktree
-  or the repository's common Git directory, for queued startup and preparation,
-  with local refresh not applicable. Existing refusals remain.
-- When startup or preparation reuses an existing clean owned or host worktree
-  that has no commits of its own and is strictly behind fetched trunk,
-  fast-forward it under the shared refresh eligibility and continue. Local
-  commits, divergence, pending edits, or an ongoing Git operation still refuse.
-- Recognize an in-progress rebase by Git's rebase state, not a leftover
-  `REBASE_HEAD`, in one recognizer shared by refresh and the Land model.
-- Refresh-result guidance links its single owner; the Land model retires
-  through the shared retirement mechanics.
-- Remove the startup and Land test redundancy the review found, and prove that
-  a ready-looking local copy cannot override unready remote preparation.
-- Native acceptance on Codex, Cursor, and Claude Code of the startup,
-  preparation, Land, and wrap-up guidance changed by the original story and by
-  this correction, run manually as the final slice.
-- Current-checkout coordination and shipped-module payload decisions stay with
-  the queued sibling stories below.
-
-**Slice plan:** [Start from owned repository context and refresh truthfully](../slice-plans/142-owned-context-start-and-refresh/PLAN.md).
-
 <a id="finish-removing-checkout-coordination"></a>
 
 ### Finish removing default-checkout coordination
 
 **Identity:** SEED-008#finish-removing-checkout-coordination
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/145-finish-removing-checkout-coordination/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1d5c717aaa3073b1c45d50d84625843b55a12db61efebf8df2172fb127c825fb","plan":"ece4fefb68e3b6aceff4a79aa11d8d594a2d1e5af97a304b6b341f097a656ce8"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/145-finish-removing-checkout-coordination/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"41caa32a8aa7a868ca29fa499556ac0d634e18f8781b738a0aa2cace3dfd0f89","plan":"ece4fefb68e3b6aceff4a79aa11d8d594a2d1e5af97a304b6b341f097a656ce8"}}
 ```
 
 **Decision (2026-09-28):** Terry accepted these recommendations after the
 remote-history retrospective, then accepted a narrowed refinement: naming
 limited to the guidance this story edits, native acceptance as one direct-edit
 journey per host, and execution only after
-[SEED-008#owned-context-start-and-truthful-refresh](#owned-context-start-and-truthful-refresh)
+`SEED-008#owned-context-start-and-truthful-refresh` (closed at `2a3e0ba2`)
 lands, because both change the same refresh code, guidance, and startup cases.
 
 **Goal:** A developer who explicitly selects their current checkout for an

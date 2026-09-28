@@ -58,21 +58,6 @@ test("invalid mailbox identity never authorizes completion shutdown", async () =
   );
 });
 
-test("permission-denied process inspection keeps a live worker observable", async (t) => {
-  const child = await spawnIdleNode(t);
-  const denied = () => {
-    const error = new Error("spawnSync ps EPERM");
-    error.code = "EPERM";
-    throw error;
-  };
-  assert.equal(
-    checkMailboxWorkerLiveness({ pid: child.pid }, "/tmp/watch-x", {
-      readCommand: denied,
-    }),
-    "alive",
-  );
-});
-
 test("a worker that exits while its command is read is dead, not unknown", async (t) => {
   const child = await spawnIdleNode(t);
   // This process cannot reap the child while the read runs synchronously, so

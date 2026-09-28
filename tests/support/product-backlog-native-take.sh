@@ -102,8 +102,10 @@ take_extract_calls() {
 take_assert_installed_writer_call() {
   local calls=$1
   local call
+  # The installed script path, quoted by the shell or not, then `take`.
+  local take='\.claude/skills/dough-product-backlog/scripts/product-backlog\.mjs["'"'"']?[[:space:]]+["'"'"']?take([[:space:]"'"'"']|$)'
   while IFS= read -r call; do
-    if [[ ${call} == *'.claude/skills/dough-product-backlog/scripts/product-backlog.mjs take'* ]] \
+    if [[ ${call} =~ ${take} ]] \
       && grep -Fq -- '--identity' <<< "${call}" \
       && grep -Fq -- "${take_identity}" <<< "${call}" \
       && grep -Fq -- '--plan' <<< "${call}" \

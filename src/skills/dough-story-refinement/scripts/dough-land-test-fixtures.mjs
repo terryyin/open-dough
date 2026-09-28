@@ -1,17 +1,22 @@
 // Git model of the Dough Land sequence for tests (not guidance-following).
 import assert from "node:assert/strict";
-import { existsSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { publishExecutionIncrement } from "../../dough-execute-plan/scripts/execution-increment-publication.mjs";
-import { refreshDefaultCheckout } from "../../dough-execute-plan/scripts/maintain-default-checkout.mjs";
+import {
+  ongoingOperation,
+  refreshDefaultCheckout,
+} from "../../dough-execute-plan/scripts/maintain-default-checkout.mjs";
 import {
   git,
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { managementContext } from "../../dough-execute-plan/scripts/publication-git.mjs";
 import {
-  managementContext,
-  resolveManagementContext,
-} from "../../dough-execute-plan/scripts/publication-git.mjs";
+  isAncestor,
+  preserved,
+  retireWorktree,
+} from "../../dough-story-wrap-up/scripts/closure-resources.mjs";
 
 // The reviewed worktree holds a committed seed draft plus uncommitted edits: a
 // changed tracked file and a new untracked plan.
@@ -38,92 +43,40 @@ export async function assertRetiredFrom(
   );
 }
 
-// Git mechanics for Dough Land "Retire the worktree", which preparation's
-// "Close or retain the workspace" links. Containment in the fetched authorized
-// remote target comes first: a default checkout may still lag after
-// publication, or be absent. Then `git worktree remove` for a clean,
-// session-created worktree, then a safe (non-force) branch deletion, all from
-// the retained management context. The confirmed-disposition and
-// session-created facts are supplied by the caller, not derived by scanning
-// file content.
+// Dough Land "Retire the worktree", which preparation's "Close or retain the
+// workspace" links, through the shipped retirement mechanics. The
+// confirmed-disposition and created-for-this-work facts are supplied by the
+// caller, not derived by scanning file content.
 export async function closeOrRetainWorkspace({
   preparation,
   preparationBranch,
   confirmedDisposition,
-  sessionCreated,
+  createdForWork,
   repository,
   remote = "origin",
   targetBranch = "main",
 }) {
-  const retained = (reason) => ({
-    removed: false,
-    path: preparation,
-    branch: preparationBranch,
-    reason,
-  });
   if (!confirmedDisposition) {
-    return retained(
+    return preserved(
       "no confirmed disposition (publication unconfirmed, interrupted, or no decision made)",
+      preparation,
+      preparationBranch,
     );
   }
-  if (!sessionCreated) {
-    return retained(
-      "reused or host-owned workspace, not created by this session",
+  if (!createdForWork) {
+    return preserved(
+      "reused or host-owned workspace, not created for this work",
+      preparation,
+      preparationBranch,
     );
   }
-  const status = (await git(preparation, "status", "--porcelain")).stdout;
-  if (status !== "") {
-    return retained("workspace is not clean");
-  }
-  const management = await resolveManagementContext(repository, preparation);
-  const remoteRef = `${remote}/${targetBranch}`;
-  await git(management, "fetch", remote);
-  if (!(await isAncestor(management, preparationBranch, remoteRef))) {
-    return retained(
-      "branch is not contained in the fetched authorized remote target",
-    );
-  }
-  await git(management, "worktree", "remove", preparation);
-  // `git branch -d` treats a branch as merged when its tip is in its
-  // upstream, so point the upstream at the fetched target first. Never
-  // force-delete.
-  await git(
-    management,
-    "branch",
-    `--set-upstream-to=${remoteRef}`,
-    preparationBranch,
-  );
-  await git(management, "branch", "-d", preparationBranch);
-  return { removed: true, path: preparation, branch: preparationBranch };
-}
-
-async function isAncestor(cwd, ancestor, descendant) {
-  try {
-    await git(cwd, "merge-base", "--is-ancestor", ancestor, descendant);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// A rebase is unfinished while its state directory exists; Git can leave
-// REBASE_HEAD behind after `rebase --continue` completes.
-async function unfinishedOperation(worktree) {
-  for (const ref of ["MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD"]) {
-    try {
-      await git(worktree, "rev-parse", "-q", "--verify", ref);
-      return ref;
-    } catch {
-      // absent
-    }
-  }
-  const gitDir = (
-    await git(worktree, "rev-parse", "--absolute-git-dir")
-  ).stdout.trim();
-  for (const dir of ["rebase-merge", "rebase-apply"]) {
-    if (existsSync(join(gitDir, dir))) return dir;
-  }
-  return null;
+  return retireWorktree({
+    repository,
+    execution: preparation,
+    branch: preparationBranch,
+    remote,
+    targetRef: `refs/heads/${targetBranch}`,
+  });
 }
 
 async function topLevel(checkout) {
@@ -149,7 +102,7 @@ export async function landWorktree({
   defaultCheckout,
   remote = "origin",
   target = "refs/heads/main",
-  sessionCreated = true,
+  createdForWork = true,
   message = "Land reviewed worktree changes",
   beforePush,
 }) {
@@ -165,7 +118,7 @@ export async function landWorktree({
     return { stopped: "default-checkout", commit: "none", ...notDone };
   }
   const repository = await managementContext(worktree);
-  const operation = await unfinishedOperation(worktree);
+  const operation = await ongoingOperation(worktree);
   if (operation) {
     return {
       stopped: "unfinished-operation",
@@ -217,7 +170,7 @@ export async function landWorktree({
     preparation: worktree,
     preparationBranch: branch,
     confirmedDisposition: true,
-    sessionCreated,
+    createdForWork,
     repository,
     remote,
     targetBranch,

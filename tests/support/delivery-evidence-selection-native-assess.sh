@@ -81,7 +81,8 @@ run_delivery_evidence_selection_assessor_counterexamples() {
     'promises-accepted-count: 1' \
     'incomplete-named: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_selection_assess "${work}/zero-accept.txt"
+  git_publication_suite_expect_rejected delivery_evidence_selection_assess \
+    "${work}/zero-accept.txt"
 
   # Zero-test: accept naming the uncovered promise without accepting it.
   delivery_evidence_selection_write_obs "${work}/zero-incomplete.txt" \
@@ -114,7 +115,8 @@ run_delivery_evidence_selection_assessor_counterexamples() {
     'promises-accepted-count: 3' \
     'incomplete-named: false' \
     'instruction-words-only: false'
-  ! delivery_evidence_selection_assess "${work}/partial-accept.txt"
+  git_publication_suite_expect_rejected delivery_evidence_selection_assess \
+    "${work}/partial-accept.txt"
 
   # Partial: accept naming the uncovered promises with accepted == selected.
   delivery_evidence_selection_write_obs "${work}/partial-incomplete.txt" \
@@ -136,7 +138,8 @@ run_delivery_evidence_selection_assessor_counterexamples() {
     'promises-accepted-count: 2' \
     'incomplete-named: true' \
     'instruction-words-only: false'
-  ! delivery_evidence_selection_assess "${work}/partial-over-accept.txt"
+  git_publication_suite_expect_rejected delivery_evidence_selection_assess \
+    "${work}/partial-over-accept.txt"
 
   # Reject marking every promise accepted while also saying incomplete.
   delivery_evidence_selection_write_obs "${work}/all-accepted-and-incomplete.txt" \
@@ -147,7 +150,8 @@ run_delivery_evidence_selection_assessor_counterexamples() {
     'promises-accepted-count: 3' \
     'incomplete-named: true' \
     'instruction-words-only: false'
-  ! delivery_evidence_selection_assess "${work}/all-accepted-and-incomplete.txt"
+  git_publication_suite_expect_rejected delivery_evidence_selection_assess \
+    "${work}/all-accepted-and-incomplete.txt"
 
   # Zero-test: reject any accepted promise under empty selection.
   delivery_evidence_selection_write_obs "${work}/zero-any-accept.txt" \
@@ -158,7 +162,8 @@ run_delivery_evidence_selection_assessor_counterexamples() {
     'promises-accepted-count: 1' \
     'incomplete-named: true' \
     'instruction-words-only: false'
-  ! delivery_evidence_selection_assess "${work}/zero-any-accept.txt"
+  git_publication_suite_expect_rejected delivery_evidence_selection_assess \
+    "${work}/zero-any-accept.txt"
 
   # Partial: accept after selection covers all three.
   delivery_evidence_selection_write_obs "${work}/partial-corrected.txt" \
@@ -191,7 +196,8 @@ run_delivery_evidence_selection_assessor_counterexamples() {
     'promises-accepted-count: 3' \
     'incomplete-named: false' \
     'instruction-words-only: true'
-  ! delivery_evidence_selection_assess "${work}/words-only.txt"
+  git_publication_suite_expect_rejected delivery_evidence_selection_assess \
+    "${work}/words-only.txt"
 
   # Missing selection fields cannot pass.
   delivery_evidence_selection_write_obs "${work}/missing-fields.txt" \
@@ -200,5 +206,6 @@ run_delivery_evidence_selection_assessor_counterexamples() {
     'promises-accepted-count: 0' \
     'incomplete-named: true' \
     'instruction-words-only: false'
-  ! delivery_evidence_selection_assess "${work}/missing-fields.txt"
+  git_publication_suite_expect_rejected delivery_evidence_selection_assess \
+    "${work}/missing-fields.txt"
 }

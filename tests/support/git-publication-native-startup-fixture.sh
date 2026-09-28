@@ -18,17 +18,8 @@ git_publication_fixture_create_startup() {
   git_publication_fixture_candidate_sha=
   git_publication_fixture_startup_mode=trunk
   [[ ${journey} == *story-branch* ]] && git_publication_fixture_startup_mode=story-branch
-  cat > "${git_publication_fixture_origin}/hooks/post-receive" << EOF
-#!/bin/sh
-while read -r old new ref; do
-  if [ "\${ref}" = refs/heads/main ]; then
-    if [ ! -e "${git_publication_fixture_root}/claim-accepted" ]; then
-      touch "${git_publication_fixture_root}/claim-accepted"
-    fi
-  fi
-done
-EOF
-  chmod +x "${git_publication_fixture_origin}/hooks/post-receive"
+  git_publication_record_pushes "${git_publication_fixture_origin}" \
+    "${git_publication_fixture_root}"
   git_publication_fixture_plant_human_edit "${git_publication_fixture_integration}"
   if [[ ${journey} == startup-selected-source ]]; then
     sed 's/Execute A\./Changed locally after preparation./' \
@@ -87,13 +78,11 @@ EOF
 
 git_publication_fixture_observe_startup() {
   local journey=$1 stream_status=$2 transcript=$3
-  local remote_sha remote_backlog message human_after human_preserved
+  local remote_sha message human_after human_preserved
   local source_after source_preserved feature_exists first_edit_after_claim
   local startup_calls setup_exists command_exists setup_after_claim claim_owned taken_on_remote
   local conflict_receipt command_outputs workspace_source_published
   remote_sha=$(git ls-remote "${git_publication_fixture_origin}" refs/heads/main | awk '{print $1}')
-  remote_backlog=$(git --git-dir="${git_publication_fixture_origin}" show \
-    "${remote_sha}:.planning/PRODUCT-BACKLOG.md")
   message=$(git --git-dir="${git_publication_fixture_origin}" log -1 --format=%B "${remote_sha}")
   human_after=$(git_publication_fixture_capture_human "${git_publication_fixture_integration}")
   human_preserved=false
@@ -103,12 +92,8 @@ git_publication_fixture_observe_startup() {
   source_preserved=false
   [[ ${source_after} == "${git_publication_fixture_selected_before}" ]] && source_preserved=true
   taken_on_remote=false
-  if awk '
-    /^## Taken$/ { inside = 1; next }
-    /^## / && inside { exit }
-    inside && /SEED-A#a/ { found = 1 }
-    END { exit !found }
-  ' <<< "${remote_backlog}"; then taken_on_remote=true; fi
+  if git_publication_lists_taken "${git_publication_fixture_origin}" \
+    "${remote_sha}" 'SEED-A#a'; then taken_on_remote=true; fi
   claim_owned=false
   if git --git-dir="${git_publication_fixture_origin}" log --format=%B "${remote_sha}" \
     | grep -Fq "Claim-Publisher: native-startup-${journey}"; then claim_owned=true; fi
@@ -126,40 +111,26 @@ git_publication_fixture_observe_startup() {
   command_exists=false
   [[ -f ${git_publication_fixture_root}/.command-ran ]] && command_exists=true
   setup_after_claim=false
-  if [[ ${setup_exists} == true && ${command_exists} == true && -f ${git_publication_fixture_root}/claim-accepted ]]; then
-    if node -e '
-      const fs = require("fs");
-      const [claim, setup, command] = process.argv.slice(1).map((path) => fs.statSync(path, { bigint: true }).mtimeNs);
-      process.exit(setup >= claim && command >= setup ? 0 : 1);
-    ' "${git_publication_fixture_root}/claim-accepted" \
-      "${git_publication_fixture_root}/.setup-ran" \
-      "${git_publication_fixture_root}/.command-ran"; then
-      setup_after_claim=true
-    fi
+  if git_publication_in_order "${git_publication_fixture_root}/claim-accepted" \
+    "${git_publication_fixture_root}/.setup-ran" \
+    "${git_publication_fixture_root}/.command-ran"; then
+    setup_after_claim=true
   fi
   first_edit_after_claim=false
-  if [[ -f ${git_publication_fixture_root}/claim-accepted &&
-    -f ${git_publication_fixture_workspace}/feature.txt ]]; then
-    if node -e 'const fs=require("fs");process.exit(fs.statSync(process.argv[2],{bigint:true}).mtimeNs>=fs.statSync(process.argv[1],{bigint:true}).mtimeNs?0:1)' \
-      "${git_publication_fixture_root}/claim-accepted" \
-      "${git_publication_fixture_workspace}/feature.txt"; then
-      first_edit_after_claim=true
-    fi
+  if git_publication_in_order "${git_publication_fixture_root}/claim-accepted" \
+    "${git_publication_fixture_workspace}/feature.txt"; then
+    first_edit_after_claim=true
   fi
-  startup_calls=$(jq -r 'select(.type == "item.started" and .item.type == "command_execution") | .item.command // empty' \
-    "${transcript}" 2> /dev/null | grep -Fc 'execution-start.mjs start' || true)
-  if [[ ${startup_calls} -eq 0 ]]; then
-    startup_calls=$(jq -r '.. | objects | .command? // empty' "${transcript}" 2> /dev/null \
-      | sort -u | grep -Fc 'execution-start.mjs start' || true)
-  fi
+  startup_calls=$(git_publication_transcript_start_commands "${transcript}" | grep -c . || true)
   conflict_receipt=false
   command_outputs=$(
-    jq -r 'select(.type == "item.completed" and .item.type == "command_execution" and
-      ((.item.command // "") | contains("execution-start.mjs start"))) |
+    jq -r --arg start "${git_publication_start_pattern}" \
+      'select(.type == "item.completed" and .item.type == "command_execution" and
+      ((.item.command // "") | test($start))) |
       .item.aggregated_output // empty' "${transcript}" 2> /dev/null || true
-    jq -rs '
+    jq -rs --arg start "${git_publication_start_pattern}" '
       [.[] | select(.type == "assistant") | .message.content[]? |
-        select(.type == "tool_use" and ((.input.command // "") | contains("execution-start.mjs start"))) | .id] as $ids |
+        select(.type == "tool_use" and ((.input.command // "") | test($start))) | .id] as $ids |
       .[] | select(.type == "user") | .message.content[]? |
       select(.type == "tool_result" and (.tool_use_id as $id | $ids | index($id))) |
       .content

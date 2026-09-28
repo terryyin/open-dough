@@ -15,18 +15,18 @@ import {
   identityA,
   readyContributing,
   remoteBacklog,
+  setupMarkers,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
-import { runReadinessGate } from "./execution-worktree-preparation-readiness-gate.mjs";
-import { installManagedDelivery } from "./execution-increment-managed-delivery-test-fixtures.mjs";
+import { deliverFirstIncrement } from "./workspace-publication-startup-delivery-test-fixtures.mjs";
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 
 const seedFile = ".planning/seeds/A.md";
 const planFile = ".planning/slice-plans/A/PLAN.md";
 
-// Edits story A's section and its plan in the default checkout and leaves both
-// edits at `layer`: its working tree, its index, or a local commit.
-async function editSelectedSources(trunk, layer) {
+// Edits story A's section and its plan in the default checkout and commits both
+// edits locally.
+async function commitSelectedSourceEdits(trunk) {
   const seed = join(trunk.integration, seedFile);
   const plan = join(trunk.integration, planFile);
   writeFileSync(
@@ -37,10 +37,8 @@ async function editSelectedSources(trunk, layer) {
     ),
   );
   writeFileSync(plan, `${readFileSync(plan, "utf8")}Changed local plan.\n`);
-  if (layer !== "worktree")
-    await git(trunk.integration, "add", seedFile, planFile);
-  if (layer === "commit")
-    await git(trunk.integration, "commit", "-m", `local selected ${layer}`);
+  await git(trunk.integration, "add", seedFile, planFile);
+  await git(trunk.integration, "commit", "-m", "local selected sources");
 }
 
 // The default checkout's Git state and its selected source bytes.
@@ -54,9 +52,9 @@ async function captureLocalSources(trunk) {
 
 // The start's claim is this publisher's Taken claim at the remote tip, and its
 // owned workspace holds the published story and plan rather than `local`'s.
-async function assertPublishedSourcesTaken(trunk, started, local, label) {
+async function assertPublishedSourcesTaken(trunk, started, local) {
   const { receipt, workspace } = started;
-  assert.equal(receipt.status, "published", `${label}: ${started.stdout}`);
+  assert.equal(receipt.status, "published", started.stdout);
   assert.equal(
     await lsRemoteSha(trunk.origin, "refs/heads/main"),
     receipt.publishedSha,
@@ -75,12 +73,8 @@ async function assertPublishedSourcesTaken(trunk, started, local, label) {
       await git(trunk.origin, "show", `${receipt.publishedSha}:${file}`)
     ).stdout;
     const localText = file === seedFile ? local.seed : local.plan;
-    assert.notEqual(published, localText, `${label}: ${file}`);
-    assert.equal(
-      readFileSync(join(workspace, file), "utf8"),
-      published,
-      `${label}: ${file}`,
-    );
+    assert.notEqual(published, localText, file);
+    assert.equal(readFileSync(join(workspace, file), "utf8"), published, file);
   }
 }
 
@@ -124,22 +118,10 @@ test("startup preserves unrelated staged, tracked, untracked, and sibling source
   assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
 });
 
-test("different selected sources at every local Git layer leave the published sources taken", async (t) => {
-  for (const layer of ["worktree", "index", "commit"]) {
-    const trunk = await createQueuedTrunk();
-    t.after(trunk.cleanup);
-    await editSelectedSources(trunk, layer);
-    const before = await captureLocalSources(trunk);
-    const started = await startCliResult(trunk, "trunk");
-    await assertPublishedSourcesTaken(trunk, started, before, layer);
-    assert.deepEqual(await captureLocalSources(trunk), before, layer);
-  }
-});
-
 test("a start beside different local selected sources carries setup and the first delivery", async (t) => {
   const trunk = await createQueuedTrunk({ contributing: readyContributing });
   t.after(trunk.cleanup);
-  await editSelectedSources(trunk, "commit");
+  await commitSelectedSourceEdits(trunk);
   const seed = join(trunk.integration, seedFile);
   const plan = join(trunk.integration, planFile);
   writeFileSync(plan, `${readFileSync(plan, "utf8")}Staged local plan.\n`);
@@ -148,43 +130,13 @@ test("a start beside different local selected sources carries setup and the firs
   const before = await captureLocalSources(trunk);
 
   const started = await startCliResult(trunk, "trunk");
-  await assertPublishedSourcesTaken(trunk, started, before, "all layers");
-  const { receipt, workspace } = started;
-
-  const readiness = await runReadinessGate(workspace, process.env);
-  assert.equal(readiness.ok, true, readiness.report);
-  assert.equal(
-    readiness.invocations.every(({ cwd }) => cwd === workspace),
-    true,
-  );
-  for (const marker of [".setup-ran", ".command-ran"]) {
-    assert.equal(existsSync(join(workspace, marker)), true, marker);
-    assert.equal(existsSync(join(trunk.integration, marker)), false, marker);
-  }
-
-  writeFileSync(join(workspace, "feature.txt"), "first increment\n");
-  await git(workspace, "add", "feature.txt");
-  await git(workspace, "commit", "-m", "first verified increment");
-  const increment = await revParse(workspace, "HEAD");
-  const delivery = await installManagedDelivery(
-    trunk,
-    trunk.fixture,
-    workspace,
-  );
-  const delivered = await delivery.deliverManagedExecutionIncrement({
-    ...delivery.requestBase,
-    workspace,
+  await assertPublishedSourcesTaken(trunk, started, before);
+  await deliverFirstIncrement(trunk, {
+    workspace: started.workspace,
     branch: started.branch,
-    previouslyPublishedBase: receipt.publishedSha,
-    targetRef: "refs/heads/main",
-    repo: "owner/project",
+    publishedSha: started.receipt.publishedSha,
   });
-  assert.equal(delivered.ok, true, JSON.stringify(delivered));
-  assert.equal(delivered.publication, "accepted");
-  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), increment);
-  assert.equal(
-    await revParse(workspace, `${increment}^`),
-    receipt.publishedSha,
-  );
+  for (const marker of setupMarkers)
+    assert.equal(existsSync(join(trunk.integration, marker)), false, marker);
   assert.deepEqual(await captureLocalSources(trunk), before);
 });

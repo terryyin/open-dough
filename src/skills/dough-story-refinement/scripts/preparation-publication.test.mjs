@@ -48,7 +48,7 @@ test("an explicit leave-unpublished instruction does not publish and keeps the r
     preparation,
     preparationBranch,
     confirmedDisposition: false,
-    sessionCreated: true,
+    createdForWork: true,
   });
   assert.equal(resources.removed, false);
   assert.equal(existsSync(preparation), true);

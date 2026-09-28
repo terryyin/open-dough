@@ -3,7 +3,7 @@
 // first managed delivery based on the returned accepted revision.
 // The result stays the same size however large the default checkout is.
 import assert from "node:assert/strict";
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
@@ -16,11 +16,11 @@ import {
 import {
   createQueuedTrunk,
   readyContributing,
+  setupMarkers,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
 import { busyCheckout } from "./default-checkout-test-fixtures.mjs";
-import { runReadinessGate } from "./execution-worktree-preparation-readiness-gate.mjs";
-import { installManagedDelivery } from "./execution-increment-managed-delivery-test-fixtures.mjs";
+import { deliverFirstIncrement } from "./workspace-publication-startup-delivery-test-fixtures.mjs";
 import { agentModes } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 for (const mode of agentModes) {
@@ -32,23 +32,21 @@ for (const mode of agentModes) {
     assert.equal(code, 0);
     assert.equal(receipt.ok, true, JSON.stringify(receipt));
     assert.equal(receipt.created, true);
-    const markers = [".setup-ran", ".command-ran"];
-    for (const marker of markers) {
+    for (const marker of setupMarkers) {
       assert.equal(existsSync(join(workspace, marker)), false, marker);
     }
 
-    const readiness = await runReadinessGate(workspace, process.env);
-    assert.equal(readiness.ok, true, readiness.report);
+    const readiness = await deliverFirstIncrement(trunk, {
+      workspace,
+      branch,
+      publishedSha: receipt.publishedSha,
+      targetRef: mode === "trunk" ? "refs/heads/main" : `refs/heads/${branch}`,
+    });
     assert.deepEqual(
       readiness.invocations.map(({ role }) => role),
       ["setup", "command", "delegate"],
     );
-    assert.equal(
-      readiness.invocations.every(({ cwd }) => cwd === workspace),
-      true,
-    );
-    for (const marker of markers) {
-      assert.equal(existsSync(join(workspace, marker)), true, marker);
+    for (const marker of setupMarkers) {
       assert.equal(existsSync(join(trunk.integration, marker)), false, marker);
     }
     assert.equal(
@@ -58,36 +56,6 @@ for (const mode of agentModes) {
     assert.equal(
       (await git(trunk.integration, "status", "--porcelain")).stdout,
       "",
-    );
-
-    writeFileSync(join(workspace, "feature.txt"), "first increment\n");
-    await git(workspace, "add", "feature.txt");
-    await git(workspace, "commit", "-m", "first verified increment");
-    const increment = await revParse(workspace, "HEAD");
-
-    const delivery = await installManagedDelivery(
-      trunk,
-      trunk.fixture,
-      workspace,
-    );
-    const targetRef =
-      mode === "trunk" ? "refs/heads/main" : `refs/heads/${branch}`;
-    const delivered = await delivery.deliverManagedExecutionIncrement({
-      ...delivery.requestBase,
-      workspace,
-      branch,
-      previouslyPublishedBase: receipt.publishedSha,
-      targetRef,
-      repo: "owner/project",
-    });
-
-    assert.equal(delivered.ok, true, JSON.stringify(delivered));
-    assert.equal(delivered.publication, "accepted");
-    assert.equal(delivered.receipt.sha, increment);
-    assert.equal(await lsRemoteSha(trunk.origin, targetRef), increment);
-    assert.equal(
-      await revParse(workspace, `${increment}^`),
-      receipt.publishedSha,
     );
   });
 }

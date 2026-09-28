@@ -40,7 +40,8 @@ trunk_closure_observe() {
     printf 'observer-terminal: %s\n' "${terminal}"
     printf 'complete-count: %s\n' "${complete_count}"
     printf 'await-count: %s\n' "${await_count}"
-    printf 'register-count: %s\n' "$(grep -Fc "register-push ${trunk_closure_mailbox} ${trunk_closure_candidate_sha}" "${trunk_closure_node_log}" || true)"
+    printf 'registered: %s\n' "$(native_completion_registered \
+      "${trunk_closure_mailbox}" "${trunk_closure_candidate_sha}")"
     printf 'stop-count: %s\n' "${stop_count}"
     printf 'product-shutdown: %s\n' "${product_shutdown}"
     printf 'forced-stop: %s\n' "${forced_stop}"
@@ -51,14 +52,15 @@ trunk_closure_observe() {
     sed 's/^/  /' "${trunk_closure_control_log}"
     printf 'response-completion-result: %s\n' "$(grep -Eiq 'CI.+(success|not.required)|success.+CI|not.required|completion receipt|shutdown' "${response}" && echo true || echo false)"
     printf 'transcript-complete: %s\n' "$(grep -Fq 'complete-revision' "${transcript}" && echo true || echo false)"
-    printf 'harness-inspected: %s\n' "$(grep -Eiq 'trunk-closure-native|native harness|trunk-closure/(source|ignored-only)' "${transcript}" && echo true || echo false)"
+    printf 'harness-inspected: %s\n' "$(grep -Eiq 'trunk-closure-native|native harness|trunk-closure/(source|ignored-only|owned-context)' "${transcript}" && echo true || echo false)"
+    [[ ${scenario} != owned-context ]] || trunk_closure_owned_context_observe
   }
 }
 
 trunk_closure_assess() {
   local scenario=$1
   local observations=$2
-  local remote candidate state basis terminal completes awaits registers stops
+  local remote candidate state basis terminal completes awaits registered stops
   local cleanup harness product_shutdown forced_stop mailbox_target
   remote=$(awk '/^remote-sha:/{print $2}' "${observations}")
   candidate=$(awk '/^candidate-sha:/{print $2}' "${observations}")
@@ -67,7 +69,7 @@ trunk_closure_assess() {
   terminal=$(awk '/^observer-terminal:/{print $2}' "${observations}")
   completes=$(awk '/^complete-count:/{print $2}' "${observations}")
   awaits=$(awk '/^await-count:/{print $2}' "${observations}")
-  registers=$(awk '/^register-count:/{print $2}' "${observations}")
+  registered=$(awk '/^registered:/{print $2}' "${observations}")
   stops=$(awk '/^stop-count:/{print $2}' "${observations}")
   cleanup=$(awk '/^cleanup-complete:/{print $2}' "${observations}")
   harness=$(awk '/^harness-inspected:/{print $2}' "${observations}")
@@ -77,16 +79,18 @@ trunk_closure_assess() {
   # Fixture fallback stop must never turn a missing product shutdown into a pass.
   [[ ${forced_stop} == false && ${product_shutdown} == true ]] || return 1
   [[ ${remote} == "${candidate}" && ${completes} == 1 && ${awaits} == 0 &&
-    ${registers} == 1 && ${stops} == 0 && ${cleanup} == true &&
+    ${registered} == true && ${stops} == 0 && ${cleanup} == true &&
     ${mailbox_target} == main &&
     ${harness} == false &&
     (${terminal} == stopped || ${terminal} == finished) ]] || return 1
+  [[ ${scenario} != owned-context ]] \
+    || trunk_closure_owned_context_assess "${observations}" || return 1
   if [[ ${scenario} == source ]]; then
     [[ ${state} == success ]] || return 1
     awk '/publication/{a=NR} /registration/{b=NR} /complete-start/{c=NR} /ci-release/{d=NR} /coverage-success/{e=NR} /shutdown/{f=NR} /cleanup-complete/{g=NR} END{exit !(a<b && b<c && c<d && d<e && e<f && f<g)}' "${observations}"
   else
     [[ ${state} == not_required && ${basis} == success ]] || return 1
-    grep -Fq 'provider-candidate-calls: 0' "${observations}"
+    grep -Fq 'provider-candidate-calls: 0' "${observations}" || return 1
     awk '/publication/{a=NR} /registration/{b=NR} /coverage-not-required/{c=NR} /complete-start/{d=NR} /shutdown/{e=NR} /cleanup-complete/{f=NR} END{exit !(a<b && b<c && c<d && d<e && e<f)}' "${observations}"
   fi
 }
@@ -101,7 +105,7 @@ trunk_closure_write_assessor_observation() {
     printf 'mailbox-target: main\n'
     printf 'coverage-state: %s\nbasis-state: %s\n' "${state}" "${basis}"
     printf 'observer-terminal: stopped\ncomplete-count: %s\n' "${complete_count}"
-    printf 'await-count: 0\nregister-count: 1\nstop-count: 0\n'
+    printf 'await-count: 0\nregistered: %s\nstop-count: 0\n' "${9-true}"
     printf 'product-shutdown: true\nforced-stop: %s\n' "${forced_stop}"
     printf 'checkout-present-after: false\ncleanup-complete: true\n'
     printf 'provider-candidate-calls: %s\nharness-inspected: false\ncontrol-order:\n' "${provider_calls}"
@@ -130,14 +134,47 @@ run_trunk_closure_assessor_counterexamples() {
   trunk_closure_assess ignored-only "${work}/ignored.txt"
   trunk_closure_write_assessor_observation \
     "${work}/missing-complete.txt" source success none 1 0
-  ! trunk_closure_assess source "${work}/missing-complete.txt"
+  git_publication_suite_expect_rejected trunk_closure_assess source "${work}/missing-complete.txt"
   trunk_closure_write_assessor_observation \
     "${work}/early-shutdown.txt" source success none 1 1 early
-  ! trunk_closure_assess source "${work}/early-shutdown.txt"
+  git_publication_suite_expect_rejected trunk_closure_assess source "${work}/early-shutdown.txt"
   trunk_closure_write_assessor_observation \
     "${work}/ignored-provider.txt" ignored-only not_required success 1
-  ! trunk_closure_assess ignored-only "${work}/ignored-provider.txt"
+  git_publication_suite_expect_rejected trunk_closure_assess ignored-only "${work}/ignored-provider.txt"
   trunk_closure_write_assessor_observation \
     "${work}/forced-stop.txt" source success none 1 1 normal true
-  ! trunk_closure_assess source "${work}/forced-stop.txt"
+  git_publication_suite_expect_rejected trunk_closure_assess source "${work}/forced-stop.txt"
+  trunk_closure_write_assessor_observation \
+    "${work}/unregistered.txt" source success none 1 1 normal false false
+  git_publication_suite_expect_rejected trunk_closure_assess source "${work}/unregistered.txt"
+  run_trunk_closure_observation_counterexamples "${work}"
+}
+
+# Registration is the mailbox's coverage record, whichever command wrote it,
+# and a Codex-shaped transcript counts its complete-revision start once.
+run_trunk_closure_observation_counterexamples() {
+  local work=$1 mailbox="$1/mailbox" sha=0123456789abcdef0123456789abcdef01234567
+  local command
+  mkdir -p "${mailbox}/coverage"
+  [[ $(native_completion_registered "${mailbox}" "${sha}") == false ]]
+  printf '{"sha":"%s","state":"undiscovered"}\n' "${sha}" \
+    > "${mailbox}/coverage/${sha}.json"
+  [[ $(native_completion_registered "${mailbox}" "${sha}") == true ]]
+  : > "${work}/node.log"
+  command="/bin/zsh -lc 'node .agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs complete-revision ${mailbox} ${sha}'"
+  jq -n -c --arg c "${command}" \
+    '{type:"item.started",item:{id:"item_1",type:"command_execution",command:$c,status:"in_progress"}},
+     {type:"item.completed",item:{id:"item_1",type:"command_execution",command:$c,status:"completed"}}' \
+    > "${work}/codex.jsonl"
+  [[ $(native_completion_call_count "${work}/node.log" "${work}/codex.jsonl" \
+    "${mailbox}" "${sha}") == 1 ]]
+  # A node call reaches the log once, through the PATH wrapper or, where a
+  # login shell dropped that wrapper, through the in-process recorder.
+  trunk_closure_write_node "${work}/node" "$(command -v node)"
+  NATIVE_NODE_CALL_LOG="${work}/node.log" TRUNK_CLOSURE_NODE_LOG="${work}/node.log" \
+    NODE_OPTIONS="--import=file://${BASH_SOURCE[0]%/*}/native-node-call-recorder.mjs" \
+    bash -c '"$1" -e "" direct-call && "$2" -e "" wrapped-call' _ \
+    "$(command -v node)" "${work}/node"
+  [[ $(grep -c 'direct-call' "${work}/node.log") == 1 ]]
+  [[ $(grep -c 'wrapped-call' "${work}/node.log") == 1 ]]
 }

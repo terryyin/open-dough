@@ -531,6 +531,14 @@ known fault class was rediscovered with a paid failing run per case.
   - Open Dough release: modified; revision `bd38782`; base `0.3.40`
   - Evidence: native results `codex/publication/admission-investigation/20260926T061332-6642` assessed fail; the prompt said not to write outside planning records while the probe writes a marker, so Codex rightly skipped the probe. Prompt fixed; rerun `20260926T063848-77f6` passed.
   - Observed effect: one paid failed native run to learn that the fixture could not credibly show the promised ordering.
+- Execution: `SEED-008#owned-context-start-and-truthful-refresh` / plan 142, first related implementation commit `7e86f615`
+  - Timestamp: 2026-09-28T18:53:18+08:00 (first paid native run)
+  - Tool: Claude Code (coordinator; hosts Claude, Codex, Cursor)
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision `c0f6dfca`; base `0.3.45`
+  - Evidence: 12 runs, 6 failed; four only in observation: registration was detected from a `register-push` command though managed delivery registers in process (the substitute used the old path), Codex's login shell bypassed the node wrapper, its `item.started` events went uncounted, and Cursor's multi-line then quoted start commands were missed (repairs `ddbcb90a`, `a2f9862f`).
+  - Observed effect: 9 further paid runs; substitutes had followed a path current guidance forbids.
+
 
 ## ODF-097 — Coordinator published a commit after the formatter failed
 
@@ -841,23 +849,6 @@ journey rule (`2c5ff71`) was already installed when the plan was re-bound.
   - Observed effect: one extra implementation round in slice 2 (an added pre-reconciliation fetch, then consolidation into `onFetchedTarget`) and a North Star correction
   - Inference: Qualified. A race premise is cheap to observe with the existing racing-push fixtures; reading the hook's call sites observed the seam, not the Take-then-replay journey
 
-## DD-125 — An implementation agent used a Git feature newer than common client hosts
-
-Slice 3's first return restored carried edits with
-`git merge-tree --write-tree --merge-base`, which needs Git 2.40; Debian 12
-ships 2.39 and Ubuntu 22.04 ships 2.34. No guidance or check names a minimum
-Git version for installed scripts; the coordinator's review caught it.
-
-### Occurrences
-- Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737`
-  - Timestamp: unknown; before slice 3 commit `70f6cde1` (2026-09-27T17:05:36+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42)
-  - Evidence: first slice 3 return (`execution-start-carry.mjs:110`); portable `git apply --cached` replacement in `70f6cde1`
-  - Observed effect: one correction round before acceptance; local Git 2.50 passed every test either way
-  - Inference: Qualified. Without the review, escalation would fail only on older client hosts, where no test runs
-
 ## DD-126 — A slice-acceptance obligation recorded as a plan learning never reached the next delegation
 
 After slice 1 the coordinator recorded that slice 3's guidance walk must
@@ -948,23 +939,6 @@ as catalog ODF-106 (colliding plan numbers), now in this repository.
   - Observed effect: the executor had to infer the intended plan (the one at the default checkout's HEAD when the session started) and could have Taken the other queued story
   - Inference: Qualified. Allocation from checkout-visible numbers cannot see another checkout's unpublished plan; the collision went unnoticed at merge because directory names differ
 
-## DD-157 — Documenting approved behavior in a README already at the 250-line ceiling forced unrelated compression
-
-Slice 1 required documenting new-tab outbound links in `dashboard/README.md`,
-which was already exactly 250 lines. The mandatory post-change refactor pass
-treated the ceiling as a hard gate and compressed unrelated README paragraphs
-(keyboard focus and reflow wording) so the new sentence would fit, rather than
-only consolidating the outbound-link policy and test helper.
-
-### Occurrences
-- Execution: `SEED-053#dashboard-browser-navigation` / plan 136, first related implementation commit `8ca2f7eb`
-  - Timestamp: unknown (slice-1 refactor subagent started ~2026-09-27T21:41+08:00; before delivery commit `8ca2f7eb` at 2026-09-27T21:47:50+08:00)
-  - Tool: Cursor
-  - Open Dough release: 0.3.43
-  - Evidence: pre-slice README `wc -l` 250 at `1f29fc12`; slice-1 refactor subagent `46ce6b72-fb2d-479f-8ec7-3e2dd05843fb` edited README repeatedly until `wc -l` reported ≤250 while also extracting `leaveDashboard` and `followLeavingDashboard`; delivered README remained 250 lines
-  - Observed effect: gate-driven rewrite of adjacent README prose on a one-policy documentation update; useful link-policy consolidation still happened
-  - Inference: Qualified. Related to catalog ODF-152's absolute file-size versus approved-scope composition; here the conflict is documenting into a ceiling-full maintained file, not an oversized intermediate caller
-
 ## DD-159 — Keyboard proof failures were blamed on stale dist despite per-run rebuilds
 
 An implementation agent blamed Playwright on a stale `dashboard/dist` and recorded a plan learning to rebuild before browser tests, although `test:dashboard`'s `globalSetup` already rebuilds each run. Decisive causes were focus remount and `openDirection` stealing focus between keypresses.
@@ -992,9 +966,24 @@ Slice 3 saw `project-keyboard-navigation-focus` fail locally, found trunk's fix 
   - Observed effect: one CI failure and a stash, repair, publish, and restore cycle
   - Inference: Qualified. Guidance (ODF-134) defers trunk integration to wrap-up but names no path to take a published trunk fix for a failure the branch's CI will also hit
 
+## DD-165 — Cursor ran story wrap-up after execution although guidance says to leave it
+
+Execute-plan's finish guidance retains the plan and worktree for story wrap-up
+and says not to invoke it; Cursor proceeded into wrap-up anyway.
+
+### Occurrences
+
+- Execution: `SEED-008#owned-context-start-and-truthful-refresh` / plan 142, first related implementation commit `7e86f615`
+  - Timestamp: 2026-09-28T19:26:04+08:00 (native Cursor startup-owned-context)
+  - Tool: Cursor
+  - Open Dough release: modified; revision `c0f6dfca`; base `0.3.45`
+  - Evidence: response "Proceeding with story wrap-up for SEED-A#a" after reading `finish-or-stop.md`; it deleted the fixture story, plan, and Taken entry; Claude and Codex stopped at `## PLAN EXECUTION COMPLETE`.
+  - Observed effect: a 27-minute run and a missing workspace source in the assessment.
+
 ## Retention
 
-- Highest allocated local number: 163. Removed local codes are never reused.
+- Highest allocated local number: 165. Removed local codes are never reused.
+- Removed on 2026-09-28 for the 1,000-line ceiling, as lower priority than the plan 142 findings: DD-125 (newer Git feature) and DD-157 (README at the size ceiling); recovery: `6e3921d6:DearDough.md`.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
 - Resolved and removed on 2026-09-28: ODF-119 (startup source veto and nested-worktree refresh deferral); recovery: `aa771c5d:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.

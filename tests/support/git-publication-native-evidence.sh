@@ -16,12 +16,25 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-prose.sh \
         tests/support/git-publication-native-fixture.sh \
         tests/support/git-publication-native-startup-fixture.sh \
+        tests/support/git-publication-native-shared.sh \
         tests/support/git-publication-native-run.sh \
         tests/support/git-publication-native-evidence.sh \
         tests/support/git-publication-native-prompt.sh
       native_result_supervision_input_hash_lines
       native_result_input_hash_lines \
         src/skills/dough-execute-plan/references/publish-the-candidate.md
+      ;;
+    owned-context)
+      git_publication_write_evidence_identity publication
+      native_result_input_hash_lines \
+        tests/support/git-publication-native-owned-context.sh \
+        tests/support/git-publication-native-owned-context-fixture.mjs \
+        tests/support/git-publication-native-startup-owned-context.sh \
+        tests/support/git-publication-native-preparation-land.sh \
+        tests/support/git-publication-native-push-log-observe.mjs \
+        src/skills/dough-execute-plan/SKILL.md \
+        src/skills/dough-story-refinement/references/preparation-assignment.md \
+        src/skills/dough-land/SKILL.md
       ;;
     execution-review)
       printf 'helper-identity: tests/support/ci-completion-native-run.sh\n'

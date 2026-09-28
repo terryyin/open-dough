@@ -4,6 +4,7 @@
 // preserves that state and does not loop. Lost-response classification is not this file.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { rebaseInProgress } from "../../dough-product-backlog/scripts/product-backlog-git-operation-state.mjs";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
 import {
   advanceOriginBacklog,
@@ -17,7 +18,6 @@ import {
   otherD,
   ownedD,
   publishRacingSuffix,
-  rebaseInProgress,
   siblingB,
 } from "./publication-racing-suffix-fixtures.mjs";
 import {
@@ -85,7 +85,7 @@ test("a rejected push is reconciled once onto the other writer's commit, then th
   assertCheckoutUnchanged(before, after);
   assert.equal(after.head, trunkSha);
   assert.equal(maintenanceFromInspection(after, outcome.sha), "deferred");
-  assert.equal(await rebaseInProgress(execution), false);
+  assert.equal(rebaseInProgress(execution), undefined);
 });
 
 test("conflicting backlog intent preserves the rejected candidate and does not retry the push", async (t) => {
@@ -127,7 +127,7 @@ test("conflicting backlog intent preserves the rejected candidate and does not r
   );
   assert.equal(outcome.remoteSha, siblingSha);
   assert.equal(await revParse(execution, "exec/story"), candidateSha);
-  assert.equal(await rebaseInProgress(execution), true);
+  assert.equal(rebaseInProgress(execution), "rebase-merge");
   assert.match(
     (await git(execution, "ls-files", "-u", "--", backlogPath)).stdout,
     /PRODUCT-BACKLOG/,
@@ -193,7 +193,7 @@ test("a second rejection preserves the once-rewritten candidate and does not rec
     ).stdout.includes("other-writer.txt"),
     false,
   );
-  assert.equal(await rebaseInProgress(execution), false);
+  assert.equal(rebaseInProgress(execution), undefined);
   assert.equal(await lsRemoteSha(origin, "refs/heads/main"), outcome.remoteSha);
   assertCheckoutUnchanged(before, await captureCheckout(integration));
 });

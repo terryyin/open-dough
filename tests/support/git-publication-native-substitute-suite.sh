@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Credential-free substitute-host suites for tests/git-publication-native.sh
-# and tests/git-publication-native-one-shot.sh.
+# Credential-free substitute-host suites for tests/git-publication-native.sh,
+# tests/git-publication-native-one-shot.sh and
+# tests/git-publication-native-owned-context.sh.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals assigned by sourced helpers.
 
 # Puts substitute hosts first on PATH: every host runs the publication
-# sentinel, beside the admission and one-shot sentinels. Sets
+# sentinel, beside the admission, one-shot and owned-context sentinels. Sets
 # substitute_work, the suite's scratch directory, and substitute_run_log, the
 # sentinels' invocation log inside it.
 prepare_substitute_hosts() {
@@ -21,6 +22,7 @@ prepare_substitute_hosts() {
   cp -- "${source_dir}/tests/support/native-agent-admission.sh" \
     "${source_dir}/tests/support/native-agent-one-shot.sh" \
     "${source_dir}/tests/support/native-agent-one-shot-escalation.sh" \
+    "${source_dir}/tests/support/native-agent-owned-context.sh" \
     "${sentinel_bin}/"
 
   export PATH="${sentinel_bin}:${PATH}"
