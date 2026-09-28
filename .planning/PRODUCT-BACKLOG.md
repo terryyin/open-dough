@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Accept existing guidance natively on Claude Code](seeds/SEED-053-native-guidance-acceptance.md#native-acceptance-claude-code) — SEED-028#native-one-shot-escalation ([plan](slice-plans/139-native-one-shot-escalation-claude-code/PLAN.md))
-- [Run worktree workflows from remote history](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue ([plan](slice-plans/140-remote-history-workflows/PLAN.md))
 
 ## Backlog list
 

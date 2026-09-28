@@ -5,8 +5,8 @@
 - **Identity:** SEED-008#owned-context-start-and-truthful-refresh.
 - **Source:** [correction story](../../seeds/SEED-008-worktree-branch-trunk-sync.md#owned-context-start-and-truthful-refresh),
   a bounded retrospective correction of
-  [SEED-008#same-machine-merge-queue](../../seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue)
-  and its [plan 140](../140-remote-history-workflows/PLAN.md) (all six slices done).
+  `SEED-008#same-machine-merge-queue` (`199c579f:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`)
+  and its plan 140 (`199c579f:.planning/slice-plans/140-remote-history-workflows/PLAN.md`) (all six slices done).
 - **Provenance:** reviewed commits on `claude/remote-history-workflows`:
   `9597bf61`, `80ab5df2`, `600f5f45` (CI repair), `615df2ad`, `4d0c94a2`,
   `be1ba87f`, `b3dfd569`; claim `5a5087c6`. Findings were rechecked against
