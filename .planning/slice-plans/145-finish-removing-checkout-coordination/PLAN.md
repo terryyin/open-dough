@@ -14,22 +14,24 @@
   of this story (its F3, F4, F5). On 2026-09-28 Terry also assimilated plan
   142's retrospective test-redundancy finding (installed-startup reuse
   refusals duplicating refresh-boundary eligibility proof) into slice 3.
-- **Authority:** Terry asked for refinement and then a slice plan. This plan is
-  planning only. It grants no Take, implementation, or publication.
-- **Preparation workspace:** `.worktrees/prep-finish-removing-checkout-coordination`
-  (branch `claude/prep-finish-removing-checkout-coordination`), announced as
-  agent Rio-chan at `af1d260a` for the finding assimilation.
+- **Authority:** On 2026-09-29 Terry asked to start execution after bringing
+  the story and plan up to date. Slice 4's paid host runs still need his
+  separate run authority.
+- **Execution:** Story Branch Mode. Taken by agent Airi-chan at `5769c023`
+  (starting revision `5affbd14`, publisher `claude-201e2caa-plan145`) in
+  `.worktrees/finish-removing-checkout-coordination` on branch
+  `claude/finish-removing-checkout-coordination`, target `origin/main`.
+  Published revisions: `5769c023` (Take).
 
 ## Start gate
 
 Satisfied: SEED-008#owned-context-start-and-truthful-refresh (plan 142)
 closed at `2a3e0ba2`, and SEED-053#proportionate-local-verification (plan 143)
-at `162b5fb4`. Plan 142 changed the refresh code and results list,
-`maintain-default-checkout.md`, `preparation-assignment.md`, the startup cases
-that carry the owner flags, and the native publication harness this plan's
-slice 4 extends. On 2026-09-28 the declared-owner reference set still matched
-the premise below. At start, re-read the files each slice names against the
-then-current trunk and refresh line references before editing.
+at `162b5fb4`. At the Take (`5769c023`) the premises below were re-read
+against trunk and their line references refreshed. The declared-owner
+reference set and the guidance sections were unchanged. The native harness now
+has plan 142's owned-context journeys, and slice 4 names its extension point
+accordingly.
 
 ## Outcome and boundaries
 
@@ -66,8 +68,8 @@ native journey for the refusal case (deterministic proof owns it).
 - **The publish path agents actually run** is the installed
   `dough-execute-plan/scripts/execution-increment-delivery.mjs deliver`, which
   calls `publishExecutionIncrement`. Current-branch and host-owned work reach
-  it from the recorded checkout (`trunk-publication.md:46-51`), as does
-  wrap-up step 8 (`wrap-up.md:166-187`) and closure
+  it from the recorded checkout (`trunk-publication.md:45-51`), as does
+  wrap-up step 8 (`wrap-up.md:166-202`) and closure
   (`trunk-publication.md` "Publish wrap-up closure"). `deliverRecordedCheckout`
   (`current-branch-publication.mjs`) has no entry point; only tests and
   `closure-publication.mjs` (also no entry point) call it. A guard there alone
@@ -79,20 +81,20 @@ native journey for the refusal case (deterministic proof owns it).
   plain Git (`agent-commits.md:9-12`). Slice 2 changes guidance only.
 - **Refresh eligibility** already defers on pending edits, unpublished
   commits, and ongoing operations without any owner step; the owner step is
-  additive (`maintain-default-checkout.mjs:186-197`).
+  additive (`maintain-default-checkout.mjs:11-21,176-194`).
 
 ## Decisive premises
 
 | Premise | Observation | Result |
 | --- | --- | --- |
-| Agents publish current-checkout work through `deliver` / `publishExecutionIncrement`, not `deliverRecordedCheckout`. | `grep -rn -E "deliverRecordedCheckout\|current-branch-publication" src tests scripts install.sh`; read `trunk-publication.md:46-84`, `wrap-up.md:166-187`. | Only tests and `closure-publication.mjs` import `deliverRecordedCheckout`; guidance names `deliver`. Direct edit (`maintain-default-checkout.md` step 3) still names the raw Git sequence; slice 1 aligns it. |
-| `publishExecutionIncrement` has no restriction on suffix contents; the suffix is `previouslyPublishedBase..branch`. | Read `execution-increment-publication.mjs:125-210`. | Confirmed. Only `validatedCandidate`, `validate`, and `onFetchedTarget` guard it. |
-| No guidance names the base for current-branch `deliver`. | Read `SKILL.md:138-139` and `execution-location.md`; the start result's `publishedSha` applies only to Story Branch and Trunk Mode. | Confirmed: an agent choosing `origin/<target>` as base would sweep a developer's unpublished commits into the suffix. |
-| Every existing caller supplies a base already published on the remote, so "the previously published base must be contained in a fetched remote ref" is a common rule, not a new special case. | In a scratch worktree at `f510358e`, added that check (`git for-each-ref --contains <base> refs/remotes/<remote>/`) with a marker log at the top of `publishExecutionIncrement`, then ran `node --test` over the 39 test files that reach publication, delivery, closure, Land, or preparation publication. Scratch removed afterwards. | 107 pass, 0 fail; the marker never fired. |
+| Agents publish current-checkout work through `deliver` / `publishExecutionIncrement`, not `deliverRecordedCheckout`. | `grep -rn -E "deliverRecordedCheckout\|current-branch-publication" src tests scripts install.sh`; read `trunk-publication.md:45-105`, `wrap-up.md:166-202`. | Only tests and `closure-publication.mjs` import `deliverRecordedCheckout`; guidance names `deliver`. Direct edit (`maintain-default-checkout.md` step 3) still names the raw Git sequence; slice 1 aligns it. |
+| `publishExecutionIncrement` has no restriction on suffix contents; the suffix is `previouslyPublishedBase..branch`. | Read `execution-increment-publication.mjs:111-230` (first fetch at 126). | Confirmed. Only `validatedCandidate`, `validate`, and `onFetchedTarget` guard it. |
+| No guidance names the base for current-branch `deliver`. | Read `SKILL.md:140-142` and `execution-location.md`; the start result's `publishedSha` applies only to Story Branch and Trunk Mode. | Confirmed: an agent choosing `origin/<target>` as base would sweep a developer's unpublished commits into the suffix. |
+| Every existing caller supplies a base already published on the remote, so "the previously published base must be contained in a fetched remote ref" is a common rule, not a new special case. | In a scratch worktree at `f510358e`, added that check (`git for-each-ref --contains <base> refs/remotes/<remote>/`) with a marker log at the top of `publishExecutionIncrement`, then ran `node --test` over the 39 test files that reach publication, delivery, closure, Land, or preparation publication. Scratch removed afterwards. | 107 pass, 0 fail; the marker never fired. Plan 142 has since added callers (owned-context startup, preparation Land); the selector in slice 1's proof (73 files at `5769c023`) re-checks the premise with the real guard. |
 | No test covers an unrelated unpublished commit under the suffix in a checkout that is both workspace and default checkout. | Searched `current-branch-publication.test.mjs`, `current-branch-local-operation.test.mjs`, `publication.test.mjs`, `publication-checkout-maintenance.test.mjs`, `closure-current-branch.test.mjs`. | None; `publication.test.mjs:130` covers it only from a separate workspace. |
-| Declared-owner removal is bounded. | `grep -rln -E "declared-owner\|declaredOwner\|another-writer\|unclear-ownership\|--requester" src docs`. | About 30 code lines (`maintain-default-checkout.mjs`, `execution-start-maintenance.mjs:8-9`, `closure-publication.mjs:31-39,66-91`, usage in `execution-start.mjs:12`, `preparation-assignment.mjs:22-25`), about 60 test lines (`publication-checkout-maintenance.test.mjs`, `workspace-publication-startup-{maintenance,claim,local-copy}-cases.mjs`, `closure-publication-fixtures.mjs`), and guidance in `dough-execute-plan/SKILL.md:121-123`, `maintain-default-checkout.md:23,70-74`, `preparation-assignment.md:40,56-58,194`. `startup-maintenance-cases.mjs:129-158` is built on `another-writer`. |
+| Declared-owner removal is bounded. | `grep -rln -E "declared-owner\|declaredOwner\|another-writer\|unclear-ownership\|--requester" src docs`. | Rechecked at `5769c023`: about 30 code lines (`maintain-default-checkout.mjs:11-21,176-194`, `execution-start-maintenance.mjs:8-9`, `closure-publication.mjs:31-38,66-90`, usage in `execution-start.mjs:12`, `preparation-assignment.mjs:22-25`), about 60 test lines (`publication-checkout-maintenance.test.mjs`, `workspace-publication-startup-maintenance-cases.mjs:75-146`, `workspace-publication-startup-claim-cases.mjs:25-27`, `workspace-publication-startup-local-copy-cases.mjs:98-100`, `closure-publication-fixtures.mjs:101,117`), guidance in `dough-execute-plan/SKILL.md:123-125`, `maintain-default-checkout.md:73-77`, `preparation-assignment.md:41,60,199`, and one maintainer record at `docs/maintainer/near-term-watch-list.md:81`. The case "accepted claim with deferred refresh resumes local maintenance only" (`workspace-publication-startup-maintenance-cases.mjs:130-158`) is built on `another-writer`; it also proves that a resumed start finishes a deferred local refresh without another Take or push. |
 | Startup reuse and refresh share one eligibility rule, so the five startup reuse refusals repeat refresh-boundary proof. | Read `workspace-publication-select.mjs:90-110` and `maintain-default-checkout.mjs:176-252` at `af1d260a`; mapped `workspace-publication-startup-reuse-cases.mjs:106-182` against `publication-checkout-maintenance.test.mjs:60-133` and `publication-checkout-ongoing-operation.test.mjs:24-120`; ran those two refresh files (5 pass). | Confirmed: reuse calls `fastForwardToFetchedTrunk`, which refresh also calls. Refresh already proves `pending-edit`, `unpublished-commits`, and `diverged` with state and remote unchanged, and recognizes `MERGE_HEAD`, the other in-progress refs, the index lock, and a real rebase through the shared `ongoingOperation`. Only startup proves the `setup-failed` mapping with nothing published, and only a stopped rebase on the detached `HEAD` it leaves (observed in a scratch repository: empty `branch --show-current`, `rebase-merge` present) proves the operation check precedes the `unexpected-branch` check. Refresh's pre-fetch operation check returns before that ordering. `one-shot-escalation.test.mjs:85-105` separately proves a `pending-edit` refusal at installed admission. |
-| No native journey covers current-checkout work. | `ls tests/support \| grep native`; the `git-publication-native-*` harness has startup, admission, one-shot, prepared, and closure journeys only. | Confirmed. Slice 4 adds one after plan 142's slice 7 reshapes the harness. |
+| No native journey covers current-checkout work. | `ls tests/support \| grep native`; read `tests/git-publication-native.sh` usage and `tests/support/git-publication-native-{owned-context-suite,evidence}.sh` at `5769c023`. | Confirmed. The harness has startup, admission, one-shot, owned-context (startup, preparation Land, Trunk Mode closure), and closure journeys. Plan 142 left one credential-free pattern: `tests/git-publication-native-owned-context.sh` runs each journey through a substitute host and the shared supervisor/stream/retention path, then real-state assessor counterexamples on the kept fixture. The owned-context evidence profile hashes the guidance its journeys prove. |
 
 ## Slices
 
@@ -125,8 +127,15 @@ Proof: in `current-branch-publication.test.mjs`, a developer commit under the
 agent's commit with push authority refuses, and remote/local state is
 byte-for-byte unchanged; the same through the `deliver` CLI in
 `execution-increment-delivery.test.mjs`; in `closure-current-branch.test.mjs`,
-two own closure commits publish. Then rerun the 39 publication-reaching test
-files and the payload declaration checks named under Delivery checks.
+two own closure commits publish. Then rerun every publication-reaching test
+file, selected as the `src/skills/*/scripts/*.test.mjs` files that name
+`execution-increment-publication`, `execution-increment-delivery`,
+`current-branch-publication`, `closure-publication`, `preparation-assignment`,
+`execution-start`, `workspace-publication`, `publication-test-fixtures`,
+`publication-resume`, or `dough-land` (73 files at `5769c023`), plus the
+payload declaration checks named under Delivery checks. Any failure there
+that the guard causes disproves the common-rule premise and stops for
+reassessment rather than a caller-specific exception.
 
 ### 2. Direct edits proceed around unrelated staged content
 Type: Behavior
@@ -165,9 +174,12 @@ ongoing operation, `stopped`, `not applicable`).
 Delete the owner step (`singleOwner`, `declaredOwnerRefusal`, and its branch
 in `attemptRefresh`), the `--declared-owner` and `--requester` options and
 their forwarding, and the `another-writer` and `unclear-ownership` results
-from code, guidance, and the refresh results list. Rewrite
-`startup-maintenance-cases.mjs:129-158` to keep whatever Git-state deferral it
-also proved, or delete it if it proved only ownership. Update the watch-list
+from code, guidance, and the refresh results list. Rewrite the resume case in
+`workspace-publication-startup-maintenance-cases.mjs:130-158` to defer the
+first refresh through Git state (a pending edit in the default checkout that
+is removed before the resumed start) and keep its proof that a resumed start
+finishes that refresh without another Take or push. The owner flags in the
+claim and local-copy cases go. Update the watch-list
 entry at `docs/maintainer/near-term-watch-list.md:81` only as far as its
 wording names a removed result.
 
@@ -214,15 +226,24 @@ the agent proceeds without an owner declaration, commits only that file,
 publishes through `deliver` with the pre-edit `HEAD` as base, and the staged
 and unstaged bytes, branch, and worktree list are unchanged.
 
-Add this one journey to the `git-publication-native-*` harness in the shape
-plan 142 left it, with its assessor proved by a counterexample in the
-credential-free default mode. This covers plan 140's current-checkout guidance
-and this plan's slices 1–3. The refusal case stays with slice 1's
+Add this one journey as live case `publication/direct-edit` of
+`tests/git-publication-native.sh`, with a fixture whose default checkout is
+the selected checkout, an observer, and an assessor. It is not an
+owned-context journey, since that entry covers repositories without a default
+checkout. Prove it credential-free the way plan 142's owned-context journeys
+are proved: one run through a substitute host on the shared
+supervisor/stream/retention path, then real-state counterexamples on the kept
+fixture that the assessor rejects: staged or unstaged bytes changed, an
+unrelated file in the published commit, and a pushed SHA that reaches a
+commit the agent did not create. Its evidence identity hashes the guidance it
+proves (`maintain-default-checkout.md`, `wrap-up.md`, `trunk-publication.md`,
+and `publish-the-candidate.md`). This covers plan 140's current-checkout
+guidance and this plan's slices 1–3. The refusal case stays with slice 1's
 deterministic proof.
 
-Proof: harness counterexample passes unpaid; three fresh host runs judged
-accepted, with host version and candidate SHA recorded here; run output
-deleted after judging.
+Proof: the credential-free substitute run and its counterexamples pass
+unpaid; three fresh host runs judged accepted, with host version and
+candidate SHA recorded here; run output deleted after judging.
 
 ## Proof ownership
 
@@ -255,8 +276,8 @@ Use independent post-change refactoring and ordinary managed delivery.
 No blocking slice-specific concern was identified in this review. The guard
 is one common rule whose premise was observed across every existing caller.
 Slice 2 is guidance-only because the runtime already behaves as promised.
-Slice 4's harness shape depends on plan 142's slice 7, which the start gate
-covers; its paid runs need separate authority at execution time. The
+Slice 4 follows the credential-free pattern plan 142 left in the harness; its
+paid runs need separate authority at execution time. The
 assimilated test consolidation stays in slice 3 because it edits the same
 eligibility tests and runs in the proof loop slice 3 already owns. It adds no
 slice and no product behavior. The resulting plan has four slices.
