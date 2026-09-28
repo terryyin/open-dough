@@ -42,18 +42,17 @@ dashboard or research stories.
 **One-shot native acceptance on Claude Code** is complete. Claude Code runs of
 `publication/one-shot-result`, `publication/one-shot-queued` and
 `publication/admission-investigation` passed with fresh proof against guidance
-revision `5181d769` on 2026-09-27. Codex, Cursor and escalation remain pending,
-so one-shot is not yet natively accepted for release under
+revision `5181d769` on 2026-09-27. A Claude Code run of
+`publication/one-shot-escalation` passed against guidance revision `23563ee0`
+on 2026-09-28: the agent renamed a saved settings key in a `--one-shot`
+workspace, saw the project's released-settings check fail, admitted its own
+story with `--carry` without asking, and stopped before planning, with the
+edits restored uncommitted over the claim and nothing on trunk. The fixture
+reveals that growth only through the check; a fixture that documented the
+migration rule let the agent admit before editing, which is inconclusive.
+Codex and Cursor remain pending, so one-shot is not yet natively accepted for
+release under
 [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
-
-<a id="native-one-shot-escalation"></a>
-
-### Pending Claude Code acceptance regrouped by host
-
-The escalation story, with its recorded identity, feasibility requirement and
-harness limits, has moved to the
-[Claude Code acceptance story](SEED-053-native-guidance-acceptance.md#native-acceptance-claude-code).
-This anchor remains a navigation reference, not a separate active story.
 
 <a id="native-one-shot-other-hosts"></a>
 
@@ -62,7 +61,7 @@ This anchor remains a navigation reference, not a separate active story.
 The existing one-shot cases are now part of the
 [Codex](SEED-053-native-guidance-acceptance.md#native-acceptance-codex) and
 [Cursor](SEED-053-native-guidance-acceptance.md#native-acceptance-cursor)
-acceptance stories, retaining the escalation feasibility dependency and
+acceptance stories, retaining the
 [one-shot release gate](SEED-053-native-guidance-acceptance.md#shared-one-shot-cases).
 This anchor remains a navigation reference, not a separate active story.
 

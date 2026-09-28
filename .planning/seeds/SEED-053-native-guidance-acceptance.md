@@ -3,7 +3,7 @@ id: SEED-053
 status: active
 planted: 2026-09-28
 planted_during: Maintainer request to regroup existing native acceptance by host
-trigger_when: Completing the existing pending native acceptance on Codex, Claude Code or Cursor
+trigger_when: Completing the existing pending native acceptance on Codex or Cursor
 scope: unknown
 ---
 
@@ -207,7 +207,7 @@ behaviors may be claimed as accepted on Cursor under
 treating Claude Code proof as transferable. Unrelated releases may continue;
 Cursor-native acceptance for these paths requires this evidence. Escalation
 joins only after
-[Claude Code feasibility](#native-acceptance-claude-code) is settled.
+[Claude Code feasibility](SEED-028-track-ad-hoc-work.md#story-decomposition) is settled.
 
 **Scope:**
 
@@ -286,11 +286,10 @@ heavier than brief.
 ## Shared one-shot cases
 
 [Claude Code's accepted evidence](SEED-028-track-ad-hoc-work.md#story-decomposition)
-covers `publication/one-shot-result`, `publication/one-shot-queued` and
-`publication/admission-investigation`. The [Codex](#native-acceptance-codex)
-and [Cursor](#native-acceptance-cursor) stories retain acceptance of these
-existing cases on their own host, plus escalation after its feasibility is
-established in the [Claude Code story](#native-acceptance-claude-code).
+covers `publication/one-shot-result`, `publication/one-shot-queued`,
+`publication/admission-investigation` and `publication/one-shot-escalation`.
+The [Codex](#native-acceptance-codex) and [Cursor](#native-acceptance-cursor)
+stories retain acceptance of these cases on their own host.
 ADR 0005 requires acceptance before ordinary release of affected behavior.
 The [release history](../../CHANGELOG.md) records explicit maintainer exceptions
 that shipped this behavior with native acceptance still pending; those
@@ -298,10 +297,10 @@ exceptions establish neither a pass nor closure of these requirements.
 
 ## Priority and regrouping
 
-Keep the three existing acceptance slots in the product backlog: Codex uses
-the former combined premise-verification slot, Claude Code keeps its escalation
-slot, and Cursor uses the former combined one-shot slot. Unrelated entries
-keep their order. At regrouping, the three recorded identities and their
+Keep the existing acceptance slots in the product backlog: Codex uses the
+former combined premise-verification slot, and Cursor uses the former combined
+one-shot slot. Unrelated entries keep their order. At regrouping, the recorded
+identities and their
 unrefined, unselected preparation facts carried across; subsequent preparation
 updates each selected story's own facts. Regrouping supplied no acceptance
 evidence.
