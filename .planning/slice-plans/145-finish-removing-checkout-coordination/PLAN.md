@@ -99,7 +99,7 @@ Direct edit steps 1–2 stay unchanged).
 
 ### 1. Publication refuses a base the remote does not hold
 Type: Behavior
-Status: planned
+Status: done
 Proof: deterministic tests below, then the focused publication, delivery, and closure test files.
 
 Behavior: A developer's current checkout holds an unpublished local commit;
@@ -141,6 +141,23 @@ file, selected as the `src/skills/*/scripts/*.test.mjs` files that name
 payload declaration checks named under Delivery checks. Any failure there
 that the guard causes disproves the common-rule premise and stops for
 reassessment rather than a caller-specific exception.
+
+Accepted proof: `remoteHolds` (`publication-git.mjs`) and the
+`unpublished-base` stop right after the first fetch in
+`publishExecutionIncrement`. Library refusal tests (trunk unchanged with a
+pending edit; trunk advanced on a clean checkout) are in
+`execution-increment-publication.test.mjs`, and `deliver` CLI refusal tests
+are in `execution-increment-managed-delivery-gaps.test.mjs`. Both share
+`unpublished-base-test-fixtures.mjs`, which asserts the full local and remote
+state is unchanged and the developer's commit stays under the agent's. The
+two-commit closure is in `closure-current-branch.test.mjs`. Focused run
+16/16. The publication-reaching selector (73 files) passed 263/263 after the
+refactor, so the common-rule premise holds for every caller. The payload
+declaration checks also passed. With the guard disabled, the refusal tests
+fail and the trunk-advanced case rebases the developer's commit off `main`.
+Learning: the guard relies on the agent passing its pre-edit `HEAD`. A base
+of `origin/<target>` would still sweep the developer's commits into the
+suffix, and only guidance covers that choice.
 
 ### 2. Refresh and startup carry no ownership declaration
 Type: Behavior

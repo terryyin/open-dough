@@ -91,9 +91,12 @@ if (request.operation === 'discover') {
   return adapter;
 }
 
+// `checkout` names where the skill is installed and delivery runs from: the
+// execution worktree, or the default (integration) checkout.
 export async function createManagedFixture({
   platforms = [".agents"],
   preferredAlias,
+  checkout = "execution",
 } = {}) {
   const base = await createCleanTrunkFixture();
   const teardown = fixtureTeardown(base.fixture);
@@ -104,7 +107,7 @@ export async function createManagedFixture({
     ...(await installManagedDelivery(
       teardown,
       base.fixture,
-      base.execution,
+      base[checkout],
       platforms,
     )),
   };

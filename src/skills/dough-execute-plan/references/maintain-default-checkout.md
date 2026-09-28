@@ -114,12 +114,13 @@ publication needs its separately established publication authority.
    stops the edit. Preserve that state. Do not stash or reset it to make room.
 2. Change and commit only the authorized content. Unrelated unstaged edits
    stay out of the commit, byte for byte.
-3. With publication authority, publish only that authorized commit through
-   [publish the candidate](publish-the-candidate.md). The owned workspace
-   is this checkout. The suffix is that commit. When any other unpublished
-   commit would be reachable from the pushed SHA, stop under
-   [Preserve pending local work](#preserve-pending-local-work) and do not
-   push. Do not fast-forward the checkout as part of the push. Without
+3. With publication authority, publish that commit from the default checkout
+   through the installed `deliver` entry point, as
+   [current-branch publication](trunk-publication.md#publish-an-execution-increment-or-repair)
+   does, with the `HEAD` from before the edit's commit as
+   `--previously-published-base`. Handle an `unpublished-base` stop as that
+   section does, preserving the developer's work under
+   [Preserve pending local work](#preserve-pending-local-work). Without
    publication authority, report the commit as pending publication.
 4. Keep the selected checkout and branch throughout. A rejected push leaves
    the commit and any unpublished suffix in place.

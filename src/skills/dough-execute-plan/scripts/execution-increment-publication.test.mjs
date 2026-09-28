@@ -1,7 +1,9 @@
 // Git mechanics (not guidance-following): a validated increment or owned
 // repair is published to the mode's authorized target. The receipt is the
 // accepted SHA and that target. A repair pauses unfinished work through the
-// CI repair stash CLI around that same publication. Native agent behavior is not this file.
+// CI repair stash CLI around that same publication. A previously published
+// base the remote does not hold stops before any rewrite or push. Native agent
+// behavior is not this file.
 import assert from "node:assert/strict";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -16,6 +18,11 @@ import {
   lsRemoteSha,
   revParse,
 } from "./publication-test-fixtures.mjs";
+import {
+  assertUnpublishedBaseRefused,
+  commitOverDeveloperWork,
+  unpublishedBaseCases,
+} from "./unpublished-base-test-fixtures.mjs";
 
 const trunkTarget = "refs/heads/main";
 const recordedStoryBranch = "refs/heads/cursor/story-execution";
@@ -130,3 +137,29 @@ test("an owned repair publishes without unfinished work and restores that work a
   assert.equal(await revParse(execution, "HEAD"), repairSha);
   await assert.rejects(revParse(execution, "refs/stash"));
 });
+
+for (const { trunkAdvanced, pendingEdit } of unpublishedBaseCases) {
+  test(`publishing over the developer's unpublished commit${trunkAdvanced ? " after trunk advanced" : ""} refuses before any rebase or push and changes nothing`, async (t) => {
+    const fixture = await createCleanTrunkFixture();
+    t.after(fixture.cleanup);
+    const staged = await commitOverDeveloperWork(fixture, {
+      trunkAdvanced,
+      pendingEdit,
+    });
+    const attempts = [];
+
+    const published = await publishExecutionIncrement({
+      workspace: fixture.integration,
+      branch: "main",
+      previouslyPublishedBase: staged.developerSha,
+      targetRef: trunkTarget,
+      defaultCheckout: fixture.integration,
+      validate: () => attempts.push("validate"),
+      beforePush: () => attempts.push("push"),
+      register: () => attempts.push("register"),
+    });
+
+    assert.deepEqual(attempts, []);
+    await assertUnpublishedBaseRefused(published, fixture, staged);
+  });
+}

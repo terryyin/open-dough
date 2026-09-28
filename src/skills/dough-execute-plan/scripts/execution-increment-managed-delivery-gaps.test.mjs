@@ -1,4 +1,5 @@
-// Managed delivery authority, coverage-gap, and racing-remote cases.
+// Managed delivery authority, previously published base, coverage-gap, and
+// racing-remote cases.
 import assert from "node:assert/strict";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -12,6 +13,11 @@ import {
   git,
 } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { deliverThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
+import {
+  assertUnpublishedBaseRefused,
+  commitOverDeveloperWork,
+  unpublishedBaseCases,
+} from "./unpublished-base-test-fixtures.mjs";
 
 const trunkTarget = "refs/heads/main";
 const repo = "owner/project";
@@ -124,6 +130,34 @@ test("local-only authority does not push", async (t) => {
   assert.equal(await lsRemoteSha(fixture.origin, trunkTarget), before);
   assert.equal(existsSync(fixture.storage), false);
 });
+
+for (const { trunkAdvanced, pendingEdit } of unpublishedBaseCases) {
+  test(`the deliver command refuses a base the remote does not hold${trunkAdvanced ? " after trunk advanced" : ""} before any rebase or push`, async (t) => {
+    const fixture = await createManagedFixture({
+      platforms: [".claude"],
+      checkout: "integration",
+    });
+    t.after(fixture.cleanup);
+    const staged = await commitOverDeveloperWork(fixture, {
+      trunkAdvanced,
+      pendingEdit,
+    });
+    const env = { ...fixture.env };
+    delete env.CLAUDE_CODE_SESSION_ID;
+
+    const { delivered, code } = await deliverThroughCli(fixture, {
+      base: staged.developerSha,
+      workspace: fixture.integration,
+      branch: "main",
+      extra: ["--default-checkout", fixture.integration],
+      env,
+    });
+
+    assert.equal(code, 1);
+    assert.equal(delivered.report, "unpublished-base");
+    await assertUnpublishedBaseRefused(delivered, fixture, staged);
+  });
+}
 
 test("managed delivery returns needs-validation when a racing remote tip changes the candidate", async (t) => {
   const fixture = await createManagedFixture();
