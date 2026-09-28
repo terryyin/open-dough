@@ -154,19 +154,25 @@ action. Model it in the vocabulary the dashboard
 already reads, so later launch stories extend one model instead of adding
 parallel ones:
 
-- An **agent launch** requests an *agent assignment* of one published activity
-  (`execution` now, `preparation` for refinement later, from
-  `agentActivities`) on one work item, through one host (`claude` now, `codex`
-  and `cursor` later, from `agentHosts`), with an optional developer
-  instruction. The agent's ordinary workflow still owns workspaces, Take,
-  preparation, and publication.
+- An **agent launch** starts one **workflow** on one work item, through one
+  host (`claude` now, `codex` and `cursor` later, from `agentHosts`), with an
+  optional developer instruction. A workflow names the skill it runs and the
+  published **activity** (from `agentActivities`) whose assignment it asks
+  for: execution runs `dough-execute-plan` and asks for an execution
+  assignment; refinement runs `dough-story-refinement` and asks for a
+  preparation assignment. One activity can host several workflows (planning
+  also prepares), which is why the launch names the workflow rather than the
+  activity. Workflows are added when a story delivers them, in one table that
+  the boundary, host, settlement, and card all read; no per-workflow copy of
+  the action, dialog, or settlement is built. The agent's ordinary workflow
+  still owns workspaces, Take, preparation, and publication.
 - A **launch record** is machine-local operational evidence (ADR 0008's later
   local layer): the request, when it was launched, and the host **session** it
-  started. It never becomes story state. A launch *awaits publication* until
-  the published snapshot shows the assignment its activity asks for (an
-  execution assignment, i.e. Taken) or the work leaves the backlog. Later
-  stories list, persist, and attach to these same records rather than inventing
-  a session registry.
+  started. It never becomes story state. A launch *awaits publication* while
+  its work item is still in the backlog and does not yet show an assignment of
+  its workflow's activity: an execution settles on the Take, a refinement when
+  the item shows Preparing. Later stories list, persist, and attach to these
+  same records rather than inventing a session registry.
 - Each **host** owns how to start and identify its sessions (for Claude Code:
   `claude --bg`, which chooses and prints its own session id, confirmed
   through `claude agents --json`) and how a developer reaches one (`claude attach`).
