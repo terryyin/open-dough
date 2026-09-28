@@ -165,41 +165,54 @@ representation each.
 
 **Identity:** SEED-008#finish-removing-checkout-coordination
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/145-finish-removing-checkout-coordination/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1d5c717aaa3073b1c45d50d84625843b55a12db61efebf8df2172fb127c825fb","plan":"ece4fefb68e3b6aceff4a79aa11d8d594a2d1e5af97a304b6b341f097a656ce8"}}
 ```
 
 **Decision (2026-09-28):** Terry accepted these recommendations after the
-remote-history retrospective.
+remote-history retrospective, then accepted a narrowed refinement: naming
+limited to the guidance this story edits, native acceptance as one direct-edit
+journey per host, and execution only after
+[SEED-008#owned-context-start-and-truthful-refresh](#owned-context-start-and-truthful-refresh)
+lands, because both change the same refresh code, guidance, and startup cases.
 
 **Goal:** A developer who explicitly selects their current checkout for an
-agent's edit keeps their own staged and committed work private and in place,
-with no ownership declaration, while guidance names that checkout consistently.
+agent's edit can let the agent commit and publish around their own staged
+files, and never has their private unpublished commits pushed to trunk by it.
+Removing the unused declared-owner concept leaves fewer instructions. The
+current-checkout change already made on trunk, together with this one, becomes
+releasable under ADR 0005's native acceptance.
 
 **Scope:**
 
-- Explicit current-checkout delivery commits only its authorized paths and
-  leaves unrelated staged content staged and untouched; it stops only when an
-  authorized path itself carries someone else's staged change.
-- Before a push-authorized current-checkout delivery, refuse unless the only
-  commit over the fetched target is the one this delivery created.
+- Direct-edit guidance proceeds when unrelated content is staged, as the
+  runtime already commits only authorized paths; it stops before editing when
+  an authorized path already carries the developer's staged change.
+- A push-authorized current-checkout delivery, including closure, refuses
+  before pushing unless every commit over the fetched target was created by
+  this operation. This guard lives in the runtime, not only in guidance.
 - Remove the declared-owner concept end to end: `--declared-owner` and
   `--requester`, refresh's owner step and its `another-writer` and
-  `unclear-ownership` results, and their tests.
-- Guidance calls that checkout the default checkout throughout; the
-  `--integration` flag keeps its name.
-- Native acceptance of the changed current-checkout guidance on Codex, Cursor,
-  and Claude Code, run manually as the story's final slice.
+  `unclear-ownership` results, and their tests and guidance.
+- Guidance sections this story edits call the developer's checkout the default
+  checkout; the `--integration` flag keeps its name.
+- Native acceptance, run manually as the final slice, of one direct-edit
+  journey per host on Codex, Cursor, and Claude Code, covering both the earlier
+  and this story's current-checkout guidance.
+- Deferred: product-wide checkout vocabulary unification.
 
 **Key examples:**
 
 1. The developer has staged an unrelated file and asks an agent to commit one
-   authorized file locally → the commit holds only that file, and the staged
-   file remains staged with identical bytes.
+   authorized file → the agent proceeds; the commit holds only that file, and
+   the staged file remains staged with identical bytes.
 2. The developer has an unpublished local commit and authorizes publication of
-   an agent's edit → delivery refuses before pushing, and the remote and local
-   history are unchanged.
-3. A default checkout is clean and behind trunk after an accepted publication →
-   refresh advances it without any owner or requester argument.
+   an agent's edit → delivery refuses before pushing, and remote and local
+   history are unchanged. A current-checkout closure whose two commits are both
+   its own publishes.
+3. An authorized path already has the developer's staged change → the agent
+   stops before editing, and the index and working tree are unchanged.
+
+**Slice plan:** [Finish removing default-checkout coordination](../slice-plans/145-finish-removing-checkout-coordination/PLAN.md).
 
 <a id="installed-wrap-up-command"></a>
 
