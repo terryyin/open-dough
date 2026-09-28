@@ -42,9 +42,10 @@ export const planC = ".planning/slice-plans/C/PLAN.md";
 export const profileOf = (name) => `.planning/${agentIdentity(name).path}`;
 
 // Queued trunk (stories A and B from the startup fixture) plus story C, queued
-// last and not yet refined: the story preparation will take up.
-export async function createPreparationTrunk() {
-  const trunk = await createQueuedTrunk();
+// last and not yet refined: the story preparation will take up. `options`
+// pass through to the queued trunk, such as its `parent` directory.
+export async function createPreparationTrunk(options = {}) {
+  const trunk = await createQueuedTrunk(options);
   const { integration } = trunk;
   writeFileSync(
     join(integration, seedC),

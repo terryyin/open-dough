@@ -3,8 +3,10 @@
 // tip, so an assessor can judge intermediate states that later pushes hide.
 // Prints `field: value` lines: `ref-update-count` (all ref updates),
 // `trunk-push-count`, one `pushed-tip: <sha> taken=<identities>` line per
-// pushed trunk tip, and `pushed-taken` (every identity any pushed trunk tip
-// listed under Taken, comma-separated). Given a base revision, also prints
+// pushed trunk tip, in push order, `pushed-taken` (every identity any pushed
+// trunk tip listed under Taken, comma-separated), and
+// `forced-trunk-push-count` (trunk updates that deleted trunk or did not
+// descend from the tip they replaced). Given a base revision, also prints
 // `taken-added`: the identities the current trunk tip lists under Taken that
 // the base did not, comma-separated.
 //
@@ -48,6 +50,23 @@ const takenAt = (sha) => {
     .map((entry) => entry.identity);
 };
 
+const descends = (old, sha) => {
+  try {
+    execFileSync("git", ["merge-base", "--is-ancestor", old, sha], {
+      cwd: origin,
+      stdio: "ignore",
+    });
+    return true;
+  } catch {
+    return false;
+  }
+};
+const forced = updates.filter(
+  ([old, sha, ref]) =>
+    ref === trunkRef &&
+    (deleted.test(sha) || (!deleted.test(old) && !descends(old, sha))),
+);
+
 const tips = updates
   .filter(([, sha, ref]) => ref === trunkRef && !deleted.test(sha))
   .map(([, sha]) => [sha, takenAt(sha)]);
@@ -56,6 +75,7 @@ const lines = [
   `trunk-push-count: ${tips.length}`,
   ...tips.map(([sha, taken]) => `pushed-tip: ${sha} taken=${taken.join(",")}`),
   `pushed-taken: ${[...new Set(tips.flatMap(([, taken]) => taken))].join(",")}`,
+  `forced-trunk-push-count: ${forced.length}`,
 ];
 if (base) {
   const before = new Set(takenAt(base));

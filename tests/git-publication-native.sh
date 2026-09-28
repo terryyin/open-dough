@@ -10,8 +10,10 @@
 #
 # Default mode is credential-free: assessor counterexamples plus substitute
 # processes through the shared supervisor/stream/retention path; the one-shot
-# substitutes run in tests/git-publication-native-one-shot.sh. --native HOST
-# launches a fresh host session against an installed publication candidate.
+# substitutes run in tests/git-publication-native-one-shot.sh and the
+# owned-context ones in tests/git-publication-native-owned-context.sh.
+# --native HOST launches a fresh host session against an installed publication
+# candidate.
 # shellcheck disable=SC2312
 set -euo pipefail
 
@@ -54,9 +56,10 @@ usage: tests/git-publication-native.sh
    or: tests/git-publication-native.sh --native HOST --case publication/JOURNEY
    or: tests/git-publication-native.sh --native HOST --case publication/admission-investigation|admission-continuation|admission-correction|admission-closure
    or: tests/git-publication-native.sh --native HOST --case publication/one-shot-result|one-shot-queued|one-shot-escalation
+   or: tests/git-publication-native.sh --native HOST --case publication/startup-owned-context|preparation-land
    or: tests/git-publication-native.sh --native codex --case story-branch-increment
    or: tests/git-publication-native.sh --native HOST --case execution-review/pending|ready|failure|skip-retro
-   or: tests/git-publication-native.sh --native HOST --case trunk-closure/source|ignored-only
+   or: tests/git-publication-native.sh --native HOST --case trunk-closure/source|ignored-only|owned-context
    or: tests/git-publication-native.sh --native HOST --case story-branch-closure/source-conflict
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/selection
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/claims

@@ -13,6 +13,9 @@ git_publication_prompt_for() {
       printf '%s\n' \
         "Use this project's installed Open Dough guidance to resume authorized queued Story A (SEED-A#a) in Trunk Mode. The originating and integration checkout is ${git_publication_fixture_integration}; the retained owned execution workspace is ${git_publication_fixture_workspace} on branch exec/native-startup, starting revision ${git_publication_fixture_starting_sha}, candidate ${git_publication_fixture_candidate_sha}. Remote origin trunk is refs/heads/main. Your stable publisher ID is native-startup-${journey}; you have authority for this workspace and remote claim publication. Another writer may have advanced trunk. Verify ownership through the installed startup boundary, preserve local work, and start implementation only if this execution owns the accepted claim and project setup succeeds. If allowed, implement Story A as feature.txt containing 'implemented'. Report the outcome."
       ;;
+    startup-owned-context | preparation-land)
+      git_publication_owned_context_prompt "${journey}"
+      ;;
     admission-*)
       git_publication_admission_prompt "${journey}"
       ;;

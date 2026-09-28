@@ -530,7 +530,7 @@ reachable partial state is worktree gone with branch remaining.
 
 ### 7. The native harness observes owned-context startup, preparation through Land, and wrap-up without a default checkout
 Type: Structure
-Status: planned
+Status: done
 
 Internal change: extend the existing publication and trunk-closure native
 harness with three journeys for obligations no journey covers. External
@@ -597,6 +597,21 @@ measure its elapsed time before and after in paired runs under the same load.
 Report the increase, and prefer counterexample-only proof for a new assessor
 whose substitute run adds significant time. Safe stop: the new obligations are
 observable and assessable, and no paid run has happened.
+
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/git-publication-native.sh tests/git-publication-native-owned-context.sh tests/git-publication-native-one-shot.sh tests/native-evidence-identity.sh tests/native-case-selection.sh`
+passes. The journeys `publication/startup-owned-context`,
+`publication/preparation-land`, and `trunk-closure/owned-context` run in their
+own credential-free check (`tests/git-publication-native-owned-context.sh`,
+keeping the longest CI job unchanged within noise under paired A/B timing): one
+scripted substitute run each passes its assessor, and every assessor rejects its
+counterexamples (disabling a clause fails the check). Shared push-log, ordering,
+Taken, and repository helpers live in `git-publication-native-shared.sh`. The
+trunk-closure fallback observer stop no longer enters a removed worktree; it
+stops the mailbox by its recorded root. Slice 8 invokes each journey with
+`bash tests/git-publication-native.sh --native HOST --case CASE --results-dir DIR`
+under Homebrew Bash for `codex`, `cursor`, and `claude`. Once a real agent
+removes the worktree before shutdown, only that harness fallback can stop the
+observer, and the assessor still fails the run.
 
 ### 8. The changed guidance is accepted natively on Codex, Cursor, and Claude Code
 Type: Behavior

@@ -3,6 +3,10 @@
 # The observer is real; the fixture never writes coverage or terminal evidence.
 # shellcheck disable=SC2034,SC2154,SC2312
 
+# shellcheck source=tests/support/trunk-closure-native-owned-context.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native-owned-context.sh"
+
 trunk_closure_git() {
   local cwd=$1
   shift
@@ -105,13 +109,19 @@ trunk_closure_create_fixture() {
     ': > "${TRUNK_CLOSURE_CLEANUP_MARKER}"' \
     > "${trunk_closure_integration}/tests/closure-cleanup.sh"
   chmod +x "${trunk_closure_integration}/tests/closure-cleanup.sh"
+  [[ ${scenario} != owned-context ]] \
+    || trunk_closure_owned_context_base "${source_dir}" "${host}"
   trunk_closure_git "${trunk_closure_integration}" add .
   trunk_closure_git "${trunk_closure_integration}" commit -q -m base
   trunk_closure_git "${trunk_closure_integration}" push -q origin main
   trunk_closure_base_sha=$(git -C "${trunk_closure_integration}" rev-parse HEAD)
 
-  git clone -q "${trunk_closure_origin}" "${trunk_closure_workspace}"
-  trunk_closure_git "${trunk_closure_workspace}" checkout -q -b exec/trunk
+  if [[ ${scenario} == owned-context ]]; then
+    trunk_closure_owned_context_worktree
+  else
+    git clone -q "${trunk_closure_origin}" "${trunk_closure_workspace}"
+    trunk_closure_git "${trunk_closure_workspace}" checkout -q -b exec/trunk
+  fi
   mkdir -p "${trunk_closure_workspace}/.planning"
   if [[ ${scenario} == source ]]; then
     printf 'base\nfinal source closure\n' > "${trunk_closure_workspace}/product.txt"
@@ -122,10 +132,13 @@ trunk_closure_create_fixture() {
   trunk_closure_git "${trunk_closure_workspace}" add .
   trunk_closure_git "${trunk_closure_workspace}" commit -q -m 'final closure'
   trunk_closure_candidate_sha=$(git -C "${trunk_closure_workspace}" rev-parse HEAD)
-  printf 'base\nhuman pending\n' > "${trunk_closure_integration}/product.txt"
-
-  bash "${source_dir}/install.sh" --target "${trunk_closure_workspace}" \
-    --source "${source_dir}" --platform "${host}" > /dev/null
+  if [[ ${scenario} == owned-context ]]; then
+    rm -rf -- "${trunk_closure_integration}"
+  else
+    printf 'base\nhuman pending\n' > "${trunk_closure_integration}/product.txt"
+    bash "${source_dir}/install.sh" --target "${trunk_closure_workspace}" \
+      --source "${source_dir}" --platform "${host}" > /dev/null
+  fi
   skill_root="${trunk_closure_workspace}/.agents/skills/dough-execute-plan"
   [[ ${host} == claude ]] \
     && skill_root="${trunk_closure_workspace}/.claude/skills/dough-execute-plan"
@@ -150,6 +163,10 @@ trunk_closure_create_fixture() {
     && node "${trunk_closure_launcher}" start --execution owner/project main 600000)
   trunk_closure_mailbox=$(jq -r '.directory' <<< "${receipt#CI_OBSERVER }")
   export TRUNK_CLOSURE_MAILBOX="${trunk_closure_mailbox}"
+  if [[ ${scenario} == owned-context ]]; then
+    trunk_closure_owned_context_state "${root}"
+    return
+  fi
   printf '%s\n' \
     'Execution mode: Trunk Mode' \
     'Authorized target: owner/project main' \
@@ -162,6 +179,7 @@ trunk_closure_create_fixture() {
 }
 
 trunk_closure_cleanup_fixture() {
+  trunk_closure_owned_context_stop_watch
   export PATH=${trunk_closure_old_path}
   unset DOUGH_CI_MAILBOX_ROOT TRUNK_CLOSURE_BASE_SHA
   unset TRUNK_CLOSURE_CANDIDATE_SHA TRUNK_CLOSURE_SCENARIO

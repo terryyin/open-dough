@@ -39,19 +39,8 @@ git_publication_one_shot_publish_install() {
   git -C "${integration}" push -q origin main
   git_publication_fixture_trunk_sha=$(git -C "${integration}" rev-parse HEAD)
   git_publication_record_pushes "${git_publication_fixture_origin}" \
-    "${git_publication_fixture_root}/push.log"
+    "${git_publication_fixture_root}"
   git_publication_fixture_plant_human_edit "${integration}"
-}
-
-# Appends every `old new ref` line bare repository $1 accepts to log $2.
-git_publication_record_pushes() {
-  local origin=$1 log=$2
-  : > "${log}"
-  cat > "${origin}/hooks/post-receive" << EOF
-#!/bin/sh
-cat >> '${log}'
-EOF
-  chmod +x "${origin}/hooks/post-receive"
 }
 
 git_publication_one_shot_prompt() {

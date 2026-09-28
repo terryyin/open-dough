@@ -24,6 +24,8 @@ trunk_closure_write_evidence_identity() {
     tests/support/trunk-closure-native-assess.sh \
     tests/support/native-completion-observation.sh \
     tests/support/trunk-closure-native-fixture.sh \
+    tests/support/trunk-closure-native-owned-context.sh \
+    tests/support/git-publication-native-shared.sh \
     tests/support/git-publication-native-run.sh
   native_result_supervision_input_hash_lines
   native_result_input_hash_lines \
@@ -76,7 +78,28 @@ trunk_closure_controller() {
   [[ ${remote_sha} == "${trunk_closure_candidate_sha}" ]]
 }
 
+# Fixture fallback: stops an observer the session left running, through
+# candidate source $1's mailbox stop bound to the checkout the mailbox
+# recorded. The installed launcher is not used: the session may already have
+# removed the worktree that holds it.
+trunk_closure_stop_observer() {
+  [[ ! -f ${trunk_closure_mailbox}/result.json ]] || return 0
+  # shellcheck disable=SC2016 # Node source, not shell expansion.
+  node --input-type=module -e '
+    import { readFileSync } from "node:fs";
+    const [module, directory] = process.argv.slice(1);
+    const { stopMailbox } = await import(module);
+    const { root } = JSON.parse(readFileSync(`${directory}/request.json`, "utf8"));
+    process.stdout.write(`${JSON.stringify(await stopMailbox(directory, { root }))}\n`);
+  ' "file://$1/src/skills/dough-execute-plan/scripts/ci-mailbox-complete.mjs" \
+    "${trunk_closure_mailbox}" > "${trunk_closure_forced_stop_file}"
+}
+
 trunk_closure_prompt_for() {
+  if [[ $1 == owned-context ]]; then
+    trunk_closure_owned_context_prompt
+    return
+  fi
   printf '%s\n' "Use this project's installed Open Dough guidance. Complete the retained Trunk Mode final-closure candidate described in .planning/execution-state.txt, including its authorized publication, CI observation handoff, and local resource cleanup. Preserve the pending human edit in the separate default checkout and report the observed closure result. Treat the installed guidance and retained project state as the task inputs; do not inspect parent processes or external test-harness source."
 }
 
@@ -85,7 +108,7 @@ trunk_closure_run_journey() {
   local root prompt controller_pid run_status=0 stop_status=0
   root=$(mktemp -d)
   trunk_closure_create_fixture "${source_dir}" "${host}" "${scenario}" "${root}"
-  prompt=$(trunk_closure_prompt_for)
+  prompt=$(trunk_closure_prompt_for "${scenario}")
   native_case_host=${host}
   native_case_id="trunk-closure/${scenario}"
   native_case_results_dir=${results_dir}
@@ -108,11 +131,7 @@ trunk_closure_run_journey() {
   # Observe product shutdown before any fixture cleanup/stop.
   trunk_closure_observe "${scenario}" "${transcript}" "${output_file}" \
     > "${root}/observations.txt"
-  if [[ ! -f ${trunk_closure_mailbox}/result.json ]]; then
-    (cd "${trunk_closure_workspace}" \
-      && node "${trunk_closure_launcher}" stop "${trunk_closure_mailbox}") \
-      > "${trunk_closure_forced_stop_file}" || stop_status=$?
-  fi
+  trunk_closure_stop_observer "${source_dir}" || stop_status=$?
   if trunk_closure_assess "${scenario}" "${root}/observations.txt"; then
     git_publication_assess_status=pass
     git_publication_assess_reason='final publication, one complete-revision, confirmed shutdown, and cleanup order observed'
