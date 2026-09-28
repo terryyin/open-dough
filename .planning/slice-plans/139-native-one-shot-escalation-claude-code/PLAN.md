@@ -86,8 +86,10 @@ one-shot-escalation` requires pass, and
 `tests/support/git-publication-native-one-shot-escalation.sh` asserts each
 verdict (result on trunk, no admission, edits missing, edits committed, human
 edits changed → fail; up-front admission → inconclusive; restored → pass).
-Local paired A/B under load added about 8 s (72.5 s → 80.5 s), projecting
-about 58 s on CI; no job split. CI confirms the budget.
+CI run 36379953372 measured the native job at 69.0 s against
+`per-job-seconds=71` (main: 48.5–61.2 s), so the one-shot substitute journeys
+moved to `tests/git-publication-native-one-shot.sh`, sharing
+`prepare_substitute_hosts`; locally 58.3 s and 22.2 s.
 
 ### 2. Probe and accept escalation natively on Claude Code
 

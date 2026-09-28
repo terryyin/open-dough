@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
-# Credential-free substitute-host suite for tests/git-publication-native.sh.
+# Credential-free substitute-host suites for tests/git-publication-native.sh
+# and tests/git-publication-native-one-shot.sh.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals assigned by sourced helpers.
 
-run_substitute_host_journeys() {
-  local work sentinel_bin run_log host journey journey_host
-  local artifact status
-  work=$(mktemp -d)
-  sentinel_bin="${work}/bin"
-  run_log="${work}/run.log"
+# Puts substitute hosts first on PATH: every host runs the publication
+# sentinel, beside the admission and one-shot sentinels. Sets
+# substitute_work, the suite's scratch directory, and substitute_run_log, the
+# sentinels' invocation log inside it.
+prepare_substitute_hosts() {
+  local sentinel_bin host
+  substitute_work=$(mktemp -d)
+  sentinel_bin="${substitute_work}/bin"
+  substitute_run_log="${substitute_work}/run.log"
   mkdir -p -- "${sentinel_bin}"
   for host in codex cursor claude; do
     cp -- "${source_dir}/tests/support/native-agent-publication.sh" \
@@ -22,6 +26,13 @@ run_substitute_host_journeys() {
   export PATH="${sentinel_bin}:${PATH}"
   # Credential-free counterexamples do not retain attempt directories.
   native_case_results_dir=
+}
+
+run_substitute_host_journeys() {
+  local work run_log host journey journey_host artifact status
+  prepare_substitute_hosts
+  work=${substitute_work}
+  run_log=${substitute_run_log}
 
   for host in codex cursor claude; do
     artifact=$(mktemp -d "${work}/${host}-publish.XXXXXX")
@@ -111,9 +122,17 @@ run_substitute_host_journeys() {
   done
 
   run_substitute_admission_journeys "${work}" "${run_log}"
-  run_substitute_one_shot_journey "${work}" "${run_log}" one-shot-result
-  run_substitute_one_shot_journey "${work}" "${run_log}" one-shot-queued
-  run_substitute_one_shot_journey "${work}" "${run_log}" one-shot-escalation
+}
+
+# The one-shot journeys, each with its real-state counterexamples, run as
+# their own job.
+run_substitute_one_shot_journeys() {
+  local journey
+  prepare_substitute_hosts
+  for journey in one-shot-result one-shot-queued one-shot-escalation; do
+    run_substitute_one_shot_journey "${substitute_work}" \
+      "${substitute_run_log}" "${journey}"
+  done
 }
 
 # One-shot journey $3 through the installed start, delivery and CI completion

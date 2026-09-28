@@ -9,7 +9,8 @@
 #   tests/git-publication-native.sh --native HOST --case CASE
 #
 # Default mode is credential-free: assessor counterexamples plus substitute
-# processes through the shared supervisor/stream/retention path. --native HOST
+# processes through the shared supervisor/stream/retention path; the one-shot
+# substitutes run in tests/git-publication-native-one-shot.sh. --native HOST
 # launches a fresh host session against an installed publication candidate.
 # shellcheck disable=SC2312
 set -euo pipefail
