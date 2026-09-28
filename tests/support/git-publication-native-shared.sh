@@ -65,6 +65,11 @@ git_publication_repository_intact() {
     && echo true || echo false
 }
 
+# Extended regular expression (for grep -E and jq test) matching an
+# execution-start `start` invocation, whether or not the shell quoted the
+# script path or the subcommand.
+git_publication_start_pattern='execution-start\.mjs["'"'"']?[[:space:]]+["'"'"']?start["'"'"']?([[:space:]]|$)'
+
 # Distinct execution-start invocations transcript $1 shows, in any stream
 # shape: each command with its line continuations joined, split at its
 # command separators, without --help probes.
@@ -73,7 +78,8 @@ git_publication_transcript_start_commands() {
   jq -r '.. | objects | .command? // empty | strings
     | gsub("\\\\\n[ \t]*"; " ") | splits("&&|\\|\\||[;|\n]")
     | gsub("^[ \t]+|[ \t]+$"; "")' "$1" 2> /dev/null \
-    | grep -F 'execution-start.mjs start' | grep -Fv -- '--help' | sort -u || true
+    | grep -E -- "${git_publication_start_pattern}" | grep -Fv -- '--help' \
+    | sort -u || true
 }
 
 # Every command output transcript $1 shows, in either stream shape.

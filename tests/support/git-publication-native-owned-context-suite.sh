@@ -69,6 +69,23 @@ run_startup_owned_context_counterexamples() {
     '{type:"tool_call",subtype:"started",tool_call:{shellToolCall:{args:{command:$c}}}}' \
     >> "${transcript}"
   owned_context_reassess pass 'left the retained worktree untouched'
+
+  # The shell may quote the script path, which may hold a space: the start
+  # still counts with --repository on a later line, and a quoted --help probe
+  # (here naming --integration) still does not.
+  local quote
+  for quote in '"' "'"; do
+    jq -c --arg q "${quote}" 'if (.item.command? // "" | test("execution-start.mjs start"))
+      then .item.command |= (sub("[^ ]*execution-start[.]mjs"; "\($q)/owned dir/execution-start.mjs\($q)")
+        | gsub(" --"; " \\\n  --")) else . end' \
+      "${transcript}.kept" > "${transcript}"
+    grep -Fq "/owned dir/execution-start.mjs${quote//\"/\\\"} start \\\\" "${transcript}"
+    owned_context_reassess pass 'left the retained worktree untouched'
+    jq -n -c --arg c "node ${quote}/owned dir/execution-start.mjs${quote} start --integration ${retained} --help" \
+      '{type:"tool_call",subtype:"started",tool_call:{shellToolCall:{args:{command:$c}}}}' \
+      >> "${transcript}"
+    owned_context_reassess pass 'left the retained worktree untouched'
+  done
   mv -- "${transcript}.kept" "${transcript}"
 
   printf 'changed\n' >> "${retained}/trunk.txt"

@@ -762,6 +762,17 @@ each host's completed journeys are useful partial acceptance. The story is
 complete only when every requirement above has passing evidence or justified
 reuse on all three hosts.
 
+Rerun (2026-09-28, candidate 5b23b328, 8 paid runs Terry approved): passes on
+preparation-land for Claude, Codex, and Cursor; trunk-closure/owned-context for
+Claude, Codex, and Cursor; Codex trunk-closure/source. Cursor
+startup-owned-context failed only in observation: Cursor quoted the script path
+(`"…/execution-start.mjs" start`), which the literal matcher missed; its fixture
+observations (claim on fetched trunk, published source, ordered setup,
+unchanged retained worktree) all met the assessor, and an offline
+re-assessment with the fixed matcher passes but cannot bind because the matcher
+files' hashes changed. `git_publication_start_pattern` now tolerates quoted
+paths; the product-backlog take matcher had the same blind spot and is fixed.
+
 ## Current decisions
 
 - `--repository` is the only new CLI surface. `--integration` keeps meaning a

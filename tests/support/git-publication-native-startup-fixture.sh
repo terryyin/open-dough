@@ -121,20 +121,16 @@ git_publication_fixture_observe_startup() {
     "${git_publication_fixture_workspace}/feature.txt"; then
     first_edit_after_claim=true
   fi
-  startup_calls=$(jq -r 'select(.type == "item.started" and .item.type == "command_execution") | .item.command // empty' \
-    "${transcript}" 2> /dev/null | grep -Fc 'execution-start.mjs start' || true)
-  if [[ ${startup_calls} -eq 0 ]]; then
-    startup_calls=$(jq -r '.. | objects | .command? // empty' "${transcript}" 2> /dev/null \
-      | sort -u | grep -Fc 'execution-start.mjs start' || true)
-  fi
+  startup_calls=$(git_publication_transcript_start_commands "${transcript}" | grep -c . || true)
   conflict_receipt=false
   command_outputs=$(
-    jq -r 'select(.type == "item.completed" and .item.type == "command_execution" and
-      ((.item.command // "") | contains("execution-start.mjs start"))) |
+    jq -r --arg start "${git_publication_start_pattern}" \
+      'select(.type == "item.completed" and .item.type == "command_execution" and
+      ((.item.command // "") | test($start))) |
       .item.aggregated_output // empty' "${transcript}" 2> /dev/null || true
-    jq -rs '
+    jq -rs --arg start "${git_publication_start_pattern}" '
       [.[] | select(.type == "assistant") | .message.content[]? |
-        select(.type == "tool_use" and ((.input.command // "") | contains("execution-start.mjs start"))) | .id] as $ids |
+        select(.type == "tool_use" and ((.input.command // "") | test($start))) | .id] as $ids |
       .[] | select(.type == "user") | .message.content[]? |
       select(.type == "tool_result" and (.tool_use_id as $id | $ids | index($id))) |
       .content
