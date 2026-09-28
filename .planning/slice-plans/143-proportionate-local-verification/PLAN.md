@@ -69,7 +69,7 @@ corrected release under separate paid-run authority.
 
 ### 1. Planning resolves local verification from affected behavior and explicit local requirements
 Type: Behavior
-Status: planned
+Status: done
 Proof: The maintainer behavior review in `AGENTS.md` walks the four examples
 above through the edited `dough-slice-planning` guidance, and each one reaches
 its required result. Both new links resolve to existing headings. The same
@@ -101,6 +101,17 @@ Local verification for this slice follows the rule it adds. The affected
 behavior is guidance prose that no test reads, so the behavior review and the
 self-installation check are the local proof. Hosted CI runs its usual checks
 after publication.
+
+Accepted proof (2026-09-28): the rule is the last paragraph of "Resolve
+execution context" in `src/skills/dough-slice-planning/SKILL.md`. It sits there
+rather than directly under the list, because the paragraph after the list
+("Resolve these…") refers back to the list. A behavior review walked all four
+key examples through the rule. Example b reaches its result through "cite that
+requirement in the plan", and example d through "shows which checks exist and
+how to run them". The links resolve to `executable-proof.md` "# Own executable
+proof" and `wrap-up.md` "## Accept proof". `/opt/homebrew/bin/bash
+scripts/check-self-installation.sh` exits 0. The final wording adds "the user's
+instructions or" to match the gate bullet's sources.
 
 ## Current decisions
 
