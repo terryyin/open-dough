@@ -178,7 +178,6 @@ test("a local draft that is not explicitly retained stays in the workspace, stay
   assert.equal(remoteTree.includes(durablePath), false);
 
   const resources = await closeOrRetainWorkspace({
-    integration,
     preparation,
     preparationBranch,
     confirmedDisposition: false,

@@ -21,14 +21,15 @@ acceptance:
 
 - **advanced** — this attempt fast-forwarded an eligible clean checkout to fetched trunk.
 - **already current** — the checkout is clean and its `HEAD` is that fetched revision.
-- **deferred** — a pending human edit, staged or unstaged change, unpublished commit, ongoing operation, another writer's ownership, or ambiguous ownership. Name the preserved `HEAD`, index, and working tree.
+- **deferred** — a pending human edit, staged or unstaged change, unpublished commit, ongoing operation, another writer's ownership, or ambiguous ownership. Name the preserved `HEAD`, index, and working tree. A supplied checkout that could not be read or refreshed, such as a missing path or a failing Git command there, is **deferred** (`refresh-failed`) with the error.
 - **stopped** — the checked-out branch is not the integration branch, or local history has diverged from fetched trunk. Preserve that state and name it.
 - **not applicable** — no default checkout was supplied; there is nothing to refresh or preserve locally.
 
 Owned-workspace publication records an inspection result and does not
 fast-forward. Inspection reports **already current** only when the checkout
-is clean and `HEAD` is the accepted remote revision. Every other inspected
-state is **deferred**. That inspection is not the refresh decision below.
+is clean and `HEAD` is the accepted remote revision, and **not applicable**
+when no checkout was supplied. Every other state, including a checkout that
+cannot be read, is **deferred**. That inspection is not the refresh decision below.
 A caller attempts refresh only by following
 [Refresh eligibility](#refresh-eligibility).
 
@@ -78,7 +79,11 @@ Publication success does not decide eligibility.
 
 Inspect current checkout state on every refresh attempt and again after any
 handoff. These checks preserve local work; they do not provide mutual exclusion
-between simultaneous writers.
+between simultaneous writers. With no default checkout supplied, report
+**not applicable** and stop. When the supplied path is missing or a Git command
+there fails, report **deferred** (`refresh-failed`) with the error, change
+nothing further, and leave the caller's accepted publication and its later
+steps, such as retirement, unaffected.
 
 1. Honor any declared owner from coordinator context. Another declared owner
    is **deferred** (`another-writer`); a declared owner with no identified

@@ -260,7 +260,7 @@ preparation suites passes (48) with no leaked branches.
 
 ### 4. Land publishes and retires without a default checkout
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A reviewed owned worktree is ready, with a clean/stale, dirty,
 unexpected, or absent default checkout → Land → origin accepts the candidate
@@ -285,6 +285,21 @@ unpublished-content controls. Run `publication-checkout-maintenance.test.mjs`
 for the shared policy and a representative installed Land guidance journey.
 Safe stop: Land and preparation keep use the cohesive remote lifecycle; wrap-up
 retains its existing gates until slice 5 adopts the same responsibility.
+
+Accepted proof: `node --test src/skills/dough-story-refinement/scripts/dough-land.test.mjs src/skills/dough-story-refinement/scripts/dough-land-rerun.test.mjs src/skills/dough-story-refinement/scripts/dough-land-remote-context.test.mjs src/skills/dough-story-refinement/scripts/dough-land-guidance.test.mjs src/skills/dough-execute-plan/scripts/publication-checkout-maintenance.test.mjs src/skills/dough-execute-plan/scripts/publication-checkout-unavailable.test.mjs`
+(17 pass; the six new cases fail on 600f5f45). Land accepts on origin first,
+then reports refresh `not applicable` without a default checkout or `deferred`
+(`refresh-failed`) for an unusable one, and retires the repository's last
+worktree from the Git directory recorded before removal; a named non-default
+remote/branch lands and refreshes there; an owned-only conflict keeps every
+resource and a resolved rerun publishes once; a rerun after acceptance never
+pushes again. The whole `node --test` suite (694) and payload checks pass.
+
+Learnings: the shared refresh owns missing and failing checkouts, and managed
+delivery's inspection reports `not applicable`/`deferred` instead of
+null/throwing. Production refresh still defers on a leftover `REBASE_HEAD`,
+which Git 2.50 can leave after a completed rebase; that conservative behavior
+is unchanged and outside this story.
 
 ### 5. Wrap-up completes through the same remote lifecycle
 Type: Behavior

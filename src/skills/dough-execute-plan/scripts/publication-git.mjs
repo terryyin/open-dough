@@ -92,19 +92,25 @@ export function maintenanceFromInspection(checkoutState, remoteSha) {
   return "deferred";
 }
 
+// Without a supplied default checkout there is nothing to inspect. A supplied
+// checkout that cannot be read is deferred; the acceptance stands.
 export async function inspectDefaultCheckoutMaintenance(
   workspace,
   defaultCheckout,
   remote,
   targetRef,
 ) {
-  if (!defaultCheckout) return null;
+  if (!defaultCheckout) return "not applicable";
   const remoteTip = await revParse(
     workspace,
     originTrackingRef(targetRef, remote),
   );
-  return maintenanceFromInspection(
-    await inspectCheckout(defaultCheckout),
-    remoteTip,
-  );
+  try {
+    return maintenanceFromInspection(
+      await inspectCheckout(defaultCheckout),
+      remoteTip,
+    );
+  } catch {
+    return "deferred";
+  }
 }

@@ -76,7 +76,7 @@ test("preparation continues from the shared rule into its own disposition", () =
   assert.match(disposition, /local checkout role and the target\s+selection/);
   assert.match(
     disposition,
-    /The integration checkout path is the default checkout/,
+    /The recorded integration checkout, when there is one, is the default checkout\s+Dough Land may refresh; with none recorded, its refresh is not applicable/,
   );
   assert.match(
     disposition,

@@ -45,7 +45,6 @@ test("an explicit leave-unpublished instruction does not publish and keeps the r
   );
 
   const resources = await closeOrRetainWorkspace({
-    integration,
     preparation,
     preparationBranch,
     confirmedDisposition: false,
