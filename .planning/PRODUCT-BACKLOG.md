@@ -16,10 +16,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Accept existing guidance natively on Codex](seeds/SEED-053-native-guidance-acceptance.md#native-acceptance-codex) — SEED-044#native-premise-acceptance-codex-cursor ([plan](slice-plans/141-codex-native-guidance-acceptance/PLAN.md))
 - [Start from owned repository context and refresh truthfully](seeds/SEED-008-worktree-branch-trunk-sync.md#owned-context-start-and-truthful-refresh) — SEED-008#owned-context-start-and-truthful-refresh ([plan](slice-plans/142-owned-context-start-and-refresh/PLAN.md))
+- [Keep planned local verification proportionate to the change](seeds/SEED-053-native-guidance-acceptance.md#proportionate-local-verification) — SEED-053#proportionate-local-verification ([plan](slice-plans/143-proportionate-local-verification/PLAN.md))
 
 ## Backlog list
 
-- [Keep planned local verification proportionate to the change](seeds/SEED-053-native-guidance-acceptance.md#proportionate-local-verification) — SEED-053#proportionate-local-verification
 - [Finish removing default-checkout coordination](seeds/SEED-008-worktree-branch-trunk-sync.md#finish-removing-checkout-coordination) — SEED-008#finish-removing-checkout-coordination
 - [Close stories through an installed wrap-up command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command) — SEED-008#installed-wrap-up-command
 - [Launch planned execution in a Claude Code background session](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-planned-execution) — SEED-052#launch-claude-planned-execution
