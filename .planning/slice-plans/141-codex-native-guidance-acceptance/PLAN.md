@@ -108,7 +108,7 @@ Behavior: named-genome/live-strategy removal story → planning observes executa
 ### 4. An accepted investigation becomes visible before substantive action
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash tests/git-publication-native.sh --native codex --case publication/admission-investigation --results-dir <results>` from evaluated source; independent admission ordering and skill-use review.
 Behavior: unlisted accepted investigation without one-shot selection → installed entry guidance → origin accepts Taken before substantive probe; human edits survive. Assess push receipt against investigation marker and native trace; receipt alone is insufficient. This is ordinary tracking control.
 
@@ -148,64 +148,19 @@ Fixture hides growth until released-settings check; counterexamples cover untrac
 
 ## Accepted proof — slice 1 (2026-09-28)
 
-Verdict: pass for candidate and baseline; present-behavior acceptance only.
-Both sessions read the installed planning skill and existing
-`scripts/test/quality_changed.test`, accurately described routing-stub limits,
-and selected that test as executable regression proof. Both wrote a plan and
-recorded planned/ready state with matching reviewed digests. Baseline success
-limits improvement attribution; neither run proves implementation correctness
-or statistical reliability.
+Verdict: pass for candidate and baseline; present-behavior acceptance only. Both sessions read the installed planning skill and existing `scripts/test/quality_changed.test`, accurately described routing-stub limits, and selected that test as executable regression proof. Both wrote a plan and recorded planned/ready state with matching reviewed digests. Baseline success limits improvement attribution; neither run proves implementation correctness or statistical reliability.
 
-- Guidance: candidate `f3f75d0b9f4dccd2d887c43b71d8234f6499c65e`
-  (`v0.3.45`); baseline `6882aeb3b0ea969cba34d00c9f6a98d034905be4`
-  (`0.3.42`). Installed planning SKILL.md matched each source byte-for-byte.
-- Harness: `b5a6017a966d088c7fbb700ce17833ae8e3b5eda`, existing
-  `tests/support/native-codex.sh`, `native-run-supervise.sh` and
-  `native-run-stream.sh`. CLI `0.157.0`; actual model unknown. Identical
-  defaults and `--ignore-user-config`; no model switch or retry.
-- Setup command: `/opt/homebrew/bin/bash /tmp/plan141-slice1-setup.sh`.
-  Disposable shared clones of Doughnut at
-  `0d92ca6c226fc0d755a9b159e2cb3259a68f009f` (`20efa7ec81^`); selected
-  refined seed restored from `20efa7ec81`, origin removed, separate pinned
-  source clones, release installation and installed recorder reset to
-  refined/unselected. Setup supplies preconditions, not the accepted behavior.
-- Literal native launches:
-  `/opt/homebrew/bin/bash /private/tmp/plan141-slice1.KTBlZf/run.sh candidate`
-  and `/opt/homebrew/bin/bash /private/tmp/plan141-slice1.KTBlZf/run.sh baseline`.
-  This temporary script applied the protocol above via the existing adapter:
-  `codex exec --ephemeral --ignore-user-config -c sqlite_home=<isolated-state>
-  -c log_dir=<isolated-state> --skip-git-repo-check --sandbox danger-full-access
-  --json -C <fixture> -o <response> <prompt>`, wrapped by the adapter's
-  protected sandbox-exec profile and supervisor deadline/grace 900/15 seconds.
-- Exact candidate prompt: "Use this project's installed Open Dough guidance
-  to make a slice plan for
-  seeds/SEED-043-commit-gate-checks-committed-changes.md#story-1. This disposable
-  checkout at /private/tmp/plan141-slice1.KTBlZf/candidate-doughnut is the
-  supplied owned preparation workspace. Use the project's story and decisions.
-  This request is planning only: do not implement, commit, push or publish.
-  Write the plan, record its preparation assessment and report the result."
-  Baseline substituted only the fixture path's `candidate-doughnut` with
-  `baseline-doughnut`.
-- Inspected boundary: installed guidance → actual test inspection → written
-  proof selection → preparation recording. Candidate completed command item_0
-  reads installed skills; item_9 reads the test (exit 0). Its
-  `.planning/quick/043-commit-gate-checks-committed-content/PLAN.md` line 76
-  records the literal inspection, line 125 selects the test at the public
-  `scripts/lint_changed.sh` boundary. Baseline item_1 reads the planning skill;
-  item_12 reads the test (exit 0). Its same relative plan lines 33–37 identify
-  reusable test foundations and lines 120–121 select the focused commands.
-- Each native process exited 0 with terminal `turn.completed` and classified
-  stream `complete`. The coordinator independently inspected those plans,
-  command items, outcome files, preparation state and candidate source identity.
-  Expected protected config/plugin-write warnings continued in memory;
-  authentication and isolation permitted the complete sessions. Candidate's
-  separate dependency-isolation probe does not change this test-selection
-  acceptance claim. No target product implementation was performed.
-- Raw plans, state, command argv, exact prompts and JSON traces at
-  `/private/tmp/plan141-slice1.KTBlZf` were judged for this active decision and
-  are deleted after this slice's proof record is published under ADR 0005.
+- Guidance: candidate `f3f75d0b9f4dccd2d887c43b71d8234f6499c65e` (`v0.3.45`); baseline `6882aeb3b0ea969cba34d00c9f6a98d034905be4` (`0.3.42`). Installed planning SKILL.md matched each source byte-for-byte.
+- Harness: `b5a6017a966d088c7fbb700ce17833ae8e3b5eda`, existing `tests/support/native-codex.sh`, `native-run-supervise.sh` and `native-run-stream.sh`. CLI `0.157.0`; actual model unknown. Identical defaults and `--ignore-user-config`; no model switch or retry.
+- Setup command: `/opt/homebrew/bin/bash /tmp/plan141-slice1-setup.sh`. Disposable shared clones of Doughnut at `0d92ca6c226fc0d755a9b159e2cb3259a68f009f` (`20efa7ec81^`); selected refined seed restored from `20efa7ec81`, origin removed, separate pinned source clones, release installation and installed recorder reset to refined/unselected. Setup supplies preconditions, not the accepted behavior.
+- Literal native launches: `/opt/homebrew/bin/bash /private/tmp/plan141-slice1.KTBlZf/run.sh candidate` and `/opt/homebrew/bin/bash /private/tmp/plan141-slice1.KTBlZf/run.sh baseline`. This temporary script applied the protocol above via the existing adapter: `codex exec --ephemeral --ignore-user-config -c sqlite_home=<isolated-state> -c log_dir=<isolated-state> --skip-git-repo-check --sandbox danger-full-access --json -C <fixture> -o <response> <prompt>`, wrapped by the adapter's protected sandbox-exec profile and supervisor deadline/grace 900/15 seconds.
+- Exact candidate prompt: "Use this project's installed Open Dough guidance to make a slice plan for seeds/SEED-043-commit-gate-checks-committed-changes.md#story-1. This disposable checkout at /private/tmp/plan141-slice1.KTBlZf/candidate-doughnut is the supplied owned preparation workspace. Use the project's story and decisions. This request is planning only: do not implement, commit, push or publish. Write the plan, record its preparation assessment and report the result." Baseline substituted only the fixture path's `candidate-doughnut` with `baseline-doughnut`.
+- Inspected boundary: installed guidance → actual test inspection → written proof selection → preparation recording. Candidate completed command item_0 reads installed skills; item_9 reads the test (exit 0). Its `.planning/quick/043-commit-gate-checks-committed-content/PLAN.md` line 76 records the literal inspection, line 125 selects the test at the public `scripts/lint_changed.sh` boundary. Baseline item_1 reads the planning skill; item_12 reads the test (exit 0). Its same relative plan lines 33–37 identify reusable test foundations and lines 120–121 select the focused commands.
+- Each native process exited 0 with terminal `turn.completed` and classified stream `complete`. The coordinator independently inspected those plans, command items, outcome files, preparation state and candidate source identity. Expected protected config/plugin-write warnings continued in memory; authentication and isolation permitted the complete sessions. Candidate's separate dependency-isolation probe does not change this test-selection acceptance claim. No target product implementation was performed.
+- Raw plans, state, command argv, exact prompts and JSON traces at `/private/tmp/plan141-slice1.KTBlZf` were judged for this active decision and are deleted after this slice's proof record is published under ADR 0005.
 
 Slice 1 delivered: `8373b163be94f2b6244c7c0c0e1e8e501877afa6` accepted on the recorded execution-branch target; observer reused and exact revision registered. Raw slice-1 artifacts were deleted after judgment/publication. This supplied slice 2's previously published base.
+
 
 ## Slice 2 observation and execution stop (2026-09-28)
 
@@ -235,4 +190,16 @@ Verdict: candidate pass for deliberate executable proof selection; baseline fina
 - Literal launches: `/opt/homebrew/bin/bash /private/tmp/plan141-slice3.B0i1N9/run.sh candidate` and `/opt/homebrew/bin/bash /private/tmp/plan141-slice3.B0i1N9/run.sh baseline`. Exact prompt uses the protocol template with story `seeds/SEED-047-tfdc-search-and-verify-simplification.md#story-tfdc-dead-behavior-removal` and fixture `/private/tmp/plan141-slice3.B0i1N9/candidate-pygardon` or `/private/tmp/plan141-slice3.B0i1N9/baseline-pygardon`; no desired proof supplied. No retry or implementation/E2E suite run.
 - Candidate actual planning-skill read item_1 and E2E consumer inspection item_9 exited 0. Its `.planning/quick/179-tfdc-dead-behavior-removal/PLAN.md:171–175` explicitly updates `e2e_test/support/seed_named_genome_live_strategy_pair.py` and selects `nix develop -c scripts/check-worktree.sh pnpm exec cucumber-js e2e_test/features/live_strategies.feature` for moved test-genome proof. Independent chain inspection: feature scenario at lines 94–97 invokes the Given in `live_strategies_steps.ts:19–33`, which runs that helper. Native did not explicitly read every TS caller hop; claim stays at correct proof selection and observed E2E consumer.
 - Baseline actual skill read item_1 exited 0; its same-relative plan's seeding slice 7 at lines 236–244 maps only Python proof and omits that helper. Final verification at line 347 nevertheless includes `live_strategies.feature`, so it will execute the helper eventually; no clean deliberate caller-trace acceptance for baseline and no established regression/improvement attribution.
-- Both original supervised native commands exited 0 with `turn.completed`; independently classified `complete` through existing `native_run_classify_stream` without a pipe (the run script's tee output was empty because classification is a shell variable, not stdout). Both final planned/ready states matched current document/plan digests; coordinator independently inspected plans, items, state and executable chain. Raw root retained for judgment, to be deleted after this compact record is published under ADR 0005.
+- Both original supervised native commands exited 0 with `turn.completed`; independently classified `complete` through existing `native_run_classify_stream` without a pipe (the run script's tee output was empty because classification is a shell variable, not stdout). Both final planned/ready states matched current document/plan digests; coordinator independently inspected plans, items, state and executable chain. Raw root `/private/tmp/plan141-slice3.B0i1N9` was deleted after publication of `1bab40d409c1bb09fb640f207a074de8d9adea22` under ADR 0005.
+
+## Accepted proof — slice 4 (2026-09-28)
+
+Verdict: pass for investigation admission ordering and human-edit preservation; the fixture's startup-cause diagnosis is not accepted by this case.
+
+- Guidance and harness `v0.3.45`/`f3f75d0b9f4dccd2d887c43b71d8234f6499c65e`; Codex `0.157.0`, unchanged adapter/defaults/ignore-user-config, actual model unknown, deadline/grace 900/15. Installed execution SKILL and admission reference matched pinned source; no harness repair or paid retry.
+- Setup passed: `/opt/homebrew/bin/bash /tmp/plan141-slice4-prepare.sh` and `/opt/homebrew/bin/bash /private/tmp/plan141-slice4.HLSmkP/preflight.sh`, separately constructing/installing a fixture before native launch. Existing substitute runner/assessor proof remains applicable.
+- Literal launch: `PATH="/opt/homebrew/bin:$PATH" TMPDIR=/private/tmp/plan141-slice4.HLSmkP/runtime GIT_PUBLICATION_KEEP=1 native_case_deadline=900 native_case_grace=15 /opt/homebrew/bin/bash /private/tmp/plan141-slice4.HLSmkP/evaluated-source/tests/git-publication-native.sh --native codex --case publication/admission-investigation --results-dir /private/tmp/plan141-slice4.HLSmkP/results`.
+- Exact prompt is existing `git_publication_admission_prompt`'s investigation-only request: installed guidance, accepted unlisted slow-startup investigation via `node scripts/probe.js`, authorized owned checkout/branch, Trunk Mode/local fixture origin and publisher, preserve human edits, no product fix. Prompt hash `f822c2d9a66e0b620947ba3fdcd65951d1746e293f85e05ae5c817caa15a1618`; no admission command or expected verdict supplied. Actual fixture `/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.PxWj42jovt/admission-investigation.ZdRCFR/workspace-claim-Ya0Ys0`, local branch `exec/native-admission`, publisher `native-admission-investigation`.
+- Result `/private/tmp/plan141-slice4.HLSmkP/results/codex/publication/admission-investigation/20260928T081558-52d6`: native session 7261 exited 0 with terminal `turn.completed`, stream complete, runner/assessor pass. Actual skill reads item_1 and admission/publication references item_2. Startup item_8 refused full target `refs/heads/main`; item_9 diagnosed and item_10 accepted bare `main` within the same session before any probe.
+- Coordinator independently inspected remote `4c189b690465991df461dbc05d3d9aa8b8be977a` after base `eef8c36b98b2838719118dff03b6b8d47b454d63`: exactly one Taken `STARTUP-INVESTIGATION#startup`, seed/profile, unselected approach, no plan/assessment/product change, queued A/B preserved. `claim-accepted` mtime `1790583320447008573` precedes `.probe-ran` `1790583330470092565`; accepted receipt item_10 precedes actual `node scripts/probe.js` item_13. Human `human-staged.txt`/`trunk.txt`/`human-unstaged.txt` retain contents and staged/tracked/untracked statuses; installed guidance use, ordering and state inspected beyond the assessor receipt.
+- Self-declared agent-profile `--model gpt-6` does not identify native runtime model. Fixture claim CI remained unobserved; no impact on admission ordering. Raw result/source/preflight root HLSmkP and macOS artifact root `tmp.PxWj42jovt` retained until this compact judgment is published, then delete under ADR 0005.
