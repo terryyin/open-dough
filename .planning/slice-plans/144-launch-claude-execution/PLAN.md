@@ -93,11 +93,12 @@ The Claude Code host (`server/claudeCode.ts`) owns everything specific to
 it:
 - The instruction: `/dough-execute-plan <identity>`, then a blank line and the
   developer instruction when there is one.
-- The argument array: `claude --bg --session-id <uuid> --name "<project> ·
-  <title>" <instruction>`, run with `cwd` set to the project folder. It passes
-  no model or permission flags.
-- Confirmation: find that session id in `claude agents --json` and take its
-  `id`.
+- The argument array: `claude --bg --name "<project> · <title>"
+  <instruction>`, run with `cwd` set to the project folder. It passes no
+  session id (`--bg` ignores one), model, or permission flags.
+- Confirmation: read the short id from the `backgrounded · <id> · <name>`
+  line `--bg` prints, then find that `id` in `claude agents --json` and take
+  its `sessionId`, `name`, and `cwd`.
 - Failure classification, into fixed categories only. Raw stderr is not
   forwarded, as with the `gh` boundary.
 
@@ -149,7 +150,8 @@ dashboard is unchanged at `f510358e`) on 2026-09-28:
 | --- | --- | --- |
 | Claude Code offers background launch, listing, and attach. | `claude --version`: 2.1.283. `claude --help` lists `--bg` ("Prints the id that `claude attach`, `logs`, `stop` and `rm` take"), `-n/--name`, `--session-id <uuid>`, and the commands `agents`, `attach`, `logs`, `stop`, `rm`. | Launch uses `--bg`; access is `claude attach`. |
 | Background sessions can be listed as JSON without a TTY. | `claude agents --json` printed 14 entries with the keys `cwd, id, kind, name, pid, sessionId, startedAt, state, status`, for example `id: "06628f74"` with `sessionId: "06628f74-c8ce-…"`. | Confirmation matches `sessionId` and reads `id`. |
-| What `--bg` prints on success, whether it honors `--session-id`, and its exit code when spawned from a non-TTY Node process. | Not observable without a paid, state-changing launch. The bundle strings show that the short id is the first 8 characters of the session id, and that dispatch refuses an untrusted folder (`gate_blocked`) or a missing cwd (`cwd-gone`). | Slice 1 probes this before slice 2 depends on it. |
+| What `--bg` prints on success, whether it honors `--session-id`, and its exit code when spawned from a non-TTY Node process. | Slice 1 probe, 2026-09-28, Claude Code 2.1.283, `execFile` with stdin `/dev/null`: exit 0 in 3.7 s; stdout `backgrounded · b4e4f6b2 · Probe · trusted` (ANSI-colored id) plus hint lines naming `claude attach b4e4f6b2`; stderr `warning: --bg manages the session id; ignoring --session-id`. `claude agents --json` then listed `id: "b4e4f6b2"`, `sessionId: "b4e4f6b2-d2b3-…"`, the name, the cwd, `startedAt` (ms), and kept listing it after it finished (`state: "done"`). | No TTY is needed. `--session-id` is dropped; the short id comes from stdout and is confirmed in the listing. |
+| How `--bg` fails for an untrusted or missing folder. | Same probe: a fresh `/tmp` folder gave exit 1 in 3.6 s, stdout empty, stderr `Workspace not trusted. Run \`claude\` in <folder> once and accept the trust prompt, then retry.`, and no session was listed. A missing `cwd` makes Node's spawn fail with `ENOENT` before `claude` runs, the same code as a missing `claude`. A folder under a trusted folder (`~/git/open-dough/.worktrees/…`) was trusted. | `folder-not-trusted` is recognized from that stderr; the folder is checked before spawning so `folder-not-found` and `not-installed` stay distinct. |
 | The dashboard has one process boundary and one origin guard. | The architecture survey: `vite.config.mts:22` mounts `authenticatedReadPlugin()` only; `ghRead.ts` is the only `child_process` import under `server/` and `src/`; `localOrigin.ts:29-73` refuses non-loopback and cross-origin requests, and its comment at L44-56 notes that a same-origin POST sends `Origin`, compared with Host. | The launch endpoint reuses the guard; a same-origin POST is admitted. |
 | No code reads a local path or home directory. | The survey found no `cwd` or `homedir` use; the only environment reads are `DOUGH_READ_TIMEOUT_MS`, `DOUGH_AVATAR_ORIGIN`, and `GH_PROMPT_DISABLED`. | Project folders resolve from `os.homedir()` + `git/<name>`; tests set `HOME` to a temporary directory. |
 | Backlog and Taken share one card component. | `WorkStages.tsx:20-89` `WorkCard` renders both lists; `Stage` maps entries by identity. | The action and Started go in `WorkCard` for backlog entries only. |
@@ -162,7 +164,7 @@ dashboard is unchanged at `f510358e`) on 2026-09-28:
 | Final-state promise | Owning slice and decisive observation |
 | --- | --- |
 | The real Claude Code accepts the product's launch argument array from a non-TTY Node process, and the listing confirms it. | 1: manual probe of the real CLI (see slice 1). |
-| A same-origin launch request starts one Claude Code background session in the project's folder with the execution instruction, name, and chosen session id, and answers launched with the listed short id. | 2: boundary spec over raw HTTP in dev and preview; the fake `claude` records argv and cwd. |
+| A same-origin launch request starts one Claude Code background session in the project's folder with the execution instruction and name, and answers launched with the short id it printed, once listed. | 2: boundary spec over raw HTTP in dev and preview; the fake `claude` records argv and cwd. |
 | Missing folder, missing `claude`, a refusing `claude`, a timeout, and a launch that exits 0 but is unlisted give failed or uncertain answers with no record. | 2: boundary spec cases, one per category. |
 | Cross-site, non-loopback, unknown source, unsupported activity or host, and malformed text are refused before any `claude` process. | 2: refusal cases assert zero fake-`claude` calls. |
 | Every Backlog card offers Start execution, and none does on Taken; not-ready cards are distinguished. | 3: page journey on a committed origin with ready and not-ready queued stories and a Taken story. |
@@ -174,7 +176,8 @@ dashboard is unchanged at `f510358e`) on 2026-09-28:
 
 ### 1. Probe: Claude Code starts a named background session with a chosen id from a non-TTY process
 Type: Probe (manual, paid)
-Status: planned
+Status: done — run once on Terry's `/dough-execute-plan 144` trigger; results
+in Observed premises. The probe sessions were stopped and removed.
 
 Run once, only on the developer's explicit trigger. Paid runs never go into
 any automated or repeated suite. From a small Node script under the job
@@ -207,7 +210,7 @@ Behavior: A running dashboard (dev or preview) and a same-origin POST to
 host: "claude", instruction}` lead to:
 - the project folder (`~/git/<id>` via `os.homedir()`) being checked;
 - `claude` being run there with the host module's fixed argument array;
-- the session being confirmed through `claude agents --json`;
+- the short id printed by `--bg` being confirmed through `claude agents --json`;
 - the endpoint answering `launched` with a launch record, which it keeps for
   that project.
 
@@ -216,7 +219,8 @@ Failure answers:
   `folder-not-trusted` or `refused` (from slice 1's categories, with advice to
   run `claude` in that folder once), or `unavailable`.
 - **Uncertain:** the launch wait (`DOUGH_LAUNCH_TIMEOUT_MS`, default 30 s)
-  expired, or the session exited 0 but is not listed. The advice is to check
+  expired, or `claude` exited 0 without a readable short id or without that
+  id listed. The advice is to check
   `claude agents` before starting again.
 
 Refusals, all before any process starts:
@@ -334,7 +338,10 @@ refused cross-origin.
 
 ## Learnings
 
-None yet.
+- Slice 1: `claude --bg` ignores `--session-id` and chooses its own id, which
+  it prints. The plan's fallback (match by name, cwd, and start time) was
+  replaced by reading that printed id, which identifies the launch exactly;
+  the listing still confirms it. The fake `claude` prints the same line.
 
 ## Concern review
 
