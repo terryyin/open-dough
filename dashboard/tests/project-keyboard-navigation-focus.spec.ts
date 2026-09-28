@@ -64,9 +64,14 @@ test("focus stays useful across switches and held previous reads stay isolated",
         "Catalog origins were not published for the held-read step.",
       );
     }
+    // Doughnut's ref was already read when the first step selected it, so
+    // the held read is the one read of `main` beyond those.
+    const doughnutRefReads = () =>
+      pathsRead(doughnut).filter((path) => path === "main").length;
+    const heldRead = doughnutRefReads() + 1;
     const releaseDoughnut = doughnut.hold("main");
     await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
-    await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
+    await expect.poll(doughnutRefReads).toBe(heldRead);
 
     const nextOpenDoughRevision = "e2".repeat(20);
     openDoughOrigin.push(
@@ -97,8 +102,6 @@ test("focus stays useful across switches and held previous reads stay isolated",
       doughnutProject.queued,
     );
     await expect(source).toContainText(nextOpenDoughRevision);
-    expect(pathsRead(doughnut).filter((path) => path === "main")).toHaveLength(
-      1,
-    );
+    expect(doughnutRefReads()).toBe(heldRead);
   });
 });
