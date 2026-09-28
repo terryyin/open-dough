@@ -1,3 +1,11 @@
+## 0.3.44 - 2026-09-28
+
+- Give dashboard story and agent-roster views project-aware URLs, preserve the selected project, view, and focus through browser Back and Forward navigation, normalize invalid routes, and open external and repository links in new tabs.
+- Make execution process retrospectives opt-in when a project explicitly enables them or the request includes them, while keeping product review as the default and retaining explicit skip controls.
+- Complete native Claude Code acceptance for unlisted and queued one-shot publication against the revisions actually accepted by the remote, and add reusable fixtures and observations for those journeys.
+
+No additional native acceptance was run for `0.3.44` at the maintainer's request as an exception to ADR 0005. The included Claude Code one-shot evidence is retained; Codex, Cursor, and one-shot escalation acceptance, native acceptance for the dashboard and retrospective-selection changes, and previously pending native requirements remain pending and are not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.43 - 2026-09-27
 
 - Add explicitly selected one-shot execution for trivial unlisted or queued work, publishing only the verified result, closing queued work atomically, and escalating growing attempts into ordinary tracked execution without leaving partial claims behind.
