@@ -19,6 +19,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Cycle dashboard projects with left and right arrow keys](seeds/SEED-053-cycle-dashboard-projects-with-arrow-keys.md#cycle-dashboard-projects-with-arrow-keys) — SEED-053#cycle-dashboard-projects-with-arrow-keys
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
 - [Accept existing guidance natively on Codex](seeds/SEED-053-native-guidance-acceptance.md#native-acceptance-codex) — SEED-044#native-premise-acceptance-codex-cursor
 - [Start agent work from the Open Dough dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#start-agent-work-from-dashboard) — SEED-052#start-agent-work-from-dashboard
