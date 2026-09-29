@@ -831,18 +831,17 @@ as catalog ODF-106 (colliding plan numbers), now in this repository.
   - Observed effect: the executor had to infer the intended plan (the one at the default checkout's HEAD when the session started) and could have Taken the other queued story
   - Inference: Qualified. Allocation from checkout-visible numbers cannot see another checkout's unpublished plan; the collision went unnoticed at merge because directory names differ
 
-## DD-159 — Keyboard proof failures were blamed on stale dist despite per-run rebuilds
+## DD-182 — The CI host hook re-reported a lost observer on every call and blocked Stop indefinitely
 
-An implementation agent blamed Playwright on a stale `dashboard/dist` and recorded a plan learning to rebuild before browser tests, although `test:dashboard`'s `globalSetup` already rebuilds each run. Decisive causes were focus remount and `openDirection` stealing focus between keypresses.
+After an observer's worker died, `ci-host-hook.mjs` pushed "CI observer lost its worker" for that bound mailbox on every PostToolUse and Stop, even after the documented `ci-mailbox.mjs stop`; on Stop that is `decision: block`, so the coordinator could not end a turn. `ci-notify-hosts.md` said to report the loss once.
 
 ### Occurrences
-- Execution: `SEED-053#cycle-dashboard-projects-with-arrow-keys` / plan 138, first related implementation commit `796bebaf6c43928105f58feea358f163116f89bd`
-  - Timestamp: unknown (between 2026-09-28T12:47+08:00 impl start and ~12:56+08:00 slice report)
-  - Tool: Cursor
-  - Open Dough release: 0.3.45
-  - Evidence: impl subagent `ffa400d5-2c0e-4f83-aec0-7b2a740b4031` narrated a rebuild after the focus-remount fix, later diagnosed `openDirection` between keypresses; plan 138 Learnings contradict `dashboard/tests/README.md` and `dashboard/tests/support/globalSetup.ts`
-  - Observed effect: extra rebuild/debug cycles; a false rebuild learning remained in plan 138
-  - Inference: Qualified. Focus/test-structure failure misread as harness staleness; not a suite build-contract defect
+- Execution: `SEED-052#card-session-residue` / plan 160, first related implementation commit `26099a6a`
+  - Timestamp: unknown; after the disk filled following `f00ced6a`, before repair `75bdc10d` (2026-09-29T22:14:32+08:00)
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `d68fcde4`
+  - Evidence: mailbox `/tmp/dough-ci-501/watch-DONFBb` (worker lost when the disk filled); `stop` returned `coverage.state: "lost"`, and the notice repeated on every later tool call; source repair `75bdc10d` (`lossReported` in `delivery.json`, quiet after a `stop` marker).
+  - Observed effect: about eight blocked turn ends, two developer questions, and a developer-authorized removal of the stale owner binding, because the running hook is the installed copy, which a source fix reaches only at release.
+  - Inference: Qualified. A lost-coverage notice delivered through a blocking Stop hook needs an acknowledgement path the coordinator can use before the next release.
 
 ## DD-163 — A local flake already fixed on trunk was left off the story branch, which then failed CI on it
 
@@ -986,7 +985,8 @@ Plan 159 slice 2 said to test the session presentation once as a shared capabili
 
 ## Retention
 
-- Highest allocated local number: 181. Removed local codes are never reused.
+- Highest allocated local number: 183. Removed local codes are never reused.
+- Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-182 (a hook that blocked the coordinator): DD-159 (a one-off stale-`dist` misdiagnosis whose false plan learning has no later recurrence); recovery: `95fa693c:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-180, DD-181, and DD-172's third occurrence: ODF-003's two oldest occurrences (`SEED-008#script-driven-ci-observation`, `SEED-037#diagnosable-test-hangs`); two later occurrences keep the finding; recovery: `4ef13e85:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-176, DD-177, and the DD-172 and ODF-097 recurrences: ODF-130 (concurrent slices sharing Playwright output) and ODF-129 (full-suite proof beside another agent's edits), since slices now run one at a time; recovery: `32e554d5:DearDough.md`.
 - Removed ODF-070 (former DD-066; nested worktree `node_modules` assumed absent) on 2026-09-29 for the 1,000-line ceiling: its 0.3.26-era occurrence as lower priority than ODF-116's recurrence (recovery: `6fa51cb6:DearDough.md`), then its remaining occurrence as lower current actionability than DD-172/DD-173 and the ODF-100 recurrence, since execution-location guidance now requires a locked install per worktree (recovery: `0c31529b:DearDough.md`).

@@ -222,6 +222,12 @@ another directory reports "CI mailbox belongs to another checkout".
   - Evidence: slice 1 refactor report: fails on every run from `src/skills`, 23/23 from the checkout root; slice 1's delegated proof command was phrased "from `src/skills`".
   - Observed effect: no delivery impact; a focused run from `src/skills` would show a false failure.
   - Inference: Qualified. Deriving the root from the test file's location would give the same result from any directory, as CI does.
+- Execution: `SEED-052#card-session-residue` / plan 160, first related implementation commit `26099a6a`
+  - Timestamp: unknown (CI repair refactor pass before `4e0b2420` at 2026-09-29T20:04:43+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: refactor report: `node --test ci-mailbox-complete.test.mjs` from `scripts/` fails an unresolved case with "belongs to another checkout"; the retrospective reviewer saw the same; both passed from the root.
+  - Observed effect: no delivery impact; two agents spent a run confirming the directory dependence.
 
 ### DD-178 — The dashboard Playwright suite resolves its repository root from the working directory, and a run elsewhere leaves a build that breaks lint
 
@@ -259,6 +265,23 @@ Node suites passed and only CI's `dashboard` job failed.
   - Evidence: CI run `36507473752` job `dashboard (1/2)`: TS2345 at `preparingJourney.ts(88,38)`; repair `de81cb96` (`identity = undefined`), then `npm run typecheck:dashboard` and `backlog-preparing.spec.ts` passed.
   - Observed effect: one red CI run, a repair stash cycle, and one repair commit.
   - Inference: Qualified. A consumer search limited to `src/skills` misses the dashboard's typed imports; running `npm run typecheck:dashboard` when a shared fixture's signature changes would catch it locally.
+
+### DD-183 — Two timing races passed every local run and failed only under CI's load, each on a trunk-merge revision
+
+A CI mailbox completion confirmed shutdown while its exiting worker showed a
+bare `[node]` command, and the dev-mode overview spec counted a second
+`commits/main` lookup from StrictMode's aborted first read. Neither reproduced
+in unthrottled local runs; each needed an in-run repair.
+
+#### Occurrences
+
+- Execution: `SEED-052#card-session-residue` / plan 160, first related implementation commit `26099a6a`
+  - Timestamp: CI failures on `f5f4dce6` (2026-09-29T19:51:19+08:00) and `d83bb839` (2026-09-29T21:56:22+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: runs 36564344723 (`'unknown' !== 'dead'`, repaired in `4e0b2420`) and 36578884226 (`expectPinnedGhCalls` at `catalogProjectRecords.ts:107`, repaired in `bb5ee6a1`); red reproductions needed a stub `process.title` and CDP CPU throttling; 48 local runs under 16 `yes` processes passed.
+  - Observed effect: two stash, diagnose, repair, publish, and restore cycles, with slices paused.
+  - Inference: Qualified. Timing-sensitive proof here needs a deliberate slow-path reproduction; plain local load did not expose either race.
 
 ## Native host runs and observations routed through the developer (low priority, not selected)
 

@@ -184,3 +184,14 @@ Three slices, each one concern: missing proof, one representation, and spec
 overlap. Slice 3 depends on no other slice; slice 2 touches the specs slice 3
 trims only by variable names, so running 2 before 3 avoids conflicts. No
 concern remains.
+
+## Execution complete
+
+Product advice: queue the follow-up correction
+[SEED-052#mark-done-residue](../../seeds/SEED-052-start-agent-work-from-dashboard.md#mark-done-residue)
+([plan 166](../166-mark-done-residue/PLAN.md), ready) near the top: it proves
+the busy-session rename timeout this correction missed and stops CI completion
+from confirming shutdown for an observer whose identity is unknown, which
+affects every execution. Review the North Star's "Agent launch" wording that a
+launch settles on the Take (`.planning/NORTH-STAR.md`); ADR 0008 already dropped
+settlement, so this plan's ADR exclusion is stale. No other priority change.
