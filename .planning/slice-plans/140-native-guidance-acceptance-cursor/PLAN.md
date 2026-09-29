@@ -93,9 +93,16 @@ A guidance-level fail stops for Terry; no guidance edit in this story.
 ### 2. Accept premise verification natively on Cursor
 
 Type: Behavior
-Status: planned
-Proof: three planning-only Cursor runs judged against the shared premise table;
-SEED-053 Cursor evidence updated.
+Status: done
+Proof: three planning-only runs on 2026-09-29, guidance `0.3.46` at
+`0901bbab`, Cursor agent `2026.09.28-64d2043`. Doughnut passed. Open Dough
+control passed, with dashboard Playwright path specs beyond plan 111 and no
+probe, approval, or full suite. Pygardon failed: plan 208 does not name a
+feature that runs the seeding script, although `live_strategies.feature` was
+in the checkout. Terry queued that miss as
+[SEED-044#name-the-feature-that-runs-moved-seeding](../../seeds/SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding).
+This story does not change the guidance. Evidence is under
+`native-results/cursor-premise/`.
 
 Behavior: Doughnut, Pygardon, and Open Dough control clones prepared per
 SEED-053 shared setup (`origin` removed, pre-plan parent, refined seed with
@@ -140,8 +147,18 @@ planning-only prompt analogous to plan 115's Claude recipe.
 
 - 2026-09-29: slice 2 ran once per case from guidance `0.3.46` at
   `0901bbab`, Cursor agent `2026.09.28-64d2043`. Doughnut passed. The Open
-  Dough control passed with heavier proof than plan 111 (dashboard Playwright
-  path specs, no probe, approval, or full suite). Pygardon failed: plan 208
-  does not prove moved seeding with a feature that runs the seeding script.
-  Slice 2 stays planned. This is a guidance-defect handoff; the story does not
-  edit the guidance.
+  Dough control passed with heavier proof than plan 111. Pygardon failed
+  even though `live_strategies.feature` was present. Terry put that miss on
+  the backlog as `SEED-044#name-the-feature-that-runs-moved-seeding` and
+  asked this plan to close on the recorded verdicts.
+
+## Execution complete
+
+Product advice: keep the queued story
+`SEED-044#name-the-feature-that-runs-moved-seeding` first. Cursor one-shot
+acceptance for this guidance revision is recorded. Cursor premise acceptance
+stays incomplete for Pygardon until that guidance change exists and the
+premise cases are run again. No further product change comes from this
+execution. Process review was skipped because `.planning/open-dough.json` is
+absent. CI observation did not attach: the delivery receipt was `unobserved`
+because this session has no host identity for the notification bridge.

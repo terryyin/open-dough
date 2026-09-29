@@ -130,7 +130,7 @@ implement, commit, push, or publish. Transcripts and written plans are under
 | Case | Verdict |
 | --- | --- |
 | Doughnut "no test" | **Pass.** Plan `043` names `scripts/test/quality_changed.test` and records that its fake `pnpm` sees unstaged files for format and only staged components for lint. It reaches `ready`. |
-| Pygardon seeding proof | **Fail.** Plan `208` moves `gate_baseline_genome` under tests and proves that with pytest. It never names `live_strategies.feature` or `seed_named_genome_live_strategy_pair.py`, so it does not prove the moved seeding with a feature that runs the seeding script. |
+| Pygardon seeding proof | **Fail.** Plan `208` moves `gate_baseline_genome` under tests and proves that with pytest. It never names `live_strategies.feature` or `seed_named_genome_live_strategy_pair.py`, although that feature was in the checkout. The guidance change is [SEED-044#name-the-feature-that-runs-moved-seeding](SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding). |
 | Open Dough control | **Pass, heavier than plan 111.** Plan `111` records five observed premises, reaches `ready`, and adds no probe slice, new approval, or full-suite run. Its proof also names dashboard Playwright specs that assert plan paths. |
 
 ## Shared one-shot cases
