@@ -38,7 +38,7 @@ trunk_closure_write_evidence_identity() {
     src/skills/dough-execute-plan/references/ci-completion-wait.md \
     src/skills/dough-execute-plan/references/publish-the-candidate.md \
     src/skills/dough-story-wrap-up/SKILL.md
-  git_publication_land_input_hash_lines \
+  git_publication_closing_input_hash_lines \
     src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs \
     src/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs \
     src/skills/dough-execute-plan/scripts/ci-mailbox.mjs

@@ -74,6 +74,7 @@ story_closure_write_evidence_identity() {
     tests/support/git-publication-native-host.sh \
     tests/support/story-branch-closure-native-run.sh \
     tests/support/story-branch-closure-native-assess.sh \
+    tests/support/story-branch-closure-native-response.sh \
     tests/support/native-completion-observation.sh \
     tests/support/story-branch-closure-native-fixture.sh \
     tests/support/native-harness-observation.sh \
@@ -88,7 +89,7 @@ story_closure_write_evidence_identity() {
     src/skills/dough-execute-plan/references/ci-monitor.md \
     src/skills/dough-execute-plan/references/ci-completion-wait.md \
     src/skills/dough-execute-plan/references/publish-the-candidate.md
-  git_publication_land_input_hash_lines \
+  git_publication_closing_input_hash_lines \
     src/skills/dough-execute-plan/scripts/ci-mailbox.mjs \
     src/skills/dough-product-backlog/scripts/product-backlog-git-merge.mjs
 }

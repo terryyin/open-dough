@@ -104,8 +104,10 @@ for index in "${!identity_writers[@]}"; do
 done
 
 # Guidance and commands each closure journey exercises beyond Dough Land's
-# inputs. An identity that omits one keeps its recorded evidence bound after
-# that input changes.
+# inputs, including scripts its modules spawn: ci-host-bridge.mjs spawns
+# ci-host-hook.mjs, publication runs product-backlog-git-rebase.mjs, and the
+# backlog merge adapter registers product-backlog-git-driver.mjs. An identity
+# that omits one keeps its recorded evidence bound after that input changes.
 land_inputs=(
   src/skills/dough-land/SKILL.md
   src/skills/dough-land/scripts/worktree-retirement.mjs
@@ -119,9 +121,12 @@ closure_journey_inputs=(
   'trunk_closure_write_evidence_identity|
   src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
   src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs
-  src/skills/dough-story-wrap-up/scripts/trunk-closure-settlement.mjs'
+  src/skills/dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
+  src/skills/dough-execute-plan/scripts/ci-host-hook.mjs
+  src/skills/dough-product-backlog/scripts/product-backlog-git-rebase.mjs'
   'story_closure_write_evidence_identity|
-  src/skills/dough-execute-plan/references/wrap-up-closure-publication.md'
+  src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
+  src/skills/dough-product-backlog/scripts/product-backlog-git-driver.mjs'
 )
 for entry in "${closure_journey_inputs[@]}"; do
   for index in "${!identity_writers[@]}"; do
@@ -136,15 +141,16 @@ for entry in "${closure_journey_inputs[@]}"; do
   done
 done
 
-# Every module a listed command imports, directly or transitively, is listed
-# too, so the per-input change check below covers what the command runs.
+# Every module a listed command imports or spawns, directly or transitively,
+# is listed too, so the per-input change check below covers what the command
+# runs.
 for index in "${!identity_writers[@]}"; do
   mapfile -t modules < <(awk '$3 ~ /\.mjs$/ { print $3 }' \
     "${identity_out}/baseline/${index}")
   ((${#modules[@]})) || continue
   while IFS= read -r module; do
     if ! lists_input "${identity_out}/baseline/${index}" "${module}"; then
-      printf 'FAIL: evidence identity %s omits %s, which a listed command imports.\n' \
+      printf 'FAIL: evidence identity %s omits %s, which a listed command imports or spawns.\n' \
         "${identity_writers[index]}" "${module}" >&2
       identity_failures=1
     fi

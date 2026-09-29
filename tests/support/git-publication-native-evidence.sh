@@ -38,7 +38,7 @@ git_publication_write_evidence_identity() {
         src/skills/dough-execute-plan/SKILL.md \
         src/skills/dough-story-refinement/references/preparation-assignment.md \
         src/skills/dough-story-refinement/references/preparation-workspace.md
-      git_publication_land_input_hash_lines \
+      git_publication_closing_input_hash_lines \
         src/skills/dough-execute-plan/scripts/workspace-publication-select.mjs \
         src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs \
         src/skills/dough-story-refinement/scripts/preparation-assignment.mjs
