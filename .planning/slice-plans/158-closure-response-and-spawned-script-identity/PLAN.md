@@ -211,7 +211,7 @@ unchanged. The changed identities' recorded native evidence is stale.
 
 ### 3. Closure test fixtures name what they serve
 Type: Structure
-Status: planned
+Status: done
 Proof: the suites importing both fixtures stay green.
 
 Correction: the fixture residue in F3. The `createCleanTrunkFixture` comment in
@@ -224,6 +224,10 @@ Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh` on
 `closure-story-branch-cleanup.test.mjs`,
 `src/skills/dough-execute-plan/scripts/publication*.test.mjs`, and
 `src/skills/dough-land/scripts/worktree-retirement.test.mjs` exit 0.
+
+Accepted proof (2026-09-29): the `createCleanTrunkFixture` comment describes a
+clean-trunk publication fixture; `remoteCommitCount(remote, ref = trunkTarget)`
+reuses the module's `trunkTarget`. The listed suites (12 files) exit 0.
 
 ## Proof ownership
 

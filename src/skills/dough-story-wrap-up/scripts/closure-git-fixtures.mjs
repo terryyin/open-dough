@@ -38,6 +38,6 @@ export async function commitFile(workspace, file, body, message) {
   return revParse(workspace, "HEAD");
 }
 
-export async function remoteCommitCount(origin, ref = "refs/heads/main") {
-  return Number((await git(origin, "rev-list", "--count", ref)).stdout.trim());
+export async function remoteCommitCount(remote, ref = trunkTarget) {
+  return Number((await git(remote, "rev-list", "--count", ref)).stdout.trim());
 }

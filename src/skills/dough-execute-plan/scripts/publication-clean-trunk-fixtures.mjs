@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { exec, git, revParse } from "./publication-git.mjs";
 
-// Builds the fixture used by publication.test.mjs: a disposable repository
+// Builds a clean-trunk publication fixture: a disposable repository
 // whose primary checkout is clean `main` at the same SHA as `origin/main`
 // (a local bare repo), plus an execution worktree whose unpublished suffix
 // is already based on that trunk.
