@@ -107,35 +107,86 @@ or claims of readiness.
 
 **Identity:** SEED-052#revisit-dashboard-sessions
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/150-revisit-dashboard-sessions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"57187fb68ead7992b6aaf4dacda30eeeab9f54b6212d52be4a554ebc1731ad13","plan":"0ce6630536711d5b29525cb2990bb2ad5f5ebdca57fff8a86a8b59e822023d28"}}
 ```
 
-- **For / why:** A developer can return to a conversation after navigating away,
-  refreshing the dashboard, or the story leaving the backlog.
-- **Evaluation:** Launch work, later return to Recent sessions, recognize its
-  project, story reference, workflow, and session, and obtain the means to open
-  it in Claude Code's CLI. The entry remains accessible when no current story
-  card or recently done story matches it. Multiple sessions for a story remain
-  distinguishable.
-- **Boundary:** Only dashboard-launched sessions are included. An unavailable
-  tool session is reported as unavailable, not recreated or marked complete.
-  A launch record is local navigation evidence, not authoritative story state.
-- **Value / learning:** Makes launch useful across visits without depending on
-  a completed-story view or an embedded terminal.
-- **Effort hypothesis:** Unestimated; persistence, retention, and stale session
-  access are the sizing uncertainties.
-- **Known from launch:** Started follows Backlog membership only, so a session
-  that ends before its Take, or a story returned to the Backlog after a Take,
-  keeps Started until the dashboard restarts. Settling or relaunching from
-  Claude Code's own state belongs here: `claude agents --json` keeps finished
-  sessions with their `state`, which also supports reporting an unavailable
-  session. A refinement's Started settles once the story shows Preparing, and
-  a refinement launched on a card already Preparing shows no Started at all,
-  so its session is then reachable only through `claude agents`.
-- **Depends on:** The dashboard launch ([Agent launch](../../dashboard/AGENT-LAUNCH.md))
-  provides identified dashboard-launched sessions.
-- **Safe stopping point:** Users can find and revisit sessions through the CLI
-  without any browser interaction integration.
+**Goal:** A developer who started work from the dashboard can find that
+conversation again after navigating away, reloading, restarting the dashboard,
+or after the story leaves the Backlog. They can tell each session's project,
+story, and workflow, and get the command that opens it in Claude Code's CLI.
+Launching from the dashboard stays useful across visits, without an embedded
+terminal or a Recently done view.
+
+**Scope:**
+
+- The selected project gets a **Recent sessions** section, newest first. It
+  does not depend on Backlog, Taken, or Recently done: an entry stays even when
+  no story card matches it. Each entry shows the story title and identity, the
+  workflow, when it was launched, the session id, the session's state as Claude
+  Code reports it, and a copyable `claude attach <id>` while Claude Code still
+  lists the session.
+- Launch records survive dashboard restarts. Open Dough keeps them on this
+  machine, outside every repository, and Recent sessions lists records from the
+  last 30 days. They stay out of the repository because a session exists only
+  on the machine that launched it.
+- Session state comes from Claude Code's own session list
+  (`claude agents --json --all`). A session Claude Code no longer lists shows as
+  unavailable, with its recorded details and no open command. It is not
+  recreated, resumed, or marked complete.
+- A card's Started record reads the same kept records, so it also survives a
+  restart. It keeps today's origin rules. It also ends when Claude Code shows
+  that its session is no longer running (stopped, or its process gone) or no
+  longer lists it. The card then offers that action again, and the session
+  stays in Recent sessions.
+- A launch record is local evidence for finding a session. It never changes
+  the story facts shown from origin: a finished, stopped, or unavailable
+  session does not show the story as done.
+- Only dashboard-launched sessions are listed, under the epic's
+  [Agreed Boundaries](#agreed-boundaries). A session started by hand in the CLI
+  is not listed, even when its name looks like a dashboard launch.
+- Deferred: resuming an unavailable session (for example with
+  `claude --resume`), a list covering all projects, configurable retention,
+  interaction inside the dashboard (story 3), linking sessions from Recently
+  done, other hosts, and attention or completion indicators.
+- Assumptions, observed on 2026-09-29: `claude agents --json --all` lists
+  finished background sessions from about a month back. Each has `state`
+  (`working`, `done`, or `stopped`), and `status` (`busy` or `idle`) only while
+  its process runs. Planning should confirm what `claude attach` does for a
+  finished session that is still listed. Offer the command only where it
+  opens the session.
+
+**Key examples:**
+
+1. A developer starts execution on a Backlog story, then switches to another
+   project and back, or reloads. Recent sessions lists that launch with its
+   title, identity, "Execution", launch time, session id, a working state, and
+   `claude attach <id>`.
+2. The dashboard server restarts while that session is still running and the
+   story is still in the Backlog. The entry is still in Recent sessions, and
+   the card still shows Execution started.
+3. The session takes the story, and later the story is completed and gone from
+   every list. The card is gone, but the Recent sessions entry remains.
+4. The same story was launched twice, for refinement and then for execution,
+   or as two executions. Recent sessions shows two entries, told apart by
+   workflow, launch time, and session id.
+5. Refinement is launched on a card that already shows Preparing. The card
+   shows no Started, but Recent sessions lists the session, so it no longer
+   needs finding through `claude agents`.
+6. An execution session exits before taking the story, which stays in the
+   Backlog. The card's Started ends and Start execution is offered again. Recent
+   sessions shows the session with its finished or stopped state.
+7. Claude Code no longer lists a recorded session. Its entry says the session
+   is unavailable and offers no open command. The story's published state is
+   unchanged.
+8. A launch recorded more than 30 days ago no longer appears in Recent
+   sessions.
+
+**Depends on:** The dashboard launch
+([Agent launch](../../dashboard/AGENT-LAUNCH.md)) records identified
+dashboard-launched sessions.
+
+**Safe stopping point:** Developers can find and reopen dashboard-launched
+sessions through the CLI, without any interaction inside the browser.
 
 <a id="interact-with-claude-terminal"></a>
 
@@ -371,8 +422,6 @@ Recently done is related work with its own value and priority decision.
 
 - Define project S/M/L bands before assigning comparative estimates; none were
   found, so there is no defensible numerical or band distribution yet.
-- Define recent-session retention and recovery after a dashboard restart. Local
-  navigation state must not replace origin as authority for story progress.
 - Observe real attachment/reconnection for the embedded terminal; decide its
   smallest usable presentation then, without requiring question detection.
 - Select the next story after the first launch from real use. Interaction's
