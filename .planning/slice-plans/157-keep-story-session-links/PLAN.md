@@ -149,7 +149,22 @@ to "the session leaves its card".
 
 ### 2. Mark as done on a card's session closes it, even when Claude Code no longer lists it
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run typecheck:dashboard`; `npx playwright test --config
+dashboard/playwright.config.ts --reporter=line` over `agent-launch-done`,
+`agent-launch-done-refusal`, `agent-terminal-done`, `agent-launch-card-done`,
+`agent-launch-card-sessions`, `agent-launch-card-session-states`,
+`agent-launch-card`, `agent-launch-recent-sessions`,
+`agent-launch-recent-session-states`, `agent-terminal`,
+`agent-terminal-close`, `agent-terminal-lifetime`, and `agent-launch-records`
+specs: 27 passed. The unlisted case is `agent-launch-done.spec.ts` "marks a
+session Claude Code no longer lists without stopping it"; the page case is
+`agent-launch-card-done.spec.ts`.
+Learnings: `server/doneMarks.ts` stops unless `AgentLaunches.stateOf` answers
+unlisted, so an unreadable listing still stops the session. Card entries and
+the panel share `useMarking` and `SessionsOnPage.markDone`; focus falls back
+through `sessionKeyboardHome`. Untested: the Recent sessions region fallback
+for another project's session. Run Playwright from the checkout root.
 Proof: `agent-launch-done.spec.ts` gains an unlisted-session case: the fake
 forgets the session, the done POST answers the marked record, `calls.jsonl`
 has no `stop`, and the mark survives a restart. The card journey (in the slice 1

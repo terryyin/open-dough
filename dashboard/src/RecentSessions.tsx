@@ -4,7 +4,9 @@
 // developer can reach a session whose story is in no list, or one marked done.
 // Each entry (`./SessionEntry.tsx`) names its story and shows its session's
 // state as Claude Code last listed it, read again at the page's steady pace.
-// Entries are local evidence of launches, not story facts.
+// It takes the keyboard when a session marked done has no entry here, as when
+// another project is selected. Entries are local evidence of launches, not
+// story facts.
 
 import { launchRetentionDays, type LaunchWithState } from "./agentLaunch.ts";
 import { SessionEntry } from "./SessionEntry.tsx";
@@ -20,6 +22,7 @@ export function RecentSessions({
     <section
       className="recent-sessions"
       aria-labelledby="recent-sessions-heading"
+      tabIndex={-1}
     >
       <h2 id="recent-sessions-heading">Recent sessions</h2>
       <p className="quiet">
@@ -34,7 +37,7 @@ export function RecentSessions({
         <ol>
           {records.toReversed().map((record) => (
             <li key={record.session.sessionId}>
-              <SessionEntry record={record} namesStory />
+              <SessionEntry record={record} onCard={false} />
             </li>
           ))}
         </ol>

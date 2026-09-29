@@ -7,13 +7,18 @@
 // briefly for Claude Code's listing to show the new name. A busy session
 // queues the command until its turn ends, so the wait may expire; then, as
 // with no terminal open, the `done-` name is only the record's. Either way it
-// marks the record done (`./launchRecordStore.ts`), ends every attachment to
-// the session, and runs `claude stop <short id>` (`./claudeCode.ts`). The
-// mark is local evidence only and never changes a story fact.
+// marks the record done (`./launchRecordStore.ts`) and ends every attachment
+// to the session. It runs `claude stop <short id>` (`./claudeCode.ts`) unless
+// the session's state, read then through the records' join with Claude Code's
+// listing, is unlisted, which then only records its done time; a session whose
+// listing cannot be read is still stopped. The mark is local evidence only and
+// never changes a story fact.
 
 import { setTimeout as delay } from "node:timers/promises";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { doneSessionName } from "../src/doneMark.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import type { AgentLaunches } from "./agentLaunches.ts";
 import type { AgentTerminals } from "./agentTerminals.ts";
 import { claudeSessions, stopClaude } from "./claudeCode.ts";
 import { markRecordDone } from "./launchRecordStore.ts";
@@ -82,23 +87,28 @@ async function renameInClaudeCode(
   }
 }
 
-// Marks the recorded session done and stops it, answering the marked record.
+// Marks the recorded session done and stops it unless Claude Code no longer
+// lists it, answering the marked record.
 export async function markSessionDone(
-  sourceId: string,
+  source: PublishedSource,
   record: LaunchRecord,
   folder: ProjectFolder,
+  launches: AgentLaunches,
   terminals: AgentTerminals,
 ): Promise<LaunchRecord> {
   await renameInClaudeCode(record, folder, terminals);
   const doneAt = new Date().toISOString();
   const marked =
-    (await markRecordDone(sourceId, record.session.sessionId, doneAt)) ??
+    (await markRecordDone(source.id, record.session.sessionId, doneAt)) ??
     ({ ...record, doneAt } satisfies LaunchRecord);
   terminals.endAttachments(record.session.sessionId);
-  await stopClaude(
-    record.session.shortId,
-    folder,
-    AbortSignal.timeout(stopWaitMs),
-  );
+  const { sessionState } = await launches.stateOf(source, record);
+  if (sessionState.kind !== "unlisted") {
+    await stopClaude(
+      record.session.shortId,
+      folder,
+      AbortSignal.timeout(stopWaitMs),
+    );
+  }
   return marked;
 }

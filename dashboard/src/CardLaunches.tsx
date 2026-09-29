@@ -54,7 +54,7 @@ export function CardLaunches({
             <li key={record.session.sessionId}>
               <SessionEntry
                 record={record}
-                namesStory={false}
+                onCard
                 takesFocus={launchedHere === record.session.sessionId}
               />
             </li>

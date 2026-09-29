@@ -35,6 +35,7 @@
 }
 
 .start-launch-button:disabled,
+.launch-open button:disabled,
 .start-launch-dialog-actions button:disabled {
   color: var(--quiet);
   border-color: var(--line);

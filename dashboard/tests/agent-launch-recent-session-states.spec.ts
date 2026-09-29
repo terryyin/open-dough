@@ -1,7 +1,7 @@
 // A Recent sessions entry shows its session's state as Claude Code lists it
 // -- Working, Idle, Finished, Stopped, Session unavailable, or State unknown
-// with its note, and Done once marked done while it no longer runs -- and
-// the page reads it again at the steady pace while it
+// with its note, and Done once marked done while it no longer runs or is no
+// longer listed -- and the page reads it again at the steady pace while it
 // is visible, so a change appears within one pace without a reload. Open
 // terminal is offered only where `attachOpens` says it opens the session.
 // Origin alone still places every story. The page's own dashboard
@@ -180,7 +180,7 @@ test("each entry shows its session's state, changes within one pace without a re
     }
   });
 
-  await test.step("a session marked done reads Done while it no longer runs, its running label when it runs again, and Session unavailable once unlisted", async () => {
+  await test.step("a session marked done reads Done while it no longer runs, its running label when it runs again, and still Done, without Open terminal, once unlisted", async () => {
     // The Stopped and Idle sessions; marking stops each one.
     for (const index of [1, 3]) {
       const response = await markDone(dashboard, {
@@ -198,7 +198,10 @@ test("each entry shows its session's state, changes within one pace without a re
     dashboard.claudeSessionBecomes(sessionIds[1] ?? "?", "forgotten");
     await passOnePace(page, () => reads);
     await expectState(entryOf(3), "Idle");
-    await expectState(entryOf(1), "Session unavailable");
+    await expect(sessionStateOf(entryOf(1))).toHaveText("Done");
+    await expect(
+      entryOf(1).getByRole("button", { name: "Open terminal" }),
+    ).toHaveCount(0);
   });
 
   await test.step("an unreadable listing shows State unknown with its note, marked done or not, and a readable one shows the state again", async () => {

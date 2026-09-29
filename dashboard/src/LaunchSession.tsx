@@ -5,7 +5,7 @@
 // return the keyboard to an entry's control (`./terminalOpening.ts`).
 
 import { attachOpens, type LaunchWithState } from "./agentLaunch.ts";
-import { opensSession, useOpenTerminal } from "./terminalOpening.ts";
+import { opensSession, usePageSessions } from "./terminalOpening.ts";
 import "./agent-launch.css";
 
 export function LaunchSession({
@@ -13,7 +13,7 @@ export function LaunchSession({
 }: {
   readonly record: LaunchWithState;
 }) {
-  const openTerminal = useOpenTerminal();
+  const { openTerminal } = usePageSessions();
   return (
     <>
       <p>

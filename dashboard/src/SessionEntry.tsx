@@ -4,8 +4,11 @@
 // session's state as Claude Code last listed it, its workflow, when it was
 // launched, its session, and Open terminal (`./LaunchSession.tsx`); a session
 // the developer marked done is Done, under its `done-` name. An entry names
-// its story's title and identity unless it is listed on the story's own card.
-// Entries are local evidence of launches, not story facts.
+// its story's title and identity unless it is listed on the story's own card,
+// where it offers Mark as done through the page's one operation
+// (`./TerminalSplit.tsx`). A Recent sessions entry can take the keyboard when
+// the control that last had it is gone. Entries are local evidence of
+// launches, not story facts.
 
 import { useEffect, useRef } from "react";
 import {
@@ -17,13 +20,19 @@ import {
 import { doneSessionName } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
 import { LaunchSession } from "./LaunchSession.tsx";
+import {
+  notMarkedDone,
+  showsSession,
+  useMarking,
+  usePageSessions,
+} from "./terminalOpening.ts";
 import "./agent-launch.css";
 
 // How an entry names its session's state as Claude Code last listed it. A
 // running session is Working while busy and Idle otherwise, whatever its
 // state, even once marked done, since opening a done session wakes it; one no
-// longer running is Done once marked done, Finished once Claude Code calls it
-// done, and Stopped otherwise.
+// longer running, or no longer listed, is Done once marked done; otherwise one
+// not running is Finished once Claude Code calls it done, and Stopped.
 function sessionStateWords(
   sessionState: SessionState,
   markedDone: boolean,
@@ -38,7 +47,7 @@ function sessionStateWords(
         note: "Claude Code's session list could not be read",
       };
     case "unlisted":
-      return { label: "Session unavailable" };
+      return { label: markedDone ? "Done" : "Session unavailable" };
     case "listed":
       if (sessionRuns(sessionState)) {
         return { label: sessionState.status === "busy" ? "Working" : "Idle" };
@@ -52,12 +61,12 @@ function sessionStateWords(
 
 export function SessionEntry({
   record,
-  namesStory,
+  onCard,
   takesFocus,
 }: {
   readonly record: LaunchWithState;
-  // Set where the entry is listed away from its story's card.
-  readonly namesStory: boolean;
+  // Set where the entry is listed on its story's card, which names the story.
+  readonly onCard: boolean;
   // Given where the developer's own launch lists the entry, so the keyboard
   // can land on it; set, it takes the keyboard.
   readonly takesFocus?: boolean;
@@ -79,12 +88,11 @@ export function SessionEntry({
     <article
       ref={entry}
       className="session-entry"
-      aria-label={
-        namesStory ? `${name} session for ${title}` : `${name} session`
-      }
-      tabIndex={takesFocus === undefined ? undefined : -1}
+      aria-label={onCard ? `${name} session` : `${name} session for ${title}`}
+      tabIndex={-1}
+      {...(onCard ? {} : showsSession(record.session.sessionId))}
     >
-      {namesStory && (
+      {!onCard && (
         <>
           <h3>{title}</h3>
           <p className="card-identity">{identity}</p>
@@ -107,6 +115,31 @@ export function SessionEntry({
         </p>
       )}
       <LaunchSession record={record} />
+      {onCard && <MarkDone record={record} />}
     </article>
+  );
+}
+
+// A card entry's Mark as done; once marked, the entry leaves the card.
+function MarkDone({ record }: { readonly record: LaunchWithState }) {
+  const { markDone } = usePageSessions();
+  const { marking, follow } = useMarking();
+  return (
+    <>
+      <p className="launch-open">
+        <button
+          type="button"
+          disabled={marking === "marking"}
+          onClick={(event) => {
+            follow(markDone({ record, opener: event.currentTarget }));
+          }}
+        >
+          Mark as done
+        </button>
+      </p>
+      <p role="status" className="launch-problem">
+        {marking === "not-marked" && notMarkedDone}
+      </p>
+    </>
   );
 }

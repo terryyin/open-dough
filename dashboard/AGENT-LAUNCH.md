@@ -125,7 +125,8 @@ and offers **Reconnect**; when the attached CLI exits on its own, it says "The
 terminal ended" and offers **Open again**. Either attaches to the same session
 anew, and Close stays available.
 
-**Mark as done**, beside Close, ends the session for the dashboard. The page
+**Mark as done**, beside Close and on every session a card lists, ends the
+session for the dashboard. Both go through the same page operation. The page
 posts `{ "source": "<project id>", "session": "<session id>" }` to
 `/__agent-launch/done` (`server/doneMarks.ts`). The boundary
 (`server/agentLaunchAdmission.ts`) refuses another site (403), an unknown
@@ -139,14 +140,20 @@ seconds for `claude agents --json --all` to list the new name. A launch name
 with a control character is never typed. A busy session queues the command
 until its turn ends, so the wait can expire; then, as with no terminal
 attached or an untyped name, the `done-` name is only the dashboard's. Either
-way the boundary keeps the done time on the launch record, ends the
-terminal's attach process, and runs `claude stop <short id>` in the project's
-folder. The panel closes, or says "The session could not be marked done." if
-the boundary refused the mark or no answer came.
-The session leaves its card. Its Recent sessions entry shows
-**Done** and "Named done-<name>", and still offers Open terminal, since Claude
-Code keeps the conversation. A done mark is local evidence, like the launch
-record, and never changes where origin places the story.
+way the boundary keeps the done time on the launch record and ends the
+terminal's attach process. It runs `claude stop <short id>` in the project's
+folder only while `claude agents --json --all` still lists the session, or
+cannot be read; a session Claude Code no longer lists is only marked. A panel
+showing the session closes. The panel or card entry says "The session could
+not be marked done." if the boundary refused the mark or no answer came.
+The session leaves its card, and the keyboard returns to the control that
+opened the panel, or asked for the mark, while it is on the page; otherwise
+to the session's Recent sessions entry: its Open terminal, the entry itself
+when it offers none, or Recent sessions when the entry is not shown. That
+entry shows **Done** and "Named done-<name>", even for a session Claude Code
+no longer lists, and still offers Open terminal while Claude Code keeps the
+conversation. A done mark is local evidence, like the launch record, and
+never changes where origin places the story.
 
 Launch records are kept on this machine, outside every repository, in
 `~/.open-dough/dashboard/agent-launches.json`. Restarting `npm run

@@ -4,11 +4,12 @@
 // keyboard goes to the session's Recent sessions entry, since the card entry
 // that opened it is gone, and Recent sessions shows the entry Done under its
 // `done-` name, still openable. How the boundary renames and stops the session is
-// ./agent-launch-done.spec.ts. A refused mark keeps the panel open and says
-// so, and a mark answered after another session replaced the panel leaves the
-// keyboard in the new terminal. Origin alone still places the story. The page's own
-// dashboard server drives the synthetic `claude` (./fixtures/fake-claude);
-// the real one is never reached.
+// ./agent-launch-done.spec.ts, and a card entry's own Mark as done is
+// ./agent-launch-card-done.spec.ts. A refused mark keeps the panel open and
+// says so, and a mark answered after another session replaced the panel leaves
+// the keyboard in the new terminal. Origin alone still places the story. The
+// page's own dashboard server drives the synthetic `claude`
+// (./fixtures/fake-claude); the real one is never reached.
 
 import { renameSync } from "node:fs";
 import path from "node:path";
