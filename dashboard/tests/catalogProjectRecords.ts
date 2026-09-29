@@ -95,6 +95,7 @@ export function publicationOf(published: Project) {
 export function expectPinnedGhCalls(
   calls: readonly ObservedRequest[],
   published: Project,
+  mode: "dev" | "preview",
 ): void {
   const refResolution = [
     "api",
@@ -104,12 +105,16 @@ export function expectPinnedGhCalls(
   ];
   // The ref is resolved before anything is read at its revision.
   expect(calls[0]?.argv).toEqual(refResolution);
-  // The dev server's React StrictMode runs the opening read twice, and the
-  // aborted first run may still resolve the ref: that exact resolution may
-  // repeat, and every other call must read at the resolved revision.
-  const reads = calls.filter(
-    ({ argv }) => JSON.stringify(argv) !== JSON.stringify(refResolution),
-  );
+  // Only the dev server's React StrictMode runs the opening read twice, and
+  // the aborted first run may still resolve the ref: in dev mode that exact
+  // resolution may repeat. Every other call, and every call in preview mode
+  // after the first, reads at the resolved revision.
+  const reads =
+    mode === "dev"
+      ? calls.filter(
+          ({ argv }) => JSON.stringify(argv) !== JSON.stringify(refResolution),
+        )
+      : calls.slice(1);
   // Files are read raw; the agent profile directory is read as a listing.
   const contents = reads.map(({ argv, request }) => {
     expect(argv.slice(0, 3)).toEqual([

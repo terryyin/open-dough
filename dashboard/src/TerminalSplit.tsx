@@ -215,6 +215,8 @@ export function TerminalSplit({
             onClose={() => {
               closeTerminal(terminal);
             }}
+            // The panel's own mark gives the keyboard back to no control:
+            // the panel closes and the keyboard goes where closing puts it.
             onMarkDone={async (request) =>
               (await markClosing(request)) !== "not-marked"
             }

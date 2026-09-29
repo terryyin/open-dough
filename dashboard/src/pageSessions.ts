@@ -13,8 +13,8 @@ import { createContext, useContext, useState } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
 
 // A request about one session the page shows: its launch record, joined with
-// its state where the operation needs it, and the control that asked, which
-// gets the keyboard back once the page has answered.
+// its state where the operation needs it, and the control that asked, where
+// the keyboard may return once the page has answered.
 export type SessionRequest<Record extends LaunchRecord = LaunchRecord> = {
   readonly record: Record;
   readonly control: HTMLElement;
@@ -30,8 +30,9 @@ export type SessionOperation<
 export type OpenTerminal = SessionOperation<void>;
 
 // Marks the session done, closing its terminal if the page shows it, and
-// answers whether it was marked. The control that asked gets the keyboard
-// back while it is on the page.
+// answers whether it was marked. The keyboard may return to the control that
+// asked while it is on the page; the terminal panel's own mark does not give
+// it back, since the panel closes with the session.
 export type MarkSessionDone = SessionOperation<Promise<boolean>>;
 
 // The page's operations that session entries ask, and the session its

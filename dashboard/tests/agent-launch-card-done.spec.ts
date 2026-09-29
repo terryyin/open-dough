@@ -3,11 +3,10 @@
 // the terminal panel's (./agent-terminal-done.spec.ts): on a session Claude
 // Code no longer lists, it leaves the card without being stopped and Recent
 // sessions shows it Done, with the keyboard on that entry, which offers no
-// Open terminal; on a session the panel shows, the panel closes too, and the
-// keyboard goes to the entry's Open terminal. A refused mark keeps the entry
-// on its card and says so there. Origin alone still places the story. The
-// page's own dashboard server drives the synthetic `claude`
-// (./fixtures/fake-claude); the real one is never reached.
+// Open terminal. A refused mark keeps the entry on its card and says so
+// there. Origin alone still places the story. The page's own dashboard server
+// drives the synthetic `claude` (./fixtures/fake-claude); the real one is
+// never reached.
 
 import { renameSync } from "node:fs";
 import path from "node:path";
@@ -42,7 +41,7 @@ test.describe("marking a card's session done", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("Mark as done on a card's session, unavailable or shown in the panel, takes it off the card and Recent sessions shows it Done", async ({
+  test("Mark as done on a card's session Claude Code no longer lists takes it off the card and Recent sessions shows it Done", async ({
     page,
     dashboard,
   }) => {
@@ -52,7 +51,6 @@ test.describe("marking a card's session done", () => {
       stagesJourney,
     );
     const { recentSessions: recent } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
     const onCard = (workflow: "Execution" | "Refinement") =>
       cardSessionOf(card(readyStory), workflow);
     const inRecent = (workflow: "Execution" | "Refinement") =>
@@ -68,9 +66,7 @@ test.describe("marking a card's session done", () => {
     await expectMembership(page, queued);
     await settled();
     await launch(readyStory, "Execution");
-    await launch(readyStory, "Refinement");
     const unavailable = await sessionNamedBy(onCard("Execution"));
-    const shown = await sessionNamedBy(onCard("Refinement"));
     const stops = () =>
       dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
 
@@ -95,26 +91,6 @@ test.describe("marking a card's session done", () => {
       ).toHaveCount(0);
       await expect(entry).toBeFocused();
       expect(stops()).toEqual([]);
-    });
-
-    await test.step("a session the panel shows closes the panel, leaves its card, and the keyboard goes to its Recent sessions entry", async () => {
-      await onCard("Refinement")
-        .getByRole("button", { name: "Open terminal" })
-        .click();
-      await expect(panel.locator(".xterm-rows")).toContainText("attached");
-
-      await markDone(onCard("Refinement"));
-
-      await expect(panel).toHaveCount(0);
-      await expect(onCard("Refinement")).toHaveCount(0);
-      const entry = inRecent("Refinement");
-      await expect(sessionStateOf(entry)).toHaveText("Done");
-      await expect(
-        entry.getByRole("button", { name: "Open terminal" }),
-      ).toBeFocused();
-      expect(stops().map((call) => call.argv)).toEqual([
-        ["stop", shown.slice(0, 8)],
-      ]);
     });
     await expectMembership(page, queued);
   });

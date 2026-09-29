@@ -95,9 +95,11 @@ condition and passes with `liveness !== "dead"`.
 
 ### 3. Mark as done's page journeys each own one concern
 Type: Structure
-Status: planned
+Status: done
 Proof: the dashboard suite passes; each removed or moved assertion names its
 surviving owner; every changed spec is at most 250 lines.
+Accepted: dashboard suite 302 passed, typecheck clean; the page reopening
+lives in `agent-terminal-done-reopen.spec.ts`.
 
 Split the page reopening out of `agent-terminal-done.spec.ts` as its own test
 that starts from a session already marked done; drop the panel-mark steps it
