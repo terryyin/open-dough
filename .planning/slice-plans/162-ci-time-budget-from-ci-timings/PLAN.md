@@ -102,7 +102,7 @@ retention; dashboards or trend views.
 ### 1. One reader of the time-budget file
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/test-runner-budget.sh tests/test-runner-selection.sh`
 and `npm run lint` pass.
 
@@ -112,6 +112,16 @@ Internal change: move the parsing and strict refusal of `per-job-seconds` and
 statuses. External behavior is unchanged: the runner's breach report, silence
 within budget, and refusal of a malformed budget. Enables slice 2's command to
 read the ceilings without a second grammar.
+
+Accepted proof: the reader is `scripts/time-budget.bash`
+(`read_time_budget <file>` sets `per_job_seconds` and `total_job_seconds`, or
+prints the existing FAIL line and returns 1; it never exits). Both focused
+checks and `npm run lint` passed; `tests/test-runner-budget.sh` observes the
+breach report (runner and direct), silence within budget, and no local judging.
+No test asserts the malformed-budget refusal; it was observed by hand (missing
+total and non-numeric value print the FAIL line and exit 1; a last line
+without a newline is read). Slice 2's test asserts that refusal through the
+new command, which shares the reader. The refactor pass made no changes.
 
 ### 2. Report recent trunk CI timings against the budget
 
@@ -139,7 +149,8 @@ exits non-zero. Runs without artifacts are skipped and not counted.
 fixture runs, including one without artifacts, and a substitute
 `OPEN_DOUGH_TEST_DIR` budget. It checks example 1's wide job, example 2's
 thin job, a share total, a named-job filter, a named job with no timing, the
-empty case, and a failing `gh`.
+empty case, a failing `gh`, and a malformed budget refused with the shared
+reader's FAIL line.
 
 Guidance in the same change:
 
