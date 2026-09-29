@@ -15,11 +15,11 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Catch native harness faults before paying for a native run](seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior) — SEED-055#native-harness-observes-agent-behavior ([plan](slice-plans/163-native-harness-replay/PLAN.md))
+- [Prove the busy-session rename edge and confirm observer shutdown honestly](seeds/SEED-052-start-agent-work-from-dashboard.md#mark-done-residue) — SEED-052#mark-done-residue ([plan](slice-plans/166-mark-done-residue/PLAN.md))
 
 ## Backlog list
 
 - [Correct continued-command reading and corpus admission in the native harness](seeds/SEED-055-trustworthy-project-proof.md#native-harness-replay-corrections) — SEED-055#native-harness-replay-corrections
-- [Prove the busy-session rename edge and confirm observer shutdown honestly](seeds/SEED-052-start-agent-work-from-dashboard.md#mark-done-residue) — SEED-052#mark-done-residue
 - [Keep the Sessions sidebar's reads and reveals honest](seeds/SEED-052-start-agent-work-from-dashboard.md#session-sidebar-residue) — SEED-052#session-sidebar-residue
 - [Close the assessor counterexample discipline's remaining gaps](seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps) — SEED-055#assessor-counterexample-gaps
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
