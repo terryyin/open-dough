@@ -21,6 +21,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Keep the Sessions sidebar's reads and reveals honest](seeds/SEED-052-start-agent-work-from-dashboard.md#session-sidebar-residue) — SEED-052#session-sidebar-residue
 - [Prove assessors on the verdicts they newly admit](seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline) — SEED-055#assessor-counterexample-discipline
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
