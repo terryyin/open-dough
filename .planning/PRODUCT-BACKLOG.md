@@ -18,10 +18,10 @@ visibility for multiple agents working in worktrees on one machine.
 - [Close the assessor counterexample discipline's remaining gaps](seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps) — SEED-055#assessor-counterexample-gaps ([plan](slice-plans/168-assessor-counterexample-gaps/PLAN.md))
 - [Land changes made on the default checkout by committing to main and syncing](seeds/SEED-008-worktree-branch-trunk-sync.md#land-from-default-checkout) — SEED-008#land-from-default-checkout ([plan](slice-plans/170-land-from-default-checkout/PLAN.md))
 - [Delete a session whose state is unknown from the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#delete-unknown-state-session) — SEED-052#delete-unknown-state-session ([plan](slice-plans/171-delete-unknown-state-session/PLAN.md))
+- [Correct continued-command reading and corpus admission in the native harness](seeds/SEED-055-trustworthy-project-proof.md#native-harness-replay-corrections) — SEED-055#native-harness-replay-corrections ([plan](slice-plans/169-native-harness-replay-corrections/PLAN.md))
 
 ## Backlog list
 
-- [Correct continued-command reading and corpus admission in the native harness](seeds/SEED-055-trustworthy-project-proof.md#native-harness-replay-corrections) — SEED-055#native-harness-replay-corrections
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
