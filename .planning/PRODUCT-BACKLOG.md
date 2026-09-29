@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Launch story refinement from the dashboard in a Claude Code background session](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-refinement-background) — SEED-052#launch-claude-refinement-background ([plan](slice-plans/148-launch-claude-refinement/PLAN.md))
 - [Retire a workspace created for the work in any later session](seeds/SEED-008-worktree-branch-trunk-sync.md#durable-workspace-creation-fact) — SEED-008#durable-workspace-creation-fact ([plan](slice-plans/147-durable-workspace-creation-fact/PLAN.md))
-- [Accept existing guidance natively on Codex](seeds/SEED-053-native-guidance-acceptance.md#native-acceptance-codex) — SEED-044#native-premise-acceptance-codex-cursor ([plan](slice-plans/141-codex-native-guidance-acceptance/PLAN.md))
 
 ## Backlog list
 
