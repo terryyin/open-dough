@@ -225,7 +225,7 @@ tool-specific status flow is designed.
 
 **Identity:** SEED-052#terminal-residue
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/155-terminal-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7a1f68f3417ae6bd561bee17bfcca0afec807813d890abc9119c56c9c730c867","plan":"b95440ad310ba00adef7f206eb08a0ebcb02fd3a01d3832e4066b8f413a031af"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/155-terminal-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7a1f68f3417ae6bd561bee17bfcca0afec807813d890abc9119c56c9c730c867","plan":"17fb8da4f917ee2cedcc50bc9868479220c833bafaeda7ccfefb7cd599d42e7f"}}
 ```
 
 **Goal:** A developer who marks a session done keeps keyboard focus in a

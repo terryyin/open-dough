@@ -43,6 +43,18 @@ Excluded: whether Mark as done keeps typing `/rename` into the attached
 terminal at all (retrospective finding F1: the keys can reach a permission
 prompt or the agent view). That is Terry's decision and a separate change.
 
+Open decisions homed here, outside this correction's scope, for Terry:
+
+- **Mark as done's rename** (F1 above): a guarded in-terminal rename, or the
+  `done-` name kept only in the dashboard record, which the story allows when
+  the rename cannot be done reliably.
+- **State unknown** still offers Open terminal, as it offered the copyable
+  command before (`attachOpens` in `src/agentLaunch.ts`).
+- **Loading under keyboard focus:** at narrow widths, preparation facts
+  arriving after a focus scroll can move the focused control past the window
+  edge when scroll anchoring loses its node. `dashboard-header.spec.ts` waits
+  for "Reading preparation…" to clear; no product change is recommended.
+
 ## Findings (retrospective, reconciled at `815844e4`)
 
 - **F2 guards:** the title schema excludes only `\r` and `\n`
@@ -83,6 +95,12 @@ prompt or the agent view). That is Terry's decision and a separate change.
 | --- | --- | --- |
 | The findings hold at the reviewed revision. | Read `stopClaude` callers, `oneLine`, `closeTerminal`, `.terminal-status`, `markedDone`, `tests/README.md`; `wc -l` at `815844e4`. | As described above: 271 and 256 lines; the stop result is awaited and dropped; `--problem` colours the status. |
 | The surviving coverage exists. | The retrospective's read of `agent-launch-refusal.spec.ts:50-60`, `agent-launch-recent-session-states.spec.ts:44-62,188`, `agent-launch-done.spec.ts:67-139`, `agent-terminal-lifetime.spec.ts:157-168`, and the close spec's hook test. | Each owns the concern named in Proof ownership. |
+
+Plan 151 (SEED-052#recent-sessions-residue) landed on `main` in parallel and
+added shared page helpers `recentSessionName` and `sessionNamedBy` in
+`dashboard/tests/dashboardPage.ts`; slice 3 reuses them in the terminal specs
+instead of their own session-id selectors. Its changes to the states spec keep
+the label table this plan extends.
 
 ## Slices
 
