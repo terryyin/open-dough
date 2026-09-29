@@ -1,8 +1,9 @@
 // The local launch boundary (../server/agentLaunchPlugin.ts) over raw HTTP,
 // in dev and preview: a same-origin launch request starts one Claude Code
-// background session in the project's folder and answers with the record it
-// keeps, and each failure answers failed or uncertain and keeps no record. A
-// GET answers only the requested project's records.
+// background session in the project's folder, on the requested workflow's
+// skill and named for its workflow, and answers with the record it keeps;
+// each failure answers failed or uncertain and keeps no record. A GET answers
+// only the requested project's records.
 // Refused requests are ./agent-launch-refusal.spec.ts. The synthetic `claude`
 // (./fixtures/fake-claude) on each server's PATH records every call; the
 // real one is never reached.
@@ -14,6 +15,7 @@ import {
   launchRequest,
   openDoughFolder,
   recordsOf,
+  refinementRequest,
   title,
 } from "./agentLaunchBoundary.ts";
 import {
@@ -61,7 +63,7 @@ for (const mode of ["dev", "preview"] as const) {
           request: launchRequest,
           session: {
             host: "claude",
-            name: `Open Dough · ${title}`,
+            name: `Open Dough · Execution · ${title}`,
           },
         },
       });
@@ -74,7 +76,7 @@ for (const mode of ["dev", "preview"] as const) {
           argv: [
             "--bg",
             "--name",
-            `Open Dough · ${title}`,
+            `Open Dough · Execution · ${title}`,
             `/dough-execute-plan ${identity}`,
           ],
           cwd: folder,
@@ -85,22 +87,31 @@ for (const mode of ["dev", "preview"] as const) {
       expect(await recordsOf(server, "doughnut")).toEqual([]);
     });
 
-    test("passes the developer's instruction after the execution instruction and a blank line", async () => {
+    test("launches refinement on its own skill and name, with the developer's instruction after a blank line", async () => {
       server.claudeScenario("launched");
       const callsBefore = server.claudeCalls().length;
-      const instruction = "refine and plan it first, then execute";
-      const response = await launch(server, { ...launchRequest, instruction });
+      const instruction = "Focus on the empty-state wording";
+      const response = await launch(server, {
+        ...refinementRequest,
+        instruction,
+      });
 
       expect(JSON.parse(response.body)).toMatchObject({
         kind: "launched",
-        record: { request: { instruction } },
+        record: {
+          request: { workflow: "refinement", instruction },
+          session: { name: `Open Dough · Refinement · ${title}` },
+        },
       });
-      expect(server.claudeCalls()[callsBefore]?.argv).toEqual([
-        "--bg",
-        "--name",
-        `Open Dough · ${title}`,
-        `/dough-execute-plan ${identity}\n\n${instruction}`,
-      ]);
+      expect(server.claudeCalls()[callsBefore]).toEqual({
+        argv: [
+          "--bg",
+          "--name",
+          `Open Dough · Refinement · ${title}`,
+          `/dough-story-refinement ${identity}\n\n${instruction}`,
+        ],
+        cwd: openDoughFolder(server),
+      });
     });
 
     test("names the missing project folder and starts no claude", async () => {
@@ -187,6 +198,7 @@ for (const mode of ["dev", "preview"] as const) {
       expect(server.heldClaudeEndedBy()).toBe("SIGTERM");
       expect(await recordsOf(server, "open-dough")).toHaveLength(recordsBefore);
     });
+
     test("answers each project only its own records", async () => {
       server.claudeScenario("launched");
       const response = await launch(server, {

@@ -42,6 +42,7 @@ The following is proposed architectural intent, not an accepted decision.
 | Taken story | Work claimed for execution, with a recorded developer assignment. Taken does not prove that an agent is currently running. |
 | Developer identity | A reusable name, distinct from a story, assignment, or AI session. |
 | Developer assignment | An undertaking to prepare or execute identified work. Its profile records the current developer, activity, and available tool/model information. |
+| Launch workflow | What a dashboard launch starts on one work item, such as execution or refinement: the skill it runs and the activity whose developer assignment settles the launch. One activity can host several workflows. |
 | Execution mode | The workflow by which a story is executed and integrated. Story Branch Mode and Trunk Mode have different publication locations. |
 | Slice plan and slice | A plan organizes bounded executable slices of a selected story. Recorded slice completion supplies progress evidence; a plan is not mandatory for every story. |
 | Feature | Implemented external behavior that users care about, with maintained definition and design, protected by automated tests. It describes capability rather than a promise that a particular user's goal has been satisfied. |

@@ -1,5 +1,9 @@
 import { expect, test } from "./dashboardTest.ts";
-import { expectWholeSnapshot, parts } from "./dashboardPage.ts";
+import {
+  expectSnapshotButtons,
+  expectWholeSnapshot,
+  parts,
+} from "./dashboardPage.ts";
 import { rateLimitedAnswer, type MovingOrigin } from "./publishedOrigin.ts";
 import {
   backlogB,
@@ -76,19 +80,11 @@ for (const { because, fail, problem: problemText } of failedRefreshes) {
         retrievedA.toISOString(),
       );
       await expect(retry).toHaveAccessibleName("Retry");
-      await expect(page.getByRole("button")).toHaveCount(9);
-      await expect(parts(page).preparationHelp).toHaveCount(1);
-      await expect(
-        page.getByRole("button", { name: "Start execution" }),
-      ).toHaveCount(3);
-      await expect(
-        page.getByRole("button", { name: "Inspect story" }),
-      ).toHaveText([
-        "Inspect story",
-        "Inspect story",
-        "Inspect story",
-        "Inspect story",
-      ]);
+      await expectSnapshotButtons(page, {
+        readControl: "Retry",
+        backlogCards: 3,
+        cards: 4,
+      });
       await expect(retry).toBeFocused();
       await expect(parts(page).reading).toHaveCount(0);
     });
@@ -126,19 +122,11 @@ for (const { because, fail, problem: problemText } of failedRefreshes) {
       );
       await expect(problem).toHaveCount(0);
       await expect(refresh).toHaveAccessibleName("Refresh");
-      await expect(page.getByRole("button")).toHaveCount(8);
-      await expect(parts(page).preparationHelp).toHaveCount(1);
-      await expect(
-        page.getByRole("button", { name: "Start execution" }),
-      ).toHaveCount(2);
-      await expect(
-        page.getByRole("button", { name: "Inspect story" }),
-      ).toHaveText([
-        "Inspect story",
-        "Inspect story",
-        "Inspect story",
-        "Inspect story",
-      ]);
+      await expectSnapshotButtons(page, {
+        readControl: "Refresh",
+        backlogCards: 2,
+        cards: 4,
+      });
       await expect(refresh).toBeFocused();
     });
   });

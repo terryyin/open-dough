@@ -12,46 +12,12 @@ import {
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
 import { stagesMarks, workCardMarks } from "./workFocus.ts";
-import { launchAwaitsPublication, latestRecordOf } from "./agentLaunch.ts";
+import { launchAwaitsPublication } from "./agentLaunch.ts";
 import type { ProjectLaunches } from "./agentLaunches.ts";
-import { readyBadge } from "./storyPreparation.ts";
-import { StartExecution } from "./StartExecution.tsx";
-import { LaunchStarted } from "./LaunchStarted.tsx";
+import { CardLaunches } from "./CardLaunches.tsx";
 
 function count(entries: readonly WorkEntry[]): string {
   return entries.length === 1 ? "1 entry" : `${entries.length} entries`;
-}
-
-// A Backlog card's launch: Started once the launch records still awaiting
-// publication hold one for the entry, otherwise the Start execution action.
-function CardLaunch({
-  entry,
-  launches,
-}: {
-  entry: WorkEntry;
-  launches: ProjectLaunches;
-}) {
-  const [startedHere, setStartedHere] = useState(false);
-  const record = latestRecordOf(launches.records, entry.identity);
-  if (record !== undefined) {
-    return <LaunchStarted record={record} takesFocus={startedHere} />;
-  }
-  const preparation = entry.preparation;
-  return (
-    <StartExecution
-      work={entry}
-      ready={
-        preparation?.status === "loading"
-          ? undefined
-          : preparation !== undefined && readyBadge(preparation) !== undefined
-      }
-      attempt={launches.attemptOf(entry.identity)}
-      onStart={(instruction) => {
-        setStartedHere(true);
-        return launches.startExecution(entry, instruction);
-      }}
-    />
-  );
 }
 
 function WorkCard({
@@ -97,7 +63,7 @@ function WorkCard({
           sliceClock={entry.sliceClock}
         />
       )}
-      {launches && <CardLaunch entry={entry} launches={launches} />}
+      {launches && <CardLaunches entry={entry} launches={launches} />}
       <p>
         <button
           type="button"
