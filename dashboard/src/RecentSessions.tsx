@@ -27,21 +27,26 @@ export function RecentSessions({
       <h2 id="recent-sessions-heading">Recent sessions</h2>
       <p className="quiet">
         Claude Code sessions launched from this dashboard for this project,
-        newest first, kept on this machine; sessions marked done are kept for{" "}
-        {launchRetentionDays} days after marking.
+        newest first, kept on this machine.
       </p>
       {records.length === 0 ? (
         <p className="quiet">
           No sessions launched from this dashboard are kept.
         </p>
       ) : (
-        <ol>
-          {records.toReversed().map((record) => (
-            <li key={record.session.sessionId}>
-              <SessionEntry record={record} onCard={false} />
-            </li>
-          ))}
-        </ol>
+        <>
+          <p className="quiet">
+            Sessions marked done are kept for {launchRetentionDays} days after
+            marking.
+          </p>
+          <ol>
+            {records.toReversed().map((record) => (
+              <li key={record.session.sessionId}>
+                <SessionEntry record={record} onCard={false} />
+              </li>
+            ))}
+          </ol>
+        </>
       )}
     </section>
   );
