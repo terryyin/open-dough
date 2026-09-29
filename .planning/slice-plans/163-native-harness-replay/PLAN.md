@@ -432,3 +432,21 @@ Learnings:
   practice requires.
 - A slice's new job must stay well under `per-job-seconds=71`. Replay does not
   enter `tests/git-publication-native.sh`.
+
+## Execution complete
+
+Product advice:
+- Integrate this branch soon. The Taken
+  [assessor counterexample discipline](../../seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline)
+  (plan 165) edits the same assessor suites. Slice 4 changed the closure
+  observer signatures, and a helper that moves counterexample streams out of
+  `git-publication-native-counterexamples.sh` must also update the guard's
+  exact shape-writer list.
+- Queue [the correction](../../seeds/SEED-055-trustworthy-project-proof.md#native-harness-replay-corrections)
+  (plan 168) at the top: a continued merge-adapter command would fail a
+  correct paid run today.
+- ProjectFindings.md's first priority (DD-179) is delivered here; wrap-up
+  should record that.
+- Only the Cursor one-shot and admission attempts replay a verdict. Claude and
+  Codex verdict replay arrives with the next accepted paid run added through
+  the corpus command, not through new paid captures.

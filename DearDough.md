@@ -396,6 +396,9 @@ surfaced only at the coordinator's formatting step, after refactoring.
     (minutes), and it compounds with ODF-064 because the fixes landed after
     the refactor pass.
 
+- Execution: `SEED-055#native-harness-observes-agent-behavior` / plan 163, first related implementation commit `daaf3c1e`; Timestamp: unknown (2026-09-29, slices 1, 3, and 5); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `d68fcde4`
+  - Evidence: every delegation said no `npm run format` or independent lint; the coordinator's format step then failed on `no-param-reassign` (slice 1), SC2154 and SC2312 (slice 3), and SC2312 (slice 5), each fixed and retested before commit. Briefs named the lint rules from slice 4 on, as plan 084 did.
+  - Observed effect: about four coordinator fix-and-rerun cycles, minutes each. Inference: Qualified; the recurrence shows the no-hook case is still unstated.
 ## ODF-096 — Native acceptance fixtures' sufficient side was not credible, and each case paid a failed run to learn it
 
 Former local code: DD-096.
@@ -410,22 +413,6 @@ Its plans 142 and 146 occurrences, harness observation faults rather than
 fixture credibility, moved to [ProjectFindings.md](ProjectFindings.md) as DD-179.
 
 ### Occurrences
-
-- Execution: `SEED-004#accept-delivery-evidence-native` / plan 089, first related implementation commit `eff3e76293b4564e25089bdeccbb07767e18f491`
-  - Timestamp: unknown (2026-09-24, slices 1, 2, and 4)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.34
-  - Evidence: plan 089 slice results (selection: Codex refused marker flags;
-    claims: Claude "There's no uncommitted work"; gaps: Claude showed `push`
-    contradicts "put back first"). Observer layout misses cost further
-    reruns in slices 1–3.
-  - Observed effect: at least one failed native run per slice before a
-    pass. Cursor's earlier acceptance ran on the weaker fixtures.
-  - Inference: A pre-run review of each case's sufficient side against the
-    accept-proof rule, allowed as fixture preparation, would likely have saved
-    most of those runs. Useful practice: an offline byte-identical fixture
-    comparison kept the native evidence valid through each refactor.
 
 - Execution: `SEED-028#track-ad-hoc-work` / plan 110, first related implementation commit `4286761`
   - Timestamp: 2026-09-26T06:13:32Z (first native `admission-investigation` run)
@@ -984,9 +971,22 @@ Plan 159 slice 2 said to test the session presentation once as a shared capabili
   - Evidence: plan 159 slice 2 proof text; `agent-launch-recent-session-states.spec.ts` `both(index)` loop at `4ef13e85`; the execution retrospective found it.
   - Observed effect: extra per-state card assertions beside `agent-launch-card-session-states.spec.ts`, which already rechecks card labels (plan 160's finding 6); cleanup falls to a correction. Inference: Qualified. Accept-proof guidance weighs observation substance; a plan's test-cost direction has no acceptance check.
 
+## DD-182 — Rerunning managed delivery on an already-published candidate refused with an internal error instead of classifying it
+
+A transient `Permission denied (publickey)` interrupted `deliver`; a rerun failed at `git fetch` and a third refused with "rebase left the pre-rebase SHA as the candidate" because the remote already held the candidate. `execution-increment-resume.mjs resume` then classified it `already-published` and recovered the observer. The coordinator reran `deliver` instead of classifying the interrupted publication first, as the execute-plan resume rule directs; DD-176's refused retry shows the same message.
+
+### Occurrences
+
+- Execution: `SEED-055#native-harness-observes-agent-behavior` / plan 163, first related implementation commit `daaf3c1e`
+  - Timestamp: unknown (2026-09-29, between commit `daaf3c1e` at 21:15:47+08:00 and slice 2's work)
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `d68fcde4`
+  - Evidence: three `deliver` attempts for `daaf3c1e` (push, then fetch, `publickey` errors; then the refusal); `resume` receipt `already-published`, observer `watch-NCakHT` recovered; a loop of five `git fetch` gave one `publickey` failure.
+  - Observed effect: two extra delivery attempts and a detour through the script source; no duplicate push. Inference: Qualified. `deliver` could recognize a candidate already on the target as published, or name `resume` in its refusal.
+
 ## Retention
 
-- Highest allocated local number: 181. Removed local codes are never reused.
+- Highest allocated local number: 182. Removed local codes are never reused.
+- Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-182 and ODF-094's plan 163 occurrence: ODF-096's 0.3.34-era occurrence (`SEED-004#accept-delivery-evidence-native`); two later occurrences keep the finding; recovery: `b4d82278:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-180, DD-181, and DD-172's third occurrence: ODF-003's two oldest occurrences (`SEED-008#script-driven-ci-observation`, `SEED-037#diagnosable-test-hangs`); two later occurrences keep the finding; recovery: `4ef13e85:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-176, DD-177, and the DD-172 and ODF-097 recurrences: ODF-130 (concurrent slices sharing Playwright output) and ODF-129 (full-suite proof beside another agent's edits), since slices now run one at a time; recovery: `32e554d5:DearDough.md`.
 - Removed ODF-070 (former DD-066; nested worktree `node_modules` assumed absent) on 2026-09-29 for the 1,000-line ceiling: its 0.3.26-era occurrence as lower priority than ODF-116's recurrence (recovery: `6fa51cb6:DearDough.md`), then its remaining occurrence as lower current actionability than DD-172/DD-173 and the ODF-100 recurrence, since execution-location guidance now requires a locked install per worktree (recovery: `0c31529b:DearDough.md`).
