@@ -91,13 +91,6 @@ Status: done
 Proof: Doughnut baseline/candidate written plans, state and complete native traces, or justified equivalent Codex reuse.
 Behavior: pre-plan refined Doughnut story → installed-guidance planning → candidate names `scripts/test/quality_changed.test`, records its relevant inspection and selects it as proof rather than asserting no gate test. This first paid probe owns runtime/isolation/skill-use/stream compatibility. Setup/runtime failure blocks later paid sessions pending diagnosis; behavior failure stops this requirement for correction judgment. Baseline success limits attribution. Accepted result below.
 
-### R. Repair the escalation fixture before another paid run
-
-Type: Structure
-Status: planned
-Proof: generated unchanged product passes its applicable command; a rename makes that command expose the real released-settings compatibility obligation; existing deterministic carry/admission counterexamples remain valid.
-Outcome: remove the upfront migration solution from ordinary source inspection while retaining opaque released data and the genuine compatibility failure. Inspect all fixture consumers. Do not lead the native prompt, change evaluated guidance, supply carried edits, or weaken after-edit acceptance. If a truthful fixture cannot support this boundary, stop this requirement before a paid run and report the limitation.
-
 ### 2. Sound premises reach readiness without unnecessary planning work
 
 Type: Behavior
@@ -133,14 +126,21 @@ Status: done
 Proof: same wrapper with `--case publication/one-shot-queued`; push history, requested content, closure/sibling observations and native trace.
 Behavior: queued trivial story B with one-slice plan and unfinished sibling → explicit one-shot completion → one accepted commit with requested result/closure, no accepted Taken push, spent story section/plan removed, sibling identity/position preserved, human edits preserved, owned workspace retired. Reuse fixture/assessor; no broader ownership-race journey.
 
+### R. Establish a genuine escalation fixture before its paid run
+
+Type: Structure
+Status: blocked — growth premise disproved
+Proof required before a paid run: generated unchanged product passes its applicable command; owned rename edits reveal an obligation requiring a genuinely separate outcome; existing deterministic carry/admission counterexamples remain valid. The stopped proposal proves a compatibility failure, but its passing small alias repair does not establish the required growth.
+Original repair approach: remove the upfront migration solution from ordinary source inspection while retaining opaque released data and the compatibility failure. This approach is stopped by the feasibility evidence below. Inspect all fixture consumers. Do not lead the native prompt, change evaluated guidance, supply carried edits, or weaken after-edit acceptance. If a truthful fixture cannot support this boundary, stop this requirement before a paid run and report the limitation.
+
 ### 7. A grown one-shot attempt enters ordinary tracking with its edits intact
 
 Type: Behavior
-Status: planned
+Status: blocked — depends on a genuine growth fixture
 Proof: `PATH="/opt/homebrew/bin:$PATH" bash tests/git-publication-native.sh --native codex --case publication/one-shot-escalation --results-dir <results>` using the repaired maintained harness from slice R, pinned separately from `v0.3.46` guidance. Independently inspect native trace, accepted claim, carried edits and assessor.
 Behavior: eligible one-shot starts, owned edits expose growth → before further edits ordinary admission with carry → origin records claim, edits remain uncommitted in same workspace, continuation stays within original authority. Fixture withholds planning, so stop after admission is valid. Up-front admission is safe but inconclusive; untracked grown result or unnecessary approval stop fails.
-Precondition resolved 2026-09-28: `git ls-tree -r --name-only f7a7637c tests/support`, runner `--help` and `native_case_known` show the escalation dispatch through `git-publication-native-one-shot-escalation.sh`. `d05d9937` accepted its non-leading Claude fixture; `133b4f9d` assimilated SEED-028 proof against `23563ee0`: carry after edits, uncommitted restoration, no trunk result, stop before planning. This proves fixture feasibility, not Codex acceptance, and removes missing-fixture concern without changing scope/bounds/PFE/revisions.
-Fixture exposes growth through the released-settings check; migration documentation/test source also reveals it before edits, as observed below. Counterexamples cover untracked results, missing admission, missing/committed edits, admission before editing and changed human edits. Use disposable harness copy redirecting only existing fixture-install source to release checkout; keep harness/guidance distinct and never edit evaluated guidance for acceptance.
+Historical precondition assessment — 2026-09-28: `git ls-tree -r --name-only f7a7637c tests/support`, runner `--help` and `native_case_known` show the escalation dispatch through `git-publication-native-one-shot-escalation.sh`. `d05d9937` accepted its non-leading Claude fixture; `133b4f9d` assimilated SEED-028 proof against `23563ee0`: carry after edits, uncommitted restoration, no trunk result, stop before planning. This removed the missing-dispatch concern and supplied a Claude transition observation, not Codex acceptance. Slice R's later counterexample reopens the fixture's genuine-growth premise; it does not erase that historical observation.
+The released-settings check exposes a compatibility failure, while migration documentation/test source prescribes a separate outcome before edits. Neither establishes necessary growth, as the stopped probe below shows. Counterexamples cover untracked results, missing admission, missing/committed edits, admission before editing and changed human edits. Use disposable harness copy redirecting only existing fixture-install source to release checkout; keep harness/guidance distinct and never edit evaluated guidance for acceptance.
 
 ## Resume preparation — 2026-09-29
 
@@ -157,3 +157,17 @@ Fixture exposes growth through the released-settings check; migration documentat
 
 <a id="slice-2-observation-and-execution-stop-2026-09-28"></a>
 The original [slice 2 failure](HISTORY.md#slice-2-observation-and-execution-stop-2026-09-28) remains outstanding until the changed-guidance rerun is judged.
+
+## Resumed execution context
+
+Story Branch Mode; Honoka-chan, publisher `codex-plan-141-20260929`. Take `7387165f5a5119f0e8e6c19de65a348ca5106baf` accepted on origin/main; increments target origin/refs/heads/codex/plan-141-resume. Owned path/branch above, reused from this session’s preparation; starting revision `1b3fc6dd2cd1a4194f3450144aaf6ded72c48541`. Exact-checkout locked `PATH="/opt/homebrew/bin:$PATH" npm ci` passed with unchanged dependency metadata; the native runner help command passed after Take. No commit hook; coordinator uses selective `npm run format`. Trunk claim CI remains unobserved.
+
+CI observer: GitHub Actions `ci.yml`, display name `CI`, verified by `gh run list`; target `terryyin/open-dough:codex/plan-141-resume`. Exact owned-checkout runtime `.agents/skills/dough-execute-plan`; coordinator `codex-plan-141-20260929`, cell `38`, session `98048`, directory `/tmp/dough-ci-501/watch-sxEzBB`, PID `13734`. Managed deliveries reuse this identity.
+
+## Fixture feasibility probe — slice R (2026-09-29)
+
+Verdict: the proposed visibility repair is insufficient; no paid escalation run. The generated released-settings check exposes data loss after a literal rename, but a two-line fallback/output alias preserves that saved value and passes with settingsVersion still 1. This does not establish a necessary second outcome outside one-shot eligibility. The old diagnostic prescribed a separate migration, but the surviving executable compatibility behavior does not establish that necessity; removing the prescription alone cannot repair the case's premise. Do not penalize a legitimate small compatibility repair as failed tracking.
+
+The stopped path remains inside this story: establish a truthful, nonleading initially eligible task whose owned edits reveal a genuine separate outcome, then rerun slice 7. Preserve its original safe-early-admission observation. No guidance defect or new paid result is claimed. The proposed harness edits are withheld; existing release/harness bytes remain unchanged. Terry's continuing execution authority permits independent slice 2 now; the remaining plan is reordered accordingly, with no change to the after-edit carry promise.
+
+Inspected setup/observations: maintained `writeEscalationProduct`, generated `test/released-settings.test.mjs` decompressing saved release 1.0 and comparing each loaded value, `scripts/command.js` executing it, and the literal renamed/legacy-alias settings variants. Disposable integration `/private/tmp/plan141-slice-r.1aYeKm/workspace-claim-E5ZnPK/integration`; each variant ran `node scripts/command.js` to terminal 0/1/0 respectively. Proposed source/consumer changes passed `PATH="/opt/homebrew/bin:$PATH" npm test -- tests/git-publication-native.sh tests/git-publication-native-one-shot.sh` to exit 0; this is harness counterexample proof, not native acceptance. Current maintained fixture restored to original blob `d28b6c1074bfedae81f1f5b85da14f2f55463b87`; proposal and exact observations retained outside source for review and then removed after compact evidence publication. No framework, assessor weakening, prompt change, guidance repair or paid retry.
