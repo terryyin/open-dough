@@ -2,14 +2,17 @@
 // (../server/agentLaunchPlugin.ts) answers it over raw HTTP: every records
 // read joins Claude Code's own listing, `claude agents --json --all` in the
 // project folder, by session id. A session it lists answers `listed` with its
-// `state` and, while its process runs, its `status`; one it no longer lists
-// answers `unlisted`; and a listing that fails answers `unknown`. Nothing is
+// `state`, while its process runs its `status`, and, when Claude Code says,
+// what a blocked session is `waitingFor`; one it no longer lists answers
+// `unlisted`; and a listing that fails answers `unknown`. Nothing of it is
 // stored, and with no records kept no `claude` runs. The synthetic `claude`
 // (./fixtures/fake-claude) lists what it launched as the real one does, and
 // its controls end or forget a session or fail the listing; the real one is
 // never reached. What a launch answers and keeps is
 // ./agent-launch-boundary.spec.ts.
 
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { expect, test } from "@playwright/test";
 import {
   launch,
@@ -32,6 +35,7 @@ type WithState = {
 test.describe("session state joined into the launch records answer", () => {
   test.describe.configure({ mode: "serial" });
   let server: DashboardServer;
+  let storeFile: string;
 
   test.beforeAll(async () => {
     server = await startDashboardServer({
@@ -39,6 +43,12 @@ test.describe("session state joined into the launch records answer", () => {
       prebuilt: builtDashboardDir,
       projectFolders: ["open-dough"],
     });
+    storeFile = path.join(
+      server.home,
+      ".open-dough",
+      "dashboard",
+      "agent-launches.json",
+    );
   });
 
   test.afterAll(async () => {
@@ -57,17 +67,22 @@ test.describe("session state joined into the launch records answer", () => {
     expect(server.claudeCalls()).toEqual([]);
   });
 
-  test("answers each session as Claude Code lists it: running busy or idle, exited done or stopped, or no longer listed", async () => {
+  test("answers each session as Claude Code lists it: working busy or idle, blocked with what it waits for when it says, done running or exited, failed, stopped, or no longer listed, keeping none of it", async () => {
     server.claudeScenario("launched");
+    // Each session's change and the reason a blocked one gives, if any.
     const changes = [
-      "working",
-      "idle",
-      "finished",
-      "stopped",
-      "forgotten",
-    ] as const satisfies readonly ClaudeSessionChange[];
-    const sessions = new Map<ClaudeSessionChange, string>();
-    for (const change of changes) {
+      ["working"],
+      ["working-idle"],
+      ["blocked"],
+      ["blocked", "permission to run npm test"],
+      ["done-live"],
+      ["done-exited"],
+      ["failed"],
+      ["stopped"],
+      ["forgotten"],
+    ] as const satisfies readonly (readonly [ClaudeSessionChange, string?])[];
+    const sessions: string[] = [];
+    while (sessions.length < changes.length) {
       const { record } = JSON.parse(
         (await launch(server, launchRequest)).body,
       ) as { record: WithState };
@@ -76,33 +91,57 @@ test.describe("session state joined into the launch records answer", () => {
         state: "working",
         status: "busy",
       });
-      sessions.set(change, record.session.sessionId);
+      sessions.push(record.session.sessionId);
     }
-    for (const change of changes) {
-      server.claudeSessionBecomes(sessions.get(change) ?? "?", change);
+    const stored = readFileSync(storeFile, "utf8");
+    for (const [index, [change, waitingFor]] of changes.entries()) {
+      server.claudeSessionBecomes(sessions[index] ?? "?", change, waitingFor);
     }
     const callsBefore = server.claudeCalls().length;
 
     const states = await statesOf();
-    expect(states.size).toBe(changes.length);
-    const stateOf = (change: ClaudeSessionChange) =>
-      states.get(sessions.get(change) ?? "?");
-    expect(stateOf("working")).toEqual({
+    expect(sessions.map((id) => states.get(id))).toEqual([
+      { kind: "listed", state: "working", status: "busy" },
+      { kind: "listed", state: "working", status: "idle" },
+      { kind: "listed", state: "blocked", status: "waiting" },
+      {
+        kind: "listed",
+        state: "blocked",
+        status: "waiting",
+        waitingFor: "permission to run npm test",
+      },
+      { kind: "listed", state: "done", status: "idle" },
+      { kind: "listed", state: "done" },
+      { kind: "listed", state: "failed" },
+      { kind: "listed", state: "stopped" },
+      { kind: "unlisted" },
+    ]);
+    expect(server.claudeCalls().slice(callsBefore)).toEqual([
+      { argv: ["agents", "--json", "--all"], cwd: openDoughFolder(server) },
+    ]);
+    // The records read kept nothing of what it answered.
+    expect(readFileSync(storeFile, "utf8")).toBe(stored);
+  });
+
+  test("answers a resumed session without the reason it waited for", async () => {
+    const { record } = JSON.parse(
+      (await launch(server, launchRequest)).body,
+    ) as { record: WithState };
+    const id = record.session.sessionId;
+    server.claudeSessionBecomes(id, "blocked", "input needed");
+    expect((await statesOf()).get(id)).toEqual({
+      kind: "listed",
+      state: "blocked",
+      status: "waiting",
+      waitingFor: "input needed",
+    });
+
+    server.claudeSessionBecomes(id, "working");
+    expect((await statesOf()).get(id)).toEqual({
       kind: "listed",
       state: "working",
       status: "busy",
     });
-    expect(stateOf("idle")).toEqual({
-      kind: "listed",
-      state: "done",
-      status: "idle",
-    });
-    expect(stateOf("finished")).toEqual({ kind: "listed", state: "done" });
-    expect(stateOf("stopped")).toEqual({ kind: "listed", state: "stopped" });
-    expect(stateOf("forgotten")).toEqual({ kind: "unlisted" });
-    expect(server.claudeCalls().slice(callsBefore)).toEqual([
-      { argv: ["agents", "--json", "--all"], cwd: openDoughFolder(server) },
-    ]);
   });
 
   test("answers every session unknown while the listing fails, and as listed once it answers again", async () => {

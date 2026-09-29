@@ -1,15 +1,14 @@
 // A card keeps listing its sessions whatever Claude Code lists of them, each
-// with the state Recent sessions shows: finished, stopped, idle, or no longer
-// listed (Session unavailable, without Open terminal), and State unknown with
-// its note while the listing cannot be read. Every Backlog card still offers
-// its Start actions with their notes. A dashboard server restarted on the same
-// machine, a reload, and a project switch keep the listing, and a stopped
-// session's Open terminal still attaches. What each state means is
+// with the state Recent sessions shows: Ready for review, Session stopped,
+// Needs input, Session unavailable without Open terminal, and State unknown
+// with its note while the listing cannot be read. Every Backlog card still
+// offers its Start actions with their notes. A restarted dashboard server, a
+// reload, and a project switch keep the listing, and a stopped session's Open
+// terminal still attaches. What each state means is
 // ./agent-launch-recent-session-states.spec.ts. Origin alone still places
-// every story. The page's dashboard server keeps its HOME and the synthetic
-// `claude`'s state (./fixtures/fake-claude) in a machine directory, so the
-// restarted server answers the same records and sessions; its controls end,
-// forget, or fail to list a session, and the real `claude` is never reached.
+// every story. The server keeps its HOME and the synthetic `claude`'s state
+// (./fixtures/fake-claude) in a machine directory, so a restart answers the
+// same records and sessions; the real `claude` is never reached.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -17,7 +16,7 @@ import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { test as base, expect } from "./dashboardTest.ts";
 import {
-  cardSessionName,
+  cardSessionOf,
   cardSessions,
   expectMembership,
   parts,
@@ -76,7 +75,7 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("a finished, stopped, idle, unavailable, or unknown session stays on its card with its state beside the Start actions, through a restart, a reload, and a project switch", async ({
+  test("a ready-for-review, stopped, blocked, unavailable, or unknown session stays on its card with its state beside the Start actions, through a restart, a reload, and a project switch", async ({
     page,
     dashboard,
     github,
@@ -97,7 +96,7 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
     await settled();
 
     // Each launch, the change its session undergoes, and the state its card
-    // entry shows then; the idle session still runs.
+    // entry shows then; the blocked session still runs.
     const launches: readonly {
       title: string;
       workflow: Workflow;
@@ -107,8 +106,8 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
       {
         title: notRefinedStory,
         workflow: "Execution",
-        change: "finished",
-        shows: "Finished",
+        change: "done-exited",
+        shows: "Ready for review",
       },
       {
         title: readyStory,
@@ -120,22 +119,17 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
         title: notRefinedStory,
         workflow: "Refinement",
         change: "stopped",
-        shows: "Stopped",
+        shows: "Session stopped",
       },
       {
         title: readyStory,
         workflow: "Refinement",
-        change: "idle",
-        shows: "Idle",
+        change: "blocked",
+        shows: "Needs input",
       },
     ];
     const entryOf = (title: string, workflow: Workflow): Locator =>
-      cardSessions(card(title)).and(
-        page.getByRole("article", {
-          name: cardSessionName(workflow),
-          exact: true,
-        }),
-      );
+      cardSessionOf(card(title), workflow);
     const openIn = (entry: Locator) =>
       entry.getByRole("button", { name: "Open terminal" });
     // Every card still offers both Start actions with their notes.
@@ -168,10 +162,9 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
     const sessionIds: string[] = [];
     for (const { title, workflow } of launches) {
       await launch(title, workflow);
-      await expect(sessionStateOf(entryOf(title, workflow))).toHaveText(
-        "Working",
-      );
-      sessionIds.push(await sessionNamedBy(entryOf(title, workflow)));
+      const entry = entryOf(title, workflow);
+      await expect(sessionStateOf(entry)).toHaveText("Working");
+      sessionIds.push(await sessionNamedBy(entry));
     }
     // Claude Code's listing cannot be read, and then every session changes.
     dashboard.claudeListingFails(true);

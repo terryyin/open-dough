@@ -45,8 +45,21 @@ export const recentSessionName = (workflow: string, title: string) =>
 export const cardSessions = (card: Locator) =>
   card.getByRole("list", { name: "Sessions" }).getByRole("article");
 
+// What a card says of how many of its sessions need attention, when any do.
+export const cardAttentionOf = (card: Locator) =>
+  card.getByText(/^\d+ sessions? needs? attention$/);
+
 // A card's session entry, named for its launch's workflow.
 export const cardSessionName = (workflow: string) => `${workflow} session`;
+
+// A card's entry for its session in this workflow.
+export const cardSessionOf = (card: Locator, workflow: string) =>
+  cardSessions(card).and(
+    card.page().getByRole("article", {
+      name: cardSessionName(workflow),
+      exact: true,
+    }),
+  );
 
 // The state words a session entry shows, on a card or in Recent sessions.
 export const sessionStateOf = (entry: Locator) =>

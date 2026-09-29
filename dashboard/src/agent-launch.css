@@ -102,6 +102,14 @@
   margin-top: 0.45rem;
 }
 
+/* How many of a card's sessions need attention: its words say so, quietly,
+   without color or motion. */
+.card-attention {
+  margin-top: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .card-sessions .session-entry {
   background: var(--panel);
 }
@@ -147,4 +155,11 @@
 
 .session-state .quiet {
   font-weight: normal;
+}
+
+/* A session the developer is needed at: its state's words say why, and a
+   solid, heavier edge marks the entry without relying on color. */
+.session-entry.needs-attention {
+  border-style: solid;
+  border-left-width: 4px;
 }

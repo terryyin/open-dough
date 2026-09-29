@@ -110,7 +110,7 @@ or claims of readiness.
 
 **Identity:** SEED-052#reopened-session-returns
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/161-reopened-session-returns/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a63323fe072a3e72b6a6d4938b5a1c7c1faf20e0a3a0a81996b287d6ef8df18f","plan":"c1c60291bc4434c079fe754b934c1c4d60c46c95441dc5547903eafed1293c8a"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/161-reopened-session-returns/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3522f0612332e91cacf30b704d7ac5d3ff441295d3888528f4eb4b255ed473d6","plan":"916b571c0fcc4cd1b49cda91dc69af5a57698cea962b4487ae8226b72bde61c4"}}
 ```
 
 **Goal:** A developer who reopens a session they had marked done, and keeps
@@ -139,7 +139,7 @@ session the developer is actively using for that story.
 1. A developer marks a story's Execution session done; it leaves the card and
    Recent sessions shows it Done. Later they choose Open terminal on that
    Recent sessions entry and the terminal attaches. The card lists the session
-   again, Working or Idle, and its Recent sessions entry no longer says Done.
+   again with its current state, and its Recent sessions entry no longer says Done.
 2. After a dashboard restart, the reopened session is still listed on its
    card.
 3. The developer marks the reopened session done again. It leaves the card,
@@ -169,107 +169,6 @@ region focus fallback, the unreadable-listing stop, a card entry's refusal
 message, the `TerminalOpening` reuse for marking, Started test names, and
 overlapping card specs over 250 lines. It adds no feature promise. See the
 [plan](../slice-plans/160-card-session-residue/PLAN.md).
-
-<a id="launch-claude-refinement"></a>
-
-### 4. See when a dashboard session needs human attention
-
-**Identity:** SEED-052#launch-claude-refinement
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/159-session-attention/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"03fa62946ba00dd9f97a6a9617bacf6daee1faef50eca59010ff5e608bafa559","plan":"fc3cc112a89ab3b9e486f61a7561faaaf33f671f45b788848534a91be1e6a63d"}}
-```
-
-**Goal:** A developer who leaves a dashboard-launched Claude Code session
-working can notice when it needs an answer, has a result to review, or has
-failed or stopped, and open its terminal to respond. The developer need not
-open each conversation merely to find out which one needs attention.
-
-**Scope:**
-
-- Apply to dashboard-launched refinement and execution sessions in the selected
-  project that the developer has not marked done. Both the Recent sessions
-  entry and the session's entry on its linked story card show an attention
-  indicator and its reason. The story card also signals that one or more of
-  its sessions need attention. Each session keeps its own state; a working
-  session does not hide another session's need for attention.
-- A session waiting on the developer shows **Needs input**, with the reported
-  reason when available, such as an answer, permission decision, or another
-  intervention. A session whose last turn has finished shows **Ready for
-  review**. A failed or stopped session calls for attention with **Session
-  failed** or **Session stopped**. These are local session observations,
-  regardless of whether the underlying process is still alive.
-- Use the host's reported state, not elapsed inactivity, terminal output
-  silence, or process exit alone. A session still driving work, including
-  waiting between its own steps or on CI, does not need attention merely
-  because its process is idle. Update attention through the existing automatic
-  session-state refresh; no page reload or open terminal is required.
-- Keep **Open terminal** wherever the session remains attachable. Opening or
-  closing the terminal does not acknowledge attention. When the host reports
-  that the session has resumed work, its attention indicator clears. The
-  developer's explicit **Mark as done** closes it and suppresses its attention
-  indicator, including in Recent sessions. No separate acknowledgment flow is
-  required.
-- An unreadable listing shows **State unknown** with the existing explanation;
-  an unlisted session shows **Session unavailable** with its existing controls.
-  Neither observation establishes that the session is blocked or has ended.
-  Do not invent an attention reason from missing evidence. When the host can
-  be read again, show the newly observed state.
-- A session's end or readiness for review does not establish that its story
-  is refined, accepted, completed, or published. Preserve origin as the source
-  of published story facts. When the story is outside all displayed lists,
-  its session can still need attention in Recent sessions.
-- **Deferred:** A state-aware skill chooser and additional skill-launch
-  journeys; reconciliation of completed stories; browser or operating-system
-  notifications; discovering sessions not launched by the dashboard; and
-  adding Codex or Cursor support. Launching refinement and answering through
-  the embedded terminal are already delivered, not new promises of this story.
-
-**Key examples:**
-
-1. A refinement session is working. Claude Code then reports that it needs
-   an answer. The session and its linked story signal attention with **Needs
-   input**. The developer opens its terminal and answers; after Claude Code
-   resumes work, the indicator clears.
-2. An execution session needs a permission decision. Its entry identifies that
-   reason, even though the session process is alive. Opening the terminal alone
-   leaves attention visible while the decision remains pending.
-3. Claude Code reports that a session's last turn is done, with its process
-   either alive or exited. Its entry shows **Ready for review**, while the
-   story keeps whatever published state origin establishes. Mark as done
-   clears attention and deliberately closes the session's card entry.
-4. One story has two unclosed sessions: one working and one failed or stopped.
-   The latter names its condition and the story signals attention. The working
-   session remains working. The same affected session remains visible in
-   Recent sessions if the story later leaves every displayed list.
-5. A session is idle between steps while the host still reports it as working;
-   it shows no attention indicator. If the host listing becomes unreadable,
-   the dashboard instead reports **State unknown**, without claiming a question
-   or result is waiting.
-
-**Depends on:** Existing Claude Code launch, Recent sessions, and embedded
-terminal behavior in [Agent launch](../../dashboard/AGENT-LAUNCH.md),
-including persistent session entries and Mark as done on story cards.
-
-**Feasibility evidence:** The current dashboard reads `claude agents --json
---all`, but presents every live non-busy process as Idle. Claude Code's
-[documented session interface](https://code.claude.com/docs/en/agent-view#read-session-state-from-a-script)
-distinguishes `blocked`, `working`, `done`, `failed`, and `stopped`, and supplies
-`waitingFor` when a live process has a pending prompt. This supports reporting
-attention without detecting questions from transcript text. Confirm the relevant
-states with the project's installed Claude Code when preparing executable proof.
-
-**Value / learning:** Makes the existing conversational launch journey useful
-while the developer attends to other work, and tests whether reported session
-state is enough to guide their return.
-
-**Effort hypothesis:** Unestimated; confirming host-state observations and
-presenting attention consistently across story cards and Recent sessions are
-the remaining sizing uncertainties. No unresolved product-scope question is
-required before execution planning.
-
-**Safe stopping point:** Session attention is useful with the existing launch
-and terminal workflows, without completed-story reconciliation or additional
-tools.
 
 <a id="script-execution-preparation"></a>
 
@@ -355,8 +254,8 @@ tools.
 - **Known from launch:** The browser still spells out Claude Code specifics:
   `claude attach`, the uncertain launch's `claude agents` advice,
   `/dough-execute-plan`, and the host label. It also interprets Claude Code's
-  session `state` and `status` (`sessionRuns`, `sessionStateWords`), and the
-  page reads the host's listing again every 15 seconds; Claude Code's answered
+  session `state` and optional `waitingFor` in one reading
+  (`dashboard/src/sessionShown.ts` `sessionShown`), and the page reads the host's listing again every 15 seconds; Claude Code's answered
   in about 0.16 s with 469 sessions. A second host moves these behind the host
   module and observes whether its listing is as quick and tells running from
   exited sessions. Claude Code's server code now spans `claudeCode.ts` (every

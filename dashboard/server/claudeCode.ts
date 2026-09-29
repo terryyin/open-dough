@@ -82,8 +82,10 @@ export async function stopClaude(
 }
 
 // Claude Code's own session listing: `--all` includes sessions whose process
-// has exited, and `status` (busy or idle) is present only while a session's
-// process runs.
+// has exited, `status` (busy, idle, or waiting) is present only while a
+// session's process runs, and `waitingFor` says, when Claude Code reports it,
+// what a blocked session waits for. A `waitingFor` that is not text is left
+// out rather than refusing the whole listing.
 const listingArgs = ["agents", "--json", "--all"] as const;
 
 const listedSessions = z.array(
@@ -93,6 +95,7 @@ const listedSessions = z.array(
     name: z.string().optional(),
     state: z.string(),
     status: z.string().nullish(),
+    waitingFor: z.string().nullish().catch(undefined),
   }),
 );
 
@@ -124,6 +127,11 @@ function parsedListing(stdout: string): readonly ListedSession[] | undefined {
           ...(entry.status === undefined || entry.status === null
             ? {}
             : { status: entry.status }),
+          ...(entry.waitingFor === undefined ||
+          entry.waitingFor === null ||
+          entry.waitingFor === ""
+            ? {}
+            : { waitingFor: entry.waitingFor }),
         },
       }))
     : undefined;
