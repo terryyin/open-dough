@@ -104,28 +104,6 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
-<a id="card-session-residue"></a>
-
-### Correction: Prove Mark as done's remaining edges and trim card-session residue
-
-**Identity:** SEED-052#card-session-residue
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/160-card-session-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05625fa3f4869d70af589778fe6f4106930e1b07140e174c788c519de6c617e6","plan":"41402e5f3f722e2e14b87b409ab5f34dddda121a8745505bdff211957365d995"}}
-```
-
-**Goal:** Maintainers can rely on a test for every Mark as done promise the
-dashboard documents, read one request shape for the page's session
-operations, and change card-session behavior in specs that each own one
-concern.
-
-**Scope:** The correction found by the execution retrospective of
-SEED-052#keep-story-session-links (commits `30bdc002`..`cbd9b7d6` on
-`claude/keep-story-session-links`). It covers the untested Recent sessions
-region focus fallback, the unreadable-listing stop, a card entry's refusal
-message, the `TerminalOpening` reuse for marking, Started test names, and
-overlapping card specs over 250 lines. It adds no feature promise. See the
-[plan](../slice-plans/160-card-session-residue/PLAN.md).
-
 <a id="mark-done-residue"></a>
 
 ### Correction: Prove the busy-session rename edge and confirm observer shutdown honestly
