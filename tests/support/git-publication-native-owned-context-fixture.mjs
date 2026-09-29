@@ -13,7 +13,8 @@
 // owned workspace.
 //
 // preparation-land: the preparation trunk with queued, unrefined Story C; the
-// retained worktree is the owned preparation workspace.
+// retained worktree is the owned preparation workspace, carrying the creation
+// record an earlier session's preparation `start` would have written for C.
 //
 // Usage: node git-publication-native-owned-context-fixture.mjs <source-dir>
 //   <journey> <parent> <host>
@@ -33,6 +34,9 @@ const { ownedWorktreeOnly } = await load(
 );
 const { advanceOriginFromAnotherWriter } = await load(
   `${scripts}/publication-test-fixtures.mjs`,
+);
+const { createdForRef } = await load(
+  `${scripts}/workspace-publication-ownership.mjs`,
 );
 const { computeBasis, recordStoryState } = await load(
   "src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs",
@@ -77,6 +81,13 @@ const installed = git(integration, "rev-parse", "HEAD");
 const owned = isStartup
   ? await ownedWorktreeOnly(trunk, "retained", "work/retained")
   : await ownedWorktreeOnly(trunk, "prep-c", "prep/c");
+if (!isStartup)
+  git(
+    owned.workspace,
+    "update-ref",
+    createdForRef(preparation.identityC),
+    "HEAD",
+  );
 const fetched = await advanceOriginFromAnotherWriter(origin);
 
 // A local copy of Story A's section changed after preparation, with its

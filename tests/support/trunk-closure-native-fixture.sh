@@ -117,7 +117,8 @@ trunk_closure_create_fixture() {
   trunk_closure_base_sha=$(git -C "${trunk_closure_integration}" rev-parse HEAD)
 
   if [[ ${scenario} == owned-context ]]; then
-    trunk_closure_owned_context_worktree
+    export TRUNK_CLOSURE_IDENTITY=SEED-T#final-closure
+    trunk_closure_owned_context_worktree "${source_dir}"
   else
     trunk_closure_repository=${trunk_closure_integration}
     git -C "${trunk_closure_integration}" worktree add -q -b exec/trunk \
@@ -213,4 +214,5 @@ trunk_closure_cleanup_fixture() {
   unset TRUNK_CLOSURE_CANDIDATE_SHA TRUNK_CLOSURE_SCENARIO
   unset TRUNK_CLOSURE_RELEASE
   unset TRUNK_CLOSURE_NODE_LOG TRUNK_CLOSURE_GH_LOG
+  unset TRUNK_CLOSURE_IDENTITY
 }

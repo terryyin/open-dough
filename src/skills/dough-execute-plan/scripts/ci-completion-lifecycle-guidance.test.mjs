@@ -198,6 +198,13 @@ test("wrap-up retires execution resources through Dough Land with its completion
     integrationRetirement,
     /confirmed shutdown as its gate[\s\S]+\[Retire the worktree\]\(\.\.\/\.\.\/dough-land\/SKILL\.md#retire-the-worktree\)/,
   );
+  // Closure names the creation-record ownership check, not only the link.
+  for (const guidance of [wrapUpRetirement, closureRetirement]) {
+    assert.match(
+      guidance,
+      /exploration-workspace\.md#close-or-retain-it\)\s+or\s+another\s+record\s+there\s+shows\s+this\s+work\s+created\s+it/,
+    );
+  }
 
   // A second retirement description must not return beside the link.
   for (const guidance of [

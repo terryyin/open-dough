@@ -101,154 +101,92 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
-<a id="launch-claude-refinement-background"></a>
-
-### 1a. Launch refinement in a Claude Code background session
-
-**Identity:** SEED-052#launch-claude-refinement-background
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/148-launch-claude-refinement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"43838e09c3879fc87860ee84314feaf6bd09638b87289292e164e80f690b6a66","plan":"339cfb9539fcc49fcc8c58717e7c0f91412ba6f43026a1f6ea69d9e1b7176657"}}
-```
-
-**Goal:** A developer looking at a project's backlog starts refinement of a
-chosen story there, instead of switching to a terminal, changing to the
-project's folder, and typing the refinement instruction with the story's
-identity. Both main Open Dough workflows then start from the dashboard through
-one launch solution. The developer answers the refinement interview by
-attaching to the session from a terminal. The story tests whether dashboard
-initiation is used for conversational work when answering happens through the
-ordinary CLI.
-
-**Scope:**
-
-- Every **Backlog** card offers **Start refinement** beside **Start
-  execution**; **Taken** cards offer neither. Refinement is offered whatever
-  the story's recorded refinement or readiness, since re-refining is
-  legitimate.
-- Its dialog is execution's dialog for another workflow: it names the story,
-  its identity, and Claude Code, and takes an optional instruction sent after
-  `/dough-story-refinement <identity>`. **Start** launches; **Cancel** or
-  Escape sends nothing.
-- The launch goes through the existing local launch boundary. The session
-  starts in the same project folder on `/dough-story-refinement <identity>`,
-  then a blank line and the developer's instruction when there is one. Every
-  launched session is named `<project> · <workflow> · <title>`, so a
-  refinement and an execution of one story are told apart in `claude agents`;
-  execution's name gains its workflow word.
-- The card reports starting, launched, failed, or uncertain exactly as for
-  execution, with the same reasons, advice, and copyable `claude attach <id>`.
-  **Started** names its workflow.
-- Each action gives way only to its own **Started**, so a card can show a
-  refinement and an execution **Started** at once. A failure or uncertainty
-  stays with the action it answers.
-- A launch's **Started** lasts until origin shows the assignment its workflow
-  asks for, or the story leaves the Backlog. A refinement asks for a
-  preparation assignment, so it settles when the card shows **Preparing**; an
-  execution still settles on the Take, and keeps showing beside **Preparing**.
-  Reloads and project switches keep an unsettled **Started**, as today.
-- When a card already shows **Preparing**, **Start refinement** says so, as
-  **Start execution** says a story is not marked Ready. A refinement launched
-  there settles at once; its session is reached through `claude agents`.
-- [Agent launch](../../dashboard/AGENT-LAUNCH.md), the dashboard README, and
-  the UX/UI North Star describe both workflows.
-
-**Architecture:** This is the second story of the launch chain, so it
-completes one launch model rather than adding a second path beside
-execution's. It follows the North Star
-[agent launch as a requested assignment](../NORTH-STAR.md#agent-launch-as-a-requested-assignment),
-refined by this story: a launch starts one **workflow** (execution or
-refinement), and each workflow names the skill it runs and the published
-**activity** whose assignment settles it. The first story specialised the
-instruction, the boundary's admission, the settlement rule, the per-card
-attempt, and the action and Started components for execution. This story
-generalises each of them over the workflow instead of copying them. Claude
-Code's invocation syntax stays in its host module. The
-[plan](../slice-plans/148-launch-claude-refinement/PLAN.md) records the domain
-model and the modules it maps to.
-
-**Deferred promises:**
-
-- Access to a session after its **Started** settles (a refinement is then
-  usually mid-interview, and its developer normally already attached) belongs
-  to story 2's recent sessions and story 3's terminal.
-- Settling from Claude Code's own session state, answering inside the
-  dashboard (story 4), a skill chooser and planning-only launches, scripted
-  preparation (story 6), and other tools are deferred. The browser's remaining
-  Claude Code wording moves behind the host with the second host (story 7).
-
-**Boundary assumptions:** The launch boundary's same-page-only rule, fixed
-project folders, and absence of any model, tool, or permission choice carry
-over unchanged. Launching refinement implies no Taken, completed refinement,
-acceptance, or execution. Workspace, **Preparing** announcement, keep or
-discard, and publication stay with the refinement workflow in the session.
-
-**Key examples:**
-
-1. **Launch with an instruction.** A queued, unrefined story is in the Backlog.
-   The developer chooses **Start refinement**, types "Focus on the empty-state
-   wording", and presses **Start**. A Claude Code background session named
-   `Open Dough · Refinement · <title>` starts in the project's folder on
-   `/dough-story-refinement <identity>`, a blank line, and that sentence. The
-   card shows a refinement **Started** with the session id and
-   `claude attach <id>`, and still offers **Start execution**.
-2. **Interview, then Preparing.** After example 1, the developer attaches from
-   a terminal and answers the questions. The session announces **Preparing**
-   on origin; the card then shows the published assignment, the refinement
-   **Started** is gone, and **Start refinement** notes that the story is being
-   prepared. The kept result later shows the story refined.
-3. **Both workflows on one card.** The developer starts execution of a story
-   and then refinement of it. The card shows both **Started** records, each
-   naming its workflow. Once origin shows the story Taken, both are gone.
-4. **Failure.** The project's folder is not trusted by Claude Code. The card
-   says why nothing was launched and keeps **Start refinement**; **Start
-   execution** is unaffected.
-5. **Cancel.** The developer opens the refinement dialog and presses Escape.
-   Nothing is sent and the card is unchanged.
-
-**Value / learning:** Tests whether dashboard initiation is used for
-conversational work when answering happens through the ordinary CLI.
-
-**Effort hypothesis:** Unestimated; reuse of the execution launch is expected
-to dominate. The generalisation over workflows is the main structural work.
-
-**Depends on:** The dashboard launch.
-
-**Safe stopping point:** Both main workflows start from the dashboard even if
-embedded interaction is never added.
-
 <a id="revisit-dashboard-sessions"></a>
 
 ### 2. Find recent dashboard-launched sessions after leaving the story
 
 **Identity:** SEED-052#revisit-dashboard-sessions
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/150-revisit-dashboard-sessions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"57187fb68ead7992b6aaf4dacda30eeeab9f54b6212d52be4a554ebc1731ad13","plan":"0ce6630536711d5b29525cb2990bb2ad5f5ebdca57fff8a86a8b59e822023d28"}}
 ```
 
-- **For / why:** A developer can return to a conversation after navigating away,
-  refreshing the dashboard, or the story leaving the backlog.
-- **Evaluation:** Launch work, later return to Recent sessions, recognize its
-  project, story reference, workflow, and session, and obtain the means to open
-  it in Claude Code's CLI. The entry remains accessible when no current story
-  card or recently done story matches it. Multiple sessions for a story remain
-  distinguishable.
-- **Boundary:** Only dashboard-launched sessions are included. An unavailable
-  tool session is reported as unavailable, not recreated or marked complete.
-  A launch record is local navigation evidence, not authoritative story state.
-- **Value / learning:** Makes launch useful across visits without depending on
-  a completed-story view or an embedded terminal.
-- **Effort hypothesis:** Unestimated; persistence, retention, and stale session
-  access are the sizing uncertainties.
-- **Known from launch:** Started follows Backlog membership only, so a session
-  that ends before its Take, or a story returned to the Backlog after a Take,
-  keeps Started until the dashboard restarts. Settling or relaunching from
-  Claude Code's own state belongs here: `claude agents --json` keeps finished
-  sessions with their `state`, which also supports reporting an unavailable
-  session.
-- **Depends on:** The dashboard launch ([Agent launch](../../dashboard/AGENT-LAUNCH.md))
-  provides identified dashboard-launched sessions.
-- **Safe stopping point:** Users can find and revisit sessions through the CLI
-  without any browser interaction integration.
+**Goal:** A developer who started work from the dashboard can find that
+conversation again after navigating away, reloading, restarting the dashboard,
+or after the story leaves the Backlog. They can tell each session's project,
+story, and workflow, and get the command that opens it in Claude Code's CLI.
+Launching from the dashboard stays useful across visits, without an embedded
+terminal or a Recently done view.
+
+**Scope:**
+
+- The selected project gets a **Recent sessions** section, newest first. It
+  does not depend on Backlog, Taken, or Recently done: an entry stays even when
+  no story card matches it. Each entry shows the story title and identity, the
+  workflow, when it was launched, the session id, the session's state as Claude
+  Code reports it, and a copyable `claude attach <id>` while Claude Code still
+  lists the session.
+- Launch records survive dashboard restarts. Open Dough keeps them on this
+  machine, outside every repository, and Recent sessions lists records from the
+  last 30 days. They stay out of the repository because a session exists only
+  on the machine that launched it.
+- Session state comes from Claude Code's own session list
+  (`claude agents --json --all`). A session Claude Code no longer lists shows as
+  unavailable, with its recorded details and no open command. It is not
+  recreated, resumed, or marked complete.
+- A card's Started record reads the same kept records, so it also survives a
+  restart. It keeps today's origin rules. It also ends when Claude Code shows
+  that its session is no longer running (stopped, or its process gone) or no
+  longer lists it. The card then offers that action again, and the session
+  stays in Recent sessions.
+- A launch record is local evidence for finding a session. It never changes
+  the story facts shown from origin: a finished, stopped, or unavailable
+  session does not show the story as done.
+- Only dashboard-launched sessions are listed, under the epic's
+  [Agreed Boundaries](#agreed-boundaries). A session started by hand in the CLI
+  is not listed, even when its name looks like a dashboard launch.
+- Deferred: resuming an unavailable session (for example with
+  `claude --resume`), a list covering all projects, configurable retention,
+  interaction inside the dashboard (story 3), linking sessions from Recently
+  done, other hosts, and attention or completion indicators.
+- Assumptions, observed on 2026-09-29: `claude agents --json --all` lists
+  finished background sessions from about a month back. Each has `state`
+  (`working`, `done`, or `stopped`), and `status` (`busy` or `idle`) only while
+  its process runs. Planning should confirm what `claude attach` does for a
+  finished session that is still listed. Offer the command only where it
+  opens the session.
+
+**Key examples:**
+
+1. A developer starts execution on a Backlog story, then switches to another
+   project and back, or reloads. Recent sessions lists that launch with its
+   title, identity, "Execution", launch time, session id, a working state, and
+   `claude attach <id>`.
+2. The dashboard server restarts while that session is still running and the
+   story is still in the Backlog. The entry is still in Recent sessions, and
+   the card still shows Execution started.
+3. The session takes the story, and later the story is completed and gone from
+   every list. The card is gone, but the Recent sessions entry remains.
+4. The same story was launched twice, for refinement and then for execution,
+   or as two executions. Recent sessions shows two entries, told apart by
+   workflow, launch time, and session id.
+5. Refinement is launched on a card that already shows Preparing. The card
+   shows no Started, but Recent sessions lists the session, so it no longer
+   needs finding through `claude agents`.
+6. An execution session exits before taking the story, which stays in the
+   Backlog. The card's Started ends and Start execution is offered again. Recent
+   sessions shows the session with its finished or stopped state.
+7. Claude Code no longer lists a recorded session. Its entry says the session
+   is unavailable and offers no open command. The story's published state is
+   unchanged.
+8. A launch recorded more than 30 days ago no longer appears in Recent
+   sessions.
+
+**Depends on:** The dashboard launch
+([Agent launch](../../dashboard/AGENT-LAUNCH.md)) records identified
+dashboard-launched sessions.
+
+**Safe stopping point:** Developers can find and reopen dashboard-launched
+sessions through the CLI, without any interaction inside the browser.
 
 <a id="interact-with-claude-terminal"></a>
 
@@ -289,9 +227,10 @@ embedded interaction is never added.
 
 - **For / why:** A developer can begin conversational preparation from an
   unrefined story and continue the interview where they selected it.
-- **Evaluation:** Select an unrefined story, choose refinement from the
-  state-aware skill chooser, optionally add context, and launch Claude Code.
-  Open the embedded terminal to answer its questions and review its result
+- **Evaluation:** Select an unrefined story and choose refinement from a
+  state-aware skill chooser, which offers the skills that apply to the
+  story's state in place of one fixed action per workflow. After the launch,
+  open the embedded terminal to answer its questions and review its result
   through the ordinary workflow. Published refinement facts subsequently
   appear from origin.
 - **Boundary:** The agent still owns its normal preparation workflow; launching
@@ -303,7 +242,8 @@ embedded interaction is never added.
   tests whether skill selection and native terminal interaction are sufficient.
 - **Effort hypothesis:** Unestimated; skill applicability and interview-to-
   publication behavior need refinement.
-- **Depends on:** Story 1a for the refinement launch and story 3 for the
+- **Depends on:** The dashboard's refinement launch
+  ([Agent launch](../../dashboard/AGENT-LAUNCH.md)) and story 3 for the
   embedded terminal.
 - **Safe stopping point:** Refinement and execution are useful without moving
   preparation responsibilities into the dashboard.
@@ -361,7 +301,9 @@ embedded interaction is never added.
   testing its different lifecycle rather than treating refinement as execution.
 - **Effort hypothesis:** Unestimated; preparation handoff and recovery are the
   main uncertainties; reuse execution's proven common behavior where applicable.
-- **Depends on:** Story 1a and existing preparation tooling. Story 5 offers reuse
+- **Depends on:** The dashboard's refinement launch
+  ([Agent launch](../../dashboard/AGENT-LAUNCH.md)) and existing preparation
+  tooling. Story 5 offers reuse
   and learning but is not established as a required product prerequisite.
 - **Safe stopping point:** Both selected workflows reduce setup overhead without
   requiring completion monitoring or support for another tool.
@@ -471,7 +413,7 @@ once the Claude experience and each tool's feasibility are known.
 For scope reduction, defer tool expansion first, then further scripted setup;
 retain launch and useful interaction in Claude Code. If embedded interaction is
 too costly, retain launch and recent-session access through the external CLI,
-which story 1a already gives refinement. Automatic attention
+which the dashboard's refinement launch already provides. Automatic attention
 indicators, completion callbacks, done-prefix naming, model selection, other
 skills, externally started sessions, and full project/tool setup remain deferred.
 Recently done is related work with its own value and priority decision.
@@ -480,8 +422,6 @@ Recently done is related work with its own value and priority decision.
 
 - Define project S/M/L bands before assigning comparative estimates; none were
   found, so there is no defensible numerical or band distribution yet.
-- Define recent-session retention and recovery after a dashboard restart. Local
-  navigation state must not replace origin as authority for story progress.
 - Observe real attachment/reconnection for the embedded terminal; decide its
   smallest usable presentation then, without requiring question detection.
 - Select the next story after the first launch from real use. Interaction's
@@ -492,9 +432,7 @@ Recently done is related work with its own value and priority decision.
 ## When to Surface
 
 The maintainer selected the eight child stories for backlog priorities 4–11
-on 2026-09-28, replacing the original epic entry. On 2026-09-29 the maintainer
-inserted story 1a, a launch-and-forget refinement launch matching the delivered
-execution launch, ahead of the remaining stories. The related Recently done
+on 2026-09-28, replacing the original epic entry. The related Recently done
 candidate remains unqueued. This selection does not Take any story or authorize
 implementation; refinement and executable planning are later selections.
 

@@ -47,8 +47,11 @@ runs [the shared completion operation](ci-monitor.md#await-the-applicable-revisi
 once for the accepted SHA, attempts the default-checkout refresh when one is
 given, and only after a receipt whose shutdown is confirmed retires the
 worktree and branch under Dough Land's
-[Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree). Pass
-`--identity` and `--created-for-work` as that section says; `--host`,
+[Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree), which
+removes the worktree only when its
+[creation record](../../dough-manual-testing/references/exploration-workspace.md#close-or-retain-it)
+or another record there shows this work created it; trunk containment alone
+does not. Pass `--identity` and `--created-for-work` as that section says; `--host`,
 `--session-json`, and `--remote` mean what they mean for `deliver`. It prints
 one JSON line, exits 1 when `ok` is not true and 2 on a usage error:
 

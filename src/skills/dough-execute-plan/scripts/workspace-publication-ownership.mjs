@@ -9,6 +9,15 @@ import { git } from "./publication-git.mjs";
 
 export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 
+// Facts a workspace keeps about itself live under per-worktree refs: only that
+// worktree lists them, and they leave with it.
+const workspaceRecords = "refs/worktree/dough";
+// The announcement commit of the preparation assignment the workspace owns.
+export const preparationAssignmentRef = `${workspaceRecords}/preparation-assignment`;
+// The work the workspace was created for, one ref named by its identity.
+export const createdForRef = (identity) =>
+  `${workspaceRecords}/created-for/${identity}`;
+
 // An admission claims accepted work that was never queued; its trailers are
 // the same, so ownership is read the same way.
 export function claimCommitMessage(identity, publisherId, admitted = false) {

@@ -7,6 +7,7 @@ import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  createdForRecords,
   git,
   lsRemoteSha,
   messageCount,
@@ -77,6 +78,8 @@ test("an unlisted one-shot result reaches remote trunk as its only commit", asyn
   assert.equal(await remoteHeads(trunk.origin), headsBefore);
   const { workspace, branch } = started;
   assert.equal(await revParse(workspace, "HEAD"), trunk.trunkSha);
+  // Work without an identity is created as before, with no creation record.
+  assert.deepEqual(await createdForRecords(workspace), []);
   assert.equal(
     (await git(workspace, "branch", "--show-current")).stdout.trim(),
     branch,

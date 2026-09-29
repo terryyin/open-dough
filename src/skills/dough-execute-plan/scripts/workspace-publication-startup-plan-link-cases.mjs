@@ -8,7 +8,13 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
+import {
+  createdFor,
+  createdForRecords,
+  git,
+  lsRemoteSha,
+  revParse,
+} from "./publication-test-fixtures.mjs";
 import {
   computeBasis,
   recordStoryState,
@@ -62,9 +68,16 @@ test("a queued entry linking a section of its declared plan is taken with its li
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const entry = linking("slice-plans/A/PLAN.md#ordered-slices");
-  await publishEntry(trunk, storyA, entry);
+  const listedSha = await publishEntry(trunk, storyA, entry);
   const { receipt, workspace } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.status, "published", JSON.stringify(receipt));
+  // The created workspace alone records the work it was created for.
+  assert.equal(receipt.created, true);
+  assert.deepEqual(
+    await createdForRecords(workspace),
+    createdFor(identityA, listedSha),
+  );
+  assert.deepEqual(await createdForRecords(trunk.integration), []);
   const backlog = await remoteBacklog(workspace);
   assert.deepEqual(
     backlog.split("\n").filter((line) => line.startsWith("- [Story A]")),

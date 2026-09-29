@@ -29,6 +29,7 @@ identity_writers=(
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity consumers'
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity gaps'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity publication'
+  'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity owned-context'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity execution-review'
   'tests/support/native-result-retain-journey.sh native_result_journey_input_hash_lines'
   'tests/support/execution-worktree-prep-native-run.sh prep_native_input_hash_lines'

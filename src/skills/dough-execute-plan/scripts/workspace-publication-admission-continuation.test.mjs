@@ -10,7 +10,12 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { git, lsRemoteSha } from "./publication-test-fixtures.mjs";
+import {
+  createdFor,
+  createdForRecords,
+  git,
+  lsRemoteSha,
+} from "./publication-test-fixtures.mjs";
 import {
   createQueuedTrunk,
   startCliResult,
@@ -121,6 +126,11 @@ test("an admitted investigation continues into planned implementation under its 
   assert.equal(continued.receipt.publishedSha, claimSha);
   assert.equal(continued.receipt.plan, "slice-plans/N/PLAN.md");
   assert.equal(continued.receipt.created, false);
+  // Reuse records nothing: the admission's creation record stays as it was.
+  assert.deepEqual(
+    await createdForRecords(continued.workspace),
+    createdFor(identity, admitted.receipt.startingRevision),
+  );
   await tipIs(readySha);
   assert.equal(
     readFileSync(join(trunk.integration, seedPath), "utf8"),

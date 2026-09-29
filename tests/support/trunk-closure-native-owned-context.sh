@@ -15,8 +15,11 @@ trunk_closure_owned_context_base() {
     --source "${source_dir}" --platform "${host}" > /dev/null
 }
 
-# The execution worktree of a new repository Git directory, at trunk.
+# The execution worktree of a new repository Git directory, at trunk, with the
+# creation record execution startup writes for the story it was created for,
+# named by source $1's owner of that record.
 trunk_closure_owned_context_worktree() {
+  local source_dir=$1 created_for
   trunk_closure_repository="${trunk_closure_workspace%/*}/repository.git"
   git init -q --bare "${trunk_closure_repository}"
   # As Git lists it, so its own entry is recognized in the worktree list.
@@ -25,6 +28,14 @@ trunk_closure_owned_context_worktree() {
   git -C "${trunk_closure_repository}" fetch -q origin
   git -C "${trunk_closure_repository}" worktree add -q -b exec/trunk \
     "${trunk_closure_workspace}" origin/main
+  # shellcheck disable=SC2016 # Node source, not shell expansion.
+  created_for=$(node --input-type=module -e '
+    const [module, identity] = process.argv.slice(1);
+    const { createdForRef } = await import(module);
+    process.stdout.write(createdForRef(identity));
+  ' "file://${source_dir}/src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs" \
+    "${TRUNK_CLOSURE_IDENTITY}")
+  git -C "${trunk_closure_workspace}" update-ref "${created_for}" HEAD
 }
 
 # Writes the execution state beside the worktree, so the worktree stays clean.
@@ -33,12 +44,13 @@ trunk_closure_owned_context_state() {
   trunk_closure_owned_context_state_file="${root}/execution-state.txt"
   printf '%s\n' \
     'Execution mode: Trunk Mode' \
+    "Selected story: ${TRUNK_CLOSURE_IDENTITY}" \
     'Authorized target: remote origin, branch main (GitHub owner/project)' \
     "Before-cleanup commit: ${trunk_closure_base_sha}, accepted on remote trunk" \
     "Final closure candidate: ${trunk_closure_candidate_sha}" \
     "Observer mailbox: ${trunk_closure_mailbox}" \
     "Observer launcher: ${trunk_closure_launcher}" \
-    "Execution worktree: ${trunk_closure_workspace} on branch exec/trunk, created by this execution" \
+    "Execution worktree: ${trunk_closure_workspace} on branch exec/trunk" \
     'Default checkout: none' \
     'Applicable CI: pending' \
     > "${trunk_closure_owned_context_state_file}"

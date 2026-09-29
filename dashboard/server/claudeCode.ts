@@ -10,10 +10,11 @@
 import { execFile, type ExecException } from "node:child_process";
 import { stripVTControlCharacters } from "node:util";
 import { z } from "zod";
-import type {
-  AgentLaunchRequest,
-  HostSession,
-  LaunchResult,
+import {
+  launchWorkflows,
+  type AgentLaunchRequest,
+  type HostSession,
+  type LaunchResult,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -22,19 +23,20 @@ export type HostLaunch =
   | { readonly kind: "launched"; readonly session: HostSession }
   | Exclude<LaunchResult, { readonly kind: "launched" }>;
 
-// The execution skill on the work item's identity; the developer's own
+// The workflow's skill on the work item's identity; the developer's own
 // instruction, when there is one, follows after a blank line.
 function claudeInstruction(request: AgentLaunchRequest): string {
-  const execution = `/dough-execute-plan ${request.identity}`;
+  const skill = `/${launchWorkflows[request.workflow].skill} ${request.identity}`;
   const own = request.instruction?.trim();
-  return own ? `${execution}\n\n${own}` : execution;
+  return own ? `${skill}\n\n${own}` : skill;
 }
 
+// `<project> · <workflow> · <title>`, as `claude agents` lists it.
 function claudeSessionName(
   source: PublishedSource,
   request: AgentLaunchRequest,
 ): string {
-  return `${source.label} · ${request.title}`;
+  return `${source.label} · ${launchWorkflows[request.workflow].name} · ${request.title}`;
 }
 
 type ClaudeRun = {

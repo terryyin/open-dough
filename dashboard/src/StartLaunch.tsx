@@ -1,12 +1,18 @@
-// A Backlog card's Start execution action and its dialog: the developer asks
-// Claude Code to start a background session on this machine that executes
-// the story, with an optional instruction of their own. A card not marked
-// Ready for execution offers the same action, described as not ready; the
-// session is asked anyway, and the instruction can say what to do first.
-// A failed or uncertain answer stays on the card with the action.
+// A Backlog card's action to start one launch workflow, and its dialog: the
+// developer asks Claude Code to start a background session on this machine
+// that runs the workflow on the story, with an optional instruction of their
+// own. Every word comes from the workflow (`launchWorkflows`). A card the
+// workflow notes (execution: not marked Ready for execution; refinement:
+// being prepared) offers the same action, described by that note; the session
+// is asked anyway, and the instruction can say what to do first. A failed or
+// uncertain answer stays on the card with the action.
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { launchInstructionLimit } from "./agentLaunch.ts";
+import {
+  launchInstructionLimit,
+  launchWorkflows,
+  type LaunchWorkflow,
+} from "./agentLaunch.ts";
 import type { LaunchAttempt, LaunchWorkItem } from "./agentLaunches.ts";
 import "./agent-launch.css";
 
@@ -22,19 +28,23 @@ function LaunchExplanation({ text }: { readonly text: string }) {
 
 // Mounted only while open, so a card carries no hidden dialog text and each
 // opening starts without an earlier instruction.
-function StartExecutionDialog({
+function StartLaunchDialog({
   work,
-  ready,
+  workflow,
+  note,
   starting,
   onStart,
   onClose,
 }: {
   readonly work: LaunchWorkItem;
-  readonly ready: boolean | undefined;
+  readonly workflow: LaunchWorkflow;
+  readonly note: string | undefined;
   readonly starting: boolean;
   readonly onStart: (instruction: string) => Promise<void>;
   readonly onClose: () => void;
 }) {
+  const { name, verb, skill } = launchWorkflows[workflow];
+  const named = name.toLowerCase();
   const id = useId();
   const dialog = useRef<HTMLDialogElement>(null);
   const instruction = useRef<HTMLTextAreaElement>(null);
@@ -48,7 +58,7 @@ function StartExecutionDialog({
   return (
     <dialog
       ref={dialog}
-      className="start-execution-dialog"
+      className="start-launch-dialog"
       aria-labelledby={headingId}
       onClose={onClose}
     >
@@ -60,20 +70,25 @@ function StartExecutionDialog({
           });
         }}
       >
-        <h2 id={headingId}>Start execution in Claude Code</h2>
+        <h2 id={headingId}>Start {named} in Claude Code</h2>
         <p>
           Claude Code starts a background session on this machine, in this
-          project's folder, to execute <strong>{work.title}</strong> (
+          project's folder, to {verb} <strong>{work.title}</strong> (
           <span className="card-identity">{work.identity}</span>).
         </p>
-        {ready === false && (
-          <p className="start-execution-note">
-            This story is not marked Ready for execution.
+        {note !== undefined && (
+          <p className="start-launch-note">
+            This story is {note.charAt(0).toLowerCase()}
+            {note.slice(1)}.
           </p>
         )}
         <label htmlFor={`${id}-instruction`}>Instruction (optional)</label>
         <p id={`${id}-instruction-hint`} className="quiet">
-          Sent after <code>/dough-execute-plan {work.identity}</code>.
+          Sent after{" "}
+          <code>
+            /{skill} {work.identity}
+          </code>
+          .
         </p>
         <textarea
           ref={instruction}
@@ -82,7 +97,7 @@ function StartExecutionDialog({
           maxLength={launchInstructionLimit}
           rows={4}
         />
-        <div className="start-execution-dialog-actions">
+        <div className="start-launch-dialog-actions">
           <button type="submit" disabled={starting}>
             {starting ? "Starting…" : "Start"}
           </button>
@@ -100,18 +115,21 @@ function StartExecutionDialog({
   );
 }
 
-export function StartExecution({
+export function StartLaunch({
   work,
-  ready,
+  workflow,
+  note,
   attempt,
   onStart,
 }: {
   readonly work: LaunchWorkItem;
-  // Undefined while readiness is still being read.
-  readonly ready: boolean | undefined;
+  readonly workflow: LaunchWorkflow;
+  // The workflow's note on this card, if any.
+  readonly note: string | undefined;
   readonly attempt: LaunchAttempt | undefined;
   readonly onStart: (instruction: string) => Promise<void>;
 }) {
+  const named = launchWorkflows[workflow].name.toLowerCase();
   const id = useId();
   const launcher = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -125,23 +143,23 @@ export function StartExecution({
       launcher.current?.focus();
     }
   }, [open, starting]);
-  const notReadyId = `${id}-not-ready`;
+  const noteId = `${id}-note`;
   const answerId = `${id}-answer`;
   const described = [
-    ready === false ? notReadyId : undefined,
+    note !== undefined ? noteId : undefined,
     attempt !== undefined ? answerId : undefined,
   ].filter((part) => part !== undefined);
 
   return (
-    <div className="start-execution">
-      <p className="start-execution-action">
+    <div className="start-launch">
+      <p className="start-launch-action">
         <button
           ref={launcher}
           type="button"
           className={
-            ready === false
-              ? "start-execution-button start-execution-not-ready"
-              : "start-execution-button"
+            note !== undefined
+              ? "start-launch-button start-launch-noted"
+              : "start-launch-button"
           }
           aria-haspopup="dialog"
           aria-describedby={described.length ? described.join(" ") : undefined}
@@ -150,11 +168,11 @@ export function StartExecution({
             setOpen(true);
           }}
         >
-          Start execution
+          Start {named}
         </button>
-        {ready === false && (
-          <span id={notReadyId} className="start-execution-note">
-            Not marked Ready for execution
+        {note !== undefined && (
+          <span id={noteId} className="start-launch-note">
+            {note}
           </span>
         )}
       </p>
@@ -168,7 +186,7 @@ export function StartExecution({
           }
         >
           {attempt.kind === "starting" ? (
-            "Starting execution in Claude Code…"
+            `Starting ${named} in Claude Code…`
           ) : (
             <>
               {attempt.kind === "failed"
@@ -180,9 +198,10 @@ export function StartExecution({
         </p>
       )}
       {open && (
-        <StartExecutionDialog
+        <StartLaunchDialog
           work={work}
-          ready={ready}
+          workflow={workflow}
+          note={note}
           starting={starting}
           onStart={onStart}
           onClose={() => {

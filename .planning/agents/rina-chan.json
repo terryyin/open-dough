@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rina-chan",
+  "email": "rina-chan@example.org",
+  "identity": "SEED-052#revisit-dashboard-sessions",
+  "mode": "story-branch",
+  "branch": "claude/revisit-dashboard-sessions",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

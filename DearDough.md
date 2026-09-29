@@ -17,6 +17,14 @@ Released execution-location guidance requires setup then a project command befor
   - Observed effect: cheap wrapper contracts passed; five native cases skipped the gate or continued after failed prep. Not retried until green.
   - Inference: Qualified. Distinct from DD-074 (guidance now exists) and ODF-070 (directory presence). Wording greps and a substitute actor cannot prove native follow-through when the user outcome does not need project commands.
 
+- Execution: `SEED-008#durable-workspace-creation-fact` / plan 147, first related implementation commit `cb066559`
+  - Timestamp: 2026-09-29T09:03:35+08:00 (native Claude Code `trunk-closure/owned-context`)
+  - Tool: Claude Code (coordinator; hosts Claude, Codex, Cursor)
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision `b8946e99`; base 0.3.46
+  - Evidence: six owned-context runs printed PASS; five ran the creation-record read, while Claude's closure removed the worktree after the containment check alone (no `for-each-ref`, no "Close or retain it" read). Accepted only after `3b1f8619` named the check and one rerun read the record.
+  - Observed effect: the assessor, which observes only the retired outcome, passed a native agent that skipped the ownership gate; caught only by transcript inspection.
+
 ## ODF-058 — Assertions concentrated on exit status and published bytes left the tool's own reported output unproved
 
 Former local code: DD-056.
@@ -928,38 +936,6 @@ observer launch recipes went unused.
   - Observed effect: same as above; no CI event, repair, stash, or rework occurred, and skipping `ci-monitor.md` caused no visible harm
   - Inference: Qualified. Third consecutive one-slice prose execution. The skipped read shows that "before arming observation" still names a read that managed delivery has made unnecessary on the normal path
 
-## DD-155 — Two plans planned concurrently on different checkouts both took number 132
-
-Story refinement of SEED-051#isolate-runner-settings in the default checkout
-numbered its plan 132 after the highest visible plan, 131, while the
-SEED-008#isolate-parallel-slice-delivery retrospective, in its own execution
-worktree, also created correction plan 132. Both reached trunk, so the
-number-only request `/dough-execute-plan 132` named two plans. Same mechanism
-as catalog ODF-106 (colliding plan numbers), now in this repository.
-
-### Occurrences
-- Execution: `SEED-051#isolate-runner-settings` / plan 132, first related implementation commit `6b2ca78f`
-  - Timestamp: 2026-09-27T18:36:56+08:00 (plan commit `77a8ca0f`; the sibling `132-restate-ci-pause-ownership` was committed at 18:32:11+08:00 in `9060ff71` on the execution branch and reached trunk via merge `54b5f025`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `707f3ac7` (v0.3.42)
-  - Evidence: `.planning/slice-plans/132-isolate-runner-settings/` and `.planning/slice-plans/132-restate-ci-pause-ownership/` on trunk at `54b5f025`
-  - Observed effect: the executor had to infer the intended plan (the one at the default checkout's HEAD when the session started) and could have Taken the other queued story
-  - Inference: Qualified. Allocation from checkout-visible numbers cannot see another checkout's unpublished plan; the collision went unnoticed at merge because directory names differ
-
-## DD-159 — Keyboard proof failures were blamed on stale dist despite per-run rebuilds
-
-An implementation agent blamed Playwright on a stale `dashboard/dist` and recorded a plan learning to rebuild before browser tests, although `test:dashboard`'s `globalSetup` already rebuilds each run. Decisive causes were focus remount and `openDirection` stealing focus between keypresses.
-
-### Occurrences
-- Execution: `SEED-053#cycle-dashboard-projects-with-arrow-keys` / plan 138, first related implementation commit `796bebaf6c43928105f58feea358f163116f89bd`
-  - Timestamp: unknown (between 2026-09-28T12:47+08:00 impl start and ~12:56+08:00 slice report)
-  - Tool: Cursor
-  - Open Dough release: 0.3.45
-  - Evidence: impl subagent `ffa400d5-2c0e-4f83-aec0-7b2a740b4031` narrated a rebuild after the focus-remount fix, later diagnosed `openDirection` between keypresses; plan 138 Learnings contradict `dashboard/tests/README.md` and `dashboard/tests/support/globalSetup.ts`
-  - Observed effect: extra rebuild/debug cycles; a false rebuild learning remained in plan 138
-  - Inference: Qualified. Focus/test-structure failure misread as harness staleness; not a suite build-contract defect
-
 ## DD-163 — A local flake already fixed on trunk was left off the story branch, which then failed CI on it
 
 Slice 3 saw `project-keyboard-navigation-focus` fail locally, found trunk's fix `25c4a514`, and deferred it to Story Branch integration; branch CI failed on it.
@@ -988,9 +964,24 @@ and says not to invoke it; Cursor proceeded into wrap-up anyway.
   - Evidence: response "Proceeding with story wrap-up for SEED-A#a" after reading `finish-or-stop.md`; it deleted the fixture story, plan, and Taken entry; Claude and Codex stopped at `## PLAN EXECUTION COMPLETE`.
   - Observed effect: a 27-minute run and a missing workspace source in the assessment.
 
+## DD-167 — Execute-plan judged readiness from a stale default checkout and sent a planned story back to refinement
+
+Before startup fetched trunk, execute-plan read the backlog and seed from the default checkout, which lagged trunk. It reported the story unrefined and unplanned, though trunk already held its refinement and plan.
+
+### Occurrences
+- Execution: `SEED-008#durable-workspace-creation-fact` / plan 147, first related implementation commit `cb066559`
+  - Timestamp: unknown; after trunk's refinement `a65dfcb7` (2026-09-29T07:18:09+08:00), before the repeat preparation's announcement `e65d81e8` (08:08:49+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `b37292dd`
+  - Evidence: default checkout at `ae4b4b86` showed `"refinement":"not-refined"`; trunk had `a65dfcb7` refined and planned (plan 147). A new refinement began and re-asked two decided questions; the prior plan appeared only after `start` created the workspace at fetched trunk.
+  - Observed effect: one false readiness stop and one repeated refinement round (its third answer did change native-proof scope).
+  - Inference: Qualified. With parallel agents, eligibility should be judged from fetched remote trunk, as startup already does.
+
 ## Retention
 
-- Highest allocated local number: 165. Removed local codes are never reused.
+- Highest allocated local number: 168. Removed local codes are never reused.
+- Moved to ProjectFindings.md on 2026-09-29 for the 1,000-line ceiling: DD-155 (this repository's plan-number collision) and DD-159 (a dashboard test misdiagnosis in this repository); recovery: `41965529:DearDough.md`.
 - Removed on 2026-09-28 for the 1,000-line ceiling, as lower priority than the plan 142 findings: DD-125 (newer Git feature) and DD-157 (README at the size ceiling); recovery: `6e3921d6:DearDough.md`.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
 - Resolved and removed on 2026-09-28: ODF-119 (startup source veto and nested-worktree refresh deferral); recovery: `aa771c5d:DearDough.md`.

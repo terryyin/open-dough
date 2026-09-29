@@ -1,21 +1,21 @@
-/* A Backlog card's Start execution action, its dialog, a launch's answer, and
+/* A Backlog card's launch actions, their dialog, a launch's answer, and
    the local Started state that replaces the action. Text carries every
-   meaning; the dashed edge of a not-ready action only repeats its note. */
+   meaning; the dashed edge of a noted action only repeats its note. */
 
-.start-execution {
+.start-launch {
   margin-top: 0.45rem;
 }
 
-.start-execution-action {
+.start-launch-action {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.2rem 0.6rem;
 }
 
-.start-execution-button,
+.start-launch-button,
 .launch-attach button,
-.start-execution-dialog-actions button {
+.start-launch-dialog-actions button {
   font: inherit;
   color: var(--accent);
   background: var(--panel);
@@ -25,20 +25,20 @@
   cursor: pointer;
 }
 
-.start-execution-not-ready {
+.start-launch-noted {
   color: var(--quiet);
   border-color: var(--edge);
   border-style: dashed;
 }
 
-.start-execution-button:disabled,
-.start-execution-dialog-actions button:disabled {
+.start-launch-button:disabled,
+.start-launch-dialog-actions button:disabled {
   color: var(--quiet);
   border-color: var(--line);
   cursor: default;
 }
 
-.start-execution-note {
+.start-launch-note {
   font-size: 0.9rem;
   color: var(--quiet);
 }
@@ -52,7 +52,7 @@
   color: var(--problem);
 }
 
-.start-execution-dialog {
+.start-launch-dialog {
   box-sizing: border-box;
   width: min(32rem, calc(100% - 1.5rem));
   max-height: calc(100dvh - 1.5rem);
@@ -63,28 +63,28 @@
   background: var(--panel);
 }
 
-.start-execution-dialog::backdrop {
+.start-launch-dialog::backdrop {
   background: rgb(0 0 0 / 45%);
 }
 
-.start-execution-dialog form {
+.start-launch-dialog form {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.start-execution-dialog label {
+.start-launch-dialog label {
   font-weight: 600;
 }
 
-.start-execution-dialog textarea {
+.start-launch-dialog textarea {
   box-sizing: border-box;
   width: 100%;
   font: inherit;
   resize: vertical;
 }
 
-.start-execution-dialog-actions {
+.start-launch-dialog-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;

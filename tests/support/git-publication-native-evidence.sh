@@ -33,8 +33,11 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-preparation-land.sh \
         tests/support/git-publication-native-push-log-observe.mjs \
         src/skills/dough-execute-plan/SKILL.md \
+        src/skills/dough-execute-plan/scripts/workspace-publication-select.mjs \
+        src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs \
         src/skills/dough-story-refinement/references/preparation-assignment.md \
-        src/skills/dough-land/SKILL.md
+        src/skills/dough-land/SKILL.md \
+        src/skills/dough-manual-testing/references/exploration-workspace.md
       ;;
     execution-review)
       printf 'helper-identity: tests/support/ci-completion-native-run.sh\n'

@@ -42,6 +42,13 @@ executions, not commands, retries, or repairs.
 7. **Negated assessor counterexamples never failed (DD-164) — resolved in plan
    142.** `! assess` lines under `set -e` were not enforced; all 38 now run
    through `git_publication_suite_expect_rejected`.
+8. **The host's `NODE_ENV` reaching the dashboard build (DD-166) — resolved
+   in plan 148.** One execution: read-count specs flaked locally but not in
+   CI; `eecfefc6` makes every build production.
+9. **Plan numbers from checkout-visible plans (DD-155), dashboard failures
+   misread as staleness (DD-159), and a working-directory-dependent test
+   (DD-168) — low, not queued.** One execution each; moved here on 2026-09-29
+   or recorded by plan 147's retrospective.
 
 No other project-owned problem is supported, so only one story is queued.
 
@@ -223,7 +230,86 @@ clause.
   - Evidence: trunk-closure, story-branch, and delivery-evidence assessors; mutation check in the repair's refactor report.
   - Observed effect: 38 counterexamples provided no protection until repaired.
 
+## The host's `NODE_ENV` reaching the dashboard build (resolved)
+
+### DD-166 — A host-exported `NODE_ENV=development` made the suite's dashboard build a development bundle
+
+Claude Code exports `NODE_ENV=development` to its shells. Vite honored it on
+`npm run build:dashboard`, so the suite's preview served React's development
+bundle, whose StrictMode mounts effects twice: each page open sent a second,
+aborted opening read that under load could still reach the fake `gh`. CI sets
+no `NODE_ENV`, so only local runs saw it. Same family as DD-114: a setting
+from outside the test's intent reaching what the suite starts.
+
+**Response:** `eecfefc6` sets `NODE_ENV=production` for `vite build` in
+`dashboard/vite.config.mts`, as the dashboard README already promised.
+
+#### Occurrences
+
+- Execution: `SEED-052#launch-claude-refinement-background` / plan 148, first related implementation commit `78ded931`
+  - Timestamp: unknown (whole-suite run between `78ded931`'s slice work, committed 2026-09-29T08:08:33+08:00, and the fix `eecfefc6` at 08:25:40+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: `direction-disclosure.spec.ts:28` saw `pathsRead` `"main"` twice at load ≈12.7; reproduced under CPU burners in `project-read-isolation.spec.ts:216`; trace showed two opening `__authenticated-read` requests, the first `ERR_ABORTED`, and React's DevTools banner in `dashboard/dist`
+  - Observed effect: one flaky whole-suite run; one diagnosis agent (about 15 minutes) and a one-file fix
+  - Inference: Qualified. Other read-count specs (`refresh`, `read-failure`, `project-keyboard-navigation-focus`) shared the exposure; the build fix covers them all
+
+## Plan numbers from checkout-visible plans (low priority, not selected)
+
+### DD-155 — Two plans planned concurrently on different checkouts both took number 132
+
+Story refinement of SEED-051#isolate-runner-settings in the default checkout
+numbered its plan 132 after the highest visible plan, 131, while the
+SEED-008#isolate-parallel-slice-delivery retrospective, in its own execution
+worktree, also created correction plan 132. Both reached trunk, so the
+number-only request `/dough-execute-plan 132` named two plans. Same mechanism
+as catalog ODF-106 (colliding plan numbers), now in this repository.
+
+#### Occurrences
+- Execution: `SEED-051#isolate-runner-settings` / plan 132, first related implementation commit `6b2ca78f`
+  - Timestamp: 2026-09-27T18:36:56+08:00 (plan commit `77a8ca0f`; the sibling `132-restate-ci-pause-ownership` was committed at 18:32:11+08:00 in `9060ff71` on the execution branch and reached trunk via merge `54b5f025`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac7` (v0.3.42)
+  - Evidence: `.planning/slice-plans/132-isolate-runner-settings/` and `.planning/slice-plans/132-restate-ci-pause-ownership/` on trunk at `54b5f025`
+  - Observed effect: the executor had to infer the intended plan (the one at the default checkout's HEAD when the session started) and could have Taken the other queued story
+  - Inference: Qualified. Allocation from checkout-visible numbers cannot see another checkout's unpublished plan; the collision went unnoticed at merge because directory names differ
+
+## Dashboard test failures misread as harness staleness (low priority, not selected)
+
+### DD-159 — Keyboard proof failures were blamed on stale dist despite per-run rebuilds
+
+An implementation agent blamed Playwright on a stale `dashboard/dist` and recorded a plan learning to rebuild before browser tests, although `test:dashboard`'s `globalSetup` already rebuilds each run. Decisive causes were focus remount and `openDirection` stealing focus between keypresses.
+
+#### Occurrences
+- Execution: `SEED-053#cycle-dashboard-projects-with-arrow-keys` / plan 138, first related implementation commit `796bebaf6c43928105f58feea358f163116f89bd`
+  - Timestamp: unknown (between 2026-09-28T12:47+08:00 impl start and ~12:56+08:00 slice report)
+  - Tool: Cursor
+  - Open Dough release: 0.3.45
+  - Evidence: impl subagent `ffa400d5-2c0e-4f83-aec0-7b2a740b4031` narrated a rebuild after the focus-remount fix, later diagnosed `openDirection` between keypresses; plan 138 Learnings contradict `dashboard/tests/README.md` and `dashboard/tests/support/globalSetup.ts`
+  - Observed effect: extra rebuild/debug cycles; a false rebuild learning remained in plan 138
+  - Inference: Qualified. Focus/test-structure failure misread as harness staleness; not a suite build-contract defect
+
+## Tests that depend on the working directory (low priority, not selected)
+
+### DD-168 — A CI-mailbox test fails when run from `src/skills`, passing only from the repository root
+
+`ci-mailbox-complete-unresolved-cases.mjs:180` ("unconfirmed shutdown names the
+limitation…") builds its mailbox with `root: process.cwd()`, so running it from
+another directory reports "CI mailbox belongs to another checkout".
+
+#### Occurrences
+
+- Execution: `SEED-008#durable-workspace-creation-fact` / plan 147, first related implementation commit `cb066559`
+  - Timestamp: unknown (slice 1 refactor pass, before `cb066559` at 2026-09-29)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: slice 1 refactor report: fails on every run from `src/skills`, 23/23 from the checkout root; slice 1's delegated proof command was phrased "from `src/skills`".
+  - Observed effect: no delivery impact; a focused run from `src/skills` would show a false failure.
+  - Inference: Qualified. Deriving the root from the test file's location would give the same result from any directory, as CI does.
+
 ## Retention
 
 - Moved from `DearDough.md` at `7ebcb07c`: ODF-060, DD-113, DD-114.
 - Recovery: `7ebcb07c:DearDough.md` (ODF-060 before its resolved removal).
+- Moved from `DearDough.md` at `41965529` on 2026-09-29: DD-155, DD-159 (recovery: `41965529:DearDough.md`).

@@ -49,14 +49,36 @@ refresh wording, and added the `trunk-closure/owned-context` and
 `requester`, and `publishExecutionIncrement` stops with `unpublished-base`
 (`execution-increment-publication.mjs:134`), which slice 3 reuses.
 
-[SEED-008#durable-workspace-creation-fact](../../seeds/SEED-008-worktree-branch-trunk-sync.md#durable-workspace-creation-fact)
-(plan 147) is Taken and executing alongside this plan. Its refined scope fixes
-the record: `refs/worktree/dough/created-for/<identity>` in the created
-worktree, written by `selectOwnedWorkspace`, and listed from that worktree only.
-It edits `exploration-workspace.md`, Dough Land's **Worktree** input,
-`preparation-assignment.md`, and the two owned-context native fixtures. At each
-slice start, re-read the files that slice names against then-current trunk and
-refresh line references before editing.
+SEED-008#durable-workspace-creation-fact
+(plan 147, recoverable at `0d056b38:.planning/slice-plans/147-durable-workspace-creation-fact/PLAN.md`) has closed. `selectOwnedWorkspace` writes
+`refs/worktree/dough/created-for/<identity>` when it creates a worktree
+(`createdForRef` in `workspace-publication-ownership.mjs`), and
+`exploration-workspace.md` "Close or retain it" reads it as the durable
+creation record beside a same-session `created: true` and the caller's
+statement, which `--created-for-work` still carries. Plan 147 also changed
+what later slices here rewrite; re-read each against then-current trunk:
+
+- `trunk-publication.md` "Publish wrap-up closure" and wrap-up's "Remove
+  execution resources safely" name the ownership check where closure retires
+  (the record or another "Close or retain it" record shows this work created
+  the worktree). Slice 3's command can carry that check; keep the entry points
+  saying it or pointing at the command.
+- Dough Land's intro, "with containment as the safety test", misled a native
+  Claude Code closure agent into retiring after the containment check alone.
+- The owned-context fixtures write the creation record; trunk closure's has
+  story `SEED-T#final-closure` and a `Selected story:` state line. The
+  owned-context evidence identity covers `exploration-workspace.md`,
+  `workspace-publication-select.mjs`, and `workspace-publication-ownership.mjs`,
+  the trunk-closure one covers `dough-land/SKILL.md`,
+  `exploration-workspace.md`, and the ownership module, and
+  `tests/native-evidence-identity.sh` checks the owned-context writer (slice 6).
+- The owned-context assessors observe only the retired outcome, so an agent
+  that skips the ownership check passes. Slice 8 should require retirement
+  through the command, or add one variant whose worktree must stay, and accept
+  each run on its transcript's ownership read, not on PASS alone.
+- `dough-story-wrap-up/SKILL.md` is at the 250-line limit.
+- Correction SEED-008#creation-record-test-residue (plan 149) will export the
+  record prefix from the ownership module; reuse it if slice work needs it.
 
 ## Outcome and boundaries
 

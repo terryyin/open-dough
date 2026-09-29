@@ -49,8 +49,9 @@ common Git directory as `--repository`, which is only read from, never
 refreshed. `start` fetches the target and, once it finds the story queued
 there, creates the workspace on that branch at fetched trunk before
 announcing. Its receipt then carries `selection` with `created: true`, the
-branch, and the starting revision; record the workspace as created by this
-session. An existing path is the owned workspace you already selected or are resuming;
+branch, and the starting revision, and `start` has written the workspace's
+[creation record](../../dough-manual-testing/references/exploration-workspace.md#close-or-retain-it).
+An existing path is the owned workspace you already selected or are resuming;
 a new announcement uses it under
 [refresh eligibility](../../dough-execute-plan/references/maintain-default-checkout.md#refresh-eligibility),
 fast-forwarding it when trunk has moved past it. Supply `--push-authorized` only when publishing to that target

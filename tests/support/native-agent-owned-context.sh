@@ -13,7 +13,8 @@
 # retires the worktree. Emits each command
 # through the admission substitute's recorder and sets ${response}.
 # NATIVE_OWNED_WORKSPACE, _BRANCH and _IDENTITY carry the journey's workspace,
-# branch and story; TRUNK_CLOSURE_CANDIDATE_SHA the final closure's.
+# branch and story; TRUNK_CLOSURE_CANDIDATE_SHA and _IDENTITY the final
+# closure's.
 # shellcheck disable=SC2034,SC2154 # host, journey, workspace and response are shared with the sourcing substitute.
 
 # shellcheck source=tests/support/native-agent-admission.sh
@@ -70,7 +71,8 @@ native_owned_context_prepare_and_land() {
   admission_run git commit -qm 'Refine Story C'
   admission_run git fetch -q origin
   admission_run git push -q origin HEAD:refs/heads/main
-  native_owned_context_retire "${skills}" "${NATIVE_OWNED_BRANCH}"
+  native_owned_context_retire "${skills}" "${NATIVE_OWNED_BRANCH}" \
+    "${NATIVE_OWNED_IDENTITY}"
 }
 
 # The before-cleanup commit is already on trunk; the installed `finish`
@@ -85,16 +87,18 @@ native_owned_context_close_trunk() {
     --workspace "${workspace}" --branch "${branch}" --before-cleanup "${base}" \
     --final "${sha}" --previously-published-base "${base}" \
     --target-ref refs/heads/main --repo owner/project --host "${host}" \
-    --created-for-work
+    --identity "${TRUNK_CLOSURE_IDENTITY}"
 }
 
 # Dough Land's installed retirement, from skills $1, of ${workspace} on branch
-# $2 from its management context, recorded before removal.
+# $2 from its management context, recorded before removal. The session holds no
+# creation result, so the command retires only when the workspace's creation
+# record names story $3.
 native_owned_context_retire() {
-  local branch=$2 common
+  local branch=$2 identity=$3 common
   common=$(git -C "${workspace}" rev-parse --path-format=absolute --git-common-dir)
   admission_run_in "${common}" node "$1/dough-land/scripts/worktree-retirement.mjs" \
     retire --repository "${common}" --worktree "${workspace}" --branch "${branch}" \
     --remote origin --target-ref refs/heads/main \
-    --identity "${NATIVE_OWNED_IDENTITY}" --created-for-work
+    --identity "${identity}"
 }
