@@ -310,6 +310,25 @@ another directory reports "CI mailbox belongs to another checkout".
   - Observed effect: no delivery impact; a focused run from `src/skills` would show a false failure.
   - Inference: Qualified. Deriving the root from the test file's location would give the same result from any directory, as CI does.
 
+### DD-178 — The dashboard Playwright suite resolves its repository root from the working directory, and a run elsewhere leaves a build that breaks lint
+
+`dashboard/tests/support/dashboardServer.ts:32` and
+`support/fixtureExecutable.ts:12` take the repository root from
+`process.cwd()`. A run from `dashboard/tests` fails with ENOENT on the fake
+`gh`/`claude`, and its global setup has already built the app into
+`dashboard/tests/dashboard/dist`, which `.gitignore` hides but `npm run format`
+lints (4,779 `no-undef` errors).
+
+#### Occurrences
+
+- Execution: `SEED-052#keep-story-session-links` / plan 157, first related implementation commit `30bdc002`
+  - Timestamp: unknown (slice 2 implementation, before `08f217af` at 2026-09-29T17:35:57+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: slice 2 implementer's report ("runs from `dashboard/tests` fail with ENOENT"); the coordinator's formatter failed on `dashboard/tests/dashboard/dist/assets/index-D2jPgcZa.js` and passed after removing that directory.
+  - Observed effect: one failed formatter run and a diagnosis; nothing published.
+  - Inference: Qualified. Same class as DD-168; deriving the root from the file's location would make every directory behave like CI.
+
 ## Native host observations planned for the developer (low priority, not selected)
 
 ### DD-169 — A plan handed a read-only `claude attach` probe to the developer, who expected the agent to run it

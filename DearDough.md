@@ -498,6 +498,8 @@ says formatting must succeed before staging.
 
 - Execution: `SEED-008#closure-proof-and-harness-correction` / plan 154, first related implementation commit `d1204cd7`; Timestamp: 2026-09-29T15:42:14+08:00; Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `b37292dd`
   - Evidence: slice 4 command printed `FMT 1` (shellcheck SC2030/SC2031 in `tests/native-evidence-identity.sh`), then `;` ran the agent commit and delivery of `ea306a5e`; CI run 36538231567 `lint` failed on the same finding; repair `14cd2de3`. Slices 1–3 used the same `;` chain and passed only because formatting succeeded. Observed effect: one failed CI run and one repair commit. Inference: third occurrence of the same hand-built chain, in a coordinator whose log already held ODF-097's plan-150 row from that morning; the rule alone does not stop it.
+- Execution: `SEED-052#keep-story-session-links` / plan 157, first related implementation commit `30bdc002`; Timestamp: 2026-09-29T17:40:19+08:00; Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `b37292dd`
+  - Evidence: CI repair command printed `FORMAT=1`, then `;` ran the agent commit and delivery of `76e6dce3`. The lint errors were in slice 3's unstaged `agent-launch-records.spec.ts`, not the committed file; CI run 36550678777 passed. Observed effect: none this time. Inference: fourth occurrence of the `;` chain; a whole-repository formatter's exit status also cannot tell a staged commit's findings from another uncommitted change's (compare ODF-128).
 
 ## ODF-098 — A slice's proof named a suite only a later slice's behavior keeps green
 
@@ -588,45 +590,6 @@ Cursor conversation/generation identity was absent on first delivery. The Claude
   - Evidence: completion input `pendingCi: unobserved` ("host session identity required for Cursor notification bridge"); retained tip `777b797926acfab373a6cd45766e3066cbd9da95`
   - Observed effect: managed delivery left the story-branch tip unobserved; no Cursor session identity was available to arm the notification bridge
   - Inference: Same Cursor host-identity gap as the plan 126 occurrence; Claude-only recovery remains inapplicable
-
-## ODF-130 — Concurrent slices in one checkout shared Playwright's output directory
-
-Former local code: DD-106.
-
-Running disjoint slices concurrently in one execution checkout let one agent's
-Playwright run delete artifacts another run was writing.
-
-### Occurrences
-
-- Execution: `SEED-028#admission-coherence` / plan 113, first related implementation commit `733fe46`
-  - Timestamp: unknown
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: modified; revision 1b66466; base 0.3.41
-  - Evidence: coordinator's dashboard consumer run for slice 2 (before
-    `c7893ac`, 2026-09-26) failed with `ENOENT` on
-    `dashboard/test-results/.playwright-artifacts-2/*.zip` while the flake
-    agent ran Playwright; rerun alone passed 4/4.
-  - Observed effect: one invalid proof run, repeated after the other agent
-    returned.
-  - Inference: Concurrent slices were otherwise useful here; file-disjoint
-    changes do not make shared test output directories disjoint.
-
-## ODF-129 — Full-suite proof in a checkout another agent was editing reported false failures
-
-Former local code: DD-109.
-
-`npm test` in the shared execution checkout, while a parallel slice edited `src/skills`, failed three payload-comparing checks; an isolated worktree with only the finished slice passed.
-
-### Occurrences
-
-- Execution: `SEED-037#fourfold-local-suite` / plan 107, first related implementation commit `273ae9a`
-  - Timestamp: unknown (after `c2e340d`, before `cee3f07` at 2026-09-26T14:09:29+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
-  - Evidence: failures in `install-all-tools.sh`, `native-delivery-updated-use{,-adapters}.sh`; isolated rerun at `c2e340d` plus slice 3 passed; slice 5's final candidate passed all three.
-  - Observed effect: one wasted full suite and a diagnosis detour; later proof used detached worktrees.
 
 ## ODF-132 — A delegated implementation agent handed back before finishing its own required proof
 
@@ -954,6 +917,12 @@ Refinement recorded SEED-052#interact-with-claude-terminal not-ready because sto
   - Evidence: `19c7e82b` story-state reason naming `origin/claude/revisit-dashboard-sessions`; `f7e7e272` closed story 2; the developer's request "see why its not ready. Make it ready if you can"; reassessment `b961dc65` (12:44:09) changed only the plan's "Builds on" note and the assessment.
   - Observed effect: about 30 minutes of a queued story reading not-ready after its only blocker cleared, and one human prompt to recover it.
   - Inference: Qualified. Neither story wrap-up nor the backlog view re-reads other stories' not-ready reasons that name the closed work; whether that should be a wrap-up step or a dashboard hint is open.
+- Execution: `SEED-052#keep-story-session-links` / plan 157, claim `4df86e5b`
+  - Timestamp: 2026-09-29T16:04:18+08:00 (terminal-residue closure `27a08c8c`; the not-ready record `c05d6b60` is 16:02:57)
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd`
+  - Evidence: `execution-start.mjs` refused with `published preparation is needs-reassessment`; reassessment `6150a458` (17:00:45) changed only the premise row, the start check, and two decisions the closure of plan 156 had left open for Terry.
+  - Observed effect: second occurrence the same day, again a minute after the not-ready record: about an hour not-ready, and one refused start and reassessment cycle, which did usefully surface the open decisions.
 
 ## DD-173 — A plan left a "paid" probe to the developer that the agent could run at no cost
 
@@ -987,9 +956,39 @@ Plan 154 slice 3 narrowed a native response check's rejection to admit one recon
 - Execution: `SEED-008#closure-proof-and-harness-correction` / plan 154, first related implementation commit `d1204cd7`; Timestamp: unknown (slice 3 accepted before `1e3880ed`, 2026-09-29T15:29:21+08:00); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `b37292dd`
   - Evidence: `story_closure_response_trunk_result` at `1e3880ed` returns true for "Trunk CI passed. The watcher failed to start." and three similar lines, false at `a51510d2`; follow-up plan 158. Observed effect: one follow-up correction. Inference: qualified; widening an assessor needs paraphrased failure cases on the side it newly admits (ADR 0005 §2's recorded bad outputs).
 
+## DD-176 — A mistyped `--repo` bound managed delivery's observer to another repository, and a refused retry left a second observer
+
+The coordinator passed `--repo nerds-odd-e/open-dough` to `execution-increment-delivery.mjs deliver`, though `origin` is `terryyin/open-dough`. Delivery accepted the push and attached an observer for the wrong repository. After stopping it, a second `deliver` refused ("rebase left the pre-rebase SHA as the candidate") but still established an observer, which the coordinator did not know about. A manual `ci-mailbox.mjs start` then made a duplicate.
+
+### Occurrences
+
+- Execution: `SEED-052#keep-story-session-links` / plan 157, first related implementation commit `30bdc002`
+  - Timestamp: 2026-09-29T17:17:21+08:00 (delivery of `30bdc002`)
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd`
+  - Evidence: first receipt `watch-6jw6fP` (stopped `unobserved`); refused retry printed no `CI_OBSERVER` receipt; manual start `watch-fYAmU8`; slice 2's delivery reported `reused` `watch-Hp4kOi`; coordinator re-registered `30bdc002` there and stopped `watch-fYAmU8`.
+  - Observed effect: four extra coordinator steps and two observers briefly covering one branch; no CI event was lost.
+  - Inference: Qualified. `deliver` could derive the repository from the pushed remote, or refuse one that does not match it, and a refused `deliver` should report any observer it established.
+
+## DD-177 — Slice proof chosen by the changed components missed page-wide invariant specs
+
+Slice 2 made Recent sessions entries and region focusable (`tabIndex=-1`), and slice 3 changed Recent sessions' wording. Each delegated proof listed the launch and terminal specs the coordinator named, and the implementers added none. A page-wide spec failed only in CI each time.
+
+### Occurrences
+
+- Execution: `SEED-052#keep-story-session-links` / plan 157, first related implementation commit `30bdc002`
+  - Timestamp: 2026-09-29T17:36:06+08:00 (CI run 36550218994 on `08f217af`)
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd`
+  - Evidence: slice 2 delegation's spec list; the failure at `accessible-overview-keyboard.spec.ts:72` (expected 5, received 6); repair `76e6dce3`. Slice 1's list had included that spec.
+  - Evidence (recurrence in the same execution): slice 3's retention sentence put "done" in Recent sessions' always-shown intro; `published-work.spec.ts:151` forbids completion words anywhere on a page without sessions and failed only in CI run 36551022132 on `32e554d5`; the full dashboard suite (286 tests, 46 s) then passed locally with the repair.
+  - Observed effect: two failed CI runs, two repair commits, and two extra refactor agents.
+  - Inference: Qualified. Selecting proof by the names of changed components misses specs that assert a whole-page property. The whole dashboard suite takes under a minute locally, so running it before delivering a page change costs less than one CI repair.
+
 ## Retention
 
-- Highest allocated local number: 175. Removed local codes are never reused.
+- Highest allocated local number: 178. Removed local codes are never reused.
+- Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-176, DD-177, and the DD-172 and ODF-097 recurrences: ODF-130 (concurrent slices sharing Playwright output) and ODF-129 (full-suite proof beside another agent's edits), since slices now run one at a time; recovery: `32e554d5:DearDough.md`.
 - Removed ODF-070 (former DD-066; nested worktree `node_modules` assumed absent) on 2026-09-29 for the 1,000-line ceiling: its 0.3.26-era occurrence as lower priority than ODF-116's recurrence (recovery: `6fa51cb6:DearDough.md`), then its remaining occurrence as lower current actionability than DD-172/DD-173 and the ODF-100 recurrence, since execution-location guidance now requires a locked install per worktree (recovery: `0c31529b:DearDough.md`).
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-174 and ODF-097's third occurrence: ODF-059's 0.3.25-era occurrence (`SEED-008#script-product-backlog-list-updates`); two later occurrences keep the finding; recovery: `14cd2de3:DearDough.md`.
 - Moved to ProjectFindings.md on 2026-09-29 for the 1,000-line ceiling: DD-155 (this repository's plan-number collision) and DD-159 (a dashboard test misdiagnosis in this repository); recovery: `41965529:DearDough.md`.

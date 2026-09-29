@@ -6,8 +6,8 @@
 // of the kept records answers each session's state from Claude Code's
 // listing (`./claudeCode.ts`), never stored; the same join decides which
 // recorded session the terminal boundary (`./agentTerminals.ts`) may attach
-// to, and a recorded session may be marked done (`./doneMarks.ts`). Origin
-// still decides every story fact.
+// to, and whether marking a recorded session done (`./doneMarks.ts`) stops
+// it. Origin still decides every story fact.
 
 import {
   type AgentLaunchRequest,

@@ -1,10 +1,11 @@
 // A launch from a Backlog card that did not start, or may not have started, on
 // the committed origin of ./agent-launch-card.spec.ts: the answer stays beside
-// the action that was used, which the card keeps, and no Started appears. The
+// the action that was used, which the card keeps, and it lists no session. The
 // page's own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "./dashboardTest.ts";
+import { cardSessions } from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
 import {
   publishLaunchJourney,
@@ -46,9 +47,7 @@ test.describe("without the project's folder", () => {
     await expect(start(readyStory)).toHaveAccessibleDescription(
       /The project folder ~\/git\/open-dough was not found/,
     );
-    await expect(
-      card(readyStory).getByRole("region", { name: "Started" }),
-    ).toHaveCount(0);
+    await expect(cardSessions(card(readyStory))).toHaveCount(0);
     expect(dashboard.claudeCalls()).toEqual([]);
   });
 
@@ -102,9 +101,7 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
     );
     await expect(start(readyStory)).toBeEnabled();
     await expect(start(readyStory)).toBeFocused();
-    await expect(
-      card(readyStory).getByRole("region", { name: "Started" }),
-    ).toHaveCount(0);
+    await expect(cardSessions(card(readyStory))).toHaveCount(0);
     expect(dashboard.claudeCalls()).toHaveLength(1);
   });
 });

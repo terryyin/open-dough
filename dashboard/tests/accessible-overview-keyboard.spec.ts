@@ -68,8 +68,9 @@ test("accessible overview is read by keyboard in reading order, with visible foc
       await page.keyboard.press("Tab");
       await expectFocusedAndIndicated(page, stop);
     }
-    // Cards and the stages take focus only when it is returned to them.
-    await expect(page.locator("[tabindex='-1']")).toHaveCount(1 + 4);
+    // Cards, the stages, and Recent sessions take focus only when it is
+    // returned to them.
+    await expect(page.locator("[tabindex='-1']")).toHaveCount(1 + 4 + 1);
     await expect(page.locator("[tabindex='0']:visible")).toHaveCount(0);
   });
 

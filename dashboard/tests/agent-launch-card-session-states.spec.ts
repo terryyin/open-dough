@@ -1,0 +1,252 @@
+// A card keeps listing its sessions whatever Claude Code lists of them, each
+// with the state Recent sessions shows: finished, stopped, idle, or no longer
+// listed (Session unavailable, without Open terminal), and State unknown with
+// its note while the listing cannot be read. Every Backlog card still offers
+// its Start actions with their notes. A dashboard server restarted on the same
+// machine, a reload, and a project switch keep the listing, and a stopped
+// session's Open terminal still attaches. What each state means is
+// ./agent-launch-recent-session-states.spec.ts. Origin alone still places
+// every story. The page's dashboard server keeps its HOME and the synthetic
+// `claude`'s state (./fixtures/fake-claude) in a machine directory, so the
+// restarted server answers the same records and sessions; its controls end,
+// forget, or fail to list a session, and the real `claude` is never reached.
+
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import type { Locator } from "@playwright/test";
+import { test as base, expect } from "./dashboardTest.ts";
+import {
+  cardSessionName,
+  cardSessions,
+  expectMembership,
+  parts,
+  sessionNamedBy,
+  sessionStateOf,
+} from "./dashboardPage.ts";
+import { doughnutSharedTitle } from "./doughnutProject.ts";
+import {
+  notRefinedStory,
+  publishStoryStagesJourney,
+  readyStory,
+  takenStory,
+  type StoryStagesJourney,
+} from "./launchJourney.ts";
+import { openStoryStagesJourney, type Workflow } from "./storyStagesPage.ts";
+import {
+  builtDashboardDir,
+  startDashboardServer,
+  type DashboardServer,
+} from "./support/dashboardServer.ts";
+import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
+
+const projectFolders = ["open-dough"];
+
+const test = base.extend<{ machine: string }>({
+  // Playwright's fixture API requires the empty destructuring pattern.
+  // eslint-disable-next-line no-empty-pattern
+  machine: async ({}, use) => {
+    const machine = mkdtempSync(path.join(tmpdir(), "dough-card-sessions-"));
+    await use(machine);
+    rmSync(machine, { recursive: true, force: true });
+  },
+  dashboard: async ({ github, machine }, use) => {
+    const server = await startDashboardServer({
+      mode: "preview",
+      prebuilt: builtDashboardDir,
+      github,
+      machine,
+      projectFolders,
+    });
+    await use(server);
+    await server.close();
+  },
+});
+
+const notReadyNote = "Not marked Ready for execution";
+const unknownNote = "Claude Code's session list could not be read";
+
+test.describe("a card's sessions whatever Claude Code lists", () => {
+  let stagesJourney: StoryStagesJourney;
+  test.beforeAll(async () => {
+    test.setTimeout(120_000);
+    stagesJourney = await publishStoryStagesJourney();
+  });
+  test.afterAll(() =>
+    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+  );
+
+  test("a finished, stopped, idle, unavailable, or unknown session stays on its card with its state beside the Start actions, through a restart, a reload, and a project switch", async ({
+    page,
+    dashboard,
+    github,
+    machine,
+  }) => {
+    dashboard.claudeScenario("launched");
+    const { card, action, settled, launch } = await openStoryStagesJourney(
+      page,
+      stagesJourney,
+    );
+    const { project } = parts(page);
+    const panel = page.getByRole("region", { name: "Terminal" });
+    const queued = {
+      taken: [],
+      backlog: [takenStory, readyStory, notRefinedStory],
+    };
+    await expectMembership(page, queued);
+    await settled();
+
+    // Each launch, the change its session undergoes, and the state its card
+    // entry shows then; the idle session still runs.
+    const launches: readonly {
+      title: string;
+      workflow: Workflow;
+      change: ClaudeSessionChange;
+      shows: string;
+    }[] = [
+      {
+        title: notRefinedStory,
+        workflow: "Execution",
+        change: "finished",
+        shows: "Finished",
+      },
+      {
+        title: readyStory,
+        workflow: "Execution",
+        change: "forgotten",
+        shows: "Session unavailable",
+      },
+      {
+        title: notRefinedStory,
+        workflow: "Refinement",
+        change: "stopped",
+        shows: "Stopped",
+      },
+      {
+        title: readyStory,
+        workflow: "Refinement",
+        change: "idle",
+        shows: "Idle",
+      },
+    ];
+    const entryOf = (title: string, workflow: Workflow): Locator =>
+      cardSessions(card(title)).and(
+        page.getByRole("article", {
+          name: cardSessionName(workflow),
+          exact: true,
+        }),
+      );
+    const openIn = (entry: Locator) =>
+      entry.getByRole("button", { name: "Open terminal" });
+    // Every card still offers both Start actions with their notes.
+    const expectStartOffered = async () => {
+      for (const title of queued.backlog) {
+        await expect(action(title, "Execution")).toBeEnabled();
+        await expect(action(title, "Refinement")).toBeEnabled();
+      }
+      await expect(
+        action(notRefinedStory, "Execution"),
+      ).toHaveAccessibleDescription(notReadyNote);
+      await expect(action(readyStory, "Execution")).toHaveAccessibleDescription(
+        "",
+      );
+    };
+    const expectShown = async () => {
+      for (const { title, workflow, shows } of launches) {
+        const entry = entryOf(title, workflow);
+        await expect(sessionStateOf(entry)).toHaveText(shows);
+        await expect(openIn(entry)).toHaveCount(
+          shows === "Session unavailable" ? 0 : 1,
+        );
+      }
+      await expect(cardSessions(page.locator("body"))).toHaveCount(
+        launches.length,
+      );
+      await expectStartOffered();
+    };
+
+    const sessionIds: string[] = [];
+    for (const { title, workflow } of launches) {
+      await launch(title, workflow);
+      await expect(sessionStateOf(entryOf(title, workflow))).toHaveText(
+        "Working",
+      );
+      sessionIds.push(await sessionNamedBy(entryOf(title, workflow)));
+    }
+    // Claude Code's listing cannot be read, and then every session changes.
+    dashboard.claudeListingFails(true);
+    for (const [index, { change }] of launches.entries()) {
+      dashboard.claudeSessionBecomes(sessionIds[index] ?? "?", change);
+    }
+
+    await test.step("while Claude Code's listing cannot be read, every card entry shows State unknown with its note and Open terminal", async () => {
+      await page.reload();
+      await settled();
+      for (const { title, workflow } of launches) {
+        const entry = entryOf(title, workflow);
+        await expect(sessionStateOf(entry)).toHaveText(
+          `State unknown: ${unknownNote}`,
+        );
+        await expect(openIn(entry)).toBeVisible();
+      }
+      await expectStartOffered();
+    });
+
+    await test.step("once the listing is read, each session stays listed with its state, an unavailable one without Open terminal", async () => {
+      dashboard.claudeListingFails(false);
+      await page.reload();
+      await settled();
+      await expectShown();
+    });
+
+    const port = Number(new URL(dashboard.baseURL).port);
+    let restarted: DashboardServer | undefined;
+    try {
+      await test.step("a restarted dashboard server, a reload, and a project switch keep every entry and its state", async () => {
+        await dashboard.close();
+        restarted = await startDashboardServer({
+          mode: "preview",
+          prebuilt: builtDashboardDir,
+          github,
+          machine,
+          projectFolders,
+          port,
+        });
+        await page.reload();
+        await expectMembership(page, queued);
+        await settled();
+        await expectShown();
+
+        await project
+          .getByRole("radio", { name: "Doughnut", exact: true })
+          .check();
+        await expectMembership(page, {
+          taken: [],
+          backlog: [doughnutSharedTitle],
+        });
+        await expect(cardSessions(page.locator("body"))).toHaveCount(0);
+        await project
+          .getByRole("radio", { name: "Open Dough", exact: true })
+          .check();
+        await expectMembership(page, queued);
+        await settled();
+        await expectShown();
+      });
+
+      await test.step("the stopped session's Open terminal on its card still attaches", async () => {
+        const stopped = sessionIds[2] ?? "?";
+        await openIn(entryOf(notRefinedStory, "Refinement")).click();
+        await expect(panel.locator(".xterm-rows")).toContainText(
+          `attached ${stopped.slice(0, 8)}`,
+        );
+      });
+    } finally {
+      await restarted?.close();
+    }
+
+    // Session state never moves a story: origin alone places each one, and
+    // nothing was launched again.
+    await expectMembership(page, queued);
+    expect(dashboard.claudeLaunchCalls()).toHaveLength(launches.length);
+  });
+});

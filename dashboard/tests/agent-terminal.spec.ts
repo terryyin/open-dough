@@ -1,6 +1,6 @@
 // A session launched from this dashboard opens in the page's one terminal,
 // on a committed origin the production commands publish (./launchJourney.ts):
-// a card's Started or a Recent sessions entry offers Open terminal, the page
+// a card's session entry or a Recent sessions entry offers Open terminal, the page
 // splits with the terminal on the right, and what is typed there reaches the
 // session and its answer shows. Opening another session detaches the first,
 // which keeps running; Close detaches only and returns the keyboard to the
@@ -13,6 +13,7 @@
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
+  cardSessions,
   expectMembership,
   parts,
   recentSessionName,
@@ -21,12 +22,12 @@ import {
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import {
   notRefinedStory,
-  publishSettlementJourney,
+  publishStoryStagesJourney,
   readyStory,
   takenStory,
-  type SettlementJourney,
+  type StoryStagesJourney,
 } from "./launchJourney.ts";
-import { openSettlementJourney } from "./settlementPage.ts";
+import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { processRunning } from "./support/processGroup.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -40,27 +41,28 @@ async function reportedSize(rows: Locator): Promise<string | undefined> {
 }
 
 test.describe("the terminal beside the page", () => {
-  let settlement: SettlementJourney;
+  let stagesJourney: StoryStagesJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    settlement = await publishSettlementJourney();
+    stagesJourney = await publishStoryStagesJourney();
   });
-  test.afterAll(() => (settlement as SettlementJourney | undefined)?.cleanup());
+  test.afterAll(() =>
+    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+  );
 
   test("a card or Recent sessions entry opens its session in the right-hand terminal, one at a time, and Close leaves it running", async ({
     page,
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, show, launch } = await openSettlementJourney(
+    const { card, settled, show, launch } = await openStoryStagesJourney(
       page,
-      settlement,
+      stagesJourney,
     );
     const { recentSessions: recent, stages } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
-    const started = (title: string) =>
-      card(title).getByRole("region", { name: "Execution started" });
+    const started = (title: string) => cardSessions(card(title));
     const entry = (title: string) =>
       recent.getByRole("article", {
         name: recentSessionName("Execution", title),
@@ -99,7 +101,7 @@ test.describe("the terminal beside the page", () => {
     await expect(page.locator("body")).not.toContainText("claude attach");
     await expect(page.getByRole("button", { name: /copy/i })).toHaveCount(0);
 
-    await test.step("a card's Started opens its session to the right of the page, and an answer typed there reaches it", async () => {
+    await test.step("a card's session entry opens its session to the right of the page, and an answer typed there reaches it", async () => {
       await openIn(started(notRefinedStory)).click();
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
         notRefinedStory,
@@ -154,13 +156,13 @@ test.describe("the terminal beside the page", () => {
       await expect(openIn(started(notRefinedStory))).toBeVisible();
     });
 
-    await test.step("Close ends the panel and detaches only, and the keyboard returns to the Started that opened it", async () => {
+    await test.step("Close ends the panel and detaches only, and the keyboard returns to the card entry that opened it", async () => {
       await openIn(started(notRefinedStory)).click();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       await panel.getByRole("button", { name: "Close" }).click();
       await expect(panel).toHaveCount(0);
-      // The Started still shows its running session, so its Open terminal,
-      // not the session's Recent sessions entry, has the keyboard.
+      // The card still lists the session, so its entry's Open terminal, not
+      // the session's Recent sessions entry, has the keyboard.
       await expect(openIn(started(notRefinedStory))).toBeFocused();
       await expect.poll(() => attachesEnded(first)).toBe(true);
       await stillListed(first);
@@ -169,7 +171,7 @@ test.describe("the terminal beside the page", () => {
     });
 
     await test.step("an entry whose story is in no list still opens its session", async () => {
-      await show(settlement.completed);
+      await show(stagesJourney.completed);
       await expectMembership(page, {
         taken: [readyStory],
         backlog: [takenStory],

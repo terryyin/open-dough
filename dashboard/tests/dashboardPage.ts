@@ -41,7 +41,18 @@ export function parts(page: Page) {
 export const recentSessionName = (workflow: string, title: string) =>
   `${workflow} session for ${title}`;
 
-// The session id a Started record or a Recent sessions entry names.
+// A card's session entries, newest first.
+export const cardSessions = (card: Locator) =>
+  card.getByRole("list", { name: "Sessions" }).getByRole("article");
+
+// A card's session entry, named for its launch's workflow.
+export const cardSessionName = (workflow: string) => `${workflow} session`;
+
+// The state words a session entry shows, on a card or in Recent sessions.
+export const sessionStateOf = (entry: Locator) =>
+  entry.locator(".session-state");
+
+// The session id a session entry names, on a card or in Recent sessions.
 export async function sessionNamedBy(record: Locator): Promise<string> {
   const id = await record
     .locator("p", { hasText: /^Session / })

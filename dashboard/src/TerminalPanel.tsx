@@ -24,6 +24,7 @@ import {
   terminalEndedCode,
   type TerminalMessage,
 } from "./agentTerminal.ts";
+import { notMarkedDone, useMarking } from "./terminalOpening.ts";
 
 function terminalUrl(record: LaunchRecord): string {
   const query = new URLSearchParams({
@@ -107,10 +108,6 @@ function useAttachedTerminal(
   }, [element, url, attempt, onEnded]);
 }
 
-// Where Mark as done stands: asked, and the attachment's ending it causes is
-// not shown, or refused.
-type Marking = "marking" | "not-marked";
-
 export function TerminalPanel({
   record,
   onClose,
@@ -124,15 +121,8 @@ export function TerminalPanel({
   const screen = useRef<HTMLDivElement>(null);
   const [attempt, setAttempt] = useState(0);
   const [ending, setEnding] = useState<Ending | undefined>();
-  const [marking, setMarking] = useState<Marking | undefined>();
-  const markDone = () => {
-    setMarking("marking");
-    void onMarkDone().then((marked) => {
-      if (!marked) {
-        setMarking("not-marked");
-      }
-    });
-  };
+  // While marking, the attachment's ending the mark causes is not shown.
+  const { marking, follow } = useMarking();
   useAttachedTerminal(screen, record, attempt, setEnding);
   const attachAgain = () => {
     setEnding(undefined);
@@ -153,7 +143,9 @@ export function TerminalPanel({
           <button
             type="button"
             disabled={marking === "marking"}
-            onClick={markDone}
+            onClick={() => {
+              follow(onMarkDone());
+            }}
           >
             Mark as done
           </button>
@@ -164,9 +156,7 @@ export function TerminalPanel({
       </header>
       <div role="status" className="terminal-status">
         {marking === "marking" && <p className="quiet">Marking as done…</p>}
-        {marking === "not-marked" && (
-          <p>The session could not be marked done.</p>
-        )}
+        {marking === "not-marked" && <p>{notMarkedDone}</p>}
         {ending && marking !== "marking" && (
           <>
             <p>{endings[ending].says}</p>

@@ -12,7 +12,6 @@ import {
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
 import { stagesMarks, workCardMarks } from "./workFocus.ts";
-import { launchAwaitsPublication } from "./agentLaunch.ts";
 import type { ProjectLaunches } from "./agentLaunches.ts";
 import { CardLaunches } from "./CardLaunches.tsx";
 
@@ -25,6 +24,7 @@ function WorkCard({
   priority,
   showsSliceProgress,
   launches,
+  offersStart,
   selected,
   onSelect,
   onOpenRoster,
@@ -33,8 +33,9 @@ function WorkCard({
   priority: number | undefined;
   // Taken cards only: queued work shows no progress.
   showsSliceProgress: boolean;
+  launches: ProjectLaunches;
   // Backlog cards only: Taken work offers no launch.
-  launches: ProjectLaunches | undefined;
+  offersStart: boolean;
   selected: boolean;
   onSelect: (identity: string) => void;
   onOpenRoster: OpenRoster;
@@ -63,7 +64,11 @@ function WorkCard({
           sliceClock={entry.sliceClock}
         />
       )}
-      {launches && <CardLaunches entry={entry} launches={launches} />}
+      <CardLaunches
+        entry={entry}
+        launches={launches}
+        offersStart={offersStart}
+      />
       <p>
         <button
           type="button"
@@ -101,6 +106,7 @@ function Stage({
   prioritized,
   showsSliceProgress,
   launches,
+  offersStart,
   selectedIdentity,
   onSelect,
   onOpenRoster,
@@ -110,7 +116,8 @@ function Stage({
   entries: readonly WorkEntry[];
   prioritized: boolean;
   showsSliceProgress: boolean;
-  launches?: ProjectLaunches | undefined;
+  launches: ProjectLaunches;
+  offersStart: boolean;
   selectedIdentity: string | undefined;
   onSelect: (identity: string) => void;
   onOpenRoster: OpenRoster;
@@ -135,6 +142,7 @@ function Stage({
                 priority={prioritized ? index + 1 : undefined}
                 showsSliceProgress={showsSliceProgress}
                 launches={launches}
+                offersStart={offersStart}
                 selected={selectedIdentity === entry.identity}
                 onSelect={onSelect}
                 onOpenRoster={onOpenRoster}
@@ -169,9 +177,6 @@ export function WorkStages({
       current === identity ? undefined : identity,
     );
   };
-  const awaiting = launches.records.filter((record) =>
-    launchAwaitsPublication(record, work),
-  );
   return (
     <>
       <section className="stages" aria-label="Work stages" {...stagesMarks}>
@@ -180,7 +185,8 @@ export function WorkStages({
           entries={work.backlog}
           prioritized
           showsSliceProgress={false}
-          launches={{ ...launches, records: awaiting }}
+          launches={launches}
+          offersStart
           selectedIdentity={selectedIdentity}
           onSelect={select}
           onOpenRoster={onOpenRoster}
@@ -205,6 +211,8 @@ export function WorkStages({
           entries={work.taken}
           prioritized={false}
           showsSliceProgress
+          launches={launches}
+          offersStart={false}
           selectedIdentity={selectedIdentity}
           onSelect={select}
           onOpenRoster={onOpenRoster}

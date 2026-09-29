@@ -1,6 +1,7 @@
 // How long and where the local launch boundary (../server/agentLaunchPlugin.ts)
 // keeps a project's launch records, over raw HTTP: this machine keeps them
-// outside every repository for 30 days, across server restarts and shared
+// outside every repository until 30 days after its session is marked done,
+// however old an unclosed one is, across server restarts and shared
 // between its dev and preview servers, and an unreadable store answers none
 // and is moved aside by the next launch rather than lost, even when an earlier
 // unreadable copy is already beside it. Each test owns a fresh machine
@@ -54,7 +55,24 @@ function seedStore(machine: string, text: string): void {
   writeFileSync(storeFile(machine), text);
 }
 
-function recordLaunchedDaysAgo(days: number, sessionId: string): object {
+// The project's records as the store file holds them, before any retention.
+function storedRecords(machine: string): unknown[] {
+  const store = JSON.parse(readFileSync(storeFile(machine), "utf8")) as Record<
+    string,
+    unknown[]
+  >;
+  return store["open-dough"] ?? [];
+}
+
+function daysAgo(days: number): string {
+  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+}
+
+function recordLaunchedDaysAgo(
+  days: number,
+  sessionId: string,
+  doneDaysAgo?: number,
+): object {
   return {
     request: launchRequest,
     session: {
@@ -63,7 +81,8 @@ function recordLaunchedDaysAgo(days: number, sessionId: string): object {
       shortId: sessionId.slice(0, 8),
       name: `Open Dough · Execution · ${title}`,
     },
-    launchedAt: new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString(),
+    launchedAt: daysAgo(days),
+    ...(doneDaysAgo === undefined ? {} : { doneAt: daysAgo(doneDaysAgo) }),
   };
 }
 
@@ -108,25 +127,48 @@ test.describe("launch records kept on this machine", () => {
     expect(await recordsOf(restarted, "open-dough")).toEqual([record]);
   });
 
-  test("does not answer a record launched more than 30 days ago", async () => {
-    const recent = recordLaunchedDaysAgo(
+  test("keeps an unclosed record however old, and a done one until 30 days after marking, dropping it on the next write", async () => {
+    const unclosed = recordLaunchedDaysAgo(
+      40,
+      "40000000-0000-4000-8000-000000000040",
+    );
+    const recentlyDone = recordLaunchedDaysAgo(
+      60,
+      "60000000-0000-4000-8000-000000000029",
       29,
-      "29000000-0000-4000-8000-000000000029",
+    );
+    const longDone = recordLaunchedDaysAgo(
+      60,
+      "60000000-0000-4000-8000-000000000031",
+      31,
     );
     seedStore(
       machine,
-      JSON.stringify({
-        "open-dough": [
-          recordLaunchedDaysAgo(31, "31000000-0000-4000-8000-000000000031"),
-          recent,
-        ],
-      }),
+      JSON.stringify({ "open-dough": [longDone, unclosed, recentlyDone] }),
     );
     const server = await serverOn("preview");
 
-    // The fake `claude` never launched it, so it no longer lists it.
+    // The fake `claude` never launched them, so it no longer lists them.
     expect(await recordsOf(server, "open-dough")).toEqual([
-      { ...recent, sessionState: { kind: "unlisted" } },
+      { ...unclosed, sessionState: { kind: "unlisted" } },
+      { ...recentlyDone, sessionState: { kind: "unlisted" } },
+    ]);
+    expect(storedRecords(machine)).toHaveLength(3);
+
+    server.claudeScenario("launched");
+    const { record } = JSON.parse(
+      (await launch(server, launchRequest)).body,
+    ) as {
+      record: { session: { sessionId: string } };
+    };
+    expect(storedRecords(machine)).toEqual([
+      unclosed,
+      recentlyDone,
+      expect.objectContaining({
+        session: expect.objectContaining({
+          sessionId: record.session.sessionId,
+        }),
+      }),
     ]);
   });
 

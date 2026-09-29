@@ -5,7 +5,8 @@
 // workflow notes (execution: not marked Ready for execution; refinement:
 // being prepared) offers the same action, described by that note; the session
 // is asked anyway, and the instruction can say what to do first. A failed or
-// uncertain answer stays on the card with the action.
+// uncertain answer stays on the card with the action. A closed dialog returns
+// the keyboard to its action, unless a launched session took it.
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import {
@@ -40,8 +41,9 @@ function StartLaunchDialog({
   readonly workflow: LaunchWorkflow;
   readonly note: string | undefined;
   readonly starting: boolean;
-  readonly onStart: (instruction: string) => Promise<void>;
-  readonly onClose: () => void;
+  readonly onStart: (instruction: string) => Promise<boolean>;
+  // Whether a launched session took the keyboard.
+  readonly onClose: (launched: boolean) => void;
 }) {
   const { name, verb, skill } = launchWorkflows[workflow];
   const named = name.toLowerCase();
@@ -49,6 +51,7 @@ function StartLaunchDialog({
   const dialog = useRef<HTMLDialogElement>(null);
   const instruction = useRef<HTMLTextAreaElement>(null);
   const headingId = `${id}-heading`;
+  const launched = useRef(false);
 
   useEffect(() => {
     dialog.current?.showModal();
@@ -60,12 +63,15 @@ function StartLaunchDialog({
       ref={dialog}
       className="start-launch-dialog"
       aria-labelledby={headingId}
-      onClose={onClose}
+      onClose={() => {
+        onClose(launched.current);
+      }}
     >
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          void onStart(instruction.current?.value ?? "").then(() => {
+          void onStart(instruction.current?.value ?? "").then((started) => {
+            launched.current = started;
             dialog.current?.close();
           });
         }}
@@ -127,7 +133,8 @@ export function StartLaunch({
   // The workflow's note on this card, if any.
   readonly note: string | undefined;
   readonly attempt: LaunchAttempt | undefined;
-  readonly onStart: (instruction: string) => Promise<void>;
+  // Answers whether a session was launched, which then takes the keyboard.
+  readonly onStart: (instruction: string) => Promise<boolean>;
 }) {
   const named = launchWorkflows[workflow].name.toLowerCase();
   const id = useId();
@@ -204,8 +211,8 @@ export function StartLaunch({
           note={note}
           starting={starting}
           onStart={onStart}
-          onClose={() => {
-            returnsFocus.current = true;
+          onClose={(launched) => {
+            returnsFocus.current = !launched;
             setOpen(false);
           }}
         />

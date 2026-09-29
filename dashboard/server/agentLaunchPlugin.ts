@@ -47,7 +47,13 @@ async function markedDone(
   launches: AgentLaunches,
   terminals: AgentTerminals,
 ): Promise<LaunchWithState> {
-  const marked = await markSessionDone(source.id, record, folder, terminals);
+  const marked = await markSessionDone(
+    source,
+    record,
+    folder,
+    launches,
+    terminals,
+  );
   return launches.stateOf(source, marked);
 }
 

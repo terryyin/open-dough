@@ -5,9 +5,11 @@
 // runs `claude stop <short id>`, and keeps the done mark on this machine
 // across a restart. With no terminal open, or a launch name holding a
 // control character, the `done-` name is only the record's, and the session
-// is still stopped. Any other request is refused before `claude` runs. The
-// machine directory holds HOME and the synthetic `claude`'s
-// (./fixtures/fake-claude) state; the real one is never reached.
+// is still stopped. A session Claude Code no longer lists is only marked,
+// never stopped. Which requests are refused before `claude` runs is
+// ./agent-launch-done-refusal.spec.ts. The machine directory holds HOME and
+// the synthetic `claude`'s (./fixtures/fake-claude) state; the real one is
+// never reached.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -47,7 +49,7 @@ test.describe("marking a recorded session done", () => {
       mode: "preview",
       prebuilt: builtDashboardDir,
       machine,
-      projectFolders: ["open-dough", "pygardon"],
+      projectFolders: ["open-dough"],
       doneRenameWaitMs: 3_000,
     });
 
@@ -182,65 +184,24 @@ test.describe("marking a recorded session done", () => {
     });
   });
 
-  test("refuses a request for a session this dashboard did not record, or another project's, before running claude", async () => {
+  test("marks a session Claude Code no longer lists without stopping it", async () => {
     const session = await launched(server);
-    for (const body of [
-      {
-        source: "open-dough",
-        session: "00000000-0000-4000-8000-000000000000",
-      },
-      { source: "pygardon", session: session.sessionId },
-    ]) {
-      const callsBefore = server.claudeCalls().length;
+    server.claudeSessionBecomes(session.sessionId, "forgotten");
+    const stopsBefore = stopCalls().length;
 
-      const response = await markDone(server, body);
-
-      expect(response.status).toBe(404);
-      expect(server.claudeCalls()).toHaveLength(callsBefore);
-    }
-    const [record] = (await recordsOf(server, "open-dough")).filter(
-      (each) =>
-        (each as { session: { sessionId: string } }).session.sessionId ===
-        session.sessionId,
-    );
-    expect(record).not.toHaveProperty("doneAt");
-    expect(listed(session)).toMatchObject({ status: "busy" });
-  });
-
-  for (const refused of [
-    {
-      request: "from another site",
-      status: 403,
-      headers: () => ({ Origin: "http://evil.example" }),
-    },
-    {
-      request: "for an unknown project",
-      status: 404,
-      source: "not-a-real-project",
-    },
-    {
-      request: "that is malformed",
-      status: 400,
-      extra: { command: "ls" },
-    },
-  ]) {
-    test(`refuses a done request ${refused.request} before running claude`, async () => {
-      const session = await launched(server);
-      const callsBefore = server.claudeCalls().length;
-
-      const response = await markDone(
-        server,
-        {
-          source: refused.source ?? "open-dough",
-          session: session.sessionId,
-          ...refused.extra,
-        },
-        refused.headers?.() ?? { Origin: server.origin },
-      );
-
-      expect(response.status).toBe(refused.status);
-      expect(server.claudeCalls()).toHaveLength(callsBefore);
-      expect(listed(session)).toMatchObject({ status: "busy" });
+    const response = await markDone(server, {
+      source: "open-dough",
+      session: session.sessionId,
     });
-  }
+
+    expect(response.status).toBe(200);
+    expect(JSON.parse(response.body)).toMatchObject({
+      record: {
+        doneAt: expect.any(String),
+        session: { sessionId: session.sessionId, name: launchName },
+        sessionState: { kind: "unlisted" },
+      },
+    });
+    expect(stopCalls().slice(stopsBefore)).toEqual([]);
+  });
 });

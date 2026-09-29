@@ -27,9 +27,9 @@ The launch boundary specs (`agent-launch-boundary.spec.ts`,
 `agent-launch-refusal.spec.ts`, `agent-launch-records.spec.ts`, and
 `agent-launch-session-listing.spec.ts`) and the page journeys
 (`agent-launch-card.spec.ts`, `agent-launch-card-problems.spec.ts`,
-`agent-launch-settlement.spec.ts`, `agent-launch-recent-sessions.spec.ts`,
-`agent-launch-recent-session-states.spec.ts`, and
-`agent-launch-session-settlement.spec.ts`, which name their folders and launch
+`agent-launch-card-sessions.spec.ts`, `agent-launch-card-session-states.spec.ts`,
+`agent-launch-recent-sessions.spec.ts`, and
+`agent-launch-recent-session-states.spec.ts`, which name their folders and launch
 wait through the `projectFolders` and `launchTimeoutMs` options of
 `dashboardTest.ts`) drive a synthetic `claude`
 (`fixtures/fake-claude`, `support/fakeClaude.ts`) that every server puts first
@@ -49,15 +49,17 @@ size, detaches on Ctrl+Z, and records its pid, its lines, and what ended it
 (`claudeAttaches`). The terminal boundary specs drive it over a raw socket
 (`agent-terminal-boundary.spec.ts`; `agent-terminal-close.spec.ts` for the
 server's close hook; `agent-launch-done.spec.ts` for Mark as done's rename and
-stop). The page journeys behind the terminal panel are
-`agent-terminal.spec.ts` (opening, one at a time, Close),
-`agent-terminal-lifetime.spec.ts` (project switch, lost connection and
-Reconnect, ended terminal), and `agent-terminal-done.spec.ts` (Mark as done's
-focus, status, and Done entry). A server that must find no `claude` gets a
-PATH holding only the fake `gh` and Node. Nothing here ever calls the real
-`claude`. Only the settlement journey reaches Preparing, including a
-refinement launched on the Preparing card, and walks on through the Take and
-completion.
+stop, and `agent-launch-done-refusal.spec.ts` for its refusals). The page
+journeys behind the terminal panel are `agent-terminal.spec.ts` (opening, one
+at a time, Close), `agent-terminal-lifetime.spec.ts` (project switch, lost
+connection and Reconnect, ended terminal), and `agent-terminal-done.spec.ts`
+(Mark as done's focus, status, and Done entry);
+`agent-launch-card-done.spec.ts` marks a card's session done from its entry.
+A server that must find no `claude` gets a PATH holding only the fake `gh`
+and Node. Nothing here ever calls the real
+`claude`. Only the card-sessions journey (`agent-launch-card-sessions.spec.ts`)
+reaches Preparing, including a refinement launched on the Preparing card, and
+walks on through the Take and completion.
 
 A passing run prints nothing (`support/quietReporter.ts`). A failing
 spec is shown with its error, output, and retained trace; a passing spec that

@@ -46,7 +46,7 @@ use it to help the developer find conversations requiring attention.
   new endpoint, store, poller, callback, or transcript reader.
 - Change the existing session presentation. Today `RecentSessions.tsx` owns
   `sessionStateWords`, which maps every running non-busy process to Idle.
-  [Plan 157](../157-keep-story-session-links/PLAN.md) moves that presentation
+  Plan 157 (`c6d9d68a:.planning/slice-plans/157-keep-story-session-links/PLAN.md`) moves that presentation
   into one entry shared with cards. Extend the landed shared entry and its
   state interpretation; do not restore a separate Recent sessions mapper.
 - Reuse `useAgentLaunches`'s project-scoped records and refresh schedule,
