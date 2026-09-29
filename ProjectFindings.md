@@ -66,8 +66,8 @@ Resolved and removed on 2026-09-30 (recovery: `34ceff06:ProjectFindings.md`):
   hosts): plan 163 replays real Claude, Codex, and Cursor streams through one
   shared reader in the free suite, a guard refuses host-stream parsing
   outside it, and every harness shim is checked under each login-shell
-  profile (`claude/native-harness-observes-agent-behavior` at `e0e96586`,
-  awaiting integration). Its residue is queued as
+  profile (plan at
+  `2b20ed61:.planning/slice-plans/163-native-harness-replay/PLAN.md`). Its residue is queued as
   [Correct continued-command reading and corpus admission in the native harness](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-replay-corrections).
 
 Returned to DearDough.md on 2026-09-29: DD-155 (plan-number collision, the

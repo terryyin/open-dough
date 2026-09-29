@@ -5,8 +5,10 @@
 - **Identity:** SEED-055#native-harness-replay-corrections
 - **Source:** [story](../../seeds/SEED-055-trustworthy-project-proof.md#native-harness-replay-corrections),
   a bounded correction from the execution retrospective of
-  [SEED-055#native-harness-observes-agent-behavior](../../seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior)
-  (plan 163). Reviewed commits: `daaf3c1e`, `f5088cf6`, `942d7636`, `f7d61115`,
+  SEED-055#native-harness-observes-agent-behavior (plan 163; story and plan at
+  `2b20ed61:.planning/seeds/SEED-055-trustworthy-project-proof.md` and
+  `2b20ed61:.planning/slice-plans/163-native-harness-replay/PLAN.md`).
+  Reviewed commits: `daaf3c1e`, `f5088cf6`, `942d7636`, `f7d61115`,
   `6173d733`, `26467b51`, `f68bfe00`, `b4d82278` on
   `claude/native-harness-observes-agent-behavior`.
 - **Depends on:** plan 163's story branch integrated into trunk; the files
