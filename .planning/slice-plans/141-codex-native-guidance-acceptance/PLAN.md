@@ -94,7 +94,7 @@ Behavior: pre-plan refined Doughnut story → installed-guidance planning → ca
 ### 2. Sound premises reach readiness without unnecessary planning work
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: control baseline/candidate plans/state against historical plan 111; independently judge observation breadth and added gates.
 Behavior: historical folder-reference story with sound premises → installed-guidance planning → brief relevant decisive observations and `ready`, without unjustified probe, approval or additional full-suite run. Equivalent proof/slice boundaries are allowed; plan 111 compares burden. Run early to expose over-observation cost.
 
@@ -156,7 +156,7 @@ The released-settings check exposes a compatibility failure, while migration doc
 [Original execution, accepted slices 1 and 3–6, slice 2 failure and slice 7 inconclusive observation](HISTORY.md) are preserved without changing their revisions or verdicts. Git also retains the original plan through landed `b065a8b9`.
 
 <a id="slice-2-observation-and-execution-stop-2026-09-28"></a>
-The original [slice 2 failure](HISTORY.md#slice-2-observation-and-execution-stop-2026-09-28) remains outstanding until the changed-guidance rerun is judged.
+The original [slice 2 failure](HISTORY.md#slice-2-observation-and-execution-stop-2026-09-28) remains historical evidence; the [changed-guidance rerun](#accepted-proof--slice-2-rerun-2026-09-29) is accepted below.
 
 ## Resumed execution context
 
@@ -171,3 +171,13 @@ Verdict: the proposed visibility repair is insufficient; no paid escalation run.
 The stopped path remains inside this story: establish a truthful, nonleading initially eligible task whose owned edits reveal a genuine separate outcome, then rerun slice 7. Preserve its original safe-early-admission observation. No guidance defect or new paid result is claimed. The proposed harness edits are withheld; existing release/harness bytes remain unchanged. Terry's continuing execution authority permits independent slice 2 now; the remaining plan is reordered accordingly, with no change to the after-edit carry promise.
 
 Inspected setup/observations: maintained `writeEscalationProduct`, generated `test/released-settings.test.mjs` decompressing saved release 1.0 and comparing each loaded value, `scripts/command.js` executing it, and the literal renamed/legacy-alias settings variants. Disposable integration `/private/tmp/plan141-slice-r.1aYeKm/workspace-claim-E5ZnPK/integration`; each variant ran `node scripts/command.js` to terminal 0/1/0 respectively. Proposed source/consumer changes passed `PATH="/opt/homebrew/bin:$PATH" npm test -- tests/git-publication-native.sh tests/git-publication-native-one-shot.sh` to exit 0; this is harness counterexample proof, not native acceptance. Current maintained fixture restored to original blob `d28b6c1074bfedae81f1f5b85da14f2f55463b87`; proposal and exact observations retained outside source for review and then removed after compact evidence publication. No framework, assessor weakening, prompt change, guidance repair or paid retry.
+
+## Accepted proof — slice 2 rerun (2026-09-29)
+
+Verdict: pass for the single corrected-release planning control; original failed v0.3.45 session and mixed baseline remain historical evidence. The new plan records six relevant decisive premise rows and one Behavior slice, reaches ready, and adds no probe/approval or unconditional hosted-CI gate. No reliability or causal-improvement claim.
+
+- Guidance `v0.3.46`/`dc544c604bc5ffdb49889e98c178a6539e5dcd3d`; separate harness `ae6675769c6988061aca839e139667f0848667db`; fixture `f2b974afb5367b7f8cbe3a2b5ebd246ec166bf02`, SEED-042 restored from `e7107e5000f2df7b2f0cde33ad5919522a90571b`. Independent shared clones, detached pins, origins removed, release installation and installed refined/unselected reset supply only preconditions. Literal setup `/opt/homebrew/bin/bash /private/tmp/plan141-slice2-resume.KrINrk/setup.sh > /private/tmp/plan141-slice2-resume.KrINrk/setup.log 2>&1` passed.
+- Literal one launch `/opt/homebrew/bin/bash /private/tmp/plan141-slice2-resume.KrINrk/run.sh`; exact nonleading protocol prompt above, substituting only control story and fixture `/private/tmp/plan141-slice2-resume.KrINrk/candidate-open-dough`. Existing adapter/supervisor/classifier, 900/15 bounds, Codex 0.157.0/Bash 5.3.20, unchanged ephemeral/ignore-user-config defaults and isolated state/logs; actual model unknown. Session 32840 exited 0, native turn.completed and independently classified complete, 00:40:18Z–00:44:45Z. No paid retry.
+- Inspected actual installed planning read item_1, preparation references item_4, story/proof reads item_5, plan write item_21, interpreted single planned Behavior slice plus missingLinkedFiles=[] item_25, and ready recording item_26. Item_23 heredoc creation was denied although its trailing command returned 0; corrected item_25 is the accepted successful observation.
+- Written `.planning/slice-plans/111-rename-slice-plan-folder-references/PLAN.md` lines 61–69 map the premises; 111–126 select real CLI operations, installed payload fixture consumers and full dashboard journeys. The dashboard group is explicitly justified by affected fixtures across readiness/navigation/refresh/progress/branch/authenticated-read/accessibility, independently matched to the historical footprint. Lines 129–133 reject blanket local CI gates; prior unconditional npm test/lint/typecheck/separate build gates are absent. Prospective checks were not run as implementation proof. Historical plan 111 supports focused owners without requiring identical plan boundaries.
+- Coordinator inspected written plan, source/adapter pins, actual trace output and matching ready bases: document `963aa5061b43594238046f3770e3b780d6218c60b07cc7f8786c5c4e0b09decc`, plan `f0e17a2221b2a601392af9027527d113896eaf27e1cc321c657efe5de7d6b63e`. All 180 declared Codex payload files match pinned release bytes; source/harness clean, fixture HEAD unchanged/no origin. Before/after comparison contains only selected preparation-block update and new plan, no product implementation/publication. Raw artifacts remain for acceptance/refactoring and are deleted after compact proof publication under ADR 0005.
