@@ -134,6 +134,16 @@ parallel ones:
   delivered; no adapter interface is built ahead of a second host.
 - Each catalog project's **local folder** is a machine-local fact held by the
   local server, not by the published catalog the browser shares.
+- **Sessions are the machine's, not a project's.** Launch records sit in one
+  store on this machine, and the host's listing is machine-wide (Claude Code
+  lists every session whatever folder it runs in). The page reads them once
+  for every catalog project and holds one session state, apart from project
+  selection; cards, Recent sessions, and the session sidebar
+  ([SEED-052#session-sidebar](seeds/SEED-052-start-agent-work-from-dashboard.md#session-sidebar))
+  each derive their view by project and identity from it. Actions on one
+  session (attach, stop, Mark as done) still run in its project's folder.
+  Published observation stays one project at a time; later hosts join the
+  same read through their own module.
 
 Process and filesystem responsibility stays in the existing local loopback
 boundary: the launch endpoint sits beside the read endpoint in the same Vite
