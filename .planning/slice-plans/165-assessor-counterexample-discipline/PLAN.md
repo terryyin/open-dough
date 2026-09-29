@@ -231,6 +231,12 @@ Considered and left out:
 - **For slice 8:** the runner's required-pass checks
   (`[[ ${git_publication_assess_status} != 'pass' ]]`) stay; the guard must
   tell a required pass from an expected rejection.
+- **CI repair after slice 5 (run 36591803631).** `command-only` also
+  changed `claim-owned` on the Ubuntu runner. The startup observer piped
+  `git log` into `grep -q` under `pipefail`; git could die of SIGPIPE after the
+  match, turning an owned claim into `claim-owned: false`. The observer now
+  greps the message history as a here-string. An extra commit under the claim
+  reproduced the false reading before the fix.
 
 ## Slices
 
