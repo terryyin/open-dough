@@ -50,7 +50,7 @@ function WorkCard({
   // Outlined while the page's terminal shows one of the card's sessions.
   const { shownInTerminal } = usePageSessions();
   const inTerminal = cardSessionsOf(
-    launches.records,
+    launches.launched,
     sourceId,
     entry.identity,
   ).some((record) => record.session.sessionId === shownInTerminal);

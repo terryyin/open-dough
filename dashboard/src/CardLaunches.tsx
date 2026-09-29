@@ -34,7 +34,7 @@ export function CardLaunches({
 }) {
   // The session the developer's own launch from this card just listed.
   const [launchedHere, setLaunchedHere] = useState<string | undefined>();
-  const sessions = cardSessionsOf(launches.records, sourceId, entry.identity);
+  const sessions = cardSessionsOf(launches.launched, sourceId, entry.identity);
   const attention = attentionSummary(sessions);
   return (
     <>

@@ -41,6 +41,9 @@ export type MachineSessions = {
   // Every project's launch records, oldest first within a project, each with
   // its session's state when last read; undefined until first read.
   readonly records: readonly LaunchWithState[] | undefined;
+  // The sessions to show on cards: `records` once read, and until then only
+  // those launched from this page.
+  readonly launched: readonly LaunchWithState[];
   attemptOf(
     sourceId: string,
     identity: string,
@@ -88,9 +91,21 @@ function replaced(
 }
 
 export function useAgentLaunches(): MachineSessions {
-  const [records, setRecords] = useState<
-    readonly LaunchWithState[] | undefined
-  >(undefined);
+  // The sessions the page knows, and whether a read has answered them: a
+  // launch answered before the first read is kept in `known`, and joins the
+  // first read's answer.
+  const [{ known, read: readAnswered }, setSessions] = useState<{
+    readonly known: readonly LaunchWithState[];
+    readonly read: boolean;
+  }>({ known: [], read: false });
+  const setRecords = useCallback(
+    (
+      change: (known: readonly LaunchWithState[]) => readonly LaunchWithState[],
+    ) => {
+      setSessions((current) => ({ ...current, known: change(current.known) }));
+    },
+    [],
+  );
   const [attempts, setAttempts] = useState<ReadonlyMap<string, LaunchAttempt>>(
     new Map(),
   );
@@ -108,7 +123,10 @@ export function useAgentLaunches(): MachineSessions {
       void readMachineSessions().then((kept) => {
         if (!current) return;
         if (kept !== undefined) {
-          setRecords((known) => replaced(kept, known ?? [], askedAt));
+          setSessions((current) => ({
+            known: replaced(kept, current.known, current.read ? askedAt : 0),
+            read: true,
+          }));
         }
         everRead.current = true;
         settleRevealed();
@@ -160,25 +178,28 @@ export function useAgentLaunches(): MachineSessions {
         ...(own === "" ? {} : { instruction: own }),
       });
       if (answer.kind === "launched") {
-        setRecords((current) => [...(current ?? []), answer.record]);
+        setRecords((current) => [...current, answer.record]);
         setAttempt(key, undefined);
         return answer.record;
       }
       setAttempt(key, answer);
       return undefined;
     },
-    [setAttempt],
+    [setAttempt, setRecords],
   );
 
-  const replaceRecord = useCallback((answered: LaunchWithState) => {
-    setRecords((current) =>
-      current?.map((known) =>
-        known.session.sessionId === answered.session.sessionId
-          ? answered
-          : known,
-      ),
-    );
-  }, []);
+  const replaceRecord = useCallback(
+    (answered: LaunchWithState) => {
+      setRecords((current) =>
+        current.map((record) =>
+          record.session.sessionId === answered.session.sessionId
+            ? answered
+            : record,
+        ),
+      );
+    },
+    [setRecords],
+  );
 
   const markDone = useCallback(
     async (record: LaunchRecord) => {
@@ -202,7 +223,8 @@ export function useAgentLaunches(): MachineSessions {
   );
 
   return {
-    records,
+    records: readAnswered ? known : undefined,
+    launched: known,
     attemptOf: (sourceId, identity, workflow) =>
       attempts.get(attemptKey(sourceId, identity, workflow)),
     start,

@@ -108,7 +108,13 @@ launch row's keyboard return for the narrow window.
 
 ### 3. A launch before the first read keeps the lists reading
 Type: Behavior
-Status: planned
+Status: done
+Result: `useAgentLaunches` keeps launches in `known` with a `read` flag;
+`records` is undefined until a read answers, and cards use `launched`.
+Accepted proof: `npm run typecheck:dashboard`; `npm run test:dashboard --
+'tests/session-sidebar.*\.spec\.ts'` (11 passed; the new step failed first,
+the sidebar listing only the launch); `npm run test:dashboard --
+'tests/agent-launch-.*\.spec\.ts'` (93 passed).
 Proof: a step in `dashboard/tests/session-sidebar-reading.spec.ts`: with the
 first sessions read held, a launch from a card shows on that card with the
 keyboard on its entry, while the sidebar and Recent sessions still say
