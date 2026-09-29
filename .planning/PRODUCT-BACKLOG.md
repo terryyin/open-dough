@@ -18,6 +18,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Keep a reopened session on its story's card](seeds/SEED-052-start-agent-work-from-dashboard.md#reopened-session-returns) — SEED-052#reopened-session-returns
 - [Prove Mark as done's remaining edges and trim card-session residue](seeds/SEED-052-start-agent-work-from-dashboard.md#card-session-residue) — SEED-052#card-session-residue
 - [Catch native harness faults before paying for a native run](seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior) — SEED-055#native-harness-observes-agent-behavior
 - [Judge a change against the CI time budget from CI's own timings](seeds/SEED-055-trustworthy-project-proof.md#ci-time-budget-from-ci-timings) — SEED-055#ci-time-budget-from-ci-timings

@@ -104,6 +104,50 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
+<a id="reopened-session-returns"></a>
+
+### Keep a reopened session on its story's card
+
+**Identity:** SEED-052#reopened-session-returns
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Goal:** A developer who reopens a session they had marked done, and keeps
+working in it, finds it on its story's card again. The card never hides a
+session the developer is actively using for that story.
+
+**Scope:**
+
+- Opening a session marked done in the page's terminal clears its done mark:
+  the terminal attaching to the session is the reopening. The session then
+  returns to its story's card with its current state, and Recent sessions no
+  longer shows it as **Done** or its "Named done-<name>" line. Its kept launch
+  record loses its done time, so it is kept like any unclosed session.
+- **Mark as done** closes a reopened session again, as for any session: it
+  leaves its card, and the new done time starts its 30 days of retention.
+- An attach that is refused or fails, or reading Recent sessions without
+  opening a terminal, leaves the mark unchanged.
+- Claude Code keeps the `done-` name it was given; the dashboard does not
+  rename the session back.
+- **Constraint:** Session facts stay local evidence. They never move a story
+  between stages or establish its progress or completion.
+- **Deferred:** Discovering sessions this dashboard did not launch.
+
+**Key examples:**
+
+1. A developer marks a story's Execution session done; it leaves the card and
+   Recent sessions shows it Done. Later they choose Open terminal on that
+   Recent sessions entry and the terminal attaches. The card lists the session
+   again, Working or Idle, and its Recent sessions entry no longer says Done.
+2. After a dashboard restart, the reopened session is still listed on its
+   card.
+3. The developer marks the reopened session done again. It leaves the card,
+   and Recent sessions shows it Done, kept for 30 days from this new mark.
+4. Claude Code no longer lists a done session, so its entry offers no Open
+   terminal and the attach boundary refuses it (410). The session stays done
+   and off the card.
+
 <a id="card-session-residue"></a>
 
 ### Correction: Prove Mark as done's remaining edges and trim card-session residue
