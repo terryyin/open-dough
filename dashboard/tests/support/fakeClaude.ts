@@ -1,10 +1,11 @@
 // Prepares one dashboard server's side of the local launch boundary: the
 // synthetic `claude` (../fixtures/fake-claude) in its own PATH directory, a
-// temporary HOME holding only the project folders a test chooses, and the
-// controls a test uses to choose the fake's scenario and read back what it
-// was asked. Nothing here starts a server (./dashboardServer.ts does), and no
-// test ever reaches the real `claude`: every server puts this one first on
-// PATH, or, to observe a missing `claude`, a PATH holding no `claude` at all.
+// temporary HOME holding only the project folders a test chooses (inside a
+// machine directory the test owns, if it passes one), and the controls a test
+// uses to choose the fake's scenario and read back what it was asked. Nothing
+// here starts a server (./dashboardServer.ts does), and no test ever reaches
+// the real `claude`: every server puts this one first on PATH, or, to observe
+// a missing `claude`, a PATH holding no `claude` at all.
 
 import { mkdirSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -19,6 +20,10 @@ export type ClaudeCall = {
 };
 
 export type FakeClaudeOptions = {
+  // A directory the caller owns that holds this server's HOME and the fake's
+  // state, and outlives the server, so another server can start on the same
+  // machine state. A private one, removed with the server, when unset.
+  readonly machine?: string | undefined;
   // Folder names created under `<home>/git/`, as catalog projects' folders.
   readonly projectFolders?: readonly string[] | undefined;
   // `absent`: no `claude` anywhere on the server's PATH, which then holds
@@ -68,8 +73,9 @@ export function installFakeClaude(
   readonly controls: FakeClaudeControls;
 } {
   const binDir = path.join(tempRoot, "claude-bin");
-  const stateDir = path.join(tempRoot, "claude-state");
-  const home = path.join(tempRoot, "home");
+  const machine = options.machine ?? tempRoot;
+  const stateDir = path.join(machine, "claude-state");
+  const home = path.join(machine, "home");
   installFixtureExecutable("fake-claude", binDir, "claude");
   mkdirSync(stateDir, { recursive: true });
   for (const folder of ["", ...(options.projectFolders ?? [])]) {

@@ -1,5 +1,5 @@
-// Shared by the local launch boundary specs (./agent-launch-boundary.spec.ts
-// and ./agent-launch-refusal.spec.ts): one execution launch request for this
+// Shared by the local launch boundary specs (./agent-launch-boundary.spec.ts,
+// ./agent-launch-refusal.spec.ts, and ./agent-launch-records.spec.ts): one execution launch request for this
 // repository's own story, and its refinement counterpart, sent over raw HTTP,
 // and what the boundary keeps.
 

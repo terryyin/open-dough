@@ -1,9 +1,9 @@
 // Performs one admitted agent launch for the local launch boundary
 // (`./agentLaunchPlugin.ts`): resolve the project folder
 // (`./projectFolders.ts`), run the host (`./claudeCode.ts`) within the launch
-// wait, and record a confirmed result. Records are kept per project in this
-// process only, like the read boundary's in-process memos; a restart forgets
-// them, and origin still decides every story fact.
+// wait, and keep a confirmed result in this machine's launch record store
+// (`./launchRecordStore.ts`), which outlives the server. Origin still decides
+// every story fact.
 
 import type {
   AgentLaunchRequest,
@@ -12,6 +12,7 @@ import type {
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { launchClaude } from "./claudeCode.ts";
+import { keepRecord, keptRecords } from "./launchRecordStore.ts";
 import { folderExists, projectFolder } from "./projectFolders.ts";
 
 const defaultLaunchWaitMs = 30_000;
@@ -27,11 +28,10 @@ function launchTimeoutMs(): number {
 }
 
 export class AgentLaunches {
-  private readonly records = new Map<string, LaunchRecord[]>();
   private readonly running = new Set<AbortController>();
 
-  recordsOf(source: PublishedSource): readonly LaunchRecord[] {
-    return this.records.get(source.id) ?? [];
+  recordsOf(source: PublishedSource): Promise<readonly LaunchRecord[]> {
+    return keptRecords(source.id);
   }
 
   // A launch settles on its own even if the requester goes away, so its
@@ -68,7 +68,7 @@ export class AgentLaunches {
         session: launched.session,
         launchedAt: new Date().toISOString(),
       };
-      this.records.set(source.id, [...this.recordsOf(source), record]);
+      await keepRecord(source.id, record);
       return { kind: "launched", record };
     } finally {
       clearTimeout(timer);

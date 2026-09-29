@@ -56,8 +56,12 @@ session is reached through `claude agents`. Once origin shows the story under
 **Taken**, or no longer lists it at all, every Started is gone and the
 published card speaks for the story.
 
-Launch records are kept only by the running dashboard server, in memory.
-Restarting `npm run dev:dashboard` or `npm run preview:dashboard` forgets them,
-so a card offers each action again even though its session may still be
-running; check `claude agents` before starting it again. Origin still shows the
-story truthfully, because nothing about the story itself was ever kept here.
+Launch records are kept on this machine, outside every repository, in
+`~/.open-dough/dashboard/agent-launches.json`. Restarting `npm run
+dev:dashboard` or `npm run preview:dashboard` keeps them, and a dev and a
+preview server on the same machine answer the same records. A record launched
+more than 30 days ago is no longer answered. If that file cannot be read, the
+dashboard answers no records and leaves the file alone; the next launch moves
+it aside as `agent-launches.json.unreadable` and starts a new one. Origin still
+shows the story truthfully, because nothing about the story itself was ever
+kept here.

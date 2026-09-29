@@ -100,7 +100,7 @@ export const hostSessionSchema = z.object({
 
 export type HostSession = z.infer<typeof hostSessionSchema>;
 
-// A confirmed launch, kept only by the running server.
+// A confirmed launch, kept on this machine for 30 days.
 export const launchRecordSchema = z.object({
   request: agentLaunchRequestSchema,
   session: hostSessionSchema,

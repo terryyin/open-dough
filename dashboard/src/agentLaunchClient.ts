@@ -68,7 +68,7 @@ export async function requestAgentLaunch(
     : noTrustedAnswer("answered in a shape this dashboard does not understand");
 }
 
-// The launch records the running server keeps for one project, oldest first,
+// The launch records this machine keeps for one project, oldest first,
 // or undefined when no trustworthy answer came.
 export async function readLaunchRecords(
   sourceId: string,

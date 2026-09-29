@@ -128,7 +128,7 @@ async function answer(
   if (request.kind === "records") {
     return {
       status: 200,
-      body: { records: launches.recordsOf(request.source) },
+      body: { records: await launches.recordsOf(request.source) },
     };
   }
   return {

@@ -4,9 +4,9 @@
 // arriving after another project was selected lands with the project it was
 // asked for.
 // Selecting a project, a page load included, reads that project's records
-// again from the running server, which keeps them across reloads; a launched
-// answer joins the same record list. Nothing here decides a story fact, which
-// origin still publishes.
+// again from the local server, which keeps them on this machine across reloads
+// and restarts; a launched answer joins the same record list. Nothing here
+// decides a story fact, which origin still publishes.
 
 import { useCallback, useEffect, useState } from "react";
 import type {

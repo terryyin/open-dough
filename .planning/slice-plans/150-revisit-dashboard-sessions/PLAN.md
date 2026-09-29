@@ -14,6 +14,14 @@
   `claude/refine-revisit-dashboard-sessions`). This preparation created it at
   `7c041ab3` and announced itself as agent Rina-chan at `3be65c73`.
 
+## Execution
+
+- **Mode:** Story Branch Mode. Execution checkout
+  `.worktrees/revisit-dashboard-sessions`, branch
+  `claude/revisit-dashboard-sessions`, agent Rina-chan. Taken on `main` at
+  `59fb10cd` (starting revision `d995aef3`). Increments publish to
+  `origin/claude/revisit-dashboard-sessions`.
+
 ## Outcome and boundaries
 
 A developer who started work from the dashboard can find the conversation
@@ -134,7 +142,7 @@ for the new wording (slices 2–4), as its launch wording already has.
 
 ### 1. Launch records survive a dashboard restart and age out after 30 days
 Type: Behavior
-Status: planned
+Status: done
 Proof: boundary spec restarts a server on the same machine state; retention spec seeds aged records.
 
 Behavior: a confirmed launch has been recorded → the dashboard server
@@ -153,12 +161,22 @@ Update the module comments that say records are kept only in memory
 plus `AGENT-LAUNCH.md`'s final paragraph and the matching North Star
 sentence.
 
-Proof: in `agent-launch-boundary.spec.ts`, launch, close, start a new server
+Proof: in `agent-launch-records.spec.ts`, launch, close, start a new server
 on the same machine directory, and expect the same record. Seed the store in
 a fresh machine directory with records 31 and 29 days old, and expect only
 the 29-day one. Expect the unreadable-file case to answer no records and keep
 the file. The existing boundary, refusal, card, and settlement specs stay
 green.
+
+Accepted: `dashboard/server/launchRecordStore.ts` holds the store.
+`agent-launch-records.spec.ts` ("launch records kept on this machine") answers
+a dev launch from a preview server and from a restarted dev server, drops a
+31-day record and keeps a 29-day one, and answers none from an unreadable file
+until a launch moves it to `.unreadable`. The five launch specs plus it pass
+(76 before the refactor split them), and typecheck is clean. Learnings: a
+second unreadable move overwrites an earlier `.unreadable` file, and a store
+write failure after a started session answers 500. Both are untested edges
+left as they are.
 
 ### 2. Recent sessions lists the project's kept launches, independent of story cards
 Type: Behavior
