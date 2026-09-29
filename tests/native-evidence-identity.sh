@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Credential-free proof that every retained native evidence identity covers the
-# native supervision inputs, taken from native-run-supervise.sh's one list.
-# shellcheck disable=SC2312 # pipefail covers the captured identity records.
+# native supervision inputs, taken from native-run-supervise.sh's one list, and
+# the guidance and commands its journey exercises.
+# shellcheck disable=SC2310,SC2312 # Predicates in conditions; pipefail covers the captured identity records.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -35,6 +36,11 @@ identity_writers=(
   'tests/support/execution-worktree-prep-native-run.sh prep_native_input_hash_lines'
   'tests/support/native-result-retain.sh native_result_context_input_hash_lines'
 )
+
+# Whether input-hash lines FILE list INPUT.
+lists_input() {
+  awk -v input="$2" '$3 == input { found = 1 } END { exit !found }' "$1"
+}
 
 # Writes each writer's input-hash lines, from the scratch source, to DIR/INDEX.
 capture_identity_hashes() {
@@ -95,6 +101,59 @@ for index in "${!identity_writers[@]}"; do
       "${identity_writers[index]}" >&2
     identity_failures=1
   fi
+done
+
+# Guidance and commands each closure journey exercises beyond Dough Land's
+# inputs. An identity that omits one keeps its recorded evidence bound after
+# that input changes.
+land_inputs=(
+  src/skills/dough-land/SKILL.md
+  src/skills/dough-land/scripts/worktree-retirement.mjs
+  src/skills/dough-land/scripts/retirement-checks.mjs
+  src/skills/dough-manual-testing/references/exploration-workspace.md
+  src/skills/dough-execute-plan/references/maintain-default-checkout.md
+)
+closure_journey_inputs=(
+  'git_publication_write_evidence_identity owned-context|
+  src/skills/dough-story-refinement/references/preparation-workspace.md'
+  'trunk_closure_write_evidence_identity|
+  src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
+  src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs
+  src/skills/dough-story-wrap-up/scripts/trunk-closure-settlement.mjs'
+  'story_closure_write_evidence_identity|
+  src/skills/dough-execute-plan/references/wrap-up-closure-publication.md'
+)
+for entry in "${closure_journey_inputs[@]}"; do
+  for index in "${!identity_writers[@]}"; do
+    [[ ${identity_writers[index]#* } == "${entry%%|*}" ]] || continue
+    for input in "${land_inputs[@]}" ${entry#*|}; do
+      if ! lists_input "${identity_out}/baseline/${index}" "${input}"; then
+        printf 'FAIL: evidence identity %s omits %s, which its journey exercises.\n' \
+          "${entry%%|*}" "${input}" >&2
+        identity_failures=1
+      fi
+    done
+  done
+done
+
+# Changing any guidance or command input an identity lists changes that
+# input's hash in the identity.
+while IFS= read -r input; do
+  printf '\n# changed guidance input\n' >> "${identity_source}/${input}"
+done < <(sed -n 's|^input-hash: [^ ]* \(src/.*\)$|\1|p' \
+  "${identity_out}/baseline"/* | sort -u)
+capture_identity_hashes "${identity_out}/guidance-changed"
+for index in "${!identity_writers[@]}"; do
+  while read -r _ hash input; do
+    [[ ${input} == src/* ]] || continue
+    if ! awk -v input="${input}" -v hash="${hash}" \
+      '$3 == input && $2 != hash { found = 1 } END { exit !found }' \
+      "${identity_out}/guidance-changed/${index}"; then
+      printf 'FAIL: evidence identity %s did not change when %s changed.\n' \
+        "${identity_writers[index]}" "${input}" >&2
+      identity_failures=1
+    fi
+  done < "${identity_out}/baseline/${index}"
 done
 if ((identity_failures)); then
   exit 1

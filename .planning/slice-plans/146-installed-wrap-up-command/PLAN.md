@@ -470,7 +470,7 @@ check was added.
 
 ### 6. Native evidence identity covers what each closure journey proves
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/native-evidence-identity.sh` fails when a named guidance or command input of the owned-context, trunk-closure, or Story Branch closure identity changes without changing that identity, and passes after the fix.
 
 Correction: plan 142's retrospective found recorded native evidence stays
@@ -489,6 +489,29 @@ guidance inputs in one list its writer prints. Add the owned-context writer to
 `tests/native-evidence-identity.sh`'s writers, and extend that test so changing
 each listed guidance input changes its journey's identity, as it already does
 for supervision inputs. No journey behavior changes.
+
+Accepted proof (2026-09-29): `tests/native-evidence-identity.sh` reported 14
+omissions against the pre-change writers in a scratch copy and passes now; a
+writer printing a fixed hash for a listed input also fails it. The three
+closure identities share Dough Land's inputs (`dough-land/SKILL.md`,
+`worktree-retirement.mjs`, `retirement-checks.mjs`, `exploration-workspace.md`,
+`maintain-default-checkout.md`) through `git_publication_land_input_hash_lines`
+in `tests/support/git-publication-native-shared.sh`; owned-context adds
+`preparation-workspace.md`, and trunk closure adds `trunk-closure.mjs` and
+`trunk-closure-settlement.mjs`.
+
+Learnings: before this slice, trunk was merged into the story branch at
+`28fb01ae`, bringing plan 147's creation record; the substitutes now retire
+from that record alone, passing `--identity` without `--created-for-work`. All
+recorded evidence for `trunk-closure/*`, `story-branch-closure/*`,
+`publication/startup-owned-context`, and `publication/preparation-land` is now
+stale, as slice 8 expects. The identities still omit commands the listed
+guidance names (`execution-increment-delivery.mjs`, `ci-mailbox.mjs`,
+`execution-start.mjs`, `preparation-assignment.mjs`) and the closure commands'
+imports; a rule deriving those from the guidance is a retrospective candidate.
+Plan 149 exports `createdForRoot` from `workspace-publication-ownership.mjs`;
+once it reaches trunk, `retirement-checks.mjs` imports it instead of its own
+literal.
 
 ### 7. Closure harnesses observe the agent from outside its fixture
 Type: Structure

@@ -84,6 +84,7 @@ story_closure_write_evidence_identity() {
     src/skills/dough-execute-plan/references/wrap-up-closure-publication.md \
     src/skills/dough-execute-plan/references/ci-monitor.md \
     src/skills/dough-execute-plan/references/ci-completion-wait.md
+  git_publication_land_input_hash_lines
 }
 
 story_closure_run_journey() {

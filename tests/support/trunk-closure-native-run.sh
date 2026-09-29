@@ -36,8 +36,9 @@ trunk_closure_write_evidence_identity() {
     src/skills/dough-execute-plan/references/ci-completion-wait.md \
     src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs \
     src/skills/dough-story-wrap-up/SKILL.md \
-    src/skills/dough-land/SKILL.md \
-    src/skills/dough-manual-testing/references/exploration-workspace.md
+    src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs \
+    src/skills/dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
+  git_publication_land_input_hash_lines
 }
 
 # Per-step controller bound; each step awaits one action of the native agent.
