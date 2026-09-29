@@ -2,6 +2,11 @@ source: 820077c3 .planning/quick/082-accept-queued-start-native/evidence/claude/
 stream-status: complete
 response: present
 last-start-line: 62
+startup-cli-count: 1
+startup-conflict-observed: false
+corrected: startup-cli-count 1; the retained 2 is a harness fault: the generic .command walk of that time read this one execution-start call twice, from the Bash tool_use input and from the event's wire_tool_inputs copy prefixed with cd
+# startup-conflict-observed: not retained (the field postdates this run); the start call's output is a source-refused receipt, not a conflict.
+verdict: not-replayable: workspace-source-published, command-exists, startup-conflict-observed, rival-owned, candidate-contained
 command: "git status --short && echo --- && find . -path ./.git -prune -o -type f -print | head -100 && echo --- && cat .planning/seeds/A.md && echo --- && git remote -v && git branch -a && echo --- && ls -la .. && cd ../native-execution 2>/dev/null && git status --short && git branch --show-current && git log --oneline -3"
 command: "cat .claude/skills/dough-execute-plan/SKILL.md"
 command: "echo \"=== PLAN\"; cat .planning/quick/A/PLAN.md; echo \"=== BACKLOG\"; cat .planning/PRODUCT-BACKLOG.md; echo \"=== seed diff\"; git diff .planning/seeds/A.md; echo \"=== trunk diff\"; git diff trunk.txt; echo \"=== staged\"; git diff --cached; echo \"=== unstaged file\"; cat human-unstaged.txt; echo \"=== CONTRIBUTING\"; cat CONTRIBUTING.md; echo \"=== settings\"; cat .claude/settings.json; echo \"=== scripts\"; for f in scripts/*.js; do echo \"--- $f\"; cat $f; done; echo \"=== VERSION/SOURCE\"; cat .claude/skills/dough-update/VERSION .claude/skills/dough-update/SOURCE; ls /Users/terryyin/.claude/projects/-private-var-folders-65-16p4k5qj42qg7l46k2j0nhj40000gn-T-tmp-KfUFYCxy9i-startup-selected-source-KOxjaJ-workspace-claim-zDuUfF-integration/memory/ 2>&1"

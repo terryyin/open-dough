@@ -2,6 +2,9 @@ source: 820077c3 .planning/quick/082-accept-queued-start-native/evidence/cursor/
 stream-status: complete
 response: present
 last-start-line: 506
+startup-cli-count: 1
+startup-conflict-observed: false
+verdict: not-replayable: workspace-source-published, command-exists
 command: "ls -la \"/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.H0YOYKWvhx/startup-story-branch.tbz3ZO/workspace-claim-NQ3neJ/\" && ls -la \"/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.H0YOYKWvhx/startup-story-branch.tbz3ZO/workspace-claim-NQ3neJ/integration/\" && head -n 80 \"/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.H0YOYKWvhx/startup-story-branch.tbz3ZO/workspace-claim-NQ3neJ/integration/.claude/skills/dough-execute-plan/scripts/execution-start.mjs\""
 command: "cd \"/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.H0YOYKWvhx/startup-story-branch.tbz3ZO/workspace-claim-NQ3neJ/integration\" && git status && git log --oneline -15 && git remote -v && ls -la scripts/ .planning/"
 command: "cd \"/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.H0YOYKWvhx/startup-story-branch.tbz3ZO/workspace-claim-NQ3neJ/integration\" && ls -la .git/hooks/ 2>/dev/null; ls -la .cursor .agents .codex 2>/dev/null; find .cursor .agents .codex -type f 2>/dev/null | head -50; git -C ../remote.git log --oneline -5; git -C ../remote.git show-ref"

@@ -3,7 +3,9 @@
 # (tests/support/native-host-stream.mjs) reads real Claude, Codex, and Cursor
 # output: every recorded stream in tests/fixtures/native-streams replays to its
 # reviewed started commands, stream status, and response presence, including
-# when cut mid-command. Replay proves the reader, not native behavior (ADR 0005
+# when cut mid-command. Each retained publication attempt also replays its
+# journey's stream fields and, where its observations carry today's schema,
+# today's verdict. Replay proves the harness, not native behavior (ADR 0005
 # section 2).
 # shellcheck disable=SC2312 # Captured reader output is checked by value.
 set -euo pipefail
@@ -28,36 +30,50 @@ for attempt in \
   grep -Fq 'weekly limit' <(node "${reader}" claude "${stream}" response)
 done
 
-# A reader that fails to recognize one host's commands fails replay, naming
-# that host's entries and no other host's. Each variant's example entry is
-# named with the difference the broken reader shows.
+# A broken reader or stream-field function fails replay. Every failure it
+# causes matches the pattern (only the broken host's entries, or only the
+# changed field), and each example entry is named with the difference it shows.
 expect_counterexample() {
-  local variant=$1 host=$2 example=$3 output="${work_dir}/$1.out" status=0
+  local variant=$1 pattern=$2 output="${work_dir}/$1.out" status=0 example
+  shift 2
   node "${replay}" --variant "${variant}" > "${output}" || status=$?
   if [[ ${status} -ne 1 ]]; then
-    printf 'FAIL: replay through the %s reader exited %s, expected 1\n' \
+    printf 'FAIL: replay through the %s variant exited %s, expected 1\n' \
       "${variant}" "${status}" >&2
     cat "${output}" >&2
     return 1
   fi
-  if grep -v "^FAIL: ${host}/" "${output}" | grep -q .; then
-    printf 'FAIL: the %s reader failed entries of other hosts\n' \
-      "${variant}" >&2
+  if grep -Ev "${pattern}" "${output}" | grep -q .; then
+    printf 'FAIL: the %s variant failed beyond %s\n' "${variant}" "${pattern}" >&2
     cat "${output}" >&2
     return 1
   fi
-  if ! grep -Fq "FAIL: ${example}" "${output}"; then
-    printf 'FAIL: the %s reader did not fail, naming it, %s\n' \
-      "${variant}" "${example}" >&2
-    cat "${output}" >&2
-    return 1
-  fi
+  for example in "$@"; do
+    if ! grep -Fq "FAIL: ${example}" "${output}"; then
+      printf 'FAIL: the %s variant did not fail, naming it, %s\n' \
+        "${variant}" "${example}" >&2
+      cat "${output}" >&2
+      return 1
+    fi
+  done
 }
 
 # Reading Codex commands only from item completion loses a command still
 # running when the stream ends.
-expect_counterexample codex-completed-only codex \
+expect_counterexample codex-completed-only '^FAIL: codex/' \
   'codex/publication/startup-trunk/20260923T062909-023d/events: cut after its last started command: started command 19 of 19 is null'
 # Dropping Cursor tool calls loses every Cursor command.
-expect_counterexample cursor-without-tool-call cursor \
+expect_counterexample cursor-without-tool-call '^FAIL: cursor/' \
   'cursor/publication/startup-selected-source/20260923T062849-5692/events: started command 1 of 5 is null'
+
+# A stream-field function whose startup count differs from the reviewed one
+# fails every publication attempt that counts startup calls, naming the field.
+expect_counterexample startup-count-plus-one \
+  '^FAIL: [a-z]+/publication/[a-z-]+/[0-9T]+-[0-9a-f]+/events: stream field startup-cli-count is ' \
+  'cursor/publication/startup-selected-source/20260923T062849-5692/events: stream field startup-cli-count is 2, expected 1'
+# A stream-field function that misses the admission call fails that field,
+# and the verdict reassessed from it fails too.
+expect_counterexample admit-unobserved \
+  '^FAIL: cursor/publication/admission-investigation/20260929T035934-4301/events: ' \
+  'cursor/publication/admission-investigation/20260929T035934-4301/events: stream field admit-cli-observed is false, expected true' \
+  'cursor/publication/admission-investigation/20260929T035934-4301/events: verdict is fail / investigation started before its admission reached remote trunk, expected pass / accepted investigation was admitted to remote Taken before its first probe'

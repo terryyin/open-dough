@@ -2,6 +2,9 @@ source: 820077c3 .planning/quick/082-accept-queued-start-native/evidence/recover
 stream-status: complete
 response: present
 last-start-line: 59
+startup-cli-count: 1
+startup-conflict-observed: false
+verdict: not-replayable: workspace-source-published, command-exists
 command: "/bin/zsh -lc \"sed -n '1,240p' .agents/skills/dough-execute-plan/SKILL.md\""
 command: "/bin/zsh -lc 'wc -l .agents/skills/dough-execute-plan/references/{execution-decisions.md,delegation.md,execution-location.md,trunk-publication.md,maintain-default-checkout.md,wrap-up.md,finish-or-stop.md} .agents/skills/dough-story-refinement/references/planning.md && find . -name AGENTS.md -print'"
 command: "/bin/zsh -lc 'for f in .agents/skills/dough-execute-plan/references/execution-decisions.md .agents/skills/dough-execute-plan/references/delegation.md .agents/skills/dough-execute-plan/references/execution-location.md .agents/skills/dough-execute-plan/references/trunk-publication.md .agents/skills/dough-execute-plan/references/maintain-default-checkout.md .agents/skills/dough-execute-plan/references/wrap-up.md .agents/skills/dough-execute-plan/references/finish-or-stop.md .agents/skills/dough-story-refinement/references/planning.md; do echo \"FILE:$f\"; sed -n '\"'1,260p' \\\"\"'$f\"; done'"

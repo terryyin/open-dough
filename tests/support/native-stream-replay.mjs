@@ -13,12 +13,26 @@
 // line, as a run killed mid-command leaves it: every expected command must
 // still be read, and the stream must read truncated.
 //
+// A publication attempt (`<host>/publication/<journey>/<attempt>/`) also
+// names, as `<key>: <value>`, every field its journey's stream-field function
+// (git-publication-native-stream-fields.mjs) derives, and a `verdict:`. Those
+// fields replace the same fields in the retained `observations.txt`, and
+// today's assessor reassesses them (native-stream-publication-replay.mjs). The
+// verdict is `<status> / <reason>`, or, when the retained observations lack
+// fields today's assessor reads, `not-replayable: <those fields>`: a drifted
+// schema is not rewritten.
+//
 // Prints one `FAIL: <entry>: <difference>` line per mismatch and exits 1;
 // silent on success. `--variant <name>` replays through a deliberately broken
-// reader, which this suite's counterexamples expect to fail.
+// reader or stream-field function, which this suite's counterexamples expect
+// to fail.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  replayFields,
+  replayVerdicts,
+} from "./native-stream-publication-replay.mjs";
 import {
   hosts,
   readHostStreamText,
@@ -39,12 +53,21 @@ const knownKeys = new Set([
   "verdict",
 ]);
 
-// Counterexample readers: each hides events the real reader depends on.
+// Counterexamples: a reader that hides events the real reader depends on, or
+// a stream-field function that changes one field's value.
 const variants = {
-  "codex-completed-only": (host, event) =>
-    host === "codex" && event.type === "item.started",
-  "cursor-without-tool-call": (host, event) =>
-    host === "cursor" && event.type === "tool_call",
+  "codex-completed-only": {
+    hides: (host, event) => host === "codex" && event.type === "item.started",
+  },
+  "cursor-without-tool-call": {
+    hides: (host, event) => host === "cursor" && event.type === "tool_call",
+  },
+  "startup-count-plus-one": {
+    changes: { "startup-cli-count": (value) => value + 1 },
+  },
+  "admit-unobserved": {
+    changes: { "admit-cli-observed": () => "false" },
+  },
 };
 
 function streamFiles(directory) {
@@ -59,19 +82,22 @@ function streamFiles(directory) {
     });
 }
 
-function parseExpected(text, fail) {
-  const expected = { commands: [] };
+// Other keys are stream fields, which only publication attempts name.
+function parseExpected(text, fail, publication) {
+  const expected = { commands: [], fields: new Map() };
   for (const line of text.split("\n")) {
     if (line.trim() === "" || line.startsWith("#")) {
       continue;
     }
-    const match = /^([a-z-]+): (.*)$/.exec(line);
-    if (!match || !knownKeys.has(match[1])) {
+    const match = /^([a-z-]+): ?(.*)$/.exec(line);
+    if (!match || (!knownKeys.has(match[1]) && !publication)) {
       fail(`unreadable expected line: ${line.slice(0, 80)}`);
       continue;
     }
     const [, key, value] = match;
-    if (key === "command") {
+    if (!knownKeys.has(key)) {
+      expected.fields.set(key, value);
+    } else if (key === "command") {
       try {
         expected.commands.push(JSON.parse(value));
       } catch {
@@ -81,7 +107,8 @@ function parseExpected(text, fail) {
       expected[key] = value;
     }
   }
-  for (const key of ["source", "stream-status", "response"]) {
+  const required = ["source", "stream-status", "response"];
+  for (const key of publication ? [...required, "verdict"] : required) {
     if (expected[key] === undefined) {
       fail(`expected has no ${key}:`);
     }
@@ -117,10 +144,11 @@ function compare(read, expected, fail) {
 
 // Reads `lines` of a `host` stream, through the `variant` reader when named.
 function readLines(host, lines, variant) {
-  const shown = variant
+  const hides = variants[variant]?.hides;
+  const shown = hides
     ? lines.filter((line) => {
         try {
-          return !variants[variant](host, JSON.parse(line));
+          return !hides(host, JSON.parse(line));
         } catch {
           return true;
         }
@@ -132,9 +160,13 @@ function readLines(host, lines, variant) {
 export function replayCorpus({ variant } = {}) {
   const failures = [];
   const commandsByHost = new Map(hosts.map((host) => [host, 0]));
+  const attempts = [];
+  const hidesEvents = variants[variant]?.hides !== undefined;
+  const changes = variants[variant]?.changes ?? {};
   for (const path of streamFiles(corpus)) {
     const entry = relative(corpus, path).slice(0, -".jsonl.gz".length);
-    const host = entry.split("/")[0];
+    const [host, family, journey] = entry.split("/");
+    const publication = family === "publication";
     const fail = (message) => failures.push(`FAIL: ${entry}: ${message}`);
     if (!hosts.includes(host)) {
       fail(`unknown host ${host}`);
@@ -148,7 +180,7 @@ export function replayCorpus({ variant } = {}) {
       fail(`missing ${relative(corpus, phase)}expected`);
       continue;
     }
-    const expected = parseExpected(expectedText, fail);
+    const expected = parseExpected(expectedText, fail, publication);
     commandsByHost.set(
       host,
       commandsByHost.get(host) + expected.commands.length,
@@ -163,7 +195,17 @@ export function replayCorpus({ variant } = {}) {
         (message) => fail(`cut after its last started command: ${message}`),
       );
     }
+    // A reader variant hides events from the reader alone; stream fields read
+    // the stream themselves, so only a stream-field variant reaches them.
+    if (publication && expected.verdict !== undefined && !hidesEvents) {
+      attempts.push({
+        entry,
+        verdict: expected.verdict,
+        ...replayFields(journey, host, path, expected.fields, changes, fail),
+      });
+    }
   }
+  replayVerdicts(attempts, failures);
   for (const host of hosts) {
     if (commandsByHost.get(host) === 0) {
       failures.push(`FAIL: no ${host} corpus entry with started commands`);

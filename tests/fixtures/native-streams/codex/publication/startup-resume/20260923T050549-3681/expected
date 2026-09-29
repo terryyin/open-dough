@@ -2,6 +2,9 @@ source: 820077c3 .planning/quick/082-accept-queued-start-native/evidence/recover
 stream-status: complete
 response: present
 last-start-line: 51
+startup-cli-count: 1
+startup-conflict-observed: false
+verdict: not-replayable: workspace-source-published, command-exists
 command: "/bin/zsh -lc \"sed -n '1,240p' .agents/skills/dough-execute-plan/SKILL.md\""
 command: "/bin/zsh -lc \"wc -l .agents/skills/dough-execute-plan/SKILL.md && rg --files -g 'AGENTS.md' -g 'Backlog*' -g '*SEED-A*' -g 'package.json' -g 'Makefile' -g 'DearDough.md' -g '*.md' | sed -n '1,200p'\""
 command: "/bin/zsh -lc \"rg --hidden --files | sed -n '1,240p'\""

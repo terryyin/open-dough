@@ -1,3 +1,7 @@
 source: 820077c3 .planning/quick/082-accept-queued-start-native/evidence/claude/publication/startup-story-branch/20260923T062305-679c/events.jsonl
 stream-status: complete
 response: present
+# Weekly-limit stop: no command started, as retained.
+startup-cli-count: 0
+startup-conflict-observed: false
+verdict: not-replayable: workspace-source-published, command-exists

@@ -206,7 +206,7 @@ Learnings for later slices:
 
 ### 3. Retained publication attempts replay their stream fields and verdicts
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/native-stream-replay.sh` covers examples 1 and 4.
 
 Behavior: every publication corpus attempt with a reviewed `expected` → replay
@@ -216,6 +216,27 @@ runs its journey's stream-field function on the stream → the fields match
 attempts are `not-replayable`, naming their fields. Changing a journey's
 stream-field function so that one field differs from `expected` fails, naming
 the attempt and the field.
+
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+tests/native-stream-replay.sh tests/support/native-host-stream.test.mjs
+tests/support/git-publication-native-stream-fields.test.mjs`, exit 0 (about
+2 s). Field and verdict replay live in
+`tests/support/native-stream-publication-replay.mjs`, which reassesses through
+`tests/support/git-publication-native-reassess.sh`. The counterexamples are
+the `startup-count-plus-one` and `admit-unobserved` variants.
+
+Learnings for later slices:
+- Missing fields come from instrumenting today's assessor, not from a list.
+  All 14 `820077c3` attempts lack `workspace-source-published` (added in
+  `9597bf61`), so no startup attempt replays a verdict. Only the four
+  `0901bbab` Cursor attempts do. Claude and Codex verdict replay waits for a
+  paid run added through slice 7.
+- Claude 58dd and 0152 recorded count 2 because the old generic `.command`
+  walk read the Bash input and its `wire_tool_inputs` copy: a harness fault,
+  with `corrected:`. Codex 0585's 2 counted a `--help` probe: a rule change,
+  noted with `#`.
+- Slice 7's draft `expected` can reuse `publicationStreamFields` and the
+  reassess helper, which stays a draft for review.
 
 ### 4. Closure and execution-review observations read through the reader
 Type: Structure

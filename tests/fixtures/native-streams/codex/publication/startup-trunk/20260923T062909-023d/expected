@@ -2,6 +2,9 @@ source: 820077c3 .planning/quick/082-accept-queued-start-native/evidence/codex/p
 stream-status: complete
 response: present
 last-start-line: 54
+startup-cli-count: 1
+startup-conflict-observed: false
+verdict: not-replayable: workspace-source-published, command-exists
 command: "/bin/zsh -lc \"sed -n '1,240p' .agents/skills/dough-execute-plan/SKILL.md\""
 command: "/bin/zsh -lc \"sed -n '241,520p' .agents/skills/dough-execute-plan/SKILL.md && printf '\\\\nFILES\\\\n' && rg --files .agents/skills/dough-execute-plan | sort\""
 command: "/bin/zsh -lc 'cat .agents/skills/dough-execute-plan/references/delegation.md\ncat .agents/skills/dough-execute-plan/references/execution-decisions.md\ncat .agents/skills/dough-execute-plan/references/execution-location.md\ncat .agents/skills/dough-execute-plan/references/trunk-publication.md'"

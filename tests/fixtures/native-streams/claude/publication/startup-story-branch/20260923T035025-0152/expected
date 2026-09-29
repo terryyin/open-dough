@@ -2,6 +2,11 @@ source: 820077c3 .planning/quick/082-accept-queued-start-native/evidence/claude/
 stream-status: complete
 response: present
 last-start-line: 424
+startup-cli-count: 1
+startup-conflict-observed: false
+corrected: startup-cli-count 1; the retained 2 is a harness fault: the generic .command walk of that time read this one execution-start call twice, from the Bash tool_use input and from the event's wire_tool_inputs copy prefixed with cd
+# startup-conflict-observed: not retained (the field postdates this run); the stream holds no conflict receipt.
+verdict: not-replayable: workspace-source-published, command-exists, setup-after-claim, startup-conflict-observed, rival-owned, candidate-contained
 command: "ls -la && echo \"--- git status\" && git status --short && echo \"--- branches\" && git branch -a && echo \"--- remotes\" && git remote -v && echo \"--- .claude\" && find .claude .agents .codex .cursor -maxdepth 3 | head -100"
 command: "echo \"=== CONTRIBUTING.md\" && cat CONTRIBUTING.md && echo \"=== trunk.txt\" && cat trunk.txt && git diff trunk.txt && echo \"=== human-staged.txt\" && cat human-staged.txt && echo \"=== human-unstaged.txt\" && cat human-unstaged.txt && echo \"=== .planning\" && find .planning -type f | sort && for f in $(find .planning -type f | sort); do echo \"--- $f\"; cat \"$f\"; done && echo \"=== scripts\" && find scripts -type f | sort && echo \"=== settings.json\" && cat .claude/settings.json && echo \"=== hooks\" && cat .cursor/hooks.json .codex/hooks.json && echo \"=== git log\" && git log --oneline --all && echo \"=== native-execution?\" && ls -la /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.gkanBgATM4/startup-story-branch.CtJaml/workspace-claim-jOAR4a/ && echo \"=== remote branches\" && git --git-dir=/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.gkanBgATM4/startup-story-branch.CtJaml/workspace-claim-jOAR4a/remote.git branch -a"
 command: "for f in scripts/setup.js scripts/command.js scripts/fail.js; do echo \"=== $f\"; cat \"$f\"; done && echo \"=== execute-plan tree\" && find .claude/skills/dough-execute-plan -type f | sort && echo \"=== product-backlog tree\" && find .claude/skills/dough-product-backlog -type f | sort"

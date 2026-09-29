@@ -2,6 +2,9 @@ source: 820077c3 .planning/quick/082-accept-queued-start-native/evidence/codex/p
 stream-status: complete
 response: present
 last-start-line: 52
+startup-cli-count: 1
+startup-conflict-observed: false
+verdict: not-replayable: workspace-source-published
 command: "/bin/zsh -lc \"sed -n '1,240p' .agents/skills/dough-execute-plan/SKILL.md\""
 command: "/bin/zsh -lc \"sed -n '1,260p' .agents/skills/dough-execute-plan/references/trunk-publication.md && sed -n '1,240p' .agents/skills/dough-execute-plan/references/execution-location.md && sed -n '1,220p' .agents/skills/dough-execute-plan/references/execution-decisions.md && sed -n '1,180p' .agents/skills/dough-execute-plan/references/delegation.md && rg -n \\\"setup|Backlog list|SEED-A|feature.txt|formatter|hook\\\" -S . --glob '\"'!node_modules'\"'\""
 command: "/bin/zsh -lc 'find . -maxdepth 3 -type f -print | sort && node .agents/skills/dough-execute-plan/scripts/execution-start.mjs --help'"

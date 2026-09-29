@@ -2,6 +2,9 @@ source: 820077c3 .planning/quick/082-accept-queued-start-native/evidence/recover
 stream-status: complete
 response: present
 last-start-line: 75
+startup-cli-count: 1
+startup-conflict-observed: false
+verdict: not-replayable: workspace-source-published, command-exists
 command: "/bin/zsh -lc \"sed -n '1,240p' .agents/skills/dough-execute-plan/SKILL.md\""
 command: "/bin/zsh -lc \"wc -l .agents/skills/dough-execute-plan/references/{trunk-publication.md,execution-location.md,delegation.md,execution-decisions.md,wrap-up.md,finish-or-stop.md} .agents/skills/dough-story-refinement/references/planning.md && rg -n \\\"SEED-A|Story A|Backlog list|feature.txt|setup|formatter|hook\\\" . --glob '\"'!node_modules'\"' --glob '\"'!vendor'\"'\""
 command: "/bin/zsh -lc 'find . -maxdepth 3 -type f -print | sort && git status --short --branch && git remote -v'"
