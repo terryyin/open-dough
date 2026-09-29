@@ -162,9 +162,8 @@ has been observed to behave differently across hosts.
 - That retirement command holds the one ownership gate, following the
   work-scoped lifecycle rule: a clean workspace created for this work, by any
   session, is retired; a reused, host-owned, or unrecorded one is retained. It
-  consumes the durable creation fact once
-  [the separate decision](#durable-workspace-creation-fact) lands; until then
-  it fails safe by retaining.
+  reads the creation record `refs/worktree/dough/created-for/<identity>` that
+  execution startup and preparation `start` write in a worktree they create.
 - No shipped closure module remains without an entry point: each backs a
   command or leaves the payload with its tests.
 - Before any paid run, each affected native journey's evidence identity covers

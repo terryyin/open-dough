@@ -20,6 +20,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Make the creation record's proof findable and wording-tolerant](seeds/SEED-008-worktree-branch-trunk-sync.md#creation-record-test-residue) — SEED-008#creation-record-test-residue
 - [Find recent dashboard-launched sessions after leaving the story](seeds/SEED-052-start-agent-work-from-dashboard.md#revisit-dashboard-sessions) — SEED-052#revisit-dashboard-sessions
 - [Interact with a launched Claude Code session inside the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#interact-with-claude-terminal) — SEED-052#interact-with-claude-terminal
 - [Start story refinement and answer its questions in the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-refinement) — SEED-052#launch-claude-refinement
