@@ -16,7 +16,11 @@ as it does for the project arrows below. Toggling leaves the keyboard where it
 is, except that closing the sidebar while the keyboard is inside it returns
 the keyboard to the Sessions button. The sidebar stays open or closed as left
 across project switches, views, the terminal, and reloads; it is disposable
-per-browser state and starts closed when none is kept.
+per-browser state and starts closed when none is kept. Opening a sidebar entry
+shows its project's stories through the same project selection and URL
+history as a project choice, as one history entry, opens its session in the
+terminal with the keyboard there, and brings its story's card into view once
+that project's stories are read.
 Show the selected project's name as the banner's Source evidence disclosure.
 Show the three project choices as tab-shaped radio controls, with the selected
 project highlighted. Unmodified Left and Right arrow keys cycle the three

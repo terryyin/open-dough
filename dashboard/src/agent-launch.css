@@ -163,3 +163,18 @@
   border-style: solid;
   border-left-width: 4px;
 }
+
+/* The session the page's terminal shows: its entries say "Shown in
+   terminal", and the card listing it, or its Recent sessions entry, is
+   outlined in the page's selection accent (the card's accent left edge marks
+   every card, so the words carry the meaning). */
+.card.in-terminal,
+.recent-sessions .session-entry.in-terminal {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.shown-in-terminal {
+  font-weight: 600;
+  color: var(--accent);
+}

@@ -10,11 +10,14 @@
 // keeps its own keyboard (`isInsideOpenDialog`); elsewhere it takes the key
 // from the browser. Toggling leaves the keyboard where it is, except that
 // closing the sidebar with the keyboard inside it returns the keyboard to the
-// Sessions button. Whether it is open is this browser's disposable preference
-// (`sidebarOpenKey`): it survives project switches, views, the terminal, and
-// reloads, and without it, as when storage cannot be used, the sidebar starts
-// closed. Toggling it is page state only: it changes no story fact, stage, or
-// session. Entries are local evidence of launches, not story facts.
+// Sessions button. Opening an entry (`./SidebarEntry.tsx`) goes to its story
+// and its session through the page frame (`./TerminalSplit.tsx`), and on a
+// narrow window closes the sidebar lying over the page. Whether it is open is
+// this browser's disposable preference (`sidebarOpenKey`): it survives project
+// switches, views, the terminal, and reloads, and without it, as when storage
+// cannot be used, the sidebar starts closed. Toggling it, or opening an entry,
+// is page state only: it changes no story fact, stage, or session. Entries are
+// local evidence of launches, not story facts.
 
 import {
   createContext,
@@ -24,14 +27,9 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  launchWorkflows,
-  openSessionsOf,
-  type LaunchWithState,
-} from "./agentLaunch.ts";
-import { Moment } from "./Moment.tsx";
-import { sourceById } from "./publishedSource.ts";
-import { SessionList, shownSession } from "./SessionEntry.tsx";
+import { openSessionsOf, type LaunchWithState } from "./agentLaunch.ts";
+import { SessionList } from "./SessionEntry.tsx";
+import { SidebarEntry, type OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { isInsideOpenDialog } from "./pageShortcuts.ts";
 import { attentionSummary } from "./sessionShown.ts";
 import "./agent-launch.css";
@@ -69,6 +67,10 @@ const isToggleShortcut = (event: KeyboardEvent) =>
 export type SidebarState = {
   readonly open: boolean;
   readonly toggle: () => void;
+  // Closes the sidebar while it lies over the page, as on a narrow window,
+  // answering the Sessions button, which then holds the keyboard; beside the
+  // page it stays open, and answers nothing.
+  readonly closeOverPage: () => HTMLElement | undefined;
   // The machine's sessions; undefined until first read.
   readonly records: readonly LaunchWithState[] | undefined;
 };
@@ -97,13 +99,23 @@ export function useSessionSidebar(
   const toggle = useCallback(() => {
     const sidebar = document.getElementById(sidebarId);
     if (isOpen.current && sidebar?.contains(document.activeElement)) {
-      document
-        .querySelector<HTMLElement>(`[aria-controls="${sidebarId}"]`)
-        ?.focus();
+      sessionsButton()?.focus();
     }
     isOpen.current = !isOpen.current;
     setOpen(isOpen.current);
   }, []);
+  const closeOverPage = () => {
+    const sidebar = document.getElementById(sidebarId);
+    if (
+      !isOpen.current ||
+      sidebar === null ||
+      getComputedStyle(sidebar).position !== "fixed"
+    ) {
+      return undefined;
+    }
+    toggle();
+    return sessionsButton() ?? undefined;
+  };
   // Listened for while capturing, so the page answers Command+B before any
   // control on it, the terminal included, handles the key.
   useEffect(() => {
@@ -122,8 +134,11 @@ export function useSessionSidebar(
       window.removeEventListener("keydown", onKeyDown, true);
     };
   }, [toggle]);
-  return { open, toggle, records };
+  return { open, toggle, closeOverPage, records };
 }
+
+const sessionsButton = () =>
+  document.querySelector<HTMLElement>(`[aria-controls="${sidebarId}"]`);
 
 const attentionOf = (sessions: readonly LaunchWithState[] | undefined) =>
   attentionSummary(sessions ?? []);
@@ -150,7 +165,13 @@ export function SessionsButton() {
   );
 }
 
-export function SessionSidebar({ open, records }: SidebarState) {
+export function SessionSidebar({
+  open,
+  records,
+  onOpen,
+}: Pick<SidebarState, "open" | "records"> & {
+  readonly onOpen: OpenSidebarEntry;
+}) {
   const sessions = openSessionsOf(records);
   const attention = attentionOf(sessions);
   return (
@@ -173,30 +194,15 @@ export function SessionSidebar({ open, records }: SidebarState) {
         {(listed) => (
           <ol>
             {listed.map((record) => (
-              <SidebarEntry key={record.session.sessionId} record={record} />
+              <SidebarEntry
+                key={record.session.sessionId}
+                record={record}
+                onOpen={onOpen}
+              />
             ))}
           </ol>
         )}
       </SessionList>
     </aside>
-  );
-}
-
-function SidebarEntry({ record }: { readonly record: LaunchWithState }) {
-  const { title, source, workflow } = record.request;
-  const { entryClass, stateWords } = shownSession(record);
-  return (
-    <li className={entryClass}>
-      <h3 className="sidebar-title" title={title}>
-        {title}
-      </h3>
-      <p>
-        {sourceById(source)?.label ?? source} · {launchWorkflows[workflow].name}
-      </p>
-      <p>
-        Launched <Moment at={new Date(record.launchedAt)} />
-      </p>
-      {stateWords}
-    </li>
   );
 }

@@ -3,8 +3,9 @@
 // session entry on a card or in Recent sessions reaches them without every
 // component between them passing them along. Each Open terminal and each
 // Recent sessions entry names its session, so the page can find where to
-// return the keyboard. Every Mark as done control follows its mark the same
-// way (`useMarking`).
+// return the keyboard, and the page can bring the entry into view. The page
+// also says which session its terminal shows. Every Mark as done control
+// follows its mark the same way (`useMarking`).
 
 import { createContext, useContext, useState } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
@@ -23,10 +24,13 @@ export type OpenTerminal = (opening: TerminalOpening) => void;
 // back while it is on the page.
 export type MarkSessionDone = (marking: TerminalOpening) => Promise<boolean>;
 
-// The page's operations on the sessions it shows.
+// The page's operations on the sessions it shows, and the session its
+// terminal shows, if any, from which every entry of that session derives its
+// "Shown in terminal" mark.
 export type PageSessions = {
   readonly openTerminal: OpenTerminal;
   readonly markDone: MarkSessionDone;
+  readonly shownInTerminal: string | undefined;
 };
 
 // The attributes by which an Open terminal names the session it opens, and a
@@ -48,15 +52,19 @@ export function showsSession(sessionId: string) {
 // entry itself when it offers none; Recent sessions when the session's entry
 // is not on the page, as when another project is selected.
 export function sessionKeyboardHome(sessionId: string): HTMLElement | null {
-  const session = CSS.escape(sessionId);
   return (
     document.querySelector<HTMLElement>(
-      `.recent-sessions [${opensSessionAttribute}="${session}"]`,
+      `.recent-sessions [${opensSessionAttribute}="${CSS.escape(sessionId)}"]`,
     ) ??
-    document.querySelector<HTMLElement>(
-      `.recent-sessions [${showsSessionAttribute}="${session}"]`,
-    ) ??
+    recentSessionsEntry(sessionId) ??
     document.querySelector<HTMLElement>(".recent-sessions")
+  );
+}
+
+// The session's Recent sessions entry, while the page shows it.
+export function recentSessionsEntry(sessionId: string): HTMLElement | null {
+  return document.querySelector<HTMLElement>(
+    `.recent-sessions [${showsSessionAttribute}="${CSS.escape(sessionId)}"]`,
   );
 }
 

@@ -6,7 +6,8 @@
 // shows while the sidebar is closed. A state change never moves an entry, a
 // new launch comes first, and a session marked done leaves. It sits left of
 // the page, beside the terminal on the right, or over the page on a narrow
-// window. Doughnut's and Pygardon's sessions are launched through the
+// window; the page column beside them lays its stages out as narrow as it
+// is. Doughnut's and Pygardon's sessions are launched through the
 // boundary, Open Dough's from their cards; the page's own dashboard server
 // launches the synthetic `claude` (./fixtures/fake-claude). The page clock
 // stands still unless the journey lets it pass.
@@ -28,7 +29,11 @@ import {
 import { launched } from "./agentTerminalBoundary.ts";
 import { box, expectSideBySideInOrder } from "./pageLayout.ts";
 import { expectSessionShown, watchRecordReads } from "./sessionStatePace.ts";
-import { expectEntries, sidebarParts } from "./sessionSidebarPage.ts";
+import {
+  expectEntries,
+  expectStagesStacked,
+  sidebarParts,
+} from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
@@ -187,6 +192,14 @@ test.describe("the Sessions sidebar", () => {
       expect(column.y).toBe(0);
       expect(column.height).toBe(view.height);
       await expect(sidebar).toHaveCSS("overflow-y", "auto");
+      // The page column, sharing the window with both, lays out as narrow,
+      // as it does beside the terminal alone.
+      await expectStagesStacked(page);
+      await button.click();
+      await expect(sidebar).toBeHidden();
+      await expectStagesStacked(page);
+      await button.click();
+      await expect(sidebar).toBeVisible();
 
       await page.setViewportSize({ width: 700, height: view.height });
       const overlay = await box(sidebar);

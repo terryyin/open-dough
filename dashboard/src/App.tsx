@@ -3,8 +3,8 @@ import { shortRevision } from "./publishedWork.ts";
 import { Moment } from "./Moment.tsx";
 import { DashboardBanner } from "./DashboardBanner.tsx";
 import { usePublishedObservation } from "./publishedObservation.ts";
-import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import { WorkStages } from "./WorkStages.tsx";
+import { PublishedReadFailure } from "./PublishedReadFailure.tsx";
 import { useAgentLaunches } from "./agentLaunches.ts";
 import { RecentSessions } from "./RecentSessions.tsx";
 import { TerminalSplit } from "./TerminalSplit.tsx";
@@ -61,7 +61,7 @@ export function App() {
     route,
     selectProject,
     openRoster: navigateToRoster,
-    backToStories,
+    showStories,
   } = useDashboardRoute({
     sourceId: source.id,
     selectSource,
@@ -91,7 +91,7 @@ export function App() {
       window.history.back();
     } else {
       onReturnToStories();
-      backToStories(source);
+      showStories(source);
     }
   };
 
@@ -127,7 +127,13 @@ export function App() {
       (entry) => entry.preparation !== undefined,
     );
   return (
-    <TerminalSplit sessions={launches}>
+    <TerminalSplit
+      sessions={launches}
+      stories={{
+        shown: showsRoster ? undefined : work?.source.id,
+        show: showStories,
+      }}
+    >
       <DashboardBanner
         source={source}
         work={work}
@@ -166,41 +172,7 @@ export function App() {
           )}
         </p>
         {attempt.status === "failed" && (
-          <div role="alert" className="read-problem">
-            <h2>Published work could not be read</h2>
-            <p>{attempt.problem}</p>
-            <p>
-              This attempt failed at <Moment at={attempt.at} />
-              {work && attempt.afterMembership ? (
-                <>
-                  , after reading the published work at revision{" "}
-                  {shortRevision(work.revision)}. What is shown is what it read,
-                  retrieved at <Moment at={work.retrievedAt} />.
-                </>
-              ) : work ? (
-                <>
-                  . What is shown is the earlier snapshot, retrieved at{" "}
-                  <Moment at={work.retrievedAt} />; this attempt added nothing
-                  to it.
-                </>
-              ) : (
-                ". No published work is shown, because none has been read."
-              )}
-            </p>
-            <p>
-              {work && attempt.checksResumeAt ? (
-                <>
-                  As GitHub asked, automatic checks wait until{" "}
-                  <Moment at={attempt.checksResumeAt} />. Press Retry to read
-                  again sooner.
-                </>
-              ) : work ? (
-                `Automatic checks continue every ${String(checkIntervalMs / 1000)} seconds while this page is visible. Press Retry to read again now.`
-              ) : (
-                "Press Retry to read again."
-              )}
-            </p>
-          </div>
+          <PublishedReadFailure attempt={attempt} work={work} />
         )}
         <p className="announcement" aria-live="polite">
           {notice}

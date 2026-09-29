@@ -88,25 +88,39 @@ where it is, except that closing the sidebar while the keyboard is inside it
 returns the keyboard to the Sessions button. It starts closed, and stays open
 or closed as left across project switches, the agent roster, the terminal, and
 reloads, kept in this browser's storage; without that storage it starts
-closed. On a wide window the sidebar is a
-fixed-width column left of the page, as tall as the window and scrolling on
-its own, with the terminal panel still on the right: sidebar, page, terminal.
-On a narrow window, where the terminal stacks above the page, it lies over
-the page from the left, below the banner. Entries are newest launch first, by
-launch time alone, so a state change updates an entry in place and never
-moves it, and a new launch comes first. Each entry names its story's title,
-wrapped to at most two lines, the project and workflow, such as "Pygardon ·
-Refinement", when it was launched, and its session's state in the words a
-card entry uses, with the same heavier edge when the developer is needed
-there (below). The heading "Sessions" is followed by "1 session needs
-attention" or "<N> sessions need attention", counted across every project by
-the card's rule, and by nothing when none do; while the sidebar is closed,
-the Sessions button shows the same count as text. Before the machine's
-sessions are first read it says "Reading sessions…"; with none kept, "No
-sessions launched from this dashboard are kept."; and with all of them marked
-done, "No sessions launched from this dashboard are open." A session marked done leaves
-it, as it leaves its card. Opening or closing the sidebar changes no story
-fact, stage, or session.
+closed. On a wide window the sidebar is a fixed-width column left of the page,
+as tall as the window and scrolling on its own, with the terminal panel still
+on the right: sidebar, page, terminal. On a narrow window, where the terminal
+stacks above the page, it lies over the page from the left, below the banner.
+Entries are newest launch first, by launch time alone, so a state change
+updates an entry in place and never moves it, and a new launch comes first.
+Each entry names its story's title, wrapped to at most two lines, the project
+and workflow, such as "Pygardon · Refinement", when it was launched, and its
+session's state in the words a card entry uses, with the same heavier edge
+when the developer is needed there (below). The heading "Sessions" is followed
+by "1 session needs attention" or "<N> sessions need attention", counted
+across every project by the card's rule, and by nothing when none do; while
+the sidebar is closed, the Sessions button shows the same count as text.
+Before the machine's sessions are first read it says "Reading sessions…"; with
+none kept, "No sessions launched from this dashboard are kept."; and with all
+of them marked done, "No sessions launched from this dashboard are open." A
+session marked done leaves it, as it leaves its card.
+
+Each sidebar entry is one control named by its story's title, project, and
+workflow. Opening it (`src/TerminalSplit.tsx`) shows that project's stories,
+from the agent roster too, as one history entry that browser Back undoes;
+opens its session in the terminal as Open terminal does, keyboard included,
+where the entry offers it, without attaching a shown session again; and, once
+those stories are read, scrolls the story's card, or else its Recent sessions
+entry, into view (at once under reduced motion) until the developer scrolls,
+points, or types (`src/workFocus.ts`). The session the terminal shows, as the
+page frame says, marks every entry of it: its card and Recent sessions entry
+are outlined and its entries there say "Shown in terminal", and its sidebar
+entry is current (`aria-current`) and outlined. Close clears the marks and
+returns the keyboard to the entry, or to the Sessions button on a narrow
+window, where opening an entry closes the sidebar lying over the page. Opening
+or closing the sidebar, or opening an entry, changes no story fact, stage,
+card position, or session state or mark.
 
 Each entry, in Recent sessions and on a card, also shows its session's state,
 read from one `claude agents --json --all` run in the machine's home folder

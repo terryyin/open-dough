@@ -199,7 +199,7 @@ sidebar sees it open again.
 
 ### 4. Opening a sidebar entry goes to its story and its session
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/session-sidebar-navigation.spec.ts`.
 
 Behavior: on Open Dough's roster, the developer opens the Pygardon entry →
@@ -214,6 +214,36 @@ keyboard to the sidebar entry; on a narrow window the pick also closes the
 overlay; under reduced motion the scroll is instant; nothing changes a story
 fact or session mark. Update [Agent launch](../../../dashboard/AGENT-LAUNCH.md)
 and the UX North Star's launch row.
+
+Accepted proof (2026-09-29, after merging trunk `749dcc12`):
+`npm run typecheck:dashboard`; `npm run test:dashboard --
+'tests/session-sidebar.*\.spec\.ts' 'tests/agent-terminal.*\.spec\.ts'
+'tests/agent-launch-.*\.spec\.ts' 'tests/.*navigation.*\.spec\.ts'
+'tests/dashboard-header.*\.spec\.ts' 'tests/accessible-overview.*\.spec\.ts'`
+159 passed; full suite 297 passed after refactor. Observations:
+`session-sidebar-navigation.spec.ts` "goes to its story and its session
+across projects, moves the marks, and gives the keyboard back to the entry
+once the terminal closes" (one history entry and Back, attach and keyboard
+in the terminal, reveal only after Pygardon's held read answers, outline and
+"Shown in terminal", `aria-current`, switching moves marks, no reattach,
+Close clears marks and returns to the entry, Command+B from an entry lands
+on Sessions — slice 3's deferred promise, membership unchanged);
+`session-sidebar-navigation-cases.spec.ts` (no-list story marks its Recent
+sessions entry; unavailable reveals its card and opens no terminal; narrow
+pick closes the overlay; reduced motion scrolls with `behavior: "auto"`);
+`session-sidebar.spec.ts` `expectStagesStacked` at 1280px with sidebar and
+terminal, and terminal only. Decisions and learnings: the reveal follows the
+card while later facts resize the page, until the developer scrolls,
+points, or types (`keepInView`); the page column is a CSS container, so the
+stages and banner lay out by its width (the terminal-only split had the same
+defect between about 800px and 1540px); `showStories` replaces
+`backToStories`; after a narrow-window pick, Close returns the keyboard to
+Sessions, since the entry is hidden; the sidebar entry's mark is
+`aria-current` and an outline; picking an unavailable entry leaves an open
+terminal on its session. `terminalOpening.ts` gained only `shownInTerminal`
+and `recentSessionsEntry`; SEED-052#card-session-residue's request-shape
+change and rename remain for it to reconcile. `dashboard/AGENT-LAUNCH.md`
+is 253 lines.
 
 ## Proof ownership
 

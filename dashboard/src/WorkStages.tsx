@@ -14,6 +14,8 @@ import type { UnreadableProfile } from "./agentAssignments.ts";
 import { stagesMarks, workCardMarks } from "./workFocus.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { CardLaunches } from "./CardLaunches.tsx";
+import { cardSessionsOf } from "./agentLaunch.ts";
+import { usePageSessions } from "./terminalOpening.ts";
 
 function count(entries: readonly WorkEntry[]): string {
   return entries.length === 1 ? "1 entry" : `${entries.length} entries`;
@@ -45,10 +47,23 @@ function WorkCard({
 }) {
   const cardRef = useRef<HTMLElement>(null);
   const detailId = `story-detail-${entry.identity.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+  // Outlined while the page's terminal shows one of the card's sessions.
+  const { shownInTerminal } = usePageSessions();
+  const inTerminal = cardSessionsOf(
+    launches.records,
+    sourceId,
+    entry.identity,
+  ).some((record) => record.session.sessionId === shownInTerminal);
   return (
     <article
       ref={cardRef}
-      className={selected ? "card card-selected" : "card"}
+      className={[
+        "card",
+        selected && "card-selected",
+        inTerminal && "in-terminal",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       aria-label={entry.title}
       {...workCardMarks(entry.identity)}
     >

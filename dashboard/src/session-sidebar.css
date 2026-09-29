@@ -44,6 +44,31 @@
   margin-top: 0.75rem;
 }
 
+/* Each entry is one control over its whole area; the entry the page's
+   terminal shows is current, outlined as its card is. */
+.sidebar-entry {
+  position: relative;
+}
+
+.sidebar-entry-open {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: inherit;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sidebar-entry-open:hover {
+  background: rgb(0 0 0 / 4%);
+}
+
+.sidebar-entry.in-terminal {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
+}
+
 /* A long title wraps to at most two lines; its whole text stays the
    heading's, for assistive technology and as its tooltip. */
 .sidebar-title {

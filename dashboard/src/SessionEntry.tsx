@@ -10,7 +10,9 @@
 // (`./LaunchSession.tsx`); a session the developer marked done is Done, under
 // its `done-` name. An entry names its story's title and identity unless it
 // is listed on the story's own card, where it offers Mark as done through the
-// page's one operation (`./TerminalSplit.tsx`). A Recent sessions entry can
+// page's one operation (`./TerminalSplit.tsx`). While the page's terminal
+// shows its session, an entry says "Shown in terminal", outlined in Recent
+// sessions, and the card listing it is outlined. A Recent sessions entry can
 // take the keyboard when the control that last had it is gone. Entries are
 // local evidence of launches, not story facts.
 
@@ -45,6 +47,8 @@ export function SessionEntry({
   const { name } = launchWorkflows[workflow];
   const markedDone = record.doneAt !== undefined;
   const { entryClass, stateWords } = shownSession(record);
+  const inTerminal =
+    usePageSessions().shownInTerminal === record.session.sessionId;
 
   useEffect(() => {
     if (takesFocus === true) entry.current?.focus();
@@ -53,7 +57,7 @@ export function SessionEntry({
   return (
     <article
       ref={entry}
-      className={entryClass}
+      className={inTerminal ? `${entryClass} in-terminal` : entryClass}
       aria-label={onCard ? `${name} session` : `${name} session for ${title}`}
       tabIndex={-1}
       {...(onCard ? {} : showsSession(record.session.sessionId))}
@@ -65,6 +69,7 @@ export function SessionEntry({
         </>
       )}
       {stateWords}
+      {inTerminal && <p className="shown-in-terminal">Shown in terminal</p>}
       <p>
         {name} started in Claude Code{" "}
         <Moment at={new Date(record.launchedAt)} />

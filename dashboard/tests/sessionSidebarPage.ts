@@ -3,6 +3,8 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { expectSessionShown } from "./sessionStatePace.ts";
+import { parts } from "./dashboardPage.ts";
+import { box, expectStackedInOrder } from "./pageLayout.ts";
 
 export function sidebarParts(page: Page) {
   const sidebar = page.getByRole("complementary", { name: "Sessions" });
@@ -10,6 +12,8 @@ export function sidebarParts(page: Page) {
     sidebar,
     button: page.getByRole("banner").getByRole("button", { name: /^Sessions/ }),
     entries: sidebar.getByRole("listitem"),
+    // The control of the entry for the story with this title.
+    entry: (title: string) => sidebar.getByRole("button", { name: title }),
     // How many sessions need attention, as the heading says, when any do.
     attention: sidebar.getByText(/^\d+ sessions? needs? attention$/),
   };
@@ -50,4 +54,18 @@ export async function expectEntries(
     above = launchedAt;
     await expectSessionShown(entry, words, needed);
   }
+}
+
+// The stages lay out as on a narrow window, for a page column that narrow
+// whatever the window's width: Backlog above Taken, each as wide as the
+// stages, and each card as wide as its stage inside its padding.
+export async function expectStagesStacked(page: Page): Promise<void> {
+  const { stages, backlog, taken } = parts(page);
+  await expectStackedInOrder([backlog, taken]);
+  const whole = await box(stages);
+  const stage = await box(backlog);
+  expect(stage.width).toBeGreaterThanOrEqual(whole.width - 1);
+  const card = await box(backlog.getByRole("article").first());
+  // The stage's side padding (1rem each) and border.
+  expect(card.width).toBeGreaterThanOrEqual(stage.width - 2 * 16 - 2 - 1);
 }

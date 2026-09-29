@@ -103,7 +103,9 @@ html {
   color: var(--panel);
 }
 
-@media (max-width: 600px) {
+/* A narrow page column (./agent-terminal.css), whether the window is narrow
+   or the Sessions sidebar or the terminal shares it, takes a second row. */
+@container page (max-width: 600px) {
   .banner {
     grid-template-columns: auto minmax(0, 1fr) 2.75rem;
     grid-template-rows: minmax(2.75rem, auto) auto;
