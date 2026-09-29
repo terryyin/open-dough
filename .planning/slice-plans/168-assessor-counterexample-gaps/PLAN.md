@@ -208,7 +208,7 @@ three publication jobs ran 63 s, 17 s and 21 s. The helper has 44 callers under
 
 ### 3. A preparation response that only claims setup is rejected
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh tests/execution-worktree-preparation-native.sh tests/native-assessor-counterexample-guard.sh`
 green.
 
@@ -218,6 +218,10 @@ Behavior: given a passing preparation observation whose response claims
 project-command trace`. The claim-bearing base is its own passing base. The
 comment beside the case says `self-reported-only` needs the gate and the
 outcome changed together.
+
+Done: the case lives in `tests/support/execution-worktree-prep-native-cheap.sh`
+(244 lines). Its passing base is registered through a second
+`native_assessor_counterexamples` call. The assessor is unchanged.
 
 ### 4. Every CI completion scenario has a passing base and rejected cases
 Type: Behavior
