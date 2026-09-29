@@ -58,7 +58,7 @@ contradicting the dashboard's promise to show published records.
 
 **Identity:** SEED-056#exact-published-text
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"24cd1d753f3a6daee31ef1e60592b317922769240ecfe853967341c2044f9c85"}}
 ```
 
 - **Goal:** A developer reading the dashboard sees each story's readiness and
@@ -71,10 +71,14 @@ contradicting the dashboard's promise to show published records.
   - A regression test at the read boundary publishes a file containing a
     literal `\u0002` and observes the same text in the answer; and a card
     whose plan holds such a line shows the readiness recorded against it.
-  - Other `gh api` calls whose answers are JSON (revision checks, directory
-    listings, profile additions) are checked for the same sanitizing where
-    they carry published text; a JSON answer that is only parsed for names or
-    SHAs needs no change.
+    The dashboard tests' stand-in `gh` prints a JSON-typed answer the way the
+    real `gh api` does, rewriting control-character escapes as caret
+    notation, so this test fails against the current `raw+json` read rather
+    than passing either way.
+  - Only the file read changes. The other `gh api` answers the dashboard
+    reads are JSON carrying SHAs, commit dates, file statuses, directory
+    file names, branch heads, and committer identity; none carries published
+    record text, and Git names cannot hold control characters.
   - Deferred: nothing else about the read boundary changes.
 - **Key examples:**
   - SEED-052#session-sidebar at `8156fac6`: its card shows **Ready** (not
