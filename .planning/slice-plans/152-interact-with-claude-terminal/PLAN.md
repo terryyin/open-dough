@@ -217,7 +217,7 @@ session's state to `stopped` and removes its `status`.
 
 ### 2. The terminal boundary attaches a WebSocket to a recorded session and refuses everything else
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `agent-terminal-boundary.spec.ts` against dev and preview servers with the fake `claude`.
 
 Behavior: a project has a kept launch whose session Claude Code lists → a
@@ -243,6 +243,29 @@ after a resize, the attach process ending on socket close and on server
 close, and each refusal's status with no attach call. Run the new spec with
 `agent-launch-boundary.spec.ts` and `agent-launch-refusal.spec.ts`, since the
 plugin change reaches their servers, plus `npm run typecheck:dashboard`.
+
+Accepted proof (2026-09-29): `npm run test:dashboard --
+dashboard/tests/agent-terminal-boundary.spec.ts
+dashboard/tests/agent-terminal-close.spec.ts
+dashboard/tests/agent-launch-boundary.spec.ts
+dashboard/tests/agent-launch-refusal.spec.ts
+dashboard/tests/authenticated-read-boundary.spec.ts
+dashboard/tests/authenticated-read-plugin-hooks.spec.ts` and
+`npm run typecheck:dashboard` pass. The server-close promise is proved by
+the hook-level test in `agent-terminal-close.spec.ts`: end to end, the OS
+closes the PTY with Vite, so that test alone cannot show the cleanup.
+Decisions made in the slice: a session the dashboard did not record gets 404,
+one Claude Code no longer lists gets 410, and a missing project folder gets
+404 (otherwise its unreadable listing would read as state unknown and admit
+the upgrade). State unknown admits, as `attachOpens` does for the page. The
+`session` parameter is the full `sessionId`. An attach process that exits on
+its own closes the socket with 1000; slice 4 adds the distinct code. Vite
+8's HMR socket refuses an `Origin` without its page token, so an HMR test
+client sends none.
+
+Residue: `dashboard/server/claudeCode.ts` is 259 lines. The refactor pass
+proposed moving `attachClaude` into `agentTerminals.ts`; its edit was denied
+by the host's permission check and awaits Terry.
 
 ### 3. A card or Recent sessions entry opens its session in the right-hand terminal, one at a time
 Type: Behavior

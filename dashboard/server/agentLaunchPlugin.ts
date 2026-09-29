@@ -2,13 +2,16 @@
 // (`./localBoundaryPlugin.ts`) beside the authenticated read boundary. A same-origin
 // POST to `/__agent-launch` asks to launch an agent on one work item
 // (`./agentLaunches.ts`); a GET `?source=` answers that project's launch
-// records with each session's current state. Everything else -- another
-// site, an unknown project, a workflow or host this boundary does not launch,
-// malformed text, another method -- is refused before any host process
-// starts.
+// records with each session's current state. A same-origin WebSocket upgrade
+// to `/__agent-terminal?source=&session=` attaches to one session this
+// boundary recorded for that project (`./agentTerminals.ts`). Everything else
+// -- another site, an unknown project, a workflow or host this boundary does
+// not launch, malformed text, another method, a session it did not record --
+// is refused before any host process starts, and a session Claude Code no
+// longer lists is refused before any `claude attach`.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-import type { Connect, Plugin } from "vite";
+import type { Connect, HttpServer, Plugin } from "vite";
 import {
   agentLaunchEndpoint,
   agentLaunchRequestSchema,
@@ -19,6 +22,7 @@ import {
 } from "../src/agentLaunch.ts";
 import { sourceById, type PublishedSource } from "../src/publishedSource.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
+import { AgentTerminals, type TerminalSession } from "./agentTerminals.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 
@@ -149,8 +153,47 @@ function respond(res: ServerResponse, { status, body }: Answer): void {
   res.end(JSON.stringify(body));
 }
 
-function installAgentLaunchMiddleware(middlewares: Connect.Server): () => void {
+// The one session an upgrade may attach to, or the refusal it gets.
+async function admittedAttach(
+  req: IncomingMessage,
+  url: URL,
+  launches: AgentLaunches,
+): Promise<TerminalSession> {
+  verifyLocalOrigin(req);
+  const source = knownSource(url.searchParams.get("source"));
+  const attachable = await launches.attachable(
+    source,
+    url.searchParams.get("session") ?? "",
+  );
+  switch (attachable.kind) {
+    case "attachable":
+      return attachable;
+    case "unrecorded":
+      throw new RefusedRequest(
+        404,
+        "This dashboard launched no such session for this project.",
+      );
+    case "folder-not-found":
+      throw new RefusedRequest(
+        404,
+        `The project folder ${attachable.folder.shown} was not found on this machine.`,
+      );
+    case "unlisted":
+      throw new RefusedRequest(
+        410,
+        "Claude Code no longer lists this session.",
+      );
+  }
+}
+
+function installAgentLaunchMiddleware(
+  middlewares: Connect.Server,
+  httpServer: HttpServer | null,
+): () => void {
   const launches = new AgentLaunches();
+  const terminals = new AgentTerminals(httpServer, (req, url) =>
+    admittedAttach(req, url, launches),
+  );
   middlewares.use((req, res, next) => {
     const url = new URL(req.url ?? "", "http://placeholder");
     if (url.pathname !== agentLaunchEndpoint) {
@@ -162,6 +205,7 @@ function installAgentLaunchMiddleware(middlewares: Connect.Server): () => void {
     }, next);
   });
   return () => {
+    terminals.close();
     launches.close();
   };
 }

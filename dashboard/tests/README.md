@@ -34,7 +34,10 @@ on its PATH, in a temporary HOME holding only the project folders a test
 chooses; a spec that restarts servers on the same machine state passes a
 `machine` directory it owns. A per-server scenario decides whether it launches, refuses, finds
 the folder untrusted, hangs, or reports a session its listing does not show;
-it records every call's argv and working directory. A server that must find no
+it records every call's argv and working directory. Run as `claude attach`
+in the terminal boundary's pseudo-terminal
+(`agent-terminal-boundary.spec.ts`), it echoes input, reports its size, and
+records its pid and the signal that ended it. A server that must find no
 `claude` gets a PATH holding only the fake `gh` and Node. Nothing here ever
 calls the real `claude`.
 

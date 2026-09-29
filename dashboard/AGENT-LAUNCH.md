@@ -83,6 +83,24 @@ is visible it reads the records again every 15 seconds, the pace of its
 revision checks, so a state change shows without a reload. With no records,
 `claude` is not run.
 
+The launch boundary also attaches a terminal to a session it launched. A
+same-origin WebSocket to
+`/__agent-terminal?source=<project id>&session=<session id>`
+(`server/agentTerminals.ts`, contract in `src/agentTerminal.ts`) runs
+`claude attach <short id>` in the project's folder through a pseudo-terminal,
+and nothing else: never a shell or another command. The server sends the
+session's terminal output as text frames. The page sends only
+`{ "input": "<text>" }`, typed into the session, or
+`{ "resize": { "cols": <n>, "rows": <n> } }`; anything else closes the
+socket. Closing the socket from either side, or stopping the server, ends
+that attach process, which detaches only: the session keeps running. The
+upgrade is refused with an HTTP error and no socket, before any `claude
+attach`, when it comes from another site or host (403), names an unknown
+project (404), names a session this dashboard did not record for that project
+(404, without running `claude` at all), finds the project folder missing
+(404), or names a session Claude Code no longer lists (410). As for the open
+action, a stopped session and one whose state is unknown still attach.
+
 Launch records are kept on this machine, outside every repository, in
 `~/.open-dough/dashboard/agent-launches.json`. Restarting `npm run
 dev:dashboard` or `npm run preview:dashboard` keeps them, and a dev and a

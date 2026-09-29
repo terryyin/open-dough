@@ -4,18 +4,25 @@
 // wait, and keep a confirmed result in this machine's launch record store
 // (`./launchRecordStore.ts`), which outlives the server. A read of the kept
 // records answers each session's state from Claude Code's listing, never
-// stored. Origin still decides every story fact.
+// stored, and the same join decides which recorded session the terminal
+// boundary (`./agentTerminals.ts`) may attach to. Origin still decides every
+// story fact.
 
-import type {
-  AgentLaunchRequest,
-  LaunchWithState,
-  LaunchRecord,
-  LaunchResult,
+import {
+  attachOpens,
+  type AgentLaunchRequest,
+  type LaunchWithState,
+  type LaunchRecord,
+  type LaunchResult,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { claudeSessions, launchClaude } from "./claudeCode.ts";
 import { keepRecord, keptRecords } from "./launchRecordStore.ts";
-import { folderExists, projectFolder } from "./projectFolders.ts";
+import {
+  folderExists,
+  projectFolder,
+  type ProjectFolder,
+} from "./projectFolders.ts";
 
 const defaultLaunchWaitMs = 30_000;
 
@@ -33,32 +40,74 @@ function launchTimeoutMs(): number {
     : defaultLaunchWaitMs;
 }
 
+export type Attachable =
+  | {
+      readonly kind: "attachable";
+      readonly shortId: string;
+      readonly folder: ProjectFolder;
+    }
+  | { readonly kind: "unrecorded" }
+  | { readonly kind: "folder-not-found"; readonly folder: ProjectFolder }
+  | { readonly kind: "unlisted" };
+
+// Records joined by session id with Claude Code's listing read now. With no
+// records, `claude` is not run.
+async function withStates(
+  source: PublishedSource,
+  records: readonly LaunchRecord[],
+): Promise<readonly LaunchWithState[]> {
+  if (records.length === 0) {
+    return [];
+  }
+  const listed = await claudeSessions(
+    projectFolder(source),
+    AbortSignal.timeout(listingWaitMs),
+  );
+  const states = new Map(
+    listed?.map((entry) => [entry.session.sessionId, entry.sessionState]),
+  );
+  return records.map((record) => ({
+    ...record,
+    sessionState:
+      listed === undefined
+        ? { kind: "unknown" }
+        : (states.get(record.session.sessionId) ?? { kind: "unlisted" }),
+  }));
+}
+
 export class AgentLaunches {
   private readonly running = new Set<AbortController>();
 
-  // The project's kept records, each joined by session id with Claude Code's
-  // listing read now. With no records kept, `claude` is not run.
+  // The project's kept records, each joined with its session's state.
   async recordsOf(
     source: PublishedSource,
   ): Promise<readonly LaunchWithState[]> {
-    const records = await keptRecords(source.id);
-    if (records.length === 0) {
-      return [];
+    return withStates(source, await keptRecords(source.id));
+  }
+
+  // Whether one session may be attached to: this dashboard recorded it for
+  // this project, the project folder exists, and Claude Code does not report
+  // it unlisted -- the rule the page's open action follows too. `claude` is
+  // run only for a recorded session in an existing folder, and then only to
+  // list sessions.
+  async attachable(
+    source: PublishedSource,
+    sessionId: string,
+  ): Promise<Attachable> {
+    const record = (await keptRecords(source.id)).find(
+      (kept) => kept.session.sessionId === sessionId,
+    );
+    if (record === undefined) {
+      return { kind: "unrecorded" };
     }
-    const listed = await claudeSessions(
-      projectFolder(source),
-      AbortSignal.timeout(listingWaitMs),
-    );
-    const states = new Map(
-      listed?.map((entry) => [entry.session.sessionId, entry.sessionState]),
-    );
-    return records.map((record) => ({
-      ...record,
-      sessionState:
-        listed === undefined
-          ? { kind: "unknown" }
-          : (states.get(record.session.sessionId) ?? { kind: "unlisted" }),
-    }));
+    const folder = projectFolder(source);
+    if (!(await folderExists(folder))) {
+      return { kind: "folder-not-found", folder };
+    }
+    const [joined] = await withStates(source, [record]);
+    return joined !== undefined && attachOpens(joined.sessionState)
+      ? { kind: "attachable", shortId: record.session.shortId, folder }
+      : { kind: "unlisted" };
   }
 
   // A launch settles on its own even if the requester goes away, so its

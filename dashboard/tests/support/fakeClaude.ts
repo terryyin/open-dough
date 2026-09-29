@@ -40,6 +40,14 @@ export type ClaudeCall = {
   readonly cwd: string;
 };
 
+// One `claude attach` the fake ran: its pid, the short id it attached to,
+// and the signal that ended it, once one did.
+export type ClaudeAttach = {
+  readonly pid: number;
+  readonly id: string;
+  readonly endedBy: string | undefined;
+};
+
 export type FakeClaudeOptions = {
   // A directory the caller owns that holds this server's HOME and the fake's
   // state, and outlives the server, so another server can start on the same
@@ -70,6 +78,8 @@ export type FakeClaudeControls = {
   // ended it, once one did.
   heldClaudePid(): number | undefined;
   heldClaudeEndedBy(): string | undefined;
+  // Every `claude attach` run so far, oldest first.
+  claudeAttaches(): ClaudeAttach[];
 };
 
 // A PATH directory holding only this Node, for a server that must find no
@@ -170,6 +180,19 @@ export function installFakeClaude(
       },
       heldClaudeEndedBy() {
         return readState(state("pid.exited"));
+      },
+      claudeAttaches() {
+        return (readState(state("attaches.jsonl")) ?? "")
+          .split("\n")
+          .filter((line) => line !== "")
+          .map((line) => {
+            const { pid, id } = JSON.parse(line) as { pid: number; id: string };
+            return {
+              pid,
+              id,
+              endedBy: readState(state(`attach.${String(pid)}.ended`)),
+            };
+          });
       },
     },
   };

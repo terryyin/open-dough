@@ -6,9 +6,12 @@
 // paths or echo configuration and is never forwarded, as with the `gh`
 // boundary (`./ghRead.ts`). No model, permission, effort, or session id is
 // passed: the developer's own Claude Code settings apply, and `--bg` chooses
-// its own session id, which it prints.
+// its own session id, which it prints. The terminal boundary
+// (`./agentTerminals.ts`) attaches to a recorded session through a PTY here
+// too, since `execFile` cannot host Claude Code's interactive terminal.
 
 import { execFile, type ExecException } from "node:child_process";
+import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
 import { stripVTControlCharacters } from "node:util";
 import { z } from "zod";
 import {
@@ -69,6 +72,22 @@ function execClaude(
       },
     );
     child.stdin?.end();
+  });
+}
+
+// `claude attach <short id>` in the project folder, in a terminal of this
+// size: the only interactive process this dashboard runs. Ending it detaches
+// only; the session keeps running.
+export function attachClaude(
+  shortId: string,
+  folder: ProjectFolder,
+  size: { readonly cols: number; readonly rows: number },
+): IPty {
+  return spawnPty("claude", ["attach", shortId], {
+    name: "xterm-256color",
+    cwd: folder.path,
+    cols: size.cols,
+    rows: size.rows,
   });
 }
 

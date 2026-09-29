@@ -13,6 +13,13 @@
 // (../support/fakeClaude.ts) end or forget a listed session, or make the
 // listing fail, by editing the same state files.
 //
+// `claude attach <id>`, run in a terminal, stands in for Claude Code's
+// interactive session: it prints `attached <id> <cols>x<rows>`, echoes what
+// is typed and each line entered as `echo <line>`, clears the line on Ctrl+U,
+// and prints `resized <cols>x<rows>` when its terminal's size changes. It
+// records its pid in `attaches.jsonl` and, once a signal ends it, that
+// signal in `attach.<pid>.ended`, for the controls to observe.
+//
 // Scenarios: `launched` (default), `refused`, `untrusted`, `hang`, and
 // `unlisted` (reports a session that `agents --json` does not list).
 
@@ -54,6 +61,46 @@ if (args[0] === "agents") {
     (session) => all || session.status !== undefined,
   );
   process.stdout.write(`${JSON.stringify(sessions)}\n`);
+  return;
+}
+
+if (args[0] === "attach") {
+  const id = args[1];
+  const size = () => `${process.stdout.columns}x${process.stdout.rows}`;
+  fs.appendFileSync(
+    path.join(dir, "attaches.jsonl"),
+    `${JSON.stringify({ pid: process.pid, id })}\n`,
+  );
+  for (const signal of ["SIGHUP", "SIGTERM", "SIGINT"]) {
+    process.on(signal, () => {
+      fs.writeFileSync(path.join(dir, `attach.${process.pid}.ended`), signal);
+      process.exit(128);
+    });
+  }
+  process.stdout.write(`attached ${id} ${size()}\r\n`);
+  process.stdout.on("resize", () => {
+    process.stdout.write(`\r\nresized ${size()}\r\n`);
+  });
+  let line = "";
+  // The terminal may go before the signal that ends this process arrives.
+  process.stdin.on("error", () => {});
+  process.stdout.on("error", () => {});
+  process.stdin.setRawMode(true);
+  process.stdin.setEncoding("utf8");
+  process.stdin.on("data", (typed) => {
+    for (const key of typed) {
+      if (key === "\r" || key === "\n") {
+        process.stdout.write(`\r\necho ${line}\r\n`);
+        line = "";
+      } else if (key === "\u0015") {
+        line = "";
+        process.stdout.write("\r\u001b[K");
+      } else {
+        line += key;
+        process.stdout.write(key);
+      }
+    }
+  });
   return;
 }
 
