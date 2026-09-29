@@ -16,10 +16,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [See when a dashboard session needs human attention](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-refinement) — SEED-052#launch-claude-refinement ([plan](slice-plans/159-session-attention/PLAN.md))
 - [Keep a reopened session on its story's card](seeds/SEED-052-start-agent-work-from-dashboard.md#reopened-session-returns) — SEED-052#reopened-session-returns ([plan](slice-plans/161-reopened-session-returns/PLAN.md))
+- [Prove Mark as done's remaining edges and trim card-session residue](seeds/SEED-052-start-agent-work-from-dashboard.md#card-session-residue) — SEED-052#card-session-residue ([plan](slice-plans/160-card-session-residue/PLAN.md))
 
 ## Backlog list
 
-- [Prove Mark as done's remaining edges and trim card-session residue](seeds/SEED-052-start-agent-work-from-dashboard.md#card-session-residue) — SEED-052#card-session-residue
 - [Catch native harness faults before paying for a native run](seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior) — SEED-055#native-harness-observes-agent-behavior
 - [Judge a change against the CI time budget from CI's own timings](seeds/SEED-055-trustworthy-project-proof.md#ci-time-budget-from-ci-timings) — SEED-055#ci-time-budget-from-ci-timings
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
