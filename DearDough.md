@@ -964,7 +964,7 @@ The Claude stop hook reported "CI observer lost its worker" for a dead observer 
   - Timestamp: unknown; the loop spanned the shell's 2026-09-29T21:58:40+08:00 and 22:00:36+08:00 readings
   - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `d68fcde4`
   - Evidence: mailbox `/tmp/dough-ci-501/watch-nN6cSt`, whose worker died when the disk filled (ENOSPC) during slice 2. Its only revision, `061aa911`, passed CI when checked with `gh run list`. The `stop` result was `status: stopped`, `coverage.state: lost`, `unread: 0`, and the stop hook kept blocking after it.
-  - Observed effect: about twelve coordinator turns spent acknowledging the same notice while a refactor agent ran. It persisted after the next delivery attached observer `watch-Ss12RC`. Inference: Qualified. The hook seems to re-derive "lost" from the stopped mailbox's recorded result with no delivered-once marker.
+  - Observed effect: about twelve coordinator turns spent acknowledging the same notice while a refactor agent ran. It persisted after the next delivery attached observer `watch-Ss12RC`. Cause (read in `ci-host-hook.mjs`): every hook call re-reports each bound mailbox whose worker is lost, with no delivered-once marker. Removing only this mailbox's binding under the coordinator's `owner-*` directory ended the loop.
 
 ## Retention
 

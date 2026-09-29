@@ -21,25 +21,19 @@ executions, not commands, retries, or repairs.
    repaired in its own execution, yet each new journey met a new one after
    DD-164's plan 142 resolution. Story:
    [Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior).
-2. **Local time-budget measurement under load (DD-158) — second, queued.**
-   Two executions (plans 135 and 139), open and unaddressed. Local paired A/B
-   runs projected a CI-judged budget: one slice's agent ran about 28
-   minutes, much of it timing, and the projections were about 10 s high and 11 s low. The low one
-   hid a 2 s margin and cost an extra split commit and refactor pass. Story:
-   [Judge a change against the CI time budget from CI's own timings](.planning/seeds/SEED-055-trustworthy-project-proof.md#ci-time-budget-from-ci-timings).
-3. **Native host runs and observations routed through the developer — low,
+2. **Native host runs and observations routed through the developer — low,
    not queued.** Two executions with a cost (plans 139 and 150) and one where
    the agent found a free route itself (plan 152). The cost was a few developer
    round trips, and some of that friction is intended while paid native runs
    stay manual-only.
-4. **Local checks whose result differs from CI's — low, not queued.** Four
+3. **Local checks whose result differs from CI's — low, not queued.** Four
    executions (plans 140, 146, 147, 157), one finding each. DD-168 and DD-178
    (tests that take the repository root from the working directory) had no
    delivery impact and each needs a small fix. DD-162 came from a coordinator-prescribed
    direct run that bypassed the runner's existing guard. DD-171 matches
    published ODF-003 (a consumer check missing non-import consumers); ODF-003's
    plan 104 occurrence failed in the same `dashboard/tests/preparingJourney.ts`.
-5. **Behavior audits that miss guidance-directed actions (DD-113) — low, not
+4. **Behavior audits that miss guidance-directed actions (DD-113) — low, not
    queued.** One execution; plan 121 (`178e0346`) corrected its missed merge,
    and no recurrence is recorded.
 
@@ -55,6 +49,15 @@ Resolved and removed on 2026-09-29, each confirmed at `d68fcde4`
   `git_publication_suite_expect_rejected`.
 - DD-166 (host `NODE_ENV` reached the dashboard build):
   `dashboard/vite.config.mts` sets `NODE_ENV=production` for every build.
+
+Resolved and removed on 2026-09-29, confirmed at `1dfb75ee`
+(recovery: `3f0f1ad3:ProjectFindings.md`):
+
+- DD-158 (local paired A/B runs under load spent proving a CI-judged budget):
+  `scripts/ci-test-times.sh` reports each job's and share total's recent trunk
+  CI range against `tests/time-budget` with a wide or thin verdict, and
+  `tests/time-budget.md` limits local timing to thin headroom, projected from
+  the recent highest CI value.
 
 Returned to DearDough.md on 2026-09-29: DD-155 (plan-number collision, the
 published slice-planning allocation rule, catalog ODF-106) and DD-159
@@ -140,40 +143,6 @@ agents.
 - Execution: `SEED-008#installed-wrap-up-command` / plan 146, first related implementation commit `aa4fd510`; Timestamp: 2026-09-29, first Story Branch runs stamped `20260929T0430`–`T0438` (zone unrecorded); Tool: Claude Code (coordinator; hosts Claude, Codex, Cursor); Model: claude-opus-5-5[1m]; Open Dough release: modified; revision `3ca0b8f9`; base 0.3.46.
   - Evidence: `story-branch-closure/source-conflict` failed on all three hosts from harness faults only: Codex and Cursor zsh login shells reset PATH from the user's startup files, so an agent-started trunk observer reached the real `gh` (404) — the same bypass plan 142 repaired for node only; and `story_closure_response_trunk_result` rejected Claude's correct "CI passed". Repair `809b407d` (ZDOTDIR wrapper, Story Branch fixture only); on rerun its negation rule misfired on Cursor's concatenated narration, and Terry accepted that run on transcript judgment.
   - Observed effect: three extra paid runs and one judgment acceptance. Inference: a login-shell PATH repair made for one tool or fixture should be checked against every shim the harnesses rely on.
-
-## Local time-budget measurement under load (second priority)
-
-`tests/time-budget` is judged only on CI, and CI's `test-times-*` artifacts
-report each job's seconds.
-
-**Follow-up:** queued,
-[Judge a change against the CI time budget from CI's own timings](.planning/seeds/SEED-055-trustworthy-project-proof.md#ci-time-budget-from-ci-timings).
-
-### DD-158 — Local paired A/B runs under load were spent proving a CI-judged budget, and overestimated it
-
-Plan 135's slices required the native job to stay inside `per-job-seconds=71`.
-Both implementation agents measured it locally under heavy load and projected
-the CI time from ratios; CI's measurement after the push was lower.
-Plan 139 repeated the method and its projection came out low instead.
-
-#### Occurrences
-
-- Execution: `SEED-028#native-one-shot-acceptance` / plan 135, first related implementation commit `d44069f1`
-  - Timestamp: 2026-09-27 (slice 1 and slice 2 implementation, between Take `fc3393d2` and `5181d769`); exact times unknown
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: modified; revision 2b46e651; base 0.3.43
-  - Evidence: slice 1 ran 3 paired A/B runs (estimate 54–56 s); slice 2 ran 5+5 sequential runs judged too noisy, then 3 concurrent pairs (estimate 61–62 s; agent total 1,708 s). CI run 36325895856 of `5181d769`, artifact `test-times-*`: `52.2 tests/git-publication-native.sh`.
-  - Observed effect: a large share of slice 2's agent time went to timing, and the projection was about 10 s high.
-  - Inference: Qualified. With a wide projected margin, the pushed revision's CI test-times artifact settles the budget more cheaply; a CI breach already fails the split job.
-- Execution: `SEED-028#native-one-shot-escalation` / plan 139, first related implementation commit `23663a21`
-  - Timestamp: 2026-09-28 (slice 1 implementation, between Take `0466e5ba` and `23663a21`); exact times unknown
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: modified; revision 0466e5ba
-  - Evidence: slice 1's agent ran 3 paired A/B runs under load (72.5 s → 80.5 s) and scaled the seed's recorded 52.2 s to a 58 s projection. CI run 36379953372 of `23663a21`, artifact `test-times-*`: `69.0 tests/git-publication-native.sh`; recent main runs 48.5–61.2 s. Follow-up split `82fbd2ec` measured 41.5 s and 17.2 s on CI.
-  - Observed effect: the projection was about 11 s low. It hid a 2 s margin, which needed a further split commit and refactor pass.
-  - Inference: Qualified. Scaling one stale CI number ignores CI's own spread; recent CI `test-times-*` for trunk gives the baseline range without local timing.
 
 ## Local checks whose result differs from CI's (low priority, not selected)
 
