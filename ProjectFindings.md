@@ -14,14 +14,10 @@ executions, not commands, retries, or repairs.
 ## Priority assessment
 
 1. **Native acceptance harness observations that do not match what the native
-   agent did — first, queued.** Four executions (plans 139, 142, 146, 154),
-   three of them the consecutive native-heavy executions of 2026-09-28–29:
-   about a dozen extra paid runs, one run accepted on transcript judgment, and
-   a loosened assessor that accepted failure reports. Each concrete fault was
-   repaired in its own execution, yet each new journey met a new one after
-   DD-164's plan 142 resolution. Stories:
-   [Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior)
-   (DD-179) and
+   agent did — first, queued.** Two executions remain (plans 139 and 154),
+   after DD-179's harness observation faults were resolved: an assessor
+   ordering defect that cost a transcript investigation, and a loosened
+   assessor that accepted failure reports. Story:
    [Close the assessor counterexample discipline's remaining gaps](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps)
    (DD-160, DD-175, ODF-087's harness facet; the counterexample helper and its
    guard landed, and this correction closes what they still miss).
@@ -64,6 +60,16 @@ Resolved and removed on 2026-09-29, confirmed at `1dfb75ee`
   `tests/time-budget.md` limits local timing to thin headroom, projected from
   the recent highest CI value.
 
+Resolved and removed on 2026-09-30 (recovery: `34ceff06:ProjectFindings.md`):
+
+- DD-179 (native harness observation and host shell shims failed on real
+  hosts): plan 163 replays real Claude, Codex, and Cursor streams through one
+  shared reader in the free suite, a guard refuses host-stream parsing
+  outside it, and every harness shim is checked under each login-shell
+  profile (`claude/native-harness-observes-agent-behavior` at `e0e96586`,
+  awaiting integration). Its residue is queued as
+  [Correct continued-command reading and corpus admission in the native harness](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-replay-corrections).
+
 Returned to DearDough.md on 2026-09-29: DD-155 (plan-number collision, the
 published slice-planning allocation rule, catalog ODF-106) and DD-159
 (a diagnosis misread; its own inference rules out a suite defect). Both had
@@ -83,14 +89,9 @@ DearDough because its cause is guidance-following; the assessor story below
 owns its harness facet.
 
 Each concrete fault below was repaired in its own execution: `afa43926`
-(DD-160), `ddbcb90a`, `a2f9862f`, `9df5455f`, and `1e3880ed` with
-`tests/support/native-harness-login-shell.sh` (DD-179), and plan 158
-(`8dff3ac0`, DD-175). The remaining gap is that the harness is proved only on
-synthetic streams, so each new journey meets its harness faults in paid runs.
+(DD-160) and plan 158 (`8dff3ac0`, DD-175).
 
 **Follow-up:** queued,
-[Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior)
-for DD-179, and
 [Close the assessor counterexample discipline's remaining gaps](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps)
 for DD-160, DD-175, and ODF-087's harness facet, after the counterexample
 helper and its guard landed.
@@ -136,29 +137,6 @@ counterexamples remains open.
 
 - Execution: `SEED-008#closure-proof-and-harness-correction` / plan 154, first related implementation commit `d1204cd7`; Timestamp: unknown (slice 3 accepted before `1e3880ed`, 2026-09-29T15:29:21+08:00); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `b37292dd`
   - Evidence: `story_closure_response_trunk_result` at `1e3880ed` returns true for "Trunk CI passed. The watcher failed to start." and three similar lines, false at `a51510d2`; follow-up plan 158. Observed effect: one follow-up correction. Inference: qualified; widening an assessor needs paraphrased failure cases on the side it newly admits (ADR 0005 §2's recorded bad outputs).
-
-### DD-179 — Native harness observation and host shell shims failed on real hosts, not on substitutes
-
-Split from ODF-096 (plans 142 and 146 occurrences only); ODF-096 keeps its
-fixture-credibility occurrences in DearDough.md. Substitute actors followed
-paths or event shapes the native hosts did not. Stream observation missed the
-real hosts' commands, and a login-shell PATH repair made for one shim and
-fixture did not reach the others. The failures came from the harness, not the
-agents.
-
-#### Occurrences
-
-- Execution: `SEED-008#owned-context-start-and-truthful-refresh` / plan 142, first related implementation commit `7e86f615`
-  - Timestamp: 2026-09-28T18:53:18+08:00 (first paid native run)
-  - Tool: Claude Code (coordinator; hosts Claude, Codex, Cursor)
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: modified; revision `c0f6dfca`; base `0.3.45`
-  - Evidence: 12 runs, 6 failed; four only in observation: registration was detected from a `register-push` command though managed delivery registers in process (the substitute used the old path), Codex's login shell bypassed the node wrapper, its `item.started` events went uncounted, and Cursor's multi-line then quoted start commands were missed (repairs `ddbcb90a`, `a2f9862f`).
-  - Observed effect: 9 further paid runs; substitutes had followed a path current guidance forbids.
-
-- Execution: `SEED-008#installed-wrap-up-command` / plan 146, first related implementation commit `aa4fd510`; Timestamp: 2026-09-29, first Story Branch runs stamped `20260929T0430`–`T0438` (zone unrecorded); Tool: Claude Code (coordinator; hosts Claude, Codex, Cursor); Model: claude-opus-5-5[1m]; Open Dough release: modified; revision `3ca0b8f9`; base 0.3.46.
-  - Evidence: `story-branch-closure/source-conflict` failed on all three hosts from harness faults only: Codex and Cursor zsh login shells reset PATH from the user's startup files, so an agent-started trunk observer reached the real `gh` (404) — the same bypass plan 142 repaired for node only; and `story_closure_response_trunk_result` rejected Claude's correct "CI passed". Repair `809b407d` (ZDOTDIR wrapper, Story Branch fixture only); on rerun its negation rule misfired on Cursor's concatenated narration, and Terry accepted that run on transcript judgment.
-  - Observed effect: three extra paid runs and one judgment acceptance. Inference: a login-shell PATH repair made for one tool or fixture should be checked against every shim the harnesses rely on.
 
 ## Local checks whose result differs from CI's (low priority, not selected)
 

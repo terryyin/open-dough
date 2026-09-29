@@ -126,6 +126,36 @@ SEED-055#assessor-counterexample-discipline (commits `a53aa489`..`c6440780` on
 It adds no feature promise. See the
 [plan](../slice-plans/168-assessor-counterexample-gaps/PLAN.md).
 
+<a id="native-harness-replay-corrections"></a>
+
+### Correction: Correct continued-command reading and corpus admission in the native harness
+
+**Identity:** SEED-055#native-harness-replay-corrections
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/169-native-harness-replay-corrections/PLAN.md","assessment":"not-ready","reasons":["Depends on integrating plan 163's story branch (claude/native-harness-observes-agent-behavior) into trunk; its files are not on trunk yet."],"basis":{"document":"ee96928865fc0b7e798eab07ad07b4454569af62a1cc314c41201f945d4f7378","plan":"49f7d713649a02ebdc94e404050b60c9048c83ee44a2e09f743aca7df64c55da"}}
+```
+
+**Goal:** The maintainer paying for native runs gets a reader that
+recognizes a continued command whatever its spacing, and can add every
+accepted paid run to the replay corpus. The native harness also drops
+residue left by
+[Catch native harness faults before paying for a native run](#native-harness-observes-agent-behavior).
+
+**Scope:** The correction found by that story's execution retrospective
+(commits `daaf3c1e`..`b4d82278` on
+`claude/native-harness-observes-agent-behavior`). It covers these items:
+
+- joining line continuations so literal matchers see single-spaced
+  commands, with the affected corpus `command:` lines re-reviewed;
+- admitting any case depth outside the publication family to the corpus;
+- dead and duplicate closure observation fields, and substitute-agent code
+  loaded on the paid assessor path;
+- stale documentation and redundant per-host runs in
+  `tests/native-stream-completeness.sh`.
+
+It adds no feature promise. See the
+[plan](../slice-plans/169-native-harness-replay-corrections/PLAN.md).
+
 ## Ordering and When to Surface
 
 The maintainer asked for the two highest-priority project findings at the top
