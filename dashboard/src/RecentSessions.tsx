@@ -10,6 +10,7 @@
 import {
   launchRetentionDays,
   launchWorkflows,
+  sessionRuns,
   type LaunchWithState,
   type SessionState,
 } from "./agentLaunch.ts";
@@ -33,7 +34,7 @@ function sessionStateWords(sessionState: SessionState): {
     case "unlisted":
       return { label: "Session unavailable" };
     case "listed":
-      if (sessionState.status !== undefined) {
+      if (sessionRuns(sessionState)) {
         return { label: sessionState.status === "busy" ? "Working" : "Idle" };
       }
       return { label: sessionState.state === "done" ? "Finished" : "Stopped" };

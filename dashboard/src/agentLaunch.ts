@@ -167,21 +167,38 @@ function showsAssignment(
   return activity === "preparation" && entry.preparing?.status === "recorded";
 }
 
-// Whether a launch still awaits publication in this snapshot: its work item
-// is still queued and does not yet show an assignment of its workflow's
-// activity. An execution launch settles once its work item is Taken or gone
-// from the backlog; a published preparation assignment does not settle it,
-// because the launched agent may ready a story before taking it. A refinement
-// launch also settles once its work item shows Preparing.
+// Whether the host lists a session as running: it gives a status only while
+// the process runs, so a session listed without one has exited.
+export function sessionRuns(sessionState: SessionState): boolean {
+  return sessionState.kind === "listed" && sessionState.status !== undefined;
+}
+
+// Whether a session may still run: the host lists it as running, or its
+// listing could not be read. One no longer listed is gone.
+function sessionMayRun(sessionState: SessionState): boolean {
+  return sessionState.kind === "unknown" || sessionRuns(sessionState);
+}
+
+// Whether a launch still awaits publication in this snapshot: its session may
+// still run, and its work item is still queued and does not yet show an
+// assignment of its workflow's activity. An execution launch settles once its
+// work item is Taken or gone from the backlog; a published preparation
+// assignment does not settle it, because the launched agent may ready a story
+// before taking it. A refinement launch also settles once its work item shows
+// Preparing. Any launch settles once its session has exited or is no longer
+// listed, since nothing it started can publish the assignment any more.
 export function launchAwaitsPublication(
-  record: LaunchRecord,
+  record: Pick<LaunchWithState, "request" | "sessionState">,
   work: Pick<PublishedWork, "backlog">,
 ): boolean {
   const { activity } = launchWorkflows[record.request.workflow];
-  return work.backlog.some(
-    (entry) =>
-      entry.identity === record.request.identity &&
-      !showsAssignment(entry, activity),
+  return (
+    sessionMayRun(record.sessionState) &&
+    work.backlog.some(
+      (entry) =>
+        entry.identity === record.request.identity &&
+        !showsAssignment(entry, activity),
+    )
   );
 }
 

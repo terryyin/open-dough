@@ -278,7 +278,7 @@ format did not stop the commit. The repair spells out the null check.
 
 ### 4. A card's Started ends once its session no longer runs
 Type: Behavior
-Status: planned
+Status: done
 Proof: settlement spec extended with ended, forgotten, and unknown sessions.
 
 Behavior: a Backlog card shows Execution started → its session exits before
@@ -297,6 +297,18 @@ Proof: extend `agent-launch-settlement.spec.ts`. End one launched session,
 forget another, and fail the listing for a third. Assert the card actions and
 that the Recent sessions entries remain. The existing settlement test stays
 green.
+
+Accepted: `launchAwaitsPublication` in `src/agentLaunch.ts` now also requires
+that the session may still run (State unknown, or listed with a status);
+`sessionRuns` there is the one home of "listed with a status runs", shared
+with the Recent sessions labels. The sibling
+`agent-launch-session-settlement.spec.ts` (the settlement spec would pass 250
+lines) observes Started kept while the listing fails and while idle, and
+ended with the action and its note offered again for finished, forgotten, and
+stopped sessions, with all four entries kept and membership unchanged. The
+ten launch specs pass (82), and typecheck is clean. Gap: when the latest
+launch of a workflow has ended while an older one still runs, the card shows
+the older one's Started; untested.
 
 ## Proof ownership
 

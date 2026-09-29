@@ -44,9 +44,10 @@ confirm) advises checking `claude agents` before starting again. Either answer
 stays beside its own action, which stays on the card.
 
 Started lasts while origin still shows the story in the Backlog without the
-assignment its workflow asks for. Reloading the page or selecting another
-project and back keeps it, because the page reads the project's launch records
-again from the local server (`GET /__agent-launch?source=<project id>`). A
+assignment its workflow asks for and its session may still run. Reloading the
+page or selecting another project and back keeps it, because the page reads the
+project's launch records again from the local server
+(`GET /__agent-launch?source=<project id>`). A
 published **Preparing** assignment is the one refinement asks for: it ends a
 refinement Started, and Start refinement then carries the note "Being
 prepared". It does not end an execution Started, since the session may ready
@@ -54,7 +55,11 @@ the story before taking it; the card then shows both. A refinement launched on
 a card already Preparing therefore settles at once and shows no Started; its
 session is listed under Recent sessions. Once origin shows the story under
 **Taken**, or no longer lists it at all, every Started is gone and the
-published card speaks for the story.
+published card speaks for the story. Started also ends once its session no
+longer runs before origin shows the assignment: Claude Code lists it as
+finished or stopped, or no longer lists it. Its action is offered again, with
+its note, and its Recent sessions entry stays with that state. While Claude
+Code's listing cannot be read, Started stays.
 
 **Recent sessions**, below the stages, lists every launch record the page
 reads for the selected project, newest first, whatever origin now shows of its
