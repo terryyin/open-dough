@@ -22,7 +22,8 @@
 // renamed to: <name>`. It records its pid in `attaches.jsonl`, each line
 // entered in `attach.<pid>.lines`, and, once a signal or Ctrl+Z ends it, that
 // signal or `Ctrl+Z` in `attach.<pid>.ended`, for the controls to observe.
-// `claude stop <id>` lists that session stopped, with no `status`.
+// With a `renames-ignored` file it prints the same but leaves the listing's
+// name unchanged. `claude stop <id>` lists that session stopped, with no `status`.
 //
 // Scenarios: `launched` (default), `refused`, `untrusted`, `hang`, and
 // `unlisted` (reports a session that `agents --json` does not list).
@@ -133,9 +134,12 @@ if (args[0] === "attach") {
         if (renamed === undefined) {
           process.stdout.write(`\r\necho ${line}\r\n`);
         } else {
-          changeListed(id, (session) => {
-            session.name = renamed;
-          });
+          // A `renames-ignored` file leaves the listed name as it was.
+          if (!fs.existsSync(path.join(dir, "renames-ignored"))) {
+            changeListed(id, (session) => {
+              session.name = renamed;
+            });
+          }
           process.stdout.write(`\r\nSession renamed to: ${renamed}\r\n`);
         }
         line = "";

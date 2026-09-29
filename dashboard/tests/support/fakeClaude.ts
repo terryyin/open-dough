@@ -98,6 +98,9 @@ export type FakeClaudeControls = {
     change: ClaudeSessionChange,
     waitingFor?: string,
   ): void;
+  // Whether a session's typed `/rename` is left unapplied: the listing keeps
+  // the session's name, as when Claude Code is busy.
+  claudeRenamesIgnored(ignored: boolean): void;
   // Whether the fake's session listing fails, answering nothing.
   claudeListingFails(fails: boolean): void;
   // The pid of a `hang` launch still holding its answer, and the signal that
@@ -218,6 +221,10 @@ export function installFakeClaude(
       claudeListingFails(fails) {
         if (fails) writeFileSync(state("listing-fails"), "");
         else rmSync(state("listing-fails"), { force: true });
+      },
+      claudeRenamesIgnored(ignored) {
+        if (ignored) writeFileSync(state("renames-ignored"), "");
+        else rmSync(state("renames-ignored"), { force: true });
       },
       heldClaudePid() {
         const pid = readState(state("pid"));

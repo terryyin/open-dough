@@ -73,12 +73,13 @@ the product).
 
 ### 1. A busy session's expired rename wait is proven at the boundary
 Type: Behavior
-Status: planned
+Status: done
 Proof: the fake `claude` gains a control that leaves a session's typed
 `/rename` unapplied; a boundary case marks such a session done with a short
-`doneRenameWaitMs` and observes that the POST answers the marked record with
-its local `done-` name, the listing keeps the old name, and `calls.jsonl`
-holds `["stop", shortId]`. Split `agent-launch-done.spec.ts` along a cohesive
+`doneRenameWaitMs` and observes that the POST answers the marked record (which keeps the launch
+name; the `done-` name is display-only), the listing keeps the old name, and `calls.jsonl`
+holds `["stop", shortId]`. Accepted: `agent-launch-done-stop.spec.ts`
+(busy-rename case); full dashboard suite 300 passed. Split `agent-launch-done.spec.ts` along a cohesive
 seam first (for example, listing-dependent stops into
 `agent-launch-done-stop.spec.ts`) so each file stays within 250 lines.
 
