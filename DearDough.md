@@ -710,6 +710,13 @@ publication, and a start retry all preceded any work.
   - Evidence: same refusal after SEED-043#preserve-sibling-readiness closed (`fb345ff5`); `git diff f7e7e272 origin/main` on SEED-052 showed only story 3's refinement, which also edited the seed's shared Agreed Boundaries and Ordering text (done-prefix naming moved into story 3). Recorded basis `e646df35…` vs current `db4fc214…`; plan digest unchanged.
   - Observed effect: a diagnosis, a hand-rolled preparation worktree, record-state, commit, rebase, push to trunk, and a start retry before the claim. The coordinator published outside Dough Land and removed the local branch with `git branch -D` (its tip was already on trunk). The developer had asked for a reassessment, so no decision was lost.
   - Inference: Qualified. The fix exempts siblings' own sections, but a sibling refinement that edits shared seed context still invalidates every other story in the seed. Execute-plan names no route from this refusal to the preparation keep path.
+- Execution: `SEED-052#preparing-card-refinement-journey` / plan 154, before its claim `f9fe3fdc`
+  - Timestamp: unknown; the refusal preceded reassessment commit `3da84888` (2026-09-29, same session)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; repository guidance at `fd077d1d`
+  - Evidence: same refusal. Closure `fd077d1d` of the parent SEED-052#recent-sessions-residue rewrote this correction's own Scope provenance and its plan's Source/Provenance lines (branch refs to merged and closed-history refs) without reassessing; both digests changed.
+  - Observed effect: one diagnosis, one record-state, one direct trunk commit, and a start retry. Inference: any correction a retrospective creates can be invalidated this way by its parent's wrap-up; the sibling-section fix does not cover it.
 
 ## ODF-074 — A ready plan named a validation command the backlog tool does not have
 
@@ -728,14 +735,6 @@ substituted write-time checks, a `read-state` read-back and manual checks.
   - Evidence: plan 115 slice 2 text at `6882aeb3`; `product-backlog.mjs` usage lists add, place, take, complete, refresh, direction, adopt, merge, record-state, read-state
   - Observed effect: small detour and an equivalent-proof judgment at acceptance; no rework
   - Inference: same class as the unobserved planning premises this story addresses (catalog ODF-074); plan 115 was written before its own rule
-- Execution: SEED-008#creation-record-test-residue (plan 149; first implementation commit `2befcb5d`)
-  - Timestamp: unknown (between Take `d995aef3` and `2befcb5d` committed 2026-09-29T11:13:50+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; plan written from installed guidance at `41965529`
-  - Evidence: plan 149 slice 1 Proof (recoverable at `b85f838a:.planning/slice-plans/149-creation-record-test-residue/PLAN.md`) lists `workspace-publication-startup-plan-link-cases.mjs` as a `node --test` target; it defines cases that `workspace-publication.test.mjs` imports and runs
-  - Observed effect: the implementation agent substituted the importing test file and reported the substitution; no rework
-  - Inference: a proof target named without running it, the same class as the backlog-validation premise above
 
 ## ODF-137 — Execution start accepts a Take while a preparation of the same story is announced but not kept
 
@@ -997,4 +996,5 @@ Plan 154 slice 3 narrowed a native response check's rejection to admit one recon
 - Removed on 2026-09-28 for the 1,000-line ceiling, as lower priority than the plan 142 findings: DD-125 (newer Git feature) and DD-157 (README at the size ceiling); recovery: `6e3921d6:DearDough.md`.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
 - Resolved and removed on 2026-09-28: ODF-119 (startup source veto and nested-worktree refresh deferral); recovery: `aa771c5d:DearDough.md`.
+- Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than ODF-116's closure-rewrite occurrence: ODF-074's `SEED-008#creation-record-test-residue` occurrence (no rework; one older occurrence keeps the finding); recovery: `a48b2436:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.
