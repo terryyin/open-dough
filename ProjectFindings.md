@@ -22,8 +22,9 @@ executions, not commands, retries, or repairs.
    DD-164's plan 142 resolution. Stories:
    [Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior)
    (DD-179) and
-   [Prove assessors on the verdicts they newly admit](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline)
-   (DD-160, DD-175, ODF-087's harness facet).
+   [Close the assessor counterexample discipline's remaining gaps](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps)
+   (DD-160, DD-175, ODF-087's harness facet; the counterexample helper and its
+   guard landed, and this correction closes what they still miss).
 2. **Local time-budget measurement under load (DD-158) — second, queued.**
    Two executions (plans 135 and 139), open and unaddressed. Local paired A/B
    runs projected a CI-judged budget: one slice's agent ran about 28
@@ -87,8 +88,9 @@ synthetic streams, so each new journey meets its harness faults in paid runs.
 **Follow-up:** queued,
 [Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior)
 for DD-179, and
-[Prove assessors on the verdicts they newly admit](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline)
-for DD-160, DD-175, and ODF-087's harness facet.
+[Close the assessor counterexample discipline's remaining gaps](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps)
+for DD-160, DD-175, and ODF-087's harness facet, after the counterexample
+helper and its guard landed.
 
 Assessor reads still unproved after the counterexample helper landed, each
 found while migrating its suite: `trunk_closure_assess` never reads the

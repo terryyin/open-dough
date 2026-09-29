@@ -6,7 +6,7 @@
 - **Source:** [story](../../seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps),
   a bounded correction from the execution retrospective of
   SEED-055#assessor-counterexample-discipline
-  ([plan 165](../165-assessor-counterexample-discipline/PLAN.md), reviewed
+  (plan 165 at `e2ffbea5:.planning/slice-plans/165-assessor-counterexample-discipline/PLAN.md`, reviewed
   commits `a53aa489..c6440780`: `84b4f28f`, `efcc802d`, `17ed1929`,
   `8819a380`, `00cc1b62`, `66f96e34`, `63429452`, `abf2fc4f`, `c6440780` on
   `claude/assessor-counterexample-discipline`). It adds no feature promise.
