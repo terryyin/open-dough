@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Mihiro-chan",
+  "email": "mihiro-chan@example.org",
+  "identity": "SEED-052#launch-claude-refinement",
+  "mode": "story-branch",
+  "branch": "claude/session-attention",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
