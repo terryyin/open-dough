@@ -29,8 +29,9 @@ The launch boundary specs (`agent-launch-boundary.spec.ts`,
 (`agent-launch-card.spec.ts`, `agent-launch-card-problems.spec.ts`,
 `agent-launch-card-sessions.spec.ts`, `agent-launch-card-session-states.spec.ts`,
 `agent-launch-recent-sessions.spec.ts`,
-`agent-launch-recent-session-states.spec.ts`, and
-`agent-launch-attention-clearing.spec.ts`, which name their folders and launch
+`agent-launch-recent-session-states.spec.ts`,
+`agent-launch-attention-clearing.spec.ts`, and
+`agent-launch-attention.spec.ts`, which name their folders and launch
 wait through the `projectFolders` and `launchTimeoutMs` options of
 `dashboardTest.ts`) drive a synthetic `claude`
 (`fixtures/fake-claude`, `support/fakeClaude.ts`) that every server puts first

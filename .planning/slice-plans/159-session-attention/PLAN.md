@@ -254,7 +254,7 @@ the fake cannot emit them).
 
 ### 3. A story card calls out whichever of its sessions need attention
 Type: Behavior
-Status: planned
+Status: done
 Proof: one focused browser journey in
 `dashboard/tests/agent-launch-attention.spec.ts`, using the landed card-session
 setup in `agent-launch-card-sessions.spec.ts` and `tests/launchCardPage.ts`
@@ -281,6 +281,13 @@ summary. Include a reload/project-switch return with fresh host observations
 to show that attention is derived rather than persisted or leaked between
 projects. Update the feature documentation and UX/UI North Star card-summary
 wording alongside this behavior.
+
+Accepted proof: `dashboard/tests/agent-launch-attention.spec.ts` with the
+recent-session-states spec, and `npm run typecheck:dashboard`, exit 0; the
+neighbouring card and session specs pass. The summary is `attentionSummary`
+in `dashboard/src/sessionShown.ts`, rendered by `CardLaunches.tsx` as
+`.card-attention`. The shared card-entry locator is `cardSessionOf` in
+`dashboard/tests/dashboardPage.ts`.
 
 ## Proof ownership
 

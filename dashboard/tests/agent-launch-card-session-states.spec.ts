@@ -16,7 +16,7 @@ import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { test as base, expect } from "./dashboardTest.ts";
 import {
-  cardSessionName,
+  cardSessionOf,
   cardSessions,
   expectMembership,
   parts,
@@ -129,12 +129,7 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
       },
     ];
     const entryOf = (title: string, workflow: Workflow): Locator =>
-      cardSessions(card(title)).and(
-        page.getByRole("article", {
-          name: cardSessionName(workflow),
-          exact: true,
-        }),
-      );
+      cardSessionOf(card(title), workflow);
     const openIn = (entry: Locator) =>
       entry.getByRole("button", { name: "Open terminal" });
     // Every card still offers both Start actions with their notes.

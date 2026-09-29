@@ -95,6 +95,18 @@ is visible it reads the records again every 15 seconds, the pace of its
 revision checks, so a state change shows without a reload. With no records,
 `claude` is not run.
 
+A card whose listed sessions include any that need attention says so above
+them, by the same reading: "1 session needs attention", or "<N> sessions need
+attention" for more; with none, it says nothing. Each entry still names its
+own reason, so one working session never hides another that needs the
+developer, and an unavailable or unknown session is not counted. The count is
+worked out from the card's listed sessions whenever the records are read,
+never kept, so a later listing, a Mark as done, a reload, or a return from
+another project shows it afresh, and another project's sessions never count.
+It never changes the card's stage, position, or published facts. A story that
+leaves every list keeps each affected session, with its reason and Open
+terminal, under Recent sessions.
+
 The launch boundary also attaches a terminal to a session it launched. A
 same-origin WebSocket to
 `/__agent-terminal?source=<project id>&session=<session id>`

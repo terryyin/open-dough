@@ -1,6 +1,7 @@
 // How a recorded launch's session reads on the page (`./agentLaunch.ts`):
 // the one reading of Claude Code's listed state, shared by every session
-// entry (`./SessionEntry.tsx`) wherever it is listed.
+// entry (`./SessionEntry.tsx`) wherever it is listed, and by the card that
+// says how many of its sessions need attention (`./CardLaunches.tsx`).
 
 import type { LaunchWithState } from "./agentLaunch.ts";
 
@@ -68,4 +69,18 @@ export function sessionShown({
       };
     }
   }
+}
+
+// What a story's card says of its listed sessions: how many need attention,
+// by the same reading each of their entries shows, or nothing when none do.
+export function attentionSummary(
+  sessions: readonly Pick<LaunchWithState, "sessionState" | "doneAt">[],
+): string | undefined {
+  const count = sessions.filter(
+    (session) => sessionShown(session).needsAttention,
+  ).length;
+  if (count === 0) return undefined;
+  return count === 1
+    ? "1 session needs attention"
+    : `${count} sessions need attention`;
 }

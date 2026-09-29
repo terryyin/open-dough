@@ -10,7 +10,9 @@
 // visible, so a change appears within one pace without a reload, and Open
 // terminal is offered only where `attachOpens` says it opens the session.
 // Origin alone still places every story. How attention clears on resumed
-// work or Mark as done is ./agent-launch-attention-clearing.spec.ts. The
+// work or Mark as done is ./agent-launch-attention-clearing.spec.ts, and how
+// a card counts its sessions that need attention is
+// ./agent-launch-attention.spec.ts. The
 // page's own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude), whose controls change, forget, or fail to list a
 // session; the real one is never reached. The page clock stands still unless
@@ -19,8 +21,7 @@
 import type { Locator } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
-  cardSessionName,
-  cardSessions,
+  cardSessionOf,
   expectMembership,
   parts,
   recentSessionName,
@@ -150,12 +151,7 @@ test("each entry shows why its session needs attention, or that it does not, the
   // Each session's Recent sessions entry and its card entry.
   const placements = launches.map(({ title, workflow }, index) => {
     const inRecent = entries.nth(index);
-    const onCard = cardSessions(card(title)).and(
-      page.getByRole("article", {
-        name: cardSessionName(workflow),
-        exact: true,
-      }),
-    );
+    const onCard = cardSessionOf(card(title), workflow);
     return { title, workflow, inRecent, onCard };
   });
   const both = (index: number): readonly Locator[] => {

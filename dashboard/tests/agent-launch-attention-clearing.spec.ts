@@ -15,8 +15,7 @@
 
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
-  cardSessionName,
-  cardSessions,
+  cardSessionOf,
   expectMembership,
   parts,
   recentSessionName,
@@ -58,9 +57,7 @@ test("a session's attention stays through opening and closing its terminal, clea
   const { card, start, dialog } = await openTakenBacklog(page, journey);
   const { recentSessions: recent } = parts(page);
   const panel = page.getByRole("region", { name: "Terminal" });
-  const onCard = cardSessions(card(readyStory)).and(
-    page.getByRole("article", { name: cardSessionName("Execution") }),
-  );
+  const onCard = cardSessionOf(card(readyStory), "Execution");
   const inRecent = recent.getByRole("article", {
     name: recentSessionName("Execution", readyStory),
   });

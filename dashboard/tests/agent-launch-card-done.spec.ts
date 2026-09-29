@@ -11,8 +11,7 @@
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessionName,
-  cardSessions,
+  cardSessionOf,
   expectMembership,
   parts,
   recentSessionName,
@@ -52,12 +51,7 @@ test.describe("marking a card's session done", () => {
     const { recentSessions: recent } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const onCard = (workflow: "Execution" | "Refinement") =>
-      cardSessions(card(readyStory)).and(
-        page.getByRole("article", {
-          name: cardSessionName(workflow),
-          exact: true,
-        }),
-      );
+      cardSessionOf(card(readyStory), workflow);
     const inRecent = (workflow: "Execution" | "Refinement") =>
       recent.getByRole("article", {
         name: recentSessionName(workflow, readyStory),
