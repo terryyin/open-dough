@@ -63,9 +63,17 @@
 /* A portrait with a gesture strip plays it once in the enlarged view each
    time it is hovered: the strip's frames, side by side, step over the still
    layers and then leave them showing. The strip starts and ends on the
-   approved portrait, 18 frames over the character's gesture duration. */
+   approved portrait. Most gestures are 18 frames; a portrait can set its own
+   frame count and duration. */
+.agent-portrait.portrait-gesture {
+  --portrait-gesture-timing: steps(18, jump-none);
+  --portrait-gesture-span: 1800% 100%;
+}
+
 .agent-portrait.portrait-gesture:hover::after {
-  animation: portrait-gesture var(--portrait-gesture-duration) steps(18, jump-none);
+  animation-name: portrait-gesture;
+  animation-duration: var(--portrait-gesture-duration);
+  animation-timing-function: var(--portrait-gesture-timing);
 }
 
 /* Generated drawings can differ slightly from the approved still even in a
@@ -99,8 +107,7 @@
     background-image:
       var(--portrait-gesture), var(--portrait-large), var(--portrait);
     background-size:
-      1800% 100%,
-      var(--portrait-atlas-size),
+      var(--portrait-gesture-span), var(--portrait-atlas-size),
       var(--portrait-atlas-size);
   }
 

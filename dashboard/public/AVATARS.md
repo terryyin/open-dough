@@ -50,6 +50,19 @@ motion. An overlay of the approved still eases out at the beginning and back
 in during the settling pose, avoiding a snap between the generated drawings
 and the original portrait.
 
+`agent-avatars/yuma-gesture.webp` is Yuma's 2-second hover reaction: she
+notices the pointer, turns to meet the viewer, smiles, blinks once, and
+settles back into the pose she started from. The smile and the closed-eye
+blink were drawn with the built-in image generation tool on 2026-09-28, using
+her exact square crop from `atlas-1-large.webp` (the 418 × 418 square at
+x 836, y 104) as the identity and framing reference. Those two drawings were
+joined to that unaltered tile by optical-flow morphing (Python, OpenCV) into
+a horizontal strip of 24 frames, 418 × 418 each. Lossless WebP preserves the
+original tile's pixels in the first and last frames. Like the other gestures,
+it plays once per hover in the enlarged portrait and is disabled for reduced
+motion. The morph begins and ends on the approved still, so it needs no
+overlay to hide a snap.
+
 ## Tool marks
 
 The files in `tool-avatars/` are official vendor assets saved locally for
