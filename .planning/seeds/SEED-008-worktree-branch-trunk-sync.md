@@ -122,7 +122,7 @@ registry is selected. No new execution authority or ADR acceptance is implied.
 
 **Identity:** SEED-008#installed-wrap-up-command
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/146-installed-wrap-up-command/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2f6d20f8e377855186cb4541e8143ed2f01e7e51f578e926c006d2964d89e2a6","plan":"207782bafd9f895097afa5e5efd2730dcee951b44e6c9bdebc104c5e798061a3"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/146-installed-wrap-up-command/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e6f6cc13aea76be5357cd5cbd2d22222d7200f5d3a0e056183b2abfc455dd062","plan":"e8e4a2ca3ce9b2d2597ccd441c490b3d5b3c5d40fdaefa045ce08bc45f5d7111"}}
 ```
 
 **Decision (2026-09-28):** Terry chose an entry point over removing the
@@ -181,8 +181,9 @@ closure alternative is not pursued. Direct edits proceeding around the
 developer's unrelated staged content stay deferred as well (Terry, 2026-09-29).
 Direct edits commit with plain `git commit`, and the owned-path commit
 (`commitOwned`) exists only in `current-branch-publication.mjs`, which has no
-entry point. So deciding that module's fate here also decides that promise's
-runtime commit path.
+entry point. Terry decided on 2026-09-29 that this story removes that module
+from the payload with its tests; the deferred promise recovers `commitOwned`
+from the commit the plan records.
 
 **Ordering:** Starts after plan 142 (closed at `2a3e0ba2`), which changed the
 same retirement module, wording, and native closure acceptance, and after
