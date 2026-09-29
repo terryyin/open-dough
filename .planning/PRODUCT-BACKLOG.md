@@ -22,6 +22,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Prove the busy-session rename edge and confirm observer shutdown honestly](seeds/SEED-052-start-agent-work-from-dashboard.md#mark-done-residue) — SEED-052#mark-done-residue
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
