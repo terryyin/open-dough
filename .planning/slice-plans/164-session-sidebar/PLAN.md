@@ -125,7 +125,7 @@ now takes the machine records and its project id. `App.tsx` is at 249 lines.
 
 ### 2. The Sessions sidebar lists every open session and what needs attention
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/session-sidebar.spec.ts` (two-project setup as
 the attention spec), plus the Recent sessions spec for its reading state.
 
@@ -142,6 +142,26 @@ claims none are kept); with none, "No sessions launched from this dashboard
 are kept." With the sidebar closed, the button shows the count as text.
 Update [Agent launch](../../../dashboard/AGENT-LAUNCH.md) and the UX North
 Star's launch row.
+
+Accepted proof (2026-09-29): `npm run typecheck:dashboard`;
+`npm run test:dashboard -- tests/session-sidebar.spec.ts 'tests/agent-launch-.*\.spec\.ts' 'tests/agent-terminal.*\.spec\.ts'`
+134 passed; full suite 290 passed. Observations: `session-sidebar.spec.ts`
+"lists every project's open sessions newest first…" (entries order and
+content via `expectEntries`, edge via `expectSessionShown`, heading and
+closed-button counts, stable order, new launch first, marked done leaves,
+wide order via `expectSideBySideInOrder`, 700px overlay via
+`elementFromPoint`) and "says it is reading until…, then that none are kept,
+then none open" (held GET via `holdSessionReads`); Recent sessions step "a
+page whose first read of the sessions has not answered says it is reading
+them, then lists them". Decisions: at 600px or narrower the Sessions button
+starts the banner's second row (still first in reading and Tab order); the
+two-line title clamp is the story's explicit ask, with the full title in the
+DOM and `title` (a future whole-page layout check with the sidebar open will
+meet `notReadWhole`); with every kept session marked done the sidebar says
+"No sessions launched from this dashboard are open." A failed first read
+keeps "Reading sessions…". Shared pieces: `shownSession` and `SessionList`
+in `SessionEntry.tsx`; the frame holds the open state (`SidebarOnPage`).
+`docs/dashboard-navigation.md`'s banner paragraph is left to slice 3.
 
 ### 3. The sidebar stays as left and answers Command+B
 Type: Behavior

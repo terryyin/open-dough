@@ -1,0 +1,99 @@
+/* The Sessions sidebar and its button. On a wide window the sidebar is a
+   fixed-width column left of the page, as tall as the window and scrolling
+   on its own while the page scrolls beside it, with the terminal panel still
+   on the right: sidebar | page | terminal. On a narrow window, where the
+   terminal stacks above the page, it overlays the page from the left, below
+   the pinned banner so the Sessions button stays in reach. Words carry every
+   meaning; the heavier edge of an entry that needs the developer is the
+   card entry's own (`./agent-launch.css`). */
+
+.page-with-sidebar {
+  display: grid;
+  grid-template-columns: 18rem minmax(0, 1fr);
+}
+
+.page-with-sidebar.page-split {
+  grid-template-columns: 18rem minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.session-sidebar {
+  position: sticky;
+  top: 0;
+  box-sizing: border-box;
+  height: 100dvh;
+  overflow-y: auto;
+  padding: 0.75rem;
+  border-right: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.sidebar-attention {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.session-sidebar > p.quiet {
+  margin-top: 0.5rem;
+}
+
+.session-sidebar ol {
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* A long title wraps to at most two lines; its whole text stays the
+   heading's, for assistive technology and as its tooltip. */
+.sidebar-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 0.95rem;
+}
+
+.sessions-toggle {
+  min-height: 2.75rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.35rem;
+  font: inherit;
+  color: var(--accent);
+  background: var(--panel);
+  cursor: pointer;
+  text-align: start;
+}
+
+.sessions-toggle[aria-expanded="true"] {
+  color: var(--panel);
+  background: var(--accent);
+}
+
+.sessions-toggle-attention {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+@media (max-width: 800px) {
+  .page-with-sidebar,
+  .page-with-sidebar.page-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .session-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 4;
+    width: min(18rem, 85vw);
+    height: auto;
+    padding-top: calc(var(--banner-height, 0px) + 0.75rem);
+    border-right: 1px solid var(--edge);
+    box-shadow: 0.25rem 0 1rem rgb(0 0 0 / 25%);
+  }
+}

@@ -1,6 +1,9 @@
 // One Claude Code session this dashboard's server launched, shown the same
 // way wherever the page lists it: on its story's card (`./CardLaunches.tsx`)
-// and in Recent sessions (`./RecentSessions.tsx`). An entry gives its
+// and in Recent sessions (`./RecentSessions.tsx`); the Sessions sidebar
+// (`./SessionSidebar.tsx`) shows its state the same way (`shownSession`) and
+// says the same while the sessions are unread or none are kept
+// (`SessionList`). An entry gives its
 // session's state as Claude Code last listed it, read once by `sessionShown`,
 // marked, when the developer is needed there, by a solid edge beside that
 // text; its workflow, when it was launched, its session, and Open terminal
@@ -11,7 +14,7 @@
 // take the keyboard when the control that last had it is gone. Entries are
 // local evidence of launches, not story facts.
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { launchWorkflows, type LaunchWithState } from "./agentLaunch.ts";
 import { doneSessionName } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
@@ -41,7 +44,7 @@ export function SessionEntry({
   const { title, identity, workflow } = record.request;
   const { name } = launchWorkflows[workflow];
   const markedDone = record.doneAt !== undefined;
-  const { label: state, note, needsAttention } = sessionShown(record);
+  const { entryClass, stateWords } = shownSession(record);
 
   useEffect(() => {
     if (takesFocus === true) entry.current?.focus();
@@ -50,9 +53,7 @@ export function SessionEntry({
   return (
     <article
       ref={entry}
-      className={
-        needsAttention ? "session-entry needs-attention" : "session-entry"
-      }
+      className={entryClass}
       aria-label={onCard ? `${name} session` : `${name} session for ${title}`}
       tabIndex={-1}
       {...(onCard ? {} : showsSession(record.session.sessionId))}
@@ -63,10 +64,7 @@ export function SessionEntry({
           <p className="card-identity">{identity}</p>
         </>
       )}
-      <p className="session-state">
-        {state}
-        {note !== undefined && <span className="quiet">: {note}</span>}
-      </p>
+      {stateWords}
       <p>
         {name} started in Claude Code{" "}
         <Moment at={new Date(record.launchedAt)} />
@@ -83,6 +81,50 @@ export function SessionEntry({
       {onCard && <MarkDone record={record} />}
     </article>
   );
+}
+
+// How every entry shows its session's state, by the one reading
+// (`sessionShown`): the class that gives an entry needing the developer its
+// heavier edge, and the state's words.
+export function shownSession(record: LaunchWithState): {
+  readonly entryClass: string;
+  readonly stateWords: ReactNode;
+} {
+  const { label, note, needsAttention } = sessionShown(record);
+  return {
+    entryClass: needsAttention
+      ? "session-entry needs-attention"
+      : "session-entry",
+    stateWords: (
+      <p className="session-state">
+        {label}
+        {note !== undefined && <span className="quiet">: {note}</span>}
+      </p>
+    ),
+  };
+}
+
+// A list of the machine's sessions: until they are first read it says it is
+// reading them rather than claiming none, and with none it says none are
+// kept; otherwise it lists them.
+export function SessionList({
+  sessions,
+  none = "No sessions launched from this dashboard are kept.",
+  children,
+}: {
+  // Undefined until the machine's sessions are first read.
+  readonly sessions: readonly LaunchWithState[] | undefined;
+  // What the list says once read with no sessions to list.
+  readonly none?: string;
+  readonly children: (sessions: readonly LaunchWithState[]) => ReactNode;
+}) {
+  if (sessions === undefined) {
+    return <p className="quiet">Reading sessions…</p>;
+  }
+  if (sessions.length === 0) {
+    return <p className="quiet">{none}</p>;
+  }
+  return children(sessions);
 }
 
 // A card entry's Mark as done; once marked, the entry leaves the card.

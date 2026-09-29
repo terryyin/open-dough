@@ -77,9 +77,9 @@ export async function sessionNamedBy(record: Locator): Promise<string> {
 // The launch actions every Backlog card offers, in the order it offers them.
 export const cardLaunchActions = ["Start execution", "Start refinement"];
 
-// Every button a shown snapshot offers, and nothing else: the read control,
-// the badge legend, each Backlog card's launch actions, and each card's
-// Inspect.
+// Every button a shown snapshot offers, and nothing else: the banner's
+// Sessions, the read control, the badge legend, each Backlog card's launch
+// actions, and each card's Inspect.
 export async function expectSnapshotButtons(
   page: Page,
   shown: {
@@ -90,6 +90,7 @@ export async function expectSnapshotButtons(
 ) {
   const button = (name: string) =>
     page.getByRole("button", { name, exact: true });
+  await expect(button("Sessions")).toHaveCount(1);
   await expect(button(shown.readControl)).toHaveCount(1);
   await expect(parts(page).preparationHelp).toHaveCount(1);
   for (const action of cardLaunchActions) {
@@ -97,7 +98,7 @@ export async function expectSnapshotButtons(
   }
   await expect(button("Inspect story")).toHaveCount(shown.cards);
   await expect(page.getByRole("button")).toHaveCount(
-    2 + shown.backlogCards * cardLaunchActions.length + shown.cards,
+    3 + shown.backlogCards * cardLaunchActions.length + shown.cards,
   );
 }
 
@@ -176,6 +177,11 @@ export async function expectWholeSnapshot(
   }
 }
 
+// Every button on the page but the banner's Sessions, which opens the
+// sidebar of the machine's sessions whatever the project shows.
+export const controlsBesideSessions = (page: Page) =>
+  page.getByRole("button").filter({ hasNotText: /^Sessions/ });
+
 // A failed read with no earlier snapshot shows the problem and the way to read again, and nothing
 // that only a snapshot could say.
 export async function expectProblemAndNoSnapshot(
@@ -189,7 +195,7 @@ export async function expectProblemAndNoSnapshot(
   await expect(problem).toContainText(
     "No published work is shown, because none has been read.",
   );
-  await expect(page.getByRole("button")).toHaveAccessibleName("Retry");
+  await expect(controlsBesideSessions(page)).toHaveAccessibleName("Retry");
   await expect(parts(page).reading).toHaveCount(0);
   await expect(stages).toHaveCount(0);
   await expect(page.getByRole("article")).toHaveCount(0);

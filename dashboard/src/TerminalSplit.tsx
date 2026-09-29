@@ -1,9 +1,11 @@
-// The page with its one terminal: while a session is open, the page shows on
-// the left and the terminal panel (`./TerminalPanel.tsx`) on the right. The
-// open session is held here, above the project selection, so choosing another
-// project leaves it open; opening another session takes its place, and a
-// reload starts with none. Mark as done, from the panel or from a card's
-// session entry, is one operation here: once the boundary has marked the
+// The page with its one terminal and the Sessions sidebar
+// (`./SessionSidebar.tsx`): while the sidebar is open it shows left of the
+// page, and while a session is open, the terminal panel
+// (`./TerminalPanel.tsx`) shows right of it. Whether the sidebar is open, and
+// the open session, are held here, above the project selection, so choosing
+// another project leaves them open; opening another session takes its place,
+// and a reload starts with none. Mark as done, from the panel or from a
+// card's session entry, is one operation here: once the boundary has marked the
 // session, a panel showing it closes. Closing returns the keyboard to the
 // control that opened the panel, and a card entry's mark to its own control;
 // when that control is gone, as a card's entry goes once its session is
@@ -23,6 +25,7 @@ import {
 } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
+import { SessionSidebar, SidebarOnPage } from "./SessionSidebar.tsx";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
   sessionKeyboardHome,
@@ -42,14 +45,22 @@ type KeyboardReturn = {
 };
 
 export function TerminalSplit({
-  sessions: { markDone, readSession },
+  sessions: { records, markDone, readSession },
   children,
 }: {
-  // The recorded sessions the terminal acts on; `readSession` keeps its
-  // identity across renders.
-  readonly sessions: Pick<MachineSessions, "markDone" | "readSession">;
+  // The machine's sessions the sidebar lists and the terminal acts on;
+  // `readSession` keeps its identity across renders.
+  readonly sessions: Pick<
+    MachineSessions,
+    "records" | "markDone" | "readSession"
+  >;
   readonly children: ReactNode;
 }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen((open) => !open);
+  }, []);
+  const sidebar = { open: sidebarOpen, toggle: toggleSidebar, records };
   const [terminal, setTerminal] = useState<TerminalOpening | undefined>();
   const openTerminal = useCallback<OpenTerminal>((opening) => {
     setTerminal((current) =>
@@ -119,12 +130,22 @@ export function TerminalSplit({
     return marked !== "not-marked";
   };
 
-  // The page keeps one element structure whether or not a terminal is open,
-  // so opening one never remounts the page or loses what it had open.
+  // The page keeps one element structure whether or not the sidebar or a
+  // terminal is open, so opening one never remounts the page or loses what it
+  // had open.
   return (
     <SessionsOnPage value={{ openTerminal, markDone: markSessionDone }}>
-      <div className={terminal ? "page-split" : undefined}>
-        <div className="page-column">{children}</div>
+      <div
+        className={
+          [sidebarOpen && "page-with-sidebar", terminal && "page-split"]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
+      >
+        <SessionSidebar {...sidebar} />
+        <SidebarOnPage value={sidebar}>
+          <div className="page-column">{children}</div>
+        </SidebarOnPage>
         {terminal && (
           <TerminalPanel
             key={terminal.record.session.sessionId}

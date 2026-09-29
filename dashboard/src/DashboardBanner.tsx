@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import { ProjectSelect } from "./ProjectSelect.tsx";
+import { SessionsButton } from "./SessionSidebar.tsx";
 import { SourceStatus } from "./SourceStatus.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -47,6 +48,7 @@ export function DashboardBanner({
 
   return (
     <header className="banner" ref={banner}>
+      <SessionsButton />
       <ProjectSelect source={source} onSelect={onSelect} />
       <SourceStatus
         source={source}

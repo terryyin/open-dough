@@ -1,7 +1,7 @@
 // How the session state specs watch the page read the machine's sessions
 // again on its own: the records reads it asks, one steady pace of page time
 // at a time, and a marker set on this document only, so a reload would lose
-// it.
+// it; or hold its first read unanswered (`holdSessionReads`).
 // Each spec pauses the page clock (`pausePageClockAt`) before the page opens.
 // What an entry shows of its session is `expectSessionShown`: its state's
 // words and whether its solid edge says the developer is needed there.
@@ -40,6 +40,25 @@ export function watchRecordReads(page: Page) {
       expect(reads).toBe(before + 1);
     },
   };
+}
+
+// Holds the page's reads of the machine's sessions unanswered until
+// `answer` is called; later reads are answered at once.
+export async function holdSessionReads(
+  page: Page,
+): Promise<{ answer: () => void }> {
+  let answer = () => {};
+  const held = new Promise<void>((resolve) => {
+    answer = resolve;
+  });
+  await page.route(
+    (url) => url.pathname === agentLaunchEndpoint,
+    async (route) => {
+      if (route.request().method() === "GET") await held;
+      await route.continue();
+    },
+  );
+  return { answer };
 }
 
 export async function markNotReloaded(page: Page): Promise<void> {

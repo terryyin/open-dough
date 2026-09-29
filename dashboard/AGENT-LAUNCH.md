@@ -71,8 +71,34 @@ entry, marked "Local: launched from this dashboard on this machine." An
 entry stays when the story is prepared, taken, or leaves every list, and when
 its session is marked done, and two launches of one story are two entries.
 Another project's launches are listed only under that project, and sessions
-this dashboard did not launch are not listed. With no records it says that no
-sessions launched from this dashboard are kept.
+this dashboard did not launch are not listed. Until the page first reads the
+machine's sessions it says "Reading sessions…"; with no records it says that
+no sessions launched from this dashboard are kept.
+
+The **Sessions** sidebar (`src/SessionSidebar.tsx`) lists the sessions still
+open in every catalog project, whichever project is selected: every launch
+record not marked done, exactly the sessions the cards keep, including one
+whose story is in no list. The **Sessions** button at the start of the pinned
+banner, before the project name, opens and closes it (`aria-expanded`,
+controlling the sidebar); it starts closed. On a wide window the sidebar is a
+fixed-width column left of the page, as tall as the window and scrolling on
+its own, with the terminal panel still on the right: sidebar, page, terminal.
+On a narrow window, where the terminal stacks above the page, it lies over
+the page from the left, below the banner. Entries are newest launch first, by
+launch time alone, so a state change updates an entry in place and never
+moves it, and a new launch comes first. Each entry names its story's title,
+wrapped to at most two lines, the project and workflow, such as "Pygardon ·
+Refinement", when it was launched, and its session's state in the words a
+card entry uses, with the same heavier edge when the developer is needed
+there (below). The heading "Sessions" is followed by "1 session needs
+attention" or "<N> sessions need attention", counted across every project by
+the card's rule, and by nothing when none do; while the sidebar is closed,
+the Sessions button shows the same count as text. Before the machine's
+sessions are first read it says "Reading sessions…"; with none kept, "No
+sessions launched from this dashboard are kept."; and with all of them marked
+done, "No sessions launched from this dashboard are open." A session marked done leaves
+it, as it leaves its card. Opening or closing the sidebar changes no story
+fact, stage, or session.
 
 Each entry, in Recent sessions and on a card, also shows its session's state,
 read from one `claude agents --json --all` run in the machine's home folder

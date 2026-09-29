@@ -1,7 +1,9 @@
 // Shared by the specs that drive the terminal boundary without a page
 // (./agent-terminal-boundary.spec.ts, ./agent-terminal-close.spec.ts,
 // ./agent-terminal-reopen.spec.ts, and ./agent-launch-done.spec.ts): a
-// session launched through the real launch boundary, and a raw WebSocket to
+// session launched through the real launch boundary, in any project and for
+// any story and workflow (as ./session-sidebar.spec.ts launches outside the
+// shown project), and a raw WebSocket to
 // the terminal boundary for it, opened or refused, whose output and ending the
 // synthetic `claude` reports.
 
@@ -19,9 +21,12 @@ export type LaunchedSession = {
 export async function launched(
   server: DashboardServer,
   source = "open-dough",
+  work: Partial<
+    Pick<typeof launchRequest, "identity" | "title" | "workflow">
+  > = {},
 ): Promise<LaunchedSession> {
   server.claudeScenario("launched");
-  const response = await launch(server, { ...launchRequest, source });
+  const response = await launch(server, { ...launchRequest, source, ...work });
   const answer = JSON.parse(response.body) as {
     record: { session: LaunchedSession };
   };

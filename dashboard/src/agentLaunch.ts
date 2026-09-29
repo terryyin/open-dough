@@ -148,6 +148,9 @@ export function projectSessionsOf(
   return records?.filter((record) => record.request.source === sourceId);
 }
 
+// Whether a session is still open: not marked done.
+const isOpen = (record: LaunchRecord) => record.doneAt === undefined;
+
 // The sessions a story's card lists, oldest first, in whatever stage origin
 // shows the story: every launch record of the project's work item that has
 // not been marked done. Identities are unique only within a project. Neither
@@ -158,9 +161,22 @@ export function cardSessionsOf(
   identity: string,
 ): readonly LaunchWithState[] {
   return (projectSessionsOf(records, sourceId) ?? []).filter(
-    (record) =>
-      record.request.identity === identity && record.doneAt === undefined,
+    (record) => record.request.identity === identity && isOpen(record),
   );
+}
+
+// The sessions still open in every project, by the cards' rule, newest
+// launch first by launch time alone, so a state change never moves one; or
+// undefined while the machine's sessions are not yet read.
+export function openSessionsOf(
+  records: readonly LaunchWithState[] | undefined,
+): readonly LaunchWithState[] | undefined {
+  return records
+    ?.filter(isOpen)
+    .toSorted(
+      (newer, older) =>
+        Date.parse(older.launchedAt) - Date.parse(newer.launchedAt),
+    );
 }
 
 // Why nothing was launched.
