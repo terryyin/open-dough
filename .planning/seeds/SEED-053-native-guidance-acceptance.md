@@ -21,7 +21,7 @@ Maintainers need host-specific evidence for the pending premise-verification and
 
 **Identity:** SEED-044#native-premise-acceptance-codex-cursor
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/141-codex-native-guidance-acceptance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e4b27fee9599673548e3d8d94759ce2de8001fc4e52371dd03b780f59fc376fd","plan":"10f29494f7d79fe19dcd33cdfcd9803ab2de8b3d9f75f8d00e3f9725e004628c"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/141-codex-native-guidance-acceptance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d6e8b4c6be78b0ba2a534f5379d397cca55d871d0b0fbe08307c29649a2eb49c","plan":"7649f3ecaf87238d48f04b7f0e173096da0d457a4dbd8ffa38492806855dd808"}}
 ```
 
 **Goal:** Developers using Codex can rely on the selected planning and work-tracking guidance: plans observe decisive premises before readiness, explicitly selected trivial work stays proportionate, and work requiring ordinary tracking becomes visible before further substantive action. Establish host-specific acceptance for these recorded behaviors, with claims limited to the observed sessions and justified reusable evidence.
@@ -39,9 +39,9 @@ Maintainers need host-specific evidence for the pending premise-verification and
   revision. Compare planning cases with the pre-premise-change source at
   `2c5ff71^` on the same Codex runtime/model unless matching baseline evidence
   can be recovered. Separate present acceptance from evidence of improvement.
-- Retain native escalation acceptance, after the Claude Code story establishes
-  fixture feasibility. Available cases can deliver a partial result first;
-  escalation remains outstanding and prevents whole-story completion.
+- Retain native escalation acceptance. Claude feasibility informs the case;
+  establish replacement feasibility here before the renewed Codex run. Partial
+  results are useful, but escalation prevents whole-story completion.
 - Reuse existing isolated fixtures, native adapter, supervision and assessment.
   Necessary bounded repairs to those mechanisms belong with their affected
   case. No new acceptance framework or additional behavioral cases are promised.
@@ -90,9 +90,9 @@ explicit applicability review before reuse.
   the bounded acceptance approach or justify inventing exposure figures.
 - Does recoverable Codex evidence cover any current requirement or baseline?
   Inspect before a paid launch; absent applicable proof, use a fresh session.
-- Will the Claude Code story produce an accepted, non-leading escalation
-  fixture? This blocks the final slice. Its failure or a proposed removal of
-  escalation returns here for scope review; do not silently delete the promise.
+- Does the replacement reveal genuine growth after owned edits? Establish
+  inexpensive feasibility, then observe native ordering and uncommitted carry.
+  Early admission leaves this example unproved; do not delete its promise.
 - Will current Codex sessions remain proportionate on the control and actually
   use the installed guidance? These are evaluation questions answered by the
   cases, not additional acceptance scope.
@@ -113,7 +113,7 @@ execution was landed at `b065a8b9`; its worktree and execution branch were
 retired. Release the obsolete Sola-chan execution assignment; this story is
 queued for a later, explicitly selected run, not complete or currently executing.
 
-**Resume conditions:** Select and pin a released guidance revision containing
+**Original resume conditions — 2026-09-28:** Select and pin a released guidance revision containing
 `8cafa49d` before rerunning slice 2. For slice 7, resolve the fixture's early
 migration visibility so the nonleading case actually exercises growth after
 owned edits and their uncommitted restoration; unchanged early admission is
@@ -122,6 +122,8 @@ Retain passes for slices 1 and 3–6 and reuse them only after checking their
 applicability to the selected guidance, fixture, adapter and runtime. Preserve
 slice 2's failure and slice 7's inconclusive evidence. This queue decision does
 not authorize a paid run now or an unchanged retry.
+
+**Authorized continuation — 2026-09-29:** Terry authorized replacing the unsuitable escalation fixture and continuing execution. The repair belongs to this story, retains growth after owned edits and uncommitted carry, and has no unfinished Claude-story dependency. Plan 141 records the bounded proof and evaluated releases.
 
 **Slice plan:** [Codex native guidance acceptance](../slice-plans/141-codex-native-guidance-acceptance/PLAN.md).
 
