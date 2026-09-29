@@ -166,6 +166,28 @@ tests README. It adds no feature promise. Whether Mark as done keeps typing
 the rename into the terminal is a separate decision for Terry and is not in
 this correction. See the [plan](../slice-plans/155-terminal-residue/PLAN.md).
 
+<a id="terminal-host-refusal-proof"></a>
+
+### Correction: Prove the terminal's foreign-Host refusal again and settle the residue's homes
+
+**Identity:** SEED-052#terminal-host-refusal-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/156-terminal-host-refusal-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7d6b777f91bf7653cd9e754acf230fee2a22f14bfa1020dc7e0918b0aed80ff3","plan":"750b4d47fccb8ba5a41dd1fac5992773c8f85c2941b9b2781fff35a322fef115"}}
+```
+
+**Goal:** A developer's terminal sessions stay protected by a proved refusal of
+any upgrade naming a foreign Host, and closing a terminal provably returns the
+keyboard to the control that opened it. Maintainers find the Claude Code host
+commands and the terminal's focus target each in one home, described
+accurately.
+
+**Scope:** The correction found by the execution retrospective of
+SEED-052#terminal-residue (plan 155; commits `87d1fc6c`, `777c2623`,
+`bdeaea99`). It covers the foreign-Host upgrade proof that plan 155 removed,
+the opener-focus proof, `execClaude`'s exposure, `recentSessionControl`'s
+home, and documentation drift in the launch and terminal boundary. It adds no
+feature promise. See the [plan](../slice-plans/156-terminal-host-refusal-proof/PLAN.md).
+
 <a id="launch-claude-refinement"></a>
 
 ### 4. Start story refinement and answer its questions in the dashboard

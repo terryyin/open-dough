@@ -199,3 +199,16 @@ Three slices, one outcome each: user-visible guards and fixes, then module
 structure, then test consolidation. Slice 2 follows slice 1 so the done flow's
 proof is settled before the admission move. No slice-specific concern was
 identified in this review.
+
+## Execution complete
+
+Product advice: queue the follow-up correction
+[SEED-052#terminal-host-refusal-proof](../156-terminal-host-refusal-proof/PLAN.md)
+ahead of SEED-052#launch-claude-refinement. Plan 155's trim left the terminal
+upgrade's foreign-Host refusal without a test that reaches the check, a
+DNS-rebinding guard for keyboard access to agent sessions. Before refinement
+interviews run in the embedded terminal, settle Mark as done's rename (F1):
+typed keys can reach a permission prompt mid-interview. Decide also whether
+`NORTH-STAR.md`'s "one module per host" admits the `claudeCode.ts` /
+`claudeLaunch.ts` split before the Codex and Cursor stories copy its shape.
+Other priorities unchanged.
