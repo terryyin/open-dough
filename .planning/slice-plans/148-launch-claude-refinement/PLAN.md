@@ -105,7 +105,7 @@ session access) keep their homes. This story changes or adds only these:
 | Launch record | Unchanged shape; its request now names the workflow. Records live only in server memory, so nothing migrates. | `server/agentLaunches.ts` |
 | Assignment shown | Whether a backlog entry shows an assignment of an activity: preparation means its `preparing` is present. An execution assignment moves the entry to Taken, so no backlog entry shows one. | `src/agentLaunch.ts` |
 | Awaiting publication | One rule for every workflow: the item is still in the backlog and does not show an assignment of the workflow's activity. | `launchAwaitsPublication` in `src/agentLaunch.ts` |
-| Card launch | Per workflow: the latest awaiting record for (identity, workflow) shows Started; otherwise the workflow's action. A launch attempt is keyed by (project, identity, workflow). | `CardLaunch` in `src/WorkStages.tsx`; `useAgentLaunches` in `src/agentLaunches.ts` |
+| Card launch | Per workflow: the latest awaiting record for (identity, workflow) shows Started; otherwise the workflow's action. A launch attempt is keyed by (project, identity, workflow). | `CardLaunches` in `src/CardLaunches.tsx` (moved out of `WorkStages.tsx` in slice 1); `useAgentLaunches` in `src/agentLaunches.ts` |
 | Launch action and dialog | One component for any workflow, worded from the table. It takes the workflow's card note: execution's "Not marked Ready for execution", refinement's "Being prepared". | `src/StartLaunch.tsx` (from `StartExecution.tsx`) |
 | Started | Names its workflow ("Refinement started in Claude Code"). | `src/LaunchStarted.tsx` |
 | Claude Code invocation | `/<skill> <identity>`, then the instruction; name `<project> · <workflow> · <title>`. The slash syntax stays host-specific. | `server/claudeCode.ts` |
@@ -157,7 +157,13 @@ Observed in `.worktrees/prep-launch-claude-refinement-background` (base
 
 ### 1. Launches name the workflow they start
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: the focused command gave 76 passed (the 70 baseline
+`agent-launch` tests plus `accessible-overview`), rerun after the refactor
+moved card launches into `CardLaunches.tsx`; typecheck and lint clean; the
+whole `npm run test:dashboard` gave 226 passed before the refactor. The
+`LaunchStarted` heading was left unchanged, so execution reads as today;
+slice 2 names the workflow there with the card spec's expectation.
 Proof: `npx playwright test --config dashboard/playwright.config.ts
 --reporter=line agent-launch accessible-overview` stays green, with only the
 request field renamed in test support; `npm run typecheck:dashboard`; the
@@ -267,7 +273,17 @@ Changes:
 
 ## Learnings
 
-None yet.
+- *Preparation shown* means `entry.preparing?.status === "recorded"`, not
+  that `preparing` is present: once profiles are read every queued entry
+  carries `preparing` as `unavailable`, `not-recorded`, or `recorded`, and only
+  `recorded` renders Preparing. Slice 1's `showsAssignment` uses that rule.
+- The table also carries a `verb` ("execute") so the dialog sentence stays
+  word for word; slice 2 adds refinement's verb.
+- `latestRecordOf` carries a temporary `eslint-disable-next-line` while
+  execution is the only workflow; slice 2 removes it once lint reports it
+  unused.
+- The workflow note takes only `preparation` today; slice 3 widens it to
+  `preparing` for refinement's note.
 
 ## Concern review
 

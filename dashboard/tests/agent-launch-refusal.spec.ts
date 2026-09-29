@@ -1,6 +1,6 @@
 // Which requests the local launch boundary (../server/agentLaunchPlugin.ts)
 // refuses before it starts any `claude`, over raw HTTP in dev and preview:
-// another site or Host, an unknown project, an activity or host it does not
+// another site or Host, an unknown project, a workflow or host it does not
 // launch, malformed text, a body that is not a JSON launch request, and any
 // method but GET and POST; and a read of a project's launch records from
 // another site or for an unknown project. The synthetic `claude`
@@ -67,7 +67,7 @@ for (const mode of ["dev", "preview"] as const) {
       {
         request: "for preparation",
         status: 400,
-        body: { ...launchRequest, activity: "preparation" },
+        body: { ...launchRequest, workflow: "preparation" },
       },
       {
         request: "for Codex",
@@ -75,9 +75,9 @@ for (const mode of ["dev", "preview"] as const) {
         body: { ...launchRequest, host: "codex" },
       },
       {
-        request: "for an unknown activity",
+        request: "for an unknown workflow",
         status: 400,
-        body: { ...launchRequest, activity: "review" },
+        body: { ...launchRequest, workflow: "review" },
       },
       {
         request: "with an empty identity",

@@ -2,7 +2,7 @@
 // (`./localBoundaryPlugin.ts`) beside the authenticated read boundary. A same-origin
 // POST to `/__agent-launch` asks to launch an agent on one work item
 // (`./agentLaunches.ts`); a GET `?source=` answers that project's launch
-// records. Everything else -- another site, an unknown project, an activity or
+// records. Everything else -- another site, an unknown project, a workflow or
 // host this boundary does not launch, malformed text, another method -- is
 // refused before any host process starts.
 
@@ -11,6 +11,7 @@ import type { Connect, Plugin } from "vite";
 import {
   agentLaunchEndpoint,
   agentLaunchRequestSchema,
+  launchWorkflows,
   type AgentLaunchRequest,
   type LaunchResult,
   type LaunchRecord,
@@ -78,10 +79,11 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   }
   const request = parsed.data;
   const source = knownSource(request.source);
-  if (request.activity !== "execution" || request.host !== "claude") {
+  // The request schema admits only the workflows in `launchWorkflows`.
+  if (request.host !== "claude") {
     throw new RefusedRequest(
       400,
-      "Only execution in Claude Code can be launched.",
+      `${launchWorkflows[request.workflow].name} can be launched only in Claude Code.`,
     );
   }
   return { kind: "launch", source, request };

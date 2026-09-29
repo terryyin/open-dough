@@ -15,7 +15,7 @@ export const launchRequest = {
   source: "open-dough",
   identity,
   title,
-  activity: "execution",
+  workflow: "execution",
   host: "claude",
 };
 
