@@ -120,7 +120,9 @@ function parsedListing(stdout: string): readonly ListedSession[] | undefined {
         sessionState: {
           kind: "listed",
           state: entry.state,
-          ...(entry.status == null ? {} : { status: entry.status }),
+          ...(entry.status === undefined || entry.status === null
+            ? {}
+            : { status: entry.status }),
         },
       }))
     : undefined;

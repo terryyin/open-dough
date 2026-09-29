@@ -272,6 +272,9 @@ is clean. Mapping choices: a listed session with a status is Working or Idle
 by that status; with no status it is Finished when done, otherwise Stopped.
 Gaps: no spec asserts the hidden-page pause, and a missing project folder
 shows State unknown.
+CI repair: `f332b5dd` failed CI lint on `eqeqeq` in `claudeCode.ts`. The
+coordinator had chained formatting and publication with `;`, so a failed
+format did not stop the commit. The repair spells out the null check.
 
 ### 4. A card's Started ends once its session no longer runs
 Type: Behavior
