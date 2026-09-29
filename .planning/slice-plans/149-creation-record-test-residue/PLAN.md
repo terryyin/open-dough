@@ -121,3 +121,10 @@ Run the focused files above. The slice adds a test file and no payload
 declaration; run `bash tests/payload-declaration-links.sh` under a modern Bash
 only if a declared file changes. Use independent post-change refactoring and
 ordinary managed delivery.
+
+## Execution complete
+
+Product advice: no backlog change. When plan 146 integrates trunk,
+`dough-land/scripts/retirement-checks.mjs` should import `createdForRoot` from
+the ownership module instead of its own literal prefix; main's plan 146 already
+notes this reuse.

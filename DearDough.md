@@ -782,6 +782,14 @@ substituted write-time checks, a `read-state` read-back and manual checks.
   - Evidence: plan 115 slice 2 text at `6882aeb3`; `product-backlog.mjs` usage lists add, place, take, complete, refresh, direction, adopt, merge, record-state, read-state
   - Observed effect: small detour and an equivalent-proof judgment at acceptance; no rework
   - Inference: same class as the unobserved planning premises this story addresses (catalog ODF-074); plan 115 was written before its own rule
+- Execution: SEED-008#creation-record-test-residue (plan 149; first implementation commit `2befcb5d`)
+  - Timestamp: unknown (between Take `d995aef3` and `2befcb5d` committed 2026-09-29T11:13:50+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; plan written from installed guidance at `41965529`
+  - Evidence: plan 149 slice 1 Proof lists `workspace-publication-startup-plan-link-cases.mjs` as a `node --test` target; it defines cases that `workspace-publication.test.mjs` imports and runs
+  - Observed effect: the implementation agent substituted the importing test file and reported the substitution; no rework
+  - Inference: a proof target named without running it, the same class as the backlog-validation premise above
 
 ## ODF-137 — Execution start accepts a Take while a preparation of the same story is announced but not kept
 
