@@ -3,7 +3,7 @@
 // ./agent-launch-session-listing.spec.ts, and ./agent-launch-done.spec.ts):
 // one execution launch request for this repository's own story, and its
 // refinement counterpart, sent over raw HTTP, a done mark, and what the
-// boundary keeps.
+// boundary keeps, read as the machine's sessions and scoped by project.
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
@@ -50,18 +50,44 @@ export function markDone(
   });
 }
 
-export async function recordsOf(
+// The machine's sessions as the boundary answers them: every project's kept
+// records, each naming its project.
+export async function machineSessions(
   server: DashboardServer,
-  source: string,
 ): Promise<unknown[]> {
   const response = await rawRequest({
-    url: `${server.baseURL}${agentLaunchEndpoint}?source=${source}`,
+    url: `${server.baseURL}${agentLaunchEndpoint}`,
     headers: { Origin: server.origin },
   });
   expect(response.status).toBe(200);
   return (JSON.parse(response.body) as { records: unknown[] }).records;
 }
 
+// One project's records among the machine's sessions.
+export function projectRecords(
+  sessions: readonly unknown[],
+  source: string,
+): unknown[] {
+  return sessions.filter(
+    (record) =>
+      (record as { request: { source: string } }).request.source === source,
+  );
+}
+
+// One project's records as the boundary answers the machine's sessions now.
+export async function recordsOf(
+  server: DashboardServer,
+  source: string,
+): Promise<unknown[]> {
+  return projectRecords(await machineSessions(server), source);
+}
+
 export function openDoughFolder(server: DashboardServer): string {
   return realpathSync(path.join(server.home, "git", "open-dough"));
+}
+
+// The machine's home folder, where the read of the machine's sessions lists
+// Claude Code's sessions.
+export function machineFolder(server: DashboardServer): string {
+  return realpathSync(server.home);
 }

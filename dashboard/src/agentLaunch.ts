@@ -139,15 +139,25 @@ export const launchWithStateSchema = launchRecordSchema.extend({
 
 export type LaunchWithState = z.infer<typeof launchWithStateSchema>;
 
+// One project's launch records among the machine's sessions, oldest first,
+// or undefined while the machine's sessions are not yet read.
+export function projectSessionsOf(
+  records: readonly LaunchWithState[] | undefined,
+  sourceId: string,
+): readonly LaunchWithState[] | undefined {
+  return records?.filter((record) => record.request.source === sourceId);
+}
+
 // The sessions a story's card lists, oldest first, in whatever stage origin
-// shows the story: every launch record of the work item that has not been
-// marked done. Neither the story's stage nor its session's state or age
-// removes one.
+// shows the story: every launch record of the project's work item that has
+// not been marked done. Identities are unique only within a project. Neither
+// the story's stage nor its session's state or age removes one.
 export function cardSessionsOf(
-  records: readonly LaunchWithState[],
+  records: readonly LaunchWithState[] | undefined,
+  sourceId: string,
   identity: string,
 ): readonly LaunchWithState[] {
-  return records.filter(
+  return (projectSessionsOf(records, sourceId) ?? []).filter(
     (record) =>
       record.request.identity === identity && record.doneAt === undefined,
   );
@@ -184,8 +194,9 @@ export const launchResultSchema = z.discriminatedUnion("kind", [
 
 export type LaunchResult = z.infer<typeof launchResultSchema>;
 
-// One project's launch records, as the boundary answers a GET, each joined
-// with its session's current state.
+// The machine's sessions, as the boundary answers a GET: every catalog
+// project's launch records, each naming its project and joined with its
+// session's current state.
 export const launchRecordsSchema = z.object({
   records: z.array(launchWithStateSchema),
 });

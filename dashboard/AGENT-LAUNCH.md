@@ -53,8 +53,12 @@ longer being listed, Claude Code's listing becoming unreadable, and the
 passing of time never remove a session from its card; only marking it done
 does (below). Reloading
 the page, selecting another project and back, or restarting the dashboard
-keeps the listing, because the page reads the project's kept launch records
-again from the local server (`GET /__agent-launch?source=<project id>`). A
+keeps the listing: the page reads the machine's sessions from the local
+server in one request (`GET /__agent-launch`), which answers every catalog
+project's kept launch records, each naming its project, and holds one session
+state for the machine apart from the selected project; a card and Recent
+sessions show the selected project's records from it, by project and
+identity, since an identity is unique only within a project. A
 listed session is local evidence from this machine, not a story fact: origin
 alone places the story, and a story that leaves every list keeps its sessions
 only under Recent sessions.
@@ -71,8 +75,9 @@ this dashboard did not launch are not listed. With no records it says that no
 sessions launched from this dashboard are kept.
 
 Each entry, in Recent sessions and on a card, also shows its session's state,
-read from `claude agents --json --all` in the project's folder whenever the
-records are read and never kept, and whether the developer is needed there. One
+read from one `claude agents --json --all` run in the machine's home folder
+(Claude Code lists every session on the machine wherever it runs) whenever the
+records are read, and never kept, and whether the developer is needed there. One
 reading (`src/sessionShown.ts`) decides both from Claude Code's `state` alone;
 whether the process runs or is idle does not. A session not marked done needs
 attention while Claude Code lists it `blocked`, shown **Needs input** with what
@@ -93,8 +98,8 @@ done) without Open terminal; if the listing cannot be read, every entry shows
 **State unknown** with "Claude Code's session list could not be read", no
 attention, and keeps Open terminal. While the page
 is visible it reads the records again every 15 seconds, the pace of its
-revision checks, so a state change shows without a reload. With no records,
-`claude` is not run.
+revision checks, so a state change shows without a reload. With no records
+kept for any project, `claude` is not run.
 
 A card whose listed sessions include any that need attention says so above
 them, by the same reading: "1 session needs attention", or "<N> sessions need

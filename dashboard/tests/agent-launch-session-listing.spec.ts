@@ -1,11 +1,12 @@
-// Each kept launch's session state as the local launch boundary
-// (../server/agentLaunchPlugin.ts) answers it over raw HTTP: every records
-// read joins Claude Code's own listing, `claude agents --json --all` in the
-// project folder, by session id. A session it lists answers `listed` with its
-// `state`, while its process runs its `status`, and, when Claude Code says,
-// what a blocked session is `waitingFor`; one it no longer lists answers
-// `unlisted`; and a listing that fails answers `unknown`. Nothing of it is
-// stored, and with no records kept no `claude` runs. The synthetic `claude`
+// The machine's sessions as the local launch boundary
+// (../server/agentLaunchPlugin.ts) answers them over raw HTTP: every catalog
+// project's kept launch records, each naming its project, joined by session id
+// with one Claude Code listing, `claude agents --json --all` in the machine's
+// home folder. A session it lists answers `listed` with its `state`, while
+// its process runs its `status`, and, when Claude Code says, what a blocked
+// session is `waitingFor`; one it no longer lists answers `unlisted`; and a
+// listing that fails answers `unknown`. Nothing of it is stored, and with no
+// records kept no `claude` runs. The synthetic `claude`
 // (./fixtures/fake-claude) lists what it launched as the real one does, and
 // its controls end or forget a session or fail the listing; the real one is
 // never reached. What a launch answers and keeps is
@@ -17,7 +18,9 @@ import { expect, test } from "@playwright/test";
 import {
   launch,
   launchRequest,
-  openDoughFolder,
+  machineFolder,
+  machineSessions,
+  projectRecords,
   recordsOf,
 } from "./agentLaunchBoundary.ts";
 import {
@@ -32,7 +35,7 @@ type WithState = {
   sessionState: unknown;
 };
 
-test.describe("session state joined into the launch records answer", () => {
+test.describe("the machine's sessions, each joined with its state", () => {
   test.describe.configure({ mode: "serial" });
   let server: DashboardServer;
   let storeFile: string;
@@ -41,7 +44,7 @@ test.describe("session state joined into the launch records answer", () => {
     server = await startDashboardServer({
       mode: "preview",
       prebuilt: builtDashboardDir,
-      projectFolders: ["open-dough"],
+      projectFolders: ["open-dough", "pygardon"],
     });
     storeFile = path.join(
       server.home,
@@ -117,7 +120,7 @@ test.describe("session state joined into the launch records answer", () => {
       { kind: "unlisted" },
     ]);
     expect(server.claudeCalls().slice(callsBefore)).toEqual([
-      { argv: ["agents", "--json", "--all"], cwd: openDoughFolder(server) },
+      { argv: ["agents", "--json", "--all"], cwd: machineFolder(server) },
     ]);
     // The records read kept nothing of what it answered.
     expect(readFileSync(storeFile, "utf8")).toBe(stored);
@@ -164,5 +167,24 @@ test.describe("session state joined into the launch records answer", () => {
       state: "working",
       status: "busy",
     });
+  });
+
+  test("answers every project's records, each naming its project, from one listing", async () => {
+    server.claudeScenario("launched");
+    const response = await launch(server, {
+      ...launchRequest,
+      source: "pygardon",
+    });
+    const { record } = JSON.parse(response.body) as { record: unknown };
+    const callsBefore = server.claudeCalls().length;
+
+    const sessions = await machineSessions(server);
+    expect(projectRecords(sessions, "pygardon")).toEqual([record]);
+    const openDough = projectRecords(sessions, "open-dough");
+    expect(openDough.length).toBeGreaterThan(0);
+    expect(sessions).toHaveLength(openDough.length + 1);
+    expect(server.claudeCalls().slice(callsBefore)).toEqual([
+      { argv: ["agents", "--json", "--all"], cwd: machineFolder(server) },
+    ]);
   });
 });

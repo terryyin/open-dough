@@ -71,11 +71,28 @@ changing `terminalOpening.ts`'s request shape and the card specs. Start slice 1
 from a trunk that contains its landing, or reconcile with it first; do not
 redo its changes here.
 
+## Execution context
+
+- Story Branch Mode; integration `/Users/terryyin/git/open-dough`. Owned
+  workspace `/Users/terryyin/git/open-dough/.worktrees/session-sidebar`,
+  branch `claude/session-sidebar`, created at starting revision
+  `726b1c8ce57bf86133463de9b64ccac7f7b6a161`.
+- Publisher `claude-session-sidebar`; agent Maki-chan. Claim accepted on
+  `origin/main`: `b3f7b861f4fed83b54a765c09294e9834502b8db`. Increments
+  target `origin/claude/session-sidebar`. Claim's trunk CI unobserved.
+- Setup passed in the workspace: `npm ci` and `npm run typecheck:dashboard`.
+  No commit hook; `npm run format` formats.
+- Default planning authority (in-scope plan refinement); no slice limit.
+- Sequencing: SEED-052#card-session-residue had not landed at the claim (its
+  slice 2, the `terminalOpening.ts` request shape, still planned). Slices 1–3
+  do not depend on it; merge trunk before slice 4 and reconcile with its
+  landing then.
+
 ## Slices
 
 ### 1. The page reads the machine's sessions once
 Type: Structure
-Status: planned
+Status: done
 Proof: existing launch, card, Recent sessions, attention, terminal, and done
 specs green (`npm run test:dashboard -- tests/agent-launch-*.spec.ts
 tests/agent-terminal*.spec.ts`), plus `npm run typecheck:dashboard`.
@@ -91,6 +108,20 @@ card's attention derive by project and identity. External behavior is
 unchanged, except the listing's logged folder in the two boundary specs that
 pin it. Enables slice 2's cross-project list. Update the boundary paragraph of
 [Agent launch](../../../dashboard/AGENT-LAUNCH.md) that describes the read.
+
+Accepted proof (2026-09-29): `npm run typecheck:dashboard` passed;
+`npm run test:dashboard -- 'tests/agent-launch-.*\.spec\.ts' 'tests/agent-terminal.*\.spec\.ts'`
+132 passed after refactor (full suite 289/289 before it). Observations:
+`agent-launch-session-listing.spec.ts` "answers every project's records,
+each naming its project, from one listing" (one `agents --json --all`, cwd
+`machineFolder(server)`), "answers each session as Claude Code lists it…"
+(listing cwd = home), "answers no records and runs no claude while none are
+kept". Learnings: `agent-launch-boundary.spec.ts:85` pins the launch's own
+confirmation listing, which stays in the project folder (premise corrected);
+selecting a project no longer reads, the steady pace and a revealed page do;
+a failed first read leaves the state not yet read, so slice 2 decides what
+"Reading sessions…" becomes when the server never answers. `RecentSessions`
+now takes the machine records and its project id. `App.tsx` is at 249 lines.
 
 ### 2. The Sessions sidebar lists every open session and what needs attention
 Type: Behavior

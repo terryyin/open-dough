@@ -22,7 +22,7 @@ import {
   type ReactNode,
 } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
-import type { ProjectLaunches } from "./agentLaunches.ts";
+import type { MachineSessions } from "./agentLaunches.ts";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
   sessionKeyboardHome,
@@ -47,7 +47,7 @@ export function TerminalSplit({
 }: {
   // The recorded sessions the terminal acts on; `readSession` keeps its
   // identity across renders.
-  readonly sessions: Pick<ProjectLaunches, "markDone" | "readSession">;
+  readonly sessions: Pick<MachineSessions, "markDone" | "readSession">;
   readonly children: ReactNode;
 }) {
   const [terminal, setTerminal] = useState<TerminalOpening | undefined>();

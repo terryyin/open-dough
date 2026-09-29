@@ -2,10 +2,10 @@
 // in dev and preview: a same-origin launch request starts one Claude Code
 // background session in the project's folder, on the requested workflow's
 // skill and named for its workflow, and answers with the record it keeps;
-// each failure answers failed or uncertain and keeps no record. A GET answers
-// only the requested project's records.
-// Refused requests are ./agent-launch-refusal.spec.ts, and how long and where
-// records are kept is ./agent-launch-records.spec.ts. The synthetic `claude`
+// each failure answers failed or uncertain and keeps no record. Refused
+// requests are ./agent-launch-refusal.spec.ts, how long and where records are
+// kept is ./agent-launch-records.spec.ts, and a read of the machine's sessions
+// is ./agent-launch-session-listing.spec.ts. The synthetic `claude`
 // (./fixtures/fake-claude) on each server's PATH records every call; the
 // real one is never reached.
 
@@ -198,23 +198,6 @@ for (const mode of ["dev", "preview"] as const) {
       ).toBe(true);
       expect(server.heldClaudeEndedBy()).toBe("SIGTERM");
       expect(await recordsOf(server, "open-dough")).toHaveLength(recordsBefore);
-    });
-
-    test("answers each project only its own records", async () => {
-      server.claudeScenario("launched");
-      const response = await launch(server, {
-        ...launchRequest,
-        source: "pygardon",
-      });
-      const { record } = JSON.parse(response.body) as { record: unknown };
-
-      expect(await recordsOf(server, "pygardon")).toEqual([record]);
-      const openDough = await recordsOf(server, "open-dough");
-      expect(openDough.length).toBeGreaterThan(0);
-      for (const kept of openDough) {
-        expect(kept).toMatchObject({ request: { source: "open-dough" } });
-      }
-      expect(await recordsOf(server, "doughnut")).toEqual([]);
     });
   });
 

@@ -12,7 +12,7 @@ import {
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
 import { stagesMarks, workCardMarks } from "./workFocus.ts";
-import type { ProjectLaunches } from "./agentLaunches.ts";
+import type { MachineSessions } from "./agentLaunches.ts";
 import { CardLaunches } from "./CardLaunches.tsx";
 
 function count(entries: readonly WorkEntry[]): string {
@@ -20,6 +20,7 @@ function count(entries: readonly WorkEntry[]): string {
 }
 
 function WorkCard({
+  sourceId,
   entry,
   priority,
   showsSliceProgress,
@@ -29,11 +30,13 @@ function WorkCard({
   onSelect,
   onOpenRoster,
 }: {
+  // The project the snapshot shows.
+  sourceId: string;
   entry: WorkEntry;
   priority: number | undefined;
   // Taken cards only: queued work shows no progress.
   showsSliceProgress: boolean;
-  launches: ProjectLaunches;
+  launches: MachineSessions;
   // Backlog cards only: Taken work offers no launch.
   offersStart: boolean;
   selected: boolean;
@@ -65,6 +68,7 @@ function WorkCard({
         />
       )}
       <CardLaunches
+        sourceId={sourceId}
         entry={entry}
         launches={launches}
         offersStart={offersStart}
@@ -101,6 +105,7 @@ function WorkCard({
 }
 
 function Stage({
+  sourceId,
   name,
   entries,
   prioritized,
@@ -112,11 +117,12 @@ function Stage({
   onOpenRoster,
   unreadableProfiles,
 }: {
+  sourceId: string;
   name: string;
   entries: readonly WorkEntry[];
   prioritized: boolean;
   showsSliceProgress: boolean;
-  launches: ProjectLaunches;
+  launches: MachineSessions;
   offersStart: boolean;
   selectedIdentity: string | undefined;
   onSelect: (identity: string) => void;
@@ -138,6 +144,7 @@ function Stage({
           {entries.map((entry, index) => (
             <li key={entry.identity}>
               <WorkCard
+                sourceId={sourceId}
                 entry={entry}
                 priority={prioritized ? index + 1 : undefined}
                 showsSliceProgress={showsSliceProgress}
@@ -166,7 +173,7 @@ export function WorkStages({
   onOpenRoster,
 }: {
   work: PublishedWork;
-  launches: ProjectLaunches;
+  launches: MachineSessions;
   onOpenRoster: OpenRoster;
 }) {
   const [selectedIdentity, setSelectedIdentity] = useState<string | undefined>(
@@ -181,6 +188,7 @@ export function WorkStages({
     <>
       <section className="stages" aria-label="Work stages" {...stagesMarks}>
         <Stage
+          sourceId={work.source.id}
           name="Backlog"
           entries={work.backlog}
           prioritized
@@ -207,6 +215,7 @@ export function WorkStages({
           </p>
         </div>
         <Stage
+          sourceId={work.source.id}
           name="Taken"
           entries={work.taken}
           prioritized={false}

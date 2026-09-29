@@ -2,12 +2,15 @@
 // (`./agentLaunchPlugin.ts`): resolve the project folder
 // (`./projectFolders.ts`), start the session (`./claudeLaunch.ts`) within
 // the launch wait, and keep a confirmed result in this machine's launch
-// record store (`./launchRecordStore.ts`), which outlives the server. A read
-// of the kept records answers each session's state from Claude Code's
-// listing (`./claudeCode.ts`), never stored; the same join decides which
-// recorded session the terminal boundary (`./agentTerminals.ts`) may attach
-// to, and whether marking a recorded session done (`./doneMarks.ts`) stops
-// it. Origin still decides every story fact.
+// record store (`./launchRecordStore.ts`), which outlives the server. The
+// machine's sessions -- every catalog project's kept records -- are read at
+// once, each answered with its session's state from one Claude Code listing
+// (`./claudeCode.ts`), which is machine-wide and so runs in the machine's
+// home folder, never stored; the same join, in the record's project folder,
+// decides which recorded session the terminal boundary
+// (`./agentTerminals.ts`) may attach to, and whether marking a recorded
+// session done (`./doneMarks.ts`) stops it. Origin still decides every story
+// fact.
 
 import {
   type AgentLaunchRequest,
@@ -15,12 +18,17 @@ import {
   type LaunchRecord,
   type LaunchResult,
 } from "../src/agentLaunch.ts";
-import type { PublishedSource } from "../src/publishedSource.ts";
+import { catalog, type PublishedSource } from "../src/publishedSource.ts";
 import { claudeSessions } from "./claudeCode.ts";
 import { launchClaude } from "./claudeLaunch.ts";
-import { keepRecord, keptRecords } from "./launchRecordStore.ts";
+import {
+  keepRecord,
+  keptRecords,
+  keptRecordsByProject,
+} from "./launchRecordStore.ts";
 import {
   folderExists,
+  machineFolder,
   projectFolder,
   type ProjectFolder,
 } from "./projectFolders.ts";
@@ -52,17 +60,17 @@ export type Recorded =
   | { readonly kind: "unrecorded" }
   | { readonly kind: "folder-not-found"; readonly folder: ProjectFolder };
 
-// Records joined by session id with Claude Code's listing read now. With no
-// records, `claude` is not run.
+// Records joined by session id with Claude Code's listing read now in the
+// folder. With no records, `claude` is not run.
 async function withStates(
-  source: PublishedSource,
+  folder: ProjectFolder,
   records: readonly LaunchRecord[],
 ): Promise<readonly LaunchWithState[]> {
   if (records.length === 0) {
     return [];
   }
   const listed = await claudeSessions(
-    projectFolder(source),
+    folder,
     AbortSignal.timeout(listingWaitMs),
   );
   const states = new Map(
@@ -80,11 +88,15 @@ async function withStates(
 export class AgentLaunches {
   private readonly running = new Set<AbortController>();
 
-  // The project's kept records, each joined with its session's state.
-  async recordsOf(
-    source: PublishedSource,
-  ): Promise<readonly LaunchWithState[]> {
-    return withStates(source, await keptRecords(source.id));
+  // The machine's sessions: every catalog project's kept records, projects
+  // in catalog order and each project's oldest first, joined with one
+  // listing. Each record names its project (`request.source`).
+  async machineSessions(): Promise<readonly LaunchWithState[]> {
+    const kept = await keptRecordsByProject();
+    return withStates(
+      machineFolder(),
+      catalog.flatMap((source) => kept.get(source.id) ?? []),
+    );
   }
 
   // One kept record's session state read now.
@@ -92,7 +104,7 @@ export class AgentLaunches {
     source: PublishedSource,
     record: LaunchRecord,
   ): Promise<LaunchWithState> {
-    const [joined] = await withStates(source, [record]);
+    const [joined] = await withStates(projectFolder(source), [record]);
     return joined ?? { ...record, sessionState: { kind: "unknown" } };
   }
 

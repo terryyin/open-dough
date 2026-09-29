@@ -8,16 +8,25 @@
 // another project is selected. Entries are local evidence of launches, not
 // story facts.
 
-import { launchRetentionDays, type LaunchWithState } from "./agentLaunch.ts";
+import {
+  launchRetentionDays,
+  projectSessionsOf,
+  type LaunchWithState,
+} from "./agentLaunch.ts";
 import { SessionEntry } from "./SessionEntry.tsx";
 import "./agent-launch.css";
 
 export function RecentSessions({
-  records,
+  sourceId,
+  records: machineRecords,
 }: {
-  // The project's launch records, oldest first, with their sessions' states.
-  readonly records: readonly LaunchWithState[];
+  // The selected project.
+  readonly sourceId: string;
+  // The machine's sessions, oldest first within a project, with their
+  // states; undefined until first read.
+  readonly records: readonly LaunchWithState[] | undefined;
 }) {
+  const records = projectSessionsOf(machineRecords, sourceId) ?? [];
   return (
     <section
       className="recent-sessions"

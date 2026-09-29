@@ -3,10 +3,10 @@
 // another site or Host, an unknown project, a workflow it does not launch
 // (including an activity named as one) or a host other than Claude Code,
 // malformed text, a body that is not a JSON launch request, and any method but
-// GET and POST; and a read of a project's launch records from another site or
-// for an unknown project. The synthetic `claude` (./fixtures/fake-claude)
-// records every call, so each refusal proves none was made. What an admitted
-// request answers is ./agent-launch-boundary.spec.ts.
+// GET and POST; and a read of the machine's sessions from another site. The
+// synthetic `claude` (./fixtures/fake-claude) records every call, so each
+// refusal proves none was made. What an admitted request answers is
+// ./agent-launch-boundary.spec.ts.
 
 import { expect, test } from "@playwright/test";
 import {
@@ -133,28 +133,21 @@ for (const mode of ["dev", "preview"] as const) {
     for (const refused of [
       {
         read: "from another site",
-        status: 403,
         headers: { Origin: "http://evil.example" },
       },
-      { read: "with no Origin", status: 403, headers: {} },
+      { read: "with no Origin", headers: {} },
       {
         read: "a browser marks cross-site",
-        status: 403,
         headers: { "Sec-Fetch-Site": "cross-site" },
       },
-      {
-        read: "for an unknown project",
-        status: 404,
-        source: "not-a-real-project",
-      },
     ]) {
-      test(`refuses a launch records read ${refused.read}`, async () => {
+      test(`refuses a read of the machine's sessions ${refused.read}`, async () => {
         const response = await rawRequest({
-          url: `${server.baseURL}${agentLaunchEndpoint}?source=${refused.source ?? "open-dough"}`,
-          headers: refused.headers ?? { Origin: server.origin },
+          url: `${server.baseURL}${agentLaunchEndpoint}`,
+          headers: refused.headers,
         });
 
-        expect(response.status).toBe(refused.status);
+        expect(response.status).toBe(403);
         expect(JSON.parse(response.body)).toEqual({
           error: expect.any(String) as unknown,
         });
@@ -182,7 +175,7 @@ for (const mode of ["dev", "preview"] as const) {
       test(`refuses ${method} before starting claude`, async () => {
         const callsBefore = server.claudeCalls().length;
         const response = await rawRequest({
-          url: `${server.baseURL}${agentLaunchEndpoint}?source=open-dough`,
+          url: `${server.baseURL}${agentLaunchEndpoint}`,
           method,
           headers: { Origin: server.origin },
         });

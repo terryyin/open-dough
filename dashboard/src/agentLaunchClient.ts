@@ -1,6 +1,6 @@
 // The browser's requests to the local launch boundary
 // (`../server/agentLaunchPlugin.ts`): an ordinary same-origin JSON POST that
-// launches, a GET of one project's launch records, and a POST that marks one
+// launches, a GET of the machine's sessions, and a POST that marks one
 // recorded session done. Every launch outcome
 // answers with a launch result; a refusal answers an error the boundary
 // explains. What it answers crossed a process/HTTP boundary, so it is checked
@@ -71,16 +71,14 @@ export async function requestAgentLaunch(
     : noTrustedAnswer("answered in a shape this dashboard does not understand");
 }
 
-// The launch records this machine keeps for one project, oldest first, each
-// with its session's current state, or undefined when no trustworthy answer
-// came.
-export async function readLaunchRecords(
-  sourceId: string,
-): Promise<readonly LaunchWithState[] | undefined> {
+// The machine's sessions: the launch records this machine keeps for every
+// project, each naming its project, oldest first within it, with its
+// session's current state, or undefined when no trustworthy answer came.
+export async function readMachineSessions(): Promise<
+  readonly LaunchWithState[] | undefined
+> {
   try {
-    const response = await fetch(
-      `${agentLaunchEndpoint}?source=${encodeURIComponent(sourceId)}`,
-    );
+    const response = await fetch(agentLaunchEndpoint);
     if (!response.ok) return undefined;
     const answer = launchRecordsSchema.safeParse(await response.json());
     return answer.success ? answer.data.records : undefined;

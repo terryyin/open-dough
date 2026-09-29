@@ -43,7 +43,7 @@ export function App() {
   const initialSource = useRef(parseRoute(window.location).route.source);
   const { source, work, attempt, notice, reading, refresh, selectSource } =
     usePublishedObservation(initialSource.current);
-  const launches = useAgentLaunches(source);
+  const launches = useAgentLaunches();
 
   const onReturnToStories = useCallback(() => {
     returningFromRoster.current = true;
@@ -230,7 +230,7 @@ export function App() {
             launches={launches}
             onOpenRoster={openRoster}
           />
-          <RecentSessions records={launches.records} />
+          <RecentSessions sourceId={source.id} records={launches.records} />
         </main>
       )}
       {showsRoster && (
