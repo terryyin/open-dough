@@ -191,7 +191,6 @@ managed_files=(
   dough-execute-plan/scripts/ci-revisions.mjs
   dough-execute-plan/scripts/ci-runs.mjs
   dough-execute-plan/scripts/ci-workflow-path-policy.mjs
-  dough-execute-plan/scripts/current-branch-publication.mjs
   dough-execute-plan/scripts/execution-increment-delivery.mjs
   dough-execute-plan/scripts/execution-increment-observation.mjs
   dough-execute-plan/scripts/execution-increment-publication.mjs
@@ -235,9 +234,6 @@ managed_files=(
   dough-execution-retrospective/references/bounded-process-log.md
   dough-execution-retrospective/references/process-finding-recording.md
   dough-story-wrap-up/SKILL.md
-  dough-story-wrap-up/scripts/closure-candidate-settlement.mjs
-  dough-story-wrap-up/scripts/closure-publication.mjs
-  dough-story-wrap-up/scripts/closure-resources.mjs
   dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
   dough-story-wrap-up/scripts/trunk-closure.mjs
 )

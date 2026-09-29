@@ -17,7 +17,7 @@ import {
   remoteCommitCount,
   revParse,
   trunkTarget,
-} from "./closure-publication-fixtures.mjs";
+} from "./closure-git-fixtures.mjs";
 
 // An owned workspace whose agent authors its commits and whose configured Git
 // user is the developer, with a published Story Branch tip that trunk has

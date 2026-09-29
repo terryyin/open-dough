@@ -51,7 +51,6 @@ export async function lsRemoteSha(remote, ref) {
 export {
   maintenanceFromInspection,
   originTrackingRef,
-  recordedCheckoutIdentity,
   targetBranchName,
 } from "./publication-git.mjs";
 

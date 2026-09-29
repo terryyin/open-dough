@@ -399,7 +399,7 @@ exported from `ci-mailbox-match.mjs`.
 
 ### 5. No shipped closure module is left without an entry point
 Type: Structure
-Status: planned
+Status: done
 Proof: payload scan finds every declared wrap-up and Land script, and `current-branch-publication.mjs`'s former place, is a CLI or imported by one; closure and Land suites green with duplicate tests removed.
 
 Correction: plan 140's F7. `closure-publication.mjs`,
@@ -424,6 +424,27 @@ Proof: every script `install.sh` declares under `dough-story-wrap-up/scripts/`
 and `dough-land/scripts/` has `isDirectCliEntry` or is imported by one that
 does, and `current-branch-publication.mjs` is neither declared nor present; `tests/execution-payload-update.sh` and `tests/story-payload-update.sh`
 pass; the focused suites above stay green.
+
+Accepted proof (2026-09-29): a one-off scan of `install.sh` found
+`worktree-retirement.mjs` and `trunk-closure.mjs` as CLIs, `retirement-checks.mjs`
+and `trunk-closure-settlement.mjs` imported by them, and
+`current-branch-publication.mjs` neither declared nor present. Wrap-up, Land,
+delivery, and guidance suites (102 tests), payload checks, credential-free
+native suites, dashboard typecheck, and lint green.
+
+Recovery: `current-branch-publication.mjs`, with `commitOwned`, is recoverable
+at `b269991d:src/skills/dough-execute-plan/scripts/current-branch-publication.mjs`.
+Deleted tests' cases are covered by `trunk-closure*.test.mjs`,
+`worktree-retirement.test.mjs`, and `closure-story-branch-cleanup.test.mjs`;
+two uncovered cases were ported (a stopped refresh still retiring after the
+receipt, and Story Branch retirement on a named non-default remote, now in
+`closure-story-branch-named-remote.test.mjs`). The in-memory active-observer
+refusal was dropped with the observer interface; `finish` retires only after a
+confirmed-shutdown receipt. `closure-publication-fixtures.mjs` became
+`closure-git-fixtures.mjs`, and `recordedCheckoutIdentity` left
+`publication-git.mjs` for its only test consumer. A whole-payload entry-point
+check would flag 32 modules that use other entry conventions, so no lasting
+check was added.
 
 ### 6. Native evidence identity covers what each closure journey proves
 Type: Structure

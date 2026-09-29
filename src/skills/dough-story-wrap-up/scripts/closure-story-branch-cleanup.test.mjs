@@ -30,7 +30,7 @@ import {
   remoteCommitCount,
   revParse,
   trunkTarget,
-} from "./closure-publication-fixtures.mjs";
+} from "./closure-git-fixtures.mjs";
 
 const ancestorBacklog = backlogOf([itemA, itemB], [itemC]);
 const storyBacklog = backlogOf([itemB], [itemC]);

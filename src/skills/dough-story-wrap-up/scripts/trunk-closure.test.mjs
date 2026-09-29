@@ -66,6 +66,38 @@ test("finish publishes the final closure, completes it once on the recovered obs
   assert.equal(await branchSha(fixture), "");
 });
 
+test("a stopped default-checkout refresh keeps the accepted closure, still retires after the receipt, and leaves the remote execution branch", async (t) => {
+  const fixture = await createTrunkClosureFixture(t);
+  const remoteBranch = "refs/heads/exec/story";
+  await git(fixture.execution, "push", "-q", "origin", `HEAD:${remoteBranch}`);
+  const remoteExecutionTip = await lsRemoteSha(fixture.origin, remoteBranch);
+  const before = await deliverBeforeCleanup(fixture);
+  const final = await commitFinalClosure(fixture);
+  releaseCi(fixture, { [before.receipt.sha]: "success", [final]: "success" });
+  await git(fixture.integration, "switch", "-q", "-c", "side");
+  const sideHead = await revParse(fixture.integration, "HEAD");
+
+  const { result, code, stderr } = await finishThroughCli(fixture, {
+    beforeCleanup: before.receipt.sha,
+    final,
+    extra: ["--created-for-work", "--default-checkout", fixture.integration],
+  });
+
+  assert.equal(code, 0, stderr);
+  assert.equal(result.refresh.result, "stopped");
+  assert.equal(result.refresh.reason, "unexpected-branch");
+  assert.equal(await revParse(fixture.integration, "HEAD"), sideHead);
+  assert.equal(await lsRemoteSha(fixture.origin, main), final);
+  assert.equal(result.completion.shutdown.status, "confirmed");
+  assert.equal(result.cleanup.worktree, "removed");
+  assert.equal(existsSync(fixture.execution), false);
+  assert.equal(await branchSha(fixture), "");
+  assert.equal(
+    await lsRemoteSha(fixture.origin, remoteBranch),
+    remoteExecutionTip,
+  );
+});
+
 test("finish arms an observer on a non-default remote and target when none is live, without a default checkout", async (t) => {
   const fixture = await createTrunkClosureFixture(t);
   const release = "refs/heads/release";

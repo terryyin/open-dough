@@ -183,7 +183,7 @@ Direct edits commit with plain `git commit`, and the owned-path commit
 (`commitOwned`) exists only in `current-branch-publication.mjs`, which has no
 entry point. Terry decided on 2026-09-29 that this story removes that module
 from the payload with its tests; the deferred promise recovers `commitOwned`
-from the commit the plan records.
+from `b269991d:src/skills/dough-execute-plan/scripts/current-branch-publication.mjs`.
 
 **Ordering:** Starts after plan 142 (closed at `2a3e0ba2`), which changed the
 same retirement module, wording, and native closure acceptance, and after
