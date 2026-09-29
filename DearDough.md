@@ -199,36 +199,6 @@ change needs the refactor pass again, so the coordinator decides case by case.
     fix is easy to deliver unrefactored. Qualified: the size overrun is one
     consequence observed; no defect is attributed.
 
-## ODF-065 — A CI observer that died mid-execution stayed reported as attached until shutdown
-
-Former local code: DD-063.
-
-The observer is a detached process. After it dies, push registration still
-writes a coverage receipt and the host hook still reports the observer as
-attached, so lost coverage is first visible when the coordinator stops it.
-
-### Occurrences
-
-- Execution: `SEED-021#see-published-work @ d0a9495`
-  - Timestamp: 2026-09-20T09:40:05+08:00
-  - Tool: Claude Code
-  - Model: claude-fable-5-1
-  - Open Dough release: 0.3.26
-  - Evidence: Mailbox `/tmp/dough-ci-501/watch-bx7k1Z`. The worker's last
-    receipt writes are all at 2026-09-20T08:40:30+08:00; `c0d0a91` stayed
-    `pending` although its GitHub run completed successfully. The data volume
-    then filled (ENOSPC stopped slice 4 and the coordinator's own shell).
-    Receipts for `e6ad710`, `53f6640`, and `1858a78` were written by
-    `register-push` only and stayed `unchecked`. Every hook invocation kept
-    adding "CI observer attached to this coordinator". `stop` returned
-    `coverage.state: lost` at the timestamp above.
-  - Observed effect: Three pushes had no CI observation while the coordinator
-    believed they did. All of them passed when checked with `gh run list`, so
-    nothing was missed this time.
-  - Inference: Qualified. The worker most likely exited when the disk filled;
-    the record shows when it stopped writing, not why. Neither `register-push`
-    nor the hook checks that the recorded worker is still running.
-
 ## ODF-067 — Delegated Git-fixture proof for a "stop" behavior defaults to a tautology
 
 Former local code: DD-054.
@@ -984,9 +954,22 @@ Plan 159 slice 2 said to test the session presentation once as a shared capabili
   - Evidence: plan 159 slice 2 proof text; `agent-launch-recent-session-states.spec.ts` `both(index)` loop at `4ef13e85`; the execution retrospective found it.
   - Observed effect: extra per-state card assertions beside `agent-launch-card-session-states.spec.ts`, which already rechecks card labels (plan 160's finding 6); cleanup falls to a correction. Inference: Qualified. Accept-proof guidance weighs observation substance; a plan's test-cost direction has no acceptance check.
 
+## DD-182 — A lost-observer notice kept blocking every turn end, even after the observer was stopped
+
+The Claude stop hook reported "CI observer lost its worker" for a dead observer as a blocking error at each turn end. The guidance says to report lost coverage once and continue. A `stop` that recorded the terminal lost result did not end the notice. It is the reverse of former ODF-065, where a dead observer still read as attached. It matches catalog ODF-144 (lost-worker notice repeatedly blocks turn completion), which so far had only another project's occurrence.
+
+### Occurrences
+
+- Execution: `SEED-055#ci-time-budget-from-ci-timings` / plan 162, first related implementation commit `061aa911`
+  - Timestamp: unknown; the loop spanned the shell's 2026-09-29T21:58:40+08:00 and 22:00:36+08:00 readings
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `d68fcde4`
+  - Evidence: mailbox `/tmp/dough-ci-501/watch-nN6cSt`, whose worker died when the disk filled (ENOSPC) during slice 2. Its only revision, `061aa911`, passed CI when checked with `gh run list`. The `stop` result was `status: stopped`, `coverage.state: lost`, `unread: 0`, and the stop hook kept blocking after it.
+  - Observed effect: about twelve coordinator turns spent acknowledging the same notice while a refactor agent ran. It persisted after the next delivery attached observer `watch-Ss12RC`. Inference: Qualified. The hook seems to re-derive "lost" from the stopped mailbox's recorded result with no delivered-once marker.
+
 ## Retention
 
-- Highest allocated local number: 181. Removed local codes are never reused.
+- Highest allocated local number: 182. Removed local codes are never reused.
+- Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-182: ODF-065 (former DD-063; a dead observer still reported as attached), since the host hook now reports a dead worker as lost at the next interaction; recovery: `1dfb75ee:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-180, DD-181, and DD-172's third occurrence: ODF-003's two oldest occurrences (`SEED-008#script-driven-ci-observation`, `SEED-037#diagnosable-test-hangs`); two later occurrences keep the finding; recovery: `4ef13e85:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-176, DD-177, and the DD-172 and ODF-097 recurrences: ODF-130 (concurrent slices sharing Playwright output) and ODF-129 (full-suite proof beside another agent's edits), since slices now run one at a time; recovery: `32e554d5:DearDough.md`.
 - Removed ODF-070 (former DD-066; nested worktree `node_modules` assumed absent) on 2026-09-29 for the 1,000-line ceiling: its 0.3.26-era occurrence as lower priority than ODF-116's recurrence (recovery: `6fa51cb6:DearDough.md`), then its remaining occurrence as lower current actionability than DD-172/DD-173 and the ODF-100 recurrence, since execution-location guidance now requires a locked install per worktree (recovery: `0c31529b:DearDough.md`).

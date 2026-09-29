@@ -178,6 +178,21 @@ budget section and this guidance out of `tests/README.md` (over its 250-line
 limit) into `tests/time-budget.md`, linked from the README's runner section,
 and dropped the unused `headSha` field from the `gh` query.
 
+## Execution complete
+
+Product advice: the story's learning question is answered for jobs. Over 10
+trunk runs every job's spread was narrow (at most 12.7 s) against at least
+19.6 s of headroom, so every job line reads `wide`. Both share totals read
+`thin` (spreads of about 120 job-seconds against 82.6 and 112.5 of headroom).
+That spread mixes runner noise with suite growth across the window, so, as
+this plan's Current decisions accepted, nearly every slice that adds test time
+still takes a paired comparison for the share rule. `tests/time-budget.md`
+also leaves open how a thin share total projects a job that is new, and so
+has no ratio. Whether the share-total rule should measure spread differently
+is a decision for the developer; no correction is planned. Wrap-up should
+point the story's guidance location at `tests/time-budget.md` and settle
+DD-158's follow-up in `ProjectFindings.md`.
+
 ## Considered and excluded
 
 - A `--runs` option or configurable window: no current use; the report states
