@@ -130,6 +130,7 @@ export function App() {
     <TerminalSplit
       sessions={launches}
       stories={{
+        selected: source.id,
         shown: showsRoster ? undefined : work?.source.id,
         show: showStories,
       }}

@@ -87,7 +87,14 @@ folder.
 
 ### 2. A reveal the developer left behind never scrolls the page
 Type: Behavior
-Status: planned
+Status: done
+Result: `TerminalSplit` drops a pending pick once `stories.selected` (the
+project the developer chose, read or not) differs from the pick's project.
+Accepted proof: `npm run typecheck:dashboard`; `npm run test:dashboard --
+'tests/session-sidebar.*\.spec\.ts'` (10 passed; the new step failed first
+with one reveal); `npm run test:dashboard -- 'tests/agent-launch-.*\.spec\.ts'`
+(93 passed). The North Star launch row lives in
+`docs/dashboard-ux-ui-north-star.md`.
 Proof: a step in `dashboard/tests/session-sidebar-navigation-cases.spec.ts`
 (or a new spec if it would pass 250 lines): with Pygardon's backlog read
 held, the developer opens the Pygardon entry, then chooses Doughnut; the read

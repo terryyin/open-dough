@@ -74,6 +74,8 @@ export function TerminalSplit({
     "records" | "markDone" | "readSession"
   >;
   readonly stories: {
+    // The project the developer has chosen to show, read or not.
+    readonly selected: string;
     // The project whose stories the page shows, once they are read.
     readonly shown: string | undefined;
     // Shows a project's stories, as one history entry.
@@ -157,11 +159,16 @@ export function TerminalSplit({
     setGoing({ to: record });
   };
   useLayoutEffect(() => {
-    if (
-      going === undefined ||
-      revealed.current === going ||
-      stories.shown !== going.to.request.source
-    ) {
+    if (going === undefined || revealed.current === going) {
+      return;
+    }
+    // A going still waiting for its project's stories is dropped once the
+    // developer chooses another project's; its terminal stays.
+    if (stories.selected !== going.to.request.source) {
+      setGoing(undefined);
+      return;
+    }
+    if (stories.shown !== going.to.request.source) {
       return;
     }
     revealed.current = going;
@@ -171,7 +178,7 @@ export function TerminalSplit({
     // Kept in view until the developer moves, goes elsewhere, or another
     // project's stories are shown.
     return shown === null ? undefined : keepInView(shown);
-  }, [going, stories.shown]);
+  }, [going, stories.selected, stories.shown]);
   const markSessionDone: MarkSessionDone = async (request) => {
     const { record, control } = request;
     const marked = await markClosing(request);
