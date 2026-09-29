@@ -228,6 +228,51 @@ native evidence identity proves exactly the behavior it names.
 [its correction plan](../slice-plans/154-closure-proof-and-harness-correction/PLAN.md).
 It adds no feature promise.
 
+<a id="installed-story-branch-integration"></a>
+
+### Integrate Story Branch closures through an installed command
+
+**Identity:** SEED-008#installed-story-branch-integration
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Candidate (2026-09-29):** product advice from plan 146's retrospective,
+added to the backlog at Terry's request. Not yet refined.
+
+**Idea:** Story Branch integration is the only closure step agents still
+perform from prose and raw Git: closing the execution-branch observer, arming
+a trunk observer, the history-preserving merge through the backlog merge
+adapter with hand-resolved conflicts, registering the integrated SHA, and one
+completion before `retire`. It was plan 146's costliest native journey: every
+host's first `story-branch-closure/source-conflict` run failed, and the rerun
+still needed transcript judgment for Cursor. An installed entry point would give
+agents the tested mechanics and leave conflict resolution as judgment.
+`history-preserving-publication.mjs` already ships without a CLI or production
+importer, so this story also decides whether it backs that command or leaves
+the payload with its tests.
+
+**Open decisions for refinement (from plan 146's retrospective):**
+
+- **D1 — `install.sh` size.** The installer sits at the 250-line refactor
+  bound and was line-golfed to fit (`b269991d`); every new script adds a
+  `managed_files` line. Decide whether the payload declaration moves to its
+  own file (ADR 0004 area) before this story adds another command.
+- **D2 — `--created-for-work` wording.** In plan 146's native preparation-land
+  run, Cursor passed `--created-for-work` beside `--identity` with no recorded
+  basis. It was harmless because the creation record named the work, but
+  without a record the flag would retire an unrecorded or host-owned worktree.
+  Decide whether Dough Land's "Retire the worktree" says to pass only
+  `--identity` when the creation record names the work, or the command reports
+  its ownership basis.
+- **D3 — one ancestry check.** `isAncestor` exists in several execute-plan
+  scripts beside the Land and wrap-up copies that correction
+  SEED-008#closure-proof-and-harness-correction consolidates. Decide whether
+  to consolidate the execute-plan copies, which crosses skills.
+
+**Relation:** follows SEED-008#closure-proof-and-harness-correction, which
+fixes the Story Branch native harness this story's acceptance would reuse.
+
 <a id="reduce-ci-observer-overhead"></a>
 
 ### Reduce CI observer overhead across execution and wrap-up
