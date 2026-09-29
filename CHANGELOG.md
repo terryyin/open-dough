@@ -1,3 +1,12 @@
+## 0.3.47 - 2026-09-29
+
+- Start Claude Code refinement and execution sessions from dashboard backlog cards, retain their local launch records and live states, list recent sessions, and attach an embedded terminal that can reconnect, switch projects, or deliberately mark a session done without confusing local activity with published story state.
+- Complete the remote-first execution lifecycle with recorded workspace provenance, ownership- and containment-checked worktree retirement, reusable installed commands for landing and resumable Trunk Mode closure, and safer recovery across rebases, races, unpublished bases, optional default checkouts, and sandboxed CI observation.
+- Strengthen premise verification so moved behavior is traced through the scripts and features that actually execute it, and complete the retained Codex, Cursor, and Claude Code native acceptance work for one-shot, owned-context, retirement, and closure journeys included in this release.
+- Add animated hover gestures for agent portraits and harden the dashboard's production build, local launch boundary, session persistence, terminal lifecycle, keyboard focus, and browser-test infrastructure.
+
+No additional native acceptance was run for `0.3.47` at the maintainer's request as an exception to ADR 0005. Native evidence completed within the included work is retained; native acceptance for the new dashboard launch and terminal behavior, the remaining Story Branch integration command, and previously pending requirements remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.46 - 2026-09-28
 
 - Let preparation, execution, landing, and story wrap-up operate from owned repository context and the authorized remote target without requiring a default checkout, while keeping any supplied default-checkout refresh optional, truthful, and separate from publication and cleanup.
