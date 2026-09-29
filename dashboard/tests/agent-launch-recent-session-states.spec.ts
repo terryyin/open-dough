@@ -1,24 +1,30 @@
-// A Recent sessions entry shows its session's state as Claude Code lists it
-// -- Working, Idle, Finished, Stopped, Session unavailable, or State unknown
-// with its note, and Done once marked done while it no longer runs or is no
-// longer listed -- and the page reads it again at the steady pace while it
-// is visible, so a change appears within one pace without a reload. Open
+// A session entry shows why its session needs the developer, or that it does
+// not, as Claude Code lists it: Needs input, with what a blocked session
+// waits for when Claude Code says; Ready for review for a done turn, whether
+// its process still runs or has exited; Session failed; Session stopped; and,
+// with no attention, Working (idle between steps or not), Session
+// unavailable, or State unknown with its note. A session needing attention
+// has a solid, heavier edge beside those words. Its entry on its story's card
+// shows the same as its Recent sessions entry, since both are one shared
+// entry. The page reads the records again at the steady pace while it is
+// visible, so a change appears within one pace without a reload, and Open
 // terminal is offered only where `attachOpens` says it opens the session.
-// Origin alone still places every story. The page's own dashboard
-// server launches the synthetic `claude` (./fixtures/fake-claude), whose
-// controls end, forget, or fail to list a session; the real one is never
-// reached. The page clock stands still unless the journey lets it pass.
+// Origin alone still places every story. How attention clears on resumed
+// work or Mark as done is ./agent-launch-attention-clearing.spec.ts. The
+// page's own dashboard server launches the synthetic `claude`
+// (./fixtures/fake-claude), whose controls change, forget, or fail to list a
+// session; the real one is never reached. The page clock stands still unless
+// the journey lets it pass.
 
-import type { Locator, Page } from "@playwright/test";
-import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
-import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
+import type { Locator } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
+  cardSessionName,
+  cardSessions,
   expectMembership,
   parts,
   recentSessionName,
   sessionNamedBy,
-  sessionStateOf,
 } from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
 import {
@@ -28,8 +34,12 @@ import {
   takenStory,
   type LaunchJourney,
 } from "./launchJourney.ts";
-import { markDone } from "./agentLaunchBoundary.ts";
-import { givePageItsTurns } from "./pageRequestNotes.ts";
+import {
+  expectNotReloaded,
+  expectSessionShown,
+  markNotReloaded,
+  watchRecordReads,
+} from "./sessionStatePace.ts";
 import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
 
 let journey: LaunchJourney;
@@ -41,106 +51,91 @@ test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
-type Label =
-  | "Working"
-  | "Idle"
-  | "Finished"
-  | "Stopped"
-  | "Done"
-  | "Session unavailable"
-  | "State unknown";
+const unknownShown =
+  "State unknown: Claude Code's session list could not be read";
 
-// Where each label offers Open terminal: every session Claude Code
-// still lists, and one whose listing could not be read.
-const openOffered: Record<Label, boolean> = {
-  Working: true,
-  Idle: true,
-  Finished: true,
-  Stopped: true,
-  Done: true,
-  "Session unavailable": false,
-  "State unknown": true,
+// A host change, with what a blocked session waits for, if it says, and what
+// the entry shows then.
+type Change = {
+  readonly change: ClaudeSessionChange;
+  readonly waitingFor?: string;
+  readonly shows: string;
+  readonly needsAttention: boolean;
 };
 
-const unknownNote = "Claude Code's session list could not be read";
-
-async function expectState(entry: Locator, label: Label): Promise<void> {
-  await expect(sessionStateOf(entry)).toHaveText(
-    label === "State unknown" ? `${label}: ${unknownNote}` : label,
-  );
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(openOffered[label] ? 1 : 0);
-}
-
-// Lets exactly one steady pace of page time pass: no records read is asked
-// a moment before it, and one is asked and answered once it has passed.
-async function passOnePace(page: Page, recordReads: () => number) {
-  await givePageItsTurns(page);
-  const before = recordReads();
-  await page.clock.runFor(checkIntervalMs - 1);
-  await givePageItsTurns(page);
-  expect(recordReads()).toBe(before);
-  const answered = page.waitForResponse((response) =>
-    response.url().includes(`${agentLaunchEndpoint}?source=`),
-  );
-  await page.clock.runFor(1);
-  await answered;
-  expect(recordReads()).toBe(before + 1);
-}
-
-test("each entry shows its session's state, changes within one pace without a reload, and offers Open terminal only where it opens", async ({
+test("each entry shows why its session needs attention, or that it does not, the same on its card, within one pace without a reload", async ({
   page,
   dashboard,
 }) => {
   await pausePageClockAt(page, new Date());
-  let reads = 0;
-  page.on("request", (request) => {
-    if (request.url().includes(`${agentLaunchEndpoint}?source=`)) reads += 1;
-  });
+  const { passOnePace } = watchRecordReads(page);
   dashboard.claudeScenario("launched");
-  const { start, dialog, refine, refinementDialog } = await openTakenBacklog(
-    page,
-    journey,
-  );
+  const { card, start, dialog, refine, refinementDialog } =
+    await openTakenBacklog(page, journey);
   const { recentSessions: recent } = parts(page);
   const entries = recent.getByRole("article");
-  await expect(recent).toContainText(
-    "No sessions launched from this dashboard are kept.",
-  );
   const membership = {
     taken: [takenStory],
     backlog: [readyStory, notRefinedStory],
   };
 
-  // Newest first once launched, each with the change it will undergo and
-  // what its entry shows then.
-  const launches = [
+  // Newest first once launched, each with the two changes its session
+  // undergoes in turn.
+  const launches: readonly {
+    title: string;
+    workflow: "Execution" | "Refinement";
+    changes: readonly [Change, Change];
+  }[] = [
     {
       title: notRefinedStory,
       workflow: "Refinement",
-      change: "forgotten",
-      shows: "Session unavailable",
+      changes: [
+        { change: "blocked", shows: "Needs input", needsAttention: true },
+        { change: "failed", shows: "Session failed", needsAttention: true },
+      ],
     },
     {
       title: notRefinedStory,
       workflow: "Execution",
-      change: "stopped",
-      shows: "Stopped",
+      changes: [
+        {
+          change: "blocked",
+          waitingFor: "permission to run npm test",
+          shows: "Needs input: permission to run npm test",
+          needsAttention: true,
+        },
+        { change: "stopped", shows: "Session stopped", needsAttention: true },
+      ],
     },
     {
       title: readyStory,
       workflow: "Refinement",
-      change: "finished",
-      shows: "Finished",
+      changes: [
+        {
+          change: "done-live",
+          shows: "Ready for review",
+          needsAttention: true,
+        },
+        {
+          change: "done-exited",
+          shows: "Ready for review",
+          needsAttention: true,
+        },
+      ],
     },
-    { title: readyStory, workflow: "Execution", change: "idle", shows: "Idle" },
-  ] as const satisfies readonly {
-    title: string;
-    workflow: string;
-    change: ClaudeSessionChange;
-    shows: Label;
-  }[];
+    {
+      title: readyStory,
+      workflow: "Execution",
+      changes: [
+        { change: "working-idle", shows: "Working", needsAttention: false },
+        {
+          change: "forgotten",
+          shows: "Session unavailable",
+          needsAttention: false,
+        },
+      ],
+    },
+  ];
   for (const { title, workflow } of launches.toReversed()) {
     const before = await entries.count();
     if (workflow === "Execution") {
@@ -152,76 +147,90 @@ test("each entry shows its session's state, changes within one pace without a re
     }
     await expect(entries).toHaveCount(before + 1);
   }
-  const entryOf = (index: number) => entries.nth(index);
+  // Each session's Recent sessions entry and its card entry.
+  const placements = launches.map(({ title, workflow }, index) => {
+    const inRecent = entries.nth(index);
+    const onCard = cardSessions(card(title)).and(
+      page.getByRole("article", {
+        name: cardSessionName(workflow),
+        exact: true,
+      }),
+    );
+    return { title, workflow, inRecent, onCard };
+  });
+  const both = (index: number): readonly Locator[] => {
+    const placement = placements[index];
+    return placement === undefined
+      ? []
+      : [placement.inRecent, placement.onCard];
+  };
   const sessionIds: string[] = [];
-  for (const [index, { title, workflow }] of launches.entries()) {
-    await expect(entryOf(index)).toHaveAccessibleName(
+  for (const [index, { title, workflow, inRecent }] of placements.entries()) {
+    await expect(inRecent).toHaveAccessibleName(
       recentSessionName(workflow, title),
     );
-    await expectState(entryOf(index), "Working");
-    sessionIds.push(await sessionNamedBy(entryOf(index)));
-  }
-  // Set on this document only, so a reload would lose it.
-  await page.evaluate(() => {
-    document.documentElement.dataset["notReloaded"] = "yes";
-  });
-
-  await test.step("each session's change shows within one pace", async () => {
-    for (const [index, { change }] of launches.entries()) {
-      dashboard.claudeSessionBecomes(sessionIds[index] ?? "?", change);
+    for (const entry of both(index)) {
+      await expectSessionShown(entry, "Working", false);
     }
-    await passOnePace(page, () => reads);
-    for (const [index, { shows }] of launches.entries()) {
-      await expectState(entryOf(index), shows);
-      // An unavailable session keeps its id, without Open terminal.
-      await expect(entryOf(index)).toContainText(
-        `Session ${sessionIds[index] ?? "?"}`,
+    sessionIds.push(await sessionNamedBy(inRecent));
+  }
+  await markNotReloaded(page);
+
+  const expectChanged = async (round: 0 | 1) => {
+    for (const [index, { changes }] of launches.entries()) {
+      const { shows, needsAttention } = changes[round];
+      for (const entry of both(index)) {
+        await expectSessionShown(entry, shows, needsAttention);
+        await expect(
+          entry.getByRole("button", { name: "Open terminal" }),
+        ).toHaveCount(shows === "Session unavailable" ? 0 : 1);
+      }
+    }
+  };
+  const change = async (round: 0 | 1) => {
+    for (const [index, { changes }] of launches.entries()) {
+      const { change, waitingFor } = changes[round];
+      dashboard.claudeSessionBecomes(
+        sessionIds[index] ?? "?",
+        change,
+        waitingFor,
       );
     }
+    await passOnePace();
+  };
+
+  await test.step("blocked with or without a reason, done with its process running, or working idle shows within one pace", async () => {
+    await change(0);
+    await expectChanged(0);
   });
 
-  await test.step("a session marked done reads Done while it no longer runs, its running label when it runs again, and still Done, without Open terminal, once unlisted", async () => {
-    // The Stopped and Idle sessions; marking stops each one.
-    for (const index of [1, 3]) {
-      const response = await markDone(dashboard, {
-        source: "open-dough",
-        session: sessionIds[index] ?? "?",
-      });
-      expect(response.status).toBe(200);
-    }
-    await passOnePace(page, () => reads);
-    await expectState(entryOf(1), "Done");
-    await expectState(entryOf(3), "Done");
-    await expectState(entryOf(2), "Finished");
-
-    dashboard.claudeSessionBecomes(sessionIds[3] ?? "?", "idle");
-    dashboard.claudeSessionBecomes(sessionIds[1] ?? "?", "forgotten");
-    await passOnePace(page, () => reads);
-    await expectState(entryOf(3), "Idle");
-    await expect(sessionStateOf(entryOf(1))).toHaveText("Done");
-    await expect(
-      entryOf(1).getByRole("button", { name: "Open terminal" }),
-    ).toHaveCount(0);
+  await test.step("failed, stopped, done with its process exited, or no longer listed replaces it, with no stale reason", async () => {
+    await change(1);
+    await expectChanged(1);
+    // An unavailable session keeps its id, without Open terminal.
+    await expect(entries.nth(3)).toContainText(
+      `Session ${sessionIds[3] ?? "?"}`,
+    );
   });
 
-  await test.step("an unreadable listing shows State unknown with its note, marked done or not, and a readable one shows the state again", async () => {
+  await test.step("an unreadable listing shows State unknown with its note and no attention, and a readable one shows each state again", async () => {
     dashboard.claudeListingFails(true);
-    await passOnePace(page, () => reads);
+    await passOnePace();
     for (const index of launches.keys()) {
-      await expectState(entryOf(index), "State unknown");
+      for (const entry of both(index)) {
+        await expectSessionShown(entry, unknownShown, false);
+        await expect(
+          entry.getByRole("button", { name: "Open terminal" }),
+        ).toHaveCount(1);
+      }
     }
 
     dashboard.claudeListingFails(false);
-    dashboard.claudeSessionBecomes(sessionIds[3] ?? "?", "working");
-    await passOnePace(page, () => reads);
-    await expectState(entryOf(3), "Working");
-    await expectState(entryOf(2), "Finished");
-    await expectState(entryOf(0), "Session unavailable");
+    await passOnePace();
+    await expectChanged(1);
   });
 
-  expect(
-    await page.evaluate(() => document.documentElement.dataset["notReloaded"]),
-  ).toBe("yes");
+  await expectNotReloaded(page);
   // Session state never moves a story: origin alone places each one.
   await expectMembership(page, membership);
   expect(dashboard.claudeLaunchCalls()).toHaveLength(launches.length);

@@ -1,24 +1,21 @@
 // One Claude Code session this dashboard's server launched, shown the same
 // way wherever the page lists it: on its story's card (`./CardLaunches.tsx`)
 // and in Recent sessions (`./RecentSessions.tsx`). An entry gives its
-// session's state as Claude Code last listed it, its workflow, when it was
-// launched, its session, and Open terminal (`./LaunchSession.tsx`); a session
-// the developer marked done is Done, under its `done-` name. An entry names
-// its story's title and identity unless it is listed on the story's own card,
-// where it offers Mark as done through the page's one operation
-// (`./TerminalSplit.tsx`). A Recent sessions entry can take the keyboard when
-// the control that last had it is gone. Entries are local evidence of
-// launches, not story facts.
+// session's state as Claude Code last listed it, read once by `sessionShown`,
+// marked, when the developer is needed there, by a solid edge beside that
+// text; its workflow, when it was launched, its session, and Open terminal
+// (`./LaunchSession.tsx`); a session the developer marked done is Done, under
+// its `done-` name. An entry names its story's title and identity unless it
+// is listed on the story's own card, where it offers Mark as done through the
+// page's one operation (`./TerminalSplit.tsx`). A Recent sessions entry can
+// take the keyboard when the control that last had it is gone. Entries are
+// local evidence of launches, not story facts.
 
 import { useEffect, useRef } from "react";
-import {
-  launchWorkflows,
-  sessionRuns,
-  type LaunchWithState,
-  type SessionState,
-} from "./agentLaunch.ts";
+import { launchWorkflows, type LaunchWithState } from "./agentLaunch.ts";
 import { doneSessionName } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
+import { sessionShown } from "./sessionShown.ts";
 import { LaunchSession } from "./LaunchSession.tsx";
 import {
   notMarkedDone,
@@ -27,37 +24,6 @@ import {
   usePageSessions,
 } from "./terminalOpening.ts";
 import "./agent-launch.css";
-
-// How an entry names its session's state as Claude Code last listed it. A
-// running session is Working while busy and Idle otherwise, whatever its
-// state, even once marked done, since opening a done session wakes it; one no
-// longer running, or no longer listed, is Done once marked done; otherwise one
-// not running is Finished once Claude Code calls it done, and Stopped.
-function sessionStateWords(
-  sessionState: SessionState,
-  markedDone: boolean,
-): {
-  readonly label: string;
-  readonly note?: string;
-} {
-  switch (sessionState.kind) {
-    case "unknown":
-      return {
-        label: "State unknown",
-        note: "Claude Code's session list could not be read",
-      };
-    case "unlisted":
-      return { label: markedDone ? "Done" : "Session unavailable" };
-    case "listed":
-      if (sessionRuns(sessionState)) {
-        return { label: sessionState.status === "busy" ? "Working" : "Idle" };
-      }
-      if (markedDone) {
-        return { label: "Done" };
-      }
-      return { label: sessionState.state === "done" ? "Finished" : "Stopped" };
-  }
-}
 
 export function SessionEntry({
   record,
@@ -75,10 +41,7 @@ export function SessionEntry({
   const { title, identity, workflow } = record.request;
   const { name } = launchWorkflows[workflow];
   const markedDone = record.doneAt !== undefined;
-  const { label: state, note } = sessionStateWords(
-    record.sessionState,
-    markedDone,
-  );
+  const { label: state, note, needsAttention } = sessionShown(record);
 
   useEffect(() => {
     if (takesFocus === true) entry.current?.focus();
@@ -87,7 +50,9 @@ export function SessionEntry({
   return (
     <article
       ref={entry}
-      className="session-entry"
+      className={
+        needsAttention ? "session-entry needs-attention" : "session-entry"
+      }
       aria-label={onCard ? `${name} session` : `${name} session for ${title}`}
       tabIndex={-1}
       {...(onCard ? {} : showsSession(record.session.sessionId))}

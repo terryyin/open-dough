@@ -200,7 +200,7 @@ refused by this host's auto-mode classifier, so a human answered.
 
 ### 2. Each session shows why it needs attention and clears it on resumption or closure
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend `agent-launch-session-listing.spec.ts` and
 `agent-launch-recent-session-states.spec.ts` through the production listing
 boundary and browser; update the landed card state spec's labels. Run
@@ -240,6 +240,18 @@ slice. This is the largest slice but has one outside-in outcome: accurate
 per-session attention throughout its lifecycle. It includes observation,
 transport, interpretation, rendering, proof, and slice-local cleanup together.
 
+Accepted proof: the focused command above plus
+`dashboard/tests/agent-launch-attention-clearing.spec.ts`, and
+`npm run typecheck:dashboard`, exit 0. The interpretation is
+`sessionShown` in `dashboard/src/sessionShown.ts` (label, note,
+`needsAttention`); the cue is the `needs-attention` class's solid, heavier
+border. Fake changes are now `working`, `working-idle`, `blocked` (optional
+reason), `done-live`, `done-exited`, `failed`, `stopped`, `forgotten`, and
+shared pacing/assertion helpers live in `dashboard/tests/sessionStatePace.ts`
+(`watchRecordReads`/`passOnePace`, `expectNotReloaded`, `expectSessionShown`).
+Untested: a non-text `waitingFor` and an unrecognized state (handled in code;
+the fake cannot emit them).
+
 ### 3. A story card calls out whichever of its sessions need attention
 Type: Behavior
 Status: planned
@@ -259,7 +271,8 @@ on a Backlog/Preparing or Taken card. Attention does not change its stage,
 position, or published preparation facts. Another project's session does not
 contribute to this card.
 
-Compute the summary from the same presentation result used by the entries.
+Compute the summary from `sessionShown(record).needsAttention` over
+`cardSessionsOf`, the same result the entries use.
 Keep session membership and Mark as done owned by the prerequisite's existing
 rules. Extend the journey through origin removing the story from all displayed
 lists: its affected session remains reachable with the same reason and Open

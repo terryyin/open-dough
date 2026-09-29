@@ -148,3 +148,10 @@
 .session-state .quiet {
   font-weight: normal;
 }
+
+/* A session the developer is needed at: its state's words say why, and a
+   solid, heavier edge marks the entry without relying on color. */
+.session-entry.needs-attention {
+  border-style: solid;
+  border-left-width: 4px;
+}
