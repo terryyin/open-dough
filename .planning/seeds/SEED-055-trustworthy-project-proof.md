@@ -59,7 +59,7 @@ It adds no feature promise. See the
 
 **Identity:** SEED-055#native-harness-replay-corrections
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/169-native-harness-replay-corrections/PLAN.md","assessment":"not-ready","reasons":["Depends on integrating plan 163's story branch (claude/native-harness-observes-agent-behavior) into trunk; its files are not on trunk yet."],"basis":{"document":"ee96928865fc0b7e798eab07ad07b4454569af62a1cc314c41201f945d4f7378","plan":"49f7d713649a02ebdc94e404050b60c9048c83ee44a2e09f743aca7df64c55da"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/169-native-harness-replay-corrections/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0f77b0c2a48886c71904b5a97a9dc18973d316a165f3591f90ae79f11f9adeb1","plan":"37834968c4fb6d262511aa8698bb4861063dee43557cdaa2f5facaf85498980e"}}
 ```
 
 **Goal:** The maintainer paying for native runs gets a reader that
