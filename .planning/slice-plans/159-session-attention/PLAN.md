@@ -289,6 +289,26 @@ in `dashboard/src/sessionShown.ts`, rendered by `CardLaunches.tsx` as
 `.card-attention`. The shared card-entry locator is `cardSessionOf` in
 `dashboard/tests/dashboardPage.ts`.
 
+## Execution complete
+
+Product advice: The story's goal is delivered; no new story is needed.
+- Before SEED-052#reopened-session-returns (plan 161) executes, reconcile its
+  example 1 ("Working or Idle": Idle is no longer shown) and confirm a
+  reopened session, once its done mark clears, regains attention through
+  `sessionShown`.
+- Fold into SEED-052#card-session-residue (plan 160), which already owns card
+  state-spec overlap: `agent-launch-recent-session-states.spec.ts` asserts
+  every state in both placements, against slice 2's direction, and
+  `agent-launch-attention.spec.ts` adds a fourth reload/project-switch check.
+  Plan 160's `sessionStateWords` and 252-line references are now
+  `sessionShown` and 245 lines.
+- Update SEED-052#use-codex-from-dashboard's "Known from launch" note: the
+  host-state reading is now `sessionShown` in `dashboard/src/sessionShown.ts`,
+  keyed on Claude Code's `state` strings and optional `waitingFor`.
+- For a question, Claude Code 2.1.284 reports `waitingFor` only as the generic
+  "input needed"; whether a permission prompt gives a more useful reason is
+  unobserved and worth noting in ordinary use.
+
 ## Proof ownership
 
 | Final-state promise | Owning slice and observable proof |
