@@ -22,7 +22,10 @@ within 250 lines.
 Preserved: every promise of SEED-052#keep-story-session-links (examples 1 to
 6, the membership rule, Terry's focus decisions, stop only while listed or
 unreadable, retention from the done time) and the page-wide rules in
-`accessible-overview-keyboard.spec.ts` and `published-work.spec.ts`.
+`accessible-overview-keyboard.spec.ts` and `published-work.spec.ts`. Also
+preserved: SEED-052#reopened-session-returns (plan 161, queued ahead of this
+correction), under which an admitted attach clears a session's done mark and
+returns it to its card; whichever plan lands second rebases onto the other.
 Excluded: new behavior; ADR 0008's "Launch workflow" definition, which still
 names the removed settlement and is Terry's to revise; a page observation of a
 40-day-old unclosed record (the page applies no age filter, so the boundary
@@ -88,7 +91,9 @@ Replace `TerminalOpening` as the argument of both `OpenTerminal` and
 `MarkSessionDone` with one `{ record, control }` request; keep the open-panel
 state in `TerminalSplit`. Rename `terminalOpening.ts` for the page's sessions
 (for example `pageSessions.ts`). Put `data-shows-session` on every entry and
-drop its `onCard` gate. Rename the Started test variables to entries.
+drop its `onCard` gate. Rename the Started test variables to entries. When plan
+161 has landed, the page's refresh after a terminal attaches to a done
+session uses the same request shape; do not add a second one.
 
 ### 3. Card specs keep only card-specific observations
 Type: Structure
@@ -104,7 +109,9 @@ matrix to `agent-launch-recent-session-states.spec.ts`. In
 entry; leave two entries and their order to `agent-launch-card-sessions.spec.ts`.
 Drop card-sessions' standalone reload and project-switch steps; the
 card-session-states restart step and card-sessions' in-stage reloads keep that
-coverage. Update `dashboard/tests/README.md`.
+coverage. Update `dashboard/tests/README.md`. Keep plan 161's reopening
+observations in `agent-terminal-done.spec.ts` and the terminal boundary spec
+when they have landed; they are not overlap.
 
 ## Proof ownership
 
