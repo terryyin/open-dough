@@ -64,8 +64,10 @@ a change to global backlog priority.
   preparation to precede tool launch.
 - Initially launch and forget: report the dashboard's launch operation, then
   derive story progress from origin. No session monitoring, automatic question
-  detection, or completion notification is required. Story 3 adds a
-  developer's explicit Mark as done, with its done-prefix name.
+  detection, or completion notification is required for that initial delivery.
+  Story 3 adds a developer's explicit Mark as done, with its done-prefix name.
+  Story 4 subsequently adds attention indicators from reported local session
+  state; it does not establish story completion.
 - Later embedded interaction exposes the ordinary CLI, opened manually.
   An embedded terminal (xterm.js was suggested) is the leading interaction
   direction, not a selected implementation dependency.
@@ -166,35 +168,105 @@ feature promise. See the [plan](../slice-plans/156-terminal-host-refusal-proof/P
 
 <a id="launch-claude-refinement"></a>
 
-### 4. Start story refinement and answer its questions in the dashboard
+### 4. See when a dashboard session needs human attention
 
 **Identity:** SEED-052#launch-claude-refinement
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/159-session-attention/PLAN.md","assessment":"not-ready","reasons":["Waits for SEED-052#keep-story-session-links (plan 157) to land on fetched origin/main: product slices 2 and 3 require its persistent card-session entries, shared presentation, and deliberate closure. Observe the landed behavior and reconcile this plan before clearing this blocker."],"basis":{"document":"ceaece660f85174dbeaef073937c80581da6c414ef025fdaae67536228cc5e63","plan":"63480a04523b464f6456ab3c4a6ccca127955f8444d3fb17db370389b779e0e2"}}
 ```
 
-- **For / why:** A developer can begin conversational preparation from an
-  unrefined story and continue the interview where they selected it.
-- **Evaluation:** Select an unrefined story and choose refinement from a
-  state-aware skill chooser, which offers the skills that apply to the
-  story's state in place of one fixed action per workflow. After the launch,
-  open the embedded terminal to answer its questions and review its result
-  through the ordinary workflow. Published refinement facts subsequently
-  appear from origin.
-- **Boundary:** The agent still owns its normal preparation workflow; launching
-  refinement does not imply Taken, completed refinement, acceptance, or execution.
-  Unavailable actions explain their prerequisite. Decomposition, planning-only,
-  and other independent skill-launch journeys need later selection, not an
-  automatic promise to support every installed skill.
-- **Value / learning:** Delivers the first conversational launch journey and
-  tests whether skill selection and native terminal interaction are sufficient.
-- **Effort hypothesis:** Unestimated; skill applicability and interview-to-
-  publication behavior need refinement.
-- **Depends on:** The dashboard's refinement launch
-  ([Agent launch](../../dashboard/AGENT-LAUNCH.md)) and story 3 for the
-  embedded terminal.
-- **Safe stopping point:** Refinement and execution are useful without moving
-  preparation responsibilities into the dashboard.
+**Goal:** A developer who leaves a dashboard-launched Claude Code session
+working can notice when it needs an answer, has a result to review, or has
+failed or stopped, and open its terminal to respond. The developer need not
+open each conversation merely to find out which one needs attention.
+
+**Scope:**
+
+- Apply to dashboard-launched refinement and execution sessions in the selected
+  project that the developer has not marked done. Both the Recent sessions
+  entry and the session's entry on its linked story card show an attention
+  indicator and its reason. The story card also signals that one or more of
+  its sessions need attention. Each session keeps its own state; a working
+  session does not hide another session's need for attention.
+- A session waiting on the developer shows **Needs input**, with the reported
+  reason when available, such as an answer, permission decision, or another
+  intervention. A session whose last turn has finished shows **Ready for
+  review**. A failed or stopped session calls for attention with **Session
+  failed** or **Session stopped**. These are local session observations,
+  regardless of whether the underlying process is still alive.
+- Use the host's reported state, not elapsed inactivity, terminal output
+  silence, or process exit alone. A session still driving work, including
+  waiting between its own steps or on CI, does not need attention merely
+  because its process is idle. Update attention through the existing automatic
+  session-state refresh; no page reload or open terminal is required.
+- Keep **Open terminal** wherever the session remains attachable. Opening or
+  closing the terminal does not acknowledge attention. When the host reports
+  that the session has resumed work, its attention indicator clears. The
+  developer's explicit **Mark as done** closes it and suppresses its attention
+  indicator, including in Recent sessions. No separate acknowledgment flow is
+  required.
+- An unreadable listing shows **State unknown** with the existing explanation;
+  an unlisted session shows **Session unavailable** with its existing controls.
+  Neither observation establishes that the session is blocked or has ended.
+  Do not invent an attention reason from missing evidence. When the host can
+  be read again, show the newly observed state.
+- A session's end or readiness for review does not establish that its story
+  is refined, accepted, completed, or published. Preserve origin as the source
+  of published story facts. When the story is outside all displayed lists,
+  its session can still need attention in Recent sessions.
+- **Deferred:** A state-aware skill chooser and additional skill-launch
+  journeys; reconciliation of completed stories; browser or operating-system
+  notifications; discovering sessions not launched by the dashboard; and
+  adding Codex or Cursor support. Launching refinement and answering through
+  the embedded terminal are already delivered, not new promises of this story.
+
+**Key examples:**
+
+1. A refinement session is working. Claude Code then reports that it needs
+   an answer. The session and its linked story signal attention with **Needs
+   input**. The developer opens its terminal and answers; after Claude Code
+   resumes work, the indicator clears.
+2. An execution session needs a permission decision. Its entry identifies that
+   reason, even though the session process is alive. Opening the terminal alone
+   leaves attention visible while the decision remains pending.
+3. Claude Code reports that a session's last turn is done, with its process
+   either alive or exited. Its entry shows **Ready for review**, while the
+   story keeps whatever published state origin establishes. Mark as done
+   clears attention and deliberately closes the session's card entry.
+4. One story has two unclosed sessions: one working and one failed or stopped.
+   The latter names its condition and the story signals attention. The working
+   session remains working. The same affected session remains visible in
+   Recent sessions if the story later leaves every displayed list.
+5. A session is idle between steps while the host still reports it as working;
+   it shows no attention indicator. If the host listing becomes unreadable,
+   the dashboard instead reports **State unknown**, without claiming a question
+   or result is waiting.
+
+**Depends on:** Existing Claude Code launch, Recent sessions, and embedded
+terminal behavior in [Agent launch](../../dashboard/AGENT-LAUNCH.md), plus
+[Keep story sessions linked until deliberately closed](#keep-story-session-links)
+for persistent session entries and deliberate closure on story cards.
+
+**Feasibility evidence:** The current dashboard reads `claude agents --json
+--all`, but presents every live non-busy process as Idle. Claude Code's
+[documented session interface](https://code.claude.com/docs/en/agent-view#read-session-state-from-a-script)
+distinguishes `blocked`, `working`, `done`, `failed`, and `stopped`, and supplies
+`waitingFor` when a live process has a pending prompt. This supports reporting
+attention without detecting questions from transcript text. Confirm the relevant
+states with the project's installed Claude Code when preparing executable proof.
+
+**Value / learning:** Makes the existing conversational launch journey useful
+while the developer attends to other work, and tests whether reported session
+state is enough to guide their return.
+
+**Effort hypothesis:** Unestimated; confirming host-state observations and
+presenting attention consistently across story cards and Recent sessions are
+the remaining sizing uncertainties. No unresolved product-scope question is
+required before execution planning.
+
+**Safe stopping point:** Session attention is useful with the existing launch
+and terminal workflows, without completed-story reconciliation or additional
+tools.
 
 <a id="script-execution-preparation"></a>
 
@@ -431,8 +503,10 @@ silently added to the launch critical path.
 
 ## Ordering and Scope Reduction
 
-Stories 2 and 3 make return and
-interaction useful before story 4 introduces the more conversational workflow.
+Stories 2 and 3 make return and interaction useful; refinement launch and
+embedded answers are already available. Story 4 now adds attention indicators
+so the developer can notice when to return, after story-session links support
+the same signal on cards.
 Recent-session navigation can be delivered alongside terminal interaction if
 refinement shows that separate delivery adds no useful stopping point; neither
 requires the Recently done view.
@@ -447,9 +521,10 @@ once the Claude experience and each tool's feasibility are known.
 For scope reduction, defer tool expansion first, then further scripted setup;
 retain launch and useful interaction in Claude Code. If embedded interaction is
 too costly, retain launch and recent-session access through the external CLI,
-which the dashboard's refinement launch already provides. Automatic attention
-indicators, completion callbacks, model selection, other
-skills, externally started sessions, and full project/tool setup remain deferred.
+which the dashboard's refinement launch already provides. Story 4 selects
+local attention indicators; completion callbacks, notifications, state-aware
+skill selection, model selection, other skills, externally started sessions,
+and full project/tool setup remain deferred.
 Recently done is related work with its own value and priority decision.
 
 ## Open Decisions Before Refinement or Planning
