@@ -143,6 +143,26 @@ Proof: one Cursor planning-only run of the changed guidance, judged against
 the story's three examples. Record the literal commands, Cursor agent version,
 model, verdict, and where the written plan was kept.
 
+Run 2026-09-29, one time, from guidance at `9d4bf02f`. Cursor agent
+`2026.09.28-64d2043`. No model was named; the CLI default was used. Disposable
+clone `/tmp/open-dough-153-pygardon` at `546df0d94`, origin removed, seed and
+backlog restored from `b2ad7c394`, story state reset to `refined` /
+`unselected`, then `install.sh --target /tmp/open-dough-153-pygardon --source
+/Users/terryyin/git/open-dough/.worktrees/name-the-feature-that-runs-moved-seeding
+--platform cursor --force`. Command: `cursor agent --print --force --trust
+--sandbox disabled --workspace /tmp/open-dough-153-pygardon` with
+`/dough-slice-planning
+seeds/SEED-047-tfdc-search-and-verify-simplification.md#story-tfdc-dead-behavior-removal`
+and an instruction not to implement, commit, push, or publish. Transcript:
+`/tmp/open-dough-153-pygardon-cursor.txt`. Written plan:
+`/tmp/open-dough-153-pygardon/.planning/quick/179-tfdc-dead-behavior-removal/PLAN.md`.
+
+Verdict: fail. Slice 10 moves `gate_baseline_genome` and proves it with the
+agreement test and genome/search/catalog tests. The plan never names
+`live_strategies.feature` or `seed_named_genome_live_strategy_pair.py`.
+Stopped for a human guidance decision. This plan does not authorize a second
+rewrite or a second run.
+
 Behavior: a disposable Pygardon clone at `546df0d94` (parent of `b2ad7c394`),
 `origin` removed, seed and backlog restored from `b2ad7c394` with the story
 state reset to `refined` / `unselected`, guidance installed from this checkout
