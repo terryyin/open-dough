@@ -3,6 +3,9 @@
 // process's PATH, answering from a fake GitHub (./fakeGitHub.ts), and the
 // synthetic `claude` (../fixtures/fake-claude, via ./fakeClaude.ts) before
 // it, in a temporary HOME holding only the project folders a test chooses.
+// A test that restarts a server on the same machine state passes a `machine`
+// directory it owns, which holds HOME and the fake `claude`'s state and
+// outlives each server.
 // Every page journey gets its own server this way (../dashboardTest.ts), and the
 // boundary specs start their own, so PATH/env mutation and each fake
 // GitHub's answers never leak between tests.

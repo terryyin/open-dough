@@ -6,6 +6,7 @@ import { usePublishedObservation } from "./publishedObservation.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import { WorkStages } from "./WorkStages.tsx";
 import { useAgentLaunches } from "./agentLaunches.ts";
+import { RecentSessions } from "./RecentSessions.tsx";
 import { PreparationLegend } from "./PreparationLegend.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
 import type { OpenRoster } from "./AgentAssignmentFacts.tsx";
@@ -228,6 +229,7 @@ export function App() {
             launches={launches}
             onOpenRoster={openRoster}
           />
+          <RecentSessions records={launches.records} />
         </main>
       )}
       {showsRoster && (

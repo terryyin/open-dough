@@ -29,7 +29,7 @@ workflows above, and only Claude Code as the host. It runs
 `/<skill> <identity>`, followed by a blank line and the developer's
 instruction when there is one. It passes no model, permission, or effort
 choice, so the developer's own Claude Code settings apply. It confirms the
-session in `claude agents --json`.
+session in Claude Code's own listing, `claude agents --json --all`.
 
 A confirmed launch replaces its own action with a Started record naming its
 workflow, such as **Refinement started**; the card's other action stays, and a
@@ -44,20 +44,51 @@ confirm) advises checking `claude agents` before starting again. Either answer
 stays beside its own action, which stays on the card.
 
 Started lasts while origin still shows the story in the Backlog without the
-assignment its workflow asks for. Reloading the page or selecting another
-project and back keeps it, because the page reads the project's launch records
-again from the local server (`GET /__agent-launch?source=<project id>`). A
+assignment its workflow asks for and its session may still run. Reloading the
+page or selecting another project and back keeps it, because the page reads the
+project's launch records again from the local server
+(`GET /__agent-launch?source=<project id>`). A
 published **Preparing** assignment is the one refinement asks for: it ends a
 refinement Started, and Start refinement then carries the note "Being
 prepared". It does not end an execution Started, since the session may ready
 the story before taking it; the card then shows both. A refinement launched on
 a card already Preparing therefore settles at once and shows no Started; its
-session is reached through `claude agents`. Once origin shows the story under
+session is listed under Recent sessions. Once origin shows the story under
 **Taken**, or no longer lists it at all, every Started is gone and the
-published card speaks for the story.
+published card speaks for the story. Started also ends once its session no
+longer runs before origin shows the assignment: Claude Code lists it as
+finished or stopped, or no longer lists it. Its action is offered again, with
+its note, and its Recent sessions entry stays with that state. While Claude
+Code's listing cannot be read, Started stays.
 
-Launch records are kept only by the running dashboard server, in memory.
-Restarting `npm run dev:dashboard` or `npm run preview:dashboard` forgets them,
-so a card offers each action again even though its session may still be
-running; check `claude agents` before starting it again. Origin still shows the
-story truthfully, because nothing about the story itself was ever kept here.
+**Recent sessions**, below the stages, lists every launch record the page
+reads for the selected project, newest first, whatever origin now shows of its
+story. Each entry names the story's title and identity, its workflow, when it
+was launched, the session id, and the same copyable `claude attach <id>` as
+Started, marked "Local: launched from this dashboard on this machine." An
+entry does not settle: it stays when the story is prepared, taken, or leaves
+every list, and two launches of one story are two entries. Another project's
+launches are listed only under that project, and sessions this dashboard did
+not launch are not listed. With no records it says that no sessions launched
+from this dashboard are kept.
+
+Each entry also shows its session's state, read from `claude agents --json
+--all` in the project's folder whenever the records are read and never kept:
+**Working** or **Idle** while its process runs busy or idle, **Finished** once
+it is done, and **Stopped** otherwise. A session Claude Code no longer lists
+shows **Session unavailable** without `claude attach <id>`; if the listing
+cannot be read, every entry shows **State unknown** with "Claude Code's
+session list could not be read" and keeps its attach command. While the page
+is visible it reads the records again every 15 seconds, the pace of its
+revision checks, so a state change shows without a reload. With no records,
+`claude` is not run.
+
+Launch records are kept on this machine, outside every repository, in
+`~/.open-dough/dashboard/agent-launches.json`. Restarting `npm run
+dev:dashboard` or `npm run preview:dashboard` keeps them, and a dev and a
+preview server on the same machine answer the same records. A record launched
+more than 30 days ago is no longer answered. If that file cannot be read, the
+dashboard answers no records and leaves the file alone; the next launch moves
+it aside as `agent-launches.json.unreadable` and starts a new one. Origin still
+shows the story truthfully, because nothing about the story itself was ever
+kept here.

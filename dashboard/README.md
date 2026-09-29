@@ -3,7 +3,8 @@
 A locally launched page that shows the selected project's published work: the
 near-future direction, the **Backlog** in priority order, and the **Taken**
 entries, as connected stages. **Start execution** and **Start refinement** on a
-Backlog card ask Claude Code on this machine to execute or refine the story ([Agent launch](AGENT-LAUNCH.md)).
+Backlog card ask Claude Code on this machine to execute or refine the story, and
+**Recent sessions** lists those launches, newest first ([Agent launch](AGENT-LAUNCH.md)).
 
 The pinned banner shows the selected project in a disclosure and keeps the four
 **Project** choices and SVG **Refresh** control reachable while scrolling. The disclosure opens the repository/ref, full
@@ -41,9 +42,8 @@ Reading a project needs only the `gh` access the launching person already
 has -- the same access `gh api repos/terryyin/pygardon/commits/main` proves
 from a terminal -- and works from the ordinary launch route:
 `npm run dev:dashboard`, or `npm run build:dashboard` followed by
-`npm run preview:dashboard`. Both modes mount the identical local read
-boundary from the same Vite configuration, so a built preview needs no
-separate setup.
+`npm run preview:dashboard`. Both modes mount the identical local read boundary
+from the same Vite configuration, so a built preview needs no separate setup.
 
 Selecting a project replaces the whole view and reads that project afresh. It
 reads once on opening and again when **Refresh** is pressed. While a snapshot

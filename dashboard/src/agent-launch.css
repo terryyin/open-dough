@@ -1,6 +1,7 @@
-/* A Backlog card's launch actions, their dialog, a launch's answer, and
-   the local Started state that replaces the action. Text carries every
-   meaning; the dashed edge of a noted action only repeats its note. */
+/* A Backlog card's launch actions, their dialog, a launch's answer, the
+   local Started state that replaces the action, and the project's Recent
+   sessions. Text carries every meaning; the dashed edge of a noted action
+   only repeats its note. */
 
 .start-launch {
   margin-top: 0.45rem;
@@ -104,11 +105,46 @@
   font-weight: 600;
 }
 
-.launch-started-local,
+.launch-local,
 .launch-copy-result {
   color: var(--quiet);
 }
 
 .launch-copy-result:not(:empty) {
   margin-left: 0.4rem;
+}
+
+.recent-sessions {
+  margin-top: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem 1rem;
+  background: var(--panel);
+}
+
+.recent-sessions > p {
+  margin-top: 0.25rem;
+}
+
+.recent-sessions ol {
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.recent-session {
+  border: 1px dashed var(--edge);
+  border-radius: 0.35rem;
+  padding: 0.5rem 0.8rem;
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+
+.recent-session-state {
+  font-weight: 600;
+}
+
+.recent-session-state .quiet {
+  font-weight: normal;
 }

@@ -4,7 +4,8 @@
 // skill and named for its workflow, and answers with the record it keeps;
 // each failure answers failed or uncertain and keeps no record. A GET answers
 // only the requested project's records.
-// Refused requests are ./agent-launch-refusal.spec.ts. The synthetic `claude`
+// Refused requests are ./agent-launch-refusal.spec.ts, and how long and where
+// records are kept is ./agent-launch-records.spec.ts. The synthetic `claude`
 // (./fixtures/fake-claude) on each server's PATH records every call; the
 // real one is never reached.
 
@@ -81,7 +82,7 @@ for (const mode of ["dev", "preview"] as const) {
           ],
           cwd: folder,
         },
-        { argv: ["agents", "--json"], cwd: folder },
+        { argv: ["agents", "--json", "--all"], cwd: folder },
       ]);
       expect(await recordsOf(server, "open-dough")).toEqual([answer.record]);
       expect(await recordsOf(server, "doughnut")).toEqual([]);

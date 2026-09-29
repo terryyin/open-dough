@@ -308,6 +308,25 @@ another directory reports "CI mailbox belongs to another checkout".
   - Observed effect: no delivery impact; a focused run from `src/skills` would show a false failure.
   - Inference: Qualified. Deriving the root from the test file's location would give the same result from any directory, as CI does.
 
+## Native host observations planned for the developer (low priority, not selected)
+
+### DD-169 — A plan handed a read-only `claude attach` probe to the developer, who expected the agent to run it
+
+Plan 150 slice 3 said to ask Terry to run `claude attach` on a finished
+session. Asked, he replied "why cannot you just do it by yourself?". The
+coordinator then tried it in a pseudo-terminal and auto mode denied it, so
+Terry ran it after all.
+
+#### Occurrences
+
+- Execution: `SEED-052#revisit-dashboard-sessions` / plan 150, first related implementation commit `5933bb9178a503409b9574f9b87207cbf5f8fbb5`
+  - Timestamp: unknown (slice 3 start, between `29174888` at 2026-09-29T11:30:06+08:00 and `f332b5dd` at 11:44:42+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: plan 150 slice 3 ("Ask Terry to run `claude attach <id>`"); two questions to Terry; auto-mode denial of the pty attempt; recorded answer in plan 150 slice 3 Accepted.
+  - Observed effect: two question rounds and one denied command; no delivery impact, since the implementation kept the rule behind one predicate meanwhile.
+  - Inference: Qualified. Planning did not say who may run an interactive native-host observation, or whether this session's permissions allow it.
+
 ## Retention
 
 - Moved from `DearDough.md` at `7ebcb07c`: ODF-060, DD-113, DD-114.
