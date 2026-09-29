@@ -16,6 +16,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Close stories through an installed wrap-up command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command) — SEED-008#installed-wrap-up-command ([plan](slice-plans/146-installed-wrap-up-command/PLAN.md))
 - [Find recent dashboard-launched sessions after leaving the story](seeds/SEED-052-start-agent-work-from-dashboard.md#revisit-dashboard-sessions) — SEED-052#revisit-dashboard-sessions ([plan](slice-plans/150-revisit-dashboard-sessions/PLAN.md))
+- [Accept existing guidance natively on Cursor](seeds/SEED-053-native-guidance-acceptance.md#native-acceptance-cursor) — SEED-028#native-one-shot-other-hosts ([plan](slice-plans/140-native-guidance-acceptance-cursor/PLAN.md))
 
 ## Backlog list
 
@@ -26,4 +27,3 @@ visibility for multiple agents working in worktrees on one machine.
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
-- [Accept existing guidance natively on Cursor](seeds/SEED-053-native-guidance-acceptance.md#native-acceptance-cursor) — SEED-028#native-one-shot-other-hosts
