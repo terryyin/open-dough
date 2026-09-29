@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Prove Mark as done's remaining edges and trim card-session residue](seeds/SEED-052-start-agent-work-from-dashboard.md#card-session-residue) — SEED-052#card-session-residue ([plan](slice-plans/160-card-session-residue/PLAN.md))
-- [Judge a change against the CI time budget from CI's own timings](seeds/SEED-055-trustworthy-project-proof.md#ci-time-budget-from-ci-timings) — SEED-055#ci-time-budget-from-ci-timings ([plan](slice-plans/162-ci-time-budget-from-ci-timings/PLAN.md))
 
 ## Backlog list
 
