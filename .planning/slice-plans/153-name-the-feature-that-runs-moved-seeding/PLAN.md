@@ -227,3 +227,13 @@ runs that feature scenario, not pytest alone. The earlier misses used Cursor's
 default model.
 
 Needs Terry's go-ahead before the paid run. Add the run to no automated suite.
+
+## Execution complete
+
+Product advice: the story's Cursor check passes with `claude-opus-5-5-high`.
+Keep that model on a future Cursor premise check of this rule. Cursor's
+default model still does not name the feature. No further product story comes
+from this execution. Process review matched ODF-154 (managed delivery stayed
+unobserved because Cursor session identity was missing) and did not write
+`DearDough.md`: the log is already 1011 lines, and another occurrence of that
+known gap is not higher priority than the material already there.
