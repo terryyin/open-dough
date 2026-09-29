@@ -21,6 +21,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Prove the terminal's foreign-Host refusal again and settle the residue's homes](seeds/SEED-052-start-agent-work-from-dashboard.md#terminal-host-refusal-proof) — SEED-052#terminal-host-refusal-proof
 - [Start story refinement and answer its questions in the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-refinement) — SEED-052#launch-claude-refinement
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation

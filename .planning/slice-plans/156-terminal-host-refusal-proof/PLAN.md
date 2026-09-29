@@ -41,8 +41,15 @@ Excluded, and left for Terry at wrap-up:
   terminal (Session unavailable), or the session belongs to another project;
 - `NORTH-STAR.md`'s "Host-specific code stays in one module per host" now
   that Claude Code code spans `claudeCode.ts` and `claudeLaunch.ts`;
-- the decisions plan 155 homed for Terry (Mark as done's rename, State
-  unknown's Open terminal, loading under focus);
+- Mark as done's rename: typing `/rename` into the attached terminal can reach
+  a permission prompt or the agent view. The alternative is a `done-` name kept
+  only in the dashboard record, which the story allows when the rename cannot
+  be done reliably;
+- State unknown still offers Open terminal (`attachOpens` in
+  `src/agentLaunch.ts`), as it offered the copyable command before;
+- at narrow widths, preparation facts arriving after a focus scroll can move
+  the focused control past the window edge. `dashboard-header.spec.ts` waits
+  for "Reading preparation…" to clear, and no product change is recommended;
 - `agent-launch-refusal.spec.ts` running every schema row in both modes, a
   test-optimization candidate.
 
