@@ -22,9 +22,8 @@ low coordination cost and empirical improvement goals of
 
 <a id="native-premise-acceptance-codex-cursor"></a>
 
-The pending premise-verification work is now grouped into the
-[Codex](SEED-053-native-guidance-acceptance.md#native-acceptance-codex) and
+The pending premise-verification work belongs to the
 [Cursor](SEED-053-native-guidance-acceptance.md#native-acceptance-cursor)
-stories. The original cases, setup, constraints and Claude Code reference
+story. The original cases, setup, constraints and Claude Code reference
 are retained in their [shared acceptance context](SEED-053-native-guidance-acceptance.md#shared-premise-verification-cases).
 This anchor remains a navigation reference, not a separate active story.

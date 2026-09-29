@@ -48,50 +48,6 @@ and [ADR 0006](../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
 proposal; human-owned ADR status decisions remain separate from this planning
 direction.
 
-## One admission path for accepted work
-
-Queued and emergent work converge on the same story identity, Taken membership,
-assignment and execution lifecycle. Extend the existing startup and backlog
-owners to admit a new canonical story and publish its claim together; keep remote
-publication, recovery and safe default-checkout refresh shared. Current startup
-requires an already published queued source, while contextual work bypasses it:
-that entry assumption is the gap, not a missing lifecycle or dashboard model.
-Keep acceptance/ownership distinct from preparation and execution readiness; do
-not manufacture a ready assessment merely to publish a claim. Independent
-investigations enter Taken on acceptance and can later attach an implementation
-plan to that same story. New corrections use a seed story linked to their plan;
-retain compatibility for existing plan-homed identities without migration. New canonical
-content must survive claim retry and agent reselection together with the claim.
-The dashboard continues to derive its view from those published records. This
-direction serves [one-shot escalation](seeds/SEED-053-native-guidance-acceptance.md#shared-one-shot-cases);
-it creates no ad hoc entity, origin flag, parallel publisher or speculative
-one-shot machinery. Follow the separate-facts and cohesion principles in
-[ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
-
-For explicit one-shot work, reuse planless execution and ordinary verified
-publication/cleanup. A queued story can complete directly; an unlisted request
-needs no temporary story on success. Growth transfers the same owned edits and
-proof into normal admission before further work, then continues within the
-original authority. Recheck queued ownership before publishing cleanup so a
-concurrent claim is preserved. This is a policy at work entry and completion,
-not another execution engine, branch mode or persistent tracking state.
-
-Concretely, the startup command owns all three entries: Take, admission and
-one-shot. `--one-shot` reuses its request validation, published-source reading
-and owned-workspace selection, then publishes nothing. Its result goes through
-ordinary managed increment delivery; a queued story's backlog completion and
-spent-record removal join that same candidate, and an ownership guard
-rereads each fetched trunk tip before the publisher rewrites anything, since
-replaying that completion over a competing Take would otherwise surface as a
-backlog merge conflict. On growth the one-shot workspace becomes the admitted story's
-checkout: park the attempt's owned edits under a workspace-owned ref, return
-the workspace to clean fetched trunk, run the ordinary admission claim there,
-then restore the edits over the Take. Admission carrying such an attempt
-accepts a queued story too, moving its existing entry to Taken without a
-readiness assessment; ordinary queued starts and continuing into
-implementation keep the readiness gate. Entry workflows pass the
-flag through and keep no one-shot rules of their own.
-
 ## One backlog interpretation, separate observation and presentation
 
 For the first dashboard, keep the existing pure backlog document, identity, and
