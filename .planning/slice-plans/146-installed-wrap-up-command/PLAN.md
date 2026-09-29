@@ -515,7 +515,7 @@ literal.
 
 ### 7. Closure harnesses observe the agent from outside its fixture
 Type: Structure
-Status: planned
+Status: done
 Proof: credential-free `tests/git-publication-native.sh` default mode green for trunk closure, Story Branch closure, and execution review; a substitute run whose worktree is already removed still stops its observer; a Codex-shaped substitute whose PATH drops the node wrapper still records the command calls.
 
 Correction: plan 142's harness repairs reached only trunk closure, and their
@@ -533,6 +533,23 @@ agent-visible fixture root; and stop exporting `TRUNK_CLOSURE_TRANSCRIPT`,
 `STORY_CLOSURE_TRANSCRIPT`, and `CI_COMPLETION_TRANSCRIPT`, which only the
 runner's own controllers read. Add the helper to the identities slice 6 lists.
 Assessors keep their counterexamples.
+
+Accepted proof (2026-09-29): `tests/support/native-harness-observation.sh` holds
+the observer stop by mailbox, the node wrapper with the Codex `NODE_OPTIONS`
+recorder, and the restore, used by the trunk closure, Story Branch closure, and
+execution-review fixtures, whose harness files now live in a separate
+`mktemp -d` directory; the transcript exports are gone. Default mode adds
+`run_story_closure_harness_counterexamples` (a removed worktree's observer still
+ends `stopped` through the fallback) and `run_native_harness_counterexamples`
+(a Codex-shaped PATH drop still records node calls once; restore leaves PATH
+and `NODE_OPTIONS` unchanged). `tests/git-publication-native.sh`,
+`tests/native-evidence-identity.sh`, and
+`tests/git-publication-native-owned-context.sh` green. The helper and recorder
+are in the three identities.
+
+Learnings: removing a worktree does not end its observer, so the fallback stop
+does real work. A closure runner given an empty results directory tries
+`mkdir /<host>` and can hang; give slice 8 a real results directory.
 
 ### 8. Native acceptance of the changed closure and Land guidance
 Type: Behavior

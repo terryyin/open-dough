@@ -25,6 +25,7 @@ trunk_closure_write_evidence_identity() {
     tests/support/native-completion-observation.sh \
     tests/support/trunk-closure-native-fixture.sh \
     tests/support/trunk-closure-native-owned-context.sh \
+    tests/support/native-harness-observation.sh \
     tests/support/native-node-call-recorder.mjs \
     tests/support/git-publication-native-shared.sh \
     tests/support/git-publication-native-run.sh
@@ -44,10 +45,11 @@ trunk_closure_write_evidence_identity() {
 # Per-step controller bound; each step awaits one action of the native agent.
 trunk_closure_wait_limit=360
 
-# The installed `finish`, which runs completion, has started.
+# The installed `finish`, which runs completion, has started, as the node log
+# or the runner's transcript shows.
 trunk_closure_complete_seen() {
   [[ $(trunk_closure_finish_count "${trunk_closure_node_log}" \
-    "${TRUNK_CLOSURE_TRANSCRIPT:-/dev/null}" \
+    "${transcript:-/dev/null}" \
     "${trunk_closure_candidate_sha}") -ge 1 ]]
 }
 
@@ -85,23 +87,6 @@ trunk_closure_controller() {
   [[ ${remote_sha} == "${trunk_closure_candidate_sha}" ]]
 }
 
-# Fixture fallback: stops an observer the session left running, through
-# candidate source $1's mailbox stop bound to the checkout the mailbox
-# recorded. The installed launcher is not used: the session may already have
-# removed the worktree that holds it.
-trunk_closure_stop_observer() {
-  [[ ! -f ${trunk_closure_mailbox}/result.json ]] || return 0
-  # shellcheck disable=SC2016 # Node source, not shell expansion.
-  node --input-type=module -e '
-    import { readFileSync } from "node:fs";
-    const [module, directory] = process.argv.slice(1);
-    const { stopMailbox } = await import(module);
-    const { root } = JSON.parse(readFileSync(`${directory}/request.json`, "utf8"));
-    process.stdout.write(`${JSON.stringify(await stopMailbox(directory, { root }))}\n`);
-  ' "file://$1/src/skills/dough-execute-plan/scripts/ci-mailbox-complete.mjs" \
-    "${trunk_closure_mailbox}" > "${trunk_closure_forced_stop_file}"
-}
-
 trunk_closure_prompt_for() {
   if [[ $1 == owned-context ]]; then
     trunk_closure_owned_context_prompt
@@ -130,7 +115,6 @@ trunk_closure_run_journey() {
   native_run_workspace=${trunk_closure_workspace}
   platform=${host}
   trunk_closure_forced_stop_file="${harness}/forced-stop.txt"
-  export TRUNK_CLOSURE_TRANSCRIPT="${transcript}"
   : > "${transcript}"
   : > "${native_stderr}"
   trunk_closure_controller "${scenario}" &
@@ -140,7 +124,8 @@ trunk_closure_run_journey() {
   # Observe product shutdown before any fixture cleanup/stop.
   trunk_closure_observe "${scenario}" "${transcript}" "${output_file}" \
     > "${harness}/observations.txt"
-  trunk_closure_stop_observer "${source_dir}" || stop_status=$?
+  native_harness_stop_observers "${source_dir}" "${trunk_closure_storage}" \
+    "${trunk_closure_forced_stop_file}" || stop_status=$?
   if trunk_closure_assess "${scenario}" "${harness}/observations.txt"; then
     git_publication_assess_status=pass
     git_publication_assess_reason='one installed finish: final publication, completion with confirmed shutdown, then worktree and branch retired'
@@ -163,7 +148,7 @@ trunk_closure_run_journey() {
     printf 'stderr:\n'
     cat "${native_stderr}" 2> /dev/null || true
   fi
-  unset TRUNK_CLOSURE_TRANSCRIPT trunk_closure_forced_stop_file
+  unset trunk_closure_forced_stop_file
   trunk_closure_cleanup_fixture
   rm -rf -- "${root}" "${harness}"
   [[ ${stop_status} -eq 0 && ${run_status} -eq 0 ]]

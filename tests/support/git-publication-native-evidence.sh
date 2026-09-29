@@ -49,6 +49,8 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-host.sh \
         tests/support/ci-completion-native-run.sh \
         tests/support/ci-completion-native-fixture.sh \
+        tests/support/native-harness-observation.sh \
+        tests/support/native-node-call-recorder.mjs \
         tests/support/git-publication-native-run.sh \
         tests/support/git-publication-native-evidence.sh
       native_result_supervision_input_hash_lines

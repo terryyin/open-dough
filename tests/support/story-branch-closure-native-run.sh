@@ -22,7 +22,7 @@ story_closure_trunk_mailbox() {
 story_closure_complete_seen() {
   local mailbox=$1 sha=$2
   native_completion_seen "${story_closure_node_log}" \
-    "${STORY_CLOSURE_TRANSCRIPT:-/dev/null}" "${mailbox}" "${sha}"
+    "${transcript:-/dev/null}" "${mailbox}" "${sha}"
 }
 
 story_closure_controller() {
@@ -76,6 +76,8 @@ story_closure_write_evidence_identity() {
     tests/support/story-branch-closure-native-assess.sh \
     tests/support/native-completion-observation.sh \
     tests/support/story-branch-closure-native-fixture.sh \
+    tests/support/native-harness-observation.sh \
+    tests/support/native-node-call-recorder.mjs \
     tests/support/git-publication-native-run.sh
   native_result_supervision_input_hash_lines
   native_result_input_hash_lines \
@@ -88,24 +90,24 @@ story_closure_write_evidence_identity() {
 }
 
 story_closure_run_journey() {
-  local source_dir=$1 host=$2 results_dir=$3 root prompt controller_pid
-  local run_status=0 stop_status=0 directory
+  local source_dir=$1 host=$2 results_dir=$3 root harness prompt controller_pid
+  local run_status=0 stop_status=0
   root=$(mktemp -d)
-  story_closure_create_fixture "${source_dir}" "${host}" "${root}"
+  harness=$(mktemp -d)
+  story_closure_create_fixture "${source_dir}" "${host}" "${root}" "${harness}"
   prompt="Use this project's installed Open Dough guidance to complete the retained Story Branch wrap-up described in .planning/execution-state.txt. Integrate the saved published closure into trunk, preserve the project's stated product result, observe the applicable result, and clean up safely. Do not inspect parent processes or external test-harness source."
   native_case_host=${host}
   native_case_id='story-branch-closure/source-conflict'
   native_case_results_dir=${results_dir}
   temporary_dir=${root}
   candidate=${source_dir}
-  transcript="${root}/events.jsonl"
-  output_file="${root}/response.md"
-  native_stderr="${root}/stderr.log"
+  transcript="${harness}/events.jsonl"
+  output_file="${harness}/response.md"
+  native_stderr="${harness}/stderr.log"
   target=${story_closure_workspace}
   native_run_workspace=${story_closure_workspace}
   platform=${host}
-  story_closure_forced_stop_file="${root}/forced-stop.txt"
-  export STORY_CLOSURE_TRANSCRIPT="${transcript}"
+  story_closure_forced_stop_file="${harness}/forced-stop.txt"
   : > "${transcript}"
   : > "${native_stderr}"
   story_closure_controller &
@@ -114,14 +116,10 @@ story_closure_run_journey() {
   wait "${controller_pid}" || run_status=1
   # Observe product shutdown before any fixture cleanup/stop.
   story_closure_observe "${transcript}" "${output_file}" \
-    > "${root}/observations.txt"
-  for directory in "${story_closure_storage}"/*; do
-    [[ -f ${directory}/request.json ]] || continue
-    [[ -f ${directory}/result.json ]] && continue
-    (cd "${story_closure_workspace}" && node "${story_closure_launcher}" stop \
-      "${directory}") > "${story_closure_forced_stop_file}" || stop_status=$?
-  done
-  if story_closure_assess "${root}/observations.txt"; then
+    > "${harness}/observations.txt"
+  native_harness_stop_observers "${source_dir}" "${story_closure_storage}" \
+    "${story_closure_forced_stop_file}" || stop_status=$?
+  if story_closure_assess "${harness}/observations.txt"; then
     git_publication_assess_status=pass
     git_publication_assess_reason='target-correct integration complete-revision and cleanup observed'
   else
@@ -130,21 +128,39 @@ story_closure_run_journey() {
     run_status=1
   fi
   git_publication_retain_attempt "${source_dir}" "${prompt}" "${transcript}" \
-    "${output_file}" "${native_stderr}" "${root}/observations.txt" \
+    "${output_file}" "${native_stderr}" "${harness}/observations.txt" \
     story-branch-closure
   printf 'run-status: %s\nassessment-status: %s\nassessment-reason: %s\n' \
     "${run_status}" "${git_publication_assess_status}" \
     "${git_publication_assess_reason}"
   printf 'observations:\n'
-  cat "${root}/observations.txt"
+  cat "${harness}/observations.txt"
   if [[ ${run_status} -ne 0 ]]; then
     printf 'response:\n'
     cat "${output_file}" 2> /dev/null || true
     printf 'stderr:\n'
     cat "${native_stderr}" 2> /dev/null || true
   fi
-  unset STORY_CLOSURE_TRANSCRIPT story_closure_forced_stop_file
+  unset story_closure_forced_stop_file
   story_closure_cleanup_fixture
-  rm -rf -- "${root}"
+  rm -rf -- "${root}" "${harness}"
   [[ ${stop_status} -eq 0 && ${run_status} -eq 0 ]]
+}
+
+# The fallback stop still stops an observer the session left running after
+# its cleanup removed the worktree that holds the installed launcher.
+run_story_closure_harness_counterexamples() {
+  local root harness status
+  root=$(mktemp -d)
+  harness=$(mktemp -d)
+  story_closure_create_fixture "${source_dir}" claude "${root}" "${harness}"
+  git -C "${story_closure_integration}" worktree remove --force \
+    "${story_closure_workspace}"
+  native_harness_stop_observers "${source_dir}" "${story_closure_storage}" \
+    "${harness}/forced-stop.txt"
+  status=$(jq -r .status "${story_closure_branch_mailbox}/result.json")
+  [[ -s ${harness}/forced-stop.txt ]] || status="not stopped by the fallback"
+  story_closure_cleanup_fixture
+  rm -rf -- "${root}" "${harness}"
+  [[ ${status} == stopped || ${status} == finished ]]
 }

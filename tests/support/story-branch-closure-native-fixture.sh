@@ -4,12 +4,17 @@
 # integration, waiting, shutdown, and cleanup ordering. The owned workspace is a
 # worktree of the integration checkout created for this execution, so the
 # installed guidance retires it and its local and remote branches. A watcher
-# records both observers' states when the worktree disappears.
+# records both observers' states when the worktree disappears. Harness-only
+# shims, logs, and markers live in a separate directory outside the project
+# root the agent reads.
 # shellcheck disable=SC2034,SC2154,SC2312
 
 # shellcheck source=tests/helpers/wait-for.bash
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../helpers" && pwd)/wait-for.bash"
+# shellcheck source=tests/support/native-harness-observation.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-harness-observation.sh"
 
 # Per-step controller bound; each step awaits one action of the native agent.
 story_closure_wait_limit=420
@@ -19,18 +24,6 @@ story_closure_git() {
   shift
   git -C "${cwd}" -c user.name='Story Closure Fixture' \
     -c user.email='story-closure@example.invalid' "$@"
-}
-
-story_closure_write_node() {
-  local destination=$1 real_node=$2 real_node_q
-  printf -v real_node_q '%q' "${real_node}"
-  # shellcheck disable=SC2016
-  printf '%s\n' \
-    '#!/usr/bin/env bash' \
-    'set -euo pipefail' \
-    'printf "%s\n" "$*" >> "${STORY_CLOSURE_NODE_LOG}"' \
-    "exec ${real_node_q} \"\$@\"" > "${destination}"
-  chmod +x "${destination}"
 }
 
 story_closure_write_gh() {
@@ -54,20 +47,18 @@ story_closure_write_gh() {
 }
 
 story_closure_create_fixture() {
-  local source_dir=$1 host=$2 root=$3 skill_root receipt real_node
+  local source_dir=$1 host=$2 root=$3 harness=$4 skill_root receipt
   story_closure_origin="${root}/remote.git"
   story_closure_integration="${root}/integration"
   story_closure_workspace="${root}/owned"
   story_closure_storage="${root}/mailboxes"
-  story_closure_release="${root}/release-trunk-ci"
-  story_closure_integrated_sha_file="${root}/integrated-sha"
-  story_closure_node_log="${root}/node-calls.log"
-  story_closure_gh_log="${root}/gh-calls.log"
-  story_closure_control_log="${root}/control.log"
-  story_closure_cleanup_marker="${root}/cleanup"
-  story_closure_cleanup_states="${root}/cleanup-observer-state"
-  mkdir -p "${root}/bin"
-  : > "${story_closure_node_log}"
+  story_closure_release="${harness}/release-trunk-ci"
+  story_closure_integrated_sha_file="${harness}/integrated-sha"
+  story_closure_gh_log="${harness}/gh-calls.log"
+  story_closure_control_log="${harness}/control.log"
+  story_closure_cleanup_marker="${harness}/cleanup"
+  story_closure_cleanup_states="${harness}/cleanup-observer-state"
+  mkdir -p "${harness}/bin"
   : > "${story_closure_gh_log}"
   : > "${story_closure_control_log}"
 
@@ -117,17 +108,14 @@ story_closure_create_fixture() {
     && skill_root="${story_closure_workspace}/.claude/skills/dough-execute-plan"
   story_closure_launcher="${skill_root}/scripts/ci-mailbox.mjs"
 
-  real_node=$(command -v node)
-  story_closure_write_node "${root}/bin/node" "${real_node}"
-  story_closure_write_gh "${root}/bin/gh"
-  story_closure_old_path=${PATH}
-  export PATH="${root}/bin:${PATH}"
+  native_harness_observe_node "${harness}" "${source_dir}" "${host}"
+  story_closure_node_log=${native_harness_node_log}
+  story_closure_write_gh "${harness}/bin/gh"
   export DOUGH_CI_MAILBOX_ROOT="${story_closure_storage}"
   export STORY_CLOSURE_BRANCH_SHA="${story_closure_branch_sha}"
   export STORY_CLOSURE_TRUNK_SHA="${story_closure_trunk_sha}"
   export STORY_CLOSURE_RELEASE="${story_closure_release}"
   export STORY_CLOSURE_INTEGRATED_SHA_FILE="${story_closure_integrated_sha_file}"
-  export STORY_CLOSURE_NODE_LOG="${story_closure_node_log}"
   export STORY_CLOSURE_GH_LOG="${story_closure_gh_log}"
   receipt=$(cd "${story_closure_workspace}" \
     && node "${story_closure_launcher}" start --execution owner/project exec/story 600000)
@@ -173,8 +161,8 @@ story_closure_mailbox_states() {
 story_closure_cleanup_fixture() {
   kill "${story_closure_watcher}" 2> /dev/null || true
   wait "${story_closure_watcher}" 2> /dev/null || true
-  export PATH=${story_closure_old_path}
+  native_harness_restore
   unset DOUGH_CI_MAILBOX_ROOT STORY_CLOSURE_BRANCH_SHA STORY_CLOSURE_TRUNK_SHA
   unset STORY_CLOSURE_RELEASE STORY_CLOSURE_INTEGRATED_SHA_FILE
-  unset STORY_CLOSURE_NODE_LOG STORY_CLOSURE_GH_LOG
+  unset STORY_CLOSURE_GH_LOG
 }

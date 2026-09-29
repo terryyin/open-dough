@@ -217,13 +217,4 @@ run_trunk_closure_observation_counterexamples() {
     > "${work}/codex.jsonl"
   [[ $(native_completion_call_count "${work}/node.log" "${work}/codex.jsonl" \
     "${mailbox}" "${sha}") == 1 ]]
-  # A node call reaches the log once, through the PATH wrapper or, where a
-  # login shell dropped that wrapper, through the in-process recorder.
-  trunk_closure_write_node "${work}/node" "$(command -v node)"
-  NATIVE_NODE_CALL_LOG="${work}/node.log" TRUNK_CLOSURE_NODE_LOG="${work}/node.log" \
-    NODE_OPTIONS="--import=file://${BASH_SOURCE[0]%/*}/native-node-call-recorder.mjs" \
-    bash -c '"$1" -e "" direct-call && "$2" -e "" wrapped-call' _ \
-    "$(command -v node)" "${work}/node"
-  [[ $(grep -c 'direct-call' "${work}/node.log") == 1 ]]
-  [[ $(grep -c 'wrapped-call' "${work}/node.log") == 1 ]]
 }

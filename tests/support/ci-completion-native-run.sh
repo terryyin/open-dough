@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Controlled native journeys for execution/review completion. The fixture owns
 # CI result timing independently of the model and observes real installed
-# complete-revision calls through a PATH shim.
+# complete-revision calls through the shared harness node observation.
 # shellcheck disable=SC2034,SC2154,SC2312
 
 # shellcheck source=tests/support/ci-completion-native-fixture.sh
@@ -133,25 +133,26 @@ ci_completion_run_journey() {
   local host=$2
   local scenario=$3
   local results_dir=$4
-  local root prompt controller_pid run_status=0 stop_status=0
+  local root harness prompt controller_pid run_status=0 stop_status=0
   root=$(mktemp -d)
-  ci_completion_create_fixture "${source_dir}" "${host}" "${scenario}" "${root}"
+  harness=$(mktemp -d)
+  ci_completion_create_fixture "${source_dir}" "${host}" "${scenario}" \
+    "${root}" "${harness}"
   prompt=$(ci_completion_prompt_for "${scenario}")
   native_case_host=${host}
   native_case_id="execution-review/${scenario}"
   native_case_results_dir=${results_dir}
   temporary_dir=${root}
   candidate=${source_dir}
-  transcript="${root}/events.jsonl"
-  output_file="${root}/response.md"
-  native_stderr="${root}/stderr.log"
+  transcript="${harness}/events.jsonl"
+  output_file="${harness}/response.md"
+  native_stderr="${harness}/stderr.log"
   target=${ci_completion_project}
   native_run_workspace=${ci_completion_project}
   platform=${host}
-  ci_completion_forced_stop_file="${root}/forced-stop.txt"
+  ci_completion_forced_stop_file="${harness}/forced-stop.txt"
   : > "${transcript}"
   : > "${native_stderr}"
-  export CI_COMPLETION_TRANSCRIPT="${transcript}"
 
   ci_completion_controller "${scenario}" &
   controller_pid=$!
@@ -161,12 +162,9 @@ ci_completion_run_journey() {
   # Observe product shutdown state before any fixture cleanup/stop so a
   # harness fallback cannot mask a missing product shutdown as success.
   ci_completion_observe "${scenario}" "${transcript}" "${output_file}" \
-    > "${root}/observations.txt"
-  if [[ ! -f ${ci_completion_mailbox}/result.json ]]; then
-    (cd "${ci_completion_project}" \
-      && node "${ci_completion_launcher}" stop "${ci_completion_mailbox}") \
-      > "${ci_completion_forced_stop_file}" || stop_status=$?
-  fi
+    > "${harness}/observations.txt"
+  native_harness_stop_observers "${source_dir}" "${ci_completion_storage}" \
+    "${ci_completion_forced_stop_file}" || stop_status=$?
   if [[ ${scenario} == failure ]]; then
     # Failing assessor example: fixture-masked "success" after forced stop
     # must not pass when the product left the observer alive.
@@ -186,15 +184,15 @@ ci_completion_run_journey() {
       printf 'failure-reported: false\n'
       printf 'control-order:\n'
       printf '  review-start\n'
-    } > "${root}/masked-shutdown.txt"
+    } > "${harness}/masked-shutdown.txt"
     ci_completion_assess_rejects_fixture_masked_shutdown \
-      "${root}/masked-shutdown.txt" || {
+      "${harness}/masked-shutdown.txt" || {
       git_publication_assess_status=fail
       git_publication_assess_reason='assessor accepted a fixture-masked shutdown'
       run_status=1
     }
   fi
-  if ci_completion_assess "${scenario}" "${root}/observations.txt"; then
+  if ci_completion_assess "${scenario}" "${harness}/observations.txt"; then
     git_publication_assess_status=pass
     git_publication_assess_reason='controlled CI ordering and final handoff observed'
   else
@@ -204,21 +202,21 @@ ci_completion_run_journey() {
   fi
   git_publication_retain_attempt "${source_dir}" "${prompt}" \
     "${transcript}" "${output_file}" "${native_stderr}" \
-    "${root}/observations.txt" execution-review
+    "${harness}/observations.txt" execution-review
   printf 'run-status: %s\n' "${run_status}"
   printf 'assessment-status: %s\n' "${git_publication_assess_status}"
   printf 'assessment-reason: %s\n' "${git_publication_assess_reason}"
   printf 'observations:\n'
-  cat "${root}/observations.txt"
+  cat "${harness}/observations.txt"
   if [[ ${run_status} -ne 0 ]]; then
     printf 'response:\n'
     cat "${output_file}" 2> /dev/null || true
     printf 'stderr:\n'
     cat "${native_stderr}" 2> /dev/null || true
   fi
-  export PATH=${ci_completion_old_path}
-  unset CI_COMPLETION_NODE_LOG CI_COMPLETION_SHA DOUGH_CI_MAILBOX_ROOT
+  native_harness_restore
+  unset CI_COMPLETION_SHA DOUGH_CI_MAILBOX_ROOT
   unset ci_completion_forced_stop_file
-  rm -rf -- "${root}"
+  rm -rf -- "${root}" "${harness}"
   [[ ${stop_status} -eq 0 && ${run_status} -eq 0 ]]
 }
