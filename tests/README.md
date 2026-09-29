@@ -41,7 +41,8 @@ Running a check directly (`bash tests/<name>.sh`, `node --test <file>`) is
 unsupported, except for a check's own options, which the runner never passes:
 invoke the native ADR-awareness wrappers (manually triggered paid runs and
 inventories, described with their proof scripts in
-`tests/native-adr-awareness-wrappers.md`) directly, with Bash 5 first on
+`tests/native-adr-awareness-wrappers.md`) or the
+[native publication checks](native-publication.md) directly, with Bash 5 first on
 `PATH`, outside the runner's Git state. CI's Bash can be older than a local
 one and behave differently inside traps (before Bash 5.3 a bare `return` in a
 function called from a trap takes the interrupted command's status).
