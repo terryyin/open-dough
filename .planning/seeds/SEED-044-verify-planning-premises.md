@@ -56,5 +56,5 @@ None for selection. How the guidance should say this stays with refinement and p
 
 ## Breadcrumbs
 
-- Cursor premise run on 2026-09-29, story branch `cursor/native-guidance-acceptance-cursor`, plan 208 copied at `native-results/cursor-premise/plans/pygardon-208.md`.
+- Cursor premise run on 2026-09-29. The written plan is recoverable at `aed19fbc:native-results/cursor-premise/plans/pygardon-208.md`.
 - [Shared premise cases](SEED-053-native-guidance-acceptance.md#shared-premise-verification-cases).
