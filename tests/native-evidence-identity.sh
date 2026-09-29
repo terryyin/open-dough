@@ -148,7 +148,7 @@ for index in "${!identity_writers[@]}"; do
         "${identity_writers[index]}" "${module}" >&2
       identity_failures=1
     fi
-  done < <(node "${source_dir}/tests/support/native-import-closure.mjs" \
+  done < <(node "${identity_source}/tests/support/native-import-closure.mjs" \
     "${identity_source}" "${modules[@]}")
 done
 
