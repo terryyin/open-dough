@@ -32,6 +32,10 @@
 #   native_assessor_rejects_edit CASE SIGNAL SED-SCRIPT [STATUS [REASON-FRAGMENT]]
 #     Like native_assessor_rejects, with the passing observation edited by
 #     SED-SCRIPT as the candidate.
+#   native_assessor_rejects_fields CASE SIGNAL FIELD... [-- STATUS [REASON-FRAGMENT]]
+#     Like native_assessor_rejects, with the passing observation's fields
+#     replaced by the `key: value` FIELD lines as the candidate; a FIELD whose
+#     key the passing observation lacks is added.
 # Each returns 1 after printing `FAIL: ...` to standard error.
 # shellcheck disable=SC2034 # Suite state read by later calls.
 
@@ -120,6 +124,28 @@ native_assessor_rejects_edit() {
   fi
   sed "${script}" "${native_assessor_counterexample_passing}" > "${candidate}"
   native_assessor_rejects "${case}" "${signal}" "${candidate}" "$@"
+}
+
+native_assessor_rejects_fields() {
+  local case=$1 signal=$2 fields=()
+  shift 2
+  while [[ $# -gt 0 && $1 != -- ]]; do fields+=("$1") && shift; done
+  [[ ${1-} == -- ]] && shift
+  if [[ -z ${native_assessor_counterexample_passing} ]]; then
+    printf 'FAIL: counterexample %s has no passing base\n' "${case}" >&2
+    return 1
+  fi
+  printf '%s\n' "${fields[@]}" | awk '
+    NR == FNR { add = add $0 "\n"; sub(/:( .*)?$/, ""); drop[$0] = 1; next }
+    /^[A-Za-z0-9][A-Za-z0-9_.-]*: / || /^[A-Za-z0-9][A-Za-z0-9_.-]*:$/ {
+      key = $0; sub(/:.*/, "", key)
+    }
+    !(key in drop)
+    END { printf "%s", add }
+  ' - "${native_assessor_counterexample_passing}" \
+    > "${native_assessor_counterexample_passing}.${case}"
+  native_assessor_rejects "${case}" "${signal}" \
+    "${native_assessor_counterexample_passing}.${case}" "$@"
 }
 
 # Assesses observation $1 into native_assessor_counterexample_status and

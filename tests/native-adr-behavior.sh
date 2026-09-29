@@ -7,6 +7,10 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck source=tests/support/native-adr-behavior.sh
 source "${source_dir}/tests/support/native-adr-behavior.sh"
+# shellcheck source=tests/support/native-response-field.sh
+source "${source_dir}/tests/support/native-response-field.sh"
+# shellcheck source=tests/support/native-assessor-counterexample.sh
+source "${source_dir}/tests/support/native-assessor-counterexample.sh"
 
 work_dir=$(mktemp -d)
 finish() {
@@ -14,10 +18,18 @@ finish() {
 }
 trap finish EXIT
 
+# Writes response lines as the observation `name`: its `response` field.
 write_response() {
   local name=$1
   shift
-  printf '%s\n' "$@" > "${work_dir}/${name}"
+  printf '%s\n' "$@" > "${work_dir}/${name}.text"
+  native_response_field_write "${work_dir}/${name}.text" > "${work_dir}/${name}"
+}
+
+# Assesses scenario $1 on the response recorded in observations $2.
+assess_observed() {
+  native_response_field_read "$2" > "$2.response"
+  native_adr_behavior_assess "$1" "$2.response"
 }
 
 assert_status() {
@@ -26,7 +38,7 @@ assert_status() {
   local expected=$3
   local reason_snippet=$4
 
-  native_adr_behavior_assess "${scenario}" "${work_dir}/${file}"
+  assess_observed "${scenario}" "${work_dir}/${file}"
   if [[ ${native_adr_behavior_status} != "${expected}" ]]; then
     echo "FAIL: ${file} (${scenario}) expected ${expected}, got ${native_adr_behavior_status}." >&2
     printf 'reason: %s\n' "${native_adr_behavior_reason}" >&2
@@ -35,19 +47,6 @@ assert_status() {
   fi
   if [[ -n ${reason_snippet} ]]; then
     grep -Fq "${reason_snippet}" <<< "${native_adr_behavior_reason}"
-  fi
-}
-
-assert_not_pass() {
-  local scenario=$1
-  local file=$2
-
-  native_adr_behavior_assess "${scenario}" "${work_dir}/${file}"
-  if [[ ${native_adr_behavior_status} == 'pass' ]]; then
-    echo "FAIL: ${file} (${scenario}) passed on misleading or ambiguous wording." >&2
-    printf 'reason: %s\n' "${native_adr_behavior_reason}" >&2
-    cat "${work_dir}/${file}" >&2
-    return 1
   fi
 }
 
@@ -90,19 +89,26 @@ assert_status clear valid-recommend-skill-rephrase pass 'followed and cited Acce
 assert_status conflict valid-stop pass 'named conflicting authorities and stopped'
 assert_status conflict conditional-stop pass 'named conflicting authorities and stopped'
 
-assert_not_pass clear misleading-negation
-assert_not_pass clear misleading-quotation
-assert_not_pass clear misleading-contradictory
-assert_not_pass conflict misleading-conflict-words
-assert_not_pass conflict misleading-quotation
+# Misleading or ambiguous wording is a rejected case of the response signal;
+# rephrased incidental skill instructions stay inconclusive, never a fail.
+native_assessor_counterexamples "${source_dir}/tests/support/native-adr-behavior.sh" \
+  "${work_dir}/valid-recommend" \
+  --verdict native_adr_behavior_status native_adr_behavior_reason \
+  -- assess_observed clear
+for file in misleading-negation misleading-quotation misleading-contradictory; do
+  native_assessor_rejects "clear ${file}" response "${work_dir}/${file}"
+done
+native_assessor_rejects 'clear uncertain' response "${work_dir}/uncertain" \
+  inconclusive 'prose does not support a reliable verdict'
+native_assessor_rejects 'clear incidental-skill-only' response \
+  "${work_dir}/incidental-skill-only" inconclusive
 
-assert_status clear uncertain inconclusive 'prose does not support a reliable verdict'
-assert_status conflict uncertain inconclusive 'prose does not support a reliable verdict'
-
-native_adr_behavior_assess clear "${work_dir}/incidental-skill-only"
-if [[ ${native_adr_behavior_status} == 'fail' ]]; then
-  echo 'FAIL: rephrased incidental skill instructions failed a static assertion.' >&2
-  printf 'reason: %s\n' "${native_adr_behavior_reason}" >&2
-  exit 1
-fi
-[[ ${native_adr_behavior_status} == 'inconclusive' ]]
+native_assessor_counterexamples "${source_dir}/tests/support/native-adr-behavior.sh" \
+  "${work_dir}/valid-stop" \
+  --verdict native_adr_behavior_status native_adr_behavior_reason \
+  -- assess_observed conflict
+for file in misleading-conflict-words misleading-quotation; do
+  native_assessor_rejects "conflict ${file}" response "${work_dir}/${file}"
+done
+native_assessor_rejects 'conflict uncertain' response "${work_dir}/uncertain" \
+  inconclusive 'prose does not support a reliable verdict'

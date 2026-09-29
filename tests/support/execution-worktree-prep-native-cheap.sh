@@ -3,44 +3,72 @@
 # shellcheck disable=SC1091,SC2034,SC2154,SC2310,SC2312
 
 prep_native_observation_dir="${prep_native_support_dir}/execution-worktree-prep-native-observations"
+# shellcheck source=tests/support/native-assessor-counterexample.sh
+source "${prep_native_support_dir}/native-assessor-counterexample.sh"
 
-assess_observation() {
+assert_observation_passes() {
   local file=$1
-  local expected=$2
-  local snippet=${3-}
+  local snippet=$2
   local status reason output
   output=$(node "${prep_native_assess_js}" --observation "${file}") || true
   status=$(jq -r '.status' <<< "${output}")
   reason=$(jq -r '.reason' <<< "${output}")
-  if [[ ${status} != "${expected}" ]]; then
-    echo "FAIL: $(basename -- "${file}") expected ${expected}, got ${status}." >&2
+  if [[ ${status} != pass ]]; then
+    echo "FAIL: $(basename -- "${file}") expected pass, got ${status}." >&2
     printf 'reason: %s\n' "${reason}" >&2
     printf '%s\n' "${output}" >&2
     return 1
   fi
-  if [[ -n ${snippet} ]]; then
-    grep -Fq "${snippet}" <<< "${reason}"
-  fi
+  grep -Fq "${snippet}" <<< "${reason}"
+}
+
+# Assesses flattened observation $1 into prep_native_flat_status and
+# prep_native_flat_reason.
+assess_flat_observation() {
+  local output
+  output=$(node "${prep_native_assess_js}" --flat-observation "$1") || true
+  {
+    read -r prep_native_flat_status
+    read -r prep_native_flat_reason
+  } < <(jq -r '.status, .reason' <<< "${output}")
 }
 
 run_cheap_assessor_contracts() {
-  assess_observation "${prep_native_observation_dir}/fresh-pass.json" \
-    pass 'setup then project command'
-  assess_observation "${prep_native_observation_dir}/self-report.json" \
-    pending 'self-reported-only'
-  assess_observation "${prep_native_observation_dir}/truncated.json" \
-    pending 'truncated terminal stream'
-  assess_observation "${prep_native_observation_dir}/failed-pass.json" \
-    pass 'failed preparation stopped recoverably'
-  assess_observation "${prep_native_observation_dir}/delegate-before-setup.json" \
-    fail 'implementation delegated before the project command'
-  assess_observation "${prep_native_observation_dir}/reuse-pass.json" \
-    pass 'reused host-established preparation'
-  assess_observation "${prep_native_observation_dir}/wrapper-pass.json" \
-    pass 'setup then project command'
-  assess_observation \
+  local work=$1
+  local passing="${work}/fresh-pass.flat"
+  local setup='{"role":"setup","command":"npm ci","cwd":"/tmp/exec","code":0,"stdout":"","stderr":""}'
+  local command='{"role":"command","command":"npm run prove","cwd":"/tmp/exec","code":0,"stdout":"fixture-cli-ok\n","stderr":""}'
+  local delegate='{"role":"delegate","command":"write greeting.txt","cwd":"/tmp/exec","code":0,"stdout":"","stderr":""}'
+  assert_observation_passes "${prep_native_observation_dir}/fresh-pass.json" \
+    'setup then project command'
+  assert_observation_passes "${prep_native_observation_dir}/failed-pass.json" \
+    'failed preparation stopped recoverably'
+  assert_observation_passes "${prep_native_observation_dir}/reuse-pass.json" \
+    'reused host-established preparation'
+  assert_observation_passes "${prep_native_observation_dir}/wrapper-pass.json" \
+    'setup then project command'
+  assert_observation_passes \
     "${prep_native_observation_dir}/traces-without-stream-commands.json" \
-    pass 'setup then project command'
+    'setup then project command'
+
+  node "${prep_native_support_dir}/execution-worktree-prep-native-flat.mjs" \
+    "${prep_native_observation_dir}/fresh-pass.json" > "${passing}"
+  native_assessor_counterexamples "${prep_native_assess_js}" "${passing}" \
+    --verdict prep_native_flat_status prep_native_flat_reason \
+    -- assess_flat_observation
+  native_assessor_rejects_fields truncated-stream stream-status \
+    'streamStatus: "truncated"' -- pending 'truncated terminal stream'
+  native_assessor_rejects_fields delegate-before-setup command-order \
+    'commands: ["write greeting.txt hello-ok","npm ci","npm run prove"]' \
+    "invocations: [${delegate},${setup},${command}]" \
+    -- fail 'implementation delegated before the project command'
+  # The greeting is written, but no setup or project command ran.
+  native_assessor_rejects_fields setup-skipped preparation-gate \
+    'commands: ["write greeting.txt hello-ok"]' 'traces: []' \
+    "invocations: [${delegate}]" 'executionOwnsInstall: false' \
+    -- fail 'missing setup or project-command trace'
+  native_assessor_rejects_fields greeting-missing outcome 'greeting: null' \
+    -- fail 'missing completed outcome in the selected execution checkout'
 }
 
 run_cheap_flag_contracts() {

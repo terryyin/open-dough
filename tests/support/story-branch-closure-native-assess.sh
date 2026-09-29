@@ -113,7 +113,7 @@ story_closure_observe() {
     sed 's/^/  /' "${story_closure_control_log}"
     printf 'transcript-complete: %s\n' "$(grep -Fq 'complete-revision' "${transcript}" && echo true || echo false)"
     printf 'harness-inspected: %s\n' "$(grep -Eiq 'story-branch-closure-native|native harness|source-conflict' "${transcript}" && echo true || echo false)"
-    story_closure_observe_response "${response}"
+    native_response_field_write "${response}"
   }
 }
 
@@ -167,7 +167,7 @@ story_closure_assess() {
   grep -Fqx 'human-edit-preserved: true' "${observations}" || return 1
   grep -Fqx 'transcript-complete: true' "${observations}" || return 1
   [[ $(story_closure_response_trunk_result \
-    <(story_closure_observed_response "${observations}")) == true ]] || return 1
+    <(native_response_field_read "${observations}")) == true ]] || return 1
   grep -Fqx 'harness-inspected: false' "${observations}" || return 1
   # Order only within the control-order field.
   awk '/^control-order:$/{o=1; next} o && !/^  /{o=0} !o{next} /branch-complete/{a=NR} /branch-shutdown/{b=NR} /trunk-setup/{c=NR} /integration-publication/{d=NR} /trunk-registration/{e=NR} /trunk-complete/{f=NR} /trunk-ci-release/{g=NR} /trunk-coverage-success/{h=NR} /trunk-shutdown/{i=NR} /cleanup-complete/{j=NR} END{exit !(a<b && b<c && c<d && d<e && e<f && f<g && g<h && h<i && i<j)}' "${observations}"
@@ -195,7 +195,7 @@ story_closure_write_assessor_observation() {
       '  trunk-ci-release' '  trunk-coverage-success' '  trunk-shutdown' \
       '  cleanup-complete' 'transcript-complete: true' \
       'harness-inspected: false'
-    story_closure_observe_response "$2"
+    native_response_field_write "$2"
   } > "$1"
 }
 

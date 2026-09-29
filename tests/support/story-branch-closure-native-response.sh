@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# Story Branch closure response: its observation field, its judgment, and
-# its counterexamples.
+# Story Branch closure response: its judgment and its counterexamples.
 # shellcheck disable=SC2312
+
+# shellcheck source=tests/support/native-response-field.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-response-field.sh"
 
 # True when response $1 states the trunk result as a success or pass and no
 # sentence reports trunk, CI, its checks, coverage, receipt, verdict, observer,
@@ -19,18 +22,6 @@ story_closure_response_trunk_result() {
   else
     printf 'false\n'
   fi
-}
-
-# Prints the `response` field of response file $1: each line indented, so no
-# line of the response reads as another observation field.
-story_closure_observe_response() {
-  printf 'response:\n'
-  awk '{ print "  " $0 }' "$1" 2> /dev/null || true
-}
-
-# The response text recorded in observations $1.
-story_closure_observed_response() {
-  awk '/^response:$/ { r = 1; next } r && /^  / { print substr($0, 3); next } { r = 0 }' "$1"
 }
 
 # Against the valid observations in $1/valid, a response stating a trunk pass,

@@ -180,8 +180,7 @@ trunk_closure_counterexamples() {
 trunk_closure_rejects_fields() {
   local case signal field
   while read -r case signal field; do
-    native_assessor_rejects_edit "${case}" "${signal}" \
-      "s|^${field%%: *}: .*|${field}|"
+    native_assessor_rejects_fields "${case}" "${signal}" "${field}"
   done
 }
 

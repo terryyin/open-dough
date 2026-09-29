@@ -7,8 +7,8 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck source=tests/support/native-journey-state.sh
 source "${source_dir}/tests/support/native-journey-state.sh"
-# shellcheck source=tests/helpers/rewrite-file.bash
-source "${source_dir}/tests/helpers/rewrite-file.bash"
+# shellcheck source=tests/support/native-assessor-counterexample.sh
+source "${source_dir}/tests/support/native-assessor-counterexample.sh"
 
 work_dir=$(mktemp -d)
 finish() {
@@ -62,23 +62,9 @@ assert_status() {
   grep -Fq "${reason_snippet}" <<< "${native_journey_state_reason}"
 }
 
-assert_not_pass() {
-  local file=$1
-  local reason_snippet=$2
-  local response=${3-}
-
-  if [[ -n ${response} ]]; then
-    native_journey_state_assess "${work_dir}/${file}" "${work_dir}/${response}"
-  else
-    native_journey_state_assess "${work_dir}/${file}"
-  fi
-  if [[ ${native_journey_state_status} == 'pass' ]]; then
-    echo "FAIL: ${file} passed on a journey-state counterexample." >&2
-    printf 'reason: %s\n' "${native_journey_state_reason}" >&2
-    cat "${work_dir}/${file}" >&2
-    return 1
-  fi
-  grep -Fq "${reason_snippet}" <<< "${native_journey_state_reason}"
+# Assesses observations $1 with the valid conflict response.
+assess_with_conflict() {
+  native_journey_state_assess "$1" "${work_dir}/valid-conflict.md"
 }
 
 write_obs "${work_dir}/expected.txt"
@@ -90,26 +76,26 @@ assert_status expected.txt pass 'named conflicting authorities and stopped' \
 write_obs "${work_dir}/cursor-target.txt"
 assert_status cursor-target.txt pass 'expected real fixture update state'
 
-write_obs "${work_dir}/wrong-version.txt"
-rewrite_file "${work_dir}/wrong-version.txt" \
-  -e 's/update-version-after: 0.2.2/update-version-after: 0.2.9/' \
-  -e 's/improvement-after-update: true/improvement-after-update: false/' \
-  -e 's/real-transition: true/real-transition: false/'
-assert_not_pass wrong-version.txt 'wrong installed bytes or version'
+assessor="${source_dir}/tests/support/native-journey-state.sh"
+native_assessor_counterexamples "${assessor}" "${work_dir}/expected.txt" \
+  --verdict native_journey_state_status native_journey_state_reason \
+  -- native_journey_state_assess
+native_assessor_rejects_edit wrong-version installed-version \
+  's/update-version-after: 0.2.2/update-version-after: 0.2.9/;s/real-transition: true/real-transition: false/' \
+  fail 'wrong installed bytes or version'
+native_assessor_rejects_edit missing-improvement skill-improvement \
+  's/improvement-after-update: true/improvement-after-update: false/;s/real-transition: true/real-transition: false/' \
+  fail 'wrong installed bytes or version'
+native_assessor_rejects_edit protected-writes companion-preservation \
+  's/companion-preserved: true/companion-preserved: false/' \
+  fail 'protected writes'
+native_assessor_rejects_edit stale-target target \
+  's/same-target: true/same-target: false/' fail 'stale-target use'
 
-write_obs "${work_dir}/protected-writes.txt"
-rewrite_file "${work_dir}/protected-writes.txt" \
-  's/companion-preserved: true/companion-preserved: false/'
-assert_not_pass protected-writes.txt 'protected writes'
-
-write_obs "${work_dir}/stale-target.txt"
-rewrite_file "${work_dir}/stale-target.txt" \
-  's/same-target: true/same-target: false/'
-assert_not_pass stale-target.txt 'stale-target use'
-
-write_obs "${work_dir}/failed-update.txt"
-rewrite_file "${work_dir}/failed-update.txt" \
-  -e 's/update-execution: completed/update-execution: failed/' \
-  -e 's/real-transition: true/real-transition: false/'
-assert_not_pass failed-update.txt \
-  'failed update cannot pass as a successful journey' valid-conflict.md
+# A valid conflict response does not rescue a failed update.
+native_assessor_counterexamples "${assessor}" "${work_dir}/expected.txt" \
+  --verdict native_journey_state_status native_journey_state_reason \
+  -- assess_with_conflict
+native_assessor_rejects_edit failed-update update-outcome \
+  's/update-execution: completed/update-execution: failed/;s/real-transition: true/real-transition: false/' \
+  fail 'failed update cannot pass as a successful journey'

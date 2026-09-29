@@ -36,7 +36,7 @@ if [[ ${prep_native_mode} == default ]]; then
   }
   trap finish_cheap EXIT
   wrapper="${source_dir}/tests/execution-worktree-preparation-native.sh"
-  run_cheap_assessor_contracts
+  run_cheap_assessor_contracts "${cheap_work}"
   run_cheap_flag_contracts "${cheap_work}" "${wrapper}"
   run_cheap_isolation "${cheap_work}" "${wrapper}"
   exit 0

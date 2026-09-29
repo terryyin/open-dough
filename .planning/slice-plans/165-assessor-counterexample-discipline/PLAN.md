@@ -174,6 +174,28 @@ Considered and left out:
 - Reported, not fixed: the story-branch order check accepts a
   `control-order` missing its first step (`branch-complete-count: 1` still
   gates it).
+- **Slice 3 (done).** Journey-state (5, with `wrong-version` split from
+  `missing-improvement`), ADR prose (8, under `response`), and preparation
+  cases go through the helper. Preparation JSON is flattened once per file by
+  `tests/support/execution-worktree-prep-native-flat.mjs`, and the assessor
+  reads it with `--flat-observation`. `setup-skipped` (signal
+  `preparation-gate`) is rejected with `missing setup or project-command
+  trace` (example 5). `native_assessor_rejects_fields CASE SIGNAL FIELD...
+  [-- STATUS [FRAGMENT]]` replaces whole fields of the stored passing
+  observation; `tests/support/native-response-field.sh` holds the shared
+  indented response field. Proof:
+  `bash scripts/test.sh tests/native-journey-state.sh tests/native-adr-behavior.sh tests/execution-worktree-preparation-native.sh tests/native-assessor-counterexamples.sh`,
+  also with mawk.
+- **`self-report` is no longer a rejected case.** From `fresh-pass`, reaching
+  `self-reported-only` changes three independent facts: missing setup
+  evidence, missing greeting, and a response claiming setup. Under the split
+  rule it became `setup-skipped` and `greeting-missing`; the claim alone
+  legitimately passes. The `self-reported-only` reason text is now unguarded;
+  without that branch the same observation still comes back `pending`.
+- `execution-worktree-prep-native-assess.mjs` is at 246 lines and the helper
+  at 248; further additions split them.
+- Reported, not fixed: `native_journey_state_assess` never reads
+  `other-tool-root-claude-preserved`.
 
 ## Slices
 
@@ -207,7 +229,7 @@ case this journey lacked. Flipping one response row to pass fails the job.
 
 ### 3. Standalone assessors, and a skipped preparation is rejected
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/native-journey-state.sh`, `tests/native-adr-behavior.sh`, and
 `tests/execution-worktree-preparation-native.sh` green.
 
