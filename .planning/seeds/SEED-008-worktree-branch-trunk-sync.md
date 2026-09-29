@@ -116,27 +116,6 @@ registry is selected. No new execution authority or ADR acceptance is implied.
 
 ## Existing related stories
 
-<a id="closure-proof-and-harness-correction"></a>
-
-### Keep closure reruns truthful and closure proof exact
-
-**Identity:** SEED-008#closure-proof-and-harness-correction
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/154-closure-proof-and-harness-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d4da12864e9af318e16ebe6f2e90ad2035ccb5dbd55e91e6e9c2208611fb6881","plan":"0716980335c70dce60a6a89f3f1f6d30c8084bb774fc18099a32e18c78ac1c9e"}}
-```
-
-**Goal:** An agent rerunning Trunk Mode closure after its final commit was
-rebased and published gets that closure recognized instead of a false stop,
-and maintainers can trust that each closure test, native harness check, and
-native evidence identity proves exactly the behavior it names.
-
-**Scope:** The bounded retrospective correction of
-plan 146 (recoverable at
-`097cc35f:.planning/slice-plans/146-installed-wrap-up-command/PLAN.md`)
-(SEED-008#installed-wrap-up-command) described in
-[its correction plan](../slice-plans/154-closure-proof-and-harness-correction/PLAN.md).
-It adds no feature promise.
-
 <a id="closure-response-and-spawned-script-identity"></a>
 
 ### Judge closure responses by trunk CI and hash the scripts journeys spawn
