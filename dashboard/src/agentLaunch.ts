@@ -43,6 +43,13 @@ export const launchWorkflows = {
         ? "Not marked Ready for execution"
         : undefined,
   },
+  refinement: {
+    name: "Refinement",
+    verb: "refine",
+    skill: "dough-story-refinement",
+    activity: "preparation",
+    note: () => undefined,
+  },
 } as const satisfies Record<string, LaunchWorkflowSpec>;
 
 export type LaunchWorkflow = keyof typeof launchWorkflows;
@@ -107,8 +114,6 @@ export function latestRecordOf(
   return records.findLast(
     (record) =>
       record.request.identity === identity &&
-      // Always true while execution is the only workflow in the table.
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       record.request.workflow === workflow,
   );
 }
@@ -127,7 +132,8 @@ function showsAssignment(
 // is still queued and does not yet show an assignment of its workflow's
 // activity. An execution launch settles once its work item is Taken or gone
 // from the backlog; a published preparation assignment does not settle it,
-// because the launched agent may ready a story before taking it.
+// because the launched agent may ready a story before taking it. A refinement
+// launch also settles once its work item shows Preparing.
 export function launchAwaitsPublication(
   record: LaunchRecord,
   work: Pick<PublishedWork, "backlog">,

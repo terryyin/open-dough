@@ -1,11 +1,12 @@
 // Which requests the local launch boundary (../server/agentLaunchPlugin.ts)
 // refuses before it starts any `claude`, over raw HTTP in dev and preview:
-// another site or Host, an unknown project, a workflow or host it does not
-// launch, malformed text, a body that is not a JSON launch request, and any
-// method but GET and POST; and a read of a project's launch records from
-// another site or for an unknown project. The synthetic `claude`
-// (./fixtures/fake-claude) records every call, so each refusal proves none was
-// made. What an admitted request answers is ./agent-launch-boundary.spec.ts.
+// another site or Host, an unknown project, a workflow it does not launch
+// (including an activity named as one) or a host other than Claude Code,
+// malformed text, a body that is not a JSON launch request, and any method but
+// GET and POST; and a read of a project's launch records from another site or
+// for an unknown project. The synthetic `claude` (./fixtures/fake-claude)
+// records every call, so each refusal proves none was made. What an admitted
+// request answers is ./agent-launch-boundary.spec.ts.
 
 import { expect, test } from "@playwright/test";
 import {
@@ -64,6 +65,7 @@ for (const mode of ["dev", "preview"] as const) {
         status: 404,
         body: { ...launchRequest, source: "not-a-real-project" },
       },
+      // An activity is not a workflow.
       {
         request: "for preparation",
         status: 400,

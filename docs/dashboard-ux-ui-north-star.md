@@ -63,8 +63,7 @@ override Accepted decisions. No exception is proposed.
 
 ## Questions the story perspective should answer
 
-1. Which stories are recorded, which are selected in the backlog, and which are
-   Taken?
+1. Which stories are recorded, which are selected in the backlog, and which are Taken?
 2. What is each story trying to achieve, and what refinement, planning, and
    slice completion have been published?
 3. Who is assigned, if recorded, and where does this execution mode publish work?
@@ -72,10 +71,10 @@ override Accepted decisions. No exception is proposed.
 
 Do not require readers to interpret raw Git history to answer the ordinary questions.
 Make the underlying records available when they need to verify an answer. Keep the
-interaction observational: browse, inspect, refresh, and follow source links. The one
-action, **Start execution** on a Backlog card, asks Claude Code on this machine to
-execute the story and changes no published fact. Assignment and reprioritization stay
-outside this design. Zoom must not invent facts to answer these questions.
+interaction observational: browse, inspect, refresh, and follow source links. A Backlog
+card's **Start execution** and **Start refinement** ask Claude Code on this machine to
+execute or refine the story and change no published fact. Assignment and reprioritization
+stay outside this design. Zoom must not invent facts to answer these questions.
 
 ## Connected stages and spatial navigation
 
@@ -123,7 +122,7 @@ reason to introduce an animation engine now.
 | Trunk Mode | Show the observed project's trunk ref. Absence of a story branch is expected, not an error. Missing mode is “Mode not recorded”; do not infer it from branch absence. |
 | Completed slices | Use “2 of 5 slices recorded complete” on cards and detail alike, only for a known plan and supported completion records. Counts describe slices, not effort, elapsed time, or percentage of the story outcome achieved. |
 | Current slice clock | Use “Current slice started 12 min ago”: time since the later of the last recorded plan update and the Take, not evidence that an agent is active. Avoid “running.” |
-| Start execution / Started | Every Backlog card offers “Start execution”; a card not marked Ready for execution says “Not marked Ready for execution” beside it, and Taken cards offer none. A confirmed launch shows “Started” with its launch time, session id, and `claude attach <id>`, marked local: evidence from this machine that a session was started, not live activity, a stage, or a Take. The story stays in the Backlog until origin publishes what the session does; Started stays through reloads, project switches, and a published Preparing, and is gone once origin shows the story Taken or no longer in the Backlog. A launch that did not start says “Launch failed” with why; one that may or may not have started says “Launch uncertain” and advises checking `claude agents`. Both keep the action. |
+| Launch actions / Started | Every Backlog card offers “Start execution” and then “Start refinement”, one per launch workflow, each opening a dialog headed “Start <workflow> in Claude Code”; a card not marked Ready for execution says “Not marked Ready for execution” beside Start execution, and Taken cards offer neither. A confirmed launch replaces only its own action with a Started record that names its workflow (“Execution started in Claude Code”, “Refinement started in Claude Code”) with its launch time, session id, and `claude attach <id>`, marked local: evidence from this machine that a session was started, not live activity, a stage, or a Take. A story launched in both workflows shows both records. The story stays in the Backlog until origin publishes what the session does; Started stays through reloads and project switches, an execution Started also through a published Preparing, and every Started is gone once origin shows the story Taken or no longer in the Backlog. A launch that did not start says “Launch failed” with why; one that may or may not have started says “Launch uncertain” and advises checking `claude agents`. Either answer stays beside its own action, which stays on the card. |
 | Execution complete | When the plan records its execution as complete with product advice, a Taken card uses “Execution complete, awaiting wrap-up” and “Completed 40 min ago” (time since the plan's last commit where its progress is read, the completion commit) in place of the current slice clock. A record without readable advice is shown as that gap, not as complete. It is not story closure. |
 
 When no plan is recorded, say so instead of “0%” or “0 of 0.” If planless

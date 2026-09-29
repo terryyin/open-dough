@@ -31,11 +31,12 @@ function claudeInstruction(request: AgentLaunchRequest): string {
   return own ? `${skill}\n\n${own}` : skill;
 }
 
+// `<project> · <workflow> · <title>`, as `claude agents` lists it.
 function claudeSessionName(
   source: PublishedSource,
   request: AgentLaunchRequest,
 ): string {
-  return `${source.label} · ${request.title}`;
+  return `${source.label} · ${launchWorkflows[request.workflow].name} · ${request.title}`;
 }
 
 type ClaudeRun = {

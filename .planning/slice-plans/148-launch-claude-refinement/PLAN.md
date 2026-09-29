@@ -193,7 +193,15 @@ with no second code path.
 
 ### 2. Start refinement from a Backlog card and see its launch result
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: after the refactor, the focused command widened to
+`agent-launch accessible-overview read-failure` gave 91 passed, and the whole
+`npm run test:dashboard` gave 229 passed; typecheck and lint clean. The card
+journey is split into `agent-launch-card.spec.ts` (offering, dialogs,
+Started) and `agent-launch-card-problems.spec.ts` (failed and uncertain
+answers), opened through `tests/launchCardPage.ts`. Button and tab-stop
+totals derive from `cardLaunchActions` in `tests/dashboardPage.ts`. Started's
+region is named for its workflow ("Refinement started").
 Proof: `npx playwright test --config dashboard/playwright.config.ts
 --reporter=line agent-launch accessible-overview`; `npm run
 typecheck:dashboard`; the whole `npm run test:dashboard`.
@@ -282,6 +290,9 @@ Changes:
 - `latestRecordOf` carries a temporary `eslint-disable-next-line` while
   execution is the only workflow; slice 2 removes it once lint reports it
   unused.
+- A card with more than one action made hand-counted Tab and button totals
+  in five specs drift; they now derive from `cardLaunchActions`, so a later
+  workflow changes one test-support constant.
 - The workflow note takes only `preparation` today; slice 3 widens it to
   `preparing` for refinement's note.
 

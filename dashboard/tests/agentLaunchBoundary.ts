@@ -1,6 +1,7 @@
 // Shared by the local launch boundary specs (./agent-launch-boundary.spec.ts
 // and ./agent-launch-refusal.spec.ts): one execution launch request for this
-// repository's own story, sent over raw HTTP, and what the boundary keeps.
+// repository's own story, and its refinement counterpart, sent over raw HTTP,
+// and what the boundary keeps.
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
@@ -18,6 +19,7 @@ export const launchRequest = {
   workflow: "execution",
   host: "claude",
 };
+export const refinementRequest = { ...launchRequest, workflow: "refinement" };
 
 export function launch(
   server: DashboardServer,

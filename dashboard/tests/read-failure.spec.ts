@@ -3,6 +3,7 @@ import { headsChecks } from "./autoRefreshJourney.ts";
 import {
   expectMembership,
   expectProblemAndNoSnapshot,
+  expectSnapshotButtons,
   expectWholeSnapshot,
   parts,
 } from "./dashboardPage.ts";
@@ -119,15 +120,11 @@ test("read failure and retry is not caused by an unknown section, which adds no 
   await expect(page.getByRole("region", { name: /review/i })).toHaveCount(0);
   await expect(page.getByText(underReview)).toHaveCount(0);
   await expect(problem).toHaveCount(0);
-  await expect(page.getByRole("button")).toHaveCount(5);
-  await expect(parts(page).preparationHelp).toHaveCount(1);
-  await expect(
-    page.getByRole("button", { name: "Start execution" }),
-  ).toHaveCount(1);
-  await expect(parts(page).refresh).toHaveAccessibleName("Refresh");
-  await expect(page.getByRole("button", { name: "Inspect story" })).toHaveCount(
-    2,
-  );
+  await expectSnapshotButtons(page, {
+    readControl: "Refresh",
+    backlogCards: 1,
+    cards: 2,
+  });
 });
 
 test("read failure and retry ends a stalled read as a read problem at the wait bound and reads again only when asked", async ({
@@ -227,15 +224,11 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
   );
   await expect(problem).toHaveCount(0);
   await expect(parts(page).reading).toHaveCount(0);
-  await expect(page.getByRole("button")).toHaveCount(9);
-  await expect(parts(page).preparationHelp).toHaveCount(1);
-  await expect(
-    page.getByRole("button", { name: "Start execution" }),
-  ).toHaveCount(3);
-  await expect(parts(page).refresh).toHaveAccessibleName("Refresh");
-  await expect(page.getByRole("button", { name: "Inspect story" })).toHaveCount(
-    4,
-  );
+  await expectSnapshotButtons(page, {
+    readControl: "Refresh",
+    backlogCards: 3,
+    cards: 4,
+  });
   await expect(refresh).toBeFocused();
   expect(pathsRead(origin)).toHaveLength(4);
 });
