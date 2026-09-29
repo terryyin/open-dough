@@ -102,7 +102,9 @@ async function resumeAcceptedClosure({
 }
 
 // Author, author date, and message survive the rebase delivery performs, so
-// they identify the final closure after it was rebased.
+// they identify the final closure after it was rebased. An amend keeps them
+// too: without the worktree, an unpublished amendment of a published closure
+// is taken as that closure.
 async function closureIdentity(inspection, sha) {
   return (
     await git(inspection, "log", "-1", "--format=%an%x00%ae%x00%at%x00%B", sha)

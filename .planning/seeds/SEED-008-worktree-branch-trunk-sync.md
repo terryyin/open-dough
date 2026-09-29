@@ -195,13 +195,21 @@ the payload with its tests.
   Decide whether Dough Land's "Retire the worktree" says to pass only
   `--identity` when the creation record names the work, or the command reports
   its ownership basis.
-- **D3 — one ancestry check.** `isAncestor` exists in several execute-plan
-  scripts beside the Land and wrap-up copies that correction
-  SEED-008#closure-proof-and-harness-correction consolidates. Decide whether
-  to consolidate the execute-plan copies, which crosses skills.
+- **D3 — one ancestry check and one optional rev-parse.** Land and wrap-up
+  import `isAncestor` from `workspace-publication-ownership.mjs`, but
+  `publication-resume.mjs`, `maintain-default-checkout.mjs`,
+  `history-preserving-publication.mjs`, and `ci-path-applicability.mjs` keep
+  their own copies. The same "resolve this revision or nothing" rule appears as
+  `commitOf` in `trunk-closure-settlement.mjs` and
+  `preparation-assignment-ownership.mjs`, `refSha` in
+  `execution-start-carry.mjs`, and `verifies` in
+  `maintain-default-checkout.mjs`, with differing error handling. Decide
+  whether to consolidate both, for example beside `revParse` in
+  `publication-git.mjs`, which crosses skills.
 
-**Relation:** follows SEED-008#closure-proof-and-harness-correction, which
-fixes the Story Branch native harness this story's acceptance would reuse.
+**Relation:** follows SEED-008#closure-response-and-spawned-script-identity,
+which finishes repairing the Story Branch native harness this story's
+acceptance would reuse.
 
 <a id="reduce-ci-observer-overhead"></a>
 
