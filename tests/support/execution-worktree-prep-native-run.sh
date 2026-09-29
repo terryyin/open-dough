@@ -184,7 +184,6 @@ prep_native_assess_live() {
 
 prep_native_extract_commands() {
   command_log="${artifact_root}/commands.txt"
-  jq -r '.. | objects |
-    (.command? // .args.command? // .input.command? // empty) | strings' \
-    "${transcript}" > "${command_log}" 2> /dev/null || : > "${command_log}"
+  native_host_stream "${platform}" "${transcript}" segments \
+    > "${command_log}" 2> /dev/null || : > "${command_log}"
 }

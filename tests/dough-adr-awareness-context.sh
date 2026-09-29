@@ -138,32 +138,16 @@ source_after=$(snapshot_path_state "${candidate}")
 [[ ${before} == "${after}" && ${source_before} == "${source_after}" ]]
 command_log="${artifact_root}/${platform}-${scenario}-commands.txt"
 inspection_log="${artifact_root}/${platform}-${scenario}-inspection-targets.txt"
-jq -r '.. | objects |
-  (.command? // .args.command? // .input.command? // empty) | strings' \
-  "${transcript}" > "${command_log}"
-case ${platform} in
-  cursor)
-    jq -r '.. | objects | select(has("tool_call")) |
-      .tool_call | .. | objects | .args? // empty | .. | strings' \
-      "${transcript}" > "${inspection_log}"
-    ;;
-  claude)
-    jq -r '.message.content[]? |
-      select(.type == "tool_use" and (.name == "Read" or .name == "Glob" or .name == "Grep")) |
-      .input | .. | strings' "${transcript}" > "${inspection_log}"
-    ;;
-  codex) : ;;
-  *) exit 2 ;;
-esac
+native_host_stream "${platform}" "${transcript}" segments > "${command_log}"
+native_host_stream "${platform}" "${transcript}" targets > "${inspection_log}"
 assert_no_adr_awareness_maintenance \
   "${command_log}" "${platform} ${scenario} ADR assessment"
 if grep -Fq "${candidate}" "${command_log}" \
-  || { [[ -f ${inspection_log} ]] && grep -Fq "${candidate}" "${inspection_log}"; }; then
+  || grep -Fq "${candidate}" "${inspection_log}"; then
   echo "FAIL: ${platform} fell back to the candidate source during installed use." >&2
   exit 1
 fi
-if [[ -f ${inspection_log} ]] && grep -Eiq 'adr-adoption|migration' \
-  "${inspection_log}"; then
+if grep -Eiq 'adr-adoption|migration' "${inspection_log}"; then
   echo "FAIL: ${platform} read migration-support material." >&2
   exit 1
 fi

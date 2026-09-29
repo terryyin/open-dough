@@ -21,36 +21,6 @@ export function readOptional(path) {
   return readFileSync(path, "utf8");
 }
 
-function collectCommandStrings(value, into, depth = 0) {
-  if (value === undefined || value === null || depth > 12) return;
-  if (Array.isArray(value)) {
-    for (const entry of value) collectCommandStrings(entry, into, depth + 1);
-    return;
-  }
-  if (typeof value !== "object") return;
-  if (typeof value.command === "string" && value.command.trim()) {
-    into.push(value.command);
-  }
-  for (const nested of Object.values(value)) {
-    if (nested && typeof nested === "object") {
-      collectCommandStrings(nested, into, depth + 1);
-    }
-  }
-}
-
-export function extractStreamCommands(streamText) {
-  const commands = [];
-  for (const line of streamText.split("\n")) {
-    if (!line.trim()) continue;
-    try {
-      collectCommandStrings(JSON.parse(line), commands);
-    } catch {
-      // Host streams may include non-JSON keepalives; ignore those lines.
-    }
-  }
-  return commands;
-}
-
 export function rolesFor(text) {
   const roles = [];
   if (setupPattern.test(text)) roles.push("setup");

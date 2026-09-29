@@ -14,6 +14,8 @@ source "${source_dir}/tests/support/native-codex.sh"
 source "${source_dir}/tests/support/dough-adr-awareness-proof.sh"
 # shellcheck source=tests/support/dough-adr-awareness-use.sh
 source "${source_dir}/tests/support/dough-adr-awareness-use.sh"
+# shellcheck source=tests/support/native-host-stream.sh
+source "${source_dir}/tests/support/native-host-stream.sh"
 
 if [[ $# != 0 && ! ($# == 2 && $1 == '--native' && $2 =~ ^(explicit|automatic)$) ]]; then
   echo 'usage: tests/dough-adr-awareness-codex-use.sh [--native explicit|automatic]' >&2
@@ -97,8 +99,9 @@ fi
 source_after=$(snapshot_path_state "${candidate}")
 [[ ${source_before} == "${source_after}" ]]
 command_log="${temporary_dir}/${mode}-commands.txt"
-jq -r 'select(.type == "item.completed" and .item.type == "command_execution") | .item.command' \
-  "${transcript}" > "${command_log}"
+native_host_stream codex "${transcript}" segments > "${command_log}"
+calls_log="${temporary_dir}/${mode}-calls.jsonl"
+native_host_stream codex "${transcript}" calls > "${calls_log}"
 assert_no_adr_awareness_maintenance "${command_log}" 'installed guidance use'
 source_commit=$(git -C "${candidate}" rev-parse HEAD)
 before_digest=$(printf '%s\n' "${before}" | shasum -a 256 | cut -d ' ' -f 1)
@@ -119,11 +122,10 @@ if [[ ${mode} == 'explicit' ]]; then
     exit 1
   fi
 else
-  jq -e -s 'any(.[]; .type == "item.completed" and
-    .item.type == "command_execution" and .item.exit_code == 0 and
-    (.item.command | contains(".agents/skills/dough-adr-awareness/SKILL.md")) and
-    (.item.aggregated_output | contains("# ADR awareness")))' \
-    "${transcript}" > /dev/null
+  jq -e -s 'any(.[]; .exitCode == 0 and
+    (.command | contains(".agents/skills/dough-adr-awareness/SKILL.md")) and
+    (.output // "" | contains("# ADR awareness")))' \
+    "${calls_log}" > /dev/null
 fi
 grep -Fq 'docs/adrs/0001-session-state.md' "${output_file}"
 grep -Eiq 'Redis' "${output_file}"
@@ -136,7 +138,6 @@ cat "${command_log}"
 printf '\nNative response:\n'
 cat "${output_file}"
 printf '\nSuccessful native command output (loading evidence):\n'
-jq -r 'select(.type == "item.completed" and .item.type == "command_execution" and .item.exit_code == 0) | .item.aggregated_output' \
-  "${transcript}"
+jq -r 'select(.exitCode == 0) | .output' "${calls_log}"
 echo 'PASS: native skill-specific completion (explicit) or successful skill read (automatic), Accepted-ADR citation and Redis advice observed; complete installed target and source snapshots unchanged without maintenance machinery.'
 echo 'REVIEW: confirm actual skill loading, Accepted/Proposed treatment, human authority, and absence of fallback in the native evidence above.'

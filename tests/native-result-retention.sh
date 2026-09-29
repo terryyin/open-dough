@@ -7,6 +7,9 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck source=tests/support/native-result-retain.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/native-result-retain.sh"
+# shellcheck source=tests/support/native-host-stream.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-host-stream.sh"
 context_wrapper="${source_dir}/tests/dough-adr-awareness-context.sh"
 
 work_dir=$(mktemp -d)
@@ -85,8 +88,8 @@ assert_attempt() {
   grep -Fq 'origin: fresh' "${attempt}/record"
   grep -Fq 'execution-status: completed' "${attempt}/record"
   grep -Fq 'execution-reason: native command exited 0' "${attempt}/record"
-  [[ ${host} != codex ]] || grep -Fq '"type":"item.completed"' "${attempt}/events.jsonl"
-  [[ ${host} != codex ]] || grep -Fq '"type":"turn.completed"' "${attempt}/events.jsonl"
+  [[ $(native_host_stream "${host}" "${attempt}/events.jsonl" status) == complete ]]
+  [[ -n $(native_host_stream "${host}" "${attempt}/events.jsonl" response) ]]
   grep -Fq "native-version-command: ${version_command}" "${attempt}/record"
   grep -Fq 'assessment-status: pass' "${attempt}/record"
   grep -Fq 'assessment-reason:' "${attempt}/record"

@@ -12,6 +12,9 @@ source "${source_dir}/tests/support/native-updated-use-prompt-assert.sh"
 # shellcheck source=tests/support/native-updated-use-adapter-host.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/native-updated-use-adapter-host.sh"
+# shellcheck source=tests/support/native-host-stream.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-host-stream.sh"
 
 assert_watched_empty() {
   local leftover
@@ -135,8 +138,8 @@ assert_adapter_success() {
   [[ -f ${success}/observations.txt ]]
   [[ -f ${success}/update-before-snapshot.txt ]]
   [[ -f ${success}/update-after-snapshot.txt ]]
-  grep -Fq '"type":"result"' "${success}/update-events.jsonl"
-  grep -Fq '"type":"result"' "${success}/use-events.jsonl"
+  [[ $(native_host_stream "${host}" "${success}/update-events.jsonl" status) == complete ]]
+  [[ $(native_host_stream "${host}" "${success}/use-events.jsonl" status) == complete ]]
   grep -Fq 'Outcome: installed or updated the shared Codex/Cursor root and Claude Code to 0.2.2.' "${success}/update-response.md"
   grep -Fq 'assessment-status: pass' "${success}/record"
   grep -Fq 'named conflicting authorities and stopped' "${success}/record"
@@ -195,8 +198,8 @@ assert_adapter_truncated() {
   grep -Fq 'use-pending: true' "${truncated}/observations.txt"
   [[ -f ${truncated}/update-events.jsonl ]]
   [[ ! -e ${truncated}/use-events.jsonl ]]
-  if grep -Fq '"type":"result"' "${truncated}/update-events.jsonl"; then
-    echo "FAIL: truncated ${host} stream retained a result event." >&2
+  if [[ $(native_host_stream "${host}" "${truncated}/update-events.jsonl" status) != truncated ]]; then
+    echo "FAIL: truncated ${host} stream retained its terminal event." >&2
     cat "${truncated}/update-events.jsonl" >&2
     return 1
   fi

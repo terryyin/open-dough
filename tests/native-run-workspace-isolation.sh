@@ -109,6 +109,8 @@ grep -Fq 'cursor agent --version' "${run_log}"
 
 # Harness: incomplete decode must recreate a vanished output_file parent.
 harness_dir=$(mktemp -d)
+# shellcheck disable=SC2034 # The host native_run_write_output reads.
+platform=cursor
 output_file="${harness_dir}/gone/response.md"
 transcript="${harness_dir}/events.jsonl"
 printf '%s\n' '{"type":"tool_call"}' > "${transcript}"

@@ -3,6 +3,10 @@
 # installed product-backlog writer rather than constructing a Taken entry.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals cross the sourced harness.
 
+# shellcheck source=tests/support/native-host-stream.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-host-stream.sh"
+
 take_backlog_rel='.planning/PRODUCT-BACKLOG.md'
 take_seed_rel='.planning/seeds/SEED-101-native-claim.md'
 take_plan_rel='.planning/slice-plans/101-native-claim/PLAN.md'
@@ -90,13 +94,18 @@ Proof: inspect the resulting fixture.
 EOF
 }
 
+# One `<tool>\t<command or path>` line per tool call in the Claude stream:
+# `Bash` with each started command, then each other tool with the file it
+# names.
 take_extract_calls() {
   local transcript=$1
   local calls=$2
-  jq -r '
-    .. | objects | select(.type? == "tool_use") |
-    [.name, (.input.command // .input.file_path // .input.path // "")] | @tsv
-  ' "${transcript}" > "${calls}"
+  {
+    native_host_stream claude "${transcript}" commands \
+      | jq -r '["Bash", .] | @tsv'
+    native_host_stream claude "${transcript}" tools \
+      | jq -r '[.name, (.input.file_path // .input.path // "")] | @tsv'
+  } > "${calls}"
 }
 
 take_assert_installed_writer_call() {
@@ -206,7 +215,7 @@ take_run_native() {
       --output-format stream-json --verbose \
       "Start the queued story ‘Publish the native claim’ using its resolved executable plan on the current branch. This acceptance check ends immediately after the backlog claim is made: do not stage, commit, publish, implement, or change the plan. Report what you did."
   ) > "${transcript}" 2> "${temporary_dir}/native-take-stderr.txt"
-  jq -r 'select(.type == "result") | .result' "${transcript}" > "${output}"
+  native_host_stream claude "${transcript}" response > "${output}"
   take_extract_calls "${transcript}" "${calls}"
 
   take_assert_installed_writer_call "${calls}"

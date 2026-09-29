@@ -9,6 +9,9 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck source=tests/support/native-result-retain.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/native-result-retain.sh"
+# shellcheck source=tests/support/native-host-stream.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-host-stream.sh"
 context_wrapper="${source_dir}/tests/dough-adr-awareness-context.sh"
 
 work_dir=$(mktemp -d)
@@ -137,18 +140,13 @@ assert_incomplete() {
       ;;
     truncated)
       [[ -s ${attempt}/events.jsonl ]]
-      if grep -Fq '"type":"result"' "${attempt}/events.jsonl"; then
-        echo "FAIL: truncated ${host} stream retained a result event." >&2
+      if [[ $(native_host_stream "${host}" "${attempt}/events.jsonl" status) != truncated ]]; then
+        echo "FAIL: truncated ${host} stream retained its terminal event." >&2
         cat "${attempt}/events.jsonl" >&2
         return 1
       fi
       if [[ ${host} == codex ]]; then
-        grep -Fq '"type":"item.completed"' "${attempt}/events.jsonl"
-        if grep -Fq '"type":"turn.completed"' "${attempt}/events.jsonl"; then
-          echo 'FAIL: truncated Codex stream retained terminal turn completion.' >&2
-          cat "${attempt}/events.jsonl" >&2
-          return 1
-        fi
+        [[ -n $(native_host_stream codex "${attempt}/events.jsonl" response) ]]
       fi
       ;;
     unknown)

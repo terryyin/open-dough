@@ -18,6 +18,9 @@ cp -R -- "${source_dir}/tests" "${source_dir}/src" "${identity_source}/"
 supervision_inputs=(
   tests/support/native-run-supervise.sh
   tests/support/native-run-stream.sh
+  tests/support/native-host-stream.sh
+  tests/support/native-host-stream.mjs
+  tests/support/native-host-stream-adapters.mjs
   tests/support/native-run-watchdog.sh
   tests/helpers/wait-for.bash
 )

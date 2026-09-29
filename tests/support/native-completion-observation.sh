@@ -3,22 +3,9 @@
 # stop/await leftovers. Journey files keep their own observation field layouts.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-native_stream_reader="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-host-stream.mjs"
-# The node found before any harness wrapper goes first on PATH, so reading a
-# stream is not itself recorded as one of the agent's node calls.
-native_stream_node=$(command -v node)
-
-# The shell commands host $1 started in its live stream $2 that contain text
-# $3, one JSON string per line, from the shared reader. A stream without that
-# text skips the reader, which keeps controller polls cheap.
-native_stream_started_commands() {
-  local host=$1 stream=$2 text=$3
-  if [[ -z ${stream} || ! -f ${stream} ]] || ! grep -Fq -- "${text}" "${stream}"; then
-    return 0
-  fi
-  NATIVE_NODE_CALL_LOG='' "${native_stream_node}" "${native_stream_reader}" \
-    "${host}" "${stream}" commands | grep -F -- "${text}" || true
-}
+# shellcheck source=tests/support/native-host-stream.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-host-stream.sh"
 
 # Calls containing every text $4...: the node call log $1, or the commands host
 # $2 started in stream $3, whichever sees more. Agents may quote paths or bypass

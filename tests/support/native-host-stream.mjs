@@ -1,113 +1,26 @@
 // The one reader of native host output streams (Claude, Codex, and Cursor
-// stream JSON, plain or gzipped). Host event shapes live only here, in one
-// adapter per host; callers get the started shell commands, their outputs,
-// the final response, and the stream status. Shell callers use the CLI:
+// stream JSON, plain or gzipped). Host event shapes live only in its per-host
+// adapters (native-host-stream-adapters.mjs); callers get the started shell
+// commands, their outputs, the agent's messages and final response, its other
+// tool calls, and the stream status. Shell callers use the CLI
+// (tests/support/native-host-stream.sh wraps it):
 //
 //   node tests/support/native-host-stream.mjs <host> <stream> <view>
 //
-// where <view> is `status`, `response`, `commands` (one JSON string per
-// started command), `segments` (each command split at its separators, one per
-// line), or `outputs` (each completed command's output).
+// where <view> is `status`, `response`, `messages` (one JSON string per agent
+// message), `commands` (one JSON string per started command), `segments`
+// (each command split at its separators, one per line), `outputs` (each
+// completed command's output), `calls` (one JSON object per started command:
+// `command`, `output`, `exitCode`), `tools` (one JSON object per other tool
+// call: `name`, `input`, `output`), `reads` (one JSON object per file read:
+// `path`, `content`), or `targets` (the strings given to inspection tools, one
+// per line).
 import { existsSync, readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
-
-// Each adapter folds one parsed event into `session`: a started command opens
-// an entry by its host id, a completion attaches output (and opens the entry
-// when its start was never seen), and the terminal event sets `complete`.
-const adapters = {
-  claude: {
-    read(event, session) {
-      if (event.type === "assistant") {
-        for (const part of contentParts(event.message)) {
-          if (part.type === "tool_use" && part.name === "Bash") {
-            session.start(part.id, part.input?.command);
-          }
-        }
-      } else if (event.type === "user") {
-        for (const part of contentParts(event.message)) {
-          if (part.type === "tool_result") {
-            session.finish(part.tool_use_id, undefined, resultText(part));
-          }
-        }
-      } else if (event.type === "result") {
-        session.respond(event.result);
-        session.end();
-      }
-    },
-    partial: (event) => "message" in event || "type" in event,
-  },
-  codex: {
-    read(event, session) {
-      const item = event.item;
-      if (event.type === "item.started" && item?.type === "command_execution") {
-        session.start(item.id, item.command);
-      } else if (event.type === "item.completed") {
-        if (item?.type === "command_execution") {
-          session.finish(item.id, item.command, item.aggregated_output ?? "");
-        } else if (item?.type === "agent_message") {
-          session.respond(item.text);
-        }
-      } else if (event.type === "turn.completed") {
-        session.end();
-      }
-    },
-    partial: (event) => "type" in event,
-  },
-  cursor: {
-    read(event, session) {
-      if (event.type === "tool_call") {
-        const shell = event.tool_call?.shellToolCall;
-        if (!shell) {
-          return;
-        }
-        if (event.subtype === "started") {
-          session.start(event.call_id, shell.args?.command);
-        } else if (event.subtype === "completed") {
-          session.finish(
-            event.call_id,
-            shell.args?.command,
-            cursorShellOutput(shell.result),
-          );
-        }
-      } else if (event.type === "result") {
-        session.respond(event.result);
-        session.end();
-      }
-    },
-    partial: (event) => "tool_call" in event || "type" in event,
-  },
-};
+import { adapters } from "./native-host-stream-adapters.mjs";
 
 export const hosts = Object.keys(adapters);
-
-function contentParts(message) {
-  return Array.isArray(message?.content) ? message.content : [];
-}
-
-function resultText(part) {
-  if (typeof part.content === "string") {
-    return part.content;
-  }
-  if (Array.isArray(part.content)) {
-    return part.content
-      .map((piece) =>
-        typeof piece?.text === "string" ? piece.text : JSON.stringify(piece),
-      )
-      .join("\n");
-  }
-  return part.content === undefined ? "" : JSON.stringify(part.content);
-}
-
-function cursorShellOutput(result) {
-  const outcome = result?.success ?? result?.failure;
-  if (outcome) {
-    return [outcome.stdout, outcome.stderr]
-      .filter((text) => typeof text === "string" && text !== "")
-      .join("\n");
-  }
-  return result === undefined ? "" : JSON.stringify(result);
-}
 
 // Joins a command's line continuations, as a shell reads them.
 function joinContinuations(command) {
@@ -126,22 +39,41 @@ export function commandSegments(command) {
 
 function newSession() {
   const commands = [];
+  const tools = [];
+  const messages = [];
   const byId = new Map();
   const session = {
     commands,
+    tools,
+    messages,
     response: null,
     complete: false,
     start(id, command) {
       if (typeof command !== "string") {
         return;
       }
-      const entry = { command: joinContinuations(command), output: null };
+      const entry = {
+        command: joinContinuations(command),
+        output: null,
+        exitCode: null,
+      };
       commands.push(entry);
       if (id !== undefined) {
         byId.set(id, entry);
       }
     },
-    finish(id, command, output) {
+    // Opens a non-shell tool call once per host id.
+    tool(id, name, input) {
+      if (typeof name !== "string" || (id !== undefined && byId.has(id))) {
+        return;
+      }
+      const entry = { name, input: input ?? {}, output: null };
+      tools.push(entry);
+      if (id !== undefined) {
+        byId.set(id, entry);
+      }
+    },
+    finish(id, command, output, exitCode) {
       let entry = id === undefined ? undefined : byId.get(id);
       if (!entry) {
         if (typeof command !== "string") {
@@ -151,6 +83,14 @@ function newSession() {
         entry = byId.get(id) ?? commands.at(-1);
       }
       entry.output = output;
+      if (Number.isInteger(exitCode)) {
+        entry.exitCode = exitCode;
+      }
+    },
+    message(text) {
+      if (typeof text === "string") {
+        messages.push(text);
+      }
     },
     end() {
       session.complete = true;
@@ -165,9 +105,10 @@ function newSession() {
 }
 
 // Reads stream text `text` from `host`. Status follows the harness contract:
-// `missing` when empty; `complete` when the host's terminal event is present;
-// `truncated` when the events are the host's but the terminal event is absent;
-// `unknown` for any other shape, including a line that is not a JSON object.
+// `missing` when empty (a whitespace-only stream is `unknown`); `complete`
+// when the host's terminal event is present; `truncated` when the events are
+// the host's but the terminal event is absent; `unknown` for any other shape,
+// including a line that is not a JSON object.
 export function readHostStreamText(host, text) {
   const adapter = adapters[host];
   if (!adapter) {
@@ -194,7 +135,7 @@ export function readHostStreamText(host, text) {
     adapter.read(event, session);
   }
   let status = "unknown";
-  if (text.trim() === "") {
+  if (text === "") {
     status = "missing";
   } else if (parsed && session.complete) {
     status = "complete";
@@ -210,9 +151,34 @@ export function readHostStreamText(host, text) {
     outputs: session.commands
       .map((entry) => entry.output)
       .filter((output) => output !== null),
-    // Each started command paired with its output (null if never completed).
+    // Each started command paired with its output (null if never completed)
+    // and its exit code (null where the host reports none: Claude).
     calls: session.commands,
+    messages: session.messages,
+    // Every other tool call: its host tool name, input, and output.
+    tools: session.tools,
+    // Every file read: its path and the content the host returned.
+    reads: session.tools.flatMap((tool) => {
+      const path = adapter.readPath(tool);
+      return typeof path === "string" ? [{ path, content: tool.output }] : [];
+    }),
+    // The strings given to inspection tools: Claude Read, Glob, and Grep
+    // inputs; every Cursor non-shell tool call's arguments. Codex inspects
+    // through shell commands only.
+    targets: session.tools
+      .filter((tool) => adapter.inspects(tool))
+      .flatMap((tool) => strings(tool.input)),
   };
+}
+
+function strings(value) {
+  if (typeof value === "string") {
+    return [value];
+  }
+  if (value && typeof value === "object") {
+    return Object.values(value).flatMap(strings);
+  }
+  return [];
 }
 
 // Reads the stream file at `path`, gunzipping it when it is gzipped.
@@ -229,12 +195,18 @@ export function readHostStream(host, path) {
   return readHostStreamText(host, readStreamFile(path));
 }
 
+const jsonLines = (entries) => entries.map((entry) => JSON.stringify(entry));
 const views = {
   status: (read) => [read.status],
   response: (read) => (read.response === null ? [] : [read.response]),
-  commands: (read) => read.commands.map((command) => JSON.stringify(command)),
+  messages: (read) => jsonLines(read.messages),
+  commands: (read) => jsonLines(read.commands),
   segments: (read) => read.segments,
   outputs: (read) => read.outputs,
+  calls: (read) => jsonLines(read.calls),
+  tools: (read) => jsonLines(read.tools),
+  reads: (read) => jsonLines(read.reads),
+  targets: (read) => read.targets,
 };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

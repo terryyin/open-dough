@@ -2,7 +2,7 @@
 # Own a native command's process group and wait with deadline plus grace.
 # Defaults leave recorded-success substitutes unchanged. Timeout does not retry.
 # Bound: terminate only the owned group, never the caller's process group.
-# Stream completeness uses native_run_classify_stream from native-run-stream.sh.
+# Stream status (native-run-stream.sh) and response come from the stream reader.
 # shellcheck disable=SC2034,SC2154,SC2312 # Supervisor/wrapper globals; ps formats pids.
 
 native_run_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -12,6 +12,9 @@ native_run_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 native_run_supervision_inputs=(
   tests/support/native-run-supervise.sh
   tests/support/native-run-stream.sh
+  tests/support/native-host-stream.sh
+  tests/support/native-host-stream.mjs
+  tests/support/native-host-stream-adapters.mjs
   tests/support/native-run-watchdog.sh
   tests/helpers/wait-for.bash
 )
@@ -184,11 +187,11 @@ native_run_write_output() {
   local allow_empty=${1:-0}
   mkdir -p -- "$(dirname -- "${output_file}")"
   if [[ ${allow_empty} -eq 1 ]]; then
-    jq -r 'select(.type == "result") | .result' "${transcript}" \
+    native_host_stream "${platform}" "${transcript}" response \
       > "${output_file}" 2> /dev/null || : > "${output_file}"
     return 0
   fi
-  jq -r 'select(.type == "result") | .result' "${transcript}" > "${output_file}"
+  native_host_stream "${platform}" "${transcript}" response > "${output_file}"
 }
 
 native_run_context_command() {

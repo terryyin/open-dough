@@ -23,7 +23,6 @@ trunk_closure_write_evidence_identity() {
     tests/support/trunk-closure-native-run.sh \
     tests/support/trunk-closure-native-assess.sh \
     tests/support/native-completion-observation.sh \
-    tests/support/native-host-stream.mjs \
     tests/support/trunk-closure-native-fixture.sh \
     tests/support/trunk-closure-native-owned-context.sh \
     tests/support/native-harness-observation.sh \

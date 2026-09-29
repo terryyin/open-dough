@@ -9,48 +9,25 @@ use_hosts_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 source "${use_hosts_support_dir}/native-run-supervise.sh"
 
-use_assert_codex_call() {
-  local transcript=$1
-  local invocation=$2
-  local label=$3
-  if ! grep -F '"type":"item.started"' "${transcript}" \
-    | grep -Fq "${invocation}"; then
-    printf 'FAIL: native Codex transcript did not show the installed merge adapter %s call.\n' \
-      "${label}" >&2
-    return 1
-  fi
-}
-
-use_assert_cursor_call() {
-  local transcript=$1
-  local invocation=$2
-  local label=$3
-  local observed
-  observed=$(
-    jq -r '.. | objects | select(has("tool_call")) |
-      .tool_call | .. | objects | .args? // empty | .. | strings' \
-      "${transcript}"
-    jq -r '.. | objects |
-      (.command? // .args.command? // .input.command? // empty) | strings' \
-      "${transcript}"
-  )
-  if ! printf '%s\n' "${observed}" | grep -Fq "${invocation}"; then
-    printf 'FAIL: native Cursor stream did not show the installed merge adapter %s call.\n' \
-      "${label}" >&2
-    return 1
-  fi
-}
-
+# The Codex or Cursor stream started a shell command running the installed
+# merge adapter invocation. Claude's session is not observed through a stream.
 use_assert_host_adapter_call() {
   local host=$1
   local transcript=$2
   local invocation=$3
   local label=$4
+  local name
   case ${host} in
-    codex) use_assert_codex_call "${transcript}" "${invocation}" "${label}" ;;
-    cursor) use_assert_cursor_call "${transcript}" "${invocation}" "${label}" ;;
-    *) ;;
+    codex) name=Codex ;;
+    cursor) name=Cursor ;;
+    *) return 0 ;;
   esac
+  if [[ -z $(native_stream_started_commands "${host}" "${transcript}" \
+    "${invocation}") ]]; then
+    printf 'FAIL: native %s stream did not show the installed merge adapter %s call.\n' \
+      "${name}" "${label}" >&2
+    return 1
+  fi
 }
 
 use_run_cursor_session() {

@@ -8,6 +8,9 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 codex_wrapper="${source_dir}/tests/dough-adr-awareness-codex-delivery-to-use.sh"
 journey_fixture="${source_dir}/tests/support/native-agent-journey.sh"
 fail_fixture="${source_dir}/tests/support/native-agent-fail.sh"
+# shellcheck source=tests/support/native-host-stream.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-host-stream.sh"
 
 work_dir=$(mktemp -d)
 finish() {
@@ -86,8 +89,8 @@ fi
 grep -Fq 'Outcome: installed or updated the shared Codex/Cursor root and Claude Code to 0.2.2.' "${success}/update-response.md"
 grep -Fq 'assessment-status: pass' "${success}/record"
 grep -Fq 'named conflicting authorities and stopped' "${success}/record"
-if grep -Fq '"type":"item.completed"' "${success}/update-events.jsonl" \
-  && grep -Fq '"type":"turn.completed"' "${success}/update-events.jsonl"; then
+if [[ $(native_host_stream codex "${success}/update-events.jsonl" status) == complete &&
+-n $(native_host_stream codex "${success}/update-events.jsonl" response) ]]; then
   :
 else
   echo 'FAIL: update stream omitted Codex completed activity or terminal turn completion.' >&2

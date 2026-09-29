@@ -280,7 +280,7 @@ Learnings for later slices:
 
 ### 5. The runner and the remaining observations read through the reader
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/native-stream-completeness.sh`, `tests/native-runner-failures.sh`,
 `tests/native-run-timeout.sh`, `tests/native-result-retention.sh`,
 `tests/native-delivery-updated-use.sh`, `tests/execution-worktree-preparation-native.sh`,
@@ -295,6 +295,33 @@ from the reader. So do the `extractStreamCommands` and
 Codex-use jq, and the product-backlog use-hosts parsing. The reader gains read
 targets (Read/Glob/Grep inputs, Cursor read args) only as those callers need
 them. External verdicts are unchanged. Enables slice 6.
+
+Accepted proof: the ten suites above plus `tests/native-stream-replay.sh`,
+`tests/support/native-host-stream.test.mjs`, `tests/native-evidence-identity.sh`,
+and `tests/native-run-workspace-isolation.sh` through
+`PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh`, exit 0 (about 17 s). The
+shared classifier also feeds publication and closure, so
+`tests/git-publication-native.sh`, `-one-shot.sh`, and `-owned-context.sh`
+were rerun green (about 59 s). Suite durations matched a paired baseline.
+
+Learnings for later slices:
+- The reader is two files: `tests/support/native-host-stream.mjs` (session,
+  status, views, CLI) and `native-host-stream-adapters.mjs` (host shapes).
+  Views added: `calls` (with `exitCode`), `messages`, `tools`, `reads`,
+  `targets`. Shell callers use `tests/support/native-host-stream.sh`
+  (`native_host_stream`, `native_stream_started_commands`), which runs the
+  reader with `NATIVE_NODE_CALL_LOG=/dev/null`, so no harness log records it
+  whatever the source order.
+- A multi-line `\`-continued take command now matches (Claude 58dd, 0152),
+  the harness fault this story targets.
+- No reader remains outside the reader. Slice 6's guard also meets host
+  literals in shape writers (`native-agent-{admission,journey,publication,recorded}.sh`,
+  the publication counterexamples and owned-context suite,
+  `tests/native-run-workspace-isolation.sh`,
+  `git-publication-native-stream-fields.test.mjs`, `native-stream-replay.mjs`),
+  in prose (`tests/native-adr-awareness-wrappers.md`), and in corpus
+  provenance text (`record`, `expected`). `"type":"result"` greps were all
+  migrated; the planned literal list would not catch a new one.
 
 ### 6. The free suite refuses host-stream parsing outside the reader
 Type: Behavior

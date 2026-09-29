@@ -9,6 +9,8 @@ source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/tests/helpers/release-fixture.bash"
 source "${source_dir}/tests/support/native-codex.sh"
 source "${source_dir}/tests/support/dough-adr-awareness-proof.sh"
+# shellcheck source=tests/support/native-host-stream.sh
+source "${source_dir}/tests/support/native-host-stream.sh"
 
 if [[ $# != 0 && ! ($# == 1 && $1 == '--native') &&
   ! ($# == 2 && $1 == '--native' && $2 =~ ^(codex|cursor|claude)$) ]]; then
@@ -91,7 +93,7 @@ case ${platform} in
       cursor agent --print --force --trust --sandbox enabled \
         --output-format stream-json --workspace "${target}" "${prompt}"
     ) > "${transcript}"
-    jq -r 'select(.type == "result") | .result' "${transcript}" > "${output_file}"
+    native_host_stream cursor "${transcript}" response > "${output_file}"
     ;;
   claude)
     command -v claude > /dev/null
@@ -101,7 +103,7 @@ case ${platform} in
       claude --print --permission-mode default --allowedTools 'Read,Glob,Grep,Skill' \
         --no-session-persistence --output-format stream-json --verbose "${prompt}"
     ) > "${transcript}"
-    jq -r 'select(.type == "result") | .result' "${transcript}" > "${output_file}"
+    native_host_stream claude "${transcript}" response > "${output_file}"
     ;;
   *) exit 2 ;;
 esac
@@ -122,57 +124,34 @@ grep -Eiq 'ordinary Open Dough release updat(e|ing).*(still )?available' \
 grep -Eiq 'repository (URL|url)|source (URL|url)' "${output_file}"
 case ${platform} in
   codex)
-    jq -e -s 'any(.[]; .type == "item.completed" and
-      .item.type == "agent_message" and
-      (.item.text | test("(using|applying).*dough-update.*(skill|guidance)"; "i")))' \
-      "${transcript}" > /dev/null
+    native_host_stream codex "${transcript}" messages \
+      | jq -e -s 'any(.[];
+        test("(using|applying).*dough-update.*(skill|guidance)"; "i"))' > /dev/null
     ;;
   cursor)
-    jq -e -s 'any(.[]; .tool_call.readToolCall? |
-      ((.args.path // "") | endswith("/.agents/skills/dough-update/SKILL.md")) and
-      ((.result.success.content // "") | contains("Local-guidance replacement is not supported by dough-update.")))' \
-      "${transcript}" > /dev/null
+    native_host_stream cursor "${transcript}" reads \
+      | jq -e -s 'any(.[];
+        (.path | endswith("/.agents/skills/dough-update/SKILL.md")) and
+        (.content // "" | contains("Local-guidance replacement is not supported by dough-update.")))' \
+        > /dev/null
     ;;
   claude)
-    jq -e -s 'any(.[] | .message.content[]?; .type == "tool_use" and
-      .name == "Skill" and .input.skill == "dough-update")' \
-      "${transcript}" > /dev/null
+    native_host_stream claude "${transcript}" tools \
+      | jq -e -s 'any(.[]; .name == "Skill" and .input.skill == "dough-update")' \
+        > /dev/null
     ;;
   *) exit 2 ;;
 esac
 
 command_log="${temporary_dir}/commands.txt"
 inspection_log="${temporary_dir}/inspection-targets.txt"
-case ${platform} in
-  codex)
-    jq -r 'select(.type == "item.completed" and .item.type == "command_execution") | .item.command' \
-      "${transcript}" > "${command_log}"
-    ;;
-  cursor)
-    jq -r '.. | objects |
-      (.command? // .args.command? // .input.command? // empty) | strings' \
-      "${transcript}" > "${command_log}"
-    jq -r '.. | objects | select(has("tool_call")) |
-      .tool_call | .. | objects | .args? // empty | .. | strings' \
-      "${transcript}" > "${inspection_log}"
-    ;;
-  claude)
-    jq -r '.. | objects |
-      (.command? // .args.command? // .input.command? // empty) | strings' \
-      "${transcript}" > "${command_log}"
-    jq -r '.message.content[]? |
-      select(.type == "tool_use" and (.name == "Read" or .name == "Glob" or .name == "Grep")) |
-      .input | .. | strings' "${transcript}" > "${inspection_log}"
-    ;;
-  *) exit 2 ;;
-esac
-if [[ -f ${inspection_log} ]] && grep -Fqi 'team-architecture-practice' \
-  "${inspection_log}"; then
+native_host_stream "${platform}" "${transcript}" segments > "${command_log}"
+native_host_stream "${platform}" "${transcript}" targets > "${inspection_log}"
+if grep -Fqi 'team-architecture-practice' "${inspection_log}"; then
   echo "FAIL: ${platform} inspected the local practice after declining assessment." >&2
   exit 1
 fi
-if [[ -f ${inspection_log} ]] && grep -Eiq 'adr-adoption|migration' \
-  "${inspection_log}"; then
+if grep -Eiq 'adr-adoption|migration' "${inspection_log}"; then
   echo "FAIL: ${platform} read migration-support material." >&2
   exit 1
 fi

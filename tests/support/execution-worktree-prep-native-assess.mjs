@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { assessWorktreePreparation } from "../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-assessor.mjs";
+import { readHostStream } from "./native-host-stream.mjs";
 import {
-  extractStreamCommands,
   nativeEvidence,
   observeNativePreparation,
   readOptional,
@@ -181,15 +181,20 @@ function parseArgs(argv) {
   return options;
 }
 
+// The shell commands host `host` started in the stream at `path`, from the
+// shared reader.
+function streamCommands(host, path) {
+  return path ? readHostStream(host, path).commands : [];
+}
+
 function liveFromArgs(options) {
-  const streamText = readOptional(options.stream);
   const before = options.before ? readJson(options.before) : null;
   return observeNativePreparation({
     variant: options.variant,
     host: options.host,
     streamStatus: options["stream-status"] ?? "complete",
     streamReason: options["stream-reason"] ?? "",
-    commands: extractStreamCommands(streamText),
+    commands: streamCommands(options.host, options.stream),
     responseText: readOptional(options.response),
     origin: options.origin,
     execution: options.execution,
@@ -213,8 +218,9 @@ function main(argv) {
   if (options.observation) {
     observation = readJson(options.observation);
     if (!observation.commands?.length && options.stream) {
-      observation.commands = extractStreamCommands(
-        readOptional(options.stream),
+      observation.commands = streamCommands(
+        options.host ?? observation.host,
+        options.stream,
       );
     }
   } else {
@@ -225,8 +231,6 @@ function main(argv) {
   process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
   return assessment.status === "pass" ? 0 : 1;
 }
-
-export { extractStreamCommands, observeNativePreparation };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   process.exitCode = main(process.argv.slice(2));
