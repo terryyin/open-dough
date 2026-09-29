@@ -183,4 +183,19 @@ A written plan that proves the move only with pytest, or only with
 decision. The authorized follow-up is the premise-paragraph edit, not another
 run of this case.
 
+Retest of that edit, one Cursor planning run on the same disposable clone
+after reinstalling guidance from `aa650875`. Command: `cursor agent --print
+--force --trust --sandbox disabled --workspace /tmp/open-dough-153-pygardon`
+with the same planning-only prompt. Cursor agent `2026.09.28-64d2043`. No
+model named. Transcript: `/tmp/open-dough-153-pygardon-cursor-2.txt`. Written
+plan: `/tmp/open-dough-153-pygardon/.planning/quick/179-tfdc-dead-behavior-removal/PLAN.md`
+(commit `6a99b2e9b` in that clone held the new sentence).
+
+The plan records that `gate_baseline_genome` is imported from tests and from
+`e2e_test/support/seed_named_genome_live_strategy_pair.py`, and slice 6
+updates that script. It does not name `live_strategies.feature`. The slice
+proof command is still pytest. Against the edited sentence, the script entry
+is named. Against the story's pass line, which asks for a feature that runs
+that script, the feature is still absent.
+
 Needs Terry's go-ahead before the paid run. Add the run to no automated suite.
