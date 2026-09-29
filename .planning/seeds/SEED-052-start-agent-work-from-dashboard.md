@@ -317,6 +317,46 @@ this correction. See the [plan](../slice-plans/155-terminal-residue/PLAN.md).
 - **Safe stopping point:** Each delivered tool remains usable if later parity
   enhancements are dropped.
 
+<a id="keep-story-session-links"></a>
+
+### Keep story sessions linked until deliberately closed
+
+**Identity:** SEED-052#keep-story-session-links
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer who launches execution or refinement from a story
+  can keep finding and reopening its conversations directly from that story
+  as the work progresses, without matching titles in Recent sessions.
+- **Evaluation:** Launch execution and refinement from a story. Each session
+  stays listed on its story through Preparing, Taken, and any completed-story
+  view, including after page refreshes, project switches, and dashboard
+  restarts. Multiple sessions remain individually accessible. Only deliberately
+  closing a session ends its listing on the story.
+- **Boundary:** Story state, a finished or stopped process, an unreadable
+  session listing, and elapsed time do not sever the association or remove an
+  unclosed session from its story. An unavailable session keeps its recorded
+  association with an explanation. Closing or disconnecting the terminal panel
+  does not close the session. Recent sessions remains independently accessible;
+  no new completed-story view or discovery of externally started sessions is
+  required. Local session facts never establish published story progress or
+  completion.
+- **Change to existing behavior:** Replace the card-link settlement rules in
+  [Agent launch](../../dashboard/AGENT-LAUNCH.md) that remove Started when
+  refinement becomes Preparing, execution becomes Taken, or the session stops.
+  The existing 30-day retention must not remove unclosed story sessions. The
+  durable session listing need not retain the temporary Started wording.
+- **Refinement question:** Define deliberate session closure and its relation
+  to Mark as done, including what remains accessible afterwards; terminal
+  panel Close alone must preserve the story link.
+- **Depends on:** Existing persisted dashboard launch records and embedded
+  terminal access, already delivered. No unfinished queued prerequisite.
+- **Related candidate:**
+  [Review recently done stories alongside their available sessions](#reconcile-recently-done-and-sessions)
+  owns completed-story discovery and completion evidence. This story owns
+  preserving session access wherever its story is shown.
+
 ## Related Candidate: Recently Done Stories
 
 <a id="reconcile-recently-done-and-sessions"></a>

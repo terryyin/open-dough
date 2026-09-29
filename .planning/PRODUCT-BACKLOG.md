@@ -21,6 +21,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Keep story sessions linked until deliberately closed](seeds/SEED-052-start-agent-work-from-dashboard.md#keep-story-session-links) — SEED-052#keep-story-session-links
 - [Start story refinement and answer its questions in the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-refinement) — SEED-052#launch-claude-refinement
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
