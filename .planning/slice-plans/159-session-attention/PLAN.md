@@ -148,7 +148,7 @@ not a prerequisite. Whichever lands second reconciles those spec edits.
 
 ### 1. Confirm the host signals a question, an answer, and a finished turn
 Type: Behavior
-Status: planned
+Status: done
 Proof: bounded manual CLI observation under `dough-manual-testing`, recorded
 in this plan with Claude version, exact commands, session identifier, observed
 state/status/reason, and what action produced each transition. No product test
@@ -174,6 +174,29 @@ If the host does not distinguish the waiting question reliably, stop dependent
 slices and revise the host assumption. Transcript inference, hooks, or another
 host integration are not implicit fallbacks. This slice yields the factual
 learning needed to trust the existing interface and has no product-code edits.
+
+Accepted observation (2026-09-29, Claude Code 2.1.284, execution workspace
+`.worktrees/session-attention`): `claude --bg "Use the AskUserQuestion tool to
+ask me exactly one question: 'Pick a color' with options 'red' and 'blue'. After
+I answer, reply with one sentence naming the chosen color and stop. Do not read
+or edit any files or run commands."` started session `99412b3f`. A 2-second
+poll of `claude agents --json --all` (reading only `state`, `status`,
+`waitingFor`, and the key list) logged each change:
+
+| Time (UTC) | Action | `state` / `status` / `waitingFor` |
+| --- | --- | --- |
+| 10:20:10–10:34:48 | Question pending, not attached | `blocked` / `waiting` / `"input needed"` |
+| 10:34:49 | Terry ran `claude attach 99412b3f` and chose red | `working` / `busy` / absent |
+| 10:34:51 | Reply "…chose red, so that task is done…" | `done` / `idle` / absent |
+| 10:35:05 | `claude stop 99412b3f` | `done` / absent / absent |
+| after | `claude rm 99412b3f` | not listed |
+
+The host distinguishes the waiting question, resumed work, a finished turn
+with a live process, and one with an exited process; `waitingFor` disappears
+when work resumes. For an AskUserQuestion prompt its text is the generic
+`input needed`, so the entry shows it as the reason as reported; a permission
+reason was not observed and stays optional. Attachment by the coordinator was
+refused by this host's auto-mode classifier, so a human answered.
 
 ### 2. Each session shows why it needs attention and clears it on resumption or closure
 Type: Behavior
@@ -299,5 +322,5 @@ no readiness blocker remains.
 
 - Planning confirmed real working/idle and done/idle observations; process
   liveness and idleness cannot decide attention.
-- No paid question/reply probe or product implementation has run in this
-  planning session.
+- Slice 1's real probe confirmed `blocked`/`waiting` with `waitingFor`,
+  its removal on `working`/`busy`, then `done` with and without `status`.
