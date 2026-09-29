@@ -198,4 +198,18 @@ proof command is still pytest. Against the edited sentence, the script entry
 is named. Against the story's pass line, which asks for a feature that runs
 that script, the feature is still absent.
 
+Feature-chain retest, one Cursor planning run after the sentence was changed
+to require the feature whose steps run the script. Same clone, story reset to
+`refined` / `unselected`, guidance reinstalled from the execution checkout
+before that sentence was committed. Command: `cursor agent --print --force
+--trust --sandbox disabled --workspace /tmp/open-dough-153-pygardon` with the
+same planning-only prompt. Cursor agent `2026.09.28-64d2043`. No model named.
+Transcript: `/tmp/open-dough-153-pygardon-cursor-3.txt`. Written plan:
+`/tmp/open-dough-153-pygardon/.planning/quick/179-tfdc-dead-behavior-removal/PLAN.md`.
+
+Verdict: fail. The plan says `gate_baseline_genome` is imported from `tests/`
+and `e2e_test/support/seed_named_genome_live_strategy_pair.py`. It does not
+name `live_strategies.feature` or `live_strategies_steps.ts`. Slice 6's proof
+is agreement and importing suites green.
+
 Needs Terry's go-ahead before the paid run. Add the run to no automated suite.

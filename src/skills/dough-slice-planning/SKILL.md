@@ -130,10 +130,13 @@ claim that something has no test, or that a named proof exercises a behavior,
 is observed by searching for the existing tests and callers of what changes,
 wherever they live. When the plan moves or relocates a function, that search
 includes every caller, including scripts and step definitions, not only tests
-that import it. If a script, feature, command, or route reaches the moved
-function, name that entry and record the observation that it does. A test that
-imports or calls the moved unit does not settle the claim while such an entry
-exists, and neither does naming an entry that does not reach it. For uncertain
+that import it. If a script, command, or route reaches the moved function,
+keep searching for a feature whose steps run that script. When such a feature
+exists, name the feature and record the observation that its steps run the
+script and the script calls the function. Naming only the script does not
+settle the claim while a feature runs it, and a test that imports or calls
+the moved unit does not settle it either. Naming an entry that does not reach
+the function does not settle it. For uncertain
 infrastructure or storage behavior, the
 observation is one isolated representative proof against the relevant engine
 and version, unless matching evidence exists. Record each premise, the literal
