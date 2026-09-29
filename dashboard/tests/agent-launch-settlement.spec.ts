@@ -8,14 +8,8 @@
 // reached.
 
 import { expect, test } from "./dashboardTest.ts";
-import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import {
-  doughnutBacklog,
-  doughnutRepository,
-  doughnutSharedTitle,
-  revisionDoughnut,
-} from "./doughnutProject.ts";
+import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
   publishSettlementJourney,
@@ -23,11 +17,10 @@ import {
   takenStory,
   type SettlementJourney,
 } from "./launchJourney.ts";
-import { publishMovingOrigin } from "./publishedOrigin.ts";
+import { openSettlementJourney, type Workflow } from "./settlementPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-type Workflow = "Execution" | "Refinement";
 type Launch = readonly [title: string, workflow: Workflow];
 
 test.describe("as origin publishes what the launched sessions do", () => {
@@ -43,40 +36,16 @@ test.describe("as origin publishes what the launched sessions do", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const origin = await publishCommittedOrigin(page, {
-      repoDir: settlement.origin,
-      revision: settlement.queued,
-      repository: "terryyin/open-dough",
-    });
-    const doughnut = await publishMovingOrigin(page, doughnutRepository);
-    doughnut.push(revisionDoughnut, doughnutBacklog, {});
-    await page.goto("/");
-    const { backlog, taken, project, source, refresh } = parts(page);
-    const card = (title: string) =>
-      backlog.getByRole("article", { name: title });
+    const { card, action, settled, show, launch } = await openSettlementJourney(
+      page,
+      settlement,
+    );
+    const { stages, taken, project } = parts(page);
     const started = (title: string, workflow: Workflow) =>
       card(title).getByRole("region", { name: `${workflow} started` });
-    const action = (title: string, workflow: Workflow) =>
-      card(title).getByRole("button", { name: `Start ${workflow}` });
     const anyStarted = page.getByRole("region", { name: "Started" });
     const launches = () =>
       dashboard.claudeCalls().filter((c) => c.argv[0] === "--bg");
-    const settled = async () => {
-      await expect(page.getByText("Reading preparation…")).toHaveCount(0);
-    };
-    const show = async (revision: string) => {
-      origin.advanceTo(revision);
-      await refresh.click();
-      await expect(source).toContainText(revision);
-      await settled();
-    };
-    const launch = async (title: string, workflow: Workflow) => {
-      await action(title, workflow).click();
-      await page
-        .getByRole("dialog", { name: `Start ${workflow} in Claude Code` })
-        .getByRole("button", { name: "Start" })
-        .click();
-    };
     const queued = [takenStory, readyStory, notRefinedStory];
     await expectMembership(page, { taken: [], backlog: queued });
     await settled();
@@ -202,7 +171,8 @@ test.describe("as origin publishes what the launched sessions do", () => {
         taken: [readyStory],
         backlog: [takenStory],
       });
-      await expect(page.getByText(notRefinedStory)).toHaveCount(0);
+      // Recent sessions still lists its launch; no stage shows the story.
+      await expect(stages.getByText(notRefinedStory)).toHaveCount(0);
       await expect(anyStarted).toHaveCount(0);
     });
 

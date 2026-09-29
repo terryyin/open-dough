@@ -2,9 +2,10 @@
 // (`./localBoundaryPlugin.ts`) beside the authenticated read boundary. A same-origin
 // POST to `/__agent-launch` asks to launch an agent on one work item
 // (`./agentLaunches.ts`); a GET `?source=` answers that project's launch
-// records. Everything else -- another site, an unknown project, a workflow or
-// host this boundary does not launch, malformed text, another method -- is
-// refused before any host process starts.
+// records with each session's current state. Everything else -- another
+// site, an unknown project, a workflow or host this boundary does not launch,
+// malformed text, another method -- is refused before any host process
+// starts.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, Plugin } from "vite";
@@ -14,7 +15,7 @@ import {
   launchWorkflows,
   type AgentLaunchRequest,
   type LaunchResult,
-  type LaunchRecord,
+  type LaunchWithState,
 } from "../src/agentLaunch.ts";
 import { sourceById, type PublishedSource } from "../src/publishedSource.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
@@ -107,7 +108,7 @@ type Answer =
   | { readonly status: number; readonly body: LaunchResult }
   | {
       readonly status: number;
-      readonly body: { records: readonly LaunchRecord[] };
+      readonly body: { records: readonly LaunchWithState[] };
     }
   | { readonly status: number; readonly body: { error: string } };
 
@@ -128,7 +129,7 @@ async function answer(
   if (request.kind === "records") {
     return {
       status: 200,
-      body: { records: launches.recordsOf(request.source) },
+      body: { records: await launches.recordsOf(request.source) },
     };
   }
   return {

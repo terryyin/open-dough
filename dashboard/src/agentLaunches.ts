@@ -4,14 +4,17 @@
 // arriving after another project was selected lands with the project it was
 // asked for.
 // Selecting a project, a page load included, reads that project's records
-// again from the running server, which keeps them across reloads; a launched
-// answer joins the same record list. Nothing here decides a story fact, which
-// origin still publishes.
+// again from the local server, which keeps them on this machine across reloads
+// and restarts; a launched answer joins the same record list. While the page
+// is visible, the records are read again at the revision checks' steady pace
+// (`./revisionCheckSchedule.ts`), so each session's state as Claude Code lists
+// it stays current; a page seen again reads them at once. Nothing here
+// decides a story fact, which origin still publishes.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   AgentLaunchRequest,
-  LaunchRecord,
+  LaunchWithState,
   LaunchWorkflow,
 } from "./agentLaunch.ts";
 import {
@@ -19,7 +22,9 @@ import {
   requestAgentLaunch,
   type LaunchProblem,
 } from "./agentLaunchClient.ts";
+import { usePageVisibility } from "./pageVisibility.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 
 // A launch the developer asked for that has no record: still starting, or
 // answered without a confirmed session.
@@ -29,8 +34,9 @@ export type LaunchAttempt = { readonly kind: "starting" } | LaunchProblem;
 export type LaunchWorkItem = Pick<AgentLaunchRequest, "identity" | "title">;
 
 export type ProjectLaunches = {
-  // The selected project's launch records, oldest first.
-  readonly records: readonly LaunchRecord[];
+  // The selected project's launch records, oldest first, each with its
+  // session's state when last read.
+  readonly records: readonly LaunchWithState[];
   attemptOf(
     identity: string,
     workflow: LaunchWorkflow,
@@ -54,10 +60,10 @@ const attemptKey = (
 // after the read was asked, which the answer may not include yet. The server
 // runs on this machine, so both sides read the same clock.
 function replaced(
-  kept: readonly LaunchRecord[],
-  known: readonly LaunchRecord[],
+  kept: readonly LaunchWithState[],
+  known: readonly LaunchWithState[],
   askedAt: number,
-): readonly LaunchRecord[] {
+): readonly LaunchWithState[] {
   const sessions = new Set(kept.map((record) => record.session.sessionId));
   return [
     ...kept,
@@ -71,28 +77,50 @@ function replaced(
 
 export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
   const [records, setRecords] = useState<
-    ReadonlyMap<string, readonly LaunchRecord[]>
+    ReadonlyMap<string, readonly LaunchWithState[]>
   >(new Map());
   const [attempts, setAttempts] = useState<ReadonlyMap<string, LaunchAttempt>>(
     new Map(),
   );
+  const { visibility, settleRevealed } = usePageVisibility();
+  // The project whose records were last read, and how many reads have
+  // settled: each settled read schedules the next one.
+  const lastRead = useRef<string | undefined>(undefined);
+  const [readsSettled, setReadsSettled] = useState(0);
 
   useEffect(() => {
+    if (visibility === "hidden") return;
     let current = true;
-    const askedAt = Date.now();
-    void readLaunchRecords(source.id).then((kept) => {
-      if (!current || kept === undefined) return;
-      setRecords((known) =>
-        new Map(known).set(
-          source.id,
-          replaced(kept, known.get(source.id) ?? [], askedAt),
-        ),
-      );
-    });
+    const read = () => {
+      const askedAt = Date.now();
+      void readLaunchRecords(source.id).then((kept) => {
+        if (!current) return;
+        if (kept !== undefined) {
+          setRecords((known) =>
+            new Map(known).set(
+              source.id,
+              replaced(kept, known.get(source.id) ?? [], askedAt),
+            ),
+          );
+        }
+        lastRead.current = source.id;
+        settleRevealed();
+        setReadsSettled((settled) => settled + 1);
+      });
+    };
+    // A newly selected project, or a page seen again, is read at once.
+    if (visibility === "revealed" || lastRead.current !== source.id) {
+      read();
+      return () => {
+        current = false;
+      };
+    }
+    const waiting = setTimeout(read, checkIntervalMs);
     return () => {
       current = false;
+      clearTimeout(waiting);
     };
-  }, [source.id]);
+  }, [source.id, visibility, readsSettled, settleRevealed]);
 
   const setAttempt = useCallback(
     (key: string, attempt: LaunchAttempt | undefined) => {

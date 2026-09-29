@@ -571,6 +571,18 @@ says formatting must succeed before staging.
   - Observed effect: one extra commit, push, and failed CI run.
   - Inference: A one-off coordinator error, not a guidance gap; gate
     commands with `&&`.
+- Execution: `SEED-052#revisit-dashboard-sessions` / plan 150, first related implementation commit `5933bb9178a503409b9574f9b87207cbf5f8fbb5`
+  - Timestamp: 2026-09-29T11:44:42+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `b37292dd`
+  - Evidence: slice 3 command printed `format exit=1`, then `;` ran the agent
+    commit and managed delivery of `f332b5dd`; CI run 36518504860 `lint`
+    failed on `eqeqeq`; repair `ca2586f8`. Later deliveries gated with `||`.
+  - Observed effect: one failed CI run, one repair commit, and an extra
+    refactor agent.
+  - Inference: Qualified. The same hand-built chain recurred, so this is no
+    longer a one-off; one scripted format-then-commit step would stop it.
 
 ## ODF-098 — A slice's proof named a suite only a later slice's behavior keeps green
 
@@ -991,7 +1003,7 @@ Before startup fetched trunk, execute-plan read the backlog and seed from the de
 
 ## Retention
 
-- Highest allocated local number: 168. Removed local codes are never reused.
+- Highest allocated local number: 169. Removed local codes are never reused.
 - Moved to ProjectFindings.md on 2026-09-29 for the 1,000-line ceiling: DD-155 (this repository's plan-number collision) and DD-159 (a dashboard test misdiagnosis in this repository); recovery: `41965529:DearDough.md`.
 - Removed on 2026-09-28 for the 1,000-line ceiling, as lower priority than the plan 142 findings: DD-125 (newer Git feature) and DD-157 (README at the size ceiling); recovery: `6e3921d6:DearDough.md`.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.

@@ -4,25 +4,22 @@
 // launch, not a story fact: the story stays queued until origin publishes what
 // the session does.
 
-import { useEffect, useRef, useState } from "react";
-import { launchWorkflows, type LaunchRecord } from "./agentLaunch.ts";
+import { useEffect, useRef } from "react";
+import { launchWorkflows, type LaunchWithState } from "./agentLaunch.ts";
 import { Moment } from "./Moment.tsx";
+import { LaunchSession } from "./LaunchSession.tsx";
 import "./agent-launch.css";
-
-type Copying = "idle" | "copied" | "failed";
 
 export function LaunchStarted({
   record,
   takesFocus,
 }: {
-  readonly record: LaunchRecord;
+  readonly record: LaunchWithState;
   // Set when the developer's own launch from this card just replaced the
   // action, so the keyboard lands on what replaced it.
   readonly takesFocus: boolean;
 }) {
   const region = useRef<HTMLElement>(null);
-  const [copying, setCopying] = useState<Copying>("idle");
-  const attach = `claude attach ${record.session.shortId}`;
   const started = `${launchWorkflows[record.request.workflow].name} started`;
 
   useEffect(() => {
@@ -40,35 +37,10 @@ export function LaunchStarted({
         <span className="launch-started-state">{started}</span> in Claude Code{" "}
         <Moment at={new Date(record.launchedAt)} />
       </p>
-      <p className="launch-started-local">
+      <p className="launch-local">
         Local: launched from this dashboard on this machine, not yet published.
       </p>
-      <p>
-        Session <code>{record.session.sessionId}</code>
-      </p>
-      <p className="launch-attach">
-        <code>{attach}</code>{" "}
-        <button
-          type="button"
-          onClick={() => {
-            navigator.clipboard.writeText(attach).then(
-              () => {
-                setCopying("copied");
-              },
-              () => {
-                setCopying("failed");
-              },
-            );
-          }}
-        >
-          Copy attach command
-        </button>
-        <span className="launch-copy-result" aria-live="polite">
-          {copying === "copied" && "Copied."}
-          {copying === "failed" &&
-            "Could not copy; select the command instead."}
-        </span>
-      </p>
+      <LaunchSession record={record} />
     </section>
   );
 }

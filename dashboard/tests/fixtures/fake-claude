@@ -5,8 +5,13 @@
 // dashboard server (see ../support/fakeClaude). It never starts a real
 // session: it appends its argv and working directory to a calls file, answers
 // the way the test's scenario file says, and lists the sessions it
-// "launched" through `claude agents --json`. A launch prints the line the
-// real `claude --bg` prints, its id colored for a terminal.
+// "launched" through `claude agents --json` the way the real one does: a
+// session's `status` (busy or idle) is present only while its process runs,
+// and one whose process has exited is listed only with `--all`. A launch
+// prints the line the real `claude --bg` prints, its id colored for a
+// terminal, and lists its session busy and working. The test's controls
+// (../support/fakeClaude.ts) end or forget a listed session, or make the
+// listing fail, by editing the same state files.
 //
 // Scenarios: `launched` (default), `refused`, `untrusted`, `hang`, and
 // `unlisted` (reports a session that `agents --json` does not list).
@@ -39,7 +44,16 @@ function listed() {
 }
 
 if (args[0] === "agents") {
-  process.stdout.write(`${JSON.stringify(listed())}\n`);
+  if (fs.existsSync(path.join(dir, "listing-fails"))) {
+    process.stderr.write("Error: fake claude could not list its sessions\n");
+    process.exitCode = 1;
+    return;
+  }
+  const all = args.includes("--all");
+  const sessions = listed().filter(
+    (session) => all || session.status !== undefined,
+  );
+  process.stdout.write(`${JSON.stringify(sessions)}\n`);
   return;
 }
 
@@ -80,8 +94,10 @@ switch (scenario) {
     const sessionId = crypto.randomUUID();
     const id = sessionId.slice(0, 8);
     if (scenario !== "unlisted") {
+      // Replaced whole, so a listing never reads a half-written file.
+      const next = `${agentsPath}.${process.pid}`;
       fs.writeFileSync(
-        agentsPath,
+        next,
         JSON.stringify([
           ...listed(),
           {
@@ -92,11 +108,12 @@ switch (scenario) {
             startedAt: Date.now(),
             sessionId,
             name,
-            status: "running",
+            status: "busy",
             state: "working",
           },
         ]),
       );
+      fs.renameSync(next, agentsPath);
     }
     process.stdout.write(
       `backgrounded · \u001b[36m${id}\u001b[39m · ${name} · trusted\n` +

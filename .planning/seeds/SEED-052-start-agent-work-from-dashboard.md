@@ -64,7 +64,8 @@ a change to global backlog priority.
   preparation to precede tool launch.
 - Initially launch and forget: report the dashboard's launch operation, then
   derive story progress from origin. No session monitoring, automatic question
-  detection, completion notification, or done-prefix naming is required.
+  detection, or completion notification is required. Story 3 adds a
+  developer's explicit Mark as done, with its done-prefix name.
 - Later embedded interaction exposes the ordinary CLI, opened manually.
   An embedded terminal (xterm.js was suggested) is the leading interaction
   direction, not a selected implementation dependency.
@@ -101,92 +102,26 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
-<a id="revisit-dashboard-sessions"></a>
+<a id="recent-sessions-residue"></a>
 
-### 2. Find recent dashboard-launched sessions after leaving the story
+### Correction: Keep every unreadable launch store and trim Recent sessions residue
 
-**Identity:** SEED-052#revisit-dashboard-sessions
+**Identity:** SEED-052#recent-sessions-residue
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/150-revisit-dashboard-sessions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"57187fb68ead7992b6aaf4dacda30eeeab9f54b6212d52be4a554ebc1731ad13","plan":"0ce6630536711d5b29525cb2990bb2ad5f5ebdca57fff8a86a8b59e822023d28"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/151-recent-sessions-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e646df358d18efe089267f498ee9f340534e95b8a66f30e921a9762f38288545","plan":"66a9cd7aace215e56d91ec5a9fe91236250048dd460948e48b72c6aa4dcc9bc3"}}
 ```
 
-**Goal:** A developer who started work from the dashboard can find that
-conversation again after navigating away, reloading, restarting the dashboard,
-or after the story leaves the Backlog. They can tell each session's project,
-story, and workflow, and get the command that opens it in Claude Code's CLI.
-Launching from the dashboard stays useful across visits, without an embedded
-terminal or a Recently done view.
+**Goal:** A developer whose launch store becomes unreadable twice keeps both
+unreadable copies, as the dashboard already promises. Maintainers change
+launch behavior through one documented home and one journey per concern,
+without duplicate specs or stale test documentation.
 
-**Scope:**
-
-- The selected project gets a **Recent sessions** section, newest first. It
-  does not depend on Backlog, Taken, or Recently done: an entry stays even when
-  no story card matches it. Each entry shows the story title and identity, the
-  workflow, when it was launched, the session id, the session's state as Claude
-  Code reports it, and a copyable `claude attach <id>` while Claude Code still
-  lists the session.
-- Launch records survive dashboard restarts. Open Dough keeps them on this
-  machine, outside every repository, and Recent sessions lists records from the
-  last 30 days. They stay out of the repository because a session exists only
-  on the machine that launched it.
-- Session state comes from Claude Code's own session list
-  (`claude agents --json --all`). A session Claude Code no longer lists shows as
-  unavailable, with its recorded details and no open command. It is not
-  recreated, resumed, or marked complete.
-- A card's Started record reads the same kept records, so it also survives a
-  restart. It keeps today's origin rules. It also ends when Claude Code shows
-  that its session is no longer running (stopped, or its process gone) or no
-  longer lists it. The card then offers that action again, and the session
-  stays in Recent sessions.
-- A launch record is local evidence for finding a session. It never changes
-  the story facts shown from origin: a finished, stopped, or unavailable
-  session does not show the story as done.
-- Only dashboard-launched sessions are listed, under the epic's
-  [Agreed Boundaries](#agreed-boundaries). A session started by hand in the CLI
-  is not listed, even when its name looks like a dashboard launch.
-- Deferred: resuming an unavailable session (for example with
-  `claude --resume`), a list covering all projects, configurable retention,
-  interaction inside the dashboard (story 3), linking sessions from Recently
-  done, other hosts, and attention or completion indicators.
-- Assumptions, observed on 2026-09-29: `claude agents --json --all` lists
-  finished background sessions from about a month back. Each has `state`
-  (`working`, `done`, or `stopped`), and `status` (`busy` or `idle`) only while
-  its process runs. Planning should confirm what `claude attach` does for a
-  finished session that is still listed. Offer the command only where it
-  opens the session.
-
-**Key examples:**
-
-1. A developer starts execution on a Backlog story, then switches to another
-   project and back, or reloads. Recent sessions lists that launch with its
-   title, identity, "Execution", launch time, session id, a working state, and
-   `claude attach <id>`.
-2. The dashboard server restarts while that session is still running and the
-   story is still in the Backlog. The entry is still in Recent sessions, and
-   the card still shows Execution started.
-3. The session takes the story, and later the story is completed and gone from
-   every list. The card is gone, but the Recent sessions entry remains.
-4. The same story was launched twice, for refinement and then for execution,
-   or as two executions. Recent sessions shows two entries, told apart by
-   workflow, launch time, and session id.
-5. Refinement is launched on a card that already shows Preparing. The card
-   shows no Started, but Recent sessions lists the session, so it no longer
-   needs finding through `claude agents`.
-6. An execution session exits before taking the story, which stays in the
-   Backlog. The card's Started ends and Start execution is offered again. Recent
-   sessions shows the session with its finished or stopped state.
-7. Claude Code no longer lists a recorded session. Its entry says the session
-   is unavailable and offers no open command. The story's published state is
-   unchanged.
-8. A launch recorded more than 30 days ago no longer appears in Recent
-   sessions.
-
-**Depends on:** The dashboard launch
-([Agent launch](../../dashboard/AGENT-LAUNCH.md)) records identified
-dashboard-launched sessions.
-
-**Safe stopping point:** Developers can find and reopen dashboard-launched
-sessions through the CLI, without any interaction inside the browser.
+**Scope:** The correction found by the execution retrospective of
+story 2, SEED-052#revisit-dashboard-sessions (commits `5933bb91`..`ea5aa42b`;
+closed history at `d6fbb898:.planning/seeds/SEED-052-start-agent-work-from-dashboard.md`). It
+covers the second unreadable-store move, overlapping launch journeys, the
+dashboard test README's launch listing, and the North Star launch row. It adds
+no feature promise. See the [plan](../slice-plans/151-recent-sessions-residue/PLAN.md).
 
 <a id="interact-with-claude-terminal"></a>
 
@@ -194,27 +129,95 @@ sessions through the CLI, without any interaction inside the browser.
 
 **Identity:** SEED-052#interact-with-claude-terminal
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/152-interact-with-claude-terminal/PLAN.md","assessment":"not-ready","reasons":["The plan extends story 2 (SEED-052#revisit-dashboard-sessions), whose code is on origin/claude/revisit-dashboard-sessions but not yet on main; reassess once it lands."],"basis":{"document":"6f8ed5ce5081885dae0c16aba36582592b53b82751956f5a810ef4fe0c01b450","plan":"38cf4d0183a97d8fcc66a1090702d4d6f8875e77725547443a498a9a46862dc2"}}
 ```
 
-- **For / why:** A developer can inspect work, answer questions, and intervene
-  without leaving the dashboard for a separate terminal.
-- **Evaluation:** Manually choose a launched session, including one reached
-  through Recent sessions without a current story card, open its ordinary
-  Claude Code terminal, answer a question, and see the same conversation
-  continue. Closing the panel leaves background work accessible later.
-- **Boundary:** Attach to the intended session rather than start another task.
-  Unavailable sessions receive an explanation. No automatic needs-attention
-  detection, separate chat interface, or completion notification is promised.
-- **Value / learning:** Tests whether the native CLI in an embedded terminal
-  provides sufficient interaction before designing tool-specific status flows.
-- **Effort hypothesis:** Unestimated; attachment behavior, reconnecting, and
-  browser terminal usability are the main uncertainties.
-- **Known from launch:** A session is reached by the short id `claude --bg`
-  prints; `--bg` ignores `--session-id`, so the id cannot be chosen upfront.
-- **Depends on:** The dashboard launch; story 2 supplies the promised access after card removal.
-- **Safe stopping point:** Existing execution conversations are usable inside
-  the dashboard even if refinement launch is never added.
+**Goal:** A developer who launched work from the dashboard can open that
+session's ordinary Claude Code terminal beside the stories, answer its
+questions, and intervene without switching to a separate terminal. When the
+work is finished for them, they close it from the same place. This tests
+whether the native CLI inside the dashboard is enough interaction before any
+tool-specific status flow is designed.
+
+**Scope:**
+
+- **One terminal at a time.** Opening a session splits the dashboard window
+  into two panels: the stories stay on the left and the session's terminal
+  opens on the right. The terminal runs the session's ordinary Claude Code
+  CLI (`claude attach <id>`). Opening another session detaches from the
+  current one and opens the new one in the same panel. Detaching never stops
+  a session.
+- **Opening replaces the copyable command.** A story card whose launched
+  session is running offers to open that session's terminal directly. So does
+  every Recent sessions entry that can be opened, including one whose story
+  is in no list. The copyable `claude attach <id>` and its copy button are
+  removed from the card's Started record and from Recent sessions. The session
+  id stays shown.
+- **Toolbar.** A toolbar above the terminal names the open session (story,
+  workflow, session id) and holds the terminal's actions: **Close**, which
+  only detaches, and **Mark as done**.
+- **Mark as done** closes the session from Open Dough's point of view. It
+  detaches the terminal, prefixes the session's name with `done-` (for
+  example `done-Open Dough · Execution · <title>`), and stops the session
+  (`claude stop <id>`). The card no longer shows a running session, and the
+  Recent sessions entry stays, shown as done, under its new name. Claude Code
+  keeps the conversation, so the entry can still be opened later. Marking done
+  is local evidence and never shows the story as done. Only origin shows a
+  story's published outcome.
+- **Renaming.** Claude Code has no CLI command to rename a background
+  session; `/rename` inside the session does it. The prefix goes on Claude
+  Code's own session name, so `claude agents` shows it too. If planning finds
+  this cannot be done reliably, the prefix goes only on the dashboard's launch
+  record, and stopping still happens.
+- **Lifetime.** Switching projects keeps the terminal open. A reload closes it,
+  and the developer opens the session again. If the connection drops or the
+  dashboard server restarts, the panel says it is disconnected and offers to
+  reconnect. When the attached CLI itself exits (for example Ctrl+Z), the
+  panel says the terminal has ended and offers to open it again.
+- **Native keys stay native.** The dashboard does not intercept keys. Claude
+  Code's agent view (reached with ←) and anything the developer does there are
+  the CLI's ordinary behavior.
+- **Only the recorded session.** The dashboard's terminal runs only
+  `claude attach` for a session the dashboard launched and recorded, in that
+  project's folder. It never opens a shell or runs another command, and it
+  refuses other sites the same way as the launch boundary. A local server that
+  runs arbitrary input for any page would hand control of the machine to
+  whatever page reaches it.
+- **Unavailable sessions.** A session Claude Code no longer lists offers no
+  open action, only story 2's unavailable explanation. A session can be opened
+  where `claude attach` opens it. Claude Code documents that it reopens a
+  stopped session, so finished and stopped sessions can be opened.
+- Deferred: several terminals at once, tabs, restoring the terminal after a
+  reload, sharing one session between two browser tabs or with an outside
+  terminal, a separate chat interface, automatic needs-attention or completion
+  detection, undoing Mark as done, and other hosts.
+- Boundary assumption: story 2's Recent sessions (with Claude Code state) is
+  delivered first; this story builds on its records and entries.
+
+**Key examples:**
+
+1. A developer started execution on a Backlog story, and its session is
+   working. They select the card's running session. The window splits, the
+   right panel shows the Claude Code conversation, and the developer answers a
+   question there. The session continues with that answer.
+2. With that terminal open, they select a different session in Recent
+   sessions. The first one is detached and keeps running, and the panel now
+   shows the second one.
+3. The story was completed and is in no list. Its Recent sessions entry still
+   opens the terminal.
+4. The developer presses Close. The panel closes and the session keeps
+   working. Its card still shows it running and can open it again.
+5. The developer presses Mark as done. The panel closes. `claude agents`
+   shows the session stopped and named `done-Open Dough · Execution ·
+   <title>`. The card offers Start execution again while the story is in the
+   Backlog, and Recent sessions shows the entry as done. The story's place
+   still comes from origin.
+6. The dashboard server restarts while a terminal is open. The panel says it
+   is disconnected. Reconnect attaches to the same session again, and the
+   conversation is still there.
+7. A session Claude Code no longer lists shows its unavailable explanation
+   and no open action.
+8. The page offers no copyable `claude attach <id>` anywhere.
 
 <a id="launch-claude-refinement"></a>
 
@@ -330,8 +333,13 @@ sessions through the CLI, without any interaction inside the browser.
 - **Effort hypothesis:** Unestimated; launch/attach continuity and workspace
   conventions require a feasibility observation before planning or further split.
 - **Known from launch:** The browser still spells out Claude Code specifics:
-  `claude attach`, the `claude agents` advice, `/dough-execute-plan`, and the
-  host label. A second host moves them behind the host module.
+  `claude attach`, the uncertain launch's `claude agents` advice,
+  `/dough-execute-plan`, and the host label. It also interprets Claude Code's
+  session `state` and `status` (`sessionRuns`, `sessionStateWords`), and the
+  page reads the host's listing again every 15 seconds; Claude Code's answered
+  in about 0.16 s with 469 sessions. A second host moves these behind the host
+  module and observes whether its listing is as quick and tells running from
+  exited sessions.
 - **Depends on:** The chosen Claude Code experience; no dependency on Cursor.
 - **Safe stopping point:** Claude Code and Codex remain independently usable.
 
@@ -355,6 +363,9 @@ sessions through the CLI, without any interaction inside the browser.
   one tool's integration proves another's.
 - **Effort hypothesis:** Unestimated; the same end-to-end feasibility question as
   Codex must be observed on Cursor before planning or further split.
+- **Known from launch:** The same Claude Code specifics as story 7 live in the
+  browser, including its session-state vocabulary and the 15-second listing
+  read.
 - **Depends on:** The chosen Claude Code experience; no dependency on story 7.
 - **Safe stopping point:** Each delivered tool remains usable if later parity
   enhancements are dropped.
@@ -414,7 +425,7 @@ For scope reduction, defer tool expansion first, then further scripted setup;
 retain launch and useful interaction in Claude Code. If embedded interaction is
 too costly, retain launch and recent-session access through the external CLI,
 which the dashboard's refinement launch already provides. Automatic attention
-indicators, completion callbacks, done-prefix naming, model selection, other
+indicators, completion callbacks, model selection, other
 skills, externally started sessions, and full project/tool setup remain deferred.
 Recently done is related work with its own value and priority decision.
 

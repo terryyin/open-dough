@@ -15,10 +15,11 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Close stories through an installed wrap-up command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command) — SEED-008#installed-wrap-up-command ([plan](slice-plans/146-installed-wrap-up-command/PLAN.md))
-- [Find recent dashboard-launched sessions after leaving the story](seeds/SEED-052-start-agent-work-from-dashboard.md#revisit-dashboard-sessions) — SEED-052#revisit-dashboard-sessions ([plan](slice-plans/150-revisit-dashboard-sessions/PLAN.md))
 
 ## Backlog list
 
+- [Name the feature that runs moved seeding](seeds/SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding) — SEED-044#name-the-feature-that-runs-moved-seeding
+- [Keep every unreadable launch store and trim Recent sessions residue](seeds/SEED-052-start-agent-work-from-dashboard.md#recent-sessions-residue) — SEED-052#recent-sessions-residue
 - [Interact with a launched Claude Code session inside the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#interact-with-claude-terminal) — SEED-052#interact-with-claude-terminal
 - [Start story refinement and answer its questions in the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-refinement) — SEED-052#launch-claude-refinement
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation

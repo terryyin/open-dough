@@ -100,7 +100,10 @@ export const hostSessionSchema = z.object({
 
 export type HostSession = z.infer<typeof hostSessionSchema>;
 
-// A confirmed launch, kept only by the running server.
+// How many days this machine keeps a confirmed launch's record.
+export const launchRetentionDays = 30;
+
+// A confirmed launch, kept on this machine for `launchRetentionDays`.
 export const launchRecordSchema = z.object({
   request: agentLaunchRequestSchema,
   session: hostSessionSchema,
@@ -109,13 +112,44 @@ export const launchRecordSchema = z.object({
 
 export type LaunchRecord = z.infer<typeof launchRecordSchema>;
 
+// A recorded session as the host lists it at the moment of asking, never
+// stored: `listed` with the host's `state` and, only while its process runs,
+// its `status`; `unlisted` once the host no longer lists it; `unknown` when
+// the host's listing could not be read.
+export const sessionStateSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("listed"),
+    state: z.string(),
+    status: z.string().optional(),
+  }),
+  z.object({ kind: z.literal("unlisted") }),
+  z.object({ kind: z.literal("unknown") }),
+]);
+
+export type SessionState = z.infer<typeof sessionStateSchema>;
+
+// Whether `claude attach <id>` is offered for a session: for every session
+// the host still lists, and while its listing is unknown, since the session
+// may still be there.
+export function attachOpens(sessionState: SessionState): boolean {
+  return sessionState.kind !== "unlisted";
+}
+
+// A kept launch record joined with its session's state when it was answered;
+// the state itself is never kept.
+export const launchWithStateSchema = launchRecordSchema.extend({
+  sessionState: sessionStateSchema,
+});
+
+export type LaunchWithState = z.infer<typeof launchWithStateSchema>;
+
 // The latest record of one work item's workflow among a project's records,
 // oldest first.
 export function latestRecordOf(
-  records: readonly LaunchRecord[],
+  records: readonly LaunchWithState[],
   identity: string,
   workflow: LaunchWorkflow,
-): LaunchRecord | undefined {
+): LaunchWithState | undefined {
   return records.findLast(
     (record) =>
       record.request.identity === identity &&
@@ -133,21 +167,38 @@ function showsAssignment(
   return activity === "preparation" && entry.preparing?.status === "recorded";
 }
 
-// Whether a launch still awaits publication in this snapshot: its work item
-// is still queued and does not yet show an assignment of its workflow's
-// activity. An execution launch settles once its work item is Taken or gone
-// from the backlog; a published preparation assignment does not settle it,
-// because the launched agent may ready a story before taking it. A refinement
-// launch also settles once its work item shows Preparing.
+// Whether the host lists a session as running: it gives a status only while
+// the process runs, so a session listed without one has exited.
+export function sessionRuns(sessionState: SessionState): boolean {
+  return sessionState.kind === "listed" && sessionState.status !== undefined;
+}
+
+// Whether a session may still run: the host lists it as running, or its
+// listing could not be read. One no longer listed is gone.
+function sessionMayRun(sessionState: SessionState): boolean {
+  return sessionState.kind === "unknown" || sessionRuns(sessionState);
+}
+
+// Whether a launch still awaits publication in this snapshot: its session may
+// still run, and its work item is still queued and does not yet show an
+// assignment of its workflow's activity. An execution launch settles once its
+// work item is Taken or gone from the backlog; a published preparation
+// assignment does not settle it, because the launched agent may ready a story
+// before taking it. A refinement launch also settles once its work item shows
+// Preparing. Any launch settles once its session has exited or is no longer
+// listed, since nothing it started can publish the assignment any more.
 export function launchAwaitsPublication(
-  record: LaunchRecord,
+  record: Pick<LaunchWithState, "request" | "sessionState">,
   work: Pick<PublishedWork, "backlog">,
 ): boolean {
   const { activity } = launchWorkflows[record.request.workflow];
-  return work.backlog.some(
-    (entry) =>
-      entry.identity === record.request.identity &&
-      !showsAssignment(entry, activity),
+  return (
+    sessionMayRun(record.sessionState) &&
+    work.backlog.some(
+      (entry) =>
+        entry.identity === record.request.identity &&
+        !showsAssignment(entry, activity),
+    )
   );
 }
 
@@ -165,7 +216,9 @@ export const launchFailureReasons = [
 export const launchUncertaintyReasons = ["timed-out", "unconfirmed"] as const;
 
 export const launchResultSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("launched"), record: launchRecordSchema }),
+  // The record kept, with its session as the host listed it when confirming
+  // the launch.
+  z.object({ kind: z.literal("launched"), record: launchWithStateSchema }),
   z.object({
     kind: z.literal("failed"),
     reason: z.enum(launchFailureReasons),
@@ -180,7 +233,8 @@ export const launchResultSchema = z.discriminatedUnion("kind", [
 
 export type LaunchResult = z.infer<typeof launchResultSchema>;
 
-// One project's launch records, as the boundary answers a GET.
+// One project's launch records, as the boundary answers a GET, each joined
+// with its session's current state.
 export const launchRecordsSchema = z.object({
-  records: z.array(launchRecordSchema),
+  records: z.array(launchWithStateSchema),
 });
