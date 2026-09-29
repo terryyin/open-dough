@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Keep every unreadable launch store and trim Recent sessions residue](seeds/SEED-052-start-agent-work-from-dashboard.md#recent-sessions-residue) — SEED-052#recent-sessions-residue ([plan](slice-plans/151-recent-sessions-residue/PLAN.md))
 - [Name the feature that runs moved seeding](seeds/SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding) — SEED-044#name-the-feature-that-runs-moved-seeding ([plan](slice-plans/153-name-the-feature-that-runs-moved-seeding/PLAN.md))
-- [Prove the terminal's foreign-Host refusal again and settle the residue's homes](seeds/SEED-052-start-agent-work-from-dashboard.md#terminal-host-refusal-proof) — SEED-052#terminal-host-refusal-proof ([plan](slice-plans/156-terminal-host-refusal-proof/PLAN.md))
 
 ## Backlog list
 

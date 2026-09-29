@@ -116,7 +116,9 @@ types there goes to the session, and its size follows the panel. Opening
 another session closes the first one's socket, which detaches it while it
 keeps running, and shows the other in the same panel. An entry whose story is
 in no list opens the same way. **Close** removes the panel and detaches only:
-the session keeps running, and its Open terminal is offered again. The open
+the session keeps running, and its Open terminal is offered again. The
+keyboard returns to the Open terminal that opened the panel while it is still
+on the page, and otherwise to the session's Recent sessions entry. The open
 terminal is page state, so switching projects keeps it attached to the same
 session, and a reload starts without one. When the connection drops, as when
 the dashboard server restarts, the panel says "Disconnected from the session"
@@ -126,19 +128,22 @@ anew, and Close stays available.
 
 **Mark as done**, beside Close, ends the session for the dashboard. The page
 posts `{ "source": "<project id>", "session": "<session id>" }` to
-`/__agent-launch/done` (`server/doneMarks.ts`), which refuses another site
-(403), an unknown project (404), a session this dashboard did not record for
-that project (404), or a missing project folder (404) before running
-`claude`. While the page's terminal is attached to the session, the boundary
-types Claude Code's own rename into it: Ctrl+U to clear any draft, then
-`/rename done-<name>` built only from the recorded launch name (for example
+`/__agent-launch/done` (`server/doneMarks.ts`). The boundary
+(`server/agentLaunchAdmission.ts`) refuses another site (403), an unknown
+project (404), a session this dashboard did not record for that project
+(404), or a missing project folder (404) before running `claude`. While the
+page's terminal is attached to the session, the boundary types Claude Code's
+own rename into it: Ctrl+U to clear any draft, then `/rename done-<name>`
+built only from the recorded launch name (for example
 `done-Open Dough · Execution · <title>`), then Enter. It waits up to five
-seconds for `claude agents --json --all` to list the new name. A busy session
-queues the command until its turn ends, so the wait can expire; then, as with
-no terminal attached, the `done-` name is only the dashboard's. Either way the
-boundary keeps the done time on the launch record, ends the terminal's attach
-process, and runs `claude stop <short id>` in the project's folder. The panel
-closes, or says "The session could not be marked done." if no answer came.
+seconds for `claude agents --json --all` to list the new name. A launch name
+with a control character is never typed. A busy session queues the command
+until its turn ends, so the wait can expire; then, as with no terminal
+attached or an untyped name, the `done-` name is only the dashboard's. Either
+way the boundary keeps the done time on the launch record, ends the
+terminal's attach process, and runs `claude stop <short id>` in the project's
+folder. The panel closes, or says "The session could not be marked done." if
+the boundary refused the mark or no answer came.
 The session no longer runs, so its card's Started ends and its Start action
 returns while the story is in the Backlog. Its Recent sessions entry shows
 **Done** and "Named done-<name>", and still offers Open terminal, since Claude

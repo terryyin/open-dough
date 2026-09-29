@@ -1,11 +1,11 @@
 // The Claude Code host commands for the local launch boundary, each a fixed
-// `claude` argument array run in the project folder: the one invocation a
-// background launch runs (`./claudeLaunch.ts`), Claude Code's own session
-// listing, which confirms a launch and answers each recorded session's state,
-// `claude stop` for Mark as done (`./doneMarks.ts`), and `claude attach`
-// through a PTY for the terminal boundary (`./agentTerminals.ts`), since
-// `execFile` cannot host Claude Code's interactive terminal. Raw stderr is
-// never forwarded.
+// `claude` argument array held here and run in the project folder:
+// `claude --bg` for a launch, whose name and instruction `./claudeLaunch.ts`
+// supplies, Claude Code's own session listing, which confirms a launch and
+// answers each recorded session's state, `claude stop` for Mark as done
+// (`./doneMarks.ts`), and `claude attach` through a PTY for the terminal
+// boundary (`./agentTerminals.ts`), since `execFile` cannot host Claude
+// Code's interactive terminal. Raw stderr is never forwarded.
 
 import { execFile, type ExecException } from "node:child_process";
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
@@ -21,7 +21,7 @@ type ClaudeRun = {
 
 // One `claude` invocation in the project folder, settled whatever its exit.
 // Its stdin is closed at once: a background launch never reads it.
-export function execClaude(
+function execClaude(
   args: readonly string[],
   folder: ProjectFolder,
   signal: AbortSignal,
@@ -42,6 +42,17 @@ export function execClaude(
     );
     child.stdin?.end();
   });
+}
+
+// `claude --bg --name <name> <instruction>` in the project folder: one
+// background session, whose short id it prints.
+export function startClaudeInBackground(
+  name: string,
+  instruction: string,
+  folder: ProjectFolder,
+  signal: AbortSignal,
+): Promise<ClaudeRun> {
+  return execClaude(["--bg", "--name", name, instruction], folder, signal);
 }
 
 // `claude attach <short id>` in the project folder, in a terminal of this

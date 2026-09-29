@@ -213,7 +213,6 @@ test.describe("marking a recorded session done", () => {
       status: 403,
       headers: () => ({ Origin: "http://evil.example" }),
     },
-    { request: "with no Origin", status: 403, headers: () => ({}) },
     {
       request: "for an unknown project",
       status: 404,

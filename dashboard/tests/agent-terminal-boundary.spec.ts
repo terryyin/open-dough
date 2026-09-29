@@ -5,11 +5,14 @@
 // output, input, and size, and ends that attach process when the socket
 // closes, while the session stays listed (server close:
 // ./agent-terminal-close.spec.ts). Any other upgrade is refused with an HTTP
-// status and no attach. Which origins the shared check refuses is
-// ./agent-launch-refusal.spec.ts; one cross-site upgrade here proves the check
-// guards this boundary. The synthetic `claude` (./fixtures/fake-claude) stands
-// in for the attached session and records every call; the real one is never
-// reached.
+// status and no attach. The foreign-Host refusal is proved here: Vite's own
+// host check answers such an HTTP request first, so only this upgrade reaches
+// the shared check's Host test (../server/localOrigin.ts). Which other
+// origins the check refuses is ./agent-launch-refusal.spec.ts and
+// ./authenticated-read-refusal.spec.ts; one cross-site upgrade here proves the
+// check guards this boundary. The synthetic `claude` (./fixtures/fake-claude)
+// stands in for the attached session and records every call; the real one is
+// never reached.
 
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
@@ -138,6 +141,14 @@ for (const mode of ["dev", "preview"] as const) {
         upgrade: "from another site",
         status: 403,
         options: () => ({ origin: "http://evil.example" }),
+      },
+      {
+        upgrade: "naming a foreign Host",
+        status: 403,
+        options: () => ({
+          origin: "http://evil.example",
+          headers: { Host: "evil.example" },
+        }),
       },
       {
         upgrade: "for an unknown project",
