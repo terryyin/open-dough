@@ -137,3 +137,11 @@ planning-only prompt analogous to plan 115's Claude recipe.
 - Publisher: `cursor-native-guidance-acceptance-cursor`
 
 ## Learnings
+
+- 2026-09-29: slice 2 ran once per case from guidance `0.3.46` at
+  `0901bbab`, Cursor agent `2026.09.28-64d2043`. Doughnut passed. The Open
+  Dough control passed with heavier proof than plan 111 (dashboard Playwright
+  path specs, no probe, approval, or full suite). Pygardon failed: plan 208
+  does not prove moved seeding with a feature that runs the seeding script.
+  Slice 2 stays planned. This is a guidance-defect handoff; the story does not
+  edit the guidance.

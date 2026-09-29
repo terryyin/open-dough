@@ -120,6 +120,19 @@ the observed runs compared with a pre-change baseline on that host.
 After the change all three cases passed; the control's observations were
 heavier than brief.
 
+**Cursor premise evidence (2026-09-29):** guidance installed as Open Dough
+`0.3.46` from source checkout `0901bbabd1b08ee49a0c843d19bbecf271ed0bf1`,
+Cursor agent `2026.09.28-64d2043`. One planning-only run per case
+(`cursor agent --print --force --trust --sandbox disabled`), told not to
+implement, commit, push, or publish. Transcripts and written plans are under
+`native-results/cursor-premise/`.
+
+| Case | Verdict |
+| --- | --- |
+| Doughnut "no test" | **Pass.** Plan `043` names `scripts/test/quality_changed.test` and records that its fake `pnpm` sees unstaged files for format and only staged components for lint. It reaches `ready`. |
+| Pygardon seeding proof | **Fail.** Plan `208` moves `gate_baseline_genome` under tests and proves that with pytest. It never names `live_strategies.feature` or `seed_named_genome_live_strategy_pair.py`, so it does not prove the moved seeding with a feature that runs the seeding script. |
+| Open Dough control | **Pass, heavier than plan 111.** Plan `111` records five observed premises, reaches `ready`, and adds no probe slice, new approval, or full-suite run. Its proof also names dashboard Playwright specs that assert plan paths. |
+
 ## Shared one-shot cases
 
 [Claude Code's accepted evidence](SEED-028-track-ad-hoc-work.md#story-decomposition)
