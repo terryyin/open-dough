@@ -19,6 +19,8 @@ visibility for multiple agents working in worktrees on one machine.
 ## Backlog list
 
 - [Prove Mark as done's remaining edges and trim card-session residue](seeds/SEED-052-start-agent-work-from-dashboard.md#card-session-residue) — SEED-052#card-session-residue
+- [Catch native harness faults before paying for a native run](seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior) — SEED-055#native-harness-observes-agent-behavior
+- [Judge a change against the CI time budget from CI's own timings](seeds/SEED-055-trustworthy-project-proof.md#ci-time-budget-from-ci-timings) — SEED-055#ci-time-budget-from-ci-timings
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard

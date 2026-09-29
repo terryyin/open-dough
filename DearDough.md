@@ -436,6 +436,8 @@ marker-string products, committed the "returned" correction in the baseline,
 or made a promise the product did not meet. Stricter hosts rightly refused.
 The plan allowed test-support fixes only after a run diagnosed a fault, so the
 known fault class was rediscovered with a paid failing run per case.
+Its plans 142 and 146 occurrences, harness observation faults rather than
+fixture credibility, moved to [ProjectFindings.md](ProjectFindings.md) as DD-179.
 
 ### Occurrences
 
@@ -462,20 +464,8 @@ known fault class was rediscovered with a paid failing run per case.
   - Open Dough release: modified; revision `bd38782`; base `0.3.40`
   - Evidence: native results `codex/publication/admission-investigation/20260926T061332-6642` assessed fail; the prompt said not to write outside planning records while the probe writes a marker, so Codex rightly skipped the probe. Prompt fixed; rerun `20260926T063848-77f6` passed.
   - Observed effect: one paid failed native run to learn that the fixture could not credibly show the promised ordering.
-- Execution: `SEED-008#owned-context-start-and-truthful-refresh` / plan 142, first related implementation commit `7e86f615`
-  - Timestamp: 2026-09-28T18:53:18+08:00 (first paid native run)
-  - Tool: Claude Code (coordinator; hosts Claude, Codex, Cursor)
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: modified; revision `c0f6dfca`; base `0.3.45`
-  - Evidence: 12 runs, 6 failed; four only in observation: registration was detected from a `register-push` command though managed delivery registers in process (the substitute used the old path), Codex's login shell bypassed the node wrapper, its `item.started` events went uncounted, and Cursor's multi-line then quoted start commands were missed (repairs `ddbcb90a`, `a2f9862f`).
-  - Observed effect: 9 further paid runs; substitutes had followed a path current guidance forbids.
-
 - Execution: `SEED-044#native-premise-acceptance-codex-cursor` / plan 141, first related implementation commit `8373b163`; Timestamp: unknown (2026-09-28–29); Tool: Codex; Open Dough release: 0.3.46 on resume, original coordinator release unknown.
   - Evidence: `642d0938` records safe admission before edits on the inherited migration fixture; `ae667576` and `a18b3bf7` show inexpensive alias/versioned-rewrite solutions disproving necessary growth. `0ef7767a` replaces it with executable active/archive collision proof; `a38f8257` records the single v0.3.46 native after-edit carry pass. Observed effect: one paid inconclusive case, two cheap feasibility probes and an explicit fixture-choice handoff. Inference: the same fixture-credibility problem affected ordering here; test legitimate small solutions before claiming that a case necessarily grows. No reliability or quantified savings claim.
-
-- Execution: `SEED-008#installed-wrap-up-command` / plan 146, first related implementation commit `aa4fd510`; Timestamp: 2026-09-29, first Story Branch runs stamped `20260929T0430`–`T0438` (zone unrecorded); Tool: Claude Code (coordinator; hosts Claude, Codex, Cursor); Model: claude-opus-5-5[1m]; Open Dough release: modified; revision `3ca0b8f9`; base 0.3.46.
-  - Evidence: `story-branch-closure/source-conflict` failed on all three hosts from harness faults only: Codex and Cursor zsh login shells reset PATH from the user's startup files, so an agent-started trunk observer reached the real `gh` (404) — the same bypass plan 142 repaired for node only; and `story_closure_response_trunk_result` rejected Claude's correct "CI passed". Repair `809b407d` (ZDOTDIR wrapper, Story Branch fixture only); on rerun its negation rule misfired on Cursor's concatenated narration, and Terry accepted that run on transcript judgment.
-  - Observed effect: three extra paid runs and one judgment acceptance. Inference: a login-shell PATH repair made for one tool or fixture should be checked against every shim the harnesses rely on.
 
 ## ODF-097 — Coordinator published a commit after the formatter failed
 
@@ -852,6 +842,38 @@ observer launch recipes went unused.
   - Observed effect: same as above; no CI event, repair, stash, or rework occurred, and skipping `ci-monitor.md` caused no visible harm
   - Inference: Qualified. Third consecutive one-slice prose execution. The skipped read shows that "before arming observation" still names a read that managed delivery has made unnecessary on the normal path
 
+## DD-155 — Two plans planned concurrently on different checkouts both took number 132
+
+Story refinement of SEED-051#isolate-runner-settings in the default checkout
+numbered its plan 132 after the highest visible plan, 131, while the
+SEED-008#isolate-parallel-slice-delivery retrospective, in its own execution
+worktree, also created correction plan 132. Both reached trunk, so the
+number-only request `/dough-execute-plan 132` named two plans. Same mechanism
+as catalog ODF-106 (colliding plan numbers), now in this repository.
+
+### Occurrences
+- Execution: `SEED-051#isolate-runner-settings` / plan 132, first related implementation commit `6b2ca78f`
+  - Timestamp: 2026-09-27T18:36:56+08:00 (plan commit `77a8ca0f`; the sibling `132-restate-ci-pause-ownership` was committed at 18:32:11+08:00 in `9060ff71` on the execution branch and reached trunk via merge `54b5f025`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac7` (v0.3.42)
+  - Evidence: `.planning/slice-plans/132-isolate-runner-settings/` and `.planning/slice-plans/132-restate-ci-pause-ownership/` on trunk at `54b5f025`
+  - Observed effect: the executor had to infer the intended plan (the one at the default checkout's HEAD when the session started) and could have Taken the other queued story
+  - Inference: Qualified. Allocation from checkout-visible numbers cannot see another checkout's unpublished plan; the collision went unnoticed at merge because directory names differ
+
+## DD-159 — Keyboard proof failures were blamed on stale dist despite per-run rebuilds
+
+An implementation agent blamed Playwright on a stale `dashboard/dist` and recorded a plan learning to rebuild before browser tests, although `test:dashboard`'s `globalSetup` already rebuilds each run. Decisive causes were focus remount and `openDirection` stealing focus between keypresses.
+
+### Occurrences
+- Execution: `SEED-053#cycle-dashboard-projects-with-arrow-keys` / plan 138, first related implementation commit `796bebaf6c43928105f58feea358f163116f89bd`
+  - Timestamp: unknown (between 2026-09-28T12:47+08:00 impl start and ~12:56+08:00 slice report)
+  - Tool: Cursor
+  - Open Dough release: 0.3.45
+  - Evidence: impl subagent `ffa400d5-2c0e-4f83-aec0-7b2a740b4031` narrated a rebuild after the focus-remount fix, later diagnosed `openDirection` between keypresses; plan 138 Learnings contradict `dashboard/tests/README.md` and `dashboard/tests/support/globalSetup.ts`
+  - Observed effect: extra rebuild/debug cycles; a false rebuild learning remained in plan 138
+  - Inference: Qualified. Focus/test-structure failure misread as harness staleness; not a suite build-contract defect
+
 ## DD-163 — A local flake already fixed on trunk was left off the story branch, which then failed CI on it
 
 Slice 3 saw `project-keyboard-navigation-focus` fail locally, found trunk's fix `25c4a514`, and deferred it to Story Branch integration; branch CI failed on it.
@@ -924,20 +946,6 @@ Refinement recorded SEED-052#interact-with-claude-terminal not-ready because sto
   - Evidence: `execution-start.mjs` refused with `published preparation is needs-reassessment`; reassessment `6150a458` (17:00:45) changed only the premise row, the start check, and two decisions the closure of plan 156 had left open for Terry.
   - Observed effect: second occurrence the same day, again a minute after the not-ready record: about an hour not-ready, and one refused start and reassessment cycle, which did usefully surface the open decisions.
 
-## DD-173 — A plan left a "paid" probe to the developer that the agent could run at no cost
-
-Plan 152 slice 1 said only Terry could run the PTY attach/rename probe because starting a session costs model usage. The executing agent started a background session with no prompt (`claude --bg -n …`, "idle — send a prompt to start"), which runs no model turn, and ran the whole probe itself.
-
-### Occurrences
-
-- Execution: `SEED-052#interact-with-claude-terminal` / plan 152, first related commit `e8553f8d`
-  - Timestamp: 2026-09-29T12:49:01+08:00 (probe record `e8553f8d`)
-  - Tool: Claude Code; Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd`
-  - Evidence: plan 152 slice 1 as refined in `19c7e82b` versus its recorded observations in `e8553f8d`; the observation also found an unplanned fact (attaching a stopped session wakes it).
-  - Observed effect: no developer wait for the probe; the busy-session rename, which does need a model turn, stayed unobserved and bounded by the plan's fallback.
-  - Inference: Practice. Planning assumed a cost without checking a zero-cost route for the observation.
-
 ## DD-174 — A refactor pass removed a guard as behavior-preserving on an unverified helper premise
 
 Slice 1's refactor pass dropped a skip for observer-registered revisions the repository lacks, reasoning that Land's `isAncestor` returns false on any failure. It re-threw every exit but 1, so a missing revision would crash `finish`. The coordinator accepted the report and wrote the same premise into the plan as a learning; no test covered a missing revision.
@@ -946,15 +954,6 @@ Slice 1's refactor pass dropped a skip for observer-registered revisions the rep
 
 - Execution: `SEED-008#closure-proof-and-harness-correction` / plan 154, first related implementation commit `d1204cd7`; Timestamp: unknown (refactor before `d1204cd7`, 2026-09-29T15:02:45+08:00); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `b37292dd`
   - Evidence: refactor report cited `retirement-checks.mjs:31` as returning false; `succeeds()` there rethrew non-1 exits; plan learning in `d1204cd7`; slice 2's implementer read the helper, restored the skip, and planted a missing registered SHA in `trunk-closure-rebased-rerun.test.mjs` (`0166f178`). Observed effect: a latent crash path published on the execution branch for one slice; caught before trunk. Inference: qualified; a refactor that deletes a guard needs a test that exercises it, as in DD-124's read-versus-observe class.
-
-## DD-175 — A loosened assessor was accepted on its old counterexamples, not on what it newly accepts
-
-Plan 154 slice 3 narrowed a native response check's rejection to admit one reconstructed Cursor line. Its proof, the implementer, refactor, and coordinator acceptance checked only that existing counterexamples kept their verdicts; the retrospective then found four failure reports the new check accepts.
-
-### Occurrences
-
-- Execution: `SEED-008#closure-proof-and-harness-correction` / plan 154, first related implementation commit `d1204cd7`; Timestamp: unknown (slice 3 accepted before `1e3880ed`, 2026-09-29T15:29:21+08:00); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `b37292dd`
-  - Evidence: `story_closure_response_trunk_result` at `1e3880ed` returns true for "Trunk CI passed. The watcher failed to start." and three similar lines, false at `a51510d2`; follow-up plan 158. Observed effect: one follow-up correction. Inference: qualified; widening an assessor needs paraphrased failure cases on the side it newly admits (ADR 0005 §2's recorded bad outputs).
 
 ## DD-176 — A mistyped `--repo` bound managed delivery's observer to another repository, and a refused retry left a second observer
 
@@ -987,11 +986,11 @@ Slice 2 made Recent sessions entries and region focusable (`tabIndex=-1`), and s
 
 ## Retention
 
-- Highest allocated local number: 178. Removed local codes are never reused.
+- Highest allocated local number: 179. Removed local codes are never reused.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-176, DD-177, and the DD-172 and ODF-097 recurrences: ODF-130 (concurrent slices sharing Playwright output) and ODF-129 (full-suite proof beside another agent's edits), since slices now run one at a time; recovery: `32e554d5:DearDough.md`.
 - Removed ODF-070 (former DD-066; nested worktree `node_modules` assumed absent) on 2026-09-29 for the 1,000-line ceiling: its 0.3.26-era occurrence as lower priority than ODF-116's recurrence (recovery: `6fa51cb6:DearDough.md`), then its remaining occurrence as lower current actionability than DD-172/DD-173 and the ODF-100 recurrence, since execution-location guidance now requires a locked install per worktree (recovery: `0c31529b:DearDough.md`).
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-174 and ODF-097's third occurrence: ODF-059's 0.3.25-era occurrence (`SEED-008#script-product-backlog-list-updates`); two later occurrences keep the finding; recovery: `14cd2de3:DearDough.md`.
-- Moved to ProjectFindings.md on 2026-09-29 for the 1,000-line ceiling: DD-155 (this repository's plan-number collision) and DD-159 (a dashboard test misdiagnosis in this repository); recovery: `41965529:DearDough.md`.
+- Moved to ProjectFindings.md on 2026-09-29 as this repository's native-harness or paid-run practice: DD-173, DD-175, and ODF-096's plan 142 and 146 occurrences (harness observation faults, now DD-179); recovery: `d68fcde4:DearDough.md`. DD-155 and DD-159, moved there earlier only for the line ceiling, returned here the same day because their causes are published planning or general diagnosis practice (recovery: `41965529:DearDough.md`).
 - Removed on 2026-09-28 for the 1,000-line ceiling, as lower priority than the plan 142 findings: DD-125 (newer Git feature) and DD-157 (README at the size ceiling); recovery: `6e3921d6:DearDough.md`.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
 - Resolved and removed on 2026-09-28: ODF-119 (startup source veto and nested-worktree refresh deferral); recovery: `aa771c5d:DearDough.md`.
