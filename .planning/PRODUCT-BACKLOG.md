@@ -19,6 +19,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Show published records exactly as origin holds them](seeds/SEED-056-exact-published-text.md#exact-published-text) — SEED-056#exact-published-text
 - [Find and return to any session from a toggleable sidebar](seeds/SEED-052-start-agent-work-from-dashboard.md#session-sidebar) — SEED-052#session-sidebar
 - [Catch native harness faults before paying for a native run](seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior) — SEED-055#native-harness-observes-agent-behavior
 - [Prove assessors on the verdicts they newly admit](seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline) — SEED-055#assessor-counterexample-discipline
