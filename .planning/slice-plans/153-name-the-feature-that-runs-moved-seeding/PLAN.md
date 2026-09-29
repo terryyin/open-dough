@@ -12,6 +12,18 @@
   (branch `cursor/name-the-feature-that-runs-moved-seeding`), created at
   `214e5a38` and announced as agent Yuma-chan at `616a8aa2`.
 
+## Execution
+
+Story Branch Mode. Owned workspace
+`/Users/terryyin/git/open-dough/.worktrees/name-the-feature-that-runs-moved-seeding`,
+branch `cursor/name-the-feature-that-runs-moved-seeding`, created for this
+execution. Originating and integration checkout:
+`/Users/terryyin/git/open-dough`. Published claim `26677a2854b01eb4b768c35ebd4d508fcd678a1c`
+on `origin/main` (starting revision `5a1c01e75f35855f4336b4109e269d541a759216`).
+Agent Ai-chan. The claim's trunk CI is unobserved: Story Branch observation
+covers the remote execution branch at increment delivery. Setup: `npm ci`, then
+`npm run lint` passed in this workspace.
+
 ## Goal and scope
 
 A maintainer accepting premise-verification guidance gets one Cursor
@@ -91,10 +103,20 @@ and wrap-up gates. The Cursor run stays out of those gates.
 ### 1. A moved behavior's proof names the caller that runs it
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior review of the three story examples against the revised
 sentence in `src/skills/dough-slice-planning/SKILL.md`, plus the payload
 checks in Outside-in proof.
+
+Accepted: the premise paragraph now says that when a moved behavior's proof
+depends on an existing caller, the plan names a caller that runs it and
+records that observation, and that a test of the moved unit which does not
+run that behavior does not settle the claim. Walked against the seeding
+feature, pytest-only `gate_baseline_genome`, and `strategy_verify.feature`
+when it does not run the script. Guards on that candidate: `npm run lint`,
+`/opt/homebrew/bin/bash tests/payload-declaration-links.sh`,
+`/opt/homebrew/bin/bash tests/compare-payload.sh`, and `git diff --check`,
+all exit 0. Refactor: none — already clean.
 
 Behavior: a planner following the installed guidance meets a move whose proof
 depends on an existing caller → the written plan names a caller that runs the
