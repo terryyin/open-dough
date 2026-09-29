@@ -16,7 +16,7 @@ import {
 } from "./watch-ci-test-fixtures.mjs";
 import { awaitProcessExit } from "./process-lifetime-test-fixtures.mjs";
 
-test("Cursor reports its detached observer lost when the worker dies, and a repeated receipt does not restore attachment", async (t) => {
+test("Cursor reports its detached observer lost once when the worker dies, and a repeated receipt does not restore attachment", async (t) => {
   const { env, teardown } = blockingGithubEnvironment(t);
   const root = env.CI_TEST_ROOT;
 
@@ -55,8 +55,7 @@ test("Cursor reports its detached observer lost when the worker dies, and a repe
     cursorInput("postToolUse", stdout),
     env,
   );
-  assert.match(repeated.additional_context, /CI observer lost its worker/);
-  assert.doesNotMatch(repeated.additional_context, /attached to this/);
+  assert.deepEqual(repeated, {});
 
   // A different coordinator conversation must not be able to read this loss.
   const unrelated = await configuredHook(

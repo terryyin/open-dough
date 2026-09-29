@@ -16,7 +16,7 @@ import {
 } from "./watch-ci-test-fixtures.mjs";
 import { awaitProcessExit } from "./process-lifetime-test-fixtures.mjs";
 
-test("Claude Code reports its detached observer lost when the worker dies, and a repeated receipt does not restore attachment", async (t) => {
+test("Claude Code reports its detached observer lost once when the worker dies, and a repeated receipt does not restore attachment", async (t) => {
   const { env, teardown } = blockingGithubEnvironment(t);
   const root = env.CI_TEST_ROOT;
 
@@ -58,14 +58,7 @@ test("Claude Code reports its detached observer lost when the worker dies, and a
     claudeInput("PostToolUse", stdout),
     env,
   );
-  assert.match(
-    repeated.hookSpecificOutput.additionalContext,
-    /CI observer lost its worker/,
-  );
-  assert.doesNotMatch(
-    repeated.hookSpecificOutput.additionalContext,
-    /attached to this/,
-  );
+  assert.deepEqual(repeated, {});
 
   // A different coordinator session must not be able to read this loss.
   const unrelated = await configuredHook(
