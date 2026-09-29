@@ -26,6 +26,7 @@ trunk_closure_write_evidence_identity() {
     tests/support/trunk-closure-native-fixture.sh \
     tests/support/trunk-closure-native-owned-context.sh \
     tests/support/native-harness-observation.sh \
+    tests/support/native-harness-login-shell.sh \
     tests/support/native-node-call-recorder.mjs \
     tests/support/git-publication-native-shared.sh \
     tests/support/git-publication-native-run.sh

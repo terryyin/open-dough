@@ -321,7 +321,7 @@ payload-declared.
 
 ### 3. Native harness judges trunk CI only, with shims reachable in every closure fixture
 Type: Structure
-Status: pending
+Status: done
 Proof: credential-free `tests/git-publication-native.sh` default mode green, including Cursor's response as an accepted counterexample and a trunk-closure login-shell counterexample.
 
 Correction: F5 and F6. Narrow `story_closure_response_trunk_result`'s rejection
@@ -350,6 +350,23 @@ check; `tests/git-publication-native-owned-context.sh` and
 `tests/native-evidence-identity.sh` green. The affected identities (Story
 Branch, trunk-closure, owned-context, execution-review) change, so their
 recorded native evidence goes stale.
+
+Accepted proof (2026-09-29): `PATH=/opt/homebrew/bin:$PATH bash
+tests/git-publication-native.sh` default mode (exit 0, 57 s),
+`tests/git-publication-native-owned-context.sh`, and
+`tests/native-evidence-identity.sh` exit 0. `story_closure_response_trunk_result`
+splits clauses and rejects only a clause naming CI, coverage, receipt, or
+verdict with a failure phrase; the Cursor-shaped `true` counterexample failed
+against the old check. `native-harness-observation.sh` sources the login-shell
+helper, and `observe_node`/`restore` keep and release the login PATH for every
+closure fixture; `native_harness_login_counterexample` fails when the keep is
+stubbed out and checks `ZDOTDIR`, `PATH`, and `NODE_OPTIONS` after restore.
+The shared `native_harness_write_decoy_profile` serves both login
+counterexamples. Clause splitting still rejects a CI word and a failure word
+in one clause (for example "branch CI failed earlier"); such a response needs
+transcript judgment. Changed identities: Story Branch, trunk-closure,
+owned-context, execution-review, and publication (it hashes
+`git-publication-native-evidence.sh`); their recorded evidence is stale.
 
 ### 4. Native evidence identity covers the modules and guidance each journey runs
 Type: Structure

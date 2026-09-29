@@ -33,6 +33,7 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-preparation-land.sh \
         tests/support/git-publication-native-push-log-observe.mjs \
         tests/support/native-harness-observation.sh \
+        tests/support/native-harness-login-shell.sh \
         tests/support/native-node-call-recorder.mjs \
         src/skills/dough-execute-plan/SKILL.md \
         src/skills/dough-execute-plan/scripts/workspace-publication-select.mjs \
@@ -52,6 +53,7 @@ git_publication_write_evidence_identity() {
         tests/support/ci-completion-native-run.sh \
         tests/support/ci-completion-native-fixture.sh \
         tests/support/native-harness-observation.sh \
+        tests/support/native-harness-login-shell.sh \
         tests/support/native-node-call-recorder.mjs \
         tests/support/git-publication-native-run.sh \
         tests/support/git-publication-native-evidence.sh
