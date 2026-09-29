@@ -41,10 +41,12 @@ export type ClaudeCall = {
 };
 
 // One `claude attach` the fake ran: its pid, the short id it attached to,
-// and the signal, or `Ctrl+Z`, that ended it, once one did.
+// each line entered in it, and the signal, or `Ctrl+Z`, that ended it, once
+// one did.
 export type ClaudeAttach = {
   readonly pid: number;
   readonly id: string;
+  readonly lines: readonly string[];
   readonly endedBy: string | undefined;
 };
 
@@ -60,6 +62,9 @@ export type FakeClaudeOptions = {
   readonly claude?: "fake" | "absent";
   // The server's own launch wait when unset.
   readonly launchTimeoutMs?: number | undefined;
+  // How long Mark as done waits for the fake to list a rename; the server's
+  // own wait when unset.
+  readonly doneRenameWaitMs?: number | undefined;
 };
 
 export type FakeClaudeControls = {
@@ -80,6 +85,8 @@ export type FakeClaudeControls = {
   heldClaudeEndedBy(): string | undefined;
   // Every `claude attach` run so far, oldest first.
   claudeAttaches(): ClaudeAttach[];
+  // Every session the fake lists, as `claude agents --json --all` would.
+  claudeListing(): Record<string, unknown>[];
 };
 
 // A PATH directory holding only this Node, for a server that must find no
@@ -133,13 +140,22 @@ export function installFakeClaude(
   if (options.launchTimeoutMs !== undefined) {
     env["DOUGH_LAUNCH_TIMEOUT_MS"] = String(options.launchTimeoutMs);
   }
+  if (options.doneRenameWaitMs !== undefined) {
+    env["DOUGH_DONE_RENAME_WAIT_MS"] = String(options.doneRenameWaitMs);
+  }
 
   const state = (file: string) => path.join(stateDir, file);
-  const claudeCalls = () =>
-    (readState(state("calls.jsonl")) ?? "")
+  const jsonLines = <T>(file: string): T[] =>
+    (readState(state(file)) ?? "")
       .split("\n")
       .filter((line) => line !== "")
-      .map((line) => JSON.parse(line) as ClaudeCall);
+      .map((line) => JSON.parse(line) as T);
+  const claudeCalls = () => jsonLines<ClaudeCall>("calls.jsonl");
+  const claudeListing = () =>
+    JSON.parse(readState(state("agents.json")) ?? "[]") as Record<
+      string,
+      unknown
+    >[];
   return {
     env,
     controls: {
@@ -151,10 +167,9 @@ export function installFakeClaude(
       claudeScenario(scenario) {
         writeFileSync(state("scenario"), scenario);
       },
+      claudeListing,
       claudeSessionBecomes(sessionId, change) {
-        const listed = JSON.parse(
-          readState(state("agents.json")) ?? "[]",
-        ) as Record<string, unknown>[];
+        const listed = claudeListing();
         if (!listed.some((session) => session.sessionId === sessionId)) {
           throw new Error(`The fake claude lists no session ${sessionId}.`);
         }
@@ -182,17 +197,14 @@ export function installFakeClaude(
         return readState(state("pid.exited"));
       },
       claudeAttaches() {
-        return (readState(state("attaches.jsonl")) ?? "")
-          .split("\n")
-          .filter((line) => line !== "")
-          .map((line) => {
-            const { pid, id } = JSON.parse(line) as { pid: number; id: string };
-            return {
-              pid,
-              id,
-              endedBy: readState(state(`attach.${String(pid)}.ended`)),
-            };
-          });
+        return jsonLines<{ pid: number; id: string }>("attaches.jsonl").map(
+          ({ pid, id }) => ({
+            pid,
+            id,
+            lines: jsonLines<string>(`attach.${String(pid)}.lines`),
+            endedBy: readState(state(`attach.${String(pid)}.ended`)),
+          }),
+        );
       },
     },
   };

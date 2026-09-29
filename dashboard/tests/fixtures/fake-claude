@@ -17,9 +17,12 @@
 // interactive session: it prints `attached <id> <cols>x<rows>`, echoes what
 // is typed and each line entered as `echo <line>`, clears the line on Ctrl+U,
 // prints `resized <cols>x<rows>` when its terminal's size changes, and
-// detaches on Ctrl+Z, exiting on its own as the real one does. It records its
-// pid in `attaches.jsonl` and, once a signal or Ctrl+Z ends it, that signal or
-// `Ctrl+Z` in `attach.<pid>.ended`, for the controls to observe.
+// detaches on Ctrl+Z, exiting on its own as the real one does. A line
+// `/rename <name>` renames its listed session instead, printing `Session
+// renamed to: <name>`. It records its pid in `attaches.jsonl`, each line
+// entered in `attach.<pid>.lines`, and, once a signal or Ctrl+Z ends it, that
+// signal or `Ctrl+Z` in `attach.<pid>.ended`, for the controls to observe.
+// `claude stop <id>` lists that session stopped, with no `status`.
 //
 // Scenarios: `launched` (default), `refused`, `untrusted`, `hang`, and
 // `unlisted` (reports a session that `agents --json` does not list).
@@ -49,6 +52,37 @@ function listed() {
   } catch {
     return [];
   }
+}
+
+// Replaced whole, so a listing never reads a half-written file.
+function list(sessions) {
+  const next = `${agentsPath}.${process.pid}`;
+  fs.writeFileSync(next, JSON.stringify(sessions));
+  fs.renameSync(next, agentsPath);
+}
+
+// Changes the listed session with this short id, if there is one.
+function changeListed(id, change) {
+  const sessions = listed();
+  const session = sessions.find((each) => each.id === id);
+  if (session === undefined) {
+    return false;
+  }
+  change(session);
+  list(sessions);
+  return true;
+}
+
+if (args[0] === "stop") {
+  const stopped = changeListed(args[1], (session) => {
+    delete session.status;
+    session.state = "stopped";
+  });
+  if (!stopped) {
+    process.stderr.write(`Error: no session ${args[1]}\n`);
+    process.exitCode = 1;
+  }
+  return;
 }
 
 if (args[0] === "agents") {
@@ -91,7 +125,19 @@ if (args[0] === "attach") {
   process.stdin.on("data", (typed) => {
     for (const key of typed) {
       if (key === "\r" || key === "\n") {
-        process.stdout.write(`\r\necho ${line}\r\n`);
+        fs.appendFileSync(
+          path.join(dir, `attach.${process.pid}.lines`),
+          `${JSON.stringify(line)}\n`,
+        );
+        const renamed = /^\/rename (.+)$/.exec(line)?.[1];
+        if (renamed === undefined) {
+          process.stdout.write(`\r\necho ${line}\r\n`);
+        } else {
+          changeListed(id, (session) => {
+            session.name = renamed;
+          });
+          process.stdout.write(`\r\nSession renamed to: ${renamed}\r\n`);
+        }
         line = "";
       } else if (key === "\u001a") {
         fs.writeFileSync(
@@ -151,26 +197,20 @@ switch (scenario) {
     const sessionId = crypto.randomUUID();
     const id = sessionId.slice(0, 8);
     if (scenario !== "unlisted") {
-      // Replaced whole, so a listing never reads a half-written file.
-      const next = `${agentsPath}.${process.pid}`;
-      fs.writeFileSync(
-        next,
-        JSON.stringify([
-          ...listed(),
-          {
-            pid: process.pid,
-            id,
-            cwd,
-            kind: "bg",
-            startedAt: Date.now(),
-            sessionId,
-            name,
-            status: "busy",
-            state: "working",
-          },
-        ]),
-      );
-      fs.renameSync(next, agentsPath);
+      list([
+        ...listed(),
+        {
+          pid: process.pid,
+          id,
+          cwd,
+          kind: "bg",
+          startedAt: Date.now(),
+          sessionId,
+          name,
+          status: "busy",
+          state: "working",
+        },
+      ]);
     }
     process.stdout.write(
       `backgrounded · \u001b[36m${id}\u001b[39m · ${name} · trusted\n` +

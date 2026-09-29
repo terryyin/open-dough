@@ -74,8 +74,10 @@ from this dashboard are kept.
 
 Each entry also shows its session's state, read from `claude agents --json
 --all` in the project's folder whenever the records are read and never kept:
-**Working** or **Idle** while its process runs busy or idle, **Finished** once
-it is done, and **Stopped** otherwise. A session Claude Code no longer lists
+**Working** or **Idle** while its process runs busy or idle, **Done** once the
+developer marked it done (below), **Finished** once it is done, and
+**Stopped** otherwise. A session marked done that runs again, as opening it
+wakes it, shows its running state. A session Claude Code no longer lists
 shows **Session unavailable** without Open terminal; if the listing cannot be
 read, every entry shows **State unknown** with "Claude Code's session list
 could not be read" and keeps Open terminal. While the page
@@ -121,6 +123,27 @@ the dashboard server restarts, the panel says "Disconnected from the session"
 and offers **Reconnect**; when the attached CLI exits on its own, it says "The
 terminal ended" and offers **Open again**. Either attaches to the same session
 anew, and Close stays available.
+
+**Mark as done**, beside Close, ends the session for the dashboard. The page
+posts `{ "source": "<project id>", "session": "<session id>" }` to
+`/__agent-launch/done` (`server/doneMarks.ts`), which refuses another site
+(403), an unknown project (404), a session this dashboard did not record for
+that project (404), or a missing project folder (404) before running
+`claude`. While the page's terminal is attached to the session, the boundary
+types Claude Code's own rename into it: Ctrl+U to clear any draft, then
+`/rename done-<name>` built only from the recorded launch name (for example
+`done-Open Dough · Execution · <title>`), then Enter. It waits up to five
+seconds for `claude agents --json --all` to list the new name. A busy session
+queues the command until its turn ends, so the wait can expire; then, as with
+no terminal attached, the `done-` name is only the dashboard's. Either way the
+boundary keeps the done time on the launch record, ends the terminal's attach
+process, and runs `claude stop <short id>` in the project's folder. The panel
+closes, or says "The session could not be marked done." if no answer came.
+The session no longer runs, so its card's Started ends and its Start action
+returns while the story is in the Backlog. Its Recent sessions entry shows
+**Done** and "Named done-<name>", and still offers Open terminal, since Claude
+Code keeps the conversation. A done mark is local evidence, like the launch
+record, and never changes where origin places the story.
 
 Launch records are kept on this machine, outside every repository, in
 `~/.open-dough/dashboard/agent-launches.json`. Restarting `npm run

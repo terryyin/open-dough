@@ -8,8 +8,10 @@
 // Anything else closes the socket. Closing the socket from either side, or
 // closing the server, ends that attach process, which detaches only: the
 // session keeps running. An attach process that exits on its own closes its
-// socket with `terminalEndedCode`. Nothing else is ever run here, and never a
-// shell.
+// socket with `terminalEndedCode`. Mark as done (`./doneMarks.ts`) may type
+// its fixed rename into a session's open attachment, then ends every
+// attachment to that session the same way. Nothing else is ever run here, and
+// never a shell.
 
 import { STATUS_CODES, type IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
@@ -28,6 +30,7 @@ import type { ProjectFolder } from "./projectFolders.ts";
 
 // The one recorded session an admitted upgrade attaches to.
 export type TerminalSession = {
+  readonly sessionId: string;
   readonly shortId: string;
   readonly folder: ProjectFolder;
 };
@@ -81,8 +84,12 @@ function refuseUpgrade(socket: Duplex, { status, message }: RefusedRequest) {
 
 export class AgentTerminals {
   private readonly sockets = new WebSocketServer({ noServer: true });
-  // Each attach process still running, ended by its socket's close.
-  private readonly attached = new Set<IPty>();
+  // Each attach process still running, oldest first, with the session it
+  // attaches to and its socket, whose close ends it.
+  private readonly attached = new Map<
+    IPty,
+    { readonly sessionId: string; readonly ws: WebSocket }
+  >();
   private closed = false;
   private readonly httpServer: HttpServer | null;
   private readonly admit: AdmitTerminal;
@@ -146,7 +153,7 @@ export class AgentTerminals {
       ws.close(attachFailed, "Claude Code could not be attached.");
       return;
     }
-    this.attached.add(pty);
+    this.attached.set(pty, { sessionId: session.sessionId, ws });
     pty.onData((output) => {
       if (ws.readyState === ws.OPEN) {
         ws.send(output);
@@ -189,11 +196,32 @@ export class AgentTerminals {
     }
   }
 
+  // Types `input` into the newest open attachment to this session, and
+  // answers whether one was open.
+  type(sessionId: string, input: string): boolean {
+    const newest = [...this.attached]
+      .filter(([, attachment]) => attachment.sessionId === sessionId)
+      .at(-1);
+    newest?.[0].write(input);
+    return newest !== undefined;
+  }
+
+  // Ends every attachment to this session: its attach process detaches, and
+  // its socket closes as an ended terminal.
+  endAttachments(sessionId: string): void {
+    for (const [pty, attachment] of [...this.attached]) {
+      if (attachment.sessionId === sessionId) {
+        this.detach(pty);
+        attachment.ws.close(terminalEndedCode, "The terminal ended.");
+      }
+    }
+  }
+
   // Ends every attach process and its socket when the server closes.
   close(): void {
     this.closed = true;
     this.httpServer?.off("upgrade", this.onUpgrade);
-    for (const pty of [...this.attached]) {
+    for (const pty of [...this.attached.keys()]) {
       this.detach(pty);
     }
     for (const ws of this.sockets.clients) {

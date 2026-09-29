@@ -4,8 +4,9 @@ A locally launched page that shows the selected project's published work: the
 near-future direction, the **Backlog** in priority order, and the **Taken**
 entries, as connected stages. **Start execution** and **Start refinement** on a
 Backlog card ask Claude Code on this machine to execute or refine the story,
-**Recent sessions** lists those launches, newest first, and **Open terminal**
-shows a launch's session beside the page ([Agent launch](AGENT-LAUNCH.md)).
+**Recent sessions** lists those launches, newest first, **Open terminal**
+shows a launch's session beside the page, and **Mark as done** there stops it
+([Agent launch](AGENT-LAUNCH.md)).
 
 The pinned banner shows the selected project in a disclosure and keeps the four
 **Project** choices and SVG **Refresh** control reachable while scrolling. The disclosure opens the repository/ref, full

@@ -103,11 +103,14 @@ export type HostSession = z.infer<typeof hostSessionSchema>;
 // How many days this machine keeps a confirmed launch's record.
 export const launchRetentionDays = 30;
 
-// A confirmed launch, kept on this machine for `launchRetentionDays`.
+// A confirmed launch, kept on this machine for `launchRetentionDays`, with
+// when the developer marked its session done (`./doneMark.ts`), if they did:
+// local evidence only, never a story fact.
 export const launchRecordSchema = z.object({
   request: agentLaunchRequestSchema,
   session: hostSessionSchema,
   launchedAt: z.iso.datetime(),
+  doneAt: z.iso.datetime().optional(),
 });
 
 export type LaunchRecord = z.infer<typeof launchRecordSchema>;

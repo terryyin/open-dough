@@ -362,7 +362,7 @@ scroll anchoring loses its node.
 
 ### 5. Mark as done renames and stops the session and shows it done
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-terminal.spec.ts` for the page; `agent-terminal-boundary.spec.ts` for the done request's refusals.
 
 Behavior: a terminal is open → the developer presses Mark as done → the panel
@@ -388,6 +388,23 @@ refusals and that `doneAt` survives a server restart. If the rename stays in
 the dashboard only, assert no rename input and the record-only name. Run
 `agent-launch-session-settlement.spec.ts` and the Recent sessions specs too,
 since the record schema changes.
+
+Accepted proof (2026-09-29): `npm run typecheck:dashboard`;
+`npm run test:dashboard -- $(ls dashboard/tests/agent-*.spec.ts)
+dashboard/tests/accessible-overview.spec.ts
+dashboard/tests/taken-agent-profile.spec.ts` (142 passed, rerun after
+refactoring); the two done specs `--repeat-each=4` (32 passed). The rename
+is typed only through an open attachment (Ctrl+U, `/rename done-<recorded
+name>`, Enter, 300ms apart) and waits up to 5s (`DOUGH_DONE_RENAME_WAIT_MS`)
+for the listing; with no attachment, or a name with control characters, the
+`done-` name is the record's only. A failed `claude stop` answers the
+session's actual state. "Done" replaces only the Finished/Stopped label; an
+unlisted or unknown marked session keeps the label that explains its open
+action. New wording, added to the North Star: "Marking as done…", "The
+session could not be marked done.", "Named done-<name>". Untested: the
+expired rename wait, the page's could-not-mark state, the control-character
+guard, and the missing-folder done refusal. Request admission lives in
+`server/agentLaunchAdmission.ts`, the done vocabulary in `src/doneMark.ts`.
 
 ## Proof ownership
 

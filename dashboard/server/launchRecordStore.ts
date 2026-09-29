@@ -4,12 +4,12 @@
 // `./projectFolders.ts`. One JSON document holds each catalog project's
 // records by project id. Every read and write reads the file afresh, so each
 // dashboard server on this machine -- dev and preview alike -- sees every
-// launch. A record launched more than `launchRetentionDays` before a read is
-// not answered, and a write drops it. A write replaces the file atomically;
-// two launches at the same instant can still race, which is accepted rather
-// than locked against.
+// launch. A write adds a launch or marks a kept session done. A record
+// launched more than `launchRetentionDays` before a read is not answered, and
+// a write drops it. A write replaces the file atomically; two writes at the
+// same instant can still race, which is accepted rather than locked against.
 // A missing file holds no records. A file that does not parse holds none
-// either and is left as it is until the next launch, which starts a new
+// either and is left as it is until the next write, which starts a new
 // document and moves the unreadable one aside, so nothing is silently lost.
 
 import { randomUUID } from "node:crypto";
@@ -82,10 +82,11 @@ export async function keptRecords(
   return withinRetention(read.records[sourceId] ?? [], Date.now());
 }
 
-// Adds one confirmed launch to its project's records.
-export async function keepRecord(
-  sourceId: string,
-  record: LaunchRecord,
+// Rewrites the kept records with `change` applied to them, replacing the
+// file atomically. Records past retention are dropped first, and an
+// unreadable file is moved aside.
+async function replaceRecords(
+  change: (kept: StoredRecords) => StoredRecords,
 ): Promise<void> {
   const file = storeFile();
   await mkdir(path.dirname(file), { recursive: true });
@@ -97,15 +98,52 @@ export async function keepRecord(
     stored = read.records;
   }
   const now = Date.now();
-  const next: StoredRecords = {};
+  const kept: StoredRecords = {};
   for (const [id, records] of Object.entries(stored)) {
-    const kept = withinRetention(records, now);
-    if (kept.length > 0) {
-      next[id] = kept;
+    const retained = withinRetention(records, now);
+    if (retained.length > 0) {
+      kept[id] = retained;
     }
   }
-  next[sourceId] = [...(next[sourceId] ?? []), record];
   const temporary = `${file}.${randomUUID()}.tmp`;
-  await writeFile(temporary, `${JSON.stringify(next, null, 2)}\n`);
+  await writeFile(temporary, `${JSON.stringify(change(kept), null, 2)}\n`);
   await rename(temporary, file);
+}
+
+// Adds one confirmed launch to its project's records.
+export async function keepRecord(
+  sourceId: string,
+  record: LaunchRecord,
+): Promise<void> {
+  await replaceRecords((kept) => ({
+    ...kept,
+    [sourceId]: [...(kept[sourceId] ?? []), record],
+  }));
+}
+
+// Marks one kept session of the project done at `doneAt`, and answers its
+// marked record, or undefined when no such record is kept any more.
+export async function markRecordDone(
+  sourceId: string,
+  sessionId: string,
+  doneAt: string,
+): Promise<LaunchRecord | undefined> {
+  let marked: LaunchRecord | undefined;
+  await replaceRecords((kept) => {
+    const records = kept[sourceId];
+    if (records === undefined) {
+      return kept;
+    }
+    return {
+      ...kept,
+      [sourceId]: records.map((record) => {
+        if (record.session.sessionId !== sessionId) {
+          return record;
+        }
+        marked = { ...record, doneAt };
+        return marked;
+      }),
+    };
+  });
+  return marked;
 }

@@ -8,18 +8,21 @@
 // and restarts; a launched answer joins the same record list. While the page
 // is visible, the records are read again at the revision checks' steady pace
 // (`./revisionCheckSchedule.ts`), so each session's state as Claude Code lists
-// it stays current; a page seen again reads them at once. Nothing here
-// decides a story fact, which origin still publishes.
+// it stays current; a page seen again reads them at once. A session marked
+// done replaces its record in its own project's list. Nothing here decides a
+// story fact, which origin still publishes.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   AgentLaunchRequest,
+  LaunchRecord,
   LaunchWithState,
   LaunchWorkflow,
 } from "./agentLaunch.ts";
 import {
   readLaunchRecords,
   requestAgentLaunch,
+  requestMarkDone,
   type LaunchProblem,
 } from "./agentLaunchClient.ts";
 import { usePageVisibility } from "./pageVisibility.ts";
@@ -48,6 +51,9 @@ export type ProjectLaunches = {
     workflow: LaunchWorkflow,
     instruction: string,
   ): Promise<void>;
+  // Marks a recorded session of any project done, and answers whether the
+  // boundary marked it.
+  markDone(record: LaunchRecord): Promise<boolean>;
 };
 
 const attemptKey = (
@@ -166,10 +172,26 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
     [source.id, setAttempt],
   );
 
+  const markDone = useCallback(async (record: LaunchRecord) => {
+    const marked = await requestMarkDone(record);
+    if (marked === undefined) return false;
+    const sourceId = marked.request.source;
+    setRecords((current) =>
+      new Map(current).set(
+        sourceId,
+        (current.get(sourceId) ?? []).map((known) =>
+          known.session.sessionId === marked.session.sessionId ? marked : known,
+        ),
+      ),
+    );
+    return true;
+  }, []);
+
   return {
     records: records.get(source.id) ?? [],
     attemptOf: (identity, workflow) =>
       attempts.get(attemptKey(source.id, identity, workflow)),
     start,
+    markDone,
   };
 }

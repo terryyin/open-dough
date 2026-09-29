@@ -4,12 +4,11 @@
 // wait, and keep a confirmed result in this machine's launch record store
 // (`./launchRecordStore.ts`), which outlives the server. A read of the kept
 // records answers each session's state from Claude Code's listing, never
-// stored, and the same join decides which recorded session the terminal
-// boundary (`./agentTerminals.ts`) may attach to. Origin still decides every
-// story fact.
+// stored; the same join decides which recorded session the terminal
+// boundary (`./agentTerminals.ts`) may attach to, and a recorded session may
+// be marked done (`./doneMarks.ts`). Origin still decides every story fact.
 
 import {
-  attachOpens,
   type AgentLaunchRequest,
   type LaunchWithState,
   type LaunchRecord,
@@ -40,15 +39,16 @@ function launchTimeoutMs(): number {
     : defaultLaunchWaitMs;
 }
 
-export type Attachable =
+// One session this dashboard recorded for the project, in its existing
+// folder, or why there is none.
+export type Recorded =
   | {
-      readonly kind: "attachable";
-      readonly shortId: string;
+      readonly kind: "recorded";
+      readonly record: LaunchRecord;
       readonly folder: ProjectFolder;
     }
   | { readonly kind: "unrecorded" }
-  | { readonly kind: "folder-not-found"; readonly folder: ProjectFolder }
-  | { readonly kind: "unlisted" };
+  | { readonly kind: "folder-not-found"; readonly folder: ProjectFolder };
 
 // Records joined by session id with Claude Code's listing read now. With no
 // records, `claude` is not run.
@@ -85,15 +85,21 @@ export class AgentLaunches {
     return withStates(source, await keptRecords(source.id));
   }
 
-  // Whether one session may be attached to: this dashboard recorded it for
-  // this project, the project folder exists, and Claude Code does not report
-  // it unlisted -- the rule the page's open action follows too. `claude` is
-  // run only for a recorded session in an existing folder, and then only to
-  // list sessions.
-  async attachable(
+  // One kept record's session state read now.
+  async stateOf(
+    source: PublishedSource,
+    record: LaunchRecord,
+  ): Promise<LaunchWithState> {
+    const [joined] = await withStates(source, [record]);
+    return joined ?? { ...record, sessionState: { kind: "unknown" } };
+  }
+
+  // The session this dashboard recorded for this project, if it did, in the
+  // project folder, if that exists. Runs no `claude`.
+  async recorded(
     source: PublishedSource,
     sessionId: string,
-  ): Promise<Attachable> {
+  ): Promise<Recorded> {
     const record = (await keptRecords(source.id)).find(
       (kept) => kept.session.sessionId === sessionId,
     );
@@ -101,13 +107,9 @@ export class AgentLaunches {
       return { kind: "unrecorded" };
     }
     const folder = projectFolder(source);
-    if (!(await folderExists(folder))) {
-      return { kind: "folder-not-found", folder };
-    }
-    const [joined] = await withStates(source, [record]);
-    return joined !== undefined && attachOpens(joined.sessionState)
-      ? { kind: "attachable", shortId: record.session.shortId, folder }
-      : { kind: "unlisted" };
+    return (await folderExists(folder))
+      ? { kind: "recorded", record, folder }
+      : { kind: "folder-not-found", folder };
   }
 
   // A launch settles on its own even if the requester goes away, so its

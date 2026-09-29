@@ -8,6 +8,9 @@
 // drops, as when the dashboard server restarts, the panel says so and offers
 // to reconnect; when the attached CLI exits on its own, it says the terminal
 // ended and offers to open it again. Either attaches to the same session anew.
+// Mark as done asks the boundary to rename the session `done-<name>` through
+// this attachment and stop it; the panel closes once it is marked, and says
+// so if it could not be.
 
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { Terminal } from "@xterm/xterm";
@@ -104,16 +107,32 @@ function useAttachedTerminal(
   }, [element, url, attempt, onEnded]);
 }
 
+// Where Mark as done stands: asked, and the attachment's ending it causes is
+// not shown, or refused.
+type Marking = "marking" | "not-marked";
+
 export function TerminalPanel({
   record,
   onClose,
+  onMarkDone,
 }: {
   readonly record: LaunchRecord;
   readonly onClose: () => void;
+  // Answers whether the session was marked done; the panel closes if it was.
+  readonly onMarkDone: () => Promise<boolean>;
 }) {
   const screen = useRef<HTMLDivElement>(null);
   const [attempt, setAttempt] = useState(0);
   const [ending, setEnding] = useState<Ending | undefined>();
+  const [marking, setMarking] = useState<Marking | undefined>();
+  const markDone = () => {
+    setMarking("marking");
+    void onMarkDone().then((marked) => {
+      if (!marked) {
+        setMarking("not-marked");
+      }
+    });
+  };
   useAttachedTerminal(screen, record, attempt, setEnding);
   const attachAgain = () => {
     setEnding(undefined);
@@ -130,12 +149,25 @@ export function TerminalPanel({
             <code>{record.session.sessionId}</code>
           </p>
         </div>
-        <button type="button" onClick={onClose}>
-          Close
-        </button>
+        <div className="terminal-actions">
+          <button
+            type="button"
+            disabled={marking === "marking"}
+            onClick={markDone}
+          >
+            Mark as done
+          </button>
+          <button type="button" onClick={onClose}>
+            Close
+          </button>
+        </div>
       </header>
       <div role="status" className="terminal-status">
-        {ending && (
+        {marking === "marking" && <p>Marking as done…</p>}
+        {marking === "not-marked" && (
+          <p>The session could not be marked done.</p>
+        )}
+        {ending && marking !== "marking" && (
           <>
             <p>{endings[ending].says}</p>
             <button type="button" onClick={attachAgain}>
