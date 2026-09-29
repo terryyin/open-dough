@@ -64,7 +64,8 @@ a change to global backlog priority.
   preparation to precede tool launch.
 - Initially launch and forget: report the dashboard's launch operation, then
   derive story progress from origin. No session monitoring, automatic question
-  detection, completion notification, or done-prefix naming is required.
+  detection, or completion notification is required. Story 3 adds a
+  developer's explicit Mark as done, with its done-prefix name.
 - Later embedded interaction exposes the ordinary CLI, opened manually.
   An embedded terminal (xterm.js was suggested) is the leading interaction
   direction, not a selected implementation dependency.
@@ -194,27 +195,95 @@ sessions through the CLI, without any interaction inside the browser.
 
 **Identity:** SEED-052#interact-with-claude-terminal
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/152-interact-with-claude-terminal/PLAN.md","assessment":"not-ready","reasons":["The plan extends story 2 (SEED-052#revisit-dashboard-sessions), whose code is on origin/claude/revisit-dashboard-sessions but not yet on main; reassess once it lands."],"basis":{"document":"6f8ed5ce5081885dae0c16aba36582592b53b82751956f5a810ef4fe0c01b450","plan":"38cf4d0183a97d8fcc66a1090702d4d6f8875e77725547443a498a9a46862dc2"}}
 ```
 
-- **For / why:** A developer can inspect work, answer questions, and intervene
-  without leaving the dashboard for a separate terminal.
-- **Evaluation:** Manually choose a launched session, including one reached
-  through Recent sessions without a current story card, open its ordinary
-  Claude Code terminal, answer a question, and see the same conversation
-  continue. Closing the panel leaves background work accessible later.
-- **Boundary:** Attach to the intended session rather than start another task.
-  Unavailable sessions receive an explanation. No automatic needs-attention
-  detection, separate chat interface, or completion notification is promised.
-- **Value / learning:** Tests whether the native CLI in an embedded terminal
-  provides sufficient interaction before designing tool-specific status flows.
-- **Effort hypothesis:** Unestimated; attachment behavior, reconnecting, and
-  browser terminal usability are the main uncertainties.
-- **Known from launch:** A session is reached by the short id `claude --bg`
-  prints; `--bg` ignores `--session-id`, so the id cannot be chosen upfront.
-- **Depends on:** The dashboard launch; story 2 supplies the promised access after card removal.
-- **Safe stopping point:** Existing execution conversations are usable inside
-  the dashboard even if refinement launch is never added.
+**Goal:** A developer who launched work from the dashboard can open that
+session's ordinary Claude Code terminal beside the stories, answer its
+questions, and intervene without switching to a separate terminal. When the
+work is finished for them, they close it from the same place. This tests
+whether the native CLI inside the dashboard is enough interaction before any
+tool-specific status flow is designed.
+
+**Scope:**
+
+- **One terminal at a time.** Opening a session splits the dashboard window
+  into two panels: the stories stay on the left and the session's terminal
+  opens on the right. The terminal runs the session's ordinary Claude Code
+  CLI (`claude attach <id>`). Opening another session detaches from the
+  current one and opens the new one in the same panel. Detaching never stops
+  a session.
+- **Opening replaces the copyable command.** A story card whose launched
+  session is running offers to open that session's terminal directly. So does
+  every Recent sessions entry that can be opened, including one whose story
+  is in no list. The copyable `claude attach <id>` and its copy button are
+  removed from the card's Started record and from Recent sessions. The session
+  id stays shown.
+- **Toolbar.** A toolbar above the terminal names the open session (story,
+  workflow, session id) and holds the terminal's actions: **Close**, which
+  only detaches, and **Mark as done**.
+- **Mark as done** closes the session from Open Dough's point of view. It
+  detaches the terminal, prefixes the session's name with `done-` (for
+  example `done-Open Dough · Execution · <title>`), and stops the session
+  (`claude stop <id>`). The card no longer shows a running session, and the
+  Recent sessions entry stays, shown as done, under its new name. Claude Code
+  keeps the conversation, so the entry can still be opened later. Marking done
+  is local evidence and never shows the story as done. Only origin shows a
+  story's published outcome.
+- **Renaming.** Claude Code has no CLI command to rename a background
+  session; `/rename` inside the session does it. The prefix goes on Claude
+  Code's own session name, so `claude agents` shows it too. If planning finds
+  this cannot be done reliably, the prefix goes only on the dashboard's launch
+  record, and stopping still happens.
+- **Lifetime.** Switching projects keeps the terminal open. A reload closes it,
+  and the developer opens the session again. If the connection drops or the
+  dashboard server restarts, the panel says it is disconnected and offers to
+  reconnect. When the attached CLI itself exits (for example Ctrl+Z), the
+  panel says the terminal has ended and offers to open it again.
+- **Native keys stay native.** The dashboard does not intercept keys. Claude
+  Code's agent view (reached with ←) and anything the developer does there are
+  the CLI's ordinary behavior.
+- **Only the recorded session.** The dashboard's terminal runs only
+  `claude attach` for a session the dashboard launched and recorded, in that
+  project's folder. It never opens a shell or runs another command, and it
+  refuses other sites the same way as the launch boundary. A local server that
+  runs arbitrary input for any page would hand control of the machine to
+  whatever page reaches it.
+- **Unavailable sessions.** A session Claude Code no longer lists offers no
+  open action, only story 2's unavailable explanation. A session can be opened
+  where `claude attach` opens it. Claude Code documents that it reopens a
+  stopped session, so finished and stopped sessions can be opened.
+- Deferred: several terminals at once, tabs, restoring the terminal after a
+  reload, sharing one session between two browser tabs or with an outside
+  terminal, a separate chat interface, automatic needs-attention or completion
+  detection, undoing Mark as done, and other hosts.
+- Boundary assumption: story 2's Recent sessions (with Claude Code state) is
+  delivered first; this story builds on its records and entries.
+
+**Key examples:**
+
+1. A developer started execution on a Backlog story, and its session is
+   working. They select the card's running session. The window splits, the
+   right panel shows the Claude Code conversation, and the developer answers a
+   question there. The session continues with that answer.
+2. With that terminal open, they select a different session in Recent
+   sessions. The first one is detached and keeps running, and the panel now
+   shows the second one.
+3. The story was completed and is in no list. Its Recent sessions entry still
+   opens the terminal.
+4. The developer presses Close. The panel closes and the session keeps
+   working. Its card still shows it running and can open it again.
+5. The developer presses Mark as done. The panel closes. `claude agents`
+   shows the session stopped and named `done-Open Dough · Execution ·
+   <title>`. The card offers Start execution again while the story is in the
+   Backlog, and Recent sessions shows the entry as done. The story's place
+   still comes from origin.
+6. The dashboard server restarts while a terminal is open. The panel says it
+   is disconnected. Reconnect attaches to the same session again, and the
+   conversation is still there.
+7. A session Claude Code no longer lists shows its unavailable explanation
+   and no open action.
+8. The page offers no copyable `claude attach <id>` anywhere.
 
 <a id="launch-claude-refinement"></a>
 
@@ -414,7 +483,7 @@ For scope reduction, defer tool expansion first, then further scripted setup;
 retain launch and useful interaction in Claude Code. If embedded interaction is
 too costly, retain launch and recent-session access through the external CLI,
 which the dashboard's refinement launch already provides. Automatic attention
-indicators, completion callbacks, done-prefix naming, model selection, other
+indicators, completion callbacks, model selection, other
 skills, externally started sessions, and full project/tool setup remain deferred.
 Recently done is related work with its own value and priority decision.
 
