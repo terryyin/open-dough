@@ -50,10 +50,9 @@ this dashboard did not launch.
   already does), without waiting for the steady-pace read or a reload.
 - The Recent sessions entry's Done state and "Named done-…" line already key
   off `doneAt` (`src/SessionEntry.tsx`); no wording change is needed.
-- SEED-052#launch-claude-refinement (plan 159, in execution on
-  `claude/session-attention`) suppresses attention for a session marked done.
-  A cleared mark restores it with no extra rule; rebase onto whatever plan 159
-  lands and keep one membership and one attention rule.
+- `sessionShown` (`src/sessionShown.ts`) gives a session marked done no
+  attention; a cleared mark restores it with no extra rule. Keep one
+  membership and one attention rule.
 
 ## Decisive premises
 

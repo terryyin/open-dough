@@ -28,8 +28,10 @@ The launch boundary specs (`agent-launch-boundary.spec.ts`,
 `agent-launch-session-listing.spec.ts`) and the page journeys
 (`agent-launch-card.spec.ts`, `agent-launch-card-problems.spec.ts`,
 `agent-launch-card-sessions.spec.ts`, `agent-launch-card-session-states.spec.ts`,
-`agent-launch-recent-sessions.spec.ts`, and
-`agent-launch-recent-session-states.spec.ts`, which name their folders and launch
+`agent-launch-recent-sessions.spec.ts`,
+`agent-launch-recent-session-states.spec.ts`,
+`agent-launch-attention-clearing.spec.ts`, and
+`agent-launch-attention.spec.ts`, which name their folders and launch
 wait through the `projectFolders` and `launchTimeoutMs` options of
 `dashboardTest.ts`) drive a synthetic `claude`
 (`fixtures/fake-claude`, `support/fakeClaude.ts`) that every server puts first
@@ -38,8 +40,12 @@ chooses; a spec that restarts servers on the same machine state passes a
 `machine` directory it owns. A per-server scenario (`claudeScenario`) decides
 whether it launches, refuses, finds the folder untrusted, hangs, or reports a
 session its listing does not show. It lists what it launched as
-`claude agents --json --all` does; `claudeSessionBecomes` makes a session
-working, idle, finished, or stopped, or forgets it, and `claudeListingFails`
+`claude agents --json --all` does; `claudeSessionBecomes` lists a session
+as Claude Code does when it is working busy (`working`) or idle between steps
+(`working-idle`), blocked on the developer (`blocked`, with a `waitingFor`
+reason when the test gives one), done with its process running (`done-live`)
+or exited (`done-exited`), `failed`, or `stopped`, replacing its whole state,
+status, and reason, or forgets it (`forgotten`), and `claudeListingFails`
 makes the listing fail. It records every call's argv and working directory
 (`claudeCalls`, or `claudeLaunchCalls` for the `--bg` launches alone), and
 `claude stop <id>` lists that session stopped. Run as `claude attach` in the

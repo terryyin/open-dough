@@ -14,8 +14,7 @@ import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessionName,
-  cardSessions,
+  cardSessionOf,
   expectMembership,
   parts,
   recentSessionName,
@@ -55,12 +54,7 @@ test.describe("marking a card's session done", () => {
     const { recentSessions: recent } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const onCard = (workflow: "Execution" | "Refinement") =>
-      cardSessions(card(readyStory)).and(
-        page.getByRole("article", {
-          name: cardSessionName(workflow),
-          exact: true,
-        }),
-      );
+      cardSessionOf(card(readyStory), workflow);
     const inRecent = (workflow: "Execution" | "Refinement") =>
       recent.getByRole("article", {
         name: recentSessionName(workflow, readyStory),
@@ -136,7 +130,7 @@ test.describe("marking a card's session done", () => {
     );
     await settled();
     await launch(readyStory, "Execution");
-    const entry = cardSessions(card(readyStory));
+    const entry = cardSessionOf(card(readyStory), "Execution");
     await expect(entry).toHaveCount(1);
     // The project folder moves away, so the boundary refuses the mark.
     const folder = path.join(dashboard.home, "git", "open-dough");

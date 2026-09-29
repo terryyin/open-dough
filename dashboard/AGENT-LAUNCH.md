@@ -72,17 +72,41 @@ sessions launched from this dashboard are kept.
 
 Each entry, in Recent sessions and on a card, also shows its session's state,
 read from `claude agents --json --all` in the project's folder whenever the
-records are read and never kept:
-**Working** or **Idle** while its process runs busy or idle, **Done** once the
-developer marked it done (below), **Finished** once it is done, and
-**Stopped** otherwise. A session marked done that runs again, as opening it
-wakes it, shows its running state. A session Claude Code no longer lists
-shows **Session unavailable** without Open terminal; if the listing cannot be
+records are read and never kept, and whether the developer is needed there.
+One reading (`src/sessionShown.ts`) decides both from Claude
+Code's `state` alone; whether the process runs or is idle does not. A session
+not marked done needs attention while Claude Code lists it `blocked`, shown
+**Needs input** with what it waits for when Claude Code reports `waitingFor`
+(for a question, Claude Code 2.1.284 reports only "input needed");
+`done`, shown **Ready for review** whether its process still runs or has
+exited; `failed`, shown **Session failed**; or `stopped`, shown **Session
+stopped**. Such an entry has a solid, heavier edge beside those words. A
+`working` session shows **Working**, busy or idle between steps, and needs no
+attention; a state this reading does not know shows **State not recognized**
+with the state Claude Code lists, and no attention. Opening or closing a
+session's terminal leaves its attention as it is; the next listing that no
+longer asks for the developer, or a successful Mark as done, clears it. A
+session marked done (below) never needs attention again: it shows **Working**
+while Claude Code lists it working, as opening it wakes it, and **Done**
+otherwise. A session Claude Code no longer lists shows **Session unavailable**
+(**Done** once marked done) without Open terminal; if the listing cannot be
 read, every entry shows **State unknown** with "Claude Code's session list
-could not be read" and keeps Open terminal. While the page
+could not be read", no attention, and keeps Open terminal. While the page
 is visible it reads the records again every 15 seconds, the pace of its
 revision checks, so a state change shows without a reload. With no records,
 `claude` is not run.
+
+A card whose listed sessions include any that need attention says so above
+them, by the same reading: "1 session needs attention", or "<N> sessions need
+attention" for more; with none, it says nothing. Each entry still names its
+own reason, so one working session never hides another that needs the
+developer, and an unavailable or unknown session is not counted. The count is
+worked out from the card's listed sessions whenever the records are read,
+never kept, so a later listing, a Mark as done, a reload, or a return from
+another project shows it afresh, and another project's sessions never count.
+It never changes the card's stage, position, or published facts. A story that
+leaves every list keeps each affected session, with its reason and Open
+terminal, under Recent sessions.
 
 The launch boundary also attaches a terminal to a session it launched. A
 same-origin WebSocket to

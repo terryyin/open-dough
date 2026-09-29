@@ -2,9 +2,10 @@
 // order `launchWorkflows` offers them, whatever sessions are listed; on every
 // card, the story's sessions that have not been marked done (`cardSessionsOf`),
 // newest first, each shown as Recent sessions shows it without the story the
-// card already names. A launch from the card lists its session here and takes
-// the keyboard to it. Sessions are local evidence: whatever they show, origin
-// alone places the story.
+// card already names, under how many of them need attention, when any do
+// (`attentionSummary`). A launch from the card lists its session here and
+// takes the keyboard to it. Sessions are local evidence: whatever they show,
+// origin alone places the story.
 
 import { useState } from "react";
 import type { WorkEntry } from "./publishedWork.ts";
@@ -16,6 +17,7 @@ import {
 import type { ProjectLaunches } from "./agentLaunches.ts";
 import { StartLaunch } from "./StartLaunch.tsx";
 import { SessionEntry } from "./SessionEntry.tsx";
+import { attentionSummary } from "./sessionShown.ts";
 
 export function CardLaunches({
   entry,
@@ -30,6 +32,7 @@ export function CardLaunches({
   // The session the developer's own launch from this card just listed.
   const [launchedHere, setLaunchedHere] = useState<string | undefined>();
   const sessions = cardSessionsOf(launches.records, entry.identity);
+  const attention = attentionSummary(sessions);
   return (
     <>
       {offersStart &&
@@ -48,6 +51,7 @@ export function CardLaunches({
             }}
           />
         ))}
+      {attention !== undefined && <p className="card-attention">{attention}</p>}
       {sessions.length > 0 && (
         <ol className="card-sessions" aria-label="Sessions">
           {sessions.toReversed().map((record) => (

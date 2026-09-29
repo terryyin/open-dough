@@ -107,14 +107,16 @@ export const launchRecordSchema = z.object({
 export type LaunchRecord = z.infer<typeof launchRecordSchema>;
 
 // A recorded session as the host lists it at the moment of asking, never
-// stored: `listed` with the host's `state` and, only while its process runs,
-// its `status`; `unlisted` once the host no longer lists it; `unknown` when
+// stored: `listed` with the host's `state`, only while its process runs its
+// `status`, and, when the host reports one, what a blocked session is
+// `waitingFor`; `unlisted` once the host no longer lists it; `unknown` when
 // the host's listing could not be read.
 export const sessionStateSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("listed"),
     state: z.string(),
     status: z.string().optional(),
+    waitingFor: z.string().optional(),
   }),
   z.object({ kind: z.literal("unlisted") }),
   z.object({ kind: z.literal("unknown") }),
@@ -149,12 +151,6 @@ export function cardSessionsOf(
     (record) =>
       record.request.identity === identity && record.doneAt === undefined,
   );
-}
-
-// Whether the host lists a session as running: it gives a status only while
-// the process runs, so a session listed without one has exited.
-export function sessionRuns(sessionState: SessionState): boolean {
-  return sessionState.kind === "listed" && sessionState.status !== undefined;
 }
 
 // Why nothing was launched.

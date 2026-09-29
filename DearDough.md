@@ -283,36 +283,6 @@ explicit contract in the focused CI runtime suite.
 
 ### Occurrences
 
-- Execution: `SEED-008#script-driven-ci-observation @ 02991a5`
-  - Timestamp: 2026-09-23T16:30:28+08:00
-  - Tool: Cursor
-  - Model: unknown
-  - Open Dough release: modified; revision 02991a5ac64708f7ad7300b1ffee115647c66780; base 0.3.32
-  - Evidence: Slice 1 (`02991a5`) rewrote `references/ci-monitor.md` for managed
-    delivery and, under the 250-line bound, shortened the contract phrase to
-    "The completion boundary below is the only routine CI wait", dropping
-    `execution/review`. `ci-supported-host-contract.test.mjs` requires the full
-    phrase. Earlier branch runs `35837536383` (`02991a5`) and `35840027069`
-    (`493187c`) cancelled the `test` job after dashboard failure, so the
-    contract miss surfaced only on `35842317799` (`ddcabcb`); repair `04791a7`
-    restored the exact wording and that run's `test` job passed.
-  - Observed effect: An avoidable repair commit and delayed detection of a
-    guidance-contract regression while unrelated dashboard CI already failed.
-  - Inference: Third recurrence against the same contract suite: prose rewrite
-    for a delivery behavior change treated Markdown as free-form guidance rather
-    than tracing changed phrases to `ci-supported-host-contract.test.mjs`.
-    Fail-fast cancellation of `test` after dashboard failure further deferred
-    discovery; qualified as amplifying, not inventing, the miss.
-- Execution: `SEED-037#diagnosable-test-hangs` / plan 104, first related implementation commit `044c88f`
-  - Timestamp: 2026-09-25T22:14:40+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `87ffccb`
-  - Evidence: `0f07f9b` made `createQueuedTrunk().cleanup` async; its consumer
-    check covered `.mjs` callers only, lint ran on changed files; CI run
-    `36146130701` `lint` failed in `dashboard/tests/preparingJourney.ts`.
-  - Observed effect: one failed CI run, a pause-and-stash cycle, repair `2b3b02e`.
-  - Inference: The TypeScript consumer lay outside the assumed file types.
 - Execution: `SEED-028#admission-coherence` / plan 113, first related implementation commit `733fe46`
   - Timestamp: 2026-09-26T18:42:15+08:00
   - Tool: Claude Code
@@ -946,6 +916,12 @@ Refinement recorded SEED-052#interact-with-claude-terminal not-ready because sto
   - Evidence: `execution-start.mjs` refused with `published preparation is needs-reassessment`; reassessment `6150a458` (17:00:45) changed only the premise row, the start check, and two decisions the closure of plan 156 had left open for Terry.
   - Observed effect: second occurrence the same day, again a minute after the not-ready record: about an hour not-ready, and one refused start and reassessment cycle, which did usefully surface the open decisions.
 
+- Execution: `SEED-052#launch-claude-refinement` / plan 159, claim `7667a007`
+  - Timestamp: 2026-09-29T18:13:11+08:00 (keep-story-session-links closure `45fd5df2`; reassessment `9e176b9f` 18:18:42)
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `d68fcde4`
+  - Evidence: execute-plan first stopped on the not-ready reason; the developer asked to "watch until the condition … is met and then start execution"; a fetch loop saw the closure, and the coordinator announced a preparation, reconciled the plan, recorded ready, and landed it before `execution-start.mjs start`.
+  - Observed effect: third occurrence the same day. Only the developer's watch request revisited the reason; execute-plan has no wait-then-reassess path, so the coordinator inferred keep authority for the reassessment from "start execution".
+
 ## DD-174 — A refactor pass removed a guard as behavior-preserving on an unverified helper premise
 
 Slice 1's refactor pass dropped a skip for observer-registered revisions the repository lacks, reasoning that Land's `isAncestor` returns false on any failure. It re-threw every exit but 1, so a missing revision would crash `finish`. The coordinator accepted the report and wrote the same premise into the plan as a learning; no test covered a missing revision.
@@ -984,9 +960,34 @@ Slice 2 made Recent sessions entries and region focusable (`tabIndex=-1`), and s
   - Observed effect: two failed CI runs, two repair commits, and two extra refactor agents.
   - Inference: Qualified. Selecting proof by the names of changed components misses specs that assert a whole-page property. The whole dashboard suite takes under a minute locally, so running it before delivering a page change costs less than one CI repair.
 
+## DD-180 — A host probe planned for the agent to answer needed the developer, because the host refused self-driving the attach
+
+Plan 159 slice 1 said to attach with the existing CLI and answer a real background session's question. The auto-mode classifier refused the coordinator driving `claude attach` through a PTY ("Tmux Self Drive"), so the developer had to attach and answer.
+
+### Occurrences
+
+- Execution: `SEED-052#launch-claude-refinement` / plan 159, first related commit `eb89e7d2`
+  - Timestamp: 2026-09-29T18:20:40+08:00 (refusal; the developer answered at 18:34:49)
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `d68fcde4`
+  - Evidence: plan 159 slice 1 as refined in `261910e8`; its recorded observation in `eb89e7d2` names the refusal and the human answer.
+  - Observed effect: about 14 minutes with the execution waiting on the developer; the probe itself succeeded. Inference: Qualified. Planning a probe that needs input typed into another interactive session should name the developer step, as DD-173's inverse case (ProjectFindings.md) shows planning should check which actor can run it.
+
+## DD-181 — Proof acceptance checked what tests observe, not the plan's direction on how often to observe it
+
+Plan 159 slice 2 said to test the session presentation once as a shared capability, not every state in both placements. The implementer asserted every state on both the card entry and the Recent sessions entry in `agent-launch-recent-session-states.spec.ts`; coordinator acceptance and the refactor pass inspected only that the assertions observed the promises.
+
+### Occurrences
+
+- Execution: `SEED-052#launch-claude-refinement` / plan 159, first related implementation commit `aaf78a9c`
+  - Timestamp: unknown; accepted before `aaf78a9c` (2026-09-29T18:48:00+08:00)
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `d68fcde4`
+  - Evidence: plan 159 slice 2 proof text; `agent-launch-recent-session-states.spec.ts` `both(index)` loop at `4ef13e85`; the execution retrospective found it.
+  - Observed effect: extra per-state card assertions beside `agent-launch-card-session-states.spec.ts`, which already rechecks card labels (plan 160's finding 6); cleanup falls to a correction. Inference: Qualified. Accept-proof guidance weighs observation substance; a plan's test-cost direction has no acceptance check.
+
 ## Retention
 
-- Highest allocated local number: 179. Removed local codes are never reused.
+- Highest allocated local number: 181. Removed local codes are never reused.
+- Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-180, DD-181, and DD-172's third occurrence: ODF-003's two oldest occurrences (`SEED-008#script-driven-ci-observation`, `SEED-037#diagnosable-test-hangs`); two later occurrences keep the finding; recovery: `4ef13e85:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-176, DD-177, and the DD-172 and ODF-097 recurrences: ODF-130 (concurrent slices sharing Playwright output) and ODF-129 (full-suite proof beside another agent's edits), since slices now run one at a time; recovery: `32e554d5:DearDough.md`.
 - Removed ODF-070 (former DD-066; nested worktree `node_modules` assumed absent) on 2026-09-29 for the 1,000-line ceiling: its 0.3.26-era occurrence as lower priority than ODF-116's recurrence (recovery: `6fa51cb6:DearDough.md`), then its remaining occurrence as lower current actionability than DD-172/DD-173 and the ODF-100 recurrence, since execution-location guidance now requires a locked install per worktree (recovery: `0c31529b:DearDough.md`).
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-174 and ODF-097's third occurrence: ODF-059's 0.3.25-era occurrence (`SEED-008#script-product-backlog-list-updates`); two later occurrences keep the finding; recovery: `14cd2de3:DearDough.md`.

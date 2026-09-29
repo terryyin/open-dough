@@ -18,6 +18,7 @@ import { agentDoneEndpoint } from "../src/doneMark.ts";
 import { expect, test } from "./dashboardTest.ts";
 import {
   cardSessionName,
+  cardSessionOf,
   cardSessions,
   expectMembership,
   parts,
@@ -188,12 +189,7 @@ test.describe("marking a session done from its terminal", () => {
     );
     const panel = page.getByRole("region", { name: "Terminal" });
     const started = (workflow: "Execution" | "Refinement") =>
-      cardSessions(card(readyStory)).and(
-        page.getByRole("article", {
-          name: cardSessionName(workflow),
-          exact: true,
-        }),
-      );
+      cardSessionOf(card(readyStory), workflow);
     await settled();
     await launch(readyStory, "Execution");
     await launch(readyStory, "Refinement");

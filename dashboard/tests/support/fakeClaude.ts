@@ -22,18 +22,34 @@ export type FakeClaudeScenario =
   "launched" | "refused" | "untrusted" | "hang" | "unlisted";
 
 // What a listed session becomes, as the real `claude agents --json --all`
-// lists it: running and busy (`working`) or idle (`idle`); exited once done
-// (`finished`) or stopped (`stopped`), with no `status`; or no longer listed
-// at all (`forgotten`).
+// lists it (Claude Code 2.1.284): working with its process busy (`working`)
+// or idle between steps (`working-idle`); blocked, waiting on the developer
+// (`blocked`, with what it waits for when a test gives it); done with its
+// process still running idle (`done-live`) or exited (`done-exited`); failed
+// or stopped with its process exited (`failed`, `stopped`); or no longer
+// listed at all (`forgotten`). Each replaces the session's `state`, `status`,
+// and `waitingFor` whole.
 export type ClaudeSessionChange =
-  "working" | "idle" | "finished" | "stopped" | "forgotten";
+  | "working"
+  | "working-idle"
+  | "blocked"
+  | "done-live"
+  | "done-exited"
+  | "failed"
+  | "stopped"
+  | "forgotten";
 
 const listedAs = {
-  working: { status: "busy", state: "working" },
-  idle: { status: "idle", state: "done" },
-  finished: { state: "done" },
+  working: { state: "working", status: "busy" },
+  "working-idle": { state: "working", status: "idle" },
+  blocked: { state: "blocked", status: "waiting" },
+  "done-live": { state: "done", status: "idle" },
+  "done-exited": { state: "done" },
+  failed: { state: "failed" },
   stopped: { state: "stopped" },
 } as const;
+
+const replacedFields = new Set(["state", "status", "waitingFor"]);
 
 export type ClaudeCall = {
   readonly argv: readonly string[];
@@ -75,8 +91,13 @@ export type FakeClaudeControls = {
   // and stops the page also runs.
   claudeLaunchCalls(): ClaudeCall[];
   claudeScenario(scenario: FakeClaudeScenario): void;
-  // Changes how the fake lists the session with this id.
-  claudeSessionBecomes(sessionId: string, change: ClaudeSessionChange): void;
+  // Changes how the fake lists the session with this id; only a blocked
+  // one may say what it waits for.
+  claudeSessionBecomes(
+    sessionId: string,
+    change: ClaudeSessionChange,
+    waitingFor?: string,
+  ): void;
   // Whether the fake's session listing fails, answering nothing.
   claudeListingFails(fails: boolean): void;
   // The pid of a `hang` launch still holding its answer, and the signal that
@@ -168,7 +189,10 @@ export function installFakeClaude(
         writeFileSync(state("scenario"), scenario);
       },
       claudeListing,
-      claudeSessionBecomes(sessionId, change) {
+      claudeSessionBecomes(sessionId, change, waitingFor) {
+        if (waitingFor !== undefined && change !== "blocked") {
+          throw new Error(`A ${change} session waits for nothing.`);
+        }
         const listed = claudeListing();
         if (!listed.some((session) => session.sessionId === sessionId)) {
           throw new Error(`The fake claude lists no session ${sessionId}.`);
@@ -177,9 +201,15 @@ export function installFakeClaude(
           if (session.sessionId !== sessionId) return [session];
           if (change === "forgotten") return [];
           const kept = Object.entries(session).filter(
-            ([key]) => key !== "status" && key !== "state",
+            ([key]) => !replacedFields.has(key),
           );
-          return [{ ...Object.fromEntries(kept), ...listedAs[change] }];
+          return [
+            {
+              ...Object.fromEntries(kept),
+              ...listedAs[change],
+              ...(waitingFor === undefined ? {} : { waitingFor }),
+            },
+          ];
         });
         // Replaced whole, so the fake never lists a half-written file.
         writeFileSync(state("agents.json.next"), JSON.stringify(changed));
