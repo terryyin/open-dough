@@ -123,6 +123,25 @@ covers the second unreadable-store move, overlapping launch journeys, the
 dashboard test README's launch listing, and the North Star launch row. It adds
 no feature promise. See the [plan](../slice-plans/151-recent-sessions-residue/PLAN.md).
 
+<a id="preparing-card-refinement-journey"></a>
+
+### Correction: Observe a Preparing-card refinement in one journey
+
+**Identity:** SEED-052#preparing-card-refinement-journey
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/154-preparing-card-refinement-journey/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c2be736e67c506e06e38e19139bcd23a71d37480e0779a4693511e7086dc97d5","plan":"4dce2c07d82389883ee7a16f5b4a2f14a2e8c82b4f78fab2348f92d706817e3c"}}
+```
+
+**Goal:** Maintainers change how a refinement launched on a Preparing card
+settles and is listed in one journey, not two.
+
+**Scope:** The correction found by the execution retrospective of
+SEED-052#recent-sessions-residue (commits `1de2187a`, `6fa51cb6` on
+`claude/recent-sessions-residue`). The settlement journey now observes that
+launch settling at once and listed in Recent sessions, so the recent-sessions
+spec's Preparing step repeats it. It adds no feature promise. See the
+[plan](../slice-plans/154-preparing-card-refinement-journey/PLAN.md).
+
 <a id="interact-with-claude-terminal"></a>
 
 ### 3. Interact with a launched Claude Code session inside the dashboard

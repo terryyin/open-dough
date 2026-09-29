@@ -413,32 +413,6 @@ dependents run correctly from inside the nested worktree with no setup step.
 
 ### Occurrences
 
-- Execution: `SEED-008#planning-workspace-procedure @ 45234b9`
-  - Timestamp: unknown
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.26
-  - Evidence: the slice 5 refactor-pass report stated `node scripts/lint.mjs`
-    "could not run (`eslint`/`prettier` binaries not installed in this
-    worktree's `node_modules`, which is empty — 0 packages vs. 96 in the main
-    checkout)... This is an environment gap." The coordinator then ran
-    `npm run format` directly in that same worktree
-    (`/Users/terryyin/git/open-dough/.worktrees/065-prepare-stories-in-owned-worktrees`)
-    immediately afterward and observed a clean pass with no diff, confirming
-    the command works there.
-  - Observed effect: no incorrect guidance reached the delivered plan or
-    product, since the coordinator's own formatting step is independent of
-    the refactor pass's own tooling claim and was run and verified regardless.
-    The cost was a false "environment gap" statement carried in that agent's
-    report, which the coordinator had to notice and re-verify rather than
-    trust.
-  - Inference: Qualified. The same false observation recurred verbatim in the
-    slice 6 refactor-pass report on the same worktree, suggesting the
-    pattern is the check itself (local directory existence) rather than a
-    one-off environment fluke; whether a differently phrased delegation
-    instruction (e.g. "run the command, not a `node_modules` existence
-    check, before reporting a tooling gap") would prevent recurrence was not
-    tested here.
 - Execution: `SEED-028#one-shot-entry-coherence @ 49b81831`
   - Timestamp: unknown; 2026-09-27 between 9447617c and 49b81831
   - Tool: Claude Code
@@ -779,6 +753,14 @@ publication, and a start retry all preceded any work.
   - Open Dough release: modified; revision `ff3534c`; base 0.3.42
   - Evidence: refusal `source-refused` / "published preparation is needs-reassessment"; `git diff eaa69a4 HEAD` on the seed showed only the sibling `dashboard-port-race` refinement and wording; reconfirmed basis published as `ff3534c`; the retried start published the claim.
   - Observed effect: one basis-hash diagnosis, one record-state, one trunk publication, and a repeated start before the claim. SEED-043#preserve-sibling-readiness is the queued product response.
+- Execution: `SEED-052#recent-sessions-residue` / plan 151, before its claim `34ad359b`
+  - Timestamp: unknown; the refusal preceded reassessment commit `b7b3c23d` (2026-09-29T12:43:28+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; repository VERSION 0.3.46 at `b7b3c23d`
+  - Evidence: same refusal after SEED-043#preserve-sibling-readiness closed (`fb345ff5`); `git diff f7e7e272 origin/main` on SEED-052 showed only story 3's refinement, which also edited the seed's shared Agreed Boundaries and Ordering text (done-prefix naming moved into story 3). Recorded basis `e646df35…` vs current `db4fc214…`; plan digest unchanged.
+  - Observed effect: a diagnosis, a hand-rolled preparation worktree, record-state, commit, rebase, push to trunk, and a start retry before the claim. The coordinator published outside Dough Land and removed the local branch with `git branch -D` (its tip was already on trunk). The developer had asked for a reassessment, so no decision was lost.
+  - Inference: Qualified. The fix exempts siblings' own sections, but a sibling refinement that edits shared seed context still invalidates every other story in the seed. Execute-plan names no route from this refusal to the preparation keep path.
 
 ## ODF-074 — A ready plan named a validation command the backlog tool does not have
 
@@ -1004,6 +986,7 @@ Before startup fetched trunk, execute-plan read the backlog and seed from the de
 ## Retention
 
 - Highest allocated local number: 169. Removed local codes are never reused.
+- Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than ODF-116's recurrence: ODF-070's 0.3.26-era occurrence (`SEED-008#planning-workspace-procedure`); recovery: `6fa51cb6:DearDough.md`.
 - Moved to ProjectFindings.md on 2026-09-29 for the 1,000-line ceiling: DD-155 (this repository's plan-number collision) and DD-159 (a dashboard test misdiagnosis in this repository); recovery: `41965529:DearDough.md`.
 - Removed on 2026-09-28 for the 1,000-line ceiling, as lower priority than the plan 142 findings: DD-125 (newer Git feature) and DD-157 (README at the size ceiling); recovery: `6e3921d6:DearDough.md`.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.

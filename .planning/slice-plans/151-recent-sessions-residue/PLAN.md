@@ -116,6 +116,13 @@ links `AGENT-LAUNCH.md`, which gained the one rule it lacked (Started lasts
 through a dashboard restart). The four specs passed (4 of 4) and the typecheck
 passed.
 
+## Execution complete
+
+Product advice: queue SEED-052#preparing-card-refinement-journey (plan 154)
+ahead of SEED-052#interact-with-claude-terminal, which rewrites the same
+recent-sessions spec; reassess story 3's readiness, since its not-ready reason
+(story 2 not yet on main) no longer holds. Priorities are otherwise unchanged.
+
 ## Proof ownership
 
 | Final-state promise | Owning slice and decisive observation |
