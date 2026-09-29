@@ -2,10 +2,10 @@
 // shows it in the page's terminal, offered only where `attachOpens` says it
 // opens the session. Every session entry (`./SessionEntry.tsx`) shows its
 // session this way; the control names the session it opens, so the page can
-// return the keyboard to an entry's control (`./terminalOpening.ts`).
+// return the keyboard to an entry's control (`./pageSessions.ts`).
 
 import { attachOpens, type LaunchWithState } from "./agentLaunch.ts";
-import { opensSession, usePageSessions } from "./terminalOpening.ts";
+import { opensSession, usePageSessions } from "./pageSessions.ts";
 import "./agent-launch.css";
 
 export function LaunchSession({
@@ -25,7 +25,7 @@ export function LaunchSession({
             type="button"
             {...opensSession(record.session.sessionId)}
             onClick={(event) => {
-              openTerminal({ record, opener: event.currentTarget });
+              openTerminal({ record, control: event.currentTarget });
             }}
           >
             Open terminal

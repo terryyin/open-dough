@@ -12,7 +12,8 @@
 // no focus when it closes. Once the panel shows output from a session the
 // page holds as done, the page reads that session again, since the boundary
 // reopens a done session its terminal attaches to
-// (`../server/agentTerminals.ts`).
+// (`../server/agentTerminals.ts`). Opening, marking, and reading again each
+// take the same request (`./pageSessions.ts`).
 
 import {
   useCallback,
@@ -21,7 +22,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { LaunchRecord } from "./agentLaunch.ts";
 import type { ProjectLaunches } from "./agentLaunches.ts";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
@@ -29,8 +29,9 @@ import {
   SessionsOnPage,
   type MarkSessionDone,
   type OpenTerminal,
-  type TerminalOpening,
-} from "./terminalOpening.ts";
+  type SessionOperation,
+  type SessionRequest,
+} from "./pageSessions.ts";
 import "./agent-terminal.css";
 
 // The keyboard's return once the page shows what was asked: the control to
@@ -38,7 +39,7 @@ import "./agent-terminal.css";
 type KeyboardReturn = {
   readonly control: HTMLElement;
   readonly sessionId: string;
-  readonly shows: TerminalOpening | undefined;
+  readonly shows: SessionRequest | undefined;
 };
 
 export function TerminalSplit({
@@ -50,18 +51,18 @@ export function TerminalSplit({
   readonly sessions: Pick<ProjectLaunches, "markDone" | "readSession">;
   readonly children: ReactNode;
 }) {
-  const [terminal, setTerminal] = useState<TerminalOpening | undefined>();
-  const openTerminal = useCallback<OpenTerminal>((opening) => {
+  const [terminal, setTerminal] = useState<SessionRequest | undefined>();
+  const openTerminal = useCallback<OpenTerminal>((request) => {
     setTerminal((current) =>
-      current?.record.session.sessionId === opening.record.session.sessionId
+      current?.record.session.sessionId === request.record.session.sessionId
         ? current
-        : opening,
+        : request,
     );
   }, []);
   // The terminal on the page, and where the keyboard returns once the page,
   // and any change the closing or marking brought, is shown; a return asked
   // for a page since shown with another terminal is dropped.
-  const shown = useRef<TerminalOpening | undefined>(undefined);
+  const shown = useRef<SessionRequest | undefined>(undefined);
   const [returning, setReturning] = useState<KeyboardReturn | undefined>();
   useLayoutEffect(() => {
     shown.current = terminal;
@@ -75,20 +76,20 @@ export function TerminalSplit({
       : sessionKeyboardHome(returning.sessionId);
     control?.focus();
   }, [returning]);
-  const closeTerminal = (closed: TerminalOpening) => {
+  const closeTerminal = (closed: SessionRequest) => {
     if (shown.current !== closed) {
       return;
     }
     setTerminal(undefined);
     setReturning({
-      control: closed.opener,
+      control: closed.control,
       sessionId: closed.record.session.sessionId,
       shows: undefined,
     });
   };
   // Marks the session done and closes the panel if it shows the session,
   // answering whether it was marked, and whether that closed the panel.
-  const markClosing = async (record: LaunchRecord) => {
+  const markClosing = async ({ record }: SessionRequest) => {
     if (!(await markDone(record))) {
       return "not-marked";
     }
@@ -99,19 +100,20 @@ export function TerminalSplit({
     closeTerminal(open);
     return "closed";
   };
-  const attached = useCallback(
-    (record: LaunchRecord) => {
+  const attached = useCallback<SessionOperation<void>>(
+    ({ record }) => {
       if (record.doneAt !== undefined) {
         void readSession(record);
       }
     },
     [readSession],
   );
-  const markSessionDone: MarkSessionDone = async ({ record, opener }) => {
-    const marked = await markClosing(record);
+  const markSessionDone: MarkSessionDone = async (request) => {
+    const { record, control } = request;
+    const marked = await markClosing(request);
     if (marked === "marked") {
       setReturning({
-        control: opener,
+        control,
         sessionId: record.session.sessionId,
         shows: shown.current,
       });
@@ -128,13 +130,13 @@ export function TerminalSplit({
         {terminal && (
           <TerminalPanel
             key={terminal.record.session.sessionId}
-            record={terminal.record}
+            session={terminal}
             onAttached={attached}
             onClose={() => {
               closeTerminal(terminal);
             }}
-            onMarkDone={async () =>
-              (await markClosing(terminal.record)) !== "not-marked"
+            onMarkDone={async (request) =>
+              (await markClosing(request)) !== "not-marked"
             }
           />
         )}

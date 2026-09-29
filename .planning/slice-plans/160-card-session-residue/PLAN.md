@@ -91,7 +91,7 @@ passed; typecheck passed.
 
 ### 2. The page's session operations share one request shape
 Type: Structure
-Status: planned
+Status: done
 Proof: the launch and terminal specs pass unchanged in what they observe;
 `npm run typecheck:dashboard`.
 
@@ -102,6 +102,13 @@ state in `TerminalSplit`. Rename `terminalOpening.ts` for the page's sessions
 drop its `onCard` gate. Rename the Started test variables to entries. When plan
 161 has landed, the page's refresh after a terminal attaches to a done
 session uses the same request shape; do not add a second one.
+
+Accepted proof, after plan 161 landed: `dashboard/src/pageSessions.ts`
+(renamed from `terminalOpening.ts`) defines `SessionRequest { record,
+control }` and `SessionOperation`; opening, marking done, and `TerminalSplit`'s
+re-read after attach all take it, and the panel carries the request that
+opened it. Every `SessionEntry` carries `data-shows-session`. The Started test
+variables are entries. Whole dashboard suite 293 passed; typecheck passed.
 
 ### 3. Card specs keep only card-specific observations
 Type: Structure

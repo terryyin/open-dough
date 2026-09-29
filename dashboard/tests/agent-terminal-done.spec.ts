@@ -214,12 +214,12 @@ test.describe("marking a session done from its terminal", () => {
       stagesJourney,
     );
     const panel = page.getByRole("region", { name: "Terminal" });
-    const started = (workflow: "Execution" | "Refinement") =>
+    const cardEntry = (workflow: "Execution" | "Refinement") =>
       cardSessionOf(card(readyStory), workflow);
     await settled();
     await launch(readyStory, "Execution");
     await launch(readyStory, "Refinement");
-    await started("Execution")
+    await cardEntry("Execution")
       .getByRole("button", { name: "Open terminal" })
       .click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
@@ -227,7 +227,7 @@ test.describe("marking a session done from its terminal", () => {
     await panel.getByRole("button", { name: "Mark as done" }).click();
     await expect(panel.getByRole("status")).toHaveText("Marking as done…");
 
-    await started("Refinement")
+    await cardEntry("Refinement")
       .getByRole("button", { name: "Open terminal" })
       .click();
     await expect(panel).toContainText("Refinement session");
@@ -239,7 +239,7 @@ test.describe("marking a session done from its terminal", () => {
     release();
     await doneAnswered;
 
-    await expect(started("Execution")).toHaveCount(0);
+    await expect(cardEntry("Execution")).toHaveCount(0);
     await expect(panel).toContainText("Refinement session");
     await expect(typing).toBeFocused();
   });

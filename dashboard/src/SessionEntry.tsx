@@ -7,9 +7,10 @@
 // (`./LaunchSession.tsx`); a session the developer marked done is Done, under
 // its `done-` name. An entry names its story's title and identity unless it
 // is listed on the story's own card, where it offers Mark as done through the
-// page's one operation (`./TerminalSplit.tsx`). A Recent sessions entry can
-// take the keyboard when the control that last had it is gone. Entries are
-// local evidence of launches, not story facts.
+// page's one operation (`./TerminalSplit.tsx`). Every entry names its
+// session, so a Recent sessions entry can take the keyboard when the control
+// that last had it is gone. Entries are local evidence of launches, not story
+// facts.
 
 import { useEffect, useRef } from "react";
 import { launchWorkflows, type LaunchWithState } from "./agentLaunch.ts";
@@ -22,7 +23,7 @@ import {
   showsSession,
   useMarking,
   usePageSessions,
-} from "./terminalOpening.ts";
+} from "./pageSessions.ts";
 import "./agent-launch.css";
 
 export function SessionEntry({
@@ -55,7 +56,7 @@ export function SessionEntry({
       }
       aria-label={onCard ? `${name} session` : `${name} session for ${title}`}
       tabIndex={-1}
-      {...(onCard ? {} : showsSession(record.session.sessionId))}
+      {...showsSession(record.session.sessionId)}
     >
       {!onCard && (
         <>
@@ -96,7 +97,7 @@ function MarkDone({ record }: { readonly record: LaunchWithState }) {
           type="button"
           disabled={marking === "marking"}
           onClick={(event) => {
-            follow(markDone({ record, opener: event.currentTarget }));
+            follow(markDone({ record, control: event.currentTarget }));
           }}
         >
           Mark as done
