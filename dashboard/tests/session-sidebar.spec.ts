@@ -4,20 +4,17 @@
 // and the state words and attention edge a card entry shows, under one count
 // of those that need the developer, which the banner's Sessions button also
 // shows while the sidebar is closed. A state change never moves an entry, a
-// new launch comes first, and a session marked done leaves. Before the
-// machine's sessions are first read, it says so instead of claiming none are
-// kept, and with all kept ones marked done it says none is open. It sits left of the page, beside the terminal on the right, or over
-// the page on a narrow window. Doughnut's and Pygardon's sessions are
-// launched through the boundary, Open Dough's from their cards; the page's
-// own dashboard server launches the synthetic `claude`
-// (./fixtures/fake-claude). The page clock stands still unless the journey
-// lets it pass.
+// new launch comes first, and a session marked done leaves. It sits left of
+// the page, beside the terminal on the right, or over the page on a narrow
+// window. Doughnut's and Pygardon's sessions are launched through the
+// boundary, Open Dough's from their cards; the page's own dashboard server
+// launches the synthetic `claude` (./fixtures/fake-claude). The page clock
+// stands still unless the journey lets it pass.
 
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
   cardSessionOf,
   expectMembership,
-  parts,
   sessionNamedBy,
 } from "./dashboardPage.ts";
 import { doughnutSharedTitle, sharedStoryIdentity } from "./doughnutProject.ts";
@@ -28,14 +25,9 @@ import {
   takenStory,
   type StoryStagesJourney,
 } from "./launchJourney.ts";
-import { markDone } from "./agentLaunchBoundary.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { box, expectSideBySideInOrder } from "./pageLayout.ts";
-import {
-  expectSessionShown,
-  holdSessionReads,
-  watchRecordReads,
-} from "./sessionStatePace.ts";
+import { expectSessionShown, watchRecordReads } from "./sessionStatePace.ts";
 import { expectEntries, sidebarParts } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 
@@ -213,41 +205,5 @@ test.describe("the Sessions sidebar", () => {
         ),
       ).toBe(await sidebar.evaluate((element) => element.id));
     });
-  });
-
-  test("says it is reading until the machine's sessions are first read, then that none are kept, then none open", async ({
-    page,
-    dashboard,
-  }) => {
-    const { answer } = await holdSessionReads(page);
-    const { settled } = await openStoryStagesJourney(page, stagesJourney);
-    const { sidebar, button, entries } = sidebarParts(page);
-    const { recentSessions } = parts(page);
-    await settled();
-    await button.click();
-    for (const place of [sidebar, recentSessions]) {
-      await expect(place).toContainText("Reading sessions…");
-      await expect(place).not.toContainText("No sessions launched");
-    }
-
-    answer();
-    for (const place of [sidebar, recentSessions]) {
-      await expect(place).toContainText(
-        "No sessions launched from this dashboard are kept.",
-      );
-      await expect(place).not.toContainText("Reading sessions…");
-    }
-    await expect(entries).toHaveCount(0);
-    await expect(button).toHaveText("Sessions");
-
-    // Kept, but all marked done: none is open.
-    const { sessionId } = await launched(dashboard, "doughnut");
-    await markDone(dashboard, { source: "doughnut", session: sessionId });
-    await page.reload();
-    await button.click();
-    await expect(sidebar).toContainText(
-      "No sessions launched from this dashboard are open.",
-    );
-    await expect(entries).toHaveCount(0);
   });
 });

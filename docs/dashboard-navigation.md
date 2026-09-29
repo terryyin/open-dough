@@ -6,6 +6,17 @@ Its authority, scope, and revision policy apply to this guidance.
 ## Connected stages and spatial navigation
 
 Keep one story overview with an always-visible banner pinned to the viewport top.
+Start the banner with a **Sessions** button that opens and closes the Sessions
+sidebar, which lists the open agent sessions of every project beside the page
+([Agent launch](../dashboard/AGENT-LAUNCH.md)). Command+B toggles it
+page-wide, while browsing stories or the agent roster and from inside the
+terminal, where Ctrl+B still goes to the session; the page takes Command+B from
+the browser, except inside an open modal dialog, which keeps its own keyboard,
+as it does for the project arrows below. Toggling leaves the keyboard where it
+is, except that closing the sidebar while the keyboard is inside it returns
+the keyboard to the Sessions button. The sidebar stays open or closed as left
+across project switches, views, the terminal, and reloads; it is disposable
+per-browser state and starts closed when none is kept.
 Show the selected project's name as the banner's Source evidence disclosure.
 Show the three project choices as tab-shaped radio controls, with the selected
 project highlighted. Unmodified Left and Right arrow keys cycle the three

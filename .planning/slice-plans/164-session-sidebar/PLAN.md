@@ -165,7 +165,7 @@ in `SessionEntry.tsx`; the frame holds the open state (`SidebarOnPage`).
 
 ### 3. The sidebar stays as left and answers Command+B
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/session-sidebar-keyboard.spec.ts`.
 
 Behavior: sidebar open → switching project, opening the roster and going
@@ -178,6 +178,24 @@ launch dialog or badge legend open, Command+B does nothing to the sidebar and
 its browser default is suppressed elsewhere. The open-dialog rule is shared
 with project arrow navigation, whose keyboard spec stays green. Update the
 navigation guidance's banner paragraph.
+
+Accepted proof (2026-09-29): `npm run typecheck:dashboard`; `npm run
+test:dashboard -- tests/session-sidebar-keyboard.spec.ts
+tests/session-sidebar.spec.ts 'tests/project-keyboard.*\.spec\.ts'
+'tests/agent-terminal.*\.spec\.ts'` 53 passed; full suite 294 passed; after
+the refactor's spec split, the four `tests/session-sidebar*.spec.ts` files
+passed (6). Observations: `session-sidebar-stays-as-left.spec.ts` "starts
+closed, and once open stays open across a project switch, the roster and
+back, the terminal, and reloads" and "starts closed without error, and still
+toggles, when browser storage cannot be used"; `session-sidebar-keyboard.spec.ts`
+"Command+B toggles from the page and from the terminal…" (focus unchanged,
+default prevented, fake attach line `x\u0002y`) and "an open launch dialog or
+badge legend keeps Command+B…". The open-dialog rule lives in
+`src/pageShortcuts.ts`. Deferred to slice 4: proof that closing with the
+keyboard inside the sidebar returns it to Sessions (implemented in
+`useSessionSidebar`'s `toggle`; the sidebar holds no focusable control until
+entries become controls). Learning: a spec that reloads after opening the
+sidebar sees it open again.
 
 ### 4. Opening a sidebar entry goes to its story and its session
 Type: Behavior

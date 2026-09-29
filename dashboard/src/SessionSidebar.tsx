@@ -5,11 +5,25 @@
 // edge a card entry shows (`shownSession`), under how many of them need the
 // developer (`attentionSummary`). It sits beside the page, left of it, and
 // the Sessions button at the start of the banner opens and closes it; while
-// it is closed, that button says the same count. Toggling it is page state
-// only: it changes no story fact, stage, or session. Entries are local
-// evidence of launches, not story facts.
+// it is closed, that button says the same count. Command+B toggles it too,
+// page-wide and from inside the terminal, except inside an open dialog, which
+// keeps its own keyboard (`isInsideOpenDialog`); elsewhere it takes the key
+// from the browser. Toggling leaves the keyboard where it is, except that
+// closing the sidebar with the keyboard inside it returns the keyboard to the
+// Sessions button. Whether it is open is this browser's disposable preference
+// (`sidebarOpenKey`): it survives project switches, views, the terminal, and
+// reloads, and without it, as when storage cannot be used, the sidebar starts
+// closed. Toggling it is page state only: it changes no story fact, stage, or
+// session. Entries are local evidence of launches, not story facts.
 
-import { createContext, useContext } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   launchWorkflows,
   openSessionsOf,
@@ -18,11 +32,36 @@ import {
 import { Moment } from "./Moment.tsx";
 import { sourceById } from "./publishedSource.ts";
 import { SessionList, shownSession } from "./SessionEntry.tsx";
+import { isInsideOpenDialog } from "./pageShortcuts.ts";
 import { attentionSummary } from "./sessionShown.ts";
 import "./agent-launch.css";
 import "./session-sidebar.css";
 
 const sidebarId = "session-sidebar";
+const sidebarOpenKey = "open-dough.sessionSidebar.open";
+
+function readSidebarOpen(): boolean {
+  try {
+    return window.localStorage.getItem(sidebarOpenKey) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function keepSidebarOpen(open: boolean): void {
+  try {
+    window.localStorage.setItem(sidebarOpenKey, String(open));
+  } catch {
+    // Unkept, the sidebar only starts closed next time.
+  }
+}
+
+const isToggleShortcut = (event: KeyboardEvent) =>
+  event.metaKey &&
+  !event.ctrlKey &&
+  !event.altKey &&
+  !event.shiftKey &&
+  event.key.toLowerCase() === "b";
 
 // Whether the sidebar is open, and the machine's sessions it lists: held by
 // the page frame (`./TerminalSplit.tsx`), which places the sidebar, and
@@ -42,6 +81,48 @@ function useSidebar(): SidebarState {
     throw new Error("The Sessions button is outside the page's TerminalSplit.");
   }
   return sidebar;
+}
+
+// The page frame's sidebar state: open as this browser last left it, toggled
+// by the Sessions button and by Command+B.
+export function useSessionSidebar(
+  records: SidebarState["records"],
+): SidebarState {
+  const [open, setOpen] = useState(readSidebarOpen);
+  const isOpen = useRef(open);
+  useEffect(() => {
+    isOpen.current = open;
+    keepSidebarOpen(open);
+  }, [open]);
+  const toggle = useCallback(() => {
+    const sidebar = document.getElementById(sidebarId);
+    if (isOpen.current && sidebar?.contains(document.activeElement)) {
+      document
+        .querySelector<HTMLElement>(`[aria-controls="${sidebarId}"]`)
+        ?.focus();
+    }
+    isOpen.current = !isOpen.current;
+    setOpen(isOpen.current);
+  }, []);
+  // Listened for while capturing, so the page answers Command+B before any
+  // control on it, the terminal included, handles the key.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!isToggleShortcut(event) || isInsideOpenDialog(event.target)) {
+        return;
+      }
+      event.preventDefault();
+      // A held key toggles once.
+      if (!event.repeat) {
+        toggle();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown, true);
+    };
+  }, [toggle]);
+  return { open, toggle, records };
 }
 
 const attentionOf = (sessions: readonly LaunchWithState[] | undefined) =>

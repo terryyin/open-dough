@@ -80,7 +80,15 @@ open in every catalog project, whichever project is selected: every launch
 record not marked done, exactly the sessions the cards keep, including one
 whose story is in no list. The **Sessions** button at the start of the pinned
 banner, before the project name, opens and closes it (`aria-expanded`,
-controlling the sidebar); it starts closed. On a wide window the sidebar is a
+controlling the sidebar), and Command+B does the same page-wide, also while
+the keyboard is in the terminal, where Ctrl+B still goes to the session. An
+open dialog, as the launch dialog or the badge legend, keeps Command+B;
+elsewhere the page takes it from the browser. Toggling leaves the keyboard
+where it is, except that closing the sidebar while the keyboard is inside it
+returns the keyboard to the Sessions button. It starts closed, and stays open
+or closed as left across project switches, the agent roster, the terminal, and
+reloads, kept in this browser's storage; without that storage it starts
+closed. On a wide window the sidebar is a
 fixed-width column left of the page, as tall as the window and scrolling on
 its own, with the terminal panel still on the right: sidebar, page, terminal.
 On a narrow window, where the terminal stacks above the page, it lies over

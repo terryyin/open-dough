@@ -4,14 +4,14 @@
 // (`./TerminalPanel.tsx`) shows right of it. Whether the sidebar is open, and
 // the open session, are held here, above the project selection, so choosing
 // another project leaves them open; opening another session takes its place,
-// and a reload starts with none. Mark as done, from the panel or from a
-// card's session entry, is one operation here: once the boundary has marked the
-// session, a panel showing it closes. Closing returns the keyboard to the
-// control that opened the panel, and a card entry's mark to its own control;
-// when that control is gone, as a card's entry goes once its session is
-// marked done, the keyboard goes to the session's Recent sessions entry
-// (`sessionKeyboardHome`). A panel another session has already replaced moves
-// no focus when it closes. Once the panel shows output from a session the
+// and a reload starts with none, while the sidebar opens as it was left. Mark
+// as done, from the panel or from a card's session entry, is one operation
+// here: once the boundary has marked the session, a panel showing it closes.
+// Closing returns the keyboard to the control that opened the panel, and a
+// card entry's mark to its own control; when that control is gone, as a
+// card's entry goes once its session is marked done, the keyboard goes to the
+// session's Recent sessions entry (`sessionKeyboardHome`). A panel another
+// session has already replaced moves no focus when it closes. Once the panel shows output from a session the
 // page holds as done, the page reads that session again, since the boundary
 // reopens a done session its terminal attaches to
 // (`../server/agentTerminals.ts`).
@@ -25,7 +25,11 @@ import {
 } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
-import { SessionSidebar, SidebarOnPage } from "./SessionSidebar.tsx";
+import {
+  SessionSidebar,
+  SidebarOnPage,
+  useSessionSidebar,
+} from "./SessionSidebar.tsx";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
   sessionKeyboardHome,
@@ -56,11 +60,7 @@ export function TerminalSplit({
   >;
   readonly children: ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const toggleSidebar = useCallback(() => {
-    setSidebarOpen((open) => !open);
-  }, []);
-  const sidebar = { open: sidebarOpen, toggle: toggleSidebar, records };
+  const sidebar = useSessionSidebar(records);
   const [terminal, setTerminal] = useState<TerminalOpening | undefined>();
   const openTerminal = useCallback<OpenTerminal>((opening) => {
     setTerminal((current) =>
@@ -137,7 +137,7 @@ export function TerminalSplit({
     <SessionsOnPage value={{ openTerminal, markDone: markSessionDone }}>
       <div
         className={
-          [sidebarOpen && "page-with-sidebar", terminal && "page-split"]
+          [sidebar.open && "page-with-sidebar", terminal && "page-split"]
             .filter(Boolean)
             .join(" ") || undefined
         }
