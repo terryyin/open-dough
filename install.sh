@@ -136,6 +136,7 @@ managed_files=(
   dough-story-refinement/scripts/preparation-assignment-start.mjs
   dough-story-refinement/scripts/preparation-assignment-trunk.mjs
   dough-land/SKILL.md
+  dough-land/scripts/worktree-retirement.mjs
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
   dough-slice-planning/references/architectural-thinking.md

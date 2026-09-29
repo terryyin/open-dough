@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { notCreatedForWork } from "../../dough-land/scripts/worktree-retirement.mjs";
 import { publishHistoryPreservingCandidate } from "../../dough-execute-plan/scripts/history-preserving-publication.mjs";
 import {
   advanceOriginBacklog,
@@ -91,7 +92,7 @@ test("eligible cleanup removes the remote execution branch after its tip is on t
     execution,
     branch: executionBranch,
     observer,
-    sessionOwned: true,
+    createdForWork: true,
     closureShas: [published.receipt.sha],
     remoteBranch: executionBranch,
   };
@@ -110,9 +111,9 @@ test("eligible cleanup removes the remote execution branch after its tip is on t
   writeFileSync(join(other, "other.txt"), "other workspace\n");
   const another = await removeExecutionResources({
     ...resources,
-    sessionOwned: false,
+    createdForWork: false,
   });
-  assert.equal(another.reason, "another workspace");
+  assert.equal(another.reason, notCreatedForWork);
   assert.equal(existsSync(execution), true);
   assert.equal(
     readFileSync(join(other, "other.txt"), "utf8"),
@@ -182,7 +183,7 @@ test("remote execution branch stays when its tip is not on remote trunk", async 
     execution,
     branch: executionBranch,
     observer,
-    sessionOwned: true,
+    createdForWork: true,
     closureShas: [storyTip],
     remoteBranch: executionBranch,
   });

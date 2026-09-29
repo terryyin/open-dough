@@ -12,7 +12,11 @@ import {
   revParse,
 } from "../../dough-execute-plan/scripts/publication-git.mjs";
 import { resumeInterruptedPublication } from "../../dough-execute-plan/scripts/publication-resume.mjs";
-import { findWorktree, isAncestor, trunkTarget } from "./closure-resources.mjs";
+import {
+  findWorktree,
+  isAncestor,
+  trunkTarget,
+} from "../../dough-land/scripts/worktree-retirement.mjs";
 
 function registerClosureReceipt(observer) {
   return (receipt) => {

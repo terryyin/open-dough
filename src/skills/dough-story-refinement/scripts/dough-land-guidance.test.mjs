@@ -80,11 +80,17 @@ test("preparation keep and workspace retirement link Dough Land instead of descr
     assert.doesNotMatch(guidance, /Resume an interrupted keep-and-publish/);
     assert.doesNotMatch(guidance, /session-created|this\s+session\s+created/);
   }
-  // Land retires under the shared lifecycle's work-scoped rule by link.
+  // Land retires under the shared lifecycle's work-scoped rule by link,
+  // through its installed command rather than raw Git steps.
   assert.match(
     land,
-    /Remove\s+the\s+worktree\s+\(`git worktree remove <worktree>`\)\s+only\s+when\s+that\s+section\s+allows\s+it/,
+    /\[own a temporary exploration workspace\]\(\.\.\/dough-manual-testing\/references\/exploration-workspace\.md\)\s+"Close or retain it"/,
   );
+  assert.match(
+    land,
+    /node <installed>\/dough-land\/scripts\/worktree-retirement\.mjs retire/,
+  );
+  assert.doesNotMatch(land, /git worktree remove|git branch -d/);
   assert.doesNotMatch(land, /session-created|this\s+session\s+created/);
   assert.match(
     preparation,

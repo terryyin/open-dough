@@ -39,6 +39,7 @@ assert_installed_publication_modules() {
       "dough-execute-plan/scripts/publication-resume.mjs",
       "dough-execute-plan/scripts/publication-git.mjs",
       "dough-bug-fixing/scripts/retained-artifacts.mjs",
+      "dough-land/scripts/worktree-retirement.mjs",
       "dough-story-refinement/scripts/preparation-assignment.mjs",
       "dough-story-wrap-up/scripts/closure-candidate-settlement.mjs",
       "dough-story-wrap-up/scripts/closure-publication.mjs",

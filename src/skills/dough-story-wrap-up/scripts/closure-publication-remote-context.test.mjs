@@ -55,7 +55,7 @@ function ownedOnlyArgs(ownedWorkspace, branch, fields) {
   return {
     ownedWorkspace,
     branch,
-    sessionOwned: true,
+    createdForWork: true,
     supersededShas: [],
     validate: async () => ({ ok: true }),
     ...fields,
@@ -116,7 +116,7 @@ test("without a default checkout, Trunk Mode closure publishes both revisions, g
     execution: workspace,
     branch,
     observer: unobserved,
-    sessionOwned: true,
+    createdForWork: true,
     closureShas: [beforeCleanupSha, finalClosureSha],
   });
   assert.equal(withoutReceipt.reason, "observer obligation unfinished");

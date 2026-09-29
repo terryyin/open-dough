@@ -106,30 +106,62 @@ Retirement follows
 "Close or retain it", with containment as the safety test. Before removing
 anything, record the worktree's repository management context, its shared Git
 directory (`git -C <worktree> rev-parse --path-format=absolute --git-common-dir`).
-Run each Git command below from there (`git -C <management context> ...`),
-not from the worktree or a default checkout, so removing the worktree, even
-the repository's last one, leaves them usable:
+Give it to the command below, and run any other Git command here from it
+(`git -C <management context> ...`), not from the worktree or a default
+checkout, so removing the worktree, even the repository's last one, leaves
+them usable.
 
-1. Fetch the target's remote. Continue only when the fetched target contains
-   the worktree branch tip
-   (`git merge-base --is-ancestor <tip> <remote>/<branch>`).
-   Remote acceptance is what makes retirement safe. A default checkout being
-   behind the target, or absent, does not make the branch unmerged.
-2. Remove the worktree (`git worktree remove <worktree>`) only when that
-   section allows it. Otherwise retain it and report its path, branch, and
-   reason.
-3. Delete the local branch with a safe, non-force delete once the target
-   contains its tip (for example, point its upstream at
-   `<remote>/<branch>`, then `git branch -d`).
-4. Delete a separately published remote branch for the worktree only after
-   the target contains its tip, and never the target branch itself.
+Run the installed retirement command, where `<installed>` is this project's
+installed skills directory that holds `dough-land` (normally `.agents/skills/`
+or `.claude/skills/`). It names every checkout it acts on, so run it as
+written:
 
-Accept already-absent resources on a rerun; when the worktree is gone, use
-the management context recorded before its removal. Never force-remove,
+```text
+node <installed>/dough-land/scripts/worktree-retirement.mjs retire \
+  --repository <management context> --worktree <worktree> \
+  --branch <worktree branch> --remote <remote> --target-ref refs/heads/<branch> \
+  [--identity <work identity>] [--created-for-work]
+```
+
+- `--identity` is the identity of the work the worktree serves, such as its
+  story identity (`SEED-NNN#slug`), when the context names one. A worktree
+  whose creation record names that work is retired whichever session created
+  it.
+- Pass `--created-for-work` only when the work recorded that its workspace
+  selection reported `created: true`, in the plan or the conversation, or the
+  caller or developer states the worktree was created for this work. Do not
+  infer it from a clean directory, a claim, or a preparation assignment.
+
+The command fetches the target's remote, requires the fetched target to
+contain the branch tip, checks the worktree's ownership and state, removes
+the worktree, and safely deletes the local branch. Remote acceptance is what
+makes retirement safe; a default checkout being behind the target, or absent,
+does not make the branch unmerged. It prints one JSON line:
+
+| Result | Act on it |
+| --- | --- |
+| `ok: true` | Report the worktree and branch as `removed` or `already-absent` |
+| `reason: "unique unpublished work"` | The fetched target lacks the branch tip. Retain both and report it; the branch holds work the target does not |
+| `reason: "dirty checkout"`, `"ambiguous checkout"`, or `"another workspace"` | Retain and report path, branch, and reason; the developer decides |
+| `reason: "created for other work: <work>"` | The worktree belongs to the named work. Retain it, even when you believed this work created it |
+| `reason` naming a reused, host-owned, or unrecorded workspace | It stays with its owning workflow. Retain and report it; rerun with `--created-for-work` only from a record named above |
+| `partial: true` | A removal was not verified. Report which of `worktree` and `branch` was done, then rerun |
+| `reason: "git error"` | Report its `error` and the step as unfinished; retain what remains |
+| Exit 2 | A usage error; nothing ran. Supply the missing input |
+
+Every result other than `ok: true` exits 1; nothing beyond what it reports
+was removed.
+
+Delete a separately published remote branch for the worktree only after the
+target contains its tip, and never the target branch itself.
+
+Accept already-absent resources on a rerun: once the worktree is gone, rerun
+the command with the management context recorded before its removal; it
+reports `already-absent` and needs no ownership fact. Never force-remove,
 force-delete, or reset to make cleanup possible. A calling skill may add its
 own gate, such as a completion receipt that must arrive first; retirement then
-waits for that gate as well as containment, and keeps every resource while
-either is missing.
+waits for that gate as well as containment, runs the command only once the gate
+holds, and keeps every resource while either is missing.
 
 Another skill may apply this section on its own after its own accepted
 publication, with its own gate.

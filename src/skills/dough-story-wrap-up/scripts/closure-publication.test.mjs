@@ -173,7 +173,7 @@ test("before-cleanup and final-closure land on remote trunk and eligible cleanup
     execution,
     branch: executionBranch,
     observer,
-    sessionOwned: true,
+    createdForWork: true,
     closureShas,
   });
   assert.equal(blocked.removed, false);
@@ -191,7 +191,7 @@ test("before-cleanup and final-closure land on remote trunk and eligible cleanup
     execution,
     branch: executionBranch,
     observer,
-    sessionOwned: true,
+    createdForWork: true,
     closureShas,
   });
   assert.equal(removed.removed, true);
@@ -232,7 +232,7 @@ test("before-cleanup and final-closure land on remote trunk and eligible cleanup
     execution,
     branch: executionBranch,
     observer,
-    sessionOwned: true,
+    createdForWork: true,
     closureShas,
   });
   assert.equal(retry.removed, true);

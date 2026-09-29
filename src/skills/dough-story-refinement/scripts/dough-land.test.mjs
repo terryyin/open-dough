@@ -210,7 +210,7 @@ test("Dough Land publishes a reused workspace's reviewed content and leaves the 
   assert.equal(landed.refresh.result, "deferred");
   assertCheckoutUnchanged(before, await captureCheckout(integration));
   assert.equal(landed.cleanup.removed, false);
-  assert.match(landed.cleanup.reason, /reused or host-owned/);
+  assert.match(landed.cleanup.reason, /reused, host-owned, or unrecorded/);
   assert.equal(existsSync(preparation), true);
   assert.equal(await revParse(preparation, preparationBranch), acceptedSha);
 });

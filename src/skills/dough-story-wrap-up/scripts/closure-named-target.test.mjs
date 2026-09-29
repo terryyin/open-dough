@@ -117,7 +117,7 @@ test("Trunk Mode closure publishes, refreshes, resumes, and retires against a na
   const fields = {
     ownedWorkspace: execution,
     branch: executionBranch,
-    sessionOwned: true,
+    createdForWork: true,
     supersededShas: [],
     publishedRevisions: [before.receipt.sha, final.receipt.sha],
     observer,
@@ -195,7 +195,7 @@ test("Story Branch integration and remote execution-branch cleanup use a named n
     execution,
     branch: executionBranch,
     observer,
-    sessionOwned: true,
+    createdForWork: true,
     closureShas: [published.receipt.sha],
     remoteBranch: executionBranch,
     remote: "upstream",

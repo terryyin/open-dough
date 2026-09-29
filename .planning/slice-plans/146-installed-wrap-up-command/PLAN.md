@@ -184,7 +184,7 @@ library; Story Branch native journeys beyond keeping the existing one green.
 
 ### 1. Land retires through an installed command
 Type: Behavior
-Status: planned
+Status: done
 Proof: child-process CLI tests for contained, uncontained, dirty, already-absent, creation-ref, other-work-ref, flag-only, and unrecorded retirement; Land, preparation-landing, and wrap-up cleanup suites green through the one gate.
 
 Behavior: A landed, owned worktree whose branch tip trunk contains → the agent
@@ -227,6 +227,29 @@ nothing removed). Wrap-up tests and `closure-publication.mjs` passing
 `dough-land*.test.mjs`, `preparation-assignment-{land,landing-retry,remote-base,reuse}.test.mjs`,
 `preparation-publication.test.mjs`, and `retained-artifacts.test.mjs` stay
 green. Behavior review of the rewritten Land section.
+
+Accepted proof (2026-09-29): `node --test`-style CLI tests in
+`src/skills/dough-land/scripts/worktree-retirement.test.mjs` (contained and
+already-absent rerun, uncontained, dirty, creation ref naming this work without
+the flag, ref naming other work with the flag, unrecorded, usage error), run as
+child processes through `runRetirementCommand` in `dough-land-test-fixtures.mjs`
+on `createCleanTrunkFixture` with `update-ref` creation refs; focused suites
+green through `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh` (Land,
+preparation landing, retained artifacts, all wrap-up closure tests,
+`ci-completion-lifecycle-guidance.test.mjs`); `tests/payload-declaration-links.sh`,
+`tests/story-payload-update.sh`, and `tests/execution-payload-update.sh` green.
+
+Learnings: `retireWorktree` takes `worktree` (was `execution`), `identity`, and
+`createdForWork`; `removeExecutionResources` passes both instead of
+`sessionOwned`, and an already-absent worktree needs no fact. Land's
+`--created-for-work` accepts a `created: true` the work recorded in the plan or
+conversation, matching "Close or retain it". The credential-free native
+substitutes still retire with raw Git
+(`tests/support/native-agent-owned-context.sh:98`,
+`git-publication-native-owned-context-suite.sh:157`); slice 3's substitute
+work, or slice 7 at the latest, moves them to the command. Editing Land's
+section already makes recorded owned-context native evidence stale; slice 8
+reruns it.
 
 ### 2. Story Branch wrap-up retires through the same command
 Type: Behavior

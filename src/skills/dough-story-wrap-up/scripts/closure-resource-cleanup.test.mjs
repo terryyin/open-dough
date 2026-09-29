@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { notCreatedForWork } from "../../dough-land/scripts/worktree-retirement.mjs";
 import {
   publishTrunkClosureRevision,
   removeExecutionResources,
@@ -21,7 +22,7 @@ import {
   trunkTarget,
 } from "./closure-publication-fixtures.mjs";
 
-test("preservation keeps a dirty checkout, another workspace, unpublished work, and an active observer usable", async (t) => {
+test("preservation keeps a dirty checkout, a workspace not created for this work, unpublished work, and an active observer usable", async (t) => {
   const fixture = await createCleanTrunkFixture();
   t.after(fixture.cleanup);
   const { origin, integration, execution } = fixture;
@@ -55,7 +56,7 @@ test("preservation keeps a dirty checkout, another workspace, unpublished work, 
     execution,
     branch: executionBranch,
     observer,
-    sessionOwned: true,
+    createdForWork: true,
     closureShas,
   };
   const active = await removeExecutionResources(resources);
@@ -70,9 +71,9 @@ test("preservation keeps a dirty checkout, another workspace, unpublished work, 
   observer.stop();
   const another = await removeExecutionResources({
     ...resources,
-    sessionOwned: false,
+    createdForWork: false,
   });
-  assert.equal(another.reason, "another workspace");
+  assert.equal(another.reason, notCreatedForWork);
   assert.equal(existsSync(execution), true);
   assert.equal(
     await revParse(execution, executionBranch),

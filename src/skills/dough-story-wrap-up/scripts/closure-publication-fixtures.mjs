@@ -112,7 +112,7 @@ export function resumeArgs(fixture, fields) {
     defaultCheckout: fixture.integration,
     repository: fixture.integration,
     branch: executionBranch,
-    sessionOwned: true,
+    createdForWork: true,
     supersededShas: [],
     validate: async () => ({ ok: true }),
     ...fields,
