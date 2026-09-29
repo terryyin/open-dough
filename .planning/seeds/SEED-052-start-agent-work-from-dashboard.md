@@ -124,6 +124,28 @@ launch settling at once and listed in Recent sessions, so the recent-sessions
 spec's Preparing step repeats it. It adds no feature promise. See the
 [plan](../slice-plans/154-preparing-card-refinement-journey/PLAN.md).
 
+<a id="card-session-residue"></a>
+
+### Correction: Prove Mark as done's remaining edges and trim card-session residue
+
+**Identity:** SEED-052#card-session-residue
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/160-card-session-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f8f8fba02b3d2ffda449a8c76b7f08cbbe07c839debf0f0f019e81c9fc223ad5","plan":"d72d1edd760aca423f62659247124fa72c3645c8b5540d6d68b55541ff36c2a0"}}
+```
+
+**Goal:** Maintainers can rely on a test for every Mark as done promise the
+dashboard documents, read one request shape for the page's session
+operations, and change card-session behavior in specs that each own one
+concern.
+
+**Scope:** The correction found by the execution retrospective of
+SEED-052#keep-story-session-links (commits `30bdc002`..`cbd9b7d6` on
+`claude/keep-story-session-links`). It covers the untested Recent sessions
+region focus fallback, the unreadable-listing stop, a card entry's refusal
+message, the `TerminalOpening` reuse for marking, Started test names, and
+overlapping card specs over 250 lines. It adds no feature promise. See the
+[plan](../slice-plans/160-card-session-residue/PLAN.md).
+
 <a id="launch-claude-refinement"></a>
 
 ### 4. See when a dashboard session needs human attention

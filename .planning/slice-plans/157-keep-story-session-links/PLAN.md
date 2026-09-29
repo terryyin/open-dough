@@ -197,7 +197,10 @@ reran at 3 passed after refactoring. Observation: `agent-launch-records.spec.ts`
 marking, dropping it on the next write".
 Learnings: slice 2 made the Recent sessions region focusable, which failed
 CI in `accessible-overview-keyboard.spec.ts` (repaired in `76e6dce3`); the
-slice 2 proof had not selected that spec.
+slice 2 proof had not selected that spec. Slice 3's retention note put "done" on
+a page with no sessions, which `published-work.spec.ts` forbids; repair
+`cbd9b7d6` shows the note only while sessions are listed. The whole
+dashboard suite (286 tests) passed locally before that repair.
 Proof: `agent-launch-records.spec.ts` retention case rewritten with seeded
 records: unclosed and launched 40 days ago is answered; launched 60 days ago
 and done 29 days ago is answered; done 31 days ago is not answered. A launch
@@ -211,6 +214,25 @@ marking, instead of "kept on this machine for 30 days".
 Update `launchRecordStore.ts`'s header and `launchRecordSchema`'s comment,
 `AGENT-LAUNCH.md`'s retention sentence, and the North Star row if it states
 retention.
+
+## Execution complete
+
+Product advice:
+- Reassess SEED-052#launch-claude-refinement (plan 159) as soon as this story
+  lands on trunk. Its not-ready reason waits on this story (DD-172), and its
+  plan should build on `SessionEntry`, `sessionStateWords`, and Mark as done's
+  one page operation instead of adding a parallel card representation.
+- Correction SEED-052#card-session-residue (plan 160, ready, not queued)
+  proves Mark as done's untested edges and trims card-spec overlap. Queue it
+  ahead of plan 159 so attention builds on one session request shape.
+- For Terry: ADR 0008 (Proposed) still defines a Launch workflow by "the
+  activity whose developer assignment settles the launch"; this story removed
+  that settlement. Mark as done still stops a session whose listing cannot be
+  read, and needs confirming or changing.
+- Integration will meet trunk's closure of SEED-052#preparing-card-refinement-journey,
+  which removed the same Recent sessions Preparing step; keep trunk's closure.
+- No reordering of the other queued stories: script preparation, Codex,
+  Cursor, SEED-041, and SEED-008 do not depend on this story.
 
 ## Proof ownership
 
