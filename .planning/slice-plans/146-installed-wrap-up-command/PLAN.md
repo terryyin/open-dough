@@ -553,7 +553,7 @@ does real work. A closure runner given an empty results directory tries
 
 ### 8. Native acceptance of the changed closure and Land guidance
 Type: Behavior
-Status: planned
+Status: done
 Proof: fresh host runs judged accepted on Claude Code, Codex, and Cursor, with host version and candidate SHA recorded here. Paid and manual; needs Terry's run authority at execution time, and slices 6 and 7 done first.
 
 Behavior: On each host, from installed candidate guidance, a completed Trunk
@@ -602,6 +602,18 @@ real `gh` (404 for `owner/project`); and the response check accepted only
 the fixture's `bin`, used by the Story Branch fixture only so the passed
 identities stay valid, plus `story_closure_response_trunk_result`) changes the
 Story Branch identity, so that case reruns once per host.
+
+Story Branch rerun (2026-09-29, candidate `809b407d`, same host versions):
+Claude Code and Codex accepted. Cursor's observations were all correct
+(integrated SHA `6679a0d` with the product result, trunk coverage success with
+confirmed shutdown, `retire` command, worktree and local and remote branch
+removed, `human.txt` preserved) and its response reported trunk CI success,
+but `story_closure_response_trunk_result` rejected it: the narration arrived as
+one line holding "The push failed due to zsh colon modifiers" beside trunk and
+observer words. Terry accepted that run on this transcript judgment instead of
+another three paid reruns. Narrowing the rejection to trunk-CI failure phrases,
+with this response as a counterexample, is a follow-up for the retrospective.
+Slice 8 is accepted on all three hosts; run output was deleted after judging.
 
 ## Proof ownership
 
