@@ -105,7 +105,7 @@ session uses the same request shape; do not add a second one.
 
 ### 3. Card specs keep only card-specific observations
 Type: Structure
-Status: planned
+Status: done
 Proof: every changed spec is at most 250 lines, and each removed assertion
 names its surviving owner.
 
@@ -121,6 +121,19 @@ coverage. Update `dashboard/tests/README.md`. Keep plan 161's reopening
 observations in `agent-terminal-done.spec.ts` and the terminal boundary spec
 when they have landed; they are not overlap.
 
+Accepted proof, delivered ahead of slice 2 while plan 161 was not yet on
+trunk: after SEED-052#launch-claude-refinement landed,
+`agent-launch-recent-session-states.spec.ts` owns the state matrix on Recent
+sessions entries plus one card entry (`placed`);
+`agent-launch-card-session-states.spec.ts` keeps each state on its card,
+Session unavailable without and State unknown with Open terminal, and
+restart, reload and switch persistence; `agent-launch-attention.spec.ts`'s
+project-switch step keeps only the attention count; card-sessions loses its
+standalone reload and switch; card keeps the refinement argv and focus.
+Each removal names a verified surviving owner in the execution conversation.
+Specs are 232, 186, 238, 227 and 239 lines; whole dashboard suite 291 passed;
+typecheck passed.
+
 ## Learnings
 
 - Plan 161 (reopened-session-returns) reports, before it lands on trunk:
@@ -132,6 +145,14 @@ when they have landed; they are not overlap.
   `TerminalPanel`'s `onAttached(record)` drives `readSession`, which slice 2
   folds into its one request shape; the server's `markRecordDone` became
   `setRecordDoneAt`. Rebase slice 2 onto plan 161 once it is on trunk.
+- SEED-052#launch-claude-refinement (plan 159) landed after the Take: it
+  made card entries share `sessionShown` (`dashboard/src/sessionShown.ts`)
+  and had `agent-launch-recent-session-states.spec.ts` check every state on
+  both entries, which slice 3 trimmed to one card entry. Slice 2's Started
+  variables are now `started` and `refinementStarted` only.
+- CI run 36564344723 on the trunk merge exposed a race in the CI mailbox:
+  a worker exiting after its publication can show a bare `[node]` command,
+  and shutdown was confirmed without waiting for it. Repaired in `4e0b2420`.
 
 ## Proof ownership
 

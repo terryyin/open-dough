@@ -1,13 +1,13 @@
 // A story's card lists the sessions launched on it that have not been marked
 // done, in every stage origin shows it, on a committed origin the production
 // commands publish (./launchJourney.ts): a launch lists its session beside
-// the Start actions, which stay; two launches are two entries; a refinement
-// launched on a Preparing card is listed at once; the Taken card keeps the
-// listing and offers no Start; and reloads and project switches keep it. A
+// the Start actions, which stay; two launches are two entries, newest first;
+// a refinement launched on a Preparing card is listed at once; the Taken card
+// keeps the listing and offers no Start; and a reload in each keeps it. A
 // story that leaves every list keeps its sessions only in Recent sessions.
-// What each entry shows of its session's state is
-// ./agent-launch-card-session-states.spec.ts, and that closing or losing a
-// terminal leaves its session listed is ./agent-terminal.spec.ts and
+// That a restart, a reload, and a project switch keep each entry and its
+// state is ./agent-launch-card-session-states.spec.ts, and that closing or
+// losing a terminal leaves its session listed is ./agent-terminal.spec.ts and
 // ./agent-terminal-lifetime.spec.ts. Origin alone places every story.
 // The page's own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
@@ -22,7 +22,6 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
-import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
   publishStoryStagesJourney,
@@ -44,7 +43,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("a card lists each unclosed session beside its Start actions through reloads, project switches, Preparing, and Taken, and a story in no list keeps them only in Recent sessions", async ({
+  test("a card lists each unclosed session beside its Start actions through Preparing and Taken, each reloaded, and a story in no list keeps them only in Recent sessions", async ({
     page,
     dashboard,
   }) => {
@@ -53,7 +52,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       page,
       stagesJourney,
     );
-    const { stages, taken, project, recentSessions } = parts(page);
+    const { stages, taken, recentSessions } = parts(page);
     // A story's card in whichever stage origin shows it.
     const card = (title: string) =>
       stages.getByRole("article", { name: title, exact: true });
@@ -116,39 +115,6 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     await expectListed();
     await expectStartOffered(queued);
     expect(launches()).toHaveLength(3);
-
-    await test.step("reloading the page keeps every card's sessions, read again from the running server", async () => {
-      const reads = page.waitForRequest(
-        (request) =>
-          request.method() === "GET" &&
-          request.url().endsWith("/__agent-launch?source=open-dough"),
-      );
-      await page.reload();
-      await reads;
-      await expectMembership(page, { taken: [], backlog: queued });
-      await settled();
-      await expectListed();
-      await expectStartOffered(queued);
-    });
-
-    await test.step("another project's cards list none of these sessions, and returning lists them again", async () => {
-      await project
-        .getByRole("radio", { name: "Doughnut", exact: true })
-        .check();
-      await expectMembership(page, {
-        taken: [],
-        backlog: [doughnutSharedTitle],
-      });
-      await expect(cardSessions(page.locator("body"))).toHaveCount(0);
-      await expect(action(doughnutSharedTitle, "Execution")).toBeEnabled();
-
-      await project
-        .getByRole("radio", { name: "Open Dough", exact: true })
-        .check();
-      await expectMembership(page, { taken: [], backlog: queued });
-      await settled();
-      await expectListed();
-    });
 
     await test.step("a Preparing card keeps its sessions and notes Start refinement, and another refinement launched there is a second entry at once", async () => {
       await show(stagesJourney.preparing);
