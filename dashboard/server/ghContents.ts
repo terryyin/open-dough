@@ -1,5 +1,5 @@
 // Pinned repository content through `gh` for the local authenticated read
-// boundary (`./authenticatedRead.ts`): one file's raw text, or one
+// boundary (`./authenticatedRead.ts`): one file's exact raw text, or one
 // directory's listed file names, at an already resolved commit. Both ask
 // GitHub's one contents endpoint; how `gh` runs and fails is `./ghRead.ts`.
 
@@ -19,7 +19,10 @@ function contentsEndpoint(
 // One pinned file at a known repository path. Callers that need the catalog
 // backlog use the source's own `backlogPath`; extra canonical/plan reads use
 // paths already checked against that revision's records
-// (`./reachablePaths.ts`).
+// (`./reachablePaths.ts`). The raw media type has no `+json` suffix: `gh`
+// treats a JSON-typed answer as JSON and rewrites control-character escapes
+// such as a literal `\u0002` in caret notation, so the text would no longer
+// be what origin publishes.
 export async function readRepositoryFileViaGh(
   repository: string,
   path: string,
@@ -30,7 +33,7 @@ export async function readRepositoryFileViaGh(
     [
       "api",
       "-H",
-      "Accept: application/vnd.github.raw+json",
+      "Accept: application/vnd.github.raw",
       contentsEndpoint(repository, path, revision),
     ],
     signal,
