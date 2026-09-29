@@ -33,7 +33,10 @@ trunk_closure_write_evidence_identity() {
     src/skills/dough-execute-plan/references/trunk-publication.md \
     src/skills/dough-execute-plan/references/ci-monitor.md \
     src/skills/dough-execute-plan/references/ci-completion-wait.md \
-    src/skills/dough-story-wrap-up/SKILL.md
+    src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs \
+    src/skills/dough-story-wrap-up/SKILL.md \
+    src/skills/dough-land/SKILL.md \
+    src/skills/dough-manual-testing/references/exploration-workspace.md
 }
 
 # Per-step controller bound; each step awaits one action of the native agent.

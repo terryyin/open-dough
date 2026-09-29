@@ -61,7 +61,7 @@ git_publication_owned_context_prompt() {
       ;;
     preparation-land)
       printf '%s\n' \
-        "Use this project's installed Open Dough guidance to refine queued Story C (${NATIVE_OWNED_IDENTITY}). Prepare it in the owned preparation worktree ${workspace} on branch ${NATIVE_OWNED_BRANCH}, where you are working; an earlier session of yours created it for this preparation. This project has no default checkout. Story C's goal: a developer can export the release notes as plain text. Scope: one export command; formatting options are out of scope. Key example: exporting two notes prints two lines. Then keep the refined story: land that worktree on remote origin trunk refs/heads/main with Dough Land. You have explicit keep authority and authority to publish to remote trunk. Report the outcome."
+        "Use this project's installed Open Dough guidance to refine queued Story C (${NATIVE_OWNED_IDENTITY}). Prepare it in the owned preparation worktree ${workspace} on branch ${NATIVE_OWNED_BRANCH}, where you are working. This project has no default checkout. Story C's goal: a developer can export the release notes as plain text. Scope: one export command; formatting options are out of scope. Key example: exporting two notes prints two lines. Then keep the refined story: land that worktree on remote origin trunk refs/heads/main with Dough Land. You have explicit keep authority and authority to publish to remote trunk. Report the outcome."
       ;;
     *) return 2 ;;
   esac

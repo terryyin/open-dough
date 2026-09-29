@@ -12,7 +12,8 @@
 # delivery, completes CI observation, then retires the worktree. Emits each command
 # through the admission substitute's recorder and sets ${response}.
 # NATIVE_OWNED_WORKSPACE, _BRANCH and _IDENTITY carry the journey's workspace,
-# branch and story; TRUNK_CLOSURE_MAILBOX and _CANDIDATE_SHA the closure's.
+# branch and story; TRUNK_CLOSURE_MAILBOX, _CANDIDATE_SHA and _IDENTITY the
+# closure's.
 # shellcheck disable=SC2034,SC2154 # host, journey, workspace and response are shared with the sourcing substitute.
 
 # shellcheck source=tests/support/native-agent-admission.sh
@@ -69,7 +70,7 @@ native_owned_context_prepare_and_land() {
   admission_run git commit -qm 'Refine Story C'
   admission_run git fetch -q origin
   admission_run git push -q origin HEAD:refs/heads/main
-  native_owned_context_retire "${NATIVE_OWNED_BRANCH}"
+  native_owned_context_retire "${NATIVE_OWNED_BRANCH}" "${NATIVE_OWNED_IDENTITY}"
 }
 
 # Managed delivery publishes the candidate and registers it with the matching
@@ -85,13 +86,17 @@ native_owned_context_close_trunk() {
     --target-ref refs/heads/main --repo owner/project --host "${host}" \
     --validated-candidate "${sha}"
   admission_run node "${scripts}/ci-mailbox.mjs" complete-revision "${mailbox}" "${sha}"
-  native_owned_context_retire "${branch}"
+  native_owned_context_retire "${branch}" "${TRUNK_CLOSURE_IDENTITY}"
 }
 
 # Dough Land's retirement of ${workspace} on branch $1 from its management
-# context, recorded before removal.
+# context, recorded before removal. The session holds no creation result, so it
+# retires only when the workspace's creation record names its story $2.
 native_owned_context_retire() {
-  local branch=$1 common
+  local branch=$1 identity=$2 common
+  admission_run git for-each-ref --format='%(refname:lstrip=4)' \
+    refs/worktree/dough/created-for/
+  [[ ${admission_last} == "${identity}" ]] || return 0
   common=$(git -C "${workspace}" rev-parse --path-format=absolute --git-common-dir)
   admission_run_in "${common}" git fetch -q origin
   admission_run_in "${common}" git merge-base --is-ancestor "${branch}" origin/main
