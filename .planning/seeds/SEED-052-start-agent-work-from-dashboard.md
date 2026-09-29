@@ -108,7 +108,7 @@ or claims of readiness.
 
 **Identity:** SEED-052#recent-sessions-residue
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/151-recent-sessions-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e646df358d18efe089267f498ee9f340534e95b8a66f30e921a9762f38288545","plan":"66a9cd7aace215e56d91ec5a9fe91236250048dd460948e48b72c6aa4dcc9bc3"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/151-recent-sessions-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"db4fc214418e2fe0d3655fa7bbfe664be843a24599ab012c39f84acfda600fb5","plan":"66a9cd7aace215e56d91ec5a9fe91236250048dd460948e48b72c6aa4dcc9bc3"}}
 ```
 
 **Goal:** A developer whose launch store becomes unreadable twice keeps both
