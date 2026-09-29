@@ -1,8 +1,8 @@
 // A Backlog card's Started state for one workflow: this dashboard's server
 // launched a Claude Code session to run the workflow on the story, which the
-// developer reaches with `claude attach <id>`. It is local evidence of a
-// launch, not a story fact: the story stays queued until origin publishes what
-// the session does.
+// developer opens in the page's terminal. It is local evidence of a launch,
+// not a story fact: the story stays queued until origin publishes what the
+// session does.
 
 import { useEffect, useRef } from "react";
 import { launchWorkflows, type LaunchWithState } from "./agentLaunch.ts";

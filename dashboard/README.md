@@ -3,8 +3,9 @@
 A locally launched page that shows the selected project's published work: the
 near-future direction, the **Backlog** in priority order, and the **Taken**
 entries, as connected stages. **Start execution** and **Start refinement** on a
-Backlog card ask Claude Code on this machine to execute or refine the story, and
-**Recent sessions** lists those launches, newest first ([Agent launch](AGENT-LAUNCH.md)).
+Backlog card ask Claude Code on this machine to execute or refine the story,
+**Recent sessions** lists those launches, newest first, and **Open terminal**
+shows a launch's session beside the page ([Agent launch](AGENT-LAUNCH.md)).
 
 The pinned banner shows the selected project in a disclosure and keeps the four
 **Project** choices and SVG **Refresh** control reachable while scrolling. The disclosure opens the repository/ref, full
@@ -111,9 +112,7 @@ repository does not exist, since an inaccessible read is not proof of that.
 Check `gh auth status`, then confirm, for example,
 `gh api repos/terryyin/pygardon/commits/main` answers from a terminal; once it
 does, press **Retry** (or, with a snapshot shown, let the next check find it).
-There is no dashboard sign-in, no token-entry UI, and no automatic login: the
-dashboard only reuses whatever access the launching person's own `gh` already
-has.
+The dashboard never logs in on its own.
 
 Each **Taken** card shows who holds that work, from the agent profile published
 beside the backlog (`.planning/agents/<name>-chan.json`) at the same revision,

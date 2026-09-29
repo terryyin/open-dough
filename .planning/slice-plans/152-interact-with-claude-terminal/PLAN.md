@@ -269,7 +269,7 @@ by the host's permission check and awaits Terry.
 
 ### 3. A card or Recent sessions entry opens its session in the right-hand terminal, one at a time
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `agent-terminal.spec.ts` page journey; the existing Started and Recent sessions specs updated.
 
 Behavior: a Backlog card shows a running session's Started, or Recent
@@ -298,6 +298,24 @@ text contains `claude attach`. Update the attach-command assertions in
 `agent-launch-recent-sessions.spec.ts`,
 `agent-launch-recent-session-states.spec.ts`, and `agent-launch-card.spec.ts`
 to the open action. Run those with `agent-launch-session-settlement.spec.ts`.
+
+Accepted proof (2026-09-29): `npm run test:dashboard --
+dashboard/tests/agent-terminal.spec.ts
+dashboard/tests/agent-launch-recent-sessions.spec.ts
+dashboard/tests/agent-launch-recent-session-states.spec.ts
+dashboard/tests/agent-launch-card.spec.ts
+dashboard/tests/agent-launch-session-settlement.spec.ts` and
+`npm run typecheck:dashboard` pass; all `agent-*` specs and the layout specs
+(`accessible-overview`, `accessible-overview-keyboard`,
+`taken-agent-profile`, `preparation-legend`) passed before refactoring. The
+open terminal is page state in `TerminalSplit.tsx`, above the project
+selection, and the open action reaches `LaunchSession` through a React
+context (`terminalOpening.ts`), which slice 5's Mark as done can reuse. The
+panel (`TerminalPanel.tsx`) is keyed by session, so replacing it closes the
+old socket. Below 800px wide the panel stacks above the page (CSS only,
+untested). An attach that fails or ends shows nothing yet; slice 4 adds
+those states. In dev, React StrictMode makes one extra short-lived attach
+per open; the preview build does not.
 
 ### 4. The open terminal survives a project switch and says when it is disconnected or ended
 Type: Behavior

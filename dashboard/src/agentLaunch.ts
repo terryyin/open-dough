@@ -128,9 +128,9 @@ export const sessionStateSchema = z.discriminatedUnion("kind", [
 
 export type SessionState = z.infer<typeof sessionStateSchema>;
 
-// Whether `claude attach <id>` is offered for a session: for every session
-// the host still lists, and while its listing is unknown, since the session
-// may still be there.
+// Whether a session offers Open terminal: for every session the host still
+// lists, and while its listing is unknown, since the session may still be
+// there.
 export function attachOpens(sessionState: SessionState): boolean {
   return sessionState.kind !== "unlisted";
 }

@@ -34,8 +34,8 @@ session in Claude Code's own listing, `claude agents --json --all`.
 A confirmed launch replaces its own action with a Started record naming its
 workflow, such as **Refinement started**; the card's other action stays, and a
 story launched in both workflows shows both records. Started gives when it was
-launched, the session id, and a copyable `claude attach <id>` to reach the
-session from a terminal. Started is local evidence from this machine, not a
+launched, the session id, and **Open terminal**, which shows the session in
+the page's terminal (below). Started is local evidence from this machine, not a
 story fact; the story stays in the Backlog until origin publishes what the
 session does. A failed launch (the project folder or `claude` not found, a
 folder Claude Code does not trust yet, or a refusal) says why, and nothing was
@@ -64,8 +64,8 @@ Code's listing cannot be read, Started stays.
 **Recent sessions**, below the stages, lists every launch record the page
 reads for the selected project, newest first, whatever origin now shows of its
 story. Each entry names the story's title and identity, its workflow, when it
-was launched, the session id, and the same copyable `claude attach <id>` as
-Started, marked "Local: launched from this dashboard on this machine." An
+was launched, the session id, and the same **Open terminal** as Started,
+marked "Local: launched from this dashboard on this machine." An
 entry does not settle: it stays when the story is prepared, taken, or leaves
 every list, and two launches of one story are two entries. Another project's
 launches are listed only under that project, and sessions this dashboard did
@@ -76,9 +76,9 @@ Each entry also shows its session's state, read from `claude agents --json
 --all` in the project's folder whenever the records are read and never kept:
 **Working** or **Idle** while its process runs busy or idle, **Finished** once
 it is done, and **Stopped** otherwise. A session Claude Code no longer lists
-shows **Session unavailable** without `claude attach <id>`; if the listing
-cannot be read, every entry shows **State unknown** with "Claude Code's
-session list could not be read" and keeps its attach command. While the page
+shows **Session unavailable** without Open terminal; if the listing cannot be
+read, every entry shows **State unknown** with "Claude Code's session list
+could not be read" and keeps Open terminal. While the page
 is visible it reads the records again every 15 seconds, the pace of its
 revision checks, so a state change shows without a reload. With no records,
 `claude` is not run.
@@ -98,8 +98,20 @@ upgrade is refused with an HTTP error and no socket, before any `claude
 attach`, when it comes from another site or host (403), names an unknown
 project (404), names a session this dashboard did not record for that project
 (404, without running `claude` at all), finds the project folder missing
-(404), or names a session Claude Code no longer lists (410). As for the open
-action, a stopped session and one whose state is unknown still attach.
+(404), or names a session Claude Code no longer lists (410). As for Open
+terminal, a stopped session and one whose state is unknown still attach.
+
+**Open terminal** on a Started or a Recent sessions entry opens that session
+in the page's one terminal (`src/TerminalPanel.tsx`, an xterm.js terminal on
+that socket). The page splits into two columns: the page stays on the left,
+and the terminal panel takes the right, above the page on a narrow window. Its
+toolbar names the story title, the workflow, and the session id, and holds
+**Close**. The terminal shows the session's conversation, what the developer
+types there goes to the session, and its size follows the panel. Opening
+another session closes the first one's socket, which detaches it while it
+keeps running, and shows the other in the same panel. An entry whose story is
+in no list opens the same way. **Close** removes the panel and detaches only:
+the session keeps running, and its Open terminal is offered again.
 
 Launch records are kept on this machine, outside every repository, in
 `~/.open-dough/dashboard/agent-launches.json`. Restarting `npm run

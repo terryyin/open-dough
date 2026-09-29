@@ -1,7 +1,8 @@
 /* A Backlog card's launch actions, their dialog, a launch's answer, the
-   local Started state that replaces the action, and the project's Recent
-   sessions. Text carries every meaning; the dashed edge of a noted action
-   only repeats its note. */
+   local Started state that replaces the action, the project's Recent
+   sessions, and the actions of the terminal that opens a launched session.
+   Text carries every meaning; the dashed edge of a noted action only repeats
+   its note. */
 
 .start-launch {
   margin-top: 0.45rem;
@@ -15,7 +16,8 @@
 }
 
 .start-launch-button,
-.launch-attach button,
+.launch-open button,
+.terminal-toolbar button,
 .start-launch-dialog-actions button {
   font: inherit;
   color: var(--accent);
@@ -105,13 +107,12 @@
   font-weight: 600;
 }
 
-.launch-local,
-.launch-copy-result {
+.launch-local {
   color: var(--quiet);
 }
 
-.launch-copy-result:not(:empty) {
-  margin-left: 0.4rem;
+.launch-open {
+  margin-top: 0.35rem;
 }
 
 .recent-sessions {

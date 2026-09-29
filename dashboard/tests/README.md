@@ -36,7 +36,8 @@ chooses; a spec that restarts servers on the same machine state passes a
 the folder untrusted, hangs, or reports a session its listing does not show;
 it records every call's argv and working directory. Run as `claude attach`
 in the terminal boundary's pseudo-terminal
-(`agent-terminal-boundary.spec.ts`), it echoes input, reports its size, and
+(`agent-terminal-boundary.spec.ts`, and behind the page's terminal in
+`agent-terminal.spec.ts`), it echoes input, reports its size, and
 records its pid and the signal that ended it. A server that must find no
 `claude` gets a PATH holding only the fake `gh` and Node. Nothing here ever
 calls the real `claude`.
