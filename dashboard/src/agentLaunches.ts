@@ -45,12 +45,13 @@ export type ProjectLaunches = {
     workflow: LaunchWorkflow,
   ): LaunchAttempt | undefined;
   // Starts the workflow on the work item in Claude Code, with the developer's
-  // optional instruction, and settles once the boundary answers.
+  // optional instruction, and answers the launched record once the boundary
+  // confirms one.
   start(
     work: LaunchWorkItem,
     workflow: LaunchWorkflow,
     instruction: string,
-  ): Promise<void>;
+  ): Promise<LaunchWithState | undefined>;
   // Marks a recorded session of any project done, and answers whether the
   // boundary marked it.
   readonly markDone: (record: LaunchRecord) => Promise<boolean>;
@@ -165,9 +166,10 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
           ]),
         );
         setAttempt(key, undefined);
-      } else {
-        setAttempt(key, answer);
+        return answer.record;
       }
+      setAttempt(key, answer);
+      return undefined;
     },
     [source.id, setAttempt],
   );

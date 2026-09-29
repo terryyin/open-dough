@@ -105,7 +105,21 @@ that leaves every list keeps its sessions only in Recent sessions.
 
 ### 1. A story's card lists its unclosed sessions in every stage, beside its Start actions
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run typecheck:dashboard`; `npx playwright test --config
+dashboard/playwright.config.ts --reporter=line` over
+`agent-launch-card-sessions`, `agent-launch-card-session-states`,
+`agent-launch-card`, `agent-launch-card-problems`,
+`agent-launch-recent-sessions`, `agent-launch-recent-session-states`,
+`agent-terminal`, `agent-terminal-done`, `agent-terminal-lifetime`,
+`agent-launch-done`, `agent-launch-records`, `accessible-overview`,
+`accessible-overview-keyboard`, `backlog-preparing`, and `published-work`
+specs: 36 passed.
+Learnings: the shared entry is `src/SessionEntry.tsx` (`namesStory`), the
+membership rule is `cardSessionsOf`, and `ProjectLaunches.start` resolves to
+the launched record so focus lands on the new entry. The test journey is now
+`tests/storyStagesPage.ts` (`openStoryStagesJourney`). Plan 154 removes the
+same Recent sessions Preparing step; expect a trivial conflict.
 Proof: rewritten `agent-launch-settlement.spec.ts` journey (examples 1, 2),
 rewritten `agent-launch-session-settlement.spec.ts` (example 3 and the
 unavailable and unknown states on the card), `agent-launch-card.spec.ts`

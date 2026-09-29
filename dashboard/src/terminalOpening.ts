@@ -1,6 +1,6 @@
 // How a session shown anywhere on the page opens in the page's one terminal
-// (`./TerminalPanel.tsx`): the page provides the opening, and a card's
-// Started and a Recent sessions entry reach it through `LaunchSession`
+// (`./TerminalPanel.tsx`): the page provides the opening, and a session entry
+// on a card or in Recent sessions reaches it through `LaunchSession`
 // without every component between them passing it along. Each Open terminal
 // names the session it opens, so the page can find the control to return the
 // keyboard to.

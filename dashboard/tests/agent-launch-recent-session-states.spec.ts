@@ -18,6 +18,7 @@ import {
   parts,
   recentSessionName,
   sessionNamedBy,
+  sessionStateOf,
 } from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
 import {
@@ -64,7 +65,7 @@ const openOffered: Record<Label, boolean> = {
 const unknownNote = "Claude Code's session list could not be read";
 
 async function expectState(entry: Locator, label: Label): Promise<void> {
-  await expect(entry.locator(".recent-session-state")).toHaveText(
+  await expect(sessionStateOf(entry)).toHaveText(
     label === "State unknown" ? `${label}: ${unknownNote}` : label,
   );
   await expect(

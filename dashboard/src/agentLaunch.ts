@@ -5,28 +5,22 @@
 // decides every story fact; a launch record is only this machine's evidence
 // that a host session was started. Workflows, request, host session, result,
 // and record are spelled once here, with the endpoint and its limits, and no
-// Node import, so the browser and the server read the same shapes. Host and
-// activity values are the shared profile vocabulary.
+// Node import, so the browser and the server read the same shapes. Host
+// values are the shared profile vocabulary.
 
 import { z } from "zod";
-import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
+import type { WorkEntry } from "./publishedWork.ts";
 import { readyBadge } from "./storyPreparation.ts";
-import {
-  agentActivities,
-  agentHosts,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-
-type AgentActivity = (typeof agentActivities)[number];
+import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 // What a launch starts, and the one place each workflow is spelled: its
-// display name, the verb its dialog uses, the skill it runs, the published
-// activity whose assignment it asks for, and the note its card action carries,
-// if any. The boundary, host, settlement, and card all read this table.
+// display name, the verb its dialog uses, the skill it runs, and the note its
+// card action carries, if any. The boundary, host, and card all read this
+// table.
 type LaunchWorkflowSpec = {
   readonly name: string;
   readonly verb: string;
   readonly skill: string;
-  readonly activity: AgentActivity;
   readonly note: (
     entry: Pick<WorkEntry, "preparation" | "preparing">,
   ) => string | undefined;
@@ -37,7 +31,6 @@ export const launchWorkflows = {
     name: "Execution",
     verb: "execute",
     skill: "dough-execute-plan",
-    activity: "execution",
     // Nothing while readiness is still being read.
     note: ({ preparation }) =>
       preparation?.status !== "loading" &&
@@ -49,11 +42,8 @@ export const launchWorkflows = {
     name: "Refinement",
     verb: "refine",
     skill: "dough-story-refinement",
-    activity: "preparation",
-    // A refinement launched now settles at once, as the story already shows
-    // the assignment it asks for.
-    note: (entry) =>
-      showsAssignment(entry, "preparation") ? "Being prepared" : undefined,
+    note: ({ preparing }) =>
+      preparing?.status === "recorded" ? "Being prepared" : undefined,
   },
 } as const satisfies Record<string, LaunchWorkflowSpec>;
 
@@ -146,63 +136,24 @@ export const launchWithStateSchema = launchRecordSchema.extend({
 
 export type LaunchWithState = z.infer<typeof launchWithStateSchema>;
 
-// The latest record of one work item's workflow among a project's records,
-// oldest first.
-export function latestRecordOf(
+// The sessions a story's card lists, oldest first, in whatever stage origin
+// shows the story: every launch record of the work item that has not been
+// marked done. Neither the story's stage nor its session's state or age
+// removes one.
+export function cardSessionsOf(
   records: readonly LaunchWithState[],
   identity: string,
-  workflow: LaunchWorkflow,
-): LaunchWithState | undefined {
-  return records.findLast(
+): readonly LaunchWithState[] {
+  return records.filter(
     (record) =>
-      record.request.identity === identity &&
-      record.request.workflow === workflow,
+      record.request.identity === identity && record.doneAt === undefined,
   );
-}
-
-// Whether a queued entry shows a published assignment of the activity: a
-// preparation assignment shows as Preparing, and an execution assignment moves
-// the entry to Taken, so no queued entry shows one.
-function showsAssignment(
-  entry: Pick<WorkEntry, "preparing">,
-  activity: AgentActivity,
-): boolean {
-  return activity === "preparation" && entry.preparing?.status === "recorded";
 }
 
 // Whether the host lists a session as running: it gives a status only while
 // the process runs, so a session listed without one has exited.
 export function sessionRuns(sessionState: SessionState): boolean {
   return sessionState.kind === "listed" && sessionState.status !== undefined;
-}
-
-// Whether a session may still run: the host lists it as running, or its
-// listing could not be read. One no longer listed is gone.
-function sessionMayRun(sessionState: SessionState): boolean {
-  return sessionState.kind === "unknown" || sessionRuns(sessionState);
-}
-
-// Whether a launch still awaits publication in this snapshot: its session may
-// still run, and its work item is still queued and does not yet show an
-// assignment of its workflow's activity. An execution launch settles once its
-// work item is Taken or gone from the backlog; a published preparation
-// assignment does not settle it, because the launched agent may ready a story
-// before taking it. A refinement launch also settles once its work item shows
-// Preparing. Any launch settles once its session has exited or is no longer
-// listed, since nothing it started can publish the assignment any more.
-export function launchAwaitsPublication(
-  record: Pick<LaunchWithState, "request" | "sessionState">,
-  work: Pick<PublishedWork, "backlog">,
-): boolean {
-  const { activity } = launchWorkflows[record.request.workflow];
-  return (
-    sessionMayRun(record.sessionState) &&
-    work.backlog.some(
-      (entry) =>
-        entry.identity === record.request.identity &&
-        !showsAssignment(entry, activity),
-    )
-  );
 }
 
 // Why nothing was launched.

@@ -1,8 +1,8 @@
-// Publishes the backlogs an agent launch starts from and settles in, on a
+// Publishes the backlogs an agent launch starts from and moves through, on a
 // local bare origin, through the production commands: the queued preparation
 // trunk (Story A and Story B Ready for execution, Story C queued last and not
 // refined), then either an execution start that takes Story A, or the
-// settlement journey below. The browser journey serves the origin's exact Git
+// story-stages journey below. The browser journey serves the origin's exact Git
 // bytes at each revision; nothing here writes display state.
 
 import {
@@ -65,7 +65,7 @@ function expectOk(step: string, result: { code: number; receipt: unknown }) {
   }
 }
 
-export type SettlementJourney = {
+export type StoryStagesJourney = {
   readonly origin: string;
   readonly cleanup: () => Promise<void>;
   // Remote main after each published step.
@@ -78,10 +78,10 @@ export type SettlementJourney = {
   readonly completed: string;
 };
 
-// The origin a launched story settles in: queued, then Story B under a
+// The origin whose stories move through the stages: queued, then Story B under a
 // published preparation assignment, then Story B taken, then Story C
 // completed out of the backlog.
-export async function publishSettlementJourney(): Promise<SettlementJourney> {
+export async function publishStoryStagesJourney(): Promise<StoryStagesJourney> {
   const trunk = await createPreparationTrunk();
   try {
     const queued = await remoteMain(trunk);

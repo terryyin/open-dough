@@ -1,4 +1,4 @@
-// The settlement journey (./launchJourney.ts) as the dashboard page shows it:
+// The story-stages journey (./launchJourney.ts) as the dashboard page shows it:
 // the page opens on the queued revision of its committed origin, beside a
 // Doughnut origin to switch to, and a journey launches from Backlog cards and
 // shows each later revision through Refresh.
@@ -12,18 +12,18 @@ import {
   doughnutRepository,
   revisionDoughnut,
 } from "./doughnutProject.ts";
-import type { SettlementJourney } from "./launchJourney.ts";
+import type { StoryStagesJourney } from "./launchJourney.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 
 export type Workflow = "Execution" | "Refinement";
 
-export async function openSettlementJourney(
+export async function openStoryStagesJourney(
   page: Page,
-  settlement: SettlementJourney,
+  stagesJourney: StoryStagesJourney,
 ) {
   const origin = await publishCommittedOrigin(page, {
-    repoDir: settlement.origin,
-    revision: settlement.queued,
+    repoDir: stagesJourney.origin,
+    revision: stagesJourney.queued,
     repository: "terryyin/open-dough",
   });
   const doughnut = await publishMovingOrigin(page, doughnutRepository);

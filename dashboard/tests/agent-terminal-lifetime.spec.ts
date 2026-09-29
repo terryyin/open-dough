@@ -1,5 +1,5 @@
 // The page's one terminal (./agent-terminal.spec.ts) over its lifetime, on
-// the committed settlement origin (./launchJourney.ts): switching projects
+// the committed story-stages origin (./launchJourney.ts): switching projects
 // keeps it attached to the same session; when the dashboard server restarts,
 // the panel says it is disconnected, and Reconnect attaches to the same
 // session again; when the attached CLI exits on its own (Ctrl+Z), the panel
@@ -13,16 +13,16 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test as base, expect } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { cardSessions, expectMembership, parts } from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
-  publishSettlementJourney,
+  publishStoryStagesJourney,
   readyStory,
   takenStory,
-  type SettlementJourney,
+  type StoryStagesJourney,
 } from "./launchJourney.ts";
-import { openSettlementJourney } from "./settlementPage.ts";
+import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -53,12 +53,14 @@ const test = base.extend<{ machine: string }>({
 });
 
 test.describe("the terminal's lifetime", () => {
-  let settlement: SettlementJourney;
+  let stagesJourney: StoryStagesJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    settlement = await publishSettlementJourney();
+    stagesJourney = await publishStoryStagesJourney();
   });
-  test.afterAll(() => (settlement as SettlementJourney | undefined)?.cleanup());
+  test.afterAll(() =>
+    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+  );
 
   test("the open terminal survives a project switch, says when it is disconnected or ended, and attaches again", async ({
     page,
@@ -67,9 +69,9 @@ test.describe("the terminal's lifetime", () => {
     machine,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openSettlementJourney(
+    const { card, settled, launch } = await openStoryStagesJourney(
       page,
-      settlement,
+      stagesJourney,
     );
     const { project } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
@@ -84,10 +86,8 @@ test.describe("the terminal's lifetime", () => {
     await settled();
 
     await launch(notRefinedStory, "Execution");
-    await card(notRefinedStory)
-      .getByRole("region", { name: "Execution started" })
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    const listed = cardSessions(card(notRefinedStory));
+    await listed.getByRole("button", { name: "Open terminal" }).click();
     await expect(rows).toContainText("attached ");
     const [attach] = dashboard.claudeAttaches();
     const shortId = attach?.id ?? "";
@@ -134,6 +134,9 @@ test.describe("the terminal's lifetime", () => {
         await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
           notRefinedStory,
         );
+        // Losing the connection only detaches: the card still lists the
+        // session.
+        await expect(listed).toHaveCount(1);
 
         restarted = await startDashboardServer({
           mode: "preview",
@@ -166,10 +169,11 @@ test.describe("the terminal's lifetime", () => {
         expect(attaches()).toEqual([true, true, true]);
       });
 
-      await test.step("a reload shows no terminal", async () => {
+      await test.step("a reload shows no terminal, and the card still lists the session", async () => {
         await page.reload();
         await expectMembership(page, queued);
         await expect(panel).toHaveCount(0);
+        await expect(listed).toHaveCount(1);
       });
     } finally {
       await restarted?.close();

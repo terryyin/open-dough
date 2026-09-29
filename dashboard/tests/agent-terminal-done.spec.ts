@@ -1,10 +1,9 @@
 // Mark as done in the page's one terminal (./agent-terminal.spec.ts), on the
-// committed settlement origin (./launchJourney.ts): while it marks, the panel
-// says so quietly; then the panel closes, the keyboard goes to the session's
-// Recent sessions entry, since the card's Started that opened it is gone, the
-// card offers its Start action again while the story is in the Backlog, and
-// Recent sessions shows the entry Done under its `done-` name, still
-// openable. How the boundary renames and stops the session is
+// committed story-stages origin (./launchJourney.ts): while it marks, the panel
+// says so quietly; then the panel closes, the session leaves its card, the
+// keyboard goes to the session's Recent sessions entry, since the card entry
+// that opened it is gone, and Recent sessions shows the entry Done under its
+// `done-` name, still openable. How the boundary renames and stops the session is
 // ./agent-launch-done.spec.ts. A refused mark keeps the panel open and says
 // so, and a mark answered after another session replaced the panel leaves the
 // keyboard in the new terminal. Origin alone still places the story. The page's own
@@ -16,15 +15,22 @@ import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership, parts, recentSessionName } from "./dashboardPage.ts";
+import {
+  cardSessionName,
+  cardSessions,
+  expectMembership,
+  parts,
+  recentSessionName,
+  sessionStateOf,
+} from "./dashboardPage.ts";
 import {
   notRefinedStory,
-  publishSettlementJourney,
+  publishStoryStagesJourney,
   readyStory,
   takenStory,
-  type SettlementJourney,
+  type StoryStagesJourney,
 } from "./launchJourney.ts";
-import { openSettlementJourney } from "./settlementPage.ts";
+import { openStoryStagesJourney } from "./storyStagesPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -58,27 +64,27 @@ async function holdDoneRequests(page: Page): Promise<() => void> {
 }
 
 test.describe("marking a session done from its terminal", () => {
-  let settlement: SettlementJourney;
+  let stagesJourney: StoryStagesJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    settlement = await publishSettlementJourney();
+    stagesJourney = await publishStoryStagesJourney();
   });
-  test.afterAll(() => (settlement as SettlementJourney | undefined)?.cleanup());
+  test.afterAll(() =>
+    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+  );
 
-  test("Mark as done closes the panel, focuses the session's entry, offers Start again, and shows the entry Done", async ({
+  test("Mark as done closes the panel, the session leaves its card, and the keyboard goes to its Recent sessions entry, which shows it Done", async ({
     page,
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, action, settled, launch } = await openSettlementJourney(
+    const { card, settled, launch } = await openStoryStagesJourney(
       page,
-      settlement,
+      stagesJourney,
     );
     const { recentSessions: recent } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
-    const started = card(readyStory).getByRole("region", {
-      name: "Execution started",
-    });
+    const listed = cardSessions(card(readyStory));
     const entry = recent.getByRole("article", {
       name: recentSessionName("Execution", readyStory),
     });
@@ -90,7 +96,8 @@ test.describe("marking a session done from its terminal", () => {
     await settled();
 
     await launch(readyStory, "Execution");
-    await started.getByRole("button", { name: "Open terminal" }).click();
+    await expect(listed).toHaveAccessibleName(cardSessionName("Execution"));
+    await listed.getByRole("button", { name: "Open terminal" }).click();
     const rows = panel.locator(".xterm-rows");
     await expect(rows).toContainText("attached");
     const [session] = dashboard.claudeListing();
@@ -104,15 +111,14 @@ test.describe("marking a session done from its terminal", () => {
     expect(await colourOf(marking)).toBe(await tokenColour(page, "--quiet"));
     release();
     await expect(panel).toHaveCount(0);
-    // The card's Started that opened the terminal is gone, so the keyboard
-    // goes to the session's Recent sessions entry.
+    // The card entry that opened the terminal is gone, so the keyboard goes
+    // to the session's Recent sessions entry.
     await expect(
       entry.getByRole("button", { name: "Open terminal" }),
     ).toBeFocused();
 
-    await expect(started).toHaveCount(0);
-    await expect(action(readyStory, "Execution")).toBeEnabled();
-    await expect(entry.locator(".recent-session-state")).toHaveText("Done");
+    await expect(listed).toHaveCount(0);
+    await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toContainText(`Named ${doneName}`);
     // Claude Code keeps the conversation, so the entry still opens it.
     await expect(
@@ -122,9 +128,9 @@ test.describe("marking a session done from its terminal", () => {
 
     await page.reload();
     await settled();
-    await expect(entry.locator(".recent-session-state")).toHaveText("Done");
+    await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toContainText(`Named ${doneName}`);
-    await expect(action(readyStory, "Execution")).toBeEnabled();
+    await expect(listed).toHaveCount(0);
     await expectMembership(page, queued);
   });
 
@@ -133,16 +139,15 @@ test.describe("marking a session done from its terminal", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openSettlementJourney(
+    const { card, settled, launch } = await openStoryStagesJourney(
       page,
-      settlement,
+      stagesJourney,
     );
     const panel = page.getByRole("region", { name: "Terminal" });
     const status = panel.getByRole("status");
     await settled();
     await launch(readyStory, "Execution");
-    await card(readyStory)
-      .getByRole("region", { name: "Execution started" })
+    await cardSessions(card(readyStory))
       .getByRole("button", { name: "Open terminal" })
       .click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
@@ -176,13 +181,18 @@ test.describe("marking a session done from its terminal", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openSettlementJourney(
+    const { card, settled, launch } = await openStoryStagesJourney(
       page,
-      settlement,
+      stagesJourney,
     );
     const panel = page.getByRole("region", { name: "Terminal" });
     const started = (workflow: "Execution" | "Refinement") =>
-      card(readyStory).getByRole("region", { name: `${workflow} started` });
+      cardSessions(card(readyStory)).and(
+        page.getByRole("article", {
+          name: cardSessionName(workflow),
+          exact: true,
+        }),
+      );
     await settled();
     await launch(readyStory, "Execution");
     await launch(readyStory, "Refinement");

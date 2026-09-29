@@ -1,6 +1,6 @@
-/* A Backlog card's launch actions, their dialog, a launch's answer, the
-   local Started state that replaces the action, the project's Recent
-   sessions, and the actions of the terminal that opens a launched session.
+/* A Backlog card's launch actions, their dialog, a launch's answer, a
+   launched session's entry on its card and in the project's Recent sessions,
+   and the actions of the terminal that opens a launched session.
    Text carries every meaning; the dashed edge of a noted action only repeats
    its note. */
 
@@ -94,17 +94,15 @@
   gap: 0.5rem;
 }
 
-.launch-started {
+.card-sessions {
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
   margin-top: 0.45rem;
-  border: 1px dashed var(--edge);
-  border-radius: 0.25rem;
-  padding: 0.35rem 0.55rem;
-  background: var(--panel);
-  font-size: 0.9rem;
 }
 
-.launch-started-state {
-  font-weight: 600;
+.card-sessions .session-entry {
+  background: var(--panel);
 }
 
 .launch-local {
@@ -134,7 +132,7 @@
   margin-top: 0.75rem;
 }
 
-.recent-session {
+.session-entry {
   border: 1px dashed var(--edge);
   border-radius: 0.35rem;
   padding: 0.5rem 0.8rem;
@@ -142,10 +140,10 @@
   font-size: 0.9rem;
 }
 
-.recent-session-state {
+.session-state {
   font-weight: 600;
 }
 
-.recent-session-state .quiet {
+.session-state .quiet {
   font-weight: normal;
 }

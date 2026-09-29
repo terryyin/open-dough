@@ -4,9 +4,10 @@
 // project leaves it open; opening another session takes its place, and a
 // reload starts with none. Closing returns the keyboard to the control that
 // opened it, and so does marking the session done, once the boundary has
-// marked it; when that control is gone, as a card's Started goes once its
-// session stops, the keyboard goes to the session's Recent sessions entry. A
-// panel another session has already replaced moves no focus when it closes.
+// marked it; when that control is gone, as a card's entry goes once its
+// session is marked done, the keyboard goes to the session's Recent sessions
+// entry. A panel another session has already replaced moves no focus when it
+// closes.
 
 import {
   useCallback,

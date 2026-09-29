@@ -31,49 +31,48 @@ instruction when there is one. It passes no model, permission, or effort
 choice, so the developer's own Claude Code settings apply. It confirms the
 session in Claude Code's own listing, `claude agents --json --all`.
 
-A confirmed launch replaces its own action with a Started record naming its
-workflow, such as **Refinement started**; the card's other action stays, and a
-story launched in both workflows shows both records. Started gives when it was
-launched, the session id, and **Open terminal**, which shows the session in
-the page's terminal (below). Started is local evidence from this machine, not a
-story fact; the story stays in the Backlog until origin publishes what the
-session does. A failed launch (the project folder or `claude` not found, a
-folder Claude Code does not trust yet, or a refusal) says why, and nothing was
-launched. An uncertain one (no answer within the launch wait, or no session to
-confirm) advises checking `claude agents` before starting again. Either answer
-stays beside its own action, which stays on the card.
+A confirmed launch lists its session on the story's card, beside the Start
+actions, which stay with their notes whatever sessions are listed, and the
+keyboard lands on the new entry. Each entry shows its session the way Recent
+sessions does (below), without the story title and identity the card already
+names: its state, its workflow, such as "Refinement started in Claude Code",
+when it was launched, the session id, and **Open terminal**, which shows the
+session in the page's terminal (below). Two launches, even of one workflow,
+are two entries, newest first. A failed launch (the project folder or
+`claude` not found, a folder Claude Code does not trust yet, or a refusal)
+says why, and nothing was launched. An uncertain one (no answer within the
+launch wait, or no session to confirm) advises checking `claude agents`
+before starting again. Either answer stays beside its own action.
 
-Started lasts while origin still shows the story in the Backlog without the
-assignment its workflow asks for and its session may still run. Reloading the
-page, selecting another project and back, or restarting the dashboard keeps it,
-because the page reads the project's kept launch records again from the local
-server (`GET /__agent-launch?source=<project id>`). A
-published **Preparing** assignment is the one refinement asks for: it ends a
-refinement Started, and Start refinement then carries the note "Being
-prepared". It does not end an execution Started, since the session may ready
-the story before taking it; the card then shows both. A refinement launched on
-a card already Preparing therefore settles at once and shows no Started; its
-session is listed under Recent sessions. Once origin shows the story under
-**Taken**, or no longer lists it at all, every Started is gone and the
-published card speaks for the story. Started also ends once its session no
-longer runs before origin shows the assignment: Claude Code lists it as
-finished or stopped, or no longer lists it. Its action is offered again, with
-its note, and its Recent sessions entry stays with that state. While Claude
-Code's listing cannot be read, Started stays.
+A card lists every launch record of its story that has not been marked done,
+in whatever stage origin shows the story: **Backlog**, whether or not it shows
+**Preparing**, or **Taken**. A Taken card lists its sessions and offers no
+Start action. A refinement launched on a card already Preparing is listed
+there at once. Its story's stage, its session finishing, stopping, or no
+longer being listed, Claude Code's listing becoming unreadable, and the
+passing of time never remove a session from its card; only marking it done
+does (below). Reloading
+the page, selecting another project and back, or restarting the dashboard
+keeps the listing, because the page reads the project's kept launch records
+again from the local server (`GET /__agent-launch?source=<project id>`). A
+listed session is local evidence from this machine, not a story fact: origin
+alone places the story, and a story that leaves every list keeps its sessions
+only under Recent sessions.
 
 **Recent sessions**, below the stages, lists every launch record the page
 reads for the selected project, newest first, whatever origin now shows of its
 story. Each entry names the story's title and identity, its workflow, when it
-was launched, the session id, and the same **Open terminal** as Started,
-marked "Local: launched from this dashboard on this machine." An
-entry does not settle: it stays when the story is prepared, taken, or leaves
-every list, and two launches of one story are two entries. Another project's
-launches are listed only under that project, and sessions this dashboard did
-not launch are not listed. With no records it says that no sessions launched
-from this dashboard are kept.
+was launched, the session id, and the same **Open terminal** as a card's
+entry, marked "Local: launched from this dashboard on this machine." An
+entry stays when the story is prepared, taken, or leaves every list, and when
+its session is marked done, and two launches of one story are two entries.
+Another project's launches are listed only under that project, and sessions
+this dashboard did not launch are not listed. With no records it says that no
+sessions launched from this dashboard are kept.
 
-Each entry also shows its session's state, read from `claude agents --json
---all` in the project's folder whenever the records are read and never kept:
+Each entry, in Recent sessions and on a card, also shows its session's state,
+read from `claude agents --json --all` in the project's folder whenever the
+records are read and never kept:
 **Working** or **Idle** while its process runs busy or idle, **Done** once the
 developer marked it done (below), **Finished** once it is done, and
 **Stopped** otherwise. A session marked done that runs again, as opening it
@@ -106,10 +105,10 @@ project (404), names a session this dashboard did not record for that project
 (404), or names a session Claude Code no longer lists (410). As for Open
 terminal, a stopped session and one whose state is unknown still attach.
 
-**Open terminal** on a Started or a Recent sessions entry opens that session
-in the page's one terminal (`src/TerminalPanel.tsx`, an xterm.js terminal on
-that socket). The page splits into two columns: the page stays on the left,
-and the terminal panel takes the right, above the page on a narrow window. Its
+**Open terminal** on a card's entry or a Recent sessions entry opens that
+session in the page's one terminal (`src/TerminalPanel.tsx`, an xterm.js
+terminal on that socket). The page splits into two columns: the page stays on
+the left, and the terminal panel takes the right, above the page on a narrow window. Its
 toolbar names the story title, the workflow, and the session id, and holds
 **Close**. The terminal shows the session's conversation, what the developer
 types there goes to the session, and its size follows the panel. Opening
@@ -144,8 +143,7 @@ way the boundary keeps the done time on the launch record, ends the
 terminal's attach process, and runs `claude stop <short id>` in the project's
 folder. The panel closes, or says "The session could not be marked done." if
 the boundary refused the mark or no answer came.
-The session no longer runs, so its card's Started ends and its Start action
-returns while the story is in the Backlog. Its Recent sessions entry shows
+The session leaves its card. Its Recent sessions entry shows
 **Done** and "Named done-<name>", and still offers Open terminal, since Claude
 Code keeps the conversation. A done mark is local evidence, like the launch
 record, and never changes where origin places the story.
