@@ -229,6 +229,12 @@ Accepted proof (2026-09-29): the `createCleanTrunkFixture` comment describes a
 clean-trunk publication fixture; `remoteCommitCount(remote, ref = trunkTarget)`
 reuses the module's `trunkTarget`. The listed suites (12 files) exit 0.
 
+## Execution complete
+
+Product advice: no backlog change. `SEED-008#installed-story-branch-integration`
+already records that it reuses this harness; its native acceptance renews the
+Story Branch and trunk-closure evidence this correction made stale.
+
 ## Proof ownership
 
 | Final-state promise | Owning slice and decisive observation |
