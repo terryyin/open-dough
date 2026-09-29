@@ -51,15 +51,6 @@ function sessionStateWords(
   }
 }
 
-// The Open terminal control of this session's entry, if its entry offers
-// one, where the keyboard returns when the control that opened the session's
-// terminal is gone.
-export function recentSessionControl(sessionId: string): HTMLElement | null {
-  return document.querySelector<HTMLElement>(
-    `.recent-sessions [data-opens-session="${CSS.escape(sessionId)}"]`,
-  );
-}
-
 function RecentSession({ record }: { readonly record: LaunchWithState }) {
   const { title, identity, workflow } = record.request;
   const { name } = launchWorkflows[workflow];

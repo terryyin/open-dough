@@ -3,11 +3,12 @@
 // a card's Started or a Recent sessions entry offers Open terminal, the page
 // splits with the terminal on the right, and what is typed there reaches the
 // session and its answer shows. Opening another session detaches the first,
-// which keeps running; Close detaches only; an entry whose story is in no list
-// still opens; and no page text offers `claude attach`. Origin alone still
-// places every story. The page's own dashboard server attaches the synthetic
-// `claude` (./fixtures/fake-claude), which echoes what is typed; the real one
-// is never reached.
+// which keeps running; Close detaches only and returns the keyboard to the
+// control that opened the session; an entry whose story is in no list still
+// opens; and no page text offers `claude attach`. Origin alone still places
+// every story. The page's own dashboard server attaches the synthetic `claude`
+// (./fixtures/fake-claude), which echoes what is typed; the real one is never
+// reached.
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
@@ -153,14 +154,17 @@ test.describe("the terminal beside the page", () => {
       await expect(openIn(started(notRefinedStory))).toBeVisible();
     });
 
-    await test.step("Close ends the panel and detaches only, and the card offers Open terminal again", async () => {
+    await test.step("Close ends the panel and detaches only, and the keyboard returns to the Started that opened it", async () => {
+      await openIn(started(notRefinedStory)).click();
+      await expect(rows).toContainText(`attached ${shortId(first)}`);
       await panel.getByRole("button", { name: "Close" }).click();
       await expect(panel).toHaveCount(0);
-      await expect(openIn(entry(readyStory))).toBeFocused();
-      await expect.poll(() => attachesEnded(second)).toBe(true);
-      await stillListed(second);
+      // The Started still shows its running session, so its Open terminal,
+      // not the session's Recent sessions entry, has the keyboard.
+      await expect(openIn(started(notRefinedStory))).toBeFocused();
+      await expect.poll(() => attachesEnded(first)).toBe(true);
+      await stillListed(first);
       await expect(openIn(started(readyStory))).toBeVisible();
-      await expect(openIn(started(notRefinedStory))).toBeVisible();
       await expectMembership(page, queued);
     });
 

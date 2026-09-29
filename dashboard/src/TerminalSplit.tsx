@@ -16,9 +16,9 @@ import {
   type ReactNode,
 } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
-import { recentSessionControl } from "./RecentSessions.tsx";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
+  recentSessionControl,
   TerminalOpener,
   type OpenTerminal,
   type TerminalOpening,

@@ -111,7 +111,7 @@ disabled, only that row failed in both modes ("opened a refused socket").
 
 ### 2. Closing returns the keyboard to a still-present opener
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npm run test:dashboard -- dashboard/tests/agent-terminal.spec.ts dashboard/tests/agent-terminal-done.spec.ts` and `npm run typecheck:dashboard`.
 
 Behavior: example 2, in the existing journey: close a terminal opened from a
@@ -119,6 +119,13 @@ card's Started while its session still runs, and expect that Started's Open
 terminal focused. Move the focus target's lookup and the attribute name into
 `terminalOpening.ts`, which `LaunchSession` and `TerminalSplit` already use.
 `TerminalSplit` then no longer imports `RecentSessions`.
+
+Accepted proof: both commands passed. The journey's step "Close ends the panel
+and detaches only, and the keyboard returns to the Started that opened it"
+expects `openIn(started(notRefinedStory))` focused. The product already did
+this; forcing the Recent sessions fallback in `TerminalSplit.tsx` failed that
+assertion. Learning: `recentSessionControl` still finds the entry by the
+`.recent-sessions` class that `RecentSessions.tsx` renders.
 
 ### 3. The Claude Code host commands stay private to their module
 Type: Structure
