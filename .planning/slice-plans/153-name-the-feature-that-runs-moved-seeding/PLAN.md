@@ -142,7 +142,7 @@ examples against the sentence before treating the slice as done:
 ### 2. Cursor planning names the feature that runs moved seeding
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: one Cursor planning-only run of the changed guidance, judged against
 the story's three examples. Record the literal commands, Cursor agent version,
 model, verdict, and where the written plan was kept.
@@ -211,5 +211,19 @@ Verdict: fail. The plan says `gate_baseline_genome` is imported from `tests/`
 and `e2e_test/support/seed_named_genome_live_strategy_pair.py`. It does not
 name `live_strategies.feature` or `live_strategies_steps.ts`. Slice 6's proof
 is agreement and importing suites green.
+
+Cursor model check of that same sentence. One run with `cursor agent --print
+--force --trust --sandbox disabled --model claude-opus-5-5-high` and the same
+planning-only prompt. Cursor agent `2026.09.28-64d2043`. Transcript:
+`/tmp/open-dough-153-pygardon-cursor-opus.txt`. Written plan:
+`/tmp/open-dough-153-pygardon/.planning/quick/208-tfdc-dead-behavior-removal/PLAN.md`.
+
+Verdict: pass. The plan records that the step `named genome {string} has a
+linked live strategy {string}` runs
+`seed_named_genome_live_strategy_pair.py`, which imports
+`gate_baseline_genome`, and that the step is used by `live_strategies.feature`
+"Saved list pairs live strategy with named genome by id". Slice 13's proof
+runs that feature scenario, not pytest alone. The earlier misses used Cursor's
+default model.
 
 Needs Terry's go-ahead before the paid run. Add the run to no automated suite.
