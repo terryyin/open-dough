@@ -410,3 +410,19 @@ paid runs and reviews stay as rejected cases.
 - Plan 163 (Taken) edits observers in the same families. Rebase before each
   slice. Where its reader changed an observation field, re-observe the
   passing case rather than copying old field lists.
+
+## Execution complete
+
+Product advice: Queue the correction
+[SEED-055#assessor-counterexample-gaps](../../seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps)
+(plan 168, ready) at the top of the backlog. It restores promises this story
+made and the delivered code does not fully keep: the guard's missed shapes,
+the preparation self-report case (ADR 0005 §4), gate-skipped cases for the
+other CI completion journeys, and an order-sensitive field reader under the
+helper. Plan 163 (Taken) edits the same native support families, so whichever
+lands second rebases. Home the pre-existing assessor gaps this story reported,
+not fixed (`trunk_closure_assess` ignoring `response-completion-result`,
+`native_journey_state_assess` ignoring `other-tool-root-claude-preserved`, the
+prose `inconclusive` path without a rejected case, and dead
+`git_publication_assess_print_fields`), under ProjectFindings.md's first-priority
+native-harness section, or drop them, rather than opening new stories.

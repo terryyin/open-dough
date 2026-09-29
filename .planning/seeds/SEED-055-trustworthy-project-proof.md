@@ -266,6 +266,37 @@ projections that came out wrong.
 - **Safe stopping point:** The helper and guard are in place with every
   existing suite migrated.
 
+<a id="assessor-counterexample-gaps"></a>
+
+### Correction: Close the assessor counterexample discipline's remaining gaps
+
+**Identity:** SEED-055#assessor-counterexample-gaps
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/168-assessor-counterexample-gaps/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a9ef4a492cc4f63c38705efcae8a6c7f655d62b106a9be34c1d85cf6ffa53d17","plan":"1b8fc83984924bf97c1ded63a58afa4a4596284b07e380f6b15ee684d09b80ab"}}
+```
+
+**Goal:** The maintainer paying for native acceptance runs can trust that
+story 3's counterexample discipline holds where it claims to. The guard
+catches the remaining ways to state a rejection outside the helper.
+Self-reported preparation and every CI completion scenario have rejected
+cases. The publication assessor reads fields regardless of order.
+
+**Scope:** The correction found by the execution retrospective of
+SEED-055#assessor-counterexample-discipline (commits `a53aa489`..`c6440780` on
+`claude/assessor-counterexample-discipline`). It covers these items:
+
+- rejection shapes the guard misses, and verdict wrappers that accept any
+  verdict;
+- the dropped preparation self-report case;
+- CI completion's `ready`, `failure`, and `skip-retro` scenarios, which have
+  no free cases;
+- the order-sensitive publication field reader;
+- a contradictory forced-stop case;
+- duplicated re-observed wrappers and undocumented signal placement.
+
+It adds no feature promise. See the
+[plan](../slice-plans/168-assessor-counterexample-gaps/PLAN.md).
+
 ## Ordering and When to Surface
 
 The maintainer asked for the two highest-priority project findings at the top

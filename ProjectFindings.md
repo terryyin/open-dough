@@ -35,8 +35,9 @@ executions, not commands, retries, or repairs.
    the agent found a free route itself (plan 152). The cost was a few developer
    round trips, and some of that friction is intended while paid native runs
    stay manual-only.
-4. **Local checks whose result differs from CI's — low, not queued.** Four
-   executions (plans 140, 146, 147, 157), one finding each. DD-168 and DD-178
+4. **Local checks whose result differs from CI's — low, not queued.** Five
+   executions (plans 140, 146, 147, 157, 165), one finding each. DD-182 (a
+   `pipefail` pipeline that git could lose to SIGPIPE) cost one CI repair. DD-168 and DD-178
    (tests that take the repository root from the working directory) had no
    delivery impact and each needs a small fix. DD-162 came from a coordinator-prescribed
    direct run that bypassed the runner's existing guard. DD-171 matches
@@ -265,6 +266,24 @@ Node suites passed and only CI's `dashboard` job failed.
   - Evidence: CI run `36507473752` job `dashboard (1/2)`: TS2345 at `preparingJourney.ts(88,38)`; repair `de81cb96` (`identity = undefined`), then `npm run typecheck:dashboard` and `backlog-preparing.spec.ts` passed.
   - Observed effect: one red CI run, a repair stash cycle, and one repair commit.
   - Inference: Qualified. A consumer search limited to `src/skills` misses the dashboard's typed imports; running `npm run typecheck:dashboard` when a shared fixture's signature changes would catch it locally.
+
+### DD-182 — A `git log | grep -q` observation under `pipefail` flipped on CI when git lost the race to SIGPIPE
+
+The startup observer read `claim-owned` from `git log --format=%B … | grep -Fq`
+in a suite run under `set -euo pipefail`. When `grep -q` matched and exited
+while git was still writing, git died of SIGPIPE (141) and `pipefail` turned
+the match into `claim-owned: false`. macOS usually let git finish first; the
+Ubuntu runner did not.
+
+#### Occurrences
+
+- Execution: `SEED-055#assessor-counterexample-discipline` / plan 165, first related implementation commit `84b4f28f`
+  - Timestamp: 2026-09-29T15:40:33Z (CI failure on `00cc1b62`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: CI run 36591803631 `test (1/2)`: `FAIL: counterexample command-only (signal setup-marker) changes signals remote-claim, setup-marker (fields claim-owned, …)`; local `tests/git-publication-native.sh` passed. A repro with one extra commit under the claim gave `claim-owned: false` with `PIPESTATUS` `141 0`. Repaired in `66f96e34`; slice 7 (`abf2fc4f`) fixed three more observer derivations of the same shape.
+  - Observed effect: one CI repair cycle (pause, stash, diagnosis agent, refactor pass, publication) during slice 6.
+  - Inference: Qualified. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh` and `tests/helpers/product-backlog-payload-runtime.bash`.
 
 ## Native host runs and observations routed through the developer (low priority, not selected)
 

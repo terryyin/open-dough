@@ -831,18 +831,17 @@ as catalog ODF-106 (colliding plan numbers), now in this repository.
   - Observed effect: the executor had to infer the intended plan (the one at the default checkout's HEAD when the session started) and could have Taken the other queued story
   - Inference: Qualified. Allocation from checkout-visible numbers cannot see another checkout's unpublished plan; the collision went unnoticed at merge because directory names differ
 
-## DD-159 — Keyboard proof failures were blamed on stale dist despite per-run rebuilds
+## DD-183 — A planned rejected case was dropped on an unobserved "no one-signal case exists" premise
 
-An implementation agent blamed Playwright on a stale `dashboard/dist` and recorded a plan learning to rebuild before browser tests, although `test:dashboard`'s `globalSetup` already rebuilds each run. Decisive causes were focus remount and `openDirection` stealing focus between keypresses.
+Plan 165 slice 3 promised `self-report` rebased on `fresh-pass` with one signal. The implementer reported no one-signal route; the coordinator accepted the drop under the plan's split rule, then overrode the refactor pass's recommendation to keep it, without probing a claim-bearing passing base.
 
 ### Occurrences
-- Execution: `SEED-053#cycle-dashboard-projects-with-arrow-keys` / plan 138, first related implementation commit `796bebaf6c43928105f58feea358f163116f89bd`
-  - Timestamp: unknown (between 2026-09-28T12:47+08:00 impl start and ~12:56+08:00 slice report)
-  - Tool: Cursor
-  - Open Dough release: 0.3.45
-  - Evidence: impl subagent `ffa400d5-2c0e-4f83-aec0-7b2a740b4031` narrated a rebuild after the focus-remount fix, later diagnosed `openDirection` between keypresses; plan 138 Learnings contradict `dashboard/tests/README.md` and `dashboard/tests/support/globalSetup.ts`
-  - Observed effect: extra rebuild/debug cycles; a false rebuild learning remained in plan 138
-  - Inference: Qualified. Focus/test-structure failure misread as harness staleness; not a suite build-contract defect
+
+- Execution: `SEED-055#assessor-counterexample-discipline` / plan 165, first related implementation commit `84b4f28f`
+  - Timestamp: unknown; accepted before `17ed1929` (2026-09-29T22:50:10+08:00)
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance at `403bb9eb`
+  - Evidence: plan 165 slice 3 text and its "`self-report` is no longer a rejected case" learning; the retrospective's probe: `fresh-pass.json` with a setup-claiming `responseText` passes, and changing only `preparation-gate` then fails.
+  - Observed effect: the free proof of ADR 0005 §4 (do not accept self-report) for preparation was removed and reached review only; a correction restores it. Inference: Qualified; same read-versus-observe class as DD-124 and DD-174.
 
 ## DD-163 — A local flake already fixed on trunk was left off the story branch, which then failed CI on it
 
@@ -986,7 +985,8 @@ Plan 159 slice 2 said to test the session presentation once as a shared capabili
 
 ## Retention
 
-- Highest allocated local number: 181. Removed local codes are never reused.
+- Highest allocated local number: 183. Removed local codes are never reused.
+- Removed on 2026-09-30 for the 1,000-line ceiling, as lower priority than DD-183: DD-159 (a one-off diagnosis misread with no delivery impact); recovery: `c6440780:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-180, DD-181, and DD-172's third occurrence: ODF-003's two oldest occurrences (`SEED-008#script-driven-ci-observation`, `SEED-037#diagnosable-test-hangs`); two later occurrences keep the finding; recovery: `4ef13e85:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-176, DD-177, and the DD-172 and ODF-097 recurrences: ODF-130 (concurrent slices sharing Playwright output) and ODF-129 (full-suite proof beside another agent's edits), since slices now run one at a time; recovery: `32e554d5:DearDough.md`.
 - Removed ODF-070 (former DD-066; nested worktree `node_modules` assumed absent) on 2026-09-29 for the 1,000-line ceiling: its 0.3.26-era occurrence as lower priority than ODF-116's recurrence (recovery: `6fa51cb6:DearDough.md`), then its remaining occurrence as lower current actionability than DD-172/DD-173 and the ODF-100 recurrence, since execution-location guidance now requires a locked install per worktree (recovery: `0c31529b:DearDough.md`).
