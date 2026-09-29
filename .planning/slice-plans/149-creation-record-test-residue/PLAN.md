@@ -63,7 +63,7 @@ reuse an export that already exists.
 
 ### 1. The creation record has named tests, one name source, and contract-level guidance assertions
 Type: Structure
-Status: planned
+Status: done
 Proof: the new named tests fail with the record write disabled; the edited guidance assertions fail against guidance without the ref name, read command, or link; all touched suites pass.
 
 Correction: export the record prefix from `workspace-publication-ownership.mjs`
@@ -87,6 +87,24 @@ Proof: from the checkout root, `node --test` on
 `update-ref` in `workspace-publication-select.mjs` fails the named tests; one
 mutation removing the read command from `exploration-workspace.md` fails the
 lifecycle assertion.
+
+Accepted proof: `node --test src/skills/dough-execute-plan/scripts/{workspace-publication-race.test.mjs,workspace-creation-record.test.mjs,workspace-publication.test.mjs,one-shot.test.mjs,one-shot-queued.test.mjs,workspace-publication-admission-continuation.test.mjs,ci-completion-lifecycle-guidance.test.mjs,execution-completion-record-guidance.test.mjs} src/skills/dough-story-refinement/scripts/{preparation-assignment-owned-context.test.mjs,dough-land.test.mjs,dough-land-guidance.test.mjs} src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs`
+passes 87/87. The five tests in `workspace-creation-record.test.mjs` own the
+record (identity, none, Git-rejected name, reuse, queued Take through `start`);
+disabling the `update-ref` fails the three that expect a record, and dropping
+the identity guard fails the two that expect none. Removing the read command,
+the ref name, or the section heading from `exploration-workspace.md` fails the
+lifecycle test; removing the "Close or retain it" link from wrap-up,
+trunk-publication, Land, or preparation fails its guidance test; rewording the
+old pinned sentences passes. The plan-link case runs through
+`workspace-publication.test.mjs`.
+
+Learnings: the lifecycle contract tokens are built from `createdForRef` and
+`createdForRoot`, so guidance and runtime cannot drift apart silently. Guidance
+tests share `tests/support/markdown-section.mjs`. The shell literal in
+`tests/support/native-agent-owned-context.sh` (manual native evidence) still
+spells the prefix. Plan 146's `dough-land/scripts/retirement-checks.mjs` can
+import `createdForRoot` instead of its own literal.
 
 ## Proof ownership
 
