@@ -8,11 +8,12 @@
 # retained worktree as repository context, runs project setup there and
 # writes the feature; preparation-land announces, refines, records and
 # releases Story C in the retained worktree, then lands and retires it;
-# trunk-closure-owned-context publishes the final closure through managed
-# delivery, completes CI observation, then retires the worktree. Emits each command
+# trunk-closure-owned-context finishes the closure through the installed
+# trunk-closure command, which publishes, completes CI observation, and then
+# retires the worktree. Emits each command
 # through the admission substitute's recorder and sets ${response}.
 # NATIVE_OWNED_WORKSPACE, _BRANCH and _IDENTITY carry the journey's workspace,
-# branch and story; TRUNK_CLOSURE_MAILBOX and _CANDIDATE_SHA the closure's.
+# branch and story; TRUNK_CLOSURE_CANDIDATE_SHA the final closure's.
 # shellcheck disable=SC2034,SC2154 # host, journey, workspace and response are shared with the sourcing substitute.
 
 # shellcheck source=tests/support/native-agent-admission.sh
@@ -69,33 +70,31 @@ native_owned_context_prepare_and_land() {
   admission_run git commit -qm 'Refine Story C'
   admission_run git fetch -q origin
   admission_run git push -q origin HEAD:refs/heads/main
-  native_owned_context_retire "${NATIVE_OWNED_BRANCH}"
+  native_owned_context_retire "${skills}" "${NATIVE_OWNED_BRANCH}"
 }
 
-# Managed delivery publishes the candidate and registers it with the matching
-# observer in process, with no register-push command.
+# The before-cleanup commit is already on trunk; the installed `finish`
+# publishes the final closure on the fixture's live observer, completes it,
+# and retires the worktree and its branch.
 native_owned_context_close_trunk() {
-  local scripts="$1/dough-execute-plan/scripts"
-  local sha=${TRUNK_CLOSURE_CANDIDATE_SHA} mailbox=${TRUNK_CLOSURE_MAILBOX} branch base
+  local sha=${TRUNK_CLOSURE_CANDIDATE_SHA} branch base
   branch=$(git -C "${workspace}" branch --show-current)
   admission_run git fetch -q origin
   base=$(git -C "${workspace}" rev-parse origin/main)
-  admission_run node "${scripts}/execution-increment-delivery.mjs" deliver \
-    --workspace "${workspace}" --branch "${branch}" --previously-published-base "${base}" \
+  admission_run node "$1/dough-story-wrap-up/scripts/trunk-closure.mjs" finish \
+    --workspace "${workspace}" --branch "${branch}" --before-cleanup "${base}" \
+    --final "${sha}" --previously-published-base "${base}" \
     --target-ref refs/heads/main --repo owner/project --host "${host}" \
-    --validated-candidate "${sha}"
-  admission_run node "${scripts}/ci-mailbox.mjs" complete-revision "${mailbox}" "${sha}"
-  native_owned_context_retire "${branch}"
+    --created-for-work
 }
 
-# Dough Land's retirement of ${workspace} on branch $1 from its management
-# context, recorded before removal.
+# Dough Land's installed retirement, from skills $1, of ${workspace} on branch
+# $2 from its management context, recorded before removal.
 native_owned_context_retire() {
-  local branch=$1 common
+  local branch=$2 common
   common=$(git -C "${workspace}" rev-parse --path-format=absolute --git-common-dir)
-  admission_run_in "${common}" git fetch -q origin
-  admission_run_in "${common}" git merge-base --is-ancestor "${branch}" origin/main
-  admission_run_in "${common}" git worktree remove "${workspace}"
-  admission_run_in "${common}" git branch -q --set-upstream-to origin/main "${branch}"
-  admission_run_in "${common}" git branch -q -d "${branch}"
+  admission_run_in "${common}" node "$1/dough-land/scripts/worktree-retirement.mjs" \
+    retire --repository "${common}" --worktree "${workspace}" --branch "${branch}" \
+    --remote origin --target-ref refs/heads/main \
+    --identity "${NATIVE_OWNED_IDENTITY}" --created-for-work
 }

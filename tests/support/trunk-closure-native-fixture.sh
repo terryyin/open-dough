@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Disposable Trunk Mode closure fixture with an independently released CI run.
 # The observer is real; the fixture never writes coverage or terminal evidence.
+# The owned workspace is a worktree created for this execution at trunk, whose
+# base commit stands for the accepted before-cleanup commit, so the installed
+# `finish` command publishes, completes, and retires it. A watcher records the
+# observer's state at the moment the worktree disappears.
 # Harness-only shims, logs, and markers live in a separate directory outside
 # the project root the agent reads, so they are never part of its task.
 # shellcheck disable=SC2034,SC2154,SC2312
@@ -86,8 +90,7 @@ trunk_closure_create_fixture() {
   git init -q -b main "${trunk_closure_integration}"
   trunk_closure_git "${trunk_closure_integration}" remote add origin \
     "${trunk_closure_origin}"
-  mkdir -p "${trunk_closure_integration}/.github/workflows" \
-    "${trunk_closure_integration}/tests"
+  mkdir -p "${trunk_closure_integration}/.github/workflows"
   printf 'base\n' > "${trunk_closure_integration}/product.txt"
   printf '%s\n' \
     'name: CI' \
@@ -101,23 +104,13 @@ trunk_closure_create_fixture() {
     '    steps:' \
     '      - run: true' \
     > "${trunk_closure_integration}/.github/workflows/ci.yml"
-  # shellcheck disable=SC2016 # Variables belong to the fixture script.
-  printf '%s\n' \
-    '# Fixture project guidance' '' \
-    'For this native fixture, non-destructive local resource cleanup is `bash tests/closure-cleanup.sh`. It validates that cleanup is safe and leaves an observable marker.' \
-    > "${trunk_closure_integration}/AGENTS.md"
-  # shellcheck disable=SC2016 # Variables belong to the fixture script.
-  printf '%s\n' \
-    '#!/usr/bin/env bash' \
-    'set -euo pipefail' \
-    'status=$(jq -r .status "${TRUNK_CLOSURE_MAILBOX}/result.json")' \
-    '[[ ${status} == stopped || ${status} == finished ]]' \
-    'printf "cleanup\n" >> "${TRUNK_CLOSURE_CONTROL_LOG}"' \
-    ': > "${TRUNK_CLOSURE_CLEANUP_MARKER}"' \
-    > "${trunk_closure_integration}/tests/closure-cleanup.sh"
-  chmod +x "${trunk_closure_integration}/tests/closure-cleanup.sh"
-  [[ ${scenario} != owned-context ]] \
-    || trunk_closure_owned_context_base "${source_dir}" "${host}"
+  if [[ ${scenario} == owned-context ]]; then
+    trunk_closure_owned_context_base "${source_dir}" "${host}"
+  else
+    # Installed into the worktree below, as a project ignores it.
+    printf '%s\n' '.agents/' '.claude/' '.codex/' '.cursor/' \
+      '.planning/execution-state.txt' > "${trunk_closure_integration}/.gitignore"
+  fi
   trunk_closure_git "${trunk_closure_integration}" add .
   trunk_closure_git "${trunk_closure_integration}" commit -q -m base
   trunk_closure_git "${trunk_closure_integration}" push -q origin main
@@ -126,8 +119,11 @@ trunk_closure_create_fixture() {
   if [[ ${scenario} == owned-context ]]; then
     trunk_closure_owned_context_worktree
   else
-    git clone -q "${trunk_closure_origin}" "${trunk_closure_workspace}"
-    trunk_closure_git "${trunk_closure_workspace}" checkout -q -b exec/trunk
+    trunk_closure_repository=${trunk_closure_integration}
+    git -C "${trunk_closure_integration}" worktree add -q -b exec/trunk \
+      "${trunk_closure_workspace}" "${trunk_closure_base_sha}"
+    # As Git lists it, so the retirement command recognizes its own entry.
+    trunk_closure_workspace=$(cd -- "${trunk_closure_workspace}" && pwd -P)
   fi
   mkdir -p "${trunk_closure_workspace}/.planning"
   if [[ ${scenario} == source ]]; then
@@ -164,29 +160,49 @@ trunk_closure_create_fixture() {
   export TRUNK_CLOSURE_RELEASE="${trunk_closure_release}"
   export TRUNK_CLOSURE_NODE_LOG="${trunk_closure_node_log}"
   export TRUNK_CLOSURE_GH_LOG="${trunk_closure_gh_log}"
-  export TRUNK_CLOSURE_CONTROL_LOG="${trunk_closure_control_log}"
-  export TRUNK_CLOSURE_CLEANUP_MARKER="${trunk_closure_cleanup_marker}"
   receipt=$(cd "${trunk_closure_workspace}" \
     && node "${trunk_closure_launcher}" start --execution owner/project main 600000)
   trunk_closure_mailbox=$(jq -r '.directory' <<< "${receipt#CI_OBSERVER }")
-  export TRUNK_CLOSURE_MAILBOX="${trunk_closure_mailbox}"
   if [[ ${scenario} == owned-context ]]; then
-    trunk_closure_owned_context_state "${root}" "${harness}"
-    return
+    trunk_closure_owned_context_state "${root}"
+  else
+    printf '%s\n' \
+      'Execution mode: Trunk Mode' \
+      'Authorized target: owner/project main' \
+      "Before-cleanup commit: ${trunk_closure_base_sha}, accepted on remote trunk" \
+      "Final closure candidate: ${trunk_closure_candidate_sha}" \
+      "Observer mailbox: ${trunk_closure_mailbox}" \
+      "Observer launcher: ${trunk_closure_launcher}" \
+      "Execution worktree: ${trunk_closure_workspace} on branch exec/trunk, created by this execution" \
+      "Default checkout: ${trunk_closure_integration}" \
+      'Applicable CI: pending' \
+      > "${trunk_closure_workspace}/.planning/execution-state.txt"
   fi
-  printf '%s\n' \
-    'Execution mode: Trunk Mode' \
-    'Authorized target: owner/project main' \
-    "Final closure candidate: ${trunk_closure_candidate_sha}" \
-    "Observer mailbox: ${trunk_closure_mailbox}" \
-    "Observer launcher: ${trunk_closure_launcher}" \
-    "Default checkout: ${trunk_closure_integration}" \
-    'Applicable CI: pending' \
-    > "${trunk_closure_workspace}/.planning/execution-state.txt"
+  trunk_closure_watch_cleanup "${harness}"
+}
+
+# Records into harness directory $1 the observer's state when the worktree
+# disappears.
+trunk_closure_watch_cleanup() {
+  (
+    while [[ -d ${trunk_closure_workspace} ]]; do sleep 0.05; done
+    jq -r .status "${trunk_closure_mailbox}/result.json" 2> /dev/null \
+      > "$1/cleanup-observer-state" || echo missing > "$1/cleanup-observer-state"
+    printf 'cleanup\n' >> "${trunk_closure_control_log}"
+    : > "${trunk_closure_cleanup_marker}"
+  ) &
+  trunk_closure_watcher=$!
+}
+
+trunk_closure_stop_watch() {
+  [[ -n ${trunk_closure_watcher:-} ]] || return 0
+  kill "${trunk_closure_watcher}" 2> /dev/null || true
+  wait "${trunk_closure_watcher}" 2> /dev/null || true
+  trunk_closure_watcher=
 }
 
 trunk_closure_cleanup_fixture() {
-  trunk_closure_owned_context_stop_watch
+  trunk_closure_stop_watch
   export PATH=${trunk_closure_old_path}
   if [[ -n ${NATIVE_NODE_CALL_LOG:-} ]]; then
     export NODE_OPTIONS=${trunk_closure_old_node_options}
@@ -197,6 +213,4 @@ trunk_closure_cleanup_fixture() {
   unset TRUNK_CLOSURE_CANDIDATE_SHA TRUNK_CLOSURE_SCENARIO
   unset TRUNK_CLOSURE_RELEASE
   unset TRUNK_CLOSURE_NODE_LOG TRUNK_CLOSURE_GH_LOG
-  unset TRUNK_CLOSURE_CONTROL_LOG TRUNK_CLOSURE_CLEANUP_MARKER
-  unset TRUNK_CLOSURE_MAILBOX
 }

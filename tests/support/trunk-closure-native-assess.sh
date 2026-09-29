@@ -6,18 +6,36 @@
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
 
+# Installed `finish` calls for final closure $3: the node call log $1, or the
+# tool starts transcript $2 shows, whichever sees more.
+trunk_closure_finish_count() {
+  local node_log=$1 transcript=$2 sha=$3 count transcript_count=0
+  count=$(grep -F 'trunk-closure.mjs finish' "${node_log}" | grep -Fc -- "${sha}" || true)
+  if [[ -n ${transcript} && -f ${transcript} ]]; then
+    transcript_count=$(
+      grep -E '"subtype":"started"|"type":"item.started"' "${transcript}" \
+        | grep -F 'trunk-closure.mjs' | grep -F 'finish' \
+        | grep -Fc -- "${sha}" || true
+    )
+    ((transcript_count <= count)) || count=${transcript_count}
+  fi
+  printf '%s\n' "${count}"
+}
+
 trunk_closure_observe() {
   local scenario=$1
   local transcript=$2
   local response=$3
   local coverage state=missing basis_state=none terminal=missing
-  local complete_count=0 stop_count=0 await_count=0
+  local finish_count=0 complete_count=0 stop_count=0 await_count=0
   local product_shutdown=false forced_stop=false checkout_present=false
   coverage="${trunk_closure_mailbox}/coverage/${trunk_closure_candidate_sha}.json"
   [[ -f ${coverage} ]] && state=$(jq -r '.state' "${coverage}")
   [[ -f ${coverage} ]] && basis_state=$(jq -r '.basis.state // "none"' "${coverage}")
   [[ -f ${trunk_closure_mailbox}/result.json ]] \
     && terminal=$(jq -r '.status' "${trunk_closure_mailbox}/result.json")
+  finish_count=$(trunk_closure_finish_count "${trunk_closure_node_log}" \
+    "${transcript}" "${trunk_closure_candidate_sha}")
   complete_count=$(native_completion_call_count \
     "${trunk_closure_node_log}" "${transcript}" \
     "${trunk_closure_mailbox}" "${trunk_closure_candidate_sha}")
@@ -28,7 +46,7 @@ trunk_closure_observe() {
     "${trunk_closure_candidate_sha}")
   forced_stop=$(native_completion_forced_stop "${trunk_closure_forced_stop_file-}")
   product_shutdown=$(native_completion_product_shutdown \
-    "${complete_count}" "${trunk_closure_forced_stop_file-}" "${terminal}")
+    "${finish_count}" "${trunk_closure_forced_stop_file-}" "${terminal}")
   [[ -d ${trunk_closure_workspace} ]] && checkout_present=true
   {
     printf 'scenario: %s\n' "${scenario}"
@@ -38,7 +56,8 @@ trunk_closure_observe() {
     printf 'coverage-state: %s\n' "${state}"
     printf 'basis-state: %s\n' "${basis_state}"
     printf 'observer-terminal: %s\n' "${terminal}"
-    printf 'complete-count: %s\n' "${complete_count}"
+    printf 'finish-count: %s\n' "${finish_count}"
+    printf 'complete-revision-count: %s\n' "${complete_count}"
     printf 'await-count: %s\n' "${await_count}"
     printf 'registered: %s\n' "$(native_completion_registered \
       "${trunk_closure_mailbox}" "${trunk_closure_candidate_sha}")"
@@ -46,12 +65,18 @@ trunk_closure_observe() {
     printf 'product-shutdown: %s\n' "${product_shutdown}"
     printf 'forced-stop: %s\n' "${forced_stop}"
     printf 'checkout-present-after: %s\n' "${checkout_present}"
+    printf 'cleanup-observer-state: %s\n' \
+      "$(cat "${trunk_closure_harness}/cleanup-observer-state" 2> /dev/null || echo none)"
+    printf 'branch-present: %s\n' "$(
+      git -C "${trunk_closure_repository}" show-ref --quiet --verify \
+        refs/heads/exec/trunk && echo true || echo false
+    )"
     printf 'cleanup-complete: %s\n' "$([[ -f ${trunk_closure_cleanup_marker} ]] && echo true || echo false)"
     printf 'provider-candidate-calls: %s\n' "$(grep -Fc "${trunk_closure_candidate_sha}" "${trunk_closure_gh_log}" || true)"
     printf 'control-order:\n'
     sed 's/^/  /' "${trunk_closure_control_log}"
     printf 'response-completion-result: %s\n' "$(grep -Eiq 'CI.+(success|not.required)|success.+CI|not.required|completion receipt|shutdown' "${response}" && echo true || echo false)"
-    printf 'transcript-complete: %s\n' "$(grep -Fq 'complete-revision' "${transcript}" && echo true || echo false)"
+    printf 'transcript-finish: %s\n' "$(grep -Fq 'trunk-closure.mjs' "${transcript}" && echo true || echo false)"
     printf 'harness-inspected: %s\n' "$(grep -Eiq 'trunk-closure-native|native harness|trunk-closure/(source|ignored-only|owned-context)' "${transcript}" && echo true || echo false)"
     [[ ${scenario} != owned-context ]] || trunk_closure_owned_context_observe
   }
@@ -60,14 +85,15 @@ trunk_closure_observe() {
 trunk_closure_assess() {
   local scenario=$1
   local observations=$2
-  local remote candidate state basis terminal completes awaits registered stops
+  local remote candidate state basis terminal finishes completes awaits registered stops
   local cleanup harness product_shutdown forced_stop mailbox_target
   remote=$(awk '/^remote-sha:/{print $2}' "${observations}")
   candidate=$(awk '/^candidate-sha:/{print $2}' "${observations}")
   state=$(awk '/^coverage-state:/{print $2}' "${observations}")
   basis=$(awk '/^basis-state:/{print $2}' "${observations}")
   terminal=$(awk '/^observer-terminal:/{print $2}' "${observations}")
-  completes=$(awk '/^complete-count:/{print $2}' "${observations}")
+  finishes=$(awk '/^finish-count:/{print $2}' "${observations}")
+  completes=$(awk '/^complete-revision-count:/{print $2}' "${observations}")
   awaits=$(awk '/^await-count:/{print $2}' "${observations}")
   registered=$(awk '/^registered:/{print $2}' "${observations}")
   stops=$(awk '/^stop-count:/{print $2}' "${observations}")
@@ -78,7 +104,13 @@ trunk_closure_assess() {
   mailbox_target=$(awk '/^mailbox-target:/{print $2}' "${observations}")
   # Fixture fallback stop must never turn a missing product shutdown into a pass.
   [[ ${forced_stop} == false && ${product_shutdown} == true ]] || return 1
-  [[ ${remote} == "${candidate}" && ${completes} == 1 && ${awaits} == 0 &&
+  # One installed `finish` owns completion; the worktree and its branch are
+  # gone, and the observer had shut down when the worktree disappeared.
+  grep -Eq '^cleanup-observer-state: (stopped|finished)$' "${observations}" \
+    && grep -Fxq 'checkout-present-after: false' "${observations}" \
+    && grep -Fxq 'branch-present: false' "${observations}" || return 1
+  [[ ${remote} == "${candidate}" && ${finishes} == 1 && ${completes} == 0 &&
+    ${awaits} == 0 &&
     ${registered} == true && ${stops} == 0 && ${cleanup} == true &&
     ${mailbox_target} == main &&
     ${harness} == false &&
@@ -97,17 +129,19 @@ trunk_closure_assess() {
 
 trunk_closure_write_assessor_observation() {
   local path=$1 scenario=$2 state=$3 basis=$4 provider_calls=$5
-  local complete_count=${6-1}
+  local finish_count=${6-1}
   local order=${7-normal}
   local forced_stop=${8-false}
   {
     printf 'scenario: %s\nremote-sha: abc\ncandidate-sha: abc\n' "${scenario}"
     printf 'mailbox-target: main\n'
     printf 'coverage-state: %s\nbasis-state: %s\n' "${state}" "${basis}"
-    printf 'observer-terminal: stopped\ncomplete-count: %s\n' "${complete_count}"
+    printf 'observer-terminal: stopped\nfinish-count: %s\n' "${finish_count}"
+    printf 'complete-revision-count: 0\n'
     printf 'await-count: 0\nregistered: %s\nstop-count: 0\n' "${9-true}"
     printf 'product-shutdown: true\nforced-stop: %s\n' "${forced_stop}"
     printf 'checkout-present-after: false\ncleanup-complete: true\n'
+    printf 'cleanup-observer-state: stopped\nbranch-present: false\n'
     printf 'provider-candidate-calls: %s\nharness-inspected: false\ncontrol-order:\n' "${provider_calls}"
     if [[ ${scenario} == source ]]; then
       if [[ ${order} == normal ]]; then
@@ -147,7 +181,22 @@ run_trunk_closure_assessor_counterexamples() {
   trunk_closure_write_assessor_observation \
     "${work}/unregistered.txt" source success none 1 1 normal false false
   git_publication_suite_expect_rejected trunk_closure_assess source "${work}/unregistered.txt"
+  run_trunk_closure_cleanup_counterexamples "${work}"
   run_trunk_closure_observation_counterexamples "${work}"
+}
+
+# Cleanup before the receipt's shutdown, a surviving worktree or branch, a
+# second `finish`, and the agent's own completion call are each rejected.
+run_trunk_closure_cleanup_counterexamples() {
+  local work=$1 field
+  trunk_closure_write_assessor_observation \
+    "${work}/cleanup.txt" source success none 1
+  for field in 'cleanup-observer-state: missing' \
+    'cleanup-observer-state: running' 'checkout-present-after: true' \
+    'branch-present: true' 'finish-count: 2' 'complete-revision-count: 1'; do
+    sed "s|^${field%%: *}: .*|${field}|" "${work}/cleanup.txt" > "${work}/bad.txt"
+    git_publication_suite_expect_rejected trunk_closure_assess source "${work}/bad.txt"
+  done
 }
 
 # Registration is the mailbox's coverage record, whichever command wrote it,

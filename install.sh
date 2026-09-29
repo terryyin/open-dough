@@ -166,6 +166,7 @@ managed_files=(
   dough-execute-plan/references/publish-the-candidate.md
   dough-execute-plan/references/runtime-setup.md
   dough-execute-plan/references/trunk-publication.md
+  dough-execute-plan/references/wrap-up-closure-publication.md
   dough-execute-plan/references/wrap-up.md
   dough-execute-plan/scripts/ci-command-adapter.mjs
   dough-execute-plan/scripts/applicable-candidate-proof.mjs
@@ -240,6 +241,7 @@ managed_files=(
   dough-story-wrap-up/scripts/closure-candidate-settlement.mjs
   dough-story-wrap-up/scripts/closure-publication.mjs
   dough-story-wrap-up/scripts/closure-resources.mjs
+  dough-story-wrap-up/scripts/trunk-closure.mjs
 )
 require_declared_payload
 release_helper="${source_dir}/src/install/open-dough-release.sh"

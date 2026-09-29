@@ -292,7 +292,7 @@ preparing journey's typecheck (run 36507473752).
 
 ### 3. Trunk closure finishes through one installed command
 Type: Behavior
-Status: planned
+Status: done
 Proof: child-process CLI tests with a real mailbox for example 1 and example 3; credential-free trunk-closure native mode green with the assessor requiring the command.
 
 Behavior: A Trunk Mode wrap-up whose before-cleanup commit was accepted through
@@ -314,7 +314,8 @@ trunk lacks stops before publishing; failure, retained, or unconfirmed
 shutdown preserves resources and reports the receipt.
 
 Wrap-up's "Commit final closure" and "Remove execution resources safely" for
-Trunk Mode, and `trunk-publication.md` "Publish wrap-up closure", keep
+Trunk Mode, and `trunk-publication.md` "Publish wrap-up closure" (now
+`wrap-up-closure-publication.md`), keep
 `deliver` for the before-cleanup commit and call `finish` for the rest,
 dropping the prose sequence it replaces. Declare `trunk-closure.mjs` in
 `install.sh`. The trunk-closure native substitute and assessor observe the
@@ -326,6 +327,35 @@ Proof: `trunk-closure.test.mjs` drives the CLI as a child process with the
 managed-delivery CLI fixtures' real mailbox (`stopAtTeardown`), covering no
 default checkout and a non-default remote and target. Payload checks below,
 `tests/story-payload-update.sh`, and native default mode green.
+
+Accepted proof (2026-09-29): `trunk-closure.test.mjs` drives the installed
+CLI as a child process with the managed-delivery fixture's real observer and
+`stopAtTeardown`: example 1 (reused mailbox, one success receipt for the final
+SHA with confirmed shutdown, default checkout fast-forwarded, worktree and
+branch retired); non-default remote `upstream` and target `refs/heads/release`
+with no default checkout, an armed observer, and ownership from a creation ref;
+example 3 (conflict stop naming the rebase-conflict recovery, resources and
+both commits kept); before-cleanup SHA missing from trunk (nothing published or
+observed); CI failure with retained shutdown; no observer; usage error. Wrap-up,
+Land, delivery, and guidance suites, payload checks,
+`tests/git-publication-native.sh` (assessor now requires exactly one `finish`
+and no separate `complete-revision`), and
+`tests/git-publication-native-owned-context.sh` green. Native suite elapsed
+time after slice 3: 52 s (56.5 s before slice 2).
+
+Learnings: `finish` composes `deliverManagedExecutionIncrement` with
+`--validated-candidate` set to the final SHA, `completeRevision`,
+`refreshDefaultCheckout`, and `retireWorktree`; a non-conflicting trunk advance
+currently stops as `step: "publish"`, which slice 4 turns into rebase and
+publish once. The closure guidance moved from `trunk-publication.md` to
+`dough-execute-plan/references/wrap-up-closure-publication.md` ("Finish Trunk
+Mode closure", "Complete current-branch closure", "Observe Story Branch
+integration"), which the trunk-closure and Story Branch closure native
+identities already hash. The trunk-closure fixtures now use a worktree of the
+integration checkout, and the preparation-land substitute retires through
+`retire`. `install.sh` and wrap-up `SKILL.md` sit at 250 lines, so later
+additions need a trim. The closure CLIs each carry their own flag parser; a
+shared one stays out of scope.
 
 ### 4. An interrupted trunk closure resumes from its first unfinished step
 Type: Behavior

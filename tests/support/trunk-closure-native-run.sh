@@ -31,6 +31,7 @@ trunk_closure_write_evidence_identity() {
   native_result_supervision_input_hash_lines
   native_result_input_hash_lines \
     src/skills/dough-execute-plan/references/trunk-publication.md \
+    src/skills/dough-execute-plan/references/wrap-up-closure-publication.md \
     src/skills/dough-execute-plan/references/ci-monitor.md \
     src/skills/dough-execute-plan/references/ci-completion-wait.md \
     src/skills/dough-story-wrap-up/SKILL.md
@@ -39,10 +40,11 @@ trunk_closure_write_evidence_identity() {
 # Per-step controller bound; each step awaits one action of the native agent.
 trunk_closure_wait_limit=360
 
+# The installed `finish`, which runs completion, has started.
 trunk_closure_complete_seen() {
-  native_completion_seen "${trunk_closure_node_log}" \
+  [[ $(trunk_closure_finish_count "${trunk_closure_node_log}" \
     "${TRUNK_CLOSURE_TRANSCRIPT:-/dev/null}" \
-    "${trunk_closure_mailbox}" "${trunk_closure_candidate_sha}"
+    "${trunk_closure_candidate_sha}") -ge 1 ]]
 }
 
 trunk_closure_controller() {
@@ -137,7 +139,7 @@ trunk_closure_run_journey() {
   trunk_closure_stop_observer "${source_dir}" || stop_status=$?
   if trunk_closure_assess "${scenario}" "${harness}/observations.txt"; then
     git_publication_assess_status=pass
-    git_publication_assess_reason='final publication, one complete-revision, confirmed shutdown, and cleanup order observed'
+    git_publication_assess_reason='one installed finish: final publication, completion with confirmed shutdown, then worktree and branch retired'
   else
     git_publication_assess_status=fail
     git_publication_assess_reason='Trunk Mode closure ordering was not observed'

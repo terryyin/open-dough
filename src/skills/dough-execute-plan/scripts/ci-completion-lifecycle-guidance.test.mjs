@@ -16,8 +16,8 @@ const finish = read("dough-execute-plan/references/finish-or-stop.md");
 const retrospective = read("dough-execution-retrospective/SKILL.md");
 const codex = read("dough-execute-plan/references/ci-notify-codex.md");
 const detached = read("dough-execute-plan/references/ci-notify-hosts.md");
-const trunkPublication = read(
-  "dough-execute-plan/references/trunk-publication.md",
+const closurePublication = read(
+  "dough-execute-plan/references/wrap-up-closure-publication.md",
 );
 const storyWrapUp = read("dough-story-wrap-up/SKILL.md");
 
@@ -84,43 +84,47 @@ test("host adapters keep quiet delivery and reserve stop for cancellation", () =
 
 test("Trunk Mode and Story Branch closure share one completion operation before cleanup", () => {
   assert.match(
-    trunkPublication,
+    closurePublication,
     /last[\s\S]+wrap-up[\s\S]+publication[\s\S]+shared completion operation[\s\S]+final accepted SHA/,
   );
   assert.match(
-    trunkPublication,
+    closurePublication,
     /combined[\s\S]+CI and shutdown receipt[\s\S]+report the exact[\s\S]+published closure SHAs/,
   );
   assert.match(
-    trunkPublication,
+    closurePublication,
     /never between[\s\S]+intermediate[\s\S]+recovery-record publications/,
   );
   assert.match(
-    trunkPublication,
-    /Unconfirmed[\s\S]+shutdown or retained observation preserves the\s+worktree and\s+branch/,
+    closurePublication,
+    /trunk-closure\.mjs finish[\s\S]+shared completion operation[\s\S]+once for the accepted SHA/,
   );
   assert.match(
-    trunkPublication,
+    closurePublication,
+    /retained or unconfirmed\s+shutdown keeps the worktree and branch/,
+  );
+  assert.match(
+    closurePublication,
     /unavailable[\s\S]+report it truthfully[\s\S]+without inventing[\s\S]+successful observation/,
   );
   assert.match(
-    trunkPublication,
+    closurePublication,
     /close the observer bound to the remote execution[\s\S]+branch with[\s\S]+shared completion operation/,
   );
   assert.match(
-    trunkPublication,
+    closurePublication,
     /green[\s\S]+execution-branch receipt covers only that branch[\s\S]+never releases later trunk/,
   );
   assert.match(
-    trunkPublication,
+    closurePublication,
     /accepted integrated SHA[\s\S]+trunk observer[\s\S]+combined receipt/,
   );
   assert.doesNotMatch(
-    trunkPublication,
+    closurePublication,
     /stopping only that observer through the host adapter/,
   );
   assert.doesNotMatch(
-    trunkPublication,
+    closurePublication,
     /then explicitly stop the trunk observer/,
   );
   assert.match(storyWrapUp, /completion receipt \(CI verdict/);
@@ -148,12 +152,12 @@ test("wrap-up retires execution resources through Dough Land with its completion
     storyWrapUp,
     "## Remove execution resources safely",
   );
-  const closureRetirement = section(
-    trunkPublication,
-    "## Publish wrap-up closure",
+  const closureRetirement = closurePublication.slice(
+    0,
+    closurePublication.indexOf("\n## Observe Story Branch integration"),
   );
   const integrationRetirement = section(
-    trunkPublication,
+    closurePublication,
     "## Observe Story Branch integration",
   );
 
@@ -167,7 +171,7 @@ test("wrap-up retires execution resources through Dough Land with its completion
   );
   assert.match(
     wrapUpRetirement,
-    /gate[\s\S]+completion receipt whose shutdown is[\s\S]+confirmed/,
+    /gate[\s\S]+completion receipt[\s\S]+whose shutdown\s+is confirmed/,
   );
   assert.match(
     wrapUpRetirement,
@@ -177,11 +181,18 @@ test("wrap-up retires execution resources through Dough Land with its completion
     wrapUpRetirement,
     /Story Branch Mode[\s\S]+`--remote-branch <execution\s+branch>`[\s\S]+`--contained <integrated SHA>`/,
   );
-  assert.match(wrapUpRetirement, /Trunk Mode[\s\S]+never deletes one/);
+  assert.match(
+    wrapUpRetirement,
+    /Trunk Mode[\s\S]+never a\s+remote execution branch/,
+  );
   assert.match(wrapUpRetirement, /direct-current-branch mode/);
   assert.match(
     closureRetirement,
-    /\[Retire the worktree\]\(\.\.\/\.\.\/dough-land\/SKILL\.md#retire-the-worktree\)[\s\S]+receipt as its gate/,
+    /receipt whose shutdown is confirmed retires the\s+worktree and branch under Dough Land's\s+\[Retire the worktree\]\(\.\.\/\.\.\/dough-land\/SKILL\.md#retire-the-worktree\)/,
+  );
+  assert.match(
+    wrapUpRetirement,
+    /In Trunk Mode, `finish` retires[\s\S]+completion receipt confirms shutdown/,
   );
   assert.match(
     integrationRetirement,

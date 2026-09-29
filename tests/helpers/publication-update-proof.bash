@@ -45,6 +45,7 @@ assert_installed_publication_modules() {
       "dough-story-wrap-up/scripts/closure-candidate-settlement.mjs",
       "dough-story-wrap-up/scripts/closure-publication.mjs",
       "dough-story-wrap-up/scripts/closure-resources.mjs",
+      "dough-story-wrap-up/scripts/trunk-closure.mjs",
     ];
     for (const modulePath of modules) {
       await import(pathToFileURL(`${root}/${modulePath}`));
