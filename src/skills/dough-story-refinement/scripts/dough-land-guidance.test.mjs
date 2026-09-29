@@ -81,7 +81,15 @@ test("preparation keep and workspace retirement link Dough Land instead of descr
     assert.doesNotMatch(guidance, /session-created|this\s+session\s+created/);
   }
   // Land retires under the shared lifecycle's work-scoped rule by link,
-  // through its installed command rather than raw Git steps.
+  // through its installed command rather than raw Git steps. Its intro names
+  // ownership beside containment, so containment alone never reads as enough.
+  const retire = land.slice(land.indexOf("## Retire the worktree"));
+  const intro = retire.slice(0, retire.indexOf("Before removing anything"));
+  assert.match(intro, /both gates/);
+  assert.match(intro, /contains its work/);
+  assert.match(intro, /this work created the\s+worktree/);
+  assert.match(intro, /Containment alone\s+does not make/);
+  assert.doesNotMatch(land, /containment as the safety test/);
   assert.match(
     land,
     /\[own a temporary exploration workspace\]\(\.\.\/dough-manual-testing\/references\/exploration-workspace\.md\)\s+"Close or retain it"/,

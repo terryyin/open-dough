@@ -71,14 +71,19 @@ git_publication_repository_intact() {
 # script path or the subcommand.
 git_publication_start_pattern='execution-start\.mjs["'"'"']?[[:space:]]+["'"'"']?start["'"'"']?([[:space:]]|$)'
 
-# Distinct execution-start invocations transcript $1 shows, in any stream
-# shape: each command with its line continuations joined, split at its
-# command separators, without --help probes.
-git_publication_transcript_start_commands() {
+# Every shell command transcript $1 shows, in any stream shape: each command
+# with its line continuations joined, split at its command separators.
+git_publication_transcript_commands() {
   # shellcheck disable=SC2016 # jq program, not shell expansion.
   jq -r '.. | objects | .command? // empty | strings
     | gsub("\\\\\n[ \t]*"; " ") | splits("&&|\\|\\||[;|\n]")
-    | gsub("^[ \t]+|[ \t]+$"; "")' "$1" 2> /dev/null \
+    | gsub("^[ \t]+|[ \t]+$"; "")' "$1" 2> /dev/null || true
+}
+
+# Distinct execution-start invocations transcript $1 shows, without --help
+# probes.
+git_publication_transcript_start_commands() {
+  git_publication_transcript_commands "$1" \
     | grep -E -- "${git_publication_start_pattern}" | grep -Fv -- '--help' \
     | sort -u || true
 }

@@ -3,8 +3,9 @@
 # context alone: the session announces Story C's preparation on the fetched
 # trunk tip from the clean, behind retained worktree, refines Story C there,
 # and lands the draft with the assignment's release through Dough Land, then
-# retires the worktree and its branch without creating a default checkout.
-# Sourced by the owned-context journeys.
+# retires the worktree and its branch through the installed retirement command
+# for Story C, never raw Git, without creating a default checkout. Sourced by
+# the owned-context journeys.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture and assessor globals.
 
 # Story C's seed up to its section anchor, at revision $1 of origin.
@@ -13,8 +14,16 @@ git_publication_preparation_land_preamble() {
     | awk '$0 == "<a id=\"c\"></a>" { exit } { print }'
 }
 
+# Commands the node call log and transcript $1 show, quotes dropped.
+git_publication_preparation_land_commands() {
+  {
+    cat "${git_publication_owned_node_log}" 2> /dev/null || true
+    git_publication_transcript_commands "$1"
+  } | tr -d "\"'"
+}
+
 git_publication_observe_preparation_land() {
-  local journey=$1 stream_status=$2
+  local journey=$1 stream_status=$2 transcript=$3 commands
   local origin=${git_publication_fixture_origin} base=${git_publication_fixture_trunk_sha}
   local repository=${git_publication_owned_repository}
   local seed=.planning/seeds/C.md tip announcement parent=none profile='' changed=''
@@ -35,8 +44,18 @@ git_publication_observe_preparation_land() {
   first_push=$(sed -n 's/^pushed-tip: \([0-9a-f]*\) .*/\1/p' <<< "${pushes}" | head -n 1)
   outside=$(git -C "${origin}" diff --name-only "${base}" "${tip}" \
     | grep -Fvx -e "${seed}" -e "${profile:-${seed}}" | paste -sd, - || true)
+  commands=$(git_publication_preparation_land_commands "${transcript}")
   printf 'journey: %s\n' "${journey}"
   printf 'stream-status: %s\n' "${stream_status}"
+  printf 'retire-command: %s\n' "$(
+    grep -E -- 'worktree-retirement\.mjs +retire( |$)' <<< "${commands}" \
+      | sed -nE 's/.* --identity +([^ ]+).*/\1/p' \
+      | grep -Fqx -- "${NATIVE_OWNED_IDENTITY}" && echo true || echo false
+  )"
+  printf 'raw-git-retirement: %s\n' "$(
+    grep -Eq '^([A-Za-z_][A-Za-z0-9_]*=[^ ]* +)*git( +-[Cc] +[^ ]+)* +worktree +remove( |$)' \
+      <<< "${commands}" && echo true || echo false
+  )"
   printf 'fetched-sha: %s\n' "${base}"
   printf 'remote-sha: %s\n' "${tip}"
   printf 'announcement-sha: %s\n' "${announcement:-none}"
@@ -72,12 +91,13 @@ git_publication_observe_preparation_land() {
 
 git_publication_assess_preparation_land() {
   local obs=$1 key
-  local stream_status fetched_sha announcement_sha announcement_parent
+  local stream_status retire_command raw_git_retirement
+  local fetched_sha announcement_sha announcement_parent
   local announcement_profile_only announcement_contained first_trunk_push
   local forced_trunk_push_count release_landed draft_landed
   local seed_preamble_unchanged changed_outside_story workspace_present
   local branch_present repository_intact other_checkouts
-  for key in stream-status fetched-sha announcement-sha announcement-parent \
+  for key in stream-status retire-command raw-git-retirement fetched-sha announcement-sha announcement-parent \
     announcement-profile-only announcement-contained first-trunk-push \
     forced-trunk-push-count release-landed draft-landed \
     seed-preamble-unchanged changed-outside-story workspace-present \
@@ -97,12 +117,16 @@ git_publication_assess_preparation_land() {
     git_publication_assess_fail "the landing changed content outside Story C's section and the assignment release"
   elif [[ ${draft_landed} != true || ${release_landed} != true ]]; then
     git_publication_assess_fail 'remote trunk lacks the Story C draft or the assignment release'
+  elif [[ ${raw_git_retirement} != false ]]; then
+    git_publication_assess_fail 'the worktree was removed through raw Git (git worktree remove)'
+  elif [[ ${retire_command} != true ]]; then
+    git_publication_assess_fail 'retirement did not run the installed retirement command for Story C'
   elif [[ ${workspace_present} != false || ${branch_present} != false ]]; then
     git_publication_assess_fail 'the landed worktree or its branch survived'
   elif [[ ${repository_intact} != true || -n ${other_checkouts} ]]; then
     git_publication_assess_fail "the repository's Git directory changed or a default checkout was created"
   else
     git_publication_assess_status=pass
-    git_publication_assess_reason='preparation announced on fetched trunk, landed only Story C with its release, and retired its worktree'
+    git_publication_assess_reason='preparation announced on fetched trunk, landed only Story C with its release, and retired its worktree through the installed retirement command'
   fi
 }

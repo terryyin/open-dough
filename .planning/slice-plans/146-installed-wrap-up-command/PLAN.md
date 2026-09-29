@@ -572,6 +572,20 @@ output after judging. Command:
 `PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native <codex|cursor|claude> --case <case> --results-dir <dir>`.
 Never in `scripts/test.sh`, CI, or a loop.
 
+
+Credential-free preparation (2026-09-29, before any paid run): Land's "Retire
+the worktree" intro names both gates (the fetched target contains the work, and
+this work created the worktree); "containment as the safety test" is gone. The
+`publication/preparation-land` assessor requires an observed
+`worktree-retirement.mjs retire --identity <story>` from the node-call log or
+transcript and rejects raw `git worktree remove`, and the trunk-closure
+owned-context counterexamples include `finish-count: 0`. The owned-context
+fixture records node calls through `native-harness-observation.sh`, which its
+identity now hashes. Remaining: the paid runs, which await Terry's run
+authority. Pin the candidate SHA of the story branch tip that carries this
+preparation, and accept each owned-context run on its transcript's ownership
+read, not on PASS alone.
+
 ## Proof ownership
 
 | Final-state promise | Owning slice and decisive observation |

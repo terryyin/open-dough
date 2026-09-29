@@ -182,6 +182,9 @@ git_publication_run_journey() {
   # Do not toggle shell errexit here: a non-zero return must reach the caller
   # so credential-free counterexamples can assert incomplete streams.
   git_publication_run_native_command || run_status=$?
+  if git_publication_owned_context_journey "${journey}"; then
+    native_harness_restore
+  fi
 
   stream_status=${native_run_stream_status:-missing}
   if [[ ${native_run_outcome} == timeout ]]; then

@@ -103,12 +103,17 @@ publication.
 
 ## Retire the worktree
 
-Retirement follows
+Retire the worktree only when both gates hold, and let the command below
+check them: the fetched target contains its work, and this work created the
+worktree, which
 [own a temporary exploration workspace](../dough-manual-testing/references/exploration-workspace.md)
-"Close or retain it", with containment as the safety test. Before removing
-anything, record the worktree's repository management context, its shared Git
-directory (`git -C <worktree> rev-parse --path-format=absolute --git-common-dir`).
-Give it to the command below, and run any other Git command here from it
+"Close or retain it" establishes from the work's records. Containment alone
+does not make a worktree this work's to remove.
+
+Before removing anything, record the worktree's repository management
+context, its shared Git directory
+(`git -C <worktree> rev-parse --path-format=absolute --git-common-dir`). Give
+it to the command below, and run any other Git command here from it
 (`git -C <management context> ...`), not from the worktree or a default
 checkout, so removing the worktree, even the repository's last one, leaves
 them usable.
@@ -168,8 +173,8 @@ the command with the management context recorded before its removal; it
 reports `already-absent` and needs no ownership fact. Never force-remove,
 force-delete, or reset to make cleanup possible. A calling skill may add its
 own gate, such as a completion receipt that must arrive first; retirement then
-waits for that gate as well as containment, runs the command only once the gate
-holds, and keeps every resource while either is missing.
+waits for that gate as well as containment and ownership, runs the command only
+once the gate holds, and keeps every resource while any of them is missing.
 
 Another skill may apply this section on its own after its own accepted
 publication, with its own gate.

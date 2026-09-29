@@ -32,6 +32,8 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-startup-owned-context.sh \
         tests/support/git-publication-native-preparation-land.sh \
         tests/support/git-publication-native-push-log-observe.mjs \
+        tests/support/native-harness-observation.sh \
+        tests/support/native-node-call-recorder.mjs \
         src/skills/dough-execute-plan/SKILL.md \
         src/skills/dough-execute-plan/scripts/workspace-publication-select.mjs \
         src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs \

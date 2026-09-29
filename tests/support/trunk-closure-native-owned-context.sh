@@ -88,8 +88,11 @@ run_trunk_closure_owned_context_counterexamples() {
   printf '%s\n' 'repository-intact: true' 'other-checkouts: ' \
     'default-checkout-present: false' >> "${work}/valid.txt"
   trunk_closure_assess owned-context "${work}/valid.txt"
+  # Retirement without the installed `finish`, whose retirement checks
+  # ownership, is rejected like the other owned-context failures.
   for field in 'repository-intact: false' \
-    "other-checkouts: ${work}/integration" 'default-checkout-present: true'; do
+    "other-checkouts: ${work}/integration" 'default-checkout-present: true' \
+    'finish-count: 0'; do
     sed "s|^${field%%: *}: .*|${field}|" "${work}/valid.txt" > "${work}/bad.txt"
     if trunk_closure_assess owned-context "${work}/bad.txt"; then
       printf 'FAIL: trunk-closure/owned-context passed with %s\n' "${field}" >&2
