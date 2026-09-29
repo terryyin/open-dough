@@ -325,7 +325,7 @@ Learnings for later slices:
 
 ### 6. The free suite refuses host-stream parsing outside the reader
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/native-stream-replay.sh` guard, green on the tree, plus one
 counterexample.
 
@@ -333,6 +333,23 @@ Behavior: every host-event literal in `tests/` and `scripts/` sits in the
 reader or an explicitly listed shape writer → the free suite passes. A file
 that greps `"type":"item.started"` → it fails naming that file (example 3).
 Host coverage of the corpus stays with slice 1.
+
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+tests/native-stream-replay.sh tests/support/native-host-stream.test.mjs`,
+exit 0 (about 2 s; the guard takes 0.06 s). The guard is
+`tests/support/native-stream-guard.mjs`. Its counterexamples, run in a
+temporary Git tree, are a stray `"type":"item.started"` grep and a stale
+shape-writer entry.
+
+Learnings for later slices:
+- The guard scans shell and JS code under `tests/` and `scripts/` (Git's
+  cached and untracked files), skipping Markdown and
+  `tests/fixtures/native-streams/`. It also catches `"type":"result"` and
+  `.type == "result"` selections, and `.subtype == "started"`. Object
+  construction such as `{type:"result"}` is a write and is not matched.
+- The shape-writer list is exact: a listed file without a literal fails, so
+  a new writer (for example a slice 7 substitute attempt) must be added, and
+  a writer that loses its last literal removed.
 
 ### 7. One command adds an accepted paid run to the corpus
 Type: Behavior

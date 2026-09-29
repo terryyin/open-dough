@@ -5,8 +5,8 @@
 # reviewed started commands, stream status, and response presence, including
 # when cut mid-command. Each retained publication attempt also replays its
 # journey's stream fields and, where its observations carry today's schema,
-# today's verdict. Replay proves the harness, not native behavior (ADR 0005
-# section 2).
+# today's verdict. A guard keeps host stream parsing inside that reader.
+# Replay proves the harness, not native behavior (ADR 0005 section 2).
 # shellcheck disable=SC2312 # Captured reader output is checked by value.
 set -euo pipefail
 
@@ -77,3 +77,42 @@ expect_counterexample admit-unobserved \
   '^FAIL: cursor/publication/admission-investigation/20260929T035934-4301/events: ' \
   'cursor/publication/admission-investigation/20260929T035934-4301/events: stream field admit-cli-observed is false, expected true' \
   'cursor/publication/admission-investigation/20260929T035934-4301/events: verdict is fail / investigation started before its admission reached remote trunk, expected pass / accepted investigation was admitted to remote Taken before its first probe'
+
+# Host streams are parsed only by the shared reader: every other file holding a
+# host-event literal is a listed shape writer, and every listed writer holds one.
+guard="${source_dir}/tests/support/native-stream-guard.mjs"
+node "${guard}"
+
+# The guard runs over a tree holding just the listed writers, plus one
+# counterexample at a time, and must fail naming exactly that counterexample.
+expect_guard_failure() {
+  local tree=$1 expected=$2 output="${work_dir}/guard.out" status=0
+  node "${guard}" --root "${tree}" > "${output}" || status=$?
+  if [[ ${status} -ne 1 ]] || [[ $(cat "${output}") != "FAIL: ${expected}" ]]; then
+    printf 'FAIL: the guard exited %s over %s, expected only FAIL: %s\n' \
+      "${status}" "${tree}" "${expected}" >&2
+    cat "${output}" >&2
+    return 1
+  fi
+}
+tree="${work_dir}/guard-tree"
+git init -q "${tree}"
+while IFS= read -r writer; do
+  mkdir -p "${tree}/$(dirname -- "${writer}")"
+  cp -- "${source_dir}/${writer}" "${tree}/${writer}"
+done < <(node "${guard}" --writers)
+node "${guard}" --root "${tree}"
+
+# A new journey whose observation greps a Codex started event itself.
+stray=tests/support/stray-journey-observe.sh
+cat > "${tree}/${stray}" << 'STRAY'
+#!/usr/bin/env bash
+grep -c '"type":"item.started"' "$1"
+STRAY
+expect_guard_failure "${tree}" "${stray}:2: host-event literal item.started outside the shared reader; read the stream through tests/support/native-host-stream.mjs"
+rm -- "${tree}/${stray}"
+
+# A listed writer that no longer writes a host shape leaves the list stale.
+stale=tests/native-run-workspace-isolation.sh
+: > "${tree}/${stale}"
+expect_guard_failure "${tree}" "${stale}: listed as a shape writer but holds no host-event literal; remove it from the list"
