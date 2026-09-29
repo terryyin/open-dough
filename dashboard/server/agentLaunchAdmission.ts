@@ -13,12 +13,14 @@ import {
   attachOpens,
   launchWorkflows,
   type AgentLaunchRequest,
+  type LaunchRecord,
 } from "../src/agentLaunch.ts";
 import { agentDoneEndpoint, markDoneRequestSchema } from "../src/doneMark.ts";
 import { sourceById, type PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches, Recorded } from "./agentLaunches.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
+import type { ProjectFolder } from "./projectFolders.ts";
 
 // Enough for the longest request the limits allow, in any UTF-8 spelling.
 const bodyLimitBytes = 32 * 1024;
@@ -33,7 +35,8 @@ export type Admitted =
   | {
       readonly kind: "done";
       readonly source: PublishedSource;
-      readonly sessionId: string;
+      readonly record: LaunchRecord;
+      readonly folder: ProjectFolder;
     };
 
 function knownSource(id: string | null): PublishedSource {
@@ -78,16 +81,45 @@ async function jsonBody(req: IncomingMessage): Promise<unknown> {
   }
 }
 
-async function doneRequest(req: IncomingMessage): Promise<Admitted> {
+// A session this dashboard recorded for the project in its existing folder,
+// or the refusal a request naming another gets.
+async function recordedSession(
+  launches: AgentLaunches,
+  source: PublishedSource,
+  sessionId: string,
+): Promise<Extract<Recorded, { readonly kind: "recorded" }>> {
+  const recorded = await launches.recorded(source, sessionId);
+  switch (recorded.kind) {
+    case "recorded":
+      return recorded;
+    case "unrecorded":
+      throw new RefusedRequest(
+        404,
+        "This dashboard launched no such session for this project.",
+      );
+    case "folder-not-found":
+      throw new RefusedRequest(
+        404,
+        `The project folder ${recorded.folder.shown} was not found on this machine.`,
+      );
+  }
+}
+
+async function doneRequest(
+  req: IncomingMessage,
+  launches: AgentLaunches,
+): Promise<Admitted> {
   const parsed = markDoneRequestSchema.safeParse(await jsonBody(req));
   if (!parsed.success) {
     throw new RefusedRequest(400, "The done request is malformed.");
   }
-  return {
-    kind: "done",
-    source: knownSource(parsed.data.source),
-    sessionId: parsed.data.session,
-  };
+  const source = knownSource(parsed.data.source);
+  const { record, folder } = await recordedSession(
+    launches,
+    source,
+    parsed.data.session,
+  );
+  return { kind: "done", source, record, folder };
 }
 
 async function launchRequest(req: IncomingMessage): Promise<Admitted> {
@@ -110,13 +142,14 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
 export async function admitted(
   req: IncomingMessage,
   url: URL,
+  launches: AgentLaunches,
 ): Promise<Admitted> {
   verifyLocalOrigin(req);
   if (url.pathname === agentDoneEndpoint) {
     if (req.method !== "POST") {
       throw new RefusedRequest(405, "Only POST is accepted here.");
     }
-    return doneRequest(req);
+    return doneRequest(req, launches);
   }
   if (req.method === "GET") {
     return {
@@ -128,27 +161,6 @@ export async function admitted(
     return launchRequest(req);
   }
   throw new RefusedRequest(405, "Only GET and POST are accepted here.");
-}
-
-// A session this dashboard recorded for the project in its existing folder,
-// or the refusal a request naming another gets.
-export function recordedSession(
-  recorded: Recorded,
-): Extract<Recorded, { readonly kind: "recorded" }> {
-  switch (recorded.kind) {
-    case "recorded":
-      return recorded;
-    case "unrecorded":
-      throw new RefusedRequest(
-        404,
-        "This dashboard launched no such session for this project.",
-      );
-    case "folder-not-found":
-      throw new RefusedRequest(
-        404,
-        `The project folder ${recorded.folder.shown} was not found on this machine.`,
-      );
-  }
 }
 
 // The one session an upgrade may attach to, or the refusal it gets: one this
@@ -163,8 +175,10 @@ export async function admittedAttach(
 ): Promise<TerminalSession> {
   verifyLocalOrigin(req);
   const source = knownSource(url.searchParams.get("source"));
-  const { record, folder } = recordedSession(
-    await launches.recorded(source, url.searchParams.get("session") ?? ""),
+  const { record, folder } = await recordedSession(
+    launches,
+    source,
+    url.searchParams.get("session") ?? "",
   );
   const joined = await launches.stateOf(source, record);
   if (!attachOpens(joined.sessionState)) {

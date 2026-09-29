@@ -1,8 +1,8 @@
 # Dashboard browser tests
 
 This directory holds the dashboard's one Playwright suite, run from the
-repository root with `npm run test:dashboard`. Every run builds the app once; each page
-journey (`dashboardTest.ts`) then serves that build from its own
+repository root with `npm run test:dashboard`. Every run builds the app once;
+each page journey (`dashboardTest.ts`) then serves that build from its own
 preview server with a synthetic `gh` on its PATH (`fixtures/fake-gh`)
 that answers from the test's own fake GitHub (`support/fakeGitHub.ts`,
 published through `publishedOrigin.ts` or
@@ -18,8 +18,8 @@ GitHub itself fails the test. The boundary specs
 built-preview servers. Every server binds a port the operating system
 chooses, so the suite can run beside another checkout's suite on the same
 machine, and a server that cannot start fails its test with its own output
-(`support/dashboardServer.ts`). Nothing here ever calls the real `gh` CLI or contacts
-GitHub. Select one journey with, for example,
+(`support/dashboardServer.ts`). Nothing here ever calls the real `gh` CLI or
+contacts GitHub. Select one journey with, for example,
 `npm run test:dashboard -- --grep 'published overview'` or
 `npm run test:dashboard -- --grep 'authenticated project overview'`.
 
@@ -41,13 +41,21 @@ session its listing does not show. It lists what it launched as
 `claude agents --json --all` does; `claudeSessionBecomes` makes a session
 working, idle, finished, or stopped, or forgets it, and `claudeListingFails`
 makes the listing fail. It records every call's argv and working directory
-(`claudeCalls`, or `claudeLaunchCalls` without the listings). Run as
-`claude attach` in the terminal boundary's pseudo-terminal
-(`agent-terminal-boundary.spec.ts`, and behind the page's terminal in
-`agent-terminal.spec.ts`), it echoes input, reports its size, and records its
-pid and the signal that ended it. A server that
-must find no `claude` gets a PATH holding only the fake `gh` and Node. Nothing
-here ever calls the real `claude`. Only the settlement journey walks on from
+(`claudeCalls`, or `claudeLaunchCalls` for the `--bg` launches alone), and
+`claude stop <id>` lists that session stopped. Run as `claude attach` in the
+terminal boundary's pseudo-terminal, it echoes each line entered, clears the
+line on Ctrl+U, renames its listed session on `/rename <name>`, reports its
+size, detaches on Ctrl+Z, and records its pid, its lines, and what ended it
+(`claudeAttaches`). The terminal boundary specs drive it over a raw socket
+(`agent-terminal-boundary.spec.ts`; `agent-terminal-close.spec.ts` for the
+server's close hook; `agent-launch-done.spec.ts` for Mark as done's rename and
+stop). The page journeys behind the terminal panel are
+`agent-terminal.spec.ts` (opening, one at a time, Close),
+`agent-terminal-lifetime.spec.ts` (project switch, lost connection and
+Reconnect, ended terminal), and `agent-terminal-done.spec.ts` (Mark as done's
+focus, status, and Done entry). A server that must find no `claude` gets a
+PATH holding only the fake `gh` and Node. Nothing here ever calls the real
+`claude`. Only the settlement journey walks on from
 Preparing through the Take and completion.
 
 A passing run prints nothing (`support/quietReporter.ts`). A failing

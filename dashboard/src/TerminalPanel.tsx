@@ -163,7 +163,7 @@ export function TerminalPanel({
         </div>
       </header>
       <div role="status" className="terminal-status">
-        {marking === "marking" && <p>Marking as done…</p>}
+        {marking === "marking" && <p className="quiet">Marking as done…</p>}
         {marking === "not-marked" && (
           <p>The session could not be marked done.</p>
         )}

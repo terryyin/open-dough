@@ -50,8 +50,7 @@ test.describe("as origin publishes what the launched sessions do", () => {
     const started = (title: string, workflow: Workflow) =>
       card(title).getByRole("region", { name: `${workflow} started` });
     const anyStarted = page.getByRole("region", { name: "Started" });
-    const launches = () =>
-      dashboard.claudeCalls().filter((c) => c.argv[0] === "--bg");
+    const launches = () => dashboard.claudeLaunchCalls();
     const queued = [takenStory, readyStory, notRefinedStory];
     await expectMembership(page, { taken: [], backlog: queued });
     await settled();

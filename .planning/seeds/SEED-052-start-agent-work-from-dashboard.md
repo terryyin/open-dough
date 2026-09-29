@@ -142,29 +142,27 @@ launch settling at once and listed in Recent sessions, so the recent-sessions
 spec's Preparing step repeats it. It adds no feature promise. See the
 [plan](../slice-plans/154-preparing-card-refinement-journey/PLAN.md).
 
-<a id="terminal-residue"></a>
+<a id="terminal-host-refusal-proof"></a>
 
-### Correction: Guard Mark as done's edges and trim the terminal work's residue
+### Correction: Prove the terminal's foreign-Host refusal again and settle the residue's homes
 
-**Identity:** SEED-052#terminal-residue
+**Identity:** SEED-052#terminal-host-refusal-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/155-terminal-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"381f265d29c42addafea29dca13018470700ee8a95508a8ca5340a5c6ba4bd81","plan":"f9a38d5009feaeac56205c1e3e19dfc91075432b1feef58d0e603ca652e6d755"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/156-terminal-host-refusal-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4673da9966c6df83448d9d3d1c2c20e1064f98b4f737a46a9379da1bb4b559c3","plan":"b1a0c4b5b4975e0d74f6a0944dc4e62ef0b42e5ec60499b8bbb3c6870b4bc079"}}
 ```
 
-**Goal:** A developer who marks a session done keeps keyboard focus in a
-sensible place and sees marking as progress, and a published story title can
-never inject keys into a session. Maintainers change the terminal and launch
-boundary through cohesive modules and one proof per concern, with current test
-documentation.
+**Goal:** A developer's terminal sessions stay protected by a proved refusal of
+any upgrade naming a foreign Host, and closing a terminal provably returns the
+keyboard to the control that opened it. Maintainers find the Claude Code host
+commands and the terminal's focus target each in one home, described
+accurately.
 
 **Scope:** The correction found by the execution retrospective of
-story 3, SEED-052#interact-with-claude-terminal (commits `e8553f8d`..`815844e4`;
-closed history at `3c8cef8f:.planning/seeds/SEED-052-start-agent-work-from-dashboard.md`). It covers untested Mark as done
-guards and Done-label variants, focus and styling after marking, the
-`claudeCode.ts` and admission residue, overlapping terminal tests, and the
-tests README. It adds no feature promise. Whether Mark as done keeps typing
-the rename into the terminal is a separate decision for Terry and is not in
-this correction. See the [plan](../slice-plans/155-terminal-residue/PLAN.md).
+SEED-052#terminal-residue (commits `87d1fc6c`, `777c2623`, `bdeaea99`;
+closed history at `94177c75:.planning/slice-plans/155-terminal-residue/PLAN.md`). It covers the foreign-Host upgrade proof that plan 155 removed,
+the opener-focus proof, `execClaude`'s exposure, `recentSessionControl`'s
+home, and documentation drift in the launch and terminal boundary. It adds no
+feature promise. See the [plan](../slice-plans/156-terminal-host-refusal-proof/PLAN.md).
 
 <a id="launch-claude-refinement"></a>
 

@@ -3,16 +3,19 @@
 // same-origin POST for a session this dashboard recorded types Claude Code's
 // own `/rename done-<name>` into its open terminal, ends that attachment,
 // runs `claude stop <short id>`, and keeps the done mark on this machine
-// across a restart. With no terminal open, the `done-` name is only the
-// record's, and the session is still stopped. Any other request is refused
-// before `claude` runs. The machine directory holds HOME and the synthetic
-// `claude`'s (./fixtures/fake-claude) state; the real one is never reached.
+// across a restart. With no terminal open, or a launch name holding a
+// control character, the `done-` name is only the record's, and the session
+// is still stopped. Any other request is refused before `claude` runs. The
+// machine directory holds HOME and the synthetic `claude`'s
+// (./fixtures/fake-claude) state; the real one is never reached.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import {
+  launch,
+  launchRequest,
   markDone,
   openDoughFolder,
   recordsOf,
@@ -108,6 +111,47 @@ test.describe("marking a recorded session done", () => {
         doneAt: record.doneAt,
       }),
     );
+  });
+
+  test("types nothing into the open terminal of a session whose title holds a control character, keeping the done- name only in the record", async () => {
+    server.claudeScenario("launched");
+    const escTitle = `${title} \u001b[2J`;
+    const escName = `Open Dough · Execution · ${escTitle}`;
+    const launchedAnswer = await launch(server, {
+      ...launchRequest,
+      title: escTitle,
+    });
+    expect(launchedAnswer.status).toBe(200);
+    const { session } = (
+      JSON.parse(launchedAnswer.body) as {
+        record: { session: LaunchedSession };
+      }
+    ).record;
+    const terminal = await openTerminal(server, session);
+    expect(await shows(terminal, "attached")).toBe(true);
+    const stopsBefore = stopCalls().length;
+
+    const response = await markDone(server, {
+      source: "open-dough",
+      session: session.sessionId,
+    });
+
+    expect(response.status).toBe(200);
+    expect(JSON.parse(response.body)).toMatchObject({
+      record: {
+        doneAt: expect.any(String),
+        session: { name: escName },
+        sessionState: { kind: "listed", state: "stopped" },
+      },
+    });
+    expect(await terminal.closed).toBe(4000);
+    expect(await lastAttachEnded(server)).toBe("SIGHUP");
+    // No line, and so no rename, reached the attached session.
+    expect(server.claudeAttaches().at(-1)?.lines).toEqual([]);
+    expect(stopCalls().slice(stopsBefore)).toEqual([
+      { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
+    ]);
+    expect(listed(session)).toMatchObject({ name: escName, state: "stopped" });
   });
 
   test("with no terminal open, keeps the done- name only in the record and still stops the session", async () => {

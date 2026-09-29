@@ -3,11 +3,20 @@
 // open session is held here, above the project selection, so choosing another
 // project leaves it open; opening another session takes its place, and a
 // reload starts with none. Closing returns the keyboard to the control that
-// opened it, while that control is still on the page, and so does marking the
-// session done, once the boundary has marked it.
+// opened it, and so does marking the session done, once the boundary has
+// marked it; when that control is gone, as a card's Started goes once its
+// session stops, the keyboard goes to the session's Recent sessions entry. A
+// panel another session has already replaced moves no focus when it closes.
 
-import { useCallback, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
+import { recentSessionControl } from "./RecentSessions.tsx";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
   TerminalOpener,
@@ -32,11 +41,28 @@ export function TerminalSplit({
         : opening,
     );
   }, []);
-  const closeTerminal = (closed: TerminalOpening) => {
-    setTerminal((current) => (current === closed ? undefined : current));
-    if (closed.opener.isConnected) {
-      closed.opener.focus();
+  // The terminal on the page, and one just closed whose keyboard returns once
+  // the page, and any change its closing brought, is shown without it.
+  const shown = useRef<TerminalOpening | undefined>(undefined);
+  const returning = useRef<TerminalOpening | undefined>(undefined);
+  useLayoutEffect(() => {
+    shown.current = terminal;
+    const closed = returning.current;
+    returning.current = undefined;
+    if (closed === undefined || terminal !== undefined) {
+      return;
     }
+    const control = closed.opener.isConnected
+      ? closed.opener
+      : recentSessionControl(closed.record.session.sessionId);
+    control?.focus();
+  }, [terminal]);
+  const closeTerminal = (closed: TerminalOpening) => {
+    if (shown.current !== closed) {
+      return;
+    }
+    returning.current = closed;
+    setTerminal(undefined);
   };
   const markTerminalDone = async (open: TerminalOpening) => {
     const marked = await markDone(open.record);

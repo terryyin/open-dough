@@ -71,8 +71,8 @@ export type FakeClaudeControls = {
   // This server's HOME; project folders are under `<home>/git/`.
   readonly home: string;
   claudeCalls(): ClaudeCall[];
-  // The calls other than Claude Code's session listing, which a launch's
-  // confirmation and every read of kept launch records also ask.
+  // The `claude --bg` launches alone, without the session listings, attaches,
+  // and stops the page also runs.
   claudeLaunchCalls(): ClaudeCall[];
   claudeScenario(scenario: FakeClaudeScenario): void;
   // Changes how the fake lists the session with this id.
@@ -162,7 +162,7 @@ export function installFakeClaude(
       home,
       claudeCalls,
       claudeLaunchCalls() {
-        return claudeCalls().filter((call) => call.argv[0] !== "agents");
+        return claudeCalls().filter((call) => call.argv[0] === "--bg");
       },
       claudeScenario(scenario) {
         writeFileSync(state("scenario"), scenario);

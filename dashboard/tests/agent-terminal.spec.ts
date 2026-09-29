@@ -4,15 +4,19 @@
 // splits with the terminal on the right, and what is typed there reaches the
 // session and its answer shows. Opening another session detaches the first,
 // which keeps running; Close detaches only; an entry whose story is in no list
-// still opens; one Claude Code no longer lists offers nothing to open; and no
-// page text offers `claude attach`. Origin alone still places every story.
-// The page's own dashboard server attaches the synthetic `claude`
-// (./fixtures/fake-claude), which echoes what is typed; the real one is never
-// reached.
+// still opens; and no page text offers `claude attach`. Origin alone still
+// places every story. The page's own dashboard server attaches the synthetic
+// `claude` (./fixtures/fake-claude), which echoes what is typed; the real one
+// is never reached.
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import {
+  expectMembership,
+  parts,
+  recentSessionName,
+  sessionNamedBy,
+} from "./dashboardPage.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import {
   notRefinedStory,
@@ -27,16 +31,6 @@ import { processRunning } from "./support/processGroup.ts";
 test.use({ projectFolders: ["open-dough"] });
 
 const shortId = (sessionId: string) => sessionId.slice(0, 8);
-
-// The session id a Started or an entry names.
-async function sessionOf(place: Locator): Promise<string> {
-  const session = await place
-    .locator("p", { hasText: /^Session / })
-    .locator("code")
-    .textContent();
-  expect(session).toMatch(/^[0-9a-f]{8}-/);
-  return session ?? "";
-}
 
 // The terminal size the fake last reported, as `<cols>x<rows>`.
 async function reportedSize(rows: Locator): Promise<string | undefined> {
@@ -67,7 +61,9 @@ test.describe("the terminal beside the page", () => {
     const started = (title: string) =>
       card(title).getByRole("region", { name: "Execution started" });
     const entry = (title: string) =>
-      recent.getByRole("article", { name: `Execution session for ${title}` });
+      recent.getByRole("article", {
+        name: recentSessionName("Execution", title),
+      });
     const openIn = (place: Locator) =>
       place.getByRole("button", { name: "Open terminal" });
     const attachesEnded = (sessionId: string) =>
@@ -95,8 +91,8 @@ test.describe("the terminal beside the page", () => {
 
     await launch(notRefinedStory, "Execution");
     await launch(readyStory, "Execution");
-    const first = await sessionOf(started(notRefinedStory));
-    const second = await sessionOf(started(readyStory));
+    const first = await sessionNamedBy(started(notRefinedStory));
+    const second = await sessionNamedBy(started(readyStory));
     await expect(openIn(entry(notRefinedStory))).toBeVisible();
     await expect(panel).toHaveCount(0);
     await expect(page.locator("body")).not.toContainText("claude attach");
@@ -187,15 +183,6 @@ test.describe("the terminal beside the page", () => {
         taken: [readyStory],
         backlog: [takenStory],
       });
-    });
-
-    await test.step("a session Claude Code no longer lists offers no open action", async () => {
-      dashboard.claudeSessionBecomes(second, "forgotten");
-      await page.reload();
-      await expect(entry(readyStory)).toContainText("Session unavailable");
-      await expect(openIn(entry(readyStory))).toHaveCount(0);
-      await expect(openIn(entry(notRefinedStory))).toBeVisible();
-      await expect(page.locator("body")).not.toContainText("claude attach");
     });
 
     // Every attach the page opened was to a session it launched.

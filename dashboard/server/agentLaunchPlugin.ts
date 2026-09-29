@@ -24,7 +24,6 @@ import { agentDoneEndpoint } from "../src/doneMark.ts";
 import {
   admitted,
   admittedAttach,
-  recordedSession,
   type Admitted,
 } from "./agentLaunchAdmission.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
@@ -42,22 +41,14 @@ type Answer =
   | { readonly status: number; readonly body: { record: LaunchWithState } }
   | { readonly status: number; readonly body: { error: string } };
 
-// A done mark on a recorded session, or its refusal.
+// A done mark on the admitted recorded session, with its current state.
 async function markedDone(
-  request: Extract<Admitted, { readonly kind: "done" }>,
+  { source, record, folder }: Extract<Admitted, { readonly kind: "done" }>,
   launches: AgentLaunches,
   terminals: AgentTerminals,
 ): Promise<LaunchWithState> {
-  const { record, folder } = recordedSession(
-    await launches.recorded(request.source, request.sessionId),
-  );
-  const marked = await markSessionDone(
-    request.source.id,
-    record,
-    folder,
-    terminals,
-  );
-  return launches.stateOf(request.source, marked);
+  const marked = await markSessionDone(source.id, record, folder, terminals);
+  return launches.stateOf(source, marked);
 }
 
 async function answer(
@@ -67,7 +58,7 @@ async function answer(
   terminals: AgentTerminals,
 ): Promise<Answer> {
   try {
-    const request = await admitted(req, url);
+    const request = await admitted(req, url, launches);
     switch (request.kind) {
       case "records":
         return {
