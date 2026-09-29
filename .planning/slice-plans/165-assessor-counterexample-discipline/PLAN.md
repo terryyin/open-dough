@@ -237,6 +237,23 @@ Considered and left out:
   match, turning an owned claim into `claim-owned: false`. The observer now
   greps the message history as a here-string. An extra commit under the claim
   reproduced the false reading before the fix.
+- **Slice 6 (done).** Claims, consumers, gaps, and selection cases go through
+  the helper; every multi-field case was split (none declared coupled) and
+  missing-fields cases delete one field each (16 cases through
+  `native_assessor_rejects_missing_fields`). The selection observer's inline
+  `if … assess; then FAIL` became `repeated-partial-filter`.
+  `git_publication_suite_expect_rejected` is removed. No assessor repair.
+  Proof: the helper job set
+  (`bash scripts/test.sh tests/native-assessor-counterexamples.sh tests/git-publication-native.sh tests/git-publication-native-owned-context.sh tests/git-publication-native-one-shot.sh tests/execution-worktree-preparation-native.sh tests/native-journey-state.sh tests/native-adr-behavior.sh tests/native-evidence-identity.sh`),
+  also with mawk; the publication job is about 53 s.
+- **No longer rejected cases:** consumers `unchanged-boundary` and claims
+  `equivalent-layout`, where one returned-field alone legitimately passes
+  (reasons stated beside each).
+- **Row operations fail on any failed row**, not only the last, so a
+  middle-row refusal fails the call even without errexit; a self-case proves
+  it.
+- The delivery-evidence assessors return no reason text, so their cases check
+  only that the assessor does not pass.
 
 ## Slices
 
@@ -308,7 +325,7 @@ for slice 8's guard.
 
 ### 6. Delivery-evidence suites through the helper
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/git-publication-native.sh` green.
 
 Internal change: the claims, consumers, gaps, and selection suites declare

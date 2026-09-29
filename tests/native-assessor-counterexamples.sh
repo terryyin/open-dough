@@ -194,3 +194,32 @@ expect_refused native_assessor_rejects exit-zero stream \
   "${work}/incomplete.txt" << 'EOF'
 assessor accepted counterexample exit-zero
 EOF
+
+# Row readers try every row and fail the call when any row fails, where
+# errexit does not apply too: a passing last row cannot hide a failing middle
+# one. Rows come from file $1 for row reader "$2"...
+rows_from() {
+  local rows=$1
+  shift
+  "$@" < "${rows}"
+}
+native_assessor_counterexamples "${work}/toy-assess.sh" "${work}/pass.txt" \
+  --verdict toy_status toy_reason -- toy_assess
+printf '%s\n' 'stream stream-status' 'remote remote-accepted' \
+  > "${work}/missing-rows.txt"
+rows_from "${work}/missing-rows.txt" native_assessor_rejects_missing_fields
+printf '%s\n' 'stale-stream stream stream-status: stale' \
+  'harmless-note stream note: touched' \
+  'refused-remote remote remote-accepted: false' > "${work}/field-rows.txt"
+expect_refused rows_from "${work}/field-rows.txt" \
+  native_assessor_rejects_field_rows << 'EOF'
+counterexample harmless-note
+undeclared field(s) note
+EOF
+printf '%s\n' 'stream stream-status' 'stream note' 'remote remote-accepted' \
+  > "${work}/missing-rows.txt"
+expect_refused rows_from "${work}/missing-rows.txt" \
+  native_assessor_rejects_missing_fields << 'EOF'
+counterexample missing-note
+undeclared field(s) note
+EOF

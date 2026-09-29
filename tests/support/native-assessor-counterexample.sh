@@ -39,7 +39,11 @@
 #     native_assessor_rejects_fields for each standard input line
 #     `CASE SIGNAL key: value [| REASON-FRAGMENT]`, with status `fail` when a
 #     fragment is given.
-# Each returns 1 after printing `FAIL: ...` to standard error.
+#   native_assessor_rejects_missing_fields
+#     native_assessor_rejects_edit for each standard input line
+#     `SIGNAL FIELD`, as case missing-FIELD with FIELD deleted.
+# Each returns 1 after printing `FAIL: ...` to standard error; a row reader
+# does so after trying every row, when any row fails.
 # shellcheck disable=SC2034 # Suite state read by later calls.
 
 # shellcheck source=tests/support/native-assessor-counterexample-diff.sh
@@ -156,12 +160,23 @@ native_assessor_rejects_fields() {
 }
 
 native_assessor_rejects_field_rows() {
-  local case signal row verdict
+  local case signal row verdict rc=0
   while read -r case signal row; do
     verdict=()
     [[ ${row} == *' | '* ]] && verdict=(-- fail "${row#* | }")
-    native_assessor_rejects_fields "${case}" "${signal}" "${row%% | *}" "${verdict[@]}"
+    native_assessor_rejects_fields "${case}" "${signal}" "${row%% | *}" \
+      "${verdict[@]}" || rc=1
   done
+  return "${rc}"
+}
+
+native_assessor_rejects_missing_fields() {
+  local signal field rc=0
+  while read -r signal field; do
+    native_assessor_rejects_edit "missing-${field}" "${signal}" \
+      "/^${field}: /d" || rc=1
+  done
+  return "${rc}"
 }
 
 # Assesses observation $1 into native_assessor_counterexample_status and
