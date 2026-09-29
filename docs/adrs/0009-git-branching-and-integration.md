@@ -199,7 +199,7 @@ work is blocked or checkout ownership is missing.
 
 Installed execute-plan publication and default-checkout maintenance guidance
 own the implemented contract for callers, recovery, and proof.
-[Close stories through an installed wrap-up command](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command)
+[Integrate Story Branch closures through an installed command](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration)
 owns the remaining migration to remote-based startup and a shared remote-first
 lifecycle with optional local refresh. The
 [visibility requirements](../project-visibility-requirements.md) distinguish

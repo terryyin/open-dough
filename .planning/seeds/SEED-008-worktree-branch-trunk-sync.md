@@ -116,105 +116,13 @@ registry is selected. No new execution authority or ADR acceptance is implied.
 
 ## Existing related stories
 
-<a id="installed-wrap-up-command"></a>
-
-### Close stories through an installed wrap-up command
-
-**Identity:** SEED-008#installed-wrap-up-command
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/146-installed-wrap-up-command/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e6f6cc13aea76be5357cd5cbd2d22222d7200f5d3a0e056183b2abfc455dd062","plan":"e8e4a2ca3ce9b2d2597ccd441c490b3d5b3c5d40fdaefa045ce08bc45f5d7111"}}
-```
-
-**Decision (2026-09-28):** Terry chose an entry point over removing the
-shipped closure modules from the payload (finding F7 of the remote-history
-retrospective), then accepted the narrowed goal, scope, and ordering below in
-refinement the same day.
-
-**Goal:** Agents closing a story run the closure mechanics that this project's
-tests prove, Trunk Mode closure publication and execution-resource retirement,
-through installed commands instead of re-enacting them from prose and raw Git.
-Wrap-up and Dough Land guidance then keep only judgment steps, and closed work
-stops leaving worktrees and branches behind.
-
-**Evidence:** The closure modules under
-`src/skills/dough-story-wrap-up/scripts/` ship in the payload with no entry
-point and no caller outside tests, so their tests prove code agents never run.
-On 2026-09-28 the Story Branch closure of
-`SEED-053#proportionate-local-verification` left its worktree, local branch,
-and remote branch in place although trunk contained all of them. No closure
-has been observed to behave differently across hosts.
-
-**Scope:**
-
-- An installed Trunk Mode closure command publishes the before-cleanup commit,
-  then the final-closure commit, runs the CI completion operation once for the
-  final accepted SHA, and retires execution resources only on its confirmed
-  receipt. A rerun recognizes commits already accepted on the remote.
-- Both closure publications stay: delivery rebases unpublished commits when
-  trunk advances, and the final closure cites the before-cleanup SHA as a
-  recovery locator, so that SHA must be accepted before cleanup cites it.
-- One installed retirement command, shared by wrap-up in every mode and by
-  Dough Land, replaces the raw-Git retirement procedure. It builds on the
-  removal core that plan 142 extracts.
-- Wrap-up and Dough Land guidance call these commands and drop the procedure
-  prose they replace; assimilation, queue decisions, and deletion scope stay in
-  prose.
-- That retirement command holds the one ownership gate, following the
-  work-scoped lifecycle rule: a clean workspace created for this work, by any
-  session, is retired; a reused, host-owned, or unrecorded one is retained. It
-  reads the creation record `refs/worktree/dough/created-for/<identity>` that
-  execution startup and preparation `start` write in a worktree they create.
-- No shipped closure module remains without an entry point: each backs a
-  command or leaves the payload with its tests.
-- Before any paid run, each affected native journey's evidence identity covers
-  the guidance and commands it proves, and the closure harnesses observe the
-  agent from outside its visible fixture on every host (plan 142's
-  retrospective found both gaps).
-- Native acceptance of the changed wrap-up and Land guidance on Codex, Cursor,
-  and Claude Code, run manually as the story's final slice.
-
-**Deferred promises:** Story Branch integration (history-preserving merge
-through the backlog merge adapter, with hand-resolved conflicts) and
-current-checkout closure keep their current guidance. The single-commit
-closure alternative is not pursued. Direct edits proceeding around the
-developer's unrelated staged content stay deferred as well (Terry, 2026-09-29).
-Direct edits commit with plain `git commit`, and the owned-path commit
-(`commitOwned`) exists only in `current-branch-publication.mjs`, which has no
-entry point. Terry decided on 2026-09-29 that this story removes that module
-from the payload with its tests; the deferred promise recovers `commitOwned`
-from `b269991d:src/skills/dough-execute-plan/scripts/current-branch-publication.mjs`.
-
-**Ordering:** Starts after plan 142 (closed at `2a3e0ba2`), which changed the
-same retirement module, wording, and native closure acceptance, and after
-SEED-008#finish-removing-checkout-coordination (recoverable at `bae283d2`),
-which removed the owner arguments the closure modules passed.
-
-**Key examples:**
-
-1. A completed Trunk Mode story → the agent runs the closure command → both
-   closure commits are accepted on the remote, one completion receipt covers
-   the final SHA, and the worktree and branch are then retired.
-2. A Story Branch story whose integrated SHA has an accepted receipt → the
-   agent runs the retirement command → the worktree, local branch, and remote
-   branch are removed.
-3. Trunk advanced and the closure publication conflicts → the command stops,
-   preserving the worktree, branch, and closure commits, and reports the
-   recovery step.
-4. Retirement is asked for a branch whose tip trunk does not contain → the
-   command refuses and removes nothing.
-5. Retirement is asked for a reused, host-owned, or unrecorded worktree →
-   the command retains it and removes nothing; one an earlier session created
-   for this same work is retired.
-
-**Slice plan:** [Close stories through an installed wrap-up command](../slice-plans/146-installed-wrap-up-command/PLAN.md).
-
 <a id="closure-proof-and-harness-correction"></a>
 
 ### Keep closure reruns truthful and closure proof exact
 
 **Identity:** SEED-008#closure-proof-and-harness-correction
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/154-closure-proof-and-harness-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"933735a5f2e569605913fe2bafd2696fb8b5fba4abc082c412a6851111e1eed2","plan":"54c7220f779bed4735228db29a2346f54f1007fdee787f5147ab2680f6f8e018"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/154-closure-proof-and-harness-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d4da12864e9af318e16ebe6f2e90ad2035ccb5dbd55e91e6e9c2208611fb6881","plan":"0716980335c70dce60a6a89f3f1f6d30c8084bb774fc18099a32e18c78ac1c9e"}}
 ```
 
 **Goal:** An agent rerunning Trunk Mode closure after its final commit was
@@ -223,7 +131,8 @@ and maintainers can trust that each closure test, native harness check, and
 native evidence identity proves exactly the behavior it names.
 
 **Scope:** The bounded retrospective correction of
-[plan 146](../slice-plans/146-installed-wrap-up-command/PLAN.md)
+plan 146 (recoverable at
+`097cc35f:.planning/slice-plans/146-installed-wrap-up-command/PLAN.md`)
 (SEED-008#installed-wrap-up-command) described in
 [its correction plan](../slice-plans/154-closure-proof-and-harness-correction/PLAN.md).
 It adds no feature promise.

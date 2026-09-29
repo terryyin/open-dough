@@ -5,7 +5,8 @@
 - **Identity:** SEED-008#closure-proof-and-harness-correction.
 - **Source:** [correction story](../../seeds/SEED-008-worktree-branch-trunk-sync.md#closure-proof-and-harness-correction),
   from the execution retrospective of
-  [plan 146](../146-installed-wrap-up-command/PLAN.md)
+  plan 146 (recoverable at
+  `097cc35f:.planning/slice-plans/146-installed-wrap-up-command/PLAN.md`)
   (SEED-008#installed-wrap-up-command) on 2026-09-29.
 - **Provenance:** reviewed commits on `claude/installed-wrap-up-command`:
   `aa4fd510`, `de81cb96`, `1d227845`, `9c672fc9`, `b269991d`, `8c75f730`,
