@@ -5,7 +5,8 @@
 - **Identity:** SEED-052#recent-sessions-residue.
 - **Source:** [correction story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#recent-sessions-residue),
   from the execution retrospective of SEED-052#revisit-dashboard-sessions
-  ([plan 150](../150-revisit-dashboard-sessions/PLAN.md)) on 2026-09-29.
+  (plan 150 at
+  `d6fbb898:.planning/slice-plans/150-revisit-dashboard-sessions/PLAN.md`) on 2026-09-29.
 - **Provenance:** reviewed commits `5933bb91`, `29174888`, `f332b5dd`,
   `ca2586f8`, `ea5aa42b` on `claude/revisit-dashboard-sessions`, after the
   Take `59fb10cd`.

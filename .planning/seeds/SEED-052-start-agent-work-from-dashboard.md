@@ -101,100 +101,13 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
-<a id="revisit-dashboard-sessions"></a>
-
-### 2. Find recent dashboard-launched sessions after leaving the story
-
-**Identity:** SEED-052#revisit-dashboard-sessions
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/150-revisit-dashboard-sessions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"57187fb68ead7992b6aaf4dacda30eeeab9f54b6212d52be4a554ebc1731ad13","plan":"0ce6630536711d5b29525cb2990bb2ad5f5ebdca57fff8a86a8b59e822023d28"}}
-```
-
-**Goal:** A developer who started work from the dashboard can find that
-conversation again after navigating away, reloading, restarting the dashboard,
-or after the story leaves the Backlog. They can tell each session's project,
-story, and workflow, and get the command that opens it in Claude Code's CLI.
-Launching from the dashboard stays useful across visits, without an embedded
-terminal or a Recently done view.
-
-**Scope:**
-
-- The selected project gets a **Recent sessions** section, newest first. It
-  does not depend on Backlog, Taken, or Recently done: an entry stays even when
-  no story card matches it. Each entry shows the story title and identity, the
-  workflow, when it was launched, the session id, the session's state as Claude
-  Code reports it, and a copyable `claude attach <id>` while Claude Code still
-  lists the session.
-- Launch records survive dashboard restarts. Open Dough keeps them on this
-  machine, outside every repository, and Recent sessions lists records from the
-  last 30 days. They stay out of the repository because a session exists only
-  on the machine that launched it.
-- Session state comes from Claude Code's own session list
-  (`claude agents --json --all`). A session Claude Code no longer lists shows as
-  unavailable, with its recorded details and no open command. It is not
-  recreated, resumed, or marked complete.
-- A card's Started record reads the same kept records, so it also survives a
-  restart. It keeps today's origin rules. It also ends when Claude Code shows
-  that its session is no longer running (stopped, or its process gone) or no
-  longer lists it. The card then offers that action again, and the session
-  stays in Recent sessions.
-- A launch record is local evidence for finding a session. It never changes
-  the story facts shown from origin: a finished, stopped, or unavailable
-  session does not show the story as done.
-- Only dashboard-launched sessions are listed, under the epic's
-  [Agreed Boundaries](#agreed-boundaries). A session started by hand in the CLI
-  is not listed, even when its name looks like a dashboard launch.
-- Deferred: resuming an unavailable session (for example with
-  `claude --resume`), a list covering all projects, configurable retention,
-  interaction inside the dashboard (story 3), linking sessions from Recently
-  done, other hosts, and attention or completion indicators.
-- Assumptions, observed on 2026-09-29: `claude agents --json --all` lists
-  finished background sessions from about a month back. Each has `state`
-  (`working`, `done`, or `stopped`), and `status` (`busy` or `idle`) only while
-  its process runs. Planning should confirm what `claude attach` does for a
-  finished session that is still listed. Offer the command only where it
-  opens the session.
-
-**Key examples:**
-
-1. A developer starts execution on a Backlog story, then switches to another
-   project and back, or reloads. Recent sessions lists that launch with its
-   title, identity, "Execution", launch time, session id, a working state, and
-   `claude attach <id>`.
-2. The dashboard server restarts while that session is still running and the
-   story is still in the Backlog. The entry is still in Recent sessions, and
-   the card still shows Execution started.
-3. The session takes the story, and later the story is completed and gone from
-   every list. The card is gone, but the Recent sessions entry remains.
-4. The same story was launched twice, for refinement and then for execution,
-   or as two executions. Recent sessions shows two entries, told apart by
-   workflow, launch time, and session id.
-5. Refinement is launched on a card that already shows Preparing. The card
-   shows no Started, but Recent sessions lists the session, so it no longer
-   needs finding through `claude agents`.
-6. An execution session exits before taking the story, which stays in the
-   Backlog. The card's Started ends and Start execution is offered again. Recent
-   sessions shows the session with its finished or stopped state.
-7. Claude Code no longer lists a recorded session. Its entry says the session
-   is unavailable and offers no open command. The story's published state is
-   unchanged.
-8. A launch recorded more than 30 days ago no longer appears in Recent
-   sessions.
-
-**Depends on:** The dashboard launch
-([Agent launch](../../dashboard/AGENT-LAUNCH.md)) records identified
-dashboard-launched sessions.
-
-**Safe stopping point:** Developers can find and reopen dashboard-launched
-sessions through the CLI, without any interaction inside the browser.
-
 <a id="recent-sessions-residue"></a>
 
 ### Correction: Keep every unreadable launch store and trim Recent sessions residue
 
 **Identity:** SEED-052#recent-sessions-residue
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/151-recent-sessions-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6bafe7340bba40ab58d082b16a862143aa191fb29bde2caff48004dab18fa64f","plan":"f6d23d3b3b06dc20b97e63bee9244ee715a72bc52cb0beb5b29bf3912171813f"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/151-recent-sessions-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e646df358d18efe089267f498ee9f340534e95b8a66f30e921a9762f38288545","plan":"66a9cd7aace215e56d91ec5a9fe91236250048dd460948e48b72c6aa4dcc9bc3"}}
 ```
 
 **Goal:** A developer whose launch store becomes unreadable twice keeps both
@@ -203,7 +116,8 @@ launch behavior through one documented home and one journey per concern,
 without duplicate specs or stale test documentation.
 
 **Scope:** The correction found by the execution retrospective of
-[story 2](#revisit-dashboard-sessions) (commits `5933bb91`..`ea5aa42b`). It
+story 2, SEED-052#revisit-dashboard-sessions (commits `5933bb91`..`ea5aa42b`;
+closed history at `d6fbb898:.planning/seeds/SEED-052-start-agent-work-from-dashboard.md`). It
 covers the second unreadable-store move, overlapping launch journeys, the
 dashboard test README's launch listing, and the North Star launch row. It adds
 no feature promise. See the [plan](../slice-plans/151-recent-sessions-residue/PLAN.md).
