@@ -60,7 +60,7 @@ integrate.
 
 | Premise | Observation | Result |
 | --- | --- | --- |
-| The home-folder listing answers the same sessions as a project folder's | Needs `claude agents --json --all` from `~` on Terry's machine; the retrospective's attempt was refused by the host's permission rules | Owner-held: slice 1 is its probe |
+| The home-folder listing answers the same sessions as a project folder's | Terry ran `claude agents --json --all \| jq length` on 2026-09-29 from `~` and from the story worktree `~/git/open-dough/.worktrees/session-sidebar` | Holds: 546 from both, no error or prompt |
 | Held reads can stage a pick whose project is left before it answers | `dashboard/tests/sessionNavigationJourney.ts` holds Pygardon's stories (`holdPygardonStories`) and records reveals (`recordReveals`, `revealsOf`) | Holds |
 | A held first sessions read can be answered after a launch | `dashboard/tests/sessionStatePace.ts` `holdSessionReads` holds GETs only; launches are POSTs | Holds |
 
@@ -68,7 +68,8 @@ integrate.
 
 ### 1. The machine read lists from a folder that answers every session
 Type: Structure
-Status: planned
+Status: done
+Result: the probe held (546 sessions from both folders), so nothing changes.
 Proof: Terry runs, unpaid, `claude agents --json --all | jq length` from
 `~` and from `~/git/open-dough`, and reports both counts and any error or
 prompt. Equal counts with no error: record them here and change nothing.
