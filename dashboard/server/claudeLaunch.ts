@@ -1,12 +1,12 @@
 // Starting one Claude Code session for the local launch boundary
-// (`./agentLaunches.ts`) and classifying the outcome: the instruction a
-// session starts with, the fixed `claude --bg` argument array, confirming the
-// session it started through Claude Code's own session listing
-// (`./claudeCode.ts`), and failure in fixed categories. Raw stderr may name
-// local paths or echo configuration and is never forwarded, as with the `gh`
-// boundary (`./ghRead.ts`). No model, permission, effort, or session id is
-// passed: the developer's own Claude Code settings apply, and `--bg` chooses
-// its own session id, which it prints.
+// (`./agentLaunches.ts`) and classifying the outcome: the instruction and name
+// a session starts with, run through `claude --bg` (`./claudeCode.ts`),
+// confirming the session it started through Claude Code's own session
+// listing, and failure in fixed categories. Raw stderr may name local paths or
+// echo configuration and is never forwarded, as with the `gh` boundary
+// (`./ghRead.ts`). No model, permission, effort, or session id is passed: the
+// developer's own Claude Code settings apply, and `--bg` chooses its own
+// session id, which it prints.
 
 import type { ExecException } from "node:child_process";
 import { stripVTControlCharacters } from "node:util";
@@ -18,7 +18,7 @@ import {
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   claudeSessions,
-  execClaude,
+  startClaudeInBackground,
   type ListedSession,
 } from "./claudeCode.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -119,13 +119,9 @@ export async function launchClaude(
   folder: ProjectFolder,
   signal: AbortSignal,
 ): Promise<HostLaunch> {
-  const launch = await execClaude(
-    [
-      "--bg",
-      "--name",
-      claudeSessionName(source, request),
-      claudeInstruction(request),
-    ],
+  const launch = await startClaudeInBackground(
+    claudeSessionName(source, request),
+    claudeInstruction(request),
     folder,
     signal,
   );

@@ -1,7 +1,7 @@
 // The terminal boundary's WebSocket upgrades and attachments, mounted by the
 // launch boundary (`./agentLaunchPlugin.ts`), which admits a recorded session
-// first (`./agentLaunches.ts`); a refused upgrade gets an HTTP error and no
-// socket. One socket is one attachment: opening it runs
+// first (`./agentLaunchAdmission.ts`); a refused upgrade gets an HTTP error
+// and no socket. One socket is one attachment: opening it runs
 // `claude attach <short id>` in the project folder through a PTY
 // (`./claudeCode.ts`), the process's output goes out as text frames, and the
 // page's messages (`../src/agentTerminal.ts`) become its input or its size.

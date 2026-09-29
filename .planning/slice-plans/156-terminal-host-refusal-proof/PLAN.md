@@ -129,7 +129,7 @@ assertion. Learning: `recentSessionControl` still finds the entry by the
 
 ### 3. The Claude Code host commands stay private to their module
 Type: Structure
-Status: planned
+Status: done
 Proof: unchanged behavior under `npm run test:dashboard -- $(ls dashboard/tests/agent-*.spec.ts)` and `npm run typecheck:dashboard`.
 
 Removes finding C's exposure: `claudeCode.ts` exports a fixed `claude --bg`
@@ -137,6 +137,13 @@ command, and `execClaude` becomes private. `claudeLaunch.ts` keeps naming, the
 instruction, and outcome classification. Fix finding E's documentation:
 `AGENT-LAUNCH.md`'s Mark as done section, and the `claudeCode.ts` and
 `agentTerminals.ts` headers.
+
+Accepted proof: both commands passed (131 agent-spec tests). `claudeCode.ts`
+exports `startClaudeInBackground(name, instruction, …)`, running the fixed
+`--bg --name` array; `execClaude` and `ClaudeRun` are private. The launch argv
+stays observed in `agent-launch-boundary.spec.ts`. The docs' claims were
+checked against `agentLaunchAdmission.ts`, `doneMarks.ts`, and the page's
+done request.
 
 ## Proof ownership
 
