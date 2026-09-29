@@ -15,6 +15,9 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../helpers" && pwd)/wait-for.
 # shellcheck source=tests/support/native-harness-observation.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-harness-observation.sh"
+# shellcheck source=tests/support/native-harness-login-shell.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-harness-login-shell.sh"
 
 # Per-step controller bound; each step awaits one action of the native agent.
 story_closure_wait_limit=420
@@ -111,6 +114,8 @@ story_closure_create_fixture() {
   native_harness_observe_node "${harness}" "${source_dir}" "${host}"
   story_closure_node_log=${native_harness_node_log}
   story_closure_write_gh "${harness}/bin/gh"
+  # The agent starts the trunk observer from its own shell.
+  native_harness_keep_login_path "${harness}"
   export DOUGH_CI_MAILBOX_ROOT="${story_closure_storage}"
   export STORY_CLOSURE_BRANCH_SHA="${story_closure_branch_sha}"
   export STORY_CLOSURE_TRUNK_SHA="${story_closure_trunk_sha}"
@@ -162,6 +167,7 @@ story_closure_cleanup_fixture() {
   kill "${story_closure_watcher}" 2> /dev/null || true
   wait "${story_closure_watcher}" 2> /dev/null || true
   native_harness_restore
+  native_harness_release_login_path
   unset DOUGH_CI_MAILBOX_ROOT STORY_CLOSURE_BRANCH_SHA STORY_CLOSURE_TRUNK_SHA
   unset STORY_CLOSURE_RELEASE STORY_CLOSURE_INTEGRATED_SHA_FILE
   unset STORY_CLOSURE_GH_LOG

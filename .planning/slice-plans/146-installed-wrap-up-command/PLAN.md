@@ -586,6 +586,23 @@ authority. Pin the candidate SHA of the story branch tip that carries this
 preparation, and accept each owned-context run on its transcript's ownership
 read, not on PASS alone.
 
+Paid runs, first attempt (2026-09-29, candidate `3ca0b8f9`; Claude Code
+2.1.284, codex-cli 0.157.0, Cursor agent 2026.09.28-64d2043): `trunk-closure/source`,
+`trunk-closure/owned-context`, and `publication/preparation-land` accepted on all
+three hosts. Transcripts show each owned-context `finish` and preparation-land
+`retire` passing `--identity` from the creation record; Cursor's
+preparation-land also passed `--created-for-work` without a recorded basis,
+harmless because the record names the work, and a guidance-clarity finding.
+`story-branch-closure/source-conflict` failed on all three from two harness
+defects older than this story: Codex and Cursor zsh login shells reset PATH
+from the user's startup files, so an agent-started trunk observer reached the
+real `gh` (404 for `owner/project`); and the response check accepted only
+"success", rejecting Claude Code's correct "CI passed". The fix
+(`tests/support/native-harness-login-shell.sh`, a ZDOTDIR wrapper that restores
+the fixture's `bin`, used by the Story Branch fixture only so the passed
+identities stay valid, plus `story_closure_response_trunk_result`) changes the
+Story Branch identity, so that case reruns once per host.
+
 ## Proof ownership
 
 | Final-state promise | Owning slice and decisive observation |

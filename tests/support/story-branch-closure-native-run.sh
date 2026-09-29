@@ -77,6 +77,7 @@ story_closure_write_evidence_identity() {
     tests/support/native-completion-observation.sh \
     tests/support/story-branch-closure-native-fixture.sh \
     tests/support/native-harness-observation.sh \
+    tests/support/native-harness-login-shell.sh \
     tests/support/native-node-call-recorder.mjs \
     tests/support/git-publication-native-run.sh
   native_result_supervision_input_hash_lines
@@ -147,20 +148,46 @@ story_closure_run_journey() {
   [[ ${stop_status} -eq 0 && ${run_status} -eq 0 ]]
 }
 
-# The fallback stop still stops an observer the session left running after
-# its cleanup removed the worktree that holds the installed launcher.
+# An agent shell whose startup files rebuild PATH without the harness bin, as
+# Codex's and Cursor's zsh do, still reaches the fixture's gh shim, so the
+# trunk observer the agent starts there observes the fixture's CI; without
+# the harness ZDOTDIR the same shell reaches another gh. The fallback stop then
+# still stops the observers the session left running after its cleanup removed
+# the worktree that holds the installed launcher.
 run_story_closure_harness_counterexamples() {
-  local root harness status
+  local root harness profile failure='' run_in_worktree receipt trunk_mailbox
   root=$(mktemp -d)
   harness=$(mktemp -d)
+  profile=$(mktemp -d)
+  mkdir -p "${profile}/decoy"
+  printf '%s\n' '#!/usr/bin/env bash' "printf '%s\\n' \"\$*\" >> '${profile}/decoy.log'" \
+    'exit 1' > "${profile}/decoy/gh"
+  chmod +x "${profile}/decoy/gh"
+  printf 'export PATH=%q\n' "${profile}/decoy:${PATH}" \
+    | tee "${profile}/.zshenv" "${profile}/.zprofile" > "${profile}/.zshrc"
+  local -x ZDOTDIR=${profile}
   story_closure_create_fixture "${source_dir}" claude "${root}" "${harness}"
+  [[ $(ZDOTDIR=${profile} native_harness_login_shell 'command -v gh') == "${profile}/decoy/gh" ]] \
+    || failure='the profile kept the harness bin without the harness ZDOTDIR'
+  [[ $(native_harness_login_shell 'command -v gh') == "${harness}/bin/gh" ]] \
+    || failure='the agent shell lost the gh shim'
+  run_in_worktree="cd '${story_closure_workspace}' && node '${story_closure_launcher}'"
+  receipt=$(native_harness_login_shell "${run_in_worktree} start --execution owner/project main")
+  trunk_mailbox=$(jq -r '.directory' <<< "${receipt#CI_OBSERVER }")
+  native_harness_login_shell "${run_in_worktree} register-push '${trunk_mailbox}' '${story_closure_trunk_sha}'" > /dev/null
+  wait_for login-shell-trunk-coverage "${story_closure_wait_limit}" \
+    "grep -q '\"state\":\"success\"' '${trunk_mailbox}/coverage/${story_closure_trunk_sha}.json'" \
+    || failure='the agent-started observer missed the fixture CI'
+  [[ ! -s ${profile}/decoy.log ]] || failure='the agent-started observer reached another gh'
   git -C "${story_closure_integration}" worktree remove --force \
     "${story_closure_workspace}"
   native_harness_stop_observers "${source_dir}" "${story_closure_storage}" \
     "${harness}/forced-stop.txt"
-  status=$(jq -r .status "${story_closure_branch_mailbox}/result.json")
-  [[ -s ${harness}/forced-stop.txt ]] || status="not stopped by the fallback"
+  [[ -s ${harness}/forced-stop.txt ]] || failure='no observer stopped by the fallback'
+  [[ $(story_closure_mailbox_states | paste -sd, -) =~ ^exec/story:\ (stopped|finished),main:\ (stopped|finished)$ ]] \
+    || failure="observers left running: $(story_closure_mailbox_states | paste -sd, -)"
   story_closure_cleanup_fixture
-  rm -rf -- "${root}" "${harness}"
-  [[ ${status} == stopped || ${status} == finished ]]
+  rm -rf -- "${root}" "${harness}" "${profile}"
+  [[ -z ${failure} ]] || printf 'FAIL: Story Branch harness: %s\n' "${failure}" >&2
+  [[ -z ${failure} ]]
 }
