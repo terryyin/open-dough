@@ -126,174 +126,28 @@ message, the `TerminalOpening` reuse for marking, Started test names, and
 overlapping card specs over 250 lines. It adds no feature promise. See the
 [plan](../slice-plans/160-card-session-residue/PLAN.md).
 
-<a id="session-sidebar"></a>
+<a id="session-sidebar-residue"></a>
 
-### Find and return to any session from a toggleable sidebar
+### Keep the Sessions sidebar's reads and reveals honest
 
-**Identity:** SEED-052#session-sidebar
+**Identity:** SEED-052#session-sidebar-residue
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/164-session-sidebar/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"85997ace59eeb62debd78d448d9532bbff3da47cbed94084622b9ffc31fc9717","plan":"8b72ab8d59bc734ce4d6726609d59fb9ac9b5125e832700ed66276937ea4ffa4"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/167-session-sidebar-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"96e8221132c3348e773ddbd8a4b039f4ec1525529b79cf20921ac0de62eedb61","plan":"376e9d1f5e1445d71d34f8ecc2aa74da7735a4341e26aab2985328cb0dd3e755"}}
 ```
 
-- **Goal:** A developer running agent sessions across several projects sees
-  every session they still have open in one place, notices at a glance which
-  ones need them, and gets from any of them to its story and its conversation
-  in one click, without first switching to the right project and hunting for
-  its card. This turns attention from a per-card signal into
-  whole-dashboard awareness, and tests whether one cross-project list can
-  later replace per-project Recent sessions.
-- **Scope:**
-  - **Toggle.** A **Sessions** button at the start of the pinned banner,
-    before the project name, opens and closes the sidebar (`aria-expanded`,
-    controlling the sidebar). Command+B does the same page-wide, including
-    while the keyboard is in the terminal: Claude Code's CLI gets no Command
-    keys on macOS, and Ctrl+B still goes to the session untouched. An open
-    modal dialog (the launch dialog, the badge legend) keeps its own keyboard,
-    and Command+B's browser default (Firefox's bookmarks sidebar) is
-    suppressed. Toggling never moves the keyboard, except that closing while
-    it is inside the sidebar returns it to the Sessions button. While the
-    sidebar is closed, the button carries the same count as the sidebar
-    heading (below) as visible text, and nothing when no session needs
-    attention.
-  - **Stays as left.** Open or closed survives project switches, the agent
-    roster and back, opening and closing the terminal, and reloads (kept in
-    disposable browser storage; losing it only starts the sidebar closed).
-    It starts closed.
-  - **Layout.** On a wide window the sidebar is a fixed-width column on the
-    left, full window height and scrolling on its own, beside the page, with
-    the terminal panel still on the right: sidebar | page | terminal. On a
-    narrow window (where the terminal already stacks above the page), it
-    overlays the page from the left instead of taking a column.
-  - **What it lists.** Every session this dashboard launched, in every
-    project of the catalog, that is not marked done: exactly the sessions the
-    cards keep, whatever the story's stage, including a story in no list.
-    Newest launch first, by launch time only, so a state change never moves an
-    entry. Each entry names the story title (wrapping to at most two lines),
-    the project, the workflow, and when it was launched, and the session's
-    state in the words a card entry uses (Needs input with what it waits for,
-    Ready for review, Session failed, Session stopped, Working, Session
-    unavailable, State unknown). An entry needing the developer, by the same
-    reading as a card's attention, has the same solid, heavier edge beside
-    those words; no color alone, no animation. States refresh with the page's
-    existing 15-second reads while the page is visible.
-  - **Heading.** "Sessions", and "1 session needs attention" or "<N> sessions
-    need attention" across all projects by the card's counting rule (not
-    unavailable or unknown ones); nothing when none do. Before the first read
-    answers it says "Reading sessions…", never an empty list; with none kept,
-    "No sessions launched from this dashboard are kept." When Claude Code's
-    listing cannot be read, every entry shows State unknown, as today. Recent
-    sessions reads from the same sessions, so it too says "Reading sessions…"
-    until they are first read, instead of claiming none are kept (today a page
-    loaded in a hidden tab says "No sessions launched from this dashboard are
-    kept." although sessions are kept).
-  - **Opening an entry.** Clicking or activating an entry keeps the sidebar
-    open (wide window), shows that project's stories (from the roster too,
-    through the same project selection and URL history as the project
-    choice), opens the session in the terminal panel as Open terminal does
-    (replacing another session there; an entry already shown there is not
-    reattached; a Session unavailable entry, which offers no Open terminal,
-    opens no terminal), and scrolls the story's card into view, without animation
-    under reduced motion. While the terminal shows its session, the card is
-    outlined in the page's selection accent and says "Shown in terminal" (the
-    card's accent left edge already marks every card, so the text carries the
-    meaning), and the sidebar entry is marked current (`aria-current`); both
-    clear when the panel closes or shows another session. A story on no card scrolls to and highlights its Recent
-    sessions entry instead. The keyboard goes where Open terminal puts it. On
-    a narrow window, opening an entry also closes the overlay so it does not
-    cover the highlighted story.
-  - **Changes nothing.** Toggling the sidebar or opening an entry never
-    changes a story fact, stage, card position, or session state or mark.
-  - **Deferred:** Mark as done or other session actions on sidebar entries
-    (the terminal panel offers Mark as done once opened); sessions marked
-    done in the sidebar, and replacing or removing Recent sessions, judged
-    after use; grouping, filtering, or searching entries; resizing the
-    sidebar; sessions this dashboard did not launch; notifications.
-- **Key examples:**
-  - Toggle across views: on Open Dough's stories the developer presses
-    Command+B; the sidebar opens with the keyboard still where it was. They
-    switch to Pygardon and open the agent roster; the sidebar stays open. They
-    reload; it is still open. Command+B again closes it.
-  - Whole-dashboard attention: Doughnut has a session Needs input, Pygardon
-    one Ready for review, and Open Dough two Working. With Open Dough selected,
-    the heading says "2 sessions need attention"; the Doughnut and Pygardon
-    entries have the heavier edge and their state words; the Working ones do
-    not. With the sidebar closed, the Sessions button shows the same count.
-  - Jump across projects: on Open Dough, the developer clicks the Pygardon
-    entry "Correct the Telegram IBKR QR login's diagnosis and representations".
-    The page shows Pygardon's stories, the terminal opens that session, and
-    its Taken card scrolls into view highlighted; the entry is current and the
-    sidebar stays open. Clicking an Open Dough entry replaces the terminal's
-    session and moves the highlight there.
-  - Stable order: a Working session two entries down becomes Ready for
-    review; it gains the heavier edge and stays in its place. A new launch
-    appears at the top.
-  - Story in no list: an unmarked session's story was removed from the
-    backlog on origin. Its entry opens the terminal and scrolls to its Recent
-    sessions entry, highlighted.
-  - Terminal keyboard: with the keyboard in the terminal, Command+B closes the
-    sidebar and the keyboard stays in the terminal; Ctrl+B reaches the session.
-  - Marked done leaves the list: the developer marks the open session done in
-    the terminal panel; its entry leaves the sidebar, as it leaves its card,
-    and remains under Recent sessions.
-  - Unavailable session: Claude Code no longer lists a kept session. Its
-    entry says Session unavailable without the heavier edge; opening it shows
-    its project and highlights its card, and no terminal opens.
-  - Narrow window: the sidebar overlays the page; picking an entry closes it,
-    opens the terminal above the page, and scrolls to the highlighted card.
-- **Architecture:** The sidebar is the dashboard's first view that is not
-  scoped to the selected project. Published observation stays one project at
-  a time (North Star, "One backlog interpretation"); what spans projects is
-  machine-local session evidence, which is already machine-wide in fact:
-  launch records live in one store on this machine keyed by project, and
-  Claude Code's `claude agents --json --all` lists every session on the
-  machine whatever folder it runs in (observed 2026-09-29: the same 535
-  sessions from `~/git/open-dough` and `~/git/pygardon`, 0.16 s). The
-  delivered code specialised this to the selected project: the page reads
-  `GET /__agent-launch?source=<project>`, which runs the same machine-wide
-  listing once per project read, and the page's record state
-  (`useAgentLaunches(source)`) reads only the selected project, so a hidden
-  or unread project looks empty. This story generalises that into one
-  concept, **the machine's sessions**:
-  - One read answers every catalog project's kept launch records joined with
-    one Claude Code listing; the per-project read is replaced, not kept
-    beside it. Terminal attach, stop, and Mark as done stay per record,
-    in that record's project folder.
-  - The page holds one session state for the machine, independent of the
-    selected project, with "not yet read" distinct from "none kept". Every
-    project-scoped view derives from it by project and identity: a card's
-    sessions (identities are unique only within a project), Recent sessions,
-    and a card's attention count; the sidebar derives the unmarked sessions
-    of every project. `sessionShown` and `attentionSummary` stay the one
-    reading of state and attention for all of them.
-  - The page frame that already holds the one terminal above project
-    selection (`TerminalSplit`) becomes the frame for session views that
-    survive a project switch: sidebar | page | terminal. It exposes which
-    session the terminal shows, so a card, a Recent sessions entry, and a
-    sidebar entry each derive their "shown" mark from that one fact.
-  - Going to a session is one page operation composed of existing owners:
-    the route (`dashboardRoute.ts`) gains one "show this project's stories"
-    step (selection and stories view in one history entry), the work focus
-    module (`workFocus.ts`) that already finds cards by identity reveals one,
-    and the frame opens the terminal as Open terminal does.
-  - Page-wide shortcuts share one eligibility rule for open modal dialogs
-    (today private to `projectKeyboardNavigation.ts`); Command+B has its own
-    rule otherwise, since unlike the arrows it applies inside the terminal.
-  - The sidebar's open state is a per-viewer UI preference in disposable
-    browser storage, never session or story evidence.
-  - Growth: Codex and Cursor sessions (stories 7 and 8) join the same machine
-    read through their host module; Recently done and any later
-    cross-project session view derive from the same state instead of adding
-    reads. No session registry, database, or adapter interface is added.
-  Accepted ADR 0001 (ubiquitous language) and ADR 0002 (small increments,
-  clear domain concepts) apply; Proposed ADR 0008's local operational layer
-  is context only.
-- **Effort hypothesis:** Roughly a day. Moving the per-project read to one
-  machine read touches the launch boundary specs, and scrolling to a card
-  once another project's published read answers is the main uncertainty.
-- **Depends on:** Recent sessions, card attention, and the split terminal
-  panel, all delivered.
-- **Safe stopping point:** The sidebar is additive; cards, Recent sessions,
-  and the terminal panel keep working without it.
+- **Goal:** A developer using the Sessions sidebar can trust that it reads
+  every session from a folder Claude Code answers the same way, that a list
+  still being read never looks complete, and that the page scrolls only where
+  they asked it to, correcting what the SEED-052#session-sidebar execution
+  left behind.
+- **Scope:** Confirm, with Terry's own listing from the home folder, that the
+  machine read's listing folder answers every session, and otherwise read it
+  in a catalog project's folder; drop a pending reveal once the developer
+  shows another project's stories; keep sessions not yet read while a launch
+  answers before the first read; bring the navigation specs into the test
+  guide and the North Star's keyboard return in line with the narrow-window
+  case. No new feature promise.
+- **Plan:** [plan 167](../slice-plans/167-session-sidebar-residue/PLAN.md)
 
 <a id="script-execution-preparation"></a>
 

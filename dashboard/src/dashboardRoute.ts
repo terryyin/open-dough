@@ -100,10 +100,16 @@ export function useDashboardRoute({
     window.history.pushState({ fromPortrait: true }, "", nextUrl);
   };
 
-  const backToStories = (source: PublishedSource) => {
-    setRoute({ source, view: "stories" });
-    const storiesUrl = buildRouteUrl(source.id, "stories");
-    window.history.pushState(null, "", storiesUrl);
+  // Shows a project's stories, from either view and whichever project is
+  // selected, as one history entry, as the roster's Back does and a sidebar
+  // entry does; nothing when they are already shown.
+  const showStories = (next: PublishedSource) => {
+    if (next.id === sourceId && route.view === "stories") {
+      return;
+    }
+    window.history.pushState(null, "", buildRouteUrl(next.id, "stories"));
+    setRoute({ source: next, view: "stories" });
+    selectSource(next);
   };
 
   useEffect(() => {
@@ -142,6 +148,6 @@ export function useDashboardRoute({
     route,
     selectProject,
     openRoster,
-    backToStories,
+    showStories,
   };
 }

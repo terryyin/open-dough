@@ -1,8 +1,9 @@
 // The local launch boundary, mounted by Vite in dev and preview
 // (`./localBoundaryPlugin.ts`) beside the authenticated read boundary. A same-origin
 // POST to `/__agent-launch` asks to launch an agent on one work item
-// (`./agentLaunches.ts`); a GET `?source=` answers that project's launch
-// records with each session's current state. A same-origin POST to
+// (`./agentLaunches.ts`); a same-origin GET answers the machine's sessions:
+// every catalog project's launch records, each naming its project, with each
+// session's current state. A same-origin POST to
 // `/__agent-launch/done` marks one session it recorded done
 // (`./doneMarks.ts`). A same-origin WebSocket upgrade to
 // `/__agent-terminal?source=&session=` attaches to one session this boundary
@@ -66,10 +67,10 @@ async function answer(
   try {
     const request = await admitted(req, url, launches);
     switch (request.kind) {
-      case "records":
+      case "sessions":
         return {
           status: 200,
-          body: { records: await launches.recordsOf(request.source) },
+          body: { records: await launches.machineSessions() },
         };
       case "launch":
         return {

@@ -121,7 +121,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       const reads = page.waitForRequest(
         (request) =>
           request.method() === "GET" &&
-          request.url().endsWith("/__agent-launch?source=open-dough"),
+          new URL(request.url()).pathname === "/__agent-launch",
       );
       await page.reload();
       await reads;

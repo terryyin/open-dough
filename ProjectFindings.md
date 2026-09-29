@@ -339,6 +339,30 @@ The planning audit listed only the scripts that create agent-authored commits. I
   - Evidence: plan 119's PFE names the scripts that create commits (`--author` / `commit-tree`). `publish-the-candidate.md` "Preserve published history" and `product-backlog-git-merge.mjs` `commitAcceptedMerge` still make an agent-authored integration merge without the credit, as merge `199ae44` shows. Correction plan 121.
   - Observed effect: one follow-up correction story. Qualified inference: an audit that greps scripts for commit creation cannot see commits that guidance directs.
 
+## Layout proof that checks arrangement but not usable content (low priority, not selected)
+
+### DD-184 — A layout slice proved where columns sit but not that the page inside them stayed usable
+
+Plan 164 slice 2 added a Sessions sidebar column beside the page and the
+terminal. Its accepted proof asserted the columns' order, the sidebar's height
+and scrolling, and the narrow overlay, but nothing about the page column's own
+content. With the sidebar and terminal open on a 1280px window, the page column
+was about 500px while the stages kept three columns (their `@media` rule reads
+the window width), so cards were about 100px wide and over 2,000px tall. The
+terminal-only split already had the same defect for windows between about 800
+and 1,540px.
+
+#### Occurrences
+
+- Execution: `SEED-052#session-sidebar` / plan 164, first related implementation commit `0ebb635d`
+  - Timestamp: 2026-09-29T21:19:00+08:00 (slice 2 delivered at `79e2eb9a`); found before slice 4's `fbf80b82` at 2026-09-29T22:01:19+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.47 (this repository's installed copy)
+  - Evidence: slice 2's `session-sidebar.spec.ts` layout step (`expectSideBySideInOrder`, `elementFromPoint`); slice 4's implementation return noted the 100px cards while measuring a reveal; the fix made `.page-column` a CSS container (`@container page` in `stages.css`, `banner.css`) and added `expectStagesStacked`, which failed with the container removed.
+  - Observed effect: a delivered slice broke card readability whenever both panels were open; it was found by chance one slice later, and fixed there within scope.
+  - Inference: Qualified. Layout helpers in `pageLayout.ts` check arrangement and clipping, not whether content in a narrowed region keeps a usable layout; a region that changes width needs a check of what it contains.
+
 ## Retention
 
 - Moved from `DearDough.md` at `7ebcb07c`: ODF-060, DD-113, DD-114.

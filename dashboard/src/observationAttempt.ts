@@ -12,7 +12,7 @@
 import { useState } from "react";
 import { ReadProblem } from "./readProblem.ts";
 
-type FailedAttempt = {
+export type FailedAttempt = {
   readonly status: "failed";
   readonly problem: string;
   readonly at: Date;

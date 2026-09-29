@@ -53,8 +53,12 @@ longer being listed, Claude Code's listing becoming unreadable, and the
 passing of time never remove a session from its card; only marking it done
 does (below). Reloading
 the page, selecting another project and back, or restarting the dashboard
-keeps the listing, because the page reads the project's kept launch records
-again from the local server (`GET /__agent-launch?source=<project id>`). A
+keeps the listing: the page reads the machine's sessions from the local
+server in one request (`GET /__agent-launch`), which answers every catalog
+project's kept launch records, each naming its project, and holds one session
+state for the machine apart from the selected project; a card and Recent
+sessions show the selected project's records from it, by project and
+identity, since an identity is unique only within a project. A
 listed session is local evidence from this machine, not a story fact: origin
 alone places the story, and a story that leaves every list keeps its sessions
 only under Recent sessions.
@@ -67,12 +71,61 @@ entry, marked "Local: launched from this dashboard on this machine." An
 entry stays when the story is prepared, taken, or leaves every list, and when
 its session is marked done, and two launches of one story are two entries.
 Another project's launches are listed only under that project, and sessions
-this dashboard did not launch are not listed. With no records it says that no
-sessions launched from this dashboard are kept.
+this dashboard did not launch are not listed. Until the page first reads the
+machine's sessions it says "Reading sessions…"; with no records it says that
+no sessions launched from this dashboard are kept.
+
+The **Sessions** sidebar (`src/SessionSidebar.tsx`) lists the sessions still
+open in every catalog project, whichever project is selected: every launch
+record not marked done, exactly the sessions the cards keep, including one
+whose story is in no list. The **Sessions** button at the start of the pinned
+banner, before the project name, opens and closes it (`aria-expanded`,
+controlling the sidebar), and Command+B does the same page-wide, also while
+the keyboard is in the terminal, where Ctrl+B still goes to the session. An
+open dialog, as the launch dialog or the badge legend, keeps Command+B;
+elsewhere the page takes it from the browser. Toggling leaves the keyboard
+where it is, except that closing the sidebar while the keyboard is inside it
+returns the keyboard to the Sessions button. It starts closed, and stays open
+or closed as left across project switches, the agent roster, the terminal, and
+reloads, kept in this browser's storage; without that storage it starts
+closed. On a wide window the sidebar is a fixed-width column left of the page,
+as tall as the window and scrolling on its own, with the terminal panel still
+on the right: sidebar, page, terminal. On a narrow window, where the terminal
+stacks above the page, it lies over the page from the left, below the banner.
+Entries are newest launch first, by launch time alone, so a state change
+updates an entry in place and never moves it, and a new launch comes first.
+Each entry names its story's title, wrapped to at most two lines, the project
+and workflow, such as "Pygardon · Refinement", when it was launched, and its
+session's state in the words a card entry uses, with the same heavier edge
+when the developer is needed there (below). The heading "Sessions" is followed
+by "1 session needs attention" or "<N> sessions need attention", counted
+across every project by the card's rule, and by nothing when none do; while
+the sidebar is closed, the Sessions button shows the same count as text.
+Before the machine's sessions are first read it says "Reading sessions…"; with
+none kept, "No sessions launched from this dashboard are kept."; and with all
+of them marked done, "No sessions launched from this dashboard are open." A
+session marked done leaves it, as it leaves its card.
+
+Each sidebar entry is one control named by its story's title, project, and
+workflow. Opening it (`src/TerminalSplit.tsx`) shows that project's stories,
+from the agent roster too, as one history entry that browser Back undoes;
+opens its session in the terminal as Open terminal does, keyboard included,
+where the entry offers it, without attaching a shown session again; and, once
+those stories are read, scrolls the story's card, or else its Recent sessions
+entry, into view (at once under reduced motion) until the developer scrolls,
+points, or types (`src/workFocus.ts`). The session the terminal shows, as the
+page frame says, marks every entry of it: its card and Recent sessions entry
+are outlined and its entries there say "Shown in terminal", and its sidebar
+entry is current (`aria-current`) and outlined. Close clears the marks and
+returns the keyboard to the entry, or to the Sessions button on a narrow
+window, where opening an entry closes the sidebar lying over the page. Opening
+or closing the sidebar, or opening an entry, changes no story fact, stage,
+card position, or session state or mark.
 
 Each entry, in Recent sessions and on a card, also shows its session's state,
-read from `claude agents --json --all` in the project's folder whenever the
-records are read and never kept, and whether the developer is needed there. One
+read from one `claude agents --json --all` run in the machine's home folder
+(Claude Code lists every session on the machine wherever it runs) whenever the
+records are read, and never kept, and whether the developer is needed there. One
 reading (`src/sessionShown.ts`) decides both from Claude Code's `state` alone;
 whether the process runs or is idle does not. A session not marked done needs
 attention while Claude Code lists it `blocked`, shown **Needs input** with what
@@ -93,8 +146,8 @@ done) without Open terminal; if the listing cannot be read, every entry shows
 **State unknown** with "Claude Code's session list could not be read", no
 attention, and keeps Open terminal. While the page
 is visible it reads the records again every 15 seconds, the pace of its
-revision checks, so a state change shows without a reload. With no records,
-`claude` is not run.
+revision checks, so a state change shows without a reload. With no records
+kept for any project, `claude` is not run.
 
 A card whose listed sessions include any that need attention says so above
 them, by the same reading: "1 session needs attention", or "<N> sessions need

@@ -1,11 +1,12 @@
 // Which requests the local launch boundary (`./agentLaunchPlugin.ts`)
-// admits, and the refusal each other one gets: a launch, a read of one
-// project's launch records, a done mark on a session it recorded
+// admits, and the refusal each other one gets: a launch, a read of the
+// machine's sessions, a done mark on a session it recorded
 // (`./doneMarks.ts`), and a terminal upgrade (`./agentTerminals.ts`). Every
-// request must come from this dashboard's own origin and name a catalog
-// project; a done mark or an upgrade must name a session this dashboard
-// recorded for that project, in its existing folder. Nothing here runs a host
-// process except the listing an upgrade's admission reads.
+// request must come from this dashboard's own origin; a launch, a done mark,
+// or an upgrade must name a catalog project, and a done mark or an upgrade a
+// session this dashboard recorded for that project, in its existing folder.
+// Nothing here runs a host process except the listing an upgrade's admission
+// reads.
 
 import type { IncomingMessage } from "node:http";
 import {
@@ -26,7 +27,7 @@ import type { ProjectFolder } from "./projectFolders.ts";
 const bodyLimitBytes = 32 * 1024;
 
 export type Admitted =
-  | { readonly kind: "records"; readonly source: PublishedSource }
+  | { readonly kind: "sessions" }
   | {
       readonly kind: "launch";
       readonly source: PublishedSource;
@@ -152,10 +153,7 @@ export async function admitted(
     return doneRequest(req, launches);
   }
   if (req.method === "GET") {
-    return {
-      kind: "records",
-      source: knownSource(url.searchParams.get("source")),
-    };
+    return { kind: "sessions" };
   }
   if (req.method === "POST") {
     return launchRequest(req);

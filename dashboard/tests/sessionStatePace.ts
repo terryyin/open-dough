@@ -1,19 +1,21 @@
-// How the session state specs watch the page read its launch records again
-// on its own: the records reads it asks, one steady pace of page time at a
-// time, and a marker set on this document only, so a reload would lose it.
+// How the session state specs watch the page read the machine's sessions
+// again on its own: the records reads it asks, one steady pace of page time
+// at a time, and a marker set on this document only, so a reload would lose
+// it; or hold its first read unanswered (`holdSessionReads`).
 // Each spec pauses the page clock (`pausePageClockAt`) before the page opens.
 // What an entry shows of its session is `expectSessionShown`: its state's
 // words and whether its solid edge says the developer is needed there.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Locator, Page, Request } from "@playwright/test";
 import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import { expect } from "./dashboardTest.ts";
 import { sessionStateOf } from "./dashboardPage.ts";
 import { givePageItsTurns } from "./pageRequestNotes.ts";
 
-const isRecordsRead = (url: string) =>
-  url.includes(`${agentLaunchEndpoint}?source=`);
+const isRecordsRead = (request: Request) =>
+  request.method() === "GET" &&
+  new URL(request.url()).pathname === agentLaunchEndpoint;
 
 // Counts the page's records reads from now on, and lets exactly one steady
 // pace of page time pass: no records read is asked a moment before it, and
@@ -21,7 +23,7 @@ const isRecordsRead = (url: string) =>
 export function watchRecordReads(page: Page) {
   let reads = 0;
   page.on("request", (request) => {
-    if (isRecordsRead(request.url())) reads += 1;
+    if (isRecordsRead(request)) reads += 1;
   });
   return {
     passOnePace: async () => {
@@ -31,13 +33,32 @@ export function watchRecordReads(page: Page) {
       await givePageItsTurns(page);
       expect(reads).toBe(before);
       const answered = page.waitForResponse((response) =>
-        isRecordsRead(response.url()),
+        isRecordsRead(response.request()),
       );
       await page.clock.runFor(1);
       await answered;
       expect(reads).toBe(before + 1);
     },
   };
+}
+
+// Holds the page's reads of the machine's sessions unanswered until
+// `answer` is called; later reads are answered at once.
+export async function holdSessionReads(
+  page: Page,
+): Promise<{ answer: () => void }> {
+  let answer = () => {};
+  const held = new Promise<void>((resolve) => {
+    answer = resolve;
+  });
+  await page.route(
+    (url) => url.pathname === agentLaunchEndpoint,
+    async (route) => {
+      if (route.request().method() === "GET") await held;
+      await route.continue();
+    },
+  );
+  return { answer };
 }
 
 export async function markNotReloaded(page: Page): Promise<void> {

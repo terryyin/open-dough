@@ -29,12 +29,12 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   const { project, sourceEvidence, directionToggle, backlog, taken, refresh } =
     parts(page);
 
-  // Reading order is the order of the page's source: the project selector,
-  // then the read control, source evidence, direction and badge legend, then
-  // each card's controls and recorded links by stage (Backlog, then Taken): a
-  // Backlog card's launch actions, then Inspect. In a wide window Taken stands
-  // beside Backlog's first card, so position on screen would order them
-  // differently.
+  // Reading order is the order of the page's source: Sessions, the project
+  // selector, then the read control, source evidence, direction and badge
+  // legend, then each card's controls and recorded links by stage (Backlog,
+  // then Taken): a Backlog card's launch actions, then Inspect. In a wide
+  // window Taken stands beside Backlog's first card, so position on screen
+  // would order them differently.
   const stopsFor = async (stage: Locator) => {
     const stops: Locator[] = [];
     for (const card of await stage.getByRole("article").all()) {
@@ -50,6 +50,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   };
   const selectedProject = project.getByRole("radio", { checked: true });
   const stops = [
+    page.getByRole("button", { name: "Sessions", exact: true }),
     selectedProject,
     refresh,
     sourceEvidence,
@@ -58,12 +59,12 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // The selected project radio + Refresh + Source evidence + Direction +
-  // Legend + two Backlog cards' launch actions + four Inspect + five recorded
-  // links.
-  expect(stops).toHaveLength(5 + 2 * cardLaunchActions.length + 4 + 5);
+  // Sessions + the selected project radio + Refresh + Source evidence +
+  // Direction + Legend + two Backlog cards' launch actions + four Inspect +
+  // five recorded links.
+  expect(stops).toHaveLength(6 + 2 * cardLaunchActions.length + 4 + 5);
 
-  await test.step("Tab stops at the read control, each card's controls, and every recorded link, and nowhere else", async () => {
+  await test.step("Tab stops at Sessions, the read control, each card's controls, and every recorded link, and nowhere else", async () => {
     for (const stop of stops) {
       await page.keyboard.press("Tab");
       await expectFocusedAndIndicated(page, stop);
@@ -133,7 +134,8 @@ test("accessible overview announces reading, the read result, and a failure whil
     expect(await box(status)).toMatchObject({ width: 1, height: 1 });
   });
 
-  // Project then the read control.
+  // Sessions, the project, then the read control.
+  await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await expect(refresh).toBeFocused();

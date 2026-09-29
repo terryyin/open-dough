@@ -8,8 +8,12 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
+/* The page's own width, which the sidebar and the terminal share the window
+   with, decides how the page lays itself out (`@container page`), so it
+   lays out as on a narrow window whenever its column is that narrow. */
 .page-column {
   min-width: 0;
+  container: page / inline-size;
 }
 
 .terminal-panel {
