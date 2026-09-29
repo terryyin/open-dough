@@ -238,7 +238,16 @@ Changes:
 
 ### 3. A refinement's Started settles when the story shows Preparing
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `agent-launch accessible-overview read-failure` gave 91
+passed and the whole `npm run test:dashboard` 229 passed; after the refactor
+the settlement spec gave 1 passed; typecheck and lint clean. Its test
+"Started survives reloads and project switches; Preparing ends a refinement
+Started and notes Start refinement, leaving the execution Started; the Take
+or leaving the backlog ends every Started" also has a step proving that a
+refinement launched on a story already Preparing settles at once. Forcing the
+refinement note to `undefined` failed that spec. The note reuses
+`showsAssignment`, the settlement predicate.
 Proof: `npx playwright test --config dashboard/playwright.config.ts
 --reporter=line agent-launch`; `npm run typecheck:dashboard`; the whole
 `npm run test:dashboard`.

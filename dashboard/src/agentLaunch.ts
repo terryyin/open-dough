@@ -27,7 +27,9 @@ type LaunchWorkflowSpec = {
   readonly verb: string;
   readonly skill: string;
   readonly activity: AgentActivity;
-  readonly note: (entry: Pick<WorkEntry, "preparation">) => string | undefined;
+  readonly note: (
+    entry: Pick<WorkEntry, "preparation" | "preparing">,
+  ) => string | undefined;
 };
 
 export const launchWorkflows = {
@@ -48,7 +50,10 @@ export const launchWorkflows = {
     verb: "refine",
     skill: "dough-story-refinement",
     activity: "preparation",
-    note: () => undefined,
+    // A refinement launched now settles at once, as the story already shows
+    // the assignment it asks for.
+    note: (entry) =>
+      showsAssignment(entry, "preparation") ? "Being prepared" : undefined,
   },
 } as const satisfies Record<string, LaunchWorkflowSpec>;
 

@@ -12,10 +12,11 @@ Every **Backlog** card offers **Start execution** and then **Start
 refinement**; **Taken** cards offer neither. A card not marked **Ready for
 execution** offers Start execution with the note "Not marked Ready for
 execution", so the developer can still start it, for example with an
-instruction to refine and plan it first. Each action opens a dialog, such as
-"Start refinement in Claude Code", naming the story and the command the
-session starts with, with an optional instruction; **Start** sends it, and
-**Cancel** or Escape sends nothing.
+instruction to refine and plan it first. A card already showing **Preparing**
+offers Start refinement with the note "Being prepared". Each action opens a
+dialog, such as "Start refinement in Claude Code", naming the story and the
+command the session starts with, with an optional instruction; **Start** sends
+it, and **Cancel** or Escape sends nothing.
 
 The page posts the request to a second local boundary beside the read one,
 `/__agent-launch` (`server/agentLaunchPlugin.ts`, reached from the browser
@@ -42,13 +43,17 @@ launched. An uncertain one (no answer within the launch wait, or no session to
 confirm) advises checking `claude agents` before starting again. Either answer
 stays beside its own action, which stays on the card.
 
-Started lasts while origin still shows the story in the Backlog. Reloading the
-page or selecting another project and back keeps it, because the page reads
-the project's launch records again from the local server
-(`GET /__agent-launch?source=<project id>`). A published **Preparing**
-assignment does not end an execution Started, since the session may ready the
-story before taking it; the card then shows both. Once origin shows the story
-under **Taken**, or no longer lists it at all, Started is gone and the
+Started lasts while origin still shows the story in the Backlog without the
+assignment its workflow asks for. Reloading the page or selecting another
+project and back keeps it, because the page reads the project's launch records
+again from the local server (`GET /__agent-launch?source=<project id>`). A
+published **Preparing** assignment is the one refinement asks for: it ends a
+refinement Started, and Start refinement then carries the note "Being
+prepared". It does not end an execution Started, since the session may ready
+the story before taking it; the card then shows both. A refinement launched on
+a card already Preparing therefore settles at once and shows no Started; its
+session is reached through `claude agents`. Once origin shows the story under
+**Taken**, or no longer lists it at all, every Started is gone and the
 published card speaks for the story.
 
 Launch records are kept only by the running dashboard server, in memory.

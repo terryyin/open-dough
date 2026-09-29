@@ -2,10 +2,10 @@
 // developer asks Claude Code to start a background session on this machine
 // that runs the workflow on the story, with an optional instruction of their
 // own. Every word comes from the workflow (`launchWorkflows`). A card the
-// workflow notes (execution: not marked Ready for execution) offers the same
-// action, described by that note; the session is asked anyway, and the
-// instruction can say what to do first. A failed or uncertain answer stays on
-// the card with the action.
+// workflow notes (execution: not marked Ready for execution; refinement:
+// being prepared) offers the same action, described by that note; the session
+// is asked anyway, and the instruction can say what to do first. A failed or
+// uncertain answer stays on the card with the action.
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import {
