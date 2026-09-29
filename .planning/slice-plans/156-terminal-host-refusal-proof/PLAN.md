@@ -96,13 +96,18 @@ Excluded, and left for Terry at wrap-up:
 
 ### 1. The terminal upgrade's foreign-Host refusal is proved
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npm run test:dashboard -- dashboard/tests/agent-terminal-boundary.spec.ts dashboard/tests/agent-launch-done.spec.ts`, with the new case failing when the Host check is removed.
 
 Behavior: example 1. Restore one refusal row in the boundary spec's table,
 with Origin and Host both `evil.example`, asserting 403 and no `claude` call in
 each mode. Drop the done spec's "with no Origin" row. Name the Host refusal's
 owner in the spec header.
+
+Accepted proof: the proof command passed. The row "naming a foreign Host" in
+`agent-terminal-boundary.spec.ts`'s refusal table asserts 403 and unchanged
+`server.claudeCalls()` in both modes. With `verifyLocalOrigin`'s Host branch
+disabled, only that row failed in both modes ("opened a refused socket").
 
 ### 2. Closing returns the keyboard to a still-present opener
 Type: Behavior
