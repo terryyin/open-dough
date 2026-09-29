@@ -49,7 +49,7 @@ removal of the copyable attach command.
 
 ### 1. One journey observes a Preparing-card refinement
 Type: Structure
-Status: planned
+Status: done
 Proof: the launch specs pass, and example 5 keeps its settlement-journey observation.
 
 Remove the recent-sessions spec's Preparing step, the `settlesAtOnce`
@@ -61,6 +61,17 @@ header comment, its test name, its launch count, and the
 Proof: name the surviving assertion for example 5 in the settlement spec. Run
 `npm run test:dashboard -- dashboard/tests/agent-launch-settlement.spec.ts dashboard/tests/agent-launch-recent-sessions.spec.ts`
 and `npm run typecheck:dashboard`.
+
+Accepted proof: the settlement step "a refinement launched on a story
+already Preparing settles at once" (`agent-launch-settlement.spec.ts`)
+observes example 5: the action enabled with "Being prepared", no Refinement
+Started, one more entry, and `expectEveryEntry()`. `settlement.preparing` is
+now shown only at `agent-launch-settlement.spec.ts:140`. Both focused specs
+and `npm run typecheck:dashboard` pass.
+
+Learning: the recent-sessions spec still opens on the settlement journey's
+queued revision, because only `openSettlementJourney` supplies the Doughnut
+project its isolation step needs.
 
 ## Proof ownership
 

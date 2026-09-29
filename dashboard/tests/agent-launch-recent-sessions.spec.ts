@@ -2,10 +2,10 @@
 // selected project, newest first, on a committed origin the production
 // commands publish (./launchJourney.ts): an entry names its story, workflow,
 // launch time, and session with Open terminal; two launches of one story
-// are two entries; a refinement launched on a Preparing card is listed
-// without a Started; and another project's launches are not listed, through
-// reloads and project switches. That every entry stays through the Take and
-// completion is ./agent-launch-settlement.spec.ts, and each entry's state is
+// are two entries; and another project's launches are not listed, through
+// reloads and project switches. That every entry stays through Preparing, the
+// Take, and completion, including a refinement launched on a Preparing card,
+// is ./agent-launch-settlement.spec.ts, and each entry's state is
 // ./agent-launch-recent-session-states.spec.ts. The page's own dashboard
 // server launches the synthetic `claude` (./fixtures/fake-claude); the real
 // one is never reached.
@@ -30,7 +30,7 @@ import { openSettlementJourney, type Workflow } from "./settlementPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
-test.describe("Recent sessions as origin publishes what the launched sessions do", () => {
+test.describe("Recent sessions of the launches from this dashboard", () => {
   let settlement: SettlementJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
@@ -38,12 +38,12 @@ test.describe("Recent sessions as origin publishes what the launched sessions do
   });
   test.afterAll(() => (settlement as SettlementJourney | undefined)?.cleanup());
 
-  test("lists each launch newest first with its story, workflow, time, session, and Open terminal, only under its own project, including a refinement launched on a Preparing card", async ({
+  test("lists each launch newest first with its story, workflow, time, session, and Open terminal, only under its own project", async ({
     page,
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, action, settled, show, launch } = await openSettlementJourney(
+    const { card, settled, launch } = await openSettlementJourney(
       page,
       settlement,
     );
@@ -51,12 +51,8 @@ test.describe("Recent sessions as origin publishes what the launched sessions do
     const entries = recent.getByRole("article");
     const sessionIds: string[] = [];
     // Launches the workflow and remembers its session, as the card's Started
-    // names it or, when the launch settles at once, as the new entry does.
-    const launchListed = async (
-      title: string,
-      workflow: Workflow,
-      settlesAtOnce = false,
-    ) => {
+    // names it.
+    const launchListed = async (title: string, workflow: Workflow) => {
       const before = await entries.count();
       await launch(title, workflow);
       await expect(entries).toHaveCount(before + 1);
@@ -65,9 +61,7 @@ test.describe("Recent sessions as origin publishes what the launched sessions do
       );
       sessionIds.unshift(
         await sessionNamedBy(
-          settlesAtOnce
-            ? entries.first()
-            : card(title).getByRole("region", { name: `${workflow} started` }),
+          card(title).getByRole("region", { name: `${workflow} started` }),
         ),
       );
     };
@@ -152,24 +146,7 @@ test.describe("Recent sessions as origin publishes what the launched sessions do
       await expect(recent).not.toContainText(doughnutSharedTitle);
     });
 
-    await test.step("Preparing keeps every entry, and a refinement launched on the Preparing card is listed without a Started", async () => {
-      await show(settlement.preparing);
-      await expectMembership(page, { taken: [], backlog: queued });
-      await expect(
-        card(readyStory).getByText("Preparing", { exact: true }),
-      ).toBeVisible();
-      await expectEntries(launched);
-
-      await launchListed(readyStory, "Refinement", true);
-      await expect(action(readyStory, "Refinement")).toBeEnabled();
-      await expect(
-        card(readyStory).getByRole("region", { name: "Refinement started" }),
-      ).toHaveCount(0);
-      await expectEntries([[readyStory, "Refinement"], ...launched]);
-      expect(new Set(sessionIds).size).toBe(4);
-    });
-
-    // Listing never launched anything: five launches, one of them Doughnut's.
-    expect(dashboard.claudeLaunchCalls()).toHaveLength(5);
+    // Listing never launched anything: four launches, one of them Doughnut's.
+    expect(dashboard.claudeLaunchCalls()).toHaveLength(4);
   });
 });
