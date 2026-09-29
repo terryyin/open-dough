@@ -117,16 +117,15 @@ parallel ones:
   preparation assignment. One activity can host several workflows (planning
   also prepares), which is why the launch names the workflow rather than the
   activity. Workflows are added when a story delivers them, in one table that
-  the boundary, host, settlement, and card all read; no per-workflow copy of
-  the action, dialog, or settlement is built. The agent's ordinary workflow
-  still owns workspaces, Take, preparation, and publication.
+  the boundary, host, and card all read; no per-workflow copy of the action or
+  dialog is built. The agent's ordinary workflow still owns workspaces, Take,
+  preparation, and publication.
 - A **launch record** is machine-local operational evidence (ADR 0008's later
   local layer): the request, when it was launched, and the host **session** it
-  started. It never becomes story state. A launch *awaits publication* while
-  its work item is still in the backlog and does not yet show an assignment of
-  its workflow's activity: an execution settles on the Take, a refinement when
-  the item shows Preparing. Later stories list, persist, and attach to these
-  same records rather than inventing a session registry.
+  started. It never settles, moves, or becomes story state: its session stays
+  listed until the developer marks it done, whatever the story's published
+  stage. Later stories list, persist, and attach to these same records rather
+  than inventing a session registry.
 - Each **host** owns how to start and identify its sessions (for Claude Code:
   `claude --bg`, which chooses and prints its own session id, confirmed
   through `claude agents --json`) and how a developer reaches one (`claude attach`).
