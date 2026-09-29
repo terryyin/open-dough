@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Every check the runner starts sees CI's Git state, whatever the caller's
-# configuration: no global or system settings, background maintenance off, and
-# no identity unless the check sets one, so an identity-less commit fails.
+# Every check the runner starts sees CI's environment, whatever the caller's:
+# uncolored output, whatever color the caller forces or forbids, and CI's Git
+# state, with no global or system settings, background maintenance off, and no
+# identity unless the check sets one, so an identity-less commit fails.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -17,7 +18,7 @@ mkdir -p -- "${checks}" "${work}" "${temporary_dir}/home" "${temporary_dir}/xdg/
 
 # The caller's configuration sets everything the runner must hide, through the
 # global file, the XDG file, inherited command-line configuration, and
-# inherited identity variables.
+# inherited identity variables; the run below also forces and forbids color.
 cat > "${temporary_dir}/home/.gitconfig" << 'CONFIG'
 [user]
 	name = Caller Identity
@@ -29,8 +30,8 @@ cat > "${temporary_dir}/home/.gitconfig" << 'CONFIG'
 CONFIG
 cp -- "${temporary_dir}/home/.gitconfig" "${temporary_dir}/xdg/git/config"
 
-# The substitute check records what Git reports inside the runner, outside any
-# repository, then tries a commit in a fresh repository it gave no identity.
+# The substitute check records what Git and the color variables report inside
+# the runner, outside any repository, then tries a commit in a fresh repository it gave no identity.
 cat > "${checks}/observe.sh" << CHECK
 #!/usr/bin/env bash
 set -euo pipefail
@@ -39,6 +40,8 @@ cd -- '${work}'
   printf 'user.name=%s\n' "\$(git config --get user.name || echo unset)"
   printf 'user.email=%s\n' "\$(git config --get user.email || echo unset)"
   printf 'maintenance.auto=%s\n' "\$(git config --get maintenance.auto || echo unset)"
+  printf 'force-color=%s\n' "\${FORCE_COLOR-unset}"
+  printf 'no-color=%s\n' "\${NO_COLOR-unset}"
   git init --quiet repo 2> init.log
   printf 'branch=%s\n' "\$(git -C repo symbolic-ref --short HEAD)"
   if git -C repo commit --quiet --allow-empty -m identity-less > commit.log 2>&1; then
@@ -50,7 +53,7 @@ cd -- '${work}'
 CHECK
 
 run_status=0
-env GIT_AUTHOR_NAME='Inherited Author' GIT_AUTHOR_EMAIL=author@example.com \
+env FORCE_COLOR=3 NO_COLOR=1 GIT_AUTHOR_NAME='Inherited Author' GIT_AUTHOR_EMAIL=author@example.com \
   GIT_COMMITTER_NAME='Inherited Committer' GIT_COMMITTER_EMAIL=committer@example.com \
   HOME="${temporary_dir}/home" XDG_CONFIG_HOME="${temporary_dir}/xdg" \
   GIT_CONFIG_PARAMETERS="'user.name'='Inherited Identity'" \
@@ -67,6 +70,8 @@ fi
 expect_in_log "${record}" -x -F -- 'user.name=unset'
 expect_in_log "${record}" -x -F -- 'user.email=unset'
 expect_in_log "${record}" -x -F -- 'maintenance.auto=false'
+expect_in_log "${record}" -x -F -- 'force-color=unset'
+expect_in_log "${record}" -x -F -- 'no-color=unset'
 expect_in_log "${record}" -x -E -- 'branch=[^[:space:]]+'
 if grep -q -x -F -- 'branch=trunk' "${record}"; then
   echo "FAIL: the caller's init.defaultBranch reached the check." >&2

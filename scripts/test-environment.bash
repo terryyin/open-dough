@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# The environment every check runs in: the Bash floor and CI's Git state.
+# The environment every check runs in: the Bash floor, CI's Git state, and
+# CI's uncolored output.
 # Sourced by scripts/test.sh before any check starts; sets test_bash.
 
 # Tests run in child shells, so check the bash they will actually use. Bash 5
@@ -29,3 +30,7 @@ export GIT_CONFIG_COUNT=3 \
   GIT_CONFIG_KEY_0=maintenance.auto GIT_CONFIG_VALUE_0=false \
   GIT_CONFIG_KEY_1=gc.auto GIT_CONFIG_VALUE_1=0 \
   GIT_CONFIG_KEY_2=user.useConfigOnly GIT_CONFIG_VALUE_2=true
+
+# Output is uncolored, as in CI, whatever color the caller's shell forces, so
+# a check comparing tool output sees the same bytes locally and in CI.
+unset FORCE_COLOR NO_COLOR

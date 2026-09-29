@@ -26,6 +26,9 @@ environment in `scripts/test-environment.bash`, before any check starts:
   current Bash's bin directory first, for example
   `PATH="/path/to/current-bash/bin:$PATH" npm test`. This is a contributor
   requirement; the product installer still supports Bash 3.2.
+- **CI's uncolored output.** `FORCE_COLOR` and `NO_COLOR` are unset, so a
+  check that compares tool output, such as Node's assertion diffs, sees the
+  same bytes as in CI.
 - **CI's Git state.** No global, system, or inherited configuration or
   identity variables; automatic maintenance off, so no detached repack
   rewrites `.git/objects` while a check snapshots or removes a fixture (a push
