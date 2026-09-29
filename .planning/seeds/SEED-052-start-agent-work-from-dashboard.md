@@ -354,7 +354,7 @@ tools.
 
 **Identity:** SEED-052#keep-story-session-links
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/157-keep-story-session-links/PLAN.md","assessment":"not-ready","reasons":["Waits for SEED-052#terminal-residue to land on main: the plan's focus, done-mark, and module decisions assume its structure (start check in the plan)."],"basis":{"document":"22c8a1bec77e9c41ac8e90327635fbf16c9f48158c24010546a93620d22e5a79","plan":"108388c8f56b634f4ceb8362849a66728a30b808f11197069d15d1afab7d6e16"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/157-keep-story-session-links/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fcbdfee2c17b71a102a3fb2238183666d13b53654eb569a3cb7553a1fa84bd01","plan":"1099a369a350f902036bb152425222b049181a74605a281e62fc9761748e8a02"}}
 ```
 
 **Goal:** A developer who launches execution or refinement from a story can

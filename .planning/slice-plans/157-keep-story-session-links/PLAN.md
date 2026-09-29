@@ -71,14 +71,18 @@ that leaves every list keeps its sessions only in Recent sessions.
   (`server/doneMarks.ts`) runs `claude stop` only for a session Claude Code
   still lists. It already types the rename only through an open attachment,
   which an unlisted session cannot have.
-- **Open for Terry** (from `00a82262:.planning/slice-plans/156-terminal-host-refusal-proof/PLAN.md`):
-  - Where focus goes when the opener is gone and the session's entry offers no
-    Open terminal (Session unavailable), or the session belongs to another
-    project. Card entries showing Session unavailable make this common here.
-  - Typing `/rename` into the attached terminal can reach a permission prompt
-    or the agent view. The alternative is a `done-` name kept only in the
-    dashboard record, which the story allows when the rename cannot be done
-    reliably. Mark as done on every card entry widens its use.
+- **Focus when the opener is gone** (Terry, 2026-09-29): when the opener has
+  left the page and the session's Recent sessions entry offers no Open
+  terminal (for example Session unavailable), focus goes to that Recent
+  sessions entry itself, made programmatically focusable. When the session's
+  entry is not on the page (another project), focus goes to the Recent
+  sessions region. Focus follows the session to where it now lives.
+- **Rename typing stays** (Terry, 2026-09-29): Mark as done keeps typing
+  `/rename done-…` only through an open attachment, as today. A card entry
+  without its panel open types nothing.
+- **Done wording for an unlisted session:** Recent sessions shows Done for a
+  session marked done even when Claude Code no longer lists it (today
+  `sessionStateWords` answers Session unavailable for every unlisted session).
 - **Retention:** `server/launchRecordStore.ts` keeps a record without
   `doneAt` indefinitely and a done record for `launchRetentionDays` after its
   `doneAt`. The shared constant keeps its name and value.
@@ -93,14 +97,9 @@ that leaves every list keeps its sessions only in Recent sessions.
 | The boundary stops every done session, whatever its listing. | `server/doneMarks.ts` `markSessionDone` always calls `stopClaude`. | Yes. Slice 2 adds the listed-only condition. |
 | The fake `claude` can forget or stop a session, and its calls can be asserted. | `tests/fixtures/fake-claude` header (appends argv to `calls.jsonl`, `stop` handling) and the header of `tests/agent-launch-session-settlement.spec.ts` (controls end, forget, or fail to list a session). | Yes. Example 4's "without `claude stop`" is observable at the boundary. |
 | Records can be seeded with old launch times. | `tests/agent-launch-records.spec.ts:111-131` (`recordLaunchedDaysAgo`, `seedStore`). | Yes. Slice 3 extends the seeding with `doneAt`. |
-| The focused proof commands run locally. | From the main checkout at `2d9d3158`: `npx playwright test --config dashboard/playwright.config.ts --reporter=line dashboard/tests/agent-launch-records.spec.ts dashboard/tests/agent-launch-session-settlement.spec.ts`. | 4 passed (4.6s). |
-| Execution starts from a trunk that contains SEED-052#terminal-residue. | `git log main..claude/terminal-residue` shows `87d1fc6c`, `777c2623`, and `bdeaea99`, which are not yet on `main`. They change `TerminalSplit.tsx` focus, `RecentSessions.tsx` (`recentSessionControl`), `doneMarks.ts`/admission, `claudeCode.ts` (split into `claudeLaunch.ts`), and the launch and terminal specs this plan edits. | **Not yet true.** See the start check below. |
-
-**Start check (before slice 1):** confirm that fetched `origin/main` contains
-the terminal-residue landing. If it does not, stop before editing and report,
-rather than rebuilding on the older structure. This plan's decisions already
-use terminal-residue's focus rule and module names. If its landed form differs
-from the branch read here, reconcile those decisions in this plan first.
+| The focused proof commands run locally. | From the main checkout at `3da84888`: `npx playwright test --config dashboard/playwright.config.ts --reporter=line dashboard/tests/agent-launch-records.spec.ts dashboard/tests/agent-launch-session-settlement.spec.ts dashboard/tests/agent-launch-done.spec.ts`. | 11 passed (5.7s). |
+| Execution starts from a trunk that contains SEED-052#terminal-residue. | Fetched `origin/main` at `f9fe3fdc` contains `27a08c8c Close SEED-052#terminal-residue`. Read `src/TerminalSplit.tsx` (opener, else `recentSessionControl`), `src/terminalOpening.ts`, `src/RecentSessions.tsx` (`sessionStateWords`), `src/CardLaunches.tsx`, `server/doneMarks.ts`, and `server/claudeLaunch.ts`. | Yes. The landed modules and focus rule match this plan's decisions. |
+| SEED-052#preparing-card-refinement-journey (plan 154) is Taken at `f9fe3fdc` and edits the same Preparing steps in the settlement and Recent sessions specs. | `.planning/PRODUCT-BACKLOG.md` Taken section. | Slice 1 rebases onto whatever plan 154 lands and keeps one Preparing-card journey. |
 
 ## Slices
 
@@ -149,7 +148,9 @@ Behavior: Every session listed on a card offers Mark as done. Marking removes
 it from the card, and Recent sessions shows it Done under its `done-` name. A
 listed session is stopped as today. An unlisted session only records its done
 time. A terminal panel open on the marked session closes through the same
-operation as the panel's own Mark as done.
+operation as the panel's own Mark as done. An unlisted session marked done shows
+Done in Recent sessions. When the opener is gone and that entry offers no Open
+terminal, focus lands on the entry itself.
 
 Update `AGENT-LAUNCH.md`'s Mark as done paragraph (where it is offered, and
 stop only for a listed session) and the North Star row.
@@ -203,6 +204,6 @@ membership rule, one session entry, and one Mark as done path; later slices
 extend it without a second representation. Slice 1 is the largest: it removes
 Started and rewrites two specs. It stays one slice because removing the
 settlement rules is exactly what makes the listing persist, and splitting by
-stage would leave an interim card that drops Taken sessions. The only
-remaining concern is the start check above, which depends on
-terminal-residue landing first.
+stage would leave an interim card that drops Taken sessions. Terminal-residue
+has landed and the decisions left open for Terry are settled, so no concern
+remains.
