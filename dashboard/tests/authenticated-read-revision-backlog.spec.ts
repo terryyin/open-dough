@@ -45,7 +45,7 @@ test.describe("authenticated read boundary backlog at a known revision (dev laun
       [
         "api",
         "-H",
-        "Accept: application/vnd.github.raw+json",
+        "Accept: application/vnd.github.raw",
         `repos/terryyin/pygardon/contents/.planning/PRODUCT-BACKLOG.md?ref=${revisionB}`,
       ],
     ]);

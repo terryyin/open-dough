@@ -162,7 +162,7 @@ test("published overview shows connected Backlog and Taken work read at one revi
       [
         "api",
         "-H",
-        "Accept: application/vnd.github.raw+json",
+        "Accept: application/vnd.github.raw",
         `repos/terryyin/open-dough/contents/.planning/PRODUCT-BACKLOG.md?ref=${revision}`,
       ],
     ]);
