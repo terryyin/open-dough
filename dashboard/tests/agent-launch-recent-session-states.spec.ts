@@ -12,7 +12,12 @@ import type { Locator, Page } from "@playwright/test";
 import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import {
+  expectMembership,
+  parts,
+  recentSessionName,
+  sessionNamedBy,
+} from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
 import {
   notRefinedStory,
@@ -149,14 +154,10 @@ test("each entry shows its session's state, changes within one pace without a re
   const sessionIds: string[] = [];
   for (const [index, { title, workflow }] of launches.entries()) {
     await expect(entryOf(index)).toHaveAccessibleName(
-      `${workflow} session for ${title}`,
+      recentSessionName(workflow, title),
     );
     await expectState(entryOf(index), "Working");
-    const session = await entryOf(index)
-      .locator("p", { hasText: /^Session / })
-      .locator("code")
-      .textContent();
-    sessionIds.push(session ?? "?");
+    sessionIds.push(await sessionNamedBy(entryOf(index)));
   }
   // Set on this document only, so a reload would lose it.
   await page.evaluate(() => {

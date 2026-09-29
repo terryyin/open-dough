@@ -2,7 +2,7 @@
 // the page gives it. Every journey looks the parts up here, so a part is named
 // in one place.
 
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 export function parts(page: Page) {
   const stages = page.getByRole("region", { name: "Work stages" });
@@ -35,6 +35,19 @@ export function parts(page: Page) {
     reading: status.filter({ hasText: "Reading published work" }),
     notice: page.locator("[aria-live='polite']"),
   };
+}
+
+// A Recent sessions entry, named for its launch's workflow and story.
+export const recentSessionName = (workflow: string, title: string) =>
+  `${workflow} session for ${title}`;
+
+// The session id a Started record or a Recent sessions entry names.
+export async function sessionNamedBy(record: Locator): Promise<string> {
+  const id = await record
+    .locator("p", { hasText: /^Session / })
+    .locator("code")
+    .textContent();
+  return id ?? "?";
 }
 
 // The launch actions every Backlog card offers, in the order it offers them.

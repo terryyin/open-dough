@@ -85,7 +85,7 @@ rename. Both commands passed.
 
 ### 2. One journey per launch concern, and one documented home for launch rules
 Type: Structure
-Status: planned
+Status: done
 Proof: the launch specs pass with no promise losing its observation.
 
 Make the settlement journey the one that walks Preparing, the Take, and
@@ -102,6 +102,19 @@ link `AGENT-LAUNCH.md` for the settlement rules.
 Proof: before editing, list each promise the three specs observe; after, name
 the surviving assertion for each. Run
 `npm run test:dashboard -- dashboard/tests/agent-launch-settlement.spec.ts dashboard/tests/agent-launch-recent-sessions.spec.ts dashboard/tests/agent-launch-session-settlement.spec.ts dashboard/tests/agent-launch-recent-session-states.spec.ts`.
+
+Accepted proof: the settlement spec's `expectEveryEntry()` observes every
+Recent sessions entry at Preparing, at the Take, and after completion, each
+before and after a reload. The recent-sessions spec keeps entry content, copy,
+order, two launches of one story, project isolation, and the Preparing-card
+refinement. The session-settlement spec asserts card actions and entry counts,
+and now changes every session before the unreadable-listing reload, so that
+step fails if the listing guard is removed. `dashboardPage.ts` names an entry
+and reads its session id once for all four specs. The README lists all ten
+launch specs and the fake's controls. The North Star row keeps wording and
+links `AGENT-LAUNCH.md`, which gained the one rule it lacked (Started lasts
+through a dashboard restart). The four specs passed (4 of 4) and the typecheck
+passed.
 
 ## Proof ownership
 

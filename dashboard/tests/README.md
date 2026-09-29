@@ -24,19 +24,27 @@ GitHub. Select one journey with, for example,
 `npm run test:dashboard -- --grep 'authenticated project overview'`.
 
 The launch boundary specs (`agent-launch-boundary.spec.ts`,
-`agent-launch-refusal.spec.ts`, and `agent-launch-records.spec.ts`) and the card and settlement journeys
-(`agent-launch-card.spec.ts`, `agent-launch-card-problems.spec.ts`, and
-`agent-launch-settlement.spec.ts`, which name their folders and launch wait
-through the `projectFolders` and `launchTimeoutMs` options of
+`agent-launch-refusal.spec.ts`, `agent-launch-records.spec.ts`, and
+`agent-launch-session-listing.spec.ts`) and the page journeys
+(`agent-launch-card.spec.ts`, `agent-launch-card-problems.spec.ts`,
+`agent-launch-settlement.spec.ts`, `agent-launch-recent-sessions.spec.ts`,
+`agent-launch-recent-session-states.spec.ts`, and
+`agent-launch-session-settlement.spec.ts`, which name their folders and launch
+wait through the `projectFolders` and `launchTimeoutMs` options of
 `dashboardTest.ts`) drive a synthetic `claude`
 (`fixtures/fake-claude`, `support/fakeClaude.ts`) that every server puts first
 on its PATH, in a temporary HOME holding only the project folders a test
 chooses; a spec that restarts servers on the same machine state passes a
-`machine` directory it owns. A per-server scenario decides whether it launches, refuses, finds
-the folder untrusted, hangs, or reports a session its listing does not show;
-it records every call's argv and working directory. A server that must find no
-`claude` gets a PATH holding only the fake `gh` and Node. Nothing here ever
-calls the real `claude`.
+`machine` directory it owns. A per-server scenario (`claudeScenario`) decides
+whether it launches, refuses, finds the folder untrusted, hangs, or reports a
+session its listing does not show. It lists what it launched as
+`claude agents --json --all` does; `claudeSessionBecomes` makes a session
+working, idle, finished, or stopped, or forgets it, and `claudeListingFails`
+makes the listing fail. It records every call's argv and working directory
+(`claudeCalls`, or `claudeLaunchCalls` without the listings). A server that
+must find no `claude` gets a PATH holding only the fake `gh` and Node. Nothing
+here ever calls the real `claude`. Only the settlement journey walks on from
+Preparing through the Take and completion.
 
 A passing run prints nothing (`support/quietReporter.ts`). A failing
 spec is shown with its error, output, and retained trace; a passing spec that

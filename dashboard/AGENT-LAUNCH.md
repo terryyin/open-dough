@@ -45,9 +45,9 @@ stays beside its own action, which stays on the card.
 
 Started lasts while origin still shows the story in the Backlog without the
 assignment its workflow asks for and its session may still run. Reloading the
-page or selecting another project and back keeps it, because the page reads the
-project's launch records again from the local server
-(`GET /__agent-launch?source=<project id>`). A
+page, selecting another project and back, or restarting the dashboard keeps it,
+because the page reads the project's kept launch records again from the local
+server (`GET /__agent-launch?source=<project id>`). A
 published **Preparing** assignment is the one refinement asks for: it ends a
 refinement Started, and Start refinement then carries the note "Being
 prepared". It does not end an execution Started, since the session may ready
