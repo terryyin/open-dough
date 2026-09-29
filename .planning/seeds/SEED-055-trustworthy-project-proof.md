@@ -205,30 +205,6 @@ projections that came out wrong.
 - **Depends on:** None; independent of the replay story.
 - **Safe stopping point:** The single-signal counterexample check is in place.
 
-<a id="native-harness-replay-corrections"></a>
-
-### 4. Correct continued-command reading and corpus admission in the native harness
-
-**Identity:** SEED-055#native-harness-replay-corrections
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/168-native-harness-replay-corrections/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0b49fe2f78c2d305484ef006994ddfc3e0af0a5af2962fca2385a793c3dfa3ce","plan":"9b9833da17927840ee600308129211da6d33f8c5005f3b7456ff645793f7ae41"}}
-```
-
-- **Goal:** The maintainer paying for native runs gets a reader that
-  recognizes a continued command whatever its spacing, and can add every
-  accepted paid run to the replay corpus. The native harness also drops
-  residue left by
-  [Catch native harness faults before paying for a native run](#native-harness-observes-agent-behavior).
-  This is a bounded correction from that story's execution retrospective; it
-  adds no feature promise.
-- **Scope:** Join line continuations so literal matchers see single-spaced
-  commands, and re-review the affected corpus `command:` lines. Let the corpus
-  command admit any case depth outside the publication family. Remove the
-  dead and duplicate closure observation fields, keep substitute-agent code
-  out of the paid assessor path, fix the stale documentation, and trim the
-  redundant per-host runs in `tests/native-stream-completeness.sh`. Plan:
-  [168](../slice-plans/168-native-harness-replay-corrections/PLAN.md).
-
 ## Ordering and When to Surface
 
 The maintainer asked for the two highest-priority project findings at the top

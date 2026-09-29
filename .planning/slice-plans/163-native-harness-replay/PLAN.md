@@ -443,7 +443,7 @@ Product advice:
   `git-publication-native-counterexamples.sh` must also update the guard's
   exact shape-writer list.
 - Queue [the correction](../../seeds/SEED-055-trustworthy-project-proof.md#native-harness-replay-corrections)
-  (plan 168) at the top: a continued merge-adapter command would fail a
+  (plan 169) at the top: a continued merge-adapter command would fail a
   correct paid run today.
 - ProjectFindings.md's first priority (DD-179) is delivered here; wrap-up
   should record that.
