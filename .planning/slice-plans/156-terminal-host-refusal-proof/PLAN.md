@@ -166,3 +166,17 @@ The whole dashboard suite is not a local gate. No payload or skill changes.
 Three slices, each with one proof loop: a security proof, a focus proof with
 the focus target's home, then host-command encapsulation with its docs. No
 slice-specific concern was identified in this review.
+
+## Execution complete
+
+Product advice: land this correction before SEED-052#keep-story-session-links
+starts. Plan 157 edits `TerminalSplit.tsx`, `terminalOpening.ts`, and the
+terminal specs, and its start check names `recentSessionControl` in
+`RecentSessions.tsx` and `claudeCode.ts` before the split. The lookup now lives
+in `terminalOpening.ts`, and `claudeCode.ts` exports `startClaudeInBackground`
+in place of `execClaude`. The focus rule plan 157 relies on is now proved:
+the opener while present, else the Recent sessions entry. Settle the
+"one module per host" North Star topic before refining
+SEED-052#use-codex-from-dashboard: Claude Code's argv now stays in
+`claudeCode.ts`, but session naming, the instruction, and output parsing stay
+in `claudeLaunch.ts`.
