@@ -85,12 +85,13 @@ seam first (for example, listing-dependent stops into
 
 ### 2. A completion receipt confirms shutdown only for a known-gone observer
 Type: Behavior
-Status: planned
+Status: done
 Proof: a completion case whose stub worker shows `[node]` for longer than the
 exit wait yields `shutdown.status: "unconfirmed"` with a named limitation,
 which `references/ci-completion-wait.md` already handles; the existing
 transient case still confirms. `node --test src/skills/dough-execute-plan/scripts/ci-mailbox*.test.mjs src/skills/dough-execute-plan/scripts/ci-host-hook*.test.mjs`
-from the checkout root.
+from the checkout root. Accepted: 106 pass; the new test fails under the old
+condition and passes with `liveness !== "dead"`.
 
 ### 3. Mark as done's page journeys each own one concern
 Type: Structure
