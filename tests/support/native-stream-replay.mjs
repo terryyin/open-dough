@@ -7,7 +7,8 @@
 // absent), and one `command:` JSON string per started command, in order.
 // An entry with commands also names `last-start-line:`, the stream line whose
 // event starts its last command. `corrected:` and `verdict:` lines and `#`
-// comments are for reviewers.
+// comments are for reviewers. An `expected` still holding the `# draft:` line
+// that native-stream-corpus-add.mjs writes is unreviewed, and fails.
 //
 // Each entry with commands is also replayed cut just after its last start
 // line, as a run killed mid-command leaves it: every expected command must
@@ -20,16 +21,18 @@
 // today's assessor reassesses them (native-stream-publication-replay.mjs). The
 // verdict is `<status> / <reason>`, or, when the retained observations lack
 // fields today's assessor reads, `not-replayable: <those fields>`: a drifted
-// schema is not rewritten.
+// schema is not rewritten. A journey that derives no stream fields names none
+// and has the verdict `not-replayable: <journey> has no stream fields`.
 //
 // Prints one `FAIL: <entry>: <difference>` line per mismatch and exits 1;
 // silent on success. `--variant <name>` replays through a deliberately broken
 // reader or stream-field function, which this suite's counterexamples expect
-// to fail.
+// to fail. `--corpus <dir>` replays another corpus directory.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  replayFieldless,
   replayFields,
   replayVerdicts,
 } from "./native-stream-publication-replay.mjs";
@@ -39,9 +42,10 @@ import {
   readStreamFile,
 } from "./native-host-stream.mjs";
 
-const corpus = fileURLToPath(
+export const defaultCorpus = fileURLToPath(
   new URL("../fixtures/native-streams", import.meta.url),
 );
+export const draftMarker = "# draft:";
 const streamSuffix = "events.jsonl.gz";
 const knownKeys = new Set([
   "source",
@@ -86,6 +90,11 @@ function streamFiles(directory) {
 function parseExpected(text, fail, publication) {
   const expected = { commands: [], fields: new Map() };
   for (const line of text.split("\n")) {
+    if (line.startsWith(draftMarker)) {
+      fail(
+        `expected is an unreviewed draft; review it, then delete its ${draftMarker} line`,
+      );
+    }
     if (line.trim() === "" || line.startsWith("#")) {
       continue;
     }
@@ -157,7 +166,7 @@ function readLines(host, lines, variant) {
   return readHostStreamText(host, shown.join("\n"));
 }
 
-export function replayCorpus({ variant } = {}) {
+export function replayCorpus({ variant, corpus = defaultCorpus } = {}) {
   const failures = [];
   const commandsByHost = new Map(hosts.map((host) => [host, 0]));
   const attempts = [];
@@ -197,7 +206,12 @@ export function replayCorpus({ variant } = {}) {
     }
     // A reader variant hides events from the reader alone; stream fields read
     // the stream themselves, so only a stream-field variant reaches them.
-    if (publication && expected.verdict !== undefined && !hidesEvents) {
+    if (
+      publication &&
+      !replayFieldless(journey, expected, fail) &&
+      expected.verdict !== undefined &&
+      !hidesEvents
+    ) {
       attempts.push({
         entry,
         verdict: expected.verdict,
@@ -215,14 +229,22 @@ export function replayCorpus({ variant } = {}) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const [option, variant] = process.argv.slice(2);
-  if (option !== undefined && (option !== "--variant" || !variants[variant])) {
-    process.stderr.write(
-      `usage: native-stream-replay.mjs [--variant <${Object.keys(variants).join("|")}>]\n`,
-    );
-    process.exit(2);
+  const options = {};
+  const args = process.argv.slice(2);
+  while (args.length > 0) {
+    const [option, value] = args.splice(0, 2);
+    if (option === "--variant" && variants[value]) {
+      options.variant = value;
+    } else if (option === "--corpus" && value) {
+      options.corpus = value;
+    } else {
+      process.stderr.write(
+        `usage: native-stream-replay.mjs [--variant <${Object.keys(variants).join("|")}>] [--corpus <dir>]\n`,
+      );
+      process.exit(2);
+    }
   }
-  const failures = replayCorpus({ variant });
+  const failures = replayCorpus(options);
   process.stdout.write(failures.map((line) => `${line}\n`).join(""));
   process.exit(failures.length === 0 ? 0 : 1);
 }

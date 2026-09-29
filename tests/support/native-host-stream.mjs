@@ -23,7 +23,7 @@ import { adapters } from "./native-host-stream-adapters.mjs";
 export const hosts = Object.keys(adapters);
 
 // Joins a command's line continuations, as a shell reads them.
-function joinContinuations(command) {
+export function joinContinuations(command) {
   return command.replace(/\\\n[ \t]*/g, " ");
 }
 

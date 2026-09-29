@@ -5,7 +5,9 @@
 # reviewed started commands, stream status, and response presence, including
 # when cut mid-command. Each retained publication attempt also replays its
 # journey's stream fields and, where its observations carry today's schema,
-# today's verdict. A guard keeps host stream parsing inside that reader.
+# today's verdict. An accepted attempt joins the corpus through one command
+# (native-stream-corpus-add.mjs) and replays once reviewed. A guard keeps host
+# stream parsing inside that reader.
 # Replay proves the harness, not native behavior (ADR 0005 section 2).
 # shellcheck disable=SC2312 # Captured reader output is checked by value.
 set -euo pipefail
@@ -77,6 +79,113 @@ expect_counterexample admit-unobserved \
   '^FAIL: cursor/publication/admission-investigation/20260929T035934-4301/events: ' \
   'cursor/publication/admission-investigation/20260929T035934-4301/events: stream field admit-cli-observed is false, expected true' \
   'cursor/publication/admission-investigation/20260929T035934-4301/events: verdict is fail / investigation started before its admission reached remote trunk, expected pass / accepted investigation was admitted to remote Taken before its first probe'
+
+# An accepted paid attempt joins the corpus through one command, and replays
+# once its draft expectation is reviewed. Retained attempts are rebuilt from
+# corpus entries: the stream unzipped beside the retained provenance.
+corpus_add="${source_dir}/tests/support/native-stream-corpus-add.mjs"
+retain_attempt() {
+  local entry="${corpus}/$1" attempt="${work_dir}/results/$2" file name
+  mkdir -p -- "${attempt}"
+  for file in "${entry}"/*; do
+    name=$(basename -- "${file}")
+    case ${name} in
+      *events.jsonl.gz) gunzip -c -- "${file}" > "${attempt}/${name%.gz}" ;;
+      *expected) ;;
+      *) cp -- "${file}" "${attempt}/" ;;
+    esac
+  done
+}
+one_shot=cursor/publication/one-shot-result/20260929T035401-179d
+updated_use=codex/delivery/updated-use/20260908T034417-3228
+retain_attempt "${one_shot}" cursor/publication/one-shot-result/20260929T120000-add1
+retain_attempt "${updated_use}" codex/delivery/updated-use/20260929T120000-add2
+# A publication journey without stream fields still replays its commands,
+# status, and response; its substitute is a real stream retained under that
+# journey's case.
+fieldless=cursor/publication/publish-boundary/20260929T120000-add4
+retain_attempt "${one_shot}" "${fieldless}"
+sed 's|^case: .*|case: publication/publish-boundary|' "${corpus}/${one_shot}/record" \
+  > "${work_dir}/results/${fieldless}/record"
+round_trip="${work_dir}/corpus"
+cp -R -- "${corpus}" "${round_trip}"
+for attempt in cursor/publication/one-shot-result/20260929T120000-add1 \
+  codex/delivery/updated-use/20260929T120000-add2 "${fieldless}"; do
+  node "${corpus_add}" --corpus "${round_trip}" "${work_dir}/results/${attempt}" \
+    > "${work_dir}/add.out"
+  if grep -q '^review:' "${work_dir}/add.out"; then
+    printf 'FAIL: adding accepted %s reported disagreements\n' "${attempt}" >&2
+    cat "${work_dir}/add.out" >&2
+    exit 1
+  fi
+  grep -Fxq "added: ${round_trip}/${attempt}" "${work_dir}/add.out"
+done
+diff <(grep -Ev '^(# draft:|source:|command:)' "${round_trip}/${fieldless}/expected") - << 'FIELDLESS'
+stream-status: complete
+response: present
+last-start-line: 312
+verdict: not-replayable: publish-boundary has no stream fields
+FIELDLESS
+# The drafts match the reviewed expectations of the attempts they came from,
+# apart from where the stream was retained.
+for draft in "${one_shot}:cursor/publication/one-shot-result/20260929T120000-add1/expected" \
+  "${updated_use}:codex/delivery/updated-use/20260929T120000-add2/update-expected" \
+  "${updated_use}:codex/delivery/updated-use/20260929T120000-add2/use-expected"; do
+  reviewed="${corpus}/${draft%%:*}/$(basename -- "${draft#*:}")"
+  diff <(grep -v '^source:' "${reviewed}") \
+    <(grep -Ev '^(source:|# draft:)' "${round_trip}/${draft#*:}")
+done
+# Where the reader disagrees with the retained observations, the command
+# reports the field for review: 5692's count is the harness fault of example 1.
+disagreeing=cursor/publication/startup-selected-source/20260929T120000-add3
+retain_attempt cursor/publication/startup-selected-source/20260923T062849-5692 \
+  "${disagreeing}"
+node "${corpus_add}" --corpus "${round_trip}" "${work_dir}/results/${disagreeing}" \
+  > "${work_dir}/add.out"
+diff <(grep '^review:' "${work_dir}/add.out") - << 'REVIEW'
+review: expected: startup-cli-count: retained 0, reader 1
+REVIEW
+
+# Once reviewed, an added attempt replays; a draft left unreviewed fails
+# replay, named, as does its disagreeing field.
+for draft in cursor/publication/one-shot-result/20260929T120000-add1/expected \
+  codex/delivery/updated-use/20260929T120000-add2/{update,use}-expected \
+  "${fieldless}/expected"; do
+  grep -v '^# draft:' "${round_trip}/${draft}" > "${work_dir}/reviewed"
+  mv -- "${work_dir}/reviewed" "${round_trip}/${draft}"
+done
+status=0
+node "${replay}" --corpus "${round_trip}" > "${work_dir}/replay.out" || status=$?
+diff "${work_dir}/replay.out" - << REPLAY
+FAIL: ${disagreeing}/events: expected is an unreviewed draft; review it, then delete its # draft: line
+FAIL: ${disagreeing}/events: stream field startup-cli-count is 1, expected 0
+REPLAY
+[[ ${status} -eq 1 ]]
+
+# An attempt without a record or a complete stream is refused, naming what is
+# missing, and adds nothing.
+expect_refusal() {
+  local attempt="${work_dir}/results/$1" reason=$2 status=0
+  node "${corpus_add}" --corpus "${work_dir}/refused" "${attempt}" \
+    > /dev/null 2> "${work_dir}/refusal.err" || status=$?
+  if [[ ${status} -ne 1 ]] || [[ $(cat "${work_dir}/refusal.err") != "refused: ${attempt}: ${reason}" ]] \
+    || [[ -e ${work_dir}/refused ]]; then
+    printf 'FAIL: adding %s exited %s, expected only refused: %s\n' \
+      "$1" "${status}" "${reason}" >&2
+    cat "${work_dir}/refusal.err" >&2
+    return 1
+  fi
+}
+retain_attempt "${one_shot}" no-record
+rm -- "${work_dir}/results/no-record/record"
+expect_refusal no-record 'no record'
+retain_attempt "${one_shot}" truncated
+head -n 20 "${work_dir}/results/truncated/events.jsonl" > "${work_dir}/head.jsonl"
+mv -- "${work_dir}/head.jsonl" "${work_dir}/results/truncated/events.jsonl"
+expect_refusal truncated 'stream events.jsonl is truncated, not complete'
+retain_attempt "${updated_use}" no-use-stream
+rm -- "${work_dir}/results/no-use-stream/use-events.jsonl"
+expect_refusal no-use-stream 'stream use-events.jsonl is missing'
 
 # Host streams are parsed only by the shared reader: every other file holding a
 # host-event literal is a listed shape writer, and every listed writer holds one.

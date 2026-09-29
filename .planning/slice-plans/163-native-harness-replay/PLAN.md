@@ -353,7 +353,7 @@ Learnings for later slices:
 
 ### 7. One command adds an accepted paid run to the corpus
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/native-stream-replay.sh` retention case; `tests/native-publication.md`
 documents the step.
 
@@ -366,6 +366,32 @@ free-suite run replays it. A substitute attempt proves the round trip. An
 attempt without a complete stream or a `record` is refused, and the refusal
 names what is missing. `tests/native-publication.md` states that accepting a
 paid run adds it this way.
+
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+tests/native-stream-replay.sh tests/support/native-host-stream.test.mjs
+tests/support/git-publication-native-stream-fields.test.mjs`, exit 0 (about
+4 s). The retention case in `tests/native-stream-replay.sh` covers the
+following, all on a temporary corpus copy:
+- substitute attempts rebuilt from corpus streams: a Cursor one-shot, a
+  two-stream Codex updated-use, and a fieldless publish-boundary;
+- the exact `review:` line for 5692;
+- a draft that fails replay until it is reviewed;
+- three refusals.
+
+Learnings:
+- The command is `node tests/support/native-stream-corpus-add.mjs [--corpus
+  <dir>] <result-path>`; retained-attempt reading lives in
+  `native-stream-retained-attempt.mjs`. It maps the record's `host:` and
+  `case:` to the corpus path, and handles `update-`/`use-` streams.
+- A draft `expected` starts with a `# draft:` line that replay rejects.
+  `last-start-line` comes from a raw-line search independent of the reader.
+  Field values come from the retained observations, and the reader's value is
+  flagged wherever it differs.
+- A publication journey without stream fields is added with
+  `verdict: not-replayable: <journey> has no stream fields`, and replays its
+  commands and status.
+- Publication retention does not keep the harness command log, so a
+  `preparation-land` draft may show `review:` disagreements.
 
 ### 8. Every harness shim survives each host's login shell
 Type: Behavior

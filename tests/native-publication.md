@@ -5,6 +5,17 @@ manually runs a selected publication journey through Codex, Cursor, or Claude
 Code. Put Bash 5 first on PATH. Paid sessions are opt-in; the default wrapper
 and `npm test` use credential-free substitutes and counterexamples.
 
+Accepting a paid run adds it to the replay corpus in
+`tests/fixtures/native-streams`:
+`node tests/support/native-stream-corpus-add.mjs <result-path>` takes the
+retained attempt the run printed. It refuses an attempt without a `record` or
+with a stream that is missing or not complete, naming what is missing. It
+gzips each stream, copies the retained provenance, and writes a draft
+`expected`, printing a `review:` line wherever the shared reader or today's
+verdict disagrees with the retained attempt. Review the draft, add
+`corrected:` with the harness fault where the reader is right, and delete its
+`# draft:` line; `tests/native-stream-replay.sh` then replays the attempt.
+
 The one-shot escalation case asks for a settings-key rename in an owned
 workspace. The notes tool preserves extension settings and released values.
 Released data holds different active and archive directories under the old

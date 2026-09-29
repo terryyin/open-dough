@@ -176,6 +176,9 @@ function fieldsFor(journey) {
   );
 }
 
+// Whether `journey` derives any fields from its stream.
+export const hasStreamFields = (journey) => fieldsFor(journey) !== undefined;
+
 // The stream-derived fields of `journey` as [key, value] pairs, from `host`'s
 // stream at `stream`, plus `commandLog` lines where the journey matches them.
 export function publicationStreamFields(
