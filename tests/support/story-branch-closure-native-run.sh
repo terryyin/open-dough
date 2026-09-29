@@ -74,6 +74,7 @@ story_closure_write_evidence_identity() {
     tests/support/git-publication-native-host.sh \
     tests/support/story-branch-closure-native-run.sh \
     tests/support/story-branch-closure-native-assess.sh \
+    tests/support/story-branch-closure-native-response.sh \
     tests/support/native-completion-observation.sh \
     tests/support/story-branch-closure-native-fixture.sh \
     tests/support/native-harness-observation.sh \

@@ -132,7 +132,7 @@ Excluded:
 
 ### 1. The Story Branch response check rejects any trunk CI, check, observer, or watcher failure
 Type: Structure
-Status: planned
+Status: done
 Proof: credential-free `tests/git-publication-native.sh` default mode green, with examples 2–5 as `false` counterexamples, which fail against `14cd2de3`'s check, and Cursor's line still `true`.
 
 Correction: F1. Move `story_closure_response_trunk_result` and
@@ -153,6 +153,16 @@ default mode (about 60 s) exit 0; running the new counterexamples against
 `14cd2de3`'s function fails on examples 2–5; `bash tests/native-evidence-identity.sh`
 exit 0 with the new file listed in the Story Branch identity. The Story Branch
 identity changes, so its recorded native evidence goes stale.
+
+Accepted proof (2026-09-29): the response rule and its counterexamples moved to
+`tests/support/story-branch-closure-native-response.sh`, sourced by the
+assessor (215 lines) and hashed in the Story Branch identity
+(`story-branch-closure-native-run.sh:77`). `tests/git-publication-native.sh`
+default mode exit 0, observed through `run_story_closure_assessor_counterexamples`
+→ `story_closure_response_counterexamples`; all 13 rows pass, and a scratch
+harness running them against `14cd2de3`'s function returns `true` for
+examples 2–5. `tests/native-evidence-identity.sh` exit 0; the Story Branch
+identity lists the new file, so its recorded native evidence is stale.
 
 ### 2. Closure evidence identities follow the scripts a journey's modules spawn
 Type: Structure
