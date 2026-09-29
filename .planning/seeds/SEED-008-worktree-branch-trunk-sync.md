@@ -175,21 +175,42 @@ evidence identity changed; that acceptance renews it.
 
 **Identity:** SEED-008#land-from-default-checkout
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/170-land-from-default-checkout/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"49754ddfa12fa63b6d6ad0dcd7b759bce77532ac920f3babe6c91500126c4e44","plan":"96f2e504542171695bad62af1fd157662d245be5e06516efa18c6dca7b4a55e6"}}
 ```
 
-- **For / why:** A developer who made a change directly on the default main
-  checkout can say "land" and have it published, instead of Dough Land stopping
-  because that checkout is not an owned worktree.
-- **Evaluation:** When the change to land sits on the default checkout, Dough
-  Land commits it on `main` and syncs with origin (rebasing onto the fetched
-  target and pushing without force). The result reports publication as it does
-  for a worktree. A change in an owned worktree lands as before.
-- **Boundary:** Applies only when the context says the change was made on the
-  default main checkout. Retirement does not apply, since no worktree is
-  removed. Which changes on the checkout are included, and whether unrelated
-  uncommitted files are refused, are open for refinement. Edited in
-  `src/skills/dough-land/`, the Open Dough source.
+- **Goal:** A developer who made a change directly on the default main
+  checkout can say "land" and have it published to the remote trunk, instead of
+  Dough Land stopping because that checkout is not an owned worktree.
+- **Scope:**
+  - Required: when the context says the change sits on the default main
+    checkout, Dough Land commits everything there (tracked, untracked, deleted;
+    the same "everything is the reviewed change" rule as a worktree), then
+    publishes onto the target by rebasing onto the fetched target and pushing
+    without force, and reports publication, refresh, and cleanup as it does for
+    a worktree. Local commits on the checkout that the fetched target lacks are
+    published with it. A change in an owned worktree lands as before.
+  - No relatedness test: unrelated uncommitted files or unpushed commits on the
+    checkout are landed too, not refused (Terry, 2026-09-30). The developer's
+    "land" is the review.
+  - No retirement: no worktree or branch is removed, so retirement reports not
+    applicable. Refreshing the checkout after acceptance is the checkout's own
+    fast-forward to the published trunk.
+  - Deferred: picking paths out of the checkout, and landing from a checkout
+    that is not the default main one.
+  - Edited in `src/skills/dough-land/`, the Open Dough source.
+- **Key examples:**
+  - Default checkout on `main` with one edited tracked file and one new
+    untracked file; "land" → one commit holding both, pushed to `origin/main`
+    without force; publication accepted, retirement not applicable.
+  - Default checkout with an unpushed local commit plus an uncommitted edit;
+    origin has moved → the edit is committed, everything is rebased onto the
+    fetched target and pushed; a conflict stops with the checkout preserved and
+    publication reported not done.
+  - Default checkout already clean and contained in the fetched target →
+    nothing to commit or push; reported as already landed.
+  - Change in an owned worktree → lands and retires exactly as today.
+  - Context names the default checkout but it is on another branch than the
+    target → stops and names the gap.
 - **Depends on:** None.
 
 <a id="reduce-ci-observer-overhead"></a>
