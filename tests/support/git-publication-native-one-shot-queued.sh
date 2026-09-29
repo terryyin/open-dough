@@ -2,6 +2,9 @@
 # Queued one-shot journey pieces for the publication native harness: observing
 # and assessing the completed story's closure inside the one result commit,
 # with its sibling untouched. Sourced by git-publication-native-one-shot.sh.
+# Its rejected cases' signals are declared beside git_publication_assess_one_shot
+# in git-publication-native-one-shot.sh, the assessor that dispatches here and
+# the file a suite names to the counterexample helper.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture and assessor globals.
 
 # How remote trunk at $2 holds the queued story's closure against base $1,

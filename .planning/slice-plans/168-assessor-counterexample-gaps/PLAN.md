@@ -169,7 +169,7 @@ header states where its signals live instead.
 
 ### 1. Re-observed rejected cases share one helper form
 Type: Structure
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh tests/git-publication-native-owned-context.sh tests/git-publication-native-one-shot.sh tests/git-publication-native.sh tests/native-assessor-counterexample-guard.sh`
 green, with the same case names.
 
@@ -183,6 +183,12 @@ with these forms and keep only their observer command. The headers of
 signals are declared beside the dispatching assessor, which the suite names
 to the helper. This removes the duplicated test-suite wrappers (finding 6) and
 leaves slice 5's guard only helper-named commands that pass verdict literals.
+
+Done: `native_assessor_rejects_observed` (`tests/support/native-assessor-counterexample.sh`)
+and `git_publication_suite_passes_observed` (`tests/support/git-publication-native-suites.sh`)
+replace the three wrapper pairs. Each suite keeps one observer function that prints
+the observation and carries `# shellcheck disable=SC2329`, since the helpers run it
+by name. The proof command passed, also under mawk for the guard and helper suites.
 
 ### 2. The publication assessor reads fields in any order
 Type: Behavior
