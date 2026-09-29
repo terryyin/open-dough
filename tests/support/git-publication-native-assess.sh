@@ -13,12 +13,12 @@ git_publication_assess_print_fields() {
   printf 'assessment-reason: %s\n' "${git_publication_assess_reason:-behavior not assessed}"
 }
 
-# Prints the value of the first line containing "KEY: ", or an empty line.
+# Prints the value of the first line starting with "KEY: ", or an empty line.
 # Parsed in the shell: assessors read many fields per journey.
 git_publication_assess_field() {
   local text=$1 key=$2 line
   while IFS= read -r line; do
-    if [[ ${line} == *"${key}: "* ]]; then
+    if [[ ${line} == "${key}: "* ]]; then
       printf '%s\n' "${line#"${key}: "}"
       return 0
     fi

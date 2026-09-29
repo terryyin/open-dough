@@ -192,7 +192,7 @@ by name. The proof command passed, also under mawk for the guard and helper suit
 
 ### 2. The publication assessor reads fields in any order
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh tests/git-publication-native.sh tests/git-publication-native-owned-context.sh tests/git-publication-native-one-shot.sh`
 green, with the new case, which fails before the change.
 
@@ -201,6 +201,10 @@ after `trunk-remote-sha` → `git_publication_assess` → pass, with the same
 reason as the original order. `git_publication_assess_field` matches the key
 at line start. The case sits beside the publication counterexamples as a
 required pass. Every existing case keeps its verdict and fragment.
+
+Done: the reordered case failed before the anchoring change and passes after it. The
+three publication jobs ran 63 s, 17 s and 21 s. The helper has 44 callers under
+`tests/support`, not 12; all read line-start fields.
 
 ### 3. A preparation response that only claims setup is rejected
 Type: Behavior
