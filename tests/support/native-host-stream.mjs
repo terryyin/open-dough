@@ -184,8 +184,7 @@ export function readHostStreamText(host, text) {
     try {
       event = JSON.parse(line);
     } catch {
-      parsed = false;
-      continue;
+      event = null;
     }
     if (event === null || typeof event !== "object" || Array.isArray(event)) {
       parsed = false;
@@ -211,6 +210,8 @@ export function readHostStreamText(host, text) {
     outputs: session.commands
       .map((entry) => entry.output)
       .filter((output) => output !== null),
+    // Each started command paired with its output (null if never completed).
+    calls: session.commands,
   };
 }
 

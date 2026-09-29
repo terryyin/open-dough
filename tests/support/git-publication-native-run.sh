@@ -195,24 +195,24 @@ git_publication_run_journey() {
   # Ownership and remote acceptance come only from post-session Git state.
   if git_publication_owned_context_journey "${journey}"; then
     git_publication_fixture_observe_owned_context "${journey}" \
-      "${stream_status}" "${transcript}" > "${observations_file}"
+      "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
   elif [[ ${journey} == startup-* ]]; then
     git_publication_fixture_observe_startup "${journey}" \
-      "${stream_status}" "${transcript}" > "${observations_file}"
+      "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
   elif [[ ${journey} == admission-* ]]; then
     git_publication_fixture_observe_admission "${journey}" \
-      "${stream_status}" "${transcript}" > "${observations_file}"
+      "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
   elif [[ ${journey} == one-shot-escalation ]]; then
     git_publication_fixture_observe_one_shot_escalation "${journey}" \
-      "${stream_status}" "${transcript}" > "${observations_file}"
+      "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
     git_publication_one_shot_stop_observers
   elif [[ ${journey} == one-shot-* ]]; then
     git_publication_fixture_observe_one_shot "${journey}" \
-      "${stream_status}" "${transcript}" > "${observations_file}"
+      "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
     git_publication_one_shot_stop_observers
   else
     git_publication_fixture_observe "${journey}" "${authority}" \
-      "${stream_status}" "${transcript}" > "${observations_file}"
+      "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
   fi
 
   response_file=${output_file}

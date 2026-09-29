@@ -25,14 +25,15 @@ git_publication_one_shot_escalation_prompt() {
     "Use this project's installed Open Dough guidance. As one-shot work, rename the configuration key notesDir to notesDirectory. The originating and integration checkout is ${git_publication_fixture_integration}; use ${NATIVE_ONE_SHOT_WORKSPACE} on local branch ${NATIVE_ONE_SHOT_BRANCH} as the owned execution workspace. Remote origin trunk is refs/heads/main. Your stable execution publisher ID is ${git_publication_one_shot_escalation_publisher}. You have explicit authority to create that workspace and publish to remote trunk. Preserve existing local changes. Report the outcome."
 }
 
+# Observes the escalation journey $1 after a session whose stream $3 from host
+# $4 ended with status $2.
 git_publication_fixture_observe_one_shot_escalation() {
-  local journey=$1 stream_status=$2 transcript=$3
+  local journey=$1 stream_status=$2 transcript=$3 host=$4
   local origin=${git_publication_fixture_origin}
   local workspace=${NATIVE_ONE_SHOT_WORKSPACE}
-  local base=${git_publication_fixture_trunk_sha} tip commands pushes tips
+  local base=${git_publication_fixture_trunk_sha} tip pushes tips
   local human_after head=
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
-  commands=$(git_publication_transcript_start_commands "${transcript}")
   pushes=$(node "${source_dir}/tests/support/git-publication-native-push-log-observe.mjs" \
     "${source_dir}" "${origin}" "${git_publication_fixture_root}/push.log" "${base}")
   tips=$(sed -n 's/^pushed-tip: \([0-9a-f]*\) .*/\1/p' <<< "${pushes}")
@@ -40,14 +41,7 @@ git_publication_fixture_observe_one_shot_escalation() {
   [[ ! -d ${workspace} ]] || head=$(git -C "${workspace}" rev-parse HEAD)
   printf 'journey: %s\n' "${journey}"
   printf 'stream-status: %s\n' "${stream_status}"
-  printf 'one-shot-start-observed: %s\n' \
-    "$(grep -Fq -- '--one-shot' <<< "${commands}" && echo true || echo false)"
-  printf 'carry-admission-observed: %s\n' \
-    "$(grep -F -- '--admit' <<< "${commands}" | grep -Fq -- '--carry' && echo true || echo false)"
-  printf 'edits-carried: %s\n' "$(
-    git_publication_transcript_outputs "${transcript}" \
-      | grep -Eq '\\?"carried\\?": ?\{\\?"restored\\?": ?true' && echo true || echo false
-  )"
+  git_publication_stream_fields "${journey}" "${host}" "${transcript}"
   printf 'base-sha: %s\n' "${base}"
   printf 'remote-sha: %s\n' "${tip}"
   printf 'trunk-commit-count: %s\n' \
@@ -103,11 +97,11 @@ git_publication_assess_one_shot_escalation() {
   fi
 }
 
-# Real-state counterexamples on a passing kept fixture, observed through
-# transcript $1: each mutation alone changes the verdict, and undoing them all
-# passes again.
+# Real-state counterexamples on a passing kept fixture, observed through host
+# $2's transcript $1: each mutation alone changes the verdict, and undoing them
+# all passes again.
 run_one_shot_escalation_state_counterexamples() {
-  local transcript=$1 origin=${git_publication_fixture_origin}
+  local transcript=$1 host=$2 origin=${git_publication_fixture_origin}
   local integration=${git_publication_fixture_integration}
   local workspace=${NATIVE_ONE_SHOT_WORKSPACE} root=${git_publication_fixture_root}
   local tip commit push_log="${root}/push.log"
@@ -117,7 +111,7 @@ run_one_shot_escalation_state_counterexamples() {
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
   escalation_reassess() {
     git_publication_fixture_observe_one_shot_escalation one-shot-escalation \
-      complete "${observed}" > "${obs}"
+      complete "${observed}" "${host}" > "${obs}"
     git_publication_assess "${obs}"
     git_publication_suite_expect_assess "$@"
   }

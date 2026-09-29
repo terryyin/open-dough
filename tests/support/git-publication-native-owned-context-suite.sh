@@ -32,6 +32,7 @@ run_substitute_owned_context_journey() {
   fi
   owned_context_obs="${git_publication_fixture_root}/counterexample.txt"
   owned_context_transcript="${artifact}/events.jsonl"
+  owned_context_host=${host}
   owned_context_journey=${journey}
   if [[ ${journey} == startup-owned-context ]]; then
     run_startup_owned_context_counterexamples
@@ -44,9 +45,29 @@ run_substitute_owned_context_journey() {
 # Observes the kept fixture again and expects assessment "$@".
 owned_context_reassess() {
   git_publication_fixture_observe_owned_context "${owned_context_journey}" \
-    complete "${owned_context_transcript}" > "${owned_context_obs}"
+    complete "${owned_context_transcript}" "${owned_context_host}" \
+    > "${owned_context_obs}"
   git_publication_assess "${owned_context_obs}"
   git_publication_suite_expect_assess "$@"
+}
+
+# Appends shell command $1, started, to the kept transcript in its host's
+# stream shape.
+owned_context_append_started() {
+  case ${owned_context_host} in
+    codex)
+      jq -n -c --arg c "$1" \
+        '{type:"item.started",item:{type:"command_execution",command:$c}}'
+      ;;
+    cursor)
+      jq -n -c --arg c "$1" \
+        '{type:"tool_call",subtype:"started",tool_call:{shellToolCall:{args:{command:$c}}}}'
+      ;;
+    *)
+      jq -n -c --arg c "$1" \
+        '{type:"assistant",message:{content:[{type:"tool_use",name:"Bash",input:{command:$c}}]}}'
+      ;;
+  esac >> "${owned_context_transcript}"
 }
 
 run_startup_owned_context_counterexamples() {
@@ -55,8 +76,8 @@ run_startup_owned_context_counterexamples() {
   owned_context_reassess pass 'left the retained worktree untouched'
 
   cp -- "${transcript}" "${transcript}.kept"
-  jq -n -c --arg c "node execution-start.mjs start --integration ${retained} --repository ${retained}" \
-    '{type:"item.started",item:{type:"command_execution",command:$c}}' >> "${transcript}"
+  owned_context_append_started \
+    "node execution-start.mjs start --integration ${retained} --repository ${retained}"
   owned_context_reassess fail 'given a default checkout (--integration)'
 
   # The same start split by line continuations names --repository on a later
@@ -65,9 +86,8 @@ run_startup_owned_context_counterexamples() {
     then .item.command |= gsub(" --"; " \\\n  --") else . end' \
     "${transcript}.kept" > "${transcript}"
   owned_context_reassess pass 'left the retained worktree untouched'
-  jq -n -c --arg c "node execution-start.mjs start --integration ${retained} --help" \
-    '{type:"tool_call",subtype:"started",tool_call:{shellToolCall:{args:{command:$c}}}}' \
-    >> "${transcript}"
+  owned_context_append_started \
+    "node execution-start.mjs start --integration ${retained} --help"
   owned_context_reassess pass 'left the retained worktree untouched'
 
   # The shell may quote the script path, which may hold a space: the start
@@ -81,9 +101,8 @@ run_startup_owned_context_counterexamples() {
       "${transcript}.kept" > "${transcript}"
     grep -Fq "/owned dir/execution-start.mjs${quote//\"/\\\"} start \\\\" "${transcript}"
     owned_context_reassess pass 'left the retained worktree untouched'
-    jq -n -c --arg c "node ${quote}/owned dir/execution-start.mjs${quote} start --integration ${retained} --help" \
-      '{type:"tool_call",subtype:"started",tool_call:{shellToolCall:{args:{command:$c}}}}' \
-      >> "${transcript}"
+    owned_context_append_started \
+      "node ${quote}/owned dir/execution-start.mjs${quote} start --integration ${retained} --help"
     owned_context_reassess pass 'left the retained worktree untouched'
   done
   mv -- "${transcript}.kept" "${transcript}"
@@ -173,9 +192,7 @@ run_preparation_land_retirement_counterexamples() {
     grep -Fv 'worktree-retirement.mjs' "${file}.kept" > "${file}" || true
   done
   owned_context_reassess fail 'installed retirement command for Story C'
-  jq -n -c --arg c "${raw}" \
-    '{type:"tool_call",subtype:"started",tool_call:{shellToolCall:{args:{command:$c}}}}' \
-    >> "${transcript}"
+  owned_context_append_started "${raw}"
   owned_context_reassess fail 'removed through raw Git'
   # The command ran for Story C, but the worktree went through raw Git anyway.
   cp -- "${log}.kept" "${log}"

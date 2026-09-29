@@ -14,16 +14,10 @@ git_publication_preparation_land_preamble() {
     | awk '$0 == "<a id=\"c\"></a>" { exit } { print }'
 }
 
-# Commands the node call log and transcript $1 show, quotes dropped.
-git_publication_preparation_land_commands() {
-  {
-    cat "${git_publication_owned_node_log}" 2> /dev/null || true
-    git_publication_transcript_commands "$1"
-  } | tr -d "\"'"
-}
-
+# Observes journey $1 after a session whose stream $3 from host $4 ended with
+# status $2; its retirement fields also read the harness's node call log.
 git_publication_observe_preparation_land() {
-  local journey=$1 stream_status=$2 transcript=$3 commands
+  local journey=$1 stream_status=$2 transcript=$3 host=$4 stream_fields retired
   local origin=${git_publication_fixture_origin} base=${git_publication_fixture_trunk_sha}
   local repository=${git_publication_owned_repository}
   local seed=.planning/seeds/C.md tip announcement parent=none profile='' changed=''
@@ -44,17 +38,15 @@ git_publication_observe_preparation_land() {
   first_push=$(sed -n 's/^pushed-tip: \([0-9a-f]*\) .*/\1/p' <<< "${pushes}" | head -n 1)
   outside=$(git -C "${origin}" diff --name-only "${base}" "${tip}" \
     | grep -Fvx -e "${seed}" -e "${profile:-${seed}}" | paste -sd, - || true)
-  commands=$(git_publication_preparation_land_commands "${transcript}")
+  stream_fields=$(git_publication_stream_fields "${journey}" "${host}" \
+    "${transcript}" "${git_publication_owned_node_log}")
+  retired=$(git_publication_field_value "${stream_fields}" retired-identities)
   printf 'journey: %s\n' "${journey}"
   printf 'stream-status: %s\n' "${stream_status}"
+  printf '%s\n' "${stream_fields}"
   printf 'retire-command: %s\n' "$(
-    grep -E -- 'worktree-retirement\.mjs +retire( |$)' <<< "${commands}" \
-      | sed -nE 's/.* --identity +([^ ]+).*/\1/p' \
-      | grep -Fqx -- "${NATIVE_OWNED_IDENTITY}" && echo true || echo false
-  )"
-  printf 'raw-git-retirement: %s\n' "$(
-    grep -Eq '^([A-Za-z_][A-Za-z0-9_]*=[^ ]* +)*git( +-[Cc] +[^ ]+)* +worktree +remove( |$)' \
-      <<< "${commands}" && echo true || echo false
+    tr ',' '\n' <<< "${retired}" | grep -Fqx -- "${NATIVE_OWNED_IDENTITY}" \
+      && echo true || echo false
   )"
   printf 'fetched-sha: %s\n' "${base}"
   printf 'remote-sha: %s\n' "${tip}"

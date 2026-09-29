@@ -58,21 +58,21 @@ git_publication_one_shot_prompt() {
     "Use this project's installed Open Dough guidance. ${request} The originating and integration checkout is ${git_publication_fixture_integration}; use ${NATIVE_ONE_SHOT_WORKSPACE} on local branch ${NATIVE_ONE_SHOT_BRANCH} as the owned execution workspace. Remote origin trunk is refs/heads/main. You have explicit authority to create that workspace and publish to remote trunk. Preserve existing local changes. Report the outcome."
 }
 
+# Observes one-shot journey $1 after a session whose stream $3 from host $4
+# ended with status $2.
 git_publication_fixture_observe_one_shot() {
-  local journey=$1 stream_status=$2 transcript=$3
+  local journey=$1 stream_status=$2 transcript=$3 host=$4
   local origin=${git_publication_fixture_origin}
   local base=${git_publication_fixture_trunk_sha} tip ancestor=false
-  local branch=${NATIVE_ONE_SHOT_BRANCH} human_after commands planning_paths
+  local branch=${NATIVE_ONE_SHOT_BRANCH} human_after planning_paths
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
   if git -C "${origin}" merge-base --is-ancestor "${base}" "${tip}"; then
     ancestor=true
   fi
-  commands=$(git_publication_transcript_start_commands "${transcript}")
   human_after=$(git_publication_fixture_capture_human "${git_publication_fixture_integration}")
   printf 'journey: %s\n' "${journey}"
   printf 'stream-status: %s\n' "${stream_status}"
-  printf 'one-shot-start-observed: %s\n' \
-    "$(grep -Fq -- '--one-shot' <<< "${commands}" && echo true || echo false)"
+  git_publication_stream_fields "${journey}" "${host}" "${transcript}"
   printf 'base-sha: %s\n' "${base}"
   printf 'remote-sha: %s\n' "${tip}"
   printf 'base-ancestor: %s\n' "${ancestor}"
@@ -148,10 +148,11 @@ git_publication_assess_one_shot() {
   fi
 }
 
-# Real-state counterexamples on a passing fixture of one-shot journey $2: each
-# mutation alone makes the assessor fail, and undoing them all passes again.
+# Real-state counterexamples on a passing fixture of one-shot journey $2, run
+# on host $3 with transcript $1: each mutation alone makes the assessor fail,
+# and undoing them all passes again.
 run_one_shot_state_counterexamples() {
-  local transcript=$1 journey=$2 origin=${git_publication_fixture_origin}
+  local transcript=$1 journey=$2 host=$3 origin=${git_publication_fixture_origin}
   local integration=${git_publication_fixture_integration}
   local base=${git_publication_fixture_trunk_sha} tip commit path entry
   local obs="${git_publication_fixture_root}/counterexample.txt"
@@ -161,7 +162,7 @@ run_one_shot_state_counterexamples() {
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
   one_shot_reassess() {
     git_publication_fixture_observe_one_shot "${journey}" complete \
-      "${transcript}" > "${obs}"
+      "${transcript}" "${host}" > "${obs}"
     git_publication_assess "${obs}"
     git_publication_suite_expect_assess "$@"
   }

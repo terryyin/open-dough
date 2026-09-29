@@ -165,7 +165,7 @@ Learnings for later slices:
 
 ### 2. Publication observers read host streams through the reader
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/git-publication-native.sh`, `tests/git-publication-native-one-shot.sh`,
 and `tests/git-publication-native-owned-context.sh` stay green.
 
@@ -177,6 +177,32 @@ push count at `git-publication-native-fixture.sh:184`. Each journey's
 stream-derived observation fields come from one function per journey that
 takes only the stream and host. External verdicts on the existing
 counterexamples and substitute journeys are unchanged. Enables slice 3.
+
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+tests/git-publication-native.sh tests/git-publication-native-one-shot.sh
+tests/git-publication-native-owned-context.sh tests/native-stream-replay.sh
+tests/support/native-host-stream.test.mjs
+tests/support/git-publication-native-stream-fields.test.mjs`, exit 0.
+`tests/git-publication-native.sh` measured 54.0 s against a 53.6 s paired
+baseline.
+
+Learnings for later slices:
+- Stream fields per journey come from
+  `tests/support/git-publication-native-stream-fields.mjs`
+  (`publicationStreamFields(journey, host, streamPath, commandLog)`, or its CLI
+  `<journey> <host> <stream> [<command-log>]` printing `key: value`), which
+  reads gzipped corpus streams directly. Keys: `startup-*`
+  `startup-cli-count`, `startup-conflict-observed`; `admission-*` adds
+  `admit-cli-observed`, `plain-start-observed`, `existing-receipt-observed`;
+  `one-shot-*` `one-shot-start-observed` (escalation adds
+  `carry-admission-observed`, `edits-carried`).
+- On the 18 publication corpus entries the fields equal the retained
+  observations except the drift and correction slice 1 recorded.
+- The reader returns `calls` (each started command with its output).
+- Shape writers for slice 6's allow-list: `native-agent-admission.sh`,
+  `owned_context_append_started` in the owned-context suite, the
+  single-marker stream in `git-publication-native-counterexamples.sh`, and
+  `git-publication-native-stream-fields.test.mjs`.
 
 ### 3. Retained publication attempts replay their stream fields and verdicts
 Type: Behavior

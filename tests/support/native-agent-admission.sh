@@ -21,18 +21,28 @@ admission_record() {
   local command=$1 output=$2 id
   admission_tool=$((admission_tool + 1))
   id="admission-${admission_tool}"
-  if [[ ${host} == codex ]]; then
-    admission_events+=$(jq -n -c --arg c "${command}" --arg id "${id}" \
-      '{type:"item.started",item:{id:$id,type:"command_execution",command:$c}}')$'\n'
-    admission_events+=$(jq -n -c --arg c "${command}" --arg o "${output}" \
-      --arg id "${id}" \
-      '{type:"item.completed",item:{id:$id,type:"command_execution",command:$c,aggregated_output:$o}}')$'\n'
-  else
-    admission_events+=$(jq -n -c --arg c "${command}" --arg id "${id}" \
-      '{type:"assistant",message:{content:[{type:"tool_use",id:$id,input:{command:$c}}]}}')$'\n'
-    admission_events+=$(jq -n -c --arg o "${output}" --arg id "${id}" \
-      '{type:"user",message:{content:[{type:"tool_result",tool_use_id:$id,content:$o}]}}')$'\n'
-  fi
+  case ${host} in
+    codex)
+      admission_events+=$(jq -n -c --arg c "${command}" --arg id "${id}" \
+        '{type:"item.started",item:{id:$id,type:"command_execution",command:$c}}')$'\n'
+      admission_events+=$(jq -n -c --arg c "${command}" --arg o "${output}" \
+        --arg id "${id}" \
+        '{type:"item.completed",item:{id:$id,type:"command_execution",command:$c,aggregated_output:$o}}')$'\n'
+      ;;
+    cursor)
+      admission_events+=$(jq -n -c --arg c "${command}" --arg id "${id}" \
+        '{type:"tool_call",subtype:"started",call_id:$id,tool_call:{shellToolCall:{args:{command:$c}}}}')$'\n'
+      admission_events+=$(jq -n -c --arg c "${command}" --arg o "${output}" \
+        --arg id "${id}" \
+        '{type:"tool_call",subtype:"completed",call_id:$id,tool_call:{shellToolCall:{args:{command:$c},result:{success:{stdout:$o}}}}}')$'\n'
+      ;;
+    *)
+      admission_events+=$(jq -n -c --arg c "${command}" --arg id "${id}" \
+        '{type:"assistant",message:{content:[{type:"tool_use",id:$id,name:"Bash",input:{command:$c}}]}}')$'\n'
+      admission_events+=$(jq -n -c --arg o "${output}" --arg id "${id}" \
+        '{type:"user",message:{content:[{type:"tool_result",tool_use_id:$id,content:$o}]}}')$'\n'
+      ;;
+  esac
 }
 
 # Runs one command in the originating checkout and records it.

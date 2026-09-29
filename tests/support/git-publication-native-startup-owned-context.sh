@@ -6,13 +6,14 @@
 # local copy of Story A untouched. Sourced by the owned-context journeys.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture and assessor globals.
 
+# Observes journey $1 after a session whose stream $3 from host $4 ended with
+# status $2.
 git_publication_observe_startup_owned_context() {
-  local journey=$1 stream_status=$2 transcript=$3
+  local journey=$1 stream_status=$2 transcript=$3 host=$4
   local origin=${git_publication_fixture_origin} root=${git_publication_fixture_root}
   local workspace=${git_publication_fixture_workspace} base=${git_publication_fixture_trunk_sha}
-  local commands claim parent=none source=missing seed=.planning/seeds/A.md
+  local claim parent=none source=missing seed=.planning/seeds/A.md
   local taken=false ordered=false expected actual
-  commands=$(git_publication_transcript_start_commands "${transcript}")
   claim=$(git -C "${origin}" log --format=%H \
     --grep='Claim-Publisher: native-startup-owned-context' refs/heads/main | tail -n 1)
   if [[ -n ${claim} ]]; then
@@ -36,9 +37,7 @@ git_publication_observe_startup_owned_context() {
   actual=$(git_publication_other_checkouts "${git_publication_owned_repository}")
   printf 'journey: %s\n' "${journey}"
   printf 'stream-status: %s\n' "${stream_status}"
-  printf 'startup-cli-count: %s\n' "$(grep -c . <<< "${commands}" || true)"
-  printf 'integration-flag-count: %s\n' "$(grep -c -- '--integration' <<< "${commands}" || true)"
-  printf 'repository-flag-count: %s\n' "$(grep -c -- '--repository' <<< "${commands}" || true)"
+  git_publication_stream_fields "${journey}" "${host}" "${transcript}"
   printf 'fetched-sha: %s\n' "${base}"
   printf 'claim-sha: %s\n' "${claim:-none}"
   printf 'claim-parent: %s\n' "${parent}"

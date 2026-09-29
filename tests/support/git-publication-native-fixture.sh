@@ -121,15 +121,19 @@ git_publication_fixture_create_uncertain_recovery() {
   rm -rf -- "${third}"
 }
 
+# Observes journey $1 under authority $2 after a session whose stream $4 from
+# host $5 ended with status $3.
 git_publication_fixture_observe() {
   local journey=$1
   local authority=$2
   local stream_status=$3
-  local transcript=${4-}
+  local transcript=$4
+  local host=$5
   local target_ref=refs/heads/main
   local remote_sha trunk_remote_sha human_after human_preserved ownership
-  local remote_accepted maintenance containing_head_count exact_push_count
-  local target_push_count forced_target_push_count integration_head_sha commands
+  local remote_accepted maintenance containing_head_count exact_push_count=0
+  local target_push_count=0 forced_target_push_count=0 integration_head_sha
+  local stream_fields push_sources
 
   if [[ ${journey} == 'story-branch-increment' ]]; then
     target_ref=refs/heads/exec/story
@@ -172,34 +176,19 @@ git_publication_fixture_observe() {
   fi
 
   containing_head_count=0
-  commands=
   if [[ ${journey} == 'story-branch-increment' ]]; then
     containing_head_count=$(
       git --git-dir="${git_publication_fixture_origin}" for-each-ref \
         --contains "${git_publication_fixture_candidate_sha}" \
         --format='%(refname)' refs/heads | wc -l | tr -d ' '
     )
-    commands=$(
-      if [[ -n ${transcript} && -r ${transcript} ]]; then
-        jq -r 'select(.type == "item.started") | .item | select(.type == "command_execution") | .command // empty' \
-          "${transcript}" 2> /dev/null || true
-      fi
-    )
+    stream_fields=$(git_publication_stream_fields "${journey}" "${host}" "${transcript}")
+    push_sources=$(git_publication_field_value "${stream_fields}" story-branch-push-sources)
+    exact_push_count=$(tr ',' '\n' <<< "${push_sources}" \
+      | grep -Fxc -- "${git_publication_fixture_candidate_sha}" || true)
+    target_push_count=$(git_publication_field_value "${stream_fields}" target-push-count)
+    forced_target_push_count=$(git_publication_field_value "${stream_fields}" forced-target-push-count)
   fi
-  exact_push_count=$(
-    grep -Fo "${git_publication_fixture_candidate_sha}:refs/heads/exec/story" \
-      <<< "${commands}" | wc -l | tr -d ' '
-  )
-  target_push_count=$(
-    grep -F 'exec/story' <<< "${commands}" \
-      | grep -Eo '(^|[[:space:]])push([[:space:]]|$)' \
-      | wc -l | tr -d ' '
-  )
-  forced_target_push_count=$(
-    grep -F 'exec/story' <<< "${commands}" \
-      | grep -E '(^|[[:space:]])push([[:space:]]|$)' \
-      | grep -Ec '(^|[[:space:]])(--force|-f)([=[:space:]]|$)' || true
-  )
 
   case ${journey} in
     local-only)
@@ -226,6 +215,9 @@ git_publication_fixture_observe() {
     printf 'trunk-sha: %s\n' "${git_publication_fixture_trunk_sha}"
     printf 'integration-head-sha: %s\n' "${integration_head_sha}"
     printf 'candidate-containing-head-count: %s\n' "${containing_head_count}"
+    if [[ ${journey} == 'story-branch-increment' ]]; then
+      printf 'story-branch-push-sources: %s\n' "${push_sources}"
+    fi
     printf 'exact-push-count: %s\n' "${exact_push_count}"
     printf 'target-push-count: %s\n' "${target_push_count}"
     printf 'forced-target-push-count: %s\n' "${forced_target_push_count}"

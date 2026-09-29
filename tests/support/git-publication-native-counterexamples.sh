@@ -138,7 +138,7 @@ run_assessor_counterexamples() {
     for marker in setup command; do
       touch "${git_publication_fixture_root}/.${marker}-ran"
       git_publication_fixture_observe_startup startup-selected-source complete \
-        "${work}/start-events.jsonl" > "${work}/single-marker.txt"
+        "${work}/start-events.jsonl" codex > "${work}/single-marker.txt"
       grep -Fxq "${marker}-exists: true" "${work}/single-marker.txt"
       local other=setup
       [[ ${marker} == setup ]] && other='command'

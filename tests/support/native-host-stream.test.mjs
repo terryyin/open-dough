@@ -1,6 +1,6 @@
 // The reader's contract beyond what corpus replay (tests/native-stream-replay.sh)
 // covers: missing and unknown streams, separator splitting, and each host's
-// command outputs on a real recorded stream.
+// command outputs, paired with their commands, on a real recorded stream.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -54,9 +54,23 @@ test("each host's command outputs pair with the commands that produced them", ()
   for (const [host, entry] of Object.entries(entries)) {
     const read = readHostStream(host, corpus(entry));
     assert.equal(read.outputs.length, read.commands.length, host);
+    assert.deepEqual(
+      read.calls.map((call) => call.command),
+      read.commands,
+      host,
+    );
+    assert.deepEqual(
+      read.calls.map((call) => call.output),
+      read.outputs,
+      host,
+    );
     assert.ok(
-      read.outputs.some((output) => /execution-start|"ok":/.test(output)),
-      `${host} outputs include the start command's report`,
+      read.calls.some(
+        (call) =>
+          /execution-start\.mjs"? +start /.test(call.command) &&
+          /^\{"ok":/.test(call.output),
+      ),
+      `${host} pairs the start command with its report`,
     );
   }
 });

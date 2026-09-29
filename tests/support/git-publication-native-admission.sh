@@ -60,21 +60,15 @@ git_publication_admission_prompt() {
   esac
 }
 
+# Observes admission journey $1 after a session whose stream $3 from host $4
+# ended with status $2.
 git_publication_fixture_observe_admission() {
-  local journey=$1 stream_status=$2 transcript=$3
-  local root=${git_publication_fixture_root} commands outputs human_after
-  commands=$(git_publication_transcript_start_commands "${transcript}")
-  outputs=$(git_publication_transcript_outputs "${transcript}")
+  local journey=$1 stream_status=$2 transcript=$3 host=$4
+  local root=${git_publication_fixture_root} human_after
   human_after=$(git_publication_admission_capture_human "${git_publication_fixture_integration}")
   printf 'journey: %s\n' "${journey}"
   printf 'stream-status: %s\n' "${stream_status}"
-  printf 'startup-cli-count: %s\n' "$(grep -c . <<< "${commands}" || true)"
-  printf 'admit-cli-observed: %s\n' \
-    "$(grep -Fq -- '--admit' <<< "${commands}" && echo true || echo false)"
-  printf 'plain-start-observed: %s\n' \
-    "$(grep -Fv -- '--admit' <<< "${commands}" | grep -q . && echo true || echo false)"
-  printf 'existing-receipt-observed: %s\n' \
-    "$(grep -Eq '\\?"status\\?": ?\\?"existing' <<< "${outputs}" && echo true || echo false)"
+  git_publication_stream_fields "${journey}" "${host}" "${transcript}"
   printf 'probe-after-claim: %s\n' \
     "$(git_publication_in_order "${root}/claim-accepted" "${root}/.probe-ran" && echo true || echo false)"
   printf 'feature-exists: %s\n' \

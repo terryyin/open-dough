@@ -157,9 +157,9 @@ run_substitute_one_shot_journey() {
     exit 1
   fi
   if [[ ${journey} == one-shot-escalation ]]; then
-    run_one_shot_escalation_state_counterexamples "${artifact}/events.jsonl"
+    run_one_shot_escalation_state_counterexamples "${artifact}/events.jsonl" claude
   else
-    run_one_shot_state_counterexamples "${artifact}/events.jsonl" "${journey}"
+    run_one_shot_state_counterexamples "${artifact}/events.jsonl" "${journey}" claude
   fi
   git_publication_fixture_cleanup
 }

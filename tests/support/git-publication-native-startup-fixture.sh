@@ -76,12 +76,14 @@ EOF
   fi
 }
 
+# Observes startup journey $1 after a session whose stream $3 from host $4
+# ended with status $2.
 git_publication_fixture_observe_startup() {
-  local journey=$1 stream_status=$2 transcript=$3
+  local journey=$1 stream_status=$2 transcript=$3 host=$4
   local remote_sha message human_after human_preserved
   local source_after source_preserved feature_exists first_edit_after_claim
-  local startup_calls setup_exists command_exists setup_after_claim claim_owned taken_on_remote
-  local conflict_receipt command_outputs workspace_source_published
+  local setup_exists command_exists setup_after_claim claim_owned taken_on_remote
+  local workspace_source_published
   remote_sha=$(git ls-remote "${git_publication_fixture_origin}" refs/heads/main | awk '{print $1}')
   message=$(git --git-dir="${git_publication_fixture_origin}" log -1 --format=%B "${remote_sha}")
   human_after=$(git_publication_fixture_capture_human "${git_publication_fixture_integration}")
@@ -121,27 +123,9 @@ git_publication_fixture_observe_startup() {
     "${git_publication_fixture_workspace}/feature.txt"; then
     first_edit_after_claim=true
   fi
-  startup_calls=$(git_publication_transcript_start_commands "${transcript}" | grep -c . || true)
-  conflict_receipt=false
-  command_outputs=$(
-    jq -r --arg start "${git_publication_start_pattern}" \
-      'select(.type == "item.completed" and .item.type == "command_execution" and
-      ((.item.command // "") | test($start))) |
-      .item.aggregated_output // empty' "${transcript}" 2> /dev/null || true
-    jq -rs --arg start "${git_publication_start_pattern}" '
-      [.[] | select(.type == "assistant") | .message.content[]? |
-        select(.type == "tool_use" and ((.input.command // "") | test($start))) | .id] as $ids |
-      .[] | select(.type == "user") | .message.content[]? |
-      select(.type == "tool_result" and (.tool_use_id as $id | $ids | index($id))) |
-      .content
-    ' "${transcript}" 2> /dev/null || true
-  )
-  if grep -Eq '^\{"ok":false,"status":"conflict"' <<< "${command_outputs}"; then
-    conflict_receipt=true
-  fi
   printf 'journey: %s\n' "${journey}"
   printf 'stream-status: %s\n' "${stream_status}"
-  printf 'startup-cli-count: %s\n' "${startup_calls}"
+  git_publication_stream_fields "${journey}" "${host}" "${transcript}"
   printf 'remote-sha: %s\n' "${remote_sha}"
   printf 'trunk-sha: %s\n' "${git_publication_fixture_trunk_sha}"
   printf 'taken-on-remote: %s\n' "${taken_on_remote}"
@@ -162,7 +146,6 @@ git_publication_fixture_observe_startup() {
   printf 'setup-exists: %s\n' "${setup_exists}"
   printf 'command-exists: %s\n' "${command_exists}"
   printf 'setup-after-claim: %s\n' "${setup_after_claim}"
-  printf 'startup-conflict-observed: %s\n' "${conflict_receipt}"
   printf 'first-edit-after-claim: %s\n' "${first_edit_after_claim}"
   printf 'workspace: %s\n' "${git_publication_fixture_workspace}"
   printf 'integration: %s\n' "${git_publication_fixture_integration}"

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Shared by publication journeys: adopting the coordinates a Node fixture
 # script prints, recording what origin accepts, ordering run markers, reading
-# the backlog and checkouts a session left, and listing the startup commands
-# and command outputs a session ran, and hashing the inputs a closing
+# the backlog and checkouts a session left, reading a journey's
+# stream-derived observation fields, and hashing the inputs a closing
 # journey's evidence identity covers. Sourced by the runner.
 # shellcheck disable=SC2034,SC2312 # Runner-consumed globals; observations tolerate failed Git reads.
 
@@ -70,33 +70,17 @@ git_publication_repository_intact() {
     && echo true || echo false
 }
 
-# Extended regular expression (for grep -E and jq test) matching an
-# execution-start `start` invocation, whether or not the shell quoted the
-# script path or the subcommand.
-git_publication_start_pattern='execution-start\.mjs["'"'"']?[[:space:]]+["'"'"']?start["'"'"']?([[:space:]]|$)'
+git_publication_stream_fields_cli="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-stream-fields.mjs"
 
-# Every shell command transcript $1 shows, in any stream shape: each command
-# with its line continuations joined, split at its command separators.
-git_publication_transcript_commands() {
-  # shellcheck disable=SC2016 # jq program, not shell expansion.
-  jq -r '.. | objects | .command? // empty | strings
-    | gsub("\\\\\n[ \t]*"; " ") | splits("&&|\\|\\||[;|\n]")
-    | gsub("^[ \t]+|[ \t]+$"; "")' "$1" 2> /dev/null || true
+# The observation fields journey $1 derives from host $2's stream $3 (plus
+# command log $4 where the journey reads one), as `key: value` lines.
+git_publication_stream_fields() {
+  node "${git_publication_stream_fields_cli}" "$@"
 }
 
-# Distinct execution-start invocations transcript $1 shows, without --help
-# probes.
-git_publication_transcript_start_commands() {
-  git_publication_transcript_commands "$1" \
-    | grep -E -- "${git_publication_start_pattern}" | grep -Fv -- '--help' \
-    | sort -u || true
-}
-
-# Every command output transcript $1 shows, in either stream shape.
-git_publication_transcript_outputs() {
-  jq -r 'select(.type == "item.completed" and .item.type == "command_execution") | .item.aggregated_output // empty' "$1" 2> /dev/null || true
-  jq -r 'select(.type == "user") | .message.content[]? | select(.type == "tool_result") | (.content | if type == "string" then . else tostring end)' "$1" 2> /dev/null || true
-  jq -r '.. | objects | .stdout? // empty | strings' "$1" 2> /dev/null || true
+# The value of key $2 among `key: value` lines $1.
+git_publication_field_value() {
+  sed -n "s/^$2: //p" <<< "$1" | head -n 1
 }
 
 # One input-hash line per input a closing journey exercises: Dough Land's
