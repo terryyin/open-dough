@@ -90,6 +90,13 @@ for DD-179, and
 [Prove assessors on the verdicts they newly admit](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline)
 for DD-160, DD-175, and ODF-087's harness facet.
 
+Assessor reads still unproved after the counterexample helper landed, each
+found while migrating its suite: `trunk_closure_assess` never reads the
+`response-completion-result` it observes; `native_journey_state_assess` never
+reads `other-tool-root-claude-preserved`; `git_publication_assess`'s prose
+`inconclusive` path has no rejected case; and
+`git_publication_assess_print_fields` has no caller.
+
 ### DD-160 — An escalation counterexample removed two signals at once, hiding an assessor ordering defect
 
 Plan 139 slice 1 planned "admission with no prior one-shot edits (admitted up
