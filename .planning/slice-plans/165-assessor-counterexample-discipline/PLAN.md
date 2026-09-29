@@ -272,6 +272,23 @@ Considered and left out:
   negations inside assessor definitions (for example
   `! git_publication_assess_prose_accepts_*`). Scope it to call shapes that
   expect a rejection.
+- **Slice 8 (done).** `tests/support/native-assessor-counterexample-guard.sh`
+  scans `tests/` (awk and grep) and fails a removed primitive, an expected
+  `fail`/`inconclusive`/`pending` verdict, a statement-start negated assessor
+  call, an `if` that fails on an assessor pass, or a JavaScript rejection of
+  an assessor exported by a file with `// assessor-signal:` lines, naming
+  file and line. Required-pass checks, verdict-setting runners, and
+  negations inside assessor definitions stay allowed. Its check,
+  `tests/native-assessor-counterexample-guard.sh`, requires the stray fixture
+  `tests/support/native-assessor-counterexample-stray-suite.sh` to fail on
+  exactly 8 lines; over trunk before this story it flags about 100 lines.
+  `git_publication_suite_expect_assess` became pass-only
+  `git_publication_suite_expect_pass`. `tests/native-publication.md` states
+  the rule in "Rejected cases". Green with BSD awk and mawk; the guard adds
+  about 0.14 s.
+- The guard recognizes assessors named `*_assess*` or `assess_*`; a
+  rejection behind another name passes it, consistent with the story's
+  exclusion of mechanical loosening detection.
 
 ## Slices
 
@@ -366,8 +383,8 @@ declared coupled signals.
 
 ### 8. The free suite refuses rejected cases outside the helper
 Type: Behavior
-Status: planned
-Proof: `tests/native-assessor-counterexamples.sh` guard, green on the tree,
+Status: done
+Proof: `tests/native-assessor-counterexample-guard.sh`, green on the tree,
 plus a counterexample fixture file.
 
 Behavior: the old rejection primitives are deleted → the guard finds no

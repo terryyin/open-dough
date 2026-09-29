@@ -19,7 +19,7 @@ run_startup_assessor_counterexamples() {
     'candidate-contained: false' \
     'first-edit-after-claim: true'
   git_publication_assess "${work}/startup-valid.txt"
-  git_publication_suite_expect_assess pass 'installed startup invoked'
+  git_publication_suite_expect_pass 'installed startup invoked'
   git_publication_startup_counterexamples "${work}/startup-valid.txt"
   native_assessor_rejects_field_rows << 'EOF'
 startup-uninvoked startup-call startup-cli-count: 0 | native startup command
@@ -33,7 +33,7 @@ EOF
   sed 's/^journey: .*/journey: startup-selected-source/' \
     "${work}/startup-valid.txt" > "${work}/selected-valid.txt"
   git_publication_assess "${work}/selected-valid.txt"
-  git_publication_suite_expect_assess pass 'installed startup invoked'
+  git_publication_suite_expect_pass 'installed startup invoked'
   git_publication_startup_counterexamples "${work}/selected-valid.txt"
   native_assessor_rejects_field_rows << 'EOF'
 source-unpublished workspace-source workspace-source-published: false | owned workspace does not hold the published selected source
@@ -50,7 +50,7 @@ EOF
     -e 's/^command-exists: .*/command-exists: false/' \
     "${work}/startup-valid.txt" > "${work}/race-valid.txt"
   git_publication_assess "${work}/race-valid.txt"
-  git_publication_suite_expect_assess pass 'competing Taken provenance'
+  git_publication_suite_expect_pass 'competing Taken provenance'
   git_publication_startup_counterexamples "${work}/race-valid.txt"
   native_assessor_rejects_field_rows \
     <<< 'race-no-receipt conflict-receipt startup-conflict-observed: false | rival claim did not stop'
@@ -66,7 +66,7 @@ EOF
     -e 's/^candidate-contained: .*/candidate-contained: true/' \
     "${work}/startup-valid.txt" > "${work}/resume-valid.txt"
   git_publication_assess "${work}/resume-valid.txt"
-  git_publication_suite_expect_assess pass 'installed startup invoked'
+  git_publication_suite_expect_pass 'installed startup invoked'
   git_publication_startup_counterexamples "${work}/resume-valid.txt"
   native_assessor_rejects_field_rows \
     <<< 'resume-uncontained retained-candidate candidate-contained: false | retained candidate is absent'

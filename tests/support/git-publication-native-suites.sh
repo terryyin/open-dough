@@ -92,10 +92,11 @@ git_publication_suite_obs() {
     "maintenance-result: ${maintenance}"
 }
 
-git_publication_suite_expect_assess() {
-  local want_status=$1
-  local want_reason_fragment=${2-}
-  [[ ${git_publication_assess_status} == "${want_status}" ]]
+# Requires the last git_publication_assess verdict to be a pass, with a reason
+# containing fragment $1 when given. Rejected cases go through the helper.
+git_publication_suite_expect_pass() {
+  local want_reason_fragment=${1-}
+  [[ ${git_publication_assess_status} == pass ]]
   if [[ -n ${want_reason_fragment} ]]; then
     grep -Fq "${want_reason_fragment}" <<< "${git_publication_assess_reason}"
   fi

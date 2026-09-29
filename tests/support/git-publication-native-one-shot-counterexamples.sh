@@ -22,7 +22,7 @@ run_one_shot_state_counterexamples() {
     git_publication_fixture_observe_one_shot "${journey}" complete \
       "${transcript}" > "${obs}"
     git_publication_assess "${obs}"
-    git_publication_suite_expect_assess pass "$1"
+    git_publication_suite_expect_pass "$1"
   }
   # Rejected case $1 of signal $2 on the state observed now, failing with a
   # reason holding $3.

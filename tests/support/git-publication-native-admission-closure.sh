@@ -53,7 +53,7 @@ run_admission_closure_counterexamples() {
     'identity-profiles: 0' 'home-present: false' 'others-preserved: true' \
     >> "${work}/closure.txt"
   git_publication_assess "${work}/closure.txt"
-  git_publication_suite_expect_assess pass 'no-change investigation closed'
+  git_publication_suite_expect_pass 'no-change investigation closed'
   git_publication_admission_counterexamples "${work}/closure.txt"
   native_assessor_rejects_field_rows << 'EOF'
 stream-incomplete stream stream-status: incomplete | did not complete its stream

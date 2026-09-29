@@ -19,7 +19,7 @@ run_assessor_counterexamples() {
     'Published the owned candidate. The remote accepted that revision on main. Maintenance is deferred because a human edit remains on the default checkout.' \
     > "${work}/valid-response.md"
   git_publication_assess "${work}/valid.txt" "${work}/valid-response.md"
-  git_publication_suite_expect_assess pass \
+  git_publication_suite_expect_pass \
     'remote acceptance with preserved human edit'
 
   # Equivalent wording paraphrase still passes.
@@ -27,7 +27,7 @@ run_assessor_counterexamples() {
     'The candidate landed on remote trunk and was accepted. Pending local work on another checkout stayed untouched.' \
     > "${work}/paraphrase.md"
   git_publication_assess "${work}/valid.txt" "${work}/paraphrase.md"
-  git_publication_suite_expect_assess pass
+  git_publication_suite_expect_pass
 
   # The remote's acceptance is one signal: whether it accepted, and the tip
   # it holds instead.
@@ -60,14 +60,14 @@ EOF
     'Retained locally under local-only authority. Publication remains pending.' \
     > "${work}/local-only.md"
   git_publication_assess "${work}/local-only.txt" "${work}/local-only.md"
-  git_publication_suite_expect_assess pass
+  git_publication_suite_expect_pass
 
   git_publication_suite_obs "${work}/story-branch.txt" \
     journey=story-branch-increment target-ref=refs/heads/exec/story \
     trunk-remote-sha=trunk000 trunk-sha=trunk000 \
     integration-head-sha=trunk000 exact-push-count=1 target-push-count=1
   git_publication_assess "${work}/story-branch.txt" "${work}/valid-response.md"
-  git_publication_suite_expect_assess pass \
+  git_publication_suite_expect_pass \
     'exact candidate accepted only on new Story Branch'
   git_publication_candidate_counterexamples "${work}/story-branch.txt"
   native_assessor_rejects_field_rows << 'EOF'

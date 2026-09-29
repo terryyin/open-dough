@@ -56,7 +56,7 @@ owned_context_observe() {
 owned_context_passes() {
   owned_context_observe "${owned_context_obs}"
   git_publication_assess "${owned_context_obs}"
-  git_publication_suite_expect_assess pass "$1"
+  git_publication_suite_expect_pass "$1"
 }
 
 # Rejected case $1 of signal $2 on the state observed now, failing with a

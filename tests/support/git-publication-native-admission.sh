@@ -191,7 +191,7 @@ run_admission_assessor_counterexamples() {
     'story-section-count: 1' 'approach: unselected' 'assessment: absent' \
     'product-change: false'
   git_publication_assess "${work}/investigation.txt"
-  git_publication_suite_expect_assess pass 'admitted to remote Taken before'
+  git_publication_suite_expect_pass 'admitted to remote Taken before'
   git_publication_admission_counterexamples "${work}/investigation.txt"
   native_assessor_rejects_field_rows << 'EOF'
 startup-uninvoked startup-call startup-cli-count: 0 | native startup command
@@ -212,7 +212,7 @@ EOF
     -e 's/^assessment: .*/assessment: ready/' \
     "${work}/investigation.txt" > "${work}/continuation.txt"
   git_publication_assess "${work}/continuation.txt"
-  git_publication_suite_expect_assess pass 'continued into implementation'
+  git_publication_suite_expect_pass 'continued into implementation'
   git_publication_admission_counterexamples "${work}/continuation.txt"
   native_assessor_rejects_field_rows << 'EOF'
 no-plain-start start-kind plain-start-observed: false | did not continue the claim
