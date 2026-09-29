@@ -1,13 +1,13 @@
 // Mark as done in the page's one terminal (./agent-terminal.spec.ts), on the
 // committed settlement origin (./launchJourney.ts): while it marks, the panel
-// says so quietly; then the panel closes, the session is renamed
-// `done-<name>` through its terminal and stopped, the keyboard goes to the
-// session's Recent sessions entry, since the card's Started that opened it is
-// gone, the card offers its Start action again while the story is in the
-// Backlog, and Recent sessions shows the entry Done under its `done-` name,
-// still openable. A refused mark keeps the panel open and says so, and a
-// mark answered after another session replaced the panel leaves the keyboard
-// in the new terminal. Origin alone still places the story. The page's own
+// says so quietly; then the panel closes, the keyboard goes to the session's
+// Recent sessions entry, since the card's Started that opened it is gone, the
+// card offers its Start action again while the story is in the Backlog, and
+// Recent sessions shows the entry Done under its `done-` name, still
+// openable. How the boundary renames and stops the session is
+// ./agent-launch-done.spec.ts. A refused mark keeps the panel open and says
+// so, and a mark answered after another session replaced the panel leaves the
+// keyboard in the new terminal. Origin alone still places the story. The page's own
 // dashboard server drives the synthetic `claude` (./fixtures/fake-claude);
 // the real one is never reached.
 
@@ -25,7 +25,6 @@ import {
   type SettlementJourney,
 } from "./launchJourney.ts";
 import { openSettlementJourney } from "./settlementPage.ts";
-import { processRunning } from "./support/processGroup.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -66,7 +65,7 @@ test.describe("marking a session done from its terminal", () => {
   });
   test.afterAll(() => (settlement as SettlementJourney | undefined)?.cleanup());
 
-  test("Mark as done closes the panel, renames and stops the session, offers Start again, and shows the entry Done", async ({
+  test("Mark as done closes the panel, focuses the session's entry, offers Start again, and shows the entry Done", async ({
     page,
     dashboard,
   }) => {
@@ -95,9 +94,7 @@ test.describe("marking a session done from its terminal", () => {
     const rows = panel.locator(".xterm-rows");
     await expect(rows).toContainText("attached");
     const [session] = dashboard.claudeListing();
-    const shortId = String(session?.["id"]);
     const doneName = `done-${String(session?.["name"])}`;
-    await page.keyboard.type("half an answer");
     const release = await holdDoneRequests(page);
 
     await panel.getByRole("button", { name: "Mark as done" }).click();
@@ -112,30 +109,6 @@ test.describe("marking a session done from its terminal", () => {
     await expect(
       entry.getByRole("button", { name: "Open terminal" }),
     ).toBeFocused();
-    // The rename reached the attached session, whose draft Ctrl+U cleared,
-    // and the session was stopped after the attachment ended.
-    const attaches = () =>
-      dashboard.claudeAttaches().filter((attach) => attach.id === shortId);
-    expect(attaches().flatMap((attach) => attach.lines)).toEqual([
-      `/rename ${doneName}`,
-    ]);
-    await expect
-      .poll(() =>
-        attaches().every(
-          (attach) =>
-            attach.endedBy !== undefined && !processRunning(attach.pid),
-        ),
-      )
-      .toBe(true);
-    expect(
-      dashboard
-        .claudeCalls()
-        .filter((call) => call.argv[0] === "stop")
-        .map((call) => call.argv),
-    ).toEqual([["stop", shortId]]);
-    const [listed] = dashboard.claudeListing();
-    expect(listed).toMatchObject({ name: doneName, state: "stopped" });
-    expect(listed).not.toHaveProperty("status");
 
     await expect(started).toHaveCount(0);
     await expect(action(readyStory, "Execution")).toBeEnabled();

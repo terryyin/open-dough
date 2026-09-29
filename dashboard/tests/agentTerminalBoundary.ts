@@ -1,5 +1,6 @@
-// Shared by the terminal boundary specs (./agent-terminal-boundary.spec.ts and
-// ./agent-terminal-close.spec.ts): a session launched through the real launch
+// Shared by the specs that drive the terminal boundary without a page
+// (./agent-terminal-boundary.spec.ts, ./agent-terminal-close.spec.ts, and
+// ./agent-launch-done.spec.ts): a session launched through the real launch
 // boundary, and a raw WebSocket to the terminal boundary for it, opened or
 // refused, whose output and ending the synthetic `claude` reports.
 

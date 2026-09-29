@@ -154,7 +154,15 @@ resolution into `agentLaunchAdmission.ts` so both requests resolve there.
 
 ### 3. One proof per terminal concern, with current test documentation
 Type: Structure
-Status: planned
+Status: done
+Accepted proof: `npm run test:dashboard -- $(ls dashboard/tests/agent-*.spec.ts)`
+130 passed (ten redundant tests removed: the boundary spec's no-Origin,
+`Sec-Fetch-Site`, and foreign-Host upgrades and the close spec's end-to-end
+and ended-code cases, in both modes), `authenticated-read-refusal.spec.ts` 19
+passed, and a clean typecheck. Each removal's owner was read at HEAD first.
+The refused-mark test keeps its "no `stop`" check, since no other test covers
+a done request refused for a missing folder. Foreign-Host refusal is proved
+only in preview mode, because Vite answers it first in dev.
 Proof: the trimmed specs pass with `npm run test:dashboard -- $(ls dashboard/tests/agent-*.spec.ts)`; each removed assertion's surviving owner is named below and still passes.
 
 Trim the boundary spec's origin matrix to one cross-site refusal per mode and

@@ -1,13 +1,15 @@
 // The terminal boundary (../server/agentTerminals.ts, admitted by
-// ../server/agentLaunchPlugin.ts) over a raw WebSocket, in dev and preview: a
-// same-origin socket for a session this dashboard launched and Claude Code
+// ../server/agentLaunchAdmission.ts) over a raw WebSocket, in dev and preview:
+// a same-origin socket for a session this dashboard launched and Claude Code
 // still lists runs `claude attach <short id>` in the project folder, passes
 // output, input, and size, and ends that attach process when the socket
 // closes, while the session stays listed (server close:
 // ./agent-terminal-close.spec.ts). Any other upgrade is refused with an HTTP
-// status and no attach. The synthetic `claude` (./fixtures/fake-claude)
-// stands in for the attached session and records every call; the real one is
-// never reached.
+// status and no attach. Which origins the shared check refuses is
+// ./agent-launch-refusal.spec.ts; one cross-site upgrade here proves the check
+// guards this boundary. The synthetic `claude` (./fixtures/fake-claude) stands
+// in for the attached session and records every call; the real one is never
+// reached.
 
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
@@ -67,12 +69,6 @@ for (const mode of ["dev", "preview"] as const) {
       terminal.send({ input: "hello" });
       terminal.send({ input: "\r" });
       expect(await shows(terminal, "echo hello")).toBe(true);
-
-      terminal.send({ input: "draft" });
-      terminal.send({ input: "\u0015" });
-      terminal.send({ input: "answer\r" });
-      expect(await shows(terminal, "echo answer")).toBe(true);
-      expect(terminal.output()).not.toContain("echo draftanswer");
 
       terminal.send({ resize: { cols: 120, rows: 40 } });
       expect(await shows(terminal, "resized 120x40")).toBe(true);
@@ -142,20 +138,6 @@ for (const mode of ["dev", "preview"] as const) {
         upgrade: "from another site",
         status: 403,
         options: () => ({ origin: "http://evil.example" }),
-      },
-      { upgrade: "with no Origin", status: 403, options: () => ({}) },
-      {
-        upgrade: "a browser marks cross-site",
-        status: 403,
-        options: () => ({ headers: { "Sec-Fetch-Site": "cross-site" } }),
-      },
-      {
-        upgrade: "naming a foreign Host",
-        status: 403,
-        options: () => ({
-          origin: "http://evil.example",
-          headers: { Host: "evil.example" },
-        }),
       },
       {
         upgrade: "for an unknown project",

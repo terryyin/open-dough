@@ -5,9 +5,9 @@
 // runs `claude stop <short id>`, and keeps the done mark on this machine
 // across a restart. With no terminal open, or a launch name holding a
 // control character, the `done-` name is only the record's, and the session
-// is still stopped. Any other request is refused
-// before `claude` runs. The machine directory holds HOME and the synthetic
-// `claude`'s (./fixtures/fake-claude) state; the real one is never reached.
+// is still stopped. Any other request is refused before `claude` runs. The
+// machine directory holds HOME and the synthetic `claude`'s
+// (./fixtures/fake-claude) state; the real one is never reached.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";

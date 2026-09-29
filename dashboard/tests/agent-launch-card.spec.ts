@@ -152,7 +152,6 @@ test("starting sends the instruction after the execution command in the Open Dou
   await expect(
     started.getByRole("button", { name: "Open terminal" }),
   ).toBeVisible();
-  await expect(started).not.toContainText("claude attach");
 
   const folder = realpathSync(path.join(dashboard.home, "git", "open-dough"));
   expect(dashboard.claudeLaunchCalls()).toEqual([
