@@ -154,21 +154,90 @@ feature promise. See the [plan](../slice-plans/166-mark-done-residue/PLAN.md).
 
 **Identity:** SEED-052#delete-unknown-state-session
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/171-delete-unknown-state-session/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1c289b551370c32c7a1212b662baefcb13373fbf552a1135fbae2d5b4f7e3d13","plan":"1497d8823cd4d9112f27988caa9556eaef2ee52479898f72a34ac18eb05d3e52"}}
 ```
 
-- **For / why:** A developer whose story card lists a session that shows
-  "State unknown" can remove that session from the dashboard instead of
-  keeping a link the dashboard can no longer read or reach.
-- **Evaluation:** A session shown with "State unknown" offers a delete option.
-  Choosing it removes that session's kept launch record, so the card and the
-  Sessions sidebar no longer list it and the story can be launched afresh. A
-  session in any other state does not offer the option.
-- **Boundary:** Deletes only the dashboard's own record of the session; the
-  conversation transcript and Claude Code's own listing are untouched. Whether
-  "Session unavailable" (listed by neither) also offers it, and whether the
-  choice asks for confirmation, are open for refinement.
+- **Goal:** A developer whose story card or Recent sessions lists a session
+  that shows "State unknown" can remove the dashboard's record of it, after a
+  short confirmation, instead of keeping a link the dashboard cannot read. The
+  dashboard never removes the record of a session whose state it can read.
+- **Scope:**
+  - **What is deleted.** Only the dashboard's own kept launch record. The
+    conversation, Claude Code's listing, and a running session are untouched.
+    It runs no `claude stop` and no rename, and sets no done mark, unlike Mark
+    as done. The record is gone, not marked, so it also leaves Recent sessions.
+    There is no undo.
+  - **When it is offered.** Wherever an entry shows "State unknown": on a
+    story card's session entry and on a Recent sessions entry, including one
+    marked done. That state is machine-wide: it means the whole listing could
+    not be read, so every entry shows it at once, healthy sessions included.
+    That is why the server, not the page's last reading, decides.
+  - **Server guard.** When the delete arrives, the server reads the listing
+    again and deletes only if the state is still unknown. Otherwise it refuses
+    with "This session's state is now known" and the entry updates in place
+    to its known state. A stale page cannot delete a healthy session's record.
+  - **Not offered:** on "Session unavailable", "Working", "Needs input",
+    "Ready for review", "Session failed", "Session stopped", "State not
+    recognized", or "Done" while its state is known, and not on the Sessions
+    sidebar's entries, each of which is one control (the entry just leaves the
+    sidebar when its record goes).
+  - **Open terminal.** If the page's terminal shows the session when its record
+    is deleted, the panel closes and detaches, as for Mark as done. The session
+    keeps running in Claude Code; the dashboard can no longer attach to it.
+  - **Launching.** No launch is blocked by existing sessions, so the story can
+    already be launched afresh; deleting a record is not a precondition. No
+    story fact, stage, card position or attention count of another session
+    changes.
+  - **Deferred:** deleting a "Session unavailable" record (Mark as done clears
+    those from cards and the sidebar; their Recent sessions entry stays for 30
+    days), deleting several records at once, undo, and any deletion from the
+    Sessions sidebar.
+- **Key examples:**
+  - The listing cannot be read → a card's entry says "State unknown: Claude
+    Code's session list could not be read" and offers Open terminal, Mark as
+    done and "Delete record…" → the developer presses it → the entry asks
+    "Delete this session's dashboard record? The conversation stays in Claude
+    Code; a running session keeps running." with "Delete record" and "Keep",
+    the keyboard on Keep → "Delete record" → the entry leaves the card, Recent
+    sessions and the Sessions sidebar, the card's other sessions and the
+    Backlog or Taken stage are unchanged, and a status line says "Session
+    record deleted".
+  - The same, from a Recent sessions entry whose story is in no list → the
+    entry leaves Recent sessions and the sidebar.
+  - "Keep", or Escape, → the entry returns to its "Delete record…" state,
+    nothing is deleted, and the keyboard returns to "Delete record…".
+  - The developer opened the question, then the next 15-second read lists the
+    session → the question goes away with "Delete record…", the entry shows
+    its known state, and nothing is deleted.
+  - The page still shows "State unknown" but the server now reads the listing
+    and lists the session (or no longer lists it) → the delete is refused with
+    "This session's state is now known", the entry updates in place, and the
+    record stays.
+  - The record cannot be removed (the launch record file cannot be written) →
+    the entry says "The session record could not be deleted." with why, keeps
+    its record and its other actions, and the developer can try again.
+  - The terminal shows the session being deleted → deleted → the panel closes;
+    a session Claude Code still lists is not stopped.
+  - A session that shows "Session unavailable", "Working" or "Needs input"
+    offers no delete option; nor does a sidebar entry in any state.
+- **UI:** A quiet text button "Delete record…" sits after Mark as done on a
+  card entry and after Open terminal on a Recent sessions entry, only while the
+  entry shows "State unknown", without warning or error styling. Pressing it
+  replaces that button, in place and without a modal dialog or a shift of the
+  card, with the question above and the buttons "Delete record" and "Keep",
+  the keyboard on Keep; the entry's own words and its other actions stay.
+  Meaning never rests on color, and both buttons meet the launch controls' size,
+  focus and contrast. After a deletion the keyboard goes to the next entry in
+  that list, or to the list's card or Recent sessions heading when none is
+  left, and a polite status announces "Session record deleted"; a refusal or
+  failure is announced in the entry's own status line without moving the
+  keyboard. Under reduced motion, and without it, nothing animates.
 - **Depends on:** None; the Sessions and story-card session entries exist.
+- **Plan:** [plan 171](../slice-plans/171-delete-unknown-state-session/PLAN.md)
+- **Design record:** Terry chose, on 2026-09-30, the server re-read at delete
+  time, the inline two-step confirmation on cards and Recent sessions, and
+  "State unknown" only. Update the [North Star](../../docs/dashboard-ux-ui-north-star.md)
+  and [Agent launch](../../dashboard/AGENT-LAUNCH.md) when this delivers.
 
 <a id="script-execution-preparation"></a>
 
