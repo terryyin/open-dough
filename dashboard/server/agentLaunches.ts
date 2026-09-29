@@ -1,12 +1,13 @@
 // Performs one admitted agent launch for the local launch boundary
 // (`./agentLaunchPlugin.ts`): resolve the project folder
-// (`./projectFolders.ts`), run the host (`./claudeCode.ts`) within the launch
-// wait, and keep a confirmed result in this machine's launch record store
-// (`./launchRecordStore.ts`), which outlives the server. A read of the kept
-// records answers each session's state from Claude Code's listing, never
-// stored; the same join decides which recorded session the terminal
-// boundary (`./agentTerminals.ts`) may attach to, and a recorded session may
-// be marked done (`./doneMarks.ts`). Origin still decides every story fact.
+// (`./projectFolders.ts`), start the session (`./claudeLaunch.ts`) within
+// the launch wait, and keep a confirmed result in this machine's launch
+// record store (`./launchRecordStore.ts`), which outlives the server. A read
+// of the kept records answers each session's state from Claude Code's
+// listing (`./claudeCode.ts`), never stored; the same join decides which
+// recorded session the terminal boundary (`./agentTerminals.ts`) may attach
+// to, and a recorded session may be marked done (`./doneMarks.ts`). Origin
+// still decides every story fact.
 
 import {
   type AgentLaunchRequest,
@@ -15,7 +16,8 @@ import {
   type LaunchResult,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { claudeSessions, launchClaude } from "./claudeCode.ts";
+import { claudeSessions } from "./claudeCode.ts";
+import { launchClaude } from "./claudeLaunch.ts";
 import { keepRecord, keptRecords } from "./launchRecordStore.ts";
 import {
   folderExists,

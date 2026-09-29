@@ -137,8 +137,15 @@ state through the page. Update `AGENT-LAUNCH.md` only if wording changes.
 
 ### 2. The Claude Code host module and admission each hold one concept
 Type: Structure
-Status: planned
+Status: done
 Proof: unchanged behavior under `npm run test:dashboard -- $(ls dashboard/tests/agent-*.spec.ts)` and `npm run typecheck:dashboard`.
+
+Accepted proof: that command, 140 passed (the same as before the slice), and a
+clean typecheck. `claudeLaunch.ts` (150 lines) holds the launch and its
+outcome; `claudeCode.ts` (132) keeps the host commands. `stopClaude` returns
+nothing. The admission module's private `recordedSession(launches, source,
+id)` resolves the recorded session for both the done request and the
+upgrade.
 
 Move the launch-outcome classification into its own module beside
 `claudeCode.ts`, which keeps the host commands; both end under 250 lines.
