@@ -17,7 +17,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Keep every unreadable launch store and trim Recent sessions residue](seeds/SEED-052-start-agent-work-from-dashboard.md#recent-sessions-residue) — SEED-052#recent-sessions-residue ([plan](slice-plans/151-recent-sessions-residue/PLAN.md))
 - [Name the feature that runs moved seeding](seeds/SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding) — SEED-044#name-the-feature-that-runs-moved-seeding ([plan](slice-plans/153-name-the-feature-that-runs-moved-seeding/PLAN.md))
 - [Keep closure reruns truthful and closure proof exact](seeds/SEED-008-worktree-branch-trunk-sync.md#closure-proof-and-harness-correction) — SEED-008#closure-proof-and-harness-correction ([plan](slice-plans/154-closure-proof-and-harness-correction/PLAN.md))
-- [Guard Mark as done's edges and trim the terminal work's residue](seeds/SEED-052-start-agent-work-from-dashboard.md#terminal-residue) — SEED-052#terminal-residue ([plan](slice-plans/155-terminal-residue/PLAN.md))
 
 ## Backlog list
 

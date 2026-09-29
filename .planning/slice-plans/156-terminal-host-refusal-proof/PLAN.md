@@ -6,7 +6,8 @@
 - **Source:** [story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#terminal-host-refusal-proof),
   written by the execution retrospective of SEED-052#terminal-residue (plan
   155; claim `10f862b9`; commits `87d1fc6c`, `777c2623`, `bdeaea99` on
-  `claude/terminal-residue`).
+  `claude/terminal-residue`; its closed plan is at
+  `94177c75:.planning/slice-plans/155-terminal-residue/PLAN.md`).
 - **Authority:** planning only. This plan grants no Take, implementation, or
   publication.
 
