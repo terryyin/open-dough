@@ -71,6 +71,14 @@ that leaves every list keeps its sessions only in Recent sessions.
   (`server/doneMarks.ts`) runs `claude stop` only for a session Claude Code
   still lists. It already types the rename only through an open attachment,
   which an unlisted session cannot have.
+- **Open for Terry, raised by SEED-052#terminal-host-refusal-proof:**
+  - Where focus goes when the opener is gone and the session's entry offers no
+    Open terminal (Session unavailable), or the session belongs to another
+    project. Card entries showing Session unavailable make this common here.
+  - Typing `/rename` into the attached terminal can reach a permission prompt
+    or the agent view. The alternative is a `done-` name kept only in the
+    dashboard record, which the story allows when the rename cannot be done
+    reliably. Mark as done on every card entry widens its use.
 - **Retention:** `server/launchRecordStore.ts` keeps a record without
   `doneAt` indefinitely and a done record for `launchRetentionDays` after its
   `doneAt`. The shared constant keeps its name and value.

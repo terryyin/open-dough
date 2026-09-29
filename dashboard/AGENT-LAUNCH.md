@@ -116,7 +116,9 @@ types there goes to the session, and its size follows the panel. Opening
 another session closes the first one's socket, which detaches it while it
 keeps running, and shows the other in the same panel. An entry whose story is
 in no list opens the same way. **Close** removes the panel and detaches only:
-the session keeps running, and its Open terminal is offered again. The open
+the session keeps running, and its Open terminal is offered again. The
+keyboard returns to the Open terminal that opened the panel while it is still
+on the page, and otherwise to the session's Recent sessions entry. The open
 terminal is page state, so switching projects keeps it attached to the same
 session, and a reload starts without one. When the connection drops, as when
 the dashboard server restarts, the panel says "Disconnected from the session"

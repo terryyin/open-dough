@@ -284,7 +284,10 @@ feature promise. See the [plan](../slice-plans/156-terminal-host-refusal-proof/P
   page reads the host's listing again every 15 seconds; Claude Code's answered
   in about 0.16 s with 469 sessions. A second host moves these behind the host
   module and observes whether its listing is as quick and tells running from
-  exited sessions.
+  exited sessions. Claude Code's server code now spans `claudeCode.ts` (every
+  `claude` argument array) and `claudeLaunch.ts` (session name, instruction,
+  and reading `--bg`'s output), so the North Star's "one module per host"
+  needs Terry's decision before a second host is refined.
 - **Depends on:** The chosen Claude Code experience; no dependency on Cursor.
 - **Safe stopping point:** Claude Code and Codex remain independently usable.
 
