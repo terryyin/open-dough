@@ -15,10 +15,10 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Name the feature that runs moved seeding](seeds/SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding) — SEED-044#name-the-feature-that-runs-moved-seeding ([plan](slice-plans/153-name-the-feature-that-runs-moved-seeding/PLAN.md))
+- [Observe a Preparing-card refinement in one journey](seeds/SEED-052-start-agent-work-from-dashboard.md#preparing-card-refinement-journey) — SEED-052#preparing-card-refinement-journey ([plan](slice-plans/154-preparing-card-refinement-journey/PLAN.md))
 
 ## Backlog list
 
-- [Observe a Preparing-card refinement in one journey](seeds/SEED-052-start-agent-work-from-dashboard.md#preparing-card-refinement-journey) — SEED-052#preparing-card-refinement-journey
 - [Keep story sessions linked until deliberately closed](seeds/SEED-052-start-agent-work-from-dashboard.md#keep-story-session-links) — SEED-052#keep-story-session-links
 - [See when a dashboard session needs human attention](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-refinement) — SEED-052#launch-claude-refinement
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation

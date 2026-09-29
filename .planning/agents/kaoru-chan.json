@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kaoru-chan",
+  "email": "kaoru-chan@example.org",
+  "identity": "SEED-052#preparing-card-refinement-journey",
+  "mode": "story-branch",
+  "branch": "claude/preparing-card-refinement-journey",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
