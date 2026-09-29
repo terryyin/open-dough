@@ -49,6 +49,8 @@ executions, not commands, retries, or repairs.
    misread as staleness (DD-159), and a working-directory-dependent test
    (DD-168) — low, not queued.** One execution each; moved here on 2026-09-29
    or recorded by plan 147's retrospective.
+10. **Skill test fixtures typed by the dashboard build (DD-170) — low, not
+   queued.** One execution (plan 146): one red CI run, repaired in `de81cb96`.
 
 No other project-owned problem is supported, so only one story is queued.
 
@@ -307,6 +309,26 @@ another directory reports "CI mailbox belongs to another checkout".
   - Evidence: slice 1 refactor report: fails on every run from `src/skills`, 23/23 from the checkout root; slice 1's delegated proof command was phrased "from `src/skills`".
   - Observed effect: no delivery impact; a focused run from `src/skills` would show a false failure.
   - Inference: Qualified. Deriving the root from the test file's location would give the same result from any directory, as CI does.
+
+## Skill test fixtures typed by the dashboard build (low priority, not selected)
+
+### DD-170 — A Land test-fixture signature change failed only the dashboard's TypeScript check
+
+`dashboard/tests/preparingJourney.ts` imports `landWorktree` from
+`src/skills/dough-story-refinement/scripts/dough-land-test-fixtures.mjs`, so the
+dashboard's `tsc --build` types that JavaScript fixture from its destructuring
+defaults. Slice 1 added a required-looking `identity` parameter; the focused
+Node suites passed and only CI's `dashboard` job failed.
+
+#### Occurrences
+
+- Execution: `SEED-008#installed-wrap-up-command` / plan 146, first related implementation commit `aa4fd510`
+  - Timestamp: 2026-09-29T09:20:42+08:00 (`aa4fd510`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: CI run `36507473752` job `dashboard (1/2)`: TS2345 at `preparingJourney.ts(88,38)`; repair `de81cb96` (`identity = undefined`), then `npm run typecheck:dashboard` and `backlog-preparing.spec.ts` passed.
+  - Observed effect: one red CI run, a repair stash cycle, and one repair commit.
+  - Inference: Qualified. A consumer search limited to `src/skills` misses the dashboard's typed imports; running `npm run typecheck:dashboard` when a shared fixture's signature changes would catch it locally.
 
 ## Retention
 

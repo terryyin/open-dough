@@ -615,6 +615,19 @@ another three paid reruns. Narrowing the rejection to trunk-CI failure phrases,
 with this response as a counterexample, is a follow-up for the retrospective.
 Slice 8 is accepted on all three hosts; run output was deleted after judging.
 
+## Execution complete
+
+Product advice: Story Branch integration is now the only closure step agents
+still perform from prose and raw Git, and it was this story's costliest native
+journey. Recommend refining the deferred Story Branch integration entry point
+next in this area; it also decides the fate of
+`history-preserving-publication.mjs`, which ships without a CLI or production
+importer. Correction SEED-008#closure-proof-and-harness-correction (plan 154,
+written ready, not queued) owns this execution's residue. Decisions for Terry,
+outside that correction: splitting `install.sh`'s payload declaration (D1),
+telling Land to pass only `--identity` when the creation record names the work
+(D2), and consolidating execute-plan's older `isAncestor` copies (D3).
+
 ## Proof ownership
 
 | Final-state promise | Owning slice and decisive observation |

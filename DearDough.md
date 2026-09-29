@@ -109,6 +109,10 @@ third-party changes in the worktree and no account of what they were or why.
     without a refactor report (compare ODF-062); slice 6's refactor, told to
     run tests only in the foreground with timeouts, reported normally.
 
+- Execution: `SEED-008#installed-wrap-up-command` / plan 146, first related implementation commit `aa4fd510`; Timestamp: unknown (2026-09-29, before `809b407d` 13:54:50+08:00); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: modified; revision `3ca0b8f9`; base 0.3.46.
+  - Evidence: the refactor pass on the Story Branch native harness repair left two edits uncommitted and stopped (600 s stream watchdog) while "rerunning the accepted proof"; the coordinator reran that proof and delivered `809b407d`. Slice 3's implementation agent stalled the same way before writing anything and resumed through SendMessage.
+  - Observed effect: two stalls in one execution, each costing a 10-minute wait and a coordinator-side recovery; no work lost.
+
 ## ODF-062 — A CI repair was delivered without the refactor pass its own delivery gate requires
 
 Former local code: DD-060.
@@ -551,26 +555,9 @@ known fault class was rediscovered with a paid failing run per case.
 - Execution: `SEED-044#native-premise-acceptance-codex-cursor` / plan 141, first related implementation commit `8373b163`; Timestamp: unknown (2026-09-28–29); Tool: Codex; Open Dough release: 0.3.46 on resume, original coordinator release unknown.
   - Evidence: `642d0938` records safe admission before edits on the inherited migration fixture; `ae667576` and `a18b3bf7` show inexpensive alias/versioned-rewrite solutions disproving necessary growth. `0ef7767a` replaces it with executable active/archive collision proof; `a38f8257` records the single v0.3.46 native after-edit carry pass. Observed effect: one paid inconclusive case, two cheap feasibility probes and an explicit fixture-choice handoff. Inference: the same fixture-credibility problem affected ordering here; test legitimate small solutions before claiming that a case necessarily grows. No reliability or quantified savings claim.
 
-## ODF-097 — Coordinator published a commit after the formatter failed
-
-Former local code: DD-097.
-
-The coordinator chained the formatter and commit with `;`, not `&&`. It
-committed and pushed a change that failed ShellCheck, even though wrap-up
-says formatting must succeed before staging.
-
-### Occurrences
-
-- Execution: `SEED-004#accept-delivery-evidence-native` / plan 089, first related implementation commit `eff3e76293b4564e25089bdeccbb07767e18f491`
-  - Timestamp: 2026-09-24T12:22:01+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.34
-  - Evidence: slice 2 command printed `fmt=1` then committed `c33dbea`; CI
-    `lint` failed with SC2016; repair `0662ed2` passed.
-  - Observed effect: one extra commit, push, and failed CI run.
-  - Inference: A one-off coordinator error, not a guidance gap; gate
-    commands with `&&`.
+- Execution: `SEED-008#installed-wrap-up-command` / plan 146, first related implementation commit `aa4fd510`; Timestamp: 2026-09-29, first Story Branch runs stamped `20260929T0430`–`T0438` (zone unrecorded); Tool: Claude Code (coordinator; hosts Claude, Codex, Cursor); Model: claude-opus-5-5[1m]; Open Dough release: modified; revision `3ca0b8f9`; base 0.3.46.
+  - Evidence: `story-branch-closure/source-conflict` failed on all three hosts from harness faults only: Codex and Cursor zsh login shells reset PATH from the user's startup files, so an agent-started trunk observer reached the real `gh` (404) — the same bypass plan 142 repaired for node only; and `story_closure_response_trunk_result` rejected Claude's correct "CI passed". Repair `809b407d` (ZDOTDIR wrapper, Story Branch fixture only); on rerun its negation rule misfired on Cursor's concatenated narration, and Terry accepted that run on transcript judgment.
+  - Observed effect: three extra paid runs and one judgment acceptance. Inference: a login-shell PATH repair made for one tool or fixture should be checked against every shim the harnesses rely on.
 
 ## ODF-098 — A slice's proof named a suite only a later slice's behavior keeps green
 
@@ -989,9 +976,20 @@ Before startup fetched trunk, execute-plan read the backlog and seed from the de
   - Observed effect: one false readiness stop and one repeated refinement round (its third answer did change native-proof scope).
   - Inference: Qualified. With parallel agents, eligibility should be judged from fetched remote trunk, as startup already does.
 
+## DD-169 — The 250-line refactor bound pushed Markdown guidance into longer lines and brittle regex fixes
+
+The refactor checks' physical-line bound applies to guidance Markdown. Held at 250, edits reflowed prose into long lines instead of shortening meaning, and guidance tests that match phrases across line breaks then failed on where a line happened to wrap.
+
+### Occurrences
+
+- Execution: `SEED-008#installed-wrap-up-command` / plan 146, first related implementation commit `aa4fd510`; Timestamp: unknown (2026-09-29, slices 3–5 and trunk merge `28fb01ae`); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: modified; revision `3ca0b8f9`; base 0.3.46.
+  - Evidence: `dough-story-wrap-up/SKILL.md` lines over 120 characters went from 11 (`3962b8ce`) to 16; three coordinator attempts during the `28fb01ae` merge only moved line breaks so `ci-completion-lifecycle-guidance.test.mjs` regexes matched; slice 3's refactor split `trunk-publication.md` and `install.sh` repeatedly sat at 248–250.
+  - Observed effect: several edit-and-test cycles spent on wrapping, not meaning. Inference: qualified; a character or word budget for Markdown, or phrase matching that ignores line breaks, would remove the incentive.
+
 ## Retention
 
-- Highest allocated local number: 168. Removed local codes are never reused.
+- Highest allocated local number: 170. Removed local codes are never reused.
+- Removed on 2026-09-29 for the 1,000-line ceiling, as a self-described one-off whose class ODF-100 keeps: ODF-097 (formatter chained with `;`); recovery: `ee77d3b6:DearDough.md`.
 - Moved to ProjectFindings.md on 2026-09-29 for the 1,000-line ceiling: DD-155 (this repository's plan-number collision) and DD-159 (a dashboard test misdiagnosis in this repository); recovery: `41965529:DearDough.md`.
 - Removed on 2026-09-28 for the 1,000-line ceiling, as lower priority than the plan 142 findings: DD-125 (newer Git feature) and DD-157 (README at the size ceiling); recovery: `6e3921d6:DearDough.md`.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.

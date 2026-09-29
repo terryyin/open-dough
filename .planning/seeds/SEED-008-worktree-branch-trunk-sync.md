@@ -208,6 +208,26 @@ which removed the owner arguments the closure modules passed.
 
 **Slice plan:** [Close stories through an installed wrap-up command](../slice-plans/146-installed-wrap-up-command/PLAN.md).
 
+<a id="closure-proof-and-harness-correction"></a>
+
+### Keep closure reruns truthful and closure proof exact
+
+**Identity:** SEED-008#closure-proof-and-harness-correction
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/154-closure-proof-and-harness-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"933735a5f2e569605913fe2bafd2696fb8b5fba4abc082c412a6851111e1eed2","plan":"54c7220f779bed4735228db29a2346f54f1007fdee787f5147ab2680f6f8e018"}}
+```
+
+**Goal:** An agent rerunning Trunk Mode closure after its final commit was
+rebased and published gets that closure recognized instead of a false stop,
+and maintainers can trust that each closure test, native harness check, and
+native evidence identity proves exactly the behavior it names.
+
+**Scope:** The bounded retrospective correction of
+[plan 146](../slice-plans/146-installed-wrap-up-command/PLAN.md)
+(SEED-008#installed-wrap-up-command) described in
+[its correction plan](../slice-plans/154-closure-proof-and-harness-correction/PLAN.md).
+It adds no feature promise.
+
 <a id="reduce-ci-observer-overhead"></a>
 
 ### Reduce CI observer overhead across execution and wrap-up
