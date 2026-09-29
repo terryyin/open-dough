@@ -350,3 +350,28 @@ listing parser, fake, pacing, and labels together make one observable outcome
 and split no further without an unobservable intermediate. Its only open
 premise, the attach observation, changes one condition and its assertion. No
 blocking slice-specific concern was identified in this review.
+
+## Execution complete
+
+Product advice:
+
+- Story 3 (SEED-052#interact-with-claude-terminal) can start from a Recent
+  sessions entry and rely on `claude attach` opening any session Claude Code
+  still lists, finished ones included (Terry, 2026-09-29). Its panel should
+  read state through `claudeSessions`, not a second listing reader.
+- Stories 7 and 8 (Codex, Cursor): add to "Known from launch" that the browser
+  interprets Claude Code's `state` and `status` (`sessionRuns`,
+  `sessionStateWords`) and that the page re-reads the host listing every
+  15 seconds. The real Claude Code listing took about 0.16 s with 469
+  sessions; another host's listing may be slower or not tell running from
+  exited. Drop the Preparing-card `claude agents` advice from any parity
+  list; Recent sessions replaced it.
+- Story 4 (launch-claude-refinement): a refinement on a Preparing card now
+  settles at once and is reached only through Recent sessions; a state-aware
+  chooser should keep that path.
+- Decision for Terry: `attachOpens` also offers `claude attach` when the
+  listing cannot be read (State unknown). The story says "while Claude Code
+  still lists the session"; the execution chose to offer it because the
+  session may still exist. Keep it or hide the command for State unknown.
+- Correction SEED-052#recent-sessions-residue (plan 151) is planned and ready
+  but not queued. Other queued stories need no priority change.

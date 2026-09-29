@@ -188,6 +188,26 @@ dashboard-launched sessions.
 **Safe stopping point:** Developers can find and reopen dashboard-launched
 sessions through the CLI, without any interaction inside the browser.
 
+<a id="recent-sessions-residue"></a>
+
+### Correction: Keep every unreadable launch store and trim Recent sessions residue
+
+**Identity:** SEED-052#recent-sessions-residue
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/151-recent-sessions-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6bafe7340bba40ab58d082b16a862143aa191fb29bde2caff48004dab18fa64f","plan":"f6d23d3b3b06dc20b97e63bee9244ee715a72bc52cb0beb5b29bf3912171813f"}}
+```
+
+**Goal:** A developer whose launch store becomes unreadable twice keeps both
+unreadable copies, as the dashboard already promises. Maintainers change
+launch behavior through one documented home and one journey per concern,
+without duplicate specs or stale test documentation.
+
+**Scope:** The correction found by the execution retrospective of
+[story 2](#revisit-dashboard-sessions) (commits `5933bb91`..`ea5aa42b`). It
+covers the second unreadable-store move, overlapping launch journeys, the
+dashboard test README's launch listing, and the North Star launch row. It adds
+no feature promise. See the [plan](../slice-plans/151-recent-sessions-residue/PLAN.md).
+
 <a id="interact-with-claude-terminal"></a>
 
 ### 3. Interact with a launched Claude Code session inside the dashboard
