@@ -17,7 +17,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Catch native harness faults before paying for a native run](seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior) — SEED-055#native-harness-observes-agent-behavior ([plan](slice-plans/163-native-harness-replay/PLAN.md))
 - [Prove the busy-session rename edge and confirm observer shutdown honestly](seeds/SEED-052-start-agent-work-from-dashboard.md#mark-done-residue) — SEED-052#mark-done-residue ([plan](slice-plans/166-mark-done-residue/PLAN.md))
 - [Close the assessor counterexample discipline's remaining gaps](seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps) — SEED-055#assessor-counterexample-gaps ([plan](slice-plans/168-assessor-counterexample-gaps/PLAN.md))
-- [Keep the Sessions sidebar's reads and reveals honest](seeds/SEED-052-start-agent-work-from-dashboard.md#session-sidebar-residue) — SEED-052#session-sidebar-residue ([plan](slice-plans/167-session-sidebar-residue/PLAN.md))
 
 ## Backlog list
 

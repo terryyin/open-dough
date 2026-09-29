@@ -125,29 +125,6 @@ identity is unknown, the overlong Mark as done page journey, a duplicated card
 attach step, the tests README, and the request-shape wording. It adds no
 feature promise. See the [plan](../slice-plans/166-mark-done-residue/PLAN.md).
 
-<a id="session-sidebar-residue"></a>
-
-### Keep the Sessions sidebar's reads and reveals honest
-
-**Identity:** SEED-052#session-sidebar-residue
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/167-session-sidebar-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"96e8221132c3348e773ddbd8a4b039f4ec1525529b79cf20921ac0de62eedb61","plan":"376e9d1f5e1445d71d34f8ecc2aa74da7735a4341e26aab2985328cb0dd3e755"}}
-```
-
-- **Goal:** A developer using the Sessions sidebar can trust that it reads
-  every session from a folder Claude Code answers the same way, that a list
-  still being read never looks complete, and that the page scrolls only where
-  they asked it to, correcting what the SEED-052#session-sidebar execution
-  left behind.
-- **Scope:** Confirm, with Terry's own listing from the home folder, that the
-  machine read's listing folder answers every session, and otherwise read it
-  in a catalog project's folder; drop a pending reveal once the developer
-  shows another project's stories; keep sessions not yet read while a launch
-  answers before the first read; bring the navigation specs into the test
-  guide and the North Star's keyboard return in line with the narrow-window
-  case. No new feature promise.
-- **Plan:** [plan 167](../slice-plans/167-session-sidebar-residue/PLAN.md)
-
 <a id="delete-unknown-state-session"></a>
 
 ### Delete a session whose state is unknown from the dashboard
