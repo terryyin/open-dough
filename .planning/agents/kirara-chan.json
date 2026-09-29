@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kirara-chan",
+  "email": "kirara-chan@example.org",
+  "identity": "SEED-008#closure-proof-and-harness-correction",
+  "mode": "story-branch",
+  "branch": "claude/closure-proof-and-harness-correction",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
