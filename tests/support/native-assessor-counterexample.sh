@@ -29,6 +29,9 @@
 #     passing observation, and the assessor to reject it, with verdict STATUS
 #     (`fail` for an exit-status assessor) and a reason containing
 #     REASON-FRAGMENT when given.
+#   native_assessor_rejects_edit CASE SIGNAL SED-SCRIPT [STATUS [REASON-FRAGMENT]]
+#     Like native_assessor_rejects, with the passing observation edited by
+#     SED-SCRIPT as the candidate.
 # Each returns 1 after printing `FAIL: ...` to standard error.
 # shellcheck disable=SC2034 # Suite state read by later calls.
 
@@ -105,6 +108,18 @@ native_assessor_rejects() {
       "${case}" "${signal}" "${want_fragment}" "${reason}" >&2
     return 1
   fi
+}
+
+native_assessor_rejects_edit() {
+  local case=$1 signal=$2 script=$3
+  shift 3
+  local candidate="${native_assessor_counterexample_passing}.${case}"
+  if [[ -z ${native_assessor_counterexample_passing} ]]; then
+    printf 'FAIL: counterexample %s has no passing base\n' "${case}" >&2
+    return 1
+  fi
+  sed "${script}" "${native_assessor_counterexample_passing}" > "${candidate}"
+  native_assessor_rejects "${case}" "${signal}" "${candidate}" "$@"
 }
 
 # Assesses observation $1 into native_assessor_counterexample_status and

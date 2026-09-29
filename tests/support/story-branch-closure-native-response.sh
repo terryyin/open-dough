@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Story Branch closure response judgment and its counterexamples.
+# Story Branch closure response: its observation field, its judgment, and
+# its counterexamples.
 # shellcheck disable=SC2312
 
 # True when response $1 states the trunk result as a success or pass and no
@@ -8,9 +9,10 @@
 # before whitespace and at line ends, not at commas. A failure sentence naming
 # none of these, such as a failed push or branch delete, is no trunk failure.
 story_closure_response_trunk_result() {
-  local response=$1
-  if grep -Eiq 'trunk.+(CI|verdict|receipt).+success|success.+trunk|integrat.+success|completion receipt|trunk.+(passed|green)|(passed|green).+trunk' "${response}" \
-    && ! awk '{ gsub(/[.;!?][[:space:]]/, "\n"); print }' "${response}" \
+  local response
+  response=$(cat -- "$1")
+  if grep -Eiq 'trunk.+(CI|verdict|receipt).+success|success.+trunk|integrat.+success|completion receipt|trunk.+(passed|green)|(passed|green).+trunk' <<< "${response}" \
+    && ! awk '{ gsub(/[.;!?][[:space:]]/, "\n"); print }' <<< "${response}" \
     | grep -Ei 'trunk|(^|[^[:alpha:]])CI([^[:alpha:]]|$)|coverage|receipt|verdict|observer|watcher|checks?([^[:alpha:]]|$)' \
       | grep -Eiq 'failed|failing|unavailable|undiscovered|did not pass|not (a )?green'; then
     printf 'true\n'
@@ -19,17 +21,35 @@ story_closure_response_trunk_result() {
   fi
 }
 
-# The response check accepts a trunk pass, also beside a failed push, and
-# rejects a response that reports trunk CI, its checks, observer, or watcher
-# failed or unavailable.
+# Prints the `response` field of response file $1: each line indented, so no
+# line of the response reads as another observation field.
+story_closure_observe_response() {
+  printf 'response:\n'
+  awk '{ print "  " $0 }' "$1" 2> /dev/null || true
+}
+
+# The response text recorded in observations $1.
+story_closure_observed_response() {
+  awk '/^response:$/ { r = 1; next } r && /^  / { print substr($0, 3); next } { r = 0 }' "$1"
+}
+
+# Against the valid observations in $1/valid, a response stating a trunk pass,
+# also beside a failed push, is accepted, and each response reporting trunk
+# CI, its checks, observer, or watcher failed or unavailable is a rejected
+# case of the response signal.
 story_closure_response_counterexamples() {
-  local work=$1 text expected
+  local work=$1 text expected candidate="$1/candidate"
   while IFS='|' read -r expected text; do
     printf '%b\n' "${text}" > "${work}/response"
-    [[ $(story_closure_response_trunk_result "${work}/response") == "${expected}" ]] || {
-      printf 'FAIL: response-trunk-result not %s for: %s\n' "${expected}" "${text}" >&2
-      return 1
-    }
+    story_closure_write_assessor_observation "${candidate}" "${work}/response"
+    if [[ ${expected} == false ]]; then
+      native_assessor_rejects "response: ${text}" response "${candidate}"
+    else
+      story_closure_assess "${candidate}" || {
+        printf 'FAIL: story closure rejected response: %s\n' "${text}" >&2
+        return 1
+      }
+    fi
   done << 'EOF'
 true|The closure is merged into trunk and CI passed on the merged commit.
 true|- **Trunk (`main`):** I started a watcher for trunk. It passed (run 22).

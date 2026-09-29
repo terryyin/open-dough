@@ -5,6 +5,7 @@
 # shellcheck source=tests/support/native-completion-observation.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
+trunk_closure_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native-assess.sh"
 
 # Installed `finish` calls for final closure $3: the node call log $1, or the
 # tool starts transcript $2 shows, whichever sees more.
@@ -82,6 +83,20 @@ trunk_closure_observe() {
   }
 }
 
+# Signals for rejected cases of trunk_closure_assess, including the owned
+# context's (trunk-closure-native-owned-context.sh).
+# assessor-signal: finish finish-count
+# assessor-signal: complete-revision complete-revision-count
+# assessor-signal: control-order control-order
+# assessor-signal: registration registered
+# assessor-signal: forced-stop forced-stop
+# assessor-signal: provider-calls provider-candidate-calls
+# assessor-signal: cleanup-observer cleanup-observer-state
+# assessor-signal: worktree checkout-present-after
+# assessor-signal: branch branch-present
+# assessor-signal: repository-intact repository-intact
+# assessor-signal: other-checkouts other-checkouts
+# assessor-signal: default-checkout default-checkout-present
 trunk_closure_assess() {
   local scenario=$1
   local observations=$2
@@ -129,17 +144,15 @@ trunk_closure_assess() {
 
 trunk_closure_write_assessor_observation() {
   local path=$1 scenario=$2 state=$3 basis=$4 provider_calls=$5
-  local finish_count=${6-1}
-  local order=${7-normal}
-  local forced_stop=${8-false}
+  local order=${6-normal}
   {
     printf 'scenario: %s\nremote-sha: abc\ncandidate-sha: abc\n' "${scenario}"
     printf 'mailbox-target: main\n'
     printf 'coverage-state: %s\nbasis-state: %s\n' "${state}" "${basis}"
-    printf 'observer-terminal: stopped\nfinish-count: %s\n' "${finish_count}"
+    printf 'observer-terminal: stopped\nfinish-count: 1\n'
     printf 'complete-revision-count: 0\n'
-    printf 'await-count: 0\nregistered: %s\nstop-count: 0\n' "${9-true}"
-    printf 'product-shutdown: true\nforced-stop: %s\n' "${forced_stop}"
+    printf 'await-count: 0\nregistered: true\nstop-count: 0\n'
+    printf 'product-shutdown: true\nforced-stop: false\n'
     printf 'checkout-present-after: false\ncleanup-complete: true\n'
     printf 'cleanup-observer-state: stopped\nbranch-present: false\n'
     printf 'provider-candidate-calls: %s\nharness-inspected: false\ncontrol-order:\n' "${provider_calls}"
@@ -155,6 +168,23 @@ trunk_closure_write_assessor_observation() {
   } > "${path}"
 }
 
+# Starts rejected cases of trunk_closure_assess for scenario $1 against
+# passing observation $2.
+trunk_closure_counterexamples() {
+  native_assessor_counterexamples "${trunk_closure_assess_file}" "$2" \
+    -- trunk_closure_assess "$1"
+}
+
+# Rejected cases from standard input's `case signal key: value` lines, each
+# the passing observation with field key's value replaced.
+trunk_closure_rejects_fields() {
+  local case signal field
+  while read -r case signal field; do
+    native_assessor_rejects_edit "${case}" "${signal}" \
+      "s|^${field%%: *}: .*|${field}|"
+  done
+}
+
 run_trunk_closure_assessor_counterexamples() {
   local work
   work=$(mktemp -d)
@@ -162,41 +192,30 @@ run_trunk_closure_assessor_counterexamples() {
   trap "rm -rf -- '${work}'" RETURN
   trunk_closure_write_assessor_observation \
     "${work}/source.txt" source success none 1
-  trunk_closure_assess source "${work}/source.txt"
+  trunk_closure_counterexamples source "${work}/source.txt"
+  # A missing or second `finish`, the agent's own completion call, a forced
+  # stop, no registration, cleanup before the receipt's shutdown, and a
+  # surviving worktree or branch.
+  trunk_closure_rejects_fields << 'EOF'
+missing-finish finish finish-count: 0
+second-finish finish finish-count: 2
+agent-complete complete-revision complete-revision-count: 1
+forced-stop forced-stop forced-stop: true
+unregistered registration registered: false
+observer-missing cleanup-observer cleanup-observer-state: missing
+observer-running cleanup-observer cleanup-observer-state: running
+worktree-kept worktree checkout-present-after: true
+branch-kept branch branch-present: true
+EOF
+  trunk_closure_write_assessor_observation \
+    "${work}/early-shutdown.txt" source success none 1 early
+  native_assessor_rejects early-shutdown control-order "${work}/early-shutdown.txt"
   trunk_closure_write_assessor_observation \
     "${work}/ignored.txt" ignored-only not_required success 0
-  trunk_closure_assess ignored-only "${work}/ignored.txt"
-  trunk_closure_write_assessor_observation \
-    "${work}/missing-complete.txt" source success none 1 0
-  git_publication_suite_expect_rejected trunk_closure_assess source "${work}/missing-complete.txt"
-  trunk_closure_write_assessor_observation \
-    "${work}/early-shutdown.txt" source success none 1 1 early
-  git_publication_suite_expect_rejected trunk_closure_assess source "${work}/early-shutdown.txt"
-  trunk_closure_write_assessor_observation \
-    "${work}/ignored-provider.txt" ignored-only not_required success 1
-  git_publication_suite_expect_rejected trunk_closure_assess ignored-only "${work}/ignored-provider.txt"
-  trunk_closure_write_assessor_observation \
-    "${work}/forced-stop.txt" source success none 1 1 normal true
-  git_publication_suite_expect_rejected trunk_closure_assess source "${work}/forced-stop.txt"
-  trunk_closure_write_assessor_observation \
-    "${work}/unregistered.txt" source success none 1 1 normal false false
-  git_publication_suite_expect_rejected trunk_closure_assess source "${work}/unregistered.txt"
-  run_trunk_closure_cleanup_counterexamples "${work}"
+  trunk_closure_counterexamples ignored-only "${work}/ignored.txt"
+  trunk_closure_rejects_fields \
+    <<< 'ignored-provider provider-calls provider-candidate-calls: 1'
   run_trunk_closure_observation_counterexamples "${work}"
-}
-
-# Cleanup before the receipt's shutdown, a surviving worktree or branch, a
-# second `finish`, and the agent's own completion call are each rejected.
-run_trunk_closure_cleanup_counterexamples() {
-  local work=$1 field
-  trunk_closure_write_assessor_observation \
-    "${work}/cleanup.txt" source success none 1
-  for field in 'cleanup-observer-state: missing' \
-    'cleanup-observer-state: running' 'checkout-present-after: true' \
-    'branch-present: true' 'finish-count: 2' 'complete-revision-count: 1'; do
-    sed "s|^${field%%: *}: .*|${field}|" "${work}/cleanup.txt" > "${work}/bad.txt"
-    git_publication_suite_expect_rejected trunk_closure_assess source "${work}/bad.txt"
-  done
 }
 
 # Registration is the mailbox's coverage record, whichever command wrote it,

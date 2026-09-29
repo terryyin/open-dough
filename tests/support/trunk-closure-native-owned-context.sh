@@ -79,7 +79,7 @@ trunk_closure_owned_context_assess() {
 }
 
 run_trunk_closure_owned_context_counterexamples() {
-  local work field
+  local work
   work=$(mktemp -d)
   # shellcheck disable=SC2064
   trap "rm -rf -- '${work}'" RETURN
@@ -87,16 +87,13 @@ run_trunk_closure_owned_context_counterexamples() {
     "${work}/valid.txt" owned-context not_required success 0
   printf '%s\n' 'repository-intact: true' 'other-checkouts: ' \
     'default-checkout-present: false' >> "${work}/valid.txt"
-  trunk_closure_assess owned-context "${work}/valid.txt"
+  trunk_closure_counterexamples owned-context "${work}/valid.txt"
   # Retirement without the installed `finish`, whose retirement checks
   # ownership, is rejected like the other owned-context failures.
-  for field in 'repository-intact: false' \
-    "other-checkouts: ${work}/integration" 'default-checkout-present: true' \
-    'finish-count: 0'; do
-    sed "s|^${field%%: *}: .*|${field}|" "${work}/valid.txt" > "${work}/bad.txt"
-    if trunk_closure_assess owned-context "${work}/bad.txt"; then
-      printf 'FAIL: trunk-closure/owned-context passed with %s\n' "${field}" >&2
-      return 1
-    fi
-  done
+  trunk_closure_rejects_fields << EOF
+repository-broken repository-intact repository-intact: false
+other-checkout other-checkouts other-checkouts: ${work}/integration
+default-checkout default-checkout default-checkout-present: true
+no-finish finish finish-count: 0
+EOF
 }

@@ -153,6 +153,27 @@ Considered and left out:
   22–23 s, within noise.
 - `git_publication_assess_field` matches `key: ` anywhere in a line, so
   `remote-sha` can match `trunk-remote-sha:`. Reported, not in scope.
+- **Slice 2 (done).** Trunk (11), owned-context (4), and story-branch (11)
+  closure cases go through the helper; the story-branch gate case
+  `ci-release-before-registration` (signal `control-order`) and 8 response
+  rows under `response` are rejected. Widening the response check to accept
+  the watcher row failed `tests/git-publication-native.sh`, naming the row.
+  Proof: `bash scripts/test.sh tests/git-publication-native.sh tests/git-publication-native-owned-context.sh`.
+  `native_assessor_rejects_edit CASE SIGNAL SED-SCRIPT` builds a case from
+  the stored passing observation; `trunk_closure_rejects_fields` feeds it
+  `case signal key: value` rows.
+- **Response text is the observation, not a precomputed verdict.** The
+  story-branch observation records the response as an indented `response:`
+  field and the assessor judges it; `response-trunk-result` is gone. A
+  precomputed boolean would let a response-only change pass. Slices 3 and 4
+  make the same move where a response signal exists. Order checks read only
+  the `control-order` block, so response text cannot stand in for a step.
+- **Response cases cost about 30 ms each** (the whole assessor runs). The
+  publication job measured 62.7–63.4 s after versus 57.1–64.3 s before on a
+  busy machine; the closure functions alone grew about 1.1 s.
+- Reported, not fixed: the story-branch order check accepts a
+  `control-order` missing its first step (`branch-complete-count: 1` still
+  gates it).
 
 ## Slices
 
@@ -174,7 +195,7 @@ before editing" (example 1). Workspace plus branch becomes one signal.
 
 ### 2. Closure suites reject a reversed control order and failure reports
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/git-publication-native.sh` and `tests/git-publication-native-owned-context.sh` green.
 
 Behavior: trunk, owned-context, and story-branch closure cases go through the

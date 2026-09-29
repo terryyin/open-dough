@@ -8,6 +8,7 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-ob
 # shellcheck source=tests/support/story-branch-closure-native-response.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/story-branch-closure-native-response.sh"
+story_closure_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/story-branch-closure-native-assess.sh"
 
 # True when the node call log or a tool start in transcript $1 shows the
 # installed retire command deleting exec/story once trunk holds SHA $2.
@@ -111,11 +112,25 @@ story_closure_observe() {
     printf 'control-order:\n'
     sed 's/^/  /' "${story_closure_control_log}"
     printf 'transcript-complete: %s\n' "$(grep -Fq 'complete-revision' "${transcript}" && echo true || echo false)"
-    printf 'response-trunk-result: %s\n' "$(story_closure_response_trunk_result "${response}")"
     printf 'harness-inspected: %s\n' "$(grep -Eiq 'story-branch-closure-native|native harness|source-conflict' "${transcript}" && echo true || echo false)"
+    story_closure_observe_response "${response}"
   }
 }
 
+# Signals for rejected cases of story_closure_assess.
+# assessor-signal: integration integrated-sha
+# assessor-signal: trunk-target trunk-target
+# assessor-signal: observer-count observer-count
+# assessor-signal: harness-inspected harness-inspected
+# assessor-signal: forced-stop forced-stop
+# assessor-signal: trunk-registration trunk-registered
+# assessor-signal: retire-command retire-command
+# assessor-signal: worktree worktree-present
+# assessor-signal: local-branch local-branch-present
+# assessor-signal: cleanup-observers cleanup-observer-states
+# assessor-signal: remote-branch branch-remote
+# assessor-signal: control-order control-order
+# assessor-signal: response response
 story_closure_assess() {
   local observations=$1 remote branch trunk integrated
   remote=$(awk '/^remote-sha:/{print $2}' "${observations}")
@@ -151,16 +166,37 @@ story_closure_assess() {
   grep -Fqx 'cleanup-complete: true' "${observations}" || return 1
   grep -Fqx 'human-edit-preserved: true' "${observations}" || return 1
   grep -Fqx 'transcript-complete: true' "${observations}" || return 1
-  grep -Fqx 'response-trunk-result: true' "${observations}" || return 1
+  [[ $(story_closure_response_trunk_result \
+    <(story_closure_observed_response "${observations}")) == true ]] || return 1
   grep -Fqx 'harness-inspected: false' "${observations}" || return 1
-  awk '/branch-complete/{a=NR} /branch-shutdown/{b=NR} /trunk-setup/{c=NR} /integration-publication/{d=NR} /trunk-registration/{e=NR} /trunk-complete/{f=NR} /trunk-ci-release/{g=NR} /trunk-coverage-success/{h=NR} /trunk-shutdown/{i=NR} /cleanup-complete/{j=NR} END{exit !(a<b && b<c && c<d && d<e && e<f && f<g && g<h && h<i && i<j)}' "${observations}"
+  # Order only within the control-order field.
+  awk '/^control-order:$/{o=1; next} o && !/^  /{o=0} !o{next} /branch-complete/{a=NR} /branch-shutdown/{b=NR} /trunk-setup/{c=NR} /integration-publication/{d=NR} /trunk-registration/{e=NR} /trunk-complete/{f=NR} /trunk-ci-release/{g=NR} /trunk-coverage-success/{h=NR} /trunk-shutdown/{i=NR} /cleanup-complete/{j=NR} END{exit !(a<b && b<c && c<d && d<e && e<f && f<g && g<h && h<i && i<j)}' "${observations}"
 }
 
-# Requires the assessor to reject valid observations $1 edited by sed script
-# $3 (counterexample $2).
-story_closure_expect_rejected() {
-  sed "$3" "$1" > "$1.$2"
-  git_publication_suite_expect_rejected story_closure_assess "$1.$2"
+# Valid observations at $1 whose response is file $2's text.
+story_closure_write_assessor_observation() {
+  {
+    printf '%s\n' 'remote-sha: integrated' 'branch-sha: branch' \
+      'trunk-before-sha: trunk' 'integrated-sha: integrated' \
+      'merge-parent-count: 2' 'source-resolution-correct: true' \
+      'branch-target: exec/story' 'trunk-target: main' 'observer-count: 2' \
+      'branch-terminal: stopped' 'trunk-terminal: stopped' \
+      'trunk-coverage-state: success' 'branch-complete-count: 1' \
+      'branch-await-count: 0' 'branch-stop-count: 0' 'trunk-registered: true' \
+      'trunk-complete-count: 1' 'trunk-await-count: 0' 'trunk-stop-count: 0' \
+      'branch-product-shutdown: true' 'trunk-product-shutdown: true' \
+      'forced-stop: false' 'retire-command: true' 'worktree-present: false' \
+      'local-branch-present: false' \
+      'cleanup-observer-states: exec/story: stopped,main: finished' \
+      'branch-remote: absent' 'cleanup-complete: true' \
+      'human-edit-preserved: true' 'control-order:' \
+      '  branch-complete' '  branch-shutdown' '  trunk-setup' \
+      '  integration-publication' '  trunk-registration' '  trunk-complete' \
+      '  trunk-ci-release' '  trunk-coverage-success' '  trunk-shutdown' \
+      '  cleanup-complete' 'transcript-complete: true' \
+      'harness-inspected: false'
+    story_closure_observe_response "$2"
+  } > "$1"
 }
 
 run_story_closure_assessor_counterexamples() {
@@ -169,47 +205,36 @@ run_story_closure_assessor_counterexamples() {
   valid="${work}/valid"
   # shellcheck disable=SC2064
   trap "rm -rf -- '${work}'" RETURN
-  printf '%s\n' 'remote-sha: integrated' 'branch-sha: branch' \
-    'trunk-before-sha: trunk' 'integrated-sha: integrated' \
-    'merge-parent-count: 2' 'source-resolution-correct: true' \
-    'branch-target: exec/story' 'trunk-target: main' 'observer-count: 2' \
-    'branch-terminal: stopped' 'trunk-terminal: stopped' \
-    'trunk-coverage-state: success' 'branch-complete-count: 1' \
-    'branch-await-count: 0' 'branch-stop-count: 0' 'trunk-registered: true' \
-    'trunk-complete-count: 1' 'trunk-await-count: 0' 'trunk-stop-count: 0' \
-    'branch-product-shutdown: true' 'trunk-product-shutdown: true' \
-    'forced-stop: false' 'retire-command: true' 'worktree-present: false' \
-    'local-branch-present: false' \
-    'cleanup-observer-states: exec/story: stopped,main: finished' \
-    'branch-remote: absent' 'cleanup-complete: true' \
-    'human-edit-preserved: true' 'transcript-complete: true' \
-    'response-trunk-result: true' 'harness-inspected: false' 'control-order:' \
-    '  branch-complete' '  branch-shutdown' '  trunk-setup' \
-    '  integration-publication' '  trunk-registration' '  trunk-complete' \
-    '  trunk-ci-release' '  trunk-coverage-success' '  trunk-shutdown' \
-    '  cleanup-complete' > "${valid}"
-  story_closure_assess "${valid}"
-  story_closure_expect_rejected "${valid}" branch-tip \
+  printf '%s\n' 'Trunk CI is green on the integrated commit.' > "${work}/response"
+  story_closure_write_assessor_observation "${valid}" "${work}/response"
+  native_assessor_counterexamples "${story_closure_assess_file}" "${valid}" \
+    -- story_closure_assess
+  native_assessor_rejects_edit branch-tip integration \
     's/integrated-sha: integrated/integrated-sha: branch/'
-  story_closure_expect_rejected "${valid}" retargeted \
+  native_assessor_rejects_edit retargeted trunk-target \
     's/trunk-target: main/trunk-target: exec\/story/'
-  story_closure_expect_rejected "${valid}" duplicate \
+  native_assessor_rejects_edit duplicate observer-count \
     's/observer-count: 2/observer-count: 3/'
-  story_closure_expect_rejected "${valid}" contaminated \
+  native_assessor_rejects_edit contaminated harness-inspected \
     's/harness-inspected: false/harness-inspected: true/'
-  story_closure_expect_rejected "${valid}" forced \
+  native_assessor_rejects_edit forced forced-stop \
     's/forced-stop: false/forced-stop: true/'
-  story_closure_expect_rejected "${valid}" unregistered \
+  native_assessor_rejects_edit unregistered trunk-registration \
     's/trunk-registered: true/trunk-registered: false/'
-  story_closure_expect_rejected "${valid}" raw-git-cleanup \
+  native_assessor_rejects_edit raw-git-cleanup retire-command \
     's/retire-command: true/retire-command: false/'
-  story_closure_expect_rejected "${valid}" worktree-kept \
+  native_assessor_rejects_edit worktree-kept worktree \
     's/worktree-present: false/worktree-present: true/'
-  story_closure_expect_rejected "${valid}" local-branch-kept \
+  native_assessor_rejects_edit local-branch-kept local-branch \
     's/local-branch-present: false/local-branch-present: true/'
-  story_closure_expect_rejected "${valid}" cleanup-before-shutdown \
+  native_assessor_rejects_edit cleanup-before-shutdown cleanup-observers \
     's/main: finished/main: running/'
-  story_closure_expect_rejected "${valid}" remote-branch-kept \
+  native_assessor_rejects_edit remote-branch-kept remote-branch \
     's/branch-remote: absent/branch-remote: present/'
+  # The published gate skipped: trunk CI released before the trunk
+  # registration, with the outcome otherwise correct.
+  native_assessor_rejects_edit ci-release-before-registration control-order \
+    '/^  trunk-ci-release$/d; s/^  trunk-registration$/  trunk-ci-release\
+  trunk-registration/'
   story_closure_response_counterexamples "${work}"
 }
