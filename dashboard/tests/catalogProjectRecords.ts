@@ -117,7 +117,7 @@ export function expectPinnedGhCalls(
       "-H",
       request.kind === "listing"
         ? "Accept: application/vnd.github+json"
-        : "Accept: application/vnd.github.raw+json",
+        : "Accept: application/vnd.github.raw",
     ]);
     expect(argv[3]).toMatch(
       new RegExp(

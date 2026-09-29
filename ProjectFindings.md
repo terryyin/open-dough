@@ -19,8 +19,11 @@ executions, not commands, retries, or repairs.
    about a dozen extra paid runs, one run accepted on transcript judgment, and
    a loosened assessor that accepted failure reports. Each concrete fault was
    repaired in its own execution, yet each new journey met a new one after
-   DD-164's plan 142 resolution. Story:
-   [Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior).
+   DD-164's plan 142 resolution. Stories:
+   [Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior)
+   (DD-179) and
+   [Prove assessors on the verdicts they newly admit](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline)
+   (DD-160, DD-175, ODF-087's harness facet).
 2. **Local time-budget measurement under load (DD-158) — second, queued.**
    Two executions (plans 135 and 139), open and unaddressed. Local paired A/B
    runs projected a CI-judged budget: one slice's agent ran about 28
@@ -71,8 +74,8 @@ agent did. A paid run was then wasted, or the verdict needed a human reading
 the transcript. The DearDough finding ODF-087 (native agents skipping a
 published gate) has the same harness facet: its plan 147 occurrence passed
 because the assessor observes only the retired outcome. That finding stays in
-DearDough because its cause is guidance-following, but this story owns its
-harness facet.
+DearDough because its cause is guidance-following; the assessor story below
+owns its harness facet.
 
 Each concrete fault below was repaired in its own execution: `afa43926`
 (DD-160), `ddbcb90a`, `a2f9862f`, `9df5455f`, and `1e3880ed` with
@@ -81,7 +84,10 @@ Each concrete fault below was repaired in its own execution: `afa43926`
 synthetic streams, so each new journey meets its harness faults in paid runs.
 
 **Follow-up:** queued,
-[Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior).
+[Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior)
+for DD-179, and
+[Prove assessors on the verdicts they newly admit](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline)
+for DD-160, DD-175, and ODF-087's harness facet.
 
 ### DD-160 — An escalation counterexample removed two signals at once, hiding an assessor ordering defect
 

@@ -16,11 +16,12 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Prove Mark as done's remaining edges and trim card-session residue](seeds/SEED-052-start-agent-work-from-dashboard.md#card-session-residue) — SEED-052#card-session-residue ([plan](slice-plans/160-card-session-residue/PLAN.md))
 - [Judge a change against the CI time budget from CI's own timings](seeds/SEED-055-trustworthy-project-proof.md#ci-time-budget-from-ci-timings) — SEED-055#ci-time-budget-from-ci-timings ([plan](slice-plans/162-ci-time-budget-from-ci-timings/PLAN.md))
+- [Find and return to any session from a toggleable sidebar](seeds/SEED-052-start-agent-work-from-dashboard.md#session-sidebar) — SEED-052#session-sidebar ([plan](slice-plans/164-session-sidebar/PLAN.md))
+- [Catch native harness faults before paying for a native run](seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior) — SEED-055#native-harness-observes-agent-behavior ([plan](slice-plans/163-native-harness-replay/PLAN.md))
+- [Prove assessors on the verdicts they newly admit](seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline) — SEED-055#assessor-counterexample-discipline ([plan](slice-plans/165-assessor-counterexample-discipline/PLAN.md))
 
 ## Backlog list
 
-- [Find and return to any session from a toggleable sidebar](seeds/SEED-052-start-agent-work-from-dashboard.md#session-sidebar) — SEED-052#session-sidebar
-- [Catch native harness faults before paying for a native run](seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior) — SEED-055#native-harness-observes-agent-behavior
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard

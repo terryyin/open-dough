@@ -38,7 +38,10 @@ private Pygardon -- is read the same way: through a small local
 authenticated read boundary (`server/authenticatedRead.ts`, reached from the
 browser through `src/authenticatedRead.ts`) that resolves the ref and reads
 the backlog and the records it names through the local `gh` CLI's own
-existing authentication. The browser never reads GitHub directly and never
+existing authentication. Each file arrives exactly as origin holds it at that
+revision: the boundary asks for GitHub's raw media type, not a JSON-typed one
+whose text `gh` would sanitize, rewriting control-character escapes such as a
+literal `\u0002`. The browser never reads GitHub directly and never
 receives a credential; there is no dashboard sign-in and no token-entry UI.
 Reading a project needs only the `gh` access the launching person already
 has -- the same access `gh api repos/terryyin/pygardon/commits/main` proves
