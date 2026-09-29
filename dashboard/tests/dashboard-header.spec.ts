@@ -24,6 +24,12 @@ for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
       .getByRole("article", { name: queuedTitle(queuedCount) })
       .getByRole("link", { name: /^Canonical record/ });
     await expect(last).toBeVisible();
+    // Preparation facts arrive after membership and reflow the cards, which
+    // can carry a focused control past the window's edge; measure a settled
+    // page. Its 41 reads took about 3.5 seconds on CI.
+    await expect(page.getByText("Reading preparation…")).toHaveCount(0, {
+      timeout: 15_000,
+    });
     await last.scrollIntoViewIfNeeded();
     await expect(last).toBeInViewport({ ratio: 1 });
     await expect(

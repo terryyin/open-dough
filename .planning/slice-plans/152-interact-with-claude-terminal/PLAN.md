@@ -351,6 +351,15 @@ as disconnected, including a refused reconnect (untested). A page journey
 restarts the server under an open page on the same port, so
 `startDashboardServer` takes `port` (`tests/support/viteAddress.ts`).
 
+CI repair (run 36530743240 on `e73c64d2`, dashboard 2/2):
+`dashboard-header.spec.ts` at 320px walked focus while 41 preparation reads
+were still arriving; their reflow pushed the focused button past the window
+edge on Linux (trace frames 29ms and 111ms after the press). The spec now
+waits for "Reading preparation…" to clear first; its assertions are
+unchanged. Product edge case left for Terry: at narrow widths, facts loading
+under keyboard focus can still move the focused control off screen when
+scroll anchoring loses its node.
+
 ### 5. Mark as done renames and stops the session and shows it done
 Type: Behavior
 Status: planned
