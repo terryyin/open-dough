@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "identity": "SEED-055#ci-time-budget-from-ci-timings",
+  "mode": "story-branch",
+  "branch": "claude/ci-time-budget-from-ci-timings",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
