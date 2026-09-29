@@ -126,6 +126,44 @@ message, the `TerminalOpening` reuse for marking, Started test names, and
 overlapping card specs over 250 lines. It adds no feature promise. See the
 [plan](../slice-plans/160-card-session-residue/PLAN.md).
 
+<a id="session-sidebar"></a>
+
+### Find and return to any session from a toggleable sidebar
+
+**Identity:** SEED-052#session-sidebar
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer running agent sessions across several projects
+  can see every session in one place, notice at a glance which ones need
+  them, and jump straight to the story and its session without first
+  switching to the right project and hunting for its card.
+- **Evaluation:** A sidebar opens and closes from a dashboard control and
+  with Command+B, and stays as the developer left it while they move around
+  the dashboard. It lists the sessions from all projects, in the order they
+  were created. Every session that needs the developer, by the same reading
+  as a card's attention, stands out so it catches their eye. Clicking an entry
+  keeps the sidebar open, goes to that session's project page, highlights and
+  scrolls to its story, and opens that session in the split terminal panel.
+- **Boundary:** Sessions launched from this dashboard only, as Recent
+  sessions keeps them. The sidebar may take over the Recent sessions list.
+  Opening a session from the sidebar never changes a story fact, stage, or
+  session state. Refinement decides which sessions are listed (for example,
+  sessions marked done), what happens to a session whose story is in no list,
+  newest or oldest first, and Command+B's behavior when the focus is in the
+  terminal.
+- **Value / learning:** Turns attention from a per-card signal into
+  whole-dashboard awareness across projects, and tests whether one list can
+  replace per-project Recent sessions.
+- **Effort hypothesis:** Roughly half a day; cross-project session listing
+  and navigating to a story on another project's page are the main
+  uncertainties.
+- **Depends on:** Recent sessions, card attention, and the split terminal
+  panel, all delivered.
+- **Safe stopping point:** The sidebar is additive; cards, Recent sessions,
+  and the terminal panel keep working without it.
+
 <a id="script-execution-preparation"></a>
 
 ### 5. Start execution with mechanical preparation already handled
