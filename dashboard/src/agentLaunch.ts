@@ -103,11 +103,14 @@ export type HostSession = z.infer<typeof hostSessionSchema>;
 // How many days this machine keeps a confirmed launch's record.
 export const launchRetentionDays = 30;
 
-// A confirmed launch, kept on this machine for `launchRetentionDays`.
+// A confirmed launch, kept on this machine for `launchRetentionDays`, with
+// when the developer marked its session done (`./doneMark.ts`), if they did:
+// local evidence only, never a story fact.
 export const launchRecordSchema = z.object({
   request: agentLaunchRequestSchema,
   session: hostSessionSchema,
   launchedAt: z.iso.datetime(),
+  doneAt: z.iso.datetime().optional(),
 });
 
 export type LaunchRecord = z.infer<typeof launchRecordSchema>;
@@ -128,9 +131,9 @@ export const sessionStateSchema = z.discriminatedUnion("kind", [
 
 export type SessionState = z.infer<typeof sessionStateSchema>;
 
-// Whether `claude attach <id>` is offered for a session: for every session
-// the host still lists, and while its listing is unknown, since the session
-// may still be there.
+// Whether a session offers Open terminal: for every session the host still
+// lists, and while its listing is unknown, since the session may still be
+// there.
 export function attachOpens(sessionState: SessionState): boolean {
   return sessionState.kind !== "unlisted";
 }

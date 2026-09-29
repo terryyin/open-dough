@@ -7,6 +7,7 @@ import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import { WorkStages } from "./WorkStages.tsx";
 import { useAgentLaunches } from "./agentLaunches.ts";
 import { RecentSessions } from "./RecentSessions.tsx";
+import { TerminalSplit } from "./TerminalSplit.tsx";
 import { PreparationLegend } from "./PreparationLegend.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
 import type { OpenRoster } from "./AgentAssignmentFacts.tsx";
@@ -126,7 +127,7 @@ export function App() {
       (entry) => entry.preparation !== undefined,
     );
   return (
-    <>
+    <TerminalSplit markDone={launches.markDone}>
       <DashboardBanner
         source={source}
         work={work}
@@ -243,6 +244,6 @@ export function App() {
           />
         </main>
       )}
-    </>
+    </TerminalSplit>
   );
 }

@@ -116,12 +116,10 @@ for (const launch of [
   });
 }
 
-test("starting sends the instruction after the execution command in the Open Dough folder, and the card shows Started with its session and attach command", async ({
+test("starting sends the instruction after the execution command in the Open Dough folder, and the card shows Started with its session and Open terminal", async ({
   page,
-  context,
   dashboard,
 }) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   dashboard.claudeScenario("launched");
   const { card, start, dialog, refine } = await openTakenBacklog(page, journey);
   const own = "refine and plan it first, then execute";
@@ -150,18 +148,11 @@ test("starting sends the instruction after the execution command in the Open Dou
   expect(launchedAt).toBeGreaterThanOrEqual(before - 1_000);
   expect(launchedAt).toBeLessThanOrEqual(Date.now());
 
-  const attach = await started
-    .locator("code")
-    .filter({ hasText: /^claude attach / })
-    .textContent();
-  const shortId = /^claude attach ([0-9a-f]{8})$/.exec(attach ?? "")?.[1];
-  expect(shortId).toBeDefined();
-  await expect(started).toContainText(`Session ${String(shortId)}-`);
-  await started.getByRole("button", { name: "Copy attach command" }).click();
-  await expect(started).toContainText("Copied.");
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-    `claude attach ${String(shortId)}`,
-  );
+  await expect(started).toContainText(/Session [0-9a-f]{8}-/);
+  await expect(
+    started.getByRole("button", { name: "Open terminal" }),
+  ).toBeVisible();
+  await expect(started).not.toContainText("claude attach");
 
   const folder = realpathSync(path.join(dashboard.home, "git", "open-dough"));
   expect(dashboard.claudeLaunchCalls()).toEqual([

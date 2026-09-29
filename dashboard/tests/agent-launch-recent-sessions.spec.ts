@@ -1,14 +1,14 @@
 // Recent sessions lists every session this dashboard launched for the
 // selected project, newest first, on a committed origin the production
 // commands publish (./launchJourney.ts): an entry names its story, workflow,
-// launch time, and session with a copyable `claude attach <id>`; two launches
-// of one story are two entries; a refinement launched on a Preparing card is
-// listed without a Started; and another project's launches are not listed,
-// through reloads and project switches. That every entry stays through the
-// Take and completion is ./agent-launch-settlement.spec.ts, and each entry's
-// state is ./agent-launch-recent-session-states.spec.ts. The page's own
-// dashboard server launches the synthetic `claude` (./fixtures/fake-claude);
-// the real one is never reached.
+// launch time, and session with Open terminal; two launches of one story
+// are two entries; a refinement launched on a Preparing card is listed
+// without a Started; and another project's launches are not listed, through
+// reloads and project switches. That every entry stays through the Take and
+// completion is ./agent-launch-settlement.spec.ts, and each entry's state is
+// ./agent-launch-recent-session-states.spec.ts. The page's own dashboard
+// server launches the synthetic `claude` (./fixtures/fake-claude); the real
+// one is never reached.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -38,12 +38,10 @@ test.describe("Recent sessions as origin publishes what the launched sessions do
   });
   test.afterAll(() => (settlement as SettlementJourney | undefined)?.cleanup());
 
-  test("lists each launch newest first with its story, workflow, time, session, and attach command, only under its own project, including a refinement launched on a Preparing card", async ({
+  test("lists each launch newest first with its story, workflow, time, session, and Open terminal, only under its own project, including a refinement launched on a Preparing card", async ({
     page,
-    context,
     dashboard,
   }) => {
-    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     dashboard.claudeScenario("launched");
     const { card, action, settled, show, launch } = await openSettlementJourney(
       page,
@@ -90,9 +88,9 @@ test.describe("Recent sessions as origin publishes what the launched sessions do
         await expect(entry).toContainText(
           `Session ${sessionIds[index] ?? "?"}`,
         );
-        await expect(entry).toContainText(
-          `claude attach ${(sessionIds[index] ?? "?").slice(0, 8)}`,
-        );
+        await expect(
+          entry.getByRole("button", { name: "Open terminal" }),
+        ).toBeVisible();
       }
     };
     const queued = [takenStory, readyStory, notRefinedStory];
@@ -115,7 +113,7 @@ test.describe("Recent sessions as origin publishes what the launched sessions do
     expect(new Set(sessionIds).size).toBe(3);
     await expectMembership(page, { taken: [], backlog: queued });
 
-    await test.step("an entry names its story, launch time, and local evidence, and copies its attach command", async () => {
+    await test.step("an entry names its story, launch time, and local evidence", async () => {
       const newest = entries.first();
       await expect(newest).toContainText(notRefinedIdentity);
       await expect(newest).toContainText(
@@ -126,11 +124,6 @@ test.describe("Recent sessions as origin publishes what the launched sessions do
       );
       expect(launchedAt).toBeGreaterThanOrEqual(before - 1_000);
       expect(launchedAt).toBeLessThanOrEqual(Date.now());
-      await newest.getByRole("button", { name: "Copy attach command" }).click();
-      await expect(newest).toContainText("Copied.");
-      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-        `claude attach ${(sessionIds[0] ?? "?").slice(0, 8)}`,
-      );
     });
 
     await test.step("another project lists only its own launches, and reloading or returning lists these again", async () => {

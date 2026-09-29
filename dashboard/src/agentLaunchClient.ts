@@ -1,6 +1,7 @@
 // The browser's requests to the local launch boundary
 // (`../server/agentLaunchPlugin.ts`): an ordinary same-origin JSON POST that
-// launches, and a GET of one project's launch records. Every launch outcome
+// launches, a GET of one project's launch records, and a POST that marks one
+// recorded session done. Every launch outcome
 // answers with a launch result; a refusal answers an error the boundary
 // explains. What it answers crossed a process/HTTP boundary, so it is checked
 // as external input. When no launch answer can be trusted, the launch may or
@@ -12,9 +13,11 @@ import {
   launchRecordsSchema,
   launchResultSchema,
   type AgentLaunchRequest,
+  type LaunchRecord,
   type LaunchWithState,
   type LaunchResult,
 } from "./agentLaunch.ts";
+import { agentDoneEndpoint, markDoneAnswerSchema } from "./doneMark.ts";
 
 const refusal = z.object({ error: z.string().min(1) });
 
@@ -81,6 +84,28 @@ export async function readLaunchRecords(
     if (!response.ok) return undefined;
     const answer = launchRecordsSchema.safeParse(await response.json());
     return answer.success ? answer.data.records : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// Marks the recorded session done, and answers its marked record with its
+// session's state, or undefined when no trustworthy answer came.
+export async function requestMarkDone(
+  record: LaunchRecord,
+): Promise<LaunchWithState | undefined> {
+  try {
+    const response = await fetch(agentDoneEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source: record.request.source,
+        session: record.session.sessionId,
+      }),
+    });
+    if (!response.ok) return undefined;
+    const answer = markDoneAnswerSchema.safeParse(await response.json());
+    return answer.success ? answer.data.record : undefined;
   } catch {
     return undefined;
   }

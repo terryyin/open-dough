@@ -34,8 +34,8 @@ session in Claude Code's own listing, `claude agents --json --all`.
 A confirmed launch replaces its own action with a Started record naming its
 workflow, such as **Refinement started**; the card's other action stays, and a
 story launched in both workflows shows both records. Started gives when it was
-launched, the session id, and a copyable `claude attach <id>` to reach the
-session from a terminal. Started is local evidence from this machine, not a
+launched, the session id, and **Open terminal**, which shows the session in
+the page's terminal (below). Started is local evidence from this machine, not a
 story fact; the story stays in the Backlog until origin publishes what the
 session does. A failed launch (the project folder or `claude` not found, a
 folder Claude Code does not trust yet, or a refusal) says why, and nothing was
@@ -64,8 +64,8 @@ Code's listing cannot be read, Started stays.
 **Recent sessions**, below the stages, lists every launch record the page
 reads for the selected project, newest first, whatever origin now shows of its
 story. Each entry names the story's title and identity, its workflow, when it
-was launched, the session id, and the same copyable `claude attach <id>` as
-Started, marked "Local: launched from this dashboard on this machine." An
+was launched, the session id, and the same **Open terminal** as Started,
+marked "Local: launched from this dashboard on this machine." An
 entry does not settle: it stays when the story is prepared, taken, or leaves
 every list, and two launches of one story are two entries. Another project's
 launches are listed only under that project, and sessions this dashboard did
@@ -74,14 +74,76 @@ from this dashboard are kept.
 
 Each entry also shows its session's state, read from `claude agents --json
 --all` in the project's folder whenever the records are read and never kept:
-**Working** or **Idle** while its process runs busy or idle, **Finished** once
-it is done, and **Stopped** otherwise. A session Claude Code no longer lists
-shows **Session unavailable** without `claude attach <id>`; if the listing
-cannot be read, every entry shows **State unknown** with "Claude Code's
-session list could not be read" and keeps its attach command. While the page
+**Working** or **Idle** while its process runs busy or idle, **Done** once the
+developer marked it done (below), **Finished** once it is done, and
+**Stopped** otherwise. A session marked done that runs again, as opening it
+wakes it, shows its running state. A session Claude Code no longer lists
+shows **Session unavailable** without Open terminal; if the listing cannot be
+read, every entry shows **State unknown** with "Claude Code's session list
+could not be read" and keeps Open terminal. While the page
 is visible it reads the records again every 15 seconds, the pace of its
 revision checks, so a state change shows without a reload. With no records,
 `claude` is not run.
+
+The launch boundary also attaches a terminal to a session it launched. A
+same-origin WebSocket to
+`/__agent-terminal?source=<project id>&session=<session id>`
+(`server/agentTerminals.ts`, contract in `src/agentTerminal.ts`) runs
+`claude attach <short id>` in the project's folder through a pseudo-terminal,
+and nothing else: never a shell or another command. The server sends the
+session's terminal output as text frames. The page sends only
+`{ "input": "<text>" }`, typed into the session, or
+`{ "resize": { "cols": <n>, "rows": <n> } }`; anything else closes the
+socket. Closing the socket from either side, or stopping the server, ends
+that attach process, which detaches only: the session keeps running. An
+attach process that exits on its own, as Claude Code does on Ctrl+Z, closes
+the socket with code 4000 (`terminalEndedCode`), so the page can tell an ended
+terminal from a lost connection. The
+upgrade is refused with an HTTP error and no socket, before any `claude
+attach`, when it comes from another site or host (403), names an unknown
+project (404), names a session this dashboard did not record for that project
+(404, without running `claude` at all), finds the project folder missing
+(404), or names a session Claude Code no longer lists (410). As for Open
+terminal, a stopped session and one whose state is unknown still attach.
+
+**Open terminal** on a Started or a Recent sessions entry opens that session
+in the page's one terminal (`src/TerminalPanel.tsx`, an xterm.js terminal on
+that socket). The page splits into two columns: the page stays on the left,
+and the terminal panel takes the right, above the page on a narrow window. Its
+toolbar names the story title, the workflow, and the session id, and holds
+**Close**. The terminal shows the session's conversation, what the developer
+types there goes to the session, and its size follows the panel. Opening
+another session closes the first one's socket, which detaches it while it
+keeps running, and shows the other in the same panel. An entry whose story is
+in no list opens the same way. **Close** removes the panel and detaches only:
+the session keeps running, and its Open terminal is offered again. The open
+terminal is page state, so switching projects keeps it attached to the same
+session, and a reload starts without one. When the connection drops, as when
+the dashboard server restarts, the panel says "Disconnected from the session"
+and offers **Reconnect**; when the attached CLI exits on its own, it says "The
+terminal ended" and offers **Open again**. Either attaches to the same session
+anew, and Close stays available.
+
+**Mark as done**, beside Close, ends the session for the dashboard. The page
+posts `{ "source": "<project id>", "session": "<session id>" }` to
+`/__agent-launch/done` (`server/doneMarks.ts`), which refuses another site
+(403), an unknown project (404), a session this dashboard did not record for
+that project (404), or a missing project folder (404) before running
+`claude`. While the page's terminal is attached to the session, the boundary
+types Claude Code's own rename into it: Ctrl+U to clear any draft, then
+`/rename done-<name>` built only from the recorded launch name (for example
+`done-Open Dough · Execution · <title>`), then Enter. It waits up to five
+seconds for `claude agents --json --all` to list the new name. A busy session
+queues the command until its turn ends, so the wait can expire; then, as with
+no terminal attached, the `done-` name is only the dashboard's. Either way the
+boundary keeps the done time on the launch record, ends the terminal's attach
+process, and runs `claude stop <short id>` in the project's folder. The panel
+closes, or says "The session could not be marked done." if no answer came.
+The session no longer runs, so its card's Started ends and its Start action
+returns while the story is in the Backlog. Its Recent sessions entry shows
+**Done** and "Named done-<name>", and still offers Open terminal, since Claude
+Code keeps the conversation. A done mark is local evidence, like the launch
+record, and never changes where origin places the story.
 
 Launch records are kept on this machine, outside every repository, in
 `~/.open-dough/dashboard/agent-launches.json`. Restarting `npm run

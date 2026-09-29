@@ -4,18 +4,24 @@
 // wait, and keep a confirmed result in this machine's launch record store
 // (`./launchRecordStore.ts`), which outlives the server. A read of the kept
 // records answers each session's state from Claude Code's listing, never
-// stored. Origin still decides every story fact.
+// stored; the same join decides which recorded session the terminal
+// boundary (`./agentTerminals.ts`) may attach to, and a recorded session may
+// be marked done (`./doneMarks.ts`). Origin still decides every story fact.
 
-import type {
-  AgentLaunchRequest,
-  LaunchWithState,
-  LaunchRecord,
-  LaunchResult,
+import {
+  type AgentLaunchRequest,
+  type LaunchWithState,
+  type LaunchRecord,
+  type LaunchResult,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { claudeSessions, launchClaude } from "./claudeCode.ts";
 import { keepRecord, keptRecords } from "./launchRecordStore.ts";
-import { folderExists, projectFolder } from "./projectFolders.ts";
+import {
+  folderExists,
+  projectFolder,
+  type ProjectFolder,
+} from "./projectFolders.ts";
 
 const defaultLaunchWaitMs = 30_000;
 
@@ -33,32 +39,77 @@ function launchTimeoutMs(): number {
     : defaultLaunchWaitMs;
 }
 
+// One session this dashboard recorded for the project, in its existing
+// folder, or why there is none.
+export type Recorded =
+  | {
+      readonly kind: "recorded";
+      readonly record: LaunchRecord;
+      readonly folder: ProjectFolder;
+    }
+  | { readonly kind: "unrecorded" }
+  | { readonly kind: "folder-not-found"; readonly folder: ProjectFolder };
+
+// Records joined by session id with Claude Code's listing read now. With no
+// records, `claude` is not run.
+async function withStates(
+  source: PublishedSource,
+  records: readonly LaunchRecord[],
+): Promise<readonly LaunchWithState[]> {
+  if (records.length === 0) {
+    return [];
+  }
+  const listed = await claudeSessions(
+    projectFolder(source),
+    AbortSignal.timeout(listingWaitMs),
+  );
+  const states = new Map(
+    listed?.map((entry) => [entry.session.sessionId, entry.sessionState]),
+  );
+  return records.map((record) => ({
+    ...record,
+    sessionState:
+      listed === undefined
+        ? { kind: "unknown" }
+        : (states.get(record.session.sessionId) ?? { kind: "unlisted" }),
+  }));
+}
+
 export class AgentLaunches {
   private readonly running = new Set<AbortController>();
 
-  // The project's kept records, each joined by session id with Claude Code's
-  // listing read now. With no records kept, `claude` is not run.
+  // The project's kept records, each joined with its session's state.
   async recordsOf(
     source: PublishedSource,
   ): Promise<readonly LaunchWithState[]> {
-    const records = await keptRecords(source.id);
-    if (records.length === 0) {
-      return [];
+    return withStates(source, await keptRecords(source.id));
+  }
+
+  // One kept record's session state read now.
+  async stateOf(
+    source: PublishedSource,
+    record: LaunchRecord,
+  ): Promise<LaunchWithState> {
+    const [joined] = await withStates(source, [record]);
+    return joined ?? { ...record, sessionState: { kind: "unknown" } };
+  }
+
+  // The session this dashboard recorded for this project, if it did, in the
+  // project folder, if that exists. Runs no `claude`.
+  async recorded(
+    source: PublishedSource,
+    sessionId: string,
+  ): Promise<Recorded> {
+    const record = (await keptRecords(source.id)).find(
+      (kept) => kept.session.sessionId === sessionId,
+    );
+    if (record === undefined) {
+      return { kind: "unrecorded" };
     }
-    const listed = await claudeSessions(
-      projectFolder(source),
-      AbortSignal.timeout(listingWaitMs),
-    );
-    const states = new Map(
-      listed?.map((entry) => [entry.session.sessionId, entry.sessionState]),
-    );
-    return records.map((record) => ({
-      ...record,
-      sessionState:
-        listed === undefined
-          ? { kind: "unknown" }
-          : (states.get(record.session.sessionId) ?? { kind: "unlisted" }),
-    }));
+    const folder = projectFolder(source);
+    return (await folderExists(folder))
+      ? { kind: "recorded", record, folder }
+      : { kind: "folder-not-found", folder };
   }
 
   // A launch settles on its own even if the requester goes away, so its

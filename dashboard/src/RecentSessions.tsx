@@ -4,8 +4,9 @@
 // card's Started, an entry does not settle when the story is prepared, taken,
 // or leaves the backlog, so the developer can reach the session afterwards.
 // Each entry shows its session's state as Claude Code last listed it, read
-// again at the page's steady pace. Entries are local evidence of launches,
-// not story facts.
+// again at the page's steady pace, and a session the developer marked done is
+// Done, under its `done-` name. Entries are local evidence of launches, not
+// story facts.
 
 import {
   launchRetentionDays,
@@ -14,14 +15,20 @@ import {
   type LaunchWithState,
   type SessionState,
 } from "./agentLaunch.ts";
+import { doneSessionName } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
 import { LaunchSession } from "./LaunchSession.tsx";
 import "./agent-launch.css";
 
 // How an entry names its session's state as Claude Code last listed it. A
 // running session is Working while busy and Idle otherwise, whatever its
-// state; one no longer running is Finished once done, and Stopped otherwise.
-function sessionStateWords(sessionState: SessionState): {
+// state, even once marked done, since opening a done session wakes it; one no
+// longer running is Done once marked done, Finished once Claude Code calls it
+// done, and Stopped otherwise.
+function sessionStateWords(
+  sessionState: SessionState,
+  markedDone: boolean,
+): {
   readonly label: string;
   readonly note?: string;
 } {
@@ -37,6 +44,9 @@ function sessionStateWords(sessionState: SessionState): {
       if (sessionRuns(sessionState)) {
         return { label: sessionState.status === "busy" ? "Working" : "Idle" };
       }
+      if (markedDone) {
+        return { label: "Done" };
+      }
       return { label: sessionState.state === "done" ? "Finished" : "Stopped" };
   }
 }
@@ -44,7 +54,8 @@ function sessionStateWords(sessionState: SessionState): {
 function RecentSession({ record }: { readonly record: LaunchWithState }) {
   const { title, identity, workflow } = record.request;
   const { name } = launchWorkflows[workflow];
-  const { label, note } = sessionStateWords(record.sessionState);
+  const markedDone = record.doneAt !== undefined;
+  const { label, note } = sessionStateWords(record.sessionState, markedDone);
   return (
     <article
       className="recent-session"
@@ -63,6 +74,11 @@ function RecentSession({ record }: { readonly record: LaunchWithState }) {
       <p className="launch-local">
         Local: launched from this dashboard on this machine.
       </p>
+      {markedDone && (
+        <p>
+          Named <code>{doneSessionName(record.session)}</code>
+        </p>
+      )}
       <LaunchSession record={record} />
     </article>
   );

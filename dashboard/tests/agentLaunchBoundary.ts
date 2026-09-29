@@ -1,13 +1,15 @@
 // Shared by the local launch boundary specs (./agent-launch-boundary.spec.ts,
-// ./agent-launch-refusal.spec.ts, ./agent-launch-records.spec.ts, and
-// ./agent-launch-session-listing.spec.ts): one execution launch request for this
-// repository's own story, and its refinement counterpart, sent over raw HTTP,
-// and what the boundary keeps.
+// ./agent-launch-refusal.spec.ts, ./agent-launch-records.spec.ts,
+// ./agent-launch-session-listing.spec.ts, and ./agent-launch-done.spec.ts):
+// one execution launch request for this repository's own story, and its
+// refinement counterpart, sent over raw HTTP, a done mark, and what the
+// boundary keeps.
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
+import { agentDoneEndpoint } from "../src/doneMark.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { rawRequest, type RawResponse } from "./support/rawHttp.ts";
 
@@ -29,6 +31,19 @@ export function launch(
 ): Promise<RawResponse> {
   return rawRequest({
     url: `${server.baseURL}${agentLaunchEndpoint}`,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...headers },
+    body: JSON.stringify(body),
+  });
+}
+
+export function markDone(
+  server: DashboardServer,
+  body: unknown,
+  headers: Record<string, string> = { Origin: server.origin },
+): Promise<RawResponse> {
+  return rawRequest({
+    url: `${server.baseURL}${agentDoneEndpoint}`,
     method: "POST",
     headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify(body),

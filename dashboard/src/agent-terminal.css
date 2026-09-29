@@ -1,0 +1,82 @@
+/* The page split while a terminal is open: the page on the left, and the
+   terminal panel on the right, pinned to the window's height while the page
+   scrolls beside it. On a narrow window the panel comes first, above the
+   page. */
+
+.page-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.page-column {
+  min-width: 0;
+}
+
+.terminal-panel {
+  position: sticky;
+  top: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  border-left: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.terminal-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.terminal-names {
+  min-width: 0;
+}
+
+.terminal-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+/* The fit addon sizes the terminal to this box, so it must have a size of
+   its own rather than take one from its content. */
+.terminal-screen {
+  flex: 1;
+  min-height: 0;
+  padding: 0.4rem;
+  background: #000;
+}
+
+@media (max-width: 800px) {
+  .page-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .terminal-panel {
+    position: static;
+    order: -1;
+    height: 70dvh;
+    border-left: none;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+/* Why the terminal is no longer attached, and the action that attaches it
+   again, or where Mark as done stands; empty, and taking no room, while it
+   is attached. */
+.terminal-status:not(:empty) {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--problem);
+}
+
+.terminal-status p {
+  margin: 0;
+}

@@ -1,9 +1,9 @@
 // A Recent sessions entry shows its session's state as Claude Code lists it
 // -- Working, Idle, Finished, Stopped, Session unavailable, or State unknown
 // with its note -- and the page reads it again at the steady pace while it
-// is visible, so a change appears within one pace without a reload. The
-// attach command is offered only where `attachOpens` says it opens the
-// session. Origin alone still places every story. The page's own dashboard
+// is visible, so a change appears within one pace without a reload. Open
+// terminal is offered only where `attachOpens` says it opens the session.
+// Origin alone still places every story. The page's own dashboard
 // server launches the synthetic `claude` (./fixtures/fake-claude), whose
 // controls end, forget, or fail to list a session; the real one is never
 // reached. The page clock stands still unless the journey lets it pass.
@@ -46,9 +46,9 @@ type Label =
   | "Session unavailable"
   | "State unknown";
 
-// Where each label offers `claude attach <id>`: every session Claude Code
+// Where each label offers Open terminal: every session Claude Code
 // still lists, and one whose listing could not be read.
-const attachOffered: Record<Label, boolean> = {
+const openOffered: Record<Label, boolean> = {
   Working: true,
   Idle: true,
   Finished: true,
@@ -64,11 +64,8 @@ async function expectState(entry: Locator, label: Label): Promise<void> {
     label === "State unknown" ? `${label}: ${unknownNote}` : label,
   );
   await expect(
-    entry.locator("code").filter({ hasText: /^claude attach / }),
-  ).toHaveCount(attachOffered[label] ? 1 : 0);
-  await expect(
-    entry.getByRole("button", { name: "Copy attach command" }),
-  ).toHaveCount(attachOffered[label] ? 1 : 0);
+    entry.getByRole("button", { name: "Open terminal" }),
+  ).toHaveCount(openOffered[label] ? 1 : 0);
 }
 
 // Lets exactly one steady pace of page time pass: no records read is asked
@@ -87,7 +84,7 @@ async function passOnePace(page: Page, recordReads: () => number) {
   expect(recordReads()).toBe(before + 1);
 }
 
-test("each entry shows its session's state, changes within one pace without a reload, and offers attach only where it opens", async ({
+test("each entry shows its session's state, changes within one pace without a reload, and offers Open terminal only where it opens", async ({
   page,
   dashboard,
 }) => {
@@ -171,7 +168,7 @@ test("each entry shows its session's state, changes within one pace without a re
     await passOnePace(page, () => reads);
     for (const [index, { shows }] of launches.entries()) {
       await expectState(entryOf(index), shows);
-      // An unavailable session keeps its id, without an attach command.
+      // An unavailable session keeps its id, without Open terminal.
       await expect(entryOf(index)).toContainText(
         `Session ${sessionIds[index] ?? "?"}`,
       );
