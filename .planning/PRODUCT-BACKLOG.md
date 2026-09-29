@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Close stories through an installed wrap-up command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command) — SEED-008#installed-wrap-up-command ([plan](slice-plans/146-installed-wrap-up-command/PLAN.md))
 - [Keep every unreadable launch store and trim Recent sessions residue](seeds/SEED-052-start-agent-work-from-dashboard.md#recent-sessions-residue) — SEED-052#recent-sessions-residue ([plan](slice-plans/151-recent-sessions-residue/PLAN.md))
-- [Interact with a launched Claude Code session inside the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#interact-with-claude-terminal) — SEED-052#interact-with-claude-terminal ([plan](slice-plans/152-interact-with-claude-terminal/PLAN.md))
 
 ## Backlog list
 

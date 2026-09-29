@@ -6,7 +6,8 @@
 - **Source:** [story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#terminal-residue),
   written by the execution retrospective of SEED-052#interact-with-claude-terminal
   (plan 152; commits `e8553f8d`, `549e2d5a`, `91b8e3b9`, `e73c64d2`,
-  `6ddfb0b0`, `ee35dd55`, `815844e4` on `claude/interact-with-claude-terminal`).
+  `6ddfb0b0`, `ee35dd55`, `815844e4`; its closed plan is at
+  `3c8cef8f:.planning/slice-plans/152-interact-with-claude-terminal/PLAN.md`).
 - **Authority:** planning only. This plan grants no Take, implementation, or
   publication.
 
@@ -76,7 +77,8 @@ Open decisions homed here, outside this correction's scope, for Terry:
   Host) owned by `agent-launch-refusal.spec.ts` and
   `authenticated-read-refusal.spec.ts`, and asserts the fake's own Ctrl+U
   editing. `agent-terminal-close.spec.ts`'s end-to-end server-close case cannot
-  detect missing cleanup (plan 152 slice 2 note); its ended-code case overlaps
+  detect missing cleanup (plan 152 slice 2's accepted-proof note, at
+  `3c8cef8f`); its ended-code case overlaps
   the lifetime journey's Ctrl+Z step. `agent-terminal.spec.ts`'s unavailable
   step duplicates `agent-launch-recent-session-states.spec.ts`.
   `agent-terminal-done.spec.ts` re-asserts fake-level calls owned by
