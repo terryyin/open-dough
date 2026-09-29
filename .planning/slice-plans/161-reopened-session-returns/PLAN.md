@@ -130,3 +130,12 @@ postcondition (the session is back on its card) with one proof loop, and
 neither is observable alone. The design adds no rule: membership and
 retention already follow `doneAt`, and the one store write gains the clear
 case. No concern remains.
+
+## Execution complete
+
+Product advice: no new backlog work. At wrap-up, tell the plan 160
+execution (SEED-052#card-session-residue) that this story's reopening boundary
+observations live in `dashboard/tests/agent-terminal-reopen.spec.ts`, not the
+terminal boundary spec its slice 3 names, and that
+`agent-terminal-done.spec.ts` is at 250 lines. Plan 159's attention rule needs
+no extra case: a cleared done time restores attention once both land.
