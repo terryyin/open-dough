@@ -16,9 +16,10 @@
 // `claude attach <id>`, run in a terminal, stands in for Claude Code's
 // interactive session: it prints `attached <id> <cols>x<rows>`, echoes what
 // is typed and each line entered as `echo <line>`, clears the line on Ctrl+U,
-// and prints `resized <cols>x<rows>` when its terminal's size changes. It
-// records its pid in `attaches.jsonl` and, once a signal ends it, that
-// signal in `attach.<pid>.ended`, for the controls to observe.
+// prints `resized <cols>x<rows>` when its terminal's size changes, and
+// detaches on Ctrl+Z, exiting on its own as the real one does. It records its
+// pid in `attaches.jsonl` and, once a signal or Ctrl+Z ends it, that signal or
+// `Ctrl+Z` in `attach.<pid>.ended`, for the controls to observe.
 //
 // Scenarios: `launched` (default), `refused`, `untrusted`, `hang`, and
 // `unlisted` (reports a session that `agents --json` does not list).
@@ -92,6 +93,15 @@ if (args[0] === "attach") {
       if (key === "\r" || key === "\n") {
         process.stdout.write(`\r\necho ${line}\r\n`);
         line = "";
+      } else if (key === "\u001a") {
+        fs.writeFileSync(
+          path.join(dir, `attach.${process.pid}.ended`),
+          "Ctrl+Z",
+        );
+        process.stdout.write("\r\ndetached\r\n", () => {
+          process.exit(0);
+        });
+        return;
       } else if (key === "\u0015") {
         line = "";
         process.stdout.write("\r\u001b[K");

@@ -4,9 +4,12 @@
 // prints appears in the terminal, what the developer types goes to the
 // session, and the terminal's size follows the panel. Its toolbar names the
 // session and closes the panel; closing it, or opening another session in its
-// place, detaches only, so the session keeps running.
+// place, detaches only, so the session keeps running. When the connection
+// drops, as when the dashboard server restarts, the panel says so and offers
+// to reconnect; when the attached CLI exits on its own, it says the terminal
+// ended and offers to open it again. Either attaches to the same session anew.
 
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
@@ -15,6 +18,7 @@ import "./agent-terminal.css";
 import { launchWorkflows, type LaunchRecord } from "./agentLaunch.ts";
 import {
   agentTerminalEndpoint,
+  terminalEndedCode,
   type TerminalMessage,
 } from "./agentTerminal.ts";
 
@@ -27,10 +31,22 @@ function terminalUrl(record: LaunchRecord): string {
   return `${scheme}//${window.location.host}${agentTerminalEndpoint}?${query.toString()}`;
 }
 
-// Attaches a terminal in `element` to the session while it is mounted.
+// Why the panel's attachment is no longer open, if it is not.
+type Ending = "disconnected" | "ended";
+
+const endings = {
+  disconnected: { says: "Disconnected from the session", action: "Reconnect" },
+  ended: { says: "The terminal ended", action: "Open again" },
+} as const;
+
+// Attaches a terminal in `element` to the session while it is mounted, anew
+// for each `attempt`, and reports how the attachment ended unless the panel
+// ended it itself. `onEnded` must keep its identity across renders.
 function useAttachedTerminal(
   element: RefObject<HTMLDivElement | null>,
   record: LaunchRecord,
+  attempt: number,
+  onEnded: (ending: Ending) => void,
 ) {
   const url = terminalUrl(record);
   useEffect(() => {
@@ -58,6 +74,12 @@ function useAttachedTerminal(
         terminal.write(event.data);
       }
     });
+    let current = true;
+    socket.addEventListener("close", (event) => {
+      if (current) {
+        onEnded(event.code === terminalEndedCode ? "ended" : "disconnected");
+      }
+    });
     const typed = terminal.onData((input) => {
       send({ input });
     });
@@ -72,13 +94,14 @@ function useAttachedTerminal(
     terminal.focus();
 
     return () => {
+      current = false;
       panelSize.disconnect();
       typed.dispose();
       resized.dispose();
       socket.close();
       terminal.dispose();
     };
-  }, [element, url]);
+  }, [element, url, attempt, onEnded]);
 }
 
 export function TerminalPanel({
@@ -89,7 +112,13 @@ export function TerminalPanel({
   readonly onClose: () => void;
 }) {
   const screen = useRef<HTMLDivElement>(null);
-  useAttachedTerminal(screen, record);
+  const [attempt, setAttempt] = useState(0);
+  const [ending, setEnding] = useState<Ending | undefined>();
+  useAttachedTerminal(screen, record, attempt, setEnding);
+  const attachAgain = () => {
+    setEnding(undefined);
+    setAttempt((previous) => previous + 1);
+  };
   const { title, workflow } = record.request;
   return (
     <section className="terminal-panel" aria-label="Terminal">
@@ -105,6 +134,16 @@ export function TerminalPanel({
           Close
         </button>
       </header>
+      <div role="status" className="terminal-status">
+        {ending && (
+          <>
+            <p>{endings[ending].says}</p>
+            <button type="button" onClick={attachAgain}>
+              {endings[ending].action}
+            </button>
+          </>
+        )}
+      </div>
       <div ref={screen} className="terminal-screen" />
     </section>
   );

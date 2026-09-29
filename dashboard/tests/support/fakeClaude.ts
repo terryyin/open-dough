@@ -41,7 +41,7 @@ export type ClaudeCall = {
 };
 
 // One `claude attach` the fake ran: its pid, the short id it attached to,
-// and the signal that ended it, once one did.
+// and the signal, or `Ctrl+Z`, that ended it, once one did.
 export type ClaudeAttach = {
   readonly pid: number;
   readonly id: string;

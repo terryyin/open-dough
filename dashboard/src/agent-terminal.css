@@ -58,3 +58,18 @@
     border-bottom: 1px solid var(--line);
   }
 }
+
+/* Why the terminal is no longer attached, and the action that attaches it
+   again; empty, and taking no room, while it is attached. */
+.terminal-status:not(:empty) {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--problem);
+}
+
+.terminal-status p {
+  margin: 0;
+}

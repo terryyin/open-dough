@@ -5,7 +5,8 @@
 // it, in a temporary HOME holding only the project folders a test chooses.
 // A test that restarts a server on the same machine state passes a `machine`
 // directory it owns, which holds HOME and the fake `claude`'s state and
-// outlives each server.
+// outlives each server, and, to keep an open page's address, the `port` the
+// closed server had.
 // Every page journey gets its own server this way (../dashboardTest.ts), and the
 // boundary specs start their own, so PATH/env mutation and each fake
 // GitHub's answers never leak between tests.
@@ -14,7 +15,6 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { stripVTControlCharacters } from "node:util";
 import {
   installFakeClaude,
   type FakeClaudeControls,
@@ -23,6 +23,7 @@ import {
 import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
 import { endGroup, spawnGroupLeader } from "./processGroup.ts";
+import { listenArgs, ownAddress } from "./viteAddress.ts";
 
 // Playwright runs this suite from the repository root (as `npm run
 // test:dashboard` does); paths are built from that rather than from
@@ -49,57 +50,6 @@ export type DashboardServer = {
   ghExitedBy(): string | undefined;
   close(): Promise<void>;
 } & FakeClaudeControls;
-
-// Vite binds a free port itself (`--port 0`) and reports the address it
-// bound on stdout, so no other listener can take the port between choosing
-// and binding it. Only this server's own report counts: if the process exits
-// or stays silent, the start fails with its output rather than letting a test
-// run against whatever else answers.
-async function ownAddress(
-  child: ReturnType<typeof spawnGroupLeader>,
-  output: () => string,
-  deadlineMs: number,
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const settle = (finish: () => void) => {
-      clearTimeout(timer);
-      child.stdout.off("data", onData);
-      child.off("exit", onExit);
-      finish();
-    };
-    const onData = () => {
-      const local = /Local:\s+(http:\/\/\S+)/.exec(
-        stripVTControlCharacters(output()),
-      );
-      if (local?.[1] !== undefined) {
-        const origin = new URL(local[1]).origin;
-        settle(() => {
-          resolve(origin);
-        });
-      }
-    };
-    const onExit = (code: number | null, signal: string | null) => {
-      settle(() => {
-        reject(
-          new Error(
-            `Vite exited (${signal ?? `code ${String(code)}`}) before reporting its address`,
-          ),
-        );
-      });
-    };
-    const timer = setTimeout(() => {
-      settle(() => {
-        reject(
-          new Error(
-            `Vite did not report its address within ${String(deadlineMs)}ms`,
-          ),
-        );
-      });
-    }, deadlineMs);
-    child.stdout.on("data", onData);
-    child.on("exit", onExit);
-  });
-}
 
 // Builds into `outDir` rather than the shared `dashboard/dist`, which other
 // tests' preview servers may be serving concurrently (`fullyParallel: true`).
@@ -138,6 +88,9 @@ export async function startDashboardServer(
     // environment to `gh`) would see it, without touching this process's own
     // real environment.
     readonly extraEnv?: Readonly<Record<string, string>>;
+    // This port, which must be free, instead of any free one: a server
+    // restarted on a closed one's port answers the page that server opened.
+    readonly port?: number | undefined;
   },
 ): Promise<DashboardServer> {
   const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-dashboard-"));
@@ -162,8 +115,11 @@ export async function startDashboardServer(
     env["DOUGH_READ_TIMEOUT_MS"] = String(options.readTimeoutMs);
   }
 
-  // Any free port, bound by Vite itself (see `ownAddress`).
-  const serverArgs = ["--config", "dashboard/vite.config.mts", "--port", "0"];
+  const serverArgs = [
+    "--config",
+    "dashboard/vite.config.mts",
+    ...listenArgs(options.port),
+  ];
   let args: string[];
   let outDir: string | undefined;
   if (options.mode === "dev") {

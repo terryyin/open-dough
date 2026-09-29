@@ -1,8 +1,10 @@
 // The terminal boundary (../server/agentTerminals.ts) when its server closes,
 // in dev and preview: every open attach process ends with the SIGHUP a closed
 // terminal sends, end to end and through the plugin's own `closeServer` hook
-// alone. The synthetic `claude` (./fixtures/fake-claude) stands in for the
-// attached session; the real one is never reached.
+// alone, and its socket closes as a lost connection. An attach process that
+// exits on its own instead closes its socket with the code that says the
+// terminal ended. The synthetic `claude` (./fixtures/fake-claude) stands in
+// for the attached session; the real one is never reached.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import http from "node:http";
@@ -11,6 +13,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { agentLaunchPlugin } from "../server/agentLaunchPlugin.ts";
+import { terminalEndedCode } from "../src/agentTerminal.ts";
 import {
   lastAttachEnded,
   launched,
@@ -68,12 +71,33 @@ for (const mode of ["dev", "preview"] as const) {
         await server.close();
         closed = true;
 
-        await terminal.closed;
+        expect(await terminal.closed).not.toBe(terminalEndedCode);
         expect(await lastAttachEnded(server)).toBe("SIGHUP");
       } finally {
         if (!closed) {
           await server.close();
         }
+      }
+    });
+
+    test("an attach process that exits on its own closes its socket as ended", async () => {
+      const server = await startDashboardServer({
+        mode,
+        prebuilt,
+        projectFolders: ["open-dough"],
+      });
+      try {
+        const session = await launched(server);
+        const terminal = await openTerminal(server, session);
+        expect(await shows(terminal, "attached")).toBe(true);
+
+        // Ctrl+Z, which detaches the real CLI.
+        terminal.send({ input: "\u001a" });
+
+        expect(await terminal.closed).toBe(terminalEndedCode);
+        expect(await lastAttachEnded(server)).toBe("Ctrl+Z");
+      } finally {
+        await server.close();
       }
     });
   });

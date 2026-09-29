@@ -93,7 +93,10 @@ session's terminal output as text frames. The page sends only
 `{ "input": "<text>" }`, typed into the session, or
 `{ "resize": { "cols": <n>, "rows": <n> } }`; anything else closes the
 socket. Closing the socket from either side, or stopping the server, ends
-that attach process, which detaches only: the session keeps running. The
+that attach process, which detaches only: the session keeps running. An
+attach process that exits on its own, as Claude Code does on Ctrl+Z, closes
+the socket with code 4000 (`terminalEndedCode`), so the page can tell an ended
+terminal from a lost connection. The
 upgrade is refused with an HTTP error and no socket, before any `claude
 attach`, when it comes from another site or host (403), names an unknown
 project (404), names a session this dashboard did not record for that project
@@ -111,7 +114,13 @@ types there goes to the session, and its size follows the panel. Opening
 another session closes the first one's socket, which detaches it while it
 keeps running, and shows the other in the same panel. An entry whose story is
 in no list opens the same way. **Close** removes the panel and detaches only:
-the session keeps running, and its Open terminal is offered again.
+the session keeps running, and its Open terminal is offered again. The open
+terminal is page state, so switching projects keeps it attached to the same
+session, and a reload starts without one. When the connection drops, as when
+the dashboard server restarts, the panel says "Disconnected from the session"
+and offers **Reconnect**; when the attached CLI exits on its own, it says "The
+terminal ended" and offers **Open again**. Either attaches to the same session
+anew, and Close stays available.
 
 Launch records are kept on this machine, outside every repository, in
 `~/.open-dough/dashboard/agent-launches.json`. Restarting `npm run

@@ -319,7 +319,7 @@ per open; the preview build does not.
 
 ### 4. The open terminal survives a project switch and says when it is disconnected or ended
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-terminal.spec.ts` extended with switch, restart, and exit cases.
 
 Behavior: a terminal is open → the developer switches projects → it stays
@@ -338,6 +338,18 @@ Proof: extend the spec. Switch projects and back with the terminal still
 attached (no new attach call). Restart the server on the same machine
 directory (the `machine` option from plan 150) and press Reconnect. Send
 Ctrl+Z and press Open again. Reload.
+
+Accepted proof (2026-09-29): `npm run test:dashboard --
+dashboard/tests/agent-terminal.spec.ts
+dashboard/tests/agent-terminal-boundary.spec.ts
+dashboard/tests/agent-terminal-close.spec.ts
+dashboard/tests/agent-terminal-lifetime.spec.ts` (44 passed; lifetime and
+close also `--repeat-each=4`) and `npm run typecheck:dashboard` pass. The
+boundary closes a socket whose attach process exited on its own with
+`terminalEndedCode` (4000, in `src/agentTerminal.ts`); any other close reads
+as disconnected, including a refused reconnect (untested). A page journey
+restarts the server under an open page on the same port, so
+`startDashboardServer` takes `port` (`tests/support/viteAddress.ts`).
 
 ### 5. Mark as done renames and stops the session and shows it done
 Type: Behavior

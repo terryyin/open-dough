@@ -7,7 +7,9 @@
 // page's messages (`../src/agentTerminal.ts`) become its input or its size.
 // Anything else closes the socket. Closing the socket from either side, or
 // closing the server, ends that attach process, which detaches only: the
-// session keeps running. Nothing else is ever run here, and never a shell.
+// session keeps running. An attach process that exits on its own closes its
+// socket with `terminalEndedCode`. Nothing else is ever run here, and never a
+// shell.
 
 import { STATUS_CODES, type IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
@@ -16,6 +18,7 @@ import type { HttpServer } from "vite";
 import { WebSocketServer, type RawData, type WebSocket } from "ws";
 import {
   agentTerminalEndpoint,
+  terminalEndedCode,
   terminalMessageSchema,
   type TerminalMessage,
 } from "../src/agentTerminal.ts";
@@ -149,9 +152,12 @@ export class AgentTerminals {
         ws.send(output);
       }
     });
+    // Exited on its own, not ended by `detach`, whose socket is already
+    // closing.
     pty.onExit(() => {
-      this.attached.delete(pty);
-      ws.close();
+      if (this.attached.delete(pty)) {
+        ws.close(terminalEndedCode, "The terminal ended.");
+      }
     });
     ws.on("message", (data, isBinary) => {
       const message = terminalMessage(data, isBinary);
