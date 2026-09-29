@@ -185,5 +185,11 @@ export async function admittedAttach(
     throw new RefusedRequest(410, "Claude Code no longer lists this session.");
   }
   const { sessionId, shortId } = record.session;
-  return { sessionId, shortId, folder };
+  return {
+    sourceId: source.id,
+    sessionId,
+    markedDone: record.doneAt !== undefined,
+    shortId,
+    folder,
+  };
 }

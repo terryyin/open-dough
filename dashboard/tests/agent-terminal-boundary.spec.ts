@@ -4,7 +4,8 @@
 // still lists runs `claude attach <short id>` in the project folder, passes
 // output, input, and size, and ends that attach process when the socket
 // closes, while the session stays listed (server close:
-// ./agent-terminal-close.spec.ts). Any other upgrade is refused with an HTTP
+// ./agent-terminal-close.spec.ts; a session marked done:
+// ./agent-terminal-reopen.spec.ts). Any other upgrade is refused with an HTTP
 // status and no attach. The foreign-Host refusal is proved here: Vite's own
 // host check answers such an HTTP request first, so only this upgrade reaches
 // the shared check's Host test (../server/localOrigin.ts). Which other

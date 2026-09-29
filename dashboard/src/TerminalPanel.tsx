@@ -8,6 +8,7 @@
 // drops, as when the dashboard server restarts, the panel says so and offers
 // to reconnect; when the attached CLI exits on its own, it says the terminal
 // ended and offers to open it again. Either attaches to the same session anew.
+// Each attachment tells the page once it first shows the session's output.
 // Mark as done asks the boundary to rename the session `done-<name>` through
 // this attachment and stop it; the panel closes once it is marked, and says
 // so if it could not be.
@@ -44,12 +45,14 @@ const endings = {
 } as const;
 
 // Attaches a terminal in `element` to the session while it is mounted, anew
-// for each `attempt`, and reports how the attachment ended unless the panel
-// ended it itself. `onEnded` must keep its identity across renders.
+// for each `attempt`, reports once each attachment first shows output, and
+// reports how the attachment ended unless the panel ended it itself.
+// `onAttached` and `onEnded` must keep their identity across renders.
 function useAttachedTerminal(
   element: RefObject<HTMLDivElement | null>,
   record: LaunchRecord,
   attempt: number,
+  onAttached: (record: LaunchRecord) => void,
   onEnded: (ending: Ending) => void,
 ) {
   const url = terminalUrl(record);
@@ -73,9 +76,14 @@ function useAttachedTerminal(
     socket.addEventListener("open", () => {
       send({ resize: size() });
     });
+    let shown = false;
     socket.addEventListener("message", (event) => {
       if (typeof event.data === "string") {
         terminal.write(event.data);
+        if (!shown) {
+          shown = true;
+          onAttached(record);
+        }
       }
     });
     let current = true;
@@ -105,15 +113,19 @@ function useAttachedTerminal(
       socket.close();
       terminal.dispose();
     };
-  }, [element, url, attempt, onEnded]);
+  }, [element, url, record, attempt, onAttached, onEnded]);
 }
 
 export function TerminalPanel({
   record,
+  onAttached,
   onClose,
   onMarkDone,
 }: {
   readonly record: LaunchRecord;
+  // Told once each attachment first shows the session's output; it keeps its
+  // identity across renders.
+  readonly onAttached: (record: LaunchRecord) => void;
   readonly onClose: () => void;
   // Answers whether the session was marked done; the panel closes if it was.
   readonly onMarkDone: () => Promise<boolean>;
@@ -123,7 +135,7 @@ export function TerminalPanel({
   const [ending, setEnding] = useState<Ending | undefined>();
   // While marking, the attachment's ending the mark causes is not shown.
   const { marking, follow } = useMarking();
-  useAttachedTerminal(screen, record, attempt, setEnding);
+  useAttachedTerminal(screen, record, attempt, onAttached, setEnding);
   const attachAgain = () => {
     setEnding(undefined);
     setAttempt((previous) => previous + 1);

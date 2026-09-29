@@ -67,43 +67,90 @@ projections that came out wrong.
 
 **Identity:** SEED-055#ci-time-budget-from-ci-timings
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/162-ci-time-budget-from-ci-timings/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"01a8fd0e3409afe8e9d364fd35b10aa29aca4976df25fdce41d733d4561a3440","plan":"895430a9a5b90c99fbf6b0d33d7ec14d8991f03db72d5a4c40e9cfb417992326"}}
 ```
 
-- **For / why:** Executing agents whose slice must stay inside
-  `tests/time-budget` need to know whether it will, without spending long
-  local timing runs that misjudge CI.
-- **Goal:** A budget-bound slice gets its baseline from CI's recent
-  `test-times-*` range for trunk, compares change against baseline with local
-  paired runs, and lets the pushed revision's CI job settle the budget.
-- **Evaluation:** Against
-  [the second-priority project findings](../../ProjectFindings.md#local-time-budget-measurement-under-load-second-priority):
-  - Plan 135 case: with a wide projected margin, the slice stops local timing
-    and accepts the pushed revision's CI test-times (52.2 s against a 71 s
-    ceiling) without further runs.
-  - Plan 139 case: the projection starts from recent trunk CI times (48.5–61.2
-    s), not one stale 52.2 s. The thin margin behind the 69.0 s CI result is
-    visible before the push.
-  - Recent CI test-times for a job are fetched by one command, not assembled by
-    hand.
+- **Goal:** The agent planning or executing a slice that must stay inside
+  `tests/time-budget` reads the job's current baseline from recent trunk CI
+  timings with one command, and measures locally only when that baseline leaves
+  thin headroom. A slice with wide headroom pushes and lets its revision's CI
+  job settle the budget. A thin margin shows before the push, so the slice
+  splits a job in the same change rather than in a follow-up commit. This cuts
+  agent time and extra commits on budget-bound slices, so the repository's own
+  proof stays cheap to trust.
+- **Problem as observed:** Against
+  [the second-priority project findings](../../ProjectFindings.md#local-time-budget-measurement-under-load-second-priority)
+  (DD-158), checked against plans 135 and 139 as committed. Both plans copied
+  one CI number into plan text as the baseline ("the job is 47.3 s now";
+  "seed records 52.2 s"). Plan 139 scaled 52.2 s by a local paired ratio of
+  1.11 to 58 s. Trunk was then running 48.5–61.2 s, and the same ratio applied
+  to 61.2 s gives 67.9 s against the 69.0 s CI measured. The stale baseline,
+  not the paired ratio, produced that miss. Plan 135 kept timing (3 pairs, then
+  5+5 runs and 3 concurrent pairs) although every estimate stayed well inside
+  71 s, and nothing told it when to stop. The recent trunk range was later
+  assembled by hand from CI artifacts.
+- **Scope:**
+  - One read-only command reports, for recent successful trunk CI runs, each
+    job's lowest and highest `test-times-*` seconds and each split share's
+    lowest and highest total. It shows them beside the `tests/time-budget`
+    ceilings and the headroom left under the highest value. When no run or
+    artifact can be read, it says so and names why. It never starts a test run.
+  - Guidance in `tests/README.md`, with a one-line pointer from the
+    `tests/time-budget` header, which is what a plan cites when it names the
+    budget:
+    - A plan names the command, not a copied CI number, and the baseline
+      comes from it when the slice measures.
+    - Headroom under the recent highest value that is at least the recent
+      spread (highest minus lowest) counts as wide. The slice pushes without
+      local timing, and its revision's CI job settles the budget, as today.
+    - Thinner headroom gets one local paired comparison of the job before
+      and after the change under the current load. Its ratio is applied to the
+      recent highest value. A projection at or over the ceiling splits the
+      job in the same slice.
+    - The pushed revision's CI result stays the verdict, and a breach still
+      fails that split job.
+  - Deferred: automated local timing or a per-slice timing gate; changing or
+    recalibrating either ceiling (the command naturally supplies the numbers
+    a recalibration needs, but this story promises no recalibration); timing
+    history beyond CI's seven-day artifact retention; any dashboard or trend
+    view.
+  - Constraint: a local comparison is paired A/B under the current load, never
+    waiting for an idle machine. The command runs no paid native host.
+- **Key examples:**
+  - Wide headroom (plan 135 shape): recent trunk runs show
+    `tests/git-publication-native.sh` at 40.0–51.4 s against
+    `per-job-seconds=71`. Headroom 19.6 s is at least the spread of 11.4 s, so
+    the slice adding a substitute journey pushes without local timing, and
+    that revision's CI `test-times-*` settle it.
+  - Thin headroom (plan 139 shape): recent trunk runs show the job at
+    48.5–61.2 s. Headroom 9.8 s is less than the spread of 12.7 s, so the slice
+    runs one paired comparison (72.5 s → 80.5 s, ratio 1.11). The projection
+    of 67.9 s is visible before the push, and it is where the split decision
+    is made.
+  - Share total: recent share-1 totals of 295–387 job-seconds against
+    `total-job-seconds=470` are reported the same way and judged by the same
+    rule.
+  - No readable runs (none in the retention window, or `gh` unavailable):
+    the command reports that no recent trunk timings were found and why. The
+    slice pushes and CI settles the budget.
 - **Value / learning:** Saves agent time on each budget-bound slice and avoids
   follow-up split commits; learns whether CI's spread is narrow enough to
   project from.
-- **Effort hypothesis:** Small: one retrieval command and `tests/README.md`
-  guidance.
-- **Depends on:** CI's `test-times-*` artifacts and `scripts/test-budget.sh`.
-- **Constraint:** Keep paired A/B comparisons under the current load for speed
-  comparisons; do not wait for an idle machine.
-- **Safe stopping point:** The retrieval command and the README guidance are in
-  place.
+- **Effort hypothesis:** Small: one retrieval command with its test, plus
+  `tests/README.md` and `tests/time-budget` guidance.
+- **Depends on:** CI's `test-times-*` artifacts and `tests/time-budget`.
+- **Safe stopping point:** The retrieval command and its guidance are in place.
 
 ## Ordering and When to Surface
 
 The maintainer asked for the two highest-priority project findings at the top
-of the product backlog, story 1 first. Story 1 has the highest impact and
-recent frequency (paid runs across three consecutive native-heavy executions);
-story 2 recurs in two executions, is open, and has no existing fix. The stories
-are independent.
+of the product backlog. Story 1 has the highest impact and recent frequency
+(paid runs across three consecutive native-heavy executions); story 2 recurs
+in two executions, is open, and has no existing fix. The stories are
+independent. Story 2 goes first because it is small and protects story 1:
+native work regrows `tests/git-publication-native.sh`, the job nearest its
+ceiling (41.5 s after its 2026-09-28 split, 40.0–51.4 s over the next trunk
+runs), and story 1 is the likeliest next slice bound by that budget.
 
 ## Breadcrumbs
 

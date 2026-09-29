@@ -72,26 +72,26 @@ sessions launched from this dashboard are kept.
 
 Each entry, in Recent sessions and on a card, also shows its session's state,
 read from `claude agents --json --all` in the project's folder whenever the
-records are read and never kept, and whether the developer is needed there.
-One reading (`src/sessionShown.ts`) decides both from Claude
-Code's `state` alone; whether the process runs or is idle does not. A session
-not marked done needs attention while Claude Code lists it `blocked`, shown
-**Needs input** with what it waits for when Claude Code reports `waitingFor`
-(for a question, Claude Code 2.1.284 reports only "input needed");
-`done`, shown **Ready for review** whether its process still runs or has
-exited; `failed`, shown **Session failed**; or `stopped`, shown **Session
-stopped**. Such an entry has a solid, heavier edge beside those words. A
-`working` session shows **Working**, busy or idle between steps, and needs no
-attention; a state this reading does not know shows **State not recognized**
-with the state Claude Code lists, and no attention. Opening or closing a
-session's terminal leaves its attention as it is; the next listing that no
-longer asks for the developer, or a successful Mark as done, clears it. A
-session marked done (below) never needs attention again: it shows **Working**
-while Claude Code lists it working, as opening it wakes it, and **Done**
-otherwise. A session Claude Code no longer lists shows **Session unavailable**
-(**Done** once marked done) without Open terminal; if the listing cannot be
-read, every entry shows **State unknown** with "Claude Code's session list
-could not be read", no attention, and keeps Open terminal. While the page
+records are read and never kept, and whether the developer is needed there. One
+reading (`src/sessionShown.ts`) decides both from Claude Code's `state` alone;
+whether the process runs or is idle does not. A session not marked done needs
+attention while Claude Code lists it `blocked`, shown **Needs input** with what
+it waits for when Claude Code reports `waitingFor` (for a question, Claude Code
+2.1.284 reports only "input needed"); `done`, shown **Ready for review**
+whether its process still runs or has exited; `failed`, shown **Session
+failed**; or `stopped`, shown **Session stopped**. Such an entry has a solid,
+heavier edge beside those words. A `working` session shows **Working**, busy or
+idle between steps, and needs no attention; a state this reading does not know
+shows **State not recognized** with the state Claude Code lists, and no
+attention. Opening or closing a session's terminal leaves its attention as it
+is; the next listing that no longer asks for the developer, or a successful
+Mark as done, clears it. A session marked done (below) needs no attention while
+it stays marked: it shows **Working** while Claude Code lists it working and
+**Done** otherwise; opening its terminal here reopens it (below). A session
+Claude Code no longer lists shows **Session unavailable** (**Done** once marked
+done) without Open terminal; if the listing cannot be read, every entry shows
+**State unknown** with "Claude Code's session list could not be read", no
+attention, and keeps Open terminal. While the page
 is visible it reads the records again every 15 seconds, the pace of its
 revision checks, so a state change shows without a reload. With no records,
 `claude` is not run.
@@ -127,7 +127,10 @@ attach`, when it comes from another site or host (403), names an unknown
 project (404), names a session this dashboard did not record for that project
 (404, without running `claude` at all), finds the project folder missing
 (404), or names a session Claude Code no longer lists (410). As for Open
-terminal, a stopped session and one whose state is unknown still attach.
+terminal, a stopped session and one whose state is unknown still attach. An
+admitted attach to a session marked done clears the record's done time once
+`claude attach` has started, before any of its output reaches the socket; a
+refused upgrade, or an attach that could not start, leaves the mark.
 
 **Open terminal** on a card's entry or a Recent sessions entry opens that
 session in the page's one terminal (`src/TerminalPanel.tsx`, an xterm.js
@@ -176,7 +179,11 @@ to the session's Recent sessions entry: its Open terminal, the entry itself
 when it offers none, or Recent sessions when the entry is not shown. That
 entry shows **Done** and "Named done-<name>", even for a session Claude Code
 no longer lists, and still offers Open terminal while Claude Code keeps the
-conversation. A done mark is local evidence, like the launch record, and
+conversation. Opening it there reopens the session: once the terminal shows
+its output, the page reads the session's record again, so the session returns
+to its card with its current state and its entry no longer shows Done, through
+reloads and restarts. It is kept like any unclosed session until Mark as done
+marks it again. A done mark is local evidence, like the launch record, and
 never changes where origin places the story.
 
 Launch records are kept on this machine, outside every repository, in

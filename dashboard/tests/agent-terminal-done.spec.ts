@@ -3,12 +3,15 @@
 // says so quietly; then the panel closes, the session leaves its card, the
 // keyboard goes to the session's Recent sessions entry, since the card entry
 // that opened it is gone, and Recent sessions shows the entry Done under its
-// `done-` name, still openable. How the boundary renames and stops the session is
-// ./agent-launch-done.spec.ts, and a card entry's own Mark as done is
+// `done-` name, still openable. Opening it there again reopens it: once its
+// terminal attaches, it is back on its card and no longer Done, through a
+// reload, until it is marked done again. How the boundary renames and stops
+// the session is ./agent-launch-done.spec.ts, how it reopens it is
+// ./agent-terminal-reopen.spec.ts, and a card entry's own Mark as done is
 // ./agent-launch-card-done.spec.ts. A refused mark keeps the panel open and
-// says so, and a mark answered after another session replaced the panel leaves
-// the keyboard in the new terminal. Origin alone still places the story. The
-// page's own dashboard server drives the synthetic `claude`
+// says so, and a mark answered after another session replaced the panel
+// leaves the keyboard in the new terminal. Origin alone still places the
+// story. The page's own dashboard server drives the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
 import { renameSync } from "node:fs";
@@ -75,7 +78,7 @@ test.describe("marking a session done from its terminal", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("Mark as done closes the panel, the session leaves its card, and the keyboard goes to its Recent sessions entry, which shows it Done", async ({
+  test("Mark as done closes the panel, the session leaves its card, and the keyboard goes to its Recent sessions entry, which shows it Done until its terminal opens again", async ({
     page,
     dashboard,
   }) => {
@@ -133,6 +136,29 @@ test.describe("marking a session done from its terminal", () => {
     await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toContainText(`Named ${doneName}`);
     await expect(listed).toHaveCount(0);
+    await expectMembership(page, queued);
+
+    // Opening its terminal again reopens it, without waiting for the next
+    // read of the records.
+    await entry.getByRole("button", { name: "Open terminal" }).click();
+    await expect(rows).toContainText("attached");
+    await expect(listed).toHaveCount(1);
+    await expect(sessionStateOf(listed)).not.toHaveText("Done");
+    await expect(sessionStateOf(entry)).not.toHaveText("Done");
+    await expect(entry).not.toContainText("Named done-");
+    await expectMembership(page, queued);
+
+    await page.reload();
+    await settled();
+    await expect(listed).toHaveCount(1);
+    await expect(sessionStateOf(listed)).not.toHaveText("Done");
+    await expect(sessionStateOf(entry)).not.toHaveText("Done");
+    await expect(entry).not.toContainText("Named done-");
+
+    await listed.getByRole("button", { name: "Mark as done" }).click();
+    await expect(listed).toHaveCount(0);
+    await expect(sessionStateOf(entry)).toHaveText("Done");
+    await expect(entry).toContainText(`Named ${doneName}`);
     await expectMembership(page, queued);
   });
 

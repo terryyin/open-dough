@@ -9,7 +9,10 @@
 // when that control is gone, as a card's entry goes once its session is
 // marked done, the keyboard goes to the session's Recent sessions entry
 // (`sessionKeyboardHome`). A panel another session has already replaced moves
-// no focus when it closes.
+// no focus when it closes. Once the panel shows output from a session the
+// page holds as done, the page reads that session again, since the boundary
+// reopens a done session its terminal attaches to
+// (`../server/agentTerminals.ts`).
 
 import {
   useCallback,
@@ -19,6 +22,7 @@ import {
   type ReactNode,
 } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
+import type { ProjectLaunches } from "./agentLaunches.ts";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
   sessionKeyboardHome,
@@ -38,11 +42,12 @@ type KeyboardReturn = {
 };
 
 export function TerminalSplit({
-  markDone,
+  sessions: { markDone, readSession },
   children,
 }: {
-  // Marks a recorded session done, answering whether it was marked.
-  readonly markDone: (record: LaunchRecord) => Promise<boolean>;
+  // The recorded sessions the terminal acts on; `readSession` keeps its
+  // identity across renders.
+  readonly sessions: Pick<ProjectLaunches, "markDone" | "readSession">;
   readonly children: ReactNode;
 }) {
   const [terminal, setTerminal] = useState<TerminalOpening | undefined>();
@@ -94,6 +99,14 @@ export function TerminalSplit({
     closeTerminal(open);
     return "closed";
   };
+  const attached = useCallback(
+    (record: LaunchRecord) => {
+      if (record.doneAt !== undefined) {
+        void readSession(record);
+      }
+    },
+    [readSession],
+  );
   const markSessionDone: MarkSessionDone = async ({ record, opener }) => {
     const marked = await markClosing(record);
     if (marked === "marked") {
@@ -116,6 +129,7 @@ export function TerminalSplit({
           <TerminalPanel
             key={terminal.record.session.sessionId}
             record={terminal.record}
+            onAttached={attached}
             onClose={() => {
               closeTerminal(terminal);
             }}

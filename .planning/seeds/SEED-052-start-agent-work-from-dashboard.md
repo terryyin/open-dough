@@ -104,50 +104,6 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
-<a id="reopened-session-returns"></a>
-
-### Keep a reopened session on its story's card
-
-**Identity:** SEED-052#reopened-session-returns
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/161-reopened-session-returns/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3522f0612332e91cacf30b704d7ac5d3ff441295d3888528f4eb4b255ed473d6","plan":"916b571c0fcc4cd1b49cda91dc69af5a57698cea962b4487ae8226b72bde61c4"}}
-```
-
-**Goal:** A developer who reopens a session they had marked done, and keeps
-working in it, finds it on its story's card again. The card never hides a
-session the developer is actively using for that story.
-
-**Scope:**
-
-- Opening a session marked done in the page's terminal clears its done mark:
-  the terminal attaching to the session is the reopening. The session then
-  returns to its story's card with its current state, and Recent sessions no
-  longer shows it as **Done** or its "Named done-<name>" line. Its kept launch
-  record loses its done time, so it is kept like any unclosed session.
-- **Mark as done** closes a reopened session again, as for any session: it
-  leaves its card, and the new done time starts its 30 days of retention.
-- An attach that is refused or fails, or reading Recent sessions without
-  opening a terminal, leaves the mark unchanged.
-- Claude Code keeps the `done-` name it was given; the dashboard does not
-  rename the session back.
-- **Constraint:** Session facts stay local evidence. They never move a story
-  between stages or establish its progress or completion.
-- **Deferred:** Discovering sessions this dashboard did not launch.
-
-**Key examples:**
-
-1. A developer marks a story's Execution session done; it leaves the card and
-   Recent sessions shows it Done. Later they choose Open terminal on that
-   Recent sessions entry and the terminal attaches. The card lists the session
-   again with its current state, and its Recent sessions entry no longer says Done.
-2. After a dashboard restart, the reopened session is still listed on its
-   card.
-3. The developer marks the reopened session done again. It leaves the card,
-   and Recent sessions shows it Done, kept for 30 days from this new mark.
-4. Claude Code no longer lists a done session, so its entry offers no Open
-   terminal and the attach boundary refuses it (410). The session stays done
-   and off the card.
-
 <a id="card-session-residue"></a>
 
 ### Correction: Prove Mark as done's remaining edges and trim card-session residue
@@ -169,6 +125,44 @@ region focus fallback, the unreadable-listing stop, a card entry's refusal
 message, the `TerminalOpening` reuse for marking, Started test names, and
 overlapping card specs over 250 lines. It adds no feature promise. See the
 [plan](../slice-plans/160-card-session-residue/PLAN.md).
+
+<a id="session-sidebar"></a>
+
+### Find and return to any session from a toggleable sidebar
+
+**Identity:** SEED-052#session-sidebar
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer running agent sessions across several projects
+  can see every session in one place, notice at a glance which ones need
+  them, and jump straight to the story and its session without first
+  switching to the right project and hunting for its card.
+- **Evaluation:** A sidebar opens and closes from a dashboard control and
+  with Command+B, and stays as the developer left it while they move around
+  the dashboard. It lists the sessions from all projects, in the order they
+  were created. Every session that needs the developer, by the same reading
+  as a card's attention, stands out so it catches their eye. Clicking an entry
+  keeps the sidebar open, goes to that session's project page, highlights and
+  scrolls to its story, and opens that session in the split terminal panel.
+- **Boundary:** Sessions launched from this dashboard only, as Recent
+  sessions keeps them. The sidebar may take over the Recent sessions list.
+  Opening a session from the sidebar never changes a story fact, stage, or
+  session state. Refinement decides which sessions are listed (for example,
+  sessions marked done), what happens to a session whose story is in no list,
+  newest or oldest first, and Command+B's behavior when the focus is in the
+  terminal.
+- **Value / learning:** Turns attention from a per-card signal into
+  whole-dashboard awareness across projects, and tests whether one list can
+  replace per-project Recent sessions.
+- **Effort hypothesis:** Roughly half a day; cross-project session listing
+  and navigating to a story on another project's page are the main
+  uncertainties.
+- **Depends on:** Recent sessions, card attention, and the split terminal
+  panel, all delivered.
+- **Safe stopping point:** The sidebar is additive; cards, Recent sessions,
+  and the terminal panel keep working without it.
 
 <a id="script-execution-preparation"></a>
 
