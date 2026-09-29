@@ -104,26 +104,6 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
-<a id="preparing-card-refinement-journey"></a>
-
-### Correction: Observe a Preparing-card refinement in one journey
-
-**Identity:** SEED-052#preparing-card-refinement-journey
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/154-preparing-card-refinement-journey/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c3219ab8218f858d08c4e911d79ef1788787a3f05692f714022171dcfaff1a27","plan":"4f0ceffb29fd666021236cff701b7b9afe68b199440a7e3e305b7e5e65d34826"}}
-```
-
-**Goal:** Maintainers change how a refinement launched on a Preparing card
-settles and is listed in one journey, not two.
-
-**Scope:** The correction found by the execution retrospective of
-SEED-052#recent-sessions-residue (commits `1de2187a`, `6fa51cb6`, merged in
-`5bc35521`; closed history at
-`1abb3497:.planning/seeds/SEED-052-start-agent-work-from-dashboard.md`). The settlement journey now observes that
-launch settling at once and listed in Recent sessions, so the recent-sessions
-spec's Preparing step repeats it. It adds no feature promise. See the
-[plan](../slice-plans/154-preparing-card-refinement-journey/PLAN.md).
-
 <a id="launch-claude-refinement"></a>
 
 ### 4. See when a dashboard session needs human attention
