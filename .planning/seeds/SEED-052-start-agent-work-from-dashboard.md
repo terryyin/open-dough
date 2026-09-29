@@ -148,7 +148,7 @@ spec's Preparing step repeats it. It adds no feature promise. See the
 
 **Identity:** SEED-052#interact-with-claude-terminal
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/152-interact-with-claude-terminal/PLAN.md","assessment":"not-ready","reasons":["The plan extends story 2 (SEED-052#revisit-dashboard-sessions), whose code is on origin/claude/revisit-dashboard-sessions but not yet on main; reassess once it lands."],"basis":{"document":"6f8ed5ce5081885dae0c16aba36582592b53b82751956f5a810ef4fe0c01b450","plan":"38cf4d0183a97d8fcc66a1090702d4d6f8875e77725547443a498a9a46862dc2"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/152-interact-with-claude-terminal/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6f8ed5ce5081885dae0c16aba36582592b53b82751956f5a810ef4fe0c01b450","plan":"aef118fd291d1faa42ae64b97ed39e0cf22bc71b3efe1e6ce2d789f1ce3353b4"}}
 ```
 
 **Goal:** A developer who launched work from the dashboard can open that

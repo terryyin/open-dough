@@ -15,12 +15,11 @@
 - **Preparation workspace:** `.worktrees/interact-with-claude-terminal`
   (branch `claude/refine-interact-with-claude-terminal`), created at
   `a99c67f7` and announced as agent Yuma-chan at `f90c2974`.
-- **Builds on:** story 2, SEED-052#revisit-dashboard-sessions (plan 150). Its
-  execution is complete on `origin/claude/revisit-dashboard-sessions`
-  (`c25e538d`) but not yet on `main`. Execution of this plan starts once that
-  work is on `main`. Every file reference below is to that branch. The
-  unqueued correction SEED-052#recent-sessions-residue (plan 151) touches the
-  same Recent sessions code. Whichever runs second rebases onto the other.
+- **Builds on:** story 2, SEED-052#revisit-dashboard-sessions (plan 150),
+  now on `main` (closed at `f7e7e272`). Every file reference below is to
+  `main`. The queued correction SEED-052#recent-sessions-residue (plan 151)
+  touches the same Recent sessions code. Whichever runs second rebases onto
+  the other.
 
 ## Outcome and boundaries
 
@@ -168,7 +167,7 @@ the new wording, as plan 150 added for Recent sessions.
 | xterm 6 renders rows as DOM text Playwright can read. | Installed `@xterm/xterm` 6.0.0 and searched its bundle. | `DomRenderer` is present and is the default (the canvas renderer is an addon). Slice 3's spec confirms the reading. |
 | Detaching leaves a session running, and a stopped session can be reopened. | `claude attach --help` and `claude --help` (Claude Code 2.1.284). | Attach: "The session keeps running either way" for ← and Ctrl+Z. `stop`: "Its conversation is kept: `claude attach <id>` opens it again." Whether killing the attach process also leaves the session running is not documented. Slice 1 observes it. |
 | Claude Code has no CLI rename for a background session. | `claude --help` and `claude agents --help`; Claude Code docs (`commands.md`, `cli-reference.md`, `agent-view.md`) read through a docs lookup. | Only `--name` at launch. `/rename [name]` renames the current session, and Ctrl+R renames a row in the interactive agent view. The docs do not say whether `/rename` changes `claude agents --json`'s `name`. A command sent while Claude is responding is queued until the turn ends, so a rename sent to a busy session would be lost to an immediate `stop`. Slice 1 observes the listed name. |
-| Story 2's code is what this plan extends. | `git log origin/main..origin/claude/revisit-dashboard-sessions`; read `LaunchSession.tsx`, `RecentSessions.tsx`, `agentLaunchPlugin.ts`, `claudeCode.ts`, `agentLaunches.ts`, `launchRecordStore.ts`, `fake-claude`. | Six commits ending at `c25e538d`, plan 150 complete, not on `main`. The files match the PFE notes above. |
+| Story 2's code is what this plan extends. | `git merge-base --is-ancestor c25e538d origin/main` at `616a8aa2` (2026-09-29); read `LaunchSession.tsx`, `RecentSessions.tsx`, `agentLaunchPlugin.ts`, `claudeCode.ts`, `agentLaunches.ts`, `launchRecordStore.ts`, `fake-claude`, `fakeClaude.ts` (`machine` option). | Plan 150's commits are on `main`. `attachOpens`, `verifyLocalOrigin`, `keptRecords`, `keepRecord`, `execClaude`, and `claudeSessions` exist as the PFE notes describe. |
 
 ## Slices
 
