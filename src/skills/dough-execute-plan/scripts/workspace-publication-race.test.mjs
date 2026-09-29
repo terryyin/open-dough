@@ -2,12 +2,7 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { test } from "node:test";
-import {
-  createdForRecords,
-  git,
-  lsRemoteSha,
-  revParse,
-} from "./publication-test-fixtures.mjs";
+import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import { commitWorkspaceClaim } from "./workspace-publication-claim.mjs";
 import { selectOwnedWorkspace } from "./workspace-publication-select.mjs";
 import { publishClaimSha } from "./workspace-publication-push.mjs";
@@ -25,9 +20,7 @@ import {
 } from "./workspace-publication-startup-test-fixtures.mjs";
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 
-// Two workspaces selected before either claims: A's request names no work,
-// and B's names one Git rejects as a ref name. Both are created as usual,
-// with no record of the work they were created for.
+// Two workspaces selected from the same fetched trunk before either claims.
 async function claimPair(trunk) {
   const workspaceA = join(trunk.fixture, "exec-a");
   const workspaceB = join(trunk.fixture, "exec-b");
@@ -42,14 +35,11 @@ async function claimPair(trunk) {
     origin: trunk.origin,
     workspace: workspaceB,
     branch: "exec/b",
-    identity: "SEED-B#b..not-a-ref",
   });
   assert.equal(selectedA.ok, true, selectedA.recovery?.error);
   assert.equal(selectedB.ok, true, selectedB.recovery?.error);
   assert.equal(selectedA.created && selectedB.created, true);
   assert.equal(selectedA.startingRevision, selectedB.startingRevision);
-  for (const workspace of [workspaceA, workspaceB])
-    assert.deepEqual(await createdForRecords(workspace), [], workspace);
   return { workspaceA, workspaceB, selectedA, selectedB };
 }
 

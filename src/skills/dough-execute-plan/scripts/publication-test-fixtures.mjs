@@ -10,6 +10,10 @@ import {
 import { tmpdir } from "node:os";
 import { isAbsolute, join } from "node:path";
 import { exec, git, lsRemoteSha, revParse } from "./publication-git.mjs";
+import {
+  createdForRef,
+  createdForRoot,
+} from "./workspace-publication-ownership.mjs";
 
 // `lsRemoteSha` resolves a ref on a bare remote directly (not the checkout's
 // cached remote-tracking ref), so proof about "the bare origin itself" is
@@ -35,10 +39,8 @@ export async function worktreeCount(repo) {
   return stdout.split("\n\n").filter((block) => block.trim() !== "").length;
 }
 
-// Work-creation records live under this per-worktree prefix.
-const createdForRoot = "refs/worktree/dough/created-for/";
-
-// The work-creation records `cwd`'s worktree lists, each as "ref sha".
+// The work-creation records `cwd`'s worktree lists under their per-worktree
+// prefix, each as "ref sha".
 export async function createdForRecords(cwd) {
   const { stdout } = await git(
     cwd,
@@ -51,7 +53,7 @@ export async function createdForRecords(cwd) {
 
 // The one record of a workspace created for `identity` at `sha`.
 export const createdFor = (identity, sha) => [
-  `${createdForRoot}${identity} ${sha}`,
+  `${createdForRef(identity)} ${sha}`,
 ];
 
 export {

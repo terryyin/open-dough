@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { markdownSection as section } from "../../../../tests/support/markdown-section.mjs";
 import { readPlanSlices } from "../../dough-product-backlog/scripts/product-backlog-plan-reader.mjs";
 
 const skills = join(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -14,17 +15,6 @@ const monitor = read("dough-execute-plan/references/ci-monitor.md");
 const planning = read("dough-story-refinement/references/planning.md");
 const retrospective = read("dough-execution-retrospective/SKILL.md");
 const wrapUp = read("dough-story-wrap-up/SKILL.md");
-
-// A section runs from its heading to the next `## ` heading.
-const section = (text, heading) => {
-  const lines = text.split("\n");
-  const start = lines.indexOf(heading);
-  assert.notEqual(start, -1, `missing ${heading}`);
-  const next = lines.findIndex(
-    (line, index) => index > start && line.startsWith("## "),
-  );
-  return lines.slice(start + 1, next === -1 ? undefined : next).join("\n");
-};
 
 // The documented record is the section's fenced Markdown example; the prose
 // around it is the guidance.

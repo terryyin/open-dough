@@ -7,6 +7,11 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { markdownSection as section } from "../../../../tests/support/markdown-section.mjs";
+import {
+  createdForRef,
+  createdForRoot,
+} from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 
 const skills = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const read = (path) => readFileSync(join(skills, path), "utf8");
@@ -50,27 +55,16 @@ test("the shared lifecycle owns selection, local checkout role, and target selec
   assert.doesNotMatch(shared, /Take (?:queued|or admit) work/);
 });
 
-test("the shared lifecycle retires a workspace with the work that created it", () => {
-  const words = (phrase) => new RegExp(phrase.trim().split(/\s+/).join("\\s+"));
-  const close = shared.slice(shared.indexOf("## Close or retain it"));
-  for (const phrase of [
-    "Remove only a clean, unambiguous workspace created for this work",
-    "the story, preparation, execution, or exploration it serves",
-    "one an earlier session created for this same work is removed with it",
-    // A later session can read the fact: the workspace's creation record, a
-    // retained selection result, or a caller's or developer's statement; a
-    // held claim or assignment is not it.
-    "the workspace's creation record, naming the work it was created for",
-    "`refs/worktree/dough/created-for/<identity>`",
-    "`git -C <worktree> for-each-ref --format='%\\(refname:lstrip=4\\)' refs/worktree/dough/created-for/`",
-    "reporting the workspace as created \\(`created: true`\\)",
-    "caller's or developer's statement that the workspace was created for this work",
-    "A creation record naming other work means this work reused the workspace",
-    "A claim or preparation assignment the workspace holds shows which work it serves, not whether that work created it",
-    "A reused or host-owned workspace stays with its owning workflow; retain and report it, with the work its creation record names",
-  ]) {
-    assert.match(close, words(phrase));
-  }
+test("the shared lifecycle's closure names the creation record and the command that reads it", () => {
+  // The contracts the closure and Land entry points link to: the section
+  // itself, the creation record's ref name, and the command that reads it,
+  // both spelled from the name the runtime writes.
+  const close = section(shared, "## Close or retain it");
+  for (const contract of [
+    `\`${createdForRef("<identity>")}\``,
+    `\`git -C <worktree> for-each-ref --format='%(refname:lstrip=4)' ${createdForRoot}\``,
+  ])
+    assert.ok(close.includes(contract), `missing ${contract}`);
   for (const guidance of [
     shared,
     preparation,

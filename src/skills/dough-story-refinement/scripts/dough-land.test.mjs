@@ -19,6 +19,7 @@ import {
   plantHumanEdit,
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { createdForRef } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import {
   landWorktree,
   planReviewedEdits,
@@ -42,7 +43,7 @@ test("Dough Land commits every committed and uncommitted edit, publishes over a 
   });
   const worktreesBefore = await worktreeCount(integration);
   // The creation record preparation `start` writes, seen from the repository.
-  const createdFor = "refs/worktree/dough/created-for/SEED-1#a";
+  const createdFor = createdForRef("SEED-1#a");
   const record = `worktrees/${basename(preparation)}/${createdFor}`;
   await git(preparation, "update-ref", createdFor, "HEAD");
   await git(integration, "rev-parse", "--verify", record);
