@@ -3,7 +3,8 @@
 // reveals its card and opens no terminal; on a narrow window, opening an
 // entry also closes the sidebar lying over the page; and under reduced
 // motion the page moves to the story at once; closing the terminal then
-// returns the keyboard to Sessions. The page's own dashboard
+// returns the keyboard to Sessions; and a pick left behind for another
+// project's stories never scrolls the page later. The page's own dashboard
 // server launches and attaches the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
@@ -142,5 +143,39 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
     await panel.getByRole("button", { name: "Close" }).click();
     await expect(panel).toHaveCount(0);
     await expect(button).toBeFocused();
+  });
+  test("a pick whose project's stories are left before they are read never scrolls the page to its card", async ({
+    page,
+    dashboard,
+  }) => {
+    const { holdPygardonStories } = await openNavigationJourney(
+      page,
+      dashboard,
+      stagesJourney,
+    );
+    const { button, entry } = sidebarParts(page);
+    const { project, backlog } = parts(page);
+    const panel = page.getByRole("region", { name: "Terminal" });
+    const showProject = (name: string) =>
+      project.getByRole("radio", { name, exact: true }).check();
+    await button.click();
+
+    const release = holdPygardonStories();
+    await entry(pygardonStory.title).click();
+    await expect(panel.getByRole("heading")).toHaveText(pygardonStory.title);
+    await showProject("Doughnut");
+    await expectMembership(page, {
+      taken: [],
+      backlog: [doughnutSharedTitle],
+    });
+    release();
+
+    await showProject("Pygardon");
+    await expect(
+      backlog.getByRole("article", { name: pygardonStory.title }),
+    ).toBeVisible();
+    await expect(panel.getByRole("heading")).toHaveText(pygardonStory.title);
+    expect(await revealsOf(page)).toEqual([]);
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
   });
 });

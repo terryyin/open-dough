@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Prove the busy-session rename edge and confirm observer shutdown honestly](seeds/SEED-052-start-agent-work-from-dashboard.md#mark-done-residue) — SEED-052#mark-done-residue ([plan](slice-plans/166-mark-done-residue/PLAN.md))
 - [Close the assessor counterexample discipline's remaining gaps](seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps) — SEED-055#assessor-counterexample-gaps ([plan](slice-plans/168-assessor-counterexample-gaps/PLAN.md))
-- [Keep the Sessions sidebar's reads and reveals honest](seeds/SEED-052-start-agent-work-from-dashboard.md#session-sidebar-residue) — SEED-052#session-sidebar-residue ([plan](slice-plans/167-session-sidebar-residue/PLAN.md))
 
 ## Backlog list
 
