@@ -192,7 +192,7 @@ exit 0 under a modern bash. Behavior walk decisions:
 
 ### 3. Native sessions retire a worktree whose creation only the ref records
 Type: Behavior
-Status: planned
+Status: done
 Proof: substitute runs and assessor counterexamples, then the manual paid native runs on all three hosts.
 
 Behavior: A fixture worktree carries `refs/worktree/dough/created-for/<identity>`
@@ -236,9 +236,19 @@ or Dough Land: it followed `trunk-publication.md` and removed the worktree
 after the containment check alone.
 
 Learning: the owned-context assessors observe only the retired outcome, so a
-closure agent that skips the ownership check still passes. Example 5 on Claude
-Code trunk closure is therefore not proven, and slice 3 stays planned until
-the developer decides how to close that gap.
+closure agent that skips the ownership check still passes; accept each native
+run on its transcript's record read, not on PASS alone. Terry chose to name the
+check where closure retires and rerun only that case: `trunk-publication.md`
+("Publish wrap-up closure") and wrap-up's "Remove execution resources safely"
+now say the worktree goes only when its creation record or another
+"Close or retain it" record shows this work created it (`3b1f8619`, asserted in
+`ci-completion-lifecycle-guidance.test.mjs`, failing against the prior text;
+30/30 guidance tests pass). The rerun
+`tests/git-publication-native.sh --native claude --case trunk-closure/owned-context`
+(results under `tmp/native147-rerun/`) printed PASS; the agent ran
+`git for-each-ref refs/worktree/`, saw `SEED-T#final-closure`, and reported
+retiring after "the worktree's creation record names this work". Example 5 is
+accepted on all three hosts for both journeys.
 
 ## Proof ownership
 
