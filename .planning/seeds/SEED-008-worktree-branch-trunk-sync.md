@@ -169,6 +169,29 @@ the payload with its tests.
 harness, whose recorded native evidence is stale after its response check and
 evidence identity changed; that acceptance renews it.
 
+<a id="land-from-default-checkout"></a>
+
+### Land changes made on the default checkout by committing to main and syncing
+
+**Identity:** SEED-008#land-from-default-checkout
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer who made a change directly on the default main
+  checkout can say "land" and have it published, instead of Dough Land stopping
+  because that checkout is not an owned worktree.
+- **Evaluation:** When the change to land sits on the default checkout, Dough
+  Land commits it on `main` and syncs with origin (rebasing onto the fetched
+  target and pushing without force). The result reports publication as it does
+  for a worktree. A change in an owned worktree lands as before.
+- **Boundary:** Applies only when the context says the change was made on the
+  default main checkout. Retirement does not apply, since no worktree is
+  removed. Which changes on the checkout are included, and whether unrelated
+  uncommitted files are refused, are open for refinement. Edited in
+  `src/skills/dough-land/`, the Open Dough source.
+- **Depends on:** None.
+
 <a id="reduce-ci-observer-overhead"></a>
 
 ### Reduce CI observer overhead across execution and wrap-up
