@@ -245,6 +245,12 @@ and `recentSessionsEntry`; SEED-052#card-session-residue's request-shape
 change and rename remain for it to reconcile. `dashboard/AGENT-LAUNCH.md`
 is 253 lines.
 
+CI repair (run 36579512757, `fbf80b82`): the narrow-window reveal check
+failed on CI's DejaVu fonts, where the 514px card with its 5rem scroll margin
+cannot lie wholly inside a 720px window below the banner; the test now uses a
+700×900 window. Reproduced in a Linux container with DejaVu (5/5 failing,
+then 30/30 passing).
+
 ## Proof ownership
 
 | Promise (story scope) | Slice |

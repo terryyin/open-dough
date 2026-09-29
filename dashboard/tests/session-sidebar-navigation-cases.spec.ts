@@ -111,8 +111,9 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
     const { sidebar, button, entry } = sidebarParts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    const view = page.viewportSize() ?? { width: 0, height: 0 };
-    await page.setViewportSize({ width: 700, height: view.height });
+    // Tall enough that the centered card, with the room it keeps above for the
+    // stage's pinned heading, fits below the banner in any font's metrics.
+    await page.setViewportSize({ width: 700, height: 900 });
     await button.click();
     await expect(sidebar).toBeVisible();
 
