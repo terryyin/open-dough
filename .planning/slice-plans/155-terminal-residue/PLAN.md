@@ -108,8 +108,24 @@ the label table this plan extends.
 
 ### 1. Mark as done keeps focus and shows progress, and its guards are proved
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-launch-done.spec.ts` (control character), `agent-launch-recent-session-states.spec.ts` (Done variants), `agent-terminal-done.spec.ts` (could-not-mark, focus, status style).
+
+Accepted proof: `npm run test:dashboard -- $(ls dashboard/tests/agent-*.spec.ts)`
+(140 passed) and `npm run typecheck:dashboard`. Observations: the done spec's
+control-character test (no attach lines, one stop, listing name unchanged);
+the states spec's "a session marked done reads Done…" step; the done page
+spec's main test (quiet `--quiet` colour while the request is held, then the
+entry's Open terminal focused), "a refused mark keeps the panel open…" (the
+project folder moved aside), and "a mark answered after another session
+replaced the panel…". Reverting `TerminalSplit.tsx`/`TerminalPanel.tsx` or the
+guard failed the corresponding tests.
+
+Learnings: focus returns in a layout effect after the panel's removal, which
+relies on the marked record and the close rendering in one commit; a session
+whose entry offers no Open terminal (Session unavailable) leaves focus on the
+body. The refactor made the fake's `claudeLaunchCalls()` return only `--bg`
+launches; stops are read from `claudeCalls()`.
 
 Behavior: examples 1–5. When the opener is gone, closing after Mark as done
 focuses that session's Recent sessions entry control; closing a panel that is

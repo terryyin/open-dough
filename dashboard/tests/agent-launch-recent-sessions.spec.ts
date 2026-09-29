@@ -170,8 +170,6 @@ test.describe("Recent sessions as origin publishes what the launched sessions do
     });
 
     // Listing never launched anything: five launches, one of them Doughnut's.
-    expect(
-      dashboard.claudeCalls().filter((call) => call.argv[0] === "--bg"),
-    ).toHaveLength(5);
+    expect(dashboard.claudeLaunchCalls()).toHaveLength(5);
   });
 });

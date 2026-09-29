@@ -41,7 +41,7 @@ session its listing does not show. It lists what it launched as
 `claude agents --json --all` does; `claudeSessionBecomes` makes a session
 working, idle, finished, or stopped, or forgets it, and `claudeListingFails`
 makes the listing fail. It records every call's argv and working directory
-(`claudeCalls`, or `claudeLaunchCalls` without the listings). Run as
+(`claudeCalls`, or `claudeLaunchCalls` for the `--bg` launches alone). Run as
 `claude attach` in the terminal boundary's pseudo-terminal
 (`agent-terminal-boundary.spec.ts`, and behind the page's terminal in
 `agent-terminal.spec.ts`), it echoes input, reports its size, and records its

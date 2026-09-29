@@ -67,7 +67,7 @@
 
 /* Why the terminal is no longer attached, and the action that attaches it
    again, or where Mark as done stands; empty, and taking no room, while it
-   is attached. */
+   is attached. Marking in progress is quiet, not a problem. */
 .terminal-status:not(:empty) {
   display: flex;
   align-items: center;
