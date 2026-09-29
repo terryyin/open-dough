@@ -271,3 +271,18 @@ suite; no paid native host is involved.
 No remaining slice-specific concerns identified in this review. Slice 1 is
 the largest (server, client, and nine spec helpers through one helper); its
 sizing rests on the helper absorbing the read change.
+
+## Execution complete
+
+Product advice: the story serves the near-future direction's local
+operational visibility for several agents on one machine, and its one
+machine read is the seam SEED-052#use-codex-from-dashboard and
+SEED-052#use-cursor-from-dashboard join through their host modules; keep
+their order. Queue correction SEED-052#session-sidebar-residue (plan 167)
+first, since its listing-folder probe decides whether every surface can lose
+its session states. Whether the sidebar can replace Recent sessions stays
+unjudged until it has been used. Terry's decision: the story's "Unavailable
+session" example says opening it "highlights its card", while its Scope and
+the build derive that mark from the terminal's session, so the card is only
+revealed; reword the example, or ask for a mark that does not need the
+terminal.

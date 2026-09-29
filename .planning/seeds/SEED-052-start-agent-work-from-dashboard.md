@@ -295,6 +295,29 @@ overlapping card specs over 250 lines. It adds no feature promise. See the
 - **Safe stopping point:** The sidebar is additive; cards, Recent sessions,
   and the terminal panel keep working without it.
 
+<a id="session-sidebar-residue"></a>
+
+### Keep the Sessions sidebar's reads and reveals honest
+
+**Identity:** SEED-052#session-sidebar-residue
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/167-session-sidebar-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"96e8221132c3348e773ddbd8a4b039f4ec1525529b79cf20921ac0de62eedb61","plan":"aae06338df4fe24d2b9fb431c03e34c1669108fe226bcde60d6b57dc33d849e5"}}
+```
+
+- **Goal:** A developer using the Sessions sidebar can trust that it reads
+  every session from a folder Claude Code answers the same way, that a list
+  still being read never looks complete, and that the page scrolls only where
+  they asked it to, correcting what the SEED-052#session-sidebar execution
+  left behind.
+- **Scope:** Confirm, with Terry's own listing from the home folder, that the
+  machine read's listing folder answers every session, and otherwise read it
+  in a catalog project's folder; drop a pending reveal once the developer
+  shows another project's stories; keep sessions not yet read while a launch
+  answers before the first read; bring the navigation specs into the test
+  guide and the North Star's keyboard return in line with the narrow-window
+  case. No new feature promise.
+- **Plan:** [plan 167](../slice-plans/167-session-sidebar-residue/PLAN.md)
+
 <a id="script-execution-preparation"></a>
 
 ### 5. Start execution with mechanical preparation already handled
