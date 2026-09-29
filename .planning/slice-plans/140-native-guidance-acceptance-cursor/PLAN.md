@@ -69,9 +69,16 @@ solution; no new harness justified by this acceptance-only story.
 ### 1. Accept existing one-shot cases natively on Cursor
 
 Type: Behavior
-Status: planned
-Proof: retained results-dir observations for the four cases, harness assessor
-pass, SEED-053 Cursor evidence line with guidance revision and date.
+Status: done
+Proof: source revision `a99c67f7823b6c0f219d57748f3d8532d8723354`, Cursor agent
+`2026.09.28-64d2043`, 2026-09-29. Each command
+`tests/git-publication-native.sh --native cursor --case <case> --results-dir native-results/cursor-one-shot`
+exited 0 with `assessment-status: pass`. Records:
+`native-results/cursor-one-shot/cursor/publication/one-shot-result/20260929T035401-179d`,
+`.../one-shot-queued/20260929T035727-18d3`,
+`.../admission-investigation/20260929T035934-4301`,
+`.../one-shot-escalation/20260929T040252-4fa6`.
+SEED-053 Cursor story records the same revision, date, and verdicts.
 
 Behavior: current guidance revision installed as the harness uses it → with
 Terry's go-ahead, one paid Cursor run per case (at most one retry after
@@ -118,5 +125,15 @@ planning-only prompt analogous to plan 115's Claude recipe.
 - One paid pass per case per guidance version is the acceptance claim.
 - Escalation stays in slice 1. Claude Code passed it on `23563ee0`
   (2026-09-28); the exit was not taken, so there is no drop step.
+
+## Execution identity
+
+- Mode: Story Branch
+- Workspace: `/Users/terryyin/git/open-dough/.worktrees/native-guidance-acceptance-cursor`
+- Branch: `cursor/native-guidance-acceptance-cursor`
+- Starting revision: `2057f0dca8d160484b8ead5d3eb24466cf05f254`
+- Published claim: `a99c67f7823b6c0f219d57748f3d8532d8723354` on `origin/cursor/native-guidance-acceptance-cursor`
+- Agent: Akiho-chan
+- Publisher: `cursor-native-guidance-acceptance-cursor`
 
 ## Learnings

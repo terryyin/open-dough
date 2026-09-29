@@ -75,6 +75,18 @@ acceptance includes that case.
   one Cursor run of that case → harness assessor passes → Cursor escalation
   accepted for that guidance revision.
 
+**Cursor one-shot evidence (2026-09-29):** source revision
+`a99c67f7823b6c0f219d57748f3d8532d8723354`, Cursor agent
+`2026.09.28-64d2043`. Each case passed once under
+`tests/git-publication-native.sh --native cursor --results-dir native-results/cursor-one-shot`:
+
+| Case | Assessor | Result path |
+| --- | --- | --- |
+| `publication/one-shot-result` | pass — only the one-shot result reached remote trunk and its workspace retired | `native-results/cursor-one-shot/cursor/publication/one-shot-result/20260929T035401-179d` |
+| `publication/one-shot-queued` | pass — the queued story's result and closure reached remote trunk as one commit and its workspace retired | `native-results/cursor-one-shot/cursor/publication/one-shot-queued/20260929T035727-18d3` |
+| `publication/admission-investigation` | pass — accepted investigation was admitted to remote Taken before its first probe | `native-results/cursor-one-shot/cursor/publication/admission-investigation/20260929T035934-4301` |
+| `publication/one-shot-escalation` | pass — the grown one-shot attempt was admitted as `SEED-C#notes-directory-rename` and its edits restored uncommitted over the claim | `native-results/cursor-one-shot/cursor/publication/one-shot-escalation/20260929T040252-4fa6` |
+
 ## Shared premise-verification cases
 
 These cases belong to the [Cursor](#native-acceptance-cursor) story. The

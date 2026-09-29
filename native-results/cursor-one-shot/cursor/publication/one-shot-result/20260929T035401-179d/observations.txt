@@ -1,0 +1,17 @@
+journey: one-shot-result
+stream-status: complete
+one-shot-start-observed: true
+base-sha: 37d615f33cb8076ba5012f5247d1736214ce712e
+remote-sha: 8417b461b65a87ec27221129dc08a326e77e93bd
+base-ancestor: true
+trunk-commit-count: 1
+planning-paths: 
+result-changed: true
+workspace-present: false
+branch-present: false
+human-edit-preserved: true
+ref-update-count: 1
+trunk-push-count: 1
+pushed-tip: 8417b461b65a87ec27221129dc08a326e77e93bd taken=
+pushed-taken: 
+forced-trunk-push-count: 0
