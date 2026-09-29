@@ -57,8 +57,8 @@ passed on 2026-09-29 against source revision
 The cases remain in the
 [shared one-shot list](SEED-053-native-guidance-acceptance.md#shared-one-shot-cases).
 Premise verification on Cursor passed Doughnut and the Open Dough control and
-failed the Pygardon seeding case. That guidance change is
-[SEED-044#name-the-feature-that-runs-moved-seeding](SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding).
+failed the Pygardon seeding case. That guidance change is recoverable at
+`24b5cbc1a821382d38b726d6079ac55e01635391:.planning/seeds/SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding`.
 
 <a id="native-one-shot-other-hosts"></a>
 

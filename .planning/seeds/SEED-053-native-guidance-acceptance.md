@@ -11,7 +11,7 @@ scope: unknown
 
 ## Why This Matters
 
-Maintainers need host-specific evidence for premise-verification and one-shot guidance. [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) says evidence from one host does not transfer to another. The Cursor one-shot result is recorded in [SEED-028](SEED-028-track-ad-hoc-work.md#story-decomposition). The Pygardon premise miss is [SEED-044#name-the-feature-that-runs-moved-seeding](SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding).
+Maintainers need host-specific evidence for premise-verification and one-shot guidance. [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) says evidence from one host does not transfer to another. The Cursor one-shot result is recorded in [SEED-028](SEED-028-track-ad-hoc-work.md#story-decomposition). The Pygardon premise miss is recoverable at `24b5cbc1a821382d38b726d6079ac55e01635391:.planning/seeds/SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding`.
 
 ## Stories
 
@@ -20,7 +20,7 @@ The Cursor acceptance story is closed. Its evidence remains recoverable from the
 ## Shared premise-verification cases
 
 These cases are the shared premise-verification setup. The guidance is delivered.
-The Pygardon miss is a separate queued story.
+The Pygardon miss is recoverable at `24b5cbc1a821382d38b726d6079ac55e01635391:.planning/seeds/SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding`.
 Claude Code acceptance is recoverable at
 `874f9a8:.planning/seeds/SEED-044-verify-planning-premises.md`.
 
@@ -59,7 +59,7 @@ implement, commit, push, or publish. Transcripts and written plans are under
 | Case | Verdict |
 | --- | --- |
 | Doughnut "no test" | **Pass.** Plan `043` names `scripts/test/quality_changed.test` and records that its fake `pnpm` sees unstaged files for format and only staged components for lint. It reaches `ready`. |
-| Pygardon seeding proof | **Fail.** Plan `208` moves `gate_baseline_genome` under tests and proves that with pytest. It never names `live_strategies.feature` or `seed_named_genome_live_strategy_pair.py`, although that feature was in the checkout. The guidance change is [SEED-044#name-the-feature-that-runs-moved-seeding](SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding). |
+| Pygardon seeding proof | **Fail.** Plan `208` moves `gate_baseline_genome` under tests and proves that with pytest. It never names `live_strategies.feature` or `seed_named_genome_live_strategy_pair.py`, although that feature was in the checkout. The guidance change is recoverable at `24b5cbc1a821382d38b726d6079ac55e01635391:.planning/seeds/SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding`. |
 | Open Dough control | **Pass, heavier than plan 111.** Plan `111` records five observed premises, reaches `ready`, and adds no probe slice, new approval, or full-suite run. Its proof also names dashboard Playwright specs that assert plan paths. |
 
 ## Shared one-shot cases
