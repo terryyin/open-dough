@@ -253,7 +253,7 @@ reruns it.
 
 ### 2. Story Branch wrap-up retires through the same command
 Type: Behavior
-Status: planned
+Status: done
 Proof: CLI test deleting a contained remote execution branch and keeping an uncontained one; Story Branch closure suites and the credential-free Story Branch native mode green.
 
 Behavior: A Story Branch story whose integrated SHA has an accepted completion
@@ -272,6 +272,23 @@ Proof: `closure-story-branch-cleanup.test.mjs` exercises the CLI;
 `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/git-publication-native.sh`
 passes in default mode with the Story Branch assessor accepting cleanup by the
 command.
+
+Accepted proof (2026-09-29): CLI tests in
+`closure-story-branch-cleanup.test.mjs` (contained remote execution branch
+removed with worktree and local branch, rerun already absent; uncontained
+remote tip keeps all three; target branch refused) and
+`worktree-retirement.test.mjs`; wrap-up, Land, preparation, and guidance suites,
+payload checks, and credential-free `tests/git-publication-native.sh`, whose
+Story Branch assessor now requires `worktree-retirement.mjs retire` with
+`--remote-branch` and `--contained` and rejects raw-Git cleanup. Native suite
+elapsed time: 56.5 s before slice 2, 57.7 s after (single runs).
+
+Learnings: the Story Branch native fixture now uses a worktree of the
+integration checkout instead of a clone with a project cleanup script, so its
+recorded native evidence is stale until slice 8. Its runner's fallback observer
+stop still enters the removed worktree; slice 7 owns that. CI repair
+`de81cb96` kept the Land model's `identity` optional for the dashboard
+preparing journey's typecheck (run 36507473752).
 
 ### 3. Trunk closure finishes through one installed command
 Type: Behavior

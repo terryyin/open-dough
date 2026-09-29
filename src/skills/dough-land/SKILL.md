@@ -120,7 +120,8 @@ written:
 node <installed>/dough-land/scripts/worktree-retirement.mjs retire \
   --repository <management context> --worktree <worktree> \
   --branch <worktree branch> --remote <remote> --target-ref refs/heads/<branch> \
-  [--identity <work identity>] [--created-for-work]
+  [--identity <work identity>] [--created-for-work] \
+  [--remote-branch <remote branch> --contained <sha>]
 ```
 
 - `--identity` is the identity of the work the worktree serves, such as its
@@ -131,29 +132,34 @@ node <installed>/dough-land/scripts/worktree-retirement.mjs retire \
   selection reported `created: true`, in the plan or the conversation, or the
   caller or developer states the worktree was created for this work. Do not
   infer it from a clean directory, a claim, or a preparation assignment.
+- `--remote-branch` names a branch the worktree's work published separately on
+  the same remote, such as a Story Branch execution branch; never the target
+  branch itself. Pass `--contained` with each revision the target must hold
+  before anything is removed, such as the integrated SHA the caller's receipt
+  covers; repeat it for more than one.
 
 The command fetches the target's remote, requires the fetched target to
-contain the branch tip, checks the worktree's ownership and state, removes
-the worktree, and safely deletes the local branch. Remote acceptance is what
-makes retirement safe; a default checkout being behind the target, or absent,
-does not make the branch unmerged. It prints one JSON line:
+contain the branch tip, any remote branch tip, and each `--contained`
+revision, checks the worktree's ownership and state, removes the worktree,
+safely deletes the local branch, and then deletes the remote branch. Remote
+acceptance is what makes retirement safe; a default checkout being behind the
+target, or absent, does not make the branch unmerged. It prints one JSON line:
 
 | Result | Act on it |
 | --- | --- |
-| `ok: true` | Report the worktree and branch as `removed` or `already-absent` |
-| `reason: "unique unpublished work"` | The fetched target lacks the branch tip. Retain both and report it; the branch holds work the target does not |
+| `ok: true` | Report the worktree, branch, and any `remoteBranch` as `removed` or `already-absent` |
+| `reason: "unique unpublished work"` | The fetched target lacks the branch tip or a `--contained` revision. Retain everything and report it; the target lacks that work |
+| `reason: "remote execution tip is not integrated"` | The fetched target lacks the remote branch tip. Retain the worktree and both branches and report the remote tip; it holds work the target does not |
+| `reason: "remote branch is the target"` | Nothing ran. Name the separately published branch, never the target |
 | `reason: "dirty checkout"`, `"ambiguous checkout"`, or `"another workspace"` | Retain and report path, branch, and reason; the developer decides |
 | `reason: "created for other work: <work>"` | The worktree belongs to the named work. Retain it, even when you believed this work created it |
 | `reason` naming a reused, host-owned, or unrecorded workspace | It stays with its owning workflow. Retain and report it; rerun with `--created-for-work` only from a record named above |
-| `partial: true` | A removal was not verified. Report which of `worktree` and `branch` was done, then rerun |
+| `partial: true` | A removal was not verified. Report which of `worktree`, `branch`, and `remoteBranch` was done, then rerun |
 | `reason: "git error"` | Report its `error` and the step as unfinished; retain what remains |
 | Exit 2 | A usage error; nothing ran. Supply the missing input |
 
 Every result other than `ok: true` exits 1; nothing beyond what it reports
 was removed.
-
-Delete a separately published remote branch for the worktree only after the
-target contains its tip, and never the target branch itself.
 
 Accept already-absent resources on a rerun: once the worktree is gone, rerun
 the command with the management context recorded before its removal; it

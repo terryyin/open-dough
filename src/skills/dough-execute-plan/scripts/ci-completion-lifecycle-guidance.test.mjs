@@ -173,6 +173,10 @@ test("wrap-up retires execution resources through Dough Land with its completion
     wrapUpRetirement,
     /active checkout-bound observer[\s\S]+preserve pending local work/,
   );
+  assert.match(
+    wrapUpRetirement,
+    /Story Branch Mode[\s\S]+`--remote-branch <execution\s+branch>`[\s\S]+`--contained <integrated SHA>`/,
+  );
   assert.match(wrapUpRetirement, /Trunk Mode[\s\S]+never deletes one/);
   assert.match(wrapUpRetirement, /direct-current-branch mode/);
   assert.match(

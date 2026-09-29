@@ -1,18 +1,13 @@
 // Wrap-up's cleanup gates (confirmed completion receipt, no checkout-bound
-// observer, remote execution branch; Trunk Mode passes none) around Dough
-// Land's retirement core, whose work-scoped ownership gate takes the caller's
+// observer) around Dough Land's retirement core, which also checks the closure
+// revisions' containment, deletes a Story Branch remote execution branch (Trunk
+// Mode passes none), and applies the work-scoped ownership gate to the caller's
 // identity and created-for-this-work fact. No default checkout is needed.
 import {
-  git,
-  lsRemoteSha,
-} from "../../dough-execute-plan/scripts/publication-git.mjs";
-import {
   canonical,
-  isAncestor,
   preserved,
   retireWorktree,
   trunkTarget,
-  unverifiedRemoval,
 } from "../../dough-land/scripts/worktree-retirement.mjs";
 
 function hostsThisWorktree(observer, execution) {
@@ -52,10 +47,11 @@ export async function removeExecutionResources({
   }
   const remoteExecutionBranch =
     typeof remoteBranch === "string" && remoteBranch !== "" ? remoteBranch : "";
-  const remoteRef = `refs/heads/${remoteExecutionBranch}`;
   const shas = Array.isArray(closureShas) ? closureShas : [];
-  let remoteTip = "";
-  const result = await retireWorktree({
+  const named =
+    (remoteExecutionBranch ? shas.length >= 1 : shas.length === 2) &&
+    shas.every((sha) => typeof sha === "string" && sha !== "");
+  return retireWorktree({
     repository,
     worktree: execution,
     branch,
@@ -63,39 +59,13 @@ export async function removeExecutionResources({
     targetRef,
     identity,
     createdForWork,
-    holdReason: async ({ management, tracking, contained }) => {
-      remoteTip = remoteExecutionBranch
-        ? await lsRemoteSha(remote, remoteRef, management)
-        : "";
-      if (remoteTip && !(await isAncestor(management, remoteTip, tracking))) {
-        return "remote execution tip is not integrated";
-      }
-      let published =
-        (remoteExecutionBranch ? shas.length >= 1 : shas.length === 2) &&
-        shas.every((sha) => typeof sha === "string" && sha !== "");
-      for (const sha of shas) {
-        published &&= await isAncestor(management, sha, tracking);
-      }
-      if (!published || !contained) {
-        return "unique unpublished work";
-      }
+    remoteBranch: remoteExecutionBranch,
+    contained: named ? shas : [],
+    holdReason: async () => {
+      if (!named) return "unique unpublished work";
       return bothRegistered(observer, shas, targetRef)
         ? null
         : "observer obligation unfinished";
     },
   });
-  if (!result.removed || !remoteTip) {
-    return result;
-  }
-  const management = result.repository;
-  await git(management, "push", remote, "--delete", remoteExecutionBranch);
-  if (await lsRemoteSha(remote, remoteRef, management)) {
-    return unverifiedRemoval(
-      "remote branch removal was not verified",
-      execution,
-      branch,
-      { worktree: result.worktree, branch: result.branch },
-    );
-  }
-  return result;
 }

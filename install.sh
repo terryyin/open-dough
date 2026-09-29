@@ -136,6 +136,7 @@ managed_files=(
   dough-story-refinement/scripts/preparation-assignment-start.mjs
   dough-story-refinement/scripts/preparation-assignment-trunk.mjs
   dough-land/SKILL.md
+  dough-land/scripts/retirement-checks.mjs
   dough-land/scripts/worktree-retirement.mjs
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
@@ -242,9 +243,6 @@ managed_files=(
 )
 require_declared_payload
 release_helper="${source_dir}/src/install/open-dough-release.sh"
-[[ -f "${release_helper}" ]] || {
-  echo "This installer requires src/install/open-dough-release.sh in the source checkout." >&2
-  exit 1
-}
+[[ -f "${release_helper}" ]] || { echo "This installer requires src/install/open-dough-release.sh in the source checkout." >&2 && exit 1; }
 version=$(bash "${release_helper}" validate-checkout "${source_dir}")
 install_declared_payload

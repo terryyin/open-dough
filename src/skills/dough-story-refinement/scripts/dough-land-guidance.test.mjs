@@ -90,7 +90,8 @@ test("preparation keep and workspace retirement link Dough Land instead of descr
     land,
     /node <installed>\/dough-land\/scripts\/worktree-retirement\.mjs retire/,
   );
-  assert.doesNotMatch(land, /git worktree remove|git branch -d/);
+  assert.match(land, /\[--remote-branch <remote branch> --contained <sha>\]/);
+  assert.doesNotMatch(land, /git worktree remove|git branch -d|push --delete/);
   assert.doesNotMatch(land, /session-created|this\s+session\s+created/);
   assert.match(
     preparation,

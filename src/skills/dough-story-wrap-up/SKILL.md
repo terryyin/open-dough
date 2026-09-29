@@ -225,10 +225,10 @@ Wrap-up's gate: the final accepted publication (Trunk Mode's final closure, or
 Story Branch Mode's integrated SHA) has a completion receipt whose shutdown is
 confirmed, and no active checkout-bound observer still hosts the worktree under
 [preserve pending local work](../dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work).
-Trunk Mode publishes no remote execution branch and never deletes one. Dough
-Land's [refresh](../dough-land/SKILL.md#refresh-the-default-checkout) never
-blocks retirement. Report blocked or partial cleanup without repeating
-already-completed closure. Skip cleanup in direct-current-branch mode.
+In Story Branch Mode also pass `--remote-branch <execution branch>` and `--contained <integrated SHA>`;
+Trunk Mode publishes no remote execution branch and never deletes one. Dough Land's
+[refresh](../dough-land/SKILL.md#refresh-the-default-checkout) never blocks retirement. Report
+blocked or partial cleanup without repeating already-completed closure. Skip cleanup in direct-current-branch mode.
 
 ## Report
 

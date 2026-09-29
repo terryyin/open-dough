@@ -6,6 +6,26 @@
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
 
+# True when the node call log or a tool start in transcript $1 shows the
+# installed retire command deleting exec/story once trunk holds SHA $2.
+story_closure_retire_seen() {
+  local transcript=$1 sha=$2 count
+  count=$(
+    {
+      cat "${story_closure_node_log}"
+      grep -E '"subtype":"started"|"type":"item.started"|"type":"tool_use"' \
+        "${transcript}" 2> /dev/null || true
+    } | grep -F 'worktree-retirement.mjs retire' \
+      | grep -E -- '--remote-branch[^-]*exec/story' \
+      | grep -Ec -- "--contained[^-]*${sha}" || true
+  )
+  if ((count > 0)); then
+    printf 'true\n'
+  else
+    printf 'false\n'
+  fi
+}
+
 story_closure_observe() {
   local transcript=$1 response=$2 candidate=missing trunk_mailbox=missing
   local branch_terminal=missing trunk_terminal=missing trunk_state=missing
@@ -23,9 +43,10 @@ story_closure_observe() {
     && trunk_terminal=$(jq -r .status "${trunk_mailbox}/result.json")
   [[ -f ${trunk_mailbox}/coverage/${candidate}.json ]] \
     && trunk_state=$(jq -r .state "${trunk_mailbox}/coverage/${candidate}.json")
-  [[ ${candidate} != missing ]] && parent_count=$(git -C "${story_closure_workspace}" \
+  # The integration checkout shares the retired worktree's objects.
+  [[ ${candidate} != missing ]] && parent_count=$(git -C "${story_closure_integration}" \
     cat-file -p "${candidate}" | grep -c '^parent ' || true)
-  [[ $(git -C "${story_closure_workspace}" show "${candidate}:product.txt" 2> /dev/null) == $'trunk source\nstory source' ]] && source_ok=true
+  [[ $(git -C "${story_closure_integration}" show "${candidate}:product.txt" 2> /dev/null) == $'trunk source\nstory source' ]] && source_ok=true
   [[ -z $(git ls-remote "${story_closure_origin}" refs/heads/exec/story) ]] \
     && branch_remote=absent
   human_after=$(git -C "${story_closure_integration}" status --porcelain)
@@ -74,6 +95,13 @@ story_closure_observe() {
     printf 'branch-product-shutdown: %s\ntrunk-product-shutdown: %s\n' \
       "${branch_product_shutdown}" "${trunk_product_shutdown}"
     printf 'forced-stop: %s\n' "${forced_stop}"
+    printf 'retire-command: %s\n' "$(story_closure_retire_seen "${transcript}" "${candidate}")"
+    printf 'worktree-present: %s\nlocal-branch-present: %s\n' \
+      "$([[ -e ${story_closure_workspace} ]] && echo true || echo false)" \
+      "$(git -C "${story_closure_integration}" show-ref --quiet --verify \
+        refs/heads/exec/story && echo true || echo false)"
+    printf 'cleanup-observer-states: %s\n' "$([[ -f ${story_closure_cleanup_states} ]] \
+      && paste -sd, - < "${story_closure_cleanup_states}" || echo none)"
     printf 'branch-remote: %s\ncleanup-complete: %s\nhuman-edit-preserved: %s\n' \
       "${branch_remote}" "$([[ -f ${story_closure_cleanup_marker} ]] && echo true || echo false)" \
       "$([[ ${human_after} == "${story_closure_human_before}" ]] && echo true || echo false)"
@@ -111,6 +139,11 @@ story_closure_assess() {
   grep -Fqx 'branch-product-shutdown: true' "${observations}" || return 1
   grep -Fqx 'trunk-product-shutdown: true' "${observations}" || return 1
   grep -Fqx 'forced-stop: false' "${observations}" || return 1
+  grep -Fqx 'retire-command: true' "${observations}" || return 1
+  grep -Fqx 'worktree-present: false' "${observations}" || return 1
+  grep -Fqx 'local-branch-present: false' "${observations}" || return 1
+  grep -Eqx 'cleanup-observer-states: exec/story: (stopped|finished),main: (stopped|finished)' \
+    "${observations}" || return 1
   grep -Fqx 'branch-remote: absent' "${observations}" || return 1
   grep -Fqx 'cleanup-complete: true' "${observations}" || return 1
   grep -Fqx 'human-edit-preserved: true' "${observations}" || return 1
@@ -142,7 +175,10 @@ run_story_closure_assessor_counterexamples() {
     'branch-await-count: 0' 'branch-stop-count: 0' 'trunk-registered: true' \
     'trunk-complete-count: 1' 'trunk-await-count: 0' 'trunk-stop-count: 0' \
     'branch-product-shutdown: true' 'trunk-product-shutdown: true' \
-    'forced-stop: false' 'branch-remote: absent' 'cleanup-complete: true' \
+    'forced-stop: false' 'retire-command: true' 'worktree-present: false' \
+    'local-branch-present: false' \
+    'cleanup-observer-states: exec/story: stopped,main: finished' \
+    'branch-remote: absent' 'cleanup-complete: true' \
     'human-edit-preserved: true' 'transcript-complete: true' \
     'response-trunk-result: true' 'harness-inspected: false' 'control-order:' \
     '  branch-complete' '  branch-shutdown' '  trunk-setup' \
@@ -162,4 +198,14 @@ run_story_closure_assessor_counterexamples() {
     's/forced-stop: false/forced-stop: true/'
   story_closure_expect_rejected "${valid}" unregistered \
     's/trunk-registered: true/trunk-registered: false/'
+  story_closure_expect_rejected "${valid}" raw-git-cleanup \
+    's/retire-command: true/retire-command: false/'
+  story_closure_expect_rejected "${valid}" worktree-kept \
+    's/worktree-present: false/worktree-present: true/'
+  story_closure_expect_rejected "${valid}" local-branch-kept \
+    's/local-branch-present: false/local-branch-present: true/'
+  story_closure_expect_rejected "${valid}" cleanup-before-shutdown \
+    's/main: finished/main: running/'
+  story_closure_expect_rejected "${valid}" remote-branch-kept \
+    's/branch-remote: absent/branch-remote: present/'
 }

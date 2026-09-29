@@ -34,12 +34,16 @@ export async function runRetirementCommand({
   targetRef = "refs/heads/main",
   identity,
   createdForWork,
+  remoteBranch,
+  contained = [],
 }) {
   const args = [retirementCommand, "retire", "--repository", repository];
   args.push("--worktree", worktree, "--branch", branch, "--remote", remote);
   args.push("--target-ref", targetRef);
   if (identity) args.push("--identity", identity);
   if (createdForWork) args.push("--created-for-work");
+  if (remoteBranch) args.push("--remote-branch", remoteBranch);
+  for (const sha of contained) args.push("--contained", sha);
   try {
     const { stdout } = await promisify(execFile)("node", args);
     return { code: 0, result: JSON.parse(stdout) };
