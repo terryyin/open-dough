@@ -5,8 +5,8 @@
 - **Identity:** SEED-008#creation-record-test-residue.
 - **Source:** [correction story](../../seeds/SEED-008-worktree-branch-trunk-sync.md#creation-record-test-residue),
   from the execution retrospective of
-  [SEED-008#durable-workspace-creation-fact](../../seeds/SEED-008-worktree-branch-trunk-sync.md#durable-workspace-creation-fact)
-  (plan 147) on 2026-09-29.
+  SEED-008#durable-workspace-creation-fact
+  (plan 147, recoverable at `0d056b38:.planning/slice-plans/147-durable-workspace-creation-fact/PLAN.md`) on 2026-09-29.
 - **Provenance:** reviewed range `29f9bc6c..41965529` on
   `claude/durable-workspace-creation-fact`: `cb066559` (creation record and its
   tests), `c9dab355` (retirement guidance and its assertions), `3b1f8619`

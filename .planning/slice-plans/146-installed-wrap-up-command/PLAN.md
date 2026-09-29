@@ -49,8 +49,8 @@ refresh wording, and added the `trunk-closure/owned-context` and
 `requester`, and `publishExecutionIncrement` stops with `unpublished-base`
 (`execution-increment-publication.mjs:134`), which slice 3 reuses.
 
-[SEED-008#durable-workspace-creation-fact](../../seeds/SEED-008-worktree-branch-trunk-sync.md#durable-workspace-creation-fact)
-(plan 147) has closed. `selectOwnedWorkspace` writes
+SEED-008#durable-workspace-creation-fact
+(plan 147, recoverable at `0d056b38:.planning/slice-plans/147-durable-workspace-creation-fact/PLAN.md`) has closed. `selectOwnedWorkspace` writes
 `refs/worktree/dough/created-for/<identity>` when it creates a worktree
 (`createdForRef` in `workspace-publication-ownership.mjs`), and
 `exploration-workspace.md` "Close or retain it" reads it as the durable

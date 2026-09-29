@@ -208,97 +208,19 @@ which removed the owner arguments the closure modules passed.
 
 **Slice plan:** [Close stories through an installed wrap-up command](../slice-plans/146-installed-wrap-up-command/PLAN.md).
 
-<a id="durable-workspace-creation-fact"></a>
-
-### Retire a workspace created for the work in any later session
-
-**Identity:** SEED-008#durable-workspace-creation-fact
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/147-durable-workspace-creation-fact/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e27ad1835379bb76ddc18de178d8f946d8fb9b5da39c65b3b05f117853182a61","plan":"fc9dba977220eef797195c64492b550f937788ebc55c2f42ea8893129f256364"}}
-```
-
-**Decision (2026-09-29):** Terry asked for refinement and a slice plan with
-this story first. The open storage decision takes the recommended per-worktree
-Git ref, following the existing `refs/worktree/dough/preparation-assignment`
-pattern. The fact names the work it was created for, because execution startup
-reuses any existing workspace path whose branch can fast-forward, so a worktree
-created for one story can later serve another. Terry then decided that native
-proof of the later-session retirement belongs in this story, not in the
-wrap-up-command story, so the story's outcome does not depend on another
-story's acceptance.
-
-**Goal:** A developer whose story or preparation spans several agent sessions
-gets its worktree retired when that work lands or closes, instead of finding it
-retained as ambiguous because the session that created it is gone. Worktrees
-the work reused or a host owns still stay. The fact is also what the installed
-retirement command of
-[Close stories through an installed wrap-up command](#installed-wrap-up-command)
-reads instead of an agent-set flag.
-
-**Context (2026-09-28):** Terry decided that retirement ownership follows the
-work, not the session. The shared lifecycle
-(`src/skills/dough-manual-testing/references/exploration-workspace.md`,
-"Close or retain it") says so, but accepts only a `created: true` selection
-result kept in the plan or conversation, or the caller's statement.
-Preparation keeps neither across sessions, and executions do not write the
-fact into the plan in practice, so a later session usually retains the
-worktree. The native preparation-land and trunk-closure journeys pass only
-because their prompts state that an earlier session created the worktree.
-
-**Scope:**
-
-- When execution startup or preparation `start` creates a worktree for a work
-  item with an identity, it records
-  `refs/worktree/dough/created-for/<identity>` in that worktree, pointing at
-  the starting revision. Reusing an existing worktree records nothing. Git
-  removes the ref with the worktree.
-- "Close or retain it" reads that ref as the durable creation record: a ref
-  naming this work settles created-for-this-work in any session; a ref naming
-  other work, or no ref and no other record, retains and reports the worktree.
-  The existing same-session `created: true` and caller-statement records stay.
-- Preparation guidance stops telling the agent to record the workspace as
-  created by this session.
-- The native preparation-land and trunk-closure journeys drop their stated
-  creation (the prompt's "an earlier session of yours created it" and the
-  fixture plan's "created by this execution"); their fixtures instead carry
-  the creation ref the earlier session's command would have written. Both run
-  manually on Codex, Cursor, and Claude Code as the story's final slice and
-  still retire the worktree.
-- Deferred: backfilling worktrees that already exist; manual-testing and
-  bug-fixing exploration workspaces, which guidance creates without a runtime;
-  work without an identity, which keeps today's records; the installed
-  retirement command, owned by the wrap-up-command story; new native journeys.
-
-**Key examples:**
-
-1. Preparation `start` created a worktree for story S in one session; a later
-   session keeps and lands S's preparation → Land retires that worktree and
-   its branch.
-2. Execution startup created a worktree for story S; a later session closes S
-   → closure retires the worktree and branch once trunk contains them.
-3. A later Take for story T reuses the worktree created for S → T's closure
-   retains it and reports it as created for S.
-4. A host-owned worktree holds S's work → it has no creation ref, so it is
-   retained and reported whichever session closes S.
-5. On each host, a native preparation-land or trunk-closure session whose
-   prompt and plan never say who created the worktree, but whose worktree
-   carries S's creation ref → the agent retires it after landing or closing S.
-
-**Slice plan:** [Retire a workspace created for the work in any later session](../slice-plans/147-durable-workspace-creation-fact/PLAN.md).
-
 <a id="creation-record-test-residue"></a>
 
 ### Make the creation record's proof findable and wording-tolerant
 
 **Identity:** SEED-008#creation-record-test-residue
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/149-creation-record-test-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c82cd1230cb483d374a977b491b22c3b757f84a58e767b0da484aad1fcfb45b5","plan":"23bc07d745b616ba42a0301806c2868680d656fa101e4a238bc852efbc7a99d8"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/149-creation-record-test-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0829514032edc9bacae156dfcd94da482bd9f9535b7c8db0d37d244203d0992d","plan":"cee6afb0f8036b864769607f361692ba4c8e143d91e88f29d20af8c2e0d4a657"}}
 ```
 
 **Goal:** A maintainer changing workspace creation or retirement guidance finds
 the creation record's proof in tests named for it, and can reword the guidance
 without breaking tests that only pin prose. This corrects test residue from
-[Retire a workspace created for the work in any later session](#durable-workspace-creation-fact).
+SEED-008#durable-workspace-creation-fact (recoverable at `0d056b38:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`).
 
 **Scope:** Give the creation record its own named `selectOwnedWorkspace` tests
 and return the race tests' shared helper to its race purpose; name the record's
