@@ -214,7 +214,7 @@ which removed the owner arguments the closure modules passed.
 
 **Identity:** SEED-008#durable-workspace-creation-fact
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/147-durable-workspace-creation-fact/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"36d29df87101ced63bd4a0ab5e5d8c06335e425d0deef34adf5727c9b94cd9d8","plan":"fbf8afc26c57d13f62d2e90d8f8f49a439059b80e9fb96e849b26911cfcdc4fd"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/147-durable-workspace-creation-fact/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e27ad1835379bb76ddc18de178d8f946d8fb9b5da39c65b3b05f117853182a61","plan":"fc9dba977220eef797195c64492b550f937788ebc55c2f42ea8893129f256364"}}
 ```
 
 **Decision (2026-09-29):** Terry asked for refinement and a slice plan with
@@ -222,7 +222,10 @@ this story first. The open storage decision takes the recommended per-worktree
 Git ref, following the existing `refs/worktree/dough/preparation-assignment`
 pattern. The fact names the work it was created for, because execution startup
 reuses any existing workspace path whose branch can fast-forward, so a worktree
-created for one story can later serve another.
+created for one story can later serve another. Terry then decided that native
+proof of the later-session retirement belongs in this story, not in the
+wrap-up-command story, so the story's outcome does not depend on another
+story's acceptance.
 
 **Goal:** A developer whose story or preparation spans several agent sessions
 gets its worktree retired when that work lands or closes, instead of finding it
@@ -255,11 +258,16 @@ because their prompts state that an earlier session created the worktree.
   The existing same-session `created: true` and caller-statement records stay.
 - Preparation guidance stops telling the agent to record the workspace as
   created by this session.
+- The native preparation-land and trunk-closure journeys drop their stated
+  creation (the prompt's "an earlier session of yours created it" and the
+  fixture plan's "created by this execution"); their fixtures instead carry
+  the creation ref the earlier session's command would have written. Both run
+  manually on Codex, Cursor, and Claude Code as the story's final slice and
+  still retire the worktree.
 - Deferred: backfilling worktrees that already exist; manual-testing and
   bug-fixing exploration workspaces, which guidance creates without a runtime;
   work without an identity, which keeps today's records; the installed
-  retirement command, owned by the wrap-up-command story; new native journeys,
-  and any change to the existing journeys' prompts.
+  retirement command, owned by the wrap-up-command story; new native journeys.
 
 **Key examples:**
 
@@ -272,6 +280,9 @@ because their prompts state that an earlier session created the worktree.
    retains it and reports it as created for S.
 4. A host-owned worktree holds S's work → it has no creation ref, so it is
    retained and reported whichever session closes S.
+5. On each host, a native preparation-land or trunk-closure session whose
+   prompt and plan never say who created the worktree, but whose worktree
+   carries S's creation ref → the agent retires it after landing or closing S.
 
 **Slice plan:** [Retire a workspace created for the work in any later session](../slice-plans/147-durable-workspace-creation-fact/PLAN.md).
 

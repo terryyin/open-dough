@@ -41,8 +41,10 @@ when removing wording, do not add "no longer" prose.
 Excluded: backfilling existing worktrees; manual-testing and bug-fixing
 exploration workspaces (created by guidance, no runtime); work without an
 identity (keeps today's records); the installed retirement command and the
-closure code's `sessionOwned` flag (plan 146); new native journeys and changes
-to the existing journeys' prompts.
+closure code's `sessionOwned` flag (plan 146); new native journeys. The
+existing preparation-land and trunk-closure native journeys are in scope
+(slice 3): Terry decided on 2026-09-29 that this story's native proof stays in
+this story.
 
 ## Existing solutions (PFE)
 
@@ -135,7 +137,36 @@ Proof: add an assertion to
 already checks the shared lifecycle's structure, that "Close or retain it"
 names the creation ref; run it and the Land and preparation suites. Walk
 examples 1–4 through the edited guidance under the maintainer behavior review
-and record each decision point here. Native agent behavior is not claimed.
+and record each decision point here. Native agent behavior is slice 3's.
+
+### 3. Native sessions retire a worktree whose creation only the ref records
+Type: Behavior
+Status: planned
+Proof: substitute runs and assessor counterexamples, then the manual paid native runs on all three hosts.
+
+Behavior: A fixture worktree carries `refs/worktree/dough/created-for/<identity>`
+as the earlier session's command would have written it, and neither the
+prompt nor the plan says who created it → a native agent lands the prepared
+story through Dough Land (`publication/preparation-land`) or closes the Trunk
+Mode story (`trunk-closure/owned-context`) → the worktree and its branch are
+retired, exactly as the journeys assess today (example 5).
+
+Remove "an earlier session of yours created it for this preparation" from the
+preparation-land prompt (`tests/support/git-publication-native-owned-context.sh:64`)
+and "created by this execution" from the trunk-closure fixture plan
+(`tests/support/trunk-closure-native-owned-context.sh:44`). Each fixture writes
+the creation ref in the worktree it creates. Check that
+`tests/native-evidence-identity.sh` covers the edited guidance and the
+creation-writing command for both journeys, extending it when not, so the paid
+runs' evidence identity matches what they prove.
+
+Proof: `tests/git-publication-native-owned-context.sh` (substitute journeys and
+assessor counterexamples) and `tests/native-evidence-identity.sh` pass. Then,
+manually and only as this final slice, run
+`tests/git-publication-native.sh --native HOST --case publication/preparation-land`
+and `--case trunk-closure/owned-context` for HOST in `codex`, `cursor`, and
+`claude`, and record each result here. Paid runs are never added to an
+automated suite.
 
 ## Proof ownership
 
@@ -149,6 +180,7 @@ and record each decision point here. Native agent behavior is not claimed.
 | Example 3: worktree created for other work is retained and reported | 2: behavior walk |
 | Example 4: host-owned worktree is retained | 2: behavior walk; 1: no ref without creation |
 | Same-session and statement records remain valid | 2: behavior walk of edited "Close or retain it" |
+| Example 5: native agents on every host retire from the ref alone | 3: manual native preparation-land and trunk-closure runs on Codex, Cursor, Claude Code |
 
 ## Delivery checks
 
@@ -168,6 +200,7 @@ text beside `preparation-assignment.md:52-54` and rewrites startup cases.
 Cumulative design: one rule, a creation ref naming the work, written at the
 single creation point and read by the single shared lifecycle; no special case
 per caller. Slice 2's proof is guidance structure and a walk, because
-retirement is guidance-followed until plan 146 ships its command; the story
-excludes native journeys. No blocking slice-specific concern was identified in
-this review.
+retirement is guidance-followed until plan 146 ships its command; slice 3 then
+proves the same guidance natively on each host through the two existing
+journeys, with no new journey. No blocking slice-specific concern was
+identified in this review.

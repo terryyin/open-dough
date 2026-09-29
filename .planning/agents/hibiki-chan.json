@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Hibiki-chan",
-  "email": "hibiki-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-008#durable-workspace-creation-fact",
-  "host": "claude",
-  "model": "claude-opus-5-5"
-}
