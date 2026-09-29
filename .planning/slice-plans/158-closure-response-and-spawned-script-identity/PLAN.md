@@ -166,7 +166,7 @@ identity lists the new file, so its recorded native evidence is stale.
 
 ### 2. Closure evidence identities follow the scripts a journey's modules spawn
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/native-evidence-identity.sh` asserts the trunk-closure identity lists `ci-host-hook.mjs` and `product-backlog-git-rebase.mjs` and the Story Branch identity lists `product-backlog-git-driver.mjs`, fails at `14cd2de3`, and passes after; its per-input change check then covers them (example 6).
 
 Correction: F2 and the hash-function naming in F3. `native-import-closure.mjs`
@@ -194,6 +194,20 @@ accepted proof which identities changed (expected: trunk-closure, Story Branch,
 owned-context through new modules; those hashing
 `git-publication-native-shared.sh` through the rename); their recorded
 evidence is stale.
+
+Accepted proof (2026-09-29): `native-import-closure.mjs` also follows literal
+relative `.mjs` paths given to `new URL(…, import.meta.url)`; the hash function
+is `git_publication_closing_input_hash_lines`. Example 6's check extends the
+existing `closure_journey_inputs` list in `tests/native-evidence-identity.sh`
+rather than adding a second loop; with `14cd2de3`'s helper it fails with three
+omissions (`ci-host-hook.mjs`, `product-backlog-git-rebase.mjs`,
+`product-backlog-git-driver.mjs`) and now exits 0. `tests/git-publication-native.sh`
+default mode, `tests/git-publication-native-owned-context.sh` (substitute host),
+and `tests/execution-worktree-preparation-native.sh` default mode exit 0.
+Changed identities: trunk-closure (+14 inputs), Story Branch (+5), owned-context
+(+8), and publication and execution-review through the rename's file hashes;
+execution-worktree-prep, delivery-evidence, and native-result identities are
+unchanged. The changed identities' recorded native evidence is stale.
 
 ### 3. Closure test fixtures name what they serve
 Type: Structure

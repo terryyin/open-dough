@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Evidence-identity lines for the modules a native journey's commands run.
-# Sourced by identity writers that also source native-result-identity.sh.
+# Evidence-identity lines for the modules a native journey's commands run or
+# spawn. Sourced by identity writers that also source native-result-identity.sh.
 # shellcheck disable=SC2154 # source_dir comes from the sourcing check.
 
 native_import_closure_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 
-# One input-hash line per module in the relative-import closure of the given
-# repository-relative modules: each module and every module it imports.
+# One input-hash line per module in the closure of the given
+# repository-relative modules: each module and every module it imports or
+# spawns through a literal relative path.
 native_import_closure_input_hash_lines() {
   local closure
   local -a modules

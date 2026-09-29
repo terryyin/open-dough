@@ -2,8 +2,8 @@
 # Shared by publication journeys: adopting the coordinates a Node fixture
 # script prints, recording what origin accepts, ordering run markers, reading
 # the backlog and checkouts a session left, and listing the startup commands
-# and command outputs a session ran, and hashing the Dough Land inputs a
-# closing journey's evidence identity covers. Sourced by the runner.
+# and command outputs a session ran, and hashing the inputs a closing
+# journey's evidence identity covers. Sourced by the runner.
 # shellcheck disable=SC2034,SC2312 # Runner-consumed globals; observations tolerate failed Git reads.
 
 # shellcheck source=tests/support/native-import-closure.sh
@@ -99,10 +99,11 @@ git_publication_transcript_outputs() {
   jq -r '.. | objects | .stdout? // empty | strings' "$1" 2> /dev/null || true
 }
 
-# One input-hash line per Dough Land input a closing journey exercises: its
-# guidance and the references it follows, then one per module that its
-# retirement command and the journey's other given `.mjs` commands import.
-git_publication_land_input_hash_lines() {
+# One input-hash line per input a closing journey exercises: Dough Land's
+# guidance and the references it follows, then one per module in the command
+# closure of Land's retirement command and the journey's other given `.mjs`
+# commands, including the scripts those modules spawn.
+git_publication_closing_input_hash_lines() {
   native_result_input_hash_lines \
     src/skills/dough-land/SKILL.md \
     src/skills/dough-manual-testing/references/exploration-workspace.md \
