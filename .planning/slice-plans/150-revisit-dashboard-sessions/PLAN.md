@@ -222,7 +222,7 @@ README and North Star are at the 250-line limit.
 
 ### 3. Each entry shows Claude Code's state, and a session Claude Code no longer lists is unavailable
 Type: Behavior
-Status: planned
+Status: done
 Proof: boundary spec for the joined state; Recent sessions spec for labels and pacing; one manual `claude attach` observation.
 
 Behavior: a kept launch's session is working, idle, finished, stopped, or no
@@ -257,6 +257,21 @@ command's presence, and that ending a session updates its entry without a
 reload. Run the boundary, refusal, card, card-problems, settlement, and
 recent-sessions specs, since the listing change reaches each one's
 `claudeCalls()` assertions.
+
+Accepted: Terry ran `claude attach` on a finished session Claude Code still
+lists (2026-09-29) and it opened, so `attachOpens` in `src/agentLaunch.ts`
+keeps the current rule: attach for every listed session and for State
+unknown, none for Session unavailable. `claudeSessions` in `claudeCode.ts` is
+the one listing read; `recordsOf` joins it as `LaunchWithState` and runs no
+`claude` without records. `agent-launch-session-listing.spec.ts` observes
+listed, unlisted, and unknown answers and no `claude` without records.
+`agent-launch-recent-session-states.spec.ts` observes each label, the attach
+table, and one records read exactly at `checkIntervalMs` without a reload.
+The nine launch specs pass (81), 43 pace-sensitive specs pass, and typecheck
+is clean. Mapping choices: a listed session with a status is Working or Idle
+by that status; with no status it is Finished when done, otherwise Stopped.
+Gaps: no spec asserts the hidden-page pause, and a missing project folder
+shows State unknown.
 
 ### 4. A card's Started ends once its session no longer runs
 Type: Behavior

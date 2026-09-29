@@ -164,7 +164,7 @@ test("starting sends the instruction after the execution command in the Open Dou
   );
 
   const folder = realpathSync(path.join(dashboard.home, "git", "open-dough"));
-  expect(dashboard.claudeCalls()).toEqual([
+  expect(dashboard.claudeLaunchCalls()).toEqual([
     {
       argv: [
         "--bg",
@@ -174,7 +174,6 @@ test("starting sends the instruction after the execution command in the Open Dou
       ],
       cwd: folder,
     },
-    { argv: ["agents", "--json"], cwd: folder },
   ]);
   // Only the launched card's execution changed.
   await expect(start(readyStory)).toBeEnabled();
@@ -209,7 +208,7 @@ test("starting refinement sends its instruction in the Open Dough folder and sho
   await expect(start(notRefinedStory)).toBeEnabled();
 
   const folder = realpathSync(path.join(dashboard.home, "git", "open-dough"));
-  expect(dashboard.claudeCalls()).toEqual([
+  expect(dashboard.claudeLaunchCalls()).toEqual([
     {
       argv: [
         "--bg",
@@ -219,7 +218,6 @@ test("starting refinement sends its instruction in the Open Dough folder and sho
       ],
       cwd: folder,
     },
-    { argv: ["agents", "--json"], cwd: folder },
   ]);
 
   await start(notRefinedStory).click();
@@ -235,7 +233,7 @@ test("starting refinement sends its instruction in the Open Dough folder and sho
   await expect(
     card(notRefinedStory).getByRole("button", { name: /^Start / }),
   ).toHaveCount(0);
-  expect(dashboard.claudeCalls()[2]?.argv).toEqual([
+  expect(dashboard.claudeLaunchCalls()[1]?.argv).toEqual([
     "--bg",
     "--name",
     `Open Dough · Execution · ${notRefinedStory}`,

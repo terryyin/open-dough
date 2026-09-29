@@ -29,7 +29,7 @@ workflows above, and only Claude Code as the host. It runs
 `/<skill> <identity>`, followed by a blank line and the developer's
 instruction when there is one. It passes no model, permission, or effort
 choice, so the developer's own Claude Code settings apply. It confirms the
-session in `claude agents --json`.
+session in Claude Code's own listing, `claude agents --json --all`.
 
 A confirmed launch replaces its own action with a Started record naming its
 workflow, such as **Refinement started**; the card's other action stays, and a
@@ -66,6 +66,17 @@ every list, and two launches of one story are two entries. Another project's
 launches are listed only under that project, and sessions this dashboard did
 not launch are not listed. With no records it says that no sessions launched
 from this dashboard are kept.
+
+Each entry also shows its session's state, read from `claude agents --json
+--all` in the project's folder whenever the records are read and never kept:
+**Working** or **Idle** while its process runs busy or idle, **Finished** once
+it is done, and **Stopped** otherwise. A session Claude Code no longer lists
+shows **Session unavailable** without `claude attach <id>`; if the listing
+cannot be read, every entry shows **State unknown** with "Claude Code's
+session list could not be read" and keeps its attach command. While the page
+is visible it reads the records again every 15 seconds, the pace of its
+revision checks, so a state change shows without a reload. With no records,
+`claude` is not run.
 
 Launch records are kept on this machine, outside every repository, in
 `~/.open-dough/dashboard/agent-launches.json`. Restarting `npm run

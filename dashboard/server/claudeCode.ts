@@ -1,7 +1,8 @@
 // The Claude Code host for the local launch boundary (`./agentLaunches.ts`):
 // the instruction a session starts with, the fixed `claude` argument array,
-// confirming the session `claude --bg` started through `claude agents --json`,
-// and classifying failure into fixed categories. Raw stderr may name local
+// confirming the session `claude --bg` started through Claude Code's own
+// session listing, which also answers each recorded session's state, and
+// classifying failure into fixed categories. Raw stderr may name local
 // paths or echo configuration and is never forwarded, as with the `gh`
 // boundary (`./ghRead.ts`). No model, permission, effort, or session id is
 // passed: the developer's own Claude Code settings apply, and `--bg` chooses
@@ -15,12 +16,13 @@ import {
   type AgentLaunchRequest,
   type HostSession,
   type LaunchResult,
+  type SessionState,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
 export type HostLaunch =
-  | { readonly kind: "launched"; readonly session: HostSession }
+  | ({ readonly kind: "launched" } & ListedSession)
   | Exclude<LaunchResult, { readonly kind: "launched" }>;
 
 // The workflow's skill on the work item's identity; the developer's own
@@ -78,33 +80,63 @@ function printedShortId(stdout: string): string | undefined {
   return backgroundedLine.exec(stripVTControlCharacters(stdout))?.[1];
 }
 
+// Claude Code's own session listing: `--all` includes sessions whose process
+// has exited, and `status` (busy or idle) is present only while a session's
+// process runs.
+const listingArgs = ["agents", "--json", "--all"] as const;
+
 const listedSessions = z.array(
   z.looseObject({
     id: z.string().min(1),
     sessionId: z.string().min(1),
     name: z.string().optional(),
+    state: z.string(),
+    status: z.string().nullish(),
   }),
 );
 
-function listedSession(stdout: string, shortId: string): HostSession | null {
+// One session Claude Code lists, and its state as listed.
+export type ListedSession = {
+  readonly session: HostSession;
+  readonly sessionState: Extract<SessionState, { readonly kind: "listed" }>;
+};
+
+function parsedListing(stdout: string): readonly ListedSession[] | undefined {
   let listed: unknown;
   try {
     listed = JSON.parse(stdout);
   } catch {
-    return null;
+    return undefined;
   }
   const sessions = listedSessions.safeParse(listed);
-  const session = sessions.success
-    ? sessions.data.find((entry) => entry.id === shortId)
+  return sessions.success
+    ? sessions.data.map((entry) => ({
+        session: {
+          host: "claude",
+          sessionId: entry.sessionId,
+          shortId: entry.id,
+          name: entry.name ?? "",
+        },
+        sessionState: {
+          kind: "listed",
+          state: entry.state,
+          ...(entry.status == null ? {} : { status: entry.status }),
+        },
+      }))
     : undefined;
-  return session === undefined
-    ? null
-    : {
-        host: "claude",
-        sessionId: session.sessionId,
-        shortId: session.id,
-        name: session.name ?? "",
-      };
+}
+
+// Every session Claude Code lists, running or not, as it answers in the
+// project folder, or undefined when its listing could not be read. Both a
+// launch's confirmation and a read of the launch records ask this.
+export async function claudeSessions(
+  folder: ProjectFolder,
+  signal: AbortSignal,
+): Promise<readonly ListedSession[] | undefined> {
+  const listing = await execClaude(listingArgs, folder, signal);
+  return listing.error || signal.aborted
+    ? undefined
+    : parsedListing(listing.stdout);
 }
 
 const checkAgents = "Check `claude agents` for it before starting again.";
@@ -195,10 +227,12 @@ export async function launchClaude(
   if (shortId === undefined) {
     return unconfirmed();
   }
-  const listing = await execClaude(["agents", "--json"], folder, signal);
+  const listed = await claudeSessions(folder, signal);
   if (expired(signal)) {
     return timedOut();
   }
-  const session = listing.error ? null : listedSession(listing.stdout, shortId);
-  return session === null ? unconfirmed() : { kind: "launched", session };
+  const confirmed = listed?.find((entry) => entry.session.shortId === shortId);
+  return confirmed === undefined
+    ? unconfirmed()
+    : { kind: "launched", ...confirmed };
 }

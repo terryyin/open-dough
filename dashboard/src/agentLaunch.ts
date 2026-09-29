@@ -112,13 +112,44 @@ export const launchRecordSchema = z.object({
 
 export type LaunchRecord = z.infer<typeof launchRecordSchema>;
 
+// A recorded session as the host lists it at the moment of asking, never
+// stored: `listed` with the host's `state` and, only while its process runs,
+// its `status`; `unlisted` once the host no longer lists it; `unknown` when
+// the host's listing could not be read.
+export const sessionStateSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("listed"),
+    state: z.string(),
+    status: z.string().optional(),
+  }),
+  z.object({ kind: z.literal("unlisted") }),
+  z.object({ kind: z.literal("unknown") }),
+]);
+
+export type SessionState = z.infer<typeof sessionStateSchema>;
+
+// Whether `claude attach <id>` is offered for a session: for every session
+// the host still lists, and while its listing is unknown, since the session
+// may still be there.
+export function attachOpens(sessionState: SessionState): boolean {
+  return sessionState.kind !== "unlisted";
+}
+
+// A kept launch record joined with its session's state when it was answered;
+// the state itself is never kept.
+export const launchWithStateSchema = launchRecordSchema.extend({
+  sessionState: sessionStateSchema,
+});
+
+export type LaunchWithState = z.infer<typeof launchWithStateSchema>;
+
 // The latest record of one work item's workflow among a project's records,
 // oldest first.
 export function latestRecordOf(
-  records: readonly LaunchRecord[],
+  records: readonly LaunchWithState[],
   identity: string,
   workflow: LaunchWorkflow,
-): LaunchRecord | undefined {
+): LaunchWithState | undefined {
   return records.findLast(
     (record) =>
       record.request.identity === identity &&
@@ -168,7 +199,9 @@ export const launchFailureReasons = [
 export const launchUncertaintyReasons = ["timed-out", "unconfirmed"] as const;
 
 export const launchResultSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("launched"), record: launchRecordSchema }),
+  // The record kept, with its session as the host listed it when confirming
+  // the launch.
+  z.object({ kind: z.literal("launched"), record: launchWithStateSchema }),
   z.object({
     kind: z.literal("failed"),
     reason: z.enum(launchFailureReasons),
@@ -183,7 +216,8 @@ export const launchResultSchema = z.discriminatedUnion("kind", [
 
 export type LaunchResult = z.infer<typeof launchResultSchema>;
 
-// One project's launch records, as the boundary answers a GET.
+// One project's launch records, as the boundary answers a GET, each joined
+// with its session's current state.
 export const launchRecordsSchema = z.object({
-  records: z.array(launchRecordSchema),
+  records: z.array(launchWithStateSchema),
 });

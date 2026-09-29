@@ -82,7 +82,7 @@ for (const mode of ["dev", "preview"] as const) {
           ],
           cwd: folder,
         },
-        { argv: ["agents", "--json"], cwd: folder },
+        { argv: ["agents", "--json", "--all"], cwd: folder },
       ]);
       expect(await recordsOf(server, "open-dough")).toEqual([answer.record]);
       expect(await recordsOf(server, "doughnut")).toEqual([]);

@@ -12,7 +12,7 @@ import {
   launchRecordsSchema,
   launchResultSchema,
   type AgentLaunchRequest,
-  type LaunchRecord,
+  type LaunchWithState,
   type LaunchResult,
 } from "./agentLaunch.ts";
 
@@ -68,11 +68,12 @@ export async function requestAgentLaunch(
     : noTrustedAnswer("answered in a shape this dashboard does not understand");
 }
 
-// The launch records this machine keeps for one project, oldest first,
-// or undefined when no trustworthy answer came.
+// The launch records this machine keeps for one project, oldest first, each
+// with its session's current state, or undefined when no trustworthy answer
+// came.
 export async function readLaunchRecords(
   sourceId: string,
-): Promise<readonly LaunchRecord[] | undefined> {
+): Promise<readonly LaunchWithState[] | undefined> {
   try {
     const response = await fetch(
       `${agentLaunchEndpoint}?source=${encodeURIComponent(sourceId)}`,

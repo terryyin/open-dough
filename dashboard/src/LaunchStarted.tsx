@@ -5,7 +5,7 @@
 // the session does.
 
 import { useEffect, useRef } from "react";
-import { launchWorkflows, type LaunchRecord } from "./agentLaunch.ts";
+import { launchWorkflows, type LaunchWithState } from "./agentLaunch.ts";
 import { Moment } from "./Moment.tsx";
 import { LaunchSession } from "./LaunchSession.tsx";
 import "./agent-launch.css";
@@ -14,7 +14,7 @@ export function LaunchStarted({
   record,
   takesFocus,
 }: {
-  readonly record: LaunchRecord;
+  readonly record: LaunchWithState;
   // Set when the developer's own launch from this card just replaced the
   // action, so the keyboard lands on what replaced it.
   readonly takesFocus: boolean;

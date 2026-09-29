@@ -52,7 +52,7 @@ function seedStore(machine: string, text: string): void {
   writeFileSync(storeFile(machine), text);
 }
 
-function recordLaunchedDaysAgo(days: number, sessionId: string): unknown {
+function recordLaunchedDaysAgo(days: number, sessionId: string): object {
   return {
     request: launchRequest,
     session: {
@@ -122,7 +122,10 @@ test.describe("launch records kept on this machine", () => {
     );
     const server = await serverOn("preview");
 
-    expect(await recordsOf(server, "open-dough")).toEqual([recent]);
+    // The fake `claude` never launched it, so it no longer lists it.
+    expect(await recordsOf(server, "open-dough")).toEqual([
+      { ...recent, sessionState: { kind: "unlisted" } },
+    ]);
   });
 
   test("answers no records from an unreadable store and leaves it until the next launch moves it aside", async () => {

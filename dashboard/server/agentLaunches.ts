@@ -2,20 +2,26 @@
 // (`./agentLaunchPlugin.ts`): resolve the project folder
 // (`./projectFolders.ts`), run the host (`./claudeCode.ts`) within the launch
 // wait, and keep a confirmed result in this machine's launch record store
-// (`./launchRecordStore.ts`), which outlives the server. Origin still decides
-// every story fact.
+// (`./launchRecordStore.ts`), which outlives the server. A read of the kept
+// records answers each session's state from Claude Code's listing, never
+// stored. Origin still decides every story fact.
 
 import type {
   AgentLaunchRequest,
+  LaunchWithState,
   LaunchRecord,
   LaunchResult,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { launchClaude } from "./claudeCode.ts";
+import { claudeSessions, launchClaude } from "./claudeCode.ts";
 import { keepRecord, keptRecords } from "./launchRecordStore.ts";
 import { folderExists, projectFolder } from "./projectFolders.ts";
 
 const defaultLaunchWaitMs = 30_000;
+
+// How long a records read waits on Claude Code's listing before answering
+// each session's state unknown.
+const listingWaitMs = 10_000;
 
 // How long one launch -- the host's start and its confirmation -- may take
 // before its answer is uncertain. A test may shorten it through the
@@ -30,8 +36,29 @@ function launchTimeoutMs(): number {
 export class AgentLaunches {
   private readonly running = new Set<AbortController>();
 
-  recordsOf(source: PublishedSource): Promise<readonly LaunchRecord[]> {
-    return keptRecords(source.id);
+  // The project's kept records, each joined by session id with Claude Code's
+  // listing read now. With no records kept, `claude` is not run.
+  async recordsOf(
+    source: PublishedSource,
+  ): Promise<readonly LaunchWithState[]> {
+    const records = await keptRecords(source.id);
+    if (records.length === 0) {
+      return [];
+    }
+    const listed = await claudeSessions(
+      projectFolder(source),
+      AbortSignal.timeout(listingWaitMs),
+    );
+    const states = new Map(
+      listed?.map((entry) => [entry.session.sessionId, entry.sessionState]),
+    );
+    return records.map((record) => ({
+      ...record,
+      sessionState:
+        listed === undefined
+          ? { kind: "unknown" }
+          : (states.get(record.session.sessionId) ?? { kind: "unlisted" }),
+    }));
   }
 
   // A launch settles on its own even if the requester goes away, so its
@@ -69,7 +96,10 @@ export class AgentLaunches {
         launchedAt: new Date().toISOString(),
       };
       await keepRecord(source.id, record);
-      return { kind: "launched", record };
+      return {
+        kind: "launched",
+        record: { ...record, sessionState: launched.sessionState },
+      };
     } finally {
       clearTimeout(timer);
       this.running.delete(controller);
