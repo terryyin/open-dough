@@ -4,8 +4,8 @@
 
 - **Identity:** SEED-052#session-sidebar-residue
 - **Source:** [correction story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#session-sidebar-residue),
-  from the execution retrospective of SEED-052#session-sidebar (plan 164) on
-  2026-09-29.
+  from the execution retrospective of SEED-052#session-sidebar on 2026-09-29
+  (plan at `df01b778:.planning/slice-plans/164-session-sidebar/PLAN.md`).
 - **Provenance:** reviewed commits `0ebb635d`, `79e2eb9a`, `e63f5be2`,
   `fbf80b82`, and the CI repair `2e72ee16` on `claude/session-sidebar`, after
   the Take `b3f7b861`; the merge of trunk `749dcc12` is excluded.
@@ -20,7 +20,8 @@ never looks complete before the machine's sessions are first read; and a
 reveal the developer left behind never scrolls the page later.
 
 Preserved: every promise of SEED-052#session-sidebar and its accepted proof
-in plan 164; a launched session still shows on its card at once with the
+(`df01b778:.planning/slice-plans/164-session-sidebar/PLAN.md`), now in
+`dashboard/AGENT-LAUNCH.md` and the sidebar specs; a launched session still shows on its card at once with the
 keyboard on its entry; `sessionShown` and `attentionSummary` stay the one
 reading of state and attention. Excluded: highlighting a Session unavailable
 entry's card (the story's example says "highlights" while its Scope derives

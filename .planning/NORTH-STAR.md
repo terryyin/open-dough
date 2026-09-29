@@ -138,8 +138,7 @@ parallel ones:
   store on this machine, and the host's listing is machine-wide (Claude Code
   lists every session whatever folder it runs in). The page reads them once
   for every catalog project and holds one session state, apart from project
-  selection; cards, Recent sessions, and the session sidebar
-  ([SEED-052#session-sidebar](seeds/SEED-052-start-agent-work-from-dashboard.md#session-sidebar))
+  selection; cards, Recent sessions, and the Sessions sidebar
   each derive their view by project and identity from it. Actions on one
   session (attach, stop, Mark as done) still run in its project's folder.
   Published observation stays one project at a time; later hosts join the
