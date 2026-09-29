@@ -141,7 +141,10 @@ intermediate recovery-record publications. After a success or bounded
 unresolved receipt with confirmed shutdown, wrap-up retires only this
 execution's worktree under Dough Land's
 [Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree), with that
-receipt as its gate. Unconfirmed shutdown or retained observation preserves the
+receipt as its gate. That removes the worktree only when its
+[creation record](../../dough-manual-testing/references/exploration-workspace.md#close-or-retain-it)
+or another record there shows this work created it; trunk containment alone
+does not. Unconfirmed shutdown or retained observation preserves the
 worktree and branch.
 
 ## Observe Story Branch integration

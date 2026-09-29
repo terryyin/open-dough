@@ -220,14 +220,14 @@ and blocks completion. Do not force-push.
 ## Remove execution resources safely
 
 Retire this execution's worktree and branch from their retained identity under
-Dough Land's [Retire the worktree](../dough-land/SKILL.md#retire-the-worktree).
-Wrap-up's gate: the final accepted publication (Trunk Mode's final closure, or
-Story Branch Mode's integrated SHA) has a completion receipt whose shutdown is
-confirmed, and no active checkout-bound observer still hosts the worktree under
-[preserve pending local work](../dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work).
-Trunk Mode publishes no remote execution branch and never deletes one. Dough
-Land's [refresh](../dough-land/SKILL.md#refresh-the-default-checkout) never
-blocks retirement. Report blocked or partial cleanup without repeating
+Dough Land's [Retire the worktree](../dough-land/SKILL.md#retire-the-worktree),
+which removes the worktree only when its [creation record](../dough-manual-testing/references/exploration-workspace.md#close-or-retain-it)
+or another record there shows this work created it. Wrap-up's gate: the final
+accepted publication (Trunk Mode's final closure, or Story Branch Mode's
+integrated SHA) has a completion receipt whose shutdown is confirmed, and no
+active checkout-bound observer still hosts the worktree under [preserve pending local work](../dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work).
+Trunk Mode publishes no remote execution branch and never deletes one. Dough Land's [refresh](../dough-land/SKILL.md#refresh-the-default-checkout)
+never blocks retirement. Report blocked or partial cleanup without repeating
 already-completed closure. Skip cleanup in direct-current-branch mode.
 
 ## Report
