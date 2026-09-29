@@ -3,7 +3,7 @@ id: SEED-053
 status: active
 planted: 2026-09-28
 planted_during: Maintainer request to regroup existing native acceptance by host
-trigger_when: Completing the existing pending native acceptance on Codex or Cursor
+trigger_when: Completing the remaining Cursor native acceptance
 scope: unknown
 ---
 
@@ -21,7 +21,7 @@ Maintainers need host-specific evidence for the pending premise-verification and
 
 **Identity:** SEED-028#native-one-shot-other-hosts
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/140-native-guidance-acceptance-cursor/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c0195a78dab934e0c23d64eebb272a23c003a58aa10b518cdeec26395f529695","plan":"821a2356fd0c7cacce4834a3be55fc2b73c3cd1cb97b1646103a8ee50f8cd9eb"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/140-native-guidance-acceptance-cursor/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"466ff22c6aad996d8e3d1938e3e38c7b4ff0093f80fbe763998638de004c2ae8","plan":"a8dc0755c88af8c95f0daa559eea27e91c0dda6bf768855726ad51c5d9a040b5"}}
 ```
 
 **Goal:** Maintainers hold Cursor-native evidence that planners catch the
@@ -30,30 +30,30 @@ agents pass the one-shot cases already accepted on Claude Code, so those
 behaviors may be claimed as accepted on Cursor under
 [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) without
 treating Claude Code proof as transferable. Unrelated releases may continue;
-Cursor-native acceptance for these paths requires this evidence. Escalation
-joins only after
-[Claude Code feasibility](SEED-028-track-ad-hoc-work.md#story-decomposition) is settled.
+Cursor-native acceptance for these paths requires this evidence. Claude Code
+already passed `publication/one-shot-escalation` against guidance revision
+`23563ee0` on 2026-09-28, recorded in
+[SEED-028](SEED-028-track-ad-hoc-work.md#story-decomposition), so Cursor
+acceptance includes that case.
 
 **Scope:**
 
 - **Existing cases only.** Run the shared premise-verification cases with
   `--platform cursor` and the shared one-shot cases
   (`publication/one-shot-result`, `publication/one-shot-queued`,
-  `publication/admission-investigation`) with
-  `tests/git-publication-native.sh --native cursor`. No new fixtures, cases,
-  or product guidance.
+  `publication/admission-investigation`, and `publication/one-shot-escalation`)
+  with `tests/git-publication-native.sh --native cursor`. No new fixtures,
+  cases, or product guidance.
 - **One observed paid run per case per guidance version**, manually triggered
   with Terry's go-ahead. Add none to `npm test`, `scripts/test.sh`, CI, or a
   wrapper whose default calls a real host. Claims cover only the observed runs.
-- **Escalation sequenced.** `publication/one-shot-escalation` waits for the
-  Claude Code story's pass or exit; on pass, run the same case on Cursor; on
-  exit, apply the shared drop. Premise verification and the three already
-  accepted one-shot cases proceed independently of escalation.
+- **Escalation is in scope.** Claude Code passed
+  `publication/one-shot-escalation`; the exit was not taken. Run that existing
+  case once on Cursor with the same harness.
 - **Failed native runs** stop for a human guidance decision; this story does
   not change the guidance.
-- **Deferred:** Codex and Claude Code acceptance (sibling stories), new
-  harnesses, statistics or repeated runs, and inventing clone sources when
-  Doughnut or Pygardon cannot be located.
+- **Deferred:** other hosts, new harnesses, statistics or repeated runs, and
+  inventing clone sources when Doughnut or Pygardon cannot be located.
 
 **Key examples:**
 
@@ -69,11 +69,11 @@ joins only after
   111 → pass (proportionate control).
 - Current guidance revision, no Cursor one-shot evidence →
   `tests/git-publication-native.sh --native cursor --case publication/one-shot-result`
-  (and the queued and admission-investigation cases) → harness assessor passes
-  → Cursor one-shot acceptance recorded for that revision.
-- Claude Code records escalation pass → same case on Cursor passes under the
-  shared assessor → Cursor escalation accepted. Claude Code takes the exit →
-  escalation case removed from this story with the shared one-shot cases.
+  (and the queued, admission-investigation, and escalation cases) → harness
+  assessor passes → Cursor one-shot acceptance recorded for that revision.
+- Claude Code already passed `publication/one-shot-escalation` on `23563ee0` →
+  one Cursor run of that case → harness assessor passes → Cursor escalation
+  accepted for that guidance revision.
 
 ## Shared premise-verification cases
 
