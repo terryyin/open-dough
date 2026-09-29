@@ -134,11 +134,15 @@ trunk_closure_assess() {
     || trunk_closure_owned_context_assess "${observations}" || return 1
   if [[ ${scenario} == source ]]; then
     [[ ${state} == success ]] || return 1
-    awk '/publication/{a=NR} /registration/{b=NR} /complete-start/{c=NR} /ci-release/{d=NR} /coverage-success/{e=NR} /shutdown/{f=NR} /cleanup-complete/{g=NR} END{exit !(a<b && b<c && c<d && d<e && e<f && f<g)}' "${observations}"
+    native_completion_control_order "${observations}" publication \
+      registration complete-start ci-release coverage-success shutdown \
+      cleanup-complete
   else
     [[ ${state} == not_required && ${basis} == success ]] || return 1
     grep -Fq 'provider-candidate-calls: 0' "${observations}" || return 1
-    awk '/publication/{a=NR} /registration/{b=NR} /coverage-not-required/{c=NR} /complete-start/{d=NR} /shutdown/{e=NR} /cleanup-complete/{f=NR} END{exit !(a<b && b<c && c<d && d<e && e<f)}' "${observations}"
+    native_completion_control_order "${observations}" publication \
+      registration coverage-not-required complete-start shutdown \
+      cleanup-complete
   fi
 }
 

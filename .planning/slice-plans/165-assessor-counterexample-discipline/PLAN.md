@@ -171,9 +171,6 @@ Considered and left out:
 - **Response cases cost about 30 ms each** (the whole assessor runs). The
   publication job measured 62.7–63.4 s after versus 57.1–64.3 s before on a
   busy machine; the closure functions alone grew about 1.1 s.
-- Reported, not fixed: the story-branch order check accepts a
-  `control-order` missing its first step (`branch-complete-count: 1` still
-  gates it).
 - **Slice 3 (done).** Journey-state (5, with `wrong-version` split from
   `missing-improvement`), ADR prose (8, under `response`), and preparation
   cases go through the helper. Preparation JSON is flattened once per file by
@@ -196,6 +193,22 @@ Considered and left out:
   at 248; further additions split them.
 - Reported, not fixed: `native_journey_state_assess` never reads
   `other-tool-root-claude-preserved`.
+- **Slice 4 (done).** `tests/support/ci-completion-native-assess.sh` holds
+  `ci_completion_assess` with its signals and its first free cases: a passing
+  `pending` base, and `review-not-started`, `complete-before-review`,
+  `review-start-unstamped`, `forced-stop`, and `fixture-masked-shutdown`
+  (moved off the paid runner) rejected. Proof:
+  `bash scripts/test.sh tests/git-publication-native.sh tests/native-evidence-identity.sh`
+  (54.4 s), also with mawk. The new cases cost about 0.14 s.
+- **Assessor repair: order checks read only the `control-order` block.**
+  Unscoped awk (`/review-start/`, `/shutdown/`, `/cleanup-complete/`) matched
+  field lines such as `review-started:` and `product-shutdown:`, so a missing
+  step still passed (`review-start-unstamped` exposed it). CI completion,
+  story-branch closure, and trunk closure now share
+  `native_completion_control_order` in
+  `tests/support/native-completion-observation.sh`, which requires every
+  named step present and in order. Story-branch and trunk closure therefore
+  also reject a missing first step. Look for the same pattern in slices 5–7.
 
 ## Slices
 
@@ -242,7 +255,7 @@ with `missing setup or project-command trace` (example 5, ODF-087).
 
 ### 4. CI completion is rejected when review never started
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/git-publication-native.sh` green.
 
 Behavior: `ci_completion_assess` gains free cases for the first time: a

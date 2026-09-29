@@ -169,8 +169,10 @@ story_closure_assess() {
   [[ $(story_closure_response_trunk_result \
     <(native_response_field_read "${observations}")) == true ]] || return 1
   grep -Fqx 'harness-inspected: false' "${observations}" || return 1
-  # Order only within the control-order field.
-  awk '/^control-order:$/{o=1; next} o && !/^  /{o=0} !o{next} /branch-complete/{a=NR} /branch-shutdown/{b=NR} /trunk-setup/{c=NR} /integration-publication/{d=NR} /trunk-registration/{e=NR} /trunk-complete/{f=NR} /trunk-ci-release/{g=NR} /trunk-coverage-success/{h=NR} /trunk-shutdown/{i=NR} /cleanup-complete/{j=NR} END{exit !(a<b && b<c && c<d && d<e && e<f && f<g && g<h && h<i && i<j)}' "${observations}"
+  native_completion_control_order "${observations}" branch-complete \
+    branch-shutdown trunk-setup integration-publication trunk-registration \
+    trunk-complete trunk-ci-release trunk-coverage-success trunk-shutdown \
+    cleanup-complete
 }
 
 # Valid observations at $1 whose response is file $2's text.

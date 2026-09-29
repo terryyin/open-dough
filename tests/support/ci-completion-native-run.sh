@@ -10,6 +10,9 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/ci-completion-native
 # shellcheck source=tests/support/native-completion-observation.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
+# shellcheck source=tests/support/ci-completion-native-assess.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/ci-completion-native-assess.sh"
 
 ci_completion_observe() {
   local scenario=$1
@@ -66,68 +69,6 @@ ci_completion_observe() {
   }
 }
 
-ci_completion_assess() {
-  local scenario=$1
-  local observations=$2
-  local state terminal complete_count stop_count await_count
-  local product_shutdown forced_stop worker_alive
-  local review_started review_completed marker failure_reported
-  state=$(awk '/^coverage-state:/{print $2}' "${observations}")
-  terminal=$(awk '/^observer-terminal:/{print $2}' "${observations}")
-  complete_count=$(awk '/^complete-count:/{print $2}' "${observations}")
-  stop_count=$(awk '/^stop-count:/{print $2}' "${observations}")
-  await_count=$(awk '/^await-count:/{print $2}' "${observations}")
-  product_shutdown=$(awk '/^product-shutdown:/{print $2}' "${observations}")
-  forced_stop=$(awk '/^forced-stop:/{print $2}' "${observations}")
-  worker_alive=$(awk '/^worker-alive:/{print $2}' "${observations}")
-  review_started=$(awk '/^review-started:/{print $2}' "${observations}")
-  review_completed=$(awk '/^review-completed:/{print $2}' "${observations}")
-  marker=$(awk '/^completion-marker:/{print $2}' "${observations}")
-  failure_reported=$(awk '/^failure-reported:/{print $2}' "${observations}")
-  # Fixture fallback stop must never turn a missing product shutdown into a pass.
-  [[ ${forced_stop} == false ]] || return 1
-  case ${scenario} in
-    pending | ready | skip-retro)
-      [[ ${complete_count} == 1 && ${stop_count} == 0 && ${await_count} == 0 &&
-        ${product_shutdown} == true &&
-        (${terminal} == stopped || ${terminal} == finished) ]] || return 1
-      ;;
-    failure)
-      [[ ${complete_count} == 1 && ${stop_count} == 0 &&
-        ${product_shutdown} == false && ${terminal} == missing &&
-        ${worker_alive} == true ]] || return 1
-      ;;
-    *) return 2 ;;
-  esac
-  case ${scenario} in
-    pending)
-      [[ ${state} == success && ${review_started} == true &&
-        ${review_completed} == true && ${marker} == 1 ]] || return 1
-      awk '/review-start/{a=NR} /complete-start/{b=NR} /ci-release/{c=NR} END{exit !(a<b && b<c)}' \
-        "${observations}"
-      ;;
-    ready)
-      [[ ${state} == success && ${review_started} == true &&
-        ${review_completed} == true && ${marker} == 1 ]] || return 1
-      awk '/review-start/{a=NR} /ci-release/{b=NR} /coverage-terminal/{c=NR} /review-complete/{d=NR} END{exit !(a<b && b<c && c<d)}' \
-        "${observations}"
-      ;;
-    skip-retro)
-      [[ ${state} == success && ${review_started} == false && ${marker} == 1 ]]
-      ;;
-    failure)
-      [[ ${state} == failure && ${review_started} == true &&
-        ${marker} == 0 && ${failure_reported} == true ]]
-      ;;
-    *) return 2 ;;
-  esac
-}
-
-ci_completion_assess_rejects_fixture_masked_shutdown() {
-  local observations=$1
-  ! ci_completion_assess pending "${observations}"
-}
-
 ci_completion_run_journey() {
   local source_dir=$1
   local host=$2
@@ -165,33 +106,6 @@ ci_completion_run_journey() {
     > "${harness}/observations.txt"
   native_harness_stop_observers "${source_dir}" "${ci_completion_storage}" \
     "${ci_completion_forced_stop_file}" || stop_status=$?
-  if [[ ${scenario} == failure ]]; then
-    # Failing assessor example: fixture-masked "success" after forced stop
-    # must not pass when the product left the observer alive.
-    {
-      printf 'scenario: pending\n'
-      printf 'coverage-state: success\n'
-      printf 'observer-terminal: stopped\n'
-      printf 'complete-count: 0\n'
-      printf 'stop-count: 0\n'
-      printf 'await-count: 0\n'
-      printf 'product-shutdown: false\n'
-      printf 'forced-stop: true\n'
-      printf 'worker-alive: false\n'
-      printf 'review-started: true\n'
-      printf 'review-completed: true\n'
-      printf 'completion-marker: 1\n'
-      printf 'failure-reported: false\n'
-      printf 'control-order:\n'
-      printf '  review-start\n'
-    } > "${harness}/masked-shutdown.txt"
-    ci_completion_assess_rejects_fixture_masked_shutdown \
-      "${harness}/masked-shutdown.txt" || {
-      git_publication_assess_status=fail
-      git_publication_assess_reason='assessor accepted a fixture-masked shutdown'
-      run_status=1
-    }
-  fi
   if ci_completion_assess "${scenario}" "${harness}/observations.txt"; then
     git_publication_assess_status=pass
     git_publication_assess_reason='controlled CI ordering and final handoff observed'
