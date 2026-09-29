@@ -5,9 +5,11 @@
 - **Identity:** SEED-052#preparing-card-refinement-journey.
 - **Source:** [correction story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#preparing-card-refinement-journey),
   from the execution retrospective of SEED-052#recent-sessions-residue (plan
-  151) on 2026-09-29.
-- **Provenance:** reviewed commits `1de2187a` and `6fa51cb6` on
-  `claude/recent-sessions-residue`, after the Take `34ad359b`.
+  151 at
+  `1abb3497:.planning/slice-plans/151-recent-sessions-residue/PLAN.md`) on
+  2026-09-29.
+- **Provenance:** reviewed commits `1de2187a` and `6fa51cb6`, merged to
+  `main` in `5bc35521`, after the Take `34ad359b`.
 - **Authority:** planning only. This plan grants no Take, implementation, or
   publication.
 

@@ -104,27 +104,6 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
-<a id="recent-sessions-residue"></a>
-
-### Correction: Keep every unreadable launch store and trim Recent sessions residue
-
-**Identity:** SEED-052#recent-sessions-residue
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/151-recent-sessions-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"db4fc214418e2fe0d3655fa7bbfe664be843a24599ab012c39f84acfda600fb5","plan":"66a9cd7aace215e56d91ec5a9fe91236250048dd460948e48b72c6aa4dcc9bc3"}}
-```
-
-**Goal:** A developer whose launch store becomes unreadable twice keeps both
-unreadable copies, as the dashboard already promises. Maintainers change
-launch behavior through one documented home and one journey per concern,
-without duplicate specs or stale test documentation.
-
-**Scope:** The correction found by the execution retrospective of
-story 2, SEED-052#revisit-dashboard-sessions (commits `5933bb91`..`ea5aa42b`;
-closed history at `d6fbb898:.planning/seeds/SEED-052-start-agent-work-from-dashboard.md`). It
-covers the second unreadable-store move, overlapping launch journeys, the
-dashboard test README's launch listing, and the North Star launch row. It adds
-no feature promise. See the [plan](../slice-plans/151-recent-sessions-residue/PLAN.md).
-
 <a id="preparing-card-refinement-journey"></a>
 
 ### Correction: Observe a Preparing-card refinement in one journey
@@ -138,8 +117,9 @@ no feature promise. See the [plan](../slice-plans/151-recent-sessions-residue/PL
 settles and is listed in one journey, not two.
 
 **Scope:** The correction found by the execution retrospective of
-SEED-052#recent-sessions-residue (commits `1de2187a`, `6fa51cb6` on
-`claude/recent-sessions-residue`). The settlement journey now observes that
+SEED-052#recent-sessions-residue (commits `1de2187a`, `6fa51cb6`, merged in
+`5bc35521`; closed history at
+`1abb3497:.planning/seeds/SEED-052-start-agent-work-from-dashboard.md`). The settlement journey now observes that
 launch settling at once and listed in Recent sessions, so the recent-sessions
 spec's Preparing step repeats it. It adds no feature promise. See the
 [plan](../slice-plans/154-preparing-card-refinement-journey/PLAN.md).
