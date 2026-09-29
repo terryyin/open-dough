@@ -35,6 +35,33 @@ export function parts(page: Page) {
   };
 }
 
+// The launch actions every Backlog card offers, in the order it offers them.
+export const cardLaunchActions = ["Start execution", "Start refinement"];
+
+// Every button a shown snapshot offers, and nothing else: the read control,
+// the badge legend, each Backlog card's launch actions, and each card's
+// Inspect.
+export async function expectSnapshotButtons(
+  page: Page,
+  shown: {
+    readonly readControl: "Refresh" | "Retry";
+    readonly backlogCards: number;
+    readonly cards: number;
+  },
+) {
+  const button = (name: string) =>
+    page.getByRole("button", { name, exact: true });
+  await expect(button(shown.readControl)).toHaveCount(1);
+  await expect(parts(page).preparationHelp).toHaveCount(1);
+  for (const action of cardLaunchActions) {
+    await expect(button(action)).toHaveCount(shown.backlogCards);
+  }
+  await expect(button("Inspect story")).toHaveCount(shown.cards);
+  await expect(page.getByRole("button")).toHaveCount(
+    2 + shown.backlogCards * cardLaunchActions.length + shown.cards,
+  );
+}
+
 // The agent roster: its members, one member by its agent's name, the card
 // portrait that opens the roster at an agent, and the way back to the
 // stories.

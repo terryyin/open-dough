@@ -26,7 +26,7 @@ additional acceptance cases or implementation scope.
 
 **Identity:** SEED-044#native-premise-acceptance-codex-cursor
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/141-codex-native-guidance-acceptance/PLAN.md","assessment":"not-ready","reasons":["Select a released guidance revision containing 8cafa49d and review proof applicability before rerunning the control.","Resolve slice 7 fixture visibility so the native case exercises growth after owned edits and their uncommitted restoration."],"basis":{"document":"3dccbe0f93ffafd53e6192bb9a33ffddff9d3afc7afa983043807af1f2141af1","plan":"ef9ca34266069377928b923ea4525df9c8ec5de8cf75608e51403f1cd04a3482"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/141-codex-native-guidance-acceptance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3dccbe0f93ffafd53e6192bb9a33ffddff9d3afc7afa983043807af1f2141af1","plan":"6c9eb170b2fae3be25a94db26b419ed02af8f4610f88a1c135b2302a65ed3537"}}
 ```
 
 **Goal:** Developers using Codex can rely on the selected planning and

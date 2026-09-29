@@ -4,7 +4,7 @@ import {
   expectFocusedAndIndicated,
   politeRegionsOfferedThenMarked,
 } from "./accessibleReading.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { cardLaunchActions, expectMembership, parts } from "./dashboardPage.ts";
 import {
   pathsRead,
   publishMovingOrigin,
@@ -30,14 +30,18 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     parts(page);
 
   // Reading order is the order of the page's source: the project selector,
-  // then the read control, source evidence, direction and badge legend, then each card's controls and recorded
-  // links by stage (Backlog, then Taken): a Backlog card's Start execution, then Inspect. In a wide window Taken stands beside
-  // Backlog's first card, so position on screen would order them differently.
+  // then the read control, source evidence, direction and badge legend, then
+  // each card's controls and recorded links by stage (Backlog, then Taken): a
+  // Backlog card's launch actions, then Inspect. In a wide window Taken stands
+  // beside Backlog's first card, so position on screen would order them
+  // differently.
   const stopsFor = async (stage: Locator) => {
     const stops: Locator[] = [];
     for (const card of await stage.getByRole("article").all()) {
       if (stage === backlog) {
-        stops.push(card.getByRole("button", { name: "Start execution" }));
+        for (const action of cardLaunchActions) {
+          stops.push(card.getByRole("button", { name: action }));
+        }
       }
       stops.push(card.getByRole("button", { name: "Inspect story" }));
       stops.push(...(await card.getByRole("link").all()));
@@ -54,8 +58,10 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // The selected project radio + Refresh + Source evidence + Direction + Legend + two Start execution + four Inspect + five recorded links.
-  expect(stops).toHaveLength(1 + 1 + 1 + 1 + 1 + 2 + 4 + 5);
+  // The selected project radio + Refresh + Source evidence + Direction +
+  // Legend + two Backlog cards' launch actions + four Inspect + five recorded
+  // links.
+  expect(stops).toHaveLength(5 + 2 * cardLaunchActions.length + 4 + 5);
 
   await test.step("Tab stops at the read control, each card's controls, and every recorded link, and nowhere else", async () => {
     for (const stop of stops) {
@@ -79,15 +85,19 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   });
 
   await test.step("Enter on a focused link leaves for its record at the inspected revision", async () => {
-    // The selected project radio already holds focus after the reverse walk; Refresh, evidence and the
-    // direction disclosure, badge legend and first card's Start execution and Inspect precede its Canonical link.
-    await page.keyboard.press("Tab");
-    await page.keyboard.press("Tab");
-    await page.keyboard.press("Tab");
-    await page.keyboard.press("Tab");
-    await page.keyboard.press("Tab");
-    await page.keyboard.press("Tab");
-    await page.keyboard.press("Tab");
+    // The selected project radio already holds focus after the reverse walk;
+    // Tab walks on in reading order to the first card's Canonical link.
+    const canonical = backlog
+      .getByRole("article")
+      .first()
+      .getByRole("link", { name: /^Canonical record/ });
+    for (let stop = 1; stop < stops.length; stop += 1) {
+      await page.keyboard.press("Tab");
+      if (await canonical.evaluate((link) => link === document.activeElement)) {
+        break;
+      }
+    }
+    await expect(canonical).toBeFocused();
     const [popup, leaving] = await Promise.all([
       page.waitForEvent("popup"),
       page

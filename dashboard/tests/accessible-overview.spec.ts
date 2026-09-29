@@ -12,7 +12,12 @@ import {
   revision,
   unusableTarget,
 } from "./accessibleOverview.ts";
-import { expectMembership, openDirection, parts } from "./dashboardPage.ts";
+import {
+  cardLaunchActions,
+  expectMembership,
+  openDirection,
+  parts,
+} from "./dashboardPage.ts";
 import {
   commitAnswer,
   emptyBacklog,
@@ -217,12 +222,12 @@ test("accessible overview reads a backlog longer than one screen by scrolling th
   await test.step("keyboard focus moving back up is never hidden under that heading", async () => {
     await lastLink.focus();
     for (let place = queuedCount - 1; place >= 1; place -= 1) {
-      // Each queued card offers Start execution and Inspect before its
-      // Canonical link, so three Shift+Tab steps reach the previous card's
+      // Each queued card offers its launch actions and Inspect before its
+      // Canonical link, so Shift+Tab past them reaches the previous card's
       // recorded link.
-      await page.keyboard.press("Shift+Tab");
-      await page.keyboard.press("Shift+Tab");
-      await page.keyboard.press("Shift+Tab");
+      for (let step = 0; step < cardLaunchActions.length + 2; step += 1) {
+        await page.keyboard.press("Shift+Tab");
+      }
       const link = backlog
         .getByRole("article", { name: queuedTitle(place), exact: true })
         .getByRole("link", { name: /^Canonical record/ });

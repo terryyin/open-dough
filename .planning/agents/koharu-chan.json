@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Koharu-chan",
+  "email": "koharu-chan@example.org",
+  "identity": "SEED-008#installed-wrap-up-command",
+  "mode": "story-branch",
+  "branch": "claude/installed-wrap-up-command",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

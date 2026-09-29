@@ -25,10 +25,10 @@ GitHub. Select one journey with, for example,
 
 The launch boundary specs (`agent-launch-boundary.spec.ts` and
 `agent-launch-refusal.spec.ts`) and the card and settlement journeys
-(`agent-launch-card.spec.ts` and `agent-launch-settlement.spec.ts`, which name
-their folders and launch wait through
-the `projectFolders` and `launchTimeoutMs` options of `dashboardTest.ts`)
-drive a synthetic `claude`
+(`agent-launch-card.spec.ts`, `agent-launch-card-problems.spec.ts`, and
+`agent-launch-settlement.spec.ts`, which name their folders and launch wait
+through the `projectFolders` and `launchTimeoutMs` options of
+`dashboardTest.ts`) drive a synthetic `claude`
 (`fixtures/fake-claude`, `support/fakeClaude.ts`) that every server puts first
 on its PATH, in a temporary HOME holding only the project folders a test
 chooses. A per-server scenario decides whether it launches, refuses, finds

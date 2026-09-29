@@ -1,14 +1,19 @@
 // The browser's side of agent launches (`./agentLaunch.ts`): each project's
-// launch records, and each work item's launch in flight or its last failed or
-// uncertain answer. Records are kept per project, so an answer arriving after
-// another project was selected lands with the project it was asked for.
+// launch records, and each work item's launch of a workflow in flight or its
+// last failed or uncertain answer. Records are kept per project, so an answer
+// arriving after another project was selected lands with the project it was
+// asked for.
 // Selecting a project, a page load included, reads that project's records
 // again from the running server, which keeps them across reloads; a launched
 // answer joins the same record list. Nothing here decides a story fact, which
 // origin still publishes.
 
 import { useCallback, useEffect, useState } from "react";
-import type { AgentLaunchRequest, LaunchRecord } from "./agentLaunch.ts";
+import type {
+  AgentLaunchRequest,
+  LaunchRecord,
+  LaunchWorkflow,
+} from "./agentLaunch.ts";
 import {
   readLaunchRecords,
   requestAgentLaunch,
@@ -26,14 +31,24 @@ export type LaunchWorkItem = Pick<AgentLaunchRequest, "identity" | "title">;
 export type ProjectLaunches = {
   // The selected project's launch records, oldest first.
   readonly records: readonly LaunchRecord[];
-  attemptOf(identity: string): LaunchAttempt | undefined;
-  // Starts execution of the work item in Claude Code, with the developer's
+  attemptOf(
+    identity: string,
+    workflow: LaunchWorkflow,
+  ): LaunchAttempt | undefined;
+  // Starts the workflow on the work item in Claude Code, with the developer's
   // optional instruction, and settles once the boundary answers.
-  startExecution(work: LaunchWorkItem, instruction: string): Promise<void>;
+  start(
+    work: LaunchWorkItem,
+    workflow: LaunchWorkflow,
+    instruction: string,
+  ): Promise<void>;
 };
 
-const attemptKey = (sourceId: string, identity: string) =>
-  JSON.stringify([sourceId, identity]);
+const attemptKey = (
+  sourceId: string,
+  identity: string,
+  workflow: LaunchWorkflow,
+) => JSON.stringify([sourceId, identity, workflow]);
 
 // The server's records replace what the page knew, except a launch recorded
 // after the read was asked, which the answer may not include yet. The server
@@ -91,16 +106,20 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
     [],
   );
 
-  const startExecution = useCallback(
-    async (work: LaunchWorkItem, instruction: string) => {
-      const key = attemptKey(source.id, work.identity);
+  const start = useCallback(
+    async (
+      work: LaunchWorkItem,
+      workflow: LaunchWorkflow,
+      instruction: string,
+    ) => {
+      const key = attemptKey(source.id, work.identity, workflow);
       setAttempt(key, { kind: "starting" });
       const own = instruction.trim();
       const answer = await requestAgentLaunch({
         source: source.id,
         identity: work.identity,
         title: work.title,
-        activity: "execution",
+        workflow,
         host: "claude",
         ...(own === "" ? {} : { instruction: own }),
       });
@@ -121,7 +140,8 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
 
   return {
     records: records.get(source.id) ?? [],
-    attemptOf: (identity) => attempts.get(attemptKey(source.id, identity)),
-    startExecution,
+    attemptOf: (identity, workflow) =>
+      attempts.get(attemptKey(source.id, identity, workflow)),
+    start,
   };
 }

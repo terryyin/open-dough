@@ -24,32 +24,39 @@
   Maria-chan at `0137fae2`; the enrichment used
   `.worktrees/prep-installed-wrap-up-command`
   (branch `claude/prep-installed-wrap-up-command`), announced as Aino-chan at
-  `6e6fbcc8`.
+  `6e6fbcc8`. The readiness review before execution used
+  `.worktrees/prep-installed-wrap-up-command`
+  (branch `claude/prep-installed-wrap-up-command-ready`), announced as Anri-chan
+  at `b79a8919`.
+- **Readiness review (2026-09-29):** Terry asked to confirm the plan and make it
+  ready before executing slice 1. He chose to remove
+  `current-branch-publication.mjs` from the payload in slice 5. Slice 1 now
+  reads the per-worktree creation ref decided in
+  SEED-008#durable-workspace-creation-fact directly, rather than waiting for
+  that story to land.
 
 ## Start gate
 
-**Do not Take or execute this plan until
-SEED-008#finish-removing-checkout-coordination (plan 145, recoverable at
+Satisfied on 2026-09-29. SEED-008#finish-removing-checkout-coordination
+(plan 145, recoverable at
 `bae283d2:.planning/slice-plans/145-finish-removing-checkout-coordination/PLAN.md`)
-has left Taken on remote trunk.** Plan 142
+closed at `f16cc4cc` and has left Taken on remote trunk. Plan 142
 (SEED-008#owned-context-start-and-truthful-refresh) closed at `2a3e0ba2`: it
 extracted the retirement core this plan installs, rewrote the wrap-up and Land
 refresh wording, and added the `trunk-closure/owned-context` and
-`publication/preparation-land` native journeys slice 8 reruns. Plan 145
-removes the `declaredOwner`/`requester` arguments that
-`closure-publication.mjs` still forwards and puts the unpublished-base guard in
-`publishExecutionIncrement`, which slice 3 reuses. The story's accepted
-ordering names both.
+`publication/preparation-land` native journeys slice 8 reruns. Observed at
+`7387165f`: `closure-publication.mjs` forwards no `declaredOwner` or
+`requester`, and `publishExecutionIncrement` stops with `unpublished-base`
+(`execution-increment-publication.mjs:134`), which slice 3 reuses.
 
-This plan is written against plan 145's planned end state and plan 142's
-landed one. At start, re-read the files each slice names against the
-then-current trunk and refresh line references before editing. If plan 145
-landed a different shape, update the affected slices here before implementing.
-Also check whether
-[SEED-008#durable-workspace-creation-fact](../../seeds/SEED-008-worktree-branch-trunk-sync.md#durable-workspace-creation-fact),
-queued ahead of this story, has landed where a workspace's created-for-this-work
-fact lives; slice 1's ownership gate consumes that record if so. This plan does
-not decide it.
+[SEED-008#durable-workspace-creation-fact](../../seeds/SEED-008-worktree-branch-trunk-sync.md#durable-workspace-creation-fact)
+(plan 147) is Taken and executing alongside this plan. Its refined scope fixes
+the record: `refs/worktree/dough/created-for/<identity>` in the created
+worktree, written by `selectOwnedWorkspace`, and listed from that worktree only.
+It edits `exploration-workspace.md`, Dough Land's **Worktree** input,
+`preparation-assignment.md`, and the two owned-context native fixtures. At each
+slice start, re-read the files that slice names against then-current trunk and
+refresh line references before editing.
 
 ## Outcome and boundaries
 
@@ -96,8 +103,8 @@ Preserved promises and constraints:
 
 Excluded (deferred promises): an entry point for Story Branch integration
 (`history-preserving-publication.mjs` and the backlog merge adapter stay
-agent-driven); current-checkout closure changes (`current-branch-publication.mjs`
-is untouched); a single-publication closure; a shared CLI argument-parsing
+agent-driven); current-checkout closure changes, whose guidance names no
+script and stays as it is; a single-publication closure; a shared CLI argument-parsing
 library; Story Branch native journeys beyond keeping the existing one green.
 
 ## Existing solutions (PFE)
@@ -127,6 +134,11 @@ library; Story Branch native journeys beyond keeping the existing one green.
   (`dough-land-test-fixtures.mjs:66`). The lifecycle rule
   (`exploration-workspace.md` "Close or retain it") is work-scoped. Slice 1
   keeps one gate, the Land model's work-scoped one, inside the core.
+- **Durable creation record:** plan 147 writes
+  `refs/worktree/dough/created-for/<identity>` beside the existing
+  `refs/worktree/dough/preparation-assignment` ref
+  (`preparation-assignment-ownership.mjs:104-116`). Slice 1 reads it with one
+  `for-each-ref` in the worktree; it adds no writer, registry, or record.
 - **Native harness repairs** already exist in trunk closure only:
   `trunk_closure_stop_observer` stops by mailbox without entering the
   worktree (`trunk-closure-native-run.sh:86`), `native-node-call-recorder.mjs`
@@ -159,51 +171,59 @@ library; Story Branch native journeys beyond keeping the existing one green.
 | Payload is an explicit list without a JS import check | `install.sh` `managed_files` (:60-241); `tests/payload-declaration-links.sh` checks Markdown links only | New scripts are declared line by line; removed modules must be removed there and from `publication-update-proof.bash` |
 | Land's retirement is proved only by a test model | `dough-story-refinement/scripts/dough-land-test-fixtures.mjs:49-97` ("Git model … not guidance-following"); `dough-land/` holds only `SKILL.md` | Observed at HEAD: the model is a thin adapter over `retireWorktree` with its own `createdForWork` check (`:66-78`); no installed Land script exists |
 | Plan 142's core, wording, and journeys are the starting shape | `git log` (`2a3e0ba2` closes it); `closure-resources.mjs:112-182` read | Landed: `retireWorktree({repository, execution, branch, remote, targetRef, holdReason})` returns `{removed, partial, worktree, branch, reason, repository}` |
-| Retirement ownership is session-named in shipped code, work-scoped in the Land model | `grep -rn "sessionOwned\|createdForWork" src` | `sessionOwned` only in `closure-resources.mjs:189,198`, `closure-publication.mjs:163`, and wrap-up tests; `createdForWork` only in the Land model and Land/preparation tests; no guidance names either |
+| Retirement ownership is session-named in shipped code, work-scoped in the Land model | `grep -rn "sessionOwned\|createdForWork" src` | `sessionOwned` only in `closure-resources.mjs:189,198`, `closure-publication.mjs:155`, and wrap-up tests; `createdForWork` only in the Land model and Land/preparation tests; no guidance names either |
 | Native identities miss guidance their journeys prove | Unpaid probe on a scratch copy of `tests/` and `src/`: appended a line to each file and compared `git_publication_write_evidence_identity owned-context` and `trunk_closure_write_evidence_identity` input hashes | `exploration-workspace.md`, `preparation-workspace.md`, `maintain-default-checkout.md` changed neither identity; `dough-land/SKILL.md` changed owned-context only. `tests/native-evidence-identity.sh:24-36` lists no owned-context writer and checks only supervision inputs |
 | Story Branch closure's observer stop can fail after successful cleanup | `story-branch-closure-native-run.sh:116-121` | Stops with `(cd "${story_closure_workspace}" && node … stop)`, the worktree cleanup removes |
 | Node-call recording covers Codex login shells only in trunk closure | `grep -rn "NODE_OPTIONS\|native-node-call-recorder" tests` | Only `trunk-closure-native-fixture.sh:55-61,192-193` and its assessor test |
 | Harness logs sit in the agent-visible fixture root outside trunk closure | `story-branch-closure-native-fixture.sh:61-64`, `ci-completion-native-fixture.sh:66-67` | `node-calls.log`, `gh-calls.log`, `control.log` under `${root}`, the agent workspace's parent |
 | Transcript variables need no export | `grep -rn "CLOSURE_TRANSCRIPT\|CI_COMPLETION_TRANSCRIPT" tests` | Exported at `trunk-closure-native-run.sh:127`, `story-branch-closure-native-run.sh:106`, `ci-completion-native-run.sh:154`; read only by the runner's own controllers and `ci-completion-native-fixture.sh:24` in the same shell |
+| The creation record is a per-worktree ref the retirement core can read before its writer lands | Plan 147's refined scope; fresh scratch repository on 2026-09-29 (Git 2.50.1): `update-ref` of `refs/worktree/dough/created-for/SEED-008#installed-wrap-up-command` in a worktree, the `for-each-ref --format='%(refname:lstrip=4)'` read from the worktree and main checkout, then `git worktree remove` | The read printed `SEED-008#installed-wrap-up-command` from the worktree and nothing from the main checkout; after removal no ref and no `.git/worktrees` entry remained. A test can write it with `update-ref` exactly as the writer will |
+| `current-branch-publication.mjs` is orphaned once slice 5 deletes the closure modules | `grep -rln current-branch-publication src tests install.sh` at `7387165f` | Imported only by `closure-publication.mjs` and its own tests (`current-branch-publication.test.mjs`, `current-branch-local-operation.test.mjs`); declared at `install.sh:194` and in `publication-update-proof.bash:28`; no `isDirectCliEntry` |
 
 ## Slices
 
 ### 1. Land retires through an installed command
 Type: Behavior
 Status: planned
-Proof: child-process CLI tests for contained, uncontained, dirty, already-absent, created-for-this-work, and unrecorded-ownership retirement; Land, preparation-landing, and wrap-up cleanup suites green through the one gate.
+Proof: child-process CLI tests for contained, uncontained, dirty, already-absent, creation-ref, other-work-ref, flag-only, and unrecorded retirement; Land, preparation-landing, and wrap-up cleanup suites green through the one gate.
 
 Behavior: A landed, owned worktree whose branch tip trunk contains → the agent
 runs `node <installed>/dough-land/scripts/worktree-retirement.mjs retire
 --repository <management context> --worktree <path> --branch <name> --remote
-<remote> --target-ref <ref>` → the worktree and local branch are removed and
-the JSON result says so. An uncontained tip is refused with nothing removed
-(example 4); a dirty, ambiguous, or other-branch worktree is preserved with a
-reason; a rerun after removal reports already absent and pushes nothing.
-Ownership follows the work (example 5): the command retires only a workspace
-whose created-for-this-work fact is present, whichever session created it, and
-retains a reused, host-owned, or unrecorded one with that reason.
+<remote> --target-ref <ref> [--identity <work identity>] [--created-for-work]`
+→ the worktree and local branch are removed and the JSON result says so. An
+uncontained tip is refused with nothing removed (example 4); a dirty,
+ambiguous, or other-branch worktree is preserved with a reason; a rerun after
+removal reports already absent and pushes nothing. Ownership follows the work
+(example 5): a worktree whose creation ref names `--identity` is retired,
+whichever session created it; one whose ref names other work is retained and
+reported as created for that work; one with no ref is retired only with
+`--created-for-work`, which the agent passes only from a same-session
+`created: true` or the caller's statement, per `exploration-workspace.md`
+"Close or retain it"; otherwise a reused, host-owned, or unrecorded worktree is
+retained with that reason.
 
 Move `retireWorktree` into `src/skills/dough-land/scripts/worktree-retirement.mjs`
 with its CLI, and import it from wrap-up. Put the one ownership gate in that
 core, replacing both `removeExecutionResources`' `sessionOwned` check and the
-Land model's `createdForWork` check; callers pass the fact through. Its source
-is the durable record if
-[SEED-008#durable-workspace-creation-fact](../../seeds/SEED-008-worktree-branch-trunk-sync.md#durable-workspace-creation-fact)
-has landed by start; otherwise a `--created-for-work` flag the agent sets only
-from what the work recorded, per `exploration-workspace.md` "Close or retain
-it". Its absence retains a present worktree; an already-absent one needs no
-fact on a rerun. Replace Land's raw-Git steps 1–4 in
+Land model's `createdForWork` check; callers pass the identity and flag
+through. The core reads the ref with
+`git -C <worktree> for-each-ref --format='%(refname:lstrip=4)' refs/worktree/dough/created-for/`;
+plan 147 owns writing it and the lifecycle wording that names it. An
+already-absent worktree needs no ownership fact on a rerun. Replace Land's raw-Git steps 1–4 in
 "Retire the worktree" with the command and how to act on each result, keeping
 the rerun, never-force, and caller-gate rules. The Land test model's retirement
 adapter calls the installed command, deleting the duplicated model logic.
 Declare the script in `install.sh`.
 
 Proof: new `worktree-retirement.test.mjs` runs the CLI as a child process on
-`createCleanTrunkFixture` repositories for the four cases above, plus a
-worktree created for this work by an earlier session (retired) and one without
-the fact (retained, nothing removed). Wrap-up tests and `closure-publication.mjs`
-passing `sessionOwned` pass the work-scoped fact instead.
+`createCleanTrunkFixture` repositories for the four cases above, plus
+ownership cases whose fixtures write the creation ref with `update-ref`: a ref
+naming this identity with no flag (retired, as an earlier session's creation),
+a ref naming other work with the flag (retained, reported as created for that
+work), no ref with the flag (retired), and no ref without it (retained,
+nothing removed). Wrap-up tests and `closure-publication.mjs` passing
+`sessionOwned` pass the work-scoped fact instead.
 `dough-land*.test.mjs`, `preparation-assignment-{land,landing-retry,remote-base,reuse}.test.mjs`,
 `preparation-publication.test.mjs`, and `retained-artifacts.test.mjs` stay
 green. Behavior review of the rewritten Land section.
@@ -240,7 +260,8 @@ Behavior: A Trunk Mode wrap-up whose before-cleanup commit was accepted through
 `node <installed>/dough-story-wrap-up/scripts/trunk-closure.mjs finish
 --workspace <path> --branch <name> --before-cleanup <sha> --final <sha>
 --previously-published-base <sha> --target-ref <ref> --repo <owner/repo>
---host <host> [--created-for-work] [--session-json <json>]
+--host <host> [--identity <work identity>] [--created-for-work]
+[--session-json <json>]
 [--default-checkout <path>]` → it
 confirms trunk contains the before-cleanup SHA, publishes the final closure
 through `publishExecutionIncrement` on the recovered or armed observer and
@@ -287,13 +308,19 @@ Proof: `trunk-closure-resume.test.mjs` drives the CLI as a child process.
 ### 5. No shipped closure module is left without an entry point
 Type: Structure
 Status: planned
-Proof: payload scan finds every declared wrap-up and Land script is a CLI or imported by one; closure and Land suites green with duplicate tests removed.
+Proof: payload scan finds every declared wrap-up and Land script, and `current-branch-publication.mjs`'s former place, is a CLI or imported by one; closure and Land suites green with duplicate tests removed.
 
 Correction: plan 140's F7. `closure-publication.mjs`,
 `closure-candidate-settlement.mjs`, and `closure-resources.mjs`, with their
 in-memory observer interface, are superseded by slices 1–4 and still ship.
-Delete them; repoint `closure-current-branch.test.mjs` at
-`current-branch-publication.mjs`; remove the modules from `install.sh` and
+Delete them. Their removal leaves
+`dough-execute-plan/scripts/current-branch-publication.mjs` without an
+importer, so delete it too (Terry, 2026-09-29), with
+`current-branch-publication.test.mjs`, `current-branch-local-operation.test.mjs`,
+and `closure-current-branch.test.mjs`. Record the last commit that holds it
+here, because the deferred direct-edit promise recovers its owned-path commit
+(`commitOwned`) from there. Keep any shared module it imports that another
+entry point still uses. Remove the deleted modules from `install.sh` and
 `tests/helpers/publication-update-proof.bash`; delete
 `closure-publication*.test.mjs`, `closure-named-target.test.mjs`, and
 `closure-resource-cleanup.test.mjs` cases that `trunk-closure*.test.mjs` and
@@ -303,7 +330,7 @@ mode stay green.
 
 Proof: every script `install.sh` declares under `dough-story-wrap-up/scripts/`
 and `dough-land/scripts/` has `isDirectCliEntry` or is imported by one that
-does; `tests/execution-payload-update.sh` and `tests/story-payload-update.sh`
+does, and `current-branch-publication.mjs` is neither declared nor present; `tests/execution-payload-update.sh` and `tests/story-payload-update.sh`
 pass; the focused suites above stay green.
 
 ### 6. Native evidence identity covers what each closure journey proves
@@ -378,12 +405,12 @@ Never in `scripts/test.sh`, CI, or a loop.
 | Example 2: Story Branch retirement removes worktree, local and remote branch | 2: `retire --remote-branch` CLI test; 8: native Story Branch closure journey |
 | Example 3: publication conflict preserves resources and names recovery | 3: `finish` conflict CLI test |
 | Example 4: uncontained tip refused, nothing removed | 1: `retire` CLI test |
-| Example 5: one work-scoped ownership gate retires created-for-this-work, retains reused, host-owned, or unrecorded | 1: `retire` created-by-earlier-session and unrecorded CLI tests; 2, 3: wrap-up callers pass the fact |
+| Example 5: one work-scoped ownership gate retires created-for-this-work, retains reused, host-owned, or unrecorded | 1: `retire` creation-ref, other-work-ref, flag-only, and unrecorded CLI tests; 2, 3: wrap-up callers pass the identity and flag |
 | Before-cleanup accepted before spent history is deleted | 3: `finish` stops when trunk lacks it; guidance keeps `deliver` first |
 | Retirement only after confirmed shutdown in wrap-up | 3: retained and unconfirmed receipt tests; native counterexample |
 | Rerun pushes nothing twice and completes cleanup | 1: already-absent rerun; 4: interruption reruns |
 | Land and wrap-up retire through one installed core | 1, 2, 3: all retirement tests reach `worktree-retirement.mjs` |
-| No shipped closure module without an entry point | 5: payload scan of declared wrap-up and Land scripts |
+| No shipped closure module without an entry point | 5: payload scan of declared wrap-up and Land scripts; `current-branch-publication.mjs` removed |
 | Wrap-up and Land guidance keep only judgment steps | 1–4: behavior review of edited sections |
 | Native evidence goes stale when the guidance or commands it proved change | 6: `tests/native-evidence-identity.sh` per-input check |
 | Closure harness observations hold across hosts before paid runs | 7: default-mode substitutes for removed worktree and PATH-dropping login shell |
@@ -410,16 +437,25 @@ ordinary managed delivery.
   command, its guidance, and its CLI proof. Between slices 3 and 5 the old
   modules ship unwired exactly as they do today; no delivery boundary makes
   that worse.
-- **Unlanded predecessor.** Slice 3 builds on plan 145's owner-argument
-  removal; the start gate covers it. Plan 142 has landed and its shape is
-  observed above.
+- **Predecessors.** Plans 142 and 145 have landed, and the start gate records
+  the shapes slices 1 and 3 build on.
 - **Paid runs.** Slice 8 needs separate run authority at execution time, and
   runs only after slices 6 and 7, so a failure reflects the guidance, not the
   harness.
-- **Ownership fact source.** Slice 1 consumes the durable creation fact only
-  if its separate decision has landed by start; otherwise the flag keeps the
-  gate failing safe. Either way the gate and its tests are the same; only the
-  fact's source differs.
+- **Ownership fact source (readiness review, 2026-09-29).** Plan 147's story
+  names this command as the reader of its creation ref, and plan 147 excludes
+  the command, so waiting for it to land and then choosing a source would leave
+  the reader unowned. Slice 1 reads the ref itself; its tests write the ref
+  with `update-ref`, so they do not depend on plan 147's writer. Until that
+  writer lands, a worktree without a ref retires only with `--created-for-work`
+  from a recorded creation, and otherwise fails safe by retaining.
+- **Concurrent plan 147.** It edits Dough Land's **Worktree** input,
+  `exploration-workspace.md`, and the owned-context native fixtures while this
+  plan edits Land's "Retire the worktree" and, in slices 6–8, the same native
+  journeys and identities. Each slice re-reads those files on then-current
+  trunk. Slice 8's owned-context runs carry the creation ref once plan 147's
+  slice 3 lands; if it has not landed by slice 8, those runs keep their stated
+  creation and pass `--created-for-work`.
 - **Size.** The enrichment adds two small Structure slices and one gate to
   slice 1, for eight slices. Slice 7 touches three fixtures but applies one
   shared helper; the ci-completion fixture is included so the harness keeps

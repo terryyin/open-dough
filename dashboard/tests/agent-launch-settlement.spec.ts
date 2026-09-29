@@ -1,9 +1,11 @@
 // How Started lasts and settles on a Backlog card, on a committed origin the
 // production commands publish (./launchJourney.ts): it survives reloads and
-// project switches, stays beside a published preparation assignment, and ends
-// once origin publishes the Take or the story leaves the backlog. The page's
-// own dashboard server launches the synthetic `claude`
-// (./fixtures/fake-claude); the real one is never reached.
+// project switches; a published preparation assignment ends a refinement
+// Started, notes Start refinement "Being prepared", and leaves an execution
+// Started beside Preparing; every Started ends once origin publishes the Take
+// or the story leaves the backlog. The page's own dashboard server launches
+// the synthetic `claude` (./fixtures/fake-claude); the real one is never
+// reached.
 
 import { expect, test } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
@@ -25,6 +27,9 @@ import { publishMovingOrigin } from "./publishedOrigin.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
+type Workflow = "Execution" | "Refinement";
+type Launch = readonly [title: string, workflow: Workflow];
+
 test.describe("as origin publishes what the launched sessions do", () => {
   let settlement: SettlementJourney;
   test.beforeAll(async () => {
@@ -33,7 +38,7 @@ test.describe("as origin publishes what the launched sessions do", () => {
   });
   test.afterAll(() => (settlement as SettlementJourney | undefined)?.cleanup());
 
-  test("Started survives reloads and project switches, stays beside a published Preparing, and is gone once origin shows the story Taken or no longer queued", async ({
+  test("Started survives reloads and project switches; Preparing ends a refinement Started and notes Start refinement, leaving the execution Started; the Take or leaving the backlog ends every Started", async ({
     page,
     dashboard,
   }) => {
@@ -49,12 +54,13 @@ test.describe("as origin publishes what the launched sessions do", () => {
     const { backlog, taken, project, source, refresh } = parts(page);
     const card = (title: string) =>
       backlog.getByRole("article", { name: title });
-    const started = (title: string) =>
-      card(title).getByRole("region", { name: "Started" });
+    const started = (title: string, workflow: Workflow) =>
+      card(title).getByRole("region", { name: `${workflow} started` });
+    const action = (title: string, workflow: Workflow) =>
+      card(title).getByRole("button", { name: `Start ${workflow}` });
     const anyStarted = page.getByRole("region", { name: "Started" });
-    const dialog = page.getByRole("dialog", {
-      name: "Start execution in Claude Code",
-    });
+    const launches = () =>
+      dashboard.claudeCalls().filter((c) => c.argv[0] === "--bg");
     const settled = async () => {
       await expect(page.getByText("Reading preparation…")).toHaveCount(0);
     };
@@ -64,39 +70,45 @@ test.describe("as origin publishes what the launched sessions do", () => {
       await expect(source).toContainText(revision);
       await settled();
     };
+    const launch = async (title: string, workflow: Workflow) => {
+      await action(title, workflow).click();
+      await page
+        .getByRole("dialog", { name: `Start ${workflow} in Claude Code` })
+        .getByRole("button", { name: "Start" })
+        .click();
+    };
     const queued = [takenStory, readyStory, notRefinedStory];
     await expectMembership(page, { taken: [], backlog: queued });
     await settled();
 
-    // Story B is taken later; Story C is completed without being taken.
+    // Story B is prepared and then taken; Story C is completed without being
+    // taken.
+    const launched: Launch[] = [
+      [readyStory, "Execution"],
+      [readyStory, "Refinement"],
+      [notRefinedStory, "Execution"],
+    ];
     const sessions = new Map<string, string>();
-    for (const title of [readyStory, notRefinedStory]) {
-      await card(title)
-        .getByRole("button", { name: "Start execution" })
-        .click();
-      await dialog.getByRole("button", { name: "Start" }).click();
-      await expect(started(title)).toBeVisible();
-      const session = await started(title)
+    for (const [title, workflow] of launched) {
+      await launch(title, workflow);
+      await expect(started(title, workflow)).toBeVisible();
+      const session = await started(title, workflow)
         .locator("p code")
         .first()
         .textContent();
-      sessions.set(title, session ?? "");
+      sessions.set(`${title} ${workflow}`, session ?? "");
     }
-    const expectStarted = async (titles: readonly string[]) => {
-      for (const title of titles) {
-        await expect(started(title)).toContainText(
-          `Session ${sessions.get(title) ?? "?"}`,
+    const expectStarted = async (launches: readonly Launch[]) => {
+      for (const [title, workflow] of launches) {
+        await expect(started(title, workflow)).toContainText(
+          `Session ${sessions.get(`${title} ${workflow}`) ?? "?"}`,
         );
-        await expect(
-          card(title).getByRole("button", { name: "Start execution" }),
-        ).toHaveCount(0);
+        await expect(action(title, workflow)).toHaveCount(0);
       }
-      await expect(anyStarted).toHaveCount(titles.length);
+      await expect(anyStarted).toHaveCount(launches.length);
     };
-    await expectStarted([readyStory, notRefinedStory]);
-    expect(
-      dashboard.claudeCalls().filter((c) => c.argv[0] === "--bg"),
-    ).toHaveLength(2);
+    await expectStarted(launched);
+    expect(launches()).toHaveLength(3);
 
     await test.step("reloading the page keeps Started, read again from the running server", async () => {
       const reads = page.waitForRequest(
@@ -108,10 +120,8 @@ test.describe("as origin publishes what the launched sessions do", () => {
       await reads;
       await expectMembership(page, { taken: [], backlog: queued });
       await settled();
-      await expectStarted([readyStory, notRefinedStory]);
-      await expect(
-        card(takenStory).getByRole("button", { name: "Start execution" }),
-      ).toBeEnabled();
+      await expectStarted(launched);
+      await expect(action(takenStory, "Execution")).toBeEnabled();
     });
 
     await test.step("another project shows none of these launches, and returning shows Started again", async () => {
@@ -123,27 +133,48 @@ test.describe("as origin publishes what the launched sessions do", () => {
         backlog: [doughnutSharedTitle],
       });
       await expect(anyStarted).toHaveCount(0);
-      await expect(
-        card(doughnutSharedTitle).getByRole("button", {
-          name: "Start execution",
-        }),
-      ).toBeEnabled();
+      await expect(action(doughnutSharedTitle, "Execution")).toBeEnabled();
 
       await project
         .getByRole("radio", { name: "Open Dough", exact: true })
         .check();
       await expectMembership(page, { taken: [], backlog: queued });
       await settled();
-      await expectStarted([readyStory, notRefinedStory]);
+      await expectStarted(launched);
     });
 
-    await test.step("a published preparation assignment shows Preparing beside Started", async () => {
+    await test.step("a published preparation assignment ends the refinement Started, notes Start refinement, and keeps the execution Started beside Preparing", async () => {
       await show(settlement.preparing);
       await expectMembership(page, { taken: [], backlog: queued });
-      await expect(card(readyStory).locator(".preparing-activity")).toHaveText(
-        "Preparing",
-      );
-      await expectStarted([readyStory, notRefinedStory]);
+      await expect(
+        card(readyStory).getByText("Preparing", { exact: true }),
+      ).toBeVisible();
+      const stillStarted: Launch[] = [
+        [readyStory, "Execution"],
+        [notRefinedStory, "Execution"],
+      ];
+      await expectStarted(stillStarted);
+      await expect(
+        action(readyStory, "Refinement"),
+      ).toHaveAccessibleDescription("Being prepared");
+      for (const title of [takenStory, notRefinedStory]) {
+        await expect(action(title, "Refinement")).toHaveAccessibleDescription(
+          "",
+        );
+      }
+      await page.reload();
+      await settled();
+      await expectStarted(stillStarted);
+    });
+
+    await test.step("a refinement launched on a story already Preparing settles at once", async () => {
+      await launch(readyStory, "Refinement");
+      await expect.poll(() => launches().length).toBe(4);
+      await expect(action(readyStory, "Refinement")).toBeEnabled();
+      await expect(
+        action(readyStory, "Refinement"),
+      ).toHaveAccessibleDescription("Being prepared");
+      await expect(started(readyStory, "Refinement")).toHaveCount(0);
     });
 
     await test.step("the published Take shows the story under Taken and ends its Started", async () => {
@@ -155,14 +186,14 @@ test.describe("as origin publishes what the launched sessions do", () => {
       await expect(
         taken.getByRole("article", { name: readyStory }),
       ).not.toContainText("Started");
-      await expectStarted([notRefinedStory]);
+      await expectStarted([[notRefinedStory, "Execution"]]);
       await page.reload();
       await expectMembership(page, {
         taken: [readyStory],
         backlog: [takenStory, notRefinedStory],
       });
       await settled();
-      await expectStarted([notRefinedStory]);
+      await expectStarted([[notRefinedStory, "Execution"]]);
     });
 
     await test.step("a launched story that leaves the backlog shows no Started anywhere", async () => {
@@ -176,8 +207,6 @@ test.describe("as origin publishes what the launched sessions do", () => {
     });
 
     // Nothing was launched again along the way.
-    expect(
-      dashboard.claudeCalls().filter((c) => c.argv[0] === "--bg"),
-    ).toHaveLength(2);
+    expect(launches()).toHaveLength(4);
   });
 });

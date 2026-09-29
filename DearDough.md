@@ -964,7 +964,7 @@ and says not to invoke it; Cursor proceeded into wrap-up anyway.
   - Evidence: response "Proceeding with story wrap-up for SEED-A#a" after reading `finish-or-stop.md`; it deleted the fixture story, plan, and Taken entry; Claude and Codex stopped at `## PLAN EXECUTION COMPLETE`.
   - Observed effect: a 27-minute run and a missing workspace source in the assessment.
 
-## DD-166 — Execute-plan judged readiness from a stale default checkout and sent a planned story back to refinement
+## DD-167 — Execute-plan judged readiness from a stale default checkout and sent a planned story back to refinement
 
 Before startup fetched trunk, execute-plan read the backlog and seed from the default checkout, which lagged trunk. It reported the story unrefined and unplanned, though trunk already held its refinement and plan.
 
@@ -980,7 +980,7 @@ Before startup fetched trunk, execute-plan read the backlog and seed from the de
 
 ## Retention
 
-- Highest allocated local number: 167. Removed local codes are never reused.
+- Highest allocated local number: 168. Removed local codes are never reused.
 - Moved to ProjectFindings.md on 2026-09-29 for the 1,000-line ceiling: DD-155 (this repository's plan-number collision) and DD-159 (a dashboard test misdiagnosis in this repository); recovery: `41965529:DearDough.md`.
 - Removed on 2026-09-28 for the 1,000-line ceiling, as lower priority than the plan 142 findings: DD-125 (newer Git feature) and DD-157 (README at the size ceiling); recovery: `6e3921d6:DearDough.md`.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
