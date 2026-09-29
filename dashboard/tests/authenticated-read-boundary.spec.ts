@@ -84,12 +84,14 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
     expect(server.ghCalls()).toHaveLength(callsBefore + 1);
   });
 
-  test("reads an allowlisted canonical path pinned to the supplied revision, reusing records already read at that revision", async () => {
+  test("reads an allowlisted canonical path pinned to the supplied revision exactly as origin publishes it, a literal control-character escape included, reusing records already read at that revision", async () => {
     // Content at one commit never changes, so this case publishes its
     // different backlog at its own revision.
     const revision = "cd".repeat(20);
     const seedPath = ".planning/seeds/SEED-boundary.md";
-    const seedBody = "# Seed\n\n**Identity:** SEED-boundary#story\n";
+    // `gh` would print a JSON-typed answer's literal `\u0002` as `^B`.
+    const seedBody =
+      "# Seed\n\n**Identity:** SEED-boundary#story\n\nCtrl+B then Enter records a line holding `\\u0002`.\n";
     const backlogWithSeed = `# Product backlog
 
 ## Taken
@@ -120,16 +122,6 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
       headers: { Origin: server.origin },
     });
     expect(response.status).toBe(200);
-    // The backlog read at this revision already decided reachability; only
-    // the record itself is asked of GitHub.
-    expect(server.ghCalls().slice(callsBefore)).toEqual([
-      [
-        "api",
-        "-H",
-        "Accept: application/vnd.github.raw+json",
-        `repos/${knownRepository}/contents/.planning/seeds/SEED-boundary.md?ref=${revision}`,
-      ],
-    ]);
     expect(response.headers["cache-control"]).toBe("no-store");
     const body = JSON.parse(response.body) as {
       revision: string;
@@ -139,6 +131,16 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
     expect(body.revision).toBe(revision);
     expect(body.path).toBe(seedPath);
     expect(body.text).toBe(seedBody);
+    // The backlog read at this revision already decided reachability; only
+    // the record itself is asked of GitHub.
+    expect(server.ghCalls().slice(callsBefore)).toEqual([
+      [
+        "api",
+        "-H",
+        "Accept: application/vnd.github.raw",
+        `repos/${knownRepository}/contents/.planning/seeds/SEED-boundary.md?ref=${revision}`,
+      ],
+    ]);
   });
 
   test("answers when a reachable record was last committed, pinned once per revision and path, and refuses an agent profile or an unreached path before asking GitHub", async () => {

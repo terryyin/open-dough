@@ -19,6 +19,7 @@ import {
   headsAnswer,
   noConnection,
   rawFileAnswer,
+  rawFileContentType,
   type OriginAnswer,
 } from "../originAnswers.ts";
 import {
@@ -136,6 +137,19 @@ export function publishes(published: {
   };
 }
 
+// GitHub labels a file's raw bytes with the raw media type the read accepted,
+// so `gh` prints a `+json`-typed file as it prints JSON (./ghReply.ts).
+function labeledAsAccepted(
+  request: GhRequest,
+  answer: OriginAnswer,
+): OriginAnswer {
+  return request.kind === "content" &&
+    "contentType" in answer &&
+    answer.contentType === rawFileContentType
+    ? { ...answer, contentType: `${request.mediaType}; charset=utf-8` }
+    : answer;
+}
+
 export async function startFakeGitHub(): Promise<FakeGitHub> {
   const calls: GhCall[] = [];
   const avatarReads: string[] = [];
@@ -178,7 +192,15 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
           return;
         }
         res.writeHead(200, { "content-type": "application/json" });
-        res.end(JSON.stringify(asGhReply(argv, call.request, answer)));
+        res.end(
+          JSON.stringify(
+            asGhReply(
+              argv,
+              call.request,
+              labeledAsAccepted(call.request, answer),
+            ),
+          ),
+        );
       });
     });
   });

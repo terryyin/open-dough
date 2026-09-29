@@ -141,7 +141,11 @@ Proof: ${slice.proof}
 ${accepted}`;
     })
     .join("\n");
+  // `gh` would print a JSON-typed answer's literal `\u0002` as `^B`, so the
+  // card stays ready only while this plan is read exactly as published.
   return `# Ready plan
+
+Ctrl+B then Enter records a line holding \`\\u0002\`.
 
 ## Ordered slices
 
