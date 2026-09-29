@@ -1,0 +1,11 @@
+source: ab447d4c .planning/quick/039-native-wrap-up-acceptance/evidence/slice-2/correction/transcript.jsonl
+stream-status: complete
+response: present
+last-start-line: 375
+command: "git status && git log -5 --oneline && git rev-parse HEAD && ls -la planning/plans/ planning/plans/remove-extra-greeting-prefix/ 2>/dev/null; ls -la *.md AGENTS.md README.md 2>/dev/null; find . -name '*.md' -not -path './.git/*' -not -path './.agents/*' -not -path './.claude/*' | head -50"
+command: "git show e909a18 --stat && git log -1 --format='%s%n%n%b' e909a18; ls -la planning/plans/remove-extra-greeting-prefix/evidence/; git ls-files planning/"
+command: "git show 4fb462f --stat --name-status && echo '====' && git show 9200716 --stat --name-status && echo '====' && git show 4fb462f:README.md && echo '====' && git show 4fb462f:planning/PRODUCT-BACKLOG.md && echo '====' && git show 9200716:planning/PRODUCT-BACKLOG.md && echo '====' && git show 9200716:README.md && echo '====' && git show 9200716:DearDough.md 2>/dev/null; git log --oneline -8; git show 4fb462f --format='%s%n%n%b' -s; git show 9200716 --format='%s%n%n%b' -s"
+command: "git show 6fdaa1a:README.md; echo '===='; git show 9200716 -- planning/plans/remove-extra-greeting-prefix.md | head -80; echo '===='; git show 6fdaa1a:DearDough.md; echo '===='; git show 6fdaa1a:planning/seeds/SEED-001-greeting.md"
+command: "git log -5 --format='%s' && git status && git diff README.md && git diff --check"
+command: "git add README.md && git commit --trailer \"Co-authored-by: Cursor <cursoragent@cursor.com>\" -m \"$(cat <<'EOF'\nPrepare Remove extra greeting prefix wrap-up\n\nEOF\n)\" && git status && git rev-parse HEAD && git log -1 --format='%H %s'"
+command: "rmdir planning/plans/remove-extra-greeting-prefix/evidence planning/plans/remove-extra-greeting-prefix 2>/dev/null; ls -la planning/plans/; git status; git diff --check; git add -A planning/ && git status && git diff --cached --stat && git commit --trailer \"Co-authored-by: Cursor <cursoragent@cursor.com>\" -m \"$(cat <<'EOF'\nRemove spent Remove extra greeting prefix plan history\n\nEOF\n)\" && git status && git log -3 --oneline && ls -la planning/plans/ 2>/dev/null; test ! -e planning/plans/remove-extra-greeting-prefix.md && echo 'plan absent OK'"

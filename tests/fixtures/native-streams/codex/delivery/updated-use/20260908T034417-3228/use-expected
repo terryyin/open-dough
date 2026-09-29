@@ -1,0 +1,6 @@
+source: 64a188e8 .planning/quick/023-accept-standalone-client/evidence/codex/delivery/updated-use/20260908T034417-3228/use-events.jsonl
+stream-status: complete
+response: present
+last-start-line: 7
+command: "/bin/zsh -lc \"pwd && sed -n '1,240p' architecture/decisions/CATALOG.md && rg -n \\\"telemetry|retention|history|per-node|Standing|Follow-on\\\" architecture/decisions governance/architecture-exceptions.md\""
+command: "/bin/zsh -lc \"sed -n '1,220p' architecture/decisions/store-readings-on-each-node.md; sed -n '1,220p' architecture/decisions/retain-complete-telemetry-history.md; if test -f governance/architecture-exceptions.md; then sed -n '1,220p' governance/architecture-exceptions.md; else echo 'MISSING: governance/architecture-exceptions.md'; fi\""

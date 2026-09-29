@@ -1,0 +1,18 @@
+journey: one-shot-escalation
+stream-status: complete
+one-shot-start-observed: true
+carry-admission-observed: true
+edits-carried: true
+base-sha: c881d6f134daa44666d3e3c56282c12fb2a56cac
+remote-sha: 69be20d8404e38512dc6e56ce8c0a6cc4ccdb93b
+trunk-commit-count: 1
+ref-update-count: 2
+trunk-push-count: 1
+pushed-tip: 69be20d8404e38512dc6e56ce8c0a6cc4ccdb93b taken=SEED-C#notes-directory-rename
+pushed-taken: SEED-C#notes-directory-rename
+forced-trunk-push-count: 0
+taken-added: SEED-C#notes-directory-rename
+trunk-product-paths: 
+workspace-on-claim: true
+workspace-edits: docs/settings.md,src/notes.mjs,src/settings.mjs
+human-edit-preserved: true

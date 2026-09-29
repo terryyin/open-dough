@@ -1,0 +1,39 @@
+host: cursor
+case: publication/one-shot-result
+origin: fresh
+execution-status: completed
+execution-reason: native command exited 0
+assessment-status: pass
+assessment-reason: only the one-shot result reached remote trunk and its workspace retired
+native-executable: /Users/terryyin/.local/bin/cursor
+native-version-command: cursor agent --version
+native-version: 2026.09.28-64d2043
+native-model: unknown
+native-runtime-settings: unknown
+source-revision: a99c67f7823b6c0f219d57748f3d8532d8723354
+fixture-tag: publication-native
+fixture-commit: a99c67f7823b6c0f219d57748f3d8532d8723354
+prompt-identity: 2e9053bdaaef9062c8f13c28186bd67f25b4faa01460db509eb3b6e78d446c5d
+helper-identity: tests/support/git-publication-native-run.sh
+adapter-identity: cursor-agent-stream-json
+fixture-identity: tests/support/git-publication-native-fixture.sh
+assessor-identity: tests/support/git-publication-native-assess.sh
+input-hash: 35e1b9eab70bdc7eaf2e23f6a21e0abcc5e121bbefb966040a8670086958bf9f tests/git-publication-native.sh
+input-hash: e9f1e50a3d8574bae46607e5b77229d03bd45e7c47d6b927a52b47a075cb4b99 tests/support/git-publication-native-assess.sh
+input-hash: b520dfe2a53d5b7c203ea78b69739af962e8934d9f840b5d637a4d8858e82713 tests/support/git-publication-native-startup-assess.sh
+input-hash: 7409cc94d362e3b9ab3d377bd89422a8836329154005ab08c49366d1ee82a252 tests/support/git-publication-native-prose.sh
+input-hash: 9943d33668ae44e75c238ee6726fcd0b0539248ae6051581110b34c11386c81f tests/support/git-publication-native-fixture.sh
+input-hash: 5efbd1e71beef026c76788b7b0e461cd221019fb6f0cb863e6a900db0393eee4 tests/support/git-publication-native-startup-fixture.sh
+input-hash: da6bb0928bdf67fa18ff8ced6498dfd2eb47fb7317a21eff8bd7779b9d61212b tests/support/git-publication-native-shared.sh
+input-hash: 2a664bc8ccb852bf1865445edf46206c2ba156299ad1a3715805454aa4f32013 tests/support/git-publication-native-run.sh
+input-hash: 8920a752fb536690d310e755b8b42628b5ec53c6d87d401e281f01079177e963 tests/support/git-publication-native-evidence.sh
+input-hash: a6ee77c060fc1f42553fd488d257e0cf87d64a162f1448716b8b6f178a88b175 tests/support/git-publication-native-prompt.sh
+input-hash: d4cd37645c2ddd7438cdc9635f4925722c2f231e125f90a6bb0ac3557c18ccd3 tests/support/native-run-supervise.sh
+input-hash: a7db3658cf79d7af11d43a05d6ffebb92a971d56256ab846d6e694c892c008fb tests/support/native-run-stream.sh
+input-hash: 93ff8294ef14b954a9562f05fd997f36b369202688bdb1b4bdad6a2902ecae20 tests/support/native-run-watchdog.sh
+input-hash: 38f4ccdedbad94ed2b1b1377e2559cfe8728e756420e5d52944a37ae2e878e2d tests/helpers/wait-for.bash
+input-hash: fc419f3636b9ce4a2fd457586ccf8a2a686c8f9f4e88dfd5ff99b2f3fa95b4fc src/skills/dough-execute-plan/references/publish-the-candidate.md
+artifact-events: events.jsonl
+artifact-response: response.md
+artifact-stderr: stderr.log
+artifact-observations: observations.txt

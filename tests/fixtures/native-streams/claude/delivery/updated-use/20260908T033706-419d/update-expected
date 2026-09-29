@@ -1,0 +1,9 @@
+source: 64a188e8 .planning/quick/023-accept-standalone-client/evidence/claude/delivery/updated-use/20260908T033706-419d/update-events.jsonl
+stream-status: complete
+response: present
+last-start-line: 53
+# All four Bash calls were refused for approval (tool_result is_error); a refused call still counts as started.
+command: "cd \"/private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.hUg5hpb0Wy/atlas adopter\" && pwd && echo \"---SOURCE---\" && cat .claude/skills/dough-update/SOURCE 2>&1 && echo \"---VERSION---\" && cat .claude/skills/dough-update/VERSION 2>&1 && echo \"---ls skills---\" && ls -la .claude/skills/"
+command: "git ls-remote --tags -- \"file:///var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.hUg5hpb0Wy/fixture-source\""
+command: "git ls-remote --tags -- \"file:///var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.hUg5hpb0Wy/fixture-source\""
+command: "git ls-remote --tags -- \"file:///var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.hUg5hpb0Wy/fixture-source\""

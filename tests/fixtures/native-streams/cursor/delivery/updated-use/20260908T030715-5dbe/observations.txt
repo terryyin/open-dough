@@ -1,0 +1,14 @@
+update-execution: completed
+use-execution: completed
+same-target: true
+target-skill-root: .cursor/skills
+source-preserved: true
+companion-preserved: true
+real-transition: true
+update-version-before: 0.2.1
+update-version-after: 0.2.2
+improvement-after-update: true
+other-tool-root-cursor: present
+other-tool-root-claude: present
+other-tool-root-cursor-preserved: false
+other-tool-root-claude-preserved: true

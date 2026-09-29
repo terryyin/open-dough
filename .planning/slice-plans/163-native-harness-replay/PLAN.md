@@ -11,6 +11,14 @@
 - **Authority:** planning only. This plan grants no Take, implementation, or
   publication.
 
+## Execution
+
+- **Mode:** Story Branch Mode; worktree
+  `.worktrees/native-harness-observes-agent-behavior`, branch
+  `claude/native-harness-observes-agent-behavior`, publisher ID
+  `claude-native-harness-observes-agent-behavior`.
+- **Claim:** published on `origin/main` at `0c857874`.
+
 ## Outcome and boundaries
 
 Real host output from paid runs becomes free, replayable proof of how the
@@ -118,7 +126,7 @@ behavioral evidence
 
 ### 1. The shared reader recognizes every command in real streams from all three hosts
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh tests/native-stream-replay.sh`, green, plus two
 reader counterexamples that fail it.
 
@@ -130,6 +138,30 @@ the reader over each entry → the started commands and stream status match
 one entry. Reading Codex from `item.completed` only, or dropping Cursor
 `tool_call`, fails and names the entry. The two weekly-limit Claude streams
 read as complete with no commands.
+
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+tests/native-stream-replay.sh tests/support/native-host-stream.test.mjs`,
+exit 0 (0.7 s). The reader is `tests/support/native-host-stream.mjs` (CLI views
+`status`, `response`, `commands`, `segments`, `outputs`); replay and the
+`--variant` counterexamples are in `tests/support/native-stream-replay.mjs`.
+
+Learnings for later slices:
+- History holds 24 journey-mapped streams in 22 attempts on the listed
+  commits, not 18; all are in the corpus at
+  `tests/fixtures/native-streams/<host>/<family>/<case>/<attempt>/`. Attempts
+  with two streams use `update-`/`use-` prefixed `events.jsonl.gz` and
+  `expected`.
+- Every real Codex command completes in order, so an `item.completed`-only
+  reader fails only on a stream cut mid-command. Replay also cuts each entry
+  after its reviewed `last-start-line`, derived independently of the reader.
+- Codex `delivery/updated-use` 43e0 is harness-faulted: recorded incomplete,
+  yet it ends in `turn.completed`. Its `update-expected` carries `corrected:`.
+- Claude 58dd and 0152 and Codex 0585 recorded `startup-cli-count: 2`; today's
+  rule counts 1 (the old counter took `--help` probes and did not dedupe).
+  Slice 3 treats that field as drifted. Cursor 5692 reads 1, as expected.
+- A stream cut mid-line reads `unknown`, as today's `jq -s` does.
+- Slice 6's guard allows `native-stream-replay.mjs` (counterexample variants)
+  and `native-host-stream.test.mjs`, and skips the binary `.jsonl.gz` files.
 
 ### 2. Publication observers read host streams through the reader
 Type: Structure

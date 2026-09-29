@@ -1,0 +1,20 @@
+journey: startup-story-branch
+stream-status: complete
+startup-cli-count: 1
+remote-sha: 4e68f7b658477e45ddf30ac268aba3d3b9147e8d
+trunk-sha: 77d47524cdb94d3bf1f2db65bd290a401c9efaf9
+taken-on-remote: true
+claim-owned: true
+candidate-sha: 
+candidate-contained: false
+rival-owned: false
+human-edit-preserved: true
+selected-source-preserved: true
+feature-exists: true
+setup-exists: true
+setup-after-claim: true
+startup-refusal-observed: false
+startup-conflict-observed: false
+first-edit-after-claim: true
+workspace: /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.H0YOYKWvhx/startup-story-branch.tbz3ZO/workspace-claim-NQ3neJ/native-execution
+integration: /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.H0YOYKWvhx/startup-story-branch.tbz3ZO/workspace-claim-NQ3neJ/integration

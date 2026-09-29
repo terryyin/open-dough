@@ -1,0 +1,9 @@
+source: ab447d4c .planning/quick/039-native-wrap-up-acceptance/evidence/slice-2/predecessor/transcript.jsonl
+stream-status: complete
+response: present
+last-start-line: 327
+command: "git status && git log -5 --oneline && git remote -v && ls -la planning/plans/trim-names/"
+command: "git status && git diff && git log -3 --oneline"
+command: "git add README.md planning/PRODUCT-BACKLOG.md && git commit --trailer \"Co-authored-by: Cursor <cursoragent@cursor.com>\" -m \"$(cat <<'EOF'\nPrepare Trim names wrap-up with follow-up queued first\n\nEOF\n)\" && git status && git rev-parse HEAD && git log -1 --oneline"
+command: "rmdir planning/plans/trim-names/evidence planning/plans/trim-names 2>/dev/null; git status && git diff --stat && rg -n 'trim-names|Trim names' --glob '!**/skills/**' --glob '!.agents/**' --glob '!.claude/**' || true"
+command: "git add DearDough.md planning/plans/remove-extra-greeting-prefix.md planning/plans/trim-names.md planning/plans/trim-names/evidence/cli-run.txt planning/seeds/SEED-001-greeting.md && git commit --trailer \"Co-authored-by: Cursor <cursoragent@cursor.com>\" -m \"$(cat <<'EOF'\nRemove spent Trim names plan and story history\n\nEOF\n)\" && git status && git log -3 --oneline && git diff --check && git show 4fb462f:planning/plans/trim-names.md >/dev/null && echo \"recovery ok\""
