@@ -61,8 +61,12 @@ Excluded:
 - One guidance file. Proudly Found Elsewhere: the responsibility already lives
   in the slice-planning premise paragraph. Change that paragraph.
 - Slice 1 is useful on its own. Slice 2 is the one Cursor check of the changed
-  guidance. A fail there stops for a human guidance decision. This plan does
-  not authorize a second rewrite or a second run.
+  guidance. A fail there stops for a human guidance decision.
+- After plan 179 failed, Terry authorized one further edit of the same
+  paragraph. A move must name a script, feature, command, or route that
+  reaches the moved function, and a test that imports or calls the unit does
+  not settle the claim while that entry exists. This decision does not
+  authorize another Cursor run.
 - The Cursor run is manually triggered and needs Terry's go-ahead. It is not
   a local gate for the guidance edit.
 - No North Star topic. The change follows the two Accepted ADRs above and does
@@ -160,8 +164,8 @@ and an instruction not to implement, commit, push, or publish. Transcript:
 Verdict: fail. Slice 10 moves `gate_baseline_genome` and proves it with the
 agreement test and genome/search/catalog tests. The plan never names
 `live_strategies.feature` or `seed_named_genome_live_strategy_pair.py`.
-Stopped for a human guidance decision. This plan does not authorize a second
-rewrite or a second run.
+Stopped for a human guidance decision. Terry then authorized the paragraph
+edit recorded above. Another Cursor run is not part of that decision.
 
 Behavior: a disposable Pygardon clone at `546df0d94` (parent of `b2ad7c394`),
 `origin` removed, seed and backlog restored from `b2ad7c394` with the story
@@ -175,7 +179,8 @@ implement, commit, push, or publish → the written plan names
 observation.
 
 A written plan that proves the move only with pytest, or only with
-`strategy_verify.feature`, fails. Stop for a human guidance decision. Do not
-revise slice 1 or run the case again inside this plan.
+`strategy_verify.feature`, fails. The failed run stopped for a human guidance
+decision. The authorized follow-up is the premise-paragraph edit, not another
+run of this case.
 
 Needs Terry's go-ahead before the paid run. Add the run to no automated suite.
