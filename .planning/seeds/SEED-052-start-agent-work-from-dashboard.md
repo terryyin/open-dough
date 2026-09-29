@@ -350,8 +350,13 @@ no feature promise. See the [plan](../slice-plans/151-recent-sessions-residue/PL
 - **Effort hypothesis:** Unestimated; launch/attach continuity and workspace
   conventions require a feasibility observation before planning or further split.
 - **Known from launch:** The browser still spells out Claude Code specifics:
-  `claude attach`, the `claude agents` advice, `/dough-execute-plan`, and the
-  host label. A second host moves them behind the host module.
+  `claude attach`, the uncertain launch's `claude agents` advice,
+  `/dough-execute-plan`, and the host label. It also interprets Claude Code's
+  session `state` and `status` (`sessionRuns`, `sessionStateWords`), and the
+  page reads the host's listing again every 15 seconds; Claude Code's answered
+  in about 0.16 s with 469 sessions. A second host moves these behind the host
+  module and observes whether its listing is as quick and tells running from
+  exited sessions.
 - **Depends on:** The chosen Claude Code experience; no dependency on Cursor.
 - **Safe stopping point:** Claude Code and Codex remain independently usable.
 
@@ -375,6 +380,9 @@ no feature promise. See the [plan](../slice-plans/151-recent-sessions-residue/PL
   one tool's integration proves another's.
 - **Effort hypothesis:** Unestimated; the same end-to-end feasibility question as
   Codex must be observed on Cursor before planning or further split.
+- **Known from launch:** The same Claude Code specifics as story 7 live in the
+  browser, including its session-state vocabulary and the 15-second listing
+  read.
 - **Depends on:** The chosen Claude Code experience; no dependency on story 7.
 - **Safe stopping point:** Each delivered tool remains usable if later parity
   enhancements are dropped.
