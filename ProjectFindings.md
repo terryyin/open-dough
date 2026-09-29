@@ -43,6 +43,10 @@ executions, not commands, retries, or repairs.
    142.** `! assess` lines under `set -e` were not enforced; all 38 now run
    through `git_publication_suite_expect_rejected`.
 
+8. **The host's `NODE_ENV` reaching the dashboard build (DD-166) — resolved
+   in plan 148.** One execution: read-count specs flaked locally but not in
+   CI; `eecfefc6` makes every build production.
+
 No other project-owned problem is supported, so only one story is queued.
 
 Resolved and removed on 2026-09-27: ODF-060 (a new payload file published
@@ -222,6 +226,30 @@ clause.
   - Model: claude-opus-5-5[1m]
   - Evidence: trunk-closure, story-branch, and delivery-evidence assessors; mutation check in the repair's refactor report.
   - Observed effect: 38 counterexamples provided no protection until repaired.
+
+## The host's `NODE_ENV` reaching the dashboard build (resolved)
+
+### DD-166 — A host-exported `NODE_ENV=development` made the suite's dashboard build a development bundle
+
+Claude Code exports `NODE_ENV=development` to its shells. Vite honored it on
+`npm run build:dashboard`, so the suite's preview served React's development
+bundle, whose StrictMode mounts effects twice: each page open sent a second,
+aborted opening read that under load could still reach the fake `gh`. CI sets
+no `NODE_ENV`, so only local runs saw it. Same family as DD-114: a setting
+from outside the test's intent reaching what the suite starts.
+
+**Response:** `eecfefc6` sets `NODE_ENV=production` for `vite build` in
+`dashboard/vite.config.mts`, as the dashboard README already promised.
+
+#### Occurrences
+
+- Execution: `SEED-052#launch-claude-refinement-background` / plan 148, first related implementation commit `78ded931`
+  - Timestamp: unknown (whole-suite run between `78ded931`'s slice work, committed 2026-09-29T08:08:33+08:00, and the fix `eecfefc6` at 08:25:40+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: `direction-disclosure.spec.ts:28` saw `pathsRead` `"main"` twice at load ≈12.7; reproduced under CPU burners in `project-read-isolation.spec.ts:216`; trace showed two opening `__authenticated-read` requests, the first `ERR_ABORTED`, and React's DevTools banner in `dashboard/dist`
+  - Observed effect: one flaky whole-suite run; one diagnosis agent (about 15 minutes) and a one-file fix
+  - Inference: Qualified. Other read-count specs (`refresh`, `read-failure`, `project-keyboard-navigation-focus`) shared the exposure; the build fix covers them all
 
 ## Retention
 

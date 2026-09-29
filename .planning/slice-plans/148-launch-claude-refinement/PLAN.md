@@ -270,6 +270,21 @@ Changes:
   Preparing settles at once, with its session reached through
   `claude agents`.
 
+## Execution complete
+
+Product advice: Both main workflows now start from the dashboard through one
+workflow table. At wrap-up:
+- Record in story 2's *Known from launch* that a refinement Started settles on
+  Preparing, and one launched on a card already Preparing shows no Started at
+  all, so its session is reachable only through `claude agents`. This raises
+  story 2's value.
+- Narrow story 4 to what 1a leaves: the state-aware skill chooser and answering
+  in the embedded terminal (story 3). Its launch is delivered.
+- Story 6's dependency on 1a is met.
+- When ADR 0008 is next reviewed, it can adopt *launch workflow* beside
+  *developer assignment*, as the North Star topic now does.
+No backlog reordering is supported by this execution.
+
 ## Current decisions
 
 - One workflow table in `src/agentLaunch.ts`. No per-workflow copy of the
