@@ -61,9 +61,8 @@ projections that came out wrong.
   - The free suite checks that every harness shim, not only `node`, resolves
     first in each host's zsh login shell when a startup file rebuilds PATH.
 - **Deferred:** Counterexample discipline for assessors (DD-160, DD-175, and
-  ODF-087's harness facet) moved to
-  [Prove assessors on the verdicts they newly admit](#assessor-counterexample-discipline).
-  No gate is added to the paid native runner, and replay is not native
+  ODF-087's harness facet) is the counterexample helper's
+  ([Rejected cases](../../tests/native-publication.md#rejected-cases)). No gate is added to the paid native runner, and replay is not native
   behavioral evidence (ADR 0005 §2). Journeys without retained attempts gain
   per-journey replay when a paid run first retains one, not through new paid
   captures made for this story.
@@ -96,114 +95,66 @@ projections that came out wrong.
 - **Safe stopping point:** The shared reader is proved on the corpus for all
   three hosts and the publication journeys read through it.
 
-<a id="ci-time-budget-from-ci-timings"></a>
+<a id="assessor-counterexample-gaps"></a>
 
-### 2. Judge a change against the CI time budget from CI's own timings
+### Correction: Close the assessor counterexample discipline's remaining gaps
 
-**Identity:** SEED-055#ci-time-budget-from-ci-timings
+**Identity:** SEED-055#assessor-counterexample-gaps
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/162-ci-time-budget-from-ci-timings/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"01a8fd0e3409afe8e9d364fd35b10aa29aca4976df25fdce41d733d4561a3440","plan":"895430a9a5b90c99fbf6b0d33d7ec14d8991f03db72d5a4c40e9cfb417992326"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/168-assessor-counterexample-gaps/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"47b378b0ff58b9a1229f56ec0d34ed8f5519beba75a895cf19106d91e851f2d3","plan":"7d4985ebedb6170e8bdfe399cc45e25d9320afbcfab8fbba203c86baa58611a7"}}
 ```
 
-- **Goal:** The agent planning or executing a slice that must stay inside
-  `tests/time-budget` reads the job's current baseline from recent trunk CI
-  timings with one command, and measures locally only when that baseline leaves
-  thin headroom. A slice with wide headroom pushes and lets its revision's CI
-  job settle the budget. A thin margin shows before the push, so the slice
-  splits a job in the same change rather than in a follow-up commit. This cuts
-  agent time and extra commits on budget-bound slices, so the repository's own
-  proof stays cheap to trust.
-- **Problem as observed:** Against
-  [the second-priority project findings](../../ProjectFindings.md#local-time-budget-measurement-under-load-second-priority)
-  (DD-158), checked against plans 135 and 139 as committed. Both plans copied
-  one CI number into plan text as the baseline ("the job is 47.3 s now";
-  "seed records 52.2 s"). Plan 139 scaled 52.2 s by a local paired ratio of
-  1.11 to 58 s. Trunk was then running 48.5–61.2 s, and the same ratio applied
-  to 61.2 s gives 67.9 s against the 69.0 s CI measured. The stale baseline,
-  not the paired ratio, produced that miss. Plan 135 kept timing (3 pairs, then
-  5+5 runs and 3 concurrent pairs) although every estimate stayed well inside
-  71 s, and nothing told it when to stop. The recent trunk range was later
-  assembled by hand from CI artifacts.
-- **Scope:**
-  - One read-only command reports, for recent successful trunk CI runs, each
-    job's lowest and highest `test-times-*` seconds and each split share's
-    lowest and highest total. It shows them beside the `tests/time-budget`
-    ceilings and the headroom left under the highest value. When no run or
-    artifact can be read, it says so and names why. It never starts a test run.
-  - Guidance in `tests/README.md`, with a one-line pointer from the
-    `tests/time-budget` header, which is what a plan cites when it names the
-    budget:
-    - A plan names the command, not a copied CI number, and the baseline
-      comes from it when the slice measures.
-    - Headroom under the recent highest value that is at least the recent
-      spread (highest minus lowest) counts as wide. The slice pushes without
-      local timing, and its revision's CI job settles the budget, as today.
-    - Thinner headroom gets one local paired comparison of the job before
-      and after the change under the current load. Its ratio is applied to the
-      recent highest value. A projection at or over the ceiling splits the
-      job in the same slice.
-    - The pushed revision's CI result stays the verdict, and a breach still
-      fails that split job.
-  - Deferred: automated local timing or a per-slice timing gate; changing or
-    recalibrating either ceiling (the command naturally supplies the numbers
-    a recalibration needs, but this story promises no recalibration); timing
-    history beyond CI's seven-day artifact retention; any dashboard or trend
-    view.
-  - Constraint: a local comparison is paired A/B under the current load, never
-    waiting for an idle machine. The command runs no paid native host.
-- **Key examples:**
-  - Wide headroom (plan 135 shape): recent trunk runs show
-    `tests/git-publication-native.sh` at 40.0–51.4 s against
-    `per-job-seconds=71`. Headroom 19.6 s is at least the spread of 11.4 s, so
-    the slice adding a substitute journey pushes without local timing, and
-    that revision's CI `test-times-*` settle it.
-  - Thin headroom (plan 139 shape): recent trunk runs show the job at
-    48.5–61.2 s. Headroom 9.8 s is less than the spread of 12.7 s, so the slice
-    runs one paired comparison (72.5 s → 80.5 s, ratio 1.11). The projection
-    of 67.9 s is visible before the push, and it is where the split decision
-    is made.
-  - Share total: recent share-1 totals of 295–387 job-seconds against
-    `total-job-seconds=470` are reported the same way and judged by the same
-    rule.
-  - No readable runs (none in the retention window, or `gh` unavailable):
-    the command reports that no recent trunk timings were found and why. The
-    slice pushes and CI settles the budget.
-- **Value / learning:** Saves agent time on each budget-bound slice and avoids
-  follow-up split commits; learns whether CI's spread is narrow enough to
-  project from.
-- **Effort hypothesis:** Small: one retrieval command with its test, plus
-  `tests/README.md` and `tests/time-budget` guidance.
-- **Depends on:** CI's `test-times-*` artifacts and `tests/time-budget`.
-- **Safe stopping point:** The retrieval command and its guidance are in place.
+**Goal:** The maintainer paying for native acceptance runs can trust that
+the native assessor counterexample discipline holds where it claims to. The guard
+catches the remaining ways to state a rejection outside the helper.
+Self-reported preparation and every CI completion scenario have rejected
+cases. The publication assessor reads fields regardless of order.
 
-<a id="assessor-counterexample-discipline"></a>
+**Scope:** The correction found by the execution retrospective of
+SEED-055#assessor-counterexample-discipline (commits `a53aa489`..`c6440780` on
+`claude/assessor-counterexample-discipline`). It covers these items:
 
-### 3. Prove assessors on the verdicts they newly admit
+- rejection shapes the guard misses, and verdict wrappers that accept any
+  verdict;
+- the dropped preparation self-report case;
+- CI completion's `ready`, `failure`, and `skip-retro` scenarios, which have
+  no free cases;
+- the order-sensitive publication field reader;
+- a contradictory forced-stop case;
+- duplicated re-observed wrappers and undocumented signal placement.
 
-**Identity:** SEED-055#assessor-counterexample-discipline
+It adds no feature promise. See the
+[plan](../slice-plans/168-assessor-counterexample-gaps/PLAN.md).
+
+<a id="native-harness-replay-corrections"></a>
+
+### Correction: Correct continued-command reading and corpus admission in the native harness
+
+**Identity:** SEED-055#native-harness-replay-corrections
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/169-native-harness-replay-corrections/PLAN.md","assessment":"not-ready","reasons":["Depends on integrating plan 163's story branch (claude/native-harness-observes-agent-behavior) into trunk; its files are not on trunk yet."],"basis":{"document":"ee96928865fc0b7e798eab07ad07b4454569af62a1cc314c41201f945d4f7378","plan":"49f7d713649a02ebdc94e404050b60c9048c83ee44a2e09f743aca7df64c55da"}}
 ```
 
-- **For / why:** The maintainer paying for native acceptance runs needs an
-  assessor's verdict to be right on the cases its counterexamples claim to
-  cover, not only on the old cases.
-- **Goal:** Assessor counterexamples isolate one planned signal each, and a
-  loosened assessor is proved on failure reports from the side it newly
-  admits.
-- **Evaluation:** Against
-  [the first-priority project findings](../../ProjectFindings.md#native-acceptance-harness-observations-that-do-not-match-what-the-native-agent-did-first-priority).
-  - A counterexample that varies more than one planned signal is refused
-    (DD-160).
-  - A change that loosens an assessor fails when any recorded failure report on
-    its newly admitted side passes (DD-175).
-  - An assessor that observes only the retired outcome does not pass a run
-    that skipped the published gate (ODF-087's plan 147 harness facet).
-- **Value / learning:** Removes the assessor-design faults that replay of real
-  output cannot catch.
-- **Effort hypothesis:** Unestimated.
-- **Depends on:** None; independent of the replay story.
-- **Safe stopping point:** The single-signal counterexample check is in place.
+**Goal:** The maintainer paying for native runs gets a reader that
+recognizes a continued command whatever its spacing, and can add every
+accepted paid run to the replay corpus. The native harness also drops
+residue left by
+[Catch native harness faults before paying for a native run](#native-harness-observes-agent-behavior).
+
+**Scope:** The correction found by that story's execution retrospective
+(commits `daaf3c1e`..`b4d82278` on
+`claude/native-harness-observes-agent-behavior`). It covers these items:
+
+- joining line continuations so literal matchers see single-spaced
+  commands, with the affected corpus `command:` lines re-reviewed;
+- admitting any case depth outside the publication family to the corpus;
+- dead and duplicate closure observation fields, and substitute-agent code
+  loaded on the paid assessor path;
+- stale documentation and redundant per-host runs in
+  `tests/native-stream-completeness.sh`.
+
+It adds no feature promise. See the
+[plan](../slice-plans/169-native-harness-replay-corrections/PLAN.md).
 
 ## Ordering and When to Surface
 
@@ -214,10 +165,9 @@ in two executions, is open, and has no existing fix. The stories are
 independent. Story 2 goes first because it is small and protects story 1:
 native work regrows `tests/git-publication-native.sh`, the job nearest its
 ceiling (41.5 s after its 2026-09-28 split, 40.0–51.4 s over the next trunk
-runs), and story 1 is the likeliest next slice bound by that budget. Story 3
-split from story 1 during its refinement on 2026-09-29 and is queued right
-after it; the maintainer chose to keep story 1 about real-output replay and
-shim resolution.
+runs), and story 1 is the likeliest next slice bound by that budget. The
+correction closes gaps the counterexample discipline's execution retrospective
+found.
 
 ## Breadcrumbs
 

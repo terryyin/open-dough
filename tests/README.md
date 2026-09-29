@@ -126,24 +126,8 @@ its own checks, and keeps its own times. CI runs the suite as split jobs, each w
 failures or budget breach and keeps its times for seven days as workflow
 artifact `test-times-<i>`.
 
-The suite's time budget lives in `tests/time-budget`: a per-job ceiling
-(`per-job-seconds`) and a total ceiling over one run's jobs
-(`total-job-seconds`), set from CI's `test-times-<i>` with headroom. The
-ceilings are calibrated to CI's runner, so only after a CI run (`CI=true`) of
-the whole suite or a split share does the runner compare that run's job times
-with them (`scripts/test-budget.sh`); elsewhere it prints no budget report and
-the exit status comes only from the checks. Within budget it prints nothing. A
-breach fails the run and prints, after any failure reports, one line per job
-over the per-job ceiling and one for a total over the total ceiling:
-
-```text
-OVER BUDGET: tests/install.sh took 78.4s; the per-job ceiling is <per-job-seconds>s (tests/time-budget).
-OVER BUDGET: all jobs took 482.4 job-seconds; the total ceiling is <total-job-seconds> (tests/time-budget).
-```
-
-Fix the slow job rather than the number: raising a ceiling is an explicit,
-reviewed edit of `tests/time-budget`. `tests/test-runner-budget.sh` proves
-the budget with a substitute directory.
+The suite's time budget, `tests/time-budget`, and how a slice checks a change
+against recent trunk CI timings are in [time-budget.md](time-budget.md).
 
 A passing job must write nothing, so a passing suite prints nothing. For each
 failing job the runner prints `FAIL: <job>` and that job's captured output. A

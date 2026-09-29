@@ -171,7 +171,7 @@ test.describe("authenticated read boundary on a story branch (dev launch mode)",
       [
         "api",
         "-H",
-        "Accept: application/vnd.github.raw+json",
+        "Accept: application/vnd.github.raw",
         `repos/${knownRepository}/contents/.planning/slice-plans/092-branch/PLAN.md?ref=${head}`,
       ],
     ]);
@@ -219,7 +219,7 @@ test.describe("authenticated read boundary on a story branch (dev launch mode)",
       [
         "api",
         "-H",
-        "Accept: application/vnd.github.raw+json",
+        "Accept: application/vnd.github.raw",
         `repos/${knownRepository}/contents/.planning/slice-plans/092-branch/PLAN.md?ref=${checkedHead}`,
       ],
     ]);

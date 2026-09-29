@@ -1,7 +1,8 @@
 // How the real `gh api` prints GitHub's answer for the fake GitHub
-// (./fakeGitHub.ts): `--jq` filtering, the status line and headers that
-// `--include` adds, a `304 Not Modified` to an `If-None-Match` whose entity
-// tag still matches, and the exit code and stderr of a failed answer.
+// (./fakeGitHub.ts): the control-character sanitizing of a JSON-typed body,
+// `--jq` filtering, the status line and headers that `--include` adds, a
+// `304 Not Modified` to an `If-None-Match` whose entity tag still matches,
+// and the exit code and stderr of a failed answer.
 
 import type { OriginAnswer } from "../originAnswers.ts";
 import type { GhRequest } from "./ghRequest.ts";
@@ -11,6 +12,53 @@ export type GhReply = {
   readonly stderr: string;
   readonly exitCode: number;
 };
+
+// A C0 or C1 control character's caret notation, as `gh` renders it; tab,
+// line feed, vertical tab, and carriage return are left alone.
+function caretNotation(code: number): string | undefined {
+  const c0 = code < 0x20 && ![0x09, 0x0a, 0x0b, 0x0d].includes(code);
+  const c1 = code >= 0x80 && code < 0xa0;
+  if (!c0 && !c1) {
+    return undefined;
+  }
+  const letter = String.fromCharCode(0x40 + (code & 0x1f));
+  return `^${letter === "\\" ? "\\\\" : letter}`;
+}
+
+// `gh` sanitizes every body GitHub labels as JSON (`[/+]json`) before
+// printing it (go-gh's `asciisanitizer` in JSON mode): control characters,
+// and the six-character escapes (`\u0000`-`\u001f`, `\u0080`-`\u009f`)
+// that a JSON reader would turn into them, become caret notation, keeping a
+// preceding escaping backslash valid. It does so whether or not the body is
+// JSON, so raw file text labeled `+json` is rewritten too.
+function sanitizedAsJson(body: string): string {
+  let printed = "";
+  let escaping = false;
+  for (let at = 0; at < body.length;) {
+    const char = String.fromCodePoint(body.codePointAt(at) ?? 0);
+    const control = caretNotation(char.codePointAt(0) ?? 0);
+    if (control !== undefined) {
+      printed += control;
+      at += char.length;
+      continue;
+    }
+    const escape = /^\\u00([0-9a-f]{2})/i.exec(body.slice(at, at + 6));
+    const escaped =
+      escape?.[1] === undefined
+        ? undefined
+        : caretNotation(Number.parseInt(escape[1], 16));
+    if (escaped !== undefined) {
+      printed += `${escaping ? "\\" : ""}${escaped}`;
+      escaping = false;
+      at += 6;
+      continue;
+    }
+    printed += char;
+    at += char.length;
+    escaping = char === "\\" && !escaping;
+  }
+  return printed;
+}
 
 // `gh api --jq .field` prints one field of a JSON answer, and
 // `--jq .[0].field` one field of its first element; a missing one is `null`.
@@ -102,16 +150,19 @@ export function asGhReply(
     };
   }
   const head = included ? includedHead(answer.status, headers) : "";
+  const body = /[/+]json(;|$)/.test(answer.contentType)
+    ? sanitizedAsJson(answer.body)
+    : answer.body;
   if (answer.status < 300) {
     return {
-      stdout: `${head}${applyJq(argv, answer.body)}`,
+      stdout: `${head}${applyJq(argv, body)}`,
       stderr: "",
       exitCode: 0,
     };
   }
   let message = "HTTP error";
   try {
-    const parsed = JSON.parse(answer.body) as { message?: unknown };
+    const parsed = JSON.parse(body) as { message?: unknown };
     if (typeof parsed.message === "string") {
       message = parsed.message;
     }
@@ -119,7 +170,7 @@ export function asGhReply(
     // A non-JSON error body still ends with its status, as `gh` prints it.
   }
   return {
-    stdout: `${head}${answer.body}`,
+    stdout: `${head}${body}`,
     stderr: `gh: ${message} (HTTP ${String(answer.status)})\n`,
     exitCode: 1,
   };

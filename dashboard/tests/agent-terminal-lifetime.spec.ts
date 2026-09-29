@@ -4,10 +4,12 @@
 // the panel says it is disconnected, and Reconnect attaches to the same
 // session again; when the attached CLI exits on its own (Ctrl+Z), the panel
 // says the terminal ended, and Open again reattaches; a reload shows no
-// terminal. The page's dashboard server keeps its HOME and the synthetic
-// `claude`'s state (./fixtures/fake-claude) in a machine directory, so the
-// server restarted on the same port answers the same records and sessions;
-// the real `claude` is never reached.
+// terminal. Marked done from the panel while another project is shown, where
+// the session has no entry, the keyboard goes to Recent sessions. The page's
+// dashboard server keeps its HOME and the synthetic `claude`'s state
+// (./fixtures/fake-claude) in a machine directory, so the server restarted on
+// the same port answers the same records and sessions; the real `claude` is
+// never reached.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -174,6 +176,23 @@ test.describe("the terminal's lifetime", () => {
         await expectMembership(page, queued);
         await expect(panel).toHaveCount(0);
         await expect(listed).toHaveCount(1);
+      });
+
+      await test.step("marked done from the panel while another project is shown, the keyboard goes to Recent sessions", async () => {
+        await listed.getByRole("button", { name: "Open terminal" }).click();
+        await expect(rows).toContainText(`attached ${shortId}`);
+        await project
+          .getByRole("radio", { name: "Doughnut", exact: true })
+          .check();
+        await expectMembership(page, {
+          taken: [],
+          backlog: [doughnutSharedTitle],
+        });
+
+        await button("Mark as done").click();
+
+        await expect(panel).toHaveCount(0);
+        await expect(parts(page).recentSessions).toBeFocused();
       });
     } finally {
       await restarted?.close();

@@ -6,7 +6,8 @@
 // across a restart. With no terminal open, or a launch name holding a
 // control character, the `done-` name is only the record's, and the session
 // is still stopped. A session Claude Code no longer lists is only marked,
-// never stopped. Which requests are refused before `claude` runs is
+// never stopped; one whose listing cannot be read is still stopped. Which
+// requests are refused before `claude` runs is
 // ./agent-launch-done-refusal.spec.ts. The machine directory holds HOME and
 // the synthetic `claude`'s (./fixtures/fake-claude) state; the real one is
 // never reached.
@@ -203,5 +204,31 @@ test.describe("marking a recorded session done", () => {
       },
     });
     expect(stopCalls().slice(stopsBefore)).toEqual([]);
+  });
+
+  test("still stops a session whose listing cannot be read", async () => {
+    const session = await launched(server);
+    const stopsBefore = stopCalls().length;
+    server.claudeListingFails(true);
+    try {
+      const response = await markDone(server, {
+        source: "open-dough",
+        session: session.sessionId,
+      });
+
+      expect(response.status).toBe(200);
+      expect(JSON.parse(response.body)).toMatchObject({
+        record: {
+          doneAt: expect.any(String),
+          session: { sessionId: session.sessionId, name: launchName },
+          sessionState: { kind: "unknown" },
+        },
+      });
+    } finally {
+      server.claudeListingFails(false);
+    }
+    expect(stopCalls().slice(stopsBefore)).toEqual([
+      { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
+    ]);
   });
 });

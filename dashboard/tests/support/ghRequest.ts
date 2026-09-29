@@ -2,8 +2,9 @@
 // asked GitHub for, recognized from its argv.
 
 // What one `gh` invocation asked GitHub for. A ref request asks which
-// commit a ref names. A contents request asks for a file's raw bytes when it accepts GitHub's raw
-// media type, and otherwise for a directory's JSON listing. A commit list
+// commit a ref names. A contents request asks for a file's raw bytes when it
+// accepts one of GitHub's raw media types, recorded as `mediaType`, and
+// otherwise for a directory's JSON listing. A commit list
 // asks for the commits that changed one path in a revision's history, as many
 // as one page holds. A
 // branch request asks which commit one published branch head names; a
@@ -31,7 +32,14 @@ export type GhRequest =
       readonly branch: string;
     }
   | {
-      readonly kind: "content" | "listing";
+      readonly kind: "content";
+      readonly repository: string;
+      readonly path: string;
+      readonly revision: string;
+      readonly mediaType: RawMediaType;
+    }
+  | {
+      readonly kind: "listing";
       readonly repository: string;
       readonly path: string;
       readonly revision: string;
@@ -46,6 +54,18 @@ export type GhRequest =
       readonly perPage: number | undefined;
     }
   | { readonly kind: "unknown" };
+
+// GitHub's raw media types: both answer a file's raw bytes, labeled with the
+// type asked for.
+const rawMediaTypes = [
+  "application/vnd.github.raw",
+  "application/vnd.github.raw+json",
+] as const;
+export type RawMediaType = (typeof rawMediaTypes)[number];
+
+function isRawMediaType(value: string | undefined): value is RawMediaType {
+  return rawMediaTypes.some((type) => type === value);
+}
 
 // The value of one `-H "<name>: <value>"` argument, if given.
 function headerArgument(
@@ -116,15 +136,15 @@ export function parseRequest(argv: readonly string[]): GhRequest {
     content[2] !== undefined &&
     content[3] !== undefined
   ) {
-    return {
-      kind:
-        headerArgument(argv, "Accept") === "application/vnd.github.raw+json"
-          ? "content"
-          : "listing",
+    const read = {
       repository: content[1],
       path: decodeURIComponent(content[2]),
       revision: content[3],
     };
+    const accept = headerArgument(argv, "Accept");
+    return isRawMediaType(accept)
+      ? { kind: "content", ...read, mediaType: accept }
+      : { kind: "listing", ...read };
   }
   return { kind: "unknown" };
 }

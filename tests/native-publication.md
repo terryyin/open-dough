@@ -33,3 +33,15 @@ workspace. Safe admission before editing leaves that transition unproved.
 The fixture permits publication and withholds planning; stopping after admission
 for the product decision is valid. The state assessor and transcript together
 establish the verdict, with unrelated human changes preserved.
+
+## Rejected cases
+
+Every rejected case of a native assessor goes through
+`tests/support/native-assessor-counterexample.sh`: a passing observation of
+that assessor with one declared signal changed.
+`tests/native-assessor-counterexample-guard.sh` fails any other rejected case in
+`tests/`, naming its file and line.
+
+A change that widens what an assessor accepts adds, in the same change,
+paraphrased failure reports on the newly admitted side as rejected cases.
+Bad outputs recorded from paid runs and reviews stay as rejected cases.

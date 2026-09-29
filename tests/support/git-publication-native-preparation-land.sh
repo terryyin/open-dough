@@ -35,7 +35,8 @@ git_publication_observe_preparation_land() {
   fi
   pushes=$(node "${source_dir}/tests/support/git-publication-native-push-log-observe.mjs" \
     "${source_dir}" "${origin}" "${git_publication_fixture_root}/push.log")
-  first_push=$(sed -n 's/^pushed-tip: \([0-9a-f]*\) .*/\1/p' <<< "${pushes}" | head -n 1)
+  first_push=$(sed -n 's/^pushed-tip: \([0-9a-f]*\) .*/\1/p' <<< "${pushes}")
+  first_push=${first_push%%$'\n'*}
   outside=$(git -C "${origin}" diff --name-only "${base}" "${tip}" \
     | grep -Fvx -e "${seed}" -e "${profile:-${seed}}" | paste -sd, - || true)
   stream_fields=$(git_publication_stream_fields "${journey}" "${host}" \
@@ -44,8 +45,10 @@ git_publication_observe_preparation_land() {
   printf 'journey: %s\n' "${journey}"
   printf 'stream-status: %s\n' "${stream_status}"
   printf '%s\n' "${stream_fields}"
+  # The identities are read whole before matching: a matching reader that
+  # stops early could leave its producer to SIGPIPE and fail the pipeline.
   printf 'retire-command: %s\n' "$(
-    tr ',' '\n' <<< "${retired}" | grep -Fqx -- "${NATIVE_OWNED_IDENTITY}" \
+    grep -Fqx -- "${NATIVE_OWNED_IDENTITY}" <<< "${retired//,/$'\n'}" \
       && echo true || echo false
   )"
   printf 'fetched-sha: %s\n' "${base}"
@@ -81,6 +84,18 @@ git_publication_observe_preparation_land() {
     "$(git_publication_other_checkouts "${repository}" | paste -sd, -)"
 }
 
+# Signals for rejected cases. The trunk tip's SHA moves with every change to
+# trunk. Coupled: an announcement made elsewhere moves its commit and its
+# parent together, and a worktree added back on its branch brings back the
+# path, the branch, and the checkout listing together. The retire command is
+# read from the identities the installed command retired.
+# assessor-signal: announcement-base remote-sha announcement-sha announcement-parent
+# assessor-signal: push-order first-trunk-push
+# assessor-signal: force-push forced-trunk-push-count
+# assessor-signal: outside-story remote-sha changed-outside-story
+# assessor-signal: worktree-survived workspace-present branch-present other-checkouts
+# assessor-signal: raw-git-retirement raw-git-retirement
+# assessor-signal: retire-command retire-command retired-identities
 git_publication_assess_preparation_land() {
   local obs=$1 key
   local stream_status retire_command raw_git_retirement

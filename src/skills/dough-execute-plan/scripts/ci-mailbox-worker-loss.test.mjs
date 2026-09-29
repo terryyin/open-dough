@@ -52,7 +52,7 @@ test("a mismatched worker identity yields uncertainty instead of reassurance or 
   assert.doesNotThrow(() => process.kill(unrelated.pid, 0));
 });
 
-test("a detached worker that dies is reported lost at the next ordinary interaction, and a repeated receipt does not restore attachment", async (t) => {
+test("a detached worker that dies is reported lost once at the next ordinary interaction, and a repeated receipt does not restore attachment", async (t) => {
   const { directory, mailbox, stdout, deliver, env } =
     await setupProcessMailbox(t, [
       "--execution",
@@ -107,9 +107,7 @@ test("a detached worker that dies is reported lost at the next ordinary interact
     /"type":"CI_FAILURE"/,
   );
 
-  const repeated = await deliver("claude", stdout);
-  assert.match(JSON.stringify(repeated), /CI observer lost its worker/);
-  assert.doesNotMatch(JSON.stringify(repeated), /attached to this/);
+  assert.deepEqual(await deliver("claude", stdout), {});
 
   const unrelated = await spawnIdleNode(t);
 

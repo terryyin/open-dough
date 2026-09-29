@@ -118,7 +118,7 @@ test("authorized repair registration reuses the live observer for a later comple
   // Simulate host delivery of the actionable failure into diagnosis/repair.
   const deliveredThrough =
     readMailboxEvents(fixture.mailbox).at(-1)?.sequence ?? 0;
-  recordDeliveryProgress(fixture.mailbox, deliveredThrough);
+  recordDeliveryProgress(fixture.mailbox, { deliveredThrough });
 
   // The same live worker observes the repair's green run: registering the
   // repair wakes it for an immediate check instead of the 30 s cadence.

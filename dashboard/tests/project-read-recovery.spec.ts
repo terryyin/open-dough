@@ -10,6 +10,7 @@
 import { type Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
+  controlsBesideSessions,
   expectMembership,
   expectProblemAndNoSnapshot,
   openDirection,
@@ -194,7 +195,7 @@ test.describe("project read recovery", () => {
       await expect(problem).toContainText(
         "The local GitHub CLI did not answer within 2 seconds while reading main of terryyin/pygardon.",
       );
-      await expect(page.getByRole("button")).toHaveAccessibleName("Retry");
+      await expect(controlsBesideSessions(page)).toHaveAccessibleName("Retry");
       await expect(page.getByRole("article")).toHaveCount(0);
 
       releaseRef();

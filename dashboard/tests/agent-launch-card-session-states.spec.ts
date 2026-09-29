@@ -1,10 +1,10 @@
-// A card keeps listing its sessions whatever Claude Code lists of them, each
-// with the state Recent sessions shows: Ready for review, Session stopped,
-// Needs input, Session unavailable without Open terminal, and State unknown
-// with its note while the listing cannot be read. Every Backlog card still
-// offers its Start actions with their notes. A restarted dashboard server, a
-// reload, and a project switch keep the listing, and a stopped session's Open
-// terminal still attaches. What each state means is
+// A card keeps listing its sessions whatever Claude Code lists of them: a
+// session Ready for review, stopped, needing input, or unavailable stays on
+// its card beside the Start actions, which keep their notes; an unavailable
+// one has no Open terminal, and every one is State unknown with Open terminal
+// while the listing cannot be read. A restarted dashboard server, a reload,
+// and a project switch keep every entry and its state, and a stopped
+// session's Open terminal still attaches. What each state shows is
 // ./agent-launch-recent-session-states.spec.ts. Origin alone still places
 // every story. The server keeps its HOME and the synthetic `claude`'s state
 // (./fixtures/fake-claude) in a machine directory, so a restart answers the
@@ -63,7 +63,6 @@ const test = base.extend<{ machine: string }>({
 });
 
 const notReadyNote = "Not marked Ready for execution";
-const unknownNote = "Claude Code's session list could not be read";
 
 test.describe("a card's sessions whatever Claude Code lists", () => {
   let stagesJourney: StoryStagesJourney;
@@ -172,24 +171,18 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
       dashboard.claudeSessionBecomes(sessionIds[index] ?? "?", change);
     }
 
-    await test.step("while Claude Code's listing cannot be read, every card entry shows State unknown with its note and Open terminal", async () => {
+    await test.step("while Claude Code's listing cannot be read, every session stays on its card as State unknown with Open terminal", async () => {
       await page.reload();
       await settled();
       for (const { title, workflow } of launches) {
         const entry = entryOf(title, workflow);
-        await expect(sessionStateOf(entry)).toHaveText(
-          `State unknown: ${unknownNote}`,
-        );
+        await expect(sessionStateOf(entry)).toContainText("State unknown");
         await expect(openIn(entry)).toBeVisible();
       }
-      await expectStartOffered();
-    });
-
-    await test.step("once the listing is read, each session stays listed with its state, an unavailable one without Open terminal", async () => {
+      await expect(cardSessions(page.locator("body"))).toHaveCount(
+        launches.length,
+      );
       dashboard.claudeListingFails(false);
-      await page.reload();
-      await settled();
-      await expectShown();
     });
 
     const port = Number(new URL(dashboard.baseURL).port);

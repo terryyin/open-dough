@@ -14,35 +14,27 @@ executions, not commands, retries, or repairs.
 ## Priority assessment
 
 1. **Native acceptance harness observations that do not match what the native
-   agent did — first, queued.** Four executions (plans 139, 142, 146, 154),
-   three of them the consecutive native-heavy executions of 2026-09-28–29:
-   about a dozen extra paid runs, one run accepted on transcript judgment, and
-   a loosened assessor that accepted failure reports. Each concrete fault was
-   repaired in its own execution, yet each new journey met a new one after
-   DD-164's plan 142 resolution. Stories:
-   [Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior)
-   (DD-179) and
-   [Prove assessors on the verdicts they newly admit](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline)
-   (DD-160, DD-175, ODF-087's harness facet).
-2. **Local time-budget measurement under load (DD-158) — second, queued.**
-   Two executions (plans 135 and 139), open and unaddressed. Local paired A/B
-   runs projected a CI-judged budget: one slice's agent ran about 28
-   minutes, much of it timing, and the projections were about 10 s high and 11 s low. The low one
-   hid a 2 s margin and cost an extra split commit and refactor pass. Story:
-   [Judge a change against the CI time budget from CI's own timings](.planning/seeds/SEED-055-trustworthy-project-proof.md#ci-time-budget-from-ci-timings).
-3. **Native host runs and observations routed through the developer — low,
+   agent did — first, queued.** Two executions remain (plans 139 and 154),
+   after DD-179's harness observation faults were resolved: an assessor
+   ordering defect that cost a transcript investigation, and a loosened
+   assessor that accepted failure reports. Story:
+   [Close the assessor counterexample discipline's remaining gaps](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps)
+   (DD-160, DD-175, ODF-087's harness facet; the counterexample helper and its
+   guard landed, and this correction closes what they still miss).
+2. **Native host runs and observations routed through the developer — low,
    not queued.** Two executions with a cost (plans 139 and 150) and one where
    the agent found a free route itself (plan 152). The cost was a few developer
    round trips, and some of that friction is intended while paid native runs
    stay manual-only.
-4. **Local checks whose result differs from CI's — low, not queued.** Four
-   executions (plans 140, 146, 147, 157), one finding each. DD-168 and DD-178
+3. **Local checks whose result differs from CI's — low, not queued.** Five
+   executions (plans 140, 146, 147, 157, 165), one finding each. DD-187 (a
+   `pipefail` pipeline that git could lose to SIGPIPE) cost one CI repair. DD-168 and DD-178
    (tests that take the repository root from the working directory) had no
    delivery impact and each needs a small fix. DD-162 came from a coordinator-prescribed
    direct run that bypassed the runner's existing guard. DD-171 matches
    published ODF-003 (a consumer check missing non-import consumers); ODF-003's
    plan 104 occurrence failed in the same `dashboard/tests/preparingJourney.ts`.
-5. **Behavior audits that miss guidance-directed actions (DD-113) — low, not
+4. **Behavior audits that miss guidance-directed actions (DD-113) — low, not
    queued.** One execution; plan 121 (`178e0346`) corrected its missed merge,
    and no recurrence is recorded.
 
@@ -58,6 +50,25 @@ Resolved and removed on 2026-09-29, each confirmed at `d68fcde4`
   `git_publication_suite_expect_rejected`.
 - DD-166 (host `NODE_ENV` reached the dashboard build):
   `dashboard/vite.config.mts` sets `NODE_ENV=production` for every build.
+
+Resolved and removed on 2026-09-29, confirmed at `1dfb75ee`
+(recovery: `3f0f1ad3:ProjectFindings.md`):
+
+- DD-158 (local paired A/B runs under load spent proving a CI-judged budget):
+  `scripts/ci-test-times.sh` reports each job's and share total's recent trunk
+  CI range against `tests/time-budget` with a wide or thin verdict, and
+  `tests/time-budget.md` limits local timing to thin headroom, projected from
+  the recent highest CI value.
+
+Resolved and removed on 2026-09-30 (recovery: `34ceff06:ProjectFindings.md`):
+
+- DD-179 (native harness observation and host shell shims failed on real
+  hosts): plan 163 replays real Claude, Codex, and Cursor streams through one
+  shared reader in the free suite, a guard refuses host-stream parsing
+  outside it, and every harness shim is checked under each login-shell
+  profile (`claude/native-harness-observes-agent-behavior` at `e0e96586`,
+  awaiting integration). Its residue is queued as
+  [Correct continued-command reading and corpus admission in the native harness](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-replay-corrections).
 
 Returned to DearDough.md on 2026-09-29: DD-155 (plan-number collision, the
 published slice-planning allocation rule, catalog ODF-106) and DD-159
@@ -78,16 +89,19 @@ DearDough because its cause is guidance-following; the assessor story below
 owns its harness facet.
 
 Each concrete fault below was repaired in its own execution: `afa43926`
-(DD-160), `ddbcb90a`, `a2f9862f`, `9df5455f`, and `1e3880ed` with
-`tests/support/native-harness-login-shell.sh` (DD-179), and plan 158
-(`8dff3ac0`, DD-175). The remaining gap is that the harness is proved only on
-synthetic streams, so each new journey meets its harness faults in paid runs.
+(DD-160) and plan 158 (`8dff3ac0`, DD-175).
 
 **Follow-up:** queued,
-[Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior)
-for DD-179, and
-[Prove assessors on the verdicts they newly admit](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline)
-for DD-160, DD-175, and ODF-087's harness facet.
+[Close the assessor counterexample discipline's remaining gaps](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps)
+for DD-160, DD-175, and ODF-087's harness facet, after the counterexample
+helper and its guard landed.
+
+Assessor reads still unproved after the counterexample helper landed, each
+found while migrating its suite: `trunk_closure_assess` never reads the
+`response-completion-result` it observes; `native_journey_state_assess` never
+reads `other-tool-root-claude-preserved`; `git_publication_assess`'s prose
+`inconclusive` path has no rejected case; and
+`git_publication_assess_print_fields` has no caller.
 
 ### DD-160 — An escalation counterexample removed two signals at once, hiding an assessor ordering defect
 
@@ -123,63 +137,6 @@ counterexamples remains open.
 
 - Execution: `SEED-008#closure-proof-and-harness-correction` / plan 154, first related implementation commit `d1204cd7`; Timestamp: unknown (slice 3 accepted before `1e3880ed`, 2026-09-29T15:29:21+08:00); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `b37292dd`
   - Evidence: `story_closure_response_trunk_result` at `1e3880ed` returns true for "Trunk CI passed. The watcher failed to start." and three similar lines, false at `a51510d2`; follow-up plan 158. Observed effect: one follow-up correction. Inference: qualified; widening an assessor needs paraphrased failure cases on the side it newly admits (ADR 0005 §2's recorded bad outputs).
-
-### DD-179 — Native harness observation and host shell shims failed on real hosts, not on substitutes
-
-Split from ODF-096 (plans 142 and 146 occurrences only); ODF-096 keeps its
-fixture-credibility occurrences in DearDough.md. Substitute actors followed
-paths or event shapes the native hosts did not. Stream observation missed the
-real hosts' commands, and a login-shell PATH repair made for one shim and
-fixture did not reach the others. The failures came from the harness, not the
-agents.
-
-#### Occurrences
-
-- Execution: `SEED-008#owned-context-start-and-truthful-refresh` / plan 142, first related implementation commit `7e86f615`
-  - Timestamp: 2026-09-28T18:53:18+08:00 (first paid native run)
-  - Tool: Claude Code (coordinator; hosts Claude, Codex, Cursor)
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: modified; revision `c0f6dfca`; base `0.3.45`
-  - Evidence: 12 runs, 6 failed; four only in observation: registration was detected from a `register-push` command though managed delivery registers in process (the substitute used the old path), Codex's login shell bypassed the node wrapper, its `item.started` events went uncounted, and Cursor's multi-line then quoted start commands were missed (repairs `ddbcb90a`, `a2f9862f`).
-  - Observed effect: 9 further paid runs; substitutes had followed a path current guidance forbids.
-
-- Execution: `SEED-008#installed-wrap-up-command` / plan 146, first related implementation commit `aa4fd510`; Timestamp: 2026-09-29, first Story Branch runs stamped `20260929T0430`–`T0438` (zone unrecorded); Tool: Claude Code (coordinator; hosts Claude, Codex, Cursor); Model: claude-opus-5-5[1m]; Open Dough release: modified; revision `3ca0b8f9`; base 0.3.46.
-  - Evidence: `story-branch-closure/source-conflict` failed on all three hosts from harness faults only: Codex and Cursor zsh login shells reset PATH from the user's startup files, so an agent-started trunk observer reached the real `gh` (404) — the same bypass plan 142 repaired for node only; and `story_closure_response_trunk_result` rejected Claude's correct "CI passed". Repair `809b407d` (ZDOTDIR wrapper, Story Branch fixture only); on rerun its negation rule misfired on Cursor's concatenated narration, and Terry accepted that run on transcript judgment.
-  - Observed effect: three extra paid runs and one judgment acceptance. Inference: a login-shell PATH repair made for one tool or fixture should be checked against every shim the harnesses rely on.
-
-## Local time-budget measurement under load (second priority)
-
-`tests/time-budget` is judged only on CI, and CI's `test-times-*` artifacts
-report each job's seconds.
-
-**Follow-up:** queued,
-[Judge a change against the CI time budget from CI's own timings](.planning/seeds/SEED-055-trustworthy-project-proof.md#ci-time-budget-from-ci-timings).
-
-### DD-158 — Local paired A/B runs under load were spent proving a CI-judged budget, and overestimated it
-
-Plan 135's slices required the native job to stay inside `per-job-seconds=71`.
-Both implementation agents measured it locally under heavy load and projected
-the CI time from ratios; CI's measurement after the push was lower.
-Plan 139 repeated the method and its projection came out low instead.
-
-#### Occurrences
-
-- Execution: `SEED-028#native-one-shot-acceptance` / plan 135, first related implementation commit `d44069f1`
-  - Timestamp: 2026-09-27 (slice 1 and slice 2 implementation, between Take `fc3393d2` and `5181d769`); exact times unknown
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: modified; revision 2b46e651; base 0.3.43
-  - Evidence: slice 1 ran 3 paired A/B runs (estimate 54–56 s); slice 2 ran 5+5 sequential runs judged too noisy, then 3 concurrent pairs (estimate 61–62 s; agent total 1,708 s). CI run 36325895856 of `5181d769`, artifact `test-times-*`: `52.2 tests/git-publication-native.sh`.
-  - Observed effect: a large share of slice 2's agent time went to timing, and the projection was about 10 s high.
-  - Inference: Qualified. With a wide projected margin, the pushed revision's CI test-times artifact settles the budget more cheaply; a CI breach already fails the split job.
-- Execution: `SEED-028#native-one-shot-escalation` / plan 139, first related implementation commit `23663a21`
-  - Timestamp: 2026-09-28 (slice 1 implementation, between Take `0466e5ba` and `23663a21`); exact times unknown
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: modified; revision 0466e5ba
-  - Evidence: slice 1's agent ran 3 paired A/B runs under load (72.5 s → 80.5 s) and scaled the seed's recorded 52.2 s to a 58 s projection. CI run 36379953372 of `23663a21`, artifact `test-times-*`: `69.0 tests/git-publication-native.sh`; recent main runs 48.5–61.2 s. Follow-up split `82fbd2ec` measured 41.5 s and 17.2 s on CI.
-  - Observed effect: the projection was about 11 s low. It hid a 2 s margin, which needed a further split commit and refactor pass.
-  - Inference: Qualified. Scaling one stale CI number ignores CI's own spread; recent CI `test-times-*` for trunk gives the baseline range without local timing.
 
 ## Local checks whose result differs from CI's (low priority, not selected)
 
@@ -228,6 +185,12 @@ another directory reports "CI mailbox belongs to another checkout".
   - Evidence: slice 1 refactor report: fails on every run from `src/skills`, 23/23 from the checkout root; slice 1's delegated proof command was phrased "from `src/skills`".
   - Observed effect: no delivery impact; a focused run from `src/skills` would show a false failure.
   - Inference: Qualified. Deriving the root from the test file's location would give the same result from any directory, as CI does.
+- Execution: `SEED-052#card-session-residue` / plan 160, first related implementation commit `26099a6a`
+  - Timestamp: unknown (CI repair refactor pass before `4e0b2420` at 2026-09-29T20:04:43+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: refactor report: `node --test ci-mailbox-complete.test.mjs` from `scripts/` fails an unresolved case with "belongs to another checkout"; the retrospective reviewer saw the same; both passed from the root.
+  - Observed effect: no delivery impact; two agents spent a run confirming the directory dependence.
 
 ### DD-178 — The dashboard Playwright suite resolves its repository root from the working directory, and a run elsewhere leaves a build that breaks lint
 
@@ -265,6 +228,41 @@ Node suites passed and only CI's `dashboard` job failed.
   - Evidence: CI run `36507473752` job `dashboard (1/2)`: TS2345 at `preparingJourney.ts(88,38)`; repair `de81cb96` (`identity = undefined`), then `npm run typecheck:dashboard` and `backlog-preparing.spec.ts` passed.
   - Observed effect: one red CI run, a repair stash cycle, and one repair commit.
   - Inference: Qualified. A consumer search limited to `src/skills` misses the dashboard's typed imports; running `npm run typecheck:dashboard` when a shared fixture's signature changes would catch it locally.
+
+### DD-186 — Two timing races passed every local run and failed only under CI's load, each on a trunk-merge revision
+
+A CI mailbox completion confirmed shutdown while its exiting worker showed a
+bare `[node]` command, and the dev-mode overview spec counted a second
+`commits/main` lookup from StrictMode's aborted first read. Neither reproduced
+in unthrottled local runs; each needed an in-run repair.
+
+#### Occurrences
+
+- Execution: `SEED-052#card-session-residue` / plan 160, first related implementation commit `26099a6a`
+  - Timestamp: CI failures on `f5f4dce6` (2026-09-29T19:51:19+08:00) and `d83bb839` (2026-09-29T21:56:22+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: runs 36564344723 (`'unknown' !== 'dead'`, repaired in `4e0b2420`) and 36578884226 (`expectPinnedGhCalls` at `catalogProjectRecords.ts:107`, repaired in `bb5ee6a1`); red reproductions needed a stub `process.title` and CDP CPU throttling; 48 local runs under 16 `yes` processes passed.
+  - Observed effect: two stash, diagnose, repair, publish, and restore cycles, with slices paused.
+  - Inference: Qualified. Timing-sensitive proof here needs a deliberate slow-path reproduction; plain local load did not expose either race.
+
+### DD-187 — A `git log | grep -q` observation under `pipefail` flipped on CI when git lost the race to SIGPIPE
+
+The startup observer read `claim-owned` from `git log --format=%B … | grep -Fq`
+in a suite run under `set -euo pipefail`. When `grep -q` matched and exited
+while git was still writing, git died of SIGPIPE (141) and `pipefail` turned
+the match into `claim-owned: false`. macOS usually let git finish first; the
+Ubuntu runner did not.
+
+#### Occurrences
+
+- Execution: `SEED-055#assessor-counterexample-discipline` / plan 165, first related implementation commit `84b4f28f`
+  - Timestamp: 2026-09-29T15:40:33Z (CI failure on `00cc1b62`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: CI run 36591803631 `test (1/2)`: `FAIL: counterexample command-only (signal setup-marker) changes signals remote-claim, setup-marker (fields claim-owned, …)`; local `tests/git-publication-native.sh` passed. A repro with one extra commit under the claim gave `claim-owned: false` with `PIPESTATUS` `141 0`. Repaired in `66f96e34`; slice 7 (`abf2fc4f`) fixed three more observer derivations of the same shape.
+  - Observed effect: one CI repair cycle (pause, stash, diagnosis agent, refactor pass, publication) during slice 6.
+  - Inference: Qualified. A different mechanism from DD-186's load-dependent races. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh` and `tests/helpers/product-backlog-payload-runtime.bash`.
 
 ## Native host runs and observations routed through the developer (low priority, not selected)
 
@@ -338,6 +336,30 @@ The planning audit listed only the scripts that create agent-authored commits. I
   - Open Dough release: modified; revision 1b66466; base 0.3.41
   - Evidence: plan 119's PFE names the scripts that create commits (`--author` / `commit-tree`). `publish-the-candidate.md` "Preserve published history" and `product-backlog-git-merge.mjs` `commitAcceptedMerge` still make an agent-authored integration merge without the credit, as merge `199ae44` shows. Correction plan 121.
   - Observed effect: one follow-up correction story. Qualified inference: an audit that greps scripts for commit creation cannot see commits that guidance directs.
+
+## Layout proof that checks arrangement but not usable content (low priority, not selected)
+
+### DD-184 — A layout slice proved where columns sit but not that the page inside them stayed usable
+
+Plan 164 slice 2 added a Sessions sidebar column beside the page and the
+terminal. Its accepted proof asserted the columns' order, the sidebar's height
+and scrolling, and the narrow overlay, but nothing about the page column's own
+content. With the sidebar and terminal open on a 1280px window, the page column
+was about 500px while the stages kept three columns (their `@media` rule reads
+the window width), so cards were about 100px wide and over 2,000px tall. The
+terminal-only split already had the same defect for windows between about 800
+and 1,540px.
+
+#### Occurrences
+
+- Execution: `SEED-052#session-sidebar` / plan 164, first related implementation commit `0ebb635d`
+  - Timestamp: 2026-09-29T21:19:00+08:00 (slice 2 delivered at `79e2eb9a`); found before slice 4's `fbf80b82` at 2026-09-29T22:01:19+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: 0.3.47 (this repository's installed copy)
+  - Evidence: slice 2's `session-sidebar.spec.ts` layout step (`expectSideBySideInOrder`, `elementFromPoint`); slice 4's implementation return noted the 100px cards while measuring a reveal; the fix made `.page-column` a CSS container (`@container page` in `stages.css`, `banner.css`) and added `expectStagesStacked`, which failed with the container removed.
+  - Observed effect: a delivered slice broke card readability whenever both panels were open; it was found by chance one slice later, and fixed there within scope.
+  - Inference: Qualified. Layout helpers in `pageLayout.ts` check arrangement and clipping, not whether content in a narrowed region keeps a usable layout; a region that changes width needs a check of what it contains.
 
 ## Retention
 

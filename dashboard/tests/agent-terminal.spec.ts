@@ -62,7 +62,7 @@ test.describe("the terminal beside the page", () => {
     const { recentSessions: recent, stages } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
-    const started = (title: string) => cardSessions(card(title));
+    const cardEntries = (title: string) => cardSessions(card(title));
     const entry = (title: string) =>
       recent.getByRole("article", {
         name: recentSessionName("Execution", title),
@@ -94,15 +94,15 @@ test.describe("the terminal beside the page", () => {
 
     await launch(notRefinedStory, "Execution");
     await launch(readyStory, "Execution");
-    const first = await sessionNamedBy(started(notRefinedStory));
-    const second = await sessionNamedBy(started(readyStory));
+    const first = await sessionNamedBy(cardEntries(notRefinedStory));
+    const second = await sessionNamedBy(cardEntries(readyStory));
     await expect(openIn(entry(notRefinedStory))).toBeVisible();
     await expect(panel).toHaveCount(0);
     await expect(page.locator("body")).not.toContainText("claude attach");
     await expect(page.getByRole("button", { name: /copy/i })).toHaveCount(0);
 
     await test.step("a card's session entry opens its session to the right of the page, and an answer typed there reaches it", async () => {
-      await openIn(started(notRefinedStory)).click();
+      await openIn(cardEntries(notRefinedStory)).click();
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
         notRefinedStory,
       );
@@ -153,20 +153,20 @@ test.describe("the terminal beside the page", () => {
       await expect(rows).not.toContainText("echo yes, go on");
       await expect.poll(() => attachesEnded(first)).toBe(true);
       await stillListed(first);
-      await expect(openIn(started(notRefinedStory))).toBeVisible();
+      await expect(openIn(cardEntries(notRefinedStory))).toBeVisible();
     });
 
     await test.step("Close ends the panel and detaches only, and the keyboard returns to the card entry that opened it", async () => {
-      await openIn(started(notRefinedStory)).click();
+      await openIn(cardEntries(notRefinedStory)).click();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       await panel.getByRole("button", { name: "Close" }).click();
       await expect(panel).toHaveCount(0);
       // The card still lists the session, so its entry's Open terminal, not
       // the session's Recent sessions entry, has the keyboard.
-      await expect(openIn(started(notRefinedStory))).toBeFocused();
+      await expect(openIn(cardEntries(notRefinedStory))).toBeFocused();
       await expect.poll(() => attachesEnded(first)).toBe(true);
       await stillListed(first);
-      await expect(openIn(started(readyStory))).toBeVisible();
+      await expect(openIn(cardEntries(readyStory))).toBeVisible();
       await expectMembership(page, queued);
     });
 

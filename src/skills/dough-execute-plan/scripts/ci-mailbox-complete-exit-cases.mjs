@@ -63,17 +63,21 @@ import("node:fs").then(({ writeFileSync }) =>
   return { storage, directory, child };
 }
 
-test("explicit stop returns only after the worker exits the post-terminal window", async (t) => {
-  const { storage, directory, child } = await mailboxWithStubWorker(
-    t,
-    `import { existsSync, renameSync, watch, writeFileSync } from "node:fs";
+// A stub worker that publishes a stopped result on the stop request and exits
+// 300ms later, first showing `exitingCommand`, when given, as its command.
+function publishThenExitSource({ exitingCommand } = {}) {
+  const showExitingCommand =
+    exitingCommand === undefined
+      ? ""
+      : `  process.title = ${JSON.stringify(exitingCommand)};\n`;
+  return `import { existsSync, renameSync, watch, writeFileSync } from "node:fs";
 import { join } from "node:path";
 const directory = process.argv[3];
 let published = false;
 const check = () => {
   if (published || !existsSync(join(directory, "stop"))) return;
   published = true;
-  const result = join(directory, "result.json");
+${showExitingCommand}  const result = join(directory, "result.json");
   writeFileSync(result + ".tmp", JSON.stringify({ status: "stopped" }));
   renameSync(result + ".tmp", result);
   setTimeout(() => process.exit(0), 300);
@@ -81,7 +85,29 @@ const check = () => {
 watch(directory, check);
 check();
 setInterval(() => {}, 1000);
-`,
+`;
+}
+
+test("explicit stop returns only after the worker exits the post-terminal window", async (t) => {
+  const { storage, directory, child } = await mailboxWithStubWorker(
+    t,
+    publishThenExitSource(),
+  );
+
+  const terminal = await stopMailbox(directory, { storage });
+  assert.equal(terminal.status, "stopped");
+  assert.equal(
+    checkMailboxWorkerLiveness({ pid: child.pid }, directory),
+    "dead",
+  );
+});
+
+test("explicit stop returns only after a worker showing a transient command while exiting is gone", async (t) => {
+  // Linux can show an exiting worker, not yet a zombie, by its bare bracketed
+  // name once its arguments are released; the stub holds that view briefly.
+  const { storage, directory, child } = await mailboxWithStubWorker(
+    t,
+    publishThenExitSource({ exitingCommand: "[node]" }),
   );
 
   const terminal = await stopMailbox(directory, { storage });

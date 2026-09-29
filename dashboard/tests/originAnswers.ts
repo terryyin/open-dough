@@ -161,10 +161,14 @@ export function commitListFor(
   return at === undefined ? undefined : commitListAnswer(at);
 }
 
+// A file's raw bytes. GitHub labels them with the raw media type the read
+// asked for, which ./support/fakeGitHub.ts applies per request.
+export const rawFileContentType = "application/vnd.github.raw; charset=utf-8";
+
 export function rawFileAnswer(markdown: string): RawAnswer {
   return {
     status: 200,
-    contentType: "application/vnd.github.raw+json; charset=utf-8",
+    contentType: rawFileContentType,
     body: markdown,
   };
 }

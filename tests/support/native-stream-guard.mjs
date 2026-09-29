@@ -58,7 +58,7 @@ const shapeWriters = new Map([
     "substitute agent writing recorded-context streams",
   ],
   [
-    "tests/support/git-publication-native-counterexamples.sh",
+    "tests/support/git-publication-native-startup-counterexamples.sh",
     "writes the single-marker Codex stream",
   ],
   [

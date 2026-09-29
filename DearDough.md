@@ -43,10 +43,10 @@ summary line can be wrong, or silently absent, without any test failing.
   - Open Dough release: 0.3.25
   - Evidence: `transitions()` in `product-backlog-merge.mjs` emits four summary
     lines. During slice 10 the coordinator found `changed the "## Near-future
-    direction"` asserted nowhere; deleting that block left all 25 pre-existing
+direction"` asserted nowhere; deleting that block left all 25 pre-existing
     tests passing, and slice 10 added assertions for both its presence and its
     absence. This retrospective then blanked the two remaining lines, `added
-    "<id>" to "## <list>"` and `changed "<id>", now in "## <list>"`, and the
+"<id>" to "## <list>"` and `changed "<id>", now in "## <list>"`, and the
     full 76-test suite still passed; replacing `reportMerge`'s no-change branch
     text passed as well. Both mutations were reverted and the worktree left
     clean.
@@ -199,36 +199,6 @@ change needs the refactor pass again, so the coordinator decides case by case.
     fix is easy to deliver unrefactored. Qualified: the size overrun is one
     consequence observed; no defect is attributed.
 
-## ODF-065 — A CI observer that died mid-execution stayed reported as attached until shutdown
-
-Former local code: DD-063.
-
-The observer is a detached process. After it dies, push registration still
-writes a coverage receipt and the host hook still reports the observer as
-attached, so lost coverage is first visible when the coordinator stops it.
-
-### Occurrences
-
-- Execution: `SEED-021#see-published-work @ d0a9495`
-  - Timestamp: 2026-09-20T09:40:05+08:00
-  - Tool: Claude Code
-  - Model: claude-fable-5-1
-  - Open Dough release: 0.3.26
-  - Evidence: Mailbox `/tmp/dough-ci-501/watch-bx7k1Z`. The worker's last
-    receipt writes are all at 2026-09-20T08:40:30+08:00; `c0d0a91` stayed
-    `pending` although its GitHub run completed successfully. The data volume
-    then filled (ENOSPC stopped slice 4 and the coordinator's own shell).
-    Receipts for `e6ad710`, `53f6640`, and `1858a78` were written by
-    `register-push` only and stayed `unchecked`. Every hook invocation kept
-    adding "CI observer attached to this coordinator". `stop` returned
-    `coverage.state: lost` at the timestamp above.
-  - Observed effect: Three pushes had no CI observation while the coordinator
-    believed they did. All of them passed when checked with `gh run list`, so
-    nothing was missed this time.
-  - Inference: Qualified. The worker most likely exited when the disk filled;
-    the record shows when it stopped writing, not why. Neither `register-push`
-    nor the hook checks that the recorded worker is still running.
-
 ## ODF-067 — Delegated Git-fixture proof for a "stop" behavior defaults to a tautology
 
 Former local code: DD-054.
@@ -252,7 +222,7 @@ without the agent flagging it as a limitation.
   - Open Dough release: 0.3.24
   - Evidence: Slice 2's first returned test computed
     `const mustStop = !localMainIsOwnedSuffix && !localMainMatchesFetchedRemote;
-    assert.equal(mustStop, true, ...)` from SHAs already known from fixture
+assert.equal(mustStop, true, ...)` from SHAs already known from fixture
     setup, then simply never called `merge --ff-only` or `push`, and asserted
     nothing changed. The coordinator's proof-acceptance inspection rejected it
     and asked for `git -C integration merge --ff-only <candidate>` to be
@@ -637,6 +607,7 @@ installed backlog tool has no validate operation; the implementation agent
 substituted write-time checks, a `read-state` read-back and manual checks.
 
 ### Occurrences
+
 - Execution: SEED-044#verify-planning-premises (plan 115; first implementation commit `2c5ff71f`)
   - Timestamp: 2026-09-27T14:17:23+08:00
   - Tool: Claude Code
@@ -654,6 +625,7 @@ The start command checks only the published readiness state, so a
 coordinator can Take a story whose live preparation is still editing its plan.
 
 ### Occurrences
+
 - Execution: `SEED-008#truthful-repair-restore` / plan 115 (truthful-repair-restore), first related implementation commit `8f88364`
   - Timestamp: 2026-09-27T13:43:11+08:00
   - Tool: Claude Code
@@ -668,6 +640,7 @@ coordinator can Take a story whose live preparation is still editing its plan.
 Former local code: DD-123.
 
 ### Occurrences
+
 - Execution: `SEED-008#truthful-repair-restore` / plan 115 (truthful-repair-restore), first related implementation commit `8f88364`
   - Timestamp: unknown (between claim `b11bb98` at 13:46 and commit `8f88364` at 14:02 +08:00)
   - Tool: Claude Code
@@ -711,6 +684,7 @@ the guard needed a new post-fetch seam. Same class as catalog ODF-110; its
 journey rule (`2c5ff71`) was already installed when the plan was re-bound.
 
 ### Occurrences
+
 - Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737`
   - Timestamp: unknown; between re-bind `e8ce93b9` (2026-09-27T15:50:01+08:00) and slice 2 commit `6f350f28` (2026-09-27T16:40:20+08:00)
   - Tool: Claude Code
@@ -728,6 +702,7 @@ one-shot mission; the slice 3 delegation prompt omitted it, and the refactor
 and acceptance passes did not check it.
 
 ### Occurrences
+
 - Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737`
   - Timestamp: unknown; slice 3 delegated after `6f350f28` (2026-09-27T16:40:20+08:00)
   - Tool: Claude Code
@@ -746,6 +721,7 @@ work in this execution checkout" and matched none of those words; the
 implementer and refactor sweeps reused the same words and also missed it.
 
 ### Occurrences
+
 - Execution: `SEED-008#isolate-parallel-slice-delivery` / plan 131, first related implementation commit `1d3a26cd`
   - Timestamp: 2026-09-27T18:03:28+08:00 (premise recorded in plan commit `9f8b82b0`)
   - Tool: Claude Code
@@ -774,6 +750,7 @@ and wrap-up closure, Story Branch integration, the repair stash protocol, and
 observer launch recipes went unused.
 
 ### Occurrences
+
 - Execution: `SEED-004#proudly-found-elsewhere-design` / plan 133, first related implementation commit `29d0c909`
   - Timestamp: unknown (after Take `848db9fd` committed 2026-09-27T18:56:02+08:00)
   - Tool: Claude Code
@@ -809,6 +786,7 @@ number-only request `/dough-execute-plan 132` named two plans. Same mechanism
 as catalog ODF-106 (colliding plan numbers), now in this repository.
 
 ### Occurrences
+
 - Execution: `SEED-051#isolate-runner-settings` / plan 132, first related implementation commit `6b2ca78f`
   - Timestamp: 2026-09-27T18:36:56+08:00 (plan commit `77a8ca0f`; the sibling `132-restate-ci-pause-ownership` was committed at 18:32:11+08:00 in `9060ff71` on the execution branch and reached trunk via merge `54b5f025`)
   - Tool: Claude Code
@@ -818,24 +796,24 @@ as catalog ODF-106 (colliding plan numbers), now in this repository.
   - Observed effect: the executor had to infer the intended plan (the one at the default checkout's HEAD when the session started) and could have Taken the other queued story
   - Inference: Qualified. Allocation from checkout-visible numbers cannot see another checkout's unpublished plan; the collision went unnoticed at merge because directory names differ
 
-## DD-159 — Keyboard proof failures were blamed on stale dist despite per-run rebuilds
+## DD-188 — A planned rejected case was dropped on an unobserved "no one-signal case exists" premise
 
-An implementation agent blamed Playwright on a stale `dashboard/dist` and recorded a plan learning to rebuild before browser tests, although `test:dashboard`'s `globalSetup` already rebuilds each run. Decisive causes were focus remount and `openDirection` stealing focus between keypresses.
+Plan 165 slice 3 promised `self-report` rebased on `fresh-pass` with one signal. The implementer reported no one-signal route; the coordinator accepted the drop under the plan's split rule, then overrode the refactor pass's recommendation to keep it, without probing a claim-bearing passing base.
 
 ### Occurrences
-- Execution: `SEED-053#cycle-dashboard-projects-with-arrow-keys` / plan 138, first related implementation commit `796bebaf6c43928105f58feea358f163116f89bd`
-  - Timestamp: unknown (between 2026-09-28T12:47+08:00 impl start and ~12:56+08:00 slice report)
-  - Tool: Cursor
-  - Open Dough release: 0.3.45
-  - Evidence: impl subagent `ffa400d5-2c0e-4f83-aec0-7b2a740b4031` narrated a rebuild after the focus-remount fix, later diagnosed `openDirection` between keypresses; plan 138 Learnings contradict `dashboard/tests/README.md` and `dashboard/tests/support/globalSetup.ts`
-  - Observed effect: extra rebuild/debug cycles; a false rebuild learning remained in plan 138
-  - Inference: Qualified. Focus/test-structure failure misread as harness staleness; not a suite build-contract defect
+
+- Execution: `SEED-055#assessor-counterexample-discipline` / plan 165, first related implementation commit `84b4f28f`
+  - Timestamp: unknown; accepted before `17ed1929` (2026-09-29T22:50:10+08:00)
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance at `403bb9eb`
+  - Evidence: plan 165 slice 3 text and its "`self-report` is no longer a rejected case" learning; the retrospective's probe: `fresh-pass.json` with a setup-claiming `responseText` passes, and changing only `preparation-gate` then fails.
+  - Observed effect: the free proof of ADR 0005 §4 (do not accept self-report) for preparation was removed and reached review only; a correction restores it. Inference: Qualified; same read-versus-observe class as DD-124 and DD-174.
 
 ## DD-163 — A local flake already fixed on trunk was left off the story branch, which then failed CI on it
 
 Slice 3 saw `project-keyboard-navigation-focus` fail locally, found trunk's fix `25c4a514`, and deferred it to Story Branch integration; branch CI failed on it.
 
 ### Occurrences
+
 - Execution: `SEED-052#launch-claude-planned-execution` / plan 144, first related implementation commit `31cd0530`
   - Timestamp: 2026-09-28T17:53:08+08:00 (deferral delivered in `bd893320`)
   - Tool: Claude Code
@@ -864,6 +842,7 @@ and says not to invoke it; Cursor proceeded into wrap-up anyway.
 Before startup fetched trunk, execute-plan read the backlog and seed from the default checkout, which lagged trunk. It reported the story unrefined and unplanned, though trunk already held its refinement and plan.
 
 ### Occurrences
+
 - Execution: `SEED-008#durable-workspace-creation-fact` / plan 147, first related implementation commit `cb066559`
   - Timestamp: unknown; after trunk's refinement `a65dfcb7` (2026-09-29T07:18:09+08:00), before the repeat preparation's announcement `e65d81e8` (08:08:49+08:00)
   - Tool: Claude Code
@@ -971,7 +950,24 @@ Plan 159 slice 2 said to test the session presentation once as a shared capabili
   - Evidence: plan 159 slice 2 proof text; `agent-launch-recent-session-states.spec.ts` `both(index)` loop at `4ef13e85`; the execution retrospective found it.
   - Observed effect: extra per-state card assertions beside `agent-launch-card-session-states.spec.ts`, which already rechecks card labels (plan 160's finding 6); cleanup falls to a correction. Inference: Qualified. Accept-proof guidance weighs observation substance; a plan's test-cost direction has no acceptance check.
 
-## DD-182 — Rerunning managed delivery on an already-published candidate refused with an internal error instead of classifying it
+## DD-185 — A lost-observer notice kept blocking every turn end, even after the observer was stopped
+
+The Claude stop hook reported "CI observer lost its worker" for a dead observer as a blocking error at each turn end. The guidance says to report lost coverage once and continue. A `stop` that recorded the terminal lost result did not end the notice. It is the reverse of former ODF-065, where a dead observer still read as attached. It matches catalog ODF-144 (lost-worker notice repeatedly blocks turn completion), which so far had only another project's occurrence.
+
+### Occurrences
+
+- Execution: `SEED-055#ci-time-budget-from-ci-timings` / plan 162, first related implementation commit `061aa911`
+  - Timestamp: unknown; the loop spanned the shell's 2026-09-29T21:58:40+08:00 and 22:00:36+08:00 readings
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `d68fcde4`
+  - Evidence: mailbox `/tmp/dough-ci-501/watch-nN6cSt`, whose worker died when the disk filled (ENOSPC) during slice 2. Its only revision, `061aa911`, passed CI when checked with `gh run list`. The `stop` result was `status: stopped`, `coverage.state: lost`, `unread: 0`, and the stop hook kept blocking after it.
+  - Observed effect: about twelve coordinator turns spent acknowledging the same notice while a refactor agent ran. It persisted after the next delivery attached observer `watch-Ss12RC`. Cause (read in `ci-host-hook.mjs`): every hook call re-reports each bound mailbox whose worker is lost, with no delivered-once marker. Removing only this mailbox's binding under the coordinator's `owner-*` directory ended the loop.
+- Execution: `SEED-052#card-session-residue` / plan 160, first related implementation commit `26099a6a`
+  - Timestamp: unknown; after the disk filled following `f00ced6a`, before repair `75bdc10d` (2026-09-29T22:14:32+08:00)
+  - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `d68fcde4`
+  - Evidence: mailbox `/tmp/dough-ci-501/watch-DONFBb` (worker lost when the disk filled); `stop` returned `coverage.state: "lost"` and the notice kept repeating; source repair `75bdc10d` reports a loss once through `delivery.json` `lossReported` and not after a `stop` marker.
+  - Observed effect: about eight blocked turn ends, two developer questions, and a developer-authorized removal of the stale owner binding, since the running hook is the installed copy, which a source fix reaches only at release.
+
+## DD-189 — Rerunning managed delivery on an already-published candidate refused with an internal error instead of classifying it
 
 A transient `Permission denied (publickey)` interrupted `deliver`; a rerun failed at `git fetch` and a third refused with "rebase left the pre-rebase SHA as the candidate" because the remote already held the candidate. `execution-increment-resume.mjs resume` then classified it `already-published` and recovered the observer. The coordinator reran `deliver` instead of classifying the interrupted publication first, as the execute-plan resume rule directs; DD-176's refused retry shows the same message.
 
@@ -985,8 +981,10 @@ A transient `Permission denied (publickey)` interrupted `deliver`; a rerun faile
 
 ## Retention
 
-- Highest allocated local number: 182. Removed local codes are never reused.
-- Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-182 and ODF-094's plan 163 occurrence: ODF-096's 0.3.34-era occurrence (`SEED-004#accept-delivery-evidence-native`); two later occurrences keep the finding; recovery: `b4d82278:DearDough.md`.
+- Highest allocated local number: 189. Removed local codes are never reused.
+- Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-189 and ODF-094's plan 163 occurrence: ODF-096's 0.3.34-era occurrence (`SEED-004#accept-delivery-evidence-native`); two later occurrences keep the finding; recovery: `b4d82278:DearDough.md`.
+- Removed on 2026-09-30 for the 1,000-line ceiling, as lower priority than DD-188: DD-159 (a one-off diagnosis misread with no delivery impact); recovery: `c6440780:DearDough.md`.
+- Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-185: ODF-065 (former DD-063; a dead observer still reported as attached), since the host hook now reports a dead worker as lost at the next interaction; recovery: `1dfb75ee:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-180, DD-181, and DD-172's third occurrence: ODF-003's two oldest occurrences (`SEED-008#script-driven-ci-observation`, `SEED-037#diagnosable-test-hangs`); two later occurrences keep the finding; recovery: `4ef13e85:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-176, DD-177, and the DD-172 and ODF-097 recurrences: ODF-130 (concurrent slices sharing Playwright output) and ODF-129 (full-suite proof beside another agent's edits), since slices now run one at a time; recovery: `32e554d5:DearDough.md`.
 - Removed ODF-070 (former DD-066; nested worktree `node_modules` assumed absent) on 2026-09-29 for the 1,000-line ceiling: its 0.3.26-era occurrence as lower priority than ODF-116's recurrence (recovery: `6fa51cb6:DearDough.md`), then its remaining occurrence as lower current actionability than DD-172/DD-173 and the ODF-100 recurrence, since execution-location guidance now requires a locked install per worktree (recovery: `0c31529b:DearDough.md`).

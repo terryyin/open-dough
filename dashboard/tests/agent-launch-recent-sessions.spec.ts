@@ -3,7 +3,8 @@
 // commands publish (./launchJourney.ts): an entry names its story, workflow,
 // launch time, and session with Open terminal; two launches of one story
 // are two entries; and another project's launches are not listed, through
-// reloads and project switches. That entries stay through Preparing, the
+// reloads and project switches; until the page first reads them, it says it
+// is reading them. That entries stay through Preparing, the
 // Take, and completion is ./agent-launch-card-sessions.spec.ts, and each
 // entry's state is
 // ./agent-launch-recent-session-states.spec.ts. The page's own dashboard
@@ -26,6 +27,7 @@ import {
   takenStory,
   type StoryStagesJourney,
 } from "./launchJourney.ts";
+import { holdSessionReads } from "./sessionStatePace.ts";
 import { openStoryStagesJourney, type Workflow } from "./storyStagesPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
@@ -142,6 +144,18 @@ test.describe("Recent sessions of the launches from this dashboard", () => {
       await expectMembership(page, { taken: [], backlog: queued });
       await expectEntries(launched);
       await expect(recent).not.toContainText(doughnutSharedTitle);
+    });
+
+    await test.step("a page whose first read of the sessions has not answered says it is reading them, then lists them", async () => {
+      const { answer } = await holdSessionReads(page);
+      await page.reload();
+      await expectMembership(page, { taken: [], backlog: queued });
+      await expect(recent).toContainText("Reading sessions…");
+      await expect(recent).not.toContainText("No sessions launched");
+      await expect(entries).toHaveCount(0);
+      answer();
+      await expectEntries(launched);
+      await expect(recent).not.toContainText("Reading sessions…");
     });
 
     // Listing never launched anything: four launches, one of them Doughnut's.

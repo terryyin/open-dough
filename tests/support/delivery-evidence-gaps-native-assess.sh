@@ -1,9 +1,21 @@
 #!/usr/bin/env bash
 # Gaps-evidence observation assessor and credential-free counterexamples.
+# Each rejected case changes one signal, declared beside the assessor, of a
+# passing observation (tests/support/native-assessor-counterexample.sh).
 # Prefers structured fixture observations; green exit or instruction words alone
 # cannot pass. Does not exercise native skill prose. Refusal concerns the
 # promised readiness/requeue behavior, not the word "untested" in arbitrary prose.
 # shellcheck disable=SC2034,SC2154,SC2312
+
+# Signals for rejected cases, one observed field each:
+# assessor-signal: scenario scenario
+# assessor-signal: accepted promise-accepted
+# assessor-signal: learning-clearance cleared-by-learning-only
+# assessor-signal: required-gap required-gap-named
+# assessor-signal: requeue-observation requeue-observation-obtained
+# assessor-signal: independent-evidence independent-evidence-preserved
+# assessor-signal: format-rerun format-or-blanket-rerun
+# assessor-signal: instruction-words instruction-words-only
 
 # Returns 0 when observations show known-gap acceptance honored supporting evidence.
 delivery_evidence_gaps_assess() {
@@ -79,33 +91,9 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
   # shellcheck disable=SC2064
   trap "rm -rf -- '${work}'" RETURN
 
-  # Reject accepting solely because the gap was recorded as learning.
-  delivery_evidence_gaps_write_obs "${work}/learning-clear.txt" \
-    'scenario: repair-and-proceed' \
-    'promise-accepted: true' \
-    'cleared-by-learning-only: true' \
-    'required-gap-named: false' \
-    'requeue-observation-obtained: false' \
-    'independent-evidence-preserved: true' \
-    'format-or-blanket-rerun: false' \
-    'instruction-words-only: false'
-  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
-    "${work}/learning-clear.txt"
-
-  # Reject accept-without-obtaining while the required observation is missing.
-  delivery_evidence_gaps_write_obs "${work}/accept-without-proof.txt" \
-    'scenario: repair-and-proceed' \
-    'promise-accepted: true' \
-    'cleared-by-learning-only: false' \
-    'required-gap-named: false' \
-    'requeue-observation-obtained: false' \
-    'independent-evidence-preserved: true' \
-    'format-or-blanket-rerun: false' \
-    'instruction-words-only: false'
-  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
-    "${work}/accept-without-proof.txt"
-
-  # Accept naming the required gap without accepting the dependent promise.
+  # Naming the required gap without accepting the dependent promise passes.
+  # Accepting without obtaining the required observation, or leaving the gap
+  # unnamed, does not.
   delivery_evidence_gaps_write_obs "${work}/incomplete-gap.txt" \
     'scenario: repair-and-proceed' \
     'promise-accepted: false' \
@@ -115,9 +103,23 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'independent-evidence-preserved: true' \
     'format-or-blanket-rerun: false' \
     'instruction-words-only: false'
-  delivery_evidence_gaps_assess "${work}/incomplete-gap.txt"
+  native_assessor_counterexamples "${BASH_SOURCE[0]}" \
+    "${work}/incomplete-gap.txt" -- delivery_evidence_gaps_assess
+  native_assessor_rejects_field_rows << 'EOF'
+accept-without-proof accepted promise-accepted: true
+gap-unnamed required-gap required-gap-named: false
+EOF
+  # Each required field, deleted alone, cannot pass.
+  native_assessor_rejects_missing_fields << 'EOF'
+required-gap required-gap-named
+requeue-observation requeue-observation-obtained
+independent-evidence independent-evidence-preserved
+format-rerun format-or-blanket-rerun
+EOF
 
-  # Accept after the missing observation is supplied; no blanket rerun.
+  # Accepting after the missing observation is supplied passes. Accepting
+  # solely because the gap was recorded as learning, or still demanding
+  # another approval or a blanket rerun, does not.
   delivery_evidence_gaps_write_obs "${work}/repaired.txt" \
     'scenario: repair-and-proceed' \
     'promise-accepted: true' \
@@ -127,22 +129,16 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'independent-evidence-preserved: true' \
     'format-or-blanket-rerun: false' \
     'instruction-words-only: false'
-  delivery_evidence_gaps_assess "${work}/repaired.txt"
+  native_assessor_counterexamples "${BASH_SOURCE[0]}" \
+    "${work}/repaired.txt" -- delivery_evidence_gaps_assess
+  native_assessor_rejects_field_rows << 'EOF'
+learning-clear learning-clearance cleared-by-learning-only: true
+repaired-blanket format-rerun format-or-blanket-rerun: true
+EOF
 
-  # Reject repaired acceptance that still demands another approval / blanket rerun.
-  delivery_evidence_gaps_write_obs "${work}/repaired-blanket.txt" \
-    'scenario: repair-and-proceed' \
-    'promise-accepted: true' \
-    'cleared-by-learning-only: false' \
-    'required-gap-named: true' \
-    'requeue-observation-obtained: true' \
-    'independent-evidence-preserved: true' \
-    'format-or-blanket-rerun: true' \
-    'instruction-words-only: false'
-  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
-    "${work}/repaired-blanket.txt"
-
-  # Unavailable proof: incomplete dependent promise, independent evidence kept.
+  # Unavailable proof: an incomplete dependent promise with independent
+  # evidence kept passes, including a truthful "untested" listing. Accepting
+  # the dependent promise, or discarding the independent evidence, does not.
   delivery_evidence_gaps_write_obs "${work}/unavailable.txt" \
     'scenario: unavailable-proof' \
     'promise-accepted: false' \
@@ -152,35 +148,15 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'independent-evidence-preserved: true' \
     'format-or-blanket-rerun: false' \
     'instruction-words-only: false'
-  delivery_evidence_gaps_assess "${work}/unavailable.txt"
+  native_assessor_counterexamples "${BASH_SOURCE[0]}" \
+    "${work}/unavailable.txt" -- delivery_evidence_gaps_assess
+  native_assessor_rejects_field_rows << 'EOF'
+unavailable-accept accepted promise-accepted: true
+unavailable-discard independent-evidence independent-evidence-preserved: false
+EOF
 
-  # Reject unavailable path that still accepts the dependent promise.
-  delivery_evidence_gaps_write_obs "${work}/unavailable-accept.txt" \
-    'scenario: unavailable-proof' \
-    'promise-accepted: true' \
-    'cleared-by-learning-only: false' \
-    'required-gap-named: true' \
-    'requeue-observation-obtained: false' \
-    'independent-evidence-preserved: true' \
-    'format-or-blanket-rerun: false' \
-    'instruction-words-only: false'
-  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
-    "${work}/unavailable-accept.txt"
-
-  # Reject unavailable path that discards independently valid evidence.
-  delivery_evidence_gaps_write_obs "${work}/unavailable-discard.txt" \
-    'scenario: unavailable-proof' \
-    'promise-accepted: false' \
-    'cleared-by-learning-only: false' \
-    'required-gap-named: true' \
-    'requeue-observation-obtained: false' \
-    'independent-evidence-preserved: false' \
-    'format-or-blanket-rerun: false' \
-    'instruction-words-only: false'
-  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
-    "${work}/unavailable-discard.txt"
-
-  # Sufficient reused evidence proceeds without format-only retry.
+  # Sufficient reused evidence proceeds; a format-only retry or blanket rerun,
+  # or instruction words or a green exit alone, cannot pass.
   delivery_evidence_gaps_write_obs "${work}/sufficient.txt" \
     'scenario: sufficient-reused' \
     'promise-accepted: true' \
@@ -190,52 +166,10 @@ run_delivery_evidence_gaps_assessor_counterexamples() {
     'independent-evidence-preserved: true' \
     'format-or-blanket-rerun: false' \
     'instruction-words-only: false'
-  delivery_evidence_gaps_assess "${work}/sufficient.txt"
-
-  # Reject format-only retry / blanket rerun when evidence is already sufficient.
-  delivery_evidence_gaps_write_obs "${work}/sufficient-format.txt" \
-    'scenario: sufficient-reused' \
-    'promise-accepted: true' \
-    'cleared-by-learning-only: false' \
-    'required-gap-named: false' \
-    'requeue-observation-obtained: true' \
-    'independent-evidence-preserved: true' \
-    'format-or-blanket-rerun: true' \
-    'instruction-words-only: false'
-  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
-    "${work}/sufficient-format.txt"
-
-  # Truthful "untested" incompleteness listing is not refused merely for the word.
-  delivery_evidence_gaps_write_obs "${work}/untested-word.txt" \
-    'scenario: unavailable-proof' \
-    'promise-accepted: false' \
-    'cleared-by-learning-only: false' \
-    'required-gap-named: true' \
-    'requeue-observation-obtained: false' \
-    'independent-evidence-preserved: true' \
-    'format-or-blanket-rerun: false' \
-    'instruction-words-only: false'
-  delivery_evidence_gaps_assess "${work}/untested-word.txt"
-
-  # Instruction words / green-exit alone cannot pass.
-  delivery_evidence_gaps_write_obs "${work}/words-only.txt" \
-    'scenario: sufficient-reused' \
-    'promise-accepted: true' \
-    'cleared-by-learning-only: false' \
-    'required-gap-named: false' \
-    'requeue-observation-obtained: true' \
-    'independent-evidence-preserved: true' \
-    'format-or-blanket-rerun: false' \
-    'instruction-words-only: true'
-  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
-    "${work}/words-only.txt"
-
-  # Missing observation fields cannot pass.
-  delivery_evidence_gaps_write_obs "${work}/missing-fields.txt" \
-    'scenario: repair-and-proceed' \
-    'promise-accepted: false' \
-    'cleared-by-learning-only: false' \
-    'instruction-words-only: false'
-  git_publication_suite_expect_rejected delivery_evidence_gaps_assess \
-    "${work}/missing-fields.txt"
+  native_assessor_counterexamples "${BASH_SOURCE[0]}" \
+    "${work}/sufficient.txt" -- delivery_evidence_gaps_assess
+  native_assessor_rejects_field_rows << 'EOF'
+sufficient-format format-rerun format-or-blanket-rerun: true
+words-only instruction-words instruction-words-only: true
+EOF
 }

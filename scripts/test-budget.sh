@@ -5,32 +5,24 @@
 # per job, longest first (to OPEN_DOUGH_TEST_TIMES when set), and on CI
 # (`CI=true`) runs this after its failure reports whenever its test directory
 # has a `time-budget`; elsewhere the budget is not judged at all.
-# The budget file sets `per-job-seconds=<n>` and `total-job-seconds=<n>`;
-# `#` lines and blank lines are ignored. Within budget, nothing is printed.
+# scripts/time-budget.bash reads the budget file; one without both numbers
+# always fails. Within budget, nothing is printed.
 # Each job over the per-job ceiling, and a total over the total ceiling, is
 # reported on stderr. A breach exits 1 wherever this checker runs; the runner
 # alone decides that the budget is CI's, running this only when `CI=true`.
-# A budget file without both numbers always fails.
 set -euo pipefail
 
-budget=$1 times_file=$2
-per_job='' total=''
-while IFS= read -r line || [[ -n ${line} ]]; do
-  case ${line} in
-    '' | '#'*) ;;
-    per-job-seconds=*) per_job=${line#*=} ;;
-    total-job-seconds=*) total=${line#*=} ;;
-    *) per_job='' total='' && break ;;
-  esac
-done < "${budget}"
-number='^[0-9]+(\.[0-9]+)?$'
-if [[ ! ${per_job} =~ ${number} || ! ${total} =~ ${number} ]]; then
-  printf 'FAIL: %s must set only per-job-seconds=<n> and total-job-seconds=<n>.\n' \
-    "${budget}" >&2
-  exit 1
-fi
+source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck disable=SC1091
+# shellcheck source=scripts/time-budget.bash
+source "${source_dir}/scripts/time-budget.bash"
 
-awk -F '\t' -v per_job="${per_job}" -v total_ceiling="${total}" -v budget="${budget}" '
+budget=$1 times_file=$2
+read_time_budget "${budget}" || exit 1
+# The sourced reader sets both ceilings.
+readonly per_job_seconds total_job_seconds
+
+awk -F '\t' -v per_job="${per_job_seconds}" -v total_ceiling="${total_job_seconds}" -v budget="${budget}" '
   {
     total += $1
     if ($1 > per_job + 0) {

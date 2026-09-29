@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Shared native-proof helpers for one complete-revision call versus fixture-masked
-# stop/await leftovers. Journey files keep their own observation field layouts.
+# stop/await leftovers, and the order of a journey's `control-order` steps.
+# Journey files keep their own observation field layouts.
 # shellcheck disable=SC2034,SC2154,SC2312
 
 # shellcheck source=tests/support/native-host-stream.sh
@@ -82,4 +83,24 @@ native_completion_forced_stop() {
   else
     printf 'false\n'
   fi
+}
+
+# Exits 0 when observations $1 record the `control-order` steps $2... in that
+# order. Only the `control-order` block counts, so a field such as
+# `review-started:` cannot stand in for the `review-start` step.
+native_completion_control_order() {
+  local observations=$1
+  shift
+  awk -v want="$*" '
+    /^control-order:$/ { steps = 1; next }
+    steps && /^  / { seen[$1] = ++n; next }
+    { steps = 0 }
+    END {
+      k = split(want, step, " ")
+      for (i = 1; i <= k; i++) {
+        if (!(step[i] in seen) || seen[step[i]] <= last) exit 1
+        last = seen[step[i]]
+      }
+    }
+  ' "${observations}"
 }

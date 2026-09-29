@@ -25,7 +25,13 @@ import {
   terminalEndedCode,
   type TerminalMessage,
 } from "./agentTerminal.ts";
-import { notMarkedDone, useMarking } from "./terminalOpening.ts";
+import {
+  notMarkedDone,
+  useMarking,
+  type MarkSessionDone,
+  type SessionOperation,
+  type SessionRequest,
+} from "./pageSessions.ts";
 
 function terminalUrl(record: LaunchRecord): string {
   const query = new URLSearchParams({
@@ -50,12 +56,12 @@ const endings = {
 // `onAttached` and `onEnded` must keep their identity across renders.
 function useAttachedTerminal(
   element: RefObject<HTMLDivElement | null>,
-  record: LaunchRecord,
+  session: SessionRequest,
   attempt: number,
-  onAttached: (record: LaunchRecord) => void,
+  onAttached: SessionOperation<void>,
   onEnded: (ending: Ending) => void,
 ) {
-  const url = terminalUrl(record);
+  const url = terminalUrl(session.record);
   useEffect(() => {
     const screen = element.current;
     if (screen === null) {
@@ -82,7 +88,7 @@ function useAttachedTerminal(
         terminal.write(event.data);
         if (!shown) {
           shown = true;
-          onAttached(record);
+          onAttached(session);
         }
       }
     });
@@ -113,29 +119,32 @@ function useAttachedTerminal(
       socket.close();
       terminal.dispose();
     };
-  }, [element, url, record, attempt, onAttached, onEnded]);
+  }, [element, url, session, attempt, onAttached, onEnded]);
 }
 
 export function TerminalPanel({
-  record,
+  session,
   onAttached,
   onClose,
   onMarkDone,
 }: {
-  readonly record: LaunchRecord;
+  // The request that opened the panel, which the panel asks its operations
+  // with.
+  readonly session: SessionRequest;
   // Told once each attachment first shows the session's output; it keeps its
   // identity across renders.
-  readonly onAttached: (record: LaunchRecord) => void;
+  readonly onAttached: SessionOperation<void>;
   readonly onClose: () => void;
   // Answers whether the session was marked done; the panel closes if it was.
-  readonly onMarkDone: () => Promise<boolean>;
+  readonly onMarkDone: MarkSessionDone;
 }) {
+  const { record } = session;
   const screen = useRef<HTMLDivElement>(null);
   const [attempt, setAttempt] = useState(0);
   const [ending, setEnding] = useState<Ending | undefined>();
   // While marking, the attachment's ending the mark causes is not shown.
   const { marking, follow } = useMarking();
-  useAttachedTerminal(screen, record, attempt, onAttached, setEnding);
+  useAttachedTerminal(screen, session, attempt, onAttached, setEnding);
   const attachAgain = () => {
     setEnding(undefined);
     setAttempt((previous) => previous + 1);
@@ -156,7 +165,7 @@ export function TerminalPanel({
             type="button"
             disabled={marking === "marking"}
             onClick={() => {
-              follow(onMarkDone());
+              follow(onMarkDone(session));
             }}
           >
             Mark as done

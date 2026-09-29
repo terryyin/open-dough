@@ -30,6 +30,17 @@ native_journey_state_fail() {
   native_journey_state_reason=$1
 }
 
+# One signal per observed fact. real-transition derives from the update's
+# outcome, versions, and installed improvement, so it moves with each.
+# assessor-signal: update-outcome update-execution real-transition
+# assessor-signal: use-outcome use-execution
+# assessor-signal: target same-target
+# assessor-signal: baseline-version update-version-before real-transition
+# assessor-signal: installed-version update-version-after real-transition
+# assessor-signal: skill-improvement improvement-after-update real-transition
+# assessor-signal: source-preservation source-preserved
+# assessor-signal: companion-preservation companion-preserved
+# assessor-signal: cursor-root-preservation other-tool-root-cursor-preserved
 native_journey_state_assess() {
   local observations=$1
   local response=${2-}

@@ -80,12 +80,12 @@ EOF
 # ended with status $2.
 git_publication_fixture_observe_startup() {
   local journey=$1 stream_status=$2 transcript=$3 host=$4
-  local remote_sha message human_after human_preserved
+  local remote_sha message_history human_after human_preserved
   local source_after source_preserved feature_exists first_edit_after_claim
   local setup_exists command_exists setup_after_claim claim_owned taken_on_remote
   local workspace_source_published
   remote_sha=$(git ls-remote "${git_publication_fixture_origin}" refs/heads/main | awk '{print $1}')
-  message=$(git --git-dir="${git_publication_fixture_origin}" log -1 --format=%B "${remote_sha}")
+  message_history=$(git --git-dir="${git_publication_fixture_origin}" log --format=%B "${remote_sha}")
   human_after=$(git_publication_fixture_capture_human "${git_publication_fixture_integration}")
   human_preserved=false
   [[ ${human_after} == "${git_publication_fixture_human_before}" ]] && human_preserved=true
@@ -97,8 +97,11 @@ git_publication_fixture_observe_startup() {
   if git_publication_lists_taken "${git_publication_fixture_origin}" \
     "${remote_sha}" 'SEED-A#a'; then taken_on_remote=true; fi
   claim_owned=false
-  if git --git-dir="${git_publication_fixture_origin}" log --format=%B "${remote_sha}" \
-    | grep -Fq "Claim-Publisher: native-startup-${journey}"; then claim_owned=true; fi
+  # A here-string, not a pipe: grep -q exits at the first match, and under
+  # pipefail git log's SIGPIPE on later commits would read as not owned.
+  if grep -Fq "Claim-Publisher: native-startup-${journey}" <<< "${message_history}"; then
+    claim_owned=true
+  fi
   workspace_source_published=false
   if [[ -f ${git_publication_fixture_workspace}/.planning/seeds/A.md ]] \
     && git --git-dir="${git_publication_fixture_origin}" show \
@@ -138,7 +141,7 @@ git_publication_fixture_observe_startup() {
     candidate_contained=true
   fi
   printf 'candidate-contained: %s\n' "${candidate_contained}"
-  printf 'rival-owned: %s\n' "$(grep -Fq 'Claim-Publisher: rival' <<< "$(git --git-dir="${git_publication_fixture_origin}" log --format=%B "${remote_sha}")" && echo true || echo false)"
+  printf 'rival-owned: %s\n' "$(grep -Fq 'Claim-Publisher: rival' <<< "${message_history}" && echo true || echo false)"
   printf 'human-edit-preserved: %s\n' "${human_preserved}"
   printf 'selected-source-preserved: %s\n' "${source_preserved}"
   printf 'workspace-source-published: %s\n' "${workspace_source_published}"

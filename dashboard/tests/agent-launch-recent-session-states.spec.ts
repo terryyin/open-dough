@@ -4,19 +4,19 @@
 // its process still runs or has exited; Session failed; Session stopped; and,
 // with no attention, Working (idle between steps or not), Session
 // unavailable, or State unknown with its note. A session needing attention
-// has a solid, heavier edge beside those words. Its entry on its story's card
-// shows the same as its Recent sessions entry, since both are one shared
-// entry. The page reads the records again at the steady pace while it is
-// visible, so a change appears within one pace without a reload, and Open
-// terminal is offered only where `attachOpens` says it opens the session.
-// Origin alone still places every story. How attention clears on resumed
-// work or Mark as done is ./agent-launch-attention-clearing.spec.ts, and how
-// a card counts its sessions that need attention is
-// ./agent-launch-attention.spec.ts. The
-// page's own dashboard server launches the synthetic `claude`
-// (./fixtures/fake-claude), whose controls change, forget, or fail to list a
-// session; the real one is never reached. The page clock stands still unless
-// the journey lets it pass.
+// has a solid, heavier edge beside those words. A card entry is the same
+// shared entry, so one session's card entry shows what its Recent sessions
+// entry does, and ./agent-launch-card-session-states.spec.ts shows every
+// state staying on its card. The page reads the records again at the steady
+// pace while it is visible, so a change appears within one pace without a
+// reload, and Open terminal is offered only where `attachOpens` says it opens
+// the session. Origin alone still places every story. How attention clears on
+// resumed work or Mark as done is ./agent-launch-attention-clearing.spec.ts,
+// and how a card counts its sessions that need attention is
+// ./agent-launch-attention.spec.ts. The page's own dashboard server launches
+// the synthetic `claude` (./fixtures/fake-claude), whose controls change,
+// forget, or fail to list a session; the real one is never reached. The page
+// clock stands still unless the journey lets it pass.
 
 import type { Locator } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
@@ -148,34 +148,28 @@ test("each entry shows why its session needs attention, or that it does not, the
     }
     await expect(entries).toHaveCount(before + 1);
   }
-  // Each session's Recent sessions entry and its card entry.
-  const placements = launches.map(({ title, workflow }, index) => {
-    const inRecent = entries.nth(index);
-    const onCard = cardSessionOf(card(title), workflow);
-    return { title, workflow, inRecent, onCard };
-  });
-  const both = (index: number): readonly Locator[] => {
-    const placement = placements[index];
-    return placement === undefined
-      ? []
-      : [placement.inRecent, placement.onCard];
-  };
+  // One session's card entry (the second launch: blocked with a reason, then
+  // stopped) is rendered as its Recent sessions entry is, so it alone is
+  // checked on its card too.
+  const onCard = cardSessionOf(card(notRefinedStory), "Execution");
+  const placed = (index: number): readonly Locator[] =>
+    index === 1 ? [entries.nth(index), onCard] : [entries.nth(index)];
   const sessionIds: string[] = [];
-  for (const [index, { title, workflow, inRecent }] of placements.entries()) {
-    await expect(inRecent).toHaveAccessibleName(
+  for (const [index, { title, workflow }] of launches.entries()) {
+    await expect(entries.nth(index)).toHaveAccessibleName(
       recentSessionName(workflow, title),
     );
-    for (const entry of both(index)) {
+    for (const entry of placed(index)) {
       await expectSessionShown(entry, "Working", false);
     }
-    sessionIds.push(await sessionNamedBy(inRecent));
+    sessionIds.push(await sessionNamedBy(entries.nth(index)));
   }
   await markNotReloaded(page);
 
   const expectChanged = async (round: 0 | 1) => {
     for (const [index, { changes }] of launches.entries()) {
       const { shows, needsAttention } = changes[round];
-      for (const entry of both(index)) {
+      for (const entry of placed(index)) {
         await expectSessionShown(entry, shows, needsAttention);
         await expect(
           entry.getByRole("button", { name: "Open terminal" }),
@@ -213,7 +207,7 @@ test("each entry shows why its session needs attention, or that it does not, the
     dashboard.claudeListingFails(true);
     await passOnePace();
     for (const index of launches.keys()) {
-      for (const entry of both(index)) {
+      for (const entry of placed(index)) {
         await expectSessionShown(entry, unknownShown, false);
         await expect(
           entry.getByRole("button", { name: "Open terminal" }),

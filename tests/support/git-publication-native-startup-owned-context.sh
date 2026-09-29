@@ -58,6 +58,11 @@ git_publication_observe_startup_owned_context() {
   printf 'checkouts-expected: %s\n' "$([[ ${actual} == "${expected}" ]] && echo true || echo false)"
 }
 
+# Signals for rejected cases.
+# assessor-signal: default-checkout integration-flag-count
+# assessor-signal: retained retained-unchanged
+# assessor-signal: workspace-source workspace-source
+# assessor-signal: claim-order claim-setup-command-feature-ordered
 git_publication_assess_startup_owned_context() {
   local obs=$1 key
   local stream_status startup_cli_count integration_flag_count repository_flag_count

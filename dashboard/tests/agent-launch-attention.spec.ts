@@ -198,12 +198,9 @@ test.describe("a story's card counts the sessions that need attention", () => {
       const select = (name: string) =>
         project.getByRole("radio", { name, exact: true }).check();
       await select("Doughnut");
-      await expectMembership(page, {
-        taken: [],
-        backlog: [doughnutSharedTitle],
-      });
-      await expectCounted({});
+      // Launching waits for Doughnut's card, so its count is Doughnut's.
       await launch(doughnutSharedTitle, "Execution");
+      await expectCounted({});
       dashboard.claudeSessionBecomes(
         await sessionNamedBy(cardSessions(card(doughnutSharedTitle)).first()),
         "blocked",
@@ -214,7 +211,6 @@ test.describe("a story's card counts the sessions that need attention", () => {
       await expectCounted({ [doughnutSharedTitle]: one });
 
       await select("Open Dough");
-      await expectMembership(page, takenStages);
       await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
       await shows(readyStory, "Refinement", "Session failed", true);
 

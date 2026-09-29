@@ -4,9 +4,10 @@ A locally launched page that shows the selected project's published work: the
 near-future direction, the **Backlog** in priority order, and the **Taken**
 entries, as connected stages. **Start execution** and **Start refinement** on a
 Backlog card ask Claude Code on this machine to execute or refine the story,
-**Recent sessions** lists those launches, newest first, **Open terminal**
-shows a launch's session beside the page, and **Mark as done** there stops it
-([Agent launch](AGENT-LAUNCH.md)).
+**Recent sessions** lists those launches, newest first, the **Sessions**
+sidebar lists every project's open sessions and how many need attention,
+**Open terminal** shows a launch's session beside the page, and **Mark as
+done** there stops it ([Agent launch](AGENT-LAUNCH.md)).
 
 The pinned banner shows the selected project in a disclosure and keeps the four
 **Project** choices and SVG **Refresh** control reachable while scrolling. The disclosure opens the repository/ref, full
@@ -38,7 +39,10 @@ private Pygardon -- is read the same way: through a small local
 authenticated read boundary (`server/authenticatedRead.ts`, reached from the
 browser through `src/authenticatedRead.ts`) that resolves the ref and reads
 the backlog and the records it names through the local `gh` CLI's own
-existing authentication. The browser never reads GitHub directly and never
+existing authentication. Each file arrives exactly as origin holds it at that
+revision: the boundary asks for GitHub's raw media type, not a JSON-typed one
+whose text `gh` would sanitize, rewriting control-character escapes such as a
+literal `\u0002`. The browser never reads GitHub directly and never
 receives a credential; there is no dashboard sign-in and no token-entry UI.
 Reading a project needs only the `gh` access the launching person already
 has -- the same access `gh api repos/terryyin/pygardon/commits/main` proves

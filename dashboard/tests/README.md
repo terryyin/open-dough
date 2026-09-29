@@ -30,9 +30,11 @@ The launch boundary specs (`agent-launch-boundary.spec.ts`,
 `agent-launch-card-sessions.spec.ts`, `agent-launch-card-session-states.spec.ts`,
 `agent-launch-recent-sessions.spec.ts`,
 `agent-launch-recent-session-states.spec.ts`,
-`agent-launch-attention-clearing.spec.ts`, and
-`agent-launch-attention.spec.ts`, which name their folders and launch
-wait through the `projectFolders` and `launchTimeoutMs` options of
+`agent-launch-attention-clearing.spec.ts`,
+`agent-launch-attention.spec.ts`, `session-sidebar.spec.ts`,
+`session-sidebar-reading.spec.ts`, `session-sidebar-stays-as-left.spec.ts`,
+and `session-sidebar-keyboard.spec.ts`, which name
+their folders and launch wait through the `projectFolders` and `launchTimeoutMs` options of
 `dashboardTest.ts`) drive a synthetic `claude`
 (`fixtures/fake-claude`, `support/fakeClaude.ts`) that every server puts first
 on its PATH, in a temporary HOME holding only the project folders a test
@@ -64,9 +66,20 @@ connection and Reconnect, ended terminal), and `agent-terminal-done.spec.ts`
 `agent-launch-card-done.spec.ts` marks a card's session done from its entry.
 A server that must find no `claude` gets a PATH holding only the fake `gh`
 and Node. Nothing here ever calls the real
-`claude`. Only the card-sessions journey (`agent-launch-card-sessions.spec.ts`)
+`claude`. The card-sessions journey (`agent-launch-card-sessions.spec.ts`)
 reaches Preparing, including a refinement launched on the Preparing card, and
-walks on through the Take and completion.
+walks on through the Take and completion; the attention journey
+(`agent-launch-attention.spec.ts`) walks the same stages counting the sessions
+that need attention. Each card concern has one owner:
+`agent-launch-card.spec.ts` the Start actions, their dialogs, what a launch
+sends, and the keyboard on the newest entry; `agent-launch-card-sessions.spec.ts`
+which sessions a card lists, newest first, in each stage;
+`agent-launch-card-session-states.spec.ts` that an entry stays on its card in
+every state, without Open terminal when unavailable and with it when unknown,
+and survives a restarted server, a reload, and a project switch;
+`agent-launch-recent-session-states.spec.ts` what each state shows on a Recent
+sessions entry, and on one card entry, which is rendered the same way; and
+`agent-launch-attention.spec.ts` how many of a card's sessions need attention.
 
 A passing run prints nothing (`support/quietReporter.ts`). A failing
 spec is shown with its error, output, and retained trace; a passing spec that
