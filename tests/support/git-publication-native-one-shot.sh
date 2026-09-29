@@ -9,6 +9,9 @@
 # shellcheck source=tests/support/git-publication-native-one-shot-queued.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-one-shot-queued.sh"
+# shellcheck source=tests/support/git-publication-native-one-shot-counterexamples.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-one-shot-counterexamples.sh"
 
 git_publication_fixture_create_one_shot() {
   local source_dir=$1 journey=$2 parent=$3
@@ -116,6 +119,20 @@ git_publication_one_shot_stop_observers() {
   unset DOUGH_CI_MAILBOX_ROOT
 }
 
+# Signals for rejected cases, with the queued story's closure assessed in
+# git-publication-native-one-shot-queued.sh. The trunk tip's SHA and the
+# planning paths its commits touched move with every change to trunk content.
+# assessor-signal: stream stream-status
+# assessor-signal: human-edit human-edit-preserved
+# assessor-signal: trunk-history remote-sha base-ancestor trunk-commit-count
+# assessor-signal: result remote-sha result-changed
+# assessor-signal: planning remote-sha planning-paths other-planning-paths
+# assessor-signal: pushes ref-update-count trunk-push-count pushed-tip pushed-taken forced-trunk-push-count
+# assessor-signal: workspace workspace-present branch-present
+# assessor-signal: story-entry remote-sha planning-paths story-listed queue-kept
+# assessor-signal: story-section remote-sha planning-paths story-section-present
+# assessor-signal: story-plan remote-sha planning-paths plan-present
+# assessor-signal: sibling remote-sha planning-paths sibling-section-present queue-kept
 git_publication_assess_one_shot() {
   local obs=$1 key
   local journey stream_status human_edit_preserved base_ancestor
@@ -146,93 +163,4 @@ git_publication_assess_one_shot() {
     git_publication_assess_status=pass
     git_publication_assess_reason='only the one-shot result reached remote trunk and its workspace retired'
   fi
-}
-
-# Real-state counterexamples on a passing fixture of one-shot journey $2: each
-# mutation alone makes the assessor fail, and undoing them all passes again.
-run_one_shot_state_counterexamples() {
-  local transcript=$1 journey=$2 origin=${git_publication_fixture_origin}
-  local integration=${git_publication_fixture_integration}
-  local base=${git_publication_fixture_trunk_sha} tip commit path entry
-  local obs="${git_publication_fixture_root}/counterexample.txt"
-  local index="${git_publication_fixture_root}/counterexample.index"
-  local push_log="${git_publication_fixture_root}/push.log"
-  local backlog=.planning/PRODUCT-BACKLOG.md taken=${NATIVE_ONE_SHOT_IDENTITY:-SEED-A#a}
-  tip=$(git -C "${origin}" rev-parse refs/heads/main)
-  one_shot_reassess() {
-    git_publication_fixture_observe_one_shot "${journey}" complete \
-      "${transcript}" > "${obs}"
-    git_publication_assess "${obs}"
-    git_publication_suite_expect_assess "$@"
-  }
-  # Another writer's commit of tree $1 on parent $2 with message $3.
-  one_shot_commit() {
-    git -C "${origin}" -c user.name=Other -c user.email=other@example.test \
-      commit-tree "$1" -p "$2" -m "$3"
-  }
-  # The trunk tip's tree with path $1 holding standard input.
-  one_shot_tip_tree_with() {
-    GIT_INDEX_FILE=${index} git -C "${origin}" read-tree "${tip}"
-    GIT_INDEX_FILE=${index} git -C "${origin}" update-index --add --cacheinfo \
-      "100644,$(git -C "${origin}" hash-object -w --stdin),$1"
-    GIT_INDEX_FILE=${index} git -C "${origin}" write-tree
-  }
-  # Trunk as the one result commit with path $1 holding standard input.
-  one_shot_rewrite() {
-    commit=$(one_shot_commit "$(one_shot_tip_tree_with "$1")" "${base}" 'rewritten result')
-    git -C "${origin}" update-ref refs/heads/main "${commit}"
-  }
-  # Standard input's backlog with entry line $1 moved under heading $2.
-  one_shot_move_entry() {
-    awk -v line="$1" -v heading="$2" \
-      '$0 == line { next } { print } $0 == heading { print ""; print line }'
-  }
-  one_shot_reassess pass 'reached remote trunk'
-
-  commit=$(one_shot_commit "${tip}^{tree}" "${tip}" 'second commit')
-  git -C "${origin}" update-ref refs/heads/main "${commit}"
-  one_shot_reassess fail 'exactly one commit'
-
-  git -C "${origin}" show "${base}:notes.txt" | one_shot_rewrite notes.txt
-  one_shot_reassess fail 'does not hold the requested result'
-
-  if [[ ${journey} == one-shot-queued ]]; then
-    run_one_shot_queued_closure_counterexamples
-  else
-    # The result commit rewritten to also change one planning record.
-    for path in "${backlog}" .planning/seeds/one-shot.md \
-      .planning/slice-plans/one-shot/PLAN.md .planning/agents/native.json; do
-      printf 'changed\n' | one_shot_rewrite "${path}"
-      one_shot_reassess fail 'touched backlog, seed, plan or agent profile'
-    done
-  fi
-  git -C "${origin}" update-ref refs/heads/main "${tip}"
-
-  # A pushed tip that listed the work under Taken, later replaced.
-  entry=$(git -C "${origin}" show "${base}:${backlog}" | grep -e "— ${taken}\$")
-  commit=$(one_shot_commit "$(
-    git -C "${origin}" show "${base}:${backlog}" \
-      | one_shot_move_entry "${entry}" '## Taken' \
-      | one_shot_tip_tree_with "${backlog}"
-  )" "${base}" "Take ${taken}")
-  cp -- "${push_log}" "${push_log}.kept"
-  printf '%s %s refs/heads/main\n' "${base}" "${commit}" >> "${push_log}"
-  one_shot_reassess fail 'listed work under Taken'
-  mv -- "${push_log}.kept" "${push_log}"
-
-  git -C "${integration}" worktree add -q -b "${NATIVE_ONE_SHOT_BRANCH}" \
-    "${NATIVE_ONE_SHOT_WORKSPACE}" "${tip}"
-  one_shot_reassess fail 'workspace or its branch survived'
-  git -C "${integration}" worktree remove "${NATIVE_ONE_SHOT_WORKSPACE}"
-  one_shot_reassess fail 'workspace or its branch survived'
-  git -C "${integration}" branch -q -D "${NATIVE_ONE_SHOT_BRANCH}"
-  git -C "${origin}" update-ref "refs/heads/${NATIVE_ONE_SHOT_BRANCH}" "${tip}"
-  one_shot_reassess fail 'workspace or its branch survived'
-  git -C "${origin}" update-ref -d "refs/heads/${NATIVE_ONE_SHOT_BRANCH}"
-
-  printf 'human working tree, changed\n' > "${integration}/human-unstaged.txt"
-  one_shot_reassess fail 'human edits'
-  git_publication_fixture_plant_human_edit "${integration}"
-
-  one_shot_reassess pass 'reached remote trunk'
 }

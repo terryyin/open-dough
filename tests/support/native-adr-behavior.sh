@@ -36,6 +36,9 @@ native_adr_behavior_md_count() {
   grep -c . <<< "${paths}"
 }
 
+# The response text is the whole observation. Free counterexamples record it
+# as the `response` field (tests/support/native-response-field.sh).
+# assessor-signal: response response
 native_adr_behavior_assess() {
   local scenario=$1
   local response=$2

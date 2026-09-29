@@ -22,15 +22,17 @@ executions, not commands, retries, or repairs.
    DD-164's plan 142 resolution. Stories:
    [Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior)
    (DD-179) and
-   [Prove assessors on the verdicts they newly admit](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline)
-   (DD-160, DD-175, ODF-087's harness facet).
+   [Close the assessor counterexample discipline's remaining gaps](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps)
+   (DD-160, DD-175, ODF-087's harness facet; the counterexample helper and its
+   guard landed, and this correction closes what they still miss).
 2. **Native host runs and observations routed through the developer — low,
    not queued.** Two executions with a cost (plans 139 and 150) and one where
    the agent found a free route itself (plan 152). The cost was a few developer
    round trips, and some of that friction is intended while paid native runs
    stay manual-only.
-3. **Local checks whose result differs from CI's — low, not queued.** Four
-   executions (plans 140, 146, 147, 157), one finding each. DD-168 and DD-178
+3. **Local checks whose result differs from CI's — low, not queued.** Five
+   executions (plans 140, 146, 147, 157, 165), one finding each. DD-187 (a
+   `pipefail` pipeline that git could lose to SIGPIPE) cost one CI repair. DD-168 and DD-178
    (tests that take the repository root from the working directory) had no
    delivery impact and each needs a small fix. DD-162 came from a coordinator-prescribed
    direct run that bypassed the runner's existing guard. DD-171 matches
@@ -89,8 +91,16 @@ synthetic streams, so each new journey meets its harness faults in paid runs.
 **Follow-up:** queued,
 [Catch native harness faults before paying for a native run](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-observes-agent-behavior)
 for DD-179, and
-[Prove assessors on the verdicts they newly admit](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline)
-for DD-160, DD-175, and ODF-087's harness facet.
+[Close the assessor counterexample discipline's remaining gaps](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps)
+for DD-160, DD-175, and ODF-087's harness facet, after the counterexample
+helper and its guard landed.
+
+Assessor reads still unproved after the counterexample helper landed, each
+found while migrating its suite: `trunk_closure_assess` never reads the
+`response-completion-result` it observes; `native_journey_state_assess` never
+reads `other-tool-root-claude-preserved`; `git_publication_assess`'s prose
+`inconclusive` path has no rejected case; and
+`git_publication_assess_print_fields` has no caller.
 
 ### DD-160 — An escalation counterexample removed two signals at once, hiding an assessor ordering defect
 
@@ -257,6 +267,24 @@ in unthrottled local runs; each needed an in-run repair.
   - Evidence: runs 36564344723 (`'unknown' !== 'dead'`, repaired in `4e0b2420`) and 36578884226 (`expectPinnedGhCalls` at `catalogProjectRecords.ts:107`, repaired in `bb5ee6a1`); red reproductions needed a stub `process.title` and CDP CPU throttling; 48 local runs under 16 `yes` processes passed.
   - Observed effect: two stash, diagnose, repair, publish, and restore cycles, with slices paused.
   - Inference: Qualified. Timing-sensitive proof here needs a deliberate slow-path reproduction; plain local load did not expose either race.
+
+### DD-187 — A `git log | grep -q` observation under `pipefail` flipped on CI when git lost the race to SIGPIPE
+
+The startup observer read `claim-owned` from `git log --format=%B … | grep -Fq`
+in a suite run under `set -euo pipefail`. When `grep -q` matched and exited
+while git was still writing, git died of SIGPIPE (141) and `pipefail` turned
+the match into `claim-owned: false`. macOS usually let git finish first; the
+Ubuntu runner did not.
+
+#### Occurrences
+
+- Execution: `SEED-055#assessor-counterexample-discipline` / plan 165, first related implementation commit `84b4f28f`
+  - Timestamp: 2026-09-29T15:40:33Z (CI failure on `00cc1b62`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Evidence: CI run 36591803631 `test (1/2)`: `FAIL: counterexample command-only (signal setup-marker) changes signals remote-claim, setup-marker (fields claim-owned, …)`; local `tests/git-publication-native.sh` passed. A repro with one extra commit under the claim gave `claim-owned: false` with `PIPESTATUS` `141 0`. Repaired in `66f96e34`; slice 7 (`abf2fc4f`) fixed three more observer derivations of the same shape.
+  - Observed effect: one CI repair cycle (pause, stash, diagnosis agent, refactor pass, publication) during slice 6.
+  - Inference: Qualified. A different mechanism from DD-186's load-dependent races. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh` and `tests/helpers/product-backlog-payload-runtime.bash`.
 
 ## Native host runs and observations routed through the developer (low priority, not selected)
 

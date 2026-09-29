@@ -203,19 +203,20 @@ run_delivery_evidence_selection_observer_counterexamples() {
   grep -Fxq 'final-selected: 3' <<< "${obs}"
   grep -Fxq 'promises-accepted-count: 3' <<< "${obs}"
   grep -Fxq 'incomplete-named: false' <<< "${obs}"
-  delivery_evidence_selection_assess "${work}/obs.txt"
+  cp -- "${work}/obs.txt" "${work}/corrected.txt"
+  native_assessor_counterexamples \
+    "${delivery_evidence_support_dir}/delivery-evidence-selection-native-assess.sh" \
+    "${work}/corrected.txt" -- delivery_evidence_selection_assess
 
-  # Rerunning the same partial filter adds no distinct observation.
+  # Rerunning the same partial filter adds no distinct observation, so the
+  # same outcome is no longer a full selection.
   printf '%s\n' \
     'selected=1 pattern=published overview exit=0 names=published overview renders the summary' \
     'selected=1 pattern=published overview exit=0 names=published overview renders the summary' \
     > "${ws}/.planning/selection.log"
   delivery_evidence_selection_observe_counterexample partial-selection 3 1
   grep -Fxq 'final-selected: 1' <<< "${obs}"
-  if delivery_evidence_selection_assess "${work}/obs.txt"; then
-    echo 'FAIL: a repeated partial filter was accepted as full selection.' >&2
-    return 1
-  fi
+  native_assessor_rejects repeated-partial-filter final-selection "${work}/obs.txt"
 
   # Precise incomplete naming with "— **status**" lines.
   printf '%s\n' \

@@ -49,11 +49,12 @@ git_publication_in_order() {
   ' "$@" 2> /dev/null
 }
 
-# True when revision $2 of repository $1 lists identity $3 under Taken.
+# True when revision $2 of repository $1 lists identity $3 under Taken. The
+# backlog is read whole, so Git cannot die of SIGPIPE and fail the pipeline.
 git_publication_lists_taken() {
   git -C "$1" show "$2:.planning/PRODUCT-BACKLOG.md" 2> /dev/null | awk -v identity="$3" '
-    /^## Taken$/ { inside = 1; next }
-    /^## / && inside { exit }
+    /^## Taken$/ && !done { inside = 1; next }
+    /^## / && inside { inside = 0; done = 1 }
     inside && index($0, identity) { found = 1 }
     END { exit !found }'
 }

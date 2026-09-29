@@ -8,6 +8,7 @@ import {
   readOptional,
   rolesFor,
 } from "./execution-worktree-prep-native-observe.mjs";
+import { unflattenObservation } from "./execution-worktree-prep-native-flat.mjs";
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
@@ -23,6 +24,14 @@ function responseClaimsSetup(text) {
   );
 }
 
+// Signals of flattened observations (execution-worktree-prep-native-flat.mjs).
+// Stream commands and invocations record the same host commands, so both move
+// with their order and with a skipped setup; a skipped setup leaves the
+// execution checkout without its own installation.
+// assessor-signal: stream-status streamStatus streamReason
+// assessor-signal: command-order commands invocations
+// assessor-signal: preparation-gate commands traces invocations executionOwnsInstall
+// assessor-signal: outcome greeting
 export function assessNativePreparation(observation) {
   const streamStatus = observation.streamStatus ?? "complete";
   if (streamStatus !== "complete") {
@@ -210,7 +219,11 @@ function liveFromArgs(options) {
 function main(argv) {
   const options = parseArgs(argv);
   let observation;
-  if (options.observation) {
+  if (options["flat-observation"]) {
+    observation = unflattenObservation(
+      readFileSync(options["flat-observation"], "utf8"),
+    );
+  } else if (options.observation) {
     observation = readJson(options.observation);
     if (!observation.commands?.length && options.stream) {
       observation.commands = extractStreamCommands(

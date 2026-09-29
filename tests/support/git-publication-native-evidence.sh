@@ -13,6 +13,7 @@ git_publication_write_evidence_identity() {
         tests/git-publication-native.sh \
         tests/support/git-publication-native-assess.sh \
         tests/support/git-publication-native-startup-assess.sh \
+        tests/support/git-publication-native-candidate-assess.sh \
         tests/support/git-publication-native-prose.sh \
         tests/support/git-publication-native-fixture.sh \
         tests/support/git-publication-native-startup-fixture.sh \
@@ -47,11 +48,13 @@ git_publication_write_evidence_identity() {
       printf 'helper-identity: tests/support/ci-completion-native-run.sh\n'
       native_result_print_adapter_identity
       printf 'fixture-identity: tests/support/ci-completion-native-fixture.sh\n'
-      printf 'assessor-identity: tests/support/ci-completion-native-run.sh\n'
+      printf 'assessor-identity: tests/support/ci-completion-native-assess.sh\n'
       native_result_input_hash_lines \
         tests/git-publication-native.sh \
         tests/support/git-publication-native-host.sh \
         tests/support/ci-completion-native-run.sh \
+        tests/support/ci-completion-native-assess.sh \
+        tests/support/native-completion-observation.sh \
         tests/support/ci-completion-native-fixture.sh \
         tests/support/native-harness-observation.sh \
         tests/support/native-harness-login-shell.sh \

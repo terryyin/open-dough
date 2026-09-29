@@ -38,8 +38,8 @@ Key examples (from the story):
    free-suite run replays it.
 
 Excluded (story): assessor counterexample discipline (DD-160, DD-175,
-ODF-087's harness facet), which belongs to
-[its own story](../../seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-discipline);
+ODF-087's harness facet), which belongs to the
+[counterexample helper](../../../tests/native-publication.md#rejected-cases);
 any gate on the paid native runner; new paid captures. Replay is not native
 behavioral evidence
 ([ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) §2).

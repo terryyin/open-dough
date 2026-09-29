@@ -71,6 +71,15 @@ git_publication_fixture_observe_one_shot_escalation() {
     "$([[ ${human_after} == "${git_publication_admission_human_before}" ]] && echo true || echo false)"
 }
 
+# Signals for rejected cases. The trunk tip's SHA and commit count, and
+# whether the workspace sits on that tip, move with every change to trunk.
+# assessor-signal: stream stream-status
+# assessor-signal: human-edit human-edit-preserved
+# assessor-signal: one-shot-start one-shot-start-observed
+# assessor-signal: carry-admission carry-admission-observed
+# assessor-signal: carried-edits edits-carried workspace-edits workspace-on-claim
+# assessor-signal: admission-claim remote-sha trunk-commit-count taken-added workspace-on-claim
+# assessor-signal: trunk-result remote-sha trunk-commit-count trunk-product-paths workspace-on-claim ref-update-count trunk-push-count pushed-tip pushed-taken forced-trunk-push-count
 git_publication_assess_one_shot_escalation() {
   local obs=$1 key
   local stream_status human_edit_preserved trunk_product_paths taken_added
@@ -104,8 +113,8 @@ git_publication_assess_one_shot_escalation() {
 }
 
 # Real-state counterexamples on a passing kept fixture, observed through
-# transcript $1: each mutation alone changes the verdict, and undoing them all
-# passes again.
+# transcript $1: each mutation alone is a rejected case of one signal, and
+# undoing them all passes again.
 run_one_shot_escalation_state_counterexamples() {
   local transcript=$1 origin=${git_publication_fixture_origin}
   local integration=${git_publication_fixture_integration}
@@ -115,13 +124,25 @@ run_one_shot_escalation_state_counterexamples() {
   local patch="${root}/workspace-edits.patch"
   local observed=${transcript}
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
-  escalation_reassess() {
+  # Requires the state, observed again, to pass with a reason holding $1.
+  escalation_passes() {
     git_publication_fixture_observe_one_shot_escalation one-shot-escalation \
       complete "${observed}" > "${obs}"
     git_publication_assess "${obs}"
-    git_publication_suite_expect_assess "$@"
+    git_publication_suite_expect_pass "$1"
   }
-  escalation_reassess pass 'restored uncommitted over the claim'
+  # Rejected case $1 of signal $2 on the state observed now, expecting
+  # verdict $3 with a reason holding $4.
+  escalation_rejects() {
+    git_publication_fixture_observe_one_shot_escalation one-shot-escalation \
+      complete "${observed}" > "${obs}"
+    native_assessor_rejects "$1" "$2" "${obs}" "$3" "$4"
+  }
+  git_publication_fixture_observe_one_shot_escalation one-shot-escalation \
+    complete "${observed}" > "${root}/passing.txt"
+  git_publication_suite_counterexamples \
+    "${source_dir}/tests/support/git-publication-native-one-shot-escalation.sh" \
+    "${root}/passing.txt"
 
   # A result commit of the attempt's edits pushed to trunk over the claim.
   GIT_INDEX_FILE=${index} git -C "${workspace}" read-tree HEAD
@@ -132,48 +153,51 @@ run_one_shot_escalation_state_counterexamples() {
     -p "${tip}" -m 'Rename notesDir to notesDirectory')
   cp -- "${push_log}" "${push_log}.kept"
   git -C "${workspace}" push -q origin "${commit}:refs/heads/main"
-  escalation_reassess fail 'result commit reached remote trunk'
+  escalation_rejects result-commit trunk-result fail \
+    'result commit reached remote trunk'
   git -C "${origin}" update-ref refs/heads/main "${tip}"
   mv -- "${push_log}.kept" "${push_log}"
 
   # No admission: remote trunk still at the base.
   git -C "${origin}" update-ref refs/heads/main "${git_publication_fixture_trunk_sha}"
-  escalation_reassess fail 'exactly one admitted Taken story'
+  escalation_rejects no-admission admission-claim fail \
+    'exactly one admitted Taken story'
   git -C "${origin}" update-ref refs/heads/main "${tip}"
 
   # The carried edits missing from the workspace, then committed there.
   git -C "${workspace}" diff > "${patch}"
   git -C "${workspace}" checkout -q -- .
-  escalation_reassess fail "carried edits are not uncommitted over the claim"
+  escalation_rejects edits-missing carried-edits fail \
+    "carried edits are not uncommitted over the claim"
   grep -Fqx 'edits-carried: true' "${obs}"
   git -C "${workspace}" apply "${patch}"
   git -C "${workspace}" -c user.name=Agent -c user.email=agent@example.test \
     commit -qam 'commit the attempt'
-  escalation_reassess fail "carried edits are not uncommitted over the claim"
+  escalation_rejects edits-committed carried-edits fail \
+    "carried edits are not uncommitted over the claim"
   grep -Fqx 'edits-carried: true' "${obs}"
   git -C "${workspace}" reset -q HEAD^
 
-  # Admitted up front: no one-shot start, nothing carried.
-  observed="${root}/up-front.jsonl"
-  grep -Fv -e '--one-shot' "${transcript}" \
-    | sed -E 's/(restored\\?"): ?true/\1:false/g' > "${observed}"
-  escalation_reassess inconclusive 'escalation was not exercised'
+  # Admitted up front without a one-shot start, edits otherwise carried.
+  observed="${root}/no-one-shot-start.jsonl"
+  grep -Fv -e '--one-shot' "${transcript}" > "${observed}"
+  escalation_rejects no-one-shot-start one-shot-start inconclusive \
+    'escalation was not exercised'
 
   # Admitted with --carry after a one-shot start, before editing anything:
   # nothing carried and the workspace clean over the claim.
   observed="${root}/admitted-before-editing.jsonl"
   sed -E 's/(restored\\?"): ?true/\1:false/g' "${transcript}" > "${observed}"
   git -C "${workspace}" checkout -q -- .
-  escalation_reassess inconclusive 'escalation was not exercised'
-  grep -Fqx 'one-shot-start-observed: true' "${obs}"
-  grep -Fqx 'carry-admission-observed: true' "${obs}"
+  escalation_rejects admitted-before-editing carried-edits inconclusive \
+    'escalation was not exercised'
   grep -Fqx 'workspace-edits: ' "${obs}"
   git -C "${workspace}" apply "${patch}"
   observed=${transcript}
 
   printf 'human working tree, changed\n' > "${integration}/human-unstaged.txt"
-  escalation_reassess fail 'human edits'
+  escalation_rejects human-edit human-edit fail 'human edits'
   git_publication_fixture_plant_human_edit "${integration}"
 
-  escalation_reassess pass 'restored uncommitted over the claim'
+  escalation_passes 'restored uncommitted over the claim'
 }

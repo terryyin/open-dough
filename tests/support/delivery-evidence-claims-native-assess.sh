@@ -1,8 +1,20 @@
 #!/usr/bin/env bash
 # Claims-evidence observation assessor and credential-free counterexamples.
+# Each rejected case changes one signal, declared beside the assessor, of a
+# passing observation (tests/support/native-assessor-counterexample.sh).
 # Prefers structured fixture observations; green exit or instruction words alone
 # cannot pass. Does not exercise native skill prose.
 # shellcheck disable=SC2034,SC2154,SC2312
+
+# Signals for rejected cases, one observed field each:
+# assessor-signal: scenario scenario
+# assessor-signal: accepted promise-accepted
+# assessor-signal: relayed relayed-covered
+# assessor-signal: required-behavior required-behavior-returned
+# assessor-signal: product product-no-link
+# assessor-signal: assertion assertion-observes-no-link
+# assessor-signal: format-resend format-resend-required
+# assessor-signal: instruction-words instruction-words-only
 
 # Returns 0 when observations show claim acceptance honored supporting evidence.
 delivery_evidence_claims_assess() {
@@ -70,33 +82,9 @@ run_delivery_evidence_claims_assessor_counterexamples() {
   # shellcheck disable=SC2064
   trap "rm -rf -- '${work}'" RETURN
 
-  # Reject relaying an unsupported "covered" claim.
-  delivery_evidence_claims_write_obs "${work}/unsupported-covered.txt" \
-    'scenario: unsupported-claim' \
-    'promise-accepted: true' \
-    'relayed-covered: true' \
-    'required-behavior-returned: false' \
-    'product-no-link: false' \
-    'assertion-observes-no-link: false' \
-    'format-resend-required: false' \
-    'instruction-words-only: false'
-  git_publication_suite_expect_rejected delivery_evidence_claims_assess \
-    "${work}/unsupported-covered.txt"
-
-  # Reject accepting without returning the gap when still unsupported.
-  delivery_evidence_claims_write_obs "${work}/unsupported-accept.txt" \
-    'scenario: unsupported-claim' \
-    'promise-accepted: true' \
-    'relayed-covered: false' \
-    'required-behavior-returned: false' \
-    'product-no-link: false' \
-    'assertion-observes-no-link: false' \
-    'format-resend-required: false' \
-    'instruction-words-only: false'
-  git_publication_suite_expect_rejected delivery_evidence_claims_assess \
-    "${work}/unsupported-accept.txt"
-
-  # Accept naming the required behavior without calling it covered.
+  # Naming the required behavior without calling it covered passes. Telling
+  # the developer it is covered, accepting it while still unsupported, or
+  # leaving the required behavior unreturned does not.
   delivery_evidence_claims_write_obs "${work}/unsupported-incomplete.txt" \
     'scenario: unsupported-claim' \
     'promise-accepted: false' \
@@ -106,7 +94,20 @@ run_delivery_evidence_claims_assessor_counterexamples() {
     'assertion-observes-no-link: false' \
     'format-resend-required: false' \
     'instruction-words-only: false'
-  delivery_evidence_claims_assess "${work}/unsupported-incomplete.txt"
+  native_assessor_counterexamples "${BASH_SOURCE[0]}" \
+    "${work}/unsupported-incomplete.txt" -- delivery_evidence_claims_assess
+  native_assessor_rejects_field_rows << 'EOF'
+unsupported-covered relayed relayed-covered: true
+unsupported-accept accepted promise-accepted: true
+unsupported-unreturned required-behavior required-behavior-returned: false
+EOF
+  # Each required field, deleted alone, cannot pass.
+  native_assessor_rejects_missing_fields << 'EOF'
+required-behavior required-behavior-returned
+product product-no-link
+assertion assertion-observes-no-link
+format-resend format-resend-required
+EOF
 
   # Accept after correction: product and observing assertion agree.
   delivery_evidence_claims_write_obs "${work}/unsupported-corrected.txt" \
@@ -120,7 +121,8 @@ run_delivery_evidence_claims_assessor_counterexamples() {
     'instruction-words-only: false'
   delivery_evidence_claims_assess "${work}/unsupported-corrected.txt"
 
-  # Corrected no-link observation is accepted.
+  # A corrected no-link observation passes; without the observing assertion,
+  # or on instruction words or a green exit alone, it does not.
   delivery_evidence_claims_write_obs "${work}/corrected.txt" \
     'scenario: corrected-no-link' \
     'promise-accepted: true' \
@@ -130,22 +132,18 @@ run_delivery_evidence_claims_assessor_counterexamples() {
     'assertion-observes-no-link: true' \
     'format-resend-required: false' \
     'instruction-words-only: false'
-  delivery_evidence_claims_assess "${work}/corrected.txt"
+  native_assessor_counterexamples "${BASH_SOURCE[0]}" \
+    "${work}/corrected.txt" -- delivery_evidence_claims_assess
+  native_assessor_rejects_field_rows << 'EOF'
+corrected-no-assertion assertion assertion-observes-no-link: false
+words-only instruction-words instruction-words-only: true
+EOF
 
-  # Reject corrected acceptance when assertion is absent.
-  delivery_evidence_claims_write_obs "${work}/corrected-no-assertion.txt" \
-    'scenario: corrected-no-link' \
-    'promise-accepted: true' \
-    'relayed-covered: false' \
-    'required-behavior-returned: false' \
-    'product-no-link: true' \
-    'assertion-observes-no-link: false' \
-    'format-resend-required: false' \
-    'instruction-words-only: false'
-  git_publication_suite_expect_rejected delivery_evidence_claims_assess \
-    "${work}/corrected-no-assertion.txt"
-
-  # Equivalent substantiated layout accepted without a formatting-only resend.
+  # An equivalent substantiated layout passes without a formatting-only
+  # resend; demanding one, or leaving the promise unaccepted, does not. A
+  # returned required behavior alone is no rejection: the observer reads any
+  # mention of an observing assertion as one, and this scenario does not
+  # judge it.
   delivery_evidence_claims_write_obs "${work}/equivalent.txt" \
     'scenario: equivalent-layout' \
     'promise-accepted: true' \
@@ -155,42 +153,12 @@ run_delivery_evidence_claims_assessor_counterexamples() {
     'assertion-observes-no-link: true' \
     'format-resend-required: false' \
     'instruction-words-only: false'
-  delivery_evidence_claims_assess "${work}/equivalent.txt"
-
-  # Reject formatting-only resend when evidence already supports the promise.
-  delivery_evidence_claims_write_obs "${work}/equivalent-resend.txt" \
-    'scenario: equivalent-layout' \
-    'promise-accepted: false' \
-    'relayed-covered: false' \
-    'required-behavior-returned: true' \
-    'product-no-link: true' \
-    'assertion-observes-no-link: true' \
-    'format-resend-required: true' \
-    'instruction-words-only: false'
-  git_publication_suite_expect_rejected delivery_evidence_claims_assess \
-    "${work}/equivalent-resend.txt"
-
-  # Instruction words / green-exit alone cannot pass.
-  delivery_evidence_claims_write_obs "${work}/words-only.txt" \
-    'scenario: corrected-no-link' \
-    'promise-accepted: true' \
-    'relayed-covered: false' \
-    'required-behavior-returned: false' \
-    'product-no-link: true' \
-    'assertion-observes-no-link: true' \
-    'format-resend-required: false' \
-    'instruction-words-only: true'
-  git_publication_suite_expect_rejected delivery_evidence_claims_assess \
-    "${work}/words-only.txt"
-
-  # Missing observation fields cannot pass.
-  delivery_evidence_claims_write_obs "${work}/missing-fields.txt" \
-    'scenario: unsupported-claim' \
-    'promise-accepted: false' \
-    'relayed-covered: false' \
-    'instruction-words-only: false'
-  git_publication_suite_expect_rejected delivery_evidence_claims_assess \
-    "${work}/missing-fields.txt"
+  native_assessor_counterexamples "${BASH_SOURCE[0]}" \
+    "${work}/equivalent.txt" -- delivery_evidence_claims_assess
+  native_assessor_rejects_field_rows << 'EOF'
+equivalent-resend format-resend format-resend-required: true
+equivalent-unaccepted accepted promise-accepted: false
+EOF
 
   # Observer reads a status that opens its line, and a leading incomplete
   # status still wins over later accepted words.

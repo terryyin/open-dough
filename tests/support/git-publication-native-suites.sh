@@ -2,6 +2,18 @@
 # Credential-free assessor suite for tests/git-publication-native.sh.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals assigned by the sourced entry/runner.
 
+# shellcheck source=tests/support/native-assessor-counterexample.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-assessor-counterexample.sh"
+
+# Starts rejected cases for git_publication_assess, whose signals for these
+# observations are declared in file $1, against passing observation $2.
+git_publication_suite_counterexamples() {
+  native_assessor_counterexamples "$1" "$2" \
+    --verdict git_publication_assess_status git_publication_assess_reason \
+    -- git_publication_assess
+}
+
 git_publication_suite_write_obs() {
   local dest=$1
   shift
@@ -80,20 +92,12 @@ git_publication_suite_obs() {
     "maintenance-result: ${maintenance}"
 }
 
-git_publication_suite_expect_assess() {
-  local want_status=$1
-  local want_reason_fragment=${2-}
-  [[ ${git_publication_assess_status} == "${want_status}" ]]
+# Requires the last git_publication_assess verdict to be a pass, with a reason
+# containing fragment $1 when given. Rejected cases go through the helper.
+git_publication_suite_expect_pass() {
+  local want_reason_fragment=${1-}
+  [[ ${git_publication_assess_status} == pass ]]
   if [[ -n ${want_reason_fragment} ]]; then
     grep -Fq "${want_reason_fragment}" <<< "${git_publication_assess_reason}"
-  fi
-}
-
-# Fails, naming the counterexample, when assessor command "$@" accepts it. A
-# negated command never stops a set -e caller, so each rejection is checked here.
-git_publication_suite_expect_rejected() {
-  if "$@"; then
-    printf 'FAIL: assessor accepted counterexample: %s\n' "$*" >&2
-    return 1
   fi
 }

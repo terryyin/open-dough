@@ -2,6 +2,24 @@
 # Assessment of installed queued startup observations. Sourced by assessor.
 # shellcheck disable=SC2034 # Result globals are consumed by the sourcing assessor.
 
+git_publication_startup_assess_file=${BASH_SOURCE[0]}
+
+# Signals for rejected cases. The remote claim is one fact: trunk moved to a
+# tip that lists this execution's work under Taken with its provenance.
+# Setup-after-claim orders both project markers, so each marker's signal
+# carries it.
+# assessor-signal: stream stream-status
+# assessor-signal: startup-call startup-cli-count
+# assessor-signal: human-edit human-edit-preserved
+# assessor-signal: selected-source selected-source-preserved
+# assessor-signal: remote-claim remote-sha taken-on-remote claim-owned
+# assessor-signal: retained-candidate candidate-contained
+# assessor-signal: conflict-receipt startup-conflict-observed
+# assessor-signal: setup-marker setup-exists setup-after-claim
+# assessor-signal: command-marker command-exists setup-after-claim
+# assessor-signal: setup-order setup-after-claim
+# assessor-signal: first-edit feature-exists first-edit-after-claim
+# assessor-signal: workspace-source workspace-source-published
 git_publication_assess_startup() {
   local obs=$1 journey=$2
   local stream startup_calls remote_sha trunk_sha taken claim_owned human_preserved

@@ -87,6 +87,38 @@ git_publication_fixture_observe_admission() {
     "${git_publication_fixture_workspace}" "${NATIVE_ADMISSION_IDENTITY}"
 }
 
+git_publication_admission_assess_file=${BASH_SOURCE[0]}
+
+# Signals for rejected cases of every admission journey, the closure and
+# correction branches included. The one start command is either an admission
+# or a plain start. The observer derives the whole claim block, and what
+# remote trunk still holds of the wanted work, from whether Taken lists the
+# wanted identity, so admitting other work changes them together. A closure
+# keeps other trunk content when it keeps both trunk history and every other
+# record; a stale forced closure drops another publisher's Taken entry with
+# the history that held it.
+# assessor-signal: stream stream-status
+# assessor-signal: startup-call startup-cli-count
+# assessor-signal: human-edit human-edit-preserved
+# assessor-signal: start-kind admit-cli-observed plain-start-observed
+# assessor-signal: existing-receipt existing-receipt-observed
+# assessor-signal: probe-order probe-after-claim
+# assessor-signal: claim-count claim-count
+# assessor-signal: profile-count profile-count
+# assessor-signal: story-section story-section-count
+# assessor-signal: story-in-claim story-in-claim
+# assessor-signal: readiness assessment
+# assessor-signal: product-change product-change
+# assessor-signal: feature feature-exists
+# assessor-signal: trunk-tip remote-sha
+# assessor-signal: entry-plan entry-plan
+# assessor-signal: plan-in-claim plan-in-claim
+# assessor-signal: plan-home plan-home-count
+# assessor-signal: admitted-identity identity claim-owned claim-admitted claim-parent-unlisted story-in-claim claim-count profile-count story-section-count story-plan entry-plan plan-in-claim plan-home-count approach assessment identity-listed identity-profiles others-preserved
+# assessor-signal: trunk-kept base-ancestor others-preserved taken-count
+# assessor-signal: closed-entry identity-listed
+# assessor-signal: closed-profile identity-profiles
+# assessor-signal: closed-home home-present
 git_publication_assess_admission() {
   local obs=$1 journey=$2 key
   if [[ ${journey} == admission-closure ]]; then
@@ -145,7 +177,7 @@ git_publication_assess_admission() {
 }
 
 run_admission_assessor_counterexamples() {
-  local work override field reason key
+  local work
   work=$(mktemp -d)
   git_publication_suite_write_obs "${work}/investigation.txt" \
     'journey: admission-investigation' 'stream-status: complete' \
@@ -159,21 +191,18 @@ run_admission_assessor_counterexamples() {
     'story-section-count: 1' 'approach: unselected' 'assessment: absent' \
     'product-change: false'
   git_publication_assess "${work}/investigation.txt"
-  git_publication_suite_expect_assess pass 'admitted to remote Taken before'
-  for override in \
-    'startup-cli-count: 0|native startup command' \
-    'probe-after-claim: false|investigation started before' \
-    'admit-cli-observed: false|investigation started before' \
-    'assessment: ready|fabricated readiness' \
-    'product-change: true|changed the product' \
-    'claim-count: 2|exactly one owned claim' \
-    'story-in-claim: false|one claim commit' \
-    'human-edit-preserved: false|human edits'; do
-    field=${override%%|*} reason=${override#*|} key=${field%%:*}
-    sed "s/^${key}: .*/${field}/" "${work}/investigation.txt" > "${work}/bad.txt"
-    git_publication_assess "${work}/bad.txt"
-    git_publication_suite_expect_assess fail "${reason}"
-  done
+  git_publication_suite_expect_pass 'admitted to remote Taken before'
+  git_publication_admission_counterexamples "${work}/investigation.txt"
+  native_assessor_rejects_field_rows << 'EOF'
+startup-uninvoked startup-call startup-cli-count: 0 | native startup command
+probe-before-claim probe-order probe-after-claim: false | investigation started before
+not-admitted start-kind admit-cli-observed: false | investigation started before
+fabricated-ready readiness assessment: ready | fabricated readiness
+product-changed product-change product-change: true | changed the product
+second-claim claim-count claim-count: 2 | exactly one owned claim
+story-outside-claim story-in-claim story-in-claim: false | one claim commit
+human-edit-changed human-edit human-edit-preserved: false | human edits
+EOF
   sed -e 's/^journey: .*/journey: admission-continuation/' \
     -e 's/^plain-start-observed: .*/plain-start-observed: true/' \
     -e 's/^existing-receipt-observed: .*/existing-receipt-observed: true/' \
@@ -183,19 +212,22 @@ run_admission_assessor_counterexamples() {
     -e 's/^assessment: .*/assessment: ready/' \
     "${work}/investigation.txt" > "${work}/continuation.txt"
   git_publication_assess "${work}/continuation.txt"
-  git_publication_suite_expect_assess pass 'continued into implementation'
-  for override in \
-    'plain-start-observed: false|did not continue the claim' \
-    'existing-receipt-observed: false|did not continue the claim' \
-    'remote-sha: second|republished trunk' \
-    'feature-exists: false|did not implement' \
-    'profile-count: 2|exactly one owned claim'; do
-    field=${override%%|*} reason=${override#*|} key=${field%%:*}
-    sed "s/^${key}: .*/${field}/" "${work}/continuation.txt" > "${work}/bad.txt"
-    git_publication_assess "${work}/bad.txt"
-    git_publication_suite_expect_assess fail "${reason}"
-  done
+  git_publication_suite_expect_pass 'continued into implementation'
+  git_publication_admission_counterexamples "${work}/continuation.txt"
+  native_assessor_rejects_field_rows << 'EOF'
+no-plain-start start-kind plain-start-observed: false | did not continue the claim
+no-existing-receipt existing-receipt existing-receipt-observed: false | did not continue the claim
+trunk-republished trunk-tip remote-sha: second | republished trunk
+not-implemented feature feature-exists: false | did not implement
+second-profile profile-count profile-count: 2 | exactly one owned claim
+EOF
   run_admission_correction_counterexamples "${work}/investigation.txt"
   run_admission_closure_counterexamples "${work}/investigation.txt"
   rm -rf -- "${work}"
+}
+
+# Starts rejected cases of the admission assessor against passing observation
+# $1.
+git_publication_admission_counterexamples() {
+  git_publication_suite_counterexamples "${git_publication_admission_assess_file}" "$1"
 }
