@@ -219,6 +219,27 @@ and `--case trunk-closure/owned-context` for HOST in `codex`, `cursor`, and
 `claude`, and record each result here. Paid runs are never added to an
 automated suite.
 
+Evidence so far (2026-09-29, journeys committed at `b8946e99`): the fixtures
+write the creation record (the trunk-closure fixture gains story
+`SEED-T#final-closure` and a `Selected story:` line, through `createdForRef`),
+and the substitute retires only when the guidance's read command lists its
+story. `/opt/homebrew/bin/bash tests/git-publication-native-owned-context.sh`
+and `tests/native-evidence-identity.sh` exit 0; a missing or renamed record
+fails preparation-land ("the landed worktree or its branch survived") and
+trunk closure ("Trunk Mode closure ordering was not observed"). The six paid
+runs (`tests/git-publication-native.sh --native HOST --case
+publication/preparation-land` and `--case trunk-closure/owned-context`, HOST in
+claude, codex, cursor, results under the job's `tmp/native147/`) all printed
+PASS. In five, the agent ran the `for-each-ref` read and saw its story. The
+Claude Code trunk-closure agent never read the record, "Close or retain it",
+or Dough Land: it followed `trunk-publication.md` and removed the worktree
+after the containment check alone.
+
+Learning: the owned-context assessors observe only the retired outcome, so a
+closure agent that skips the ownership check still passes. Example 5 on Claude
+Code trunk closure is therefore not proven, and slice 3 stays planned until
+the developer decides how to close that gap.
+
 ## Proof ownership
 
 | Final-state promise | Owning slice and decisive observation |
