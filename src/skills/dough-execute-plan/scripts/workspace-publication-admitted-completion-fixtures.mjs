@@ -1,20 +1,19 @@
-// Admitted-work closure fixtures: admission through the real startup CLI into
-// a Trunk Mode workspace of its own, the real backlog `complete` CLI, a
-// scripted stand-in for wrap-up's removal of one spent story section, one
-// ordinary Trunk Mode closure, and observations of the remote tree's lists and
-// agent profiles.
+// Admitted-work completion fixtures: admission through the real startup CLI
+// into a Trunk Mode workspace of its own, the real backlog `complete` CLI, a
+// scripted stand-in for removing one spent story section, publication of that
+// completion through the shared publisher, and observations of the remote
+// tree's lists and agent profiles.
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { exec } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
+import { exec, git, lsRemoteSha } from "./publication-test-fixtures.mjs";
 import {
   listed,
   remoteText,
-} from "../../dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
-import { startCliResult } from "../../dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
-import { publishExecutionIncrement } from "../../dough-execute-plan/scripts/execution-increment-publication.mjs";
+} from "./workspace-publication-admission-fixtures.mjs";
+import { startCliResult } from "./workspace-publication-fixtures.mjs";
 import { remoteProfileNames } from "../../dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs";
-import { git, lsRemoteSha } from "./closure-git-fixtures.mjs";
 const backlogFile = ".planning/PRODUCT-BACKLOG.md";
 export const seedA = ".planning/seeds/A.md";
 const backlogCli = fileURLToPath(
@@ -44,7 +43,7 @@ export const completeCli = (workspace, identity) =>
     ...["--file", join(workspace, backlogFile)],
   ]).catch((error) => error);
 
-// A scripted stand-in for wrap-up's removal of one spent story section: from
+// A scripted stand-in for removing one spent story section: from
 // its anchor to the next story anchor, or to the end with the blank lines that
 // separated it. Tests supply this edit, so it proves no product behavior.
 export function withoutStory(source, anchor) {
@@ -54,19 +53,18 @@ export function withoutStory(source, anchor) {
   return source.slice(0, start).replace(/\n+$/, "\n");
 }
 
-// Ordinary Trunk Mode closure from an owned workspace whose published base is
-// `base`: publish the before-cleanup revision, apply `cleanup` to the
-// workspace now on current trunk, complete the entry, then publish the final
-// closure. Both go through the shared publisher that `deliver` and `finish`
-// run. `beforeFinal` lets another writer advance trunk in between.
-export async function closeInTrunkMode(trunk, owned, base, identity, hooks) {
+// Publishes completion from an owned workspace whose published base is
+// `base`: the before-cleanup revision, then `cleanup` applied to the workspace
+// now on current trunk, the entry completed, and that commit published, each
+// through the shared publisher with no behavior proof to validate.
+// `beforeFinal` lets another writer advance trunk in between.
+export async function publishCompletion(trunk, owned, base, identity, hooks) {
   const publish = (from) =>
     publishExecutionIncrement({
       workspace: owned.workspace,
       branch: owned.branch,
       previouslyPublishedBase: from,
       targetRef: "refs/heads/main",
-      // Closure commits carry records, not behavior proof.
       validate: async () => ({ ok: true }),
     });
   const before = await publish(base);

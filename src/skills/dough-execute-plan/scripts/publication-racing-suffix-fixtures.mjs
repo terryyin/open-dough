@@ -164,15 +164,21 @@ export async function createBacklogSuffixFixture(ownedBacklog) {
   };
 }
 
-export async function advanceOriginBacklog(origin, backlog, message) {
+export async function advanceOriginBacklog(
+  origin,
+  backlog,
+  message,
+  branch = "main",
+) {
   const writer = (await exec("mktemp", ["-d"])).stdout.trim();
   await cloneAsAnotherWriter(origin, writer);
+  await git(writer, "checkout", "-q", branch);
   mkdirSync(join(writer, ".planning"), { recursive: true });
   writeFileSync(join(writer, backlogPath), backlog);
   await git(writer, "add", backlogPath);
   await git(writer, "commit", "-m", message);
-  await git(writer, "push", "origin", "main");
-  const sha = await lsRemoteSha(origin, "refs/heads/main");
+  await git(writer, "push", "origin", branch);
+  const sha = await lsRemoteSha(origin, `refs/heads/${branch}`);
   rmSync(writer, { recursive: true, force: true });
   return sha;
 }

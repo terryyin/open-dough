@@ -1,18 +1,19 @@
 // Git mechanics (not guidance-following), not proof an agent follows guidance.
-// Work admitted by the real startup CLI closes through ordinary Trunk Mode
-// wrap-up: the real backlog `complete` CLI removes its Taken entry and
-// releases its agent profile, and the closure publication lands that on
-// current trunk while keeping result commits, enduring knowledge, another
-// agent's claim, profile and plan, and trunk advances made elsewhere; a
-// repeat changes nothing. Which spent story section, seed or plan wrap-up
-// deletes is the fixture's own `cleanup` edit, so these tests do not assert
-// it.
+// Work admitted by the real startup CLI completes through the real backlog
+// `complete` CLI, which removes its Taken entry and releases its agent
+// profile, and publishing that from its own workspace lands it on current
+// trunk while keeping result commits, enduring knowledge, another agent's
+// claim, profile and plan, and trunk advances made elsewhere; a repeat changes
+// nothing. Which spent story section, seed or plan is deleted is the
+// fixture's own `cleanup` edit, so these tests do not assert it. Wrap-up's
+// closure publication through `finish` is proved by trunk-closure*.test.mjs.
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { publishExecutionIncrement } from "../../dough-execute-plan/scripts/execution-increment-publication.mjs";
-import { createQueuedTrunk } from "../../dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
+import { git, lsRemoteSha } from "./publication-test-fixtures.mjs";
+import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
 import {
   admitArgs,
   appendSiblingElsewhere,
@@ -21,20 +22,19 @@ import {
   storySection,
   withFacts,
   writeDraft,
-} from "../../dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
+} from "./workspace-publication-admission-fixtures.mjs";
 import {
   admit,
-  closeInTrunkMode,
   completeCli,
   lists,
   profileOf,
+  publishCompletion,
   remoteProfileNames,
   seedA,
   withoutStory,
-} from "./closure-admitted-work-fixtures.mjs";
-import { commitFile, git, lsRemoteSha } from "./closure-git-fixtures.mjs";
+} from "./workspace-publication-admitted-completion-fixtures.mjs";
 
-test("admitted planned missions close in turn, each keeping the other's claim, profile and plan", async (t) => {
+test("admitted planned missions complete in turn, each keeping the other's claim, profile and plan", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const late = draftLateStory(trunk);
@@ -64,7 +64,9 @@ test("admitted planned missions close in turn, each keeping the other's claim, p
   const correctionProfile = await profileOf(trunk, "main", correction);
 
   // The late mission delivers its result as an ordinary increment.
-  await commitFile(lateOwned.workspace, "late.txt", "late result\n", "Late");
+  writeFileSync(join(lateOwned.workspace, "late.txt"), "late result\n");
+  await git(lateOwned.workspace, "add", "late.txt");
+  await git(lateOwned.workspace, "commit", "-m", "Late");
   const increment = await publishExecutionIncrement({
     workspace: lateOwned.workspace,
     branch: lateOwned.branch,
@@ -75,7 +77,7 @@ test("admitted planned missions close in turn, each keeping the other's claim, p
   assert.equal(increment.ok, true, JSON.stringify(increment));
 
   mkdirSync(join(lateOwned.workspace, "docs"));
-  const closed = await closeInTrunkMode(
+  const closed = await publishCompletion(
     trunk,
     lateOwned,
     increment.receipt.sha,
@@ -117,7 +119,7 @@ test("admitted planned missions close in turn, each keeping the other's claim, p
 
   // The correction closes the same way from its own admission base, onto
   // trunk that has since advanced with the late mission's closure.
-  const last = await closeInTrunkMode(
+  const last = await publishCompletion(
     trunk,
     correctionOwned,
     correctionOwned.sha,
@@ -141,7 +143,7 @@ test("admitted planned missions close in turn, each keeping the other's claim, p
   assert.deepEqual(await remoteProfileNames(trunk, last.tip), []);
 });
 
-test("an admitted no-change investigation closes from its admission while another agent's claim and trunk advances stay", async (t) => {
+test("an admitted no-change investigation completes from its admission while another agent's claim and trunk advances stay", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const identity = "SEED-N#slow";
@@ -171,7 +173,7 @@ test("an admitted no-change investigation closes from its admission while anothe
   ]);
 
   // Nothing was changed: the before-cleanup revision is the admission itself.
-  const { tip } = await closeInTrunkMode(trunk, owned, owned.sha, identity, {
+  const { tip } = await publishCompletion(trunk, owned, owned.sha, identity, {
     cleanup(workspace) {
       rmSync(join(workspace, seedN));
     },

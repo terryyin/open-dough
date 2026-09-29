@@ -233,15 +233,14 @@ case. The `step: "context"` row now names rerunning with an earlier
 `acceptedSha`; it lives in
 `src/skills/dough-execute-plan/references/wrap-up-closure-publication.md`.
 
-Learning for slice 2: `rebasedFinalClosure` relies on Land's `isAncestor`
-returning false for a registered revision absent locally. The shared
-`workspace-publication-ownership.mjs` `isAncestor` throws on any exit other
-than 1 (a missing object exits 128), so switching the import must keep the
-missing-candidate skip (for example with `commitOf` before the ancestry check).
+Learning (corrected in slice 2): Land's `isAncestor` also threw on exit 128,
+so neither copy skipped an observer-registered revision absent locally. Slice
+2 adds the missing `commitOf` skip and a planted missing revision to the rerun
+test.
 
 ### 2. Closure scripts share one `isAncestor`, and each closure behavior has one owning test
 Type: Structure
-Status: pending
+Status: done
 Proof: wrap-up, Land, and preparation-landing suites green; each deleted or moved test names its surviving owner below.
 
 Correction: F3 and F4. Remove the dead `canonical`, `findWorktree`, and
@@ -283,6 +282,42 @@ Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh` on wrap-up
 green; `grep` shows no import of `isAncestor` from Land's modules and no
 definition in `retirement-checks.mjs`. Record the surviving owner of every
 removed case in this slice's accepted proof.
+
+Accepted proof (2026-09-29): `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh`
+on wrap-up `closure-*.test.mjs` and `trunk-closure*.test.mjs`, Land
+`worktree-retirement.test.mjs`, refinement `dough-land*.test.mjs` and
+`preparation-assignment-{land,landing-retry,remote-base,reuse}.test.mjs`,
+`preparation-publication.test.mjs`, bug-fixing `retained-artifacts.test.mjs`,
+execute-plan `workspace-publication-admitted-completion.test.mjs`,
+`publication-racing-suffix*.test.mjs`,
+`execution-increment-managed-delivery-reconciliation-stops.test.mjs`, and every
+other `createCleanTrunkFixture` importer: exit 0. `isAncestor` in Land,
+wrap-up, and their fixtures comes only from
+`workspace-publication-ownership.mjs`; `retirement-checks.mjs` and
+`closure-git-fixtures.mjs` define none. `worktree-retirement.mjs` exports only
+`retireWorktree`'s surface. `rebasedFinalClosure` skips a registered revision
+the repository lacks; removing that guard fails the rebased-rerun test.
+
+Surviving owners: cleanup's racing integration →
+`closure-story-integration.test.mjs` racing case (now over origin/main and
+upstream/trunk, which also absorbs the deleted named-remote integration);
+unrecorded ownership → `worktree-retirement.test.mjs` "without a creation
+ref…"; rerun already-absent, unintegrated remote tip (cleanup `:146`), target
+refusal (cleanup `:176`), named-remote branch deletion and rerun, and Land's
+partial rerun → the parameterized `retire` cases in
+`worktree-retirement.test.mjs`; named-remote Land retirement →
+`dough-land-remote-context.test.mjs`. `closure-story-branch-cleanup.test.mjs`
+keeps one journey asserting removal, the remote branch gone, and other
+worktree and integration checkout untouched.
+
+Admitted-work choice: moved, not rewired. The cases prove backlog `complete`
+plus publication, not wrap-up closure, and `finish` would retire the workspace
+their repeat steps run in. They became execute-plan's
+`workspace-publication-admitted-completion{.test,-fixtures}.mjs` with every
+Taken, profile, plan, and log assertion kept. The refactor moved
+`createCleanTrunkFixture` and the new `authorizedRemote` to
+`publication-clean-trunk-fixtures.mjs` (re-exported); test fixtures are not
+payload-declared.
 
 ### 3. Native harness judges trunk CI only, with shims reachable in every closure fixture
 Type: Structure

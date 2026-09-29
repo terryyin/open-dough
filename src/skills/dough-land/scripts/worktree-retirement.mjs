@@ -17,22 +17,14 @@ import {
 import {
   containmentHold,
   findWorktree,
-  isAncestor,
   ownershipHold,
   preserved,
   refExists,
   unverifiedRemoval,
 } from "./retirement-checks.mjs";
+import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 
-export {
-  canonical,
-  findWorktree,
-  isAncestor,
-  notCreatedForWork,
-  preserved,
-} from "./retirement-checks.mjs";
-
-export const trunkTarget = "refs/heads/main";
+const trunkTarget = "refs/heads/main";
 
 // Remove the worktree and safely delete its branch, then any separately
 // published `remoteBranch`, each verified and accepted as already absent on a

@@ -2,11 +2,13 @@
 // closure is rerun as the agent reruns it: the installed command with the
 // original `--final`, in a child process. The rerun recognizes the rebased
 // closure the target holds, pushes nothing, completes on it, and retires; a
-// later rerun from the management context reports cleanup already done.
+// later rerun from the management context, skipping a registered revision
+// this repository lacks, reports cleanup already done.
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { registerPushedRevision } from "../../dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs";
 import { deliverThroughCli } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import { git } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
 import {
@@ -79,6 +81,8 @@ test("a rerun with the original final closure after it was rebased and published
   assert.equal(existsSync(fixture.execution), false);
   assert.equal(await branchSha(fixture), "");
 
+  // The observer also holds a revision this repository never received.
+  registerPushedRevision(before.observation.directory, "0".repeat(40));
   const again = await rerun(
     ["--repository", join(fixture.integration, ".git")],
     fixture.integration,

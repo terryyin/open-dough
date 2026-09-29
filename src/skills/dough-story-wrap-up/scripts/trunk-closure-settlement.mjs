@@ -21,7 +21,7 @@ import {
   targetBranchName,
 } from "../../dough-execute-plan/scripts/publication-git.mjs";
 import { resumeInterruptedPublication } from "../../dough-execute-plan/scripts/publication-resume.mjs";
-import { isAncestor } from "../../dough-land/scripts/worktree-retirement.mjs";
+import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 
 const publicationRecoveries = {
   conflict:
@@ -147,6 +147,8 @@ async function rebasedFinalClosure({
       }).flatMap(listRegisteredRevisions);
   const wanted = await closureIdentity(inspection, original);
   for (const candidate of new Set(candidates)) {
+    // An observer may have registered a revision this repository lacks.
+    if (!(await commitOf(inspection, candidate))) continue;
     if (!(await isAncestor(inspection, candidate, tracking))) continue;
     if ((await closureIdentity(inspection, candidate)) === wanted)
       return candidate;

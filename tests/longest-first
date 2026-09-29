@@ -44,7 +44,7 @@ src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent.test.m
 tests/native-runner-failures.sh
 tests/install.sh
 src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs
-src/skills/dough-story-wrap-up/scripts/closure-admitted-work.test.mjs
+src/skills/dough-execute-plan/scripts/workspace-publication-admitted-completion.test.mjs
 src/skills/dough-execute-plan/scripts/workspace-publication-startup-agent-resume.test.mjs
 src/skills/dough-execute-plan/scripts/workspace-publication-admission-continuation.test.mjs
 tests/install-refuses-unsafe-topology.sh
