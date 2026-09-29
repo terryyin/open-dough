@@ -146,9 +146,9 @@ the new wording, as plan 150 added for Recent sessions.
   session name with the `done-` prefix, and otherwise shows the running label
   as today. Started needs no new rule, because a stopped session already ends
   it (story 2).
-- **Rename:** follows slice 1's observation. If typing `/rename done-<name>`
-  and Enter into the attached terminal renames the session in
-  `claude agents`, Mark as done sends that through the open PTY and waits
+- **Rename:** slice 1 observed that Ctrl+U, then `/rename done-<name>` and
+  Enter typed into the attached terminal rename the session in
+  `claude agents`. Mark as done sends that through the open PTY and waits
   briefly (a few seconds) for the listing to show the new name. A busy
   session queues the command until its turn ends, so the wait can expire.
   Then the `done-` name exists only in the dashboard record, which the entry
@@ -173,28 +173,47 @@ the new wording, as plan 150 added for Recent sessions.
 
 ### 1. Probe: attaching through a PTY, detaching, and renaming a real session
 Type: Structure
-Status: planned
-Proof: a manual observation Terry runs, recorded here.
+Status: done
+Proof: a manual observation, recorded here.
 
-Internal change: none to the product. A throwaway script in the job's
-temporary directory spawns `claude attach <id>` through `@lydell/node-pty` on
-a real background session Terry chooses, or on one he starts for the probe.
-Starting a session costs model usage, so only Terry triggers it. Observe:
+Internal change: none to the product. Run by Yua-chan on 2026-09-29 (Claude
+Code 2.1.284, `@lydell/node-pty` 1.2.0-beta.15, Node 24, darwin-arm64)
+instead of Terry: a background session started with no prompt costs no model
+usage. `claude --bg -n "Open Dough probe"` in this repository printed
+`backgrounded · 4fc00a78 · Open Dough probe (idle — send a prompt to
+start)`. A throwaway script in the job's temporary directory spawned
+`claude attach 4fc00a78` through `pty.spawn` at 100×30 in the project folder.
+The probe session was stopped and removed afterwards (`claude rm`).
 
-1. The attached TUI's output arrives, and typed input reaches the session.
-2. Killing the attach process (SIGHUP, then SIGTERM) leaves the session
-   listed with a status in `claude agents --json`.
-3. Typing `/rename done-<name>` and Enter while the session is idle changes
-   its `name` in `claude agents --json`. Repeat while it is busy to confirm
-   the documented queueing.
-4. `claude stop <id>` afterwards leaves it listed with no status and its new
-   name.
+1. **Output and input pass.** The TUI arrived (`Attaching…`, the Claude Code
+   banner, the session name in the prompt rule). Typed `hello probe` showed
+   in the prompt. Reattaching later showed it still there as a draft.
+2. **Killing the attach process detaches only.** `p.kill("SIGHUP")` ended
+   it (`{"exitCode":0,"signal":1}`) without needing SIGTERM. `claude agents
+   --json` listed the session unchanged before and after (`status: idle`).
+3. **`/rename` through the PTY renames the listed session.** Ctrl+U
+   (`\x15`) cleared the leftover draft (the TUI answered "Ctrl+Y to paste
+   deleted text"). Then `/rename done-Open Dough probe`, a pause, and `\r`
+   printed "Session renamed to: done-Open Dough probe", and `claude agents
+   --json` listed `name: "done-Open Dough probe"` within five seconds. The
+   busy case was not observed: it needs a model turn. The documented
+   queueing stands, and the wait-then-record-only fallback covers it.
+4. **`claude stop` removes it from the default listing.** After `claude stop
+   4fc00a78`, `claude agents --json` no longer listed it. `claude agents
+   --json --all` (the listing `claudeSessions` already reads) listed it with
+   `state: "stopped"`, no `status`, and the new name.
+5. **Unplanned: attaching wakes a stopped session.** `claude attach` on the
+   stopped session printed `Waking session 4fc00a78…` and showed the
+   conversation. After detaching it stayed running (`status: idle`, new
+   pid). So opening a done entry restarts its session, and Recent sessions
+   then shows its running label, as Current decisions already say for a
+   marked record whose session runs.
 
-Enables slice 2. If 2 fails, stop and bring the story back to Terry, because
-Close would stop sessions. If 3 fails, the rename goes only on the dashboard
-record (Current decisions) and slice 5 drops the PTY rename. Record the
-literal commands and results here, and adjust the fake's `attach` to match
-what was seen.
+Consequences: Close may end the attach process (slice 2 onward). Mark as done
+sends Ctrl+U, then `/rename done-<name>`, then Enter through the open PTY
+(slice 5). The fake's `attach` handles Ctrl+U as clearing the line and
+`/rename <name>` as renaming the listed session. Its `stop` sets the listed
+session's state to `stopped` and removes its `status`.
 
 ### 2. The terminal boundary attaches a WebSocket to a recorded session and refuses everything else
 Type: Behavior
