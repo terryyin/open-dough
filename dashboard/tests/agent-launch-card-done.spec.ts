@@ -4,10 +4,13 @@
 // Code no longer lists, it leaves the card without being stopped and Recent
 // sessions shows it Done, with the keyboard on that entry, which offers no
 // Open terminal; on a session the panel shows, the panel closes too, and the
-// keyboard goes to the entry's Open terminal. Origin alone still places the
-// story. The page's own dashboard server drives the synthetic `claude`
+// keyboard goes to the entry's Open terminal. A refused mark keeps the entry
+// on its card and says so there. Origin alone still places the story. The
+// page's own dashboard server drives the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
+import { renameSync } from "node:fs";
+import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -120,5 +123,36 @@ test.describe("marking a card's session done", () => {
       ]);
     });
     await expectMembership(page, queued);
+  });
+
+  test("a refused mark keeps the session on its card and says so on its entry", async ({
+    page,
+    dashboard,
+  }) => {
+    dashboard.claudeScenario("launched");
+    const { card, settled, launch } = await openStoryStagesJourney(
+      page,
+      stagesJourney,
+    );
+    await settled();
+    await launch(readyStory, "Execution");
+    const entry = cardSessions(card(readyStory));
+    await expect(entry).toHaveCount(1);
+    // The project folder moves away, so the boundary refuses the mark.
+    const folder = path.join(dashboard.home, "git", "open-dough");
+    renameSync(folder, `${folder}.moved`);
+
+    await entry.getByRole("button", { name: "Mark as done" }).click();
+
+    await expect(entry.getByRole("status")).toHaveText(
+      "The session could not be marked done.",
+    );
+    await expect(entry).toHaveCount(1);
+    await expect(
+      entry.getByRole("button", { name: "Mark as done" }),
+    ).toBeEnabled();
+    expect(
+      dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
+    ).toEqual([]);
   });
 });

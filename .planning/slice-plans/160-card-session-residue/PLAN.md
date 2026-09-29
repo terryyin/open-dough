@@ -72,7 +72,7 @@ restarts).
 
 ### 1. Every documented Mark as done edge has a test
 Type: Structure
-Status: planned
+Status: done
 Proof: `agent-terminal-lifetime.spec.ts` gains a step: with the panel open on
 an Open Dough session and Doughnut selected, Mark as done in the panel moves
 focus to `parts(page).recentSessions`. `agent-launch-done.spec.ts` gains a
@@ -80,6 +80,14 @@ boundary case: with `claudeListingFails(true)`, the done POST answers the
 marked record and `calls.jsonl` has `["stop", shortId]`. The card-done spec
 asserts a card entry's refusal message when the boundary refuses. Update the
 North Star row to "stops it if Claude Code lists it or cannot read its list".
+
+Accepted proof: `agent-terminal-lifetime.spec.ts` step "marked done from the
+panel while another project is shown, the keyboard goes to Recent sessions";
+`agent-launch-done.spec.ts` "still stops a session whose listing cannot be
+read"; `agent-launch-card-done.spec.ts` "a refused mark keeps the session on
+its card and says so on its entry"; North Star row updated
+(`dashboard/AGENT-LAUNCH.md` already said so). Whole dashboard suite 288
+passed; typecheck passed.
 
 ### 2. The page's session operations share one request shape
 Type: Structure
@@ -112,6 +120,18 @@ card-session-states restart step and card-sessions' in-stage reloads keep that
 coverage. Update `dashboard/tests/README.md`. Keep plan 161's reopening
 observations in `agent-terminal-done.spec.ts` and the terminal boundary spec
 when they have landed; they are not overlap.
+
+## Learnings
+
+- Plan 161 (reopened-session-returns) reports, before it lands on trunk:
+  its reopening observations live in the new
+  `dashboard/tests/agent-terminal-reopen.spec.ts`, not the terminal boundary
+  spec; `agent-terminal-done.spec.ts` and `agent-terminal-boundary.spec.ts`
+  are each at 250 lines; `TerminalSplit` now takes one
+  `sessions: Pick<ProjectLaunches, "markDone" | "readSession">` prop and
+  `TerminalPanel`'s `onAttached(record)` drives `readSession`, which slice 2
+  folds into its one request shape; the server's `markRecordDone` became
+  `setRecordDoneAt`. Rebase slice 2 onto plan 161 once it is on trunk.
 
 ## Proof ownership
 
