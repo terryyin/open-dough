@@ -148,6 +148,28 @@ feature promise. See the [plan](../slice-plans/166-mark-done-residue/PLAN.md).
   case. No new feature promise.
 - **Plan:** [plan 167](../slice-plans/167-session-sidebar-residue/PLAN.md)
 
+<a id="delete-unknown-state-session"></a>
+
+### Delete a session whose state is unknown from the dashboard
+
+**Identity:** SEED-052#delete-unknown-state-session
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer whose story card lists a session that shows
+  "State unknown" can remove that session from the dashboard instead of
+  keeping a link the dashboard can no longer read or reach.
+- **Evaluation:** A session shown with "State unknown" offers a delete option.
+  Choosing it removes that session's kept launch record, so the card and the
+  Sessions sidebar no longer list it and the story can be launched afresh. A
+  session in any other state does not offer the option.
+- **Boundary:** Deletes only the dashboard's own record of the session; the
+  conversation transcript and Claude Code's own listing are untouched. Whether
+  "Session unavailable" (listed by neither) also offers it, and whether the
+  choice asks for confirmation, are open for refinement.
+- **Depends on:** None; the Sessions and story-card session entries exist.
+
 <a id="script-execution-preparation"></a>
 
 ### 5. Start execution with mechanical preparation already handled

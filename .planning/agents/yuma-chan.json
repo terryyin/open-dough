@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-052#delete-unknown-state-session",
+  "host": "claude",
+  "model": "claude-sonnet-5-5"
+}

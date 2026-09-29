@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Koharu-chan",
+  "email": "koharu-chan@example.org",
+  "identity": "SEED-052#mark-done-residue",
+  "mode": "story-branch",
+  "branch": "claude/mark-done-residue",
+  "host": "claude",
+  "model": "claude-sonnet-5-5"
+}
