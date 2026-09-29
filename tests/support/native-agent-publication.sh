@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # PATH substitute for credential-free publication native runs.
-# Logs every invocation, including version probes. On a complete stream it
-# performs the bounded publication Git action for the selected journey so
-# observations come from real repository state. Incomplete streams emit the
-# shared adapter shapes without mutating remote history.
+# Logs every invocation, including version probes. It performs the bounded
+# publication Git action for the selected journey so observations come from
+# real repository state. An incomplete stream emits the shared adapter shapes
+# after that action, so the cut stream alone differs from a complete run.
 # NATIVE_PUBLICATION_JOURNEY selects the journey; NATIVE_AGENT_STREAM selects
 # complete (default), truncated, missing, or unknown.
 # NATIVE_PUBLICATION_SKIP_PUSH=1 claims success without accepting the candidate.
@@ -109,10 +109,6 @@ emit_incomplete_stream() {
   esac
 }
 
-if [[ ${stream_kind} != 'complete' ]]; then
-  emit_incomplete_stream
-fi
-
 candidate_sha=$(git -C "${workspace}" rev-parse HEAD)
 response=
 case ${journey} in
@@ -172,6 +168,10 @@ case ${journey} in
     )
     ;;
 esac
+
+if [[ ${stream_kind} != 'complete' ]]; then
+  emit_incomplete_stream
+fi
 
 if [[ ${host} == 'codex' ]]; then
   if [[ -z ${output_file} ]]; then

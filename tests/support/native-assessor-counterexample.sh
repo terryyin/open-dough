@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-# The one way to state a rejected case for a native assessor. A case is a
-# passing observation of that assessor plus a change to one signal the
-# assessor declares; the assessor must not pass it. Anything else is refused,
-# naming the case and what is wrong: a base the assessor does not pass, no
-# change, a changed field no signal declares, or fields of more than one
-# signal. Cheap per case: one awk field diff, no Node start.
+# The one way to state a rejected case for a native assessor: a passing
+# observation of that assessor plus a change to one signal the assessor
+# declares, which the assessor must not pass. Anything else is refused, naming
+# the case and the fault: a base the assessor does not pass, no change, a
+# changed field no signal declares, or fields of more than one signal.
 #
 # Signals are declared in the assessor's own file, one comment line each
 # (`//` instead of `#` in JavaScript):
@@ -36,8 +35,16 @@
 #     Like native_assessor_rejects, with the passing observation's fields
 #     replaced by the `key: value` FIELD lines as the candidate; a FIELD whose
 #     key the passing observation lacks is added.
+#   native_assessor_rejects_field_rows
+#     native_assessor_rejects_fields for each standard input line
+#     `CASE SIGNAL key: value [| REASON-FRAGMENT]`, with status `fail` when a
+#     fragment is given.
 # Each returns 1 after printing `FAIL: ...` to standard error.
 # shellcheck disable=SC2034 # Suite state read by later calls.
+
+# shellcheck source=tests/support/native-assessor-counterexample-diff.sh
+# shellcheck disable=SC1091,SC2312
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-assessor-counterexample-diff.sh"
 
 native_assessor_counterexample_file=
 native_assessor_counterexample_passing=
@@ -148,6 +155,15 @@ native_assessor_rejects_fields() {
     "${native_assessor_counterexample_passing}.${case}" "$@"
 }
 
+native_assessor_rejects_field_rows() {
+  local case signal row verdict
+  while read -r case signal row; do
+    verdict=()
+    [[ ${row} == *' | '* ]] && verdict=(-- fail "${row#* | }")
+    native_assessor_rejects_fields "${case}" "${signal}" "${row%% | *}" "${verdict[@]}"
+  done
+}
+
 # Assesses observation $1 into native_assessor_counterexample_status and
 # _reason. Run in this shell, so the assessor's globals stay visible.
 native_assessor_counterexample_assess() {
@@ -166,83 +182,4 @@ native_assessor_counterexample_assess() {
     native_assessor_counterexample_status=fail
     native_assessor_counterexample_reason="exit ${rc}"
   fi
-}
-
-# Prints `ok` when candidate $2 differs from the passing observation only in
-# fields of signal $1, otherwise what is wrong.
-native_assessor_counterexample_diff() {
-  awk -v signals="${native_assessor_counterexample_file}" \
-    -v base="${native_assessor_counterexample_passing}" \
-    -v candidate="$2" -v signal="$1" '
-    function read_obs(side, path, line, key) {
-      key = ""
-      while ((getline line < path) > 0) {
-        if (line ~ /^[A-Za-z0-9][A-Za-z0-9_.-]*: / ||
-          line ~ /^[A-Za-z0-9][A-Za-z0-9_.-]*:$/) {
-          key = line
-          sub(/:.*/, "", key)
-        } else if (key == "") {
-          key = "(before any field)"
-        }
-        present[side, key] = 1
-        keys[key] = 1
-        value[side, key] = value[side, key] line "\n"
-      }
-      close(path)
-    }
-    function join_sorted(set, n, i, j, list, out, t) {
-      n = 0
-      for (i in set) list[++n] = i
-      for (i = 2; i <= n; i++)
-        for (j = i; j > 1 && list[j - 1] > list[j]; j--) {
-          t = list[j]; list[j] = list[j - 1]; list[j - 1] = t
-        }
-      out = ""
-      for (i = 1; i <= n; i++) out = out (i > 1 ? ", " : "") list[i]
-      return out
-    }
-    BEGIN {
-      prefix = "^[ \t]*(#|//) assessor-signal: "
-      while ((getline line < signals) > 0) {
-        if (line !~ prefix) continue
-        sub(prefix, "", line)
-        n = split(line, words, /[ \t]+/)
-        declared[words[1]] = 1
-        for (i = 2; i <= n; i++) {
-          member[words[1], words[i]] = 1
-          owned[words[i]] = 1
-        }
-      }
-      close(signals)
-      if (!(signal in declared)) {
-        print "names signal " signal ", which " signals " does not declare"
-        exit
-      }
-      read_obs("base", base)
-      read_obs("candidate", candidate)
-      for (key in keys)
-        if (present["base", key] != present["candidate", key] ||
-            value["base", key] != value["candidate", key]) {
-          changed[key] = 1
-          changes++
-          if (!(key in owned)) { undeclared[key] = 1; undeclares++ }
-        }
-      if (!changes) { print "changes no field"; exit }
-      if (undeclares) {
-        print "changes undeclared field(s) " join_sorted(undeclared)
-        exit
-      }
-      for (key in changed) {
-        if ((signal, key) in member) { touched[signal] = 1; continue }
-        outside++
-        for (s in declared) if ((s, key) in member) touched[s] = 1
-      }
-      if (outside) {
-        print "changes signals " join_sorted(touched) " (fields " \
-          join_sorted(changed) ")"
-        exit
-      }
-      print "ok"
-    }
-  '
 }

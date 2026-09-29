@@ -13,6 +13,7 @@ git_publication_write_evidence_identity() {
         tests/git-publication-native.sh \
         tests/support/git-publication-native-assess.sh \
         tests/support/git-publication-native-startup-assess.sh \
+        tests/support/git-publication-native-candidate-assess.sh \
         tests/support/git-publication-native-prose.sh \
         tests/support/git-publication-native-fixture.sh \
         tests/support/git-publication-native-startup-fixture.sh \

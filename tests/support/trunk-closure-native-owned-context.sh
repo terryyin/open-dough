@@ -90,7 +90,7 @@ run_trunk_closure_owned_context_counterexamples() {
   trunk_closure_counterexamples owned-context "${work}/valid.txt"
   # Retirement without the installed `finish`, whose retirement checks
   # ownership, is rejected like the other owned-context failures.
-  trunk_closure_rejects_fields << EOF
+  native_assessor_rejects_field_rows << EOF
 repository-broken repository-intact repository-intact: false
 other-checkout other-checkouts other-checkouts: ${work}/integration
 default-checkout default-checkout default-checkout-present: true

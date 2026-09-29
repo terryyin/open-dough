@@ -179,15 +179,6 @@ trunk_closure_counterexamples() {
     -- trunk_closure_assess "$1"
 }
 
-# Rejected cases from standard input's `case signal key: value` lines, each
-# the passing observation with field key's value replaced.
-trunk_closure_rejects_fields() {
-  local case signal field
-  while read -r case signal field; do
-    native_assessor_rejects_fields "${case}" "${signal}" "${field}"
-  done
-}
-
 run_trunk_closure_assessor_counterexamples() {
   local work
   work=$(mktemp -d)
@@ -199,7 +190,7 @@ run_trunk_closure_assessor_counterexamples() {
   # A missing or second `finish`, the agent's own completion call, a forced
   # stop, no registration, cleanup before the receipt's shutdown, and a
   # surviving worktree or branch.
-  trunk_closure_rejects_fields << 'EOF'
+  native_assessor_rejects_field_rows << 'EOF'
 missing-finish finish finish-count: 0
 second-finish finish finish-count: 2
 agent-complete complete-revision complete-revision-count: 1
@@ -216,7 +207,7 @@ EOF
   trunk_closure_write_assessor_observation \
     "${work}/ignored.txt" ignored-only not_required success 0
   trunk_closure_counterexamples ignored-only "${work}/ignored.txt"
-  trunk_closure_rejects_fields \
+  native_assessor_rejects_field_rows \
     <<< 'ignored-provider provider-calls provider-candidate-calls: 1'
   run_trunk_closure_observation_counterexamples "${work}"
 }

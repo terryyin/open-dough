@@ -209,6 +209,28 @@ Considered and left out:
   `tests/support/native-completion-observation.sh`, which requires every
   named step present and in order. Story-branch and trunk closure therefore
   also reject a missing first step. Look for the same pattern in slices 5–7.
+- **Slice 5 (done).** Publication (26), admission (28), and substitute (7)
+  cases go through the helper with no verdict change and no assessor repair.
+  `missing-remote` is one `remote-acceptance` signal; `claim-race-foreign-accepted`
+  and `single-marker` have passing bases. Proof:
+  `bash scripts/test.sh tests/git-publication-native.sh tests/native-assessor-counterexamples.sh tests/native-evidence-identity.sh tests/git-publication-native-owned-context.sh tests/git-publication-native-one-shot.sh`,
+  also with mawk; the publication job ran 54–60 s.
+- **Shared pieces.** `native_assessor_rejects_field_rows` (in the helper)
+  reads `case signal key: value [| fragment]` rows; the field diff moved to
+  `tests/support/native-assessor-counterexample-diff.sh`. Substitute runs go
+  through `substitute_run`, which normalizes per-run SHAs and paths so a
+  switched run compares with the same host's normal run.
+- **Substitute switches.** The truncated substitute now pushes before cutting
+  the stream, so the stream is its only changed signal. Exit-after-complete
+  leaves an observation identical to a normal run; it is a runner outcome
+  (non-zero exit with the host-exit reason), not a rejected case.
+- **Coupled signals with stated reasons:** `admitted-identity` (the real
+  new-story switch drops the whole claim block), `trunk-kept`, `start-kind`,
+  and `remote-acceptance` including derived `trunk-remote-sha` and
+  `claim-ownership`.
+- **For slice 8:** the runner's required-pass checks
+  (`[[ ${git_publication_assess_status} != 'pass' ]]`) stay; the guard must
+  tell a required pass from an expected rejection.
 
 ## Slices
 
@@ -266,7 +288,7 @@ moves onto the helper.
 
 ### 5. Publication and admission suites through the helper
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/git-publication-native.sh` green, and `tests/native-assessor-counterexamples.sh` green.
 
 Internal change: the publication counterexamples, the admission trio, and the

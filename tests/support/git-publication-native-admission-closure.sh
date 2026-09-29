@@ -43,7 +43,7 @@ git_publication_assess_admission_closure() {
 
 # $1 holds passing investigation observations to derive the closure's from.
 run_admission_closure_counterexamples() {
-  local base=$1 work override field reason key
+  local base=$1 work
   work=$(dirname -- "${base}")
   sed -e 's/^journey: .*/journey: admission-closure/' \
     -e 's/^identity: .*/identity: /' \
@@ -54,19 +54,16 @@ run_admission_closure_counterexamples() {
     >> "${work}/closure.txt"
   git_publication_assess "${work}/closure.txt"
   git_publication_suite_expect_assess pass 'no-change investigation closed'
-  for override in \
-    'stream-status: incomplete|did not complete its stream' \
-    'human-edit-preserved: false|human edits' \
-    'base-ancestor: false|rewrote or removed other trunk content' \
-    'others-preserved: false|rewrote or removed other trunk content' \
-    'identity-listed: true|still holds the closed investigation' \
-    'identity-profiles: 1|still holds the closed investigation' \
-    'home-present: true|still holds the closed investigation' \
-    'product-change: true|changed the product' \
-    'feature-exists: true|changed the product'; do
-    field=${override%%|*} reason=${override#*|} key=${field%%:*}
-    sed "s/^${key}: .*/${field}/" "${work}/closure.txt" > "${work}/bad.txt"
-    git_publication_assess "${work}/bad.txt"
-    git_publication_suite_expect_assess fail "${reason}"
-  done
+  git_publication_admission_counterexamples "${work}/closure.txt"
+  native_assessor_rejects_field_rows << 'EOF'
+stream-incomplete stream stream-status: incomplete | did not complete its stream
+human-edit-changed human-edit human-edit-preserved: false | human edits
+history-rewritten trunk-kept base-ancestor: false | rewrote or removed other trunk content
+others-removed trunk-kept others-preserved: false | rewrote or removed other trunk content
+entry-kept closed-entry identity-listed: true | still holds the closed investigation
+profile-kept closed-profile identity-profiles: 1 | still holds the closed investigation
+home-kept closed-home home-present: true | still holds the closed investigation
+product-changed product-change product-change: true | changed the product
+feature-created feature feature-exists: true | changed the product
+EOF
 }
