@@ -1,16 +1,18 @@
-// The browser's side of agent launches (`./agentLaunch.ts`): each project's
-// launch records, and each work item's launch of a workflow in flight or its
-// last failed or uncertain answer. Records are kept per project, so an answer
-// arriving after another project was selected lands with the project it was
-// asked for.
-// Selecting a project, a page load included, reads that project's records
-// again from the local server, which keeps them on this machine across reloads
-// and restarts; a launched answer joins the same record list. While the page
-// is visible, the records are read again at the revision checks' steady pace
-// (`./revisionCheckSchedule.ts`), so each session's state as Claude Code lists
-// it stays current; a page seen again reads them at once. A session marked
-// done, or read again at once, replaces its record in its own project's list.
-// Nothing here decides a story fact, which origin still publishes.
+// The browser's side of agent launches (`./agentLaunch.ts`): the machine's
+// sessions -- every project's launch records, each naming its project -- and
+// each work item's launch of a workflow in flight or its last failed or
+// uncertain answer. One session state is held for the machine, apart from
+// the selected project: undefined until the first read answers, so "not yet
+// read" is never taken for "none kept". Cards and Recent sessions derive
+// their project's view from it by project and identity.
+// A page load reads the machine's sessions from the local server, which
+// keeps them on this machine across reloads and restarts; a launched answer
+// joins the same records. While the page is visible, they are read again at
+// the revision checks' steady pace (`./revisionCheckSchedule.ts`), so each
+// session's state as Claude Code lists it stays current; a page seen again
+// reads them at once. A session marked done, or read again at once, replaces
+// its record. Nothing here decides a story fact, which origin still
+// publishes.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
@@ -20,13 +22,12 @@ import type {
   LaunchWorkflow,
 } from "./agentLaunch.ts";
 import {
-  readLaunchRecords,
+  readMachineSessions,
   requestAgentLaunch,
   requestMarkDone,
   type LaunchProblem,
 } from "./agentLaunchClient.ts";
 import { usePageVisibility } from "./pageVisibility.ts";
-import type { PublishedSource } from "./publishedSource.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 
 // A launch the developer asked for that has no record: still starting, or
@@ -36,27 +37,28 @@ export type LaunchAttempt = { readonly kind: "starting" } | LaunchProblem;
 // The work item a launch is for, as its request names it.
 export type LaunchWorkItem = Pick<AgentLaunchRequest, "identity" | "title">;
 
-export type ProjectLaunches = {
-  // The selected project's launch records, oldest first, each with its
-  // session's state when last read.
-  readonly records: readonly LaunchWithState[];
+export type MachineSessions = {
+  // Every project's launch records, oldest first within a project, each with
+  // its session's state when last read; undefined until first read.
+  readonly records: readonly LaunchWithState[] | undefined;
   attemptOf(
+    sourceId: string,
     identity: string,
     workflow: LaunchWorkflow,
   ): LaunchAttempt | undefined;
-  // Starts the workflow on the work item in Claude Code, with the developer's
-  // optional instruction, and answers the launched record once the boundary
-  // confirms one.
+  // Starts the workflow on the project's work item in Claude Code, with the
+  // developer's optional instruction, and answers the launched record once
+  // the boundary confirms one.
   start(
+    sourceId: string,
     work: LaunchWorkItem,
     workflow: LaunchWorkflow,
     instruction: string,
   ): Promise<LaunchWithState | undefined>;
-  // Marks a recorded session of any project done, and answers whether the
-  // boundary marked it.
+  // Marks a recorded session done, and answers whether the boundary marked
+  // it.
   readonly markDone: (record: LaunchRecord) => Promise<boolean>;
-  // Reads a recorded session of any project again at once, as its project's
-  // records answer it.
+  // Reads a recorded session again at once.
   readonly readSession: (record: LaunchRecord) => Promise<void>;
 };
 
@@ -85,17 +87,17 @@ function replaced(
   ];
 }
 
-export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
+export function useAgentLaunches(): MachineSessions {
   const [records, setRecords] = useState<
-    ReadonlyMap<string, readonly LaunchWithState[]>
-  >(new Map());
+    readonly LaunchWithState[] | undefined
+  >(undefined);
   const [attempts, setAttempts] = useState<ReadonlyMap<string, LaunchAttempt>>(
     new Map(),
   );
   const { visibility, settleRevealed } = usePageVisibility();
-  // The project whose records were last read, and how many reads have
-  // settled: each settled read schedules the next one.
-  const lastRead = useRef<string | undefined>(undefined);
+  // Whether a read has settled, and how many have: each settled read
+  // schedules the next one.
+  const everRead = useRef(false);
   const [readsSettled, setReadsSettled] = useState(0);
 
   useEffect(() => {
@@ -103,23 +105,18 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
     let current = true;
     const read = () => {
       const askedAt = Date.now();
-      void readLaunchRecords(source.id).then((kept) => {
+      void readMachineSessions().then((kept) => {
         if (!current) return;
         if (kept !== undefined) {
-          setRecords((known) =>
-            new Map(known).set(
-              source.id,
-              replaced(kept, known.get(source.id) ?? [], askedAt),
-            ),
-          );
+          setRecords((known) => replaced(kept, known ?? [], askedAt));
         }
-        lastRead.current = source.id;
+        everRead.current = true;
         settleRevealed();
         setReadsSettled((settled) => settled + 1);
       });
     };
-    // A newly selected project, or a page seen again, is read at once.
-    if (visibility === "revealed" || lastRead.current !== source.id) {
+    // A page loaded, or seen again, is read at once.
+    if (visibility === "revealed" || !everRead.current) {
       read();
       return () => {
         current = false;
@@ -130,7 +127,7 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
       current = false;
       clearTimeout(waiting);
     };
-  }, [source.id, visibility, readsSettled, settleRevealed]);
+  }, [visibility, readsSettled, settleRevealed]);
 
   const setAttempt = useCallback(
     (key: string, attempt: LaunchAttempt | undefined) => {
@@ -146,15 +143,16 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
 
   const start = useCallback(
     async (
+      sourceId: string,
       work: LaunchWorkItem,
       workflow: LaunchWorkflow,
       instruction: string,
     ) => {
-      const key = attemptKey(source.id, work.identity, workflow);
+      const key = attemptKey(sourceId, work.identity, workflow);
       setAttempt(key, { kind: "starting" });
       const own = instruction.trim();
       const answer = await requestAgentLaunch({
-        source: source.id,
+        source: sourceId,
         identity: work.identity,
         title: work.title,
         workflow,
@@ -162,32 +160,22 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
         ...(own === "" ? {} : { instruction: own }),
       });
       if (answer.kind === "launched") {
-        setRecords((current) =>
-          new Map(current).set(source.id, [
-            ...(current.get(source.id) ?? []),
-            answer.record,
-          ]),
-        );
+        setRecords((current) => [...(current ?? []), answer.record]);
         setAttempt(key, undefined);
         return answer.record;
       }
       setAttempt(key, answer);
       return undefined;
     },
-    [source.id, setAttempt],
+    [setAttempt],
   );
 
-  // Replaces the session's record in its own project's list.
   const replaceRecord = useCallback((answered: LaunchWithState) => {
-    const sourceId = answered.request.source;
     setRecords((current) =>
-      new Map(current).set(
-        sourceId,
-        (current.get(sourceId) ?? []).map((known) =>
-          known.session.sessionId === answered.session.sessionId
-            ? answered
-            : known,
-        ),
+      current?.map((known) =>
+        known.session.sessionId === answered.session.sessionId
+          ? answered
+          : known,
       ),
     );
   }, []);
@@ -204,7 +192,7 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
 
   const readSession = useCallback(
     async (record: LaunchRecord) => {
-      const kept = await readLaunchRecords(record.request.source);
+      const kept = await readMachineSessions();
       const answered = kept?.find(
         (known) => known.session.sessionId === record.session.sessionId,
       );
@@ -214,9 +202,9 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
   );
 
   return {
-    records: records.get(source.id) ?? [],
-    attemptOf: (identity, workflow) =>
-      attempts.get(attemptKey(source.id, identity, workflow)),
+    records,
+    attemptOf: (sourceId, identity, workflow) =>
+      attempts.get(attemptKey(sourceId, identity, workflow)),
     start,
     markDone,
     readSession,

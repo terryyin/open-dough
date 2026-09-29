@@ -208,9 +208,11 @@
   }
 }
 
-/* A narrow window, or a wide one under browser zoom: the same three parts in
-   the same order, top to bottom, with the arrow pointing down. */
-@media (max-width: 48rem) {
+/* A narrow page column -- a narrow window, a wide one under browser zoom, or
+   one sharing its width with the Sessions sidebar or the terminal
+   (./agent-terminal.css) -- shows the same three parts in the same order, top
+   to bottom, with the arrow pointing down. */
+@container page (max-width: 48rem) {
   .stages {
     grid-template-columns: minmax(0, 1fr);
   }

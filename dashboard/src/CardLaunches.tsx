@@ -14,24 +14,27 @@ import {
   launchWorkflowNames,
   launchWorkflows,
 } from "./agentLaunch.ts";
-import type { ProjectLaunches } from "./agentLaunches.ts";
+import type { MachineSessions } from "./agentLaunches.ts";
 import { StartLaunch } from "./StartLaunch.tsx";
 import { SessionEntry } from "./SessionEntry.tsx";
 import { attentionSummary } from "./sessionShown.ts";
 
 export function CardLaunches({
+  sourceId,
   entry,
   launches,
   offersStart,
 }: {
+  // The project whose work item the card shows.
+  sourceId: string;
   entry: WorkEntry;
-  launches: ProjectLaunches;
+  launches: MachineSessions;
   // Backlog cards only: Taken work offers no launch.
   offersStart: boolean;
 }) {
   // The session the developer's own launch from this card just listed.
   const [launchedHere, setLaunchedHere] = useState<string | undefined>();
-  const sessions = cardSessionsOf(launches.records, entry.identity);
+  const sessions = cardSessionsOf(launches.records, sourceId, entry.identity);
   const attention = attentionSummary(sessions);
   return (
     <>
@@ -42,9 +45,14 @@ export function CardLaunches({
             work={entry}
             workflow={workflow}
             note={launchWorkflows[workflow].note(entry)}
-            attempt={launches.attemptOf(entry.identity, workflow)}
+            attempt={launches.attemptOf(sourceId, entry.identity, workflow)}
             onStart={async (instruction) => {
-              const record = await launches.start(entry, workflow, instruction);
+              const record = await launches.start(
+                sourceId,
+                entry,
+                workflow,
+                instruction,
+              );
               if (record === undefined) return false;
               setLaunchedHere(record.session.sessionId);
               return true;

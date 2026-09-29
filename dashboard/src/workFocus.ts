@@ -2,7 +2,8 @@ import type { PublishedWork } from "./publishedWork.ts";
 
 // Keyboard focus across a replaced snapshot. A card is rebuilt when its work
 // changes group or order, which would drop focus to the page; focus follows
-// the work's identity instead, never a position on screen.
+// the work's identity instead, never a position on screen. The same marks
+// find a work's card to bring into view (`workCard`, `keepInView`).
 
 // What can hold focus is marked here and nowhere else: the card of one work
 // entry, its recorded links by role, and the stages, which receive focus when
@@ -54,9 +55,7 @@ export function workHolding(focused: Element): FocusedWork | undefined {
 // link is no longer offered. When the work is not shown at all, focus goes to
 // the stage so the keyboard position stays inside the work overview.
 export function returnFocusTo(held: FocusedWork): void {
-  const card = [
-    ...document.querySelectorAll<HTMLElement>(`[${workAttribute}]`),
-  ].find((shown) => shown.getAttribute(workAttribute) === held.identity);
+  const card = workCard(held.identity);
   if (!card) {
     focusStages();
     return;
@@ -68,6 +67,52 @@ export function returnFocusTo(held: FocusedWork): void {
           (shown) => shown.getAttribute(workLinkAttribute) === held.link,
         );
   (link ?? card).focus();
+}
+
+// The work's card, while the page shows it.
+export function workCard(identity: string): HTMLElement | undefined {
+  return [...document.querySelectorAll<HTMLElement>(`[${workAttribute}]`)].find(
+    (shown) => shown.getAttribute(workAttribute) === identity,
+  );
+}
+
+// What tells that the developer moved around the page themselves.
+const ownMoves = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
+
+// Scrolls a part of the page, such as a work's card, into view, smoothly or,
+// when the developer asks for reduced motion, at once, leaving the keyboard
+// where it is. It keeps the part in view while the page changes size around
+// it, as when facts read after the stories lengthen the cards above it,
+// until the developer scrolls, points, or types, or the returned stop is
+// called.
+export function keepInView(element: Element): () => void {
+  const show = () => {
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    element.scrollIntoView({
+      block: "center",
+      behavior: reduced ? "auto" : "smooth",
+    });
+  };
+  show();
+  let observed = false;
+  const resized = new ResizeObserver(() => {
+    // Observing reports the page's size once; only later changes move it.
+    if (observed) show();
+    observed = true;
+  });
+  resized.observe(document.body);
+  const stop = () => {
+    resized.disconnect();
+    for (const move of ownMoves) {
+      window.removeEventListener(move, stop, true);
+    }
+  };
+  for (const move of ownMoves) {
+    window.addEventListener(move, stop, true);
+  }
+  return stop;
 }
 
 // The stages hold the keyboard position when no particular work does.

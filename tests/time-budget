@@ -8,5 +8,7 @@
 # job 47.3 s (git-publication-native.sh), largest split total 312.1
 # job-seconds (1.5x is 468.2, rounded up to 470). Raising either number is a
 # reviewed edit, not a way to make a slow change pass.
+# Check a change against recent trunk CI times with
+# `bash scripts/ci-test-times.sh` (tests/time-budget.md).
 per-job-seconds=71
 total-job-seconds=470

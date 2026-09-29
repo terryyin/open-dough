@@ -1,0 +1,222 @@
+// The Sessions sidebar lists every session this dashboard launched and has
+// not marked done, from every catalog project whichever is selected, newest
+// launch first, each with its story's title, project, workflow, launch time,
+// and the state words and attention edge a card entry shows, under one count
+// of those that need the developer, which the banner's Sessions button also
+// shows while the sidebar is closed. A state change never moves an entry, a
+// new launch comes first, and a session marked done leaves. It sits left of
+// the page, beside the terminal on the right, or over the page on a narrow
+// window; the page column beside them lays its stages out as narrow as it
+// is. Doughnut's and Pygardon's sessions are launched through the
+// boundary, Open Dough's from their cards; the page's own dashboard server
+// launches the synthetic `claude` (./fixtures/fake-claude). The page clock
+// stands still unless the journey lets it pass.
+
+import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
+import {
+  cardSessionOf,
+  expectMembership,
+  sessionNamedBy,
+} from "./dashboardPage.ts";
+import { doughnutSharedTitle, sharedStoryIdentity } from "./doughnutProject.ts";
+import {
+  notRefinedStory,
+  publishStoryStagesJourney,
+  readyStory,
+  takenStory,
+  type StoryStagesJourney,
+} from "./launchJourney.ts";
+import { launched } from "./agentTerminalBoundary.ts";
+import { box, expectSideBySideInOrder } from "./pageLayout.ts";
+import { expectSessionShown, watchRecordReads } from "./sessionStatePace.ts";
+import {
+  expectEntries,
+  expectStagesStacked,
+  sidebarParts,
+} from "./sessionSidebarPage.ts";
+import { openStoryStagesJourney } from "./storyStagesPage.ts";
+
+test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
+
+const pygardonStory = {
+  identity: "SEED-031#telegram-qr-diagnosis",
+  title: "Correct the Telegram IBKR QR login's diagnosis and representations",
+};
+const pygardonTitle = pygardonStory.title;
+
+test.describe("the Sessions sidebar", () => {
+  let stagesJourney: StoryStagesJourney;
+  test.beforeAll(async () => {
+    test.setTimeout(120_000);
+    stagesJourney = await publishStoryStagesJourney();
+  });
+  test.afterAll(() =>
+    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+  );
+
+  test("lists every project's open sessions newest first with their state and attention, keeps their order, and sits left of the page or over it", async ({
+    page,
+    dashboard,
+  }) => {
+    await pausePageClockAt(page, new Date());
+    const { passOnePace } = watchRecordReads(page);
+    // Server time, which a launch record's time is.
+    const since = Date.now() - 1_000;
+    const { sessionId: doughnut } = await launched(dashboard, "doughnut", {
+      identity: sharedStoryIdentity,
+      title: doughnutSharedTitle,
+    });
+    const { sessionId: pygardon } = await launched(dashboard, "pygardon", {
+      ...pygardonStory,
+      workflow: "refinement",
+    });
+    const { settled, card, launch } = await openStoryStagesJourney(
+      page,
+      stagesJourney,
+    );
+    const { sidebar, button, entries, attention } = sidebarParts(page);
+    const queued = [takenStory, readyStory, notRefinedStory];
+    await expectMembership(page, { taken: [], backlog: queued });
+    await settled();
+    await launch(readyStory, "Execution");
+    await launch(notRefinedStory, "Refinement");
+    const ready = await sessionNamedBy(
+      cardSessionOf(card(readyStory), "Execution"),
+    );
+
+    await test.step("Sessions in the banner opens the sidebar, closed at first, on every project's sessions newest first", async () => {
+      await expect(button).toHaveText("Sessions");
+      await expect(button).toHaveAttribute("aria-expanded", "false");
+      await expect(sidebar).toBeHidden();
+      await button.click();
+      await expect(button).toHaveAttribute("aria-expanded", "true");
+      await expect(sidebar).toBeVisible();
+      await expect(button).toHaveAttribute(
+        "aria-controls",
+        (await sidebar.evaluate((element) => element.id)) || "?",
+      );
+      await expect(sidebar.getByRole("heading", { level: 2 })).toHaveText(
+        "Sessions",
+      );
+      await expectEntries(
+        entries,
+        [
+          [notRefinedStory, "Open Dough", "Refinement", "Working", false],
+          [readyStory, "Open Dough", "Execution", "Working", false],
+          [pygardonTitle, "Pygardon", "Refinement", "Working", false],
+          [doughnutSharedTitle, "Doughnut", "Execution", "Working", false],
+        ],
+        since,
+      );
+      await expect(attention).toHaveCount(0);
+      const title = entries.nth(2).getByRole("heading", { level: 3 });
+      const lineHeight = await title.evaluate((element) =>
+        parseFloat(getComputedStyle(element).lineHeight),
+      );
+      expect((await box(title)).height).toBeLessThanOrEqual(2 * lineHeight + 1);
+      // Its whole text wraps to more than the two lines shown.
+      expect(
+        await title.evaluate(
+          (element) => element.scrollHeight > element.clientHeight,
+        ),
+      ).toBe(true);
+    });
+
+    await test.step("sessions that need the developer have the heavier edge and are counted across projects, on the button too once closed", async () => {
+      dashboard.claudeSessionBecomes(doughnut, "blocked", "input needed");
+      dashboard.claudeSessionBecomes(pygardon, "done-live");
+      await passOnePace();
+      await expect(attention).toHaveText("2 sessions need attention");
+      await expectEntries(
+        entries,
+        [
+          [notRefinedStory, "Open Dough", "Refinement", "Working", false],
+          [readyStory, "Open Dough", "Execution", "Working", false],
+          [pygardonTitle, "Pygardon", "Refinement", "Ready for review", true],
+          [
+            doughnutSharedTitle,
+            "Doughnut",
+            "Execution",
+            "Needs input: input needed",
+            true,
+          ],
+        ],
+        since,
+      );
+      await expect(button).toHaveText("Sessions");
+
+      await button.click();
+      await expect(sidebar).toBeHidden();
+      await expect(button).toHaveAttribute("aria-expanded", "false");
+      await expect(button).toHaveText("Sessions 2 sessions need attention");
+      await button.click();
+      await expect(sidebar).toBeVisible();
+      await expectMembership(page, { taken: [], backlog: queued });
+    });
+
+    await test.step("a state change keeps the entry in its place, and a new launch comes first", async () => {
+      dashboard.claudeSessionBecomes(ready, "done-live");
+      await passOnePace();
+      await expect(attention).toHaveText("3 sessions need attention");
+      await expectSessionShown(entries.nth(1), "Ready for review", true);
+      await expect(entries.nth(1).getByRole("heading")).toHaveText(readyStory);
+
+      await launch(takenStory, "Execution");
+      await expect(entries).toHaveCount(5);
+      await expect(entries.first().getByRole("heading")).toHaveText(takenStory);
+      await expectSessionShown(entries.first(), "Working", false);
+    });
+
+    await test.step("a session marked done leaves the sidebar, and its count", async () => {
+      await cardSessionOf(card(readyStory), "Execution")
+        .getByRole("button", { name: "Mark as done" })
+        .click();
+      await expect(entries).toHaveCount(4);
+      await expect(attention).toHaveText("2 sessions need attention");
+      await expect(
+        entries.getByRole("heading", { name: readyStory }),
+      ).toHaveCount(0);
+    });
+
+    await test.step("wide, the sidebar is a column left of the page and the terminal right of it; narrow, it lies over the page", async () => {
+      const panel = page.getByRole("region", { name: "Terminal" });
+      await cardSessionOf(card(notRefinedStory), "Refinement")
+        .getByRole("button", { name: "Open terminal" })
+        .click();
+      await expect(panel).toBeVisible();
+      const main = page.getByRole("main");
+      await expectSideBySideInOrder([sidebar, main, panel]);
+      const view = page.viewportSize() ?? { width: 0, height: 0 };
+      const column = await box(sidebar);
+      expect(column.x).toBe(0);
+      expect(column.y).toBe(0);
+      expect(column.height).toBe(view.height);
+      await expect(sidebar).toHaveCSS("overflow-y", "auto");
+      // The page column, sharing the window with both, lays out as narrow,
+      // as it does beside the terminal alone.
+      await expectStagesStacked(page);
+      await button.click();
+      await expect(sidebar).toBeHidden();
+      await expectStagesStacked(page);
+      await button.click();
+      await expect(sidebar).toBeVisible();
+
+      await page.setViewportSize({ width: 700, height: view.height });
+      const overlay = await box(sidebar);
+      const beside = await box(main);
+      expect(overlay.x).toBe(0);
+      expect(beside.x).toBeLessThan(overlay.x + overlay.width);
+      const center = {
+        x: overlay.x + overlay.width / 2,
+        y: overlay.y + overlay.height / 2,
+      };
+      expect(
+        await page.evaluate(
+          ({ x, y }) =>
+            document.elementFromPoint(x, y)?.closest("aside")?.id ?? "",
+          center,
+        ),
+      ).toBe(await sidebar.evaluate((element) => element.id));
+    });
+  });
+});

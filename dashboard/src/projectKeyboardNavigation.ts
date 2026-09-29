@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
+import { isInsideOpenDialog } from "./pageShortcuts.ts";
 import { projectRadioName } from "./ProjectSelect.tsx";
 import { adjacentSource, type PublishedSource } from "./publishedSource.ts";
 
@@ -88,10 +89,6 @@ function isArrowOperatedControl(target: EventTarget | null): boolean {
     role === "radiogroup" ||
     role === "combobox"
   );
-}
-
-function isInsideOpenDialog(target: EventTarget | null): boolean {
-  return target instanceof Element && target.closest("dialog[open]") !== null;
 }
 
 export function isProjectArrowShortcutEligible(

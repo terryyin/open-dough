@@ -89,15 +89,28 @@ function withinRetention(
   );
 }
 
+// Every project's records still kept, by project id, each oldest first.
+export async function keptRecordsByProject(): Promise<
+  ReadonlyMap<string, readonly LaunchRecord[]>
+> {
+  const read = await readStore(storeFile());
+  if (read.kind === "unreadable") {
+    return new Map();
+  }
+  const now = Date.now();
+  return new Map(
+    Object.entries(read.records).map(([id, records]) => [
+      id,
+      withinRetention(records, now),
+    ]),
+  );
+}
+
 // One project's records still kept, oldest first.
 export async function keptRecords(
   sourceId: string,
 ): Promise<readonly LaunchRecord[]> {
-  const read = await readStore(storeFile());
-  if (read.kind === "unreadable") {
-    return [];
-  }
-  return withinRetention(read.records[sourceId] ?? [], Date.now());
+  return (await keptRecordsByProject()).get(sourceId) ?? [];
 }
 
 // Rewrites the kept records with `change` applied to them, replacing the

@@ -1,19 +1,29 @@
-// The page with its one terminal: while a session is open, the page shows on
-// the left and the terminal panel (`./TerminalPanel.tsx`) on the right. The
-// open session is held here, above the project selection, so choosing another
-// project leaves it open; opening another session takes its place, and a
-// reload starts with none. Mark as done, from the panel or from a card's
-// session entry, is one operation here: once the boundary has marked the
-// session, a panel showing it closes. Closing returns the keyboard to the
-// control that opened the panel, and a card entry's mark to its own control;
-// when that control is gone, as a card's entry goes once its session is
-// marked done, the keyboard goes to the session's Recent sessions entry
+// The page with its one terminal and the Sessions sidebar
+// (`./SessionSidebar.tsx`): while the sidebar is open it shows left of the
+// page, and while a session is open, the terminal panel
+// (`./TerminalPanel.tsx`) shows right of it. Whether the sidebar is open, and
+// the open session, are held here, above the project selection, so choosing
+// another project leaves them open; opening another session takes its place,
+// and a reload starts with none, while the sidebar opens as it was left. The
+// frame says which session the terminal shows, from which every entry of it
+// derives its mark. Opening a sidebar entry goes to its session as one
+// operation: the page shows its project's stories, the terminal opens it as
+// Open terminal does, where it offers Open terminal, and, once those stories
+// are shown, its card, or its Recent sessions entry when no card lists it,
+// scrolls into view and stays there while the page settles
+// (`./workFocus.ts`). Mark as done, from the panel or from a card's session
+// entry, is one operation here: once the boundary has marked the session, a
+// panel showing it closes. Closing returns the keyboard to the control that
+// opened the panel, and a card entry's mark to its own control; when that
+// control is gone, as a card's entry goes once its session is marked done, the
+// keyboard goes to the session's Recent sessions entry
 // (`sessionKeyboardHome`). A panel another session has already replaced moves
 // no focus when it closes. Once the panel shows output from a session the
 // page holds as done, the page reads that session again, since the boundary
 // reopens a done session its terminal attaches to
-// (`../server/agentTerminals.ts`). Opening, marking, and reading again each
-// take the same request (`./pageSessions.ts`).
+// (`../server/agentTerminals.ts`). Opening, going to a sidebar entry's
+// session, marking, and reading again each take the same request
+// (`./pageSessions.ts`).
 
 import {
   useCallback,
@@ -22,9 +32,18 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { ProjectLaunches } from "./agentLaunches.ts";
+import { attachOpens, type LaunchRecord } from "./agentLaunch.ts";
+import type { MachineSessions } from "./agentLaunches.ts";
+import { sourceById, type PublishedSource } from "./publishedSource.ts";
+import {
+  SessionSidebar,
+  SidebarOnPage,
+  useSessionSidebar,
+} from "./SessionSidebar.tsx";
+import type { OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
+  recentSessionsEntry,
   sessionKeyboardHome,
   SessionsOnPage,
   type MarkSessionDone,
@@ -32,6 +51,7 @@ import {
   type SessionOperation,
   type SessionRequest,
 } from "./pageSessions.ts";
+import { keepInView, workCard } from "./workFocus.ts";
 import "./agent-terminal.css";
 
 // The keyboard's return once the page shows what was asked: the control to
@@ -43,14 +63,25 @@ type KeyboardReturn = {
 };
 
 export function TerminalSplit({
-  sessions: { markDone, readSession },
+  sessions: { records, markDone, readSession },
+  stories,
   children,
 }: {
-  // The recorded sessions the terminal acts on; `readSession` keeps its
-  // identity across renders.
-  readonly sessions: Pick<ProjectLaunches, "markDone" | "readSession">;
+  // The machine's sessions the sidebar lists and the terminal acts on;
+  // `readSession` keeps its identity across renders.
+  readonly sessions: Pick<
+    MachineSessions,
+    "records" | "markDone" | "readSession"
+  >;
+  readonly stories: {
+    // The project whose stories the page shows, once they are read.
+    readonly shown: string | undefined;
+    // Shows a project's stories, as one history entry.
+    readonly show: (source: PublishedSource) => void;
+  };
   readonly children: ReactNode;
 }) {
+  const sidebar = useSessionSidebar(records);
   const [terminal, setTerminal] = useState<SessionRequest | undefined>();
   const openTerminal = useCallback<OpenTerminal>((request) => {
     setTerminal((current) =>
@@ -108,6 +139,39 @@ export function TerminalSplit({
     },
     [readSession],
   );
+  // Going to a session: its project's stories, its terminal where it opens
+  // one, and, once that project's stories are shown, its card brought into
+  // view, or its Recent sessions entry when no card lists it.
+  // Each going is its own, so going again to the same session reveals again.
+  const [going, setGoing] = useState<{ readonly to: LaunchRecord }>();
+  const revealed = useRef<{ readonly to: LaunchRecord } | undefined>(undefined);
+  const goToSession: OpenSidebarEntry = ({ record, control }) => {
+    const source = sourceById(record.request.source);
+    if (source !== undefined) {
+      stories.show(source);
+    }
+    const returnTo = sidebar.closeOverPage() ?? control;
+    if (attachOpens(record.sessionState)) {
+      openTerminal({ record, control: returnTo });
+    }
+    setGoing({ to: record });
+  };
+  useLayoutEffect(() => {
+    if (
+      going === undefined ||
+      revealed.current === going ||
+      stories.shown !== going.to.request.source
+    ) {
+      return;
+    }
+    revealed.current = going;
+    const { request, session } = going.to;
+    const shown =
+      workCard(request.identity) ?? recentSessionsEntry(session.sessionId);
+    // Kept in view until the developer moves, goes elsewhere, or another
+    // project's stories are shown.
+    return shown === null ? undefined : keepInView(shown);
+  }, [going, stories.shown]);
   const markSessionDone: MarkSessionDone = async (request) => {
     const { record, control } = request;
     const marked = await markClosing(request);
@@ -121,12 +185,28 @@ export function TerminalSplit({
     return marked !== "not-marked";
   };
 
-  // The page keeps one element structure whether or not a terminal is open,
-  // so opening one never remounts the page or loses what it had open.
+  // The page keeps one element structure whether or not the sidebar or a
+  // terminal is open, so opening one never remounts the page or loses what it
+  // had open.
   return (
-    <SessionsOnPage value={{ openTerminal, markDone: markSessionDone }}>
-      <div className={terminal ? "page-split" : undefined}>
-        <div className="page-column">{children}</div>
+    <SessionsOnPage
+      value={{
+        openTerminal,
+        markDone: markSessionDone,
+        shownInTerminal: terminal?.record.session.sessionId,
+      }}
+    >
+      <div
+        className={
+          [sidebar.open && "page-with-sidebar", terminal && "page-split"]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
+      >
+        <SessionSidebar {...sidebar} onOpen={goToSession} />
+        <SidebarOnPage value={sidebar}>
+          <div className="page-column">{children}</div>
+        </SidebarOnPage>
         {terminal && (
           <TerminalPanel
             key={terminal.record.session.sessionId}
