@@ -8,16 +8,21 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-ob
 # shellcheck source=tests/support/story-branch-closure-native-response.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/story-branch-closure-native-response.sh"
+# Counterexample streams are written in each host's shape by the substitute's
+# recorder.
+# shellcheck source=tests/support/native-agent-admission.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-agent-admission.sh"
 
-# True when the node call log or a tool start in transcript $1 shows the
-# installed retire command deleting exec/story once trunk holds SHA $2.
+# True when the node call log or a command host $1 started in stream $2 shows
+# the installed retire command deleting exec/story once trunk holds SHA $3.
 story_closure_retire_seen() {
-  local transcript=$1 sha=$2 count
+  local host=$1 transcript=$2 sha=$3 count
   count=$(
     {
       cat "${story_closure_node_log}"
-      grep -E '"subtype":"started"|"type":"item.started"|"type":"tool_use"' \
-        "${transcript}" 2> /dev/null || true
+      native_stream_started_commands "${host}" "${transcript}" \
+        'worktree-retirement.mjs retire'
     } | grep -F 'worktree-retirement.mjs retire' \
       | grep -E -- '--remote-branch[^-]*exec/story' \
       | grep -Ec -- "--contained[^-]*${sha}" || true
@@ -30,7 +35,7 @@ story_closure_retire_seen() {
 }
 
 story_closure_observe() {
-  local transcript=$1 response=$2 candidate=missing trunk_mailbox=missing
+  local host=$1 transcript=$2 response=$3 candidate=missing trunk_mailbox=missing
   local branch_terminal=missing trunk_terminal=missing trunk_state=missing
   local observer_count parent_count=0 source_ok=false branch_remote=present human_after
   local branch_complete=0 trunk_complete=0 branch_stop=0 trunk_stop=0
@@ -57,10 +62,10 @@ story_closure_observe() {
     -name request.json -exec jq -r 'select(.probe != true) | 1' {} + \
     | wc -l | tr -d ' ')
   branch_complete=$(native_completion_call_count \
-    "${story_closure_node_log}" "${transcript}" \
+    "${story_closure_node_log}" "${host}" "${transcript}" \
     "${story_closure_branch_mailbox}" "${story_closure_branch_sha}")
-  trunk_complete=$(native_completion_call_count \
-    "${story_closure_node_log}" "${transcript}" "${trunk_mailbox}" "${candidate}")
+  trunk_complete=$(native_completion_call_count "${story_closure_node_log}" \
+    "${host}" "${transcript}" "${trunk_mailbox}" "${candidate}")
   branch_await=$(native_completion_await_count \
     "${story_closure_node_log}" "${story_closure_branch_mailbox}" \
     "${story_closure_branch_sha}")
@@ -98,7 +103,7 @@ story_closure_observe() {
     printf 'branch-product-shutdown: %s\ntrunk-product-shutdown: %s\n' \
       "${branch_product_shutdown}" "${trunk_product_shutdown}"
     printf 'forced-stop: %s\n' "${forced_stop}"
-    printf 'retire-command: %s\n' "$(story_closure_retire_seen "${transcript}" "${candidate}")"
+    printf 'retire-command: %s\n' "$(story_closure_retire_seen "${host}" "${transcript}" "${candidate}")"
     printf 'worktree-present: %s\nlocal-branch-present: %s\n' \
       "$([[ -e ${story_closure_workspace} ]] && echo true || echo false)" \
       "$(git -C "${story_closure_integration}" show-ref --quiet --verify \
@@ -212,4 +217,26 @@ run_story_closure_assessor_counterexamples() {
   story_closure_expect_rejected "${valid}" remote-branch-kept \
     's/branch-remote: absent/branch-remote: present/'
   story_closure_response_counterexamples "${work}"
+  story_closure_retire_counterexamples "${work}"
+}
+
+# On every host, the retire command the agent started for exec/story at the
+# integrated revision is seen; the same text only in a command's output, or a
+# retire of another branch, is not.
+story_closure_retire_counterexamples() {
+  local work=$1 sha=0123456789abcdef0123456789abcdef01234567 host stream
+  local admission_events admission_tool story_closure_node_log="$1/node.log"
+  local retire="node .agents/skills/dough-land/scripts/worktree-retirement.mjs retire"
+  : > "${story_closure_node_log}"
+  for host in codex cursor claude; do
+    admission_events='' admission_tool=0 stream="${work}/${host}.jsonl"
+    admission_record "${retire} --remote-branch exec/other --contained ${sha}" ''
+    admission_record 'cat notes.txt' \
+      "${retire} --remote-branch exec/story --contained ${sha}"
+    printf '%s' "${admission_events}" > "${stream}"
+    [[ $(story_closure_retire_seen "${host}" "${stream}" "${sha}") == false ]]
+    admission_record "${retire} --remote-branch exec/story --contained ${sha}" ''
+    printf '%s' "${admission_events}" > "${stream}"
+    [[ $(story_closure_retire_seen "${host}" "${stream}" "${sha}") == true ]]
+  done
 }

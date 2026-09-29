@@ -240,7 +240,7 @@ Learnings for later slices:
 
 ### 4. Closure and execution-review observations read through the reader
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/git-publication-native.sh` (the trunk-closure, story-closure,
 and native-harness counterexamples, plus substitute journeys) stays green.
 
@@ -249,6 +249,34 @@ Internal change: `native_completion_call_count`, `trunk_closure_finish_count`,
 closure assessors use the reader's started commands. That also gives Claude
 coverage, which `native_completion_call_count` lacks today. External verdicts
 on existing counterexamples are unchanged. Enables slice 6.
+
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+tests/git-publication-native.sh tests/git-publication-native-owned-context.sh
+tests/native-evidence-identity.sh tests/native-stream-replay.sh
+tests/support/native-host-stream.test.mjs`, exit 0 (64.5 s for the set).
+`run_trunk_closure_observation_counterexamples` and
+`story_closure_retire_counterexamples` prove, per host including Claude, that
+started calls count and output-only text does not.
+
+Learnings for later slices:
+- `native_stream_started_commands` and `native_started_call_count` in
+  `tests/support/native-completion-observation.sh` read started commands with
+  a `grep -F` prefilter (live, uncompressed streams only) and the pre-harness
+  node with `NATIVE_NODE_CALL_LOG=''`, so reader calls never enter the node
+  log. Slice 5 may move them to a shared home.
+- The evidence identities of publication, closures, and execution review now
+  hash the reader and the stream-field module.
+- Remaining host literals outside the reader. Shape writers:
+  `native-agent-{admission,journey,publication,recorded}.sh`, the publication
+  counterexamples and owned-context suite, `git-publication-native-stream-fields.test.mjs`,
+  `native-stream-replay.mjs`, and `tests/native-run-workspace-isolation.sh`.
+  Slice 5 readers: `native-run-stream.sh`, `native-run-supervise.sh`,
+  `product-backlog-native-{take,use-hosts}.sh`,
+  `tests/dough-adr-awareness-{codex-use,context}.sh`,
+  `tests/dough-update-local-guidance-rejection.sh`, and the retained-stream
+  greps in `tests/native-{delivery-updated-use,result-retention,stream-completeness}.sh`.
+  Prose: `tests/native-adr-awareness-wrappers.md` (the guard needs a rule for
+  documentation).
 
 ### 5. The runner and the remaining observations read through the reader
 Type: Structure

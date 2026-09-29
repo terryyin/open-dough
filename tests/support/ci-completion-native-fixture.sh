@@ -21,12 +21,12 @@ ci_completion_stamp() {
 }
 
 ci_completion_controller() {
-  local scenario=$1
+  local scenario=$1 host=$2
   local review_start="${ci_completion_project}/.planning/review-observation/start"
   local review_complete="${ci_completion_project}/.planning/review-observation/complete"
   local review_release="${ci_completion_project}/.planning/review-observation/release"
   # Agents may quote paths or bypass the PATH node shim; accept either log.
-  local complete_seen="native_completion_seen '${ci_completion_node_log}' '${transcript:-/dev/null}' '${ci_completion_mailbox}' '${ci_completion_sha}'"
+  local complete_seen="native_completion_seen '${ci_completion_node_log}' '${host}' '${transcript:-/dev/null}' '${ci_completion_mailbox}' '${ci_completion_sha}'"
   case ${scenario} in
     pending | failure)
       wait_for review-start "${ci_completion_wait_limit}" "test -f '${review_start}'" || return

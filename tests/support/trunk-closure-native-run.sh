@@ -23,6 +23,7 @@ trunk_closure_write_evidence_identity() {
     tests/support/trunk-closure-native-run.sh \
     tests/support/trunk-closure-native-assess.sh \
     tests/support/native-completion-observation.sh \
+    tests/support/native-host-stream.mjs \
     tests/support/trunk-closure-native-fixture.sh \
     tests/support/trunk-closure-native-owned-context.sh \
     tests/support/native-harness-observation.sh \
@@ -48,15 +49,15 @@ trunk_closure_write_evidence_identity() {
 trunk_closure_wait_limit=360
 
 # The installed `finish`, which runs completion, has started, as the node log
-# or the runner's transcript shows.
+# or host $1's transcript from the runner shows.
 trunk_closure_complete_seen() {
-  [[ $(trunk_closure_finish_count "${trunk_closure_node_log}" \
+  [[ $(trunk_closure_finish_count "${trunk_closure_node_log}" "$1" \
     "${transcript:-/dev/null}" \
     "${trunk_closure_candidate_sha}") -ge 1 ]]
 }
 
 trunk_closure_controller() {
-  local scenario=$1
+  local scenario=$1 host=$2
   local remote_sha coverage
   wait_for publication "${trunk_closure_wait_limit}" \
     "[[ \$(git ls-remote '${trunk_closure_origin}' refs/heads/main | awk '{print \$1}') == '${trunk_closure_candidate_sha}' ]]" || return
@@ -67,7 +68,7 @@ trunk_closure_controller() {
   coverage="${trunk_closure_mailbox}/coverage/${trunk_closure_candidate_sha}.json"
   if [[ ${scenario} == source ]]; then
     wait_for complete-start "${trunk_closure_wait_limit}" \
-      "trunk_closure_complete_seen" || return
+      "trunk_closure_complete_seen '${host}'" || return
     printf 'complete-start\n' >> "${trunk_closure_control_log}"
     : > "${trunk_closure_release}"
     printf 'ci-release\n' >> "${trunk_closure_control_log}"
@@ -76,7 +77,7 @@ trunk_closure_controller() {
     wait_for coverage "${trunk_closure_wait_limit}" "grep -q '\"state\":\"not_required\"' '${coverage}'" || return
     printf 'coverage-not-required\n' >> "${trunk_closure_control_log}"
     wait_for complete-start "${trunk_closure_wait_limit}" \
-      "trunk_closure_complete_seen" || return
+      "trunk_closure_complete_seen '${host}'" || return
     printf 'complete-start\n' >> "${trunk_closure_control_log}"
   fi
   [[ ${scenario} != source ]] || printf 'coverage-success\n' >> "${trunk_closure_control_log}"
@@ -119,12 +120,12 @@ trunk_closure_run_journey() {
   trunk_closure_forced_stop_file="${harness}/forced-stop.txt"
   : > "${transcript}"
   : > "${native_stderr}"
-  trunk_closure_controller "${scenario}" &
+  trunk_closure_controller "${scenario}" "${host}" &
   controller_pid=$!
   git_publication_run_native_command || run_status=$?
   wait "${controller_pid}" || run_status=1
   # Observe product shutdown before any fixture cleanup/stop.
-  trunk_closure_observe "${scenario}" "${transcript}" "${output_file}" \
+  trunk_closure_observe "${scenario}" "${host}" "${transcript}" "${output_file}" \
     > "${harness}/observations.txt"
   native_harness_stop_observers "${source_dir}" "${trunk_closure_storage}" \
     "${trunk_closure_forced_stop_file}" || stop_status=$?

@@ -20,15 +20,15 @@ story_closure_trunk_mailbox() {
 }
 
 story_closure_complete_seen() {
-  local mailbox=$1 sha=$2
-  native_completion_seen "${story_closure_node_log}" \
+  local host=$1 mailbox=$2 sha=$3
+  native_completion_seen "${story_closure_node_log}" "${host}" \
     "${transcript:-/dev/null}" "${mailbox}" "${sha}"
 }
 
 story_closure_controller() {
-  local remote_sha trunk_mailbox coverage
+  local host=$1 remote_sha trunk_mailbox coverage
   wait_for branch-complete "${story_closure_wait_limit}" \
-    "story_closure_complete_seen '${story_closure_branch_mailbox}' '${story_closure_branch_sha}'" || return
+    "story_closure_complete_seen '${host}' '${story_closure_branch_mailbox}' '${story_closure_branch_sha}'" || return
   printf 'branch-complete\n' >> "${story_closure_control_log}"
   wait_for branch-shutdown "${story_closure_wait_limit}" \
     "[[ -f '${story_closure_branch_mailbox}/result.json' ]] && grep -Eq '\"status\":\"(stopped|finished)\"' '${story_closure_branch_mailbox}/result.json'" || return
@@ -48,7 +48,7 @@ story_closure_controller() {
     "[[ \$(native_completion_registered '${trunk_mailbox}' '${remote_sha}') == true ]]" || return
   printf 'trunk-registration\n' >> "${story_closure_control_log}"
   wait_for trunk-complete "${story_closure_wait_limit}" \
-    "story_closure_complete_seen '${trunk_mailbox}' '${remote_sha}'" || return
+    "story_closure_complete_seen '${host}' '${trunk_mailbox}' '${remote_sha}'" || return
   printf 'trunk-complete\n' >> "${story_closure_control_log}"
   : > "${story_closure_release}"
   printf 'trunk-ci-release\n' >> "${story_closure_control_log}"
@@ -76,6 +76,7 @@ story_closure_write_evidence_identity() {
     tests/support/story-branch-closure-native-assess.sh \
     tests/support/story-branch-closure-native-response.sh \
     tests/support/native-completion-observation.sh \
+    tests/support/native-host-stream.mjs \
     tests/support/story-branch-closure-native-fixture.sh \
     tests/support/native-harness-observation.sh \
     tests/support/native-harness-login-shell.sh \
@@ -115,12 +116,12 @@ story_closure_run_journey() {
   story_closure_forced_stop_file="${harness}/forced-stop.txt"
   : > "${transcript}"
   : > "${native_stderr}"
-  story_closure_controller &
+  story_closure_controller "${host}" &
   controller_pid=$!
   git_publication_run_native_command || run_status=$?
   wait "${controller_pid}" || run_status=1
   # Observe product shutdown before any fixture cleanup/stop.
-  story_closure_observe "${transcript}" "${output_file}" \
+  story_closure_observe "${host}" "${transcript}" "${output_file}" \
     > "${harness}/observations.txt"
   native_harness_stop_observers "${source_dir}" "${story_closure_storage}" \
     "${story_closure_forced_stop_file}" || stop_status=$?

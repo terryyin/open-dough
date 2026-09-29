@@ -13,8 +13,9 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-ob
 
 ci_completion_observe() {
   local scenario=$1
-  local transcript=$2
-  local response=$3
+  local host=$2
+  local transcript=$3
+  local response=$4
   local coverage state=missing terminal=missing
   local complete_count=0 stop_count=0 await_count=0
   local review_started=false
@@ -24,7 +25,7 @@ ci_completion_observe() {
   [[ -f ${ci_completion_mailbox}/result.json ]] \
     && terminal=$(jq -r '.status' "${ci_completion_mailbox}/result.json")
   complete_count=$(native_completion_call_count \
-    "${ci_completion_node_log}" "${transcript}" \
+    "${ci_completion_node_log}" "${host}" "${transcript}" \
     "${ci_completion_mailbox}" "${ci_completion_sha}")
   stop_count=$(native_completion_stop_count \
     "${ci_completion_node_log}" "${ci_completion_mailbox}")
@@ -154,14 +155,14 @@ ci_completion_run_journey() {
   : > "${transcript}"
   : > "${native_stderr}"
 
-  ci_completion_controller "${scenario}" &
+  ci_completion_controller "${scenario}" "${host}" &
   controller_pid=$!
   git_publication_run_native_command || run_status=$?
   wait "${controller_pid}" || run_status=1
 
   # Observe product shutdown state before any fixture cleanup/stop so a
   # harness fallback cannot mask a missing product shutdown as success.
-  ci_completion_observe "${scenario}" "${transcript}" "${output_file}" \
+  ci_completion_observe "${scenario}" "${host}" "${transcript}" "${output_file}" \
     > "${harness}/observations.txt"
   native_harness_stop_observers "${source_dir}" "${ci_completion_storage}" \
     "${ci_completion_forced_stop_file}" || stop_status=$?

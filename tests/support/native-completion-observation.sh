@@ -3,35 +3,53 @@
 # stop/await leftovers. Journey files keep their own observation field layouts.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-native_completion_seen() {
-  local node_log=$1 transcript=$2 mailbox=$3 sha=$4
-  grep -F 'complete-revision' "${node_log}" \
-    | grep -F "${mailbox}" \
-    | grep -Fq "${sha}" \
-    || grep -F 'complete-revision' "${transcript:-/dev/null}" \
-    | grep -F "${mailbox}" \
-      | grep -Fq "${sha}"
+native_stream_reader="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-host-stream.mjs"
+# The node found before any harness wrapper goes first on PATH, so reading a
+# stream is not itself recorded as one of the agent's node calls.
+native_stream_node=$(command -v node)
+
+# The shell commands host $1 started in its live stream $2 that contain text
+# $3, one JSON string per line, from the shared reader. A stream without that
+# text skips the reader, which keeps controller polls cheap.
+native_stream_started_commands() {
+  local host=$1 stream=$2 text=$3
+  if [[ -z ${stream} || ! -f ${stream} ]] || ! grep -Fq -- "${text}" "${stream}"; then
+    return 0
+  fi
+  NATIVE_NODE_CALL_LOG='' "${native_stream_node}" "${native_stream_reader}" \
+    "${host}" "${stream}" commands | grep -F -- "${text}" || true
 }
 
-# complete-revision calls for mailbox $3 and revision $4: the node call log $1,
-# or the tool starts transcript $2 shows ("subtype":"started" in Cursor's
-# stream, "type":"item.started" in Codex's), whichever sees more.
+# Calls containing every text $4...: the node call log $1, or the commands host
+# $2 started in stream $3, whichever sees more. Agents may quote paths or bypass
+# the PATH node shim, so either source counts. The first text selects the
+# stream's commands, so it names the call's script or subcommand.
+native_started_call_count() {
+  local node_log=$1 host=$2 transcript=$3 log_calls stream_calls text
+  shift 3
+  log_calls=$(grep -F -- "$1" "${node_log}" || true)
+  stream_calls=$(native_stream_started_commands "${host}" "${transcript}" "$1")
+  for text in "${@:2}"; do
+    log_calls=$(grep -F -- "${text}" <<< "${log_calls}" || true)
+    stream_calls=$(grep -F -- "${text}" <<< "${stream_calls}" || true)
+  done
+  log_calls=$(grep -c . <<< "${log_calls}" || true)
+  stream_calls=$(grep -c . <<< "${stream_calls}" || true)
+  printf '%s\n' "$((log_calls > stream_calls ? log_calls : stream_calls))"
+}
+
+# complete-revision calls for mailbox $4 and revision $5, from the node call log
+# $1 or the commands host $2 started in stream $3.
 native_completion_call_count() {
-  local node_log=$1 transcript=$2 mailbox=$3 sha=$4
-  local complete_count transcript_complete_count=0
-  complete_count=$(grep -Fc "complete-revision ${mailbox} ${sha}" "${node_log}" || true)
-  if [[ -n ${transcript} && -f ${transcript} ]]; then
-    transcript_complete_count=$(
-      grep -E '"subtype":"started"|"type":"item.started"' "${transcript}" \
-        | grep -F 'complete-revision' \
-        | grep -F "${mailbox}" \
-        | grep -Fc "${sha}" || true
-    )
-    if ((transcript_complete_count > complete_count)); then
-      complete_count=${transcript_complete_count}
-    fi
-  fi
-  printf '%s\n' "${complete_count}"
+  local node_log=$1 host=$2 transcript=$3 mailbox=$4 sha=$5
+  native_started_call_count "${node_log}" "${host}" "${transcript}" \
+    complete-revision "${mailbox}" "${sha}"
+}
+
+# True once complete-revision for mailbox $4 and revision $5 has started, with
+# the arguments of native_completion_call_count.
+native_completion_seen() {
+  (($(native_completion_call_count "$@") > 0))
 }
 
 # Revision $2 is registered in mailbox $1 once the mailbox holds its coverage

@@ -17,6 +17,8 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-fixture.sh \
         tests/support/git-publication-native-startup-fixture.sh \
         tests/support/git-publication-native-shared.sh \
+        tests/support/git-publication-native-stream-fields.mjs \
+        tests/support/native-host-stream.mjs \
         tests/support/git-publication-native-run.sh \
         tests/support/git-publication-native-evidence.sh \
         tests/support/git-publication-native-prompt.sh
@@ -53,6 +55,8 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-host.sh \
         tests/support/ci-completion-native-run.sh \
         tests/support/ci-completion-native-fixture.sh \
+        tests/support/native-completion-observation.sh \
+        tests/support/native-host-stream.mjs \
         tests/support/native-harness-observation.sh \
         tests/support/native-harness-login-shell.sh \
         tests/support/native-node-call-recorder.mjs \

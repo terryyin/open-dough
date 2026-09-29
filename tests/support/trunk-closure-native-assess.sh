@@ -5,27 +5,25 @@
 # shellcheck source=tests/support/native-completion-observation.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
+# Counterexample streams are written in each host's shape by the substitute's
+# recorder.
+# shellcheck source=tests/support/native-agent-admission.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-agent-admission.sh"
 
-# Installed `finish` calls for final closure $3: the node call log $1, or the
-# tool starts transcript $2 shows, whichever sees more.
+# Installed `finish` calls for final closure $4, from the node call log $1 or
+# the commands host $2 started in stream $3.
 trunk_closure_finish_count() {
-  local node_log=$1 transcript=$2 sha=$3 count transcript_count=0
-  count=$(grep -F 'trunk-closure.mjs finish' "${node_log}" | grep -Fc -- "${sha}" || true)
-  if [[ -n ${transcript} && -f ${transcript} ]]; then
-    transcript_count=$(
-      grep -E '"subtype":"started"|"type":"item.started"' "${transcript}" \
-        | grep -F 'trunk-closure.mjs' | grep -F 'finish' \
-        | grep -Fc -- "${sha}" || true
-    )
-    ((transcript_count <= count)) || count=${transcript_count}
-  fi
-  printf '%s\n' "${count}"
+  local node_log=$1 host=$2 transcript=$3 sha=$4
+  native_started_call_count "${node_log}" "${host}" "${transcript}" \
+    trunk-closure.mjs finish "${sha}"
 }
 
 trunk_closure_observe() {
   local scenario=$1
-  local transcript=$2
-  local response=$3
+  local host=$2
+  local transcript=$3
+  local response=$4
   local coverage state=missing basis_state=none terminal=missing
   local finish_count=0 complete_count=0 stop_count=0 await_count=0
   local product_shutdown=false forced_stop=false checkout_present=false
@@ -35,9 +33,9 @@ trunk_closure_observe() {
   [[ -f ${trunk_closure_mailbox}/result.json ]] \
     && terminal=$(jq -r '.status' "${trunk_closure_mailbox}/result.json")
   finish_count=$(trunk_closure_finish_count "${trunk_closure_node_log}" \
-    "${transcript}" "${trunk_closure_candidate_sha}")
+    "${host}" "${transcript}" "${trunk_closure_candidate_sha}")
   complete_count=$(native_completion_call_count \
-    "${trunk_closure_node_log}" "${transcript}" \
+    "${trunk_closure_node_log}" "${host}" "${transcript}" \
     "${trunk_closure_mailbox}" "${trunk_closure_candidate_sha}")
   stop_count=$(native_completion_stop_count \
     "${trunk_closure_node_log}" "${trunk_closure_mailbox}")
@@ -199,22 +197,30 @@ run_trunk_closure_cleanup_counterexamples() {
   done
 }
 
-# Registration is the mailbox's coverage record, whichever command wrote it,
-# and a Codex-shaped transcript counts its complete-revision start once.
+# Registration is the mailbox's coverage record, whichever command wrote it.
+# On every host, the complete-revision and `finish` commands the agent started
+# count once each, and the same text in a command's output does not count.
 run_trunk_closure_observation_counterexamples() {
   local work=$1 mailbox="$1/mailbox" sha=0123456789abcdef0123456789abcdef01234567
-  local command
+  local skills=.agents/skills host admission_events admission_tool stream
   mkdir -p "${mailbox}/coverage"
   [[ $(native_completion_registered "${mailbox}" "${sha}") == false ]]
   printf '{"sha":"%s","state":"undiscovered"}\n' "${sha}" \
     > "${mailbox}/coverage/${sha}.json"
   [[ $(native_completion_registered "${mailbox}" "${sha}") == true ]]
   : > "${work}/node.log"
-  command="/bin/zsh -lc 'node .agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs complete-revision ${mailbox} ${sha}'"
-  jq -n -c --arg c "${command}" \
-    '{type:"item.started",item:{id:"item_1",type:"command_execution",command:$c,status:"in_progress"}},
-     {type:"item.completed",item:{id:"item_1",type:"command_execution",command:$c,status:"completed"}}' \
-    > "${work}/codex.jsonl"
-  [[ $(native_completion_call_count "${work}/node.log" "${work}/codex.jsonl" \
-    "${mailbox}" "${sha}") == 1 ]]
+  for host in codex cursor claude; do
+    admission_events='' admission_tool=0 stream="${work}/${host}.jsonl"
+    admission_record "/bin/zsh -lc 'node ${skills}/dough-execute-plan/scripts/ci-mailbox.mjs complete-revision ${mailbox} ${sha}'" ''
+    admission_record "node ${skills}/dough-story-wrap-up/scripts/trunk-closure.mjs finish --final ${sha}" ''
+    admission_record 'cat notes.txt' \
+      "complete-revision ${mailbox} ${sha}; trunk-closure.mjs finish --final ${sha}"
+    printf '%s' "${admission_events}" > "${stream}"
+    [[ $(native_completion_call_count "${work}/node.log" "${host}" "${stream}" \
+      "${mailbox}" "${sha}") == 1 ]]
+    native_completion_seen "${work}/node.log" "${host}" "${stream}" \
+      "${mailbox}" "${sha}"
+    [[ $(trunk_closure_finish_count "${work}/node.log" "${host}" "${stream}" \
+      "${sha}") == 1 ]]
+  done
 }
