@@ -86,8 +86,11 @@ story_closure_write_evidence_identity() {
     src/skills/dough-execute-plan/references/trunk-publication.md \
     src/skills/dough-execute-plan/references/wrap-up-closure-publication.md \
     src/skills/dough-execute-plan/references/ci-monitor.md \
-    src/skills/dough-execute-plan/references/ci-completion-wait.md
-  git_publication_land_input_hash_lines
+    src/skills/dough-execute-plan/references/ci-completion-wait.md \
+    src/skills/dough-execute-plan/references/publish-the-candidate.md
+  git_publication_land_input_hash_lines \
+    src/skills/dough-execute-plan/scripts/ci-mailbox.mjs \
+    src/skills/dough-product-backlog/scripts/product-backlog-git-merge.mjs
 }
 
 story_closure_run_journey() {
@@ -148,10 +151,9 @@ story_closure_run_journey() {
   [[ ${stop_status} -eq 0 && ${run_status} -eq 0 ]]
 }
 
-# An agent shell whose startup files rebuild PATH without the harness bin, as
-# Codex's and Cursor's zsh do, still reaches the fixture's gh shim, so the
-# trunk observer the agent starts there observes the fixture's CI; without
-# the harness ZDOTDIR the same shell reaches another gh. The fallback stop then
+# A trunk observer the agent starts from a login shell whose startup files put
+# another gh first, as a user's zsh profile can, observes the fixture's CI and
+# never calls that gh. The fallback stop then
 # still stops the observers the session left running after its cleanup removed
 # the worktree that holds the installed launcher.
 run_story_closure_harness_counterexamples() {
@@ -159,18 +161,9 @@ run_story_closure_harness_counterexamples() {
   root=$(mktemp -d)
   harness=$(mktemp -d)
   profile=$(mktemp -d)
-  mkdir -p "${profile}/decoy"
-  printf '%s\n' '#!/usr/bin/env bash' "printf '%s\\n' \"\$*\" >> '${profile}/decoy.log'" \
-    'exit 1' > "${profile}/decoy/gh"
-  chmod +x "${profile}/decoy/gh"
-  printf 'export PATH=%q\n' "${profile}/decoy:${PATH}" \
-    | tee "${profile}/.zshenv" "${profile}/.zprofile" > "${profile}/.zshrc"
+  native_harness_write_decoy_profile "${profile}"
   local -x ZDOTDIR=${profile}
   story_closure_create_fixture "${source_dir}" claude "${root}" "${harness}"
-  [[ $(ZDOTDIR=${profile} native_harness_login_shell 'command -v gh') == "${profile}/decoy/gh" ]] \
-    || failure='the profile kept the harness bin without the harness ZDOTDIR'
-  [[ $(native_harness_login_shell 'command -v gh') == "${harness}/bin/gh" ]] \
-    || failure='the agent shell lost the gh shim'
   run_in_worktree="cd '${story_closure_workspace}' && node '${story_closure_launcher}'"
   receipt=$(native_harness_login_shell "${run_in_worktree} start --execution owner/project main")
   trunk_mailbox=$(jq -r '.directory' <<< "${receipt#CI_OBSERVER }")

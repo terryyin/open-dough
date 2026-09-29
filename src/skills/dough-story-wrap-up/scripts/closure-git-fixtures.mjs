@@ -5,6 +5,7 @@ import { join } from "node:path";
 import {
   advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
+  authorizedRemote,
   captureCheckout,
   createCleanTrunkFixture,
   git,
@@ -17,6 +18,7 @@ import {
 export {
   advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
+  authorizedRemote,
   captureCheckout,
   createCleanTrunkFixture,
   git,
@@ -29,24 +31,6 @@ export {
 export const trunkTarget = "refs/heads/main";
 export const executionBranch = "exec/story";
 
-export async function ancestorOf(workspace, ancestorSha, descendant) {
-  try {
-    await git(
-      workspace,
-      "merge-base",
-      "--is-ancestor",
-      ancestorSha,
-      descendant,
-    );
-    return true;
-  } catch (error) {
-    if (error.code === 1) {
-      return false;
-    }
-    throw error;
-  }
-}
-
 export async function commitFile(workspace, file, body, message) {
   writeFileSync(join(workspace, file), body);
   await git(workspace, "add", file);
@@ -54,8 +38,6 @@ export async function commitFile(workspace, file, body, message) {
   return revParse(workspace, "HEAD");
 }
 
-export async function remoteCommitCount(origin) {
-  return Number(
-    (await git(origin, "rev-list", "--count", "refs/heads/main")).stdout.trim(),
-  );
+export async function remoteCommitCount(origin, ref = "refs/heads/main") {
+  return Number((await git(origin, "rev-list", "--count", ref)).stdout.trim());
 }

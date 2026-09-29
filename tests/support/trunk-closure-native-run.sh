@@ -26,6 +26,7 @@ trunk_closure_write_evidence_identity() {
     tests/support/trunk-closure-native-fixture.sh \
     tests/support/trunk-closure-native-owned-context.sh \
     tests/support/native-harness-observation.sh \
+    tests/support/native-harness-login-shell.sh \
     tests/support/native-node-call-recorder.mjs \
     tests/support/git-publication-native-shared.sh \
     tests/support/git-publication-native-run.sh
@@ -35,11 +36,12 @@ trunk_closure_write_evidence_identity() {
     src/skills/dough-execute-plan/references/wrap-up-closure-publication.md \
     src/skills/dough-execute-plan/references/ci-monitor.md \
     src/skills/dough-execute-plan/references/ci-completion-wait.md \
-    src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs \
-    src/skills/dough-story-wrap-up/SKILL.md \
+    src/skills/dough-execute-plan/references/publish-the-candidate.md \
+    src/skills/dough-story-wrap-up/SKILL.md
+  git_publication_land_input_hash_lines \
     src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs \
-    src/skills/dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
-  git_publication_land_input_hash_lines
+    src/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs \
+    src/skills/dough-execute-plan/scripts/ci-mailbox.mjs
 }
 
 # Per-step controller bound; each step awaits one action of the native agent.

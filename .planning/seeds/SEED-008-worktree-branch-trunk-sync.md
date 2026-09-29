@@ -116,25 +116,25 @@ registry is selected. No new execution authority or ADR acceptance is implied.
 
 ## Existing related stories
 
-<a id="closure-proof-and-harness-correction"></a>
+<a id="closure-response-and-spawned-script-identity"></a>
 
-### Keep closure reruns truthful and closure proof exact
+### Judge closure responses by trunk CI and hash the scripts journeys spawn
 
-**Identity:** SEED-008#closure-proof-and-harness-correction
+**Identity:** SEED-008#closure-response-and-spawned-script-identity
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/154-closure-proof-and-harness-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d4da12864e9af318e16ebe6f2e90ad2035ccb5dbd55e91e6e9c2208611fb6881","plan":"0716980335c70dce60a6a89f3f1f6d30c8084bb774fc18099a32e18c78ac1c9e"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/158-closure-response-and-spawned-script-identity/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7a02fee0897a32c92b297f2dd2e41c67a0655ecd3bba4e3025d9449b8877f768","plan":"eae08bd8be62b6f4ed4e0345a4e6cf4d0b037813fb130a955789305c856cf428"}}
 ```
 
-**Goal:** An agent rerunning Trunk Mode closure after its final commit was
-rebased and published gets that closure recognized instead of a false stop,
-and maintainers can trust that each closure test, native harness check, and
-native evidence identity proves exactly the behavior it names.
+**Goal:** Maintainers can trust that the Story Branch native response check
+rejects any response reporting trunk CI, its checks, observer, or watcher as
+failed or unavailable while still accepting an unrelated step's failure beside
+a trunk success, and that each closure evidence identity also changes when a
+script a journey's command spawns changes.
 
-**Scope:** The bounded retrospective correction of
-plan 146 (recoverable at
-`097cc35f:.planning/slice-plans/146-installed-wrap-up-command/PLAN.md`)
-(SEED-008#installed-wrap-up-command) described in
-[its correction plan](../slice-plans/154-closure-proof-and-harness-correction/PLAN.md).
+**Scope:** The bounded retrospective correction of plan 154 (recoverable at
+`14cd2de3:.planning/slice-plans/154-closure-proof-and-harness-correction/PLAN.md`)
+(SEED-008#closure-proof-and-harness-correction) described in
+[its correction plan](../slice-plans/158-closure-response-and-spawned-script-identity/PLAN.md).
 It adds no feature promise.
 
 <a id="installed-story-branch-integration"></a>
@@ -174,13 +174,21 @@ the payload with its tests.
   Decide whether Dough Land's "Retire the worktree" says to pass only
   `--identity` when the creation record names the work, or the command reports
   its ownership basis.
-- **D3 — one ancestry check.** `isAncestor` exists in several execute-plan
-  scripts beside the Land and wrap-up copies that correction
-  SEED-008#closure-proof-and-harness-correction consolidates. Decide whether
-  to consolidate the execute-plan copies, which crosses skills.
+- **D3 — one ancestry check and one optional rev-parse.** Land and wrap-up
+  import `isAncestor` from `workspace-publication-ownership.mjs`, but
+  `publication-resume.mjs`, `maintain-default-checkout.mjs`,
+  `history-preserving-publication.mjs`, and `ci-path-applicability.mjs` keep
+  their own copies. The same "resolve this revision or nothing" rule appears as
+  `commitOf` in `trunk-closure-settlement.mjs` and
+  `preparation-assignment-ownership.mjs`, `refSha` in
+  `execution-start-carry.mjs`, and `verifies` in
+  `maintain-default-checkout.mjs`, with differing error handling. Decide
+  whether to consolidate both, for example beside `revParse` in
+  `publication-git.mjs`, which crosses skills.
 
-**Relation:** follows SEED-008#closure-proof-and-harness-correction, which
-fixes the Story Branch native harness this story's acceptance would reuse.
+**Relation:** follows SEED-008#closure-response-and-spawned-script-identity,
+which finishes repairing the Story Branch native harness this story's
+acceptance would reuse.
 
 <a id="reduce-ci-observer-overhead"></a>
 

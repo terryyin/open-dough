@@ -15,10 +15,8 @@ import {
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { managementContext } from "../../dough-execute-plan/scripts/publication-git.mjs";
-import {
-  isAncestor,
-  preserved,
-} from "../../dough-land/scripts/worktree-retirement.mjs";
+import { preserved } from "../../dough-land/scripts/retirement-checks.mjs";
+import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 
 const retirementCommand = fileURLToPath(
   new URL("../../dough-land/scripts/worktree-retirement.mjs", import.meta.url),

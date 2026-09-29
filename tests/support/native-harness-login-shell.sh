@@ -34,6 +34,20 @@ native_harness_release_login_path() {
   fi
 }
 
+# Writes into directory $1 a user profile whose zsh startup files each put
+# $1/decoy first on PATH, where a gh appends its arguments to $1/decoy.log and
+# fails, as a user's own profile could put another gh before the shim.
+native_harness_write_decoy_profile() {
+  local profile=$1
+  mkdir -p "${profile}/decoy"
+  printf '%s\n' '#!/usr/bin/env bash' \
+    "printf '%s\\n' \"\$*\" >> '${profile}/decoy.log'" 'exit 1' \
+    > "${profile}/decoy/gh"
+  chmod +x "${profile}/decoy/gh"
+  printf 'export PATH=%q\n' "${profile}/decoy:${PATH}" \
+    | tee "${profile}/.zshenv" "${profile}/.zprofile" > "${profile}/.zshrc"
+}
+
 # Runs command $1 as an interactive login zsh (Cursor's shell) would: each
 # startup file from ZDOTDIR, else HOME, in zsh's order. Emulated in bash so
 # the check needs no zsh.

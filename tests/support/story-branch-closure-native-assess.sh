@@ -27,13 +27,14 @@ story_closure_retire_seen() {
 }
 
 # True when response $1 states the trunk result as a success or pass and no
-# line reports trunk CI, its coverage, receipt, or verdict failed or
-# unavailable.
+# clause reports CI, its coverage, receipt, or verdict failed or unavailable;
+# another step failing beside that result, such as a push, is no CI failure.
 story_closure_response_trunk_result() {
   local response=$1
   if grep -Eiq 'trunk.+(CI|verdict|receipt).+success|success.+trunk|integrat.+success|completion receipt|trunk.+(passed|green)|(passed|green).+trunk' "${response}" \
-    && ! grep -Ei 'trunk|(^|[^[:alpha:]])CI([^[:alpha:]]|$)|coverage|receipt|verdict|observer|watcher' "${response}" \
-    | grep -Eiq 'failed|failing|unavailable|undiscovered|did not pass|not (a )?green'; then
+    && ! awk '{ gsub(/[.;,!?][[:space:]]/, "\n"); print }' "${response}" \
+    | grep -Ei '(^|[^[:alpha:]])CI([^[:alpha:]]|$)|coverage|receipt|verdict' \
+      | grep -Eiq 'failed|failing|unavailable|undiscovered|did not pass|not (a )?green'; then
     printf 'true\n'
   else
     printf 'false\n'
@@ -225,8 +226,8 @@ run_story_closure_assessor_counterexamples() {
   story_closure_response_counterexamples "${work}"
 }
 
-# The response check accepts a trunk pass stated as passed or green and keeps
-# rejecting a response that reports trunk CI failed or unavailable.
+# The response check accepts a trunk pass, also beside a failed push, and
+# keeps rejecting a response that reports trunk CI failed or unavailable.
 story_closure_response_counterexamples() {
   local work=$1 text expected
   while IFS='|' read -r expected text; do
@@ -244,5 +245,6 @@ false|Merged into trunk.\n### Completion receipt (trunk)\n- Remaining CI coverag
 false|Branch CI passed. Trunk CI failed on the merged commit.
 false|The merge reached trunk.
 true|Trunk CI passed.\nA decision to delete the branch failed once and was retried.
+true|The push failed due to zsh colon modifiers, so I pushed from bash; trunk CI passed on the merged commit and the trunk observer stopped after its completion receipt.
 EOF
 }

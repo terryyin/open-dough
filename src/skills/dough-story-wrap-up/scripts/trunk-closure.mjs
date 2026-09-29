@@ -21,10 +21,8 @@ import {
   resolveManagementContext,
   targetBranchName,
 } from "../../dough-execute-plan/scripts/publication-git.mjs";
-import {
-  isAncestor,
-  retireWorktree,
-} from "../../dough-land/scripts/worktree-retirement.mjs";
+import { retireWorktree } from "../../dough-land/scripts/worktree-retirement.mjs";
+import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import {
   observerRoot,
   settleFinalClosure,

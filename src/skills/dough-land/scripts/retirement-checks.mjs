@@ -7,11 +7,14 @@ import {
   git,
   lsRemoteSha,
 } from "../../dough-execute-plan/scripts/publication-git.mjs";
-import { createdForRoot } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
-export const notCreatedForWork =
+import {
+  createdForRoot,
+  isAncestor,
+} from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
+const notCreatedForWork =
   "reused, host-owned, or unrecorded workspace, not created for this work";
 
-export function canonical(path) {
+function canonical(path) {
   return existsSync(path) ? realpathSync(path) : path;
 }
 
@@ -26,10 +29,6 @@ async function succeeds(repo, ...args) {
     }
     throw error;
   }
-}
-
-export function isAncestor(repo, ancestor, descendant) {
-  return succeeds(repo, "merge-base", "--is-ancestor", ancestor, descendant);
 }
 
 export function refExists(repo, ref) {
