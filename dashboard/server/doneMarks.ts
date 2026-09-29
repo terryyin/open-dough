@@ -21,7 +21,7 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import type { AgentTerminals } from "./agentTerminals.ts";
 import { claudeSessions, stopClaude } from "./claudeCode.ts";
-import { markRecordDone } from "./launchRecordStore.ts";
+import { setRecordDoneAt } from "./launchRecordStore.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
 const defaultRenameWaitMs = 5_000;
@@ -99,7 +99,7 @@ export async function markSessionDone(
   await renameInClaudeCode(record, folder, terminals);
   const doneAt = new Date().toISOString();
   const marked =
-    (await markRecordDone(source.id, record.session.sessionId, doneAt)) ??
+    (await setRecordDoneAt(source.id, record.session.sessionId, doneAt)) ??
     ({ ...record, doneAt } satisfies LaunchRecord);
   terminals.endAttachments(record.session.sessionId);
   const { sessionState } = await launches.stateOf(source, record);

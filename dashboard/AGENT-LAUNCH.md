@@ -75,11 +75,11 @@ read from `claude agents --json --all` in the project's folder whenever the
 records are read and never kept:
 **Working** or **Idle** while its process runs busy or idle, **Done** once the
 developer marked it done (below), **Finished** once it is done, and
-**Stopped** otherwise. A session marked done that runs again, as opening it
-wakes it, shows its running state. A session Claude Code no longer lists
-shows **Session unavailable** without Open terminal; if the listing cannot be
-read, every entry shows **State unknown** with "Claude Code's session list
-could not be read" and keeps Open terminal. While the page
+**Stopped** otherwise. A session marked done that runs again shows its
+running state; opening its terminal here reopens it (below). A session Claude
+Code no longer lists shows **Session unavailable** without Open terminal; if
+the listing cannot be read, every entry shows **State unknown** with "Claude
+Code's session list could not be read" and keeps Open terminal. While the page
 is visible it reads the records again every 15 seconds, the pace of its
 revision checks, so a state change shows without a reload. With no records,
 `claude` is not run.
@@ -103,7 +103,10 @@ attach`, when it comes from another site or host (403), names an unknown
 project (404), names a session this dashboard did not record for that project
 (404, without running `claude` at all), finds the project folder missing
 (404), or names a session Claude Code no longer lists (410). As for Open
-terminal, a stopped session and one whose state is unknown still attach.
+terminal, a stopped session and one whose state is unknown still attach. An
+admitted attach to a session marked done clears the record's done time once
+`claude attach` has started, before any of its output reaches the socket; a
+refused upgrade, or an attach that could not start, leaves the mark.
 
 **Open terminal** on a card's entry or a Recent sessions entry opens that
 session in the page's one terminal (`src/TerminalPanel.tsx`, an xterm.js
@@ -152,7 +155,11 @@ to the session's Recent sessions entry: its Open terminal, the entry itself
 when it offers none, or Recent sessions when the entry is not shown. That
 entry shows **Done** and "Named done-<name>", even for a session Claude Code
 no longer lists, and still offers Open terminal while Claude Code keeps the
-conversation. A done mark is local evidence, like the launch record, and
+conversation. Opening it there reopens the session: once the terminal shows
+its output, the page reads the session's record again, so the session returns
+to its card with its current state and its entry no longer shows Done, through
+reloads and restarts. It is kept like any unclosed session until Mark as done
+marks it again. A done mark is local evidence, like the launch record, and
 never changes where origin places the story.
 
 Launch records are kept on this machine, outside every repository, in

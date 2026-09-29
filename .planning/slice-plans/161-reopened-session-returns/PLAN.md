@@ -70,7 +70,7 @@ this dashboard did not launch.
 
 ### 1. Opening a done session's terminal puts it back on its card
 Type: Behavior
-Status: planned
+Status: done
 Proof:
 - `agent-terminal-boundary.spec.ts`: an attach to a done, listed session
   answers the record from `recordsOf` without `doneAt`, also after a server
@@ -91,12 +91,28 @@ an admitted attach clears a done mark) and the North Star row "Launch actions
 / Card sessions / Recent sessions" in `docs/dashboard-ux-ui-north-star.md`
 (keep it at 250 lines or fewer).
 
+Accepted proof (2026-09-29): `agent-terminal-reopen.spec.ts` (split out of
+the boundary spec to keep it at 250 lines; preview mode, as
+`agent-launch-done.spec.ts`) "reopens a session marked done once its attach
+starts, and keeps it reopened across a restart" and "keeps a done session
+Claude Code no longer lists done when its upgrade is refused" (410, same
+`doneAt`); `agent-terminal-done.spec.ts` journey "…which shows it Done until
+its terminal opens again" (reopen, reload, mark again, `expectMembership`).
+With the page's `readSession` call removed, the journey fails at the card
+count, so the page follows without the steady-pace read.
+`npm run typecheck:dashboard`; whole dashboard suite 288 passed.
+
+Learning: the WebSocket handshake completes before `connect` runs, so the
+boundary holds output until the clear settles and the page re-reads on the
+first output frame, not on socket open. `markRecordDone` became
+`setRecordDoneAt`.
+
 ## Proof ownership
 
 | Promise | Owner |
 | --- | --- |
-| Admitted attach clears the mark; restart keeps it cleared | 1: boundary spec |
-| Refused attach keeps the mark (example 4) | 1: boundary spec |
+| Admitted attach clears the mark; restart keeps it cleared | 1: `agent-terminal-reopen.spec.ts` |
+| Refused attach keeps the mark (example 4) | 1: `agent-terminal-reopen.spec.ts` |
 | Card and Recent sessions follow the cleared mark without reload (example 1) | 1: `agent-terminal-done.spec.ts` |
 | Mark again closes it (example 3) | 1: `agent-terminal-done.spec.ts`; retention from the done time stays `agent-launch-records.spec.ts` |
 | Session facts never move a story | 1: `expectMembership` in the journey |

@@ -9,8 +9,8 @@
 // is visible, the records are read again at the revision checks' steady pace
 // (`./revisionCheckSchedule.ts`), so each session's state as Claude Code lists
 // it stays current; a page seen again reads them at once. A session marked
-// done replaces its record in its own project's list. Nothing here decides a
-// story fact, which origin still publishes.
+// done, or read again at once, replaces its record in its own project's list.
+// Nothing here decides a story fact, which origin still publishes.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
@@ -55,6 +55,9 @@ export type ProjectLaunches = {
   // Marks a recorded session of any project done, and answers whether the
   // boundary marked it.
   readonly markDone: (record: LaunchRecord) => Promise<boolean>;
+  // Reads a recorded session of any project again at once, as its project's
+  // records answer it.
+  readonly readSession: (record: LaunchRecord) => Promise<void>;
 };
 
 const attemptKey = (
@@ -174,20 +177,41 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
     [source.id, setAttempt],
   );
 
-  const markDone = useCallback(async (record: LaunchRecord) => {
-    const marked = await requestMarkDone(record);
-    if (marked === undefined) return false;
-    const sourceId = marked.request.source;
+  // Replaces the session's record in its own project's list.
+  const replaceRecord = useCallback((answered: LaunchWithState) => {
+    const sourceId = answered.request.source;
     setRecords((current) =>
       new Map(current).set(
         sourceId,
         (current.get(sourceId) ?? []).map((known) =>
-          known.session.sessionId === marked.session.sessionId ? marked : known,
+          known.session.sessionId === answered.session.sessionId
+            ? answered
+            : known,
         ),
       ),
     );
-    return true;
   }, []);
+
+  const markDone = useCallback(
+    async (record: LaunchRecord) => {
+      const marked = await requestMarkDone(record);
+      if (marked === undefined) return false;
+      replaceRecord(marked);
+      return true;
+    },
+    [replaceRecord],
+  );
+
+  const readSession = useCallback(
+    async (record: LaunchRecord) => {
+      const kept = await readLaunchRecords(record.request.source);
+      const answered = kept?.find(
+        (known) => known.session.sessionId === record.session.sessionId,
+      );
+      if (answered !== undefined) replaceRecord(answered);
+    },
+    [replaceRecord],
+  );
 
   return {
     records: records.get(source.id) ?? [],
@@ -195,5 +219,6 @@ export function useAgentLaunches(source: PublishedSource): ProjectLaunches {
       attempts.get(attemptKey(source.id, identity, workflow)),
     start,
     markDone,
+    readSession,
   };
 }

@@ -127,7 +127,7 @@ export function App() {
       (entry) => entry.preparation !== undefined,
     );
   return (
-    <TerminalSplit markDone={launches.markDone}>
+    <TerminalSplit sessions={launches}>
       <DashboardBanner
         source={source}
         work={work}

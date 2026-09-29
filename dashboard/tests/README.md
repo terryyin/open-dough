@@ -48,8 +48,9 @@ line on Ctrl+U, renames its listed session on `/rename <name>`, reports its
 size, detaches on Ctrl+Z, and records its pid, its lines, and what ended it
 (`claudeAttaches`). The terminal boundary specs drive it over a raw socket
 (`agent-terminal-boundary.spec.ts`; `agent-terminal-close.spec.ts` for the
-server's close hook; `agent-launch-done.spec.ts` for Mark as done's rename and
-stop, and `agent-launch-done-refusal.spec.ts` for its refusals). The page
+server's close hook; `agent-terminal-reopen.spec.ts` for reopening a session
+marked done; `agent-launch-done.spec.ts` for Mark as done's rename and stop,
+and `agent-launch-done-refusal.spec.ts` for its refusals). The page
 journeys behind the terminal panel are `agent-terminal.spec.ts` (opening, one
 at a time, Close), `agent-terminal-lifetime.spec.ts` (project switch, lost
 connection and Reconnect, ended terminal), and `agent-terminal-done.spec.ts`

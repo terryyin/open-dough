@@ -8,10 +8,13 @@
 // Anything else closes the socket. Closing the socket from either side, or
 // closing the server, ends that attach process, which detaches only: the
 // session keeps running. An attach process that exits on its own closes its
-// socket with `terminalEndedCode`. Mark as done (`./doneMarks.ts`) may type
-// its fixed rename into a session's open attachment, then ends every
-// attachment to that session the same way. Nothing else is ever run here, and
-// never a shell.
+// socket with `terminalEndedCode`. An attach started for a session marked
+// done reopens it: its record's done time is cleared
+// (`./launchRecordStore.ts`) before any of its output reaches the socket, so a
+// page that reads the records once the terminal shows output finds the
+// session unclosed. Mark as done (`./doneMarks.ts`) may type its fixed rename
+// into a session's open attachment, then ends every attachment to that
+// session the same way. Nothing else is ever run here, and never a shell.
 
 import { STATUS_CODES, type IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
@@ -25,12 +28,16 @@ import {
   type TerminalMessage,
 } from "../src/agentTerminal.ts";
 import { attachClaude } from "./claudeCode.ts";
+import { setRecordDoneAt } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
-// The one recorded session an admitted upgrade attaches to.
+// The one recorded session an admitted upgrade attaches to, in its project,
+// and whether its record is marked done.
 export type TerminalSession = {
+  readonly sourceId: string;
   readonly sessionId: string;
+  readonly markedDone: boolean;
   readonly shortId: string;
   readonly folder: ProjectFolder;
 };
@@ -154,16 +161,27 @@ export class AgentTerminals {
       return;
     }
     this.attached.set(pty, { sessionId: session.sessionId, ws });
+    // The attach has started, so a session marked done is reopened; a clear
+    // that fails leaves it marked and the terminal attached.
+    const reopened = session.markedDone
+      ? setRecordDoneAt(session.sourceId, session.sessionId, undefined).catch(
+          () => undefined,
+        )
+      : Promise.resolve();
     pty.onData((output) => {
-      if (ws.readyState === ws.OPEN) {
-        ws.send(output);
-      }
+      void reopened.then(() => {
+        if (ws.readyState === ws.OPEN) {
+          ws.send(output);
+        }
+      });
     });
     // Exited on its own, not ended by `detach`, whose socket is already
     // closing.
     pty.onExit(() => {
       if (this.attached.delete(pty)) {
-        ws.close(terminalEndedCode, "The terminal ended.");
+        void reopened.then(() => {
+          ws.close(terminalEndedCode, "The terminal ended.");
+        });
       }
     });
     ws.on("message", (data, isBinary) => {
