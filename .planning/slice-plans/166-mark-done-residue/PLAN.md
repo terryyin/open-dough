@@ -129,3 +129,7 @@ Run the `dough-post-change-refactor` pass before each commit.
 Three slices, each one concern: missing boundary proof, a false shutdown
 claim in the CI observer, and page-journey ownership. They touch separate
 files except the tests README; any order works. No concern remains.
+
+## Execution complete
+
+Product advice: no change; the correction added proof and restructured tests only, so no product priority moves.
