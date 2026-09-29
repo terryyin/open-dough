@@ -143,7 +143,7 @@ the workspace and reports `setup-failed`.
 
 ### 2. Retirement in a later session reads the creation record
 Type: Behavior
-Status: planned
+Status: done
 Proof: guidance-structure assertion plus a recorded behavior walk of examples 1–4.
 
 Behavior: A worktree holds `refs/worktree/dough/created-for/S`, and the session
@@ -167,6 +167,28 @@ already checks the shared lifecycle's structure, that "Close or retain it"
 names the creation ref; run it and the Land and preparation suites. Walk
 examples 1–4 through the edited guidance under the maintainer behavior review
 and record each decision point here. Native agent behavior is slice 3's.
+
+Accepted proof (2026-09-29): "Close or retain it" lists the creation record
+first among the three records, names the ref and the read command
+(`lstrip=4` verified in a scratch repository to print exactly `SEED-008#x`, and
+nothing from the main checkout), and retains a workspace whose record names
+other work; Dough Land's **Worktree** input and the preparation `start` receipt
+link to it. From the checkout root,
+`node --test src/skills/dough-manual-testing/scripts/*.test.mjs src/skills/dough-story-refinement/scripts/*.test.mjs`
+passed 50/50 after refactoring (`workspace-ownership-lifecycle.test.mjs`'s
+phrases scoped to "## Close or retain it", failing against the pre-edit text;
+`dough-land-guidance.test.mjs`'s Worktree-input assertion);
+`tests/native-evidence-identity.sh` and `tests/payload-declaration-links.sh`
+exit 0 under a modern bash. Behavior walk decisions:
+
+1. Session B lands S's preparation with no `created: true` in context → the
+   record lists `S` → retired under the existing gates.
+2. A later session closes S → wrap-up retires through Land's "Retire the
+   worktree", which reads the record listing `S` → retired after its gates.
+3. T closes in a worktree whose record lists `S` → retained and reported as
+   created for S.
+4. A host-owned worktree has no record and no other record applies → retained
+   and reported.
 
 ### 3. Native sessions retire a worktree whose creation only the ref records
 Type: Behavior

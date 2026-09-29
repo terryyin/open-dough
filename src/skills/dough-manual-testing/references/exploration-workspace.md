@@ -46,7 +46,7 @@ local checkout.
 
 - owned workspace: its worktree path, branch, and starting revision, and
   whether this work created it or reused a checkout another workflow already
-  owns;
+  owns, as its [creation record](#close-or-retain-it) shows when it has one;
 - originating checkout: the path this work was invoked from, when that path
   is not the owned workspace;
 - integration checkout: the project's established local checkout for ordinary
@@ -70,7 +70,8 @@ integration sequence.
 
 After an interruption, verify the recorded worktree path, branch, and starting
 revision against actual Git state before reusing the workspace. When the record
-includes whether this work created the workspace, verify that too. If the
+includes whether this work created the workspace, verify that too, including
+against the workspace's [creation record](#close-or-retain-it). If the
 identity cannot be verified, stop and report it rather than continuing in a
 possibly different checkout.
 
@@ -88,13 +89,23 @@ The work owns the workspace it created, so one an earlier session created for
 this same work is removed with it.
 
 Take that fact from what the work recorded where a later session can read it:
-the selection result reporting the workspace as created (`created: true`),
-retained in the plan or the conversation, or the caller's or developer's
-statement that the workspace was created for this work. A claim or preparation
-assignment the workspace holds shows which work it serves, not whether that
-work created it. A reused or host-owned workspace stays with its owning
-workflow; retain and report it instead of removing it. When neither record
-settles which applies, ownership is ambiguous.
+
+- the workspace's creation record, naming the work it was created for;
+- the selection result reporting the workspace as created (`created: true`),
+  retained in the plan or the conversation; or
+- the caller's or developer's statement that the workspace was created for
+  this work.
+
+When execution startup or preparation `start` creates a workspace for work
+with an identity, it writes the creation record
+`refs/worktree/dough/created-for/<identity>` in that workspace. Read it with
+`git -C <worktree> for-each-ref --format='%(refname:lstrip=4)' refs/worktree/dough/created-for/`,
+which lists that identity. A creation record naming other work means this work
+reused the workspace. A claim or preparation assignment the workspace holds
+shows which work it serves, not whether that work created it. A reused or
+host-owned workspace stays with its owning workflow; retain and report it, with
+the work its creation record names, instead of removing it. When no record
+settles which applies, or the records disagree, ownership is ambiguous.
 
 If cleanup would be unsafe because of dirty state, unresolved evidence,
 ambiguous ownership, or an identity mismatch, do not force, reset, or delete

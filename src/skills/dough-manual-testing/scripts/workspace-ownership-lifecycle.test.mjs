@@ -52,18 +52,24 @@ test("the shared lifecycle owns selection, local checkout role, and target selec
 
 test("the shared lifecycle retires a workspace with the work that created it", () => {
   const words = (phrase) => new RegExp(phrase.trim().split(/\s+/).join("\\s+"));
+  const close = shared.slice(shared.indexOf("## Close or retain it"));
   for (const phrase of [
     "Remove only a clean, unambiguous workspace created for this work",
     "the story, preparation, execution, or exploration it serves",
     "one an earlier session created for this same work is removed with it",
-    // A later session can read the fact: a retained selection result or a
-    // caller's or developer's statement; a held claim or assignment is not it.
+    // A later session can read the fact: the workspace's creation record, a
+    // retained selection result, or a caller's or developer's statement; a
+    // held claim or assignment is not it.
+    "the workspace's creation record, naming the work it was created for",
+    "`refs/worktree/dough/created-for/<identity>`",
+    "`git -C <worktree> for-each-ref --format='%\\(refname:lstrip=4\\)' refs/worktree/dough/created-for/`",
     "reporting the workspace as created \\(`created: true`\\)",
     "caller's or developer's statement that the workspace was created for this work",
+    "A creation record naming other work means this work reused the workspace",
     "A claim or preparation assignment the workspace holds shows which work it serves, not whether that work created it",
-    "A reused or host-owned workspace stays with its owning workflow",
+    "A reused or host-owned workspace stays with its owning workflow; retain and report it, with the work its creation record names",
   ]) {
-    assert.match(shared, words(phrase));
+    assert.match(close, words(phrase));
   }
   for (const guidance of [
     shared,
@@ -71,8 +77,12 @@ test("the shared lifecycle retires a workspace with the work that created it", (
     disposition,
     read("dough-manual-testing/SKILL.md"),
     read("dough-bug-fixing/SKILL.md"),
+    read("dough-story-refinement/references/preparation-assignment.md"),
   ]) {
-    assert.doesNotMatch(guidance, /session-created|this\s+session\s+created/);
+    assert.doesNotMatch(
+      guidance,
+      /session-created|this\s+session\s+created|created\s+by\s+this\s+session/,
+    );
   }
 });
 

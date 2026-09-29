@@ -32,7 +32,9 @@ Resolve both before any commit:
   the current one, or the owned workspace a calling skill recorded. Record its
   path and branch, whether this work created it or reused one another
   workflow owns, and its starting revision when known. Ownership comes from
-  that context; do not infer it from a clean directory.
+  that context or the worktree's
+  [creation record](../dough-manual-testing/references/exploration-workspace.md#close-or-retain-it);
+  do not infer it from a clean directory.
 - **Default checkout.** The project's established checkout for ordinary work,
   when the context supplies one; the refresh step inspects it. It is never the
   worktree being landed. Landing needs no default checkout.
