@@ -17,11 +17,12 @@ run_one_shot_state_counterexamples() {
   local push_log="${git_publication_fixture_root}/push.log"
   local backlog=.planning/PRODUCT-BACKLOG.md taken=${NATIVE_ONE_SHOT_IDENTITY:-SEED-A#a}
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
-  one_shot_reassess() {
+  # Requires the state, observed again, to pass with a reason holding $1.
+  one_shot_passes() {
     git_publication_fixture_observe_one_shot "${journey}" complete \
       "${transcript}" > "${obs}"
     git_publication_assess "${obs}"
-    git_publication_suite_expect_assess "$@"
+    git_publication_suite_expect_assess pass "$1"
   }
   # Rejected case $1 of signal $2 on the state observed now, failing with a
   # reason holding $3.
@@ -103,7 +104,7 @@ run_one_shot_state_counterexamples() {
   one_shot_rejects human-edit human-edit 'human edits'
   git_publication_fixture_plant_human_edit "${integration}"
 
-  one_shot_reassess pass 'reached remote trunk'
+  one_shot_passes 'reached remote trunk'
 }
 
 # The queued result commit rewritten to leave part of the story's closure

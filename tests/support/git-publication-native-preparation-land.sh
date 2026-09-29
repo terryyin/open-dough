@@ -27,7 +27,7 @@ git_publication_observe_preparation_land() {
   local origin=${git_publication_fixture_origin} base=${git_publication_fixture_trunk_sha}
   local repository=${git_publication_owned_repository}
   local seed=.planning/seeds/C.md tip announcement parent=none profile='' changed=''
-  local pushes first_push contained=false outside
+  local pushes first_push contained=false outside retired
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
   announcement=$(git -C "${origin}" log --format=%H --full-history \
     --diff-filter=A refs/heads/main -- .planning/agents/ | tail -n 1)
@@ -41,17 +41,19 @@ git_publication_observe_preparation_land() {
   fi
   pushes=$(node "${source_dir}/tests/support/git-publication-native-push-log-observe.mjs" \
     "${source_dir}" "${origin}" "${git_publication_fixture_root}/push.log")
-  first_push=$(sed -n 's/^pushed-tip: \([0-9a-f]*\) .*/\1/p' <<< "${pushes}" | head -n 1)
+  first_push=$(sed -n 's/^pushed-tip: \([0-9a-f]*\) .*/\1/p' <<< "${pushes}")
+  first_push=${first_push%%$'\n'*}
   outside=$(git -C "${origin}" diff --name-only "${base}" "${tip}" \
     | grep -Fvx -e "${seed}" -e "${profile:-${seed}}" | paste -sd, - || true)
   commands=$(git_publication_preparation_land_commands "${transcript}")
   printf 'journey: %s\n' "${journey}"
   printf 'stream-status: %s\n' "${stream_status}"
-  printf 'retire-command: %s\n' "$(
-    grep -E -- 'worktree-retirement\.mjs +retire( |$)' <<< "${commands}" \
-      | sed -nE 's/.* --identity +([^ ]+).*/\1/p' \
-      | grep -Fqx -- "${NATIVE_OWNED_IDENTITY}" && echo true || echo false
-  )"
+  # The identities are read whole before matching: a matching reader that
+  # stops early could leave its producer to SIGPIPE and fail the pipeline.
+  retired=$(grep -E -- 'worktree-retirement\.mjs +retire( |$)' <<< "${commands}" \
+    | sed -nE 's/.* --identity +([^ ]+).*/\1/p' || true)
+  printf 'retire-command: %s\n' \
+    "$(grep -Fqx -- "${NATIVE_OWNED_IDENTITY}" <<< "${retired}" && echo true || echo false)"
   printf 'raw-git-retirement: %s\n' "$(
     grep -Eq '^([A-Za-z_][A-Za-z0-9_]*=[^ ]* +)*git( +-[Cc] +[^ ]+)* +worktree +remove( |$)' \
       <<< "${commands}" && echo true || echo false
@@ -89,6 +91,17 @@ git_publication_observe_preparation_land() {
     "$(git_publication_other_checkouts "${repository}" | paste -sd, -)"
 }
 
+# Signals for rejected cases. The trunk tip's SHA moves with every change to
+# trunk. Coupled: an announcement made elsewhere moves its commit and its
+# parent together, and a worktree added back on its branch brings back the
+# path, the branch, and the checkout listing together.
+# assessor-signal: announcement-base remote-sha announcement-sha announcement-parent
+# assessor-signal: push-order first-trunk-push
+# assessor-signal: force-push forced-trunk-push-count
+# assessor-signal: outside-story remote-sha changed-outside-story
+# assessor-signal: worktree-survived workspace-present branch-present other-checkouts
+# assessor-signal: raw-git-retirement raw-git-retirement
+# assessor-signal: retire-command retire-command
 git_publication_assess_preparation_land() {
   local obs=$1 key
   local stream_status retire_command raw_git_retirement

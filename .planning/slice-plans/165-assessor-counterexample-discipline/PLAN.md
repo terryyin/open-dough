@@ -254,6 +254,24 @@ Considered and left out:
   it.
 - The delivery-evidence assessors return no reason text, so their cases check
   only that the assessor does not pass.
+- **Slice 7 (done).** The startup owned-context (4) and preparation-land (9)
+  real-state cases re-observe the mutated fixture and go through the helper;
+  the raw-git case split into `retire-command-missing` and
+  `raw-git-retirement`, both rejected. `announcement-base`, `outside-story`,
+  and `worktree-survived` are coupled with reasons beside them. No assessor
+  verdict changed. Three observer derivations that could lose to SIGPIPE
+  under `pipefail` (`retire-command`, `first-trunk-push`,
+  `git_publication_lists_taken`) now read whole output first. Proof:
+  `bash scripts/test.sh tests/git-publication-native-owned-context.sh` (×3,
+  about 14 s, unchanged), also with mawk.
+- **Required-pass wrappers are pass-only:** `owned_context_passes`,
+  `one_shot_passes`, and `escalation_passes` call
+  `git_publication_suite_expect_assess pass` with a fixed verdict.
+- **For slice 8's guard:** it must not flag positive `expect_assess pass`
+  calls, runners that set a verdict (`if <assessor>; then status=pass`), or
+  negations inside assessor definitions (for example
+  `! git_publication_assess_prose_accepts_*`). Scope it to call shapes that
+  expect a rejection.
 
 ## Slices
 
@@ -337,7 +355,7 @@ the assessor passes is repaired in this slice.
 
 ### 7. Owned-context real-state suites through the helper
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/git-publication-native-owned-context.sh` green.
 
 Internal change: the startup owned-context and preparation-land suites

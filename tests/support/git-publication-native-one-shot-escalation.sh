@@ -124,11 +124,12 @@ run_one_shot_escalation_state_counterexamples() {
   local patch="${root}/workspace-edits.patch"
   local observed=${transcript}
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
-  escalation_reassess() {
+  # Requires the state, observed again, to pass with a reason holding $1.
+  escalation_passes() {
     git_publication_fixture_observe_one_shot_escalation one-shot-escalation \
       complete "${observed}" > "${obs}"
     git_publication_assess "${obs}"
-    git_publication_suite_expect_assess "$@"
+    git_publication_suite_expect_assess pass "$1"
   }
   # Rejected case $1 of signal $2 on the state observed now, expecting
   # verdict $3 with a reason holding $4.
@@ -198,5 +199,5 @@ run_one_shot_escalation_state_counterexamples() {
   escalation_rejects human-edit human-edit fail 'human edits'
   git_publication_fixture_plant_human_edit "${integration}"
 
-  escalation_reassess pass 'restored uncommitted over the claim'
+  escalation_passes 'restored uncommitted over the claim'
 }
