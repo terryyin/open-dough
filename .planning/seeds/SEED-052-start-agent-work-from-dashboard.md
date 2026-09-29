@@ -130,7 +130,7 @@ spec's Preparing step repeats it. It adds no feature promise. See the
 
 **Identity:** SEED-052#card-session-residue
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/160-card-session-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f8f8fba02b3d2ffda449a8c76b7f08cbbe07c839debf0f0f019e81c9fc223ad5","plan":"d72d1edd760aca423f62659247124fa72c3645c8b5540d6d68b55541ff36c2a0"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/160-card-session-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05625fa3f4869d70af589778fe6f4106930e1b07140e174c788c519de6c617e6","plan":"d72d1edd760aca423f62659247124fa72c3645c8b5540d6d68b55541ff36c2a0"}}
 ```
 
 **Goal:** Maintainers can rely on a test for every Mark as done promise the
@@ -223,9 +223,8 @@ open each conversation merely to find out which one needs attention.
    or result is waiting.
 
 **Depends on:** Existing Claude Code launch, Recent sessions, and embedded
-terminal behavior in [Agent launch](../../dashboard/AGENT-LAUNCH.md), plus
-[Keep story sessions linked until deliberately closed](#keep-story-session-links)
-for persistent session entries and deliberate closure on story cards.
+terminal behavior in [Agent launch](../../dashboard/AGENT-LAUNCH.md),
+including persistent session entries and Mark as done on story cards.
 
 **Feasibility evidence:** The current dashboard reads `claude agents --json
 --all`, but presents every live non-busy process as Idle. Claude Code's
@@ -369,86 +368,6 @@ tools.
 - **Depends on:** The chosen Claude Code experience; no dependency on story 7.
 - **Safe stopping point:** Each delivered tool remains usable if later parity
   enhancements are dropped.
-
-<a id="keep-story-session-links"></a>
-
-### Keep story sessions linked until deliberately closed
-
-**Identity:** SEED-052#keep-story-session-links
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/157-keep-story-session-links/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fcbdfee2c17b71a102a3fb2238183666d13b53654eb569a3cb7553a1fa84bd01","plan":"1099a369a350f902036bb152425222b049181a74605a281e62fc9761748e8a02"}}
-```
-
-**Goal:** A developer who launches execution or refinement from a story can
-find and reopen its conversations from that story's card while the work
-progresses, without matching titles in Recent sessions. Sessions leave the card
-only when the developer closes them on purpose.
-
-**Scope:**
-
-- Each Backlog, Preparing, and Taken card lists the story's dashboard-launched
-  sessions that have not been marked done. Each entry shows its workflow, launch
-  time, session state (the same states as Recent sessions), and Open terminal
-  while the session can be attached. Multiple sessions, including two launches
-  of one workflow, are listed separately. The listing survives page reloads,
-  project switches, and dashboard restarts, because it comes from the kept
-  launch records.
-- **Mark as done** is the only deliberate closure. Every session listed on a
-  card offers it, and the terminal panel keeps its own Mark as done. For a
-  session Claude Code no longer lists, Mark as done only records the done time
-  on the launch record: it renames and stops nothing. A done session leaves
-  its card. Its Recent sessions entry keeps Done, its done- name, and Open
-  terminal, as it does today.
-- Story state (Preparing, Taken), a finished or stopped process, an unreadable
-  Claude Code listing, and elapsed time never remove an unclosed session from
-  its card. An unavailable session stays listed as **Session unavailable**
-  without Open terminal. When the listing cannot be read, the session shows
-  **State unknown** with the existing explanation. Closing the terminal panel
-  or losing its connection only detaches.
-- Backlog cards always offer Start execution and Start refinement with their
-  existing notes, whatever sessions are listed. Taken cards still offer
-  neither. The listed session states show what is already running.
-- **Change to existing behavior:** Remove the Started record and all of its
-  settlement rules from [Agent launch](../../dashboard/AGENT-LAUNCH.md): its
-  replacement of the Start action, and its ending on Preparing, Taken, a stopped
-  session, or the story leaving every list. A launch record that has not been
-  marked done is never dropped. A done record stops being answered 30 days after
-  its done time, instead of 30 days after its launch.
-- **Deferred:** Any completed-story view and completion evidence belong to
-  [Review recently done stories alongside their available sessions](#reconcile-recently-done-and-sessions).
-  When a story leaves every list, its sessions stay reachable only through
-  Recent sessions. Discovery of sessions this dashboard did not launch is also
-  deferred.
-- **Constraint:** Session facts stay local evidence. They never move a story
-  between stages or establish its progress or completion.
-- **Depends on:** Existing persisted launch records, Recent sessions, the
-  embedded terminal, and Mark as done, all already delivered. It has no
-  unfinished queued prerequisite.
-
-**Key examples:**
-
-1. A developer starts execution on a Backlog story that is Ready for execution. The
-   card lists an Execution session that is Working, with Open terminal, and
-   Start execution is still offered. The session readies and takes the story,
-   and origin moves it to Taken. The Taken card still lists that session.
-2. A developer starts refinement on a Backlog story, and origin later shows it
-   Preparing. The card keeps listing the Refinement session. A second Start
-   refinement adds a second entry beside the first.
-3. A listed session stops (Stopped), the dashboard restarts, and the developer
-   switches projects and back. The card still lists the session as Stopped,
-   and Open terminal attaches to it.
-4. Claude Code no longer lists a session. The card shows it as Session
-   unavailable, without Open terminal. The developer chooses Mark as done on
-   that entry. It leaves the card without running `claude stop`, and Recent
-   sessions shows it as Done.
-5. The developer marks an attached session done from the terminal panel. It
-   leaves its card, and Recent sessions still offers its Open terminal. Thirty
-   days after that done time, it is no longer listed. An unclosed session
-   launched 40 days ago remains on its card and in Recent sessions.
-6. The developer closes the terminal panel, or the connection drops. The
-   session stays listed on its card.
-
-## Related Candidate: Recently Done Stories
 
 <a id="reconcile-recently-done-and-sessions"></a>
 
