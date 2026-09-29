@@ -19,6 +19,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Prove Mark as done's remaining edges and trim card-session residue](seeds/SEED-052-start-agent-work-from-dashboard.md#card-session-residue) — SEED-052#card-session-residue
 - [See when a dashboard session needs human attention](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-refinement) — SEED-052#launch-claude-refinement
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
