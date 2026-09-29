@@ -787,7 +787,7 @@ substituted write-time checks, a `read-state` read-back and manual checks.
   - Tool: Claude Code
   - Model: claude-opus-5-5[1m]
   - Open Dough release: unknown; plan written from installed guidance at `41965529`
-  - Evidence: plan 149 slice 1 Proof lists `workspace-publication-startup-plan-link-cases.mjs` as a `node --test` target; it defines cases that `workspace-publication.test.mjs` imports and runs
+  - Evidence: plan 149 slice 1 Proof (recoverable at `b85f838a:.planning/slice-plans/149-creation-record-test-residue/PLAN.md`) lists `workspace-publication-startup-plan-link-cases.mjs` as a `node --test` target; it defines cases that `workspace-publication.test.mjs` imports and runs
   - Observed effect: the implementation agent substituted the importing test file and reported the substitution; no rework
   - Inference: a proof target named without running it, the same class as the backlog-validation premise above
 

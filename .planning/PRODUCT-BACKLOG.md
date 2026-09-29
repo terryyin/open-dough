@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Accept existing guidance natively on Codex](seeds/SEED-053-native-guidance-acceptance.md#native-acceptance-codex) — SEED-044#native-premise-acceptance-codex-cursor ([plan](slice-plans/141-codex-native-guidance-acceptance/PLAN.md))
 - [Close stories through an installed wrap-up command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command) — SEED-008#installed-wrap-up-command ([plan](slice-plans/146-installed-wrap-up-command/PLAN.md))
-- [Make the creation record's proof findable and wording-tolerant](seeds/SEED-008-worktree-branch-trunk-sync.md#creation-record-test-residue) — SEED-008#creation-record-test-residue ([plan](slice-plans/149-creation-record-test-residue/PLAN.md))
 
 ## Backlog list
 
