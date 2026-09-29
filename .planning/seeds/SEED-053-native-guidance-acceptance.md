@@ -11,12 +11,7 @@ scope: unknown
 
 ## Why This Matters
 
-Maintainers need host-specific evidence for the pending premise-verification
-and one-shot guidance. [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
-says evidence from one host does not transfer to another. This seed regroups
-the existing work from [SEED-044](SEED-044-verify-planning-premises.md) and
-[SEED-028](SEED-028-track-ad-hoc-work.md) into one story per host, with no
-additional acceptance cases or implementation scope.
+Maintainers need host-specific evidence for the pending premise-verification and one-shot guidance. [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) says evidence from one host does not transfer to another. This seed regroups the existing work from [SEED-044](SEED-044-verify-planning-premises.md) and [SEED-028](SEED-028-track-ad-hoc-work.md) into one story per host, with no additional acceptance cases or implementation scope.
 
 ## Stories
 
@@ -26,26 +21,12 @@ additional acceptance cases or implementation scope.
 
 **Identity:** SEED-044#native-premise-acceptance-codex-cursor
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/141-codex-native-guidance-acceptance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3dccbe0f93ffafd53e6192bb9a33ffddff9d3afc7afa983043807af1f2141af1","plan":"6c9eb170b2fae3be25a94db26b419ed02af8f4610f88a1c135b2302a65ed3537"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/141-codex-native-guidance-acceptance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e4b27fee9599673548e3d8d94759ce2de8001fc4e52371dd03b780f59fc376fd","plan":"10f29494f7d79fe19dcd33cdfcd9803ab2de8b3d9f75f8d00e3f9725e004628c"}}
 ```
 
-**Goal:** Developers using Codex can rely on the selected planning and
-work-tracking guidance: plans observe decisive premises before readiness,
-explicitly selected trivial work stays proportionate, and work requiring
-ordinary tracking becomes visible before further substantive action. Establish
-host-specific acceptance for these recorded behaviors, with claims limited to
-the observed sessions and justified reusable evidence.
+**Goal:** Developers using Codex can rely on the selected planning and work-tracking guidance: plans observe decisive premises before readiness, explicitly selected trivial work stays proportionate, and work requiring ordinary tracking becomes visible before further substantive action. Establish host-specific acceptance for these recorded behaviors, with claims limited to the observed sessions and justified reusable evidence.
 
-**Why now:** These behaviors are already installable: release 0.3.43 included
-premise verification and one-shot execution, while subsequent releases retained
-pending native requirements under explicit maintainer exceptions. This story
-reduces uncertainty about available behavior; it does not unblock a first
-release. A false planning premise can waste implementation and paid runs, while
-missed admission hides work from the coordination and dashboard direction.
-The cases and publication fixtures already exist, giving a bounded way to learn.
-Current Codex exposure, incident frequency and a deadline are not established;
-keep the current backlog position for this refinement without claiming that its
-inherited third-place slot proves urgency or quantified benefit.
+**Why now:** These behaviors are already installable: release 0.3.43 included premise verification and one-shot execution, while subsequent releases retained pending native requirements under explicit maintainer exceptions. This story reduces uncertainty about available behavior; it does not unblock a first release. A false planning premise can waste implementation and paid runs, while missed admission hides work from the coordination and dashboard direction. The cases and publication fixtures already exist, giving a bounded way to learn. Current Codex exposure, incident frequency and a deadline are not established; keep the current backlog position for this refinement without claiming that its inherited third-place slot proves urgency or quantified benefit.
 
 **Scope:**
 
