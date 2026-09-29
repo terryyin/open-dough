@@ -244,7 +244,9 @@ embedded interaction is never added.
   keeps Started until the dashboard restarts. Settling or relaunching from
   Claude Code's own state belongs here: `claude agents --json` keeps finished
   sessions with their `state`, which also supports reporting an unavailable
-  session.
+  session. A refinement's Started settles once the story shows Preparing, and
+  a refinement launched on a card already Preparing shows no Started at all,
+  so its session is then reachable only through `claude agents`.
 - **Depends on:** The dashboard launch ([Agent launch](../../dashboard/AGENT-LAUNCH.md))
   provides identified dashboard-launched sessions.
 - **Safe stopping point:** Users can find and revisit sessions through the CLI
@@ -289,9 +291,10 @@ embedded interaction is never added.
 
 - **For / why:** A developer can begin conversational preparation from an
   unrefined story and continue the interview where they selected it.
-- **Evaluation:** Select an unrefined story, choose refinement from the
-  state-aware skill chooser, optionally add context, and launch Claude Code.
-  Open the embedded terminal to answer its questions and review its result
+- **Evaluation:** Select an unrefined story and choose refinement from a
+  state-aware skill chooser, which offers the skills that apply to the
+  story's state in place of one fixed action per workflow. After the launch,
+  open the embedded terminal to answer its questions and review its result
   through the ordinary workflow. Published refinement facts subsequently
   appear from origin.
 - **Boundary:** The agent still owns its normal preparation workflow; launching
@@ -303,7 +306,8 @@ embedded interaction is never added.
   tests whether skill selection and native terminal interaction are sufficient.
 - **Effort hypothesis:** Unestimated; skill applicability and interview-to-
   publication behavior need refinement.
-- **Depends on:** Story 1a for the refinement launch and story 3 for the
+- **Depends on:** The dashboard's refinement launch
+  ([Agent launch](../../dashboard/AGENT-LAUNCH.md)) and story 3 for the
   embedded terminal.
 - **Safe stopping point:** Refinement and execution are useful without moving
   preparation responsibilities into the dashboard.
@@ -361,7 +365,9 @@ embedded interaction is never added.
   testing its different lifecycle rather than treating refinement as execution.
 - **Effort hypothesis:** Unestimated; preparation handoff and recovery are the
   main uncertainties; reuse execution's proven common behavior where applicable.
-- **Depends on:** Story 1a and existing preparation tooling. Story 5 offers reuse
+- **Depends on:** The dashboard's refinement launch
+  ([Agent launch](../../dashboard/AGENT-LAUNCH.md)) and existing preparation
+  tooling. Story 5 offers reuse
   and learning but is not established as a required product prerequisite.
 - **Safe stopping point:** Both selected workflows reduce setup overhead without
   requiring completion monitoring or support for another tool.
@@ -471,7 +477,7 @@ once the Claude experience and each tool's feasibility are known.
 For scope reduction, defer tool expansion first, then further scripted setup;
 retain launch and useful interaction in Claude Code. If embedded interaction is
 too costly, retain launch and recent-session access through the external CLI,
-which story 1a already gives refinement. Automatic attention
+which the dashboard's refinement launch already provides. Automatic attention
 indicators, completion callbacks, done-prefix naming, model selection, other
 skills, externally started sessions, and full project/tool setup remain deferred.
 Recently done is related work with its own value and priority decision.
@@ -492,9 +498,7 @@ Recently done is related work with its own value and priority decision.
 ## When to Surface
 
 The maintainer selected the eight child stories for backlog priorities 4–11
-on 2026-09-28, replacing the original epic entry. On 2026-09-29 the maintainer
-inserted story 1a, a launch-and-forget refinement launch matching the delivered
-execution launch, ahead of the remaining stories. The related Recently done
+on 2026-09-28, replacing the original epic entry. The related Recently done
 candidate remains unqueued. This selection does not Take any story or authorize
 implementation; refinement and executable planning are later selections.
 
