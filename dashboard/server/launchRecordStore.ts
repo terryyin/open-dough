@@ -4,11 +4,12 @@
 // `./projectFolders.ts`. One JSON document holds each catalog project's
 // records by project id. Every read and write reads the file afresh, so each
 // dashboard server on this machine -- dev and preview alike -- sees every
-// launch. A write adds a launch or marks a kept session done. A record not
-// marked done is kept however long ago it was launched. A record marked done
-// more than `launchRetentionDays` before a read is not answered, and a write
-// drops it. A write replaces the file atomically; two writes at the same
-// instant can still race, which is accepted rather than locked against.
+// launch. A write adds a launch or sets or clears a kept session's done time.
+// A record not marked done is kept however long ago it was launched. A record
+// marked done more than `launchRetentionDays` before a read is not answered,
+// and a write drops it. A write replaces the file atomically; two writes at
+// the same instant can still race, which is accepted rather than locked
+// against.
 // A missing file holds no records. A file that does not parse holds none
 // either and is left as it is until the next write, which starts a new
 // document and moves the unreadable one aside as
@@ -138,14 +139,16 @@ export async function keepRecord(
   }));
 }
 
-// Marks one kept session of the project done at `doneAt`, and answers its
-// marked record, or undefined when no such record is kept any more.
-export async function markRecordDone(
+// Sets one kept session's done time to `doneAt`, marking it done, or clears
+// it when `doneAt` is undefined, keeping the session like any unclosed one.
+// Answers the changed record, or undefined when no such record is kept any
+// more.
+export async function setRecordDoneAt(
   sourceId: string,
   sessionId: string,
-  doneAt: string,
+  doneAt: string | undefined,
 ): Promise<LaunchRecord | undefined> {
-  let marked: LaunchRecord | undefined;
+  let changed: LaunchRecord | undefined;
   await replaceRecords((kept) => {
     const records = kept[sourceId];
     if (records === undefined) {
@@ -157,10 +160,12 @@ export async function markRecordDone(
         if (record.session.sessionId !== sessionId) {
           return record;
         }
-        marked = { ...record, doneAt };
-        return marked;
+        const next: LaunchRecord = { ...record };
+        delete next.doneAt;
+        changed = doneAt === undefined ? next : { ...next, doneAt };
+        return changed;
       }),
     };
   });
-  return marked;
+  return changed;
 }

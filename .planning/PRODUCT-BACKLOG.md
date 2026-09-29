@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Keep a reopened session on its story's card](seeds/SEED-052-start-agent-work-from-dashboard.md#reopened-session-returns) — SEED-052#reopened-session-returns ([plan](slice-plans/161-reopened-session-returns/PLAN.md))
 - [Prove Mark as done's remaining edges and trim card-session residue](seeds/SEED-052-start-agent-work-from-dashboard.md#card-session-residue) — SEED-052#card-session-residue ([plan](slice-plans/160-card-session-residue/PLAN.md))
 
 ## Backlog list
