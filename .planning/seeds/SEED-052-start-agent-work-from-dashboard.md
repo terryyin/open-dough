@@ -142,28 +142,6 @@ launch settling at once and listed in Recent sessions, so the recent-sessions
 spec's Preparing step repeats it. It adds no feature promise. See the
 [plan](../slice-plans/154-preparing-card-refinement-journey/PLAN.md).
 
-<a id="terminal-host-refusal-proof"></a>
-
-### Correction: Prove the terminal's foreign-Host refusal again and settle the residue's homes
-
-**Identity:** SEED-052#terminal-host-refusal-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/156-terminal-host-refusal-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4673da9966c6df83448d9d3d1c2c20e1064f98b4f737a46a9379da1bb4b559c3","plan":"b1a0c4b5b4975e0d74f6a0944dc4e62ef0b42e5ec60499b8bbb3c6870b4bc079"}}
-```
-
-**Goal:** A developer's terminal sessions stay protected by a proved refusal of
-any upgrade naming a foreign Host, and closing a terminal provably returns the
-keyboard to the control that opened it. Maintainers find the Claude Code host
-commands and the terminal's focus target each in one home, described
-accurately.
-
-**Scope:** The correction found by the execution retrospective of
-SEED-052#terminal-residue (commits `87d1fc6c`, `777c2623`, `bdeaea99`;
-closed history at `94177c75:.planning/slice-plans/155-terminal-residue/PLAN.md`). It covers the foreign-Host upgrade proof that plan 155 removed,
-the opener-focus proof, `execClaude`'s exposure, `recentSessionControl`'s
-home, and documentation drift in the launch and terminal boundary. It adds no
-feature promise. See the [plan](../slice-plans/156-terminal-host-refusal-proof/PLAN.md).
-
 <a id="launch-claude-refinement"></a>
 
 ### 4. Start story refinement and answer its questions in the dashboard

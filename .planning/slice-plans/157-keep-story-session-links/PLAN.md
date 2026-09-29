@@ -71,7 +71,7 @@ that leaves every list keeps its sessions only in Recent sessions.
   (`server/doneMarks.ts`) runs `claude stop` only for a session Claude Code
   still lists. It already types the rename only through an open attachment,
   which an unlisted session cannot have.
-- **Open for Terry, raised by SEED-052#terminal-host-refusal-proof:**
+- **Open for Terry** (from `00a82262:.planning/slice-plans/156-terminal-host-refusal-proof/PLAN.md`):
   - Where focus goes when the opener is gone and the session's entry offers no
     Open terminal (Session unavailable), or the session belongs to another
     project. Card entries showing Session unavailable make this common here.
