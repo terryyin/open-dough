@@ -76,7 +76,8 @@ records are read and never kept, and whether the developer is needed there.
 One reading (`src/sessionShown.ts`) decides both from Claude
 Code's `state` alone; whether the process runs or is idle does not. A session
 not marked done needs attention while Claude Code lists it `blocked`, shown
-**Needs input** with what it waits for when Claude Code reports `waitingFor`;
+**Needs input** with what it waits for when Claude Code reports `waitingFor`
+(for a question, Claude Code 2.1.284 reports only "input needed");
 `done`, shown **Ready for review** whether its process still runs or has
 exited; `failed`, shown **Session failed**; or `stopped`, shown **Session
 stopped**. Such an entry has a solid, heavier edge beside those words. A

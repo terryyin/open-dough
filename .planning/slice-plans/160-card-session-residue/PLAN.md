@@ -51,11 +51,14 @@ restarts).
 5. Test variables still say Started for card session entries:
    `agent-terminal.spec.ts:65`, `agent-terminal-done.spec.ts:190`,
    `agent-launch-card.spec.ts:139` and `:198`.
-6. `agent-launch-card-session-states.spec.ts` (252 lines) rechecks every state
+6. `agent-launch-card-session-states.spec.ts` (245 lines) rechecks every state
    label that `agent-launch-recent-session-states.spec.ts` owns through the one
-   `sessionStateWords`; `agent-launch-card.spec.ts` (251 lines) reproves two
+   `sessionShown`; `agent-launch-card.spec.ts` (251 lines) reproves two
    entries, newest first, which `agent-launch-card-sessions.spec.ts` owns; card
    listing across reload and project switch is asserted in three places.
+   `agent-launch-recent-session-states.spec.ts` also asserts every state
+   on the card entry (its `both` loop), and `agent-launch-attention.spec.ts`
+   adds a fourth reload and project-switch check.
 
 ## Decisive premises
 
@@ -104,7 +107,10 @@ names its surviving owner.
 In `agent-launch-card-session-states.spec.ts`, keep that each state stays
 listed on its card, Session unavailable without Open terminal, State unknown
 with it, and the restart/reload/switch step (example 3); leave the label
-matrix to `agent-launch-recent-session-states.spec.ts`. In
+matrix to `agent-launch-recent-session-states.spec.ts`, which asserts it in
+Recent sessions and on one card entry only. Keep the attention count's
+return and reload step in `agent-launch-attention.spec.ts` and drop any
+duplicate card listing check it makes. In
 `agent-launch-card.spec.ts`, keep the refinement argv and focus on the newest
 entry; leave two entries and their order to `agent-launch-card-sessions.spec.ts`.
 Drop card-sessions' standalone reload and project-switch steps; the

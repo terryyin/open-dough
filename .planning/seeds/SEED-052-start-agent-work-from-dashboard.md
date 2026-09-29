@@ -110,7 +110,7 @@ or claims of readiness.
 
 **Identity:** SEED-052#reopened-session-returns
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/161-reopened-session-returns/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a63323fe072a3e72b6a6d4938b5a1c7c1faf20e0a3a0a81996b287d6ef8df18f","plan":"c1c60291bc4434c079fe754b934c1c4d60c46c95441dc5547903eafed1293c8a"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/161-reopened-session-returns/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3522f0612332e91cacf30b704d7ac5d3ff441295d3888528f4eb4b255ed473d6","plan":"916b571c0fcc4cd1b49cda91dc69af5a57698cea962b4487ae8226b72bde61c4"}}
 ```
 
 **Goal:** A developer who reopens a session they had marked done, and keeps
@@ -139,7 +139,7 @@ session the developer is actively using for that story.
 1. A developer marks a story's Execution session done; it leaves the card and
    Recent sessions shows it Done. Later they choose Open terminal on that
    Recent sessions entry and the terminal attaches. The card lists the session
-   again, Working or Idle, and its Recent sessions entry no longer says Done.
+   again with its current state, and its Recent sessions entry no longer says Done.
 2. After a dashboard restart, the reopened session is still listed on its
    card.
 3. The developer marks the reopened session done again. It leaves the card,
@@ -154,7 +154,7 @@ session the developer is actively using for that story.
 
 **Identity:** SEED-052#card-session-residue
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/160-card-session-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05625fa3f4869d70af589778fe6f4106930e1b07140e174c788c519de6c617e6","plan":"41402e5f3f722e2e14b87b409ab5f34dddda121a8745505bdff211957365d995"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/160-card-session-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05625fa3f4869d70af589778fe6f4106930e1b07140e174c788c519de6c617e6","plan":"233a1898be01a4d61d022734f2e645f12f7276ce9392ce7b535fcfab1c3ff97e"}}
 ```
 
 **Goal:** Maintainers can rely on a test for every Mark as done promise the
@@ -355,8 +355,8 @@ tools.
 - **Known from launch:** The browser still spells out Claude Code specifics:
   `claude attach`, the uncertain launch's `claude agents` advice,
   `/dough-execute-plan`, and the host label. It also interprets Claude Code's
-  session `state` and `status` (`sessionRuns`, `sessionStateWords`), and the
-  page reads the host's listing again every 15 seconds; Claude Code's answered
+  session `state` and optional `waitingFor` in one reading
+  (`dashboard/src/sessionShown.ts` `sessionShown`), and the page reads the host's listing again every 15 seconds; Claude Code's answered
   in about 0.16 s with 469 sessions. A second host moves these behind the host
   module and observes whether its listing is as quick and tells running from
   exited sessions. Claude Code's server code now spans `claudeCode.ts` (every
