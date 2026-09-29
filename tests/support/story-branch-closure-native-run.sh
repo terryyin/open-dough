@@ -162,7 +162,7 @@ run_story_closure_harness_counterexamples() {
   root=$(mktemp -d)
   harness=$(mktemp -d)
   profile=$(mktemp -d)
-  native_harness_write_decoy_profile "${profile}"
+  native_harness_write_decoy_profile "${profile}" gh
   local -x ZDOTDIR=${profile}
   story_closure_create_fixture "${source_dir}" claude "${root}" "${harness}"
   run_in_worktree="cd '${story_closure_workspace}' && node '${story_closure_launcher}'"

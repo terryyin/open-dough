@@ -35,17 +35,29 @@ native_harness_release_login_path() {
 }
 
 # Writes into directory $1 a user profile whose zsh startup files each put
-# $1/decoy first on PATH, where a gh appends its arguments to $1/decoy.log and
-# fails, as a user's own profile could put another gh before the shim.
+# $1/decoy first on PATH, where each command named in $2...
+# appends its arguments to $1/decoy.log and fails, as a user's own profile
+# could put another gh before the shim.
 native_harness_write_decoy_profile() {
-  local profile=$1
+  local profile=$1 name
+  shift
   mkdir -p "${profile}/decoy"
-  printf '%s\n' '#!/usr/bin/env bash' \
-    "printf '%s\\n' \"\$*\" >> '${profile}/decoy.log'" 'exit 1' \
-    > "${profile}/decoy/gh"
-  chmod +x "${profile}/decoy/gh"
+  for name in "$@"; do
+    printf '%s\n' '#!/usr/bin/env bash' \
+      "printf '%s\\n' \"\$*\" >> '${profile}/decoy.log'" 'exit 1' \
+      > "${profile}/decoy/${name}"
+    chmod +x "${profile}/decoy/${name}"
+  done
   printf 'export PATH=%q\n' "${profile}/decoy:${PATH}" \
     | tee "${profile}/.zshenv" "${profile}/.zprofile" > "${profile}/.zshrc"
+}
+
+# Writes into directory $1 a user profile whose every zsh startup file, the
+# last one included, rebuilds PATH from system directories alone.
+native_harness_write_rebuilt_profile() {
+  mkdir -p "$1"
+  printf '%s\n' 'export PATH=/usr/bin:/bin:/usr/sbin:/sbin' \
+    | tee "$1/.zshenv" "$1/.zprofile" "$1/.zshrc" > "$1/.zlogin"
 }
 
 # Runs command $1 as an interactive login zsh (Cursor's shell) would: each

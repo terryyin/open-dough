@@ -395,7 +395,7 @@ Learnings:
 
 ### 8. Every harness shim survives each host's login shell
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/git-publication-native.sh` (`run_native_harness_counterexamples`)
 green, plus a counterexample.
 
@@ -405,6 +405,24 @@ decoy-prepend profile and a profile that rebuilds PATH from scratch, the
 emulated login shell resolves each shim to the harness. A harness set up
 without `native_harness_keep_login_path` fails, naming the shim and profile
 (example 5).
+
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+tests/git-publication-native.sh`, exit 0 (61.6–70 s locally under load; the
+counterexamples add about 0.13 s). `native_harness_check_login_shims` checks
+{`gh`, `node`} × {decoy-prepend, rebuilt-path}.
+`native_harness_login_counterexample` requires four `FAIL:` lines, each
+naming the profile and the shim, from a harness without the kept login path.
+
+Learnings:
+- Shim names come from `${harness}/bin/<name>` writes in `tests/support/*.sh`
+  (`native_harness_shim_names`); a shim written through another variable
+  would be missed. The counterexample requires `node` in that list.
+- `native_harness_keep_login_path` needed no repair: each harness startup
+  file sources the user's file, then puts its bin first again. The rebuilt
+  profile rewrites PATH in `.zlogin` too, which is what makes a
+  bin-first-before-sourcing mutant fail.
+- Locally, `tests/git-publication-native.sh` runs close to the 71 s
+  per-job budget under load. CI's own timings settle it.
 
 ## Local gates
 
