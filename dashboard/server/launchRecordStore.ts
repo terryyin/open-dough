@@ -4,10 +4,10 @@
 // `./projectFolders.ts`. One JSON document holds each catalog project's
 // records by project id. Every read and write reads the file afresh, so each
 // dashboard server on this machine -- dev and preview alike -- sees every
-// launch. A record launched more than 30 days before a read is not answered,
-// and a write drops it. A write replaces the file atomically; two launches at
-// the same instant can still race, which is accepted rather than locked
-// against.
+// launch. A record launched more than `launchRetentionDays` before a read is
+// not answered, and a write drops it. A write replaces the file atomically;
+// two launches at the same instant can still race, which is accepted rather
+// than locked against.
 // A missing file holds no records. A file that does not parse holds none
 // either and is left as it is until the next launch, which starts a new
 // document and moves the unreadable one aside, so nothing is silently lost.
@@ -17,9 +17,13 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
-import { launchRecordSchema, type LaunchRecord } from "../src/agentLaunch.ts";
+import {
+  launchRecordSchema,
+  launchRetentionDays,
+  type LaunchRecord,
+} from "../src/agentLaunch.ts";
 
-const retentionMs = 30 * 24 * 60 * 60 * 1000;
+const retentionMs = launchRetentionDays * 24 * 60 * 60 * 1000;
 
 const storeSchema = z.record(z.string(), z.array(launchRecordSchema));
 

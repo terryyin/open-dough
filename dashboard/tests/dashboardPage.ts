@@ -21,6 +21,8 @@ export function parts(page: Page) {
     preparationHelp: page.getByRole("button", {
       name: "Preparation badge legend",
     }),
+    // The selected project's sessions launched from this dashboard.
+    recentSessions: page.getByRole("region", { name: "Recent sessions" }),
     source: page.getByRole("region", { name: "Published Git state" }),
     refresh: page.getByRole("button", { name: "Refresh" }),
     // The same read control, as it is named after a failed attempt.

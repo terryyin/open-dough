@@ -180,7 +180,7 @@ left as they are.
 
 ### 2. Recent sessions lists the project's kept launches, independent of story cards
 Type: Behavior
-Status: planned
+Status: done
 Proof: page spec over the settlement journey; existing Started specs stay green.
 
 Behavior: the selected project has kept launches → the developer views the
@@ -205,6 +205,20 @@ origin to preparing, taken, and completed. At each step, assert the section's
 entries and order through accessible names. Also launch refinement on the
 already-Preparing card and assert it is listed with no Started. Run the new
 spec with `agent-launch-card.spec.ts` and `agent-launch-settlement.spec.ts`.
+
+Accepted: `RecentSessions.tsx` renders a "Recent sessions" region below the
+work stages from the same records Started reads, newest first; each entry is
+an article named "<Workflow> session for <title>". `LaunchSession.tsx` holds
+the session id, `claude attach`, and copy for both Started and an entry.
+`agent-launch-recent-sessions.spec.ts` walks the settlement journey through
+Preparing, Taken, and Completed with reloads and a Doughnut switch; it and the
+card, settlement, and records specs pass (10), with typecheck clean. The
+Started paragraph's `claude agents` advice for a refinement on a Preparing
+card moved to Recent sessions here, ahead of slice 4. `launchRetentionDays`
+in `src/agentLaunch.ts` is the one home of the 30 days. Learnings: region
+names must avoid "started", which the settlement spec's Started locator
+matches; page-wide "story is gone" checks need scoping to the stages; the
+README and North Star are at the 250-line limit.
 
 ### 3. Each entry shows Claude Code's state, and a session Claude Code no longer lists is unavailable
 Type: Behavior

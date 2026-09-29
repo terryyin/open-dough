@@ -52,9 +52,20 @@ refinement Started, and Start refinement then carries the note "Being
 prepared". It does not end an execution Started, since the session may ready
 the story before taking it; the card then shows both. A refinement launched on
 a card already Preparing therefore settles at once and shows no Started; its
-session is reached through `claude agents`. Once origin shows the story under
+session is listed under Recent sessions. Once origin shows the story under
 **Taken**, or no longer lists it at all, every Started is gone and the
 published card speaks for the story.
+
+**Recent sessions**, below the stages, lists every launch record the page
+reads for the selected project, newest first, whatever origin now shows of its
+story. Each entry names the story's title and identity, its workflow, when it
+was launched, the session id, and the same copyable `claude attach <id>` as
+Started, marked "Local: launched from this dashboard on this machine." An
+entry does not settle: it stays when the story is prepared, taken, or leaves
+every list, and two launches of one story are two entries. Another project's
+launches are listed only under that project, and sessions this dashboard did
+not launch are not listed. With no records it says that no sessions launched
+from this dashboard are kept.
 
 Launch records are kept on this machine, outside every repository, in
 `~/.open-dough/dashboard/agent-launches.json`. Restarting `npm run
