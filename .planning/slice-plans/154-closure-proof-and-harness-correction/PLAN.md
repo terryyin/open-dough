@@ -182,7 +182,7 @@ Excluded (separate decisions for Terry):
 
 ### 1. A rebased final closure resumes on rerun, and only a confirmed receipt retires
 Type: Behavior
-Status: pending
+Status: done
 Proof: child-process `finish` tests for the rebased rerun (worktree present, and after retirement) and for a success receipt without confirmed shutdown.
 
 Behavior: `finish` was interrupted after it rebased and published the final
@@ -214,6 +214,30 @@ retained shutdown (an earlier SHA's unread CI failure), each asserting
 `step: "completion"` and worktree and branch kept. The new rerun test fails
 against `ee77d3b6`; the parameterized case fails if the shutdown condition is
 removed. Wrap-up closure suites stay green.
+
+Accepted proof (2026-09-29): `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+src/skills/dough-story-wrap-up/scripts/trunk-closure-rebased-rerun.test.mjs
+src/skills/dough-story-wrap-up/scripts/trunk-closure.test.mjs
+src/skills/dough-story-wrap-up/scripts/trunk-closure-resume.test.mjs
+src/skills/dough-story-wrap-up/scripts/closure-*.test.mjs
+src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs`
+exit 0 after refactor. Examples 1–2: the rerun test's one journey (setup
+rebases and publishes through two installed `deliver` calls, since `deliver`
+has no single-call unvalidated rebase); zero recorded pushes, `acceptedSha` and
+`completion.requestedSha` the rebased SHA, confirmed shutdown, `removed`, then
+`already-absent` from `--repository`. Example 3: `trunk-closure.test.mjs`
+"`${receipt}` stops at completion…" over a failure receipt and a success with
+retained shutdown. It fails against `a51510d2` with `candidate-mismatch`
+(F2), and removing the shutdown condition fails only the retained-shutdown
+case. The `step: "context"` row now names rerunning with an earlier
+`acceptedSha`; it lives in
+`src/skills/dough-execute-plan/references/wrap-up-closure-publication.md`.
+
+Learning for slice 2: `rebasedFinalClosure` relies on Land's `isAncestor`
+returning false for a registered revision absent locally. The shared
+`workspace-publication-ownership.mjs` `isAncestor` throws on any exit other
+than 1 (a missing object exits 128), so switching the import must keep the
+missing-candidate skip (for example with `commitOf` before the ancestry check).
 
 ### 2. Closure scripts share one `isAncestor`, and each closure behavior has one owning test
 Type: Structure

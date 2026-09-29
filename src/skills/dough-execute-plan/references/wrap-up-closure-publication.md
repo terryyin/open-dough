@@ -59,7 +59,7 @@ one JSON line, exits 1 when `ok` is not true and 2 on a usage error:
 | --- | --- |
 | `ok: true` | Report `acceptedSha`, the `completion` receipt, `refresh`, and `cleanup` |
 | `step: "before-cleanup"` | Nothing was published. Publish the before-cleanup commit through `deliver` first |
-| `step: "context"` | The worktree is gone. Follow its `recovery`: rerun with `--repository`, or report the unpublished final closure |
+| `step: "context"` | The worktree is gone. Follow its `recovery`: rerun with `--repository`, rerun with an earlier result's `acceptedSha` as `--final`, or report the unpublished final closure |
 | `step: "conflict"` or `"publish"` | The final closure is unpublished; the worktree, branch, and both commits remain. Follow its `recovery` |
 | `step: "observation"` | The final closure is accepted without an observer. Report lost coverage; resources stay |
 | `step: "completion"` | Report the receipt: a CI failure or retained or unconfirmed shutdown keeps the worktree and branch |

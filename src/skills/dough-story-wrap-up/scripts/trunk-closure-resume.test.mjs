@@ -195,7 +195,10 @@ test("a rerun whose worktree is gone before the final closure was accepted stops
   assert.equal(code, 1);
   assert.equal(result.step, "context");
   assert.equal(result.publication, "not-attempted");
-  assert.match(result.recovery, /unpublished final closure/);
+  assert.match(
+    result.recovery,
+    /acceptedSha.*--final.*unpublished final closure/,
+  );
   assert.deepEqual(recorder.pushes(), []);
   assert.equal(await branchSha(fixture), final);
 });

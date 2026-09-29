@@ -184,27 +184,34 @@ test("a before-cleanup commit the target lacks stops finish before anything is p
   assert.equal(await branchSha(fixture), final);
 });
 
-test("a failed CI receipt retains the observer and preserves the worktree and branch", async (t) => {
-  const fixture = await createTrunkClosureFixture(t);
-  const before = await deliverBeforeCleanup(fixture);
-  const final = await commitFinalClosure(fixture);
-  releaseCi(fixture, { [before.receipt.sha]: "success", [final]: "failure" });
+// A CI failure, or a success whose shutdown is retained by an earlier
+// revision's unread CI failure, never retires.
+for (const [receipt, beforeCi, finalCi, verdict] of [
+  ["a failed CI receipt", "success", "failure", "failure"],
+  ["a success receipt with retained shutdown", "failure", "success", "success"],
+]) {
+  test(`${receipt} stops at completion and preserves the worktree and branch`, async (t) => {
+    const fixture = await createTrunkClosureFixture(t);
+    const before = await deliverBeforeCleanup(fixture);
+    const final = await commitFinalClosure(fixture);
+    releaseCi(fixture, { [before.receipt.sha]: beforeCi, [final]: finalCi });
 
-  const { result, code } = await finishThroughCli(fixture, {
-    beforeCleanup: before.receipt.sha,
-    final,
-    extra: ["--created-for-work"],
+    const { result, code } = await finishThroughCli(fixture, {
+      beforeCleanup: before.receipt.sha,
+      final,
+      extra: ["--created-for-work"],
+    });
+
+    assert.equal(code, 1);
+    assert.equal(result.step, "completion");
+    assert.equal(result.acceptedSha, final);
+    assert.equal(result.completion.verdict, verdict);
+    assert.equal(result.completion.shutdown.status, "retained");
+    assert.equal(result.cleanup, "not-performed");
+    assert.equal(existsSync(fixture.execution), true);
+    assert.equal(await branchSha(fixture), final);
   });
-
-  assert.equal(code, 1);
-  assert.equal(result.step, "completion");
-  assert.equal(result.acceptedSha, final);
-  assert.equal(result.completion.verdict, "failure");
-  assert.equal(result.completion.shutdown.status, "retained");
-  assert.equal(result.cleanup, "not-performed");
-  assert.equal(existsSync(fixture.execution), true);
-  assert.equal(await branchSha(fixture), final);
-});
+}
 
 test("without any observer the accepted closure is reported as lost coverage and nothing is retired", async (t) => {
   const fixture = await createTrunkClosureFixture(t);
