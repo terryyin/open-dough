@@ -50,19 +50,20 @@ story with `--carry` without asking, and stopped before planning, with the
 edits restored uncommitted over the claim and nothing on trunk. The fixture
 reveals that growth only through the check; a fixture that documented the
 migration rule let the agent admit before editing, which is inconclusive.
-Cursor remains pending, so one-shot is not yet natively accepted for
-release under
-[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+Cursor runs of `publication/one-shot-result`, `publication/one-shot-queued`,
+`publication/admission-investigation`, and `publication/one-shot-escalation`
+passed on 2026-09-29 against source revision
+`a99c67f7823b6c0f219d57748f3d8532d8723354`, Cursor agent `2026.09.28-64d2043`.
+The cases remain in the
+[shared one-shot list](SEED-053-native-guidance-acceptance.md#shared-one-shot-cases).
+Premise verification on Cursor passed Doughnut and the Open Dough control and
+failed the Pygardon seeding case. That guidance change is
+[SEED-044#name-the-feature-that-runs-moved-seeding](SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding).
 
 <a id="native-one-shot-other-hosts"></a>
 
-### Pending Cursor acceptance
-
-The existing one-shot cases belong to the
-[Cursor](SEED-053-native-guidance-acceptance.md#native-acceptance-cursor)
-acceptance story, retaining the
-[one-shot release gate](SEED-053-native-guidance-acceptance.md#shared-one-shot-cases).
-This anchor remains a navigation reference, not a separate active story.
+The Cursor one-shot acceptance attempt is closed. This anchor remains the
+recorded identity `SEED-028#native-one-shot-other-hosts`.
 
 ## Breadcrumbs
 
