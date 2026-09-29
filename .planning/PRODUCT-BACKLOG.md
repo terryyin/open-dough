@@ -17,10 +17,10 @@ visibility for multiple agents working in worktrees on one machine.
 - [Accept existing guidance natively on Codex](seeds/SEED-053-native-guidance-acceptance.md#native-acceptance-codex) — SEED-044#native-premise-acceptance-codex-cursor ([plan](slice-plans/141-codex-native-guidance-acceptance/PLAN.md))
 - [Close stories through an installed wrap-up command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command) — SEED-008#installed-wrap-up-command ([plan](slice-plans/146-installed-wrap-up-command/PLAN.md))
 - [Make the creation record's proof findable and wording-tolerant](seeds/SEED-008-worktree-branch-trunk-sync.md#creation-record-test-residue) — SEED-008#creation-record-test-residue ([plan](slice-plans/149-creation-record-test-residue/PLAN.md))
+- [Find recent dashboard-launched sessions after leaving the story](seeds/SEED-052-start-agent-work-from-dashboard.md#revisit-dashboard-sessions) — SEED-052#revisit-dashboard-sessions ([plan](slice-plans/150-revisit-dashboard-sessions/PLAN.md))
 
 ## Backlog list
 
-- [Find recent dashboard-launched sessions after leaving the story](seeds/SEED-052-start-agent-work-from-dashboard.md#revisit-dashboard-sessions) — SEED-052#revisit-dashboard-sessions
 - [Interact with a launched Claude Code session inside the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#interact-with-claude-terminal) — SEED-052#interact-with-claude-terminal
 - [Start story refinement and answer its questions in the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-refinement) — SEED-052#launch-claude-refinement
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
