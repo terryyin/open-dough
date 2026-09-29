@@ -286,6 +286,28 @@ because their prompts state that an earlier session created the worktree.
 
 **Slice plan:** [Retire a workspace created for the work in any later session](../slice-plans/147-durable-workspace-creation-fact/PLAN.md).
 
+<a id="creation-record-test-residue"></a>
+
+### Make the creation record's proof findable and wording-tolerant
+
+**Identity:** SEED-008#creation-record-test-residue
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/149-creation-record-test-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c82cd1230cb483d374a977b491b22c3b757f84a58e767b0da484aad1fcfb45b5","plan":"23bc07d745b616ba42a0301806c2868680d656fa101e4a238bc852efbc7a99d8"}}
+```
+
+**Goal:** A maintainer changing workspace creation or retirement guidance finds
+the creation record's proof in tests named for it, and can reword the guidance
+without breaking tests that only pin prose. This corrects test residue from
+[Retire a workspace created for the work in any later session](#durable-workspace-creation-fact).
+
+**Scope:** Give the creation record its own named `selectOwnedWorkspace` tests
+and return the race tests' shared helper to its race purpose; name the record's
+prefix once in the ownership module for tests to import; and narrow the
+guidance assertions this story added to their contract tokens and link targets.
+Runtime behavior and the guidance text stay unchanged.
+
+**Slice plan:** [Make the creation record's proof findable and wording-tolerant](../slice-plans/149-creation-record-test-residue/PLAN.md).
+
 <a id="reduce-ci-observer-overhead"></a>
 
 ### Reduce CI observer overhead across execution and wrap-up

@@ -286,3 +286,27 @@ retirement is guidance-followed until plan 146 ships its command; slice 3 then
 proves the same guidance natively on each host through the two existing
 journeys, with no new journey. No blocking slice-specific concern was
 identified in this review.
+
+## Execution complete
+
+Product advice:
+
+- Plan 146 (SEED-008#installed-wrap-up-command, executing alongside) should
+  treat the creation record as landed: `createdForRef` in
+  `workspace-publication-ownership.mjs` writes it and "Close or retain it"
+  reads it, so its `--created-for-work` fallback and "has it landed" hedges
+  can go. Its slices also rewrite text this plan changed after 146 was
+  planned: the ownership sentences added to `trunk-publication.md`
+  ("Publish wrap-up closure") and wrap-up's "Remove execution resources
+  safely" (`3b1f8619`), which its command can replace; Dough Land's
+  "containment as the safety test" intro, which misled one native closure
+  agent; the owned-context fixtures' story `SEED-T#final-closure` and the
+  evidence identities, which now cover `exploration-workspace.md`; and wrap-up
+  `SKILL.md`, which sits at exactly 250 lines.
+- Plan 146's native acceptance should make the owned-context journeys
+  discriminate: its command's ownership gate is proven by CLI tests, so the
+  native assessors need only require retirement through the command, or add
+  one retain variant. Today an agent that skips the ownership check passes.
+- Correction SEED-008#creation-record-test-residue (plan 149, ready, not
+  queued) cleans this plan's test residue; it may reuse a prefix export plan
+  146 adds.
