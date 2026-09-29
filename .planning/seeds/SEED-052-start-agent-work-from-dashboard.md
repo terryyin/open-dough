@@ -110,7 +110,7 @@ or claims of readiness.
 
 **Identity:** SEED-052#reopened-session-returns
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/161-reopened-session-returns/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a63323fe072a3e72b6a6d4938b5a1c7c1faf20e0a3a0a81996b287d6ef8df18f","plan":"c1c60291bc4434c079fe754b934c1c4d60c46c95441dc5547903eafed1293c8a"}}
 ```
 
 **Goal:** A developer who reopens a session they had marked done, and keeps
@@ -154,7 +154,7 @@ session the developer is actively using for that story.
 
 **Identity:** SEED-052#card-session-residue
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/160-card-session-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05625fa3f4869d70af589778fe6f4106930e1b07140e174c788c519de6c617e6","plan":"d72d1edd760aca423f62659247124fa72c3645c8b5540d6d68b55541ff36c2a0"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/160-card-session-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05625fa3f4869d70af589778fe6f4106930e1b07140e174c788c519de6c617e6","plan":"41402e5f3f722e2e14b87b409ab5f34dddda121a8745505bdff211957365d995"}}
 ```
 
 **Goal:** Maintainers can rely on a test for every Mark as done promise the
