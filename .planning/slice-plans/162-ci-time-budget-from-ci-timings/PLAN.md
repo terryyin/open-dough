@@ -95,7 +95,7 @@ retention; dashboards or trend views.
 | No readable runs, and a failing `gh`, are reported with the reason (example 4) | 2 | `tests/ci-test-times.sh` |
 | Runs without artifacts are skipped, and the report counts runs used | 2 | `tests/ci-test-times.sh` |
 | The command reads real trunk CI | 2 | One read-only run of the command against GitHub, output recorded in this plan |
-| Guidance: plans name the command, not a copied number; rule and CI verdict | 2 | `tests/README.md` and the `tests/time-budget` header, reviewed against examples 1–4 |
+| Guidance: plans name the command, not a copied number; rule and CI verdict | 2 | `tests/time-budget.md` (linked from `tests/README.md`) and the `tests/time-budget` header, reviewed against examples 1–4 |
 
 ## Ordered slices
 
@@ -126,7 +126,7 @@ new command, which shares the reader. The refactor pass made no changes.
 ### 2. Report recent trunk CI timings against the budget
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/ci-test-times.sh tests/test-runner-budget.sh`
 and `npm run lint` pass. One read-only run of the command against GitHub on
 current trunk, with its output recorded under Accepted proof.
@@ -163,7 +163,20 @@ Guidance in the same change:
   The pushed revision's CI result remains the verdict.
 - The `tests/time-budget` header points to the command in one line.
 
-Accepted proof: _pending._
+Accepted proof: the command is `bash scripts/ci-test-times.sh [job…]`. Both
+focused checks and `npm run lint` passed. `tests/ci-test-times.sh` compares
+exact reports: `all` (examples 1 and 2, headroom equal to spread is `wide`,
+share totals, highest first, header counting 3 runs with artifact-less run 102
+skipped), the exact `gh run list` query, `named` (filter and a job with no
+timing), `none`, `empty`, and `gh-fails` (exit 1 with the reason), and
+`malformed` (the shared reader's FAIL line). The real read-only run on
+2026-09-29 against trunk used 10 runs (09:01–13:22 UTC) and exited 0:
+`tests/git-publication-native.sh` 38.8–51.4 s, headroom 19.6, spread 12.6,
+`wide`; share 1 265.7–387.4 and share 2 239.0–357.5 job-seconds, both `thin`
+(project from 387.4 and 357.5). Every job was `wide`. The refactor pass moved the
+budget section and this guidance out of `tests/README.md` (over its 250-line
+limit) into `tests/time-budget.md`, linked from the README's runner section,
+and dropped the unused `headSha` field from the `gh` query.
 
 ## Considered and excluded
 
