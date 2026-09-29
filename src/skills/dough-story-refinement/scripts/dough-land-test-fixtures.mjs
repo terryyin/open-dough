@@ -131,7 +131,7 @@ export async function landWorktree({
   defaultCheckout,
   remote = "origin",
   target = "refs/heads/main",
-  identity,
+  identity = undefined,
   createdForWork = true,
   message = "Land reviewed worktree changes",
   beforePush,
