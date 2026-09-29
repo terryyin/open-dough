@@ -370,7 +370,7 @@ owned-context, execution-review, and publication (it hashes
 
 ### 4. Native evidence identity covers the modules and guidance each journey runs
 Type: Structure
-Status: pending
+Status: done
 Proof: `tests/native-evidence-identity.sh` fails when a module in a listed command's relative-import closure changes without changing that identity, and passes after the fix.
 
 Correction: F7. Add `tests/support/native-import-closure.mjs`, which prints the
@@ -394,6 +394,23 @@ Proof: the extended check fails against the current writers in a scratch copy
 (for example `ci-mailbox-complete.mjs` unlisted in trunk closure) and passes
 after; `PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh`
 default mode and `tests/git-publication-native-owned-context.sh` green.
+
+Accepted proof (2026-09-29): `PATH=/opt/homebrew/bin:$PATH bash
+tests/native-evidence-identity.sh`, `tests/git-publication-native.sh` default
+mode, `tests/git-publication-native-owned-context.sh`, and
+`tests/execution-worktree-preparation-native.sh` default mode exit 0. The
+extended identity check failed on the old writers (trunk closure lacked 47
+closure modules, among them `ci-mailbox-complete.mjs`; Story Branch 8;
+owned-context 10; execution-worktree-prep 4, so that writer now hashes its
+harness modules' closure too). Example 5: one appended line in
+`ci-mailbox-match.mjs` changed only that module's trunk-closure input-hash
+line. `native-import-closure.mjs` also follows literal `import("./…")`, since
+delivery dynamically imports `one-shot-ownership.mjs`; the shell glue lives in
+`tests/support/native-import-closure.sh`, sourced only by writers whose
+identities this slice already changes. `history-preserving-publication.mjs`
+is in no identity. Changed identities: trunk-closure, Story Branch,
+owned-context, publication, execution-review, and execution-worktree-prep;
+their recorded evidence is stale.
 
 ## Proof ownership
 

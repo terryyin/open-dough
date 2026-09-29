@@ -136,6 +136,22 @@ for entry in "${closure_journey_inputs[@]}"; do
   done
 done
 
+# Every module a listed command imports, directly or transitively, is listed
+# too, so the per-input change check below covers what the command runs.
+for index in "${!identity_writers[@]}"; do
+  mapfile -t modules < <(awk '$3 ~ /\.mjs$/ { print $3 }' \
+    "${identity_out}/baseline/${index}")
+  ((${#modules[@]})) || continue
+  while IFS= read -r module; do
+    if ! lists_input "${identity_out}/baseline/${index}" "${module}"; then
+      printf 'FAIL: evidence identity %s omits %s, which a listed command imports.\n' \
+        "${identity_writers[index]}" "${module}" >&2
+      identity_failures=1
+    fi
+  done < <(node "${source_dir}/tests/support/native-import-closure.mjs" \
+    "${identity_source}" "${modules[@]}")
+done
+
 # Changing any guidance or command input an identity lists changes that
 # input's hash in the identity.
 while IFS= read -r input; do

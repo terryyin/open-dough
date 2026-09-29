@@ -86,8 +86,11 @@ story_closure_write_evidence_identity() {
     src/skills/dough-execute-plan/references/trunk-publication.md \
     src/skills/dough-execute-plan/references/wrap-up-closure-publication.md \
     src/skills/dough-execute-plan/references/ci-monitor.md \
-    src/skills/dough-execute-plan/references/ci-completion-wait.md
-  git_publication_land_input_hash_lines
+    src/skills/dough-execute-plan/references/ci-completion-wait.md \
+    src/skills/dough-execute-plan/references/publish-the-candidate.md
+  git_publication_land_input_hash_lines \
+    src/skills/dough-execute-plan/scripts/ci-mailbox.mjs \
+    src/skills/dough-product-backlog/scripts/product-backlog-git-merge.mjs
 }
 
 story_closure_run_journey() {
