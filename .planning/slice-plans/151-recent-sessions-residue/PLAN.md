@@ -61,7 +61,7 @@ host-neutral state vocabulary (story 7), and new launch features.
 
 ### 1. A second unreadable launch store keeps the first one's copy
 Type: Behavior
-Status: planned
+Status: done
 Proof: records spec seeds an unreadable store twice across two launches.
 
 Behavior: an unreadable store was already moved aside once → the store becomes
@@ -75,6 +75,13 @@ launch, write unreadable text again, launch, and expect both original texts
 in files beside the store and the new record answered. Run
 `npm run test:dashboard -- dashboard/tests/agent-launch-records.spec.ts` and
 `npm run typecheck:dashboard`.
+
+Accepted proof: `unreadableCopy` in `launchRecordStore.ts` keeps the first
+name and moves a later copy aside as `agent-launches.json.unreadable-<move
+time>`. The records spec test "…keeping every earlier copy" seeds a second
+unreadable text after the first move, launches, and observes the new record
+answered and both texts in the `.unreadable*` files; it failed against the old
+rename. Both commands passed.
 
 ### 2. One journey per launch concern, and one documented home for launch rules
 Type: Structure

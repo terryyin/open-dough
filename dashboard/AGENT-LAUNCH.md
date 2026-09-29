@@ -89,6 +89,8 @@ dev:dashboard` or `npm run preview:dashboard` keeps them, and a dev and a
 preview server on the same machine answer the same records. A record launched
 more than 30 days ago is no longer answered. If that file cannot be read, the
 dashboard answers no records and leaves the file alone; the next launch moves
-it aside as `agent-launches.json.unreadable` and starts a new one. Origin still
-shows the story truthfully, because nothing about the story itself was ever
-kept here.
+it aside as `agent-launches.json.unreadable` and starts a new one. If an
+earlier copy already has that name, the later one is moved aside as
+`agent-launches.json.unreadable-<move time>` instead, so every copy is kept.
+Origin still shows the story truthfully, because nothing about the story
+itself was ever kept here.

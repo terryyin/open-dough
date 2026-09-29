@@ -2,14 +2,16 @@
 // keeps a project's launch records, over raw HTTP: this machine keeps them
 // outside every repository for 30 days, across server restarts and shared
 // between its dev and preview servers, and an unreadable store answers none
-// and is moved aside by the next launch rather than lost. Each test owns a
-// fresh machine directory holding HOME and the synthetic `claude`'s
-// (./fixtures/fake-claude) state; the real one is never reached. What one
-// launch answers and keeps is ./agent-launch-boundary.spec.ts.
+// and is moved aside by the next launch rather than lost, even when an earlier
+// unreadable copy is already beside it. Each test owns a fresh machine
+// directory holding HOME and the synthetic `claude`'s (./fixtures/fake-claude)
+// state; the real one is never reached. What one launch answers and keeps is
+// ./agent-launch-boundary.spec.ts.
 
 import {
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -128,7 +130,7 @@ test.describe("launch records kept on this machine", () => {
     ]);
   });
 
-  test("answers no records from an unreadable store and leaves it until the next launch moves it aside", async () => {
+  test("answers no records from an unreadable store and leaves it until the next launch moves it aside, keeping every earlier copy", async () => {
     const unreadable = "{ not launch records";
     seedStore(machine, unreadable);
     const server = await serverOn("preview");
@@ -144,5 +146,17 @@ test.describe("launch records kept on this machine", () => {
     expect(readFileSync(`${storeFile(machine)}.unreadable`, "utf8")).toBe(
       unreadable,
     );
+    const unreadableAgain = "[ still not launch records";
+    seedStore(machine, unreadableAgain);
+    const second = JSON.parse((await launch(server, launchRequest)).body) as {
+      record: unknown;
+    };
+    expect(await recordsOf(server, "open-dough")).toEqual([second.record]);
+    const dir = path.dirname(storeFile(machine));
+    const copyPrefix = `${path.basename(storeFile(machine))}.unreadable`;
+    const copies = readdirSync(dir)
+      .filter((name) => name.startsWith(copyPrefix))
+      .map((name) => readFileSync(path.join(dir, name), "utf8"));
+    expect(copies.sort()).toEqual([unreadable, unreadableAgain].sort());
   });
 });

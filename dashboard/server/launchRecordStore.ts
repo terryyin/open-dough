@@ -10,10 +10,13 @@
 // than locked against.
 // A missing file holds no records. A file that does not parse holds none
 // either and is left as it is until the next launch, which starts a new
-// document and moves the unreadable one aside, so nothing is silently lost.
+// document and moves the unreadable one aside as
+// `agent-launches.json.unreadable`, or as
+// `agent-launches.json.unreadable-<move time>` when an earlier copy already
+// has that name, so nothing is silently lost.
 
 import { randomUUID } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
@@ -62,6 +65,17 @@ async function readStore(file: string): Promise<StoreRead> {
   }
 }
 
+// Where an unreadable store moves aside without replacing an earlier copy.
+async function unreadableCopy(file: string): Promise<string> {
+  const first = `${file}.unreadable`;
+  try {
+    await access(first);
+  } catch {
+    return first;
+  }
+  return `${first}-${new Date().toISOString().replaceAll(":", "-")}`;
+}
+
 function withinRetention(
   records: readonly LaunchRecord[],
   now: number,
@@ -92,7 +106,7 @@ export async function keepRecord(
   const read = await readStore(file);
   let stored: StoredRecords = {};
   if (read.kind === "unreadable") {
-    await rename(file, `${file}.unreadable`);
+    await rename(file, await unreadableCopy(file));
   } else {
     stored = read.records;
   }
