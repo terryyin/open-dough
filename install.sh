@@ -34,10 +34,7 @@ while [[ $# -gt 0 ]]; do
       platform=$2
       shift 2
       ;;
-    --force)
-      force=1
-      shift
-      ;;
+    --force) force=1 && shift ;;
     # Internal apply handoff: its caller verified every managed baseline first.
     --replace-verified)
       replace_verified=1
@@ -241,6 +238,7 @@ managed_files=(
   dough-story-wrap-up/scripts/closure-candidate-settlement.mjs
   dough-story-wrap-up/scripts/closure-publication.mjs
   dough-story-wrap-up/scripts/closure-resources.mjs
+  dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
   dough-story-wrap-up/scripts/trunk-closure.mjs
 )
 require_declared_payload

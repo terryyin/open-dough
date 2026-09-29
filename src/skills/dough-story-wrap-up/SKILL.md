@@ -220,9 +220,9 @@ and blocks completion. Do not force-push.
 
 In Trunk Mode, `finish` retires this execution's worktree and branch, never a
 remote execution branch, once its completion receipt confirms shutdown; pass it
-Dough Land's [Retire the worktree](../dough-land/SKILL.md#retire-the-worktree) ownership facts
-and act on its `cleanup` result there. In Story Branch Mode, retire them under
-that section with `--remote-branch <execution branch>` and `--contained <integrated SHA>`,
+Dough Land's [Retire the worktree](../dough-land/SKILL.md#retire-the-worktree) ownership facts,
+act on its `cleanup` result there, and after an interruption rerun it as [Finish Trunk Mode closure](../dough-execute-plan/references/wrap-up-closure-publication.md#finish-trunk-mode-closure)
+says. In Story Branch Mode, retire them under that section with `--remote-branch <execution branch>` and `--contained <integrated SHA>`,
 with wrap-up's gate: a completion receipt for the integrated SHA whose shutdown
 is confirmed, and no active checkout-bound observer still hosting the worktree under
 [preserve pending local work](../dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work).

@@ -359,7 +359,7 @@ shared one stays out of scope.
 
 ### 4. An interrupted trunk closure resumes from its first unfinished step
 Type: Behavior
-Status: planned
+Status: done
 Proof: CLI rerun tests at each interruption point: no second push, one completion receipt, cleanup completed or reported already absent.
 
 Behavior: `finish` was interrupted after the final closure was accepted, after
@@ -374,6 +374,28 @@ Port the resume obligations of `resumeTrunkClosure` and
 `resumeInterruptedPublication`. Wrap-up's rerun wording points at the command.
 
 Proof: `trunk-closure-resume.test.mjs` drives the CLI as a child process.
+
+Accepted proof (2026-09-29): `trunk-closure-resume.test.mjs` drives the
+installed CLI with the real mailbox and a PATH `git` wrapper recording pushes:
+rerun after acceptance, after completion (repeated on the ended mailbox), after
+worktree removal (`step: "context"` without `--repository`, then
+`already-absent`), worktree gone before acceptance, and a non-conflicting trunk
+advance rebased and published once with the worktree kept until the receipt.
+All five fail against slice 3's code. Wrap-up, Land, delivery, mailbox, and
+guidance suites, payload checks, and the credential-free native suites green.
+
+Learnings: `finish` takes `--repository` for reruns after removal and rebuilds
+the observer root as `realpath(parent)/basename`, since a mailbox records the
+removed worktree's realpath. It accepts a non-conflicting rebase of the final
+closure without revalidation, because closure commits carry records, not
+behavior proof. Ported from the old modules: no second push of an accepted
+closure, missing registration, rebase and publish once, absent context stops,
+rerun from the management context, already-absent cleanup, and completion
+reuse. Not ported, because `finish` has no such inputs: `supersededShas` and
+in-memory `publishedRevisions`. Slice 5 can delete
+`closure-publication-resume*.test.mjs` and the resume part of
+`closure-publication-remote-context.test.mjs`. `listMatchingMailboxes` is now
+exported from `ci-mailbox-match.mjs`.
 
 ### 5. No shipped closure module is left without an entry point
 Type: Structure

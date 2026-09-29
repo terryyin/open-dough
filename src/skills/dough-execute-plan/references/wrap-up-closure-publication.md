@@ -38,7 +38,7 @@ node <installed>/dough-story-wrap-up/scripts/trunk-closure.mjs finish \
   --previously-published-base <accepted before-cleanup SHA> \
   --target-ref refs/heads/<branch> --repo <owner/repo> --host <host> \
   [--remote <remote>] [--identity <work identity>] [--created-for-work] \
-  [--session-json <json>] [--default-checkout <path>]
+  [--session-json <json>] [--default-checkout <path>] [--repository <path>]
 ```
 
 It confirms the fetched target contains the before-cleanup commit, publishes
@@ -56,14 +56,24 @@ one JSON line, exits 1 when `ok` is not true and 2 on a usage error:
 | --- | --- |
 | `ok: true` | Report `acceptedSha`, the `completion` receipt, `refresh`, and `cleanup` |
 | `step: "before-cleanup"` | Nothing was published. Publish the before-cleanup commit through `deliver` first |
+| `step: "context"` | The worktree is gone. Follow its `recovery`: rerun with `--repository`, or report the unpublished final closure |
 | `step: "conflict"` or `"publish"` | The final closure is unpublished; the worktree, branch, and both commits remain. Follow its `recovery` |
 | `step: "observation"` | The final closure is accepted without an observer. Report lost coverage; resources stay |
 | `step: "completion"` | Report the receipt: a CI failure or retained or unconfirmed shutdown keeps the worktree and branch |
 | `step: "retire"` | Act on `cleanup` as Dough Land's retirement result table says |
 | `step: "git"` | Report `error` as the unfinished step; nothing after it ran |
 
+After an interruption, rerun the same command. Once the worktree is gone, run
+it from an installed skills directory that still exists, such as the default
+checkout's, adding `--repository` with the `repository` an earlier result
+reported. It continues from the first unfinished step: a final closure the
+target already holds is not pushed again, completion is repeated on the observer
+that covers it, and cleanup already done is reported as `already-absent`. A
+final closure the target has moved past without conflict is rebased and
+published once.
+
 Report the exact published closure SHAs, the receipt, remaining coverage, and
-`repository`, the management context a later retirement uses.
+`repository`, the management context a later rerun uses.
 
 ## Complete current-branch closure
 

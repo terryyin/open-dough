@@ -2,14 +2,22 @@
 // worktree with story wrap-up and Dough Land installed beside execute-plan,
 // a real observer mailbox, and a controlled CI adapter. `finish` runs as the
 // agent runs it: the installed command in a child process.
-import { execFile } from "node:child_process";
-import { appendFileSync, cpSync, mkdirSync, writeFileSync } from "node:fs";
+import { execFile, execFileSync } from "node:child_process";
+import {
+  appendFileSync,
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { publishJson } from "../../dough-execute-plan/scripts/ci-mailbox-json-file.mjs";
 import {
   createManagedFixture,
+  deploySkill,
   git,
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
 import { revParse } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
@@ -17,9 +25,9 @@ import { revParse } from "../../dough-execute-plan/scripts/publication-test-fixt
 const skills = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 export const session = "trunk-closure-coordinator";
 
-function install(fixture, name) {
+function install(fixture, name, checkout = fixture.execution) {
   const source = join(skills, name);
-  const skill = join(fixture.execution, ".claude/skills", name);
+  const skill = join(checkout, ".claude/skills", name);
   mkdirSync(skill, { recursive: true });
   cpSync(source, skill, {
     recursive: true,
@@ -48,6 +56,35 @@ export async function createTrunkClosureFixture(t) {
   );
   fixture.env = { ...fixture.env, CLAUDE_CODE_SESSION_ID: session };
   return fixture;
+}
+
+// Installs the closure skills in the default checkout too, as a project that
+// installs them per checkout has them there once the worktree is gone.
+export function installInIntegration(fixture) {
+  deploySkill(fixture.integration, ".claude");
+  install(fixture, "dough-story-wrap-up", fixture.integration);
+  install(fixture, "dough-land", fixture.integration);
+}
+
+// Returns an environment whose `git` records every push it runs, and a reader
+// for those recorded pushes.
+export function recordPushes(fixture, env = fixture.env) {
+  const bin = join(fixture.fixture, "bin");
+  const log = join(fixture.fixture, "pushes.log");
+  const real = execFileSync("sh", ["-c", "command -v git"], {
+    encoding: "utf8",
+  }).trim();
+  mkdirSync(bin, { recursive: true });
+  writeFileSync(
+    join(bin, "git"),
+    `#!/bin/sh\ncase " $* " in *" push "*) printf '%s\\n' "$*" >>'${log}' ;; esac\nexec '${real}' "$@"\n`,
+    { mode: 0o755 },
+  );
+  return {
+    env: { ...env, PATH: `${bin}:${env.PATH}` },
+    pushes: () =>
+      existsSync(log) ? readFileSync(log, "utf8").trim().split("\n") : [],
+  };
 }
 
 // Commits the final closure in the execution worktree and returns its SHA.
@@ -81,10 +118,11 @@ export async function finishThroughCli(
     targetRef = "refs/heads/main",
     extra = [],
     env = fixture.env,
+    checkout = fixture.execution,
   },
 ) {
   const script = join(
-    fixture.execution,
+    checkout,
     ".claude/skills/dough-story-wrap-up/scripts/trunk-closure.mjs",
   );
   const args = [
