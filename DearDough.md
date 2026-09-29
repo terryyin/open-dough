@@ -396,66 +396,6 @@ run that later fails is never surfaced as a failure, only as lost coverage.
     not a defect in classifying a found run; whether widening the poll count
     or window would reliably close this specific gap was not tested here.
 
-## ODF-070 — A nested execution worktree's `node_modules` was assumed absent instead of tested
-
-Former local code: DD-066.
-
-Two independent refactor-pass agents, working in a Story Branch execution
-worktree created under the integration checkout's own working directory
-(`.worktrees/<slug>/`), reported this project's selective-formatting command
-as unusable because the worktree itself has no `node_modules` directory. Both
-reports treated `ls node_modules` (or an equivalent local existence check) as
-proof the command could not run, without invoking the actual command. Because
-the worktree is a subdirectory of the checkout that does have `node_modules`
-installed, Node's own upward module-resolution walk finds and uses that
-parent directory's packages, so `npm run format` and its `eslint`/`prettier`
-dependents run correctly from inside the nested worktree with no setup step.
-
-### Occurrences
-
-- Execution: `SEED-008#planning-workspace-procedure @ 45234b9`
-  - Timestamp: unknown
-  - Tool: Claude Code
-  - Model: claude-sonnet-5
-  - Open Dough release: 0.3.26
-  - Evidence: the slice 5 refactor-pass report stated `node scripts/lint.mjs`
-    "could not run (`eslint`/`prettier` binaries not installed in this
-    worktree's `node_modules`, which is empty — 0 packages vs. 96 in the main
-    checkout)... This is an environment gap." The coordinator then ran
-    `npm run format` directly in that same worktree
-    (`/Users/terryyin/git/open-dough/.worktrees/065-prepare-stories-in-owned-worktrees`)
-    immediately afterward and observed a clean pass with no diff, confirming
-    the command works there.
-  - Observed effect: no incorrect guidance reached the delivered plan or
-    product, since the coordinator's own formatting step is independent of
-    the refactor pass's own tooling claim and was run and verified regardless.
-    The cost was a false "environment gap" statement carried in that agent's
-    report, which the coordinator had to notice and re-verify rather than
-    trust.
-  - Inference: Qualified. The same false observation recurred verbatim in the
-    slice 6 refactor-pass report on the same worktree, suggesting the
-    pattern is the check itself (local directory existence) rather than a
-    one-off environment fluke; whether a differently phrased delegation
-    instruction (e.g. "run the command, not a `node_modules` existence
-    check, before reporting a tooling gap") would prevent recurrence was not
-    tested here.
-- Execution: `SEED-028#one-shot-entry-coherence @ 49b81831`
-  - Timestamp: unknown; 2026-09-27 between 9447617c and 49b81831
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance VERSION 0.3.42 at 9447617c
-  - Evidence: the slice 1 implementation report said `node scripts/lint.mjs`
-    "cannot run in this worktree because it has no `node_modules`" and ran the
-    main checkout's `prettier --check` and `eslint` instead; the coordinator
-    had run `npm ci` in `.worktrees/one-shot-entry-coherence` at setup, then
-    `ls node_modules` there listed packages and `npm run format` passed.
-  - Observed effect: an implementation agent, not only a refactor pass, made
-    the false absence claim, this time with the worktree's own locked install
-    present, and substituted tooling from another checkout, which execution
-    location guidance rules out; coordinator formatting caught nothing wrong.
-  - Inference: Qualified. Delegation for this run named no lint command to
-    run in the workspace; the check that produced the claim was not recorded.
-
 ## ODF-093 — A delegated agent's `git stash pop` applied another session's stash
 
 Former local code: DD-094.
@@ -641,6 +581,14 @@ Pipeline exit status hid the failed lint command; the earlier semicolon-chain oc
   - Evidence: `npm run lint 2>&1 | tail -2 && git commit` hid lint's exit 1;
     `1e648d9` was published, CI run `36147702793` `lint` failed; repair `decb252`.
   - Observed effect: one extra commit, push, and failed CI lint job.
+- Execution: `SEED-052#interact-with-claude-terminal` / plan 152, first related implementation commit `549e2d5a`
+  - Timestamp: 2026-09-29T14:48:19+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd`
+  - Evidence: `npm run -s format 2>&1 | tail -1 && python3 … && git commit … && deliver` printed "Format failed: unresolved findings" yet continued; `ee35dd55` was published, CI run `36533023610` `lint` failed (`unbound-method`, `App.tsx:130`); repair `815844e4`. This repository has no commit hook, so formatting was the only local lint gate.
+  - Observed effect: one extra commit, refactor pass, push, and failed CI lint job; the other CI jobs passed.
+  - Inference: Qualified. The same coordinator had checked exit status correctly in earlier slices of this run; batching format, plan edit, commit, and delivery into one piped chain reintroduced the fault.
 
 ## ODF-154 — Cursor managed delivery lacks its coordinator session identity
 
@@ -1001,9 +949,40 @@ Before startup fetched trunk, execute-plan read the backlog and seed from the de
   - Observed effect: one false readiness stop and one repeated refinement round (its third answer did change native-proof scope).
   - Inference: Qualified. With parallel agents, eligibility should be judged from fetched remote trunk, as startup already does.
 
+## DD-170 — A not-ready reason waiting on another story's landing was not revisited when it landed
+
+Refinement recorded SEED-052#interact-with-claude-terminal not-ready because story 2 was not yet on `main` ("reassess once it lands"). Story 2 closed on trunk a minute later, but nothing revisited the dependent story's assessment; it stayed not-ready until the developer asked why.
+
+### Occurrences
+
+- Execution: `SEED-052#interact-with-claude-terminal` / plan 152, before its claim `c3c1ed9b`
+  - Timestamp: 2026-09-29T12:15:38+08:00 (story 2 closure `f7e7e272`; the not-ready record `19c7e82b` is 12:14:42)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd`
+  - Evidence: `19c7e82b` story-state reason naming `origin/claude/revisit-dashboard-sessions`; `f7e7e272` closed story 2; the developer's request "see why its not ready. Make it ready if you can"; reassessment `b961dc65` (12:44:09) changed only the plan's "Builds on" note and the assessment.
+  - Observed effect: about 30 minutes of a queued story reading not-ready after its only blocker cleared, and one human prompt to recover it.
+  - Inference: Qualified. Neither story wrap-up nor the backlog view re-reads other stories' not-ready reasons that name the closed work; whether that should be a wrap-up step or a dashboard hint is open.
+
+## DD-171 — A plan left a "paid" probe to the developer that the agent could run at no cost
+
+Plan 152 slice 1 said only Terry could run the PTY attach/rename probe because starting a session costs model usage. The executing agent started a background session with no prompt (`claude --bg -n …`, "idle — send a prompt to start"), which runs no model turn, and ran the whole probe itself.
+
+### Occurrences
+
+- Execution: `SEED-052#interact-with-claude-terminal` / plan 152, first related commit `e8553f8d`
+  - Timestamp: 2026-09-29T12:49:01+08:00 (probe record `e8553f8d`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd`
+  - Evidence: plan 152 slice 1 as refined in `19c7e82b` versus its recorded observations in `e8553f8d`; the observation also found an unplanned fact (attaching a stopped session wakes it).
+  - Observed effect: no developer wait for the probe; the busy-session rename, which does need a model turn, stayed unobserved and bounded by the plan's fallback.
+  - Inference: Practice. Planning assumed a cost without checking a zero-cost route for the observation.
+
 ## Retention
 
-- Highest allocated local number: 169. Removed local codes are never reused.
+- Highest allocated local number: 171. Removed local codes are never reused.
+- Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-170/DD-171 and the ODF-100 recurrence: ODF-070 (former DD-066; nested worktree `node_modules` assumed absent), whose parent-resolution premise is superseded by execution-location guidance requiring a locked install per worktree; recovery: `0c31529b:DearDough.md`.
 - Moved to ProjectFindings.md on 2026-09-29 for the 1,000-line ceiling: DD-155 (this repository's plan-number collision) and DD-159 (a dashboard test misdiagnosis in this repository); recovery: `41965529:DearDough.md`.
 - Removed on 2026-09-28 for the 1,000-line ceiling, as lower priority than the plan 142 findings: DD-125 (newer Git feature) and DD-157 (README at the size ceiling); recovery: `6e3921d6:DearDough.md`.
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.

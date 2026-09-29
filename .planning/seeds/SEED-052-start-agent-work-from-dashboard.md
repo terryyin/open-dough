@@ -219,6 +219,30 @@ tool-specific status flow is designed.
    and no open action.
 8. The page offers no copyable `claude attach <id>` anywhere.
 
+<a id="terminal-residue"></a>
+
+### Correction: Guard Mark as done's edges and trim the terminal work's residue
+
+**Identity:** SEED-052#terminal-residue
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/155-terminal-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7a1f68f3417ae6bd561bee17bfcca0afec807813d890abc9119c56c9c730c867","plan":"b95440ad310ba00adef7f206eb08a0ebcb02fd3a01d3832e4066b8f413a031af"}}
+```
+
+**Goal:** A developer who marks a session done keeps keyboard focus in a
+sensible place and sees marking as progress, and a published story title can
+never inject keys into a session. Maintainers change the terminal and launch
+boundary through cohesive modules and one proof per concern, with current test
+documentation.
+
+**Scope:** The correction found by the execution retrospective of
+story 3, SEED-052#interact-with-claude-terminal (commits `e8553f8d`..`815844e4`
+on `claude/interact-with-claude-terminal`). It covers untested Mark as done
+guards and Done-label variants, focus and styling after marking, the
+`claudeCode.ts` and admission residue, overlapping terminal tests, and the
+tests README. It adds no feature promise. Whether Mark as done keeps typing
+the rename into the terminal is a separate decision for Terry and is not in
+this correction. See the [plan](../slice-plans/155-terminal-residue/PLAN.md).
+
 <a id="launch-claude-refinement"></a>
 
 ### 4. Start story refinement and answer its questions in the dashboard

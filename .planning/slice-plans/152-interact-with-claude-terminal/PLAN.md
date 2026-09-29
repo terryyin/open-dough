@@ -449,3 +449,20 @@ replacement of the copy command make one observable outcome, and a panel
 without an entry point would be unobservable. Slice 1 is a probe whose failure
 changes slices 3 and 5 before they start. No other blocking slice-specific
 concern was identified in this review.
+
+## Execution complete
+
+Product advice: The embedded native terminal delivered every key example, so
+story 4 (SEED-052#launch-claude-refinement), which depends on this terminal for
+answering refinement questions, is the natural next step in the existing queue
+order; no reprioritization is recommended. Before relying on Mark as done in
+conversational workflows, Terry should decide whether it keeps typing
+`/rename` into the attached terminal (retrospective F1: the keys can land on a
+permission prompt or the agent view) or keeps the `done-` name in the record
+only. The correction SEED-052#terminal-residue (plan 155) is ready and
+unqueued. Open product questions for wrap-up to home or drop: State unknown
+still admits Open terminal (from plan 150), and preparation facts loading under
+keyboard focus at narrow widths can move the focused control off screen
+(recommendation: no story unless Terry wants it). The queued correction
+SEED-052#recent-sessions-residue touches the same Recent sessions code and must
+reconcile with this branch at integration.
