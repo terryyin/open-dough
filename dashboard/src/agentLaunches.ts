@@ -53,7 +53,7 @@ export type ProjectLaunches = {
   ): Promise<void>;
   // Marks a recorded session of any project done, and answers whether the
   // boundary marked it.
-  markDone(record: LaunchRecord): Promise<boolean>;
+  readonly markDone: (record: LaunchRecord) => Promise<boolean>;
 };
 
 const attemptKey = (
