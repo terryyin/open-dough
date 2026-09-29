@@ -127,11 +127,38 @@ Considered and left out:
 | Guard names a stray rejected case (ex. 3) | 8 | A counterexample file using a removed primitive fails, naming it |
 | Widening rule stated | 8 | `tests/native-publication.md` section |
 
+## Execution learnings
+
+- **Slice 1 (done).** `tests/support/native-assessor-counterexample.sh` holds
+  `native_assessor_counterexamples FILE PASSING [--verdict STATUS REASON] -- COMMAND`
+  and `native_assessor_rejects CASE SIGNAL CANDIDATE [STATUS [FRAGMENT]]`.
+  `git_publication_suite_counterexamples FILE PASSING` in
+  `tests/support/git-publication-native-suites.sh` wraps it for
+  `git_publication_assess`; closure suites reuse it. Proof:
+  `bash scripts/test.sh tests/native-assessor-counterexamples.sh tests/git-publication-native-one-shot.sh`,
+  green with BSD awk and with mawk as `awk`. The combined up-front case is
+  refused naming `carried-edits, one-shot-start`; split, both halves are
+  rejected with no assessor repair.
+- **A field may belong to several signals.** Derived fields such as
+  `remote-sha`, `trunk-commit-count`, and `workspace-on-claim` move with every
+  change to trunk, so each trunk-changing signal declares them. A change is
+  still refused when any changed field lies outside the named signal, and the
+  refusal names every signal declaring such a field.
+- **Observation field syntax.** A field starts at a line `key: ` or `key:`
+  (`[A-Za-z0-9_.-]` keys); repeated keys join into one field; other lines
+  continue the previous field. A response-text case must keep its response
+  lines from looking like `word: text` (indent or escape them) so they stay
+  in the `response` field.
+- **Cost.** About 2 ms per case; the one-shot job moved from about 21 s to
+  22–23 s, within noise.
+- `git_publication_assess_field` matches `key: ` anywhere in a line, so
+  `remote-sha` can match `trunk-remote-sha:`. Reported, not in scope.
+
 ## Slices
 
 ### 1. The helper refuses a counterexample that changes two signals
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `tests/native-assessor-counterexamples.sh` (helper self-cases on a
 toy assessor with declared signals) plus `tests/git-publication-native-one-shot.sh`
 green.

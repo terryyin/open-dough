@@ -2,6 +2,18 @@
 # Credential-free assessor suite for tests/git-publication-native.sh.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals assigned by the sourced entry/runner.
 
+# shellcheck source=tests/support/native-assessor-counterexample.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-assessor-counterexample.sh"
+
+# Starts rejected cases for git_publication_assess, whose signals for these
+# observations are declared in file $1, against passing observation $2.
+git_publication_suite_counterexamples() {
+  native_assessor_counterexamples "$1" "$2" \
+    --verdict git_publication_assess_status git_publication_assess_reason \
+    -- git_publication_assess
+}
+
 git_publication_suite_write_obs() {
   local dest=$1
   shift
