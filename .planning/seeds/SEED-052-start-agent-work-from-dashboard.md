@@ -132,7 +132,7 @@ overlapping card specs over 250 lines. It adds no feature promise. See the
 
 **Identity:** SEED-052#launch-claude-refinement
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/159-session-attention/PLAN.md","assessment":"not-ready","reasons":["Waits for SEED-052#keep-story-session-links (plan 157) to land on fetched origin/main: product slices 2 and 3 require its persistent card-session entries, shared presentation, and deliberate closure. Observe the landed behavior and reconcile this plan before clearing this blocker."],"basis":{"document":"ceaece660f85174dbeaef073937c80581da6c414ef025fdaae67536228cc5e63","plan":"63480a04523b464f6456ab3c4a6ccca127955f8444d3fb17db370389b779e0e2"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/159-session-attention/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"03fa62946ba00dd9f97a6a9617bacf6daee1faef50eca59010ff5e608bafa559","plan":"fc3cc112a89ab3b9e486f61a7561faaaf33f671f45b788848534a91be1e6a63d"}}
 ```
 
 **Goal:** A developer who leaves a dashboard-launched Claude Code session

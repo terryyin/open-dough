@@ -44,11 +44,15 @@ use it to help the developer find conversations requiring attention.
   Extend their existing state value with the optional host `waitingFor` field.
   The same value crosses `sessionStateSchema` in `src/agentLaunch.ts`; add no
   new endpoint, store, poller, callback, or transcript reader.
-- Change the existing session presentation. Today `RecentSessions.tsx` owns
-  `sessionStateWords`, which maps every running non-busy process to Idle.
-  Plan 157 (`c6d9d68a:.planning/slice-plans/157-keep-story-session-links/PLAN.md`) moves that presentation
-  into one entry shared with cards. Extend the landed shared entry and its
-  state interpretation; do not restore a separate Recent sessions mapper.
+- Change the existing session presentation. SEED-052#keep-story-session-links
+  landed it in `src/SessionEntry.tsx`, the one entry both `CardLaunches.tsx`
+  and `RecentSessions.tsx` render. Its private `sessionStateWords` maps every
+  running non-busy process to Idle and an exited done session to Finished.
+  Replace that interpretation in place; do not add a second mapper.
+- Card membership is `cardSessionsOf` in `src/agentLaunch.ts`: a card lists
+  its story's records without `doneAt`, and Mark as done is offered only on
+  card entries. A marked-done record therefore appears only in Recent
+  sessions.
 - Reuse `useAgentLaunches`'s project-scoped records and refresh schedule,
   `attachOpens`, and the existing Mark as done operation. Card aggregation
   reads the same attention interpretation as the entry. Published assignment,
@@ -98,8 +102,9 @@ quiet styling, without a pulsing presence animation.
    state is shown neutrally rather than guessed to be a question or result.
 3. **Deliberate closure overrides attention.** A record with `doneAt` supplies
    no attention, even if the developer later opens it or its host process
-   runs again. Preserve its observed session wording and attachment controls
-   under the existing shared entry rules. Attention clears on the next
+   runs again. It shows Working while the host reports `working`, and the
+   landed Done otherwise, with its existing attachment controls and `done-`
+   name. Attention clears on the next
    observed working state, or on the successful Mark as done response. Opening
    or closing the terminal alone does not clear it.
 4. **Story summary is derived from sessions.** An affected card has visible
@@ -110,7 +115,10 @@ quiet styling, without a pulsing presence animation.
    stage, or published story facts, and introduces no global attention queue.
 5. **Extend current proof seams honestly.** The fake Claude controls can
    publish blocked/waiting states, working/idle, done with a live or exited
-   process, and failed/stopped states. When replacing a state, remove obsolete
+   process, and failed/stopped states. The landed `ClaudeSessionChange` in
+   `tests/support/fakeClaude.ts` names `idle` for host `done` + `status: idle`
+   and `finished` for exited `done`; rename them to host-meaningful changes
+   rather than letting `idle` keep meaning a finished turn. When replacing a state, remove obsolete
    `waitingFor` as well as `state` and `status`. The synthetic attach only echoes
    input; changing a fixture to Working proves response to a new host
    observation, not that real Claude resumed because of an answer. Slice 1
@@ -129,15 +137,12 @@ uncommitted refinement. The host query did not start or change any sessions.
 | The affected state value has other callers with distinct purposes. | `rg -n 'claudeSessions|sessionState|launchWithStateSchema|sessionRuns' dashboard/server dashboard/src dashboard/tests`; read `claudeLaunch.ts`, `doneMarks.ts`, `agentLaunchClient.ts`, and `doneMark.ts` at the named uses. | Launch confirmation, records reads, terminal lookup, and done responses use the same observation/schema. Extra reason data must not alter confirmation, attachment eligibility, stop/rename behavior, or stored launch records. |
 | A browser journey can observe an automatically refreshed state without supplying the presentation itself. | Read `tests/agent-launch-recent-session-states.spec.ts`, `tests/agent-launch-session-listing.spec.ts`, `tests/support/fakeClaude.ts`, `src/agentLaunches.ts`, and `src/revisionCheckSchedule.ts`. | The fake controls host listing only; the real server join, HTTP schemas, page refresh, and rendering run. `passOnePace` proves one records read at the existing interval and retains a no-reload marker. The fake lacks blocked, failed, and working/idle variants; extend it inside slice 2. |
 | The named focused proof is runnable in this workspace. | `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-session-listing.spec.ts dashboard/tests/agent-launch-recent-session-states.spec.ts`. | Exit 0; the quiet reporter was clean. Dependencies reused the existing installation through a temporary `node_modules` symlink after verifying matching lockfiles; the symlink was removed after observation. The first run failed the quiet reporter on an inherited NO_COLOR/FORCE_COLOR warning; the successful command removes that environment conflict without product changes. |
-| Persistent card entries and deliberate closure are available on published trunk. | `git fetch origin`; `git show origin/main:.planning/PRODUCT-BACKLOG.md`; read plan 157 and `src/CardLaunches.tsx`, `src/WorkStages.tsx`, `src/RecentSessions.tsx`. | **Not yet true.** At fetched `047a586c`, the prerequisite story is queued and plan 157's changes are absent: cards still use Started settlement. Product slices 2 and 3 wait for that landing. |
+| Persistent card entries and deliberate closure are available on published trunk. | `git fetch origin`; at `8cc930cb` SEED-052#keep-story-session-links is closed (`45fd5df2`); read `src/SessionEntry.tsx`, `src/CardLaunches.tsx`, `src/agentLaunch.ts` `cardSessionsOf`/`sessionRuns`, `tests/support/fakeClaude.ts`, and the `agent-launch-card-*` and `agent-terminal-done` specs. | True. One shared entry renders both placements; cards list unclosed records only; `doneAt` closure and Mark as done on card entries exist with focused proof. Slices 2 and 3 extend these names. |
 
-**Start check:** before product edits, fetch the authorized trunk and verify
-that SEED-052#keep-story-session-links has landed: persistent session entries
-on Backlog/Preparing/Taken cards, one shared entry, `doneAt` closure, and its
-focused proof. Reconcile names and proof paths with the landed implementation
-and update this same plan if necessary. Stop the dependent path if the
-prerequisite is absent; do not reimplement plan 157 here. A separately
-authorized host probe may provide learning before that landing.
+**Start check:** satisfied at `8cc930cb`; names and proof paths above and
+below are reconciled with the landed implementation. The queued correction
+SEED-052#card-session-residue (plan 160) trims the same state specs; it is
+not a prerequisite. Whichever lands second reconciles those spec edits.
 
 ## Ordered slices
 
@@ -175,8 +180,8 @@ Type: Behavior
 Status: planned
 Proof: extend `agent-launch-session-listing.spec.ts` and
 `agent-launch-recent-session-states.spec.ts` through the production listing
-boundary and browser. Run
-`env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-session-listing.spec.ts dashboard/tests/agent-launch-recent-session-states.spec.ts dashboard/tests/agent-launch-boundary.spec.ts dashboard/tests/agent-launch-done.spec.ts dashboard/tests/agent-terminal-boundary.spec.ts`
+boundary and browser; update the landed card state spec's labels. Run
+`env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-session-listing.spec.ts dashboard/tests/agent-launch-recent-session-states.spec.ts dashboard/tests/agent-launch-card-session-states.spec.ts dashboard/tests/agent-launch-boundary.spec.ts dashboard/tests/agent-launch-done.spec.ts dashboard/tests/agent-launch-card-done.spec.ts dashboard/tests/agent-terminal-done.spec.ts dashboard/tests/agent-terminal-boundary.spec.ts`
 and `npm run typecheck:dashboard`.
 
 Behavior: After one automatic read of changed host state, an unclosed session
@@ -217,7 +222,8 @@ Type: Behavior
 Status: planned
 Proof: one focused browser journey in
 `dashboard/tests/agent-launch-attention.spec.ts`, using the landed card-session
-journey setup and the existing host-state controls. Run
+setup in `agent-launch-card-sessions.spec.ts` and `tests/launchCardPage.ts`
+and the existing host-state controls. Run
 `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-attention.spec.ts dashboard/tests/agent-launch-recent-session-states.spec.ts`
 and `npm run typecheck:dashboard`.
 
@@ -286,9 +292,8 @@ rules; retain the cohesive second slice. No Structure slice is needed after
 the prerequisite's shared entry lands.
 
 The host's missing question/reply observation is explicitly bounded by slice 1.
-The remaining readiness blocker is the absent story-session-link prerequisite
-for slices 2 and 3. Its landed names and behavior must be observed before
-clearing that blocker; a plan for them alone does not prove they exist.
+The story-session-link prerequisite landed and was observed at `8cc930cb`;
+no readiness blocker remains.
 
 ## Learnings
 
