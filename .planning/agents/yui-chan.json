@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yui-chan",
+  "email": "yui-chan@example.org",
+  "identity": "SEED-008#land-from-default-checkout",
+  "mode": "story-branch",
+  "branch": "claude/land-from-default-checkout",
+  "host": "claude",
+  "model": "claude-sonnet-5-5"
+}
