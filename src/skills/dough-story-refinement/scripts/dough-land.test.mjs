@@ -6,6 +6,7 @@
 // file.
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
+import { basename } from "node:path";
 import { test } from "node:test";
 import {
   advanceOriginFromAnotherWriter,
@@ -40,6 +41,11 @@ test("Dough Land commits every committed and uncommitted edit, publishes over a 
     message: "another writer's sibling story",
   });
   const worktreesBefore = await worktreeCount(integration);
+  // The creation record preparation `start` writes, seen from the repository.
+  const createdFor = "refs/worktree/dough/created-for/SEED-1#a";
+  const record = `worktrees/${basename(preparation)}/${createdFor}`;
+  await git(preparation, "update-ref", createdFor, "HEAD");
+  await git(integration, "rev-parse", "--verify", record);
 
   const landed = await landWorktree({
     worktree: preparation,
@@ -87,6 +93,8 @@ test("Dough Land commits every committed and uncommitted edit, publishes over a 
       `refs/heads/${preparationBranch}`,
     ),
   );
+  // Retirement leaves no creation record behind.
+  await assert.rejects(git(integration, "rev-parse", "--verify", record));
 });
 
 test("Dough Land reports a deferred refresh when the default checkout holds a pending edit, and still retires the worktree", async (t) => {

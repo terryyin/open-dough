@@ -12,6 +12,7 @@ import {
   commitQueuedResult,
   createSiblingTrunk,
   deliverQueued,
+  identityB,
   identityB2,
   planB,
   queuedDelivery,
@@ -23,7 +24,13 @@ import {
   startQueuedOneShot,
   trunkTarget,
 } from "./one-shot-queued-test-fixtures.mjs";
-import { git, lsRemoteSha, remoteHeads } from "./publication-test-fixtures.mjs";
+import {
+  createdFor,
+  createdForRecords,
+  git,
+  lsRemoteSha,
+  remoteHeads,
+} from "./publication-test-fixtures.mjs";
 
 const changedPaths = async (origin, sha) =>
   (await git(origin, "show", "--name-only", "--format=", sha)).stdout
@@ -41,6 +48,10 @@ test("a queued story's result and spent records reach remote trunk as one commit
   assert.equal(started.receipt.status, "prepared");
   assert.equal(started.receipt.startingRevision, trunk.trunkSha);
   assert.equal(await remoteHeads(trunk.origin), headsBefore);
+  assert.deepEqual(
+    await createdForRecords(started.workspace),
+    createdFor(identityB, trunk.trunkSha),
+  );
 
   const result = await commitQueuedResult(started.workspace);
   const fixture = await queuedDelivery(trunk, started.workspace);

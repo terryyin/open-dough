@@ -1,6 +1,5 @@
 // Shared Git helpers for the publication runtime modules and their proofs.
 import assert from "node:assert/strict";
-import { execFile } from "node:child_process";
 import {
   mkdtempSync,
   readFileSync,
@@ -10,17 +9,12 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { isAbsolute, join } from "node:path";
-import { promisify } from "node:util";
+import { exec, git, lsRemoteSha, revParse } from "./publication-git.mjs";
 
-export const exec = promisify(execFile);
-
-export async function git(cwd, ...args) {
-  return exec("git", args, { cwd });
-}
-
-export async function revParse(cwd, ref) {
-  return (await git(cwd, "rev-parse", ref)).stdout.trim();
-}
+// `lsRemoteSha` resolves a ref on a bare remote directly (not the checkout's
+// cached remote-tracking ref), so proof about "the bare origin itself" is
+// genuine.
+export { exec, git, lsRemoteSha, revParse };
 
 export async function indexLockPath(checkout) {
   const printed = (
@@ -41,12 +35,24 @@ export async function worktreeCount(repo) {
   return stdout.split("\n\n").filter((block) => block.trim() !== "").length;
 }
 
-// Resolves a ref on a bare remote directly (not the checkout's cached
-// remote-tracking ref), so proof about "the bare origin itself" is genuine.
-export async function lsRemoteSha(remote, ref) {
-  const { stdout } = await exec("git", ["ls-remote", remote, ref]);
-  return stdout.trim().split(/\s+/)[0];
+// Work-creation records live under this per-worktree prefix.
+const createdForRoot = "refs/worktree/dough/created-for/";
+
+// The work-creation records `cwd`'s worktree lists, each as "ref sha".
+export async function createdForRecords(cwd) {
+  const { stdout } = await git(
+    cwd,
+    "for-each-ref",
+    "--format=%(refname) %(objectname)",
+    createdForRoot,
+  );
+  return stdout.trim().split("\n").filter(Boolean);
 }
+
+// The one record of a workspace created for `identity` at `sha`.
+export const createdFor = (identity, sha) => [
+  `${createdForRoot}${identity} ${sha}`,
+];
 
 export {
   maintenanceFromInspection,

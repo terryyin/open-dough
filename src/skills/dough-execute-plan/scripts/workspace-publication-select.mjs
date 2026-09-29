@@ -5,6 +5,7 @@ import { existsSync } from "node:fs";
 import { fastForwardToFetchedTrunk } from "./maintain-default-checkout.mjs";
 import { git, revParse } from "./publication-git.mjs";
 import {
+  createdForRef,
   isAncestor,
   remoteOf,
   remoteRef,
@@ -67,6 +68,20 @@ async function verifyRetained(request) {
   }
 }
 
+// The ref recording that a workspace was created for `identity`, or undefined
+// when the request names no identity or Git rejects it as a ref name.
+async function creationRecord(repository, identity) {
+  if (!identity) return undefined;
+  const ref = createdForRef(identity);
+  try {
+    await git(repository, "check-ref-format", ref);
+    return ref;
+  } catch (error) {
+    if (error.code === 1) return undefined;
+    throw error;
+  }
+}
+
 // A supplied `base` is fetched trunk the caller already reset the workspace
 // to, such as a carried escalation's park; it is used without fetching again.
 // `repository` is the Git context for fetching and creating the workspace; it
@@ -117,6 +132,9 @@ export async function selectOwnedWorkspace(request) {
         startingRevision: base,
       };
     }
+    // A created workspace records the work it was created for, so a later
+    // session can tell it from one that work only reused.
+    const record = await creationRecord(request.repository, request.identity);
     await git(
       request.repository,
       "worktree",
@@ -126,6 +144,7 @@ export async function selectOwnedWorkspace(request) {
       request.workspace,
       base,
     );
+    if (record) await git(request.workspace, "update-ref", record, base);
     return {
       ok: true,
       created: true,

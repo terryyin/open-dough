@@ -12,6 +12,17 @@
   (branch `claude/prep-durable-workspace-creation-fact`), created by this
   preparation at `ae4b4b86` and announced as agent Shunka-chan at `023e15b3`.
 
+## Execution
+
+- **Mode:** Story Branch Mode, started 2026-09-29 by agent Maki-chan
+  (claude-opus-5-5), publisher `claude-768a7b56`.
+- **Checkout:** `.worktrees/durable-workspace-creation-fact` on branch
+  `claude/durable-workspace-creation-fact`, created by startup at starting
+  revision `ca7b50fa`; integration checkout is the repository root.
+- **Target:** remote `origin`; increments publish to the remote execution
+  branch, the claim to `refs/heads/main`.
+- **Published revisions:** claim `29f9bc6c` on `origin/main`.
+
 ## Outcome and boundaries
 
 A developer whose story or preparation spans several agent sessions gets its
@@ -86,7 +97,7 @@ under the existing work-scoped rule Terry decided on 2026-09-28.
 
 ### 1. A created worktree carries the work it was created for
 Type: Behavior
-Status: planned
+Status: done
 Proof: creation and reuse tests observe the ref from the worktree; one retirement test observes it gone.
 
 Behavior: No workspace exists at the requested path and the request names
@@ -111,6 +122,24 @@ created cases (unlisted `identity: null` at `:33` gets no ref; the queued
 `workspace-publication-admission-continuation.test.mjs:123`'s reuse, and assert
 the ref is gone after retirement in one `dough-land.test.mjs` case. Run those
 files plus `workspace-publication-startup-recovery.test.mjs`.
+
+Accepted proof (2026-09-29): `selectOwnedWorkspace` checks
+`createdForRef(identity)` with `git check-ref-format` before `worktree add` and
+writes it at the starting revision after; ref names live together in
+`workspace-publication-ownership.mjs`. From the checkout root,
+`node --test src/skills/dough-bug-fixing/scripts/*.test.mjs src/skills/dough-execute-plan/scripts/*.test.mjs src/skills/dough-story-refinement/scripts/*.test.mjs src/skills/dough-story-wrap-up/scripts/*.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-plan-link-cases.mjs`
+passed 516/516 after refactoring. Observations: `createdForRecords` equals
+`createdFor(identity, sha)` in `preparation-assignment-owned-context.test.mjs`
+(both creation variants; other worktree and repository list none),
+`workspace-publication-startup-plan-link-cases.mjs` (queued Take; integration
+lists none), and `one-shot-queued.test.mjs` (queued one-shot); `[]` for the
+unlisted one-shot (`one-shot.test.mjs`), reuse (`preparation-assignment-owned-context.test.mjs`,
+`workspace-publication-admission-continuation.test.mjs`), and no or invalid
+identity (`workspace-publication-race.test.mjs`); `dough-land.test.mjs`'s first
+case resolves `worktrees/<name>/refs/worktree/dough/created-for/SEED-1#a`
+before landing and not after. Disabling the `update-ref` failed four of those
+assertions. Remaining limit: an `update-ref` failure after `worktree add` keeps
+the workspace and reports `setup-failed`.
 
 ### 2. Retirement in a later session reads the creation record
 Type: Behavior

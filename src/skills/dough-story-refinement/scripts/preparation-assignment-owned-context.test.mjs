@@ -13,6 +13,8 @@ import { ownedWorktreeOnly } from "../../dough-execute-plan/scripts/default-chec
 import {
   advanceOriginFromAnotherWriter,
   captureCheckout,
+  createdFor,
+  createdForRecords,
   exec,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
@@ -55,6 +57,8 @@ test("an owned worktree without a default checkout announces preparation, contin
   assert.equal(receipt.status, "announced");
   assert.equal(receipt.selection, undefined);
   assert.deepEqual(receipt.refresh, { result: "not applicable" });
+  // A reused worktree records no creation.
+  assert.deepEqual(await createdForRecords(workspace), []);
   const announced = receipt.publishedSha;
   assert.equal(await lsRemoteSha(created.origin, "refs/heads/main"), announced);
   assert.equal(
@@ -105,6 +109,13 @@ for (const context of ["workspace", "repository"])
       branch,
       startingRevision: fetched,
     });
+    // The created workspace alone records the work it was created for.
+    assert.deepEqual(
+      await createdForRecords(workspace),
+      createdFor(identityC, fetched),
+    );
+    for (const other of [owned.workspace, owned.repository])
+      assert.deepEqual(await createdForRecords(other), [], other);
     assert.deepEqual(receipt.refresh, { result: "not applicable" });
     const announced = receipt.publishedSha;
     assert.equal(

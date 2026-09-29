@@ -24,6 +24,7 @@ import {
   backlogPath,
   fileAt,
   isAncestor,
+  preparationAssignmentRef,
 } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 
 export function stop(status, fields) {
@@ -101,20 +102,19 @@ export async function storyListAt(cwd, ref, identity) {
     ?.list;
 }
 
-const recordRef = "refs/worktree/dough/preparation-assignment";
-
 // Remembers `sha` as this workspace's own announcement commit.
 export async function recordAllocation(workspace, sha) {
-  await git(workspace, "update-ref", recordRef, sha);
+  await git(workspace, "update-ref", preparationAssignmentRef, sha);
 }
 
 // Puts back the record a workspace held before (`sha`), or none.
 export async function restoreAllocation(workspace, sha) {
   if (sha) await recordAllocation(workspace, sha);
-  else await git(workspace, "update-ref", "-d", recordRef);
+  else await git(workspace, "update-ref", "-d", preparationAssignmentRef);
 }
 
-export const recordedAllocation = (workspace) => commitOf(workspace, recordRef);
+export const recordedAllocation = (workspace) =>
+  commitOf(workspace, preparationAssignmentRef);
 
 // The preparation profile the announcement commit `sha` added, as an
 // assignment: its name, path, allocation, and recorded facts. `only` narrows
