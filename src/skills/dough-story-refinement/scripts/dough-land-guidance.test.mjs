@@ -93,10 +93,11 @@ test("preparation keep and workspace retirement link Dough Land instead of descr
   assert.match(land, /\[--remote-branch <remote branch> --contained <sha>\]/);
   assert.doesNotMatch(land, /git worktree remove|git branch -d|push --delete/);
   assert.doesNotMatch(land, /session-created|this\s+session\s+created/);
-  // Land takes ownership from context or the worktree's own creation record.
+  // Land takes ownership from the shared lifecycle's creation-record rule by
+  // link.
   assert.match(
     land,
-    /Ownership comes from\s+that context or the worktree's\s+\[creation record\]\(\.\.\/dough-manual-testing\/references\/exploration-workspace\.md#close-or-retain-it\)/,
+    /\]\(\.\.\/dough-manual-testing\/references\/exploration-workspace\.md#close-or-retain-it\)/,
   );
   assert.match(
     preparation,

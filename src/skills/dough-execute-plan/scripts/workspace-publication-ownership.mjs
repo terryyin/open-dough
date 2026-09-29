@@ -14,9 +14,10 @@ export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 const workspaceRecords = "refs/worktree/dough";
 // The announcement commit of the preparation assignment the workspace owns.
 export const preparationAssignmentRef = `${workspaceRecords}/preparation-assignment`;
-// The work the workspace was created for, one ref named by its identity.
-export const createdForRef = (identity) =>
-  `${workspaceRecords}/created-for/${identity}`;
+// The work the workspace was created for, one ref under this prefix named by
+// its identity.
+export const createdForRoot = `${workspaceRecords}/created-for/`;
+export const createdForRef = (identity) => `${createdForRoot}${identity}`;
 
 // An admission claims accepted work that was never queued; its trailers are
 // the same, so ownership is read the same way.

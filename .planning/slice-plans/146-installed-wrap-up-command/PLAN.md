@@ -77,8 +77,8 @@ what later slices here rewrite; re-read each against then-current trunk:
   through the command, or add one variant whose worktree must stay, and accept
   each run on its transcript's ownership read, not on PASS alone.
 - `dough-story-wrap-up/SKILL.md` is at the 250-line limit.
-- Correction SEED-008#creation-record-test-residue (plan 149) will export the
-  record prefix from the ownership module; reuse it if slice work needs it.
+- The ownership module exports the record prefix as `createdForRoot`; reuse
+  it if slice work needs it.
 
 ## Outcome and boundaries
 

@@ -208,28 +208,6 @@ which removed the owner arguments the closure modules passed.
 
 **Slice plan:** [Close stories through an installed wrap-up command](../slice-plans/146-installed-wrap-up-command/PLAN.md).
 
-<a id="creation-record-test-residue"></a>
-
-### Make the creation record's proof findable and wording-tolerant
-
-**Identity:** SEED-008#creation-record-test-residue
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/149-creation-record-test-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0829514032edc9bacae156dfcd94da482bd9f9535b7c8db0d37d244203d0992d","plan":"cee6afb0f8036b864769607f361692ba4c8e143d91e88f29d20af8c2e0d4a657"}}
-```
-
-**Goal:** A maintainer changing workspace creation or retirement guidance finds
-the creation record's proof in tests named for it, and can reword the guidance
-without breaking tests that only pin prose. This corrects test residue from
-SEED-008#durable-workspace-creation-fact (recoverable at `0d056b38:.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`).
-
-**Scope:** Give the creation record its own named `selectOwnedWorkspace` tests
-and return the race tests' shared helper to its race purpose; name the record's
-prefix once in the ownership module for tests to import; and narrow the
-guidance assertions this story added to their contract tokens and link targets.
-Runtime behavior and the guidance text stay unchanged.
-
-**Slice plan:** [Make the creation record's proof findable and wording-tolerant](../slice-plans/149-creation-record-test-residue/PLAN.md).
-
 <a id="reduce-ci-observer-overhead"></a>
 
 ### Reduce CI observer overhead across execution and wrap-up

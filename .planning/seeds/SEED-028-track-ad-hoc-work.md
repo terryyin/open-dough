@@ -50,18 +50,17 @@ story with `--carry` without asking, and stopped before planning, with the
 edits restored uncommitted over the claim and nothing on trunk. The fixture
 reveals that growth only through the check; a fixture that documented the
 migration rule let the agent admit before editing, which is inconclusive.
-Codex and Cursor remain pending, so one-shot is not yet natively accepted for
+Cursor remains pending, so one-shot is not yet natively accepted for
 release under
 [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
 
 <a id="native-one-shot-other-hosts"></a>
 
-### Pending Codex and Cursor acceptance regrouped by host
+### Pending Cursor acceptance
 
-The existing one-shot cases are now part of the
-[Codex](SEED-053-native-guidance-acceptance.md#native-acceptance-codex) and
+The existing one-shot cases belong to the
 [Cursor](SEED-053-native-guidance-acceptance.md#native-acceptance-cursor)
-acceptance stories, retaining the
+acceptance story, retaining the
 [one-shot release gate](SEED-053-native-guidance-acceptance.md#shared-one-shot-cases).
 This anchor remains a navigation reference, not a separate active story.
 

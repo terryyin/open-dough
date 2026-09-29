@@ -548,6 +548,9 @@ known fault class was rediscovered with a paid failing run per case.
   - Observed effect: 9 further paid runs; substitutes had followed a path current guidance forbids.
 
 
+- Execution: `SEED-044#native-premise-acceptance-codex-cursor` / plan 141, first related implementation commit `8373b163`; Timestamp: unknown (2026-09-28–29); Tool: Codex; Open Dough release: 0.3.46 on resume, original coordinator release unknown.
+  - Evidence: `642d0938` records safe admission before edits on the inherited migration fixture; `ae667576` and `a18b3bf7` show inexpensive alias/versioned-rewrite solutions disproving necessary growth. `0ef7767a` replaces it with executable active/archive collision proof; `a38f8257` records the single v0.3.46 native after-edit carry pass. Observed effect: one paid inconclusive case, two cheap feasibility probes and an explicit fixture-choice handoff. Inference: the same fixture-credibility problem affected ordering here; test legitimate small solutions before claiming that a case necessarily grows. No reliability or quantified savings claim.
+
 ## ODF-097 — Coordinator published a commit after the formatter failed
 
 Former local code: DD-097.
@@ -782,6 +785,14 @@ substituted write-time checks, a `read-state` read-back and manual checks.
   - Evidence: plan 115 slice 2 text at `6882aeb3`; `product-backlog.mjs` usage lists add, place, take, complete, refresh, direction, adopt, merge, record-state, read-state
   - Observed effect: small detour and an equivalent-proof judgment at acceptance; no rework
   - Inference: same class as the unobserved planning premises this story addresses (catalog ODF-074); plan 115 was written before its own rule
+- Execution: SEED-008#creation-record-test-residue (plan 149; first implementation commit `2befcb5d`)
+  - Timestamp: unknown (between Take `d995aef3` and `2befcb5d` committed 2026-09-29T11:13:50+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; plan written from installed guidance at `41965529`
+  - Evidence: plan 149 slice 1 Proof (recoverable at `b85f838a:.planning/slice-plans/149-creation-record-test-residue/PLAN.md`) lists `workspace-publication-startup-plan-link-cases.mjs` as a `node --test` target; it defines cases that `workspace-publication.test.mjs` imports and runs
+  - Observed effect: the implementation agent substituted the importing test file and reported the substitution; no rework
+  - Inference: a proof target named without running it, the same class as the backlog-validation premise above
 
 ## ODF-137 — Execution start accepts a Take while a preparation of the same story is announced but not kept
 

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { markdownSection as section } from "../../../../tests/support/markdown-section.mjs";
 
 const skills = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const read = (path) => readFileSync(join(skills, path), "utf8");
@@ -139,14 +140,6 @@ test("Trunk Mode and Story Branch closure share one completion operation before 
   );
 });
 
-const section = (text, heading) => {
-  const start = text.indexOf(`\n${heading}\n`);
-  assert.notEqual(start, -1, `missing ${heading}`);
-  const rest = text.slice(start + heading.length + 2);
-  const end = rest.search(/\n## /);
-  return end === -1 ? rest : rest.slice(0, end);
-};
-
 test("wrap-up retires execution resources through Dough Land with its completion gate", () => {
   const wrapUpRetirement = section(
     storyWrapUp,
@@ -198,13 +191,16 @@ test("wrap-up retires execution resources through Dough Land with its completion
     integrationRetirement,
     /confirmed shutdown as its gate[\s\S]+\[Retire the worktree\]\(\.\.\/\.\.\/dough-land\/SKILL\.md#retire-the-worktree\)/,
   );
-  // Closure names the creation-record ownership check, not only the link.
-  for (const guidance of [wrapUpRetirement, closureRetirement]) {
-    assert.match(
-      guidance,
-      /exploration-workspace\.md#close-or-retain-it\)\s+or\s+another\s+record\s+there\s+shows\s+this\s+work\s+created\s+it/,
-    );
-  }
+  // Closure takes ownership from the shared lifecycle's creation-record rule
+  // by link.
+  assert.match(
+    wrapUpRetirement,
+    /\]\(\.\.\/dough-manual-testing\/references\/exploration-workspace\.md#close-or-retain-it\)/,
+  );
+  assert.match(
+    closureRetirement,
+    /\]\(\.\.\/\.\.\/dough-manual-testing\/references\/exploration-workspace\.md#close-or-retain-it\)/,
+  );
 
   // A second retirement description must not return beside the link.
   for (const guidance of [

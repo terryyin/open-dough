@@ -7,8 +7,7 @@ import {
   git,
   lsRemoteSha,
 } from "../../dough-execute-plan/scripts/publication-git.mjs";
-
-const creationRefs = "refs/worktree/dough/created-for/";
+import { createdForRoot } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 export const notCreatedForWork =
   "reused, host-owned, or unrecorded workspace, not created for this work";
 
@@ -85,7 +84,7 @@ export async function ownershipHold(worktree, identity, createdForWork) {
     worktree,
     "for-each-ref",
     "--format=%(refname:lstrip=4)",
-    creationRefs,
+    createdForRoot,
   );
   const works = refs.stdout.split("\n").filter((name) => name !== "");
   if (identity && works.includes(identity)) {

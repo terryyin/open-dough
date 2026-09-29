@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Akiho-chan",
+  "email": "akiho-chan@example.org",
+  "identity": "SEED-028#native-one-shot-other-hosts",
+  "mode": "story-branch",
+  "branch": "cursor/native-guidance-acceptance-cursor",
+  "host": "cursor",
+  "model": "Grok 4.7"
+}
