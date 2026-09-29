@@ -4,10 +4,11 @@
 // `./projectFolders.ts`. One JSON document holds each catalog project's
 // records by project id. Every read and write reads the file afresh, so each
 // dashboard server on this machine -- dev and preview alike -- sees every
-// launch. A write adds a launch or marks a kept session done. A record
-// launched more than `launchRetentionDays` before a read is not answered, and
-// a write drops it. A write replaces the file atomically; two writes at the
-// same instant can still race, which is accepted rather than locked against.
+// launch. A write adds a launch or marks a kept session done. A record not
+// marked done is kept however long ago it was launched. A record marked done
+// more than `launchRetentionDays` before a read is not answered, and a write
+// drops it. A write replaces the file atomically; two writes at the same
+// instant can still race, which is accepted rather than locked against.
 // A missing file holds no records. A file that does not parse holds none
 // either and is left as it is until the next write, which starts a new
 // document and moves the unreadable one aside as
@@ -81,7 +82,9 @@ function withinRetention(
   now: number,
 ): LaunchRecord[] {
   return records.filter(
-    (record) => now - Date.parse(record.launchedAt) <= retentionMs,
+    (record) =>
+      record.doneAt === undefined ||
+      now - Date.parse(record.doneAt) <= retentionMs,
   );
 }
 

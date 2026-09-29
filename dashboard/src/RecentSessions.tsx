@@ -27,7 +27,8 @@ export function RecentSessions({
       <h2 id="recent-sessions-heading">Recent sessions</h2>
       <p className="quiet">
         Claude Code sessions launched from this dashboard for this project,
-        newest first, kept on this machine for {launchRetentionDays} days.
+        newest first, kept on this machine; sessions marked done are kept for{" "}
+        {launchRetentionDays} days after marking.
       </p>
       {records.length === 0 ? (
         <p className="quiet">

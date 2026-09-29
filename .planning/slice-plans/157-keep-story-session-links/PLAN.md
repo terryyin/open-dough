@@ -186,7 +186,18 @@ stop only for a listed session) and the North Star row.
 
 ### 3. Unclosed sessions are kept indefinitely; done ones 30 days after marking
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run typecheck:dashboard`; `npx playwright test --config
+dashboard/playwright.config.ts --reporter=line
+dashboard/tests/agent-launch-records.spec.ts
+dashboard/tests/agent-launch-recent-sessions.spec.ts
+dashboard/tests/agent-launch-done.spec.ts`: 8 passed; the records spec
+reran at 3 passed after refactoring. Observation: `agent-launch-records.spec.ts`
+"keeps an unclosed record however old, and a done one until 30 days after
+marking, dropping it on the next write".
+Learnings: slice 2 made the Recent sessions region focusable, which failed
+CI in `accessible-overview-keyboard.spec.ts` (repaired in `76e6dce3`); the
+slice 2 proof had not selected that spec.
 Proof: `agent-launch-records.spec.ts` retention case rewritten with seeded
 records: unclosed and launched 40 days ago is answered; launched 60 days ago
 and done 29 days ago is answered; done 31 days ago is not answered. A launch
