@@ -412,6 +412,21 @@ is in no identity. Changed identities: trunk-closure, Story Branch,
 owned-context, publication, execution-review, and execution-worktree-prep;
 their recorded evidence is stale.
 
+CI repair: slice 4's `ea306a5e` failed CI lint (SC2030/SC2031 in
+`tests/native-evidence-identity.sh`) because it was committed after a failed
+format; repair `14cd2de3` runs the closure printer from `identity_source`.
+
+## Execution complete
+
+Product advice: queue follow-up correction
+SEED-008#closure-response-and-spawned-script-identity (plan 156) ahead of
+SEED-008#installed-story-branch-integration, whose acceptance reuses the Story
+Branch harness it repairs; extend that story's D3 to the optional rev-parse
+helpers (`commitOf` in wrap-up and refinement, `refSha`, `verifies`); renew
+trunk-closure and Story Branch native evidence together after plan 156, within
+that story's acceptance (ADR 0005 §3), since trunk-closure rerun behavior
+changed. No other priority change.
+
 ## Proof ownership
 
 | Final-state promise | Owning slice and decisive observation |

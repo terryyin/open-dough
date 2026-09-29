@@ -137,6 +137,27 @@ plan 146 (recoverable at
 [its correction plan](../slice-plans/154-closure-proof-and-harness-correction/PLAN.md).
 It adds no feature promise.
 
+<a id="closure-response-and-spawned-script-identity"></a>
+
+### Judge closure responses by trunk CI and hash the scripts journeys spawn
+
+**Identity:** SEED-008#closure-response-and-spawned-script-identity
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/156-closure-response-and-spawned-script-identity/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9164b5b274a4c562b45de15c1bb8447a9bb599e40fd576d2e0c51af810193432","plan":"eae08bd8be62b6f4ed4e0345a4e6cf4d0b037813fb130a955789305c856cf428"}}
+```
+
+**Goal:** Maintainers can trust that the Story Branch native response check
+rejects any response reporting trunk CI, its checks, observer, or watcher as
+failed or unavailable while still accepting an unrelated step's failure beside
+a trunk success, and that each closure evidence identity also changes when a
+script a journey's command spawns changes.
+
+**Scope:** The bounded retrospective correction of plan 154 (recoverable at
+`14cd2de3:.planning/slice-plans/154-closure-proof-and-harness-correction/PLAN.md`)
+(SEED-008#closure-proof-and-harness-correction) described in
+[its correction plan](../slice-plans/156-closure-response-and-spawned-script-identity/PLAN.md).
+It adds no feature promise.
+
 <a id="installed-story-branch-integration"></a>
 
 ### Integrate Story Branch closures through an installed command

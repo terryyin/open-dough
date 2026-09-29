@@ -73,27 +73,6 @@ third-party changes in the worktree and no account of what they were or why.
 
 ### Occurrences
 
-- Execution: `SEED-008#script-product-backlog-list-updates @ ff8987d`
-  - Timestamp: unknown
-  - Tool: Claude Code
-  - Model: claude-opus-5
-  - Open Dough release: 0.3.25
-  - Evidence: Slice 10's refactor agent ended with status `failed` and summary
-    "Agent stalled: no progress for 600s (stream watchdog did not recover)",
-    its last output truncated mid-sentence. It occurred between the slice-10
-    implementation return and commit `b75c3dc` (2026-09-18T19:31:24+08:00); no
-    exact event time is recoverable. The worktree held a complete and coherent
-    change: a fixture value relocated into the single test file using it, a
-    `versionPath` helper, and a `saying(text)` collapse of eight repetitions.
-  - Observed effect: The coordinator accepted the work by reading the diff hunk
-    by hunk and re-running two mutations against the refactored tests rather
-    than by report. Two questions the pass had been asked — anything it found
-    unproved, and its judgement on the deferred 926-line test-file split —
-    were never answered and remain open.
-  - Inference: Qualified. The unproved report lines confirmed in DD-056 are the
-    class of finding that pass was asked to surface; whether it had found them
-    cannot be determined from the record.
-
 - Execution: `SEED-021#identify-taken-work-owner` / plan 091, first related implementation commit `567f9b2`
   - Timestamp: unknown (after the CI repair return, before commit `ff33cb8`
     at 2026-09-24T17:46:32+08:00)
@@ -551,6 +530,10 @@ says formatting must succeed before staging.
   - Observed effect: one failed CI run, one repair commit, and an extra refactor agent.
   - Inference: Qualified. The same hand-built chain recurred, so this is no longer a one-off; one scripted format-then-commit step would stop it.
 
+- Execution: `SEED-008#closure-proof-and-harness-correction` / plan 154, first related implementation commit `d1204cd7`; Timestamp: 2026-09-29T15:42:14+08:00; Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `b37292dd`
+  - Evidence: slice 4 command printed `FMT 1` (shellcheck SC2030/SC2031 in `tests/native-evidence-identity.sh`), then `;` ran the agent commit and delivery of `ea306a5e`; CI run 36538231567 `lint` failed on the same finding; repair `14cd2de3`. Slices 1–3 used the same `;` chain and passed only because formatting succeeded.
+  - Observed effect: one failed CI run and one repair commit. Inference: third occurrence of the same hand-built chain, in a coordinator whose log already held ODF-097's plan-150 row from that morning; the rule alone does not stop it.
+
 ## ODF-098 — A slice's proof named a suite only a later slice's behavior keeps green
 
 Former local code: DD-098.
@@ -986,9 +969,29 @@ The refactor checks' physical-line bound applies to guidance Markdown. Held at 2
   - Evidence: `dough-story-wrap-up/SKILL.md` lines over 120 characters went from 11 (`3962b8ce`) to 16; three coordinator attempts during the `28fb01ae` merge only moved line breaks so `ci-completion-lifecycle-guidance.test.mjs` regexes matched; slice 3's refactor split `trunk-publication.md` and `install.sh` repeatedly sat at 248–250.
   - Observed effect: several edit-and-test cycles spent on wrapping, not meaning. Inference: qualified; a character or word budget for Markdown, or phrase matching that ignores line breaks, would remove the incentive.
 
+## DD-172 — A refactor pass removed a guard as behavior-preserving on an unverified helper premise
+
+Slice 1's refactor pass dropped a skip for observer-registered revisions the repository lacks, reasoning that Land's `isAncestor` returns false on any failure. It re-threw every exit but 1, so a missing revision would crash `finish`. The coordinator accepted the report and wrote the same premise into the plan as a learning; no test covered a missing revision.
+
+### Occurrences
+
+- Execution: `SEED-008#closure-proof-and-harness-correction` / plan 154, first related implementation commit `d1204cd7`; Timestamp: unknown (refactor before `d1204cd7`, 2026-09-29T15:02:45+08:00); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `b37292dd`
+  - Evidence: refactor report cited `retirement-checks.mjs:31` as returning false; `succeeds()` there rethrew non-1 exits; plan learning in `d1204cd7`; slice 2's implementer read the helper, restored the skip, and planted a missing registered SHA in `trunk-closure-rebased-rerun.test.mjs` (`0166f178`).
+  - Observed effect: a latent crash path published on the execution branch for one slice; caught before trunk. Inference: qualified; a refactor that deletes a guard needs a test that exercises it, as in DD-124's read-versus-observe class.
+
+## DD-173 — A loosened assessor was accepted on its old counterexamples, not on what it newly accepts
+
+Plan 154 slice 3 narrowed a native response check's rejection to admit one reconstructed Cursor line. Its proof, the implementer, refactor, and coordinator acceptance checked only that existing counterexamples kept their verdicts; the retrospective then found four failure reports the new check accepts.
+
+### Occurrences
+
+- Execution: `SEED-008#closure-proof-and-harness-correction` / plan 154, first related implementation commit `d1204cd7`; Timestamp: unknown (slice 3 accepted before `1e3880ed`, 2026-09-29T15:29:21+08:00); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `b37292dd`
+  - Evidence: `story_closure_response_trunk_result` at `1e3880ed` returns true for "Trunk CI passed. The watcher failed to start." and three similar lines, false at `a51510d2`; follow-up plan 156. Observed effect: one follow-up correction. Inference: qualified; widening an assessor needs paraphrased failure cases on the side it newly admits (ADR 0005 §2's recorded bad outputs).
+
 ## Retention
 
-- Highest allocated local number: 171. Removed local codes are never reused.
+- Highest allocated local number: 173. Removed local codes are never reused.
+- Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-172 and ODF-097's third occurrence: ODF-059's 0.3.25-era occurrence (`SEED-008#script-product-backlog-list-updates`); two later occurrences keep the finding; recovery: `14cd2de3:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than ODF-116's recurrence: ODF-070's 0.3.26-era occurrence (`SEED-008#planning-workspace-procedure`); recovery: `6fa51cb6:DearDough.md`.
 - Moved to ProjectFindings.md on 2026-09-29 for the 1,000-line ceiling: DD-155 (this repository's plan-number collision) and DD-159 (a dashboard test misdiagnosis in this repository); recovery: `41965529:DearDough.md`.
 - Removed on 2026-09-28 for the 1,000-line ceiling, as lower priority than the plan 142 findings: DD-125 (newer Git feature) and DD-157 (README at the size ceiling); recovery: `6e3921d6:DearDough.md`.
