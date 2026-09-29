@@ -32,11 +32,7 @@ import {
   seedA,
   withoutStory,
 } from "./closure-admitted-work-fixtures.mjs";
-import {
-  commitFile,
-  git,
-  lsRemoteSha,
-} from "./closure-publication-fixtures.mjs";
+import { commitFile, git, lsRemoteSha } from "./closure-git-fixtures.mjs";
 
 test("admitted planned missions close in turn, each keeping the other's claim, profile and plan", async (t) => {
   const trunk = await createQueuedTrunk();

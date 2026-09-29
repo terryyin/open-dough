@@ -150,7 +150,10 @@ native invocation or behavior.
 - `tests/native-evidence-identity.sh` — in a scratch copy of the source, every
   retained evidence identity's `input-hash` lines change when any native
   supervision input changes, and every identity takes those inputs from the
-  one list in `native-run-supervise.sh`.
+  one list in `native-run-supervise.sh`. Every `src/` guidance or command input
+  an identity lists changes it, and the owned-context, trunk-closure, and
+  Story Branch closure identities list the Land, retirement, exploration,
+  default-checkout, and closure inputs their journeys exercise.
 - `tests/native-run-timeout.sh` — a hang substitute starts a child, emits
   partial output, and ignores SIGTERM. Selected context with a short
   `--deadline`/`--grace` returns 124 within that bound plus cleanup slack;

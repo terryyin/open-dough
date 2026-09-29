@@ -20,7 +20,6 @@ import {
   assertCheckoutUnchanged,
   captureCheckout,
   createCleanTrunkFixture,
-  createClosureObserver,
   executionBranch,
   git,
   lsRemoteSha,
@@ -29,7 +28,7 @@ import {
   remoteCommitCount,
   revParse,
   trunkTarget,
-} from "./closure-publication-fixtures.mjs";
+} from "./closure-git-fixtures.mjs";
 
 const ancestorBacklog = backlogOf([itemA, itemB], [itemC]);
 const storyBacklog = backlogOf([itemB], [itemC]);
@@ -72,7 +71,7 @@ test("a racing trunk advance publishes one history-preserving candidate and retr
   await git(integration, "commit", "-m", "unrelated integration commit");
   await plantHumanEdit(integration);
   const integrationBefore = await captureCheckout(integration);
-  const observer = createClosureObserver(execution);
+  const registered = [];
   const commitsBefore = await remoteCommitCount(origin);
 
   const published = await publishHistoryPreservingCandidate({
@@ -96,7 +95,7 @@ test("a racing trunk advance publishes one history-preserving candidate and retr
         message: "racing trunk advance",
       });
     },
-    register: (receipt) => observer.register(receipt.sha, receipt.target),
+    register: (receipt) => registered.push(receipt),
   });
 
   assert.equal(published.classification, "published");
@@ -147,12 +146,10 @@ test("a racing trunk advance publishes one history-preserving candidate and retr
   assert.equal(publishedTree.includes("human-unstaged.txt"), false);
   assert.equal(await messageCount(origin, trunkTarget, "story closure"), 1);
   assert.equal(
-    observer.receipts.some(
-      (receipt) => receipt.sha === published.supersededSha,
-    ),
+    registered.some((receipt) => receipt.sha === published.supersededSha),
     false,
   );
-  assert.deepEqual(observer.receipts, [published.receipt]);
+  assert.deepEqual(registered, [published.receipt]);
   assert.notEqual(await revParse(integration, "HEAD"), published.receipt.sha);
   assertCheckoutUnchanged(
     integrationBefore,
@@ -173,7 +170,7 @@ test("a racing trunk advance publishes one history-preserving candidate and retr
     ownedWorkspace: execution,
     publishedTip: closureSha,
     branch: executionBranch,
-    register: (receipt) => observer.register(receipt.sha, receipt.target),
+    register: (receipt) => registered.push(receipt),
   });
   assert.equal(retry.classification, "already-accepted");
   assert.equal(retry.mergeCount, 0);
@@ -181,7 +178,7 @@ test("a racing trunk advance publishes one history-preserving candidate and retr
   assert.equal(retry.rejectedPushCount, 0);
   assert.equal(await remoteCommitCount(origin), commitsAfter);
   assert.equal(await lsRemoteSha(origin, trunkTarget), published.receipt.sha);
-  assert.equal(observer.receipts.length, 1);
+  assert.equal(registered.length, 1);
   assertCheckoutUnchanged(
     integrationBefore,
     await captureCheckout(integration),

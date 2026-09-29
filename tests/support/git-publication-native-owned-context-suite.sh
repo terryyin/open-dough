@@ -158,7 +158,35 @@ run_preparation_land_counterexamples() {
   owned_context_reassess fail 'worktree or its branch survived'
   git -C "${repository}" branch -q -D "${branch}"
 
+  run_preparation_land_retirement_counterexamples
   owned_context_reassess pass 'landed only Story C'
+}
+
+# Retirement runs the installed command for Story C, which checks ownership;
+# raw Git removal, or the command for other work, does not count.
+run_preparation_land_retirement_counterexamples() {
+  local transcript=${owned_context_transcript} log=${git_publication_owned_node_log}
+  local raw="git -C ${git_publication_owned_repository} worktree remove ${git_publication_fixture_workspace}"
+  local file
+  for file in "${transcript}" "${log}"; do
+    cp -- "${file}" "${file}.kept"
+    grep -Fv 'worktree-retirement.mjs' "${file}.kept" > "${file}" || true
+  done
+  owned_context_reassess fail 'installed retirement command for Story C'
+  jq -n -c --arg c "${raw}" \
+    '{type:"tool_call",subtype:"started",tool_call:{shellToolCall:{args:{command:$c}}}}' \
+    >> "${transcript}"
+  owned_context_reassess fail 'removed through raw Git'
+  # The command ran for Story C, but the worktree went through raw Git anyway.
+  cp -- "${log}.kept" "${log}"
+  owned_context_reassess fail 'removed through raw Git'
+  for file in "${transcript}" "${log}"; do
+    sed 's/--identity /--identity other-/g' "${file}.kept" > "${file}"
+  done
+  owned_context_reassess fail 'installed retirement command for Story C'
+  for file in "${transcript}" "${log}"; do
+    mv -- "${file}.kept" "${file}"
+  done
 }
 
 # The Trunk Mode closure with no default checkout, through its controller.

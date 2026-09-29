@@ -116,97 +116,71 @@ registry is selected. No new execution authority or ADR acceptance is implied.
 
 ## Existing related stories
 
-<a id="installed-wrap-up-command"></a>
+<a id="closure-proof-and-harness-correction"></a>
 
-### Close stories through an installed wrap-up command
+### Keep closure reruns truthful and closure proof exact
 
-**Identity:** SEED-008#installed-wrap-up-command
+**Identity:** SEED-008#closure-proof-and-harness-correction
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/146-installed-wrap-up-command/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e6f6cc13aea76be5357cd5cbd2d22222d7200f5d3a0e056183b2abfc455dd062","plan":"e8e4a2ca3ce9b2d2597ccd441c490b3d5b3c5d40fdaefa045ce08bc45f5d7111"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/154-closure-proof-and-harness-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d4da12864e9af318e16ebe6f2e90ad2035ccb5dbd55e91e6e9c2208611fb6881","plan":"0716980335c70dce60a6a89f3f1f6d30c8084bb774fc18099a32e18c78ac1c9e"}}
 ```
 
-**Decision (2026-09-28):** Terry chose an entry point over removing the
-shipped closure modules from the payload (finding F7 of the remote-history
-retrospective), then accepted the narrowed goal, scope, and ordering below in
-refinement the same day.
+**Goal:** An agent rerunning Trunk Mode closure after its final commit was
+rebased and published gets that closure recognized instead of a false stop,
+and maintainers can trust that each closure test, native harness check, and
+native evidence identity proves exactly the behavior it names.
 
-**Goal:** Agents closing a story run the closure mechanics that this project's
-tests prove, Trunk Mode closure publication and execution-resource retirement,
-through installed commands instead of re-enacting them from prose and raw Git.
-Wrap-up and Dough Land guidance then keep only judgment steps, and closed work
-stops leaving worktrees and branches behind.
+**Scope:** The bounded retrospective correction of
+plan 146 (recoverable at
+`097cc35f:.planning/slice-plans/146-installed-wrap-up-command/PLAN.md`)
+(SEED-008#installed-wrap-up-command) described in
+[its correction plan](../slice-plans/154-closure-proof-and-harness-correction/PLAN.md).
+It adds no feature promise.
 
-**Evidence:** The closure modules under
-`src/skills/dough-story-wrap-up/scripts/` ship in the payload with no entry
-point and no caller outside tests, so their tests prove code agents never run.
-On 2026-09-28 the Story Branch closure of
-`SEED-053#proportionate-local-verification` left its worktree, local branch,
-and remote branch in place although trunk contained all of them. No closure
-has been observed to behave differently across hosts.
+<a id="installed-story-branch-integration"></a>
 
-**Scope:**
+### Integrate Story Branch closures through an installed command
 
-- An installed Trunk Mode closure command publishes the before-cleanup commit,
-  then the final-closure commit, runs the CI completion operation once for the
-  final accepted SHA, and retires execution resources only on its confirmed
-  receipt. A rerun recognizes commits already accepted on the remote.
-- Both closure publications stay: delivery rebases unpublished commits when
-  trunk advances, and the final closure cites the before-cleanup SHA as a
-  recovery locator, so that SHA must be accepted before cleanup cites it.
-- One installed retirement command, shared by wrap-up in every mode and by
-  Dough Land, replaces the raw-Git retirement procedure. It builds on the
-  removal core that plan 142 extracts.
-- Wrap-up and Dough Land guidance call these commands and drop the procedure
-  prose they replace; assimilation, queue decisions, and deletion scope stay in
-  prose.
-- That retirement command holds the one ownership gate, following the
-  work-scoped lifecycle rule: a clean workspace created for this work, by any
-  session, is retired; a reused, host-owned, or unrecorded one is retained. It
-  reads the creation record `refs/worktree/dough/created-for/<identity>` that
-  execution startup and preparation `start` write in a worktree they create.
-- No shipped closure module remains without an entry point: each backs a
-  command or leaves the payload with its tests.
-- Before any paid run, each affected native journey's evidence identity covers
-  the guidance and commands it proves, and the closure harnesses observe the
-  agent from outside its visible fixture on every host (plan 142's
-  retrospective found both gaps).
-- Native acceptance of the changed wrap-up and Land guidance on Codex, Cursor,
-  and Claude Code, run manually as the story's final slice.
+**Identity:** SEED-008#installed-story-branch-integration
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
 
-**Deferred promises:** Story Branch integration (history-preserving merge
-through the backlog merge adapter, with hand-resolved conflicts) and
-current-checkout closure keep their current guidance. The single-commit
-closure alternative is not pursued. Direct edits proceeding around the
-developer's unrelated staged content stay deferred as well (Terry, 2026-09-29).
-Direct edits commit with plain `git commit`, and the owned-path commit
-(`commitOwned`) exists only in `current-branch-publication.mjs`, which has no
-entry point. Terry decided on 2026-09-29 that this story removes that module
-from the payload with its tests; the deferred promise recovers `commitOwned`
-from the commit the plan records.
+**Candidate (2026-09-29):** product advice from plan 146's retrospective,
+added to the backlog at Terry's request. Not yet refined.
 
-**Ordering:** Starts after plan 142 (closed at `2a3e0ba2`), which changed the
-same retirement module, wording, and native closure acceptance, and after
-SEED-008#finish-removing-checkout-coordination (recoverable at `bae283d2`),
-which removed the owner arguments the closure modules passed.
+**Idea:** Story Branch integration is the only closure step agents still
+perform from prose and raw Git: closing the execution-branch observer, arming
+a trunk observer, the history-preserving merge through the backlog merge
+adapter with hand-resolved conflicts, registering the integrated SHA, and one
+completion before `retire`. It was plan 146's costliest native journey: every
+host's first `story-branch-closure/source-conflict` run failed, and the rerun
+still needed transcript judgment for Cursor. An installed entry point would give
+agents the tested mechanics and leave conflict resolution as judgment.
+`history-preserving-publication.mjs` already ships without a CLI or production
+importer, so this story also decides whether it backs that command or leaves
+the payload with its tests.
 
-**Key examples:**
+**Open decisions for refinement (from plan 146's retrospective):**
 
-1. A completed Trunk Mode story → the agent runs the closure command → both
-   closure commits are accepted on the remote, one completion receipt covers
-   the final SHA, and the worktree and branch are then retired.
-2. A Story Branch story whose integrated SHA has an accepted receipt → the
-   agent runs the retirement command → the worktree, local branch, and remote
-   branch are removed.
-3. Trunk advanced and the closure publication conflicts → the command stops,
-   preserving the worktree, branch, and closure commits, and reports the
-   recovery step.
-4. Retirement is asked for a branch whose tip trunk does not contain → the
-   command refuses and removes nothing.
-5. Retirement is asked for a reused, host-owned, or unrecorded worktree →
-   the command retains it and removes nothing; one an earlier session created
-   for this same work is retired.
+- **D1 — `install.sh` size.** The installer sits at the 250-line refactor
+  bound and was line-golfed to fit (`b269991d`); every new script adds a
+  `managed_files` line. Decide whether the payload declaration moves to its
+  own file (ADR 0004 area) before this story adds another command.
+- **D2 — `--created-for-work` wording.** In plan 146's native preparation-land
+  run, Cursor passed `--created-for-work` beside `--identity` with no recorded
+  basis. It was harmless because the creation record named the work, but
+  without a record the flag would retire an unrecorded or host-owned worktree.
+  Decide whether Dough Land's "Retire the worktree" says to pass only
+  `--identity` when the creation record names the work, or the command reports
+  its ownership basis.
+- **D3 — one ancestry check.** `isAncestor` exists in several execute-plan
+  scripts beside the Land and wrap-up copies that correction
+  SEED-008#closure-proof-and-harness-correction consolidates. Decide whether
+  to consolidate the execute-plan copies, which crosses skills.
 
-**Slice plan:** [Close stories through an installed wrap-up command](../slice-plans/146-installed-wrap-up-command/PLAN.md).
+**Relation:** follows SEED-008#closure-proof-and-harness-correction, which
+fixes the Story Branch native harness this story's acceptance would reuse.
 
 <a id="reduce-ci-observer-overhead"></a>
 

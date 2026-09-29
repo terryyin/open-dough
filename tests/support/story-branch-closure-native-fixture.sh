@@ -1,12 +1,23 @@
 #!/usr/bin/env bash
 # Story Branch closure fixture with separate real observers and controlled CI.
 # The fixture prepares targets and CI responses; the agent owns target transfer,
-# integration, waiting, shutdown, and cleanup ordering.
+# integration, waiting, shutdown, and cleanup ordering. The owned workspace is a
+# worktree of the integration checkout created for this execution, so the
+# installed guidance retires it and its local and remote branches. A watcher
+# records both observers' states when the worktree disappears. Harness-only
+# shims, logs, and markers live in a separate directory outside the project
+# root the agent reads.
 # shellcheck disable=SC2034,SC2154,SC2312
 
 # shellcheck source=tests/helpers/wait-for.bash
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../helpers" && pwd)/wait-for.bash"
+# shellcheck source=tests/support/native-harness-observation.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-harness-observation.sh"
+# shellcheck source=tests/support/native-harness-login-shell.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-harness-login-shell.sh"
 
 # Per-step controller bound; each step awaits one action of the native agent.
 story_closure_wait_limit=420
@@ -16,18 +27,6 @@ story_closure_git() {
   shift
   git -C "${cwd}" -c user.name='Story Closure Fixture' \
     -c user.email='story-closure@example.invalid' "$@"
-}
-
-story_closure_write_node() {
-  local destination=$1 real_node=$2 real_node_q
-  printf -v real_node_q '%q' "${real_node}"
-  # shellcheck disable=SC2016
-  printf '%s\n' \
-    '#!/usr/bin/env bash' \
-    'set -euo pipefail' \
-    'printf "%s\n" "$*" >> "${STORY_CLOSURE_NODE_LOG}"' \
-    "exec ${real_node_q} \"\$@\"" > "${destination}"
-  chmod +x "${destination}"
 }
 
 story_closure_write_gh() {
@@ -51,19 +50,18 @@ story_closure_write_gh() {
 }
 
 story_closure_create_fixture() {
-  local source_dir=$1 host=$2 root=$3 skill_root receipt real_node
+  local source_dir=$1 host=$2 root=$3 harness=$4 skill_root receipt
   story_closure_origin="${root}/remote.git"
   story_closure_integration="${root}/integration"
   story_closure_workspace="${root}/owned"
   story_closure_storage="${root}/mailboxes"
-  story_closure_release="${root}/release-trunk-ci"
-  story_closure_integrated_sha_file="${root}/integrated-sha"
-  story_closure_node_log="${root}/node-calls.log"
-  story_closure_gh_log="${root}/gh-calls.log"
-  story_closure_control_log="${root}/control.log"
-  story_closure_cleanup_marker="${root}/cleanup"
-  mkdir -p "${root}/bin"
-  : > "${story_closure_node_log}"
+  story_closure_release="${harness}/release-trunk-ci"
+  story_closure_integrated_sha_file="${harness}/integrated-sha"
+  story_closure_gh_log="${harness}/gh-calls.log"
+  story_closure_control_log="${harness}/control.log"
+  story_closure_cleanup_marker="${harness}/cleanup"
+  story_closure_cleanup_states="${harness}/cleanup-observer-state"
+  mkdir -p "${harness}/bin"
   : > "${story_closure_gh_log}"
   : > "${story_closure_control_log}"
 
@@ -71,10 +69,9 @@ story_closure_create_fixture() {
   git init -q -b main "${story_closure_integration}"
   story_closure_git "${story_closure_integration}" remote add origin \
     "${story_closure_origin}"
-  mkdir -p "${story_closure_integration}/.github/workflows" \
-    "${story_closure_integration}/tests"
+  mkdir -p "${story_closure_integration}/.github/workflows"
   printf 'base source\n' > "${story_closure_integration}/product.txt"
-  printf '%s\n' '.agents/' '.claude/' '.codex/' \
+  printf '%s\n' '.agents/' '.claude/' '.codex/' '.cursor/' \
     '.planning/execution-state.txt' > "${story_closure_integration}/.gitignore"
   printf '%s\n' 'name: CI' 'on: [push]' 'jobs:' '  check:' \
     '    runs-on: ubuntu-latest' '    steps:' '      - run: true' \
@@ -83,35 +80,16 @@ story_closure_create_fixture() {
   printf '%s\n' \
     '# Fixture project guidance' '' \
     'The accepted product state keeps `trunk source` followed by `story source` in `product.txt`.' \
-    'For this fixture, resource cleanup is `bash tests/closure-cleanup.sh`; run it only after both exact observers have stopped.' \
     > "${story_closure_integration}/AGENTS.md"
-  # shellcheck disable=SC2016
-  printf '%s\n' '#!/usr/bin/env bash' 'set -euo pipefail' \
-    '[[ $(jq -r .status "${STORY_CLOSURE_BRANCH_MAILBOX}/result.json") =~ ^(stopped|finished)$ ]]' \
-    'trunk=' \
-    'for request in "${DOUGH_CI_MAILBOX_ROOT}"/*/request.json; do' \
-    '  [[ -f ${request} ]] || continue' \
-    '  [[ $(jq -r '\''.probe // false'\'' "${request}") == false ]] || continue' \
-    '  [[ $(jq -r '\''.branch // ""'\'' "${request}") == main ]] || continue' \
-    '  [[ -z ${trunk} ]] || exit 1' \
-    '  trunk=${request%/request.json}' \
-    'done' \
-    '[[ -n ${trunk} ]]' \
-    '[[ $(jq -r .status "${trunk}/result.json") =~ ^(stopped|finished)$ ]]' \
-    'candidate=$(cat "${STORY_CLOSURE_INTEGRATED_SHA_FILE}")' \
-    '[[ $(jq -r .state "${trunk}/coverage/${candidate}.json") == success ]]' \
-    'git push -q origin --delete exec/story' \
-    'printf "cleanup\n" >> "${STORY_CLOSURE_CONTROL_LOG}"' \
-    ': > "${STORY_CLOSURE_CLEANUP_MARKER}"' \
-    > "${story_closure_integration}/tests/closure-cleanup.sh"
-  chmod +x "${story_closure_integration}/tests/closure-cleanup.sh"
   story_closure_git "${story_closure_integration}" add .
   story_closure_git "${story_closure_integration}" commit -q -m base
   story_closure_git "${story_closure_integration}" push -q origin main
   story_closure_base_sha=$(git -C "${story_closure_integration}" rev-parse HEAD)
 
-  git clone -q "${story_closure_origin}" "${story_closure_workspace}"
-  story_closure_git "${story_closure_workspace}" checkout -q -b exec/story
+  git -C "${story_closure_integration}" worktree add -q -b exec/story \
+    "${story_closure_workspace}" "${story_closure_base_sha}"
+  # As Git lists it, so the retirement command recognizes its own entry.
+  story_closure_workspace=$(cd -- "${story_closure_workspace}" && pwd -P)
   printf 'story source\n' > "${story_closure_workspace}/product.txt"
   story_closure_git "${story_closure_workspace}" add product.txt
   story_closure_git "${story_closure_workspace}" commit -q -m 'final story closure'
@@ -133,24 +111,20 @@ story_closure_create_fixture() {
     && skill_root="${story_closure_workspace}/.claude/skills/dough-execute-plan"
   story_closure_launcher="${skill_root}/scripts/ci-mailbox.mjs"
 
-  real_node=$(command -v node)
-  story_closure_write_node "${root}/bin/node" "${real_node}"
-  story_closure_write_gh "${root}/bin/gh"
-  story_closure_old_path=${PATH}
-  export PATH="${root}/bin:${PATH}"
+  native_harness_observe_node "${harness}" "${source_dir}" "${host}"
+  story_closure_node_log=${native_harness_node_log}
+  story_closure_write_gh "${harness}/bin/gh"
+  # The agent starts the trunk observer from its own shell.
+  native_harness_keep_login_path "${harness}"
   export DOUGH_CI_MAILBOX_ROOT="${story_closure_storage}"
   export STORY_CLOSURE_BRANCH_SHA="${story_closure_branch_sha}"
   export STORY_CLOSURE_TRUNK_SHA="${story_closure_trunk_sha}"
   export STORY_CLOSURE_RELEASE="${story_closure_release}"
   export STORY_CLOSURE_INTEGRATED_SHA_FILE="${story_closure_integrated_sha_file}"
-  export STORY_CLOSURE_NODE_LOG="${story_closure_node_log}"
   export STORY_CLOSURE_GH_LOG="${story_closure_gh_log}"
-  export STORY_CLOSURE_CONTROL_LOG="${story_closure_control_log}"
-  export STORY_CLOSURE_CLEANUP_MARKER="${story_closure_cleanup_marker}"
   receipt=$(cd "${story_closure_workspace}" \
     && node "${story_closure_launcher}" start --execution owner/project exec/story 600000)
   story_closure_branch_mailbox=$(jq -r '.directory' <<< "${receipt#CI_OBSERVER }")
-  export STORY_CLOSURE_BRANCH_MAILBOX="${story_closure_branch_mailbox}"
   (cd "${story_closure_workspace}" && node "${story_closure_launcher}" \
     register-push "${story_closure_branch_mailbox}" "${story_closure_branch_sha}") \
     > /dev/null
@@ -165,14 +139,36 @@ story_closure_create_fixture() {
     "Execution observer mailbox: ${story_closure_branch_mailbox}" \
     "Observer launcher: ${story_closure_launcher}" \
     "Integration checkout: ${story_closure_integration}" \
+    "Execution worktree: ${story_closure_workspace} on branch exec/story, created by this execution" \
     'Execution-branch CI: success; trunk integration not yet observed' \
     > "${story_closure_workspace}/.planning/execution-state.txt"
+  (
+    while [[ -d ${story_closure_workspace} ]]; do sleep 0.05; done
+    story_closure_mailbox_states > "${story_closure_cleanup_states}"
+    printf 'cleanup\n' >> "${story_closure_control_log}"
+    : > "${story_closure_cleanup_marker}"
+  ) &
+  story_closure_watcher=$!
+}
+
+# Each observer's terminal status, or missing, as `<target>: <status>` lines.
+story_closure_mailbox_states() {
+  local request status
+  for request in "${story_closure_storage}"/*/request.json; do
+    [[ -f ${request} ]] || continue
+    [[ $(jq -r '.probe // false' "${request}") == false ]] || continue
+    status=$(jq -r .status "${request%/request.json}/result.json" 2> /dev/null) \
+      || status=missing
+    printf '%s: %s\n' "$(jq -r .branch "${request}")" "${status}"
+  done | sort
 }
 
 story_closure_cleanup_fixture() {
-  export PATH=${story_closure_old_path}
+  kill "${story_closure_watcher}" 2> /dev/null || true
+  wait "${story_closure_watcher}" 2> /dev/null || true
+  native_harness_restore
+  native_harness_release_login_path
   unset DOUGH_CI_MAILBOX_ROOT STORY_CLOSURE_BRANCH_SHA STORY_CLOSURE_TRUNK_SHA
   unset STORY_CLOSURE_RELEASE STORY_CLOSURE_INTEGRATED_SHA_FILE
-  unset STORY_CLOSURE_NODE_LOG STORY_CLOSURE_GH_LOG STORY_CLOSURE_CONTROL_LOG
-  unset STORY_CLOSURE_CLEANUP_MARKER STORY_CLOSURE_BRANCH_MAILBOX
+  unset STORY_CLOSURE_GH_LOG
 }

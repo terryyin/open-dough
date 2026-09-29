@@ -12,14 +12,9 @@ import {
   remoteText,
 } from "../../dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
 import { startCliResult } from "../../dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { publishExecutionIncrement } from "../../dough-execute-plan/scripts/execution-increment-publication.mjs";
 import { remoteProfileNames } from "../../dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs";
-import { publishTrunkClosureRevision } from "./closure-publication.mjs";
-import {
-  createClosureObserver,
-  git,
-  lsRemoteSha,
-  publishArgs,
-} from "./closure-publication-fixtures.mjs";
+import { git, lsRemoteSha } from "./closure-git-fixtures.mjs";
 const backlogFile = ".planning/PRODUCT-BACKLOG.md";
 export const seedA = ".planning/seeds/A.md";
 const backlogCli = fileURLToPath(
@@ -62,17 +57,17 @@ export function withoutStory(source, anchor) {
 // Ordinary Trunk Mode closure from an owned workspace whose published base is
 // `base`: publish the before-cleanup revision, apply `cleanup` to the
 // workspace now on current trunk, complete the entry, then publish the final
-// closure. `beforeFinal` lets another writer advance trunk in between.
+// closure. Both go through the shared publisher that `deliver` and `finish`
+// run. `beforeFinal` lets another writer advance trunk in between.
 export async function closeInTrunkMode(trunk, owned, base, identity, hooks) {
-  const fixture = {
-    execution: owned.workspace,
-    integration: trunk.integration,
-  };
-  const observer = createClosureObserver(owned.workspace);
   const publish = (from) =>
-    publishTrunkClosureRevision({
-      ...publishArgs(fixture, observer, from),
+    publishExecutionIncrement({
+      workspace: owned.workspace,
       branch: owned.branch,
+      previouslyPublishedBase: from,
+      targetRef: "refs/heads/main",
+      // Closure commits carry records, not behavior proof.
+      validate: async () => ({ ok: true }),
     });
   const before = await publish(base);
   assert.equal(before.ok, true, JSON.stringify(before));

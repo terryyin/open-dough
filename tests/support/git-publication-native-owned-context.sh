@@ -15,6 +15,9 @@ source "${git_publication_owned_context_support_dir}/git-publication-native-star
 # shellcheck source=tests/support/git-publication-native-preparation-land.sh
 # shellcheck disable=SC1091
 source "${git_publication_owned_context_support_dir}/git-publication-native-preparation-land.sh"
+# shellcheck source=tests/support/native-harness-observation.sh
+# shellcheck disable=SC1091
+source "${git_publication_owned_context_support_dir}/native-harness-observation.sh"
 
 git_publication_owned_context_journey() {
   [[ $1 == startup-owned-context || $1 == preparation-land ]]
@@ -22,7 +25,9 @@ git_publication_owned_context_journey() {
 
 # Builds journey $3's fixture for host $2 from source $1 under parent $4. The
 # installed guidance is already on trunk; the host runs in the retained
-# worktree. Every push origin accepts is recorded.
+# worktree. Every push origin accepts is recorded, and every node call reaches
+# a log in $4/harness, beside the fixture rather than inside it, until
+# native_harness_restore.
 git_publication_fixture_create_owned_context() {
   local source_dir=$1 host=$2 journey=$3 parent=$4 prepared
   prepared=$(node "${source_dir}/tests/support/git-publication-native-owned-context-fixture.mjs" \
@@ -41,6 +46,8 @@ git_publication_fixture_create_owned_context() {
   git_publication_owned_retained_before=$(
     git_publication_owned_capture "${git_publication_owned_retained}"
   )
+  native_harness_observe_node "${parent}/harness" "${source_dir}" "${host}"
+  git_publication_owned_node_log=${native_harness_node_log}
 }
 
 # HEAD, branch, status, and staged and unstaged bytes of checkout $1.

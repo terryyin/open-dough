@@ -34,10 +34,7 @@ while [[ $# -gt 0 ]]; do
       platform=$2
       shift 2
       ;;
-    --force)
-      force=1
-      shift
-      ;;
+    --force) force=1 && shift ;;
     # Internal apply handoff: its caller verified every managed baseline first.
     --replace-verified)
       replace_verified=1
@@ -136,6 +133,8 @@ managed_files=(
   dough-story-refinement/scripts/preparation-assignment-start.mjs
   dough-story-refinement/scripts/preparation-assignment-trunk.mjs
   dough-land/SKILL.md
+  dough-land/scripts/retirement-checks.mjs
+  dough-land/scripts/worktree-retirement.mjs
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
   dough-slice-planning/references/architectural-thinking.md
@@ -164,6 +163,7 @@ managed_files=(
   dough-execute-plan/references/publish-the-candidate.md
   dough-execute-plan/references/runtime-setup.md
   dough-execute-plan/references/trunk-publication.md
+  dough-execute-plan/references/wrap-up-closure-publication.md
   dough-execute-plan/references/wrap-up.md
   dough-execute-plan/scripts/ci-command-adapter.mjs
   dough-execute-plan/scripts/applicable-candidate-proof.mjs
@@ -191,7 +191,6 @@ managed_files=(
   dough-execute-plan/scripts/ci-revisions.mjs
   dough-execute-plan/scripts/ci-runs.mjs
   dough-execute-plan/scripts/ci-workflow-path-policy.mjs
-  dough-execute-plan/scripts/current-branch-publication.mjs
   dough-execute-plan/scripts/execution-increment-delivery.mjs
   dough-execute-plan/scripts/execution-increment-observation.mjs
   dough-execute-plan/scripts/execution-increment-publication.mjs
@@ -235,15 +234,11 @@ managed_files=(
   dough-execution-retrospective/references/bounded-process-log.md
   dough-execution-retrospective/references/process-finding-recording.md
   dough-story-wrap-up/SKILL.md
-  dough-story-wrap-up/scripts/closure-candidate-settlement.mjs
-  dough-story-wrap-up/scripts/closure-publication.mjs
-  dough-story-wrap-up/scripts/closure-resources.mjs
+  dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
+  dough-story-wrap-up/scripts/trunk-closure.mjs
 )
 require_declared_payload
 release_helper="${source_dir}/src/install/open-dough-release.sh"
-[[ -f "${release_helper}" ]] || {
-  echo "This installer requires src/install/open-dough-release.sh in the source checkout." >&2
-  exit 1
-}
+[[ -f "${release_helper}" ]] || { echo "This installer requires src/install/open-dough-release.sh in the source checkout." >&2 && exit 1; }
 version=$(bash "${release_helper}" validate-checkout "${source_dir}")
 install_declared_payload

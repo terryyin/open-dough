@@ -14,16 +14,17 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Close stories through an installed wrap-up command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command) — SEED-008#installed-wrap-up-command ([plan](slice-plans/146-installed-wrap-up-command/PLAN.md))
 - [Keep every unreadable launch store and trim Recent sessions residue](seeds/SEED-052-start-agent-work-from-dashboard.md#recent-sessions-residue) — SEED-052#recent-sessions-residue ([plan](slice-plans/151-recent-sessions-residue/PLAN.md))
 - [Interact with a launched Claude Code session inside the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#interact-with-claude-terminal) — SEED-052#interact-with-claude-terminal ([plan](slice-plans/152-interact-with-claude-terminal/PLAN.md))
 - [Name the feature that runs moved seeding](seeds/SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding) — SEED-044#name-the-feature-that-runs-moved-seeding ([plan](slice-plans/153-name-the-feature-that-runs-moved-seeding/PLAN.md))
 
 ## Backlog list
 
+- [Keep closure reruns truthful and closure proof exact](seeds/SEED-008-worktree-branch-trunk-sync.md#closure-proof-and-harness-correction) — SEED-008#closure-proof-and-harness-correction
 - [Start story refinement and answer its questions in the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#launch-claude-refinement) — SEED-052#launch-claude-refinement
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
+- [Integrate Story Branch closures through an installed command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration) — SEED-008#installed-story-branch-integration

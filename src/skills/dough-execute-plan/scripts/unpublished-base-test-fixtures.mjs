@@ -10,7 +10,6 @@ import {
   git,
   plantHumanEdit,
   plantedHumanEditBytes,
-  recordedCheckoutIdentity,
   remoteHeads,
   revParse,
 } from "./publication-test-fixtures.mjs";
@@ -22,6 +21,22 @@ export const unpublishedBaseCases = [
   { trunkAdvanced: true, pendingEdit: false },
 ];
 
+// The checkout's top level, current branch, and the repository's worktree list.
+async function checkoutIdentity(checkout) {
+  const porcelain = (await git(checkout, "worktree", "list", "--porcelain"))
+    .stdout;
+  return {
+    toplevel: await revParse(checkout, "--show-toplevel"),
+    branch: (await git(checkout, "branch", "--show-current")).stdout.trim(),
+    worktrees: porcelain
+      .split("\n")
+      .filter(
+        (line) => line.startsWith("worktree ") || line.startsWith("branch "),
+      )
+      .join("\n"),
+  };
+}
+
 // Everything a refused publication must leave alone: the checkout's index and
 // working tree, its local branches and their commits, its worktrees, and the
 // remote's branches. A fetch may still move remote-tracking refs.
@@ -31,7 +46,7 @@ async function localAndRemoteState(checkout, origin) {
     human: existsSync(join(checkout, "human-staged.txt"))
       ? await plantedHumanEditBytes(checkout)
       : null,
-    identity: await recordedCheckoutIdentity(checkout),
+    identity: await checkoutIdentity(checkout),
     branches: (
       await git(
         checkout,

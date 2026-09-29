@@ -2,7 +2,8 @@
 # Shared by publication journeys: adopting the coordinates a Node fixture
 # script prints, recording what origin accepts, ordering run markers, reading
 # the backlog and checkouts a session left, and listing the startup commands
-# and command outputs a session ran. Sourced by the runner.
+# and command outputs a session ran, and hashing the Dough Land inputs a
+# closing journey's evidence identity covers. Sourced by the runner.
 # shellcheck disable=SC2034,SC2312 # Runner-consumed globals; observations tolerate failed Git reads.
 
 # Adopts prepared fixture JSON $1: {root, origin, integration, workspace, base}.
@@ -70,14 +71,19 @@ git_publication_repository_intact() {
 # script path or the subcommand.
 git_publication_start_pattern='execution-start\.mjs["'"'"']?[[:space:]]+["'"'"']?start["'"'"']?([[:space:]]|$)'
 
-# Distinct execution-start invocations transcript $1 shows, in any stream
-# shape: each command with its line continuations joined, split at its
-# command separators, without --help probes.
-git_publication_transcript_start_commands() {
+# Every shell command transcript $1 shows, in any stream shape: each command
+# with its line continuations joined, split at its command separators.
+git_publication_transcript_commands() {
   # shellcheck disable=SC2016 # jq program, not shell expansion.
   jq -r '.. | objects | .command? // empty | strings
     | gsub("\\\\\n[ \t]*"; " ") | splits("&&|\\|\\||[;|\n]")
-    | gsub("^[ \t]+|[ \t]+$"; "")' "$1" 2> /dev/null \
+    | gsub("^[ \t]+|[ \t]+$"; "")' "$1" 2> /dev/null || true
+}
+
+# Distinct execution-start invocations transcript $1 shows, without --help
+# probes.
+git_publication_transcript_start_commands() {
+  git_publication_transcript_commands "$1" \
     | grep -E -- "${git_publication_start_pattern}" | grep -Fv -- '--help' \
     | sort -u || true
 }
@@ -87,4 +93,15 @@ git_publication_transcript_outputs() {
   jq -r 'select(.type == "item.completed" and .item.type == "command_execution") | .item.aggregated_output // empty' "$1" 2> /dev/null || true
   jq -r 'select(.type == "user") | .message.content[]? | select(.type == "tool_result") | (.content | if type == "string" then . else tostring end)' "$1" 2> /dev/null || true
   jq -r '.. | objects | .stdout? // empty | strings' "$1" 2> /dev/null || true
+}
+
+# One input-hash line per Dough Land input a closing journey exercises: its
+# guidance, the references it follows, and its retirement command.
+git_publication_land_input_hash_lines() {
+  native_result_input_hash_lines \
+    src/skills/dough-land/SKILL.md \
+    src/skills/dough-land/scripts/worktree-retirement.mjs \
+    src/skills/dough-land/scripts/retirement-checks.mjs \
+    src/skills/dough-manual-testing/references/exploration-workspace.md \
+    src/skills/dough-execute-plan/references/maintain-default-checkout.md
 }

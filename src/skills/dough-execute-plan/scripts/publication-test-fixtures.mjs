@@ -59,7 +59,6 @@ export const createdFor = (identity, sha) => [
 export {
   maintenanceFromInspection,
   originTrackingRef,
-  recordedCheckoutIdentity,
   targetBranchName,
 } from "./publication-git.mjs";
 

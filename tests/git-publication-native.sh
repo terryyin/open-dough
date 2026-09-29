@@ -132,6 +132,8 @@ if [[ ${native_flag} -eq 0 ]]; then
   run_assessor_counterexamples
   run_trunk_closure_assessor_counterexamples
   run_story_closure_assessor_counterexamples
+  run_native_harness_counterexamples
+  run_story_closure_harness_counterexamples
   run_delivery_evidence_selection_assessor_counterexamples
   run_delivery_evidence_selection_observer_counterexamples
   run_delivery_evidence_claims_assessor_counterexamples

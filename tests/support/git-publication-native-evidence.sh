@@ -32,12 +32,14 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-startup-owned-context.sh \
         tests/support/git-publication-native-preparation-land.sh \
         tests/support/git-publication-native-push-log-observe.mjs \
+        tests/support/native-harness-observation.sh \
+        tests/support/native-node-call-recorder.mjs \
         src/skills/dough-execute-plan/SKILL.md \
         src/skills/dough-execute-plan/scripts/workspace-publication-select.mjs \
         src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs \
         src/skills/dough-story-refinement/references/preparation-assignment.md \
-        src/skills/dough-land/SKILL.md \
-        src/skills/dough-manual-testing/references/exploration-workspace.md
+        src/skills/dough-story-refinement/references/preparation-workspace.md
+      git_publication_land_input_hash_lines
       ;;
     execution-review)
       printf 'helper-identity: tests/support/ci-completion-native-run.sh\n'
@@ -49,6 +51,8 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-host.sh \
         tests/support/ci-completion-native-run.sh \
         tests/support/ci-completion-native-fixture.sh \
+        tests/support/native-harness-observation.sh \
+        tests/support/native-node-call-recorder.mjs \
         tests/support/git-publication-native-run.sh \
         tests/support/git-publication-native-evidence.sh
       native_result_supervision_input_hash_lines

@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 # Fixture and independently timed CI controller for execution/review native journeys.
+# Harness-only shims, logs, and markers live in a separate directory outside
+# the project root the agent reads.
 # shellcheck disable=SC2034,SC2154,SC2312
 
 # shellcheck source=tests/helpers/wait-for.bash
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../helpers" && pwd)/wait-for.bash"
+# shellcheck source=tests/support/native-harness-observation.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-harness-observation.sh"
 
 # Per-step bound for the controller and the fixture's review release; each
 # step awaits one action of the native agent or the controller.
@@ -21,7 +26,7 @@ ci_completion_controller() {
   local review_complete="${ci_completion_project}/.planning/review-observation/complete"
   local review_release="${ci_completion_project}/.planning/review-observation/release"
   # Agents may quote paths or bypass the PATH node shim; accept either log.
-  local complete_seen="native_completion_seen '${ci_completion_node_log}' '${CI_COMPLETION_TRANSCRIPT:-/dev/null}' '${ci_completion_mailbox}' '${ci_completion_sha}'"
+  local complete_seen="native_completion_seen '${ci_completion_node_log}' '${transcript:-/dev/null}' '${ci_completion_mailbox}' '${ci_completion_sha}'"
   case ${scenario} in
     pending | failure)
       wait_for review-start "${ci_completion_wait_limit}" "test -f '${review_start}'" || return
@@ -59,16 +64,15 @@ ci_completion_create_fixture() {
   local host=$2
   local scenario=$3
   local root=$4
-  local skill_root real_node real_node_q outcome outcome_json release_json root_json
+  local harness=$5
+  local skill_root outcome outcome_json release_json harness_json
   ci_completion_project="${root}/project"
   ci_completion_storage="${root}/mailboxes"
-  ci_completion_release="${root}/release-ci"
-  ci_completion_node_log="${root}/node-calls.log"
-  ci_completion_control_log="${root}/control.log"
+  ci_completion_release="${harness}/release-ci"
+  ci_completion_control_log="${harness}/control.log"
   mkdir -p "${ci_completion_project}/.planning/slice-plans/001-finished" \
     "${ci_completion_project}/.planning/seeds" \
-    "${ci_completion_project}/tests" "${root}/bin"
-  : > "${ci_completion_node_log}"
+    "${ci_completion_project}/tests"
   : > "${ci_completion_control_log}"
 
   git -C "${ci_completion_project}" init -q -b main
@@ -117,7 +121,7 @@ ci_completion_create_fixture() {
   outcome=success
   [[ ${scenario} == failure ]] && outcome=failure
   release_json=$(jq -Rn --arg value "${ci_completion_release}" '$value')
-  root_json=$(jq -Rn --arg value "${root}" '$value')
+  harness_json=$(jq -Rn --arg value "${harness}" '$value')
   outcome_json=$(jq -Rn --arg value "${outcome}" '$value')
   printf '%s\n' \
     "import { existsSync, watch } from 'node:fs';" \
@@ -125,7 +129,7 @@ ci_completion_create_fixture() {
     'const request = JSON.parse(input);' \
     "if (request.operation === 'discover') {" \
     "  if (!existsSync(${release_json})) await new Promise(resolve => {" \
-    "    const watcher = watch(${root_json}, () => { if (existsSync(${release_json})) { watcher.close(); resolve(); } });" \
+    "    const watcher = watch(${harness_json}, () => { if (existsSync(${release_json})) { watcher.close(); resolve(); } });" \
     "    if (existsSync(${release_json})) { watcher.close(); resolve(); }" \
     '  });' \
     "  process.stdout.write(JSON.stringify({attempts:[{runId:'native-run',attemptId:'1',sha:process.env.CI_COMPLETION_SHA,outcome:${outcome_json},url:'https://ci.invalid/native'}]}));" \
@@ -144,18 +148,8 @@ ci_completion_create_fixture() {
     && skill_root="${ci_completion_project}/.claude/skills/dough-execute-plan"
   ci_completion_launcher="${skill_root}/scripts/ci-mailbox.mjs"
 
-  real_node=$(command -v node)
-  printf -v real_node_q '%q' "${real_node}"
-  # shellcheck disable=SC2016 # Shell expressions are literal wrapper source.
-  printf '%s\n' \
-    '#!/usr/bin/env bash' \
-    'printf "%s\\n" "$*" >> "${CI_COMPLETION_NODE_LOG}"' \
-    "exec ${real_node_q} \"\$@\"" \
-    > "${root}/bin/node"
-  chmod +x "${root}/bin/node"
-  ci_completion_old_path=${PATH}
-  export PATH="${root}/bin:${PATH}"
-  export CI_COMPLETION_NODE_LOG="${ci_completion_node_log}"
+  native_harness_observe_node "${harness}" "${source_dir}" "${host}"
+  ci_completion_node_log=${native_harness_node_log}
   export CI_COMPLETION_SHA="${ci_completion_sha}"
   export DOUGH_CI_MAILBOX_ROOT="${ci_completion_storage}"
   local receipt

@@ -80,11 +80,26 @@ test("preparation keep and workspace retirement link Dough Land instead of descr
     assert.doesNotMatch(guidance, /Resume an interrupted keep-and-publish/);
     assert.doesNotMatch(guidance, /session-created|this\s+session\s+created/);
   }
-  // Land retires under the shared lifecycle's work-scoped rule by link.
+  // Land retires under the shared lifecycle's work-scoped rule by link,
+  // through its installed command rather than raw Git steps. Its intro names
+  // ownership beside containment, so containment alone never reads as enough.
+  const retire = land.slice(land.indexOf("## Retire the worktree"));
+  const intro = retire.slice(0, retire.indexOf("Before removing anything"));
+  assert.match(intro, /both gates/);
+  assert.match(intro, /contains its work/);
+  assert.match(intro, /this work created the\s+worktree/);
+  assert.match(intro, /Containment alone\s+does not make/);
+  assert.doesNotMatch(land, /containment as the safety test/);
   assert.match(
     land,
-    /Remove\s+the\s+worktree\s+\(`git worktree remove <worktree>`\)\s+only\s+when\s+that\s+section\s+allows\s+it/,
+    /\[own a temporary exploration workspace\]\(\.\.\/dough-manual-testing\/references\/exploration-workspace\.md\)\s+"Close or retain it"/,
   );
+  assert.match(
+    land,
+    /node <installed>\/dough-land\/scripts\/worktree-retirement\.mjs retire/,
+  );
+  assert.match(land, /\[--remote-branch <remote branch> --contained <sha>\]/);
+  assert.doesNotMatch(land, /git worktree remove|git branch -d|push --delete/);
   assert.doesNotMatch(land, /session-created|this\s+session\s+created/);
   // Land takes ownership from the shared lifecycle's creation-record rule by
   // link.

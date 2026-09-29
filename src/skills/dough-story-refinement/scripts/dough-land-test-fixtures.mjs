@@ -1,7 +1,10 @@
 // Git model of the Dough Land sequence for tests (not guidance-following).
 import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
 import { publishExecutionIncrement } from "../../dough-execute-plan/scripts/execution-increment-publication.mjs";
 import {
   ongoingOperation,
@@ -15,8 +18,40 @@ import { managementContext } from "../../dough-execute-plan/scripts/publication-
 import {
   isAncestor,
   preserved,
-  retireWorktree,
-} from "../../dough-story-wrap-up/scripts/closure-resources.mjs";
+} from "../../dough-land/scripts/worktree-retirement.mjs";
+
+const retirementCommand = fileURLToPath(
+  new URL("../../dough-land/scripts/worktree-retirement.mjs", import.meta.url),
+);
+
+// Dough Land's installed `retire` command, run as the agent runs it. Returns
+// its exit code and the JSON result it prints; a retained worktree exits 1.
+export async function runRetirementCommand({
+  repository,
+  worktree,
+  branch,
+  remote = "origin",
+  targetRef = "refs/heads/main",
+  identity,
+  createdForWork,
+  remoteBranch,
+  contained = [],
+}) {
+  const args = [retirementCommand, "retire", "--repository", repository];
+  args.push("--worktree", worktree, "--branch", branch, "--remote", remote);
+  args.push("--target-ref", targetRef);
+  if (identity) args.push("--identity", identity);
+  if (createdForWork) args.push("--created-for-work");
+  if (remoteBranch) args.push("--remote-branch", remoteBranch);
+  for (const sha of contained) args.push("--contained", sha);
+  try {
+    const { stdout } = await promisify(execFile)("node", args);
+    return { code: 0, result: JSON.parse(stdout) };
+  } catch (error) {
+    if (error.code !== 1) throw error;
+    return { code: 1, result: JSON.parse(error.stdout) };
+  }
+}
 
 // The reviewed worktree holds a committed seed draft plus uncommitted edits: a
 // changed tracked file and a new untracked plan.
@@ -44,13 +79,15 @@ export async function assertRetiredFrom(
 }
 
 // Dough Land "Retire the worktree", which preparation's "Close or retain the
-// workspace" links, through the shipped retirement mechanics. The
-// confirmed-disposition and created-for-this-work facts are supplied by the
-// caller, not derived by scanning file content.
+// workspace" links, through the installed retirement command, which holds the
+// ownership gate. The confirmed-disposition, identity, and
+// created-for-this-work facts are supplied by the caller, not derived by
+// scanning file content.
 export async function closeOrRetainWorkspace({
   preparation,
   preparationBranch,
   confirmedDisposition,
+  identity,
   createdForWork,
   repository,
   remote = "origin",
@@ -63,20 +100,16 @@ export async function closeOrRetainWorkspace({
       preparationBranch,
     );
   }
-  if (!createdForWork) {
-    return preserved(
-      "reused or host-owned workspace, not created for this work",
-      preparation,
-      preparationBranch,
-    );
-  }
-  return retireWorktree({
+  const { result } = await runRetirementCommand({
     repository,
-    execution: preparation,
+    worktree: preparation,
     branch: preparationBranch,
     remote,
     targetRef: `refs/heads/${targetBranch}`,
+    identity,
+    createdForWork,
   });
+  return result;
 }
 
 async function topLevel(checkout) {
@@ -102,6 +135,7 @@ export async function landWorktree({
   defaultCheckout,
   remote = "origin",
   target = "refs/heads/main",
+  identity = undefined,
   createdForWork = true,
   message = "Land reviewed worktree changes",
   beforePush,
@@ -170,6 +204,7 @@ export async function landWorktree({
     preparation: worktree,
     preparationBranch: branch,
     confirmedDisposition: true,
+    identity,
     createdForWork,
     repository,
     remote,

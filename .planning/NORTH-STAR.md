@@ -28,7 +28,7 @@ publication ownership, and CI attribution in active plans or conversation
 context. Report a coverage gap when the configured observer covers a different
 target from a published claim.
 
-[Close stories through an installed wrap-up command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-wrap-up-command)
+[Integrate Story Branch closures through an installed command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration)
 owns the remaining alignment under Terry's 2026-09-28 decision. After accepted
 trunk publication, attempt a safe fast-forward when a default checkout is
 supplied; preserve pending local work and report a skipped, deferred, stopped,

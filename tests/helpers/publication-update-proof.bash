@@ -25,7 +25,6 @@ assert_installed_publication_modules() {
     const root = process.argv[1];
     const modules = [
       "dough-execute-plan/scripts/applicable-candidate-proof.mjs",
-      "dough-execute-plan/scripts/current-branch-publication.mjs",
       "dough-execute-plan/scripts/execution-increment-delivery.mjs",
       "dough-execute-plan/scripts/execution-increment-observation.mjs",
       "dough-execute-plan/scripts/execution-increment-publication.mjs",
@@ -39,10 +38,11 @@ assert_installed_publication_modules() {
       "dough-execute-plan/scripts/publication-resume.mjs",
       "dough-execute-plan/scripts/publication-git.mjs",
       "dough-bug-fixing/scripts/retained-artifacts.mjs",
+      "dough-land/scripts/retirement-checks.mjs",
+      "dough-land/scripts/worktree-retirement.mjs",
       "dough-story-refinement/scripts/preparation-assignment.mjs",
-      "dough-story-wrap-up/scripts/closure-candidate-settlement.mjs",
-      "dough-story-wrap-up/scripts/closure-publication.mjs",
-      "dough-story-wrap-up/scripts/closure-resources.mjs",
+      "dough-story-wrap-up/scripts/trunk-closure-settlement.mjs",
+      "dough-story-wrap-up/scripts/trunk-closure.mjs",
     ];
     for (const modulePath of modules) {
       await import(pathToFileURL(`${root}/${modulePath}`));
