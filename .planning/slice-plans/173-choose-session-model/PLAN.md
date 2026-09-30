@@ -38,9 +38,7 @@ handed by the one dialog component (slices 2-3); one reading of a record in
 
 ## PFE: what is reused
 
-Everything below exists in the ad hoc story's code (branch
-`claude/start-ad-hoc-project-session`, observed at `5c09cc85`); it is trunk's
-only after that story lands (premise 1).
+Everything below exists on trunk from the ad hoc story (reread at `a3f8b7ea`).
 
 - **Request and record:** `agentLaunch.ts` `storyLaunchRequestSchema`,
   `adHocLaunchRequestSchema`, `agentLaunchRequestSchema`,
@@ -98,7 +96,7 @@ only after that story lands (premise 1).
 
 | Premise | Observation | Result |
 | --- | --- | --- |
-| The ad hoc story's `launchSubject`, request union and shared `LaunchDialog` are on trunk | `git ls-tree origin/main dashboard/src/LaunchDialog.tsx`; slices 1-3 of plan 172 | **Not yet.** Present only in worktree `.worktrees/start-ad-hoc-project-session` (`5c09cc85`, unpublished). Slice 1 cannot start before it lands on trunk; then re-read the files named under PFE. |
+| The ad hoc story's `launchSubject`, request union and shared `LaunchDialog` are on trunk | `git ls-tree origin/main dashboard/src/LaunchDialog.tsx`; reread of `agentLaunch.ts`, `agentLaunches.ts`, `claudeLaunch.ts`, `claudeCode.ts` at `a3f8b7ea` | **Holds** (2026-09-30): the story landed on trunk and the files match the PFE list. |
 | Only the listed places read a request's instruction | `grep -rn "\.instruction\|instructionOf\|launchInstructionLimit" dashboard/src dashboard/server` in that worktree | Holds (findings 1) |
 | Ad hoc schema rejects unknown fields | Read of `adHocLaunchRequestSchema` (`z.strictObject`) | Holds; finding 2 |
 | The fake `claude` accepts extra argv and records it | `sed -n 165,215p dashboard/tests/fixtures/fake-claude`, `claudeLaunchCalls` use in `agent-launch-card.spec.ts:166` | Holds |
