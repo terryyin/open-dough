@@ -1,7 +1,6 @@
-// The Claude Code session a launch record names, and Open terminal, which
-// shows it in the page's terminal, offered only where `attachOpens` says it
-// opens the session. Every session entry (`./SessionEntry.tsx`) shows its
-// session this way.
+// A launch record's native session and its host's continuation capabilities.
+// Every session entry (`./SessionEntry.tsx`) uses this presentation; embedded
+// terminal access additionally requires the host capability and `attachOpens`.
 
 import { embeddedTerminal, shellCommand } from "./sessionCapabilities.ts";
 import { attachOpens, type LaunchWithState } from "./agentLaunch.ts";
@@ -39,9 +38,13 @@ export function LaunchSession({
                 ? "First input awaiting submission"
                 : "First input acceptance uncertain"}
           </p>
-          {record.firstInput?.explanation !== undefined && (
-            <p className="quiet">{record.firstInput.explanation}</p>
+          {record.session.continuation.notice !== undefined && (
+            <p className="quiet">{record.session.continuation.notice}</p>
           )}
+          {record.firstInput?.state !== "confirmed" &&
+            record.firstInput?.explanation !== undefined && (
+              <p className="quiet">{record.firstInput.explanation}</p>
+            )}
         </>
       )}
       {embeddedTerminal(record.session.host) &&

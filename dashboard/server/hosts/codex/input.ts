@@ -1,5 +1,6 @@
 // Codex's exact first input; its text is retained before native submission.
 import path from "node:path";
+import type { FirstInput } from "../../../src/launchRecord.ts";
 import {
   launchWorkflows,
   type RecordedLaunchRequest,
@@ -47,4 +48,12 @@ export function codexInput(
           ),
         },
       ];
+}
+
+// Acknowledgment/history replaces pending acceptance evidence.
+export function confirmedFirstInput(
+  evidence: FirstInput,
+  turnId: string,
+): FirstInput {
+  return { ...evidence, state: "confirmed", turnId, explanation: undefined };
 }

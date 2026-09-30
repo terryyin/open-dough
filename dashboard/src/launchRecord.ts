@@ -16,6 +16,8 @@ export const hostSessionSchema = z
         workspace: z.string().min(1),
         endpoint: z.string().min(1),
         args: z.array(z.string()),
+        // Context for continuing a conversation after native observation ends.
+        notice: z.string().optional(),
       })
       .optional(),
   })

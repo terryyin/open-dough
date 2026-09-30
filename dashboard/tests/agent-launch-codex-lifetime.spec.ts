@@ -35,7 +35,7 @@ test("an active detached caller still records acknowledgment and a later connect
     .toBe("confirmed");
   native.failConnection();
   await expect
-    .poll(() => stored(dashboard.home)[0]?.firstInput?.explanation)
+    .poll(() => stored(dashboard.home)[0]?.session.continuation?.notice)
     .toContain("native connection ended");
   await expect.poll(() => native.sockets.size).toBe(0);
   expect(stored(dashboard.home)[0]?.session.continuation?.args.at(-1)).toBe(
@@ -63,7 +63,7 @@ for (const ending of ["complete", "disconnect"] as const) {
     expect(stored(dashboard.home)[0]?.firstInput?.state).toBe("confirmed");
     if (ending === "disconnect")
       await expect
-        .poll(() => stored(dashboard.home)[0]?.firstInput?.explanation)
+        .poll(() => stored(dashboard.home)[0]?.session.continuation?.notice)
         .toContain("native connection ended");
   });
 }

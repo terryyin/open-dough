@@ -30,11 +30,20 @@ export function observe(
     },
     async () => {
       connections.delete(rpc);
-      await record.session(session, {
-        ...evidence,
-        explanation:
-          "The dashboard's native connection ended. Current activity is unavailable; continue the recorded conversation in Codex.",
-      });
+      const continuation = session.continuation;
+      await record.session(
+        continuation === undefined
+          ? session
+          : {
+              ...session,
+              continuation: {
+                ...continuation,
+                notice:
+                  "The dashboard's native connection ended. Current activity is unavailable; continue the recorded conversation in Codex.",
+              },
+            },
+        evidence,
+      );
     },
   );
 }

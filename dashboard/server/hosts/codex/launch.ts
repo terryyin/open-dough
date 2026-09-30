@@ -7,7 +7,7 @@ import { launchSubject, type HostSession } from "../../../src/agentLaunch.ts";
 import type { FirstInput } from "../../../src/launchRecord.ts";
 import type { LaunchHost } from "../../launchHosts.ts";
 import type { HostLaunch } from "../../hostLaunch.ts";
-import { codexInput } from "./input.ts";
+import { codexInput, confirmedFirstInput } from "./input.ts";
 import { connection, retire, observe } from "./conversation.ts";
 import { CodexRpc, daemonEndpoint, NativeRefusal } from "./rpc.ts";
 
@@ -71,7 +71,7 @@ export const launchCodex: LaunchHost["launch"] = async (
     const accepted = turnSchema.parse(
       await rpc.request("turn/start", { threadId: native.thread.id, input }),
     );
-    evidence = { ...evidence, state: "confirmed", turnId: accepted.turn.id };
+    evidence = confirmedFirstInput(evidence, accepted.turn.id);
     await record.session(session, evidence);
     observe(rpc, session, evidence, record);
     return { kind: "launched", session, sessionState: { kind: "unknown" } };

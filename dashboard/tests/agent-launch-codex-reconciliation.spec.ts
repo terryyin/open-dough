@@ -1,4 +1,6 @@
 // Protocol evidence decides whether Start may reuse the saved first input.
+import { openTakenBacklog } from "./launchCardPage.ts";
+import { cardSessions } from "./dashboardPage.ts";
 import {
   startDashboardServer,
   builtDashboardDir,
@@ -32,10 +34,13 @@ test.afterAll(() => journey?.cleanup());
 
 test("explicit input refusal allows the saved input once in the resumed same conversation", async ({
   dashboard,
+  page,
   codexProtocol: protocol,
 }) => {
   const native = protocol;
   if (native === undefined) throw new Error("Missing native fixture.");
+  if (journey === undefined) throw new Error("Missing published journey.");
+  const { card } = await openTakenBacklog(page, journey);
   native.refuseInput = true;
   expect(JSON.parse((await launch(dashboard, request)).body)).toMatchObject({
     kind: "uncertain",
@@ -57,6 +62,13 @@ test("explicit input refusal allows the saved input once in the resumed same con
   const inputs = native.calls.filter((call) => call.method === "turn/start");
   expect(inputs).toHaveLength(2);
   expect(inputs[1]?.params).toEqual(inputs[0]?.params);
+  expect(stored(dashboard.home)[0]?.firstInput).not.toHaveProperty(
+    "explanation",
+  );
+  const session = cardSessions(card(notRefinedStory));
+  await page.reload();
+  await expect(session).toContainText("First input accepted");
+  await expect(session).not.toContainText("acceptance is not yet acknowledged");
   expect(native.history).toHaveLength(1);
   expect(
     native.calls.filter((call) => call.method === "thread/start"),

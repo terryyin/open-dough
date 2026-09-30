@@ -1,7 +1,7 @@
 // Reconcile only this saved native conversation. Absence never proves rejection.
 import { z } from "zod";
 import type { LaunchHost } from "../../launchHosts.ts";
-import { codexInput } from "./input.ts";
+import { codexInput, confirmedFirstInput } from "./input.ts";
 import { NativeRefusal } from "./rpc.ts";
 import { connection, observe, retire } from "./conversation.ts";
 const historySchema = z.object({
@@ -74,13 +74,7 @@ export const recoverCodex: NonNullable<LaunchHost["recover"]> = async (
       ),
     );
     if (matching !== undefined) {
-      evidence = {
-        ...evidence,
-        state: "confirmed",
-        turnId: matching.id,
-        explanation:
-          "Native history confirms this launch's first input in the saved conversation.",
-      };
+      evidence = confirmedFirstInput(evidence, matching.id);
     } else if (
       evidence.state === "awaiting" &&
       read.turns.length === 0 &&
@@ -109,11 +103,7 @@ export const recoverCodex: NonNullable<LaunchHost["recover"]> = async (
               ),
             }),
           );
-        evidence = {
-          ...evidence,
-          state: "confirmed",
-          turnId: accepted.turn.id,
-        };
+        evidence = confirmedFirstInput(evidence, accepted.turn.id);
       } catch (error) {
         if (error instanceof NativeRefusal) {
           evidence = {
