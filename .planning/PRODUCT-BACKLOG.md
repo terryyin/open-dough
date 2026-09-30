@@ -14,10 +14,9 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Make npm run lint report no warnings or errors, consistently](seeds/SEED-065-warning-free-lint.md#warning-free-lint) — SEED-065#warning-free-lint ([plan](slice-plans/187-warning-free-lint/PLAN.md))
-
 ## Backlog list
 
+- [Stop a commit that fails lint before it leaves the machine](seeds/SEED-065-warning-free-lint.md#pre-commit-lint-hook) — SEED-065#pre-commit-lint-hook
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies

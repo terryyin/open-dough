@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 195. Removed local codes are never reused.
+- Highest allocated local number: 196. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -110,7 +110,7 @@ Former local code: DD-097 (plan 104 occurrence only).
 
 A formatter piped through tail returns the final pipeline stage's success, allowing subsequent delivery steps after formatter failure.
 
-Follow-up: Open, unqueued.
+Follow-up: queued, not resolved: [Stop a commit that fails lint before it leaves the machine](.planning/seeds/SEED-065-warning-free-lint.md#pre-commit-lint-hook) (SEED-065#pre-commit-lint-hook), a check-only pre-commit lint hook for this repository.
 
 - Execution: `SEED-037#diagnosable-test-hangs` / plan 104, first related implementation commit `044c88f` - Timestamp: 2026-09-25T22:28:16+08:00 - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance last updated by `87ffccb` - Evidence: `npm run lint 2>&1 | tail -2 && git commit` hid lint's exit 1; `1e648d9` was published, CI run `36147702793` `lint` failed; repair `decb252`. - Observed effect: one extra commit, push, and failed CI lint job.
 - Execution: `SEED-052#interact-with-claude-terminal` / plan 152, first related implementation commit `549e2d5a` - Timestamp: 2026-09-29T14:48:19+08:00 - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd` - Evidence: `npm run -s format 2>&1 | tail -1 && python3 … && git commit … && deliver` printed "Format failed: unresolved findings" yet continued; `ee35dd55` was published, CI run `36533023610` `lint` failed (`unbound-method`, `App.tsx:130`); repair `815844e4`. This repository has no commit hook, so formatting was the only local lint gate. - Observed effect: one extra commit, refactor pass, push, and failed CI lint job; the other CI jobs passed. - Inference: Qualified. The same coordinator had checked exit status correctly in earlier slices of this run; batching format, plan edit, commit, and delivery into one piped chain reintroduced the fault.
@@ -214,6 +214,7 @@ Follow-up: Open, unqueued.
 
 - Execution: `SEED-004#proudly-found-elsewhere-design` / plan 133, first related implementation commit `29d0c909` - Timestamp: unknown (after Take `848db9fd` committed 2026-09-27T18:56:02+08:00) - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance last updated by `707f3ac7` (v0.3.42) - Evidence: coordinator conversation: persisted reads of `delegation.md` + `execution-decisions.md` + `agent-commits.md` + `runtime-setup.md` (31.6KB) and `wrap-up.md` + `ci-monitor.md` (29.9KB), plus `execution-location.md`, `trunk-publication.md`, `finish-or-stop.md`, `ci-completion-wait.md` - Observed effect: no rework or error; context spent on paths not taken - Inference: Qualified. The skill ties reads to boundaries ("before arming observation", "before a claim"), but managed delivery and the start command now own those mechanics, so a boundary reached through them still triggers full reads. Cost only; this run gives no evidence of harm to quality
 - Execution: `SEED-053#proportionate-local-verification` / plan 143, first related implementation commit `8cafa49d` - Timestamp: unknown (between Take `f510358e` committed 2026-09-28T16:46:40+08:00 and `8cafa49d` committed 2026-09-28T16:51:36+08:00) - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance last updated by `2b46e651` - Evidence: coordinator conversation: full reads of `execution-location.md`, `delegation.md`, `execution-decisions.md`, `wrap-up.md`, `finish-or-stop.md`, part of `trunk-publication.md` and `agent-commits.md`. The only slice added one 10-line paragraph. The coordinator skipped the required `ci-monitor.md` read before arming, and managed delivery attached the observer without it - Observed effect: same as above; no CI event, repair, stash, or rework occurred, and skipping `ci-monitor.md` caused no visible harm - Inference: Qualified. Third consecutive one-slice prose execution. The skipped read shows that "before arming observation" still names a read that managed delivery has made unnecessary on the normal path
+- Execution: `SEED-065#warning-free-lint` / plan 187, first related implementation commit `96838533` - Timestamp: 2026-09-30T20:07:39+08:00 (commit time of `96838533`; the reads preceded it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.50 - Evidence: coordinator conversation: full reads of `established-start.md`, `execution-location.md`, `delegation.md`, `execution-decisions.md`, `wrap-up.md`, `agent-commits.md`, `finish-or-stop.md`, and the publication section of `trunk-publication.md`, for one Behavior slice whose start was already established and whose delivery was one managed command - Observed effect: same as above; no rework. The only mechanical question, the story-branch `--target-ref` value (DD-196), was not answered by those reads - Inference: Qualified. Fourth recorded one-slice run with the same cost
 - Earlier occurrence details: 1 additional recorded rows in `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`; these are historical evidence, not new occurrences.
 
 ## ODF-106 — Two plans planned concurrently on different checkouts both took number 132
@@ -408,3 +409,27 @@ Follow-up: Open, unqueued.
   - Evidence: slice 3 selection (234 specs) failed `agent-launch-card-delete.spec.ts:51`, then passed 24 of 24 isolated repeats; slice 6 selection failed it again and passed with the preparation specs; slice 7 selection failed `agent-launch-start-taken.spec.ts:53` ("server could not be reached") and passed on rerun; CI runs `a3c3ea29`, `a9623112`, `d8d42ef6`, `38d53df9`, `7bf821a4`, `ac880042` succeeded.
   - Observed effect: each failure cost a bounded diagnosis (rerun, read of the spec's dependence on start code) without a cause found.
   - Inference: Qualified. A read-only review found neither spec using the new shared progress or kept-start code, so load on a machine running other workloads is plausible; not reproduced. Flakiness is a defect even when a rerun passes, so the cause stays open.
+- Execution: `SEED-065#warning-free-lint` / plan 187, CI repair commit `6a8d3608`
+  - Timestamp: 2026-09-30T20:09:39+08:00 (failing CI job's log time)
+  - Tool: Claude Code (coordinator and delegated agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed guidance VERSION 0.3.50
+  - Evidence: CI run 36712853079, job "dashboard (1/2)", on `96838533` failed `agent-launch-card-delete.spec.ts:51` (`cardTop` expected 507.8125, received 586.71875). The run's Playwright trace shows `settled()` in `dashboard/tests/storyStagesPage.ts` passing right after `page.reload()`, before any card rendered, and preparation facts arriving after `before` was measured; a route delay reproduced the exact values. Repair `6a8d3608` makes `settled()` wait for a card first; `--repeat-each=10` and the 18 specs using the helper pass.
+  - Observed effect: one failed CI job, one diagnosis, and one repair commit.
+  - Inference: A cause is now evidenced for the `agent-launch-card-delete.spec.ts:51` failures above: a test-helper race that load widens, not product behavior. `agent-launch-start-taken.spec.ts:53` is not explained by it.
+
+## DD-196 — Story Branch delivery's `--target-ref` value had to be read from the script
+
+The delivery references name an "authorized target ref" and say Story Branch Mode pushes to the remote execution branch, but do not say that `deliver --target-ref` then takes `refs/heads/<execution branch>` rather than the trunk the established start names as `target`.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+- Execution: `SEED-065#warning-free-lint` / plan 187, first related implementation commit `96838533`
+  - Timestamp: 2026-09-30T20:07:39+08:00 (commit time of `96838533`; the lookup followed it)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed guidance VERSION 0.3.50
+  - Evidence: before delivery the coordinator ran `execution-increment-delivery.mjs --help`, grepped `targetRef`, read its lines 60–120, and read `targetBranchName` in `publication-git.mjs`, then invoked `deliver --target-ref refs/heads/claude/make-npm-run-lint-report-no-warnings-or-errors-c`; the established start listed `target: main`.
+  - Observed effect: four extra tool calls; delivery was accepted on the first attempt with observation attached.
+  - Inference: Qualified. Passing `refs/heads/main` from the established start's `target` was a plausible mistake; whether the script would refuse it was not checked.
