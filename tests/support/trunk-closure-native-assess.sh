@@ -5,11 +5,6 @@
 # shellcheck source=tests/support/native-completion-observation.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
-# Counterexample streams are written in each host's shape by the substitute's
-# recorder.
-# shellcheck source=tests/support/native-agent-admission.sh
-# shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-agent-admission.sh"
 trunk_closure_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native-assess.sh"
 
 # Installed `finish` calls for final closure $4, from the node call log $1 or
@@ -75,7 +70,6 @@ trunk_closure_observe() {
     printf 'control-order:\n'
     sed 's/^/  /' "${trunk_closure_control_log}"
     printf 'response-completion-result: %s\n' "$(grep -Eiq 'CI.+(success|not.required)|success.+CI|not.required|completion receipt|shutdown' "${response}" && echo true || echo false)"
-    printf 'transcript-finish: %s\n' "$(grep -Fq 'trunk-closure.mjs' "${transcript}" && echo true || echo false)"
     printf 'harness-inspected: %s\n' "$(grep -Eiq 'trunk-closure-native|native harness|trunk-closure/(source|ignored-only|owned-context)' "${transcript}" && echo true || echo false)"
     [[ ${scenario} != owned-context ]] || trunk_closure_owned_context_observe
   }
@@ -216,6 +210,11 @@ EOF
 run_trunk_closure_observation_counterexamples() {
   local work=$1 mailbox="$1/mailbox" sha=0123456789abcdef0123456789abcdef01234567
   local skills=.agents/skills host admission_events admission_tool stream
+  # Counterexample streams are written in each host's shape by the substitute's
+  # recorder, loaded only here so the paid assessor path holds no substitute.
+  # shellcheck source=tests/support/native-agent-admission.sh
+  # shellcheck disable=SC1091
+  source "${trunk_closure_assess_file%/*}/native-agent-admission.sh"
   mkdir -p "${mailbox}/coverage"
   [[ $(native_completion_registered "${mailbox}" "${sha}") == false ]]
   printf '{"sha":"%s","state":"undiscovered"}\n' "${sha}" \

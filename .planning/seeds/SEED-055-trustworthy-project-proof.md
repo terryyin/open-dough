@@ -53,42 +53,10 @@ SEED-055#assessor-counterexample-discipline (commits `a53aa489`..`c6440780` on
 It adds no feature promise. See the
 [plan](../slice-plans/168-assessor-counterexample-gaps/PLAN.md).
 
-<a id="native-harness-replay-corrections"></a>
-
-### Correction: Correct continued-command reading and corpus admission in the native harness
-
-**Identity:** SEED-055#native-harness-replay-corrections
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/169-native-harness-replay-corrections/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0f77b0c2a48886c71904b5a97a9dc18973d316a165f3591f90ae79f11f9adeb1","plan":"37834968c4fb6d262511aa8698bb4861063dee43557cdaa2f5facaf85498980e"}}
-```
-
-**Goal:** The maintainer paying for native runs gets a reader that
-recognizes a continued command whatever its spacing, and can add every
-accepted paid run to the replay corpus. The native harness also drops
-residue left by the replay of real host streams (story at
-`2b20ed61:.planning/seeds/SEED-055-trustworthy-project-proof.md`).
-
-**Scope:** The correction found by that story's execution retrospective
-(commits `daaf3c1e`..`b4d82278` on
-`claude/native-harness-observes-agent-behavior`). It covers these items:
-
-- joining line continuations so literal matchers see single-spaced
-  commands, with the affected corpus `command:` lines re-reviewed;
-- admitting any case depth outside the publication family to the corpus;
-- dead and duplicate closure observation fields, and substitute-agent code
-  loaded on the paid assessor path;
-- stale documentation and redundant per-host runs in
-  `tests/native-stream-completeness.sh`.
-
-It adds no feature promise. See the
-[plan](../slice-plans/169-native-harness-replay-corrections/PLAN.md).
-
 ## Ordering and When to Surface
 
-The continued-command and corpus-admission correction goes first: a continued
-command can fail a correct paid run today. The assessor counterexample gaps
-correction closes what the counterexample discipline's execution
-retrospective found.
+The assessor counterexample gaps correction closes what the counterexample
+discipline's execution retrospective found.
 
 ## Breadcrumbs
 

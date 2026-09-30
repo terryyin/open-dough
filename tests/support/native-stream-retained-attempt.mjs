@@ -1,7 +1,8 @@
-// Reads a retained paid native attempt (`<results-dir>/<host>/<family>/
-// <journey>/<attempt-id>/`) for adding to the replay corpus
+// Reads a retained paid native attempt (`<results-dir>/<host>/<case>/
+// <attempt-id>/`) for adding to the replay corpus
 // (native-stream-corpus-add.mjs), refusing one replay cannot use. Its `record`
-// names the host, the case (`<family>/<journey>`), and each events stream
+// names the host, the case (one or more `/`-separated segments; a publication
+// case is `publication/<journey>`), and each events stream
 // (`artifact-events:`, or `artifact-<phase>-events:` for a two-stage attempt);
 // each stream is read through the shared reader (native-host-stream.mjs).
 import { existsSync, readFileSync, statSync } from "node:fs";
@@ -53,9 +54,13 @@ export function readRetainedAttempt(attemptDir) {
   if (!hosts.includes(host)) {
     throw new Refusal(`record names no known host: ${host ?? "(none)"}`);
   }
-  const [family, journey, ...rest] = caseId.split("/");
-  if (!family || !journey || rest.length > 0) {
-    throw new Refusal(`record names no <family>/<journey> case: ${caseId}`);
+  const segments = caseId.split("/");
+  const [family, journey, ...rest] = segments;
+  if (segments.includes("")) {
+    throw new Refusal(`record names no case: ${caseId || "(none)"}`);
+  }
+  if (family === "publication" && (!journey || rest.length > 0)) {
+    throw new Refusal(`record names no publication/<journey> case: ${caseId}`);
   }
   const phases = record.artifacts.flatMap(([key, file]) => {
     const match = /^artifact-(?:([a-z]+)-)?events$/.exec(key);
