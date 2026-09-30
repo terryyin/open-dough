@@ -63,6 +63,15 @@ it plays once per hover in the enlarged portrait and is disabled for reduced
 motion. The morph begins and ends on the approved still, so it needs no
 overlay to hide a snap.
 
+`agent-avatars/sola-gesture.webp` is Sola's 2-second hover reaction: she
+tilts her head a little further toward her raised arm, blinks once, and
+settles back. Claude Code made every frame on 2026-09-30 by warping her
+unaltered tile of `atlas-1-large.webp` (the 418 × 418 square at x 0, y 731)
+with Python OpenCV: a Gaussian-weighted rotation about the neck moves the
+head, and each upper lid slides down onto its lower lid for the blink. No
+image generation was used. The strip is 24 frames, 418 × 418 each, in
+lossless WebP; the first and last frames are the unaltered tile.
+
 `agent-avatars/odd-e-nerds/cartoon/<lowercase name>.webp` are cartoon avatars of the
 Odd-e nerds agents (`nerdAgentNames` in the same module), for example `stanly.webp`.
 Each was generated with OpenAI image editing (`gpt-image-1.5`) from the face in that

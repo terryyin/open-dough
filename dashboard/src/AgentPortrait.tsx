@@ -18,6 +18,7 @@ const gestureStrips: Readonly<
   Yui: { file: "yui-gesture.webp", duration: "1.5s" },
   Akiho: { file: "akiho-gesture.webp", duration: "1.8s", blend: true },
   Yuma: { file: "yuma-gesture.webp", duration: "2s", frames: 24 },
+  Sola: { file: "sola-gesture.webp", duration: "2s", frames: 24 },
 };
 
 // The approved portrait for a recorded agent, by its rotation name. Portraits
