@@ -91,8 +91,10 @@ replace its definition with a test definition.
 Focused runs (Playwright, per file; no full-suite local gate):
 
 ```sh
-cd dashboard && npx playwright test tests/agent-launch-options-boundary.spec.ts \
-  tests/agent-launch-options-groups.spec.ts tests/agent-launch-options.spec.ts
+npx playwright test --config dashboard/playwright.config.ts \
+  dashboard/tests/agent-launch-options-boundary.spec.ts \
+  dashboard/tests/agent-launch-options-groups.spec.ts \
+  dashboard/tests/agent-launch-options.spec.ts
 ```
 
 plus the unchanged specs each slice's change can reach (`agent-launch-start.spec.ts`,
@@ -104,9 +106,11 @@ slices 2-6). Hosted CI runs the rest. Each slice follows the established
 
 ### 1. One owner for a project's installed skill files
 Type: Structure
-Status: planned
+Status: done
 Proof: `agent-launch-start.spec.ts` and `agent-launch-start-refusal.spec.ts`
-pass unchanged.
+pass unchanged. Accepted: 7 of 7 passed via
+`npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-start-refusal.spec.ts`
+from the workspace root; `npm run typecheck:dashboard` passed.
 
 Structure: `server/executionStart.ts` builds `.claude/skills/dough-execute-plan/scripts`
 itself. Add one `installedSkillPath(project, skill, ...segments)` (Claude Code's
@@ -216,3 +220,10 @@ shipped exclusive refinement group, and a generic plugin or registry.
 
 - `summary` is required in the schema so an option added elsewhere without one
   fails the drift check; plan 184's focus entries then need a `summary`.
+- Slice 1 placed `installedSkillPath` in `dashboard/server/claudeWorkspace.ts`,
+  beside the host's other on-disk conventions. Fixture builders in
+  `dashboard/tests/support` keep the literal `.claude/skills` layout so a wrong
+  production root cannot mirror into them; slice 2's fixtures do the same.
+- Playwright specs run from the workspace root: fixtures copy `src/skills`
+  relative to the current directory, and a run from `dashboard/` leaves a
+  linted `dashboard/dashboard/dist`.

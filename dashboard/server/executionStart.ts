@@ -29,6 +29,7 @@ import {
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   claudeWorkspace,
+  installedSkillPath,
   shownWorkspace,
   type WorkspaceChoice,
 } from "./claudeWorkspace.ts";
@@ -51,12 +52,7 @@ import {
   type StartRecord,
 } from "./startStore.ts";
 
-const skillScripts = path.join(
-  ".claude",
-  "skills",
-  "dough-execute-plan",
-  "scripts",
-);
+const executePlanSkill = "dough-execute-plan";
 const startScript = "execution-start.mjs";
 const formatterScript = "established-start.mjs";
 
@@ -105,7 +101,11 @@ function runScript(
   return new Promise((resolve) => {
     const child = spawn(
       process.execPath,
-      [path.join(project.path, skillScripts, startScript), "start", ...args],
+      [
+        installedSkillPath(project, executePlanSkill, "scripts", startScript),
+        "start",
+        ...args,
+      ],
       { cwd: project.path, stdio: ["ignore", "pipe", "ignore"] },
     );
     let stdout = "";
@@ -129,10 +129,11 @@ function runScript(
 export async function establishesStart(
   project: ProjectFolder,
 ): Promise<boolean> {
-  const scripts = path.join(project.path, skillScripts);
+  const script = (name: string) =>
+    installedSkillPath(project, executePlanSkill, "scripts", name);
   return (
-    (await isFile(path.join(scripts, startScript))) &&
-    (await isFile(path.join(scripts, formatterScript)))
+    (await isFile(script(startScript))) &&
+    (await isFile(script(formatterScript)))
   );
 }
 
@@ -295,7 +296,12 @@ export async function formattedStart(
   project: ProjectFolder,
   start: EstablishedStart,
 ): Promise<string> {
-  const file = path.join(project.path, skillScripts, formatterScript);
+  const file = installedSkillPath(
+    project,
+    executePlanSkill,
+    "scripts",
+    formatterScript,
+  );
   // Keyed by its modification time, so a skill updated while the server runs
   // is read anew.
   const url = `${pathToFileURL(file).href}?modified=${String((await stat(file)).mtimeMs)}`;
