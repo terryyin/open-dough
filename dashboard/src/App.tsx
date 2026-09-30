@@ -198,9 +198,7 @@ export function App() {
             <StartSession
               project={source.label}
               attempt={launches.adHocAttemptOf(source.id)}
-              onStart={(instruction) =>
-                launches.startAdHoc(source.id, instruction)
-              }
+              onStart={(choices) => launches.startAdHoc(source.id, choices)}
             />
             {showsPreparation && <PreparationLegend />}
           </div>

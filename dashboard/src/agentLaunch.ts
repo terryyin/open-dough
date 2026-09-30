@@ -55,6 +55,23 @@ export const launchWorkflowNames = Object.keys(launchWorkflows) as [
   ...LaunchWorkflow[],
 ];
 
+// The models a launch may ask Claude Code for, and the one place each alias
+// is spelled: the alias `--model` takes and its display name, in the order a
+// dialog offers them. Default is no `model` at all: Claude Code's own setting
+// applies.
+export const launchModels = {
+  fable: { name: "Fable" },
+  opus: { name: "Opus" },
+  sonnet: { name: "Sonnet" },
+} as const satisfies Record<string, { readonly name: string }>;
+
+export type LaunchModel = keyof typeof launchModels;
+
+export const launchModelAliases = Object.keys(launchModels) as [
+  LaunchModel,
+  ...LaunchModel[],
+];
+
 // The name of the session a project's actions row starts: no story, no skill.
 export const adHocName = "Ad hoc";
 
@@ -65,7 +82,8 @@ export function launchKindName(workflow: LaunchWorkflow | "ad-hoc"): string {
 
 // What a consumer of a launch record needs of its request, spelled once: the
 // title, the work item's identity (none when the request has no card to look
-// up), the kind's name, and how its session is said to have started.
+// up), the kind's name, how its session is said to have started, and the
+// model it asked for (none for Default).
 export function launchSubject(request: RecordedLaunchRequest) {
   const name = launchKindName(request.workflow);
   return {
@@ -75,6 +93,10 @@ export function launchSubject(request: RecordedLaunchRequest) {
     startedWords: `${
       request.workflow === "ad-hoc" ? `${name} session` : name
     } started in Claude Code`,
+    modelWords:
+      request.model === undefined
+        ? undefined
+        : `Model: ${launchModels[request.model].name} (requested)`,
   };
 }
 
@@ -91,13 +113,20 @@ const oneLine = z
   .max(launchTextLimit)
   .regex(/^[^\r\n]*$/);
 
+// What either kind of request carries beside its subject: the developer's own
+// instruction and the model asked for, if any.
+const launchOptions = {
+  instruction: z.string().max(launchInstructionLimit).optional(),
+  model: z.enum(launchModelAliases).optional(),
+};
+
 const storyLaunchRequestSchema = z.object({
   source: z.string().min(1).max(launchTextLimit),
   identity: oneLine,
   title: oneLine,
   workflow: z.enum(launchWorkflowNames),
   host: z.enum(agentHosts),
-  instruction: z.string().max(launchInstructionLimit).optional(),
+  ...launchOptions,
 });
 
 // A session in a project with no story or skill: the request carries no
@@ -107,7 +136,7 @@ const adHocLaunchRequestSchema = z.strictObject({
   source: z.string().min(1).max(launchTextLimit),
   workflow: z.literal("ad-hoc"),
   host: z.enum(agentHosts),
-  instruction: z.string().max(launchInstructionLimit).optional(),
+  ...launchOptions,
 });
 
 export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
@@ -117,6 +146,14 @@ export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
 
 export type StoryLaunchRequest = z.infer<typeof storyLaunchRequestSchema>;
 export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
+
+// What a launch dialog hands its caller: the developer's choices among the
+// request's options, as typed, before the request trims and omits them.
+export type LaunchChoices = {
+  readonly instruction: NonNullable<StoryLaunchRequest["instruction"]>;
+  // Absent for Default: Claude Code's own setting applies.
+  readonly model?: LaunchModel;
+};
 
 // The request a record keeps: an ad hoc one with the label the server
 // derived as its title.
@@ -259,9 +296,22 @@ export const launchResultSchema = z.discriminatedUnion("kind", [
 
 export type LaunchResult = z.infer<typeof launchResultSchema>;
 
+// Whether the boundary can raise its macOS notifications
+// (`../server/sessionAlerts.ts`): the outcome of the latest `osascript` it
+// ran, with one fixed sentence of why not.
+export const alertsSchema = z.discriminatedUnion("available", [
+  z.object({ available: z.literal(true) }),
+  z.object({ available: z.literal(false), reason: z.string().min(1) }),
+]);
+
+export type Alerts = z.infer<typeof alertsSchema>;
+
 // The machine's sessions, as the boundary answers a GET: every catalog
 // project's launch records, each naming its project and joined with its
-// session's current state.
+// session's current state, and whether alerts can be raised.
 export const launchRecordsSchema = z.object({
   records: z.array(launchWithStateSchema),
+  alerts: alertsSchema,
 });
+
+export type MachineAnswer = z.infer<typeof launchRecordsSchema>;

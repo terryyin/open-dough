@@ -46,12 +46,12 @@ export function CardLaunches({
             workflow={workflow}
             note={launchWorkflows[workflow].note(entry)}
             attempt={launches.attemptOf(sourceId, entry.identity, workflow)}
-            onStart={async (instruction) => {
+            onStart={async (choices) => {
               const record = await launches.start(
                 sourceId,
                 entry,
                 workflow,
-                instruction,
+                choices,
               );
               if (record === undefined) return false;
               setLaunchedHere(record.session.sessionId);

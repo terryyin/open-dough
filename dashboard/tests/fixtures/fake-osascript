@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+"use strict";
+
+// A synthetic `osascript` this suite puts first on PATH for one isolated
+// dashboard server (see ../support/fakeClaude), so no test ever raises a real
+// notification. It shows nothing: it appends its argv to `osascript-calls.jsonl`
+// in the fake `claude`'s state directory and, by the `osascript-mode` file
+// there, exits 0 (default), exits 1 (`failing`), or holds its answer
+// (`hang`), recording its pid in `osascript.pid` and, once a signal ends it,
+// that signal in `osascript.pid.exited`, for the controls to observe. The
+// server's start probe (`-e 'return 0'`) is logged apart, in
+// `osascript-probes.jsonl`, and follows `failing` but never holds.
+
+const fs = require("fs");
+const path = require("path");
+
+const dir = process.env.FAKE_CLAUDE_DIR;
+if (!dir) {
+  process.stderr.write("fake osascript: FAKE_CLAUDE_DIR is not set\n");
+  process.exitCode = 1;
+  return;
+}
+
+const argv = process.argv.slice(2);
+const probe = argv.length === 2 && argv[0] === "-e" && argv[1] === "return 0";
+fs.appendFileSync(
+  path.join(dir, probe ? "osascript-probes.jsonl" : "osascript-calls.jsonl"),
+  `${JSON.stringify({ argv })}\n`,
+);
+
+let mode = "working";
+try {
+  mode = fs.readFileSync(path.join(dir, "osascript-mode"), "utf8").trim();
+} catch {
+  // No mode file: the default.
+}
+
+if (mode === "failing") {
+  process.stderr.write("fake osascript: notification refused\n");
+  process.exitCode = 1;
+  return;
+}
+if (mode === "hang" && !probe) {
+  fs.writeFileSync(path.join(dir, "osascript.pid"), String(process.pid));
+  for (const signal of ["SIGTERM", "SIGINT"]) {
+    process.on(signal, () => {
+      fs.writeFileSync(path.join(dir, "osascript.pid.exited"), signal);
+      process.exit(143);
+    });
+  }
+  setInterval(() => {}, 1000);
+}

@@ -4,14 +4,15 @@
 // confirming the session it started through Claude Code's own session
 // listing, and failure in fixed categories. Raw stderr may name local paths or
 // echo configuration and is never forwarded, as with the `gh` boundary
-// (`./ghRead.ts`). No model, permission, effort, or session id is passed: the
-// developer's own Claude Code settings apply, and `--bg` chooses its own
-// session id, which it prints.
+// (`./ghRead.ts`). Only a model the developer chose is passed; no permission,
+// effort, or session id is: the developer's own Claude Code settings apply,
+// and `--bg` chooses its own session id, which it prints.
 
 import type { ExecException } from "node:child_process";
 import { stripVTControlCharacters } from "node:util";
 import {
   launchSubject,
+  launchModels,
   launchWorkflows,
   type AgentLaunchRequest,
   type RecordedLaunchRequest,
@@ -129,11 +130,13 @@ function unconfirmed(): HostLaunch {
 }
 
 // The folder was checked before `claude` ran, so a missing executable is the
-// only `ENOENT`.
+// only `ENOENT`. A refusal names the model asked for, if any: what makes
+// Claude Code refuse is not read from its stderr.
 function failedLaunch(
   error: ExecException,
   stderr: string,
   folder: ProjectFolder,
+  model: RecordedLaunchRequest["model"],
 ): HostLaunch {
   if (error.code === "ENOENT") {
     return {
@@ -153,7 +156,7 @@ function failedLaunch(
       : {
           kind: "failed",
           reason: "refused",
-          explanation: `Claude Code refused to start a session in ${folder.shown}. Run \`claude\` in that folder once to see why, then start again.`,
+          explanation: `Claude Code refused to start a session in ${folder.shown}${model === undefined ? "" : ` with model ${launchModels[model].name}`}. Run \`claude\` in that folder once to see why, then start again.`,
         };
   }
   return {
@@ -180,7 +183,7 @@ export async function launchClaude(
 ): Promise<HostLaunch> {
   const launch = await startClaudeInBackground(
     claudeSessionName(source, request),
-    claudeInstruction(request),
+    { instruction: claudeInstruction(request), model: request.model },
     folder,
     signal,
   );
@@ -188,7 +191,7 @@ export async function launchClaude(
     return timedOut();
   }
   if (launch.error) {
-    return failedLaunch(launch.error, launch.stderr, folder);
+    return failedLaunch(launch.error, launch.stderr, folder, request.model);
   }
   const shortId = printedShortId(launch.stdout);
   if (shortId === undefined) {

@@ -3,7 +3,9 @@
 // (`openSessionsOf`), each with its story's title, its project, its
 // workflow, when it was launched, and its state in the words and attention
 // edge a card entry shows (`shownSession`), under how many of them need the
-// developer (`attentionSummary`). It sits beside the page, left of it, and
+// developer (`attentionSummary`), and, while the server cannot raise its macOS
+// alerts (`alerts`), a quiet "Alerts unavailable" note with why, in the open
+// sidebar only. It sits beside the page, left of it, and
 // the Sessions button at the start of the banner opens and closes it; while
 // it is closed, that button says the same count. Command+B toggles it too,
 // page-wide and from inside the terminal, except inside an open dialog, which
@@ -27,7 +29,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { openSessionsOf, type LaunchWithState } from "./agentLaunch.ts";
+import {
+  openSessionsOf,
+  type Alerts,
+  type LaunchWithState,
+} from "./agentLaunch.ts";
 import { SessionList } from "./SessionEntry.tsx";
 import { SidebarEntry, type OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { isInsideOpenDialog } from "./pageShortcuts.ts";
@@ -73,6 +79,8 @@ export type SidebarState = {
   readonly closeOverPage: () => HTMLElement | undefined;
   // The machine's sessions; undefined until first read.
   readonly records: readonly LaunchWithState[] | undefined;
+  // Whether the server can raise its macOS alerts; undefined until first read.
+  readonly alerts: Alerts | undefined;
 };
 
 export const SidebarOnPage = createContext<SidebarState | undefined>(undefined);
@@ -89,6 +97,7 @@ function useSidebar(): SidebarState {
 // by the Sessions button and by Command+B.
 export function useSessionSidebar(
   records: SidebarState["records"],
+  alerts: SidebarState["alerts"],
 ): SidebarState {
   const [open, setOpen] = useState(readSidebarOpen);
   const isOpen = useRef(open);
@@ -134,7 +143,7 @@ export function useSessionSidebar(
       window.removeEventListener("keydown", onKeyDown, true);
     };
   }, [toggle]);
-  return { open, toggle, closeOverPage, records };
+  return { open, toggle, closeOverPage, records, alerts };
 }
 
 const sessionsButton = () =>
@@ -168,8 +177,9 @@ export function SessionsButton() {
 export function SessionSidebar({
   open,
   records,
+  alerts,
   onOpen,
-}: Pick<SidebarState, "open" | "records"> & {
+}: Pick<SidebarState, "open" | "records" | "alerts"> & {
   readonly onOpen: OpenSidebarEntry;
 }) {
   const sessions = openSessionsOf(records);
@@ -184,6 +194,9 @@ export function SessionSidebar({
       <h2 id="session-sidebar-heading">Sessions</h2>
       {attention !== undefined && (
         <p className="sidebar-attention">{attention}</p>
+      )}
+      {open && alerts?.available === false && (
+        <p className="quiet">Alerts unavailable: {alerts.reason}</p>
       )}
       <SessionList
         sessions={sessions}

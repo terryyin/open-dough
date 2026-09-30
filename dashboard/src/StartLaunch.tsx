@@ -9,7 +9,11 @@
 // keyboard's return to the action, belong to `LaunchDialog`.
 
 import { useId } from "react";
-import { launchWorkflows, type LaunchWorkflow } from "./agentLaunch.ts";
+import {
+  launchWorkflows,
+  type LaunchChoices,
+  type LaunchWorkflow,
+} from "./agentLaunch.ts";
 import type { LaunchAttempt, LaunchWorkItem } from "./agentLaunches.ts";
 import { LaunchDialog, useLaunchDialogLauncher } from "./LaunchDialog.tsx";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
@@ -28,7 +32,7 @@ export function StartLaunch({
   readonly note: string | undefined;
   readonly attempt: LaunchAttempt | undefined;
   // Answers whether a session was launched, which then takes the keyboard.
-  readonly onStart: (instruction: string) => Promise<boolean>;
+  readonly onStart: (choices: LaunchChoices) => Promise<boolean>;
 }) {
   const { name, verb, skill } = launchWorkflows[workflow];
   const named = name.toLowerCase();

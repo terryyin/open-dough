@@ -6,9 +6,9 @@
 // (`SessionList`). An entry gives its
 // session's state as Claude Code last listed it, read once by `sessionShown`,
 // marked, when the developer is needed there, by a solid edge beside that
-// text; its workflow, when it was launched, its session, and Open terminal
-// (`./LaunchSession.tsx`); a session the developer marked done is Done, under
-// its `done-` name. An entry names its story's title and identity unless it
+// text; its workflow and the model it asked for, if any, when it was
+// launched, its session, and Open terminal (`./LaunchSession.tsx`); a
+// session the developer marked done is Done, under its `done-` name. An entry names its story's title and identity unless it
 // is listed on the story's own card or is an ad hoc session (no story), where it offers Mark as done through the
 // page's one operation (`./TerminalSplit.tsx`); on a card or in Recent
 // sessions, while its session shows State unknown, it offers "Delete record…",
@@ -47,7 +47,9 @@ export function SessionEntry({
   readonly takesFocus?: boolean;
 }) {
   const entry = useRef<HTMLElement>(null);
-  const { title, identity, name, startedWords } = launchSubject(record.request);
+  const { title, identity, name, startedWords, modelWords } = launchSubject(
+    record.request,
+  );
   const markedDone = record.doneAt !== undefined;
   const { entryClass, stateWords } = shownSession(record);
   const inTerminal =
@@ -78,6 +80,7 @@ export function SessionEntry({
       <p>
         {startedWords} <Moment at={new Date(record.launchedAt)} />
       </p>
+      {modelWords !== undefined && <p>{modelWords}</p>}
       <p className="launch-local">
         Local: launched from this dashboard on this machine.
       </p>

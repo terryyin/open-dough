@@ -10,14 +10,17 @@
 // joins the same records. While the page is visible, they are read again at
 // the revision checks' steady pace (`./revisionCheckSchedule.ts`), so each
 // session's state as Claude Code lists it stays current; a page seen again
-// reads them at once. A session marked done, or read again at once, replaces
+// reads them at once, and each read also says whether the server can alert.
+// A session marked done, or read again at once, replaces
 // its record. Nothing here decides a story fact, which origin still
 // publishes.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
+  Alerts,
   AgentLaunchRequest,
   StoryLaunchRequest,
+  LaunchChoices,
   LaunchRecord,
   LaunchWithState,
   LaunchWorkflow,
@@ -44,6 +47,9 @@ export type MachineSessions = {
   // Every project's launch records, oldest first within a project, each with
   // its session's state when last read; undefined until first read.
   readonly records: readonly LaunchWithState[] | undefined;
+  // Whether the server can raise its macOS alerts, as of the latest read of
+  // the machine's sessions; undefined until first read.
+  readonly alerts: Alerts | undefined;
   // The sessions to show on cards: `records` once read, and until then only
   // those launched from this page.
   readonly launched: readonly LaunchWithState[];
@@ -59,14 +65,14 @@ export type MachineSessions = {
     sourceId: string,
     work: LaunchWorkItem,
     workflow: LaunchWorkflow,
-    instruction: string,
+    choices: LaunchChoices,
   ): Promise<LaunchWithState | undefined>;
   // Starts an ad hoc session in the project, with the developer's optional
   // first message, and answers the launched record once the boundary confirms
   // one. A problem is kept nowhere yet.
   startAdHoc(
     sourceId: string,
-    instruction: string,
+    choices: LaunchChoices,
   ): Promise<LaunchWithState | undefined>;
   // The project's ad hoc launch in flight or its last failed or uncertain
   // answer.
@@ -92,10 +98,14 @@ const attemptKey = (
 // An ad hoc launch has no work item, so its attempt is the project's alone.
 const adHocKey = (sourceId: string) => attemptKey(sourceId, "", "ad-hoc");
 
-// Trimmed text, omitted when empty, as the boundary takes it.
-const instructionOf = (instruction: string) => {
+// The choices as the boundary takes them: trimmed text, omitted when empty,
+// and the model only when one was chosen.
+const optionsOf = ({ instruction, model }: LaunchChoices) => {
   const own = instruction.trim();
-  return own === "" ? {} : { instruction: own };
+  return {
+    ...(own === "" ? {} : { instruction: own }),
+    ...(model === undefined ? {} : { model }),
+  };
 };
 
 // The server's records replace what the page knew, except a launch recorded
@@ -121,9 +131,10 @@ export function useAgentLaunches(): MachineSessions {
   // The sessions the page knows, and whether a read has answered them: a
   // launch answered before the first read is kept in `known`, and joins the
   // first read's answer.
-  const [{ known, read: readAnswered }, setSessions] = useState<{
+  const [{ known, read: readAnswered, alerts }, setSessions] = useState<{
     readonly known: readonly LaunchWithState[];
     readonly read: boolean;
+    readonly alerts?: Alerts;
   }>({ known: [], read: false });
   const setRecords = useCallback(
     (
@@ -153,13 +164,14 @@ export function useAgentLaunches(): MachineSessions {
       void readMachineSessions().then((answered) => {
         if (!current) return;
         if (answered !== undefined) {
-          const kept = answered.filter(
+          const kept = answered.records.filter(
             (record) =>
               (deletedAt.current.get(record.session.sessionId) ?? -1) < askedAt,
           );
           setSessions((current) => ({
             known: replaced(kept, current.known, current.read ? askedAt : 0),
             read: true,
+            alerts: answered.alerts,
           }));
         }
         everRead.current = true;
@@ -215,7 +227,7 @@ export function useAgentLaunches(): MachineSessions {
       sourceId: string,
       work: LaunchWorkItem,
       workflow: LaunchWorkflow,
-      instruction: string,
+      choices: LaunchChoices,
     ) =>
       launch(attemptKey(sourceId, work.identity, workflow), {
         source: sourceId,
@@ -223,18 +235,18 @@ export function useAgentLaunches(): MachineSessions {
         title: work.title,
         workflow,
         host: "claude",
-        ...instructionOf(instruction),
+        ...optionsOf(choices),
       }),
     [launch],
   );
 
   const startAdHoc = useCallback(
-    (sourceId: string, instruction: string) =>
+    (sourceId: string, choices: LaunchChoices) =>
       launch(adHocKey(sourceId), {
         source: sourceId,
         workflow: "ad-hoc",
         host: "claude",
-        ...instructionOf(instruction),
+        ...optionsOf(choices),
       }),
     [launch],
   );
@@ -283,9 +295,12 @@ export function useAgentLaunches(): MachineSessions {
   const readSession = useCallback(
     async (record: LaunchRecord) => {
       const kept = await readMachineSessions();
-      const answered = kept?.find(
+      const answered = kept?.records.find(
         (known) => known.session.sessionId === record.session.sessionId,
       );
+      if (kept !== undefined) {
+        setSessions((current) => ({ ...current, alerts: kept.alerts }));
+      }
       if (answered !== undefined) replaceRecord(answered);
     },
     [replaceRecord],
@@ -293,6 +308,7 @@ export function useAgentLaunches(): MachineSessions {
 
   return {
     records: readAnswered ? known : undefined,
+    alerts,
     launched: known,
     attemptOf: (sourceId, identity, workflow) =>
       attempts.get(attemptKey(sourceId, identity, workflow)),
