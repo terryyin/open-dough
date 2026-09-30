@@ -15,10 +15,10 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Stop a commit that fails lint before it leaves the machine](seeds/SEED-065-warning-free-lint.md#pre-commit-lint-hook) — SEED-065#pre-commit-lint-hook ([plan](slice-plans/190-pre-commit-lint-hook/PLAN.md))
+- [Start Codex refinement from the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#start-codex-refinement-from-dashboard) — SEED-052#start-codex-refinement-from-dashboard ([plan](slice-plans/189-start-codex-refinement-from-dashboard/PLAN.md))
 
 ## Backlog list
 
-- [Start Codex refinement from the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#start-codex-refinement-from-dashboard) — SEED-052#start-codex-refinement-from-dashboard
 - [Complete Codex support for dashboard workflows and sessions](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
