@@ -1,3 +1,10 @@
+## 0.3.50 - 2026-09-30
+
+- Add composable UX/UI and Architecture focuses to story refinement so interaction choices, system consequences, applicable Accepted ADRs, and consequential trade-offs can shape the ordinary goal, scope, and examples without creating separate reports or silently choosing a side.
+- Prepare follow-up work for dashboard-started refinement setup and warning-free linting, while retaining process evidence about repeated delegated-agent completion reports.
+
+Native acceptance was explicitly skipped for `0.3.50` at the maintainer's request as an exception to ADR 0005. Native acceptance for the new refinement focuses and previously pending requirements remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.49 - 2026-09-30
 
 - Let the dashboard establish a durable execution start before opening Claude Code, continue it through the installed execution skill, resume uncertain or server-lost starts from their workspaces, show start phases on every page, and refuse duplicate or unsafe launches without falling back past a known refusal.
