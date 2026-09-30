@@ -132,6 +132,64 @@ A slice without completion evidence has “No completion recorded,” not an inf
 running or failed status. All slices recorded complete does not itself establish story
 closure or that the intended user outcome was achieved.
 
+## Refinement options in the launch dialog
+
+*Unbuilt direction ([SEED-061](../.planning/seeds/SEED-061-refinement-options-from-dashboard.md#select-refinement-options-from-dashboard)); remove this section when delivered and keep the lasting rule in [Agent launch](../dashboard/AGENT-LAUNCH.md).*
+
+“Start refinement in Claude Code” gains an **Options** group between the
+instruction field and **Model**. The instruction field keeps the focus on
+opening; the options are one Tab away. Only the refinement dialog has it.
+
+```
+Start refinement in Claude Code
+<description naming the story>
+
+Instruction (optional)
+Sent after /dough-story-refinement <identity> --explore --borrow.
+[ textarea ]
+
+Options — choose any combination; they apply together. None means
+straightforward refinement.
+  [x] Explore   --explore   Develop materially different ways to reach the goal.
+  [x] Borrow    --borrow    Find a mechanism in another domain that could help.
+  [ ] Challenge --challenge Test whether the proposal achieves its purpose.
+  ...
+Model  [ Default (your Claude Code setting) v ]
+                                   [ Start ] [ Cancel ]
+```
+
+- **One row per option in the project's installed definition**, in definition
+  order: a checkbox named by the option's label, its flag in code text, and its
+  one-line summary tied to the checkbox as its description. Options and focuses
+  are one flat list; a heading appears only if the definition has both kinds.
+- **The command line is live.** The instruction hint already says “Sent after
+  /dough-story-refinement <identity>”; it now includes the selected flags in definition order, so
+  the dialog shows exactly what a direct invocation would be. It is a described
+  status, changing politely (`aria-live="polite"`), never moving the focus.
+- **An exclusive group** is a labelled set of radio buttons with a first
+  “No <group label>” choice, so choosing one member replaces another visibly and
+  none is always reachable. Options outside the group stay checkboxes.
+- **Nothing is remembered.** Each opening starts with nothing selected, like
+  Model.
+- **No definition.** A project whose installed refinement skill offers no
+  options shows one quiet line in place of the group, “This project's
+  refinement skill offers no options; refinement starts straightforwardly.”; a
+  definition that cannot be read or is not valid says why in the same quiet
+  place. Start still works. Before the first sessions read, the line says
+  “Reading options…”.
+- **An invalid or stale selection is never dropped.** The boundary refuses with
+  “Launch failed:” and the option named, for example “--architecture is not
+  offered by this project's installed refinement skill. Nothing was launched.”,
+  in the dialog's existing failure place, keeping the selection so the developer
+  can change it.
+- **Keyboard and reading.** The group is a fieldset with the legend “Options”;
+  Tab moves through options, Space toggles, arrow keys move within a radio group;
+  the tab order is instruction, options, Model, Start, Cancel. The dialog scrolls
+  inside the window when the list is long.
+- **Sessions.** A launch that selected options says “Options: --explore --borrow
+  (requested)” on card and Recent sessions entries beside “Model: … (requested)”,
+  and nothing when none were selected: what was asked, not what ran.
+
 ## Evidence, freshness, and uncertainty
 
 Always distinguish **when the source was retrieved** from **when its contents

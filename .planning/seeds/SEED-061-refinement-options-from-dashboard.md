@@ -31,7 +31,7 @@ the behavior needed to launch refinement.
 
 **Identity:** SEED-061#select-refinement-options-from-dashboard
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/185-select-refinement-options-from-dashboard/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"34ae170875f2dac6649791039a464eb5f911d13b8fa5ab8b890c75b4343573b2","plan":"45587e7095244b2730f56db8e784bec681d1fdbc1d2db355fe350b0430fedc63"}}
 ```
 
 - **For / why:** A developer can discover, understand, and combine the available
@@ -41,48 +41,60 @@ the behavior needed to launch refinement.
   available options and explanations, select a valid combination, and launch.
   The agent receives the selected command options and follows their authoritative
   meaning. Launching without selected options retains straightforward refinement.
+- **Goal:** A developer starting refinement from a backlog card chooses among
+  the options the target project's refinement skill actually offers, and the
+  session starts as if they had typed the same options on the command. The
+  developer's discovery of options no longer depends on remembering flags.
 - **Scope:**
-  - Derive the offered options, their command spelling, explanations, defaults,
-    and composition or exclusivity rules from one authoritative command-option
-    definition. Agent instructions live there or are referenced from their one
-    authoritative behavioral home; do not maintain competing meanings in the
-    skill, launch dialogue, and execution path.
-  - Use the same definition to interpret and validate selections for execution
-    and to provide the dialogue's choices. Group-specific exclusivity must still
-    allow composition with compatible options outside that group.
-  - Expose the refinement options actually delivered by the related refinement
-    work. Current proposed options are `--investigate`, `--challenge`,
-    `--explore`, `--borrow`, `--clarify`, `--stress-test`, `--architecture`, and
-    `--ux-ui`; their precise instructions and composition semantics belong to
-    that work. All eight are currently proposed as composable. Do not create a
-    mutually exclusive refinement choice merely to exercise the shared model.
-  - Carry selections through the existing launch journey together with the
-    selected story and developer instruction. Preserve existing launch and
-    failure handling while making invalid option combinations understandable.
-  - Keep the solution cohesive around command options. Implement the shared
-    representation and consumers needed for refinement, without adding other
-    commands, a plugin system, or speculative configuration machinery.
-- **Key examples for later refinement:**
-  - Available refinement options include Borrow, Explore, and UX/UI focus;
-    selecting them launches the same combination as the corresponding direct
-    command invocation.
-  - No options selected; launching retains the established default refinement
-    behavior and the developer's additional instruction.
-  - An authoritative option definition changes; the dialogue and execution
-    consume the changed definition without a second handwritten option list or
-    competing instruction text.
-  - A representative command-option definition declares an exclusive group;
-    selection and execution apply that same rule while permitting compatible
-    options outside the group. Verify this without shipping an unrelated command
-    or inventing exclusivity among the proposed refinement options.
-- **Architectural concerns:** One representation of option identity, meaning,
-  and selection relations; explicit ownership of the authoritative definition;
-  consistent consumption by the agent, launch boundary, and dialogue. Resolve
-  the representation and delivery location during refinement and planning rather
-  than prescribing a new format here. Follow Accepted ADR 0002's single
-  representation and current-need principles and ADR 0006's authoritative
-  behavioral-home and executing-agent guidance. No conflicting Accepted ADR was
-  identified in this capture; Proposed dashboard ADR 0008 is not binding.
+  - The launch dialogue offers one choice per option in the target project's
+    installed `dough-story-refinement` option definition
+    (`references/refinement-options.json`), showing its label and explanation
+    and spelled as its command flag. The dashboard reads that file from the
+    project's installed skill, as it already does to decide whether a project
+    establishes a start, so the choices always match the skill that will run.
+  - Options compose by default. The definition also lets an option group be
+    exclusive; selection, validation, and execution honor the group while
+    leaving compatible options outside it composable. Selection order carries
+    no meaning.
+  - The launch request carries the selected flags with the story and developer
+    instruction. The session's instruction is `/dough-story-refinement
+    <identity> <flags>`, then the developer's instruction as before. With no
+    selection, it is exactly today's launch. The skill's own interpretation of
+    the flags is unchanged and lives only in the definition.
+  - The boundary validates the request against the same installed definition
+    before any `claude` runs. An unknown flag, an option the project's skill
+    lacks, or a violated exclusive group refuses the launch with an explanation
+    naming the option; nothing is dropped silently. A project whose installed
+    skill has no definition offers no options and launches default refinement
+    with a note saying why.
+  - Executable proof of exclusivity uses a test definition that declares a
+    group; no refinement option is made exclusive to exercise it.
+  - Deferred: other commands (execution, Start session), remembered
+    selections, other hosts, and the reasoning techniques of the options.
+- **Key examples:**
+  - Backlog card, project definition offers Explore and Borrow → developer
+    selects both and Start → session instruction `/dough-story-refinement
+    <identity> --explore --borrow` plus the typed instruction.
+  - Nothing selected → launch identical to today's, instruction unchanged.
+  - The definition changes (an option added) → dialogue and boundary offer and
+    accept it with no dashboard code change.
+  - Test definition with group {A, B} exclusive and C outside it → A+C valid;
+    A+B refused with the group named, in dialogue and at the boundary.
+  - Request names `--architecture` but the project's installed definition
+    lacks it → refused before launch, option named.
+  - Project has no installed definition → no option choices, note shown,
+    default refinement launches.
+- **UI:** Options group between the instruction field and Model, one checkbox
+  per option with flag and one-line summary, a live command line, radios for an
+  exclusive group. Sketch and states in the
+  [UX/UI North Star](../../docs/dashboard-ux-ui-north-star.md#refinement-options-in-the-launch-dialog).
+- **Architecture:** One command option definition owned by the skill, one shared
+  pure model (schema, selection problems, canonical order) used by boundary and
+  dialogue, installed-skill reading in one server place, and the agent unchanged.
+  Domain vocabulary, responsibilities, and rules in the
+  [Architectural North Star](../NORTH-STAR.md#command-options-one-definition-three-consumers).
+  Follows Accepted ADR 0002 and ADR 0006; no conflicting Accepted ADR and no
+  new ADR (dashboard and one skill file only); Proposed ADR 0008 is not binding.
 - **Boundary:** This story exposes and carries refinement options; it does not
   author or validate the reasoning technique of each option. Other commands,
   persistent selection preferences, and support for additional agent hosts are
@@ -97,21 +109,21 @@ the behavior needed to launch refinement.
 - **Value / learning:** Makes refinement choice discoverable at launch and proves
   that one option definition can serve conversational guidance, selection, and
   execution without drift.
-- **Effort hypothesis:** Unestimated; authoritative-definition ownership, its
-  availability at launch, and shared selection validation need refinement.
+- **Effort hypothesis:** Moderate; installed-definition reading, shared selection
+  validation, and the dialogue choices are the new work.
 - **Capture:** Terry explicitly requested this additional backlog story on
   2026-09-30, including cohesive ownership, composable and exclusive selection
   semantics, and delivery bounded to refinement.
 
 ## Open Decisions
 
-- Where should the authoritative definition live and how should the installed
-  refinement skill and dashboard obtain the same applicable definition?
-- Does combination order carry meaning? The UI and command must preserve the
-  semantics selected by the refinement work rather than infer them from control
-  order or flag order.
-- How should unavailable definitions or options be explained at launch without
-  silently dropping the developer's selected intent?
+- Every option needs a `summary` for the dialogue, checked by a drift test on the
+  shipped definition, so an option delivered by another story without one fails
+  that check. Recommended: required. The alternative, a dialogue that tolerates a
+  missing summary, would show options nobody explained.
+- The proposed `--architecture` and `--ux-ui` options (a separate `focuses`
+  list) are offered as soon as the definition contains them; this story neither
+  waits for nor adds them.
 
 ## Breadcrumbs
 
