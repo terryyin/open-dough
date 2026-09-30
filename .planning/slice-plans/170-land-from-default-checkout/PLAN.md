@@ -88,7 +88,7 @@ to trunk before planting edits, or landing everything sweeps the install in.
 
 ### 2. Dough Land lands a change made on the default main checkout
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 1's free suite plus `bash scripts/test.sh
 tests/payload-declaration-links.sh tests/native-evidence-identity.sh`; the
 manual, paid live acceptance is `tests/git-publication-native.sh --native HOST
@@ -105,6 +105,11 @@ opening, the stop for a named default checkout (now: stop only when it is on
 another branch than the target), the commit and suffix base, retirement not
 applicable, rerun and report wording. A named owned worktree lands as before.
 Stale recorded native evidence is renewed by those runs.
+
+Accepted: `src/skills/dough-land/SKILL.md` edited; free proof passes
+(`payload-declaration-links`, `native-evidence-identity`,
+`git-publication-native`). Paid live runs per host remain manual for Terry and
+renew the stale native evidence.
 
 ## Remaining concerns
 
