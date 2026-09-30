@@ -104,6 +104,52 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
+<a id="start-ad-hoc-project-session"></a>
+
+### Start an ad hoc session in a project from the dashboard
+
+**Identity:** SEED-052#start-ad-hoc-project-session
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer using a project's dashboard can begin a general
+  conversation or task in that project without choosing a story or skill.
+- **Evaluation:** Open a project in the dashboard and start an ad hoc session;
+  the session starts in that project's context with no selected skill and no
+  story attachment, and the developer can interact with it.
+- **Boundary:** This is a project-level launch, independent of story cards.
+  It does not require creating a story or invoking a skill to start the session.
+  Existing story-and-skill launches remain available. Session naming, prompt
+  entry, and return navigation need refinement before execution planning.
+- **Depends on:** The existing dashboard session launch and interaction;
+  choosing a model is a separate outcome, not a prerequisite.
+- **Capture:** Terry requested this as the first queued story on 2026-09-30.
+
+<a id="choose-session-model"></a>
+
+### Choose the model when starting a session
+
+**Identity:** SEED-052#choose-session-model
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer starting a session from the dashboard can choose
+  the model appropriate to the work at launch time.
+- **Evaluation:** Start a session, choose a model in the launch options, and
+  verify that the session uses that model. Leaving the choice unchanged uses
+  the configured default.
+- **Boundary:** Applies to session startup, including story-and-skill launches
+  and ad hoc project launches when available. Supported model choices and how
+  unavailable choices or launch failures are explained need refinement. This
+  does not add tool support or change a running session's model.
+- **Depends on:** Existing dashboard session launch; ad hoc launch is not a
+  prerequisite for selecting a model on existing launches.
+- **Capture:** Terry requested this as the second queued story on 2026-09-30.
+  This selects model choice for future work, extending the earlier default-model
+  boundary and deferral recorded above; it does not authorize implementation.
+
 <a id="mark-done-residue"></a>
 
 ### Correction: Prove the busy-session rename edge and confirm observer shutdown honestly
