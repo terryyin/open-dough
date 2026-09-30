@@ -139,7 +139,7 @@ contradictions.
 
 ### 2. Claude Code planners observe the retained cases through their consumers
 Type: Behavior
-Status: planned
+Status: stopped for human judgment
 Proof: six native Claude Code replays judged against the table, each compared
 with its baseline; other hosts recorded as unclaimed.
 
@@ -169,6 +169,25 @@ both boundary examples keep the retained cheap-observation and probe-slice
 paragraphs. `npm run lint`, `/opt/homebrew/bin/bash tests/payload-declaration-links.sh`,
 `/opt/homebrew/bin/bash tests/compare-payload.sh` and `git diff --check` pass.
 
+**Slice 2 post-change replays (one run per case; transcripts under
+`$CLAUDE_JOB_DIR/tmp/plan176/postchange/`, compared with `baseline/`):**
+
+| Case | Baseline | Post-change |
+| --- | --- | --- |
+| Doughnut 053 | fail | fail; wrong premise ("panel still offered for 2.1 ... Holds by reading"), readiness "ready" |
+| Doughnut 056 | pass | pass |
+| Pygardon 275 | fail | fail; `repair_genome` absent from both |
+| Open-dough 112 | fail | weak pass; names the race test and its `beforePush` use, does not run it |
+| Doughnut 058 | fail | weak pass; states the symptom is "Not reproduced" and makes the first step a probe |
+| Control (plan 175) | sound premises, extra investigation | sound premises, more extra investigation |
+
+Proof limits: one run per case, one host and model, reconstructed inputs, the two
+passes are "names or recommends" rather than "runs", attribution to the placement
+change unverified (baseline already carried the readiness journey rule), other hosts
+unclaimed.
+
 ## Learnings
 
-None yet.
+- Human decision (2026-09-30): stop after the post-change replays without the
+  one allowed revision; the revision-or-accept call stays with the maintainer.
+  Failed or weak: 053, 275, control extra investigation; single samples may be noise.
