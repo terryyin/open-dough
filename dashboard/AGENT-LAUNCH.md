@@ -161,10 +161,16 @@ stacks above the page, it lies over the page from the left, below the banner.
 Sessions that need the developer, by the card's rule, come first, earliest
 launch first; every other session follows, newest launch first. A state change
 moves an entry between the two groups, and a new launch leads the others.
-Each entry names its story's title, wrapped to at most two lines, the project
-and workflow, such as "Pygardon · Refinement", when it was launched, and its
-session's state in the words a card entry uses, with the same heavier edge
-when the developer is needed there (below). The Sessions button, an icon named
+Each entry is one line: its story's title, cut with an ellipsis when it is
+long, and at the end how long ago its session was launched, by the largest
+whole unit ("<1m" under a minute, then "5m", "2h", "3d"), advancing every 30
+seconds. Its state shows by its left border (solid thick red needing input,
+solid thick green ready for review, dashed red failed or stopped, thin blue
+working, thin grey done, dotted grey unknown, unlisted, or not recognized),
+with the state's label visually hidden for assistive technology. The state in
+the words a card entry uses, the project and workflow, such as
+"Pygardon · Refinement", the model asked for, and when it was launched are the
+entry's tooltip. The Sessions button, an icon named
 "Sessions", carries a red badge holding only the number of sessions that need
 attention, counted across every project by the card's rule, open or closed and
 absent when none do; its name says "1 session needs attention" or "<N> sessions
@@ -174,8 +180,7 @@ none kept, "No sessions launched from this dashboard are kept."; and with all
 of them marked done, "No sessions launched from this dashboard are open." A
 session marked done leaves it, as it leaves its card.
 
-Each sidebar entry is one control named by its story's title, project, and
-workflow. Opening it (`src/TerminalSplit.tsx`) shows that project's stories,
+Each sidebar entry is one control named by its story's title. Opening it (`src/TerminalSplit.tsx`) shows that project's stories,
 from the agent roster too, as one history entry that browser Back undoes;
 opens its session in the terminal as Open terminal does, keyboard included,
 where the entry offers it, without attaching a shown session again; and, once

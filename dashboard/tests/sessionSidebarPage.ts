@@ -2,7 +2,7 @@
 // entries show.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { parts, sessionStateOf } from "./dashboardPage.ts";
+import { parts } from "./dashboardPage.ts";
 import { box, expectStackedInOrder } from "./pageLayout.ts";
 
 export function sidebarParts(page: Page) {
@@ -37,14 +37,60 @@ export const sidebarEdges = {
 } as const;
 export type SidebarTone = keyof typeof sidebarEdges;
 
-// The entry shows these state words, the state's label for assistive
-// technology in its own hidden text, and the left border of its tone.
+// The tooltip of a sidebar entry, which holds what the one-line row leaves
+// out: the session's state as a card entry words it, the project and
+// workflow, the model asked for, and the launch time, one to a line.
+export const sidebarTooltipOf = (entry: Locator) => entry.getByRole("button");
+
+const escaped = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// The entry's tooltip has this line, whole.
+export async function expectTooltipLine(
+  entry: Locator,
+  line: string,
+): Promise<void> {
+  await expect(sidebarTooltipOf(entry)).toHaveAttribute(
+    "title",
+    new RegExp(`(^|\\n)${escaped(line)}(\\n|$)`),
+  );
+}
+
+// The row's own text, as seen: what its children show, not the hidden state
+// label.
+const seenTextOf = (entry: Locator) =>
+  entry.evaluate((row) =>
+    [...row.children]
+      .filter(
+        (child) =>
+          !child.classList.contains("visually-hidden") &&
+          child.tagName !== "BUTTON",
+      )
+      .map((child) => child.textContent)
+      .join("|"),
+  );
+
+// The row is one line showing only the title and, at its end, the elapsed
+// time since launch.
+export async function expectRowShows(
+  entry: Locator,
+  title: string,
+  elapsed: string | RegExp = /^(<1m|\d+[mhd])$/,
+): Promise<void> {
+  await expect(entry.getByRole("heading", { level: 3 })).toHaveText(title);
+  await expect(entry.locator(".sidebar-elapsed")).toHaveText(elapsed);
+  const seen = (await seenTextOf(entry)).split("|");
+  expect(seen).toHaveLength(2);
+  expect(seen[0]).toBe(title);
+}
+
+// The entry's state words lead its tooltip, the state's label for assistive
+// technology is in its own hidden text, and the left border is its tone's.
 export async function expectSidebarSessionShown(
   entry: Locator,
   words: string,
   tone: SidebarTone,
 ): Promise<void> {
-  await expect(sessionStateOf(entry)).toHaveText(words);
+  await expectTooltipLine(entry, words);
   const { style, width, color } = sidebarEdges[tone];
   await expect(entry).toHaveCSS("border-left-style", style);
   await expect(entry).toHaveCSS("border-left-width", `${width}px`);
@@ -82,14 +128,19 @@ export async function expectEntries(
     [title, project, workflow, words, tone],
   ] of shown.entries()) {
     const entry = entries.nth(index);
-    await expect(entry.getByRole("heading", { level: 3 })).toHaveText(title);
-    await expect(entry).toContainText(`${project} · ${workflow}`);
-    await expect(entry).toContainText("Launched");
+    await expectRowShows(entry, title);
+    await expectTooltipLine(entry, `${project} · ${workflow}`);
     const launchedAt = Date.parse(
       (await entry.locator("time").getAttribute("datetime")) ?? "",
     );
     expect(launchedAt).toBeGreaterThanOrEqual(since);
     expect(launchedAt).toBeLessThanOrEqual(now);
+    const launched = await entry
+      .locator("time")
+      .evaluate((time) =>
+        new Date(time.getAttribute("datetime") ?? "").toLocaleString(),
+      );
+    await expectTooltipLine(entry, `Launched ${launched}`);
     await expectSidebarSessionShown(entry, words, tone);
   }
 }

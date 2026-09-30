@@ -1,8 +1,8 @@
 // The Sessions sidebar lists every session this dashboard launched and has
 // not marked done, from every catalog project whichever is selected, those
 // that need the developer first, earliest launch first, then the others
-// newest launch first, each with its story's title, project, workflow, launch
-// time, and the state words and attention edge a card entry shows, with a
+// newest launch first, each a line with its story's title and the state's edge
+// (its project, workflow, launch time, and state words are its tooltip), with a
 // badge on the banner's Sessions icon button counting those that need the
 // developer, open or closed. A state change moves an entry between the two
 // groups, and a session marked done leaves. It sits left of the page, beside
@@ -175,17 +175,6 @@ test.describe("the Sessions sidebar", () => {
         since,
       );
       await expect(badge).toHaveCount(0);
-      const title = entries.nth(2).getByRole("heading", { level: 3 });
-      const lineHeight = await title.evaluate((element) =>
-        parseFloat(getComputedStyle(element).lineHeight),
-      );
-      expect((await box(title)).height).toBeLessThanOrEqual(2 * lineHeight + 1);
-      // Its whole text wraps to more than the two lines shown.
-      expect(
-        await title.evaluate(
-          (element) => element.scrollHeight > element.clientHeight,
-        ),
-      ).toBe(true);
     });
 
     await test.step("sessions that need the developer have the heavier edge and are counted across projects, on the button too once closed", async () => {

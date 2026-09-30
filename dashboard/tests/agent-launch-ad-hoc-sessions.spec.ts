@@ -42,6 +42,7 @@ import {
 import { expectSessionShown } from "./sessionStatePace.ts";
 import {
   expectSidebarSessionShown,
+  expectTooltipLine,
   sidebarParts,
 } from "./sessionSidebarPage.ts";
 
@@ -100,7 +101,7 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recent 
   await test.step("the sidebar entry opens Open Dough's stories, its session in the terminal, and reveals its Recent sessions entry", async () => {
     await button.click();
     await expect(entries).toHaveCount(1);
-    await expect(entries.first()).toContainText("Open Dough · Ad hoc");
+    await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
     await entry(text).click();
     await expect(
       project.getByRole("radio", { name: "Open Dough", exact: true }),
@@ -144,7 +145,7 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recent 
       await button.click();
     }
     await expect(entries).toHaveCount(1);
-    await expect(entries.first()).toContainText("Open Dough · Ad hoc");
+    await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
     await expect(sessionStateOf(recent)).not.toHaveText("Done");
   });
 });

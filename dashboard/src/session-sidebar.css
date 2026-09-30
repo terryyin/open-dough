@@ -3,10 +3,9 @@
    on its own while the page scrolls beside it, with the terminal panel still
    on the right: sidebar | page | terminal. On a narrow window, where the
    terminal stacks above the page, it overlays the page from the left, below
-   the pinned banner so the Sessions button stays in reach. Words carry every
-   meaning; the heavier edge of an entry that needs the developer is the
-   card entry's own (`./agent-launch.css`); an entry here marks its state by
-   its left border instead. */
+   the pinned banner so the Sessions button stays in reach. An entry is one line;
+   its state shows by its left border, and its tooltip and hidden label carry
+   the words (`./SidebarEntry.tsx`). */
 
 .page-with-sidebar {
   display: grid;
@@ -35,6 +34,7 @@
 .session-sidebar ol {
   list-style: none;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.5rem;
   margin-top: 0.75rem;
 }
@@ -43,6 +43,9 @@
    terminal shows is current, outlined as its card is. */
 .sidebar-entry {
   position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
 }
 
 .sidebar-entry-open {
@@ -93,15 +96,22 @@
   border-left: 3px dotted var(--edge);
 }
 
-/* A long title wraps to at most two lines; its whole text stays the
-   heading's, for assistive technology and as its tooltip. */
+/* One line: the title, cut with an ellipsis when it is long, and the elapsed
+   time at the end. The whole title stays the heading's, for assistive
+   technology; the entry's tooltip says the rest. */
 .sidebar-title {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  flex: 1 1 auto;
+  min-width: 0;
   overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-size: 0.95rem;
+}
+
+.sidebar-elapsed {
+  flex: none;
+  color: var(--quiet);
+  white-space: nowrap;
 }
 
 .sessions-toggle-group {

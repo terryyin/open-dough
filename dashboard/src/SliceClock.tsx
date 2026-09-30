@@ -5,7 +5,8 @@
 // Once the plan records its execution as complete, that last plan update is
 // the completion commit, and the same clock says how long ago it completed.
 
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { useTickingNow } from "./useTickingNow.ts";
 import type { SliceClock as Clock } from "./sliceClockStart.ts";
 
 // Often enough that a shown minute is never more than a few seconds stale.
@@ -31,16 +32,7 @@ function elapsedWords(ms: number): string {
 
 // "N min ago" from `at`, advancing with page time.
 function Ago({ at }: { at: Date }) {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    setNow(Date.now());
-    const ticking = setInterval(() => {
-      setNow(Date.now());
-    }, tickMs);
-    return () => {
-      clearInterval(ticking);
-    };
-  }, [at]);
+  const now = useTickingNow(tickMs);
   return (
     <time dateTime={at.toISOString()} title={at.toLocaleString()}>
       {elapsedWords(now - at.getTime())} ago

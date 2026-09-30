@@ -90,7 +90,7 @@ state label. State words are still in the row until slice 4.
 
 ### 4. One-line row with elapsed time
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright row text and layout under the page clock; long-title example.
 
 Behavior: a row shows only the truncated story title and, at its end, the
@@ -107,6 +107,7 @@ tooltip; the row stays one line for a long title.
 
 ## Learnings
 
+- Slice 4: row is title + `<time>` elapsed; state reading, project/workflow, model and launch time are the entry button's `title` tooltip (proved as the attribute, not a hover popup); the sidebar row never had Mark as done/Delete. Shared `useTickingNow` now serves `SliceClock` too. A tick's `runFor(30_000)` reads the fake clock at the interval's phase: set a system time whose unit holds for 30 s (80 s, not 90 s). Specs must wait for the first records read (entries present) before `passOnePace`, or the pace races the initial read under load. Narrow-window layout of the one-line row got no visual check.
 - Slice 3: `SessionShown` gained `tone` from one `attentionReadings` table; borders are 5px solid red/green (needs input/ready), 3px dashed red (failed/stopped), 2px solid blue (working), 2px solid grey (done), 3px dotted grey (unsettled); widths are our choice. A done row cannot be observed in the sidebar (done sessions leave it), so its grey edge has no page-level proof. `.visually-hidden` is now shared in `styles.css` (replaced `.session-record-deleted`; its hiding is not asserted by any test). Sidebar specs must use `expectSidebarSessionShown`, not `expectSessionShown`.
 - Slice 2: ordering lives in `openSessionsOf` (sidebar-only consumer); `expectEntries` no longer asserts non-increasing launch times, order is proved by titles. Slice 1's CI failure came from `controlsBesideSessions` (`dashboardPage.ts`) excluding the toggle by text; specs outside `sidebarParts` users can depend on the toggle, so run the full dashboard suite before delivering. `auto-refresh-branches.spec.ts` failed once under full-suite load, passing 4/4 alone.
 - Slice 1: `attentionCount` now lives in `sessionShown.ts` beside `attentionSummary`; the badge's accessible name reuses `attentionSummary`. Badge red `#c62828` and a three-line icon were chosen (story fixes neither); no visual check of badge placement or the narrow-window layout yet. One unreproduced flake seen in `agent-launch-card-delete.spec.ts` ("Delete record… State unknown"); passed on rerun and 6x repeat.

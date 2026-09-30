@@ -30,7 +30,7 @@ import {
   publishMovingOrigin,
   publishOrigin,
 } from "./publishedOrigin.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { expectTooltipLine, sidebarParts } from "./sessionSidebarPage.ts";
 
 let journey: LaunchJourney;
 // Publishing runs production backlog commands against a local origin; give
@@ -189,7 +189,7 @@ test("starting with text sends it in the Open Dough folder, and the session read
   await expect(entries.first().getByRole("heading", { level: 3 })).toHaveText(
     text,
   );
-  await expect(entries.first()).toContainText("Open Dough · Ad hoc");
+  await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
 });
 
 for (const blank of ["", "   "]) {
@@ -234,7 +234,7 @@ test("starting on Pygardon uses Pygardon's folder and lists the session in the s
   const { button, entries } = sidebarParts(page);
   await button.click();
   await expect(entries).toHaveCount(1);
-  await expect(entries.first()).toContainText("Pygardon · Ad hoc");
+  await expectTooltipLine(entries.first(), "Pygardon · Ad hoc");
   const folder = realpathSync(path.join(dashboard.home, "git", "pygardon"));
   expect(dashboard.claudeLaunchCalls()).toEqual([
     {

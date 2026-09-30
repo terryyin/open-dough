@@ -6,7 +6,7 @@ entries, as connected stages. **Start execution** and **Start refinement** on a
 Backlog card ask Claude Code on this machine to execute or refine the story
 (each launch dialog also offers a Model choice: Default, Fable, Opus, or Sonnet),
 **Recent sessions** lists those launches, newest first, the **Sessions**
-sidebar lists every project's open sessions, those needing attention first, its button badged with how many need attention,
+sidebar lists every project's open sessions, those needing attention first, each one line of title and elapsed time, its button badged with how many need attention,
 **Open terminal** shows a launch's session beside the page, and **Mark as
 done** there stops it ([Agent launch](AGENT-LAUNCH.md)).
 **Start session** on the project actions row starts an ad hoc session in the

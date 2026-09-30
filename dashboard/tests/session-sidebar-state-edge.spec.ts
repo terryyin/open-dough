@@ -68,9 +68,15 @@ test.describe("the Sessions sidebar's state edge", () => {
       dashboard.claudeSessionBecomes(sessionId, change);
     }
     const { settled } = await openStoryStagesJourney(page, stagesJourney);
-    const { button, entry: entryControl, sidebar } = sidebarParts(page);
+    const {
+      button,
+      entries,
+      entry: entryControl,
+      sidebar,
+    } = sidebarParts(page);
     await settled();
     await button.click();
+    await expect(entries).toHaveCount(states.length);
     await passOnePace();
 
     for (const [index, [, words, tone]] of states.entries()) {
