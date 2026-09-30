@@ -16,7 +16,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
-  AgentLaunchRequest,
+  StoryLaunchRequest,
   LaunchRecord,
   LaunchWithState,
   LaunchWorkflow,
@@ -37,7 +37,7 @@ import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 export type LaunchAttempt = { readonly kind: "starting" } | LaunchProblem;
 
 // The work item a launch is for, as its request names it.
-export type LaunchWorkItem = Pick<AgentLaunchRequest, "identity" | "title">;
+export type LaunchWorkItem = Pick<StoryLaunchRequest, "identity" | "title">;
 
 export type MachineSessions = {
   // Every project's launch records, oldest first within a project, each with

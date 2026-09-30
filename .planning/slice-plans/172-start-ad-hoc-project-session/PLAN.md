@@ -170,7 +170,7 @@ branch of that function, and no consumer changes again.
 
 ### 2. The launch boundary starts an ad hoc session
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/agent-launch-ad-hoc-boundary.spec.ts`, beside
 `agent-launch-boundary.spec.ts`, over raw HTTP in dev and preview with the
 synthetic `claude` (helpers in `agentLaunchBoundary.ts`), asserting
@@ -354,3 +354,4 @@ and keep the button, dialog and launch first.
 ## Learnings
 
 - Slice 1 accepted: the five named specs plus `agent-terminal-delete.spec.ts` (covers the `deletedEntryHome` path) pass unedited and `npm run typecheck:dashboard` is clean. `claudeLaunch.ts` builds the session name from the workflow name and `request.title` (line ~43); slice 2 decides whether that reads through `launchSubject`.
+- Slice 2 accepted: `agent-launch-ad-hoc-boundary.spec.ts` (22 tests, dev and preview) plus the story boundary, records, refusal and listing specs pass (88), and all `agent-launch`/`agent-terminal` specs pass (171). The label lives in `claudeLaunch.ts` (`recordedRequest`); the record's request is `recordedLaunchRequestSchema` (ad hoc carries the label as `title`); `launchSubject` reads a `RecordedLaunchRequest`.

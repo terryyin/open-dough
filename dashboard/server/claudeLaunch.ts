@@ -11,8 +11,10 @@
 import type { ExecException } from "node:child_process";
 import { stripVTControlCharacters } from "node:util";
 import {
+  launchSubject,
   launchWorkflows,
   type AgentLaunchRequest,
+  type RecordedLaunchRequest,
   type LaunchResult,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
@@ -27,20 +29,77 @@ export type HostLaunch =
   | ({ readonly kind: "launched" } & ListedSession)
   | Exclude<LaunchResult, { readonly kind: "launched" }>;
 
-// The workflow's skill on the work item's identity; the developer's own
-// instruction, when there is one, follows after a blank line.
-function claudeInstruction(request: AgentLaunchRequest): string {
-  const skill = `/${launchWorkflows[request.workflow].skill} ${request.identity}`;
+const labelLimit = 40;
+const months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+// The local time, to the minute, as `30 Sep, 14:32`.
+function launchTime(at: Date): string {
+  const clock = [at.getHours(), at.getMinutes()]
+    .map((part) => String(part).padStart(2, "0"))
+    .join(":");
+  return `${String(at.getDate())} ${months[at.getMonth()] ?? ""}, ${clock}`;
+}
+
+// An ad hoc session's label: the developer's text with whitespace runs
+// collapsed, cut at `labelLimit` characters with an ellipsis; the time the
+// launch began when the text is blank or holds a control character.
+function adHocLabel(instruction: string | undefined, began: Date): string {
+  const text = (instruction ?? "").replace(/\s+/g, " ").trim();
+  if (text === "" || /\p{Cc}/u.test(text)) {
+    return launchTime(began);
+  }
+  const characters = Array.from(
+    new Intl.Segmenter().segment(text),
+    ({ segment }) => segment,
+  );
+  return characters.length > labelLimit
+    ? `${characters.slice(0, labelLimit).join("")}…`
+    : text;
+}
+
+// The request a launch keeps: an ad hoc one titled with its label, the one
+// place the label is derived.
+export function recordedRequest(
+  request: AgentLaunchRequest,
+  began: Date,
+): RecordedLaunchRequest {
+  return request.workflow === "ad-hoc"
+    ? { ...request, title: adHocLabel(request.instruction, began) }
+    : request;
+}
+
+// The workflow's skill on the work item's identity, with the developer's own
+// instruction, when there is one, after a blank line; an ad hoc session has
+// only the instruction as typed, or none.
+function claudeInstruction(request: RecordedLaunchRequest): string | undefined {
   const own = request.instruction?.trim();
+  if (request.workflow === "ad-hoc") {
+    return own ? request.instruction : undefined;
+  }
+  const skill = `/${launchWorkflows[request.workflow].skill} ${request.identity}`;
   return own ? `${skill}\n\n${own}` : skill;
 }
 
-// `<project> · <workflow> · <title>`, as `claude agents` lists it.
+// `<project> · <kind> · <title>`, as `claude agents` lists it.
 function claudeSessionName(
   source: PublishedSource,
-  request: AgentLaunchRequest,
+  request: RecordedLaunchRequest,
 ): string {
-  return `${source.label} · ${launchWorkflows[request.workflow].name} · ${request.title}`;
+  const { name, title } = launchSubject(request);
+  return `${source.label} · ${name} · ${title}`;
 }
 
 // `claude --bg` reports its session as `backgrounded · <id> · <name>`, the id
@@ -115,7 +174,7 @@ function expired(signal: AbortSignal): boolean {
 // started.
 export async function launchClaude(
   source: PublishedSource,
-  request: AgentLaunchRequest,
+  request: RecordedLaunchRequest,
   folder: ProjectFolder,
   signal: AbortSignal,
 ): Promise<HostLaunch> {

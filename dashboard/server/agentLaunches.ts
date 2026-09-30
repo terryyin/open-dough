@@ -20,7 +20,7 @@ import {
 } from "../src/agentLaunch.ts";
 import { catalog, type PublishedSource } from "../src/publishedSource.ts";
 import { claudeSessions } from "./claudeCode.ts";
-import { launchClaude } from "./claudeLaunch.ts";
+import { launchClaude, recordedRequest } from "./claudeLaunch.ts";
 import {
   keepRecord,
   keptRecords,
@@ -140,6 +140,8 @@ export class AgentLaunches {
         explanation: `The project folder ${folder.shown} was not found on this machine. Nothing was launched.`,
       };
     }
+    const began = new Date();
+    const recording = recordedRequest(request, began);
     const controller = new AbortController();
     this.running.add(controller);
     const timer = setTimeout(() => {
@@ -148,7 +150,7 @@ export class AgentLaunches {
     try {
       const launched = await launchClaude(
         source,
-        request,
+        recording,
         folder,
         controller.signal,
       );
@@ -156,7 +158,7 @@ export class AgentLaunches {
         return launched;
       }
       const record: LaunchRecord = {
-        request,
+        request: recording,
         session: launched.session,
         launchedAt: new Date().toISOString(),
       };

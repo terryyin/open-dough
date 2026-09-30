@@ -13,7 +13,7 @@ import type { IncomingMessage } from "node:http";
 import {
   agentLaunchRequestSchema,
   attachOpens,
-  launchWorkflows,
+  launchKindName,
   type AgentLaunchRequest,
   type LaunchRecord,
 } from "../src/agentLaunch.ts";
@@ -157,11 +157,12 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   }
   const request = parsed.data;
   const source = knownSource(request.source);
-  // The request schema admits only the workflows in `launchWorkflows`.
+  // The request schema admits only the workflows in `launchWorkflows` and
+  // ad hoc.
   if (request.host !== "claude") {
     throw new RefusedRequest(
       400,
-      `${launchWorkflows[request.workflow].name} can be launched only in Claude Code.`,
+      `${launchKindName(request.workflow)} can be launched only in Claude Code.`,
     );
   }
   return { kind: "launch", source, request };

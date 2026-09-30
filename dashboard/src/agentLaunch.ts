@@ -55,14 +55,22 @@ export const launchWorkflowNames = Object.keys(launchWorkflows) as [
   ...LaunchWorkflow[],
 ];
 
+// The name of the session a project's actions row starts: no story, no skill.
+export const adHocName = "Ad hoc";
+
+// The name of a request's kind, as a story workflow or ad hoc.
+export function launchKindName(workflow: LaunchWorkflow | "ad-hoc"): string {
+  return workflow === "ad-hoc" ? adHocName : launchWorkflows[workflow].name;
+}
+
 // What a consumer of a launch record needs of its request, spelled once: the
 // title, the work item's identity (none when the request has no card to look
 // up), the kind's name, and how its session is said to have started.
-export function launchSubject(request: AgentLaunchRequest) {
-  const { name } = launchWorkflows[request.workflow];
+export function launchSubject(request: RecordedLaunchRequest) {
+  const name = launchKindName(request.workflow);
   return {
     title: request.title,
-    identity: request.identity as string | undefined,
+    identity: request.workflow === "ad-hoc" ? undefined : request.identity,
     name,
     startedWords: `${name} started in Claude Code`,
   };
@@ -81,7 +89,7 @@ const oneLine = z
   .max(launchTextLimit)
   .regex(/^[^\r\n]*$/);
 
-export const agentLaunchRequestSchema = z.object({
+const storyLaunchRequestSchema = z.object({
   source: z.string().min(1).max(launchTextLimit),
   identity: oneLine,
   title: oneLine,
@@ -90,7 +98,32 @@ export const agentLaunchRequestSchema = z.object({
   instruction: z.string().max(launchInstructionLimit).optional(),
 });
 
+// A session in a project with no story or skill: the request carries no
+// title or identity, since the server derives the label
+// (`../server/claudeLaunch.ts`), and one naming an identity is refused.
+const adHocLaunchRequestSchema = z.strictObject({
+  source: z.string().min(1).max(launchTextLimit),
+  workflow: z.literal("ad-hoc"),
+  host: z.enum(agentHosts),
+  instruction: z.string().max(launchInstructionLimit).optional(),
+});
+
+export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
+  storyLaunchRequestSchema,
+  adHocLaunchRequestSchema,
+]);
+
+export type StoryLaunchRequest = z.infer<typeof storyLaunchRequestSchema>;
 export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
+
+// The request a record keeps: an ad hoc one with the label the server
+// derived as its title.
+const recordedLaunchRequestSchema = z.discriminatedUnion("workflow", [
+  storyLaunchRequestSchema,
+  adHocLaunchRequestSchema.extend({ title: oneLine }),
+]);
+
+export type RecordedLaunchRequest = z.infer<typeof recordedLaunchRequestSchema>;
 
 // The session a host started, as the host itself lists it: `shortId` is what
 // the host's own commands (`claude attach <shortId>`) take.
@@ -111,7 +144,7 @@ export const launchRetentionDays = 30;
 // the developer marked its session done (`./doneMark.ts`), if they ever do,
 // with when they did: local evidence only, never a story fact.
 export const launchRecordSchema = z.object({
-  request: agentLaunchRequestSchema,
+  request: recordedLaunchRequestSchema,
   session: hostSessionSchema,
   launchedAt: z.iso.datetime(),
   doneAt: z.iso.datetime().optional(),
@@ -174,7 +207,8 @@ export function cardSessionsOf(
   identity: string,
 ): readonly LaunchWithState[] {
   return (projectSessionsOf(records, sourceId) ?? []).filter(
-    (record) => record.request.identity === identity && isOpen(record),
+    (record) =>
+      launchSubject(record.request).identity === identity && isOpen(record),
   );
 }
 
