@@ -9,6 +9,9 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/story-branch-closure
 # shellcheck source=tests/support/story-branch-closure-native-assess.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/story-branch-closure-native-assess.sh"
+# shellcheck source=tests/support/story-branch-closure-native-observer-counterexamples.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/story-branch-closure-native-observer-counterexamples.sh"
 
 story_closure_trunk_mailbox() {
   local directory
@@ -74,6 +77,7 @@ story_closure_write_evidence_identity() {
     tests/support/git-publication-native-host.sh \
     tests/support/story-branch-closure-native-run.sh \
     tests/support/story-branch-closure-native-assess.sh \
+    tests/support/story-branch-closure-native-observer-counterexamples.sh \
     tests/support/story-branch-closure-native-response.sh \
     tests/support/native-response-field.sh \
     tests/support/native-completion-observation.sh \

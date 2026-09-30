@@ -135,10 +135,18 @@ command above.
 
 ### 1. Pin the two unproven observers with free counterexamples
 Type: Structure
-Status: planned
+Status: done
 Proof: a fixture-only observation of the story-branch closure and of the
 ci-completion journey (scenarios `pending` and `ready`) passes through the new counterexamples with the field list
 recorded from the unchanged code; `git-publication-native.sh` runs them.
+
+Done: `story-branch-closure-native-observer-counterexamples.sh` (states
+`fresh`, `integrated`) and `ci-completion-native-observer-counterexamples.sh`
+(`pending`, `ready`) diff the normalized observation against the recorded field
+list; the free proof command and lint pass. Learning: the counterexample guard
+flags a bare `pending` or `ready` argument, so the story states are named
+`fresh` and `integrated`; later observer counterexamples take state names from
+a variable or use other names.
 
 Enables slices 4 and 6: the observe move is judged against a recorded
 observation rather than by reading. Pin field names and order and normalize the per-run SHAs and paths, using the

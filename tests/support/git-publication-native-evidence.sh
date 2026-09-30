@@ -55,6 +55,7 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-host.sh \
         tests/support/ci-completion-native-run.sh \
         tests/support/ci-completion-native-assess.sh \
+        tests/support/ci-completion-native-observer-counterexamples.sh \
         tests/support/native-completion-observation.sh \
         tests/support/ci-completion-native-fixture.sh \
         tests/support/native-completion-observation.sh \

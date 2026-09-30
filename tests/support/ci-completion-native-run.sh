@@ -13,6 +13,9 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-ob
 # shellcheck source=tests/support/ci-completion-native-assess.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/ci-completion-native-assess.sh"
+# shellcheck source=tests/support/ci-completion-native-observer-counterexamples.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/ci-completion-native-observer-counterexamples.sh"
 
 ci_completion_observe() {
   local scenario=$1
