@@ -103,8 +103,9 @@ own list check, because the payload lists are read by distributed consumers.
 
 ### 1. Skill continues from an established preparation
 Type: Behavior
-Status: planned
+Status: done
 Proof: `node --test src/skills/dough-story-refinement/scripts/established-preparation-guidance.test.mjs` plus the existing install-list test.
+Accepted: the guidance test passed (4 tests: skip links, reference content, formatter order, optional omission); `tests/payload-declaration-links.sh` and `tests/install-public-payload.sh` (run with Homebrew bash; system bash lacks `local -A`) exited 0. No test lists individual payload files.
 
 Behavior: an instruction carrying an **Established preparation** block
 (identity, workspace, branch, remote, target, agent, and `publishedSha`,
@@ -212,4 +213,5 @@ offer. `keptStarts` carries the workflow.
 
 ## Learnings
 
-None yet.
+- `tests/*.sh` payload checks need a newer bash than macOS system bash.
+- `established-preparation.mjs` has no caller until slice 3.

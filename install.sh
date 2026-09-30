@@ -119,6 +119,7 @@ managed_files=(
   dough-story-decomposition/references/problem-decomposition.md
   dough-story-decomposition/references/seed-format.md
   dough-story-refinement/SKILL.md
+  dough-story-refinement/references/established-preparation.md
   dough-story-refinement/references/executable-proof.md
   dough-story-refinement/references/planning.md
   dough-story-refinement/references/preparation-assignment.md
@@ -126,6 +127,7 @@ managed_files=(
   dough-story-refinement/references/preparation-lost-workspace.md
   dough-story-refinement/references/preparation-workspace.md
   dough-story-refinement/references/refinement-options.json
+  dough-story-refinement/scripts/established-preparation.mjs
   dough-story-refinement/scripts/preparation-assignment.mjs
   dough-story-refinement/scripts/preparation-assignment-abandon.mjs
   dough-story-refinement/scripts/preparation-assignment-lost-workspace.mjs

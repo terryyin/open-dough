@@ -43,8 +43,11 @@ missing and stop the affected activity. Do not invent project paths or decisions
 
 Read and follow [planning scope and lifecycle](references/planning.md) for the
 conversation, scope decisions, optional UI and architecture detail, seed updates,
-and cleanup after implementation. Before writing to a story's seed, establish
-or reuse the required workspace under
+and cleanup after implementation. When your instruction
+carries an established preparation, follow
+[established preparation](references/established-preparation.md) instead of the
+workspace and announcement steps below. Before writing to a story's seed,
+establish or reuse the required workspace under
 [preparation workspace](references/preparation-workspace.md), then, for a
 queued story, [announce the preparation assignment](references/preparation-assignment.md#announce-the-preparation-assignment);
 refinement discussion and clarifying questions need neither on their own. After the
