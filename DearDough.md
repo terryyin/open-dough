@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 189. Removed local codes are never reused.
+- Highest allocated local number: 190. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -306,3 +306,11 @@ Wrap-up rewrites a queued correction's own provenance, changing its plan or stor
 Follow-up: Open, unqueued.
 
 - Execution: `SEED-052#preparing-card-refinement-journey` / plan 154, before its claim `f9fe3fdc` - Timestamp: unknown; the refusal preceded reassessment commit `3da84888` (2026-09-29, same session) - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; repository guidance at `fd077d1d` - Evidence: same refusal. Closure `fd077d1d` of the parent SEED-052#recent-sessions-residue rewrote this correction's own Scope provenance and its plan's Source/Provenance lines (branch refs to merged and closed-history refs) without reassessing; both digests changed. - Observed effect: one diagnosis, one record-state, one direct trunk commit, and a start retry. Inference: any correction a retrospective creates can be invalidated this way by its parent's wrap-up; the sibling-section fix does not cover it.
+
+## DD-190 — Delegated slices skip lint and read-list specs, so CI is the first to catch them
+
+A shared read boundary and a spec file changed under a "no format, no lint" delegation; the coordinator's own format failure was hidden by a piped command chain, so both defects reached remote CI.
+
+Follow-up: Open, unqueued.
+
+- Execution: `SEED-060#odd-e-nerds-agent-collection` / plan 177, first related implementation commit `6befd854` - Timestamp: 2026-09-30T14:10:00+08:00 (CI run 36676898928; repairs `57505b5d`, `f70185e6`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown - Evidence: slice 4 delivery ran `npm run format 2>&1 | tail -2; ...` whose output ended "Format failed: unresolved findings" (no-redundant-type-constituents in the new settings spec) yet the chain committed and published `03d6d10a`. The same push failed dashboard shards because `authenticated-project-overview.spec.ts` (exact pinned-read list, not in the agent's focused set) and fake-origin `git show` stderr in launch specs were never run. - Observed effect: two owned repair commits and two failing CI runs for one slice. - Inference: Qualified. The delegation forbade lint and named a focused set chosen from the reachability grep, so specs that enumerate reads were outside it; the coordinator's masked exit status was a separate slip. Not shown to recur in another execution.

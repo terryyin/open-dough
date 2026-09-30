@@ -115,3 +115,9 @@ post-condition: the roster names the agents of the collection the project select
 - A profile from either collection stays recognized whatever the setting says.
 - Photos never enter Git in this delivery.
 - A failed (non-404) read of the setting fails the roster read visibly rather than falling back to the current collection; only a 404 means absent.
+
+## Execution complete
+
+Product advice: No backlog change. Publishing the photos (and Terry's permission
+to push them) stays deferred exactly as the seed states; until then the cards and
+roster show names alone wherever the local photos are absent.
