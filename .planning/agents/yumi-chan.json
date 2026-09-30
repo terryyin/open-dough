@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yumi-chan",
+  "email": "yumi-chan@example.org",
+  "identity": "SEED-052#mac-human-attention-alert",
+  "mode": "story-branch",
+  "branch": "claude/mac-human-attention-alert",
+  "host": "claude",
+  "model": "claude-sonnet-5-5"
+}

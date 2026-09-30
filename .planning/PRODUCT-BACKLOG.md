@@ -15,6 +15,7 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Land changes made on the default checkout by committing to main and syncing](seeds/SEED-008-worktree-branch-trunk-sync.md#land-from-default-checkout) — SEED-008#land-from-default-checkout ([plan](slice-plans/170-land-from-default-checkout/PLAN.md))
+- [Alert the developer on Mac when a session needs human attention](seeds/SEED-052-start-agent-work-from-dashboard.md#mac-human-attention-alert) — SEED-052#mac-human-attention-alert ([plan](slice-plans/174-mac-human-attention-alert/PLAN.md))
 
 ## Backlog list
 
@@ -23,7 +24,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Select the Odd-e nerds agent names and avatars through configuration](seeds/SEED-060-odd-e-nerds-agent-collection.md#odd-e-nerds-agent-collection) — SEED-060#odd-e-nerds-agent-collection
 - [Choose and compose styles for story refinement](seeds/SEED-057-composable-story-refinement-styles.md#composable-refinement-styles) — SEED-057#composable-refinement-styles
 - [Reassess the native test architecture so its files are cohesive and short](seeds/SEED-055-trustworthy-project-proof.md#reassess-native-test-architecture) — SEED-055#reassess-native-test-architecture
-- [Alert the developer on Mac when a session needs human attention](seeds/SEED-052-start-agent-work-from-dashboard.md#mac-human-attention-alert) — SEED-052#mac-human-attention-alert
 - [Choose the model when starting a session](seeds/SEED-052-start-agent-work-from-dashboard.md#choose-session-model) — SEED-052#choose-session-model
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
