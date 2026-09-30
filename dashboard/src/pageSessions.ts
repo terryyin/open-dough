@@ -3,11 +3,10 @@
 // again once its terminal attaches, each asked with one request shape. The
 // page provides them (`./TerminalSplit.tsx`), and a session entry on a card,
 // in Recent sessions, or in the Sessions sidebar reaches opening and marking
-// without every component between them passing them along. Each Open terminal
-// and each session entry names its session, so the page can find where to
-// return the keyboard and bring the entry into view. The page also says which
-// session its terminal shows. Every Mark as done control follows its mark the
-// same way (`useMarking`).
+// without every component between them passing them along. Each session entry
+// names its session, so the page can find where to bring the entry into view.
+// The page also says which session its terminal shows. Every Mark as done
+// control follows its mark the same way (`useMarking`).
 
 import { createContext, useContext, useState } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
@@ -43,32 +42,11 @@ export type PageSessions = {
   readonly shownInTerminal: string | undefined;
 };
 
-// The attributes by which an Open terminal names the session it opens, and a
-// session entry the session it shows.
-const opensSessionAttribute = "data-opens-session";
+// The attribute by which a session entry names the session it shows.
 const showsSessionAttribute = "data-shows-session";
-
-export function opensSession(sessionId: string) {
-  return { [opensSessionAttribute]: sessionId };
-}
 
 export function showsSession(sessionId: string) {
   return { [showsSessionAttribute]: sessionId };
-}
-
-// Where the keyboard goes when the control that opened the session's terminal,
-// or marked it done, is gone, as a card's entry goes once its session is
-// marked done: the Open terminal of the session's Recent sessions entry; the
-// entry itself when it offers none; Recent sessions when the session's entry
-// is not on the page, as when another project is selected.
-export function sessionKeyboardHome(sessionId: string): HTMLElement | null {
-  return (
-    document.querySelector<HTMLElement>(
-      `.recent-sessions [${opensSessionAttribute}="${CSS.escape(sessionId)}"]`,
-    ) ??
-    recentSessionsEntry(sessionId) ??
-    document.querySelector<HTMLElement>(".recent-sessions")
-  );
 }
 
 // The session's Recent sessions entry, while the page shows it.

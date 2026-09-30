@@ -13,9 +13,8 @@
 // page's one operation (`./TerminalSplit.tsx`). While the page's terminal
 // shows its session, an entry says "Shown in terminal", outlined in Recent
 // sessions, and the card listing it is outlined. Every entry names its
-// session, so a Recent sessions entry can take the keyboard when the control
-// that last had it is gone. Entries are local evidence of launches, not story
-// facts.
+// session, so the Sessions sidebar can find and reveal it when no card lists
+// it. Entries are local evidence of launches, not story facts.
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { launchWorkflows, type LaunchWithState } from "./agentLaunch.ts";

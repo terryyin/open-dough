@@ -197,7 +197,7 @@ keeps running, and shows the other in the same panel. An entry whose story is
 in no list opens the same way. **Close** removes the panel and detaches only:
 the session keeps running, and its Open terminal is offered again. The
 keyboard returns to the Open terminal that opened the panel while it is still
-on the page, and otherwise to the session's Recent sessions entry. The open
+on the page. The open
 terminal is page state, so switching projects keeps it attached to the same
 session, and a reload starts without one. When the connection drops, as when
 the dashboard server restarts, the panel says "Disconnected from the session"
@@ -227,9 +227,7 @@ cannot be read; a session Claude Code no longer lists is only marked. A panel
 showing the session closes. The panel or card entry says "The session could
 not be marked done." if the boundary refused the mark or no answer came.
 The session leaves its card, and the keyboard returns to the control that
-opened the panel, or asked for the mark, while it is on the page; otherwise
-to the session's Recent sessions entry: its Open terminal, the entry itself
-when it offers none, or Recent sessions when the entry is not shown. That
+opened the panel while it is on the page. Its Recent sessions
 entry shows **Done** and "Named done-<name>", even for a session Claude Code
 no longer lists, and still offers Open terminal while Claude Code keeps the
 conversation. Opening it there reopens the session: once the terminal shows

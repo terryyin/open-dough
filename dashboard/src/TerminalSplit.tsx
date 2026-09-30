@@ -14,13 +14,10 @@
 // (`./workFocus.ts`). Mark as done, from the panel or from a card's session
 // entry, is one operation here: once the boundary has marked the session, a
 // panel showing it closes. Closing returns the keyboard to the control that
-// opened the panel, and a card entry's mark to its own control; when that
-// control is gone, as a card's entry goes once its session is marked done, the
-// keyboard goes to the session's Recent sessions entry
-// (`sessionKeyboardHome`). A panel another session has already replaced moves
-// no focus when it closes. Once the panel shows output from a session the
-// page holds as done, the page reads that session again, since the boundary
-// reopens a done session its terminal attaches to
+// opened the panel while it is on the page. A panel another session has
+// already replaced moves no focus when it closes. Once the panel shows output
+// from a session the page holds as done, the page reads that session again,
+// since the boundary reopens a done session its terminal attaches to
 // (`../server/agentTerminals.ts`). Opening, going to a sidebar entry's
 // session, marking, and reading again each take the same request
 // (`./pageSessions.ts`).
@@ -44,7 +41,6 @@ import type { OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
   recentSessionsEntry,
-  sessionKeyboardHome,
   SessionsOnPage,
   type MarkSessionDone,
   type OpenTerminal,
@@ -55,10 +51,9 @@ import { keepInView, workCard } from "./workFocus.ts";
 import "./agent-terminal.css";
 
 // The keyboard's return once the page shows what was asked: the control to
-// return it to, the session, and the terminal the page then shows.
+// return it to and the terminal the page then shows.
 type KeyboardReturn = {
   readonly control: HTMLElement;
-  readonly sessionId: string;
   readonly shows: SessionRequest | undefined;
 };
 
@@ -104,10 +99,9 @@ export function TerminalSplit({
     if (returning === undefined || shown.current !== returning.shows) {
       return;
     }
-    const control = returning.control.isConnected
-      ? returning.control
-      : sessionKeyboardHome(returning.sessionId);
-    control?.focus();
+    if (returning.control.isConnected) {
+      returning.control.focus();
+    }
   }, [returning]);
   const closeTerminal = (closed: SessionRequest) => {
     if (shown.current !== closed) {
@@ -116,7 +110,6 @@ export function TerminalSplit({
     setTerminal(undefined);
     setReturning({
       control: closed.control,
-      sessionId: closed.record.session.sessionId,
       shows: undefined,
     });
   };
@@ -180,15 +173,7 @@ export function TerminalSplit({
     return shown === null ? undefined : keepInView(shown);
   }, [going, stories.selected, stories.shown]);
   const markSessionDone: MarkSessionDone = async (request) => {
-    const { record, control } = request;
     const marked = await markClosing(request);
-    if (marked === "marked") {
-      setReturning({
-        control,
-        sessionId: record.session.sessionId,
-        shows: shown.current,
-      });
-    }
     return marked !== "not-marked";
   };
 

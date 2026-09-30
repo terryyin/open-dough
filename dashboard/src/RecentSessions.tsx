@@ -5,9 +5,7 @@
 // whose story is in no list, or one marked done.
 // Each entry (`./SessionEntry.tsx`) names its story and shows its session's
 // state as Claude Code last listed it, read again at the page's steady pace.
-// It takes the keyboard when a session marked done has no entry here, as when
-// another project is selected. Entries are local evidence of launches, not
-// story facts.
+// Entries are local evidence of launches, not story facts.
 
 import {
   launchRetentionDays,
@@ -32,7 +30,6 @@ export function RecentSessions({
     <section
       className="recent-sessions"
       aria-labelledby="recent-sessions-heading"
-      tabIndex={-1}
     >
       <h2 id="recent-sessions-heading">Recent sessions</h2>
       <p className="quiet">
