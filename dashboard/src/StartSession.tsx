@@ -10,7 +10,11 @@
 // to start again.
 
 import { useId, useState } from "react";
-import { adHocName, type LaunchWithState } from "./agentLaunch.ts";
+import {
+  adHocName,
+  type LaunchChoices,
+  type LaunchWithState,
+} from "./agentLaunch.ts";
 import type { LaunchAttempt } from "./agentLaunches.ts";
 import { LaunchDialog, useLaunchDialogLauncher } from "./LaunchDialog.tsx";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
@@ -28,7 +32,7 @@ export function StartSession({
   readonly attempt: LaunchAttempt | undefined;
   // Answers the launched session, which then takes the keyboard.
   readonly onStart: (
-    instruction: string,
+    choices: LaunchChoices,
   ) => Promise<LaunchWithState | undefined>;
 }) {
   const starting = attempt?.kind === "starting";
@@ -73,8 +77,8 @@ export function StartSession({
           description={`Claude Code starts a background session on this machine, in this project's folder, with no story or skill. It is listed as ${project} · ${adHocName}.`}
           fieldLabel="What would you like to talk about? (optional)"
           starting={starting}
-          onStart={async (instruction) => {
-            const record = await onStart(instruction);
+          onStart={async (choices) => {
+            const record = await onStart(choices);
             if (record === undefined || launcher.current === null) {
               return false;
             }

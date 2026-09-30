@@ -142,6 +142,12 @@ export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
 export type StoryLaunchRequest = z.infer<typeof storyLaunchRequestSchema>;
 export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
 
+// What a launch dialog hands its caller: the developer's choices among the
+// request's options, as typed, before the request trims and omits them.
+export type LaunchChoices = {
+  readonly instruction: NonNullable<StoryLaunchRequest["instruction"]>;
+};
+
 // The request a record keeps: an ad hoc one with the label the server
 // derived as its title.
 const recordedLaunchRequestSchema = z.discriminatedUnion("workflow", [

@@ -11,7 +11,7 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { launchInstructionLimit } from "./agentLaunch.ts";
+import { launchInstructionLimit, type LaunchChoices } from "./agentLaunch.ts";
 import "./agent-launch.css";
 
 // The action's side of the dialog: its button, whether the dialog is open, and
@@ -65,7 +65,7 @@ export function LaunchDialog({
   readonly fieldLabel: string;
   readonly fieldHint?: ReactNode;
   readonly starting: boolean;
-  readonly onStart: (instruction: string) => Promise<boolean>;
+  readonly onStart: (choices: LaunchChoices) => Promise<boolean>;
   // Whether a launched session took the keyboard.
   readonly onClose: (launched: boolean) => void;
 }) {
@@ -93,7 +93,9 @@ export function LaunchDialog({
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          void onStart(instruction.current?.value ?? "").then((started) => {
+          void onStart({
+            instruction: instruction.current?.value ?? "",
+          }).then((started) => {
             launched.current = started;
             dialog.current?.close();
           });

@@ -159,7 +159,7 @@ one place.
 
 ### 2. A launch dialog hands its caller one launch-options value
 Type: Structure
-Status: planned
+Status: done
 Proof: unchanged behavior. `agent-launch-card.spec.ts`,
 `agent-launch-card-problems.spec.ts`, `agent-launch-ad-hoc.spec.ts`,
 `agent-launch-ad-hoc-terminal.spec.ts` pass unedited and
@@ -230,6 +230,9 @@ the North Star, removes the topic, and keeps the seed's Goal and Scope only
 
 - With `exactOptionalPropertyTypes` on, `startClaudeInBackground`'s options type
   spells `T | undefined` instead of using `?` fields.
+- `LaunchChoices` derives from the request's `instruction` field with
+  `NonNullable<...>`; `Required<Pick<...>>` kept `| undefined` and failed
+  the typecheck.
 
 ## Accepted proof
 
@@ -240,3 +243,10 @@ the North Star, removes the topic, and keeps the seed's Goal and Scope only
   dashboard/tests/agent-launch-records.spec.ts --reporter=line` → 73 passed
   (raw HTTP in dev and preview, synthetic `claude`, `claudeLaunchCalls`);
   `npm run typecheck:dashboard` clean. The three existing specs are unedited.
+- Slice 2: `npx playwright test --config dashboard/playwright.config.ts
+  dashboard/tests/agent-launch-card.spec.ts
+  dashboard/tests/agent-launch-card-problems.spec.ts
+  dashboard/tests/agent-launch-ad-hoc.spec.ts
+  dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts --reporter=line` → 18
+  passed, specs unedited (browser, launch requests intercepted, no real
+  `claude`); `npm run typecheck:dashboard` clean.

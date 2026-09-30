@@ -18,6 +18,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   AgentLaunchRequest,
   StoryLaunchRequest,
+  LaunchChoices,
   LaunchRecord,
   LaunchWithState,
   LaunchWorkflow,
@@ -59,14 +60,14 @@ export type MachineSessions = {
     sourceId: string,
     work: LaunchWorkItem,
     workflow: LaunchWorkflow,
-    instruction: string,
+    choices: LaunchChoices,
   ): Promise<LaunchWithState | undefined>;
   // Starts an ad hoc session in the project, with the developer's optional
   // first message, and answers the launched record once the boundary confirms
   // one. A problem is kept nowhere yet.
   startAdHoc(
     sourceId: string,
-    instruction: string,
+    choices: LaunchChoices,
   ): Promise<LaunchWithState | undefined>;
   // The project's ad hoc launch in flight or its last failed or uncertain
   // answer.
@@ -93,7 +94,7 @@ const attemptKey = (
 const adHocKey = (sourceId: string) => attemptKey(sourceId, "", "ad-hoc");
 
 // Trimmed text, omitted when empty, as the boundary takes it.
-const instructionOf = (instruction: string) => {
+const instructionOf = ({ instruction }: LaunchChoices) => {
   const own = instruction.trim();
   return own === "" ? {} : { instruction: own };
 };
@@ -215,7 +216,7 @@ export function useAgentLaunches(): MachineSessions {
       sourceId: string,
       work: LaunchWorkItem,
       workflow: LaunchWorkflow,
-      instruction: string,
+      choices: LaunchChoices,
     ) =>
       launch(attemptKey(sourceId, work.identity, workflow), {
         source: sourceId,
@@ -223,18 +224,18 @@ export function useAgentLaunches(): MachineSessions {
         title: work.title,
         workflow,
         host: "claude",
-        ...instructionOf(instruction),
+        ...instructionOf(choices),
       }),
     [launch],
   );
 
   const startAdHoc = useCallback(
-    (sourceId: string, instruction: string) =>
+    (sourceId: string, choices: LaunchChoices) =>
       launch(adHocKey(sourceId), {
         source: sourceId,
         workflow: "ad-hoc",
         host: "claude",
-        ...instructionOf(instruction),
+        ...instructionOf(choices),
       }),
     [launch],
   );
