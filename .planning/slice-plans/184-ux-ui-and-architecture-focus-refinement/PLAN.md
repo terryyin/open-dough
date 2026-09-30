@@ -267,3 +267,7 @@ any delivered actions.
 - CI: the delivered revisions failed only the nerds-roster count tests
   (`30 !== 26`), already failing on trunk before this branch and fixed on trunk
   by `910dff98`; not this execution's failure, no repair.
+
+## Execution complete
+
+Product advice: No new backlog work. Outcome review found the one options definition holds both focuses under `focuses` with one `focusSelection` rule that names no action, so delivery order with the other actions does not matter, and no competing representation exists. The queued dashboard story (SEED-061) can now offer the two focuses from that definition. One residual, judged by single subagent runs: "favoring neither" leaned once in a conflict-story run and was not measured over repeats; revisit only if a real refinement shows it.

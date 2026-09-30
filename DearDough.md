@@ -365,3 +365,11 @@ Follow-up: Open, unqueued.
   - Evidence: coordinator conversation: task `Implement slice 1 icon toggle badge` reported "completed ... may still be running background work" with a growing tool-use count (47 to 54) on each repeat; the repeats stopped after `TaskStop` on that task.
   - Observed effect: each repeat cost a turn and about 1.5k tokens of duplicated report to read and dismiss, and risked being mistaken for new work.
   - Inference: Qualified. The agent appears to have re-emitted its hand-back each time it resumed; the cause inside the agent is not in the record. Stopping the completed task ended it; guidance does not say to do so.
+- Execution: `SEED-057#shape-interaction-within-system-constraints` / plan 184, first related implementation commit `c64ee06a`
+  - Timestamp: unknown (session date 2026-09-30; between slice 1 acceptance and its refactor pass)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-sonnet-5-5
+  - Open Dough release: unknown
+  - Evidence: coordinator conversation: the slice 1 agent's identical final report arrived as a hand-back message and completed-task notification about six times, with a growing tool-use count (34 to 37); the repeats stopped after `TaskStop` on that task.
+  - Observed effect: each repeat cost a turn and a duplicated report to read and dismiss while the refactor agent and later work were pending.
+  - Inference: Qualified. Same pattern as the first occurrence; the agent's own cause is not in the record.
