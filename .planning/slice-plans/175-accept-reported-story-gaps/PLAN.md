@@ -195,3 +195,13 @@ examined the drop consequence); harmless gap ACCEPT; sufficient-unchanged-proof
 control RETURN (fail, partly an artifact of an invented E2E command in the
 reconstructed return). Attribution to guidance is weak for three defect cases;
 only ODF-185 reproduces the failure. Slice 2 compares against this.
+
+## Execution complete
+
+Product advice: No correction story. At wrap-up, record on ODF-138, ODF-139,
+ODF-185 and ODF-196 the response (the new "Accept proof" paragraph in
+`wrap-up.md`), implementation commits `b7930baf` and `3984e85c`, release
+pending, and the proof limits (Claude Code only, reconstructed returns, one run
+per case; only ODF-185 reproduced the failure at baseline, so attribution is weak
+for the other three). Start a watch only from verified relevant use. Codex and
+Cursor acceptance is unclaimed; the owner may queue it.
