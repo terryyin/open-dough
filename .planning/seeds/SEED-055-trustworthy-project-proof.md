@@ -95,37 +95,6 @@ projections that came out wrong.
 - **Safe stopping point:** The shared reader is proved on the corpus for all
   three hosts and the publication journeys read through it.
 
-<a id="assessor-counterexample-gaps"></a>
-
-### Correction: Close the assessor counterexample discipline's remaining gaps
-
-**Identity:** SEED-055#assessor-counterexample-gaps
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/168-assessor-counterexample-gaps/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"47b378b0ff58b9a1229f56ec0d34ed8f5519beba75a895cf19106d91e851f2d3","plan":"7d4985ebedb6170e8bdfe399cc45e25d9320afbcfab8fbba203c86baa58611a7"}}
-```
-
-**Goal:** The maintainer paying for native acceptance runs can trust that
-the native assessor counterexample discipline holds where it claims to. The guard
-catches the remaining ways to state a rejection outside the helper.
-Self-reported preparation and every CI completion scenario have rejected
-cases. The publication assessor reads fields regardless of order.
-
-**Scope:** The correction found by the execution retrospective of
-SEED-055#assessor-counterexample-discipline (commits `a53aa489`..`c6440780` on
-`claude/assessor-counterexample-discipline`). It covers these items:
-
-- rejection shapes the guard misses, and verdict wrappers that accept any
-  verdict;
-- the dropped preparation self-report case;
-- CI completion's `ready`, `failure`, and `skip-retro` scenarios, which have
-  no free cases;
-- the order-sensitive publication field reader;
-- a contradictory forced-stop case;
-- duplicated re-observed wrappers and undocumented signal placement.
-
-It adds no feature promise. See the
-[plan](../slice-plans/168-assessor-counterexample-gaps/PLAN.md).
-
 <a id="native-harness-replay-corrections"></a>
 
 ### Correction: Correct continued-command reading and corpus admission in the native harness
@@ -165,9 +134,7 @@ in two executions, is open, and has no existing fix. The stories are
 independent. Story 2 goes first because it is small and protects story 1:
 native work regrows `tests/git-publication-native.sh`, the job nearest its
 ceiling (41.5 s after its 2026-09-28 split, 40.0–51.4 s over the next trunk
-runs), and story 1 is the likeliest next slice bound by that budget. The
-correction closes gaps the counterexample discipline's execution retrospective
-found.
+runs), and story 1 is the likeliest next slice bound by that budget.
 
 ## Breadcrumbs
 

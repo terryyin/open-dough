@@ -14,11 +14,14 @@ executions, not commands, retries, or repairs.
 ## Priority assessment
 
 1. **Native acceptance harness observations that do not match what the native
-   agent did — first, queued.** Two executions remain (plans 139 and 154),
+   agent did — first, correction done.** Two executions remain (plans 139 and 154),
    after DD-179's harness observation faults were resolved: an assessor
    ordering defect that cost a transcript investigation, and a loosened
    assessor that accepted failure reports. Story:
-   [Close the assessor counterexample discipline's remaining gaps](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps)
+   the assessor counterexample discipline's remaining-gaps correction, done at
+   `b6a3ac18` (story and plan recoverable from
+   `b6a3ac18:.planning/seeds/SEED-055-trustworthy-project-proof.md` and
+   `b6a3ac18:.planning/slice-plans/168-assessor-counterexample-gaps/PLAN.md`)
    (DD-160, DD-175, ODF-087's harness facet; the counterexample helper and its
    guard landed, and this correction closes what they still miss).
 2. **Native host runs and observations routed through the developer — low,
@@ -91,8 +94,8 @@ owns its harness facet.
 Each concrete fault below was repaired in its own execution: `afa43926`
 (DD-160) and plan 158 (`8dff3ac0`, DD-175).
 
-**Follow-up:** queued,
-[Close the assessor counterexample discipline's remaining gaps](.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps)
+**Follow-up:** done at `b6a3ac18`, the assessor counterexample discipline's
+remaining-gaps correction,
 for DD-160, DD-175, and ODF-087's harness facet, after the counterexample
 helper and its guard landed.
 
