@@ -116,7 +116,9 @@ PATH as well (`brew install shellcheck shfmt` on macOS).
 JavaScript uses ESLint's recommended rules plus strict equality, brace, unused
 argument, mutation, and unsafe-construct checks. [ShellCheck](https://github.com/koalaman/shellcheck)
 enables every optional check and reports every severity; ESLint allows zero
-warnings. Shell discovery includes tracked and untracked files, honors Git
-ignores, and recognizes `.sh`, `.bash`, `.ksh`, `.bats`, and shell shebangs on
-extensionless files. JavaScript and JSON checks exclude dependencies, build
-output, coverage, and planning metadata.
+warnings. Every check covers the same files: those Git tracks plus untracked
+files Git does not ignore, so ignored build output, reports, and `.worktrees/`
+copies at any depth are never checked, and a worktree is checked only when lint
+runs inside it. Shell checks recognize `.sh`, `.bash`, `.ksh`, `.bats`, and
+shell shebangs on extensionless files. JavaScript and JSON checks also skip
+planning metadata and the paths `.prettierignore` names.
