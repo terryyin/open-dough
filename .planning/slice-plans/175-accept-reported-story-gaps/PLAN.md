@@ -117,7 +117,7 @@ retrospective and wrap-up gates.
 ### 1. Acceptance tests reported gaps against the story
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior review of all six examples above against the revised text;
 deterministic prose checks above.
 
@@ -151,8 +151,28 @@ under Accepted proof. A failure follows the once-only revision rule.
 
 ## Accepted proof
 
-None yet.
+Slice 1: added one paragraph after the missing-observation paragraph in
+`src/skills/dough-execute-plan/references/wrap-up.md` "Accept proof". Behavior
+review: the sentence "A gap that contradicts the goal or a key example returns
+to implementation in the same slice, even when the story never lists it"
+produces the ODF-185 and ODF-139 returns ("a test that pins the loss is not
+proof of the example"); "check the example in its real shape" produces the
+ODF-196 check; "Examine a limit that could lose the only copy of paused or saved
+work for that consequence" produces the ODF-138 examination; "A gap outside the
+goal that costs the user nothing is accepted" and the retained
+"without another approval or blanket rerun" cover the harmless and unchanged-proof
+boundaries; "Only a gap the story explicitly defers becomes an owner decision"
+covers the deferral boundary. Deterministic checks pass:
+`npm run lint`, `/opt/homebrew/bin/bash tests/payload-declaration-links.sh`,
+`/opt/homebrew/bin/bash tests/compare-payload.sh`, `git diff --check`.
 
 ## Learnings
 
-None yet.
+Baseline (2026-09-30, unchanged guidance, Claude Code, one run per case,
+returns reconstructed from retained sentences): ODF-185 ACCEPT (fail: noticed
+the `benchmark_weight` loss, treated it as an owner scope decision); ODF-139
+RETURN, ODF-196 RETURN, ODF-138 RETURN (weak: returned for other defects, never
+examined the drop consequence); harmless gap ACCEPT; sufficient-unchanged-proof
+control RETURN (fail, partly an artifact of an invented E2E command in the
+reconstructed return). Attribution to guidance is weak for three defect cases;
+only ODF-185 reproduces the failure. Slice 2 compares against this.
