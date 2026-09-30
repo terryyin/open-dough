@@ -292,9 +292,13 @@ prefix.
 
 ### 10. State the layering where a new family author looks
 Type: Structure
-Status: planned
+Status: done
 Proof: read the result against the layering table and this plan's mapping; every
 current family is placed, and no other test file changes.
+
+Done: `tests/native-publication.md` has the section, with the exceptions it
+observed (delivery-evidence's whole-line reader, ci-completion's identity held
+by the git-publication evidence file). Lint passes.
 
 Add a short "Native family layers" section to `tests/native-publication.md`
 (not `tests/README.md`): the six layers, the shared helpers to reuse, and each
