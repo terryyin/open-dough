@@ -150,6 +150,12 @@ main {
   margin-left: auto;
 }
 
+/* A launch problem beside Start session reads on the row, not across it. */
+.project-actions-end .start-session-answer {
+  max-width: 28rem;
+  margin: 0;
+}
+
 .direction summary {
   cursor: pointer;
   width: fit-content;

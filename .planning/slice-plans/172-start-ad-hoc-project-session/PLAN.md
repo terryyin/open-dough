@@ -268,7 +268,7 @@ button as the control, and the row's status region.
 
 ### 6. A launch that did not start says so beside the button
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/agent-launch-ad-hoc-problems.spec.ts`, as
 `agent-launch-card-problems.spec.ts`. Scenario `refused`, `untrusted`, and
 `hang` with a short launch wait: the row says "Launch failed" with why (the
@@ -362,3 +362,4 @@ and keep the button, dialog and launch first.
 - Slice 5 accepted: `StartSession` opens the terminal on the launched record with the button as control and keeps its own `role="status"` line ("Ad hoc session started", cleared when the dialog opens again; App's `notice` is the published-read announcement and stays separate). `agent-launch-ad-hoc-terminal.spec.ts` (2 tests) and the ad hoc, terminal, sidebar and card specs pass (74 and 73).
 - Opening the modal itself resets `window.scrollY` (40 to 0) in the empty-field case, for story launches too; the spec measures scroll from the open dialog, so it proves the launch does not move the page, not the whole gesture. A `LaunchDialog` follow-up if that must hold too.
 - CI repair of slice 5 (run 36660072699): the always-rendered `role="status"` announcement made `getByRole('status')` (and the shared `[aria-live='polite']` notice locator in `dashboardPage.ts`/`accessibleReading.ts`) match two elements in six existing specs. The ad hoc announcement is now a `role="log"` (implicitly polite, always rendered), located by that role in `agent-launch-ad-hoc-terminal.spec.ts`. Slice 5's local proof had not run the whole suite; from slice 6 on the whole dashboard suite runs before delivery.
+- Slice 6 accepted: `LaunchProblemAnswer.tsx` (extracted from `StartLaunch.tsx`, shared by the card action and Start session) renders "Launch failed"/"Launch uncertain" beside the button; `StartSession` takes the attempt and describes the button by the answer. `agent-launch-ad-hoc-problems.spec.ts` (3 tests) passes with the whole dashboard suite (351). The failure texts are `claudeLaunch.ts`'s ("Claude Code does not trust ~/git/open-dough yet…", "…refused to start a session in…"), so the documents in slice 8 follow those words.

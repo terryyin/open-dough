@@ -197,7 +197,7 @@ export function App() {
           <div className="project-actions-end">
             <StartSession
               project={source.label}
-              starting={launches.adHocAttemptOf(source.id)?.kind === "starting"}
+              attempt={launches.adHocAttemptOf(source.id)}
               onStart={(instruction) =>
                 launches.startAdHoc(source.id, instruction)
               }

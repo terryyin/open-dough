@@ -11,7 +11,11 @@ import { realpathSync } from "node:fs";
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import {
+  openTakenBacklog,
+  startSession,
+  startSessionDialog,
+} from "./launchCardPage.ts";
 import { expectMembership, parts, sessionNamedBy } from "./dashboardPage.ts";
 import {
   notRefinedStory,
@@ -39,12 +43,6 @@ test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
-const startSession = (page: Page, project: string) =>
-  page.getByRole("button", { name: `Start session in ${project}` });
-const dialogFor = (page: Page, project: string) =>
-  page.getByRole("dialog", {
-    name: `Start a session in ${project} in Claude Code`,
-  });
 const fieldOf = (dialog: Locator) =>
   dialog.getByRole("textbox", {
     name: "What would you like to talk about? (optional)",
@@ -108,7 +106,7 @@ test("the dialog names the project and Claude Code, says the session has no stor
 }) => {
   await openJourney(page);
   const button = startSession(page, "Open Dough");
-  const dialog = dialogFor(page, "Open Dough");
+  const dialog = startSessionDialog(page, "Open Dough");
 
   await button.click();
   await expect(dialog).toBeVisible();
@@ -138,7 +136,7 @@ test("starting with text sends it in the Open Dough folder, and the session read
   dashboard.claudeScenario("launched");
   await openJourney(page);
   const text = "why is the CI slow on main?";
-  const dialog = dialogFor(page, "Open Dough");
+  const dialog = startSessionDialog(page, "Open Dough");
   const { recentSessions } = parts(page);
   const stories = () =>
     expectMembership(page, {
@@ -205,7 +203,7 @@ for (const blank of ["", "   "]) {
   }) => {
     dashboard.claudeScenario("launched");
     await openJourney(page);
-    const dialog = dialogFor(page, "Open Dough");
+    const dialog = startSessionDialog(page, "Open Dough");
 
     await startSession(page, "Open Dough").click();
     await fieldOf(dialog).fill(blank);
@@ -230,7 +228,7 @@ test("starting on Pygardon uses Pygardon's folder and lists the session in the s
   await openJourney(page);
   const { project, recentSessions } = parts(page);
   await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
-  const dialog = dialogFor(page, "Pygardon");
+  const dialog = startSessionDialog(page, "Pygardon");
 
   await startSession(page, "Pygardon").click();
   await fieldOf(dialog).fill("what changed last week?");

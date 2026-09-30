@@ -8,21 +8,12 @@
 // stays on the card with the action. The dialog's mechanics, including the
 // keyboard's return to the action, belong to `LaunchDialog`.
 
-import { useId, type ReactNode } from "react";
+import { useId } from "react";
 import { launchWorkflows, type LaunchWorkflow } from "./agentLaunch.ts";
 import type { LaunchAttempt, LaunchWorkItem } from "./agentLaunches.ts";
 import { LaunchDialog, useLaunchDialogLauncher } from "./LaunchDialog.tsx";
+import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import "./agent-launch.css";
-
-// An explanation's `command` spans, shown as code.
-function LaunchExplanation({ text }: { readonly text: string }) {
-  const parts: ReactNode[] = text
-    .split("`")
-    .map((part, index) =>
-      index % 2 === 1 ? <code key={index}>{part}</code> : part,
-    );
-  return <>{parts}</>;
-}
 
 export function StartLaunch({
   work,
@@ -76,26 +67,13 @@ export function StartLaunch({
           </span>
         )}
       </p>
-      {attempt !== undefined && (
-        <p
-          id={answerId}
-          className={
-            attempt.kind === "starting"
-              ? "launch-answer quiet"
-              : "launch-answer launch-problem"
-          }
-        >
-          {attempt.kind === "starting" ? (
-            `Starting ${named} in Claude Code…`
-          ) : (
-            <>
-              {attempt.kind === "failed"
-                ? "Launch failed: "
-                : "Launch uncertain: "}
-              <LaunchExplanation text={attempt.explanation} />
-            </>
-          )}
+      {attempt?.kind === "starting" && (
+        <p id={answerId} className="launch-answer quiet">
+          Starting {named} in Claude Code…
         </p>
+      )}
+      {attempt !== undefined && attempt.kind !== "starting" && (
+        <LaunchProblemAnswer id={answerId} problem={attempt} />
       )}
       {open && (
         <LaunchDialog
