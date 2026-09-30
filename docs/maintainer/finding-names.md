@@ -305,14 +305,16 @@ A plan requires a live action after a slice reaches main but leaves Story Branch
 ## ODF-138 — Safety consequence of an accepted proof gap unexamined
 A returned gap for restore-applied-none is accepted as an untested limitation; delivered guidance then drops the only copy of paused work.
 
-- **Follow-up:** queued, not resolved: [Check reported gaps against the story before accepting a slice](../../.planning/seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps. **Evidence:** [open-dough](../../DearDough.md#odf-138--a-reported-guidance-gap-was-accepted-without-checking-its-consequence-hiding-a-data-loss-path).
+- **Follow-up:** Response delivered; verification open, no new implementation queued. **Evidence:** [open-dough](../../DearDough.md#odf-138--a-reported-guidance-gap-was-accepted-without-checking-its-consequence-hiding-a-data-loss-path).
+- **Response / limit:** b7930baf / release pending after 0.3.47 adds the gap-and-fixture check to `wrap-up.md` "Accept proof". Claude Code only; returns reconstructed, one run per case. Only ODF-185 failed at baseline and returned afterward; the other defect cases already returned, so attribution is weak. Codex and Cursor unclaimed; no successful watch claimed.
 
 <a id="odf-139"></a>
 
 ## ODF-139 — Reported defect dismissed without checking the story
 An implementer reports a loss that contradicts the story goal; acceptance labels it out of scope and preserves a test that pins it.
 
-- **Follow-up:** queued, not resolved: [Check reported gaps against the story before accepting a slice](../../.planning/seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps. **Evidence:** [doughnut](../../../doughnut/DearDough.md#odf-139--the-coordinator-accepted-an-implementers-reported-gap-as-out-of-scope-without-checking-the-story-and-the-example-test-pinned-the-defect).
+- **Follow-up:** Response delivered; verification open, no new implementation queued. **Evidence:** [doughnut](../../../doughnut/DearDough.md#odf-139--the-coordinator-accepted-an-implementers-reported-gap-as-out-of-scope-without-checking-the-story-and-the-example-test-pinned-the-defect).
+- **Response / limit:** b7930baf / release pending after 0.3.47 adds the gap-and-fixture check to `wrap-up.md` "Accept proof". Claude Code only; returns reconstructed, one run per case. Only ODF-185 failed at baseline and returned afterward; the other defect cases already returned, so attribution is weak. Codex and Cursor unclaimed; no successful watch claimed.
 
 <a id="odf-141"></a>
 
@@ -520,7 +522,8 @@ A stalled SSH push leaves managed delivery and the coordinator waiting about fif
 ## ODF-185 — Reported preservation gap filed as a learning
 An implementer reports a dropped parameter that contradicts the story's preservation goal; acceptance records the gap as a learning and finishes the story.
 
-- **Follow-up:** queued, not resolved: [Check reported gaps against the story before accepting a slice](../../.planning/seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps. **Evidence:** [pygardon](../../../pygardon/DearDough.md#odf-185--a-slice-hand-back-reported-a-dropped-searched-gene-and-the-coordinator-filed-it-as-a-learning).
+- **Follow-up:** Response delivered; verification open, no new implementation queued. **Evidence:** [pygardon](../../../pygardon/DearDough.md#odf-185--a-slice-hand-back-reported-a-dropped-searched-gene-and-the-coordinator-filed-it-as-a-learning).
+- **Response / limit:** b7930baf / release pending after 0.3.47 adds the gap-and-fixture check to `wrap-up.md` "Accept proof". Claude Code only; returns reconstructed, one run per case. Only ODF-185 failed at baseline and returned afterward; the other defect cases already returned, so attribution is weak. Codex and Cursor unclaimed; no successful watch claimed.
 
 <a id="odf-186"></a>
 
@@ -569,7 +572,8 @@ Two refactor passes within one story treat barely touched, already oversized fil
 ## ODF-196 — Fixture reshaped to avoid the real example
 An implementer moves a fixture into an already-supported shape, turns the test green and reports no product change despite the story's real example still failing.
 
-- **Follow-up:** queued, not resolved: [Check reported gaps against the story before accepting a slice](../../.planning/seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps. **Evidence:** [doughnut](../../../doughnut/DearDough.md#odf-196--an-implementer-reshaped-a-test-fixture-until-the-new-scenario-passed-and-reported-that-no-product-change-was-needed).
+- **Follow-up:** Response delivered; verification open, no new implementation queued. **Evidence:** [doughnut](../../../doughnut/DearDough.md#odf-196--an-implementer-reshaped-a-test-fixture-until-the-new-scenario-passed-and-reported-that-no-product-change-was-needed).
+- **Response / limit:** b7930baf / release pending after 0.3.47 adds the gap-and-fixture check to `wrap-up.md` "Accept proof". Claude Code only; returns reconstructed, one run per case. Only ODF-185 failed at baseline and returned afterward; the other defect cases already returned, so attribution is weak. Codex and Cursor unclaimed; no successful watch claimed.
 
 <a id="odf-197"></a>
 

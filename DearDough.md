@@ -163,7 +163,9 @@ Former local code: DD-123.
 
 A returned gap for restore-applied-none is accepted as an untested limitation; delivered guidance then drops the only copy of paused work.
 
-Follow-up: queued, not resolved: [Check reported gaps against the story before accepting a slice](.planning/seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps.
+Follow-up: response delivered; verification open, no new implementation queued.
+
+Response: the "Accept proof" section of `src/skills/dough-execute-plan/references/wrap-up.md` now reads named gaps and fixture changes against the story's goal and key examples (b7930baf, release pending after 0.3.47). Limits: Claude Code only; returns reconstructed from retained sentences, one run per case; only ODF-185 failed at baseline and returned afterward, while ODF-139, ODF-196 and ODF-138 already returned at baseline, so attribution is weak for them; Codex and Cursor unclaimed; no successful watch is claimed.
 
 - Execution: `SEED-008#truthful-repair-restore` / plan 115 (truthful-repair-restore), first related implementation commit `8f88364` - Timestamp: unknown (between claim `b11bb98` at 13:46 and commit `8f88364` at 14:02 +08:00) - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42) - Evidence: the slice 1 return listed "Step 5 gives no specific guidance for `none`" and the coordinator recorded it as an untested limit; the retrospective reproduced a staged change conflicting in the index: `restore` reported `applied: "none"`, `paths: []`, and the guided `drop --record` removed the only copy of the paused work - Observed effect: two refactor passes and slice 2 shipped guidance that finishes every conflict with a drop; follow-up SEED-008#unapplied-restore-kept - Inference: the plan named guidance only for `partial`, so the gap looked like missing polish rather than a safety promise
 
