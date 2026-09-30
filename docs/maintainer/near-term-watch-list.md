@@ -1,21 +1,9 @@
 # Near-term watch list
 
-Reviewed 2026-09-27 (Asia/Singapore) against all three project logs. These codes
+Reviewed 2026-09-30 (Asia/Singapore) against all three project logs. These codes
 remain allocated. Retire only after seven days, relevant exercise and no
 unresolved recurrence. Historical detail is recoverable at
 `36fb9366295d1e6000cb3901a7ad3ce074382778:docs/maintainer/near-term-watch-list.md`.
-
-<a id="odf-056"></a>
-
-## ODF-056 — Symlink CLI startup
-
-- **Sources:** Open Dough / DD-066 (literal CLI); Doughnut / DD-065.
-- **Response:** `eff69eb`, first released in 0.3.27, compares real paths at all three CLI entrypoints.
-- **Watch start:** 2026-09-21; Doughnut ownership review `2381cf9e60:DearDough.md` reproduced installed 0.3.26 failure and observed `CI_OBSERVER` through the skill symlink with isolated released 0.3.27.
-- **Review after:** 2026-09-28.
-- **Last assessed:** 2026-09-27; all three logs rechecked; no supported recurrence. New agent-commit alias failure is a later entrypoint defect ([ODF-127](finding-names.md#odf-127)), not recurrence in the three repaired CLIs. This is isolated boundary exercise, not a verified installation or evidence about missing aliases ([ODF-085](finding-names.md#odf-085)).
-
-<a id="odf-066"></a>
 
 ## ODF-066 — Unpublished queue claims
 
@@ -23,7 +11,7 @@ unresolved recurrence. Historical detail is recoverable at
 - **Response:** `be94345` / `f699e60`, first released in 0.3.27; shared startup `194617b` / `1a63c0c` / `6f5d0ef`, first released in 0.3.33. Native queued-start acceptance is complete in SEED-008.
 - **Watch start:** 2026-09-24 (date-only); Doughnut plan 022 / `70b3b67313` used released 0.3.33 startup and recorded its claim receipt. Open Dough plan 092 also records Take `1443c42`, 0.3.38, at 20:27:08+08:00. Evidence remains under [ODF-099](#odf-099).
 - **Review after:** 2026-10-01.
-- **Last assessed:** 2026-09-27; all three logs rechecked; no supported unpublished-claim recurrence. Startup use does not certify every concurrency/refusal case; oversized receipts have a separate watch below.
+- **Last assessed:** 2026-09-30; all three logs rechecked; no supported unpublished-claim recurrence. Startup use does not certify every concurrency/refusal case; oversized receipts have a separate watch below.
 
 <a id="odf-073"></a>
 
@@ -34,7 +22,7 @@ The coordinator arms the observer only after the first slice push, leaving that 
 - **Response / verified use:** Managed delivery 02991a5 / 493187c first released in 0.3.33 establishes observation at delivery. Pygardon plan 185 / c2170df0f, 0.3.37, supplied session input on the first delivery (ODF-092 workaround row).
 - **Watch start:** 2026-09-24 (date-only).
 - **Review after:** 2026-10-01.
-- **Last assessed:** 2026-09-27; all three logs rechecked; all three current logs checked. Ordering exercised; session-input and owner-delivery problems stay under ODF-092 and ODF-103. The historical late-start report had unknown release and added no coverage loss beyond its independent adapter failure.
+- **Last assessed:** 2026-09-30; all three current logs checked. Ordering exercised; session-input and owner-delivery problems stay under ODF-092 and ODF-103. The historical late-start report had unknown release and added no coverage loss beyond its independent adapter failure.
 
 ### Retained evidence
 
@@ -50,7 +38,7 @@ After persistent polling errors produce a normal terminal result, later push reg
 - **Response / verified use:** ddcabcb, first released in 0.3.33, excludes terminal mailboxes from live reuse. Doughnut plan 034 / 36eb15caaa on 0.3.38 reported monitor-unavailable and later unobserved (Doughnut ODF-121).
 - **Watch start:** 2026-09-25 (date-only).
 - **Review after:** 2026-10-02.
-- **Last assessed:** 2026-09-27; all three logs rechecked; all three current logs checked. This later ended observer was not falsely reported live. Its transient transport termination is separately active as ODF-121; not a success claim for transport resilience.
+- **Last assessed:** 2026-09-30; all three current logs checked. This later ended observer was not falsely reported live. Its transient transport termination is separately active as ODF-121; not a success claim for transport resilience.
 
 ### Retained evidence
 
@@ -67,7 +55,7 @@ Startup serializes full before/after Git index snapshots into its coordinator re
 - **Response / verified use:** 075e955, first released in 0.3.40, removes index/patch snapshots and returns only decision fields. Pygardon plan 200 reports 0.3.40 and successful Take efd7ed2e1; that commit's installed execution-start-receipt.mjs matches the compact response.
 - **Watch start:** 2026-09-26 (date-only).
 - **Review after:** 2026-10-03.
-- **Last assessed:** 2026-09-27; all three logs rechecked; all three current logs checked. Actual released startup use verified; no supported oversized-output recurrence. Historical later reports still use 0.3.38/0.3.39 or unknown releases. This watch does not close the previously recorded Claude/Codex/Cursor native acceptance gaps or claim a measured size for plan 200.
+- **Last assessed:** 2026-09-30; all three current logs checked. Actual released startup use verified; no supported oversized-output recurrence. Historical later reports still use 0.3.38/0.3.39 or unknown releases. This watch does not close the previously recorded Claude/Codex/Cursor native acceptance gaps or claim a measured size for plan 200.
 
 ### Retained evidence
 
@@ -100,7 +88,7 @@ ODF-099 earlier Open Dough evidence remains at `b633e1d:DearDough.md`, `876a0b0:
 - **Response:** `9880cbb`, first released in 0.3.41 (containing tag and ci-host-bridge/execution-increment-observation diff verified). Resolves the coordinator from CLAUDE_CODE_SESSION_ID for first delivery and uses that same owner to bind; explicit session input remains authoritative.
 - **Watch start:** 2026-09-27 (date-only, Asia/Singapore). Donut plan 009 / `983ac6d18e`, released 0.3.41: deliver without session JSON attached watch-gBNzg7 and later reused it. That execution commit’s installed VERSION and ci-host-bridge contain the verified response.
 - **Review after:** 2026-10-04.
-- **Last assessed:** 2026-09-27; all three current logs checked. No supported Claude identity recurrence after the response; unknown releases remain unknown. Cursor plan 126 is separate ODF-154. Argument-shape refusals are separate ODF-142/143, and Pygardon plan 208 was misplaced readiness evidence now under ODF-116. Successful attachment does not prove every notification path.
+- **Last assessed:** 2026-09-30; all three current logs checked. No supported Claude identity recurrence after the response; unknown releases remain unknown. Cursor plan 126 is separate ODF-154. Argument-shape refusals are separate ODF-142/143, and Pygardon plan 208 was misplaced readiness evidence now under ODF-116. Successful attachment does not prove every notification path.
 
 ### Retained source evidence
 
@@ -263,11 +251,11 @@ Planning records not-ready for a sizing concern its own refinement can settle, l
 - **Source mapping:** Open Dough / DD-112 (former local code).
 - **Source snapshot:** `6c3dfa19016d2646f8ccd6e8ba7402864d02af93:DearDough.md`, ODF-133; active catalog assessment retained below.
 - **Assessment (2026-09-27):** One plan 116 execution, release unknown; one owner round trip and publication cycle. The refusal correctly enforced readiness; the actionable gap is the earlier preparation handoff.
-- **Response:** [Conditional refinement during slice planning](../../src/skills/dough-slice-planning/SKILL.md#resolve-fixable-plan-concerns) resolves fixable plan concerns before the final report and readiness assessment, retaining scope, human decision, and execution boundaries. First containing release pending.
+- **Response:** [Conditional refinement during slice planning](../../src/skills/dough-slice-planning/SKILL.md#resolve-fixable-plan-concerns) resolves fixable plan concerns before the final report and readiness assessment, retaining scope, human decision, and execution boundaries. Commit `23563ee0`, first released in 0.3.45 (containing tag and slice-planning diff verified).
 - **Watch disposition (2026-09-28):** Moved here at Terry Yin's instruction after the bounded source update and verification, before release or relevant use. Not resolved; effectiveness remains unverified.
 - **Watch start:** Unknown; pending relevant use of guidance containing this response.
 - **Review after:** Pending a verified watch start plus seven calendar days.
-- **Last assessed:** 2026-09-28 (Asia/Singapore); authoring review covered a sound plan, a fixable split, and an unresolved scope dispute; skill validation and payload-reference checks passed. No post-change project execution has been observed.
+- **Last assessed:** 2026-09-30 (Asia/Singapore); all three current logs checked; authoring review covered a sound plan, a fixable split, and an unresolved scope dispute; skill validation and payload-reference checks passed. No relevant fixable-concern handoff exercise is established. SEED-056 concerns a separate reporting decision, not an observed recurrence of the sizing handoff.
 
 ### Retained occurrence evidence
 
@@ -280,3 +268,204 @@ Planning recorded `not-ready` for a slice-sizing concern its own refinement coul
   - Open Dough release: unknown; installed guidance last updated by `1b66466`
   - Evidence: `ee563d5` recorded reason "Slice 1 … sizing is uncertain"; `execution-start.mjs start` → `source-refused`, "published preparation is needs-reassessment"; refinement split slice 1 by its two independent outcomes (`a6e6ef7`).
   - Observed effect: one human round trip plus an announce/land publication cycle before the claim. Qualified inference: the concern named its own remedy (split); refinement at planning time would have recorded ready.
+
+<a id="odf-065"></a>
+
+## ODF-065 — Undetected observer death
+
+- **Response:** `8a7c770`, first released in 0.3.28, reports a dead worker as lost through mailbox selection and the host hook (tag and diff verified).
+- **Watch start:** 2026-09-29T12:19:30Z; Doughnut plan 059 / `946dccd30f`, reported 0.3.47; its installed `.agents/skills/dough-update/VERSION` and hook confirm the released detector. The first Stop notice reports the lost worker.
+- **Review after:** 2026-10-06T12:19:30Z (20:19:30 Asia/Singapore).
+- **Last assessed:** 2026-09-30 (Asia/Singapore); all three current logs checked. Later worker-loss notices in Doughnut 059/060 and Pygardon 288/289 demonstrate detection rather than false attachment. Repetition after detection remains active under [ODF-144](finding-names.md#odf-144); unknown Open Dough/Pygardon execution releases do not backdate this watch. No supported recurrence of the original undetected-death mechanism.
+
+### Retained source evidence
+
+#### ODF-065 — A CI observer that died mid-execution stayed reported as attached until shutdown
+
+Former local code: DD-063.
+
+The observer is a detached process. After it dies, push registration still
+writes a coverage receipt and the host hook still reports the observer as
+attached, so lost coverage is first visible when the coordinator stops it.
+
+##### Occurrences
+
+- Execution: `SEED-021#see-published-work @ d0a9495`
+  - Timestamp: 2026-09-20T09:40:05+08:00
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.26
+  - Evidence: Mailbox `/tmp/dough-ci-501/watch-bx7k1Z`. The worker's last
+    receipt writes are all at 2026-09-20T08:40:30+08:00; `c0d0a91` stayed
+    `pending` although its GitHub run completed successfully. The data volume
+    then filled (ENOSPC stopped slice 4 and the coordinator's own shell).
+    Receipts for `e6ad710`, `53f6640`, and `1858a78` were written by
+    `register-push` only and stayed `unchecked`. Every hook invocation kept
+    adding "CI observer attached to this coordinator". `stop` returned
+    `coverage.state: lost` at the timestamp above.
+  - Observed effect: Three pushes had no CI observation while the coordinator
+    believed they did. All of them passed when checked with `gh run list`, so
+    nothing was missed this time.
+  - Inference: Qualified. The worker most likely exited when the disk filled;
+    the record shows when it stopped writing, not why. Neither `register-push`
+    nor the hook checks that the recorded worker is still running.
+
+
+<a id="odf-128"></a>
+
+## ODF-128 — Whole-checkout formatting couples parallel slices
+
+Formatting selected by checkout state touches or judges another live slice’s unfinished files, so delivery must wait or use owned-path substitutions.
+
+- **Response:** `1d3a26cd`, first released in 0.3.43: finish each slice's delivery before starting the next in plan order (containing tag and execute-plan/delegation/wrap-up diffs verified).
+- **Watch start:** 2026-09-28 (date-only, Asia/Singapore); Doughnut plan 005 / `56505b78dd`, 0.3.44. That snapshot's installed VERSION and execute-plan contain the response; its source report records slice 1 delivery at 11:16:07+08:00 and slice 3 proof/delivery later at 11:32–11:37+08:00.
+- **Review after:** 2026-10-05.
+- **Last assessed:** 2026-09-30 (Asia/Singapore); all three current logs checked, including later 0.3.45–0.3.47 multi-slice reports. Released multi-slice use is evidenced and no same-plan concurrent-writer interference is reported after it. Coverage limit: delegation launch times are absent, so the records do not certify every slice was serialized or that arbitrary other sessions cannot interfere. Different baseline/cleanup mutations remain active under ODF-155/181/183. Earlier 0.3.41/0.3.42 and unknown reports are not post-fix recurrences; no finding is yet retired on this watch.
+
+### Retained source evidence
+
+#### open-dough
+
+#### ODF-128 — A whole-repository formatter coupled concurrent slices' deliveries
+
+Former local code: DD-117.
+
+Delivery says to run the project's selective formatting command once before
+staging, and file-disjoint slices may run concurrently. Here that command
+checks every file in the checkout, so one slice's delivery also judged the
+other slice's unreviewed, uncommitted work.
+
+##### Occurrences
+
+- Execution: `SEED-048#test-environment-correction` / plan 127, first related implementation commit `23a3a75`
+  - Timestamp: unknown; before slice 1's commit at 2026-09-27T13:06:01+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `707f3ac7`
+  - Evidence: slice 1's `npm run format` failed on SC2312 at
+    `scripts/ci-container.sh:58`, slice 2's file, while slice 2 awaited its
+    refactor pass.
+  - Observed effect: slice 1's delivery stopped until the coordinator edited
+    slice 2's uncommitted code; one extra formatter run.
+  - Inference: Qualified; small cost here. Like DD-106, file-disjoint changes
+    did not make shared tooling disjoint. Concurrent slices 1 and 2 still
+    saved wall time.
+
+
+#### pygardon
+
+#### ODF-128 — Selective formatting of the whole checkout conflicts with concurrent slices in one execution worktree
+
+Former local code: DD-121.
+
+The project's `pnpm format:changed` selects every changed file in the checkout (unstaged, staged and untracked). With disjoint slices running concurrently in the same execution worktree, running it at one slice's delivery would also rewrite another live agent's in-progress files.
+
+##### Occurrences
+
+- Execution: `.planning/slice-plans/212-tfdc-verify-run-one-dispatch/PLAN.md` (first implementation commit `2e9e0a29a`); Timestamp: unknown (2026-09-27, slices 5, 7, 1 and 3); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.41. Evidence: `scripts/quality_changed.sh` builds its selection from `git diff --name-only`, `git diff --cached --name-only` and `git ls-files --others`; while the slice 1 agent was editing Python, the coordinator delivered slice 5 with `pnpm frontend:format` and slices 7 and 1 with `scripts/python_format.sh <owned files>` (the component steps `format:changed` runs), and used `format:changed` itself only once no other agent was editing. Observed effect: no race or lost edit; a deliberate deviation from "run `format:changed` once" for four deliveries. Inference: either the formatting step should accept the slice's owned paths, or concurrent slices need their own worktrees; otherwise the coordinator must pick between the rule and concurrency.
+- Execution: `.planning/slice-plans/214-tfdc-verify-preserved-behavior-proof/PLAN.md` (recoverable at `1fabf2b1b`; first implementation commit `4437451a6`); Timestamp: unknown (2026-09-27, before `4437451a6` at 09:51:13+08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.42. Evidence: slices 1 (Python test) and 2 (frontend spec) ran concurrently in one worktree; slice 1's refactor finished first, and the coordinator held its formatting and commit until slice 2's refactor returned, then ran `format:changed` once and made two commits. Observed effect: no race; slice 1's delivery waited for the other slice (about a minute here). Inference: holding delivery keeps the one-format rule at the cost of coupling concurrent slices' delivery; negligible for short slices, larger when one slice runs long.
+- Execution: `.planning/slice-plans/215-tfdc-legacy-data-retirement/PLAN.md` (recoverable at `2edaf7864`; first implementation commit `c56908d12`); Timestamp: unknown (2026-09-27, deliveries of `d9c97163b`, `9e776d17e`, `c323aba5a`, `c6955a270`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: unknown (dough skills last changed at `bb4f93165` before this Take `54024044c`). Evidence: slices 3/7, 7/4 and 4/8 ran concurrently in one worktree; the coordinator ran `ruff format --check` on each slice's owned files instead of `pnpm format:changed`, and used `format:changed` only for slices 1, 5, 6 and 9 when no other agent was editing. Observed effect: no race or lost edit; four deliberate deviations from the one-format rule.
+- Execution: `.planning/slice-plans/219-atomic-fixture-publication/PLAN.md` (recoverable at `8030fca16`; first implementation commit `f582ac26a`); Timestamp: 2026-09-27T13:12:25+08:00 (slice 1 commit `f582ac26a`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.42. Evidence: slices 1 and 2 ran concurrently in one worktree; while the slice 2 agent was still editing `tests/stooq_reader_startup_tree_support.py`, the coordinator formatted slice 1 with `ruff format tests/ibkr_service_login_command_stop_support.py` instead of `pnpm format:changed`, then ran `format:changed` for slice 2 once nothing else was editing. Observed effect: no race or lost edit; one deliberate deviation from the one-format rule.
+- Execution: `.planning/slice-plans/216-tfdc-search-throughput/PLAN.md` (recoverable at `b0b0918a0`; first implementation commit `cb7067227`); Timestamp: unknown (2026-09-27, deliveries of `cb7067227` and `53293b932`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: unknown. Evidence: slices 1 and 2 ran concurrently in one worktree; the coordinator ran `ruff format` on each slice's owned Python files while the other agent was editing, and used `pnpm format:changed` for slices 3 and 3a once nothing else was editing. Observed effect: no race or lost edit; two deliberate deviations from the one-format rule.
+- Execution: `.planning/slice-plans/221-responsive-stooq-warehouse/PLAN.md` (recoverable at `846f612fc`; first implementation commit `c2afd83ed`); Timestamp: 2026-09-27T18:38:03+08:00 (slice 1 commit `c2afd83ed`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.42. Evidence: slices 1 and 3 ran concurrently in one worktree; slice 1's refactor returned first, and the coordinator held its formatting and commit until slice 3's refactor returned, then ran `format:changed` once and made two commits (`c2afd83ed`, `9d7ccd84b`). Observed effect: no race; slice 1's delivery waited about three minutes for the other slice.
+
+
+<a id="odf-129"></a>
+
+## ODF-129 — Proof reads another live slice’s edits
+
+Whole-suite proof runs against a checkout another slice is changing, producing failures absent from the isolated accepted candidate.
+
+- **Response:** `1d3a26cd`, first released in 0.3.43: finish each slice's delivery before starting the next in plan order (containing tag and execute-plan/delegation/wrap-up diffs verified).
+- **Watch start:** 2026-09-28 (date-only, Asia/Singapore); Doughnut plan 005 / `56505b78dd`, 0.3.44. That snapshot's installed VERSION and execute-plan contain the response; its source report records slice 1 delivery at 11:16:07+08:00 and slice 3 proof/delivery later at 11:32–11:37+08:00.
+- **Review after:** 2026-10-05.
+- **Last assessed:** 2026-09-30 (Asia/Singapore); all three current logs checked, including later 0.3.45–0.3.47 multi-slice reports. Released multi-slice use is evidenced and no same-plan concurrent-writer interference is reported after it. Coverage limit: delegation launch times are absent, so the records do not certify every slice was serialized or that arbitrary other sessions cannot interfere. Different baseline/cleanup mutations remain active under ODF-155/181/183. Earlier 0.3.41/0.3.42 and unknown reports are not post-fix recurrences; no finding is yet retired on this watch.
+
+### Retained source evidence
+
+#### Open Dough recovered source
+
+#### ODF-129 — Full-suite proof in a checkout another agent was editing reported false failures
+
+Former local code: DD-109.
+
+`npm test` in the shared execution checkout, while a parallel slice edited `src/skills`, failed three payload-comparing checks; an isolated worktree with only the finished slice passed.
+
+##### Occurrences
+
+- Execution: `SEED-037#fourfold-local-suite` / plan 107, first related implementation commit `273ae9a`
+  - Timestamp: unknown (after `c2e340d`, before `cee3f07` at 2026-09-26T14:09:29+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; installed guidance last updated by `f87d34c`
+  - Evidence: failures in `install-all-tools.sh`, `native-delivery-updated-use{,-adapters}.sh`; isolated rerun at `c2e340d` plus slice 3 passed; slice 5's final candidate passed all three.
+  - Observed effect: one wasted full suite and a diagnosis detour; later proof used detached worktrees.
+
+
+- **Source snapshot:** `32e554d5:DearDough.md`; this recovery adds no new execution.
+
+<a id="odf-130"></a>
+
+## ODF-130 — Parallel test output collisions
+
+File-disjoint concurrent slices share a test output directory, allowing one run to delete artifacts another is writing.
+
+- **Response:** `1d3a26cd`, first released in 0.3.43: finish each slice's delivery before starting the next in plan order (containing tag and execute-plan/delegation/wrap-up diffs verified).
+- **Watch start:** 2026-09-28 (date-only, Asia/Singapore); Doughnut plan 005 / `56505b78dd`, 0.3.44. That snapshot's installed VERSION and execute-plan contain the response; its source report records slice 1 delivery at 11:16:07+08:00 and slice 3 proof/delivery later at 11:32–11:37+08:00.
+- **Review after:** 2026-10-05.
+- **Last assessed:** 2026-09-30 (Asia/Singapore); all three current logs checked, including later 0.3.45–0.3.47 multi-slice reports. Released multi-slice use is evidenced and no same-plan concurrent-writer interference is reported after it. Coverage limit: delegation launch times are absent, so the records do not certify every slice was serialized or that arbitrary other sessions cannot interfere. Different baseline/cleanup mutations remain active under ODF-155/181/183. Earlier 0.3.41/0.3.42 and unknown reports are not post-fix recurrences; no finding is yet retired on this watch.
+
+### Retained source evidence
+
+#### Open Dough recovered source
+
+#### ODF-130 — Concurrent slices in one checkout shared Playwright's output directory
+
+Former local code: DD-106.
+
+Running disjoint slices concurrently in one execution checkout let one agent's
+Playwright run delete artifacts another run was writing.
+
+##### Occurrences
+
+- Execution: `SEED-028#admission-coherence` / plan 113, first related implementation commit `733fe46`
+  - Timestamp: unknown
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: modified; revision 1b66466; base 0.3.41
+  - Evidence: coordinator's dashboard consumer run for slice 2 (before
+    `c7893ac`, 2026-09-26) failed with `ENOENT` on
+    `dashboard/test-results/.playwright-artifacts-2/*.zip` while the flake
+    agent ran Playwright; rerun alone passed 4/4.
+  - Observed effect: one invalid proof run, repeated after the other agent
+    returned.
+  - Inference: Concurrent slices were otherwise useful here; file-disjoint
+    changes do not make shared test output directories disjoint.
+
+
+- **Source snapshot:** `32e554d5:DearDough.md`; this recovery adds no new execution.
+
+<a id="odf-131"></a>
+
+## ODF-131 — Foreign staged deletion enters a slice commit
+
+A delegated git rm stages unfinished sibling work; committing the whole index includes it despite staging only the coordinator’s owned paths.
+
+- **Response:** `1d3a26cd`, first released in 0.3.43: finish each slice's delivery before starting the next in plan order (containing tag and execute-plan/delegation/wrap-up diffs verified).
+- **Watch start:** 2026-09-28 (date-only, Asia/Singapore); Doughnut plan 005 / `56505b78dd`, 0.3.44. That snapshot's installed VERSION and execute-plan contain the response; its source report records slice 1 delivery at 11:16:07+08:00 and slice 3 proof/delivery later at 11:32–11:37+08:00.
+- **Review after:** 2026-10-05.
+- **Last assessed:** 2026-09-30 (Asia/Singapore); all three current logs checked, including later 0.3.45–0.3.47 multi-slice reports. Released multi-slice use is evidenced and no same-plan concurrent-writer interference is reported after it. Coverage limit: delegation launch times are absent, so the records do not certify every slice was serialized or that arbitrary other sessions cannot interfere. Different baseline/cleanup mutations remain active under ODF-155/181/183. Earlier 0.3.41/0.3.42 and unknown reports are not post-fix recurrences; no finding is yet retired on this watch.
+
+### Retained source evidence
+
+#### pygardon
+
+#### ODF-131 — A concurrent slice's staged deletion was swept into another slice's commit
+
+Former local code: DD-127.
+
+An implementation agent deleted a test file with `git rm`, which staged the deletion while its slice was still in progress. The coordinator staged only the other slice's paths, but `agent-commit.mjs` commits the whole index, so the foreign deletion entered that slice's commit.
+
+##### Occurrences
+
+- Execution: `.planning/slice-plans/215-tfdc-legacy-data-retirement/PLAN.md` (recoverable at `2edaf7864`; first implementation commit `c56908d12`); Timestamp: unknown (2026-09-27, slice 4 delivery); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: unknown (dough skills last changed at `bb4f93165` before this Take `54024044c`). Evidence: commit `0bdf39f93` stat listed `tests/strategy_catalog/test_live_strategy_catalog_columns.py | 126 -----` (slice 8's file); the coordinator reset that path to the parent in the index, amended to `c323aba5a`, and restored the staged deletion with `git rm --cached`; the slice 8 agent reported the same problem. Observed effect: one amend before publication; nothing wrong was published. Inference: when slices share a worktree, delegation should forbid index changes (plain `rm`, never `git rm`/`git add`), or the coordinator should check `git diff --cached` for foreign entries before committing.

@@ -19,6 +19,8 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Check reported gaps against the story before accepting a slice](seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps
+- [Observe a planning premise through the operation that consumes it](seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers
 - [Choose and compose styles for story refinement](seeds/SEED-057-composable-story-refinement-styles.md#composable-refinement-styles) — SEED-057#composable-refinement-styles
 - [Reassess the native test architecture so its files are cohesive and short](seeds/SEED-055-trustworthy-project-proof.md#reassess-native-test-architecture) — SEED-055#reassess-native-test-architecture
 - [Alert the developer on Mac when a session needs human attention](seeds/SEED-052-start-agent-work-from-dashboard.md#mac-human-attention-alert) — SEED-052#mac-human-attention-alert

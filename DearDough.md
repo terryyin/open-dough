@@ -582,22 +582,6 @@ publication, and a start retry all preceded any work.
   - Open Dough release: modified; revision `ff3534c`; base 0.3.42
   - Evidence: refusal `source-refused` / "published preparation is needs-reassessment"; `git diff eaa69a4 HEAD` on the seed showed only the sibling `dashboard-port-race` refinement and wording; reconfirmed basis published as `ff3534c`; the retried start published the claim.
   - Observed effect: one basis-hash diagnosis, one record-state, one trunk publication, and a repeated start before the claim. SEED-043#preserve-sibling-readiness is the queued product response.
-- Execution: `SEED-052#recent-sessions-residue` / plan 151, before its claim `34ad359b`
-  - Timestamp: unknown; the refusal preceded reassessment commit `b7b3c23d` (2026-09-29T12:43:28+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; repository VERSION 0.3.46 at `b7b3c23d`
-  - Evidence: same refusal after SEED-043#preserve-sibling-readiness closed (`fb345ff5`); `git diff f7e7e272 origin/main` on SEED-052 showed only story 3's refinement, which also edited the seed's shared Agreed Boundaries and Ordering text (done-prefix naming moved into story 3). Recorded basis `e646df35…` vs current `db4fc214…`; plan digest unchanged.
-  - Observed effect: a diagnosis, a hand-rolled preparation worktree, record-state, commit, rebase, push to trunk, and a start retry before the claim. The coordinator published outside Dough Land and removed the local branch with `git branch -D` (its tip was already on trunk). The developer had asked for a reassessment, so no decision was lost.
-  - Inference: Qualified. The fix exempts siblings' own sections, but a sibling refinement that edits shared seed context still invalidates every other story in the seed. Execute-plan names no route from this refusal to the preparation keep path.
-- Execution: `SEED-052#preparing-card-refinement-journey` / plan 154, before its claim `f9fe3fdc`
-  - Timestamp: unknown; the refusal preceded reassessment commit `3da84888` (2026-09-29, same session)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; repository guidance at `fd077d1d`
-  - Evidence: same refusal. Closure `fd077d1d` of the parent SEED-052#recent-sessions-residue rewrote this correction's own Scope provenance and its plan's Source/Provenance lines (branch refs to merged and closed-history refs) without reassessing; both digests changed.
-  - Observed effect: one diagnosis, one record-state, one direct trunk commit, and a start retry. Inference: any correction a retrospective creates can be invalidated this way by its parent's wrap-up; the sibling-section fix does not cover it.
-
 ## ODF-074 — A ready plan named a validation command the backlog tool does not have
 
 Former local code: DD-121.
@@ -650,32 +634,8 @@ Former local code: DD-123.
   - Observed effect: two refactor passes and slice 2 shipped guidance that finishes every conflict with a drop; follow-up SEED-008#unapplied-restore-kept
   - Inference: the plan named guidance only for `partial`, so the gap looked like missing polish rather than a safety promise
 
-## ODF-128 — A whole-repository formatter coupled concurrent slices' deliveries
-
-Former local code: DD-117.
-
-Delivery says to run the project's selective formatting command once before
-staging, and file-disjoint slices may run concurrently. Here that command
-checks every file in the checkout, so one slice's delivery also judged the
-other slice's unreviewed, uncommitted work.
-
-### Occurrences
-
-- Execution: `SEED-048#test-environment-correction` / plan 127, first related implementation commit `23a3a75`
-  - Timestamp: unknown; before slice 1's commit at 2026-09-27T13:06:01+08:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Open Dough release: unknown; installed guidance last updated by `707f3ac7`
-  - Evidence: slice 1's `npm run format` failed on SC2312 at
-    `scripts/ci-container.sh:58`, slice 2's file, while slice 2 awaited its
-    refactor pass.
-  - Observed effect: slice 1's delivery stopped until the coordinator edited
-    slice 2's uncommitted code; one extra formatter run.
-  - Inference: Qualified; small cost here. Like DD-106, file-disjoint changes
-    did not make shared tooling disjoint. Concurrent slices 1 and 2 still
-    saved wall time.
-
-## DD-124 — A publisher-seam premise was observed by reading the seam, not the race it had to stop
+## ODF-110 — A publisher-seam premise was observed by reading the seam, not the race it had to stop
+Former local code: DD-124.
 
 Plan 112 recorded "`beforePush` runs after every reconciliation, before each
 push" as a held decisive premise from a code read. Slice 2 found a competing
@@ -694,7 +654,8 @@ journey rule (`2c5ff71`) was already installed when the plan was re-bound.
   - Observed effect: one extra implementation round in slice 2 (an added pre-reconciliation fetch, then consolidation into `onFetchedTarget`) and a North Star correction
   - Inference: Qualified. A race premise is cheap to observe with the existing racing-push fixtures; reading the hook's call sites observed the seam, not the Take-then-replay journey
 
-## DD-126 — A slice-acceptance obligation recorded as a plan learning never reached the next delegation
+## ODF-156 — A slice-acceptance obligation recorded as a plan learning never reached the next delegation
+Former local code: DD-126.
 
 After slice 1 the coordinator recorded that slice 3's guidance walk must
 confirm bug-fixing and test-optimization repair and no-change steps for a
@@ -712,7 +673,8 @@ and acceptance passes did not check it.
   - Observed effect: the retrospective found contradictory closure guidance and planned a correction
   - Inference: Qualified. Learnings are free text; nothing ties an acceptance obligation to the slice that must satisfy it
 
-## DD-127 — A "no other location" premise was swept with the removed rule's words, missing the concept's other wording
+## ODF-157 — A "no other location" premise was swept with the removed rule's words, missing the concept's other wording
+Former local code: DD-127.
 
 Plan 131 recorded that concurrent-writer wording existed only in delegation,
 delivery staging and one test, from a sweep for concurrent, parallel, wave,
@@ -739,7 +701,8 @@ implementer and refactor sweeps reused the same words and also missed it.
   - Observed effect: all three leftovers were removed before commit `da2178fd`; the plan's empty-grep proof would have passed with them in place
   - Inference: Qualified. Second occurrence: the identifier sweep matched the removed names, not the concept's prose; this time the refactor pass caught it, not a correction story
 
-## DD-128 — Execute-plan's required reference reads cost more than a clean one-slice run used
+## ODF-158 — Execute-plan's required reference reads cost more than a clean one-slice run used
+Former local code: DD-128.
 
 Before its first delegation, the coordinator of a single prose-only slice read
 the references execute-plan requires at startup (delegation, execution
@@ -776,7 +739,8 @@ observer launch recipes went unused.
   - Observed effect: same as above; no CI event, repair, stash, or rework occurred, and skipping `ci-monitor.md` caused no visible harm
   - Inference: Qualified. Third consecutive one-slice prose execution. The skipped read shows that "before arming observation" still names a read that managed delivery has made unnecessary on the normal path
 
-## DD-155 — Two plans planned concurrently on different checkouts both took number 132
+## ODF-106 — Two plans planned concurrently on different checkouts both took number 132
+Former local code: DD-155.
 
 Story refinement of SEED-051#isolate-runner-settings in the default checkout
 numbered its plan 132 after the highest visible plan, 131, while the
@@ -796,7 +760,8 @@ as catalog ODF-106 (colliding plan numbers), now in this repository.
   - Observed effect: the executor had to infer the intended plan (the one at the default checkout's HEAD when the session started) and could have Taken the other queued story
   - Inference: Qualified. Allocation from checkout-visible numbers cannot see another checkout's unpublished plan; the collision went unnoticed at merge because directory names differ
 
-## DD-188 — A planned rejected case was dropped on an unobserved "no one-signal case exists" premise
+## ODF-199 — A planned rejected case was dropped on an unobserved "no one-signal case exists" premise
+Former local code: DD-188.
 
 Plan 165 slice 3 promised `self-report` rebased on `fresh-pass` with one signal. The implementer reported no one-signal route; the coordinator accepted the drop under the plan's split rule, then overrode the refactor pass's recommendation to keep it, without probing a claim-bearing passing base.
 
@@ -808,7 +773,8 @@ Plan 165 slice 3 promised `self-report` rebased on `fresh-pass` with one signal.
   - Evidence: plan 165 slice 3 text and its "`self-report` is no longer a rejected case" learning; the retrospective's probe: `fresh-pass.json` with a setup-claiming `responseText` passes, and changing only `preparation-gate` then fails.
   - Observed effect: the free proof of ADR 0005 §4 (do not accept self-report) for preparation was removed and reached review only; a correction restores it. Inference: Qualified; same read-versus-observe class as DD-124 and DD-174.
 
-## DD-163 — A local flake already fixed on trunk was left off the story branch, which then failed CI on it
+## ODF-159 — A local flake already fixed on trunk was left off the story branch, which then failed CI on it
+Former local code: DD-163.
 
 Slice 3 saw `project-keyboard-navigation-focus` fail locally, found trunk's fix `25c4a514`, and deferred it to Story Branch integration; branch CI failed on it.
 
@@ -823,7 +789,8 @@ Slice 3 saw `project-keyboard-navigation-focus` fail locally, found trunk's fix 
   - Observed effect: one CI failure and a stash, repair, publish, and restore cycle
   - Inference: Qualified. Guidance (ODF-134) defers trunk integration to wrap-up but names no path to take a published trunk fix for a failure the branch's CI will also hit
 
-## DD-165 — Cursor ran story wrap-up after execution although guidance says to leave it
+## ODF-160 — Cursor ran story wrap-up after execution although guidance says to leave it
+Former local code: DD-165.
 
 Execute-plan's finish guidance retains the plan and worktree for story wrap-up
 and says not to invoke it; Cursor proceeded into wrap-up anyway.
@@ -837,7 +804,8 @@ and says not to invoke it; Cursor proceeded into wrap-up anyway.
   - Evidence: response "Proceeding with story wrap-up for SEED-A#a" after reading `finish-or-stop.md`; it deleted the fixture story, plan, and Taken entry; Claude and Codex stopped at `## PLAN EXECUTION COMPLETE`.
   - Observed effect: a 27-minute run and a missing workspace source in the assessment.
 
-## DD-167 — Execute-plan judged readiness from a stale default checkout and sent a planned story back to refinement
+## ODF-161 — Execute-plan judged readiness from a stale default checkout and sent a planned story back to refinement
+Former local code: DD-167.
 
 Before startup fetched trunk, execute-plan read the backlog and seed from the default checkout, which lagged trunk. It reported the story unrefined and unplanned, though trunk already held its refinement and plan.
 
@@ -852,7 +820,8 @@ Before startup fetched trunk, execute-plan read the backlog and seed from the de
   - Observed effect: one false readiness stop and one repeated refinement round (its third answer did change native-proof scope).
   - Inference: Qualified. With parallel agents, eligibility should be judged from fetched remote trunk, as startup already does.
 
-## DD-170 — The 250-line refactor bound pushed Markdown guidance into longer lines and brittle regex fixes
+## ODF-162 — The 250-line refactor bound pushed Markdown guidance into longer lines and brittle regex fixes
+Former local code: DD-170.
 
 The refactor checks' physical-line bound applies to guidance Markdown. Held at 250, edits reflowed prose into long lines instead of shortening meaning, and guidance tests that match phrases across line breaks then failed on where a line happened to wrap.
 
@@ -862,7 +831,8 @@ The refactor checks' physical-line bound applies to guidance Markdown. Held at 2
   - Evidence: `dough-story-wrap-up/SKILL.md` lines over 120 characters went from 11 (`3962b8ce`) to 16; three coordinator attempts during the `28fb01ae` merge only moved line breaks so `ci-completion-lifecycle-guidance.test.mjs` regexes matched; slice 3's refactor split `trunk-publication.md` and `install.sh` repeatedly sat at 248–250.
   - Observed effect: several edit-and-test cycles spent on wrapping, not meaning. Inference: qualified; a character or word budget for Markdown, or phrase matching that ignores line breaks, would remove the incentive.
 
-## DD-172 — A not-ready reason waiting on another story's landing was not revisited when it landed
+## ODF-120 — A not-ready reason waiting on another story's landing was not revisited when it landed
+Former local code: DD-172.
 
 Refinement recorded SEED-052#interact-with-claude-terminal not-ready because story 2 was not yet on `main` ("reassess once it lands"). Story 2 closed on trunk a minute later, but nothing revisited the dependent story's assessment; it stayed not-ready until the developer asked why.
 
@@ -888,7 +858,8 @@ Refinement recorded SEED-052#interact-with-claude-terminal not-ready because sto
   - Evidence: execute-plan first stopped on the not-ready reason; the developer asked to "watch until the condition … is met and then start execution"; a fetch loop saw the closure, and the coordinator announced a preparation, reconciled the plan, recorded ready, and landed it before `execution-start.mjs start`.
   - Observed effect: third occurrence the same day. Only the developer's watch request revisited the reason; execute-plan has no wait-then-reassess path, so the coordinator inferred keep authority for the reassessment from "start execution".
 
-## DD-174 — A refactor pass removed a guard as behavior-preserving on an unverified helper premise
+## ODF-163 — A refactor pass removed a guard as behavior-preserving on an unverified helper premise
+Former local code: DD-174.
 
 Slice 1's refactor pass dropped a skip for observer-registered revisions the repository lacks, reasoning that Land's `isAncestor` returns false on any failure. It re-threw every exit but 1, so a missing revision would crash `finish`. The coordinator accepted the report and wrote the same premise into the plan as a learning; no test covered a missing revision.
 
@@ -897,7 +868,8 @@ Slice 1's refactor pass dropped a skip for observer-registered revisions the rep
 - Execution: `SEED-008#closure-proof-and-harness-correction` / plan 154, first related implementation commit `d1204cd7`; Timestamp: unknown (refactor before `d1204cd7`, 2026-09-29T15:02:45+08:00); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `b37292dd`
   - Evidence: refactor report cited `retirement-checks.mjs:31` as returning false; `succeeds()` there rethrew non-1 exits; plan learning in `d1204cd7`; slice 2's implementer read the helper, restored the skip, and planted a missing registered SHA in `trunk-closure-rebased-rerun.test.mjs` (`0166f178`). Observed effect: a latent crash path published on the execution branch for one slice; caught before trunk. Inference: qualified; a refactor that deletes a guard needs a test that exercises it, as in DD-124's read-versus-observe class.
 
-## DD-176 — A mistyped `--repo` bound managed delivery's observer to another repository, and a refused retry left a second observer
+## ODF-164 — A mistyped `--repo` bound managed delivery's observer to another repository, and a refused retry left a second observer
+Former local code: DD-176.
 
 The coordinator passed `--repo nerds-odd-e/open-dough` to `execution-increment-delivery.mjs deliver`, though `origin` is `terryyin/open-dough`. Delivery accepted the push and attached an observer for the wrong repository. After stopping it, a second `deliver` refused ("rebase left the pre-rebase SHA as the candidate") but still established an observer, which the coordinator did not know about. A manual `ci-mailbox.mjs start` then made a duplicate.
 
@@ -911,7 +883,8 @@ The coordinator passed `--repo nerds-odd-e/open-dough` to `execution-increment-d
   - Observed effect: four extra coordinator steps and two observers briefly covering one branch; no CI event was lost.
   - Inference: Qualified. `deliver` could derive the repository from the pushed remote, or refuse one that does not match it, and a refused `deliver` should report any observer it established.
 
-## DD-177 — Slice proof chosen by the changed components missed page-wide invariant specs
+## ODF-150 — Slice proof chosen by the changed components missed page-wide invariant specs
+Former local code: DD-177.
 
 Slice 2 made Recent sessions entries and region focusable (`tabIndex=-1`), and slice 3 changed Recent sessions' wording. Each delegated proof listed the launch and terminal specs the coordinator named, and the implementers added none. A page-wide spec failed only in CI each time.
 
@@ -926,7 +899,8 @@ Slice 2 made Recent sessions entries and region focusable (`tabIndex=-1`), and s
   - Observed effect: two failed CI runs, two repair commits, and two extra refactor agents.
   - Inference: Qualified. Selecting proof by the names of changed components misses specs that assert a whole-page property. The whole dashboard suite takes under a minute locally, so running it before delivering a page change costs less than one CI repair.
 
-## DD-180 — A host probe planned for the agent to answer needed the developer, because the host refused self-driving the attach
+## ODF-165 — A host probe planned for the agent to answer needed the developer, because the host refused self-driving the attach
+Former local code: DD-180.
 
 Plan 159 slice 1 said to attach with the existing CLI and answer a real background session's question. The auto-mode classifier refused the coordinator driving `claude attach` through a PTY ("Tmux Self Drive"), so the developer had to attach and answer.
 
@@ -938,7 +912,8 @@ Plan 159 slice 1 said to attach with the existing CLI and answer a real backgrou
   - Evidence: plan 159 slice 1 as refined in `261910e8`; its recorded observation in `eb89e7d2` names the refusal and the human answer.
   - Observed effect: about 14 minutes with the execution waiting on the developer; the probe itself succeeded. Inference: Qualified. Planning a probe that needs input typed into another interactive session should name the developer step, as DD-173's inverse case (ProjectFindings.md) shows planning should check which actor can run it.
 
-## DD-181 — Proof acceptance checked what tests observe, not the plan's direction on how often to observe it
+## ODF-166 — Proof acceptance checked what tests observe, not the plan's direction on how often to observe it
+Former local code: DD-181.
 
 Plan 159 slice 2 said to test the session presentation once as a shared capability, not every state in both placements. The implementer asserted every state on both the card entry and the Recent sessions entry in `agent-launch-recent-session-states.spec.ts`; coordinator acceptance and the refactor pass inspected only that the assertions observed the promises.
 
@@ -950,7 +925,8 @@ Plan 159 slice 2 said to test the session presentation once as a shared capabili
   - Evidence: plan 159 slice 2 proof text; `agent-launch-recent-session-states.spec.ts` `both(index)` loop at `4ef13e85`; the execution retrospective found it.
   - Observed effect: extra per-state card assertions beside `agent-launch-card-session-states.spec.ts`, which already rechecks card labels (plan 160's finding 6); cleanup falls to a correction. Inference: Qualified. Accept-proof guidance weighs observation substance; a plan's test-cost direction has no acceptance check.
 
-## DD-185 — A lost-observer notice kept blocking every turn end, even after the observer was stopped
+## ODF-144 — A lost-observer notice kept blocking every turn end, even after the observer was stopped
+Former local code: DD-185.
 
 The Claude stop hook reported "CI observer lost its worker" for a dead observer as a blocking error at each turn end. The guidance says to report lost coverage once and continue. A `stop` that recorded the terminal lost result did not end the notice. It is the reverse of former ODF-065, where a dead observer still read as attached. It matches catalog ODF-144 (lost-worker notice repeatedly blocks turn completion), which so far had only another project's occurrence.
 
@@ -967,7 +943,8 @@ The Claude stop hook reported "CI observer lost its worker" for a dead observer 
   - Evidence: mailbox `/tmp/dough-ci-501/watch-DONFBb` (worker lost when the disk filled); `stop` returned `coverage.state: "lost"` and the notice kept repeating; source repair `75bdc10d` reports a loss once through `delivery.json` `lossReported` and not after a `stop` marker.
   - Observed effect: about eight blocked turn ends, two developer questions, and a developer-authorized removal of the stale owner binding, since the running hook is the installed copy, which a source fix reaches only at release.
 
-## DD-189 — Rerunning managed delivery on an already-published candidate refused with an internal error instead of classifying it
+## ODF-167 — Rerunning managed delivery on an already-published candidate refused with an internal error instead of classifying it
+Former local code: DD-189.
 
 A transient `Permission denied (publickey)` interrupted `deliver`; a rerun failed at `git fetch` and a third refused with "rebase left the pre-rebase SHA as the candidate" because the remote already held the candidate. `execution-increment-resume.mjs resume` then classified it `already-published` and recovered the observer. The coordinator reran `deliver` instead of classifying the interrupted publication first, as the execute-plan resume rule directs; DD-176's refused retry shows the same message.
 
@@ -978,6 +955,39 @@ A transient `Permission denied (publickey)` interrupted `deliver`; a rerun faile
   - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `d68fcde4`
   - Evidence: three `deliver` attempts for `daaf3c1e` (push, then fetch, `publickey` errors; then the refusal); `resume` receipt `already-published`, observer `watch-NCakHT` recovered; a loop of five `git fetch` gave one `publickey` failure.
   - Observed effect: two extra delivery attempts and a detour through the script source; no duplicate push. Inference: Qualified. `deliver` could recognize a candidate already on the target as published, or name `resume` in its refusal.
+
+## ODF-177 — Shared-context edits invalidate sibling readiness
+
+Former local code: DD-120 (isolated later occurrence, previously under ODF-116).
+
+A sibling refinement or closure changes seed-level shared context, so another story's ready record becomes stale even when its own section and plan are unchanged.
+
+### Occurrences
+
+- Execution: `SEED-052#recent-sessions-residue` / plan 151, before its claim `34ad359b`
+  - Timestamp: unknown; the refusal preceded reassessment commit `b7b3c23d` (2026-09-29T12:43:28+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; repository VERSION 0.3.46 at `b7b3c23d`
+  - Evidence: same refusal after SEED-043#preserve-sibling-readiness closed (`fb345ff5`); `git diff f7e7e272 origin/main` on SEED-052 showed only story 3's refinement, which also edited the seed's shared Agreed Boundaries and Ordering text (done-prefix naming moved into story 3). Recorded basis `e646df35…` vs current `db4fc214…`; plan digest unchanged.
+  - Observed effect: a diagnosis, a hand-rolled preparation worktree, record-state, commit, rebase, push to trunk, and a start retry before the claim. The coordinator published outside Dough Land and removed the local branch with `git branch -D` (its tip was already on trunk). The developer had asked for a reassessment, so no decision was lost.
+  - Inference: Qualified. The fix exempts siblings' own sections, but a sibling refinement that edits shared seed context still invalidates every other story in the seed. Execute-plan names no route from this refusal to the preparation keep path.
+
+## ODF-176 — Closure provenance invalidates ready corrections
+
+Former local code: DD-120 (isolated later occurrence, previously under ODF-116).
+
+Wrap-up rewrites a queued correction's own provenance, changing its plan or story basis without reconciling its readiness record.
+
+### Occurrences
+
+- Execution: `SEED-052#preparing-card-refinement-journey` / plan 154, before its claim `f9fe3fdc`
+  - Timestamp: unknown; the refusal preceded reassessment commit `3da84888` (2026-09-29, same session)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5[1m]
+  - Open Dough release: unknown; repository guidance at `fd077d1d`
+  - Evidence: same refusal. Closure `fd077d1d` of the parent SEED-052#recent-sessions-residue rewrote this correction's own Scope provenance and its plan's Source/Provenance lines (branch refs to merged and closed-history refs) without reassessing; both digests changed.
+  - Observed effect: one diagnosis, one record-state, one direct trunk commit, and a start retry. Inference: any correction a retrospective creates can be invalidated this way by its parent's wrap-up; the sibling-section fix does not cover it.
 
 ## Retention
 
