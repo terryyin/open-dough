@@ -1,5 +1,5 @@
 // Guidance structure (not Git mechanics): Dough Land owns landing a reviewed
-// worktree, and preparation keep, workspace retirement, and bug fixing link it
+// worktree or default checkout, and preparation keep, workspace retirement, and bug fixing link it
 // instead of describing landing again. Native agent evidence is not this file.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -25,11 +25,11 @@ test("preparation keep and workspace retirement link Dough Land instead of descr
   assert.match(land, /Use only on explicit invocation/);
   assert.match(
     land,
-    /A casual "keep", "looks good",\s+or approval does not invoke it/,
+    /A casual\s+"keep", "looks good", or approval does not invoke it/,
   );
   assert.match(land, /## Refresh the default checkout/);
   assert.match(land, /## Retire the worktree/);
-  assert.match(land, /git -C <worktree> add -A/);
+  assert.match(land, /git -C <checkout> add -A/);
   assert.match(
     land,
     /\[publish the candidate\]\(\.\.\/dough-execute-plan\/references\/publish-the-candidate\.md\)/,
@@ -38,8 +38,11 @@ test("preparation keep and workspace retirement link Dough Land instead of descr
     land,
     /\[Refresh eligibility\]\(\.\.\/dough-execute-plan\/references\/maintain-default-checkout\.md#refresh-eligibility\)/,
   );
-  assert.match(land, /the named worktree is the default checkout itself/);
-  assert.match(land, /no worktree is in context/);
+  assert.match(
+    land,
+    /the named default checkout is on another branch than the target/,
+  );
+  assert.match(land, /no checkout is in context/);
   assert.match(
     land,
     /Never commit the same change twice, push an already accepted\s+candidate again/,
