@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 194. Removed local codes are never reused.
+- Highest allocated local number: 195. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -116,6 +116,7 @@ Follow-up: Open, unqueued.
 - Execution: `SEED-052#interact-with-claude-terminal` / plan 152, first related implementation commit `549e2d5a` - Timestamp: 2026-09-29T14:48:19+08:00 - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd` - Evidence: `npm run -s format 2>&1 | tail -1 && python3 … && git commit … && deliver` printed "Format failed: unresolved findings" yet continued; `ee35dd55` was published, CI run `36533023610` `lint` failed (`unbound-method`, `App.tsx:130`); repair `815844e4`. This repository has no commit hook, so formatting was the only local lint gate. - Observed effect: one extra commit, refactor pass, push, and failed CI lint job; the other CI jobs passed. - Inference: Qualified. The same coordinator had checked exit status correctly in earlier slices of this run; batching format, plan edit, commit, and delivery into one piped chain reintroduced the fault.
 - Execution: `SEED-052#start-ad-hoc-project-session` / plan 172, first related implementation commit `689970f7` - Timestamp: 2026-09-30T10:09:44+08:00 (slice 2, amended commit `52932716`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.47 - Evidence: `npm run format 2>&1 | tail -3; python3 … && git add … && agent-commit` printed "Format failed: unresolved findings or tool failures remain." yet committed `3011c1df`; the `tail` hid `no-misused-spread` (`claudeLaunch.ts:64`), which a rerun of format found before delivery, and the commit was amended into `52932716`. - Observed effect: nothing published (caught before delivery); one amend and one extra format, typecheck and spec run. - Inference: Qualified. Recurrence of the hand-built format-then-commit chain (compare ODF-097); the rule is known and the chain still hid the failure, which one scripted format-then-commit step would stop.
 - Execution: `SEED-062#compact-session-sidebar` / plan 181, first related implementation commit `783a8e7a` - Timestamp: unknown (CI run 36687483426 on `783a8e7a`, session date 2026-09-30) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown - Evidence: slice 1 replaced the Sessions text button with an icon; the delegation's spec list was every spec importing `sidebarParts` plus two attention specs. `dashboardPage.ts`'s `controlsBesideSessions` excluded the button by `hasNotText: /^Sessions/`, so `agent-roster`, `project-read-recovery` and `read-failure` specs failed only in CI (strict-mode violation, two buttons); repair `f47257d5`. The full dashboard suite (about 1.5 min) ran before every later delivery. - Observed effect: one failed CI run and one repair commit before the suite was adopted. - Inference: Qualified. The list was chosen by which specs import the changed helper, and a text-based locator in a different helper was outside it; a third execution shows the cause recurring.
+- Execution: `SEED-061#select-refinement-options-from-dashboard` / plan 185, first related implementation commit `06c65127` - Timestamp: 2026-09-30T18:29:46+08:00 (slice 3, commit `e6ec8dd9`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.49 - Evidence: `npm run format 2>&1 | sed … | tail -2; python3 … && git add -A … && agent-commit && deliver` printed "Format failed: unresolved findings or tool failures remain." yet committed `e6ec8dd9` and published it; CI run 36702782718 `lint` failed (`no-unnecessary-condition`, `agent-launch-options-groups.spec.ts:95`, a new untracked spec the delegated agent had not linted); repair `235583f7`. The coordinator then ran format with its exit status gated (`F=$?`) before each later commit in the run. - Observed effect: one extra commit, push, and failed CI lint job; the later six deliveries were gated. - Inference: Qualified. Sixth hand-built format-then-commit chain in which `tail`/`;` hid the status; the coordinator's own rule was known (the piped output was read, and the failure line was visible) but the chain ran on it.
 
 ## ODF-154 — Cursor managed delivery lacks its coordinator session identity
 
@@ -375,7 +376,23 @@ Follow-up: Open, unqueued.
   - Observed effect: each repeat cost a turn and a duplicated report to read and dismiss while the refactor agent and later work were pending.
   - Inference: Qualified. Same pattern as the first occurrence; the agent's own cause is not in the record.
 
-## DD-194 — Full-selection local runs flaked in existing specs that passed isolated and in CI
+## DD-194 — A plan's literal focused proof command failed from its stated directory and left build output that broke the format gate
+
+A plan wrote its focused Playwright command as `cd dashboard && npx playwright test tests/…`, but the dashboard fixtures copy `src/skills/…` relative to the current directory, so the command only works from the workspace root. Its first run also built `dashboard/dashboard/dist`, which the lint step then scanned.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+- Execution: `SEED-061#select-refinement-options-from-dashboard` / plan 185, first related implementation commit `06c65127`
+  - Timestamp: 2026-09-30T18:19:53+08:00 (slice 1, before commit `06c65127`)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-sonnet-5-5
+  - Open Dough release: unknown; installed guidance VERSION 0.3.49
+  - Evidence: plan 185 "Outside-in proof" focused run and the slice 1 delegation both gave `cd dashboard && npx playwright test tests/agent-launch-start.spec.ts …`; the slice 1 agent's report says it failed in test setup and reran from the workspace root; the coordinator's next `npm run format` then reported 4812 eslint errors, all in `dashboard/dashboard/dist/assets/index-*.js` (git-ignored, but linted), cleared by deleting `dashboard/dashboard`. Plan 185 "Decisive premises" lists nine observed premises and none is the focused command.
+  - Observed effect: one failed proof run, one failed format run, and a diagnosis round before the first commit; later delegations carried the corrected root-based command.
+  - Inference: Qualified. The plan's command was taken from earlier plans' form rather than run once when planned; a premise check of the literal proof command would have caught it. The lint scanning ignored build output is a separate repository quirk and is not attributed to guidance.
+
+## DD-195 — Full-selection local runs flaked in existing specs that passed isolated and in CI
 
 Across one execution, three large parallel Playwright selections each failed one existing spec that the change did not touch; each passed on isolated rerun and CI stayed green.
 

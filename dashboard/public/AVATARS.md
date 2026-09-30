@@ -63,6 +63,148 @@ it plays once per hover in the enlarged portrait and is disabled for reduced
 motion. The morph begins and ends on the approved still, so it needs no
 overlay to hide a snap.
 
+`agent-avatars/sola-gesture.webp` is Sola's 2-second hover reaction: she
+tilts her head a little further toward her raised arm, blinks once, and
+settles back. Claude Code made every frame on 2026-09-30 by warping her
+unaltered tile of `atlas-1-large.webp` (the 418 × 418 square at x 0, y 731)
+with Python OpenCV: a Gaussian-weighted rotation about the neck moves the
+head, and each upper lid slides down onto its lower lid for the blink. No
+image generation was used. The strip is 24 frames, 418 × 418 each, in
+lossless WebP; the first and last frames are the unaltered tile.
+
+`agent-avatars/yua-gesture.webp` is Yua's 2-second hover reaction: resting
+her chin on her hands, she sways her head to one side, blinks, sways briefly
+the other way, and settles back. It was made the same way as Sola's, from her
+tile of `atlas-1-large.webp` (the 418 × 418 square at x 418, y 731): 24
+lossless WebP frames, first and last unaltered.
+
+`agent-avatars/ai-gesture.webp` is Ai's 2-second hover reaction: she nods
+twice, winks, and settles back. It was made the same way as Sola's, from her
+tile of `atlas-1-large.webp` (the 418 × 418 square at x 836, y 731): 24
+lossless WebP frames, first and last unaltered.
+
+`agent-avatars/kirara-gesture.webp` is Kirara's 2-second hover reaction: she
+leans her head into her hand, blinks twice, and settles back. It was made the
+same way as Sola's, from her tile of `atlas-2-large.webp` (the 418 × 418
+square at x 0, y 104): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/mana-gesture.webp` is Mana's 2-second hover reaction: she
+wiggles her head happily from side to side, blinks, and settles back. It was
+made the same way as Sola's, from her tile of `atlas-2-large.webp` (the 418 ×
+418 square at x 418, y 104): 24 lossless WebP frames, first and last
+unaltered.
+
+`agent-avatars/tsubomi-gesture.webp` is Tsubomi's 2-second hover reaction: she
+lowers her head slightly, gives a slow blink, and settles back. It was made
+the same way as Sola's, from her tile of `atlas-2-large.webp` (the 418 × 418
+square at x 836, y 104): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/yumi-gesture.webp` is Yumi's 2-second hover reaction: she lifts
+her chin with a curious tilt, blinks, and settles back. It was made the same
+way as Sola's, from her tile of `atlas-2-large.webp` (the 418 × 418 square at
+x 0, y 731): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/julia-gesture.webp` is Julia's 2-second hover reaction: she
+rolls her head toward her raised hand, gives a slow blink, and settles back.
+It was made the same way as Sola's, from her tile of `atlas-2-large.webp` (the
+418 × 418 square at x 418, y 731): 24 lossless WebP frames, first and last
+unaltered.
+
+`agent-avatars/tsukasa-gesture.webp` is Tsukasa's 2-second hover reaction: she
+dips her head shyly, blinks twice, and settles back. It was made the same way
+as Sola's, from her tile of `atlas-2-large.webp` (the 418 × 418 square at x
+836, y 731): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/kaoru-gesture.webp` is Kaoru's 2-second hover reaction: she
+tilts her head warmly, gives a slow blink, and settles back. It was made the
+same way as Sola's, from her tile of `atlas-3-large.webp` (the 418 × 418
+square at x 0, y 104): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/nao-gesture.webp` is Nao's 2-second hover reaction: she tilts
+her head curiously to one side, blinks, glances the other way, and settles
+back. It was made the same way as Sola's, from her tile of
+`atlas-3-large.webp` (the 418 × 418 square at x 418, y 104): 24 lossless WebP
+frames, first and last unaltered.
+
+`agent-avatars/maria-gesture.webp` is Maria's 2-second hover reaction: she
+turns a little toward the viewer, blinks, and settles back. It was made the
+same way as Sola's, from her tile of `atlas-3-large.webp` (the 418 × 418
+square at x 836, y 104): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/mihiro-gesture.webp` is Mihiro's 2-second hover reaction: she
+gives two bouncy nods, blinks twice happily, and settles back. It was made the
+same way as Sola's, from her tile of `atlas-3-large.webp` (the 418 × 418
+square at x 0, y 731): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/aino-gesture.webp` is Aino's 2-second hover reaction: she tilts
+her head with a gentle smile, blinks, and settles back. It was made the same
+way as Sola's, from her tile of `atlas-3-large.webp` (the 418 × 418 square at
+x 418, y 731): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/rio-gesture.webp` is Rio's 2-second hover reaction: she lowers
+her head a little, gives a slow blink, and settles back. It was made the same
+way as Sola's, from her tile of `atlas-3-large.webp` (the 418 × 418 square at
+x 836, y 731): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/airi-gesture.webp` is Airi's 2-second hover reaction: she tilts
+her head softly, blinks, and settles back. It was made the same way as Sola's,
+from her tile of `atlas-4-large.webp` (the 418 × 418 square at x 0, y 104): 24
+lossless WebP frames, first and last unaltered.
+
+`agent-avatars/shunka-gesture.webp` is Shunka's 2-second hover reaction:
+resting her cheek on her hand, she sways thoughtfully, gives a slow blink, and
+settles back. It was made the same way as Sola's, from her tile of
+`atlas-4-large.webp` (the 418 × 418 square at x 418, y 104): 24 lossless WebP
+frames, first and last unaltered.
+
+`agent-avatars/eimi-gesture.webp` is Eimi's 2-second hover reaction: she tilts
+her head with a soft smile, blinks, and settles back. It was made the same way
+as Sola's, from her tile of `atlas-4-large.webp` (the 418 × 418 square at x
+836, y 104): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/hitomi-gesture.webp` is Hitomi's 2-second hover reaction: she
+lowers her lifted chin a little, gives a slow blink, and settles back. It was
+made the same way as Sola's, from her tile of `atlas-4-large.webp` (the 418 ×
+418 square at x 0, y 731): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/hibiki-gesture.webp` is Hibiki's 2-second hover reaction:
+resting her chin on her hand, she tilts her head, winks, and settles back. It
+was made the same way as Sola's, from her tile of `atlas-4-large.webp` (the
+418 × 418 square at x 418, y 731): 24 lossless WebP frames, first and last
+unaltered.
+
+`agent-avatars/maki-gesture.webp` is Maki's 2-second hover reaction: she leans
+slightly toward her raised hand, gives a slow blink, and settles back. It was
+made the same way as Sola's, from her tile of `atlas-4-large.webp` (the 418 ×
+418 square at x 836, y 731): 24 lossless WebP frames, first and last
+unaltered.
+
+`agent-avatars/nana-gesture.webp` is Nana's 2-second hover reaction: she turns
+a little toward the viewer, blinks, and settles back. It was made the same way
+as Sola's, from her tile of `atlas-5-large.webp` (the 418 × 418 square at x 0,
+y 104): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/honoka-gesture.webp` is Honoka's 2-second hover reaction: she
+gives two cheerful nods, blinks, and settles back. It was made the same way as
+Sola's, from her tile of `atlas-5-large.webp` (the 418 × 418 square at x 418,
+y 104): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/anri-gesture.webp` is Anri's 2-second hover reaction: she tilts
+her head further, blinks, and settles back. It was made the same way as
+Sola's, from her tile of `atlas-5-large.webp` (the 418 × 418 square at x 836,
+y 104): 24 lossless WebP frames, first and last unaltered.
+
+`agent-avatars/koharu-gesture.webp` is Koharu's 2-second hover reaction: she
+tilts her head to one side, blinks, glances the other way, and settles back.
+It was made the same way as Sola's, from her tile of `atlas-5-large.webp` (the
+418 × 418 square at x 0, y 731): 24 lossless WebP frames, first and last
+unaltered.
+
+`agent-avatars/rina-gesture.webp` is Rina's 2-second hover reaction: she tilts
+her head softly, blinks twice, and settles back. It was made the same way as
+Sola's, from her tile of `atlas-5-large.webp` (the 418 × 418 square at x 418,
+y 731): 24 lossless WebP frames, first and last unaltered.
+
 `agent-avatars/odd-e-nerds/cartoon/<lowercase name>.webp` are cartoon avatars of the
 Odd-e nerds agents (`nerdAgentNames` in the same module), for example `stanly.webp`.
 Each was generated with OpenAI image editing (`gpt-image-1.5`) from the face in that

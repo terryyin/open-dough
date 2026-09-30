@@ -1,7 +1,8 @@
 // The dialog mechanics shared by every launch action: a modal that focuses
 // its instruction field, sends nothing when dismissed, shows "Starting…" while
 // a launch is in flight, and returns the keyboard to the action that opened
-// it, unless a launched session took it. Callers supply only the words.
+// it, unless a launched session took it. Callers supply only the words, and
+// the options a launch may select, or the line saying why there are none.
 
 import {
   useEffect,
@@ -11,6 +12,12 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
+import {
+  withChoice,
+  withoutGroup,
+  type OfferedShape,
+} from "./commandOptions.ts";
+import { LaunchOptions } from "./LaunchOptions.tsx";
 import {
   launchInstructionLimit,
   launchModels,
@@ -53,24 +60,39 @@ export function useLaunchDialogLauncher(starting: boolean): {
 }
 
 // Mounted only while open, so an action carries no hidden dialog text and each
-// opening starts without an earlier instruction or model choice.
+// opening starts without an earlier instruction or model choice. A launch that
+// failed hands its selection back (`onRefused`) for the next opening to start
+// from (`kept`), so the developer can change it.
 export function LaunchDialog({
   heading,
   description,
   note,
   fieldLabel,
-  fieldHint,
+  command,
+  options,
+  optionsHint,
+  optionsLine,
+  kept,
   starting,
   onStart,
+  onRefused,
   onClose,
 }: {
   readonly heading: string;
   readonly description: ReactNode;
   readonly note?: ReactNode;
   readonly fieldLabel: string;
-  readonly fieldHint?: ReactNode;
+  // The command line the instruction follows; it includes the selected
+  // options' flags, in the order `options` offers them.
+  readonly command?: string;
+  readonly options?: OfferedShape | undefined;
+  readonly optionsHint?: string;
+  // Said in place of the options when there are none to choose from.
+  readonly optionsLine?: string | undefined;
+  readonly kept?: ReadonlySet<string> | undefined;
   readonly starting: boolean;
   readonly onStart: (choices: LaunchChoices) => Promise<boolean>;
+  readonly onRefused?: (selected: ReadonlySet<string>) => void;
   // Whether a launched session took the keyboard.
   readonly onClose: (launched: boolean) => void;
 }) {
@@ -80,6 +102,12 @@ export function LaunchDialog({
   const headingId = `${id}-heading`;
   const hintId = `${id}-instruction-hint`;
   const launched = useRef(false);
+  const [selected, setSelected] = useState<ReadonlySet<string>>(
+    kept ?? new Set(),
+  );
+  const flags = (options?.options ?? [])
+    .map(({ flag }) => flag)
+    .filter((flag) => selected.has(flag));
   const [model, setModel] = useState<LaunchModel | "">("");
 
   useEffect(() => {
@@ -102,8 +130,10 @@ export function LaunchDialog({
           void onStart({
             instruction: instruction.current?.value ?? "",
             ...(model === "" ? {} : { model }),
+            ...(flags.length === 0 ? {} : { options: flags }),
           }).then((started) => {
             launched.current = started;
+            if (!started) onRefused?.(selected);
             dialog.current?.close();
           });
         }}
@@ -112,18 +142,36 @@ export function LaunchDialog({
         <p>{description}</p>
         {note}
         <label htmlFor={`${id}-instruction`}>{fieldLabel}</label>
-        {fieldHint !== undefined && (
-          <p id={hintId} className="quiet">
-            {fieldHint}
+        {command !== undefined && (
+          <p id={hintId} className="quiet" aria-live="polite">
+            Sent after <code>{[command, ...flags].join(" ")}</code>.
           </p>
         )}
         <textarea
           ref={instruction}
           id={`${id}-instruction`}
-          aria-describedby={fieldHint !== undefined ? hintId : undefined}
+          aria-describedby={command !== undefined ? hintId : undefined}
           maxLength={launchInstructionLimit}
           rows={4}
         />
+        {options !== undefined && options.options.length > 0 ? (
+          <LaunchOptions
+            id={id}
+            shape={options}
+            hint={optionsHint}
+            selected={selected}
+            onChoose={(flag, chosen) => {
+              setSelected((current) =>
+                withChoice(options, current, flag, chosen),
+              );
+            }}
+            onClearGroup={(group) => {
+              setSelected((current) => withoutGroup(current, group));
+            }}
+          />
+        ) : (
+          optionsLine !== undefined && <p className="quiet">{optionsLine}</p>
+        )}
         <label htmlFor={`${id}-model`}>Model</label>
         <select
           id={`${id}-model`}

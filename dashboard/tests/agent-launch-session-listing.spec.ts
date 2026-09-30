@@ -169,6 +169,20 @@ test.describe("the machine's sessions, each joined with its state", () => {
     });
   });
 
+  test("answers each session as listed while Claude Code also lists an interactive session", async () => {
+    const { record } = JSON.parse(
+      (await launch(server, launchRequest)).body,
+    ) as { record: WithState };
+
+    server.claudeListsInteractiveSession();
+
+    expect((await statesOf()).get(record.session.sessionId)).toEqual({
+      kind: "listed",
+      state: "working",
+      status: "busy",
+    });
+  });
+
   test("answers every project's records, each naming its project, from one listing", async () => {
     server.claudeScenario("launched");
     const response = await launch(server, {

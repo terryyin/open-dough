@@ -18,13 +18,13 @@
 // workspace, and branch, so the script answers `existing` or `resumed`.
 
 import { stat } from "node:fs/promises";
-import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
   type EstablishedStart,
   type StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { installedSkillPath } from "./claudeWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 import { lostStartArguments, ownerOf } from "./startGit.ts";
@@ -46,12 +46,7 @@ import {
   updateStart,
 } from "./startStore.ts";
 
-const skillScripts = path.join(
-  ".claude",
-  "skills",
-  "dough-execute-plan",
-  "scripts",
-);
+const executePlanSkill = "dough-execute-plan";
 const startScript = "execution-start.mjs";
 const formatterScript = "established-start.mjs";
 const workflow = "execution";
@@ -61,7 +56,7 @@ async function runScript(
   project: ProjectFolder,
 ): Promise<StartResult> {
   const stdout = await runStartCommand(
-    path.join(project.path, skillScripts, startScript),
+    installedSkillPath(project, executePlanSkill, "scripts", startScript),
     args,
     project,
   );
@@ -77,10 +72,11 @@ async function runScript(
 export async function establishesStart(
   project: ProjectFolder,
 ): Promise<boolean> {
-  const scripts = path.join(project.path, skillScripts);
+  const script = (name: string) =>
+    installedSkillPath(project, executePlanSkill, "scripts", name);
   return (
-    (await isFile(path.join(scripts, startScript))) &&
-    (await isFile(path.join(scripts, formatterScript)))
+    (await isFile(script(startScript))) &&
+    (await isFile(script(formatterScript)))
   );
 }
 
@@ -216,7 +212,12 @@ export async function formattedStart(
   project: ProjectFolder,
   start: EstablishedStart,
 ): Promise<string> {
-  const file = path.join(project.path, skillScripts, formatterScript);
+  const file = installedSkillPath(
+    project,
+    executePlanSkill,
+    "scripts",
+    formatterScript,
+  );
   // Keyed by its modification time, so a skill updated while the server runs
   // is read anew.
   const url = `${pathToFileURL(file).href}?modified=${String((await stat(file)).mtimeMs)}`;

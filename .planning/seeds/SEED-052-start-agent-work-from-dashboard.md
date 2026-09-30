@@ -59,9 +59,11 @@ a change to global backlog priority.
 - The first launch delegates all existing setup, workspace selection, claiming,
   bookkeeping, publication, and execution to the agent's normal workflow.
   Direct IDE/CLI instructions retain that complete path after scripting grows.
-- Tool conventions govern workspaces. Prefer deterministic operations where
-  possible, but do not prescribe dashboard worktree creation or require all
-  preparation to precede tool launch.
+- The dashboard creates the worktree for every tool, one layout under
+  `<project folder>/.worktrees/`, rather than each tool's own worktree feature
+  (decided 2026-09-30 after checking Codex and Cursor; see the
+  [Architectural North Star](../NORTH-STAR.md#a-start-establishes-claim-and-workspace-before-the-session)).
+  A direct CLI start still has the agent create its own workspace.
 - Initially launch and forget: report the dashboard's launch operation, then
   derive story progress from origin. No session monitoring, automatic question
   detection, or completion notification is required for that initial delivery.
@@ -169,8 +171,14 @@ or claims of readiness.
   Code. No desktop-app connection, model picker, or non-dashboard session discovery.
 - **Value / learning:** Makes tool choice real for Codex users and tests how much
   of the established experience transfers.
-- **Effort hypothesis:** Unestimated; launch/attach continuity and workspace
-  conventions require a feasibility observation before planning or further split.
+- **Effort hypothesis:** Unestimated; launch/attach continuity requires a
+  feasibility observation before planning or further split.
+- **Workspace:** The session starts in the dashboard's workspace with
+  `codex -C <workspace>`, never `--worktree`. Trust comes from the project
+  folder, since Codex resolves a linked worktree to its main repository. Observe
+  one real launch committing there (paid). Check that a `workspace-write`
+  sandbox can commit: it makes `.git` read-only, and a linked worktree's Git
+  data lives in the main repository's `.git`.
 - **Known from launch:** The browser still spells out Claude Code specifics:
   `claude attach`, the uncertain launch's `claude agents` advice,
   `/dough-execute-plan`, and the host label. It also interprets Claude Code's
@@ -205,6 +213,13 @@ or claims of readiness.
   one tool's integration proves another's.
 - **Effort hypothesis:** Unestimated; the same end-to-end feasibility question as
   Codex must be observed on Cursor before planning or further split.
+- **Workspace:** The session starts in the dashboard's workspace with
+  `cursor-agent --workspace <workspace>`, never `-w`. A worktree under the
+  trusted project folder passed Cursor's trust gate without `--trust`, which
+  interactive sessions do not accept (observed 2026-09-30, no model call).
+  `.cursor/worktrees.json` setup does not run there; Open Dough's own
+  checkout setup applies instead. Observe one real launch committing there
+  (paid).
 - **Known from launch:** The same Claude Code specifics as story 7 live in the
   browser, including its session-state vocabulary and the 15-second listing
   read.

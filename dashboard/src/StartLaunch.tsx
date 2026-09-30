@@ -10,7 +10,7 @@
 // story this machine started without a session (`resumesIn`), the dialog says the start is already published and the session opens in the kept
 // workspace.
 
-import { useId } from "react";
+import { useId, useRef, useState } from "react";
 import {
   launchWorkflows,
   startPhaseWords,
@@ -18,15 +18,42 @@ import {
   type StartPhase,
   type LaunchWorkflow,
 } from "./agentLaunch.ts";
-import type { LaunchAttempt, LaunchWorkItem } from "./agentLaunches.ts";
+import type {
+  LaunchAttempt,
+  LaunchWorkItem,
+  OptionsOffer,
+} from "./agentLaunches.ts";
 import { LaunchDialog, useLaunchDialogLauncher } from "./LaunchDialog.tsx";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import "./agent-launch.css";
+
+// What the dialog says where the options would be, when it cannot offer any:
+// the boundary's words for why, so a refusal and the dialog agree.
+function optionsLine(
+  offer: OptionsOffer | undefined,
+  skill: string,
+  named: string,
+): string | undefined {
+  const starts = `${named.charAt(0).toUpperCase()}${named.slice(1)} starts straightforwardly.`;
+  switch (offer?.kind) {
+    case undefined:
+      return undefined;
+    case "reading":
+      return "Reading options…";
+    case "unavailable":
+      return `Options are not offered: the installed ${skill} skill in this project ${offer.why}. ${starts}`;
+    case "offered":
+      return offer.options.length === 0
+        ? `The installed ${skill} skill in this project offers no options. ${starts}`
+        : undefined;
+  }
+}
 
 export function StartLaunch({
   work,
   workflow,
   establishesStart,
+  options,
   resumesIn,
   note,
   attempt,
@@ -38,6 +65,9 @@ export function StartLaunch({
   // Whether the project's installed skill establishes a start for this
   // workflow's Start; without it the words are those of a plain session start.
   readonly establishesStart: boolean;
+  // What the project's installed skill offers this workflow's launch, if the
+  // workflow defines options.
+  readonly options: OptionsOffer | undefined;
   // The kept start's workspace, as the page shows it, when this Start resumes
   // a start whose claim or announcement is already published.
   readonly resumesIn?: string;
@@ -63,6 +93,9 @@ export function StartLaunch({
   const running = starting || phase !== undefined;
   const { launcher, open, openDialog, closeDialog } =
     useLaunchDialogLauncher(starting);
+  // The selection of the launch that failed, which the next opening keeps.
+  const [kept, setKept] = useState<ReadonlySet<string>>();
+  const refused = useRef(false);
   const noteId = `${id}-note`;
   const answerId = `${id}-answer`;
   const described = [
@@ -127,18 +160,22 @@ export function StartLaunch({
             )
           }
           fieldLabel="Instruction (optional)"
-          fieldHint={
-            <>
-              Sent after{" "}
-              <code>
-                /{skill} {work.identity}
-              </code>
-              .
-            </>
-          }
+          command={`/${skill} ${work.identity}`}
+          options={options?.kind === "offered" ? options : undefined}
+          optionsHint="Choose any combination; they apply together. None means straightforward refinement."
+          optionsLine={optionsLine(options, skill, named)}
+          kept={kept}
           starting={starting}
           onStart={onStart}
-          onClose={closeDialog}
+          onRefused={(selected) => {
+            refused.current = true;
+            setKept(selected);
+          }}
+          onClose={(launched) => {
+            if (!refused.current) setKept(undefined);
+            refused.current = false;
+            closeDialog(launched);
+          }}
         />
       )}
     </div>

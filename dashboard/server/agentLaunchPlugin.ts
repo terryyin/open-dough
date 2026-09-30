@@ -28,6 +28,7 @@ import {
   type KeptStart,
   type LaunchResult,
   type RunningStart,
+  type OfferedDefinition,
   type LaunchWithState,
   recordDeletable,
 } from "../src/agentLaunch.ts";
@@ -60,6 +61,7 @@ type Answer =
         establishingPreparation: readonly string[];
         keptStarts: readonly KeptStart[];
         starts: readonly RunningStart[];
+        definitions: readonly OfferedDefinition[];
       };
     }
   | { readonly status: number; readonly body: { record: LaunchWithState } }
@@ -125,6 +127,7 @@ async function answer(
             establishingPreparation: await launches.establishingPreparation(),
             keptStarts: await launches.keptStarts(),
             starts: launches.runningStarts(),
+            definitions: await launches.offeredDefinitions(),
           },
         };
       case "launch":

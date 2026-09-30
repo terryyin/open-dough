@@ -52,9 +52,8 @@ export function SessionEntry({
   readonly takesFocus?: boolean;
 }) {
   const entry = useRef<HTMLElement>(null);
-  const { title, identity, name, startedWords, modelWords } = launchSubject(
-    record.request,
-  );
+  const { title, identity, name, startedWords, modelWords, optionsWords } =
+    launchSubject(record.request);
   const workspace = workspaceWords(
     record.request,
     record.start ?? record.preparation,
@@ -90,6 +89,7 @@ export function SessionEntry({
         {startedWords} <Moment at={new Date(record.launchedAt)} />
       </p>
       {modelWords !== undefined && <p>{modelWords}</p>}
+      {optionsWords !== undefined && <p>{optionsWords}</p>}
       {workspace !== undefined && <p>{workspace}</p>}
       <p className="launch-local">
         Local: launched from this dashboard on this machine.

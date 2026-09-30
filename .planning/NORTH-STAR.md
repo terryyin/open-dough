@@ -163,7 +163,7 @@ table, never a second flow. Model it in the launch vocabulary above.
 | --- | --- | --- |
 | **Workflow** | Gains a `start` kind: what mechanical preparation precedes its session (`execution-start` now; `preparation-assignment` in story 6; none for ad hoc). | The one `launchWorkflows` table (`src/agentLaunch.ts`). |
 | **Start** | A workflow's deterministic establishment of a published claim and an owned workspace, run before its session by the project's installed skill script, never reimplemented by the dashboard (PFE: `execution-start.mjs` already fetches, selects the workspace, names the agent, publishes the Take, and reports recovery). | `server/executionStart.ts`: the only place the script's argument array is spelled, and the only reader of its one-line JSON result (zod). |
-| **Workspace choice** | Where the start puts its checkout: a path and branch, decided by the *host's* convention (`claude`: `<project folder>/.worktrees/<story slug>` on `claude/<slug>`; Codex and Cursor differ). | Pure function in the host's module (`server/claudeWorkspace.ts`); story 7/8 add a sibling, not an interface. |
+| **Workspace choice** | Where the start puts its checkout: a path and branch, decided by the dashboard for every host, never by a host's own worktree feature: `<project folder>/.worktrees/<story slug>`. Inside the project folder the folder's trust covers it (Claude Code probed; Codex resolves a linked worktree's trust to its main repository; Cursor inherits trust down the folder tree, observed 2026-09-30), and outside `~/.codex/worktrees` and `~/.cursor/worktrees` those tools' automatic cleanup does not reach it. The branch is `claude/<slug>` today; stories 7/8 make one layout serve every host, naming the host in the branch or no host at all. | One pure function (`server/claudeWorkspace.ts` today); stories 7/8 generalize it rather than adding a sibling per host. |
 | **Established start** | The start's typed result: identity, publisher id, workspace, branch, mode, remote and target, agent, `publishedSha`, `startingRevision`, `candidateSha`, plan. The handoff to the session. | Shared type in `src/agentLaunch.ts`. |
 | **Start record** | Machine-local, write-ahead evidence of one start: written *before* the script runs (publisher id, workspace, branch), updated with the established start, removed when a launch record keeps it. It is what a retry resumes. Never a story fact; origin's Take decides Taken. | `server/startStore.ts`, beside `launchRecordStore.ts` on the same file discipline (one shared JSON-file helper). |
 | **Start progress** | Which phase a running start is in (`preparing`, then `launching`), held in server memory and answered with the machine's sessions so every page shows it. A stored start with no running process is *interrupted*, not running. | `AgentLaunches` (`server/agentLaunches.ts`) owns both, keyed by project and identity. |
@@ -186,9 +186,11 @@ Rules that keep later stories additive:
 - **Integration checkout.** The project's folder is the script's `--integration`:
   it refreshes that checkout only when safe and reports the rest, so a dirty
   folder never blocks the start.
-- **Host seam.** Host modules own the workspace convention, the skill root
+- **Host seam.** Host modules own the skill root
   (`.claude/skills` for Claude Code; `.agents/skills` for Codex and Cursor),
-  session start, and listing. The start and the record are host-agnostic and take
+  session start in the chosen workspace (`codex -C <workspace>`, `cursor-agent
+  --workspace <workspace>`, never their `--worktree` / `-w`), and listing. The
+  workspace choice is shared, not a host convention. The start and the record are host-agnostic and take
   only `host`, `model`, and the workspace choice. Do not extract a host interface
   until the second host shows what differs.
 - **Failure kinds** stay in the existing `failed` / `uncertain` launch results,
@@ -196,60 +198,3 @@ Rules that keep later stories additive:
 
 Retire this topic when the sibling stories have delivered their rows and the
 code and tests carry it; keep any lasting rule in `dashboard/AGENT-LAUNCH.md`.
-
-## Command options: one definition, three consumers
-
-Selecting refinement options at launch
-([SEED-061](seeds/SEED-061-refinement-options-from-dashboard.md#select-refinement-options-from-dashboard))
-is the first use of command options, so it fixes the model that later commands
-join by adding a definition, never by copying code. The vocabulary maps directly
-to the domain:
-
-| Domain concept | Meaning | Owner |
-| --- | --- | --- |
-| **Command option definition** | Everything about one command's options: its command, default behavior, selection rule for the agent, options, and groups. | One JSON file in the command's skill (`references/refinement-options.json`), authored under `src/skills/` and installed with the skill. |
-| **Option** | A flag, a label, a `summary` (one developer-facing line for the dialogue) and an `instruction` (agent-facing meaning). Lives under `options` (techniques) or `focuses`; both are selectable flags of the same kind. | The definition. The agent reads `instruction`, the dialogue reads `label` and `summary`; neither restates the other. |
-| **Group** | A set of the definition's flags with a `selection` rule. Only `exclusive` exists (at most one flag of the group). A flag is in at most one group; flags in no group compose freely. | The definition (`groups`, absent when there are none). |
-| **Selection** | A set of flags. Order carries no meaning; the canonical spelling is definition order. | Shared code, below. |
-| **Selection problem** | An unknown flag, or an exclusive group with more than one flag selected (naming the group and the flags). | Shared code, below. |
-| **Definition availability** | For a project and command: the parsed definition, or *unavailable* with a reason (file missing, unreadable, not a valid definition, or its `command` not the workflow's skill). | The local server, reading the **project's installed skill**. |
-
-Responsibilities:
-
-- **Shared model** (`dashboard/src/commandOptions.ts`, pure, no Node import, like
-  `agentLaunch.ts`): the definition schema (flags unique across `options` and
-  `focuses`, group members exist and belong to one group), `selectionProblems`,
-  and the canonical ordering. The browser and the server both import it; there is
-  no second validator and no second option list.
-- **Installed-skill reading** (server): the project's installed skill directory is
-  a host fact (`.claude/skills` for Claude Code). One `installedSkillPath` owns it
-  and `executionStart.ts` uses it too, instead of a second hard-coded copy. The
-  `launchWorkflows` row of a workflow that has options names its definition file
-  once; the reader validates that the definition's `command` equals the row's skill.
-- **Boundary** (`admitted` in the launch boundary): the request carries the
-  selected flags. The boundary reads the definition fresh from the project's
-  installed skill, validates with the shared code, refuses with the option named
-  before any `claude` runs, and writes `/<skill> <identity> <flags in definition
-  order>` in `claudeInstruction`. The launch record keeps the flags like it keeps
-  the model.
-- **Dialogue**: the definition's availability per project rides the machine
-  sessions read beside `establishing`, so the dialogue opens with the options
-  already known and no loading state of its own. The dialogue takes a snapshot
-  when it opens; the boundary's fresh read is authoritative if the skill changed
-  since.
-- **Agent**: unchanged. It receives the flags exactly as a direct invocation
-  would and reads meaning only from the definition and `SKILL.md`. A drift check
-  parses the real shipped definition with the shared schema, so an option added
-  without a `summary` fails at once instead of showing a blank line.
-
-Rules that keep it small: no plugin or registry, no persisted selection, no
-per-command dashboard code beyond the row that names the definition file. A
-project whose installed skill has no definition offers no options and launches
-default refinement. Exclusivity is proven with a test definition; no shipped
-refinement option is made exclusive. Follow Accepted ADR 0002 (single
-representation, current need) and ADR 0006 (executing-agent guidance). No
-Accepted ADR conflicts; this design concerns the dashboard and one skill file,
-so it adds no ADR.
-
-Retire this topic when delivered: `dashboard/AGENT-LAUNCH.md` keeps the lasting
-launch rule and the code and tests carry the model.

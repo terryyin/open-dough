@@ -13,13 +13,13 @@
 // of the story reruns the script in the kept workspace and branch.
 
 import { stat } from "node:fs/promises";
-import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type {
   EstablishedPreparation,
   StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { installedSkillPath } from "./claudeWorkspace.ts";
 import { beforeStart, removeCreatedWorkspace } from "./preparationCleanup.ts";
 import {
   keepsPreparation,
@@ -40,12 +40,7 @@ import type { WorkflowProgress } from "./startProgress.ts";
 import { record } from "./startRecording.ts";
 import { keepStart, keptStart, removeStart } from "./startStore.ts";
 
-const skillScripts = path.join(
-  ".claude",
-  "skills",
-  "dough-story-refinement",
-  "scripts",
-);
+const refinementSkill = "dough-story-refinement";
 const startScript = "preparation-assignment.mjs";
 const formatterScript = "established-preparation.mjs";
 const workflow = "refinement";
@@ -55,7 +50,7 @@ async function runScript(
   project: ProjectFolder,
 ): Promise<PreparationResult> {
   const stdout = await runStartCommand(
-    path.join(project.path, skillScripts, startScript),
+    installedSkillPath(project, refinementSkill, "scripts", startScript),
     args,
     project,
   );
@@ -69,10 +64,11 @@ async function runScript(
 export async function establishesPreparation(
   project: ProjectFolder,
 ): Promise<boolean> {
-  const scripts = path.join(project.path, skillScripts);
+  const script = (name: string) =>
+    installedSkillPath(project, refinementSkill, "scripts", name);
   return (
-    (await isFile(path.join(scripts, startScript))) &&
-    (await isFile(path.join(scripts, formatterScript)))
+    (await isFile(script(startScript))) &&
+    (await isFile(script(formatterScript)))
   );
 }
 
@@ -195,7 +191,12 @@ export async function formattedPreparation(
   project: ProjectFolder,
   preparation: EstablishedPreparation,
 ): Promise<string> {
-  const file = path.join(project.path, skillScripts, formatterScript);
+  const file = installedSkillPath(
+    project,
+    refinementSkill,
+    "scripts",
+    formatterScript,
+  );
   const url = `${pathToFileURL(file).href}?modified=${String((await stat(file)).mtimeMs)}`;
   const formatter = (await import(/* @vite-ignore */ url)) as {
     formatEstablishedPreparation: (preparation: object) => string;

@@ -9,6 +9,7 @@
 // values are the shared profile vocabulary.
 
 import { z } from "zod";
+import { offeredShapeSchema } from "./commandOptions.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import { sessionShown } from "./sessionShown.ts";
 import { readyBadge } from "./storyPreparation.ts";
@@ -25,6 +26,9 @@ type LaunchWorkflowSpec = {
   readonly verb: string;
   readonly skill: string;
   readonly pending: string;
+  // The file of the installed skill's `references/` that defines the options
+  // a launch may select, if the workflow has any.
+  readonly options: string | undefined;
   // In a project whose installed skill establishes the workflow's start: the
   // sentence its dialog adds and what its card says while the request is
   // pending.
@@ -45,6 +49,7 @@ export const launchWorkflows = {
     verb: "execute",
     skill: "dough-execute-plan",
     pending: "Starting execution in Claude Code…",
+    options: undefined,
     establishes: {
       sentence:
         "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
@@ -64,6 +69,7 @@ export const launchWorkflows = {
     verb: "refine",
     skill: "dough-story-refinement",
     pending: "Starting refinement in Claude Code…",
+    options: "refinement-options.json",
     establishes: {
       sentence:
         "Start also publishes this story's Preparing announcement to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
@@ -129,8 +135,9 @@ export function launchKindName(workflow: LaunchWorkflow | "ad-hoc"): string {
 
 // What a consumer of a launch record needs of its request, spelled once: the
 // title, the work item's identity (none when the request has no card to look
-// up), the kind's name, how its session is said to have started, and the
-// model it asked for (none for Default).
+// up), the kind's name, how its session is said to have started, the model it
+// asked for (none for Default), and the options it selected (none when it
+// selected none), spelled as the flags the record kept.
 export function launchSubject(request: RecordedLaunchRequest) {
   const name = launchKindName(request.workflow);
   return {
@@ -144,6 +151,10 @@ export function launchSubject(request: RecordedLaunchRequest) {
       request.model === undefined
         ? undefined
         : `Model: ${launchModels[request.model].name} (requested)`,
+    optionsWords:
+      request.options === undefined || request.options.length === 0
+        ? undefined
+        : `Options: ${request.options.join(" ")} (requested)`,
   };
 }
 
@@ -173,6 +184,9 @@ export const agentLaunchEndpoint = "/__agent-launch";
 export const launchTextLimit = 200;
 export const launchInstructionLimit = 4_000;
 
+// At most this many flags may be selected.
+const launchOptionLimit = 32;
+
 const oneLine = z
   .string()
   .min(1)
@@ -180,10 +194,12 @@ const oneLine = z
   .regex(/^[^\r\n]*$/);
 
 // What either kind of request carries beside its subject: the developer's own
-// instruction and the model asked for, if any.
+// instruction, the model asked for, and the flags selected from the skill's
+// options, if any. Which flags exist is the project's installed definition.
 const launchOptions = {
   instruction: z.string().max(launchInstructionLimit).optional(),
   model: z.enum(launchModelAliases).optional(),
+  options: z.array(oneLine).max(launchOptionLimit).optional(),
 };
 
 const storyLaunchRequestSchema = z.object({
@@ -219,6 +235,8 @@ export type LaunchChoices = {
   readonly instruction: NonNullable<StoryLaunchRequest["instruction"]>;
   // Absent for Default: Claude Code's own setting applies.
   readonly model?: LaunchModel;
+  // The flags selected, absent when none.
+  readonly options?: readonly string[];
 };
 
 // The request a record keeps: an ad hoc one with the label the server
@@ -471,13 +489,32 @@ export type RunningStart = z.infer<typeof runningStartSchema>;
 // took or prepared the story and no session was started from it.
 export const keptStartNote = "Started here, no session yet";
 
+// The options a project's installed skill offers for one workflow's launch,
+// read from its definition at each read of the machine's sessions, or why the
+// project has no usable definition for it (the boundary's words, which finish
+// "the installed <skill> skill in this project").
+export const offeredDefinitionSchema = z.union([
+  offeredShapeSchema.extend({
+    source: z.string().min(1),
+    workflow: z.enum(launchWorkflowNames),
+  }),
+  z.object({
+    source: z.string().min(1),
+    workflow: z.enum(launchWorkflowNames),
+    unavailable: z.string().min(1),
+  }),
+]);
+
+export type OfferedDefinition = z.infer<typeof offeredDefinitionSchema>;
+
 // The machine's sessions, as the boundary answers a GET: every catalog
 // project's launch records, each naming its project and joined with its
 // session's current state, whether alerts can be raised, the projects
 // whose installed skill establishes a start (the claim and workspace) when
 // Start execution is pressed, by project id, the projects whose installed
 // skill establishes a preparation when Start refinement is pressed, the starts
-// kept without a session, and the starts running now with their phases.
+// kept without a session, the starts running now with their phases, and the
+// options each project offers.
 export const launchRecordsSchema = z.object({
   records: z.array(launchWithStateSchema),
   alerts: alertsSchema,
@@ -485,6 +522,7 @@ export const launchRecordsSchema = z.object({
   establishingPreparation: z.array(z.string()),
   keptStarts: z.array(keptStartSchema),
   starts: z.array(runningStartSchema),
+  definitions: z.array(offeredDefinitionSchema),
 });
 
 export type MachineAnswer = z.infer<typeof launchRecordsSchema>;
