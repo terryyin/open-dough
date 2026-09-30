@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 196. Removed local codes are never reused.
+- Highest allocated local number: 197. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -433,3 +433,12 @@ Follow-up: Open, unqueued.
   - Evidence: before delivery the coordinator ran `execution-increment-delivery.mjs --help`, grepped `targetRef`, read its lines 60–120, and read `targetBranchName` in `publication-git.mjs`, then invoked `deliver --target-ref refs/heads/claude/make-npm-run-lint-report-no-warnings-or-errors-c`; the established start listed `target: main`.
   - Observed effect: four extra tool calls; delivery was accepted on the first attempt with observation attached.
   - Inference: Qualified. Passing `refs/heads/main` from the established start's `target` was a plausible mistake; whether the script would refuse it was not checked.
+
+## DD-197 — New tests that run tools and Git passed on macOS and failed on CI's Linux test job
+
+Two of the four commits published for one execution failed CI's `test` job for environment reasons that macOS runs could not show; the plan named the Linux container proof only for its last slice.
+
+### Occurrences
+- Execution: `SEED-065#pre-commit-lint-hook` / plan 190, first related implementation commit `42437c58` - Timestamp: 2026-09-30T22:03:00+08:00 (CI runs 36725631259 on `42437c58` and 36726848028 on `0e6e2bbe`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.51 - Evidence: `42437c58` failed `test (2/2)`: the clean-`.sh` hook test staged a shell file and `shfmt: spawnSync shfmt ENOENT` refused the commit, because only CI's `lint` job installs shellcheck and shfmt; repair `6be8fccc` (skip when either tool is absent). `0e6e2bbe` failed `test (2/2)` with `fatal: cannot use /dev/stdin as an exclude file`, Git on Linux rejecting the piped `--exclude-from=/dev/stdin` that slice 1's own `--staged` code introduced (slice 2 spread it to the ESLint list); repaired inside slice 3's commit `8a165806` after that slice's agent ran `scripts/ci-container.sh` and saw six hook tests fail. The plan's slice 1 and 2 proof commands were local `node --test` runs; `scripts/ci-container.sh` appears only in slice 3's proof. Slice 1's report said existing tests "don't skip either" for missing shell tools, which held for their `.mjs`-only fixtures but was not checked against the CI job's tools.
+  - Observed effect: two failed CI runs, one dedicated repair commit and one repair folded into a slice commit, and one CI-repair stash of finished slice 2 work; the dedicated repair skipped its own refactor pass.
+  - Inference: Qualified. Tests that spawn Git or lint tools depend on the runner's tools and Git build, and the plan only proved them under CI's conditions at its final slice. Running the container proof for any slice that adds such tests would have surfaced both failures before publication; this run's one container run took the agent a few minutes.

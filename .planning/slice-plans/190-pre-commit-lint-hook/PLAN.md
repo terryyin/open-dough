@@ -182,3 +182,7 @@ outside a checkout of this repository; a Node pipe is not readable as
 through a temporary file (this repaired CI run 36726848028 on slice 2, which
 macOS had hidden); the container's `npm ci` writing the value from unset was not
 tested.
+
+## Execution complete
+
+Product advice: No change to the backlog. The story's Goal, Scope, and examples 1–7 are met by the three slices; ODF-100's follow-up in `DearDough.md` is updated at wrap-up per the story's Completion note. Consider running `scripts/ci-container.sh` for any later slice that adds tests spawning Git or lint tools (DD-197).
