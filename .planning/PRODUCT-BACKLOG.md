@@ -20,10 +20,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Scan sessions quickly in a compact sidebar that surfaces those needing attention](seeds/SEED-062-compact-session-sidebar.md#compact-session-sidebar) — SEED-062#compact-session-sidebar
 - [Settle purpose, scope, and behavior during refinement](seeds/SEED-057-composable-story-refinement-styles.md#settle-purpose-scope-and-behavior) — SEED-057#settle-purpose-scope-and-behavior
 - [Resolve uncertainty and expose failure during refinement](seeds/SEED-057-composable-story-refinement-styles.md#resolve-uncertainty-and-expose-failure) — SEED-057#resolve-uncertainty-and-expose-failure
 - [Shape an interaction within system constraints during refinement](seeds/SEED-057-composable-story-refinement-styles.md#shape-interaction-within-system-constraints) — SEED-057#shape-interaction-within-system-constraints
-- [Scan sessions quickly in a compact sidebar that surfaces those needing attention](seeds/SEED-062-compact-session-sidebar.md#compact-session-sidebar) — SEED-062#compact-session-sidebar
 - [Select refinement options when launching from the dashboard](seeds/SEED-061-refinement-options-from-dashboard.md#select-refinement-options-from-dashboard) — SEED-061#select-refinement-options-from-dashboard
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
