@@ -31,7 +31,7 @@ the behavior needed to launch refinement.
 
 **Identity:** SEED-061#correct-refinement-options-launch-follow-ups
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/187-correct-refinement-options-launch/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"20ef6d9fa4e0f894af47cf49c6523220f254dff2db4742239b9c5ca2c038708b","plan":"577b6c6dada42929fd7978814a312624483d7375ae633291bc566c5d9706c501"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/188-correct-refinement-options-launch/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"20ef6d9fa4e0f894af47cf49c6523220f254dff2db4742239b9c5ca2c038708b","plan":"577b6c6dada42929fd7978814a312624483d7375ae633291bc566c5d9706c501"}}
 ```
 
 - **Goal:** A developer who launches refinement with options sees in the dialog
@@ -50,7 +50,7 @@ the behavior needed to launch refinement.
   the pure option rules with end-to-end tests kept for file state, the boundary
   and launch order. Not in scope: the refusal's place on the card, this
   repository's own installed definition, or any change to selection rules.
-- **Plan:** [Plan 187](../slice-plans/187-correct-refinement-options-launch/PLAN.md)
+- **Plan:** [Plan 188](../slice-plans/188-correct-refinement-options-launch/PLAN.md)
   holds the findings, proof and slices.
 
 ## Breadcrumbs
