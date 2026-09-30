@@ -189,8 +189,14 @@ one helper in `native-completion-observation.sh` taking a label prefix, used by
 
 ### 4. Story Branch closure in fixture, observe, assess and counterexample files
 Type: Structure
-Status: planned
+Status: done
 Proof: the free proof command; slice 1's observation identical; no file over 250.
+
+Done: assess (68 lines) keeps its signals; `-native-observe.sh` (100) and
+`-native-counterexamples.sh` (177, slice 1's observer counterexamples folded in;
+the separate observer file is gone). Free proof, lint and the size check pass.
+Learning: `tests/helpers/wait-for.bash` is already hashed by the supervision
+input list, so the family lists need not name it.
 
 `story-branch-closure-native-assess.sh` keeps `story_closure_assess` and its
 signal lines; observation and `story_closure_retire_seen` move to
