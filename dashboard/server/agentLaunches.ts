@@ -17,14 +17,16 @@ import { withStates } from "./launchStates.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { recordedRequest } from "./hostLaunch.ts";
 import {
-  keepRecord,
-  updateRecord,
+  creationOf,
+  keptCreations,
   keptRecords,
   keptRecordsByProject,
 } from "./launchRecordStore.ts";
+import { creationRecovery } from "../src/launchCreation.ts";
+import { sameLaunch } from "../src/launchRequest.ts";
 import { establishedFacts } from "./startLaunch.ts";
 import { StartProgress } from "./startProgress.ts";
-import { removeStart } from "./startStore.ts";
+import { launchRun } from "./launchRun.ts";
 import { started } from "./launchStart.ts";
 import {
   establishing,
@@ -60,7 +62,9 @@ export type Recorded =
   | { readonly kind: "folder-not-found"; readonly folder: ProjectFolder };
 
 export class AgentLaunches {
-  private readonly running = new Set<AbortController>();
+  private readonly running = new Set<
+    AbortController & { request: AgentLaunchRequest }
+  >();
   private readonly progress = new StartProgress();
 
   async machineSessions(): Promise<readonly LaunchWithState[]> {
@@ -69,6 +73,10 @@ export class AgentLaunches {
       machineFolder(),
       catalog.flatMap((source) => kept.get(source.id) ?? []),
     );
+  }
+
+  creations() {
+    return keptCreations();
   }
 
   // Projects with an installed execution start, in catalog order.
@@ -127,6 +135,30 @@ export class AgentLaunches {
     source: PublishedSource,
     request: AgentLaunchRequest,
   ): Promise<LaunchResult> {
+    if (
+      request.host === "codex" &&
+      [...this.running].some((entry) => sameLaunch(entry.request, request))
+    )
+      return {
+        kind: "uncertain",
+        reason: "unconfirmed",
+        explanation:
+          "This launch is already being reconciled or submitted. Wait for its result; no duplicate input or conversation was created.",
+      };
+    const controller = Object.assign(new AbortController(), { request });
+    this.running.add(controller);
+    try {
+      return await this.attempt(source, request, controller);
+    } finally {
+      this.running.delete(controller);
+    }
+  }
+
+  private async attempt(
+    source: PublishedSource,
+    request: AgentLaunchRequest,
+    controller: AbortController,
+  ): Promise<LaunchResult> {
     const folder = projectFolder(source);
     if (!(await folderExists(folder))) {
       return {
@@ -135,93 +167,46 @@ export class AgentLaunches {
         explanation: `The project folder ${folder.shown} was not found on this machine. Nothing was launched.`,
       };
     }
-    const pending = (await keptRecords(source.id)).find(
-      (record) =>
-        record.request.host === request.host &&
-        record.request.workflow === request.workflow &&
-        request.workflow !== "ad-hoc" &&
-        record.request.workflow !== "ad-hoc" &&
-        record.request.identity === request.identity &&
-        record.firstInput !== undefined &&
-        record.firstInput.state !== "confirmed",
-    );
-    if (pending !== undefined)
+    const began = new Date();
+    const requested = recordedRequest(request, began);
+    const creation =
+      request.host === "codex" ? await creationOf(requested) : undefined;
+    if (creation !== undefined)
       return {
         kind: "uncertain",
         reason: "unconfirmed",
         explanation:
-          "This conversation's first input is not confirmed. Continue the recorded conversation before starting again.",
+          creation === "unreadable"
+            ? "This machine's launch evidence is unreadable. Reconcile it with native Codex history before starting again; no new conversation was created."
+            : creationRecovery(creation),
       };
-    const start = await started(source, request, folder, this.progress);
-    if (start.kind === "stopped") {
-      return start.result;
-    }
-    const began = new Date();
-    const recording = recordedRequest(request, began);
-    const controller = new AbortController();
-    this.running.add(controller);
+    const pending = (await keptRecords(source.id)).find(
+      (record) =>
+        sameLaunch(record.request, request) &&
+        record.firstInput !== undefined &&
+        record.firstInput.state !== "confirmed",
+    );
+    const start =
+      pending === undefined
+        ? await started(source, request, folder, this.progress)
+        : ({ kind: "none" } as const);
+    if (start.kind === "stopped") return start.result;
+    const recording = pending?.request ?? requested;
     const timer = setTimeout(() => {
       controller.abort();
     }, launchTimeoutMs());
     try {
-      const host = launchHost(request.host);
-      if (host === undefined) {
-        throw new Error("An admitted launch has no available host.");
-      }
-      let retained: LaunchRecord | undefined;
-      const recordEvidence = async (
-        session: LaunchRecord["session"],
-        firstInput: NonNullable<LaunchRecord["firstInput"]>,
-      ) => {
-        const record: LaunchRecord = {
-          request: recording,
-          session,
-          firstInput,
-          ...(start.kind === "established" ? start.handoff.established : {}),
-          launchedAt: retained?.launchedAt ?? began.toISOString(),
-        };
-        if (retained === undefined) await keepRecord(source.id, record);
-        else if (!(await updateRecord(source.id, record)))
-          throw new Error("The launch record was deleted.");
-        retained = record;
-      };
-      const launched = await host.launch(
+      return await launchRun(
         source,
         recording,
         folder,
-        controller.signal,
-        start.kind === "established" ? start : undefined,
-        recordEvidence,
+        began,
+        start,
+        controller,
+        pending,
       );
-      if (launched.kind !== "launched") {
-        return start.kind === "established" && launched.kind === "failed"
-          ? {
-              ...launched,
-              explanation: `${launched.explanation} ${start.workflow.publishedWithoutSession(start)}`,
-            }
-          : launched;
-      }
-      const record: LaunchRecord = retained ?? {
-        request: recording,
-        session: launched.session,
-        ...(start.kind === "established" ? start.handoff.established : {}),
-        launchedAt: new Date().toISOString(),
-      };
-      if (retained === undefined) await keepRecord(source.id, record);
-      if (start.kind === "established") {
-        await removeStart(
-          source.id,
-          establishedFacts(start.handoff.established).identity,
-          start.workflow.workflow,
-        );
-      }
-      return {
-        kind: "launched",
-        record: { ...record, sessionState: launched.sessionState },
-      };
     } finally {
       clearTimeout(timer);
-      this.running.delete(controller);
       if (start.kind === "established") {
         this.progress
           .for(start.workflow.workflow)

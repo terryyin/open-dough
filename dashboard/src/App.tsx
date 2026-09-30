@@ -211,7 +211,11 @@ export function App() {
             launches={launches}
             onOpenRoster={openRoster}
           />
-          <RecentSessions sourceId={source.id} records={launches.records} />
+          <RecentSessions
+            sourceId={source.id}
+            records={launches.records}
+            creations={launches.creations}
+          />
         </main>
       )}
       {showsRoster && (

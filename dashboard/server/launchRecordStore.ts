@@ -11,6 +11,8 @@
 // and a write drops it. The file is read afresh, replaced atomically, and
 // moved aside when unreadable as `./machineJsonStore.ts` describes.
 
+import { sameLaunch } from "../src/launchRequest.ts";
+import { creationSchema, type CreationRecord } from "../src/launchCreation.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { homedir } from "node:os";
 import path from "node:path";
@@ -28,7 +30,10 @@ import {
 
 const retentionMs = launchRetentionDays * 24 * 60 * 60 * 1000;
 
-const storeSchema = z.record(z.string(), z.array(launchRecordSchema));
+const storeSchema = z.record(
+  z.string(),
+  z.array(z.union([launchRecordSchema, creationSchema])),
+);
 
 type StoredRecords = z.infer<typeof storeSchema>;
 
@@ -46,11 +51,12 @@ function launchStore(): MachineJsonStore<StoredRecords> {
 }
 
 function withinRetention(
-  records: readonly LaunchRecord[],
+  records: readonly (LaunchRecord | CreationRecord)[],
   now: number,
-): LaunchRecord[] {
+): (LaunchRecord | CreationRecord)[] {
   return records.filter(
     (record) =>
+      !("session" in record) ||
       record.doneAt === undefined ||
       now - Date.parse(record.doneAt) <= retentionMs,
   );
@@ -68,7 +74,9 @@ export async function keptRecordsByProject(): Promise<
   return new Map(
     Object.entries(read.document).map(([id, records]) => [
       id,
-      withinRetention(records, now),
+      withinRetention(records, now).filter(
+        (entry): entry is LaunchRecord => "session" in entry,
+      ),
     ]),
   );
 }
@@ -98,7 +106,8 @@ async function replaceRecords(
   });
 }
 
-// Adds one confirmed launch to its project's records.
+// Keeps one known conversation and its first-input evidence, replacing any
+// unresolved creation of that launch.
 export async function keepRecord(
   sourceId: string,
   record: LaunchRecord,
@@ -106,8 +115,10 @@ export async function keepRecord(
   await replaceRecords((kept) => ({
     ...kept,
     [sourceId]: [
-      ...(kept[sourceId] ?? []).filter(
-        (entry) => sessionKey(entry.session) !== sessionKey(record.session),
+      ...(kept[sourceId] ?? []).filter((entry) =>
+        !("session" in entry)
+          ? !sameLaunch(entry.request, record.request)
+          : sessionKey(entry.session) !== sessionKey(record.session),
       ),
       record,
     ],
@@ -132,7 +143,10 @@ export async function setRecordDoneAt(
     return {
       ...kept,
       [sourceId]: records.map((record) => {
-        if (sessionKey(record.session) !== sessionKey(session)) {
+        if (
+          !("session" in record) ||
+          sessionKey(record.session) !== sessionKey(session)
+        ) {
           return record;
         }
         const next: LaunchRecord = { ...record };
@@ -158,7 +172,9 @@ export async function deleteRecord(
       return kept;
     }
     const remaining = records.filter(
-      (record) => sessionKey(record.session) !== sessionKey(session),
+      (record) =>
+        !("session" in record) ||
+        sessionKey(record.session) !== sessionKey(session),
     );
     deleted = remaining.length < records.length;
     return { ...kept, [sourceId]: remaining };
@@ -175,11 +191,58 @@ export async function updateRecord(
   await replaceRecords((kept) => ({
     ...kept,
     [sourceId]: (kept[sourceId] ?? []).map((entry) => {
-      if (sessionKey(entry.session) !== sessionKey(record.session))
+      if (
+        !("session" in entry) ||
+        sessionKey(entry.session) !== sessionKey(record.session)
+      )
         return entry;
       updated = true;
       return record;
     }),
   }));
   return updated;
+}
+
+// A creation attempt has no session identity. Keep it in this existing document
+// until a known conversation replaces it or native creation explicitly refuses.
+export async function creationOf(
+  request: LaunchRecord["request"],
+): Promise<CreationRecord | "unreadable" | undefined> {
+  const read = await readMachineJson(launchStore());
+  if (read.kind === "unreadable") return "unreadable";
+  return read.document[request.source]?.find(
+    (entry): entry is CreationRecord =>
+      !("session" in entry) && sameLaunch(entry.request, request),
+  );
+}
+export async function keepCreation(record: CreationRecord): Promise<void> {
+  await replaceRecords((kept) => ({
+    ...kept,
+    [record.request.source]: [
+      ...(kept[record.request.source] ?? []).filter(
+        (entry) =>
+          "session" in entry || !sameLaunch(entry.request, record.request),
+      ),
+      record,
+    ],
+  }));
+}
+export async function removeCreation(
+  request: LaunchRecord["request"],
+): Promise<void> {
+  await replaceRecords((kept) => ({
+    ...kept,
+    [request.source]: (kept[request.source] ?? []).filter(
+      (entry) => "session" in entry || !sameLaunch(entry.request, request),
+    ),
+  }));
+}
+
+export async function keptCreations(): Promise<CreationRecord[]> {
+  const read = await readMachineJson(launchStore());
+  return read.kind === "unreadable"
+    ? []
+    : Object.values(read.document)
+        .flat()
+        .filter((entry): entry is CreationRecord => !("session" in entry));
 }

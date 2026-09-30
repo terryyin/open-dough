@@ -59,6 +59,22 @@ export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
 export type StoryLaunchRequest = z.infer<typeof storyLaunchRequestSchema>;
 export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
 
+// Retries belong to the same project, host, workflow and subject. New options
+// or story instructions do not replace a retained launch's original intent.
+export function sameLaunch(
+  a: AgentLaunchRequest,
+  b: AgentLaunchRequest,
+): boolean {
+  return (
+    a.source === b.source &&
+    a.host === b.host &&
+    a.workflow === b.workflow &&
+    ("identity" in a && "identity" in b
+      ? a.identity === b.identity
+      : a.instruction === b.instruction)
+  );
+}
+
 // What a launch dialog hands its caller: the developer's choices among the
 // request's options, as typed, before the request trims and omits them.
 export type LaunchChoices = {

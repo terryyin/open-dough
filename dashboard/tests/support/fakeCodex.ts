@@ -14,6 +14,15 @@ export type FakeCodex = {
   threadId: string;
   hold: boolean;
   refuseCreation: boolean;
+  refuseInput: boolean;
+  loseCreation: boolean;
+  failRead: boolean;
+  readError: boolean;
+  completeOnResume: boolean;
+  resumeStatus?: string;
+  history: { id: string; status?: string; items: unknown[] }[];
+  cwd: string;
+  afterCreation?: () => void;
   afterAcceptance: "continue" | "complete" | "disconnect";
   beforeInput?: () => void;
   release(): void;
@@ -45,6 +54,13 @@ export async function installFakeCodex(
     threadId: "native-thread-id",
     hold: false,
     refuseCreation: false,
+    refuseInput: false,
+    loseCreation: false,
+    failRead: false,
+    readError: false,
+    completeOnResume: false,
+    history: [],
+    cwd: "",
     afterAcceptance: "continue",
     release() {
       for (const done of waiting.splice(0)) done();
@@ -91,6 +107,12 @@ export async function installFakeCodex(
           reply({ userAgent: "native-substitute" });
           break;
         case "thread/start":
+          fixture.cwd = String(message.params?.["cwd"]);
+          fixture.afterCreation?.();
+          if (fixture.loseCreation) {
+            client.close();
+            break;
+          }
           if (fixture.refuseCreation)
             client.send(
               JSON.stringify({
@@ -100,9 +122,75 @@ export async function installFakeCodex(
             );
           else reply({ thread: { id: fixture.threadId } });
           break;
+        case "thread/read":
+        case "thread/resume":
+          if (fixture.readError)
+            client.send(
+              JSON.stringify({
+                id: message.id,
+                error: { code: -32000, message: "Native thread not found." },
+              }),
+            );
+          else if (fixture.failRead) client.close();
+          else {
+            if (message.method === "thread/resume" && fixture.completeOnResume)
+              client.send(
+                JSON.stringify({
+                  method: "turn/completed",
+                  params: {
+                    threadId: fixture.threadId,
+                    turn: { id: "native-turn-id", status: "completed" },
+                  },
+                }),
+              );
+            const turns =
+              message.method === "thread/resume" &&
+              fixture.resumeStatus !== undefined
+                ? fixture.history.map((turn) => ({
+                    ...turn,
+                    status: fixture.resumeStatus,
+                  }))
+                : fixture.history;
+            reply({
+              thread: { id: fixture.threadId, cwd: fixture.cwd, turns },
+            });
+          }
+          break;
         case "turn/start": {
+          if (fixture.refuseInput) {
+            client.send(
+              JSON.stringify({
+                id: message.id,
+                error: { code: -32000, message: "Native input refused." },
+              }),
+            );
+            break;
+          }
+          fixture.history.push({
+            id: "native-turn-id",
+            items: [
+              {
+                type: "userMessage",
+                id: "user-input",
+                content: message.params?.["input"],
+              },
+              {
+                type: "reasoning",
+                id: "reasoning-item",
+                summary: [],
+                content: ["protocol fixture reasoning"],
+              },
+              {
+                type: "commandExecution",
+                id: "command-item",
+                command: "native fixture",
+                status: "completed",
+              },
+            ],
+          });
           fixture.beforeInput?.();
           const accepted = () => {
+            if (client.readyState !== 1) return;
             reply({ turn: { id: "native-turn-id", status: "inProgress" } });
             if (fixture.afterAcceptance === "complete")
               client.send(

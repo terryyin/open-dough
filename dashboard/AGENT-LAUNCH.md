@@ -84,15 +84,15 @@ instruction, plus native skill input identifying the selected workspace's
 `.agents/skills/<skill>/SKILL.md`. Ad hoc sends only its optional text.
 
 An explicit native creation refusal submits no input and keeps preparation.
-Thread creation is not launch confirmation. First-input evidence is awaiting
-before submission, uncertain before acknowledgment, and confirmed only after
-native acceptance; confirmed evidence retains the turn ID. Predecessor Claude
-records without this field retain their existing confirmed meaning. These
-facts never claim working, waiting, done or story completion. A known ID and
-workspace survive uncertainty; a pending story's Start refuses blind creation
-or resend. Continue that recorded conversation before starting again. Unknown
-creation without a trustworthy ID requires checking native history, not an
-automatic second conversation. A store failure before submission prevents input.
+Before creation, the launch document keeps workspace/endpoint. Without a trusted
+ID, cards/Recent show a native history picker; Start requires reconciliation.
+Known input is awaiting before submission, uncertain before acknowledgment,
+confirmed by acceptance or matching saved intent in native history. Start reads/
+resumes the saved ID, verifies CWD and preserves original preparation/text.
+Empty, unrelated, unreadable or mismatched history never proves input rejected.
+Only durable no-submission/explicit-refusal evidence permits the saved input in
+that conversation. Store failure prevents submission and explains continuation.
+None claims live/story state; predecessor Claude records remain confirmed.
 
 Codex records retain the exact native continuation arguments, endpoint and
 workspace. Cards and Recent sessions show a correctly shell-quoted command:

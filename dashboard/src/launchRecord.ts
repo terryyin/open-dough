@@ -34,6 +34,8 @@ export type HostSession = z.infer<typeof hostSessionSchema>;
 export const firstInputSchema = z.object({
   state: z.enum(["awaiting", "confirmed", "uncertain"]),
   turnId: z.string().optional(),
+  // Exact launch intent retained for native history reconciliation.
+  instruction: z.string().optional(),
   explanation: z.string().optional(),
 });
 export type FirstInput = z.infer<typeof firstInputSchema>;

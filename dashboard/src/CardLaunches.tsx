@@ -24,6 +24,7 @@ import {
 } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StartLaunch } from "./StartLaunch.tsx";
+import { CreationEntry } from "./CreationEntry.tsx";
 import { SessionEntry } from "./SessionEntry.tsx";
 import { attentionSummary } from "./sessionShown.ts";
 
@@ -104,6 +105,16 @@ export function CardLaunches({
             phase={phaseOf(workflow)}
             onStart={onStart(workflow)}
           />
+        ))}
+      {launches.creations
+        .filter(
+          (record) =>
+            record.request.source === sourceId &&
+            "identity" in record.request &&
+            record.request.identity === entry.identity,
+        )
+        .map((record) => (
+          <CreationEntry key={record.launchedAt} record={record} />
         ))}
       {attention !== undefined && <p className="card-attention">{attention}</p>}
       {sessions.length > 0 && (

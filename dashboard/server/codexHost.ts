@@ -1,12 +1,15 @@
 // Public Codex boundary; all vendor transport and input details stay private.
 import path from "node:path";
 import type { LaunchHost } from "./launchHosts.ts";
-import { launchCodex, closeCodexConnections } from "./hosts/codex/launch.ts";
+import { launchCodex } from "./hosts/codex/launch.ts";
+import { closeCodexConnections } from "./hosts/codex/conversation.ts";
+import { recoverCodex } from "./hosts/codex/recovery.ts";
 
 export const codexHost: LaunchHost = {
   name: "Codex",
   installedSkillPath: (project, skill, ...segments) =>
     path.join(project.path, ".agents", "skills", skill, ...segments),
   launch: launchCodex,
+  recover: recoverCodex,
   close: closeCodexConnections,
 };

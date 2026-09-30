@@ -30,6 +30,7 @@ export type MachineSessions = ReadSessions &
 // The machine's sessions and what their latest read said.
 type ReadSessions = {
   readonly rereadOffers: () => void;
+  readonly creations: MachineAnswer["creations"];
   // Records oldest first per project, with latest observations; unread until supplied.
   readonly records: readonly LaunchWithState[] | undefined;
   // Alert capability at the latest read; unread until supplied.
@@ -66,10 +67,10 @@ type ReadSessions = {
 type ReadFacts = Omit<MachineAnswer, "records">;
 
 export function useAgentLaunches(): MachineSessions {
-  // A launch before the first read joins the known machine sessions.
   const [
     {
       known,
+      creations,
       read: readAnswered,
       alerts,
       establishing,
@@ -88,6 +89,7 @@ export function useAgentLaunches(): MachineSessions {
     } & Omit<ReadFacts, "alerts">
   >({
     known: [],
+    creations: [],
     read: false,
     establishing: [],
     establishingPreparation: [],
@@ -107,7 +109,6 @@ export function useAgentLaunches(): MachineSessions {
   // Reads predating deletion must not restore the deleted record.
   const deletedAt = useRef(new Map<string, number>());
   const { visibility, settleRevealed } = usePageVisibility();
-  // Each settled read schedules the next.
   const everRead = useRef(false);
   const [readsSettled, setReadsSettled] = useState(0);
   const [offersReading, setOffersReading] = useState(false);
@@ -140,7 +141,6 @@ export function useAgentLaunches(): MachineSessions {
         setReadsSettled((settled) => settled + 1);
       });
     };
-    // A page loaded, or seen again, is read at once.
     if (
       visibility === "revealed" ||
       !everRead.current ||
@@ -207,6 +207,7 @@ export function useAgentLaunches(): MachineSessions {
       setRequested((value) => value + 1);
     },
     records: readAnswered ? known : undefined,
+    creations,
     alerts,
     establishesStart: (sourceId, workflow, host = "claude") =>
       host !== "claude"

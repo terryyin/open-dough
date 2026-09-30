@@ -9,7 +9,7 @@ import type {
 } from "../src/agentLaunch.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import type { FirstInput } from "../src/launchRecord.ts";
+import type { LaunchRecording } from "./launchRecording.ts";
 import { codexHost } from "./codexHost.ts";
 import { claudeHost } from "./claudeHost.ts";
 import type {
@@ -32,7 +32,12 @@ export type LaunchHost = {
     folder: ProjectFolder,
     signal: AbortSignal,
     established?: EstablishedLaunch,
-    record?: (session: HostSession, evidence: FirstInput) => Promise<void>,
+    record?: LaunchRecording,
+  ): Promise<HostLaunch>;
+  recover?(
+    record: LaunchRecord,
+    signal: AbortSignal,
+    recording: LaunchRecording,
   ): Promise<HostLaunch>;
   close?(): void;
   sessions?(

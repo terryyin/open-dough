@@ -124,9 +124,10 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     (entry) => entry.session.host === "codex",
   );
   expect(record?.request).not.toHaveProperty("model");
-  expect(record?.firstInput).toEqual({
+  expect(record?.firstInput).toMatchObject({
     state: "confirmed",
     turnId: "native-turn-id",
+    instruction: `$dough-story-refinement ${notRefinedIdentity} --codex-only\n\nAsk me about scope.`,
   });
   expect(native.sockets.size).toBe(1);
   await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(2);

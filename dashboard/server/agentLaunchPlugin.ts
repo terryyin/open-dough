@@ -56,6 +56,7 @@ type Answer =
       readonly status: number;
       readonly body: {
         records: readonly LaunchWithState[];
+        creations: Awaited<ReturnType<AgentLaunches["creations"]>>;
         alerts: Alerts;
         establishing: readonly string[];
         establishingPreparation: readonly string[];
@@ -125,6 +126,7 @@ async function answer(
           status: 200,
           body: {
             records: await launches.machineSessions(),
+            creations: await launches.creations(),
             alerts: alerts.availability(),
             establishing: await launches.establishingProjects(),
             establishingPreparation: await launches.establishingPreparation(),
