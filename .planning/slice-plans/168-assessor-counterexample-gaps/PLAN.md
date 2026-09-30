@@ -280,3 +280,10 @@ variable, since the wrapper rule read the scenario name as a verdict.
   practice requires.
 - Judge `tests/git-publication-native.sh` against `per-job-seconds=71` at
   slices 2 and 4.
+
+## Execution complete
+
+Product advice: no change. The five slices close the gaps the plan named without
+changing a promise. The wrapper rule of the guard is textual, so a multi-line
+quoted string or heredoc holding a bare verdict word on its own statement would be
+a false positive; today's tree has none.
