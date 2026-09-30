@@ -72,6 +72,12 @@ head, and each upper lid slides down onto its lower lid for the blink. No
 image generation was used. The strip is 24 frames, 418 × 418 each, in
 lossless WebP; the first and last frames are the unaltered tile.
 
+`agent-avatars/yua-gesture.webp` is Yua's 2-second hover reaction: resting
+her chin on her hands, she sways her head to one side, blinks, sways briefly
+the other way, and settles back. It was made the same way as Sola's, from her
+tile of `atlas-1-large.webp` (the 418 × 418 square at x 418, y 731): 24
+lossless WebP frames, first and last unaltered.
+
 `agent-avatars/odd-e-nerds/cartoon/<lowercase name>.webp` are cartoon avatars of the
 Odd-e nerds agents (`nerdAgentNames` in the same module), for example `stanly.webp`.
 Each was generated with OpenAI image editing (`gpt-image-1.5`) from the face in that
