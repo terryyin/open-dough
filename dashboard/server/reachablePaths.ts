@@ -16,7 +16,6 @@
 // `./branchReachability.ts`.
 
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { isNotFound } from "./ghRead.ts";
 import { resolveBesideFile } from "../src/repositoryPath.ts";
 import {
   resolveSourceLink,
@@ -198,16 +197,14 @@ export async function isListedAgentProfile(
 }
 
 // The text of the project setting file at a pinned revision, or null when the
-// revision has none. Any other failure to read it is not taken for absence.
+// revision has none or it cannot be read: either way the current collection
+// is used.
 export async function agentSettingsTextAt(
   readPinned: PinnedReader,
 ): Promise<string | null> {
   try {
     return await readPinned(agentSettingsPath);
-  } catch (error) {
-    if (isNotFound(error)) {
-      return null;
-    }
-    throw error;
+  } catch {
+    return null;
   }
 }

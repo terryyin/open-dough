@@ -94,7 +94,7 @@ test.describe("authenticated agent settings read (dev launch mode)", () => {
     });
   });
 
-  test("a revision without the setting file answers null, while any other failure to read it fails the read", async () => {
+  test("a revision without the setting file, or one that cannot be read, answers null", async () => {
     const revision = revisionOf("6f");
     server.github.serve(
       everyRepository,
@@ -110,8 +110,12 @@ test.describe("authenticated agent settings read (dev launch mode)", () => {
 
     server.github.serve(everyRepository, publishedRevision(revision, null));
     const failed = await profilesAt(revision);
-    expect(failed.status).toBe(502);
-    expect(failed.body).toContain(settingsPath);
+    expect(failed.status).toBe(200);
+    expect(JSON.parse(failed.body)).toEqual({
+      revision,
+      profiles: [],
+      settings: null,
+    });
   });
 
   test("a client-supplied path to the setting file is refused as unreachable", async () => {

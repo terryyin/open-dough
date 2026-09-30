@@ -114,7 +114,6 @@ post-condition: the roster names the agents of the collection the project select
 - `nerds: true` is the setting; extra collections are out of scope (seed).
 - A profile from either collection stays recognized whatever the setting says.
 - Photos never enter Git in this delivery.
-- A failed (non-404) read of the setting fails the roster read visibly rather than falling back to the current collection; only a 404 means absent.
 
 ## Execution complete
 

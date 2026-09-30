@@ -123,7 +123,7 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
   );
   await expectAgreeingFragment(taken, openDoughRepository, openDough.revision);
 
-  await test.step("the gh request budget is 2 + S + P for three stories in one seed with two plans", () => {
+  await test.step("the gh request budget is 3 + S + P for three stories in one seed with two plans (the third is the agent setting file)", () => {
     const paths = contentPathsRead(openDoughOrigin);
     expect(paths[0]).toBe("main");
     expect(paths).toContain(
@@ -138,11 +138,14 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
     expect(paths).toContain(
       `.planning/slice-plans/075-ready/PLAN.md?ref=${openDough.revision}`,
     );
-    expect(paths).toHaveLength(5);
+    expect(paths).toContain(
+      `.planning/open-dough.json?ref=${openDough.revision}`,
+    );
+    expect(paths).toHaveLength(6);
     const distinctFiles = new Set(
       paths.filter((path) => path !== "main").map((path) => path.split("?")[0]),
     );
-    expect(distinctFiles.size).toBe(4);
+    expect(distinctFiles.size).toBe(5);
   });
 
   await test.step("opening already-loaded preparation facts costs no extra read", async () => {
@@ -212,8 +215,9 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
 
     const doughnutPaths = contentPathsRead(doughnutOrigin);
     expect(doughnutPaths[0]).toBe("main");
-    // main + backlog + planless seed + legacy + malformed + external seeds.
-    expect(doughnutPaths).toHaveLength(6);
+    // main + backlog + planless seed + legacy + malformed + external seeds
+    // + the agent setting file.
+    expect(doughnutPaths).toHaveLength(7);
   });
   await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
   await expectQueuedPlanCardAndDetail(
