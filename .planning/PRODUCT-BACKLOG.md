@@ -18,10 +18,10 @@ visibility for multiple agents working in worktrees on one machine.
 - [Select the Odd-e nerds agent names and avatars through configuration](seeds/SEED-060-odd-e-nerds-agent-collection.md#odd-e-nerds-agent-collection) — SEED-060#odd-e-nerds-agent-collection ([plan](slice-plans/177-odd-e-nerds-agent-collection/PLAN.md))
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation ([plan](slice-plans/178-script-execution-preparation/PLAN.md))
 - [Delete the record of a session Claude Code no longer lists](seeds/SEED-052-start-agent-work-from-dashboard.md#delete-unavailable-session-record) — SEED-052#delete-unavailable-session-record ([plan](slice-plans/179-delete-unavailable-session-record/PLAN.md))
+- [Discover materially different alternatives during refinement](seeds/SEED-057-composable-story-refinement-styles.md#composable-refinement-styles) — SEED-057#composable-refinement-styles ([plan](slice-plans/180-explore-and-borrow-refinement/PLAN.md))
 
 ## Backlog list
 
-- [Discover materially different alternatives during refinement](seeds/SEED-057-composable-story-refinement-styles.md#composable-refinement-styles) — SEED-057#composable-refinement-styles
 - [Settle purpose, scope, and behavior during refinement](seeds/SEED-057-composable-story-refinement-styles.md#settle-purpose-scope-and-behavior) — SEED-057#settle-purpose-scope-and-behavior
 - [Resolve uncertainty and expose failure during refinement](seeds/SEED-057-composable-story-refinement-styles.md#resolve-uncertainty-and-expose-failure) — SEED-057#resolve-uncertainty-and-expose-failure
 - [Shape an interaction within system constraints during refinement](seeds/SEED-057-composable-story-refinement-styles.md#shape-interaction-within-system-constraints) — SEED-057#shape-interaction-within-system-constraints
