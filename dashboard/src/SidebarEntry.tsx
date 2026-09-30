@@ -23,7 +23,7 @@ export function SidebarEntry({
   readonly onOpen: OpenSidebarEntry;
 }) {
   const { source } = record.request;
-  const { title, name } = launchSubject(record.request);
+  const { title, name, modelWords } = launchSubject(record.request);
   const { entryClass, stateWords } = shownSession(record);
   const current =
     usePageSessions().shownInTerminal === record.session.sessionId;
@@ -49,6 +49,7 @@ export function SidebarEntry({
       <p id={projectId}>
         {sourceById(source)?.label ?? source} · {name}
       </p>
+      {modelWords !== undefined && <p>{modelWords}</p>}
       <p>
         Launched <Moment at={new Date(record.launchedAt)} />
       </p>

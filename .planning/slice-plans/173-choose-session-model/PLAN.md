@@ -196,7 +196,7 @@ launch-options value, and its forwarding in `useAgentLaunches`; choices read
 
 ### 4. A session entry says which model was requested
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/agent-launch-model-entries.spec.ts`.
 - Launch a story session with Opus → its card entry, its Recent sessions entry
   and its sidebar entry each read "Model: Opus (requested)".
@@ -235,6 +235,12 @@ the North Star, removes the topic, and keeps the seed's Goal and Scope only
   the typecheck.
 - The dialog has no submit-from-text-field shortcut, so "the keyboard still
   starts in the text field" is proven as initial focus plus the Tab order.
+- The entry specs assert the model line is present in each entry, not its
+  position beside the workflow line.
+- `agent-launch-recent-delete.spec.ts:46` failed once in a 247-test parallel
+  run (error text not captured) and passed on 8 parallel repeats and a full
+  rerun; the spec launches without a model and this change does not touch it.
+  Unexplained; treat as this execution's to fix if CI shows it.
 
 ## Accepted proof
 
@@ -260,3 +266,9 @@ the North Star, removes the topic, and keeps the seed's Goal and Scope only
   dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts --reporter=line` → 29
   passed (browser, synthetic `claude`, `dashboard.claudeLaunchCalls()`); the
   four existing specs unedited; `npm run typecheck:dashboard` clean.
+- Slice 4: `npx playwright test --config dashboard/playwright.config.ts
+  dashboard/tests/agent-launch-model-entries.spec.ts` → 3 passed (card, Recent
+  sessions and sidebar entries, before and after reload); `npx playwright test
+  --config dashboard/playwright.config.ts
+  'agent-launch|session-sidebar|agent-terminal|recent' --reporter=line` → 247
+  passed, existing specs unedited; `npm run typecheck:dashboard` clean.

@@ -82,7 +82,8 @@ export function launchKindName(workflow: LaunchWorkflow | "ad-hoc"): string {
 
 // What a consumer of a launch record needs of its request, spelled once: the
 // title, the work item's identity (none when the request has no card to look
-// up), the kind's name, and how its session is said to have started.
+// up), the kind's name, how its session is said to have started, and the
+// model it asked for (none for Default).
 export function launchSubject(request: RecordedLaunchRequest) {
   const name = launchKindName(request.workflow);
   return {
@@ -92,6 +93,10 @@ export function launchSubject(request: RecordedLaunchRequest) {
     startedWords: `${
       request.workflow === "ad-hoc" ? `${name} session` : name
     } started in Claude Code`,
+    modelWords:
+      request.model === undefined
+        ? undefined
+        : `Model: ${launchModels[request.model].name} (requested)`,
   };
 }
 
