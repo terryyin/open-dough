@@ -16,10 +16,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation ([plan](slice-plans/186-script-refinement-preparation/PLAN.md))
 - [Make npm run lint report no warnings or errors, consistently](seeds/SEED-065-warning-free-lint.md#warning-free-lint) — SEED-065#warning-free-lint ([plan](slice-plans/187-warning-free-lint/PLAN.md))
+- [Correct the refinement options launch after its outcome review](seeds/SEED-061-refinement-options-from-dashboard.md#correct-refinement-options-launch-follow-ups) — SEED-061#correct-refinement-options-launch-follow-ups ([plan](slice-plans/188-correct-refinement-options-launch/PLAN.md))
 
 ## Backlog list
 
-- [Correct the refinement options launch after its outcome review](seeds/SEED-061-refinement-options-from-dashboard.md#correct-refinement-options-launch-follow-ups) — SEED-061#correct-refinement-options-launch-follow-ups
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "joseph-chan",
+  "email": "joseph-chan@example.org",
+  "identity": "SEED-061#correct-refinement-options-launch-follow-ups",
+  "mode": "story-branch",
+  "branch": "claude/correct-the-refinement-options-launch-after-its",
+  "host": "claude"
+}
