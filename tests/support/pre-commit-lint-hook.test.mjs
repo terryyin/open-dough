@@ -5,6 +5,7 @@ import {
   readFileSync,
   realpathSync,
   rmSync,
+  statSync,
   symlinkSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -18,6 +19,7 @@ import {
   git,
   gitWith,
   gitOk,
+  root,
   violation,
   write,
 } from "./lint-runner-fixture.mjs";
@@ -34,18 +36,19 @@ const fixtureFiles = [
   ".editorconfig",
   ".shellcheckrc",
   ".githooks/pre-commit",
+  "scripts/install-hooks.mjs",
 ];
 
 // A committed repository with this repository's lint runner, configs, and
 // tracked hook; the fixture sets core.hooksPath directly. Without linked
 // dependencies it has no node_modules, like a fresh worktree.
-function hookFixture(t, { dependencies = true } = {}) {
+function hookFixture(t, { dependencies = true, install = false } = {}) {
   const fixture = mkdtempSync(join(tmpdir(), "pre-commit-lint-hook-"));
   t.after(() => rmSync(fixture, { recursive: true, force: true }));
   (dependencies ? copyRepositoryFiles : copyFiles)(fixture, fixtureFiles);
   write(
     join(fixture, "package.json"),
-    '{"private":true,"type":"module","scripts":{"lint":"node scripts/lint.mjs"}}\n',
+    '{"private":true,"type":"module","scripts":{"lint":"node scripts/lint.mjs","prepare":"node scripts/install-hooks.mjs"}}\n',
   );
   write(
     join(fixture, "tsconfig.json"),
@@ -58,7 +61,9 @@ function hookFixture(t, { dependencies = true } = {}) {
   }
   gitOk(fixture, "add", ".");
   gitOk(fixture, "-c", "core.hooksPath=/dev/null", "commit", "-qm", "fixture");
-  gitOk(fixture, "config", "core.hooksPath", ".githooks");
+  if (!install) {
+    gitOk(fixture, "config", "core.hooksPath", ".githooks");
+  }
   return fixture;
 }
 
@@ -201,4 +206,81 @@ test("a staged file whose tool is missing is refused naming the tool and npm ci"
     assert.match(commit.output, /npm ci/);
     assert.equal(head(fixture), before);
   }
+});
+
+function prepare(cwd) {
+  const result = spawnSync("npm", ["run", "--silent", "prepare"], {
+    cwd,
+    env,
+    encoding: "utf8",
+  });
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+}
+
+function stageViolation(cwd) {
+  write(join(cwd, "src/bad.mjs"), violation);
+  gitOk(cwd, "add", "src/bad.mjs");
+}
+
+function linkedWorktree(t, fixture, name) {
+  const path = `${fixture}-${name}`;
+  t.after(() => rmSync(path, { recursive: true, force: true }));
+  gitOk(fixture, "worktree", "add", "--quiet", "--detach", path, "HEAD");
+  symlinkSync(join(root, "node_modules"), join(path, "node_modules"));
+  return path;
+}
+
+test("prepare enables the hook in the checkout and a linked worktree, and a repeat leaves the config untouched", (t) => {
+  const fixture = hookFixture(t, { install: true });
+  assert.equal(git(fixture, "config", "--get", "core.hooksPath").status, 1);
+
+  prepare(fixture);
+
+  assert.equal(
+    gitOk(fixture, "config", "--get", "core.hooksPath").trim(),
+    ".githooks",
+  );
+  const configFile = join(fixture, ".git/config");
+  const configBefore = readFileSync(configFile);
+  const mtimeBefore = statSync(configFile).mtimeMs;
+  prepare(fixture);
+  assert.deepEqual(readFileSync(configFile), configBefore);
+  assert.equal(statSync(configFile).mtimeMs, mtimeBefore);
+
+  const worktree = linkedWorktree(t, fixture, "with-hook");
+  for (const cwd of [fixture, worktree]) {
+    const before = head(cwd);
+    stageViolation(cwd);
+    const commit = git(cwd, "commit", "-m", "bad");
+    assert.notEqual(commit.status, 0, commit.output);
+    assert.match(commit.output, /src\/bad\.mjs[\s\S]*no-var/);
+    assert.equal(head(cwd), before);
+  }
+});
+
+test("a linked worktree on a revision without the hook commits as before", (t) => {
+  const fixture = hookFixture(t, { install: true });
+  gitOk(fixture, "rm", "-q", ".githooks/pre-commit");
+  gitOk(fixture, "commit", "-qm", "drop the hook");
+  prepare(fixture);
+  const worktree = linkedWorktree(t, fixture, "no-hook");
+  stageViolation(worktree);
+
+  const commit = git(worktree, "commit", "-m", "bad");
+
+  assert.equal(commit.status, 0, commit.output);
+});
+
+test("prepare exits quietly outside a Git checkout", (t) => {
+  const fixture = mkdtempSync(join(tmpdir(), "prepare-no-git-"));
+  t.after(() => rmSync(fixture, { recursive: true, force: true }));
+  copyFiles(fixture, ["scripts/install-hooks.mjs"]);
+  write(join(fixture, "package.json"), '{"type":"module"}\n');
+  const result = spawnSync("node", ["scripts/install-hooks.mjs"], {
+    cwd: fixture,
+    env: { ...env, GIT_CEILING_DIRECTORIES: tmpdir() },
+    encoding: "utf8",
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout + result.stderr, "");
 });

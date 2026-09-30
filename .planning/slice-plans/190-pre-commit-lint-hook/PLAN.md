@@ -157,7 +157,7 @@ shell-file hook test skips when either is absent.
 ### 3. Enable the hook with npm ci for the checkout and its worktrees
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npm test -- tests/support/pre-commit-lint-hook.test.mjs` (example 7);
 `npm ci` in the executing worktree, then `git config --get core.hooksPath`;
 `scripts/ci-container.sh tests/support/pre-commit-lint-hook.test.mjs`;
@@ -170,3 +170,15 @@ leaves the configuration untouched.
 
 Adds the `prepare` script. Completion also updates ODF-100's follow-up in
 `DearDough.md` per the story's Completion note, at wrap-up.
+
+Accepted proof: `node --test` over the hook and lint-file-set tests (13 pass,
+example 7 included); `npm ci` in the executing worktree read back
+`core.hooksPath` = `.githooks`; `scripts/ci-container.sh
+tests/support/pre-commit-lint-hook.test.mjs` (pass); `npm test` (pass, no test
+commit reached this repository's hook); `npm run lint` (clean). Learnings:
+`scripts/install-hooks.mjs` is the one place `.githooks` is named and no-ops
+outside a checkout of this repository; a Node pipe is not readable as
+`/dev/stdin` by Git on Linux, so `--staged` gives Git the ESLint ignore patterns
+through a temporary file (this repaired CI run 36726848028 on slice 2, which
+macOS had hidden); the container's `npm ci` writing the value from unset was not
+tested.

@@ -6,6 +6,7 @@
     "test": "exec bash scripts/test.sh",
     "lint": "node scripts/lint.mjs",
     "format": "node scripts/lint.mjs --fix",
+    "prepare": "node scripts/install-hooks.mjs",
     "dev:dashboard": "vite --config dashboard/vite.config.mts",
     "typecheck:dashboard": "tsc --build dashboard/tsconfig.json",
     "build:dashboard": "vite build --config dashboard/vite.config.mts",

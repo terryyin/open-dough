@@ -1,5 +1,14 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 process.chdir(fileURLToPath(new URL("..", import.meta.url)));
@@ -65,14 +74,14 @@ const files = [...new Set(listing.stdout.split("\0"))].filter(
 
 // Of the listed paths, those Git matches against an ignore list. Git reads the
 // patterns, so no ignoring tool has to be installed.
-function ignoredBy(excludeFrom, input, paths) {
+function ignoredBy(excludeFrom, paths) {
   if (paths.length === 0) {
     return new Set();
   }
   const ignored = run(
     "git",
     ["ls-files", "-ci", "-z", `--exclude-from=${excludeFrom}`, "--", ...paths],
-    { input, stdio: ["pipe", "pipe", "inherit"] },
+    { stdio: ["ignore", "pipe", "inherit"] },
   );
   if (ignored.status !== 0) {
     process.exit(1);
@@ -90,16 +99,16 @@ const jsonFiles = files.filter((file) => /\.jsonc?$/.test(file));
 let eslintFiles = scriptFiles;
 let prettierFiles = [...scriptFiles, ...jsonFiles];
 if (staged) {
-  const eslintIgnored = ignoredBy(
-    "/dev/stdin",
+  // Git reads the patterns from a file; a pipe is not readable as one on Linux.
+  const patterns = mkdtempSync(join(tmpdir(), "lint-eslint-ignores-"));
+  const eslintIgnores = join(patterns, "ignores");
+  writeFileSync(
+    eslintIgnores,
     (await import("../eslint.ignores.mjs")).default.join("\n"),
-    scriptFiles,
   );
-  const prettierIgnored = ignoredBy(
-    ".prettierignore",
-    undefined,
-    prettierFiles,
-  );
+  const eslintIgnored = ignoredBy(eslintIgnores, scriptFiles);
+  rmSync(patterns, { recursive: true, force: true });
+  const prettierIgnored = ignoredBy(".prettierignore", prettierFiles);
   eslintFiles = scriptFiles.filter((file) => !eslintIgnored.has(file));
   prettierFiles = prettierFiles.filter((file) => !prettierIgnored.has(file));
 }
