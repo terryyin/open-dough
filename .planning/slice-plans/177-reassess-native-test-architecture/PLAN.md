@@ -314,3 +314,17 @@ and git-publication families already follow it.
 - Converting the shell families to Node or unifying the Node and shell
   families: changes no verdict-relevant design and enlarges the story.
 - Renaming any entry point under `tests/`: violates the preserved command lines.
+
+## Execution complete
+
+Product advice: No correction plan is needed; every native file is under 250
+lines and the family layers are stated in `tests/native-publication.md`. Three
+residues are for the maintainer to weigh, none queued: (1) three field readers
+remain by design (`native_observation_field`, `native_journey_state_field`,
+`delivery_evidence_obs_get`) because their semantics differ, so the story's
+"one shared owner" example is met for the awk-`$2` readers only; a story could
+parametrize one reader if the differences are not wanted. (2)
+`delivery-evidence-native-run.sh` sits at exactly 250 lines, so its next edit
+needs a split. (3) The claims and consumers delivery-evidence observers are
+reached by no free check; a free observer counterexample like slice 1's would
+cover them.

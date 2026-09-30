@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 189. Removed local codes are never reused.
+- Highest allocated local number: 190. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -306,3 +306,19 @@ Wrap-up rewrites a queued correction's own provenance, changing its plan or stor
 Follow-up: Open, unqueued.
 
 - Execution: `SEED-052#preparing-card-refinement-journey` / plan 154, before its claim `f9fe3fdc` - Timestamp: unknown; the refusal preceded reassessment commit `3da84888` (2026-09-29, same session) - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; repository guidance at `fd077d1d` - Evidence: same refusal. Closure `fd077d1d` of the parent SEED-052#recent-sessions-residue rewrote this correction's own Scope provenance and its plan's Source/Provenance lines (branch refs to merged and closed-history refs) without reassessing; both digests changed. - Observed effect: one diagnosis, one record-state, one direct trunk commit, and a start retry. Inference: any correction a retrospective creates can be invalidated this way by its parent's wrap-up; the sibling-section fix does not cover it.
+
+## DD-190 — A plan counted look-alike copies as one responsibility without comparing their semantics
+
+A structure plan named "31 copies", "the complete/await/stop field block" and "a second reader of the same shape" as replaceable by one helper, from grep counts and text shape; implementation found different semantics or layouts behind three of them.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+- Execution: `SEED-055#reassess-native-test-architecture` / plan 177, first related implementation commit `eebcaa8c`
+  - Timestamp: 2026-09-30T14:46:24+08:00 (execution start; slice reports the same afternoon)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-sonnet-5-5
+  - Open Dough release: modified; revision `edc71c05`; base 0.3.47
+  - Evidence: plan premises table and slices 2, 3, 7; `native_journey_state_field` reads a variable, matches anywhere and keeps spaces; the four completion blocks print different names, order and interleaving (trunk derives product-shutdown from its finish count); `delivery_evidence_obs_get` returns the rest of the first matching line, not awk `$2`. Commits `62ed3729`, `00173a6c`, `b6b2e4ad`.
+  - Observed effect: slice 2 kept one twin reader, slice 3 extracted the shared measurement instead of one writer, slice 7 kept its own reader; each implementer reported the deviation and the plan recorded it. Story example 2 (one shared owner for both readers) is met only in part.
+  - Inference: Qualified. The planning premises table observed counts and call sites but not the semantics each copy consumes; the deviations cost no rework because implementers inspected each copy first, as their briefs required.
