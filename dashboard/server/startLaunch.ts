@@ -8,15 +8,22 @@
 import { spawn } from "node:child_process";
 import { stat } from "node:fs/promises";
 import { hostname } from "node:os";
+import path from "node:path";
 import type {
   EstablishedPreparation,
   EstablishedStart,
   StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import {
+  claudeWorkspace,
+  shownWorkspace,
+  type WorkspaceChoice,
+} from "./claudeWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
-import { git, repositoryOf } from "./startGit.ts";
+import { git, repositoryOf, takenSlugs } from "./startGit.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
+import type { StartRecord } from "./startStore.ts";
 
 // What a workflow's start established: an execution's start or a refinement's
 // preparation, under the key its launch record keeps it by.
@@ -55,6 +62,35 @@ export type PlannedStart =
 
 const alreadyStarting =
   "This story is already starting on this machine, so a second start was not made. Wait for the running start to end; its card shows its progress. Nothing was launched.";
+
+// The workspace a kept start was made in, shown as this host's workspaces are.
+function keptChoice(
+  project: ProjectFolder,
+  kept: StartRecord,
+): WorkspaceChoice {
+  return {
+    workspace: {
+      path: kept.workspace,
+      shown: shownWorkspace(project, path.basename(kept.workspace)),
+    },
+    branch: kept.branch,
+  };
+}
+
+// Where a start goes on: a kept start's workspace, branch and model as they
+// were, else a new workspace by the host's convention and the requested model.
+export async function startChoice(
+  project: ProjectFolder,
+  request: StoryLaunchRequest,
+  kept: StartRecord | undefined,
+): Promise<WorkspaceChoice & { readonly model: StartRecord["model"] }> {
+  return kept === undefined
+    ? {
+        ...claudeWorkspace(project, request.title, await takenSlugs(project)),
+        model: request.model,
+      }
+    : { ...keptChoice(project, kept), model: kept.model };
+}
 
 export async function isFile(file: string): Promise<boolean> {
   try {

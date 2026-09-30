@@ -31,7 +31,8 @@ import {
 
 export const startRecordSchema = z.object({
   identity: z.string().min(1),
-  publisherId: z.string().min(1),
+  // An execution's; a refinement's preparation has no publisher.
+  publisherId: z.string().min(1).optional(),
   workspace: z.string().min(1),
   branch: z.string().min(1),
   model: z.enum(launchModelAliases).optional(),

@@ -85,6 +85,26 @@ execution's does. The machine's sessions answer carries
 `establishingPreparation`, the ids of the projects whose installed skill ships
 the start and formatter, beside `establishing`.
 
+A refinement's start is kept too, in its own file
+(`~/.open-dough/dashboard/refinement-starts.json`, one per project and story
+identity; the publisher ID is an execution's alone): identity, workspace,
+branch, the model chosen, and when, written before the script runs. The next
+refinement launch of the story resumes it: the same workspace, branch and
+model, with no starting or candidate SHAs, so the script answers `continued`
+(which carries no `publishedSha`; the session still starts with the
+established preparation) and never announces a second time. The start is never
+aborted: when it has not finished within its wait (`DOUGH_START_TIMEOUT_MS`)
+the launch answers uncertain, "The start was kept and goes on in workspace
+<folder> on branch <branch>; pressing Start again resumes it." An `unpublished`
+stop or no readable result is refused with the workspace, branch, and "The
+start was kept; pressing Start again resumes it." Any other stop made no
+assignment, so it removes the kept start together with the workspace and
+branch it created. A launch whose session started removes the kept start (the
+launch record keeps the preparation); a `claude` refusal after the announcement
+keeps it, and its "Launch failed:" answer adds "Preparing as <Agent>; no session
+started. Workspace <folder>." (`Preparing` alone when no Agent was named). The
+machine's `keptStarts` still lists execution's starts only.
+
 The page says what Start does, for a project whose installed skill establishes
 a start (ships the start command and the formatter; `establishesStart` in
 `server/executionStart.ts`; a refinement's, `establishesPreparation` in

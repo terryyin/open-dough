@@ -186,8 +186,9 @@ no assignment removes the kept start; the progress phase clears.
 
 ### 7. A kept preparation start resumes on the next Start
 Type: Behavior
-Status: planned
+Status: done
 Proof: boundary specs for a start that outlasts the wait (`DOUGH_START_TIMEOUT_MS`), an `unpublished` stop, and a `claude` refusal after `announced`; each ends with a second Start and one preparation profile.
+Accepted: `agent-launch-preparation-resume.spec.ts` (timeout, `unpublished` stop via a rejecting pre-receive hook, `claude` refusal after the announcement: each keeps the start, names the workspace, and a second Start reruns in the same workspace and branch with one preparation profile, one workspace, and no kept start; 15/15 at `--repeat-each=5`); `agent-launch-preparation-stops.spec.ts` asserts no kept start after a stop; regression 246 passed; typecheck and lint clean. `continued` without `publishedSha` is established. `keptStarts` still lists execution starts only (slice 8).
 
 Behavior: the start is kept before the script runs; timeout, `unpublished`, or a
 `claude` refusal keep it → answers say "The start was kept and goes on in
@@ -218,6 +219,7 @@ offer. `keptStarts` carries the workflow.
 
 ## Learnings
 
+- Slice 7: a kept `unpublished` start whose hook still rejects stays kept on the next Start (no spec). `agent-launch-start-taken.spec.ts:53` failed once under load ("server could not be reached") and passed on rerun, like `agent-launch-card-delete.spec.ts:51`: local load flakes on existing specs, CI green. Slice 8 makes `keptStarts` carry the workflow.
 - Slice 6: `preparationStart.ts` turns an established result without `publishedSha` (a `continued` answer) into a stop; slice 7's resume must treat it as established and carry `publishedSha` optionally (the record schema already allows it). The cleanup's failure wording has no test.
 - `agent-launch-card-delete.spec.ts:51` failed a second time locally under a full parallel selection (slice 6); still passes isolated and CI is green on every published revision. Open finding for a separate story, not this one's scope.
 - `@typescript-eslint/no-unused-vars` rejects `_`-prefixed callback parameters here. A Playwright/build run once left git-ignored `dashboard/dashboard/dist`, which ESLint lints locally; removed.

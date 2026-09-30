@@ -25,17 +25,13 @@ import {
   type StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import {
-  claudeWorkspace,
-  shownWorkspace,
-  type WorkspaceChoice,
-} from "./claudeWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
-import { lostStartArguments, ownerOf, takenSlugs } from "./startGit.ts";
+import { lostStartArguments, ownerOf } from "./startGit.ts";
 import {
   gatedStart,
   isFile,
+  startChoice,
   publisherId,
   runStartCommand,
   type PlannedStart,
@@ -48,7 +44,6 @@ import {
   keptStart,
   resumeArguments,
   updateStart,
-  type StartRecord,
 } from "./startStore.ts";
 
 const skillScripts = path.join(
@@ -89,20 +84,6 @@ export async function establishesStart(
   );
 }
 
-// The workspace a kept start was made in, shown as this host's workspaces are.
-function keptChoice(
-  project: ProjectFolder,
-  kept: StartRecord,
-): WorkspaceChoice {
-  return {
-    workspace: {
-      path: kept.workspace,
-      shown: shownWorkspace(project, path.basename(kept.workspace)),
-    },
-    branch: kept.branch,
-  };
-}
-
 // Runs the start for one execution launch, or says why not. The start is in
 // `progress` from before its script runs: `preparing` while it runs, then
 // `launching` once it established the start, for the launch to end; a start
@@ -134,11 +115,11 @@ async function runningStart(
 ): Promise<PlannedStart> {
   // A start kept from an earlier launch of the story is resumed as it was.
   const kept = await keptStart(source.id, request.identity, workflow);
-  const { workspace, branch } =
-    kept === undefined
-      ? claudeWorkspace(project, request.title, await takenSlugs(project))
-      : keptChoice(project, kept);
-  const model = kept === undefined ? request.model : kept.model;
+  const { workspace, branch, model } = await startChoice(
+    project,
+    request,
+    kept,
+  );
   const facts = {
     identity: request.identity,
     publisherId: kept?.publisherId ?? publisherId(source),

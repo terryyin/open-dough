@@ -84,12 +84,12 @@ const refinement: StartWorkflow = {
     return formattedPreparation(project, established.preparation);
   },
   uncertain: ({ workspace, branch }) =>
-    `The start did not finish within the wait, so the story may or may not be Preparing. Workspace ${workspace} on branch ${branch}.`,
+    `The start did not finish within the wait, so the story may or may not be Preparing. The start was kept and goes on in workspace ${workspace} on branch ${branch}; pressing Start again resumes it.`,
   formatFailed: ({ workspace, branch }) =>
     `The story is Preparing, but the installed skill's formatter could not be read, so no session was started. Workspace ${workspace} on branch ${branch}.`,
   publishedWithoutSession: ({ handoff, workspace }) => {
     const { agent } = establishedFacts(handoff.established);
-    return `${agent === undefined ? "Preparing" : `Preparing by ${agent}`}; no session started. Workspace ${workspace.shown}.`;
+    return `${agent === undefined ? "Preparing" : `Preparing as ${agent}`}; no session started. Workspace ${workspace.shown}.`;
   },
 };
 

@@ -7,7 +7,7 @@
 // leaves no session and no progress phase. The table's mapping of the
 // remaining stop statuses is ./preparation-start-result.spec.ts.
 
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execFile } from "node:child_process";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -86,6 +86,15 @@ test.describe("refinement preparation start that stops", () => {
       cwd: origin.project,
     });
     expect(listed.stdout).not.toContain("prepare-the-queued-start");
+    // The kept start goes with the workspace: nothing was assigned to resume.
+    const store = path.join(
+      origin.machine,
+      "home/.open-dough/dashboard/refinement-starts.json",
+    );
+    const kept = existsSync(store)
+      ? (JSON.parse(readFileSync(store, "utf8")) as Record<string, object>)
+      : {};
+    expect(Object.values(kept["open-dough"] ?? {})).toEqual([]);
   }
 
   test("a story not queued in Backlog is not started and makes no workspace", async () => {

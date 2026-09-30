@@ -7,7 +7,10 @@
 // A project establishes it only when its installed skill ships the start
 // command and the formatter (`established-preparation.mjs`) that hands the
 // preparation to the session; any other project launches as before. The
-// workspace is chosen by the host's convention (`./claudeWorkspace.ts`).
+// workspace is chosen by the host's convention (`./claudeWorkspace.ts`). A
+// start is kept (`./startStore.ts`) from before its script runs until a
+// session launches from it or it stops with nothing assigned; the next launch
+// of the story reruns the script in the kept workspace and branch.
 
 import { stat } from "node:fs/promises";
 import path from "node:path";
@@ -18,22 +21,24 @@ import type {
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { beforeStart, removeCreatedWorkspace } from "./preparationCleanup.ts";
-import { claudeWorkspace } from "./claudeWorkspace.ts";
 import {
+  keepsPreparation,
   preparationRefusal,
   readPreparationResult,
   type PreparationResult,
 } from "./preparationResult.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
-import { takenSlugs } from "./startGit.ts";
 import {
   gatedStart,
   isFile,
+  startChoice,
   runStartCommand,
   type PlannedStart,
   type StartAttempt,
 } from "./startLaunch.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
+import { record } from "./startRecording.ts";
+import { keepStart, keptStart, removeStart } from "./startStore.ts";
 
 const skillScripts = path.join(
   ".claude",
@@ -43,6 +48,7 @@ const skillScripts = path.join(
 );
 const startScript = "preparation-assignment.mjs";
 const formatterScript = "established-preparation.mjs";
+const workflow = "refinement";
 
 async function runScript(
   args: readonly string[],
@@ -98,12 +104,28 @@ async function runningPreparation(
   project: ProjectFolder,
   progress: WorkflowProgress,
 ): Promise<PlannedStart> {
-  const { workspace, branch } = claudeWorkspace(
+  // A start kept from an earlier launch of the story is resumed as it was:
+  // the same workspace and branch, so the script answers `continued`.
+  const kept = await keptStart(source.id, request.identity, workflow);
+  const { workspace, branch, model } = await startChoice(
     project,
-    request.title,
-    await takenSlugs(project),
+    request,
+    kept,
   );
   const before = await beforeStart(project, workspace.path, branch);
+  // Written ahead of the script, so a start whose result is lost is still
+  // known.
+  await keepStart(
+    source.id,
+    {
+      identity: request.identity,
+      workspace: workspace.path,
+      branch,
+      ...(model === undefined ? {} : { model }),
+      startedAt: new Date().toISOString(),
+    },
+    workflow,
+  );
   const attempt = runScript(
     [
       "--integration",
@@ -121,11 +143,11 @@ async function runningPreparation(
       "--push-authorized",
       "--host",
       "claude",
-      ...(request.model === undefined ? [] : ["--model", request.model]),
+      ...(model === undefined ? [] : ["--model", model]),
     ],
     project,
   ).then(async (result): Promise<StartAttempt> => {
-    if (result.kind === "established" && result.publishedSha !== undefined) {
+    if (result.kind === "established") {
       progress.set(source.id, request.identity, "launching");
       return {
         kind: "established",
@@ -135,29 +157,32 @@ async function runningPreparation(
           branch,
           remote: "origin",
           target: source.ref,
-          publishedSha: result.publishedSha,
           agent: result.agent,
+          ...(result.publishedSha === undefined
+            ? {}
+            : { publishedSha: result.publishedSha }),
         },
       };
     }
-    // A stop that made no assignment leaves nothing behind. Slice 7 keeps the
-    // start instead for `unpublished` and an unreadable result.
     progress.clear(source.id, request.identity);
-    const stop =
-      result.kind === "established"
-        ? ({
-            kind: "stopped",
-            status: "continued",
-            error: "the workspace already held this assignment",
-          } as const)
-        : result;
-    const leftBehind =
-      result.kind === "stopped" && result.status !== "unpublished"
-        ? await removeCreatedWorkspace(project, workspace.path, branch, before)
-        : "";
+    if (keepsPreparation(result)) {
+      return {
+        kind: "refused",
+        explanation: preparationRefusal(result, "", {
+          workspace: workspace.shown,
+          branch,
+        }),
+      };
+    }
+    // A stop that made no assignment leaves nothing to resume and removes the
+    // workspace and branch this launch created.
+    await record(() => removeStart(source.id, request.identity, workflow));
     return {
       kind: "refused",
-      explanation: preparationRefusal(stop, leftBehind),
+      explanation: preparationRefusal(
+        result,
+        await removeCreatedWorkspace(project, workspace.path, branch, before),
+      ),
     };
   });
   return { kind: "running", workspace, branch, attempt };

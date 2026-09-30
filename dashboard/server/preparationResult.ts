@@ -98,21 +98,36 @@ const stopReasons: Record<string, (stop: Stop) => string> = {
     `Every agent name is held on origin${stop.occupied ? ` (${stop.occupied.join(", ")})` : ""}, so no agent is free to prepare the story.`,
   "developer-identity-refused": (stop) =>
     `Git has no usable developer identity for the announcement${detail(stop)}.`,
-  // Slice 7 keeps the start for this stop instead of ending it.
   unpublished: (stop) =>
     `The Preparing announcement could not be confirmed on origin${detail(stop)}.`,
 };
 
+const keptWords = "The start was kept; pressing Start again resumes it.";
+
+// Whether a start that ended so may have published the announcement: its
+// start is kept and the next launch of the story resumes it.
+export function keepsPreparation(
+  result: Exclude<PreparationResult, { kind: "established" }>,
+): boolean {
+  return result.kind === "unreadable" || result.status === "unpublished";
+}
+
 // The card's answer for a start that did not establish: the reason, what the
-// cleanup could not remove (a sentence, or ""), and that nothing was launched.
+// cleanup could not remove (a sentence, or ""), the workspace and branch a
+// kept start goes on in, and that nothing was launched.
 export function preparationRefusal(
   result: Exclude<PreparationResult, { kind: "established" }>,
   leftBehind = "",
+  kept?: { readonly workspace: string; readonly branch: string },
 ): string {
   const reason =
     result.kind === "stopped"
       ? (stopReasons[result.status]?.(result) ??
         `The preparation start stopped (${result.status})${detail(result)}.`)
       : "The preparation start gave no result this dashboard could read.";
-  return `${reason}${leftBehind} Nothing was launched.`;
+  const where =
+    kept && keepsPreparation(result)
+      ? ` Workspace ${kept.workspace} on branch ${kept.branch}. ${keptWords}`
+      : "";
+  return `${reason}${leftBehind}${where} Nothing was launched.`;
 }

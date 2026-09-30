@@ -83,7 +83,7 @@ test("keeps one start per story, replaced when written again, and removes one al
 test("resumes a retained claim commit only with both SHAs and no result reported", () => {
   const start = {
     identity: written.identity,
-    publisherId: written.publisherId,
+    publisherId: "dashboard-publisher",
     workspace: written.workspace,
     branch: written.branch,
     mode: "story-branch" as const,
