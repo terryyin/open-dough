@@ -222,8 +222,12 @@ observe and assess pair and follows the same naming.
 
 ### 6. Completion journey in the same layers
 Type: Structure
-Status: planned
+Status: done
 Proof: the free proof command; slice 1's ci observation identical.
+
+Done: `-native-observe.sh` (56), run (84), assess (72) and
+`-native-counterexamples.sh` (140, slice 1's ci observer counterexamples folded
+in, as for the story family). Free proof and lint pass.
 
 `ci_completion_observe` leaves `ci-completion-native-run.sh` for an observe
 file; the run file keeps launch, retention and identity.
