@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Land changes made on the default checkout by committing to main and syncing](seeds/SEED-008-worktree-branch-trunk-sync.md#land-from-default-checkout) — SEED-008#land-from-default-checkout ([plan](slice-plans/170-land-from-default-checkout/PLAN.md))
 - [Check reported gaps against the story before accepting a slice](seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps ([plan](slice-plans/175-accept-reported-story-gaps/PLAN.md))
-- [Observe a planning premise through the operation that consumes it](seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers ([plan](slice-plans/176-observe-premise-consumers/PLAN.md))
 
 ## Backlog list
 

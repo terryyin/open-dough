@@ -153,7 +153,7 @@ Former local code: DD-121.
 
 Concrete only-caller and host-state premises enter a plan without inspection, forcing a changed decision or stopped implementation when checked.
 
-Follow-up: queued, not resolved: [Observe a planning premise through the operation that consumes it](.planning/seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers.
+Follow-up: delivered with a weak replay result, not shown to resolve: Observe a planning premise through the operation that consumes it — SEED-059#observe-premise-consumers (story and plan recoverable at d9137ef5).
 
 - Execution: SEED-044#verify-planning-premises (plan 115; first implementation commit `2c5ff71f`) - Timestamp: 2026-09-27T14:17:23+08:00 - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: modified; revision `6882aeb3` guidance at planning time - Evidence: plan 115 slice 2 text at `6882aeb3`; `product-backlog.mjs` usage lists add, place, take, complete, refresh, direction, adopt, merge, record-state, read-state - Observed effect: small detour and an equivalent-proof judgment at acceptance; no rework - Inference: same class as the unobserved planning premises this story addresses (catalog ODF-074); plan 115 was written before its own rule
 
@@ -173,7 +173,7 @@ Former local code: DD-124.
 
 A replay resolves the named readiness seam without exercising the rest of the slice's promised journey, leaving a later operation to force a scope stop.
 
-Follow-up: queued, not resolved: [Observe a planning premise through the operation that consumes it](.planning/seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers.
+Follow-up: delivered with a weak replay result, not shown to resolve: Observe a planning premise through the operation that consumes it — SEED-059#observe-premise-consumers (story and plan recoverable at d9137ef5).
 
 - Execution: `SEED-028#one-shot-work` / plan 112, first related implementation commit `d0101737` - Timestamp: unknown; between re-bind `e8ce93b9` (2026-09-27T15:50:01+08:00) and slice 2 commit `6f350f28` (2026-09-27T16:40:20+08:00) - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance last updated by `707f3ac` (v0.3.42) - Evidence: plan 112 premise table at `e8ce93b9` cites `execution-increment-publication.mjs:143-197`; slice 2 first return reported the merge-driver conflict; corrected premise row and North Star wording in `6f350f28` - Observed effect: one extra implementation round in slice 2 (an added pre-reconciliation fetch, then consolidation into `onFetchedTarget`) and a North Star correction - Inference: Qualified. A race premise is cheap to observe with the existing racing-push fixtures; reading the hook's call sites observed the seam, not the Take-then-replay journey
 
