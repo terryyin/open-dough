@@ -129,7 +129,7 @@ Local gates for every slice: the focused specs named, plus
 
 ### 1. The launch boundary starts a session on a chosen model
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/agent-launch-model-boundary.spec.ts`, beside
 `agent-launch-ad-hoc-boundary.spec.ts`, over raw HTTP in dev and preview with the
 synthetic `claude` (helpers in `agentLaunchBoundary.ts`), asserting
@@ -225,3 +225,18 @@ Behavior: reader of the dashboard's documents → finds the delivered launch
 model choice described once, in delivered words. Updates AGENT-LAUNCH.md and
 the North Star, removes the topic, and keeps the seed's Goal and Scope only
 (planning wrap-up owns that closure).
+
+## Learnings
+
+- With `exactOptionalPropertyTypes` on, `startClaudeInBackground`'s options type
+  spells `T | undefined` instead of using `?` fields.
+
+## Accepted proof
+
+- Slice 1: `npx playwright test --config dashboard/playwright.config.ts
+  dashboard/tests/agent-launch-model-boundary.spec.ts
+  dashboard/tests/agent-launch-boundary.spec.ts
+  dashboard/tests/agent-launch-ad-hoc-boundary.spec.ts
+  dashboard/tests/agent-launch-records.spec.ts --reporter=line` → 73 passed
+  (raw HTTP in dev and preview, synthetic `claude`, `claudeLaunchCalls`);
+  `npm run typecheck:dashboard` clean. The three existing specs are unedited.

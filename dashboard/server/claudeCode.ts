@@ -44,12 +44,19 @@ function execClaude(
   });
 }
 
-// `claude --bg --name <name> [<instruction>]` in the project folder: one
-// background session, whose short id it prints. With no instruction the
-// session starts without a first prompt.
+// `claude --bg --name <name> [--model <alias>] [<instruction>]` in the project
+// folder: one background session, whose short id it prints. With no
+// instruction the session starts without a first prompt; with no model,
+// Claude Code's own setting applies.
 export function startClaudeInBackground(
   name: string,
-  instruction: string | undefined,
+  {
+    instruction,
+    model,
+  }: {
+    readonly instruction: string | undefined;
+    readonly model: string | undefined;
+  },
   folder: ProjectFolder,
   signal: AbortSignal,
 ): Promise<ClaudeRun> {
@@ -58,6 +65,7 @@ export function startClaudeInBackground(
       "--bg",
       "--name",
       name,
+      ...(model === undefined ? [] : ["--model", model]),
       ...(instruction === undefined ? [] : [instruction]),
     ],
     folder,
