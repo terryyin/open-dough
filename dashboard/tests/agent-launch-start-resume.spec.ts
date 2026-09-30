@@ -6,15 +6,20 @@
 // workspace and branch and leaves the script to finish, its result recorded
 // by the still-running attempt; a stop that carries `recovery` keeps its SHAs;
 // and pressing Start again resumes the kept start in the same workspace with
-// one claim on origin, never a second workspace.
+// one claim on origin, never a second workspace. A start lost with the server
+// (no result, no `recovery`) is resumed from its workspace: the retry derives
+// the SHAs from the workspace HEAD and its parent, and a workspace that is not
+// the isolated claim stops with the script's own reason.
 
 import {
   readFileSync,
   readdirSync,
   writeFileSync,
   chmodSync,
+  existsSync,
   rmSync,
 } from "node:fs";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { launch, launchRequest } from "./agentLaunchBoundary.ts";
@@ -169,5 +174,87 @@ test.describe("a kept execution start", () => {
       slug,
     ]);
     expect(keptStart()).toBeUndefined();
+  });
+
+  // The server dies with the start's push held after the claim commit, so no
+  // result and no `recovery` was recorded; a new server runs on the same
+  // machine state.
+  async function loseServerAfterClaimCommit(): Promise<void> {
+    const held = path.join(origin.machine, "push-held");
+    await serve(60_000);
+    installHook(
+      `touch ${held}\nwhile [ -e ${held} ]; do sleep 0.2; done\nexit 1\n`,
+    );
+    void launch(server, request).catch(() => undefined);
+    await expect.poll(() => existsSync(held), { timeout: 20_000 }).toBe(true);
+    // The server ends and the script dies with it, its push never answered.
+    const closing = server.close();
+    try {
+      execFileSync("pkill", ["-f", origin.machine]);
+    } catch {
+      // Nothing of the start was left running.
+    }
+    // Releases the held hook, which belongs to the server's process group.
+    rmSync(held);
+    await closing;
+    rmSync(hook());
+    expect(keptStart()?.["start"]).toBeUndefined();
+    expect(keptStart()?.["candidateSha"]).toBeUndefined();
+    expect(await origin.takenProfiles()).toEqual([]);
+    await serve(60_000);
+  }
+
+  test("a start lost with the server is resumed from its workspace with one claim", async () => {
+    await loseServerAfterClaimCommit();
+    const workspace = path.join(origin.project, ".worktrees", slug);
+    const head = execFileSync("git", ["-C", workspace, "rev-parse", "HEAD"], {
+      encoding: "utf8",
+    }).trim();
+    const second = JSON.parse((await launch(server, request)).body) as {
+      kind: string;
+      record: { start?: { candidateSha?: string; workspace: string } };
+    };
+    expect(second.kind).toBe("launched");
+    expect(second.record.start).toMatchObject({
+      candidateSha: head,
+      workspace,
+    });
+    expect(await origin.takenProfiles()).toHaveLength(1);
+    expect((await origin.originGit("rev-parse", "main")).trim()).toBe(head);
+    expect(readdirSync(path.join(origin.project, ".worktrees"))).toEqual([
+      slug,
+    ]);
+    expect(
+      server.claudeCalls().filter((call) => call.argv[0] === "--bg"),
+    ).toHaveLength(1);
+    expect(keptStart()).toBeUndefined();
+  });
+
+  test("a lost start whose workspace is not the isolated claim stops with the script's reason", async () => {
+    await loseServerAfterClaimCommit();
+    const workspace = path.join(origin.project, ".worktrees", slug);
+    execFileSync("git", [
+      "-C",
+      workspace,
+      "-c",
+      "user.name=T",
+      "-c",
+      "user.email=t@example.test",
+      "commit",
+      "--allow-empty",
+      "-m",
+      "more work",
+    ]);
+    const answer = JSON.parse((await launch(server, request)).body) as {
+      kind: string;
+      reason: string;
+      explanation: string;
+    };
+    expect(answer).toMatchObject({ kind: "failed", reason: "start-refused" });
+    expect(answer.explanation).toContain(
+      "The workspace could not be set up: retained candidate or workspace is not the isolated owned claim.",
+    );
+    expect(server.claudeCalls()).toEqual([]);
+    expect(await origin.takenProfiles()).toEqual([]);
   });
 });

@@ -2,7 +2,8 @@
 // installed `execution-start.mjs start` (`.claude/skills/dough-execute-plan`),
 // which fetches trunk, creates the workspace, and publishes the Take, run as a
 // subprocess and never reimplemented here. This module is the only place its
-// argument array is spelled and the only reader of its one-line JSON result.
+// argument array is spelled (its one-line JSON result is read in
+// `./startResult.ts`).
 // It also owns whether a project can be started at all: the installed skill
 // must ship the start command and the formatter (`established-start.mjs`) that
 // hands an established start to the session, and the project's `origin` must
@@ -21,7 +22,6 @@ import { readdir, stat } from "node:fs/promises";
 import { hostname } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { z } from "zod";
 import {
   type EstablishedStart,
   type StoryLaunchRequest,
@@ -34,6 +34,12 @@ import {
   type WorkspaceChoice,
 } from "./claudeWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
+import {
+  keepsStart,
+  readStartResult,
+  refusal,
+  type StartResult,
+} from "./startResult.ts";
 import {
   keepStart,
   keptStart,
@@ -51,104 +57,6 @@ const skillScripts = path.join(
 );
 const startScript = "execution-start.mjs";
 const formatterScript = "established-start.mjs";
-
-// What the start command reported, read from its one line of JSON.
-export type StartResult =
-  | {
-      readonly kind: "accepted";
-      readonly publishedSha: string;
-      readonly startingRevision?: string;
-      readonly candidateSha?: string;
-      readonly agent?: string;
-      readonly plan?: string;
-    }
-  | {
-      readonly kind: "stopped";
-      readonly status: string;
-      readonly error?: string;
-      readonly recovery?: {
-        readonly workspace: string;
-        readonly branch: string;
-        readonly startingRevision?: string;
-        readonly candidateSha?: string;
-      };
-    }
-  | { readonly kind: "unreadable" };
-
-const acceptedSchema = z.looseObject({
-  ok: z.literal(true),
-  publishedSha: z.string().min(1),
-  startingRevision: z.string().min(1).optional(),
-  candidateSha: z.string().min(1).optional(),
-  agent: z.string().min(1).optional(),
-  plan: z.string().min(1).optional(),
-});
-
-const stoppedSchema = z.looseObject({
-  ok: z.literal(false),
-  status: z.string().min(1),
-  error: z.string().optional(),
-  recovery: z
-    .looseObject({
-      workspace: z.string(),
-      branch: z.string(),
-      startingRevision: z.string().min(1).optional().catch(undefined),
-      candidateSha: z.string().min(1).optional().catch(undefined),
-    })
-    .optional()
-    .catch(undefined),
-});
-
-// The command's stdout, as the typed result; a stop without JSON, or with
-// JSON of another shape, is unreadable.
-export function readStartResult(stdout: string): StartResult {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(stdout.trim().split("\n").at(-1) ?? "");
-  } catch {
-    return { kind: "unreadable" };
-  }
-  const accepted = acceptedSchema.safeParse(parsed);
-  if (accepted.success) {
-    const facts = accepted.data;
-    return {
-      kind: "accepted",
-      publishedSha: facts.publishedSha,
-      ...(facts.startingRevision === undefined
-        ? {}
-        : { startingRevision: facts.startingRevision }),
-      ...(facts.candidateSha === undefined
-        ? {}
-        : { candidateSha: facts.candidateSha }),
-      ...(facts.agent === undefined ? {} : { agent: facts.agent }),
-      ...(facts.plan === undefined ? {} : { plan: facts.plan }),
-    };
-  }
-  const stopped = stoppedSchema.safeParse(parsed);
-  if (!stopped.success) {
-    return { kind: "unreadable" };
-  }
-  const { status, error, recovery } = stopped.data;
-  return {
-    kind: "stopped",
-    status,
-    ...(error === undefined ? {} : { error }),
-    ...(recovery === undefined
-      ? {}
-      : {
-          recovery: {
-            workspace: recovery.workspace,
-            branch: recovery.branch,
-            ...(recovery.startingRevision === undefined
-              ? {}
-              : { startingRevision: recovery.startingRevision }),
-            ...(recovery.candidateSha === undefined
-              ? {}
-              : { candidateSha: recovery.candidateSha }),
-          },
-        }),
-  };
-}
 
 export type StartAttempt =
   | { readonly kind: "established"; readonly start: EstablishedStart }
@@ -175,7 +83,10 @@ async function isFile(file: string): Promise<boolean> {
   }
 }
 
-function git(project: ProjectFolder, args: readonly string[]): Promise<string> {
+function git(
+  project: Pick<ProjectFolder, "path">,
+  args: readonly string[],
+): Promise<string> {
   return new Promise((resolve) => {
     execFile(
       "git",
@@ -247,83 +158,6 @@ function runScript(
   });
 }
 
-type Stop = Extract<StartResult, { kind: "stopped" }>;
-
-// The stop's own error, as the tail of a sentence.
-function detail(stop: Stop): string {
-  return stop.error ? `: ${stop.error}` : "";
-}
-
-// Why a start that cannot be established is refused, by the script's stop
-// `status`: the words after the card's "Launch failed:". `owner` is the Agent
-// holding the story, read from origin's Taken profiles when known.
-const stopReasons: Record<
-  string,
-  (facts: { stop: Stop; owner: string | undefined }) => string
-> = {
-  conflict: ({ owner }) =>
-    `Taken by ${owner ?? "another agent"}, so this dashboard did not start it.`,
-  "source-refused": ({ stop }) =>
-    /not queued/.test(stop.error ?? "")
-      ? "The story is not queued in Backlog on origin, so it cannot be started."
-      : `The story's published source cannot be started${detail(stop)}.`,
-  "source-conflict": ({ stop }) =>
-    `The story's published source conflicts with origin${detail(stop)}.`,
-  "invalid-request": ({ stop }) =>
-    `The start command refused the request${detail(stop)}.`,
-  "authority-required": ({ stop }) =>
-    `The start command needs authority it was not given${detail(stop)}.`,
-  "setup-failed": ({ stop }) =>
-    `The workspace could not be set up${detail(stop)}.`,
-  "carry-conflict": ({ stop }) =>
-    `Uncommitted changes could not be carried into the workspace${detail(stop)}.`,
-  "developer-identity-refused": ({ stop }) =>
-    `Git has no usable developer identity for the Take${detail(stop)}.`,
-  "claim-failed": ({ stop }) =>
-    `The Take could not be committed${detail(stop)}.`,
-  unpublished: ({ stop }) =>
-    `The Take could not be confirmed on origin, so the story may or may not be Taken${detail(stop)}.`,
-  unchanged: () => "The start changed nothing.",
-};
-
-const unreadableReason =
-  "The start command gave no result this dashboard could read, so the story may or may not be Taken.";
-
-const keptWords = "The start was kept; pressing Start again resumes it.";
-
-// Whether a start that ended so leaves a claim possibly published or
-// committed: its record is kept and the next launch of the story resumes it.
-export function keepsStart(result: StartResult): boolean {
-  return (
-    result.kind === "unreadable" ||
-    (result.kind === "stopped" &&
-      (result.status === "unpublished" || result.status === "claim-failed"))
-  );
-}
-
-// The card's answer for a start that did not establish: the reason, the
-// workspace and branch a stop kept (or `kept`, where a start that leaves a
-// claim possibly published was kept), that the start can be resumed, and that
-// nothing was launched.
-export function refusal(
-  result: StartResult,
-  owner?: string,
-  kept?: { readonly workspace: string; readonly branch: string },
-): string {
-  const reason =
-    result.kind !== "stopped"
-      ? unreadableReason
-      : (stopReasons[result.status]?.({ stop: result, owner }) ??
-        `The start stopped (${result.status})${detail(result)}.`);
-  const place =
-    (result.kind === "stopped" ? result.recovery : undefined) ??
-    (keepsStart(result) ? kept : undefined);
-  const where = place
-    ? ` Workspace ${place.workspace} on branch ${place.branch}.`
-    : "";
-  return `${reason}${where}${keepsStart(result) ? ` ${keptWords}` : ""} Nothing was launched.`;
-}
-
 // The Agent whose profile on origin's trunk names the story, once the start
 // has fetched it.
 async function ownerOf(
@@ -366,6 +200,37 @@ export async function establishesStart(
     (await isFile(path.join(scripts, startScript))) &&
     (await isFile(path.join(scripts, formatterScript)))
   );
+}
+
+// The attempts this server process is running, by project and story identity:
+// a kept start with no result that is not among them was lost with the server
+// that ran it.
+const runningStarts = new Set<string>();
+
+function attemptKey(sourceId: string, identity: string): string {
+  return `${sourceId}\n${identity}`;
+}
+
+// The script arguments that resume a start lost with the server, read from
+// its kept workspace: the candidate is the workspace HEAD and the starting
+// revision its parent, only when that workspace is on the kept branch. The
+// script validates them against the claim commit's trailers and stops with
+// its own reason when the workspace is not the isolated claim.
+export async function lostStartArguments(
+  workspace: string,
+  branch: string,
+): Promise<string[]> {
+  const at = { path: workspace };
+  const [current, head, parent] = (
+    await Promise.all([
+      git(at, ["rev-parse", "--abbrev-ref", "HEAD"]),
+      git(at, ["rev-parse", "HEAD"]),
+      git(at, ["rev-parse", "HEAD^"]),
+    ])
+  ).map((line) => line.trim());
+  return current === branch && head && parent
+    ? ["--starting-revision", parent, "--candidate-sha", head]
+    : [];
 }
 
 // The workspace a kept start was made in, shown as this host's workspaces are.
@@ -467,6 +332,15 @@ export async function beginStart(
     remote: "origin",
     target: source.ref,
   } as const;
+  const attemptId = attemptKey(source.id, request.identity);
+  const resume =
+    kept === undefined
+      ? []
+      : resumeArguments(kept).length > 0 ||
+          kept.start !== undefined ||
+          runningStarts.has(attemptId)
+        ? resumeArguments(kept)
+        : await lostStartArguments(kept.workspace, kept.branch);
   // Written ahead of the script, so a start whose result is lost is still
   // known.
   await keepStart(source.id, {
@@ -478,6 +352,7 @@ export async function beginStart(
     ...(model === undefined ? {} : { model }),
     startedAt: new Date().toISOString(),
   });
+  runningStarts.add(attemptId);
   const attempt = runScript(
     [
       "--integration",
@@ -501,30 +376,32 @@ export async function beginStart(
       "--host",
       "claude",
       ...(model === undefined ? [] : ["--model", model]),
-      ...(kept === undefined ? [] : resumeArguments(kept)),
+      ...resume,
     ],
     project,
-  ).then(async (result): Promise<StartAttempt> => {
-    // The record follows the script's result even when the launch stopped
-    // waiting for it.
-    if (result.kind === "accepted") {
-      const start = establishedStart(facts, result, kept?.start);
-      await record(() => updateStart(source.id, request.identity, { start }));
-      return { kind: "established", start };
-    }
-    await record(() => recordStop(source.id, request.identity, result));
-    const owner =
-      result.kind === "stopped" && result.status === "conflict"
-        ? await ownerOf(project, `origin/${source.ref}`, request.identity)
-        : undefined;
-    return {
-      kind: "refused",
-      explanation: refusal(result, owner, {
-        workspace: workspace.shown,
-        branch,
-      }),
-    };
-  });
+  )
+    .finally(() => runningStarts.delete(attemptId))
+    .then(async (result): Promise<StartAttempt> => {
+      // The record follows the script's result even when the launch stopped
+      // waiting for it.
+      if (result.kind === "accepted") {
+        const start = establishedStart(facts, result, kept?.start);
+        await record(() => updateStart(source.id, request.identity, { start }));
+        return { kind: "established", start };
+      }
+      await record(() => recordStop(source.id, request.identity, result));
+      const owner =
+        result.kind === "stopped" && result.status === "conflict"
+          ? await ownerOf(project, `origin/${source.ref}`, request.identity)
+          : undefined;
+      return {
+        kind: "refused",
+        explanation: refusal(result, owner, {
+          workspace: workspace.shown,
+          branch,
+        }),
+      };
+    });
   return { kind: "running", workspace, branch, attempt };
 }
 

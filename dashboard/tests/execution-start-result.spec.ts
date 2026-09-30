@@ -1,10 +1,15 @@
 // The one reader of `execution-start.mjs`'s JSON result
-// (../server/executionStart.ts `readStartResult`): an accepted start's
+// (../server/startResult.ts `readStartResult`): an accepted start's
 // published facts, a stop's status, error, and recovery, and anything else
 // as unreadable.
 
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { expect, test } from "@playwright/test";
-import { readStartResult, refusal } from "../server/executionStart.ts";
+import { lostStartArguments } from "../server/executionStart.ts";
+import { readStartResult, refusal } from "../server/startResult.ts";
 
 test("reads an accepted start's published facts", () => {
   const line = JSON.stringify({
@@ -132,4 +137,41 @@ test("words every stop status the start command reports, keeping a stop's worksp
   expect(refusal({ kind: "unreadable" })).toBe(
     "The start command gave no result this dashboard could read, so the story may or may not be Taken. The start was kept; pressing Start again resumes it. Nothing was launched.",
   );
+});
+
+test.describe("the arguments that resume a start lost with the server", () => {
+  let repository: string;
+  const git = (...args: string[]) =>
+    execFileSync("git", ["-C", repository, ...args], {
+      encoding: "utf8",
+    }).trim();
+
+  test.beforeEach(() => {
+    repository = mkdtempSync(path.join(tmpdir(), "dough-lost-start-"));
+    execFileSync("git", ["init", "-q", "-b", "claude/x", repository]);
+    git("config", "user.name", "T");
+    git("config", "user.email", "t@example.test");
+    git("commit", "-q", "--allow-empty", "-m", "start");
+    git("commit", "-q", "--allow-empty", "-m", "claim");
+  });
+
+  test.afterEach(() => {
+    rmSync(repository, { recursive: true, force: true });
+  });
+
+  test("the candidate is the workspace HEAD and the starting revision its parent", async () => {
+    expect(await lostStartArguments(repository, "claude/x")).toEqual([
+      "--starting-revision",
+      git("rev-parse", "HEAD^"),
+      "--candidate-sha",
+      git("rev-parse", "HEAD"),
+    ]);
+  });
+
+  test("a workspace on another branch, or a missing one, yields none", async () => {
+    expect(await lostStartArguments(repository, "claude/other")).toEqual([]);
+    expect(
+      await lostStartArguments(path.join(repository, "missing"), "claude/x"),
+    ).toEqual([]);
+  });
 });

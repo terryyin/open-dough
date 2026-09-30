@@ -52,7 +52,7 @@ session in Claude Code's own listing, `claude agents --json --all`.
 project's own installed start command, `node
 .claude/skills/dough-execute-plan/scripts/execution-start.mjs start`, as a
 subprocess (`server/executionStart.ts`, the only place its arguments are
-spelled and its one-line JSON result is read). It passes the project's folder
+spelled; `server/startResult.ts` is the only reader of its one-line JSON result). It passes the project's folder
 as `--integration`, the workspace, the branch, the launch's identity, one
 stable publisher ID for this machine and project, `--mode story-branch`,
 `--remote origin`, `--target` the project's trunk, `--push-authorized` and
@@ -94,7 +94,7 @@ folder with `/<skill> <identity>` and the developer's instruction only, no Take
 and no workspace. It is refused, with nothing launched
 ("Launch failed:"), when the project folder's `origin` is not the catalog
 repository the Take would be published to, or when the command stops or gives
-no readable result. One reason table in `server/executionStart.ts` words each
+no readable result. One reason table in `server/startResult.ts` words each
 command `status` (another agent holds the story, not queued in Backlog, the
 workspace could not be set up, and the rest); "Taken by <Agent>" names the
 owner read from origin's Taken profiles, and a stop that reports its workspace
@@ -120,8 +120,19 @@ with "The start was kept; pressing Start again resumes it." Any other refusal
 removes the kept start, since nothing was published to resume. A launch whose
 session started removes the kept start (the launch record keeps it); a
 `claude` launch that fails after the start was established keeps it. A kept
-start with no launch record is not offered on the Taken card yet, and a start
-lost with the server is not resumed from its workspace yet.
+start with no launch record is not offered on the Taken card yet.
+
+A start lost with the server (a kept start with no result and no `recovery`,
+and not among the attempts this server process is running) is resumed from its
+kept workspace: when it is on the kept branch, Start again passes the script
+its HEAD as `--candidate-sha` and HEAD's parent as `--starting-revision`
+(`lostStartArguments`), which the script validates against the claim commit. The
+answer is then `resumed`, one claim on origin, the session in the same
+workspace. A workspace that is not the isolated claim stops with the script's
+own reason ("The workspace could not be set up: retained candidate or
+workspace is not the isolated owned claim.") and launches nothing; that stop
+removes the kept start. Phases and refusing a second start of the same story
+are not built yet.
 
 A confirmed launch lists its session on the story's card, beside the Start
 actions, which stay with their notes whatever sessions are listed, and the

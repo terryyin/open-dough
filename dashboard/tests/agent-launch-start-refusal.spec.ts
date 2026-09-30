@@ -1,5 +1,5 @@
 // An execution launch whose start cannot be established launches nothing and
-// answers "Launch failed:" with why (../server/executionStart.ts `refusal`),
+// answers "Launch failed:" with why (../server/startResult.ts `refusal`),
 // over raw HTTP against the real installed `execution-start.mjs` and a real
 // bare origin (./support/startOrigin.ts): the story Taken by another agent,
 // the story not queued, an installed start command that gives no readable

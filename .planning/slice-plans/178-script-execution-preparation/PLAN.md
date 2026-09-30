@@ -194,7 +194,7 @@ or workspace.
 
 ### 8. A start lost with the server is resumed from its workspace
 Type: Behavior
-Status: planned
+Status: done
 Proof: spec: stop the server after the claim commit and before the push (hook), restart on
 the same machine state, press Start → the retry derives `--candidate-sha` from the
 workspace HEAD and `--starting-revision` from its parent (observed premise above), one claim
