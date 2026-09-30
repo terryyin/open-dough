@@ -178,3 +178,12 @@
   font-weight: 600;
   color: var(--accent);
 }
+
+/* Delete record's question stays in the entry, beside its own words; the two
+   choices sit on one line and read as the launch controls do. */
+.delete-question-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}

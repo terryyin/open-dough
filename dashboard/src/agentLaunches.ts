@@ -24,6 +24,7 @@ import type {
 import {
   readMachineSessions,
   requestAgentLaunch,
+  requestDeleteRecord,
   requestMarkDone,
   type LaunchProblem,
 } from "./agentLaunchClient.ts";
@@ -61,6 +62,9 @@ export type MachineSessions = {
   // Marks a recorded session done, and answers whether the boundary marked
   // it.
   readonly markDone: (record: LaunchRecord) => Promise<boolean>;
+  // Deletes a recorded session's record, and answers whether the boundary
+  // deleted it; the page then lists the session nowhere.
+  readonly deleteRecord: (record: LaunchRecord) => Promise<boolean>;
   // Reads a recorded session again at once.
   readonly readSession: (record: LaunchRecord) => Promise<void>;
 };
@@ -211,6 +215,20 @@ export function useAgentLaunches(): MachineSessions {
     [replaceRecord],
   );
 
+  const deleteRecord = useCallback(
+    async (record: LaunchRecord) => {
+      const answer = await requestDeleteRecord(record);
+      if (answer?.kind !== "deleted") return false;
+      setRecords((current) =>
+        current.filter(
+          (each) => each.session.sessionId !== record.session.sessionId,
+        ),
+      );
+      return true;
+    },
+    [setRecords],
+  );
+
   const readSession = useCallback(
     async (record: LaunchRecord) => {
       const kept = await readMachineSessions();
@@ -229,6 +247,7 @@ export function useAgentLaunches(): MachineSessions {
       attempts.get(attemptKey(sourceId, identity, workflow)),
     start,
     markDone,
+    deleteRecord,
     readSession,
   };
 }

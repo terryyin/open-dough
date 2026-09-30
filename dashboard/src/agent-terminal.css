@@ -84,3 +84,15 @@
 .terminal-status p {
   margin: 0;
 }
+
+/* Says a session's record was deleted to assistive technology, out of the
+   page's flow. */
+.session-record-deleted {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

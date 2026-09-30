@@ -17,6 +17,11 @@ import {
   type LaunchWithState,
   type LaunchResult,
 } from "./agentLaunch.ts";
+import {
+  agentDeleteEndpoint,
+  deleteRecordAnswerSchema,
+  type DeleteRecordAnswer,
+} from "./deleteRecord.ts";
 import { agentDoneEndpoint, markDoneAnswerSchema } from "./doneMark.ts";
 
 const refusal = z.object({ error: z.string().min(1) });
@@ -104,6 +109,28 @@ export async function requestMarkDone(
     if (!response.ok) return undefined;
     const answer = markDoneAnswerSchema.safeParse(await response.json());
     return answer.success ? answer.data.record : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// Asks the boundary to delete the recorded session's record, and answers
+// what it did, or undefined when no trustworthy answer came.
+export async function requestDeleteRecord(
+  record: LaunchRecord,
+): Promise<DeleteRecordAnswer | undefined> {
+  try {
+    const response = await fetch(agentDeleteEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source: record.request.source,
+        session: record.session.sessionId,
+      }),
+    });
+    if (!response.ok) return undefined;
+    const answer = deleteRecordAnswerSchema.safeParse(await response.json());
+    return answer.success ? answer.data : undefined;
   } catch {
     return undefined;
   }

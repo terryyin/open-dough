@@ -11,6 +11,7 @@
 
 import { createContext, useContext, useState } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
+import { workCard } from "./workFocus.ts";
 
 // A request about one session the page shows: its launch record, joined with
 // its state where the operation needs it, and the control that asked, which
@@ -34,12 +35,18 @@ export type OpenTerminal = SessionOperation<void>;
 // back while it is on the page.
 export type MarkSessionDone = SessionOperation<Promise<boolean>>;
 
+// Deletes the session's dashboard record and answers whether it was deleted.
+// Once it was, the keyboard goes to the entry beside the session's card entry,
+// or to its card when none is left.
+export type DeleteSessionRecord = SessionOperation<Promise<boolean>>;
+
 // The page's operations that session entries ask, and the session its
 // terminal shows, if any, from which every entry of that session derives its
 // "Shown in terminal" mark.
 export type PageSessions = {
   readonly openTerminal: OpenTerminal;
   readonly markDone: MarkSessionDone;
+  readonly deleteRecord: DeleteSessionRecord;
   readonly shownInTerminal: string | undefined;
 };
 
@@ -68,6 +75,35 @@ export function sessionKeyboardHome(sessionId: string): HTMLElement | null {
     ) ??
     recentSessionsEntry(sessionId) ??
     document.querySelector<HTMLElement>(".recent-sessions")
+  );
+}
+
+// The session of the card entry beside the one a control is in: the entry
+// after it in its card's list, else the one before it.
+export function cardEntryBeside(control: HTMLElement): string | undefined {
+  const item = control.closest("li");
+  const beside = item?.nextElementSibling ?? item?.previousElementSibling;
+  return (
+    beside
+      ?.querySelector(`[${showsSessionAttribute}]`)
+      ?.getAttribute(showsSessionAttribute) ?? undefined
+  );
+}
+
+// Where the keyboard goes once a card's entry is deleted: the entry `beside`
+// it (`cardEntryBeside`) while its card still lists it, else the story's card.
+export function cardKeyboardHome(
+  beside: string | undefined,
+  identity: string,
+): HTMLElement | null {
+  return (
+    (beside === undefined
+      ? null
+      : document.querySelector<HTMLElement>(
+          `.card-sessions [${showsSessionAttribute}="${CSS.escape(beside)}"]`,
+        )) ??
+    workCard(identity) ??
+    null
   );
 }
 

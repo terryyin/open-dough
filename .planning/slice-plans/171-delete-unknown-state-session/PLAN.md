@@ -122,7 +122,14 @@ the plugin route.
 
 ### 2. A card's session entry deletes its record while its state is unknown
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npx playwright test --config dashboard/playwright.config.ts`
+with `agent-launch-card-delete`, `agent-launch-card-done`,
+`agent-launch-card-session-states`, `agent-launch-card-sessions`,
+`agent-launch-attention-clearing`, `agent-launch-recent-session-states`,
+`agent-terminal-done` and `session-sidebar` specs (all passed). The
+attention count is asserted absent only (no session can need attention while
+the listing fails).
 Proof: `dashboard/tests/agent-launch-card-delete.spec.ts` (fake origin
 journey as `agent-launch-card-done.spec.ts`; `launchJourney.ts`,
 `dashboardPage.ts`). Two launched sessions on one card, listing fails:
@@ -240,3 +247,10 @@ it at the control if it overruns, keeping `requestDeleteRecord` and
 
 - Slice 1: the chmod-based unwritable-file test cannot fail as intended when
   run as root; CI and this machine run unprivileged.
+- Slice 2: the "Session record deleted" polite region mounts on the first
+  deletion, because a second always-present `role="status"` or
+  `aria-live="polite"` breaks the single-region locators in
+  `accessible-overview-keyboard.spec.ts` and `dashboardPage.ts`; some
+  assistive technology may miss that first announcement. Routing the message
+  into App's `notice` region would fix it but touches `App.tsx` and those
+  locators, so it is a decision for slice 3 or a later story.

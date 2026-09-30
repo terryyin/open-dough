@@ -10,14 +10,15 @@
 // (`./LaunchSession.tsx`); a session the developer marked done is Done, under
 // its `done-` name. An entry names its story's title and identity unless it
 // is listed on the story's own card, where it offers Mark as done through the
-// page's one operation (`./TerminalSplit.tsx`). While the page's terminal
-// shows its session, an entry says "Shown in terminal", outlined in Recent
-// sessions, and the card listing it is outlined. Every entry names its
-// session, so a Recent sessions entry can take the keyboard when the control
-// that last had it is gone. Entries are local evidence of launches, not story
-// facts.
+// page's one operation (`./TerminalSplit.tsx`), and, while its session shows
+// State unknown, "Delete record…", which asks before it deletes. While the
+// page's terminal shows its session, an entry says "Shown in terminal",
+// outlined in Recent sessions, and the card listing it is outlined. Every
+// entry names its session, so a Recent sessions entry can take the keyboard
+// when the control that last had it is gone. Entries are local evidence of
+// launches, not story facts.
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { launchWorkflows, type LaunchWithState } from "./agentLaunch.ts";
 import { doneSessionName } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
@@ -85,6 +86,9 @@ export function SessionEntry({
       )}
       <LaunchSession record={record} />
       {onCard && <MarkDone record={record} />}
+      {onCard && record.sessionState.kind === "unknown" && (
+        <DeleteRecord record={record} />
+      )}
     </article>
   );
 }
@@ -154,5 +158,87 @@ function MarkDone({ record }: { readonly record: LaunchWithState }) {
         {marking === "not-marked" && notMarkedDone}
       </p>
     </>
+  );
+}
+
+// A card entry's Delete record…, offered while its state is unknown: it asks
+// in place, with the keyboard on Keep, before the record is deleted. Keep and
+// Escape put the button back with the keyboard on it. A deleted record takes
+// the entry off the page.
+function DeleteRecord({ record }: { readonly record: LaunchWithState }) {
+  const { deleteRecord } = usePageSessions();
+  const [step, setStep] = useState<"idle" | "asking" | "deleting">("idle");
+  const button = useRef<HTMLButtonElement>(null);
+  const keep = useRef<HTMLButtonElement>(null);
+  const restoring = useRef(false);
+
+  useEffect(() => {
+    if (step === "asking") keep.current?.focus();
+    if (step === "idle" && restoring.current) {
+      restoring.current = false;
+      button.current?.focus();
+    }
+  }, [step]);
+
+  const keepRecord = () => {
+    restoring.current = true;
+    setStep("idle");
+  };
+
+  if (step === "idle") {
+    return (
+      <p className="launch-open">
+        <button
+          ref={button}
+          type="button"
+          onClick={() => {
+            setStep("asking");
+          }}
+        >
+          Delete record…
+        </button>
+      </p>
+    );
+  }
+  return (
+    <div
+      className="launch-open delete-question"
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && step === "asking") {
+          event.stopPropagation();
+          keepRecord();
+        }
+      }}
+    >
+      <p>
+        Delete this session&apos;s dashboard record? The conversation stays in
+        Claude Code; a running session keeps running.
+      </p>
+      <p className="delete-question-actions">
+        <button
+          type="button"
+          disabled={step === "deleting"}
+          onClick={(event) => {
+            setStep("deleting");
+            void deleteRecord({
+              record,
+              control: event.currentTarget,
+            }).then((deleted) => {
+              if (!deleted) setStep("asking");
+            });
+          }}
+        >
+          Delete record
+        </button>
+        <button
+          ref={keep}
+          type="button"
+          disabled={step === "deleting"}
+          onClick={keepRecord}
+        >
+          Keep
+        </button>
+      </p>
+    </div>
   );
 }

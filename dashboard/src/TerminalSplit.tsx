@@ -21,9 +21,11 @@
 // no focus when it closes. Once the panel shows output from a session the
 // page holds as done, the page reads that session again, since the boundary
 // reopens a done session its terminal attaches to
-// (`../server/agentTerminals.ts`). Opening, going to a sidebar entry's
-// session, marking, and reading again each take the same request
-// (`./pageSessions.ts`).
+// (`../server/agentTerminals.ts`). Deleting a card entry's record leaves the
+// session on no list, says so in a polite status, and sends the keyboard to
+// the card entry beside it, or to the card. Opening, going to a sidebar
+// entry's session, marking, deleting, and reading again each take the same
+// request (`./pageSessions.ts`).
 
 import {
   useCallback,
@@ -43,9 +45,12 @@ import {
 import type { OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
+  cardEntryBeside,
+  cardKeyboardHome,
   recentSessionsEntry,
   sessionKeyboardHome,
   SessionsOnPage,
+  type DeleteSessionRecord,
   type MarkSessionDone,
   type OpenTerminal,
   type SessionOperation,
@@ -60,10 +65,13 @@ type KeyboardReturn = {
   readonly control: HTMLElement;
   readonly sessionId: string;
   readonly shows: SessionRequest | undefined;
+  // Where the keyboard goes instead when the control is gone, if not the
+  // session's Recent sessions entry.
+  readonly home?: () => HTMLElement | null;
 };
 
 export function TerminalSplit({
-  sessions: { records, markDone, readSession },
+  sessions: { records, markDone, deleteRecord, readSession },
   stories,
   children,
 }: {
@@ -71,7 +79,7 @@ export function TerminalSplit({
   // `readSession` keeps its identity across renders.
   readonly sessions: Pick<
     MachineSessions,
-    "records" | "markDone" | "readSession"
+    "records" | "markDone" | "deleteRecord" | "readSession"
   >;
   readonly stories: {
     // The project the developer has chosen to show, read or not.
@@ -106,7 +114,7 @@ export function TerminalSplit({
     }
     const control = returning.control.isConnected
       ? returning.control
-      : sessionKeyboardHome(returning.sessionId);
+      : (returning.home ?? (() => sessionKeyboardHome(returning.sessionId)))();
     control?.focus();
   }, [returning]);
   const closeTerminal = (closed: SessionRequest) => {
@@ -192,6 +200,25 @@ export function TerminalSplit({
     return marked !== "not-marked";
   };
 
+  // Deletes the session's record, announcing it; the entry leaves every list
+  // and the keyboard goes to the card entry beside it, or to its card.
+  const [deleted, setDeleted] = useState<string | undefined>();
+  const deleteSessionRecord: DeleteSessionRecord = async (request) => {
+    const { record, control } = request;
+    const beside = cardEntryBeside(control);
+    if (!(await deleteRecord(record))) {
+      return false;
+    }
+    setDeleted("Session record deleted");
+    setReturning({
+      control,
+      sessionId: record.session.sessionId,
+      shows: shown.current,
+      home: () => cardKeyboardHome(beside, record.request.identity),
+    });
+    return true;
+  };
+
   // The page keeps one element structure whether or not the sidebar or a
   // terminal is open, so opening one never remounts the page or loses what it
   // had open.
@@ -200,9 +227,15 @@ export function TerminalSplit({
       value={{
         openTerminal,
         markDone: markSessionDone,
+        deleteRecord: deleteSessionRecord,
         shownInTerminal: terminal?.record.session.sessionId,
       }}
     >
+      {deleted !== undefined && (
+        <p role="status" className="session-record-deleted">
+          {deleted}
+        </p>
+      )}
       <div
         className={
           [sidebar.open && "page-with-sidebar", terminal && "page-split"]
