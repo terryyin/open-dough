@@ -255,3 +255,7 @@ model picker on retry.
   does not already give; they are the natural cut if the story is split.
 - A project whose `.worktrees/` is not git-ignored reports the integration checkout as not
   refreshed; the start still succeeds.
+
+## Execution complete
+
+Product advice: At wrap-up, retire the North Star topic "A start establishes claim and workspace before the session" and the UX/UI row "Start (claim and workspace)" once `dashboard/AGENT-LAUNCH.md` carries the rules, as the seed says. A developer should observe `claude attach` on a dashboard-created worktree session at release (only the session listing was probed), and this repository's own dashboard uses the old launch path until the released payload, which now ships `established-start.mjs`, is installed. No backlog change proposed; the seed's deferred items stay deferred.
