@@ -33,8 +33,11 @@ Treating runtime Markdown changes as having no applicable maintained tests misse
 - **2026-09-26 assessment:** Open Dough plan 104 adds a TypeScript consumer missed by an .mjs-only search. Retain as related evidence, not a fourth Markdown-contract occurrence; its execution release is unknown.
 - **2026-09-27 harvest:** Open Dough plan 113, modified 1b66466/base 0.3.41, missed dashboard fixtures that call record-state through the CLI. Related consumer-search failure, not an additional Markdown-contract occurrence.
 
-<a id="odf-012"></a>
 - **2026-09-30 assessment:** New Open Dough plan 140 repeats a file-type/consumer omission; release unknown (the repository VERSION is not execution provenance). Source rows retain the failed CI repair.
+
+- **Open Dough source retention history:** Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-180, DD-181, and DD-172's third occurrence: ODF-003's two oldest occurrences (`SEED-008#script-driven-ci-observation`, `SEED-037#diagnosable-test-hangs`); two later occurrences keep the finding; recovery: `4ef13e85:DearDough.md`.
+
+<a id="odf-012"></a>
 
 ## ODF-012 — Unbounded failure reproduction
 
@@ -139,8 +142,9 @@ A coordinator repeatedly issues no-op shell calls while awaiting asynchronous co
 - **Sources:** [pygardon / DD-039](../../../pygardon/DearDough.md#odf-038--repeated-no-op-tool-calls-while-waiting-for-background-task-notifications).
 - **Current evidence:** `89728cb` / 0.3.18 forbids no-op waits; Pygardon repeated them on 0.3.18. The response was ineffective in that execution.
 
-<a id="odf-040"></a>
 - **2026-09-30 assessment:** Pygardon plan 267 on 0.3.45 adds a no-op delegated spawn while waiting, after 89728cb / 0.3.18 forbade empty calls. Related wait behavior, not an additional exact no-op-shell occurrence. The reported ~100k context tokens are not measured useful work.
+
+<a id="odf-040"></a>
 
 ## ODF-040 — Premature delegated publication
 
@@ -181,9 +185,11 @@ A host-terminated refactor agent leaves changes without a report, requiring reco
 
 - **Sources:** [open-dough / DD-057](../../DearDough.md#odf-059--delegated-refactor-pass-stalled-after-editing-and-before-reporting); [doughnut / DD-062](../../../doughnut/DearDough.md#odf-059--delegation-guidance-has-no-protocol-for-a-subagent-that-dies-mid-edit-from-an-infrastructure-error-leaving-a-silent-partial-change).
 
+- **2026-09-30 assessment:** Open Dough plan 146, modified 3ca0b8f9/base 0.3.46, adds two reportless stalls in one execution; count that execution once. Host termination remains different from voluntary incomplete proof (ODF-132).
+
+- **Open Dough source retention history:** Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-174 and ODF-097's third occurrence: ODF-059's 0.3.25-era occurrence (`SEED-008#script-product-backlog-list-updates`); two later occurrences keep the finding; recovery: `14cd2de3:DearDough.md`.
 
 <a id="odf-062"></a>
-- **2026-09-30 assessment:** Open Dough plan 146, modified 3ca0b8f9/base 0.3.46, adds two reportless stalls in one execution; count that execution once. Host termination remains different from voluntary incomplete proof (ODF-132).
 
 ## ODF-062 — Unreviewed CI repairs
 
@@ -226,6 +232,8 @@ A refactor agent calls a command unavailable without invoking it, overlooking pa
 - **Sources:** Open Dough / DD-066; recovered source `6fa51cb6:DearDough.md` and `0c31529b:DearDough.md` (removed earlier for the source line ceiling).
 - **Current evidence:** `6d7f7f3` / 0.3.28 requires running an applicable command. No verified exercise of this specific correction; watch start unknown.
 
+- **Open Dough source retention history:** Removed ODF-070 (former DD-066; nested worktree `node_modules` assumed absent) on 2026-09-29 for the 1,000-line ceiling: its 0.3.26-era occurrence as lower priority than ODF-116's recurrence (recovery: `6fa51cb6:DearDough.md`), then its remaining occurrence as lower current actionability than DD-172/DD-173 and the ODF-100 recurrence, since execution-location guidance now requires a locked install per worktree (recovery: `0c31529b:DearDough.md`).
+
 <a id="odf-074"></a>
 
 ## ODF-074 — Unverified planning premises
@@ -238,9 +246,14 @@ Concrete only-caller and host-state premises enter a plan without inspection, fo
 - **2026-09-27 harvest:** Added Open Dough plan 115 / DD-121 and Donut plans 045, 005, 010, 019 / DD-126, DD-130, DD-134, DD-139. Pygardon adds plans 201 and 216; its plan 207 is a dependent-slice variant, not an exact factual-premise recurrence. The misplaced plan 212 formatter row now belongs to ODF-100. Known reports use 0.3.40–0.3.42 or pre-response modified guidance; These reports preceded the 0.3.43 release of `2c5ff71`, so none establishes post-fix recurrence.
 - **Additional sources:** [open-dough](../../DearDough.md#odf-074--a-ready-plan-named-a-validation-command-the-backlog-tool-does-not-have); [doughnut](../../../doughnut/DearDough.md#odf-074--a-plan-said-the-changed-script-had-no-test-and-nobody-searched-for-one-before-delivery-so-ci-caught-the-stale-test).
 
-<a id="odf-077"></a>
 - **2026-09-30 assessment:** 2c5ff71 first shipped in 0.3.43. Pygardon plans 271 (0.3.45), 274 and 285 (0.3.46) still enter execution with unobserved decisive runtime/fixture claims; plan 287 has unknown release. Doughnut DD-147/162/167 add command, caller and matching-rule premises on 0.3.46. The general observation rule remains in the relevant 0.3.45–0.3.47 diffs: these are supported post-response failures to apply it, not evidence of removal followed by reintroduction. The 0.3.46 Cursor seeding case in SEED-053 also failed; later aa650875, 9d4bf02f and c97c3fe0 specifically strengthen moved-function caller proof and are unreleased. Historical 0.3.40–0.3.42 reports remain pre-response. Source overlap is counted once per project/execution.
 - **Follow-up:** queued, not resolved: [Observe a planning premise through the operation that consumes it](../../.planning/seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers. Selected under the authorized 2026-09-30 runbook.
+
+- **Additional source mappings (2026-09-30):** [doughnut / DD-147](../../../doughnut/DearDough.md#odf-074--a-plan-said-the-changed-script-had-no-test-and-nobody-searched-for-one-before-delivery-so-ci-caught-the-stale-test); [doughnut / DD-162](../../../doughnut/DearDough.md#odf-074--a-plan-said-the-changed-script-had-no-test-and-nobody-searched-for-one-before-delivery-so-ci-caught-the-stale-test); [doughnut / DD-167](../../../doughnut/DearDough.md#odf-074--a-plan-said-the-changed-script-had-no-test-and-nobody-searched-for-one-before-delivery-so-ci-caught-the-stale-test).
+
+- **Open Dough source retention history:** Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than ODF-116's closure-rewrite occurrence: ODF-074's `SEED-008#creation-record-test-residue` occurrence (no rework; one older occurrence keeps the finding); recovery: `a48b2436:DearDough.md`.
+
+<a id="odf-077"></a>
 
 ## ODF-077 — Lost suite verdicts
 
@@ -331,7 +344,6 @@ Ordinary planned slices are delivered after coordinator self-review without the 
 
 - **Sources:** [doughnut / DD-098](../../../doughnut/DearDough.md#odf-091--coordinator-accepted-its-own-refactor-pass-without-a-fresh-refactor-agent).
 
-
 <a id="odf-093"></a>
 
 ## ODF-093 — Foreign stash restoration
@@ -350,9 +362,9 @@ Delegation treats the restriction on hook-owned lint as a ban on all lint in a p
 
 - **Sources:** [open-dough / DD-093](../../DearDough.md#odf-094--implementation-and-refactor-agents-were-barred-from-lint-the-project-has-no-hook-for).
 
+- **2026-09-30 assessment:** Open Dough plan 163 adds no-hook lint omissions with unknown execution release. Retain exact effects at source; do not date them from the installed update commit.
 
 <a id="odf-096"></a>
-- **2026-09-30 assessment:** Open Dough plan 163 adds no-hook lint omissions with unknown execution release. Retain exact effects at source; do not date them from the installed update commit.
 
 ## ODF-096 — Invalid acceptance fixtures
 
@@ -362,8 +374,11 @@ Nominally sufficient native acceptance fixtures do not actually satisfy their pr
 - **2026-09-27 assessment:** Kept as a published-skill finding, not project-owned: plan 089's own rule deferred test-support fixes until a paid run diagnosed a fault. The related planning-premise response `2c5ff71` / first released in 0.3.43 treats fixture content as a decisive premise and makes a paid-only remainder an early probe slice ([ODF-074](#odf-074), [ODF-114](#odf-114)); no native acceptance fixture has exercised it. [Native acceptance on Codex and Cursor](../../.planning/seeds/SEED-053-native-guidance-acceptance.md#shared-premise-verification-cases) is closed with the recorded host results; no separate story.
 - **2026-09-27 harvest:** Open Dough plan 110 / modified bd38782/base 0.3.40 adds a contradictory native prompt (forbade the probe’s required marker write), costing one paid failed run; still pre-response.
 
-<a id="odf-097"></a>
 - **2026-09-30 assessment:** 2c5ff71 shipped in 0.3.43; the linked Codex/Cursor acceptance work is now closed, not queued. Plan 141 reports 0.3.46 only on resume and unknown original coordinator guidance, so its paid inconclusive run cannot establish a dated post-fix recurrence. The unrelated plan 142/146 harness faults were moved by the owner to ProjectFindings.md.
+
+- **Open Dough source retention history:** Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than DD-189 and ODF-094's plan 163 occurrence: ODF-096's 0.3.34-era occurrence (`SEED-004#accept-delivery-evidence-native`); two later occurrences keep the finding; recovery: `b4d82278:DearDough.md`.
+
+<a id="odf-097"></a>
 
 ## ODF-097 — Publishing after formatter failure
 
@@ -371,8 +386,9 @@ A formatter failure does not stop a semicolon-separated commit and push sequence
 
 - **Sources:** [open-dough / DD-097](../../DearDough.md#odf-097--coordinator-published-a-commit-after-the-formatter-failed).
 
-<a id="odf-098"></a>
 - **2026-09-30 assessment:** Four source executions now retain the semicolon-chain mechanism (089, 150, 154 and 157). Three produced failed published CI; plan 157 published a passing repair while the formatter failed on another unstaged file. No dedicated scripted gate response is claimed; keep the failure and counterexample distinct.
+
+<a id="odf-098"></a>
 
 ## ODF-098 — Unfinishable early slices
 
@@ -392,8 +408,9 @@ A formatter piped through tail returns the final pipeline stage's success, allow
 - **2026-09-27 harvest:** Pygardon plan 212 / 0.3.41 moved here from ODF-074; Donut DD-135 / plan 012 / 0.3.42 adopted here with its body intact. Four exact pipeline-status executions across all three projects; related newline/errexit chains remain explicitly different mechanisms. Donut’s two typechecks were honestly flagged and rerun, not accepted as false passes.
 - **Additional sources:** [doughnut](../../../doughnut/DearDough.md#odf-100--agents-reported-vue-tscs-exit-code-from-a-pipe-into-tail-so-the-coordinator-had-to-rerun-the-typecheck).
 
-<a id="odf-101"></a>
 - **2026-09-30 assessment:** New exact pipeline cases: Open Dough 152 (unknown), Doughnut 026 (unknown), 009 (0.3.45) and 014 (0.3.46). Pygardon 201 is another newline-separated plan-edit failure, related rather than exact pipeline recurrence. The 0.3.46 Doughnut case accepted a false typecheck success and published failed CI; earlier Donut reruns were honestly reported.
+
+<a id="odf-101"></a>
 
 ## ODF-101 — Late CI capacity recovery
 
@@ -430,8 +447,9 @@ Managed publication returns only a deferred maintenance label, preventing the co
 - **Sources:** [pygardon / DD-092](../../../pygardon/DearDough.md#odf-104--managed-delivery-deferred-the-default-checkout-refresh-without-a-reason); [doughnut / DD-110](../../../doughnut/DearDough.md#odf-104--increment-delivery-reports-the-default-checkout-refresh-as-deferred-without-a-reason).
 - **Current evidence:** Three executions across Pygardon and Doughnut. Missing explanation is established; why refresh deferred remains unverified.
 
-<a id="odf-105"></a>
 - **2026-09-30 assessment:** Pygardon plan 288 on 0.3.47 repeats reasonless deferred maintenance and one required manual refresh. Four distinct retained executions across Pygardon and Doughnut; no specific response is verified.
+
+<a id="odf-105"></a>
 
 ## ODF-105 — Stashing another writer's work
 
@@ -451,8 +469,11 @@ Concurrent unpublished plan allocation produces two quick plans with the same nu
 - **Additional source:** [Doughnut / ODF-106](../../../doughnut/DearDough.md#odf-106--two-concurrent-executions-allocated-the-same-slice-plan-number-from-different-bases). Two distinct 0.3.38 executions now report stale/concurrent allocation. v0.3.38..a951fc0 slice-planning guidance retains checkout-local allocation; no intervening correction of that mechanism.
 - **2026-09-27 harvest:** Pygardon plan 212 / 0.3.41 adds a third cross-project execution: its retrospective plan collided with trunk plan 213 and needed renumbering plus readiness re-recording. Current planning still allocates from visible checkout entries; no demonstrated correction.
 
-<a id="odf-107"></a>
 - **2026-09-30 assessment:** Open Dough DD-155 / plan 132 adds a fourth cross-project execution of checkout-visible plan-number collision, release unknown. Both distinct directories reached trunk; same allocation mechanism, no intervening correction verified.
+
+- **Additional source mappings (2026-09-30):** [open-dough / DD-155](../../DearDough.md#odf-106--two-plans-planned-concurrently-on-different-checkouts-both-took-number-132).
+
+<a id="odf-107"></a>
 
 ## ODF-107 — Missed message consumers
 
@@ -489,9 +510,12 @@ A replay resolves the named readiness seam without exercising the rest of the sl
 - **Sources:** [doughnut / DD-109](../../../doughnut/DearDough.md#odf-110--a-readiness-replay-observed-only-the-plans-named-seam-not-the-rest-of-the-slices-journey).
 - **Response:** `2c5ff71` / first released in 0.3.43: readiness settles a premise only with an observation covering the slice's promised journey through the next operation that consumes its result, and clears a premise-based reason only on a fresh observation, not re-cited evidence. Proof is behavior review only; no native case exercised it, and [native acceptance on Codex and Cursor](../../.planning/seeds/SEED-053-native-guidance-acceptance.md#shared-premise-verification-cases) is closed with the recorded host results. This specific mechanism remains unexercised.
 
-<a id="odf-111"></a>
 - **2026-09-30 assessment:** 2c5ff71 first shipped in 0.3.43 and explicitly requires the promised journey through its consuming operation. Doughnut DD-163 / plan 049 (0.3.46), DD-168 / plan 056 and DD-171 / plan 053 (0.3.47) repeat probes/premises that stop before the consumer. These are supported post-response mechanism recurrences. Open Dough DD-124 / plan 112 is related modified-guidance evidence: the source says the rule was installed at re-bind, but its reported execution release remains unknown. Do not turn that into a numbered-release recurrence.
 - **Follow-up:** queued, not resolved: [Observe a planning premise through the operation that consumes it](../../.planning/seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers. Selected under the authorized 2026-09-30 runbook.
+
+- **Additional source mappings (2026-09-30):** [open-dough / DD-124](../../DearDough.md#odf-110--a-publisher-seam-premise-was-observed-by-reading-the-seam-not-the-race-it-had-to-stop); [doughnut / DD-163](../../../doughnut/DearDough.md#odf-110--a-readiness-replay-observed-only-the-plans-named-seam-not-the-rest-of-the-slices-journey); [doughnut / DD-168](../../../doughnut/DearDough.md#odf-110--a-readiness-replay-observed-only-the-plans-named-seam-not-the-rest-of-the-slices-journey); [doughnut / DD-171](../../../doughnut/DearDough.md#odf-110--a-readiness-replay-observed-only-the-plans-named-seam-not-the-rest-of-the-slices-journey).
+
+<a id="odf-111"></a>
 
 ## ODF-111 — Missed inherited consumers
 
@@ -531,8 +555,9 @@ Preparation checks token and fixture presence without exercising the claimed exi
 - **Current evidence:** About five paid transcription calls instead of one, extra production changes and an owner stop. Cheap local fixture/runtime exercise could have exposed the defects; not evidence of bypassing an explicit live-transition regression gate.
 - **Response:** `2c5ff71` / first released in 0.3.43 counts story-inherited premises such as "works as today" as decisive, observed by one unpaid, side-effect-free local run; a paid, credentialed or owner-held remainder becomes an early probe slice that stops dependent work. Proof is behavior review only (the diarization example); no native case exercised it, and [native acceptance on Codex and Cursor](../../.planning/seeds/SEED-053-native-guidance-acceptance.md#shared-premise-verification-cases) is closed with the recorded host results. This specific mechanism remains unexercised.
 
-<a id="odf-115"></a>
 - **2026-09-30 assessment:** The general premise/probe response 2c5ff71 shipped in 0.3.43. No later exact diarization/paid-proof fixture exercise is established; watch start remains unknown. ODF-182 is a distinct transformed-genome proof gap on 0.3.46, not a proven recurrence of the old diarization setup mechanism.
+
+<a id="odf-115"></a>
 
 ## ODF-115 — Unrepresentative regression measurements
 
@@ -553,8 +578,9 @@ Readiness hashes a whole shared seed, so an unrelated sibling edit or closure fo
 - **2026-09-27 harvest:** Open Dough DD-120 / plan 126 adopted here; Pygardon plan 208 moved here from ODF-092. Source rows now identify 17 executions: 16 whole-seed invalidations and one Donut plan-047 plan-digest change (related, excluded from the exact count); some had useful dependency/code checks as well. `62b7b7a` landed during this run; all these reports precede its release in 0.3.43. Watch start unknown.
 - **Additional sources:** [open-dough](../../DearDough.md#odf-116--a-sibling-storys-refinement-invalidated-readiness-costing-a-reassessment-cycle-before-the-claim).
 
-<a id="odf-118"></a>
 - **2026-09-30 assessment:** 62b7b7a first shipped in 0.3.43 and limits sibling-section hashing while retaining shared context and the selected story/plan. Later source rows that actually changed shared context moved to ODF-177; provenance rewrites moved to ODF-176. They do not establish failure of the sibling-section correction. Current source evidence still contains earlier whole-seed reports and the historically related Donut plan-047 plan change. No exact post-fix ordinary sibling-section exercise with unchanged shared context is verified; start unknown.
+
+<a id="odf-118"></a>
 
 ## ODF-118 — Missed meta-test consumers
 
@@ -573,8 +599,11 @@ A dependency lands but its dependent story retains a not-ready assessment whose 
 - **Assessment:** Two executions on 0.3.38 and 0.3.42; about six and ten extra calls. Distinct from unrelated sibling edits (ODF-116): the dependency changed relevant readiness context.
 - **2026-09-27 harvest:** Donut plan 020 adds a second execution on 0.3.42 (roughly ten calls and a readiness publication). Keep satisfied dependencies distinct from irrelevant sibling invalidation.
 
-<a id="odf-121"></a>
 - **2026-09-30 assessment:** New Open Dough DD-172 retains three executions (plans 152, 157, 159); Pygardon DD-176 adds plan 278. Six distinct cross-project executions including the two older Doughnut reports. Plan 157 also had useful open decisions, so its entire reassessment is not classified as wasted. Execution releases of the four new reports remain unknown.
+
+- **Additional source mappings (2026-09-30):** [open-dough / DD-172](../../DearDough.md#odf-120--a-not-ready-reason-waiting-on-another-storys-landing-was-not-revisited-when-it-landed); [pygardon / DD-176](../../../pygardon/DearDough.md#odf-120--a-plan-held-not-ready-on-a-siblings-unintegrated-story-branch-with-nothing-to-reassess-it-when-that-branch-landed).
+
+<a id="odf-121"></a>
 
 ## ODF-121 — Transient transport failure ends observation
 
@@ -593,8 +622,11 @@ A queued retrospective correction lacks recorded preparation; startup then refus
 - **Assessment:** Two executions on 0.3.38 and 0.3.42; about seven and six extra calls plus separate readiness commits. Missing preparation differs from stale readiness.
 - **2026-09-27 harvest:** Donut plan 015 adds a second execution on 0.3.42; an anchored correction story also lacked assessment, so the issue is not restricted to plan-homed corrections.
 
-<a id="odf-123"></a>
 - **2026-09-30 assessment:** Pygardon DD-158 / plan 266 on 0.3.44 adds an exact missing-retrospective-readiness occurrence. Three distinct cross-project executions; the safety refusal itself worked.
+
+- **Additional source mappings (2026-09-30):** [pygardon / DD-158](../../../pygardon/DearDough.md#odf-122--a-retrospectives-correction-plan-reached-execution-with-no-readiness-assessment).
+
+<a id="odf-123"></a>
 
 ## ODF-123 — Plan-during-execution handoff is undefined
 
@@ -642,7 +674,6 @@ A newly added agent-commit CLI compares literal paths, so invocation through the
 - **Assessment (2026-09-27):** Five distinct Donut executions on 0.3.42 (plans 011, 010, 015, 018, 020), each recovered through the real path; no wrong commit published. Earlier eff69eb / 0.3.27 corrected three CI entrypoints; agent-commit was introduced later by 61054431 / 0.3.42 with a literal guard. v0.3.42..2d2c4cda leaves it unchanged. This is a new entrypoint defect after a demonstrated earlier correction, not recurrence in those repaired CI scripts.
 - **Response:** `108fb545`, first released in 0.3.43: `agent-commit.mjs`, `execution-start.mjs` and `ci-repair-stash.mjs` now use the realpath-aware direct-entry helper, and a sweep test runs every directly invoked Open Dough script through a symlinked skill directory, failing on a silent exit 0. Delivered proof only; effectiveness needs relevant Donut use of a release containing it.
 
-<a id="odf-128"></a>
 - **2026-09-30 assessment:** 108fb545 first shipped in 0.3.43. Doughnut now retains nine pre-response executions; eight report 0.3.42 and one is unknown. No supported post-fix alias failure exists, but later commit success without the invocation spelling does not establish real symlink-boundary exercise; keep active, watch start unknown. Earlier eff69eb / 0.3.27 corrected the three CI entrypoints before agent-commit was introduced.
 
 ## ODF-132 — Delegated proof handed back incomplete
@@ -670,8 +701,9 @@ A plan requires a live action after a slice reaches main but leaves Story Branch
 - **Sources:** [pygardon / DD-123](../../../pygardon/DearDough.md#odf-135--a-plans-after-slice-1-is-on-main-precondition-contradicted-the-default-story-branch-mode).
 - **Assessment (2026-09-27):** One plan 213 execution, release unknown; owner decision and three manual integrations. Keep separate from ODF-134’s managed rebase mismatch.
 
-<a id="odf-136"></a>
 - **2026-09-30 assessment:** Pygardon plan 288 on 0.3.47 repeats a default-checkout proof prerequisite without an execution mode; the owner selected Trunk Mode before Take. This second execution avoided manual integrations, unlike plan 213.
+
+<a id="odf-136"></a>
 
 ## ODF-136 — Duplicated sibling repair before fetching trunk
 
@@ -698,8 +730,9 @@ A returned gap for restore-applied-none is accepted as an untested limitation; d
 - **Sources:** [open-dough / DD-123](../../DearDough.md#odf-138--a-reported-guidance-gap-was-accepted-without-checking-its-consequence-hiding-a-data-loss-path).
 - **Assessment (2026-09-27):** One truthful-repair-restore plan 115 execution, release unknown; retrospective reproduced data loss in a fixture after two refactor passes. Local correction 40cb0bc refuses drop when nothing applied; first released in 0.3.43 (tag and drop guard verified). That repairs the stash behavior, not the broader acceptance failure. Distinct from ODF-093 applying a foreign stash; no actual user data loss was reported.
 
-<a id="odf-139"></a>
 - **Follow-up:** queued, not resolved: [Check reported gaps against the story before accepting a slice](../../.planning/seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps. Selected under the authorized 2026-09-30 runbook.
+
+<a id="odf-139"></a>
 
 ## ODF-139 — Reported defect dismissed without checking the story
 
@@ -708,8 +741,9 @@ An implementer reports a loss that contradicts the story goal; acceptance labels
 - **Sources:** [doughnut / DD-132](../../../doughnut/DearDough.md#odf-139--the-coordinator-accepted-an-implementers-reported-gap-as-out-of-scope-without-checking-the-story-and-the-example-test-pinned-the-defect).
 - **Assessment (2026-09-27):** One plan 006 execution on 0.3.41; published story branch lost an unedited final newline and needed correction plan 009. Related to ODF-138’s acceptance gap, but here the mechanism is a false scope judgment; do not merge identities.
 
-<a id="odf-140"></a>
 - **Follow-up:** queued, not resolved: [Check reported gaps against the story before accepting a slice](../../.planning/seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps. Selected under the authorized 2026-09-30 runbook.
+
+<a id="odf-140"></a>
 
 ## ODF-140 — Failed startup leaves a staged claim blocking retry
 
@@ -745,8 +779,11 @@ Delivery usage says REF while requiring refs/heads/, so coordinators repeatedly 
 - **Sources:** [doughnut / DD-107 (argument reports only)](../../../doughnut/DearDough.md#odf-143--managed-delivery-rejects-unqualified-branch-references).
 - **Assessment (2026-09-27):** Three isolated argument-only executions on 0.3.41/0.3.42 (009, 011, 019), plus the earlier mixed plan 035 report on 0.3.40 retained under watched ODF-092. Four distinct ref refusals; session-identity success is not a failure of 9880cbb.
 
-<a id="odf-144"></a>
 - **2026-09-30 assessment:** Pygardon DD-131 maps its branch-ref reports here (plans 223, 266, 291 and 290); its plan-223 missing-candidate event is separately ODF-168. Doughnut DD-172 / plan 062 (0.3.47) maps here too. The already-adopted Doughnut heading adds plans 003, 008, 012, 013 and 050 (0.3.43–0.3.46). Source-inspection-only recoveries (003 and Pygardon 290) are related cost, not refused-call occurrences. No branch-form response is verified.
+
+- **Additional source mappings (2026-09-30):** [pygardon / DD-131](../../../pygardon/DearDough.md#odf-143--managed-delivery-refused-its-first-calls-on-argument-shape-one-with-a-message-naming-neither-argument); [doughnut / DD-172](../../../doughnut/DearDough.md#odf-143--managed-delivery-rejects-unqualified-branch-references).
+
+<a id="odf-144"></a>
 
 ## ODF-144 — Lost-worker notice repeatedly blocks turn completion
 
@@ -755,8 +792,11 @@ The Claude Stop hook repeats an already-recorded lost-worker notice without ackn
 - **Sources:** [pygardon / DD-125](../../../pygardon/DearDough.md#odf-144--after-a-completion-receipt-recorded-lost-coverage-the-claude-code-stop-hook-blocked-every-turn-end).
 - **Assessment (2026-09-27):** One plan 213 execution, release unknown; three Stop-hook blocks, resolved by moving the coordinator’s stale binding. The lost-worker detection from 8a7c770 / 0.3.28 is functioning; this is repeated delivery of that notice, not undetected death (ODF-065).
 
-<a id="odf-145"></a>
 - **2026-09-30 assessment:** Seven distinct source executions now support the same repeated lost-worker notice: Pygardon 213/288/289, Open Dough 162/160, Doughnut 059/060. Four known reports use 0.3.47; other releases are unknown. Doughnut 059 measured ~7.7M cache-read tokens and 49 status-only replies, not new occurrence counts. Source response 75bdc10d (2026-09-29) records lossReported only after acknowledgement and suppresses stopped mailboxes. No containing tag exists through 0.3.47: all reports predate released use of that correction, so none demonstrates a failed fix. Keep active awaiting release and relevant use; do not queue a duplicate implementation.
+
+- **Additional source mappings (2026-09-30):** [open-dough / DD-185](../../DearDough.md#odf-144--a-lost-observer-notice-kept-blocking-every-turn-end-even-after-the-observer-was-stopped); [doughnut / DD-169](../../../doughnut/DearDough.md#odf-144--the-ci-stop-hook-re-announced-an-already-stopped-lost-observer-at-every-coordinator-stop).
+
+<a id="odf-145"></a>
 
 ## ODF-145 — Conversion rehearsal uses a different code revision
 
@@ -811,8 +851,11 @@ Proof selection follows edited store areas rather than the changed operation’s
 - **Sources:** [doughnut / DD-136](../../../doughnut/DearDough.md#odf-150--an-implementers-slice-proof-ran-only-the-specs-it-chose-missing-consumers-of-the-store-method-it-changed).
 - **Assessment (2026-09-27):** Two Donut executions on 0.3.42 (014 and 016); one contained repair and one published failed frontend job. Relationship to ODF-111’s inherited test-helper refactor gap and ODF-107’s message consumers remains uncertain; allocate separately, with no claimed recurrence of f0f355c / 0.3.33.
 
-<a id="odf-151"></a>
 - **2026-09-30 assessment:** Open Dough DD-177 / plan 157 adds the same component-selected proof omission against page-wide invariants, with two CI repairs in one execution. Doughnut plans 014 (0.3.46) and 058 (unknown) add indirect/E2E consumers; five distinct source executions in total. Keep separate from ODF-178 blanket layer exclusions; no shared cause with the earlier f0f355c response is established.
+
+- **Additional source mappings (2026-09-30):** [open-dough / DD-177](../../DearDough.md#odf-150--slice-proof-chosen-by-the-changed-components-missed-page-wide-invariant-specs).
+
+<a id="odf-151"></a>
 
 ## ODF-151 — Retrospective asserts an unobserved UI mechanism
 
@@ -848,8 +891,9 @@ Cursor’s first managed delivery lacks conversation/generation identity, requir
 - **Sources:** [open-dough / DD-095 / ODF-092 (plan 126 Cursor only)](../../DearDough.md#odf-154--cursor-managed-delivery-lacks-its-coordinator-session-identity).
 - **Assessment (2026-09-27):** One modified ff3534c/base 0.3.42 execution. 9880cbb deliberately applies its fallback only to Claude; Cursor’s problem is outside that corrected mechanism and is not a failed Claude fix.
 
-<a id="odf-155"></a>
 - **2026-09-30 assessment:** Open Dough plan 136 on 0.3.43 adds a second Cursor-specific session-identity omission. Claude fallback 9880cbb / 0.3.41 does not cover Cursor; this is not recurrence in that repaired mechanism.
+
+<a id="odf-155"></a>
 
 ## ODF-155 — Red proof restores files in a shared checkout
 
@@ -859,8 +903,9 @@ An implementer temporarily replaces its shared-checkout files with HEAD versions
 - **Assessment (2026-09-27):** One plan 021 / f8087d5845 execution, release unknown; no other writer active, no damage, intended diff restored. The return demonstrates bypass of the supplied rule; unknown release cannot establish recurrence after `86e5069` / 0.3.42. Distinct from foreign stash restoration (ODF-093) and concurrent proof reading sibling edits (ODF-129).
 - **Follow-up:** none. Sequential slice execution (`1d3a26cd`) did not address it: no other writer was active, and the supplied separate-baseline rule was bypassed. This is a related baseline practice, not a ninth observed interference execution.
 
-<a id="odf-156"></a>
 - **2026-09-30 assessment:** Unknown-release Donut plan 021 remains unchanged. Pygardon path-checkout debug cleanup on 0.3.46 is separately ODF-183: different trigger, with no lost edits. Sequential-slice guidance does not itself prevent either baseline/cleanup act.
+
+<a id="odf-156"></a>
 
 ## ODF-156 — Lost acceptance obligations in delegation
 
@@ -1143,8 +1188,9 @@ A real-calculation fixture is inspected without tracing the domain repair that t
 - **Identity assessment (2026-09-30):** Related to ODF-074/110, but the supplied report identifies the overlooked domain transformation and a resulting proof substitution; retain its identity separately. Current guidance assessed: `babcbbc0` (released baseline 0.3.47); source execution releases remain as reported.
 - **Retained execution:** pygardon; Execution: `.planning/slice-plans/275-stop-limit-required-evidence/PLAN.md` (recoverable at `b79aa15f5`; Take `f621f06c9`; first implementation commit `1af611dca`); Timestamp: unknown (2026-09-29, slices 4–5 committed 12:14–12:25 +08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.46. Evidence: slice 4 hand-back (baseline variant left without real-calculation proof); slice 5 hand-back (first attempt ended *completed* with a zero-trade holdout report; test then replaced `pygardon.search_run.storage.repair_genome` with identity, commit `828c9f92e`). Observed effect: one accepted proof gap and one test seam on a domain collaborator instead of input/transport, both recorded in the plan. Inference: premise checks for real-calculation proof over a small fixture should include every transformation between the fixture's inputs and the evaluated genome; a longer domain-valid fixture was the unplanned alternative.
 
-<a id="odf-183"></a>
 - **Follow-up:** queued, not resolved: [Observe a planning premise through the operation that consumes it](../../.planning/seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers. Selected under the authorized 2026-09-30 runbook.
+
+<a id="odf-183"></a>
 
 ## ODF-183 — Delegated cleanup bypasses path-checkout prohibition
 
@@ -1174,8 +1220,9 @@ An implementer reports a dropped parameter that contradicts the story's preserva
 - **Identity assessment (2026-09-30):** Related to ODF-139 false scope judgment, but here no explicit out-of-scope judgment is evidenced. Keep identities separate while selecting one response problem. Current guidance assessed: `babcbbc0` (released baseline 0.3.47); source execution releases remain as reported.
 - **Retained execution:** pygardon; Execution: `.planning/slice-plans/280-search-candidate-order-intent/PLAN.md` (recoverable at `30c05783e`; Take `60cc8e2ba`; first implementation commit `b5b450dbb`); Timestamp: 2026-09-29T16:41:08+08:00 (slice 1 commit, which included the learning); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: unknown. Evidence: slice 1 hand-back "Chosen configuration": "The `benchmark_weight` gene (0.3) is not carried by `compose_tfdc_live_strategy`"; plan Learnings in `b5b450dbb`; `pygardon/search_run/eval_on_freeze.py:107` uses `project_genes_to_live_strategy`; correction plan `284-search-candidate-projection-correction`. Observed effect: the connected proof passed without detecting a lost searched parameter; the fix became one correction story instead of a slice-time stop. Inference: when a hand-back reports that a stage drops something the story promises to preserve, proof acceptance should test that report against the goal, not record it as a learning.
 
-<a id="odf-186"></a>
 - **Follow-up:** queued, not resolved: [Check reported gaps against the story before accepting a slice](../../.planning/seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps. Selected under the authorized 2026-09-30 runbook.
+
+<a id="odf-186"></a>
 
 ## ODF-186 — Coordinator stops between hand-back and delivery
 
@@ -1287,8 +1334,9 @@ An implementer moves a fixture into an already-supported shape, turns the test g
 - **Identity assessment (2026-09-30):** One execution; the coordinator checked the real EPUB and required a product correction before accepting. Related to ODF-149 ordinary-content gaps, but this is changing a failing fixture to avoid the unsupported path. Current guidance assessed: `babcbbc0` (released baseline 0.3.47); source execution releases remain as reported.
 - **Retained execution:** doughnut; Execution: SEED-059#story-1 / `e733844d01:.planning/slice-plans/049-epub-land-and-track-chosen-place/PLAN.md` / 485ed2eb49; Timestamp: unknown (2026-09-29, slice 4); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.46.
 
-<a id="odf-197"></a>
 - **Follow-up:** queued, not resolved: [Check reported gaps against the story before accepting a slice](../../.planning/seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps. Selected under the authorized 2026-09-30 runbook.
+
+<a id="odf-197"></a>
 
 ## ODF-197 — No-op plan edits lose execution learnings
 
@@ -1308,14 +1356,15 @@ A slice assumes one code swap fixes a reported defect, but its new spec already 
 - **Identity assessment (2026-09-30):** One unknown-release execution; related to planning premises and ODF-147, but no failed fix or same-cause post-response recurrence can be established. Current guidance assessed: `babcbbc0` (released baseline 0.3.47); source execution releases remain as reported.
 - **Retained execution:** doughnut; Execution: SEED-059#story-16 / `dfec19ca03:.planning/slice-plans/058-current-block-same-in-pdf-and-epub/PLAN.md` / f9a6f4a416; Timestamp: 2026-09-30 (slice 5); Tool: Claude Code; Model: claude-sonnet-5-5; Open Dough release: unknown.
 
-<a id="odf-199"></a>
 - **Follow-up:** queued, not resolved: [Observe a planning premise through the operation that consumes it](../../.planning/seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers. Selected under the authorized 2026-09-30 runbook.
+
+<a id="odf-199"></a>
 
 ## ODF-199 — Required counterexample dropped on an inferred impossibility
 
 Acceptance drops a promised counterexample on an unobserved claim that no one-signal case exists; a cheap retrospective probe disproves it.
 
 - **Sources:** [open-dough / DD-188](../../DearDough.md#odf-199--a-planned-rejected-case-was-dropped-on-an-unobserved-no-one-signal-case-exists-premise).
-- **Identity assessment (2026-09-30):** The exact correction is already Taken in SEED-055#assessor-counterexample-gaps; do not duplicate it. Current guidance assessed: `babcbbc0` (released baseline 0.3.47); source execution releases remain as reported.
+- **Identity assessment (2026-09-30):** The exact correction was Taken at the initial review; concurrent closure is recorded below. Do not duplicate it. Current guidance assessed: `babcbbc0` (released baseline 0.3.47); source execution releases remain as reported.
 - **Retained execution:** open-dough; Execution: `SEED-055#assessor-counterexample-discipline` / plan 165, first related implementation commit `84b4f28f`
-- **Follow-up:** ongoing, not resolved: [Close the assessor counterexample discipline's remaining gaps](../../.planning/seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps) — SEED-055#assessor-counterexample-gaps is already Taken. No duplicate queued response.
+- **Follow-up (rechecked 2026-09-30):** `SEED-055#assessor-counterexample-gaps` completed and closed in `2f1a373c`, imported during this review; recover its canonical story and plan from `b6a3ac18`. The claimed preparation-only response now has a claim-bearing passing base and an explicit rejected case (`9ff892ed`, relevant test diff verified). No release tag contains that response through 0.3.47, and no subsequent relevant exercise is established here: retain this finding with a completed, unreleased response rather than retire it or queue duplicate work.

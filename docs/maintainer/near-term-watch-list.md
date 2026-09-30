@@ -45,7 +45,6 @@ After persistent polling errors produce a normal terminal result, later push reg
 - open-dough: Execution: `.planning/slice-plans/076-path-filter-aware-ci-observation/PLAN.md @ a8f9eb19be42e1b8c0a9b6e1e428fffbee6f2865` - Timestamp: 2026-09-22T07:12+00:00 - Tool: Claude Code - Model: claude-sonnet-5 - Open Dough release: modified; revision a8f9eb19be42e1b8c0a9b6e1e428fffbee6f2865; base 0.3.28 - Evidence: mailbox `/tmp/dough-ci-501/watch-Q6ZEF0`'s event 3 (`CI_MONITOR_UNAVAILABLE`, TLS timeout) and `result.json` (`finished`) both predate two later `register-push` calls (mtimes ~10/~30 min after); `ps` confirmed the worker pid was gone. - Observed effect: two SHAs registered against an ended observer with no distinguishing signal; the gap surfaced only via a manual `gh` cross-check near execution end. - Inference: Qualified, single occurrence; mechanism is deterministic and the triggering network instability recurred repeatedly this session, so recurrence is plausible. Not tested: a distinct "CI observer ended" hook message, mirroring "lost its worker."
 - **Source snapshot:** open-dough `a951fc04a5e8dfcc0f1f55660b00ae0eb9611bc5:DearDough.md`; DD-090.
 
-
 <a id="odf-099"></a>
 
 ## ODF-099 — Oversized startup receipts
@@ -78,7 +77,6 @@ Startup serializes full before/after Git index snapshots into its coordinator re
 - **Source snapshot:** doughnut `0d92ca6c226fc0d755a9b159e2cb3259a68f009f:DearDough.md`; DD-108.
 
 ODF-099 earlier Open Dough evidence remains at `b633e1d:DearDough.md`, `876a0b0:DearDough.md`, `bde06c7:DearDough.md`, `6494de2:DearDough.md` and `e11c09a:DearDough.md`. Plan 100 / 075e955, Claude Code claude-opus-5-5[1m], unknown execution release, reported a 236,870-byte pre-change receipt; real CLI fixtures at 989a34c measured 286 KB–1.1 MB before versus 306–330 bytes after. Those fixture observations do not establish client adoption.
-
 
 <a id="odf-092"></a>
 
@@ -310,6 +308,7 @@ attached, so lost coverage is first visible when the coordinator stops it.
     the record shows when it stopped writing, not why. Neither `register-push`
     nor the hook checks that the recorded worker is still running.
 
+- **Open Dough source retention history:** Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-185: ODF-065 (former DD-063; a dead observer still reported as attached), since the host hook now reports a dead worker as lost at the next interaction; recovery: `1dfb75ee:DearDough.md`.
 
 <a id="odf-128"></a>
 
@@ -351,7 +350,6 @@ other slice's unreviewed, uncommitted work.
     did not make shared tooling disjoint. Concurrent slices 1 and 2 still
     saved wall time.
 
-
 #### pygardon
 
 #### ODF-128 — Selective formatting of the whole checkout conflicts with concurrent slices in one execution worktree
@@ -368,7 +366,6 @@ The project's `pnpm format:changed` selects every changed file in the checkout (
 - Execution: `.planning/slice-plans/219-atomic-fixture-publication/PLAN.md` (recoverable at `8030fca16`; first implementation commit `f582ac26a`); Timestamp: 2026-09-27T13:12:25+08:00 (slice 1 commit `f582ac26a`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.42. Evidence: slices 1 and 2 ran concurrently in one worktree; while the slice 2 agent was still editing `tests/stooq_reader_startup_tree_support.py`, the coordinator formatted slice 1 with `ruff format tests/ibkr_service_login_command_stop_support.py` instead of `pnpm format:changed`, then ran `format:changed` for slice 2 once nothing else was editing. Observed effect: no race or lost edit; one deliberate deviation from the one-format rule.
 - Execution: `.planning/slice-plans/216-tfdc-search-throughput/PLAN.md` (recoverable at `b0b0918a0`; first implementation commit `cb7067227`); Timestamp: unknown (2026-09-27, deliveries of `cb7067227` and `53293b932`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: unknown. Evidence: slices 1 and 2 ran concurrently in one worktree; the coordinator ran `ruff format` on each slice's owned Python files while the other agent was editing, and used `pnpm format:changed` for slices 3 and 3a once nothing else was editing. Observed effect: no race or lost edit; two deliberate deviations from the one-format rule.
 - Execution: `.planning/slice-plans/221-responsive-stooq-warehouse/PLAN.md` (recoverable at `846f612fc`; first implementation commit `c2afd83ed`); Timestamp: 2026-09-27T18:38:03+08:00 (slice 1 commit `c2afd83ed`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.42. Evidence: slices 1 and 3 ran concurrently in one worktree; slice 1's refactor returned first, and the coordinator held its formatting and commit until slice 3's refactor returned, then ran `format:changed` once and made two commits (`c2afd83ed`, `9d7ccd84b`). Observed effect: no race; slice 1's delivery waited about three minutes for the other slice.
-
 
 <a id="odf-129"></a>
 
@@ -401,8 +398,9 @@ Former local code: DD-109.
   - Evidence: failures in `install-all-tools.sh`, `native-delivery-updated-use{,-adapters}.sh`; isolated rerun at `c2e340d` plus slice 3 passed; slice 5's final candidate passed all three.
   - Observed effect: one wasted full suite and a diagnosis detour; later proof used detached worktrees.
 
-
 - **Source snapshot:** `32e554d5:DearDough.md`; this recovery adds no new execution.
+
+- **Open Dough source retention history:** Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-176, DD-177, and the DD-172 and ODF-097 recurrences: ODF-130 (concurrent slices sharing Playwright output) and ODF-129 (full-suite proof beside another agent's edits), since slices now run one at a time; recovery: `32e554d5:DearDough.md`.
 
 <a id="odf-130"></a>
 
@@ -442,8 +440,9 @@ Playwright run delete artifacts another run was writing.
   - Inference: Concurrent slices were otherwise useful here; file-disjoint
     changes do not make shared test output directories disjoint.
 
-
 - **Source snapshot:** `32e554d5:DearDough.md`; this recovery adds no new execution.
+
+- **Open Dough source retention history:** Removed on 2026-09-29 for the 1,000-line ceiling, as lower current actionability than DD-176, DD-177, and the DD-172 and ODF-097 recurrences: ODF-130 (concurrent slices sharing Playwright output) and ODF-129 (full-suite proof beside another agent's edits), since slices now run one at a time; recovery: `32e554d5:DearDough.md`.
 
 <a id="odf-131"></a>
 
