@@ -123,7 +123,7 @@ If use yields only generic objections, correct this bounded wording before slice
 
 ### 2. Clarify scope and behavior, alone and combined
 Type: Behavior
-Status: planned
+Status: done
 Proof: Clarify-only (interpretations; no manufactured rejection; already-minimal
 story), combined Challenge + Clarify, and Explore + Challenge + Clarify uses;
 reuse still-valid slice 1 proof and rerun only changed obligations and the
@@ -177,3 +177,15 @@ deliverable.
 - The Challenge entry already says a recommended direction is challenged instead
   of adding a pass, so slice 2 needs no Explore/Borrow sentence for Challenge;
   it still owns the Clarify entry and the Challenge-feeds-Clarify composition.
+- Slice 2 accepted proof (2026-09-30): the `--clarify` entry was added and
+  `selection` gained the Clarify-versus-default distinction, the
+  Challenge-feeds-Clarify composition, and one shared recommended-direction
+  sentence (the refactor pass moved it out of both entries so it has one home).
+  Reasoning walkthroughs passed: sessions story with `--clarify` (viewing,
+  starting, stopping separated; non-chosen become deferred promises), three-example
+  story (no rejection manufactured), already-minimal story ("no change"),
+  Challenge + Clarify (doubt shapes scope; disagreement exposed), Explore +
+  Challenge + Clarify (no extra pass), and no options (default unchanged).
+  Focused payload checks exited 0 after the refactor:
+  `env PATH="/opt/homebrew/bin:$PATH" npm test -- tests/payload-declaration-links.sh tests/install-public-payload.sh tests/story-payload-update.sh`.
+  Limit: walkthroughs are reasoning, not live-model runs.

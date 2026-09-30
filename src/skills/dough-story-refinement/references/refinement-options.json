@@ -1,7 +1,7 @@
 {
   "command": "dough-story-refinement",
   "default": "Without options, refine straightforwardly: establish Goal, Scope, and Key examples without mandatory alternatives or analogy exercises.",
-  "selection": "Options may be combined. Flag order has no meaning; apply all selected instructions together within one refinement, unless the developer asks in ordinary language for a sequence. Baseline inquiry, evidence checks, and human ownership of goal and scope decisions apply in every mode. When Explore and Borrow are both selected, treat each borrowed mechanism as one candidate in Explore's single comparison, judged against the same goal and constraints as the other options and not favored because it is an analogy.",
+  "selection": "Options may be combined. Flag order has no meaning; apply all selected instructions together within one refinement, unless the developer asks in ordinary language for a sequence. Baseline inquiry, evidence checks, and human ownership of goal and scope decisions apply in every mode. When Explore and Borrow are both selected, treat each borrowed mechanism as one candidate in Explore's single comparison, judged against the same goal and constraints as the other options and not favored because it is an analogy. Clarify is an explicit emphasis on scope and examples, in addition to default refinement. When refinement has recommended a direction, Challenge and Clarify each apply to that direction instead of adding another pass. When Challenge and Clarify are both selected, Challenge's strongest doubt informs Clarify's scope decision within the same refinement; Challenge alone does not shrink scope. When they disagree, expose the trade-off for the developer's decision.",
   "options": [
     {
       "flag": "--explore",
@@ -16,7 +16,12 @@
     {
       "flag": "--challenge",
       "label": "Challenge",
-      "instruction": "Test whether the proposed capability achieves the selected story's stated purpose. Name the assumptions the purpose rests on, whether the proposal is the capability or only one way to reach it, and how it could meet its own wording yet miss the purpose. Report the strongest consequential doubt with its reason; do not report an objection that changes nothing about the promised outcome, and do not invent doubt when the purpose holds: say so briefly and continue refinement. A challenge is a proposal, not a decision: discuss any change to goal or scope with the developer, and do not rewrite or split the story on your own. When refinement has recommended a direction, challenge that direction as well instead of adding another pass."
+      "instruction": "Test whether the proposed capability achieves the selected story's stated purpose. Name the assumptions the purpose rests on, whether the proposal is the capability or only one way to reach it, and how it could meet its own wording yet miss the purpose. Report the strongest consequential doubt with its reason; do not report an objection that changes nothing about the promised outcome, and do not invent doubt when the purpose holds: say so briefly and continue refinement. A challenge is a proposal, not a decision: discuss any change to goal or scope with the developer, and do not rewrite or split the story on your own."
+    },
+    {
+      "flag": "--clarify",
+      "label": "Clarify",
+      "instruction": "Settle the smallest scope that still delivers the selected story's purpose. State behavior in concrete pre-condition → trigger → result examples chosen to distinguish competing interpretations of the story; the developer decides which interpretation the story owns, and the others become deferred promises, not rejections. Separate required behavior, deferred promises, and rejection constraints: justify a rejection by an independent requirement, or leave the behavior naturally supported and record the decision as open when the developer's intent matters. Do not trim value the purpose needs, and do not turn an unlisted case that the rule already handles into a rejection. If the story is already unambiguous and minimal, report that and change nothing."
     }
   ]
 }
