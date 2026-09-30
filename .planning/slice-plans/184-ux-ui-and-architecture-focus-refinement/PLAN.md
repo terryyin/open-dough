@@ -168,7 +168,7 @@ composition are reviewed next.
 
 ### 3. Frame one trade-off when both focuses are selected, in any delivery order
 Type: Behavior
-Status: planned
+Status: done
 Proof: Both-focus use on the journey story, `--architecture --explore`,
 `--ux-ui --clarify` from slice 1, and the order check above; reuse still-valid
 earlier proof and rerun the focused payload checks.
@@ -241,3 +241,29 @@ any delivered actions.
   run), and the no-concern run over-explained the ADR check. The scratch
   projects `arch`, `arch-conflict`, `arch-none`, `arch-noadr` under the job tmp
   directory are reusable for slice 3.
+- Slice 3 (2026-09-30): the "otherwise add none" branch did not apply. With
+  slices 1-2 wording, both focuses produced parallel UX/UI and Architecture
+  sections and no trade-off. A first combination sentence ("present each choice
+  as one trade-off") was read narrowly, framing about one choice. The accepted
+  sentence in `focusSelection` forbids separate reports, says to list every
+  interaction choice with architectural consequences once (user effect beside
+  system consequence, favoring neither), folds the rest into ordinary Goal,
+  Scope, and Key examples, and keeps the Accepted-ADR conflict stop. It names
+  no action.
+- Accepted slice 3 proof on the final wording (subagent representative reviews,
+  no paid host run): `--ux-ui --architecture` on the journey story gave one
+  table of four choices (effect on the customer / consequence for the system),
+  no parallel report, a short Architecture note holding only the ADR citation;
+  on the conflicting story the calendar-copy side stopped under ADR 0002 with no
+  exception authorized; `--architecture --explore` gave one comparison with
+  no extra architecture pass; `--ux-ui --clarify` composed without a separate
+  pass. Order check (parse, no duplicate `flag`, both focus flags,
+  `focusSelection` names no action, dummy action plus `selection` edit merge to
+  the same object before and after the focus edit) passed, as did JSON parse
+  and the focused payload command. Residual: one conflict-story run leaned toward
+  one option once; variance in "favoring neither" was not measured with repeated
+  runs. The no-option default was not separately rerun (the sentence is
+  conditional on both focuses).
+- CI: the delivered revisions failed only the nerds-roster count tests
+  (`30 !== 26`), already failing on trunk before this branch and fixed on trunk
+  by `910dff98`; not this execution's failure, no repair.
