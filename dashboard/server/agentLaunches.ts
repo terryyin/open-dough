@@ -35,6 +35,7 @@ import {
   keptRecords,
   keptRecordsByProject,
 } from "./launchRecordStore.ts";
+import { removeStart } from "./startStore.ts";
 import {
   folderExists,
   machineFolder,
@@ -115,7 +116,7 @@ async function started(
       result: {
         kind: "uncertain",
         reason: "timed-out",
-        explanation: `The start did not finish within the wait, so the story may or may not be Taken. Its workspace ${planned.workspace.shown} on branch ${planned.branch} was left to finish. Check origin before starting again.`,
+        explanation: `The start did not finish within the wait, so the story may or may not be Taken. The start was kept and goes on in workspace ${planned.workspace.shown} on branch ${planned.branch}; pressing Start again resumes it.`,
       },
     };
   }
@@ -269,6 +270,10 @@ export class AgentLaunches {
         launchedAt: new Date().toISOString(),
       };
       await keepRecord(source.id, record);
+      if (start.kind === "established") {
+        // The session carries the start now; the launch record keeps it.
+        await removeStart(source.id, start.handoff.start.identity);
+      }
       return {
         kind: "launched",
         record: { ...record, sessionState: launched.sessionState },

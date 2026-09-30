@@ -42,7 +42,12 @@ test("reads a stop's status, error, and recovery", () => {
     kind: "stopped",
     status: "setup-failed",
     error: "trouble",
-    recovery: { workspace: "/w", branch: "claude/x" },
+    recovery: {
+      workspace: "/w",
+      branch: "claude/x",
+      startingRevision: "1",
+      candidateSha: "2",
+    },
   });
   expect(
     readStartResult(
@@ -104,10 +109,19 @@ test("words every stop status the start command reports, keeping a stop's worksp
     "Git has no usable developer identity for the Take. Nothing was launched.",
   );
   expect(stop("claim-failed", "e")).toBe(
-    "The Take could not be committed: e. Nothing was launched.",
+    "The Take could not be committed: e. The start was kept; pressing Start again resumes it. Nothing was launched.",
   );
   expect(stop("unpublished", "push rejected", recovery)).toBe(
-    "The Take could not be confirmed on origin, so the story may or may not be Taken: push rejected. Workspace /w on branch claude/x. Nothing was launched.",
+    "The Take could not be confirmed on origin, so the story may or may not be Taken: push rejected. Workspace /w on branch claude/x. The start was kept; pressing Start again resumes it. Nothing was launched.",
+  );
+  // A start that was kept names where, though the stop reported none.
+  expect(
+    refusal({ kind: "stopped", status: "claim-failed" }, undefined, {
+      workspace: "~/git/p/.worktrees/x",
+      branch: "claude/x",
+    }),
+  ).toBe(
+    "The Take could not be committed. Workspace ~/git/p/.worktrees/x on branch claude/x. The start was kept; pressing Start again resumes it. Nothing was launched.",
   );
   expect(stop("unchanged")).toBe(
     "The start changed nothing. Nothing was launched.",
@@ -116,6 +130,6 @@ test("words every stop status the start command reports, keeping a stop's worksp
     "The start stopped (something-new): e. Nothing was launched.",
   );
   expect(refusal({ kind: "unreadable" })).toBe(
-    "The start command gave no result this dashboard could read, so the story may or may not be Taken. Check origin before starting again. Nothing was launched.",
+    "The start command gave no result this dashboard could read, so the story may or may not be Taken. The start was kept; pressing Start again resumes it. Nothing was launched.",
   );
 });

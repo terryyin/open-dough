@@ -98,11 +98,30 @@ no readable result. One reason table in `server/executionStart.ts` words each
 command `status` (another agent holds the story, not queued in Backlog, the
 workspace could not be set up, and the rest); "Taken by <Agent>" names the
 owner read from origin's Taken profiles, and a stop that reports its workspace
-and branch names them. The start is never
-aborted: when it has not finished within its wait (two minutes;
-`DOUGH_START_TIMEOUT_MS` shortens it for tests) the launch answers uncertain,
-naming the workspace and branch, and the command goes on, so the story may
-already be Taken.
+and branch names them.
+
+A start is kept (`server/startStore.ts`, `~/.open-dough/dashboard/execution-starts.json`,
+beside the launch records, one per project and story identity). It is written
+before the script runs (publisher ID, workspace, branch, the model chosen,
+when), then updated with what the script reports: the established start when
+it published the Take, or the start and candidate SHAs a stop's `recovery`
+carries. The next execution launch of the same story resumes the kept start:
+the same publisher ID, workspace, branch and model, and the SHAs when a stop
+kept them (`--starting-revision`, `--candidate-sha`), so the command answers
+`existing` or `resumed` and never publishes a second claim or makes a second
+workspace. The start is never aborted: when it has not finished within its wait
+(two minutes; `DOUGH_START_TIMEOUT_MS` shortens it for tests) the launch answers
+uncertain, naming the workspace and branch, "The start was kept and goes on in
+workspace <folder> on branch <branch>; pressing Start again resumes it." The
+command goes on, so the story may already be Taken, and its result is recorded
+in the kept start when it ends. A stop that may have left a claim published or
+committed (`unpublished`, `claim-failed`, or no readable result) is refused
+with "The start was kept; pressing Start again resumes it." Any other refusal
+removes the kept start, since nothing was published to resume. A launch whose
+session started removes the kept start (the launch record keeps it); a
+`claude` launch that fails after the start was established keeps it. A kept
+start with no launch record is not offered on the Taken card yet, and a start
+lost with the server is not resumed from its workspace yet.
 
 A confirmed launch lists its session on the story's card, beside the Start
 actions, which stay with their notes whatever sessions are listed, and the

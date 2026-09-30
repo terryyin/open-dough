@@ -180,7 +180,7 @@ without a second copy of the rules. No external change.
 
 ### 7. An uncertain start is kept and resumed
 Type: Behavior
-Status: planned
+Status: done
 Proof: spec: origin `pre-receive` hook slower than the shortened start wait
 (`DOUGH_START_TIMEOUT_MS`) → "Launch uncertain" naming workspace and branch, the script
 left to finish; hook removed, Start again → one claim on origin, the session opens in the

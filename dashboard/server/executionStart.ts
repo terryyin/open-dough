@@ -11,7 +11,10 @@
 // claim and no workspace.
 // The workspace is chosen by the host's convention (`./claudeWorkspace.ts`).
 // A running start is never aborted: only a script that finishes reports
-// what it published.
+// what it published. A start is kept (`./startStore.ts`) from before its script
+// runs until a session launches from it, and a start whose claim may be
+// published is resumed by the next launch of the story: same publisher,
+// workspace, and branch, so the script answers `existing` or `resumed`.
 
 import { execFile, spawn } from "node:child_process";
 import { readdir, stat } from "node:fs/promises";
@@ -28,8 +31,17 @@ import {
   branchPrefix,
   claudeWorkspace,
   worktreesFolder,
+  type WorkspaceChoice,
 } from "./claudeWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
+import {
+  keepStart,
+  keptStart,
+  removeStart,
+  resumeArguments,
+  updateStart,
+  type StartRecord,
+} from "./startStore.ts";
 
 const skillScripts = path.join(
   ".claude",
@@ -57,6 +69,8 @@ export type StartResult =
       readonly recovery?: {
         readonly workspace: string;
         readonly branch: string;
+        readonly startingRevision?: string;
+        readonly candidateSha?: string;
       };
     }
   | { readonly kind: "unreadable" };
@@ -75,7 +89,12 @@ const stoppedSchema = z.looseObject({
   status: z.string().min(1),
   error: z.string().optional(),
   recovery: z
-    .looseObject({ workspace: z.string(), branch: z.string() })
+    .looseObject({
+      workspace: z.string(),
+      branch: z.string(),
+      startingRevision: z.string().min(1).optional().catch(undefined),
+      candidateSha: z.string().min(1).optional().catch(undefined),
+    })
     .optional()
     .catch(undefined),
 });
@@ -117,7 +136,16 @@ export function readStartResult(stdout: string): StartResult {
     ...(recovery === undefined
       ? {}
       : {
-          recovery: { workspace: recovery.workspace, branch: recovery.branch },
+          recovery: {
+            workspace: recovery.workspace,
+            branch: recovery.branch,
+            ...(recovery.startingRevision === undefined
+              ? {}
+              : { startingRevision: recovery.startingRevision }),
+            ...(recovery.candidateSha === undefined
+              ? {}
+              : { candidateSha: recovery.candidateSha }),
+          },
         }),
   };
 }
@@ -259,21 +287,41 @@ const stopReasons: Record<
 };
 
 const unreadableReason =
-  "The start command gave no result this dashboard could read, so the story may or may not be Taken. Check origin before starting again.";
+  "The start command gave no result this dashboard could read, so the story may or may not be Taken.";
+
+const keptWords = "The start was kept; pressing Start again resumes it.";
+
+// Whether a start that ended so leaves a claim possibly published or
+// committed: its record is kept and the next launch of the story resumes it.
+export function keepsStart(result: StartResult): boolean {
+  return (
+    result.kind === "unreadable" ||
+    (result.kind === "stopped" &&
+      (result.status === "unpublished" || result.status === "claim-failed"))
+  );
+}
 
 // The card's answer for a start that did not establish: the reason, the
-// workspace and branch a stop kept, and that nothing was launched.
-export function refusal(result: StartResult, owner?: string): string {
-  if (result.kind !== "stopped") {
-    return `${unreadableReason} Nothing was launched.`;
-  }
+// workspace and branch a stop kept (or `kept`, where a start that leaves a
+// claim possibly published was kept), that the start can be resumed, and that
+// nothing was launched.
+export function refusal(
+  result: StartResult,
+  owner?: string,
+  kept?: { readonly workspace: string; readonly branch: string },
+): string {
   const reason =
-    stopReasons[result.status]?.({ stop: result, owner }) ??
-    `The start stopped (${result.status})${detail(result)}.`;
-  const where = result.recovery
-    ? ` Workspace ${result.recovery.workspace} on branch ${result.recovery.branch}.`
+    result.kind !== "stopped"
+      ? unreadableReason
+      : (stopReasons[result.status]?.({ stop: result, owner }) ??
+        `The start stopped (${result.status})${detail(result)}.`);
+  const place =
+    (result.kind === "stopped" ? result.recovery : undefined) ??
+    (keepsStart(result) ? kept : undefined);
+  const where = place
+    ? ` Workspace ${place.workspace} on branch ${place.branch}.`
     : "";
-  return `${reason}${where} Nothing was launched.`;
+  return `${reason}${where}${keepsStart(result) ? ` ${keptWords}` : ""} Nothing was launched.`;
 }
 
 // The Agent whose profile on origin's trunk names the story, once the start
@@ -320,6 +368,73 @@ export async function establishesStart(
   );
 }
 
+// The workspace a kept start was made in, shown as this host's workspaces are.
+function keptChoice(
+  project: ProjectFolder,
+  kept: StartRecord,
+): WorkspaceChoice {
+  return {
+    workspace: {
+      path: kept.workspace,
+      shown: `${project.shown}/${worktreesFolder}/${path.basename(kept.workspace)}`,
+    },
+    branch: kept.branch,
+  };
+}
+
+// The established start an accepted result makes: the facts the script ran
+// with, what it reported, and, for a rerun that reports no agent or plan
+// (`existing`), the ones the kept start had.
+function establishedStart(
+  facts: Omit<EstablishedStart, "publishedSha">,
+  result: Extract<StartResult, { kind: "accepted" }>,
+  earlier: EstablishedStart | undefined,
+): EstablishedStart {
+  const agent = result.agent ?? earlier?.agent;
+  const plan = result.plan ?? earlier?.plan;
+  return {
+    ...facts,
+    publishedSha: result.publishedSha,
+    ...(agent === undefined ? {} : { agent }),
+    ...(plan === undefined ? {} : { plan }),
+    ...(result.startingRevision === undefined
+      ? {}
+      : { startingRevision: result.startingRevision }),
+    ...(result.candidateSha === undefined
+      ? {}
+      : { candidateSha: result.candidateSha }),
+  };
+}
+
+// A store that cannot be written never fails a script that already ran.
+async function record(write: () => Promise<void>): Promise<void> {
+  try {
+    await write();
+  } catch {
+    // The launch's answer stands; the next start is chosen afresh.
+  }
+}
+
+// Keeps what a stop that may have published a claim carries for a resume, and
+// removes the start of any other stop, which left nothing to resume.
+async function recordStop(
+  sourceId: string,
+  identity: string,
+  result: Exclude<StartResult, { kind: "accepted" }>,
+): Promise<void> {
+  if (!keepsStart(result)) {
+    await removeStart(sourceId, identity);
+    return;
+  }
+  const recovery = result.kind === "stopped" ? result.recovery : undefined;
+  if (recovery?.startingRevision && recovery.candidateSha) {
+    await updateStart(sourceId, identity, {
+      startingRevision: recovery.startingRevision,
+      candidateSha: recovery.candidateSha,
+    });
+  }
+}
+
 // Runs the start for one execution launch, or says why not.
 export async function beginStart(
   source: PublishedSource,
@@ -336,20 +451,33 @@ export async function beginStart(
       explanation: `The origin of ${project.shown} is not ${source.repository}, where the Take would be published. Nothing was started or launched.`,
     };
   }
-  const { workspace, branch } = claudeWorkspace(
-    project,
-    request.title,
-    await takenSlugs(project),
-  );
+  // A start kept from an earlier launch of the story is resumed as it was.
+  const kept = await keptStart(source.id, request.identity);
+  const { workspace, branch } =
+    kept === undefined
+      ? claudeWorkspace(project, request.title, await takenSlugs(project))
+      : keptChoice(project, kept);
+  const model = kept === undefined ? request.model : kept.model;
   const facts = {
     identity: request.identity,
-    publisherId: publisherId(source),
+    publisherId: kept?.publisherId ?? publisherId(source),
     workspace: workspace.path,
     branch,
     mode: "story-branch",
     remote: "origin",
     target: source.ref,
   } as const;
+  // Written ahead of the script, so a start whose result is lost is still
+  // known.
+  await keepStart(source.id, {
+    ...kept,
+    identity: facts.identity,
+    publisherId: facts.publisherId,
+    workspace: facts.workspace,
+    branch: facts.branch,
+    ...(model === undefined ? {} : { model }),
+    startedAt: new Date().toISOString(),
+  });
   const attempt = runScript(
     [
       "--integration",
@@ -372,31 +500,29 @@ export async function beginStart(
       "--workspace-authorized",
       "--host",
       "claude",
-      ...(request.model === undefined ? [] : ["--model", request.model]),
+      ...(model === undefined ? [] : ["--model", model]),
+      ...(kept === undefined ? [] : resumeArguments(kept)),
     ],
     project,
   ).then(async (result): Promise<StartAttempt> => {
-    if (result.kind !== "accepted") {
-      const owner =
-        result.kind === "stopped" && result.status === "conflict"
-          ? await ownerOf(project, `origin/${source.ref}`, request.identity)
-          : undefined;
-      return { kind: "refused", explanation: refusal(result, owner) };
+    // The record follows the script's result even when the launch stopped
+    // waiting for it.
+    if (result.kind === "accepted") {
+      const start = establishedStart(facts, result, kept?.start);
+      await record(() => updateStart(source.id, request.identity, { start }));
+      return { kind: "established", start };
     }
+    await record(() => recordStop(source.id, request.identity, result));
+    const owner =
+      result.kind === "stopped" && result.status === "conflict"
+        ? await ownerOf(project, `origin/${source.ref}`, request.identity)
+        : undefined;
     return {
-      kind: "established",
-      start: {
-        ...facts,
-        publishedSha: result.publishedSha,
-        ...(result.agent === undefined ? {} : { agent: result.agent }),
-        ...(result.plan === undefined ? {} : { plan: result.plan }),
-        ...(result.startingRevision === undefined
-          ? {}
-          : { startingRevision: result.startingRevision }),
-        ...(result.candidateSha === undefined
-          ? {}
-          : { candidateSha: result.candidateSha }),
-      },
+      kind: "refused",
+      explanation: refusal(result, owner, {
+        workspace: workspace.shown,
+        branch,
+      }),
     };
   });
   return { kind: "running", workspace, branch, attempt };

@@ -90,7 +90,7 @@ test.describe("execution start that cannot be established", () => {
       'process.stdout.write("not json\\n");\n',
     );
     expect(await refused(request)).toBe(
-      "The start command gave no result this dashboard could read, so the story may or may not be Taken. Check origin before starting again. Nothing was launched.",
+      "The start command gave no result this dashboard could read, so the story may or may not be Taken. Workspace ~/git/open-dough/.worktrees/prepare-the-queued-start on branch claude/prepare-the-queued-start. The start was kept; pressing Start again resumes it. Nothing was launched.",
     );
     expect(await origin.takenProfiles()).toEqual([]);
   });
