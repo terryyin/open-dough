@@ -32,11 +32,11 @@ const revisionOf = (pair: string) => pair.repeat(20);
 const settingsPath = ".planning/open-dough.json";
 
 // A revision with an empty backlog and no agent profiles whose setting file
-// holds `settings`, is absent (undefined), or cannot be read (a connection
-// failure).
+// holds `settings`, is absent (undefined), or cannot be read (null: a
+// connection failure).
 function publishedRevision(
   revision: string,
-  settings: string | undefined | "unreadable",
+  settings: string | undefined | null,
 ): RepositoryAnswerer {
   return ({ request }) => {
     if (request.kind === "ref") {
@@ -47,7 +47,7 @@ function publishedRevision(
     }
     if (request.kind === "content" && request.path === settingsPath) {
       return Promise.resolve(
-        settings === "unreadable"
+        settings === null
           ? { exitCode: 1, stderr: "connection reset" }
           : settings === undefined
             ? notFoundAnswer()
@@ -108,10 +108,7 @@ test.describe("authenticated agent settings read (dev launch mode)", () => {
       settings: null,
     });
 
-    server.github.serve(
-      everyRepository,
-      publishedRevision(revision, "unreadable"),
-    );
+    server.github.serve(everyRepository, publishedRevision(revision, null));
     const failed = await profilesAt(revision);
     expect(failed.status).toBe(502);
     expect(failed.body).toContain(settingsPath);
