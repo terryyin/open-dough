@@ -234,3 +234,11 @@ dashboard/tests/agent-launch-done.spec.ts` exit 0, with `npm run typecheck:dashb
 inherited system PATH, or a Mac reaches the real one (fixed in `fakeClaude.ts` for
 `osascript: "absent"`); the page's own poll clearing the note is exercised only through
 a reload.
+
+## Execution complete
+
+Product advice: no change. Both slices delivered with accepted proof; the
+retrospective found no defect needing a correction. Deliberately open, small:
+the 15-second default interval is exercised only by reading (the harness sets
+an hour or a short test value), and a combined notification for many sessions
+failing at once stays the story's proposed later refinement if it proves noisy.
