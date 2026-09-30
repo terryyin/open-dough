@@ -1,0 +1,129 @@
+// Mark as done when Claude Code's session listing decides the stop, at the
+// local launch boundary (../server/agentLaunchPlugin.ts, ../server/doneMarks.ts),
+// over raw HTTP and a raw terminal socket: a session Claude Code no longer
+// lists is only marked, never stopped; one whose listing cannot be read is
+// still stopped; and one that never lists the typed `/rename` is answered with
+// only its own `done-` name once the rename wait ends, and is still stopped. The
+// whole-flow cases are ./agent-launch-done.spec.ts. The machine directory holds
+// HOME and the synthetic `claude`'s (./fixtures/fake-claude) state; the real
+// one is never reached.
+
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { expect, test } from "@playwright/test";
+import { markDone, openDoughFolder, title } from "./agentLaunchBoundary.ts";
+import { launched, openTerminal, shows } from "./agentTerminalBoundary.ts";
+import {
+  builtDashboardDir,
+  startDashboardServer,
+  type DashboardServer,
+} from "./support/dashboardServer.ts";
+
+const launchName = `Open Dough · Execution · ${title}`;
+
+test.describe("marking a session done by what Claude Code lists", () => {
+  test.describe.configure({ mode: "serial" });
+  let machine: string;
+  let server: DashboardServer;
+
+  const stopCalls = () =>
+    server.claudeCalls().filter((call) => call.argv[0] === "stop");
+
+  test.beforeAll(async () => {
+    machine = mkdtempSync(path.join(tmpdir(), "dough-done-stop-"));
+    server = await startDashboardServer({
+      mode: "preview",
+      prebuilt: builtDashboardDir,
+      machine,
+      projectFolders: ["open-dough"],
+      doneRenameWaitMs: 300,
+    });
+  });
+
+  test.afterAll(async () => {
+    await server.close();
+    rmSync(machine, { recursive: true, force: true });
+  });
+
+  test("marks a session Claude Code no longer lists without stopping it", async () => {
+    const session = await launched(server);
+    server.claudeSessionBecomes(session.sessionId, "forgotten");
+    const stopsBefore = stopCalls().length;
+
+    const response = await markDone(server, {
+      source: "open-dough",
+      session: session.sessionId,
+    });
+
+    expect(response.status).toBe(200);
+    expect(JSON.parse(response.body)).toMatchObject({
+      record: {
+        doneAt: expect.any(String),
+        session: { sessionId: session.sessionId, name: launchName },
+        sessionState: { kind: "unlisted" },
+      },
+    });
+    expect(stopCalls().slice(stopsBefore)).toEqual([]);
+  });
+
+  test("still stops a session whose listing cannot be read", async () => {
+    const session = await launched(server);
+    const stopsBefore = stopCalls().length;
+    server.claudeListingFails(true);
+    try {
+      const response = await markDone(server, {
+        source: "open-dough",
+        session: session.sessionId,
+      });
+
+      expect(response.status).toBe(200);
+      expect(JSON.parse(response.body)).toMatchObject({
+        record: {
+          doneAt: expect.any(String),
+          session: { sessionId: session.sessionId, name: launchName },
+          sessionState: { kind: "unknown" },
+        },
+      });
+    } finally {
+      server.claudeListingFails(false);
+    }
+    expect(stopCalls().slice(stopsBefore)).toEqual([
+      { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
+    ]);
+  });
+
+  test("marks a busy session whose typed rename is never listed once the wait ends, keeping the done- name only in the record, and still stops it", async () => {
+    const session = await launched(server);
+    const terminal = await openTerminal(server, session);
+    expect(await shows(terminal, "attached")).toBe(true);
+    server.claudeRenamesIgnored(true);
+    const stopsBefore = stopCalls().length;
+    try {
+      const response = await markDone(server, {
+        source: "open-dough",
+        session: session.sessionId,
+      });
+
+      expect(response.status).toBe(200);
+      expect(JSON.parse(response.body)).toMatchObject({
+        record: {
+          doneAt: expect.any(String),
+          session: { sessionId: session.sessionId, name: launchName },
+          sessionState: { kind: "listed", state: "stopped" },
+        },
+      });
+    } finally {
+      server.claudeRenamesIgnored(false);
+    }
+    expect(server.claudeAttaches().at(-1)?.lines).toEqual([
+      `/rename done-${launchName}`,
+    ]);
+    expect(
+      server.claudeListing().find((each) => each["id"] === session.shortId),
+    ).toMatchObject({ name: launchName, state: "stopped" });
+    expect(stopCalls().slice(stopsBefore)).toEqual([
+      { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
+    ]);
+  });
+});

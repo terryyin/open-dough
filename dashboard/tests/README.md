@@ -62,8 +62,10 @@ marked done; `agent-launch-done.spec.ts` for Mark as done's rename and stop,
 and `agent-launch-done-refusal.spec.ts` for its refusals). The page
 journeys behind the terminal panel are `agent-terminal.spec.ts` (opening, one
 at a time, Close), `agent-terminal-lifetime.spec.ts` (project switch, lost
-connection and Reconnect, ended terminal), and `agent-terminal-done.spec.ts`
-(Mark as done's panel closing, status, and Done entry);
+connection and Reconnect, ended terminal), `agent-terminal-done.spec.ts`
+(Mark as done from the panel: closing, status, refusal), and
+`agent-terminal-done-reopen.spec.ts` (reopening a session marked done from its
+Recent sessions entry);
 `agent-launch-card-done.spec.ts` marks a card's session done from its entry.
 `agent-terminal-delete.spec.ts` deletes the record of the session the terminal
 shows.

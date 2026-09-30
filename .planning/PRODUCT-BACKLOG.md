@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Prove the busy-session rename edge and confirm observer shutdown honestly](seeds/SEED-052-start-agent-work-from-dashboard.md#mark-done-residue) — SEED-052#mark-done-residue ([plan](slice-plans/166-mark-done-residue/PLAN.md))
 - [Close the assessor counterexample discipline's remaining gaps](seeds/SEED-055-trustworthy-project-proof.md#assessor-counterexample-gaps) — SEED-055#assessor-counterexample-gaps ([plan](slice-plans/168-assessor-counterexample-gaps/PLAN.md))
 - [Land changes made on the default checkout by committing to main and syncing](seeds/SEED-008-worktree-branch-trunk-sync.md#land-from-default-checkout) — SEED-008#land-from-default-checkout ([plan](slice-plans/170-land-from-default-checkout/PLAN.md))
 

@@ -5,12 +5,18 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  completeRevision,
   createMailbox,
   recordWorkerIdentity,
+  registerPushedRevision,
   workerLossReason,
 } from "./ci-mailbox.mjs";
+import { publishJson } from "./ci-mailbox-json-file.mjs";
 import { stopMailbox } from "./ci-mailbox-complete.mjs";
-import { mailboxWithUnrelatedWorker } from "./ci-mailbox-process-test-fixtures.mjs";
+import {
+  mailboxWithUnrelatedWorker,
+  sha,
+} from "./ci-mailbox-process-test-fixtures.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
 import {
   deferChildExit,
@@ -64,8 +70,9 @@ import("node:fs").then(({ writeFileSync }) =>
 }
 
 // A stub worker that publishes a stopped result on the stop request and exits
-// 300ms later, first showing `exitingCommand`, when given, as its command.
-function publishThenExitSource({ exitingCommand } = {}) {
+// `exitDelayMs` later (300ms by default), first showing `exitingCommand`, when
+// given, as its command.
+function publishThenExitSource({ exitingCommand, exitDelayMs = 300 } = {}) {
   const showExitingCommand =
     exitingCommand === undefined
       ? ""
@@ -80,7 +87,7 @@ const check = () => {
 ${showExitingCommand}  const result = join(directory, "result.json");
   writeFileSync(result + ".tmp", JSON.stringify({ status: "stopped" }));
   renameSync(result + ".tmp", result);
-  setTimeout(() => process.exit(0), 300);
+  setTimeout(() => process.exit(0), ${exitDelayMs});
 };
 watch(directory, check);
 check();
@@ -116,6 +123,29 @@ test("explicit stop returns only after a worker showing a transient command whil
     checkMailboxWorkerLiveness({ pid: child.pid }, directory),
     "dead",
   );
+});
+
+test("completion does not confirm shutdown for a worker whose liveness stays unknown past the exit wait", async (t) => {
+  // The transient command outlasts the one-second exit wait, so the observer
+  // is neither known gone nor known running when the receipt is written.
+  const { storage, directory } = await mailboxWithStubWorker(
+    t,
+    publishThenExitSource({ exitingCommand: "[node]", exitDelayMs: 2500 }),
+  );
+  registerPushedRevision(directory, sha);
+  publishJson(join(directory, "coverage"), `${sha}.json`, {
+    sha,
+    state: "success",
+    checkedBy: { runId: 1, attemptId: 1 },
+  });
+
+  const result = await completeRevision(directory, sha, {
+    root: process.cwd(),
+    storage,
+  });
+  assert.equal(result.verdict, "success");
+  assert.equal(result.shutdown.status, "unconfirmed");
+  assert.equal(result.shutdown.limitation, "observer_liveness_unknown");
 });
 
 test("stop ends when the worker exits without publishing and reports it lost", async (t) => {
