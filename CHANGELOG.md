@@ -1,3 +1,13 @@
+## 0.3.49 - 2026-09-30
+
+- Let the dashboard establish a durable execution start before opening Claude Code, continue it through the installed execution skill, resume uncertain or server-lost starts from their workspaces, show start phases on every page, and refuse duplicate or unsafe launches without falling back past a known refusal.
+- Compact the Sessions sidebar into an icon toggle with a numeric attention badge, order sessions needing attention first, and show each session as a single title-and-elapsed-time row with a clear state border.
+- Expand composable story refinement with Challenge, Clarify, Investigate, and Stress-test options that can focus scope, evidence, alternatives, and failure scenarios within one coherent refinement.
+- Let Dough Land safely publish retained changes made directly on the default `main` checkout, and strengthen installed execution continuity, CI lost-worker notification, and delivery acknowledgement behavior.
+- Make agent rotation project-selectable, extend the Odd-e nerd collection with recognizable names, and replace dashboard photographs with cartoon portraits while keeping occupied-name calculations derived from the configured roster.
+
+Native acceptance was explicitly skipped for `0.3.49` at the maintainer's request as an exception to ADR 0005. Native evidence completed within the included default-checkout landing work is retained; native acceptance for the changed dashboard execution, session sidebar, refinement, agent collection, CI-notification behavior, and previously pending requirements remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.48 - 2026-09-30
 
 - Turn dashboard session history into a persistent left sidebar with keyboard and browser navigation, story-card continuity after reopening, explicit cleanup for unknown or unavailable sessions, configurable model and ad-hoc project launches, and macOS attention alerts without noisy unknown-state notifications.
