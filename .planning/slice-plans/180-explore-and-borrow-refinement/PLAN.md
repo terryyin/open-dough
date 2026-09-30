@@ -167,7 +167,7 @@ before adding Borrow; do not reinterpret a text check as successful use.
 
 ### 2. Borrow mechanisms independently and within exploration
 Type: Behavior
-Status: planned
+Status: done
 Proof: Borrow-only, combined, reversed-flag, and explicit-sequence representative
 uses; inspect a credible transferred mechanism and consequential limit, fair
 comparison, evidence/constraint preservation, and the no-defensible-transfer case.
@@ -237,3 +237,32 @@ options, and dashboard exposure remain separately deliverable.
   covered by the installer proof.
 - **For slice 2:** the JSON `default` restates SKILL.md's no-options sentence;
   decide whether to keep both when extending the definition.
+
+### Slice 2 accepted proof (2026-09-30)
+
+- **Candidate:** `--borrow` added to `refinement-options.json`, plus one
+  `selection` sentence treating each borrowed mechanism as a candidate in
+  Explore's single comparison, not favored as an analogy. `SKILL.md` and
+  `install.sh` unchanged.
+- **Representative use (source-loaded, fresh agents, scratch project outside
+  the repo, JSON read in every run, no expected analogy supplied):**
+  - `--borrow` alone on the neutral "directing agent refinement" story: the
+    agent chose a camera mode dial from the story's problem, mapped roles,
+    adapted it, and stated consequential limits (one position vs combinable
+    options; independent settings vs conflicting instructions).
+  - `--explore --borrow` and reversed: one comparison and recommendation each;
+    borrowed candidates (mixing console, order ticket) folded in and not
+    favored; same selection meaning, different prose.
+  - Explicit sequence ("explore first, then apply an analogy"): honored; the
+    analogy still entered the single comparison as an equal candidate.
+  - No defensible transfer (one-word typo story): honest limitation, normal
+    refinement continued, no invented analogy.
+  - Fixed 7-day policy with both flags: constraint held, over-retention claim a
+    hypothesis, open questions left to the human.
+- **Focused checks:** the three payload tests passed (rerun by the coordinator).
+- **Not proved:** native host discovery or installation; one sample per use;
+  "consequential change discussed, not adopted" only weakly exercised with both
+  flags (slice 1 covers it for Explore).
+- **Learning:** one composition sentence in `selection` was enough; no combined
+  definition needed. JSON `default` and SKILL.md's pointer sentence overlap and
+  both were kept: the pointer works without loading the JSON.
