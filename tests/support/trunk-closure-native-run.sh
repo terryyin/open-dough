@@ -8,6 +8,12 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native
 # shellcheck source=tests/support/trunk-closure-native-assess.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native-assess.sh"
+# shellcheck source=tests/support/trunk-closure-native-observe.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native-observe.sh"
+# shellcheck source=tests/support/trunk-closure-native-counterexamples.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native-counterexamples.sh"
 # shellcheck source=tests/helpers/wait-for.bash
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../helpers" && pwd)/wait-for.bash"
@@ -22,6 +28,8 @@ trunk_closure_write_evidence_identity() {
     tests/support/git-publication-native-host.sh \
     tests/support/trunk-closure-native-run.sh \
     tests/support/trunk-closure-native-assess.sh \
+    tests/support/trunk-closure-native-observe.sh \
+    tests/support/trunk-closure-native-counterexamples.sh \
     tests/support/native-completion-observation.sh \
     tests/support/native-observation.sh \
     tests/support/trunk-closure-native-fixture.sh \

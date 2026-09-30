@@ -206,9 +206,15 @@ file stays. Identity list and `story_closure_assess_file` updated.
 
 ### 5. Trunk Mode closure in the same layers
 Type: Structure
-Status: planned
+Status: done
 Proof: the free proof command; owned-context check's trunk observation
 unchanged.
+
+Done: assess (71), `-native-observe.sh` (67) and `-native-counterexamples.sh`
+(103); the owned-context file already has one concern and is unchanged. Free
+proof and lint pass. Learning: `native-agent-admission.sh` and
+`native-host-stream.sh` are sourced by the trunk family but were never in its
+identity list.
 
 Same split for `trunk-closure-native-assess.sh` (238 lines, below the bound but
 mixing three layers); `trunk-closure-native-owned-context.sh` keeps its own
