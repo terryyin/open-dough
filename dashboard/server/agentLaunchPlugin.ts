@@ -26,6 +26,7 @@ import {
   type Alerts,
   type LaunchResult,
   type LaunchWithState,
+  recordDeletable,
 } from "../src/agentLaunch.ts";
 import {
   agentDeleteEndpoint,
@@ -75,7 +76,7 @@ async function markedDone(
 }
 
 // A delete of the admitted recorded session's record, made only while the
-// boundary's own reading of its state is still unknown. Nothing is stopped,
+// boundary's own reading of its state is unknown or unavailable. Nothing is stopped,
 // renamed, or marked; a record file that cannot be written is answered with
 // why, the record kept.
 async function deleted(
@@ -83,7 +84,7 @@ async function deleted(
   launches: AgentLaunches,
 ): Promise<DeleteRecordAnswer> {
   const joined = await launches.stateOf(source, record);
-  if (joined.sessionState.kind !== "unknown") {
+  if (!recordDeletable(joined)) {
     return { kind: "state-known", record: joined };
   }
   try {

@@ -216,6 +216,22 @@ export function attachOpens(sessionState: SessionState): boolean {
   return sessionState.kind !== "unlisted";
 }
 
+// Whether a recorded session's record may be deleted: while its listing is
+// unknown, or while the host no longer lists it and it is not marked done
+// (Session unavailable). A session marked done reads Done, not unavailable.
+export function recordDeletable({
+  sessionState,
+  doneAt,
+}: {
+  sessionState: SessionState;
+  doneAt?: string | undefined;
+}): boolean {
+  return (
+    sessionState.kind === "unknown" ||
+    (sessionState.kind === "unlisted" && doneAt === undefined)
+  );
+}
+
 // A kept launch record joined with its session's state when it was answered;
 // the state itself is never kept.
 export const launchWithStateSchema = launchRecordSchema.extend({

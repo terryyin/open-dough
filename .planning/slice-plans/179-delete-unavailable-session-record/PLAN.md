@@ -47,7 +47,10 @@ Dashboard Playwright specs against the page's own server and the synthetic
 
 ### 1. The boundary deletes the record of an unavailable session
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run test:dashboard -- --grep "deleting a recorded session"`
+(7 passed, all of `agent-launch-delete.spec.ts`; `recordDeletable` in
+`src/agentLaunch.ts` is the shared condition, used by `deleted`).
 Proof: extend `agent-launch-delete.spec.ts`: a launched session that becomes
 `forgotten` (unlisted, not marked done) is deleted by the boundary (`kind:
 "deleted"`, record gone, no `stop`); a `working` one and an unlisted one marked
