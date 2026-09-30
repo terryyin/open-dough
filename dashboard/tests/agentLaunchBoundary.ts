@@ -2,13 +2,15 @@
 // ./agent-launch-refusal.spec.ts, ./agent-launch-records.spec.ts,
 // ./agent-launch-session-listing.spec.ts, and ./agent-launch-done.spec.ts):
 // one execution launch request for this repository's own story, and its
-// refinement counterpart, sent over raw HTTP, a done mark, and what the
-// boundary keeps, read as the machine's sessions and scoped by project.
+// refinement counterpart, sent over raw HTTP, a done mark, a record delete,
+// and what the boundary keeps, read as the machine's sessions and scoped by
+// project.
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
+import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { rawRequest, type RawResponse } from "./support/rawHttp.ts";
@@ -90,4 +92,17 @@ export function openDoughFolder(server: DashboardServer): string {
 // Claude Code's sessions.
 export function machineFolder(server: DashboardServer): string {
   return realpathSync(server.home);
+}
+
+export function deleteRecord(
+  server: DashboardServer,
+  body: unknown,
+  headers: Record<string, string> = { Origin: server.origin },
+): Promise<RawResponse> {
+  return rawRequest({
+    url: `${server.baseURL}${agentDeleteEndpoint}`,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...headers },
+    body: JSON.stringify(body),
+  });
 }

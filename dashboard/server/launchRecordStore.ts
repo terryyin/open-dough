@@ -4,7 +4,8 @@
 // `./projectFolders.ts`. One JSON document holds each catalog project's
 // records by project id. Every read and write reads the file afresh, so each
 // dashboard server on this machine -- dev and preview alike -- sees every
-// launch. A write adds a launch or sets or clears a kept session's done time.
+// launch. A write adds a launch, sets or clears a kept session's done time,
+// or deletes a kept session.
 // A record not marked done is kept however long ago it was launched. A record
 // marked done more than `launchRetentionDays` before a read is not answered,
 // and a write drops it. A write replaces the file atomically; two writes at
@@ -181,4 +182,25 @@ export async function setRecordDoneAt(
     };
   });
   return changed;
+}
+
+// Removes one kept session's record, leaving the project's other records as
+// they are. Answers whether such a record was kept.
+export async function deleteRecord(
+  sourceId: string,
+  sessionId: string,
+): Promise<boolean> {
+  let deleted = false;
+  await replaceRecords((kept) => {
+    const records = kept[sourceId];
+    if (records === undefined) {
+      return kept;
+    }
+    const remaining = records.filter(
+      (record) => record.session.sessionId !== sessionId,
+    );
+    deleted = remaining.length < records.length;
+    return { ...kept, [sourceId]: remaining };
+  });
+  return deleted;
 }

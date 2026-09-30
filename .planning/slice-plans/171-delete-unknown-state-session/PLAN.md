@@ -96,7 +96,12 @@ slice below, not a new topic.
 
 ### 1. The launch boundary deletes a record whose state is still unknown
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-delete.spec.ts dashboard/tests/agent-launch-done.spec.ts dashboard/tests/agent-launch-done-refusal.spec.ts`
+(15 passed; the six delete tests observe every listed assertion). Delivered
+shapes: `dashboard/src/deleteRecord.ts` (endpoint, request, `deleted` /
+`state-known` answers); an unwritable record file answers HTTP 500
+`{"error":"The session record could not be deleted: <reason>"}`.
 Proof: `dashboard/tests/agent-launch-delete.spec.ts`, beside
 `agent-launch-done.spec.ts`, through `agentLaunchBoundary.ts` against a
 preview server with the synthetic `claude`. Asserts:
@@ -233,4 +238,5 @@ it at the control if it overruns, keeping `requestDeleteRecord` and
 
 ## Learnings
 
-None yet.
+- Slice 1: the chmod-based unwritable-file test cannot fail as intended when
+  run as root; CI and this machine run unprivileged.

@@ -5,7 +5,9 @@
 // every catalog project's launch records, each naming its project, with each
 // session's current state. A same-origin POST to
 // `/__agent-launch/done` marks one session it recorded done
-// (`./doneMarks.ts`). A same-origin WebSocket upgrade to
+// (`./doneMarks.ts`). A same-origin POST to `/__agent-launch/delete` deletes
+// the record of one session it recorded while Claude Code's listing still
+// leaves that session's state unknown. A same-origin WebSocket upgrade to
 // `/__agent-terminal?source=&session=` attaches to one session this boundary
 // recorded for that project (`./agentTerminals.ts`). Which requests are
 // admitted is decided in `./agentLaunchAdmission.ts`. Everything else
@@ -21,6 +23,10 @@ import {
   type LaunchResult,
   type LaunchWithState,
 } from "../src/agentLaunch.ts";
+import {
+  agentDeleteEndpoint,
+  type DeleteRecordAnswer,
+} from "../src/deleteRecord.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import {
   admitted,
@@ -30,6 +36,7 @@ import {
 import { AgentLaunches } from "./agentLaunches.ts";
 import { AgentTerminals } from "./agentTerminals.ts";
 import { markSessionDone } from "./doneMarks.ts";
+import { deleteRecord } from "./launchRecordStore.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
@@ -40,6 +47,7 @@ type Answer =
       readonly body: { records: readonly LaunchWithState[] };
     }
   | { readonly status: number; readonly body: { record: LaunchWithState } }
+  | { readonly status: number; readonly body: DeleteRecordAnswer }
   | { readonly status: number; readonly body: { error: string } };
 
 // A done mark on the admitted recorded session, with its current state.
@@ -56,6 +64,29 @@ async function markedDone(
     terminals,
   );
   return launches.stateOf(source, marked);
+}
+
+// A delete of the admitted recorded session's record, made only while the
+// boundary's own reading of its state is still unknown. Nothing is stopped,
+// renamed, or marked; a record file that cannot be written is answered with
+// why, the record kept.
+async function deleted(
+  { source, record }: Extract<Admitted, { readonly kind: "delete" }>,
+  launches: AgentLaunches,
+): Promise<DeleteRecordAnswer> {
+  const joined = await launches.stateOf(source, record);
+  if (joined.sessionState.kind !== "unknown") {
+    return { kind: "state-known", record: joined };
+  }
+  try {
+    await deleteRecord(source.id, record.session.sessionId);
+  } catch (error) {
+    throw new RefusedRequest(
+      500,
+      `The session record could not be deleted: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  return { kind: "deleted" };
 }
 
 async function answer(
@@ -82,6 +113,8 @@ async function answer(
           status: 200,
           body: { record: await markedDone(request, launches, terminals) },
         };
+      case "delete":
+        return { status: 200, body: await deleted(request, launches) };
     }
   } catch (error) {
     if (error instanceof RefusedRequest) {
@@ -114,7 +147,8 @@ function installAgentLaunchMiddleware(
     const url = new URL(req.url ?? "", "http://placeholder");
     if (
       url.pathname !== agentLaunchEndpoint &&
-      url.pathname !== agentDoneEndpoint
+      url.pathname !== agentDoneEndpoint &&
+      url.pathname !== agentDeleteEndpoint
     ) {
       next();
       return;

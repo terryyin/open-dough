@@ -1,10 +1,11 @@
 // Which requests the local launch boundary (`./agentLaunchPlugin.ts`)
 // admits, and the refusal each other one gets: a launch, a read of the
 // machine's sessions, a done mark on a session it recorded
-// (`./doneMarks.ts`), and a terminal upgrade (`./agentTerminals.ts`). Every
-// request must come from this dashboard's own origin; a launch, a done mark,
-// or an upgrade must name a catalog project, and a done mark or an upgrade a
-// session this dashboard recorded for that project, in its existing folder.
+// (`./doneMarks.ts`), a delete of a record it kept, and a terminal upgrade
+// (`./agentTerminals.ts`). Every request must come from this dashboard's own
+// origin; a launch, a done mark, a delete, or an upgrade must name a catalog
+// project, and a done mark, a delete, or an upgrade a session this dashboard
+// recorded for that project, in its existing folder.
 // Nothing here runs a host process except the listing an upgrade's admission
 // reads.
 
@@ -16,6 +17,10 @@ import {
   type AgentLaunchRequest,
   type LaunchRecord,
 } from "../src/agentLaunch.ts";
+import {
+  agentDeleteEndpoint,
+  deleteRecordRequestSchema,
+} from "../src/deleteRecord.ts";
 import { agentDoneEndpoint, markDoneRequestSchema } from "../src/doneMark.ts";
 import { sourceById, type PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches, Recorded } from "./agentLaunches.ts";
@@ -38,6 +43,11 @@ export type Admitted =
       readonly source: PublishedSource;
       readonly record: LaunchRecord;
       readonly folder: ProjectFolder;
+    }
+  | {
+      readonly kind: "delete";
+      readonly source: PublishedSource;
+      readonly record: LaunchRecord;
     };
 
 function knownSource(id: string | null): PublishedSource {
@@ -123,6 +133,23 @@ async function doneRequest(
   return { kind: "done", source, record, folder };
 }
 
+async function deleteRequest(
+  req: IncomingMessage,
+  launches: AgentLaunches,
+): Promise<Admitted> {
+  const parsed = deleteRecordRequestSchema.safeParse(await jsonBody(req));
+  if (!parsed.success) {
+    throw new RefusedRequest(400, "The delete request is malformed.");
+  }
+  const source = knownSource(parsed.data.source);
+  const { record } = await recordedSession(
+    launches,
+    source,
+    parsed.data.session,
+  );
+  return { kind: "delete", source, record };
+}
+
 async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   const parsed = agentLaunchRequestSchema.safeParse(await jsonBody(req));
   if (!parsed.success) {
@@ -151,6 +178,12 @@ export async function admitted(
       throw new RefusedRequest(405, "Only POST is accepted here.");
     }
     return doneRequest(req, launches);
+  }
+  if (url.pathname === agentDeleteEndpoint) {
+    if (req.method !== "POST") {
+      throw new RefusedRequest(405, "Only POST is accepted here.");
+    }
+    return deleteRequest(req, launches);
   }
   if (req.method === "GET") {
     return { kind: "sessions" };
