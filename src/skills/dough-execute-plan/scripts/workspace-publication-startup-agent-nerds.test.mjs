@@ -84,5 +84,5 @@ test("every nerds name held stops with the every-name-held refusal", async (t) =
   const { receipt } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.status, "agent-unavailable", JSON.stringify(receipt));
   assert.match(receipt.error, /every agent name is held on remote trunk/);
-  assert.equal(receipt.occupied.length, 26);
+  assert.equal(receipt.occupied.length, nerdAgentNames.length);
 });
