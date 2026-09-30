@@ -5,8 +5,8 @@
 // session's record: the entry leaves its card, Recent sessions and the
 // Sessions sidebar, the other session, the card's stage and its attention
 // count stay, the status says so, and the keyboard goes to the next entry or
-// to the card. A Working, Needs input, or Session unavailable entry offers
-// none. Origin alone still places the story. The page's own dashboard server
+// to the card. A Session unavailable entry offers and does the same; a Working
+// or Needs input entry offers none. Origin alone still places the story. The page's own dashboard server
 // drives the synthetic `claude` (./fixtures/fake-claude); the real one is
 // never reached.
 
@@ -188,7 +188,61 @@ test.describe("deleting a card's session record", () => {
     });
   });
 
-  test("a Working, Needs input, or Session unavailable entry offers no Delete record…", async ({
+  test("a Session unavailable entry offers Delete record…, asks, and confirming removes it from its card, Recent sessions and the sidebar", async ({
+    page,
+    dashboard,
+  }) => {
+    dashboard.claudeScenario("launched");
+    const { card, settled, launch } = await openStoryStagesJourney(
+      page,
+      stagesJourney,
+    );
+    const { recentSessions: recent, status } = parts(page);
+    const sidebar = sidebarParts(page);
+    await settled();
+    await launch(readyStory, "Execution");
+    await launch(readyStory, "Refinement");
+    const unavailable = cardSessionOf(card(readyStory), "Execution");
+    const kept = cardSessionOf(card(readyStory), "Refinement");
+    // A launch is finished once its entry names its session; reloading sooner
+    // would lose it.
+    await sessionNamedBy(kept);
+    dashboard.claudeSessionBecomes(
+      await sessionNamedBy(unavailable),
+      "forgotten",
+    );
+    await page.reload();
+    await settled();
+    await sidebar.button.click();
+    await expect(sidebar.entries).toHaveCount(2);
+    await expect(sessionStateOf(unavailable)).toHaveText("Session unavailable");
+
+    await unavailable.getByRole("button", { name: "Delete record…" }).click();
+
+    await expect(unavailable.getByText(question)).toBeVisible();
+    await expect(
+      unavailable.getByRole("button", { name: "Keep" }),
+    ).toBeFocused();
+
+    await unavailable
+      .getByRole("button", { name: "Delete record", exact: true })
+      .click();
+
+    await expect(unavailable).toHaveCount(0);
+    await expect(
+      recent.getByRole("article", {
+        name: recentSessionName("Execution", readyStory),
+      }),
+    ).toHaveCount(0);
+    await expect(sidebar.entries).toHaveCount(1);
+    await expect(
+      status.filter({ hasText: "Session record deleted" }),
+    ).toHaveText("Session record deleted");
+    await expect(cardSessions(card(readyStory))).toHaveCount(1);
+    await expect(kept).toBeVisible();
+  });
+
+  test("a Working or Needs input entry offers no Delete record…", async ({
     page,
     dashboard,
   }) => {
@@ -198,16 +252,10 @@ test.describe("deleting a card's session record", () => {
       stagesJourney,
     );
     await settled();
-    await launch(readyStory, "Execution");
     await launch(readyStory, "Refinement");
     await launch(notRefinedStory, "Execution");
-    const unavailable = cardSessionOf(card(readyStory), "Execution");
     const blocked = cardSessionOf(card(readyStory), "Refinement");
     const working = cardSessionOf(card(notRefinedStory), "Execution");
-    dashboard.claudeSessionBecomes(
-      await sessionNamedBy(unavailable),
-      "forgotten",
-    );
     dashboard.claudeSessionBecomes(await sessionNamedBy(blocked), "blocked");
     dashboard.claudeSessionBecomes(await sessionNamedBy(working), "working");
 
@@ -215,7 +263,6 @@ test.describe("deleting a card's session record", () => {
     await settled();
 
     for (const [entry, words] of [
-      [unavailable, "Session unavailable"],
       [blocked, "Needs input"],
       [working, "Working"],
     ] as const) {

@@ -64,7 +64,14 @@ Introduce the named condition beside `attachOpens` in `src/agentLaunch.ts`
 
 ### 2. The page offers Delete record… on an unavailable entry
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-recent-delete.spec.ts dashboard/tests/agent-launch-card-delete.spec.ts --repeat-each 8`
+(40 passed); `--grep delet` 20 passed; `--grep navailable` 14 passed. The page-level
+"state is now known" case uses unlisted-and-marked-done (the fake `claude` cannot
+re-list a forgotten session); listed-again is proved at the boundary in slice 1.
+Learning: a test that reloads right after `launch(...)` must await
+`sessionNamedBy` for every launched entry (fixed the flaky
+`agent-launch-recent-delete.spec.ts` case).
 Proof: update `agent-launch-card-delete.spec.ts` (the Session unavailable entry
 now offers “Delete record…”, asks, and on confirm leaves its card, Recent
 sessions and the sidebar with the status “Session record deleted”; Working and

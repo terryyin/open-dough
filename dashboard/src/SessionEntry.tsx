@@ -11,15 +11,19 @@
 // session the developer marked done is Done, under its `done-` name. An entry names its story's title and identity unless it
 // is listed on the story's own card or is an ad hoc session (no story), where it offers Mark as done through the
 // page's one operation (`./TerminalSplit.tsx`); on a card or in Recent
-// sessions, while its session shows State unknown, it offers "Delete record…",
-// which asks before it deletes. While the page's terminal shows its session,
+// sessions, while its session shows State unknown or Session unavailable, it
+// offers "Delete record…", which asks before it deletes. While the page's terminal shows its session,
 // an entry says "Shown in terminal", outlined in Recent sessions, and the
 // card listing it is outlined. Every entry names its session, so the Sessions
 // sidebar can find and reveal it when no card lists it. Entries are local
 // evidence of launches, not story facts.
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
+import {
+  launchSubject,
+  recordDeletable,
+  type LaunchWithState,
+} from "./agentLaunch.ts";
 import { doneSessionName } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
 import { sessionShown } from "./sessionShown.ts";
@@ -144,8 +148,8 @@ export function SessionList({
 }
 
 // A card entry's Mark as done, and its Delete record… while its state is
-// unknown, with the one status line that says what either could not do or
-// found; once marked or deleted, the entry leaves the card.
+// unknown or unavailable, with the one status line that says what either could
+// not do or found; once marked or deleted, the entry leaves the card.
 function CardActions({ record }: { readonly record: LaunchWithState }) {
   const { markDone } = usePageSessions();
   const { marking, follow } = useMarking();
@@ -172,8 +176,8 @@ function CardActions({ record }: { readonly record: LaunchWithState }) {
   );
 }
 
-// A Recent sessions entry's Delete record… while its state is unknown, with
-// its status line; the Sessions sidebar's entries offer none.
+// A Recent sessions entry's Delete record… while its state is unknown or
+// unavailable, with its status line; the Sessions sidebar's entries offer none.
 function RecentActions({ record }: { readonly record: LaunchWithState }) {
   const [deleteSaid, setDeleteSaid] = useState<string | undefined>();
   return (
@@ -186,12 +190,13 @@ function RecentActions({ record }: { readonly record: LaunchWithState }) {
   );
 }
 
-// An entry's Delete record…, offered only while its state is unknown: it
-// asks in place, with the keyboard on Keep, before the record is deleted. Keep
-// and Escape put the button back with the keyboard on it. A deleted record
-// takes the entry off the page. A refused or failed delete says so in the
-// entry's status line and leaves the buttons and the keyboard where they were;
-// a state read as known meanwhile takes the question away and says so.
+// An entry's Delete record…, offered only while its state is unknown or
+// unavailable (`recordDeletable`): it asks in place, with the keyboard on
+// Keep, before the record is deleted. Keep and Escape put the button back with
+// the keyboard on it. A deleted record takes the entry off the page. A refused
+// or failed delete says so in the entry's status line and leaves the buttons
+// and the keyboard where they were; a state read as known meanwhile takes the
+// question away and says so.
 function DeleteRecord({
   record,
   say,
@@ -201,7 +206,7 @@ function DeleteRecord({
   readonly say: (words: string | undefined) => void;
 }) {
   const { deleteRecord } = usePageSessions();
-  const unknown = record.sessionState.kind === "unknown";
+  const deletable = recordDeletable(record);
   const [step, setStep] = useState<"idle" | "asking" | "deleting">("idle");
   const button = useRef<HTMLButtonElement>(null);
   const keep = useRef<HTMLButtonElement>(null);
@@ -221,16 +226,16 @@ function DeleteRecord({
   }, [step]);
 
   useEffect(() => {
-    if (!unknown)
+    if (!deletable)
       setStep((current) => (current === "deleting" ? current : "idle"));
-  }, [unknown]);
+  }, [deletable]);
 
   const keepRecord = () => {
     restoring.current = true;
     setStep("idle");
   };
 
-  if (!unknown) return null;
+  if (!deletable) return null;
   if (step === "idle") {
     return (
       <p className="launch-open">
