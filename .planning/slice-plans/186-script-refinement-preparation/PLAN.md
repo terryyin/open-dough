@@ -199,8 +199,9 @@ answers `continued`, the session opens there, and the kept start is removed.
 
 ### 8. The card offers the resume of a kept preparation start
 Type: Behavior
-Status: planned
+Status: done
 Proof: page spec: a kept start listed by the sessions answer.
+Accepted: new `agent-launch-preparation-kept.spec.ts` (a Backlog card with a kept refinement start and no session: dialog names the workspace and says the Preparing announcement is already published, without the establishing sentence; another card keeps it; Start opens the session in the same workspace, the offer goes, one preparation profile on origin); regression 247 passed after the last edit; typecheck and lint clean. Wire `KeptStart` carries `workflow`.
 
 Behavior: a Backlog card whose story has a kept refinement start and no session →
 Start refinement's dialog names the workspace and says the announcement is
@@ -219,6 +220,7 @@ offer. `keptStarts` carries the workflow.
 
 ## Learnings
 
+- Slice 8: a Taken card with a kept refinement start offers no resume (Backlog cards only, as planned). `server/agentLaunches.ts` (393), `src/agentLaunches.ts` (418) and `src/agentLaunch.ts` (490) are long-standing oversized files; not split here.
 - Slice 7: a kept `unpublished` start whose hook still rejects stays kept on the next Start (no spec). `agent-launch-start-taken.spec.ts:53` failed once under load ("server could not be reached") and passed on rerun, like `agent-launch-card-delete.spec.ts:51`: local load flakes on existing specs, CI green. Slice 8 makes `keptStarts` carry the workflow.
 - Slice 6: `preparationStart.ts` turns an established result without `publishedSha` (a `continued` answer) into a stop; slice 7's resume must treat it as established and carry `publishedSha` optionally (the record schema already allows it). The cleanup's failure wording has no test.
 - `agent-launch-card-delete.spec.ts:51` failed a second time locally under a full parallel selection (slice 6); still passes isolated and CI is green on every published revision. Open finding for a separate story, not this one's scope.

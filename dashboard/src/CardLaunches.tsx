@@ -46,7 +46,10 @@ export function CardLaunches({
   const attention = attentionSummary(sessions);
   const keptStart = offersStart
     ? undefined
-    : launches.keptStartOf(sourceId, entry.identity);
+    : launches.keptStartOf(sourceId, entry.identity, "execution");
+  const keptPreparation = offersStart
+    ? launches.keptStartOf(sourceId, entry.identity, "refinement")
+    : undefined;
   const phaseOf = (workflow: LaunchWorkflow) =>
     launches.startPhaseOf(sourceId, entry.identity, workflow);
   const phase = phaseOf("execution");
@@ -83,7 +86,14 @@ export function CardLaunches({
             work={entry}
             workflow={workflow}
             establishesStart={launches.establishesStart(sourceId, workflow)}
-            note={launchWorkflows[workflow].note(entry)}
+            {...(workflow === "refinement" && keptPreparation !== undefined
+              ? { resumesIn: keptPreparation.workspace }
+              : {})}
+            note={
+              workflow === "refinement" && keptPreparation !== undefined
+                ? keptStartNote
+                : launchWorkflows[workflow].note(entry)
+            }
             attempt={launches.attemptOf(sourceId, entry.identity, workflow)}
             phase={phaseOf(workflow)}
             onStart={onStart(workflow)}

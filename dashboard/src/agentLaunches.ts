@@ -60,7 +60,11 @@ export type MachineSessions = {
   establishesStart(sourceId: string, workflow: LaunchWorkflow): boolean;
   // The start this machine keeps for the project's story with no session
   // started from it, as of the latest read; undefined when none is kept.
-  keptStartOf(sourceId: string, identity: string): KeptStart | undefined;
+  keptStartOf(
+    sourceId: string,
+    identity: string,
+    workflow: LaunchWorkflow,
+  ): KeptStart | undefined;
   // The phase of the start the server is running now for the project's story,
   // as of the latest read, whichever page asked for it; undefined when none
   // runs. A start merely kept is never running.
@@ -274,7 +278,9 @@ export function useAgentLaunches(): MachineSessions {
           keptStarts: current.keptStarts.filter(
             (kept) =>
               kept.source !== request.source ||
-              kept.identity !== answer.record.start?.identity,
+              request.workflow === "ad-hoc" ||
+              kept.workflow !== request.workflow ||
+              kept.identity !== request.identity,
           ),
         }));
         setAttempt(key, undefined);
@@ -385,9 +391,12 @@ export function useAgentLaunches(): MachineSessions {
         ? establishing
         : establishingPreparation
       ).includes(sourceId),
-    keptStartOf: (sourceId, identity) =>
+    keptStartOf: (sourceId, identity, workflow) =>
       keptStarts.find(
-        (kept) => kept.source === sourceId && kept.identity === identity,
+        (kept) =>
+          kept.workflow === workflow &&
+          kept.source === sourceId &&
+          kept.identity === identity,
       ),
     startPhaseOf: (sourceId, identity, workflow) =>
       starts.find(

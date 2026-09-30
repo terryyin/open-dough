@@ -192,6 +192,7 @@ test("a refused session launch after a published claim answers the Agent and wor
   );
   expect(await keptStarts(dashboard)).toEqual([
     {
+      workflow: "execution",
       source: "open-dough",
       identity: queuedIdentity,
       workspace: workspaceShown,

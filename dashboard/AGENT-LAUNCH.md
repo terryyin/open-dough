@@ -102,8 +102,13 @@ assignment, so it removes the kept start together with the workspace and
 branch it created. A launch whose session started removes the kept start (the
 launch record keeps the preparation); a `claude` refusal after the announcement
 keeps it, and its "Launch failed:" answer adds "Preparing as <Agent>; no session
-started. Workspace <folder>." (`Preparing` alone when no Agent was named). The
-machine's `keptStarts` still lists execution's starts only.
+started. Workspace <folder>." (`Preparing` alone when no Agent was named). A
+Backlog card whose story has a kept refinement start offers **Start refinement**
+with the note "Started here, no session yet" (`keptStartOf` with the workflow);
+its dialog names the workspace and says "This story's Preparing announcement is
+already published on origin, so Start publishes no second one." instead of the
+establishing sentence, and Start resumes the kept start as above, after which
+the offer goes.
 
 The page says what Start does, for a project whose installed skill establishes
 a start (ships the start command and the formatter; `establishesStart` in
@@ -165,9 +170,9 @@ Code's own reason: "Taken by <Agent>; no session started. Workspace <folder>."
 (`Taken` alone when the start named no Agent).
 
 The machine's sessions answer carries `keptStarts`: each start kept without a
-session (`AgentLaunches.keptStarts`, from `keptStartsByProject`), naming its
-project, story identity, workspace as the page shows folders, and the Agent its
-claim named. A Taken card whose story has a kept start offers **Start
+session, of either workflow (`AgentLaunches.keptStarts`, from
+`keptStartsByProject`), naming its workflow, project, story identity,
+workspace as the page shows folders, and the Agent its claim named. A Taken card whose story has a kept start offers **Start
 execution** (never refinement) with the note "Started here, no session yet", and
 no other Taken card offers one (`CardLaunches`, `keptStartOf`). Its dialog says
 the session opens in that workspace and that the Take is already published, so

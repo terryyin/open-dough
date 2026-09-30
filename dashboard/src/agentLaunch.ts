@@ -25,11 +25,15 @@ type LaunchWorkflowSpec = {
   readonly verb: string;
   readonly skill: string;
   readonly pending: string;
-  // For a workflow whose Start does more than start the session, in a project
-  // that does it: the sentence its dialog adds and what its card says while
-  // the request is pending. None for a workflow that only starts the session.
-  readonly establishes:
-    { readonly sentence: string; readonly pending: string } | undefined;
+  // In a project whose installed skill establishes the workflow's start: the
+  // sentence its dialog adds and what its card says while the request is
+  // pending.
+  readonly establishes: {
+    readonly sentence: string;
+    readonly pending: string;
+    // What the dialog says instead of `sentence` when the start is kept.
+    readonly published: string;
+  };
   readonly note: (
     entry: Pick<WorkEntry, "preparation" | "preparing">,
   ) => string | undefined;
@@ -45,6 +49,8 @@ export const launchWorkflows = {
       sentence:
         "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
       pending: "Preparing execution…",
+      published:
+        "This story's Take is already published on origin, so Start publishes no second Take.",
     },
     // Nothing while readiness is still being read.
     note: ({ preparation }) =>
@@ -62,6 +68,8 @@ export const launchWorkflows = {
       sentence:
         "Start also publishes this story's Preparing announcement to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
       pending: "Preparing refinement…",
+      published:
+        "This story's Preparing announcement is already published on origin, so Start publishes no second one.",
     },
     note: ({ preparing }) =>
       preparing?.status === "recorded" ? "Being prepared" : undefined,
@@ -434,10 +442,11 @@ export const alertsSchema = z.discriminatedUnion("available", [
 export type Alerts = z.infer<typeof alertsSchema>;
 
 // A start this machine keeps whose session did not start
-// (`../server/startStore.ts`): the project, the story, the workspace as the
-// page shows a project's folders, and the Agent the start's claim names when
-// it reported one.
+// (`../server/startStore.ts`): the workflow, the project, the story, the
+// workspace as the page shows a project's folders, and the Agent the start's
+// claim names when it reported one.
 export const keptStartSchema = z.object({
+  workflow: z.enum(launchWorkflowNames),
   source: z.string().min(1),
   identity: z.string().min(1),
   workspace: z.string().min(1),
@@ -458,8 +467,8 @@ export const runningStartSchema = z.object({
 
 export type RunningStart = z.infer<typeof runningStartSchema>;
 
-// What a Taken card says beside its Start execution while this machine keeps
-// the start that took the story and no session was started from it.
+// What a card says beside its Start while this machine keeps the start that
+// took or prepared the story and no session was started from it.
 export const keptStartNote = "Started here, no session yet";
 
 // The machine's sessions, as the boundary answers a GET: every catalog

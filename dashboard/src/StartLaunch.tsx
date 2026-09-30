@@ -6,9 +6,8 @@
 // offers the same action, described by that note; the session is asked anyway,
 // and the instruction can say what to do first. A failed or uncertain answer
 // stays on the card with the action. The dialog's mechanics, including the
-// keyboard's return to the action, belong to `LaunchDialog`. On a Taken card
-// whose story this machine started without a session (`resumesIn`), the dialog
-// says the Take is already published and the session opens in the kept
+// keyboard's return to the action, belong to `LaunchDialog`. On a card whose
+// story this machine started without a session (`resumesIn`), the dialog says the start is already published and the session opens in the kept
 // workspace.
 
 import { useId } from "react";
@@ -40,7 +39,7 @@ export function StartLaunch({
   // workflow's Start; without it the words are those of a plain session start.
   readonly establishesStart: boolean;
   // The kept start's workspace, as the page shows it, when this Start resumes
-  // a start whose Take is already published.
+  // a start whose claim or announcement is already published.
   readonly resumesIn?: string;
   // The workflow's note on this card, if any.
   readonly note: string | undefined;
@@ -115,7 +114,7 @@ export function StartLaunch({
               , to {verb} <strong>{work.title}</strong> (
               <span className="card-identity">{work.identity}</span>).
               {resumesIn !== undefined
-                ? " This story's Take is already published on origin, so Start publishes no second Take."
+                ? ` ${spec.establishes.published}`
                 : establishes !== undefined && ` ${establishes.sentence}`}
             </>
           }

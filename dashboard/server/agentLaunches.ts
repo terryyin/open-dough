@@ -250,24 +250,30 @@ export class AgentLaunches {
   // workspace as the page shows a project's folders and the Agent its claim
   // named, when the start reported one.
   async keptStarts(): Promise<readonly KeptStart[]> {
-    const kept = await keptStartsByProject();
+    const kept = {
+      execution: await keptStartsByProject("execution"),
+      refinement: await keptStartsByProject("refinement"),
+    };
     return catalog.flatMap((source) =>
-      (kept.get(source.id) ?? [])
-        .filter(
-          (start) =>
-            !this.progress.for("execution").running(source.id, start.identity),
-        )
-        .map((start) => ({
-          source: source.id,
-          identity: start.identity,
-          workspace: shownWorkspace(
-            projectFolder(source),
-            path.basename(start.workspace),
-          ),
-          ...(start.start?.agent === undefined
-            ? {}
-            : { agent: start.start.agent }),
-        })),
+      (["execution", "refinement"] as const).flatMap((workflow) =>
+        (kept[workflow].get(source.id) ?? [])
+          .filter(
+            (start) =>
+              !this.progress.for(workflow).running(source.id, start.identity),
+          )
+          .map((start) => ({
+            workflow,
+            source: source.id,
+            identity: start.identity,
+            workspace: shownWorkspace(
+              projectFolder(source),
+              path.basename(start.workspace),
+            ),
+            ...(start.start?.agent === undefined
+              ? {}
+              : { agent: start.start.agent }),
+          })),
+      ),
     );
   }
 
