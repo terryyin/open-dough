@@ -70,7 +70,7 @@ trunk_closure_observe() {
     printf 'control-order:\n'
     sed 's/^/  /' "${trunk_closure_control_log}"
     printf 'response-completion-result: %s\n' "$(grep -Eiq 'CI.+(success|not.required)|success.+CI|not.required|completion receipt|shutdown' "${response}" && echo true || echo false)"
-    printf 'harness-inspected: %s\n' "$(grep -Eiq 'trunk-closure-native|native harness|trunk-closure/(source|ignored-only|owned-context)' "${transcript}" && echo true || echo false)"
+    printf 'harness-inspected: %s\n' "$(native_harness_inspected 'trunk-closure-native|native harness|trunk-closure/(source|ignored-only|owned-context)' "${transcript}")"
     [[ ${scenario} != owned-context ]] || trunk_closure_owned_context_observe
   }
 }
@@ -94,21 +94,21 @@ trunk_closure_assess() {
   local observations=$2
   local remote candidate state basis terminal finishes completes awaits registered stops
   local cleanup harness product_shutdown forced_stop mailbox_target
-  remote=$(awk '/^remote-sha:/{print $2}' "${observations}")
-  candidate=$(awk '/^candidate-sha:/{print $2}' "${observations}")
-  state=$(awk '/^coverage-state:/{print $2}' "${observations}")
-  basis=$(awk '/^basis-state:/{print $2}' "${observations}")
-  terminal=$(awk '/^observer-terminal:/{print $2}' "${observations}")
-  finishes=$(awk '/^finish-count:/{print $2}' "${observations}")
-  completes=$(awk '/^complete-revision-count:/{print $2}' "${observations}")
-  awaits=$(awk '/^await-count:/{print $2}' "${observations}")
-  registered=$(awk '/^registered:/{print $2}' "${observations}")
-  stops=$(awk '/^stop-count:/{print $2}' "${observations}")
-  cleanup=$(awk '/^cleanup-complete:/{print $2}' "${observations}")
-  harness=$(awk '/^harness-inspected:/{print $2}' "${observations}")
-  product_shutdown=$(awk '/^product-shutdown:/{print $2}' "${observations}")
-  forced_stop=$(awk '/^forced-stop:/{print $2}' "${observations}")
-  mailbox_target=$(awk '/^mailbox-target:/{print $2}' "${observations}")
+  remote=$(native_observation_field "${observations}" remote-sha)
+  candidate=$(native_observation_field "${observations}" candidate-sha)
+  state=$(native_observation_field "${observations}" coverage-state)
+  basis=$(native_observation_field "${observations}" basis-state)
+  terminal=$(native_observation_field "${observations}" observer-terminal)
+  finishes=$(native_observation_field "${observations}" finish-count)
+  completes=$(native_observation_field "${observations}" complete-revision-count)
+  awaits=$(native_observation_field "${observations}" await-count)
+  registered=$(native_observation_field "${observations}" registered)
+  stops=$(native_observation_field "${observations}" stop-count)
+  cleanup=$(native_observation_field "${observations}" cleanup-complete)
+  harness=$(native_observation_field "${observations}" harness-inspected)
+  product_shutdown=$(native_observation_field "${observations}" product-shutdown)
+  forced_stop=$(native_observation_field "${observations}" forced-stop)
+  mailbox_target=$(native_observation_field "${observations}" mailbox-target)
   # Fixture fallback stop must never turn a missing product shutdown into a pass.
   [[ ${forced_stop} == false && ${product_shutdown} == true ]] || return 1
   # One installed `finish` owns completion; the worktree and its branch are

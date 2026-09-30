@@ -111,7 +111,7 @@ story_closure_observe() {
       "$([[ ${human_after} == "${story_closure_human_before}" ]] && echo true || echo false)"
     printf 'control-order:\n'
     sed 's/^/  /' "${story_closure_control_log}"
-    printf 'harness-inspected: %s\n' "$(grep -Eiq 'story-branch-closure-native|native harness|source-conflict' "${transcript}" && echo true || echo false)"
+    printf 'harness-inspected: %s\n' "$(native_harness_inspected 'story-branch-closure-native|native harness|source-conflict' "${transcript}")"
     native_response_field_write "${response}"
   }
 }
@@ -132,10 +132,10 @@ story_closure_observe() {
 # assessor-signal: response response
 story_closure_assess() {
   local observations=$1 remote branch trunk integrated
-  remote=$(awk '/^remote-sha:/{print $2}' "${observations}")
-  branch=$(awk '/^branch-sha:/{print $2}' "${observations}")
-  trunk=$(awk '/^trunk-before-sha:/{print $2}' "${observations}")
-  integrated=$(awk '/^integrated-sha:/{print $2}' "${observations}")
+  remote=$(native_observation_field "${observations}" remote-sha)
+  branch=$(native_observation_field "${observations}" branch-sha)
+  trunk=$(native_observation_field "${observations}" trunk-before-sha)
+  integrated=$(native_observation_field "${observations}" integrated-sha)
   [[ ${remote} == "${integrated}" && ${integrated} != "${branch}" &&
     ${integrated} != "${trunk}" ]] || return 1
   grep -Fqx 'merge-parent-count: 2' "${observations}" || return 1

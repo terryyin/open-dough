@@ -23,18 +23,18 @@ ci_completion_assess() {
   local state terminal complete_count stop_count await_count
   local product_shutdown forced_stop worker_alive
   local review_started review_completed marker failure_reported
-  state=$(awk '/^coverage-state:/{print $2}' "${observations}")
-  terminal=$(awk '/^observer-terminal:/{print $2}' "${observations}")
-  complete_count=$(awk '/^complete-count:/{print $2}' "${observations}")
-  stop_count=$(awk '/^stop-count:/{print $2}' "${observations}")
-  await_count=$(awk '/^await-count:/{print $2}' "${observations}")
-  product_shutdown=$(awk '/^product-shutdown:/{print $2}' "${observations}")
-  forced_stop=$(awk '/^forced-stop:/{print $2}' "${observations}")
-  worker_alive=$(awk '/^worker-alive:/{print $2}' "${observations}")
-  review_started=$(awk '/^review-started:/{print $2}' "${observations}")
-  review_completed=$(awk '/^review-completed:/{print $2}' "${observations}")
-  marker=$(awk '/^completion-marker:/{print $2}' "${observations}")
-  failure_reported=$(awk '/^failure-reported:/{print $2}' "${observations}")
+  state=$(native_observation_field "${observations}" coverage-state)
+  terminal=$(native_observation_field "${observations}" observer-terminal)
+  complete_count=$(native_observation_field "${observations}" complete-count)
+  stop_count=$(native_observation_field "${observations}" stop-count)
+  await_count=$(native_observation_field "${observations}" await-count)
+  product_shutdown=$(native_observation_field "${observations}" product-shutdown)
+  forced_stop=$(native_observation_field "${observations}" forced-stop)
+  worker_alive=$(native_observation_field "${observations}" worker-alive)
+  review_started=$(native_observation_field "${observations}" review-started)
+  review_completed=$(native_observation_field "${observations}" review-completed)
+  marker=$(native_observation_field "${observations}" completion-marker)
+  failure_reported=$(native_observation_field "${observations}" failure-reported)
   # Fixture fallback stop must never turn a missing product shutdown into a pass.
   [[ ${forced_stop} == false ]] || return 1
   case ${scenario} in

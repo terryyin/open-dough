@@ -155,9 +155,14 @@ own new file, sourced by the family's run file and added to its identity list.
 
 ### 2. One reader for observation fields and harness detection
 Type: Structure
-Status: planned
+Status: done
 Proof: the free proof command; the counterexamples of the ci-completion, trunk
 and story-branch assessors unchanged.
+
+Done: `native-observation.sh` is sourced from `native-completion-observation.sh`
+and listed in the three families' identity lists. `native_journey_state_field`
+stays: it reads a variable, matches anywhere in a line and keeps spaces, so it is
+not the same reader. Free proof and lint pass.
 
 Behavior kept: `native_observation_field FILE KEY` replaces the 31 `awk` copies
 and `native_journey_state_field`'s twin in those three assessors;

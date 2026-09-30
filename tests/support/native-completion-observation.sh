@@ -4,6 +4,9 @@
 # Journey files keep their own observation field layouts.
 # shellcheck disable=SC2034,SC2154,SC2312
 
+# shellcheck source=tests/support/native-observation.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-observation.sh"
 # shellcheck source=tests/support/native-host-stream.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-host-stream.sh"
