@@ -249,7 +249,7 @@ or claims of readiness.
 
 **Identity:** SEED-052#choose-session-model
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/173-choose-session-model/PLAN.md","assessment":"not-ready","reasons":["Decisive premise 1 is unsettled: the ad hoc story's launchSubject, request union and shared LaunchDialog, which slices 1-4 build on, are not on trunk yet (SEED-052#start-ad-hoc-project-session is Taken, unpublished). Re-read those files once it lands, then record ready."],"basis":{"document":"b772daa37e833248ca89c32e8123fb5561168fd524da6b96886aa73281bf95d2","plan":"b1086138c6fa85dad4bd5f8be1494c9cec17458d48d54f9511f159352a5e2c81"}}
 ```
 
 - **Goal:** A developer starting a Claude Code session from the dashboard can
