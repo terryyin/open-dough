@@ -120,7 +120,7 @@ recorded.
 
 ### 1. Premises are found from key examples and observed through their consumers
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior review of all seven examples above against the revised text;
 deterministic prose checks above.
 
@@ -153,7 +153,21 @@ Accepted proof. A failure follows the once-only revision rule.
 
 ## Accepted proof
 
-None yet.
+**Baseline (pre-change, Claude Code, one run per case, default model):** 1 of 5
+defect cases passed (doughnut 056); doughnut 053, pygardon 275, open-dough 112
+and doughnut 058 read the code but stopped at presence for the decisive consumer;
+the control passed on premises but investigated beyond slice 1. The stop rule
+(all five pass) did not trigger. Transcripts: `$CLAUDE_JOB_DIR/tmp/plan176/baseline/`;
+script `plan176/replay.sh <case> <label> <guidance-checkout>`. Proof limits: premise
+sections removed by script; the prompt pointed at the story rather than pasting its
+key examples; Bash was unrestricted (Edit/Write disallowed).
+
+**Slice 1:** seven key examples walked against the revised text (rule paragraph
+"Derive premises from the key examples" and the consumer clause in "Record each
+premise" of `dough-slice-planning`; readiness sentence in `record-preparation.md`);
+both boundary examples keep the retained cheap-observation and probe-slice
+paragraphs. `npm run lint`, `/opt/homebrew/bin/bash tests/payload-declaration-links.sh`,
+`/opt/homebrew/bin/bash tests/compare-payload.sh` and `git diff --check` pass.
 
 ## Learnings
 
