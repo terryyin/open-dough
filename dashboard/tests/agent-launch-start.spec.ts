@@ -157,7 +157,8 @@ test.describe("execution start of a project whose origin is not the catalog repo
     expect(JSON.parse(response.body)).toMatchObject({
       kind: "failed",
       reason: "start-refused",
-      explanation: expect.stringContaining("terryyin/open-dough"),
+      explanation:
+        "The origin of ~/git/open-dough is not terryyin/open-dough, where the Take would be published. Nothing was started or launched.",
     });
     expect(server.claudeCalls()).toEqual([]);
     expect(await origin.takenProfiles()).toEqual([]);

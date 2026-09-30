@@ -158,7 +158,7 @@ that the agent could not continue. The capability check lives in `executionStart
 
 ### 5. A start that cannot be established launches nothing
 Type: Behavior
-Status: planned
+Status: done
 Proof: one spec per reason, asserting no `claude` call and the card's "Launch failed:"
 text: story Taken by another agent (owner named), story not queued, installed script
 missing, `origin` not the catalog repository. Script `status` values map to one reason

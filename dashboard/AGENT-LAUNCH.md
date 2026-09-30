@@ -3,9 +3,9 @@
 How the [story dashboard](README.md) starts a workflow on a queued story in a
 Claude Code background session on this machine. Two workflows can be started:
 
-| Workflow | Action | Skill it runs |
-| --- | --- | --- |
-| Execution | **Start execution** | `dough-execute-plan` |
+| Workflow   | Action               | Skill it runs            |
+| ---------- | -------------------- | ------------------------ |
+| Execution  | **Start execution**  | `dough-execute-plan`     |
 | Refinement | **Start refinement** | `dough-story-refinement` |
 
 Every **Backlog** card offers **Start execution** and then **Start
@@ -33,7 +33,6 @@ can use the chosen model: Claude Code decides when it starts the session, and a
 refusal explains itself naming the model, such as "Claude Code refused to start
 a session in ~/git/open-dough with model Opus. Run `claude` in that folder once
 to see why, then start again."
-
 
 The page posts the request to a second local boundary beside the read one,
 `/__agent-launch` (`server/agentLaunchPlugin.ts`, reached from the browser
@@ -95,8 +94,11 @@ folder with `/<skill> <identity>` and the developer's instruction only, no Take
 and no workspace. It is refused, with nothing launched
 ("Launch failed:"), when the project folder's `origin` is not the catalog
 repository the Take would be published to, or when the command stops or gives
-no readable result; the explanation names its `status` and `error` and its
-recovery workspace and branch when it reports them. The start is never
+no readable result. One reason table in `server/executionStart.ts` words each
+command `status` (another agent holds the story, not queued in Backlog, the
+workspace could not be set up, and the rest); "Taken by <Agent>" names the
+owner read from origin's Taken profiles, and a stop that reports its workspace
+and branch names them. The start is never
 aborted: when it has not finished within its wait (two minutes;
 `DOUGH_START_TIMEOUT_MS` shortens it for tests) the launch answers uncertain,
 naming the workspace and branch, and the command goes on, so the story may

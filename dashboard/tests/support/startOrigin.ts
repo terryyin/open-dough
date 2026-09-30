@@ -43,6 +43,9 @@ export type StartOrigin = {
   originGit(...args: string[]): Promise<string>;
   // The agent profiles origin's trunk holds, parsed.
   takenProfiles(): Promise<Record<string, unknown>[]>;
+  // Has another publisher Take the queued story through the real start
+  // command, in a workspace of its own; the Agent it names.
+  takenByAnotherAgent(): Promise<string>;
   // Removes the fixture.
   cleanup(): void;
 };
@@ -111,30 +114,66 @@ export async function startOrigin(
   await git(project, "commit", "-m", "queued story and installed skills");
   await git(project, "push", "origin", "main");
   const originGit = async (...args: string[]) => git(origin, ...args);
+  const takenProfiles = async () => {
+    const listed = await originGit(
+      "ls-tree",
+      "--name-only",
+      "main",
+      ".planning/agents/",
+    );
+    return Promise.all(
+      listed
+        .split("\n")
+        .filter((file) => file !== "")
+        .map(
+          async (file) =>
+            JSON.parse(await originGit("show", `main:${file}`)) as Record<
+              string,
+              unknown
+            >,
+        ),
+    );
+  };
   return {
     machine,
     origin,
     project,
     originGit,
-    async takenProfiles() {
-      const listed = await originGit(
-        "ls-tree",
-        "--name-only",
-        "main",
-        ".planning/agents/",
+    takenProfiles,
+    async takenByAnotherAgent() {
+      const scripts = path.join(
+        project,
+        ".claude/skills/dough-execute-plan/scripts",
       );
-      return Promise.all(
-        listed
-          .split("\n")
-          .filter((file) => file !== "")
-          .map(
-            async (file) =>
-              JSON.parse(await originGit("show", `main:${file}`)) as Record<
-                string,
-                unknown
-              >,
-          ),
+      await exec(
+        process.execPath,
+        [
+          path.join(scripts, "execution-start.mjs"),
+          "start",
+          "--integration",
+          project,
+          "--workspace",
+          path.join(machine, "another-agent-workspace"),
+          "--branch",
+          "claude/another-agent",
+          "--identity",
+          queuedIdentity,
+          "--publisher-id",
+          "another-publisher",
+          "--mode",
+          "story-branch",
+          "--remote",
+          "origin",
+          "--target",
+          "main",
+          "--push-authorized",
+          "--workspace-authorized",
+          "--host",
+          "claude",
+        ],
+        { cwd: project },
       );
+      return String((await takenProfiles())[0]?.["agent"]);
     },
     cleanup() {
       rmSync(machine, { recursive: true, force: true });

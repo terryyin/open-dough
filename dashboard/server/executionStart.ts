@@ -219,14 +219,92 @@ function runScript(
   });
 }
 
-function refusal(result: StartResult): string {
+type Stop = Extract<StartResult, { kind: "stopped" }>;
+
+// The stop's own error, as the tail of a sentence.
+function detail(stop: Stop): string {
+  return stop.error ? `: ${stop.error}` : "";
+}
+
+// Why a start that cannot be established is refused, by the script's stop
+// `status`: the words after the card's "Launch failed:". `owner` is the Agent
+// holding the story, read from origin's Taken profiles when known.
+const stopReasons: Record<
+  string,
+  (facts: { stop: Stop; owner: string | undefined }) => string
+> = {
+  conflict: ({ owner }) =>
+    `Taken by ${owner ?? "another agent"}, so this dashboard did not start it.`,
+  "source-refused": ({ stop }) =>
+    /not queued/.test(stop.error ?? "")
+      ? "The story is not queued in Backlog on origin, so it cannot be started."
+      : `The story's published source cannot be started${detail(stop)}.`,
+  "source-conflict": ({ stop }) =>
+    `The story's published source conflicts with origin${detail(stop)}.`,
+  "invalid-request": ({ stop }) =>
+    `The start command refused the request${detail(stop)}.`,
+  "authority-required": ({ stop }) =>
+    `The start command needs authority it was not given${detail(stop)}.`,
+  "setup-failed": ({ stop }) =>
+    `The workspace could not be set up${detail(stop)}.`,
+  "carry-conflict": ({ stop }) =>
+    `Uncommitted changes could not be carried into the workspace${detail(stop)}.`,
+  "developer-identity-refused": ({ stop }) =>
+    `Git has no usable developer identity for the Take${detail(stop)}.`,
+  "claim-failed": ({ stop }) =>
+    `The Take could not be committed${detail(stop)}.`,
+  unpublished: ({ stop }) =>
+    `The Take could not be confirmed on origin, so the story may or may not be Taken${detail(stop)}.`,
+  unchanged: () => "The start changed nothing.",
+};
+
+const unreadableReason =
+  "The start command gave no result this dashboard could read, so the story may or may not be Taken. Check origin before starting again.";
+
+// The card's answer for a start that did not establish: the reason, the
+// workspace and branch a stop kept, and that nothing was launched.
+export function refusal(result: StartResult, owner?: string): string {
   if (result.kind !== "stopped") {
-    return "The start command gave no result this dashboard could read, so the story may or may not be Taken. Check origin before starting again. Nothing was launched.";
+    return `${unreadableReason} Nothing was launched.`;
   }
+  const reason =
+    stopReasons[result.status]?.({ stop: result, owner }) ??
+    `The start stopped (${result.status})${detail(result)}.`;
   const where = result.recovery
     ? ` Workspace ${result.recovery.workspace} on branch ${result.recovery.branch}.`
     : "";
-  return `The start stopped (${result.status})${result.error ? `: ${result.error}` : ""}.${where} Nothing was launched.`;
+  return `${reason}${where} Nothing was launched.`;
+}
+
+// The Agent whose profile on origin's trunk names the story, once the start
+// has fetched it.
+async function ownerOf(
+  project: ProjectFolder,
+  ref: string,
+  identity: string,
+): Promise<string | undefined> {
+  const listed = await git(project, [
+    "ls-tree",
+    "--name-only",
+    ref,
+    ".planning/agents/",
+  ]);
+  for (const file of listed.split("\n").filter((name) => name !== "")) {
+    try {
+      const profile = JSON.parse(
+        await git(project, ["show", `${ref}:${file}`]),
+      ) as {
+        agent?: unknown;
+        identity?: unknown;
+      };
+      if (profile.identity === identity && typeof profile.agent === "string") {
+        return profile.agent;
+      }
+    } catch {
+      // A profile that is not JSON names no owner.
+    }
+  }
+  return undefined;
 }
 
 // Whether the project's installed skill can continue from a start: it ships
@@ -297,9 +375,13 @@ export async function beginStart(
       ...(request.model === undefined ? [] : ["--model", request.model]),
     ],
     project,
-  ).then((result): StartAttempt => {
+  ).then(async (result): Promise<StartAttempt> => {
     if (result.kind !== "accepted") {
-      return { kind: "refused", explanation: refusal(result) };
+      const owner =
+        result.kind === "stopped" && result.status === "conflict"
+          ? await ownerOf(project, `origin/${source.ref}`, request.identity)
+          : undefined;
+      return { kind: "refused", explanation: refusal(result, owner) };
     }
     return {
       kind: "established",
