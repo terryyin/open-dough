@@ -107,3 +107,12 @@ new job about 2 s, left to CI.
 
 - A fixture that symlinks `node_modules` must exclude it separately:
   `.gitignore`'s `node_modules/` matches directories only.
+
+## Execution complete
+
+Product advice: No correction needed; the delivered runner meets every key
+example. At wrap-up, update the lint paragraph in
+`docs/installation-platforms-and-update-safety.md`, which describes Git-based
+discovery only for shell scripts, to say that every check uses the Git listing.
+DD-194's note about lint scanning ignored build output no longer applies. No
+backlog change.
