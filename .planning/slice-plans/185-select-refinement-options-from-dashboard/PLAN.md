@@ -143,10 +143,11 @@ one wording for each refusal.
 
 ### 3. Honor exclusive groups
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `tests/agent-launch-options-groups.spec.ts` with test definitions
 placed over the copied real one; the per-slice check in the table; slice 2's
-spec unchanged.
+spec unchanged. Accepted: `agent-launch-options-groups.spec.ts` with
+`agent-launch-options-boundary.spec.ts` 46 of 46 (dev and preview); typecheck passed.
 
 Behavior: A definition declaring a group with `selection: "exclusive"` and flags
 {A, B} → `A + C` launches, `A + B` is refused naming the group and both flags,
@@ -232,3 +233,6 @@ shipped exclusive refinement group, and a generic plugin or registry.
 - Slice 2 keeps the record's flags in definition order (admission rewrites the
   request) and reads options and `focuses` as one flat list. No test sends
   flags in an order that differs from a differently ordered definition.
+- Slice 3: a group with one flag, an empty group, or a repeated group id is valid
+  and never conflicts; only members that are undefined or shared make a
+  definition invalid.

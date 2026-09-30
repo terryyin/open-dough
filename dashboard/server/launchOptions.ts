@@ -62,8 +62,8 @@ export async function readDefinition(
 
 // The request with its selected flags in the definition's order, or the
 // refusal: the workflow defines no options, the project's definition is
-// unavailable, or a flag is not one it defines. A request with no selection
-// is returned as it is.
+// unavailable, a flag is not one it defines, or flags share an exclusive
+// group. A request with no selection is returned as it is.
 export async function withSelectedOptions(
   request: AgentLaunchRequest,
   project: ProjectFolder,
@@ -89,11 +89,14 @@ export async function withSelectedOptions(
       `Options cannot be selected: the installed ${skill} skill in ${project.shown} ${read.why}.`,
     );
   }
-  const [unknown] = selectionProblems(read.definition, request.options);
-  if (unknown !== undefined) {
+  const [problem] = selectionProblems(read.definition, request.options);
+  if (problem !== undefined) {
+    const installed = `the installed ${skill} skill in ${project.shown}`;
     throw new RefusedRequest(
       400,
-      `Option ${unknown} is not one the installed ${skill} skill in ${project.shown} defines.`,
+      problem.kind === "unknown"
+        ? `Option ${problem.flag} is not one ${installed} defines.`
+        : `Options ${problem.flags.join(" and ")} are in the same ${problem.group} group of ${installed}; select only one.`,
     );
   }
   return {
