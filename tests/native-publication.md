@@ -5,16 +5,20 @@ manually runs a selected publication journey through Codex, Cursor, or Claude
 Code. Put Bash 5 first on PATH. Paid sessions are opt-in; the default wrapper
 and `npm test` use credential-free substitutes and counterexamples.
 
-Accepting a paid run adds it to the replay corpus in
+Accepting a paid run of any family adds it to the replay corpus in
 `tests/fixtures/native-streams`:
 `node tests/support/native-stream-corpus-add.mjs <result-path>` takes the
-retained attempt the run printed. It refuses an attempt without a `record` or
-with a stream that is missing or not complete, naming what is missing. It
-gzips each stream, copies the retained provenance, and writes a draft
-`expected`, printing a `review:` line wherever the shared reader or today's
-verdict disagrees with the retained attempt. Review the draft, add
-`corrected:` with the harness fault where the reader is right, and delete its
-`# draft:` line; `tests/native-stream-replay.sh` then replays the attempt.
+retained attempt the run printed and adds it under its host and case
+(`publication/<journey>`, `fresh-node`, `delivery-evidence/<case>/<scenario>`).
+It refuses, naming what is missing, an attempt without a `record`, without
+`observations.txt`, or with a stream that is missing or not complete; a record
+naming no known host or no case; a publication case without a journey; and an
+entry the corpus already holds. It gzips each stream, copies the retained
+provenance, and writes a draft `expected`, printing a `review:` line wherever
+the shared reader or today's verdict disagrees with the retained attempt.
+Review the draft, add `corrected:` with the harness fault where the reader is
+right, and delete its `# draft:` line; `tests/native-stream-replay.sh` then
+replays the attempt.
 
 The one-shot escalation case asks for a settings-key rename in an owned
 workspace. The notes tool preserves extension settings and released values.

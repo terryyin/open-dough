@@ -116,11 +116,13 @@ Record fields used for applicability: `host`, `case`, `native-version-command`,
 `fixture-tag`, `baseline-tag`, `update-prompt-identity`, `use-prompt-identity`,
 and `input-hash` lines. Cursor Agent identity is `cursor agent --version`, not
 `cursor --version`. Adapter identities are `tests/support/native-codex.sh`,
-`cursor-agent-stream-json`, and `claude-stream-json`. Codex activity uses
-`item.completed` events and complete streams end with `turn.completed`; response
-bytes still come from `-o` and are not themselves completeness proof. Cursor and
-Claude Code complete streams use `{"type":"result"}`; `update-response.md` /
-`use-response.md` are decoded from `.result`. Incomplete, truncated, or unknown streams stay
+`cursor-agent-stream-json`, and `claude-stream-json`. The shared reader
+(`tests/support/native-host-stream.mjs`) reads every host's stream: commands, response, and whether it is complete. Response bytes for
+Codex still come from `-o`, which is not itself completeness proof; for Cursor
+and Claude Code, `update-response.md` / `use-response.md` are decoded from the
+stream's result. An accepted run joins the replay corpus through
+`tests/support/native-stream-corpus-add.mjs` (see `tests/native-publication.md`).
+Incomplete, truncated, or unknown streams stay
 `execution-status: incomplete` with `assessment-status: not-run`. Execution
 completion is not a behavior verdict; assessment uses observed state and
 response. Native credentialed runs stay pending (SEED-007 Story 3).

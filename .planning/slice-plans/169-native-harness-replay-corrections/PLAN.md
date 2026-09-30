@@ -142,7 +142,7 @@ duplicate `strings()` walker, and correct the reader comment.
 
 ### 2. Any accepted paid run joins the corpus
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/native-stream-replay.sh` retention case.
 
 Behavior: a retained worktree-preparation attempt (`case: fresh-node`) and a
