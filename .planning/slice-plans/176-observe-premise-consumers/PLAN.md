@@ -139,7 +139,7 @@ contradictions.
 
 ### 2. Claude Code planners observe the retained cases through their consumers
 Type: Behavior
-Status: stopped for human judgment
+Status: done (accepted as is by human decision, 2026-09-30)
 Proof: six native Claude Code replays judged against the table, each compared
 with its baseline; other hosts recorded as unclaimed.
 
@@ -188,6 +188,10 @@ unclaimed.
 
 ## Learnings
 
-- Human decision (2026-09-30): stop after the post-change replays without the
-  one allowed revision; the revision-or-accept call stays with the maintainer.
+- Human decision (2026-09-30): accept the post-change replays as is, without the
+  one allowed revision.
   Failed or weak: 053, 275, control extra investigation; single samples may be noise.
+
+## Execution complete
+
+Product advice: no change. Placement of the rule in slice planning is not shown to change planner behavior (baseline 1/5, post-change 2/5 weak, single runs); revisit only with a multi-sample comparison and a countable extra-investigation measure.
