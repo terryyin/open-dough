@@ -306,7 +306,7 @@ still assuming an identity.
 
 ### 8. The enduring documents state the ad hoc session
 Type: Behavior
-Status: planned
+Status: done
 Proof: after slices 1 to 7 the delivered strings are the ones in the specs.
 Check: each of "Start session", "Start a session in", "What would you like to
 talk about? (optional)", "Ad hoc session started in Claude Code", "Ad hoc
@@ -365,3 +365,4 @@ and keep the button, dialog and launch first.
 - Slice 6 accepted: `LaunchProblemAnswer.tsx` (extracted from `StartLaunch.tsx`, shared by the card action and Start session) renders "Launch failed"/"Launch uncertain" beside the button; `StartSession` takes the attempt and describes the button by the answer. `agent-launch-ad-hoc-problems.spec.ts` (3 tests) passes with the whole dashboard suite (351). The failure texts are `claudeLaunch.ts`'s ("Claude Code does not trust ~/git/open-dough yet…", "…refused to start a session in…"), so the documents in slice 8 follow those words.
 - Slice 7 accepted: no production change was needed. `agent-launch-ad-hoc-sessions.spec.ts` (4 tests) proves sidebar navigation, Mark as done and reopening, reload persistence, "Needs input" with one session counted, and Delete record… for an ad hoc session; the whole dashboard suite passed apart from the known `agent-launch-recent-delete` timing flake. Across projects the spec proves the Recent sessions reveal by its recorded request, as `session-sidebar-navigation.spec.ts` does for cards; only the same-project test asserts in-viewport.
 - Reveal race, not ad hoc specific: going to a Recent-only session from another project can leave its entry about 20 px below the fold, because `keepInView` (`dashboard/src/workFocus.ts`) skips its first `ResizeObserver` report and the page grew before it attached. A re-check on the next animation frame would close it; not done here.
+- Slice 8 accepted: the five strings are in `docs/dashboard-ux-ui-north-star.md` and `dashboard/AGENT-LAUNCH.md` and in the ad hoc specs (the field label in `launchCardPage.ts`, the shared helper they use); the North Star keeps one row per concept, holding the design intent while Agent launch holds the mechanics.

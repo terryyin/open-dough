@@ -9,7 +9,7 @@
 // text; its workflow, when it was launched, its session, and Open terminal
 // (`./LaunchSession.tsx`); a session the developer marked done is Done, under
 // its `done-` name. An entry names its story's title and identity unless it
-// is listed on the story's own card, where it offers Mark as done through the
+// is listed on the story's own card or is an ad hoc session (no story), where it offers Mark as done through the
 // page's one operation (`./TerminalSplit.tsx`); on a card or in Recent
 // sessions, while its session shows State unknown, it offers "Delete record…",
 // which asks before it deletes. While the page's terminal shows its session,
