@@ -153,7 +153,13 @@ the current tree in about 7 s, so the page journeys run locally.
 ### 3. Point the skill's "group" at the definition
 
 - **Type:** Behavior
-- **Status:** todo
+- **Status:** done
+- **Accepted proof:** Behavior review: a request `--a --b` whose flags share one
+  `groups` entry leads the agent from "an entry of that file's `groups` list" to
+  stop and report the conflict naming the group's `label` and the flags named.
+  No test reads this wording; the payload link check
+  (`PATH=/opt/homebrew/bin:$PATH /opt/homebrew/bin/bash scripts/test.sh tests/payload-declaration-links.sh`)
+  passes. The shipped definition has no `groups` yet.
 - **Proof:** Edit only `src/skills/dough-story-refinement/SKILL.md`: one short
   clause saying a group is an entry of `groups` in
   `references/refinement-options.json`, in the wording the executing agent needs
