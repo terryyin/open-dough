@@ -15,7 +15,7 @@ import {
   type LaunchChoices,
   type LaunchWithState,
 } from "./agentLaunch.ts";
-import type { LaunchAttempt } from "./agentLaunches.ts";
+import type { LaunchAttempt } from "./launchAttempts.ts";
 import { LaunchDialog, useLaunchDialogLauncher } from "./LaunchDialog.tsx";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { usePageSessions } from "./pageSessions.ts";

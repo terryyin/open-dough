@@ -2,9 +2,10 @@
 // in dev and preview, for a definition that declares an exclusive group: a
 // selection with at most one of the group's flags launches (the flags in the
 // definition's order), one naming two of them is refused naming the group and
-// both flags, and a malformed group makes the whole definition unavailable.
-// The project's skill is a copy of this repository's refinement skill
-// references with its definition replaced; the synthetic `claude` records every call.
+// both flags; which groups make a definition malformed is
+// ./agent-launch-options-rules.spec.ts. The project's skill is a copy of this
+// repository's refinement skill references with its definition replaced; the
+// synthetic `claude` records every call.
 
 import { cpSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -66,16 +67,13 @@ for (const mode of ["dev", "preview"] as const) {
     // Installs a definition of options A and B and focus C, with these groups.
     const defineWith = (
       groups: unknown[],
-      {
-        options = [a, b],
-        focuses = [c],
-      }: { options?: readonly string[]; focuses?: readonly string[] } = {},
+      { focuses = [c] }: { focuses?: readonly string[] } = {},
     ) => {
       writeFileSync(
         path.join(skillFolder(), "references", "refinement-options.json"),
         JSON.stringify({
           command: skill,
-          options: options.map(entry),
+          options: [a, b].map(entry),
           focuses: focuses.map(entry),
           groups,
         }),
@@ -147,27 +145,5 @@ for (const mode of ["dev", "preview"] as const) {
       );
       expect(await refused([c, "--d"])).toContain(`${c} and --d`);
     });
-
-    for (const [kind, groups, flags] of [
-      ["a flag in two groups", [group(a, b), { ...group(b, c), id: "x" }], {}],
-      ["a member the definition does not define", [group(a, "--ghost")], {}],
-      [
-        "an exclusive selection of another kind",
-        [{ ...group(a, b), selection: "any" }],
-        {},
-      ],
-      [
-        "a flag defined as both option and focus",
-        [group(a, b)],
-        { focuses: [a] },
-      ],
-    ] as const) {
-      test(`refuses options when the definition has ${kind}, as not valid`, async () => {
-        defineWith([...groups], flags);
-        // A selection the group alone would have allowed is refused too.
-        const error = await refused([a]);
-        expect(error).toContain("options file is not valid");
-      });
-    }
   });
 }

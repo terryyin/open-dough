@@ -31,6 +31,27 @@ export function installRefinementSkill(home: string) {
   return path.join(installed, skill, "references", "refinement-options.json");
 }
 
+const groupedEntry = (flag: string) => ({
+  flag,
+  label: flag.slice(2).toUpperCase(),
+  summary: `${flag}.`,
+  instruction: `${flag}.`,
+});
+// A refinement options definition with A and B in the exclusive group
+// "Approach", and C outside any group.
+export const groupedOptions = {
+  command: "dough-story-refinement",
+  options: [groupedEntry("--a"), groupedEntry("--b"), groupedEntry("--c")],
+  groups: [
+    {
+      id: "approach",
+      label: "Approach",
+      selection: "exclusive",
+      flags: ["--a", "--b"],
+    },
+  ],
+};
+
 export async function openTakenBacklog(page: Page, journey: LaunchJourney) {
   await publishCommittedOrigin(page, {
     repoDir: journey.origin,

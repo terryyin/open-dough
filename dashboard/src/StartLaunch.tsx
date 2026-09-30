@@ -18,11 +18,8 @@ import {
   type StartPhase,
   type LaunchWorkflow,
 } from "./agentLaunch.ts";
-import type {
-  LaunchAttempt,
-  LaunchWorkItem,
-  OptionsOffer,
-} from "./agentLaunches.ts";
+import type { LaunchAttempt, LaunchWorkItem } from "./launchAttempts.ts";
+import type { OptionsOffer } from "./optionsOffer.ts";
 import { LaunchDialog, useLaunchDialogLauncher } from "./LaunchDialog.tsx";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import "./agent-launch.css";
@@ -47,6 +44,23 @@ function optionsLine(
         ? `The installed ${skill} skill in this project offers no options. ${starts}`
         : undefined;
   }
+}
+
+// What the dialog says under the options when a kept selection names flags
+// the offer, once read, no longer has: those flags, in the kept order, are
+// not sent.
+function notOfferedLine(
+  offer: OptionsOffer | undefined,
+  kept: ReadonlySet<string> | undefined,
+): string | undefined {
+  if (offer === undefined || offer.kind === "reading") return undefined;
+  const offered = new Set(
+    offer.kind === "offered" ? offer.options.map(({ flag }) => flag) : [],
+  );
+  const absent = [...(kept ?? [])].filter((flag) => !offered.has(flag));
+  return absent.length === 0
+    ? undefined
+    : `Not offered any more, so not sent: ${absent.join(", ")}.`;
 }
 
 export function StartLaunch({
@@ -165,6 +179,7 @@ export function StartLaunch({
           optionsHint="Choose any combination; they apply together. None means straightforward refinement."
           optionsLine={optionsLine(options, skill, named)}
           kept={kept}
+          notOfferedLine={notOfferedLine(options, kept)}
           starting={starting}
           onStart={onStart}
           onRefused={(selected) => {

@@ -73,6 +73,7 @@ export function LaunchDialog({
   optionsHint,
   optionsLine,
   kept,
+  notOfferedLine,
   starting,
   onStart,
   onRefused,
@@ -90,6 +91,8 @@ export function LaunchDialog({
   // Said in place of the options when there are none to choose from.
   readonly optionsLine?: string | undefined;
   readonly kept?: ReadonlySet<string> | undefined;
+  // Said under the options when `kept` names flags the offer no longer has.
+  readonly notOfferedLine?: string | undefined;
   readonly starting: boolean;
   readonly onStart: (choices: LaunchChoices) => Promise<boolean>;
   readonly onRefused?: (selected: ReadonlySet<string>) => void;
@@ -171,6 +174,9 @@ export function LaunchDialog({
           />
         ) : (
           optionsLine !== undefined && <p className="quiet">{optionsLine}</p>
+        )}
+        {notOfferedLine !== undefined && (
+          <p className="quiet">{notOfferedLine}</p>
         )}
         <label htmlFor={`${id}-model`}>Model</label>
         <select

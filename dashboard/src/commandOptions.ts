@@ -152,9 +152,18 @@ export function inDefinitionOrder(
     .filter((flag) => selection.includes(flag));
 }
 
-// The boundary's words for a project whose installed skill has no options
-// file; the page says the same when it finds no definition at all.
-export const noOptionsFileWhy = "has no options file";
+// Why a project's installed skill offers no options, worded to follow
+// "the installed <skill> skill in <place>": the boundary refuses with these
+// words and the page says the same, including when it finds no definition.
+export const unavailableOptionsWhy = {
+  missing: "has no options file",
+  unreadable: "has an options file that could not be read",
+  invalid: "has an options file that is not valid",
+  otherCommand: "has an options file for another command",
+} as const;
+
+export type UnavailableOptionsWhy =
+  (typeof unavailableOptionsWhy)[keyof typeof unavailableOptionsWhy];
 
 // A selection with none of an exclusive group's flags.
 export function withoutGroup(

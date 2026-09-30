@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Make npm run lint report no warnings or errors, consistently](seeds/SEED-065-warning-free-lint.md#warning-free-lint) — SEED-065#warning-free-lint ([plan](slice-plans/187-warning-free-lint/PLAN.md))
-- [Correct the refinement options launch after its outcome review](seeds/SEED-061-refinement-options-from-dashboard.md#correct-refinement-options-launch-follow-ups) — SEED-061#correct-refinement-options-launch-follow-ups ([plan](slice-plans/188-correct-refinement-options-launch/PLAN.md))
 
 ## Backlog list
 
