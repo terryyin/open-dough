@@ -22,9 +22,9 @@
 // page holds as done, the page reads that session again, since the boundary
 // reopens a done session its terminal attaches to
 // (`../server/agentTerminals.ts`). Deleting a session's record, from a card
-// or Recent sessions, leaves it on no list, says so in a polite status, and
-// sends the keyboard to the entry beside it, or to the card or Recent
-// sessions. Opening, going to a sidebar
+// or Recent sessions, leaves it on no list, closes a panel showing it, says so
+// in a polite status, and sends the keyboard to the entry beside it, or to the
+// card or Recent sessions. Opening, going to a sidebar
 // entry's session, marking, deleting, and reading again each take the same
 // request (`./pageSessions.ts`).
 
@@ -212,10 +212,15 @@ export function TerminalSplit({
       return outcome;
     }
     setDeleted("Session record deleted");
+    const open = shown.current;
+    const closes = open?.record.session.sessionId === record.session.sessionId;
+    if (closes) {
+      setTerminal(undefined);
+    }
     setReturning({
       control,
       sessionId: record.session.sessionId,
-      shows: shown.current,
+      shows: closes ? undefined : open,
       home,
     });
     return outcome;

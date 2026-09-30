@@ -200,7 +200,13 @@ keyboard home for Recent entries in `pageSessions.ts`
 
 ### 5. Deleting the session the terminal shows closes the terminal
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npx playwright test --config dashboard/playwright.config.ts
+--reporter=line` on `agent-terminal-delete`, `agent-terminal-done`,
+`agent-terminal-lifetime`, the card/Recent/problems delete specs and the two
+sidebar-navigation specs (16 passed). Not exercised: deleting from a Recent
+entry while the terminal shows it, and another session's panel staying open
+(both follow from the shared operation and the session-id comparison).
 Proof: `dashboard/tests/agent-terminal-delete.spec.ts`, beside
 `agent-terminal-done.spec.ts`. The terminal shows a State unknown session
 (Open terminal stays offered while unknown) → its entry's delete confirmed →
