@@ -138,7 +138,7 @@ the new rule contradicts and align only contradictions.
 ### 2. Claude Code acceptance catches the retained cases
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: six native Claude Code replays judged against the table, each compared
 with its baseline; other hosts recorded as unclaimed.
 
@@ -165,6 +165,25 @@ boundaries; "Only a gap the story explicitly defers becomes an owner decision"
 covers the deferral boundary. Deterministic checks pass:
 `npm run lint`, `/opt/homebrew/bin/bash tests/payload-declaration-links.sh`,
 `/opt/homebrew/bin/bash tests/compare-payload.sh`, `git diff --check`.
+
+Slice 2 (manual, paid, Claude Code only; not part of any suite, CI or wrapper).
+Each case: `cd <clone> && claude --print --permission-mode default
+--allowedTools "Read Grep Glob Bash" --disallowedTools "Edit Write NotebookEdit"
+--max-budget-usd 4 "$(cat <case>.prompt)"`, after installing this checkout's
+guidance with `/opt/homebrew/bin/bash ./install.sh --target <clone> --source
+<checkout> --platform claude --force`. Verdicts after the change, against
+baseline: ODF-185 ACCEPT → RETURN (pass; the ATR note stays a learning);
+ODF-139 RETURN → RETURN (pass); ODF-196 RETURN → RETURN (pass); ODF-138 RETURN →
+RETURN (pass; now cites losing the only copy of the work for `applied: none`);
+harmless gap ACCEPT → ACCEPT (pass, no new run); sufficient unchanged proof: the
+as-is reconstruction RETURNED before and after because its invented
+`pnpm cypress run` and "1 selected, 1 passed" made the proof ambiguous, while
+the corrected reconstruction (plan's `pnpm cy:run`, whole feature 13/13)
+ACCEPTED with no rerun (pass; no baseline was run for the corrected return).
+Limits: returns are reconstructed from retained sentences and diffs, the
+corrected control's E2E result is reconstructed, one run per case so variance is
+unmeasured, one host and model; Codex and Cursor are unclaimed. No revision of
+slice 1 was needed.
 
 ## Learnings
 
