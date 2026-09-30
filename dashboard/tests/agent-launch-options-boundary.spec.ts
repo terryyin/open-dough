@@ -63,16 +63,13 @@ for (const mode of ["dev", "preview"] as const) {
       writeFileSync(definitionFile(), text);
     };
 
-    // Definition text for `command` with entries of these flags.
-    const definitionOf = (command: string, ...flags: string[]) =>
+    // Definition text for `command` with one entry, `flag`.
+    const definitionOf = (command: string, flag: string) =>
       JSON.stringify({
         command,
-        options: flags.map((flag) => ({
-          flag,
-          label: flag,
-          summary: `${flag}.`,
-          instruction: `${flag}.`,
-        })),
+        options: [
+          { flag, label: flag, summary: `${flag}.`, instruction: `${flag}.` },
+        ],
       });
 
     // Launches and returns the answered record and the `--bg` argv.
@@ -202,19 +199,6 @@ for (const mode of ["dev", "preview"] as const) {
     for (const [kind, text, why] of [
       ["not JSON", "{", "has an options file that is not valid"],
       [
-        "a duplicate flag",
-        definitionOf(skill, "--a", "--a"),
-        "has an options file that is not valid",
-      ],
-      [
-        "an entry without an instruction",
-        JSON.stringify({
-          command: skill,
-          options: [{ flag: "--a", label: "A", summary: "A." }],
-        }),
-        "has an options file that is not valid",
-      ],
-      [
         "another command",
         definitionOf("dough-other", "--a"),
         "has an options file for another command",
@@ -249,11 +233,5 @@ for (const mode of ["dev", "preview"] as const) {
         expect(error).toContain("has no options to select");
       });
     }
-
-    test("refuses options that are not a list of flags", async () => {
-      for (const options of [explored, [1], [""], null]) {
-        await refused({ ...refinementRequest, options });
-      }
-    });
   });
 }

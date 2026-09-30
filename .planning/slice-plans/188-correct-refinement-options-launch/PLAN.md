@@ -173,7 +173,13 @@ the current tree in about 7 s, so the page journeys run locally.
 ### 4. Test pure option rules directly, keep end-to-end for what needs a server
 
 - **Type:** Structure
-- **Status:** todo
+- **Status:** done
+- **Accepted proof:** `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-options-rules.spec.ts dashboard/tests/agent-launch-options-groups.spec.ts dashboard/tests/agent-launch-options-boundary.spec.ts dashboard/tests/agent-launch-options.spec.ts dashboard/tests/agent-launch-options-exclusive.spec.ts dashboard/tests/agent-launch-options-kept.spec.ts dashboard/tests/agent-launch-options-entries.spec.ts`
+  passes. `--list` counts: groups 16 to 8, boundary 30 to 24 (dev and
+  preview); the new rules spec adds 17 direct tests, each deleted case mapped to
+  one. The surviving "not JSON" row keeps the "not valid" refusal end to end.
+  `agent-launch-refusal.spec.ts` tested the request schema only over HTTP, not
+  directly as the premise said; the rules spec now does.
 - **Proof:** Behavior is settled by slices 1-3; the change only moves coverage.
   Add `dashboard/tests/agent-launch-options-rules.spec.ts` (plain
   `@playwright/test`, no server, imports `../src/commandOptions.ts` and
