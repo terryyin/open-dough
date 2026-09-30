@@ -234,11 +234,18 @@ file; the run file keeps launch, retention and identity.
 
 ### 7. Delivery-evidence observers use the shared vocabulary
 Type: Structure
-Status: planned
+Status: done
 Proof: the free proof command, including the delivery-evidence assessor and
 observer counterexamples in `git-publication-native.sh`.
 
-The four `harness-inspected` copies and field reads adopt slice 2's helpers, each
+Done for harness detection: the four observers call `native_harness_inspected`;
+`native-observation.sh` is sourced by the run file and listed in its identity.
+Field reads stay: `delivery_evidence_obs_get` returns the rest of the line of the
+first match, not awk `$2`. Gap: the claims and consumers observers are reached
+by no free check; their edit is the same replacement the selection observer's
+free counterexamples exercise. Free proof and lint pass.
+
+Original intent: the four `harness-inspected` copies and field reads adopt slice 2's helpers, each
 family passing only its pattern. The two observers at 249 lines drop below it as a
 side effect, not a goal.
 

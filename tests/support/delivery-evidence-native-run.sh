@@ -10,6 +10,8 @@
 delivery_evidence_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 source "${delivery_evidence_support_dir}/delivery-evidence-promise-status.sh"
+# shellcheck disable=SC1091
+source "${delivery_evidence_support_dir}/native-observation.sh"
 for delivery_evidence_case in selection claims consumers gaps; do
   for delivery_evidence_part in scenario-content observe assess; do
     # shellcheck disable=SC1090,SC1091
@@ -110,6 +112,7 @@ delivery_evidence_write_evidence_identity() {
     tests/git-publication-native.sh \
     tests/support/git-publication-native-host.sh \
     tests/support/delivery-evidence-native-run.sh \
+    tests/support/native-observation.sh \
     "${case_prefix}-assess.sh" \
     "${case_prefix}-observe.sh" \
     "${case_prefix}-scenario-content.sh" \
