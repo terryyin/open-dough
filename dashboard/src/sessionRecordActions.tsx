@@ -132,7 +132,7 @@ function DeleteRecord({
       }}
     >
       <p>
-        Delete this session&apos;s dashboard record? The conversation stays in
+        Delete this session&apos;s dashboard record? The conversation stays in{" "}
         {hostName(record.session.host)}; a running session keeps running.
       </p>
       <p className="delete-question-actions">

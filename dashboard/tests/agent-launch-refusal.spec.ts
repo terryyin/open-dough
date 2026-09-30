@@ -1,11 +1,11 @@
 // Which requests the local launch boundary (../server/agentLaunchPlugin.ts)
-// refuses before it starts any `claude`, over raw HTTP in dev and preview:
+// refuses before it starts any session, over raw HTTP in dev and preview:
 // another site or Host, an unknown project, a workflow it does not launch
-// (including an activity named as one) or a host other than Claude Code,
+// (including an activity named as one) or an unsupported host,
 // malformed text, a body that is not a JSON launch request, and any method but
 // GET and POST; and a read of the machine's sessions from another site. The
-// synthetic `claude` (./fixtures/fake-claude) records every call, so each
-// refusal proves none was made. What an admitted request answers is
+// synthetic Claude CLI and Codex protocol record every call; the parameterized
+// launch refusals prove neither host was called. What an admitted request answers is
 // ./agent-launch-boundary.spec.ts.
 
 import { expect, test } from "@playwright/test";
@@ -72,9 +72,9 @@ for (const mode of ["dev", "preview"] as const) {
         body: { ...launchRequest, workflow: "preparation" },
       },
       {
-        request: "for Codex",
+        request: "for Cursor",
         status: 400,
-        body: { ...launchRequest, host: "codex" },
+        body: { ...launchRequest, host: "cursor" },
       },
       {
         request: "for an unknown workflow",
@@ -113,9 +113,10 @@ for (const mode of ["dev", "preview"] as const) {
       },
       { request: "whose body is not a launch request", status: 400, body: [] },
     ]) {
-      test(`refuses a launch request ${refused.request} before starting claude`, async () => {
+      test(`refuses a launch request ${refused.request} before starting a session`, async () => {
         server.claudeScenario("launched");
         const callsBefore = server.claudeCalls().length;
+        const codexCallsBefore = server.codex.calls.length;
         const response = await launch(
           server,
           refused.body ?? launchRequest,
@@ -127,6 +128,7 @@ for (const mode of ["dev", "preview"] as const) {
           expect(JSON.parse(response.body)).toHaveProperty("error");
         }
         expect(server.claudeCalls()).toHaveLength(callsBefore);
+        expect(server.codex.calls).toHaveLength(codexCallsBefore);
       });
     }
 
