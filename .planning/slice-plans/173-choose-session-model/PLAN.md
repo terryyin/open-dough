@@ -283,3 +283,15 @@ the North Star, removes the topic, and keeps the seed's Goal and Scope only
   Default, the "requested" line and that nothing is remembered; the North Star
   launch row names the Model choice and its launch-domain topic is gone;
   `npm run typecheck:dashboard` clean.
+
+## Execution complete
+
+Product advice: No reordering. Three items for wrap-up to place. (1) The
+developer-run Opus observation (slice 5) is still owed: launch with Opus,
+confirm the session's terminal shows Opus, and note what Claude Code says for an
+unusable model; the entry wording "(requested)" stands until then. (2)
+`agentLaunch.ts` (304 lines) and `agentLaunches.ts` (311) now exceed the 250-line
+file guideline, as `SessionEntry.tsx` (301) already did and SEED-052's queued
+split-session-entry story covers; consider extending that story or adding one
+for the two launch files. (3) The launch-domain North Star topic is retired, so
+the seed's link to it is dangling and wrap-up clears it.
