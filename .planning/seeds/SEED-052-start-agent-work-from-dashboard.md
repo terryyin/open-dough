@@ -176,6 +176,52 @@ or claims of readiness.
   boundary and deferral recorded above; it does not authorize implementation.
 
 
+<a id="announce-record-deletion-first-time"></a>
+
+### Announce a deleted session record to screen readers the first time
+
+**Identity:** SEED-052#announce-record-deletion-first-time
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer using a screen reader hears "Session record
+  deleted" after the first deletion in a page visit, not only after later ones.
+- **Evaluation:** With a screen reader, open the dashboard, delete a session
+  record whose state is unknown, and hear the status; the page keeps exactly
+  one polite status region its keyboard and overview specs can rely on.
+- **Boundary:** Applies to the status the delete announces today, which appears
+  only after the first deletion and so may go unspoken. Routing it into the
+  page's existing always-present polite region needs that region's state lifted
+  and the single-region locators in `accessible-overview-keyboard.spec.ts` and
+  `dashboard/tests/dashboardPage.ts` changed with it. Other announcements stay
+  as they are.
+- **Depends on:** None; the delete is delivered.
+- **Capture:** Terry asked on 2026-09-30 to queue the follow-up recorded by the
+  delete's execution retrospective.
+
+<a id="split-session-entry-and-terminal-split"></a>
+
+### Split the session entry and terminal split files along their operations
+
+**Identity:** SEED-052#split-session-entry-and-terminal-split
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A maintainer changing session entries or the terminal panel
+  works in files small enough to read whole, one concern each.
+- **Evaluation:** `dashboard/src/SessionEntry.tsx` (about 300 lines) and
+  `dashboard/src/TerminalSplit.tsx` (about 275 lines) each hold one clear
+  concern after the change, with every dashboard spec passing unchanged and no
+  behavior differing.
+- **Boundary:** Structure only, along the seams the delete work exposed
+  (Mark as done, Delete record, the shared status line, and the panel's session
+  operations). No new behavior, wording or styling.
+- **Depends on:** None.
+- **Capture:** Terry asked on 2026-09-30 to queue the follow-up recorded by the
+  delete's execution retrospective.
+
 <a id="script-execution-preparation"></a>
 
 ### 5. Start execution with mechanical preparation already handled
