@@ -11,7 +11,12 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { launchInstructionLimit, type LaunchChoices } from "./agentLaunch.ts";
+import {
+  launchInstructionLimit,
+  launchModels,
+  type LaunchChoices,
+  type LaunchModel,
+} from "./agentLaunch.ts";
 import "./agent-launch.css";
 
 // The action's side of the dialog: its button, whether the dialog is open, and
@@ -48,7 +53,7 @@ export function useLaunchDialogLauncher(starting: boolean): {
 }
 
 // Mounted only while open, so an action carries no hidden dialog text and each
-// opening starts without an earlier instruction.
+// opening starts without an earlier instruction or model choice.
 export function LaunchDialog({
   heading,
   description,
@@ -75,6 +80,7 @@ export function LaunchDialog({
   const headingId = `${id}-heading`;
   const hintId = `${id}-instruction-hint`;
   const launched = useRef(false);
+  const [model, setModel] = useState<LaunchModel | "">("");
 
   useEffect(() => {
     dialog.current?.showModal();
@@ -95,6 +101,7 @@ export function LaunchDialog({
           event.preventDefault();
           void onStart({
             instruction: instruction.current?.value ?? "",
+            ...(model === "" ? {} : { model }),
           }).then((started) => {
             launched.current = started;
             dialog.current?.close();
@@ -117,6 +124,21 @@ export function LaunchDialog({
           maxLength={launchInstructionLimit}
           rows={4}
         />
+        <label htmlFor={`${id}-model`}>Model</label>
+        <select
+          id={`${id}-model`}
+          value={model}
+          onChange={(event) => {
+            setModel(event.target.value as LaunchModel | "");
+          }}
+        >
+          <option value="">Default (your Claude Code setting)</option>
+          {Object.entries(launchModels).map(([alias, { name }]) => (
+            <option key={alias} value={alias}>
+              {name}
+            </option>
+          ))}
+        </select>
         <div className="launch-dialog-actions">
           <button type="submit" disabled={starting}>
             {starting ? "Starting…" : "Start"}

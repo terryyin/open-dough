@@ -93,10 +93,14 @@ const attemptKey = (
 // An ad hoc launch has no work item, so its attempt is the project's alone.
 const adHocKey = (sourceId: string) => attemptKey(sourceId, "", "ad-hoc");
 
-// Trimmed text, omitted when empty, as the boundary takes it.
-const instructionOf = ({ instruction }: LaunchChoices) => {
+// The choices as the boundary takes them: trimmed text, omitted when empty,
+// and the model only when one was chosen.
+const optionsOf = ({ instruction, model }: LaunchChoices) => {
   const own = instruction.trim();
-  return own === "" ? {} : { instruction: own };
+  return {
+    ...(own === "" ? {} : { instruction: own }),
+    ...(model === undefined ? {} : { model }),
+  };
 };
 
 // The server's records replace what the page knew, except a launch recorded
@@ -224,7 +228,7 @@ export function useAgentLaunches(): MachineSessions {
         title: work.title,
         workflow,
         host: "claude",
-        ...instructionOf(choices),
+        ...optionsOf(choices),
       }),
     [launch],
   );
@@ -235,7 +239,7 @@ export function useAgentLaunches(): MachineSessions {
         source: sourceId,
         workflow: "ad-hoc",
         host: "claude",
-        ...instructionOf(choices),
+        ...optionsOf(choices),
       }),
     [launch],
   );

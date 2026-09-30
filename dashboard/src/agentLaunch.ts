@@ -146,6 +146,8 @@ export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
 // request's options, as typed, before the request trims and omits them.
 export type LaunchChoices = {
   readonly instruction: NonNullable<StoryLaunchRequest["instruction"]>;
+  // Absent for Default: Claude Code's own setting applies.
+  readonly model?: LaunchModel;
 };
 
 // The request a record keeps: an ad hoc one with the label the server

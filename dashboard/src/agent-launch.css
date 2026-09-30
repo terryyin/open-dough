@@ -83,6 +83,12 @@
   font-weight: 600;
 }
 
+.launch-dialog select {
+  align-self: flex-start;
+  max-width: 100%;
+  font: inherit;
+}
+
 .launch-dialog textarea {
   box-sizing: border-box;
   width: 100%;

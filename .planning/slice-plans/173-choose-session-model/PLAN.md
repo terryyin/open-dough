@@ -174,7 +174,7 @@ model joins that value and that component, not each caller.
 
 ### 3. A developer chooses the model in every launch dialog
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/agent-launch-model.spec.ts` with the launch journey and
 `dashboard.claudeLaunchCalls()`, plus the ad hoc page helpers.
 - Start refinement → dialog shows "Model" after the instruction field, choices
@@ -233,6 +233,8 @@ the North Star, removes the topic, and keeps the seed's Goal and Scope only
 - `LaunchChoices` derives from the request's `instruction` field with
   `NonNullable<...>`; `Required<Pick<...>>` kept `| undefined` and failed
   the typecheck.
+- The dialog has no submit-from-text-field shortcut, so "the keyboard still
+  starts in the text field" is proven as initial focus plus the Tab order.
 
 ## Accepted proof
 
@@ -250,3 +252,11 @@ the North Star, removes the topic, and keeps the seed's Goal and Scope only
   dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts --reporter=line` → 18
   passed, specs unedited (browser, launch requests intercepted, no real
   `claude`); `npm run typecheck:dashboard` clean.
+- Slice 3: `npx playwright test --config dashboard/playwright.config.ts
+  dashboard/tests/agent-launch-model.spec.ts
+  dashboard/tests/agent-launch-card.spec.ts
+  dashboard/tests/agent-launch-card-problems.spec.ts
+  dashboard/tests/agent-launch-ad-hoc.spec.ts
+  dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts --reporter=line` → 29
+  passed (browser, synthetic `claude`, `dashboard.claudeLaunchCalls()`); the
+  four existing specs unedited; `npm run typecheck:dashboard` clean.
