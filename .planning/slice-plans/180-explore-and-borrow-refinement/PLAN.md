@@ -141,7 +141,7 @@ the established execution workflow. No full-suite local gate is added here.
 
 ### 1. Explore alternatives through the existing refinement workflow
 Type: Behavior
-Status: planned
+Status: done
 Proof: Explore-only and no-option representative uses, including fixed-outcome
 preservation and the cosmetic-alternative trap; observe loading of the single
 definition; pass the three focused payload checks for the delivered dependency.
@@ -213,6 +213,27 @@ options, and dashboard exposure remain separately deliverable.
 
 ## Learnings
 
-No implementation has started. The supported test runtime and current focused
-proof entry points were observed during planning; future behavioral evidence
-must come from actual use of the changed guidance.
+### Slice 1 accepted proof (2026-09-30)
+
+- **Candidate:** `src/skills/dough-story-refinement/references/refinement-options.json`
+  (Explore only), a five-line loading paragraph in
+  `src/skills/dough-story-refinement/SKILL.md`, and its `install.sh`
+  `managed_files` entry.
+- **Representative use (source-loaded, fresh agents, scratch project with paths
+  supplied independently of the skill location, no expected alternatives given):**
+  - `--explore` on the attention-dashboard story: agent read SKILL.md,
+    planning.md, then the options JSON; alternatives differed in mechanism
+    (filter on existing list, reason-grouped page, ranked list with badges,
+    tiles, digest), compared on shared criteria, with a recommendation.
+  - No options on a clear story: JSON not read; converged on Goal, Scope, Key
+    examples with no alternatives exercise.
+  - Fixed outcome supplied: JSON read; constraint held, a violating digest
+    outcome exposed for the developer's decision; proposals and hypotheses
+    distinguished; story unchanged.
+- **Focused checks:** `env PATH="/opt/homebrew/bin:$PATH" npm test -- tests/payload-declaration-links.sh tests/install-public-payload.sh tests/story-payload-update.sh` passed.
+- **Not proved:** native host discovery or installation; one sample per use.
+- **Learning:** a new file in an already-declared skill needs its own
+  `managed_files` entry; the link check only follows `.md` links, so the JSON is
+  covered by the installer proof.
+- **For slice 2:** the JSON `default` restates SKILL.md's no-options sentence;
+  decide whether to keep both when extending the definition.

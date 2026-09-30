@@ -1,0 +1,12 @@
+{
+  "command": "dough-story-refinement",
+  "default": "Without options, refine straightforwardly: establish Goal, Scope, and Key examples without mandatory alternatives or analogy exercises.",
+  "selection": "Options may be combined. Flag order has no meaning; apply all selected instructions together within one refinement, unless the developer asks in ordinary language for a sequence. Baseline inquiry, evidence checks, and human ownership of goal and scope decisions apply in every mode.",
+  "options": [
+    {
+      "flag": "--explore",
+      "label": "Explore",
+      "instruction": "Develop materially different ways to achieve the selected story's goal or frame its problem; options that differ only in layout or wording do not count. Include a simpler or existing solution when plausible. Compare credible options against the same goal and genuine constraints, then recommend a direction with reasons. Treat invented alternatives as proposals and uncertain premises as hypotheses; check a decisive one before relying on it. Treat a developer-supplied constraint as fixed: if exploration reveals a possible different outcome, expose it for the developer's decision and continue supported work without silently changing the story's goal or scope."
+    }
+  ]
+}
