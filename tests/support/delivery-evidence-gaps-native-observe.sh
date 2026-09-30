@@ -210,12 +210,9 @@ delivery_evidence_gaps_observe() {
     fi
   fi
 
-  harness=false
-  if grep -Eiq \
+  harness=$(native_harness_inspected \
     'tests/support/delivery-evidence-gaps-native|native harness source' \
-    "${transcript}" "${response}" 2> /dev/null; then
-    harness=true
-  fi
+    "${transcript}" "${response}" 2> /dev/null)
 
   {
     printf 'scenario: %s\n' "${scenario}"

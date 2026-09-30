@@ -7,6 +7,13 @@
 # observation counterexamples for the Trunk Mode closure.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals assigned by sourced helpers.
 
+# shellcheck source=tests/support/git-publication-native-owned-context-startup-counterexamples.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-owned-context-startup-counterexamples.sh"
+# shellcheck source=tests/support/git-publication-native-owned-context-land-counterexamples.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-owned-context-land-counterexamples.sh"
+
 run_substitute_owned_context_journeys() {
   prepare_substitute_hosts
   run_substitute_owned_context_journey codex startup-owned-context
@@ -70,175 +77,6 @@ owned_context_append_started() {
         '{type:"assistant",message:{content:[{type:"tool_use",name:"Bash",input:{command:$c}}]}}'
       ;;
   esac >> "${owned_context_transcript}"
-}
-
-run_startup_owned_context_counterexamples() {
-  local workspace=${git_publication_fixture_workspace} seed=.planning/seeds/A.md
-  local retained=${git_publication_owned_retained} transcript=${owned_context_transcript}
-  git_publication_suite_passes_observed "${owned_context_obs}" \
-    owned_context_observe -- 'left the retained worktree untouched'
-
-  # The same start also given the retained worktree as a default checkout.
-  cp -- "${transcript}" "${transcript}.kept"
-  jq -c --arg d "${retained}" 'if (.item.command? // "" | test("execution-start.mjs start"))
-    then .item.command += " --integration \($d)" else . end' \
-    "${transcript}.kept" > "${transcript}"
-  native_assessor_rejects_observed default-checkout default-checkout \
-    "${owned_context_obs}.default-checkout" owned_context_observe -- fail \
-    'given a default checkout (--integration)'
-
-  # The same start split by line continuations names --repository on a later
-  # line, and a --help probe beside it is not a startup.
-  jq -c 'if (.item.command? // "" | test("execution-start.mjs start"))
-    then .item.command |= gsub(" --"; " \\\n  --") else . end' \
-    "${transcript}.kept" > "${transcript}"
-  git_publication_suite_passes_observed "${owned_context_obs}" \
-    owned_context_observe -- 'left the retained worktree untouched'
-  owned_context_append_started \
-    "node execution-start.mjs start --integration ${retained} --help"
-  git_publication_suite_passes_observed "${owned_context_obs}" \
-    owned_context_observe -- 'left the retained worktree untouched'
-
-  # The shell may quote the script path, which may hold a space: the start
-  # still counts with --repository on a later line, and a quoted --help probe
-  # (here naming --integration) still does not.
-  local quote
-  for quote in '"' "'"; do
-    jq -c --arg q "${quote}" 'if (.item.command? // "" | test("execution-start.mjs start"))
-      then .item.command |= (sub("[^ ]*execution-start[.]mjs"; "\($q)/owned dir/execution-start.mjs\($q)")
-        | gsub(" --"; " \\\n  --")) else . end' \
-      "${transcript}.kept" > "${transcript}"
-    grep -Fq "/owned dir/execution-start.mjs${quote//\"/\\\"} start \\\\" "${transcript}"
-    git_publication_suite_passes_observed "${owned_context_obs}" \
-      owned_context_observe -- 'left the retained worktree untouched'
-    owned_context_append_started \
-      "node ${quote}/owned dir/execution-start.mjs${quote} start --integration ${retained} --help"
-    git_publication_suite_passes_observed "${owned_context_obs}" \
-      owned_context_observe -- 'left the retained worktree untouched'
-  done
-  mv -- "${transcript}.kept" "${transcript}"
-
-  printf 'changed\n' >> "${retained}/trunk.txt"
-  native_assessor_rejects_observed retained-changed retained \
-    "${owned_context_obs}.retained-changed" owned_context_observe -- fail \
-    'retained worktree changed'
-  git -C "${retained}" checkout -q -- trunk.txt
-
-  cp -- "${workspace}/${seed}" "${workspace}/${seed}.kept"
-  cp -- "${retained}/${seed}" "${workspace}/${seed}"
-  native_assessor_rejects_observed local-copy workspace-source \
-    "${owned_context_obs}.local-copy" owned_context_observe -- fail 'published source (local-copy)'
-  mv -- "${workspace}/${seed}.kept" "${workspace}/${seed}"
-
-  touch -t 200001010000 "${workspace}/feature.txt"
-  native_assessor_rejects_observed feature-before-claim claim-order \
-    "${owned_context_obs}.feature-before-claim" owned_context_observe -- fail \
-    'crossed claim boundary'
-  touch "${workspace}/feature.txt"
-
-  git_publication_suite_passes_observed "${owned_context_obs}" \
-    owned_context_observe -- 'left the retained worktree untouched'
-}
-
-# shellcheck disable=SC2311 # A failed helper yields no revision, which the Git command given it rejects.
-run_preparation_land_counterexamples() {
-  local origin=${git_publication_fixture_origin} base=${git_publication_fixture_trunk_sha}
-  local repository=${git_publication_owned_repository} branch=${NATIVE_OWNED_BRANCH}
-  local workspace=${git_publication_fixture_workspace} root=${git_publication_fixture_root}
-  local index="${root}/counterexample.index" push_log="${root}/push.log"
-  local tip announcement profile stale commit
-  tip=$(git -C "${origin}" rev-parse refs/heads/main)
-  git_publication_suite_passes_observed "${owned_context_obs}" \
-    owned_context_observe -- 'landed only Story C'
-  announcement=$(git_publication_assess_field "$(cat "${owned_context_obs}")" announcement-sha)
-  profile=$(git -C "${origin}" diff-tree --no-commit-id --name-only -r "${announcement}")
-
-  # Commits tree $1 on parent $2 as another writer.
-  owned_context_commit() {
-    git -C "${origin}" -c user.name=Other -c user.email=other@example.test \
-      commit-tree "$1" -p "$2" -m counterexample
-  }
-  # Revision $1's tree with path $2 holding blob $3.
-  owned_context_tree_with() {
-    GIT_INDEX_FILE=${index} git -C "${origin}" read-tree "$1"
-    GIT_INDEX_FILE=${index} git -C "${origin}" update-index --add --cacheinfo "100644,$3,$2"
-    GIT_INDEX_FILE=${index} git -C "${origin}" write-tree
-  }
-
-  # The announcement made on the stale installed revision, then the landing.
-  stale=$(owned_context_commit "$(owned_context_tree_with \
-    "${git_publication_owned_installed}" "${profile}" \
-    "$(git -C "${origin}" rev-parse "${announcement}:${profile}")")" \
-    "${git_publication_owned_installed}")
-  git -C "${origin}" update-ref refs/heads/main "$(owned_context_commit "${tip}^{tree}" "${stale}")"
-  native_assessor_rejects_observed stale-announcement announcement-base \
-    "${owned_context_obs}.stale-announcement" owned_context_observe -- fail \
-    'announcement on the fetched trunk tip'
-  git -C "${origin}" update-ref refs/heads/main "${tip}"
-
-  cp -- "${push_log}" "${push_log}.kept"
-  { printf '%s %s refs/heads/main\n' "${base}" "${tip}" && cat "${push_log}.kept"; } > "${push_log}"
-  native_assessor_rejects_observed push-before-announcement push-order \
-    "${owned_context_obs}.push-before-announcement" owned_context_observe -- fail \
-    'push before the preparation announcement'
-  printf '%s %s refs/heads/main\n' "${tip}" "${base}" >> "${push_log}.kept"
-  cp -- "${push_log}.kept" "${push_log}"
-  native_assessor_rejects_observed force-push force-push \
-    "${owned_context_obs}.force-push" owned_context_observe -- fail 'force push'
-  sed '$d' "${push_log}.kept" > "${push_log}"
-  rm -- "${push_log}.kept"
-
-  commit=$(owned_context_commit "$(owned_context_tree_with "${tip}" trunk.txt \
-    "$(printf 'changed\n' | git -C "${origin}" hash-object -w --stdin)")" "${tip}")
-  git -C "${origin}" update-ref refs/heads/main "${commit}"
-  native_assessor_rejects_observed outside-story outside-story \
-    "${owned_context_obs}.outside-story" owned_context_observe -- fail "outside Story C's section"
-  git -C "${origin}" update-ref refs/heads/main "${tip}"
-
-  git -C "${repository}" worktree add -q -b "${branch}" "${workspace}" "${tip}"
-  native_assessor_rejects_observed worktree-re-added worktree-survived \
-    "${owned_context_obs}.worktree-re-added" owned_context_observe -- fail \
-    'worktree or its branch survived'
-  git -C "${repository}" worktree remove "${workspace}"
-  native_assessor_rejects_observed branch-survived worktree-survived \
-    "${owned_context_obs}.branch-survived" owned_context_observe -- fail \
-    'worktree or its branch survived'
-  git -C "${repository}" branch -q -D "${branch}"
-
-  run_preparation_land_retirement_counterexamples
-  git_publication_suite_passes_observed "${owned_context_obs}" \
-    owned_context_observe -- 'landed only Story C'
-}
-
-# Retirement runs the installed command for Story C, which checks ownership;
-# raw Git removal, or the command for other work, does not count.
-run_preparation_land_retirement_counterexamples() {
-  local transcript=${owned_context_transcript} log=${git_publication_owned_node_log}
-  local raw="git -C ${git_publication_owned_repository} worktree remove ${git_publication_fixture_workspace}"
-  local file
-  for file in "${transcript}" "${log}"; do
-    cp -- "${file}" "${file}.kept"
-    grep -Fv 'worktree-retirement.mjs' "${file}.kept" > "${file}" || true
-  done
-  native_assessor_rejects_observed retire-command-missing retire-command \
-    "${owned_context_obs}.retire-command-missing" owned_context_observe -- fail \
-    'installed retirement command for Story C'
-  # The command ran for Story C, but the worktree went through raw Git anyway.
-  cp -- "${log}.kept" "${log}"
-  cp -- "${transcript}.kept" "${transcript}"
-  owned_context_append_started "${raw}"
-  native_assessor_rejects_observed raw-git-retirement raw-git-retirement \
-    "${owned_context_obs}.raw-git-retirement" owned_context_observe -- fail \
-    'removed through raw Git'
-  for file in "${transcript}" "${log}"; do
-    sed 's/--identity /--identity other-/g' "${file}.kept" > "${file}"
-  done
-  native_assessor_rejects_observed retire-other-identity retire-command \
-    "${owned_context_obs}.retire-other-identity" owned_context_observe -- fail \
-    'installed retirement command for Story C'
-  for file in "${transcript}" "${log}"; do
-    mv -- "${file}.kept" "${file}"
-  done
 }
 
 # The Trunk Mode closure with no default checkout, through its controller.

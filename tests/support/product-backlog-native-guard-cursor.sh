@@ -84,20 +84,8 @@ guard_run_deterministic_cursor() {
 }
 
 guard_cursor_native_cleanup() {
-  local status=$?
-  local output
-  if [[ ${status} -eq 0 ]]; then
-    rm -rf -- "${temporary_dir}"
-    return
-  fi
-  printf '\nFAIL: preserving native Cursor guard evidence after status %s.\n' \
-    "${status}" >&2
-  for output in "${temporary_dir}"/native-guard-cursor-*; do
-    [[ -f ${output} ]] || continue
-    printf '%s\n' "--- $(basename -- "${output}") ---" >&2
-    cat "${output}" >&2
-  done
-  printf 'PRESERVED: %s\n' "${temporary_dir}" >&2
+  product_backlog_native_cleanup "$?" 'Cursor guard' 'native-guard-cursor-*' \
+    "${temporary_dir}"
 }
 
 guard_run_native_cursor() {

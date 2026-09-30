@@ -175,11 +175,9 @@ delivery_evidence_claims_observe() {
     fi
   fi
 
-  harness=false
-  if grep -Eiq 'tests/support/delivery-evidence-claims-native|native harness source' \
-    "${transcript}" "${response}" 2> /dev/null; then
-    harness=true
-  fi
+  harness=$(native_harness_inspected \
+    'tests/support/delivery-evidence-claims-native|native harness source' \
+    "${transcript}" "${response}" 2> /dev/null)
 
   {
     printf 'scenario: %s\n' "${scenario}"

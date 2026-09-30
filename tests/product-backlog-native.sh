@@ -33,6 +33,9 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck source=tests/support/product-backlog-native-evidence.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/product-backlog-native-evidence.sh"
 # shellcheck source=tests/support/product-backlog-native-guard.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/product-backlog-native-guard.sh"

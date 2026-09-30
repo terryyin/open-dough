@@ -8,6 +8,9 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck source=tests/support/native-result-retain.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/native-result-retain.sh"
+# shellcheck source=tests/support/product-backlog-native-evidence.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/product-backlog-native-evidence.sh"
 context_wrapper="${source_dir}/tests/dough-adr-awareness-context.sh"
 fail_fixture="${source_dir}/tests/support/native-agent-fail.sh"
 
@@ -188,3 +191,22 @@ if [[ ${launches} -ne 1 ]]; then
 fi
 assert_prior_identical
 [[ -d ${missing_attempt} && -d ${fail_attempt} && -d ${denied_attempt} ]]
+
+# The product-backlog native cases share one failure-evidence cleanup: success
+# removes the directory; failure prints the evidence and PRESERVED: and keeps it.
+cleanup_ok="${work_dir}/cleanup-ok"
+cleanup_failed="${work_dir}/cleanup-failed"
+mkdir -p -- "${cleanup_ok}" "${cleanup_failed}"
+printf '%s\n' 'case evidence' > "${cleanup_failed}/native-x-output.md"
+product_backlog_native_cleanup 0 'Fixture case' 'native-x-*' "${cleanup_ok}" \
+  2> "${stderr_file}"
+if [[ -e ${cleanup_ok} || -s ${stderr_file} ]]; then
+  echo 'FAIL: successful case cleanup kept the directory or printed output.' >&2
+  exit 1
+fi
+product_backlog_native_cleanup 3 'Fixture case' 'native-x-*' "${cleanup_failed}" \
+  2> "${stderr_file}"
+grep -Fq 'FAIL: preserving native Fixture case evidence after status 3.' "${stderr_file}"
+grep -Fq 'case evidence' "${stderr_file}"
+grep -Fxq "PRESERVED: ${cleanup_failed}" "${stderr_file}"
+[[ -f ${cleanup_failed}/native-x-output.md ]]

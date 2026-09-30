@@ -4,6 +4,9 @@
 # Journey files keep their own observation field layouts.
 # shellcheck disable=SC2034,SC2154,SC2312
 
+# shellcheck source=tests/support/native-observation.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-observation.sh"
 # shellcheck source=tests/support/native-host-stream.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-host-stream.sh"
@@ -83,6 +86,26 @@ native_completion_forced_stop() {
   else
     printf 'false\n'
   fi
+}
+
+# Measures one mailbox's completion counts and shutdown facts into the caller's
+# variables <prefix>_complete, _await, _stop, _forced_stop and _product_shutdown
+# (declare them local first). Args: prefix, node log, host, transcript, mailbox,
+# revision, terminal, forced-stop file, and optionally the call count that stands
+# for the completing call in the product-shutdown judgment (default: complete
+# count). Each journey prints the values in its own field order.
+native_completion_measure() {
+  local prefix=$1 node_log=$2 host=$3 transcript=$4 mailbox=$5 sha=$6
+  local terminal=$7 forced_file=$8 shutdown_basis=${9-} complete
+  complete=$(native_completion_call_count "${node_log}" "${host}" "${transcript}" \
+    "${mailbox}" "${sha}")
+  printf -v "${prefix}_complete" '%s' "${complete}"
+  printf -v "${prefix}_await" '%s' \
+    "$(native_completion_await_count "${node_log}" "${mailbox}" "${sha}")"
+  printf -v "${prefix}_stop" '%s' "$(native_completion_stop_count "${node_log}" "${mailbox}")"
+  printf -v "${prefix}_forced_stop" '%s' "$(native_completion_forced_stop "${forced_file}")"
+  printf -v "${prefix}_product_shutdown" '%s' \
+    "$(native_completion_product_shutdown "${shutdown_basis:-${complete}}" "${forced_file}" "${terminal}")"
 }
 
 # Exits 0 when observations $1 record the `control-order` steps $2... in that

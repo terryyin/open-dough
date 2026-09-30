@@ -15,19 +15,8 @@ take_plan_from_seed='../slice-plans/101-native-claim/PLAN.md'
 take_identity='SEED-101#publish-native-claim'
 
 take_cleanup() {
-  local status=$?
-  if [[ ${status} -eq 0 ]]; then
-    rm -rf -- "${temporary_dir}"
-    return
-  fi
-  printf '\nFAIL: preserving native Claude Code take evidence after status %s.\n' \
-    "${status}" >&2
-  for evidence in "${temporary_dir}"/native-take-*; do
-    [[ -f ${evidence} ]] || continue
-    printf '%s\n' "--- $(basename -- "${evidence}") ---" >&2
-    cat "${evidence}" >&2
-  done
-  printf 'PRESERVED: %s\n' "${temporary_dir}" >&2
+  product_backlog_native_cleanup "$?" 'Claude Code take' 'native-take-*' \
+    "${temporary_dir}"
 }
 
 take_write_fixture() {

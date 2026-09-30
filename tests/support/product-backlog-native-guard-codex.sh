@@ -3,20 +3,8 @@
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals and shared helpers come from the sourcing test.
 
 guard_codex_native_cleanup() {
-  local status=$?
-  local output
-  if [[ ${status} -eq 0 ]]; then
-    rm -rf -- "${temporary_dir}"
-    return
-  fi
-  printf '\nFAIL: preserving native Codex guard evidence after status %s.\n' \
-    "${status}" >&2
-  for output in "${temporary_dir}"/native-guard-codex-*; do
-    [[ -f ${output} ]] || continue
-    printf '%s\n' "--- $(basename -- "${output}") ---" >&2
-    cat "${output}" >&2
-  done
-  printf 'PRESERVED: %s\n' "${temporary_dir}" >&2
+  product_backlog_native_cleanup "$?" 'Codex guard' 'native-guard-codex-*' \
+    "${temporary_dir}"
 }
 
 guard_run_native_codex() {

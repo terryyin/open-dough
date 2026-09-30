@@ -135,13 +135,11 @@ delivery_evidence_selection_observe() {
   if [[ ! -f ${log} ]]; then
     instruction=true
   fi
-  harness=false
   # Only treat reading the support harness sources as contamination; the
   # disposable workspace path must not match this check.
-  if grep -Eiq 'tests/support/delivery-evidence-selection-native|native harness source' \
-    "${transcript}" "${response}" 2> /dev/null; then
-    harness=true
-  fi
+  harness=$(native_harness_inspected \
+    'tests/support/delivery-evidence-selection-native|native harness source' \
+    "${transcript}" "${response}" 2> /dev/null)
   {
     printf 'scenario: %s\n' "${scenario}"
     printf 'claimed-count: %s\n' "${claimed}"
