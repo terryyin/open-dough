@@ -28,24 +28,51 @@ projections that came out wrong.
 
 **Identity:** SEED-055#reassess-native-test-architecture
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
 ```
 
 **Goal:** The maintainer who reads and changes this repository's native
-acceptance tests finds them organized around cohesive responsibilities, with
-no file over the 250-line bound. The first known case is
-`tests/support/story-branch-closure-native-assess.sh` (266 lines); the
-refinement finds the others.
+acceptance tests finds every native family (git-publication, delivery-evidence,
+story-branch and trunk closure, ci-completion, execution-worktree-prep,
+product-backlog, and the shared native harness) built from the same few
+cohesive layers, with each responsibility owned in one place and no native
+file over the 250-line bound. The first known case is
+`tests/support/story-branch-closure-native-assess.sh` (266 lines, the only
+native file over the bound today); the design, not that file, is the outcome.
 
-**Scope:** This is not a simple split. Cutting the over-long files into
-pieces would satisfy the bound and leave the design as it is. The story
-reassesses the native test architecture as a whole: what each assessor,
-support script, and suite owns, where responsibilities overlap or leak, and
-how the pieces depend on one another. It then designs a more reasonable,
-elegant, and cohesive solution. The length problem is addressed as a side
-effect of that design, not as its aim. Refinement fixes the observable
-outcome, the files in scope, and the proof that current verdicts do not
-change.
+**Scope:** This is not a simple split. Cutting the over-long file into pieces
+would satisfy the bound and leave the design as it is. The story reassesses
+the native test architecture as a whole, across all families: what each
+fixture, run, observe, assess, and counterexample script and each suite owns,
+where responsibilities overlap or leak between families and the shared harness
+(for example the completion observation and response-reading helpers), and how
+the pieces depend on one another. It then moves the families onto one cohesive
+layering and removes the duplicated patterns it finds, so each concern ends
+with a single owner. The length problem is a side effect of that design.
+
+- **Preserved:** every native entry point keeps its command line and
+  retained-results contract, and every current assessor verdict and
+  counterexample expectation stays as it is. A counterexample whose expected
+  verdict would have to change stops the work and goes to the maintainer.
+- **Not committed:** no new native cases, no change to what a native run checks
+  (ADR 0005 stands), no paid native runs (they stay manual-only), and no
+  change to non-native suites or `tests/README.md`.
+- **Size:** the reach is wide by choice. Execution may split it at a safe
+  boundary, family by family, once the shared layering exists.
+
+**Key examples:**
+
+- The 266-line story-branch-closure assessor holds run observation and its
+  counterexamples together; after the change each has one owner, both under
+  the bound, and the closure suite gives the same verdicts.
+- Two families read the same kind of completion or response field with their
+  own helper; after the change one shared owner serves both, and the families
+  keep only what is specific to their journey.
+- A new native family added later follows the shared layering without copying
+  another family's scripts.
+- The free assessor counterexample suites, the stream replay corpus, and the
+  runner checks pass unchanged: that, not a paid native run, proves the
+  verdicts did not change.
 
 ## Breadcrumbs
 
