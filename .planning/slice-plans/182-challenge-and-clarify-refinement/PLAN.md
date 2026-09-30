@@ -189,3 +189,12 @@ deliverable.
   Focused payload checks exited 0 after the refactor:
   `env PATH="/opt/homebrew/bin:$PATH" npm test -- tests/payload-declaration-links.sh tests/install-public-payload.sh tests/story-payload-update.sh`.
   Limit: walkthroughs are reasoning, not live-model runs.
+
+## Execution complete
+
+Product advice: No change. Both options ship in the one options definition and
+match the story's examples. The proof is reasoning walkthroughs, not live-model
+runs, so a later native-host observation of `--challenge --clarify` on an
+oversized story would be the first real check of manufactured doubt or
+fabricated narrowing. Sibling stories (investigation, stress testing, focus
+options, dashboard controls) stay ordered as queued.
