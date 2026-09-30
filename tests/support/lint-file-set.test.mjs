@@ -31,6 +31,7 @@ function lintFixture(t) {
   copyRepositoryFiles(fixture, [
     "scripts/lint.mjs",
     "eslint.config.mjs",
+    "eslint.ignores.mjs",
     ".gitignore",
     ".prettierignore",
   ]);

@@ -1,14 +1,22 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import {
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  symlinkSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  copyFiles,
   copyRepositoryFiles,
   env,
   excludeLinkedDependencies,
   git,
+  gitWith,
   gitOk,
   violation,
   write,
@@ -16,21 +24,25 @@ import {
 
 const unformatted = "export const  drift = {a:1};\n";
 
+const fixtureFiles = [
+  "scripts/lint.mjs",
+  "eslint.config.mjs",
+  "eslint.ignores.mjs",
+  ".gitignore",
+  ".prettierignore",
+  ".prettierrc.json",
+  ".editorconfig",
+  ".shellcheckrc",
+  ".githooks/pre-commit",
+];
+
 // A committed repository with this repository's lint runner, configs, and
-// tracked hook; the fixture sets core.hooksPath directly.
-function hookFixture(t) {
+// tracked hook; the fixture sets core.hooksPath directly. Without linked
+// dependencies it has no node_modules, like a fresh worktree.
+function hookFixture(t, { dependencies = true } = {}) {
   const fixture = mkdtempSync(join(tmpdir(), "pre-commit-lint-hook-"));
   t.after(() => rmSync(fixture, { recursive: true, force: true }));
-  copyRepositoryFiles(fixture, [
-    "scripts/lint.mjs",
-    "eslint.config.mjs",
-    ".gitignore",
-    ".prettierignore",
-    ".prettierrc.json",
-    ".editorconfig",
-    ".shellcheckrc",
-    ".githooks/pre-commit",
-  ]);
+  (dependencies ? copyRepositoryFiles : copyFiles)(fixture, fixtureFiles);
   write(
     join(fixture, "package.json"),
     '{"private":true,"type":"module","scripts":{"lint":"node scripts/lint.mjs"}}\n',
@@ -41,7 +53,9 @@ function hookFixture(t) {
   );
   write(join(fixture, "src/ok.mjs"), "export const ok = 1;\n");
   gitOk(fixture, "init", "--quiet");
-  excludeLinkedDependencies(fixture);
+  if (dependencies) {
+    excludeLinkedDependencies(fixture);
+  }
   gitOk(fixture, "add", ".");
   gitOk(fixture, "-c", "core.hooksPath=/dev/null", "commit", "-qm", "fixture");
   gitOk(fixture, "config", "core.hooksPath", ".githooks");
@@ -138,4 +152,53 @@ test("an unstaged violating file does not block a clean staged commit", (t) => {
     gitOk(fixture, "show", "HEAD:src/ok.mjs"),
     "export const ok = 2;\n",
   );
+});
+
+// A PATH holding only node, npm, git, env, and sh, so eslint, prettier, shellcheck,
+// and shfmt are absent wherever the host installs them.
+function toolless(t) {
+  const bin = mkdtempSync(join(tmpdir(), "toolless-bin-"));
+  t.after(() => rmSync(bin, { recursive: true, force: true }));
+  for (const tool of ["node", "npm", "git", "env", "sh"]) {
+    const found = execFileSync("which", [tool], { encoding: "utf8" }).trim();
+    symlinkSync(realpathSync(found), join(bin, tool));
+  }
+  return gitWith({ ...env, PATH: bin });
+}
+
+test("a records-only commit succeeds without lint tools", (t) => {
+  const gitToolless = toolless(t);
+  const fixture = hookFixture(t, { dependencies: false });
+  write(join(fixture, ".planning/agents/x.json"), '{"a":  1}\n');
+  write(join(fixture, ".planning/seeds/SEED-1.md"), "# Seed\n");
+  gitOk(fixture, "add", ".planning");
+
+  const commit = gitToolless(fixture, "commit", "-m", "records");
+
+  assert.equal(commit.status, 0, commit.output);
+  assert.doesNotMatch(commit.output, /not found/);
+  assert.equal(
+    gitOk(fixture, "show", "HEAD:.planning/agents/x.json"),
+    '{"a":  1}\n',
+  );
+});
+
+test("a staged file whose tool is missing is refused naming the tool and npm ci", (t) => {
+  const gitToolless = toolless(t);
+  for (const [file, content, tool] of [
+    ["scripts/c.sh", '#!/bin/sh\nset -eu\nprintf "%s\\n" hello\n', "shfmt"],
+    ["src/new.mjs", "export const n = 1;\n", "eslint"],
+  ]) {
+    const fixture = hookFixture(t, { dependencies: false });
+    const before = head(fixture);
+    write(join(fixture, file), content);
+    gitOk(fixture, "add", file);
+
+    const commit = gitToolless(fixture, "commit", "-m", "needs tool");
+
+    assert.notEqual(commit.status, 0, commit.output);
+    assert.match(commit.output, new RegExp(`${tool}: not found on PATH`));
+    assert.match(commit.output, /npm ci/);
+    assert.equal(head(fixture), before);
+  }
 });

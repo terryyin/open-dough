@@ -17,14 +17,23 @@ export const env = {
   GIT_COMMITTER_EMAIL: "lint-fixture@example.com",
 };
 
-export function git(cwd, ...args) {
-  const result = spawnSync("git", args, { cwd, env, encoding: "utf8" });
-  return {
-    status: result.status,
-    stdout: result.stdout,
-    output: result.stdout + result.stderr,
+// A `git` runner using the given environment, for fixtures that change PATH.
+export function gitWith(environment) {
+  return (cwd, ...args) => {
+    const result = spawnSync("git", args, {
+      cwd,
+      env: environment,
+      encoding: "utf8",
+    });
+    return {
+      status: result.status,
+      stdout: result.stdout,
+      output: result.stdout + result.stderr,
+    };
   };
 }
+
+export const git = gitWith(env);
 
 export function gitOk(cwd, ...args) {
   const result = git(cwd, ...args);
@@ -41,10 +50,15 @@ export function write(file, content) {
 // repository's dependencies. Git's `.gitignore` rule for node_modules/ matches
 // directories, not the symlink, so the fixture excludes it explicitly once its
 // repository is initialized.
-export function copyRepositoryFiles(fixture, files) {
+export function copyFiles(fixture, files) {
   for (const file of files) {
+    mkdirSync(dirname(join(fixture, file)), { recursive: true });
     cpSync(join(root, file), join(fixture, file));
   }
+}
+
+export function copyRepositoryFiles(fixture, files) {
+  copyFiles(fixture, files);
   symlinkSync(join(root, "node_modules"), join(fixture, "node_modules"));
 }
 

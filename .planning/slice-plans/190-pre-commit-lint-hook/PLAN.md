@@ -133,7 +133,7 @@ lint-file-set tests) and `npm run lint` (clean). Learnings: `--staged` with
 ### 2. Commit records without lint tools and report a missing one
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npm test -- tests/support/pre-commit-lint-hook.test.mjs` (examples 5
 and 6), then `npm run lint`.
 
@@ -144,6 +144,15 @@ refused with a line naming the missing tool and `npm ci`.
 
 Drops paths every applicable tool ignores before tools run, and clarifies the
 missing-tool line (shared by `npm run lint`).
+
+Accepted proof: `node --test tests/support/pre-commit-lint-hook.test.mjs
+tests/support/lint-file-set.test.mjs` (10 of 10 pass, examples 5 and 6 included)
+and `npm run lint` (clean). Learnings: ESLint's global ignores now live in
+`eslint.ignores.mjs`, read by `eslint.config.mjs` and by `--staged`, which asks
+Git to match both ignore lists so no tool is needed; the missing-tool line reads
+`<tool>: not found on PATH. Run npm ci …`. CI's `test` job has no shellcheck or
+shfmt (only its `lint` job does; CI run 36725631259 on slice 1), so the clean
+shell-file hook test skips when either is absent.
 
 ### 3. Enable the hook with npm ci for the checkout and its worktrees
 

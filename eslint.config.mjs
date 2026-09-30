@@ -3,6 +3,7 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import prettier from "eslint-config-prettier";
 import globals from "globals";
 import tseslint from "typescript-eslint";
+import ignores from "./eslint.ignores.mjs";
 
 const linterOptions = {
   reportUnusedDisableDirectives: "error",
@@ -28,15 +29,7 @@ const rules = {
 const unusedVars = ["error", { args: "all", caughtErrors: "all" }];
 
 export default defineConfig(
-  globalIgnores([
-    "node_modules/",
-    "dist/",
-    "coverage/",
-    ".planning/",
-    "dashboard/dist/",
-    "dashboard/test-results/",
-    "dashboard/playwright-report/",
-  ]),
+  globalIgnores(ignores),
   {
     files: ["**/*.{js,cjs,mjs,jsx}"],
     extends: [js.configs.recommended],

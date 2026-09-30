@@ -20,7 +20,11 @@ function run(command, args, options = {}) {
     stdio: "inherit",
     ...options,
   });
-  if (result.error) {
+  if (result.error?.code === "ENOENT") {
+    console.error(
+      `${command}: not found on PATH. Run npm ci to install eslint and prettier; shellcheck and shfmt come from your system package manager.`,
+    );
+  } else if (result.error) {
     console.error(`${command}: ${result.error.message}`);
   }
   return result;
@@ -58,16 +62,48 @@ if (listing.status !== 0) {
 const files = [...new Set(listing.stdout.split("\0"))].filter(
   (file) => file && existsSync(file) && statSync(file).isFile(),
 );
+
+// Of the listed paths, those Git matches against an ignore list. Git reads the
+// patterns, so no ignoring tool has to be installed.
+function ignoredBy(excludeFrom, input, paths) {
+  if (paths.length === 0) {
+    return new Set();
+  }
+  const ignored = run(
+    "git",
+    ["ls-files", "-ci", "-z", `--exclude-from=${excludeFrom}`, "--", ...paths],
+    { input, stdio: ["pipe", "pipe", "inherit"] },
+  );
+  if (ignored.status !== 0) {
+    process.exit(1);
+  }
+  return new Set(ignored.stdout.split("\0"));
+}
+
 // ESLint skips listed files under its own ignores (.planning/) silently, and
-// Prettier keeps honoring .prettierignore for explicit paths.
-const eslintFiles = files.filter((file) =>
+// Prettier keeps honoring .prettierignore for explicit paths. Staged runs drop
+// such files up front so a tool is needed only when a file remains for it.
+const scriptFiles = files.filter((file) =>
   /\.(?:js|cjs|mjs|jsx|ts|mts|tsx)$/.test(file),
 );
+const jsonFiles = files.filter((file) => /\.jsonc?$/.test(file));
+let eslintFiles = scriptFiles;
+let prettierFiles = [...scriptFiles, ...jsonFiles];
+if (staged) {
+  const eslintIgnored = ignoredBy(
+    "/dev/stdin",
+    (await import("../eslint.ignores.mjs")).default.join("\n"),
+    scriptFiles,
+  );
+  const prettierIgnored = ignoredBy(
+    ".prettierignore",
+    undefined,
+    prettierFiles,
+  );
+  eslintFiles = scriptFiles.filter((file) => !eslintIgnored.has(file));
+  prettierFiles = prettierFiles.filter((file) => !prettierIgnored.has(file));
+}
 const eslintOptions = ["--max-warnings=0", "--no-warn-ignored"];
-const prettierFiles = [
-  ...eslintFiles,
-  ...files.filter((file) => /\.jsonc?$/.test(file)),
-];
 const shellFiles = files.filter(
   (file) =>
     /\.(?:sh|bash|ksh|bats)$/.test(file) ||
