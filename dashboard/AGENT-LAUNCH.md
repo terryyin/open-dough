@@ -217,8 +217,15 @@ again only after a reading that does not alert, so it does not repeat while
 the reading stays, across a page reload, or when a server restart finds it
 there, and a changed reason alone is no new alert. The text is passed to
 `osascript` as arguments, never spliced into its script; where `osascript`
-is missing or refuses, nothing is raised and the watcher goes on. Two
-dashboard servers on one machine would each alert.
+is missing or refuses, nothing is raised and the watcher goes on. Its
+availability is the latest `osascript` outcome (a probe, `osascript -e 'return
+0'`, at start, then each notification), which the machine sessions answer
+carries as `alerts`. While it is unavailable, the open Sessions sidebar says
+"Alerts unavailable:" with one of two reasons, "osascript was not found on this
+machine, so alerts need macOS" or "macOS did not accept the notification", and
+the note goes after the next read of the sessions that follows a working
+notification. A closed sidebar shows no note. Two dashboard servers on one
+machine would each alert.
 
 The launch boundary also attaches a terminal to a session it launched. A
 same-origin WebSocket to

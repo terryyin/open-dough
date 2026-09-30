@@ -83,7 +83,7 @@ export type FakeClaudeOptions = {
   // How the fake `osascript` starts: `absent` puts none on the server's PATH;
   // `failing` refuses every notification; `hang` holds each one open. Working
   // when unset.
-  readonly osascript?: "absent" | "failing" | "hang";
+  readonly osascript?: "absent" | "failing" | "hang" | undefined;
   // How often the server reads the sessions to alert; an hour when unset, so
   // only a test about alerts sees the server read the sessions on its own.
   readonly alertCheckMs?: number | undefined;
@@ -122,6 +122,8 @@ export type FakeClaudeControls = {
   claudeAttaches(): ClaudeAttach[];
   // Every `osascript` the fake ran so far, oldest first.
   osascriptCalls(): OsascriptCall[];
+  // Every start probe the server ran, apart from those calls.
+  osascriptProbes(): OsascriptCall[];
   // Changes how the fake `osascript` answers from now on.
   osascriptBecomes(mode: "working" | "failing" | "hang"): void;
   // The pid of a `hang` notification still open, and the signal that ended
@@ -177,11 +179,15 @@ export function installFakeClaude(
   const env: Record<string, string> = {
     // The real `claude` and `osascript` are never reached: the fake ones come
     // first, or none is on PATH at all.
+    // Where either is absent, the system's own PATH is left out, so a real
+    // `osascript` on a Mac is out of reach too.
     PATH: [
       ...(options.osascript === "absent" ? [] : [osascriptBinDir]),
       ...(options.claude === "absent"
         ? [gh.binDir, nodeOnlyBinDir(tempRoot)]
-        : [binDir, gh.path]),
+        : options.osascript === "absent"
+          ? [binDir, gh.binDir, nodeOnlyBinDir(tempRoot)]
+          : [binDir, gh.path]),
     ].join(path.delimiter),
     HOME: home,
     FAKE_CLAUDE_DIR: stateDir,
@@ -249,6 +255,9 @@ export function installFakeClaude(
       },
       osascriptCalls() {
         return jsonLines<OsascriptCall>("osascript-calls.jsonl");
+      },
+      osascriptProbes() {
+        return jsonLines<OsascriptCall>("osascript-probes.jsonl");
       },
       osascriptBecomes(mode) {
         writeFileSync(state("osascript-mode"), mode);

@@ -8,11 +8,17 @@
 // it enters a reading that needs the developer, again only after a reading
 // that does not. The notification is `osascript` with the text passed as
 // arguments, never spliced into script text; where it cannot run, or
-// refuses, the loop goes on. Raw stderr is never kept.
+// refuses, the loop goes on. Availability is the latest `osascript` outcome,
+// a probe at start and then each notification, with one of two fixed
+// reasons; raw stderr is never kept or forwarded.
 
 import { execFile } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
-import { launchSubject, type LaunchWithState } from "../src/agentLaunch.ts";
+import {
+  launchSubject,
+  type Alerts,
+  type LaunchWithState,
+} from "../src/agentLaunch.ts";
 import { catalog } from "../src/publishedSource.ts";
 import { alertReading } from "../src/sessionShown.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
@@ -34,20 +40,27 @@ const notifyScript = [
   "end run",
 ];
 
-function notify(
-  message: string,
-  title: string,
+const notFound =
+  "osascript was not found on this machine, so alerts need macOS";
+const refused = "macOS did not accept the notification";
+
+// Runs `osascript`, answering why alerts are unavailable, or nothing when it
+// worked. A run ended by closing the server says nothing.
+function osascript(
+  args: readonly string[],
   signal: AbortSignal,
-): Promise<void> {
+): Promise<string | undefined> {
   return new Promise((resolve) => {
-    execFile(
-      "osascript",
-      [...notifyScript.flatMap((line) => ["-e", line]), "--", message, title],
-      { signal },
-      () => {
-        resolve();
-      },
-    ).stdin?.end();
+    execFile("osascript", args, { signal }, (error) => {
+      if (error === null) resolve(undefined);
+      else if (signal.aborted) resolve(undefined);
+      else
+        resolve(
+          (error as NodeJS.ErrnoException).code === "ENOENT"
+            ? notFound
+            : refused,
+        );
+    }).stdin?.end();
   });
 }
 
@@ -71,9 +84,32 @@ export class SessionAlerts {
   // Each session's last reading that needs the developer, or nothing; unset
   // until the first read of this run.
   private readings: ReadonlyMap<string, string | undefined> | undefined;
+  // Why the latest `osascript` did not work, or nothing while it did or none
+  // has run.
+  private unavailable: string | undefined;
 
   constructor(private readonly launches: AgentLaunches) {
+    void this.probe();
     void this.run();
+  }
+
+  // Whether alerts can be raised, as the latest `osascript` left it.
+  availability(): Alerts {
+    return this.unavailable === undefined
+      ? { available: true }
+      : { available: false, reason: this.unavailable };
+  }
+
+  private async attempt(args: readonly string[]): Promise<void> {
+    const { signal } = this.stopped;
+    const unavailable = await osascript(args, signal);
+    if (!signal.aborted) this.unavailable = unavailable;
+  }
+
+  // One harmless run at start, so a machine that cannot alert says so before
+  // any session needs the developer.
+  private probe(): Promise<void> {
+    return this.attempt(["-e", "return 0"]);
   }
 
   private async run(): Promise<void> {
@@ -106,7 +142,12 @@ export class SessionAlerts {
       if (reading === undefined || reading === before.get(id) || signal.aborted)
         continue;
       const { message, title } = notification(reading, session);
-      await notify(message, title, signal);
+      await this.attempt([
+        ...notifyScript.flatMap((line) => ["-e", line]),
+        "--",
+        message,
+        title,
+      ]);
     }
   }
 

@@ -203,7 +203,7 @@ once at start); "no `agents` listings after close" is not asserted directly
 
 ### 2. The Sessions sidebar says when alerts cannot be raised
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/session-alerts-unavailable.spec.ts` on the page, with
 the fake `osascript` in each mode.
 - Fake `osascript` working → the open sidebar has no alerts note.
@@ -223,3 +223,14 @@ the developer once it is open. Adds the start probe and recorded outcome to
 `src/agentLaunches.ts`), the note in `src/SessionSidebar.tsx`, the `absent` and
 `failing` `osascript` modes in the harness, and the sidebar and alert
 paragraph in `dashboard/AGENT-LAUNCH.md` and the sidebar comment.
+
+Accepted proof: `npx playwright test --config dashboard/playwright.config.ts
+dashboard/tests/session-alerts-unavailable.spec.ts dashboard/tests/session-alerts.spec.ts
+dashboard/tests/agent-launch-attention.spec.ts dashboard/tests/agent-launch-session-listing.spec.ts
+dashboard/tests/session-sidebar.spec.ts dashboard/tests/session-sidebar-reading.spec.ts
+dashboard/tests/agent-terminal-lifetime.spec.ts dashboard/tests/agent-launch-boundary.spec.ts
+dashboard/tests/agent-launch-done.spec.ts` exit 0, with `npm run typecheck:dashboard` and
+`npm run lint`. Learnings: a harness that removes a binary from PATH must also drop the
+inherited system PATH, or a Mac reaches the real one (fixed in `fakeClaude.ts` for
+`osascript: "absent"`); the page's own poll clearing the note is exercised only through
+a reload.

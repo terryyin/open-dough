@@ -16,6 +16,7 @@ import {
   type LaunchRecord,
   type LaunchWithState,
   type LaunchResult,
+  type MachineAnswer,
 } from "./agentLaunch.ts";
 import {
   agentDeleteEndpoint,
@@ -78,15 +79,16 @@ export async function requestAgentLaunch(
 
 // The machine's sessions: the launch records this machine keeps for every
 // project, each naming its project, oldest first within it, with its
-// session's current state, or undefined when no trustworthy answer came.
+// session's current state, and whether the server can alert, or undefined
+// when no trustworthy answer came.
 export async function readMachineSessions(): Promise<
-  readonly LaunchWithState[] | undefined
+  MachineAnswer | undefined
 > {
   try {
     const response = await fetch(agentLaunchEndpoint);
     if (!response.ok) return undefined;
     const answer = launchRecordsSchema.safeParse(await response.json());
-    return answer.success ? answer.data.records : undefined;
+    return answer.success ? answer.data : undefined;
   } catch {
     return undefined;
   }

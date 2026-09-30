@@ -259,9 +259,22 @@ export const launchResultSchema = z.discriminatedUnion("kind", [
 
 export type LaunchResult = z.infer<typeof launchResultSchema>;
 
+// Whether the boundary can raise its macOS notifications
+// (`../server/sessionAlerts.ts`): the outcome of the latest `osascript` it
+// ran, with one fixed sentence of why not.
+export const alertsSchema = z.discriminatedUnion("available", [
+  z.object({ available: z.literal(true) }),
+  z.object({ available: z.literal(false), reason: z.string().min(1) }),
+]);
+
+export type Alerts = z.infer<typeof alertsSchema>;
+
 // The machine's sessions, as the boundary answers a GET: every catalog
 // project's launch records, each naming its project and joined with its
-// session's current state.
+// session's current state, and whether alerts can be raised.
 export const launchRecordsSchema = z.object({
   records: z.array(launchWithStateSchema),
+  alerts: alertsSchema,
 });
+
+export type MachineAnswer = z.infer<typeof launchRecordsSchema>;
