@@ -82,7 +82,10 @@ valid", or "options file defines another command" (`noOptionsFileWhy` and
 Nothing is remembered: each dialog opens with nothing selected, like Model. The
 one exception is a launch the boundary refuses: its selection, not its model or
 instruction, returns when the dialog is opened again, and **Cancel** or Escape
-drops it.
+drops it. Once the options are read, a kept flag the offer no longer has (the
+definition dropped it, offers no options, or cannot be used) is not sent, and
+one quiet line under the options names such flags in the kept order: "Not
+offered any more, so not sent: --c." (`notOfferedLine`).
 
 The request carries the selected flags as an optional `options` (at most 32
 single-line strings; none or empty is no selection). The boundary

@@ -112,7 +112,15 @@ the current tree in about 7 s, so the page journeys run locally.
 ### 1. Say which kept options are no longer offered
 
 - **Type:** Behavior
-- **Status:** todo
+- **Status:** done
+- **Accepted proof:** `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-options-exclusive.spec.ts dashboard/tests/agent-launch-options-kept.spec.ts`
+  passes (10). The refusal tests moved to the new
+  `agent-launch-options-kept.spec.ts`: the refusal test asserts `--a` checked,
+  "Not offered any more, so not sent: --c.", `Sent after ... --a.` and argv
+  `... --a`; "a kept selection the project no longer offers at all..." asserts
+  "--a, --c." with a removed options file and a default launch. Seen red before
+  the change. `notOfferedLine` in `StartLaunch.tsx`; the empty offer takes the
+  same path as a dropped option.
 - **Proof:** Extend the refusal test in `agent-launch-options-exclusive.spec.ts`
   as in the table above and run it red first (premise 1), then implement: the
   dialog derives the not-offered kept flags (`LaunchDialog.tsx` or
@@ -203,4 +211,9 @@ the current tree in about 7 s, so the page journeys run locally.
 
 ## Learnings
 
-None yet.
+- The page reads the definition again only on its periodic sessions read, so a
+  page test that changes the definition after a refusal advances the paused
+  clock by `checkIntervalMs` before reopening the dialog.
+- Slice 1's refactor split the kept-selection tests into
+  `agent-launch-options-kept.spec.ts` and moved the shared grouped fixture to
+  `groupedOptions` in `launchCardPage.ts`; slice 4 runs that file too.
