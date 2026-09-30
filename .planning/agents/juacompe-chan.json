@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "juacompe-chan",
-  "email": "juacompe-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-065#warning-free-lint",
-  "host": "claude",
-  "model": "claude-opus-5-5"
-}
