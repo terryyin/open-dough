@@ -29,11 +29,6 @@ import {
   type EstablishedLaunch,
 } from "./claudeLaunch.ts";
 import {
-  beginStart,
-  establishesStart,
-  formattedStart,
-} from "./executionStart.ts";
-import {
   keepRecord,
   keptRecords,
   keptRecordsByProject,
@@ -41,6 +36,7 @@ import {
 import { shownWorkspace } from "./claudeWorkspace.ts";
 import { StartProgress } from "./startProgress.ts";
 import { keptStartsByProject, removeStart } from "./startStore.ts";
+import { startOf, type StartWorkflow } from "./startWorkflows.ts";
 import {
   folderExists,
   machineFolder,
@@ -80,7 +76,10 @@ function startTimeoutMs(): number {
 // workspace the session opens in, or the launch stops with this answer.
 type Started =
   | { readonly kind: "none" }
-  | ({ readonly kind: "established" } & EstablishedLaunch)
+  | ({
+      readonly kind: "established";
+      readonly workflow: StartWorkflow;
+    } & EstablishedLaunch)
   | { readonly kind: "stopped"; readonly result: LaunchResult };
 
 function startFailed(
@@ -93,7 +92,7 @@ function startFailed(
   };
 }
 
-// The start an execution launch runs before its session, waiting at most
+// The start a launch's workflow runs before its session, waiting at most
 // `startTimeoutMs()` for it; the script goes on running when the wait ends.
 async function started(
   source: PublishedSource,
@@ -101,16 +100,25 @@ async function started(
   folder: ProjectFolder,
   progress: StartProgress,
 ): Promise<Started> {
-  if (request.workflow !== "execution") {
+  if (request.workflow === "ad-hoc") {
     return { kind: "none" };
   }
-  const planned = await beginStart(source, request, folder, progress);
+  const workflow = startOf(request.workflow);
+  if (workflow === undefined) {
+    return { kind: "none" };
+  }
+  const scoped = progress.for(request.workflow);
+  const planned = await workflow.begin(source, request, folder, scoped);
   if (planned.kind === "not-applicable") {
     return { kind: "none" };
   }
   if (planned.kind === "refused") {
     return startFailed(planned.explanation, planned.reason);
   }
+  const place = {
+    workspace: planned.workspace.shown,
+    branch: planned.branch,
+  };
   let timer: NodeJS.Timeout | undefined;
   const expiry = new Promise<"expired">((resolve) => {
     timer = setTimeout(() => {
@@ -123,14 +131,14 @@ async function started(
     // No launch follows the script that goes on running, so its phase ends
     // with it.
     void planned.attempt.finally(() => {
-      progress.clear(source.id, request.identity);
+      scoped.clear(source.id, request.identity);
     });
     return {
       kind: "stopped",
       result: {
         kind: "uncertain",
         reason: "timed-out",
-        explanation: `The start did not finish within the wait, so the story may or may not be Taken. The start was kept and goes on in workspace ${planned.workspace.shown} on branch ${planned.branch}; pressing Start again resumes it.`,
+        explanation: workflow.uncertain(place),
       },
     };
   }
@@ -140,29 +148,17 @@ async function started(
   try {
     return {
       kind: "established",
+      workflow,
       handoff: {
         start: attempt.start,
-        formatted: await formattedStart(folder, attempt.start),
+        formatted: await workflow.format(folder, attempt.start),
       },
       workspace: planned.workspace,
     };
   } catch {
-    progress.clear(source.id, request.identity);
-    return startFailed(
-      `The story is Taken, but the installed skill's start formatter could not be read, so no session was started. Workspace ${planned.workspace.shown} on branch ${planned.branch}.`,
-    );
+    scoped.clear(source.id, request.identity);
+    return startFailed(workflow.formatFailed(place));
   }
-}
-
-// What a failed session launch adds when its start already published the
-// Take: who holds the story, that no session started, and the workspace the
-// kept start resumes in.
-function publishedWithoutSession({
-  handoff,
-  workspace,
-}: EstablishedLaunch): string {
-  const { agent } = handoff.start;
-  return `${agent === undefined ? "Taken" : `Taken by ${agent}`}; no session started. Workspace ${workspace.shown}.`;
 }
 
 // One session this dashboard recorded for the project, in its existing
@@ -222,7 +218,9 @@ export class AgentLaunches {
   async establishingProjects(): Promise<readonly string[]> {
     const establishing = await Promise.all(
       catalog.map(async (source) =>
-        (await establishesStart(projectFolder(source))) ? source.id : undefined,
+        (await startOf("execution")?.establishes(projectFolder(source)))
+          ? source.id
+          : undefined,
       ),
     );
     return establishing.filter((id) => id !== undefined);
@@ -235,7 +233,10 @@ export class AgentLaunches {
     const kept = await keptStartsByProject();
     return catalog.flatMap((source) =>
       (kept.get(source.id) ?? [])
-        .filter((start) => !this.progress.running(source.id, start.identity))
+        .filter(
+          (start) =>
+            !this.progress.for("execution").running(source.id, start.identity),
+        )
         .map((start) => ({
           source: source.id,
           identity: start.identity,
@@ -252,7 +253,11 @@ export class AgentLaunches {
 
   // The starts running in this server now, each with its phase.
   runningStarts(): readonly RunningStart[] {
-    return this.progress.all();
+    return this.progress.all().map(({ source, identity, phase }) => ({
+      source,
+      identity,
+      phase,
+    }));
   }
 
   // One kept record's session state read now.
@@ -319,7 +324,7 @@ export class AgentLaunches {
         return start.kind === "established" && launched.kind === "failed"
           ? {
               ...launched,
-              explanation: `${launched.explanation} ${publishedWithoutSession(start)}`,
+              explanation: `${launched.explanation} ${start.workflow.publishedWithoutSession(start)}`,
             }
           : launched;
       }
@@ -332,7 +337,11 @@ export class AgentLaunches {
       await keepRecord(source.id, record);
       if (start.kind === "established") {
         // The session carries the start now; the launch record keeps it.
-        await removeStart(source.id, start.handoff.start.identity);
+        await removeStart(
+          source.id,
+          start.handoff.start.identity,
+          start.workflow.workflow,
+        );
       }
       return {
         kind: "launched",
@@ -342,7 +351,9 @@ export class AgentLaunches {
       clearTimeout(timer);
       this.running.delete(controller);
       if (start.kind === "established") {
-        this.progress.clear(source.id, start.handoff.start.identity);
+        this.progress
+          .for(start.workflow.workflow)
+          .clear(source.id, start.handoff.start.identity);
       }
     }
   }

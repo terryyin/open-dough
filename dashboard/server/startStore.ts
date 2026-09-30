@@ -1,7 +1,8 @@
-// This machine's kept starts: the Start record of an execution launch
-// (`./executionStart.ts`), in one file beside the launch records
-// (`./launchRecordStore.ts`): `~/.open-dough/dashboard/execution-starts.json`,
-// resolved through `HOME`. It holds each catalog project's starts by project
+// This machine's kept starts: the Start record of a workflow's launch
+// (`./executionStart.ts`), one file per workflow beside the launch records
+// (`./launchRecordStore.ts`): `~/.open-dough/dashboard/<workflow>-starts.json`
+// (`execution-starts.json` for execution), resolved through `HOME`, so a
+// story's starts of different workflows are kept apart. A file holds each catalog project's starts by project
 // id and story identity, one per story. A start is written before its script
 // runs (publisher, workspace, branch, model, when), then updated with what the
 // script reports: the established start when it published the Take, or the
@@ -20,6 +21,7 @@ import { z } from "zod";
 import {
   establishedStartSchema,
   launchModelAliases,
+  type LaunchWorkflow,
 } from "../src/agentLaunch.ts";
 import {
   readMachineJson,
@@ -50,13 +52,17 @@ const storeSchema = z.record(
 
 type StoredStarts = z.infer<typeof storeSchema>;
 
-function startStore(): MachineJsonStore<StoredStarts> {
+// The workflows whose Start is kept here, and the default of every function
+// below: the one workflow whose file existed first.
+export type StartsWorkflow = Extract<LaunchWorkflow, "execution">;
+
+function startStore(workflow: StartsWorkflow): MachineJsonStore<StoredStarts> {
   return {
     file: path.join(
       homedir(),
       ".open-dough",
       "dashboard",
-      "execution-starts.json",
+      `${workflow}-starts.json`,
     ),
     schema: storeSchema,
     empty: {},
@@ -68,18 +74,19 @@ function startStore(): MachineJsonStore<StoredStarts> {
 export async function keptStart(
   sourceId: string,
   identity: string,
+  workflow: StartsWorkflow = "execution",
 ): Promise<StartRecord | undefined> {
-  const read = await readMachineJson(startStore());
+  const read = await readMachineJson(startStore(workflow));
   return read.kind === "document"
     ? read.document[sourceId]?.[identity]
     : undefined;
 }
 
 // Every project's kept starts, by project id.
-export async function keptStartsByProject(): Promise<
-  ReadonlyMap<string, readonly StartRecord[]>
-> {
-  const read = await readMachineJson(startStore());
+export async function keptStartsByProject(
+  workflow: StartsWorkflow = "execution",
+): Promise<ReadonlyMap<string, readonly StartRecord[]>> {
+  const read = await readMachineJson(startStore(workflow));
   return new Map(
     read.kind === "document"
       ? Object.entries(read.document).map(([id, starts]) => [
@@ -94,8 +101,9 @@ export async function keptStartsByProject(): Promise<
 export async function keepStart(
   sourceId: string,
   record: StartRecord,
+  workflow: StartsWorkflow = "execution",
 ): Promise<void> {
-  await replaceMachineJson(startStore(), (stored) => ({
+  await replaceMachineJson(startStore(workflow), (stored) => ({
     ...stored,
     [sourceId]: { ...stored[sourceId], [record.identity]: record },
   }));
@@ -107,8 +115,9 @@ export async function updateStart(
   sourceId: string,
   identity: string,
   change: Partial<StartRecord>,
+  workflow: StartsWorkflow = "execution",
 ): Promise<void> {
-  await replaceMachineJson(startStore(), (stored) => {
+  await replaceMachineJson(startStore(workflow), (stored) => {
     const kept = stored[sourceId]?.[identity];
     return kept === undefined
       ? stored
@@ -126,8 +135,9 @@ export async function updateStart(
 export async function removeStart(
   sourceId: string,
   identity: string,
+  workflow: StartsWorkflow = "execution",
 ): Promise<void> {
-  await replaceMachineJson(startStore(), (stored) => {
+  await replaceMachineJson(startStore(workflow), (stored) => {
     const starts = stored[sourceId];
     if (starts === undefined || !(identity in starts)) {
       return stored;

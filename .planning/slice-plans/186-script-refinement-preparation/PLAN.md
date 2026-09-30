@@ -120,8 +120,9 @@ skill in the same session still runs `start`, which answers `continued`.
 
 ### 2. Start is a per-workflow operation
 Type: Structure — enables slice 3.
-Status: planned
+Status: done
 Proof: existing execution start specs pass unchanged (listed above).
+Accepted: `npx playwright test --config dashboard/playwright.config.ts agent-launch-start claude-workspace execution-start-result start-store` passed 36 unmodified specs; `npm run typecheck:dashboard` exit 0.
 
 Extract from `agentLaunches.ts` the wait-and-classify around a running start
 into a workflow-keyed seam (`establishes(project)`, `begin(...)`, its
@@ -215,3 +216,4 @@ offer. `keptStarts` carries the workflow.
 
 - `tests/*.sh` payload checks need a newer bash than macOS system bash.
 - `established-preparation.mjs` has no caller until slice 3.
+- Slice 2 kept the wire `RunningStart` without `workflow` (two existing specs assert it exactly); `AgentLaunches.runningStarts()` strips it. Slice 3 adds it to `runningStartSchema` with those expectations only if the page needs it, and widens `StartsWorkflow` (store file `${workflow}-starts.json`).

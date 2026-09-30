@@ -33,7 +33,7 @@ import {
   type WorkspaceChoice,
 } from "./claudeWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
-import type { StartProgress } from "./startProgress.ts";
+import type { WorkflowProgress } from "./startProgress.ts";
 import {
   git,
   lostStartArguments,
@@ -59,6 +59,7 @@ const skillScripts = path.join(
 );
 const startScript = "execution-start.mjs";
 const formatterScript = "established-start.mjs";
+const workflow = "execution";
 
 export type StartAttempt =
   | { readonly kind: "established"; readonly start: EstablishedStart }
@@ -161,7 +162,7 @@ export async function beginStart(
   source: PublishedSource,
   request: StoryLaunchRequest,
   project: ProjectFolder,
-  progress: StartProgress,
+  progress: WorkflowProgress,
 ): Promise<PlannedStart> {
   if (!(await establishesStart(project))) {
     return { kind: "not-applicable" };
@@ -198,10 +199,10 @@ async function runningStart(
   source: PublishedSource,
   request: StoryLaunchRequest,
   project: ProjectFolder,
-  progress: StartProgress,
+  progress: WorkflowProgress,
 ): Promise<PlannedStart> {
   // A start kept from an earlier launch of the story is resumed as it was.
-  const kept = await keptStart(source.id, request.identity);
+  const kept = await keptStart(source.id, request.identity, workflow);
   const { workspace, branch } =
     kept === undefined
       ? claudeWorkspace(project, request.title, await takenSlugs(project))
@@ -224,15 +225,19 @@ async function runningStart(
         : await lostStartArguments(kept.workspace, kept.branch);
   // Written ahead of the script, so a start whose result is lost is still
   // known.
-  await keepStart(source.id, {
-    ...kept,
-    identity: facts.identity,
-    publisherId: facts.publisherId,
-    workspace: facts.workspace,
-    branch: facts.branch,
-    ...(model === undefined ? {} : { model }),
-    startedAt: new Date().toISOString(),
-  });
+  await keepStart(
+    source.id,
+    {
+      ...kept,
+      identity: facts.identity,
+      publisherId: facts.publisherId,
+      workspace: facts.workspace,
+      branch: facts.branch,
+      ...(model === undefined ? {} : { model }),
+      startedAt: new Date().toISOString(),
+    },
+    workflow,
+  );
   const attempt = runScript(
     [
       "--integration",
@@ -265,11 +270,15 @@ async function runningStart(
     if (result.kind === "accepted") {
       progress.set(source.id, request.identity, "launching");
       const start = establishedStart(facts, result, kept?.start);
-      await record(() => updateStart(source.id, request.identity, { start }));
+      await record(() =>
+        updateStart(source.id, request.identity, { start }, workflow),
+      );
       return { kind: "established", start };
     }
     try {
-      await record(() => recordStop(source.id, request.identity, result));
+      await record(() =>
+        recordStop(workflow, source.id, request.identity, result),
+      );
       const owner =
         result.kind === "stopped" && result.status === "conflict"
           ? await ownerOf(project, `origin/${source.ref}`, request.identity)
