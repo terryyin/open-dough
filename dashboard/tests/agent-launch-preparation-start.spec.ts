@@ -67,7 +67,9 @@ for (const model of ["opus", undefined] as const) {
     test("publishes Preparing and opens the session in the workspace with the block", async () => {
       server.claudeScenario("launched");
       const response = await launch(server, { ...request, model });
-      expect(JSON.parse(response.body).kind, response.body).toBe("launched");
+      expect(JSON.parse(response.body), response.body).toMatchObject({
+        kind: "launched",
+      });
 
       const preparing = await profilesOf(origin, "preparation");
       expect(preparing).toHaveLength(1);
@@ -134,7 +136,9 @@ test.describe("refinement of a project whose installed skill lacks the preparati
     );
     server.claudeScenario("launched");
     const response = await launch(server, request);
-    expect(JSON.parse(response.body).kind, response.body).toBe("launched");
+    expect(JSON.parse(response.body), response.body).toMatchObject({
+      kind: "launched",
+    });
 
     expect(await origin.takenProfiles()).toEqual([]);
     expect(existsSync(path.join(origin.project, ".worktrees"))).toBe(false);
