@@ -211,7 +211,7 @@ what runs. Adds the model words to `launchSubject` and renders them in
 
 ### 5. The enduring documents state the choice and the design topic retires
 Type: Behavior
-Status: planned
+Status: done
 Proof: string check that `dashboard/AGENT-LAUNCH.md` no longer says launches
 pass no model, states the choices, the `--model` argument, Default, the
 "requested" line and that nothing is remembered; that the North Star's launch
@@ -241,6 +241,11 @@ the North Star, removes the topic, and keeps the seed's Goal and Scope only
   run (error text not captured) and passed on 8 parallel repeats and a full
   rerun; the spec launches without a model and this change does not touch it.
   Unexplained; treat as this execution's to fix if CI shows it.
+- The developer-run, paid observation of slice 5 (launch with Opus and confirm
+  the session runs Opus; note what Claude Code says for an unusable model) was
+  not run by execution. `claude --bg --model` behavior with a real session and
+  its stderr for an unusable model stay unobserved.
+- Wrap-up clears the dangling North Star anchor link in the seed (line ~276).
 
 ## Accepted proof
 
@@ -272,3 +277,9 @@ the North Star, removes the topic, and keeps the seed's Goal and Scope only
   --config dashboard/playwright.config.ts
   'agent-launch|session-sidebar|agent-terminal|recent' --reporter=line` → 247
   passed, existing specs unedited; `npm run typecheck:dashboard` clean.
+- Slice 5: string checks — `grep -rn "launch-domain-design" docs dashboard
+  --exclude-dir=node_modules --exclude-dir=dist` finds nothing;
+  `dashboard/AGENT-LAUNCH.md` states the Model choice, `--model <alias>`,
+  Default, the "requested" line and that nothing is remembered; the North Star
+  launch row names the Model choice and its launch-domain topic is gone;
+  `npm run typecheck:dashboard` clean.

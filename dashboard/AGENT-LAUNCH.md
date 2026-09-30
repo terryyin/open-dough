@@ -15,8 +15,25 @@ execution", so the developer can still start it, for example with an
 instruction to refine and plan it first. A card already showing **Preparing**
 offers Start refinement with the note "Being prepared". Each action opens a
 dialog, such as "Start refinement in Claude Code", naming the story and the
-command the session starts with, with an optional instruction; **Start** sends
-it, and **Cancel** or Escape sends nothing.
+command the session starts with, with an optional instruction and a **Model**
+choice; **Start** sends them, and **Cancel** or Escape sends nothing.
+
+**Model** is in every launch dialog, the two card workflows and Start session
+alike, after the instruction field. It offers Default ("Default (your Claude
+Code setting)"), Fable, Opus, and Sonnet, in that order, and each dialog opens
+on Default: nothing is remembered from an earlier launch, whether in the same
+page or after a reload. The choices and their `--model` aliases are spelled
+once, beside the workflows, in `src/agentLaunch.ts` (`launchModels`).
+Choosing one adds `--model <alias>` (`--model opus`) to the same `claude --bg
+--name ...` command, before the instruction; Default adds nothing, so Claude
+Code's own setting applies. The request carries the alias as an optional
+`model`, the boundary refuses one outside the table before any `claude` runs,
+and the launch record keeps it. Nothing checks beforehand that the developer
+can use the chosen model: Claude Code decides when it starts the session, and a
+refusal explains itself naming the model, such as "Claude Code refused to start
+a session in ~/git/open-dough with model Opus. Run `claude` in that folder once
+to see why, then start again."
+
 
 The page posts the request to a second local boundary beside the read one,
 `/__agent-launch` (`server/agentLaunchPlugin.ts`, reached from the browser
@@ -27,8 +44,9 @@ workflows above, and only Claude Code as the host. It runs
 `Open Dough · Refinement · <title>`) in the project's folder on this machine,
 `~/git/<project id>` (for example `~/git/open-dough`), with the instruction
 `/<skill> <identity>`, followed by a blank line and the developer's
-instruction when there is one. It passes no model, permission, or effort
-choice, so the developer's own Claude Code settings apply. It confirms the
+instruction when there is one. It passes a model only when the developer chose
+one (above), and never a permission or effort choice, so the developer's own
+Claude Code settings apply to everything else. It confirms the
 session in Claude Code's own listing, `claude agents --json --all`.
 
 A confirmed launch lists its session on the story's card, beside the Start
@@ -36,8 +54,9 @@ actions, which stay with their notes whatever sessions are listed, and the
 keyboard lands on the new entry. Each entry shows its session the way Recent
 sessions does (below), without the story title and identity the card already
 names: its state, its workflow, such as "Refinement started in Claude Code",
-when it was launched, the session id, and **Open terminal**, which shows the
-session in the page's terminal (below). Two launches, even of one workflow,
+when it was launched, the session id, "Model: <Name> (requested)" when a
+model was chosen (below), and **Open terminal**, which shows the session in
+the page's terminal (below). Two launches, even of one workflow,
 are two entries, newest first. A failed launch (the project folder or
 `claude` not found, a folder Claude Code does not trust yet, or a refusal)
 says why, and nothing was launched. An uncertain one (no answer within the
@@ -83,8 +102,8 @@ including line breaks, collapsed to one space and trimmed, cut at 40
 characters with an ellipsis; when there is no text, or it holds a control
 character, the time the launch began, as "30 Sep, 14:32". It runs
 `claude --bg --name "<project> · Ad hoc · <label>"` in the project's folder
-with the text exactly as typed as the only instruction, or with none, and
-confirms the session in the same listing as any launch, with the same failure
+with the text exactly as typed as the only instruction, or with none, and the
+chosen model as above, and confirms the session in the same listing as any launch, with the same failure
 and uncertainty answers, shown beside Start session, which stays enabled. The
 record keeps the label as its title and has no identity, so no card looks it
 up. A confirmed launch opens its session in the terminal at once, the keyboard
@@ -115,6 +134,12 @@ Another project's launches are listed only under that project, and sessions
 this dashboard did not launch are not listed. Until the page first reads the
 machine's sessions it says "Reading sessions…"; with no records it says that
 no sessions launched from this dashboard are kept.
+
+**Model line.** An entry of a launch that chose a model, on a card, in Recent
+sessions, and in the Sessions sidebar, reads "Model: Opus (requested)" (the
+model's name). It states what was asked, not what the session runs, since
+Claude Code's own listing does not say; a launch on Default shows no model
+line. It is read from the launch record, so a reload keeps it.
 
 The **Sessions** sidebar (`src/SessionSidebar.tsx`) lists the sessions still
 open in every catalog project, whichever project is selected: every launch

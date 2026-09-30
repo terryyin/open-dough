@@ -92,6 +92,12 @@ where the session is listed), `agent-launch-ad-hoc-terminal.spec.ts` (the
 terminal opening at once and the keyboard), `agent-launch-ad-hoc-problems.spec.ts`
 (failed and uncertain launches), and `agent-launch-ad-hoc-sessions.spec.ts`
 (the sidebar, Mark as done, reloading, "Needs input", and Delete record).
+The Model choice is walked by `agent-launch-model.spec.ts` (every launch
+dialog, Default at each opening, `--model` reaching `claude`),
+`agent-launch-model-boundary.spec.ts` (the boundary: the alias before the
+instruction, a model outside the table refused, the refusal naming the model),
+and `agent-launch-model-entries.spec.ts` ("Model: <Name> (requested)" on a
+card, Recent sessions, and the sidebar, and nothing for Default).
 Delete record is walked by `agent-launch-delete.spec.ts` (the boundary),
 `agent-launch-card-delete.spec.ts` and `agent-launch-card-delete-problems.spec.ts`
 (a card entry, and what refusals and failures leave), and

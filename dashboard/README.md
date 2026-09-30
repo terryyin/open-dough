@@ -3,7 +3,8 @@
 A locally launched page that shows the selected project's published work: the
 near-future direction, the **Backlog** in priority order, and the **Taken**
 entries, as connected stages. **Start execution** and **Start refinement** on a
-Backlog card ask Claude Code on this machine to execute or refine the story,
+Backlog card ask Claude Code on this machine to execute or refine the story
+(each launch dialog also offers a Model choice: Default, Fable, Opus, or Sonnet),
 **Recent sessions** lists those launches, newest first, the **Sessions**
 sidebar lists every project's open sessions and how many need attention,
 **Open terminal** shows a launch's session beside the page, and **Mark as
