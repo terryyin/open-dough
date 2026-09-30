@@ -31,7 +31,7 @@ the behavior needed to launch refinement.
 
 **Identity:** SEED-061#correct-refinement-options-launch-follow-ups
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/188-correct-refinement-options-launch/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"20ef6d9fa4e0f894af47cf49c6523220f254dff2db4742239b9c5ca2c038708b","plan":"577b6c6dada42929fd7978814a312624483d7375ae633291bc566c5d9706c501"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/188-correct-refinement-options-launch/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"eb18cf1b5b2c5a5b4326d0bc0f4c8cd0bfbb137f40443386481b9e546376e428","plan":"b287d8404b6e2db41dfc68ecda406f3e3c5798058cc05c1b7a294faf459a6f6d"}}
 ```
 
 - **Goal:** A developer who launches refinement with options sees in the dialog
