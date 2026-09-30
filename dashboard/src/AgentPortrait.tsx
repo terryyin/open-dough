@@ -1,5 +1,8 @@
-import type { CSSProperties } from "react";
-import { agentNames } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { useEffect, useState, type CSSProperties } from "react";
+import {
+  agentNames,
+  nerdAgentNames,
+} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import "./agent-portrait.css";
 
 const portraitsPerAtlas = 6;
@@ -22,6 +25,9 @@ const gestureStrips: Readonly<
 // grid of taller cells; the square shown is each cell's center. The portrait
 // is decorative: the agent name beside it carries the meaning.
 export function AgentPortrait({ name }: { name: string }) {
+  if (nerdAgentNames.includes(name)) {
+    return <NerdPhotoPortrait name={name} />;
+  }
   const index = agentNames.indexOf(name);
   if (index < 0) {
     return null;
@@ -54,6 +60,42 @@ export function AgentPortrait({ name }: { name: string }) {
                 "--portrait-gesture-timing": `steps(${gesture.frames ?? 18}, jump-none)`,
                 "--portrait-gesture-span": `${(gesture.frames ?? 18) * 100}% 100%`,
               }),
+        } as CSSProperties
+      }
+    />
+  );
+}
+
+// A member of the Odd-e nerds is shown by a local photo that is not part of the
+// repository. Until the photo loads, and when it is absent, there is no
+// portrait: the name beside it stands alone.
+function NerdPhotoPortrait({ name }: { name: string }) {
+  const photo = `${import.meta.env.BASE_URL}agent-avatars/odd-e-nerds/${name.toLowerCase()}.jpg`;
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    setLoaded(false);
+    const image = new Image();
+    image.onload = () => {
+      setLoaded(true);
+    };
+    image.src = photo;
+    return () => {
+      image.onload = null;
+    };
+  }, [photo]);
+  if (!loaded) {
+    return null;
+  }
+  return (
+    <span
+      className="agent-portrait"
+      aria-hidden="true"
+      style={
+        {
+          "--portrait": `url("${photo}")`,
+          "--portrait-large": `url("${photo}")`,
+          "--portrait-tile": "center",
+          "--portrait-atlas-size": "cover",
         } as CSSProperties
       }
     />

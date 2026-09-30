@@ -86,7 +86,7 @@ per the setting at that revision.
 
 ### 3. Cards show the nerds member's photo
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright: a Taken card whose profile is `stanly-chan` shows `odd-e-nerds/stanly.jpg`
 as its portrait (enlarged on hover as for others); the same card with the photo file absent
 shows the name and no portrait, and no error; a current-collection agent still shows its

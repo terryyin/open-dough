@@ -22,3 +22,6 @@ playwright-report/
 
 # Local execution worktrees are never tracked.
 /.worktrees/
+
+# Odd-e nerds photos are local-only and never committed.
+dashboard/public/agent-avatars/odd-e-nerds/
