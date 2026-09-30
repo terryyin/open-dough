@@ -22,9 +22,8 @@ selections, other hosts, and the options' reasoning techniques.
 
 ## Direction and existing solutions
 
-Follows the [Architectural North Star](../../NORTH-STAR.md#command-options-one-definition-three-consumers)
-and the [UX/UI North Star](../../../docs/dashboard-ux-ui-north-star.md#refinement-options-in-the-launch-dialog),
-Accepted ADR 0002 and ADR 0006. No Accepted ADR conflicts; no ADR is proposed
+Follows [Agent launch](../../../dashboard/AGENT-LAUNCH.md), Accepted ADR 0002
+and ADR 0006. No Accepted ADR conflicts; no ADR is proposed
 (dashboard and one skill file only).
 
 **PFE outcome: reuse and extend.**
@@ -204,7 +203,7 @@ spelled once beside `modelWords` in `launchSubject`.
 
 ### 7. Assimilate the design
 Type: Structure
-Status: planned
+Status: done
 Proof: docs read against the built behavior; relative links resolve.
 
 Structure: move the lasting launch rules into `dashboard/AGENT-LAUNCH.md`
@@ -249,3 +248,6 @@ shipped exclusive refinement group, and a generic plugin or registry.
   (options and groups) or unavailable with its reason.
 - Slice 6: the sidebar tooltip shows the model line but no options line; the
   North Star limits the words to card and Recent sessions entries.
+- Slice 7: the lasting rules live in `dashboard/AGENT-LAUNCH.md`; the UX/UI North
+  Star keeps a terminology row. The North Star's sub-headings by kind and
+  in-window scrolling were not built and are not documented.

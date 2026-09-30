@@ -86,13 +86,13 @@ the behavior needed to launch refinement.
     default refinement launches.
 - **UI:** Options group between the instruction field and Model, one checkbox
   per option with flag and one-line summary, a live command line, radios for an
-  exclusive group. Sketch and states in the
-  [UX/UI North Star](../../docs/dashboard-ux-ui-north-star.md#refinement-options-in-the-launch-dialog).
+  exclusive group. States in
+  [Agent launch](../../dashboard/AGENT-LAUNCH.md).
 - **Architecture:** One command option definition owned by the skill, one shared
   pure model (schema, selection problems, canonical order) used by boundary and
   dialogue, installed-skill reading in one server place, and the agent unchanged.
-  Domain vocabulary, responsibilities, and rules in the
-  [Architectural North Star](../NORTH-STAR.md#command-options-one-definition-three-consumers).
+  Responsibilities and rules in
+  [Agent launch](../../dashboard/AGENT-LAUNCH.md).
   Follows Accepted ADR 0002 and ADR 0006; no conflicting Accepted ADR and no
   new ADR (dashboard and one skill file only); Proposed ADR 0008 is not binding.
 - **Boundary:** This story exposes and carries refinement options; it does not

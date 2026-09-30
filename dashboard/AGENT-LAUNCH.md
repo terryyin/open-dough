@@ -16,7 +16,8 @@ instruction to refine and plan it first. A card already showing **Preparing**
 offers Start refinement with the note "Being prepared". Each action opens a
 dialog, such as "Start refinement in Claude Code", naming the story and the
 command the session starts with, with an optional instruction and a **Model**
-choice; **Start** sends them, and **Cancel** or Escape sends nothing.
+choice (refinement's also offers **Options**, below); **Start** sends them, and
+**Cancel** or Escape sends nothing.
 
 **Model** is in every launch dialog, the two card workflows and Start session
 alike, after the instruction field. It offers Default ("Default (your Claude
@@ -34,6 +35,71 @@ refusal explains itself naming the model, such as "Claude Code refused to start
 a session in ~/git/open-dough with model Opus. Run `claude` in that folder once
 to see why, then start again."
 
+**Options** are in the refinement dialog only, between the instruction field
+and **Model**; the execution and Start session dialogs have none. They are
+the flags the project's installed `dough-story-refinement` skill defines in
+`references/refinement-options.json`, so the dialog offers what a direct
+invocation would accept there. A definition is one command's options: its
+`command`, and `options` and `focuses`, which are one flat list of entries
+(`flag`, `label`, a one-line `summary` for the developer, and the agent's
+`instruction`), and optional `groups`. The schema and the selection rules are
+shared by the page and the server (`src/commandOptions.ts`, pure, no Node
+import); `server/launchOptions.ts` reads and validates the file from the
+project's installed skill directory (`installedSkillPath`), and the workflow
+names its file once, in `launchWorkflows` (`options`). `summary` is required,
+and a drift check parses the shipped definition with the shared schema, so an
+option added without one fails at once instead of showing a blank line. A
+definition is invalid as a whole when a flag is defined twice or a group names a
+flag the definition lacks or another group holds; a group with one flag, or
+none, is valid. A workflow gains options by naming a definition file in its
+`launchWorkflows` row, with no other per-command code.
+
+The machine's sessions answer carries `definitions`, read on every read
+(`offeredDefinitionSchema`): for each workflow that defines options and each
+project, the entries and groups it offers, or why it offers none. The dialog
+shows them as the last read left them, so an installed skill updated since is
+seen on the next read, and the boundary's own read (below) is the one that
+counts. Each entry is a checkbox with its label, its flag in code text, and its
+summary as the checkbox's description, in definition order. A group with
+`selection` `exclusive` is a fieldset of radios named by its label, with a first
+"No <group label>" choice, at the place of its first member; choosing a member
+replaces another of its group, and entries outside any group stay checkboxes.
+The fieldset's legend is "Options", after which its line reads "Choose any
+combination; they apply together. None means straightforward refinement." Above
+the instruction field, the quiet line "Sent after `/<skill> <identity>`" adds the
+selected flags in definition order, politely announced as it changes
+(`aria-live="polite"`). Without options the dialog says one quiet line in the
+options' place, and **Start** still launches the default refinement: "Reading
+options…" before the page first reads the sessions; "The installed
+dough-story-refinement skill in this project offers no options. Refinement
+starts straightforwardly." for an empty definition; and, for a definition that
+cannot be used, "Options are not offered: the installed dough-story-refinement
+skill in this project <why>. Refinement starts straightforwardly." with why
+"has no options file", "options file could not be read", "options file is not
+valid", or "options file defines another command" (`noOptionsFileWhy` and
+`readDefinition`).
+
+Nothing is remembered: each dialog opens with nothing selected, like Model. The
+one exception is a launch the boundary refuses: its selection, not its model or
+instruction, returns when the dialog is opened again, and **Cancel** or Escape
+drops it.
+
+The request carries the selected flags as an optional `options` (at most 32
+single-line strings; none or empty is no selection). The boundary
+(`withSelectedOptions`, called by `admitted`) reads the project's installed
+definition afresh and refuses, before any `claude` runs and with "Nothing was
+launched.", a flag it does not define ("Option --x is not one the installed
+dough-story-refinement skill in ~/git/open-dough defines."), two flags of one
+exclusive group ("Options --a and --b are in the same <group label> group of the
+installed dough-story-refinement skill in ~/git/open-dough; select only one."),
+a definition that is unavailable ("Options cannot be selected: the installed
+dough-story-refinement skill in ~/git/open-dough <why>."), and options on a
+workflow with no definition ("Execution has no options to select."). Otherwise
+it keeps the flags in definition order, whatever order the request gave them,
+and the launch record keeps them as it keeps the model. The card shows a
+refusal as any failed launch, "Launch failed:" with its words, in the card's
+existing place beside its action.
+
 The page posts the request to a second local boundary beside the read one,
 `/__agent-launch` (`server/agentLaunchPlugin.ts`, reached from the browser
 through `src/agentLaunchClient.ts`), mounted by the same Vite configuration in
@@ -42,9 +108,10 @@ workflows above, and only Claude Code as the host. It runs
 `claude --bg --name "<project> · <workflow> · <title>"` (for example
 `Open Dough · Refinement · <title>`) in the project's folder on this machine (an execution's, in its workspace, below),
 `~/git/<project id>` (for example `~/git/open-dough`), with the instruction
-`/<skill> <identity>`, followed by a blank line and the developer's
-instruction when there is one. It passes a model only when the developer chose
-one (above), and never a permission or effort choice, so the developer's own
+`/<skill> <identity>` and the selected flags in definition order
+(`/dough-story-refinement <identity> --explore --borrow`), followed by a blank
+line and the developer's instruction when there is one. It passes a model only
+when the developer chose one (above), and never a permission or effort choice, so the developer's own
 Claude Code settings apply to everything else. It confirms the
 session in Claude Code's own listing, `claude agents --json --all`.
 
@@ -267,6 +334,12 @@ sessions, and in the Sessions sidebar, reads "Model: Opus (requested)" (the
 model's name). It states what was asked, not what the session runs, since
 Claude Code's own listing does not say; a launch on Default shows no model
 line. It is read from the launch record, so a reload keeps it.
+
+**Options line.** An entry of a launch that selected options, on a card and in
+Recent sessions, reads "Options: --explore --borrow (requested)" (the flags the
+record kept, in definition order), after the model line. It states what was
+asked, not what the session ran; a launch with none shows no options line. The
+Sessions sidebar shows none.
 
 The **Sessions** sidebar (`src/SessionSidebar.tsx`) lists the sessions still
 open in every catalog project, whichever project is selected: every launch
