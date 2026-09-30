@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Maki-chan",
+  "email": "maki-chan@example.org",
+  "identity": "SEED-052#delete-unavailable-session-record",
+  "mode": "story-branch",
+  "branch": "claude/delete-unavailable-session-record",
+  "host": "claude",
+  "model": "claude-sonnet-5-5"
+}
