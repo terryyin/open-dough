@@ -133,7 +133,7 @@ for (const mode of ["dev", "preview"] as const) {
         });
 
         await test.step(`${published.label}'s gh calls name only its catalog repository, its resolved revision, and reachable records`, () => {
-          expectPinnedGhCalls(calls, published);
+          expectPinnedGhCalls(calls, published, mode);
         });
 
         await test.step(`refreshing ${published.label} resolves ${published.ref} again through local gh`, async () => {

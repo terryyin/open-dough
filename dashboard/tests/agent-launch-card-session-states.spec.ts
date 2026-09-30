@@ -3,8 +3,7 @@
 // its card beside the Start actions, which keep their notes; an unavailable
 // one has no Open terminal, and every one is State unknown with Open terminal
 // while the listing cannot be read. A restarted dashboard server, a reload,
-// and a project switch keep every entry and its state, and a stopped
-// session's Open terminal still attaches. What each state shows is
+// and a project switch keep every entry and its state. What each state shows is
 // ./agent-launch-recent-session-states.spec.ts. Origin alone still places
 // every story. The server keeps its HOME and the synthetic `claude`'s state
 // (./fixtures/fake-claude) in a machine directory, so a restart answers the
@@ -86,7 +85,6 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
       stagesJourney,
     );
     const { project } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
     const queued = {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
@@ -217,14 +215,6 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
         await expectMembership(page, queued);
         await settled();
         await expectShown();
-      });
-
-      await test.step("the stopped session's Open terminal on its card still attaches", async () => {
-        const stopped = sessionIds[2] ?? "?";
-        await openIn(entryOf(notRefinedStory, "Refinement")).click();
-        await expect(panel.locator(".xterm-rows")).toContainText(
-          `attached ${stopped.slice(0, 8)}`,
-        );
       });
     } finally {
       await restarted?.close();

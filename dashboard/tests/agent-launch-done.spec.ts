@@ -5,12 +5,11 @@
 // runs `claude stop <short id>`, and keeps the done mark on this machine
 // across a restart. With no terminal open, or a launch name holding a
 // control character, the `done-` name is only the record's, and the session
-// is still stopped. A session Claude Code no longer lists is only marked,
-// never stopped; one whose listing cannot be read is still stopped. Which
-// requests are refused before `claude` runs is
-// ./agent-launch-done-refusal.spec.ts. The machine directory holds HOME and
-// the synthetic `claude`'s (./fixtures/fake-claude) state; the real one is
-// never reached.
+// is still stopped. What the listing changes about a stop is
+// ./agent-launch-done-stop.spec.ts. Which requests are refused before
+// `claude` runs is ./agent-launch-done-refusal.spec.ts. The machine
+// directory holds HOME and the synthetic `claude`'s (./fixtures/fake-claude)
+// state; the real one is never reached.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -183,52 +182,5 @@ test.describe("marking a recorded session done", () => {
       name: launchName,
       state: "stopped",
     });
-  });
-
-  test("marks a session Claude Code no longer lists without stopping it", async () => {
-    const session = await launched(server);
-    server.claudeSessionBecomes(session.sessionId, "forgotten");
-    const stopsBefore = stopCalls().length;
-
-    const response = await markDone(server, {
-      source: "open-dough",
-      session: session.sessionId,
-    });
-
-    expect(response.status).toBe(200);
-    expect(JSON.parse(response.body)).toMatchObject({
-      record: {
-        doneAt: expect.any(String),
-        session: { sessionId: session.sessionId, name: launchName },
-        sessionState: { kind: "unlisted" },
-      },
-    });
-    expect(stopCalls().slice(stopsBefore)).toEqual([]);
-  });
-
-  test("still stops a session whose listing cannot be read", async () => {
-    const session = await launched(server);
-    const stopsBefore = stopCalls().length;
-    server.claudeListingFails(true);
-    try {
-      const response = await markDone(server, {
-        source: "open-dough",
-        session: session.sessionId,
-      });
-
-      expect(response.status).toBe(200);
-      expect(JSON.parse(response.body)).toMatchObject({
-        record: {
-          doneAt: expect.any(String),
-          session: { sessionId: session.sessionId, name: launchName },
-          sessionState: { kind: "unknown" },
-        },
-      });
-    } finally {
-      server.claudeListingFails(false);
-    }
-    expect(stopCalls().slice(stopsBefore)).toEqual([
-      { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
-    ]);
   });
 });

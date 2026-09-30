@@ -175,27 +175,6 @@ or claims of readiness.
   This selects model choice for future work, extending the earlier default-model
   boundary and deferral recorded above; it does not authorize implementation.
 
-<a id="mark-done-residue"></a>
-
-### Correction: Prove the busy-session rename edge and confirm observer shutdown honestly
-
-**Identity:** SEED-052#mark-done-residue
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/166-mark-done-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f211bd9d67e3057788c5239d6c2dc4c1c542a7393b164b84f4ab491685cfa7a6","plan":"3b5e72ea5adbe98f1bdc532012c06a8550fa5050d760ae700724b2d3df113d9f"}}
-```
-
-**Goal:** Maintainers can rely on a test for Mark as done's documented busy
-session rename timeout, trust a completion receipt's shutdown claim, and
-change Mark as done's page journeys in specs that each own one concern.
-
-**Scope:** The correction found by the execution retrospective of
-SEED-052#card-session-residue (commits `26099a6a`..`95fa693c` on
-`claude/card-session-residue`). It covers the untested rename wait that
-expires, a completion receipt that confirms shutdown while the observer's
-identity is unknown, the overlong Mark as done page journey, a duplicated card
-attach step, the tests README, and the request-shape wording. It adds no
-feature promise. See the [plan](../slice-plans/166-mark-done-residue/PLAN.md).
-
 <a id="delete-unknown-state-session"></a>
 
 ### Delete a session whose state is unknown from the dashboard
