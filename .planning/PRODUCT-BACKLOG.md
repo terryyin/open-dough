@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation ([plan](slice-plans/178-script-execution-preparation/PLAN.md))
 - [Scan sessions quickly in a compact sidebar that surfaces those needing attention](seeds/SEED-062-compact-session-sidebar.md#compact-session-sidebar) — SEED-062#compact-session-sidebar ([plan](slice-plans/181-compact-session-sidebar/PLAN.md))
-- [Settle purpose, scope, and behavior during refinement](seeds/SEED-057-composable-story-refinement-styles.md#settle-purpose-scope-and-behavior) — SEED-057#settle-purpose-scope-and-behavior ([plan](slice-plans/182-challenge-and-clarify-refinement/PLAN.md))
 
 ## Backlog list
 
