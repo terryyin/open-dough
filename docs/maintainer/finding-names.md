@@ -114,7 +114,7 @@ Registered revisions are reported uncovered during discovery and their later rea
 ## ODF-074 — Unverified planning premises
 Concrete only-caller and host-state premises enter a plan without inspection, forcing a changed decision or stopped implementation when checked.
 
-- **Follow-up:** queued, not resolved: [Observe a planning premise through the operation that consumes it](../../.planning/seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers. **Evidence:** [open-dough](../../DearDough.md#odf-074--a-ready-plan-named-a-validation-command-the-backlog-tool-does-not-have), [pygardon](../../../pygardon/DearDough.md#odf-074--plan-statements-about-existing-code-and-host-state-were-not-verified-at-planning-time), [doughnut](../../../doughnut/DearDough.md#odf-074--a-plan-said-the-changed-script-had-no-test-and-nobody-searched-for-one-before-delivery-so-ci-caught-the-stale-test).
+- **Follow-up:** delivered with a weak replay result, not shown to resolve: Observe a planning premise through the operation that consumes it — SEED-059#observe-premise-consumers (story and plan recoverable at d9137ef5). **Evidence:** [open-dough](../../DearDough.md#odf-074--a-ready-plan-named-a-validation-command-the-backlog-tool-does-not-have), [pygardon](../../../pygardon/DearDough.md#odf-074--plan-statements-about-existing-code-and-host-state-were-not-verified-at-planning-time), [doughnut](../../../doughnut/DearDough.md#odf-074--a-plan-said-the-changed-script-had-no-test-and-nobody-searched-for-one-before-delivery-so-ci-caught-the-stale-test).
 - **Response / limit:** 2c5ff71 / 0.3.43 requires observing decisive premises. Failures to apply it recur on 0.3.45–0.3.46; unknown releases cannot establish recurrence. Moved-function caller clarifications aa650875/9d4bf02f/c97c3fe0 are delivered but unreleased through 0.3.47.
 
 <a id="odf-077"></a>
@@ -226,7 +226,7 @@ A new observer reports a recent ancestor revision's failure that this execution 
 ## ODF-110 — Incomplete readiness replays
 A replay resolves the named readiness seam without exercising the rest of the slice's promised journey, leaving a later operation to force a scope stop.
 
-- **Follow-up:** queued, not resolved: [Observe a planning premise through the operation that consumes it](../../.planning/seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers. **Evidence:** [open-dough](../../DearDough.md#odf-110--a-publisher-seam-premise-was-observed-by-reading-the-seam-not-the-race-it-had-to-stop), [doughnut](../../../doughnut/DearDough.md#odf-110--a-readiness-replay-observed-only-the-plans-named-seam-not-the-rest-of-the-slices-journey).
+- **Follow-up:** delivered with a weak replay result, not shown to resolve: Observe a planning premise through the operation that consumes it — SEED-059#observe-premise-consumers (story and plan recoverable at d9137ef5). **Evidence:** [open-dough](../../DearDough.md#odf-110--a-publisher-seam-premise-was-observed-by-reading-the-seam-not-the-race-it-had-to-stop), [doughnut](../../../doughnut/DearDough.md#odf-110--a-readiness-replay-observed-only-the-plans-named-seam-not-the-rest-of-the-slices-journey).
 - **Response / limit:** 2c5ff71 / 0.3.43 requires the promised journey through its consumer. Doughnut plans 049 (0.3.46), 056 and 053 (0.3.47) repeat shallow observations. Open Dough plan 112 uses modified guidance with unknown release; it is not a numbered-release recurrence.
 
 <a id="odf-112"></a>
@@ -500,7 +500,7 @@ An agent starts pre-change E2E proof in the background and edits files it has no
 ## ODF-182 — Fixture premise omits domain transformations
 A real-calculation fixture is inspected without tracing the domain repair that transforms its genomes, leaving accepted proof gaps and a domain bypass seam.
 
-- **Follow-up:** queued, not resolved: [Observe a planning premise through the operation that consumes it](../../.planning/seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers. **Evidence:** [pygardon](../../../pygardon/DearDough.md#odf-182--a-plans-fixture-premise-overlooked-searchs-gene-domain-repair-of-stored-genomes).
+- **Follow-up:** delivered with a weak replay result, not shown to resolve: Observe a planning premise through the operation that consumes it — SEED-059#observe-premise-consumers (story and plan recoverable at d9137ef5). **Evidence:** [pygardon](../../../pygardon/DearDough.md#odf-182--a-plans-fixture-premise-overlooked-searchs-gene-domain-repair-of-stored-genomes).
 
 <a id="odf-183"></a>
 
@@ -587,4 +587,4 @@ Anchor replacements silently match nothing and chained later edits therefore fai
 ## ODF-198 — Bug remedy planned before reproducing the symptom
 A slice assumes one code swap fixes a reported defect, but its new spec already passes and the original symptom remains unexplained.
 
-- **Follow-up:** queued, not resolved: [Observe a planning premise through the operation that consumes it](../../.planning/seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers. **Evidence:** [doughnut](../../../doughnut/DearDough.md#odf-198--a-slices-premise-that-one-code-swap-fixes-a-uat-defect-was-not-tested-first-and-its-spec-passed-before-the-change).
+- **Follow-up:** delivered with a weak replay result, not shown to resolve: Observe a planning premise through the operation that consumes it — SEED-059#observe-premise-consumers (story and plan recoverable at d9137ef5). **Evidence:** [doughnut](../../../doughnut/DearDough.md#odf-198--a-slices-premise-that-one-code-swap-fixes-a-uat-defect-was-not-tested-first-and-its-spec-passed-before-the-change).
