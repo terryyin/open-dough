@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 192. Removed local codes are never reused.
+- Highest allocated local number: 193. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -115,6 +115,7 @@ Follow-up: Open, unqueued.
 - Execution: `SEED-037#diagnosable-test-hangs` / plan 104, first related implementation commit `044c88f` - Timestamp: 2026-09-25T22:28:16+08:00 - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance last updated by `87ffccb` - Evidence: `npm run lint 2>&1 | tail -2 && git commit` hid lint's exit 1; `1e648d9` was published, CI run `36147702793` `lint` failed; repair `decb252`. - Observed effect: one extra commit, push, and failed CI lint job.
 - Execution: `SEED-052#interact-with-claude-terminal` / plan 152, first related implementation commit `549e2d5a` - Timestamp: 2026-09-29T14:48:19+08:00 - Tool: Claude Code - Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd` - Evidence: `npm run -s format 2>&1 | tail -1 && python3 … && git commit … && deliver` printed "Format failed: unresolved findings" yet continued; `ee35dd55` was published, CI run `36533023610` `lint` failed (`unbound-method`, `App.tsx:130`); repair `815844e4`. This repository has no commit hook, so formatting was the only local lint gate. - Observed effect: one extra commit, refactor pass, push, and failed CI lint job; the other CI jobs passed. - Inference: Qualified. The same coordinator had checked exit status correctly in earlier slices of this run; batching format, plan edit, commit, and delivery into one piped chain reintroduced the fault.
 - Execution: `SEED-052#start-ad-hoc-project-session` / plan 172, first related implementation commit `689970f7` - Timestamp: 2026-09-30T10:09:44+08:00 (slice 2, amended commit `52932716`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.47 - Evidence: `npm run format 2>&1 | tail -3; python3 … && git add … && agent-commit` printed "Format failed: unresolved findings or tool failures remain." yet committed `3011c1df`; the `tail` hid `no-misused-spread` (`claudeLaunch.ts:64`), which a rerun of format found before delivery, and the commit was amended into `52932716`. - Observed effect: nothing published (caught before delivery); one amend and one extra format, typecheck and spec run. - Inference: Qualified. Recurrence of the hand-built format-then-commit chain (compare ODF-097); the rule is known and the chain still hid the failure, which one scripted format-then-commit step would stop.
+- Execution: `SEED-062#compact-session-sidebar` / plan 181, first related implementation commit `783a8e7a` - Timestamp: unknown (CI run 36687483426 on `783a8e7a`, session date 2026-09-30) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown - Evidence: slice 1 replaced the Sessions text button with an icon; the delegation's spec list was every spec importing `sidebarParts` plus two attention specs. `dashboardPage.ts`'s `controlsBesideSessions` excluded the button by `hasNotText: /^Sessions/`, so `agent-roster`, `project-read-recovery` and `read-failure` specs failed only in CI (strict-mode violation, two buttons); repair `f47257d5`. The full dashboard suite (about 1.5 min) ran before every later delivery. - Observed effect: one failed CI run and one repair commit before the suite was adopted. - Inference: Qualified. The list was chosen by which specs import the changed helper, and a text-based locator in a different helper was outside it; a third execution shows the cause recurring.
 
 ## ODF-154 — Cursor managed delivery lacks its coordinator session identity
 
@@ -346,3 +347,19 @@ Follow-up: Open, unqueued.
   - Evidence: coordinator conversation: refactor hand-backs for slice 1 (`Outcome: none — already clean`, 42,061 subagent tokens, 3 tool uses) and slice 2 (`Outcome: none — already clean`, 41,865 subagent tokens, 4 tool uses); changed paths `refinement-options.json`, a 5-line `SKILL.md` paragraph and one `install.sh` line.
   - Observed effect: no edits, no rework; the passes restated an overlap (`default` versus the SKILL.md pointer sentence) that slice 1's implementer had already reported.
   - Inference: Qualified. Cost only, about 84k subagent tokens across two passes; the step is mandatory and two samples cannot show whether a pass ever pays off on changes this small.
+
+## DD-193 — A finished subagent's hand-back was re-delivered until its task was stopped
+
+After slice 1's implementation agent returned, the identical final report reached the coordinator about eight more times as new messages and task notifications, including while a different slice's agent was pending.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+- Execution: `SEED-062#compact-session-sidebar` / plan 181, first related implementation commit `783a8e7a`
+  - Timestamp: unknown (session date 2026-09-30; between slice 1 and slice 2 acceptance)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-sonnet-5-5
+  - Open Dough release: unknown
+  - Evidence: coordinator conversation: task `Implement slice 1 icon toggle badge` reported "completed ... may still be running background work" with a growing tool-use count (47 to 54) on each repeat; the repeats stopped after `TaskStop` on that task.
+  - Observed effect: each repeat cost a turn and about 1.5k tokens of duplicated report to read and dismiss, and risked being mistaken for new work.
+  - Inference: Qualified. The agent appears to have re-emitted its hand-back each time it resumed; the cause inside the agent is not in the record. Stopping the completed task ended it; guidance does not say to do so.
