@@ -2,6 +2,7 @@
 # Credential-free proof that selected context keeps truncated, missing, or
 # unknown terminal evidence nonpassing without a wording pass; complete streams
 # are proved by native-result-retention.sh. Recorded streams prove adapters.
+# shellcheck disable=SC2310 # The reader call is a value check, not a set -e step.
 # shellcheck disable=SC2312 # pipefail covers listings, logs, and result-path parses.
 set -euo pipefail
 
@@ -32,8 +33,7 @@ stderr_file="${work_dir}/stderr.txt"
 mkdir -p -- "${sentinel_bin}" "${watched_dir}" "${results_dir}"
 cp -- "${source_dir}/tests/support/native-agent-recorded.sh" "${sentinel_bin}/codex"
 cp -- "${source_dir}/tests/support/native-agent-recorded.sh" "${sentinel_bin}/cursor"
-cp -- "${source_dir}/tests/support/native-agent-recorded.sh" "${sentinel_bin}/claude"
-chmod a+x "${sentinel_bin}/codex" "${sentinel_bin}/cursor" "${sentinel_bin}/claude"
+chmod a+x "${sentinel_bin}/codex" "${sentinel_bin}/cursor"
 export PATH="${sentinel_bin}:${PATH}"
 
 assert_watched_empty() {
@@ -160,24 +160,24 @@ assert_incomplete() {
   esac
 }
 
-for host in codex cursor claude; do
+# Codex and Cursor each keep a truncated run because they end in different
+# response branches (Codex's -o file, Cursor's reader). Missing and unknown are
+# classified the same way for every host, so one run of each stands for them:
+# tests/support/native-host-stream.test.mjs proves both for every host, and
+# native-stream-replay.sh replays real truncated streams for every host.
+for host in codex cursor; do
   read -r status attempt < <(run_selected_stream "${host}" truncated)
   assert_incomplete "${host}" truncated 'truncated terminal stream' \
     "${status}" "${attempt}"
   if [[ ${host} == codex ]]; then
     grep -Fq '0001-session-state.md' "${attempt}/response.md"
   fi
-
-  # A missing stream is classified the same way for every host, and cursor
-  # and claude share their output branch, so claude's missing run repeats
-  # cursor's.
-  if [[ ${host} != claude ]]; then
-    read -r status attempt < <(run_selected_stream "${host}" missing)
-    assert_incomplete "${host}" missing 'missing terminal stream' \
-      "${status}" "${attempt}"
-  fi
-
-  read -r status attempt < <(run_selected_stream "${host}" unknown)
-  assert_incomplete "${host}" unknown 'unknown event shape' \
-    "${status}" "${attempt}"
 done
+
+read -r status attempt < <(run_selected_stream cursor missing)
+assert_incomplete cursor missing 'missing terminal stream' \
+  "${status}" "${attempt}"
+
+read -r status attempt < <(run_selected_stream codex unknown)
+assert_incomplete codex unknown 'unknown event shape' \
+  "${status}" "${attempt}"

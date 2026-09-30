@@ -167,7 +167,7 @@ verdicts are unchanged.
 
 ### 4. The completeness suite keeps only runs no other check owns
 Type: Structure
-Status: planned
+Status: done
 Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
 tests/native-stream-completeness.sh tests/support/native-host-stream.test.mjs
 tests/native-stream-replay.sh`.
