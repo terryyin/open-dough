@@ -3,23 +3,29 @@
 // and in Recent sessions (`./RecentSessions.tsx`); the Sessions sidebar
 // (`./SessionSidebar.tsx`) shows its state the same way (`shownSession`) and
 // says the same while the sessions are unread or none are kept
-// (`SessionList`). An entry gives its
-// session's state as Claude Code last listed it, read once by `sessionShown`,
-// marked, when the developer is needed there, by a solid edge beside that
-// text; its workflow and the model it asked for, if any, when it was
-// launched, its session, and Open terminal (`./LaunchSession.tsx`); a
-// session the developer marked done is Done, under its `done-` name. An entry names its story's title and identity unless it
-// is listed on the story's own card or is an ad hoc session (no story), where it offers Mark as done through the
-// page's one operation (`./TerminalSplit.tsx`); on a card or in Recent
-// sessions, while its session shows State unknown, it offers "Delete record…",
-// which asks before it deletes. While the page's terminal shows its session,
-// an entry says "Shown in terminal", outlined in Recent sessions, and the
-// card listing it is outlined. Every entry names its session, so the Sessions
-// sidebar can find and reveal it when no card lists it. Entries are local
-// evidence of launches, not story facts.
+// (`SessionList`). An entry gives its session's state as Claude Code last
+// listed it, read once by `sessionShown`, marked, when the developer is
+// needed there, by a solid edge beside that text; its workflow and the model
+// it asked for, if any, when it was launched, the workspace its start
+// established, if any, its session, and Open terminal
+// (`./LaunchSession.tsx`); a session the developer marked done is Done,
+// under its `done-` name. An entry names its story's title and identity
+// unless it is listed on the story's own card or is an ad hoc session (no
+// story), where it offers Mark as done through the page's one operation
+// (`./TerminalSplit.tsx`); on a card or in Recent sessions, while its
+// session shows State unknown, it offers "Delete record…", which asks before
+// it deletes. While the page's terminal shows its session, an entry says
+// "Shown in terminal", outlined in Recent sessions, and the card listing it
+// is outlined. Every entry names its session, so the Sessions sidebar can
+// find and reveal it when no card lists it. Entries are local evidence of
+// launches, not story facts.
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
+import {
+  launchSubject,
+  workspaceWords,
+  type LaunchWithState,
+} from "./agentLaunch.ts";
 import { doneSessionName } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
 import { sessionShown } from "./sessionShown.ts";
@@ -50,6 +56,7 @@ export function SessionEntry({
   const { title, identity, name, startedWords, modelWords } = launchSubject(
     record.request,
   );
+  const workspace = workspaceWords(record.request, record.start);
   const markedDone = record.doneAt !== undefined;
   const { entryClass, stateWords } = shownSession(record);
   const inTerminal =
@@ -81,6 +88,7 @@ export function SessionEntry({
         {startedWords} <Moment at={new Date(record.launchedAt)} />
       </p>
       {modelWords !== undefined && <p>{modelWords}</p>}
+      {workspace !== undefined && <p>{workspace}</p>}
       <p className="launch-local">
         Local: launched from this dashboard on this machine.
       </p>

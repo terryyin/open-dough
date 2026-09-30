@@ -14,13 +14,18 @@ import { readyBadge } from "./storyPreparation.ts";
 import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 // What a launch starts, and the one place each workflow is spelled: its
-// display name, the verb its dialog uses, the skill it runs, and the note its
-// card action carries, if any. The boundary, host, and card all read this
-// table.
+// display name, the verb its dialog uses, the skill it runs, what its card
+// says while the launch request is pending, what its dialog adds when Start
+// also establishes a claim and workspace, and the note its card action
+// carries, if any. The boundary, host, and card all read this table.
 type LaunchWorkflowSpec = {
   readonly name: string;
   readonly verb: string;
   readonly skill: string;
+  readonly pending: string;
+  // The sentence a dialog adds for a workflow whose Start does more than start
+  // the session; none for a workflow that only starts it.
+  readonly establishes: string | undefined;
   readonly note: (
     entry: Pick<WorkEntry, "preparation" | "preparing">,
   ) => string | undefined;
@@ -31,6 +36,9 @@ export const launchWorkflows = {
     name: "Execution",
     verb: "execute",
     skill: "dough-execute-plan",
+    pending: "Preparing execution…",
+    establishes:
+      "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
     // Nothing while readiness is still being read.
     note: ({ preparation }) =>
       preparation?.status !== "loading" &&
@@ -42,6 +50,8 @@ export const launchWorkflows = {
     name: "Refinement",
     verb: "refine",
     skill: "dough-story-refinement",
+    pending: "Starting refinement in Claude Code…",
+    establishes: undefined,
     note: ({ preparing }) =>
       preparing?.status === "recorded" ? "Being prepared" : undefined,
   },
@@ -98,6 +108,24 @@ export function launchSubject(request: RecordedLaunchRequest) {
         ? undefined
         : `Model: ${launchModels[request.model].name} (requested)`,
   };
+}
+
+// Where a launch's session runs, for a launch whose start established a
+// workspace: the folder as the page shows a project's, `~/git/<project id>`,
+// then the workspace under it (`~/git/open-dough/.worktrees/<slug>`), never
+// the machine's home directory. Undefined when no start was established.
+export function workspaceWords(
+  request: RecordedLaunchRequest,
+  start: EstablishedStart | undefined,
+): string | undefined {
+  if (start === undefined) return undefined;
+  const marker = "/.worktrees/";
+  const at = start.workspace.lastIndexOf(marker);
+  return `Workspace ${
+    at < 0
+      ? start.workspace
+      : `~/git/${request.source}${start.workspace.slice(at)}`
+  }`;
 }
 
 export const agentLaunchEndpoint = "/__agent-launch";

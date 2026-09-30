@@ -72,6 +72,18 @@ after another blank line. The launch record keeps the established start
 `publishedSha`, agent, and the start and candidate SHAs when reported).
 Refinement and Start session run no start.
 
+The page says what Start does. Only the execution dialog adds a sentence to
+its description: "Start also publishes this story's Take to the project's
+trunk on origin and creates a workspace under the project folder's
+.worktrees/; pressing Start authorizes that push." While the launch request is
+pending the card reads "Preparing execution…" (a refinement's reads "Starting
+refinement in Claude Code…"); that is local progress, so the card stays in
+**Backlog** and shows no Taken or agent until origin does. The words are in
+`launchWorkflows` (`pending`, `establishes`). A session whose launch record
+keeps a start says "Workspace ~/git/<project id>/.worktrees/<slug>" in its
+entry, on a card or in Recent sessions (`workspaceWords`); one launched
+without a start says none.
+
 The start runs only when the project's installed skill ships both the start
 command and the formatter; otherwise the launch is as before, in the project's
 folder with no Take and no workspace. It is refused, with nothing launched

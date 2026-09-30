@@ -34,7 +34,7 @@ export function StartLaunch({
   // Answers whether a session was launched, which then takes the keyboard.
   readonly onStart: (choices: LaunchChoices) => Promise<boolean>;
 }) {
-  const { name, verb, skill } = launchWorkflows[workflow];
+  const { name, verb, skill, pending, establishes } = launchWorkflows[workflow];
   const named = name.toLowerCase();
   const id = useId();
   const starting = attempt?.kind === "starting";
@@ -73,7 +73,7 @@ export function StartLaunch({
       </p>
       {attempt?.kind === "starting" && (
         <p id={answerId} className="launch-answer quiet">
-          Starting {named} in Claude Code…
+          {pending}
         </p>
       )}
       {attempt !== undefined && attempt.kind !== "starting" && (
@@ -87,6 +87,7 @@ export function StartLaunch({
               Claude Code starts a background session on this machine, in this
               project's folder, to {verb} <strong>{work.title}</strong> (
               <span className="card-identity">{work.identity}</span>).
+              {establishes !== undefined && ` ${establishes}`}
             </>
           }
           note={

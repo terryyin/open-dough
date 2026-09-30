@@ -132,7 +132,7 @@ the catalog repository starts nothing (slice 5 words it).
 
 ### 3. The page says what Start now does
 Type: Behavior
-Status: planned
+Status: done
 Proof: page spec (`agent-launch-start-card.spec.ts`): the dialog description says Start also
 publishes the Take to the project's trunk on origin and creates a workspace under
 `.worktrees/`; while the request is pending the card reads "Preparing execution…" (interim: slice 10
