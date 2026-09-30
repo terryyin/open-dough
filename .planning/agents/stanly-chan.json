@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "stanly-chan",
+  "email": "stanly-chan@example.org",
+  "identity": "SEED-057#settle-purpose-scope-and-behavior",
+  "mode": "story-branch",
+  "branch": "claude/settle-purpose-scope-and-behavior",
+  "host": "claude",
+  "model": "claude-sonnet-5-5"
+}

@@ -16,10 +16,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation ([plan](slice-plans/178-script-execution-preparation/PLAN.md))
 - [Scan sessions quickly in a compact sidebar that surfaces those needing attention](seeds/SEED-062-compact-session-sidebar.md#compact-session-sidebar) — SEED-062#compact-session-sidebar ([plan](slice-plans/181-compact-session-sidebar/PLAN.md))
+- [Settle purpose, scope, and behavior during refinement](seeds/SEED-057-composable-story-refinement-styles.md#settle-purpose-scope-and-behavior) — SEED-057#settle-purpose-scope-and-behavior ([plan](slice-plans/182-challenge-and-clarify-refinement/PLAN.md))
 
 ## Backlog list
 
-- [Settle purpose, scope, and behavior during refinement](seeds/SEED-057-composable-story-refinement-styles.md#settle-purpose-scope-and-behavior) — SEED-057#settle-purpose-scope-and-behavior
 - [Resolve uncertainty and expose failure during refinement](seeds/SEED-057-composable-story-refinement-styles.md#resolve-uncertainty-and-expose-failure) — SEED-057#resolve-uncertainty-and-expose-failure
 - [Shape an interaction within system constraints during refinement](seeds/SEED-057-composable-story-refinement-styles.md#shape-interaction-within-system-constraints) — SEED-057#shape-interaction-within-system-constraints
 - [Select refinement options when launching from the dashboard](seeds/SEED-061-refinement-options-from-dashboard.md#select-refinement-options-from-dashboard) — SEED-061#select-refinement-options-from-dashboard
