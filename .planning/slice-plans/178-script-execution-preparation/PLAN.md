@@ -59,7 +59,7 @@ choice** (`server/claudeWorkspace.ts`, host-owned, pure) → **Established start
 | `.worktrees/` is git-ignored in this repository | 2 | `git check-ignore -v .worktrees/x` | `.gitignore:24` |
 | Claude Code's listing carries each session's `cwd` | 2 | `claude agents --json --all`, keys | `cwd, id, kind, name, pid, sessionId, startedAt, state, status` |
 | The fake `claude` records argv and cwd | 2 | read `dashboard/tests/support/fakeClaude.ts` (`ClaudeCall`) | yes |
-| New script files ship with the skill directory (no manifest to edit) | 1 | `grep -rln execution-start-receipt` outside skill copies | only skill copies and a watch-list note |
+| New script files ship with the skill directory (no manifest to edit) | 1 | `grep -rln execution-start-receipt` outside skill copies | **wrong**: `install.sh` `managed_files` declares each shipped reference and script; CI (`tests/payload-declaration-links.sh`) failed until `established-start.md` and `established-start.mjs` were declared. Later slices that add skill files declare them there |
 | Highest plan number | plan path | `ls .planning/slice-plans` | 177 |
 | `claude --bg` from a dashboard-created worktree runs normally, attaches by short id from the project folder, and trust of the project folder covers `.worktrees/` | 2 | ~/.claude.json trusts only the project folder and sessions already run in worktrees under it; real proof needs a paid, manual launch | **probe**: slice 2's manual observation; failure stops slices 3+ |
 | A fresh rerun with the same publisher in a workspace that holds an unpublished own claim commit (result lost) stops safely or resumes | 8 | temporary `node --test` in the skill scripts dir using `createQueuedTrunk`, `interruptFirstPush`, `startProcess` twice with no resume flags (file removed afterwards) | stops with `setup-failed` (`existing workspace cannot continue ... unpublished-commits`), origin holds 0 claims, no duplicate: a rerun must pass `--starting-revision` (the claim commit's parent) and `--candidate-sha` (workspace HEAD), which the script validates against the claim trailers |
@@ -111,7 +111,7 @@ one pointer in `SKILL.md`); installed copies update only from a release.
 
 ### 2. Start execution establishes the start, then opens the session in its workspace
 Type: Behavior
-Status: planned
+Status: done (automated proof; the paid manual probe below is still to be run by the developer, and a failed probe stops slices 3-11)
 Proof: boundary spec `agent-launch-start.spec.ts` over raw HTTP (Opus and Default) against
 the real script and a real bare origin, asserting origin's Taken profile, the fake `claude`
 argv and cwd, and the kept record; focused unit proof of the workspace choice (slug from

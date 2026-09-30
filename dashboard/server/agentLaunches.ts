@@ -20,7 +20,12 @@ import {
 } from "../src/agentLaunch.ts";
 import { catalog, type PublishedSource } from "../src/publishedSource.ts";
 import { claudeSessions } from "./claudeCode.ts";
-import { launchClaude, recordedRequest } from "./claudeLaunch.ts";
+import {
+  launchClaude,
+  recordedRequest,
+  type EstablishedLaunch,
+} from "./claudeLaunch.ts";
+import { beginStart, formattedStart } from "./executionStart.ts";
 import {
   keepRecord,
   keptRecords,
@@ -47,6 +52,86 @@ function launchTimeoutMs(): number {
   return Number.isFinite(configured) && configured > 0
     ? configured
     : defaultLaunchWaitMs;
+}
+
+const defaultStartWaitMs = 120_000;
+
+// How long an execution's start may run before the launch answers uncertain;
+// the start itself is never aborted. A test may shorten it through the
+// environment.
+function startTimeoutMs(): number {
+  const configured = Number(process.env["DOUGH_START_TIMEOUT_MS"]);
+  return Number.isFinite(configured) && configured > 0
+    ? configured
+    : defaultStartWaitMs;
+}
+
+// How a launch's start ended: there was none to run, it established the
+// workspace the session opens in, or the launch stops with this answer.
+type Started =
+  | { readonly kind: "none" }
+  | ({ readonly kind: "established" } & EstablishedLaunch)
+  | { readonly kind: "stopped"; readonly result: LaunchResult };
+
+function startFailed(explanation: string): Started {
+  return {
+    kind: "stopped",
+    result: { kind: "failed", reason: "start-refused", explanation },
+  };
+}
+
+// The start an execution launch runs before its session, waiting at most
+// `startTimeoutMs()` for it; the script goes on running when the wait ends.
+async function started(
+  source: PublishedSource,
+  request: AgentLaunchRequest,
+  folder: ProjectFolder,
+): Promise<Started> {
+  if (request.workflow !== "execution") {
+    return { kind: "none" };
+  }
+  const planned = await beginStart(source, request, folder);
+  if (planned.kind === "not-applicable") {
+    return { kind: "none" };
+  }
+  if (planned.kind === "refused") {
+    return startFailed(planned.explanation);
+  }
+  let timer: NodeJS.Timeout | undefined;
+  const expiry = new Promise<"expired">((resolve) => {
+    timer = setTimeout(() => {
+      resolve("expired");
+    }, startTimeoutMs());
+  });
+  const attempt = await Promise.race([planned.attempt, expiry]);
+  clearTimeout(timer);
+  if (attempt === "expired") {
+    return {
+      kind: "stopped",
+      result: {
+        kind: "uncertain",
+        reason: "timed-out",
+        explanation: `The start did not finish within the wait, so the story may or may not be Taken. Its workspace ${planned.workspace.shown} on branch ${planned.branch} was left to finish. Check origin before starting again.`,
+      },
+    };
+  }
+  if (attempt.kind === "refused") {
+    return startFailed(attempt.explanation);
+  }
+  try {
+    return {
+      kind: "established",
+      handoff: {
+        start: attempt.start,
+        formatted: await formattedStart(folder, attempt.start),
+      },
+      workspace: planned.workspace,
+    };
+  } catch {
+    return startFailed(
+      `The story is Taken, but the installed skill's start formatter could not be read, so no session was started. Workspace ${planned.workspace.shown} on branch ${planned.branch}.`,
+    );
+  }
 }
 
 // One session this dashboard recorded for the project, in its existing
@@ -140,6 +225,10 @@ export class AgentLaunches {
         explanation: `The project folder ${folder.shown} was not found on this machine. Nothing was launched.`,
       };
     }
+    const start = await started(source, request, folder);
+    if (start.kind === "stopped") {
+      return start.result;
+    }
     const began = new Date();
     const recording = recordedRequest(request, began);
     const controller = new AbortController();
@@ -153,6 +242,7 @@ export class AgentLaunches {
         recording,
         folder,
         controller.signal,
+        start.kind === "established" ? start : undefined,
       );
       if (launched.kind !== "launched") {
         return launched;
@@ -160,6 +250,7 @@ export class AgentLaunches {
       const record: LaunchRecord = {
         request: recording,
         session: launched.session,
+        ...(start.kind === "established" ? { start: start.handoff.start } : {}),
         launchedAt: new Date().toISOString(),
       };
       await keepRecord(source.id, record);

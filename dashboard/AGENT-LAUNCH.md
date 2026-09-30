@@ -41,13 +41,48 @@ through `src/agentLaunchClient.ts`), mounted by the same Vite configuration in
 dev and preview and refusing other sites the same way. It admits only the
 workflows above, and only Claude Code as the host. It runs
 `claude --bg --name "<project> · <workflow> · <title>"` (for example
-`Open Dough · Refinement · <title>`) in the project's folder on this machine,
+`Open Dough · Refinement · <title>`) in the project's folder on this machine (an execution's, in its workspace, below),
 `~/git/<project id>` (for example `~/git/open-dough`), with the instruction
 `/<skill> <identity>`, followed by a blank line and the developer's
 instruction when there is one. It passes a model only when the developer chose
 one (above), and never a permission or effort choice, so the developer's own
 Claude Code settings apply to everything else. It confirms the
 session in Claude Code's own listing, `claude agents --json --all`.
+
+**Start (execution).** Before `claude --bg`, an execution launch runs the
+project's own installed start command, `node
+.claude/skills/dough-execute-plan/scripts/execution-start.mjs start`, as a
+subprocess (`server/executionStart.ts`, the only place its arguments are
+spelled and its one-line JSON result is read). It passes the project's folder
+as `--integration`, the workspace, the branch, the launch's identity, one
+stable publisher ID for this machine and project, `--mode story-branch`,
+`--remote origin`, `--target` the project's trunk, `--push-authorized` and
+`--workspace-authorized`, `--host claude`, and `--model <alias>` only when the
+developer chose a model, so the published Take names the agent with host
+`claude` and that model, and nothing on Default. The host chooses the
+workspace (`server/claudeWorkspace.ts`): `<project folder>/.worktrees/<slug>`
+on the branch `claude/<slug>`, the slug the story title in lowercase hyphenated
+words (at most 48 characters), numbered (`-2`, `-3`) when a folder or
+`claude/` branch already has it. The session then starts with that workspace
+as its folder and, as its instruction, `/<skill> <identity>`, a blank line, the
+established start as the installed skill's own formatter
+(`scripts/established-start.mjs`) writes it, and the developer's instruction
+after another blank line. The launch record keeps the established start
+(`start`: identity, publisher ID, workspace, branch, mode, remote, target,
+`publishedSha`, agent, and the start and candidate SHAs when reported).
+Refinement and Start session run no start.
+
+The start runs only when the project's installed skill ships both the start
+command and the formatter; otherwise the launch is as before, in the project's
+folder with no Take and no workspace. It is refused, with nothing launched
+("Launch failed:"), when the project folder's `origin` is not the catalog
+repository the Take would be published to, or when the command stops or gives
+no readable result; the explanation names its `status` and `error` and its
+recovery workspace and branch when it reports them. The start is never
+aborted: when it has not finished within its wait (two minutes;
+`DOUGH_START_TIMEOUT_MS` shortens it for tests) the launch answers uncertain,
+naming the workspace and branch, and the command goes on, so the story may
+already be Taken.
 
 A confirmed launch lists its session on the story's card, beside the Start
 actions, which stay with their notes whatever sessions are listed, and the

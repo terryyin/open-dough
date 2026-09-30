@@ -179,12 +179,35 @@ export type HostSession = z.infer<typeof hostSessionSchema>;
 // marked done.
 export const launchRetentionDays = 30;
 
+// The start a workflow established before its session
+// (`../server/executionStart.ts`): the published claim and the workspace the
+// session runs in, as the installed skill's start command reported them, kept
+// with the launch record and handed to the session in its instruction.
+export const establishedStartSchema = z.object({
+  identity: z.string().min(1),
+  publisherId: z.string().min(1),
+  workspace: z.string().min(1),
+  branch: z.string().min(1),
+  mode: z.literal("story-branch"),
+  remote: z.string().min(1),
+  target: z.string().min(1),
+  publishedSha: z.string().min(1),
+  agent: z.string().min(1).optional(),
+  plan: z.string().min(1).optional(),
+  startingRevision: z.string().min(1).optional(),
+  candidateSha: z.string().min(1).optional(),
+});
+
+export type EstablishedStart = z.infer<typeof establishedStartSchema>;
+
 // A confirmed launch, kept on this machine until `launchRetentionDays` after
 // the developer marked its session done (`./doneMark.ts`), if they ever do,
 // with when they did: local evidence only, never a story fact.
 export const launchRecordSchema = z.object({
   request: recordedLaunchRequestSchema,
   session: hostSessionSchema,
+  // What the launch's start established, for a workflow that has one.
+  start: establishedStartSchema.optional(),
   launchedAt: z.iso.datetime(),
   doneAt: z.iso.datetime().optional(),
 });
@@ -272,6 +295,7 @@ export const launchFailureReasons = [
   "folder-not-trusted",
   "refused",
   "unavailable",
+  "start-refused",
 ] as const;
 
 // Why a launch may or may not have started a session: the launch wait
