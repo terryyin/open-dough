@@ -12,6 +12,11 @@
       "flag": "--borrow",
       "label": "Borrow",
       "instruction": "Find a mechanism in another domain that could help achieve the selected story's goal, choosing it from the story's own problem rather than from a supplied example. Map the roles and relationships in that mechanism to this story's, adapt the mechanism to the story, and state a consequential limit where the analogy breaks. A shared label or visual resemblance alone is not a correspondence. Treat the adapted mechanism as a candidate; an analogy is not evidence that it works. If no transfer is defensible, report that limit and continue supported refinement without inventing an analogy or asking the developer to pick an unsuitable one."
+    },
+    {
+      "flag": "--challenge",
+      "label": "Challenge",
+      "instruction": "Test whether the proposed capability achieves the selected story's stated purpose. Name the assumptions the purpose rests on, whether the proposal is the capability or only one way to reach it, and how it could meet its own wording yet miss the purpose. Report the strongest consequential doubt with its reason; do not report an objection that changes nothing about the promised outcome, and do not invent doubt when the purpose holds: say so briefly and continue refinement. A challenge is a proposal, not a decision: discuss any change to goal or scope with the developer, and do not rewrite or split the story on your own. When refinement has recommended a direction, challenge that direction as well instead of adding another pass."
     }
   ]
 }

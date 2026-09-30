@@ -101,7 +101,7 @@ no full-suite local gate is added.
 
 ### 1. Challenge the purpose during refinement
 Type: Behavior
-Status: planned
+Status: done
 Proof: Challenge-only representative uses (consequential doubt; sound-purpose
 case), plus the no-option preservation check; observe the single definition
 being read; pass the three focused payload checks.
@@ -165,4 +165,15 @@ deliverable.
 
 ## Learnings
 
-None yet.
+- Slice 1 accepted proof (2026-09-30): the `--challenge` entry was added to
+  `refinement-options.json`; `selection` and `default` are unchanged. Reasoning
+  walkthroughs on scratch stories (oversized "manage agent sessions" story →
+  purpose-level doubt about noticing waiting sessions, no rewrite or split;
+  sound-purpose CSV-export story → brief "purpose holds"; no-option story →
+  JSON not read, default unchanged) passed. Focused payload checks exited 0:
+  `env PATH="/opt/homebrew/bin:$PATH" npm test -- tests/payload-declaration-links.sh tests/install-public-payload.sh tests/story-payload-update.sh`.
+  Limit: walkthroughs are reasoning, not a live-model run; the only guard
+  against a minor invented doubt is the entry's consequence rule.
+- The Challenge entry already says a recommended direction is challenged instead
+  of adding a pass, so slice 2 needs no Explore/Borrow sentence for Challenge;
+  it still owns the Clarify entry and the Challenge-feeds-Clarify composition.
