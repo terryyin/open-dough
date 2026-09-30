@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "mrsn-chan",
+  "email": "mrsn-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-061#correct-refinement-options-launch-follow-ups",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
