@@ -284,3 +284,13 @@ it at the control if it overruns, keeping `requestDeleteRecord` and
   region. The Sessions sidebar omits done sessions, so deleting a done Recent
   entry leaves the sidebar count unchanged. `SessionEntry.tsx` (~300 lines) and
   `TerminalSplit.tsx` (~268) are size candidates for later cleanup.
+
+## Execution complete
+
+Product advice: no change to the queue. The delete is delivered end to end
+(boundary, card, Recent sessions, terminal, documents) with its refusals; no
+correction is needed. Two optional follow-ups if they earn priority: route the
+"Session record deleted" status into App's always-present polite region so a
+screen reader speaks the first deletion (needs `App.tsx` and the single-region
+locators changed together), and split `SessionEntry.tsx` (~300 lines) and
+`TerminalSplit.tsx` (~275 lines) along their session-operation seams.
