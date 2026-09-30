@@ -184,3 +184,7 @@ stale header comment.
   practice requires.
 - Delegation briefs name the lint rules (ESLint, shellcheck `enable=all`) and
   the 250-line file bound, since this repository has no commit hook.
+
+## Execution complete
+
+Product advice: no change. The reader, corpus command, closure assessors and completeness suite now match the story; no follow-up work is recommended.
