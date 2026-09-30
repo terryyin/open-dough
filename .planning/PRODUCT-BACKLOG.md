@@ -19,6 +19,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Stop a commit that fails lint before it leaves the machine](seeds/SEED-065-warning-free-lint.md#pre-commit-lint-hook) — SEED-065#pre-commit-lint-hook
 - [Correct the refinement options launch after its outcome review](seeds/SEED-061-refinement-options-from-dashboard.md#correct-refinement-options-launch-follow-ups) — SEED-061#correct-refinement-options-launch-follow-ups
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard

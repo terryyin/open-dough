@@ -68,6 +68,30 @@ maintainers to ignore it.
 - **Capture:** Requested by Terry on 2026-09-30 after `npm run lint` failed
   with thousands of errors unrelated to the change.
 
+<a id="pre-commit-lint-hook"></a>
+
+### Stop a commit that fails lint before it leaves the machine
+
+**Identity:** SEED-065#pre-commit-lint-hook
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Beneficiary:** maintainers and executing agents committing in this
+  repository, and everyone waiting on CI after them.
+- **Outcome:** a commit whose staged JavaScript, TypeScript, JSON, or shell
+  files fail the repository's lint or formatting checks is refused locally with
+  the findings and a pointer to `npm run format`, so a masked or skipped
+  format step no longer reaches CI. The hook only checks: it never fixes,
+  restages, or changes the index. `npm ci` installs it in every checkout and
+  worktree, a missing lint tool is a reported failure, and CI's lint job stays
+  as the backstop.
+- **Evidence:** [ODF-100](../../DearDough.md#odf-100--a-piped-lint-failure-did-not-stop-publication)
+  in `DearDough.md` (a formatter piped through `tail` let delivery continue),
+  with lint-only repair commits such as `235583f7` and `57505b5d`.
+- **Completion:** after delivery, update ODF-100's follow-up in `DearDough.md`
+  under [finding status](../../docs/maintainer/finding-names.md#retained-evidence).
+
 ## Open Decisions
 
 None.
