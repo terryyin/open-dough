@@ -149,7 +149,7 @@ runs the suite.
 
 ### 1. A session that starts needing the developer raises one macOS notification
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/session-alerts.spec.ts` with a dashboard server whose
 harness has `DOUGH_ALERT_CHECK_MS` small, the fake `osascript`, and sessions
 launched through raw HTTP (`agentLaunchBoundary.ts`); no page is needed except
@@ -188,6 +188,18 @@ decision 4 contained on failure), the exported alert reading in
 `tests/support/fakeClaude.ts` (the file's header updated), and the
 `DOUGH_ALERT_CHECK_MS` override. Documents the alert in
 `dashboard/AGENT-LAUNCH.md`.
+
+Accepted proof: `npx playwright test --config dashboard/playwright.config.ts
+dashboard/tests/session-alerts.spec.ts dashboard/tests/agent-launch-attention.spec.ts
+dashboard/tests/agent-launch-session-listing.spec.ts
+dashboard/tests/agent-terminal-lifetime.spec.ts
+dashboard/tests/agent-launch-boundary.spec.ts
+dashboard/tests/agent-launch-done.spec.ts` exit 0, with `npm run typecheck:dashboard`
+and `npm run lint`. Learnings: the harness defaults `DOUGH_ALERT_CHECK_MS` to
+one hour so existing specs' exact `claudeCalls()` counts hold (the watcher polls
+once at start); "no `agents` listings after close" is not asserted directly
+(absence cannot be awaited); the notification message is the label plus
+`waitingFor` only, so State unknown carries no note.
 
 ### 2. The Sessions sidebar says when alerts cannot be raised
 Type: Behavior

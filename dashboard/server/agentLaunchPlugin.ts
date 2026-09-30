@@ -10,7 +10,9 @@
 // leaves that session's state unknown. A same-origin WebSocket upgrade to
 // `/__agent-terminal?source=&session=` attaches to one session this boundary
 // recorded for that project (`./agentTerminals.ts`). Which requests are
-// admitted is decided in `./agentLaunchAdmission.ts`. Everything else
+// admitted is decided in `./agentLaunchAdmission.ts`. While it runs it also
+// watches the machine's sessions and raises a macOS notification when one
+// starts needing the developer (`./sessionAlerts.ts`). Everything else
 // -- another site, an unknown project, a workflow or host this boundary does
 // not launch, malformed text, another method, a session it did not record --
 // is refused before any host process starts, and a session Claude Code no
@@ -39,6 +41,7 @@ import { markSessionDone } from "./doneMarks.ts";
 import { deleteRecord } from "./launchRecordStore.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { SessionAlerts } from "./sessionAlerts.ts";
 
 type Answer =
   | { readonly status: number; readonly body: LaunchResult }
@@ -140,6 +143,7 @@ function installAgentLaunchMiddleware(
   httpServer: HttpServer | null,
 ): () => void {
   const launches = new AgentLaunches();
+  const alerts = new SessionAlerts(launches);
   const terminals = new AgentTerminals(httpServer, (req, url) =>
     admittedAttach(req, url, launches),
   );
@@ -158,6 +162,7 @@ function installAgentLaunchMiddleware(
     }, next);
   });
   return () => {
+    alerts.close();
     terminals.close();
     launches.close();
   };

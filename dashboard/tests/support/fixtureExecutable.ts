@@ -1,5 +1,6 @@
 // Puts one synthetic executable from ../fixtures (the fake `gh`, the fake
-// `claude`) into a test's own PATH directory under its command name.
+// `claude`, the fake `osascript`) into a test's own PATH directory under its
+// command name.
 
 import { chmodSync, copyFileSync, linkSync, mkdirSync } from "node:fs";
 import path from "node:path";
@@ -20,7 +21,7 @@ const fixturesDir = path.join(process.cwd(), "dashboard", "tests", "fixtures");
 // extensionless files are ES modules). Only across filesystems, where no link
 // can be made, is it copied.
 export function installFixtureExecutable(
-  fixture: "fake-gh" | "fake-claude",
+  fixture: "fake-gh" | "fake-claude" | "fake-osascript",
   binDir: string,
   command: string,
 ): void {

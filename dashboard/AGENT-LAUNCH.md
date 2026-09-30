@@ -202,6 +202,24 @@ It never changes the card's stage, position, or published facts. A story that
 leaves every list keeps each affected session, with its reason and Open
 terminal, under Recent sessions.
 
+While the dashboard server runs, it also watches the machine's sessions itself
+(`server/sessionAlerts.ts`), with or without a page open, and raises one macOS
+notification with the sound Glass when a session not marked done enters any
+reading other than **Working** (`alertReading` in `src/sessionShown.ts`, so
+also **Session unavailable**, **State unknown**, and **State not recognized**,
+which the attention count leaves out). Its title is the project and the
+session's title, and its message the reading, then ": <what it waits for>"
+when Claude Code says. It reads the sessions every 15 seconds
+(`DOUGH_ALERT_CHECK_MS` shortens it for tests) and remembers each session's
+last reading for that server run only: the first read only sets that baseline,
+a session first seen later counts as having been working, and a session alerts
+again only after a reading that does not alert, so it does not repeat while
+the reading stays, across a page reload, or when a server restart finds it
+there, and a changed reason alone is no new alert. The text is passed to
+`osascript` as arguments, never spliced into its script; where `osascript`
+is missing or refuses, nothing is raised and the watcher goes on. Two
+dashboard servers on one machine would each alert.
+
 The launch boundary also attaches a terminal to a session it launched. A
 same-origin WebSocket to
 `/__agent-terminal?source=<project id>&session=<session id>`
