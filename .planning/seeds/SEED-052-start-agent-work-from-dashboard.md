@@ -104,55 +104,6 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
-<a id="delete-unavailable-session-record"></a>
-
-### Delete the record of a session Claude Code no longer lists
-
-**Identity:** SEED-052#delete-unavailable-session-record
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/179-delete-unavailable-session-record/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fb410dcd4e3935fc4c55c57ecfc0e24cb25b2861fdb49c16621208f4e7b321c0","plan":"222f25f15f1fb5313f05b4d205ee3b3514ba8aa360df42796ae7f7198031acaf"}}
-```
-
-**Goal:** A developer whose dashboard lists a session Claude Code no longer
-lists (“Session unavailable”) can remove that leftover launch record, as they
-can already for “State unknown”, so stale entries stop cluttering cards and
-Recent sessions.
-
-**Scope:**
-
-- “Delete record…” is offered on a card entry or Recent sessions entry
-  while its session reads “State unknown” or “Session unavailable”. An entry
-  reading “Done”, “Working” or any other state offers none, as today.
-- The question, wording, keyboard handling, status line, terminal closing and
-  problem messages are the ones the delete for an unknown state already has.
-  What a record's deletion touches is unchanged: only the dashboard's record.
-- The server reads the state again first. A session that then reads neither
-  unknown nor unavailable, or reads Done, keeps its record, and the entry says “This session's state is
-  now known”, as today.
-- The Sessions sidebar still offers no delete.
-- The North Star and Agent launch documents describe the wider condition.
-- Deferred: no new way to remove a session Claude Code still lists, no bulk
-  delete, no automatic clean-up of unavailable records.
-
-**Key examples:**
-
-- A Recent sessions entry reads “Session unavailable”. The developer chooses
-  “Delete record…”, then “Delete record”; the entry leaves every list and the
-  status says “Session record deleted”.
-- The same entry on its story's card offers Mark as done and “Delete record…”
-  together; choosing Keep leaves the record.
-- An entry marked “Done” in Recent sessions, though Claude Code no longer lists
-  its session, still reads “Done” and offers no “Delete record…”.
-- Claude Code lists the session again after the page read “Session
-  unavailable”: on Delete record the record stays and the entry says
-  “This session's state is now known”.
-- A session Claude Code lists as working offers no “Delete record…”.
-
-- **Depends on:** None; the delete for an unknown state is delivered.
-- **Capture:** Terry asked on 2026-09-30 how to remove the
-  “Keep story sessions linked until deliberately closed” refinement session
-  (session d5818882), which shows “Session unavailable” with no delete action.
-
 <a id="announce-record-deletion-first-time"></a>
 
 ### Announce a deleted session record to screen readers the first time

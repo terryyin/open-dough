@@ -1,7 +1,8 @@
 // Delete record at the local launch boundary (../server/agentLaunchPlugin.ts),
 // over raw HTTP: a same-origin POST for a session this dashboard recorded
 // removes only that session's record from this machine's launch records while
-// Claude Code's listing still leaves its state unknown. It runs no `claude
+// Claude Code's listing still leaves its state unknown, or no longer lists it
+// while it is not marked done. It runs no `claude
 // stop`, renames nothing, and marks nothing done. A session whose state the
 // boundary reads as known keeps its record and is answered with that state.
 // Which requests are refused before `claude` runs, and a record file that
@@ -13,7 +14,7 @@ import { chmodSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-import { deleteRecord, recordsOf } from "./agentLaunchBoundary.ts";
+import { deleteRecord, markDone, recordsOf } from "./agentLaunchBoundary.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import {
   builtDashboardDir,
@@ -96,11 +97,41 @@ test.describe("deleting a recorded session's record", () => {
     ).toBeDefined();
   });
 
-  for (const known of ["working", "forgotten"] as const) {
-    test(`keeps the record of a ${known} session and answers its state`, async () => {
+  test("deletes only the record of a session Claude Code no longer lists and that is not marked done, stopping nothing", async () => {
+    const kept = await launched(server);
+    const session = await launched(server);
+    server.claudeSessionBecomes(session.sessionId, "forgotten");
+    const before = stored();
+
+    const response = await deleteRecord(server, {
+      source: "open-dough",
+      session: session.sessionId,
+    });
+
+    expect(response.status).toBe(200);
+    expect(JSON.parse(response.body)).toEqual({ kind: "deleted" });
+    expect(await sessionIds()).toContain(kept.sessionId);
+    expect(await sessionIds()).not.toContain(session.sessionId);
+    expect(stored()).toEqual(
+      before.filter((each) => each.session.sessionId !== session.sessionId),
+    );
+    expect(stopCalls()).toEqual([]);
+  });
+
+  for (const known of ["working", "unlisted and marked done"] as const) {
+    test(`keeps the record of a session that is ${known} and answers its state`, async () => {
       const session = await launched(server);
-      server.claudeSessionBecomes(session.sessionId, known);
+      if (known === "working") {
+        server.claudeSessionBecomes(session.sessionId, "working");
+      } else {
+        await markDone(server, {
+          source: "open-dough",
+          session: session.sessionId,
+        });
+        server.claudeSessionBecomes(session.sessionId, "forgotten");
+      }
       const before = stored();
+      const stopsBefore = stopCalls().length;
 
       const response = await deleteRecord(server, {
         source: "open-dough",
@@ -113,14 +144,14 @@ test.describe("deleting a recorded session's record", () => {
         record: {
           session: { sessionId: session.sessionId },
           sessionState:
-            known === "forgotten"
-              ? { kind: "unlisted" }
-              : { kind: "listed", state: "working" },
+            known === "working"
+              ? { kind: "listed", state: "working" }
+              : { kind: "unlisted" },
         },
       });
       expect(await sessionIds()).toContain(session.sessionId);
       expect(stored()).toEqual(before);
-      expect(stopCalls()).toEqual([]);
+      expect(stopCalls()).toHaveLength(stopsBefore);
     });
   }
 
