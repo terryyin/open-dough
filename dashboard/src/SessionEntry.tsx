@@ -25,7 +25,9 @@ import { Moment } from "./Moment.tsx";
 import { sessionShown } from "./sessionShown.ts";
 import { LaunchSession } from "./LaunchSession.tsx";
 import {
+  notDeleted,
   notMarkedDone,
+  nowKnown,
   showsSession,
   useMarking,
   usePageSessions,
@@ -85,10 +87,7 @@ export function SessionEntry({
         </p>
       )}
       <LaunchSession record={record} />
-      {onCard && <MarkDone record={record} />}
-      {onCard && record.sessionState.kind === "unknown" && (
-        <DeleteRecord record={record} />
-      )}
+      {onCard && <CardActions record={record} />}
     </article>
   );
 }
@@ -137,10 +136,13 @@ export function SessionList({
   return children(sessions);
 }
 
-// A card entry's Mark as done; once marked, the entry leaves the card.
-function MarkDone({ record }: { readonly record: LaunchWithState }) {
+// A card entry's Mark as done, and its Delete record… while its state is
+// unknown, with the one status line that says what either could not do or
+// found; once marked or deleted, the entry leaves the card.
+function CardActions({ record }: { readonly record: LaunchWithState }) {
   const { markDone } = usePageSessions();
   const { marking, follow } = useMarking();
+  const [deleteSaid, setDeleteSaid] = useState<string | undefined>();
   return (
     <>
       <p className="launch-open">
@@ -148,43 +150,66 @@ function MarkDone({ record }: { readonly record: LaunchWithState }) {
           type="button"
           disabled={marking === "marking"}
           onClick={(event) => {
+            setDeleteSaid(undefined);
             follow(markDone({ record, control: event.currentTarget }));
           }}
         >
           Mark as done
         </button>
       </p>
+      <DeleteRecord record={record} say={setDeleteSaid} />
       <p role="status" className="launch-problem">
-        {marking === "not-marked" && notMarkedDone}
+        {deleteSaid ?? (marking === "not-marked" && notMarkedDone)}
       </p>
     </>
   );
 }
 
-// A card entry's Delete record…, offered while its state is unknown: it asks
-// in place, with the keyboard on Keep, before the record is deleted. Keep and
-// Escape put the button back with the keyboard on it. A deleted record takes
-// the entry off the page.
-function DeleteRecord({ record }: { readonly record: LaunchWithState }) {
+// A card entry's Delete record…, offered only while its state is unknown: it
+// asks in place, with the keyboard on Keep, before the record is deleted. Keep
+// and Escape put the button back with the keyboard on it. A deleted record
+// takes the entry off the page. A refused or failed delete says so in the
+// entry's status line and leaves the buttons and the keyboard where they were;
+// a state read as known meanwhile takes the question away and says so.
+function DeleteRecord({
+  record,
+  say,
+}: {
+  readonly record: LaunchWithState;
+  // Says in the entry's status line what the delete came to; nothing clears it.
+  readonly say: (words: string | undefined) => void;
+}) {
   const { deleteRecord } = usePageSessions();
+  const unknown = record.sessionState.kind === "unknown";
   const [step, setStep] = useState<"idle" | "asking" | "deleting">("idle");
   const button = useRef<HTMLButtonElement>(null);
   const keep = useRef<HTMLButtonElement>(null);
   const restoring = useRef(false);
+  const retrying = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (step === "asking") keep.current?.focus();
+    if (step === "asking") {
+      // After a failed delete the keyboard stays on the button it was on.
+      (retrying.current ?? keep.current)?.focus();
+      retrying.current = null;
+    }
     if (step === "idle" && restoring.current) {
       restoring.current = false;
       button.current?.focus();
     }
   }, [step]);
 
+  useEffect(() => {
+    if (!unknown)
+      setStep((current) => (current === "deleting" ? current : "idle"));
+  }, [unknown]);
+
   const keepRecord = () => {
     restoring.current = true;
     setStep("idle");
   };
 
+  if (!unknown) return null;
   if (step === "idle") {
     return (
       <p className="launch-open">
@@ -192,6 +217,7 @@ function DeleteRecord({ record }: { readonly record: LaunchWithState }) {
           ref={button}
           type="button"
           onClick={() => {
+            say(undefined);
             setStep("asking");
           }}
         >
@@ -219,12 +245,22 @@ function DeleteRecord({ record }: { readonly record: LaunchWithState }) {
           type="button"
           disabled={step === "deleting"}
           onClick={(event) => {
+            const control = event.currentTarget;
+            say(undefined);
             setStep("deleting");
-            void deleteRecord({
-              record,
-              control: event.currentTarget,
-            }).then((deleted) => {
-              if (!deleted) setStep("asking");
+            void deleteRecord({ record, control }).then((outcome) => {
+              if (outcome.kind === "deleted") return;
+              setStep(outcome.kind === "failed" ? "asking" : "idle");
+              if (outcome.kind === "failed") {
+                say(
+                  outcome.reason === undefined
+                    ? notDeleted
+                    : `${notDeleted} ${outcome.reason}`,
+                );
+                retrying.current = control;
+              } else {
+                say(nowKnown);
+              }
             });
           }}
         >

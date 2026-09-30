@@ -206,8 +206,9 @@ export function TerminalSplit({
   const deleteSessionRecord: DeleteSessionRecord = async (request) => {
     const { record, control } = request;
     const beside = cardEntryBeside(control);
-    if (!(await deleteRecord(record))) {
-      return false;
+    const outcome = await deleteRecord(record);
+    if (outcome.kind !== "deleted") {
+      return outcome;
     }
     setDeleted("Session record deleted");
     setReturning({
@@ -216,7 +217,7 @@ export function TerminalSplit({
       shows: shown.current,
       home: () => cardKeyboardHome(beside, record.request.identity),
     });
-    return true;
+    return outcome;
   };
 
   // The page keeps one element structure whether or not the sidebar or a

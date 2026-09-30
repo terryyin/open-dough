@@ -26,6 +26,7 @@ import {
   requestAgentLaunch,
   requestDeleteRecord,
   requestMarkDone,
+  type DeleteRecordOutcome,
   type LaunchProblem,
 } from "./agentLaunchClient.ts";
 import { usePageVisibility } from "./pageVisibility.ts";
@@ -62,9 +63,11 @@ export type MachineSessions = {
   // Marks a recorded session done, and answers whether the boundary marked
   // it.
   readonly markDone: (record: LaunchRecord) => Promise<boolean>;
-  // Deletes a recorded session's record, and answers whether the boundary
-  // deleted it; the page then lists the session nowhere.
-  readonly deleteRecord: (record: LaunchRecord) => Promise<boolean>;
+  // Deletes a recorded session's record, and answers what came of it. A
+  // deleted session is listed nowhere on the page, not even by a read asked
+  // before the deletion; a session the boundary finds known keeps its record,
+  // now with that state.
+  readonly deleteRecord: (record: LaunchRecord) => Promise<DeleteRecordOutcome>;
   // Reads a recorded session again at once.
   readonly readSession: (record: LaunchRecord) => Promise<void>;
 };
@@ -113,6 +116,9 @@ export function useAgentLaunches(): MachineSessions {
   const [attempts, setAttempts] = useState<ReadonlyMap<string, LaunchAttempt>>(
     new Map(),
   );
+  // When each deleted session's deletion was answered: a read asked before
+  // then may still carry its record.
+  const deletedAt = useRef(new Map<string, number>());
   const { visibility, settleRevealed } = usePageVisibility();
   // Whether a read has settled, and how many have: each settled read
   // schedules the next one.
@@ -124,9 +130,13 @@ export function useAgentLaunches(): MachineSessions {
     let current = true;
     const read = () => {
       const askedAt = Date.now();
-      void readMachineSessions().then((kept) => {
+      void readMachineSessions().then((answered) => {
         if (!current) return;
-        if (kept !== undefined) {
+        if (answered !== undefined) {
+          const kept = answered.filter(
+            (record) =>
+              (deletedAt.current.get(record.session.sessionId) ?? -1) < askedAt,
+          );
           setSessions((current) => ({
             known: replaced(kept, current.known, current.read ? askedAt : 0),
             read: true,
@@ -218,15 +228,19 @@ export function useAgentLaunches(): MachineSessions {
   const deleteRecord = useCallback(
     async (record: LaunchRecord) => {
       const answer = await requestDeleteRecord(record);
-      if (answer?.kind !== "deleted") return false;
-      setRecords((current) =>
-        current.filter(
-          (each) => each.session.sessionId !== record.session.sessionId,
-        ),
-      );
-      return true;
+      if (answer.kind === "state-known") {
+        replaceRecord(answer.record);
+      } else if (answer.kind === "deleted") {
+        deletedAt.current.set(record.session.sessionId, Date.now());
+        setRecords((current) =>
+          current.filter(
+            (each) => each.session.sessionId !== record.session.sessionId,
+          ),
+        );
+      }
+      return answer;
     },
-    [setRecords],
+    [replaceRecord, setRecords],
   );
 
   const readSession = useCallback(

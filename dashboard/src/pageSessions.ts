@@ -11,6 +11,7 @@
 
 import { createContext, useContext, useState } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
+import type { DeleteRecordOutcome } from "./agentLaunchClient.ts";
 import { workCard } from "./workFocus.ts";
 
 // A request about one session the page shows: its launch record, joined with
@@ -35,10 +36,13 @@ export type OpenTerminal = SessionOperation<void>;
 // back while it is on the page.
 export type MarkSessionDone = SessionOperation<Promise<boolean>>;
 
-// Deletes the session's dashboard record and answers whether it was deleted.
-// Once it was, the keyboard goes to the entry beside the session's card entry,
-// or to its card when none is left.
-export type DeleteSessionRecord = SessionOperation<Promise<boolean>>;
+// Deletes the session's dashboard record and answers what came of it: deleted,
+// kept because its state is now known, or failed with the reason given. Once
+// deleted, the keyboard goes to the entry beside the session's card entry, or
+// to its card when none is left.
+export type DeleteSessionRecord = SessionOperation<
+  Promise<DeleteRecordOutcome>
+>;
 
 // The page's operations that session entries ask, and the session its
 // terminal shows, if any, from which every entry of that session derives its
@@ -133,6 +137,11 @@ export type Marking = "marking" | "not-marked";
 
 // What a control says when the boundary refused its mark or no answer came.
 export const notMarkedDone = "The session could not be marked done.";
+
+// What an entry says when its record could not be deleted, or when the
+// boundary found the session's state known and kept the record.
+export const notDeleted = "The session record could not be deleted.";
+export const nowKnown = "This session's state is now known";
 
 // Follows one control's Mark as done from its asking to the answer.
 export function useMarking() {

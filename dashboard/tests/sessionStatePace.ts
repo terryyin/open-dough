@@ -1,7 +1,8 @@
 // How the session state specs watch the page read the machine's sessions
 // again on its own: the records reads it asks, one steady pace of page time
 // at a time, and a marker set on this document only, so a reload would lose
-// it; or hold its first read unanswered (`holdSessionReads`).
+// it; or hold its first read unanswered (`holdSessionReads`), or a read the
+// server has already answered (`holdSessionAnswers`).
 // Each spec pauses the page clock (`pausePageClockAt`) before the page opens.
 // What an entry shows of its session is `expectSessionShown`: its state's
 // words and whether its solid edge says the developer is needed there.
@@ -59,6 +60,35 @@ export async function holdSessionReads(
     },
   );
   return { answer };
+}
+
+// Lets the page's next read of the machine's sessions reach the server at
+// once, and holds its answer from the page until `answer` is called, so
+// what the server answered is older than anything the page does meanwhile.
+// `reachedServer` settles once the server has answered the held read.
+export async function holdSessionAnswers(page: Page): Promise<{
+  reachedServer: Promise<void>;
+  answer: () => void;
+}> {
+  let answer = () => {};
+  const held = new Promise<void>((resolve) => {
+    answer = resolve;
+  });
+  let reached = () => {};
+  const reachedServer = new Promise<void>((resolve) => {
+    reached = resolve;
+  });
+  await page.route(
+    (url) => url.pathname === agentLaunchEndpoint,
+    async (route) => {
+      if (route.request().method() !== "GET") return route.continue();
+      const response = await route.fetch();
+      reached();
+      await held;
+      return route.fulfill({ response });
+    },
+  );
+  return { reachedServer, answer };
 }
 
 export async function markNotReloaded(page: Page): Promise<void> {

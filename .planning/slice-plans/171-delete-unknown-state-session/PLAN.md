@@ -155,7 +155,11 @@ leaves the entry as it was.
 
 ### 3. A delete that is refused, fails, or is overtaken says so and never resurrects the entry
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npx playwright test --config dashboard/playwright.config.ts`
+on `agent-launch-card-delete-problems` (four tests), `agent-launch-card-delete`,
+`agent-launch-delete`, the attention, recent, done, terminal, sidebar,
+`accessible-overview-keyboard` and card-session-state specs (33 passed).
 Proof: `dashboard/tests/agent-launch-card-delete-problems.spec.ts`. With the
 question open, the listing recovers and the next 15-second read lists the
 session → the question and "Delete record…" go, the entry shows its known
@@ -254,3 +258,9 @@ it at the control if it overruns, keeping `requestDeleteRecord` and
   assistive technology may miss that first announcement. Routing the message
   into App's `notice` region would fix it but touches `App.tsx` and those
   locators, so it is a decision for slice 3 or a later story.
+- Slice 3: `holdSessionReads` holds a GET before the server sees it, so its
+  released answer already reflects a deletion; the stale-read proof uses
+  `holdSessionAnswers` (server answers first, the page's copy is held). Mark
+  as done and Delete record share one `role="status"` line on an entry
+  (`CardActions`), since a second one breaks the single-status locator in
+  `agent-launch-card-done.spec.ts`.
