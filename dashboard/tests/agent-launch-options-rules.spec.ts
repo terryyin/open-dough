@@ -184,7 +184,7 @@ test.describe("a launch request's options", () => {
     host: "claude",
   };
   const flags = (count: number) =>
-    Array.from({ length: count }, (_, index) => `--f${index}`);
+    [...Array(count).keys()].map((index) => `--f${index}`);
 
   test("may be absent, empty, or up to the limit of one-line flags", () => {
     for (const options of [undefined, [], [a], flags(32)]) {
