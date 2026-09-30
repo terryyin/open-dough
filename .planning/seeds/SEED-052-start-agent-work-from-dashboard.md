@@ -110,24 +110,86 @@ or claims of readiness.
 
 **Identity:** SEED-052#mac-human-attention-alert
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/174-mac-human-attention-alert/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2513a95a6301ea31aef483484fde779ae3d50c8181876b269d2de4cd7ddfb573","plan":"b87713b1cf7f140dde9b3426cb45217c2e51f4c032ad450f4ac9ff86e727dc66"}}
 ```
 
-- **For / why:** A developer using the dashboard on a Mac can notice when an
-  agent session needs human attention without continually watching the dashboard.
-- **Evaluation:** A session needs human attention while the developer is working
-  elsewhere; an available Mac sound or system notification alerts the developer,
-  who can identify the session and return to respond.
-- **Boundary:** Use a sound or system notification according to what is available
-  on the Mac; the delivery mechanism is not selected yet. Refine which session
-  states require attention, permission and availability behavior, and how to
-  avoid repeated alerts for unchanged attention needs. An alert does not establish
-  story completion. Support for other operating systems is outside this story.
-- **Depends on:** Existing dashboard session-state observation; new attention
-  triggers need clarification before execution planning.
-- **Capture:** Terry requested this as the new top queued story on 2026-09-30.
-  This selects attention notifications for future work, extending the earlier
-  notification deferral; it does not authorize implementation.
+- **Goal:** A developer using the dashboard on a Mac, working in another
+  window or away from the screen, is told by the Mac itself that one of their
+  sessions has stopped working and needs a look, and can tell which session,
+  so they return promptly instead of watching the dashboard.
+- **Scope:**
+  - **Delivery.** When a session starts needing attention, the dashboard
+    server on the developer's Mac raises a macOS system notification with a
+    sound (`osascript` `display notification` with a sound name). The
+    notification names the project and the session's title, as the dashboard
+    does, and what it needs: the entry's label, with what a blocked session
+    waits for when Claude Code says. It works while the dashboard server runs,
+    with the page's tab in the background or closed, and does not depend on the
+    page's own refreshing. Clicking the notification does not return the
+    developer to the session; they find it in the dashboard.
+  - **Which sessions alert.** Every session the dashboard recorded that is not
+    marked done, on entering any reading other than Working: Needs input,
+    Ready for review, Session failed, Session stopped, Session unavailable, State
+    unknown, and a state the dashboard does not recognise. Terry's decision on
+    2026-09-30: the host's state cannot yet tell "needs an answer" from "finished
+    its turn" or "cannot be read", so all are worth an alert. A session marked
+    done never alerts. The existing "needs attention" count on cards is unchanged
+    and is not the alert rule.
+  - **No repeats.** A session alerts once when it enters a reading and not
+    again while it stays in that reading, or on a page reload or server restart
+    that finds it still there. It alerts again after it returns to Working and
+    then leaves it. A changed `waitingFor` under the same reading does not
+    alert again.
+  - **First observation.** Sessions already needing attention when the server
+    starts, or first sees them, do not alert: the alert reports a change the
+    developer has not yet been told of.
+  - **Availability.** Only on macOS. Where it cannot alert (another operating
+    system, `osascript` missing, or macOS refusing notifications), the
+    dashboard says "Alerts unavailable" with the reason, quietly, near the
+    Sessions list, and everything else works as before. A muted Mac or a
+    Focus mode that hides the notification is the developer's setting and is
+    not detected. Other operating systems are outside this story.
+  - **Not included:** an on/off control for alerts, click-to-open, a
+    reminder after some minutes, Web Notifications from the page,
+    `terminal-notifier`, alerts for sessions the dashboard did not start, and a
+    signal telling an unused idle session, a finished turn, and a question apart.
+    An alert does not establish story completion or change any story, card or
+    published fact.
+- **Key examples:**
+  - A story session is working, and the developer is in another app. It asks a
+    question and Claude Code lists it `blocked` → a notification with a sound
+    says "Open Dough · <session title> — Needs input" with what it waits for.
+  - It stays blocked for ten minutes and the developer reloads the page →
+    nothing more sounds.
+  - The developer answers, it works, then blocks again → a second alert.
+  - A session finishes its turn and Claude Code lists it `done` → "Ready for
+    review" alerts once.
+  - A session fails or is stopped → "Session failed" or "Session stopped"
+    alerts once.
+  - Claude Code's listing cannot be read → one alert per session not already
+    in that reading, each "State unknown". When it is readable again and a
+    session is Working, then the listing fails again, they alert again.
+  - The developer marks a session done and its process ends → no alert for
+    "Session unavailable".
+  - A session started with no text is idle, listed `blocked` → it alerts
+    "Needs input" once, as the existing reading says of it.
+  - The server starts and finds a session already blocked → no alert; it is
+    shown as Needs input as before.
+  - The dashboard runs on Linux, or macOS refuses notifications → no alert
+    and "Alerts unavailable" with why.
+- **Open questions:** None blocking. Proposed: a failed listing alerts once
+  per affected session, so many sessions produce many notifications; a single
+  combined notification would be a later refinement if it proves noisy. Terry
+  may decide otherwise.
+- **Depends on:** Existing dashboard session-state observation, which the page
+  drives today by its own refreshing; the alert needs the server to observe
+  session state itself, which planning decides how to do. No other story.
+- **Capture:** Terry requested this as a queued story on 2026-09-30, extending
+  the earlier notification deferral; it does not authorize implementation. On
+  the same day he chose a macOS notification with a sound fired by the
+  dashboard server, once per entry into a reading, and, because the host's
+  state cannot yet distinguish the cases, alerts for every reading other than
+  Working, plus an "Alerts unavailable" note; an on/off control is deferred.
 
 <a id="start-ad-hoc-project-session"></a>
 
