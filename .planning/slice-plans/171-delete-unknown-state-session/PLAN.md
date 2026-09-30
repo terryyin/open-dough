@@ -221,7 +221,12 @@ replaced here.
 
 ### 6. The enduring documents state the delete
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `grep -cF` of each delivered string is at least 1 in
+`docs/dashboard-ux-ui-north-star.md` and `dashboard/AGENT-LAUNCH.md`, and each
+string is present in a spec or source file; the North Star launch row is still
+one table row; `npm run lint` passes. `dashboard/tests/README.md` names the
+five new specs.
 Proof: after slices 1 to 5 the delivered strings are the ones in the
 specs. Check: each of "Delete record…", "Delete record", "Keep",
 "Delete this session's dashboard record? The conversation stays in Claude

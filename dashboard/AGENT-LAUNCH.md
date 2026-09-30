@@ -144,7 +144,7 @@ it stays marked: it shows **Working** while Claude Code lists it working and
 Claude Code no longer lists shows **Session unavailable** (**Done** once marked
 done) without Open terminal; if the listing cannot be read, every entry shows
 **State unknown** with "Claude Code's session list could not be read", no
-attention, and keeps Open terminal. While the page
+attention, and keeps Open terminal and offers Delete record (below). While the page
 is visible it reads the records again every 15 seconds, the pace of its
 revision checks, so a state change shows without a reload. With no records
 kept for any project, `claude` is not run.
@@ -238,6 +238,33 @@ to its card with its current state and its entry no longer shows Done, through
 reloads and restarts. It is kept like any unclosed session until Mark as done
 marks it again. A done mark is local evidence, like the launch record, and
 never changes where origin places the story.
+
+**Delete record**, offered on a card entry or a Recent sessions entry only
+while its session shows **State unknown**, never in the sidebar, forgets the
+dashboard's record of that session. The entry shows a quiet "Delete record…";
+it asks in place,
+"Delete this session's dashboard record? The conversation stays in Claude Code; a running session keeps running.",
+with **Delete record** and **Keep**, the keyboard on Keep. Keep or Escape keeps the record and returns
+the keyboard to "Delete record…". The page posts
+`{ "source": "<project id>", "session": "<session id>" }` to
+`/__agent-launch/delete` (`src/deleteRecord.ts`, `server/agentLaunchPlugin.ts`).
+The boundary refuses another site (403), a malformed request (400), an unknown
+project (404), a session this dashboard did not record for that project (404),
+or a missing project folder (404) before running `claude`. It then reads the
+session's state again with `claude agents --json --all`; when the state is now
+known it keeps the record, answers `{ "kind": "state-known", "record": … }`,
+and the entry says "This session's state is now known". Otherwise it removes
+only that record from `~/.open-dough/dashboard/agent-launches.json` and
+answers `{ "kind": "deleted" }`. It never runs `claude stop`, never renames the
+session, and never marks it done; the conversation stays in Claude Code and a
+running session keeps running. A record file that cannot be written answers 500
+and the entry says "The session record could not be deleted." with why, keeping
+the question and the keyboard where they were. A deleted record leaves the
+card and Recent sessions, and a read of the sessions asked before cannot bring
+it back; a polite status says "Session record deleted", and the keyboard goes
+to the next entry in the list the control was in, else to its card or Recent
+sessions. A terminal showing the session closes. Mark as done is not the only
+way to clear an unknown entry: Delete record forgets it without a done mark.
 
 Launch records are kept on this machine, outside every repository, in
 `~/.open-dough/dashboard/agent-launches.json`. Restarting `npm run

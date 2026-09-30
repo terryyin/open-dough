@@ -65,6 +65,8 @@ at a time, Close), `agent-terminal-lifetime.spec.ts` (project switch, lost
 connection and Reconnect, ended terminal), and `agent-terminal-done.spec.ts`
 (Mark as done's focus, status, and Done entry);
 `agent-launch-card-done.spec.ts` marks a card's session done from its entry.
+`agent-terminal-delete.spec.ts` deletes the record of the session the terminal
+shows.
 A server that must find no `claude` gets a PATH holding only the fake `gh`
 and Node. Nothing here ever calls the real
 `claude`. The card-sessions journey (`agent-launch-card-sessions.spec.ts`)
@@ -81,6 +83,10 @@ and survives a restarted server, a reload, and a project switch;
 `agent-launch-recent-session-states.spec.ts` what each state shows on a Recent
 sessions entry, and on one card entry, which is rendered the same way; and
 `agent-launch-attention.spec.ts` how many of a card's sessions need attention.
+Delete record is walked by `agent-launch-delete.spec.ts` (the boundary),
+`agent-launch-card-delete.spec.ts` and `agent-launch-card-delete-problems.spec.ts`
+(a card entry, and what refusals and failures leave), and
+`agent-launch-recent-delete.spec.ts` (a Recent sessions entry).
 
 A passing run prints nothing (`support/quietReporter.ts`). A failing
 spec is shown with its error, output, and retained trace; a passing spec that
