@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
   copyRepositoryFiles,
+  env,
   excludeLinkedDependencies,
   git,
   gitOk,
@@ -81,13 +83,17 @@ test("staged formatting drift is refused and nothing is changed", (t) => {
   assert.equal(gitOk(fixture, "diff"), "");
 });
 
-test("clean staged TypeScript, JSON, and shell files commit unchanged", (t) => {
+function onPath(tool) {
+  return spawnSync(tool, ["--version"], { env, stdio: "ignore" }).status === 0;
+}
+
+const shellToolsMissing =
+  onPath("shellcheck") && onPath("shfmt")
+    ? false
+    : "shellcheck and shfmt are not both on PATH";
+
+function commitsCleanFilesUnchanged(t, contents) {
   const fixture = hookFixture(t);
-  const contents = {
-    "src/a.ts": "export const a: number = 1;\n",
-    "src/b.json": '{ "b": 1 }\n',
-    "scripts/c.sh": '#!/bin/sh\nset -eu\nprintf "%s\\n" hello\n',
-  };
   for (const [file, content] of Object.entries(contents)) {
     write(join(fixture, file), content);
     gitOk(fixture, "add", file);
@@ -100,7 +106,24 @@ test("clean staged TypeScript, JSON, and shell files commit unchanged", (t) => {
     assert.equal(gitOk(fixture, "show", `HEAD:${file}`), content);
     assert.equal(readFileSync(join(fixture, file), "utf8"), content);
   }
+}
+
+test("clean staged TypeScript and JSON files commit unchanged", (t) => {
+  commitsCleanFilesUnchanged(t, {
+    "src/a.ts": "export const a: number = 1;\n",
+    "src/b.json": '{ "b": 1 }\n',
+  });
 });
+
+test(
+  "clean staged shell files commit unchanged",
+  { skip: shellToolsMissing },
+  (t) => {
+    commitsCleanFilesUnchanged(t, {
+      "scripts/c.sh": '#!/bin/sh\nset -eu\nprintf "%s\\n" hello\n',
+    });
+  },
+);
 
 test("an unstaged violating file does not block a clean staged commit", (t) => {
   const fixture = hookFixture(t);
