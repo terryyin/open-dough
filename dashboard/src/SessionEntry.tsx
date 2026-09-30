@@ -12,12 +12,11 @@
 // is listed on the story's own card, where it offers Mark as done through the
 // page's one operation (`./TerminalSplit.tsx`); on a card or in Recent
 // sessions, while its session shows State unknown, it offers "Delete record…",
-// which asks before it deletes. While the
-// page's terminal shows its session, an entry says "Shown in terminal",
-// outlined in Recent sessions, and the card listing it is outlined. Every
-// entry names its session, so a Recent sessions entry can take the keyboard
-// when the control that last had it is gone. Entries are local evidence of
-// launches, not story facts.
+// which asks before it deletes. While the page's terminal shows its session,
+// an entry says "Shown in terminal", outlined in Recent sessions, and the
+// card listing it is outlined. Every entry names its session, so the Sessions
+// sidebar can find and reveal it when no card lists it. Entries are local
+// evidence of launches, not story facts.
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { launchWorkflows, type LaunchWithState } from "./agentLaunch.ts";

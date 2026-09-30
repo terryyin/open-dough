@@ -8,11 +8,6 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-ob
 # shellcheck source=tests/support/story-branch-closure-native-response.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/story-branch-closure-native-response.sh"
-# Counterexample streams are written in each host's shape by the substitute's
-# recorder.
-# shellcheck source=tests/support/native-agent-admission.sh
-# shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-agent-admission.sh"
 story_closure_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/story-branch-closure-native-assess.sh"
 
 # True when the node call log or a command host $1 started in stream $2 shows
@@ -116,7 +111,6 @@ story_closure_observe() {
       "$([[ ${human_after} == "${story_closure_human_before}" ]] && echo true || echo false)"
     printf 'control-order:\n'
     sed 's/^/  /' "${story_closure_control_log}"
-    printf 'transcript-complete: %s\n' "$(grep -Fq 'complete-revision' "${transcript}" && echo true || echo false)"
     printf 'harness-inspected: %s\n' "$(grep -Eiq 'story-branch-closure-native|native harness|source-conflict' "${transcript}" && echo true || echo false)"
     native_response_field_write "${response}"
   }
@@ -170,7 +164,6 @@ story_closure_assess() {
   grep -Fqx 'branch-remote: absent' "${observations}" || return 1
   grep -Fqx 'cleanup-complete: true' "${observations}" || return 1
   grep -Fqx 'human-edit-preserved: true' "${observations}" || return 1
-  grep -Fqx 'transcript-complete: true' "${observations}" || return 1
   [[ $(story_closure_response_trunk_result \
     <(native_response_field_read "${observations}")) == true ]] || return 1
   grep -Fqx 'harness-inspected: false' "${observations}" || return 1
@@ -200,8 +193,7 @@ story_closure_write_assessor_observation() {
       '  branch-complete' '  branch-shutdown' '  trunk-setup' \
       '  integration-publication' '  trunk-registration' '  trunk-complete' \
       '  trunk-ci-release' '  trunk-coverage-success' '  trunk-shutdown' \
-      '  cleanup-complete' 'transcript-complete: true' \
-      'harness-inspected: false'
+      '  cleanup-complete' 'harness-inspected: false'
     native_response_field_write "$2"
   } > "$1"
 }
@@ -254,6 +246,11 @@ story_closure_retire_counterexamples() {
   local work=$1 sha=0123456789abcdef0123456789abcdef01234567 host stream
   local admission_events admission_tool story_closure_node_log="$1/node.log"
   local retire="node .agents/skills/dough-land/scripts/worktree-retirement.mjs retire"
+  # Counterexample streams are written in each host's shape by the substitute's
+  # recorder, loaded only here so the paid assessor path holds no substitute.
+  # shellcheck source=tests/support/native-agent-admission.sh
+  # shellcheck disable=SC1091
+  source "${story_closure_assess_file%/*}/native-agent-admission.sh"
   : > "${story_closure_node_log}"
   for host in codex cursor claude; do
     admission_events='' admission_tool=0 stream="${work}/${host}.jsonl"

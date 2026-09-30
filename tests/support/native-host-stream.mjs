@@ -9,12 +9,11 @@
 //
 // where <view> is `status`, `response`, `messages` (one JSON string per agent
 // message), `commands` (one JSON string per started command), `segments`
-// (each command split at its separators, one per line), `outputs` (each
-// completed command's output), `calls` (one JSON object per started command:
-// `command`, `output`, `exitCode`), `tools` (one JSON object per other tool
-// call: `name`, `input`, `output`), `reads` (one JSON object per file read:
-// `path`, `content`), or `targets` (the strings given to inspection tools, one
-// per line).
+// (each command split at its separators, one per line), `calls` (one JSON
+// object per started command: `command`, `output`, `exitCode`), `tools` (one
+// JSON object per other tool call: `name`, `input`, `output`), `reads` (one
+// JSON object per file read: `path`, `content`), or `targets` (the strings
+// given to inspection tools, one per line).
 import { existsSync, readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
@@ -22,9 +21,11 @@ import { adapters } from "./native-host-stream-adapters.mjs";
 
 export const hosts = Object.keys(adapters);
 
-// Joins a command's line continuations, as a shell reads them.
+// Joins a command's line continuations into one space, removing the
+// whitespace on both sides of each backslash-newline. A matching aid: a shell
+// keeps a word's own spacing, and this reads `a \<newline>  b` as `a b`.
 export function joinContinuations(command) {
-  return command.replace(/\\\n[ \t]*/g, " ");
+  return command.replace(/[ \t]*\\\n[ \t]*/g, " ");
 }
 
 // The simple commands `command` runs, split at `&&`, `||`, `;`, `|`, and
@@ -171,7 +172,8 @@ export function readHostStreamText(host, text) {
   };
 }
 
-function strings(value) {
+// Every string value in parsed JSON.
+export function strings(value) {
   if (typeof value === "string") {
     return [value];
   }
@@ -202,7 +204,6 @@ const views = {
   messages: (read) => jsonLines(read.messages),
   commands: (read) => jsonLines(read.commands),
   segments: (read) => read.segments,
-  outputs: (read) => read.outputs,
   calls: (read) => jsonLines(read.calls),
   tools: (read) => jsonLines(read.tools),
   reads: (read) => jsonLines(read.reads),

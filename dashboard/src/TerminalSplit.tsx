@@ -14,19 +14,16 @@
 // (`./workFocus.ts`). Mark as done, from the panel or from a card's session
 // entry, is one operation here: once the boundary has marked the session, a
 // panel showing it closes. Closing returns the keyboard to the control that
-// opened the panel, and a card entry's mark to its own control; when that
-// control is gone, as a card's entry goes once its session is marked done, the
-// keyboard goes to the session's Recent sessions entry
-// (`sessionKeyboardHome`). A panel another session has already replaced moves
-// no focus when it closes. Once the panel shows output from a session the
-// page holds as done, the page reads that session again, since the boundary
-// reopens a done session its terminal attaches to
+// opened the panel while it is on the page. A panel another session has
+// already replaced moves no focus when it closes. Once the panel shows output
+// from a session the page holds as done, the page reads that session again,
+// since the boundary reopens a done session its terminal attaches to
 // (`../server/agentTerminals.ts`). Deleting a session's record, from a card
 // or Recent sessions, leaves it on no list, closes a panel showing it, says so
 // in a polite status, and sends the keyboard to the entry beside it, or to the
-// card or Recent sessions. Opening, going to a sidebar
-// entry's session, marking, deleting, and reading again each take the same
-// request (`./pageSessions.ts`).
+// card or Recent sessions. Opening, going to a sidebar entry's session,
+// marking, deleting, and reading again each take the same request
+// (`./pageSessions.ts`).
 
 import {
   useCallback,
@@ -48,7 +45,6 @@ import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
   deletedEntryHome,
   recentSessionsEntry,
-  sessionKeyboardHome,
   SessionsOnPage,
   type DeleteSessionRecord,
   type MarkSessionDone,
@@ -60,10 +56,9 @@ import { keepInView, workCard } from "./workFocus.ts";
 import "./agent-terminal.css";
 
 // The keyboard's return once the page shows what was asked: the control to
-// return it to, the session, and the terminal the page then shows.
+// return it to and the terminal the page then shows.
 type KeyboardReturn = {
   readonly control: HTMLElement;
-  readonly sessionId: string;
   readonly shows: SessionRequest | undefined;
   // Where the keyboard goes instead when the control is gone, if not the
   // session's Recent sessions entry.
@@ -114,7 +109,7 @@ export function TerminalSplit({
     }
     const control = returning.control.isConnected
       ? returning.control
-      : (returning.home ?? (() => sessionKeyboardHome(returning.sessionId)))();
+      : returning.home?.();
     control?.focus();
   }, [returning]);
   const closeTerminal = (closed: SessionRequest) => {
@@ -124,7 +119,6 @@ export function TerminalSplit({
     setTerminal(undefined);
     setReturning({
       control: closed.control,
-      sessionId: closed.record.session.sessionId,
       shows: undefined,
     });
   };
@@ -188,15 +182,7 @@ export function TerminalSplit({
     return shown === null ? undefined : keepInView(shown);
   }, [going, stories.selected, stories.shown]);
   const markSessionDone: MarkSessionDone = async (request) => {
-    const { record, control } = request;
     const marked = await markClosing(request);
-    if (marked === "marked") {
-      setReturning({
-        control,
-        sessionId: record.session.sessionId,
-        shows: shown.current,
-      });
-    }
     return marked !== "not-marked";
   };
 
@@ -219,7 +205,6 @@ export function TerminalSplit({
     }
     setReturning({
       control,
-      sessionId: record.session.sessionId,
       shows: closes ? undefined : open,
       home,
     });

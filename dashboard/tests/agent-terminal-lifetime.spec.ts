@@ -178,7 +178,7 @@ test.describe("the terminal's lifetime", () => {
         await expect(listed).toHaveCount(1);
       });
 
-      await test.step("marked done from the panel while another project is shown, the keyboard goes to Recent sessions", async () => {
+      await test.step("marked done from the panel while another project is shown closes the panel", async () => {
         await listed.getByRole("button", { name: "Open terminal" }).click();
         await expect(rows).toContainText(`attached ${shortId}`);
         await project
@@ -192,7 +192,6 @@ test.describe("the terminal's lifetime", () => {
         await button("Mark as done").click();
 
         await expect(panel).toHaveCount(0);
-        await expect(parts(page).recentSessions).toBeFocused();
       });
     } finally {
       await restarted?.close();

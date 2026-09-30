@@ -67,8 +67,9 @@ Resolved and removed on 2026-09-30 (recovery: `34ceff06:ProjectFindings.md`):
   shared reader in the free suite, a guard refuses host-stream parsing
   outside it, and every harness shim is checked under each login-shell
   profile (plan at
-  `2b20ed61:.planning/slice-plans/163-native-harness-replay/PLAN.md`). Its residue is queued as
-  [Correct continued-command reading and corpus admission in the native harness](.planning/seeds/SEED-055-trustworthy-project-proof.md#native-harness-replay-corrections).
+  `2b20ed61:.planning/slice-plans/163-native-harness-replay/PLAN.md`). Its residue, continued-command
+  reading and corpus admission, was corrected afterwards (plan at
+  `79d5e22d:.planning/slice-plans/169-native-harness-replay-corrections/PLAN.md`).
 
 Returned to DearDough.md on 2026-09-29: DD-155 (plan-number collision, the
 published slice-planning allocation rule, catalog ODF-106) and DD-159

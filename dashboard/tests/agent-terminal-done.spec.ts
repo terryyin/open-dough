@@ -1,9 +1,8 @@
 // Mark as done in the page's one terminal (./agent-terminal.spec.ts), on the
 // committed story-stages origin (./launchJourney.ts): while it marks, the panel
-// says so quietly; then the panel closes, the session leaves its card, the
-// keyboard goes to the session's Recent sessions entry, since the card entry
-// that opened it is gone, and Recent sessions shows the entry Done under its
-// `done-` name, still openable. Opening it there again reopens it: once its
+// says so quietly; then the panel closes, the session leaves its card, and
+// Recent sessions shows the entry Done under its `done-` name, still openable.
+// Opening it there again reopens it: once its
 // terminal attaches, it is back on its card and no longer Done, through a
 // reload, until it is marked done again. How the boundary renames and stops
 // the session is ./agent-launch-done.spec.ts, how it reopens it is
@@ -78,7 +77,7 @@ test.describe("marking a session done from its terminal", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("Mark as done closes the panel, the session leaves its card, and the keyboard goes to its Recent sessions entry, which shows it Done until its terminal opens again", async ({
+  test("Mark as done closes the panel, the session leaves its card, and Recent sessions shows it Done until its terminal opens again", async ({
     page,
     dashboard,
   }) => {
@@ -116,11 +115,6 @@ test.describe("marking a session done from its terminal", () => {
     expect(await colourOf(marking)).toBe(await tokenColour(page, "--quiet"));
     release();
     await expect(panel).toHaveCount(0);
-    // The card entry that opened the terminal is gone, so the keyboard goes
-    // to the session's Recent sessions entry.
-    await expect(
-      entry.getByRole("button", { name: "Open terminal" }),
-    ).toBeFocused();
 
     await expect(listed).toHaveCount(0);
     await expect(sessionStateOf(entry)).toHaveText("Done");

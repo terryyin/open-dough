@@ -2,9 +2,8 @@
 // story-stages origin (./launchJourney.ts), through the same page operation as
 // the terminal panel's (./agent-terminal-done.spec.ts): on a session Claude
 // Code no longer lists, it leaves the card without being stopped and Recent
-// sessions shows it Done, with the keyboard on that entry, which offers no
-// Open terminal; on a session the panel shows, the panel closes too, and the
-// keyboard goes to the entry's Open terminal. A refused mark keeps the entry
+// sessions shows it Done; on a session the panel shows, the panel closes too.
+// A refused mark keeps the entry
 // on its card and says so there. Origin alone still places the story. The
 // page's own dashboard server drives the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
@@ -74,7 +73,7 @@ test.describe("marking a card's session done", () => {
     const stops = () =>
       dashboard.claudeCalls().filter((call) => call.argv[0] === "stop");
 
-    await test.step("an unavailable session leaves its card without being stopped, and the keyboard goes to its Recent sessions entry", async () => {
+    await test.step("an unavailable session leaves its card without being stopped, and Recent sessions shows it Done", async () => {
       dashboard.claudeSessionBecomes(unavailable, "forgotten");
       await page.reload();
       await settled();
@@ -93,11 +92,10 @@ test.describe("marking a card's session done", () => {
       await expect(
         entry.getByRole("button", { name: "Open terminal" }),
       ).toHaveCount(0);
-      await expect(entry).toBeFocused();
       expect(stops()).toEqual([]);
     });
 
-    await test.step("a session the panel shows closes the panel, leaves its card, and the keyboard goes to its Recent sessions entry", async () => {
+    await test.step("a session the panel shows closes the panel, leaves its card, and Recent sessions shows it Done", async () => {
       await onCard("Refinement")
         .getByRole("button", { name: "Open terminal" })
         .click();
@@ -109,9 +107,6 @@ test.describe("marking a card's session done", () => {
       await expect(onCard("Refinement")).toHaveCount(0);
       const entry = inRecent("Refinement");
       await expect(sessionStateOf(entry)).toHaveText("Done");
-      await expect(
-        entry.getByRole("button", { name: "Open terminal" }),
-      ).toBeFocused();
       expect(stops().map((call) => call.argv)).toEqual([
         ["stop", shown.slice(0, 8)],
       ]);

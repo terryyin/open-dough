@@ -31,7 +31,8 @@ test("an empty or absent stream is missing, any other shape unknown", () => {
     );
     assert.equal(readHostStreamText(host, "\n").status, "unknown");
   }
-  // A line cut mid-write leaves the whole stream unreadable, as for jq -s.
+  // A line cut mid-write leaves the whole stream unreadable, because
+  // one bad line fails the whole parse.
   assert.equal(
     readHostStreamText("codex", '{"type":"turn.started"}\n{"type":"it').status,
     "unknown",
@@ -43,6 +44,10 @@ test("commands join line continuations and split at separators", () => {
     commandSegments("git add a\\\n    b &&git commit -m x; echo ok | cat\nls"),
     ["git add a b", "git commit -m x", "echo ok", "cat", "ls"],
   );
+  // Whitespace on both sides of a continuation collapses to one space.
+  assert.deepEqual(commandSegments("node a.mjs \\\n  --x  \\\n  y"), [
+    "node a.mjs --x y",
+  ]);
 });
 
 test("each host's command outputs pair with the commands that produced them", () => {
