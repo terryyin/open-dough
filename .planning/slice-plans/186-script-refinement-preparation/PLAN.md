@@ -233,3 +233,22 @@ offer. `keptStarts` carries the workflow.
 - `tests/*.sh` payload checks need a newer bash than macOS system bash.
 - `established-preparation.mjs` has no caller until slice 3.
 - Slice 2 kept the wire `RunningStart` without `workflow` (two existing specs assert it exactly); `AgentLaunches.runningStarts()` strips it. Slice 3 adds it to `runningStartSchema` with those expectations only if the page needs it, and widens `StartsWorkflow` (store file `${workflow}-starts.json`).
+
+## Execution complete
+
+Product advice:
+- Before the Codex and Cursor dashboard stories, make the start a host-plus-workflow
+  descriptor: `--host claude` is fixed in both `executionStart.ts` and
+  `preparationStart.ts`, the two start paths and result readers are about 70% the same,
+  and `StartWorkflow.format` re-narrows a union with throws. A third copy would cost more
+  than extracting the shared skeleton first.
+- Plan 185 (refinement options) should take one per-project capability object for the
+  sessions answer instead of a fourth parallel array beside `establishing`,
+  `establishingPreparation` and `keptStarts`, and rebase onto `Established`.
+- Two unproven gaps merit a bounded correction if the developer wants one: a stop during a
+  resumed start drops the kept start but leaves the existing workspace and assignment
+  unnamed, and a kept refinement start on a card that has since become Taken is never
+  offered or cleared. Neither has a spec. No correction plan was written; both are
+  reasoned from code, not reproduced.
+- Test cost: prune the status-wording table test and the model doubling in the start spec,
+  and add cheap cases for the untested paths above.

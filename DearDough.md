@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 193. Removed local codes are never reused.
+- Highest allocated local number: 194. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -333,6 +333,7 @@ A shared read boundary and a spec file changed under a "no format, no lint" dele
 Follow-up: Open, unqueued.
 
 - Execution: `SEED-060#odd-e-nerds-agent-collection` / plan 177, first related implementation commit `6befd854` - Timestamp: 2026-09-30T14:10:00+08:00 (CI run 36676898928; repairs `57505b5d`, `f70185e6`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown - Evidence: slice 4 delivery ran `npm run format 2>&1 | tail -2; ...` whose output ended "Format failed: unresolved findings" (no-redundant-type-constituents in the new settings spec) yet the chain committed and published `03d6d10a`. The same push failed dashboard shards because `authenticated-project-overview.spec.ts` (exact pinned-read list, not in the agent's focused set) and fake-origin `git show` stderr in launch specs were never run. - Observed effect: two owned repair commits and two failing CI runs for one slice. - Inference: Qualified. The delegation forbade lint and named a focused set chosen from the reachability grep, so specs that enumerate reads were outside it; the coordinator's masked exit status was a separate slip. Not shown to recur in another execution.
+- Execution: `SEED-052#script-refinement-preparation` / plan 186, first related implementation commit `a94806d1` - Timestamp: 2026-09-30T10:46:35Z (CI run 36704446514) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown - Evidence: slice 3's delegated implementation ran only the focused Playwright specs and typecheck; its new `agent-launch-preparation-start.spec.ts` read `JSON.parse(response.body).kind` twice, which failed CI's lint job (`@typescript-eslint/no-unsafe-member-access`, lines 70 and 137) on `b2503ea2` although the commit, whose hook the plan assumed check-only lint, had succeeded. - Observed effect: one failing CI run, one stash-protocol repair cycle and one repair commit (`a9623112`); later delegations then named `node scripts/lint.mjs` and the strict rules, and no further lint failure reached CI in this execution. - Inference: Qualified. A second execution with the same shape (new spec files written under a no-lint delegation); the commit hook's lack of a lint check is not proven here beyond the successful commit.
 
 ## DD-192 — A delegated refactor pass ran on each of two tiny guidance changes and edited nothing
 
@@ -373,3 +374,19 @@ Follow-up: Open, unqueued.
   - Evidence: coordinator conversation: the slice 1 agent's identical final report arrived as a hand-back message and completed-task notification about six times, with a growing tool-use count (34 to 37); the repeats stopped after `TaskStop` on that task.
   - Observed effect: each repeat cost a turn and a duplicated report to read and dismiss while the refactor agent and later work were pending.
   - Inference: Qualified. Same pattern as the first occurrence; the agent's own cause is not in the record.
+
+## DD-194 — Full-selection local runs flaked in existing specs that passed isolated and in CI
+
+Across one execution, three large parallel Playwright selections each failed one existing spec that the change did not touch; each passed on isolated rerun and CI stayed green.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+- Execution: `SEED-052#script-refinement-preparation` / plan 186, first related implementation commit `a94806d1`
+  - Timestamp: unknown (session date 2026-09-30; slices 3, 6 and 7)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-sonnet-5-5
+  - Open Dough release: unknown
+  - Evidence: slice 3 selection (234 specs) failed `agent-launch-card-delete.spec.ts:51`, then passed 24 of 24 isolated repeats; slice 6 selection failed it again and passed with the preparation specs; slice 7 selection failed `agent-launch-start-taken.spec.ts:53` ("server could not be reached") and passed on rerun; CI runs `a3c3ea29`, `a9623112`, `d8d42ef6`, `38d53df9`, `7bf821a4`, `ac880042` succeeded.
+  - Observed effect: each failure cost a bounded diagnosis (rerun, read of the spec's dependence on start code) without a cause found.
+  - Inference: Qualified. A read-only review found neither spec using the new shared progress or kept-start code, so load on a machine running other workloads is plausible; not reproduced. Flakiness is a defect even when a rerun passes, so the cause stays open.
