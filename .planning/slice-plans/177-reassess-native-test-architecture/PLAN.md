@@ -171,12 +171,18 @@ copies. Home: a new `native-observation.sh`, used by slice 3 and 7.
 
 ### 3. One writer for the completion field block
 Type: Structure
-Status: planned
+Status: done
 Proof: the free proof command; slice 1's observation recorded for the story and
 ci observers identical; the trunk observation in the owned-context check
 unchanged.
 
-The complete, await, stop, product-shutdown and forced-stop fields are written by
+Done differently: the four copies print different field names, order and
+interleaving (trunk derives product-shutdown from its finish count), so one
+writer would change `observations.txt`. `native_completion_measure` measures the
+five values once into caller variables; each journey prints them in its own
+order. The story-branch assessor is 253 lines; slice 4 moves it under the bound.
+
+Original intent: the complete, await, stop, product-shutdown and forced-stop fields are written by
 one helper in `native-completion-observation.sh` taking a label prefix, used by
 `ci-completion-native-run.sh`, `trunk-closure-native-assess.sh` and
 `story-branch-closure-native-assess.sh`. Field names and order do not change.

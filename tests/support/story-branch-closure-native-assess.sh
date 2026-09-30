@@ -35,7 +35,7 @@ story_closure_observe() {
   local branch_terminal=missing trunk_terminal=missing trunk_state=missing
   local observer_count parent_count=0 source_ok=false branch_remote=present human_after
   local branch_complete=0 trunk_complete=0 branch_stop=0 trunk_stop=0
-  local branch_await=0 trunk_await=0 forced_stop=false
+  local branch_await=0 trunk_await=0 branch_forced_stop=false trunk_forced_stop=false
   local branch_product_shutdown=false trunk_product_shutdown=false
   [[ -s ${story_closure_integrated_sha_file} ]] \
     && candidate=$(cat "${story_closure_integrated_sha_file}")
@@ -57,25 +57,12 @@ story_closure_observe() {
   observer_count=$(find "${story_closure_storage}" -mindepth 2 -maxdepth 2 \
     -name request.json -exec jq -r 'select(.probe != true) | 1' {} + \
     | wc -l | tr -d ' ')
-  branch_complete=$(native_completion_call_count \
-    "${story_closure_node_log}" "${host}" "${transcript}" \
-    "${story_closure_branch_mailbox}" "${story_closure_branch_sha}")
-  trunk_complete=$(native_completion_call_count "${story_closure_node_log}" \
-    "${host}" "${transcript}" "${trunk_mailbox}" "${candidate}")
-  branch_await=$(native_completion_await_count \
-    "${story_closure_node_log}" "${story_closure_branch_mailbox}" \
-    "${story_closure_branch_sha}")
-  trunk_await=$(native_completion_await_count \
-    "${story_closure_node_log}" "${trunk_mailbox}" "${candidate}")
-  branch_stop=$(native_completion_stop_count \
-    "${story_closure_node_log}" "${story_closure_branch_mailbox}")
-  trunk_stop=$(native_completion_stop_count \
-    "${story_closure_node_log}" "${trunk_mailbox}")
-  forced_stop=$(native_completion_forced_stop "${story_closure_forced_stop_file-}")
-  branch_product_shutdown=$(native_completion_product_shutdown \
-    "${branch_complete}" "${story_closure_forced_stop_file-}" "${branch_terminal}")
-  trunk_product_shutdown=$(native_completion_product_shutdown \
-    "${trunk_complete}" "${story_closure_forced_stop_file-}" "${trunk_terminal}")
+  native_completion_measure branch "${story_closure_node_log}" "${host}" \
+    "${transcript}" "${story_closure_branch_mailbox}" "${story_closure_branch_sha}" \
+    "${branch_terminal}" "${story_closure_forced_stop_file-}"
+  native_completion_measure trunk "${story_closure_node_log}" "${host}" \
+    "${transcript}" "${trunk_mailbox}" "${candidate}" "${trunk_terminal}" \
+    "${story_closure_forced_stop_file-}"
   {
     printf 'remote-sha: %s\n' "$(git ls-remote "${story_closure_origin}" refs/heads/main | awk '{print $1}')"
     printf 'branch-sha: %s\ntrunk-before-sha: %s\nintegrated-sha: %s\n' \
@@ -98,7 +85,7 @@ story_closure_observe() {
     printf 'trunk-stop-count: %s\n' "${trunk_stop}"
     printf 'branch-product-shutdown: %s\ntrunk-product-shutdown: %s\n' \
       "${branch_product_shutdown}" "${trunk_product_shutdown}"
-    printf 'forced-stop: %s\n' "${forced_stop}"
+    printf 'forced-stop: %s\n' "${branch_forced_stop}"
     printf 'retire-command: %s\n' "$(story_closure_retire_seen "${host}" "${transcript}" "${candidate}")"
     printf 'worktree-present: %s\nlocal-branch-present: %s\n' \
       "$([[ -e ${story_closure_workspace} ]] && echo true || echo false)" \

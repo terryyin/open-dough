@@ -21,8 +21,8 @@ trunk_closure_observe() {
   local transcript=$3
   local response=$4
   local coverage state=missing basis_state=none terminal=missing
-  local finish_count=0 complete_count=0 stop_count=0 await_count=0
-  local product_shutdown=false forced_stop=false checkout_present=false
+  local finish_count=0 trunk_complete=0 trunk_stop=0 trunk_await=0
+  local trunk_product_shutdown=false trunk_forced_stop=false checkout_present=false
   coverage="${trunk_closure_mailbox}/coverage/${trunk_closure_candidate_sha}.json"
   [[ -f ${coverage} ]] && state=$(jq -r '.state' "${coverage}")
   [[ -f ${coverage} ]] && basis_state=$(jq -r '.basis.state // "none"' "${coverage}")
@@ -30,17 +30,9 @@ trunk_closure_observe() {
     && terminal=$(jq -r '.status' "${trunk_closure_mailbox}/result.json")
   finish_count=$(trunk_closure_finish_count "${trunk_closure_node_log}" \
     "${host}" "${transcript}" "${trunk_closure_candidate_sha}")
-  complete_count=$(native_completion_call_count \
-    "${trunk_closure_node_log}" "${host}" "${transcript}" \
-    "${trunk_closure_mailbox}" "${trunk_closure_candidate_sha}")
-  stop_count=$(native_completion_stop_count \
-    "${trunk_closure_node_log}" "${trunk_closure_mailbox}")
-  await_count=$(native_completion_await_count \
-    "${trunk_closure_node_log}" "${trunk_closure_mailbox}" \
-    "${trunk_closure_candidate_sha}")
-  forced_stop=$(native_completion_forced_stop "${trunk_closure_forced_stop_file-}")
-  product_shutdown=$(native_completion_product_shutdown \
-    "${finish_count}" "${trunk_closure_forced_stop_file-}" "${terminal}")
+  native_completion_measure trunk "${trunk_closure_node_log}" "${host}" \
+    "${transcript}" "${trunk_closure_mailbox}" "${trunk_closure_candidate_sha}" \
+    "${terminal}" "${trunk_closure_forced_stop_file-}" "${finish_count}"
   [[ -d ${trunk_closure_workspace} ]] && checkout_present=true
   {
     printf 'scenario: %s\n' "${scenario}"
@@ -51,13 +43,13 @@ trunk_closure_observe() {
     printf 'basis-state: %s\n' "${basis_state}"
     printf 'observer-terminal: %s\n' "${terminal}"
     printf 'finish-count: %s\n' "${finish_count}"
-    printf 'complete-revision-count: %s\n' "${complete_count}"
-    printf 'await-count: %s\n' "${await_count}"
+    printf 'complete-revision-count: %s\n' "${trunk_complete}"
+    printf 'await-count: %s\n' "${trunk_await}"
     printf 'registered: %s\n' "$(native_completion_registered \
       "${trunk_closure_mailbox}" "${trunk_closure_candidate_sha}")"
-    printf 'stop-count: %s\n' "${stop_count}"
-    printf 'product-shutdown: %s\n' "${product_shutdown}"
-    printf 'forced-stop: %s\n' "${forced_stop}"
+    printf 'stop-count: %s\n' "${trunk_stop}"
+    printf 'product-shutdown: %s\n' "${trunk_product_shutdown}"
+    printf 'forced-stop: %s\n' "${trunk_forced_stop}"
     printf 'checkout-present-after: %s\n' "${checkout_present}"
     printf 'cleanup-observer-state: %s\n' \
       "$(cat "${trunk_closure_harness}/cleanup-observer-state" 2> /dev/null || echo none)"

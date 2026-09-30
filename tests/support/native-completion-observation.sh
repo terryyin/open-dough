@@ -88,6 +88,26 @@ native_completion_forced_stop() {
   fi
 }
 
+# Measures one mailbox's completion counts and shutdown facts into the caller's
+# variables <prefix>_complete, _await, _stop, _forced_stop and _product_shutdown
+# (declare them local first). Args: prefix, node log, host, transcript, mailbox,
+# revision, terminal, forced-stop file, and optionally the call count that stands
+# for the completing call in the product-shutdown judgment (default: complete
+# count). Each journey prints the values in its own field order.
+native_completion_measure() {
+  local prefix=$1 node_log=$2 host=$3 transcript=$4 mailbox=$5 sha=$6
+  local terminal=$7 forced_file=$8 shutdown_basis=${9-} complete
+  complete=$(native_completion_call_count "${node_log}" "${host}" "${transcript}" \
+    "${mailbox}" "${sha}")
+  printf -v "${prefix}_complete" '%s' "${complete}"
+  printf -v "${prefix}_await" '%s' \
+    "$(native_completion_await_count "${node_log}" "${mailbox}" "${sha}")"
+  printf -v "${prefix}_stop" '%s' "$(native_completion_stop_count "${node_log}" "${mailbox}")"
+  printf -v "${prefix}_forced_stop" '%s' "$(native_completion_forced_stop "${forced_file}")"
+  printf -v "${prefix}_product_shutdown" '%s' \
+    "$(native_completion_product_shutdown "${shutdown_basis:-${complete}}" "${forced_file}" "${terminal}")"
+}
+
 # Exits 0 when observations $1 record the `control-order` steps $2... in that
 # order. Only the `control-order` block counts, so a field such as
 # `review-started:` cannot stand in for the `review-start` step.
