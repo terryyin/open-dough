@@ -105,7 +105,12 @@ export async function keepRecord(
 ): Promise<void> {
   await replaceRecords((kept) => ({
     ...kept,
-    [sourceId]: [...(kept[sourceId] ?? []), record],
+    [sourceId]: [
+      ...(kept[sourceId] ?? []).filter(
+        (entry) => sessionKey(entry.session) !== sessionKey(record.session),
+      ),
+      record,
+    ],
   }));
 }
 
@@ -159,4 +164,22 @@ export async function deleteRecord(
     return { ...kept, [sourceId]: remaining };
   });
   return deleted;
+}
+
+// Lifecycle updates never recreate evidence the developer has deleted.
+export async function updateRecord(
+  sourceId: string,
+  record: LaunchRecord,
+): Promise<boolean> {
+  let updated = false;
+  await replaceRecords((kept) => ({
+    ...kept,
+    [sourceId]: (kept[sourceId] ?? []).map((entry) => {
+      if (sessionKey(entry.session) !== sessionKey(record.session))
+        return entry;
+      updated = true;
+      return record;
+    }),
+  }));
+  return updated;
 }

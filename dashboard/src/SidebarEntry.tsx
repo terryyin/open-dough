@@ -45,7 +45,7 @@ export function SidebarEntry({
     note === undefined ? label : `${label}: ${note}`,
     `${sourceById(source)?.label ?? source} · ${name}`,
     ...(modelWords === undefined ? [] : [modelWords]),
-    `Launched ${launchedAt.toLocaleString()}`,
+    `${record.firstInput !== undefined && record.firstInput.state !== "confirmed" ? "Conversation created" : "Launched"} ${launchedAt.toLocaleString()}`,
   ].join("\n");
   return (
     <li

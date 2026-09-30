@@ -1,4 +1,5 @@
 // Shared workflow vocabulary and how a launch request is presented.
+import { hostName } from "./sessionCapabilities.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import type { RecordedLaunchRequest } from "./launchRequest.ts";
 import type { EstablishedPreparation } from "./launchRecord.ts";
@@ -135,7 +136,7 @@ export function launchSubject(request: RecordedLaunchRequest) {
     name,
     startedWords: `${
       request.workflow === "ad-hoc" ? `${name} session` : name
-    } started in Claude Code`,
+    } started in ${hostName(request.host)}`,
     modelWords:
       request.model === undefined
         ? undefined

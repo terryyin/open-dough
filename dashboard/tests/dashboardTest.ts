@@ -20,6 +20,7 @@ import {
   type BrowserContext,
   type Page,
 } from "@playwright/test";
+import type { FakeCodex } from "./support/fakeCodex.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -60,6 +61,8 @@ export const test = base.extend<{
   // launches an agent names them with `test.use`, and may shorten the
   // server's launch wait the same way.
   projectFolders: readonly string[] | undefined;
+  machine: string | undefined;
+  codexProtocol: FakeCodex | undefined;
   launchTimeoutMs: number | undefined;
   afterGitHubStops: (removal: () => void) => void;
   github: FakeGitHub;
@@ -67,6 +70,8 @@ export const test = base.extend<{
 }>({
   readTimeoutMs: [undefined, { option: true }],
   projectFolders: [undefined, { option: true }],
+  machine: [undefined, { option: true }],
+  codexProtocol: [undefined, { option: true }],
   launchTimeoutMs: [undefined, { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
@@ -83,7 +88,14 @@ export const test = base.extend<{
     await use((removal) => removals.push(removal));
   },
   dashboard: async (
-    { github, readTimeoutMs, projectFolders, launchTimeoutMs },
+    {
+      github,
+      readTimeoutMs,
+      projectFolders,
+      launchTimeoutMs,
+      machine,
+      codexProtocol,
+    },
     use,
   ) => {
     const server = await startDashboardServer({
@@ -93,6 +105,8 @@ export const test = base.extend<{
       readTimeoutMs,
       projectFolders,
       launchTimeoutMs,
+      machine,
+      codexProtocol,
     });
     await use(server);
     await server.close();

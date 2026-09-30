@@ -43,13 +43,21 @@ const attentionReadings: ReadonlyMap<
 export function sessionShown({
   sessionState,
   doneAt,
-}: Pick<LaunchWithState, "sessionState" | "doneAt">): SessionShown {
+  session,
+}: Pick<LaunchWithState, "sessionState" | "doneAt"> &
+  Partial<Pick<LaunchWithState, "session">>): SessionShown {
   const markedDone = doneAt !== undefined;
   switch (sessionState.kind) {
     case "unknown":
       return {
-        label: "State unknown",
-        note: "Claude Code's session list could not be read",
+        label:
+          session?.host === "codex"
+            ? "Live observation unavailable"
+            : "State unknown",
+        note:
+          session?.host === "codex"
+            ? "Continue this conversation in Codex"
+            : "Claude Code's session list could not be read",
         needsAttention: false,
         tone: "unsettled",
       };

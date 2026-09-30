@@ -1,23 +1,7 @@
 import { sessionKey } from "./sessionReference.ts";
-// One Claude Code session this dashboard's server launched, shown the same
-// way wherever the page lists it: on its story's card (`./CardLaunches.tsx`)
-// and in Recent sessions (`./RecentSessions.tsx`); the Sessions sidebar
-// (`./SessionSidebar.tsx`) shows its state the same way (`shownSession`) and
-// says the same while the sessions are unread or none are kept
-// (`SessionList`). An entry gives its
-// session's state as Claude Code last listed it, read once by `sessionShown`,
-// marked, when the developer is needed there, by a solid edge beside that
-// text; its workflow and the model it asked for, if any, when it was
-// launched, the workspace its start established, if any, its session, and Open terminal (`./LaunchSession.tsx`); a
-// session the developer marked done is Done, under its `done-` name. An entry names its story's title and identity unless it
-// is listed on the story's own card or is an ad hoc session (no story), where it offers Mark as done through the
-// page's one operation (`./TerminalSplit.tsx`); on a card or in Recent
-// sessions, while its session shows State unknown or Session unavailable, it
-// offers "Delete record…", which asks before it deletes. While the page's terminal shows its session,
-// an entry says "Shown in terminal", outlined in Recent sessions, and the
-// card listing it is outlined. Every entry names its session, so the Sessions
-// sidebar can find and reveal it when no card lists it. Entries are local
-// evidence of launches, not story facts.
+import { hostName } from "./sessionCapabilities.ts";
+// One kept session, shown consistently on cards and in Recent sessions.
+// Its native observations and supported controls stay distinct from story facts.
 
 import { useEffect, useRef, type ReactNode } from "react";
 import {
@@ -80,7 +64,11 @@ export function SessionEntry({
       {stateWords}
       {inTerminal && <p className="shown-in-terminal">Shown in terminal</p>}
       <p>
-        {startedWords} <Moment at={new Date(record.launchedAt)} />
+        {record.firstInput !== undefined &&
+        record.firstInput.state !== "confirmed"
+          ? `Conversation created in ${hostName(record.session.host)}`
+          : startedWords}{" "}
+        <Moment at={new Date(record.launchedAt)} />
       </p>
       {modelWords !== undefined && <p>{modelWords}</p>}
       {optionsWords !== undefined && <p>{optionsWords}</p>}

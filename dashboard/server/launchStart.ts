@@ -103,7 +103,7 @@ export async function started(
       workflow,
       handoff: {
         established,
-        formatted: await workflow.format(folder, established),
+        formatted: await workflow.format(folder, established, request.host),
       },
       workspace: planned.workspace,
     };

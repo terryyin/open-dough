@@ -1,7 +1,5 @@
-// Common launch lifetime: establish the shared workflow start, delegate native
-// launch to the selected host, and keep its confirmed evidence. Catalog reads,
-// current native observations and deterministic start each retain their owner.
-// Origin alone decides every story fact; a detached browser leaves launch alive.
+// Common launch lifetime: establish the workflow start, delegate to its host,
+// and keep durable evidence. Origin alone decides every story fact.
 
 import {
   type AgentLaunchRequest,
@@ -14,11 +12,13 @@ import {
 } from "../src/agentLaunch.ts";
 import { catalog, type PublishedSource } from "../src/publishedSource.ts";
 import { launchHost } from "./launchHosts.ts";
+import { launchHosts } from "../src/sessionCapabilities.ts";
 import { withStates } from "./launchStates.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { recordedRequest } from "./hostLaunch.ts";
 import {
   keepRecord,
+  updateRecord,
   keptRecords,
   keptRecordsByProject,
 } from "./launchRecordStore.ts";
@@ -28,6 +28,7 @@ import { removeStart } from "./startStore.ts";
 import { started } from "./launchStart.ts";
 import {
   establishing,
+  establishingHosts,
   offeredDefinitions,
   keptStarts,
 } from "./launchCatalog.ts";
@@ -40,9 +41,7 @@ import {
 
 const defaultLaunchWaitMs = 30_000;
 
-// How long one launch -- the host's start and its confirmation -- may take
-// before its answer is uncertain. A test may shorten it through the
-// environment.
+// A bounded launch wait; test configuration may shorten it.
 function launchTimeoutMs(): number {
   const configured = Number(process.env["DOUGH_LAUNCH_TIMEOUT_MS"]);
   return Number.isFinite(configured) && configured > 0
@@ -50,8 +49,7 @@ function launchTimeoutMs(): number {
     : defaultLaunchWaitMs;
 }
 
-// One session this dashboard recorded for the project, in its existing
-// folder, or why there is none.
+// A kept session in its existing project folder, or why none is available.
 export type Recorded =
   | {
       readonly kind: "recorded";
@@ -63,12 +61,8 @@ export type Recorded =
 
 export class AgentLaunches {
   private readonly running = new Set<AbortController>();
-  // The starts running now with their phases; the one owner of what runs.
   private readonly progress = new StartProgress();
 
-  // The machine's sessions: every catalog project's kept records, projects
-  // in catalog order and each project's oldest first, joined with one
-  // listing. Each record names its project (`request.source`).
   async machineSessions(): Promise<readonly LaunchWithState[]> {
     const kept = await keptRecordsByProject();
     return withStates(
@@ -77,16 +71,18 @@ export class AgentLaunches {
     );
   }
 
-  // The catalog projects whose installed skill establishes a start when
-  // Start execution is pressed, by id, in catalog order.
+  // Projects with an installed execution start, in catalog order.
   establishingProjects(): Promise<readonly string[]> {
     return establishing("execution");
   }
 
-  // The catalog projects whose installed skill ships the preparation start and
-  // its formatter, by id, in catalog order.
+  // Projects with installed preparation and its formatter, in catalog order.
   establishingPreparation(): Promise<readonly string[]> {
     return establishing("refinement");
+  }
+
+  establishingHosts() {
+    return establishingHosts();
   }
 
   offeredDefinitions(): Promise<readonly OfferedDefinition[]> {
@@ -97,12 +93,10 @@ export class AgentLaunches {
     return keptStarts(this.progress);
   }
 
-  // The starts running in this server now, each with its workflow and phase.
   runningStarts(): readonly RunningStart[] {
     return this.progress.all();
   }
 
-  // One kept record's session state read now.
   async stateOf(
     source: PublishedSource,
     record: LaunchRecord,
@@ -111,8 +105,7 @@ export class AgentLaunches {
     return joined ?? { ...record, sessionState: { kind: "unknown" } };
   }
 
-  // The session this dashboard recorded for this project, if it did, in the
-  // project folder, if that exists. Runs no `claude`.
+  // A kept session and existing project folder; no native command is run.
   async recorded(
     source: PublishedSource,
     session: SessionReference,
@@ -129,8 +122,7 @@ export class AgentLaunches {
       : { kind: "folder-not-found", folder };
   }
 
-  // A launch settles on its own even if the requester goes away, so its
-  // record is kept for the next read.
+  // Requester detachment leaves the launch and its durable evidence alive.
   async launch(
     source: PublishedSource,
     request: AgentLaunchRequest,
@@ -143,6 +135,23 @@ export class AgentLaunches {
         explanation: `The project folder ${folder.shown} was not found on this machine. Nothing was launched.`,
       };
     }
+    const pending = (await keptRecords(source.id)).find(
+      (record) =>
+        record.request.host === request.host &&
+        record.request.workflow === request.workflow &&
+        request.workflow !== "ad-hoc" &&
+        record.request.workflow !== "ad-hoc" &&
+        record.request.identity === request.identity &&
+        record.firstInput !== undefined &&
+        record.firstInput.state !== "confirmed",
+    );
+    if (pending !== undefined)
+      return {
+        kind: "uncertain",
+        reason: "unconfirmed",
+        explanation:
+          "This conversation's first input is not confirmed. Continue the recorded conversation before starting again.",
+      };
     const start = await started(source, request, folder, this.progress);
     if (start.kind === "stopped") {
       return start.result;
@@ -159,12 +168,30 @@ export class AgentLaunches {
       if (host === undefined) {
         throw new Error("An admitted launch has no available host.");
       }
+      let retained: LaunchRecord | undefined;
+      const recordEvidence = async (
+        session: LaunchRecord["session"],
+        firstInput: NonNullable<LaunchRecord["firstInput"]>,
+      ) => {
+        const record: LaunchRecord = {
+          request: recording,
+          session,
+          firstInput,
+          ...(start.kind === "established" ? start.handoff.established : {}),
+          launchedAt: retained?.launchedAt ?? began.toISOString(),
+        };
+        if (retained === undefined) await keepRecord(source.id, record);
+        else if (!(await updateRecord(source.id, record)))
+          throw new Error("The launch record was deleted.");
+        retained = record;
+      };
       const launched = await host.launch(
         source,
         recording,
         folder,
         controller.signal,
         start.kind === "established" ? start : undefined,
+        recordEvidence,
       );
       if (launched.kind !== "launched") {
         return start.kind === "established" && launched.kind === "failed"
@@ -174,15 +201,14 @@ export class AgentLaunches {
             }
           : launched;
       }
-      const record: LaunchRecord = {
+      const record: LaunchRecord = retained ?? {
         request: recording,
         session: launched.session,
         ...(start.kind === "established" ? start.handoff.established : {}),
         launchedAt: new Date().toISOString(),
       };
-      await keepRecord(source.id, record);
+      if (retained === undefined) await keepRecord(source.id, record);
       if (start.kind === "established") {
-        // The session carries the start now; the launch record keeps it.
         await removeStart(
           source.id,
           establishedFacts(start.handoff.established).identity,
@@ -207,11 +233,12 @@ export class AgentLaunches {
     }
   }
 
-  // Ends any host process still starting when the server closes.
+  // Detaches native clients and ends launch waits when the server closes.
   close(): void {
     for (const controller of this.running) {
       controller.abort();
     }
     this.running.clear();
+    for (const host of launchHosts) launchHost(host)?.close?.();
   }
 }

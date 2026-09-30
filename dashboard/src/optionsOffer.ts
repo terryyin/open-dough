@@ -3,6 +3,7 @@
 // (`./agentLaunches.ts`); the words for why none are offered are
 // `./commandOptions.ts`'s.
 
+import type { SessionReference } from "./sessionReference.ts";
 import {
   launchWorkflows,
   type LaunchWorkflow,
@@ -24,12 +25,15 @@ export function optionsOfferOf(
   definitions: readonly OfferedDefinition[] | undefined,
   sourceId: string,
   workflow: LaunchWorkflow,
+  host: SessionReference["host"] = "claude",
 ): OptionsOffer | undefined {
   if (launchWorkflows[workflow].options === undefined) return undefined;
   if (definitions === undefined) return { kind: "reading" };
   const offered = definitions.find(
     (definition) =>
-      definition.source === sourceId && definition.workflow === workflow,
+      definition.source === sourceId &&
+      definition.workflow === workflow &&
+      definition.host === host,
   );
   if (offered === undefined) {
     return { kind: "unavailable", why: unavailableOptionsWhy.missing };

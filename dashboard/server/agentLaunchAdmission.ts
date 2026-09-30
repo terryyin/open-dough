@@ -8,8 +8,7 @@
 // recorded for that project, in its existing folder. A launch's selected
 // options are checked against the project's installed definition and kept in
 // its order (`./launchOptions.ts`).
-// Nothing here runs a host process except the listing an upgrade's admission
-// reads.
+// Only terminal admission reads the host listing.
 
 import {
   sessionHostSchema,
@@ -100,8 +99,7 @@ async function jsonBody(req: IncomingMessage): Promise<unknown> {
   }
 }
 
-// A session this dashboard recorded for the project in its existing folder,
-// or the refusal a request naming another gets.
+// A kept session and its existing folder, or a refusal.
 async function recordedSession(
   launches: AgentLaunches,
   source: PublishedSource,
@@ -166,12 +164,16 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   }
   const request = parsed.data;
   const source = knownSource(request.source);
-  // The request schema admits only the workflows in `launchWorkflows` and
-  // ad hoc.
   if (launchHost(request.host) === undefined) {
     throw new RefusedRequest(
       400,
-      `${launchKindName(request.workflow)} can be launched only in Claude Code.`,
+      `${launchKindName(request.workflow)} cannot be launched in this host.`,
+    );
+  }
+  if (request.host === "codex" && request.model !== undefined) {
+    throw new RefusedRequest(
+      400,
+      "Codex uses its configured default model; a Claude model cannot be selected.",
     );
   }
   return {
@@ -208,11 +210,8 @@ export async function admitted(
   throw new RefusedRequest(405, "Only GET and POST are accepted here.");
 }
 
-// The one session an upgrade may attach to, or the refusal it gets: one this
-// dashboard recorded for the project, in its existing folder, that Claude
-// Code does not report unlisted -- the rule the page's open action follows
-// too. `claude` is run only for a recorded session in an existing folder,
-// and then only to list sessions.
+// An upgrade attaches only a kept session through its host’s supported
+// operation, in an existing folder, while the host still may list it.
 export async function admittedAttach(
   req: IncomingMessage,
   url: URL,

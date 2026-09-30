@@ -1,15 +1,15 @@
-// The Claude Code host's workspace choice (../server/claudeWorkspace.ts): a
+// The shared workspace choice (../server/launchWorkspace.ts): a
 // pure function of the project folder, the story's title, and the slugs
 // already in use.
 
 import { expect, test } from "@playwright/test";
-import { claudeWorkspace, slugOf } from "../server/claudeWorkspace.ts";
+import { launchWorkspace, slugOf } from "../server/launchWorkspace.ts";
 
 const project = { path: "/home/dev/git/open-dough", shown: "~/git/open-dough" };
 
 test("puts the workspace under .worktrees on a claude/ branch named for the title", () => {
   expect(
-    claudeWorkspace(
+    launchWorkspace(
       project,
       "Start execution with mechanical preparation",
       new Set(),
@@ -26,10 +26,10 @@ test("puts the workspace under .worktrees on a claude/ branch named for the titl
 
 test("numbers the slug when another workspace or branch already has it", () => {
   const taken = new Set(["fix-it", "fix-it-2"]);
-  expect(claudeWorkspace(project, "Fix it!", taken).branch).toBe(
+  expect(launchWorkspace(project, "Fix it!", taken).branch).toBe(
     "claude/fix-it-3",
   );
-  expect(claudeWorkspace(project, "Fix it!", new Set(["other"])).branch).toBe(
+  expect(launchWorkspace(project, "Fix it!", new Set(["other"])).branch).toBe(
     "claude/fix-it",
   );
 });

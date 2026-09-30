@@ -7,7 +7,7 @@
 // A project establishes it only when its installed skill ships the start
 // command and the formatter (`established-preparation.mjs`) that hands the
 // preparation to the session; any other project launches as before. The
-// workspace is chosen by the host's convention (`./claudeWorkspace.ts`). A
+// workspace follows the shared collision rule (`./launchWorkspace.ts`). A
 // start is kept (`./startStore.ts`) from before its script runs until a
 // session launches from it or it stops with nothing assigned; the next launch
 // of the story reruns the script in the kept workspace and branch.
@@ -48,15 +48,10 @@ const workflow = "refinement";
 async function runScript(
   args: readonly string[],
   project: ProjectFolder,
+  host: StoryLaunchRequest["host"],
 ): Promise<PreparationResult> {
   const stdout = await runStartCommand(
-    installedSkillPath(
-      "claude",
-      project,
-      refinementSkill,
-      "scripts",
-      startScript,
-    ),
+    installedSkillPath(host, project, refinementSkill, "scripts", startScript),
     args,
     project,
   );
@@ -69,9 +64,10 @@ async function runScript(
 // the start command and the formatter.
 export async function establishesPreparation(
   project: ProjectFolder,
+  host: StoryLaunchRequest["host"] = "claude",
 ): Promise<boolean> {
   const script = (name: string) =>
-    installedSkillPath("claude", project, refinementSkill, "scripts", name);
+    installedSkillPath(host, project, refinementSkill, "scripts", name);
   return (
     (await isFile(script(startScript))) &&
     (await isFile(script(formatterScript)))
@@ -87,7 +83,7 @@ export async function beginPreparation(
   project: ProjectFolder,
   progress: WorkflowProgress,
 ): Promise<PlannedStart> {
-  if (!(await establishesPreparation(project))) {
+  if (!(await establishesPreparation(project, request.host))) {
     return { kind: "not-applicable" };
   }
   return gatedStart(
@@ -120,6 +116,7 @@ async function runningPreparation(
   await keepStart(
     source.id,
     {
+      host: request.host,
       identity: request.identity,
       workspace: workspace.path,
       branch,
@@ -144,10 +141,11 @@ async function runningPreparation(
       source.ref,
       "--push-authorized",
       "--host",
-      "claude",
+      request.host,
       ...(model === undefined ? [] : ["--model", model]),
     ],
     project,
+    request.host,
   ).then(async (result): Promise<StartAttempt> => {
     if (result.kind === "established") {
       progress.set(source.id, request.identity, "launching");
@@ -196,9 +194,10 @@ async function runningPreparation(
 export async function formattedPreparation(
   project: ProjectFolder,
   preparation: EstablishedPreparation,
+  host: StoryLaunchRequest["host"] = "claude",
 ): Promise<string> {
   const file = installedSkillPath(
-    "claude",
+    host,
     project,
     refinementSkill,
     "scripts",

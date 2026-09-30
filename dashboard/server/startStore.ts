@@ -17,6 +17,7 @@
 
 import { homedir } from "node:os";
 import path from "node:path";
+import { sessionHostSchema } from "../src/sessionReference.ts";
 import { z } from "zod";
 import {
   establishedStartSchema,
@@ -31,6 +32,7 @@ import {
 
 export const startRecordSchema = z.object({
   identity: z.string().min(1),
+  host: sessionHostSchema.default("claude"),
   // An execution's; a refinement's preparation has no publisher.
   publisherId: z.string().min(1).optional(),
   workspace: z.string().min(1),
@@ -104,12 +106,15 @@ export async function keptStartsByProject(
 // Writes a start ahead of its script, replacing any kept start of the story.
 export async function keepStart(
   sourceId: string,
-  record: StartRecord,
+  record: Omit<StartRecord, "host"> & { readonly host?: StartRecord["host"] },
   workflow: StartsWorkflow = "execution",
 ): Promise<void> {
   await replaceMachineJson(startStore(workflow), (stored) => ({
     ...stored,
-    [sourceId]: { ...stored[sourceId], [record.identity]: record },
+    [sourceId]: {
+      ...stored[sourceId],
+      [record.identity]: { ...record, host: record.host ?? "claude" },
+    },
   }));
 }
 

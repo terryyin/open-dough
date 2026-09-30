@@ -33,6 +33,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { embeddedTerminal } from "./sessionCapabilities.ts";
 import { attachOpens, launchSubject } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { sourceById, type PublishedSource } from "./publishedSource.ts";
@@ -156,7 +157,10 @@ export function TerminalSplit({
       stories.show(source);
     }
     const returnTo = sidebar.closeOverPage() ?? control;
-    if (attachOpens(record.sessionState)) {
+    if (
+      embeddedTerminal(record.session.host) &&
+      attachOpens(record.sessionState)
+    ) {
       openTerminal({ record, control: returnTo });
     }
     revealSession(record);

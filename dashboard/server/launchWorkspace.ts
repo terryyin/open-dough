@@ -1,16 +1,11 @@
-// Where a Claude Code execution's start puts its checkout, decided by this
-// host's convention and nothing else: `<project folder>/.worktrees/<slug>` on
-// the branch `claude/<slug>`, the slug drawn from the story's title. Pure:
-// the caller says which slugs are already in use (`./executionStart.ts`
-// reads the folder and the branches), so a colliding title gets a numeric
-// suffix instead of another story's workspace. Installed native skill paths
-// belong to the host boundary (`./launchHosts.ts`).
+// Shared workspace choice: `.worktrees/<slug>` and the selected host branch.
+// The caller supplies occupied slugs across folders and host branches.
 
+import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
 import path from "node:path";
 import type { ProjectFolder } from "./projectFolders.ts";
 
 export const worktreesFolder = ".worktrees";
-export const branchPrefix = "claude/";
 
 const slugLimit = 48;
 
@@ -47,10 +42,11 @@ export function shownWorkspace(project: ProjectFolder, slug: string): string {
   return `${project.shown}/${worktreesFolder}/${slug}`;
 }
 
-export function claudeWorkspace(
+export function launchWorkspace(
   project: ProjectFolder,
   title: string,
   taken: ReadonlySet<string>,
+  host: AgentLaunchRequest["host"] = "claude",
 ): WorkspaceChoice {
   const slug = freeSlug(slugOf(title), taken);
   return {
@@ -58,6 +54,6 @@ export function claudeWorkspace(
       path: path.join(project.path, worktreesFolder, slug),
       shown: shownWorkspace(project, slug),
     },
-    branch: `${branchPrefix}${slug}`,
+    branch: `${host}/${slug}`,
   };
 }

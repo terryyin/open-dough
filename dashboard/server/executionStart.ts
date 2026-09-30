@@ -1,21 +1,5 @@
-// The start an execution launch runs before its session: the project's own
-// installed `execution-start.mjs start` (`.claude/skills/dough-execute-plan`),
-// which fetches trunk, creates the workspace, and publishes the Take, run as a
-// subprocess and never reimplemented here. This module is the only place its
-// argument array is spelled (its one-line JSON result is read in
-// `./startResult.ts`).
-// It also owns whether a project can be started at all: the installed skill
-// must ship the start command and the formatter (`established-start.mjs`) that
-// hands an established start to the session, and the project's `origin` must
-// be the catalog repository, since the Take is published there. A project
-// whose skill cannot continue from a start is launched as before, with no
-// claim and no workspace.
-// The workspace is chosen by the host's convention (`./claudeWorkspace.ts`).
-// A running start is never aborted: only a script that finishes reports
-// what it published. A start is kept (`./startStore.ts`) from before its script
-// runs until a session launches from it, and a start whose claim may be
-// published is resumed by the next launch of the story: same publisher,
-// workspace, and branch, so the script answers `existing` or `resumed`.
+// Execution start uses the selected installed skill's script and formatter;
+// the dashboard owns arguments, while the script owns publication/recovery.
 
 import { stat } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
@@ -54,15 +38,10 @@ const workflow = "execution";
 async function runScript(
   args: readonly string[],
   project: ProjectFolder,
+  host: StoryLaunchRequest["host"],
 ): Promise<StartResult> {
   const stdout = await runStartCommand(
-    installedSkillPath(
-      "claude",
-      project,
-      executePlanSkill,
-      "scripts",
-      startScript,
-    ),
+    installedSkillPath(host, project, executePlanSkill, "scripts", startScript),
     args,
     project,
   );
@@ -73,33 +52,27 @@ async function runScript(
 }
 
 // Whether the project's installed skill can continue from a start: it ships
-// the start command and the formatter. The one check both a launch and the
-// machine's answer to the page read.
+// the start command and formatter, shared by admission and machine reads.
 export async function establishesStart(
   project: ProjectFolder,
+  host: StoryLaunchRequest["host"] = "claude",
 ): Promise<boolean> {
   const script = (name: string) =>
-    installedSkillPath("claude", project, executePlanSkill, "scripts", name);
+    installedSkillPath(host, project, executePlanSkill, "scripts", name);
   return (
     (await isFile(script(startScript))) &&
     (await isFile(script(formatterScript)))
   );
 }
 
-// Runs the start for one execution launch, or says why not. The start is in
-// `progress` from before its script runs: `preparing` while it runs, then
-// `launching` once it established the start, for the launch to end; a start
-// that stops leaves `progress` when its record is written. A story whose
-// start `progress` already holds is refused, starting nothing. A kept start
-// with no result that `progress` does not hold was lost with the server that
-// ran it.
+// Runs one start, registered in progress before the script starts.
 export async function beginStart(
   source: PublishedSource,
   request: StoryLaunchRequest,
   project: ProjectFolder,
   progress: WorkflowProgress,
 ): Promise<PlannedStart> {
-  if (!(await establishesStart(project))) {
+  if (!(await establishesStart(project, request.host))) {
     return { kind: "not-applicable" };
   }
   return gatedStart(source, request, project, progress, "Take", () =>
@@ -143,6 +116,7 @@ async function runningStart(
     source.id,
     {
       ...kept,
+      host: request.host,
       identity: facts.identity,
       publisherId: facts.publisherId,
       workspace: facts.workspace,
@@ -173,11 +147,12 @@ async function runningStart(
       "--push-authorized",
       "--workspace-authorized",
       "--host",
-      "claude",
+      request.host,
       ...(model === undefined ? [] : ["--model", model]),
       ...resume,
     ],
     project,
+    request.host,
   ).then(async (result): Promise<StartAttempt> => {
     // The record follows the script's result even when the launch stopped
     // waiting for it.
@@ -211,15 +186,14 @@ async function runningStart(
   return { kind: "running", workspace, branch, attempt };
 }
 
-// The established start as the session's instruction carries it, written by
-// the formatter the project's installed skill ships beside its start
-// command, so the skill reads what its own version wrote.
+// The handoff is written by the selected installation's own formatter.
 export async function formattedStart(
   project: ProjectFolder,
   start: EstablishedStart,
+  host: StoryLaunchRequest["host"] = "claude",
 ): Promise<string> {
   const file = installedSkillPath(
-    "claude",
+    host,
     project,
     executePlanSkill,
     "scripts",

@@ -17,6 +17,7 @@ import {
 } from "../server/startStore.ts";
 
 const written: StartRecord = {
+  host: "claude",
   identity: "SEED-A#a",
   publisherId: "dashboard-host-open-dough",
   workspace: "/p/.worktrees/a",

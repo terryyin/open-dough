@@ -1,20 +1,6 @@
+import type { SessionReference } from "./sessionReference.ts";
 import { sessionKey } from "./sessionReference.ts";
-// The browser's side of agent launches (`./agentLaunch.ts`): the machine's
-// sessions -- every project's launch records, each naming its project -- and
-// the launches asked for from this page (`./launchAttempts.ts`). One session
-// state is held for the machine, apart from the selected project: undefined
-// until the first read answers, so "not yet read" is never taken for "none
-// kept". Cards and Recent sessions derive their project's view from it by
-// project and identity.
-// A page load reads the machine's sessions from the local server, which
-// keeps them on this machine across reloads and restarts; a launched answer
-// joins the same records. While the page is visible, they are read again at
-// the revision checks' steady pace (`./revisionCheckSchedule.ts`), so each
-// session's state as Claude Code lists it stays current; a page seen again
-// reads them at once, and each read also says whether the server can alert.
-// A session marked done, or read again at once, replaces
-// its record. Nothing here decides a story fact, which origin still
-// publishes.
+// Machine sessions and this page's launch attempts have one browser owner.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
@@ -43,40 +29,36 @@ export type MachineSessions = ReadSessions &
 
 // The machine's sessions and what their latest read said.
 type ReadSessions = {
-  // Every project's launch records, oldest first within a project, each with
-  // its session's state when last read; undefined until first read.
+  readonly rereadOffers: () => void;
+  // Records oldest first per project, with latest observations; unread until supplied.
   readonly records: readonly LaunchWithState[] | undefined;
-  // Whether the server can raise its macOS alerts, as of the latest read of
-  // the machine's sessions; undefined until first read.
+  // Alert capability at the latest read; unread until supplied.
   readonly alerts: Alerts | undefined;
-  // Whether the project's installed skill establishes a start when Start
-  // execution or refinement is pressed, as of the latest read; false until
-  // read, so the page never says a claim will be published before the server
-  // said so.
-  establishesStart(sourceId: string, workflow: LaunchWorkflow): boolean;
-  // What the project's installed skill offers for the workflow's launch, as
-  // of the latest read; undefined when the workflow defines no options.
+  // Installed workflow start capability at the latest read.
+  establishesStart(
+    sourceId: string,
+    workflow: LaunchWorkflow,
+    host?: SessionReference["host"],
+  ): boolean;
+  // Installed options at the latest read; absent for workflows without options.
   optionsOffer(
     sourceId: string,
     workflow: LaunchWorkflow,
+    host?: SessionReference["host"],
   ): OptionsOffer | undefined;
-  // The start this machine keeps for the project's story with no session
-  // started from it, as of the latest read; undefined when none is kept.
+  // A kept start without a session, if present at the latest read.
   keptStartOf(
     sourceId: string,
     identity: string,
     workflow: LaunchWorkflow,
   ): KeptStart | undefined;
-  // The phase of the start the server is running now for the project's story,
-  // as of the latest read, whichever page asked for it; undefined when none
-  // runs. A start merely kept is never running.
+  // The currently running start phase, whichever page requested it.
   startPhaseOf(
     sourceId: string,
     identity: string,
     workflow: LaunchWorkflow,
   ): StartPhase | undefined;
-  // The sessions to show on cards: `records` once read, and until then only
-  // those launched from this page.
+  // Records shown on cards, including this page’s launches before the first read.
   readonly launched: readonly LaunchWithState[];
 };
 
@@ -84,9 +66,7 @@ type ReadSessions = {
 type ReadFacts = Omit<MachineAnswer, "records">;
 
 export function useAgentLaunches(): MachineSessions {
-  // The sessions the page knows, and whether a read has answered them: a
-  // launch answered before the first read is kept in `known`, and joins the
-  // first read's answer.
+  // A launch before the first read joins the known machine sessions.
   const [
     {
       known,
@@ -94,6 +74,7 @@ export function useAgentLaunches(): MachineSessions {
       alerts,
       establishing,
       establishingPreparation,
+      establishingHosts,
       keptStarts,
       starts,
       definitions,
@@ -110,6 +91,7 @@ export function useAgentLaunches(): MachineSessions {
     read: false,
     establishing: [],
     establishingPreparation: [],
+    establishingHosts: [],
     keptStarts: [],
     starts: [],
     definitions: [],
@@ -122,14 +104,15 @@ export function useAgentLaunches(): MachineSessions {
     },
     [],
   );
-  // When each deleted session's deletion was answered: a read asked before
-  // then may still carry its record.
+  // Reads predating deletion must not restore the deleted record.
   const deletedAt = useRef(new Map<string, number>());
   const { visibility, settleRevealed } = usePageVisibility();
-  // Whether a read has settled, and how many have: each settled read
-  // schedules the next one.
+  // Each settled read schedules the next.
   const everRead = useRef(false);
   const [readsSettled, setReadsSettled] = useState(0);
+  const [offersReading, setOffersReading] = useState(false);
+  const [requested, setRequested] = useState(0);
+  const lastRequested = useRef(0);
 
   useEffect(() => {
     if (visibility === "hidden") return;
@@ -151,13 +134,19 @@ export function useAgentLaunches(): MachineSessions {
             ...facts,
           }));
         }
+        setOffersReading(false);
         everRead.current = true;
         settleRevealed();
         setReadsSettled((settled) => settled + 1);
       });
     };
     // A page loaded, or seen again, is read at once.
-    if (visibility === "revealed" || !everRead.current) {
+    if (
+      visibility === "revealed" ||
+      !everRead.current ||
+      lastRequested.current !== requested
+    ) {
+      lastRequested.current = requested;
       read();
       return () => {
         current = false;
@@ -168,7 +157,7 @@ export function useAgentLaunches(): MachineSessions {
       current = false;
       clearTimeout(waiting);
     };
-  }, [visibility, readsSettled, settleRevealed]);
+  }, [visibility, readsSettled, settleRevealed, requested]);
 
   // A launch that ended no longer runs its start, and a launched session
   // carries it: the server removed the kept one.
@@ -210,18 +199,30 @@ export function useAgentLaunches(): MachineSessions {
   });
 
   return {
+    rereadOffers: () => {
+      setOffersReading(true);
+      setRequested((value) => value + 1);
+    },
     records: readAnswered ? known : undefined,
     alerts,
-    establishesStart: (sourceId, workflow) =>
-      (workflow === "execution"
-        ? establishing
-        : establishingPreparation
-      ).includes(sourceId),
-    optionsOffer: (sourceId, workflow) =>
+    establishesStart: (sourceId, workflow, host = "claude") =>
+      host !== "claude"
+        ? establishingHosts.some(
+            (entry) =>
+              entry.source === sourceId &&
+              entry.workflow === workflow &&
+              entry.host === host,
+          )
+        : (workflow === "execution"
+            ? establishing
+            : establishingPreparation
+          ).includes(sourceId),
+    optionsOffer: (sourceId, workflow, host) =>
       optionsOfferOf(
-        readAnswered ? definitions : undefined,
+        readAnswered && !offersReading ? definitions : undefined,
         sourceId,
         workflow,
+        host,
       ),
     keptStartOf: (sourceId, identity, workflow) =>
       keptStarts.find(

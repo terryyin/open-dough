@@ -62,6 +62,9 @@ type Answer =
         keptStarts: readonly KeptStart[];
         starts: readonly RunningStart[];
         definitions: readonly OfferedDefinition[];
+        establishingHosts: Awaited<
+          ReturnType<AgentLaunches["establishingHosts"]>
+        >;
       };
     }
   | { readonly status: number; readonly body: { record: LaunchWithState } }
@@ -128,6 +131,7 @@ async function answer(
             keptStarts: await launches.keptStarts(),
             starts: launches.runningStarts(),
             definitions: await launches.offeredDefinitions(),
+            establishingHosts: await launches.establishingHosts(),
           },
         };
       case "launch":

@@ -1,4 +1,5 @@
 // Record actions shared by card and Recent sessions entries.
+import { hostName, marksDone } from "./sessionCapabilities.ts";
 import { useEffect, useRef, useState } from "react";
 import { recordDeletable, type LaunchWithState } from "./agentLaunch.ts";
 import {
@@ -18,18 +19,20 @@ export function CardActions({ record }: { readonly record: LaunchWithState }) {
   const [deleteSaid, setDeleteSaid] = useState<string | undefined>();
   return (
     <>
-      <p className="launch-open">
-        <button
-          type="button"
-          disabled={marking === "marking"}
-          onClick={(event) => {
-            setDeleteSaid(undefined);
-            follow(markDone({ record, control: event.currentTarget }));
-          }}
-        >
-          Mark as done
-        </button>
-      </p>
+      {marksDone(record.session.host) && (
+        <p className="launch-open">
+          <button
+            type="button"
+            disabled={marking === "marking"}
+            onClick={(event) => {
+              setDeleteSaid(undefined);
+              follow(markDone({ record, control: event.currentTarget }));
+            }}
+          >
+            Mark as done
+          </button>
+        </p>
+      )}
       <DeleteRecord record={record} say={setDeleteSaid} />
       <p role="status" className="launch-problem">
         {deleteSaid ?? (marking === "not-marked" && notMarkedDone)}
@@ -130,7 +133,7 @@ function DeleteRecord({
     >
       <p>
         Delete this session&apos;s dashboard record? The conversation stays in
-        Claude Code; a running session keeps running.
+        {hostName(record.session.host)}; a running session keeps running.
       </p>
       <p className="delete-question-actions">
         <button

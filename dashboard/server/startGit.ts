@@ -5,7 +5,7 @@
 import { execFile } from "node:child_process";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
-import { branchPrefix, worktreesFolder } from "./claudeWorkspace.ts";
+import { worktreesFolder } from "./launchWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
 export function git(
@@ -32,7 +32,7 @@ export function repositoryOf(url: string): string | undefined {
 }
 
 // Slugs a new workspace must not reuse: the folders under `.worktrees/` and
-// the `claude/` branches, whichever exists.
+// the branches for every supported host, whichever exists.
 export async function takenSlugs(project: ProjectFolder): Promise<Set<string>> {
   const folders = await readdir(path.join(project.path, worktreesFolder)).catch(
     (): string[] => [],
@@ -41,12 +41,14 @@ export async function takenSlugs(project: ProjectFolder): Promise<Set<string>> {
     await git(project, [
       "for-each-ref",
       "--format=%(refname:short)",
-      `refs/heads/${branchPrefix}`,
+      "refs/heads/claude/",
+      "refs/heads/codex/",
+      "refs/heads/cursor/",
     ])
   )
     .split("\n")
-    .filter((name) => name.startsWith(branchPrefix))
-    .map((name) => name.slice(branchPrefix.length));
+    .filter((name) => /^(claude|codex|cursor)\//.test(name))
+    .map((name) => name.slice(name.indexOf("/") + 1));
   return new Set([...folders, ...branches]);
 }
 

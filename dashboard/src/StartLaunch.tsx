@@ -10,6 +10,8 @@
 // story this machine started without a session (`resumesIn`), the dialog says the start is already published and the session opens in the kept
 // workspace.
 
+import { hostName } from "./sessionCapabilities.ts";
+import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { useId, useRef, useState } from "react";
 import {
   launchWorkflows,
@@ -66,22 +68,28 @@ function notOfferedLine(
 export function StartLaunch({
   work,
   workflow,
-  establishesStart,
-  options,
+  establishesStart: establishesForHost,
+  options: optionsForHost,
+  onHostChanged,
   resumesIn,
   note,
   attempt,
   phase,
   onStart,
 }: {
+  readonly onHostChanged?: () => void;
   readonly work: LaunchWorkItem;
   readonly workflow: LaunchWorkflow;
   // Whether the project's installed skill establishes a start for this
   // workflow's Start; without it the words are those of a plain session start.
-  readonly establishesStart: boolean;
+  readonly establishesStart:
+    boolean | ((host: AgentLaunchRequest["host"]) => boolean);
   // What the project's installed skill offers this workflow's launch, if the
   // workflow defines options.
-  readonly options: OptionsOffer | undefined;
+  readonly options:
+    | OptionsOffer
+    | undefined
+    | ((host: AgentLaunchRequest["host"]) => OptionsOffer | undefined);
   // The kept start's workspace, as the page shows it, when this Start resumes
   // a start whose claim or announcement is already published.
   readonly resumesIn?: string;
@@ -94,12 +102,22 @@ export function StartLaunch({
   // Answers whether a session was launched, which then takes the keyboard.
   readonly onStart: (choices: LaunchChoices) => Promise<boolean>;
 }) {
+  const [host, setHost] = useState<AgentLaunchRequest["host"]>("claude");
+  const options =
+    typeof optionsForHost === "function"
+      ? optionsForHost(host)
+      : optionsForHost;
   const spec = launchWorkflows[workflow];
   const { name, verb, skill } = spec;
+  const establishesStart =
+    typeof establishesForHost === "function"
+      ? establishesForHost(host)
+      : establishesForHost;
   const establishes = establishesStart ? spec.establishes : undefined;
   const pending =
     phase === undefined
-      ? (establishes?.pending ?? spec.pending)
+      ? (establishes?.pending ??
+        spec.pending.replace("Claude Code", hostName(host)))
       : startPhaseWords(workflow, phase);
   const named = name.toLowerCase();
   const id = useId();
@@ -151,10 +169,15 @@ export function StartLaunch({
       )}
       {open && (
         <LaunchDialog
-          heading={`Start ${named} in Claude Code`}
+          host={host}
+          onHost={(next) => {
+            setHost(next);
+            onHostChanged?.();
+          }}
+          heading={`Start ${named} in ${hostName(host)}`}
           description={
             <>
-              Claude Code starts a background session on this machine,{" "}
+              {hostName(host)} starts a background session on this machine,{" "}
               {resumesIn === undefined
                 ? "in this project's folder"
                 : `in workspace ${resumesIn}`}
@@ -174,7 +197,8 @@ export function StartLaunch({
             )
           }
           fieldLabel="Instruction (optional)"
-          command={`/${skill} ${work.identity}`}
+          command={`${host === "codex" ? "$" : "/"}${skill} ${work.identity}`}
+          optionsReading={options?.kind === "reading"}
           options={options?.kind === "offered" ? options : undefined}
           optionsHint="Choose any combination; they apply together. None means straightforward refinement."
           optionsLine={optionsLine(options, skill, named)}

@@ -122,7 +122,7 @@ export function useLaunchAttempts(
         identity: work.identity,
         title: work.title,
         workflow,
-        host: "claude",
+        host: choices.host ?? "claude",
         ...optionsOf(choices),
       }),
     [launch],
@@ -133,7 +133,7 @@ export function useLaunchAttempts(
       launch(adHocKey(sourceId), {
         source: sourceId,
         workflow: "ad-hoc",
-        host: "claude",
+        host: choices.host ?? "claude",
         ...optionsOf(choices),
       }),
     [launch],

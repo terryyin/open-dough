@@ -10,12 +10,12 @@
 - **Execution checkout:** `/Users/terryyin/git/open-dough/.worktrees/start-codex-refinement-from-dashboard`, branch `codex/start-codex-refinement-from-dashboard`.
 - **Starting revision:** `3a8b7c886a514730a6ec456ed757e7c11f446101`.
 - **Accepted Take/initial published base:** `a14fefc52826a6234745a88f61b2834c0f69f32e` on `origin/main` and execution branch; maintenance advanced; trunk claim CI unobserved.
-- **Increment target:** `origin`, `refs/heads/codex/start-codex-refinement-from-dashboard`; latest accepted increment `05f3e4a9fa018eba5be122b729f5b78f0e4cce70` (slice1), observer reused; slice2 delivery follows it.
+- **Increment target:** `origin`, `refs/heads/codex/start-codex-refinement-from-dashboard`; latest accepted increment `1f72925b3553e44d0828ab22818d63e438af3fa5` (slice2); recovered observation, zero repeat pushes.
 - **Checkout setup:** `npm ci --silent` and `npm run typecheck:dashboard` passed against this checkout's committed lockfile.
 - **Hook:** At startup `core.hooksPath` unset, `.git/hooks/pre-commit` absent. During probe external config changed to `.githooks`; resolved `.githooks/pre-commit` absent here, so current hook contract remains absent.
 - **Formatting/budget:** Prettier/ESLint/shfmt select owned paths; planning Markdown excluded. No numeric slice target/hard limit; retain necessary in-place planning authority.
 - **CI:** GitHub Actions `ci.yml` push trigger and `terryyin/open-dough` execution-branch selector verified.
-  Codex observer cell `13`, PTY session `60704`, directory `/tmp/dough-ci-501/watch-3JsVXN`, PID `28475`, bound to this checkout/branch; pending at startup.
+  Codex observer cell `82`, PTY session `96864`, directory `/tmp/dough-ci-501/watch-LOgASh`, PID `97088`, bound to this checkout/branch; old worker lost, detached duplicate stopped/no unread failures; current accepted revision recovered.
 
 ## Goal and boundaries
 
@@ -43,7 +43,7 @@ not a new dashboard daemon/database. No North Star change is warranted.
 | Responsibility | Existing common owner and required extension |
 | --- | --- |
 | Workflow/start | `src/agentLaunch.ts` table; `server/startWorkflows.ts`, `startLaunch.ts`, `preparationStart.ts`, `executionStart.ts`; host supplies installed paths/invocation; installed script/formatter owns preparation/handoff |
-| Workspace | Generalize `claudeWorkspace.ts`, used by `startLaunch.ts`/`startGit.ts`; shared `.worktrees/<slug>` collision rule, `codex/` or existing `claude/` branch; no vendor-managed layout |
+| Workspace | Shared `launchWorkspace.ts`, used by `startLaunch.ts`/`startGit.ts`; shared `.worktrees/<slug>` collision rule, `codex/` or existing `claude/` branch; no vendor-managed layout |
 | Options | `server/launchOptions.ts`, shared `commandOptions.ts`, existing dialog; selected project's host installation; offers/capabilities keyed source + host + workflow, reread on host switch and validate at admission |
 | Launch lifetime | `AgentLaunches` progress/gating; host starts/confirms native input and supplies identity/continuation; browser owns no execution process |
 | Evidence | `launchRecordStore.ts`, `startStore.ts`, atomic machine JSON helper; opaque native identity/necessary endpoint, no additional store |
@@ -95,7 +95,7 @@ host switch follows its visible selection rule, never silently drops flags. Rech
 Release reassessment on 2026-09-30: `v0.3.51` installer declares `.agents/skills/dough-story-refinement`'s
 `scripts/established-preparation.mjs`, `references/established-preparation.md`, `references/refinement-options.json`;
 installed main files match tagged bytes. `optionsDefinitionSchema` parses summaries; installed formatter produces representative
-workspace/agent/published-SHA handoff. Dependency satisfied; seed/plan readiness **ready**, not implementation/native acceptance. Slices1–2 proof accepted; slices3–6 pending.
+workspace/agent/published-SHA handoff. Dependency satisfied; seed/plan readiness **ready**, not implementation/native acceptance. Slices1–3 proof accepted; slices4–6 pending.
 
 ## Outside-in proof ownership
 
@@ -148,16 +148,15 @@ Accepted: Coordinator inspected native argv/CWD/options/model, old store/restart
 ### 3. Start and revisit Codex through the shared launch dialog
 
 Type: Behavior
-Status: planned
+Status: done
 - **Trigger:** Project lacks new preparation capability; choose Codex/Start, reopen page/restart server.
 - **Result/work:** Own installed skill/options/optional instruction reach one default-configured native conversation; persist ID before
   submission/acceptance afterward, pending/uncertain recovery without blind retry; exact continuation/workspace survives reload/restart.
   Add selected transport, picker/Default model, host-aware offers/admission/instruction; mixed histories/honest capabilities coexist.
-Proof: Existing server fixture's observed-protocol Codex substitute plus `agent-launch-codex.spec.ts` page/HTTP journey:
-  actual first-input content/no model or approval overrides, real record/restart read; conflicting host definitions and host reread,
-  unavailable options without selection versus rejected selected flag; equal IDs, cards/Recent/sidebar and host-specific action lookup.
-  Forged unsupported terminal/done invokes no Claude; preserve common deletion. Disconnect active caller, emit background error,
-  assert lifecycle owner retains recovery/disposes failed connection. Document `dashboard/AGENT-LAUNCH.md`.
+Proof: `npm run typecheck:dashboard` and `env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-codex-options.spec.ts dashboard/tests/agent-launch-codex-lifetime.spec.ts dashboard/tests/agent-launch-codex-recovery.spec.ts dashboard/tests/launch-workspace.spec.ts dashboard/tests/agent-launch-ad-hoc-boundary.spec.ts dashboard/tests/agent-launch-options.spec.ts dashboard/tests/agent-launch-options-groups.spec.ts dashboard/tests/agent-launch-preparation-start.spec.ts dashboard/tests/agent-launch-preparation-kept.spec.ts dashboard/tests/agent-launch-preparation-resume.spec.ts dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-start-resume.spec.ts dashboard/tests/agent-launch-card-sessions.spec.ts dashboard/tests/agent-launch-recent-sessions.spec.ts dashboard/tests/session-sidebar-navigation-cases.spec.ts` exit0/empty (PTY72541); final four Codex specs rerun together after decoding/typing repairs, exit0/empty (PTY86377), final typecheck exit0.
+Accepted: Coordinator inspected actual page/RPC/store/CLI assertions and protocol-only fixture: own options reread/defaults, identity-before-input, exact quoted continuation (spaces/apostrophe), mixed equal IDs, durable restart, caller detachment, terminal/disconnect races and deletion without resurrection. Unsupported controls invoke no Claude; pending wording never claims refinement started.
+  Independent refactor renamed shared workspace ownership, reused delivered-host list and split proof at behavior seams; unchanged assertions retained. Selective ESLint/Prettier and diff check pass, all changed files ≤250 lines.
+  Selected-host script/formatter/start-store/workspace plumbing moved from4 to avoid reading Claude's installation; Codex publication/refusal/retry and predecessor hostless decoding proof remain4. Native reconciliation5 and dashboard acceptance6 remain pending.
 - **Safe stop:** Ordinary Codex start/continuation works; preparation is capability-dependent, not host-forbidden.
 
 ### 4. Establish and resume Codex preparation in the shared workspace
@@ -174,7 +173,7 @@ Proof: Reuse `agent-launch-preparation-kept.spec.ts` real-origin page journey wi
   beyond page reach; decode predecessor starts and preserve interrupted/slow preparation via `agent-launch-preparation-resume.spec.ts`.
   Run `agent-launch-preparation-start.spec.ts`, `agent-launch-preparation-kept.spec.ts`, `agent-launch-preparation-resume.spec.ts`,
   `agent-launch-start.spec.ts`, `agent-launch-start-resume.spec.ts` (Claude refinement/execution share contract); preserve/adapt
-  `claude-workspace.spec.ts` slug collisions including `codex/`. Source fixture is candidate proof only; document recovery in guide.
+  `launch-workspace.spec.ts` slug collisions including `codex/`. Source fixture is candidate proof only; document recovery in guide.
 - **Safe stop:** Success/recovery share one start model; retry creates no extra preparation or implicit host change.
 
 ### 5. Recover uncertain first input against the known conversation

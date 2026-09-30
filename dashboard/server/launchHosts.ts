@@ -9,6 +9,8 @@ import type {
 } from "../src/agentLaunch.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import type { FirstInput } from "../src/launchRecord.ts";
+import { codexHost } from "./codexHost.ts";
 import { claudeHost } from "./claudeHost.ts";
 import type {
   EstablishedLaunch,
@@ -30,7 +32,9 @@ export type LaunchHost = {
     folder: ProjectFolder,
     signal: AbortSignal,
     established?: EstablishedLaunch,
+    record?: (session: HostSession, evidence: FirstInput) => Promise<void>,
   ): Promise<HostLaunch>;
+  close?(): void;
   sessions?(
     folder: ProjectFolder,
     signal: AbortSignal,
@@ -55,7 +59,11 @@ export type LaunchHost = {
 export function launchHost(
   host: AgentLaunchRequest["host"],
 ): LaunchHost | undefined {
-  return host === "claude" ? claudeHost : undefined;
+  return host === "claude"
+    ? claudeHost
+    : host === "codex"
+      ? codexHost
+      : undefined;
 }
 
 export function installedSkillPath(

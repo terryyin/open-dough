@@ -40,10 +40,13 @@ export type LaunchAnswer =
 
 const checkAgents = "Check `claude agents` for it before starting again.";
 
-function noTrustedAnswer(what: string): LaunchAnswer {
+function noTrustedAnswer(
+  what: string,
+  host: AgentLaunchRequest["host"],
+): LaunchAnswer {
   return {
     kind: "uncertain",
-    explanation: `The local dashboard server ${what}, so the session may or may not have started. ${checkAgents}`,
+    explanation: `The local dashboard server ${what}, so the session may or may not have started. ${host === "claude" ? checkAgents : "Check the dashboard history and native Codex conversations before starting again."}`,
   };
 }
 
@@ -58,7 +61,7 @@ export async function requestAgentLaunch(
       body: JSON.stringify(request),
     });
   } catch {
-    return noTrustedAnswer("could not be reached");
+    return noTrustedAnswer("could not be reached", request.host);
   }
   const body: unknown = await response.json().catch(() => undefined);
   if (!response.ok) {
@@ -69,12 +72,18 @@ export async function requestAgentLaunch(
           kind: "failed",
           explanation: `${refused.data.error} Nothing was launched.`,
         }
-      : noTrustedAnswer(`answered HTTP ${String(response.status)}`);
+      : noTrustedAnswer(
+          `answered HTTP ${String(response.status)}`,
+          request.host,
+        );
   }
   const result = launchResultSchema.safeParse(body);
   return result.success
     ? result.data
-    : noTrustedAnswer("answered in a shape this dashboard does not understand");
+    : noTrustedAnswer(
+        "answered in a shape this dashboard does not understand",
+        request.host,
+      );
 }
 
 // The machine's sessions: the launch records this machine keeps for every

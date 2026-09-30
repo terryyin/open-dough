@@ -11,6 +11,7 @@
 // boundary specs start their own, so PATH/env mutation and each fake
 // GitHub's answers never leak between tests.
 
+import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -45,6 +46,7 @@ export type DashboardServer = {
   // source on the fly and writes no build output at all.
   readonly outDir: string | undefined;
   readonly github: FakeGitHub;
+  readonly codex: FakeCodex;
   ghCalls(): string[][];
   ghPid(): number | undefined;
   ghExitedBy(): string | undefined;
@@ -73,6 +75,8 @@ export function buildDashboardTo(outDir: string): void {
 export async function startDashboardServer(
   options: FakeClaudeOptions & {
     readonly mode: "dev" | "preview";
+    readonly codex?: boolean;
+    readonly codexProtocol?: FakeCodex | undefined;
     // The server's own bound when unset.
     readonly readTimeoutMs?: number | undefined;
     // The fake GitHub this server's `gh` asks; a fresh one, closed with the
@@ -103,10 +107,19 @@ export async function startDashboardServer(
     { binDir: gh.binDir, path: ghEnv["PATH"] ?? "" },
     options,
   );
+  const codex =
+    options.codexProtocol ??
+    (await installFakeCodex(
+      tempRoot,
+      claude.env["PATH"] ?? "",
+      options.codex ?? false,
+    ));
   const env: NodeJS.ProcessEnv = {
     ...process.env,
     ...ghEnv,
     ...claude.env,
+    ...codex.env,
+    PATH: [codex.binDir, claude.env["PATH"] ?? ""].join(path.delimiter),
     // Avatars are fetched from the same fake GitHub, never GitHub itself.
     DOUGH_AVATAR_ORIGIN: github.url.replace(/\/$/, ""),
     ...options.extraEnv,
@@ -145,6 +158,7 @@ export async function startDashboardServer(
   const outputText = () => Buffer.concat(output).toString("utf8");
 
   const closeOwned = async () => {
+    if (options.codexProtocol === undefined) await codex.close();
     if (ownsGitHub) {
       await github.close();
     }
@@ -168,6 +182,7 @@ export async function startDashboardServer(
     origin: baseURL,
     outDir,
     github,
+    codex,
     ghCalls() {
       return github.calls.map((call) => [...call.argv]);
     },

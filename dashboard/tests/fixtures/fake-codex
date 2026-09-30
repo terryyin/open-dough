@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+"use strict";
+// Native daemon discovery substitute only. The RPC fixture owns protocol;
+// neither substitute writes product launch records, workspaces or assignments.
+if (process.argv[2] === "resume" && process.env.FAKE_CODEX_CLI_LOG) {
+  require("node:fs").appendFileSync(process.env.FAKE_CODEX_CLI_LOG, `${JSON.stringify(process.argv.slice(2))}\n`);
+  process.exit(0);
+}
+if (!process.env.FAKE_CODEX_SOCKET) process.exit(1);
+if (JSON.stringify(process.argv.slice(2)) !== JSON.stringify(["app-server", "daemon", "start"])) process.exit(2);
+process.stdout.write(JSON.stringify({ status: "running", socketPath: process.env.FAKE_CODEX_SOCKET }));

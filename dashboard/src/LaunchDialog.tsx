@@ -17,6 +17,8 @@ import {
   withoutGroup,
   type OfferedShape,
 } from "./commandOptions.ts";
+import { hostName, launchHosts } from "./sessionCapabilities.ts";
+import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { LaunchOptions } from "./LaunchOptions.tsx";
 import {
   launchInstructionLimit,
@@ -66,10 +68,13 @@ export function useLaunchDialogLauncher(starting: boolean): {
 export function LaunchDialog({
   heading,
   description,
+  host = "claude",
+  onHost,
   note,
   fieldLabel,
   command,
   options,
+  optionsReading = false,
   optionsHint,
   optionsLine,
   kept,
@@ -79,6 +84,8 @@ export function LaunchDialog({
   onRefused,
   onClose,
 }: {
+  readonly host?: AgentLaunchRequest["host"];
+  readonly onHost?: (host: AgentLaunchRequest["host"]) => void;
   readonly heading: string;
   readonly description: ReactNode;
   readonly note?: ReactNode;
@@ -86,6 +93,7 @@ export function LaunchDialog({
   // The command line the instruction follows; it includes the selected
   // options' flags, in the order `options` offers them.
   readonly command?: string;
+  readonly optionsReading?: boolean;
   readonly options?: OfferedShape | undefined;
   readonly optionsHint?: string;
   // Said in place of the options when there are none to choose from.
@@ -111,6 +119,13 @@ export function LaunchDialog({
   const flags = (options?.options ?? [])
     .map(({ flag }) => flag)
     .filter((flag) => selected.has(flag));
+  const absent = [...selected].filter(
+    (flag) => !(options?.options ?? []).some((option) => option.flag === flag),
+  );
+  const changedOfferLine =
+    optionsReading || absent.length === 0
+      ? notOfferedLine
+      : `Not offered any more, so not sent: ${absent.join(", ")}.`;
   const [model, setModel] = useState<LaunchModel | "">("");
 
   useEffect(() => {
@@ -131,6 +146,7 @@ export function LaunchDialog({
         onSubmit={(event) => {
           event.preventDefault();
           void onStart({
+            host,
             instruction: instruction.current?.value ?? "",
             ...(model === "" ? {} : { model }),
             ...(flags.length === 0 ? {} : { options: flags }),
@@ -144,6 +160,21 @@ export function LaunchDialog({
         <h2 id={headingId}>{heading}</h2>
         <p>{description}</p>
         {note}
+        <label htmlFor={`${id}-host`}>Host</label>
+        <select
+          id={`${id}-host`}
+          value={host}
+          onChange={(event) => {
+            onHost?.(event.target.value as AgentLaunchRequest["host"]);
+            setModel("");
+          }}
+        >
+          {launchHosts.map((choice) => (
+            <option key={choice} value={choice}>
+              {hostName(choice)}
+            </option>
+          ))}
+        </select>
         <label htmlFor={`${id}-instruction`}>{fieldLabel}</label>
         {command !== undefined && (
           <p id={hintId} className="quiet" aria-live="polite">
@@ -175,8 +206,8 @@ export function LaunchDialog({
         ) : (
           optionsLine !== undefined && <p className="quiet">{optionsLine}</p>
         )}
-        {notOfferedLine !== undefined && (
-          <p className="quiet">{notOfferedLine}</p>
+        {changedOfferLine !== undefined && (
+          <p className="quiet">{changedOfferLine}</p>
         )}
         <label htmlFor={`${id}-model`}>Model</label>
         <select
@@ -186,15 +217,20 @@ export function LaunchDialog({
             setModel(event.target.value as LaunchModel | "");
           }}
         >
-          <option value="">Default (your Claude Code setting)</option>
-          {Object.entries(launchModels).map(([alias, { name }]) => (
-            <option key={alias} value={alias}>
-              {name}
-            </option>
-          ))}
+          <option value="">Default (your {hostName(host)} setting)</option>
+          {(host === "claude" ? Object.entries(launchModels) : []).map(
+            ([alias, { name }]) => (
+              <option key={alias} value={alias}>
+                {name}
+              </option>
+            ),
+          )}
         </select>
         <div className="launch-dialog-actions">
-          <button type="submit" disabled={starting}>
+          <button
+            type="submit"
+            disabled={starting || (optionsReading && selected.size > 0)}
+          >
             {starting ? "Starting…" : "Start"}
           </button>
           <button

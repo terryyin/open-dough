@@ -8,6 +8,7 @@
 // Node import, so the browser and the server read the same shapes. Host
 // values are the shared profile vocabulary.
 
+import { sessionHostSchema } from "./sessionReference.ts";
 import { z } from "zod";
 import { offeredShapeSchema } from "./commandOptions.ts";
 import { sessionShown } from "./sessionShown.ts";
@@ -154,10 +155,12 @@ export const offeredDefinitionSchema = z.union([
   offeredShapeSchema.extend({
     source: z.string().min(1),
     workflow: z.enum(launchWorkflowNames),
+    host: sessionHostSchema.default("claude"),
   }),
   z.object({
     source: z.string().min(1),
     workflow: z.enum(launchWorkflowNames),
+    host: sessionHostSchema.default("claude"),
     unavailable: z.string().min(1),
   }),
 ]);
@@ -180,6 +183,15 @@ export const launchRecordsSchema = z.object({
   keptStarts: z.array(keptStartSchema),
   starts: z.array(runningStartSchema),
   definitions: z.array(offeredDefinitionSchema),
+  establishingHosts: z
+    .array(
+      z.object({
+        source: z.string(),
+        workflow: z.enum(launchWorkflowNames),
+        host: sessionHostSchema,
+      }),
+    )
+    .default([]),
 });
 
 export type MachineAnswer = z.infer<typeof launchRecordsSchema>;

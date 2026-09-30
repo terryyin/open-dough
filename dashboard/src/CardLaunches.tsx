@@ -85,10 +85,13 @@ export function CardLaunches({
         launchWorkflowNames.map((workflow) => (
           <StartLaunch
             key={workflow}
+            onHostChanged={launches.rereadOffers}
             work={entry}
             workflow={workflow}
-            establishesStart={launches.establishesStart(sourceId, workflow)}
-            options={launches.optionsOffer(sourceId, workflow)}
+            establishesStart={(host) =>
+              launches.establishesStart(sourceId, workflow, host)
+            }
+            options={(host) => launches.optionsOffer(sourceId, workflow, host)}
             {...(workflow === "refinement" && keptPreparation !== undefined
               ? { resumesIn: keptPreparation.workspace }
               : {})}

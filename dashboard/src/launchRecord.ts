@@ -11,6 +11,13 @@ export const hostSessionSchema = z
     sessionId: z.string().min(1),
     shortId: z.string().min(1).optional(),
     name: z.string(),
+    continuation: z
+      .object({
+        workspace: z.string().min(1),
+        endpoint: z.string().min(1),
+        args: z.array(z.string()),
+      })
+      .optional(),
   })
   .superRefine((session, context) => {
     if (session.host === "claude" && session.shortId === undefined) {
@@ -23,6 +30,13 @@ export const hostSessionSchema = z
   });
 
 export type HostSession = z.infer<typeof hostSessionSchema>;
+
+export const firstInputSchema = z.object({
+  state: z.enum(["awaiting", "confirmed", "uncertain"]),
+  turnId: z.string().optional(),
+  explanation: z.string().optional(),
+});
+export type FirstInput = z.infer<typeof firstInputSchema>;
 
 // How many days this machine keeps a launch's record after its session is
 // marked done.
@@ -68,7 +82,7 @@ export type EstablishedPreparation = z.infer<
   typeof establishedPreparationSchema
 >;
 
-// A confirmed launch, kept on this machine until `launchRetentionDays` after
+// A native conversation with first-input evidence, kept until `launchRetentionDays` after
 // the developer marked its session done (`./doneMark.ts`), if they ever do,
 // with when they did: local evidence only, never a story fact.
 export const launchRecordSchema = z.object({
@@ -79,6 +93,7 @@ export const launchRecordSchema = z.object({
   // What a refinement launch's preparation established.
   preparation: establishedPreparationSchema.optional(),
   launchedAt: z.iso.datetime(),
+  firstInput: firstInputSchema.optional(),
   doneAt: z.iso.datetime().optional(),
 });
 

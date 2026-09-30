@@ -5,7 +5,7 @@
 // names host claude and the chosen model (none on Default), the session
 // starts in the new workspace under the project's `.worktrees/` with the
 // established start in its instruction, and the kept record has the start.
-// The workspace and result rules themselves are ./claude-workspace.spec.ts
+// The workspace and result rules themselves are ./launch-workspace.spec.ts
 // and ./execution-start-result.spec.ts.
 
 import { existsSync, realpathSync, rmSync } from "node:fs";

@@ -9,6 +9,8 @@
 // not start, or may not have, says so beside the button, which stays enabled
 // to start again.
 
+import { hostName } from "./sessionCapabilities.ts";
+import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { useId, useState } from "react";
 import {
   adHocName,
@@ -35,6 +37,7 @@ export function StartSession({
     choices: LaunchChoices,
   ) => Promise<LaunchWithState | undefined>;
 }) {
+  const [host, setHost] = useState<AgentLaunchRequest["host"]>("claude");
   const starting = attempt?.kind === "starting";
   const answerId = useId();
   const { launcher, open, openDialog, closeDialog } =
@@ -73,8 +76,10 @@ export function StartSession({
       )}
       {open && (
         <LaunchDialog
-          heading={`Start a session in ${project} in Claude Code`}
-          description={`Claude Code starts a background session on this machine, in this project's folder, with no story or skill. It is listed as ${project} · ${adHocName}.`}
+          host={host}
+          onHost={setHost}
+          heading={`Start a session in ${project} in ${hostName(host)}`}
+          description={`${hostName(host)} starts a background session on this machine, in this project's folder, with no story or skill. It is listed as ${project} · ${adHocName}.`}
           fieldLabel="What would you like to talk about? (optional)"
           starting={starting}
           onStart={async (choices) => {
@@ -82,7 +87,8 @@ export function StartSession({
             if (record === undefined || launcher.current === null) {
               return false;
             }
-            openTerminal({ record, control: launcher.current });
+            if (record.session.host === "claude")
+              openTerminal({ record, control: launcher.current });
             setAnnouncement("Ad hoc session started");
             return true;
           }}

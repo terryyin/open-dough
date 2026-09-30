@@ -5,6 +5,7 @@
 // the result reader stay with each workflow (`./executionStart.ts`,
 // `./preparationStart.ts`).
 
+import { RefusedRequest } from "./localOrigin.ts";
 import { spawn } from "node:child_process";
 import { stat } from "node:fs/promises";
 import { hostname } from "node:os";
@@ -16,10 +17,10 @@ import type {
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
-  claudeWorkspace,
+  launchWorkspace,
   shownWorkspace,
   type WorkspaceChoice,
-} from "./claudeWorkspace.ts";
+} from "./launchWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import { git, repositoryOf, takenSlugs } from "./startGit.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
@@ -84,9 +85,19 @@ export async function startChoice(
   request: StoryLaunchRequest,
   kept: StartRecord | undefined,
 ): Promise<WorkspaceChoice & { readonly model: StartRecord["model"] }> {
+  if (kept !== undefined && kept.host !== request.host)
+    throw new RefusedRequest(
+      400,
+      `This kept start belongs to ${kept.host}; resume it with that host.`,
+    );
   return kept === undefined
     ? {
-        ...claudeWorkspace(project, request.title, await takenSlugs(project)),
+        ...launchWorkspace(
+          project,
+          request.title,
+          await takenSlugs(project),
+          request.host,
+        ),
         model: request.model,
       }
     : { ...keptChoice(project, kept), model: kept.model };

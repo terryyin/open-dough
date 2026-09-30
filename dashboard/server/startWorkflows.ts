@@ -37,14 +37,21 @@ export type StartPlace = {
 export type StartWorkflow = {
   readonly workflow: StartsWorkflow;
   // Whether the project's installed skill can continue from this start.
-  establishes(project: ProjectFolder): Promise<boolean>;
+  establishes(
+    project: ProjectFolder,
+    host?: StoryLaunchRequest["host"],
+  ): Promise<boolean>;
   begin(
     source: PublishedSource,
     request: StoryLaunchRequest,
     project: ProjectFolder,
     progress: WorkflowProgress,
   ): Promise<PlannedStart>;
-  format(project: ProjectFolder, established: Established): Promise<string>;
+  format(
+    project: ProjectFolder,
+    established: Established,
+    host: StoryLaunchRequest["host"],
+  ): Promise<string>;
   // What the launch answers when the wait ends before the start does.
   uncertain(place: StartPlace): string;
   // What the launch answers when the formatter could not be read.
@@ -57,11 +64,11 @@ const execution: StartWorkflow = {
   workflow: "execution",
   establishes: establishesStart,
   begin: beginStart,
-  format: (project, established) => {
+  format: (project, established, host) => {
     if (!("start" in established)) {
       throw new Error("An execution establishes a start.");
     }
-    return formattedStart(project, established.start);
+    return formattedStart(project, established.start, host);
   },
   uncertain: ({ workspace, branch }) =>
     `The start did not finish within the wait, so the story may or may not be Taken. The start was kept and goes on in workspace ${workspace} on branch ${branch}; pressing Start again resumes it.`,
@@ -77,11 +84,11 @@ const refinement: StartWorkflow = {
   workflow: "refinement",
   establishes: establishesPreparation,
   begin: beginPreparation,
-  format: (project, established) => {
+  format: (project, established, host) => {
     if (!("preparation" in established)) {
       throw new Error("A refinement establishes a preparation.");
     }
-    return formattedPreparation(project, established.preparation);
+    return formattedPreparation(project, established.preparation, host);
   },
   uncertain: ({ workspace, branch }) =>
     `The start did not finish within the wait, so the story may or may not be Preparing. The start was kept and goes on in workspace ${workspace} on branch ${branch}; pressing Start again resumes it.`,

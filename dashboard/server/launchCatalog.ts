@@ -1,6 +1,7 @@
 // Installed workflow capabilities and kept starts in catalog order. These are
 // common project facts; native session observations live in launchStates.
 import path from "node:path";
+import { launchHosts } from "../src/sessionCapabilities.ts";
 import {
   launchWorkflowNames,
   launchWorkflows,
@@ -10,7 +11,7 @@ import {
 } from "../src/agentLaunch.ts";
 import { catalog } from "../src/publishedSource.ts";
 import { offeredShape } from "../src/commandOptions.ts";
-import { shownWorkspace } from "./claudeWorkspace.ts";
+import { shownWorkspace } from "./launchWorkspace.ts";
 import { readDefinition } from "./launchOptions.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { keptStartsByProject } from "./startStore.ts";
@@ -41,20 +42,28 @@ export async function offeredDefinitions(): Promise<
 > {
   const read = await Promise.all(
     catalog.flatMap((source) =>
-      launchWorkflowNames.map(async (workflow) => {
-        const { skill, options: file } = launchWorkflows[workflow];
-        if (file === undefined) return [];
-        const answer = await readDefinition(projectFolder(source), skill, file);
-        return [
-          answer.kind === "defined"
-            ? {
-                source: source.id,
-                workflow,
-                ...offeredShape(answer.definition),
-              }
-            : { source: source.id, workflow, unavailable: answer.why },
-        ];
-      }),
+      launchHosts.flatMap((host) =>
+        launchWorkflowNames.map(async (workflow) => {
+          const { skill, options: file } = launchWorkflows[workflow];
+          if (file === undefined) return [];
+          const answer = await readDefinition(
+            projectFolder(source),
+            skill,
+            file,
+            host,
+          );
+          return [
+            answer.kind === "defined"
+              ? {
+                  source: source.id,
+                  workflow,
+                  host,
+                  ...offeredShape(answer.definition),
+                }
+              : { source: source.id, workflow, host, unavailable: answer.why },
+          ];
+        }),
+      ),
     ),
   );
   return read.flat();
@@ -90,4 +99,19 @@ export async function keptStarts(
         })),
     ),
   );
+}
+
+export async function establishingHosts() {
+  const rows = await Promise.all(
+    catalog.flatMap((source) =>
+      launchHosts.flatMap((host) =>
+        launchWorkflowNames.map(async (workflow) =>
+          (await startOf(workflow)?.establishes(projectFolder(source), host))
+            ? { source: source.id, workflow, host }
+            : undefined,
+        ),
+      ),
+    ),
+  );
+  return rows.filter((row) => row !== undefined);
 }

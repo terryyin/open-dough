@@ -62,6 +62,7 @@ export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
 // What a launch dialog hands its caller: the developer's choices among the
 // request's options, as typed, before the request trims and omits them.
 export type LaunchChoices = {
+  readonly host?: AgentLaunchRequest["host"];
   readonly instruction: NonNullable<StoryLaunchRequest["instruction"]>;
   // Absent for Default: Claude Code's own setting applies.
   readonly model?: LaunchModel;
