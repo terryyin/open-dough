@@ -47,7 +47,9 @@ export function CardLaunches({
   const keptStart = offersStart
     ? undefined
     : launches.keptStartOf(sourceId, entry.identity);
-  const phase = launches.startPhaseOf(sourceId, entry.identity);
+  const phaseOf = (workflow: LaunchWorkflow) =>
+    launches.startPhaseOf(sourceId, entry.identity, workflow);
+  const phase = phaseOf("execution");
   const onStart =
     (workflow: LaunchWorkflow) => async (choices: LaunchChoices) => {
       const record = await launches.start(sourceId, entry, workflow, choices);
@@ -70,7 +72,9 @@ export function CardLaunches({
         />
       )}
       {!offersStart && keptStart === undefined && phase !== undefined && (
-        <p className="launch-answer quiet">{startPhaseWords[phase]}</p>
+        <p className="launch-answer quiet">
+          {startPhaseWords("execution", phase)}
+        </p>
       )}
       {offersStart &&
         launchWorkflowNames.map((workflow) => (
@@ -78,10 +82,10 @@ export function CardLaunches({
             key={workflow}
             work={entry}
             workflow={workflow}
-            establishesStart={launches.establishesStart(sourceId)}
+            establishesStart={launches.establishesStart(sourceId, workflow)}
             note={launchWorkflows[workflow].note(entry)}
             attempt={launches.attemptOf(sourceId, entry.identity, workflow)}
-            phase={workflow === "execution" ? phase : undefined}
+            phase={phaseOf(workflow)}
             onStart={onStart(workflow)}
           />
         ))}

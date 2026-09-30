@@ -92,7 +92,12 @@ test("a page that did not ask for the launch shows a running start's phase, then
   await expect
     .poll(() => runningStarts(dashboard), { timeout: 20_000 })
     .toEqual([
-      { source: "open-dough", identity: queuedIdentity, phase: "preparing" },
+      {
+        workflow: "execution",
+        source: "open-dough",
+        identity: queuedIdentity,
+        phase: "preparing",
+      },
     ]);
   // Running, not merely kept: no kept start is named.
   expect(await keptStarts(dashboard)).toEqual([]);
@@ -106,7 +111,12 @@ test("a page that did not ask for the launch shows a running start's phase, then
   await expect
     .poll(() => runningStarts(dashboard), { timeout: 30_000 })
     .toEqual([
-      { source: "open-dough", identity: queuedIdentity, phase: "launching" },
+      {
+        workflow: "execution",
+        source: "open-dough",
+        identity: queuedIdentity,
+        phase: "launching",
+      },
     ]);
   await page.reload();
   await expect(backlogCard).toContainText("Starting execution in Claude Code…");

@@ -271,13 +271,9 @@ export class AgentLaunches {
     );
   }
 
-  // The starts running in this server now, each with its phase.
+  // The starts running in this server now, each with its workflow and phase.
   runningStarts(): readonly RunningStart[] {
-    return this.progress.all().map(({ source, identity, phase }) => ({
-      source,
-      identity,
-      phase,
-    }));
+    return this.progress.all();
   }
 
   // One kept record's session state read now.

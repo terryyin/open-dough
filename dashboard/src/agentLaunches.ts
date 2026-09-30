@@ -54,16 +54,21 @@ export type MachineSessions = {
   // the machine's sessions; undefined until first read.
   readonly alerts: Alerts | undefined;
   // Whether the project's installed skill establishes a start when Start
-  // execution is pressed, as of the latest read; false until read, so the
-  // page never says a claim will be published before the server said so.
-  establishesStart(sourceId: string): boolean;
+  // execution or refinement is pressed, as of the latest read; false until
+  // read, so the page never says a claim will be published before the server
+  // said so.
+  establishesStart(sourceId: string, workflow: LaunchWorkflow): boolean;
   // The start this machine keeps for the project's story with no session
   // started from it, as of the latest read; undefined when none is kept.
   keptStartOf(sourceId: string, identity: string): KeptStart | undefined;
   // The phase of the start the server is running now for the project's story,
   // as of the latest read, whichever page asked for it; undefined when none
   // runs. A start merely kept is never running.
-  startPhaseOf(sourceId: string, identity: string): StartPhase | undefined;
+  startPhaseOf(
+    sourceId: string,
+    identity: string,
+    workflow: LaunchWorkflow,
+  ): StartPhase | undefined;
   // The sessions to show on cards: `records` once read, and until then only
   // those launched from this page.
   readonly launched: readonly LaunchWithState[];
@@ -146,19 +151,29 @@ export function useAgentLaunches(): MachineSessions {
   // launch answered before the first read is kept in `known`, and joins the
   // first read's answer.
   const [
-    { known, read: readAnswered, alerts, establishing, keptStarts, starts },
+    {
+      known,
+      read: readAnswered,
+      alerts,
+      establishing,
+      establishingPreparation,
+      keptStarts,
+      starts,
+    },
     setSessions,
   ] = useState<{
     readonly known: readonly LaunchWithState[];
     readonly read: boolean;
     readonly alerts?: Alerts;
     readonly establishing: readonly string[];
+    readonly establishingPreparation: readonly string[];
     readonly keptStarts: readonly KeptStart[];
     readonly starts: readonly RunningStart[];
   }>({
     known: [],
     read: false,
     establishing: [],
+    establishingPreparation: [],
     keptStarts: [],
     starts: [],
   });
@@ -199,6 +214,7 @@ export function useAgentLaunches(): MachineSessions {
             read: true,
             alerts: answered.alerts,
             establishing: answered.establishing,
+            establishingPreparation: answered.establishingPreparation,
             keptStarts: answered.keptStarts,
             starts: answered.starts,
           }));
@@ -351,6 +367,7 @@ export function useAgentLaunches(): MachineSessions {
           ...current,
           alerts: kept.alerts,
           establishing: kept.establishing,
+          establishingPreparation: kept.establishingPreparation,
           keptStarts: kept.keptStarts,
           starts: kept.starts,
         }));
@@ -363,15 +380,21 @@ export function useAgentLaunches(): MachineSessions {
   return {
     records: readAnswered ? known : undefined,
     alerts,
-    establishesStart: (sourceId) => establishing.includes(sourceId),
+    establishesStart: (sourceId, workflow) =>
+      (workflow === "execution"
+        ? establishing
+        : establishingPreparation
+      ).includes(sourceId),
     keptStartOf: (sourceId, identity) =>
       keptStarts.find(
         (kept) => kept.source === sourceId && kept.identity === identity,
       ),
-    startPhaseOf: (sourceId, identity) =>
+    startPhaseOf: (sourceId, identity, workflow) =>
       starts.find(
         (running) =>
-          running.source === sourceId && running.identity === identity,
+          running.workflow === workflow &&
+          running.source === sourceId &&
+          running.identity === identity,
       )?.phase,
     launched: known,
     attemptOf: (sourceId, identity, workflow) =>

@@ -162,8 +162,9 @@ paragraph.
 
 ### 5. Dialog and card say what Start refinement does
 Type: Behavior
-Status: planned
+Status: done
 Proof: page spec with `installHeldStart` (as `agent-launch-start-phases.spec.ts`).
+Accepted: new `agent-launch-preparation-phases.spec.ts` (dialog sentence, "Preparing refinement…" then "Starting refinement in Claude Code…", story in Backlog, from a page that did not launch); the non-establishing refinement dialog keeps today's words in `agent-launch-start-card.spec.ts`; regression 236 passed; typecheck and lint clean. `workflow` added to the wire `RunningStart`; the two phase/duplicate specs' `toEqual` gained `workflow: "execution"`.
 
 Behavior: an establishing project → the refinement dialog adds "Start also
 publishes this story's Preparing announcement to the project's trunk on origin
@@ -216,6 +217,7 @@ offer. `keptStarts` carries the workflow.
 
 ## Learnings
 
+- Slice 5: the running-start answer now carries `workflow`, so slices 6-8 read it instead of re-deriving it.
 - Slice 4: the page-side `launchRecordsSchema` does not yet read `establishingPreparation` (zod strips it); slice 5 adds it with the initial state and builders in `dashboard/src/agentLaunches.ts`. `AGENT-LAUNCH.md`'s refinement paragraph needs extending by slices 5-7.
 - CI lint (`no-unsafe-member-access`) failed slice 3's spec; repaired in a9623112. Run `node scripts/lint.mjs` on the tree before committing, since the local commit hook did not catch it.
 - Slice 3 left placeholders for later slices: `EstablishedStart` still carries `publisherId` and `mode` (slice 4's own schema removes them), refusals use one generic wording (slice 6), nothing is written to `refinement-starts.json` yet (slice 7), and `establishingProjects()`/`keptStarts()` stay execution-only (slices 4, 5, 8). Shared start mechanics now live in `dashboard/server/startLaunch.ts`.

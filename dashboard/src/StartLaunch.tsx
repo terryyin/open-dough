@@ -57,7 +57,7 @@ export function StartLaunch({
   const pending =
     phase === undefined
       ? (establishes?.pending ?? spec.pending)
-      : startPhaseWords[phase];
+      : startPhaseWords(workflow, phase);
   const named = name.toLowerCase();
   const id = useId();
   const starting = attempt?.kind === "starting";

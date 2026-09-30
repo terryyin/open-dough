@@ -82,7 +82,12 @@ test.describe("a second start of the same story", () => {
     const first = launch(server, request);
     await expect.poll(() => existsSync(held), { timeout: 30_000 }).toBe(true);
     expect(await runningStarts(server)).toEqual([
-      { source: "open-dough", identity: queuedIdentity, phase: "preparing" },
+      {
+        workflow: "execution",
+        source: "open-dough",
+        identity: queuedIdentity,
+        phase: "preparing",
+      },
     ]);
 
     const second = await answerOf(launch(server, request));

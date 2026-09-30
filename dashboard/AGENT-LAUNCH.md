@@ -87,17 +87,23 @@ the start and formatter, beside `establishing`.
 
 The page says what Start does, for a project whose installed skill establishes
 a start (ships the start command and the formatter; `establishesStart` in
-`server/executionStart.ts`). The machine's sessions answer carries the ids of
-those projects as `establishing`, read on every read. Only then does the
-execution dialog add a sentence to its description: "Start also publishes this
-story's Take to the project's trunk on origin and creates a workspace under the
-project folder's .worktrees/; pressing Start authorizes that push." and only
-then does the card read "Preparing execution…" while the launch request is
-pending. Any other project, and every project until the first read answers,
-gets no sentence and "Starting execution in Claude Code…" (a refinement's reads
-"Starting refinement in Claude Code…"). The pending words are local progress,
-so the card stays in **Backlog** and shows no Taken or agent until origin does.
-The words are in `launchWorkflows` (`pending`, `establishes`). A session whose
+`server/executionStart.ts`; a refinement's, `establishesPreparation` in
+`server/preparationStart.ts`). The machine's sessions answer carries the ids of
+those projects as `establishing` (execution) and `establishingPreparation`
+(refinement), read on every read. Only then does a dialog add a sentence to its
+description: the execution dialog's "Start also publishes this story's Take to
+the project's trunk on origin and creates a workspace under the project
+folder's .worktrees/; pressing Start authorizes that push.", the refinement
+dialog's the same with "this story's Preparing announcement" for "Take"; and
+only then does the card read "Preparing execution…" or "Preparing
+refinement…" while the launch request is pending. Any other project, and every
+project until the first read answers, gets no sentence and "Starting execution
+in Claude Code…" or "Starting refinement in Claude Code…". The pending words
+are local progress, so the card stays in **Backlog** and shows no Taken or
+agent until origin does. The words are in `launchWorkflows` (`pending`,
+`establishes`). A running start in the sessions answer names its workflow
+(`runningStartSchema`), so each workflow's Start shows its own phase words
+(`startPhaseWords`) on every page. A session whose
 launch record keeps a start says "Workspace
 ~/git/<project id>/.worktrees/<slug>" in its entry, on a card or in Recent
 sessions (`workspaceWords`); one launched without a start says none.

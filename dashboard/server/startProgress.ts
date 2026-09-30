@@ -12,13 +12,6 @@ import type {
   StartPhase,
 } from "../src/agentLaunch.ts";
 
-// A running start and the workflow that runs it. The boundary answers
-// `RunningStart`, which does not name the workflow while execution is the only
-// one that starts.
-export type WorkflowStart = RunningStart & {
-  readonly workflow: LaunchWorkflow;
-};
-
 // One workflow's view of the running starts: what its `begin` and launch read
 // and write.
 export type WorkflowProgress = {
@@ -52,7 +45,7 @@ export class StartProgress {
   }
 
   // The running starts, in the order they began.
-  all(): readonly WorkflowStart[] {
+  all(): readonly RunningStart[] {
     return [...this.phases].map(([key, phase]) => {
       const [workflow, source, identity] = JSON.parse(key) as [
         LaunchWorkflow,
