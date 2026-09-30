@@ -1,425 +1,250 @@
 # Start Codex refinement from the dashboard
 
-## Source and authority
+## Source, authority and execution context
 
-- **Identity:** SEED-052#start-codex-refinement-from-dashboard
-- **Source:** [refined first story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#start-codex-refinement-from-dashboard).
-- **Authority:** Terry's 2026-09-30 request for slice planning and necessary plan
-  refinement. No implementation, Take, release, installation update or landing
-  is authorized by this plan.
-- **Preparation:** Existing owned workspace
-  `.worktrees/split-codex-dashboard-stories`, branch
-  `codex/split-codex-dashboard-stories`. Continue its existing preparation
-  assignment for the original Codex identity while the split remains a draft.
+- **Identity:** SEED-052#start-codex-refinement-from-dashboard; [refined first story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#start-codex-refinement-from-dashboard).
+- **Authority:** Terry's 2026-09-30 `dough-execute-plan` authorizes Take, implementation, Story Branch delivery and necessary in-place refinement. Release/managed installation updates remain unauthorized.
+- **Preparation:** Execution uses published first-story preparation on trunk; preserve the earlier split workspace's uncommitted draft and original identity.
+- **Mode/identity:** Story Branch; publisher `codex-dashboard-refinement-189-20260930`; assigned agent `yilv-chan`; workspace authorship configured.
+- **Origin/integration:** `/Users/terryyin/git/open-dough`, `main`.
+- **Execution checkout:** `/Users/terryyin/git/open-dough/.worktrees/start-codex-refinement-from-dashboard`, branch `codex/start-codex-refinement-from-dashboard`.
+- **Starting revision:** `3a8b7c886a514730a6ec456ed757e7c11f446101`.
+- **Accepted Take/initial published base:** `a14fefc52826a6234745a88f61b2834c0f69f32e` on `origin/main` and execution branch; maintenance advanced; trunk claim CI unobserved.
+- **Increment target:** `origin`, `refs/heads/codex/start-codex-refinement-from-dashboard`; previous published base starts at accepted Take.
+- **Checkout setup:** `npm ci --silent` and `npm run typecheck:dashboard` passed against this checkout's committed lockfile.
+- **Hook:** At startup `core.hooksPath` unset, `.git/hooks/pre-commit` absent. During probe external config changed to `.githooks`; resolved `.githooks/pre-commit` absent here, so current hook contract remains absent.
+- **Formatting/budget:** Prettier/ESLint/shfmt select owned paths; planning Markdown excluded. No numeric slice target/hard limit; retain necessary in-place planning authority.
+- **CI:** GitHub Actions `ci.yml` push trigger and `terryyin/open-dough` execution-branch selector verified.
+  Codex observer cell `13`, PTY session `60704`, directory `/tmp/dough-ci-501/watch-3JsVXN`, PID `28475`, bound to this checkout/branch; pending at startup.
 
-## Goal, boundaries and assumptions
+## Goal and boundaries
 
-From the dashboard, choose Codex and start refinement of a selected story;
-continue that same native conversation in the ordinary CLI, answer a question
-or configured approval, and review its useful draft in the recorded workspace.
-Keep enough evidence to return after a reload or server restart, resume a kept
-preparation after failure, and recover an uncertain first instruction without
-blindly creating another conversation.
+Dashboard Codex starts selected-story refinement; ordinary CLI continues the same conversation for questions/configured approvals and a useful workspace draft.
+Retain evidence across page/server restart, kept-preparation failure/retry and uncertain first input; never blindly create another conversation.
 
-Refinement is the first acceptance example, not a workflow restriction. Use
-the shared dialog, workflow table and launch/start owners. Do not add a
-`workflow === refinement` tool-admission rule, a second launch flow, a Codex
-options grammar or a separate machine session registry. Extend another workflow
-naturally when the same integration handles it; its full proof remains with
-the [remaining Codex story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard).
+Refinement is the first acceptance example, not an admission restriction. Extend the shared dialog/workflow/start owners;
+no `workflow === refinement` gate, second flow, Codex options grammar or machine-session registry. Naturally supported other
+workflows may use the integration; their full proof belongs to the [remaining Codex story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard).
+Deferred: live state/attention/alerts, embedded terminal/reconnect, done/reopen, external discovery, other workflows' acceptance,
+model selection, authentication/install UI and desktop linkage. Expose simple delivered capabilities; deferral cannot forbid supported launch. Page closure must not stop refinement. Native termination need not automatically
+resume an in-flight turn, but saved conversation/workspace must retain recovery information.
 
-Deferred promises are live state/attention/alerts, embedded terminal/reconnect,
-done/reopen, external-session discovery, other workflows' acceptance, model
-selection, authentication/install UI and desktop-app linkage. A capability that
-the selected native integration already delivers simply may be exposed; a
-deferred promise is not grounds to reject an otherwise supported launch.
-Closing a browser page must not stop refinement. Native runtime termination
-need not automatically resume an in-flight turn; the saved conversation and
-workspace still need recovery information.
+Assume configured project, authenticated native Codex and existing settings. **Never override model, approvals, sandbox/trust
+or authentication to pass proof.** Observe approvals only when the configured policy requests them; record policy/behavior.
 
-Assume a configured project, authenticated native Codex and the developer's
-existing model/permission settings. Do not override approvals, sandbox/trust,
-model or authentication to make a check pass. Native approval coverage uses the
-configured policy where it actually asks for approval; record policy and
-observed behavior rather than inventing an approval under a policy that permits
-the operation.
+## Shared design and existing-solution decisions
 
-## Upfront design and PFE decisions
+Follow North Star [requested assignment](../../NORTH-STAR.md#agent-launch-as-a-requested-assignment) and
+[claim/workspace before session](../../NORTH-STAR.md#a-start-establishes-claim-and-workspace-before-the-session).
+One public module per delivered host owns native details; common orchestration imports that boundary. Claude helpers remain
+private. No speculative host/plugin framework; Cursor remains undelivered. Native Codex daemon is vendor runtime infrastructure,
+not a new dashboard daemon/database. No North Star change is warranted.
 
-Follow the existing North Star topics
-[Agent launch as a requested assignment](../../NORTH-STAR.md#agent-launch-as-a-requested-assignment)
-and [A start establishes claim and workspace before the session](../../NORTH-STAR.md#a-start-establishes-claim-and-workspace-before-the-session).
-One public host-facing module per delivered host owns native details; common
-orchestration imports that boundary. Existing Claude helpers may remain private
-behind its module. No speculative host/plugin framework is needed. The native
-CLI's own daemon, if selected by slice 1, is native runtime infrastructure, not
-a new dashboard daemon or database. No North Star change is warranted now.
+| Responsibility | Existing common owner and required extension |
+| --- | --- |
+| Workflow/start | `src/agentLaunch.ts` table; `server/startWorkflows.ts`, `startLaunch.ts`, `preparationStart.ts`, `executionStart.ts`; host supplies installed paths/invocation; installed script/formatter owns preparation/handoff |
+| Workspace | Generalize `claudeWorkspace.ts`, used by `startLaunch.ts`/`startGit.ts`; shared `.worktrees/<slug>` collision rule, `codex/` or existing `claude/` branch; no vendor-managed layout |
+| Options | `server/launchOptions.ts`, shared `commandOptions.ts`, existing dialog; selected project's host installation; offers/capabilities keyed source + host + workflow, reread on host switch and validate at admission |
+| Launch lifetime | `AgentLaunches` progress/gating; host starts/confirms native input and supplies identity/continuation; browser owns no execution process |
+| Evidence | `launchRecordStore.ts`, `startStore.ts`, atomic machine JSON helper; opaque native identity/necessary endpoint, no additional store |
+| History/actions | Shared cards, Recent sessions/sidebar, admission/terminal/done/delete; dispatch by record host; unsupported capability is honest, never Claude fallback for Codex |
 
-| Responsibility | Retain/change the existing owner | Native boundary |
-| --- | --- | --- |
-| Workflow meaning and start | `src/agentLaunch.ts` workflow table; `server/startWorkflows.ts`, `startLaunch.ts`, `preparationStart.ts`, `executionStart.ts` | Host supplies installed skill location and invocation spelling; the installed script/formatter still owns preparation and its handoff |
-| Workspace | Generalize the pure layout now in `claudeWorkspace.ts`, used by `startLaunch.ts` and `startGit.ts` | Common `.worktrees/<slug>` collision rule; host branch prefix (`codex/` or existing `claude/`); never a native tool's managed worktree layout |
-| Options | `server/launchOptions.ts`, shared `commandOptions.ts`, existing dialog | Read the selected host's project installation; key offers/capabilities by source + host + workflow; reread on host change and validate again at admission |
-| Launch lifetime | `AgentLaunches` and its existing progress/gating | Host starts and confirms native input, supplies identity and continuation; the browser does not own the process |
-| Operational evidence | `launchRecordStore.ts`, `startStore.ts`, existing atomic machine JSON helper | Persist opaque native identity and native endpoint only when needed; host does not write another store |
-| History and actions | Shared cards, Recent sessions and sidebar; admission, terminal and done/delete boundaries | Read only that record's host. Unsupported operations report their real capability; never invoke Claude for a Codex record |
+Minimal host contract: installed paths, models (Codex Default), native instruction/evidence/continuation and supported observations/operations; add consumed members only.
+Keep admission/workflow/options/workspace/publication/persistence common; move shared `EstablishedLaunch` out of Claude.
+Accepted [ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md)/[0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+require one domain model/useful increments; [0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)/[0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md)
+govern released installation; [0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) requires native feasibility before
+dependent implementation and truthful acceptance before release. No Accepted ADR conflict/exception; Proposed 0008/0009 add no constraints.
 
-The minimal host contract supplies installed skill paths, supported model
-choices (Codex Default), native instruction construction, launch evidence and
-continuation, and supported observations/operations. Add members only as these
-examples consume them. Keep catalog admission, workflow selection, options
-validation, workspace creation, assignment publication and persistence common.
-Move the common `EstablishedLaunch` meaning out of the Claude module. Cursor
-remains an undelivered host, with no invented implementation.
+### Native transport and durable evidence
 
-### Native transport decision and lifetime
+Selected native shared app-server daemon: `codex app-server daemon start`, returned `socketPath`, WebSocket-over-Unix;
+persist actual `thread.id`, endpoint and workspace. Runtime `0.159.2`, CLI `0.157.0`, proved active CLI continuation:
+`codex resume --remote <endpoint> --cd <recorded workspace> <thread.id>`; no turn termination/handover is required.
+Implement observed initialization/thread/turn/server-request handling only; approvals must neither auto-approve nor silently
+time out. `never` produced no request. Do not ship alternatives: preliminary proxy JSONL was unusable. Version discovery alone
+cannot prove configured-model usability; preserve native failures. Local server owns communication, later child/connection
+errors and durable evidence; native runtime owns execution. HTTP/browser detach cannot cancel a turn. Server shutdown follows
+proved native lifetime and leaves recovery evidence. Spawn cannot prove survival; native idle cannot prove story completion.
 
-App-server is the leading candidate, not a proven runtime choice. Slice 1 tries
-the existing native daemon/connection first, then a dashboard-owned app-server
-connection if needed. Choose one transport only after proving ordinary CLI
-continuation and approvals while an initial turn is active. A retained
-interactive CLI is the fallback comparison. Use `exec --json` only if it passes
-the same journey; non-interactive completion alone is insufficient.
+- Keep existing machine locations; old Claude records retain native identity; old confirmed records decode as confirmed.
+  Missing host in predecessor kept starts/action requests means Claude; new starts retain host/requested model, including retry.
+- Identity is host + opaque conversation ID; one helper serves page keys/merge/focus, stores and action lookup. Keep actual ID for
+  commands; no fabricated Claude `shortId` or substitution of app-server `sessionId`. Prove equal IDs across hosts remain distinct.
+- First-input acceptance confirms launch; thread creation alone does not. Persist identity before submission and acceptance afterward;
+  distinguish awaiting/confirmed/uncertain facts from live native/story state. Host awaits common durable write before first input.
+- Keep preparation until durable launch record carries established facts; uncertainty retains recovery. Pre-submission store failure
+  prevents input and reports known conversation/recovery; no separate retry registry or unawaited identity notification.
+- Known-ID recovery inspects/resumes that conversation. Lost acknowledgment/timeout cannot justify resend; resubmit only when native
+  evidence proves input unaccepted. Unknown creation without ID requires reconciliation, never automatic second creation.
+- Generate correctly quoted continuation from native arguments/recorded workspace/endpoint; never execute a browser shell string.
+  No observation means unavailable, not missing. Origin owns story stage; no fabricated working/waiting/done state or alerts.
 
-Record the chosen startup/continuation commands, supported runtime version,
-identity field and process ownership in this plan before slice 2. With an
-app-server, implement only the initialization/thread/turn and server-request
-handling actually needed. Unhandled approvals must not silently time out or be
-auto-approved. Prove whether CLI continuation shares the active runtime or
-requires a safe handover. If it requires terminating the active turn, loses
-context, or cannot expose a pending approval, stop and revise the transport.
-Do not ship multiple speculative transports or hide a failed probe behind an
-ID-only success message.
+### Planning premises and release readiness
 
-Detach of an HTTP/browser connection does not cancel the native turn. The local
-server owns launch communication and observes later child/connection errors;
-native runtime owns execution. Server shutdown follows the chosen native
-connection's proved lifetime and leaves persisted recovery evidence. Do not
-infer turn survival from process spawn, or story completion from native idle.
+Preparation observations (2026-09-30, `7e3b212b..2b09d444`, retained seed/backlog draft) created no native turn.
+`env -u FORCE_COLOR -u NO_COLOR npx --no-install playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-preparation-kept.spec.ts dashboard/tests/agent-launch-options-exclusive.spec.ts dashboard/tests/agent-launch-preparation-start.spec.ts`
+passed quietly with linked root dependencies (then removed); prior `vite ENOENT` was checkout setup failure.
+`dashboard/tests/support/startOrigin.ts`/start/kept specs run candidate `.claude/skills` against bare Git: publication/CWD/handoff/retries prove real preparation, not released/native behavior; generalize host root.
+`rg -n 'installedSkillPath|claudeWorkspace|branchPrefix|shownWorkspace|session\.sessionId|session\.shortId' dashboard scripts tests`
+plus launches/admission/starts/Git/options/actions/store/page reads found common Claude coupling, aliases/root/admission,
+source/workflow offers, hostless kept starts and post-confirmation records: change identity/dispatch/options/collisions/persistence coherently.
+Reuse options correction `2ffe539a`: stale/not-offered selection, unavailable reason, pure-rule cost and skill-group wording;
+host switch follows its visible selection rule, never silently drops flags. Recheck callers; spent correction plan is Git-recoverable.
 
-This follows Accepted [ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md)
-and [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md):
-one domain model and useful increments rather than delivery-specific rules.
-[ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md) and
-[ADR 0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md)
-govern the released-installation dependency; source presence does not make a
-capability installed. [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
-requires native feasibility before dependent implementation and truthful
-native acceptance before release. No Accepted ADR conflict or exception was
-identified; Proposed ADRs 0008/0009 do not add constraints.
-
-### Compatibility, identity and durable launch evidence
-
-- Retain the existing machine store locations. Decode old Claude launch records
-  without rewriting them into a different native identity. Missing host in old
-  kept starts means Claude; new starts persist host and requested model context.
-  Do not silently change host when retrying a retained assignment.
-- Session identity is host + opaque native conversation ID. Preserve the actual
-  ID for native commands; do not fabricate a Claude `shortId` for Codex, or
-  substitute app-server `sessionId` for `thread.id` without probe evidence.
-  One shared identity helper serves page keys/merging/focus, store updates and
-  action lookup. Carry host in session action references; legacy requests
-  without host retain their Claude meaning. Test identical IDs across hosts.
-- Launch confirmation means the first instruction was accepted, not merely
-  that a thread was created. In the existing launch store retain the identity
-  as soon as the native boundary returns it, before first-turn submission;
-  distinguish awaiting confirmation, confirmed and uncertain evidence. Old
-  confirmed records decode as confirmed. These are launch facts, not story or
-  live native state. The host waits for the common owner's durable write
-  before submitting the first input; an unawaited notification is insufficient.
-- Preserve a kept preparation until the durable launch record carries its
-  established facts; uncertain records retain recovery facts. Store failures
-  before submission prevent sending the first instruction and report the known
-  conversation/recovery information. No second independent retry registry.
-- Once an ID is known, retry inspects/resumes that same conversation. A lost
-  acknowledgment is not proof that input was absent. Resubmit only on native
-  evidence that it was not accepted; otherwise offer the CLI continuation and
-  explain uncertainty. Do not invent native idempotency or resend merely on
-  timeout. If creation outcome is unknown before an ID is returned, report
-  uncertainty and require reconciliation instead of automatically creating
-  another conversation.
-- Generate the exact CLI continuation from native arguments and recorded
-  workspace/endpoint, with correct quoting for display. Never execute a browser
-  shell string. A Codex record without live observation says observation is
-  unavailable, not that Codex no longer lists it. Keep origin authoritative for
-  story stage; do not fabricate working/waiting/done states or emit alerts.
-
-## Decisive premises observed during planning
-
-Observations are from 2026-09-30 in the preparation workspace, based on
-`7e3b212b..2b09d444` and the retained seed/backlog draft. No native conversation
-or model turn was created during planning.
-
-| Premise consumed by the plan | Literal observation and result | Consequence |
-| --- | --- | --- |
-| Shared start/options journeys actually run | `env -u FORCE_COLOR -u NO_COLOR npx --no-install playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-preparation-kept.spec.ts dashboard/tests/agent-launch-options-exclusive.spec.ts dashboard/tests/agent-launch-preparation-start.spec.ts` exited 0 quietly after linking root dependencies into the owned workspace; the temporary link was then removed | Reuse their real local bare-origin preparation and page journeys; the earlier `vite ENOENT` was workspace setup failure, not product behavior |
-| Preparation fixture establishes its own claim/workspace | Read `dashboard/tests/support/startOrigin.ts` and the start/kept specs: copies source into fixture `.claude/skills`, runs the real installed start command against local bare Git, inspects published profiles, CWD, handoff and retry count | Generalize this fixture's host root; it proves deterministic candidate behavior, not released native integration |
-| Common callers still depend on Claude | `rg -n 'installedSkillPath|claudeWorkspace|branchPrefix|shownWorkspace|session\.sessionId|session\.shortId' dashboard scripts tests`; inspect `agentLaunches.ts`, admission, starts, `startGit.ts`, options, terminals/done, launch store and page consumers | Move native ownership and identity coherently. Branch collision scanning must stop assuming only `claude/`; display/store/action consumers need the same session reference |
-| Host choice/options/model are not yet supported | Read `LaunchDialog.tsx`, `StartLaunch.tsx`, `agentLaunch.ts`, `agentLaunchAdmission.ts` and `launchOptions.ts`: no host picker; admission refuses non-Claude; offers keyed source/workflow; installed root `.claude`; model aliases are Claude's | Slice 3 changes the whole shared launch path, including host-specific options and default model semantics |
-| Retained starts and uncertain launch identity need extension | Read `startStore.ts` (no host) and `AgentLaunches.launch` (record only after native confirmation); store schema validates the whole document | Use backward-compatible decoding, persist identity before submission, preserve retained host and distinguish launch evidence |
-| Native API has discovery/identity/turn primitives | `codex --version` reported 0.157.0; `codex resume --help`, `codex app-server --help`, generated JSON schema and initialized stdio `skills/list` inspected: `.agents` refinement enabled, resume accepts native ID/remote/CWD, start/resume/turn operations exist | These observations do not settle active CLI continuation, approvals, handoff or native write; slice 1 owns paid/state-changing feasibility |
-| Released installation does not yet supply the positive handoff/options case | `git tag --sort=-version:refname` gives v0.3.50; `git ls-tree -r --name-only v0.3.50 src/skills/dough-story-refinement` lacks established-preparation formatter/reference; `git show v0.3.50:src/skills/dough-story-refinement/references/refinement-options.json` lacks summaries. Installed `.agents` copy has the same capability gaps | Plain fallback can be probed now; full positive native acceptance needs a later released payload. Source copies must not masquerade as that installation |
-
-The options correction completed in `2ffe539a` owns stale-selection wording,
-unavailable-reason wording, pure-rule test cost and skill group wording. Reuse
-its delivered contract in the current dialog/options code; do not duplicate or
-reset its work. Host switching applies its same visible not-offered-selection
-rule, rather than silently dropping flags. Recheck current callers/tests before
-execution; the spent correction plan is recoverable from Git.
+Release reassessment on 2026-09-30: `v0.3.51` installer declares `.agents/skills/dough-story-refinement`'s
+`scripts/established-preparation.mjs`, `references/established-preparation.md`, `references/refinement-options.json`;
+installed main files match tagged bytes. `optionsDefinitionSchema` parses summaries; installed formatter produces representative
+workspace/agent/published-SHA handoff. Dependency satisfied; seed/plan readiness **ready**, not implementation/native acceptance. Slice1 passed; slices2–6 todo.
 
 ## Outside-in proof ownership
 
-The existing high-level boundaries are the real dashboard page/HTTP server and
-its shared start fixtures. A synthetic native process supplies vendor protocol
-responses only; it must not prewrite launch records, prepare the worktree or
-manufacture origin's assignment. Inspect the actual process arguments/RPC input
-and persisted/published output. Test common option rules once, then differences
-at the host/installation boundary. Use existing dashboard server/start-origin
-support rather than a parallel harness.
+Drive real dashboard page/HTTP server and shared start fixtures. Vendor substitute supplies protocol only: it must not prewrite
+records, worktrees or origin assignments. Inspect actual process/RPC input and persisted/published output. Reuse server/start-origin
+support, not a parallel harness; prove common options once, host/installation differences separately. Assess skill activation and result separately.
 
-| Source promise / example | Owning slice | Observable proof |
-| --- | --- | --- |
-| Native default settings; read/respond/approve in same conversation; useful write | 1 feasibility, 6 final acceptance | Real CLI conversation and worktree diff; approvals under the recorded native policy; native skill activation and resulting refinement are assessed separately |
-| Old Claude records, starts and controls continue working | 2, 4 for starts | Load predecessor machine files; real Claude substitute boundary/start/terminal/done journeys stay green; no unreadable-store quarantine on a valid old document |
-| Choose Codex in shared dialog; own installed options; no silent drop; ordinary fallback | 3 | Page chooses Codex; different `.agents`/`.claude` definitions; host change rereads offers; request/record/native input preserve skill, identity, options and optional prompt; invalid selection refused before native process |
-| Confirm input and show exact continuation; durable history after page/server reload | 3 | Real launch endpoint writes record, page/server restart reads it, command names the exact native ID and workspace; mixed hosts with equal IDs remain distinct |
-| Closing page does not cancel refinement; asynchronous failures are owned | 3, 6 native | Disconnect page/HTTP caller while substitute turn remains active; lifecycle owner observes later failure and retains recovery evidence; native final run closes/reopens page while turn waits |
-| Codex Preparing, shared worktree and one established handoff | 4 | Real installed candidate script publishes one Codex profile, `.worktrees` path and `codex/` branch; native substitute receives formatter output once from the established workspace |
-| Failed launch retry keeps host/model/assignment/workspace through reload | 4 | Fail first native launch after real preparation, restart server and Start again; one published assignment/workspace, retained Codex context, one successful instruction |
-| Lost acknowledgment recovers same conversation without duplicate input | 5 | Native substitute creates ID then loses turn acknowledgment; persistent uncertain evidence survives restart; recovery reads/resumes same ID and creates/submits no duplicate |
-| Honest state and actions; no artificial refinement restriction | 3, 5 | Cards/Recent/sidebar say observation unavailable; forged unsupported attach/done refused without Claude command; record deletion touches only selected host; shared host dispatch has no per-refinement eligibility branch |
+| Promise | Slice / observable boundary |
+| --- | --- |
+| Defaults, same native read/respond/approve, useful write | 1 feasibility/6 acceptance: real CLI, policy, native interaction and worktree diff |
+| Existing Claude records/starts/controls | 2/4: predecessor machine files, valid-store decoding without quarantine, Claude launch/start/terminal/done journeys |
+| Shared Codex choice, own options, visible selection/fallback | 3: conflicting `.agents`/`.claude` definitions, host-switch reread, request/record/native content, invalid flag refused before native process |
+| Confirmed input, exact continuation, durable mixed history | 3: real endpoint write/restart read; exact ID/workspace command; equal IDs remain distinct |
+| Page detach and later failures | 3 substitute/6 native: active caller disconnect, lifecycle-owned failure/recovery/disposal; close/reopen native page during wait |
+| Preparing, shared workspace, single handoff | 4: real candidate publishes Codex profile/worktree/branch; formatter output once from established CWD |
+| Kept failure/retry | 4: restart preserves host/model/assignment/workspace, one publication/workspace and successful instruction |
+| Lost acknowledgment | 5: persistent uncertainty/restart, same-ID read/resume, no duplicate conversation/input |
+| Honest capabilities/shared admission | 3/5: cards/Recent/sidebar unavailable; forged attach/done never invokes Claude; deletion selects host; no per-refinement eligibility |
 
-Native requirements stay owned by the linked first story and slices 1/6; no
-third product scope is introduced. If implementation ends with outstanding
-native acceptance, ADR 0005 requires a linked acceptance story before that work
-can close, with this table's pending requirements carried over explicitly.
-Functional completion must not be reported as native acceptance. Complete
-required native acceptance before releasing the affected behavior.
+First-story slices1/6 own native proof. Before separate closure link pending acceptance promises under ADR0005; functional proof is not native acceptance, which must precede release.
 
 ## Ordered slices
 
 ### 1. Prove a usable native Codex refinement conversation
 
-- **Type:** Behavior (feasibility)
-- **Status:** todo
-- **Precondition/trigger:** Authenticated Codex with existing configuration in
-  an isolated ordinary project/worktree; start the installed refinement skill
-  using the candidate native transport. Use a bounded fixture story that needs
-  one developer clarification; do not tell the agent the expected answer.
-- **Result:** The first instruction is accepted, ordinary CLI continuation
-  opens the same conversation, the developer can answer its question and any
-  approval the configured policy requests, and the skill produces a real draft
-  write in that workspace. Observe active-turn handover, native identity and
-  connection lifetime. Plain refinement is sufficient to settle transport;
-  new handoff/options proof awaits a released installation.
-- **Work/proof:** Exercise the native interface and commands above, not direct
-  model API or transcript replay. Record exact commands, native version/config,
-  thread/continuation identity, decisive interaction and diff, and selected
-  ownership/transport here. Bound the scenario to one conversation per viable
-  candidate; investigate failure before trying an alternative. Stop dependent
-  slices if none meets the usable-continuation contract. No product code or
-  widened story outcome follows from a failed probe.
-- **Safe stop:** A justified transport decision or concrete failed feasibility;
-  no speculative integration has been committed.
+Type: Behavior (feasibility)
+Status: done
+Accepted: [Native feasibility on runtime 0.159.2](#accepted-slice-1-native-proof-2026-09-30), limited to the recorded promises.
+
+- **Trigger:** Authenticated existing configuration, isolated ordinary project/worktree, released installed skill and bounded
+  undecided story needing one clarification; never supply expected answer.
+Proof: Accepted first input, active-turn same-conversation ordinary CLI continuation, developer answer/configured approval
+  and real useful draft; inspect identity/lifetime/commands/version/settings/interaction/diff. Native interface only, no model API/replay.
+  One conversation per viable candidate; investigate failure before alternatives; no usable candidate stops dependent slices.
+  Plain refinement settles transport; positive handoff/options needs released installation. Failed proof authorizes no widening or code.
+- **Safe stop:** Justified transport or concrete failed feasibility; no speculative integration committed. Accepted detail retained below.
 
 ### 2. Put native launch ownership behind the host boundary
 
-- **Type:** Structure
-- **Status:** todo
-- **Change:** Expose the existing Claude native behavior through one public
-  host-facing module; move shared launch facts out of Claude helpers. Introduce
-  the minimal dispatch/identity contract slice 3 consumes, including host-aware
-  installed path and session references. Align admission, machine reads,
-  terminal/done/delete, stores and page identity consumers where they depend
-  on this contract. Keep Claude runtime/instructions private and unchanged.
-  Workspace/start generalization belongs with the later prepared behavior.
-- **Enables:** Slice 3 launches and revisits a second host coherently, with no
-  direct Claude dependency in common orchestration.
-- **Unchanged behavior/proof:** Old Claude launch records decode from the same
-  file, current launch/model/ad-hoc/options and attached terminal/done/deletion
-  behavior stay unchanged. Run existing `agent-launch-boundary.spec.ts`,
-  `agent-launch-records.spec.ts`, `agent-launch-session-listing.spec.ts`,
-  `agent-launch-ad-hoc-boundary.spec.ts`, `agent-launch-model-boundary.spec.ts`,
-  `agent-terminal-boundary.spec.ts`, `agent-terminal-lifetime.spec.ts`,
-  `agent-launch-done.spec.ts` and `agent-launch-delete.spec.ts` with the dashboard
-  Playwright command. Add only missing predecessor compatibility proof.
-- **Safe stop:** Claude still works with the common boundary ready for Codex.
+Type: Structure
+Status: planned
+- **Change/enables:** One public Claude boundary, private unchanged runtime/instructions; move common launch facts, minimal host dispatch,
+  installed paths and session references; align admission/machine reads/terminal/done/delete/stores/page consumers for slice 3.
+  Workspace/start generalization remains slice 4; remove common orchestration's direct Claude coupling.
+Proof: Old Claude file/records and launch/model/ad-hoc/options/attached-terminal/done/delete behavior retained;
+  Add missing predecessor compatibility only. Run `agent-launch-boundary.spec.ts`, `agent-launch-records.spec.ts`, `agent-launch-session-listing.spec.ts`, `agent-launch-ad-hoc-boundary.spec.ts`, `agent-launch-model-boundary.spec.ts`,
+  `agent-terminal-boundary.spec.ts`, `agent-terminal-lifetime.spec.ts`, `agent-launch-done.spec.ts`, `agent-launch-delete.spec.ts`.
+- **Safe stop:** Claude works with common boundary ready for Codex.
 
 ### 3. Start and revisit Codex through the shared launch dialog
 
-- **Type:** Behavior
-- **Status:** todo
-- **Precondition/trigger:** A project without the new preparation capability;
-  choose Codex in the existing refinement dialog and Start, then close/reopen
-  the page or restart the dashboard.
-- **Result:** Its own installed skill/options and optional instruction reach
-  one native conversation with default configuration. The first instruction is
-  accepted, the record survives reload/restart and shows a usable continuation
-  command and recorded workspace. Claude and Codex histories coexist; Codex has
-  honest observation/operation availability.
-- **Work/proof:** Add the selected native integration, host choice, Default
-  model behavior, host-aware offers/admission and instruction spelling. Persist
-  ID before submission and acceptance afterward; show pending/uncertain
-  recovery information without enabling blind retry. Extend the existing
-  server fixture with a Codex substitute matching the observed protocol and a
-  `agent-launch-codex.spec.ts` page/HTTP journey. Assert first-input content,
-  no model/approval overrides, real record creation and server-restart reading.
-  Use conflicting host options definitions to prove the right installation;
-  test unavailable options with no selection and a rejected selected flag.
-  Exercise equal native IDs in two hosts, all three shared presentations and
-  one host-specific action lookup. Forged unsupported terminal/done requests
-  invoke no Claude command. Preserve common record deletion semantics.
-  Disconnect the caller while the substitute is active; then emit a background
-  error and assert the named lifecycle owner retains recovery information and
-  disposes the failed connection. Document the behavior in
-  `dashboard/AGENT-LAUNCH.md` in this slice.
-- **Safe stop:** Ordinary Codex refinement can start and be continued; new
-  mechanical preparation remains capability-dependent, not host-forbidden.
+Type: Behavior
+Status: planned
+- **Trigger:** Project lacks new preparation capability; choose Codex/Start, reopen page/restart server.
+- **Result/work:** Own installed skill/options/optional instruction reach one default-configured native conversation; persist ID before
+  submission/acceptance afterward, pending/uncertain recovery without blind retry; exact continuation/workspace survives reload/restart.
+  Add selected transport, picker/Default model, host-aware offers/admission/instruction; mixed histories/honest capabilities coexist.
+Proof: Existing server fixture's observed-protocol Codex substitute plus `agent-launch-codex.spec.ts` page/HTTP journey:
+  actual first-input content/no model or approval overrides, real record/restart read; conflicting host definitions and host reread,
+  unavailable options without selection versus rejected selected flag; equal IDs, cards/Recent/sidebar and host-specific action lookup.
+  Forged unsupported terminal/done invokes no Claude; preserve common deletion. Disconnect active caller, emit background error,
+  assert lifecycle owner retains recovery/disposes failed connection. Document `dashboard/AGENT-LAUNCH.md`.
+- **Safe stop:** Ordinary Codex start/continuation works; preparation is capability-dependent, not host-forbidden.
 
 ### 4. Establish and resume Codex preparation in the shared workspace
 
-- **Type:** Behavior
-- **Status:** todo
-- **Precondition/trigger:** The project's `.agents` installation supports the
-  preparation script/formatter; choose Codex, options and Start. Native launch
-  initially refuses; restart the dashboard, resolve the refusal and retry.
-- **Result:** One published Preparing assignment names Codex; one shared-layout
-  workspace on `codex/<slug>` supplies the native CWD and established handoff.
-  The retained start preserves host/model, assignment, workspace and branch
-  across restart. Retry resumes the same preparation; the successful session
-  receives the handoff once instead of redoing mechanical setup. Its durable
-  launch record carries the established facts before the kept start is removed.
-  Host-less predecessor starts still mean Claude.
-- **Work/proof:** Generalize common workspace/collision choice and start callers,
-  pass retained/native host to the installed script, and read the host's
-  formatter rather than duplicating its grammar. Extend common retained-start
-  schema, capability reads and retry presentation with backward-compatible
-  host/model context. Reuse the existing
-  `agent-launch-preparation-kept.spec.ts` real-origin page journey with `.agents`
-  installed candidate source and the Codex substitute. Assert profile host,
-  assignment/workspace/native-call counts, branch, actual CWD, options and
-  handoff through refusal/restart/retry. Extend the direct start spec only for
-  observations that this journey cannot reach. Include predecessor start-file
-  decoding and preserve slow/interrupted preparation recovery with
-  `agent-launch-preparation-resume.spec.ts`. Run
-  `agent-launch-preparation-start.spec.ts`, `agent-launch-preparation-kept.spec.ts`,
-  `agent-launch-preparation-resume.spec.ts`, `agent-launch-start.spec.ts` and
-  `agent-launch-start-resume.spec.ts`: execution and Claude refinement are
-  consumers of the same changed workspace/start contract. Preserve slug
-  collision coverage in the current `claude-workspace.spec.ts`, adapting its
-  host-independent owner and covering `codex/` collisions. Source fixture
-  copying is deterministic candidate proof only. Document recovery in the guide.
-- **Safe stop:** Confirmed preparation and failure recovery both use one shared
-  start model; no extra preparation or implicit host change occurs on retry.
+Type: Behavior
+Status: planned
+- **Trigger:** `.agents` supports script/formatter; choose Codex/options/Start; native refusal, restart, resolve/retry.
+- **Result/work:** One published Codex Preparing assignment/shared `.worktrees` workspace on `codex/<slug>` supplies CWD/handoff;
+  retained host/model/assignment/workspace/branch survives restart. Retry resumes preparation, hands off once; durable launch record
+  carries established facts before kept start removal. Missing predecessor host means Claude. Generalize workspace/collision/start
+  callers, pass native/retained host to installed script, consume selected formatter; backward-compatible store/capability/retry schema.
+Proof: Reuse `agent-launch-preparation-kept.spec.ts` real-origin page journey with candidate `.agents` and Codex substitute;
+  assert profile/assignment/workspace/native-call counts, branch/CWD/options/handoff across refusal/restart/retry. Extend direct spec only
+  beyond page reach; decode predecessor starts and preserve interrupted/slow preparation via `agent-launch-preparation-resume.spec.ts`.
+  Run `agent-launch-preparation-start.spec.ts`, `agent-launch-preparation-kept.spec.ts`, `agent-launch-preparation-resume.spec.ts`,
+  `agent-launch-start.spec.ts`, `agent-launch-start-resume.spec.ts` (Claude refinement/execution share contract); preserve/adapt
+  `claude-workspace.spec.ts` slug collisions including `codex/`. Source fixture is candidate proof only; document recovery in guide.
+- **Safe stop:** Success/recovery share one start model; retry creates no extra preparation or implicit host change.
 
 ### 5. Recover uncertain first input against the known conversation
 
-- **Type:** Behavior
-- **Status:** todo
-- **Precondition/trigger:** Native creation returned an ID but the first-input
-  acknowledgment is lost or the server disconnects; restart and recover.
-- **Result:** Persistent evidence identifies the same conversation/workspace
-  and accurately says acceptance is uncertain. Inspect/resume it before any
-  retry; an already accepted first instruction is never duplicated. Unknown
-  creation without an ID remains uncertain with reconciliation advice.
-- **Work/proof:** Complete shared launch evidence transitions and host recovery
-  using the selected native read/resume mechanism. Extend the Codex page/HTTP
-  fixture: lose acknowledgment after accepting input, restart and recover;
-  assert exactly one conversation and input. Contrast explicit refusal before
-  acceptance with uncertainty, so the permitted retry is evidenced. Cover
-  persistence failure before submission (no input sent, known ID explained)
-  and interrupted runtime recovery information. Prepared evidence and plain
-  fallback use the same recovery rule, not workflow-specific branches.
-- **Safe stop:** History and recovery remain truthful at the first-turn boundary.
+Type: Behavior
+Status: planned
+- **Trigger:** ID returned, first-input acknowledgment lost/server disconnected; restart/recover.
+- **Result/work:** Persistent same-conversation/workspace uncertainty; inspect/resume before retry, never duplicate accepted input.
+  Unknown creation without ID stays uncertain/reconciliation-required. Complete shared evidence/native read/resume recovery.
+Proof: `agent-launch-codex.spec.ts` page/HTTP fixture accepts input then loses acknowledgment; restart/recover asserts one conversation/input.
+  Contrast explicit pre-acceptance refusal with uncertainty; cover persistence failure before submission (no input, known ID explained)
+  and interrupted-runtime recovery. Prepared/plain fallback share one rule, no workflow-specific recovery.
+- **Safe stop:** Truthful history/recovery at first-turn boundary.
 
 ### 6. Accept the native dashboard-to-draft journey
 
-- **Type:** Behavior (native acceptance)
-- **Status:** todo
-- **Precondition/trigger:** Delivered dashboard changes and a released target
-  installation containing the preparation handoff and usable options; choose
-  Codex and start an isolated queued story through the real dashboard.
-- **Result/proof:** Preparing names Codex, the shown CLI command continues the
-  exact native conversation, a real clarification/approval can be answered and
-  a useful refinement draft appears in the established worktree without a
-  second announcement. Close/reopen the page during the interaction and restart
-  the dashboard after confirmation: continuation still identifies the same
-  conversation. Inspect native input/interaction, published assignment and
-  worktree diff; assess skill behavior separately from activation. Do not
-  supply expected refinement prose in the prompt or accept exit 0/self-report.
-- **Ownership/gate:** This first story owns this proof; record selected release,
-  dashboard revision, native version/policy and result here. Use a normal
-  released installation, never hand-sync managed copies. Missing release or
-  failed native proof remains pending; a linked acceptance story is required
-  if closing implementation separately under ADR 0005. No release is authorized
-  by this slice plan.
-- **Safe stop:** The complete first-story promise is evidenced; remaining Codex
-  monitoring/workflow parity stays in its existing story.
+Type: Behavior (native acceptance)
+Status: planned
+- **Trigger:** Delivered dashboard, normal released preparation/options
+  installation; choose Codex and start isolated queued story through real dashboard. Never hand-sync managed copies.
+Proof: Preparing names Codex; shown CLI continues exact native conversation, real clarification/configured approval answered,
+  useful draft in established worktree without second announcement. Close/reopen page during interaction, restart dashboard after
+  confirmation; same continuation remains. Inspect native input/interaction, publication/worktree diff, activation separately from skill
+  behavior; no expected prose, exit-0 or self-report acceptance. Record release/dashboard revision/native version/policy/result here.
+- **Gate/safe stop:** First story owns complete proof; missing release/failed native proof stays pending, linked acceptance story required
+  before separate closure (ADR 0005). No release authority. Monitoring/workflow parity remains in existing story.
 
-## Verification, sizing and completion gates
+## Verification and delivery
 
-Each deterministic slice runs its named focused proof via
-`npx playwright test --config dashboard/playwright.config.ts <named specs>`.
-Keep the project's quiet-run contract; in this environment remove conflicting
-`NO_COLOR`/`FORCE_COLOR` variables as in the observed baseline. Resolve owned
-workspace dependencies before running the server fixtures.
+Deterministic slices: `npx playwright test --config dashboard/playwright.config.ts <named specs>` (paths under `dashboard/tests/`).
+Quiet-run contract: remove conflicting `NO_COLOR`/`FORCE_COLOR`; resolve checkout dependencies first.
+Run `npm run typecheck:dashboard` for shared request/session/host changes; after common test-support edits run affected
+launch/start/terminal/history together once. No repeated pure options rules/unrelated installer suite; CI adds no local gate.
+[Delivery](../../../.agents/skills/dough-execute-plan/references/wrap-up.md#deliver-the-change): independent refactor/affected proof,
+selective format, staged review, hook-owned lint, commit/publication and asynchronous CI repair; no independent hook-lint rerun.
+Necessary guidance changes use `src/skills` plus AGENTS behavior review, never installed-copy synchronization.
+Six slices: preparation success/retry combined in4; old6/7 became5/6; no completed slice replaced/resplit/sizing exception. No numeric budget; bound native scenario and return broader requirements to story. Slice1 records only; no implementation/final acceptance/closure.
 
-Run `npm run typecheck:dashboard` when shared request/session/host contracts
-change, since both server and page consume them. After edits to common server
-test support, run its affected launch/start/terminal/history journeys together
-once: fixture changes can invalidate those consumers. Do not multiply pure
-options-rule tests across hosts or require the unrelated installer/source
-suite merely because it exists. CI still owns its configured checks after
-publication; CI configuration alone adds no local gate.
+## Accepted slice 1 native proof (2026-09-30)
 
-When execution is authorized, use the installed
-[execution delivery gates](../../../.agents/skills/dough-execute-plan/references/wrap-up.md#deliver-the-change):
-post-change refactoring with affected-boundary proof, selective formatting,
-staged-change review and hook-owned lint before commit; own asynchronous CI
-repair after authorized publication. Do not independently rerun hook-owned
-lint. Planning now changes records only. Future source-guidance changes, if
-evidenced necessary, use `src/skills` and AGENTS.md behavior review; they do not
-authorize copying installed guidance.
+Fixture `/Users/terryyin/.codex/tmp/dough189-native-g8omnmqu/fixture`, actual `v0.3.51` installer, undecided reading-progress
+representation/finish seed; baseline supplied no expected answer/draft. `codex --version`: `0.157.0`; `codex login status`: ChatGPT.
+`codex app-server daemon start` discovered/started shared endpoint `unix:///Users/terryyin/.codex/app-server-control/app-server-control.sock`;
+initial runtime `0.157.1`, PID `53621`/parent `1`; preliminary `codex app-server proxy` JSONL gave no response/conversation.
+`node /Users/terryyin/.codex/tmp/dough189-native-g8omnmqu/rpc-probe.mjs /Users/terryyin/.codex/tmp/dough189-native-g8omnmqu`
+sent `thread/start` with fixture `cwd` only: effective `gpt-6.1-sol/high`, `never`, `dangerFullAccess`, no model/approval/sandbox/auth/trust overrides.
+Thread `01a0f2a3-18cf-75d0-bb35-d4bcc5354179`; `turn/start` sent
+`$dough-story-refinement .planning/seeds/SEED-001-reading-progress.md#let-me-record-reading-progress` plus native skill input naming released installed `SKILL.md`.
+Initial turn `01a0f2a3-6434-7e93-b573-8f9e1df31d38` accepted/active then failed after 1771ms: HTTP400 configured model unsupported
+for ChatGPT, `willRetry:false`; read preserved ID/cwd/instruction, fixture status/diff empty: failure, not useful refinement. Initial CLI showed hook review; no trust choice, owned CLI terminated after Ctrl-C could not leave modal; no other session stopped.
+Daemon independently updated to `0.159.2`, PID `16791`; probe invoked no update/restart/install. `model/list` now offered configured
+default/high; `thread/read(includeTurns:true)` retained failed conversation. This changed catalog justified same-conversation reassessment.
+`thread/resume` with only `threadId` retained defaults/auth/cwd; one contextual continuation of explicit failure, no duplicate first skill input/new thread.
+While turn `01a0f2ab-79f9-7383-98c1-b6105a562711` was active, ordinary CLI attached with this exact command:
 
-No project numeric slice target/hard limit was supplied. Each boundary owns one
-cohesive outcome/proof loop including implementation and cleanup; native waits
-are bounded by the named scenario, not an invented timing exception. The main
-effort risk is slice 1's runtime/continuation choice. If it reveals a broader
-product requirement, return to the story rather than commission it here.
+```text
+TERM=xterm-256color script -q /Users/terryyin/.codex/tmp/dough189-native-g8omnmqu/cli-current.log codex resume --remote unix:///Users/terryyin/.codex/app-server-control/app-server-control.sock --cd /Users/terryyin/.codex/tmp/dough189-native-g8omnmqu/fixture --no-alt-screen 01a0f2a3-18cf-75d0-bb35-d4bcc5354179
+```
 
-## Plan-refinement result
-
-Applied slice-plan refinement in the same plan: consolidated draft slices 4
-(preparation success) and 5 (kept-preparation retry) into current slice 4. The
-existing start already owns establishment and resumption together; the real
-failure/restart/retry journey proves both without a second host-specific rule
-or a separate proof-only increment. Old slices 6/7 are now 5/6, with proof
-mappings updated. Retained the other boundaries: native feasibility isolates
-transport risk; Structure immediately enables second-host launch; ordinary
-launch is useful before new preparation capability; uncertain native input
-needs a different reconciliation proof from a known refusal.
-
-Result: **6 slices**, no completed slice replaced, no numeric sizing exception,
-and no story-resplit recommendation. Cumulatively this extends one launch/start
-model with one native boundary. No remaining slice-boundary or speculative
-framework concern was identified. The released-installation dependency was
-subsequently satisfied as recorded below.
-
-## Remaining concerns and readiness
-
-Native transport remains deliberately probe-bounded; it is not already proven.
-The release dependency was freshly reassessed on 2026-09-30 against `v0.3.51`
-and the installed `.agents/skills/dough-story-refinement` copy on main. The tag's
-installer declares `scripts/established-preparation.mjs`,
-`references/established-preparation.md` and `references/refinement-options.json`.
-All three installed files match the tagged bytes. Parsing the installed options
-with the dashboard's `optionsDefinitionSchema` succeeds, including summaries;
-calling the installed formatter with representative preparation facts produces
-the expected workspace, agent and published-SHA handoff.
-
-The previous released-installation blocker is satisfied. Record **ready** on
-the reviewed current seed/plan digests: no blocking concern remains, and native
-feasibility is bounded by slice 1 before dependent implementation. This is
-planning readiness, not a claim that native acceptance or implementation passed.
-
-All statuses are todo. No implementation or native acceptance is claimed.
+TERM affected presentation only. CLI showed active instruction/commentary/skill reads. Read-only `Review hooks`, Esc closure enabled
+composer with no Trust/Trust all/Continue without trusting/disable/bypass or persisted trust. Guard matched `v0.3.51`; Active0/Review1.
+Native `native-protocol.jsonl` lines193/197 showed real progress-format/finish-preservation questions/completed turn; CLI answer chose paper/audio marker, preservation on finish and reading-status independence. Lines199–202 showed exact
+answer and same-thread active turn `01a0f2ad-771e-7a52-98ca-bf3c2d39e6f4`. Initiating RPC WebSocket closed during answer/draft;
+daemon/CLI continued, installed skill wrote afterward. `draft.diff`/actual fixture diff: 42 additions/1 removal, Goal/Scope/Key examples/
+Open decisions recording those choices. Native rollout `task_complete` `2026-09-30T14:19:21.924Z`, CLI final and completed turn agreed;
+`CommandExecution` reads/`apply_patch` proved activation/write separately from self-report. No approval requested under `never`.
+Coordinator inspected actual RPC inputs, initial protocol lines7/18/20–22/26–27, fixture AGENTS/seed/unchanged baseline, then
+questions/answer/installed reads/diff/final completion. Temporary `REPORT.md`, `native-protocol.jsonl`, `draft.diff` and rollout locations
+are under `/Users/terryyin/.codex/tmp/dough189-native-g8omnmqu`; distilled proof above remains here after ADR0005 spent-artifact removal.
+**Accepted:** defaults, active same-thread CLI, question/answer, useful draft and initiating-connection lifetime; not every client closure, structured-state completion or dashboard/preparation acceptance (slice6).
+**Separate skill limitation:** unqueued fixture recorder used `seeds/...`, not `.planning/seeds/...`, without backlog home; failed
+honestly/no state block. Draft/transport remain evidenced; slice6 must assess queued/published canonical preparation and skill behavior separately.
+Owned CLI/proxy/WebSockets closed after completion; shared daemon/history remain. No product code, final acceptance, retrospective or story closure claimed. Selected transport/settings/identity/lifetime constraints govern slices2–6.
