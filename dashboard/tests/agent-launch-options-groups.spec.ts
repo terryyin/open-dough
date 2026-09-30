@@ -163,7 +163,7 @@ for (const mode of ["dev", "preview"] as const) {
         defineWith([...groups], flags);
         // A selection the group alone would have allowed is refused too.
         const error = await refused([a]);
-        expect(error).toContain("options file is not valid");
+        expect(error).toContain("has an options file that is not valid");
       });
     }
   });

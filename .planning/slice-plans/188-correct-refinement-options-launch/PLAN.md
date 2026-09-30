@@ -133,7 +133,14 @@ the current tree in about 7 s, so the page journeys run locally.
 ### 2. One grammatical wording for unavailable options
 
 - **Type:** Behavior
-- **Status:** todo
+- **Status:** done
+- **Accepted proof:** `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-options-exclusive.spec.ts dashboard/tests/agent-launch-options-kept.spec.ts dashboard/tests/agent-launch-options-boundary.spec.ts dashboard/tests/agent-launch-options-groups.spec.ts`
+  passes (56), red first on the new strings. `unavailableOptionsWhy` in
+  `commandOptions.ts` owns the four predicates (typed `UnavailableOptionsWhy` at
+  `readDefinition`). The refactor split `agentLaunches.ts` into
+  `optionsOffer.ts` (`optionsOfferOf`, the page's no-definition case),
+  `launchAttempts.ts` and `launchRecordActions.ts`; all launch, session and
+  terminal page specs passed after it (358).
 - **Proof:** Change the four `why` values (owner in `commandOptions.ts`,
   consumed by `launchOptions.ts`, `agentLaunches.ts:405`), the dialog line in
   `StartLaunch.tsx` if its sentence needs no change beyond the new predicate,
@@ -217,3 +224,5 @@ the current tree in about 7 s, so the page journeys run locally.
 - Slice 1's refactor split the kept-selection tests into
   `agent-launch-options-kept.spec.ts` and moved the shared grouped fixture to
   `groupedOptions` in `launchCardPage.ts`; slice 4 runs that file too.
+- `agent-launch-options-boundary.spec.ts` is 259 lines after slice 2; slice 4's
+  planned cuts bring it under the 250-line limit.

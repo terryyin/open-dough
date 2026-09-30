@@ -19,11 +19,8 @@ import {
   type StartPhase,
   type LaunchWorkflow,
 } from "./agentLaunch.ts";
-import type {
-  LaunchAttempt,
-  LaunchWorkItem,
-  OptionsOffer,
-} from "./agentLaunches.ts";
+import type { LaunchAttempt, LaunchWorkItem } from "./launchAttempts.ts";
+import type { OptionsOffer } from "./optionsOffer.ts";
 import { LaunchDialog, useLaunchDialogLauncher } from "./LaunchDialog.tsx";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import "./agent-launch.css";

@@ -12,10 +12,11 @@ import {
 } from "../src/agentLaunch.ts";
 import {
   inDefinitionOrder,
-  noOptionsFileWhy,
   optionsDefinitionSchema,
   selectionProblems,
+  unavailableOptionsWhy,
   type OptionsDefinition,
+  type UnavailableOptionsWhy,
 } from "../src/commandOptions.ts";
 import { installedSkillPath } from "./claudeWorkspace.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -24,7 +25,7 @@ import type { ProjectFolder } from "./projectFolders.ts";
 // A project's installed definition, or why there is none to select from.
 export type ReadDefinition =
   | { readonly kind: "defined"; readonly definition: OptionsDefinition }
-  | { readonly kind: "unavailable"; readonly why: string };
+  | { readonly kind: "unavailable"; readonly why: UnavailableOptionsWhy };
 
 export async function readDefinition(
   project: ProjectFolder,
@@ -42,23 +43,23 @@ export async function readDefinition(
       kind: "unavailable",
       why:
         (error as NodeJS.ErrnoException).code === "ENOENT"
-          ? noOptionsFileWhy
-          : "options file could not be read",
+          ? unavailableOptionsWhy.missing
+          : unavailableOptionsWhy.unreadable,
     };
   }
   let json: unknown;
   try {
     json = JSON.parse(text);
   } catch {
-    return { kind: "unavailable", why: "options file is not valid" };
+    return { kind: "unavailable", why: unavailableOptionsWhy.invalid };
   }
   const parsed = optionsDefinitionSchema.safeParse(json);
   if (!parsed.success) {
-    return { kind: "unavailable", why: "options file is not valid" };
+    return { kind: "unavailable", why: unavailableOptionsWhy.invalid };
   }
   return parsed.data.command === skill
     ? { kind: "defined", definition: parsed.data }
-    : { kind: "unavailable", why: "options file defines another command" };
+    : { kind: "unavailable", why: unavailableOptionsWhy.otherCommand };
 }
 
 // The request with its selected flags in the definition's order, or the

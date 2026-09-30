@@ -113,7 +113,7 @@ const unavailable = [
     change: (file: string) => {
       writeFileSync(file, "{");
     },
-    line: "the installed dough-story-refinement skill in this project options file is not valid",
+    line: "the installed dough-story-refinement skill in this project has an options file that is not valid",
   },
   {
     name: "another command's options file",
@@ -123,7 +123,7 @@ const unavailable = [
         JSON.stringify({ ...groupedOptions, command: "other" }),
       );
     },
-    line: "the installed dough-story-refinement skill in this project options file defines another command",
+    line: "the installed dough-story-refinement skill in this project has an options file for another command",
   },
   {
     name: "a skill that is not installed",

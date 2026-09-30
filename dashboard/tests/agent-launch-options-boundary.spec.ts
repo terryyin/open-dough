@@ -200,11 +200,11 @@ for (const mode of ["dev", "preview"] as const) {
     }
 
     for (const [kind, text, why] of [
-      ["not JSON", "{", "options file is not valid"],
+      ["not JSON", "{", "has an options file that is not valid"],
       [
         "a duplicate flag",
         definitionOf(skill, "--a", "--a"),
-        "options file is not valid",
+        "has an options file that is not valid",
       ],
       [
         "an entry without an instruction",
@@ -212,12 +212,12 @@ for (const mode of ["dev", "preview"] as const) {
           command: skill,
           options: [{ flag: "--a", label: "A", summary: "A." }],
         }),
-        "options file is not valid",
+        "has an options file that is not valid",
       ],
       [
         "another command",
         definitionOf("dough-other", "--a"),
-        "options file defines another command",
+        "has an options file for another command",
       ],
     ] as const) {
       test(`refuses options when the definition is ${kind}, saying why`, async () => {
@@ -234,7 +234,7 @@ for (const mode of ["dev", "preview"] as const) {
         ...refinementRequest,
         options: [explored],
       });
-      expect(error).toContain("could not be read");
+      expect(error).toContain("has an options file that could not be read");
     });
 
     for (const [kind, body] of [
