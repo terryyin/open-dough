@@ -42,19 +42,18 @@ write_conflict() {
     > "$1"
 }
 
-assert_status() {
+assert_passes() {
   local file=$1
-  local expected=$2
-  local reason_snippet=$3
-  local response=${4-}
+  local reason_snippet=$2
+  local response=${3-}
 
   if [[ -n ${response} ]]; then
     native_journey_state_assess "${work_dir}/${file}" "${work_dir}/${response}"
   else
     native_journey_state_assess "${work_dir}/${file}"
   fi
-  if [[ ${native_journey_state_status} != "${expected}" ]]; then
-    echo "FAIL: ${file} expected ${expected}, got ${native_journey_state_status}." >&2
+  if [[ ${native_journey_state_status} != pass ]]; then
+    echo "FAIL: ${file} expected pass, got ${native_journey_state_status}." >&2
     printf 'reason: %s\n' "${native_journey_state_reason}" >&2
     cat "${work_dir}/${file}" >&2
     return 1
@@ -69,12 +68,12 @@ assess_with_conflict() {
 
 write_obs "${work_dir}/expected.txt"
 write_conflict "${work_dir}/valid-conflict.md"
-assert_status expected.txt pass 'expected real fixture update state'
-assert_status expected.txt pass 'named conflicting authorities and stopped' \
+assert_passes expected.txt 'expected real fixture update state'
+assert_passes expected.txt 'named conflicting authorities and stopped' \
   valid-conflict.md
 
 write_obs "${work_dir}/cursor-target.txt"
-assert_status cursor-target.txt pass 'expected real fixture update state'
+assert_passes cursor-target.txt 'expected real fixture update state'
 
 assessor="${source_dir}/tests/support/native-journey-state.sh"
 native_assessor_counterexamples "${assessor}" "${work_dir}/expected.txt" \

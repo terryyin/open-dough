@@ -21,6 +21,22 @@ stray_rejected_cases() {
     return 1
   fi
   [[ ${native_adr_behavior_status} == fail ]]
+  [[ ${git_publication_assess_status} != pass ]]
+  git_publication_assess obs.txt && {
+    echo 'FAIL: accepted' >&2
+    return 1
+  }
+  git_publication_assess obs.txt || rc=$?
+  [[ ${rc} -ne 0 ]]
+  if ! git_publication_assess obs.txt; then
+    :
+  else
+    echo 'FAIL: accepted' >&2
+  fi
+  assert_status fail 'stale target'
+  check_verdict inconclusive 'uncertain prose'
+  check_verdict \
+    pending 'held'
 }
 
 allowed_shapes() {
@@ -51,4 +67,5 @@ allowed_shapes() {
     || trunk_closure_owned_context_assess obs.txt || return 1
   [[ $(promise_accepted obs.txt) == false ]]
   native_assessor_rejects missing-remote remote-acceptance obs.txt fail
+  native_journey_state_assess obs.txt 'a stop pending resolution'
 }

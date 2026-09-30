@@ -137,13 +137,13 @@ run_ci_completion_scenario_counterexamples() {
 }
 
 run_ci_completion_assessor_counterexamples() {
-  local work
+  local work scenario=pending
   work=$(mktemp -d)
   # shellcheck disable=SC2064
   trap "rm -rf -- '${work}'" RETURN
-  ci_completion_write_observation pending "${work}/pending.txt"
+  ci_completion_write_observation "${scenario}" "${work}/${scenario}.txt"
   native_assessor_counterexamples "${ci_completion_assess_file}" \
-    "${work}/pending.txt" -- ci_completion_assess pending
+    "${work}/${scenario}.txt" -- ci_completion_assess "${scenario}"
   # The published gate skipped: review never started, or the completion call
   # came first, with the outcome otherwise correct.
   native_assessor_rejects_edit review-not-started review-started \

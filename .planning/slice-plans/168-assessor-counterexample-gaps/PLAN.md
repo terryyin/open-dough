@@ -251,7 +251,7 @@ repair was needed; a mutation of the `failure` verdict made
 
 ### 5. The guard names every remaining rejection shape
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh tests/native-assessor-counterexample-guard.sh tests/native-journey-state.sh tests/native-adr-behavior.sh tests/native-assessor-counterexamples.sh`
 green.
 
@@ -262,6 +262,13 @@ unflagged. The allowed shapes include a required-pass `if [[ status != pass ]];
 then FAIL`, `native_assessor_rejects* … fail`, and a quoted phrase containing
 "pending". Both `assert_status` functions become pass-only. The guard over the
 tree stays green.
+
+Done: the guard flags the four shapes and the generic wrapper rule, and the stray
+fixture and its expected list carry the seven new lines. Both `assert_status`
+functions are now pass-only `assert_passes`. Deviations: the awk runs as
+`LC_ALL=C awk` (macOS awk rejects multibyte text), `flag()` reports a line once,
+and `ci-completion-native-assess.sh` names its `pending` scenario in a local
+variable, since the wrapper rule read the scenario name as a verdict.
 
 ## Local gates
 
