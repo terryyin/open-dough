@@ -14,9 +14,11 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Start Codex refinement from the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#start-codex-refinement-from-dashboard) — SEED-052#start-codex-refinement-from-dashboard ([plan](slice-plans/189-start-codex-refinement-from-dashboard/PLAN.md))
+
 ## Backlog list
 
-- [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
+- [Complete Codex support for dashboard workflows and sessions](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
 - [Integrate Story Branch closures through an installed command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration) — SEED-008#installed-story-branch-integration
