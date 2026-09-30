@@ -2,7 +2,7 @@
 // a dashboard server launches in, checked out from it under a fake HOME: the
 // fixture for the specs that run the project's installed
 // `execution-start.mjs` for real (../agent-launch-start.spec.ts). The
-// project folder's `.claude/skills` are copies of this repository's own
+// project folder's selected skill installation is a copy of this repository's
 // source skills, committed like a project that installed them, so the real
 // script runs from the folder. The folder's `origin` is spelled as the
 // catalog repository and rewritten to the bare origin by Git's own
@@ -112,6 +112,7 @@ function writeQueuedStories(project: string): void {
 export async function startOrigin(
   repository = "terryyin/open-dough",
   projectId = "open-dough",
+  host: "claude" | "codex" = "claude",
 ): Promise<StartOrigin> {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-start-"));
   const origin = path.join(machine, "origin.git");
@@ -131,7 +132,12 @@ export async function startOrigin(
   for (const skill of installedSkills) {
     cpSync(
       path.join("src", "skills", skill),
-      path.join(project, ".claude", "skills", skill),
+      path.join(
+        project,
+        host === "claude" ? ".claude" : ".agents",
+        "skills",
+        skill,
+      ),
       { recursive: true },
     );
   }
@@ -168,7 +174,9 @@ export async function startOrigin(
     async takenByAnotherAgent(identity = queuedIdentity) {
       const scripts = path.join(
         project,
-        ".claude/skills/dough-execute-plan/scripts",
+        host === "claude"
+          ? ".claude/skills/dough-execute-plan/scripts"
+          : ".agents/skills/dough-execute-plan/scripts",
       );
       await exec(
         process.execPath,

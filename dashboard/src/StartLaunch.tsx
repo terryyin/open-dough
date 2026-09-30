@@ -1,5 +1,5 @@
 // A Backlog card's action to start one launch workflow: the developer asks
-// Claude Code to start a background session on this machine that runs the
+// the selected host to start a background session on this machine that runs the
 // workflow on the story, with an optional instruction of their own. Every word
 // comes from the workflow (`launchWorkflows`). A card the workflow notes
 // (execution: not marked Ready for execution; refinement: being prepared)
@@ -7,8 +7,8 @@
 // and the instruction can say what to do first. A failed or uncertain answer
 // stays on the card with the action. The dialog's mechanics, including the
 // keyboard's return to the action, belong to `LaunchDialog`. On a card whose
-// story this machine started without a session (`resumesIn`), the dialog says the start is already published and the session opens in the kept
-// workspace.
+// story this machine started without a session (`resumes`), the dialog names
+// the published claim's host/model and the session opens in its kept workspace.
 
 import { hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
@@ -16,6 +16,8 @@ import { useId, useRef, useState } from "react";
 import {
   launchWorkflows,
   startPhaseWords,
+  launchModels,
+  type KeptStart,
   type LaunchChoices,
   type StartPhase,
   type LaunchWorkflow,
@@ -71,7 +73,7 @@ export function StartLaunch({
   establishesStart: establishesForHost,
   options: optionsForHost,
   onHostChanged,
-  resumesIn,
+  resumes,
   note,
   attempt,
   phase,
@@ -90,9 +92,9 @@ export function StartLaunch({
     | OptionsOffer
     | undefined
     | ((host: AgentLaunchRequest["host"]) => OptionsOffer | undefined);
-  // The kept start's workspace, as the page shows it, when this Start resumes
+  // The kept claim's host/model and shown workspace when this Start resumes
   // a start whose claim or announcement is already published.
-  readonly resumesIn?: string;
+  readonly resumes?: KeptStart;
   // The workflow's note on this card, if any.
   readonly note: string | undefined;
   readonly attempt: LaunchAttempt | undefined;
@@ -102,7 +104,10 @@ export function StartLaunch({
   // Answers whether a session was launched, which then takes the keyboard.
   readonly onStart: (choices: LaunchChoices) => Promise<boolean>;
 }) {
-  const [host, setHost] = useState<AgentLaunchRequest["host"]>("claude");
+  const [selectedHost, setHost] =
+    useState<AgentLaunchRequest["host"]>("claude");
+  const host = resumes?.host ?? selectedHost;
+  const resumesIn = resumes?.workspace;
   const options =
     typeof optionsForHost === "function"
       ? optionsForHost(host)
@@ -118,7 +123,7 @@ export function StartLaunch({
     phase === undefined
       ? (establishes?.pending ??
         spec.pending.replace("Claude Code", hostName(host)))
-      : startPhaseWords(workflow, phase);
+      : startPhaseWords(workflow, phase).replace("Claude Code", hostName(host));
   const named = name.toLowerCase();
   const id = useId();
   const starting = attempt?.kind === "starting";
@@ -170,10 +175,14 @@ export function StartLaunch({
       {open && (
         <LaunchDialog
           host={host}
-          onHost={(next) => {
-            setHost(next);
-            onHostChanged?.();
-          }}
+          onHost={
+            resumes === undefined
+              ? (next) => {
+                  setHost(next);
+                  onHostChanged?.();
+                }
+              : undefined
+          }
           heading={`Start ${named} in ${hostName(host)}`}
           description={
             <>
@@ -186,6 +195,8 @@ export function StartLaunch({
               {resumesIn !== undefined
                 ? ` ${spec.establishes.published}`
                 : establishes !== undefined && ` ${establishes.sentence}`}
+              {resumes !== undefined &&
+                ` This start requested ${hostName(resumes.host)} with ${resumes.model === undefined ? "Default" : launchModels[resumes.model].name} model.`}
             </>
           }
           note={

@@ -11,40 +11,11 @@
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
-import { keptStarts } from "./agentLaunchBoundary.ts";
+import { keptStarts, recordsOf } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { expect, test as base } from "./dashboardTest.ts";
+import { expect, test } from "./support/preparationPage.ts";
 import { parts } from "./dashboardPage.ts";
-import {
-  builtDashboardDir,
-  startDashboardServer,
-} from "./support/dashboardServer.ts";
-import {
-  queuedIdentity,
-  startOrigin,
-  type StartOrigin,
-} from "./support/startOrigin.ts";
-
-const test = base.extend<{ origin: StartOrigin }>({
-  // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const origin = await startOrigin();
-    await use(origin);
-    origin.cleanup();
-  },
-  dashboard: async ({ github, origin }, use) => {
-    const server = await startDashboardServer({
-      mode: "preview",
-      prebuilt: builtDashboardDir,
-      github,
-      machine: origin.machine,
-      projectFolders: ["open-dough"],
-      launchTimeoutMs: 30_000,
-    });
-    await use(server);
-    await server.close();
-  },
-});
+import { queuedIdentity } from "./support/startOrigin.ts";
 
 const workspaceShown = "~/git/open-dough/.worktrees/story-a";
 const establishing = "Start also publishes";
@@ -75,12 +46,13 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
   await expect(dialog).toContainText(establishing);
   await page.keyboard.press("Escape");
 
-  // The first launch announces; `claude` refuses.
+  // The first launch announces with Opus; `claude` refuses.
   dashboard.claudeScenario("refused");
   await dialogOf(card);
+  await dialog.getByLabel("Model", { exact: true }).selectOption("opus");
   await dialog.getByRole("button", { name: "Start" }).click();
   await expect(card.locator(".launch-problem")).toContainText(
-    `Launch failed: Claude Code refused to start a session in ${workspaceShown}.`,
+    `Launch failed: Claude Code refused to start a session in ${workspaceShown} with model Opus.`,
   );
   expect(await keptStarts(dashboard)).toMatchObject([
     {
@@ -100,6 +72,9 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
     "This story's Preparing announcement is already published on origin, so Start publishes no second one.",
   );
   await expect(dialog).toContainText(`in workspace ${workspaceShown}`);
+  await expect(dialog).toContainText(
+    "This start requested Claude Code with Opus model.",
+  );
   await expect(dialog).not.toContainText(establishing);
   await page.keyboard.press("Escape");
   await dialogOf(otherCard);
@@ -110,6 +85,7 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
   // Start resumes: the session opens in the same workspace, one profile.
   dashboard.claudeScenario("launched");
   await dialogOf(card);
+  await dialog.getByLabel("Model", { exact: true }).selectOption("sonnet");
   await dialog.getByRole("button", { name: "Start" }).click();
   await expect(card.getByRole("list", { name: "Sessions" })).toContainText(
     `Workspace ${workspaceShown}`,
@@ -126,4 +102,9 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
   );
   expect(profiles).toHaveLength(1);
   expect(profiles[0]?.["activity"]).toBe("preparation");
+  expect(profiles[0]?.["model"]).toBe("opus");
+  expect(launches[1]?.argv).toContain("sonnet");
+  expect(await recordsOf(dashboard, "open-dough")).toMatchObject([
+    { request: { model: "sonnet" } },
+  ]);
 });

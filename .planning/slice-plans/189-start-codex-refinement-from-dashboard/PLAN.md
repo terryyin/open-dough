@@ -10,7 +10,7 @@
 - **Execution checkout:** `/Users/terryyin/git/open-dough/.worktrees/start-codex-refinement-from-dashboard`, branch `codex/start-codex-refinement-from-dashboard`.
 - **Starting revision:** `3a8b7c886a514730a6ec456ed757e7c11f446101`.
 - **Accepted Take/initial published base:** `a14fefc52826a6234745a88f61b2834c0f69f32e` on `origin/main` and execution branch; maintenance advanced; trunk claim CI unobserved.
-- **Increment target:** `origin`, `refs/heads/codex/start-codex-refinement-from-dashboard`; latest accepted increment `1f72925b3553e44d0828ab22818d63e438af3fa5` (slice2); recovered observation, zero repeat pushes.
+- **Increment target:** `origin`, `refs/heads/codex/start-codex-refinement-from-dashboard`; latest accepted increment `bb059178fa4e5314fa0f566541e4fae3f6cd12bd` (slice3); observer reused.
 - **Checkout setup:** `npm ci --silent` and `npm run typecheck:dashboard` passed against this checkout's committed lockfile.
 - **Hook:** At startup `core.hooksPath` unset, `.git/hooks/pre-commit` absent. During probe external config changed to `.githooks`; resolved `.githooks/pre-commit` absent here, so current hook contract remains absent.
 - **Formatting/budget:** Prettier/ESLint/shfmt select owned paths; planning Markdown excluded. No numeric slice target/hard limit; retain necessary in-place planning authority.
@@ -68,7 +68,7 @@ errors and durable evidence; native runtime owns execution. HTTP/browser detach 
 proved native lifetime and leaves recovery evidence. Spawn cannot prove survival; native idle cannot prove story completion.
 
 - Keep existing machine locations; old Claude records retain native identity; old confirmed records decode as confirmed.
-  Missing host in predecessor kept starts/action requests means Claude; new starts retain host/requested model, including retry.
+  Missing predecessor host means Claude; kept starts retain claim host/model. Per North Star Agent, retry session model may differ and is recorded as requested.
 - Identity is host + opaque conversation ID; one helper serves page keys/merge/focus, stores and action lookup. Keep actual ID for
   commands; no fabricated Claude `shortId` or substitution of app-server `sessionId`. Prove equal IDs across hosts remain distinct.
 - First-input acceptance confirms launch; thread creation alone does not. Persist identity before submission and acceptance afterward;
@@ -95,7 +95,7 @@ host switch follows its visible selection rule, never silently drops flags. Rech
 Release reassessment on 2026-09-30: `v0.3.51` installer declares `.agents/skills/dough-story-refinement`'s
 `scripts/established-preparation.mjs`, `references/established-preparation.md`, `references/refinement-options.json`;
 installed main files match tagged bytes. `optionsDefinitionSchema` parses summaries; installed formatter produces representative
-workspace/agent/published-SHA handoff. Dependency satisfied; seed/plan readiness **ready**, not implementation/native acceptance. Slices1–3 proof accepted; slices4–6 pending.
+workspace/agent/published-SHA handoff. Dependency satisfied; seed/plan readiness **ready**, not implementation/native acceptance. Slices1–4 proof accepted; slices5–6 pending.
 
 ## Outside-in proof ownership
 
@@ -162,18 +162,17 @@ Accepted: Coordinator inspected actual page/RPC/store/CLI assertions and protoco
 ### 4. Establish and resume Codex preparation in the shared workspace
 
 Type: Behavior
-Status: planned
+Status: done
 - **Trigger:** `.agents` supports script/formatter; choose Codex/options/Start; native refusal, restart, resolve/retry.
 - **Result/work:** One published Codex Preparing assignment/shared `.worktrees` workspace on `codex/<slug>` supplies CWD/handoff;
-  retained host/model/assignment/workspace/branch survives restart. Retry resumes preparation, hands off once; durable launch record
+  retained claim host/model/assignment/workspace/branch survives restart; session requested model may differ (North Star Agent). Retry resumes preparation, hands off once; durable launch record
   carries established facts before kept start removal. Missing predecessor host means Claude. Generalize workspace/collision/start
   callers, pass native/retained host to installed script, consume selected formatter; backward-compatible store/capability/retry schema.
-Proof: Reuse `agent-launch-preparation-kept.spec.ts` real-origin page journey with candidate `.agents` and Codex substitute;
-  assert profile/assignment/workspace/native-call counts, branch/CWD/options/handoff across refusal/restart/retry. Extend direct spec only
-  beyond page reach; decode predecessor starts and preserve interrupted/slow preparation via `agent-launch-preparation-resume.spec.ts`.
-  Run `agent-launch-preparation-start.spec.ts`, `agent-launch-preparation-kept.spec.ts`, `agent-launch-preparation-resume.spec.ts`,
-  `agent-launch-start.spec.ts`, `agent-launch-start-resume.spec.ts` (Claude refinement/execution share contract); preserve/adapt
-  `launch-workspace.spec.ts` slug collisions including `codex/`. Source fixture is candidate proof only; document recovery in guide.
+Proof: `npm run typecheck:dashboard` exit0; `env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-preparation-start.spec.ts dashboard/tests/agent-launch-preparation-kept.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-preparation-resume.spec.ts dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-start-resume.spec.ts dashboard/tests/launch-workspace.spec.ts dashboard/tests/start-store.spec.ts dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-codex-options.spec.ts dashboard/tests/agent-launch-codex-lifetime.spec.ts dashboard/tests/agent-launch-codex-recovery.spec.ts` exit0/empty (PTY51946).
+  Introduced post-publication EACCES reproduced (PTY5200); awaited tolerant recording repaired it. `env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-preparation-store-failure.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-preparation-resume.spec.ts --workers=1` exit0/empty (PTY2012); ENOSPC run excluded, owned cleanup/serial run resolved verification. Final typecheck exit0 (PTY23230).
+Accepted: Coordinator inspected actual page/RPC/store/Git assertions: one Codex profile/publication/allocation/workspace, own options and installed handoff once, refused creation/no input, same-page and restarted retained host, one successful input/record, preparation copied before input then kept-start removal; forged host invokes no Claude. Hostless JSON decodes without quarantine; real cross-host branch/folder collisions share numbering.
+  North Star Agent preserved: claim Opus survives while Claude session requests/records Sonnet; Codex Default. Read-only post-receive store fault preserves published handoff/write-ahead facts; expired wait settles/no unhandled rejection, restored writes allow same-profile/SHA retry. Launch-record writes remain mandatory.
+  Independent refactor consolidated host invariant at both admission/workspace gates; `npm run typecheck:dashboard && env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-start-resume.spec.ts --workers=1` exit0 (PTY40588), other proof unchanged. Selective ESLint/Prettier and diff check pass; files ≤250 lines. Candidate-script proof only; native6 pending.
 - **Safe stop:** Success/recovery share one start model; retry creates no extra preparation or implicit host change.
 
 ### 5. Recover uncertain first input against the known conversation

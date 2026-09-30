@@ -149,6 +149,13 @@ export const launchCodex: LaunchHost["launch"] = async (
         explanation: `Codex conversation ${session.sessionId} ${persisted ? "is kept for recovery" : "could not be saved in the dashboard; retain its continuation for recovery"}. ${submitted ? "Its first input is not confirmed; do not resend it blindly." : "No first input was submitted."} Continue with \`${shellCommand(session.continuation?.args ?? [])}\`.`,
       };
     }
+    if (error instanceof NativeRefusal)
+      return {
+        kind: "failed",
+        reason: "refused",
+        explanation:
+          "Codex refused to create a conversation. No first input was submitted.",
+      };
     const missing = (error as NodeJS.ErrnoException).code === "ENOENT";
     return missing
       ? {

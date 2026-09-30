@@ -184,6 +184,9 @@ export function useAgentLaunches(): MachineSessions {
                   kept.identity !== request.identity,
               ),
       }));
+      // A failed/uncertain launch may have established a kept start or native
+      // conversation. Promptly request a read of that durable evidence.
+      if (record === undefined) setRequested((value) => value + 1);
     },
     [],
   );

@@ -1,6 +1,6 @@
 // The start a refinement launch runs before its session: the project's own
 // installed `preparation-assignment.mjs start`
-// (`.claude/skills/dough-story-refinement`), which fetches trunk, creates the
+// in the selected host's skill installation, which fetches trunk, creates the
 // workspace, and publishes the Preparing announcement, run as a subprocess and
 // never reimplemented here. This module is the only place its argument array
 // is spelled (its one-line JSON result is read in `./preparationResult.ts`).
@@ -38,7 +38,12 @@ import {
 } from "./startLaunch.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 import { record } from "./startRecording.ts";
-import { keepStart, keptStart, removeStart } from "./startStore.ts";
+import {
+  keepStart,
+  keptStart,
+  removeStart,
+  updateStart,
+} from "./startStore.ts";
 
 const refinementSkill = "dough-story-refinement";
 const startScript = "preparation-assignment.mjs";
@@ -116,6 +121,7 @@ async function runningPreparation(
   await keepStart(
     source.id,
     {
+      ...kept,
       host: request.host,
       identity: request.identity,
       workspace: workspace.path,
@@ -149,20 +155,22 @@ async function runningPreparation(
   ).then(async (result): Promise<StartAttempt> => {
     if (result.kind === "established") {
       progress.set(source.id, request.identity, "launching");
-      return {
-        kind: "established",
-        preparation: {
-          identity: request.identity,
-          workspace: workspace.path,
-          branch,
-          remote: "origin",
-          target: source.ref,
-          agent: result.agent,
-          ...(result.publishedSha === undefined
-            ? {}
-            : { publishedSha: result.publishedSha }),
-        },
+      const preparation: EstablishedPreparation = {
+        ...kept?.preparation,
+        identity: request.identity,
+        workspace: workspace.path,
+        branch,
+        remote: "origin",
+        target: source.ref,
+        agent: result.agent,
+        ...(result.publishedSha === undefined
+          ? {}
+          : { publishedSha: result.publishedSha }),
       };
+      await record(() =>
+        updateStart(source.id, request.identity, { preparation }, workflow),
+      );
+      return { kind: "established", preparation };
     }
     progress.clear(source.id, request.identity);
     if (keepsPreparation(result)) {

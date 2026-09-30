@@ -69,7 +69,7 @@ export function CardLaunches({
           workflow="execution"
           establishesStart
           options={undefined}
-          resumesIn={keptStart.workspace}
+          resumes={keptStart}
           note={keptStartNote}
           attempt={launches.attemptOf(sourceId, entry.identity, "execution")}
           phase={phase}
@@ -93,7 +93,7 @@ export function CardLaunches({
             }
             options={(host) => launches.optionsOffer(sourceId, workflow, host)}
             {...(workflow === "refinement" && keptPreparation !== undefined
-              ? { resumesIn: keptPreparation.workspace }
+              ? { resumes: keptPreparation }
               : {})}
             note={
               workflow === "refinement" && keptPreparation !== undefined

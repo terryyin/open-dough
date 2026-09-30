@@ -83,6 +83,7 @@ contains `$<skill> <identity> <flags>`, the installed handoff and optional
 instruction, plus native skill input identifying the selected workspace's
 `.agents/skills/<skill>/SKILL.md`. Ad hoc sends only its optional text.
 
+An explicit native creation refusal submits no input and keeps preparation.
 Thread creation is not launch confirmation. First-input evidence is awaiting
 before submission, uncertain before acknowledgment, and confirmed only after
 native acceptance; confirmed evidence retains the turn ID. Predecessor Claude
@@ -145,8 +146,10 @@ and publication; refusals name origin's owner when readable.
 `execution-starts.json` and `refinement-starts.json` beside launch records retain
 one start per project/story/workflow before the script runs: host, selected
 model, workspace, branch, time, and execution publisher. Missing predecessor
-host means Claude. Retry preserves that choice; another selected host is
-refused. Execution records retain established start or recovery SHAs; refinement
+host means Claude. Retry preserves the claim host/model; another host is refused.
+A kept-start dialog names that context and resumes with its host. Claude may
+request a different session model, recorded separately from the claim model.
+Execution records retain established start or recovery SHAs; refinement
 retains its preparation. A stopped start that could have committed/published,
 or gave no readable result, is retained with workspace/branch and recovery.
 A stop that made no assignment removes its record; refinement also removes

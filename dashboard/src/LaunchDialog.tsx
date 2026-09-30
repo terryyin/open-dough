@@ -85,7 +85,7 @@ export function LaunchDialog({
   onClose,
 }: {
   readonly host?: AgentLaunchRequest["host"];
-  readonly onHost?: (host: AgentLaunchRequest["host"]) => void;
+  readonly onHost?: ((host: AgentLaunchRequest["host"]) => void) | undefined;
   readonly heading: string;
   readonly description: ReactNode;
   readonly note?: ReactNode;
@@ -164,6 +164,7 @@ export function LaunchDialog({
         <select
           id={`${id}-host`}
           value={host}
+          disabled={onHost === undefined}
           onChange={(event) => {
             onHost?.(event.target.value as AgentLaunchRequest["host"]);
             setModel("");

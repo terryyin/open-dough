@@ -13,6 +13,7 @@ export type FakeCodex = {
   readonly sockets: Set<WebSocket>;
   threadId: string;
   hold: boolean;
+  refuseCreation: boolean;
   afterAcceptance: "continue" | "complete" | "disconnect";
   beforeInput?: () => void;
   release(): void;
@@ -43,6 +44,7 @@ export async function installFakeCodex(
     sockets,
     threadId: "native-thread-id",
     hold: false,
+    refuseCreation: false,
     afterAcceptance: "continue",
     release() {
       for (const done of waiting.splice(0)) done();
@@ -89,7 +91,14 @@ export async function installFakeCodex(
           reply({ userAgent: "native-substitute" });
           break;
         case "thread/start":
-          reply({ thread: { id: fixture.threadId } });
+          if (fixture.refuseCreation)
+            client.send(
+              JSON.stringify({
+                id: message.id,
+                error: { code: -32000, message: "Native creation refused." },
+              }),
+            );
+          else reply({ thread: { id: fixture.threadId } });
           break;
         case "turn/start": {
           fixture.beforeInput?.();

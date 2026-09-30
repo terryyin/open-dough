@@ -21,6 +21,7 @@ import { sessionHostSchema } from "../src/sessionReference.ts";
 import { z } from "zod";
 import {
   establishedStartSchema,
+  establishedPreparationSchema,
   launchModelAliases,
   type LaunchWorkflow,
 } from "../src/agentLaunch.ts";
@@ -44,6 +45,7 @@ export const startRecordSchema = z.object({
   candidateSha: z.string().min(1).optional(),
   // The script's accepted result, once it reported one.
   start: establishedStartSchema.optional(),
+  preparation: establishedPreparationSchema.optional(),
 });
 
 export type StartRecord = z.infer<typeof startRecordSchema>;

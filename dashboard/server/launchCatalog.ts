@@ -87,15 +87,17 @@ export async function keptStarts(
         )
         .map((start) => ({
           workflow,
+          host: start.host,
+          ...(start.model === undefined ? {} : { model: start.model }),
           source: source.id,
           identity: start.identity,
           workspace: shownWorkspace(
             projectFolder(source),
             path.basename(start.workspace),
           ),
-          ...(start.start?.agent === undefined
+          ...((start.start ?? start.preparation)?.agent === undefined
             ? {}
-            : { agent: start.start.agent }),
+            : { agent: (start.start ?? start.preparation)?.agent }),
         })),
     ),
   );

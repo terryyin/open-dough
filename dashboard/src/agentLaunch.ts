@@ -15,6 +15,7 @@ import { sessionShown } from "./sessionShown.ts";
 import {
   launchSubject,
   launchWorkflowNames,
+  launchModelAliases,
   startPhases,
 } from "./launchWorkflow.ts";
 import {
@@ -122,6 +123,8 @@ export type Alerts = z.infer<typeof alertsSchema>;
 // workspace as the page shows a project's folders, and the Agent the start's
 // claim names when it reported one.
 export const keptStartSchema = z.object({
+  host: sessionHostSchema.default("claude"),
+  model: z.enum(launchModelAliases).optional(),
   workflow: z.enum(launchWorkflowNames),
   source: z.string().min(1),
   identity: z.string().min(1),

@@ -4,9 +4,10 @@ import type { AgentLaunchRequest, LaunchResult } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { EstablishedLaunch } from "./hostLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
-import type { Established } from "./startLaunch.ts";
+import { requireStartHost, type Established } from "./startLaunch.ts";
 import type { StartProgress } from "./startProgress.ts";
 import { startOf, type StartWorkflow } from "./startWorkflows.ts";
+import { keptStart } from "./startStore.ts";
 
 const defaultStartWaitMs = 120_000;
 
@@ -55,6 +56,8 @@ export async function started(
   if (workflow === undefined) {
     return { kind: "none" };
   }
+  const kept = await keptStart(source.id, request.identity, request.workflow);
+  requireStartHost(request.host, kept);
   const scoped = progress.for(request.workflow);
   const planned = await workflow.begin(source, request, folder, scoped);
   if (planned.kind === "not-applicable") {

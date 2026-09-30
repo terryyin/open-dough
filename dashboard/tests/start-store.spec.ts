@@ -2,7 +2,14 @@
 // script, updated with what it reports, one per story, removed when done, and
 // the arguments a resume passes back to the script.
 
-import { mkdtempSync, rmSync } from "node:fs";
+import {
+  mkdtempSync,
+  rmSync,
+  mkdirSync,
+  writeFileSync,
+  readFileSync,
+  readdirSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
@@ -102,4 +109,38 @@ test("resumes a retained claim commit only with both SHAs and no result reported
     "bbb",
   ]);
   expect(resumeArguments({ ...retained, start })).toEqual([]);
+});
+
+test("a predecessor hostless file decodes as Claude without quarantine and keeps its claim model", async () => {
+  const directory = path.join(home, ".open-dough/dashboard");
+  mkdirSync(directory, { recursive: true });
+  const file = path.join(directory, "refinement-starts.json");
+  const predecessor = Object.fromEntries(
+    Object.entries(written).filter(([key]) => key !== "host"),
+  );
+  writeFileSync(
+    file,
+    JSON.stringify({ "open-dough": { [written.identity]: predecessor } }),
+  );
+  expect(await keptStart("open-dough", written.identity, "refinement")).toEqual(
+    written,
+  );
+  await updateStart(
+    "open-dough",
+    written.identity,
+    { candidateSha: "bbb" },
+    "refinement",
+  );
+  expect(await keptStart("open-dough", written.identity, "refinement")).toEqual(
+    { ...written, candidateSha: "bbb" },
+  );
+  expect(readdirSync(directory)).toEqual(["refinement-starts.json"]);
+  const stored = JSON.parse(readFileSync(file, "utf8")) as Record<
+    string,
+    Record<string, StartRecord>
+  >;
+  expect(stored["open-dough"]?.[written.identity]).toMatchObject({
+    host: "claude",
+    model: "opus",
+  });
 });

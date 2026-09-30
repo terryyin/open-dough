@@ -78,18 +78,28 @@ function keptChoice(
   };
 }
 
-// Where a start goes on: a kept start's workspace, branch and model as they
-// were, else a new workspace by the host's convention and the requested model.
+// A kept claim cannot be reassigned to another host, including when that host
+// would otherwise fall back to a plain launch without an installed start.
+export function requireStartHost(
+  host: StoryLaunchRequest["host"],
+  kept: StartRecord | undefined,
+): void {
+  if (kept !== undefined && kept.host !== host) {
+    throw new RefusedRequest(
+      400,
+      `This kept start belongs to ${kept.host}; resume it with that host.`,
+    );
+  }
+}
+
+// Where a start goes on: a kept start's workspace, branch and claim model as
+// they were, else a shared workspace choice and the requested claim model.
 export async function startChoice(
   project: ProjectFolder,
   request: StoryLaunchRequest,
   kept: StartRecord | undefined,
 ): Promise<WorkspaceChoice & { readonly model: StartRecord["model"] }> {
-  if (kept !== undefined && kept.host !== request.host)
-    throw new RefusedRequest(
-      400,
-      `This kept start belongs to ${kept.host}; resume it with that host.`,
-    );
+  requireStartHost(request.host, kept);
   return kept === undefined
     ? {
         ...launchWorkspace(
