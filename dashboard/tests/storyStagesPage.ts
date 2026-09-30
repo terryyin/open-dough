@@ -29,12 +29,14 @@ export async function openStoryStagesJourney(
   const doughnut = await publishMovingOrigin(page, doughnutRepository);
   doughnut.push(revisionDoughnut, doughnutBacklog, {});
   await page.goto("/");
-  const { backlog, source, refresh } = parts(page);
+  const { stages, backlog, source, refresh } = parts(page);
   const card = (title: string) => backlog.getByRole("article", { name: title });
   const action = (title: string, workflow: Workflow) =>
     card(title).getByRole("button", { name: `Start ${workflow}` });
-  // Every card's preparation facts are read.
+  // Every card's preparation facts are read. Cards come first: until they are
+  // shown (as just after a reload), no card says it is still reading.
   const settled = async () => {
+    await expect(stages.getByRole("article").first()).toBeVisible();
     await expect(page.getByText("Reading preparation…")).toHaveCount(0);
   };
   return {

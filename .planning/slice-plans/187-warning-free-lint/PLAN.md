@@ -107,6 +107,12 @@ new job about 2 s, left to CI.
 
 - A fixture that symlinks `node_modules` must exclude it separately:
   `.gitignore`'s `node_modules/` matches directories only.
+- CI repair (run 36712853079, dashboard 1/2, on `96838533`): the dashboard
+  helper `settled()` passed right after `page.reload()`, before any card
+  rendered, so `agent-launch-card-delete.spec.ts` measured a card before a
+  card above it grew. The helper now waits for a card first. Proof: a
+  route-delay reproduction failed with CI's exact values without the fix;
+  `--repeat-each=10` and all 18 `openStoryStagesJourney` specs pass with it.
 
 ## Execution complete
 
