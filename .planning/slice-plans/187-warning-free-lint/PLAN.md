@@ -78,7 +78,7 @@ and Prettier would still differ).
 ### 1. Lint checks only what Git would track
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `tests/support/lint-file-set.test.mjs` (fixture above; clean,
 worktree, untracked-violation, and repeat cases), run with
 `bash scripts/test.sh tests/support/lint-file-set.test.mjs`; then
@@ -95,6 +95,15 @@ extension-filtered subsets in both check and fix modes, per Current decisions.
 The test adds one short job; read the baseline with
 `bash scripts/ci-test-times.sh` before pushing, per `tests/time-budget.md`.
 
+Accepted proof: `bash scripts/test.sh tests/support/lint-file-set.test.mjs`
+(three tests: ignored nested bundle with a repeat run, real worktree, untracked
+violation; fails against the previous runner); `npm run format`, then
+`npm run lint` twice with an ignored `dashboard/dashboard/dist/assets/x.js` and
+`.worktrees/probe/src/bad.mjs` holding `var`: exit 0, identical output, no
+warning or error. `bash scripts/ci-test-times.sh`: share 1 thin (430 of 470),
+new job about 2 s, left to CI.
+
 ## Learnings
 
-None yet.
+- A fixture that symlinks `node_modules` must exclude it separately:
+  `.gitignore`'s `node_modules/` matches directories only.
