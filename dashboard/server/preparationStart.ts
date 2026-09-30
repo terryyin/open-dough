@@ -17,6 +17,7 @@ import type {
   StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { beforeStart, removeCreatedWorkspace } from "./preparationCleanup.ts";
 import { claudeWorkspace } from "./claudeWorkspace.ts";
 import {
   preparationRefusal,
@@ -102,6 +103,7 @@ async function runningPreparation(
     request.title,
     await takenSlugs(project),
   );
+  const before = await beforeStart(project, workspace.path, branch);
   const attempt = runScript(
     [
       "--integration",
@@ -122,7 +124,7 @@ async function runningPreparation(
       ...(request.model === undefined ? [] : ["--model", request.model]),
     ],
     project,
-  ).then((result): StartAttempt => {
+  ).then(async (result): Promise<StartAttempt> => {
     if (result.kind === "established" && result.publishedSha !== undefined) {
       progress.set(source.id, request.identity, "launching");
       return {
@@ -138,18 +140,24 @@ async function runningPreparation(
         },
       };
     }
+    // A stop that made no assignment leaves nothing behind. Slice 7 keeps the
+    // start instead for `unpublished` and an unreadable result.
     progress.clear(source.id, request.identity);
+    const stop =
+      result.kind === "established"
+        ? ({
+            kind: "stopped",
+            status: "continued",
+            error: "the workspace already held this assignment",
+          } as const)
+        : result;
+    const leftBehind =
+      result.kind === "stopped" && result.status !== "unpublished"
+        ? await removeCreatedWorkspace(project, workspace.path, branch, before)
+        : "";
     return {
       kind: "refused",
-      explanation: preparationRefusal(
-        result.kind === "established"
-          ? {
-              kind: "stopped",
-              status: "continued",
-              error: "the workspace already held this assignment",
-            }
-          : result,
-      ),
+      explanation: preparationRefusal(stop, leftBehind),
     };
   });
   return { kind: "running", workspace, branch, attempt };

@@ -176,8 +176,9 @@ origin shows the assignment, from any page. Other projects keep today's words.
 
 ### 6. A stopped preparation start refuses the launch with its reason
 Type: Behavior
-Status: planned
+Status: done
 Proof: boundary specs for `not-queued`, `agent-unavailable` (all names held, listing them), `workspace-selection-failed`; a reader spec for the rest of the status table.
+Accepted: `agent-launch-preparation-stops.spec.ts` (not-queued, agent-unavailable listing every holder, workspace-selection-failed: answer wording, no `claude` launch, no running start, no profile, and no workspace, branch, or worktree left) and `preparation-start-result.spec.ts` (every status in the table, `continued` without `publishedSha`); typecheck and lint clean; regression 242 passed. A stop that made no assignment removes the workspace and branch this launch created (key example 2); `unpublished` and unreadable results are left for slice 7.
 
 Behavior: the start stops → "Launch failed:" plus the reason worded by one
 table in the preparation result reader, `Nothing was launched.`; a stop that made
@@ -217,6 +218,9 @@ offer. `keptStarts` carries the workflow.
 
 ## Learnings
 
+- Slice 6: `preparationStart.ts` turns an established result without `publishedSha` (a `continued` answer) into a stop; slice 7's resume must treat it as established and carry `publishedSha` optionally (the record schema already allows it). The cleanup's failure wording has no test.
+- `agent-launch-card-delete.spec.ts:51` failed a second time locally under a full parallel selection (slice 6); still passes isolated and CI is green on every published revision. Open finding for a separate story, not this one's scope.
+- `@typescript-eslint/no-unused-vars` rejects `_`-prefixed callback parameters here. A Playwright/build run once left git-ignored `dashboard/dashboard/dist`, which ESLint lints locally; removed.
 - Slice 5: the running-start answer now carries `workflow`, so slices 6-8 read it instead of re-deriving it.
 - Slice 4: the page-side `launchRecordsSchema` does not yet read `establishingPreparation` (zod strips it); slice 5 adds it with the initial state and builders in `dashboard/src/agentLaunches.ts`. `AGENT-LAUNCH.md`'s refinement paragraph needs extending by slices 5-7.
 - CI lint (`no-unsafe-member-access`) failed slice 3's spec; repaired in a9623112. Run `node scripts/lint.mjs` on the tree before committing, since the local commit hook did not catch it.
