@@ -276,11 +276,16 @@ and stays.
 
 ### 9. Product-backlog native cases share one failure-evidence cleanup
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/product-backlog-native.sh` default mode; a credential-free check
 of the shared helper's two outcomes (success removes the directory, failure
 prints `PRESERVED:` and keeps it), since no free check reaches the failure path
 today.
+
+Done: `product-backlog-native-evidence.sh` holds `product_backlog_native_cleanup`;
+the two outcomes are checked in `tests/native-runner-failures.sh`. Learning: a
+similar cleanup in `tests/dough-adr-awareness-claude-delivery-to-use.sh` belongs
+to another family and is unchanged. Free proof and lint pass.
 
 One helper replaces the five copies; each case passes its label and evidence file
 prefix.

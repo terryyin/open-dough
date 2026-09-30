@@ -45,20 +45,8 @@ use_commit_all() {
 }
 
 use_native_cleanup() {
-  local status=$?
-  local output
-  if [[ ${status} -eq 0 ]]; then
-    rm -rf -- "${temporary_dir}"
-    return
-  fi
-  printf '\nFAIL: preserving native %s installed-workflow-use evidence after status %s.\n' \
-    "${use_host_name}" "${status}" >&2
-  for output in "${temporary_dir}"/native-use-*; do
-    [[ -f ${output} ]] || continue
-    printf '%s\n' "--- $(basename -- "${output}") ---" >&2
-    cat "${output}" >&2
-  done
-  printf 'PRESERVED: %s\n' "${temporary_dir}" >&2
+  product_backlog_native_cleanup "$?" "${use_host_name} installed-workflow-use" 'native-use-*' \
+    "${temporary_dir}"
 }
 
 use_run_native() {
