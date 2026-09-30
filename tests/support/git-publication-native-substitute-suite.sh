@@ -24,6 +24,7 @@ prepare_substitute_hosts() {
     chmod a+x "${sentinel_bin}/${host}"
   done
   cp -- "${source_dir}/tests/support/native-agent-admission.sh" \
+    "${source_dir}/tests/support/native-agent-land-default.sh" \
     "${source_dir}/tests/support/native-agent-one-shot.sh" \
     "${source_dir}/tests/support/native-agent-one-shot-escalation.sh" \
     "${source_dir}/tests/support/native-agent-owned-context.sh" \
@@ -144,6 +145,10 @@ run_substitute_host_journeys() {
     fi
     substitute_run_passes "journey-${journey}" "${journey_host}" "${journey}"
   done
+
+  substitute_run_passes journey-land-default-checkout claude land-default-checkout
+  run_land_default_assessor_counterexamples \
+    "${work}/journey-land-default-checkout.txt"
 
   run_substitute_admission_journeys
 }

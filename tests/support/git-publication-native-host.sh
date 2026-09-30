@@ -141,6 +141,7 @@ native_case_known() {
       publication/one-shot-result | publication/one-shot-queued | \
       publication/one-shot-escalation | \
       publication/startup-owned-context | publication/preparation-land | \
+      publication/land-default-checkout | \
       story-branch-increment | \
       execution-review/pending | execution-review/ready | \
       execution-review/failure | execution-review/skip-retro)

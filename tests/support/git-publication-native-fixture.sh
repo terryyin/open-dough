@@ -40,14 +40,16 @@ git_publication_fixture_capture_human() {
   }
 }
 
-git_publication_fixture_create_publish_boundary() {
+# Builds a bare origin and an integration checkout on main holding the base
+# trunk commit, under parent $1, and sets the fixture root, origin,
+# integration and trunk-sha globals.
+git_publication_fixture_create_trunk_pair() {
   local parent=${1:-${TMPDIR:-/tmp}}
   local root
   root=$(mktemp -d "${parent}/git-pub-native.XXXXXX")
   git_publication_fixture_root=${root}
   git_publication_fixture_origin="${root}/remote.git"
   git_publication_fixture_integration="${root}/integration"
-  git_publication_fixture_workspace="${root}/owned"
 
   git init --bare -b main "${git_publication_fixture_origin}" > /dev/null
   git init -b main "${git_publication_fixture_integration}" > /dev/null
@@ -63,6 +65,11 @@ git_publication_fixture_create_publish_boundary() {
   git_publication_fixture_trunk_sha=$(
     git -C "${git_publication_fixture_integration}" rev-parse HEAD
   )
+}
+
+git_publication_fixture_create_publish_boundary() {
+  git_publication_fixture_create_trunk_pair "$@"
+  git_publication_fixture_workspace="${git_publication_fixture_root}/owned"
 
   git -C "${git_publication_fixture_origin}" clone --quiet \
     "${git_publication_fixture_origin}" "${git_publication_fixture_workspace}"

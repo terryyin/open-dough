@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Land changes made on the default checkout by committing to main and syncing](seeds/SEED-008-worktree-branch-trunk-sync.md#land-from-default-checkout) — SEED-008#land-from-default-checkout ([plan](slice-plans/170-land-from-default-checkout/PLAN.md))
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation ([plan](slice-plans/178-script-execution-preparation/PLAN.md))
 - [Scan sessions quickly in a compact sidebar that surfaces those needing attention](seeds/SEED-062-compact-session-sidebar.md#compact-session-sidebar) — SEED-062#compact-session-sidebar ([plan](slice-plans/181-compact-session-sidebar/PLAN.md))
 

@@ -126,6 +126,25 @@ function preparationLandFields(read, commandLog) {
   ];
 }
 
+// Whether any command retires a worktree, through the installed retirement
+// command or raw Git.
+function landDefaultCheckoutFields(read, commandLog) {
+  const commands = [...commandLog, ...read.segments].map((command) =>
+    command.replace(/["']/g, ""),
+  );
+  return [
+    [
+      "retirement-command-observed",
+      flag(
+        commands.some(
+          (command) =>
+            retirement.test(command) || rawGitRetirement.test(command),
+        ),
+      ),
+    ],
+  ];
+}
+
 // Pushes of exec/story: every revision pushed to it, and how many push
 // commands, forced or not, name it.
 function storyBranchIncrementFields(read) {
@@ -159,6 +178,7 @@ function storyBranchIncrementFields(read) {
 const exactJourneys = {
   "startup-owned-context": startupOwnedContextFields,
   "preparation-land": preparationLandFields,
+  "land-default-checkout": landDefaultCheckoutFields,
   "story-branch-increment": storyBranchIncrementFields,
   "one-shot-escalation": oneShotEscalationFields,
 };

@@ -64,6 +64,7 @@ git_publication_assess() {
   case ${journey} in
     startup-owned-context | preparation-land) git_publication_assess_owned_context "${obs}" "${journey}" ;;
     startup-*) git_publication_assess_startup "${obs}" "${journey}" ;;
+    land-default-checkout) git_publication_assess_land_default "${obs}" ;;
     admission-*) git_publication_assess_admission "${obs}" "${journey}" ;;
     one-shot-escalation) git_publication_assess_one_shot_escalation "${obs}" ;;
     one-shot-*) git_publication_assess_one_shot "${obs}" ;;

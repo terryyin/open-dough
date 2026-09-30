@@ -45,6 +45,13 @@ git_publication_write_evidence_identity() {
         src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs \
         src/skills/dough-story-refinement/scripts/preparation-assignment.mjs
       ;;
+    land-default-checkout)
+      git_publication_write_evidence_identity publication
+      native_result_input_hash_lines \
+        tests/support/git-publication-native-land-default.sh \
+        tests/support/git-publication-native-push-log-observe.mjs
+      git_publication_closing_input_hash_lines
+      ;;
     execution-review)
       printf 'helper-identity: tests/support/ci-completion-native-run.sh\n'
       native_result_print_adapter_identity
@@ -85,6 +92,17 @@ git_publication_write_evidence_identity() {
       ;;
     *) return 2 ;;
   esac
+}
+
+# The evidence identity profile that covers journey $1.
+git_publication_evidence_profile() {
+  if git_publication_owned_context_journey "$1"; then
+    echo owned-context
+  elif [[ $1 == land-default-checkout ]]; then
+    echo land-default-checkout
+  else
+    echo publication
+  fi
 }
 
 git_publication_retain_attempt() {
