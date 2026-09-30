@@ -25,6 +25,8 @@ const exec = promisify(execFile);
 // The story the origin queues: what a launch request for it names.
 export const queuedIdentity = "SEED-A#a";
 export const queuedTitle = "Prepare the queued start";
+// A second queued story, for a spec that needs another card.
+export const otherQueuedIdentity = "SEED-B#b";
 
 const installedSkills = [
   "dough-execute-plan",
@@ -43,9 +45,9 @@ export type StartOrigin = {
   originGit(...args: string[]): Promise<string>;
   // The agent profiles origin's trunk holds, parsed.
   takenProfiles(): Promise<Record<string, unknown>[]>;
-  // Has another publisher Take the queued story through the real start
-  // command, in a workspace of its own; the Agent it names.
-  takenByAnotherAgent(): Promise<string>;
+  // Has another publisher Take a queued story (the first by default) through
+  // the real start command, in a workspace of its own; the Agent it names.
+  takenByAnotherAgent(identity?: string): Promise<string>;
   // Removes the fixture.
   cleanup(): void;
 };
@@ -54,17 +56,23 @@ async function git(cwd: string, ...args: string[]): Promise<string> {
   return (await exec("git", args, { cwd })).stdout;
 }
 
-function writeQueuedStory(project: string): void {
-  const plan = "# Story A plan\n\nExecute the selected startup story.\n";
-  const seed = `---\nid: SEED-A\n---\n\n# Seed A\n\n<a id="a"></a>\n\n### Story A\n\n**Identity:** ${queuedIdentity}\n\nExecute A.\n`;
+// One queued, ready story: its seed, plan, and the backlog line.
+function writeStory(
+  project: string,
+  key: string,
+  identity: string,
+  name: string,
+): void {
+  const plan = `# ${name} plan\n\nExecute the selected startup story.\n`;
+  const seed = `---\nid: SEED-${key}\n---\n\n# Seed ${key}\n\n<a id="${key.toLowerCase()}"></a>\n\n### ${name}\n\n**Identity:** ${identity}\n\nExecute ${key}.\n`;
   const recorded = recordStoryState(
     seed,
     {
-      href: "seeds/A.md#a",
-      identity: queuedIdentity,
+      href: `seeds/${key}.md#${key.toLowerCase()}`,
+      identity,
       refinement: "refined",
       approach: "planned",
-      plan: "../slice-plans/A/PLAN.md",
+      plan: `../slice-plans/${key}/PLAN.md`,
       assessment: "ready",
       reasons: [],
       expectedBasis: computeBasis(seed, plan),
@@ -72,14 +80,31 @@ function writeQueuedStory(project: string): void {
     { planSource: plan },
   ) as { source: string };
   mkdirSync(path.join(project, ".planning/seeds"), { recursive: true });
-  mkdirSync(path.join(project, ".planning/slice-plans/A"), {
+  mkdirSync(path.join(project, `.planning/slice-plans/${key}`), {
     recursive: true,
   });
-  writeFileSync(path.join(project, ".planning/seeds/A.md"), recorded.source);
-  writeFileSync(path.join(project, ".planning/slice-plans/A/PLAN.md"), plan);
+  writeFileSync(
+    path.join(project, `.planning/seeds/${key}.md`),
+    recorded.source,
+  );
+  writeFileSync(
+    path.join(project, `.planning/slice-plans/${key}/PLAN.md`),
+    plan,
+  );
+}
+
+function writeQueuedStories(project: string): void {
+  writeStory(project, "A", queuedIdentity, "Story A");
+  writeStory(project, "B", otherQueuedIdentity, "Story B");
   writeFileSync(
     path.join(project, ".planning/PRODUCT-BACKLOG.md"),
-    backlogOf([], [`- [Story A](seeds/A.md#a) — ${queuedIdentity}`]),
+    backlogOf(
+      [],
+      [
+        `- [Story A](seeds/A.md#a) — ${queuedIdentity}`,
+        `- [Story B](seeds/B.md#b) — ${otherQueuedIdentity}`,
+      ],
+    ),
   );
 }
 
@@ -102,7 +127,7 @@ export async function startOrigin(
   await git(project, "remote", "add", "origin", spelled);
   await git(project, "config", `url.${origin}.insteadOf`, spelled);
   writeFileSync(path.join(project, ".gitignore"), ".worktrees/\n");
-  writeQueuedStory(project);
+  writeQueuedStories(project);
   for (const skill of installedSkills) {
     cpSync(
       path.join("src", "skills", skill),
@@ -140,7 +165,7 @@ export async function startOrigin(
     project,
     originGit,
     takenProfiles,
-    async takenByAnotherAgent() {
+    async takenByAnotherAgent(identity = queuedIdentity) {
       const scripts = path.join(
         project,
         ".claude/skills/dough-execute-plan/scripts",
@@ -157,7 +182,7 @@ export async function startOrigin(
           "--branch",
           "claude/another-agent",
           "--identity",
-          queuedIdentity,
+          identity,
           "--publisher-id",
           "another-publisher",
           "--mode",
@@ -173,7 +198,10 @@ export async function startOrigin(
         ],
         { cwd: project },
       );
-      return String((await takenProfiles())[0]?.["agent"]);
+      const taken = (await takenProfiles()).find(
+        (profile) => profile["identity"] === identity,
+      );
+      return String(taken?.["agent"]);
     },
     cleanup() {
       rmSync(machine, { recursive: true, force: true });

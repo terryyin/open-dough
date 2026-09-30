@@ -6,7 +6,10 @@
 // offers the same action, described by that note; the session is asked anyway,
 // and the instruction can say what to do first. A failed or uncertain answer
 // stays on the card with the action. The dialog's mechanics, including the
-// keyboard's return to the action, belong to `LaunchDialog`.
+// keyboard's return to the action, belong to `LaunchDialog`. On a Taken card
+// whose story this machine started without a session (`resumesIn`), the dialog
+// says the Take is already published and the session opens in the kept
+// workspace.
 
 import { useId } from "react";
 import {
@@ -23,6 +26,7 @@ export function StartLaunch({
   work,
   workflow,
   establishesStart,
+  resumesIn,
   note,
   attempt,
   onStart,
@@ -32,6 +36,9 @@ export function StartLaunch({
   // Whether the project's installed skill establishes a start for this
   // workflow's Start; without it the words are those of a plain session start.
   readonly establishesStart: boolean;
+  // The kept start's workspace, as the page shows it, when this Start resumes
+  // a start whose Take is already published.
+  readonly resumesIn?: string;
   // The workflow's note on this card, if any.
   readonly note: string | undefined;
   readonly attempt: LaunchAttempt | undefined;
@@ -91,10 +98,15 @@ export function StartLaunch({
           heading={`Start ${named} in Claude Code`}
           description={
             <>
-              Claude Code starts a background session on this machine, in this
-              project's folder, to {verb} <strong>{work.title}</strong> (
+              Claude Code starts a background session on this machine,{" "}
+              {resumesIn === undefined
+                ? "in this project's folder"
+                : `in workspace ${resumesIn}`}
+              , to {verb} <strong>{work.title}</strong> (
               <span className="card-identity">{work.identity}</span>).
-              {establishes !== undefined && ` ${establishes.sentence}`}
+              {resumesIn !== undefined
+                ? " This story's Take is already published on origin, so Start publishes no second Take."
+                : establishes !== undefined && ` ${establishes.sentence}`}
             </>
           }
           note={

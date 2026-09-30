@@ -206,7 +206,7 @@ trigger: Start → postcondition: resumed or stopped safely, never a duplicate c
 
 ### 9. A published claim without a session offers Start on its Taken card
 Type: Behavior
-Status: planned
+Status: done
 Proof: spec: fake `claude` refuses the first launch → "Launch failed: … Taken by <Agent>;
 no session started. Workspace <folder>."; after a reload and refresh the Taken card offers
 **Start execution** with "Started here, no session yet" (and no other Taken card does);

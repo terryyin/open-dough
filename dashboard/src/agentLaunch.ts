@@ -364,15 +364,34 @@ export const alertsSchema = z.discriminatedUnion("available", [
 
 export type Alerts = z.infer<typeof alertsSchema>;
 
+// A start this machine keeps whose session did not start
+// (`../server/startStore.ts`): the project, the story, the workspace as the
+// page shows a project's folders, and the Agent the start's claim names when
+// it reported one.
+export const keptStartSchema = z.object({
+  source: z.string().min(1),
+  identity: z.string().min(1),
+  workspace: z.string().min(1),
+  agent: z.string().min(1).optional(),
+});
+
+export type KeptStart = z.infer<typeof keptStartSchema>;
+
+// What a Taken card says beside its Start execution while this machine keeps
+// the start that took the story and no session was started from it.
+export const keptStartNote = "Started here, no session yet";
+
 // The machine's sessions, as the boundary answers a GET: every catalog
 // project's launch records, each naming its project and joined with its
-// session's current state, whether alerts can be raised, and the projects
+// session's current state, whether alerts can be raised, the projects
 // whose installed skill establishes a start (the claim and workspace) when
-// Start execution is pressed, by project id.
+// Start execution is pressed, by project id, and the starts kept without a
+// session.
 export const launchRecordsSchema = z.object({
   records: z.array(launchWithStateSchema),
   alerts: alertsSchema,
   establishing: z.array(z.string()),
+  keptStarts: z.array(keptStartSchema),
 });
 
 export type MachineAnswer = z.infer<typeof launchRecordsSchema>;

@@ -20,6 +20,7 @@ import type {
   Alerts,
   AgentLaunchRequest,
   StoryLaunchRequest,
+  KeptStart,
   LaunchChoices,
   LaunchRecord,
   LaunchWithState,
@@ -54,6 +55,9 @@ export type MachineSessions = {
   // execution is pressed, as of the latest read; false until read, so the
   // page never says a claim will be published before the server said so.
   establishesStart(sourceId: string): boolean;
+  // The start this machine keeps for the project's story with no session
+  // started from it, as of the latest read; undefined when none is kept.
+  keptStartOf(sourceId: string, identity: string): KeptStart | undefined;
   // The sessions to show on cards: `records` once read, and until then only
   // those launched from this page.
   readonly launched: readonly LaunchWithState[];
@@ -135,13 +139,16 @@ export function useAgentLaunches(): MachineSessions {
   // The sessions the page knows, and whether a read has answered them: a
   // launch answered before the first read is kept in `known`, and joins the
   // first read's answer.
-  const [{ known, read: readAnswered, alerts, establishing }, setSessions] =
-    useState<{
-      readonly known: readonly LaunchWithState[];
-      readonly read: boolean;
-      readonly alerts?: Alerts;
-      readonly establishing: readonly string[];
-    }>({ known: [], read: false, establishing: [] });
+  const [
+    { known, read: readAnswered, alerts, establishing, keptStarts },
+    setSessions,
+  ] = useState<{
+    readonly known: readonly LaunchWithState[];
+    readonly read: boolean;
+    readonly alerts?: Alerts;
+    readonly establishing: readonly string[];
+    readonly keptStarts: readonly KeptStart[];
+  }>({ known: [], read: false, establishing: [], keptStarts: [] });
   const setRecords = useCallback(
     (
       change: (known: readonly LaunchWithState[]) => readonly LaunchWithState[],
@@ -179,6 +186,7 @@ export function useAgentLaunches(): MachineSessions {
             read: true,
             alerts: answered.alerts,
             establishing: answered.establishing,
+            keptStarts: answered.keptStarts,
           }));
         }
         everRead.current = true;
@@ -220,6 +228,15 @@ export function useAgentLaunches(): MachineSessions {
       const answer = await requestAgentLaunch(request);
       if (answer.kind === "launched") {
         setRecords((current) => [...current, answer.record]);
+        // The session carries the start now: the server removed the kept one.
+        setSessions((current) => ({
+          ...current,
+          keptStarts: current.keptStarts.filter(
+            (kept) =>
+              kept.source !== request.source ||
+              kept.identity !== answer.record.start?.identity,
+          ),
+        }));
         setAttempt(key, undefined);
         return answer.record;
       }
@@ -310,6 +327,7 @@ export function useAgentLaunches(): MachineSessions {
           ...current,
           alerts: kept.alerts,
           establishing: kept.establishing,
+          keptStarts: kept.keptStarts,
         }));
       }
       if (answered !== undefined) replaceRecord(answered);
@@ -321,6 +339,10 @@ export function useAgentLaunches(): MachineSessions {
     records: readAnswered ? known : undefined,
     alerts,
     establishesStart: (sourceId) => establishing.includes(sourceId),
+    keptStartOf: (sourceId, identity) =>
+      keptStarts.find(
+        (kept) => kept.source === sourceId && kept.identity === identity,
+      ),
     launched: known,
     attemptOf: (sourceId, identity, workflow) =>
       attempts.get(attemptKey(sourceId, identity, workflow)),

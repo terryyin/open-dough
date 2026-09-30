@@ -12,8 +12,10 @@
 // session done (`./doneMarks.ts`) stops it. Origin still decides every story
 // fact.
 
+import path from "node:path";
 import {
   type AgentLaunchRequest,
+  type KeptStart,
   type LaunchWithState,
   type LaunchRecord,
   type LaunchResult,
@@ -35,7 +37,8 @@ import {
   keptRecords,
   keptRecordsByProject,
 } from "./launchRecordStore.ts";
-import { removeStart } from "./startStore.ts";
+import { shownWorkspace } from "./claudeWorkspace.ts";
+import { keptStartsByProject, removeStart } from "./startStore.ts";
 import {
   folderExists,
   machineFolder,
@@ -139,6 +142,17 @@ async function started(
   }
 }
 
+// What a failed session launch adds when its start already published the
+// Take: who holds the story, that no session started, and the workspace the
+// kept start resumes in.
+function publishedWithoutSession({
+  handoff,
+  workspace,
+}: EstablishedLaunch): string {
+  const { agent } = handoff.start;
+  return `${agent === undefined ? "Taken" : `Taken by ${agent}`}; no session started. Workspace ${workspace.shown}.`;
+}
+
 // One session this dashboard recorded for the project, in its existing
 // folder, or why there is none.
 export type Recorded =
@@ -198,6 +212,26 @@ export class AgentLaunches {
       ),
     );
     return establishing.filter((id) => id !== undefined);
+  }
+
+  // The starts kept without a session, in catalog order: each names the
+  // workspace as the page shows a project's folders and the Agent its claim
+  // named, when the start reported one.
+  async keptStarts(): Promise<readonly KeptStart[]> {
+    const kept = await keptStartsByProject();
+    return catalog.flatMap((source) =>
+      (kept.get(source.id) ?? []).map((start) => ({
+        source: source.id,
+        identity: start.identity,
+        workspace: shownWorkspace(
+          projectFolder(source),
+          path.basename(start.workspace),
+        ),
+        ...(start.start?.agent === undefined
+          ? {}
+          : { agent: start.start.agent }),
+      })),
+    );
   }
 
   // One kept record's session state read now.
@@ -261,7 +295,12 @@ export class AgentLaunches {
         start.kind === "established" ? start : undefined,
       );
       if (launched.kind !== "launched") {
-        return launched;
+        return start.kind === "established" && launched.kind === "failed"
+          ? {
+              ...launched,
+              explanation: `${launched.explanation} ${publishedWithoutSession(start)}`,
+            }
+          : launched;
       }
       const record: LaunchRecord = {
         request: recording,

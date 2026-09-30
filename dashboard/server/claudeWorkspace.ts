@@ -41,6 +41,11 @@ function freeSlug(slug: string, taken: ReadonlySet<string>): string {
   return candidate;
 }
 
+// A workspace folder as the page shows a project's folders.
+export function shownWorkspace(project: ProjectFolder, slug: string): string {
+  return `${project.shown}/${worktreesFolder}/${slug}`;
+}
+
 export function claudeWorkspace(
   project: ProjectFolder,
   title: string,
@@ -50,7 +55,7 @@ export function claudeWorkspace(
   return {
     workspace: {
       path: path.join(project.path, worktreesFolder, slug),
-      shown: `${project.shown}/${worktreesFolder}/${slug}`,
+      shown: shownWorkspace(project, slug),
     },
     branch: `${branchPrefix}${slug}`,
   };

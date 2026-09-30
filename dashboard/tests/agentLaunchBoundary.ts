@@ -119,3 +119,14 @@ export function deleteRecord(
     body: JSON.stringify(body),
   });
 }
+
+// The starts the boundary keeps without a session, as it answers the machine's
+// sessions.
+export async function keptStarts(server: DashboardServer): Promise<unknown[]> {
+  const response = await rawRequest({
+    url: `${server.baseURL}${agentLaunchEndpoint}`,
+    headers: { Origin: server.origin },
+  });
+  expect(response.status).toBe(200);
+  return (JSON.parse(response.body) as { keptStarts: unknown[] }).keptStarts;
+}

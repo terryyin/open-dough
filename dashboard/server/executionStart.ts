@@ -30,6 +30,7 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   branchPrefix,
   claudeWorkspace,
+  shownWorkspace,
   worktreesFolder,
   type WorkspaceChoice,
 } from "./claudeWorkspace.ts";
@@ -241,7 +242,7 @@ function keptChoice(
   return {
     workspace: {
       path: kept.workspace,
-      shown: `${project.shown}/${worktreesFolder}/${path.basename(kept.workspace)}`,
+      shown: shownWorkspace(project, path.basename(kept.workspace)),
     },
     branch: kept.branch,
   };

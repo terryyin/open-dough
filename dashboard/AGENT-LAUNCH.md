@@ -119,8 +119,24 @@ committed (`unpublished`, `claim-failed`, or no readable result) is refused
 with "The start was kept; pressing Start again resumes it." Any other refusal
 removes the kept start, since nothing was published to resume. A launch whose
 session started removes the kept start (the launch record keeps it); a
-`claude` launch that fails after the start was established keeps it. A kept
-start with no launch record is not offered on the Taken card yet.
+`claude` launch that fails after the start was established keeps it, and its
+"Launch failed:" answer adds the Take's owner and the workspace after Claude
+Code's own reason: "Taken by <Agent>; no session started. Workspace <folder>."
+(`Taken` alone when the start named no Agent).
+
+The machine's sessions answer carries `keptStarts`: each start kept without a
+session (`AgentLaunches.keptStarts`, from `keptStartsByProject`), naming its
+project, story identity, workspace as the page shows folders, and the Agent its
+claim named. A Taken card whose story has a kept start offers **Start
+execution** (never refinement) with the note "Started here, no session yet", and
+no other Taken card offers one (`CardLaunches`, `keptStartOf`). Its dialog says
+the session opens in that workspace and that the Take is already published, so
+Start publishes no second one. Start there is an ordinary execution launch
+that resumes the kept start: the same workspace and branch, the script's
+`existing` answer, one claim on origin. When the session starts the offer
+goes, the record keeps the start, and the kept start is removed. A kept start
+with no result, from an uncertain or stopped start, is offered the same way
+once origin shows the story Taken.
 
 A start lost with the server (a kept start with no result and no `recovery`,
 and not among the attempts this server process is running) is resumed from its
@@ -131,8 +147,8 @@ answer is then `resumed`, one claim on origin, the session in the same
 workspace. A workspace that is not the isolated claim stops with the script's
 own reason ("The workspace could not be set up: retained candidate or
 workspace is not the isolated owned claim.") and launches nothing; that stop
-removes the kept start. Phases and refusing a second start of the same story
-are not built yet.
+removes the kept start. Phases shown on every page and refusing a second start
+of the same story are not built yet.
 
 A confirmed launch lists its session on the story's card, beside the Start
 actions, which stay with their notes whatever sessions are listed, and the
