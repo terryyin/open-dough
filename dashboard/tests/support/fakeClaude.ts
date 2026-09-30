@@ -119,6 +119,9 @@ export type FakeClaudeControls = {
   claudeRenamesIgnored(ignored: boolean): void;
   // Whether the fake's session listing fails, answering nothing.
   claudeListingFails(fails: boolean): void;
+  // Lists an interactive session running in a terminal, as Claude Code
+  // 2.1.285 does: with no short `id` and no `state`.
+  claudeListsInteractiveSession(): void;
   // The pid of a `hang` launch still holding its answer, and the signal that
   // ended it, once one did.
   heldClaudePid(): number | undefined;
@@ -280,6 +283,22 @@ export function installFakeClaude(
       claudeListingFails(fails) {
         if (fails) writeFileSync(state("listing-fails"), "");
         else rmSync(state("listing-fails"), { force: true });
+      },
+      claudeListsInteractiveSession() {
+        const interactive = {
+          pid: 3394,
+          cwd: home,
+          kind: "interactive",
+          startedAt: Date.now(),
+          sessionId: "3ab4613a-744d-4545-adba-15346379854a",
+          name: "terminal session",
+          status: "busy",
+        };
+        writeFileSync(
+          state("agents.json.next"),
+          JSON.stringify([...claudeListing(), interactive]),
+        );
+        renameSync(state("agents.json.next"), state("agents.json"));
       },
       claudeRenamesIgnored(ignored) {
         if (ignored) writeFileSync(state("renames-ignored"), "");

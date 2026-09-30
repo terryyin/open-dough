@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Select refinement options when launching from the dashboard](seeds/SEED-061-refinement-options-from-dashboard.md#select-refinement-options-from-dashboard) — SEED-061#select-refinement-options-from-dashboard ([plan](slice-plans/185-select-refinement-options-from-dashboard/PLAN.md))
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation ([plan](slice-plans/186-script-refinement-preparation/PLAN.md))
-- [Keep session states when Claude Code lists an interactive session](seeds/SEED-052-start-agent-work-from-dashboard.md#session-states-survive-interactive-listing) — SEED-052#session-states-survive-interactive-listing
 
 ## Backlog list
 
