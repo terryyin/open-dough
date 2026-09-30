@@ -1,3 +1,12 @@
+## 0.3.51 - 2026-09-30
+
+- Let dashboard-launched refinement establish and publish its Preparing assignment before opening the session, hand the workspace to the refinement skill, preserve uncertain or failed starts for safe resume, and keep interactive Claude Code sessions readable when their listing omits state details.
+- Let developers select the installed story-refinement options in the launch dialog, enforce exclusive option groups and availability at the launch boundary, preserve requested flags in definition order, and show them on session entries.
+- Standardize dashboard-created worktrees under each project for supported hosts, teach execution and landing guidance to continue established starts and land reviewed default-checkout work safely, and include the refinement preparation runtime in the released payload.
+- Animate enlarged portraits for every rotation agent and make lint and formatting consistently cover Git-tracked plus non-ignored untracked files while excluding ignored worktrees and generated output.
+
+Native acceptance was explicitly skipped for `0.3.51` at the maintainer's request as an exception to ADR 0005. Native acceptance for the changed refinement preparation, launch options, dashboard session and workspace behavior, guidance, and previously pending requirements remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.50 - 2026-09-30
 
 - Add composable UX/UI and Architecture focuses to story refinement so interaction choices, system consequences, applicable Accepted ADRs, and consequential trade-offs can shape the ordinary goal, scope, and examples without creating separate reports or silently choosing a side.
