@@ -20,7 +20,11 @@ import {
   readyStory,
   type LaunchJourney,
 } from "./launchJourney.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import {
+  expectTooltipLine,
+  sidebarParts,
+  sidebarTooltipOf,
+} from "./sessionSidebarPage.ts";
 
 let journey: LaunchJourney;
 test.beforeAll(async () => {
@@ -74,7 +78,6 @@ for (const [model, words] of [
     const entries = () => [
       cardSessions(card(readyStory)),
       recentSessions.getByRole("article"),
-      sidebar.getByRole("listitem"),
     ];
     const expectWords = async () => {
       if ((await button.getAttribute("aria-expanded")) !== "true") {
@@ -88,6 +91,17 @@ for (const [model, words] of [
         } else {
           await expect(entry).toContainText(words);
         }
+      }
+      const row = sidebar.getByRole("listitem");
+      await expect(row).toHaveCount(1);
+      await expect(sidebarTooltipOf(row)).toHaveAttribute("title", /Execution/);
+      if (words === undefined) {
+        await expect(sidebarTooltipOf(row)).not.toHaveAttribute(
+          "title",
+          /Model:/,
+        );
+      } else {
+        await expectTooltipLine(row, words);
       }
     };
 
@@ -116,14 +130,14 @@ test("an ad hoc session launched on Sonnet says so in Recent sessions and in the
     if ((await button.getAttribute("aria-expanded")) !== "true") {
       await button.click();
     }
-    for (const entry of [
-      recentSessions.getByRole("article"),
-      sidebar.getByRole("listitem"),
-    ]) {
-      await expect(entry).toHaveCount(1);
-      await expect(entry).toContainText("Ad hoc");
-      await expect(entry).toContainText(requested("Sonnet"));
-    }
+    const entry = recentSessions.getByRole("article");
+    await expect(entry).toHaveCount(1);
+    await expect(entry).toContainText("Ad hoc");
+    await expect(entry).toContainText(requested("Sonnet"));
+    const tooltip = sidebarTooltipOf(sidebar.getByRole("listitem"));
+    await expect(tooltip).toHaveCount(1);
+    await expect(tooltip).toHaveAttribute("title", /Ad hoc/);
+    await expectTooltipLine(sidebar.getByRole("listitem"), requested("Sonnet"));
   };
 
   await expectWords();

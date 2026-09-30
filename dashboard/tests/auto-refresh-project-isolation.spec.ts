@@ -39,7 +39,10 @@ import {
   titlesOfA,
 } from "./refreshJourney.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
-import { agentProfileDirectory } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import {
+  agentProfileDirectory,
+  agentSettingsPath,
+} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 test.describe("project read isolation of automatic checks", () => {
   const doughnutSharedGoal = "Doughnut's goal for the shared story.";
@@ -160,8 +163,10 @@ test.describe("project read isolation of automatic checks", () => {
     await page.goto("/");
     await expectMembership(page, titlesOfA);
     // Every detail read of A, the held one included, and the agent-profile
-    // listing read beside them have reached GitHub before the switch, so no
-    // read sent before it counts as asked after it.
+    // listing and project setting file reads beside them have reached GitHub
+    // before the switch, so no read sent before it counts as asked after it.
+    // The setting file is read right after the listing, in the same
+    // request, so the listing alone does not prove it was recorded.
     await expect
       .poll(() => contentReads(openDough.requests))
       .toEqual(
@@ -183,6 +188,9 @@ test.describe("project read isolation of automatic checks", () => {
         ),
       )
       .toBe(true);
+    await expect
+      .poll(() => contentReads(openDoughCalls(githubFor(page).calls)))
+      .toContain(`${agentSettingsPath}?ref=${revisionA}`);
     await expect(page.getByText("Reading preparation…")).not.toHaveCount(0);
 
     const atSwitch = githubFor(page).calls.length;

@@ -10,6 +10,7 @@
 
 import { z } from "zod";
 import type { WorkEntry } from "./publishedWork.ts";
+import { sessionShown } from "./sessionShown.ts";
 import { readyBadge } from "./storyPreparation.ts";
 import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
@@ -267,18 +268,25 @@ export function cardSessionsOf(
   );
 }
 
-// The sessions still open in every project, by the cards' rule, newest
-// launch first by launch time alone, so a state change never moves one; or
-// undefined while the machine's sessions are not yet read.
+// The sessions still open in every project, by the cards' rule, those that
+// need the developer first, earliest launch first, then every other one,
+// newest launch first, so a state change moves a session between the two
+// groups; or undefined while the machine's sessions are not yet read.
 export function openSessionsOf(
   records: readonly LaunchWithState[] | undefined,
 ): readonly LaunchWithState[] | undefined {
-  return records
-    ?.filter(isOpen)
-    .toSorted(
-      (newer, older) =>
-        Date.parse(older.launchedAt) - Date.parse(newer.launchedAt),
-    );
+  const launchedAt = (record: LaunchRecord) => Date.parse(record.launchedAt);
+  const open = records?.filter(isOpen);
+  const needs = (record: LaunchWithState) =>
+    sessionShown(record).needsAttention;
+  return (
+    open && [
+      ...open.filter(needs).toSorted((a, b) => launchedAt(a) - launchedAt(b)),
+      ...open
+        .filter((record) => !needs(record))
+        .toSorted((a, b) => launchedAt(b) - launchedAt(a)),
+    ]
+  );
 }
 
 // Why nothing was launched.

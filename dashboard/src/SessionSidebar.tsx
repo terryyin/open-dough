@@ -1,15 +1,15 @@
 // The Sessions sidebar: the machine's sessions still open, from every
-// catalog project whichever is selected, newest launch first
-// (`openSessionsOf`), each with its story's title, its project, its
-// workflow, when it was launched, and its state in the words and attention
-// edge a card entry shows (`shownSession`), under how many of them need the
-// developer (`attentionSummary`), and, while the server cannot raise its macOS
-// alerts (`alerts`), a quiet "Alerts unavailable" note with why, in the open
-// sidebar only. It sits beside the page, left of it, and
-// the Sessions button at the start of the banner opens and closes it; while
-// it is closed, that button says the same count. Command+B toggles it too,
-// page-wide and from inside the terminal, except inside an open dialog, which
-// keeps its own keyboard (`isInsideOpenDialog`); elsewhere it takes the key
+// catalog project whichever is selected, those that need the developer
+// first, then the rest (`openSessionsOf`), each one line: its story's title
+// and how long ago it was launched, its state marked by the edge of the entry
+// (`shownSession`) with the details in its tooltip, and, while the server cannot
+// raise its macOS alerts (`alerts`), a quiet "Alerts unavailable" note with
+// why, in the open sidebar only. It sits beside the page, left of it, and the
+// Sessions icon button at the start of the banner opens and closes it, with a
+// badge of how many sessions need the developer (`attentionCount`), open or
+// closed. Command+B toggles it too, page-wide and from inside the terminal,
+// except inside an open dialog, which keeps its own keyboard
+// (`isInsideOpenDialog`); elsewhere it takes the key
 // from the browser. Toggling leaves the keyboard where it is, except that
 // closing the sidebar with the keyboard inside it returns the keyboard to the
 // Sessions button. Opening an entry (`./SidebarEntry.tsx`) goes to its story
@@ -37,7 +37,7 @@ import {
 import { SessionList } from "./SessionEntry.tsx";
 import { SidebarEntry, type OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { isInsideOpenDialog } from "./pageShortcuts.ts";
-import { attentionSummary } from "./sessionShown.ts";
+import { attentionCount, attentionSummary } from "./sessionShown.ts";
 import "./agent-launch.css";
 import "./session-sidebar.css";
 
@@ -149,28 +149,43 @@ export function useSessionSidebar(
 const sessionsButton = () =>
   document.querySelector<HTMLElement>(`[aria-controls="${sidebarId}"]`);
 
-const attentionOf = (sessions: readonly LaunchWithState[] | undefined) =>
-  attentionSummary(sessions ?? []);
-
 export function SessionsButton() {
   const { open, toggle, records } = useSidebar();
-  const attention = open ? undefined : attentionOf(openSessionsOf(records));
+  const sessions = openSessionsOf(records) ?? [];
+  const count = attentionCount(sessions);
   return (
-    <button
-      type="button"
-      className="sessions-toggle"
-      aria-expanded={open}
-      aria-controls={sidebarId}
-      onClick={toggle}
-    >
-      Sessions
-      {attention !== undefined && (
-        <>
-          {" "}
-          <span className="sessions-toggle-attention">{attention}</span>
-        </>
+    <span className="sessions-toggle-group">
+      <button
+        type="button"
+        className="sessions-toggle"
+        aria-label="Sessions"
+        aria-expanded={open}
+        aria-controls={sidebarId}
+        onClick={toggle}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          aria-hidden="true"
+        >
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      {count > 0 && (
+        <span
+          role="img"
+          className="sessions-toggle-attention"
+          aria-label={attentionSummary(sessions)}
+        >
+          {count}
+        </span>
       )}
-    </button>
+    </span>
   );
 }
 
@@ -183,7 +198,6 @@ export function SessionSidebar({
   readonly onOpen: OpenSidebarEntry;
 }) {
   const sessions = openSessionsOf(records);
-  const attention = attentionOf(sessions);
   return (
     <aside
       id={sidebarId}
@@ -192,9 +206,6 @@ export function SessionSidebar({
       hidden={!open}
     >
       <h2 id="session-sidebar-heading">Sessions</h2>
-      {attention !== undefined && (
-        <p className="sidebar-attention">{attention}</p>
-      )}
       {open && alerts?.available === false && (
         <p className="quiet">Alerts unavailable: {alerts.reason}</p>
       )}

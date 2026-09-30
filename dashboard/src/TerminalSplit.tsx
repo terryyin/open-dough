@@ -232,7 +232,7 @@ export function TerminalSplit({
       }}
     >
       {deleted !== undefined && (
-        <p role="status" className="session-record-deleted">
+        <p role="status" className="visually-hidden">
           {deleted}
         </p>
       )}

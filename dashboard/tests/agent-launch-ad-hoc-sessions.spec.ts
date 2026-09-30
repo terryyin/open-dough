@@ -40,7 +40,11 @@ import {
   revealsOf,
 } from "./sessionNavigationJourney.ts";
 import { expectSessionShown } from "./sessionStatePace.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import {
+  expectSidebarSessionShown,
+  expectTooltipLine,
+  sidebarParts,
+} from "./sessionSidebarPage.ts";
 
 let journey: LaunchJourney;
 test.beforeAll(async () => {
@@ -97,7 +101,7 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recent 
   await test.step("the sidebar entry opens Open Dough's stories, its session in the terminal, and reveals its Recent sessions entry", async () => {
     await button.click();
     await expect(entries).toHaveCount(1);
-    await expect(entries.first()).toContainText("Open Dough · Ad hoc");
+    await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
     await entry(text).click();
     await expect(
       project.getByRole("radio", { name: "Open Dough", exact: true }),
@@ -141,7 +145,7 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Recent 
       await button.click();
     }
     await expect(entries).toHaveCount(1);
-    await expect(entries.first()).toContainText("Open Dough · Ad hoc");
+    await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
     await expect(sessionStateOf(recent)).not.toHaveText("Done");
   });
 });
@@ -153,7 +157,7 @@ test("a blocked ad hoc session reads Needs input in Recent sessions and the side
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, journey);
   const text = "what is blocking us?";
-  const { button, entries, attention } = sidebarParts(page);
+  const { button, entries, badge } = sidebarParts(page);
   const recent = recentOf(page, text);
 
   await startAndClose(page, "Open Dough", text);
@@ -164,9 +168,15 @@ test("a blocked ad hoc session reads Needs input in Recent sessions and the side
   await expectMembership(page, openDoughStories);
 
   await expectSessionShown(recent, "Needs input: input needed", true);
+  await expect(badge).toHaveText("1");
+  await expect(badge).toHaveAccessibleName("1 session needs attention");
   await button.click();
-  await expect(attention).toHaveText("1 session needs attention");
-  await expectSessionShown(entries.first(), "Needs input: input needed", true);
+  await expect(badge).toHaveText("1");
+  await expectSidebarSessionShown(
+    entries.first(),
+    "Needs input: input needed",
+    "needs-input",
+  );
 });
 
 test("with the listing unreadable, an ad hoc session's record can be deleted from Recent sessions, leaving the sidebar and moving the keyboard to the next entry", async ({

@@ -3,9 +3,9 @@
    on its own while the page scrolls beside it, with the terminal panel still
    on the right: sidebar | page | terminal. On a narrow window, where the
    terminal stacks above the page, it overlays the page from the left, below
-   the pinned banner so the Sessions button stays in reach. Words carry every
-   meaning; the heavier edge of an entry that needs the developer is the
-   card entry's own (`./agent-launch.css`). */
+   the pinned banner so the Sessions button stays in reach. An entry is one line;
+   its state shows by its left border, and its tooltip and hidden label carry
+   the words (`./SidebarEntry.tsx`). */
 
 .page-with-sidebar {
   display: grid;
@@ -27,12 +27,6 @@
   background: var(--panel);
 }
 
-.sidebar-attention {
-  margin-top: 0.25rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
 .session-sidebar > p.quiet {
   margin-top: 0.5rem;
 }
@@ -40,6 +34,7 @@
 .session-sidebar ol {
   list-style: none;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.5rem;
   margin-top: 0.75rem;
 }
@@ -48,6 +43,9 @@
    terminal shows is current, outlined as its card is. */
 .sidebar-entry {
   position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
 }
 
 .sidebar-entry-open {
@@ -69,27 +67,70 @@
   outline-offset: 1px;
 }
 
-/* A long title wraps to at most two lines; its whole text stays the
-   heading's, for assistive technology and as its tooltip. */
+/* An entry's state by its left border, whatever its other edges: needing
+   input, solid thick red; ready for review, solid thick green; failed or
+   stopped, dashed red; working, thin blue; done, thin grey; unknown,
+   unlisted, or not recognized, dotted grey. Style, thickness, and colour all
+   differ, so no one of them carries the state alone. */
+.session-sidebar .sidebar-entry.tone-needs-input {
+  border-left: 5px solid var(--problem);
+}
+
+.session-sidebar .sidebar-entry.tone-ready {
+  border-left: 5px solid var(--ready);
+}
+
+.session-sidebar .sidebar-entry.tone-halted {
+  border-left: 3px dashed var(--problem);
+}
+
+.session-sidebar .sidebar-entry.tone-working {
+  border-left: 2px solid var(--accent);
+}
+
+.session-sidebar .sidebar-entry.tone-done {
+  border-left: 2px solid var(--edge);
+}
+
+.session-sidebar .sidebar-entry.tone-unsettled {
+  border-left: 3px dotted var(--edge);
+}
+
+/* One line: the title, cut with an ellipsis when it is long, and the elapsed
+   time at the end. The whole title stays the heading's, for assistive
+   technology; the entry's tooltip says the rest. */
 .sidebar-title {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  flex: 1 1 auto;
+  min-width: 0;
   overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-size: 0.95rem;
 }
 
+.sidebar-elapsed {
+  flex: none;
+  color: var(--quiet);
+  white-space: nowrap;
+}
+
+.sessions-toggle-group {
+  position: relative;
+  display: inline-block;
+}
+
 .sessions-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
   min-height: 2.75rem;
   padding: 0.25rem 0.6rem;
   border: 1px solid var(--accent);
   border-radius: 0.35rem;
-  font: inherit;
   color: var(--accent);
   background: var(--panel);
   cursor: pointer;
-  text-align: start;
 }
 
 .sessions-toggle[aria-expanded="true"] {
@@ -98,9 +139,20 @@
 }
 
 .sessions-toggle-attention {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  min-width: 1.15rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  box-sizing: border-box;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.15rem;
+  text-align: center;
+  color: #fff;
+  background: #c62828;
+  pointer-events: none;
 }
 
 @media (max-width: 800px) {

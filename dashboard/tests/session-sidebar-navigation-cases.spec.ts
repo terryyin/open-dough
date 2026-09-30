@@ -18,8 +18,10 @@ import {
   takenStory,
   type StoryStagesJourney,
 } from "./launchJourney.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
-import { expectSessionShown } from "./sessionStatePace.ts";
+import {
+  expectSidebarSessionShown,
+  sidebarParts,
+} from "./sessionSidebarPage.ts";
 import {
   attachesOf,
   expectRevealsSince,
@@ -82,7 +84,11 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
       const unavailable = sidebar
         .getByRole("listitem")
         .filter({ hasText: doughnutSharedTitle });
-      await expectSessionShown(unavailable, "Session unavailable", false);
+      await expectSidebarSessionShown(
+        unavailable,
+        "Session unavailable",
+        "unsettled",
+      );
       const revealed = (await revealsOf(page)).length;
       await entry(doughnutSharedTitle).click();
       await expectMembership(page, {

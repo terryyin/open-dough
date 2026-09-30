@@ -32,7 +32,7 @@ The launch boundary specs (`agent-launch-boundary.spec.ts`,
 `agent-launch-recent-session-states.spec.ts`,
 `agent-launch-attention-clearing.spec.ts`,
 `agent-launch-attention.spec.ts`, `session-sidebar.spec.ts`,
-`session-sidebar-reading.spec.ts`, `session-sidebar-stays-as-left.spec.ts`,
+`session-sidebar-reading.spec.ts`, `session-sidebar-row.spec.ts`, `session-sidebar-stays-as-left.spec.ts`,
 `session-sidebar-keyboard.spec.ts`, `session-sidebar-navigation.spec.ts`,
 and `session-sidebar-navigation-cases.spec.ts`, which name
 their folders and launch wait through the `projectFolders` and `launchTimeoutMs` options of

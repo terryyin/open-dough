@@ -180,13 +180,13 @@ export async function expectWholeSnapshot(
   }
 }
 
-// Every button on the page but the banner's Sessions, which opens the
+// Every button on the page but the banner's Sessions icon, which opens the
 // sidebar of the machine's sessions whatever the project shows, and Start
 // session, which the project actions row offers whatever the read did.
 export const controlsBesideSessions = (page: Page) =>
   page
     .getByRole("button")
-    .filter({ hasNotText: /^Sessions/ })
+    .and(page.locator(":not([aria-label='Sessions'])"))
     .filter({ hasNotText: /^Start session$/ });
 
 // A failed read with no earlier snapshot shows the problem and the way to read again, and nothing

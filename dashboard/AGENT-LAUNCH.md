@@ -144,7 +144,7 @@ line. It is read from the launch record, so a reload keeps it.
 The **Sessions** sidebar (`src/SessionSidebar.tsx`) lists the sessions still
 open in every catalog project, whichever project is selected: every launch
 record not marked done, exactly the sessions the cards keep, including one
-whose story is in no list. The **Sessions** button at the start of the pinned
+whose story is in no list. The **Sessions** icon button at the start of the pinned
 banner, before the project name, opens and closes it (`aria-expanded`,
 controlling the sidebar), and Command+B does the same page-wide, also while
 the keyboard is in the terminal, where Ctrl+B still goes to the session. An
@@ -158,22 +158,29 @@ closed. On a wide window the sidebar is a fixed-width column left of the page,
 as tall as the window and scrolling on its own, with the terminal panel still
 on the right: sidebar, page, terminal. On a narrow window, where the terminal
 stacks above the page, it lies over the page from the left, below the banner.
-Entries are newest launch first, by launch time alone, so a state change
-updates an entry in place and never moves it, and a new launch comes first.
-Each entry names its story's title, wrapped to at most two lines, the project
-and workflow, such as "Pygardon · Refinement", when it was launched, and its
-session's state in the words a card entry uses, with the same heavier edge
-when the developer is needed there (below). The heading "Sessions" is followed
-by "1 session needs attention" or "<N> sessions need attention", counted
-across every project by the card's rule, and by nothing when none do; while
-the sidebar is closed, the Sessions button shows the same count as text.
+Sessions that need the developer, by the card's rule, come first, earliest
+launch first; every other session follows, newest launch first. A state change
+moves an entry between the two groups, and a new launch leads the others.
+Each entry is one line: its story's title, cut with an ellipsis when it is
+long, and at the end how long ago its session was launched, by the largest
+whole unit ("<1m" under a minute, then "5m", "2h", "3d"), advancing every 30
+seconds. Its state shows by its left border (solid thick red needing input,
+solid thick green ready for review, dashed red failed or stopped, thin blue
+working, thin grey done, dotted grey unknown, unlisted, or not recognized),
+with the state's label visually hidden for assistive technology. The state in
+the words a card entry uses, the project and workflow, such as
+"Pygardon · Refinement", the model asked for, and when it was launched are the
+entry's tooltip. The Sessions button, an icon named
+"Sessions", carries a red badge holding only the number of sessions that need
+attention, counted across every project by the card's rule, open or closed and
+absent when none do; its name says "1 session needs attention" or "<N> sessions
+need attention". The sidebar itself has no attention sentence.
 Before the machine's sessions are first read it says "Reading sessions…"; with
 none kept, "No sessions launched from this dashboard are kept."; and with all
 of them marked done, "No sessions launched from this dashboard are open." A
 session marked done leaves it, as it leaves its card.
 
-Each sidebar entry is one control named by its story's title, project, and
-workflow. Opening it (`src/TerminalSplit.tsx`) shows that project's stories,
+Each sidebar entry is one control named by its story's title. Opening it (`src/TerminalSplit.tsx`) shows that project's stories,
 from the agent roster too, as one history entry that browser Back undoes;
 opens its session in the terminal as Open terminal does, keyboard included,
 where the entry offers it, without attaching a shown session again; and, once
