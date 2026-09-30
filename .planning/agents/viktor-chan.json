@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "viktor-chan",
-  "email": "viktor-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-057#shape-interaction-within-system-constraints",
-  "host": "claude",
-  "model": "claude-sonnet-5-5"
-}
