@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Ai-chan",
+  "email": "ai-chan@example.org",
+  "identity": "SEED-052#start-ad-hoc-project-session",
+  "mode": "story-branch",
+  "branch": "claude/start-ad-hoc-project-session",
+  "host": "claude",
+  "model": "claude-sonnet-5-5"
+}
