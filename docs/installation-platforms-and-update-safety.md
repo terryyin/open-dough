@@ -113,6 +113,20 @@ PATH as well (`brew install shellcheck shfmt` on macOS).
   exits unsuccessfully and prints remaining findings if anything cannot be
   fixed automatically or a tool fails.
 
+A tracked Git pre-commit hook (`.githooks/pre-commit`) runs
+`npm run lint -- --staged` and refuses a commit whose staged JavaScript,
+TypeScript, JSON, or shell files fail lint or formatting, printing the findings
+and the `npm run format` pointer. It only checks: it never fixes, restages, or
+changes the index, and it checks each staged file's working-tree copy. Staged
+paths that every applicable tool ignores, such as `.planning/` records, need no
+tool, so a records-only commit works in a worktree without `node_modules`;
+otherwise a missing tool is reported by name with `npm ci` as the remedy.
+`npm ci` runs the `prepare` script, which sets the repository's `core.hooksPath`
+to `.githooks` once. That setting is shared by the checkout and every worktree
+of the repository, and each worktree runs the hook only when its revision
+contains it. CI's `lint` job still checks every Git-listed file, and
+`--no-verify` skips the hook.
+
 JavaScript uses ESLint's recommended rules plus strict equality, brace, unused
 argument, mutation, and unsafe-construct checks. [ShellCheck](https://github.com/koalaman/shellcheck)
 enables every optional check and reports every severity; ESLint allows zero
