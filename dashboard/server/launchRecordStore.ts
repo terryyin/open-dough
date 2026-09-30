@@ -8,18 +8,9 @@
 // or deletes a kept session.
 // A record not marked done is kept however long ago it was launched. A record
 // marked done more than `launchRetentionDays` before a read is not answered,
-// and a write drops it. A write replaces the file atomically; two writes at
-// the same instant can still race, which is accepted rather than locked
-// against.
-// A missing file holds no records. A file that does not parse holds none
-// either and is left as it is until the next write, which starts a new
-// document and moves the unreadable one aside as
-// `agent-launches.json.unreadable`, or as
-// `agent-launches.json.unreadable-<move time>` when an earlier copy already
-// has that name, so nothing is silently lost.
+// and a write drops it. The file is read afresh, replaced atomically, and
+// moved aside when unreadable as `./machineJsonStore.ts` describes.
 
-import { randomUUID } from "node:crypto";
-import { access, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
@@ -28,6 +19,11 @@ import {
   launchRetentionDays,
   type LaunchRecord,
 } from "../src/agentLaunch.ts";
+import {
+  readMachineJson,
+  replaceMachineJson,
+  type MachineJsonStore,
+} from "./machineJsonStore.ts";
 
 const retentionMs = launchRetentionDays * 24 * 60 * 60 * 1000;
 
@@ -35,48 +31,17 @@ const storeSchema = z.record(z.string(), z.array(launchRecordSchema));
 
 type StoredRecords = z.infer<typeof storeSchema>;
 
-type StoreRead =
-  | { readonly kind: "records"; readonly records: StoredRecords }
-  | { readonly kind: "unreadable" };
-
-function storeFile(): string {
-  return path.join(
-    homedir(),
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
-}
-
-async function readStore(file: string): Promise<StoreRead> {
-  let text: string;
-  try {
-    text = await readFile(file, "utf8");
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      return { kind: "records", records: {} };
-    }
-    return { kind: "unreadable" };
-  }
-  try {
-    const parsed = storeSchema.safeParse(JSON.parse(text));
-    return parsed.success
-      ? { kind: "records", records: parsed.data }
-      : { kind: "unreadable" };
-  } catch {
-    return { kind: "unreadable" };
-  }
-}
-
-// Where an unreadable store moves aside without replacing an earlier copy.
-async function unreadableCopy(file: string): Promise<string> {
-  const first = `${file}.unreadable`;
-  try {
-    await access(first);
-  } catch {
-    return first;
-  }
-  return `${first}-${new Date().toISOString().replaceAll(":", "-")}`;
+function launchStore(): MachineJsonStore<StoredRecords> {
+  return {
+    file: path.join(
+      homedir(),
+      ".open-dough",
+      "dashboard",
+      "agent-launches.json",
+    ),
+    schema: storeSchema,
+    empty: {},
+  };
 }
 
 function withinRetention(
@@ -94,13 +59,13 @@ function withinRetention(
 export async function keptRecordsByProject(): Promise<
   ReadonlyMap<string, readonly LaunchRecord[]>
 > {
-  const read = await readStore(storeFile());
+  const read = await readMachineJson(launchStore());
   if (read.kind === "unreadable") {
     return new Map();
   }
   const now = Date.now();
   return new Map(
-    Object.entries(read.records).map(([id, records]) => [
+    Object.entries(read.document).map(([id, records]) => [
       id,
       withinRetention(records, now),
     ]),
@@ -114,32 +79,22 @@ export async function keptRecords(
   return (await keptRecordsByProject()).get(sourceId) ?? [];
 }
 
-// Rewrites the kept records with `change` applied to them, replacing the
-// file atomically. Records past retention are dropped first, and an
-// unreadable file is moved aside.
+// Rewrites the kept records with `change` applied to them. Records past
+// retention are dropped first.
 async function replaceRecords(
   change: (kept: StoredRecords) => StoredRecords,
 ): Promise<void> {
-  const file = storeFile();
-  await mkdir(path.dirname(file), { recursive: true });
-  const read = await readStore(file);
-  let stored: StoredRecords = {};
-  if (read.kind === "unreadable") {
-    await rename(file, await unreadableCopy(file));
-  } else {
-    stored = read.records;
-  }
-  const now = Date.now();
-  const kept: StoredRecords = {};
-  for (const [id, records] of Object.entries(stored)) {
-    const retained = withinRetention(records, now);
-    if (retained.length > 0) {
-      kept[id] = retained;
+  await replaceMachineJson(launchStore(), (stored) => {
+    const now = Date.now();
+    const kept: StoredRecords = {};
+    for (const [id, records] of Object.entries(stored)) {
+      const retained = withinRetention(records, now);
+      if (retained.length > 0) {
+        kept[id] = retained;
+      }
     }
-  }
-  const temporary = `${file}.${randomUUID()}.tmp`;
-  await writeFile(temporary, `${JSON.stringify(change(kept), null, 2)}\n`);
-  await rename(temporary, file);
+    return change(kept);
+  });
 }
 
 // Adds one confirmed launch to its project's records.

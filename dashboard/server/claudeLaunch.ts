@@ -15,6 +15,7 @@ import {
   launchModels,
   launchWorkflows,
   type AgentLaunchRequest,
+  type EstablishedStart,
   type RecordedLaunchRequest,
   type LaunchResult,
 } from "../src/agentLaunch.ts";
@@ -82,16 +83,34 @@ export function recordedRequest(
     : request;
 }
 
-// The workflow's skill on the work item's identity, with the developer's own
-// instruction, when there is one, after a blank line; an ad hoc session has
-// only the instruction as typed, or none.
-function claudeInstruction(request: RecordedLaunchRequest): string | undefined {
+// What a launch's start established, and how the instruction carries it.
+export type EstablishedHandoff = {
+  readonly start: EstablishedStart;
+  readonly formatted: string;
+};
+
+// A launch's established start with the workspace its session opens in.
+export type EstablishedLaunch = {
+  readonly handoff: EstablishedHandoff;
+  readonly workspace: ProjectFolder;
+};
+
+// The workflow's skill on the work item's identity, then the established
+// start when the launch has one, then the developer's own instruction, when
+// there is one, each after a blank line; an ad hoc session has only the
+// instruction as typed, or none.
+function claudeInstruction(
+  request: RecordedLaunchRequest,
+  established: EstablishedHandoff | undefined,
+): string | undefined {
   const own = request.instruction?.trim();
   if (request.workflow === "ad-hoc") {
     return own ? request.instruction : undefined;
   }
   const skill = `/${launchWorkflows[request.workflow].skill} ${request.identity}`;
-  return own ? `${skill}\n\n${own}` : skill;
+  return [skill, established?.formatted, own]
+    .filter((part) => part !== undefined && part !== "")
+    .join("\n\n");
 }
 
 // `<project> · <kind> · <title>`, as `claude agents` lists it.
@@ -173,25 +192,31 @@ function expired(signal: AbortSignal): boolean {
 }
 
 // Starts one background session and confirms it in Claude Code's own listing.
-// An abort (the launch wait expiring) leaves it uncertain whether a session
-// started.
+// It starts in the project's folder, or in the established start's workspace
+// when the launch has one. An abort (the launch wait expiring) leaves it
+// uncertain whether a session started.
 export async function launchClaude(
   source: PublishedSource,
   request: RecordedLaunchRequest,
   folder: ProjectFolder,
   signal: AbortSignal,
+  established?: EstablishedLaunch,
 ): Promise<HostLaunch> {
+  const startedIn = established?.workspace ?? folder;
   const launch = await startClaudeInBackground(
     claudeSessionName(source, request),
-    { instruction: claudeInstruction(request), model: request.model },
-    folder,
+    {
+      instruction: claudeInstruction(request, established?.handoff),
+      model: request.model,
+    },
+    startedIn,
     signal,
   );
   if (expired(signal)) {
     return timedOut();
   }
   if (launch.error) {
-    return failedLaunch(launch.error, launch.stderr, folder, request.model);
+    return failedLaunch(launch.error, launch.stderr, startedIn, request.model);
   }
   const shortId = printedShortId(launch.stdout);
   if (shortId === undefined) {

@@ -66,6 +66,9 @@ test.describe("deleting a Recent sessions entry's record", () => {
     await launch(readyStory, "Execution");
     await launch(notRefinedStory, "Refinement");
     await launch(readyStory, "Refinement");
+    // The last launch settles on its own after its click, and its listing
+    // write would overwrite a change made meanwhile: its session is named too
+    // before any session changes.
     const done = await sessionNamedBy(
       cardSessionOf(card(readyStory), "Execution"),
     );
@@ -75,6 +78,7 @@ test.describe("deleting a Recent sessions entry's record", () => {
     const noList = await sessionNamedBy(
       cardSessionOf(card(notRefinedStory), "Refinement"),
     );
+    await sessionNamedBy(cardSessionOf(card(readyStory), "Refinement"));
     const recordFile = path.join(
       dashboard.home,
       ".open-dough",

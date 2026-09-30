@@ -256,8 +256,13 @@ test.describe("deleting a card's session record", () => {
     await launch(notRefinedStory, "Execution");
     const blocked = cardSessionOf(card(readyStory), "Refinement");
     const working = cardSessionOf(card(notRefinedStory), "Execution");
-    dashboard.claudeSessionBecomes(await sessionNamedBy(blocked), "blocked");
-    dashboard.claudeSessionBecomes(await sessionNamedBy(working), "working");
+    // The last launch settles on its own after its click, and its listing
+    // write would overwrite a change made meanwhile: every session is named
+    // only once each launch has finished.
+    const blockedId = await sessionNamedBy(blocked);
+    const workingId = await sessionNamedBy(working);
+    dashboard.claudeSessionBecomes(blockedId, "blocked");
+    dashboard.claudeSessionBecomes(workingId, "working");
 
     await page.reload();
     await settled();

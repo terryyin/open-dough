@@ -154,10 +154,10 @@ the read boundary topic above and ADR 0008's origin authority.
 
 ## A start establishes claim and workspace before the session
 
-Story 5 of [SEED-052](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation)
-and its siblings (refinement's preparation start, Codex, Cursor) share one model,
-so each adds a row to a table, never a second flow. Model it in the launch
-vocabulary above and build only what story 5 needs.
+The delivered execution start and its siblings in
+[SEED-052](seeds/SEED-052-start-agent-work-from-dashboard.md) (refinement's
+preparation start, Codex, Cursor) share one model, so each adds a row to a
+table, never a second flow. Model it in the launch vocabulary above.
 
 | Domain concept | Meaning | Owner (module) |
 | --- | --- | --- |
@@ -194,5 +194,5 @@ Rules that keep later stories additive:
 - **Failure kinds** stay in the existing `failed` / `uncertain` launch results,
   with a `start` field when a claim may be published, so cards keep one wording.
 
-Retire this topic when the code and tests carry it; keep any lasting rule in
-`dashboard/AGENT-LAUNCH.md`.
+Retire this topic when the sibling stories have delivered their rows and the
+code and tests carry it; keep any lasting rule in `dashboard/AGENT-LAUNCH.md`.

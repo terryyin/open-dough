@@ -15,13 +15,21 @@ import { readyBadge } from "./storyPreparation.ts";
 import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 // What a launch starts, and the one place each workflow is spelled: its
-// display name, the verb its dialog uses, the skill it runs, and the note its
-// card action carries, if any. The boundary, host, and card all read this
-// table.
+// display name, the verb its dialog uses, the skill it runs, what its card
+// says while the launch request is pending, what a project whose installed
+// skill establishes a start (a claim and workspace) has its dialog and card
+// say instead, and the note its card action carries, if any. The boundary,
+// host, and card all read this table.
 type LaunchWorkflowSpec = {
   readonly name: string;
   readonly verb: string;
   readonly skill: string;
+  readonly pending: string;
+  // For a workflow whose Start does more than start the session, in a project
+  // that does it: the sentence its dialog adds and what its card says while
+  // the request is pending. None for a workflow that only starts the session.
+  readonly establishes:
+    { readonly sentence: string; readonly pending: string } | undefined;
   readonly note: (
     entry: Pick<WorkEntry, "preparation" | "preparing">,
   ) => string | undefined;
@@ -32,6 +40,12 @@ export const launchWorkflows = {
     name: "Execution",
     verb: "execute",
     skill: "dough-execute-plan",
+    pending: "Starting execution in Claude Code…",
+    establishes: {
+      sentence:
+        "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
+      pending: "Preparing execution…",
+    },
     // Nothing while readiness is still being read.
     note: ({ preparation }) =>
       preparation?.status !== "loading" &&
@@ -43,6 +57,8 @@ export const launchWorkflows = {
     name: "Refinement",
     verb: "refine",
     skill: "dough-story-refinement",
+    pending: "Starting refinement in Claude Code…",
+    establishes: undefined,
     note: ({ preparing }) =>
       preparing?.status === "recorded" ? "Being prepared" : undefined,
   },
@@ -55,6 +71,20 @@ export const launchWorkflowNames = Object.keys(launchWorkflows) as [
   LaunchWorkflow,
   ...LaunchWorkflow[],
 ];
+
+// The phases of an execution's start the server runs, in order, and the words
+// a card says for each: the script that fetches, makes the workspace and
+// publishes the Take is running (`preparing`), then the script established the
+// start and Claude Code is launching the session (`launching`). Each is the
+// one entry of `launchWorkflows` that says it, spelled once.
+export const startPhases = ["preparing", "launching"] as const;
+
+export type StartPhase = (typeof startPhases)[number];
+
+export const startPhaseWords: Readonly<Record<StartPhase, string>> = {
+  preparing: launchWorkflows.execution.establishes.pending,
+  launching: launchWorkflows.execution.pending,
+};
 
 // The models a launch may ask Claude Code for, and the one place each alias
 // is spelled: the alias `--model` takes and its display name, in the order a
@@ -99,6 +129,24 @@ export function launchSubject(request: RecordedLaunchRequest) {
         ? undefined
         : `Model: ${launchModels[request.model].name} (requested)`,
   };
+}
+
+// Where a launch's session runs, for a launch whose start established a
+// workspace: the folder as the page shows a project's, `~/git/<project id>`,
+// then the workspace under it (`~/git/open-dough/.worktrees/<slug>`), never
+// the machine's home directory. Undefined when no start was established.
+export function workspaceWords(
+  request: RecordedLaunchRequest,
+  start: EstablishedStart | undefined,
+): string | undefined {
+  if (start === undefined) return undefined;
+  const marker = "/.worktrees/";
+  const at = start.workspace.lastIndexOf(marker);
+  return `Workspace ${
+    at < 0
+      ? start.workspace
+      : `~/git/${request.source}${start.workspace.slice(at)}`
+  }`;
 }
 
 export const agentLaunchEndpoint = "/__agent-launch";
@@ -180,12 +228,35 @@ export type HostSession = z.infer<typeof hostSessionSchema>;
 // marked done.
 export const launchRetentionDays = 30;
 
+// The start a workflow established before its session
+// (`../server/executionStart.ts`): the published claim and the workspace the
+// session runs in, as the installed skill's start command reported them, kept
+// with the launch record and handed to the session in its instruction.
+export const establishedStartSchema = z.object({
+  identity: z.string().min(1),
+  publisherId: z.string().min(1),
+  workspace: z.string().min(1),
+  branch: z.string().min(1),
+  mode: z.literal("story-branch"),
+  remote: z.string().min(1),
+  target: z.string().min(1),
+  publishedSha: z.string().min(1),
+  agent: z.string().min(1).optional(),
+  plan: z.string().min(1).optional(),
+  startingRevision: z.string().min(1).optional(),
+  candidateSha: z.string().min(1).optional(),
+});
+
+export type EstablishedStart = z.infer<typeof establishedStartSchema>;
+
 // A confirmed launch, kept on this machine until `launchRetentionDays` after
 // the developer marked its session done (`./doneMark.ts`), if they ever do,
 // with when they did: local evidence only, never a story fact.
 export const launchRecordSchema = z.object({
   request: recordedLaunchRequestSchema,
   session: hostSessionSchema,
+  // What the launch's start established, for a workflow that has one.
+  start: establishedStartSchema.optional(),
   launchedAt: z.iso.datetime(),
   doneAt: z.iso.datetime().optional(),
 });
@@ -296,6 +367,8 @@ export const launchFailureReasons = [
   "folder-not-trusted",
   "refused",
   "unavailable",
+  "start-refused",
+  "already-starting",
 ] as const;
 
 // Why a launch may or may not have started a session: the launch wait
@@ -330,12 +403,46 @@ export const alertsSchema = z.discriminatedUnion("available", [
 
 export type Alerts = z.infer<typeof alertsSchema>;
 
+// A start this machine keeps whose session did not start
+// (`../server/startStore.ts`): the project, the story, the workspace as the
+// page shows a project's folders, and the Agent the start's claim names when
+// it reported one.
+export const keptStartSchema = z.object({
+  source: z.string().min(1),
+  identity: z.string().min(1),
+  workspace: z.string().min(1),
+  agent: z.string().min(1).optional(),
+});
+
+export type KeptStart = z.infer<typeof keptStartSchema>;
+
+// A start running in the boundary's server now: the project, the story, and
+// the phase it is in. A start kept in the store with no running process is a
+// kept start, never a running one.
+export const runningStartSchema = z.object({
+  source: z.string().min(1),
+  identity: z.string().min(1),
+  phase: z.enum(startPhases),
+});
+
+export type RunningStart = z.infer<typeof runningStartSchema>;
+
+// What a Taken card says beside its Start execution while this machine keeps
+// the start that took the story and no session was started from it.
+export const keptStartNote = "Started here, no session yet";
+
 // The machine's sessions, as the boundary answers a GET: every catalog
 // project's launch records, each naming its project and joined with its
-// session's current state, and whether alerts can be raised.
+// session's current state, whether alerts can be raised, the projects
+// whose installed skill establishes a start (the claim and workspace) when
+// Start execution is pressed, by project id, and the starts kept without a
+// session, and the starts running now with their phases.
 export const launchRecordsSchema = z.object({
   records: z.array(launchWithStateSchema),
   alerts: alertsSchema,
+  establishing: z.array(z.string()),
+  keptStarts: z.array(keptStartSchema),
+  starts: z.array(runningStartSchema),
 });
 
 export type MachineAnswer = z.infer<typeof launchRecordsSchema>;

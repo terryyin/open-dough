@@ -65,6 +65,19 @@ export async function machineSessions(
   return (JSON.parse(response.body) as { records: unknown[] }).records;
 }
 
+// The projects whose installed skill establishes a start, as the boundary
+// answers the machine's sessions.
+export async function establishingProjects(
+  server: DashboardServer,
+): Promise<string[]> {
+  const response = await rawRequest({
+    url: `${server.baseURL}${agentLaunchEndpoint}`,
+    headers: { Origin: server.origin },
+  });
+  expect(response.status).toBe(200);
+  return (JSON.parse(response.body) as { establishing: string[] }).establishing;
+}
+
 // One project's records among the machine's sessions.
 export function projectRecords(
   sessions: readonly unknown[],
@@ -105,4 +118,28 @@ export function deleteRecord(
     headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify(body),
   });
+}
+
+// The starts the boundary keeps without a session, as it answers the machine's
+// sessions.
+export async function keptStarts(server: DashboardServer): Promise<unknown[]> {
+  const response = await rawRequest({
+    url: `${server.baseURL}${agentLaunchEndpoint}`,
+    headers: { Origin: server.origin },
+  });
+  expect(response.status).toBe(200);
+  return (JSON.parse(response.body) as { keptStarts: unknown[] }).keptStarts;
+}
+
+// The starts the boundary runs now with their phases, as it answers the
+// machine's sessions.
+export async function runningStarts(
+  server: DashboardServer,
+): Promise<unknown[]> {
+  const response = await rawRequest({
+    url: `${server.baseURL}${agentLaunchEndpoint}`,
+    headers: { Origin: server.origin },
+  });
+  expect(response.status).toBe(200);
+  return (JSON.parse(response.body) as { starts: unknown[] }).starts;
 }

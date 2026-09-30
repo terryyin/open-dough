@@ -3,9 +3,9 @@
 How the [story dashboard](README.md) starts a workflow on a queued story in a
 Claude Code background session on this machine. Two workflows can be started:
 
-| Workflow | Action | Skill it runs |
-| --- | --- | --- |
-| Execution | **Start execution** | `dough-execute-plan` |
+| Workflow   | Action               | Skill it runs            |
+| ---------- | -------------------- | ------------------------ |
+| Execution  | **Start execution**  | `dough-execute-plan`     |
 | Refinement | **Start refinement** | `dough-story-refinement` |
 
 Every **Backlog** card offers **Start execution** and then **Start
@@ -34,20 +34,146 @@ refusal explains itself naming the model, such as "Claude Code refused to start
 a session in ~/git/open-dough with model Opus. Run `claude` in that folder once
 to see why, then start again."
 
-
 The page posts the request to a second local boundary beside the read one,
 `/__agent-launch` (`server/agentLaunchPlugin.ts`, reached from the browser
 through `src/agentLaunchClient.ts`), mounted by the same Vite configuration in
 dev and preview and refusing other sites the same way. It admits only the
 workflows above, and only Claude Code as the host. It runs
 `claude --bg --name "<project> · <workflow> · <title>"` (for example
-`Open Dough · Refinement · <title>`) in the project's folder on this machine,
+`Open Dough · Refinement · <title>`) in the project's folder on this machine (an execution's, in its workspace, below),
 `~/git/<project id>` (for example `~/git/open-dough`), with the instruction
 `/<skill> <identity>`, followed by a blank line and the developer's
 instruction when there is one. It passes a model only when the developer chose
 one (above), and never a permission or effort choice, so the developer's own
 Claude Code settings apply to everything else. It confirms the
 session in Claude Code's own listing, `claude agents --json --all`.
+
+**Start (execution).** Before `claude --bg`, an execution launch runs the
+project's own installed start command, `node
+.claude/skills/dough-execute-plan/scripts/execution-start.mjs start`, as a
+subprocess (`server/executionStart.ts`, the only place its arguments are
+spelled; `server/startResult.ts` is the only reader of its one-line JSON result). It passes the project's folder
+as `--integration`, the workspace, the branch, the launch's identity, one
+stable publisher ID for this machine and project, `--mode story-branch`,
+`--remote origin`, `--target` the project's trunk, `--push-authorized` and
+`--workspace-authorized`, `--host claude`, and `--model <alias>` only when the
+developer chose a model, so the published Take names the agent with host
+`claude` and that model, and nothing on Default. The host chooses the
+workspace (`server/claudeWorkspace.ts`): `<project folder>/.worktrees/<slug>`
+on the branch `claude/<slug>`, the slug the story title in lowercase hyphenated
+words (at most 48 characters), numbered (`-2`, `-3`) when a folder or
+`claude/` branch already has it. The session then starts with that workspace
+as its folder and, as its instruction, `/<skill> <identity>`, a blank line, the
+established start as the installed skill's own formatter
+(`scripts/established-start.mjs`) writes it, and the developer's instruction
+after another blank line. The launch record keeps the established start
+(`start`: identity, publisher ID, workspace, branch, mode, remote, target,
+`publishedSha`, agent, and the start and candidate SHAs when reported).
+Refinement and Start session run no start.
+
+The page says what Start does, for a project whose installed skill establishes
+a start (ships the start command and the formatter; `establishesStart` in
+`server/executionStart.ts`). The machine's sessions answer carries the ids of
+those projects as `establishing`, read on every read. Only then does the
+execution dialog add a sentence to its description: "Start also publishes this
+story's Take to the project's trunk on origin and creates a workspace under the
+project folder's .worktrees/; pressing Start authorizes that push." and only
+then does the card read "Preparing execution…" while the launch request is
+pending. Any other project, and every project until the first read answers,
+gets no sentence and "Starting execution in Claude Code…" (a refinement's reads
+"Starting refinement in Claude Code…"). The pending words are local progress,
+so the card stays in **Backlog** and shows no Taken or agent until origin does.
+The words are in `launchWorkflows` (`pending`, `establishes`). A session whose
+launch record keeps a start says "Workspace
+~/git/<project id>/.worktrees/<slug>" in its entry, on a card or in Recent
+sessions (`workspaceWords`); one launched without a start says none.
+
+The start runs only when the project's installed skill establishes a start;
+otherwise the launch is exactly as before: `claude --bg` in the project's
+folder with `/<skill> <identity>` and the developer's instruction only, no Take
+and no workspace. It is refused, with nothing launched
+("Launch failed:"), when the project folder's `origin` is not the catalog
+repository the Take would be published to, or when the command stops or gives
+no readable result. One reason table in `server/startResult.ts` words each
+command `status` (another agent holds the story, not queued in Backlog, the
+workspace could not be set up, and the rest); "Taken by <Agent>" names the
+owner read from origin's Taken profiles, and a stop that reports its workspace
+and branch names them.
+
+A start is kept (`server/startStore.ts`, `~/.open-dough/dashboard/execution-starts.json`,
+beside the launch records, one per project and story identity). It is written
+before the script runs (publisher ID, workspace, branch, the model chosen,
+when), then updated with what the script reports: the established start when
+it published the Take, or the start and candidate SHAs a stop's `recovery`
+carries. The next execution launch of the same story resumes the kept start:
+the same publisher ID, workspace, branch and model, and the SHAs when a stop
+kept them (`--starting-revision`, `--candidate-sha`), so the command answers
+`existing` or `resumed` and never publishes a second claim or makes a second
+workspace. The start is never aborted: when it has not finished within its wait
+(two minutes; `DOUGH_START_TIMEOUT_MS` shortens it for tests) the launch answers
+uncertain, naming the workspace and branch, "The start was kept and goes on in
+workspace <folder> on branch <branch>; pressing Start again resumes it." The
+command goes on, so the story may already be Taken, and its result is recorded
+in the kept start when it ends. A stop that may have left a claim published or
+committed (`unpublished`, `claim-failed`, or no readable result) is refused
+with "The start was kept; pressing Start again resumes it." Any other refusal
+removes the kept start, since nothing was published to resume. A launch whose
+session started removes the kept start (the launch record keeps it); a
+`claude` launch that fails after the start was established keeps it, and its
+"Launch failed:" answer adds the Take's owner and the workspace after Claude
+Code's own reason: "Taken by <Agent>; no session started. Workspace <folder>."
+(`Taken` alone when the start named no Agent).
+
+The machine's sessions answer carries `keptStarts`: each start kept without a
+session (`AgentLaunches.keptStarts`, from `keptStartsByProject`), naming its
+project, story identity, workspace as the page shows folders, and the Agent its
+claim named. A Taken card whose story has a kept start offers **Start
+execution** (never refinement) with the note "Started here, no session yet", and
+no other Taken card offers one (`CardLaunches`, `keptStartOf`). Its dialog says
+the session opens in that workspace and that the Take is already published, so
+Start publishes no second one. Start there is an ordinary execution launch
+that resumes the kept start: the same workspace and branch, the script's
+`existing` answer, one claim on origin. When the session starts the offer
+goes, the record keeps the start, and the kept start is removed. A kept start
+with no result, from an uncertain or stopped start, is offered the same way
+once origin shows the story Taken.
+
+A start lost with the server (a kept start with no result and no `recovery`,
+and not among the starts this server process is running, `StartProgress`) is
+resumed from its kept workspace: when it is on the kept branch, Start again passes the script
+its HEAD as `--candidate-sha` and HEAD's parent as `--starting-revision`
+(`lostStartArguments`), which the script validates against the claim commit. The
+answer is then `resumed`, one claim on origin, the session in the same
+workspace. A workspace that is not the isolated claim stops with the script's
+own reason ("The workspace could not be set up: retained candidate or
+workspace is not the isolated owned claim.") and launches nothing; that stop
+removes the kept start.
+
+Every page shows a running start's phase. `AgentLaunches` owns the starts this
+server is running in memory (`server/startProgress.ts`), each by project and
+story: `preparing` from before the script runs until it ends, then `launching`
+once it established the start, until the session launch ends; a start that stops,
+whose wait expired, or whose session launch ended leaves it. The machine's
+sessions answer carries them as `starts` (`source`, `identity`, `phase`), read on
+every read; a page reads it on load, on the steady check, and when seen again,
+and a card of that story, on whichever page and whoever asked, says the phase
+words `startPhaseWords` takes from `launchWorkflows` ("Preparing execution…",
+then "Starting execution in Claude Code…") in place of the launching page's own
+pending words, and its Start waits. The card stays where origin puts the story
+(Backlog until origin shows it Taken). A start kept in the store with no running
+process is never running: it is in `keptStarts` (offered as above once Taken),
+and a start that is running is not in `keptStarts`. The launching page clears
+the phase when its launch answers.
+
+A story this server is already starting is not started twice. The check and the
+`preparing` entry are one synchronous step in `beginStart`, before any await,
+so of two launches of one story, whether sent apart or at once, exactly one
+goes on. The other is answered before any process runs (no script, no `claude`)
+as failed with reason `already-starting`: "This story is already starting on
+this machine, so a second start was not made. Wait for the running start to end;
+its card shows its progress. Nothing was launched." Origin holds one claim and
+the project one workspace. A story Taken by another agent is still the
+"Taken by <Agent>" refusal above.
 
 A confirmed launch lists its session on the story's card, beside the Start
 actions, which stay with their notes whatever sessions are listed, and the

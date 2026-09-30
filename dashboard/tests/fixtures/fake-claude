@@ -25,8 +25,9 @@
 // With a `renames-ignored` file it prints the same but leaves the listing's
 // name unchanged. `claude stop <id>` lists that session stopped, with no `status`.
 //
-// Scenarios: `launched` (default), `refused`, `untrusted`, `hang`, and
-// `unlisted` (reports a session that `agents --json` does not list).
+// Scenarios: `launched` (default), `refused`, `untrusted`, `hang`, `held`
+// (launches once a `release` file exists), and `unlisted` (reports a session
+// that `agents --json` does not list).
 
 const crypto = require("crypto");
 const fs = require("fs");
@@ -169,6 +170,13 @@ try {
   scenario = fs.readFileSync(path.join(dir, "scenario"), "utf8").trim();
 } catch {
   // No scenario file: the default.
+}
+
+if (scenario === "held") {
+  while (!fs.existsSync(path.join(dir, "release"))) {
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
+  }
+  scenario = "launched";
 }
 
 const nameAt = args.indexOf("--name");
