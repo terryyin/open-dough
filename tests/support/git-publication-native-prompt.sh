@@ -19,6 +19,9 @@ git_publication_prompt_for() {
     admission-*)
       git_publication_admission_prompt "${journey}"
       ;;
+    land-default-checkout)
+      git_publication_land_default_prompt
+      ;;
     one-shot-escalation)
       git_publication_one_shot_escalation_prompt
       ;;
@@ -81,6 +84,9 @@ git_publication_create_fixture_for() {
       ;;
     one-shot-*)
       git_publication_fixture_create_one_shot "${source_dir}" "${journey}" "${parent}"
+      ;;
+    land-default-checkout)
+      git_publication_fixture_create_land_default "${parent}"
       ;;
     claim-race) git_publication_fixture_create_claim_race "${parent}" ;;
     uncertain-recovery)

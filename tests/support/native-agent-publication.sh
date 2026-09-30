@@ -142,6 +142,12 @@ case ${journey} in
     source "${0%/*}/native-agent-one-shot.sh"
     native_one_shot_substitute
     ;;
+  land-default-checkout)
+    # shellcheck source=tests/support/native-agent-land-default.sh
+    # shellcheck disable=SC1091
+    source "${0%/*}/native-agent-land-default.sh"
+    native_land_default_substitute
+    ;;
   startup-owned-context | preparation-land | trunk-closure-owned-context)
     # shellcheck source=tests/support/native-agent-owned-context.sh
     # shellcheck disable=SC1091

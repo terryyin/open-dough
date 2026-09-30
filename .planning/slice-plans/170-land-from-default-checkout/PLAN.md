@@ -62,7 +62,7 @@ Accepted ADR conflicts; [ADR 0009](../../../docs/adrs/0009-git-branching-and-int
 
 ### 1. A journey can tell whether a default-checkout landing happened
 Type: Behavior
-Status: planned
+Status: done
 Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/git-publication-native.sh`.
 The free suite runs the journey once through the substitute host and its
 assessor counterexamples, and stays under `per-job-seconds=71`.
@@ -78,6 +78,13 @@ one declared signal of that passing observation
 uncommitted, local commit dropped, retirement command run, checkout left
 behind or dirty. The run-support branch that selects the integration checkout as
 the host's workspace gains this journey.
+
+Accepted: free suite passes (`publication/land-default-checkout`, ten
+assessor counterexamples, sensitivity check with a forced push); assessor at
+`git_publication_assess_land_default` in
+`tests/support/git-publication-native-land-default.sh`. Learning: a journey
+that installs guidance into the integration checkout must commit that install
+to trunk before planting edits, or landing everything sweeps the install in.
 
 ### 2. Dough Land lands a change made on the default main checkout
 Type: Behavior

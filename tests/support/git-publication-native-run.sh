@@ -21,6 +21,9 @@ source "${git_publication_run_support_dir}/git-publication-native-one-shot.sh"
 # shellcheck source=tests/support/git-publication-native-one-shot-escalation.sh
 # shellcheck disable=SC1091
 source "${git_publication_run_support_dir}/git-publication-native-one-shot-escalation.sh"
+# shellcheck source=tests/support/git-publication-native-land-default.sh
+# shellcheck disable=SC1091
+source "${git_publication_run_support_dir}/git-publication-native-land-default.sh"
 # shellcheck source=tests/support/git-publication-native-owned-context.sh
 # shellcheck disable=SC1091
 source "${git_publication_run_support_dir}/git-publication-native-owned-context.sh"
@@ -151,18 +154,23 @@ git_publication_run_journey() {
     target=${git_publication_owned_retained}
     native_run_workspace=${git_publication_owned_retained}
   elif [[ ${journey} == startup-* || ${journey} == admission-* ||
-    ${journey} == one-shot-* ]]; then
+    ${journey} == one-shot-* || ${journey} == land-default-checkout ]]; then
     git_publication_fixture_install_skills "${source_dir}" "${host}" \
       "${git_publication_fixture_integration}"
     if [[ ${journey} == one-shot-* ]]; then
       git_publication_one_shot_publish_install
     fi
+    if [[ ${journey} == land-default-checkout ]]; then
+      git_publication_land_default_publish_install
+    fi
     if [[ ${journey} == one-shot-escalation ]]; then
       git_publication_one_shot_escalation_prepare
     fi
-    git_publication_fixture_human_before=$(
-      git_publication_fixture_capture_human "${git_publication_fixture_integration}"
-    )
+    if [[ ${journey} != land-default-checkout ]]; then
+      git_publication_fixture_human_before=$(
+        git_publication_fixture_capture_human "${git_publication_fixture_integration}"
+      )
+    fi
     target=${git_publication_fixture_integration}
     native_run_workspace=${git_publication_fixture_integration}
   else
@@ -202,6 +210,9 @@ git_publication_run_journey() {
   elif [[ ${journey} == admission-* ]]; then
     git_publication_fixture_observe_admission "${journey}" \
       "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
+  elif [[ ${journey} == land-default-checkout ]]; then
+    git_publication_observe_land_default "${journey}" \
+      "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
   elif [[ ${journey} == one-shot-escalation ]]; then
     git_publication_fixture_observe_one_shot_escalation "${journey}" \
       "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
@@ -230,8 +241,7 @@ git_publication_run_journey() {
   if [[ -n ${native_case_results_dir:-} ]]; then
     git_publication_retain_attempt "${source_dir}" "${prompt}" \
       "${transcript}" "${output_file}" "${native_stderr}" \
-      "${observations_file}" "$(git_publication_owned_context_journey \
-        "${journey}" && echo owned-context || echo publication)"
+      "${observations_file}" "$(git_publication_evidence_profile "${journey}")"
   fi
 
   if [[ -z ${GIT_PUBLICATION_KEEP:-} ]]; then
