@@ -151,3 +151,48 @@ in the running server process, with no database or daemon. The browser holds
 only transient dialog and request state and derives what a card shows from the
 published snapshot plus launch records. This extends, and does not replace,
 the read boundary topic above and ADR 0008's origin authority.
+
+## A start establishes claim and workspace before the session
+
+Story 5 of [SEED-052](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation)
+and its siblings (refinement's preparation start, Codex, Cursor) share one model,
+so each adds a row to a table, never a second flow. Model it in the launch
+vocabulary above and build only what story 5 needs.
+
+| Domain concept | Meaning | Owner (module) |
+| --- | --- | --- |
+| **Workflow** | Gains a `start` kind: what mechanical preparation precedes its session (`execution-start` now; `preparation-assignment` in story 6; none for ad hoc). | The one `launchWorkflows` table (`src/agentLaunch.ts`). |
+| **Start** | A workflow's deterministic establishment of a published claim and an owned workspace, run before its session by the project's installed skill script, never reimplemented by the dashboard (PFE: `execution-start.mjs` already fetches, selects the workspace, names the agent, publishes the Take, and reports recovery). | `server/executionStart.ts`: the only place the script's argument array is spelled, and the only reader of its one-line JSON result (zod). |
+| **Workspace choice** | Where the start puts its checkout: a path and branch, decided by the *host's* convention (`claude`: `<project folder>/.worktrees/<story slug>` on `claude/<slug>`; Codex and Cursor differ). | Pure function in the host's module (`server/claudeWorkspace.ts`); story 7/8 add a sibling, not an interface. |
+| **Established start** | The start's typed result: identity, publisher id, workspace, branch, mode, remote and target, agent, `publishedSha`, `startingRevision`, `candidateSha`, plan. The handoff to the session. | Shared type in `src/agentLaunch.ts`. |
+| **Start record** | Machine-local, write-ahead evidence of one start: written *before* the script runs (publisher id, workspace, branch), updated with the established start, removed when a launch record keeps it. It is what a retry resumes. Never a story fact; origin's Take decides Taken. | `server/startStore.ts`, beside `launchRecordStore.ts` on the same file discipline (one shared JSON-file helper). |
+| **Start progress** | Which phase a running start is in (`preparing`, then `launching`), held in server memory and answered with the machine's sessions so every page shows it. A stored start with no running process is *interrupted*, not running. | `AgentLaunches` (`server/agentLaunches.ts`) owns both, keyed by project and identity. |
+| **Handoff** | The session's instruction is `/<skill> <identity>` plus the established start; the skill uses it as its own start result. | `claudeInstruction` (`server/claudeLaunch.ts`) writes it; `dough-execute-plan` reads it (Take step). |
+
+Rules that keep later stories additive:
+
+- **Order.** Admit, then start, then session. The record store and the host see a
+  session only once the start is established; a failed session leaves the start
+  record, so the story's claim never loses its workspace.
+- **Ownership.** One start per project and identity in this server (a second
+  request is refused as already starting). Across servers and machines the
+  script's publisher-id and origin ownership check decides; a story Taken by
+  another agent is refused with its owner. Retry reuses the story's start record,
+  so the same publisher id, workspace, and branch make the script's answer
+  `existing` or `resumed` instead of a second claim or workspace.
+- **Agent.** The claim names host and the chosen model (omitted on Default). A
+  retry after a published claim keeps that claim's model; the session's requested
+  model may differ, and the record says what was requested.
+- **Integration checkout.** The project's folder is the script's `--integration`:
+  it refreshes that checkout only when safe and reports the rest, so a dirty
+  folder never blocks the start.
+- **Host seam.** Host modules own the workspace convention, the skill root
+  (`.claude/skills` for Claude Code; `.agents/skills` for Codex and Cursor),
+  session start, and listing. The start and the record are host-agnostic and take
+  only `host`, `model`, and the workspace choice. Do not extract a host interface
+  until the second host shows what differs.
+- **Failure kinds** stay in the existing `failed` / `uncertain` launch results,
+  with a `start` field when a claim may be published, so cards keep one wording.
+
+Retire this topic when the code and tests carry it; keep any lasting rule in
+`dashboard/AGENT-LAUNCH.md`.
