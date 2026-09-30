@@ -98,7 +98,7 @@ concern without a refinement decision.
 
 ## Breadcrumbs
 
-- [Slice plan 172](../slice-plans/172-start-ad-hoc-project-session/PLAN.md),
-  whose report showed the gap.
+- Slice plan 172 (`.planning/slice-plans/172-start-ad-hoc-project-session/PLAN.md` at
+  commit `35b639bfe3773670eebdc51b97cd06f9c2425bbc`), whose report showed the gap.
 - [Slice planning skill source](../../src/skills/dough-slice-planning/SKILL.md).
 - [Product backlog](../PRODUCT-BACKLOG.md).
