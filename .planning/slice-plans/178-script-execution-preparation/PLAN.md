@@ -170,7 +170,7 @@ postcondition: no session, the card says why and names the owner when another ag
 
 ### 6. Share the machine's JSON store discipline
 Type: Structure
-Status: planned
+Status: done
 Proof: existing `agent-launch-records.spec.ts`, `agent-launch-session-listing.spec.ts`
 and done/delete specs stay green unchanged.
 
