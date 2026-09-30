@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation ([plan](slice-plans/178-script-execution-preparation/PLAN.md))
-- [Resolve uncertainty and expose failure during refinement](seeds/SEED-057-composable-story-refinement-styles.md#resolve-uncertainty-and-expose-failure) — SEED-057#resolve-uncertainty-and-expose-failure ([plan](slice-plans/183-investigate-and-stress-test-refinement/PLAN.md))
 
 ## Backlog list
 
