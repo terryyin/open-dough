@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Shape an interaction within system constraints during refinement](seeds/SEED-057-composable-story-refinement-styles.md#shape-interaction-within-system-constraints) — SEED-057#shape-interaction-within-system-constraints ([plan](slice-plans/184-ux-ui-and-architecture-focus-refinement/PLAN.md))
-
 ## Backlog list
 
 - [Generate avatars for the nerds agent](seeds/SEED-064-nerds-agent-avatars.md#generate-nerds-agent-avatars) — SEED-064#generate-nerds-agent-avatars
