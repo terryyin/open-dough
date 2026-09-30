@@ -19,7 +19,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import "./agent-launch.css";
 import "./agent-terminal.css";
-import { launchWorkflows, type LaunchRecord } from "./agentLaunch.ts";
+import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
 import {
   agentTerminalEndpoint,
   terminalEndedCode,
@@ -149,15 +149,14 @@ export function TerminalPanel({
     setEnding(undefined);
     setAttempt((previous) => previous + 1);
   };
-  const { title, workflow } = record.request;
+  const { title, name } = launchSubject(record.request);
   return (
     <section className="terminal-panel" aria-label="Terminal">
       <header className="terminal-toolbar">
         <div className="terminal-names">
           <h2>{title}</h2>
           <p className="quiet">
-            {launchWorkflows[workflow].name} session{" "}
-            <code>{record.session.sessionId}</code>
+            {name} session <code>{record.session.sessionId}</code>
           </p>
         </div>
         <div className="terminal-actions">

@@ -55,6 +55,19 @@ export const launchWorkflowNames = Object.keys(launchWorkflows) as [
   ...LaunchWorkflow[],
 ];
 
+// What a consumer of a launch record needs of its request, spelled once: the
+// title, the work item's identity (none when the request has no card to look
+// up), the kind's name, and how its session is said to have started.
+export function launchSubject(request: AgentLaunchRequest) {
+  const { name } = launchWorkflows[request.workflow];
+  return {
+    title: request.title,
+    identity: request.identity as string | undefined,
+    name,
+    startedWords: `${name} started in Claude Code`,
+  };
+}
+
 export const agentLaunchEndpoint = "/__agent-launch";
 
 // A work item's identity and title each fit on one line of this length; a

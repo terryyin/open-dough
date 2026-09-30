@@ -19,7 +19,7 @@
 // evidence of launches, not story facts.
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { launchWorkflows, type LaunchWithState } from "./agentLaunch.ts";
+import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
 import { doneSessionName } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
 import { sessionShown } from "./sessionShown.ts";
@@ -47,8 +47,7 @@ export function SessionEntry({
   readonly takesFocus?: boolean;
 }) {
   const entry = useRef<HTMLElement>(null);
-  const { title, identity, workflow } = record.request;
-  const { name } = launchWorkflows[workflow];
+  const { title, identity, name, startedWords } = launchSubject(record.request);
   const markedDone = record.doneAt !== undefined;
   const { entryClass, stateWords } = shownSession(record);
   const inTerminal =
@@ -69,14 +68,15 @@ export function SessionEntry({
       {!onCard && (
         <>
           <h3>{title}</h3>
-          <p className="card-identity">{identity}</p>
+          {identity !== undefined && (
+            <p className="card-identity">{identity}</p>
+          )}
         </>
       )}
       {stateWords}
       {inTerminal && <p className="shown-in-terminal">Shown in terminal</p>}
       <p>
-        {name} started in Claude Code{" "}
-        <Moment at={new Date(record.launchedAt)} />
+        {startedWords} <Moment at={new Date(record.launchedAt)} />
       </p>
       <p className="launch-local">
         Local: launched from this dashboard on this machine.

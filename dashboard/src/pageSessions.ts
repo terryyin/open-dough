@@ -78,7 +78,7 @@ function entryBeside(control: HTMLElement): string | undefined {
 // answer is looked up afterwards.
 export function deletedEntryHome(
   control: HTMLElement,
-  identity: string,
+  identity: string | undefined,
 ): () => HTMLElement | null {
   const beside = entryBeside(control);
   const inRecent = control.closest(".recent-sessions") !== null;
@@ -86,7 +86,9 @@ export function deletedEntryHome(
     inRecent
       ? ((beside === undefined ? null : recentSessionsEntry(beside)) ??
         document.querySelector<HTMLElement>(".recent-sessions"))
-      : (cardEntry(beside) ?? workCard(identity) ?? null);
+      : (cardEntry(beside) ??
+        (identity === undefined ? undefined : workCard(identity)) ??
+        null);
 }
 
 function cardEntry(sessionId: string | undefined): HTMLElement | null {

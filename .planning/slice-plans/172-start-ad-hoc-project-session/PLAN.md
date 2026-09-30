@@ -153,7 +153,7 @@ uses it after). Nothing broader is required locally; CI runs the suite.
 
 ### 1. One place says how a launch record reads
 Type: Structure
-Status: planned
+Status: done
 Proof: unchanged behavior. `agent-launch-card-sessions.spec.ts`,
 `agent-launch-recent-sessions.spec.ts`, `session-sidebar.spec.ts`,
 `session-sidebar-navigation.spec.ts`, and `agent-terminal.spec.ts` pass
@@ -353,4 +353,4 @@ and keep the button, dialog and launch first.
 
 ## Learnings
 
-None yet.
+- Slice 1 accepted: the five named specs plus `agent-terminal-delete.spec.ts` (covers the `deletedEntryHome` path) pass unedited and `npm run typecheck:dashboard` is clean. `claudeLaunch.ts` builds the session name from the workflow name and `request.title` (line ~43); slice 2 decides whether that reads through `launchSubject`.
