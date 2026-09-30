@@ -251,10 +251,15 @@ side effect, not a goal.
 
 ### 8. Git-publication owned-context suite under the bound by concern
 Type: Structure
-Status: planned
+Status: done
 Proof: the free proof command (it runs `git-publication-native-owned-context.sh`
 and `native-stream-replay.sh`, which runs `native-stream-guard.mjs`); no file
 over 250.
+
+Done: the suite is 98 lines; `-owned-context-startup-counterexamples.sh` (73) and
+`-owned-context-land-counterexamples.sh` (107) hold the moved runners. The stream
+guard needed no edit (the host literals stay in the suite); no file under
+`tests` exceeds 250 lines. Free proof and lint pass.
 
 `git-publication-native-owned-context-suite.sh` (260) holds three concerns.
 Keep the journeys with `owned_context_observe`, `owned_context_append_started`
