@@ -27,7 +27,8 @@ function showAt(repoDir: string, revision: string, repositoryPath: string) {
     return execFileSync(
       "git",
       ["-C", repoDir, "show", `${revision}:${repositoryPath}`],
-      { encoding: "utf8" },
+      // An absent path is a 404, not output.
+      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
     );
   } catch {
     return undefined;

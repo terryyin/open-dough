@@ -132,6 +132,7 @@ test("auto refresh: quiet main is only checked, and newly published main appears
     expect(reads.sort()).toEqual(
       [
         ".planning/PRODUCT-BACKLOG.md",
+        ".planning/open-dough.json",
         ".planning/seeds/SEED-008-sync.md",
         ".planning/seeds/SEED-021-progress.md",
         ".planning/seeds/SEED-040-claims.md",

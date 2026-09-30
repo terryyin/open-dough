@@ -21,6 +21,8 @@ import type { PublishedSource } from "./publishedSource.ts";
 const okProfiles = z.object({
   revision: commitSha,
   profiles: z.array(z.object({ path: z.string().min(1), text: z.string() })),
+  // The project setting file's text at the revision; null when it has none.
+  settings: z.string().nullable(),
 });
 
 // A published agent profile's repository path and raw text.
@@ -30,13 +32,19 @@ export type PublishedProfile = {
 };
 
 // The agent profiles published beside the backlog at `revision`, as the local
-// boundary found them listed there; none when the revision has no profile
-// directory. What a profile says is left to the shared profile reader.
+// boundary found them listed there (none when the revision has no profile
+// directory), and the project setting file's text there (undefined when it
+// has none). What either says is left to the shared profile module.
+export type PublishedProfiles = {
+  readonly profiles: readonly PublishedProfile[];
+  readonly settings: string | undefined;
+};
+
 export async function readAgentProfilesAt(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
-): Promise<readonly PublishedProfile[]> {
+): Promise<PublishedProfiles> {
   const reading = `the agent profiles of ${source.repository} at ${revision}`;
   const body = await authenticatedGet(
     `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&agents=profiles`,
@@ -47,7 +55,10 @@ export async function readAgentProfilesAt(
   if (!parsed.success || parsed.data.revision !== revision) {
     throw unexpectedAnswer(reading);
   }
-  return parsed.data.profiles;
+  return {
+    profiles: parsed.data.profiles,
+    settings: parsed.data.settings ?? undefined,
+  };
 }
 
 const okAddition = z.object({

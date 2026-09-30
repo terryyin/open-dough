@@ -15,6 +15,8 @@ const {
   agentIdentity,
   agentNames,
   agentReportError,
+  agentRotationFor,
+  nerdAgentNames,
   parseAgentProfile,
   parseAgentProfileFile,
   profileAgentName,
@@ -227,4 +229,40 @@ test("an unreadable profile says why instead of yielding facts", () => {
   assert.match(read({ activity: "idle" }).error, /assignment activity/);
   assert.match(read({ branch: "" }).error, /branch/);
   assert.match(read({ host: "vim" }).error, /host must be one of/);
+});
+
+test("every collection's names are recognized as agents", () => {
+  assert.deepEqual(agentIdentity("stanly"), {
+    name: "stanly",
+    agent: "stanly-chan",
+    email: "stanly-chan@example.org",
+    path: "agents/stanly-chan.json",
+  });
+  assert.equal(agentIdentity("ZiQingLau").path, "agents/ziqinglau-chan.json");
+  assert.equal(profileAgentName("d.kanai-chan.json"), "d.kanai");
+  assert.equal(nerdAgentNames.length, 26);
+  const lower = [...agentNames, ...nerdAgentNames].map((n) => n.toLowerCase());
+  assert.equal(new Set(lower).size, lower.length);
+});
+
+test("the nerds setting selects the nerds rotation, and only true does", () => {
+  assert.equal(agentRotationFor(undefined).names, agentNames);
+  assert.equal(agentRotationFor("{}").names, agentNames);
+  assert.equal(agentRotationFor('{"nerds":true}').names, nerdAgentNames);
+  for (const text of ['{"nerds":"yes"}', '{"nerds":false}', "{oops"]) {
+    const read = agentRotationFor(text);
+    assert.equal(read.ok, false, text);
+    assert.match(read.error, /\.planning\/open-dough\.json/);
+  }
+  assert.match(agentRotationFor('{"nerds":"yes"}').error, /"nerds"/);
+});
+
+test("nerds rotation starts at terry, also after a current-rotation profile", () => {
+  assert.equal(selectAgentName(undefined, [], nerdAgentNames), "terry");
+  assert.equal(selectAgentName("Yui", ["Yui"], nerdAgentNames), "terry");
+  assert.equal(selectAgentName("terry", ["terry"], nerdAgentNames), "stanly");
+  assert.equal(
+    selectAgentName("joey", [...nerdAgentNames], nerdAgentNames),
+    undefined,
+  );
 });

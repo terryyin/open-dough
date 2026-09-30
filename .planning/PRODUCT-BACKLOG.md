@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Land changes made on the default checkout by committing to main and syncing](seeds/SEED-008-worktree-branch-trunk-sync.md#land-from-default-checkout) — SEED-008#land-from-default-checkout ([plan](slice-plans/170-land-from-default-checkout/PLAN.md))
-- [Select the Odd-e nerds agent names and avatars through configuration](seeds/SEED-060-odd-e-nerds-agent-collection.md#odd-e-nerds-agent-collection) — SEED-060#odd-e-nerds-agent-collection ([plan](slice-plans/177-odd-e-nerds-agent-collection/PLAN.md))
 - [Start execution with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-execution-preparation) — SEED-052#script-execution-preparation ([plan](slice-plans/178-script-execution-preparation/PLAN.md))
 - [Discover materially different alternatives during refinement](seeds/SEED-057-composable-story-refinement-styles.md#composable-refinement-styles) — SEED-057#composable-refinement-styles ([plan](slice-plans/180-explore-and-borrow-refinement/PLAN.md))
 

@@ -63,6 +63,13 @@ it plays once per hover in the enlarged portrait and is disabled for reduced
 motion. The morph begins and ends on the approved still, so it needs no
 overlay to hide a snap.
 
+`agent-avatars/odd-e-nerds/<lowercase name>.jpg` are the photos of the Odd-e
+nerds agents (`nerdAgentNames` in the same module), for example `stanly.jpg`.
+They are local-only: the folder is git-ignored and the photos are never
+committed or published until permission to do so is obtained. A card shows its
+agent's photo as the portrait, enlarged on hover like the others; when the photo
+file is absent it shows the name alone, with no portrait and no error.
+
 ## Tool marks
 
 The files in `tool-avatars/` are official vendor assets saved locally for

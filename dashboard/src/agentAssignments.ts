@@ -15,17 +15,18 @@ import {
   agentHosts,
   agentIdentity,
   agentModes,
+  agentRotationFor,
   parseAgentProfileFile,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   readAgentProfilesAt,
-  type PublishedProfile,
+  type PublishedProfiles,
 } from "./authenticatedProfileRead.ts";
 import {
   attributionLoading,
   type HumanAttribution,
 } from "./assignmentAttribution.ts";
-import { rosterMembers } from "./assignmentRoster.ts";
+import { rosterOf } from "./assignmentRoster.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 
@@ -106,17 +107,25 @@ export type ProfileAssignment = (
   | (AgentOwner & { readonly activity: "execution" })
 ) & { readonly identity: string };
 
-// The readable profiles as assignments, and the unreadable ones by file.
+// The rotation the project's setting selects, or why the setting is unreadable.
+export type ProjectRotation =
+  | { readonly ok: true; readonly names: readonly string[] }
+  | { readonly ok: false; readonly error: string };
+
+// The readable profiles as assignments, and the unreadable ones by file, with
+// the rotation the project setting selects.
 export type ProfileAssignments = {
+  readonly rotation: ProjectRotation;
   readonly assignments: readonly ProfileAssignment[];
   readonly unreadable: readonly UnreadableProfile[];
 };
 
 const profilesUnreadProblem = "Agent profiles could not be read.";
 
-function interpretProfiles(
-  profiles: readonly PublishedProfile[],
-): ProfileAssignments {
+function interpretProfiles({
+  profiles,
+  settings,
+}: PublishedProfiles): ProfileAssignments {
   const assignments: ProfileAssignment[] = [];
   const unreadable: UnreadableProfile[] = [];
   for (const { path, text } of profiles) {
@@ -160,7 +169,11 @@ function interpretProfiles(
       assignments.push({ ...facts, mode, branch, activity, identity });
     }
   }
-  return { assignments, unreadable };
+  return {
+    rotation: agentRotationFor(settings) as ProjectRotation,
+    assignments,
+    unreadable,
+  };
 }
 
 // The assignments of one activity naming an entry, or the gap when none is
@@ -231,6 +244,6 @@ export function withAssignments(
     roster:
       profiles === undefined
         ? { status: "unavailable", problem: profilesUnreadProblem }
-        : { status: "read", members: rosterMembers(work, profiles) },
+        : rosterOf(work, profiles),
   };
 }

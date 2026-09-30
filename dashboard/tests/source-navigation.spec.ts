@@ -92,6 +92,7 @@ test("source navigation opens canonical and plan records at the inspected revisi
       [
         // The agent profile directory is listed for Taken owners.
         ".planning/agents",
+        ".planning/open-dough.json",
         ".planning/seeds/SEED-021-observe-published-story-progress.md",
         ".planning/slice-plans/059-installer-update-report/PLAN.md",
         "docs/adrs/0001-ubiquitous-language-accepted.md",
