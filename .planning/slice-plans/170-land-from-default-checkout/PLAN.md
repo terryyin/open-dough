@@ -118,3 +118,11 @@ renew the stale native evidence.
   journey to one signal set; the publisher's conflict stop is already owned by
   `publish-the-candidate.md`.
 No blocking concern remains.
+
+## Execution complete
+
+Product advice: Terry runs the paid live acceptance per host
+(`tests/git-publication-native.sh --native HOST --case
+publication/land-default-checkout` for Codex, Cursor and Claude Code, then
+`--case publication/preparation-land`), which also renews the stale native
+evidence. No correction is needed.
