@@ -25,6 +25,9 @@ type LaunchWorkflowSpec = {
   readonly verb: string;
   readonly skill: string;
   readonly pending: string;
+  // The file of the installed skill's `references/` that defines the options
+  // a launch may select, if the workflow has any.
+  readonly options: string | undefined;
   // For a workflow whose Start does more than start the session, in a project
   // that does it: the sentence its dialog adds and what its card says while
   // the request is pending. None for a workflow that only starts the session.
@@ -41,6 +44,7 @@ export const launchWorkflows = {
     verb: "execute",
     skill: "dough-execute-plan",
     pending: "Starting execution in Claude Code…",
+    options: undefined,
     establishes: {
       sentence:
         "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
@@ -58,6 +62,7 @@ export const launchWorkflows = {
     verb: "refine",
     skill: "dough-story-refinement",
     pending: "Starting refinement in Claude Code…",
+    options: "refinement-options.json",
     establishes: undefined,
     note: ({ preparing }) =>
       preparing?.status === "recorded" ? "Being prepared" : undefined,
@@ -156,6 +161,9 @@ export const agentLaunchEndpoint = "/__agent-launch";
 export const launchTextLimit = 200;
 export const launchInstructionLimit = 4_000;
 
+// At most this many flags may be selected.
+const launchOptionLimit = 32;
+
 const oneLine = z
   .string()
   .min(1)
@@ -163,10 +171,12 @@ const oneLine = z
   .regex(/^[^\r\n]*$/);
 
 // What either kind of request carries beside its subject: the developer's own
-// instruction and the model asked for, if any.
+// instruction, the model asked for, and the flags selected from the skill's
+// options, if any. Which flags exist is the project's installed definition.
 const launchOptions = {
   instruction: z.string().max(launchInstructionLimit).optional(),
   model: z.enum(launchModelAliases).optional(),
+  options: z.array(oneLine).max(launchOptionLimit).optional(),
 };
 
 const storyLaunchRequestSchema = z.object({
@@ -202,6 +212,8 @@ export type LaunchChoices = {
   readonly instruction: NonNullable<StoryLaunchRequest["instruction"]>;
   // Absent for Default: Claude Code's own setting applies.
   readonly model?: LaunchModel;
+  // The flags selected, absent when none.
+  readonly options?: readonly string[];
 };
 
 // The request a record keeps: an ad hoc one with the label the server

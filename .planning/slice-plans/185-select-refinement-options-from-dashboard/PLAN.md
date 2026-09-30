@@ -119,11 +119,13 @@ enabling slice 2 to read a definition without a second hard-coded root.
 
 ### 2. Launch a refinement with selected composable options
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `tests/agent-launch-options-boundary.spec.ts`, dev and preview, per
 the table (selected flags in definition order, no selection unchanged, unknown or
 missing flag, no/invalid definition, options on a workflow without a definition,
-record keeps flags).
+record keeps flags). Accepted: `agent-launch-options-boundary.spec.ts` 30 of 30
+(dev and preview) and 148 of 148 with the start, model and launch boundary specs;
+`npm run typecheck:dashboard` passed.
 
 Behavior: A launch request for the refinement workflow carrying `options` →
 the boundary reads the project's installed definition, validates the flags, and
@@ -227,3 +229,6 @@ shipped exclusive refinement group, and a generic plugin or registry.
 - Playwright specs run from the workspace root: fixtures copy `src/skills`
   relative to the current directory, and a run from `dashboard/` leaves a
   linted `dashboard/dashboard/dist`.
+- Slice 2 keeps the record's flags in definition order (admission rewrites the
+  request) and reads options and `focuses` as one flat list. No test sends
+  flags in an order that differs from a differently ordered definition.

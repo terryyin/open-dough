@@ -95,10 +95,10 @@ export type EstablishedLaunch = {
   readonly workspace: ProjectFolder;
 };
 
-// The workflow's skill on the work item's identity, then the established
-// start when the launch has one, then the developer's own instruction, when
-// there is one, each after a blank line; an ad hoc session has only the
-// instruction as typed, or none.
+// The workflow's skill on the work item's identity and the flags selected,
+// then the established start when the launch has one, then the developer's
+// own instruction, when there is one, each after a blank line; an ad hoc
+// session has only the instruction as typed, or none.
 function claudeInstruction(
   request: RecordedLaunchRequest,
   established: EstablishedHandoff | undefined,
@@ -107,7 +107,11 @@ function claudeInstruction(
   if (request.workflow === "ad-hoc") {
     return own ? request.instruction : undefined;
   }
-  const skill = `/${launchWorkflows[request.workflow].skill} ${request.identity}`;
+  const skill = [
+    `/${launchWorkflows[request.workflow].skill}`,
+    request.identity,
+    ...(request.options ?? []),
+  ].join(" ");
   return [skill, established?.formatted, own]
     .filter((part) => part !== undefined && part !== "")
     .join("\n\n");
