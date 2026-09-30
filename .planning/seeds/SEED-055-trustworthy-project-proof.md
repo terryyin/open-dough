@@ -28,7 +28,7 @@ projections that came out wrong.
 
 **Identity:** SEED-055#reassess-native-test-architecture
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/177-reassess-native-test-architecture/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3947146ab8b54ecf9e22f14f12dce5af2f943414bc23084e0a24e6a2620a6fc1","plan":"ef88232fc153e985bb87006a0be3f314c82bdd285f43202d696c6fc3a17312bd"}}
 ```
 
 **Goal:** The maintainer who reads and changes this repository's native
