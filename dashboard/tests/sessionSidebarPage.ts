@@ -35,14 +35,14 @@ export type Shown = readonly [
 ];
 
 // The sidebar lists these entries in this order, each launched at or after
-// `since`, and no later than the one above it.
+// `since`, and no later than now.
 export async function expectEntries(
   entries: Locator,
   shown: readonly Shown[],
   since: number,
 ): Promise<void> {
   await expect(entries).toHaveCount(shown.length);
-  let above = Date.now();
+  const now = Date.now();
   for (const [
     index,
     [title, project, workflow, words, needed],
@@ -55,8 +55,7 @@ export async function expectEntries(
       (await entry.locator("time").getAttribute("datetime")) ?? "",
     );
     expect(launchedAt).toBeGreaterThanOrEqual(since);
-    expect(launchedAt).toBeLessThanOrEqual(above);
-    above = launchedAt;
+    expect(launchedAt).toBeLessThanOrEqual(now);
     await expectSessionShown(entry, words, needed);
   }
 }

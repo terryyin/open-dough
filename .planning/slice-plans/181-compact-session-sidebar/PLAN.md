@@ -71,7 +71,7 @@ with none needing attention no badge; the sidebar's attention sentence is gone.
 
 ### 2. Attention sessions lead the list
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright order example and state-change example.
 
 Behavior: attention sessions at 09:00/10:00, working at 08:00/11:00 → order
@@ -107,4 +107,5 @@ tooltip; the row stays one line for a long title.
 
 ## Learnings
 
+- Slice 2: ordering lives in `openSessionsOf` (sidebar-only consumer); `expectEntries` no longer asserts non-increasing launch times, order is proved by titles. Slice 1's CI failure came from `controlsBesideSessions` (`dashboardPage.ts`) excluding the toggle by text; specs outside `sidebarParts` users can depend on the toggle, so run the full dashboard suite before delivering. `auto-refresh-branches.spec.ts` failed once under full-suite load, passing 4/4 alone.
 - Slice 1: `attentionCount` now lives in `sessionShown.ts` beside `attentionSummary`; the badge's accessible name reuses `attentionSummary`. Badge red `#c62828` and a three-line icon were chosen (story fixes neither); no visual check of badge placement or the narrow-window layout yet. One unreproduced flake seen in `agent-launch-card-delete.spec.ts` ("Delete record… State unknown"); passed on rerun and 6x repeat.

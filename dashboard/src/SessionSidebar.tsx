@@ -1,7 +1,7 @@
 // The Sessions sidebar: the machine's sessions still open, from every
-// catalog project whichever is selected, newest launch first
-// (`openSessionsOf`), each with its story's title, its project, its
-// workflow, when it was launched, and its state in the words and attention
+// catalog project whichever is selected, those that need the developer
+// first, then the rest (`openSessionsOf`), each with its story's title, its
+// project, its workflow, when it was launched, and its state in the words and attention
 // edge a card entry shows (`shownSession`), and, while the server cannot
 // raise its macOS alerts (`alerts`), a quiet "Alerts unavailable" note with
 // why, in the open sidebar only. It sits beside the page, left of it, and the

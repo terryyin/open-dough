@@ -158,8 +158,9 @@ closed. On a wide window the sidebar is a fixed-width column left of the page,
 as tall as the window and scrolling on its own, with the terminal panel still
 on the right: sidebar, page, terminal. On a narrow window, where the terminal
 stacks above the page, it lies over the page from the left, below the banner.
-Entries are newest launch first, by launch time alone, so a state change
-updates an entry in place and never moves it, and a new launch comes first.
+Sessions that need the developer, by the card's rule, come first, earliest
+launch first; every other session follows, newest launch first. A state change
+moves an entry between the two groups, and a new launch leads the others.
 Each entry names its story's title, wrapped to at most two lines, the project
 and workflow, such as "Pygardon · Refinement", when it was launched, and its
 session's state in the words a card entry uses, with the same heavier edge
