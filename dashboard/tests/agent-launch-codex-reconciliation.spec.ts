@@ -93,16 +93,23 @@ test("unreadable, missing, empty, unrelated and wrong-workspace history never au
     machine,
     github: dashboard.github,
     codexProtocol: protocol,
-    launchTimeoutMs: 100,
   });
   try {
-    expect(JSON.parse((await launch(limited, request)).body)).toMatchObject({
+    const starting = launch(limited, request);
+    await expect.poll(() => native.history.length, { timeout: 30_000 }).toBe(1);
+    native.failConnection();
+    expect(JSON.parse((await starting).body)).toMatchObject({
       kind: "uncertain",
     });
   } finally {
     await limited.close();
   }
+  expect(native.history).toHaveLength(1);
   const initial = stored(dashboard.home)[0];
+  expect(initial).toMatchObject({
+    firstInput: { state: "uncertain" },
+    session: { sessionId: native.threadId },
+  });
   native.failRead = true;
   const resumed = await startDashboardServer({
     mode: "preview",

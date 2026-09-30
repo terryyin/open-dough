@@ -55,10 +55,14 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
       machine,
       github: dashboard.github,
       codexProtocol: protocol,
-      launchTimeoutMs: 250,
     });
     try {
-      const response = await launch(limited, pendingRequest);
+      const starting = launch(limited, pendingRequest);
+      await expect
+        .poll(() => native.history.length, { timeout: 30_000 })
+        .toBe(1);
+      native.failConnection();
+      const response = await starting;
       expect(JSON.parse(response.body)).toMatchObject({ kind: "uncertain" });
       expect(stored(limited.home)[0]).toMatchObject({
         firstInput: { state: "uncertain" },
