@@ -180,7 +180,11 @@ from reads asked before the deletion in `useAgentLaunches`.
 
 ### 4. A Recent sessions entry deletes too, and the sidebar offers none
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npx playwright test --config dashboard/playwright.config.ts
+--reporter=line` on `agent-launch-recent-delete` (one test) with the card
+delete, delete-problems, recent-session, sidebar, `accessible-overview-keyboard`
+and `agent-launch-card-done` specs (16 passed), rerun after the refactor.
 Proof: `dashboard/tests/agent-launch-recent-delete.spec.ts`. A session whose
 story is in no list, and one marked done, both State unknown: each Recent
 sessions entry offers "Delete record…"; deleting one removes it from Recent
@@ -264,3 +268,8 @@ it at the control if it overruns, keeping `requestDeleteRecord` and
   as done and Delete record share one `role="status"` line on an entry
   (`CardActions`), since a second one breaks the single-status locator in
   `agent-launch-card-done.spec.ts`.
+- Slice 4: every Recent entry now renders its own `role="status"` line (as a
+  card entry does); a page-wide single-status locator would need to scope to a
+  region. The Sessions sidebar omits done sessions, so deleting a done Recent
+  entry leaves the sidebar count unchanged. `SessionEntry.tsx` (~300 lines) and
+  `TerminalSplit.tsx` (~268) are size candidates for later cleanup.

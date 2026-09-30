@@ -21,9 +21,10 @@
 // no focus when it closes. Once the panel shows output from a session the
 // page holds as done, the page reads that session again, since the boundary
 // reopens a done session its terminal attaches to
-// (`../server/agentTerminals.ts`). Deleting a card entry's record leaves the
-// session on no list, says so in a polite status, and sends the keyboard to
-// the card entry beside it, or to the card. Opening, going to a sidebar
+// (`../server/agentTerminals.ts`). Deleting a session's record, from a card
+// or Recent sessions, leaves it on no list, says so in a polite status, and
+// sends the keyboard to the entry beside it, or to the card or Recent
+// sessions. Opening, going to a sidebar
 // entry's session, marking, deleting, and reading again each take the same
 // request (`./pageSessions.ts`).
 
@@ -45,8 +46,7 @@ import {
 import type { OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
-  cardEntryBeside,
-  cardKeyboardHome,
+  deletedEntryHome,
   recentSessionsEntry,
   sessionKeyboardHome,
   SessionsOnPage,
@@ -201,11 +201,12 @@ export function TerminalSplit({
   };
 
   // Deletes the session's record, announcing it; the entry leaves every list
-  // and the keyboard goes to the card entry beside it, or to its card.
+  // and the keyboard goes to the entry beside it in the list the control was
+  // in, else to its card or to Recent sessions.
   const [deleted, setDeleted] = useState<string | undefined>();
   const deleteSessionRecord: DeleteSessionRecord = async (request) => {
     const { record, control } = request;
-    const beside = cardEntryBeside(control);
+    const home = deletedEntryHome(control, record.request.identity);
     const outcome = await deleteRecord(record);
     if (outcome.kind !== "deleted") {
       return outcome;
@@ -215,7 +216,7 @@ export function TerminalSplit({
       control,
       sessionId: record.session.sessionId,
       shows: shown.current,
-      home: () => cardKeyboardHome(beside, record.request.identity),
+      home,
     });
     return outcome;
   };

@@ -10,8 +10,9 @@
 // (`./LaunchSession.tsx`); a session the developer marked done is Done, under
 // its `done-` name. An entry names its story's title and identity unless it
 // is listed on the story's own card, where it offers Mark as done through the
-// page's one operation (`./TerminalSplit.tsx`), and, while its session shows
-// State unknown, "Delete record…", which asks before it deletes. While the
+// page's one operation (`./TerminalSplit.tsx`); on a card or in Recent
+// sessions, while its session shows State unknown, it offers "Delete record…",
+// which asks before it deletes. While the
 // page's terminal shows its session, an entry says "Shown in terminal",
 // outlined in Recent sessions, and the card listing it is outlined. Every
 // entry names its session, so a Recent sessions entry can take the keyboard
@@ -87,7 +88,11 @@ export function SessionEntry({
         </p>
       )}
       <LaunchSession record={record} />
-      {onCard && <CardActions record={record} />}
+      {onCard ? (
+        <CardActions record={record} />
+      ) : (
+        <RecentActions record={record} />
+      )}
     </article>
   );
 }
@@ -165,7 +170,21 @@ function CardActions({ record }: { readonly record: LaunchWithState }) {
   );
 }
 
-// A card entry's Delete record…, offered only while its state is unknown: it
+// A Recent sessions entry's Delete record… while its state is unknown, with
+// its status line; the Sessions sidebar's entries offer none.
+function RecentActions({ record }: { readonly record: LaunchWithState }) {
+  const [deleteSaid, setDeleteSaid] = useState<string | undefined>();
+  return (
+    <>
+      <DeleteRecord record={record} say={setDeleteSaid} />
+      <p role="status" className="launch-problem">
+        {deleteSaid}
+      </p>
+    </>
+  );
+}
+
+// An entry's Delete record…, offered only while its state is unknown: it
 // asks in place, with the keyboard on Keep, before the record is deleted. Keep
 // and Escape put the button back with the keyboard on it. A deleted record
 // takes the entry off the page. A refused or failed delete says so in the

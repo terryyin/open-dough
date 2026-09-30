@@ -82,9 +82,9 @@ export function sessionKeyboardHome(sessionId: string): HTMLElement | null {
   );
 }
 
-// The session of the card entry beside the one a control is in: the entry
-// after it in its card's list, else the one before it.
-export function cardEntryBeside(control: HTMLElement): string | undefined {
+// The session of the entry beside the one a control is in, in its card's list
+// or in Recent sessions: the entry after it, else the one before it.
+function entryBeside(control: HTMLElement): string | undefined {
   const item = control.closest("li");
   const beside = item?.nextElementSibling ?? item?.previousElementSibling;
   return (
@@ -94,21 +94,29 @@ export function cardEntryBeside(control: HTMLElement): string | undefined {
   );
 }
 
-// Where the keyboard goes once a card's entry is deleted: the entry `beside`
-// it (`cardEntryBeside`) while its card still lists it, else the story's card.
-export function cardKeyboardHome(
-  beside: string | undefined,
+// Where the keyboard goes once the entry a control is in is deleted: the entry
+// beside it while its list still shows it, else its story's card (for a card's
+// entry) or Recent sessions. Read the neighbours before the delete; the
+// answer is looked up afterwards.
+export function deletedEntryHome(
+  control: HTMLElement,
   identity: string,
-): HTMLElement | null {
-  return (
-    (beside === undefined
-      ? null
-      : document.querySelector<HTMLElement>(
-          `.card-sessions [${showsSessionAttribute}="${CSS.escape(beside)}"]`,
-        )) ??
-    workCard(identity) ??
-    null
-  );
+): () => HTMLElement | null {
+  const beside = entryBeside(control);
+  const inRecent = control.closest(".recent-sessions") !== null;
+  return () =>
+    inRecent
+      ? ((beside === undefined ? null : recentSessionsEntry(beside)) ??
+        document.querySelector<HTMLElement>(".recent-sessions"))
+      : (cardEntry(beside) ?? workCard(identity) ?? null);
+}
+
+function cardEntry(sessionId: string | undefined): HTMLElement | null {
+  return sessionId === undefined
+    ? null
+    : document.querySelector<HTMLElement>(
+        `.card-sessions [${showsSessionAttribute}="${CSS.escape(sessionId)}"]`,
+      );
 }
 
 // The session's Recent sessions entry, while the page shows it.
