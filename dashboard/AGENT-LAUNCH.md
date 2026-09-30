@@ -125,8 +125,12 @@ stable publisher ID for this machine and project, `--mode story-branch`,
 `--remote origin`, `--target` the project's trunk, `--push-authorized` and
 `--workspace-authorized`, `--host claude`, and `--model <alias>` only when the
 developer chose a model, so the published Take names the agent with host
-`claude` and that model, and nothing on Default. The host chooses the
-workspace (`server/claudeWorkspace.ts`): `<project folder>/.worktrees/<slug>`
+`claude` and that model, and nothing on Default. The dashboard chooses the
+workspace (`server/claudeWorkspace.ts`), not the host's own worktree feature:
+inside the project folder, the folder's existing trust covers it in Claude
+Code, Codex, and Cursor alike, and it stays outside the tools' own worktree
+folders, whose automatic cleanup could remove a long-running story's checkout.
+The workspace is `<project folder>/.worktrees/<slug>`
 on the branch `claude/<slug>`, the slug the story title in lowercase hyphenated
 words (at most 48 characters), numbered (`-2`, `-3`) when a folder or
 `claude/` branch already has it. The session then starts with that workspace

@@ -163,7 +163,7 @@ table, never a second flow. Model it in the launch vocabulary above.
 | --- | --- | --- |
 | **Workflow** | Gains a `start` kind: what mechanical preparation precedes its session (`execution-start` now; `preparation-assignment` in story 6; none for ad hoc). | The one `launchWorkflows` table (`src/agentLaunch.ts`). |
 | **Start** | A workflow's deterministic establishment of a published claim and an owned workspace, run before its session by the project's installed skill script, never reimplemented by the dashboard (PFE: `execution-start.mjs` already fetches, selects the workspace, names the agent, publishes the Take, and reports recovery). | `server/executionStart.ts`: the only place the script's argument array is spelled, and the only reader of its one-line JSON result (zod). |
-| **Workspace choice** | Where the start puts its checkout: a path and branch, decided by the *host's* convention (`claude`: `<project folder>/.worktrees/<story slug>` on `claude/<slug>`; Codex and Cursor differ). | Pure function in the host's module (`server/claudeWorkspace.ts`); story 7/8 add a sibling, not an interface. |
+| **Workspace choice** | Where the start puts its checkout: a path and branch, decided by the dashboard for every host, never by a host's own worktree feature: `<project folder>/.worktrees/<story slug>`. Inside the project folder the folder's trust covers it (Claude Code probed; Codex resolves a linked worktree's trust to its main repository; Cursor inherits trust down the folder tree, observed 2026-09-30), and outside `~/.codex/worktrees` and `~/.cursor/worktrees` those tools' automatic cleanup does not reach it. The branch is `claude/<slug>` today; stories 7/8 make one layout serve every host, naming the host in the branch or no host at all. | One pure function (`server/claudeWorkspace.ts` today); stories 7/8 generalize it rather than adding a sibling per host. |
 | **Established start** | The start's typed result: identity, publisher id, workspace, branch, mode, remote and target, agent, `publishedSha`, `startingRevision`, `candidateSha`, plan. The handoff to the session. | Shared type in `src/agentLaunch.ts`. |
 | **Start record** | Machine-local, write-ahead evidence of one start: written *before* the script runs (publisher id, workspace, branch), updated with the established start, removed when a launch record keeps it. It is what a retry resumes. Never a story fact; origin's Take decides Taken. | `server/startStore.ts`, beside `launchRecordStore.ts` on the same file discipline (one shared JSON-file helper). |
 | **Start progress** | Which phase a running start is in (`preparing`, then `launching`), held in server memory and answered with the machine's sessions so every page shows it. A stored start with no running process is *interrupted*, not running. | `AgentLaunches` (`server/agentLaunches.ts`) owns both, keyed by project and identity. |
@@ -186,9 +186,11 @@ Rules that keep later stories additive:
 - **Integration checkout.** The project's folder is the script's `--integration`:
   it refreshes that checkout only when safe and reports the rest, so a dirty
   folder never blocks the start.
-- **Host seam.** Host modules own the workspace convention, the skill root
+- **Host seam.** Host modules own the skill root
   (`.claude/skills` for Claude Code; `.agents/skills` for Codex and Cursor),
-  session start, and listing. The start and the record are host-agnostic and take
+  session start in the chosen workspace (`codex -C <workspace>`, `cursor-agent
+  --workspace <workspace>`, never their `--worktree` / `-w`), and listing. The
+  workspace choice is shared, not a host convention. The start and the record are host-agnostic and take
   only `host`, `model`, and the workspace choice. Do not extract a host interface
   until the second host shows what differs.
 - **Failure kinds** stay in the existing `failed` / `uncertain` launch results,
