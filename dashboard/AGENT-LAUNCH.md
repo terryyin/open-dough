@@ -181,7 +181,8 @@ keyboard lands on the new entry. Each entry shows its session the way Recent
 sessions does (below), without the story title and identity the card already
 names: its state, its workflow, such as "Refinement started in Claude Code",
 when it was launched, the session id, "Model: <Name> (requested)" when a
-model was chosen (below), and **Open terminal**, which shows the session in
+model was chosen (below), "Options: <flags> (requested)" when options were
+selected, and **Open terminal**, which shows the session in
 the page's terminal (below). Two launches, even of one workflow,
 are two entries, newest first. A failed launch (the project folder or
 `claude` not found, a folder Claude Code does not trust yet, or a refusal)

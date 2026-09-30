@@ -192,7 +192,7 @@ quiet line and Start launches default refinement; a refused launch shows
 
 ### 6. Show requested options on sessions
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `tests/agent-launch-options-entries.spec.ts` after
 `agent-launch-model-entries.spec.ts`.
 
@@ -247,3 +247,5 @@ shipped exclusive refinement group, and a generic plugin or registry.
   it. Slice 7 documents this, not the North Star's “in the dialog” wording. The
   sessions read now answers for each workflow that defines options: offered
   (options and groups) or unavailable with its reason.
+- Slice 6: the sidebar tooltip shows the model line but no options line; the
+  North Star limits the words to card and Recent sessions entries.
