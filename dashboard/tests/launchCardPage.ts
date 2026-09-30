@@ -4,7 +4,7 @@
 // where each card's launch actions and dialogs are found, and the project
 // actions row's Start session button and dialog.
 
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import {
@@ -50,4 +50,9 @@ export const startSession = (page: Page, project: string) =>
 export const startSessionDialog = (page: Page, project: string) =>
   page.getByRole("dialog", {
     name: `Start a session in ${project} in Claude Code`,
+  });
+
+export const startSessionField = (dialog: Locator) =>
+  dialog.getByRole("textbox", {
+    name: "What would you like to talk about? (optional)",
   });

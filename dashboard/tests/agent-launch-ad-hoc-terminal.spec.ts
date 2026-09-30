@@ -8,7 +8,7 @@
 // is typed; the real one is never reached.
 
 import { expect, test } from "./dashboardTest.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog, startSessionField } from "./launchCardPage.ts";
 import { parts, sessionNamedBy } from "./dashboardPage.ts";
 import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
@@ -21,8 +21,6 @@ test.beforeAll(async () => {
 test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
-
-const fieldName = "What would you like to talk about? (optional)";
 
 for (const text of ["why is the CI slow on main?", ""]) {
   test(`starting ${text === "" ? "with an empty field" : "with text"} opens the session in the terminal with the keyboard in it, and Close returns the keyboard to Start session`, async ({
@@ -49,7 +47,7 @@ for (const text of ["why is the CI slow on main?", ""]) {
     // Where the page is once the dialog is open; the launch does not move it.
     const scroll = await page.evaluate(() => window.scrollY);
     if (text !== "") {
-      await dialog.getByRole("textbox", { name: fieldName }).fill(text);
+      await startSessionField(dialog).fill(text);
     }
     await dialog.getByRole("button", { name: "Start" }).click();
 

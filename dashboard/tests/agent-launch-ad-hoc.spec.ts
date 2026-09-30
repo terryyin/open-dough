@@ -9,12 +9,13 @@
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
+  startSessionField,
 } from "./launchCardPage.ts";
 import { expectMembership, parts, sessionNamedBy } from "./dashboardPage.ts";
 import {
@@ -42,11 +43,6 @@ test.beforeAll(async () => {
 test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
-
-const fieldOf = (dialog: Locator) =>
-  dialog.getByRole("textbox", {
-    name: "What would you like to talk about? (optional)",
-  });
 
 const openJourney = (page: Page) => openTakenBacklog(page, journey);
 
@@ -113,16 +109,16 @@ test("the dialog names the project and Claude Code, says the session has no stor
   await expect(dialog).toContainText(
     "Claude Code starts a background session on this machine, in this project's folder, with no story or skill.",
   );
-  await expect(fieldOf(dialog)).toBeFocused();
-  await expect(fieldOf(dialog)).toHaveValue("");
+  await expect(startSessionField(dialog)).toBeFocused();
+  await expect(startSessionField(dialog)).toHaveValue("");
   await expect(dialog.getByRole("button", { name: "Start" })).toBeEnabled();
-  await fieldOf(dialog).fill("never sent");
+  await startSessionField(dialog).fill("never sent");
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
   await expect(button).toBeFocused();
 
   await button.click();
-  await expect(fieldOf(dialog)).toHaveValue("");
+  await expect(startSessionField(dialog)).toHaveValue("");
   await dialog.getByRole("button", { name: "Cancel" }).click();
   await expect(dialog).toBeHidden();
   await expect(button).toBeFocused();
@@ -146,7 +142,7 @@ test("starting with text sends it in the Open Dough folder, and the session read
 
   const before = Date.now();
   await startSession(page, "Open Dough").click();
-  await fieldOf(dialog).fill(`  ${text}  `);
+  await startSessionField(dialog).fill(`  ${text}  `);
   await dialog.getByRole("button", { name: "Start" }).click();
 
   const entry = recentSessions.getByRole("article");
@@ -206,7 +202,7 @@ for (const blank of ["", "   "]) {
     const dialog = startSessionDialog(page, "Open Dough");
 
     await startSession(page, "Open Dough").click();
-    await fieldOf(dialog).fill(blank);
+    await startSessionField(dialog).fill(blank);
     await dialog.getByRole("button", { name: "Start" }).click();
 
     await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(
@@ -231,7 +227,7 @@ test("starting on Pygardon uses Pygardon's folder and lists the session in the s
   const dialog = startSessionDialog(page, "Pygardon");
 
   await startSession(page, "Pygardon").click();
-  await fieldOf(dialog).fill("what changed last week?");
+  await startSessionField(dialog).fill("what changed last week?");
   await dialog.getByRole("button", { name: "Start" }).click();
 
   // Pygardon publishes no work here, so the sidebar is where it is listed.
