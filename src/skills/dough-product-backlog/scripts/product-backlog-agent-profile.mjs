@@ -115,13 +115,42 @@ export function profileAgentName(fileName) {
   return knownAgentNames.find((name) => agentIdentity(name).path === path);
 }
 
-// The first name after `mostRecent` (the profile most recently added on trunk,
-// even if since released) that is not held, wrapping after Rina to Yui. With no
-// profile ever added, rotation starts at Yui. Undefined when all are held.
-export function selectAgentName(mostRecent, held) {
-  const start = agentNames.indexOf(mostRecent) + 1;
-  for (let offset = 0; offset < agentNames.length; offset += 1) {
-    const name = agentNames[(start + offset) % agentNames.length];
+// The project setting file that selects the rotation, and what it may say.
+export const agentSettingsPath = ".planning/open-dough.json";
+
+// The rotation new assignments draw from, given the setting file's text
+// (undefined when the file is absent): `{ ok: true, names }`, or
+// `{ ok: false, error }` naming the file and the `nerds` key when the file is
+// not JSON or `nerds` is anything but true.
+export function agentRotationFor(settingsText) {
+  if (settingsText === undefined) return { ok: true, names: agentNames };
+  let settings;
+  try {
+    settings = JSON.parse(settingsText);
+  } catch {
+    return {
+      ok: false,
+      error: `${agentSettingsPath} is not readable JSON, so the "nerds" key cannot be read`,
+    };
+  }
+  const nerds = settings?.nerds;
+  if (nerds === undefined) return { ok: true, names: agentNames };
+  if (nerds === true) return { ok: true, names: nerdAgentNames };
+  return {
+    ok: false,
+    error: `${agentSettingsPath} key "nerds" must be true when set`,
+  };
+}
+
+// The first name of `names` (the current rotation by default) after
+// `mostRecent` (the profile most recently added on trunk, even if since
+// released) that is not held, wrapping after the last to the first. When
+// `mostRecent` is in no such list, or no profile was ever added, rotation
+// starts at the first name. Undefined when all are held.
+export function selectAgentName(mostRecent, held, names = agentNames) {
+  const start = names.indexOf(mostRecent) + 1;
+  for (let offset = 0; offset < names.length; offset += 1) {
+    const name = names[(start + offset) % names.length];
     if (!held.includes(name)) return name;
   }
   return undefined;

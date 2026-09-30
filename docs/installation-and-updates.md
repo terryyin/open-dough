@@ -43,6 +43,20 @@ A project that wants process retrospectives enables them:
 { "skipProcessRetrospective": false }
 ```
 
+The same file selects the names of new agent assignments. With `nerds` absent
+(or the file absent) assignments rotate through the default names. A project
+that wants the Odd-e nerds' names sets:
+
+```json
+{ "nerds": true }
+```
+
+New assignments then start at `terry` and continue through the nerds names,
+skipping names already held. A profile written under either set of names stays
+held and recognized. Any other value of `nerds`, or a file that is not JSON,
+refuses the assignment with a message naming `.planning/open-dough.json` and
+`nerds`.
+
 Ordinary installation and update preserve an existing file byte-for-byte,
 including unrecognized keys, and leave the path absent when the project has not
 created it. Explicit `--force` replacement of managed skills does the same.

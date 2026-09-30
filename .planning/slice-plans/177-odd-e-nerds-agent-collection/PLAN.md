@@ -71,7 +71,7 @@ the lookups above search all of them; `agentNames` keeps meaning the current rot
 
 ### 2. The `nerds` setting selects the nerds rotation for new assignments
 Type: Behavior
-Status: planned
+Status: done
 Proof: real-Git assignment tests: repository without the setting → next name follows the
 current rotation; `{"nerds": true}` in `.planning/open-dough.json` at the revision → next
 name is `terry` first, then the next free nerds name; setting turned on while `Yui-chan`
