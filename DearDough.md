@@ -483,6 +483,12 @@ Pipeline exit status hid the failed lint command; the earlier semicolon-chain oc
   - Evidence: `npm run -s format 2>&1 | tail -1 && python3 … && git commit … && deliver` printed "Format failed: unresolved findings" yet continued; `ee35dd55` was published, CI run `36533023610` `lint` failed (`unbound-method`, `App.tsx:130`); repair `815844e4`. This repository has no commit hook, so formatting was the only local lint gate.
   - Observed effect: one extra commit, refactor pass, push, and failed CI lint job; the other CI jobs passed.
   - Inference: Qualified. The same coordinator had checked exit status correctly in earlier slices of this run; batching format, plan edit, commit, and delivery into one piped chain reintroduced the fault.
+- Execution: `SEED-052#start-ad-hoc-project-session` / plan 172, first related implementation commit `689970f7`
+  - Timestamp: 2026-09-30T10:09:44+08:00 (slice 2, amended commit `52932716`)
+  - Tool: Claude Code; Model: claude-sonnet-5-5; Open Dough release: unknown; installed guidance VERSION 0.3.47
+  - Evidence: `npm run format 2>&1 | tail -3; python3 … && git add … && agent-commit` printed "Format failed: unresolved findings or tool failures remain." yet committed `3011c1df`; the `tail` hid `no-misused-spread` (`claudeLaunch.ts:64`), which a rerun of format found before delivery, and the commit was amended into `52932716`.
+  - Observed effect: nothing published (caught before delivery); one amend and one extra format, typecheck and spec run.
+  - Inference: Qualified. Recurrence of the hand-built format-then-commit chain (compare ODF-097); the rule is known and the chain still hid the failure, which one scripted format-then-commit step would stop.
 
 ## ODF-154 — Cursor managed delivery lacks its coordinator session identity
 
@@ -925,18 +931,12 @@ Slice 2 made Recent sessions entries and region focusable (`tabIndex=-1`), and s
   - Evidence (recurrence in the same execution): slice 3's retention sentence put "done" in Recent sessions' always-shown intro; `published-work.spec.ts:151` forbids completion words anywhere on a page without sessions and failed only in CI run 36551022132 on `32e554d5`; the full dashboard suite (286 tests, 46 s) then passed locally with the repair.
   - Observed effect: two failed CI runs, two repair commits, and two extra refactor agents.
   - Inference: Qualified. Selecting proof by the names of changed components misses specs that assert a whole-page property. The whole dashboard suite takes under a minute locally, so running it before delivering a page change costs less than one CI repair.
-
-## DD-180 — A host probe planned for the agent to answer needed the developer, because the host refused self-driving the attach
-
-Plan 159 slice 1 said to attach with the existing CLI and answer a real background session's question. The auto-mode classifier refused the coordinator driving `claude attach` through a PTY ("Tmux Self Drive"), so the developer had to attach and answer.
-
-### Occurrences
-
-- Execution: `SEED-052#launch-claude-refinement` / plan 159, first related commit `eb89e7d2`
-  - Timestamp: 2026-09-29T18:20:40+08:00 (refusal; the developer answered at 18:34:49)
-  - Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `d68fcde4`
-  - Evidence: plan 159 slice 1 as refined in `261910e8`; its recorded observation in `eb89e7d2` names the refusal and the human answer.
-  - Observed effect: about 14 minutes with the execution waiting on the developer; the probe itself succeeded. Inference: Qualified. Planning a probe that needs input typed into another interactive session should name the developer step, as DD-173's inverse case (ProjectFindings.md) shows planning should check which actor can run it.
+- Execution: `SEED-052#start-ad-hoc-project-session` / plan 172, first related implementation commit `689970f7`
+  - Timestamp: 2026-09-30T10:29:14+08:00 (slice 5, commit `5c09cc85`; CI run 36660072699)
+  - Tool: Claude Code; Model: claude-sonnet-5-5; Open Dough release: unknown; installed guidance VERSION 0.3.47
+  - Evidence: slice 5 added an always-rendered `role="status"` line in `StartSession.tsx`; its delegated proof ran only the ad hoc, terminal, sidebar and card specs; CI failed on `getByRole('status')` matching two elements in six page-wide specs (`accessible-overview-keyboard`, `auto-refresh`, `auto-refresh-recovery`, `published-work`, `read-failure`, `refresh`). `aria-live="polite"` also collided with `dashboardPage.ts`'s `notice` locator, so the repair `ed7e1aa1` uses `role="log"`. From slice 6 the whole suite (351 tests, about 1 min) ran before delivery.
+  - Observed effect: one failed CI run, one repair commit, one repair agent, and a stash and restore of slice 6's unfinished work.
+  - Inference: Qualified. The cause recurred in a new execution; slice 4's implementer had run the whole suite once, slice 5's delegation named a spec list instead.
 
 ## DD-181 — Proof acceptance checked what tests observe, not the plan's direction on how often to observe it
 
@@ -994,4 +994,5 @@ A transient `Permission denied (publickey)` interrupted `deliver`; a rerun faile
 - Full pre-maintenance log and earlier recovery locators: `2d2c4cda79104a7dbdb45c64e004a0eeb9327d65:DearDough.md`; DD-128's SEED-004#preserve-rules-from-story-sections occurrence: `e89015a7c192e3028fc4f9911235eb2fe94d2d0e:DearDough.md`; removed DD-156 (and this file before DD-157 / ODF-154 row): `777b797926acfab373a6cd45766e3066cbd9da95:DearDough.md`.
 - Resolved and removed on 2026-09-28: ODF-119 (startup source veto and nested-worktree refresh deferral); recovery: `aa771c5d:DearDough.md`.
 - Removed on 2026-09-29 for the 1,000-line ceiling, as lower priority than ODF-116's closure-rewrite occurrence: ODF-074's `SEED-008#creation-record-test-residue` occurrence (no rework; one older occurrence keeps the finding); recovery: `a48b2436:DearDough.md`.
+- Removed on 2026-09-30 for the 1,000-line ceiling, as lower priority than the plan 172 occurrences of ODF-100 and DD-177: DD-180 (a one-off 14-minute wait on a host-refused probe); recovery: `5229d63d:DearDough.md`.
 - Occurrence history is partial; active evidence stays here or in the Open Dough catalog and watch list.

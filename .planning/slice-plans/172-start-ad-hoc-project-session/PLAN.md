@@ -366,3 +366,12 @@ and keep the button, dialog and launch first.
 - Slice 7 accepted: no production change was needed. `agent-launch-ad-hoc-sessions.spec.ts` (4 tests) proves sidebar navigation, Mark as done and reopening, reload persistence, "Needs input" with one session counted, and Delete record… for an ad hoc session; the whole dashboard suite passed apart from the known `agent-launch-recent-delete` timing flake. Across projects the spec proves the Recent sessions reveal by its recorded request, as `session-sidebar-navigation.spec.ts` does for cards; only the same-project test asserts in-viewport.
 - Reveal race, not ad hoc specific: going to a Recent-only session from another project can leave its entry about 20 px below the fold, because `keepInView` (`dashboard/src/workFocus.ts`) skips its first `ResizeObserver` report and the page grew before it attached. A re-check on the next animation frame would close it; not done here.
 - Slice 8 accepted: the five strings are in `docs/dashboard-ux-ui-north-star.md` and `dashboard/AGENT-LAUNCH.md` and in the ad hoc specs (the field label in `launchCardPage.ts`, the shared helper they use); the North Star keeps one row per concept, holding the design intent while Agent launch holds the mechanics.
+
+## Execution complete
+
+Product advice: the story is delivered as planned, with the unused-session reading (decision 3: an empty session lists `blocked` and reads "Needs input") left as a decision for Terry, who accepted the opposite intent on 2026-09-30. Follow-ups to consider at wrap-up, none blocking:
+- Queue a story to deflake `agent-launch-recent-delete.spec.ts` "State unknown": it fails about half its runs under parallel `--repeat-each` load at the pre-change baseline `aeeafc3a` (expects "Working" within 5 s, spec line 109) and failed once in a full-suite run.
+- Consider re-checking the element on the next animation frame in `keepInView` (`dashboard/src/workFocus.ts`): going to a Recent-only session from another project can leave its entry about 20 px below the fold.
+- Decide whether Recent sessions should render for a project without published work, so an ad hoc session started while the published read failed is listed there and not only in the sidebar.
+- Decide whether a separate "unused session" signal is worth adding so an empty session does not count as needing attention.
+- The announcement is a `role="log"` line (implicitly polite) to stay clear of the existing `status` and `[aria-live='polite']` locators; it has not been checked with a screen reader.
