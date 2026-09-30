@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "DavidKo-chan",
-  "email": "davidko-chan@example.org",
-  "identity": "SEED-065#warning-free-lint",
-  "mode": "story-branch",
-  "branch": "claude/make-npm-run-lint-report-no-warnings-or-errors-c",
-  "host": "claude"
-}
