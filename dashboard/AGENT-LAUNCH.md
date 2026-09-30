@@ -341,7 +341,9 @@ Mark as done, clears it. A session marked done (below) needs no attention while
 it stays marked: it shows **Working** while Claude Code lists it working and
 **Done** otherwise; opening its terminal here reopens it (below). A session
 Claude Code no longer lists shows **Session unavailable** (**Done** once marked
-done) without Open terminal; if the listing cannot be read, every entry shows
+done) without Open terminal. An entry Claude Code lists without a short id or
+state, such as an interactive session running in a terminal, is passed over and
+leaves the rest of the listing readable. If the listing cannot be read, every entry shows
 **State unknown** with "Claude Code's session list could not be read", no
 attention, and keeps Open terminal and offers Delete record (below), as
 **Session unavailable** does. While the page

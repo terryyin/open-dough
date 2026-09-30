@@ -103,19 +103,18 @@ export async function stopClaude(
 // has exited, `status` (busy, idle, or waiting) is present only while a
 // session's process runs, and `waitingFor` says, when Claude Code reports it,
 // what a blocked session waits for. A `waitingFor` that is not text is left
-// out rather than refusing the whole listing.
+// out rather than refusing the whole listing, and so is an entry without a
+// short id or state, such as an interactive session running in a terminal.
 const listingArgs = ["agents", "--json", "--all"] as const;
 
-const listedSessions = z.array(
-  z.looseObject({
-    id: z.string().min(1),
-    sessionId: z.string().min(1),
-    name: z.string().optional(),
-    state: z.string(),
-    status: z.string().nullish(),
-    waitingFor: z.string().nullish().catch(undefined),
-  }),
-);
+const listedSession = z.looseObject({
+  id: z.string().min(1),
+  sessionId: z.string().min(1),
+  name: z.string().optional(),
+  state: z.string(),
+  status: z.string().nullish(),
+  waitingFor: z.string().nullish().catch(undefined),
+});
 
 // One session Claude Code lists, and its state as listed.
 export type ListedSession = {
@@ -130,9 +129,13 @@ function parsedListing(stdout: string): readonly ListedSession[] | undefined {
   } catch {
     return undefined;
   }
-  const sessions = listedSessions.safeParse(listed);
-  return sessions.success
-    ? sessions.data.map((entry) => ({
+  if (!Array.isArray(listed)) return undefined;
+  return listed.flatMap((listedEntry) => {
+    const parsed = listedSession.safeParse(listedEntry);
+    if (!parsed.success) return [];
+    const entry = parsed.data;
+    return [
+      {
         session: {
           host: "claude",
           sessionId: entry.sessionId,
@@ -151,8 +154,9 @@ function parsedListing(stdout: string): readonly ListedSession[] | undefined {
             ? {}
             : { waitingFor: entry.waitingFor }),
         },
-      }))
-    : undefined;
+      },
+    ];
+  });
 }
 
 // Every session Claude Code lists, running or not, as it answers in the
