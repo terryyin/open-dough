@@ -85,6 +85,13 @@ and survives a restarted server, a reload, and a project switch;
 `agent-launch-recent-session-states.spec.ts` what each state shows on a Recent
 sessions entry, and on one card entry, which is rendered the same way; and
 `agent-launch-attention.spec.ts` how many of a card's sessions need attention.
+The ad hoc session started from Start session is walked by
+`agent-launch-ad-hoc-boundary.spec.ts` (the boundary: label, arguments,
+refusals, the record), `agent-launch-ad-hoc.spec.ts` (the button, dialog, and
+where the session is listed), `agent-launch-ad-hoc-terminal.spec.ts` (the
+terminal opening at once and the keyboard), `agent-launch-ad-hoc-problems.spec.ts`
+(failed and uncertain launches), and `agent-launch-ad-hoc-sessions.spec.ts`
+(the sidebar, Mark as done, reloading, "Needs input", and Delete record).
 Delete record is walked by `agent-launch-delete.spec.ts` (the boundary),
 `agent-launch-card-delete.spec.ts` and `agent-launch-card-delete-problems.spec.ts`
 (a card entry, and what refusals and failures leave), and

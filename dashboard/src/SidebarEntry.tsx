@@ -6,7 +6,7 @@
 // outlined, while the page's terminal shows its session.
 
 import { useId } from "react";
-import { launchWorkflows, type LaunchWithState } from "./agentLaunch.ts";
+import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
 import { Moment } from "./Moment.tsx";
 import { sourceById } from "./publishedSource.ts";
 import { shownSession } from "./SessionEntry.tsx";
@@ -22,7 +22,8 @@ export function SidebarEntry({
   readonly record: LaunchWithState;
   readonly onOpen: OpenSidebarEntry;
 }) {
-  const { title, source, workflow } = record.request;
+  const { source } = record.request;
+  const { title, name } = launchSubject(record.request);
   const { entryClass, stateWords } = shownSession(record);
   const current =
     usePageSessions().shownInTerminal === record.session.sessionId;
@@ -46,7 +47,7 @@ export function SidebarEntry({
         {title}
       </h3>
       <p id={projectId}>
-        {sourceById(source)?.label ?? source} · {launchWorkflows[workflow].name}
+        {sourceById(source)?.label ?? source} · {name}
       </p>
       <p>
         Launched <Moment at={new Date(record.launchedAt)} />

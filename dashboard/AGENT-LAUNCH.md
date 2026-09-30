@@ -63,10 +63,51 @@ listed session is local evidence from this machine, not a story fact: origin
 alone places the story, and a story that leaves every list keeps its sessions
 only under Recent sessions.
 
+**Ad hoc session.** The project actions row, under the banner, offers **Start
+session** for the selected project (`src/StartSession.tsx`), also while the
+published read failed. It opens a dialog headed "Start a session in <project>
+in Claude Code" that says Claude Code starts a background session on this
+machine, in the project's folder, with no story or skill; its field,
+"What would you like to talk about? (optional)", is focused and empty, and
+**Start** is enabled with nothing typed. **Start** sends it, and **Cancel** or Escape
+sends nothing and returns the keyboard to the button. It is not a card
+workflow, so the table above has no row for it.
+
+It is a second request kind on the same POST: `{ "source": "<project id>",
+"workflow": "ad-hoc", "host": "claude", "instruction": "<text>" }`, with the
+instruction omitted when the text is blank, and no identity or title; a request
+naming an identity, another host, an unknown project, or an instruction over
+4,000 characters is refused before any `claude` runs. The server derives the
+label (`server/claudeLaunch.ts`): the text with each run of whitespace,
+including line breaks, collapsed to one space and trimmed, cut at 40
+characters with an ellipsis; when there is no text, or it holds a control
+character, the time the launch began, as "30 Sep, 14:32". It runs
+`claude --bg --name "<project> · Ad hoc · <label>"` in the project's folder
+with the text exactly as typed as the only instruction, or with none, and
+confirms the session in the same listing as any launch, with the same failure
+and uncertainty answers, shown beside Start session, which stays enabled. The
+record keeps the label as its title and has no identity, so no card looks it
+up. A confirmed launch opens its session in the terminal at once, the keyboard
+in it, and a polite `role="log"` line says "Ad hoc session started"; Close
+returns the keyboard to the button.
+
+Its entries are Recent sessions' and the sidebar's, never a card's: an entry
+titled with the label reads "Ad hoc session started in Claude Code" with its
+launch time, session id, and Open terminal, without a story identity, and the
+sidebar names it "<project> · Ad hoc". Going to it from the sidebar shows the
+project's stories and scrolls to its Recent sessions entry. Mark as done,
+reopening, and Delete record work as for any session, and it changes no story
+fact. Recent sessions renders only for a project with published work, so a
+session started while the published read failed shows in the sidebar alone.
+Its state is read like any other: Claude Code 2.1.285 lists a session started
+with no first message as `blocked` with nothing separating it from one waiting
+on a question, so an unused session shows **Needs input** and counts as needing
+attention until the developer talks to it or marks it done.
+
 **Recent sessions**, below the stages, lists every launch record the page
 reads for the selected project, newest first, whatever origin now shows of its
-story. Each entry names the story's title and identity, its workflow, when it
-was launched, the session id, and the same **Open terminal** as a card's
+story. Each entry names the story's title and identity (an ad hoc session's
+entry has neither), its workflow, when it was launched, the session id, and the same **Open terminal** as a card's
 entry, marked "Local: launched from this dashboard on this machine." An
 entry stays when the story is prepared, taken, or leaves every list, and when
 its session is marked done, and two launches of one story are two entries.

@@ -9,7 +9,7 @@
 // text; its workflow, when it was launched, its session, and Open terminal
 // (`./LaunchSession.tsx`); a session the developer marked done is Done, under
 // its `done-` name. An entry names its story's title and identity unless it
-// is listed on the story's own card, where it offers Mark as done through the
+// is listed on the story's own card or is an ad hoc session (no story), where it offers Mark as done through the
 // page's one operation (`./TerminalSplit.tsx`); on a card or in Recent
 // sessions, while its session shows State unknown, it offers "Delete record…",
 // which asks before it deletes. While the page's terminal shows its session,
@@ -19,7 +19,7 @@
 // evidence of launches, not story facts.
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { launchWorkflows, type LaunchWithState } from "./agentLaunch.ts";
+import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
 import { doneSessionName } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
 import { sessionShown } from "./sessionShown.ts";
@@ -47,8 +47,7 @@ export function SessionEntry({
   readonly takesFocus?: boolean;
 }) {
   const entry = useRef<HTMLElement>(null);
-  const { title, identity, workflow } = record.request;
-  const { name } = launchWorkflows[workflow];
+  const { title, identity, name, startedWords } = launchSubject(record.request);
   const markedDone = record.doneAt !== undefined;
   const { entryClass, stateWords } = shownSession(record);
   const inTerminal =
@@ -69,14 +68,15 @@ export function SessionEntry({
       {!onCard && (
         <>
           <h3>{title}</h3>
-          <p className="card-identity">{identity}</p>
+          {identity !== undefined && (
+            <p className="card-identity">{identity}</p>
+          )}
         </>
       )}
       {stateWords}
       {inTerminal && <p className="shown-in-terminal">Shown in terminal</p>}
       <p>
-        {name} started in Claude Code{" "}
-        <Moment at={new Date(record.launchedAt)} />
+        {startedWords} <Moment at={new Date(record.launchedAt)} />
       </p>
       <p className="launch-local">
         Local: launched from this dashboard on this machine.

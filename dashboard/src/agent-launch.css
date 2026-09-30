@@ -16,9 +16,10 @@
 }
 
 .start-launch-button,
+.start-session-button,
 .launch-open button,
 .terminal-toolbar button,
-.start-launch-dialog-actions button {
+.launch-dialog-actions button {
   font: inherit;
   color: var(--accent);
   background: var(--panel);
@@ -35,8 +36,9 @@
 }
 
 .start-launch-button:disabled,
+.start-session-button:disabled,
 .launch-open button:disabled,
-.start-launch-dialog-actions button:disabled {
+.launch-dialog-actions button:disabled {
   color: var(--quiet);
   border-color: var(--line);
   cursor: default;
@@ -56,7 +58,7 @@
   color: var(--problem);
 }
 
-.start-launch-dialog {
+.launch-dialog {
   box-sizing: border-box;
   width: min(32rem, calc(100% - 1.5rem));
   max-height: calc(100dvh - 1.5rem);
@@ -67,28 +69,28 @@
   background: var(--panel);
 }
 
-.start-launch-dialog::backdrop {
+.launch-dialog::backdrop {
   background: rgb(0 0 0 / 45%);
 }
 
-.start-launch-dialog form {
+.launch-dialog form {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.start-launch-dialog label {
+.launch-dialog label {
   font-weight: 600;
 }
 
-.start-launch-dialog textarea {
+.launch-dialog textarea {
   box-sizing: border-box;
   width: 100%;
   font: inherit;
   resize: vertical;
 }
 
-.start-launch-dialog-actions {
+.launch-dialog-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;

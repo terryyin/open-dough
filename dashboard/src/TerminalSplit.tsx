@@ -32,7 +32,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { attachOpens, type LaunchRecord } from "./agentLaunch.ts";
+import {
+  attachOpens,
+  launchSubject,
+  type LaunchRecord,
+} from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { sourceById, type PublishedSource } from "./publishedSource.ts";
 import {
@@ -174,9 +178,10 @@ export function TerminalSplit({
       return;
     }
     revealed.current = going;
-    const { request, session } = going.to;
+    const { identity } = launchSubject(going.to.request);
     const shown =
-      workCard(request.identity) ?? recentSessionsEntry(session.sessionId);
+      (identity === undefined ? undefined : workCard(identity)) ??
+      recentSessionsEntry(going.to.session.sessionId);
     // Kept in view until the developer moves, goes elsewhere, or another
     // project's stories are shown.
     return shown === null ? undefined : keepInView(shown);
@@ -192,7 +197,10 @@ export function TerminalSplit({
   const [deleted, setDeleted] = useState<string | undefined>();
   const deleteSessionRecord: DeleteSessionRecord = async (request) => {
     const { record, control } = request;
-    const home = deletedEntryHome(control, record.request.identity);
+    const home = deletedEntryHome(
+      control,
+      launchSubject(record.request).identity,
+    );
     const outcome = await deleteRecord(record);
     if (outcome.kind !== "deleted") {
       return outcome;

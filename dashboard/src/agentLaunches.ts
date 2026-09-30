@@ -17,6 +17,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   AgentLaunchRequest,
+  StoryLaunchRequest,
   LaunchRecord,
   LaunchWithState,
   LaunchWorkflow,
@@ -37,7 +38,7 @@ import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 export type LaunchAttempt = { readonly kind: "starting" } | LaunchProblem;
 
 // The work item a launch is for, as its request names it.
-export type LaunchWorkItem = Pick<AgentLaunchRequest, "identity" | "title">;
+export type LaunchWorkItem = Pick<StoryLaunchRequest, "identity" | "title">;
 
 export type MachineSessions = {
   // Every project's launch records, oldest first within a project, each with
@@ -60,6 +61,16 @@ export type MachineSessions = {
     workflow: LaunchWorkflow,
     instruction: string,
   ): Promise<LaunchWithState | undefined>;
+  // Starts an ad hoc session in the project, with the developer's optional
+  // first message, and answers the launched record once the boundary confirms
+  // one. A problem is kept nowhere yet.
+  startAdHoc(
+    sourceId: string,
+    instruction: string,
+  ): Promise<LaunchWithState | undefined>;
+  // The project's ad hoc launch in flight or its last failed or uncertain
+  // answer.
+  adHocAttemptOf(sourceId: string): LaunchAttempt | undefined;
   // Marks a recorded session done, and answers whether the boundary marked
   // it.
   readonly markDone: (record: LaunchRecord) => Promise<boolean>;
@@ -75,8 +86,17 @@ export type MachineSessions = {
 const attemptKey = (
   sourceId: string,
   identity: string,
-  workflow: LaunchWorkflow,
+  workflow: LaunchWorkflow | "ad-hoc",
 ) => JSON.stringify([sourceId, identity, workflow]);
+
+// An ad hoc launch has no work item, so its attempt is the project's alone.
+const adHocKey = (sourceId: string) => attemptKey(sourceId, "", "ad-hoc");
+
+// Trimmed text, omitted when empty, as the boundary takes it.
+const instructionOf = (instruction: string) => {
+  const own = instruction.trim();
+  return own === "" ? {} : { instruction: own };
+};
 
 // The server's records replace what the page knew, except a launch recorded
 // after the read was asked, which the answer may not include yet. The server
@@ -173,24 +193,12 @@ export function useAgentLaunches(): MachineSessions {
     [],
   );
 
-  const start = useCallback(
-    async (
-      sourceId: string,
-      work: LaunchWorkItem,
-      workflow: LaunchWorkflow,
-      instruction: string,
-    ) => {
-      const key = attemptKey(sourceId, work.identity, workflow);
+  // Asks the boundary to launch, keeping the attempt under its key and the
+  // record once launched.
+  const launch = useCallback(
+    async (key: string, request: AgentLaunchRequest) => {
       setAttempt(key, { kind: "starting" });
-      const own = instruction.trim();
-      const answer = await requestAgentLaunch({
-        source: sourceId,
-        identity: work.identity,
-        title: work.title,
-        workflow,
-        host: "claude",
-        ...(own === "" ? {} : { instruction: own }),
-      });
+      const answer = await requestAgentLaunch(request);
       if (answer.kind === "launched") {
         setRecords((current) => [...current, answer.record]);
         setAttempt(key, undefined);
@@ -200,6 +208,35 @@ export function useAgentLaunches(): MachineSessions {
       return undefined;
     },
     [setAttempt, setRecords],
+  );
+
+  const start = useCallback(
+    (
+      sourceId: string,
+      work: LaunchWorkItem,
+      workflow: LaunchWorkflow,
+      instruction: string,
+    ) =>
+      launch(attemptKey(sourceId, work.identity, workflow), {
+        source: sourceId,
+        identity: work.identity,
+        title: work.title,
+        workflow,
+        host: "claude",
+        ...instructionOf(instruction),
+      }),
+    [launch],
+  );
+
+  const startAdHoc = useCallback(
+    (sourceId: string, instruction: string) =>
+      launch(adHocKey(sourceId), {
+        source: sourceId,
+        workflow: "ad-hoc",
+        host: "claude",
+        ...instructionOf(instruction),
+      }),
+    [launch],
   );
 
   const replaceRecord = useCallback(
@@ -260,6 +297,8 @@ export function useAgentLaunches(): MachineSessions {
     attemptOf: (sourceId, identity, workflow) =>
       attempts.get(attemptKey(sourceId, identity, workflow)),
     start,
+    startAdHoc,
+    adHocAttemptOf: (sourceId) => attempts.get(adHocKey(sourceId)),
     markDone,
     deleteRecord,
     readSession,

@@ -8,6 +8,9 @@ Backlog card ask Claude Code on this machine to execute or refine the story,
 sidebar lists every project's open sessions and how many need attention,
 **Open terminal** shows a launch's session beside the page, and **Mark as
 done** there stops it ([Agent launch](AGENT-LAUNCH.md)).
+**Start session** on the project actions row starts an ad hoc session in the
+selected project's folder, with no story, listed in Recent sessions and the
+Sessions sidebar.
 
 The pinned banner shows the selected project in a disclosure and keeps the four
 **Project** choices and SVG **Refresh** control reachable while scrolling. The disclosure opens the repository/ref, full
