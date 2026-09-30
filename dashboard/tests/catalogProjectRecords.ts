@@ -137,6 +137,7 @@ export function expectPinnedGhCalls(
     [
       backlogPath,
       profileDirectory,
+      ".planning/open-dough.json",
       published.takenPath,
       published.queuedPath,
     ].sort(),
