@@ -73,12 +73,14 @@ export function sessionShown({
 
 // The reading that tells the developer, when a session enters it: the label
 // of every reading other than Working, for a session not marked done, else
-// nothing. Unlike `needsAttention`, it includes an unknown, unavailable, or
-// unrecognized state.
+// nothing. Unlike `needsAttention`, it includes an unavailable or
+// unrecognized state, but not an unknown one: an unreadable listing says
+// nothing about the session.
 export function alertReading(
   session: Pick<LaunchWithState, "sessionState" | "doneAt">,
 ): string | undefined {
   if (session.doneAt !== undefined) return undefined;
+  if (session.sessionState.kind === "unknown") return undefined;
   const { label } = sessionShown(session);
   return label === "Working" ? undefined : label;
 }

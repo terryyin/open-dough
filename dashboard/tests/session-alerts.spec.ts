@@ -187,15 +187,15 @@ test.describe("a session that starts needing the developer raises one macOS noti
     ]);
   });
 
-  test("raises State unknown once when Claude Code's listing cannot be read", async ({
+  test("raises nothing when Claude Code's listing cannot be read", async ({
     server,
   }) => {
     await start(server);
     await afterFurtherListings(server);
     server.claudeListingFails(true);
-    await expect.poll(() => server.osascriptCalls().length).toBe(1);
     await afterFurtherListings(server);
-    expect(messages(server)).toEqual(["State unknown"]);
+    await afterFurtherListings(server);
+    expect(server.osascriptCalls()).toEqual([]);
   });
 
   test("never raises one for a session marked done, even when it stops", async ({

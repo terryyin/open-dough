@@ -231,8 +231,8 @@ While the dashboard server runs, it also watches the machine's sessions itself
 (`server/sessionAlerts.ts`), with or without a page open, and raises one macOS
 notification with the sound Glass when a session not marked done enters any
 reading other than **Working** (`alertReading` in `src/sessionShown.ts`, so
-also **Session unavailable**, **State unknown**, and **State not recognized**,
-which the attention count leaves out). Its title is the project and the
+also **Session unavailable** and **State not recognized**, which the attention
+count leaves out, but never **State unknown**). Its title is the project and the
 session's title, and its message the reading, then ": <what it waits for>"
 when Claude Code says. It reads the sessions every 15 seconds
 (`DOUGH_ALERT_CHECK_MS` shortens it for tests) and remembers each session's
