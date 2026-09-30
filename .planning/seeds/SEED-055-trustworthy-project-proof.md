@@ -53,6 +53,31 @@ SEED-055#assessor-counterexample-discipline (commits `a53aa489`..`c6440780` on
 It adds no feature promise. See the
 [plan](../slice-plans/168-assessor-counterexample-gaps/PLAN.md).
 
+<a id="reassess-native-test-architecture"></a>
+
+### Reassess the native test architecture so its files are cohesive and short
+
+**Identity:** SEED-055#reassess-native-test-architecture
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** The maintainer who reads and changes this repository's native
+acceptance tests finds them organized around cohesive responsibilities, with
+no file over the 250-line bound. The first known case is
+`tests/support/story-branch-closure-native-assess.sh` (266 lines); the
+refinement finds the others.
+
+**Scope:** This is not a simple split. Cutting the over-long files into
+pieces would satisfy the bound and leave the design as it is. The story
+reassesses the native test architecture as a whole: what each assessor,
+support script, and suite owns, where responsibilities overlap or leak, and
+how the pieces depend on one another. It then designs a more reasonable,
+elegant, and cohesive solution. The length problem is addressed as a side
+effect of that design, not as its aim. Refinement fixes the observable
+outcome, the files in scope, and the proof that current verdicts do not
+change.
+
 ## Ordering and When to Surface
 
 The assessor counterexample gaps correction closes what the counterexample

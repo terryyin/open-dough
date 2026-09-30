@@ -19,6 +19,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Reassess the native test architecture so its files are cohesive and short](seeds/SEED-055-trustworthy-project-proof.md#reassess-native-test-architecture) — SEED-055#reassess-native-test-architecture
 - [Alert the developer on Mac when a session needs human attention](seeds/SEED-052-start-agent-work-from-dashboard.md#mac-human-attention-alert) — SEED-052#mac-human-attention-alert
 - [Start an ad hoc session in a project from the dashboard](seeds/SEED-052-start-agent-work-from-dashboard.md#start-ad-hoc-project-session) — SEED-052#start-ad-hoc-project-session
 - [Choose the model when starting a session](seeds/SEED-052-start-agent-work-from-dashboard.md#choose-session-model) — SEED-052#choose-session-model
