@@ -9,11 +9,12 @@
 // The synthetic `claude` (./fixtures/fake-claude) stands in for the real one.
 // How the boundary honors a selection is ./agent-launch-options-boundary.spec.ts.
 
-import { cpSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { optionsDefinitionSchema } from "../src/commandOptions.ts";
 import { expect, test } from "./dashboardTest.ts";
 import {
+  installRefinementSkill,
   openTakenBacklog,
   startSession,
   startSessionDialog,
@@ -39,16 +40,6 @@ const skill = "dough-story-refinement";
 const definitionPath = path.join("src", "skills", skill, "references");
 const realDefinition = path.join(definitionPath, "refinement-options.json");
 
-// Installs the real skill in the project the dashboard reads, and answers its
-// definition file.
-function installSkill(home: string) {
-  const installed = path.join(home, "git", "open-dough", ".claude", "skills");
-  cpSync(path.join("src", "skills", skill), path.join(installed, skill), {
-    recursive: true,
-  });
-  return path.join(installed, skill, "references", "refinement-options.json");
-}
-
 test("the shipped definition is valid and gives every option and focus a summary", () => {
   const definition = optionsDefinitionSchema.parse(
     JSON.parse(readFileSync(realDefinition, "utf8")),
@@ -64,7 +55,7 @@ test("the refinement dialog offers the installed definition's entries with label
   page,
   dashboard,
 }) => {
-  const file = installSkill(dashboard.home);
+  const file = installRefinementSkill(dashboard.home);
   const { refine, refinementDialog } = await openTakenBacklog(page, journey);
   const real = JSON.parse(readFileSync(realDefinition, "utf8")) as {
     options: { flag: string; label: string; summary: string }[];
@@ -110,7 +101,7 @@ test("selecting Explore and Borrow shows them in the command line and starts the
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
-  installSkill(dashboard.home);
+  installRefinementSkill(dashboard.home);
   const { refine, refinementDialog } = await openTakenBacklog(page, journey);
   const sent = `/${skill} ${notRefinedIdentity}`;
 
@@ -136,7 +127,7 @@ test("a dialog with nothing selected starts as before, and opens again with noth
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
-  installSkill(dashboard.home);
+  installRefinementSkill(dashboard.home);
   const { refine, refinementDialog } = await openTakenBacklog(page, journey);
   const sent = `/${skill} ${notRefinedIdentity}`;
 
@@ -158,7 +149,7 @@ test("the execution and session dialogs offer no options", async ({
   page,
   dashboard,
 }) => {
-  installSkill(dashboard.home);
+  installRefinementSkill(dashboard.home);
   const { start, dialog } = await openTakenBacklog(page, journey);
 
   await start(readyStory).click();

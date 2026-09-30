@@ -12,6 +12,7 @@ import {
 } from "../src/agentLaunch.ts";
 import {
   inDefinitionOrder,
+  noOptionsFileWhy,
   optionsDefinitionSchema,
   selectionProblems,
   type OptionsDefinition,
@@ -41,7 +42,7 @@ export async function readDefinition(
       kind: "unavailable",
       why:
         (error as NodeJS.ErrnoException).code === "ENOENT"
-          ? "has no options file"
+          ? noOptionsFileWhy
           : "options file could not be read",
     };
   }

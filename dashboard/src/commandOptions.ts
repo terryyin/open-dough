@@ -42,6 +42,27 @@ export const offeredOptionSchema = entrySchema.pick({
 
 export type OfferedOption = z.infer<typeof offeredOptionSchema>;
 
+// What a launch dialog offers of a definition: its entries, options then
+// focuses in one flat list in the definition's order, and its groups.
+export const offeredShapeSchema = z.object({
+  options: z.array(offeredOptionSchema),
+  groups: z.array(groupSchema),
+});
+
+export type OfferedShape = z.infer<typeof offeredShapeSchema>;
+
+// The part of a definition that selection rules read; an offer has it too.
+type SelectionShape = {
+  readonly options: readonly { readonly flag: string }[];
+  readonly focuses?: readonly { readonly flag: string }[] | undefined;
+  readonly groups?:
+    | readonly {
+        readonly label: string;
+        readonly flags: readonly string[];
+      }[]
+    | undefined;
+};
+
 // A malformed definition is invalid as a whole: a flag defined twice, a group
 // member the definition does not define, or a flag in two groups.
 export const optionsDefinitionSchema = definitionShape
@@ -67,22 +88,25 @@ export const optionsDefinitionSchema = definitionShape
   );
 
 // Every selectable entry, options then focuses, in the definition's order.
-function selectableEntries(
-  definition: Pick<OptionsDefinition, "options" | "focuses">,
-) {
+function selectableEntries<
+  Entry extends { readonly flag: string },
+>(definition: {
+  readonly options: readonly Entry[];
+  readonly focuses?: readonly Entry[] | undefined;
+}) {
   return [...definition.options, ...(definition.focuses ?? [])];
 }
 
-// The entries a dialog offers: options then focuses, one flat list in the
-// definition's order.
-export function offeredOptions(
-  definition: OptionsDefinition,
-): readonly OfferedOption[] {
-  return selectableEntries(definition).map(({ flag, label, summary }) => ({
-    flag,
-    label,
-    summary,
-  }));
+// What a dialog offers of a definition: its entries and its groups.
+export function offeredShape(definition: OptionsDefinition): OfferedShape {
+  return {
+    options: selectableEntries(definition).map(({ flag, label, summary }) => ({
+      flag,
+      label,
+      summary,
+    })),
+    groups: definition.groups ?? [],
+  };
 }
 
 export type SelectionProblem =
@@ -97,7 +121,7 @@ export type SelectionProblem =
 // not define, as given, then each exclusive group with more than one of its
 // flags selected (the group's label, the selected flags in its order).
 export function selectionProblems(
-  definition: OptionsDefinition,
+  definition: SelectionShape,
   selection: readonly string[],
 ): readonly SelectionProblem[] {
   const defined = new Set(
@@ -120,10 +144,42 @@ export function selectionProblems(
 // A selection's flags in the definition's order, each once; the order a
 // request names them in has no meaning.
 export function inDefinitionOrder(
-  definition: OptionsDefinition,
+  definition: SelectionShape,
   selection: readonly string[],
 ): string[] {
   return selectableEntries(definition)
     .map(({ flag }) => flag)
     .filter((flag) => selection.includes(flag));
+}
+
+// The boundary's words for a project whose installed skill has no options
+// file; the page says the same when it finds no definition at all.
+export const noOptionsFileWhy = "has no options file";
+
+// A selection with none of an exclusive group's flags.
+export function withoutGroup(
+  selection: ReadonlySet<string>,
+  group: { readonly flags: readonly string[] },
+): ReadonlySet<string> {
+  return new Set([...selection].filter((flag) => !group.flags.includes(flag)));
+}
+
+// A selection with one flag chosen or cleared. Choosing a flag replaces the
+// selected flag of its exclusive group, so a dialog never builds a selection
+// `selectionProblems` would refuse.
+export function withChoice(
+  shape: SelectionShape,
+  selection: ReadonlySet<string>,
+  flag: string,
+  chosen: boolean,
+): ReadonlySet<string> {
+  const next = new Set(selection);
+  if (!chosen) {
+    next.delete(flag);
+    return next;
+  }
+  const group = (shape.groups ?? []).find(({ flags }) => flags.includes(flag));
+  for (const member of group?.flags ?? []) next.delete(member);
+  next.add(flag);
+  return next;
 }

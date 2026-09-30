@@ -25,7 +25,7 @@ import {
   type LaunchResult,
 } from "../src/agentLaunch.ts";
 import { catalog, type PublishedSource } from "../src/publishedSource.ts";
-import { offeredOptions } from "../src/commandOptions.ts";
+import { offeredShape } from "../src/commandOptions.ts";
 import { claudeSessions } from "./claudeCode.ts";
 import {
   launchClaude,
@@ -236,7 +236,7 @@ export class AgentLaunches {
   // The options each catalog project's installed skill offers, for each
   // workflow that defines options, in catalog order: read at each call, so a
   // changed definition shows at once. A project without a usable definition
-  // is left out for that workflow.
+  // says why for that workflow.
   async offeredDefinitions(): Promise<readonly OfferedDefinition[]> {
     const read = await Promise.all(
       catalog.flatMap((source) =>
@@ -248,15 +248,15 @@ export class AgentLaunches {
             skill,
             file,
           );
-          return answer.kind === "defined"
-            ? [
-                {
+          return [
+            answer.kind === "defined"
+              ? {
                   source: source.id,
                   workflow,
-                  options: [...offeredOptions(answer.definition)],
-                },
-              ]
-            : [];
+                  ...offeredShape(answer.definition),
+                }
+              : { source: source.id, workflow, unavailable: answer.why },
+          ];
         }),
       ),
     );

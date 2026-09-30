@@ -181,7 +181,7 @@ dialogs render no group.
 
 ### 5. Exclusive groups and unavailable definitions in the dialog
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend `tests/agent-launch-options.spec.ts` with the test definition and
 the no-definition, reading, and refusal cases in the table.
 
@@ -241,3 +241,9 @@ shipped exclusive refinement group, and a generic plugin or registry.
   Options fieldset, the place slice 5 adds radios and unavailable lines. This
   repository's own installed definition lacks `summary` until a released payload
   is installed.
+- Slice 5: a refused launch closes the dialog as every answer does and shows
+  “Launch failed:” with the option in the card's existing failure place; the
+  selection (not the model) returns when the dialog reopens, and Cancel drops
+  it. Slice 7 documents this, not the North Star's “in the dialog” wording. The
+  sessions read now answers for each workflow that defines options: offered
+  (options and groups) or unavailable with its reason.

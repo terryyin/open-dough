@@ -9,7 +9,7 @@
 // values are the shared profile vocabulary.
 
 import { z } from "zod";
-import { offeredOptionSchema } from "./commandOptions.ts";
+import { offeredShapeSchema } from "./commandOptions.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import { sessionShown } from "./sessionShown.ts";
 import { readyBadge } from "./storyPreparation.ts";
@@ -445,13 +445,20 @@ export type RunningStart = z.infer<typeof runningStartSchema>;
 export const keptStartNote = "Started here, no session yet";
 
 // The options a project's installed skill offers for one workflow's launch,
-// read from its definition at each read of the machine's sessions. A project
-// whose workflow has no usable definition is listed for it nowhere.
-export const offeredDefinitionSchema = z.object({
-  source: z.string().min(1),
-  workflow: z.enum(launchWorkflowNames),
-  options: z.array(offeredOptionSchema),
-});
+// read from its definition at each read of the machine's sessions, or why the
+// project has no usable definition for it (the boundary's words, which finish
+// "the installed <skill> skill in this project").
+export const offeredDefinitionSchema = z.union([
+  offeredShapeSchema.extend({
+    source: z.string().min(1),
+    workflow: z.enum(launchWorkflowNames),
+  }),
+  z.object({
+    source: z.string().min(1),
+    workflow: z.enum(launchWorkflowNames),
+    unavailable: z.string().min(1),
+  }),
+]);
 
 export type OfferedDefinition = z.infer<typeof offeredDefinitionSchema>;
 

@@ -103,6 +103,10 @@
   font-size: 0.9rem;
 }
 
+.launch-options-group {
+  padding: 0.25rem 0.75rem 0.5rem;
+}
+
 .launch-option {
   display: flex;
   flex-wrap: wrap;

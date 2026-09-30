@@ -16,18 +16,19 @@
 // publishes.
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type {
-  Alerts,
-  AgentLaunchRequest,
-  StoryLaunchRequest,
-  KeptStart,
-  OfferedDefinition,
-  RunningStart,
-  StartPhase,
-  LaunchChoices,
-  LaunchRecord,
-  LaunchWithState,
-  LaunchWorkflow,
+import {
+  launchWorkflows,
+  type Alerts,
+  type AgentLaunchRequest,
+  type StoryLaunchRequest,
+  type KeptStart,
+  type OfferedDefinition,
+  type RunningStart,
+  type StartPhase,
+  type LaunchChoices,
+  type LaunchRecord,
+  type LaunchWithState,
+  type LaunchWorkflow,
 } from "./agentLaunch.ts";
 import {
   readMachineSessions,
@@ -37,7 +38,7 @@ import {
   type DeleteRecordOutcome,
   type LaunchProblem,
 } from "./agentLaunchClient.ts";
-import type { OfferedOption } from "./commandOptions.ts";
+import { noOptionsFileWhy, type OfferedShape } from "./commandOptions.ts";
 import { usePageVisibility } from "./pageVisibility.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 
@@ -59,13 +60,12 @@ export type MachineSessions = {
   // execution is pressed, as of the latest read; false until read, so the
   // page never says a claim will be published before the server said so.
   establishesStart(sourceId: string): boolean;
-  // The options the project's installed skill offers for the workflow's
-  // launch, as of the latest read, in the definition's order; none until read
-  // or when it defines none.
-  offeredOptions(
+  // What the project's installed skill offers for the workflow's launch, as
+  // of the latest read; undefined when the workflow defines no options.
+  optionsOffer(
     sourceId: string,
     workflow: LaunchWorkflow,
-  ): readonly OfferedOption[];
+  ): OptionsOffer | undefined;
   // The start this machine keeps for the project's story with no session
   // started from it, as of the latest read; undefined when none is kept.
   keptStartOf(sourceId: string, identity: string): KeptStart | undefined;
@@ -152,6 +152,12 @@ function replaced(
     ),
   ];
 }
+
+// The options a launch dialog has to say: being read, offered, or why none.
+export type OptionsOffer =
+  | { readonly kind: "reading" }
+  | { readonly kind: "unavailable"; readonly why: string }
+  | ({ readonly kind: "offered" } & OfferedShape);
 
 export function useAgentLaunches(): MachineSessions {
   // The sessions the page knows, and whether a read has answered them: a
@@ -388,11 +394,20 @@ export function useAgentLaunches(): MachineSessions {
     records: readAnswered ? known : undefined,
     alerts,
     establishesStart: (sourceId) => establishing.includes(sourceId),
-    offeredOptions: (sourceId, workflow) =>
-      definitions.find(
-        (offered) =>
-          offered.source === sourceId && offered.workflow === workflow,
-      )?.options ?? [],
+    optionsOffer: (sourceId, workflow) => {
+      if (launchWorkflows[workflow].options === undefined) return undefined;
+      if (!readAnswered) return { kind: "reading" };
+      const offered = definitions.find(
+        (definition) =>
+          definition.source === sourceId && definition.workflow === workflow,
+      );
+      if (offered === undefined) {
+        return { kind: "unavailable", why: noOptionsFileWhy };
+      }
+      return "unavailable" in offered
+        ? { kind: "unavailable", why: offered.unavailable }
+        : { kind: "offered", ...offered };
+    },
     keptStartOf: (sourceId, identity) =>
       keptStarts.find(
         (kept) => kept.source === sourceId && kept.identity === identity,
