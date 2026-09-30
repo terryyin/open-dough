@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 191. Removed local codes are never reused.
+- Highest allocated local number: 192. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -330,3 +330,19 @@ A shared read boundary and a spec file changed under a "no format, no lint" dele
 Follow-up: Open, unqueued.
 
 - Execution: `SEED-060#odd-e-nerds-agent-collection` / plan 177, first related implementation commit `6befd854` - Timestamp: 2026-09-30T14:10:00+08:00 (CI run 36676898928; repairs `57505b5d`, `f70185e6`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown - Evidence: slice 4 delivery ran `npm run format 2>&1 | tail -2; ...` whose output ended "Format failed: unresolved findings" (no-redundant-type-constituents in the new settings spec) yet the chain committed and published `03d6d10a`. The same push failed dashboard shards because `authenticated-project-overview.spec.ts` (exact pinned-read list, not in the agent's focused set) and fake-origin `git show` stderr in launch specs were never run. - Observed effect: two owned repair commits and two failing CI runs for one slice. - Inference: Qualified. The delegation forbade lint and named a focused set chosen from the reachability grep, so specs that enumerate reads were outside it; the coordinator's masked exit status was a separate slip. Not shown to recur in another execution.
+
+## DD-192 — A delegated refactor pass ran on each of two tiny guidance changes and edited nothing
+
+The required fresh refactor agent was spawned for a five-line skill paragraph plus one data file, and again for a one-entry data addition; both returned `## REFACTOR COMPLETE` with no edits, after reading the diff and skill references.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+- Execution: `SEED-057#composable-refinement-styles` / plan 180, first related implementation commit `fba9ebb5`
+  - Timestamp: unknown (session date 2026-09-30; exact event times not recorded)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-sonnet-5-5
+  - Open Dough release: modified; revision `7591380f`; base 0.3.47
+  - Evidence: coordinator conversation: refactor hand-backs for slice 1 (`Outcome: none — already clean`, 42,061 subagent tokens, 3 tool uses) and slice 2 (`Outcome: none — already clean`, 41,865 subagent tokens, 4 tool uses); changed paths `refinement-options.json`, a 5-line `SKILL.md` paragraph and one `install.sh` line.
+  - Observed effect: no edits, no rework; the passes restated an overlap (`default` versus the SKILL.md pointer sentence) that slice 1's implementer had already reported.
+  - Inference: Qualified. Cost only, about 84k subagent tokens across two passes; the step is mandatory and two samples cannot show whether a pass ever pays off on changes this small.

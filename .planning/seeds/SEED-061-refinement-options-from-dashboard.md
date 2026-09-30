@@ -87,8 +87,9 @@ the behavior needed to launch refinement.
   author or validate the reasoning technique of each option. Other commands,
   persistent selection preferences, and support for additional agent hosts are
   deferred promises. Generality does not require delivering those extensions.
-- **Depends on:** A usable refinement-option increment from
-  [Discover materially different alternatives during refinement](SEED-057-composable-story-refinement-styles.md#composable-refinement-styles)
+- **Depends on:** The delivered refinement-option increment (Explore and Borrow,
+  defined in
+  [refinement-options.json](../../src/skills/dough-story-refinement/references/refinement-options.json))
   and the established dashboard refinement
   launch. It need not wait for every proposed technique to be delivered. Scripted
   refinement preparation and additional host support are not established as
@@ -115,7 +116,7 @@ the behavior needed to launch refinement.
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).
-- [Refinement options story](SEED-057-composable-story-refinement-styles.md#composable-refinement-styles).
+- [Refinement options definition](../../src/skills/dough-story-refinement/references/refinement-options.json).
 - [Existing dashboard launch behavior](../../dashboard/AGENT-LAUNCH.md).
 - [ADR 0002: Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
 - [ADR 0006: Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
