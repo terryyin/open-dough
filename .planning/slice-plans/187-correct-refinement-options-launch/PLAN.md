@@ -5,9 +5,12 @@
 - **Identity:** SEED-061#correct-refinement-options-launch-follow-ups
 - **Source:** [correction story](../../seeds/SEED-061-refinement-options-from-dashboard.md#correct-refinement-options-launch-follow-ups),
   a bounded retrospective correction of the completed execution of
-  [SEED-061#select-refinement-options-from-dashboard](../../seeds/SEED-061-refinement-options-from-dashboard.md#select-refinement-options-from-dashboard)
+  SEED-061#select-refinement-options-from-dashboard
   (plan 185, all 7 slices done, commits `06c65127..77348819` on
-  `claude/select-refinement-options-from-dashboard`). That story's contract and
+  `claude/select-refinement-options-from-dashboard`; its story and plan are
+  recoverable from commit `8b7476fd6306f3da875186d7ce7f1d7dd6dc53b9`, at
+  `.planning/seeds/SEED-061-refinement-options-from-dashboard.md` and
+  `.planning/slice-plans/185-select-refinement-options-from-dashboard/PLAN.md`). That story's contract and
   manifest are provenance; its promises are not changed.
 - **Authority:** A parent-agent request for planning only (2026-09-30). This plan
   grants no implementation, Take, queueing, or publication.

@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Select refinement options when launching from the dashboard](seeds/SEED-061-refinement-options-from-dashboard.md#select-refinement-options-from-dashboard) — SEED-061#select-refinement-options-from-dashboard ([plan](slice-plans/185-select-refinement-options-from-dashboard/PLAN.md))
-
 ## Backlog list
 
 - [Correct the refinement options launch after its outcome review](seeds/SEED-061-refinement-options-from-dashboard.md#correct-refinement-options-launch-follow-ups) — SEED-061#correct-refinement-options-launch-follow-ups
