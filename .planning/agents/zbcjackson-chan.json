@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "zbcjackson-chan",
+  "email": "zbcjackson-chan@example.org",
+  "identity": "SEED-052#script-refinement-preparation",
+  "mode": "story-branch",
+  "branch": "claude/start-refinement-with-mechanical-preparation",
+  "host": "claude",
+  "model": "claude-sonnet-5-5"
+}
