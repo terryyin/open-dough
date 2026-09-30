@@ -5,6 +5,13 @@ import { fileURLToPath } from "node:url";
 process.chdir(fileURLToPath(new URL("..", import.meta.url)));
 
 const fix = process.argv.includes("--fix");
+const staged = process.argv.includes("--staged");
+if (fix && staged) {
+  console.error(
+    "lint: --staged only checks and cannot be combined with --fix.",
+  );
+  process.exit(2);
+}
 let failed = false;
 
 function run(command, args, options = {}) {
@@ -34,9 +41,13 @@ function checkFiles(command, args, files) {
 }
 
 // Include new files and paths containing spaces; honor Git's ignore rules.
+// With --staged, list only the added, copied, modified, or renamed staged paths
+// and check their working-tree copies.
 const listing = run(
   "git",
-  ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+  staged
+    ? ["diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"]
+    : ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
   {
     stdio: ["ignore", "pipe", "inherit"],
   },

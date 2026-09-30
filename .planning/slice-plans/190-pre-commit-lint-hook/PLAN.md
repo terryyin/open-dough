@@ -109,7 +109,7 @@ run shows none reaches this repository's hook.
 ### 1. Refuse a commit whose staged files fail lint
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npm test -- tests/support/pre-commit-lint-hook.test.mjs tests/support/lint-file-set.test.mjs`
 (examples 1–4), then `npm run lint`.
 
@@ -121,6 +121,14 @@ way, and unstaged files are not checked.
 
 Adds `--staged` to `scripts/lint.mjs` and the tracked `pre-commit` hook. The
 fixture sets `core.hooksPath` directly; slice 3 owns installation.
+
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH node --test
+tests/support/pre-commit-lint-hook.test.mjs tests/support/lint-file-set.test.mjs`
+(7 of 7 pass: the four hook tests for examples 1–4 and the three existing
+lint-file-set tests) and `npm run lint` (clean). Learnings: `--staged` with
+`--fix` exits 2; the fixture helpers shared with `lint-file-set.test.mjs` live in
+`tests/support/lint-runner-fixture.mjs`; `npm test` needs Bash 5 on `PATH`
+(`/opt/homebrew/bin`) on this machine and prints no test names.
 
 ### 2. Commit records without lint tools and report a missing one
 
