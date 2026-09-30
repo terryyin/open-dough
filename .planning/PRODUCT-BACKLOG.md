@@ -16,10 +16,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Land changes made on the default checkout by committing to main and syncing](seeds/SEED-008-worktree-branch-trunk-sync.md#land-from-default-checkout) — SEED-008#land-from-default-checkout ([plan](slice-plans/170-land-from-default-checkout/PLAN.md))
 - [Check reported gaps against the story before accepting a slice](seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps ([plan](slice-plans/175-accept-reported-story-gaps/PLAN.md))
+- [Observe a planning premise through the operation that consumes it](seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers ([plan](slice-plans/176-observe-premise-consumers/PLAN.md))
 
 ## Backlog list
 
-- [Observe a planning premise through the operation that consumes it](seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers
 - [Select the Odd-e nerds agent names and avatars through configuration](seeds/SEED-060-odd-e-nerds-agent-collection.md#odd-e-nerds-agent-collection) — SEED-060#odd-e-nerds-agent-collection
 - [Choose and compose styles for story refinement](seeds/SEED-057-composable-story-refinement-styles.md#composable-refinement-styles) — SEED-057#composable-refinement-styles
 - [Reassess the native test architecture so its files are cohesive and short](seeds/SEED-055-trustworthy-project-proof.md#reassess-native-test-architecture) — SEED-055#reassess-native-test-architecture
