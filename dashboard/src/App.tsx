@@ -9,6 +9,7 @@ import { useAgentLaunches } from "./agentLaunches.ts";
 import { RecentSessions } from "./RecentSessions.tsx";
 import { TerminalSplit } from "./TerminalSplit.tsx";
 import { PreparationLegend } from "./PreparationLegend.tsx";
+import { StartSession } from "./StartSession.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
 import type { OpenRoster } from "./AgentAssignmentFacts.tsx";
 import {
@@ -178,8 +179,8 @@ export function App() {
         <p className="announcement" aria-live="polite">
           {notice}
         </p>
-        {work && (
-          <div className="direction-row" hidden={showsRoster}>
+        <div className="project-actions" hidden={showsRoster}>
+          {work && (
             <section className="direction" aria-labelledby="direction-heading">
               <details key={source.id}>
                 <summary>
@@ -192,9 +193,19 @@ export function App() {
                 )}
               </details>
             </section>
+          )}
+          <div className="project-actions-end">
+            <StartSession
+              project={source.label}
+              starting={launches.adHocAttemptOf(source.id)?.kind === "starting"}
+              onStart={async (instruction) =>
+                (await launches.startAdHoc(source.id, instruction)) !==
+                undefined
+              }
+            />
             {showsPreparation && <PreparationLegend />}
           </div>
-        )}
+        </div>
       </div>
       {work && (
         <main hidden={showsRoster}>

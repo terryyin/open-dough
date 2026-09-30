@@ -215,7 +215,7 @@ slice 4: the ad hoc dialog is that component with its own words.
 
 ### 4. A developer starts an ad hoc session from the project actions row
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/agent-launch-ad-hoc.spec.ts` (fake origin journey as
 `agent-launch-card.spec.ts`: `launchJourney.ts`, `dashboardPage.ts`, project
 folders `open-dough` and `pygardon`).
@@ -356,3 +356,6 @@ and keep the button, dialog and launch first.
 - Slice 1 accepted: the five named specs plus `agent-terminal-delete.spec.ts` (covers the `deletedEntryHome` path) pass unedited and `npm run typecheck:dashboard` is clean. `claudeLaunch.ts` builds the session name from the workflow name and `request.title` (line ~43); slice 2 decides whether that reads through `launchSubject`.
 - Slice 2 accepted: `agent-launch-ad-hoc-boundary.spec.ts` (22 tests, dev and preview) plus the story boundary, records, refusal and listing specs pass (88), and all `agent-launch`/`agent-terminal` specs pass (171). The label lives in `claudeLaunch.ts` (`recordedRequest`); the record's request is `recordedLaunchRequestSchema` (ad hoc carries the label as `title`); `launchSubject` reads a `RecordedLaunchRequest`.
 - Slice 3 accepted: `LaunchDialog` and `useLaunchDialogLauncher` in `dashboard/src/LaunchDialog.tsx` (props: heading, description, note?, fieldLabel, fieldHint?, starting, onStart, onClose(launched)); the dialog classes are now `launch-dialog` and `launch-dialog-actions`. The card, card-problems, attention-clearing, card-delete-problems and recent-session-states specs pass (14) and typecheck is clean.
+- Slice 4 accepted: `StartSession.tsx` on the always-rendered `project-actions` row (Start session then ?), `startAdHoc`/`adHocAttemptOf` on `useAgentLaunches` (attempt kept per project for slice 6), `agent-launch-ad-hoc.spec.ts` (8 tests) plus the card, card-problems, keyboard-order and recent-delete specs pass (19); `accessible-overview-keyboard.spec.ts` and `dashboardPage.ts` count the new button. `launchSubject.startedWords` now reads "Ad hoc session started in Claude Code".
+- Recent sessions renders only when the project has published work (as for story sessions), so a session started while the published read failed or on a project with no work shows only in the Sessions sidebar. Not widened here; slice 7 or a decision for Terry.
+- `agent-launch-recent-delete.spec.ts` "State unknown" fails under parallel `--repeat-each` load (4 of 8 at the slice 3 baseline `aeeafc3a`, expecting "Working" within 5 s), and passes serially. It predates this work; the failure is at line 109 of the spec.

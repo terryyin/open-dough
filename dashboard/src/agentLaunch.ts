@@ -72,7 +72,9 @@ export function launchSubject(request: RecordedLaunchRequest) {
     title: request.title,
     identity: request.workflow === "ad-hoc" ? undefined : request.identity,
     name,
-    startedWords: `${name} started in Claude Code`,
+    startedWords: `${
+      request.workflow === "ad-hoc" ? `${name} session` : name
+    } started in Claude Code`,
   };
 }
 
