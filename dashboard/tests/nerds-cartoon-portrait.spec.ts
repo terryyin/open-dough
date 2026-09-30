@@ -1,5 +1,5 @@
 // A Taken card whose profile agent is an Odd-e nerds member shows that member's
-// local photo (agent-avatars/odd-e-nerds/<lowercase name>.jpg, git-ignored) as
+// local cartoon avatar (agent-avatars/odd-e-nerds/cartoon/<lowercase name>.webp, git-ignored) as
 // its portrait; without the photo it shows the name alone. The photo request is
 // answered by the test, since the photos are never in the repository.
 
@@ -13,7 +13,7 @@ import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scrip
 
 const nerdStory = "See who owns Taken work";
 const atlasStory = "Show every agent's portrait";
-const photoUrl = /\/agent-avatars\/odd-e-nerds\/stanly\.jpg$/;
+const photoUrl = /\/agent-avatars\/odd-e-nerds\/cartoon\/stanly\.webp$/;
 
 const profile = (name: string, identity: string) =>
   renderAgentProfile({
@@ -66,7 +66,7 @@ test("a nerds member's card shows the photo as its portrait, enlarged on hover, 
   await expect(card.locator(".owner-agent")).toHaveText("stanly-chan");
   await expect(portrait).toBeVisible();
   await expect(portrait).toHaveAttribute("aria-hidden", "true");
-  await expect(portrait).toHaveCSS("background-image", /stanly\.jpg"\)$/);
+  await expect(portrait).toHaveCSS("background-image", /stanly\.webp"\)$/);
   await portrait.hover();
   await expect
     .poll(async () => {

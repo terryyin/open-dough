@@ -26,7 +26,7 @@ const gestureStrips: Readonly<
 // is decorative: the agent name beside it carries the meaning.
 export function AgentPortrait({ name }: { name: string }) {
   if (nerdAgentNames.includes(name)) {
-    return <NerdPhotoPortrait name={name} />;
+    return <NerdCartoonPortrait name={name} />;
   }
   const index = agentNames.indexOf(name);
   if (index < 0) {
@@ -66,11 +66,11 @@ export function AgentPortrait({ name }: { name: string }) {
   );
 }
 
-// A member of the Odd-e nerds is shown by a local photo that is not part of the
-// repository. Until the photo loads, and when it is absent, there is no
+// A member of the Odd-e nerds is shown by a local cartoon avatar that is not part of
+// the repository. Until the avatar loads, and when it is absent, there is no
 // portrait: the name beside it stands alone.
-function NerdPhotoPortrait({ name }: { name: string }) {
-  const photo = `${import.meta.env.BASE_URL}agent-avatars/odd-e-nerds/${name.toLowerCase()}.jpg`;
+function NerdCartoonPortrait({ name }: { name: string }) {
+  const photo = `${import.meta.env.BASE_URL}agent-avatars/odd-e-nerds/cartoon/${name.toLowerCase()}.webp`;
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     setLoaded(false);

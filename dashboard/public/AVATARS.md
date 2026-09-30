@@ -63,12 +63,17 @@ it plays once per hover in the enlarged portrait and is disabled for reduced
 motion. The morph begins and ends on the approved still, so it needs no
 overlay to hide a snap.
 
-`agent-avatars/odd-e-nerds/<lowercase name>.jpg` are the photos of the Odd-e
-nerds agents (`nerdAgentNames` in the same module), for example `stanly.jpg`.
-They are local-only: the folder is git-ignored and the photos are never
-committed or published until permission to do so is obtained. A card shows its
-agent's photo as the portrait, enlarged on hover like the others; when the photo
-file is absent it shows the name alone, with no portrait and no error.
+`agent-avatars/odd-e-nerds/cartoon/<lowercase name>.webp` are cartoon avatars of the
+Odd-e nerds agents (`nerdAgentNames` in the same module), for example `stanly.webp`.
+Each was generated with OpenAI image editing (`gpt-image-1.5`) from the face in that
+person's local photo (`agent-avatars/odd-e-nerds/<lowercase name>.jpg`), using one shared
+style prompt: adult editorial cartoon portrait, head and shoulders, distinct muted
+background, no text, and no clothing or background carried over from the photo. They
+are local-only: the folder is git-ignored and neither the avatars nor the photos are
+ever committed or published until permission to do so is obtained. A card shows its
+agent's cartoon avatar as the portrait, enlarged on hover like the others; when the
+avatar file is absent it shows the name alone, with no portrait and no error. The
+photos themselves are not displayed.
 
 ## Tool marks
 

@@ -71,10 +71,12 @@ test("with nerds set the roster lists the 30 nerds, portraits where a photo exis
   page,
 }) => {
   const photo = avatarPng(40);
-  await page.route(/\/agent-avatars\/odd-e-nerds\/[^/]+\.jpg$/, (route) =>
-    route.request().url().endsWith("/terry.jpg")
-      ? route.fulfill({ status: 404 })
-      : route.fulfill(photo),
+  await page.route(
+    /\/agent-avatars\/odd-e-nerds\/cartoon\/[^/]+\.webp$/,
+    (route) =>
+      route.request().url().endsWith("/terry.webp")
+        ? route.fulfill({ status: 404 })
+        : route.fulfill(photo),
   );
   const { members, member } = await openRoster(page, '{"nerds":true}');
 
