@@ -33,5 +33,13 @@
       "label": "Stress-test",
       "instruction": "Examine the selected story's behavior when an input or dependency is unavailable, stale, or malformed, an operation is interrupted or repeated, actors or expectations conflict, and a user must recover. Report only scenarios that would change what the story promises, each as a concrete pre-condition → trigger → result with the recovery it implies; do not report a catalogue or a case the story's natural rule already handles. Expose conflicting expectations with the consequence of each for the developer's decision, recording neither as settled. Add a failure behavior to scope only with the developer's agreement or when the purpose cannot be met without it; otherwise record it as a proposal, deferred, or open. If no failure changes the promise, say so briefly and continue refinement without manufacturing scenarios."
     }
+  ],
+  "focusSelection": "A focus selects what the selected actions, or default refinement when none are selected, examine; it adds no pass or output of its own. It composes with any action or none. When a focus needs input only the developer can supply and it was not given, ask for it rather than assuming it, and do not carry out that examination until it is supplied; other refinement continues. A finding from a focus is a proposal: discuss any change to goal or scope with the developer.",
+  "focuses": [
+    {
+      "flag": "--ux-ui",
+      "label": "UX/UI",
+      "instruction": "Examine the selected story from the user's side: who the user is (ask the developer when the story does not identify the user) and their task and context, what they see and decide at each step, the feedback and recovery available, and where the interaction could confuse, block, or exclude them. Report the interaction choices that would change what the story promises, with what each means for the user. Fold these into the refinement's ordinary Goal, Scope, and Key examples rather than a separate report. Describe the interaction in words, and sketch it only where agreement needs it; choose no layout, component, or technology. If the story has no user-facing interaction or no interaction choice matters, say so briefly and continue refinement without inventing one."
+    }
   ]
 }

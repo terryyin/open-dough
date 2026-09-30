@@ -121,7 +121,7 @@ no full-suite local gate is added.
 
 ### 1. Examine an interaction from the user's side
 Type: Behavior
-Status: planned
+Status: done
 Proof: UX/UI-only uses (journey story; script-only story; story naming no user),
 `--ux-ui --clarify`, and the no-option preservation check; observe the single
 definition being read; pass the focused payload checks.
@@ -206,4 +206,22 @@ any delivered actions.
 
 ## Learnings
 
-None yet.
+- Slice 1 (2026-09-30): `refinement-options.json` now holds six actions
+  (Investigate/Stress-test landed first), so the planning premise of four
+  actions is stale; the separate `focuses` key and `focusSelection` rule kept
+  order independence. `SKILL.md` needed no change.
+- First review of a story naming no user read "ask... and stop that
+  examination" as "continue on assumptions" and drew a layout. The rule now says
+  to ask and not carry out that examination until supplied; the instruction adds
+  "ask the developer when the story does not identify the user", "fold these
+  into the ordinary Goal, Scope, and Key examples", and "describe in words".
+- Accepted slice 1 proof (subagent representative reviews on a scratch project
+  under the job tmp directory; no paid host run): `--ux-ui` on a journey story
+  (user, steps, promise-changing choices, no layout or technology),
+  `--ux-ui --clarify` (examples of what the user sees and does, no separate
+  pass), `--ux-ui` on a no-user story (asked first, other refinement continued,
+  no sketch), all on final wording; `--ux-ui` on a script-only story and
+  no-option refinement on the journey story passed on the first-draft wording
+  and were not rerun (later edits only add ask/fold/words). JSON parse and
+  `env PATH="/opt/homebrew/bin:$PATH" npm test -- tests/payload-declaration-links.sh tests/install-public-payload.sh tests/story-payload-update.sh`
+  passed on the final wording.
