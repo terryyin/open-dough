@@ -1,6 +1,8 @@
 // One Sessions sidebar entry (`./SessionSidebar.tsx`): its story's title, its
 // project and workflow, when it was launched, and its session's state as a
-// card entry shows it (`shownSession`). The entry is one control over its
+// card entry shows it (`shownSession`), and its state's kind by the style,
+// thickness, and colour of its left border, with the state's label, hidden
+// from sight, for assistive technology. The entry is one control over its
 // whole area, named by its title, project, and workflow; opening it goes to
 // its story and its session (`./TerminalSplit.tsx`). It is current, and
 // outlined, while the page's terminal shows its session.
@@ -24,14 +26,14 @@ export function SidebarEntry({
 }) {
   const { source } = record.request;
   const { title, name, modelWords } = launchSubject(record.request);
-  const { entryClass, stateWords } = shownSession(record);
+  const { entryClass, stateWords, label, tone } = shownSession(record);
   const current =
     usePageSessions().shownInTerminal === record.session.sessionId;
   const titleId = useId();
   const projectId = useId();
   return (
     <li
-      className={`${entryClass} sidebar-entry${current ? " in-terminal" : ""}`}
+      className={`${entryClass} sidebar-entry tone-${tone}${current ? " in-terminal" : ""}`}
     >
       <button
         type="button"
@@ -54,6 +56,7 @@ export function SidebarEntry({
         Launched <Moment at={new Date(record.launchedAt)} />
       </p>
       {stateWords}
+      <span className="visually-hidden">{label}</span>
     </li>
   );
 }

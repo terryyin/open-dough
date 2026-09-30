@@ -29,9 +29,10 @@ import {
 } from "./launchJourney.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { box, expectSideBySideInOrder } from "./pageLayout.ts";
-import { expectSessionShown, watchRecordReads } from "./sessionStatePace.ts";
+import { watchRecordReads } from "./sessionStatePace.ts";
 import {
   expectEntries,
+  expectSidebarSessionShown,
   expectStagesStacked,
   sidebarParts,
 } from "./sessionSidebarPage.ts";
@@ -108,7 +109,11 @@ test.describe("the Sessions sidebar", () => {
         working12.title,
         working08.title,
       ]);
-      await expectSessionShown(entries.nth(2), "Needs input", true);
+      await expectSidebarSessionShown(
+        entries.nth(2),
+        "Needs input",
+        "needs-input",
+      );
     });
   });
 
@@ -162,10 +167,10 @@ test.describe("the Sessions sidebar", () => {
       await expectEntries(
         entries,
         [
-          [notRefinedStory, "Open Dough", "Refinement", "Working", false],
-          [readyStory, "Open Dough", "Execution", "Working", false],
-          [pygardonTitle, "Pygardon", "Refinement", "Working", false],
-          [doughnutSharedTitle, "Doughnut", "Execution", "Working", false],
+          [notRefinedStory, "Open Dough", "Refinement", "Working", "working"],
+          [readyStory, "Open Dough", "Execution", "Working", "working"],
+          [pygardonTitle, "Pygardon", "Refinement", "Working", "working"],
+          [doughnutSharedTitle, "Doughnut", "Execution", "Working", "working"],
         ],
         since,
       );
@@ -198,11 +203,17 @@ test.describe("the Sessions sidebar", () => {
             "Doughnut",
             "Execution",
             "Needs input: input needed",
-            true,
+            "needs-input",
           ],
-          [pygardonTitle, "Pygardon", "Refinement", "Ready for review", true],
-          [notRefinedStory, "Open Dough", "Refinement", "Working", false],
-          [readyStory, "Open Dough", "Execution", "Working", false],
+          [
+            pygardonTitle,
+            "Pygardon",
+            "Refinement",
+            "Ready for review",
+            "ready",
+          ],
+          [notRefinedStory, "Open Dough", "Refinement", "Working", "working"],
+          [readyStory, "Open Dough", "Execution", "Working", "working"],
         ],
         since,
       );
@@ -220,13 +231,17 @@ test.describe("the Sessions sidebar", () => {
       dashboard.claudeSessionBecomes(ready, "done-live");
       await passOnePace();
       await expect(badge).toHaveText("3");
-      await expectSessionShown(entries.nth(2), "Ready for review", true);
+      await expectSidebarSessionShown(
+        entries.nth(2),
+        "Ready for review",
+        "ready",
+      );
       await expect(entries.nth(2).getByRole("heading")).toHaveText(readyStory);
 
       await launch(takenStory, "Execution");
       await expect(entries).toHaveCount(5);
       await expect(entries.nth(3).getByRole("heading")).toHaveText(takenStory);
-      await expectSessionShown(entries.nth(3), "Working", false);
+      await expectSidebarSessionShown(entries.nth(3), "Working", "working");
     });
 
     await test.step("a session marked done leaves the sidebar, and its count", async () => {

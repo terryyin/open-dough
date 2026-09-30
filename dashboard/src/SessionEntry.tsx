@@ -26,7 +26,7 @@ import {
 } from "./agentLaunch.ts";
 import { doneSessionName } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
-import { sessionShown } from "./sessionShown.ts";
+import { sessionShown, type SessionTone } from "./sessionShown.ts";
 import { LaunchSession } from "./LaunchSession.tsx";
 import {
   notDeleted,
@@ -105,13 +105,18 @@ export function SessionEntry({
 
 // How every entry shows its session's state, by the one reading
 // (`sessionShown`): the class that gives an entry needing the developer its
-// heavier edge, and the state's words.
+// heavier edge, the state's words, and its label and tone, for an entry that
+// marks its state by its own edge.
 export function shownSession(record: LaunchWithState): {
   readonly entryClass: string;
   readonly stateWords: ReactNode;
+  readonly label: string;
+  readonly tone: SessionTone;
 } {
-  const { label, note, needsAttention } = sessionShown(record);
+  const { label, note, needsAttention, tone } = sessionShown(record);
   return {
+    label,
+    tone,
     entryClass: needsAttention
       ? "session-entry needs-attention"
       : "session-entry",

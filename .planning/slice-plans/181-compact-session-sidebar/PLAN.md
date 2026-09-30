@@ -80,7 +80,7 @@ the attention group; failed and stopped lead too.
 
 ### 3. State shown by a styled left border
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright computed border styles per state; hidden label text.
 
 Behavior: each row's left border is solid thick red (needs input), solid thick
@@ -107,5 +107,6 @@ tooltip; the row stays one line for a long title.
 
 ## Learnings
 
+- Slice 3: `SessionShown` gained `tone` from one `attentionReadings` table; borders are 5px solid red/green (needs input/ready), 3px dashed red (failed/stopped), 2px solid blue (working), 2px solid grey (done), 3px dotted grey (unsettled); widths are our choice. A done row cannot be observed in the sidebar (done sessions leave it), so its grey edge has no page-level proof. `.visually-hidden` is now shared in `styles.css` (replaced `.session-record-deleted`; its hiding is not asserted by any test). Sidebar specs must use `expectSidebarSessionShown`, not `expectSessionShown`.
 - Slice 2: ordering lives in `openSessionsOf` (sidebar-only consumer); `expectEntries` no longer asserts non-increasing launch times, order is proved by titles. Slice 1's CI failure came from `controlsBesideSessions` (`dashboardPage.ts`) excluding the toggle by text; specs outside `sidebarParts` users can depend on the toggle, so run the full dashboard suite before delivering. `auto-refresh-branches.spec.ts` failed once under full-suite load, passing 4/4 alone.
 - Slice 1: `attentionCount` now lives in `sessionShown.ts` beside `attentionSummary`; the badge's accessible name reuses `attentionSummary`. Badge red `#c62828` and a three-line icon were chosen (story fixes neither); no visual check of badge placement or the narrow-window layout yet. One unreproduced flake seen in `agent-launch-card-delete.spec.ts` ("Delete record… State unknown"); passed on rerun and 6x repeat.

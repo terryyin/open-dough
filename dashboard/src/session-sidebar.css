@@ -5,7 +5,8 @@
    terminal stacks above the page, it overlays the page from the left, below
    the pinned banner so the Sessions button stays in reach. Words carry every
    meaning; the heavier edge of an entry that needs the developer is the
-   card entry's own (`./agent-launch.css`). */
+   card entry's own (`./agent-launch.css`); an entry here marks its state by
+   its left border instead. */
 
 .page-with-sidebar {
   display: grid;
@@ -61,6 +62,35 @@
 .sidebar-entry.in-terminal {
   outline: 3px solid var(--accent);
   outline-offset: 1px;
+}
+
+/* An entry's state by its left border, whatever its other edges: needing
+   input, solid thick red; ready for review, solid thick green; failed or
+   stopped, dashed red; working, thin blue; done, thin grey; unknown,
+   unlisted, or not recognized, dotted grey. Style, thickness, and colour all
+   differ, so no one of them carries the state alone. */
+.session-sidebar .sidebar-entry.tone-needs-input {
+  border-left: 5px solid var(--problem);
+}
+
+.session-sidebar .sidebar-entry.tone-ready {
+  border-left: 5px solid var(--ready);
+}
+
+.session-sidebar .sidebar-entry.tone-halted {
+  border-left: 3px dashed var(--problem);
+}
+
+.session-sidebar .sidebar-entry.tone-working {
+  border-left: 2px solid var(--accent);
+}
+
+.session-sidebar .sidebar-entry.tone-done {
+  border-left: 2px solid var(--edge);
+}
+
+.session-sidebar .sidebar-entry.tone-unsettled {
+  border-left: 3px dotted var(--edge);
 }
 
 /* A long title wraps to at most two lines; its whole text stays the

@@ -29,7 +29,8 @@ export type FakeClaudeScenario =
 // (`blocked`, with what it waits for when a test gives it); done with its
 // process still running idle (`done-live`) or exited (`done-exited`); failed
 // or stopped with its process exited (`failed`, `stopped`); or no longer
-// listed at all (`forgotten`). Each replaces the session's `state`, `status`,
+// listed at all (`forgotten`); or in a state this dashboard does not know
+// (`unrecognized`). Each replaces the session's `state`, `status`,
 // and `waitingFor` whole.
 export type ClaudeSessionChange =
   | "working"
@@ -39,7 +40,8 @@ export type ClaudeSessionChange =
   | "done-exited"
   | "failed"
   | "stopped"
-  | "forgotten";
+  | "forgotten"
+  | "unrecognized";
 
 const listedAs = {
   working: { state: "working", status: "busy" },
@@ -49,6 +51,7 @@ const listedAs = {
   "done-exited": { state: "done" },
   failed: { state: "failed" },
   stopped: { state: "stopped" },
+  unrecognized: { state: "napping" },
 } as const;
 
 const replacedFields = new Set(["state", "status", "waitingFor"]);

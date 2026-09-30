@@ -40,7 +40,10 @@ import {
   revealsOf,
 } from "./sessionNavigationJourney.ts";
 import { expectSessionShown } from "./sessionStatePace.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import {
+  expectSidebarSessionShown,
+  sidebarParts,
+} from "./sessionSidebarPage.ts";
 
 let journey: LaunchJourney;
 test.beforeAll(async () => {
@@ -168,7 +171,11 @@ test("a blocked ad hoc session reads Needs input in Recent sessions and the side
   await expect(badge).toHaveAccessibleName("1 session needs attention");
   await button.click();
   await expect(badge).toHaveText("1");
-  await expectSessionShown(entries.first(), "Needs input: input needed", true);
+  await expectSidebarSessionShown(
+    entries.first(),
+    "Needs input: input needed",
+    "needs-input",
+  );
 });
 
 test("with the listing unreadable, an ad hoc session's record can be deleted from Recent sessions, leaving the sidebar and moving the keyboard to the next entry", async ({

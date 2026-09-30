@@ -2,8 +2,7 @@
 // entries show.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { expectSessionShown } from "./sessionStatePace.ts";
-import { parts } from "./dashboardPage.ts";
+import { parts, sessionStateOf } from "./dashboardPage.ts";
 import { box, expectStackedInOrder } from "./pageLayout.ts";
 
 export function sidebarParts(page: Page) {
@@ -24,14 +23,49 @@ export function sidebarParts(page: Page) {
   };
 }
 
+// How a sidebar entry's left border says its session's state: needing input,
+// solid thick red; ready for review, solid thick green; failed or stopped,
+// dashed red; working, thin blue; done, thin grey; unknown, unlisted, or not
+// recognized, dotted grey (the page's own colors, as rgb).
+export const sidebarEdges = {
+  "needs-input": { style: "solid", width: 5, color: "rgb(155, 28, 28)" },
+  ready: { style: "solid", width: 5, color: "rgb(27, 110, 60)" },
+  halted: { style: "dashed", width: 3, color: "rgb(155, 28, 28)" },
+  working: { style: "solid", width: 2, color: "rgb(27, 95, 168)" },
+  done: { style: "solid", width: 2, color: "rgb(111, 111, 104)" },
+  unsettled: { style: "dotted", width: 3, color: "rgb(111, 111, 104)" },
+} as const;
+export type SidebarTone = keyof typeof sidebarEdges;
+
+// The entry shows these state words, the state's label for assistive
+// technology in its own hidden text, and the left border of its tone.
+export async function expectSidebarSessionShown(
+  entry: Locator,
+  words: string,
+  tone: SidebarTone,
+): Promise<void> {
+  await expect(sessionStateOf(entry)).toHaveText(words);
+  const { style, width, color } = sidebarEdges[tone];
+  await expect(entry).toHaveCSS("border-left-style", style);
+  await expect(entry).toHaveCSS("border-left-width", `${width}px`);
+  await expect(entry).toHaveCSS("border-left-color", color);
+  // The label is the words' own label, present for assistive technology and
+  // too small to be seen.
+  const hidden = entry.locator(".visually-hidden");
+  await expect(hidden).toHaveText(words.split(":")[0] ?? "");
+  const seen = await hidden.boundingBox();
+  expect(seen?.width).toBeLessThanOrEqual(1);
+  expect(seen?.height).toBeLessThanOrEqual(1);
+}
+
 // One sidebar entry as expected: its story's title, project, workflow, and
-// its session's state words and whether it needs attention.
+// its session's state words and tone.
 export type Shown = readonly [
   title: string,
   project: string,
   workflow: string,
   words: string,
-  needsAttention: boolean,
+  tone: SidebarTone,
 ];
 
 // The sidebar lists these entries in this order, each launched at or after
@@ -45,7 +79,7 @@ export async function expectEntries(
   const now = Date.now();
   for (const [
     index,
-    [title, project, workflow, words, needed],
+    [title, project, workflow, words, tone],
   ] of shown.entries()) {
     const entry = entries.nth(index);
     await expect(entry.getByRole("heading", { level: 3 })).toHaveText(title);
@@ -56,7 +90,7 @@ export async function expectEntries(
     );
     expect(launchedAt).toBeGreaterThanOrEqual(since);
     expect(launchedAt).toBeLessThanOrEqual(now);
-    await expectSessionShown(entry, words, needed);
+    await expectSidebarSessionShown(entry, words, tone);
   }
 }
 

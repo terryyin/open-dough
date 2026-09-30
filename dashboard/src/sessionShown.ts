@@ -18,13 +18,26 @@ export type SessionShown = {
   readonly label: string;
   readonly note?: string;
   readonly needsAttention: boolean;
+  readonly tone: SessionTone;
 };
 
-const attentionWords: ReadonlyMap<string, string> = new Map([
-  ["blocked", "Needs input"],
-  ["done", "Ready for review"],
-  ["failed", "Session failed"],
-  ["stopped", "Session stopped"],
+// Which of the reading's kinds a session is, for an entry that marks its
+// kind apart from the others: needing input, ready for review, failed or
+// stopped, working, done, or not settled (unknown, unlisted, or a state this
+// reading does not know).
+export type SessionTone =
+  "needs-input" | "ready" | "halted" | "working" | "done" | "unsettled";
+
+// The readings that need the developer, by the host's state: the words and
+// the kind each shows.
+const attentionReadings: ReadonlyMap<
+  string,
+  { readonly label: string; readonly tone: SessionTone }
+> = new Map([
+  ["blocked", { label: "Needs input", tone: "needs-input" }],
+  ["done", { label: "Ready for review", tone: "ready" }],
+  ["failed", { label: "Session failed", tone: "halted" }],
+  ["stopped", { label: "Session stopped", tone: "halted" }],
 ]);
 
 export function sessionShown({
@@ -38,34 +51,38 @@ export function sessionShown({
         label: "State unknown",
         note: "Claude Code's session list could not be read",
         needsAttention: false,
+        tone: "unsettled",
       };
     case "unlisted":
       return {
         label: markedDone ? "Done" : "Session unavailable",
         needsAttention: false,
+        tone: markedDone ? "done" : "unsettled",
       };
     case "listed": {
       const { state, waitingFor } = sessionState;
       if (state === "working") {
-        return { label: "Working", needsAttention: false };
+        return { label: "Working", needsAttention: false, tone: "working" };
       }
       if (markedDone) {
-        return { label: "Done", needsAttention: false };
+        return { label: "Done", needsAttention: false, tone: "done" };
       }
-      const label = attentionWords.get(state);
-      if (label === undefined) {
+      const attention = attentionReadings.get(state);
+      if (attention === undefined) {
         return {
           label: "State not recognized",
           note: `Claude Code lists it as ${state}`,
           needsAttention: false,
+          tone: "unsettled",
         };
       }
       return {
-        label,
+        label: attention.label,
         ...(state === "blocked" && waitingFor !== undefined
           ? { note: waitingFor }
           : {}),
         needsAttention: true,
+        tone: attention.tone,
       };
     }
   }
