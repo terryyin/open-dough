@@ -251,7 +251,7 @@ button and a problem shows nowhere (interim, replaced by slice 6).
 
 ### 5. The started session opens in the terminal at once
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts`, beside
 `agent-terminal.spec.ts` (the synthetic `claude` echoes typed input). Start
 with text, and start with an empty field → the terminal panel opens on the
@@ -359,3 +359,5 @@ and keep the button, dialog and launch first.
 - Slice 4 accepted: `StartSession.tsx` on the always-rendered `project-actions` row (Start session then ?), `startAdHoc`/`adHocAttemptOf` on `useAgentLaunches` (attempt kept per project for slice 6), `agent-launch-ad-hoc.spec.ts` (8 tests) plus the card, card-problems, keyboard-order and recent-delete specs pass (19); `accessible-overview-keyboard.spec.ts` and `dashboardPage.ts` count the new button. `launchSubject.startedWords` now reads "Ad hoc session started in Claude Code".
 - Recent sessions renders only when the project has published work (as for story sessions), so a session started while the published read failed or on a project with no work shows only in the Sessions sidebar. Not widened here; slice 7 or a decision for Terry.
 - `agent-launch-recent-delete.spec.ts` "State unknown" fails under parallel `--repeat-each` load (4 of 8 at the slice 3 baseline `aeeafc3a`, expecting "Working" within 5 s), and passes serially. It predates this work; the failure is at line 109 of the spec.
+- Slice 5 accepted: `StartSession` opens the terminal on the launched record with the button as control and keeps its own `role="status"` line ("Ad hoc session started", cleared when the dialog opens again; App's `notice` is the published-read announcement and stays separate). `agent-launch-ad-hoc-terminal.spec.ts` (2 tests) and the ad hoc, terminal, sidebar and card specs pass (74 and 73).
+- Opening the modal itself resets `window.scrollY` (40 to 0) in the empty-field case, for story launches too; the spec measures scroll from the open dialog, so it proves the launch does not move the page, not the whole gesture. A `LaunchDialog` follow-up if that must hold too.

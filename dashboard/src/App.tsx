@@ -198,9 +198,8 @@ export function App() {
             <StartSession
               project={source.label}
               starting={launches.adHocAttemptOf(source.id)?.kind === "starting"}
-              onStart={async (instruction) =>
-                (await launches.startAdHoc(source.id, instruction)) !==
-                undefined
+              onStart={(instruction) =>
+                launches.startAdHoc(source.id, instruction)
               }
             />
             {showsPreparation && <PreparationLegend />}
