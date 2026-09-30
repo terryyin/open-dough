@@ -155,7 +155,7 @@ names the shared reader and corpus admission instead of host events.
 
 ### 3. Closure assessors carry no dead or duplicate observation
 Type: Structure
-Status: planned
+Status: done
 Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
 tests/git-publication-native.sh tests/native-stream-replay.sh`.
 
