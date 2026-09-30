@@ -133,8 +133,9 @@ make `RunningStart` carry its workflow. No behavior differs.
 
 ### 3. Start refinement establishes the preparation and opens the session in it
 Type: Behavior
-Status: planned
+Status: done
 Proof: new boundary spec `agent-launch-preparation-start.spec.ts` over the real script, including the no-start case; existing refinement launch specs unchanged.
+Accepted: `agent-launch-preparation-start.spec.ts` (3 passed: Preparing published and session in workspace with block, with and without a model; project without the formatter launches as before); regression `agent-launch claude-workspace execution-start-result start-store` 234 passed; `npm run typecheck:dashboard` clean.
 
 Behavior: queued story in an establishing project → Start refinement runs the
 installed start (`--integration`, new `.worktrees/<slug>`, `claude/<slug>`,
@@ -214,6 +215,8 @@ offer. `keptStarts` carries the workflow.
 
 ## Learnings
 
+- Slice 3 left placeholders for later slices: `EstablishedStart` still carries `publisherId` and `mode` (slice 4's own schema removes them), refusals use one generic wording (slice 6), nothing is written to `refinement-starts.json` yet (slice 7), and `establishingProjects()`/`keptStarts()` stay execution-only (slices 4, 5, 8). Shared start mechanics now live in `dashboard/server/startLaunch.ts`.
+- `agent-launch-card-delete.spec.ts:51` failed once in a 234-spec parallel run; it does not touch start code and passed 24 of 24 isolated repeats and the later full run. Unexplained one-off; not reproduced.
 - `tests/*.sh` payload checks need a newer bash than macOS system bash.
 - `established-preparation.mjs` has no caller until slice 3.
 - Slice 2 kept the wire `RunningStart` without `workflow` (two existing specs assert it exactly); `AgentLaunches.runningStarts()` strips it. Slice 3 adds it to `runningStartSchema` with those expectations only if the page needs it, and widens `StartsWorkflow` (store file `${workflow}-starts.json`).

@@ -17,8 +17,13 @@ import {
   beginStart,
   establishesStart,
   formattedStart,
-  type PlannedStart,
 } from "./executionStart.ts";
+import type { PlannedStart } from "./startLaunch.ts";
+import {
+  beginPreparation,
+  establishesPreparation,
+  formattedPreparation,
+} from "./preparationStart.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 import type { StartsWorkflow } from "./startStore.ts";
@@ -63,8 +68,24 @@ const execution: StartWorkflow = {
   },
 };
 
+const refinement: StartWorkflow = {
+  workflow: "refinement",
+  establishes: establishesPreparation,
+  begin: beginPreparation,
+  format: formattedPreparation,
+  uncertain: ({ workspace, branch }) =>
+    `The start did not finish within the wait, so the story may or may not be Preparing. Workspace ${workspace} on branch ${branch}.`,
+  formatFailed: ({ workspace, branch }) =>
+    `The story is Preparing, but the installed skill's formatter could not be read, so no session was started. Workspace ${workspace} on branch ${branch}.`,
+  publishedWithoutSession: ({ handoff, workspace }) => {
+    const { agent } = handoff.start;
+    return `${agent === undefined ? "Preparing" : `Preparing by ${agent}`}; no session started. Workspace ${workspace.shown}.`;
+  },
+};
+
 const startWorkflows: Partial<Record<LaunchWorkflow, StartWorkflow>> = {
   execution,
+  refinement,
 };
 
 // The Start a workflow runs, or undefined for one that only starts the

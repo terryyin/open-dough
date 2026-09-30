@@ -17,9 +17,7 @@
 // published is resumed by the next launch of the story: same publisher,
 // workspace, and branch, so the script answers `existing` or `resumed`.
 
-import { spawn } from "node:child_process";
 import { stat } from "node:fs/promises";
-import { hostname } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
@@ -34,13 +32,15 @@ import {
 } from "./claudeWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
+import { lostStartArguments, ownerOf, takenSlugs } from "./startGit.ts";
 import {
-  git,
-  lostStartArguments,
-  ownerOf,
-  repositoryOf,
-  takenSlugs,
-} from "./startGit.ts";
+  gatedStart,
+  isFile,
+  publisherId,
+  runStartCommand,
+  type PlannedStart,
+  type StartAttempt,
+} from "./startLaunch.ts";
 import { establishedStart, record, recordStop } from "./startRecording.ts";
 import { readStartResult, refusal, type StartResult } from "./startResult.ts";
 import {
@@ -61,67 +61,19 @@ const startScript = "execution-start.mjs";
 const formatterScript = "established-start.mjs";
 const workflow = "execution";
 
-export type StartAttempt =
-  | { readonly kind: "established"; readonly start: EstablishedStart }
-  | { readonly kind: "refused"; readonly explanation: string };
-
-export type PlannedStart =
-  // The installed skill cannot continue from a start: launch as before.
-  | { readonly kind: "not-applicable" }
-  | {
-      readonly kind: "refused";
-      readonly explanation: string;
-      // Set when the refusal is not the start's own stop.
-      readonly reason?: "already-starting";
-    }
-  // The script is running in `workspace` on `branch`; `attempt` settles when
-  // it ends, however long that takes.
-  | {
-      readonly kind: "running";
-      readonly workspace: ProjectFolder;
-      readonly branch: string;
-      readonly attempt: Promise<StartAttempt>;
-    };
-
-async function isFile(file: string): Promise<boolean> {
-  try {
-    return (await stat(file)).isFile();
-  } catch {
-    return false;
-  }
-}
-
-// One stable publisher per machine and project: the same start asked again is
-// this publisher's own claim, never another agent's.
-function publisherId(source: PublishedSource): string {
-  return `dashboard-${hostname()
-    .toLowerCase()
-    .replace(/[^a-z0-9.-]+/g, "-")}-${source.id}`;
-}
-
-function runScript(
+async function runScript(
   args: readonly string[],
   project: ProjectFolder,
 ): Promise<StartResult> {
-  return new Promise((resolve) => {
-    const child = spawn(
-      process.execPath,
-      [path.join(project.path, skillScripts, startScript), "start", ...args],
-      { cwd: project.path, stdio: ["ignore", "pipe", "ignore"] },
-    );
-    let stdout = "";
-    child.stdout.setEncoding("utf8");
-    child.stdout.on("data", (chunk: string) => {
-      stdout += chunk;
-    });
-    // A command that could not run leaves no result to read.
-    child.on("error", () => {
-      resolve({ kind: "unreadable" });
-    });
-    child.on("close", () => {
-      resolve(readStartResult(stdout));
-    });
-  });
+  const stdout = await runStartCommand(
+    path.join(project.path, skillScripts, startScript),
+    args,
+    project,
+  );
+  // A command that could not run leaves no result to read.
+  return stdout === undefined
+    ? { kind: "unreadable" }
+    : readStartResult(stdout);
 }
 
 // Whether the project's installed skill can continue from a start: it ships
@@ -167,30 +119,9 @@ export async function beginStart(
   if (!(await establishesStart(project))) {
     return { kind: "not-applicable" };
   }
-  const origin = await git(project, ["config", "--get", "remote.origin.url"]);
-  if (repositoryOf(origin) !== source.repository.toLowerCase()) {
-    return {
-      kind: "refused",
-      explanation: `The origin of ${project.shown} is not ${source.repository}, where the Take would be published. Nothing was started or launched.`,
-    };
-  }
-  // Registered in the same synchronous step that checks it, before any await,
-  // so of two launches of one story in this server exactly one goes on.
-  if (progress.running(source.id, request.identity)) {
-    return {
-      kind: "refused",
-      reason: "already-starting",
-      explanation:
-        "This story is already starting on this machine, so a second start was not made. Wait for the running start to end; its card shows its progress. Nothing was launched.",
-    };
-  }
-  progress.set(source.id, request.identity, "preparing");
-  try {
-    return await runningStart(source, request, project, progress);
-  } catch (error) {
-    progress.clear(source.id, request.identity);
-    throw error;
-  }
+  return gatedStart(source, request, project, progress, "Take", () =>
+    runningStart(source, request, project, progress),
+  );
 }
 
 // The start of a story registered in `progress`: keeps it, then runs its

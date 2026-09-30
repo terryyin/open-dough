@@ -54,7 +54,10 @@ type StoredStarts = z.infer<typeof storeSchema>;
 
 // The workflows whose Start is kept here, and the default of every function
 // below: the one workflow whose file existed first.
-export type StartsWorkflow = Extract<LaunchWorkflow, "execution">;
+export type StartsWorkflow = Extract<
+  LaunchWorkflow,
+  "execution" | "refinement"
+>;
 
 function startStore(workflow: StartsWorkflow): MachineJsonStore<StoredStarts> {
   return {
