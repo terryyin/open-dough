@@ -1,3 +1,12 @@
+## 0.3.48 - 2026-09-30
+
+- Turn dashboard session history into a persistent left sidebar with keyboard and browser navigation, story-card continuity after reopening, explicit cleanup for unknown or unavailable sessions, configurable model and ad-hoc project launches, and macOS attention alerts without noisy unknown-state notifications.
+- Make story refinement styles explicit and composable through shared Explore and Borrow options, surface the selection in the dashboard, check reported gaps against the story before accepting them, and observe planning premises through their real consumers.
+- Add configurable agent collections to preparation and execution, including the Odd-e nerds rotation with recognizable names and portraits, while preserving assignment and publication ownership.
+- Rework native-validation evidence around shared host-stream readers, replayable retained attempts, counterexample-driven assessors, and CI-derived time budgets so release and delivery claims are checked against the behavior and revision actually observed.
+
+No additional native acceptance was run for `0.3.48` at the maintainer's request as an exception to ADR 0005. Native evidence completed within the included work is retained; native acceptance for the changed dashboard session behavior, refinement options, agent collections, validation architecture, and previously pending requirements remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.47 - 2026-09-29
 
 - Start Claude Code refinement and execution sessions from dashboard backlog cards, retain their local launch records and live states, list recent sessions, and attach an embedded terminal that can reconnect, switch projects, or deliberately mark a session done without confusing local activity with published story state.
