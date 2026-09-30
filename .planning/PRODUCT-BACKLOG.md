@@ -19,6 +19,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Generate avatars for the nerds agent](seeds/SEED-064-nerds-agent-avatars.md#generate-nerds-agent-avatars) — SEED-064#generate-nerds-agent-avatars
 - [Shape an interaction within system constraints during refinement](seeds/SEED-057-composable-story-refinement-styles.md#shape-interaction-within-system-constraints) — SEED-057#shape-interaction-within-system-constraints
 - [Select refinement options when launching from the dashboard](seeds/SEED-061-refinement-options-from-dashboard.md#select-refinement-options-from-dashboard) — SEED-061#select-refinement-options-from-dashboard
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
