@@ -238,9 +238,9 @@ test("every collection's names are recognized as agents", () => {
     email: "stanly-chan@example.org",
     path: "agents/stanly-chan.json",
   });
-  assert.equal(agentIdentity("ZiQingLau").path, "agents/ziqinglau-chan.json");
+  assert.equal(agentIdentity("ziqing").path, "agents/ziqing-chan.json");
   assert.equal(profileAgentName("d.kanai-chan.json"), "d.kanai");
-  assert.equal(nerdAgentNames.length, 26);
+  assert.equal(nerdAgentNames.length, 30);
   const lower = [...agentNames, ...nerdAgentNames].map((n) => n.toLowerCase());
   assert.equal(new Set(lower).size, lower.length);
 });

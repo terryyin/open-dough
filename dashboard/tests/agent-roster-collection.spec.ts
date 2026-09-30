@@ -67,7 +67,7 @@ test("without the setting the roster lists the current collection, with no nerds
   await expect(roster).not.toContainText("collection unknown");
 });
 
-test("with nerds set the roster lists the 26 nerds, portraits where a photo exists and names alone where not, and Yui's existing assignment stays visible", async ({
+test("with nerds set the roster lists the 30 nerds, portraits where a photo exists and names alone where not, and Yui's existing assignment stays visible", async ({
   page,
 }) => {
   const photo = avatarPng(40);
@@ -82,7 +82,7 @@ test("with nerds set the roster lists the 26 nerds, portraits where a photo exis
     ...agentsOf(nerdAgentNames),
     "Yui-chan",
   ]);
-  await expect(members).toHaveCount(27);
+  await expect(members).toHaveCount(31);
   // Every nerd but terry has a photo, and Yui keeps her atlas tile.
   await expect(members.locator(".agent-portrait")).toHaveCount(
     nerdAgentNames.length,
