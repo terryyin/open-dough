@@ -5,6 +5,8 @@ remain allocated. Retire only after seven days, relevant exercise and no
 unresolved recurrence. Historical detail is recoverable at
 `36fb9366295d1e6000cb3901a7ad3ce074382778:docs/maintainer/near-term-watch-list.md`.
 
+<a id="odf-066"></a>
+
 ## ODF-066 — Unpublished queue claims
 
 - **Source:** Open Dough / DD-064; original execution `d0a9495`, guidance 0.3.26.

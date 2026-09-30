@@ -3,7 +3,7 @@ id: SEED-059
 status: active
 planted: 2026-09-30
 planted_during: Authorized three-project retrospective-findings runbook
-trigger_when: A slice reports a story contradiction or a planning premise stops before its consumer
+trigger_when: A planning premise stops before its consumer or a proposed bug remedy has not reproduced the symptom
 scope: unknown
 ---
 

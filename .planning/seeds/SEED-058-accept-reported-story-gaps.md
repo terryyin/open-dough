@@ -3,7 +3,7 @@ id: SEED-058
 status: active
 planted: 2026-09-30
 planted_during: Authorized three-project retrospective-findings runbook
-trigger_when: A slice reports a story contradiction or a planning premise stops before its consumer
+trigger_when: A slice reports a story contradiction or changes its fixture to avoid the real example
 scope: unknown
 ---
 
@@ -26,7 +26,7 @@ Developers can receive a completed story whose own hand-back reports that it los
 
 - **For / why:** The developer and executing agent rely on the accepted story outcome to decide whether work can proceed or close.
 - **Intended outcome:** The executing agent checks a reported gap and any fixture change used to make the proof pass against the selected story's goal and examples before accepting the slice. A contradiction returns for correction or reaches the owner as a real scope decision; it cannot become completion merely by being written under Learnings.
-- **Bounded scope:** Change the smallest part of proof acceptance and its necessary handoff that closes this decision gap. Evaluate the reported omission, preservation loss and fixture-shape substitution using the existing story and returned evidence. Preserve valid out-of-scope observations and healthy acceptance; add no blanket full-suite, approval, report-resend or per-slice accounting requirement. The already-Taken native assessor correction remains separate.
+- **Bounded scope:** Change the smallest part of proof acceptance and its necessary handoff that closes this decision gap. Evaluate the reported omission, preservation loss and fixture-shape substitution using the existing story and returned evidence. Preserve valid out-of-scope observations and healthy acceptance; add no blanket full-suite, approval, report-resend or per-slice accounting requirement. The separately completed native assessor correction remains separate.
 - **Evaluation:** Replay the retained Search parameter-drop and newline-loss hand-backs against their preservation goals, plus the EPUB fixture substitution against the real separate-spine-cover example. Each must return the required behavior or surface a human-owned scope conflict. A harmless gap outside the goal must still permit acceptance, and sufficient unchanged proof must need no new run. Include the reproduced restore-applied-none consequence when checking that accepted limitations cannot authorize loss of the only saved work. Judge any host claims with the project's existing native-acceptance rules.
 - **Supporting findings:** [ODF-138](../../docs/maintainer/finding-names.md#odf-138), [ODF-139](../../docs/maintainer/finding-names.md#odf-139), [ODF-185](../../docs/maintainer/finding-names.md#odf-185), [ODF-196](../../docs/maintainer/finding-names.md#odf-196). Occurrence evidence stays in the catalog and its linked source records.
 - **Completion criterion:** Record the actual response, implementation commit, first containing release (or release pending), and proof limits on every supporting finding in `docs/maintainer/finding-names.md`. Delivery and queueing alone do not mark the finding resolved; a watch starts only from verified relevant use.

@@ -205,6 +205,8 @@ A post-refactor implementation correction is delivered without a further indepen
 
 - **Sources:** [open-dough / DD-062](../../DearDough.md#odf-064--a-correction-returned-after-the-refactor-pass-was-delivered-without-a-refactor-pass-of-its-own).
 
+<a id="odf-067"></a>
+
 ## ODF-067 — Tautological refusal tests
 
 A Git refusal test elects not to mutate using fixture-known state rather than attempting and observing the real operation reject.
@@ -675,6 +677,8 @@ A newly added agent-commit CLI compares literal paths, so invocation through the
 - **Response:** `108fb545`, first released in 0.3.43: `agent-commit.mjs`, `execution-start.mjs` and `ci-repair-stash.mjs` now use the realpath-aware direct-entry helper, and a sweep test runs every directly invoked Open Dough script through a symlinked skill directory, failing on a silent exit 0. Delivered proof only; effectiveness needs relevant Donut use of a release containing it.
 
 - **2026-09-30 assessment:** 108fb545 first shipped in 0.3.43. Doughnut now retains nine pre-response executions; eight report 0.3.42 and one is unknown. No supported post-fix alias failure exists, but later commit success without the invocation spelling does not establish real symlink-boundary exercise; keep active, watch start unknown. Earlier eff69eb / 0.3.27 corrected the three CI entrypoints before agent-commit was introduced.
+
+<a id="odf-132"></a>
 
 ## ODF-132 — Delegated proof handed back incomplete
 
