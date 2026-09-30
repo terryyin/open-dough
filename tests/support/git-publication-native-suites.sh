@@ -101,3 +101,16 @@ git_publication_suite_expect_pass() {
     grep -Fq "${want_reason_fragment}" <<< "${git_publication_assess_reason}"
   fi
 }
+
+# Requires the state OBSERVER prints now, written to CANDIDATE and assessed by
+# git_publication_assess, to pass, with a reason containing the fragment after
+# `--` when given. Rejected cases go through native_assessor_rejects_observed.
+git_publication_suite_passes_observed() {
+  local candidate=$1 observer=()
+  shift
+  while [[ $# -gt 0 && $1 != -- ]]; do observer+=("$1") && shift; done
+  [[ ${1-} == -- ]] && shift
+  "${observer[@]}" > "${candidate}"
+  git_publication_assess "${candidate}"
+  git_publication_suite_expect_pass "$@"
+}

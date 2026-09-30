@@ -6,6 +6,9 @@
 # whole new seed) leave remote trunk, while another publisher's claim and
 # every other trunk record stay. Prompt, assessment and assessor
 # counterexamples. Sourced by git-publication-native-admission.sh.
+# Its rejected cases' signals are declared beside git_publication_assess_admission
+# in git-publication-native-admission.sh, the assessor that dispatches here and
+# the file a suite names to the counterexample helper.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture and assessor globals.
 
 git_publication_admission_closure_prompt() {

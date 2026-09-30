@@ -17,19 +17,10 @@ run_one_shot_state_counterexamples() {
   local push_log="${git_publication_fixture_root}/push.log"
   local backlog=.planning/PRODUCT-BACKLOG.md taken=${NATIVE_ONE_SHOT_IDENTITY:-SEED-A#a}
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
-  # Requires the state, observed again, to pass with a reason holding $1.
-  one_shot_passes() {
-    git_publication_fixture_observe_one_shot "${journey}" complete \
-      "${transcript}" "${host}" > "${obs}"
-    git_publication_assess "${obs}"
-    git_publication_suite_expect_pass "$1"
-  }
-  # Rejected case $1 of signal $2 on the state observed now, failing with a
-  # reason holding $3.
-  one_shot_rejects() {
-    git_publication_fixture_observe_one_shot "${journey}" complete \
-      "${transcript}" "${host}" > "${obs}"
-    native_assessor_rejects "$1" "$2" "${obs}" fail "$3"
+  # Prints the state as observed now.
+  # shellcheck disable=SC2329 # Run by name through the shared counterexample forms.
+  one_shot_observe() {
+    git_publication_fixture_observe_one_shot "${journey}" complete "${transcript}" "${host}"
   }
   # Another writer's commit of tree $1 on parent $2 with message $3.
   one_shot_commit() {
@@ -60,10 +51,12 @@ run_one_shot_state_counterexamples() {
 
   commit=$(one_shot_commit "${tip}^{tree}" "${tip}" 'second commit')
   git -C "${origin}" update-ref refs/heads/main "${commit}"
-  one_shot_rejects second-commit trunk-history 'exactly one commit'
+  native_assessor_rejects_observed second-commit trunk-history \
+    "${obs}" one_shot_observe -- fail 'exactly one commit'
 
   git -C "${origin}" show "${base}:notes.txt" | one_shot_rewrite notes.txt
-  one_shot_rejects result-undone result 'does not hold the requested result'
+  native_assessor_rejects_observed result-undone result \
+    "${obs}" one_shot_observe -- fail 'does not hold the requested result'
 
   if [[ ${journey} == one-shot-queued ]]; then
     run_one_shot_queued_closure_counterexamples
@@ -72,7 +65,8 @@ run_one_shot_state_counterexamples() {
     for path in "${backlog}" .planning/seeds/one-shot.md \
       .planning/slice-plans/one-shot/PLAN.md .planning/agents/native.json; do
       printf 'changed\n' | one_shot_rewrite "${path}"
-      one_shot_rejects "planning-${path}" planning \
+      native_assessor_rejects_observed "planning-${path}" planning \
+        "${obs}" one_shot_observe -- fail \
         'touched backlog, seed, plan or agent profile'
     done
   fi
@@ -87,24 +81,29 @@ run_one_shot_state_counterexamples() {
   )" "${base}" "Take ${taken}")
   cp -- "${push_log}" "${push_log}.kept"
   printf '%s %s refs/heads/main\n' "${base}" "${commit}" >> "${push_log}"
-  one_shot_rejects pushed-taken pushes 'listed work under Taken'
+  native_assessor_rejects_observed pushed-taken pushes \
+    "${obs}" one_shot_observe -- fail 'listed work under Taken'
   mv -- "${push_log}.kept" "${push_log}"
 
   git -C "${integration}" worktree add -q -b "${NATIVE_ONE_SHOT_BRANCH}" \
     "${NATIVE_ONE_SHOT_WORKSPACE}" "${tip}"
-  one_shot_rejects workspace-and-branch workspace 'workspace or its branch survived'
+  native_assessor_rejects_observed workspace-and-branch workspace \
+    "${obs}" one_shot_observe -- fail 'workspace or its branch survived'
   git -C "${integration}" worktree remove "${NATIVE_ONE_SHOT_WORKSPACE}"
-  one_shot_rejects branch-left workspace 'workspace or its branch survived'
+  native_assessor_rejects_observed branch-left workspace \
+    "${obs}" one_shot_observe -- fail 'workspace or its branch survived'
   git -C "${integration}" branch -q -D "${NATIVE_ONE_SHOT_BRANCH}"
   git -C "${origin}" update-ref "refs/heads/${NATIVE_ONE_SHOT_BRANCH}" "${tip}"
-  one_shot_rejects remote-branch-left workspace 'workspace or its branch survived'
+  native_assessor_rejects_observed remote-branch-left workspace \
+    "${obs}" one_shot_observe -- fail 'workspace or its branch survived'
   git -C "${origin}" update-ref -d "refs/heads/${NATIVE_ONE_SHOT_BRANCH}"
 
   printf 'human working tree, changed\n' > "${integration}/human-unstaged.txt"
-  one_shot_rejects human-edit human-edit 'human edits'
+  native_assessor_rejects_observed human-edit human-edit \
+    "${obs}" one_shot_observe -- fail 'human edits'
   git_publication_fixture_plant_human_edit "${integration}"
 
-  one_shot_passes 'reached remote trunk'
+  git_publication_suite_passes_observed "${obs}" one_shot_observe -- 'reached remote trunk'
 }
 
 # The queued result commit rewritten to leave part of the story's closure
@@ -114,22 +113,29 @@ run_one_shot_queued_closure_counterexamples() {
   local seed=${git_publication_one_shot_seed} plan=${git_publication_one_shot_plan}
   local sibling=${git_publication_one_shot_sibling} entry
   git -C "${origin}" show "${base}:${backlog}" | one_shot_rewrite "${backlog}"
-  one_shot_rejects story-entry-kept story-entry 'kept its backlog entry'
+  native_assessor_rejects_observed story-entry-kept story-entry \
+    "${obs}" one_shot_observe -- fail 'kept its backlog entry'
   git -C "${origin}" show "${base}:${seed}" | one_shot_rewrite "${seed}"
-  one_shot_rejects story-section-kept story-section 'spent section survived'
+  native_assessor_rejects_observed story-section-kept story-section \
+    "${obs}" one_shot_observe -- fail 'spent section survived'
   git -C "${origin}" show "${base}:${plan}" | one_shot_rewrite "${plan}"
-  one_shot_rejects story-plan-kept story-plan 'plan survived'
+  native_assessor_rejects_observed story-plan-kept story-plan \
+    "${obs}" one_shot_observe -- fail 'plan survived'
   printf '{}\n' | one_shot_rewrite .planning/agents/native.json
-  one_shot_rejects agent-profile-changed planning "beyond the story's closure"
+  native_assessor_rejects_observed agent-profile-changed planning \
+    "${obs}" one_shot_observe -- fail "beyond the story's closure"
   # The sibling moved to the front of the queue, then removed.
   entry=$(git -C "${origin}" show "${tip}:${backlog}" | grep -e "— ${sibling}\$")
   git -C "${origin}" show "${tip}:${backlog}" \
     | one_shot_move_entry "${entry}" '## Backlog list' | one_shot_rewrite "${backlog}"
-  one_shot_rejects sibling-moved sibling 'sibling or another queued entry'
+  native_assessor_rejects_observed sibling-moved sibling \
+    "${obs}" one_shot_observe -- fail 'sibling or another queued entry'
   git -C "${origin}" show "${tip}:${backlog}" | grep -v -e "— ${sibling}\$" \
     | one_shot_rewrite "${backlog}"
-  one_shot_rejects sibling-entry-removed sibling 'sibling or another queued entry'
+  native_assessor_rejects_observed sibling-entry-removed sibling \
+    "${obs}" one_shot_observe -- fail 'sibling or another queued entry'
   git -C "${origin}" show "${tip}:${seed}" | grep -Fv -- "**Identity:** ${sibling}" \
     | one_shot_rewrite "${seed}"
-  one_shot_rejects sibling-section-removed sibling 'sibling or another queued entry'
+  native_assessor_rejects_observed sibling-section-removed sibling \
+    "${obs}" one_shot_observe -- fail 'sibling or another queued entry'
 }

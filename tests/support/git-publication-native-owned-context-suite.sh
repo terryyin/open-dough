@@ -35,7 +35,7 @@ run_substitute_owned_context_journey() {
   owned_context_transcript="${artifact}/events.jsonl"
   owned_context_host=${host}
   owned_context_journey=${journey}
-  owned_context_observe "${git_publication_fixture_root}/passing.txt"
+  owned_context_observe > "${git_publication_fixture_root}/passing.txt"
   git_publication_suite_counterexamples \
     "${source_dir}/tests/support/git-publication-native-${journey}.sh" \
     "${git_publication_fixture_root}/passing.txt"
@@ -47,24 +47,10 @@ run_substitute_owned_context_journey() {
   git_publication_fixture_cleanup
 }
 
-# Observes the kept fixture again into file $1.
+# Prints the kept fixture, observed again.
 owned_context_observe() {
   git_publication_fixture_observe_owned_context "${owned_context_journey}" \
-    complete "${owned_context_transcript}" "${owned_context_host}" > "$1"
-}
-
-# Requires the kept fixture, observed again, to pass with a reason holding $1.
-owned_context_passes() {
-  owned_context_observe "${owned_context_obs}"
-  git_publication_assess "${owned_context_obs}"
-  git_publication_suite_expect_pass "$1"
-}
-
-# Rejected case $1 of signal $2 on the state observed now, failing with a
-# reason holding $3.
-owned_context_rejects() {
-  owned_context_observe "${owned_context_obs}.$1"
-  native_assessor_rejects "$1" "$2" "${owned_context_obs}.$1" fail "$3"
+    complete "${owned_context_transcript}" "${owned_context_host}"
 }
 
 # Appends shell command $1, started, to the kept transcript in its host's
@@ -89,14 +75,16 @@ owned_context_append_started() {
 run_startup_owned_context_counterexamples() {
   local workspace=${git_publication_fixture_workspace} seed=.planning/seeds/A.md
   local retained=${git_publication_owned_retained} transcript=${owned_context_transcript}
-  owned_context_passes 'left the retained worktree untouched'
+  git_publication_suite_passes_observed "${owned_context_obs}" \
+    owned_context_observe -- 'left the retained worktree untouched'
 
   # The same start also given the retained worktree as a default checkout.
   cp -- "${transcript}" "${transcript}.kept"
   jq -c --arg d "${retained}" 'if (.item.command? // "" | test("execution-start.mjs start"))
     then .item.command += " --integration \($d)" else . end' \
     "${transcript}.kept" > "${transcript}"
-  owned_context_rejects default-checkout default-checkout \
+  native_assessor_rejects_observed default-checkout default-checkout \
+    "${owned_context_obs}.default-checkout" owned_context_observe -- fail \
     'given a default checkout (--integration)'
 
   # The same start split by line continuations names --repository on a later
@@ -104,10 +92,12 @@ run_startup_owned_context_counterexamples() {
   jq -c 'if (.item.command? // "" | test("execution-start.mjs start"))
     then .item.command |= gsub(" --"; " \\\n  --") else . end' \
     "${transcript}.kept" > "${transcript}"
-  owned_context_passes 'left the retained worktree untouched'
+  git_publication_suite_passes_observed "${owned_context_obs}" \
+    owned_context_observe -- 'left the retained worktree untouched'
   owned_context_append_started \
     "node execution-start.mjs start --integration ${retained} --help"
-  owned_context_passes 'left the retained worktree untouched'
+  git_publication_suite_passes_observed "${owned_context_obs}" \
+    owned_context_observe -- 'left the retained worktree untouched'
 
   # The shell may quote the script path, which may hold a space: the start
   # still counts with --repository on a later line, and a quoted --help probe
@@ -119,27 +109,35 @@ run_startup_owned_context_counterexamples() {
         | gsub(" --"; " \\\n  --")) else . end' \
       "${transcript}.kept" > "${transcript}"
     grep -Fq "/owned dir/execution-start.mjs${quote//\"/\\\"} start \\\\" "${transcript}"
-    owned_context_passes 'left the retained worktree untouched'
+    git_publication_suite_passes_observed "${owned_context_obs}" \
+      owned_context_observe -- 'left the retained worktree untouched'
     owned_context_append_started \
       "node ${quote}/owned dir/execution-start.mjs${quote} start --integration ${retained} --help"
-    owned_context_passes 'left the retained worktree untouched'
+    git_publication_suite_passes_observed "${owned_context_obs}" \
+      owned_context_observe -- 'left the retained worktree untouched'
   done
   mv -- "${transcript}.kept" "${transcript}"
 
   printf 'changed\n' >> "${retained}/trunk.txt"
-  owned_context_rejects retained-changed retained 'retained worktree changed'
+  native_assessor_rejects_observed retained-changed retained \
+    "${owned_context_obs}.retained-changed" owned_context_observe -- fail \
+    'retained worktree changed'
   git -C "${retained}" checkout -q -- trunk.txt
 
   cp -- "${workspace}/${seed}" "${workspace}/${seed}.kept"
   cp -- "${retained}/${seed}" "${workspace}/${seed}"
-  owned_context_rejects local-copy workspace-source 'published source (local-copy)'
+  native_assessor_rejects_observed local-copy workspace-source \
+    "${owned_context_obs}.local-copy" owned_context_observe -- fail 'published source (local-copy)'
   mv -- "${workspace}/${seed}.kept" "${workspace}/${seed}"
 
   touch -t 200001010000 "${workspace}/feature.txt"
-  owned_context_rejects feature-before-claim claim-order 'crossed claim boundary'
+  native_assessor_rejects_observed feature-before-claim claim-order \
+    "${owned_context_obs}.feature-before-claim" owned_context_observe -- fail \
+    'crossed claim boundary'
   touch "${workspace}/feature.txt"
 
-  owned_context_passes 'left the retained worktree untouched'
+  git_publication_suite_passes_observed "${owned_context_obs}" \
+    owned_context_observe -- 'left the retained worktree untouched'
 }
 
 # shellcheck disable=SC2311 # A failed helper yields no revision, which the Git command given it rejects.
@@ -150,7 +148,8 @@ run_preparation_land_counterexamples() {
   local index="${root}/counterexample.index" push_log="${root}/push.log"
   local tip announcement profile stale commit
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
-  owned_context_passes 'landed only Story C'
+  git_publication_suite_passes_observed "${owned_context_obs}" \
+    owned_context_observe -- 'landed only Story C'
   announcement=$(git_publication_assess_field "$(cat "${owned_context_obs}")" announcement-sha)
   profile=$(git -C "${origin}" diff-tree --no-commit-id --name-only -r "${announcement}")
 
@@ -172,36 +171,43 @@ run_preparation_land_counterexamples() {
     "$(git -C "${origin}" rev-parse "${announcement}:${profile}")")" \
     "${git_publication_owned_installed}")
   git -C "${origin}" update-ref refs/heads/main "$(owned_context_commit "${tip}^{tree}" "${stale}")"
-  owned_context_rejects stale-announcement announcement-base \
+  native_assessor_rejects_observed stale-announcement announcement-base \
+    "${owned_context_obs}.stale-announcement" owned_context_observe -- fail \
     'announcement on the fetched trunk tip'
   git -C "${origin}" update-ref refs/heads/main "${tip}"
 
   cp -- "${push_log}" "${push_log}.kept"
   { printf '%s %s refs/heads/main\n' "${base}" "${tip}" && cat "${push_log}.kept"; } > "${push_log}"
-  owned_context_rejects push-before-announcement push-order \
+  native_assessor_rejects_observed push-before-announcement push-order \
+    "${owned_context_obs}.push-before-announcement" owned_context_observe -- fail \
     'push before the preparation announcement'
   printf '%s %s refs/heads/main\n' "${tip}" "${base}" >> "${push_log}.kept"
   cp -- "${push_log}.kept" "${push_log}"
-  owned_context_rejects force-push force-push 'force push'
+  native_assessor_rejects_observed force-push force-push \
+    "${owned_context_obs}.force-push" owned_context_observe -- fail 'force push'
   sed '$d' "${push_log}.kept" > "${push_log}"
   rm -- "${push_log}.kept"
 
   commit=$(owned_context_commit "$(owned_context_tree_with "${tip}" trunk.txt \
     "$(printf 'changed\n' | git -C "${origin}" hash-object -w --stdin)")" "${tip}")
   git -C "${origin}" update-ref refs/heads/main "${commit}"
-  owned_context_rejects outside-story outside-story "outside Story C's section"
+  native_assessor_rejects_observed outside-story outside-story \
+    "${owned_context_obs}.outside-story" owned_context_observe -- fail "outside Story C's section"
   git -C "${origin}" update-ref refs/heads/main "${tip}"
 
   git -C "${repository}" worktree add -q -b "${branch}" "${workspace}" "${tip}"
-  owned_context_rejects worktree-re-added worktree-survived \
+  native_assessor_rejects_observed worktree-re-added worktree-survived \
+    "${owned_context_obs}.worktree-re-added" owned_context_observe -- fail \
     'worktree or its branch survived'
   git -C "${repository}" worktree remove "${workspace}"
-  owned_context_rejects branch-survived worktree-survived \
+  native_assessor_rejects_observed branch-survived worktree-survived \
+    "${owned_context_obs}.branch-survived" owned_context_observe -- fail \
     'worktree or its branch survived'
   git -C "${repository}" branch -q -D "${branch}"
 
   run_preparation_land_retirement_counterexamples
-  owned_context_passes 'landed only Story C'
+  git_publication_suite_passes_observed "${owned_context_obs}" \
+    owned_context_observe -- 'landed only Story C'
 }
 
 # Retirement runs the installed command for Story C, which checks ownership;
@@ -214,17 +220,21 @@ run_preparation_land_retirement_counterexamples() {
     cp -- "${file}" "${file}.kept"
     grep -Fv 'worktree-retirement.mjs' "${file}.kept" > "${file}" || true
   done
-  owned_context_rejects retire-command-missing retire-command \
+  native_assessor_rejects_observed retire-command-missing retire-command \
+    "${owned_context_obs}.retire-command-missing" owned_context_observe -- fail \
     'installed retirement command for Story C'
   # The command ran for Story C, but the worktree went through raw Git anyway.
   cp -- "${log}.kept" "${log}"
   cp -- "${transcript}.kept" "${transcript}"
   owned_context_append_started "${raw}"
-  owned_context_rejects raw-git-retirement raw-git-retirement 'removed through raw Git'
+  native_assessor_rejects_observed raw-git-retirement raw-git-retirement \
+    "${owned_context_obs}.raw-git-retirement" owned_context_observe -- fail \
+    'removed through raw Git'
   for file in "${transcript}" "${log}"; do
     sed 's/--identity /--identity other-/g' "${file}.kept" > "${file}"
   done
-  owned_context_rejects retire-other-identity retire-command \
+  native_assessor_rejects_observed retire-other-identity retire-command \
+    "${owned_context_obs}.retire-other-identity" owned_context_observe -- fail \
     'installed retirement command for Story C'
   for file in "${transcript}" "${log}"; do
     mv -- "${file}.kept" "${file}"

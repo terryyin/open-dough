@@ -32,15 +32,14 @@ assess_observed() {
   native_adr_behavior_assess "$1" "$2.response"
 }
 
-assert_status() {
+assert_passes() {
   local scenario=$1
   local file=$2
-  local expected=$3
-  local reason_snippet=$4
+  local reason_snippet=$3
 
   assess_observed "${scenario}" "${work_dir}/${file}"
-  if [[ ${native_adr_behavior_status} != "${expected}" ]]; then
-    echo "FAIL: ${file} (${scenario}) expected ${expected}, got ${native_adr_behavior_status}." >&2
+  if [[ ${native_adr_behavior_status} != pass ]]; then
+    echo "FAIL: ${file} (${scenario}) expected pass, got ${native_adr_behavior_status}." >&2
     printf 'reason: %s\n' "${native_adr_behavior_reason}" >&2
     cat "${work_dir}/${file}" >&2
     return 1
@@ -83,11 +82,11 @@ write_response uncertain \
 write_response incidental-skill-only \
   'Do not require policies for situations absent from the current request. When the index and record statuses agree, no disagreement-resolution rule is needed.'
 
-assert_status clear valid-recommend pass 'followed and cited Accepted authority'
-assert_status clear valid-recommend-paraphrase pass 'followed and cited Accepted authority'
-assert_status clear valid-recommend-skill-rephrase pass 'followed and cited Accepted authority'
-assert_status conflict valid-stop pass 'named conflicting authorities and stopped'
-assert_status conflict conditional-stop pass 'named conflicting authorities and stopped'
+assert_passes clear valid-recommend 'followed and cited Accepted authority'
+assert_passes clear valid-recommend-paraphrase 'followed and cited Accepted authority'
+assert_passes clear valid-recommend-skill-rephrase 'followed and cited Accepted authority'
+assert_passes conflict valid-stop 'named conflicting authorities and stopped'
+assert_passes conflict conditional-stop 'named conflicting authorities and stopped'
 
 # Misleading or ambiguous wording is a rejected case of the response signal;
 # rephrased incidental skill instructions stay inconclusive, never a fail.

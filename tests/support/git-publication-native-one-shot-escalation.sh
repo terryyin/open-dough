@@ -118,19 +118,11 @@ run_one_shot_escalation_state_counterexamples() {
   local patch="${root}/workspace-edits.patch"
   local observed=${transcript}
   tip=$(git -C "${origin}" rev-parse refs/heads/main)
-  # Requires the state, observed again, to pass with a reason holding $1.
-  escalation_passes() {
+  # Prints the state as observed now.
+  # shellcheck disable=SC2329 # Run by name through the shared counterexample forms.
+  escalation_observe() {
     git_publication_fixture_observe_one_shot_escalation one-shot-escalation \
-      complete "${observed}" "${host}" > "${obs}"
-    git_publication_assess "${obs}"
-    git_publication_suite_expect_pass "$1"
-  }
-  # Rejected case $1 of signal $2 on the state observed now, expecting
-  # verdict $3 with a reason holding $4.
-  escalation_rejects() {
-    git_publication_fixture_observe_one_shot_escalation one-shot-escalation \
-      complete "${observed}" "${host}" > "${obs}"
-    native_assessor_rejects "$1" "$2" "${obs}" "$3" "$4"
+      complete "${observed}" "${host}"
   }
   git_publication_fixture_observe_one_shot_escalation one-shot-escalation \
     complete "${observed}" "${host}" > "${root}/passing.txt"
@@ -147,27 +139,31 @@ run_one_shot_escalation_state_counterexamples() {
     -p "${tip}" -m 'Rename notesDir to notesDirectory')
   cp -- "${push_log}" "${push_log}.kept"
   git -C "${workspace}" push -q origin "${commit}:refs/heads/main"
-  escalation_rejects result-commit trunk-result fail \
+  native_assessor_rejects_observed result-commit trunk-result \
+    "${obs}" escalation_observe -- fail \
     'result commit reached remote trunk'
   git -C "${origin}" update-ref refs/heads/main "${tip}"
   mv -- "${push_log}.kept" "${push_log}"
 
   # No admission: remote trunk still at the base.
   git -C "${origin}" update-ref refs/heads/main "${git_publication_fixture_trunk_sha}"
-  escalation_rejects no-admission admission-claim fail \
+  native_assessor_rejects_observed no-admission admission-claim \
+    "${obs}" escalation_observe -- fail \
     'exactly one admitted Taken story'
   git -C "${origin}" update-ref refs/heads/main "${tip}"
 
   # The carried edits missing from the workspace, then committed there.
   git -C "${workspace}" diff > "${patch}"
   git -C "${workspace}" checkout -q -- .
-  escalation_rejects edits-missing carried-edits fail \
+  native_assessor_rejects_observed edits-missing carried-edits \
+    "${obs}" escalation_observe -- fail \
     "carried edits are not uncommitted over the claim"
   grep -Fqx 'edits-carried: true' "${obs}"
   git -C "${workspace}" apply "${patch}"
   git -C "${workspace}" -c user.name=Agent -c user.email=agent@example.test \
     commit -qam 'commit the attempt'
-  escalation_rejects edits-committed carried-edits fail \
+  native_assessor_rejects_observed edits-committed carried-edits \
+    "${obs}" escalation_observe -- fail \
     "carried edits are not uncommitted over the claim"
   grep -Fqx 'edits-carried: true' "${obs}"
   git -C "${workspace}" reset -q HEAD^
@@ -175,7 +171,8 @@ run_one_shot_escalation_state_counterexamples() {
   # Admitted up front without a one-shot start, edits otherwise carried.
   observed="${root}/no-one-shot-start.jsonl"
   grep -Fv -e '--one-shot' "${transcript}" > "${observed}"
-  escalation_rejects no-one-shot-start one-shot-start inconclusive \
+  native_assessor_rejects_observed no-one-shot-start one-shot-start \
+    "${obs}" escalation_observe -- inconclusive \
     'escalation was not exercised'
 
   # Admitted with --carry after a one-shot start, before editing anything:
@@ -183,15 +180,18 @@ run_one_shot_escalation_state_counterexamples() {
   observed="${root}/admitted-before-editing.jsonl"
   sed -E 's/(restored\\?"): ?true/\1:false/g' "${transcript}" > "${observed}"
   git -C "${workspace}" checkout -q -- .
-  escalation_rejects admitted-before-editing carried-edits inconclusive \
+  native_assessor_rejects_observed admitted-before-editing carried-edits \
+    "${obs}" escalation_observe -- inconclusive \
     'escalation was not exercised'
   grep -Fqx 'workspace-edits: ' "${obs}"
   git -C "${workspace}" apply "${patch}"
   observed=${transcript}
 
   printf 'human working tree, changed\n' > "${integration}/human-unstaged.txt"
-  escalation_rejects human-edit human-edit fail 'human edits'
+  native_assessor_rejects_observed human-edit human-edit \
+    "${obs}" escalation_observe -- fail 'human edits'
   git_publication_fixture_plant_human_edit "${integration}"
 
-  escalation_passes 'restored uncommitted over the claim'
+  git_publication_suite_passes_observed "${obs}" escalation_observe \
+    -- 'restored uncommitted over the claim'
 }

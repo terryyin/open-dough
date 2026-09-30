@@ -35,6 +35,9 @@
 #     Like native_assessor_rejects, with the passing observation's fields
 #     replaced by the `key: value` FIELD lines as the candidate; a FIELD whose
 #     key the passing observation lacks is added.
+#   native_assessor_rejects_observed CASE SIGNAL CANDIDATE OBSERVER... [-- STATUS [REASON-FRAGMENT]]
+#     Like native_assessor_rejects, with CANDIDATE written by running OBSERVER,
+#     a command that prints an observation of the state as it is now.
 #   native_assessor_rejects_field_rows
 #     native_assessor_rejects_fields for each standard input line
 #     `CASE SIGNAL key: value [| REASON-FRAGMENT]`, with status `fail` when a
@@ -157,6 +160,15 @@ native_assessor_rejects_fields() {
     > "${native_assessor_counterexample_passing}.${case}"
   native_assessor_rejects "${case}" "${signal}" \
     "${native_assessor_counterexample_passing}.${case}" "$@"
+}
+
+native_assessor_rejects_observed() {
+  local case=$1 signal=$2 candidate=$3 observer=()
+  shift 3
+  while [[ $# -gt 0 && $1 != -- ]]; do observer+=("$1") && shift; done
+  [[ ${1-} == -- ]] && shift
+  "${observer[@]}" > "${candidate}"
+  native_assessor_rejects "${case}" "${signal}" "${candidate}" "$@"
 }
 
 native_assessor_rejects_field_rows() {

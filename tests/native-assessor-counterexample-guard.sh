@@ -49,6 +49,13 @@ ${stray}:17 fails the check when an assessor passes
 ${stray}:18 expects a rejection verdict outside the helper
 ${stray}:19 tests a verdict expecting a rejection
 ${stray}:23 expects a rejection verdict outside the helper
+${stray}:24 expects a rejection verdict outside the helper
+${stray}:25 fails the check when an assessor passes
+${stray}:29 captures an assessor status to test for a rejection
+${stray}:31 tests an assessor call expecting a rejection
+${stray}:36 passes a rejection verdict to a wrapper
+${stray}:37 passes a rejection verdict to a wrapper
+${stray}:38 passes a rejection verdict to a wrapper
 EOF
 
 # A JavaScript test asserting a rejection of an assessor exported by a file

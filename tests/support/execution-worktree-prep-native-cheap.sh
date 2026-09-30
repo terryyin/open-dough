@@ -69,6 +69,22 @@ run_cheap_assessor_contracts() {
     -- fail 'missing setup or project-command trace'
   native_assessor_rejects_fields greeting-missing outcome 'greeting: null' \
     -- fail 'missing completed outcome in the selected execution checkout'
+
+  # A response that claims setup is its own passing base, so the cases above
+  # keep theirs. The `self-reported-only` branch needs the preparation-gate and
+  # outcome signals changed together, so it has no one-signal case.
+  local claiming="${work}/claiming-pass.flat"
+  jq '.responseText = "I ran npm ci and prepared the worktree, then ran npm run prove."' \
+    "${prep_native_observation_dir}/fresh-pass.json" > "${work}/claiming-pass.json"
+  node "${prep_native_support_dir}/execution-worktree-prep-native-flat.mjs" \
+    "${work}/claiming-pass.json" > "${claiming}"
+  native_assessor_counterexamples "${prep_native_assess_js}" "${claiming}" \
+    --verdict prep_native_flat_status prep_native_flat_reason \
+    -- assess_flat_observation
+  native_assessor_rejects_fields self-report preparation-gate \
+    'commands: ["write greeting.txt hello-ok"]' 'traces: []' \
+    "invocations: [${delegate}]" 'executionOwnsInstall: false' \
+    -- fail 'missing setup or project-command trace'
 }
 
 run_cheap_flag_contracts() {

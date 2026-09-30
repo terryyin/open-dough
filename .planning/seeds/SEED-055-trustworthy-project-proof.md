@@ -22,37 +22,6 @@ projections that came out wrong.
 
 ## Story Decomposition
 
-<a id="assessor-counterexample-gaps"></a>
-
-### Correction: Close the assessor counterexample discipline's remaining gaps
-
-**Identity:** SEED-055#assessor-counterexample-gaps
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/168-assessor-counterexample-gaps/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"47b378b0ff58b9a1229f56ec0d34ed8f5519beba75a895cf19106d91e851f2d3","plan":"7d4985ebedb6170e8bdfe399cc45e25d9320afbcfab8fbba203c86baa58611a7"}}
-```
-
-**Goal:** The maintainer paying for native acceptance runs can trust that
-the native assessor counterexample discipline holds where it claims to. The guard
-catches the remaining ways to state a rejection outside the helper.
-Self-reported preparation and every CI completion scenario have rejected
-cases. The publication assessor reads fields regardless of order.
-
-**Scope:** The correction found by the execution retrospective of
-SEED-055#assessor-counterexample-discipline (commits `a53aa489`..`c6440780` on
-`claude/assessor-counterexample-discipline`). It covers these items:
-
-- rejection shapes the guard misses, and verdict wrappers that accept any
-  verdict;
-- the dropped preparation self-report case;
-- CI completion's `ready`, `failure`, and `skip-retro` scenarios, which have
-  no free cases;
-- the order-sensitive publication field reader;
-- a contradictory forced-stop case;
-- duplicated re-observed wrappers and undocumented signal placement.
-
-It adds no feature promise. See the
-[plan](../slice-plans/168-assessor-counterexample-gaps/PLAN.md).
-
 <a id="reassess-native-test-architecture"></a>
 
 ### Reassess the native test architecture so its files are cohesive and short
@@ -77,11 +46,6 @@ elegant, and cohesive solution. The length problem is addressed as a side
 effect of that design, not as its aim. Refinement fixes the observable
 outcome, the files in scope, and the proof that current verdicts do not
 change.
-
-## Ordering and When to Surface
-
-The assessor counterexample gaps correction closes what the counterexample
-discipline's execution retrospective found.
 
 ## Breadcrumbs
 

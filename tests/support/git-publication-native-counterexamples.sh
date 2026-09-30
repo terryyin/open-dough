@@ -29,6 +29,17 @@ run_assessor_counterexamples() {
   git_publication_assess "${work}/valid.txt" "${work}/paraphrase.md"
   git_publication_suite_expect_pass
 
+  # Field order carries no meaning: remote-sha placed after trunk-remote-sha
+  # still reads its own line.
+  {
+    grep -v '^remote-sha: ' "${work}/valid.txt"
+    grep '^remote-sha: ' "${work}/valid.txt"
+  } \
+    > "${work}/reordered.txt"
+  git_publication_assess "${work}/reordered.txt" "${work}/valid-response.md"
+  git_publication_suite_expect_pass \
+    'remote acceptance with preserved human edit'
+
   # The remote's acceptance is one signal: whether it accepted, and the tip
   # it holds instead.
   git_publication_candidate_counterexamples "${work}/valid.txt"
