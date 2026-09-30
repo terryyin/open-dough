@@ -201,7 +201,7 @@ in Claude Code's listing, record kept with its label. Adds the union to
 
 ### 3. The launch dialog's mechanics are one component
 Type: Structure
-Status: planned
+Status: done
 Proof: unchanged behavior. `agent-launch-card.spec.ts` (dialogs name the
 story and command, focus the field, Escape and Cancel send nothing, an
 abandoned instruction is gone on reopening) and
@@ -355,3 +355,4 @@ and keep the button, dialog and launch first.
 
 - Slice 1 accepted: the five named specs plus `agent-terminal-delete.spec.ts` (covers the `deletedEntryHome` path) pass unedited and `npm run typecheck:dashboard` is clean. `claudeLaunch.ts` builds the session name from the workflow name and `request.title` (line ~43); slice 2 decides whether that reads through `launchSubject`.
 - Slice 2 accepted: `agent-launch-ad-hoc-boundary.spec.ts` (22 tests, dev and preview) plus the story boundary, records, refusal and listing specs pass (88), and all `agent-launch`/`agent-terminal` specs pass (171). The label lives in `claudeLaunch.ts` (`recordedRequest`); the record's request is `recordedLaunchRequestSchema` (ad hoc carries the label as `title`); `launchSubject` reads a `RecordedLaunchRequest`.
+- Slice 3 accepted: `LaunchDialog` and `useLaunchDialogLauncher` in `dashboard/src/LaunchDialog.tsx` (props: heading, description, note?, fieldLabel, fieldHint?, starting, onStart, onClose(launched)); the dialog classes are now `launch-dialog` and `launch-dialog-actions`. The card, card-problems, attention-clearing, card-delete-problems and recent-session-states specs pass (14) and typecheck is clean.
