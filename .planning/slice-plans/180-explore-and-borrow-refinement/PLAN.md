@@ -266,3 +266,7 @@ options, and dashboard exposure remain separately deliverable.
 - **Learning:** one composition sentence in `selection` was enough; no combined
   definition needed. JSON `default` and SKILL.md's pointer sentence overlap and
   both were kept: the pointer works without loading the JSON.
+
+## Execution complete
+
+Product advice: No change to backlog order. Explore and Borrow work independently and together through one options definition, so the sibling refinement-option stories and the dashboard selection story can extend `refinement-options.json` as planned. Native-host observation of the new option remains unproved and is best gathered when the dashboard story launches refinement with options.

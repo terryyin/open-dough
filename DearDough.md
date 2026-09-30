@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 190. Removed local codes are never reused.
+- Highest allocated local number: 191. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -322,3 +322,19 @@ Follow-up: Open, unqueued.
   - Evidence: plan premises table and slices 2, 3, 7; `native_journey_state_field` reads a variable, matches anywhere and keeps spaces; the four completion blocks print different names, order and interleaving (trunk derives product-shutdown from its finish count); `delivery_evidence_obs_get` returns the rest of the first matching line, not awk `$2`. Commits `62ed3729`, `00173a6c`, `b6b2e4ad`.
   - Observed effect: slice 2 kept one twin reader, slice 3 extracted the shared measurement instead of one writer, slice 7 kept its own reader; each implementer reported the deviation and the plan recorded it. Story example 2 (one shared owner for both readers) is met only in part.
   - Inference: Qualified. The planning premises table observed counts and call sites but not the semantics each copy consumes; the deviations cost no rework because implementers inspected each copy first, as their briefs required.
+
+## DD-191 — A delegated refactor pass ran on each of two tiny guidance changes and edited nothing
+
+The required fresh refactor agent was spawned for a five-line skill paragraph plus one data file, and again for a one-entry data addition; both returned `## REFACTOR COMPLETE` with no edits, after reading the diff and skill references.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+- Execution: `SEED-057#composable-refinement-styles` / plan 180, first related implementation commit `fba9ebb5`
+  - Timestamp: unknown (session date 2026-09-30; exact event times not recorded)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-sonnet-5-5
+  - Open Dough release: modified; revision `7591380f`; base 0.3.47
+  - Evidence: coordinator conversation: refactor hand-backs for slice 1 (`Outcome: none — already clean`, 42,061 subagent tokens, 3 tool uses) and slice 2 (`Outcome: none — already clean`, 41,865 subagent tokens, 4 tool uses); changed paths `refinement-options.json`, a 5-line `SKILL.md` paragraph and one `install.sh` line.
+  - Observed effect: no edits, no rework; the passes restated an overlap (`default` versus the SKILL.md pointer sentence) that slice 1's implementer had already reported.
+  - Inference: Qualified. Cost only, about 84k subagent tokens across two passes; the step is mandatory and two samples cannot show whether a pass ever pays off on changes this small.
