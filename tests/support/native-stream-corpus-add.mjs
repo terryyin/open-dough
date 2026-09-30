@@ -32,7 +32,7 @@ import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import { publicationStreamFields } from "./git-publication-native-stream-fields.mjs";
-import { joinContinuations } from "./native-host-stream.mjs";
+import { joinContinuations, strings } from "./native-host-stream.mjs";
 import {
   noFieldsVerdict,
   reassessVerdicts,
@@ -44,22 +44,12 @@ import {
   Refusal,
 } from "./native-stream-retained-attempt.mjs";
 
-// Every string value in parsed JSON, as the reader joins its continuations.
-function strings(value) {
-  if (typeof value === "string") {
-    return [joinContinuations(value)];
-  }
-  if (value && typeof value === "object") {
-    return Object.values(value).flatMap(strings);
-  }
-  return [];
-}
-
 // How many string values in the raw stream line `text` equal `command`.
 function holds(text, command) {
   try {
-    return strings(JSON.parse(text)).filter((value) => value === command)
-      .length;
+    return strings(JSON.parse(text))
+      .map(joinContinuations)
+      .filter((value) => value === command).length;
   } catch {
     return 0;
   }

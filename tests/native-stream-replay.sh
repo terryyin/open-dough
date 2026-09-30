@@ -162,6 +162,17 @@ FAIL: ${disagreeing}/events: stream field startup-cli-count is 1, expected 0
 REPLAY
 [[ ${status} -eq 1 ]]
 
+# An entry still holding a continued command's old double-spaced spelling
+# fails replay, naming the entry and the command.
+double_spaced="${work_dir}/double-spaced"
+cp -R -- "${corpus}" "${double_spaced}"
+sed 's|execution-start.mjs start --|execution-start.mjs start  --|' \
+  "${corpus}/${one_shot}/expected" > "${double_spaced}/${one_shot}/expected"
+status=0
+node "${replay}" --corpus "${double_spaced}" > "${work_dir}/replay.out" || status=$?
+[[ ${status} -eq 1 ]]
+grep -Fq "FAIL: ${one_shot}/events: started command 4 of 13 is " "${work_dir}/replay.out"
+
 # An attempt without a record or a complete stream is refused, naming what is
 # missing, and adds nothing.
 expect_refusal() {

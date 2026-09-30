@@ -130,7 +130,7 @@ Excluded:
 
 ### 1. A continued command reads as one single-spaced command
 Type: Behavior
-Status: planned
+Status: done
 Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
 tests/support/native-host-stream.test.mjs tests/native-stream-replay.sh`.
 
