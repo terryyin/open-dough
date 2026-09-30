@@ -16,6 +16,7 @@ import path from "node:path";
 import {
   type AgentLaunchRequest,
   type KeptStart,
+  type RunningStart,
   type LaunchWithState,
   type LaunchRecord,
   type LaunchResult,
@@ -38,6 +39,7 @@ import {
   keptRecordsByProject,
 } from "./launchRecordStore.ts";
 import { shownWorkspace } from "./claudeWorkspace.ts";
+import { StartProgress } from "./startProgress.ts";
 import { keptStartsByProject, removeStart } from "./startStore.ts";
 import {
   folderExists,
@@ -94,11 +96,12 @@ async function started(
   source: PublishedSource,
   request: AgentLaunchRequest,
   folder: ProjectFolder,
+  progress: StartProgress,
 ): Promise<Started> {
   if (request.workflow !== "execution") {
     return { kind: "none" };
   }
-  const planned = await beginStart(source, request, folder);
+  const planned = await beginStart(source, request, folder, progress);
   if (planned.kind === "not-applicable") {
     return { kind: "none" };
   }
@@ -114,6 +117,11 @@ async function started(
   const attempt = await Promise.race([planned.attempt, expiry]);
   clearTimeout(timer);
   if (attempt === "expired") {
+    // No launch follows the script that goes on running, so its phase ends
+    // with it.
+    void planned.attempt.finally(() => {
+      progress.clear(source.id, request.identity);
+    });
     return {
       kind: "stopped",
       result: {
@@ -136,6 +144,7 @@ async function started(
       workspace: planned.workspace,
     };
   } catch {
+    progress.clear(source.id, request.identity);
     return startFailed(
       `The story is Taken, but the installed skill's start formatter could not be read, so no session was started. Workspace ${planned.workspace.shown} on branch ${planned.branch}.`,
     );
@@ -191,6 +200,8 @@ async function withStates(
 
 export class AgentLaunches {
   private readonly running = new Set<AbortController>();
+  // The starts running now with their phases; the one owner of what runs.
+  private readonly progress = new StartProgress();
 
   // The machine's sessions: every catalog project's kept records, projects
   // in catalog order and each project's oldest first, joined with one
@@ -220,18 +231,25 @@ export class AgentLaunches {
   async keptStarts(): Promise<readonly KeptStart[]> {
     const kept = await keptStartsByProject();
     return catalog.flatMap((source) =>
-      (kept.get(source.id) ?? []).map((start) => ({
-        source: source.id,
-        identity: start.identity,
-        workspace: shownWorkspace(
-          projectFolder(source),
-          path.basename(start.workspace),
-        ),
-        ...(start.start?.agent === undefined
-          ? {}
-          : { agent: start.start.agent }),
-      })),
+      (kept.get(source.id) ?? [])
+        .filter((start) => !this.progress.running(source.id, start.identity))
+        .map((start) => ({
+          source: source.id,
+          identity: start.identity,
+          workspace: shownWorkspace(
+            projectFolder(source),
+            path.basename(start.workspace),
+          ),
+          ...(start.start?.agent === undefined
+            ? {}
+            : { agent: start.start.agent }),
+        })),
     );
+  }
+
+  // The starts running in this server now, each with its phase.
+  runningStarts(): readonly RunningStart[] {
+    return this.progress.all();
   }
 
   // One kept record's session state read now.
@@ -275,7 +293,7 @@ export class AgentLaunches {
         explanation: `The project folder ${folder.shown} was not found on this machine. Nothing was launched.`,
       };
     }
-    const start = await started(source, request, folder);
+    const start = await started(source, request, folder, this.progress);
     if (start.kind === "stopped") {
       return start.result;
     }
@@ -320,6 +338,9 @@ export class AgentLaunches {
     } finally {
       clearTimeout(timer);
       this.running.delete(controller);
+      if (start.kind === "established") {
+        this.progress.clear(source.id, start.handoff.start.identity);
+      }
     }
   }
 

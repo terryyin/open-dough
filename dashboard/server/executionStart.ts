@@ -35,6 +35,7 @@ import {
   type WorkspaceChoice,
 } from "./claudeWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
+import type { StartProgress } from "./startProgress.ts";
 import {
   keepsStart,
   readStartResult,
@@ -203,15 +204,6 @@ export async function establishesStart(
   );
 }
 
-// The attempts this server process is running, by project and story identity:
-// a kept start with no result that is not among them was lost with the server
-// that ran it.
-const runningStarts = new Set<string>();
-
-function attemptKey(sourceId: string, identity: string): string {
-  return `${sourceId}\n${identity}`;
-}
-
 // The script arguments that resume a start lost with the server, read from
 // its kept workspace: the candidate is the workspace HEAD and the starting
 // revision its parent, only when that workspace is on the kept branch. The
@@ -301,11 +293,17 @@ async function recordStop(
   }
 }
 
-// Runs the start for one execution launch, or says why not.
+// Runs the start for one execution launch, or says why not. The start is in
+// `progress` from before its script runs: `preparing` while it runs, then
+// `launching` once it established the start, for the launch to end; a start
+// that stops leaves `progress` when its record is written. A kept start with
+// no result that `progress` does not hold was lost with the server that ran
+// it.
 export async function beginStart(
   source: PublishedSource,
   request: StoryLaunchRequest,
   project: ProjectFolder,
+  progress: StartProgress,
 ): Promise<PlannedStart> {
   if (!(await establishesStart(project))) {
     return { kind: "not-applicable" };
@@ -333,13 +331,12 @@ export async function beginStart(
     remote: "origin",
     target: source.ref,
   } as const;
-  const attemptId = attemptKey(source.id, request.identity);
   const resume =
     kept === undefined
       ? []
       : resumeArguments(kept).length > 0 ||
           kept.start !== undefined ||
-          runningStarts.has(attemptId)
+          progress.running(source.id, request.identity)
         ? resumeArguments(kept)
         : await lostStartArguments(kept.workspace, kept.branch);
   // Written ahead of the script, so a start whose result is lost is still
@@ -353,7 +350,7 @@ export async function beginStart(
     ...(model === undefined ? {} : { model }),
     startedAt: new Date().toISOString(),
   });
-  runningStarts.add(attemptId);
+  progress.set(source.id, request.identity, "preparing");
   const attempt = runScript(
     [
       "--integration",
@@ -380,16 +377,16 @@ export async function beginStart(
       ...resume,
     ],
     project,
-  )
-    .finally(() => runningStarts.delete(attemptId))
-    .then(async (result): Promise<StartAttempt> => {
-      // The record follows the script's result even when the launch stopped
-      // waiting for it.
-      if (result.kind === "accepted") {
-        const start = establishedStart(facts, result, kept?.start);
-        await record(() => updateStart(source.id, request.identity, { start }));
-        return { kind: "established", start };
-      }
+  ).then(async (result): Promise<StartAttempt> => {
+    // The record follows the script's result even when the launch stopped
+    // waiting for it.
+    if (result.kind === "accepted") {
+      progress.set(source.id, request.identity, "launching");
+      const start = establishedStart(facts, result, kept?.start);
+      await record(() => updateStart(source.id, request.identity, { start }));
+      return { kind: "established", start };
+    }
+    try {
       await record(() => recordStop(source.id, request.identity, result));
       const owner =
         result.kind === "stopped" && result.status === "conflict"
@@ -402,7 +399,10 @@ export async function beginStart(
           branch,
         }),
       };
-    });
+    } finally {
+      progress.clear(source.id, request.identity);
+    }
+  });
   return { kind: "running", workspace, branch, attempt };
 }
 

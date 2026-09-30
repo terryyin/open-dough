@@ -139,16 +139,32 @@ with no result, from an uncertain or stopped start, is offered the same way
 once origin shows the story Taken.
 
 A start lost with the server (a kept start with no result and no `recovery`,
-and not among the attempts this server process is running) is resumed from its
-kept workspace: when it is on the kept branch, Start again passes the script
+and not among the starts this server process is running, `StartProgress`) is
+resumed from its kept workspace: when it is on the kept branch, Start again passes the script
 its HEAD as `--candidate-sha` and HEAD's parent as `--starting-revision`
 (`lostStartArguments`), which the script validates against the claim commit. The
 answer is then `resumed`, one claim on origin, the session in the same
 workspace. A workspace that is not the isolated claim stops with the script's
 own reason ("The workspace could not be set up: retained candidate or
 workspace is not the isolated owned claim.") and launches nothing; that stop
-removes the kept start. Phases shown on every page and refusing a second start
-of the same story are not built yet.
+removes the kept start.
+
+Every page shows a running start's phase. `AgentLaunches` owns the starts this
+server is running in memory (`server/startProgress.ts`), each by project and
+story: `preparing` from before the script runs until it ends, then `launching`
+once it established the start, until the session launch ends; a start that stops,
+whose wait expired, or whose session launch ended leaves it. The machine's
+sessions answer carries them as `starts` (`source`, `identity`, `phase`), read on
+every read; a page reads it on load, on the steady check, and when seen again,
+and a card of that story, on whichever page and whoever asked, says the phase
+words `startPhaseWords` takes from `launchWorkflows` ("Preparing execution…",
+then "Starting execution in Claude Code…") in place of the launching page's own
+pending words, and its Start waits. The card stays where origin puts the story
+(Backlog until origin shows it Taken). A start kept in the store with no running
+process is never running: it is in `keptStarts` (offered as above once Taken),
+and a start that is running is not in `keptStarts`. The launching page clears
+the phase when its launch answers. Refusing a second start of the same story is
+not built yet.
 
 A confirmed launch lists its session on the story's card, beside the Start
 actions, which stay with their notes whatever sessions are listed, and the

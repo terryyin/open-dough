@@ -21,7 +21,7 @@ import path from "node:path";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 
 export type FakeClaudeScenario =
-  "launched" | "refused" | "untrusted" | "hang" | "unlisted";
+  "launched" | "refused" | "untrusted" | "hang" | "held" | "unlisted";
 
 // What a listed session becomes, as the real `claude agents --json --all`
 // lists it (Claude Code 2.1.284): working with its process busy (`working`)
@@ -102,6 +102,8 @@ export type FakeClaudeControls = {
   // and stops the page also runs.
   claudeLaunchCalls(): ClaudeCall[];
   claudeScenario(scenario: FakeClaudeScenario): void;
+  // Lets a `held` launch go on and launch its session.
+  releaseHeldClaude(): void;
   // Changes how the fake lists the session with this id; only a blocked
   // one may say what it waits for.
   claudeSessionBecomes(
@@ -225,6 +227,9 @@ export function installFakeClaude(
       },
       claudeScenario(scenario) {
         writeFileSync(state("scenario"), scenario);
+      },
+      releaseHeldClaude() {
+        writeFileSync(state("release"), "");
       },
       claudeListing,
       claudeSessionBecomes(sessionId, change, waitingFor) {

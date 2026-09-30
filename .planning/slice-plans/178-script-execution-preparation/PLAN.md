@@ -218,7 +218,7 @@ keeps the start, the start record is removed.
 
 ### 10. Every page shows a running start's phase
 Type: Behavior
-Status: planned
+Status: done
 Proof: spec: hold the start open (slow hook); a second page for the project shows
 "Preparing execution…" on the card, then "Starting execution in Claude Code…", and after
 the launch the session; the machine answer's `starts` names project, identity, phase.

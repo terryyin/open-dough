@@ -130,3 +130,16 @@ export async function keptStarts(server: DashboardServer): Promise<unknown[]> {
   expect(response.status).toBe(200);
   return (JSON.parse(response.body) as { keptStarts: unknown[] }).keptStarts;
 }
+
+// The starts the boundary runs now with their phases, as it answers the
+// machine's sessions.
+export async function runningStarts(
+  server: DashboardServer,
+): Promise<unknown[]> {
+  const response = await rawRequest({
+    url: `${server.baseURL}${agentLaunchEndpoint}`,
+    headers: { Origin: server.origin },
+  });
+  expect(response.status).toBe(200);
+  return (JSON.parse(response.body) as { starts: unknown[] }).starts;
+}

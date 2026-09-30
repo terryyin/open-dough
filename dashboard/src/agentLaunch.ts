@@ -71,6 +71,20 @@ export const launchWorkflowNames = Object.keys(launchWorkflows) as [
   ...LaunchWorkflow[],
 ];
 
+// The phases of an execution's start the server runs, in order, and the words
+// a card says for each: the script that fetches, makes the workspace and
+// publishes the Take is running (`preparing`), then the script established the
+// start and Claude Code is launching the session (`launching`). Each is the
+// one entry of `launchWorkflows` that says it, spelled once.
+export const startPhases = ["preparing", "launching"] as const;
+
+export type StartPhase = (typeof startPhases)[number];
+
+export const startPhaseWords: Readonly<Record<StartPhase, string>> = {
+  preparing: launchWorkflows.execution.establishes.pending,
+  launching: launchWorkflows.execution.pending,
+};
+
 // The models a launch may ask Claude Code for, and the one place each alias
 // is spelled: the alias `--model` takes and its display name, in the order a
 // dialog offers them. Default is no `model` at all: Claude Code's own setting
@@ -377,6 +391,17 @@ export const keptStartSchema = z.object({
 
 export type KeptStart = z.infer<typeof keptStartSchema>;
 
+// A start running in the boundary's server now: the project, the story, and
+// the phase it is in. A start kept in the store with no running process is a
+// kept start, never a running one.
+export const runningStartSchema = z.object({
+  source: z.string().min(1),
+  identity: z.string().min(1),
+  phase: z.enum(startPhases),
+});
+
+export type RunningStart = z.infer<typeof runningStartSchema>;
+
 // What a Taken card says beside its Start execution while this machine keeps
 // the start that took the story and no session was started from it.
 export const keptStartNote = "Started here, no session yet";
@@ -386,12 +411,13 @@ export const keptStartNote = "Started here, no session yet";
 // session's current state, whether alerts can be raised, the projects
 // whose installed skill establishes a start (the claim and workspace) when
 // Start execution is pressed, by project id, and the starts kept without a
-// session.
+// session, and the starts running now with their phases.
 export const launchRecordsSchema = z.object({
   records: z.array(launchWithStateSchema),
   alerts: alertsSchema,
   establishing: z.array(z.string()),
   keptStarts: z.array(keptStartSchema),
+  starts: z.array(runningStartSchema),
 });
 
 export type MachineAnswer = z.infer<typeof launchRecordsSchema>;

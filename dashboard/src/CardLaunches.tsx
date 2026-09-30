@@ -1,5 +1,7 @@
 // A card's launches: on a Backlog card, one Start action per workflow in the
-// order `launchWorkflows` offers them, whatever sessions are listed; on every
+// order `launchWorkflows` offers them, whatever sessions are listed; on the
+// card of a story whose start the server is running, the phase words of that
+// start (`startPhaseWords`), whichever page started it; on every
 // card, the story's sessions that have not been marked done (`cardSessionsOf`),
 // newest first, each shown as Recent sessions shows it without the story the
 // card already names, under how many of them need attention, when any do
@@ -17,6 +19,7 @@ import {
   keptStartNote,
   launchWorkflowNames,
   launchWorkflows,
+  startPhaseWords,
 } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StartLaunch } from "./StartLaunch.tsx";
@@ -44,6 +47,7 @@ export function CardLaunches({
   const keptStart = offersStart
     ? undefined
     : launches.keptStartOf(sourceId, entry.identity);
+  const phase = launches.startPhaseOf(sourceId, entry.identity);
   const onStart =
     (workflow: LaunchWorkflow) => async (choices: LaunchChoices) => {
       const record = await launches.start(sourceId, entry, workflow, choices);
@@ -61,8 +65,12 @@ export function CardLaunches({
           resumesIn={keptStart.workspace}
           note={keptStartNote}
           attempt={launches.attemptOf(sourceId, entry.identity, "execution")}
+          phase={phase}
           onStart={onStart("execution")}
         />
+      )}
+      {!offersStart && keptStart === undefined && phase !== undefined && (
+        <p className="launch-answer quiet">{startPhaseWords[phase]}</p>
       )}
       {offersStart &&
         launchWorkflowNames.map((workflow) => (
@@ -73,6 +81,7 @@ export function CardLaunches({
             establishesStart={launches.establishesStart(sourceId)}
             note={launchWorkflows[workflow].note(entry)}
             attempt={launches.attemptOf(sourceId, entry.identity, workflow)}
+            phase={workflow === "execution" ? phase : undefined}
             onStart={onStart(workflow)}
           />
         ))}

@@ -13,7 +13,8 @@
 // admitted is decided in `./agentLaunchAdmission.ts`. While it runs it also
 // watches the machine's sessions and raises a macOS notification when one
 // starts needing the developer (`./sessionAlerts.ts`), and the sessions answer
-// says whether it can; it also names the starts kept without a session. Everything else
+// says whether it can; it also names the starts kept without a session and
+// the starts running with their phases. Everything else
 // -- another site, an unknown project, a workflow or host this boundary does
 // not launch, malformed text, another method, a session it did not record --
 // is refused before any host process starts, and a session Claude Code no
@@ -26,6 +27,7 @@ import {
   type Alerts,
   type KeptStart,
   type LaunchResult,
+  type RunningStart,
   type LaunchWithState,
 } from "../src/agentLaunch.ts";
 import {
@@ -55,6 +57,7 @@ type Answer =
         alerts: Alerts;
         establishing: readonly string[];
         keptStarts: readonly KeptStart[];
+        starts: readonly RunningStart[];
       };
     }
   | { readonly status: number; readonly body: { record: LaunchWithState } }
@@ -118,6 +121,7 @@ async function answer(
             alerts: alerts.availability(),
             establishing: await launches.establishingProjects(),
             keptStarts: await launches.keptStarts(),
+            starts: launches.runningStarts(),
           },
         };
       case "launch":
