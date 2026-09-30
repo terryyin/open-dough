@@ -78,6 +78,20 @@ export async function establishingProjects(
   return (JSON.parse(response.body) as { establishing: string[] }).establishing;
 }
 
+// The projects whose installed skill ships the preparation start and its
+// formatter, as the boundary answers the machine's sessions.
+export async function establishingPreparation(
+  server: DashboardServer,
+): Promise<string[]> {
+  const response = await rawRequest({
+    url: `${server.baseURL}${agentLaunchEndpoint}`,
+    headers: { Origin: server.origin },
+  });
+  expect(response.status).toBe(200);
+  return (JSON.parse(response.body) as { establishingPreparation: string[] })
+    .establishingPreparation;
+}
+
 // One project's records among the machine's sessions.
 export function projectRecords(
   sessions: readonly unknown[],

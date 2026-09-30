@@ -6,12 +6,19 @@
 // profile), and the session starts in the new workspace under the project's
 // `.worktrees/` with the established preparation in its instruction. A
 // project whose installed skill lacks the start or formatter launches as
-// before.
+// before. The launch record keeps the established preparation under its own
+// schema (no publisher ID, mode, or plan), and the sessions answer lists the
+// projects whose installed skill ships the start and formatter.
 
 import { existsSync, realpathSync, rmSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-import { launch, launchRequest } from "./agentLaunchBoundary.ts";
+import {
+  establishingPreparation,
+  launch,
+  launchRequest,
+  recordsOf,
+} from "./agentLaunchBoundary.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -64,7 +71,7 @@ for (const model of ["opus", undefined] as const) {
       origin.cleanup();
     });
 
-    test("publishes Preparing and opens the session in the workspace with the block", async () => {
+    test("publishes Preparing, opens the session in the workspace with the block, and keeps the preparation on the record", async () => {
       server.claudeScenario("launched");
       const response = await launch(server, { ...request, model });
       expect(JSON.parse(response.body), response.body).toMatchObject({
@@ -103,6 +110,22 @@ for (const model of ["opus", undefined] as const) {
       ]) {
         expect(lines).toContain(line);
       }
+
+      expect(await establishingPreparation(server)).toEqual(["open-dough"]);
+      const [record] = (await recordsOf(server, "open-dough")) as Record<
+        string,
+        unknown
+      >[];
+      expect(record?.["start"]).toBeUndefined();
+      expect(record?.["preparation"]).toEqual({
+        identity: queuedIdentity,
+        workspace,
+        branch: `claude/${slug}`,
+        remote: "origin",
+        target: "main",
+        publishedSha,
+        agent: expect.any(String),
+      });
     });
   });
 }
@@ -134,6 +157,7 @@ test.describe("refinement of a project whose installed skill lacks the preparati
         ".claude/skills/dough-story-refinement/scripts/established-preparation.mjs",
       ),
     );
+    expect(await establishingPreparation(server)).toEqual([]);
     server.claudeScenario("launched");
     const response = await launch(server, request);
     expect(JSON.parse(response.body), response.body).toMatchObject({

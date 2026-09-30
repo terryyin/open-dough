@@ -69,7 +69,21 @@ established start as the installed skill's own formatter
 after another blank line. The launch record keeps the established start
 (`start`: identity, publisher ID, workspace, branch, mode, remote, target,
 `publishedSha`, agent, and the start and candidate SHAs when reported).
-Refinement and Start session run no start.
+Start session runs no start.
+
+Refinement runs the project's installed `preparation-assignment.mjs start`
+(`server/preparationStart.ts`) when the installed skill ships it and its
+formatter (`scripts/established-preparation.mjs`); any other project launches as
+before. The same host workspace convention applies, and the session's
+instruction carries the established preparation as that formatter writes it.
+The launch record keeps it as `preparation`, with its own schema
+(`establishedPreparationSchema`): identity, workspace, branch, remote, target,
+`publishedSha` when the start announced one, and the Agent. It has no publisher
+ID, mode, or plan. The session's entry says "Workspace
+~/git/<project>/.worktrees/<slug>" on the card and in Recent sessions, as an
+execution's does. The machine's sessions answer carries
+`establishingPreparation`, the ids of the projects whose installed skill ships
+the start and formatter, beside `establishing`.
 
 The page says what Start does, for a project whose installed skill establishes
 a start (ships the start command and the formatter; `establishesStart` in

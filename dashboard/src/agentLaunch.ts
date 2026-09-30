@@ -131,21 +131,22 @@ export function launchSubject(request: RecordedLaunchRequest) {
   };
 }
 
-// Where a launch's session runs, for a launch whose start established a
-// workspace: the folder as the page shows a project's, `~/git/<project id>`,
-// then the workspace under it (`~/git/open-dough/.worktrees/<slug>`), never
-// the machine's home directory. Undefined when no start was established.
+// Where a launch's session runs, for a launch whose start or preparation
+// established a workspace: the folder as the page shows a project's,
+// `~/git/<project id>`, then the workspace under it
+// (`~/git/open-dough/.worktrees/<slug>`), never the machine's home directory.
+// Undefined when nothing was established.
 export function workspaceWords(
   request: RecordedLaunchRequest,
-  start: EstablishedStart | undefined,
+  established: EstablishedPreparation | undefined,
 ): string | undefined {
-  if (start === undefined) return undefined;
+  if (established === undefined) return undefined;
   const marker = "/.worktrees/";
-  const at = start.workspace.lastIndexOf(marker);
+  const at = established.workspace.lastIndexOf(marker);
   return `Workspace ${
     at < 0
-      ? start.workspace
-      : `~/git/${request.source}${start.workspace.slice(at)}`
+      ? established.workspace
+      : `~/git/${request.source}${established.workspace.slice(at)}`
   }`;
 }
 
@@ -249,6 +250,25 @@ export const establishedStartSchema = z.object({
 
 export type EstablishedStart = z.infer<typeof establishedStartSchema>;
 
+// The preparation a refinement launch established before its session
+// (`../server/preparationStart.ts`): the workspace the session runs in and the
+// announcement published for it, kept with the launch record. It carries no
+// publisher, mode, or plan; `publishedSha` is absent when the workspace
+// already held the assignment.
+export const establishedPreparationSchema = z.object({
+  identity: z.string().min(1),
+  workspace: z.string().min(1),
+  branch: z.string().min(1),
+  remote: z.string().min(1),
+  target: z.string().min(1),
+  publishedSha: z.string().min(1).optional(),
+  agent: z.string().min(1).optional(),
+});
+
+export type EstablishedPreparation = z.infer<
+  typeof establishedPreparationSchema
+>;
+
 // A confirmed launch, kept on this machine until `launchRetentionDays` after
 // the developer marked its session done (`./doneMark.ts`), if they ever do,
 // with when they did: local evidence only, never a story fact.
@@ -257,6 +277,8 @@ export const launchRecordSchema = z.object({
   session: hostSessionSchema,
   // What the launch's start established, for a workflow that has one.
   start: establishedStartSchema.optional(),
+  // What a refinement launch's preparation established.
+  preparation: establishedPreparationSchema.optional(),
   launchedAt: z.iso.datetime(),
   doneAt: z.iso.datetime().optional(),
 });

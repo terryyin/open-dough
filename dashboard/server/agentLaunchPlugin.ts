@@ -57,6 +57,7 @@ type Answer =
         records: readonly LaunchWithState[];
         alerts: Alerts;
         establishing: readonly string[];
+        establishingPreparation: readonly string[];
         keptStarts: readonly KeptStart[];
         starts: readonly RunningStart[];
       };
@@ -121,6 +122,7 @@ async function answer(
             records: await launches.machineSessions(),
             alerts: alerts.availability(),
             establishing: await launches.establishingProjects(),
+            establishingPreparation: await launches.establishingPreparation(),
             keptStarts: await launches.keptStarts(),
             starts: launches.runningStarts(),
           },

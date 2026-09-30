@@ -9,6 +9,7 @@ import { spawn } from "node:child_process";
 import { stat } from "node:fs/promises";
 import { hostname } from "node:os";
 import type {
+  EstablishedPreparation,
   EstablishedStart,
   StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
@@ -17,8 +18,21 @@ import type { ProjectFolder } from "./projectFolders.ts";
 import { git, repositoryOf } from "./startGit.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 
+// What a workflow's start established: an execution's start or a refinement's
+// preparation, under the key its launch record keeps it by.
+export type Established =
+  | { readonly start: EstablishedStart }
+  | { readonly preparation: EstablishedPreparation };
+
+// The facts every established start or preparation shares.
+export function establishedFacts(
+  established: Established,
+): EstablishedPreparation {
+  return "start" in established ? established.start : established.preparation;
+}
+
 export type StartAttempt =
-  | { readonly kind: "established"; readonly start: EstablishedStart }
+  | ({ readonly kind: "established" } & Established)
   | { readonly kind: "refused"; readonly explanation: string };
 
 export type PlannedStart =

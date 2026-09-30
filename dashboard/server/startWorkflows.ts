@@ -6,11 +6,7 @@
 // entry here only starts the session. Each entry is the one place its words
 // are spelled; the mechanics are its own module (`./executionStart.ts`).
 
-import type {
-  EstablishedStart,
-  LaunchWorkflow,
-  StoryLaunchRequest,
-} from "../src/agentLaunch.ts";
+import type { LaunchWorkflow, StoryLaunchRequest } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { EstablishedLaunch } from "./claudeLaunch.ts";
 import {
@@ -18,7 +14,11 @@ import {
   establishesStart,
   formattedStart,
 } from "./executionStart.ts";
-import type { PlannedStart } from "./startLaunch.ts";
+import {
+  establishedFacts,
+  type Established,
+  type PlannedStart,
+} from "./startLaunch.ts";
 import {
   beginPreparation,
   establishesPreparation,
@@ -44,7 +44,7 @@ export type StartWorkflow = {
     project: ProjectFolder,
     progress: WorkflowProgress,
   ): Promise<PlannedStart>;
-  format(project: ProjectFolder, start: EstablishedStart): Promise<string>;
+  format(project: ProjectFolder, established: Established): Promise<string>;
   // What the launch answers when the wait ends before the start does.
   uncertain(place: StartPlace): string;
   // What the launch answers when the formatter could not be read.
@@ -57,13 +57,18 @@ const execution: StartWorkflow = {
   workflow: "execution",
   establishes: establishesStart,
   begin: beginStart,
-  format: formattedStart,
+  format: (project, established) => {
+    if (!("start" in established)) {
+      throw new Error("An execution establishes a start.");
+    }
+    return formattedStart(project, established.start);
+  },
   uncertain: ({ workspace, branch }) =>
     `The start did not finish within the wait, so the story may or may not be Taken. The start was kept and goes on in workspace ${workspace} on branch ${branch}; pressing Start again resumes it.`,
   formatFailed: ({ workspace, branch }) =>
     `The story is Taken, but the installed skill's start formatter could not be read, so no session was started. Workspace ${workspace} on branch ${branch}.`,
   publishedWithoutSession: ({ handoff, workspace }) => {
-    const { agent } = handoff.start;
+    const { agent } = establishedFacts(handoff.established);
     return `${agent === undefined ? "Taken" : `Taken by ${agent}`}; no session started. Workspace ${workspace.shown}.`;
   },
 };
@@ -72,13 +77,18 @@ const refinement: StartWorkflow = {
   workflow: "refinement",
   establishes: establishesPreparation,
   begin: beginPreparation,
-  format: formattedPreparation,
+  format: (project, established) => {
+    if (!("preparation" in established)) {
+      throw new Error("A refinement establishes a preparation.");
+    }
+    return formattedPreparation(project, established.preparation);
+  },
   uncertain: ({ workspace, branch }) =>
     `The start did not finish within the wait, so the story may or may not be Preparing. Workspace ${workspace} on branch ${branch}.`,
   formatFailed: ({ workspace, branch }) =>
     `The story is Preparing, but the installed skill's formatter could not be read, so no session was started. Workspace ${workspace} on branch ${branch}.`,
   publishedWithoutSession: ({ handoff, workspace }) => {
-    const { agent } = handoff.start;
+    const { agent } = establishedFacts(handoff.established);
     return `${agent === undefined ? "Preparing" : `Preparing by ${agent}`}; no session started. Workspace ${workspace.shown}.`;
   },
 };

@@ -15,7 +15,6 @@ import {
   launchModels,
   launchWorkflows,
   type AgentLaunchRequest,
-  type EstablishedStart,
   type RecordedLaunchRequest,
   type LaunchResult,
 } from "../src/agentLaunch.ts";
@@ -26,6 +25,7 @@ import {
   type ListedSession,
 } from "./claudeCode.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
+import type { Established } from "./startLaunch.ts";
 
 export type HostLaunch =
   | ({ readonly kind: "launched" } & ListedSession)
@@ -85,7 +85,7 @@ export function recordedRequest(
 
 // What a launch's start established, and how the instruction carries it.
 export type EstablishedHandoff = {
-  readonly start: EstablishedStart;
+  readonly established: Established;
   readonly formatted: string;
 };
 

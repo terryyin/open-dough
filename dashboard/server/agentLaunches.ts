@@ -20,6 +20,7 @@ import {
   type LaunchWithState,
   type LaunchRecord,
   type LaunchResult,
+  type LaunchWorkflow,
 } from "../src/agentLaunch.ts";
 import { catalog, type PublishedSource } from "../src/publishedSource.ts";
 import { claudeSessions } from "./claudeCode.ts";
@@ -34,6 +35,7 @@ import {
   keptRecordsByProject,
 } from "./launchRecordStore.ts";
 import { shownWorkspace } from "./claudeWorkspace.ts";
+import { establishedFacts, type Established } from "./startLaunch.ts";
 import { StartProgress } from "./startProgress.ts";
 import { keptStartsByProject, removeStart } from "./startStore.ts";
 import { startOf, type StartWorkflow } from "./startWorkflows.ts";
@@ -145,13 +147,17 @@ async function started(
   if (attempt.kind === "refused") {
     return startFailed(attempt.explanation);
   }
+  const established: Established =
+    "start" in attempt
+      ? { start: attempt.start }
+      : { preparation: attempt.preparation };
   try {
     return {
       kind: "established",
       workflow,
       handoff: {
-        start: attempt.start,
-        formatted: await workflow.format(folder, attempt.start),
+        established,
+        formatted: await workflow.format(folder, established),
       },
       workspace: planned.workspace,
     };
@@ -197,6 +203,21 @@ async function withStates(
   }));
 }
 
+// The catalog projects whose installed skill establishes a workflow's start,
+// by id, in catalog order.
+async function establishing(
+  workflow: LaunchWorkflow,
+): Promise<readonly string[]> {
+  const ids = await Promise.all(
+    catalog.map(async (source) =>
+      (await startOf(workflow)?.establishes(projectFolder(source)))
+        ? source.id
+        : undefined,
+    ),
+  );
+  return ids.filter((id) => id !== undefined);
+}
+
 export class AgentLaunches {
   private readonly running = new Set<AbortController>();
   // The starts running now with their phases; the one owner of what runs.
@@ -215,15 +236,14 @@ export class AgentLaunches {
 
   // The catalog projects whose installed skill establishes a start when
   // Start execution is pressed, by id, in catalog order.
-  async establishingProjects(): Promise<readonly string[]> {
-    const establishing = await Promise.all(
-      catalog.map(async (source) =>
-        (await startOf("execution")?.establishes(projectFolder(source)))
-          ? source.id
-          : undefined,
-      ),
-    );
-    return establishing.filter((id) => id !== undefined);
+  establishingProjects(): Promise<readonly string[]> {
+    return establishing("execution");
+  }
+
+  // The catalog projects whose installed skill ships the preparation start and
+  // its formatter, by id, in catalog order.
+  establishingPreparation(): Promise<readonly string[]> {
+    return establishing("refinement");
   }
 
   // The starts kept without a session, in catalog order: each names the
@@ -331,7 +351,7 @@ export class AgentLaunches {
       const record: LaunchRecord = {
         request: recording,
         session: launched.session,
-        ...(start.kind === "established" ? { start: start.handoff.start } : {}),
+        ...(start.kind === "established" ? start.handoff.established : {}),
         launchedAt: new Date().toISOString(),
       };
       await keepRecord(source.id, record);
@@ -339,7 +359,7 @@ export class AgentLaunches {
         // The session carries the start now; the launch record keeps it.
         await removeStart(
           source.id,
-          start.handoff.start.identity,
+          establishedFacts(start.handoff.established).identity,
           start.workflow.workflow,
         );
       }
@@ -353,7 +373,10 @@ export class AgentLaunches {
       if (start.kind === "established") {
         this.progress
           .for(start.workflow.workflow)
-          .clear(source.id, start.handoff.start.identity);
+          .clear(
+            source.id,
+            establishedFacts(start.handoff.established).identity,
+          );
       }
     }
   }

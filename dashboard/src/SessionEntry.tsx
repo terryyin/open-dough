@@ -55,7 +55,10 @@ export function SessionEntry({
   const { title, identity, name, startedWords, modelWords } = launchSubject(
     record.request,
   );
-  const workspace = workspaceWords(record.request, record.start);
+  const workspace = workspaceWords(
+    record.request,
+    record.start ?? record.preparation,
+  );
   const markedDone = record.doneAt !== undefined;
   const { entryClass, stateWords } = shownSession(record);
   const inTerminal =

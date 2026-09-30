@@ -13,7 +13,7 @@ import { stat } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type {
-  EstablishedStart,
+  EstablishedPreparation,
   StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
@@ -28,7 +28,6 @@ import { takenSlugs } from "./startGit.ts";
 import {
   gatedStart,
   isFile,
-  publisherId,
   runStartCommand,
   type PlannedStart,
   type StartAttempt,
@@ -103,7 +102,6 @@ async function runningPreparation(
     request.title,
     await takenSlugs(project),
   );
-  const publisher = publisherId(source);
   const attempt = runScript(
     [
       "--integration",
@@ -129,12 +127,10 @@ async function runningPreparation(
       progress.set(source.id, request.identity, "launching");
       return {
         kind: "established",
-        start: {
+        preparation: {
           identity: request.identity,
-          publisherId: publisher,
           workspace: workspace.path,
           branch,
-          mode: "story-branch",
           remote: "origin",
           target: source.ref,
           publishedSha: result.publishedSha,
@@ -164,7 +160,7 @@ async function runningPreparation(
 // command.
 export async function formattedPreparation(
   project: ProjectFolder,
-  start: EstablishedStart,
+  preparation: EstablishedPreparation,
 ): Promise<string> {
   const file = path.join(project.path, skillScripts, formatterScript);
   const url = `${pathToFileURL(file).href}?modified=${String((await stat(file)).mtimeMs)}`;
@@ -172,7 +168,7 @@ export async function formattedPreparation(
     formatEstablishedPreparation: (preparation: object) => string;
   };
   return formatter.formatEstablishedPreparation({
-    ...start,
+    ...preparation,
     integration: project.path,
   });
 }

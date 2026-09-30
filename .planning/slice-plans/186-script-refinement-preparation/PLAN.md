@@ -148,8 +148,9 @@ today.
 
 ### 4. The launch record keeps the established preparation
 Type: Behavior
-Status: planned
+Status: done
 Proof: extends the slice 3 spec: the record read back through the sessions answer; a page spec for the entry's "Workspace" line.
+Accepted: `agent-launch-preparation-start.spec.ts` (record keeps `preparation` with no publisherId/mode/plan; `establishingPreparation` lists the project, empty without the formatter) and new `agent-launch-preparation-workspace.spec.ts` (Workspace line on card and Recent sessions); regression 235 passed; typecheck clean.
 
 Behavior: a launch whose start was established → its record keeps the
 established preparation (its own schema: no publisher ID, mode, or plan;
@@ -215,6 +216,8 @@ offer. `keptStarts` carries the workflow.
 
 ## Learnings
 
+- Slice 4: the page-side `launchRecordsSchema` does not yet read `establishingPreparation` (zod strips it); slice 5 adds it with the initial state and builders in `dashboard/src/agentLaunches.ts`. `AGENT-LAUNCH.md`'s refinement paragraph needs extending by slices 5-7.
+- CI lint (`no-unsafe-member-access`) failed slice 3's spec; repaired in a9623112. Run `node scripts/lint.mjs` on the tree before committing, since the local commit hook did not catch it.
 - Slice 3 left placeholders for later slices: `EstablishedStart` still carries `publisherId` and `mode` (slice 4's own schema removes them), refusals use one generic wording (slice 6), nothing is written to `refinement-starts.json` yet (slice 7), and `establishingProjects()`/`keptStarts()` stay execution-only (slices 4, 5, 8). Shared start mechanics now live in `dashboard/server/startLaunch.ts`.
 - `agent-launch-card-delete.spec.ts:51` failed once in a 234-spec parallel run; it does not touch start code and passed 24 of 24 isolated repeats and the later full run. Unexplained one-off; not reproduced.
 - `tests/*.sh` payload checks need a newer bash than macOS system bash.
