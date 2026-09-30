@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "identity": "SEED-061#select-refinement-options-from-dashboard",
+  "mode": "story-branch",
+  "branch": "claude/select-refinement-options-from-dashboard",
+  "host": "claude",
+  "model": "claude-sonnet-5-5"
+}
