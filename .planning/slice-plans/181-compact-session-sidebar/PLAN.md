@@ -62,7 +62,7 @@ suite runs at delivery per project guidance.
 
 ### 1. Icon toggle with a numeric attention badge
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright on `sessionSidebarPage.ts` parts; typecheck.
 
 Behavior: sessions exist, some needing attention → the banner shows an SVG
@@ -107,4 +107,4 @@ tooltip; the row stays one line for a long title.
 
 ## Learnings
 
-None yet.
+- Slice 1: `attentionCount` now lives in `sessionShown.ts` beside `attentionSummary`; the badge's accessible name reuses `attentionSummary`. Badge red `#c62828` and a three-line icon were chosen (story fixes neither); no visual check of badge placement or the narrow-window layout yet. One unreproduced flake seen in `agent-launch-card-delete.spec.ts` ("Delete record… State unknown"); passed on rerun and 6x repeat.

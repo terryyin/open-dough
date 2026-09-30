@@ -27,12 +27,6 @@
   background: var(--panel);
 }
 
-.sidebar-attention {
-  margin-top: 0.25rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
 .session-sidebar > p.quiet {
   margin-top: 0.5rem;
 }
@@ -80,16 +74,23 @@
   font-size: 0.95rem;
 }
 
+.sessions-toggle-group {
+  position: relative;
+  display: inline-block;
+}
+
 .sessions-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
   min-height: 2.75rem;
   padding: 0.25rem 0.6rem;
   border: 1px solid var(--accent);
   border-radius: 0.35rem;
-  font: inherit;
   color: var(--accent);
   background: var(--panel);
   cursor: pointer;
-  text-align: start;
 }
 
 .sessions-toggle[aria-expanded="true"] {
@@ -98,9 +99,20 @@
 }
 
 .sessions-toggle-attention {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  min-width: 1.15rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  box-sizing: border-box;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.15rem;
+  text-align: center;
+  color: #fff;
+  background: #c62828;
+  pointer-events: none;
 }
 
 @media (max-width: 800px) {

@@ -85,14 +85,21 @@ export function alertReading(
   return label === "Working" ? undefined : label;
 }
 
-// What a story's card says of its listed sessions: how many need attention,
-// by the same reading each of their entries shows, or nothing when none do.
+// How many of the listed sessions need attention, by the same reading each
+// of their entries shows.
+export function attentionCount(
+  sessions: readonly Pick<LaunchWithState, "sessionState" | "doneAt">[],
+): number {
+  return sessions.filter((session) => sessionShown(session).needsAttention)
+    .length;
+}
+
+// What a story's card and the banner's Sessions badge say of listed sessions:
+// how many need attention, or nothing when none do.
 export function attentionSummary(
   sessions: readonly Pick<LaunchWithState, "sessionState" | "doneAt">[],
 ): string | undefined {
-  const count = sessions.filter(
-    (session) => sessionShown(session).needsAttention,
-  ).length;
+  const count = attentionCount(sessions);
   if (count === 0) return undefined;
   return count === 1
     ? "1 session needs attention"

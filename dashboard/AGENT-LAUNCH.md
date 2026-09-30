@@ -144,7 +144,7 @@ line. It is read from the launch record, so a reload keeps it.
 The **Sessions** sidebar (`src/SessionSidebar.tsx`) lists the sessions still
 open in every catalog project, whichever project is selected: every launch
 record not marked done, exactly the sessions the cards keep, including one
-whose story is in no list. The **Sessions** button at the start of the pinned
+whose story is in no list. The **Sessions** icon button at the start of the pinned
 banner, before the project name, opens and closes it (`aria-expanded`,
 controlling the sidebar), and Command+B does the same page-wide, also while
 the keyboard is in the terminal, where Ctrl+B still goes to the session. An
@@ -163,10 +163,11 @@ updates an entry in place and never moves it, and a new launch comes first.
 Each entry names its story's title, wrapped to at most two lines, the project
 and workflow, such as "Pygardon · Refinement", when it was launched, and its
 session's state in the words a card entry uses, with the same heavier edge
-when the developer is needed there (below). The heading "Sessions" is followed
-by "1 session needs attention" or "<N> sessions need attention", counted
-across every project by the card's rule, and by nothing when none do; while
-the sidebar is closed, the Sessions button shows the same count as text.
+when the developer is needed there (below). The Sessions button, an icon named
+"Sessions", carries a red badge holding only the number of sessions that need
+attention, counted across every project by the card's rule, open or closed and
+absent when none do; its name says "1 session needs attention" or "<N> sessions
+need attention". The sidebar itself has no attention sentence.
 Before the machine's sessions are first read it says "Reading sessions…"; with
 none kept, "No sessions launched from this dashboard are kept."; and with all
 of them marked done, "No sessions launched from this dashboard are open." A

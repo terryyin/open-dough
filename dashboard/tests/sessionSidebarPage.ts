@@ -10,12 +10,17 @@ export function sidebarParts(page: Page) {
   const sidebar = page.getByRole("complementary", { name: "Sessions" });
   return {
     sidebar,
-    button: page.getByRole("banner").getByRole("button", { name: /^Sessions/ }),
+    button: page.getByRole("banner").getByRole("button", { name: "Sessions" }),
+    // How many sessions need attention, as the number on the button's badge,
+    // when any do.
+    badge: page.getByRole("banner").getByRole("img", {
+      name: /^\d+ sessions? needs? attention$/,
+    }),
     entries: sidebar.getByRole("listitem"),
     // The control of the entry for the story with this title.
     entry: (title: string) => sidebar.getByRole("button", { name: title }),
-    // How many sessions need attention, as the heading says, when any do.
-    attention: sidebar.getByText(/^\d+ sessions? needs? attention$/),
+    // The card's attention sentence, which the sidebar never shows.
+    attentionSentence: sidebar.getByText(/\d+ sessions? needs? attention/),
   };
 }
 

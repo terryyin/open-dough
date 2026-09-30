@@ -153,7 +153,7 @@ test("a blocked ad hoc session reads Needs input in Recent sessions and the side
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, journey);
   const text = "what is blocking us?";
-  const { button, entries, attention } = sidebarParts(page);
+  const { button, entries, badge } = sidebarParts(page);
   const recent = recentOf(page, text);
 
   await startAndClose(page, "Open Dough", text);
@@ -164,8 +164,10 @@ test("a blocked ad hoc session reads Needs input in Recent sessions and the side
   await expectMembership(page, openDoughStories);
 
   await expectSessionShown(recent, "Needs input: input needed", true);
+  await expect(badge).toHaveText("1");
+  await expect(badge).toHaveAccessibleName("1 session needs attention");
   await button.click();
-  await expect(attention).toHaveText("1 session needs attention");
+  await expect(badge).toHaveText("1");
   await expectSessionShown(entries.first(), "Needs input: input needed", true);
 });
 

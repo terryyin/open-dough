@@ -1,13 +1,12 @@
 // The Sessions sidebar lists every session this dashboard launched and has
 // not marked done, from every catalog project whichever is selected, newest
 // launch first, each with its story's title, project, workflow, launch time,
-// and the state words and attention edge a card entry shows, under one count
-// of those that need the developer, which the banner's Sessions button also
-// shows while the sidebar is closed. A state change never moves an entry, a
-// new launch comes first, and a session marked done leaves. It sits left of
-// the page, beside the terminal on the right, or over the page on a narrow
-// window; the page column beside them lays its stages out as narrow as it
-// is. Doughnut's and Pygardon's sessions are launched through the
+// and the state words and attention edge a card entry shows, with a badge on
+// the banner's Sessions icon button counting those that need the developer,
+// open or closed. A state change never moves an entry, a new launch comes
+// first, and a session marked done leaves. It sits left of the page, beside
+// the terminal on the right, or over the page on a narrow window; the page
+// column beside them lays its stages out as narrow as it is. Doughnut's and Pygardon's sessions are launched through the
 // boundary, Open Dough's from their cards; the page's own dashboard server
 // launches the synthetic `claude` (./fixtures/fake-claude). The page clock
 // stands still unless the journey lets it pass.
@@ -74,7 +73,8 @@ test.describe("the Sessions sidebar", () => {
       page,
       stagesJourney,
     );
-    const { sidebar, button, entries, attention } = sidebarParts(page);
+    const { sidebar, button, entries, badge, attentionSentence } =
+      sidebarParts(page);
     const queued = [takenStory, readyStory, notRefinedStory];
     await expectMembership(page, { taken: [], backlog: queued });
     await settled();
@@ -85,7 +85,9 @@ test.describe("the Sessions sidebar", () => {
     );
 
     await test.step("Sessions in the banner opens the sidebar, closed at first, on every project's sessions newest first", async () => {
-      await expect(button).toHaveText("Sessions");
+      await expect(button).toHaveText("");
+      await expect(badge).toHaveCount(0);
+      await expect(button.locator("svg")).toBeVisible();
       await expect(button).toHaveAttribute("aria-expanded", "false");
       await expect(sidebar).toBeHidden();
       await button.click();
@@ -108,7 +110,7 @@ test.describe("the Sessions sidebar", () => {
         ],
         since,
       );
-      await expect(attention).toHaveCount(0);
+      await expect(badge).toHaveCount(0);
       const title = entries.nth(2).getByRole("heading", { level: 3 });
       const lineHeight = await title.evaluate((element) =>
         parseFloat(getComputedStyle(element).lineHeight),
@@ -126,7 +128,9 @@ test.describe("the Sessions sidebar", () => {
       dashboard.claudeSessionBecomes(doughnut, "blocked", "input needed");
       dashboard.claudeSessionBecomes(pygardon, "done-live");
       await passOnePace();
-      await expect(attention).toHaveText("2 sessions need attention");
+      await expect(badge).toHaveText("2");
+      await expect(badge).toHaveAccessibleName("2 sessions need attention");
+      await expect(attentionSentence).toHaveCount(0);
       await expectEntries(
         entries,
         [
@@ -143,12 +147,11 @@ test.describe("the Sessions sidebar", () => {
         ],
         since,
       );
-      await expect(button).toHaveText("Sessions");
 
       await button.click();
       await expect(sidebar).toBeHidden();
       await expect(button).toHaveAttribute("aria-expanded", "false");
-      await expect(button).toHaveText("Sessions 2 sessions need attention");
+      await expect(badge).toHaveText("2");
       await button.click();
       await expect(sidebar).toBeVisible();
       await expectMembership(page, { taken: [], backlog: queued });
@@ -157,7 +160,7 @@ test.describe("the Sessions sidebar", () => {
     await test.step("a state change keeps the entry in its place, and a new launch comes first", async () => {
       dashboard.claudeSessionBecomes(ready, "done-live");
       await passOnePace();
-      await expect(attention).toHaveText("3 sessions need attention");
+      await expect(badge).toHaveText("3");
       await expectSessionShown(entries.nth(1), "Ready for review", true);
       await expect(entries.nth(1).getByRole("heading")).toHaveText(readyStory);
 
@@ -172,7 +175,7 @@ test.describe("the Sessions sidebar", () => {
         .getByRole("button", { name: "Mark as done" })
         .click();
       await expect(entries).toHaveCount(4);
-      await expect(attention).toHaveText("2 sessions need attention");
+      await expect(badge).toHaveText("2");
       await expect(
         entries.getByRole("heading", { name: readyStory }),
       ).toHaveCount(0);

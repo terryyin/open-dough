@@ -37,7 +37,7 @@ test.describe("the Sessions sidebar's reading", () => {
   }) => {
     const { answer } = await holdSessionReads(page);
     const { settled } = await openStoryStagesJourney(page, stagesJourney);
-    const { sidebar, button, entries } = sidebarParts(page);
+    const { sidebar, button, entries, badge } = sidebarParts(page);
     const { recentSessions } = parts(page);
     await settled();
     await button.click();
@@ -54,7 +54,7 @@ test.describe("the Sessions sidebar's reading", () => {
       await expect(place).not.toContainText("Reading sessions…");
     }
     await expect(entries).toHaveCount(0);
-    await expect(button).toHaveText("Sessions");
+    await expect(badge).toHaveCount(0);
 
     // Kept, but all marked done: none is open.
     const { sessionId } = await launched(dashboard, "doughnut");
