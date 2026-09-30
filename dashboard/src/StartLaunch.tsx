@@ -22,19 +22,26 @@ import "./agent-launch.css";
 export function StartLaunch({
   work,
   workflow,
+  establishesStart,
   note,
   attempt,
   onStart,
 }: {
   readonly work: LaunchWorkItem;
   readonly workflow: LaunchWorkflow;
+  // Whether the project's installed skill establishes a start for this
+  // workflow's Start; without it the words are those of a plain session start.
+  readonly establishesStart: boolean;
   // The workflow's note on this card, if any.
   readonly note: string | undefined;
   readonly attempt: LaunchAttempt | undefined;
   // Answers whether a session was launched, which then takes the keyboard.
   readonly onStart: (choices: LaunchChoices) => Promise<boolean>;
 }) {
-  const { name, verb, skill, pending, establishes } = launchWorkflows[workflow];
+  const spec = launchWorkflows[workflow];
+  const { name, verb, skill } = spec;
+  const establishes = establishesStart ? spec.establishes : undefined;
+  const pending = establishes?.pending ?? spec.pending;
   const named = name.toLowerCase();
   const id = useId();
   const starting = attempt?.kind === "starting";
@@ -87,7 +94,7 @@ export function StartLaunch({
               Claude Code starts a background session on this machine, in this
               project's folder, to {verb} <strong>{work.title}</strong> (
               <span className="card-identity">{work.identity}</span>).
-              {establishes !== undefined && ` ${establishes}`}
+              {establishes !== undefined && ` ${establishes.sentence}`}
             </>
           }
           note={

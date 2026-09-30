@@ -72,21 +72,27 @@ after another blank line. The launch record keeps the established start
 `publishedSha`, agent, and the start and candidate SHAs when reported).
 Refinement and Start session run no start.
 
-The page says what Start does. Only the execution dialog adds a sentence to
-its description: "Start also publishes this story's Take to the project's
-trunk on origin and creates a workspace under the project folder's
-.worktrees/; pressing Start authorizes that push." While the launch request is
-pending the card reads "Preparing execution…" (a refinement's reads "Starting
-refinement in Claude Code…"); that is local progress, so the card stays in
-**Backlog** and shows no Taken or agent until origin does. The words are in
-`launchWorkflows` (`pending`, `establishes`). A session whose launch record
-keeps a start says "Workspace ~/git/<project id>/.worktrees/<slug>" in its
-entry, on a card or in Recent sessions (`workspaceWords`); one launched
-without a start says none.
+The page says what Start does, for a project whose installed skill establishes
+a start (ships the start command and the formatter; `establishesStart` in
+`server/executionStart.ts`). The machine's sessions answer carries the ids of
+those projects as `establishing`, read on every read. Only then does the
+execution dialog add a sentence to its description: "Start also publishes this
+story's Take to the project's trunk on origin and creates a workspace under the
+project folder's .worktrees/; pressing Start authorizes that push." and only
+then does the card read "Preparing execution…" while the launch request is
+pending. Any other project, and every project until the first read answers,
+gets no sentence and "Starting execution in Claude Code…" (a refinement's reads
+"Starting refinement in Claude Code…"). The pending words are local progress,
+so the card stays in **Backlog** and shows no Taken or agent until origin does.
+The words are in `launchWorkflows` (`pending`, `establishes`). A session whose
+launch record keeps a start says "Workspace
+~/git/<project id>/.worktrees/<slug>" in its entry, on a card or in Recent
+sessions (`workspaceWords`); one launched without a start says none.
 
-The start runs only when the project's installed skill ships both the start
-command and the formatter; otherwise the launch is as before, in the project's
-folder with no Take and no workspace. It is refused, with nothing launched
+The start runs only when the project's installed skill establishes a start;
+otherwise the launch is exactly as before: `claude --bg` in the project's
+folder with `/<skill> <identity>` and the developer's instruction only, no Take
+and no workspace. It is refused, with nothing launched
 ("Launch failed:"), when the project folder's `origin` is not the catalog
 repository the Take would be published to, or when the command stops or gives
 no readable result; the explanation names its `status` and `error` and its

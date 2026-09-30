@@ -8,10 +8,15 @@
 // The workspace and result rules themselves are ./claude-workspace.spec.ts
 // and ./execution-start-result.spec.ts.
 
-import { realpathSync } from "node:fs";
+import { existsSync, realpathSync, rmSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-import { launch, launchRequest, recordsOf } from "./agentLaunchBoundary.ts";
+import {
+  establishingProjects,
+  launch,
+  launchRequest,
+  recordsOf,
+} from "./agentLaunchBoundary.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -157,5 +162,55 @@ test.describe("execution start of a project whose origin is not the catalog repo
     expect(server.claudeCalls()).toEqual([]);
     expect(await origin.takenProfiles()).toEqual([]);
     expect(await recordsOf(server, "open-dough")).toEqual([]);
+  });
+});
+
+test.describe("execution start of a project whose installed skill cannot continue from a start", () => {
+  let origin: StartOrigin;
+  let server: DashboardServer;
+
+  test.beforeAll(async () => {
+    origin = await startOrigin();
+    server = await startDashboardServer({
+      mode: "preview",
+      prebuilt: builtDashboardDir,
+      machine: origin.machine,
+      projectFolders: ["open-dough"],
+      launchTimeoutMs: 30_000,
+    });
+  });
+
+  test.afterAll(async () => {
+    await server.close();
+    origin.cleanup();
+  });
+
+  test("launches as before, in the project folder, with no Take and no workspace", async () => {
+    // The folder that ships the formatter is a project that establishes a start.
+    expect(await establishingProjects(server)).toEqual(["open-dough"]);
+
+    // An installed skill that predates the handoff does not.
+    rmSync(
+      path.join(
+        origin.project,
+        ".claude/skills/dough-execute-plan/scripts/established-start.mjs",
+      ),
+    );
+    expect(await establishingProjects(server)).toEqual([]);
+
+    server.claudeScenario("launched");
+    const response = await launch(server, request);
+    const answer = JSON.parse(response.body) as {
+      kind: string;
+      record: { start?: unknown };
+    };
+    expect(answer.kind, response.body).toBe("launched");
+
+    expect(await origin.takenProfiles()).toEqual([]);
+    expect(existsSync(path.join(origin.project, ".worktrees"))).toBe(false);
+    const [call] = server.claudeLaunchCalls();
+    expect(call?.cwd).toBe(realpathSync(origin.project));
+    expect(call?.argv.at(-1)).toBe(`/dough-execute-plan ${queuedIdentity}`);
+    expect(answer.record.start).toBeUndefined();
   });
 });

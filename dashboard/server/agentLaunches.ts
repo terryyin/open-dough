@@ -25,7 +25,11 @@ import {
   recordedRequest,
   type EstablishedLaunch,
 } from "./claudeLaunch.ts";
-import { beginStart, formattedStart } from "./executionStart.ts";
+import {
+  beginStart,
+  establishesStart,
+  formattedStart,
+} from "./executionStart.ts";
 import {
   keepRecord,
   keptRecords,
@@ -182,6 +186,17 @@ export class AgentLaunches {
       machineFolder(),
       catalog.flatMap((source) => kept.get(source.id) ?? []),
     );
+  }
+
+  // The catalog projects whose installed skill establishes a start when
+  // Start execution is pressed, by id, in catalog order.
+  async establishingProjects(): Promise<readonly string[]> {
+    const establishing = await Promise.all(
+      catalog.map(async (source) =>
+        (await establishesStart(projectFolder(source))) ? source.id : undefined,
+      ),
+    );
+    return establishing.filter((id) => id !== undefined);
   }
 
   // One kept record's session state read now.

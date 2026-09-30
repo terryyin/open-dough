@@ -146,7 +146,7 @@ session are unchanged.
 
 ### 4. A project whose installed skill cannot continue from a start launches as today
 Type: Behavior
-Status: planned
+Status: done
 Proof: spec: project folder whose installed `dough-execute-plan` lacks
 `scripts/established-start.mjs` → no Take, no workspace, `claude --bg` in the project
 folder with `/<skill> <identity>` only, and no extra dialog sentence; a folder with it

@@ -15,17 +15,20 @@ import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/produ
 
 // What a launch starts, and the one place each workflow is spelled: its
 // display name, the verb its dialog uses, the skill it runs, what its card
-// says while the launch request is pending, what its dialog adds when Start
-// also establishes a claim and workspace, and the note its card action
-// carries, if any. The boundary, host, and card all read this table.
+// says while the launch request is pending, what a project whose installed
+// skill establishes a start (a claim and workspace) has its dialog and card
+// say instead, and the note its card action carries, if any. The boundary,
+// host, and card all read this table.
 type LaunchWorkflowSpec = {
   readonly name: string;
   readonly verb: string;
   readonly skill: string;
   readonly pending: string;
-  // The sentence a dialog adds for a workflow whose Start does more than start
-  // the session; none for a workflow that only starts it.
-  readonly establishes: string | undefined;
+  // For a workflow whose Start does more than start the session, in a project
+  // that does it: the sentence its dialog adds and what its card says while
+  // the request is pending. None for a workflow that only starts the session.
+  readonly establishes:
+    { readonly sentence: string; readonly pending: string } | undefined;
   readonly note: (
     entry: Pick<WorkEntry, "preparation" | "preparing">,
   ) => string | undefined;
@@ -36,9 +39,12 @@ export const launchWorkflows = {
     name: "Execution",
     verb: "execute",
     skill: "dough-execute-plan",
-    pending: "Preparing execution…",
-    establishes:
-      "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
+    pending: "Starting execution in Claude Code…",
+    establishes: {
+      sentence:
+        "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
+      pending: "Preparing execution…",
+    },
     // Nothing while readiness is still being read.
     note: ({ preparation }) =>
       preparation?.status !== "loading" &&
@@ -360,10 +366,13 @@ export type Alerts = z.infer<typeof alertsSchema>;
 
 // The machine's sessions, as the boundary answers a GET: every catalog
 // project's launch records, each naming its project and joined with its
-// session's current state, and whether alerts can be raised.
+// session's current state, whether alerts can be raised, and the projects
+// whose installed skill establishes a start (the claim and workspace) when
+// Start execution is pressed, by project id.
 export const launchRecordsSchema = z.object({
   records: z.array(launchWithStateSchema),
   alerts: alertsSchema,
+  establishing: z.array(z.string()),
 });
 
 export type MachineAnswer = z.infer<typeof launchRecordsSchema>;

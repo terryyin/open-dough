@@ -52,6 +52,7 @@ type Answer =
       readonly body: {
         records: readonly LaunchWithState[];
         alerts: Alerts;
+        establishing: readonly string[];
       };
     }
   | { readonly status: number; readonly body: { record: LaunchWithState } }
@@ -113,6 +114,7 @@ async function answer(
           body: {
             records: await launches.machineSessions(),
             alerts: alerts.availability(),
+            establishing: await launches.establishingProjects(),
           },
         };
       case "launch":

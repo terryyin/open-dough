@@ -229,17 +229,26 @@ function refusal(result: StartResult): string {
   return `The start stopped (${result.status})${result.error ? `: ${result.error}` : ""}.${where} Nothing was launched.`;
 }
 
+// Whether the project's installed skill can continue from a start: it ships
+// the start command and the formatter. The one check both a launch and the
+// machine's answer to the page read.
+export async function establishesStart(
+  project: ProjectFolder,
+): Promise<boolean> {
+  const scripts = path.join(project.path, skillScripts);
+  return (
+    (await isFile(path.join(scripts, startScript))) &&
+    (await isFile(path.join(scripts, formatterScript)))
+  );
+}
+
 // Runs the start for one execution launch, or says why not.
 export async function beginStart(
   source: PublishedSource,
   request: StoryLaunchRequest,
   project: ProjectFolder,
 ): Promise<PlannedStart> {
-  const scripts = path.join(project.path, skillScripts);
-  if (
-    !(await isFile(path.join(scripts, startScript))) ||
-    !(await isFile(path.join(scripts, formatterScript)))
-  ) {
+  if (!(await establishesStart(project))) {
     return { kind: "not-applicable" };
   }
   const origin = await git(project, ["config", "--get", "remote.origin.url"]);

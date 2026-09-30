@@ -44,6 +44,7 @@ export function CardLaunches({
             key={workflow}
             work={entry}
             workflow={workflow}
+            establishesStart={launches.establishesStart(sourceId)}
             note={launchWorkflows[workflow].note(entry)}
             attempt={launches.attemptOf(sourceId, entry.identity, workflow)}
             onStart={async (choices) => {

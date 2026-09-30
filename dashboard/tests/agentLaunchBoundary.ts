@@ -65,6 +65,19 @@ export async function machineSessions(
   return (JSON.parse(response.body) as { records: unknown[] }).records;
 }
 
+// The projects whose installed skill establishes a start, as the boundary
+// answers the machine's sessions.
+export async function establishingProjects(
+  server: DashboardServer,
+): Promise<string[]> {
+  const response = await rawRequest({
+    url: `${server.baseURL}${agentLaunchEndpoint}`,
+    headers: { Origin: server.origin },
+  });
+  expect(response.status).toBe(200);
+  return (JSON.parse(response.body) as { establishing: string[] }).establishing;
+}
+
 // One project's records among the machine's sessions.
 export function projectRecords(
   sessions: readonly unknown[],
