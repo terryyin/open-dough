@@ -8,7 +8,7 @@
 
 import type { LaunchWorkflow, StoryLaunchRequest } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import type { EstablishedLaunch } from "./claudeLaunch.ts";
+import type { EstablishedLaunch } from "./hostLaunch.ts";
 import {
   beginStart,
   establishesStart,

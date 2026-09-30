@@ -1,3 +1,4 @@
+import { sessionKey } from "./sessionReference.ts";
 // The Sessions sidebar: the machine's sessions still open, from every
 // catalog project whichever is selected, those that need the developer
 // first, then the rest (`openSessionsOf`), each one line: its story's title
@@ -219,7 +220,7 @@ export function SessionSidebar({
           <ol>
             {listed.map((record) => (
               <SidebarEntry
-                key={record.session.sessionId}
+                key={sessionKey(record.session)}
                 record={record}
                 onOpen={onOpen}
               />

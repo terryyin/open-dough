@@ -11,6 +11,7 @@
 // and a write drops it. The file is read afresh, replaced atomically, and
 // moved aside when unreadable as `./machineJsonStore.ts` describes.
 
+import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { homedir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
@@ -114,7 +115,7 @@ export async function keepRecord(
 // more.
 export async function setRecordDoneAt(
   sourceId: string,
-  sessionId: string,
+  session: SessionReference,
   doneAt: string | undefined,
 ): Promise<LaunchRecord | undefined> {
   let changed: LaunchRecord | undefined;
@@ -126,7 +127,7 @@ export async function setRecordDoneAt(
     return {
       ...kept,
       [sourceId]: records.map((record) => {
-        if (record.session.sessionId !== sessionId) {
+        if (sessionKey(record.session) !== sessionKey(session)) {
           return record;
         }
         const next: LaunchRecord = { ...record };
@@ -143,7 +144,7 @@ export async function setRecordDoneAt(
 // they are. Answers whether such a record was kept.
 export async function deleteRecord(
   sourceId: string,
-  sessionId: string,
+  session: SessionReference,
 ): Promise<boolean> {
   let deleted = false;
   await replaceRecords((kept) => {
@@ -152,7 +153,7 @@ export async function deleteRecord(
       return kept;
     }
     const remaining = records.filter(
-      (record) => record.session.sessionId !== sessionId,
+      (record) => sessionKey(record.session) !== sessionKey(session),
     );
     deleted = remaining.length < records.length;
     return { ...kept, [sourceId]: remaining };

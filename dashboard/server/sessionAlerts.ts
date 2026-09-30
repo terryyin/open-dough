@@ -1,3 +1,4 @@
+import { sessionKey } from "../src/sessionReference.ts";
 // The macOS notification for a session that needs the developer, for the
 // local launch boundary (`./agentLaunchPlugin.ts`), which starts it with the
 // boundary and stops it with the same cleanup. One loop, never overlapping,
@@ -133,7 +134,7 @@ export class SessionAlerts {
     const before = this.readings;
     const now = sessions.map((session) => ({
       session,
-      id: session.session.sessionId,
+      id: sessionKey(session.session),
       reading: alertReading(session),
     }));
     this.readings = new Map(now.map(({ id, reading }) => [id, reading]));

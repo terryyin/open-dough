@@ -19,7 +19,7 @@ import type {
   StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { installedSkillPath } from "./claudeWorkspace.ts";
+import { installedSkillPath } from "./launchHosts.ts";
 import { beforeStart, removeCreatedWorkspace } from "./preparationCleanup.ts";
 import {
   keepsPreparation,
@@ -50,7 +50,13 @@ async function runScript(
   project: ProjectFolder,
 ): Promise<PreparationResult> {
   const stdout = await runStartCommand(
-    installedSkillPath(project, refinementSkill, "scripts", startScript),
+    installedSkillPath(
+      "claude",
+      project,
+      refinementSkill,
+      "scripts",
+      startScript,
+    ),
     args,
     project,
   );
@@ -65,7 +71,7 @@ export async function establishesPreparation(
   project: ProjectFolder,
 ): Promise<boolean> {
   const script = (name: string) =>
-    installedSkillPath(project, refinementSkill, "scripts", name);
+    installedSkillPath("claude", project, refinementSkill, "scripts", name);
   return (
     (await isFile(script(startScript))) &&
     (await isFile(script(formatterScript)))
@@ -192,6 +198,7 @@ export async function formattedPreparation(
   preparation: EstablishedPreparation,
 ): Promise<string> {
   const file = installedSkillPath(
+    "claude",
     project,
     refinementSkill,
     "scripts",

@@ -11,6 +11,11 @@
 // Nothing here runs a host process except the listing an upgrade's admission
 // reads.
 
+import {
+  sessionHostSchema,
+  type SessionReference,
+} from "../src/sessionReference.ts";
+import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
 import {
   agentLaunchRequestSchema,
@@ -100,9 +105,9 @@ async function jsonBody(req: IncomingMessage): Promise<unknown> {
 async function recordedSession(
   launches: AgentLaunches,
   source: PublishedSource,
-  sessionId: string,
+  session: SessionReference,
 ): Promise<Extract<Recorded, { readonly kind: "recorded" }>> {
-  const recorded = await launches.recorded(source, sessionId);
+  const recorded = await launches.recorded(source, session);
   switch (recorded.kind) {
     case "recorded":
       return recorded;
@@ -128,11 +133,13 @@ async function doneRequest(
     throw new RefusedRequest(400, "The done request is malformed.");
   }
   const source = knownSource(parsed.data.source);
-  const { record, folder } = await recordedSession(
-    launches,
-    source,
-    parsed.data.session,
-  );
+  const { record, folder } = await recordedSession(launches, source, {
+    sessionId: parsed.data.session,
+    host: parsed.data.host,
+  });
+  if (launchHost(record.session.host)?.stop === undefined) {
+    throw new RefusedRequest(400, "This host cannot mark a session done.");
+  }
   return { kind: "done", source, record, folder };
 }
 
@@ -145,11 +152,10 @@ async function deleteRequest(
     throw new RefusedRequest(400, "The delete request is malformed.");
   }
   const source = knownSource(parsed.data.source);
-  const { record } = await recordedSession(
-    launches,
-    source,
-    parsed.data.session,
-  );
+  const { record } = await recordedSession(launches, source, {
+    sessionId: parsed.data.session,
+    host: parsed.data.host,
+  });
   return { kind: "delete", source, record };
 }
 
@@ -162,7 +168,7 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   const source = knownSource(request.source);
   // The request schema admits only the workflows in `launchWorkflows` and
   // ad hoc.
-  if (request.host !== "claude") {
+  if (launchHost(request.host) === undefined) {
     throw new RefusedRequest(
       400,
       `${launchKindName(request.workflow)} can be launched only in Claude Code.`,
@@ -214,21 +220,29 @@ export async function admittedAttach(
 ): Promise<TerminalSession> {
   verifyLocalOrigin(req);
   const source = knownSource(url.searchParams.get("source"));
-  const { record, folder } = await recordedSession(
-    launches,
-    source,
-    url.searchParams.get("session") ?? "",
+  const host = sessionHostSchema.safeParse(
+    url.searchParams.get("host") ?? "claude",
   );
+  if (!host.success)
+    throw new RefusedRequest(400, "The session host is malformed.");
+  const { record, folder } = await recordedSession(launches, source, {
+    sessionId: url.searchParams.get("session") ?? "",
+    host: host.data,
+  });
+  if (launchHost(record.session.host)?.attach === undefined) {
+    throw new RefusedRequest(
+      400,
+      "This host cannot open an embedded terminal.",
+    );
+  }
   const joined = await launches.stateOf(source, record);
   if (!attachOpens(joined.sessionState)) {
     throw new RefusedRequest(410, "Claude Code no longer lists this session.");
   }
-  const { sessionId, shortId } = record.session;
   return {
     sourceId: source.id,
-    sessionId,
+    session: record.session,
     markedDone: record.doneAt !== undefined,
-    shortId,
     folder,
   };
 }

@@ -1,3 +1,4 @@
+import { sessionKey } from "./sessionReference.ts";
 // A card's launches: on a Backlog card, one Start action per workflow in the
 // order `launchWorkflows` offers them, whatever sessions are listed; on the
 // card of a story whose start the server is running, the phase words of that
@@ -57,7 +58,7 @@ export function CardLaunches({
     (workflow: LaunchWorkflow) => async (choices: LaunchChoices) => {
       const record = await launches.start(sourceId, entry, workflow, choices);
       if (record === undefined) return false;
-      setLaunchedHere(record.session.sessionId);
+      setLaunchedHere(sessionKey(record.session));
       return true;
     };
   return (
@@ -105,11 +106,11 @@ export function CardLaunches({
       {sessions.length > 0 && (
         <ol className="card-sessions" aria-label="Sessions">
           {sessions.toReversed().map((record) => (
-            <li key={record.session.sessionId}>
+            <li key={sessionKey(record.session)}>
               <SessionEntry
                 record={record}
                 onCard
-                takesFocus={launchedHere === record.session.sessionId}
+                takesFocus={launchedHere === sessionKey(record.session)}
               />
             </li>
           ))}

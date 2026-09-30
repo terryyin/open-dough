@@ -6,6 +6,7 @@
 // a story fact.
 
 import { z } from "zod";
+import { sessionHostSchema } from "./sessionReference.ts";
 import {
   agentLaunchEndpoint,
   launchTextLimit,
@@ -21,6 +22,7 @@ export const agentDoneEndpoint = `${agentLaunchEndpoint}/done`;
 export const markDoneRequestSchema = z.strictObject({
   source: z.string().min(1).max(launchTextLimit),
   session: z.string().min(1).max(launchTextLimit),
+  host: sessionHostSchema.default("claude"),
 });
 
 // The answer to a done mark: the marked record, with its session's state

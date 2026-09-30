@@ -106,6 +106,7 @@ export async function requestMarkDone(
       body: JSON.stringify({
         source: record.request.source,
         session: record.session.sessionId,
+        host: record.session.host,
       }),
     });
     if (!response.ok) return undefined;
@@ -135,6 +136,7 @@ export async function requestDeleteRecord(
       body: JSON.stringify({
         source: record.request.source,
         session: record.session.sessionId,
+        host: record.session.host,
       }),
     });
     const body: unknown = await response.json().catch(() => undefined);

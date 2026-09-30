@@ -1,20 +1,7 @@
-// The terminal boundary's WebSocket upgrades and attachments, mounted by the
-// launch boundary (`./agentLaunchPlugin.ts`), which admits a recorded session
-// first (`./agentLaunchAdmission.ts`); a refused upgrade gets an HTTP error
-// and no socket. One socket is one attachment: opening it runs
-// `claude attach <short id>` in the project folder through a PTY
-// (`./claudeCode.ts`), the process's output goes out as text frames, and the
-// page's messages (`../src/agentTerminal.ts`) become its input or its size.
-// Anything else closes the socket. Closing the socket from either side, or
-// closing the server, ends that attach process, which detaches only: the
-// session keeps running. An attach process that exits on its own closes its
-// socket with `terminalEndedCode`. An attach started for a session marked
-// done reopens it: its record's done time is cleared
-// (`./launchRecordStore.ts`) before any of its output reaches the socket, so a
-// page that reads the records once the terminal shows output finds the
-// session unclosed. Mark as done (`./doneMarks.ts`) may type its fixed rename
-// into a session's open attachment, then ends every attachment to that
-// session the same way. Nothing else is ever run here, and never a shell.
+// One admitted session per WebSocket, attached through its host boundary.
+// Socket/server closure detaches the PTY; output and input use the shared
+// terminal protocol. A successful attachment clears a local done mark before
+// exposing output; marking done can type into and end those attachments.
 
 import { STATUS_CODES, type IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
@@ -27,7 +14,9 @@ import {
   terminalMessageSchema,
   type TerminalMessage,
 } from "../src/agentTerminal.ts";
-import { attachClaude } from "./claudeCode.ts";
+import { launchHost } from "./launchHosts.ts";
+import type { HostSession } from "../src/agentLaunch.ts";
+import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { setRecordDoneAt } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -36,9 +25,8 @@ import type { ProjectFolder } from "./projectFolders.ts";
 // and whether its record is marked done.
 export type TerminalSession = {
   readonly sourceId: string;
-  readonly sessionId: string;
+  readonly session: HostSession;
   readonly markedDone: boolean;
-  readonly shortId: string;
   readonly folder: ProjectFolder;
 };
 
@@ -95,7 +83,7 @@ export class AgentTerminals {
   // attaches to and its socket, whose close ends it.
   private readonly attached = new Map<
     IPty,
-    { readonly sessionId: string; readonly ws: WebSocket }
+    { readonly key: string; readonly ws: WebSocket }
   >();
   private closed = false;
   private readonly httpServer: HttpServer | null;
@@ -154,17 +142,24 @@ export class AgentTerminals {
 
   private connect(ws: WebSocket, session: TerminalSession): void {
     let pty: IPty;
+    const host = launchHost(session.session.host);
     try {
-      pty = attachClaude(session.shortId, session.folder, initialSize);
+      if (host?.attach === undefined) {
+        throw new Error("This host cannot attach.");
+      }
+      pty = host.attach(session.session, session.folder, initialSize);
     } catch {
-      ws.close(attachFailed, "Claude Code could not be attached.");
+      ws.close(
+        attachFailed,
+        `${host?.name ?? session.session.host} could not be attached.`,
+      );
       return;
     }
-    this.attached.set(pty, { sessionId: session.sessionId, ws });
+    this.attached.set(pty, { key: sessionKey(session.session), ws });
     // The attach has started, so a session marked done is reopened; a clear
     // that fails leaves it marked and the terminal attached.
     const reopened = session.markedDone
-      ? setRecordDoneAt(session.sourceId, session.sessionId, undefined).catch(
+      ? setRecordDoneAt(session.sourceId, session.session, undefined).catch(
           () => undefined,
         )
       : Promise.resolve();
@@ -216,9 +211,9 @@ export class AgentTerminals {
 
   // Types `input` into the newest open attachment to this session, and
   // answers whether one was open.
-  type(sessionId: string, input: string): boolean {
+  type(session: SessionReference, input: string): boolean {
     const newest = [...this.attached]
-      .filter(([, attachment]) => attachment.sessionId === sessionId)
+      .filter(([, attachment]) => attachment.key === sessionKey(session))
       .at(-1);
     newest?.[0].write(input);
     return newest !== undefined;
@@ -226,9 +221,9 @@ export class AgentTerminals {
 
   // Ends every attachment to this session: its attach process detaches, and
   // its socket closes as an ended terminal.
-  endAttachments(sessionId: string): void {
+  endAttachments(session: SessionReference): void {
     for (const [pty, attachment] of [...this.attached]) {
-      if (attachment.sessionId === sessionId) {
+      if (attachment.key === sessionKey(session)) {
         this.detach(pty);
         attachment.ws.close(terminalEndedCode, "The terminal ended.");
       }

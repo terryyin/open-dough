@@ -1,3 +1,4 @@
+import { sessionKey } from "./sessionReference.ts";
 import { useRef, useState } from "react";
 import { type PublishedWork, type WorkEntry } from "./publishedWork.ts";
 import { PreparationFacts } from "./PreparationCard.tsx";
@@ -53,7 +54,7 @@ function WorkCard({
     launches.launched,
     sourceId,
     entry.identity,
-  ).some((record) => record.session.sessionId === shownInTerminal);
+  ).some((record) => sessionKey(record.session) === shownInTerminal);
   return (
     <article
       ref={cardRef}

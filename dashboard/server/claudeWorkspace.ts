@@ -3,9 +3,8 @@
 // the branch `claude/<slug>`, the slug drawn from the story's title. Pure:
 // the caller says which slugs are already in use (`./executionStart.ts`
 // reads the folder and the branches), so a colliding title gets a numeric
-// suffix instead of another story's workspace. It also owns where this host
-// installs a project's skills, so a reader of an installed skill file asks
-// `installedSkillPath` instead of spelling the root.
+// suffix instead of another story's workspace. Installed native skill paths
+// belong to the host boundary (`./launchHosts.ts`).
 
 import path from "node:path";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -13,19 +12,7 @@ import type { ProjectFolder } from "./projectFolders.ts";
 export const worktreesFolder = ".worktrees";
 export const branchPrefix = "claude/";
 
-const skillsFolder = path.join(".claude", "skills");
-
 const slugLimit = 48;
-
-// A file or folder of `skill` installed in `project`, at Claude Code's skill
-// root; `segments` are the path within the skill's own folder.
-export function installedSkillPath(
-  project: ProjectFolder,
-  skill: string,
-  ...segments: readonly string[]
-): string {
-  return path.join(project.path, skillsFolder, skill, ...segments);
-}
 
 export type WorkspaceChoice = {
   readonly workspace: ProjectFolder;

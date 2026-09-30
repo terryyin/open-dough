@@ -1,3 +1,4 @@
+import { sessionKey } from "./sessionReference.ts";
 // What the developer does to a recorded session from this page: mark it
 // done, delete its record, or read it again at once. Each answer replaces or
 // removes the record among the machine's sessions (`./agentLaunches.ts`).
@@ -45,7 +46,7 @@ export function useLaunchRecordActions({
     (answered: LaunchWithState) => {
       setRecords((current) =>
         current.map((record) =>
-          record.session.sessionId === answered.session.sessionId
+          sessionKey(record.session) === sessionKey(answered.session)
             ? answered
             : record,
         ),
@@ -70,10 +71,10 @@ export function useLaunchRecordActions({
       if (answer.kind === "state-known") {
         replaceRecord(answer.record);
       } else if (answer.kind === "deleted") {
-        deletedAt.current.set(record.session.sessionId, Date.now());
+        deletedAt.current.set(sessionKey(record.session), Date.now());
         setRecords((current) =>
           current.filter(
-            (each) => each.session.sessionId !== record.session.sessionId,
+            (each) => sessionKey(each.session) !== sessionKey(record.session),
           ),
         );
       }
@@ -89,7 +90,7 @@ export function useLaunchRecordActions({
       const { records, ...facts } = kept;
       setFacts(facts);
       const answered = records.find(
-        (known) => known.session.sessionId === record.session.sessionId,
+        (known) => sessionKey(known.session) === sessionKey(record.session),
       );
       if (answered !== undefined) replaceRecord(answered);
     },

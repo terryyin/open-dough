@@ -18,7 +18,7 @@ import {
   type OptionsDefinition,
   type UnavailableOptionsWhy,
 } from "../src/commandOptions.ts";
-import { installedSkillPath } from "./claudeWorkspace.ts";
+import { installedSkillPath } from "./launchHosts.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
@@ -31,11 +31,12 @@ export async function readDefinition(
   project: ProjectFolder,
   skill: string,
   file: string,
+  host: AgentLaunchRequest["host"] = "claude",
 ): Promise<ReadDefinition> {
   let text: string;
   try {
     text = await readFile(
-      installedSkillPath(project, skill, "references", file),
+      installedSkillPath(host, project, skill, "references", file),
       "utf8",
     );
   } catch (error) {
@@ -84,7 +85,7 @@ export async function withSelectedOptions(
     );
   }
   const { skill } = spec;
-  const read = await readDefinition(project, skill, spec.options);
+  const read = await readDefinition(project, skill, spec.options, request.host);
   if (read.kind === "unavailable") {
     throw new RefusedRequest(
       400,

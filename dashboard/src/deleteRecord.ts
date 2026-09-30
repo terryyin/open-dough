@@ -6,6 +6,7 @@
 // session and the conversation are never touched.
 
 import { z } from "zod";
+import { sessionHostSchema } from "./sessionReference.ts";
 import {
   agentLaunchEndpoint,
   launchTextLimit,
@@ -20,6 +21,7 @@ export const agentDeleteEndpoint = `${agentLaunchEndpoint}/delete`;
 export const deleteRecordRequestSchema = z.strictObject({
   source: z.string().min(1).max(launchTextLimit),
   session: z.string().min(1).max(launchTextLimit),
+  host: sessionHostSchema.default("claude"),
 });
 
 // The answer to a delete: the record gone, or, when the boundary's own

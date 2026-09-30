@@ -1,3 +1,4 @@
+import { sessionKey } from "./sessionReference.ts";
 // The page with its one terminal and the Sessions sidebar
 // (`./SessionSidebar.tsx`): while the sidebar is open it shows left of the
 // page, and while a session is open, the terminal panel
@@ -32,11 +33,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  attachOpens,
-  launchSubject,
-  type LaunchRecord,
-} from "./agentLaunch.ts";
+import { attachOpens, launchSubject } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { sourceById, type PublishedSource } from "./publishedSource.ts";
 import {
@@ -48,7 +45,6 @@ import type { OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import {
   deletedEntryHome,
-  recentSessionsEntry,
   SessionsOnPage,
   type DeleteSessionRecord,
   type MarkSessionDone,
@@ -56,7 +52,7 @@ import {
   type SessionOperation,
   type SessionRequest,
 } from "./pageSessions.ts";
-import { keepInView, workCard } from "./workFocus.ts";
+import { useSessionNavigation } from "./sessionNavigation.ts";
 import "./agent-terminal.css";
 
 // The keyboard's return once the page shows what was asked: the control to
@@ -94,7 +90,10 @@ export function TerminalSplit({
   const [terminal, setTerminal] = useState<SessionRequest | undefined>();
   const openTerminal = useCallback<OpenTerminal>((request) => {
     setTerminal((current) =>
-      current?.record.session.sessionId === request.record.session.sessionId
+      (current === undefined
+        ? undefined
+        : sessionKey(current.record.session)) ===
+      sessionKey(request.record.session)
         ? current
         : request,
     );
@@ -133,7 +132,10 @@ export function TerminalSplit({
       return "not-marked";
     }
     const open = shown.current;
-    if (open?.record.session.sessionId !== record.session.sessionId) {
+    if (
+      open === undefined ||
+      sessionKey(open.record.session) !== sessionKey(record.session)
+    ) {
       return "marked";
     }
     closeTerminal(open);
@@ -147,12 +149,7 @@ export function TerminalSplit({
     },
     [readSession],
   );
-  // Going to a session: its project's stories, its terminal where it opens
-  // one, and, once that project's stories are shown, its card brought into
-  // view, or its Recent sessions entry when no card lists it.
-  // Each going is its own, so going again to the same session reveals again.
-  const [going, setGoing] = useState<{ readonly to: LaunchRecord }>();
-  const revealed = useRef<{ readonly to: LaunchRecord } | undefined>(undefined);
+  const revealSession = useSessionNavigation(stories.selected, stories.shown);
   const goToSession: OpenSidebarEntry = ({ record, control }) => {
     const source = sourceById(record.request.source);
     if (source !== undefined) {
@@ -162,30 +159,8 @@ export function TerminalSplit({
     if (attachOpens(record.sessionState)) {
       openTerminal({ record, control: returnTo });
     }
-    setGoing({ to: record });
+    revealSession(record);
   };
-  useLayoutEffect(() => {
-    if (going === undefined || revealed.current === going) {
-      return;
-    }
-    // A going still waiting for its project's stories is dropped once the
-    // developer chooses another project's; its terminal stays.
-    if (stories.selected !== going.to.request.source) {
-      setGoing(undefined);
-      return;
-    }
-    if (stories.shown !== going.to.request.source) {
-      return;
-    }
-    revealed.current = going;
-    const { identity } = launchSubject(going.to.request);
-    const shown =
-      (identity === undefined ? undefined : workCard(identity)) ??
-      recentSessionsEntry(going.to.session.sessionId);
-    // Kept in view until the developer moves, goes elsewhere, or another
-    // project's stories are shown.
-    return shown === null ? undefined : keepInView(shown);
-  }, [going, stories.selected, stories.shown]);
   const markSessionDone: MarkSessionDone = async (request) => {
     const marked = await markClosing(request);
     return marked !== "not-marked";
@@ -207,7 +182,9 @@ export function TerminalSplit({
     }
     setDeleted("Session record deleted");
     const open = shown.current;
-    const closes = open?.record.session.sessionId === record.session.sessionId;
+    const closes =
+      (open === undefined ? undefined : sessionKey(open.record.session)) ===
+      sessionKey(record.session);
     if (closes) {
       setTerminal(undefined);
     }
@@ -228,7 +205,10 @@ export function TerminalSplit({
         openTerminal,
         markDone: markSessionDone,
         deleteRecord: deleteSessionRecord,
-        shownInTerminal: terminal?.record.session.sessionId,
+        shownInTerminal:
+          terminal === undefined
+            ? undefined
+            : sessionKey(terminal.record.session),
       }}
     >
       {deleted !== undefined && (
@@ -249,7 +229,7 @@ export function TerminalSplit({
         </SidebarOnPage>
         {terminal && (
           <TerminalPanel
-            key={terminal.record.session.sessionId}
+            key={sessionKey(terminal.record.session)}
             session={terminal}
             onAttached={attached}
             onClose={() => {

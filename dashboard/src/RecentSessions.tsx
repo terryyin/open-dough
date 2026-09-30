@@ -1,3 +1,4 @@
+import { sessionKey } from "./sessionReference.ts";
 // The selected project's Recent sessions: every Claude Code session this
 // dashboard's server launched for the project and still keeps on this
 // machine, newest first, once the machine's sessions are first read,
@@ -48,7 +49,7 @@ export function RecentSessions({
             </p>
             <ol>
               {kept.toReversed().map((record) => (
-                <li key={record.session.sessionId}>
+                <li key={sessionKey(record.session)}>
                   <SessionEntry record={record} onCard={false} />
                 </li>
               ))}

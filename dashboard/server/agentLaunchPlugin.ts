@@ -97,7 +97,7 @@ async function deleted(
     return { kind: "state-known", record: joined };
   }
   try {
-    await deleteRecord(source.id, record.session.sessionId);
+    await deleteRecord(source.id, record.session);
   } catch (error) {
     throw new RefusedRequest(
       500,

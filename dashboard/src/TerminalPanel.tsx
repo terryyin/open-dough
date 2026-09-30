@@ -37,6 +37,7 @@ function terminalUrl(record: LaunchRecord): string {
   const query = new URLSearchParams({
     source: record.request.source,
     session: record.session.sessionId,
+    host: record.session.host,
   });
   const scheme = window.location.protocol === "https:" ? "wss:" : "ws:";
   return `${scheme}//${window.location.host}${agentTerminalEndpoint}?${query.toString()}`;

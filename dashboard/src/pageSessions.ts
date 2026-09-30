@@ -56,8 +56,8 @@ export type PageSessions = {
 // The attribute by which a session entry names the session it shows.
 const showsSessionAttribute = "data-shows-session";
 
-export function showsSession(sessionId: string) {
-  return { [showsSessionAttribute]: sessionId };
+export function showsSession(sessionKey: string) {
+  return { [showsSessionAttribute]: sessionKey };
 }
 
 // The session of the entry beside the one a control is in, in its card's list
@@ -91,18 +91,18 @@ export function deletedEntryHome(
         null);
 }
 
-function cardEntry(sessionId: string | undefined): HTMLElement | null {
-  return sessionId === undefined
+function cardEntry(sessionKey: string | undefined): HTMLElement | null {
+  return sessionKey === undefined
     ? null
     : document.querySelector<HTMLElement>(
-        `.card-sessions [${showsSessionAttribute}="${CSS.escape(sessionId)}"]`,
+        `.card-sessions [${showsSessionAttribute}="${CSS.escape(sessionKey)}"]`,
       );
 }
 
 // The session's Recent sessions entry, while the page shows it.
-export function recentSessionsEntry(sessionId: string): HTMLElement | null {
+export function recentSessionsEntry(sessionKey: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(
-    `.recent-sessions [${showsSessionAttribute}="${CSS.escape(sessionId)}"]`,
+    `.recent-sessions [${showsSessionAttribute}="${CSS.escape(sessionKey)}"]`,
   );
 }
 

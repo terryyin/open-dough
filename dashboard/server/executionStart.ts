@@ -24,7 +24,7 @@ import {
   type StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { installedSkillPath } from "./claudeWorkspace.ts";
+import { installedSkillPath } from "./launchHosts.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 import { lostStartArguments, ownerOf } from "./startGit.ts";
@@ -56,7 +56,13 @@ async function runScript(
   project: ProjectFolder,
 ): Promise<StartResult> {
   const stdout = await runStartCommand(
-    installedSkillPath(project, executePlanSkill, "scripts", startScript),
+    installedSkillPath(
+      "claude",
+      project,
+      executePlanSkill,
+      "scripts",
+      startScript,
+    ),
     args,
     project,
   );
@@ -73,7 +79,7 @@ export async function establishesStart(
   project: ProjectFolder,
 ): Promise<boolean> {
   const script = (name: string) =>
-    installedSkillPath(project, executePlanSkill, "scripts", name);
+    installedSkillPath("claude", project, executePlanSkill, "scripts", name);
   return (
     (await isFile(script(startScript))) &&
     (await isFile(script(formatterScript)))
@@ -213,6 +219,7 @@ export async function formattedStart(
   start: EstablishedStart,
 ): Promise<string> {
   const file = installedSkillPath(
+    "claude",
     project,
     executePlanSkill,
     "scripts",

@@ -10,7 +10,7 @@
 - **Execution checkout:** `/Users/terryyin/git/open-dough/.worktrees/start-codex-refinement-from-dashboard`, branch `codex/start-codex-refinement-from-dashboard`.
 - **Starting revision:** `3a8b7c886a514730a6ec456ed757e7c11f446101`.
 - **Accepted Take/initial published base:** `a14fefc52826a6234745a88f61b2834c0f69f32e` on `origin/main` and execution branch; maintenance advanced; trunk claim CI unobserved.
-- **Increment target:** `origin`, `refs/heads/codex/start-codex-refinement-from-dashboard`; previous published base starts at accepted Take.
+- **Increment target:** `origin`, `refs/heads/codex/start-codex-refinement-from-dashboard`; latest accepted increment `05f3e4a9fa018eba5be122b729f5b78f0e4cce70` (slice1), observer reused; slice2 delivery follows it.
 - **Checkout setup:** `npm ci --silent` and `npm run typecheck:dashboard` passed against this checkout's committed lockfile.
 - **Hook:** At startup `core.hooksPath` unset, `.git/hooks/pre-commit` absent. During probe external config changed to `.githooks`; resolved `.githooks/pre-commit` absent here, so current hook contract remains absent.
 - **Formatting/budget:** Prettier/ESLint/shfmt select owned paths; planning Markdown excluded. No numeric slice target/hard limit; retain necessary in-place planning authority.
@@ -95,7 +95,7 @@ host switch follows its visible selection rule, never silently drops flags. Rech
 Release reassessment on 2026-09-30: `v0.3.51` installer declares `.agents/skills/dough-story-refinement`'s
 `scripts/established-preparation.mjs`, `references/established-preparation.md`, `references/refinement-options.json`;
 installed main files match tagged bytes. `optionsDefinitionSchema` parses summaries; installed formatter produces representative
-workspace/agent/published-SHA handoff. Dependency satisfied; seed/plan readiness **ready**, not implementation/native acceptance. Slice1 passed; slices2–6 todo.
+workspace/agent/published-SHA handoff. Dependency satisfied; seed/plan readiness **ready**, not implementation/native acceptance. Slices1–2 proof accepted; slices3–6 pending.
 
 ## Outside-in proof ownership
 
@@ -136,13 +136,13 @@ Proof: Accepted first input, active-turn same-conversation ordinary CLI continua
 ### 2. Put native launch ownership behind the host boundary
 
 Type: Structure
-Status: planned
+Status: done
 - **Change/enables:** One public Claude boundary, private unchanged runtime/instructions; move common launch facts, minimal host dispatch,
   installed paths and session references; align admission/machine reads/terminal/done/delete/stores/page consumers for slice 3.
   Workspace/start generalization remains slice 4; remove common orchestration's direct Claude coupling.
-Proof: Old Claude file/records and launch/model/ad-hoc/options/attached-terminal/done/delete behavior retained;
-  Add missing predecessor compatibility only. Run `agent-launch-boundary.spec.ts`, `agent-launch-records.spec.ts`, `agent-launch-session-listing.spec.ts`, `agent-launch-ad-hoc-boundary.spec.ts`, `agent-launch-model-boundary.spec.ts`,
-  `agent-terminal-boundary.spec.ts`, `agent-terminal-lifetime.spec.ts`, `agent-launch-done.spec.ts`, `agent-launch-delete.spec.ts`.
+Proof: `env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-boundary.spec.ts dashboard/tests/agent-launch-records.spec.ts dashboard/tests/agent-launch-session-listing.spec.ts dashboard/tests/agent-launch-ad-hoc-boundary.spec.ts dashboard/tests/agent-launch-model-boundary.spec.ts dashboard/tests/agent-terminal-boundary.spec.ts dashboard/tests/agent-terminal-lifetime.spec.ts dashboard/tests/agent-launch-done.spec.ts dashboard/tests/agent-launch-delete.spec.ts dashboard/tests/agent-launch-host-identity.spec.ts dashboard/tests/agent-launch-options-boundary.spec.ts dashboard/tests/agent-launch-options-groups.spec.ts dashboard/tests/agent-launch-preparation-start.spec.ts dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-card-sessions.spec.ts dashboard/tests/agent-launch-recent-sessions.spec.ts dashboard/tests/agent-terminal.spec.ts dashboard/tests/agent-launch-card-done.spec.ts dashboard/tests/agent-launch-recent-delete.spec.ts dashboard/tests/session-sidebar-navigation-cases.spec.ts` passed exit0/empty output (PTY37235); `npm run typecheck:dashboard` exit0 after final typing repairs.
+Accepted: Coordinator inspected native argv/CWD/options/model, old store/restart/retention, state joins, terminal/rename/stop, publication/workspace/handoff and page navigation; mixed-host spec proves equal IDs/no alias/no fallback/no quarantine/selective action.
+  Independent refactor renamed DOM-key parameters only; typing/receiver/curly lint repairs preserve proof. Selective ESLint/Prettier and diff check pass; changed files ≤250 lines.
 - **Safe stop:** Claude works with common boundary ready for Codex.
 
 ### 3. Start and revisit Codex through the shared launch dialog
@@ -243,7 +243,7 @@ Open decisions recording those choices. Native rollout `task_complete` `2026-09-
 `CommandExecution` reads/`apply_patch` proved activation/write separately from self-report. No approval requested under `never`.
 Coordinator inspected actual RPC inputs, initial protocol lines7/18/20–22/26–27, fixture AGENTS/seed/unchanged baseline, then
 questions/answer/installed reads/diff/final completion. Temporary `REPORT.md`, `native-protocol.jsonl`, `draft.diff` and rollout locations
-are under `/Users/terryyin/.codex/tmp/dough189-native-g8omnmqu`; distilled proof above remains here after ADR0005 spent-artifact removal.
+were inspected and removed from `/Users/terryyin/.codex/tmp/dough189-native-g8omnmqu` under ADR0005; distilled proof remains here.
 **Accepted:** defaults, active same-thread CLI, question/answer, useful draft and initiating-connection lifetime; not every client closure, structured-state completion or dashboard/preparation acceptance (slice6).
 **Separate skill limitation:** unqueued fixture recorder used `seeds/...`, not `.planning/seeds/...`, without backlog home; failed
 honestly/no state block. Draft/transport remain evidenced; slice6 must assess queued/published canonical preparation and skill behavior separately.

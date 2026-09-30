@@ -1,17 +1,17 @@
 // The Claude Code host commands for the local launch boundary, each a fixed
 // `claude` argument array held here and run in the project folder:
-// `claude --bg` for a launch, whose name and instruction `./claudeLaunch.ts`
+// `claude --bg` for a launch, whose name and instruction `./launch.ts`
 // supplies, Claude Code's own session listing, which confirms a launch and
 // answers each recorded session's state, `claude stop` for Mark as done
-// (`./doneMarks.ts`), and `claude attach` through a PTY for the terminal
-// boundary (`./agentTerminals.ts`), since `execFile` cannot host Claude
+// (`../../doneMarks.ts`), and `claude attach` through a PTY for the terminal
+// boundary (`../../agentTerminals.ts`), since `execFile` cannot host Claude
 // Code's interactive terminal. Raw stderr is never forwarded.
 
 import { execFile, type ExecException } from "node:child_process";
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
 import { z } from "zod";
-import type { HostSession, SessionState } from "../src/agentLaunch.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import type { ListedSession } from "../../hostLaunch.ts";
+import type { ProjectFolder } from "../../projectFolders.ts";
 
 type ClaudeRun = {
   readonly error: ExecException | null;
@@ -115,12 +115,6 @@ const listedSession = z.looseObject({
   status: z.string().nullish(),
   waitingFor: z.string().nullish().catch(undefined),
 });
-
-// One session Claude Code lists, and its state as listed.
-export type ListedSession = {
-  readonly session: HostSession;
-  readonly sessionState: Extract<SessionState, { readonly kind: "listed" }>;
-};
 
 function parsedListing(stdout: string): readonly ListedSession[] | undefined {
   let listed: unknown;

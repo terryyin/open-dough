@@ -1,3 +1,4 @@
+import { sessionKey } from "./sessionReference.ts";
 // The browser's side of agent launches (`./agentLaunch.ts`): the machine's
 // sessions -- every project's launch records, each naming its project -- and
 // the launches asked for from this page (`./launchAttempts.ts`). One session
@@ -25,6 +26,7 @@ import type {
   LaunchWithState,
   LaunchWorkflow,
 } from "./agentLaunch.ts";
+import { replaced } from "./sessionRecords.ts";
 import { readMachineSessions } from "./agentLaunchClient.ts";
 import { useLaunchAttempts, type LaunchAttempts } from "./launchAttempts.ts";
 import {
@@ -77,25 +79,6 @@ type ReadSessions = {
   // those launched from this page.
   readonly launched: readonly LaunchWithState[];
 };
-
-// The server's records replace what the page knew, except a launch recorded
-// after the read was asked, which the answer may not include yet. The server
-// runs on this machine, so both sides read the same clock.
-function replaced(
-  kept: readonly LaunchWithState[],
-  known: readonly LaunchWithState[],
-  askedAt: number,
-): readonly LaunchWithState[] {
-  const sessions = new Set(kept.map((record) => record.session.sessionId));
-  return [
-    ...kept,
-    ...known.filter(
-      (record) =>
-        !sessions.has(record.session.sessionId) &&
-        Date.parse(record.launchedAt) >= askedAt,
-    ),
-  ];
-}
 
 // What a read of the machine's sessions says besides their records.
 type ReadFacts = Omit<MachineAnswer, "records">;
@@ -159,7 +142,8 @@ export function useAgentLaunches(): MachineSessions {
           const { records, ...facts } = answered;
           const kept = records.filter(
             (record) =>
-              (deletedAt.current.get(record.session.sessionId) ?? -1) < askedAt,
+              (deletedAt.current.get(sessionKey(record.session)) ?? -1) <
+              askedAt,
           );
           setSessions((current) => ({
             known: replaced(kept, current.known, current.read ? askedAt : 0),

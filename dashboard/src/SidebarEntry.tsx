@@ -1,3 +1,4 @@
+import { sessionKey } from "./sessionReference.ts";
 // One Sessions sidebar entry (`./SessionSidebar.tsx`): one line, its story's
 // title, cut with an ellipsis when it is long, and, at the end, how long ago
 // its session was launched (`./sidebarElapsed.ts`). Its state's kind shows by
@@ -38,7 +39,7 @@ export function SidebarEntry({
   const launchedAt = new Date(record.launchedAt);
   const now = useTickingNow(sidebarTickMs);
   const current =
-    usePageSessions().shownInTerminal === record.session.sessionId;
+    usePageSessions().shownInTerminal === sessionKey(record.session);
   const titleId = useId();
   const tooltip = [
     note === undefined ? label : `${label}: ${note}`,

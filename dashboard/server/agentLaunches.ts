@@ -1,49 +1,36 @@
-// Performs one admitted agent launch for the local launch boundary
-// (`./agentLaunchPlugin.ts`): resolve the project folder
-// (`./projectFolders.ts`), start the session (`./claudeLaunch.ts`) within
-// the launch wait, and keep a confirmed result in this machine's launch
-// record store (`./launchRecordStore.ts`), which outlives the server. The
-// machine's sessions -- every catalog project's kept records -- are read at
-// once, each answered with its session's state from one Claude Code listing
-// (`./claudeCode.ts`), which is machine-wide and so runs in the machine's
-// home folder, never stored; the same join, in the record's project folder,
-// decides which recorded session the terminal boundary
-// (`./agentTerminals.ts`) may attach to, and whether marking a recorded
-// session done (`./doneMarks.ts`) stops it. Origin still decides every story
-// fact.
+// Common launch lifetime: establish the shared workflow start, delegate native
+// launch to the selected host, and keep its confirmed evidence. Catalog reads,
+// current native observations and deterministic start each retain their owner.
+// Origin alone decides every story fact; a detached browser leaves launch alive.
 
-import path from "node:path";
 import {
   type AgentLaunchRequest,
   type KeptStart,
   type OfferedDefinition,
-  launchWorkflowNames,
-  launchWorkflows,
   type RunningStart,
   type LaunchWithState,
   type LaunchRecord,
   type LaunchResult,
-  type LaunchWorkflow,
 } from "../src/agentLaunch.ts";
 import { catalog, type PublishedSource } from "../src/publishedSource.ts";
-import { offeredShape } from "../src/commandOptions.ts";
-import { claudeSessions } from "./claudeCode.ts";
-import {
-  launchClaude,
-  recordedRequest,
-  type EstablishedLaunch,
-} from "./claudeLaunch.ts";
+import { launchHost } from "./launchHosts.ts";
+import { withStates } from "./launchStates.ts";
+import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
+import { recordedRequest } from "./hostLaunch.ts";
 import {
   keepRecord,
   keptRecords,
   keptRecordsByProject,
 } from "./launchRecordStore.ts";
-import { readDefinition } from "./launchOptions.ts";
-import { shownWorkspace } from "./claudeWorkspace.ts";
-import { establishedFacts, type Established } from "./startLaunch.ts";
+import { establishedFacts } from "./startLaunch.ts";
 import { StartProgress } from "./startProgress.ts";
-import { keptStartsByProject, removeStart } from "./startStore.ts";
-import { startOf, type StartWorkflow } from "./startWorkflows.ts";
+import { removeStart } from "./startStore.ts";
+import { started } from "./launchStart.ts";
+import {
+  establishing,
+  offeredDefinitions,
+  keptStarts,
+} from "./launchCatalog.ts";
 import {
   folderExists,
   machineFolder,
@@ -53,10 +40,6 @@ import {
 
 const defaultLaunchWaitMs = 30_000;
 
-// How long a records read waits on Claude Code's listing before answering
-// each session's state unknown.
-const listingWaitMs = 10_000;
-
 // How long one launch -- the host's start and its confirmation -- may take
 // before its answer is uncertain. A test may shorten it through the
 // environment.
@@ -65,111 +48,6 @@ function launchTimeoutMs(): number {
   return Number.isFinite(configured) && configured > 0
     ? configured
     : defaultLaunchWaitMs;
-}
-
-const defaultStartWaitMs = 120_000;
-
-// How long an execution's start may run before the launch answers uncertain;
-// the start itself is never aborted. A test may shorten it through the
-// environment.
-function startTimeoutMs(): number {
-  const configured = Number(process.env["DOUGH_START_TIMEOUT_MS"]);
-  return Number.isFinite(configured) && configured > 0
-    ? configured
-    : defaultStartWaitMs;
-}
-
-// How a launch's start ended: there was none to run, it established the
-// workspace the session opens in, or the launch stops with this answer.
-type Started =
-  | { readonly kind: "none" }
-  | ({
-      readonly kind: "established";
-      readonly workflow: StartWorkflow;
-    } & EstablishedLaunch)
-  | { readonly kind: "stopped"; readonly result: LaunchResult };
-
-function startFailed(
-  explanation: string,
-  reason: "start-refused" | "already-starting" = "start-refused",
-): Started {
-  return {
-    kind: "stopped",
-    result: { kind: "failed", reason, explanation },
-  };
-}
-
-// The start a launch's workflow runs before its session, waiting at most
-// `startTimeoutMs()` for it; the script goes on running when the wait ends.
-async function started(
-  source: PublishedSource,
-  request: AgentLaunchRequest,
-  folder: ProjectFolder,
-  progress: StartProgress,
-): Promise<Started> {
-  if (request.workflow === "ad-hoc") {
-    return { kind: "none" };
-  }
-  const workflow = startOf(request.workflow);
-  if (workflow === undefined) {
-    return { kind: "none" };
-  }
-  const scoped = progress.for(request.workflow);
-  const planned = await workflow.begin(source, request, folder, scoped);
-  if (planned.kind === "not-applicable") {
-    return { kind: "none" };
-  }
-  if (planned.kind === "refused") {
-    return startFailed(planned.explanation, planned.reason);
-  }
-  const place = {
-    workspace: planned.workspace.shown,
-    branch: planned.branch,
-  };
-  let timer: NodeJS.Timeout | undefined;
-  const expiry = new Promise<"expired">((resolve) => {
-    timer = setTimeout(() => {
-      resolve("expired");
-    }, startTimeoutMs());
-  });
-  const attempt = await Promise.race([planned.attempt, expiry]);
-  clearTimeout(timer);
-  if (attempt === "expired") {
-    // No launch follows the script that goes on running, so its phase ends
-    // with it.
-    void planned.attempt.finally(() => {
-      scoped.clear(source.id, request.identity);
-    });
-    return {
-      kind: "stopped",
-      result: {
-        kind: "uncertain",
-        reason: "timed-out",
-        explanation: workflow.uncertain(place),
-      },
-    };
-  }
-  if (attempt.kind === "refused") {
-    return startFailed(attempt.explanation);
-  }
-  const established: Established =
-    "start" in attempt
-      ? { start: attempt.start }
-      : { preparation: attempt.preparation };
-  try {
-    return {
-      kind: "established",
-      workflow,
-      handoff: {
-        established,
-        formatted: await workflow.format(folder, established),
-      },
-      workspace: planned.workspace,
-    };
-  } catch {
-    scoped.clear(source.id, request.identity);
-    return startFailed(workflow.formatFailed(place));
-  }
 }
 
 // One session this dashboard recorded for the project, in its existing
@@ -182,46 +60,6 @@ export type Recorded =
     }
   | { readonly kind: "unrecorded" }
   | { readonly kind: "folder-not-found"; readonly folder: ProjectFolder };
-
-// Records joined by session id with Claude Code's listing read now in the
-// folder. With no records, `claude` is not run.
-async function withStates(
-  folder: ProjectFolder,
-  records: readonly LaunchRecord[],
-): Promise<readonly LaunchWithState[]> {
-  if (records.length === 0) {
-    return [];
-  }
-  const listed = await claudeSessions(
-    folder,
-    AbortSignal.timeout(listingWaitMs),
-  );
-  const states = new Map(
-    listed?.map((entry) => [entry.session.sessionId, entry.sessionState]),
-  );
-  return records.map((record) => ({
-    ...record,
-    sessionState:
-      listed === undefined
-        ? { kind: "unknown" }
-        : (states.get(record.session.sessionId) ?? { kind: "unlisted" }),
-  }));
-}
-
-// The catalog projects whose installed skill establishes a workflow's start,
-// by id, in catalog order.
-async function establishing(
-  workflow: LaunchWorkflow,
-): Promise<readonly string[]> {
-  const ids = await Promise.all(
-    catalog.map(async (source) =>
-      (await startOf(workflow)?.establishes(projectFolder(source)))
-        ? source.id
-        : undefined,
-    ),
-  );
-  return ids.filter((id) => id !== undefined);
-}
 
 export class AgentLaunches {
   private readonly running = new Set<AbortController>();
@@ -251,65 +89,12 @@ export class AgentLaunches {
     return establishing("refinement");
   }
 
-  // The options each catalog project's installed skill offers, for each
-  // workflow that defines options, in catalog order: read at each call, so a
-  // changed definition shows at once. A project without a usable definition
-  // says why for that workflow.
-  async offeredDefinitions(): Promise<readonly OfferedDefinition[]> {
-    const read = await Promise.all(
-      catalog.flatMap((source) =>
-        launchWorkflowNames.map(async (workflow) => {
-          const { skill, options: file } = launchWorkflows[workflow];
-          if (file === undefined) return [];
-          const answer = await readDefinition(
-            projectFolder(source),
-            skill,
-            file,
-          );
-          return [
-            answer.kind === "defined"
-              ? {
-                  source: source.id,
-                  workflow,
-                  ...offeredShape(answer.definition),
-                }
-              : { source: source.id, workflow, unavailable: answer.why },
-          ];
-        }),
-      ),
-    );
-    return read.flat();
+  offeredDefinitions(): Promise<readonly OfferedDefinition[]> {
+    return offeredDefinitions();
   }
 
-  // The starts kept without a session, in catalog order: each names the
-  // workspace as the page shows a project's folders and the Agent its claim
-  // named, when the start reported one.
-  async keptStarts(): Promise<readonly KeptStart[]> {
-    const kept = {
-      execution: await keptStartsByProject("execution"),
-      refinement: await keptStartsByProject("refinement"),
-    };
-    return catalog.flatMap((source) =>
-      (["execution", "refinement"] as const).flatMap((workflow) =>
-        (kept[workflow].get(source.id) ?? [])
-          .filter(
-            (start) =>
-              !this.progress.for(workflow).running(source.id, start.identity),
-          )
-          .map((start) => ({
-            workflow,
-            source: source.id,
-            identity: start.identity,
-            workspace: shownWorkspace(
-              projectFolder(source),
-              path.basename(start.workspace),
-            ),
-            ...(start.start?.agent === undefined
-              ? {}
-              : { agent: start.start.agent }),
-          })),
-      ),
-    );
+  keptStarts(): Promise<readonly KeptStart[]> {
+    return keptStarts(this.progress);
   }
 
   // The starts running in this server now, each with its workflow and phase.
@@ -330,10 +115,10 @@ export class AgentLaunches {
   // project folder, if that exists. Runs no `claude`.
   async recorded(
     source: PublishedSource,
-    sessionId: string,
+    session: SessionReference,
   ): Promise<Recorded> {
     const record = (await keptRecords(source.id)).find(
-      (kept) => kept.session.sessionId === sessionId,
+      (kept) => sessionKey(kept.session) === sessionKey(session),
     );
     if (record === undefined) {
       return { kind: "unrecorded" };
@@ -370,7 +155,11 @@ export class AgentLaunches {
       controller.abort();
     }, launchTimeoutMs());
     try {
-      const launched = await launchClaude(
+      const host = launchHost(request.host);
+      if (host === undefined) {
+        throw new Error("An admitted launch has no available host.");
+      }
+      const launched = await host.launch(
         source,
         recording,
         folder,
