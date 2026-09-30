@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Land changes made on the default checkout by committing to main and syncing](seeds/SEED-008-worktree-branch-trunk-sync.md#land-from-default-checkout) — SEED-008#land-from-default-checkout ([plan](slice-plans/170-land-from-default-checkout/PLAN.md))
-- [Alert the developer on Mac when a session needs human attention](seeds/SEED-052-start-agent-work-from-dashboard.md#mac-human-attention-alert) — SEED-052#mac-human-attention-alert ([plan](slice-plans/174-mac-human-attention-alert/PLAN.md))
 - [Check reported gaps against the story before accepting a slice](seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps ([plan](slice-plans/175-accept-reported-story-gaps/PLAN.md))
 
 ## Backlog list

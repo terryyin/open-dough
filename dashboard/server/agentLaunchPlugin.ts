@@ -10,7 +10,10 @@
 // leaves that session's state unknown. A same-origin WebSocket upgrade to
 // `/__agent-terminal?source=&session=` attaches to one session this boundary
 // recorded for that project (`./agentTerminals.ts`). Which requests are
-// admitted is decided in `./agentLaunchAdmission.ts`. Everything else
+// admitted is decided in `./agentLaunchAdmission.ts`. While it runs it also
+// watches the machine's sessions and raises a macOS notification when one
+// starts needing the developer (`./sessionAlerts.ts`), and the sessions answer
+// says whether it can. Everything else
 // -- another site, an unknown project, a workflow or host this boundary does
 // not launch, malformed text, another method, a session it did not record --
 // is refused before any host process starts, and a session Claude Code no
@@ -20,6 +23,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, HttpServer, Plugin } from "vite";
 import {
   agentLaunchEndpoint,
+  type Alerts,
   type LaunchResult,
   type LaunchWithState,
 } from "../src/agentLaunch.ts";
@@ -39,12 +43,16 @@ import { markSessionDone } from "./doneMarks.ts";
 import { deleteRecord } from "./launchRecordStore.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { SessionAlerts } from "./sessionAlerts.ts";
 
 type Answer =
   | { readonly status: number; readonly body: LaunchResult }
   | {
       readonly status: number;
-      readonly body: { records: readonly LaunchWithState[] };
+      readonly body: {
+        records: readonly LaunchWithState[];
+        alerts: Alerts;
+      };
     }
   | { readonly status: number; readonly body: { record: LaunchWithState } }
   | { readonly status: number; readonly body: DeleteRecordAnswer }
@@ -94,6 +102,7 @@ async function answer(
   url: URL,
   launches: AgentLaunches,
   terminals: AgentTerminals,
+  alerts: SessionAlerts,
 ): Promise<Answer> {
   try {
     const request = await admitted(req, url, launches);
@@ -101,7 +110,10 @@ async function answer(
       case "sessions":
         return {
           status: 200,
-          body: { records: await launches.machineSessions() },
+          body: {
+            records: await launches.machineSessions(),
+            alerts: alerts.availability(),
+          },
         };
       case "launch":
         return {
@@ -140,6 +152,7 @@ function installAgentLaunchMiddleware(
   httpServer: HttpServer | null,
 ): () => void {
   const launches = new AgentLaunches();
+  const alerts = new SessionAlerts(launches);
   const terminals = new AgentTerminals(httpServer, (req, url) =>
     admittedAttach(req, url, launches),
   );
@@ -153,11 +166,12 @@ function installAgentLaunchMiddleware(
       next();
       return;
     }
-    void answer(req, url, launches, terminals).then((outcome) => {
+    void answer(req, url, launches, terminals, alerts).then((outcome) => {
       respond(res, outcome);
     }, next);
   });
   return () => {
+    alerts.close();
     terminals.close();
     launches.close();
   };

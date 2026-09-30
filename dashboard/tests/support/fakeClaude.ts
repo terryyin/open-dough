@@ -1,11 +1,13 @@
 // Prepares one dashboard server's side of the local launch boundary: the
-// synthetic `claude` (../fixtures/fake-claude) in its own PATH directory, a
+// synthetic `claude` (../fixtures/fake-claude) in its own PATH directory, the
+// synthetic `osascript` (../fixtures/fake-osascript) before it, a
 // temporary HOME holding only the project folders a test chooses (inside a
 // machine directory the test owns, if it passes one), and the controls a test
 // uses to choose the fake's scenario and read back what it was asked. Nothing
 // here starts a server (./dashboardServer.ts does), and no test ever reaches
-// the real `claude`: every server puts this one first on PATH, or, to observe
-// a missing `claude`, a PATH holding no `claude` at all.
+// the real `claude` or `osascript`: every server puts these first on PATH, or,
+// to observe a missing one, a PATH holding none, so no test raises a real
+// notification.
 
 import {
   mkdirSync,
@@ -56,6 +58,8 @@ export type ClaudeCall = {
   readonly cwd: string;
 };
 
+export type OsascriptCall = { readonly argv: readonly string[] };
+
 // One `claude attach` the fake ran: its pid, the short id it attached to,
 // each line entered in it, and the signal, or `Ctrl+Z`, that ended it, once
 // one did.
@@ -76,6 +80,13 @@ export type FakeClaudeOptions = {
   // `absent`: no `claude` anywhere on the server's PATH, which then holds
   // only the fake `gh` and Node.
   readonly claude?: "fake" | "absent";
+  // How the fake `osascript` starts: `absent` puts none on the server's PATH;
+  // `failing` refuses every notification; `hang` holds each one open. Working
+  // when unset.
+  readonly osascript?: "absent" | "failing" | "hang" | undefined;
+  // How often the server reads the sessions to alert; an hour when unset, so
+  // only a test about alerts sees the server read the sessions on its own.
+  readonly alertCheckMs?: number | undefined;
   // The server's own launch wait when unset.
   readonly launchTimeoutMs?: number | undefined;
   // How long Mark as done waits for the fake to list a rename; the server's
@@ -109,6 +120,16 @@ export type FakeClaudeControls = {
   heldClaudeEndedBy(): string | undefined;
   // Every `claude attach` run so far, oldest first.
   claudeAttaches(): ClaudeAttach[];
+  // Every `osascript` the fake ran so far, oldest first.
+  osascriptCalls(): OsascriptCall[];
+  // Every start probe the server ran, apart from those calls.
+  osascriptProbes(): OsascriptCall[];
+  // Changes how the fake `osascript` answers from now on.
+  osascriptBecomes(mode: "working" | "failing" | "hang"): void;
+  // The pid of a `hang` notification still open, and the signal that ended
+  // it, once one did.
+  heldOsascriptPid(): number | undefined;
+  heldOsascriptEndedBy(): string | undefined;
   // Every session the fake lists, as `claude agents --json --all` would.
   claudeListing(): Record<string, unknown>[];
 };
@@ -142,33 +163,47 @@ export function installFakeClaude(
   readonly controls: FakeClaudeControls;
 } {
   const binDir = path.join(tempRoot, "claude-bin");
+  const osascriptBinDir = path.join(tempRoot, "osascript-bin");
   const machine = options.machine ?? tempRoot;
   const stateDir = path.join(machine, "claude-state");
   const home = path.join(machine, "home");
   installFixtureExecutable("fake-claude", binDir, "claude");
+  if (options.osascript !== "absent") {
+    installFixtureExecutable("fake-osascript", osascriptBinDir, "osascript");
+  }
   mkdirSync(stateDir, { recursive: true });
   for (const folder of ["", ...(options.projectFolders ?? [])]) {
     mkdirSync(path.join(home, "git", folder), { recursive: true });
   }
 
   const env: Record<string, string> = {
-    // The real `claude` is never reached: the fake one comes first, or no
-    // `claude` is on PATH at all.
-    PATH:
-      options.claude === "absent"
-        ? [gh.binDir, nodeOnlyBinDir(tempRoot)].join(path.delimiter)
-        : `${binDir}${path.delimiter}${gh.path}`,
+    // The real `claude` and `osascript` are never reached: the fake ones come
+    // first, or none is on PATH at all.
+    // Where either is absent, the system's own PATH is left out, so a real
+    // `osascript` on a Mac is out of reach too.
+    PATH: [
+      ...(options.osascript === "absent" ? [] : [osascriptBinDir]),
+      ...(options.claude === "absent"
+        ? [gh.binDir, nodeOnlyBinDir(tempRoot)]
+        : options.osascript === "absent"
+          ? [binDir, gh.binDir, nodeOnlyBinDir(tempRoot)]
+          : [binDir, gh.path]),
+    ].join(path.delimiter),
     HOME: home,
     FAKE_CLAUDE_DIR: stateDir,
   };
   if (options.launchTimeoutMs !== undefined) {
     env["DOUGH_LAUNCH_TIMEOUT_MS"] = String(options.launchTimeoutMs);
   }
+  env["DOUGH_ALERT_CHECK_MS"] = String(options.alertCheckMs ?? 3_600_000);
   if (options.doneRenameWaitMs !== undefined) {
     env["DOUGH_DONE_RENAME_WAIT_MS"] = String(options.doneRenameWaitMs);
   }
 
   const state = (file: string) => path.join(stateDir, file);
+  if (options.osascript === "failing" || options.osascript === "hang") {
+    writeFileSync(state("osascript-mode"), options.osascript);
+  }
   const jsonLines = <T>(file: string): T[] =>
     (readState(state(file)) ?? "")
       .split("\n")
@@ -217,6 +252,22 @@ export function installFakeClaude(
         // Replaced whole, so the fake never lists a half-written file.
         writeFileSync(state("agents.json.next"), JSON.stringify(changed));
         renameSync(state("agents.json.next"), state("agents.json"));
+      },
+      osascriptCalls() {
+        return jsonLines<OsascriptCall>("osascript-calls.jsonl");
+      },
+      osascriptProbes() {
+        return jsonLines<OsascriptCall>("osascript-probes.jsonl");
+      },
+      osascriptBecomes(mode) {
+        writeFileSync(state("osascript-mode"), mode);
+      },
+      heldOsascriptPid() {
+        const pid = readState(state("osascript.pid"));
+        return pid === undefined ? undefined : Number(pid);
+      },
+      heldOsascriptEndedBy() {
+        return readState(state("osascript.pid.exited"));
       },
       claudeListingFails(fails) {
         if (fails) writeFileSync(state("listing-fails"), "");

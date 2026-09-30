@@ -70,7 +70,7 @@ type KeyboardReturn = {
 };
 
 export function TerminalSplit({
-  sessions: { records, markDone, deleteRecord, readSession },
+  sessions: { records, alerts, markDone, deleteRecord, readSession },
   stories,
   children,
 }: {
@@ -78,7 +78,7 @@ export function TerminalSplit({
   // `readSession` keeps its identity across renders.
   readonly sessions: Pick<
     MachineSessions,
-    "records" | "markDone" | "deleteRecord" | "readSession"
+    "records" | "alerts" | "markDone" | "deleteRecord" | "readSession"
   >;
   readonly stories: {
     // The project the developer has chosen to show, read or not.
@@ -90,7 +90,7 @@ export function TerminalSplit({
   };
   readonly children: ReactNode;
 }) {
-  const sidebar = useSessionSidebar(records);
+  const sidebar = useSessionSidebar(records, alerts);
   const [terminal, setTerminal] = useState<SessionRequest | undefined>();
   const openTerminal = useCallback<OpenTerminal>((request) => {
     setTerminal((current) =>

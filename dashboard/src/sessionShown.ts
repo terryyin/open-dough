@@ -71,6 +71,18 @@ export function sessionShown({
   }
 }
 
+// The reading that tells the developer, when a session enters it: the label
+// of every reading other than Working, for a session not marked done, else
+// nothing. Unlike `needsAttention`, it includes an unknown, unavailable, or
+// unrecognized state.
+export function alertReading(
+  session: Pick<LaunchWithState, "sessionState" | "doneAt">,
+): string | undefined {
+  if (session.doneAt !== undefined) return undefined;
+  const { label } = sessionShown(session);
+  return label === "Working" ? undefined : label;
+}
+
 // What a story's card says of its listed sessions: how many need attention,
 // by the same reading each of their entries shows, or nothing when none do.
 export function attentionSummary(
