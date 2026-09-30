@@ -27,7 +27,13 @@ type Answer =
       readonly path: string;
       readonly committedAt: string;
     }
-  | { readonly revision: string; readonly profiles: readonly PinnedFile[] }
+  // The listed profiles, and the project setting file's text (null when the
+  // revision has none).
+  | {
+      readonly revision: string;
+      readonly profiles: readonly PinnedFile[];
+      readonly settings: string | null;
+    }
   // The commit that added a listed profile's current allocation, or null
   // when its walked history has none.
   | {

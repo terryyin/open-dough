@@ -30,10 +30,12 @@ import {
 } from "./readOutcome.ts";
 import {
   agentProfileDirectoryOf,
+  agentSettingsTextAt,
   isListedAgentProfile,
   listedAgentProfilePaths,
   pathReachableFromRevision,
 } from "./reachablePaths.ts";
+import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { RequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
@@ -133,7 +135,9 @@ export async function perform(
             reading = readingPathAt(path, read.revision);
             profiles.push({ path, text: await readPinned(path) });
           }
-          return answered({ revision: read.revision, profiles });
+          reading = readingPathAt(agentSettingsPath, read.revision);
+          const settings = await agentSettingsTextAt(readPinned);
+          return answered({ revision: read.revision, profiles, settings });
         }
         case "addition-at": {
           const added = await listedProfileAddition(

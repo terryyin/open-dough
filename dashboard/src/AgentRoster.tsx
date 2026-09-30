@@ -1,5 +1,6 @@
-// The selected project's agent roster: every agent of the shared rotation, and
-// the assignments its published profiles record at the shown revision. It is
+// The selected project's agent roster: every agent of the collection it
+// selected, and the assignments its published profiles record at the shown
+// revision. It is
 // one more view of the snapshot the stages show, never a separate read, and an
 // assignment says what a profile records, never that its agent is working now.
 // Back returns to the stories the roster was opened from.
@@ -98,6 +99,9 @@ export function AgentRoster({
       : roster?.status === "unavailable"
         ? roster.problem
         : undefined;
+  // The project's setting could not say which collection it selected.
+  const collectionProblem =
+    roster?.status === "collection-unknown" ? roster.problem : undefined;
   // One agent of the rotation, marked when its portrait opened the roster.
   const row = (name: string, assignment: ReactNode) => {
     const current = name === agent;
@@ -137,15 +141,21 @@ export function AgentRoster({
         An assignment is what a published profile records, not whether its agent
         is working now.
       </p>
-      <ol className="roster-members">
-        {roster?.status === "read"
-          ? roster.members.map((member) =>
-              row(member.name, <MemberAssignment member={member} />),
-            )
-          : agentNames.map((name) =>
-              row(name, <AssignmentUnknown reason={unknownReason} />),
-            )}
-      </ol>
+      {collectionProblem !== undefined ? (
+        <p className="assignment-gap">
+          Agent collection unknown. {collectionProblem}.
+        </p>
+      ) : (
+        <ol className="roster-members">
+          {roster?.status === "read"
+            ? roster.members.map((member) =>
+                row(member.name, <MemberAssignment member={member} />),
+              )
+            : agentNames.map((name) =>
+                row(name, <AssignmentUnknown reason={unknownReason} />),
+              )}
+        </ol>
+      )}
     </section>
   );
 }

@@ -98,7 +98,7 @@ assignment → post-condition: that member's photo appears beside the name.
 
 ### 4. The roster lists the selected collection
 Type: Behavior
-Status: planned
+Status: done
 Proof: probe first: the fake-GitHub read of `.planning/open-dough.json` at the pinned
 revision is allowlisted and returns `{"nerds":true}`; a failed or absent read means the
 current collection. Then Playwright: setting absent → 29 agents; `nerds` set → 26 nerds
@@ -114,3 +114,4 @@ post-condition: the roster names the agents of the collection the project select
 - `nerds: true` is the setting; extra collections are out of scope (seed).
 - A profile from either collection stays recognized whatever the setting says.
 - Photos never enter Git in this delivery.
+- A failed (non-404) read of the setting fails the roster read visibly rather than falling back to the current collection; only a 404 means absent.

@@ -9,11 +9,14 @@
 // the profile files the pinned revision's directory listing names. When a
 // path was last committed may be asked only for a reachable record, such as
 // a plan's last recorded update; a profile's Take is the commit that added
-// it (`./ghProfileAddition.ts`), asked only for a listed profile.
+// it (`./ghProfileAddition.ts`), asked only for a listed profile. The one
+// project setting file the shared profile module names is reachable only as
+// part of the profile read, never by a client-supplied path.
 // What may be read on a story branch is decided from the same records in
 // `./branchReachability.ts`.
 
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { isNotFound } from "./ghRead.ts";
 import { resolveBesideFile } from "../src/repositoryPath.ts";
 import {
   resolveSourceLink,
@@ -22,6 +25,7 @@ import {
 import { peekRecordedApproach } from "../src/storyPreparation.ts";
 import {
   agentProfileDirectory,
+  agentSettingsPath,
   profileAgentName,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { parseBacklog } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
@@ -191,4 +195,19 @@ export async function isListedAgentProfile(
   return (await listedAgentProfilePaths(source, listPinned)).includes(
     requestedPath,
   );
+}
+
+// The text of the project setting file at a pinned revision, or null when the
+// revision has none. Any other failure to read it is not taken for absence.
+export async function agentSettingsTextAt(
+  readPinned: PinnedReader,
+): Promise<string | null> {
+  try {
+    return await readPinned(agentSettingsPath);
+  } catch (error) {
+    if (isNotFound(error)) {
+      return null;
+    }
+    throw error;
+  }
 }
