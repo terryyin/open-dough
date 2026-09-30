@@ -150,6 +150,32 @@ or claims of readiness.
 - **Capture:** Terry asked on 2026-09-30 to queue the follow-up recorded by the
   delete's execution retrospective.
 
+<a id="session-states-survive-interactive-listing"></a>
+
+### Keep session states when Claude Code lists an interactive session
+
+**Identity:** SEED-052#session-states-survive-interactive-listing
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planless"}
+```
+
+**Goal:** Resolve the reported discrepancy: every recorded session shows
+state unknown while an interactive Claude Code session runs.
+
+- **Expected:** Each recorded background session shows the state Claude Code
+  lists for it, whatever other sessions the listing also holds.
+- **Actual:** With Claude Code 2.1.285, `claude agents --json --all` exits 0
+  and includes interactive entries such as
+  `{"pid":3394,"kind":"interactive","sessionId":"3ab4613a-…","name":"open-dough-3e","status":"busy"}`,
+  which carry no `id` or `state`. The listing schema in
+  `dashboard/server/claudeCode.ts` rejects the whole array for that one entry,
+  so every session reads as state unknown (and launch confirmation reads no
+  listing).
+- **Boundary:** Entries the dashboard cannot use are skipped individually;
+  background entries keep today's parsing. No new display of interactive
+  sessions.
+- **Capture:** Terry reported it on 2026-09-30 and invoked bug fixing.
+
 <a id="script-refinement-preparation"></a>
 
 ### 6. Start refinement with mechanical preparation already handled
