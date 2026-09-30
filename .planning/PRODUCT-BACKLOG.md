@@ -19,6 +19,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Select the Odd-e nerds agent names and avatars through configuration](seeds/SEED-060-odd-e-nerds-agent-collection.md#odd-e-nerds-agent-collection) — SEED-060#odd-e-nerds-agent-collection
 - [Check reported gaps against the story before accepting a slice](seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps
 - [Observe a planning premise through the operation that consumes it](seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers
 - [Choose and compose styles for story refinement](seeds/SEED-057-composable-story-refinement-styles.md#composable-refinement-styles) — SEED-057#composable-refinement-styles
