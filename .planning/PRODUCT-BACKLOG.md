@@ -21,6 +21,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Delete the record of a session Claude Code no longer lists](seeds/SEED-052-start-agent-work-from-dashboard.md#delete-unavailable-session-record) — SEED-052#delete-unavailable-session-record
 - [Choose and compose styles for story refinement](seeds/SEED-057-composable-story-refinement-styles.md#composable-refinement-styles) — SEED-057#composable-refinement-styles
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
