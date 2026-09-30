@@ -56,6 +56,7 @@ for (const mode of ["dev", "preview"] as const) {
     const entry = (flag: string) => ({
       flag,
       label: flag,
+      summary: `${flag}.`,
       instruction: `${flag}.`,
     });
 

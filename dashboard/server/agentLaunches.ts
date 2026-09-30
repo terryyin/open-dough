@@ -16,12 +16,16 @@ import path from "node:path";
 import {
   type AgentLaunchRequest,
   type KeptStart,
+  type OfferedDefinition,
+  launchWorkflowNames,
+  launchWorkflows,
   type RunningStart,
   type LaunchWithState,
   type LaunchRecord,
   type LaunchResult,
 } from "../src/agentLaunch.ts";
 import { catalog, type PublishedSource } from "../src/publishedSource.ts";
+import { offeredOptions } from "../src/commandOptions.ts";
 import { claudeSessions } from "./claudeCode.ts";
 import {
   launchClaude,
@@ -38,6 +42,7 @@ import {
   keptRecords,
   keptRecordsByProject,
 } from "./launchRecordStore.ts";
+import { readDefinition } from "./launchOptions.ts";
 import { shownWorkspace } from "./claudeWorkspace.ts";
 import { StartProgress } from "./startProgress.ts";
 import { keptStartsByProject, removeStart } from "./startStore.ts";
@@ -226,6 +231,36 @@ export class AgentLaunches {
       ),
     );
     return establishing.filter((id) => id !== undefined);
+  }
+
+  // The options each catalog project's installed skill offers, for each
+  // workflow that defines options, in catalog order: read at each call, so a
+  // changed definition shows at once. A project without a usable definition
+  // is left out for that workflow.
+  async offeredDefinitions(): Promise<readonly OfferedDefinition[]> {
+    const read = await Promise.all(
+      catalog.flatMap((source) =>
+        launchWorkflowNames.map(async (workflow) => {
+          const { skill, options: file } = launchWorkflows[workflow];
+          if (file === undefined) return [];
+          const answer = await readDefinition(
+            projectFolder(source),
+            skill,
+            file,
+          );
+          return answer.kind === "defined"
+            ? [
+                {
+                  source: source.id,
+                  workflow,
+                  options: [...offeredOptions(answer.definition)],
+                },
+              ]
+            : [];
+        }),
+      ),
+    );
+    return read.flat();
   }
 
   // The starts kept without a session, in catalog order: each names the

@@ -70,6 +70,7 @@ for (const mode of ["dev", "preview"] as const) {
         options: flags.map((flag) => ({
           flag,
           label: flag,
+          summary: `${flag}.`,
           instruction: `${flag}.`,
         })),
       });
@@ -209,7 +210,7 @@ for (const mode of ["dev", "preview"] as const) {
         "an entry without an instruction",
         JSON.stringify({
           command: skill,
-          options: [{ flag: "--a", label: "A" }],
+          options: [{ flag: "--a", label: "A", summary: "A." }],
         }),
         "options file is not valid",
       ],

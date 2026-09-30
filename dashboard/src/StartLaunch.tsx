@@ -20,6 +20,7 @@ import {
   type LaunchWorkflow,
 } from "./agentLaunch.ts";
 import type { LaunchAttempt, LaunchWorkItem } from "./agentLaunches.ts";
+import type { OfferedOption } from "./commandOptions.ts";
 import { LaunchDialog, useLaunchDialogLauncher } from "./LaunchDialog.tsx";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import "./agent-launch.css";
@@ -28,6 +29,7 @@ export function StartLaunch({
   work,
   workflow,
   establishesStart,
+  options,
   resumesIn,
   note,
   attempt,
@@ -39,6 +41,8 @@ export function StartLaunch({
   // Whether the project's installed skill establishes a start for this
   // workflow's Start; without it the words are those of a plain session start.
   readonly establishesStart: boolean;
+  // The options the project's installed skill offers this workflow's launch.
+  readonly options: readonly OfferedOption[];
   // The kept start's workspace, as the page shows it, when this Start resumes
   // a start whose Take is already published.
   readonly resumesIn?: string;
@@ -128,15 +132,9 @@ export function StartLaunch({
             )
           }
           fieldLabel="Instruction (optional)"
-          fieldHint={
-            <>
-              Sent after{" "}
-              <code>
-                /{skill} {work.identity}
-              </code>
-              .
-            </>
-          }
+          command={`/${skill} ${work.identity}`}
+          options={options}
+          optionsHint="Choose any combination; they apply together. None means straightforward refinement."
           starting={starting}
           onStart={onStart}
           onClose={closeDialog}

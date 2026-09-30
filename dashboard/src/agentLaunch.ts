@@ -9,6 +9,7 @@
 // values are the shared profile vocabulary.
 
 import { z } from "zod";
+import { offeredOptionSchema } from "./commandOptions.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import { sessionShown } from "./sessionShown.ts";
 import { readyBadge } from "./storyPreparation.ts";
@@ -443,18 +444,31 @@ export type RunningStart = z.infer<typeof runningStartSchema>;
 // the start that took the story and no session was started from it.
 export const keptStartNote = "Started here, no session yet";
 
+// The options a project's installed skill offers for one workflow's launch,
+// read from its definition at each read of the machine's sessions. A project
+// whose workflow has no usable definition is listed for it nowhere.
+export const offeredDefinitionSchema = z.object({
+  source: z.string().min(1),
+  workflow: z.enum(launchWorkflowNames),
+  options: z.array(offeredOptionSchema),
+});
+
+export type OfferedDefinition = z.infer<typeof offeredDefinitionSchema>;
+
 // The machine's sessions, as the boundary answers a GET: every catalog
 // project's launch records, each naming its project and joined with its
 // session's current state, whether alerts can be raised, the projects
 // whose installed skill establishes a start (the claim and workspace) when
 // Start execution is pressed, by project id, and the starts kept without a
-// session, and the starts running now with their phases.
+// session, the starts running now with their phases, and the options each
+// project offers.
 export const launchRecordsSchema = z.object({
   records: z.array(launchWithStateSchema),
   alerts: alertsSchema,
   establishing: z.array(z.string()),
   keptStarts: z.array(keptStartSchema),
   starts: z.array(runningStartSchema),
+  definitions: z.array(offeredDefinitionSchema),
 });
 
 export type MachineAnswer = z.infer<typeof launchRecordsSchema>;

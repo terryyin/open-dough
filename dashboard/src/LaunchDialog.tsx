@@ -1,7 +1,8 @@
 // The dialog mechanics shared by every launch action: a modal that focuses
 // its instruction field, sends nothing when dismissed, shows "Starting…" while
 // a launch is in flight, and returns the keyboard to the action that opened
-// it, unless a launched session took it. Callers supply only the words.
+// it, unless a launched session took it. Callers supply only the words, and
+// the options a launch may select, offered as one flat list of checkboxes.
 
 import {
   useEffect,
@@ -11,6 +12,8 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
+import type { OfferedOption } from "./commandOptions.ts";
+import { LaunchOptions } from "./LaunchOptions.tsx";
 import {
   launchInstructionLimit,
   launchModels,
@@ -59,7 +62,9 @@ export function LaunchDialog({
   description,
   note,
   fieldLabel,
-  fieldHint,
+  command,
+  options = [],
+  optionsHint,
   starting,
   onStart,
   onClose,
@@ -68,7 +73,11 @@ export function LaunchDialog({
   readonly description: ReactNode;
   readonly note?: ReactNode;
   readonly fieldLabel: string;
-  readonly fieldHint?: ReactNode;
+  // The command line the instruction follows; it includes the selected
+  // options' flags, in the order `options` offers them.
+  readonly command?: string;
+  readonly options?: readonly OfferedOption[];
+  readonly optionsHint?: string;
   readonly starting: boolean;
   readonly onStart: (choices: LaunchChoices) => Promise<boolean>;
   // Whether a launched session took the keyboard.
@@ -80,6 +89,10 @@ export function LaunchDialog({
   const headingId = `${id}-heading`;
   const hintId = `${id}-instruction-hint`;
   const launched = useRef(false);
+  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
+  const flags = options
+    .map(({ flag }) => flag)
+    .filter((flag) => selected.has(flag));
   const [model, setModel] = useState<LaunchModel | "">("");
 
   useEffect(() => {
@@ -102,6 +115,7 @@ export function LaunchDialog({
           void onStart({
             instruction: instruction.current?.value ?? "",
             ...(model === "" ? {} : { model }),
+            ...(flags.length === 0 ? {} : { options: flags }),
           }).then((started) => {
             launched.current = started;
             dialog.current?.close();
@@ -112,18 +126,34 @@ export function LaunchDialog({
         <p>{description}</p>
         {note}
         <label htmlFor={`${id}-instruction`}>{fieldLabel}</label>
-        {fieldHint !== undefined && (
-          <p id={hintId} className="quiet">
-            {fieldHint}
+        {command !== undefined && (
+          <p id={hintId} className="quiet" aria-live="polite">
+            Sent after <code>{[command, ...flags].join(" ")}</code>.
           </p>
         )}
         <textarea
           ref={instruction}
           id={`${id}-instruction`}
-          aria-describedby={fieldHint !== undefined ? hintId : undefined}
+          aria-describedby={command !== undefined ? hintId : undefined}
           maxLength={launchInstructionLimit}
           rows={4}
         />
+        {options.length > 0 && (
+          <LaunchOptions
+            id={id}
+            options={options}
+            hint={optionsHint}
+            selected={selected}
+            onToggle={(flag, chosen) => {
+              setSelected((current) => {
+                const next = new Set(current);
+                if (chosen) next.add(flag);
+                else next.delete(flag);
+                return next;
+              });
+            }}
+          />
+        )}
         <label htmlFor={`${id}-model`}>Model</label>
         <select
           id={`${id}-model`}

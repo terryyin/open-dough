@@ -11,6 +11,8 @@ import { z } from "zod";
 const entrySchema = z.object({
   flag: z.string().regex(/^--[a-z][a-z0-9-]*$/),
   label: z.string().min(1),
+  // One line for the developer choosing the option.
+  summary: z.string().min(1),
   instruction: z.string().min(1),
 });
 
@@ -30,6 +32,15 @@ const definitionShape = z.object({
 });
 
 export type OptionsDefinition = z.infer<typeof definitionShape>;
+
+// What a launch dialog offers of one entry: the words for choosing it.
+export const offeredOptionSchema = entrySchema.pick({
+  flag: true,
+  label: true,
+  summary: true,
+});
+
+export type OfferedOption = z.infer<typeof offeredOptionSchema>;
 
 // A malformed definition is invalid as a whole: a flag defined twice, a group
 // member the definition does not define, or a flag in two groups.
@@ -60,6 +71,18 @@ function selectableEntries(
   definition: Pick<OptionsDefinition, "options" | "focuses">,
 ) {
   return [...definition.options, ...(definition.focuses ?? [])];
+}
+
+// The entries a dialog offers: options then focuses, one flat list in the
+// definition's order.
+export function offeredOptions(
+  definition: OptionsDefinition,
+): readonly OfferedOption[] {
+  return selectableEntries(definition).map(({ flag, label, summary }) => ({
+    flag,
+    label,
+    summary,
+  }));
 }
 
 export type SelectionProblem =

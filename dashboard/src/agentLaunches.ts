@@ -21,6 +21,7 @@ import type {
   AgentLaunchRequest,
   StoryLaunchRequest,
   KeptStart,
+  OfferedDefinition,
   RunningStart,
   StartPhase,
   LaunchChoices,
@@ -36,6 +37,7 @@ import {
   type DeleteRecordOutcome,
   type LaunchProblem,
 } from "./agentLaunchClient.ts";
+import type { OfferedOption } from "./commandOptions.ts";
 import { usePageVisibility } from "./pageVisibility.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 
@@ -57,6 +59,13 @@ export type MachineSessions = {
   // execution is pressed, as of the latest read; false until read, so the
   // page never says a claim will be published before the server said so.
   establishesStart(sourceId: string): boolean;
+  // The options the project's installed skill offers for the workflow's
+  // launch, as of the latest read, in the definition's order; none until read
+  // or when it defines none.
+  offeredOptions(
+    sourceId: string,
+    workflow: LaunchWorkflow,
+  ): readonly OfferedOption[];
   // The start this machine keeps for the project's story with no session
   // started from it, as of the latest read; undefined when none is kept.
   keptStartOf(sourceId: string, identity: string): KeptStart | undefined;
@@ -113,12 +122,15 @@ const attemptKey = (
 const adHocKey = (sourceId: string) => attemptKey(sourceId, "", "ad-hoc");
 
 // The choices as the boundary takes them: trimmed text, omitted when empty,
-// and the model only when one was chosen.
-const optionsOf = ({ instruction, model }: LaunchChoices) => {
+// and the model and options only when chosen.
+const optionsOf = ({ instruction, model, options }: LaunchChoices) => {
   const own = instruction.trim();
   return {
     ...(own === "" ? {} : { instruction: own }),
     ...(model === undefined ? {} : { model }),
+    ...(options === undefined || options.length === 0
+      ? {}
+      : { options: [...options] }),
   };
 };
 
@@ -146,7 +158,15 @@ export function useAgentLaunches(): MachineSessions {
   // launch answered before the first read is kept in `known`, and joins the
   // first read's answer.
   const [
-    { known, read: readAnswered, alerts, establishing, keptStarts, starts },
+    {
+      known,
+      read: readAnswered,
+      alerts,
+      establishing,
+      keptStarts,
+      starts,
+      definitions,
+    },
     setSessions,
   ] = useState<{
     readonly known: readonly LaunchWithState[];
@@ -155,12 +175,14 @@ export function useAgentLaunches(): MachineSessions {
     readonly establishing: readonly string[];
     readonly keptStarts: readonly KeptStart[];
     readonly starts: readonly RunningStart[];
+    readonly definitions: readonly OfferedDefinition[];
   }>({
     known: [],
     read: false,
     establishing: [],
     keptStarts: [],
     starts: [],
+    definitions: [],
   });
   const setRecords = useCallback(
     (
@@ -201,6 +223,7 @@ export function useAgentLaunches(): MachineSessions {
             establishing: answered.establishing,
             keptStarts: answered.keptStarts,
             starts: answered.starts,
+            definitions: answered.definitions,
           }));
         }
         everRead.current = true;
@@ -353,6 +376,7 @@ export function useAgentLaunches(): MachineSessions {
           establishing: kept.establishing,
           keptStarts: kept.keptStarts,
           starts: kept.starts,
+          definitions: kept.definitions,
         }));
       }
       if (answered !== undefined) replaceRecord(answered);
@@ -364,6 +388,11 @@ export function useAgentLaunches(): MachineSessions {
     records: readAnswered ? known : undefined,
     alerts,
     establishesStart: (sourceId) => establishing.includes(sourceId),
+    offeredOptions: (sourceId, workflow) =>
+      definitions.find(
+        (offered) =>
+          offered.source === sourceId && offered.workflow === workflow,
+      )?.options ?? [],
     keptStartOf: (sourceId, identity) =>
       keptStarts.find(
         (kept) => kept.source === sourceId && kept.identity === identity,

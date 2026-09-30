@@ -162,7 +162,7 @@ conflict. Ships no group in the real definition.
 
 ### 4. Choose options in the refinement dialog
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `tests/agent-launch-options.spec.ts` (copied real definition, then
 added option), the drift check on the real file, and `agent-launch-model.spec.ts`
 plus the existing refinement dialog specs unchanged.
@@ -236,3 +236,8 @@ shipped exclusive refinement group, and a generic plugin or registry.
 - Slice 3: a group with one flag, an empty group, or a repeated group id is valid
   and never conflicts; only members that are undefined or shared make a
   definition invalid.
+- Slice 4: the sessions read carries `definitions` (source, workflow, offered
+  options), built per poll from `readDefinition`; `LaunchOptions.tsx` holds the
+  Options fieldset, the place slice 5 adds radios and unavailable lines. This
+  repository's own installed definition lacks `summary` until a released payload
+  is installed.
