@@ -61,7 +61,7 @@ choice** (`server/claudeWorkspace.ts`, host-owned, pure) → **Established start
 | The fake `claude` records argv and cwd | 2 | read `dashboard/tests/support/fakeClaude.ts` (`ClaudeCall`) | yes |
 | New script files ship with the skill directory (no manifest to edit) | 1 | `grep -rln execution-start-receipt` outside skill copies | **wrong**: `install.sh` `managed_files` declares each shipped reference and script; CI (`tests/payload-declaration-links.sh`) failed until `established-start.md` and `established-start.mjs` were declared. Later slices that add skill files declare them there |
 | Highest plan number | plan path | `ls .planning/slice-plans` | 177 |
-| `claude --bg` from a dashboard-created worktree runs normally, attaches by short id from the project folder, and trust of the project folder covers `.worktrees/` | 2 | ~/.claude.json trusts only the project folder and sessions already run in worktrees under it; real proof needs a paid, manual launch | **probe**: slice 2's manual observation; failure stops slices 3+ |
+| `claude --bg` from a dashboard-created worktree runs normally, attaches by short id from the project folder, and trust of the project folder covers `.worktrees/` | 2 | ~/.claude.json trusts only the project folder and sessions already run in worktrees under it; real proof needs a paid, manual launch | **observed 2026-09-30**: the start ran for real against a scratch origin and published the Take (host claude, model sonnet); real `claude --bg` in a `.worktrees/<slug>` workspace of a trusted project launched (`claude agents` cwd = the workspace, state done), and the agent reported the established start and its workspace, running no Take. Two limits: a workspace of a project that is not itself trusted is refused ("Workspace not trusted", reported as `folder-not-trusted`), so trust comes from the project, not the parent folder; `claude attach` needs a terminal and was not exercised (the dashboard's terminal attaches by the same short id) |
 | A fresh rerun with the same publisher in a workspace that holds an unpublished own claim commit (result lost) stops safely or resumes | 8 | temporary `node --test` in the skill scripts dir using `createQueuedTrunk`, `interruptFirstPush`, `startProcess` twice with no resume flags (file removed afterwards) | stops with `setup-failed` (`existing workspace cannot continue ... unpublished-commits`), origin holds 0 claims, no duplicate: a rerun must pass `--starting-revision` (the claim commit's parent) and `--candidate-sha` (workspace HEAD), which the script validates against the claim trailers |
 
 ## Outside-in proof
@@ -111,7 +111,7 @@ one pointer in `SKILL.md`); installed copies update only from a release.
 
 ### 2. Start execution establishes the start, then opens the session in its workspace
 Type: Behavior
-Status: done (automated proof; the paid manual probe below is still to be run by the developer, and a failed probe stops slices 3-11)
+Status: done
 Proof: boundary spec `agent-launch-start.spec.ts` over raw HTTP (Opus and Default) against
 the real script and a real bare origin, asserting origin's Taken profile, the fake `claude`
 argv and cwd, and the kept record; focused unit proof of the workspace choice (slug from
