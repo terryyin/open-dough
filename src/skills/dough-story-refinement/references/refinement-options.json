@@ -22,6 +22,11 @@
       "flag": "--clarify",
       "label": "Clarify",
       "instruction": "Settle the smallest scope that still delivers the selected story's purpose. State behavior in concrete pre-condition → trigger → result examples chosen to distinguish competing interpretations of the story; the developer decides which interpretation the story owns, and the others become deferred promises, not rejections. Separate required behavior, deferred promises, and rejection constraints: justify a rejection by an independent requirement, or leave the behavior naturally supported and record the decision as open when the developer's intent matters. Do not trim value the purpose needs, and do not turn an unlisted case that the rule already handles into a rejection. If the story is already unambiguous and minimal, report that and change nothing."
+    },
+    {
+      "flag": "--investigate",
+      "label": "Investigate",
+      "instruction": "Separate what the selected story's goal and scope rest on into facts, each with its source, and hypotheses. For each hypothesis that could change the outcome, name the cheapest way to settle it and make a safe, local, unpaid observation yourself when one exists instead of asking the developer. Report what you observed, what remains a hypothesis, and what the result changes; never supply a result you did not obtain or answer a premise by plausibility. Leave a premise no available observation can settle as an open decision for the developer, naming the observation that would settle it. Discuss any change to goal or scope with the developer rather than rewriting the story. If the story rests on verified facts, say so briefly and continue refinement without inventing doubt."
     }
   ]
 }

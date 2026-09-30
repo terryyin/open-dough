@@ -103,7 +103,7 @@ no full-suite local gate is added.
 
 ### 1. Investigate before relying on an assumption
 Type: Behavior
-Status: planned
+Status: done
 Proof: Investigate-only representative uses (observable hypothesis; paid-only
 premise left open; verified-facts story) plus the no-option preservation check;
 observe the single definition being read; pass the focused payload checks.
@@ -173,4 +173,15 @@ options; focus options and dashboard exposure stay separately deliverable.
 
 ## Learnings
 
-None yet.
+- Slice 1 accepted proof (2026-09-30): the `--investigate` entry was added to
+  `refinement-options.json`; `selection` and `default` are unchanged. Hand walk on
+  a scratch project (hostA records show `waiting_for_user`, hostB records only
+  `running`/`exited`): hostA reported observed with its source, hostB reported as
+  not observed in the held records with the live-run observation named and left
+  open, no hostB claim written as fact; a verified-facts story got a one-line
+  statement and ordinary continuation; no-option refinement is unchanged.
+  Focused payload checks exited 0:
+  `env PATH="/opt/homebrew/bin:$PATH" npm test -- tests/payload-declaration-links.sh tests/install-public-payload.sh tests/story-payload-update.sh`.
+  Limit: the walk applies the instruction by hand, not a live-model run.
+- Slice 2 still owns the Stress-test entry and only the `selection` sentence
+  that lets Investigate's hypotheses feed Stress-test.
