@@ -18,6 +18,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Correct the refinement options launch after its outcome review](seeds/SEED-061-refinement-options-from-dashboard.md#correct-refinement-options-launch-follow-ups) — SEED-061#correct-refinement-options-launch-follow-ups
 - [Generate avatars for the nerds agent](seeds/SEED-064-nerds-agent-avatars.md#generate-nerds-agent-avatars) — SEED-064#generate-nerds-agent-avatars
 - [Start refinement with mechanical preparation already handled](seeds/SEED-052-start-agent-work-from-dashboard.md#script-refinement-preparation) — SEED-052#script-refinement-preparation
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
