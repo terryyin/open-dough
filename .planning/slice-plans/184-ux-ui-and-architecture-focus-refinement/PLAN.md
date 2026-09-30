@@ -145,7 +145,7 @@ options; a wording miss is corrected here before slice 2.
 
 ### 2. Examine system consequences and stop on an ADR conflict
 Type: Behavior
-Status: planned
+Status: done
 Proof: Architecture-only uses (applicable Accepted ADR cited, Proposed
 discussed only; conflicting proposal; no consequential concern; no ADR store),
 `--architecture` without an action; reuse still-valid slice 1 proof and rerun
@@ -225,3 +225,19 @@ any delivered actions.
   and were not rerun (later edits only add ask/fold/words). JSON parse and
   `env PATH="/opt/homebrew/bin:$PATH" npm test -- tests/payload-declaration-links.sh tests/install-public-payload.sh tests/story-payload-update.sh`
   passed on the final wording.
+- Slice 2 (2026-09-30): the `--architecture` entry (about six sentences) cites
+  `dough-adr-awareness` for ADR use, conflict stop, and missing-context stop.
+  Accepted proof, on the first and final wording (subagent representative
+  reviews on scratch projects with an Accepted single-representation ADR 0002
+  and a Proposed ADR 0008; no paid host run): journey story cited 0002, discussed
+  0008 as binding nothing, ordinary refinement plus a short Architecture note; a
+  story proposing a second copy of the fact named 0002 and the element, stopped
+  that path, authorized no exception, and continued supported work; a
+  no-concern story said so with no Architecture section; a project without an
+  ADR store named the gap, ran no examination, claimed no completed check, and
+  continued other refinement. JSON parse and the focused payload checks passed.
+  Observed and left unchanged: the conflict run listed owning an exception among
+  the developer's choices (from `dough-adr-awareness`, not authorized by the
+  run), and the no-concern run over-explained the ADR check. The scratch
+  projects `arch`, `arch-conflict`, `arch-none`, `arch-noadr` under the job tmp
+  directory are reusable for slice 3.
