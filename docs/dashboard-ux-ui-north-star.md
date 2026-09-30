@@ -204,6 +204,35 @@ regardless of card coordinates. Canvas, if selected, still owes equivalent
 accessible work content and controls. Reading progress must work without
 motion, color perception, or a pointer.
 
+## Launch domain (design not yet built)
+
+Design hypothesis for the launch dialogs, recorded here until built. The three
+launch dialogs (Start execution, Start refinement, and the project's Start
+session) differ in words and subject only, so they should share one domain and
+one structure, and a new launch option is added to it once, not to each dialog.
+[Choose the model when starting a session](../.planning/seeds/SEED-052-start-agent-work-from-dashboard.md#choose-session-model)
+is the first option to test it.
+
+- A *launch* is a subject (a story under a workflow, or an ad hoc session in a
+  project), a host, and launch options the developer picks: the instruction,
+  then the model. The model is an option independent of the subject. A *launch
+  record* is the request plus the session the host started.
+- Each thing is spelled in one place: the choosable models beside the
+  workflows in `dashboard/src/agentLaunch.ts` (alias, name, order; Default is
+  no model); the optional model in the request part shared by every subject
+  kind; the option fields in the one dialog component, which hands its caller
+  one launch-options value instead of positional arguments; the host's
+  arguments, `--model` included, in `dashboard/server/claudeLaunch.ts`; and
+  how a record reads (its "Model: … (requested)" line included) in
+  `launchSubject`, which entries, the sidebar and the terminal toolbar share.
+- When work on a launch option finds these seams unclean, structure comes
+  first, proven by unchanged behavior, before the option is added.
+
+This is dashboard-internal design, not an ADR: no general-purpose agent decides
+anything from it. Once it is built, the code explains it: remove this section
+rather than keep a second description. Write a design document in `docs/` only
+for a decision the code cannot explain.
+
 ## Focused review and revision
 
 Review the first usable experience against these examples, using actual records
