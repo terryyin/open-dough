@@ -238,3 +238,13 @@ the current tree in about 7 s, so the page journeys run locally.
   `groupedOptions` in `launchCardPage.ts`; slice 4 runs that file too.
 - `agent-launch-options-boundary.spec.ts` is 259 lines after slice 2; slice 4's
   planned cuts bring it under the 250-line limit.
+
+## Execution complete
+
+Product advice: No change to priorities. The shipped `refinement-options.json`
+declares no `groups`, so exclusive groups and the skill's new pointer are not
+yet exercised by the real definition; decide at wrap-up whether any shipped
+options should form a group. A refused launch does not make the page re-read
+the definition, so for up to one read interval the reopened dialog may still
+offer a dropped flag (the boundary refuses it again); consider an immediate
+re-read only if developers hit it.
