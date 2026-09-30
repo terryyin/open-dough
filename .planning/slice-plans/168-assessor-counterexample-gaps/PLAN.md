@@ -225,7 +225,7 @@ Done: the case lives in `tests/support/execution-worktree-prep-native-cheap.sh`
 
 ### 4. Every CI completion scenario has a passing base and rejected cases
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh tests/git-publication-native.sh tests/native-evidence-identity.sh tests/native-assessor-counterexample-guard.sh`
 green, with the publication job under 71 s.
 
@@ -243,6 +243,11 @@ Behavior: `ready`, `failure`, and `skip-retro` passing observations pass
 
 The lone `forced-stop` case is removed, and `fixture-masked-shutdown` stays.
 If a case passes, repair the assessor in this slice and name the repair.
+
+Done: one `ci_completion_write_observation` writes every scenario's passing
+base (`tests/support/ci-completion-native-assess.sh`, 161 lines). No assessor
+repair was needed; a mutation of the `failure` verdict made
+`failure-not-reported` fail as intended. The publication job ran 57.7 s to 61.2 s.
 
 ### 5. The guard names every remaining rejection shape
 Type: Behavior
