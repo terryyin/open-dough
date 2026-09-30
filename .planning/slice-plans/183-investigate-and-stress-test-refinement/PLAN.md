@@ -127,7 +127,7 @@ bounded wording before slice 2.
 
 ### 2. Stress-test failure and recovery, alone and combined
 Type: Behavior
-Status: planned
+Status: done
 Proof: Stress-test-only (promise-changing scenarios; conflicting expectations;
 no scope added; nothing-to-report), combined Investigate + Stress-test, and
 composition with Explore, plus Challenge/Clarify when present; reuse still-valid
@@ -185,3 +185,15 @@ options; focus options and dashboard exposure stay separately deliverable.
   Limit: the walk applies the instruction by hand, not a live-model run.
 - Slice 2 still owns the Stress-test entry and only the `selection` sentence
   that lets Investigate's hypotheses feed Stress-test.
+- Slice 2 accepted proof (2026-09-30): the `--stress-test` entry was added and
+  `selection` now says a recommended direction or clarified scope is what each
+  other selected option examines (replacing the Challenge/Clarify-only sentence),
+  plus one sentence that with Investigate and Stress-test both selected a
+  plausibility-dependent failure scenario is investigated first and becomes an
+  example only if observable. Hand walks on a scratch project (stale record,
+  session ending between refreshes, two responders reported; a malformed record
+  the rule skips not reported; conflicts shown without a winner; no scope added;
+  nothing-to-report; combined with no crash evidence found so no recovery example;
+  composition with Explore and with Challenge/Clarify; default unchanged) and
+  the focused payload checks (exit 0) passed. Limit: hand walks, not a live-model
+  run.
