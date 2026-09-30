@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ZiQingLau-chan",
-  "email": "ziqinglau-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-064#generate-nerds-agent-avatars",
-  "host": "claude",
-  "model": "claude-sonnet-5-5"
-}
