@@ -37,6 +37,41 @@ export const agentNames = Object.freeze([
   "Rina",
 ]);
 
+// Agents named for the Odd-e nerds. A second collection beside the rotation;
+// its names are recognized wherever an agent name is read.
+export const nerdAgentNames = Object.freeze([
+  "terry",
+  "stanly",
+  "basvodde",
+  "viktor",
+  "ZiQingLau",
+  "aki",
+  "YeongSheng",
+  "Jane",
+  "chaifeng",
+  "zbcjackson",
+  "juacompe",
+  "DavidKo",
+  "mrsn",
+  "josephyao",
+  "steven",
+  "yilv",
+  "ebacky",
+  "BastiaanvanHamersveld",
+  "ivan",
+  "d.kanai",
+  "JacekBochenek",
+  "Matthias",
+  "darren",
+  "pyopark",
+  "dbs",
+  "joey",
+]);
+
+// Every collection, searched by lookups. `agentNames` stays the rotation.
+export const agentCollections = Object.freeze([agentNames, nerdAgentNames]);
+const knownAgentNames = agentCollections.flat();
+
 // Hosts an agent may report, and the execution modes a Take records. The
 // `const` annotations keep each list's literal values for typed readers.
 export const agentHosts = Object.freeze(
@@ -55,7 +90,7 @@ export const agentActivities = Object.freeze(
 export const agentProfileDirectory = "agents";
 
 export function agentIdentity(name) {
-  if (!agentNames.includes(name))
+  if (!knownAgentNames.includes(name))
     throw new Error(`unknown agent name: ${name}`);
   const lower = name.toLowerCase();
   return {
@@ -66,17 +101,18 @@ export function agentIdentity(name) {
   };
 }
 
-// The rotation name whose agent (as a profile or Git author spells it, such as
-// "Yui-chan") is `agent`, or undefined when `agent` is not in the rotation.
+// The known name (any collection) whose agent (as a profile or Git author
+// spells it, such as "Yui-chan") is `agent`, or undefined when `agent` is in
+// no collection.
 export function agentNameOf(agent) {
-  return agentNames.find((name) => agentIdentity(name).agent === agent);
+  return knownAgentNames.find((name) => agentIdentity(name).agent === agent);
 }
 
-// The rotation name a profile file belongs to, or undefined when the file name
-// is not an agent profile.
+// The known name (any collection) a profile file belongs to, or undefined
+// when the file name is not an agent profile.
 export function profileAgentName(fileName) {
   const path = `${agentProfileDirectory}/${fileName}`;
-  return agentNames.find((name) => agentIdentity(name).path === path);
+  return knownAgentNames.find((name) => agentIdentity(name).path === path);
 }
 
 // The first name after `mostRecent` (the profile most recently added on trunk,

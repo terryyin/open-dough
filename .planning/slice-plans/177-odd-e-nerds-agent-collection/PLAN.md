@@ -60,7 +60,7 @@ focused files only; the whole suite is CI's.
 
 ### 1. Every collection's names are recognized as agents
 Type: Structure (enables slice 2)
-Status: planned
+Status: done
 Proof: existing profile tests stay green unchanged; new cases: `agentIdentity("stanly")`
 gives `stanly-chan`, `stanly-chan@example.org`, `agents/stanly-chan.json`;
 `agentIdentity("ZiQingLau").path` is `agents/ziqinglau-chan.json`;

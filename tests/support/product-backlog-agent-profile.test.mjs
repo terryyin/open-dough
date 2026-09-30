@@ -15,6 +15,7 @@ const {
   agentIdentity,
   agentNames,
   agentReportError,
+  nerdAgentNames,
   parseAgentProfile,
   parseAgentProfileFile,
   profileAgentName,
@@ -227,4 +228,18 @@ test("an unreadable profile says why instead of yielding facts", () => {
   assert.match(read({ activity: "idle" }).error, /assignment activity/);
   assert.match(read({ branch: "" }).error, /branch/);
   assert.match(read({ host: "vim" }).error, /host must be one of/);
+});
+
+test("every collection's names are recognized as agents", () => {
+  assert.deepEqual(agentIdentity("stanly"), {
+    name: "stanly",
+    agent: "stanly-chan",
+    email: "stanly-chan@example.org",
+    path: "agents/stanly-chan.json",
+  });
+  assert.equal(agentIdentity("ZiQingLau").path, "agents/ziqinglau-chan.json");
+  assert.equal(profileAgentName("d.kanai-chan.json"), "d.kanai");
+  assert.equal(nerdAgentNames.length, 26);
+  const lower = [...agentNames, ...nerdAgentNames].map((n) => n.toLowerCase());
+  assert.equal(new Set(lower).size, lower.length);
 });
