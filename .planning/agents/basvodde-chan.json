@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "basvodde-chan",
+  "email": "basvodde-chan@example.org",
+  "identity": "SEED-057#resolve-uncertainty-and-expose-failure",
+  "mode": "story-branch",
+  "branch": "claude/resolve-uncertainty-and-expose-failure",
+  "host": "claude",
+  "model": "claude-sonnet-5-5"
+}
