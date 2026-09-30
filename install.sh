@@ -153,6 +153,7 @@ managed_files=(
   dough-execute-plan/references/delegation.md
   dough-execute-plan/references/destructive-later-outcome-check.md
   dough-execute-plan/references/disposable-research.md
+  dough-execute-plan/references/established-start.md
   dough-execute-plan/references/execution-decisions.md
   dough-execute-plan/references/execution-location.md
   dough-execute-plan/references/finish-or-stop.md
@@ -196,6 +197,7 @@ managed_files=(
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/execution-increment-resume.mjs
   dough-execute-plan/scripts/execution-start.mjs
+  dough-execute-plan/scripts/established-start.mjs
   dough-execute-plan/scripts/agent-assignments.mjs
   dough-execute-plan/scripts/agent-commit.mjs
   dough-execute-plan/scripts/execution-start-agent.mjs
