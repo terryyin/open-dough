@@ -104,6 +104,31 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
+<a id="mac-human-attention-alert"></a>
+
+### Alert the developer on Mac when a session needs human attention
+
+**Identity:** SEED-052#mac-human-attention-alert
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer using the dashboard on a Mac can notice when an
+  agent session needs human attention without continually watching the dashboard.
+- **Evaluation:** A session needs human attention while the developer is working
+  elsewhere; an available Mac sound or system notification alerts the developer,
+  who can identify the session and return to respond.
+- **Boundary:** Use a sound or system notification according to what is available
+  on the Mac; the delivery mechanism is not selected yet. Refine which session
+  states require attention, permission and availability behavior, and how to
+  avoid repeated alerts for unchanged attention needs. An alert does not establish
+  story completion. Support for other operating systems is outside this story.
+- **Depends on:** Existing dashboard session-state observation; new attention
+  triggers need clarification before execution planning.
+- **Capture:** Terry requested this as the new top queued story on 2026-09-30.
+  This selects attention notifications for future work, extending the earlier
+  notification deferral; it does not authorize implementation.
+
 <a id="start-ad-hoc-project-session"></a>
 
 ### Start an ad hoc session in a project from the dashboard
