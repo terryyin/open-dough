@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Anri-chan",
+  "email": "anri-chan@example.org",
+  "identity": "SEED-062#compact-session-sidebar",
+  "mode": "story-branch",
+  "branch": "claude/compact-session-sidebar",
+  "host": "claude",
+  "model": "claude-sonnet-5-5"
+}
