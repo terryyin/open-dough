@@ -93,7 +93,7 @@ also updates `dashboard/AGENT-LAUNCH.md` for what it delivers.
 
 ### 1. Agent continues from an established start
 Type: Behavior
-Status: planned
+Status: done
 Proof: guidance test in `src/skills/dough-execute-plan/scripts/` asserts `SKILL.md`
 "Take or admit work" and the new reference say a supplied established start replaces
 the start command and lists its fields, and asserts `established-start.mjs`
