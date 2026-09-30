@@ -5,7 +5,9 @@
 // (`./agentTerminals.ts`). Every request must come from this dashboard's own
 // origin; a launch, a done mark, a delete, or an upgrade must name a catalog
 // project, and a done mark, a delete, or an upgrade a session this dashboard
-// recorded for that project, in its existing folder.
+// recorded for that project, in its existing folder. A launch's selected
+// options are checked against the project's installed definition and kept in
+// its order (`./launchOptions.ts`).
 // Nothing here runs a host process except the listing an upgrade's admission
 // reads.
 
@@ -25,8 +27,9 @@ import { agentDoneEndpoint, markDoneRequestSchema } from "../src/doneMark.ts";
 import { sourceById, type PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches, Recorded } from "./agentLaunches.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
+import { withSelectedOptions } from "./launchOptions.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
 
 // Enough for the longest request the limits allow, in any UTF-8 spelling.
 const bodyLimitBytes = 32 * 1024;
@@ -165,7 +168,11 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
       `${launchKindName(request.workflow)} can be launched only in Claude Code.`,
     );
   }
-  return { kind: "launch", source, request };
+  return {
+    kind: "launch",
+    source,
+    request: await withSelectedOptions(request, projectFolder(source)),
+  };
 }
 
 export async function admitted(

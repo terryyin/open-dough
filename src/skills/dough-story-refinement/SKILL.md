@@ -54,8 +54,9 @@ item with a known identity, apply
 
 When the request includes options such as `--explore`, read
 [refinement options](references/refinement-options.json) and apply the selected
-options' instructions within this workflow. Without options, refine
-straightforwardly.
+options' instructions within this workflow. Options listed in the same group
+are exclusive; if a request names more than one of them, stop and report the
+conflict. Without options, refine straightforwardly.
 
 Report the story links, material constraints and deferred promises, and
 unresolved decisions. Apply that reference's keep or discard decision, then

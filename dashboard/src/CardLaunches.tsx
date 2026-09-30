@@ -62,6 +62,7 @@ export function CardLaunches({
           work={entry}
           workflow="execution"
           establishesStart
+          options={undefined}
           resumesIn={keptStart.workspace}
           note={keptStartNote}
           attempt={launches.attemptOf(sourceId, entry.identity, "execution")}
@@ -79,6 +80,7 @@ export function CardLaunches({
             work={entry}
             workflow={workflow}
             establishesStart={launches.establishesStart(sourceId)}
+            options={launches.optionsOffer(sourceId, workflow)}
             note={launchWorkflows[workflow].note(entry)}
             attempt={launches.attemptOf(sourceId, entry.identity, workflow)}
             phase={workflow === "execution" ? phase : undefined}
