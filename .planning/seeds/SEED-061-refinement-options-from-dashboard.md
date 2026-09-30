@@ -115,6 +115,32 @@ the behavior needed to launch refinement.
   2026-09-30, including cohesive ownership, composable and exclusive selection
   semantics, and delivery bounded to refinement.
 
+<a id="correct-refinement-options-launch-follow-ups"></a>
+
+### Correct the refinement options launch after its outcome review
+
+**Identity:** SEED-061#correct-refinement-options-launch-follow-ups
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/187-correct-refinement-options-launch/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"20ef6d9fa4e0f894af47cf49c6523220f254dff2db4742239b9c5ca2c038708b","plan":"577b6c6dada42929fd7978814a312624483d7375ae633291bc566c5d9706c501"}}
+```
+
+- **Goal:** A developer who launches refinement with options sees in the dialog
+  when a kept selection names an option the project no longer offers, reads
+  one grammatical reason when options are unavailable, and the agent's skill
+  names where its exclusive groups are defined; the launch tests that decide
+  pure option rules run without a server. This corrects the delivered story
+  [Select refinement options when launching from the dashboard](#select-refinement-options-from-dashboard)
+  (reviewed commits `06c65127..77348819`); it adds no feature promise.
+- **Scope:** Say in the dialog, once the options are read, which kept flags are
+  no longer offered and are not sent; one wording for the unavailable reason in
+  the dialog, the boundary refusal and the launch guide; one pointer in the
+  refinement skill from "group" to the definition's `groups`; direct tests for
+  the pure option rules with end-to-end tests kept for file state, the boundary
+  and launch order. Not in scope: the refusal's place on the card, this
+  repository's own installed definition, or any change to selection rules.
+- **Plan:** [Plan 187](../slice-plans/187-correct-refinement-options-launch/PLAN.md)
+  holds the findings, proof and slices.
+
 ## Open Decisions
 
 - Every option needs a `summary` for the dialogue, checked by a drift test on the

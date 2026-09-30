@@ -251,3 +251,15 @@ shipped exclusive refinement group, and a generic plugin or registry.
 - Slice 7: the lasting rules live in `dashboard/AGENT-LAUNCH.md`; the UX/UI North
   Star keeps a terminology row. The North Star's sub-headings by kind and
   in-window scrolling were not built and are not documented.
+
+## Execution complete
+
+Product advice: Queue the retrospective's bounded correction, plan 187
+([SEED-061#correct-refinement-options-launch-follow-ups](../../seeds/SEED-061-refinement-options-from-dashboard.md#correct-refinement-options-launch-follow-ups)),
+when convenient: it closes a small client-side gap (a kept selection whose
+option later disappears is dropped without a word), fixes the unavailable line's
+grammar, points the skill at the `groups` field, and moves pure option-rule
+cases out of the doubled HTTP specs. The story delivered its goal; no product
+finding changes its scope. This repository's own dashboard shows "Options are
+not offered … not valid" for itself until its installed refinement skill is
+refreshed from a released payload that carries `summary`.
