@@ -17,8 +17,8 @@
 // published is resumed by the next launch of the story: same publisher,
 // workspace, and branch, so the script answers `existing` or `resumed`.
 
-import { execFile, spawn } from "node:child_process";
-import { readdir, stat } from "node:fs/promises";
+import { spawn } from "node:child_process";
+import { stat } from "node:fs/promises";
 import { hostname } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -28,24 +28,24 @@ import {
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
-  branchPrefix,
   claudeWorkspace,
   shownWorkspace,
-  worktreesFolder,
   type WorkspaceChoice,
 } from "./claudeWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { StartProgress } from "./startProgress.ts";
 import {
-  keepsStart,
-  readStartResult,
-  refusal,
-  type StartResult,
-} from "./startResult.ts";
+  git,
+  lostStartArguments,
+  ownerOf,
+  repositoryOf,
+  takenSlugs,
+} from "./startGit.ts";
+import { establishedStart, record, recordStop } from "./startRecording.ts";
+import { readStartResult, refusal, type StartResult } from "./startResult.ts";
 import {
   keepStart,
   keptStart,
-  removeStart,
   resumeArguments,
   updateStart,
   type StartRecord,
@@ -67,7 +67,12 @@ export type StartAttempt =
 export type PlannedStart =
   // The installed skill cannot continue from a start: launch as before.
   | { readonly kind: "not-applicable" }
-  | { readonly kind: "refused"; readonly explanation: string }
+  | {
+      readonly kind: "refused";
+      readonly explanation: string;
+      // Set when the refusal is not the start's own stop.
+      readonly reason?: "already-starting";
+    }
   // The script is running in `workspace` on `branch`; `attempt` settles when
   // it ends, however long that takes.
   | {
@@ -83,48 +88,6 @@ async function isFile(file: string): Promise<boolean> {
   } catch {
     return false;
   }
-}
-
-function git(
-  project: Pick<ProjectFolder, "path">,
-  args: readonly string[],
-): Promise<string> {
-  return new Promise((resolve) => {
-    execFile(
-      "git",
-      ["-C", project.path, ...args],
-      { encoding: "utf8" },
-      (error, stdout) => {
-        resolve(error ? "" : stdout);
-      },
-    );
-  });
-}
-
-// `owner/name` of a GitHub remote URL, however it is spelled.
-function repositoryOf(url: string): string | undefined {
-  return /github\.com[:/]([^/\s]+\/[^/\s]+?)(?:\.git)?\/?$/i
-    .exec(url.trim())?.[1]
-    ?.toLowerCase();
-}
-
-// Slugs a new workspace must not reuse: the folders under `.worktrees/` and
-// the `claude/` branches, whichever exists.
-async function takenSlugs(project: ProjectFolder): Promise<Set<string>> {
-  const folders = await readdir(path.join(project.path, worktreesFolder)).catch(
-    (): string[] => [],
-  );
-  const branches = (
-    await git(project, [
-      "for-each-ref",
-      "--format=%(refname:short)",
-      `refs/heads/${branchPrefix}`,
-    ])
-  )
-    .split("\n")
-    .filter((name) => name.startsWith(branchPrefix))
-    .map((name) => name.slice(branchPrefix.length));
-  return new Set([...folders, ...branches]);
 }
 
 // One stable publisher per machine and project: the same start asked again is
@@ -160,37 +123,6 @@ function runScript(
   });
 }
 
-// The Agent whose profile on origin's trunk names the story, once the start
-// has fetched it.
-async function ownerOf(
-  project: ProjectFolder,
-  ref: string,
-  identity: string,
-): Promise<string | undefined> {
-  const listed = await git(project, [
-    "ls-tree",
-    "--name-only",
-    ref,
-    ".planning/agents/",
-  ]);
-  for (const file of listed.split("\n").filter((name) => name !== "")) {
-    try {
-      const profile = JSON.parse(
-        await git(project, ["show", `${ref}:${file}`]),
-      ) as {
-        agent?: unknown;
-        identity?: unknown;
-      };
-      if (profile.identity === identity && typeof profile.agent === "string") {
-        return profile.agent;
-      }
-    } catch {
-      // A profile that is not JSON names no owner.
-    }
-  }
-  return undefined;
-}
-
 // Whether the project's installed skill can continue from a start: it ships
 // the start command and the formatter. The one check both a launch and the
 // machine's answer to the page read.
@@ -202,28 +134,6 @@ export async function establishesStart(
     (await isFile(path.join(scripts, startScript))) &&
     (await isFile(path.join(scripts, formatterScript)))
   );
-}
-
-// The script arguments that resume a start lost with the server, read from
-// its kept workspace: the candidate is the workspace HEAD and the starting
-// revision its parent, only when that workspace is on the kept branch. The
-// script validates them against the claim commit's trailers and stops with
-// its own reason when the workspace is not the isolated claim.
-export async function lostStartArguments(
-  workspace: string,
-  branch: string,
-): Promise<string[]> {
-  const at = { path: workspace };
-  const [current, head, parent] = (
-    await Promise.all([
-      git(at, ["rev-parse", "--abbrev-ref", "HEAD"]),
-      git(at, ["rev-parse", "HEAD"]),
-      git(at, ["rev-parse", "HEAD^"]),
-    ])
-  ).map((line) => line.trim());
-  return current === branch && head && parent
-    ? ["--starting-revision", parent, "--candidate-sha", head]
-    : [];
 }
 
 // The workspace a kept start was made in, shown as this host's workspaces are.
@@ -240,65 +150,13 @@ function keptChoice(
   };
 }
 
-// The established start an accepted result makes: the facts the script ran
-// with, what it reported, and, for a rerun that reports no agent or plan
-// (`existing`), the ones the kept start had.
-function establishedStart(
-  facts: Omit<EstablishedStart, "publishedSha">,
-  result: Extract<StartResult, { kind: "accepted" }>,
-  earlier: EstablishedStart | undefined,
-): EstablishedStart {
-  const agent = result.agent ?? earlier?.agent;
-  const plan = result.plan ?? earlier?.plan;
-  return {
-    ...facts,
-    publishedSha: result.publishedSha,
-    ...(agent === undefined ? {} : { agent }),
-    ...(plan === undefined ? {} : { plan }),
-    ...(result.startingRevision === undefined
-      ? {}
-      : { startingRevision: result.startingRevision }),
-    ...(result.candidateSha === undefined
-      ? {}
-      : { candidateSha: result.candidateSha }),
-  };
-}
-
-// A store that cannot be written never fails a script that already ran.
-async function record(write: () => Promise<void>): Promise<void> {
-  try {
-    await write();
-  } catch {
-    // The launch's answer stands; the next start is chosen afresh.
-  }
-}
-
-// Keeps what a stop that may have published a claim carries for a resume, and
-// removes the start of any other stop, which left nothing to resume.
-async function recordStop(
-  sourceId: string,
-  identity: string,
-  result: Exclude<StartResult, { kind: "accepted" }>,
-): Promise<void> {
-  if (!keepsStart(result)) {
-    await removeStart(sourceId, identity);
-    return;
-  }
-  const recovery = result.kind === "stopped" ? result.recovery : undefined;
-  if (recovery?.startingRevision && recovery.candidateSha) {
-    await updateStart(sourceId, identity, {
-      startingRevision: recovery.startingRevision,
-      candidateSha: recovery.candidateSha,
-    });
-  }
-}
-
 // Runs the start for one execution launch, or says why not. The start is in
 // `progress` from before its script runs: `preparing` while it runs, then
 // `launching` once it established the start, for the launch to end; a start
-// that stops leaves `progress` when its record is written. A kept start with
-// no result that `progress` does not hold was lost with the server that ran
-// it.
+// that stops leaves `progress` when its record is written. A story whose
+// start `progress` already holds is refused, starting nothing. A kept start
+// with no result that `progress` does not hold was lost with the server that
+// ran it.
 export async function beginStart(
   source: PublishedSource,
   request: StoryLaunchRequest,
@@ -315,6 +173,33 @@ export async function beginStart(
       explanation: `The origin of ${project.shown} is not ${source.repository}, where the Take would be published. Nothing was started or launched.`,
     };
   }
+  // Registered in the same synchronous step that checks it, before any await,
+  // so of two launches of one story in this server exactly one goes on.
+  if (progress.running(source.id, request.identity)) {
+    return {
+      kind: "refused",
+      reason: "already-starting",
+      explanation:
+        "This story is already starting on this machine, so a second start was not made. Wait for the running start to end; its card shows its progress. Nothing was launched.",
+    };
+  }
+  progress.set(source.id, request.identity, "preparing");
+  try {
+    return await runningStart(source, request, project, progress);
+  } catch (error) {
+    progress.clear(source.id, request.identity);
+    throw error;
+  }
+}
+
+// The start of a story registered in `progress`: keeps it, then runs its
+// script.
+async function runningStart(
+  source: PublishedSource,
+  request: StoryLaunchRequest,
+  project: ProjectFolder,
+  progress: StartProgress,
+): Promise<PlannedStart> {
   // A start kept from an earlier launch of the story is resumed as it was.
   const kept = await keptStart(source.id, request.identity);
   const { workspace, branch } =
@@ -334,9 +219,7 @@ export async function beginStart(
   const resume =
     kept === undefined
       ? []
-      : resumeArguments(kept).length > 0 ||
-          kept.start !== undefined ||
-          progress.running(source.id, request.identity)
+      : resumeArguments(kept).length > 0 || kept.start !== undefined
         ? resumeArguments(kept)
         : await lostStartArguments(kept.workspace, kept.branch);
   // Written ahead of the script, so a start whose result is lost is still
@@ -350,7 +233,6 @@ export async function beginStart(
     ...(model === undefined ? {} : { model }),
     startedAt: new Date().toISOString(),
   });
-  progress.set(source.id, request.identity, "preparing");
   const attempt = runScript(
     [
       "--integration",

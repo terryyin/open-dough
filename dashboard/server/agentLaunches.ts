@@ -83,10 +83,13 @@ type Started =
   | ({ readonly kind: "established" } & EstablishedLaunch)
   | { readonly kind: "stopped"; readonly result: LaunchResult };
 
-function startFailed(explanation: string): Started {
+function startFailed(
+  explanation: string,
+  reason: "start-refused" | "already-starting" = "start-refused",
+): Started {
   return {
     kind: "stopped",
-    result: { kind: "failed", reason: "start-refused", explanation },
+    result: { kind: "failed", reason, explanation },
   };
 }
 
@@ -106,7 +109,7 @@ async function started(
     return { kind: "none" };
   }
   if (planned.kind === "refused") {
-    return startFailed(planned.explanation);
+    return startFailed(planned.explanation, planned.reason);
   }
   let timer: NodeJS.Timeout | undefined;
   const expiry = new Promise<"expired">((resolve) => {

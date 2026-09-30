@@ -8,7 +8,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-import { lostStartArguments } from "../server/executionStart.ts";
+import { lostStartArguments } from "../server/startGit.ts";
 import { readStartResult, refusal } from "../server/startResult.ts";
 
 test("reads an accepted start's published facts", () => {

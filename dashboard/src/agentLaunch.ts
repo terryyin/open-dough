@@ -344,6 +344,7 @@ export const launchFailureReasons = [
   "refused",
   "unavailable",
   "start-refused",
+  "already-starting",
 ] as const;
 
 // Why a launch may or may not have started a session: the launch wait

@@ -163,8 +163,17 @@ pending words, and its Start waits. The card stays where origin puts the story
 (Backlog until origin shows it Taken). A start kept in the store with no running
 process is never running: it is in `keptStarts` (offered as above once Taken),
 and a start that is running is not in `keptStarts`. The launching page clears
-the phase when its launch answers. Refusing a second start of the same story is
-not built yet.
+the phase when its launch answers.
+
+A story this server is already starting is not started twice. The check and the
+`preparing` entry are one synchronous step in `beginStart`, before any await,
+so of two launches of one story, whether sent apart or at once, exactly one
+goes on. The other is answered before any process runs (no script, no `claude`)
+as failed with reason `already-starting`: "This story is already starting on
+this machine, so a second start was not made. Wait for the running start to end;
+its card shows its progress. Nothing was launched." Origin holds one claim and
+the project one workspace. A story Taken by another agent is still the
+"Taken by <Agent>" refusal above.
 
 A confirmed launch lists its session on the story's card, beside the Start
 actions, which stay with their notes whatever sessions are listed, and the

@@ -229,7 +229,7 @@ running process reads as interrupted (slice 7's wording), never running.
 
 ### 11. A second start of the same story is refused
 Type: Behavior
-Status: planned
+Status: done
 Proof: spec: two parallel launch requests for one identity over raw HTTP → one claim on
 origin, one workspace, the second answered "Launch failed: already starting"; a story
 Taken by another agent stays slice 5's refusal.
