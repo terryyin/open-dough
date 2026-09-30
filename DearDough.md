@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 196. Removed local codes are never reused.
+- Highest allocated local number: 197. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -433,3 +433,19 @@ Follow-up: Open, unqueued.
   - Evidence: before delivery the coordinator ran `execution-increment-delivery.mjs --help`, grepped `targetRef`, read its lines 60–120, and read `targetBranchName` in `publication-git.mjs`, then invoked `deliver --target-ref refs/heads/claude/make-npm-run-lint-report-no-warnings-or-errors-c`; the established start listed `target: main`.
   - Observed effect: four extra tool calls; delivery was accepted on the first attempt with observation attached.
   - Inference: Qualified. Passing `refs/heads/main` from the established start's `target` was a plausible mistake; whether the script would refuse it was not checked.
+
+## DD-197 — Recovery failure setup used a deadline before establishing accepted input
+
+The lost-acknowledgment setup let a short launch deadline disconnect the native substitute without first observing that it accepted the input. An equality between two absent records could pass and conceal the missing precondition. This differs from ODF-067's fixture-computed Git refusal: the operation was attempted here, but its required intermediate event was unproved.
+
+Follow-up: Open, unqueued. For a fault injected after a native event, observe that event before triggering the fault; keep negative-history and no-resend assertions. No guidance change is authorized by this review.
+
+### Occurrences
+
+- Execution: `SEED-052#start-codex-refinement-from-dashboard` / plan 189, first related implementation commit `05f3e4a9fa018eba5be122b729f5b78f0e4cce70`
+  - Timestamp: unknown (2026-10-01 resumed execution; CI run36790537801/attempt1)
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: CI job110142132390 failed the negative-history test from `3dbb1f77`; fresh repair baseline with original100ms plus explicit `native.history.length === 1` failed expected1/received0. Repair agent `ci_recovery_setup_repair` terminal report/PTY80979 and published `3fdae6f201941ff239bc24a2788590bdf25e88d7` changed both100/250ms setups to await held input acceptance before disconnecting and assert durable uncertainty/ID. PLAN slice5 retains exact command; production unchanged.
+  - Observed effect: One owned repair commit and a pause in native acceptance; all five selected repair tests passed afterward. The original no-resend and history/status assertions remained.
+  - Inference: Event-based setup supplies causal evidence that elapsed time alone did not. Cost beyond this repair is unmeasured; native pause also included a separate acceptance-wording correction.
