@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Stop a commit that fails lint before it leaves the machine](seeds/SEED-065-warning-free-lint.md#pre-commit-lint-hook) — SEED-065#pre-commit-lint-hook ([plan](slice-plans/190-pre-commit-lint-hook/PLAN.md))
-
 ## Backlog list
 
 - [Use Codex for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
