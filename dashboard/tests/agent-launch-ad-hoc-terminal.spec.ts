@@ -68,9 +68,12 @@ for (const text of ["why is the CI slow on main?", ""]) {
     await page.keyboard.press("Enter");
     await expect(rows).toContainText("echo hello there");
 
-    await expect(
-      page.getByRole("status").filter({ hasText: "Ad hoc session started" }),
-    ).toBeVisible();
+    // A log is an implicitly polite live region that is neither a `status`
+    // nor the page's `[aria-live='polite']` published-read announcement.
+    const announcement = page
+      .getByRole("log")
+      .filter({ hasText: "Ad hoc session started" });
+    await expect(announcement).toBeVisible();
     await expect(entry).toContainText("Shown in terminal");
     expect(await page.evaluate(() => window.scrollY)).toBe(scroll);
     const { button: sessions, entries } = sidebarParts(page);

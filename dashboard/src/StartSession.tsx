@@ -47,7 +47,7 @@ export function StartSession({
       >
         Start session
       </button>
-      <p role="status" className="quiet">
+      <p role="log" className="quiet">
         {announcement}
       </p>
       {open && (
