@@ -17,10 +17,10 @@ visibility for multiple agents working in worktrees on one machine.
 - [Land changes made on the default checkout by committing to main and syncing](seeds/SEED-008-worktree-branch-trunk-sync.md#land-from-default-checkout) — SEED-008#land-from-default-checkout ([plan](slice-plans/170-land-from-default-checkout/PLAN.md))
 - [Alert the developer on Mac when a session needs human attention](seeds/SEED-052-start-agent-work-from-dashboard.md#mac-human-attention-alert) — SEED-052#mac-human-attention-alert ([plan](slice-plans/174-mac-human-attention-alert/PLAN.md))
 - [Choose the model when starting a session](seeds/SEED-052-start-agent-work-from-dashboard.md#choose-session-model) — SEED-052#choose-session-model ([plan](slice-plans/173-choose-session-model/PLAN.md))
+- [Check reported gaps against the story before accepting a slice](seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps ([plan](slice-plans/175-accept-reported-story-gaps/PLAN.md))
 
 ## Backlog list
 
-- [Check reported gaps against the story before accepting a slice](seeds/SEED-058-accept-reported-story-gaps.md#accept-reported-story-gaps) — SEED-058#accept-reported-story-gaps
 - [Observe a planning premise through the operation that consumes it](seeds/SEED-059-observe-planning-premise-consumers.md#observe-premise-consumers) — SEED-059#observe-premise-consumers
 - [Select the Odd-e nerds agent names and avatars through configuration](seeds/SEED-060-odd-e-nerds-agent-collection.md#odd-e-nerds-agent-collection) — SEED-060#odd-e-nerds-agent-collection
 - [Choose and compose styles for story refinement](seeds/SEED-057-composable-story-refinement-styles.md#composable-refinement-styles) — SEED-057#composable-refinement-styles

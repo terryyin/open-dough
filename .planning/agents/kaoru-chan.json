@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kaoru-chan",
+  "email": "kaoru-chan@example.org",
+  "identity": "SEED-058#accept-reported-story-gaps",
+  "mode": "story-branch",
+  "branch": "claude/accept-reported-story-gaps",
+  "host": "claude",
+  "model": "claude-sonnet-5-5"
+}
