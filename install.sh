@@ -12,6 +12,11 @@ usage() {
   echo "Usage: $0 --target <project> --source <url-or-path> [--platform <codex|cursor|claude>] [--force]" >&2
   exit 1
 }
+# Sets the variable named $1 to the value following option $2, or stops.
+option_value() {
+  [[ $# -ge 3 ]] || usage
+  printf -v "$1" '%s' "$3"
+}
 target=''
 recorded_source=''
 platform=codex
@@ -19,27 +24,12 @@ force=0
 replace_verified=0
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --target)
-      [[ $# -ge 2 ]] || usage
-      target=$2
-      shift 2
-      ;;
-    --source)
-      [[ $# -ge 2 ]] || usage
-      recorded_source=$2
-      shift 2
-      ;;
-    --platform)
-      [[ $# -ge 2 ]] || usage
-      platform=$2
-      shift 2
-      ;;
+    --target) option_value target "$@" && shift 2 ;;
+    --source) option_value recorded_source "$@" && shift 2 ;;
+    --platform) option_value platform "$@" && shift 2 ;;
     --force) force=1 && shift ;;
     # Internal apply handoff: its caller verified every managed baseline first.
-    --replace-verified)
-      replace_verified=1
-      shift
-      ;;
+    --replace-verified) replace_verified=1 && shift ;;
     --version | --tag | --release) refuse_requested_version ;;
     *)
       looks_like_version_request "$1" && refuse_requested_version
@@ -121,6 +111,7 @@ managed_files=(
   dough-story-refinement/SKILL.md
   dough-story-refinement/references/established-preparation.md
   dough-story-refinement/references/executable-proof.md
+  dough-story-refinement/references/one-shot-refinement.md
   dough-story-refinement/references/planning.md
   dough-story-refinement/references/preparation-assignment.md
   dough-story-refinement/references/preparation-disposition.md
@@ -133,8 +124,10 @@ managed_files=(
   dough-story-refinement/scripts/preparation-assignment-lost-workspace.mjs
   dough-story-refinement/scripts/preparation-assignment-ownership.mjs
   dough-story-refinement/scripts/preparation-assignment-release.mjs
+  dough-story-refinement/scripts/preparation-assignment-request.mjs
   dough-story-refinement/scripts/preparation-assignment-start.mjs
   dough-story-refinement/scripts/preparation-assignment-trunk.mjs
+  dough-story-refinement/scripts/preparation-one-shot-start.mjs
   dough-land/SKILL.md
   dough-land/scripts/retirement-checks.mjs
   dough-land/scripts/worktree-retirement.mjs

@@ -265,8 +265,23 @@ than publishing it merely because no product edits were needed.
 
 ### 2. One-shot refinement retains preparation without an assignment
 Type: Behavior
-Status: planned
-Proof: New `lightweight-refinement.test.mjs` drives installed CLI + actual recorder
+Status: done
+Accepted proof: `node --test --test-timeout=600000 src/skills/dough-story-refinement/scripts/*.test.mjs src/skills/dough-execute-plan/scripts/one-shot-guidance.test.mjs src/skills/dough-execute-plan/scripts/session-policy.test.mjs src/skills/dough-execute-plan/scripts/one-shot-start-refusal.test.mjs`
+(72 pass, including `one-shot-refinement.test.mjs` on an installed payload);
+`tests/payload-declaration-links.sh`, `tests/install-public-payload.sh`,
+`tests/install.sh` (Homebrew bash); Playwright
+`dashboard/tests/agent-launch-preparation-start.spec.ts dashboard/tests/agent-launch-preparation-resume.spec.ts`.
+Learnings: `preparation-assignment.mjs start --one-shot` routes to
+`preparation-one-shot-start.mjs`; it uses `requireUnheld` (not
+`requireOneShotStart`) so not-ready input can be repaired, checks the
+workspace's own assignment first (`workspace-assigned`), and shares
+`preparationRepository`/`selectAtFetchedTrunk` with the assigned start. Request
+validation lives in `preparation-assignment-request.mjs`. No ownership recheck
+happens yet when a kept one-shot refinement lands (slice 5). A rerun of
+`start --one-shot` on a retained workspace with a result commit stops with
+`workspace-selection-failed`; guidance continues in that workspace instead.
+`install.sh` is near the 250-line limit because of its installed-file list.
+Proof: New `one-shot-refinement.test.mjs` drives installed CLI + actual recorder
 against local Git; test refined/unselected and recorded not-ready input, same
 queue membership, no Preparing/Take/push, and preserved assigned-session resume.
 
@@ -277,7 +292,7 @@ and ownership readers; preparation retains its own lifecycle.
 
 ### 3. Observe native adoption before broadening the policy
 Type: Behavior
-Status: planned
+Status: blocked — awaiting explicit manual (paid) native-run authority
 Proof: Extend the existing native harness with `publication/one-shot-review` and
 `preparation/one-shot-refinement`. Use actual installed guidance in fresh sessions;
 no expected answer embedded in task prompts. Compare raw commands/stream and

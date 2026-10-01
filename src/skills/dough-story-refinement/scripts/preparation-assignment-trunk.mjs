@@ -36,34 +36,57 @@ export async function fetchQueuedTrunk(cwd, request) {
   return { ok: true, fetched };
 }
 
-// Creates the owned workspace on its branch at queued fetched trunk when its
-// path does not exist yet, so a refused request leaves nothing behind. The
-// integration checkout, or else the repository context, supplies the
-// repository to create it from. An existing path is the caller's owned
-// workspace, verified by the announcement.
-export async function selectPreparationWorkspace(request) {
+// The repository a start fetches from and creates a missing workspace with:
+// the integration checkout, else the repository context, else an existing
+// workspace itself. A workspace that does not exist yet also needs its
+// branch; without these, the stop that refuses the request.
+export function preparationRepository(request) {
   const { workspace, branch } = request;
-  if (existsSync(workspace)) return { ok: true };
-  const repository = request.integration ?? request.repository;
-  if (!branch || !repository)
-    return stop("invalid-request", {
-      workspace,
-      error:
-        "a workspace that does not exist yet needs --branch and --integration or --repository to create it",
-    });
-  const trunk = await fetchQueuedTrunk(repository, request);
-  if (!trunk.ok) return trunk;
+  const exists = existsSync(workspace);
+  const repository =
+    request.integration ?? request.repository ?? (exists ? workspace : null);
+  if (repository && (exists || branch)) return { ok: true, repository, exists };
+  return stop("invalid-request", {
+    workspace,
+    error:
+      "a workspace that does not exist yet needs --branch and --integration or --repository to create it",
+  });
+}
+
+// Selects the owned workspace at queued fetched trunk `fetched`, creating it
+// on its branch when its path does not exist yet, so a refused request leaves
+// nothing behind.
+export async function selectAtFetchedTrunk(request, repository, fetched) {
   const selected = await selectOwnedWorkspace({
     ...request,
     repository,
-    base: trunk.fetched,
+    base: fetched,
   });
-  if (!selected.ok)
-    return stop("workspace-selection-failed", {
-      workspace,
-      branch,
-      error: selected.recovery.error,
-    });
+  if (selected.ok) return selected;
+  const { workspace, branch } = request;
+  return stop("workspace-selection-failed", {
+    workspace,
+    ...(branch ? { branch } : {}),
+    fetched,
+    error: selected.recovery.error,
+  });
+}
+
+// Creates a missing owned workspace for an announcement. An existing path is
+// the caller's owned workspace, verified by the announcement.
+export async function selectPreparationWorkspace(request) {
+  const located = preparationRepository(request);
+  if (!located.ok) return located;
+  if (located.exists) return { ok: true };
+  const { repository } = located;
+  const trunk = await fetchQueuedTrunk(repository, request);
+  if (!trunk.ok) return trunk;
+  const selected = await selectAtFetchedTrunk(
+    request,
+    repository,
+    trunk.fetched,
+  );
+  if (!selected.ok) return selected;
   return {
     ok: true,
     selection: {

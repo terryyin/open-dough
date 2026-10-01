@@ -31,16 +31,17 @@ import {
   remoteRef,
 } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import {
+  assignedElsewhereError,
   assignmentFields,
   errorText,
   profilePathOf,
   recordAllocation,
   recordedAllocation,
   restoreAllocation,
-  requestOf,
   stop,
   workspaceAssignment,
 } from "./preparation-assignment-ownership.mjs";
+import { requestOf } from "./preparation-assignment-request.mjs";
 import {
   fetchQueuedTrunk,
   selectPreparationWorkspace,
@@ -141,8 +142,7 @@ async function announce(request) {
       workspace,
       fetched: base,
       ...assignmentFields(found.assigned.profile, found.assigned),
-      error:
-        "this workspace still holds a published assignment this request does not name; end it before preparing another",
+      error: assignedElsewhereError,
     });
   // Only dropping an unconfirmed announcement changes the record.
   let previous = await recorded;

@@ -28,7 +28,8 @@ eligible. Known larger work is admitted or Taken instead.
 These are not one-shot, even when selected:
 
 - preparation-only requests, which keep their existing keep and disposition
-  rules;
+  rules; refinement selects one-shot through
+  [one-shot refinement](../../dough-story-refinement/references/one-shot-refinement.md);
 - work already Taken, which keeps its claim's lifecycle; and
 - a supporting step of an active story, which continues under that story.
 
