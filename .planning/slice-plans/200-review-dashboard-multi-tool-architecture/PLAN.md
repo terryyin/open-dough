@@ -109,7 +109,7 @@ No premise depends on a paid or state-changing observation.
 
 ### 1. Launch-side responsibilities are reviewed
 Type: Behavior
-Status: planned
+Status: done
 Proof: The launch-side sections of `REVIEW.md` exist. A fresh subagent that
 has not seen the review re-opens every cited file and line, then confirms or
 refutes each finding's claim. Refuted claims are corrected before the slice
@@ -185,6 +185,37 @@ plan. Each story is added with `product-backlog.mjs add --before
 SEED-052#use-cursor-from-dashboard`. The North Star topic gains the selected unbuilt
 direction in place of its link to this review. If Terry declines everything,
 the link is removed and the backlog is unchanged.
+
+## Execution record
+
+- **Mode and identity:** Story Branch Mode; workspace and branch as in
+  Preparation; remote `origin`, target `main`; agent `YeongSheng-chan`;
+  published claim `6ac22ba8a6f0a30cbd41b3028fe7eafb2ad96871` on `main`
+  (unobserved by CI: a Story Branch claim publishes to trunk before the
+  branch observer is armed).
+- **Slice 1 proof (accepted):** `REVIEW.md` §§1–4 hold ownership tables,
+  findings L1-1–L1-5, W2-1–W2-3, I3-1–I3-3, F4-1–F4-3 and retains
+  R1-1–R4-3. A fresh verifier re-opened every cited line at `6ac22ba8` and
+  confirmed each item; its partial corrections (R1-2, I3-3, L1-4 and R4-1
+  wording, traced-path step 7, F4-2 and R3-1 citations) were applied. All 19
+  hits of `grep -rnE '=== "codex"|=== "claude"|!== "codex"|!== "claude"'
+  dashboard/server dashboard/src` appear in the review's coverage table.
+  Judgments: `agentLaunches.ts:144` and `:178` are shared rules applied to
+  one host (F4-1, F4-2); `agentLaunchAdmission.ts:174` is a native
+  difference that belongs behind the boundary (L1-2).
+
+## Learnings
+
+- The premises' grep misses default-parameter and schema-default host
+  literals (`host = "claude"`, `.default("claude")`), where silent fallback to
+  Claude lives. Slice 2's coverage check also uses
+  `grep -rnE '"claude"|"codex"'` outside `server/hosts/`, `claudeHost.ts`,
+  and `codexHost.ts`.
+- The North Star topic's "Sessions are the machine's" bullet was damaged
+  during preparation (`d91886ab`): it breaks off at "cards, Recent
+  sessions,", and a fragment " registry or assuming every conversation has an
+  assignment. Follow Accepted ADRs" is left dangling after the paragraph.
+  Slice 4, which owns that topic, repairs it.
 
 ## Current decisions
 
