@@ -536,3 +536,31 @@ slice is delivered. Preserve accepted pre-integration proof as attributed here;
 do not treat it as proof of the combined candidate until reverified. Later
 slices must retain asynchronous acceptance/reconciliation as well as the
 prerequisite host-description/operation owners.
+
+Integration succeeded through the installed product-backlog merge adapter at
+`07e90c8b33ab567e0b2c015f227b5a3e0d6401dd`, preserving published histories
+and the own slice commit `30fc503cb88aaae7be2dea7abcf972c0c824810b`.
+The commit hook's fixture-parameter assignment finding was repaired with a
+local alias and selective reformatting; no fixture or behavior was changed.
+An attempted merge before recognizing that failed commit was refused without
+changing history; the successful merge followed the completed commit.
+
+Combined candidate proof reached terminal exit 0 without repair:
+
+```sh
+npm run typecheck:dashboard
+env -u NO_COLOR npm run test:dashboard -- agent-launch-codex-observation agent-launch-recent-session-states.spec.ts session-sidebar-state-edge.spec.ts session-alerts.spec.ts agent-launch-codex.spec.ts responsive-session-access.spec.ts
+```
+
+The browser selection covers 21 declarations across nine specs without grep.
+All slice 2/3 observing assertions above remain present, including new helpers.
+Updated HTTP fixtures follow real asynchronous acceptance and attempt
+settlement. Three responsive-access journeys preserve reduced-motion behavior,
+focus handoff/retention, transition announcements, protected-card descriptions
+and actions, working terminals and Recent actions, using actual bare origin and
+installed startup scripts with held publication/native replies. Inspected the
+merged renderer's shared protected-frame description on Open terminal; the
+selected responsive assertions directly observe card and Mark as done
+descriptions, not that button's `aria-describedby`. No broader claim is made.
+The accepted combined proof preserves both stories' current promises. The
+integration introduced no new own edits or refactor candidate.
