@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-072#responsive-session-start-reconciliation",
+  "mode": "story-branch",
+  "branch": "claude/keep-the-dashboard-responsive-while-session-star",
+  "host": "claude"
+}
