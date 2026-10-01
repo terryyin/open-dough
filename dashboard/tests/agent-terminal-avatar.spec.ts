@@ -1,6 +1,6 @@
 // The terminal panel's header shows the portrait of the agent the session's
 // kept record names (its start's or preparation's `agent`), to the left of
-// the title and session rows and as tall as both, named and titled by the
+// the title and session rows and proportionate to both, named and titled by the
 // agent; with no recorded agent, or no portrait for it, there is none, and
 // the rows are as before. No developer identity shows in the panel. The
 // session is an ad hoc one on the committed origin of
@@ -20,6 +20,7 @@ import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import { expectServed } from "./agentPortrait.ts";
 import { avatarPng } from "./avatarAnswers.ts";
+import { expectTerminalPreviewFits } from "./terminalPortraitPreview.ts";
 import { box } from "./pageLayout.ts";
 
 let journey: LaunchJourney;
@@ -61,7 +62,7 @@ const where = {
   target: "main",
 };
 
-test("the header shows the recorded agent's portrait left of its two rows, as tall as both, named by the agent, and none without an agent or a portrait", async ({
+test("the header shows the recorded agent's portrait left of its two rows, proportionate to both, named by the agent, and none without an agent or a portrait", async ({
   page,
   dashboard,
 }) => {
@@ -124,14 +125,14 @@ test("the header shows the recorded agent's portrait left of its two rows, as ta
   };
 
   // The portrait sits left of the title and session rows, from the top of
-  // the title to the bottom of the session row, square.
+  // the title, square and capped to stay proportionate to the two rows.
   const expectBesideBothRows = async (shown: Locator) => {
     const portraitBox = await box(shown);
     const titleBox = await box(heading);
     const rowBox = await box(sessionRow);
     const rowsHeight = rowBox.y + rowBox.height - titleBox.y;
     expect(portraitBox.y).toBeCloseTo(titleBox.y, 0);
-    expect(portraitBox.height).toBeCloseTo(rowsHeight, 0);
+    expect(portraitBox.height).toBeCloseTo(Math.min(rowsHeight, 44), 0);
     expect(portraitBox.width).toBeCloseTo(portraitBox.height, 0);
     expect(portraitBox.x + portraitBox.width).toBeLessThanOrEqual(titleBox.x);
     expect(portraitBox.x + portraitBox.width).toBeLessThanOrEqual(rowBox.x);
@@ -145,7 +146,7 @@ test("the header shows the recorded agent's portrait left of its two rows, as ta
     await expectRowsUnchanged();
   });
 
-  await test.step("a preparation by Yui-chan shows Yui's atlas tile, as tall as both rows, named and titled Yui-chan", async () => {
+  await test.step("a preparation by Yui-chan shows Yui's atlas tile, proportionate to both rows, named and titled Yui-chan", async () => {
     await reopenEstablishing({
       preparation: {
         identity: "SEED-001#story",
@@ -168,13 +169,14 @@ test("the header shows the recorded agent's portrait left of its two rows, as ta
     );
     await expectServed(panel, image, "image/webp");
     await expectBesideBothRows(yui);
+    await expectTerminalPreviewFits(yui, panel);
     await expectRowsUnchanged();
     // The agent is the only identity in the panel: no developer avatar or
     // name beside it.
     await expect(panel.getByRole("img")).toHaveCount(1);
     await expect(panel.locator("img")).toHaveCount(0);
     await expect(panel.locator(".terminal-toolbar")).toHaveText(
-      `${title}Ad hoc session ${sessionId}Mark as done`,
+      `${title}Ad hoc session ${sessionId}`,
     );
   });
 

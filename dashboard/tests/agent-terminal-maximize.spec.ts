@@ -97,14 +97,35 @@ test.describe("maximizing the terminal panel", () => {
     await page.keyboard.press("Enter");
     await expect(rows).toContainText("echo keep this line");
 
-    await test.step("the header's icon controls are named by label and tooltip, and Mark as done stays a text button", async () => {
+    await test.step("the header's icon controls are named by label and tooltip, including Mark as done are quiet compact SVG buttons", async () => {
       await expect(control("Maximize")).toHaveAttribute("title", "Maximize");
       await expect(control("Close")).toHaveAttribute("title", "Close (⌘⇧Esc)");
       await expect(control("Maximize").locator("svg")).toHaveAttribute(
         "aria-hidden",
         "true",
       );
-      await expect(control("Mark as done")).toHaveText("Mark as done");
+      for (const name of ["Mark as done", "Maximize", "Close"]) {
+        const button = control(name);
+        await expect(button.locator("svg")).toHaveAttribute(
+          "aria-hidden",
+          "true",
+        );
+        await expect(button).toHaveText("");
+        await expect(button).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+        await expect(button).toHaveCSS("border-top-width", "0px");
+        const bounds = await box(button);
+        expect(bounds.width).toBe(36);
+        expect(bounds.height).toBe(36);
+      }
+      await expect(control("Mark as done")).toHaveAttribute(
+        "title",
+        "Mark as done",
+      );
+      await control("Maximize").hover();
+      await expect(control("Maximize")).not.toHaveCSS(
+        "background-color",
+        "rgba(0, 0, 0, 0)",
+      );
     });
 
     const split = {
