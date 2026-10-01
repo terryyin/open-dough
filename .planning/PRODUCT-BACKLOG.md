@@ -18,6 +18,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Check how Dough Land handles a kept one-shot result whose story was taken](seeds/SEED-066-composable-lightweight-session-options.md#dough-land-kept-one-shot-ownership) — SEED-066#dough-land-kept-one-shot-ownership
 - [Keep the dashboard responsive while session startup settles](seeds/SEED-072-responsive-session-start-reconciliation.md#responsive-session-start-reconciliation) — SEED-072#responsive-session-start-reconciliation
 - [Control the dashboard session panel from its header](seeds/SEED-071-session-panel-header-controls.md#session-panel-header-controls) — SEED-071#session-panel-header-controls
 - [Re-optimize CI feedback and test wall time after concurrent story branches land](seeds/SEED-070-reoptimize-ci-test-wall-time.md#reoptimize-ci-test-wall-time) — SEED-070#reoptimize-ci-test-wall-time

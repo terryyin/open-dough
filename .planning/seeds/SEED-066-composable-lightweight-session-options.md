@@ -180,6 +180,39 @@ promise, Dough Land change, host, or native case.
 
 **Plan:** [bounded correction input and slices](../slice-plans/196-align-one-shot-callers-with-review-default/PLAN.md).
 
+<a id="dough-land-kept-one-shot-ownership"></a>
+
+### Check how Dough Land handles a kept one-shot result whose story was taken
+
+**Identity:** SEED-066#dough-land-kept-one-shot-ownership
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** A developer who lands a kept one-shot execution result with Dough Land
+instead of the guarded one-shot landing never publishes a queued story's closure
+over another owner's claim.
+
+#### Scope
+
+- First observe, without paid native runs: keep a queued one-shot execution
+  result (result plus story closure) in its owned workspace, publish a rival
+  Take of that story to the remote, then run Dough Land on the workspace.
+  Record whether it stops with nothing pushed (for example through the backlog
+  merge adapter's conflict) or publishes the closure over the rival claim.
+- If it stops with nothing pushed, keep Dough Land unchanged and retain the
+  observation as proof; the review report's guarded landing route is enough.
+- If it publishes over the claim, Dough Land runs the same ownership recheck the
+  guarded one-shot landing uses before each push, as one-shot refinement already
+  does, or refuses and names the guarded route. Choosing between redirect and
+  refusal is a human decision at that point. A Dough Land guidance change needs
+  manual paid native re-acceptance of the affected landing journeys.
+
+#### Out of scope
+
+- Unlisted one-shot results, which carry no story to protect.
+- One-shot refinement, which already rechecks before Dough Land pushes.
+
 ## Existing Behavior to Reconcile
 
 - [Current one-shot guidance](../../src/skills/dough-execute-plan/references/one-shot.md)
