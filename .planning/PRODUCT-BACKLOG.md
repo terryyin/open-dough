@@ -14,9 +14,12 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Choose workspace and automatic landing independently for lightweight refinement and execution](seeds/SEED-066-composable-lightweight-session-options.md#composable-lightweight-session-options) — SEED-066#composable-lightweight-session-options ([plan](slice-plans/191-composable-lightweight-session-options/PLAN.md))
+
 ## Backlog list
 
 - [Align one-shot callers and starts with the review default](seeds/SEED-066-composable-lightweight-session-options.md#align-one-shot-callers-with-review-default) — SEED-066#align-one-shot-callers-with-review-default
+- [Keep the dashboard responsive while session startup settles](seeds/SEED-072-responsive-session-start-reconciliation.md#responsive-session-start-reconciliation) — SEED-072#responsive-session-start-reconciliation
 - [Control the dashboard session panel from its header](seeds/SEED-071-session-panel-header-controls.md#session-panel-header-controls) — SEED-071#session-panel-header-controls
 - [Re-optimize CI feedback and test wall time after concurrent story branches land](seeds/SEED-070-reoptimize-ci-test-wall-time.md#reoptimize-ci-test-wall-time) — SEED-070#reoptimize-ci-test-wall-time
 - [Review dashboard architecture before adding more AI IDE tools](seeds/SEED-069-review-dashboard-multi-tool-architecture.md#review-dashboard-multi-tool-architecture) — SEED-069#review-dashboard-multi-tool-architecture
