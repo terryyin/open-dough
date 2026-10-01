@@ -13,7 +13,8 @@ Queued 2026-10-01 at Terry's direction; no preparation assignment.
 ## Source and provenance
 
 - Reviewed execution: `SEED-072#responsive-session-start-reconciliation`
-  through [plan 192](../192-responsive-session-start-reconciliation/PLAN.md),
+  through plan 192 (closed; recoverable at
+  `4cdf6120:.planning/slice-plans/192-responsive-session-start-reconciliation/PLAN.md`),
   claim `d686dc59`, commits `109fd76b`, `b68b1c7b`, `191721a0`, `f787fc6c`,
   `0cc4f307`.
 - Current findings from the retrospective outcome review, re-observed below:
