@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "DavidKo-chan",
+  "email": "davidko-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-075#session-record-per-host",
+  "host": "claude",
+  "model": "opus"
+}
