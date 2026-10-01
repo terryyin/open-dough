@@ -1,5 +1,6 @@
 // The same native reconciliation rule preserves a real published preparation.
 import { readdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { expect, test } from "./support/preparationPage.ts";
 import { stored } from "./support/codexLaunch.ts";
@@ -56,6 +57,15 @@ test("accepted input with lost acknowledgment resumes its prepared conversation 
   expect(profiles).toHaveLength(1);
   expect(profiles[0]?.["host"]).toBe("codex");
   expect(await keptStarts(dashboard)).toHaveLength(1);
+  // Native recovery has precedence over preparation continuation. Even lost
+  // local preparation evidence must not cause a replacement native launch.
+  execFileSync("git", [
+    "-C",
+    workspace,
+    "update-ref",
+    "-d",
+    "refs/worktree/dough/preparation-assignment",
+  ]);
   await dashboard.close();
   native.completeOnResume = true;
   const restarted = await startDashboardServer({

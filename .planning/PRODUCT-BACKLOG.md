@@ -16,10 +16,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Choose workspace and automatic landing independently for lightweight refinement and execution](seeds/SEED-066-composable-lightweight-session-options.md#composable-lightweight-session-options) — SEED-066#composable-lightweight-session-options ([plan](slice-plans/191-composable-lightweight-session-options/PLAN.md))
 - [Complete Codex support for dashboard workflows and sessions](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard ([plan](slice-plans/192-complete-codex-dashboard-sessions/PLAN.md))
-- [Resolve remaining Codex refinement handoff and retry failures](seeds/SEED-067-codex-refinement-launch-reliability.md#resolve-codex-refinement-launch-failures) — SEED-067#resolve-codex-refinement-launch-failures ([plan](slice-plans/194-codex-refinement-handoff-retry/PLAN.md))
 
 ## Backlog list
 
+- [Keep older-installation retry proof independent of the current commit](seeds/SEED-067-codex-refinement-launch-reliability.md#pin-older-preparation-command-proof) — SEED-067#pin-older-preparation-command-proof
 - [Re-optimize CI feedback and test wall time after concurrent story branches land](seeds/SEED-070-reoptimize-ci-test-wall-time.md#reoptimize-ci-test-wall-time) — SEED-070#reoptimize-ci-test-wall-time
 - [Review dashboard architecture before adding more AI IDE tools](seeds/SEED-069-review-dashboard-multi-tool-architecture.md#review-dashboard-multi-tool-architecture) — SEED-069#review-dashboard-multi-tool-architecture
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
