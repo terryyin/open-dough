@@ -12,6 +12,7 @@
 # seed or by force-pushing a stale closure.
 run_substitute_admission_journeys() {
   local journey journey_host
+  prepare_substitute_hosts
   for journey in admission-investigation admission-continuation \
     admission-correction admission-closure; do
     for journey_host in codex claude; do

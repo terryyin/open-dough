@@ -10,8 +10,9 @@
 #
 # Default mode is credential-free: assessor counterexamples plus substitute
 # processes through the shared supervisor/stream/retention path; the one-shot
-# substitutes run in tests/git-publication-native-one-shot.sh and the
-# owned-context ones in tests/git-publication-native-owned-context.sh.
+# substitutes run in tests/git-publication-native-one-shot.sh, the
+# owned-context ones in tests/git-publication-native-owned-context.sh, and the
+# admission ones in tests/git-publication-native-admission.sh.
 # --native HOST launches a fresh host session against an installed publication
 # candidate.
 # shellcheck disable=SC2312
