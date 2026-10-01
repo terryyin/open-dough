@@ -33,6 +33,7 @@ import {
 const endings = {
   disconnected: { says: "Disconnected from the session", action: "Reconnect" },
   ended: { says: "The terminal ended", action: "Open again" },
+  failed: { says: "The session could not be attached", action: "Reconnect" },
 } as const;
 
 export function TerminalPanel({

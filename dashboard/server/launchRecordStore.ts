@@ -1,72 +1,19 @@
-// This machine's launch records (`../src/agentLaunch.ts`), kept for the local
-// launch boundary (`./agentLaunches.ts`) in one file outside every repository:
-// `~/.open-dough/dashboard/agent-launches.json`, resolved through `HOME` like
-// `./projectFolders.ts`. One JSON document holds each catalog project's
-// records by project id. Every read and write reads the file afresh, so each
-// dashboard server on this machine -- dev and preview alike -- sees every
-// launch. A write adds a launch, sets or clears a kept session's done time,
-// or deletes a kept session.
-// A record not marked done is kept however long ago it was launched. A record
-// marked done more than `launchRetentionDays` before a read is not answered,
-// and a write drops it. The file is read afresh, replaced atomically, and
-// moved aside when unreadable as `./machineJsonStore.ts` describes.
-
+// Public launch/creation record operations use one machine document and retention rule.
 import { sameLaunch } from "../src/launchRequest.ts";
-import { creationSchema, type CreationRecord } from "../src/launchCreation.ts";
+import { type CreationRecord } from "../src/launchCreation.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
-import { homedir } from "node:os";
-import path from "node:path";
-import { z } from "zod";
+import type { LaunchRecord } from "../src/agentLaunch.ts";
 import {
-  launchRecordSchema,
-  launchRetentionDays,
-  type LaunchRecord,
-} from "../src/agentLaunch.ts";
-import {
-  readMachineJson,
-  replaceMachineJson,
-  type MachineJsonStore,
-} from "./machineJsonStore.ts";
-
-const retentionMs = launchRetentionDays * 24 * 60 * 60 * 1000;
-
-const storeSchema = z.record(
-  z.string(),
-  z.array(z.union([launchRecordSchema, creationSchema])),
-);
-
-type StoredRecords = z.infer<typeof storeSchema>;
-
-function launchStore(): MachineJsonStore<StoredRecords> {
-  return {
-    file: path.join(
-      homedir(),
-      ".open-dough",
-      "dashboard",
-      "agent-launches.json",
-    ),
-    schema: storeSchema,
-    empty: {},
-  };
-}
-
-function withinRetention(
-  records: readonly (LaunchRecord | CreationRecord)[],
-  now: number,
-): (LaunchRecord | CreationRecord)[] {
-  return records.filter(
-    (record) =>
-      !("session" in record) ||
-      record.doneAt === undefined ||
-      now - Date.parse(record.doneAt) <= retentionMs,
-  );
-}
+  readStoredRecords,
+  replaceRecords,
+  withinRetention,
+} from "./launchRecordDocument.ts";
 
 // Every project's records still kept, by project id, each oldest first.
 export async function keptRecordsByProject(): Promise<
   ReadonlyMap<string, readonly LaunchRecord[]>
 > {
-  const read = await readMachineJson(launchStore());
+  const read = await readStoredRecords();
   if (read.kind === "unreadable") {
     return new Map();
   }
@@ -86,24 +33,6 @@ export async function keptRecords(
   sourceId: string,
 ): Promise<readonly LaunchRecord[]> {
   return (await keptRecordsByProject()).get(sourceId) ?? [];
-}
-
-// Rewrites the kept records with `change` applied to them. Records past
-// retention are dropped first.
-async function replaceRecords(
-  change: (kept: StoredRecords) => StoredRecords,
-): Promise<void> {
-  await replaceMachineJson(launchStore(), (stored) => {
-    const now = Date.now();
-    const kept: StoredRecords = {};
-    for (const [id, records] of Object.entries(stored)) {
-      const retained = withinRetention(records, now);
-      if (retained.length > 0) {
-        kept[id] = retained;
-      }
-    }
-    return change(kept);
-  });
 }
 
 // Keeps one known conversation and its first-input evidence, replacing any
@@ -133,6 +62,10 @@ export async function setRecordDoneAt(
   sourceId: string,
   session: SessionReference,
   doneAt: string | undefined,
+  options: {
+    readonly doneProblem?: string;
+    readonly expectedDoneAt?: string;
+  } = {},
 ): Promise<LaunchRecord | undefined> {
   let changed: LaunchRecord | undefined;
   await replaceRecords((kept) => {
@@ -149,9 +82,26 @@ export async function setRecordDoneAt(
         ) {
           return record;
         }
+        if (
+          options.expectedDoneAt !== undefined &&
+          record.doneAt !== options.expectedDoneAt
+        ) {
+          changed = record;
+          return record;
+        }
         const next: LaunchRecord = { ...record };
         delete next.doneAt;
-        changed = doneAt === undefined ? next : { ...next, doneAt };
+        delete next.doneProblem;
+        changed =
+          doneAt === undefined
+            ? next
+            : {
+                ...next,
+                doneAt,
+                ...(options.doneProblem === undefined
+                  ? {}
+                  : { doneProblem: options.doneProblem }),
+              };
         return changed;
       }),
     };
@@ -197,7 +147,12 @@ export async function updateRecord(
       )
         return entry;
       updated = true;
-      return record;
+      // Native lifecycle evidence never clears newer local done/reopen intent.
+      return {
+        ...record,
+        doneAt: entry.doneAt,
+        doneProblem: entry.doneProblem,
+      };
     }),
   }));
   return updated;
@@ -208,7 +163,7 @@ export async function updateRecord(
 export async function creationOf(
   request: LaunchRecord["request"],
 ): Promise<CreationRecord | "unreadable" | undefined> {
-  const read = await readMachineJson(launchStore());
+  const read = await readStoredRecords();
   if (read.kind === "unreadable") return "unreadable";
   return read.document[request.source]?.find(
     (entry): entry is CreationRecord =>
@@ -239,7 +194,7 @@ export async function removeCreation(
 }
 
 export async function keptCreations(): Promise<CreationRecord[]> {
-  const read = await readMachineJson(launchStore());
+  const read = await readStoredRecords();
   return read.kind === "unreadable"
     ? []
     : Object.values(read.document)

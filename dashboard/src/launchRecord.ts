@@ -99,6 +99,8 @@ export const launchRecordSchema = z.object({
   launchedAt: z.iso.datetime(),
   firstInput: firstInputSchema.optional(),
   doneAt: z.iso.datetime().optional(),
+  // Native operations may fail even though local done intent was retained.
+  doneProblem: z.string().max(1_200).optional(),
 });
 
 export type LaunchRecord = z.infer<typeof launchRecordSchema>;

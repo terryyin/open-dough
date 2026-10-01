@@ -101,7 +101,9 @@ export async function stopClaude(
   folder: ProjectFolder,
   signal: AbortSignal,
 ): Promise<void> {
-  await execClaude(["stop", shortId], folder, signal);
+  const result = await execClaude(["stop", shortId], folder, signal);
+  if (result.error !== null || signal.aborted)
+    throw new Error("The native stop could not be confirmed.");
 }
 
 // Claude Code's own session listing: `--all` includes sessions whose process

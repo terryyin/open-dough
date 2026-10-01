@@ -4,7 +4,7 @@
 - [Planning context](CONTEXT.md): source/preparation, outcome/boundaries, architecture/PFE, decisive premises, proof ownership and verification/sizing.
 - [Native acceptance story](CONTEXT.md#native-acceptance-story) remains part of this plan.
 - [Execution state and accepted native observations](EXECUTION.md): retained identity/CI observer, accepted slice 1 proof and consequential learning.
-- [Embedded lifecycle proof](LIFECYCLE.md): slice 4 and native readiness/blank materialization follow-up.
+- [Embedded lifecycle proof](LIFECYCLE.md): slices 4–5 and native readiness/blank materialization follow-up.
 
 ## Ordered slices
 
@@ -124,7 +124,7 @@ Safe stop: embedded Codex interaction works before adding done controls.
 
 Type: Behavior
 
-Status: todo
+Status: done
 
 Precondition: recorded active or completed session, optionally attached.
 Trigger: Mark as done, reload, then Open terminal.

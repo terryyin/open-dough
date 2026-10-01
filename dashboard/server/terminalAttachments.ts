@@ -3,6 +3,7 @@ import type { IPty } from "@lydell/node-pty";
 import type { RawData, WebSocket } from "ws";
 import {
   terminalEndedCode,
+  terminalAttachFailedCode,
   terminalMessageSchema,
   type TerminalMessage,
 } from "../src/agentTerminal.ts";
@@ -13,7 +14,6 @@ import type { TerminalSession } from "./agentTerminals.ts";
 
 const initialSize = { cols: 80, rows: 24 } as const;
 const notTerminalMessage = 1008;
-const attachFailed = 1011;
 
 function terminalMessage(
   data: RawData,
@@ -56,7 +56,7 @@ export class TerminalAttachments {
       readiness = attachment.ready;
     } catch {
       ws.close(
-        attachFailed,
+        terminalAttachFailedCode,
         `${host?.name ?? session.session.host} could not be attached.`,
       );
       return;
@@ -87,7 +87,7 @@ export class TerminalAttachments {
       if (this.attached.delete(pty)) {
         void reopened.then(() => {
           ws.close(
-            ready ? terminalEndedCode : attachFailed,
+            ready ? terminalEndedCode : terminalAttachFailedCode,
             ready
               ? "The terminal ended."
               : `${host.name} could not be attached.`,

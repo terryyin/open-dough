@@ -12,7 +12,7 @@ export function embeddedTerminal(host: SessionReference["host"]): boolean {
   return host === "claude" || host === "codex";
 }
 export function marksDone(host: SessionReference["host"]): boolean {
-  return host === "claude";
+  return host === "claude" || host === "codex";
 }
 export function shellCommand(args: readonly string[]): string {
   return args.map((part) => `'${part.replaceAll("'", "'\\''")}'`).join(" ");

@@ -1,6 +1,6 @@
 // A predecessor Claude record and another host's equal opaque ID remain
 // distinct across machine reads and host-qualified actions. No Codex runtime
-// is substituted: its observation/control capabilities are not delivered yet.
+// is substituted: the older Codex record has no saved native endpoint.
 import {
   mkdirSync,
   mkdtempSync,
@@ -22,7 +22,7 @@ import {
   builtDashboardDir,
   startDashboardServer,
 } from "./support/dashboardServer.ts";
-import { rawRequest } from "./support/rawHttp.ts";
+import { openCodexTerminal } from "./support/codexTerminal.ts";
 
 const sessionId = "same-native-conversation-id";
 
@@ -62,8 +62,7 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
     projectFolders: ["open-dough"],
   });
   try {
-    // Only the host that supports observation is listed; no observation of
-    // the other conversation means unknown, never unlisted.
+    // The predecessor Codex record has no endpoint, so its observation stays unknown.
     expect(await recordsOf(server, "open-dough")).toEqual([
       { ...oldClaude, sessionState: { kind: "unavailable" } },
       { ...other, sessionState: { kind: "unknown" } },
@@ -74,18 +73,16 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
       session: sessionId,
       host: "codex",
     });
-    expect(done.status).toBe(400);
-    const terminal = await rawRequest({
-      url: `${server.baseURL}/__agent-terminal?source=open-dough&session=${sessionId}&host=codex`,
-      headers: {
-        Origin: server.origin,
-        Connection: "Upgrade",
-        Upgrade: "websocket",
-        "Sec-WebSocket-Version": "13",
-        "Sec-WebSocket-Key": "dGhlIHNhbXBsZSBub25jZQ==",
-      },
+    expect(done.status).toBe(200);
+    const otherMarked = (JSON.parse(done.body) as { record: unknown }).record;
+    expect(otherMarked).toMatchObject({
+      ...other,
+      doneAt: expect.any(String),
+      doneProblem: expect.stringContaining("Saved native endpoint is missing"),
+      sessionState: { kind: "unknown" },
     });
-    expect(terminal.status).toBe(400);
+    const terminal = await openCodexTerminal(server, sessionId);
+    expect(await terminal.closed).toBe(1011);
     expect(server.claudeCalls()).toHaveLength(before);
     expect(server.claudeAttaches()).toEqual([]);
 
@@ -100,7 +97,13 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
     )["open-dough"] as unknown[];
     expect(marked).toEqual([
       expect.objectContaining({ ...oldClaude, doneAt: expect.any(String) }),
-      other,
+      expect.objectContaining({
+        ...other,
+        doneAt: expect.any(String),
+        doneProblem: expect.stringContaining(
+          "Saved native endpoint is missing",
+        ),
+      }),
     ]);
     expect(readdirSync(path.dirname(storeFile))).toEqual([
       "agent-launches.json",

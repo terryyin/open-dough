@@ -26,12 +26,12 @@ export const markDoneRequestSchema = z.strictObject({
 });
 
 // The answer to a done mark: the marked record, with its session's state
-// once stopped.
+// after the attempted native operations; the local mark is independent.
 export const markDoneAnswerSchema = z.object({ record: launchWithStateSchema });
 
 // The name Mark as done gives a session: its launch name with the `done-`
-// prefix, in Claude Code when the rename is confirmed there and always in the
-// dashboard's own record.
+// prefix. The original base name remains in the record; operation failures
+// display the intended name rather than claim a confirmed native rename.
 export function doneSessionName(session: Pick<HostSession, "name">): string {
   return `done-${session.name}`;
 }

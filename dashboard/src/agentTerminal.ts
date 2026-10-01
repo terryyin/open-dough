@@ -14,6 +14,8 @@ export const agentTerminalEndpoint = "/__agent-terminal";
 
 // A WebSocket close code in the range RFC 6455 leaves to applications.
 export const terminalEndedCode = 4000;
+// Native attachment failed before readiness; the existing done intent remains.
+export const terminalAttachFailedCode = 1011;
 
 // Binary control frames never become native terminal output.
 export const terminalReadinessSchema = z.strictObject({

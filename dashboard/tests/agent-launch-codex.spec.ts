@@ -94,7 +94,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     codex.getByRole("button", { name: "Open terminal" }),
   ).toHaveCount(1);
   await expect(codex.getByRole("button", { name: "Mark as done" })).toHaveCount(
-    0,
+    1,
   );
   expect(native.calls.filter((call) => call.method === "thread/start")).toEqual(
     [
@@ -150,11 +150,11 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     (
       await markDone(dashboard, {
         source: "open-dough",
-        session: native.threadId,
+        session: "unrecorded-codex-thread",
         host: "codex",
       })
     ).status,
-  ).toBe(400);
+  ).toBe(404);
   expect(dashboard.claudeCalls()).toHaveLength(before);
   const command = await codex
     .locator("code")

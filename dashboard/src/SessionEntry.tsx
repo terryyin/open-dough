@@ -78,7 +78,13 @@ export function SessionEntry({
       </p>
       {markedDone && (
         <p>
-          Named <code>{doneSessionName(record.session)}</code>
+          {record.doneProblem === undefined ? "Named" : "Intended name"}{" "}
+          <code>{doneSessionName(record.session)}</code>
+        </p>
+      )}
+      {record.doneProblem !== undefined && (
+        <p role="status" className="launch-problem">
+          {record.doneProblem}
         </p>
       )}
       <LaunchSession record={record} />

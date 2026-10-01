@@ -6,6 +6,7 @@ import type { LaunchRecord } from "./agentLaunch.ts";
 import {
   agentTerminalEndpoint,
   terminalEndedCode,
+  terminalAttachFailedCode,
   terminalReadinessSchema,
   type TerminalMessage,
 } from "./agentTerminal.ts";
@@ -22,7 +23,7 @@ function terminalUrl(record: LaunchRecord): string {
 }
 
 // Why the panel's attachment is no longer open, if it is not.
-export type TerminalEnding = "disconnected" | "ended";
+export type TerminalEnding = "disconnected" | "ended" | "failed";
 
 // Attaches a terminal in `element` to the session while it is mounted, anew
 // for each `attempt`, reports once each attachment is ready, and
@@ -122,7 +123,13 @@ export function useAttachedTerminal(
     let current = true;
     socket.addEventListener("close", (event) => {
       if (current) {
-        onEnded(event.code === terminalEndedCode ? "ended" : "disconnected");
+        onEnded(
+          event.code === terminalEndedCode
+            ? "ended"
+            : event.code === terminalAttachFailedCode
+              ? "failed"
+              : "disconnected",
+        );
       }
     });
     const typed = terminal.onData((input) => {

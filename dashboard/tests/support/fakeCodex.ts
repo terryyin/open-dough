@@ -5,6 +5,7 @@ import path from "node:path";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { WebSocketServer, type WebSocket } from "ws";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
+import { answerCodexControl } from "./fakeCodexControl.ts";
 import { passiveCodexFixture } from "./fakeCodexObservation.ts";
 import type { FakeCodex } from "./fakeCodexTypes.ts";
 export type {
@@ -44,6 +45,7 @@ export async function installFakeCodex(
     calls: [],
     sockets,
     observations: passive.observations,
+    names: new Map(),
     releaseReads() {
       passive.releaseReads();
     },
@@ -109,6 +111,17 @@ export async function installFakeCodex(
           message.method,
           message.params ?? {},
           fixture.history,
+          reply,
+          refuse,
+        )
+      )
+        return;
+      if (
+        answerCodexControl(
+          fixture,
+          message.method,
+          message.params ?? {},
+          waiting,
           reply,
           refuse,
         )

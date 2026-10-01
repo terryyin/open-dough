@@ -10,6 +10,18 @@ import type {
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { Established } from "./startLaunch.ts";
 
+// A host's bounded diagnostic safe to retain beside local operation intent.
+export class HostOperationFailure extends Error {
+  constructor(message: string) {
+    super(
+      message
+        .replace(/\p{Cc}/gu, " ")
+        .trim()
+        .slice(0, 500),
+    );
+  }
+}
+
 // An observation of one recorded host-qualified native target.
 export type SessionObservation = {
   readonly session: HostSession;

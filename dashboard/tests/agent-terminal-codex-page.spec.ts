@@ -70,7 +70,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   await expect(rows).toContainText("Hooks need review");
   expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
   await expect(panel.getByRole("button", { name: "Mark as done" })).toHaveCount(
-    0,
+    1,
   );
   await panel.locator(".xterm-screen").click();
   await page.keyboard.press("Escape");

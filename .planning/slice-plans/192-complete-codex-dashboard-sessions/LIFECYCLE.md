@@ -105,3 +105,90 @@ All four owned CLI PIDs (27917,8251,36137,18968) were absent and driver commands
 had terminal outcomes. Native histories stay vendor-owned; judged disposable
 fixture and root research files were removed. Structured native waiting under
 never and active launch-connection ownership remain slice 8 requirements.
+
+## Slice 5 — done and successful reopen accepted
+
+Codex now uses the shared done capability and orchestration. Native helpers
+rename the saved thread and interrupt one observed nonempty in-progress turn ID;
+idle/notLoaded or completed latest history requires no invented interrupt.
+No retry targets a newer turn. Closing attachments remains client detachment.
+Local done intent is saved before native operations; optional bounded
+`doneProblem` survives reload independently of current native activity. Failure
+shows the intended name rather than a confirmed rename. Failed readiness keeps
+intent; successful original-ID readiness clears mark and diagnostic.
+
+The conditional diagnostic write requires this operation's still-current
+`doneAt`, so a late refusal cannot undo successful reopening. Native lifecycle
+updates preserve current local fields, while updates/deferred failures cannot
+insert deleted records. Claude's existing stop subprocess error now reaches
+shared orchestration as a fixed diagnostic; raw subprocess details stay private.
+The shared terminal failure code now presents failed attachment with Reconnect.
+
+Accepted observable proof, inspected by the coordinator:
+
+- agent-launch-done-codex.spec: actual HTTP/store plus optional WS/PTY;
+  active/idle/notLoaded with/without attachment, exact rename/interrupt arguments,
+  retained history, no slash input, all owned PTYs detached/absent; origin and
+  unknown-record refusal precede native calls, missing endpoint remains unknown.
+- agent-launch-done-codex-races.spec: native rename/stop refusal, completed or
+  unreadable latest turn, exactly one old-ID request while a newer turn starts;
+  current native Working remains truthful. Shared Claude failing stop retains
+  intent and Working without raw stderr.
+- agent-launch-done-codex-intent.spec: pending HTTP done plus WS readiness clears
+  intent before late refusal; native disconnect callback retains current local
+  intent; operation finishing after actual record deletion leaves storage empty.
+- agent-terminal-done-codex-page.spec: actual card/panel actions and reload;
+  active attached/completed unattached done, failed attach retains timestamp,
+  original-ID successful reopen restores card membership without new thread/input;
+  refusal stays Working with diagnostic through hooks review until readiness.
+- agent-terminal-done-codex-boundary.spec: two actual Codex PTYs and a Claude PTY
+  sharing an opaque ID; Codex done closes both Codex attachments while Claude
+  remains unmarked, Working and able to answer terminal input.
+- agent-launch-host-identity.spec: predecessor store decoding/missing endpoint,
+  actual WS1011 without Claude fallback, omitted-host Claude-only action and
+  Codex-only deletion. Current launch-recording updateRecord consumers include
+  confirmation/recovery/reconciliation/lifetime; their proof remains in selection.
+
+The initial combined proof had one obsolete predecessor capability expectation
+(400 instead of the newly supported 200). Its corrected check passed. An
+accidental duplicate file initially supplied no all-attachments proof: that
+claim was retracted, actual content inspected and its corrected check passed.
+The independent refactor then reran the complete affected selection successfully.
+
+Native targeted-interrupt contract was independently checked against matching
+CLI/daemon 0.159.3 primary source:
+[turn_interrupt_inner](https://github.com/openai/codex/blob/rust-v0.159.3/codex-rs/app-server/src/request_processors/turn_processor.rs#L1598)
+rejects mismatched nonempty active IDs and completed/no-active targets; an empty
+ID instead requests untargeted startup interruption and is never used here.
+[Vendor tests](https://github.com/openai/codex/blob/rust-v0.159.3/codex-rs/app-server/tests/suite/v2/turn_interrupt.rs#L109)
+assert mismatch code -32600/message; completed-turn refusal is checked at line
+196. This establishes request-boundary validation, not stronger internal atomicity.
+Our race substitute uses that refusal and verifies no retry/new-turn stop.
+The coordinator-owned disposable source copies were removed after judgment.
+
+Fresh refactoring extracted launchRecordDocument's existing schema/location/
+retention/atomic replacement, fakeCodexControl's native reply group and the
+asynchronous local-intent proof group. Public operations, native semantics,
+page behavior and assertions stayed unchanged; moved proof was inspected.
+
+Accepted commands (all terminal exit 0 after refactoring):
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npx --no-install playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-done-codex.spec.ts dashboard/tests/agent-launch-done-codex-races.spec.ts dashboard/tests/agent-launch-done-codex-intent.spec.ts dashboard/tests/agent-terminal-done-codex-page.spec.ts dashboard/tests/agent-launch-done.spec.ts dashboard/tests/agent-launch-done-stop.spec.ts dashboard/tests/agent-launch-done-refusal.spec.ts dashboard/tests/agent-terminal-done.spec.ts dashboard/tests/agent-terminal-done-reopen.spec.ts dashboard/tests/agent-terminal-reopen.spec.ts dashboard/tests/agent-launch-card-done.spec.ts dashboard/tests/agent-launch-delete.spec.ts dashboard/tests/agent-terminal-codex.spec.ts dashboard/tests/agent-terminal-codex-page.spec.ts dashboard/tests/agent-terminal-codex-close.spec.ts dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-codex-lifetime.spec.ts dashboard/tests/agent-launch-codex-recovery.spec.ts dashboard/tests/agent-launch-codex-reconciliation.spec.ts dashboard/tests/agent-launch-codex-confirmation.spec.ts dashboard/tests/agent-launch-codex-creation.spec.ts dashboard/tests/agent-launch-codex-options.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts dashboard/tests/agent-launch-start-taken.spec.ts dashboard/tests/agent-launch-host-identity.spec.ts dashboard/tests/agent-launch-records.spec.ts dashboard/tests/session-alerts.spec.ts dashboard/tests/session-alerts-unavailable.spec.ts dashboard/tests/agent-terminal-boundary.spec.ts dashboard/tests/agent-terminal-done-codex-boundary.spec.ts > /tmp/dough192-slice5-refactor-proof.log 2>&1
+npm run typecheck:dashboard > /tmp/dough192-slice5-refactor-typecheck.log 2>&1
+git diff --check
+```
+
+Formatter reported mechanical callback-binding, fixture parameter-alias and
+JSON assertion typing findings. Coordinator repairs preserved observation and
+native semantics, then the affected checks and typecheck passed again:
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npx --no-install playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-done-codex.spec.ts dashboard/tests/agent-launch-done-codex-races.spec.ts dashboard/tests/agent-launch-done-codex-intent.spec.ts dashboard/tests/agent-terminal-done-codex-page.spec.ts dashboard/tests/agent-terminal-done-codex-boundary.spec.ts dashboard/tests/agent-launch-done-stop.spec.ts dashboard/tests/agent-launch-done-refusal.spec.ts > /tmp/dough-192-done-mechanical-proof.log 2>&1
+npm run typecheck:dashboard > /tmp/dough-192-done-mechanical-typecheck.log 2>&1
+npm run format > /tmp/dough-192-done-final-format.log 2>&1
+```
+
+All terminal exit 0; changed files <=250 after formatting (fakeCodex exactly250).
+Native complete-dashboard/structured waiting acceptance remains slice 8;
+substitutions do not establish that result. No readiness renewal. Slice 6 is next.

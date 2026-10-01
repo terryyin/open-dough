@@ -16,6 +16,10 @@ export type FakeCodex = {
   readonly calls: CodexCall[];
   readonly sockets: Set<WebSocket>;
   readonly observations: Map<string, FakeCodexObservation>;
+  readonly names: Map<string, string>;
+  renameError?: unknown;
+  interruptError?: unknown;
+  beforeInterrupt?: (threadId: string, turnId: string) => void;
   releaseReads(): void;
   threadId: string;
   hold: boolean;
