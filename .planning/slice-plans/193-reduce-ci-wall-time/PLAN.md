@@ -73,6 +73,7 @@ Reduce GitHub Actions CI critical-path wall time to under 2.5 minutes (150 secon
 - **Stopping point:** Dashboard CI job is parallelized to 4 shards with caching configured and verified.
 
 ### Slice 2: Parallelize unit and shell test matrix shares and refresh `longest-first`
+- **Status:** done
 - **Kind:** Behavior / Structure
 - **Goal:** Update `.github/workflows/ci.yml` test matrix from 2 shares to 3 shares (`share: [1, 2, 3]`), and refresh `tests/longest-first` with recent CI timings so the longest jobs are distributed evenly across the shares.
 - **Scope:**
@@ -82,8 +83,10 @@ Reduce GitHub Actions CI critical-path wall time to under 2.5 minutes (150 secon
   - In `tests/longest-first`:
     - Incorporate recorded timings from latest CI runs (`test-times-1` and `test-times-2`) so jobs running > 3s start at the front of the round-robin distribution.
 - **Proof:**
-  - Verify `OPEN_DOUGH_TEST_SPLIT=1/3`, `2/3`, `3/3` partitioning with `scripts/test-jobs.sh`.
-  - Confirm round-robin assignment places the top 3 longest jobs (`tests/git-publication-native.sh`, `src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs`, `tests/native-evidence-identity.sh`) into separate shares.
+  - Verified 3-way partition of all 250 test jobs across shares `1/3`, `2/3`, `3/3` into 84, 83, 83 tests with exactly 0 duplicates.
+  - Verified top 3 longest jobs (`tests/git-publication-native.sh`, `src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs`, `tests/native-evidence-identity.sh`) are assigned to separate shares (1, 2, 3).
+  - Verified `tests/ci-container.sh` and `npm run lint` pass cleanly with exit code 0.
+- **Learnings:** `tests/ci-container.sh` enforces exact equality between `ci.yml` dashboard `run:` commands and `scripts/ci-container.sh` stated commands; steps without `run:` lines (like `actions/cache`) remain compliant.
 - **Stopping point:** Unit and shell test runner is parallelized across 3 shares with refreshed longest-first balancing.
 
 ### Slice 3: Apply `dough-test-optimization` to the slowest shell test family (`tests/git-publication-native*.sh`)
