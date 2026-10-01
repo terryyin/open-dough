@@ -25,7 +25,7 @@ and further tools.
 
 **Identity:** SEED-069#review-dashboard-multi-tool-architecture
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/199-review-dashboard-multi-tool-architecture/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"85db38678981465c5ed64f2a08810a7c63b3ba7b0263fb1b8e8f5ea1b85edf3c","plan":"394f35789f8961be557c92a63f947c42c5c058670cbee68f747a422ea5e425e6"}}
 ```
 
 **Goal:** Give Terry, as the dashboard maintainer, an evidence-backed review of
@@ -52,10 +52,18 @@ multi-tool dashboard is the broader ambition it serves.
   code and behavior, from Cursor questions that only native Cursor evidence can
   settle. Do not presume Cursor shares either host's native capabilities
   ([ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)).
+- **Required:** Assess the browser test suite's per-host spec families the
+  same way: which tests prove shared behavior once and which prove a host's
+  native difference, and what Cursor would have to copy
+  ([ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) §2).
+- **Required:** Correct the maintained launch documentation
+  (`dashboard/AGENT-LAUNCH.md`) wherever the review finds it misdescribes the
+  current host boundary. Report whether any ADR needs an update; propose one
+  only for a decision that affects general-purpose agents.
 - **Required:** Revise the North Star's
   [agent-launch topic](../NORTH-STAR.md#agent-launch-as-a-requested-assignment)
   to the reviewed multi-host direction: retire what the code now realizes and
-  keep only the unbuilt direction the review recommends.
+  keep only the unbuilt direction Terry selects from the recommendations.
 - **Required:** Present the ranked recommendations to Terry. For each one Terry
   selects, record a canonical story in a suitable seed and queue it ahead of
   Cursor; record no story for a recommendation Terry declines.
