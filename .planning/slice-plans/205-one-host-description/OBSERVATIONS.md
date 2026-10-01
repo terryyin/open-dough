@@ -225,3 +225,15 @@ Only the three authorized workspace-test arguments changed; every assertion rema
   journeys, passed. `npm run typecheck:dashboard` passed; includes server/tests.
   Playwright built the production browser. No native acceptance is claimed.
 - Selective Prettier formatting completed, followed by check-only commit gate.
+
+Slice 3 published: `09d5d98a2a031fbc932a46aff7c0ebb5694fe012`, accepted on
+`origin/refs/heads/codex/shared-dashboard-code-reads-one-host-description`;
+no reconciliation, maintenance not applicable, initially unobserved CI.
+
+Retrospective manifest: claim `7f2ce02e` is provenance; related implementation
+is exactly `b6f2cb65`, `4e623e37`, `09d5d98a`. Reviewed aggregate source,
+original story/plan, compatibility, all current consumers and suite cost/coverage;
+no product corrections or Accepted-ADR conflicts found. New client tests preceded
+failure-branch edits; existing integrated journeys preserve their assertions.
+Process review updated the existing DD-201 with this execution's bridge gap and
+recovered yielded startup route. No backlog changes or new correction plan.

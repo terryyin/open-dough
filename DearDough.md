@@ -567,6 +567,14 @@ Follow-up: Open, unqueued. Provide one supported managed-delivery-to-yielded-str
   - Observed effect: one observer covered both branch increments without creating a detached second observer. Existing startup-before-first-publication wording supplied a usable route for this established claim; ordinary managed delivery still has no existing-directory stream attachment argument.
   - Inference: this successful startup route limits the earlier conclusion: host primitives can provide coverage when a yielded stream is established first. A single documented managed-to-stream connection would avoid the coordinator's extra adapter-source investigation.
 
+- Execution: `SEED-075#one-host-description` / plan 205, first related implementation commit `b6f2cb651d8a9d23fa632e77b79fa83e9c184259`
+  - Timestamp: unknown (2026-10-01, first three increment publications before retrospective)
+  - Tool: Codex
+  - Open Dough release: 0.3.52 (unchanged installed `dough-update/VERSION` in the established execution checkout)
+  - Evidence: retained managed receipts for `b6f2cb65`, `4e623e37` and `09d5d98a` accepted execution-branch publication with CI unobserved and no mailbox. Same installed detached-start/yielded-new-mailbox split as above. Retrospective read the preceding successful plan-204 occurrence and started the documented single yielded observer `/tmp/dough-ci-501/watch-5nR8V5` (cell 69, session 89374, PID 24205) before completion publication; managed reuse and final coverage are pending at this record write.
+  - Observed effect: all three slices passed local proof and publication, including 704 dashboard tests, but their receipts lacked notification coverage. A prior supported startup route was recovered during review; one observer is now live for the completion boundary.
+  - Inference: the attachment-seam ambiguity caused another initial coverage gap; existing successful startup evidence limits any conclusion that available host primitives cannot cover this execution. Document one clear startup/reuse route and consult that evidence before declaring coverage unavailable. No guidance/runtime repair is authorized here.
+
 ## DD-202 — Interrupted proof commands left preview servers outside the cleanup check
 
 Manually stopped browser proof commands left their preview children alive. A process-name check for the disposable fixture missed them because their argv named the shared dashboard dist directory rather than that fixture.

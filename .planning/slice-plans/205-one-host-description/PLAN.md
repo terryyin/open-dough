@@ -27,7 +27,12 @@ preparation history, not this execution.
   `npm run typecheck:dashboard` passed against the current lockfile.
 - Replanning retains existing planning authority; no new scope or hard limit.
 - CI source: GitHub Actions, selected workflow `ci.yml`; claim's trunk CI
-  is unobserved. Managed increment delivery owns observer establishment and registration.
+  is unobserved. The first three increment receipts also report unobserved CI.
+  Retrospective recovered the prior supported yielded-stream startup route;
+  completion publication will reuse its observer through managed delivery.
+- Observer: `/tmp/dough-ci-501/watch-5nR8V5`, coordinator `/root`, cell 69,
+  session 89374, PID 24205, same execution checkout and execution-branch target;
+  GitHub `ci.yml` (verified display name `CI`), no other observer started.
 
 ## Goal and scope
 
@@ -232,3 +237,9 @@ The current seed and plan agree, the three slices remain bounded with mapped
 proof, and the decisive current-behavior premises have been observed. No blocking
 concern remains. Readiness is recorded through the canonical story-state
 recorder; execution still requires a separate instruction.
+
+## Execution complete
+
+Product advice: After this branch is integrated through story wrap-up, reassess
+`SEED-075#host-neutral-session-meaning` against the delivered description, then
+keep the existing Cursor-work priority. No implementation correction was found.
