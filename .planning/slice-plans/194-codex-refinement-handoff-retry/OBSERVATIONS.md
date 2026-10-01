@@ -102,7 +102,7 @@ was announced solely on its disposable local bare origin. CLI/shared daemon
 are 0.159.3; configured model/policy and existing daemon remain unchanged.
 Probe exercises production launchCodex/input/RPC/conversation with an
 attempt-local durable writer; HTTP/browser and machine store are omitted.
-Native launch is held until slice 2 delivery. Setup evidence and owned harness
+Native launch ran after slice 2 delivery. Setup evidence and owned harness
 are in `/tmp/dough-194-native-2UViTC`; incomplete native evidence remains active.
 
 ## Slice 2 accepted proof
@@ -132,3 +132,36 @@ unchanged; reviewed preparingJourney/launchJourney, one-shot fixtures and
 native owned-context consumers retain those commands. This CLI continuation
 operation does not change skill discovery/invocation/native activation.
 Slice 1/3 native desktop acceptance remains separate and pending.
+
+## Slice 1 native observation — desktop proof pending
+
+Candidate `f5500724cd937250c74dd5964f27c486dd655d5a`; actual command
+`node --experimental-transform-types /tmp/dough-194-native-2UViTC/launch.mjs`.
+Production native launch/input/RPC/lifetime consumed the released installed
+skill and its established preparation; an attempt-local writer preserved exact
+first-input evidence. HTTP/browser and the machine store were not exercised.
+Configured gpt-6.1-sol/high, approval never and danger-full-access were read,
+not overridden. Shared daemon/CLI 0.159.3 were neither restarted nor stopped.
+
+Original thread `01a0f5f1-579e-7810-929b-fd5d878e05a9`, original confirmed turn
+`01a0f5f1-582f-7932-b914-3e7317ec5e0c`. Active at 13:30:29 Singapore on
+2026-10-01; completed at 13:31:22 after actual skill/project/seed reads, asking
+whether export includes all items or only unfinished items. It asked in ordinary
+final prose; no structured approval/input wait was observed. Production client
+naturally closed at 13:31:22.965. No coordinator unsubscribe, explicit close,
+interruption, policy change, replay or replacement thread occurred.
+
+Coordinator inspected `launch-record.json` and native
+`history-1790832720718.json`: same thread, idle status, completed original turn,
+intact commands/final question and the durably confirmed first input. Native
+evidence proves completion-driven release/history continuity, not desktop
+active usability or final-client detachment during an active turn.
+
+Terry was sent the original link immediately and asked to report active desktop
+read/input behavior and answer the completed question in that original chat.
+That report/answer remains pending. No speculative native lifetime repair is
+accepted; slices 1/3 remain unfinished. Raw incomplete evidence/clean fixture
+remain under `/tmp/dough-194-native-2UViTC`. A single final read preserved in
+`history-1790833122551.json` found no desktop answer/new turn; original history
+was intact and status was `notLoaded`. Owned harness TTY 66963/PID 87388 then
+exited 0 after `exit`; the shared daemon and original chat remain available.

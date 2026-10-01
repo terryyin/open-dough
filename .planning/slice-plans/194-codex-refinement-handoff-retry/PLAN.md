@@ -17,6 +17,8 @@
   `origin/main` as `3dc604a93aee5bd2b926329e9b682faacd747732`; execution branch
   published at that Take. Increment target is separately
   `origin/refs/heads/codex/codex-refinement-handoff-retry`.
+- Slice 2 accepted revision: `f5500724cd937250c74dd5964f27c486dd655d5a`
+  on that execution-branch target; managed delivery reused the recorded observer.
 - Exact checkout setup: `npm ci`, then `npm run typecheck:dashboard`, both
   exited 0. Hook is check-only `npm run --silent lint -- --staged`;
   coordinator selectively formats changed source with installed Prettier.
@@ -87,7 +89,7 @@ Read [the recorded observations](OBSERVATIONS.md#decisive-premises-and-observati
 
 Type: Behavior
 
-Status: planned
+Status: in progress — authorized native probe; desktop observation pending.
 
 Behavior: in a fresh isolated target project with released installed guidance,
 start a small native dashboard refinement under the current configured policy.
