@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Jane-chan",
-  "email": "jane-chan@example.org",
-  "identity": "SEED-074#investigate-done-session-alerts",
-  "mode": "story-branch",
-  "branch": "codex/investigate-done-session-alerts",
-  "host": "codex"
-}
