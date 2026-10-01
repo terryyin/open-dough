@@ -68,7 +68,7 @@ capability is advertised by this structural increment.
 
 Type: Behavior
 
-Status: todo
+Status: done
 
 Precondition: a recorded Codex conversation and slice 1's supported native reads.
 Trigger: shared polling observes activity transitions, reload and an endpoint

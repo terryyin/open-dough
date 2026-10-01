@@ -117,7 +117,11 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
       });
       expect(
         native.calls
-          .filter((call) => call.method === "thread/read")
+          .filter(
+            (call) =>
+              call.method === "thread/read" &&
+              call.params["includeTurns"] === true,
+          )
           .map((call) => call.params),
       ).toEqual([{ threadId: native.threadId, includeTurns: true }]);
       expect(

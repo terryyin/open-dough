@@ -109,10 +109,17 @@ export function sessionShown({
 // unrecognized state, but not an unknown one: an unreadable listing says
 // nothing about the session.
 export function alertReading(
-  session: Pick<LaunchWithState, "sessionState" | "doneAt">,
+  session: Pick<LaunchWithState, "sessionState" | "doneAt"> &
+    Partial<Pick<LaunchWithState, "session">>,
 ): string | undefined {
   if (session.doneAt !== undefined) return undefined;
   if (session.sessionState.kind === "unknown") return undefined;
+  if (
+    session.session?.host === "codex" &&
+    session.sessionState.kind === "available" &&
+    session.sessionState.activity === "unknown"
+  )
+    return undefined;
   const { label } = sessionShown(session);
   return session.sessionState.kind === "available" &&
     (session.sessionState.activity === "working" ||

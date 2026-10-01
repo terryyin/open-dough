@@ -9,7 +9,10 @@ import { z } from "zod";
 
 const execute = promisify(execFile);
 const daemonSchema = z.object({ socketPath: z.string().min(1) });
-const refusalSchema = z.object({ message: z.string().trim().min(1).max(500) });
+const refusalSchema = z.object({
+  message: z.string().trim().min(1).max(500),
+  code: z.number().optional(),
+});
 const messageSchema = z.object({
   id: z.union([z.number(), z.string()]).optional(),
   method: z.string().optional(),
@@ -17,7 +20,14 @@ const messageSchema = z.object({
   result: z.unknown().optional(),
   error: z.unknown().optional(),
 });
-export class NativeRefusal extends Error {}
+export class NativeRefusal extends Error {
+  constructor(
+    message: string,
+    readonly code?: number,
+  ) {
+    super(message);
+  }
+}
 
 export async function daemonEndpoint(signal: AbortSignal): Promise<string> {
   const { stdout } = await execute("codex", ["app-server", "daemon", "start"], {
@@ -96,6 +106,7 @@ export class CodexRpc {
               refusal.success
                 ? refusal.data.message
                 : "Codex refused the native request.",
+              refusal.success ? refusal.data.code : undefined,
             ),
           );
         } else waiting.resolve(message.result);

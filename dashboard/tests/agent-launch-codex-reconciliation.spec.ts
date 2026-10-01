@@ -75,7 +75,10 @@ test("explicit input refusal allows the saved input once in the resumed same con
   ).toHaveLength(1);
   expect(
     native.calls
-      .filter((call) => call.method === "thread/read")
+      .filter(
+        (call) =>
+          call.method === "thread/read" && call.params["includeTurns"] === true,
+      )
       .map((call) => call.params),
   ).toEqual([{ threadId: initial?.session.sessionId, includeTurns: true }]);
   expect(
@@ -173,7 +176,10 @@ test("unreadable, missing, empty, unrelated and wrong-workspace history never au
       native.calls.filter((call) => call.method === "turn/start"),
     ).toHaveLength(1);
     expect(
-      native.calls.filter((call) => call.method === "thread/read"),
+      native.calls.filter(
+        (call) =>
+          call.method === "thread/read" && call.params["includeTurns"] === true,
+      ),
     ).toHaveLength(5);
     expect(
       native.calls.filter((call) => call.method === "thread/resume"),

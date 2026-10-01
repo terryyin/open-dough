@@ -99,7 +99,11 @@ test("accepted input with lost acknowledgment resumes its prepared conversation 
     ).toEqual([{ cwd: workspace }]);
     expect(
       native.calls
-        .filter((call) => call.method === "thread/read")
+        .filter(
+          (call) =>
+            call.method === "thread/read" &&
+            call.params["includeTurns"] === true,
+        )
         .map((call) => call.params),
     ).toEqual([{ threadId: initial?.session.sessionId, includeTurns: true }]);
     expect(

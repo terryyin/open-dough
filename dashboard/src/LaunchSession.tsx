@@ -28,8 +28,7 @@ export function LaunchSession({
             <code>{shellCommand(record.session.continuation.args)}</code>
           </p>
           <p className="quiet">
-            Live observation, embedded terminal and Mark as done are unavailable
-            for Codex.
+            Embedded terminal and Mark as done are unavailable for Codex.
           </p>
           <p>
             {record.firstInput?.state === "confirmed"

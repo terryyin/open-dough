@@ -4,32 +4,13 @@ import { createServer } from "node:http";
 import path from "node:path";
 import { WebSocketServer, type WebSocket } from "ws";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
-
-export type CodexCall = { method: string; params: Record<string, unknown> };
-export type FakeCodex = {
-  readonly binDir: string;
-  readonly env: Record<string, string>;
-  readonly calls: CodexCall[];
-  readonly sockets: Set<WebSocket>;
-  threadId: string;
-  hold: boolean;
-  refuseCreation: boolean;
-  creationError: unknown;
-  refuseInput: boolean;
-  loseCreation: boolean;
-  failRead: boolean;
-  readError: boolean;
-  completeOnResume: boolean;
-  resumeStatus?: string;
-  history: { id: string; status?: string; items: unknown[] }[];
-  cwd: string;
-  afterCreation?: () => void;
-  afterAcceptance: "continue" | "complete" | "disconnect";
-  beforeInput?: () => void;
-  release(): void;
-  failConnection(): void;
-  close(): Promise<void>;
-};
+import { passiveCodexFixture } from "./fakeCodexObservation.ts";
+import type { FakeCodex } from "./fakeCodexTypes.ts";
+export type {
+  CodexCall,
+  FakeCodex,
+  FakeCodexObservation,
+} from "./fakeCodexTypes.ts";
 
 export async function installFakeCodex(
   tempRoot: string,
@@ -43,6 +24,7 @@ export async function installFakeCodex(
   const ws = new WebSocketServer({ server: http });
   const sockets = new Set<WebSocket>();
   const waiting: Array<() => void> = [];
+  const passive = passiveCodexFixture();
   const fixture: FakeCodex = {
     binDir: bin,
     env: {
@@ -53,6 +35,10 @@ export async function installFakeCodex(
     },
     calls: [],
     sockets,
+    observations: passive.observations,
+    releaseReads() {
+      passive.releaseReads();
+    },
     threadId: "native-thread-id",
     hold: false,
     refuseCreation: false,
@@ -103,8 +89,23 @@ export async function installFakeCodex(
         params: message.params ?? {},
       });
       const reply = (result: unknown) => {
+        if (client.readyState !== 1) return;
         client.send(JSON.stringify({ id: message.id, result }));
       };
+      const refuse = (error: unknown) => {
+        if (client.readyState === 1)
+          client.send(JSON.stringify({ id: message.id, error }));
+      };
+      if (
+        passive.answer(
+          message.method,
+          message.params ?? {},
+          fixture.history,
+          reply,
+          refuse,
+        )
+      )
+        return;
       switch (message.method) {
         case "initialize":
           reply({ userAgent: "native-substitute" });
@@ -155,7 +156,12 @@ export async function installFakeCodex(
                   }))
                 : fixture.history;
             reply({
-              thread: { id: fixture.threadId, cwd: fixture.cwd, turns },
+              thread: {
+                id: fixture.threadId,
+                cwd: fixture.cwd,
+                turns,
+                status: { type: "active", activeFlags: [] },
+              },
             });
           }
           break;

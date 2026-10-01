@@ -89,7 +89,8 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     hasText: "Refinement started in Codex",
   });
   await expect(codex).toContainText("First input accepted");
-  await expect(codex).toContainText("Live observation unavailable");
+  await page.reload(); // Fresh shared polling replaces launch-time unknown.
+  await expect(codex.locator(".session-state")).toHaveText("Working");
   await expect(
     codex.getByRole("button", { name: "Open terminal" }),
   ).toHaveCount(0);
@@ -134,13 +135,9 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   const sidebar = sidebarParts(page);
   await sidebar.button.click();
   await expect(sidebar.entries).toHaveCount(2);
-  await expect(
-    sidebar.entries.filter({ hasText: "Live observation unavailable" }),
-  ).toHaveCount(1);
-  await sidebar.entries
-    .filter({ hasText: "Live observation unavailable" })
-    .getByRole("button")
-    .click();
+  await expect(sidebar.entries.filter({ hasText: "Working" })).toHaveCount(2);
+  // Both hosts share the opaque ID; the later Codex launch is first among working entries.
+  await sidebar.entries.first().getByRole("button").click();
   await expect(page.locator(".terminal-panel")).toHaveCount(0);
   const before = dashboard.claudeCalls().length;
   expect(
@@ -210,6 +207,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     expect(
       native.calls.filter((call) => call.method === "thread/start"),
     ).toHaveLength(1);
+    native.failRead = true;
     expect(
       (
         await deleteRecord(restarted, {

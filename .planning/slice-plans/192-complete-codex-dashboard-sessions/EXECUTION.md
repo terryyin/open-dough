@@ -173,3 +173,59 @@ The repository lint rule rejects this:void parameter syntax; the equivalent
 function-valued property type replaced it without emitted runtime changes.
 Post-adjustment npm run typecheck:dashboard passed; prior runtime proof remains
 applicable.
+
+## Slice 3 accepted proof — passive Codex observation
+
+Saved endpoints supply one read-only connection per endpoint, metadata without
+loading/resuming and the latest needed turn only. Each endpoint settles within
+9 seconds before the common 10-second bound, preserving independent healthy
+results. Available states retain loaded/retained meaning, typed native waits,
+review/failure/interruption, blank awaiting input and Codex unknown provenance.
+Unrecognized or unreadable Codex states raise no guessed alert; Claude's prior
+unrecognized-state alerts remain intact. No observation is persisted.
+
+Confirmed absence requires thread/read code -32600 and exact message
+`thread not loaded: <requested ID>`. Native read-only missing-ID checks and
+[version-matched source](https://github.com/openai/codex/blob/rust-v0.159.3/codex-rs/app-server/src/request_processors/thread_processor.rs)
+show this follows both stored and loaded absence; retained notLoaded metadata
+and other refusal/history failures do not establish absence.
+
+Coordinator inspected sessions/RPC, the public host callback, sessionShown and
+continuation note; actual predecessor store/HTTP/page, polling and notification
+setups/assertions in the four Codex observation specs and supporting fixture.
+Page cards/Recent/sidebar observe labels, reload and six-to-seven attention
+counts. HTTP observes endpoint independence including a silent endpoint,
+exact absence counterexamples, retained history and deletion during a held read.
+Alerts observe baseline, typed-wait transition, dedup, unknown silence and review.
+Every observation journey asserts passive-only native requests; page proof also
+observes no daemon discovery command. Real policy-supplied waiting remains
+pending under slices 1/8; schema substitutes do not claim native parity.
+
+Independent refactor extracted passive fixture replies and public fixture types,
+preserving compatibility exports, and separated status/error proof from endpoint
+integrity proof. Product behavior stayed unchanged. The replacement selected
+command passed after inspecting those moved setups/assertions:
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npx --no-install playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-codex-observation.spec.ts dashboard/tests/agent-launch-codex-observation-boundary.spec.ts dashboard/tests/agent-launch-codex-observation-status.spec.ts dashboard/tests/agent-launch-codex-observation-alerts.spec.ts dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-codex-lifetime.spec.ts dashboard/tests/agent-launch-codex-recovery.spec.ts dashboard/tests/agent-launch-codex-reconciliation.spec.ts dashboard/tests/agent-launch-codex-confirmation.spec.ts dashboard/tests/agent-launch-codex-creation.spec.ts dashboard/tests/agent-launch-codex-options.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts dashboard/tests/session-alerts.spec.ts dashboard/tests/session-alerts-unavailable.spec.ts dashboard/tests/agent-launch-start-taken.spec.ts
+npm run typecheck:dashboard
+git diff --check
+```
+
+All terminal exit 0. Changed fixture consumers include launch/lifetime/recovery,
+reconciliation/confirmation/creation/options, preparation/recovery and Taken;
+Claude alerts retain their existing outcomes. Initial failures were old test
+assumptions: recovery counts now select includeTurns:true; deletion requires an
+unreadable precondition; sidebar expects actual Codex Working. Corrected
+assertions preserve the original recovery/deletion/view contracts.
+
+Formatter found three mechanical issues: unused callback context, an unnecessary
+optional chain and a statement ternary. After equivalent repairs, dashboard
+typecheck and the four observation specs passed again:
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npx --no-install playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-codex-observation.spec.ts dashboard/tests/agent-launch-codex-observation-boundary.spec.ts dashboard/tests/agent-launch-codex-observation-status.spec.ts dashboard/tests/agent-launch-codex-observation-alerts.spec.ts
+```
+
+Final npm run format passed. Every changed file is at
+most 250 lines. No readiness renewal; slice 4 is next.

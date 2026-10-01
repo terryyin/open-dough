@@ -68,7 +68,7 @@ for (const ending of ["complete", "disconnect"] as const) {
   });
 }
 
-test("deleting an active Codex record remains deleted after a later native connection failure", async ({
+test("deleting an unreadable Codex record remains deleted after a later native connection failure", async ({
   dashboard,
   codexProtocol: protocol,
 }) => {
@@ -82,6 +82,7 @@ test("deleting an active Codex record remains deleted after a later native conne
     ).kind,
   ).toBe("launched");
   expect(native.sockets.size).toBe(1);
+  native.readError = true; // Observation must be unreadable before established deletion is eligible.
   expect(
     (
       await deleteRecord(dashboard, {
@@ -91,6 +92,7 @@ test("deleting an active Codex record remains deleted after a later native conne
       })
     ).status,
   ).toBe(200);
+  expect(stored(dashboard.home)).toEqual([]);
   native.failConnection();
   await expect.poll(() => native.sockets.size).toBe(0);
   expect(stored(dashboard.home)).toEqual([]);
