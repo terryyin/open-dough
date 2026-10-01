@@ -74,6 +74,42 @@ test("updates the kept start with what the script reported, and ignores a start 
   expect(await keptStart("open-dough", "SEED-B#b")).toBeUndefined();
 });
 
+test("a held write lock refuses without changing the document or removing the holder's lock", async () => {
+  await keepStart("open-dough", written);
+  const file = path.join(
+    home,
+    ".open-dough",
+    "dashboard",
+    "execution-starts.json",
+  );
+  const lock = `${file}.lock`;
+  const before = readFileSync(file, "utf8");
+  mkdirSync(lock);
+
+  await expect(
+    updateStart("open-dough", written.identity, {
+      candidateSha: "must-not-be-written",
+    }),
+  ).rejects.toThrow(
+    `The session store is locked: ${lock}. Nothing was written.`,
+  );
+  expect(readFileSync(file, "utf8")).toBe(before);
+  expect(readdirSync(path.dirname(file)).sort()).toEqual([
+    "execution-starts.json",
+    "execution-starts.json.lock",
+  ]);
+
+  // Only the owner releases the lock; a subsequent writer then succeeds.
+  rmSync(lock, { recursive: true });
+  await updateStart("open-dough", written.identity, {
+    candidateSha: "accepted",
+  });
+  expect(await keptStart("open-dough", written.identity)).toEqual({
+    ...written,
+    candidateSha: "accepted",
+  });
+});
+
 test("keeps one start per story, replaced when written again, and removes one alone", async () => {
   await keepStart("open-dough", written);
   await keepStart("open-dough", { ...written, identity: "SEED-B#b" });

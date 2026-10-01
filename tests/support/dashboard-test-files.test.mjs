@@ -75,7 +75,7 @@ test("config discovers unlisted new specs and ignores removed list entries", () 
   }
 });
 
-test("the seven CI shares match every actual browser spec exactly once", () => {
+test("the nine CI shares match every actual browser spec exactly once", () => {
   const directory = new URL("../../dashboard/tests/", import.meta.url);
   const files = readdirSync(directory, { recursive: true }).filter((file) =>
     /\.(spec|test)\.[cm]?[jt]sx?$/.test(file),
@@ -83,13 +83,13 @@ test("the seven CI shares match every actual browser spec exactly once", () => {
   const known = readFileSync(new URL("longest-first", directory), "utf8")
     .split(/\r?\n/)
     .filter((line) => line && !line.startsWith("#"));
-  const indices = [...Array(7).keys()];
+  const indices = [...Array(9).keys()];
   const shares = indices.map((index) =>
-    partitionTestFiles(files, known, `${index + 1}/7`),
+    partitionTestFiles(files, known, `${index + 1}/9`),
   );
   assert.deepEqual(shares.flat().sort(), [...files].sort());
   const matches = indices
-    .map((index) => dashboardTestMatch(directory, `${index + 1}/7`))
+    .map((index) => dashboardTestMatch(directory, `${index + 1}/9`))
     .flat();
   for (const file of files) {
     assert.equal(

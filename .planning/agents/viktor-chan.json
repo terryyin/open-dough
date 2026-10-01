@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "viktor-chan",
-  "email": "viktor-chan@example.org",
-  "identity": "SEED-070#reoptimize-ci-test-wall-time",
-  "mode": "story-branch",
-  "branch": "codex/re-optimize-ci-feedback-and-test-wall-time-after",
-  "host": "codex"
-}
