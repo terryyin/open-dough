@@ -25,6 +25,7 @@ for bounded replanning; no numeric slice target or hard limit was supplied.
 
 **Delivered revisions:** `33eb0b69afbca8db3cc860f5d6ca2d9dd74aa17f` (slice 1)
 and `34fd7257ee0c0282700e095a225cf369d5ad723d` (slice 2),
+plus `130e8a6d2b4c15cae951777b109552ced66473be` (host-isolation CI repair),
 accepted on the execution branch. CI source is GitHub Actions `ci.yml` (`CI`),
 verified with `gh run list --repo terryyin/open-dough --workflow ci.yml --branch
 codex/show-truthful-session-access-after-its-workspace --event push --limit 1
@@ -51,6 +52,26 @@ Slice 3 remained planned and paused while its ten owned paths were preserved
 through the installed repair-stash operation; resume occurs only after repair
 publication and verified restoration. The exact stash record is retained in
 the coordinator conversation, not copied into another state file.
+
+**Second owned CI repair:** run `36862248330`, attempt `1`,
+`dashboard (8/9)` failed on `130e8a6d`: the active attached done-session journey
+clicked Open terminal after reload while preparation reads still expanded the
+cards above Recent sessions. CI's trace shows the control moving during the
+click, unchanged scroll position, and no terminal WebSocket request. The retained
+record stayed Done. Controlled held `PLAN.md` responses plus the recorded scroll
+condition reproduced the same absent-panel assertion; releasing those responses
+and awaiting the existing journey `settled()` before clicking passed. The literal
+reproduction command was `env -u NO_COLOR npm run test:dashboard --
+agent-terminal-done-codex-page.spec.ts --grep 'active attached'` (red before the
+ordering change, green afterward). Temporary reproduction artifacts were disposed
+after judgment. The two-line test-only repair reuses that existing settlement
+helper after reload. `env -u NO_COLOR npm run test:dashboard --
+agent-terminal-done-codex-page.spec.ts` passed all three cases;
+`npm run typecheck:dashboard` and `git diff --check` passed. Independent refactoring
+found no edits; native reader and product behavior were unchanged. Mailbox
+sequence 2 was accounted and acknowledged. Slice 3 remained planned and quiescent;
+its 15 tracked and two untracked paths were preserved by the installed stash helper
+for restoration after publication. The coordinator retains the exact receipt.
 
 ## Goal and scope
 
