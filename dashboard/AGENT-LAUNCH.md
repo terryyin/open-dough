@@ -30,33 +30,9 @@ Requested model/options lines describe requests, never the effective model.
 
 ## Installed options
 
-Refinement's options come from the selected host's installed
-`dough-story-refinement/references/refinement-options.json`: `.claude/skills`
-for Claude, `.agents/skills` for Codex. Execution and ad hoc have no options.
-The workflow table names the definition file; `src/commandOptions.ts` owns its
-schema and selection rules, and `server/launchOptions.ts` reads it afresh.
-The machine answer carries offers qualified by project, workflow and host;
-updates appear on the next machine read and changing hosts shows its own offer.
-
-A definition names its command and entries (`flag`, `label`, one-line `summary`,
-agent `instruction`), with options and focuses presented as one list. Duplicate
-flags, undefined group flags, or a flag in two groups invalidate the whole
-file. Empty or one-member groups remain valid. An exclusive group appears as
-radios at its first member, with “No <group>”; other entries are checkboxes.
-Options show labels, flags and summaries, with “Choose any combination; they
-apply together. None means straightforward refinement.” The command hint adds
-chosen flags in definition order and announces changes politely.
-
-No selection means ordinary refinement even without a usable definition. The
-dialog explains reading, empty, missing, unreadable, invalid or wrong-command
-options. Selected flags are checked again before any native launch. Unknown
-flags, unavailable definitions, exclusive-group conflicts, or options on another
-workflow are refused with the flag/group/reason and “Nothing was launched”.
-At most 32 single-line flags are accepted; empty means none. A refusal retains
-selection for reopening, while cancellation drops it. Flags no longer offered,
-including after switching hosts, are named as “Not offered any more, so not
-sent”; they are visibly excluded from the prompt. Instruction/model are not
-retained by a refused dialog. Records keep accepted flags in definition order.
+See [installed launch options](AGENT-LAUNCH-OPTIONS.md) for host-qualified
+refinement definitions, selection, validation and recovery. Execution and ad hoc
+have no options.
 
 ## Native hosts and durable evidence
 
@@ -110,11 +86,13 @@ answers native approval/input requests or interrupts the native turn. Server
 shutdown detaches dashboard connections, leaving the vendor daemon and saved
 conversation alive. Later lifecycle updates cannot recreate a deleted record.
 
-Codex live observation, embedded terminal and Mark as done are unavailable;
-cards, Recent sessions and sidebar state say so without inventing attention or
-alerts. Its sidebar still navigates to the story or Recent sessions entry.
-Forged terminal/done operations are refused before any Claude operation.
-Delete record remains available when current observation is unavailable.
+Codex supports recorded-conversation observation, embedded CLI interaction and
+Mark as done through the shared session controls. Missing saved endpoints remain
+unknown; they never fall back to Claude. Blank ad hoc startup persists the native
+conversation before releasing its creator, with no artificial empty model turn.
+Its record says no instruction was submitted; the CLI accepts the first instruction
+in that same conversation after page/server restart. Uncertain persistence keeps
+the original blank intent for conservative recovery without another thread.
 
 ## Mechanical start and recovery
 
@@ -188,14 +166,21 @@ Reading sessions is distinguished from none kept. A session still navigates
 when its story changes stage or disappears. Only dashboard-recorded sessions
 appear; another project's records never count on a card.
 
-Claude state is read once per host/machine read, never persisted. Working means
-working regardless of busy/idle process status. Blocked means Needs input with
-reported waiting reason; done means Ready for review; failed/stopped name those
-states, all requiring attention. Unknown/unlisted/unrecognized states require
-none. Missing alias/state entries are skipped without spoiling the listing.
+Host adapters normalize native state for the shared cards, Recent sessions,
+sidebar/counts and alerts; observations are never persisted. Claude reads one
+machine listing. Codex groups recorded targets by saved endpoint, reads metadata
+and only the latest needed turn, without resume, subscription or interactive
+ownership. Endpoint failures leave independent healthy records readable.
+
+Working means active work. Typed native waits mean Needs input with a reason;
+a completed reply means Ready for review, including ordinary prose questions.
+Failure/interruption need attention. A blank has Awaiting first instruction.
+An unloaded Codex conversation with retained history remains resumable. Confirmed
+absence means Session unavailable; unreadable/unsupported data stays unknown.
+Unrecognized Codex state keeps native provenance and raises no guessed alert.
 A done mark suppresses attention, showing Working while working, Done otherwise.
-Unlisted shows Session unavailable or Done; unknown shows State unknown and its
-unreadable-list explanation. Unknown still permits Claude attachment.
+Native structured waiting must be supplied by the configured tool/policy; a
+never-policy run does not establish approval parity.
 
 The page reads machine records on load, while visible every 15 seconds, and
 when visible again. Attention counts share each entry's reading. The server
@@ -216,15 +201,20 @@ Wide layout is sidebar/page/terminal; narrow sidebar overlays below the banner,
 terminal stacks above page. Opening a row changes project/history and reveals
 its card or Recent entry until user navigation; reduced motion skips animation.
 
-## Claude terminal and local record actions
+## Embedded terminals and local record actions
 
-Same-origin `/__agent-terminal?source=&host=&session=` attaches only a recorded
-Claude session in an existing project folder, via `claude attach <native alias>`
-in a PTY. Another origin/host, unknown project/session, missing folder and
-unlisted session are refused before attach. Text frames carry output; only input
-and bounded resize messages are accepted. Closing socket/server stops attachment
-only. CLI exit uses code 4000 so the page distinguishes ended from disconnected.
-Admitted successful attachment clears a done mark before output; refusal does not.
+Same-origin `/__agent-terminal?source=&host=&session=` admits recorded host-qualified
+sessions in existing project folders. Claude uses `claude attach <native alias>`;
+Codex uses the saved ID, endpoint and workspace with ordinary `codex resume`
+and `--no-alt-screen`. Unknown project/session, missing folder and unavailable
+sessions are refused before attachment. Text frames carry output; bounded input,
+resize and rendered readiness messages share the existing transport.
+Closing socket/server sends SIGHUP to the attachment client only, retaining
+native work/history and daemon. CLI exit uses code 4000 so the page distinguishes
+ended from disconnected. Codex spawn alone does not establish readiness: native
+hook/trust UI remains interactive, and a completed composer frame with visible
+cursor confirms attachment. Refusal preserves done intent; successful original-ID
+attachment clears it. Claude retains its immediate admitted-attachment behavior.
 
 One page terminal shows story/workflow/session with Close and Mark as done.
 Switching sessions detaches the prior one; switching projects keeps it attached.
@@ -232,13 +222,19 @@ Reload has no terminal. Disconnection offers Reconnect; native attach exit offer
 Open again, each for the same session. Close restores the originating control.
 Shown entries/cards are outlined and sidebar entry current; closing clears them.
 
-Mark as done uses one operation from card or terminal. With attachment it clears
-typed draft and submits `/rename done-<recorded name>` only without control
-characters, waits five seconds for listing, then retains done time even if rename
-was unavailable/queued. It stops Claude only when listed or listing unknown,
-closes attachment/panel and removes the card/sidebar entry. Recent retains Done
-and done-name. Failure explains “The session could not be marked done”. Reopening
-successfully clears the mark and returns the session to its card.
+Mark as done uses one operation from card or terminal. It saves local done intent,
+closes dashboard attachments and requests native rename/stop. Codex renames with
+`thread/name/set` and interrupts only the observed nonempty in-progress turn ID;
+completed/unloaded history needs no invented interrupt. A race/refusal never
+retries against a newer turn. Claude retains its attachment `/rename` and listing
+confirmation, then its listed-or-unknown stop behavior. Native history is retained.
+
+Recent keeps the done record/name; cards/sidebar exclude it. A bounded diagnostic
+persists when native rename/stop is unconfirmed, while live Working remains
+truthful. Local intent proves neither native stop nor published story completion.
+Failed reopen preserves the mark; successful native attachment clears it and
+returns the original session to its card. Deferred failures cannot undo a newer
+successful reopen or recreate a deleted record.
 
 Delete record is offered for unknown/unavailable observation on cards/Recent,
 with in-place question, Delete record/Keep and keyboard on Keep. Keep/Escape

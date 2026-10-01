@@ -6,6 +6,8 @@
 - [Execution state and accepted native observations](EXECUTION.md): retained identity/CI observer, accepted slice 1 proof and consequential learning.
 - [Embedded lifecycle proof](LIFECYCLE.md): slices 4–5 and native readiness/blank materialization follow-up.
 - [Workflow startup proof](STARTS.md): slices 6–7, retained execution and ad hoc blank/text.
+- [Native acceptance](NATIVE.md): accepted execution/lifecycle/blank journeys;
+  structured waiting remains pending under the configured Default/never conditions.
 
 ## Ordered slices
 
