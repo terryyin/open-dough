@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 198. Removed local codes are never reused.
+- Highest allocated local number: 200. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -434,7 +434,9 @@ Follow-up: Open, unqueued.
   - Observed effect: four extra tool calls; delivery was accepted on the first attempt with observation attached.
   - Inference: Qualified. Passing `refs/heads/main` from the established start's `target` was a plausible mistake; whether the script would refuse it was not checked.
 
-## DD-197 — Recovery failure setup used a deadline before establishing accepted input
+## DD-199 — Recovery failure setup used a deadline before establishing accepted input
+
+Former branch-local code: DD-197; reassigned after concurrent trunk allocation of DD-197.
 
 The lost-acknowledgment setup let a short launch deadline disconnect the native substitute without first observing that it accepted the input. An equality between two absent records could pass and conceal the missing precondition. This differs from ODF-067's fixture-computed Git refusal: the operation was attempted here, but its required intermediate event was unproved.
 
@@ -450,7 +452,9 @@ Follow-up: Open, unqueued. For a fault injected after a native event, observe th
   - Observed effect: One owned repair commit and a pause in native acceptance; all five selected repair tests passed afterward. The original no-resend and history/status assertions remained.
   - Inference: Event-based setup supplies causal evidence that elapsed time alone did not. Cost beyond this repair is unmeasured; native pause also included a separate acceptance-wording correction.
 
-## DD-198 — Codex stream notifications leave handled failures unread at completion
+## DD-200 — Codex stream notifications leave handled failures unread at completion
+
+Former branch-local code: DD-198; moved with this execution’s findings after the concurrent allocation collision.
 
 The Codex stream binding delivered failure notifications, but neither its consumer nor the stream worker advanced the mailbox's durable delivery cursor. After both failures were repaired, completion returned green CI while retaining shutdown for those same unread events. This is distinct from ODF-144's lost-worker notices: the worker was live and the stale events were actual repaired CI failures.
 

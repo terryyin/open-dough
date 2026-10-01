@@ -16,10 +16,10 @@ while Preparing, with “Being prepared”. Taken cards offer only a kept execut
 start with no session. The project row offers Start session independently of the
 published read, including when it failed. Projects use `~/git/<project id>`.
 
-The modal names the story, host and instruction, focuses its optional instruction
-field, and sends nothing on Cancel or Escape. Start waits while “Starting…” is
-shown. Closing returns the keyboard to the launching action unless its session
-took focus. Dismissal cannot cancel a launch already submitted.
+The modal names story/host/instruction, focuses the optional instruction, and
+sends nothing on Cancel/Escape. Start shows “Starting…”. Closing restores the
+launching action’s keyboard unless its session took focus; dismissal cannot
+cancel a submitted launch.
 
 Host selects Claude Code or Codex. Model opens on Default. Claude also offers
 Fable, Opus and Sonnet; a selection sends its `--model` alias before the prompt.
@@ -92,18 +92,18 @@ resumes the saved ID, verifies CWD and preserves original preparation/text.
 Empty, unrelated, unreadable or mismatched history never proves input rejected.
 Only durable no-submission/explicit-refusal evidence permits the saved input in
 that conversation. Store failure prevents submission and explains continuation.
-None claims live/story state; predecessor Claude records remain confirmed.
-
+Confirmation clears pending acceptance explanations; legacy confirmed records
+show acceptance without stale uncertainty. Connection loss has a separate
+continuation notice and retains the command. Neither fact claims live/story
+state; predecessor Claude records remain confirmed.
 Codex records retain the exact native continuation arguments, endpoint and
-workspace. Cards and Recent sessions show a correctly shell-quoted command:
+workspace. Cards/Recent show a shell-quoted command:
 `codex resume --remote <native Unix endpoint> --cd <recorded workspace> <thread ID>`.
 Use it in an ordinary terminal to read, answer questions and handle configured
 approval in the same native conversation, including while a turn is active.
 The browser never executes a shell command. Native configuration/authentication
 remain those of the installed Codex CLI and shared daemon.
-
-The shared launch lifecycle outlives HTTP callers and page closure. Codex keeps
-its connection after acceptance until native completion or connection failure.
+Launch outlives HTTP callers/page closure; Codex retains its connection until native completion or connection failure.
 It accounts for terminal/error events racing durable acknowledgment, retains
 recovery on background failure, and disposes the failed connection. It never
 answers native approval/input requests or interrupts the native turn. Server

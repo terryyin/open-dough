@@ -141,10 +141,13 @@ or claims of readiness.
 
 - **For / why:** A maintainer changing session entries or the terminal panel
   works in files small enough to read whole, one concern each.
-- **Evaluation:** `dashboard/src/SessionEntry.tsx` (about 300 lines) and
-  `dashboard/src/TerminalSplit.tsx` (about 275 lines) each hold one clear
+- **Evaluation:** `dashboard/src/SessionEntry.tsx` (141 lines) and
+  `dashboard/src/TerminalSplit.tsx` (250 lines) each hold one clear
   concern after the change, with every dashboard spec passing unchanged and no
   behavior differing.
+- **Current basis:** Session actions now live in `sessionRecordActions.tsx`,
+  and navigation in `sessionNavigation.ts`. Reassess remaining responsibilities
+  before selecting further extraction; do not repeat these delivered splits.
 - **Boundary:** Structure only, along the seams the delete work exposed
   (Mark as done, Delete record, the shared status line, and the panel's session
   operations). No new behavior, wording or styling.
@@ -152,24 +155,16 @@ or claims of readiness.
 - **Capture:** Terry asked on 2026-09-30 to queue the follow-up recorded by the
   delete's execution retrospective.
 
-### Codex delivery in two increments
+### Current Codex launch baseline
 
-Terry selected this split on 2026-09-30: first start a real refinement session
-with Codex, then complete the remaining established experience. Refinement is
-the first delivery example, not a rule that the product must reject Codex for
-other workflows. Shared behavior may deliver more without adding artificial
-availability gates or a second dialog.
-
-**Current baseline:** Refinement now has the same dashboard-owned workspace
-direction as execution. Its installed preparation command announces Preparing,
-hands the established preparation to the session, and retains a failed start
-so the next Start can resume it. The refinement dialog offers the installed
-command's composable/exclusive options. Startup gating, progress and retained
-start storage are shared across workflows. Host selection, installed skill
-paths, instruction spelling, session listing/state, terminal attachment and
-done controls still assume Claude Code. The refinement-options correction was
-completed in `2ffe539a`; use its delivered selection and wording behavior
-without duplicating that work.
+Claude Code and Codex share host selection, workflow startup, installed options,
+workspace preparation and durable launch records. Codex starts native refinement
+and provides a command to read and answer in that same conversation. Its launch
+also shares execution and ad hoc dispatch; broader workflow acceptance and
+lifecycle support remain in the next story. Read the maintained
+[launch contract](../../dashboard/AGENT-LAUNCH.md) for current behavior.
+Refinement was the first delivery example; keep shared support available without
+artificial workflow gates or a second dialog.
 
 <a id="start-codex-refinement-from-dashboard"></a>
 
@@ -442,14 +437,14 @@ records keep their ordinary review/publication disposition.
   launch/attach continuity, state semantics and recovery. Assess those with
   first-story evidence before refining this remainder. The broader lifecycle
   carries more uncertainty than launch alone; no S/M/L band is assigned.
-- **Workspace:** Reuse the first story's dashboard-created workspace and
-  installed skill handling. Existing no-model trust observations do not prove
-  a real refinement can write/commit in a linked worktree under the developer's
-  Codex permissions; that remains native proof for the first story.
-- **Architecture question:** The Architectural North Star calls for one module
-  per host, while Claude's host responsibilities currently span multiple files.
-  Resolve that organization when refining the first integration; do not treat
-  this split as approval to change the direction or build a speculative host
+- **Workspace:** Reuse dashboard-created workspaces and installed skill
+  handling. Native refinement has read and written its prepared worktree and
+  answered in the same conversation under recorded developer policy. Prove
+  broader workflows and lifecycle behavior independently; that proof does not
+  establish embedded attachment or live-state semantics.
+- **Architecture:** Keep one public boundary per host with private helpers and
+  common workflow, storage and presentation, as the maintained launch contract
+  and Architectural North Star describe. Do not introduce a speculative host
   framework.
 - **Depends on:** The first Codex refinement attempt and its retained evidence;
   no dependency on Cursor.
@@ -484,9 +479,10 @@ records keep their ordinary review/publication disposition.
   `.cursor/worktrees.json` setup does not run there; Open Dough's own
   checkout setup applies instead. Observe one real launch committing there
   (paid).
-- **Known from launch:** The same Claude Code specifics as story 7 live in the
-  browser, including its session-state vocabulary and the 15-second listing
-  read.
+- **Known from launch:** Reuse the common host-qualified launch and record
+  boundary in the maintained launch contract. Cursor must prove its native
+  identity, observation, attachment and lifecycle independently; Claude's state
+  vocabulary and listing read do not establish Cursor behavior.
 - **Depends on:** The chosen Claude Code experience; no dependency on story 7.
 - **Safe stopping point:** Each delivered tool remains usable if later parity
   enhancements are dropped.
@@ -552,23 +548,17 @@ local attention indicators; completion callbacks, notifications, state-aware
 skill selection, model selection, other skills, externally started sessions,
 and full project/tool setup remain deferred.
 Recently done is related work with its own value and priority decision.
-For the two Codex increments, drop expensive live-state and embedded-reconnect
-work from the first delivery promise before sacrificing actual refinement
-launch and a recoverable session identity. The remainder retains those
-promises. Straightforward shared support can be delivered in the first story
-without introducing restrictions to enforce the story boundary.
+The Codex remainder retains live-state and embedded-reconnect promises.
+Refinement launch and recoverable conversation identity are already available;
+retain them while assessing the remaining capabilities.
 
 ## Open Decisions Before Refinement or Planning
 
 - Define project S/M/L bands before assigning comparative estimates; none were
   found, so there is no defensible numerical or band distribution yet.
-- Observe the first Codex launch's native skill activation, session identity
-  and prepared-workspace use before planning dependent implementation. Assess
-  whether state observation and dashboard reconnect are straightforward enough
-  to include in the first story; their deferral is not a product prohibition.
-- Resolve the host-module organization question against the current
-  Architectural North Star during first-story refinement. This decomposition
-  makes no new architectural decision.
+- Assess native Codex live-state observation and embedded reconnect before
+  planning the remaining lifecycle support. Current external continuation proof
+  does not establish either capability.
 - Refine authoritative completion evidence and the recent window separately for
   Recently done; do not infer completion from an absent backlog entry.
 
