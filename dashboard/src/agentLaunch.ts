@@ -8,7 +8,7 @@
 // Node import, so the browser and the server read the same shapes. Host
 // values are the shared profile vocabulary.
 
-import { creationSchema } from "./launchCreation.ts";
+import { creationViewSchema } from "./launchCreation.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 import { z } from "zod";
 import { offeredShapeSchema } from "./commandOptions.ts";
@@ -202,7 +202,7 @@ export type OfferedDefinition = z.infer<typeof offeredDefinitionSchema>;
 // options each project offers.
 export const launchRecordsSchema = z.object({
   records: z.array(launchWithStateSchema),
-  creations: z.array(creationSchema).default([]),
+  creations: z.array(creationViewSchema).default([]),
   alerts: alertsSchema,
   establishing: z.array(z.string()),
   establishingPreparation: z.array(z.string()),

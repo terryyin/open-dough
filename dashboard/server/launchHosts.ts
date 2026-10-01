@@ -10,6 +10,7 @@ import type {
 import type { SessionReference } from "../src/sessionReference.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { LaunchRecording } from "./launchRecording.ts";
+import type { CreationRecord } from "../src/launchCreation.ts";
 import { codexHost } from "./codexHost.ts";
 import { claudeHost } from "./claudeHost.ts";
 import type {
@@ -21,6 +22,12 @@ import type { ProjectFolder } from "./projectFolders.ts";
 
 export type LaunchHost = {
   readonly name: string;
+  // Presence requires durable creation evidence. Native advice and inspection
+  // arguments belong to the host; unreadable evidence supplies no saved facts.
+  creationEvidence?(record?: CreationRecord): {
+    readonly unreadableAdvice: string;
+    readonly inspectionArgs?: readonly string[];
+  };
   installedSkillPath(
     project: ProjectFolder,
     skill: string,

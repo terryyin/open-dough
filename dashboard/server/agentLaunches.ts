@@ -22,7 +22,7 @@ import {
   keptRecords,
   keptRecordsByProject,
 } from "./launchRecordStore.ts";
-import { creationRecovery } from "../src/launchCreation.ts";
+import { creationProblem, creationView } from "./launchCreation.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import { establishedFacts } from "./startLaunch.ts";
 import { StartProgress } from "./startProgress.ts";
@@ -76,8 +76,8 @@ export class AgentLaunches {
     );
   }
 
-  creations() {
-    return keptCreations();
+  async creations() {
+    return (await keptCreations()).map((record) => creationView(record));
   }
 
   // Projects with an installed execution start, in catalog order.
@@ -171,16 +171,18 @@ export class AgentLaunches {
     }
     const began = new Date();
     const requested = recordedRequest(request, began);
-    const creation =
-      request.host === "codex" ? await creationOf(requested) : undefined;
+    const boundary = launchHost(request.host);
+    const creation = creationProblem(
+      boundary,
+      boundary?.creationEvidence === undefined
+        ? undefined
+        : await creationOf(requested),
+    );
     if (creation !== undefined)
       return {
         kind: "uncertain",
         reason: "unconfirmed",
-        explanation:
-          creation === "unreadable"
-            ? "This machine's launch evidence is unreadable. Reconcile it with native Codex history before starting again; no new conversation was created."
-            : creationRecovery(creation),
+        explanation: creation,
       };
     const pending = (await keptRecords(source.id)).find(
       (record) =>

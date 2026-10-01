@@ -7,9 +7,11 @@ import { recoverCodex } from "./hosts/codex/recovery.ts";
 import { codexSessions } from "./hosts/codex/sessions.ts";
 import { renameCodex, stopCodex } from "./hosts/codex/done.ts";
 import { attachCodex } from "./hosts/codex/terminal.ts";
+import { codexCreationEvidence } from "./hosts/codex/creation.ts";
 
 export const codexHost: LaunchHost = {
   name: "Codex",
+  creationEvidence: codexCreationEvidence,
   installedSkillPath: (project, skill, ...segments) =>
     path.join(project.path, ".agents", "skills", skill, ...segments),
   launch: launchCodex,

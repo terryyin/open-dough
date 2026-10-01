@@ -16,7 +16,7 @@ import {
   type LaunchWithState,
 } from "./agentLaunch.ts";
 import { CreationEntry } from "./CreationEntry.tsx";
-import type { CreationRecord } from "./launchCreation.ts";
+import type { CreationView } from "./launchCreation.ts";
 import { SessionEntry, SessionList } from "./SessionEntry.tsx";
 import "./agent-launch.css";
 
@@ -27,7 +27,7 @@ export function RecentSessions({
 }: {
   // The selected project.
   readonly sourceId: string;
-  readonly creations?: readonly CreationRecord[];
+  readonly creations?: readonly CreationView[];
   // The machine's sessions, oldest first within a project, with their
   // states; undefined until first read.
   readonly records: readonly LaunchWithState[] | undefined;

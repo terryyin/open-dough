@@ -45,8 +45,7 @@ and what the dialog's Session choices select, are in
 `server/launchHosts.ts` dispatches to one public host boundary. Common workflow,
 records, actions and presentation do not call another host's private helpers,
 but some shared code still branches on host name: dispatch and the browser's
-host names and capability flags, the Codex model refusal, the Codex-only
-creation gate in `server/agentLaunches.ts`, and some host wording
+host names and capability flags, the Codex model refusal, and some host wording
 in shared messages. Identity is host plus the opaque native conversation ID
 throughout stores, merging, page keys, focus and action lookup. Equal IDs in different hosts stay separate. Claude
 additionally retains its native attach/stop alias; Codex needs no fabricated
@@ -62,6 +61,23 @@ HTTP caller detachment does not release it. Native work continuing after startup
 does not hold it; installed-start and retained-evidence protections still apply
 when another launch is requested. Separate servers or machines do not share this
 in-flight gate.
+
+A host's optional `LaunchHost.creationEvidence` operation declares that native
+creation needs durable evidence and supplies its native inspection arguments
+and unreadable-evidence advice. Common admission refuses unreadable or matching
+unresolved creation evidence before workflow or native startup for such a host.
+Codex declares this requirement; Claude does not, so unreadable evidence still
+admits Claude to native launch. This does not guarantee that its result can be
+saved. Unreadable evidence invents no endpoint, workspace or inspection command.
+
+The stored creation record remains workspace/endpoint and launch request without
+a session ID. GET projects that evidence through its own host boundary into a
+recovery view naming the host and its inspection arguments; the launch refusal
+and common page format those arguments with shared shell quoting. The Codex
+module derives the history picker from saved endpoint/workspace, including for
+predecessor records with no stored recovery. Absent inspection support is shown
+as unavailable. Shared recovery never supplies another host's command, and
+reading a recovery view does not rewrite the stored record.
 
 Session records are a discriminated union on `host`. Each variant keeps
 `sessionId` and `name`; Claude requires its native `shortId`, while Codex may

@@ -2,7 +2,7 @@
 
 **Identity:** SEED-075#launch-gates-every-host
 **Source:** [refined story](../../seeds/SEED-075-host-neutral-dashboard-before-cursor.md#launch-gates-every-host)
-**Authority:** Refinement and planning only, as requested by Terry on 2026-10-01.
+**Authority:** Execution authorized by Terry on 2026-10-01; this plan was previously prepared under refinement/planning authority.
 **Preparation:** Reuse the established workspace
 `/Users/terryyin/git/open-dough/.worktrees/launch-gates-apply-to-every-host`,
 branch `codex/launch-gates-apply-to-every-host`, agent `joseph-chan`, published
@@ -136,7 +136,7 @@ loop, including focused verification and slice-local refactoring.
 ### 2. A host's evidence requirement controls creation safety and recovery
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The new creation-gate and focused recovery contract cases, existing
 creation/records/reconciliation/preparation/ad-hoc recovery specs, and dashboard
 typecheck pass; shared consumers no longer construct native Codex recovery.
@@ -203,48 +203,41 @@ preparation recorder, not inferred from this prose.
 
 ## Execution context and accepted proof
 
-Execution authorized by Terry's `dough-execute-plan` invocation on 2026-10-01.
-Established claim: `dbc55abe03c6e8b997721cd196250185313bd772`, publisher
-`dashboard-mac.lan-open-dough`, agent `ebacky-chan`, story-branch mode,
-workspace `/Users/terryyin/git/open-dough/.worktrees/launch-gates-apply-to-every-host`,
-branch `codex/launch-gates-apply-to-every-host`, remote `origin`, trunk `main`.
-Starting revision: `6428a5c1ffb33d26d5ea15c4a9042447c23d2a14`.
-Existing planning authority retained; no numeric slice limit supplied.
-
-Session-record dependency landed at `da3afd04` and was incorporated before
-implementation. Host-description boundary reread; existing `LaunchHost` remains.
-Startup-lifetime sibling is unlanded; current synchronous running registration
-and `finally` release span the whole attempt despite HTTP detachment.
-Checkout-local `npm ci --ignore-scripts --no-audit --no-fund` and dashboard
-typecheck passed; locked metadata unchanged.
-
-CI: GitHub Actions `ci.yml`, execution branch on `terryyin/open-dough`.
-Codex observer `ebacky-chan`: `/tmp/dough-ci-501/watch-n8GCrg`, cell `18`,
-session `73631`, PID `23822`, bound to the execution checkout and branch.
-The claim's trunk CI is unobserved; managed delivery covers branch increments.
+Story-branch execution authorized 2026-10-01, identity `SEED-075#launch-gates-every-host`, publisher `dashboard-mac.lan-open-dough`, agent `ebacky-chan`.
+Workspace `/Users/terryyin/git/open-dough/.worktrees/launch-gates-apply-to-every-host`; branch `codex/launch-gates-apply-to-every-host`; remote `origin`, trunk `main`.
+Established claim `dbc55abe03c6e8b997721cd196250185313bd772`; starting revision `6428a5c1ffb33d26d5ea15c4a9042447c23d2a14`.
+Session-record dependency landed at `da3afd04` and was incorporated before implementation. Host-description boundary reread; existing `LaunchHost` remains. Startup-lifetime sibling is unlanded; current synchronous running registration and `finally` release span the whole attempt despite HTTP detachment.
+Checkout-local `npm ci --ignore-scripts --no-audit --no-fund` and dashboard typecheck passed; locked metadata unchanged. Existing planning authority retained; no numeric slice limit supplied.
+CI: GitHub Actions `ci.yml`, execution branch on `terryyin/open-dough`; Codex observer `ebacky-chan`, `/tmp/dough-ci-501/watch-n8GCrg`, cell `18`, session `73631`, PID `23822`, bound to this checkout/branch. Claim trunk CI unobserved; managed delivery covers branch increments.
+Slice 1 published `1dd48501ec3a43cc9dcbbfca937653182fe77b95`, accepted on `refs/heads/codex/launch-gates-apply-to-every-host`; observation reused. Slice 2 uses that previously published base.
 
 ### Slice 1
-Prechange: second held blank Claude launch timed out instead of receiving
-`uncertain/unconfirmed`. The real-route command failed for that reason:
 
+Prechange real-route proof failed: second held blank Claude launch timed out instead of receiving `uncertain/unconfirmed`.
 ```sh
 env -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --workers=4 dashboard/tests/agent-launch-duplicate.spec.ts --grep 'claude: overlapping blank' --timeout=45000
 ```
-
-Accepted passing command (terminal exit 0):
-
+Accepted terminal exit 0:
 ```sh
 env -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --workers=4 dashboard/tests/agent-launch-duplicate.spec.ts dashboard/tests/agent-launch-matching-rules.spec.ts dashboard/tests/agent-launch-start-duplicate.spec.ts dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts dashboard/tests/agent-launch-codex-lifetime.spec.ts
 npm run typecheck:dashboard
 ```
+Duplicate HTTP observations cover both hosts' instructed/blank ad hoc and start-less story counts/refusal, original intent under changed choices, detachment, settlement/refusal release and distinct subjects. Matching rules cover project/host/workflow/subject and story-choice invariance. Existing claim/workspace/session cardinality, preparation recovery and Codex lifetime proof remain.
+Setup: real preview/HTTP from `dashboardTest.ts`/`agentLaunchBoundary.ts`; only vendor answers are synthetic (`support/codexLaunch.ts`, Claude fixture). New `holdCreation` defaults false and holds only native blank creation.
+Coordinator inspected assertions/setup/admission. Independent refactor: `none — already clean`, `## REFACTOR COMPLETE`; proof unchanged. Formatting passed; it was repeated after the first call's completion handle was lost.
 
-The new duplicate HTTP spec observes both hosts' instructed/blank ad hoc and
-start-less story counts/refusal, original intent under changed choices, detached
-caller protection, release on settlement/refusal, and distinct-subject admission.
-Matching rules cover project/host/workflow/subject and story choice invariance.
-Existing start cardinality, preparation recovery and Codex lifetime proof remain.
-Setup: real preview/HTTP from `dashboardTest.ts` and `agentLaunchBoundary.ts`;
-only vendor answers are synthetic (`support/codexLaunch.ts`, Claude fixture).
-New `holdCreation` defaults false and holds only native blank creation.
-Coordinator inspected assertions, setup and admission. Independent refactor:
-`none — already clean`, `## REFACTOR COMPLETE`; proof unchanged, no rerun needed.
+### Slice 2
+
+Prechange saved-creation GET proof failed because parsed host recovery was absent:
+```sh
+env -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --workers=4 dashboard/tests/agent-launch-creation-gates.spec.ts --grep 'saved creation'
+```
+Accepted terminal exit 0:
+```sh
+env -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --workers=4 dashboard/tests/agent-launch-creation-gates.spec.ts dashboard/tests/agent-launch-creation-recovery.spec.ts dashboard/tests/agent-launch-codex-creation.spec.ts dashboard/tests/agent-launch-records.spec.ts dashboard/tests/agent-launch-codex-reconciliation.spec.ts dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts dashboard/tests/agent-launch-ad-hoc-codex-recovery.spec.ts
+npm run typecheck:dashboard
+```
+New gate assertions observe real HTTP unreadable Codex refusal (`thread/start` zero), unchanged corrupt evidence, Claude native admission and preserved unreadable artifact; saved unsupported recovery passes actual GET/page without borrowed commands. Stand-in host facts exercise common projection, refusal, GET parser, page display and harmless shell argument echo; declared evidence without arguments still gates with unavailable recovery.
+Existing creation journey checks predecessor workspace/endpoint-only disk data, restart refusal, shell-executed picker arguments and native counts; existing records/known-session/preparation/ad-hoc recovery observations remain unchanged. Stand-in browser proof replaces only returned native facts, not the GET parser or UI; delivered hosts use real middleware and isolated machine evidence.
+Reviewed current consumers: physical store/document/recording, host operation, common gate/response, GET schema, App/CardLaunches/RecentSessions/CreationEntry. No stored migration or native first-input edit. Shared production gate/display search contains no Codex test or native argument construction.
+Coordinator inspected mapped boundaries/assertions/setup. Independent refactor: `none — already clean`, `## REFACTOR COMPLETE`; no invalidated proof. Formatting passed after mechanical JSON-response type annotation; runtime observations unchanged.
