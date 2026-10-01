@@ -1,7 +1,7 @@
 // Candidate installed .agents scripts own publication/workspaces. The page
 // chooses Codex; the native substitute supplies only RPC outcomes and IDs.
 import { readFileSync, existsSync, writeFileSync, rmSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import path from "node:path";
 import { launch, launchRequest } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
@@ -69,21 +69,56 @@ for (const damage of [
       if (damage === "workspace-and-branch")
         git("branch", "-d", "codex/story-a");
     } else if (damage === "older-script") {
-      // The previous released-shape command must reject the new operation,
-      // rather than ignore an unknown flag and announce a replacement.
+      // Exact released v0.3.51 entry; provenance is beside the offline fixture.
       writeFileSync(
-        path.join(
+        script,
+        readFileSync(
+          new URL(
+            "./fixtures/preparation-assignment-v0.3.51.mjs.txt",
+            import.meta.url,
+          ),
+        ),
+      );
+      // Prove unsupported continuation while the established ownership is intact.
+      const continuation = spawnSync(
+        process.execPath,
+        [
+          script,
+          "continue",
+          "--integration",
           origin.project,
-          ".agents/skills/dough-story-refinement/scripts/preparation-assignment.mjs",
-        ),
-        execFileSync(
-          "git",
-          [
-            "show",
-            "HEAD:src/skills/dough-story-refinement/scripts/preparation-assignment.mjs",
-          ],
-          { encoding: "utf8" },
-        ),
+          "--workspace",
+          workspace,
+          "--branch",
+          "codex/story-a",
+          "--identity",
+          queuedIdentity,
+          "--remote",
+          "origin",
+          "--target",
+          "main",
+          "--push-authorized",
+          "--host",
+          "codex",
+          "--expected-agent",
+          agent,
+          "--expected-allocation",
+          publishedSha,
+        ],
+        {
+          cwd: origin.project,
+          env: { ...process.env, HOME: dashboard.home },
+          encoding: "utf8",
+        },
+      );
+      expect(continuation.error).toBeUndefined();
+      expect(continuation.status, continuation.stdout).toBe(2);
+      expect(continuation.stdout).toBe("");
+      expect(continuation.stderr).toContain(
+        "usage: preparation-assignment.mjs start",
+      );
+      expect(continuation.stderr).not.toContain(
+        "preparation-assignment.mjs continue",
       );
       git("worktree", "remove", workspace);
       git("branch", "-d", "codex/story-a");

@@ -42,7 +42,7 @@ Follow [North Star's established start](../../NORTH-STAR.md#a-start-establishes-
 
 Type: Structure
 
-Status: planned
+Status: done
 
 Correction: make the existing older-installation case use stable predecessor
 command bytes and observe that the installed command truly lacks continuation.
@@ -68,3 +68,19 @@ Existing solution and decisive lookup/dispatcher premises were inspected above.
 No numeric slice target/hard limit was supplied. No slice-boundary, proof,
 architecture or sizing concern remains in this planning review. Preparation
 assessment records this judgment; it grants no execution or queue authority.
+
+## Execution state and accepted proof
+
+- Authorized by Terry's `dough-execute-plan 195` instruction on 2026-10-01.
+- Mode: Story Branch. Originating/integration checkout: `/Users/terryyin/git/open-dough`.
+- Created owned workspace: `/Users/terryyin/git/open-dough/.worktrees/older-preparation-command-proof`; branch `codex/older-preparation-command-proof`; starting revision `e2735f52d0e5252f935b8f3a310f699711bb8270`.
+- Publisher: `codex-plan-195-20261001`; assigned agent `mike.li-chan`.
+- Accepted Take: `d5284a8a4005eddb5c7bc33645938596ed25cf50` on `origin/main`; execution branch published at that Take. Default checkout maintenance: advanced. Claim CI remains unobserved.
+- Setup: `npm ci` completed in the owned checkout, followed by passing `npm run test:dashboard -- --list dashboard/tests/agent-launch-preparation-codex-retry.spec.ts --grep older-script`.
+- No numeric slice target/hard limit; existing same-scope planning authority retained. No replanning was needed.
+- Implementation replaces the HEAD-dependent command with unchanged offline v0.3.51 CLI bytes; release/blob/checksum provenance is beside the maintained fixture. Production and shared setup are unchanged.
+- Distinguishing red: `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-preparation-codex-retry.spec.ts --workers=2 --grep 'older-script'` with the direct CLI probe and original HEAD-backed command failed expected exit 2 / received 0, stdout `status: continued`, before workspace/branch damage.
+- Green: the same literal command passed, terminal exit 0, selecting the older-script scenario. Its intact-ownership probe observes exit 2, empty stdout, start usage and absent continue usage. Dialog and HTTP retries observe unchanged saved-start bytes, profiles, origin tip, branches/worktrees and native call log; independent Story B launches with a second profile and one turn/start. The removed workspace has no allocation ref; published allocation/profile preservation is observed instead.
+- Observing locations: `dashboard/tests/agent-launch-preparation-codex-retry.spec.ts`, older-script CLI probe, repeated retry preservation assertions and independent Story B assertions. Preconditions come from unchanged `support/preparationPage.ts` / `support/startOrigin.ts`; native substitution owns RPC only.
+- Fresh independent refactor review: none — already clean; no edits or repeated tests. Selective Prettier formatting changes layout only. No current-command continuation rerun: its shared setup/implementation remains unchanged.
+- Delivery target: `origin/refs/heads/codex/older-preparation-command-proof`; GitHub workflow `ci.yml` verified. The installed managed delivery starts a detached mailbox, but its Codex adapter exposes no supported way to attach the yielded stream to that existing mailbox. The documented stream command creates another mailbox. Delivery therefore reports an explicit unavailable notification bridge rather than claiming observed CI.
