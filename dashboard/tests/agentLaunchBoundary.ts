@@ -12,6 +12,7 @@ import path from "node:path";
 import { expect } from "@playwright/test";
 import {
   agentAcceptEndpoint,
+  agentContinueEndpoint,
   agentLaunchEndpoint,
   type AttemptObservation,
 } from "../src/agentLaunch.ts";
@@ -44,7 +45,24 @@ export async function launch(
   body: unknown,
   headers: Record<string, string> = { Origin: server.origin },
 ): Promise<RawResponse> {
-  const accepted = await accept(server, body, headers);
+  return followed(server, await accept(server, body, headers));
+}
+
+// Asks to continue the project's kept attempt `attempt` and answers what it
+// settled to, as `launch` does.
+export async function continued(
+  server: DashboardServer,
+  attempt: string,
+): Promise<RawResponse> {
+  return followed(server, await continueAttempt(server, attempt));
+}
+
+// The acceptance answer when nothing was accepted, otherwise what the
+// accepted attempt settled to.
+async function followed(
+  server: DashboardServer,
+  accepted: RawResponse,
+): Promise<RawResponse> {
   if (accepted.status !== 200) return accepted;
   const answer = JSON.parse(accepted.body) as {
     kind: string;
@@ -75,31 +93,51 @@ export const alreadyStarting = {
     "This story is already starting on this machine, so a second start was not made. Wait for the running start to end; its card shows its progress. Nothing was launched.",
 };
 
-// Asks for a launch answered once the boundary's launch owner accepted it.
-export function accept(
+// A JSON POST of `body` to the boundary's `endpoint`, from this dashboard's
+// own origin unless `headers` say otherwise.
+function post(
   server: DashboardServer,
+  endpoint: string,
   body: unknown,
   headers: Record<string, string> = { Origin: server.origin },
 ): Promise<RawResponse> {
   return rawRequest({
-    url: `${server.baseURL}${agentAcceptEndpoint}`,
+    url: `${server.baseURL}${endpoint}`,
     method: "POST",
     headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify(body),
   });
 }
 
-export function markDone(
+// Asks for a launch answered once the boundary's launch owner accepted it.
+export const accept = (
   server: DashboardServer,
   body: unknown,
-  headers: Record<string, string> = { Origin: server.origin },
-): Promise<RawResponse> {
-  return rawRequest({
-    url: `${server.baseURL}${agentDoneEndpoint}`,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...headers },
-    body: JSON.stringify(body),
+  headers?: Record<string, string>,
+) => post(server, agentAcceptEndpoint, body, headers);
+
+// Asks to continue the project's kept attempt `attempt`, answered once it is
+// accepted again or with why not.
+export const continueAttempt = (
+  server: DashboardServer,
+  attempt: string,
+  source = "open-dough",
+) => post(server, agentContinueEndpoint, { source, attempt });
+
+export const markDone = (
+  server: DashboardServer,
+  body: unknown,
+  headers?: Record<string, string>,
+) => post(server, agentDoneEndpoint, body, headers);
+
+// The machine's sessions as the boundary answers them.
+async function sessionsAnswer<T>(server: DashboardServer): Promise<T> {
+  const response = await rawRequest({
+    url: `${server.baseURL}${agentLaunchEndpoint}`,
+    headers: { Origin: server.origin },
   });
+  expect(response.status).toBe(200);
+  return JSON.parse(response.body) as T;
 }
 
 // The machine's sessions as the boundary answers them: every project's kept
@@ -107,12 +145,7 @@ export function markDone(
 export async function machineSessions(
   server: DashboardServer,
 ): Promise<unknown[]> {
-  const response = await rawRequest({
-    url: `${server.baseURL}${agentLaunchEndpoint}`,
-    headers: { Origin: server.origin },
-  });
-  expect(response.status).toBe(200);
-  return (JSON.parse(response.body) as { records: unknown[] }).records;
+  return (await sessionsAnswer<{ records: unknown[] }>(server)).records;
 }
 
 // The projects whose installed skill establishes a start, as the boundary
@@ -120,12 +153,8 @@ export async function machineSessions(
 export async function establishingProjects(
   server: DashboardServer,
 ): Promise<string[]> {
-  const response = await rawRequest({
-    url: `${server.baseURL}${agentLaunchEndpoint}`,
-    headers: { Origin: server.origin },
-  });
-  expect(response.status).toBe(200);
-  return (JSON.parse(response.body) as { establishing: string[] }).establishing;
+  return (await sessionsAnswer<{ establishing: string[] }>(server))
+    .establishing;
 }
 
 // The projects whose installed skill ships the preparation start and its
@@ -133,12 +162,7 @@ export async function establishingProjects(
 export async function establishingPreparation(
   server: DashboardServer,
 ): Promise<string[]> {
-  const response = await rawRequest({
-    url: `${server.baseURL}${agentLaunchEndpoint}`,
-    headers: { Origin: server.origin },
-  });
-  expect(response.status).toBe(200);
-  return (JSON.parse(response.body) as { establishingPreparation: string[] })
+  return (await sessionsAnswer<{ establishingPreparation: string[] }>(server))
     .establishingPreparation;
 }
 
@@ -171,28 +195,16 @@ export function machineFolder(server: DashboardServer): string {
   return realpathSync(server.home);
 }
 
-export function deleteRecord(
+export const deleteRecord = (
   server: DashboardServer,
   body: unknown,
-  headers: Record<string, string> = { Origin: server.origin },
-): Promise<RawResponse> {
-  return rawRequest({
-    url: `${server.baseURL}${agentDeleteEndpoint}`,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...headers },
-    body: JSON.stringify(body),
-  });
-}
+  headers?: Record<string, string>,
+) => post(server, agentDeleteEndpoint, body, headers);
 
 // The starts the boundary keeps without a session, as it answers the machine's
 // sessions.
 export async function keptStarts(server: DashboardServer): Promise<unknown[]> {
-  const response = await rawRequest({
-    url: `${server.baseURL}${agentLaunchEndpoint}`,
-    headers: { Origin: server.origin },
-  });
-  expect(response.status).toBe(200);
-  return (JSON.parse(response.body) as { keptStarts: unknown[] }).keptStarts;
+  return (await sessionsAnswer<{ keptStarts: unknown[] }>(server)).keptStarts;
 }
 
 // The starts the boundary runs now with their phases, as it answers the
@@ -200,23 +212,13 @@ export async function keptStarts(server: DashboardServer): Promise<unknown[]> {
 export async function runningStarts(
   server: DashboardServer,
 ): Promise<unknown[]> {
-  const response = await rawRequest({
-    url: `${server.baseURL}${agentLaunchEndpoint}`,
-    headers: { Origin: server.origin },
-  });
-  expect(response.status).toBe(200);
-  return (JSON.parse(response.body) as { starts: unknown[] }).starts;
+  return (await sessionsAnswer<{ starts: unknown[] }>(server)).starts;
 }
 
 // The launch attempts the boundary answers with the machine's sessions.
 export async function attempts(
   server: DashboardServer,
 ): Promise<AttemptObservation[]> {
-  const response = await rawRequest({
-    url: `${server.baseURL}${agentLaunchEndpoint}`,
-    headers: { Origin: server.origin },
-  });
-  expect(response.status).toBe(200);
-  return (JSON.parse(response.body) as { attempts: AttemptObservation[] })
+  return (await sessionsAnswer<{ attempts: AttemptObservation[] }>(server))
     .attempts;
 }

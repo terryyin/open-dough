@@ -7,10 +7,10 @@
 // the kept start, creation, or launch record that holds the native evidence;
 // it never copies that evidence and is never a story fact. A settled attempt
 // is dropped `launchRetentionDays` after it settled; an unsettled one is kept
-// until it settles. This server's writes are made one at a time, so attempts
-// accepted together are all kept; the file is read afresh, replaced
-// atomically, and moved aside when unreadable as `./machineJsonStore.ts`
-// describes.
+// until it settles. A continued attempt is the same attempt run again. This
+// server's writes are made one at a time, so attempts accepted together are
+// all kept; the file is read afresh, replaced atomically, and moved aside when
+// unreadable as `./machineJsonStore.ts` describes.
 
 import { homedir } from "node:os";
 import path from "node:path";
@@ -80,26 +80,18 @@ export async function keptAttempts(): Promise<
     : undefined;
 }
 
-// Keeps a newly accepted attempt; a failed write means it was not accepted.
+// Keeps an attempt's latest state in place of what is kept of it, or adds it
+// when none is: a newly accepted attempt, or one whose earlier state was lost
+// when an unreadable file was moved aside. A failed write keeps nothing.
 export function keepAttempt(attempt: LaunchAttemptRecord): Promise<void> {
   const sourceId = attempt.request.source;
-  return replaceAttempts((kept) => ({
-    ...kept,
-    [sourceId]: [...(kept[sourceId] ?? []), attempt],
-  }));
-}
-
-// Replaces a kept attempt with its later state; nothing when none is kept.
-export function updateAttempt(attempt: LaunchAttemptRecord): Promise<void> {
-  const sourceId = attempt.request.source;
-  return replaceAttempts((kept) =>
-    kept[sourceId] === undefined
-      ? kept
-      : {
-          ...kept,
-          [sourceId]: kept[sourceId].map((entry) =>
-            entry.id === attempt.id ? attempt : entry,
-          ),
-        },
-  );
+  return replaceAttempts((kept) => {
+    const attempts = kept[sourceId] ?? [];
+    return {
+      ...kept,
+      [sourceId]: attempts.some((entry) => entry.id === attempt.id)
+        ? attempts.map((entry) => (entry.id === attempt.id ? attempt : entry))
+        : [...attempts, attempt],
+    };
+  });
 }

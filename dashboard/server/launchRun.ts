@@ -16,7 +16,7 @@ import { launchRecording } from "./launchRecording.ts";
 import { keepRecord, pendingInputOf } from "./launchRecordStore.ts";
 import { removeStart } from "./startStore.ts";
 import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
-import type { OwnedAttempt } from "./launchAttemptOwner.ts";
+import type { OwnedAttempt } from "./ownedAttempts.ts";
 import { establishedFacts } from "./startLaunch.ts";
 import type { StartProgress } from "./startProgress.ts";
 

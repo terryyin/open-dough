@@ -164,23 +164,41 @@ for (const { name, change, line } of unavailable) {
   });
 }
 
-test("until the sessions read answers, the dialog says options are being read and Start launches default refinement", async ({
+test("until the sessions read answers, refinement is not offered; while the options are read again, the dialog says so and Start launches default refinement", async ({
   page,
   dashboard,
 }) => {
   dashboard.claudeScenario("launched");
   installRefinementSkill(dashboard.home);
+  // Reads of the machine's sessions wait while held.
   let release: () => void = () => undefined;
-  const held = new Promise<void>((resolve) => {
-    release = resolve;
-  });
+  let held: Promise<void> | undefined;
+  const hold = () => {
+    held = new Promise<void>((resolve) => {
+      release = () => {
+        held = undefined;
+        resolve();
+      };
+    });
+  };
+  hold();
   await page.route("**/__agent-launch", async (route) => {
-    if (route.request().method() === "GET") await held;
+    if (route.request().method() === "GET" && held !== undefined) await held;
     await route.continue();
   });
   const { refine, refinementDialog } = await openTakenBacklog(page, journey);
 
+  // No Start is offered before this machine's launch evidence is read.
+  await expect(refine(notRefinedStory)).toBeDisabled();
+  release();
+  await expect(refine(notRefinedStory)).toBeEnabled();
+
+  hold();
   await refine(notRefinedStory).click();
+  // The dialog is named after its host, so it is found by role here.
+  const host = page.getByRole("dialog").getByRole("combobox", { name: "Host" });
+  await host.selectOption("codex");
+  await host.selectOption("claude");
   await expect(refinementDialog.getByText("Reading options…")).toBeVisible();
   await expect(
     refinementDialog.getByRole("group", { name: "Options" }),

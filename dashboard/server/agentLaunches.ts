@@ -20,7 +20,11 @@ import { launchHosts } from "../src/sessionCapabilities.ts";
 import { withStates } from "./launchStates.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { recordedRequest } from "./hostLaunch.ts";
-import { LaunchAttemptOwner, type Unaccepted } from "./launchAttemptOwner.ts";
+import { LaunchAttemptOwner } from "./launchAttemptOwner.ts";
+import {
+  startStillRunning,
+  type Unaccepted,
+} from "./launchAttemptConflicts.ts";
 import {
   creationOf,
   keptCreations,
@@ -127,8 +131,12 @@ export class AgentLaunches {
       : { kind: "folder-not-found", folder };
   }
 
-  // The attempts this machine keeps and those this server owns.
-  attempts(): Promise<readonly AttemptObservation[]> {
+  // The attempts this machine keeps and those this server owns, and whether
+  // the kept ones could be read.
+  attempts(): Promise<{
+    readonly attempts: readonly AttemptObservation[];
+    readonly readable: boolean;
+  }> {
     return this.owner.attempts();
   }
 
@@ -163,6 +171,26 @@ export class AgentLaunches {
     if (answer !== undefined) return answer;
     return this.owner.accept(request, (own, notePublication) =>
       attemptRun(source, own, notePublication, this.progress),
+    );
+  }
+
+  // Continues the project's kept attempt `id` that needs reconciliation
+  // through the same pre-launch answers and run as a launch, so its kept
+  // start, Codex creation, or unconfirmed input is recovered by the existing
+  // rules; answering once it is accepted again, or why it was not. While its
+  // earlier start still runs here, it is not continued, so that start's
+  // result is not mistaken for this attempt's.
+  continueAttempt(source: PublishedSource, id: string): Promise<Acceptance> {
+    return this.owner.continueAttempt(
+      source.id,
+      id,
+      async (request) =>
+        request.workflow !== "ad-hoc" &&
+        this.progress.for(request.workflow).running(source.id, request.identity)
+          ? startStillRunning
+          : this.beforeAcceptance(source, request),
+      (own, notePublication) =>
+        attemptRun(source, own, notePublication, this.progress),
     );
   }
 

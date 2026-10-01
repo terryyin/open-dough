@@ -79,8 +79,9 @@ export function StartLaunch({
   // The workflow's note on this card, if any.
   readonly note: string | undefined;
   readonly attempt: LaunchAttempt | undefined;
-  // Whether the card's actions are protected while its story starts: the
-  // keyboard returns to the button only once it is available again.
+  // Whether the action is unavailable -- while its story starts, or before
+  // this machine's launch evidence was read: the keyboard returns to the
+  // button only once it is available again.
   readonly unavailable?: boolean;
   // Answers whether the launch was accepted.
   readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
@@ -132,6 +133,7 @@ export function StartLaunch({
           }
           aria-haspopup="dialog"
           aria-describedby={described.length ? described.join(" ") : undefined}
+          disabled={unavailable}
           onClick={openDialog}
         >
           Start {named}

@@ -20,7 +20,6 @@ import { workCardMarks } from "./workFocus.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { CardLaunches } from "./CardLaunches.tsx";
 import { cardSessionsOf } from "./agentLaunch.ts";
-import { startupProtects } from "./storyStartup.ts";
 import { usePageSessions } from "./pageSessions.ts";
 
 export function WorkCard({
@@ -56,9 +55,9 @@ export function WorkCard({
     sourceId,
     entry.identity,
   ).some((record) => sessionKey(record.session) === shownInTerminal);
-  const starting = startupProtects(
-    launches.storyStartupOf(sourceId, entry.identity),
-  );
+  // Every startup of the story protects its frame.
+  const starting =
+    launches.storyStartupOf(sourceId, entry.identity) !== undefined;
   return (
     <article
       ref={cardRef}

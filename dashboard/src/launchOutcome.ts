@@ -91,6 +91,20 @@ export const agentAcceptEndpoint = `${agentLaunchEndpoint}/accept`;
 // session's record.
 export const agentChangedEndpoint = `${agentLaunchEndpoint}/changed`;
 
+// A page asks here to continue one accepted attempt that needs
+// reconciliation (`needsReconciliation`), naming its project and attempt:
+// its exact kept request runs again under the same attempt identity and the
+// existing recovery rules, or the answer says why it does not, the attempt
+// kept as it was.
+export const agentContinueEndpoint = `${agentLaunchEndpoint}/continue`;
+
+export const continueRequestSchema = z.object({
+  source: z.string().min(1),
+  attempt: z.uuid(),
+});
+
+export type ContinueRequest = z.infer<typeof continueRequestSchema>;
+
 export const publicationReceiptSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("none") }),
   z.object({ kind: z.literal("unknown") }),
@@ -131,6 +145,17 @@ export const attemptObservationSchema = launchAttemptSchema.extend({
 });
 
 export type AttemptObservation = z.infer<typeof attemptObservationSchema>;
+
+// Whether an accepted attempt needs reconciliation before its story's
+// startup is known: unsettled while no server runs it, or settled while its
+// session or its publication may or may not exist. Elapsed time never
+// settles it; recheck or continuation does.
+export function needsReconciliation(attempt: AttemptObservation): boolean {
+  return attempt.outcome === undefined
+    ? !attempt.owned
+    : attempt.outcome.kind === "uncertain" ||
+        attempt.publication.kind === "unknown";
+}
 
 export const changedAnswerSchema = z.object({
   changed: z.boolean(),

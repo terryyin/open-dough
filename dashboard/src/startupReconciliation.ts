@@ -45,11 +45,12 @@ export function shownSnapshotOf(
 }
 
 // What the page shows of published work, for settled attempts to reconcile
-// with: the snapshot, whether a read of it is under way, and asking a fresh
-// read of it.
+// with: the snapshot, whether a read of it is under way, why the latest read
+// failed, if it did, and asking a fresh read of it.
 export type PublishedShown = {
   readonly shown: ShownSnapshot | undefined;
   readonly reading: boolean;
+  readonly failure?: string | undefined;
   readonly readAfresh: () => void;
 };
 
@@ -106,6 +107,7 @@ export function useStartupReconciliation({
   known,
   shown,
   reading,
+  failure,
   readAfresh,
 }: {
   readonly known: readonly AttemptObservation[];
@@ -129,7 +131,21 @@ export function useStartupReconciliation({
   });
   const containment = usePublicationContainment(questions, shown?.askedAt ?? 0);
 
+  // A waiting attempt says why the latest read failed, when it did and
+  // nothing more particular failed.
   const judged = (attempt: AttemptObservation): Reconciliation => {
+    const judgement = judgedNow(attempt);
+    return judgement.kind === "waiting" &&
+      judgement.problem === undefined &&
+      failure !== undefined
+      ? {
+          kind: "waiting",
+          problem: `The latest read of published work failed: ${failure}`,
+        }
+      : judgement;
+  };
+
+  const judgedNow = (attempt: AttemptObservation): Reconciliation => {
     if (reconciledIds.has(attempt.id)) return { kind: "reconciled" };
     if (attempt.publication.kind === "unknown") return { kind: "unconfirmed" };
     if (

@@ -4,8 +4,9 @@
 // keeps the story's actions unavailable, with an indicator that moves only
 // while the startup is known to progress. A settled start waiting for the
 // published snapshot to show its result says so, with why the last check of
-// it failed, if it did. An accepted start no server runs and that never
-// settled is said statically, with the existing recovery direction.
+// it failed, if it did. A start in need of reconciliation is said
+// statically with what is known, and recovered under Startup recovery
+// (`./StartupRecovery.tsx`), outside the protected frame.
 // Published facts stay as origin shows them; nothing here places the story.
 
 import {
@@ -17,15 +18,20 @@ import type { StoryStartup } from "./storyStartup.ts";
 import { hostName } from "./sessionCapabilities.ts";
 import "./agent-launch.css";
 
-// Where the host's own sessions are checked.
-function NativeCheck({ host }: { readonly host: StoryStartup["host"] }) {
-  return host === "claude" ? (
-    <>
-      check <code>claude agents</code>
-    </>
-  ) : (
-    <>check the dashboard history and native {hostName(host)} conversations</>
-  );
+// What is known of a startup in need of reconciliation, by its cause.
+// `start` names it, such as "execution start".
+export function reconciliationCause(
+  { cause }: Pick<StoryStartup, "cause">,
+  start: string,
+): string {
+  switch (cause) {
+    case "unacknowledged":
+      return `the answer to this ${start} was lost, so it may or may not have been accepted.`;
+    case "interrupted":
+      return `this machine accepted this ${start}, but no running dashboard server owns it and it never settled, so its session may or may not have started.`;
+    default:
+      return `this ${start} settled without confirming whether its session or published assignment exists.`;
+  }
 }
 
 export function StartupStatus({
@@ -57,10 +63,10 @@ export function StartupStatus({
   if (state === "needs-reconciliation") {
     return (
       <p className="launch-answer card-startup card-startup-static">
-        Startup needs reconciliation: this machine accepted a {named} start of
-        this story that no running dashboard server owns, so its session may or
-        may not have started. Press Refresh, and <NativeCheck host={host} />{" "}
-        before starting again.
+        Startup needs reconciliation:{" "}
+        {reconciliationCause(startup, `${named} start`)} Recheck or continue it
+        under Startup recovery; this story's actions stay unavailable until
+        then.
       </p>
     );
   }

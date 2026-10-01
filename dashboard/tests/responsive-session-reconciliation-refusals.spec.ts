@@ -8,49 +8,18 @@
 // Afterwards the card offers what the read story allows, with the launch's
 // answer kept on it.
 
-import { execFile } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
-import { promisify } from "node:util";
 import { attempts } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { commitAnswer } from "./originAnswers.ts";
+import { removeQueuedStory } from "./responsiveRecovery.ts";
 import { expectProtected, openStories, test } from "./responsiveStart.ts";
 import { radio } from "./support/sessionDialog.ts";
-import { queuedIdentity, type StartOrigin } from "./support/startOrigin.ts";
-
-const exec = promisify(execFile);
+import type { StartOrigin } from "./support/startOrigin.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
 const waiting = "Waiting for published story state";
-
-// Another writer removes Story A from origin's backlog.
-async function removeQueuedStory(origin: StartOrigin): Promise<void> {
-  const clone = path.join(origin.machine, "another-writer");
-  const git = (...args: string[]) => exec("git", ["-C", clone, ...args]);
-  await exec("git", ["clone", "--quiet", origin.origin, clone]);
-  const backlog = path.join(clone, ".planning/PRODUCT-BACKLOG.md");
-  writeFileSync(
-    backlog,
-    readFileSync(backlog, "utf8")
-      .split("\n")
-      .filter((line) => !line.includes(queuedIdentity))
-      .join("\n"),
-  );
-  await git(
-    "-c",
-    "user.name=Writer",
-    "-c",
-    "user.email=w@example.test",
-    "commit",
-    "--quiet",
-    "-am",
-    "remove Story A",
-  );
-  await git("push", "--quiet", "origin", "main");
-}
 
 // Starts Story A's execution while the page still shows the revision before
 // `change`, which another writer makes meanwhile.

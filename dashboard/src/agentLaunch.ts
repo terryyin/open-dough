@@ -150,9 +150,12 @@ export type OfferedDefinition = z.infer<typeof offeredDefinitionSchema>;
 // Start execution is pressed, by project id, the projects whose installed
 // skill establishes a preparation when Start refinement is pressed, the starts
 // kept without a session, the starts running now with their phases, the
-// options each project offers, and the launch attempts this machine accepted.
+// options each project offers, and the launch attempts this machine accepted,
+// with whether its kept attempts could be read (when not, an earlier startup
+// may be unresolved and nothing tells which).
 export const launchRecordsSchema = z.object({
   attempts: z.array(attemptObservationSchema).default([]),
+  attemptsReadable: z.boolean().default(true),
   records: z.array(launchWithStateSchema),
   creations: z.array(creationSchema).default([]),
   alerts: alertsSchema,

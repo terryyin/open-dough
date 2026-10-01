@@ -9,7 +9,9 @@ import { useAgentLaunches } from "./agentLaunches.ts";
 import { RecentSessions } from "./RecentSessions.tsx";
 import { TerminalSplit } from "./TerminalSplit.tsx";
 import { PreparationLegend } from "./PreparationLegend.tsx";
+import { NearFutureDirection } from "./NearFutureDirection.tsx";
 import { StartSession } from "./StartSession.tsx";
+import { StartupRecovery } from "./StartupRecovery.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
 import type { OpenRoster } from "./AgentAssignmentFacts.tsx";
 import {
@@ -52,7 +54,13 @@ export function App() {
     refresh,
     selectSource,
   } = usePublishedObservation(initialSource.current);
-  const launches = useAgentLaunches({ shown, reading, readAfresh: refresh });
+  const readFailure = attempt.status === "failed" ? attempt.problem : undefined;
+  const launches = useAgentLaunches({
+    shown,
+    reading,
+    failure: readFailure,
+    readAfresh: refresh,
+  });
 
   const onReturnToStories = useCallback(() => {
     returningFromRoster.current = true;
@@ -189,18 +197,7 @@ export function App() {
         </p>
         <div className="project-actions" hidden={showsRoster}>
           {work && (
-            <section className="direction" aria-labelledby="direction-heading">
-              <details key={source.id}>
-                <summary>
-                  <h2 id="direction-heading">Near-future direction</h2>
-                </summary>
-                {work.direction === "" ? (
-                  <p className="quiet">No near-future direction is recorded.</p>
-                ) : (
-                  <p className="direction-text">{work.direction}</p>
-                )}
-              </details>
-            </section>
+            <NearFutureDirection key={source.id} direction={work.direction} />
           )}
           <div className="project-actions-end">
             <StartSession
@@ -213,6 +210,9 @@ export function App() {
             {showsPreparation && <PreparationLegend />}
           </div>
         </div>
+        {!showsRoster && (
+          <StartupRecovery sourceId={source.id} recoveries={launches} />
+        )}
       </div>
       {work && (
         <main hidden={showsRoster}>
@@ -233,7 +233,7 @@ export function App() {
           <AgentRoster
             source={source}
             work={work}
-            problem={attempt.status === "failed" ? attempt.problem : undefined}
+            problem={readFailure}
             agent={opening?.sourceId === source.id ? opening.agent : undefined}
             onBack={onBack}
           />

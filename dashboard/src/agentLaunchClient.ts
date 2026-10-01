@@ -1,6 +1,7 @@
 // The browser's requests to the local launch boundary
 // (`../server/agentLaunchPlugin.ts`): an ordinary same-origin JSON POST that
-// asks the launch owner to accept a launch, a GET that waits for an accepted
+// asks the launch owner to accept a launch, or to continue a kept attempt
+// that needs reconciliation, a GET that waits for an accepted
 // attempt to change, a GET of the machine's sessions,
 // and a POST that marks one recorded session done. A launch request answers
 // once the owner accepted it, or with what was answered before anything was
@@ -15,10 +16,12 @@ import {
   agentAcceptEndpoint,
   agentLaunchEndpoint,
   agentChangedEndpoint,
+  agentContinueEndpoint,
   changedAnswerSchema,
   launchRecordsSchema,
   type Acceptance,
   type AgentLaunchRequest,
+  type AttemptObservation,
   type LaunchRecord,
   type LaunchWithState,
   type MachineAnswer,
@@ -40,11 +43,12 @@ export type LaunchProblem = {
 };
 
 // What asking for a launch answers the page: the attempt the local service
-// accepted, or a launch problem; or, for its dialog, the default checkout's
-// existing changes to confirm before anything starts.
+// accepted, or a launch problem (`unacknowledged` when no answer could be
+// trusted, so the service may have accepted it); or, for its dialog, the
+// default checkout's existing changes to confirm before anything starts.
 export type AcceptanceAnswer =
   | Extract<Acceptance, { readonly kind: "accepted" | "existing-changes" }>
-  | LaunchProblem;
+  | (LaunchProblem & { readonly unacknowledged?: true });
 
 const checkAgents = "Check `claude agents` for it before starting again.";
 
@@ -54,43 +58,61 @@ function noTrustedAnswer(
 ): AcceptanceAnswer {
   return {
     kind: "uncertain",
+    unacknowledged: true,
     explanation: `The local dashboard server ${what}, so the launch may or may not have been accepted and its session may or may not have started. ${host === "claude" ? checkAgents : "Check the dashboard history and native Codex conversations before starting again."}`,
   };
 }
 
-export async function requestAgentAcceptance(
+export function requestAgentAcceptance(
   request: AgentLaunchRequest,
+): Promise<AcceptanceAnswer> {
+  return askAcceptance(agentAcceptEndpoint, request, request.host);
+}
+
+// Asks the local service to continue the project's kept attempt that needs
+// reconciliation, answered as a launch is.
+export function requestAttemptContinuation(
+  attempt: AttemptObservation,
+): Promise<AcceptanceAnswer> {
+  return askAcceptance(
+    agentContinueEndpoint,
+    { source: attempt.request.source, attempt: attempt.id },
+    attempt.request.host,
+  );
+}
+
+async function askAcceptance(
+  endpoint: string,
+  body: unknown,
+  host: AgentLaunchRequest["host"],
 ): Promise<AcceptanceAnswer> {
   let response: Response;
   try {
-    response = await fetch(agentAcceptEndpoint, {
+    response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(request),
+      body: JSON.stringify(body),
     });
   } catch {
-    return noTrustedAnswer("could not be reached", request.host);
+    return noTrustedAnswer("could not be reached", host);
   }
-  const body: unknown = await response.json().catch(() => undefined);
+  const answered: unknown = await response.json().catch(() => undefined);
   if (!response.ok) {
     // A refusal happens before anything is accepted.
-    const refused = refusal.safeParse(body);
+    const refused = refusal.safeParse(answered);
     return refused.success
       ? {
           kind: "failed",
           explanation: `${refused.data.error} Nothing was launched.`,
         }
-      : noTrustedAnswer(
-          `answered HTTP ${String(response.status)}`,
-          request.host,
-        );
+      : noTrustedAnswer(`answered HTTP ${String(response.status)}`, host);
   }
-  const answer = acceptanceSchema.safeParse(body);
+  const answer = acceptanceSchema.safeParse(answered);
   return answer.success
     ? answer.data
     : noTrustedAnswer(
         "answered in a shape this dashboard does not understand",
-        request.host,
+        host,
       );
 }
 

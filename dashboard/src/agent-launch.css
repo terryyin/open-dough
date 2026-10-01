@@ -198,3 +198,33 @@
 .card-startup-note {
   font-size: 0.9rem;
 }
+
+/* Startup recovery: the project's startups that need reconciliation, beside
+   its actions and outside every protected card. Each entry is static: no
+   indicator moves, since nothing is known to progress. */
+.startup-recovery {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+}
+
+.startup-recovery h2 {
+  font-size: 1rem;
+  margin: 0 0 0.25rem;
+}
+
+.startup-recovery-entry h3 {
+  font-size: 0.95rem;
+  margin: 0.5rem 0 0.15rem;
+}
+
+.startup-recovery-entry p {
+  margin: 0.2rem 0;
+}
+
+.startup-recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

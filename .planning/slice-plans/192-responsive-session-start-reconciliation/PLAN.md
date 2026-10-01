@@ -255,7 +255,28 @@ with existing safe recovery instructions until slice 4 supplies the selected UI.
 
 ### 4. Interrupted startup can be safely reconciled outside the card
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `dashboard/tests/responsive-session-recovery.spec.ts` (wait expiry with
+unknown publication: static protection, outside-card Continue resumes the same
+attempt once; failed published read with Recheck), `responsive-session-recovery-restart.spec.ts`
+(restart on same machine, reload, project switch, second page, removed story),
+`responsive-session-recovery-reads.spec.ts` (Starts unavailable until the first
+machine read; lost acknowledgment with the service unavailable stays static and
+protected), `responsive-session-recovery-ad-hoc.spec.ts` (Codex blank ad hoc recovery
+keeps no-input contract, no card), and `agent-launch-continuation.spec.ts` (refused
+fresh accepts, unknown/wrong-project/second continuation refused, unreadable store).
+Launch (512) and published-read (135) sweeps passed.
+Learnings: `POST /__agent-launch/continue` reruns the exact kept request under the
+same attempt id; fresh accepts are refused while a kept unowned unsettled attempt
+exists for the story; an unreadable attempt store refuses all launches. The outside-card
+`Startup recovery` region (`dashboard/src/StartupRecovery.tsx`) rewrites "Start again"
+wording to "continuing". Owned settled attempts leave memory only after a read sees
+them kept. Fixture servers sharing a `machine` share the synthetic `claude` log;
+release a held push concurrently with `dashboard.close()`. Not observed at page level:
+Codex creation-pending or kept-host-mismatch continuation refusal, Claude ad hoc
+recovery (its continuation follows the existing check-`claude agents`-first rule).
+Start's disabled reason before the first read is not yet an accessible description
+(slice 5).
 Proof: Extend recovery specs/page journey for lost acceptance/native/publication
 acknowledgment, failed remote read, server restart on the same machine, page reload,
 project switch, and a second page. Assert static needs-reconciliation explanation,

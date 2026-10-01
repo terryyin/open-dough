@@ -4,7 +4,7 @@
 // machine's sessions, a done mark on a session it recorded
 // (`./doneMarks.ts`), a delete of a record it kept, and a terminal upgrade
 // (`./agentTerminals.ts`). Every request must come from this dashboard's own
-// origin; a launch, a done mark, a
+// origin; a launch, a continuation, a done mark, a
 // delete, or an upgrade must name a catalog project, and a done mark, a delete,
 // or an upgrade a session this dashboard recorded for that project, in its
 // existing folder. A launch's selected options are checked against the
@@ -22,7 +22,9 @@ import { z } from "zod";
 import {
   agentAcceptEndpoint,
   agentChangedEndpoint,
+  agentContinueEndpoint,
   agentLaunchRequestSchema,
+  continueRequestSchema,
   attachOpens,
   launchKindName,
   type AgentLaunchRequest,
@@ -50,6 +52,12 @@ export type Admitted =
       readonly kind: "accept";
       readonly source: PublishedSource;
       readonly request: AgentLaunchRequest;
+    }
+  | {
+      // Answered once the kept attempt is accepted again.
+      readonly kind: "continue";
+      readonly source: PublishedSource;
+      readonly attempt: string;
     }
   | {
       readonly kind: "done";
@@ -129,6 +137,18 @@ async function deleteRequest(
   return { kind: "delete", source, record };
 }
 
+async function continueRequest(req: IncomingMessage): Promise<Admitted> {
+  const parsed = continueRequestSchema.safeParse(await jsonBody(req));
+  if (!parsed.success) {
+    throw new RefusedRequest(400, "The continue request is malformed.");
+  }
+  return {
+    kind: "continue",
+    source: knownSource(parsed.data.source),
+    attempt: parsed.data.attempt,
+  };
+}
+
 async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   const parsed = agentLaunchRequestSchema.safeParse(await jsonBody(req));
   if (!parsed.success) {
@@ -167,6 +187,7 @@ export async function admitted(
     [agentDoneEndpoint, () => doneRequest(req, launches)],
     [agentDeleteEndpoint, () => deleteRequest(req, launches)],
     [agentAcceptEndpoint, () => launchRequest(req)],
+    [agentContinueEndpoint, () => continueRequest(req)],
   ]).get(url.pathname);
   if (postOnly !== undefined) {
     if (req.method !== "POST") {

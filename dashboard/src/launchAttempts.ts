@@ -3,48 +3,51 @@
 // (`./agentLaunches.ts`). Asking sends the request to the local launch owner,
 // which answers once it accepted the exact request; the page then follows
 // that accepted attempt through the machine's sessions until its outcome
-// settles (`./attemptChangeWaits.ts`). A launched outcome lists its record
-// with the machine's sessions and is presented by the action that asked for
-// it (`onLaunched`); a failed or uncertain one stays beside that action. Each
-// story's startup, from whichever page, is told from the same attempts
+// settles (`./askedLaunches.ts`, `./attemptChangeWaits.ts`). Each story's
+// startup, from whichever page, is told from the same attempts
 // (`./storyStartup.ts`) and, once settled, from the published snapshot shown
-// (`./startupReconciliation.ts`).
+// (`./startupReconciliation.ts`). A lost answer keeps its story protected
+// until a read asked afterwards shows whether it was accepted; startups in
+// need of reconciliation are rechecked and continued outside their frames
+// (`./startupRecoveries.ts`).
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import {
   requestedChoices,
-  type AgentLaunchRequest,
   type AttemptObservation,
   type LaunchChoices,
   type LaunchWithState,
   type LaunchWorkflow,
   type StoryLaunchRequest,
 } from "./agentLaunch.ts";
-import { requestAgentAcceptance } from "./agentLaunchClient.ts";
+import { useAskedLaunches } from "./askedLaunches.ts";
 import { useAttemptChangeWaits } from "./attemptChangeWaits.ts";
 import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import {
   adHocKey,
+  askedRequests,
   attemptKey,
-  problemOf,
   shownAttempt,
   type LaunchAttempt,
   type OnLaunched,
-  type PageAttempt,
 } from "./pageAttempt.ts";
-import { sessionKey } from "./sessionReference.ts";
 import { storyStartup, type StoryStartup } from "./storyStartup.ts";
 import {
   useStartupReconciliation,
   type PublishedShown,
 } from "./startupReconciliation.ts";
+import {
+  useStartupRecovery,
+  type AttemptEvidence,
+  type StartupRecoveries,
+} from "./startupRecoveries.ts";
 
 export type { LaunchAttempt, OnLaunched } from "./pageAttempt.ts";
 
 // The work item a launch is for, as its request names it.
 export type LaunchWorkItem = Pick<StoryLaunchRequest, "identity" | "title">;
 
-export type LaunchAttempts = {
+export type LaunchAttempts = StartupRecoveries & {
   attemptOf(
     sourceId: string,
     identity: string,
@@ -81,87 +84,30 @@ export type LaunchAttempts = {
 // runs gets once it changes. `reads` counts the reads answered so far.
 export function useLaunchAttempts({
   observed,
+  attemptEvidence,
+  answeredAsk,
+  asksSoFar,
   records,
   reads,
   reread,
   published,
 }: {
   readonly observed: readonly AttemptObservation[];
+  readonly attemptEvidence: AttemptEvidence;
+  // Which read of the machine's sessions, counted as asked, answered
+  // latest, and how many were asked so far.
+  readonly answeredAsk: number;
+  readonly asksSoFar: () => number;
   readonly records: readonly LaunchWithState[];
   readonly reads: number;
   readonly reread: () => void;
   readonly published: PublishedShown;
 }): LaunchAttempts {
-  const [attempts, setAttempts] = useState<ReadonlyMap<string, PageAttempt>>(
-    new Map(),
-  );
-  const setAttempt = useCallback(
-    (key: string, attempt: PageAttempt | undefined) => {
-      setAttempts((now) => {
-        const next = new Map(now);
-        if (attempt === undefined) next.delete(key);
-        else next.set(key, attempt);
-        return next;
-      });
-    },
-    [],
-  );
-
-  // The latest observation of an attempt: as the machine's sessions last
-  // answered it, or as accepted when no read has named it yet.
-  const latest = useCallback(
-    (attempt: AttemptObservation) =>
-      observed.find((read) => read.id === attempt.id) ?? attempt,
-    [observed],
-  );
-
-  // An accepted attempt that settled: a launched one is presented once its
-  // record is listed, any other is kept as the action's problem.
-  useEffect(() => {
-    for (const [key, page] of attempts) {
-      if (page.kind !== "accepted") continue;
-      const { outcome } = latest(page.attempt);
-      if (outcome === undefined) continue;
-      if (outcome.kind !== "launched") {
-        setAttempt(key, problemOf(outcome));
-        continue;
-      }
-      const record = records.find(
-        (listed) => sessionKey(listed.session) === sessionKey(outcome.session),
-      );
-      if (record === undefined) continue;
-      setAttempt(key, undefined);
-      page.onLaunched(record);
-    }
-  }, [attempts, latest, records, setAttempt]);
-
-  const launch = useCallback(
-    async (
-      key: string,
-      request: AgentLaunchRequest,
-      onLaunched: OnLaunched,
-    ): Promise<StartAnswer> => {
-      setAttempt(key, { kind: "submitting", request });
-      const answer = await requestAgentAcceptance(request);
-      // Nothing started: the dialog asks the developer about the changes.
-      if (answer.kind === "existing-changes") {
-        setAttempt(key, undefined);
-        return answer;
-      }
-      reread();
-      if (answer.kind === "accepted") {
-        setAttempt(key, {
-          kind: "accepted",
-          attempt: answer.attempt,
-          onLaunched,
-        });
-        return true;
-      }
-      setAttempt(key, answer);
-      return false;
-    },
-    [setAttempt, reread],
-  );
+  const {
+    pages: attempts,
+    latest,
+    launch,
+  } = useAskedLaunches({ observed, records, answeredAsk, asksSoFar, reread });
 
   const start = useCallback(
     (
@@ -226,25 +172,32 @@ export function useLaunchAttempts({
     reread,
   );
 
+  const asked = askedRequests([...attempts.values()]);
+  const storyStartupOf = (sourceId: string, identity: string) =>
+    storyStartup(asked, known, sourceId, identity, reconciled);
+  const recoveries = useStartupRecovery({
+    known,
+    unacknowledged: asked.unacknowledged,
+    attemptEvidence,
+    answeredAsk,
+    asksSoFar,
+    shown: published.shown,
+    storyStartupOf,
+    reread,
+    readAfresh: published.readAfresh,
+  });
+
   return {
     attemptOf: (sourceId, identity, workflow) =>
       shownAttempt(
         attempts.get(attemptKey(sourceId, identity, workflow)),
         latest,
       ),
-    storyStartupOf: (sourceId, identity) =>
-      storyStartup(
-        [...attempts.values()].flatMap((page) =>
-          page.kind === "submitting" ? [page.request] : [],
-        ),
-        known,
-        sourceId,
-        identity,
-        reconciled,
-      ),
+    storyStartupOf,
     start,
     startAdHoc,
     adHocAttemptOf: (sourceId) =>
       shownAttempt(attempts.get(adHocKey(sourceId)), latest),
+    ...recoveries,
   };
 }

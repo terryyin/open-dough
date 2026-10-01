@@ -2,7 +2,8 @@ import { sessionKey } from "./sessionReference.ts";
 // A card's launches: on a Backlog card, one Start action per workflow in the
 // order `launchWorkflows` offers them, whatever sessions are listed; on the
 // card of a story starting on this machine, whichever page asked for it, what
-// its local startup is doing (`StartupStatus`); on every
+// its local startup is doing (`StartupStatus`), with the answer of one in
+// need of reconciliation left to Startup recovery; on every
 // card, the story's sessions that have not been marked done (`cardSessionsOf`),
 // newest first, each shown as Recent sessions shows it without the story the
 // card already names, under how many of them need attention, when any do
@@ -27,7 +28,6 @@ import {
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StartLaunch } from "./StartLaunch.tsx";
 import { StartupStatus } from "./StartupStatus.tsx";
-import { startupProtects } from "./storyStartup.ts";
 import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { CreationEntry } from "./CreationEntry.tsx";
 import { SessionEntry } from "./SessionEntry.tsx";
@@ -69,13 +69,22 @@ export function CardLaunches({
     return kept === undefined ? {} : { resumes: kept };
   };
   const startup = launches.storyStartupOf(sourceId, entry.identity);
-  const unavailable = startupProtects(startup);
+  const unavailable = startup !== undefined;
+  // No Start is offered before this machine's launch evidence was read: an
+  // earlier startup of the story may be unresolved.
+  const unoffered = unavailable || launches.attemptEvidence !== "read";
+  // A startup in need of reconciliation is answered under Startup
+  // recovery, not beside the card's unavailable actions.
+  const attemptOf = (workflow: LaunchWorkflow) =>
+    startup?.state === "needs-reconciliation"
+      ? undefined
+      : launches.attemptOf(sourceId, entry.identity, workflow);
   const answerId = useId();
   // The answers of this page's launches that no Start on the card shows.
   const unshown = launchWorkflowNames.flatMap((workflow) => {
     if (offersStart || (workflow === "execution" && keptStart !== undefined))
       return [];
-    const attempt = launches.attemptOf(sourceId, entry.identity, workflow);
+    const attempt = attemptOf(workflow);
     return attempt === undefined || attempt.kind === "starting"
       ? []
       : [{ workflow, problem: attempt }];
@@ -111,8 +120,8 @@ export function CardLaunches({
           options={undefined}
           resumes={keptStart}
           note={keptStartNote}
-          attempt={launches.attemptOf(sourceId, entry.identity, "execution")}
-          unavailable={unavailable}
+          attempt={attemptOf("execution")}
+          unavailable={unoffered}
           onStart={onStart("execution")}
         />
       )}
@@ -136,8 +145,8 @@ export function CardLaunches({
                 ? keptStartNote
                 : launchWorkflows[workflow].note(entry)
             }
-            attempt={launches.attemptOf(sourceId, entry.identity, workflow)}
-            unavailable={unavailable}
+            attempt={attemptOf(workflow)}
+            unavailable={unoffered}
             onStart={onStart(workflow)}
           />
         ))}

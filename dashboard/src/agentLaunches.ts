@@ -61,11 +61,15 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
     {
       readonly known: readonly LaunchWithState[];
       readonly read: boolean;
+      // Which read, counted as asked, answered latest.
+      readonly answeredAsk: number;
       readonly alerts?: Alerts;
     } & Omit<ReadFacts, "alerts">
   >({
     known: [],
+    answeredAsk: 0,
     attempts: [],
+    attemptsReadable: true,
     creations: [],
     read: false,
     establishing: [],
@@ -84,6 +88,8 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
     keptStarts,
     starts,
     attempts: observed,
+    attemptsReadable,
+    answeredAsk,
   } = sessions;
   const setRecords = useCallback(
     (
@@ -97,6 +103,8 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   const deletedAt = useRef(new Map<string, number>());
   const { visibility, settleRevealed } = usePageVisibility();
   const everRead = useRef(false);
+  // How many reads were asked so far.
+  const asks = useRef(0);
   const [readsSettled, setReadsSettled] = useState(0);
   const [offersReading, setOffersReading] = useState(false);
   const [requested, setRequested] = useState(0);
@@ -106,6 +114,15 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   }, []);
   const attempts = useLaunchAttempts({
     observed,
+    attemptEvidence: !readAnswered
+      ? readsSettled === 0
+        ? "unread"
+        : "unanswered"
+      : attemptsReadable
+        ? "read"
+        : "unreadable",
+    answeredAsk,
+    asksSoFar: () => asks.current,
     records: known,
     reads: readsSettled,
     reread,
@@ -117,6 +134,8 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
     let current = true;
     const read = () => {
       const askedAt = Date.now();
+      asks.current += 1;
+      const ask = asks.current;
       void readMachineSessions().then((answered) => {
         if (!current) return;
         if (answered !== undefined) {
@@ -129,6 +148,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
           setSessions((current) => ({
             known: replaced(kept, current.known, current.read ? askedAt : 0),
             read: true,
+            answeredAsk: ask,
             ...facts,
           }));
         }

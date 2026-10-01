@@ -1,6 +1,8 @@
 // A launch from a Backlog card that did not start, or may not have started, on
-// the committed origin of ./agent-launch-card.spec.ts: the answer stays beside
-// the action that was used, which the card keeps, and it lists no session. The
+// the committed origin of ./agent-launch-card.spec.ts: a definitive answer
+// stays beside the action that was used, which the card keeps, and it lists no
+// session; an uncertain one needs reconciliation under Startup recovery while
+// the card stays protected. The
 // page's own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
@@ -79,7 +81,7 @@ test.describe("without the project's folder", () => {
 test.describe("when Claude Code does not answer within the launch wait", () => {
   test.use({ launchTimeoutMs: 3_000 });
 
-  test("Start is disabled while in flight, and the card shows the uncertain answer and keeps Start execution", async ({
+  test("Start is disabled while in flight, and the uncertain answer needs reconciliation under Startup recovery while the card stays protected", async ({
     page,
     dashboard,
   }) => {
@@ -95,14 +97,19 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
       "Starting execution in Claude Code…",
     );
     await expect(start(readyStory)).toBeDisabled();
+    const recovery = page.getByRole("region", { name: "Startup recovery" });
+    await expect(recovery).toContainText(
+      "Its last answer: Claude Code did not answer in time, so the session may or may not have started. Check claude agents for it before continuing.",
+    );
+    await expect(recovery.locator("code").first()).toHaveText("claude agents");
+    await expect(
+      recovery.getByRole("button", { name: /^Continue execution start/ }),
+    ).toBeEnabled();
     await expect(card(readyStory)).toContainText(
-      "Launch uncertain: Claude Code did not answer in time, so the session may or may not have started. Check claude agents for it before starting again.",
+      "Startup needs reconciliation",
     );
-    await expect(card(readyStory).locator(".launch-problem code")).toHaveText(
-      "claude agents",
-    );
-    await expect(start(readyStory)).toBeEnabled();
-    await expect(start(readyStory)).toBeFocused();
+    await expect(card(readyStory).locator(".launch-problem")).toHaveCount(0);
+    await expect(start(readyStory)).toBeDisabled();
     await expect(cardSessions(card(readyStory))).toHaveCount(0);
     expect(dashboard.claudeCalls()).toHaveLength(1);
   });
