@@ -53,19 +53,26 @@ run shows that job is the one holding a run over target.
   only from the internal `PWTEST_SHARD_WEIGHTS` environment variable
   (`node_modules/playwright/lib/cli/testActions.js`). It is undocumented and
   still count-based, so the plan does not rely on it.
-- **Fresh duration balance:** slice 1 run `36843265227` has 1294.298s
-  summed browser test time, invalidating the original five-job assumption.
-  Full aggregate hosted speedup is not established: original same 650 cases
-  total 1123.934s, with untouched 613 cases increasing 17.2%. Retain the
-  supported matched local optimization and targeted hosted gains; balance the
-  fresh profile rather than pursue unsafe journey reductions.
-- **Per-job budget:** keep about 2m10s/job, about 85s test step and a
-  conservative 225s summed-case heuristic. Fresh whole-file longest-first
-  round-robin maxima for 4–8 jobs are 351.8/290.2/247.6/218.3/196.6s.
-  Seven is the smallest meeting that heuristic, with shares
-  218.3/202.9/181.6/178.2/174.7/171.4/167.1s. Exact Playwright count-based
-  4–8 shard maxima are 466.602/456.074/334.822/320.624/291.841s, so none
-  meet it. These sums guide the experiment; hosted wall proof remains required.
+- **Refresh from integrated timings:** trunk run `36847400904` at
+  `995271db` passed all 653 cases but took 176s. Jobs started 11–66s after
+  creation; the critical share started after 41s and ran 134s (85s browser,
+  49s other work). This disproves completion on the first integration.
+  Scheduling delay cannot be guaranteed away by test changes; report it
+  independently rather than rerun the failed timing result into success.
+- **Supported next experiment:** keep seven jobs and refresh only the
+  duration-ordered file list from the integrated profile. Current shares sum
+  246.489/218.912/188.200/129.309/152.146/192.744/177.703s; fresh order yields
+  222.291/199.971/186.202/179.970/176.071/172.136/168.862s. Six still reaches
+  252.379s, so seven remains the smallest count fitting the conservative
+  225s heuristic. The critical share's 9.8% reduction projects an approximately
+  126s job with unchanged setup, giving supported per-job margin. This is a
+  projection, not hosted proof; measure the new revision's first run and two
+  reruns against the unchanged <150s goal. The previous first-run timing
+  failure remains recorded. No broader test removals, runner or timeout changes.
+- **Shell decision resolved elsewhere:** trunk commit `76969a1c` split
+  native one-shot checks with aggregate proof retained. Current wrap-up
+  keeps this story's scope and adopts that already-landed repair; no new
+  shell split is required or authorized here.
 - **Keep the CI contract checks:** any change to the dashboard job's `run:`
   steps keeps `tests/ci-container.sh` green. That check compares the steps
   after `npm ci`, less a trailing `-- --shard…` argument, with
@@ -116,7 +123,7 @@ needs duration-balanced shards rather than a count change.
 
 ### 2. Every dashboard job finishes within the per-job budget, and trunk CI meets the target
 Type: Behavior
-Status: branch validated; trunk three-run proof and shell-budget scope decision pending
+Status: integrated; refreshed duration-list experiment locally validated; trunk three-run proof pending
 Proof: a story-branch CI run with every dashboard job ≤ about 2m10s and the
 run under 2m30s. After trunk integration, the delivered revision's CI run and
 two reruns (`gh run rerun <id>`) each finish under 2m30s with all jobs
@@ -175,3 +182,8 @@ Hosted CI runs the full suite on every branch push and owns the timing proof.
 - Slice 2 accepted publication: `5df909fe9e183ca174117303d24462fd9f707764` on `refs/heads/codex/re-optimize-ci-feedback-and-test-wall-time-after`, extending previously published `300687b8d9431ffb9fc53a427ed3b8dd8b88cd8d`. Independent refactor found none; hook lint passed after mechanical removal of unused callback parameters. Focused partition/container proof reran green after that repair. Managed delivery again reported unobserved CI bridge coverage; no observer started.
 - Branch timing proof: `gh run watch 36844875333 --repo terryyin/open-dough --exit-status` terminated exit 0 at exact `5df909fe`. Run 131s (<150s); dashboard jobs 114/108/127/96/101/101/97s (all <130s), test steps 79/63/72/65/72/61/63s. Reports contain exactly the previous 650 unique test IDs, all passing, no skipped/flaky/unexpected cases. Seven dashboard reports and three test-times artifacts downloaded. Type-check passed once on share 1 and skipped on the other six. The shell shares all passed; one-shot took 60.6s, but that does not repair the earlier 72.3s budget defect. Evidence private under `/tmp/seed070-36844875333-{jobs.json,reports,times,watch.log}`. No watch remains active.
 - Safe stopping boundary: browser optimization and balanced branch delivery complete; no trunk integration, reruns, retrospective, execution-complete record or closure performed. The developer's shell-split scope question remains unanswered. Preserve the active Taken claim, plan/source, clean owned worktree and branch. Resume the budget path only with the scope decision; retain the successful branch evidence, then obtain the required delivered trunk revision's initial run and two reruns. No plan-execution or optimization completion marker is justified yet.
+
+- Wrap-up resumed under the developer's current instruction. Preserved all sibling Taken/closed transitions through installed merge adapters. Conflict with SEED-071's Codex death check resolved using its shared `expectCodexHungUp`: real SIGHUP and `processRunning(pid) === false` prove exit without requiring OS zombie reaping. This is equivalent lifetime coverage at the meaningful process boundary. Combined focused browser command `env -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts launch-observations.spec.ts agent-launch-ad-hoc-codex.spec.ts session-alerts.spec.ts taken-agent-profile.spec.ts agent-terminal-avatar.spec.ts agent-terminal-keyboard.spec.ts agent-terminal-maximize.spec.ts` passed; `agent-launch-ad-hoc-codex.spec.ts` passed two further consecutive focused runs. `npm run typecheck:dashboard` passed; `PATH="/opt/homebrew/bin:$PATH" npm test -- tests/support/dashboard-test-files.test.mjs tests/ci-container.sh tests/test-runner-selection.sh` passed.
+- Accepted integration `995271db140a08403ba1eb91d7f09ba7ad7f7214` on `refs/heads/main`. Retained main observer: directory `/tmp/dough-ci-501/watch-eWN83z`, PID 39865, session 30928, yielded cell 4, coordinator `dashboard-mac.lan-open-dough`, exact checkout and GitHub `ci.yml`; revision registered after confirmed acceptance. Earlier unregistered upstream `a4f408cb` CI failure was another execution's auto-land test cleanup; consumed sequence 1 and preserved ownership. Current integrated CI passed all jobs, so no repair of that unowned failure was performed.
+- First trunk attempt `36847400904` all green, elapsed 176s (>150s). Dashboard jobs 134/113/97/77/91/109/91s. Exactly 653 unique cases, including all prior 650 plus three SEED-071 avatar/keyboard/maximize cases; no misses, duplicates, skips or flakes. All seven reports and three timing artifacts present. Timing failure, scheduling offsets, and raw private profiles are retained under `/tmp/seed070-36847400904-attempt1-*`. No rerun of that revision was used to erase its first-run failure.
+- Refreshed-list experiment proof: `PATH="/opt/homebrew/bin:$PATH" npm test -- tests/support/dashboard-test-files.test.mjs tests/ci-container.sh` passed; `python3 /tmp/seed070-refreshed-list-proof.py` invoked actual Playwright `--list --reporter=json` unset and for each of seven shares: 653 unset and 106/110/71/72/128/105/61 split cases, exactly 653 stable spec-ID/project pairs once. The 164-file list's order changed; no assertions, test cases, workflow, worker count, runner or timeout changed. Raw profiles remain outside Git. New hosted first-run and two-rerun timing proof is still required before deleting records.
