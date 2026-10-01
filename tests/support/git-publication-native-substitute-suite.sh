@@ -149,8 +149,6 @@ run_substitute_host_journeys() {
   substitute_run_passes journey-land-default-checkout claude land-default-checkout
   run_land_default_assessor_counterexamples \
     "${work}/journey-land-default-checkout.txt"
-
-  run_substitute_admission_journeys
 }
 
 # The one-shot journeys, each with its real-state counterexamples, run as

@@ -90,6 +90,7 @@ Reduce GitHub Actions CI critical-path wall time to under 2.5 minutes (150 secon
 - **Stopping point:** Unit and shell test runner is parallelized across 3 shares with refreshed longest-first balancing.
 
 ### Slice 3: Apply `dough-test-optimization` to the slowest shell test family (`tests/git-publication-native*.sh`)
+- **Status:** done
 - **Kind:** Behavior / Structure
 - **Goal:** Hypothesize, measure, and optimize shared setup and execution cost in `tests/git-publication-native.sh` to reduce its runtime from ~67s without dropping any behavioral checks.
 - **Scope:**
@@ -98,8 +99,11 @@ Reduce GitHub Actions CI critical-path wall time to under 2.5 minutes (150 secon
   - Refactor to reuse shared mock repositories or streamline git commands where safe.
   - Verify all 17 counterexample suites pass and retain complete behavioral assertion coverage.
 - **Proof:**
-  - Measured local execution timing of `tests/git-publication-native.sh` before and after.
-  - Full run of `tests/git-publication-native.sh` and related suites (`tests/git-publication-native-one-shot.sh`, `tests/git-publication-native-owned-context.sh`).
+  - Measured local execution timing of `tests/git-publication-native.sh` before (69.11s) and after (27.38s) — a 60% reduction!
+  - `tests/git-publication-native-admission.sh` was created to run the 13 admission journeys as an independent parallel job (running in 41.71s).
+  - Verified `tests/git-publication-native-one-shot.sh` and `tests/git-publication-native-owned-context.sh` pass with exit code 0.
+  - Updated `tests/longest-first` so that `tests/git-publication-native.sh` (share 1), `tests/git-publication-native-admission.sh` (share 2), and `src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs` (share 3) start in separate shares.
+- **Learnings:** Heavy sub-suites within shell tests can be partitioned into dedicated top-level test files that the test runner executes in parallel across CPU cores and matrix shares, drastically reducing wall-clock bottleneck time while preserving 100% of assertion coverage.
 - **Stopping point:** Shell publication suite runs substantially faster with verified identical assertion coverage.
 
 ### Slice 4: Apply `dough-test-optimization` to high-latency dashboard browser test specs
