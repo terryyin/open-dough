@@ -84,3 +84,17 @@ assessment records this judgment; it grants no execution or queue authority.
 - Observing locations: `dashboard/tests/agent-launch-preparation-codex-retry.spec.ts`, older-script CLI probe, repeated retry preservation assertions and independent Story B assertions. Preconditions come from unchanged `support/preparationPage.ts` / `support/startOrigin.ts`; native substitution owns RPC only.
 - Fresh independent refactor review: none — already clean; no edits or repeated tests. Selective Prettier formatting changes layout only. No current-command continuation rerun: its shared setup/implementation remains unchanged.
 - Delivery target: `origin/refs/heads/codex/older-preparation-command-proof`; GitHub workflow `ci.yml` verified. The installed managed delivery starts a detached mailbox, but its Codex adapter exposes no supported way to attach the yielded stream to that existing mailbox. The documented stream command creates another mailbox. Delivery therefore reports an explicit unavailable notification bridge rather than claiming observed CI.
+
+## Execution complete
+
+Product advice: no further product change recommended. The corrected maintained
+fixture restores distinct older-installation proof; shared workflow/native
+behavior and the existing continuation journey are unchanged. The retrospective
+found no implementation residue or missing in-scope promise. Process finding
+DD-201 records the managed Codex notification attachment gap; it is open and
+unqueued, with no implementation authorized by this review.
+
+- Related revisions: Take `d5284a8a4005eddb5c7bc33645938596ed25cf50` is claim provenance; implementation `94d87f23428d092f9b7885598315f71a018ca39d` is accepted on `origin/refs/heads/codex/older-preparation-command-proof`. Earlier plan 194 and other story branches are excluded.
+- Review: outcome, aggregate diff, unchanged related retry/continuation fixtures, ADR 0005 and near-future direction assessed. Important integrated journey remains covered; no broader suite run or native acceptance was required. Process review enabled by this project's `skipProcessRetrospective: false`; available coordinator and agent handoffs were used.
+- CI: managed delivery reports `unobserved`, reason `Codex yielded-cell bridge is unavailable`; no observer directory or process was started, so no completion wait/shutdown operation applies. Local focused proof and staged check-only lint passed. CI success is unverified.
+- Default checkout maintenance receipt: deferred (branch delivery does not refresh trunk). The completed plan, Taken entry, execution branch/worktree and proof remain for story wrap-up; this execution does not integrate the branch.
