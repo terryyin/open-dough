@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "joey-chan",
-  "email": "joey-chan@example.org",
-  "identity": "SEED-052#use-codex-from-dashboard",
-  "mode": "story-branch",
-  "branch": "codex/complete-codex-dashboard-sessions",
-  "host": "codex"
-}
