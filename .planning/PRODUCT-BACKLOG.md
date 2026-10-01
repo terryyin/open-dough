@@ -20,10 +20,10 @@ visibility for multiple agents working in worktrees on one machine.
 - [Re-optimize CI feedback and test wall time after concurrent story branches land](seeds/SEED-070-reoptimize-ci-test-wall-time.md#reoptimize-ci-test-wall-time) — SEED-070#reoptimize-ci-test-wall-time ([plan](slice-plans/198-reoptimize-ci-test-wall-time/PLAN.md))
 - [Keep the dashboard responsive while session startup settles](seeds/SEED-072-responsive-session-start-reconciliation.md#responsive-session-start-reconciliation) — SEED-072#responsive-session-start-reconciliation ([plan](slice-plans/192-responsive-session-start-reconciliation/PLAN.md))
 - [Check how Dough Land handles a kept one-shot result whose story was taken](seeds/SEED-066-composable-lightweight-session-options.md#dough-land-kept-one-shot-ownership) — SEED-066#dough-land-kept-one-shot-ownership ([plan](slice-plans/199-dough-land-kept-one-shot-ownership/PLAN.md))
+- [Review dashboard architecture before adding more AI IDE tools](seeds/SEED-069-review-dashboard-multi-tool-architecture.md#review-dashboard-multi-tool-architecture) — SEED-069#review-dashboard-multi-tool-architecture ([plan](slice-plans/200-review-dashboard-multi-tool-architecture/PLAN.md))
 
 ## Backlog list
 
-- [Review dashboard architecture before adding more AI IDE tools](seeds/SEED-069-review-dashboard-multi-tool-architecture.md#review-dashboard-multi-tool-architecture) — SEED-069#review-dashboard-multi-tool-architecture
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
 - [Integrate Story Branch closures through an installed command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration) — SEED-008#installed-story-branch-integration
