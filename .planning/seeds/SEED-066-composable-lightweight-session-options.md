@@ -156,30 +156,6 @@ confirmation includes existing content, independently of landing policy. Review 
 actual ad hoc handoff before planning; do not infer default main or review policy
 from today's configured folder alone.
 
-<a id="align-one-shot-callers-with-review-default"></a>
-
-### Align one-shot callers and starts with the review default
-
-**Identity:** SEED-066#align-one-shot-callers-with-review-default
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/196-align-one-shot-callers-with-review-default/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c89c2432fbb14bed0d68c22e0fb54cf863862286c8193027e47d13b260e279ec","plan":"d196e5f4338502e8c497981c4d659e5e45fbd209e734f17909d3bcd299e277fc"}}
-```
-
-**Goal:** Developers and agents relying on one-shot work get guidance, start
-refusals, and session-policy rules that agree with the review default delivered
-by `SEED-066#composable-lightweight-session-options`, so a kept result is
-landed through its guarded path and the default checkout is never treated as an
-owned tracked workspace.
-
-**Scope:** A bounded retrospective correction. Update one-shot callers' wording
-and the review report's landing route; refuse owned or tracked starts that name
-the repository's main worktree; keep the one-shot-only choice rule and one-shot
-context detection in one place each; consolidate the duplicated queued one-shot
-test fixtures. Preserve every promise of the original story. No new feature
-promise, Dough Land change, host, or native case.
-
-**Plan:** [bounded correction input and slices](../slice-plans/196-align-one-shot-callers-with-review-default/PLAN.md).
-
 ## Existing Behavior to Reconcile
 
 - [Current one-shot guidance](../../src/skills/dough-execute-plan/references/one-shot.md)
