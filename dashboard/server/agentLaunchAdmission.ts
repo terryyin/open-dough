@@ -1,7 +1,8 @@
 // Which requests the local launch boundary (`./agentLaunchPlugin.ts`) admits,
-// and the refusal each other one gets: a launch, a read of the machine's
-// sessions, a done mark on a session it recorded (`./doneMarks.ts`), a delete
-// of a record it kept, and a terminal upgrade (`./agentTerminals.ts`). Every
+// and the refusal each other one gets: a launch answered once it settles or
+// once it is accepted, a read of the machine's sessions, a done mark on a
+// session it recorded (`./doneMarks.ts`), a delete of a record it kept, and a
+// terminal upgrade (`./agentTerminals.ts`). Every
 // request must come from this dashboard's own origin; a launch, a done mark, a
 // delete, or an upgrade must name a catalog project, and a done mark, a delete,
 // or an upgrade a session this dashboard recorded for that project, in its
@@ -17,6 +18,7 @@ import {
 import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
 import {
+  agentAcceptEndpoint,
   agentLaunchRequestSchema,
   attachOpens,
   launchKindName,
@@ -35,14 +37,13 @@ import { withSelectedOptions } from "./launchOptions.ts";
 import { withSessionPolicy } from "./launchSessionPolicy.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
-
-// Enough for the longest request the limits allow, in any UTF-8 spelling.
-const bodyLimitBytes = 32 * 1024;
+import { jsonBody } from "./jsonRequestBody.ts";
 
 export type Admitted =
   | { readonly kind: "sessions" }
   | {
-      readonly kind: "launch";
+      // `accept` answers once the launch is accepted, `launch` once it settles.
+      readonly kind: "launch" | "accept";
       readonly source: PublishedSource;
       readonly request: AgentLaunchRequest;
     }
@@ -64,40 +65,6 @@ function knownSource(id: string | null): PublishedSource {
     throw new RefusedRequest(404, "Unknown catalog source.");
   }
   return source;
-}
-
-function readBody(req: IncomingMessage): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    let size = 0;
-    req.on("data", (chunk: Buffer) => {
-      size += chunk.length;
-      if (size > bodyLimitBytes) {
-        req.destroy();
-        reject(new RefusedRequest(413, "The request is too large."));
-        return;
-      }
-      chunks.push(chunk);
-    });
-    req.on("end", () => {
-      resolve(Buffer.concat(chunks).toString("utf8"));
-    });
-    req.on("error", reject);
-  });
-}
-
-async function jsonBody(req: IncomingMessage): Promise<unknown> {
-  if (!/^application\/json\b/.test(req.headers["content-type"] ?? "")) {
-    throw new RefusedRequest(415, "A request here is JSON.");
-  }
-  try {
-    return JSON.parse(await readBody(req));
-  } catch (error) {
-    if (error instanceof RefusedRequest) {
-      throw error;
-    }
-    throw new RefusedRequest(400, "The request is not JSON.");
-  }
 }
 
 // A kept session and its existing folder, or a refusal.
@@ -158,7 +125,10 @@ async function deleteRequest(
   return { kind: "delete", source, record };
 }
 
-async function launchRequest(req: IncomingMessage): Promise<Admitted> {
+async function launchRequest(
+  req: IncomingMessage,
+  kind: "launch" | "accept",
+): Promise<Admitted> {
   const parsed = agentLaunchRequestSchema.safeParse(await jsonBody(req));
   if (!parsed.success) {
     throw new RefusedRequest(400, "The launch request is malformed.");
@@ -180,7 +150,7 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   const project = projectFolder(source);
   const selected = await withSelectedOptions(request, project);
   return {
-    kind: "launch",
+    kind,
     source,
     request: await withSessionPolicy(selected, project),
   };
@@ -192,23 +162,22 @@ export async function admitted(
   launches: AgentLaunches,
 ): Promise<Admitted> {
   verifyLocalOrigin(req);
-  if (url.pathname === agentDoneEndpoint) {
+  const postOnly = new Map([
+    [agentDoneEndpoint, () => doneRequest(req, launches)],
+    [agentDeleteEndpoint, () => deleteRequest(req, launches)],
+    [agentAcceptEndpoint, () => launchRequest(req, "accept")],
+  ]).get(url.pathname);
+  if (postOnly !== undefined) {
     if (req.method !== "POST") {
       throw new RefusedRequest(405, "Only POST is accepted here.");
     }
-    return doneRequest(req, launches);
-  }
-  if (url.pathname === agentDeleteEndpoint) {
-    if (req.method !== "POST") {
-      throw new RefusedRequest(405, "Only POST is accepted here.");
-    }
-    return deleteRequest(req, launches);
+    return postOnly();
   }
   if (req.method === "GET") {
     return { kind: "sessions" };
   }
   if (req.method === "POST") {
-    return launchRequest(req);
+    return launchRequest(req, "launch");
   }
   throw new RefusedRequest(405, "Only GET and POST are accepted here.");
 }

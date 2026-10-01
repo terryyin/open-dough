@@ -63,6 +63,7 @@ export function useAgentLaunches(): MachineSessions {
     } & Omit<ReadFacts, "alerts">
   >({
     known: [],
+    attempts: [],
     creations: [],
     read: false,
     establishing: [],

@@ -2,14 +2,18 @@
 // ./agent-launch-refusal.spec.ts, ./agent-launch-records.spec.ts,
 // ./agent-launch-session-listing.spec.ts, and ./agent-launch-done.spec.ts):
 // one execution launch request for this repository's own story, and its
-// refinement counterpart, sent over raw HTTP, a done mark, a record delete,
-// and what the boundary keeps, read as the machine's sessions and scoped by
-// project.
+// refinement counterpart, sent over raw HTTP to be answered once settled or
+// once accepted, a done mark, a record delete, and what the boundary keeps,
+// read as the machine's sessions and scoped by project.
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
-import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
+import {
+  agentAcceptEndpoint,
+  agentLaunchEndpoint,
+  type AttemptObservation,
+} from "../src/agentLaunch.ts";
 import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
@@ -33,6 +37,28 @@ export function launch(
 ): Promise<RawResponse> {
   return rawRequest({
     url: `${server.baseURL}${agentLaunchEndpoint}`,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...headers },
+    body: JSON.stringify(body),
+  });
+}
+
+// What a launch of a story already starting on this machine is answered.
+export const alreadyStarting = {
+  kind: "failed",
+  reason: "already-starting",
+  explanation:
+    "This story is already starting on this machine, so a second start was not made. Wait for the running start to end; its card shows its progress. Nothing was launched.",
+};
+
+// Asks for a launch answered once the boundary's launch owner accepted it.
+export function accept(
+  server: DashboardServer,
+  body: unknown,
+  headers: Record<string, string> = { Origin: server.origin },
+): Promise<RawResponse> {
+  return rawRequest({
+    url: `${server.baseURL}${agentAcceptEndpoint}`,
     method: "POST",
     headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify(body),
@@ -156,4 +182,17 @@ export async function runningStarts(
   });
   expect(response.status).toBe(200);
   return (JSON.parse(response.body) as { starts: unknown[] }).starts;
+}
+
+// The launch attempts the boundary answers with the machine's sessions.
+export async function attempts(
+  server: DashboardServer,
+): Promise<AttemptObservation[]> {
+  const response = await rawRequest({
+    url: `${server.baseURL}${agentLaunchEndpoint}`,
+    headers: { Origin: server.origin },
+  });
+  expect(response.status).toBe(200);
+  return (JSON.parse(response.body) as { attempts: AttemptObservation[] })
+    .attempts;
 }

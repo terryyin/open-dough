@@ -2,7 +2,7 @@
 import { sameLaunch } from "../src/launchRequest.ts";
 import { type CreationRecord } from "../src/launchCreation.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
-import type { LaunchRecord } from "../src/agentLaunch.ts";
+import type { AgentLaunchRequest, LaunchRecord } from "../src/agentLaunch.ts";
 import {
   readStoredRecords,
   replaceRecords,
@@ -33,6 +33,20 @@ export async function keptRecords(
   sourceId: string,
 ): Promise<readonly LaunchRecord[]> {
   return (await keptRecordsByProject()).get(sourceId) ?? [];
+}
+
+// A kept conversation of this launch whose first input is unconfirmed.
+export async function pendingInputOf(
+  sourceId: string,
+  request: AgentLaunchRequest,
+): Promise<LaunchRecord | undefined> {
+  return (await keptRecords(sourceId)).find(
+    (record) =>
+      sameLaunch(record.request, request) &&
+      record.firstInput !== undefined &&
+      record.firstInput.state !== "confirmed" &&
+      record.firstInput.state !== "not-requested",
+  );
 }
 
 // Keeps one known conversation and its first-input evidence, replacing any

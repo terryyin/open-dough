@@ -1,9 +1,12 @@
 // The local launch boundary, mounted by Vite in dev and preview
 // (`./localBoundaryPlugin.ts`) beside the authenticated read boundary. A same-origin
 // POST to `/__agent-launch` asks to launch an agent on one work item
-// (`./agentLaunches.ts`); a same-origin GET answers the machine's sessions:
-// every catalog project's launch records, each naming its project, with each
-// session's current state. A same-origin POST to
+// (`./agentLaunches.ts`) and answers its outcome; a same-origin POST to
+// `/__agent-launch/accept` asks the same and answers once the launch's owner
+// accepted it, the launch going on whatever happens to the caller. A
+// same-origin GET answers the machine's sessions: every catalog project's
+// launch records, each naming its project, with each session's current
+// state, and the launch attempts accepted with their receipts and outcomes. A same-origin POST to
 // `/__agent-launch/done` marks one session it recorded done
 // (`./doneMarks.ts`). A same-origin POST to `/__agent-launch/delete` deletes
 // the record of one session it recorded while Claude Code's listing still
@@ -23,8 +26,11 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, HttpServer, Plugin } from "vite";
 import {
+  agentAcceptEndpoint,
   agentLaunchEndpoint,
+  type Acceptance,
   type Alerts,
+  type AttemptObservation,
   type KeptStart,
   type LaunchResult,
   type RunningStart,
@@ -51,11 +57,12 @@ import { RefusedRequest } from "./localOrigin.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
 
 type Answer =
-  | { readonly status: number; readonly body: LaunchResult }
+  | { readonly status: number; readonly body: LaunchResult | Acceptance }
   | {
       readonly status: number;
       readonly body: {
         records: readonly LaunchWithState[];
+        attempts: readonly AttemptObservation[];
         creations: Awaited<ReturnType<AgentLaunches["creations"]>>;
         alerts: Alerts;
         establishing: readonly string[];
@@ -127,6 +134,7 @@ async function answer(
           status: 200,
           body: {
             records: await launches.machineSessions(),
+            attempts: await launches.attempts(),
             creations: await launches.creations(),
             alerts: alerts.availability(),
             establishing: await launches.establishingProjects(),
@@ -142,6 +150,11 @@ async function answer(
         return {
           status: 200,
           body: await launches.launch(request.source, request.request),
+        };
+      case "accept":
+        return {
+          status: 200,
+          body: await launches.accept(request.source, request.request),
         };
       case "done":
         return {
@@ -183,6 +196,7 @@ function installAgentLaunchMiddleware(
     const url = new URL(req.url ?? "", "http://placeholder");
     if (
       url.pathname !== agentLaunchEndpoint &&
+      url.pathname !== agentAcceptEndpoint &&
       url.pathname !== agentDoneEndpoint &&
       url.pathname !== agentDeleteEndpoint
     ) {

@@ -63,7 +63,7 @@ export type PlannedStart =
       readonly attempt: Promise<StartAttempt>;
     };
 
-const alreadyStarting =
+export const alreadyStarting =
   "This story is already starting on this machine, so a second start was not made. Wait for the running start to end; its card shows its progress. Nothing was launched.";
 
 // The workspace a kept start was made in, shown as this host's workspaces are.

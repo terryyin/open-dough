@@ -5,6 +5,8 @@
 **Authority:** Planning only; no Take, implementation, commit, or publication.
 **Preparation:** Existing workspace `/Users/terryyin/git/open-dough/.worktrees/keep-the-dashboard-responsive-while-session-star`, branch `codex/keep-the-dashboard-responsive-while-session-star`, remote `origin`, target `main`, agent `ealden-chan`, published assignment `87990a4a4bfb66d1a797714a04298acfd4d97301`, integration checkout `/Users/terryyin/git/open-dough`.
 
+**Execution:** Story Branch Mode in the same workspace, branch `claude/keep-the-dashboard-responsive-while-session-star`, remote `origin`, target `main`, agent `ziqing-chan`, claim published at `d686dc59c9cea00c94c60fc144093c649d0e1a47` (starting revision `89923f8dc3ca7607a013e8680dbf743a494b0df5`).
+
 ## Goal and scope
 
 A developer gets immediate feedback on Start and can use the dashboard again
@@ -132,7 +134,23 @@ work; preserve completed proof and use the installed overrun/escalation rules.
 
 ### 1. Recoverable launch acceptance survives the requesting connection
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `dashboard/tests/agent-launch-acceptance.spec.ts` (kept before
+publication and settled after caller detachment with one start across workflows;
+unkeepable request starts nothing; post-acceptance failure retained by owner) and
+`agent-launch-codex-lifetime.spec.ts` "an accepted launch outlives its caller…",
+through `POST /__agent-launch/accept` and `GET /__agent-launch` `attempts`.
+Consumer sweep `npm run test:dashboard -- dashboard/tests/agent-launch-
+dashboard/tests/start-store.spec.ts dashboard/tests/launch-workspace.spec.ts
+dashboard/tests/launch-observations.spec.ts --workers=4` passed (399).
+Learnings: `LaunchAttemptOwner` (`dashboard/server/launchAttemptOwner.ts`) owns
+attempts; `launch-attempts.json` holds them. Story-wide admission covers only
+attempts this server owns; attempts left by a previous server read `owned: false`
+without outcome and do not yet block or offer continuation (slice 4). Pre-acceptance
+answers (folder, Codex creation, kept-host mismatch, existing changes) moved to
+`unconfirmedStart`. Owned attempts are not pruned from memory before close; decide
+pruning with slice 4 recovery. `POST /__agent-launch` remains a compatibility route
+awaiting the same owner until slice 2 moves the browser to acceptance.
 Proof: Extend service boundary/lifetime specs; hold publication or native startup,
 observe accepted request/status before releasing the hold, detach the HTTP caller,
 and observe later outcome and owner cleanup. Store-write refusal causes no side

@@ -1,8 +1,12 @@
-// Common launch lifetime: establish the workflow start, delegate to its host,
-// and keep durable evidence. Origin alone decides every story fact.
+// Common launch lifetime: accept a launch with its exact request kept before
+// any side effect (`./launchAttemptOwner.ts`), establish the workflow start,
+// delegate to its host, and keep durable evidence and the attempt's outcome,
+// whatever happens to the caller. Origin alone decides every story fact.
 
 import {
+  type Acceptance,
   type AgentLaunchRequest,
+  type AttemptObservation,
   type KeptStart,
   type OfferedDefinition,
   type RunningStart,
@@ -15,19 +19,23 @@ import { launchHost } from "./launchHosts.ts";
 import { launchHosts } from "../src/sessionCapabilities.ts";
 import { withStates } from "./launchStates.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
-import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
+import { recordedRequest } from "./hostLaunch.ts";
+import {
+  LaunchAttemptOwner,
+  type Admission,
+  type Unaccepted,
+} from "./launchAttemptOwner.ts";
 import {
   creationOf,
   keptCreations,
   keptRecords,
   keptRecordsByProject,
+  pendingInputOf,
 } from "./launchRecordStore.ts";
 import { creationRecovery } from "../src/launchCreation.ts";
-import { sameLaunch } from "../src/launchRequest.ts";
-import { establishedFacts } from "./startLaunch.ts";
 import { StartProgress } from "./startProgress.ts";
-import { launchRun } from "./launchRun.ts";
-import { started } from "./launchStart.ts";
+import { attemptRun } from "./launchRun.ts";
+import { unconfirmedStart } from "./launchStart.ts";
 import {
   establishing,
   establishingHosts,
@@ -42,16 +50,6 @@ import {
   type ProjectFolder,
 } from "./projectFolders.ts";
 
-const defaultLaunchWaitMs = 30_000;
-
-// A bounded launch wait; test configuration may shorten it.
-function launchTimeoutMs(): number {
-  const configured = Number(process.env["DOUGH_LAUNCH_TIMEOUT_MS"]);
-  return Number.isFinite(configured) && configured > 0
-    ? configured
-    : defaultLaunchWaitMs;
-}
-
 // A kept session in its existing project folder, or why none is available.
 export type Recorded =
   | {
@@ -63,9 +61,7 @@ export type Recorded =
   | { readonly kind: "folder-not-found"; readonly folder: ProjectFolder };
 
 export class AgentLaunches {
-  private readonly running = new Set<
-    AbortController & { request: AgentLaunchRequest }
-  >();
+  private readonly owner = new LaunchAttemptOwner();
   private readonly progress = new StartProgress();
 
   async machineSessions(): Promise<readonly LaunchWithState[]> {
@@ -135,35 +131,48 @@ export class AgentLaunches {
       : { kind: "folder-not-found", folder };
   }
 
-  // Requester detachment leaves the launch and its durable evidence alive.
+  // The attempts this machine keeps and those this server owns.
+  attempts(): Promise<readonly AttemptObservation[]> {
+    return this.owner.attempts();
+  }
+
+  // Accepts a launch, answering once it is accepted; the launch goes on
+  // whatever happens to the caller.
+  async accept(
+    source: PublishedSource,
+    request: AgentLaunchRequest,
+  ): Promise<Acceptance> {
+    return (await this.admit(source, request)).answer;
+  }
+
+  // Accepts a launch and answers its outcome once it settles; the caller's
+  // detachment leaves the launch and its durable evidence alive.
   async launch(
     source: PublishedSource,
     request: AgentLaunchRequest,
   ): Promise<LaunchResult> {
-    if (
-      request.host === "codex" &&
-      [...this.running].some((entry) => sameLaunch(entry.request, request))
-    )
-      return {
-        kind: "uncertain",
-        reason: "unconfirmed",
-        explanation:
-          "This launch is already being reconciled or submitted. Wait for its result; no duplicate input or conversation was created.",
-      };
-    const controller = Object.assign(new AbortController(), { request });
-    this.running.add(controller);
-    try {
-      return await this.attempt(source, request, controller);
-    } finally {
-      this.running.delete(controller);
-    }
+    const admission = await this.admit(source, request);
+    return "settled" in admission ? admission.settled : admission.answer;
   }
 
-  private async attempt(
+  private async admit(
     source: PublishedSource,
     request: AgentLaunchRequest,
-    controller: AbortController,
-  ): Promise<LaunchResult> {
+  ): Promise<Admission> {
+    const answer = await this.beforeAcceptance(source, request);
+    if (answer !== undefined) return { answer };
+    return this.owner.accept(request, (own, notePublication) =>
+      attemptRun(source, own, notePublication, this.progress),
+    );
+  }
+
+  // What is answered before acceptance, with nothing started: a missing
+  // folder, a Codex conversation awaiting reconciliation, or the start's own
+  // pre-launch answer.
+  private async beforeAcceptance(
+    source: PublishedSource,
+    request: AgentLaunchRequest,
+  ): Promise<Unaccepted | undefined> {
     const folder = projectFolder(source);
     if (!(await folderExists(folder))) {
       return {
@@ -172,10 +181,10 @@ export class AgentLaunches {
         explanation: `The project folder ${folder.shown} was not found on this machine. Nothing was launched.`,
       };
     }
-    const began = new Date();
-    const requested = recordedRequest(request, began);
     const creation =
-      request.host === "codex" ? await creationOf(requested) : undefined;
+      request.host === "codex"
+        ? await creationOf(recordedRequest(request, new Date()))
+        : undefined;
     if (creation !== undefined)
       return {
         kind: "uncertain",
@@ -185,55 +194,16 @@ export class AgentLaunches {
             ? "This machine's launch evidence is unreadable. Reconcile it with native Codex history before starting again; no new conversation was created."
             : creationRecovery(creation),
       };
-    const pending = (await keptRecords(source.id)).find(
-      (record) =>
-        sameLaunch(record.request, request) &&
-        record.firstInput !== undefined &&
-        record.firstInput.state !== "confirmed" &&
-        record.firstInput.state !== "not-requested",
-    );
-    const start =
-      pending === undefined
-        ? await started(source, request, folder, this.progress)
-        : ({ kind: "none" } as const);
-    if (start.kind === "stopped") return start.result;
-    const recording =
-      pending?.request ??
-      (start.kind === "established"
-        ? withStartPolicy(requested, start.policy)
-        : requested);
-    const timer = setTimeout(() => {
-      controller.abort();
-    }, launchTimeoutMs());
-    try {
-      return await launchRun(
-        source,
-        recording,
-        folder,
-        began,
-        start,
-        controller,
-        pending,
-      );
-    } finally {
-      clearTimeout(timer);
-      if (start.kind === "established") {
-        this.progress
-          .for(start.workflow.workflow)
-          .clear(
-            source.id,
-            establishedFacts(start.handoff.established).identity,
-          );
-      }
-    }
+    return (await pendingInputOf(source.id, request)) === undefined
+      ? unconfirmedStart(source, request, folder)
+      : undefined;
   }
 
   // Detaches native clients and ends launch waits when the server closes.
+  // Kept attempts stay as last written, for reconciliation; native work goes
+  // on.
   close(): void {
-    for (const controller of this.running) {
-      controller.abort();
-    }
-    this.running.clear();
+    this.owner.close();
     for (const host of launchHosts) launchHost(host)?.close?.();
   }
 }

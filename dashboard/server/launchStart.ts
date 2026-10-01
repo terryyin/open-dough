@@ -1,19 +1,26 @@
 // Run the shared workflow's deterministic start and format its handoff before
-// the native session begins. An expired wait leaves that start running. A
-// start in the default checkout first observes its existing changes: changes
-// the request did not confirm, or that changed since, answer with what was
-// observed, and nothing starts.
+// the native session begins. An expired wait leaves that start running.
+// Before a launch is accepted, a start in the default checkout first observes
+// its existing changes: changes the request did not confirm, or that changed
+// since, answer with what was observed, and nothing starts.
 import {
   policyOf,
   type AgentLaunchRequest,
+  type ExistingChangesFound,
+  type LaunchRecord,
   type LaunchResult,
+  type PublicationReceipt,
   type SessionPolicy,
 } from "../src/agentLaunch.ts";
 import { existingChanges } from "./defaultCheckoutChanges.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { EstablishedLaunch } from "./hostLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
-import { requireStartHost, type Established } from "./startLaunch.ts";
+import {
+  establishedFacts,
+  requireStartHost,
+  type Established,
+} from "./startLaunch.ts";
 import type { StartProgress } from "./startProgress.ts";
 import { startOf, type StartWorkflow } from "./startWorkflows.ts";
 import { keptStart } from "./startStore.ts";
@@ -52,6 +59,27 @@ function startFailed(
   };
 }
 
+// What a story launch's start answers before the launch is accepted, with
+// nothing run: a kept start another host owns is refused, and changes in the
+// default checkout the request did not confirm, or that changed since, are
+// answered for the developer to confirm.
+export async function unconfirmedStart(
+  source: PublishedSource,
+  request: AgentLaunchRequest,
+  folder: ProjectFolder,
+): Promise<ExistingChangesFound | undefined> {
+  if (request.workflow === "ad-hoc" || startOf(request.workflow) === undefined)
+    return undefined;
+  const kept = await keptStart(source.id, request.identity, request.workflow);
+  requireStartHost(request.host, kept);
+  if (policyOf(kept ?? request).workspace !== "default-checkout")
+    return undefined;
+  const found = await existingChanges(folder);
+  return found !== undefined && found.fingerprint !== request.existingChanges
+    ? found
+    : undefined;
+}
+
 // The start a launch's workflow runs before its session, waiting at most
 // `startTimeoutMs()` for it; the script goes on running when the wait ends.
 export async function started(
@@ -66,14 +94,6 @@ export async function started(
   const workflow = startOf(request.workflow);
   if (workflow === undefined) {
     return { kind: "none" };
-  }
-  const kept = await keptStart(source.id, request.identity, request.workflow);
-  requireStartHost(request.host, kept);
-  if (policyOf(kept ?? request).workspace === "default-checkout") {
-    const found = await existingChanges(folder);
-    if (found !== undefined && found.fingerprint !== request.existingChanges) {
-      return { kind: "stopped", result: found };
-    }
   }
   const scoped = progress.for(request.workflow);
   const planned = await workflow.begin(source, request, folder, scoped);
@@ -133,4 +153,33 @@ export async function started(
     scoped.clear(source.id, request.identity);
     return startFailed(workflow.formatFailed(place));
   }
+}
+
+// What an attempt's start says of publication: an established claim or
+// announcement is published, at the revision the start reported when it
+// reported one; a one-shot start, a launch with no start, or a refusal before
+// the start ran publishes nothing; a start that stopped otherwise may or may
+// not have published. A conversation resumed from its kept record carries
+// the start it was launched with.
+export function publicationOf(
+  start: Started,
+  pending: LaunchRecord | undefined,
+): PublicationReceipt {
+  const established =
+    pending !== undefined
+      ? (pending.start ?? pending.preparation)
+      : start.kind === "established"
+        ? establishedFacts(start.handoff.established)
+        : undefined;
+  if (established !== undefined) {
+    if ("tracking" in established) return { kind: "none" };
+    return established.publishedSha === undefined
+      ? { kind: "published" }
+      : { kind: "published", revision: established.publishedSha };
+  }
+  if (start.kind !== "stopped") return { kind: "none" };
+  return start.result.kind === "failed" &&
+    start.result.reason === "already-starting"
+    ? { kind: "none" }
+    : { kind: "unknown" };
 }
