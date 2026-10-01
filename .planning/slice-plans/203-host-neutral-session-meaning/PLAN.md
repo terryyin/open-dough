@@ -703,3 +703,64 @@ responsive-startup repair owner is not duplicated. The human ownership question
 remains pending; no repair, completion record or completion marker is invented.
 Automatic retrospective and final CI completion are deferred at this required
 human-judgment boundary. Retain the plan, checkout, branch and proof for resume.
+
+
+### Authorized CI repair — preparation-facts capture
+
+Terry answered "you repair", assigning this execution the bounded attention-test
+race previously held for the responsive-startup owner. Failure evidence from
+`36887148326/1` and `36889702007/1` has the same cause: Story B's loading facts
+were captured before its settled preparation reading. The latter run also had
+one package-install cancellation, which does not excuse its assertion failure.
+
+All slice/refactor writers were finished and the checkout was clean. Installed
+`ci-repair-stash.mjs save` returned `clean`, no OID, with receipt
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-CGg1Ea/record.json`.
+No stash entry was created or manually changed. A fresh implementation agent
+repaired only `agent-launch-attention.spec.ts`: one atomic browser observation
+requires current preparation detail and no loading text before cloning facts.
+This prevents both not-yet-read preparation and the gap between readiness and
+capture. Existing state/count/fact comparisons remain; no product code changed.
+
+Deterministic transient proof at the real browser/read boundary:
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- agent-launch-attention.spec.ts --grep 'CI repair reproduces'
+```
+
+Old helper: terminal exit 1 with the exact CI loading-versus-settled mismatch.
+The scheduling-only hook reloads the actual page after old readiness passed,
+holds real canonical/plan file reads, then captures. Same gap with atomic capture:
+terminal exit 0; the first observation rejects loading, release permits settled
+facts, and capture matches the later native reading. Temporary harness removed
+from the final tree; retained diagnostic `/tmp/attention-race-fixed-reproducer.ts`.
+No permanent helper-mirroring regression is claimed.
+
+Final restored helper-only proof reached terminal exit 0:
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- agent-launch-attention.spec.ts
+npm run typecheck:dashboard
+git diff --check
+```
+
+Root inspected the atomic helper, all three preparation-stage callers, unchanged
+count/fact comparisons and transient native-read setup. Independent refactoring
+returned `## REFACTOR COMPLETE`: only the introductory comment shortened,
+executable evidence unchanged; no tests rerun. Selective formatting passed,
+leaving the spec exactly 250 lines. No generation applies.
+
+The earlier observer was stopped with confirmed PID exit at the human boundary.
+On authorized resume, one documented yielded observer was rearmed:
+`/tmp/dough-ci-501/watch-4v8x7b`, cell `3`, session `32888`, PID `14248`, same
+repository/execution target/coordinator. Managed repair delivery reuses it.
+Snapshot evidence for `cef712aa` is incomplete (`36891814721/1`, cancelled):
+three dashboard shards stopped during slow Ubuntu package installation before
+browser proof, with no assertion failure; ten jobs passed. Diagnostic files:
+`/tmp/host-neutral-ci-36891814721-<job-id>.log` for `110469028282`,
+`110469028408`, `110469028450`. This is not a CI success claim.
+
+Fresh trunk added planning-only claims through `c220e09d`; integration retains
+those other owners' work without attributing it to this story's product change.
+The historical human stop above is superseded by this authorized repair. Final
+retrospective and CI handoff now resume under the original execution instruction.

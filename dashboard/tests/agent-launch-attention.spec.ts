@@ -1,16 +1,11 @@
-// A story's card says how many of its listed sessions need attention, by the
-// reading each entry shows (./agent-launch-recent-session-states.spec.ts):
-// a working session does not hide another's, two affected sessions are
-// counted, an unavailable or unknown one is not, and the words go once none
-// need attention, whether work resumed or a session was marked done. Backlog,
-// Preparing, and Taken cards follow the same rule, and the count never moves
-// a story or changes what origin publishes of it. Another project's sessions
-// never count, and a return or reload reads the count afresh from Claude
-// Code's listing. A story that leaves every list keeps its affected session,
-// with its reason and Open terminal, in Recent sessions. The page's own
-// dashboard server launches the synthetic `claude` (./fixtures/fake-claude);
-// the real one is never reached. The page clock stands still unless the
-// journey lets it pass.
+// Cards count listed sessions needing attention by each entry's reading.
+// Working, unavailable and unknown sessions add none; every affected session
+// counts until work resumes or it is marked done. Backlog, Preparing and Taken
+// preserve membership and origin's published facts. Counts belong to their
+// project and are read afresh from Claude Code's listing on return or reload.
+// Stories leaving every list keep affected sessions, reasons and Open terminal
+// in Recent sessions. Only synthetic `claude` (./fixtures/fake-claude) launches;
+// the page clock stays still unless this journey advances it.
 
 import type { Locator } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
@@ -48,13 +43,29 @@ const two = "2 sessions need attention";
 // What a card publishes of its story, once every fact is read: everything it
 // shows but its sessions and how many of them need attention.
 const publishedFactsOf = async (card: Locator) => {
-  await expect(card).not.toContainText(/Reading [^…]*…/);
-  return card.evaluate((element) => {
-    const copy = element.cloneNode(true) as HTMLElement;
-    const counted = copy.querySelectorAll(".card-sessions, .card-attention");
-    for (const part of counted) part.remove();
-    return copy.textContent;
-  });
+  let facts: string | null = null;
+  await expect
+    .poll(async () => {
+      facts = await card.evaluate((element) => {
+        // Readiness and capture share one browser turn: a new snapshot may
+        // begin reading after a separate readiness assertion has passed.
+        if (
+          !element.querySelector(".preparation-detail") ||
+          /Reading [^…]*…/.test(element.textContent)
+        ) {
+          return null;
+        }
+        const copy = element.cloneNode(true) as HTMLElement;
+        const counted = copy.querySelectorAll(
+          ".card-sessions, .card-attention",
+        );
+        for (const part of counted) part.remove();
+        return copy.textContent;
+      });
+      return facts;
+    })
+    .not.toBeNull();
+  return facts;
 };
 
 test.describe("a story's card counts the sessions that need attention", () => {
@@ -126,13 +137,8 @@ test.describe("a story's card counts the sessions that need attention", () => {
       const session = sessionOf.get(`${title} ${workflow}`) ?? "?";
       dashboard.claudeSessionBecomes(session, ...change);
     };
-    // A card's facts to compare later, once every preparation is read.
-    const readFactsOf = async (title: string) => {
-      await expect(page.getByText("Reading preparation…")).toHaveCount(0);
-      return publishedFactsOf(card(title));
-    };
     await expectCounted({});
-    const facts = await readFactsOf(readyStory);
+    const facts = await publishedFactsOf(card(readyStory));
     await markNotReloaded(page);
 
     await test.step("a working session does not hide another's attention, and an unavailable one is not counted", async () => {
@@ -170,7 +176,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
       await expect(
         card(readyStory).getByText("Preparing", { exact: true }),
       ).toBeVisible();
-      const preparingFacts = await readFactsOf(readyStory);
+      const preparingFacts = await publishedFactsOf(card(readyStory));
       await expectCounted({ [readyStory]: two, [notRefinedStory]: one });
 
       becomes(readyStory, "Refinement", "working");
@@ -187,7 +193,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     await test.step("a Taken card counts the same way, and marking its last affected session done leaves no count", async () => {
       await show(stagesJourney.taken);
       await expectMembership(page, takenStages);
-      const takenFacts = await readFactsOf(readyStory);
+      const takenFacts = await publishedFactsOf(card(readyStory));
       await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
 
       await entryOf(readyStory, "Execution")
