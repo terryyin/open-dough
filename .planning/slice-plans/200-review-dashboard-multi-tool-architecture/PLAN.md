@@ -169,7 +169,7 @@ code.
 
 ### 4. Terry's selection becomes queued stories and North Star direction
 Type: Behavior
-Status: planned
+Status: done
 Proof: `product-backlog.mjs read-state` shows each new story recorded as
 not-refined and unselected. The `## Backlog list` order puts every selected
 story before `SEED-052#use-cursor-from-dashboard`. No story exists for a
@@ -236,6 +236,18 @@ the link is removed and the backlog is unchanged.
   `REVIEW.md` "Maintained documentation and ADR verdict" records "No ADR
   change": the boundary concerns only the dashboard, ADR 0005 already
   governs it, and Proposed ADR 0008's local layer is not contradicted.
+- **Slice 4 proof (accepted):** At the checkpoint Terry selected review
+  items 1–8 and approved four stories in order, declining items 9–16:
+  `SEED-075#one-host-description` (items 1, 3, 6),
+  `SEED-075#session-record-per-host` (4),
+  `SEED-075#host-neutral-session-meaning` (2, 5), and
+  `SEED-075#launch-gates-every-host` (7, 8), in
+  `.planning/seeds/SEED-075-host-neutral-dashboard-before-cursor.md`, each
+  carrying its evidence in its own text. `product-backlog.mjs read-state`
+  reports each not-refined and unselected; `## Backlog list` lists them
+  directly before `SEED-052#use-cursor-from-dashboard`. The North Star topic's
+  review link is replaced by the selected direction, and its damaged
+  "Sessions are the machine's" bullet is restored.
 
 ## Learnings
 
