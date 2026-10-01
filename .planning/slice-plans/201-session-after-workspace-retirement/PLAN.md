@@ -450,3 +450,59 @@ and an unnecessary optional chain; no runtime behavior changed.
 - The original preparation assessment supplied plan readiness; Terry's current
   execute-plan invocation supplies execution/publication authority. Readiness
   was not renewed by execution evidence updates.
+
+
+## Execution retrospective
+
+Reviewed the original execution-ready source and aggregate delivered result at
+`84b26724711e6f23b4217c39c7cae9924a9486ce`. Manifest: `33eb0b69` owns passive native
+report access; `34fd7257` owns observation, admission and shared dashboard review;
+`130e8a6d` aligns the legacy contract consumer; `bc98c4ac` fixes the demonstrated
+post-reload click race; `84b26724` owns action/startup fallback and attachment
+lifetime coherence. The range contains only these execution-related commits;
+the established claim is provenance, not implementation.
+
+Outcome/architecture/refactoring/test findings: none requiring a correction.
+The six story examples have inspected mapped proof, including real native
+feasibility and report-to-view acceptance. Host-native operations remain behind
+LaunchHost; admission uses kept host-qualified records, passive reads require no
+workspace, durable done intent stays independent, and one page panel owns access
+selection/focus. Accepted ADR 0002 and ADR 0005 and the current North Star agree;
+no exception or proposed ADR was treated as binding. Whole-product review traced
+record admission/store, native observation/recovery/terminal, capabilities,
+attention and navigation, including untouched consumers. Source membership did
+not exclude implicated refactoring. The host-neutral work in SEED-075 remains
+its existing queued responsibility, not a new scope for this defect.
+
+Outside-in boundary/browser journeys drove proof; external vendor payloads and
+controlled late socket delivery supply preconditions while real persistence,
+rendering, RPC, WebSocket and PTY boundaries establish outcomes. The maintained
+suite's distinct launch/done/identity/readiness/navigation owners remain useful;
+new reader/admission/filesystem variations stay at focused boundaries and the
+browser scenarios retain entry-point, retry and race integration. No supported
+whole-suite consolidation or detail downgrade is required. Native temporary
+proof artifacts were disposed after judgment. The whole repository suite was
+not rerun locally; applicable CI on the registered execution target remains
+pending during review, with the retained observer covering exact revision84b26724.
+
+Process review was enabled by the project's skipProcessRetrospective:false.
+Coordinator and implementation/refactor/repair reports support a new occurrence
+of existing DD-200: the Codex stream delivered failure events without advancing
+the durable cursor. Both handled tuples were explicitly acknowledged through
+installed exports. No new finding code, guidance edit or queue change was made.
+DearDough.md remains above its 500-line warning threshold and below its 1,000-line
+ceiling. The two owned CI repairs were diagnosed with causal red/green proof;
+managed stash save/restore preserved unfinished slice work and the unrelated stash.
+Necessary native observation, review and repair costs are not presented as waste.
+
+Product advice: no additional product story or reprioritization is supported.
+Keep alternate-workspace continuation, endpoint repair and general transcript
+browsing deferred; preserve the existing host-neutral queue and report-access
+boundaries during story wrap-up. DD-200's acknowledgment proposal remains process
+advice for separate triage. Planning disposition: unchanged, no correction plan.
+
+## Execution complete
+
+Product advice: No new product story or priority change. Preserve existing
+host-neutral work and the explicit continuation/endpoint/transcript deferrals.
+DD-200's recurring Codex acknowledgment gap remains a separate process proposal.
