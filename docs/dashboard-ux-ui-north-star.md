@@ -250,3 +250,19 @@ Keep firm requirements in the requirements document and durable architectural
 constraints in human-owned ADRs. Retire or reduce this guide once its useful
 direction is embodied in the product and maintained checks, or no longer helps
 the next increment. It is not a permanent parallel specification.
+
+## Launch dialog information hierarchy
+
+For SEED-066's story dialogs and later unattached Start session, keep instruction,
+host/model, and consequential session choices easy to scan. Group controls by
+tracking, workspace, and landing meaning; use independent labeled choices.
+Keep a plain-language launch-effects summary visible. Put refinement actions in
+a disclosure whose summary names selected choices, and put raw command/metadata
+in Command details. The current 32rem dialog expands every option's flag and
+summary, explaining why adding more flat rows would be crowded. Preserve semantic
+controls, instruction-first focus, narrow/zoom reflow, and reachable actions.
+Confirm existing default-checkout changes in the same dialog with Back/Continue;
+confirmation includes existing content without changing the review/auto-land
+selection. Validate the hierarchy with actual long-title and maximal-selection
+screens before accepting implementation. The [current plan and design study](../.planning/slice-plans/191-composable-lightweight-session-options/PLAN.md#upfront-uxui-design)
+are temporary detail; retain this topic for the queued unattached-dialog story.

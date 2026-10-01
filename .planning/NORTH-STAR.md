@@ -199,3 +199,21 @@ Rules that keep later stories additive:
 
 Retire this topic when the sibling stories have delivered their rows and the
 code and tests carry it; keep any lasting rule in `dashboard/AGENT-LAUNCH.md`.
+
+## Composable session policy and workflow-owned start
+
+For [SEED-066](seeds/SEED-066-composable-lightweight-session-options.md), model
+tracking, workspace, and landing policy independently in one shared installed
+policy contract. Workflow start establishes actual context once; dashboard and
+native adapters consume it, and assigned starts retain their existing lifecycle.
+One-shot is explicitly selected and defaults to isolation/review; refinement and
+execution share policy/workspace/publication meanings but retain their distinct
+result and closure duties. Current preparation already imports execution's
+workspace selector, and both hosts already consume established-start handoffs,
+so change those cohesive responsibilities rather than add a second launch flow.
+Dashboard confirmation permits inclusion of existing uncommitted checkout
+content; it does not activate auto-land. Direct skills require no clean-main gate.
+This direction also governs the separately queued unattached-session story;
+retain it while that story still needs it. It narrows the earlier start topic's
+assignment-only description for explicitly selected one-shot work without
+changing ordinary assigned startups or accepting a Proposed ADR.
