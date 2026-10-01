@@ -101,4 +101,4 @@ actions until its temporary local state and published state agree.
 - [Product backlog](../PRODUCT-BACKLOG.md).
 - [Dashboard session journey](SEED-052-start-agent-work-from-dashboard.md).
 - [Composable session options](SEED-066-composable-lightweight-session-options.md).
-- [Session panel header controls](SEED-071-session-panel-header-controls.md).
+- Session panel header controls (`60b6aa6b:.planning/seeds/SEED-071-session-panel-header-controls.md`).
