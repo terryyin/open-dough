@@ -292,7 +292,16 @@ and ownership readers; preparation retains its own lifecycle.
 
 ### 3. Observe native adoption before broadening the policy
 Type: Behavior
-Status: blocked — harness cases authored; awaiting explicit manual (paid) native-run authority
+Status: done
+Native probe (manual, developer-triggered, Claude Code, candidate `d6301c9e`):
+`publication/one-shot-review` and `preparation/one-shot-refinement` both
+assessed `pass` / FRESH PROOF from real local-origin and workspace state (remote
+unchanged, zero ref updates, workspace retained with one result commit, report
+names the workspace; refinement recorded refined/unselected/not-ready, still
+queued, sibling kept). Both responses stopped for review and named the later
+landing request. Learning: the review agent briefly ran the fixture's
+`scripts/ci-check.mjs` (a CI hook stub that waits for input) as a local check;
+harmless here, worth watching in slice 8.
 Credential-free proof (accepted): with `PATH=/opt/homebrew/bin:$PATH`,
 `bash tests/git-publication-native-one-shot.sh` (substitutes pass; state and
 whole-run pushing counterexamples rejected), `bash tests/git-publication-native.sh`,
