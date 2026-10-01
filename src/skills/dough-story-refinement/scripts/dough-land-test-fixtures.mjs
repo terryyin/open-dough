@@ -138,7 +138,7 @@ export async function landWorktree({
   createdForWork = true,
   message = "Land reviewed worktree changes",
   beforePush,
-  onFetchedTarget,
+  onFetchedTarget = undefined,
 }) {
   const notDone = { refresh: "not-attempted", cleanup: "not-performed" };
   if (!worktree || !branch) {
