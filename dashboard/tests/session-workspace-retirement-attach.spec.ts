@@ -76,6 +76,9 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     const resultRead = page.waitForRequest(
       (request) => new URL(request.url()).pathname === "/__agent-launch/result",
     );
+    // The fixture's launch protects the story's card until a published read
+    // after its outcome reconciles it.
+    await expect(open).toBeEnabled();
     await open.focus();
     await page.keyboard.press("Enter");
     const read = new URL((await resultRead).url());

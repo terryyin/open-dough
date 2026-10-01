@@ -115,6 +115,19 @@ export function keepInView(element: Element): () => void {
   return stop;
 }
 
+// Said once when a new snapshot no longer lists the work that held focus.
+export function unlistedNotice(
+  held: FocusedWork | undefined,
+  work: PublishedWork,
+): string {
+  return held &&
+    ![...work.taken, ...work.backlog].some(
+      (entry) => entry.identity === held.identity,
+    )
+    ? `${held.title} is no longer listed in the published work.`
+    : "";
+}
+
 // The stages hold the keyboard position when no particular work does.
 export function focusStages(): void {
   document.querySelector<HTMLElement>(`[${stagesAttribute}]`)?.focus();
@@ -136,6 +149,15 @@ export function restoreSnapshotFocus(
       ? deferred
       : undefined);
   if (!wanted) return undefined;
+  // Focus still within the work's card, kept across the snapshot, stays.
+  const kept = document.activeElement;
+  if (
+    held !== undefined &&
+    kept !== null &&
+    kept !== workCard(wanted.identity) &&
+    workCard(wanted.identity)?.contains(kept) === true
+  )
+    return undefined;
   returnFocusTo(wanted);
   const entry = [...(work?.taken ?? []), ...(work?.backlog ?? [])].find(
     (item) => item.identity === wanted.identity,

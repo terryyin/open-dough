@@ -73,8 +73,9 @@ export async function resolveBranchHeadViaGh(
 // A refused answer that says when to ask again is a rate limit, whatever
 // else `gh` printed: GitHub directs a wait with `Retry-After`, or with
 // `X-RateLimit-Reset` once `X-RateLimit-Remaining` reaches zero, on its `403`
-// and `429` answers. Only the validated wait leaves this module.
-function limitedAsDirected(
+// and `429` answers. Only the validated wait leaves this module; it is shared
+// with the containment read (`./containmentRead.ts`).
+export function limitedAsDirected(
   answer: IncludedAnswer | undefined,
 ): GhFailureReason | undefined {
   if (answer?.status !== 403 && answer?.status !== 429) {

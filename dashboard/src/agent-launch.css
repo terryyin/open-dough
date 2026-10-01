@@ -151,3 +151,80 @@
   gap: 0.5rem;
   margin-top: 0.35rem;
 }
+
+/* A card whose story starts on this machine: its frame disables every action
+   inside it without changing the card's layout, and its edge is dashed, apart
+   from the selection and "Shown in terminal" marks. The words beside its
+   actions carry the meaning; the indicator before them moves only while the
+   startup is known to progress. */
+.card-frame {
+  display: contents;
+}
+
+.card.card-starting {
+  border-style: dashed;
+  border-left-style: solid;
+}
+
+.card-startup-progressing::before {
+  content: "";
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-right: 0.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: card-startup-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes card-startup-pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-startup-progressing::before {
+    animation: none;
+  }
+}
+
+.inspect-story:disabled {
+  color: var(--quiet);
+  border-color: var(--line);
+  cursor: default;
+}
+
+.card-startup-note {
+  font-size: 0.9rem;
+}
+
+/* Startup recovery: the project's startups that need reconciliation, beside
+   its actions and outside every protected card. Each entry is static: no
+   indicator moves, since nothing is known to progress. */
+.startup-recovery {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+}
+
+.startup-recovery h2 {
+  font-size: 1rem;
+  margin: 0 0 0.25rem;
+}
+
+.startup-recovery-entry h3 {
+  font-size: 0.95rem;
+  margin: 0.5rem 0 0.15rem;
+}
+
+.startup-recovery-entry p {
+  margin: 0.2rem 0;
+}
+
+.startup-recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

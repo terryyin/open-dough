@@ -126,8 +126,13 @@ test.describe("a story's card counts the sessions that need attention", () => {
       const session = sessionOf.get(`${title} ${workflow}`) ?? "?";
       dashboard.claudeSessionBecomes(session, ...change);
     };
+    // A card's facts to compare later, once every preparation is read.
+    const readFactsOf = async (title: string) => {
+      await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+      return publishedFactsOf(card(title));
+    };
     await expectCounted({});
-    const facts = await publishedFactsOf(card(readyStory));
+    const facts = await readFactsOf(readyStory);
     await markNotReloaded(page);
 
     await test.step("a working session does not hide another's attention, and an unavailable one is not counted", async () => {
@@ -165,7 +170,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
       await expect(
         card(readyStory).getByText("Preparing", { exact: true }),
       ).toBeVisible();
-      const preparingFacts = await publishedFactsOf(card(readyStory));
+      const preparingFacts = await readFactsOf(readyStory);
       await expectCounted({ [readyStory]: two, [notRefinedStory]: one });
 
       becomes(readyStory, "Refinement", "working");
@@ -182,7 +187,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     await test.step("a Taken card counts the same way, and marking its last affected session done leaves no count", async () => {
       await show(stagesJourney.taken);
       await expectMembership(page, takenStages);
-      const takenFacts = await publishedFactsOf(card(readyStory));
+      const takenFacts = await readFactsOf(readyStory);
       await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
 
       await entryOf(readyStory, "Execution")

@@ -5,8 +5,10 @@
 // (execution: not marked Ready for execution; refinement: being prepared)
 // offers the same action, described by that note; the session is asked anyway,
 // and the instruction can say what to do first. A failed or uncertain answer
-// stays on the card with the action. The dialog's mechanics, including the
-// keyboard's return to the action, belong to `LaunchDialog`. On a card whose
+// stays on the card with the action; while the story starts, its card says
+// so (`CardLaunches`) and protects the action (`WorkCard`). The dialog's
+// mechanics, including the keyboard's return to the action, belong to
+// `LaunchDialog`. On a card whose
 // story this machine started without a session (`resumes`), the dialog names
 // the published claim's host/model and the session opens in its kept workspace.
 // A story's Session choices (`LaunchSessionPolicy`) decide its tracking,
@@ -16,17 +18,15 @@
 import { hostName } from "./sessionCapabilities.ts";
 import { hostDescription } from "./hostDescription.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
-import { useId, useRef, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 import {
   defaultSessionPolicy,
   launchArguments,
   launchWorkflows,
   policyOf,
-  startPhaseWords,
   type KeptStart,
   type LaunchChoices,
   type SessionPolicy,
-  type StartPhase,
   type LaunchWorkflow,
 } from "./agentLaunch.ts";
 import type { SessionPolicyOffer } from "./launchOffers.ts";
@@ -41,6 +41,8 @@ import { LaunchDialog } from "./LaunchDialog.tsx";
 import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
+import { useFrameDescription } from "./protectedFrame.ts";
+import { workCard } from "./workFocus.ts";
 import "./agent-launch.css";
 
 export function StartLaunch({
@@ -53,7 +55,8 @@ export function StartLaunch({
   resumes,
   note,
   attempt,
-  phase,
+  unavailable = false,
+  unavailableReason,
   onStart,
 }: {
   readonly onHostChanged?: () => void;
@@ -80,10 +83,14 @@ export function StartLaunch({
   // The workflow's note on this card, if any.
   readonly note: string | undefined;
   readonly attempt: LaunchAttempt | undefined;
-  // The phase of this story's start the server runs now, whichever page
-  // asked for it; its words say it on this card, and Start waits for it.
-  readonly phase: StartPhase | undefined;
-  // Answers whether a session was launched, which then takes the keyboard.
+  // Whether the action is unavailable -- while its story starts, or before
+  // this machine's launch evidence was read: the keyboard returns to the
+  // button only once it is available again.
+  readonly unavailable?: boolean;
+  // The id of what says why the action is unavailable, when the story's
+  // protected frame does not (`./protectedFrame.ts`).
+  readonly unavailableReason?: string | undefined;
+  // Answers whether the launch was accepted.
   readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
 }) {
   const [selectedHost, setHost] =
@@ -99,18 +106,15 @@ export function StartLaunch({
     typeof establishesForHost === "function"
       ? establishesForHost(host)
       : establishesForHost;
-  const establishes = establishesStart ? spec.establishes : undefined;
-  const pending =
-    phase === undefined
-      ? (establishes?.pending ??
-        spec.pending.replace("Claude Code", hostName(host)))
-      : startPhaseWords(workflow, phase).replace("Claude Code", hostName(host));
   const named = name.toLowerCase();
   const id = useId();
   const starting = attempt?.kind === "starting";
-  const running = starting || phase !== undefined;
-  const { launcher, open, openDialog, closeDialog } =
-    useLaunchDialogLauncher(starting);
+  // At handoff the keyboard goes to the story's card, which its startup
+  // status describes.
+  const { launcher, open, openDialog, closeDialog } = useLaunchDialogLauncher(
+    starting || unavailable,
+    useCallback(() => workCard(work.identity), [work.identity]),
+  );
   // The selection of the launch that failed, which the next opening keeps.
   const [kept, setKept] = useState<ReadonlySet<string>>();
   // The session policy chosen; a failed launch's stays for the next opening.
@@ -121,10 +125,11 @@ export function StartLaunch({
   const refused = useRef(false);
   const noteId = `${id}-note`;
   const answerId = `${id}-answer`;
-  const described = [
+  const described = useFrameDescription(
     note !== undefined ? noteId : undefined,
-    attempt !== undefined || phase !== undefined ? answerId : undefined,
-  ].filter((part) => part !== undefined);
+    attempt !== undefined && !starting ? answerId : undefined,
+    unavailableReason,
+  );
 
   return (
     <div className="start-launch">
@@ -138,8 +143,8 @@ export function StartLaunch({
               : "start-launch-button"
           }
           aria-haspopup="dialog"
-          aria-describedby={described.length ? described.join(" ") : undefined}
-          disabled={running}
+          aria-describedby={described}
+          disabled={unavailable}
           onClick={openDialog}
         >
           Start {named}
@@ -150,12 +155,7 @@ export function StartLaunch({
           </span>
         )}
       </p>
-      {running && (
-        <p id={answerId} className="launch-answer quiet">
-          {pending}
-        </p>
-      )}
-      {attempt !== undefined && attempt.kind !== "starting" && !running && (
+      {attempt !== undefined && attempt.kind !== "starting" && (
         <LaunchProblemAnswer id={answerId} problem={attempt} />
       )}
       {open && (
@@ -206,19 +206,18 @@ export function StartLaunch({
           optionsLine={optionsLine(options, skill, named)}
           kept={kept}
           notOfferedLine={notOfferedLine(options, kept)}
-          starting={starting}
           onStart={onStart}
           onRefused={(selected) => {
             refused.current = true;
             setKept(selected);
           }}
-          onClose={(launched) => {
+          onClose={(accepted) => {
             if (!refused.current) {
               setKept(undefined);
               setPolicy(defaultSessionPolicy);
             }
             refused.current = false;
-            closeDialog(launched);
+            closeDialog(accepted);
           }}
         />
       )}

@@ -121,17 +121,18 @@ export async function readPublishedWork(
     try {
       // Every catalog source is read through the one local authenticated
       // boundary: one resolved revision and its raw backlog text first.
-      const { revision, backlog: markdown } = await readPublishedSnapshot(
-        source,
-        untilEither,
-        knownRevision,
-      );
+      const {
+        revision,
+        backlog: markdown,
+        askedAt,
+      } = await readPublishedSnapshot(source, untilEither, knownRevision);
       // Membership first, then preparation enrichment through the same
       // boundary's reachability-checked path reads at that revision.
       const work: PublishedWork = awaitingOwners({
         source,
         revision,
         retrievedAt: new Date(),
+        ...(askedAt === undefined ? {} : { refAskedAt: askedAt }),
         ...interpret(markdown, revision, source, { status: "loading" }),
       });
       onPartial?.(work);

@@ -135,6 +135,30 @@ export type LaunchChoices = {
   readonly existingChanges?: string;
 };
 
+// The choices as a request carries them: the chosen host, trimmed text
+// omitted when empty, and the model, options, policy
+// and confirmation only when chosen.
+export function requestedChoices({
+  host,
+  instruction,
+  model,
+  options,
+  policy,
+  existingChanges,
+}: LaunchChoices) {
+  const own = instruction.trim();
+  return {
+    host,
+    ...(own === "" ? {} : { instruction: own }),
+    ...(model === undefined ? {} : { model }),
+    ...(options === undefined || options.length === 0
+      ? {}
+      : { options: [...options] }),
+    ...(policy === undefined ? {} : { policy }),
+    ...(existingChanges === undefined ? {} : { existingChanges }),
+  };
+}
+
 // The request a record keeps: an ad hoc one with the label the server
 // derived as its title, and a story's without a confirmation.
 export const recordedLaunchRequestSchema = z.discriminatedUnion("workflow", [

@@ -9,6 +9,7 @@ import {
   useMarking,
   usePageSessions,
 } from "./pageSessions.ts";
+import { useFrameDescription } from "./protectedFrame.ts";
 
 // A card entry's Mark as done, and its Delete record… while its state is
 // unknown or unavailable, with the one status line that says what either could
@@ -17,12 +18,14 @@ export function CardActions({ record }: { readonly record: LaunchWithState }) {
   const { markDone, hostOperations } = usePageSessions();
   const { marking, follow } = useMarking();
   const [deleteSaid, setDeleteSaid] = useState<string | undefined>();
+  const described = useFrameDescription();
   return (
     <>
       {marksDone(hostOperations, record.session.host) && (
         <p className="launch-open">
           <button
             type="button"
+            aria-describedby={described}
             disabled={marking === "marking"}
             onClick={(event) => {
               setDeleteSaid(undefined);
@@ -81,6 +84,7 @@ function DeleteRecord({
   const keep = useRef<HTMLButtonElement>(null);
   const restoring = useRef(false);
   const retrying = useRef<HTMLElement | null>(null);
+  const described = useFrameDescription();
 
   useEffect(() => {
     if (step === "asking") {
@@ -111,6 +115,7 @@ function DeleteRecord({
         <button
           ref={button}
           type="button"
+          aria-describedby={described}
           onClick={() => {
             say(undefined);
             setStep("asking");
@@ -138,6 +143,7 @@ function DeleteRecord({
       <p className="delete-question-actions">
         <button
           type="button"
+          aria-describedby={described}
           disabled={step === "deleting"}
           onClick={(event) => {
             const control = event.currentTarget;
@@ -164,6 +170,7 @@ function DeleteRecord({
         <button
           ref={keep}
           type="button"
+          aria-describedby={described}
           disabled={step === "deleting"}
           onClick={keepRecord}
         >

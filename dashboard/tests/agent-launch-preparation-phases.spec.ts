@@ -11,8 +11,6 @@
 // whose installed skill lacks the preparation start keeps today's words
 // (./agent-launch-start-card.spec.ts).
 
-import { existsSync, chmodSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import { launch, launchRequest, runningStarts } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expect, test as base } from "./dashboardTest.ts";
@@ -64,14 +62,7 @@ test("every page says what Start refinement does and its phases, the story stayi
   origin,
 }) => {
   test.setTimeout(120_000);
-  const held = path.join(origin.machine, "push-held");
-  const released = path.join(origin.machine, "push-released");
-  const hook = path.join(origin.origin, "hooks", "pre-receive");
-  writeFileSync(
-    hook,
-    `#!/bin/sh\ntouch ${held}\nwhile [ ! -e ${released} ]; do sleep 0.2; done\n`,
-  );
-  chmodSync(hook, 0o755);
+  const push = origin.holdPushes();
   dashboard.claudeScenario("held");
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
@@ -108,8 +99,8 @@ test("every page says what Start refinement does and its phases, the story stayi
   await expect(takenCard).toHaveCount(0);
 
   // The preparation was established; Claude Code is launching.
-  await expect.poll(() => existsSync(held), { timeout: 20_000 }).toBe(true);
-  writeFileSync(released, "");
+  await expect.poll(() => push.isHeld(), { timeout: 20_000 }).toBe(true);
+  push.release();
   await expect
     .poll(() => runningStarts(dashboard), { timeout: 30_000 })
     .toEqual([

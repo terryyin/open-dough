@@ -27,3 +27,9 @@ commit then costs one backlog read plus its records and one history listing
 per readable profile, without resolving `main` again; a recorded story branch
 that moved costs one read of its plan and one of its last commit time at the
 new head.
+
+A listed story whose latest launch on this machine settled, published at a
+revision other than the one shown, and is not yet reconciled on the page costs
+one comparison of the two commits per newly shown revision (a page that opens
+asks one for each such story); an answered comparison is not asked again by
+that page, and a failed one is asked again only with the next read.

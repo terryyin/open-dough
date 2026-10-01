@@ -72,7 +72,10 @@ for (const mode of ["dev", "preview"] as const) {
       expect(shortId).toMatch(/^[0-9a-f]{8}$/);
       expect(sessionId.startsWith(shortId)).toBe(true);
       const folder = openDoughFolder(server);
-      expect(server.claudeCalls()).toEqual([
+      // Reading the machine's sessions lists them from the home folder.
+      expect(
+        server.claudeCalls().filter((call) => call.cwd === folder),
+      ).toEqual([
         {
           argv: [
             "--bg",

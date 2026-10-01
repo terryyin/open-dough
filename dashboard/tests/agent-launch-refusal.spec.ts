@@ -15,7 +15,11 @@ import {
   launchRequest,
   title,
 } from "./agentLaunchBoundary.ts";
-import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
+import {
+  agentAcceptEndpoint,
+  agentChangedEndpoint,
+  agentLaunchEndpoint,
+} from "../src/agentLaunch.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -156,6 +160,21 @@ for (const mode of ["dev", "preview"] as const) {
       });
     }
 
+    test("refuses a wait for an attempt from another site, or naming no attempt", async () => {
+      const waitFor = (attempt: string, origin: string) =>
+        rawRequest({
+          url: `${server.baseURL}${agentChangedEndpoint}?attempt=${attempt}`,
+          headers: { Origin: origin },
+        });
+      const attempt = "00000000-0000-4000-8000-000000000000";
+      expect((await waitFor(attempt, "http://evil.example")).status).toBe(403);
+      expect((await waitFor("not-an-attempt", server.origin)).status).toBe(400);
+      // An attempt no server runs is answered at once.
+      const answered = await waitFor(attempt, server.origin);
+      expect(answered.status).toBe(200);
+      expect(JSON.parse(answered.body)).toEqual({ changed: true });
+    });
+
     test("refuses a launch request that is not JSON before starting claude", async () => {
       const callsBefore = server.claudeCalls().length;
       for (const [contentType, body, status] of [
@@ -163,7 +182,7 @@ for (const mode of ["dev", "preview"] as const) {
         ["application/json", "{not json", 400],
       ] as const) {
         const response = await rawRequest({
-          url: `${server.baseURL}${agentLaunchEndpoint}`,
+          url: `${server.baseURL}${agentAcceptEndpoint}`,
           method: "POST",
           headers: { "Content-Type": contentType, Origin: server.origin },
           body,
@@ -173,7 +192,7 @@ for (const mode of ["dev", "preview"] as const) {
       expect(server.claudeCalls()).toHaveLength(callsBefore);
     });
 
-    for (const method of ["PUT", "DELETE", "PATCH"]) {
+    for (const method of ["POST", "PUT", "DELETE", "PATCH"]) {
       test(`refuses ${method} before starting claude`, async () => {
         const callsBefore = server.claudeCalls().length;
         const response = await rawRequest({

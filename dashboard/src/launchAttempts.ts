@@ -1,129 +1,119 @@
-// The launches the developer asked for from this page until the boundary
-// answers: each work item's launch of a workflow in flight or its last failed
-// or uncertain answer, and the project's ad hoc launch likewise. A confirmed
-// launch keeps no attempt; its record joins the machine's sessions
-// (`./agentLaunches.ts`).
+// The launches the developer asked for from this page, and the startup of
+// each story and project as the machine's launch attempts show it
+// (`./agentLaunches.ts`). Asking sends the request to the local launch owner,
+// which answers once it accepted the exact request; the page then follows
+// that accepted attempt through the machine's sessions until its outcome
+// settles (`./askedLaunches.ts`, `./attemptChangeWaits.ts`). Each story's
+// startup, from whichever page, is told from the same attempts
+// (`./storyStartup.ts`) and, once settled, from the published snapshot shown
+// (`./startupReconciliation.ts`). A lost answer keeps its story protected
+// until a read asked afterwards shows whether it was accepted; startups in
+// need of reconciliation are rechecked and continued outside their frames
+// (`./startupRecoveries.ts`).
 
-import { useCallback, useState } from "react";
-import type {
-  AgentLaunchRequest,
-  ExistingChangesFound,
-  LaunchChoices,
-  LaunchWithState,
-  LaunchWorkflow,
-  StoryLaunchRequest,
+import { useCallback } from "react";
+import {
+  requestedChoices,
+  type AttemptObservation,
+  type LaunchChoices,
+  type LaunchWithState,
+  type LaunchWorkflow,
+  type StoryLaunchRequest,
 } from "./agentLaunch.ts";
-import { requestAgentLaunch, type LaunchProblem } from "./agentLaunchClient.ts";
+import { useAskedLaunches } from "./askedLaunches.ts";
+import { useAttemptChangeWaits } from "./attemptChangeWaits.ts";
+import type { StartAnswer } from "./LaunchExistingChanges.tsx";
+import {
+  adHocKey,
+  askedRequests,
+  attemptKey,
+  shownAttempt,
+  type LaunchAttempt,
+  type OnLaunched,
+} from "./pageAttempt.ts";
+import {
+  storiesAsked,
+  storyStartup,
+  type StoryStartup,
+} from "./storyStartup.ts";
+import {
+  useStartupReconciliation,
+  type PublishedShown,
+} from "./startupReconciliation.ts";
+import {
+  useStartupRecovery,
+  type AttemptEvidence,
+  type StartupRecoveries,
+} from "./startupRecoveries.ts";
 
-// A launch the developer asked for that has no record: still starting, or
-// answered without a confirmed session.
-export type LaunchAttempt = { readonly kind: "starting" } | LaunchProblem;
+export type { LaunchAttempt, OnLaunched } from "./pageAttempt.ts";
 
 // The work item a launch is for, as its request names it.
 export type LaunchWorkItem = Pick<StoryLaunchRequest, "identity" | "title">;
 
-export type LaunchAttempts = {
+export type LaunchAttempts = StartupRecoveries & {
   attemptOf(
     sourceId: string,
     identity: string,
     workflow: LaunchWorkflow,
   ): LaunchAttempt | undefined;
-  // Starts the workflow on the project's work item in the chosen host, with
-  // the developer's optional instruction, and answers the launched record
-  // once the boundary confirms one, or the default checkout's existing
+  // The story's startup, from whichever page it was asked.
+  storyStartupOf(sourceId: string, identity: string): StoryStartup | undefined;
+  // The startups of the project's stories, from whichever page asked them.
+  storyStartupsOf(sourceId: string): readonly StoryStartup[];
+  // Asks the local service to start the workflow on the project's work item
+  // in the chosen host, with the developer's optional instruction, and
+  // answers whether it was accepted, or the default checkout's existing
   // changes the developer has yet to confirm, with nothing started.
   start(
     sourceId: string,
     work: LaunchWorkItem,
     workflow: LaunchWorkflow,
     choices: LaunchChoices,
-  ): Promise<LaunchWithState | ExistingChangesFound | undefined>;
-  // Starts an ad hoc session in the project, with the developer's optional
-  // first message, and answers the launched record once the boundary confirms
-  // one. A problem is kept nowhere yet.
+    onLaunched: OnLaunched,
+  ): Promise<StartAnswer>;
+  // Asks for an ad hoc session in the project, with the developer's optional
+  // first message, and answers whether it was accepted.
   startAdHoc(
     sourceId: string,
     choices: LaunchChoices,
-  ): Promise<LaunchWithState | undefined>;
-  // The project's ad hoc launch in flight or its last failed or uncertain
-  // answer.
+    onLaunched: OnLaunched,
+  ): Promise<boolean>;
+  // The project's ad hoc launch from this page in flight, or its last failed
+  // or uncertain answer.
   adHocAttemptOf(sourceId: string): LaunchAttempt | undefined;
 };
 
-const attemptKey = (
-  sourceId: string,
-  identity: string,
-  workflow: LaunchWorkflow | "ad-hoc",
-) => JSON.stringify([sourceId, identity, workflow]);
-
-// An ad hoc launch has no work item, so its attempt is the project's alone.
-const adHocKey = (sourceId: string) => attemptKey(sourceId, "", "ad-hoc");
-
-// The choices as the boundary takes them: trimmed text, omitted when empty,
-// and the model, options, policy and confirmation only when chosen.
-const optionsOf = ({
-  instruction,
-  model,
-  options,
-  policy,
-  existingChanges,
-}: LaunchChoices) => {
-  const own = instruction.trim();
-  return {
-    ...(own === "" ? {} : { instruction: own }),
-    ...(model === undefined ? {} : { model }),
-    ...(options === undefined || options.length === 0
-      ? {}
-      : { options: [...options] }),
-    ...(policy === undefined ? {} : { policy }),
-    ...(existingChanges === undefined ? {} : { existingChanges }),
-  };
-};
-
-// Keeps each launch's attempt under its key, and tells `ended` of each
-// answered launch with its record when the boundary confirmed one.
-export function useLaunchAttempts(
-  ended: (
-    request: AgentLaunchRequest,
-    record: LaunchWithState | undefined,
-  ) => void,
-): LaunchAttempts {
-  const [attempts, setAttempts] = useState<ReadonlyMap<string, LaunchAttempt>>(
-    new Map(),
-  );
-
-  const setAttempt = useCallback(
-    (key: string, attempt: LaunchAttempt | undefined) => {
-      setAttempts((current) => {
-        const next = new Map(current);
-        if (attempt === undefined) next.delete(key);
-        else next.set(key, attempt);
-        return next;
-      });
-    },
-    [],
-  );
-
-  const launch = useCallback(
-    async (key: string, request: AgentLaunchRequest) => {
-      setAttempt(key, { kind: "starting" });
-      const answer = await requestAgentLaunch(request);
-      // Nothing started: the dialog asks the developer about the changes.
-      if (answer.kind === "existing-changes") {
-        setAttempt(key, undefined);
-        return answer;
-      }
-      if (answer.kind === "launched") {
-        ended(request, answer.record);
-        setAttempt(key, undefined);
-        return answer.record;
-      }
-      ended(request, undefined);
-      setAttempt(key, answer);
-      return undefined;
-    },
-    [setAttempt, ended],
-  );
+// Keeps each launch this page asked for under its key and follows accepted
+// ones through the machine's attempts (`observed`) and sessions (`records`);
+// `reread` asks for a prompt read of them, which every attempt the server
+// runs gets once it changes. `reads` counts the reads answered so far.
+export function useLaunchAttempts({
+  observed,
+  attemptEvidence,
+  answeredAsk,
+  asksSoFar,
+  records,
+  reads,
+  reread,
+  published,
+}: {
+  readonly observed: readonly AttemptObservation[];
+  readonly attemptEvidence: AttemptEvidence;
+  // Which read of the machine's sessions, counted as asked, answered
+  // latest, and how many were asked so far.
+  readonly answeredAsk: number;
+  readonly asksSoFar: () => number;
+  readonly records: readonly LaunchWithState[];
+  readonly reads: number;
+  readonly reread: () => void;
+  readonly published: PublishedShown;
+}): LaunchAttempts {
+  const {
+    pages: attempts,
+    latest,
+    launch,
+  } = useAskedLaunches({ observed, records, answeredAsk, asksSoFar, reread });
 
   const start = useCallback(
     (
@@ -131,38 +121,98 @@ export function useLaunchAttempts(
       work: LaunchWorkItem,
       workflow: LaunchWorkflow,
       choices: LaunchChoices,
+      onLaunched: OnLaunched,
     ) =>
-      launch(attemptKey(sourceId, work.identity, workflow), {
-        source: sourceId,
-        identity: work.identity,
-        title: work.title,
-        workflow,
-        host: choices.host,
-        ...optionsOf(choices),
-      }),
+      launch(
+        attemptKey(sourceId, work.identity, workflow),
+        {
+          source: sourceId,
+          identity: work.identity,
+          title: work.title,
+          workflow,
+          ...requestedChoices(choices),
+        },
+        onLaunched,
+      ),
     [launch],
   );
 
   // An ad hoc session selects no default checkout, so it has no changes to
   // confirm.
   const startAdHoc = useCallback(
-    async (sourceId: string, choices: LaunchChoices) => {
-      const answer = await launch(adHocKey(sourceId), {
-        source: sourceId,
-        workflow: "ad-hoc",
-        host: choices.host,
-        ...optionsOf(choices),
-      });
-      return answer === undefined || "kind" in answer ? undefined : answer;
-    },
+    async (sourceId: string, choices: LaunchChoices, onLaunched: OnLaunched) =>
+      (await launch(
+        adHocKey(sourceId),
+        {
+          source: sourceId,
+          workflow: "ad-hoc",
+          ...requestedChoices(choices),
+        },
+        onLaunched,
+      )) === true,
     [launch],
   );
 
+  // Every attempt the machine's sessions name, and those this page had
+  // accepted that no read has named yet.
+  const known: readonly AttemptObservation[] = [
+    ...observed,
+    ...[...attempts.values()].flatMap((page) =>
+      page.kind === "accepted" &&
+      !observed.some((read) => read.id === page.attempt.id)
+        ? [page.attempt]
+        : [],
+    ),
+  ];
+
+  const reconciled = useStartupReconciliation({
+    known,
+    ...published,
+  });
+
+  useAttemptChangeWaits(
+    known
+      .filter((attempt) => attempt.owned && attempt.outcome === undefined)
+      .map((attempt) => attempt.id),
+    reads,
+    reread,
+  );
+
+  const asked = askedRequests([...attempts.values()]);
+  const storyStartupOf = (sourceId: string, identity: string) =>
+    storyStartup(asked, known, sourceId, identity, reconciled);
+  const recoveries = useStartupRecovery({
+    known,
+    unacknowledged: asked.unacknowledged,
+    attemptEvidence,
+    answeredAsk,
+    asksSoFar,
+    shown: published.shown,
+    storyStartupOf,
+    reread,
+    readAfresh: published.readAfresh,
+  });
+
   return {
+    storyStartupsOf: (sourceId) =>
+      storiesAsked(
+        [
+          ...known.map(({ request }) => request),
+          ...asked.submitting,
+          ...asked.unacknowledged.map(({ request }) => request),
+        ],
+        sourceId,
+      ).flatMap((identity) => storyStartupOf(sourceId, identity) ?? []),
     attemptOf: (sourceId, identity, workflow) =>
-      attempts.get(attemptKey(sourceId, identity, workflow)),
+      shownAttempt(
+        attempts.get(attemptKey(sourceId, identity, workflow)),
+        latest,
+      ),
+    storyStartupOf,
     start,
     startAdHoc,
-    adHocAttemptOf: (sourceId) => attempts.get(adHocKey(sourceId)),
+    adHocAttemptOf: (sourceId) =>
+      shownAttempt(attempts.get(adHocKey(sourceId)), latest),
+    ...recoveries,
   };
 }

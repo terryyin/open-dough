@@ -2,7 +2,7 @@
 // no server answer can be trusted. This observes client behavior, not a native
 // launch; the fetch substitute supplies only the failed HTTP precondition.
 import { expect, test } from "@playwright/test";
-import { requestAgentLaunch } from "../src/agentLaunchClient.ts";
+import { requestAgentAcceptance } from "../src/agentLaunchClient.ts";
 
 for (const [host, hint] of [
   ["claude", "Check `claude agents` for it before starting again."],
@@ -20,14 +20,15 @@ for (const [host, hint] of [
             return Promise.reject(new Error("offline"));
           return Promise.resolve(Response.json({ kind: "unexpected" }));
         };
-        const answer = await requestAgentLaunch({
+        const answer = await requestAgentAcceptance({
           source: "open-dough",
           workflow: "ad-hoc",
           host,
         });
         expect(answer).toEqual({
           kind: "uncertain",
-          explanation: `The local dashboard server ${failure === "fetch rejection" ? "could not be reached" : "answered in a shape this dashboard does not understand"}, so the session may or may not have started. ${hint}`,
+          unacknowledged: true,
+          explanation: `The local dashboard server ${failure === "fetch rejection" ? "could not be reached" : "answered in a shape this dashboard does not understand"}, so the launch may or may not have been accepted and its session may or may not have started. ${hint}`,
         });
       } finally {
         globalThis.fetch = savedFetch;

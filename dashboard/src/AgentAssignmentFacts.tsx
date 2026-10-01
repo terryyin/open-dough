@@ -16,6 +16,7 @@ import type {
 } from "./agentAssignments.ts";
 import { AgentPortrait } from "./AgentPortrait.tsx";
 import { HumanCredit } from "./HumanCredit.tsx";
+import { useFrameDescription } from "./protectedFrame.ts";
 import { hostDescription } from "./hostDescription.ts";
 import "./agent-assignment.css";
 
@@ -65,11 +66,13 @@ function PortraitOpener({
   developer: AgentAssignment;
   onOpenRoster: OpenRoster;
 }) {
+  const described = useFrameDescription();
   return (
     <button
       type="button"
       className="portrait-opener"
       aria-label={`Show ${developer.agent} in the agent roster`}
+      aria-describedby={described}
       onClick={(event) => {
         onOpenRoster(developer.name, event.currentTarget);
       }}

@@ -7,7 +7,10 @@ export {
   type LaunchModel,
 } from "./hostDescription.ts";
 import type { WorkEntry } from "./publishedWork.ts";
-import type { RecordedLaunchRequest } from "./launchRequest.ts";
+import type {
+  AgentLaunchRequest,
+  RecordedLaunchRequest,
+} from "./launchRequest.ts";
 import type { EstablishedContext } from "./launchRecord.ts";
 import { sessionSummary } from "./sessionPolicyWords.ts";
 import { readyBadge } from "./storyPreparation.ts";
@@ -118,6 +121,21 @@ export function launchKindName(workflow: LaunchWorkflow | "ad-hoc"): string {
   return workflow === "ad-hoc" ? adHocName : launchWorkflows[workflow].name;
 }
 
+// How a startup of the kind is named, such as "execution start".
+export function startName(workflow: LaunchWorkflow | "ad-hoc"): string {
+  return workflow === "ad-hoc"
+    ? "session start"
+    : `${launchWorkflows[workflow].name.toLowerCase()} start`;
+}
+
+// The story a request is of, by its identity, or undefined for an ad hoc
+// session, which has none.
+export function storyOf(
+  request: AgentLaunchRequest | RecordedLaunchRequest,
+): string | undefined {
+  return request.workflow === "ad-hoc" ? undefined : request.identity;
+}
+
 // What a consumer of a launch record needs of its request, spelled once: the
 // title, the work item's identity (none when the request has no card to look
 // up), the kind's name, how its session is said to have started, the model it
@@ -128,7 +146,7 @@ export function launchSubject(request: RecordedLaunchRequest) {
   const name = launchKindName(request.workflow);
   return {
     title: request.title,
-    identity: request.workflow === "ad-hoc" ? undefined : request.identity,
+    identity: storyOf(request),
     name,
     startedWords: `${
       request.workflow === "ad-hoc" ? `${name} session` : name

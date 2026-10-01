@@ -1,6 +1,11 @@
 // Real HTTP admission and launch lifetime, with only native answers held.
 import { test, expect, codexSkill } from "./support/codexLaunch.ts";
-import { launch, recordsOf, refinementRequest } from "./agentLaunchBoundary.ts";
+import {
+  accept,
+  launch,
+  recordsOf,
+  refinementRequest,
+} from "./agentLaunchBoundary.ts";
 import { installRefinementSkill } from "./launchCardPage.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
@@ -141,13 +146,9 @@ for (const host of ["claude", "codex"] as const) {
     };
     dashboard.claudeScenario("held");
     native.hold = true;
-    const caller = new AbortController();
-    const first = fetch(`${dashboard.baseURL}/__agent-launch`, {
-      method: "POST",
-      headers: { Origin: dashboard.origin, "Content-Type": "application/json" },
-      body: JSON.stringify(request),
-      signal: caller.signal,
-    }).catch(() => undefined);
+    // The caller is gone once acceptance answered; the launch goes on.
+    const first = await accept(dashboard, request);
+    expect(JSON.parse(first.body)).toMatchObject({ kind: "accepted" });
     await expect
       .poll(() =>
         host === "claude"
@@ -155,8 +156,6 @@ for (const host of ["claude", "codex"] as const) {
           : native.calls.filter((call) => call.method === "turn/start").length,
       )
       .toBe(1);
-    caller.abort();
-    expect(await first).toBeUndefined();
     expect(await answerOf(launch(dashboard, request))).toEqual(duplicate);
     dashboard.releaseHeldClaude();
     native.release();

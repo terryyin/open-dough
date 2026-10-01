@@ -8,10 +8,11 @@
 // deterministically; the other sends the pair at once. A story Taken by
 // another agent stays ./agent-launch-start-refusal.spec.ts's refusal.
 
-import { chmodSync, existsSync, readdirSync, writeFileSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import {
+  alreadySubmitted,
   launch,
   launchRequest,
   recordsOf,
@@ -34,8 +35,6 @@ const request = {
   identity: queuedIdentity,
   title: queuedTitle,
 };
-const alreadyStarting =
-  "This launch is already being reconciled or submitted. Wait for its result; no duplicate input or conversation was created.";
 
 type Answer = { kind: string; reason?: string; explanation?: string };
 
@@ -69,18 +68,11 @@ test.describe("a second start of the same story", () => {
 
   test("is refused while the first is held, with no second claim or workspace", async () => {
     test.setTimeout(90_000);
-    const held = path.join(origin.machine, "push-held");
-    const released = path.join(origin.machine, "push-released");
-    const hook = path.join(origin.origin, "hooks", "pre-receive");
-    writeFileSync(
-      hook,
-      `#!/bin/sh\ntouch ${held}\nwhile [ ! -e ${released} ]; do sleep 0.2; done\n`,
-    );
-    chmodSync(hook, 0o755);
+    const push = origin.holdPushes();
     server.claudeScenario("launched");
 
     const first = launch(server, request);
-    await expect.poll(() => existsSync(held), { timeout: 30_000 }).toBe(true);
+    await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
     expect(await runningStarts(server)).toEqual([
       {
         workflow: "execution",
@@ -91,15 +83,11 @@ test.describe("a second start of the same story", () => {
     ]);
 
     const second = await answerOf(launch(server, request));
-    expect(second).toEqual({
-      kind: "uncertain",
-      reason: "unconfirmed",
-      explanation: alreadyStarting,
-    });
+    expect(second).toEqual(alreadySubmitted);
     expect(server.claudeCalls()).toEqual([]);
     expect(workspaces()).toHaveLength(1);
 
-    writeFileSync(released, "");
+    push.release();
     expect((await answerOf(first)).kind).toBe("launched");
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(workspaces()).toHaveLength(1);
@@ -118,11 +106,9 @@ test.describe("a second start of the same story", () => {
       "launched",
       "uncertain",
     ]);
-    expect(answers.find((answer) => answer.kind === "uncertain")).toEqual({
-      kind: "uncertain",
-      reason: "unconfirmed",
-      explanation: alreadyStarting,
-    });
+    expect(answers.find((answer) => answer.kind === "uncertain")).toEqual(
+      alreadySubmitted,
+    );
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(workspaces()).toHaveLength(1);
     expect(await recordsOf(server, "open-dough")).toHaveLength(1);

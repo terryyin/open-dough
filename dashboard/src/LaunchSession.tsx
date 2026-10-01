@@ -6,6 +6,7 @@ import { sessionAccess, workspaceLimitation } from "./sessionAccess.ts";
 import { hostName, shellCommand } from "./sessionCapabilities.ts";
 import { type LaunchWithState } from "./agentLaunch.ts";
 import { usePageSessions } from "./pageSessions.ts";
+import { useFrameDescription } from "./protectedFrame.ts";
 import "./agent-launch.css";
 
 export function LaunchSession({
@@ -16,6 +17,7 @@ export function LaunchSession({
   const { openSession, hostOperations } = usePageSessions();
   const access = sessionAccess(record, hostOperations);
   const limitation = workspaceLimitation(record);
+  const described = useFrameDescription();
   return (
     <>
       <p>
@@ -58,6 +60,7 @@ export function LaunchSession({
         <p className="launch-open">
           <button
             type="button"
+            aria-describedby={described}
             onClick={(event) => {
               openSession({ record, control: event.currentTarget });
             }}

@@ -12,7 +12,7 @@
 // process ended (the server that ran it is gone) reads as a kept start, never
 // as running.
 
-import { existsSync, readFileSync, chmodSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import {
   keptStarts,
@@ -67,14 +67,7 @@ test("a page that did not ask for the launch shows a running start's phase, then
   origin,
 }) => {
   test.setTimeout(120_000);
-  const held = path.join(origin.machine, "push-held");
-  const released = path.join(origin.machine, "push-released");
-  const hook = path.join(origin.origin, "hooks", "pre-receive");
-  writeFileSync(
-    hook,
-    `#!/bin/sh\ntouch ${held}\nwhile [ ! -e ${released} ]; do sleep 0.2; done\n`,
-  );
-  chmodSync(hook, 0o755);
+  const push = origin.holdPushes();
   dashboard.claudeScenario("held");
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
@@ -106,8 +99,8 @@ test("a page that did not ask for the launch shows a running start's phase, then
   await expect(takenCard).toHaveCount(0);
 
   // The script established the start; Claude Code is launching.
-  await expect.poll(() => existsSync(held), { timeout: 20_000 }).toBe(true);
-  writeFileSync(released, "");
+  await expect.poll(() => push.isHeld(), { timeout: 20_000 }).toBe(true);
+  push.release();
   await expect
     .poll(() => runningStarts(dashboard), { timeout: 30_000 })
     .toEqual([

@@ -31,12 +31,14 @@ no usable words, and numbered when workspace folders or any known host namespace
 collide. The same descriptions supply collision lookup for `claude/`, `codex/`
 and `cursor/`; recognizing Cursor branches does not offer a Cursor runtime.
 
-Start runs only when origin is the catalog repository and the story is not
-already starting in this server. Progress is registered synchronously before
-running: preparing, then launching. Another request is refused without a second
-start. Every page reads those local phases, but the card stays where origin
-places it. Across servers the installed script owns claim/assignment conflict
-and publication; refusals name origin's owner when readable.
+Start runs only when origin is the catalog repository and the story has no
+unresolved [launch attempt](AGENT-LAUNCH.md#startup-handoff-and-reconciliation)
+on this machine. Progress is registered synchronously before running: preparing,
+then launching. Another request for the story, in either workflow, is refused
+without a second start. Every page reads those local phases, but the card stays
+where origin places it. Across servers the installed script owns
+claim/assignment conflict and publication; refusals name origin's owner when
+readable.
 
 `execution-starts.json` and `refinement-starts.json` beside launch records retain
 one start per project/story/workflow before the script runs: host, selected
@@ -51,10 +53,12 @@ A stop that made no assignment removes its record; refinement also removes
 only the workspace/branch that attempt created.
 
 The script is never aborted by its bounded wait (two minutes by default,
-`DOUGH_START_TIMEOUT_MS` for tests). Expiry reports uncertain and the script
-continues recording its result. Retry resumes the kept workspace/branch,
-publisher/model and recovery, yielding existing/resumed execution or continued
-preparation instead of a second publication. An execution interrupted before
+`DOUGH_START_TIMEOUT_MS` for tests). Expiry reports uncertain, so the start
+needs reconciliation, and the script continues recording its result.
+Continuing that attempt from Startup recovery, or a kept start's Start, resumes
+the kept workspace/branch, publisher/model and recovery, yielding
+existing/resumed execution or continued preparation instead of a second
+publication. An execution interrupted before
 its result is retained uses workspace HEAD/parent only on its kept branch;
 the installed script validates the isolated claim or refuses it.
 

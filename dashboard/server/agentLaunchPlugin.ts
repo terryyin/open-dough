@@ -1,14 +1,18 @@
-import {
-  sessionResultEndpoint,
-  type SessionResult,
-} from "../src/sessionResult.ts";
-import { launchHost, hostOperations } from "./launchHosts.ts";
 // The local launch boundary, mounted by Vite in dev and preview
 // (`./localBoundaryPlugin.ts`) beside the authenticated read boundary. A same-origin
-// POST to `/__agent-launch` asks to launch an agent on one work item
-// (`./agentLaunches.ts`); a same-origin GET answers the machine's sessions:
-// every catalog project's launch records, each naming its project, with each
-// session's current state. A same-origin POST to
+// POST to `/__agent-launch/accept` asks to launch an agent on one work item
+// (`./agentLaunches.ts`) and answers once the launch's owner accepted it,
+// the launch going on whatever happens to the caller; a same-origin POST to
+// `/__agent-launch/continue` asks to continue one kept attempt that needs
+// reconciliation, answered the same way; a same-origin GET of
+// `/__agent-launch/changed?attempt=` answers once that accepted attempt
+// changed, or after a bounded wait. A same-origin GET of the session result
+// endpoint reads one kept session's final report through its host, bounded
+// and abandoned when the caller leaves. A same-origin GET answers the machine's
+// sessions: every catalog project's launch records, each naming its project,
+// with each session's current state, and the launch attempts accepted with
+// their receipts and outcomes, and whether those kept could be read. A
+// same-origin POST to
 // `/__agent-launch/done` marks one session it recorded done
 // (`./doneMarks.ts`). A same-origin POST to `/__agent-launch/delete` deletes
 // the record of one session it recorded while Claude Code's listing still
@@ -28,10 +32,15 @@ import { launchHost, hostOperations } from "./launchHosts.ts";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, HttpServer, Plugin } from "vite";
 import {
+  agentAcceptEndpoint,
+  agentChangedEndpoint,
+  agentContinueEndpoint,
   agentLaunchEndpoint,
+  type Acceptance,
+  type ChangedAnswer,
   type Alerts,
+  type AttemptObservation,
   type KeptStart,
-  type LaunchResult,
   type RunningStart,
   type OfferedDefinition,
   type LaunchWithState,
@@ -54,14 +63,26 @@ import { deleteRecord } from "./launchRecordStore.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
+import {
+  sessionResultEndpoint,
+  type SessionResult,
+} from "../src/sessionResult.ts";
+import { hostOperations, launchHost } from "./launchHosts.ts";
+
+// How long a wait for an accepted attempt's change is held before it is
+// answered unchanged, for the page to ask again.
+const changeWaitMs = 30_000;
 
 type Answer =
   | { readonly status: number; readonly body: SessionResult }
-  | { readonly status: number; readonly body: LaunchResult }
+  | { readonly status: number; readonly body: Acceptance }
+  | { readonly status: number; readonly body: ChangedAnswer }
   | {
       readonly status: number;
       readonly body: {
         records: readonly LaunchWithState[];
+        attempts: readonly AttemptObservation[];
+        attemptsReadable: boolean;
         hostOperations: ReturnType<typeof hostOperations>;
         creations: Awaited<ReturnType<AgentLaunches["creations"]>>;
         alerts: Alerts;
@@ -156,11 +177,14 @@ async function answer(
           res.off("close", closed);
         }
       }
-      case "sessions":
+      case "sessions": {
+        const { attempts, readable } = await launches.attempts();
         return {
           status: 200,
           body: {
             records: await launches.machineSessions(),
+            attempts,
+            attemptsReadable: readable,
             hostOperations: hostOperations(),
             creations: await launches.creations(),
             alerts: alerts.availability(),
@@ -173,10 +197,21 @@ async function answer(
             sessionPolicies: await launches.sessionPolicies(),
           },
         };
-      case "launch":
+      }
+      case "changed":
         return {
           status: 200,
-          body: await launches.launch(request.source, request.request),
+          body: await launches.changed(request.attempt, changeWaitMs),
+        };
+      case "accept":
+        return {
+          status: 200,
+          body: await launches.accept(request.source, request.request),
+        };
+      case "continue":
+        return {
+          status: 200,
+          body: await launches.continueAttempt(request.source, request.attempt),
         };
       case "done":
         return {
@@ -219,6 +254,9 @@ function installAgentLaunchMiddleware(
     if (
       url.pathname !== sessionResultEndpoint &&
       url.pathname !== agentLaunchEndpoint &&
+      url.pathname !== agentAcceptEndpoint &&
+      url.pathname !== agentChangedEndpoint &&
+      url.pathname !== agentContinueEndpoint &&
       url.pathname !== agentDoneEndpoint &&
       url.pathname !== agentDeleteEndpoint
     ) {

@@ -41,6 +41,9 @@ test("card, Recent and sidebar review the retained report with attention, associ
     entry.getByRole("button", { name: "Open terminal" }),
   ).toHaveCount(0);
   const open = entry.getByRole("button", { name: "Read final report" });
+  // The fixture's launch protects the story's card until a published read
+  // after its outcome reconciles it.
+  await expect(open).toBeEnabled();
   await open.focus();
   await page.keyboard.press("Enter");
   const panel = page.getByRole("region", { name: "Final report" });
