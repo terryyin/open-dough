@@ -5,7 +5,10 @@
 # reaches trunk as one commit holding its result and its closure, never shown
 # Taken. Without a landing request, the review and refinement journeys
 # (git-publication-native-one-shot-review.sh and -refinement.sh) stop for
-# review. Fixture, observation, prompt and assessment. Sourced by the runner.
+# review. The default-checkout, automatic-landing, blocked, established and
+# landed-refinement journeys have their own files, sourced below; automatic
+# landing is observed and assessed here with the landing journeys. Fixture,
+# observation, prompt and assessment. Sourced by the runner.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture and assessor globals.
 
 # shellcheck source=tests/support/git-publication-native-one-shot-queued.sh
@@ -23,6 +26,18 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-nati
 # shellcheck source=tests/support/git-publication-native-one-shot-refinement.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-one-shot-refinement.sh"
+# shellcheck source=tests/support/git-publication-native-one-shot-default-main.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-one-shot-default-main.sh"
+# shellcheck source=tests/support/git-publication-native-one-shot-auto-land.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-one-shot-auto-land.sh"
+# shellcheck source=tests/support/git-publication-native-one-shot-refinement-auto-land.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-one-shot-refinement-auto-land.sh"
+# shellcheck source=tests/support/git-publication-native-one-shot-established.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-one-shot-established.sh"
 
 git_publication_fixture_create_one_shot() {
   local source_dir=$1 journey=$2 parent=$3
@@ -46,8 +61,12 @@ git_publication_fixture_create_one_shot() {
 # commits its installed guidance, so an owned workspace at trunk holds the
 # runtime delivery needs. Then record every push origin accepts, and plant the
 # human edit only now so it stays out of trunk; the runner captures it next.
+# Sets git_publication_one_shot_skills to the installed skills root.
 git_publication_one_shot_publish_install() {
   local integration=${git_publication_fixture_integration}
+  git_publication_one_shot_skills="${integration}/.claude/skills"
+  [[ -d ${git_publication_one_shot_skills} ]] \
+    || git_publication_one_shot_skills="${integration}/.agents/skills"
   git -C "${integration}" add -A
   git -C "${integration}" commit -qm 'install Open Dough guidance'
   git -C "${integration}" push -q origin main
@@ -57,10 +76,39 @@ git_publication_one_shot_publish_install() {
   git_publication_fixture_plant_human_edit "${integration}"
 }
 
-# The landing journeys' prompts: each asks to land its one-shot result.
+# Prepares one-shot journey $1's starting state beyond the installed
+# guidance, before the human edits are captured.
+git_publication_one_shot_prepare() {
+  case $1 in
+    one-shot-escalation) git_publication_one_shot_escalation_prepare ;;
+    one-shot-default-main) git_publication_one_shot_default_main_prepare ;;
+    one-shot-auto-land-blocked) git_publication_one_shot_blocked_prepare ;;
+    one-shot-established) git_publication_one_shot_established_prepare ;;
+    *) ;;
+  esac
+}
+
+# The landing journeys' prompts: each asks to land its one-shot result, by
+# request or by selecting automatic landing.
 git_publication_one_shot_prompt() {
   local request
   case $1 in
+    one-shot-default-main)
+      git_publication_one_shot_default_main_prompt
+      return
+      ;;
+    one-shot-auto-land | one-shot-auto-land-blocked)
+      git_publication_one_shot_auto_land_prompt "$1"
+      return
+      ;;
+    one-shot-established)
+      git_publication_one_shot_established_prompt
+      return
+      ;;
+    one-shot-refinement-auto-land)
+      git_publication_one_shot_refinement_auto_land_prompt
+      return
+      ;;
     one-shot-result)
       request="As one-shot work, add the line 'One-shot line' to the end of notes.txt, and land the result on remote trunk."
       ;;
@@ -124,16 +172,20 @@ git_publication_fixture_observe_one_shot_journey() {
     one-shot-escalation) git_publication_fixture_observe_one_shot_escalation "$@" ;;
     one-shot-review) git_publication_fixture_observe_one_shot_review "$@" ;;
     one-shot-refinement) git_publication_fixture_observe_one_shot_refinement "$@" ;;
+    one-shot-default-main) git_publication_fixture_observe_one_shot_default_main "$@" ;;
+    one-shot-auto-land-blocked) git_publication_fixture_observe_one_shot_blocked "$@" ;;
+    one-shot-established) git_publication_fixture_observe_one_shot_established "$@" ;;
+    one-shot-refinement-auto-land)
+      git_publication_fixture_observe_one_shot_refinement_auto_land "$@"
+      ;;
     *) git_publication_fixture_observe_one_shot "$@" ;;
   esac
 }
 
 # Stops CI observers the session left running in the fixture's mailbox root.
 git_publication_one_shot_stop_observers() {
-  local mailbox launcher
-  launcher="${git_publication_fixture_integration}/.claude/skills/dough-execute-plan/scripts/ci-mailbox.mjs"
-  [[ -f ${launcher} ]] \
-    || launcher="${git_publication_fixture_integration}/.agents/skills/dough-execute-plan/scripts/ci-mailbox.mjs"
+  local mailbox
+  local launcher="${git_publication_one_shot_skills}/dough-execute-plan/scripts/ci-mailbox.mjs"
   for mailbox in "${DOUGH_CI_MAILBOX_ROOT}"/*/; do
     [[ -d ${mailbox} && ! -f ${mailbox}result.json ]] || continue
     (cd -- "${git_publication_fixture_integration}" \
@@ -156,20 +208,28 @@ git_publication_one_shot_stop_observers() {
 # assessor-signal: story-section remote-sha planning-paths story-section-present
 # assessor-signal: story-plan remote-sha planning-paths plan-present
 # assessor-signal: sibling remote-sha planning-paths sibling-section-present queue-kept
+# assessor-signal: auto-land-start one-shot-start-observed one-shot-auto-land one-shot-push-authorized one-shot-default-main
 git_publication_assess_one_shot() {
   local obs=$1 key
   local journey stream_status human_edit_preserved base_ancestor
   local trunk_commit_count planning_paths result_changed pushed_taken
-  local workspace_present branch_present
+  local workspace_present branch_present one_shot_start_observed
+  local one_shot_auto_land one_shot_push_authorized start_keys=()
+  # Only automatic landing judges how the start ran.
+  [[ $(git_publication_assess_field "${obs}" journey) != one-shot-auto-land ]] \
+    || start_keys=(one-shot-start-observed one-shot-auto-land one-shot-push-authorized)
   for key in journey stream-status human-edit-preserved base-ancestor \
     trunk-commit-count planning-paths result-changed pushed-taken \
-    workspace-present branch-present; do
+    workspace-present branch-present "${start_keys[@]}"; do
     printf -v "${key//-/_}" '%s' "$(git_publication_assess_field "${obs}" "${key}")"
   done
   if [[ ${stream_status} != complete ]]; then
     git_publication_assess_fail "incomplete or stale native stream (${stream_status})"
   elif [[ ${human_edit_preserved} != true ]]; then
     git_publication_assess_fail 'human edits in the originating checkout changed'
+  elif [[ ${journey} == one-shot-auto-land && (${one_shot_start_observed} != true ||
+    ${one_shot_auto_land} != true || ${one_shot_push_authorized} != true) ]]; then
+    git_publication_assess_fail 'the work did not start through the one-shot automatic-landing start'
   elif [[ ${base_ancestor} != true || ${trunk_commit_count} != 1 ]]; then
     git_publication_assess_fail 'remote trunk did not gain exactly one commit since the base'
   elif [[ ${result_changed} != true ]]; then

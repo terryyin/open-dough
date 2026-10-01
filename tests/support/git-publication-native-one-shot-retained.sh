@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# A one-shot result kept for review, shared by the one-shot review and
-# refinement journeys of the publication native harness: observation of the
-# remote, which no landing request lets change, and of the retained owned
-# workspace and its report; plus the rejected remote and retention cases both
-# journeys share. Sourced by git-publication-native-one-shot.sh.
+# A one-shot result kept in its owned workspace, shared by the one-shot
+# journeys of the publication native harness that stop before landing (review,
+# refinement, the blocked automatic landing and the established start):
+# observation of the remote, which none of them lets change, and of the
+# retained owned workspace, its result line and its report; plus the rejected
+# remote and retention cases they share. Sourced by
+# git-publication-native-one-shot.sh.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture and assessor globals.
 
 # Every update the remote accepted and its trunk tip, against the base.
@@ -54,9 +56,20 @@ git_publication_one_shot_observe_retained() {
   )"
 }
 
-# Rejected remote cases shared by the review and refinement journeys, observed
-# by $1: the retained result pushed to trunk, its branch published, and an
-# agent profile pushed to trunk then replaced. Each is undone afterwards.
+# Whether the retained workspace's last commit holds line $1 in notes.txt.
+git_publication_one_shot_observe_result_line() {
+  local notes=
+  if [[ -d ${NATIVE_ONE_SHOT_WORKSPACE} ]]; then
+    notes=$(git -C "${NATIVE_ONE_SHOT_WORKSPACE}" show HEAD:notes.txt 2> /dev/null || true)
+  fi
+  printf 'result-line-present: %s\n' \
+    "$(grep -Fxq -- "$1" <<< "${notes}" && echo true || echo false)"
+}
+
+# Rejected remote cases shared by the review, refinement and established
+# journeys, observed by $1: the retained result pushed to trunk, its branch
+# published, and an agent profile pushed to trunk then replaced. Each is
+# undone afterwards.
 git_publication_one_shot_remote_counterexamples() {
   local observe=$1 origin=${git_publication_fixture_origin}
   local workspace=${NATIVE_ONE_SHOT_WORKSPACE} branch=${NATIVE_ONE_SHOT_BRANCH}
@@ -91,7 +104,7 @@ git_publication_one_shot_remote_counterexamples() {
   mv -- "${push_log}.kept" "${push_log}"
 }
 
-# Rejected retention cases shared by the review and refinement journeys,
+# Rejected retention cases shared by the journeys that stop before landing,
 # observed by $1 and rejected with reason fragment $2: the workspace retired
 # with its branch kept, and the workspace left off its branch. Each is undone
 # afterwards.

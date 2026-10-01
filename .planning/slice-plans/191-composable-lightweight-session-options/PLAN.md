@@ -450,7 +450,19 @@ than a parallel launch route or publisher. Ad hoc controls remain deferred.
 
 ### 8. Accept the affected guidance across supported native hosts
 Type: Behavior
-Status: planned
+Status: blocked — harness cases authored; awaiting developer-triggered paid native runs on Claude Code, Codex and Cursor
+Credential-free proof (accepted): with `PATH=/opt/homebrew/bin:$PATH`,
+`bash tests/git-publication-native-one-shot.sh` (10 one-shot journeys through
+substitutes with state counterexamples rejected), `bash tests/git-publication-native.sh`,
+`bash tests/native-stream-replay.sh`, `bash tests/native-assessor-counterexample-guard.sh`,
+`bash tests/native-evidence-identity.sh`, `bash tests/native-case-selection.sh`.
+New cases: `publication/one-shot-default-main`, `publication/one-shot-auto-land`,
+`publication/one-shot-auto-land-blocked` (rival Take applied on first fetch after
+the result commit through the fixture's upload-pack wrapper),
+`publication/one-shot-established` (dashboard-formatted one-shot block),
+`preparation/one-shot-refinement-auto-land`. Slices 4–7 changed one-shot
+guidance and formatters, so the slice 3 Claude evidence is stale and must be
+re-observed with the rest.
 Proof: Extend the credential-free harness/assessors and run representative new
 native cases across Claude Code, Codex and Cursor under explicit manual native
 run authority. Reuse matching unaffected evidence only with its candidate and

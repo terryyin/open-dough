@@ -38,6 +38,21 @@ The fixture permits publication and withholds planning; stopping after admission
 for the product decision is valid. The state assessor and transcript together
 establish the verdict, with unrelated human changes preserved.
 
+The one-shot session-policy cases phrase each request as the direct
+invocation would (`dough-execute-plan --one-shot --default-main`, `--auto-land`,
+`dough-story-refinement <identity> --one-shot --auto-land`) and embed no
+expected outcome. `publication/one-shot-default-main` works in the originating
+checkout itself, which holds staged, unstaged and untracked edits over an
+unpublished local commit; the result must commit all of it there with nothing
+pushed. In `publication/one-shot-auto-land-blocked`, the fixture sets
+`remote.origin.uploadpack` to a wrapper that publishes another developer's
+prepared Take of the queued story on the first fetch after the workspace
+branch gains a commit, so a native session and the substitute meet the
+competing owner between start and landing. `publication/one-shot-established`
+runs the installed one-shot start itself and hands the session the installed
+`established-start.mjs` block after the skill invocation, as a dashboard
+launch does; the session must not start again.
+
 ## Native family layers
 
 A native family keeps six layers, each in its own file under `tests/support`

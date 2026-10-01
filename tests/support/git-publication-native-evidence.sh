@@ -20,6 +20,7 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-shared.sh \
         tests/support/git-publication-native-stream-fields.mjs \
         tests/support/git-publication-native-stream-starts.mjs \
+        tests/support/git-publication-native-stream-one-shot.mjs \
         tests/support/git-publication-native-run.sh \
         tests/support/git-publication-native-evidence.sh \
         tests/support/git-publication-native-prompt.sh
@@ -59,14 +60,21 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-one-shot-review.sh \
         tests/support/git-publication-native-one-shot-refinement.sh \
         tests/support/git-publication-native-one-shot-refinement-observe.mjs \
+        tests/support/git-publication-native-one-shot-default-main.sh \
+        tests/support/git-publication-native-one-shot-auto-land.sh \
+        tests/support/git-publication-native-one-shot-established.sh \
+        tests/support/git-publication-native-one-shot-refinement-auto-land.sh \
+        src/skills/dough-story-refinement/references/preparation-disposition.md \
         tests/support/git-publication-native-push-log-observe.mjs \
         src/skills/dough-execute-plan/SKILL.md \
         src/skills/dough-execute-plan/references/one-shot.md \
+        src/skills/dough-execute-plan/references/established-start.md \
         src/skills/dough-story-refinement/SKILL.md \
         src/skills/dough-story-refinement/references/one-shot-refinement.md
       native_import_closure_input_hash_lines \
         src/skills/dough-execute-plan/scripts/execution-start.mjs \
         src/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs \
+        src/skills/dough-execute-plan/scripts/established-start.mjs \
         src/skills/dough-story-refinement/scripts/preparation-assignment.mjs
       ;;
     land-default-checkout)

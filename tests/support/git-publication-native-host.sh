@@ -141,7 +141,9 @@ native_case_known() {
       publication/admission-correction | publication/admission-closure | \
       publication/one-shot-result | publication/one-shot-queued | \
       publication/one-shot-escalation | publication/one-shot-review | \
-      preparation/one-shot-refinement | \
+      publication/one-shot-default-main | publication/one-shot-auto-land | \
+      publication/one-shot-auto-land-blocked | publication/one-shot-established | \
+      preparation/one-shot-refinement | preparation/one-shot-refinement-auto-land | \
       publication/startup-owned-context | publication/preparation-land | \
       publication/land-default-checkout | \
       story-branch-increment | \

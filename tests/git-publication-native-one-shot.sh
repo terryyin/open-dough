@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Credential-free proof for the one-shot journeys: result, queued,
-# escalation, review and refinement, each through substitute hosts and the
+# escalation, review, refinement, default checkout, automatic landing, its
+# ownership stop and an established start, each through substitute hosts and the
 # shared supervisor/stream/retention path, followed by its real-state
 # counterexamples. Their live counterparts run through
 #   tests/git-publication-native.sh --native HOST --case publication/one-shot-*

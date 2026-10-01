@@ -13,15 +13,17 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { hosts, readHostStream } from "./native-host-stream.mjs";
 import {
-  preparationStartPattern,
   startCommands,
   startPattern,
   withFlag,
 } from "./git-publication-native-stream-starts.mjs";
+import {
+  oneShotFields,
+  oneShotJourneys,
+} from "./git-publication-native-stream-one-shot.mjs";
 
 const conflictReceipt = /^\{"ok":false,"status":"conflict"/m;
 const existingReceipt = /\\?"status\\?": ?\\?"existing/;
-const restoredCarry = /\\?"carried\\?": ?\{\\?"restored\\?": ?true/;
 const retirement = /worktree-retirement\.mjs +retire( |$)/;
 const rawGitRetirement =
   /^([A-Za-z_][A-Za-z0-9_]*=[^ ]* +)*git( +-[Cc] +[^ ]+)* +worktree +remove( |$)/;
@@ -59,52 +61,6 @@ function admissionFields(read) {
     [
       "existing-receipt-observed",
       flag(read.outputs.some((output) => existingReceipt.test(output))),
-    ],
-  ];
-}
-
-function oneShotFields(read) {
-  return [
-    [
-      "one-shot-start-observed",
-      flag(withFlag(startCommands(read), "--one-shot").length > 0),
-    ],
-  ];
-}
-
-// Whether a one-shot start claimed trunk publication authority.
-function oneShotReviewFields(read) {
-  const oneShotStarts = withFlag(startCommands(read), "--one-shot");
-  return [
-    ...oneShotFields(read),
-    [
-      "one-shot-push-authorized",
-      flag(withFlag(oneShotStarts, "--push-authorized").length > 0),
-    ],
-  ];
-}
-
-function oneShotRefinementFields(read) {
-  const starts = startCommands(read, preparationStartPattern);
-  return [
-    [
-      "one-shot-preparation-start-observed",
-      flag(withFlag(starts, "--one-shot").length > 0),
-    ],
-  ];
-}
-
-function oneShotEscalationFields(read) {
-  const admissions = withFlag(startCommands(read), "--admit");
-  return [
-    ...oneShotFields(read),
-    [
-      "carry-admission-observed",
-      flag(withFlag(admissions, "--carry").length > 0),
-    ],
-    [
-      "edits-carried",
-      flag(read.outputs.some((output) => restoredCarry.test(output))),
     ],
   ];
 }
@@ -191,9 +147,7 @@ const exactJourneys = {
   "preparation-land": preparationLandFields,
   "land-default-checkout": landDefaultCheckoutFields,
   "story-branch-increment": storyBranchIncrementFields,
-  "one-shot-escalation": oneShotEscalationFields,
-  "one-shot-review": oneShotReviewFields,
-  "one-shot-refinement": oneShotRefinementFields,
+  ...oneShotJourneys,
 };
 
 const journeyPrefixes = [

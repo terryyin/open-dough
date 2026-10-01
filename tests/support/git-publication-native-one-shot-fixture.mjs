@@ -17,8 +17,18 @@
 // described but neither refined nor recorded, for refinement as one-shot work
 // in a preparation workspace on branch `prep/native-one-shot`.
 //
+// one-shot-refinement-auto-land: the one-shot-refinement project.
+//
 // one-shot-escalation: the one-shot-result project plus the notes tool from
 // git-publication-native-one-shot-escalation-fixture.mjs.
+//
+// one-shot-default-main: the one-shot-result project, worked on in the
+// integration checkout itself as the default checkout on `main`.
+//
+// one-shot-auto-land: the one-shot-result project.
+//
+// one-shot-auto-land-blocked and one-shot-established: the one-shot-queued
+// project.
 //
 // Usage: node git-publication-native-one-shot-fixture.mjs <source-dir>
 //   <journey> <parent>
@@ -39,8 +49,14 @@ const queued = await import(
 
 const git = (cwd, ...args) =>
   execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
-const isRefinement = journey === "one-shot-refinement";
-const isQueued = journey === "one-shot-queued" || isRefinement;
+const isRefinement = journey.startsWith("one-shot-refinement");
+const isDefaultMain = journey === "one-shot-default-main";
+const isQueued =
+  [
+    "one-shot-queued",
+    "one-shot-auto-land-blocked",
+    "one-shot-established",
+  ].includes(journey) || isRefinement;
 const trunkOptions = {
   contributing: readyContributing,
   durableCommandEvidence: true,
@@ -126,8 +142,12 @@ process.stdout.write(
     root: fixture,
     origin,
     integration,
-    workspace: join(fixture, "native-one-shot"),
-    branch: isRefinement ? "prep/native-one-shot" : "exec/native-one-shot",
+    workspace: isDefaultMain ? integration : join(fixture, "native-one-shot"),
+    branch: isDefaultMain
+      ? "main"
+      : isRefinement
+        ? "prep/native-one-shot"
+        : "exec/native-one-shot",
     journey,
     base: git(origin, "rev-parse", "refs/heads/main"),
     ...(isRefinement

@@ -73,11 +73,11 @@ git_publication_prompt_for() {
   esac
 }
 
-# The native case id of journey $1: one-shot refinement is a preparation
-# case; every other journey here is a publication case.
+# The native case id of journey $1: one-shot refinement, landed or not, is a
+# preparation case; every other journey here is a publication case.
 git_publication_case_id() {
   case $1 in
-    one-shot-refinement) printf 'preparation/%s\n' "$1" ;;
+    one-shot-refinement | one-shot-refinement-auto-land) printf 'preparation/%s\n' "$1" ;;
     *) printf 'publication/%s\n' "$1" ;;
   esac
 }

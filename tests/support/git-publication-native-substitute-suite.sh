@@ -28,6 +28,7 @@ prepare_substitute_hosts() {
     "${source_dir}/tests/support/native-agent-one-shot.sh" \
     "${source_dir}/tests/support/native-agent-one-shot-escalation.sh" \
     "${source_dir}/tests/support/native-agent-one-shot-review.sh" \
+    "${source_dir}/tests/support/native-agent-one-shot-policy.sh" \
     "${source_dir}/tests/support/native-agent-owned-context.sh" \
     "${sentinel_bin}/"
 
@@ -160,7 +161,9 @@ run_substitute_one_shot_journeys() {
   local journey
   prepare_substitute_hosts
   for journey in one-shot-result one-shot-queued one-shot-escalation \
-    one-shot-review one-shot-refinement; do
+    one-shot-review one-shot-refinement one-shot-default-main \
+    one-shot-auto-land one-shot-auto-land-blocked one-shot-established \
+    one-shot-refinement-auto-land; do
     run_substitute_one_shot_journey "${journey}"
   done
   run_substitute_one_shot_review_pushes one-shot-review \
@@ -187,18 +190,20 @@ run_substitute_one_shot_review_pushes() {
 # CLIs (or, escalating, start and admission), then real-state counterexamples
 # on its kept fixture.
 run_substitute_one_shot_journey() {
-  local journey=$1 events
+  local journey=$1 events counterexamples
   substitute_run_passes "claude-${journey}" claude "${journey}" \
     GIT_PUBLICATION_KEEP=1
   events="${substitute_artifact}/events.jsonl"
-  if [[ ${journey} == one-shot-escalation ]]; then
-    run_one_shot_escalation_state_counterexamples "${events}" claude
-  elif [[ ${journey} == one-shot-review ]]; then
-    run_one_shot_review_state_counterexamples "${events}" claude
-  elif [[ ${journey} == one-shot-refinement ]]; then
-    run_one_shot_refinement_state_counterexamples "${events}" claude
+  # A journey with its own state counterexamples runs them; the landing
+  # journeys share the one-shot ones.
+  counterexamples="run_${journey//-/_}_state_counterexamples"
+  if declare -F "${counterexamples}" > /dev/null; then
+    "${counterexamples}" "${events}" claude
   else
     run_one_shot_state_counterexamples "${events}" "${journey}" claude
+  fi
+  if [[ ${journey} == one-shot-auto-land ]]; then
+    run_one_shot_auto_land_stream_counterexamples "${events}" claude
   fi
   git_publication_fixture_cleanup
 }
