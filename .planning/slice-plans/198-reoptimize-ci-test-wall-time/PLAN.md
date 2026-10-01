@@ -2,8 +2,9 @@
 
 **Identity:** SEED-070#reoptimize-ci-test-wall-time
 **Source:** [refined story](../../seeds/SEED-070-reoptimize-ci-test-wall-time.md#reoptimize-ci-test-wall-time)
-**Authority:** Planning only. No Take, implementation, commit, or publication.
-**Preparation:** Established workspace `/Users/terryyin/git/open-dough/.worktrees/re-optimize-ci-feedback-and-test-wall-time-after`, branch `claude/re-optimize-ci-feedback-and-test-wall-time-after`, remote `origin`, trunk `main`, agent `terry-chan`, published assignment `7ccfebae4dbb7c872040d5727d8fcdddb2acef87`, integration checkout `/Users/terryyin/git/open-dough`.
+**Authority:** Execute the existing plan under the current developer instruction.
+**Execution:** Story Branch Mode; owned reused workspace `/Users/terryyin/git/open-dough/.worktrees/re-optimize-ci-feedback-and-test-wall-time-after`, branch `codex/re-optimize-ci-feedback-and-test-wall-time-after`, publisher `dashboard-mac.lan-open-dough`, agent `viktor-chan`; remote `origin`, trunk `main`, increment target `refs/heads/codex/re-optimize-ci-feedback-and-test-wall-time-after`. Starting revision `ce968f8d2957fea3d6eed242d0112955540471c0`; accepted claim and first increment base `89923f8dc3ca7607a013e8680dbf743a494b0df5`. Integration checkout `/Users/terryyin/git/open-dough` remains separate. Established start replaces the former planning assignment; no second Take.
+**Setup:** `npm ci` and `npm run typecheck:dashboard` passed in this exact workspace on 2026-10-01, with its committed lockfile unchanged. Replanning retains existing planning authority within the story; no numeric slice limit is supplied. Claim trunk CI is unobserved; managed increment delivery will own story-branch observation (`ci.yml`, GitHub Actions).
 
 ## Goal and scope
 
@@ -88,7 +89,7 @@ run shows that job is the one holding a run over target.
 
 ### 1. The slowest browser spec families run in less time with the same coverage
 Type: Behavior
-Status: planned
+Status: locally validated; first increment awaiting hosted timing evidence
 Proof: each optimized spec passes locally with the same assertions or
 justified equivalent coverage, and its local duration drops against a
 same-session baseline. A story-branch CI run shows lower summed test time for
@@ -153,4 +154,9 @@ Hosted CI runs the full suite on every branch push and owns the timing proof.
 
 ## Learnings
 
-None yet.
+- Slice 1 comparable local profile at claim `89923f8d`, default eight workers, production build global setup, identical 37-case selection, no retries: `/usr/bin/time -p env -u NO_COLOR PLAYWRIGHT_JSON_OUTPUT_NAME=/tmp/seed070-baseline.json npx playwright test --config dashboard/playwright.config.ts taken-agent-profile.spec.ts auto-refresh-branches.spec.ts agent-launch-card-sessions.spec.ts launch-observations.spec.ts agent-launch-ad-hoc-codex.spec.ts agent-launch-preparation-codex-retry.spec.ts agent-launch-model.spec.ts agent-launch-ad-hoc.spec.ts --reporter=./dashboard/tests/support/quietReporter.ts,json`. After the combined change the same command with output `/tmp/seed070-after-combined.json` passed all 37 cases. Wall time 34.94s → 22.98s (34.2%); runner 34.506s → 22.547s. Profiles remain private under `/tmp`.
+- Retained experiments: finish actual browser animations after hover in `agentPortrait.ts`, retaining exact atlas/tile/scale/serving/geometry assertions (Taken-profile 15.817s → 2.534s); controlled external deadline in `launch-observations.spec.ts` executing real aggregation, asserting both configured 10s deadlines, pending-before-abort through a real event-loop turn, unknown-after-abort and aborted signal (summed 10.001s → 0.003s). The deadline alone gave no local wall gain (34.92s); the combined strategy did.
+- Fixed observed pre-existing process-exit race in the selected Codex journey: synthetic SIGHUP log precedes actual child exit. Reuse `processAlive` polling after SIGHUP, retaining original kill assertion. A failed baseline was diagnostic only; the accepted baseline above passed.
+- Final synchronization proof: three consecutive `env -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts launch-observations.spec.ts agent-launch-ad-hoc-codex.spec.ts` (5 cases each); three consecutive same command prefix with `taken-agent-profile.spec.ts taken-agent-profile-refresh.spec.ts nerds-cartoon-portrait.spec.ts backlog-preparing.spec.ts` (5 each). All pass. Shared portrait consumers included. `npm run typecheck:dashboard` passed final edits. Independent refactor found none, preserved proof, and `git diff --check` passed. No tests removed/skipped; no production behavior changed.
+- Rejected clock batching: 250ms stepping protects pending transport and rate-limit deadlines; wider stepping can overshoot those conditions. Other heavy families retain distinct publication/restart and damage-case protection; no further credible justified cuts found. Balance using hosted timing in slice 2 remains the supported route to target.
+- Local measurement proves the selected family improvement only. Hosted summed durations and overall CI target remain pending. Conflicting inherited color variables caused diagnostic-only warning failures; proof commands unset `NO_COLOR`, preserving quiet output.

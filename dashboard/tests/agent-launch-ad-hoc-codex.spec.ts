@@ -6,6 +6,7 @@ import { test, expect, stored } from "./support/codexLaunch.ts";
 import { openTakenBacklog, startSessionField } from "./launchCardPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
+import { processAlive } from "./support/processGroup.ts";
 import { publishLaunchJourney, type LaunchJourney } from "./launchJourney.ts";
 import {
   codexAttaches,
@@ -230,6 +231,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       await panel.getByRole("button", { name: "Close", exact: true }).click();
       for (const attach of codexAttaches(native)) {
         await expect.poll(() => codexEnded(native, attach.pid)).toBe("SIGHUP");
+        await expect.poll(() => processAlive(attach.pid)).toBe(false);
         expect(() => process.kill(attach.pid, 0)).toThrow();
       }
     } finally {
