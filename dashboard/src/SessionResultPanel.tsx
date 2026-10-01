@@ -6,11 +6,13 @@ import {
   sessionResultSchema,
   type SessionResult,
 } from "./sessionResult.ts";
+import { marksDone } from "./sessionCapabilities.ts";
 import { workspaceLimitation } from "./sessionAccess.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import {
   notMarkedDone,
   useMarking,
+  usePageSessions,
   type MarkSessionDone,
   type SessionRequest,
 } from "./pageSessions.ts";
@@ -26,6 +28,7 @@ export function SessionResultPanel({
   readonly onMarkDone: MarkSessionDone;
 }) {
   const { record } = session;
+  const { hostOperations } = usePageSessions();
   const [result, setResult] = useState<SessionResult | undefined>();
   const [attempt, setAttempt] = useState(0);
   const report = useRef<HTMLDivElement>(null);
@@ -86,17 +89,18 @@ export function SessionResultPanel({
           </p>
         </div>
         <div className="terminal-actions">
-          {record.doneAt === undefined && (
-            <button
-              type="button"
-              disabled={marking === "marking"}
-              onClick={() => {
-                follow(onMarkDone(session));
-              }}
-            >
-              Mark as done
-            </button>
-          )}
+          {marksDone(hostOperations, record.session.host) &&
+            record.doneAt === undefined && (
+              <button
+                type="button"
+                disabled={marking === "marking"}
+                onClick={() => {
+                  follow(onMarkDone(session));
+                }}
+              >
+                Mark as done
+              </button>
+            )}
           <button type="button" onClick={onClose} title="Close (⌘⇧Esc)">
             Close
           </button>

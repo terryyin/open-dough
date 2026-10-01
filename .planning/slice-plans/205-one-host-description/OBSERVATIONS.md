@@ -157,3 +157,39 @@ Agent assignment names also read the same description; decorative marks stay sep
 - Selective formatting used Prettier directly on owned changed/new TypeScript
   files; the repository's general format script selects every tracked file.
   The check-only pre-commit hook remains the sole lint check.
+
+Slice 1 published: `b6f2cb651d8a9d23fa632e77b79fa83e9c184259`, accepted on
+`origin/refs/heads/codex/shared-dashboard-code-reads-one-host-description`.
+Managed receipt: no reconciliation; maintenance not applicable;
+CI `unobserved`, no observer started (`Codex yielded-cell bridge is unavailable`).
+The installed managed CLI can start a detached mailbox but supplies no supported
+stream-attachment command for that mailbox; the yielded adapter instead starts
+its own worker. Delivery did not assert a live bridge without that binding or
+add a second startup path. The pre-commit hook found a test-only require-await
+issue; the fetch substitute now returns explicit promises. Repeated client
+proof: same command selecting `agent-launch-client.spec.ts`, 4 passed.
+
+## Slice 2 accepted proof
+
+Browser attach/done availability now comes from the native registry's actual
+optional methods, projected in the existing machine-sessions GET. The schema,
+browser state and page context carry those facts to access, card, terminal,
+final-report and ad-hoc controls. Unread facts grant no operations. Server
+absence checks remain in admission, terminal attachment, and done operations;
+native creation/recovery/result reads and workspace/session-state rules remain.
+
+- Required command: `env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=dot dashboard/tests/agent-terminal.spec.ts dashboard/tests/agent-terminal-codex.spec.ts dashboard/tests/agent-launch-done-stop.spec.ts dashboard/tests/agent-launch-done-codex.spec.ts dashboard/tests/agent-launch-host-identity.spec.ts dashboard/tests/session-workspace-retirement-attach.spec.ts dashboard/tests/session-workspace-retirement-done.spec.ts` — 21 passed.
+  Existing isolated machines/native protocol/CLI substitutes supply external
+  responses and starting records. HTTP/WS/page assertions observe own-host
+  terminal input/resize, detach, done rename/interrupt/intent, legacy equal-ID
+  distinction, missing/unknown workspace passive fallback, report retries,
+  deliberate marking, store preservation and focus return.
+- Additional consumer command: `env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=dot dashboard/tests/agent-launch-card-done.spec.ts dashboard/tests/agent-terminal-done.spec.ts dashboard/tests/agent-terminal-done-codex-page.spec.ts dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts dashboard/tests/agent-launch-ad-hoc-codex.spec.ts` — 14 passed.
+  Card/terminal toolbar assertions preserve marking and refusal, matching
+  identity/Recent updates, reload/reopen and focus; ad-hoc Claude/Codex starts
+  open the actual terminal with input echo. Fixtures do not supply these UI outcomes.
+- `npm run typecheck:dashboard` and `git diff --check -- dashboard` passed;
+  Playwright built the browser. Dependency review found no server imports
+  in browser capability modules; absence guards were source-reviewed as planned.
+- Independent refactor: none — already clean; no edits/tests required.
+  Accepted proof unchanged. Selective Prettier formatting only.

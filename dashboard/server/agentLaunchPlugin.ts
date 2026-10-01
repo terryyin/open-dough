@@ -2,7 +2,7 @@ import {
   sessionResultEndpoint,
   type SessionResult,
 } from "../src/sessionResult.ts";
-import { launchHost } from "./launchHosts.ts";
+import { launchHost, hostOperations } from "./launchHosts.ts";
 // The local launch boundary, mounted by Vite in dev and preview
 // (`./localBoundaryPlugin.ts`) beside the authenticated read boundary. A same-origin
 // POST to `/__agent-launch` asks to launch an agent on one work item
@@ -62,6 +62,7 @@ type Answer =
       readonly status: number;
       readonly body: {
         records: readonly LaunchWithState[];
+        hostOperations: ReturnType<typeof hostOperations>;
         creations: Awaited<ReturnType<AgentLaunches["creations"]>>;
         alerts: Alerts;
         establishing: readonly string[];
@@ -160,6 +161,7 @@ async function answer(
           status: 200,
           body: {
             records: await launches.machineSessions(),
+            hostOperations: hostOperations(),
             creations: await launches.creations(),
             alerts: alerts.availability(),
             establishing: await launches.establishingProjects(),

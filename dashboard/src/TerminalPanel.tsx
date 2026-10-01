@@ -35,6 +35,7 @@ import {
 import {
   notMarkedDone,
   useMarking,
+  usePageSessions,
   type MarkSessionDone,
   type SessionOperation,
   type SessionRequest,
@@ -92,6 +93,7 @@ export function TerminalPanel({
   ) => void;
 }) {
   const { record } = session;
+  const { hostOperations } = usePageSessions();
   const screen = useRef<HTMLDivElement>(null);
   const identity = useRef<HTMLDivElement>(null);
   const names = useRef<HTMLDivElement>(null);
@@ -131,7 +133,7 @@ export function TerminalPanel({
           </div>
         </div>
         <div className="terminal-actions">
-          {marksDone(record.session.host) && (
+          {marksDone(hostOperations, record.session.host) && (
             <button
               type="button"
               disabled={marking === "marking"}

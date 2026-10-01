@@ -1,5 +1,6 @@
 // Common orchestration asks the delivered host boundary for native operations.
 // An absent host or operation is unavailable; it never substitutes another host.
+import type { HostOperations } from "../src/sessionCapabilities.ts";
 import type { IPty } from "@lydell/node-pty";
 import type {
   AgentLaunchRequest,
@@ -101,6 +102,20 @@ export function launchHost(
   host: AgentLaunchRequest["host"],
 ): LaunchHost | undefined {
   return hostRuntimes[host];
+}
+
+// The sessions read projects only the registered runtime's real operations.
+// Known identities without a runtime remain unavailable in every presentation.
+export function hostOperations(): HostOperations {
+  return Object.fromEntries(
+    Object.entries(hostRuntimes).map(([identity, boundary]) => [
+      identity,
+      {
+        attach: boundary?.attach !== undefined,
+        stop: boundary?.stop !== undefined,
+      },
+    ]),
+  );
 }
 
 export function installedSkillPath(

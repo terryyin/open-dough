@@ -4,7 +4,10 @@ import {
   type LaunchRecord,
   type LaunchWithState,
 } from "./agentLaunch.ts";
-import { embeddedTerminal } from "./sessionCapabilities.ts";
+import {
+  embeddedTerminal,
+  type HostOperations,
+} from "./sessionCapabilities.ts";
 
 export const workspaceMissing =
   "The saved workspace is missing. Terminal continuation is unavailable here.";
@@ -24,6 +27,7 @@ export type SessionAccess = "terminal" | "result";
 
 export function sessionAccess(
   record: LaunchWithState,
+  operations: HostOperations,
 ): SessionAccess | undefined {
   if (
     record.session.host === "codex" &&
@@ -31,7 +35,7 @@ export function sessionAccess(
     record.workspaceState.kind !== "available"
   )
     return "result";
-  return embeddedTerminal(record.session.host) &&
+  return embeddedTerminal(operations, record.session.host) &&
     attachOpens(record.sessionState)
     ? "terminal"
     : undefined;

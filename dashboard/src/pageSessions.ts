@@ -10,6 +10,7 @@
 
 import { createContext, useContext, useState } from "react";
 import type { LaunchRecord, LaunchWithState } from "./agentLaunch.ts";
+import type { HostOperations } from "./sessionCapabilities.ts";
 import type { SessionAccess } from "./sessionAccess.ts";
 import type { DeleteRecordOutcome } from "./agentLaunchClient.ts";
 import { workCard } from "./workFocus.ts";
@@ -47,6 +48,7 @@ export type DeleteSessionRecord = SessionOperation<
 // The page's operations that session entries ask, and the session its
 // panel shows, if any, from which every entry derives its current-session mark.
 export type PageSessions = {
+  readonly hostOperations: HostOperations;
   readonly openTerminal: OpenSessionPanel;
   readonly openResult: OpenSessionPanel;
   readonly openSession: SessionOperation<void, LaunchWithState>;

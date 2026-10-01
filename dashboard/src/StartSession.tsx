@@ -43,7 +43,7 @@ export function StartSession({
   const answerId = useId();
   const { launcher, open, openDialog, closeDialog } =
     useLaunchDialogLauncher(starting);
-  const { openTerminal } = usePageSessions();
+  const { openTerminal, hostOperations } = usePageSessions();
   const [announcement, setAnnouncement] = useState("");
 
   return (
@@ -88,7 +88,7 @@ export function StartSession({
             if (record === undefined || launcher.current === null) {
               return false;
             }
-            if (embeddedTerminal(record.session.host))
+            if (embeddedTerminal(hostOperations, record.session.host))
               openTerminal({ record, control: launcher.current });
             setAnnouncement("Ad hoc session started");
             return true;

@@ -144,7 +144,8 @@ explicit-host work is unfinished but no new host or behavior is offered.
 ### 2. Session controls follow the host's actual operations
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: [slice 2 delivery](OBSERVATIONS.md#slice-2-accepted-proof).
 Proof: `agent-terminal.spec.ts`, `agent-terminal-codex.spec.ts`,
 `agent-launch-done-stop.spec.ts`, `agent-launch-done-codex.spec.ts`, and
 `agent-launch-host-identity.spec.ts`, `session-workspace-retirement-attach.spec.ts`,

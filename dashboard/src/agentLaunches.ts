@@ -31,6 +31,7 @@ export type MachineSessions = ReadSessions &
 type ReadSessions = {
   readonly rereadOffers: () => void;
   readonly creations: MachineAnswer["creations"];
+  readonly hostOperations: MachineAnswer["hostOperations"];
   // Records oldest first per project, with latest observations; unread until supplied.
   readonly records: readonly LaunchWithState[] | undefined;
   // Alert capability at the latest read; unread until supplied.
@@ -63,6 +64,7 @@ export function useAgentLaunches(): MachineSessions {
     } & Omit<ReadFacts, "alerts">
   >({
     known: [],
+    hostOperations: {},
     creations: [],
     read: false,
     establishing: [],
@@ -191,6 +193,7 @@ export function useAgentLaunches(): MachineSessions {
     },
     records: readAnswered ? known : undefined,
     creations,
+    hostOperations: sessions.hostOperations,
     alerts,
     ...launchOffers(sessions, readAnswered && !offersReading),
     keptStartOf: (sourceId, identity, workflow) =>

@@ -9,6 +9,7 @@
 // values are the shared profile vocabulary.
 
 import { creationViewSchema } from "./launchCreation.ts";
+import { hostOperationsSchema } from "./sessionCapabilities.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 import { z } from "zod";
 import { offeredShapeSchema } from "./commandOptions.ts";
@@ -201,6 +202,8 @@ export type OfferedDefinition = z.infer<typeof offeredDefinitionSchema>;
 // kept without a session, the starts running now with their phases, and the
 // options each project offers.
 export const launchRecordsSchema = z.object({
+  // Missing or unread capabilities never borrow an operation from another host.
+  hostOperations: hostOperationsSchema.default({}),
   records: z.array(launchWithStateSchema),
   creations: z.array(creationViewSchema).default([]),
   alerts: alertsSchema,
