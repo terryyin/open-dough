@@ -18,6 +18,8 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Keep CI checks independent of package mirror stalls](seeds/SEED-077-ci-independent-of-package-mirror-stalls.md#ci-independent-of-package-mirror-stalls) — SEED-077#ci-independent-of-package-mirror-stalls
+- [Startup recovery advice comes from the host description](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#startup-advice-from-host-description) — SEED-075#startup-advice-from-host-description
 - [Keep reconciled startups settled under one unresolved-attempt rule](seeds/SEED-072-responsive-session-start-reconciliation.md#durable-startup-reconciliation) — SEED-072#durable-startup-reconciliation
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies

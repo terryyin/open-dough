@@ -24,6 +24,37 @@ host lacks unavailable rather than supplied by another host
 
 ## Stories
 
+<a id="startup-advice-from-host-description"></a>
+
+### Startup recovery advice comes from the host description
+
+**Identity:** SEED-075#startup-advice-from-host-description
+
+- **Goal:** A developer recovering an interrupted or uncertain session start
+  reads advice in that session's host's own terms, so a new host such as Cursor
+  gets correct startup status and recovery wording without shared code naming
+  hosts.
+- **Scope:** The startup status and Startup recovery wording added by
+  SEED-072 (`dashboard/src/StartupStatus.tsx`, which replaces a literal
+  “Claude Code” with the host's name, and `NativeCheck` in
+  `dashboard/src/StartupRecovery.tsx`, which branches on `host === "claude"`)
+  read host-specific advice from the host description
+  (`dashboard/src/hostDescription.ts`, e.g. beside `uncertaintyHint`). Preserve
+  today's Claude Code and Codex wording and the recovery controls offered.
+- **Key examples:**
+  1. A Codex start needs reconciliation → Startup recovery shows its native
+     check → the advice is Codex's, taken from Codex's host description.
+  2. A host whose description supplies no native-check advice → its start
+     needs reconciliation → no other host's advice is shown.
+  3. A Codex execution is starting → the card's startup status names Codex
+     without shared code rewriting a Claude Code sentence.
+- **Related:** SEED-075#host-neutral-session-meaning forbids replacing a literal
+  “Claude Code” in shared presentation; its plan predates these startup files,
+  so coordinate with that Taken execution. The plan for
+  SEED-072#durable-startup-reconciliation also rewords recovery answers.
+- **Capture:** Terry asked for this story on 2026-10-01 after the SEED-072
+  integration found these two places still choosing wording by host name.
+
 <a id="host-neutral-session-meaning"></a>
 
 ### 3. Session meaning and wording are host-neutral
