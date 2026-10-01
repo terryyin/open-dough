@@ -10,6 +10,7 @@ export type HostDescription = {
   readonly skillSigil?: string;
   readonly uncertaintyHint?: string;
   readonly unofferedModelExplanation?: string;
+  readonly unavailableSessionExplanation?: string;
   readonly unknownObservation?: {
     readonly label: string;
     readonly note: string;
@@ -27,6 +28,7 @@ export const hostDescriptions = {
       sonnet: { name: "Sonnet" },
     },
     uncertaintyHint: "Check `claude agents` for it before starting again.",
+    unavailableSessionExplanation: "Claude Code no longer lists this session.",
     unknownObservation: {
       label: "State unknown",
       note: "Claude Code's session list could not be read",
@@ -34,6 +36,8 @@ export const hostDescriptions = {
   },
   codex: {
     name: "Codex",
+    unavailableSessionExplanation:
+      "This conversation is no longer available in Codex.",
     unknownObservation: {
       label: "Live observation unavailable",
       note: "Continue this conversation in Codex",

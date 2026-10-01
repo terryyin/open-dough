@@ -15,9 +15,9 @@
 // same-origin POST to
 // `/__agent-launch/done` marks one session it recorded done
 // (`./doneMarks.ts`). A same-origin POST to `/__agent-launch/delete` deletes
-// the record of one session it recorded while Claude Code's listing still
+// the record of one session it recorded while its host's observation still
 // leaves that session's state unknown. A same-origin WebSocket upgrade to
-// `/__agent-terminal?source=&session=` attaches to one session this boundary
+// `/__agent-terminal?source=&host=&session=` attaches to one session this boundary
 // recorded for that project (`./agentTerminals.ts`). Which requests are
 // admitted is decided in `./agentLaunchAdmission.ts`. While it runs it also
 // watches the machine's sessions and raises a macOS notification when one
@@ -26,8 +26,8 @@
 // the starts running with their phases. Everything else
 // -- another site, an unknown project, a workflow or host this boundary does
 // not launch, malformed text, another method, a session it did not record --
-// is refused before any host process starts, and a session Claude Code no
-// longer lists is refused before any `claude attach`.
+// is refused before any host process starts, and a session its host confirms
+// unavailable is refused before native terminal attachment.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, HttpServer, Plugin } from "vite";
@@ -36,13 +36,6 @@ import {
   agentChangedEndpoint,
   agentContinueEndpoint,
   agentLaunchEndpoint,
-  type Acceptance,
-  type ChangedAnswer,
-  type Alerts,
-  type AttemptObservation,
-  type KeptStart,
-  type RunningStart,
-  type OfferedDefinition,
   type LaunchWithState,
   recordDeletable,
 } from "../src/agentLaunch.ts";
@@ -63,43 +56,16 @@ import { deleteRecord } from "./launchRecordStore.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
-import {
-  sessionResultEndpoint,
-  type SessionResult,
-} from "../src/sessionResult.ts";
+import { sessionResultEndpoint } from "../src/sessionResult.ts";
 import { hostOperations, launchHost } from "./launchHosts.ts";
+import {
+  respondToLaunch,
+  type AgentLaunchAnswer,
+} from "./agentLaunchResponse.ts";
 
 // How long a wait for an accepted attempt's change is held before it is
 // answered unchanged, for the page to ask again.
 const changeWaitMs = 30_000;
-
-type Answer =
-  | { readonly status: number; readonly body: SessionResult }
-  | { readonly status: number; readonly body: Acceptance }
-  | { readonly status: number; readonly body: ChangedAnswer }
-  | {
-      readonly status: number;
-      readonly body: {
-        records: readonly LaunchWithState[];
-        attempts: readonly AttemptObservation[];
-        attemptsReadable: boolean;
-        hostOperations: ReturnType<typeof hostOperations>;
-        creations: Awaited<ReturnType<AgentLaunches["creations"]>>;
-        alerts: Alerts;
-        establishing: readonly string[];
-        establishingPreparation: readonly string[];
-        keptStarts: readonly KeptStart[];
-        starts: readonly RunningStart[];
-        definitions: readonly OfferedDefinition[];
-        establishingHosts: Awaited<
-          ReturnType<AgentLaunches["establishingHosts"]>
-        >;
-        sessionPolicies: Awaited<ReturnType<AgentLaunches["sessionPolicies"]>>;
-      };
-    }
-  | { readonly status: number; readonly body: { record: LaunchWithState } }
-  | { readonly status: number; readonly body: DeleteRecordAnswer }
-  | { readonly status: number; readonly body: { error: string } };
 
 // A done mark on the admitted recorded session, with its current state.
 async function markedDone(
@@ -147,7 +113,7 @@ async function answer(
   launches: AgentLaunches,
   terminals: AgentTerminals,
   alerts: SessionAlerts,
-): Promise<Answer> {
+): Promise<AgentLaunchAnswer> {
   try {
     const request = await admitted(req, url, launches);
     switch (request.kind) {
@@ -229,17 +195,6 @@ async function answer(
   }
 }
 
-function respond(res: ServerResponse, { status, body }: Answer): void {
-  if (res.writableEnded || res.destroyed) {
-    return;
-  }
-  res.writeHead(status, {
-    "Cache-Control": "no-store",
-    "Content-Type": "application/json",
-  });
-  res.end(JSON.stringify(body));
-}
-
 function installAgentLaunchMiddleware(
   middlewares: Connect.Server,
   httpServer: HttpServer | null,
@@ -264,7 +219,7 @@ function installAgentLaunchMiddleware(
       return;
     }
     void answer(req, url, res, launches, terminals, alerts).then((outcome) => {
-      respond(res, outcome);
+      respondToLaunch(res, outcome);
     }, next);
   });
   return () => {

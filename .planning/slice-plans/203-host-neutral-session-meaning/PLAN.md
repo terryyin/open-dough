@@ -257,7 +257,7 @@ Safe stop: continuation is presented correctly and no native operation changes.
 
 ### 4. Name the recorded host in unavailable-session attach refusals
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `agent-terminal-boundary.spec.ts` and
 `agent-terminal-codex.spec.ts` to read the JSON body of a real refused upgrade.
 After readable Claude omission or exact Codex missing-target evidence, assert
@@ -323,7 +323,7 @@ observable result, its proof and cleanup. Unexpected fixture/interface work or
 integration evidence that invalidates sizing requires revising remaining slices;
 never deliver an intermediate schema/caller mismatch. Execution retains accepted
 proof and completion/review context in this plan for the ordinary retrospective
-and wrap-up; slices 4–5 remain planned.
+and wrap-up; slice 5 remains planned.
 
 ## Current decisions and preparation review
 
@@ -564,3 +564,60 @@ selected responsive assertions directly observe card and Mark as done
 descriptions, not that button's `aria-describedby`. No broader claim is made.
 The accepted combined proof preserves both stories' current promises. The
 integration introduced no new own edits or refactor candidate.
+
+
+### Slice 3 — publication and delivered CI failure
+
+Combined evidence publication was accepted at
+`7e5d273e1107b079c78d63726b41d83e1b1a229d`, using the same observer.
+CI run `36887148326/1` reported a real assertion failure in dashboard shard 3,
+job `110453268774`. `agent-launch-attention.spec.ts` captured Story B's
+preparation facts while they still said "Reading preparation…", then compared
+them after preparation settled. The comparison was last edited by the
+responsive-startup execution (`ziqing-chan`) in `1aa5d896`; this execution has
+not edited that file. Bounded diagnostic:
+`/tmp/host-neutral-ci-36887148326-dashboard3.log`.
+
+The installed CI ownership rule prohibits duplicating a known other owner's
+repair. A human coordination question is pending; independent slices continue,
+without stashing or changing that owner's test. This failure remains unresolved
+and is not passing CI evidence. Further completion requires its disposition.
+
+### Slice 4 — unavailable attachment refusal
+
+`admittedAttach` retains origin, project, recorded-session, capability and
+availability ordering. It reads the admitted recorded host's description for
+unavailability words: preserved Claude Code omission wording and Codex's own
+conversation-unavailable wording. Native operations and durable records stay
+unchanged. Updated boundary comments name the existing `host` query parameter
+and host-owned observation/attachment responsibilities.
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- agent-terminal-boundary.spec.ts agent-terminal-codex.spec.ts agent-terminal-reopen.spec.ts agent-launch-host-identity.spec.ts
+npm run typecheck:dashboard
+```
+
+Both commands reached terminal exit 0, with 42 browser declarations across
+four files and no grep filter. `agentTerminalBoundary.refusedResponse` captures
+UTF-8 bodies from real WebSocket unexpected-response events; `refusedStatus`
+keeps its prior callers' status-only contract. Claude boundary cases drive
+readable native omission, then assert HTTP 410, exact Claude Code JSON error
+and no native attach. Codex cases in dev and preview obtain actual launched
+records, supply exact native `thread not loaded` evidence, then assert HTTP
+410, exact Codex JSON error, no host attach and unchanged stored records.
+Fixtures supply native replies only. Existing assertions preserve resume,
+input/size, disconnect/process end, origin/unknown-record refusal, conservative
+unknown-listing attachment, stopped/done reopening and host-qualified identity.
+No new unsupported-runtime capability or generic descriptor-fallback case was
+exercised; those unchanged paths are not claimed as newly tested.
+
+Independent refactoring returned `## REFACTOR COMPLETE`. To keep changed files
+below 250 lines, it extracted the existing HTTP answer type and response writer
+into `server/agentLaunchResponse.ts`, whose sole caller is the plugin's existing
+middleware. This stays within the local launch boundary. It shortened the
+boundary spec's explanatory header without changing assertions. The relocated
+writer invalidated implementation-location proof, so both literal commands
+above were rerun to terminal exit 0. Inspected the moved type/writer and sole
+caller; admission, native evidence and refused-upgrade assertions remained
+unchanged. All eight changed files remain below 250 lines. Selective Prettier
+completed; no generation is triggered, and hook-owned lint remains with commit.

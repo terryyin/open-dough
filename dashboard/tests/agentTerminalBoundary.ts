@@ -84,16 +84,27 @@ export async function openTerminal(
   };
 }
 
-// The HTTP status a refused upgrade answers; fails if a socket opens.
-export function refusedStatus(
+// The real HTTP response to a refused upgrade; fails if a socket opens.
+export function refusedResponse(
   url: string,
   options: WebSocket.ClientOptions,
-): Promise<number> {
+): Promise<{ readonly status: number; readonly body: string }> {
   const socket = new WebSocket(url, options);
   return new Promise((resolve, reject) => {
     socket.on("unexpected-response", (req, res) => {
-      resolve(res.statusCode ?? 0);
-      req.destroy();
+      let body = "";
+      res.setEncoding("utf8");
+      res.on("data", (chunk: string) => {
+        body += chunk;
+      });
+      res.on("error", reject);
+      res.on("aborted", () => {
+        reject(new Error("The refusal body was cut short."));
+      });
+      res.on("end", () => {
+        resolve({ status: res.statusCode ?? 0, body });
+        req.destroy();
+      });
     });
     socket.on("open", () => {
       socket.close();
@@ -101,6 +112,15 @@ export function refusedStatus(
     });
     socket.on("error", reject);
   });
+}
+
+// Status-only callers also consume the complete HTTP response; no body format
+// is required for their origin, record or workspace refusal assertions.
+export async function refusedStatus(
+  url: string,
+  options: WebSocket.ClientOptions,
+): Promise<number> {
+  return (await refusedResponse(url, options)).status;
 }
 
 export function shows(terminal: Terminal, text: string): Promise<boolean> {
