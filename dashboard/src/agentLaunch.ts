@@ -17,9 +17,9 @@ import { sessionShown } from "./sessionShown.ts";
 import {
   launchSubject,
   launchWorkflowNames,
-  launchModelAliases,
   startPhases,
 } from "./launchWorkflow.ts";
+import { launchModelAliases } from "./hostDescription.ts";
 import {
   launchWithStateSchema,
   type LaunchRecord,

@@ -14,6 +14,7 @@
 // follows from them. A kept start shows the policy it was started with.
 
 import { hostName } from "./sessionCapabilities.ts";
+import { hostDescription } from "./hostDescription.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { useId, useRef, useState } from "react";
 import {
@@ -188,7 +189,7 @@ export function StartLaunch({
           }
           fieldLabel="Instruction (optional)"
           command={[
-            `${host === "codex" ? "$" : "/"}${skill}`,
+            `${hostDescription(host).skillSigil}${skill}`,
             ...launchArguments({ identity: work.identity, policy }),
           ].join(" ")}
           session={{

@@ -9,9 +9,11 @@ import { renameCodex, stopCodex } from "./hosts/codex/done.ts";
 import { attachCodex } from "./hosts/codex/terminal.ts";
 import { codexCreationEvidence } from "./hosts/codex/creation.ts";
 import { readCodexResult } from "./hosts/codex/result.ts";
+import { hostDescriptions } from "../src/hostDescription.ts";
 
 export const codexHost: LaunchHost = {
-  name: "Codex",
+  name: hostDescriptions.codex.name,
+  description: hostDescriptions.codex,
   creationEvidence: codexCreationEvidence,
   installedSkillPath: (project, skill, ...segments) =>
     path.join(project.path, ".agents", "skills", skill, ...segments),

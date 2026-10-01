@@ -9,6 +9,26 @@ commits the preparation result locally for review; publication is not selected.
 landing `review`, starting revision
 `11f748a9b0e58263351e18fb37053cb2d6378221`. No Preparing assignment.
 
+## Execution context
+
+Execution authorized by Terry's `dough-execute-plan SEED-075#one-host-description`
+instruction on 2026-10-01; the preparation-only authority above describes
+preparation history, not this execution.
+
+- Execution and originating checkout: `/Users/terryyin/git/open-dough/.worktrees/shared-dashboard-code-reads-one-host-description`;
+  existing owned linked worktree, branch `codex/shared-dashboard-code-reads-one-host-description`.
+  No integration-checkout maintenance selected.
+- Identity `SEED-075#one-host-description`, publisher `dashboard-mac.lan-open-dough`,
+  agent `bastiaan-chan`, Story Branch Mode, remote `origin`, trunk `main`.
+- Starting revision `28ffa54b97c31d9d6350aa5281b838b28bee60c4`;
+  accepted claim/candidate `7f2ce02e41278fafed9df3674b187e822d6b48ed`, confirmed
+  on remote main and the execution branch. Increments target the execution branch.
+- Checkout setup: `npm ci --ignore-scripts --no-audit --no-fund` and
+  `npm run typecheck:dashboard` passed against the current lockfile.
+- Replanning retains existing planning authority; no new scope or hard limit.
+- CI source: GitHub Actions, selected workflow `ci.yml`; claim's trunk CI
+  is unobserved. Managed increment delivery owns observer establishment and registration.
+
 ## Goal and scope
 
 A maintainer describes each host's shared facts once; shared server and browser
@@ -66,128 +86,19 @@ expectation; the three omitted-host workspace-test calls may add explicit
 
 ## Architecture and PFE
 
-Follow [North Star: agent launch as a requested assignment](../../NORTH-STAR.md#agent-launch-as-a-requested-assignment)
-and [workspace choice](../../NORTH-STAR.md#a-start-establishes-claim-and-workspace-before-the-session).
-Existing direction already covers this work; no new North Star topic is needed.
-Accepted [ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md)
-preserves host-qualified session meaning; [ADR 0002, §4–5](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-supports one representation and the smallest cohesive solution.
-[ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
-keeps native validation distinct from substitute-process proof. These slices
-change dashboard orchestration, not a vendor integration mechanism; the named
-fixtures establish our behavior, not native skill acceptance. ADR 0008 remains
-Proposed. No Accepted-ADR conflict was identified.
-
-| Existing solution and observation | Decision |
-| --- | --- |
-| `server/launchHosts.ts`, `claudeHost.ts`, `codexHost.ts`: optional native methods and installed skill lookup already own each runtime | Reuse the boundary; change dispatch to explicit lookup and associate each boundary with its description. No second native adapter. |
-| `src/sessionCapabilities.ts`, `launchWorkflow.ts`, `LaunchHostModel.tsx`, `StartEffects.tsx`, and `launchSubject` duplicate names, offerings, or model labels | Extract browser-safe description data; these consumers and request/start-store schemas read the same offerings. Preserve valid stored aliases and Default omission. |
-| `src/agentLaunchClient.ts` owns the public uncertain answer; native refusal messages stay in host launch modules | Reuse its result contract and supply the selected description's hint. Do not change native refusal or sibling session wording. |
-| `server/launchWorkspace.ts` and `startGit.ts` already share slug allocation and collision collection | Keep both algorithms; obtain namespace facts without repeating a vendor-name list. |
-| `agentHosts` in the product-backlog agent profile defines valid host identities across tools, including Cursor | Reuse those identities; do not move dashboard runtime facts into the released skill payload or assume every identity has a delivered runtime. |
-| `launchCatalog.ts`, `startWorkflows.ts`, `launchOffers.ts`, `optionsOffer.ts` already carry host-qualified installed offers | Require explicit host propagation through the current flow. Keep external legacy interpretation at its existing boundary. |
-
-Product-wide searches covered `dashboard`, `scripts`, `tests`, and the existing
-agent-profile contract. Other host-hook installer choices serve another purpose
-and are not changed. No cross-product generic host framework is needed.
+Reuse the existing `LaunchHost` boundary, browser-safe agent identities,
+workspace allocator, and installed offer/start flow under the
+[recorded architecture and existing-solution findings](OBSERVATIONS.md#architecture-and-pfe).
+Accepted ADRs 0001, 0002 (§4–5), and 0005 govern vocabulary, one coherent
+representation, and honest native-proof limits. No conflict was identified.
 
 ## Observed premises
 
-Observations are at `8dfd2bf1` with the refinement draft, on 2026-10-01.
-
-| Premise | Consumed by | Observation and result |
-| --- | --- | --- |
-| Host/model UI, request validation, retained labels, dispatch refusal, session actions, and installed Codex starts work today | Slices 1–3 preserve these external journeys | Baseline A below: **116 passed**, 16.6s. It reaches the dialog, HTTP boundary, stored result, terminal/done operations, installed commands, and Git origin; it does not establish future descriptor structure. |
-| Claude installed execution/preparation and option selection work today | Explicit-host propagation in slice 3 | Baseline B below: **36 passed**, 6.9s. These journeys run the installed scripts against isolated bare origins rather than supplying an established start as their input. |
-| All included TypeScript and tests currently typecheck | Required-host interface proof | `npm run typecheck:dashboard`: exit 0. `tsconfig.node.json` includes `server` and `tests`. |
-| Missing-host helper calls exist in test consumers | Slice 3 constraint decision and caller updates | `rg -n 'launchWorkspace\(|takenSlugs\(|readDefinition\(|optionsOfferOf\(' dashboard scripts tests`: `launch-workspace.spec.ts` has three omitted-host calls; production workspace/definition consumers already pass hosts. Separate reads of `startWorkflows.ts` and `launchOffers.ts` found optional-host signatures/defaults. |
-| Collision lookup really consumes Cursor branches and workspace folders | Slice 3 namespace preservation | `launch-workspace.spec.ts` creates real `codex/fix-it`, `claude/fix-it-2`, `cursor/fix-it-3`, and `.worktrees/fix-it-4`; `takenSlugs` feeds `launchWorkspace`, which returns `codex/fix-it-5`. Passed in Baseline A. |
-| The public launch client, not the native launch error, supplies the two "no trusted answer" hints | Slice 1 failure proof | Client observation below: both hosts return `uncertain` with their own hint after a synthetic fetch failure. Searching `requestAgentLaunch`, its error text, and test routes found no existing dedicated proof for this client failure branch. Add that missing proof before changing it. |
-| Browser action checks and server admission currently duplicate knowledge of the same operations | Slice 2 removes duplicate authority | Read `sessionCapabilities.ts`, `agentLaunchAdmission.ts`, `claudeHost.ts`, and `codexHost.ts`: both hosts expose `attach`/`stop`; server admission refuses an absent method. Baseline A proves own-host actions and the unavailable-Cursor launch refusal. |
-
-The first Baseline A attempt found no local `node_modules/.bin/vite` and could
-not start the servers (four pure workspace tests passed). `npm ci
---ignore-scripts --no-audit --no-fund` installed the locked dependencies in this
-owned worktree. The fresh run below then passed; no product code was changed.
-
-### Current preparation review
-
-Rechecked on 2026-10-01 at `11f748a9` in the default checkout. The description,
-model, uncertainty-hint, workspace, and explicit-host helper premises remain
-as observed above. Since the original review, the host boundary gained native
-result reads and workspace-aware terminal startup failure; browser terminal
-access now passes through `sessionAccess`. These are existing behavior to
-preserve, not additional host facts or a reason to change the story's scope.
-
-- Baseline A, using the exact command below: **116 passed**, 15.2s. Current
-  model choices, own-host actions, legacy host identity, installed Codex starts,
-  refusal, and collision journeys still hold.
-- `npm run typecheck:dashboard`: exit 0, including the current test callers.
-- Baseline B plus the two workspace-retirement checks below: **40 passed**,
-  10.1s. The installed Claude starts/options still work; actual attachment loss
-  opens the passive final report without clearing done intent, and deliberate
-  marking remains distinct from report observation.
-
-```sh
-env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=dot dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-preparation-start.spec.ts dashboard/tests/agent-launch-options-boundary.spec.ts dashboard/tests/agent-launch-options.spec.ts dashboard/tests/session-workspace-retirement-attach.spec.ts dashboard/tests/session-workspace-retirement-done.spec.ts
-```
-
-The setup and assertions in the workspace-retirement attach/done specs reach
-the real dashboard HTTP/WS and page access decisions using the existing native
-protocol fixture. They preserve shared orchestration behavior; they do not
-claim new vendor acceptance. No product or test implementation was changed.
-
-### Landing review against advanced trunk
-
-The 2026-10-01 landing replayed only the unpublished readiness commit onto
-`285bd213`, which already contains the earlier preparation and the delivered
-launch-gate story. Reviewed the current seed's shared context and story, this
-plan, and the integrated host-boundary/launch-gate changes. The selected outcome
-and proof mappings still hold; preserve the new creation-evidence method as
-noted above. Dashboard typecheck passed. The combined current-baseline selection
-below passed **156 tests**, 19.1s; no product or test implementation changed.
-
-```sh
-env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=dot dashboard/tests/agent-launch-model.spec.ts dashboard/tests/agent-launch-model-boundary.spec.ts dashboard/tests/agent-launch-model-entries.spec.ts dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-refusal.spec.ts dashboard/tests/launch-workspace.spec.ts dashboard/tests/agent-launch-host-identity.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-terminal.spec.ts dashboard/tests/agent-terminal-codex.spec.ts dashboard/tests/agent-launch-done-stop.spec.ts dashboard/tests/agent-launch-done-codex.spec.ts dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-preparation-start.spec.ts dashboard/tests/agent-launch-options-boundary.spec.ts dashboard/tests/agent-launch-options.spec.ts dashboard/tests/session-workspace-retirement-attach.spec.ts dashboard/tests/session-workspace-retirement-done.spec.ts
-```
-
-### Baseline A
-
-```sh
-env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=line dashboard/tests/agent-launch-model.spec.ts dashboard/tests/agent-launch-model-boundary.spec.ts dashboard/tests/agent-launch-model-entries.spec.ts dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-refusal.spec.ts dashboard/tests/launch-workspace.spec.ts dashboard/tests/agent-launch-host-identity.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-terminal.spec.ts dashboard/tests/agent-terminal-codex.spec.ts dashboard/tests/agent-launch-done-stop.spec.ts dashboard/tests/agent-launch-done-codex.spec.ts
-```
-
-### Baseline B
-
-```sh
-env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=line dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-preparation-start.spec.ts dashboard/tests/agent-launch-options-boundary.spec.ts dashboard/tests/agent-launch-options.spec.ts
-```
-
-### Public client observation
-
-```sh
-node --input-type=module <<'JS'
-import assert from 'node:assert/strict';
-import { requestAgentLaunch } from './dashboard/src/agentLaunchClient.ts';
-const savedFetch = globalThis.fetch;
-try {
-  globalThis.fetch = async () => { throw new Error('synthetic offline'); };
-  for (const [host, hint] of [['claude', 'Check `claude agents`'], ['codex', 'Check the dashboard history and native Codex conversations']]) {
-    const answer = await requestAgentLaunch({ source:'open-dough', workflow:'ad-hoc', host });
-    assert.equal(answer.kind, 'uncertain');
-    assert.ok(answer.explanation.includes(hint));
-    console.log(`${host}: public launch client preserves its own uncertainty hint`);
-  }
-} finally {
-  globalThis.fetch = savedFetch;
-}
-JS
-```
-
-Result: both assertions passed. An earlier attempt to import the native host
-registry with Node's strip-only loader hit unsupported TypeScript parameter
-properties; it did not observe host behavior. Native boundary proof is instead
-the passing Playwright journeys above.
+[Preparation observations and literal baseline commands](OBSERVATIONS.md)
+record the preserved launch, installed-start, terminal/done, compatibility,
+collision, and public-client premises. The landing review observed 156 passing
+tests and dashboard typecheck against integrated launch gates. Execution setup
+above matches this checkout's current locked dependencies.
 
 ## Proof ownership
 
@@ -207,7 +118,8 @@ the passing Playwright journeys above.
 ### 1. Launch choices and answers use the selected host's description
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: [slice 1 delivery](OBSERVATIONS.md#slice-1-accepted-proof).
 Proof: Existing model, retained-label, Codex-choice, and refusal specs above,
 plus a focused `agent-launch-client.spec.ts` at the public request-client boundary.
 

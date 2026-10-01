@@ -6,11 +6,8 @@ import {
   sessionPolicyChoices,
   sessionPolicyFlags,
 } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
-import {
-  launchModelAliases,
-  launchWorkflowNames,
-  type LaunchModel,
-} from "./launchWorkflow.ts";
+import { launchWorkflowNames } from "./launchWorkflow.ts";
+import { launchModelAliases, type LaunchModel } from "./hostDescription.ts";
 
 export const agentLaunchEndpoint = "/__agent-launch";
 

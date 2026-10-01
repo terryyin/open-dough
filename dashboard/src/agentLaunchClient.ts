@@ -24,6 +24,7 @@ import {
   type DeleteRecordAnswer,
 } from "./deleteRecord.ts";
 import { agentDoneEndpoint, markDoneAnswerSchema } from "./doneMark.ts";
+import { hostDescription } from "./hostDescription.ts";
 
 const refusal = z.object({ error: z.string().min(1) });
 
@@ -41,15 +42,14 @@ export type LaunchAnswer =
   | Extract<LaunchResult, { readonly kind: "launched" | "existing-changes" }>
   | LaunchProblem;
 
-const checkAgents = "Check `claude agents` for it before starting again.";
-
 function noTrustedAnswer(
   what: string,
   host: AgentLaunchRequest["host"],
 ): LaunchAnswer {
+  const hint = hostDescription(host).uncertaintyHint;
   return {
     kind: "uncertain",
-    explanation: `The local dashboard server ${what}, so the session may or may not have started. ${host === "claude" ? checkAgents : "Check the dashboard history and native Codex conversations before starting again."}`,
+    explanation: `The local dashboard server ${what}, so the session may or may not have started.${hint === undefined ? "" : ` ${hint}`}`,
   };
 }
 

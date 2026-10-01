@@ -21,6 +21,7 @@ import type {
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { SessionResult } from "../src/sessionResult.ts";
 import type { WorkspaceState } from "../src/launchRecord.ts";
+import type { HostDescription, HostIdentity } from "../src/hostDescription.ts";
 
 export type UnavailableWorkspace = Exclude<
   WorkspaceState,
@@ -38,6 +39,7 @@ export type TerminalAttachment =
 
 export type LaunchHost = {
   readonly name: string;
+  readonly description: HostDescription;
   // Presence requires durable creation evidence. Native advice and inspection
   // arguments belong to the host; unreadable evidence supplies no saved facts.
   creationEvidence?(record?: CreationRecord): {
@@ -89,14 +91,16 @@ export type LaunchHost = {
   ): Promise<void>;
 };
 
+const hostRuntimes: Readonly<Record<HostIdentity, LaunchHost | undefined>> = {
+  claude: claudeHost,
+  codex: codexHost,
+  cursor: undefined,
+};
+
 export function launchHost(
   host: AgentLaunchRequest["host"],
 ): LaunchHost | undefined {
-  return host === "claude"
-    ? claudeHost
-    : host === "codex"
-      ? codexHost
-      : undefined;
+  return hostRuntimes[host];
 }
 
 export function installedSkillPath(

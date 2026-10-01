@@ -22,10 +22,10 @@ import { z } from "zod";
 import {
   establishedStartSchema,
   establishedPreparationSchema,
-  launchModelAliases,
   sessionPolicySchema,
   type LaunchWorkflow,
 } from "../src/agentLaunch.ts";
+import { launchModelAliases } from "../src/hostDescription.ts";
 import {
   readMachineJson,
   replaceMachineJson,

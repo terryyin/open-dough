@@ -3,11 +3,8 @@
 // Default, the host's own setting; only Claude Code offers named models.
 
 import { hostName, launchHosts } from "./sessionCapabilities.ts";
-import {
-  launchModels,
-  type AgentLaunchRequest,
-  type LaunchModel,
-} from "./agentLaunch.ts";
+import { hostDescription } from "./hostDescription.ts";
+import { type AgentLaunchRequest, type LaunchModel } from "./agentLaunch.ts";
 
 export function LaunchHostModel({
   id,
@@ -53,7 +50,7 @@ export function LaunchHostModel({
           }}
         >
           <option value="">Default (your {hostName(host)} setting)</option>
-          {(host === "claude" ? Object.entries(launchModels) : []).map(
+          {Object.entries(hostDescription(host).models).map(
             ([alias, { name }]) => (
               <option key={alias} value={alias}>
                 {name}

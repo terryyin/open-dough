@@ -1,5 +1,11 @@
 // Shared workflow vocabulary and how a launch request is presented.
 import { hostName } from "./sessionCapabilities.ts";
+import { launchModelName } from "./hostDescription.ts";
+export {
+  launchModels,
+  launchModelAliases,
+  type LaunchModel,
+} from "./hostDescription.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import type { RecordedLaunchRequest } from "./launchRequest.ts";
 import type { EstablishedContext } from "./launchRecord.ts";
@@ -104,23 +110,6 @@ export function startPhaseWords(
   return phase === "preparing" ? spec.establishes.pending : spec.pending;
 }
 
-// The models a launch may ask Claude Code for, and the one place each alias
-// is spelled: the alias `--model` takes and its display name, in the order a
-// dialog offers them. Default is no `model` at all: Claude Code's own setting
-// applies.
-export const launchModels = {
-  fable: { name: "Fable" },
-  opus: { name: "Opus" },
-  sonnet: { name: "Sonnet" },
-} as const satisfies Record<string, { readonly name: string }>;
-
-export type LaunchModel = keyof typeof launchModels;
-
-export const launchModelAliases = Object.keys(launchModels) as [
-  LaunchModel,
-  ...LaunchModel[],
-];
-
 // The name of the session a project's actions row starts: no story, no skill.
 export const adHocName = "Ad hoc";
 
@@ -147,7 +136,7 @@ export function launchSubject(request: RecordedLaunchRequest) {
     modelWords:
       request.model === undefined
         ? undefined
-        : `Model: ${launchModels[request.model].name} (requested)`,
+        : `Model: ${launchModelName(request.host, request.model)} (requested)`,
     optionsWords:
       request.options === undefined || request.options.length === 0
         ? undefined
