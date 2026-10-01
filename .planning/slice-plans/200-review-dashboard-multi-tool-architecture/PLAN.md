@@ -186,6 +186,14 @@ SEED-052#use-cursor-from-dashboard`. The North Star topic gains the selected unb
 direction in place of its link to this review. If Terry declines everything,
 the link is removed and the backlog is unchanged.
 
+## Execution complete
+
+Product advice: Keep the queue order Terry set, with the four SEED-075 stories
+ahead of `SEED-052#use-cursor-from-dashboard`. Before refining
+`SEED-075#host-neutral-session-meaning`, take in the outcome of
+`SEED-074#investigate-done-session-alerts`, which is Taken and concerns the same
+alert meaning in `dashboard/src/sessionShown.ts`.
+
 ## Execution record
 
 - **Mode and identity:** Story Branch Mode; workspace and branch as in

@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 206. Removed local codes are never reused.
+- Highest allocated local number: 209. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -355,6 +355,14 @@ Follow-up: Open, unqueued.
   - Evidence: coordinator conversation: refactor hand-backs for slice 1 (`Outcome: none — already clean`, 42,061 subagent tokens, 3 tool uses) and slice 2 (`Outcome: none — already clean`, 41,865 subagent tokens, 4 tool uses); changed paths `refinement-options.json`, a 5-line `SKILL.md` paragraph and one `install.sh` line.
   - Observed effect: no edits, no rework; the passes restated an overlap (`default` versus the SKILL.md pointer sentence) that slice 1's implementer had already reported.
   - Inference: Qualified. Cost only, about 84k subagent tokens across two passes; the step is mandatory and two samples cannot show whether a pass ever pays off on changes this small.
+- Execution: `SEED-069#review-dashboard-multi-tool-architecture` / plan 200, first related implementation commit `47ef4368`
+  - Timestamp: unknown (2026-10-01, between `47ef4368` at 18:04 and `c63a1c0b` at 18:49 +08:00)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed guidance VERSION 0.3.51 at claim `6ac22ba8`
+  - Evidence: four refactor passes on documentation-only slices; slices 1–3 made only rewraps or one-phrase rewordings (about 56k, 78k and 49k subagent tokens); slice 4's pass found two wrong citations in the new seed (`src/launchWorkflow.ts:43,65` for a substitution that is in `src/StartLaunch.tsx:105-106`, and a misdescribed `src/agentTerminal.ts:3`).
+  - Observed effect: three passes changed nothing of substance; one corrected story evidence before it was published.
+  - Inference: Qualified counter-evidence: on a change whose text carries code citations, the pass can pay off even when no code changed.
 
 ## DD-193 — A finished subagent's hand-back was re-delivered until its task was stopped
 
@@ -436,6 +444,14 @@ Follow-up: Open, unqueued.
   - Observed effect: four extra tool calls; delivery was accepted on the first attempt with observation attached.
   - Inference: Qualified. Passing `refs/heads/main` from the established start's `target` was a plausible mistake; whether the script would refuse it was not checked.
 - Execution: `SEED-066#composable-lightweight-session-options` / plan 191, first related implementation commit `ef745cb5` - Timestamp: 2026-10-01T09:36:12+08:00 (commit time of `ef745cb5`; the lookup preceded its delivery) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: modified; revision `0d565a9e`; base 0.3.51 - Evidence: before the first delivery the coordinator grepped the delivery references and script for `--target-ref` and `targetRef`, finding `refs/heads/<branch>` only in `wrap-up-closure-publication.md:39`; the established start listed `target: main`. - Observed effect: three extra tool calls; delivery accepted first time. - Inference: Qualified; same missing statement as the earlier row.
+- Execution: `SEED-069#review-dashboard-multi-tool-architecture` / plan 200, first related implementation commit `47ef4368`
+  - Timestamp: 2026-10-01T18:04:21+08:00 (commit time of `47ef4368`; the refusal followed it)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed guidance VERSION 0.3.51 at claim `6ac22ba8`
+  - Evidence: first `deliver` passed `--target-ref claude/review-dashboard-architecture-before-adding-more` and was refused with "authorized target must be a branch ref"; the retry with `refs/heads/…` was accepted.
+  - Observed effect: one refused call; no state change.
+  - Inference: Qualified. The refusal message made the fix obvious, so this occurrence cost less than the earlier lookups.
 
 ## DD-197 — New tests that run tools and Git passed on macOS and failed on CI's Linux test job
 
@@ -611,3 +627,51 @@ Follow-up: Open, unqueued. Practice worth keeping: OS-level synthetic keystrokes
   - Evidence: plan 197 Decisive premises row "Real browsers deliver ⌘Esc … **Open: slice 1 probe**"; slice 1 result in `a98f7e5f`; developer chose ⌘⇧Esc via a coordinator question with probed alternatives.
   - Observed effect: one mid-execution developer decision and a story/plan shortcut rewrite after refinement and planning had both fixed ⌘Esc.
   - Inference: Qualified. Running the same probe during refinement or planning would have let the developer choose the shortcut with the rest of the story; whether planning agents may drive OS keystrokes depends on host permission.
+
+## DD-207 — A preparation edit truncated a North Star bullet and left a duplicated fragment, and nothing caught it
+
+Preparation's North Star rewrite cut the "Sessions are the machine's" bullet off mid-sentence ("cards, Recent sessions,Each host normalizes…"). It also left a dangling copy of the paragraph's ending (" registry or assuming every conversation has an assignment. Follow Accepted ADRs…") after the new paragraph. The commit passed formatting and lint, and the damage stayed on trunk until an execution subagent noticed it while reading the topic.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+- Execution: `SEED-069#review-dashboard-multi-tool-architecture` / plan 200, first related implementation commit `47ef4368`
+  - Timestamp: 2026-10-01T17:42:26+08:00 (commit time of `d91886ab`, the preparation edit)
+  - Tool: unknown for the preparation edit (commit author `bas-chan`, trailer Claude Opus 5.5); found and repaired under Claude Code
+  - Open Dough release: unknown; installed guidance VERSION 0.3.51 at claim `6ac22ba8`
+  - Evidence: `git show d91886ab -- .planning/NORTH-STAR.md`; the slice 1 implementation hand-back reported the damage; repaired in `c63a1c0b`.
+  - Observed effect: published direction text was unreadable for one bullet across one release-preparation and one Take; no work depended on the damaged sentence.
+  - Inference: Qualified. A scripted splice probably replaced a range ending at the wrong anchor. Prose checks cannot catch it, but rereading the diff of a direction edit would have.
+
+## DD-208 — A selection checkpoint offered ranked items without proposing the stories they would become
+
+Slice 4's checkpoint asked Terry to multi-select from 16 ranked review items (three questions of four options). Terry did not answer it and asked instead how many stories would be created and how the items would group. Terry approved the four-story grouping the coordinator then proposed, in one reply.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+- Execution: `SEED-069#review-dashboard-multi-tool-architecture` / plan 200, first related implementation commit `47ef4368`
+  - Timestamp: unknown (2026-10-01, between `e07fdcb9` at 18:35:50 and `c63a1c0b` at 18:49:04 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed guidance VERSION 0.3.51 at claim `6ac22ba8`
+  - Evidence: coordinator conversation: the rejected `AskUserQuestion` with item-level options; Terry's question "how many stories are we going to create … they can be grouped into a few groups, right?"; then "yes, go ahead with those four".
+  - Observed effect: one extra round trip at a human checkpoint.
+  - Inference: Qualified. When a checkpoint turns selected findings into stories, a recommendation that already proposes the story grouping matches what Terry decides on.
+
+## DD-209 — A fresh citation verifier per review slice corrected claims the review's author had marked confirmed
+
+Each review slice's proof was an independent agent that had not seen the review. It re-opened every cited line and judged each claim. After `main` advanced mid-execution, it also rechecked the whole review at the merged revision.
+
+Follow-up: Practice worth keeping; no change requested.
+
+### Occurrences
+- Execution: `SEED-069#review-dashboard-multi-tool-architecture` / plan 200, first related implementation commit `47ef4368`
+  - Timestamp: unknown (2026-10-01, between `47ef4368` at 18:04 and `669294b0` +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed guidance VERSION 0.3.51 at claim `6ac22ba8`
+  - Evidence: slice 1 verifier: R1-2 and I3-3 partly wrong, two lines asserting Cursor behavior, and one traced-path error. Slice 2 verifier: T6-1, R6-1 and ranking item 1 partly wrong, a stale SEED-073 limitation, and line drift after merge `1cdd476c`. Recorded in plan 200's Execution record.
+  - Observed effect: about a dozen corrections before Terry chose from the ranking; none changed a recommendation's priority.
+  - Inference: Qualified. The cost was about 114k and 165k subagent tokens; the corrections mainly protected the evidence later copied into SEED-075's stories.
+
