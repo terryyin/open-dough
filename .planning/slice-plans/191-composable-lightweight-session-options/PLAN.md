@@ -450,7 +450,23 @@ than a parallel launch route or publisher. Ad hoc controls remain deferred.
 
 ### 8. Accept the affected guidance across supported native hosts
 Type: Behavior
-Status: blocked — harness cases authored; awaiting developer-triggered paid native runs on Claude Code, Codex and Cursor
+Status: done
+Native acceptance (developer-authorized paid runs, results under the execution's
+job scratch `native8/` and `native8b/`): candidate `0d565a9e` — Claude Code 9/9
+FRESH PROOF (one-shot-default-main, -auto-land, -auto-land-blocked, -established,
+refinement-auto-land, -review, refinement, -result, -queued); Cursor 8/9 and
+Codex 6/9 fresh. Cursor one-shot-auto-land and Codex one-shot-queued landed
+correctly but kept their workspace because delivery reported CI unobserved
+(no host session identity); by developer decision this is compliant when the
+report names the kept workspace or CI gap, and both re-judged `pass` under the
+updated assessor (`671b8ff4`). Codex one-shot-auto-land-blocked and
+-established hit a Codex host error ("collab spawn failed … no rollout found")
+caused by the harness's `--ephemeral`; after removing it (`671b8ff4`) both
+reran as FRESH PROOF. Findings for follow-up: managed delivery on Codex and
+Cursor gets no CI session identity, so observation is unavailable; Cursor
+one-shot-queued and Codex one-shot-auto-land retired before any CI verdict,
+which the assessor still accepts. Codex rollouts now land in the developer's
+Codex home.
 Credential-free proof (accepted): with `PATH=/opt/homebrew/bin:$PATH`,
 `bash tests/git-publication-native-one-shot.sh` (10 one-shot journeys through
 substitutes with state counterexamples rejected), `bash tests/git-publication-native.sh`,
