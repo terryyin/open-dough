@@ -30,7 +30,7 @@ host lacks unavailable rather than supplied by another host
 
 **Identity:** SEED-075#one-host-description
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/205-one-host-description/PLAN.md","assessment":"not-ready","reasons":["Slice 3 needs human clarification: may existing workspace spec calls add explicit Claude host arguments while preserving all assertions, despite the source requirement that specs pass unchanged?"],"basis":{"document":"ad855a1471c037dafcd35bc23c3cd349f11d027b550283d79a9b16320e422b70","plan":"c1104cd84399649833a9c02743050fc1b121b8d1776e35a800bba2bb963170ef"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/205-one-host-description/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"143c673d086948e58a126a3fec666dc9b2296ce4240ef03b7d88e087a8f4210b","plan":"1c98ab65ae38f79c0f9d05d05b3adec6577bb43c92e0782220d42e0215febc0a"}}
 ```
 
 - **Goal:** A dashboard maintainer describes each host's shared facts once,
@@ -66,9 +66,12 @@ host lacks unavailable rather than supplied by another host
     still considers all existing supported host namespaces, including Cursor
     branches, as well as workspace folders. Recognizing a branch namespace
     does not make that host launchable.
-  - Existing Claude and Codex behavior and every dashboard spec remain
-    unchanged. Native commands and transport stay private to their host; the
-    browser receives only the facts it needs. One representation of each fact
+  - Existing Claude and Codex behavior and every dashboard spec's assertions
+    and behavior expectations remain unchanged. The three existing
+    `launchWorkspace` test calls that omit a host may add explicit `"claude"`
+    arguments when the helper requires one. Native commands and transport stay
+    private to their host; the browser receives only the facts it needs. One
+    representation of each fact
     follows [ADR 0002 — Software development lifecycle principles, §4](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#4-high-cohesion).
 - **Deferred:** Cursor launch support or new model offerings
   (SEED-052#use-cursor-from-dashboard); session record variants
@@ -100,6 +103,11 @@ host lacks unavailable rather than supplied by another host
     interface requires the caller to supply one. A predecessor stored record
     or action request without a host → keeps its existing boundary-level
     compatibility behavior.
+- **Decision:** Terry allowed those three explicit `"claude"` test-call
+  arguments on 2026-10-01, preserving every assertion and expected behavior.
+  This resolves the literal unchanged-spec conflict without weakening the
+  required-host contract. No goal, scope, or example decision remains open.
+- **Plan:** [Shared dashboard code reads one host description](../slice-plans/205-one-host-description/PLAN.md).
 - **Depends on:** None.
 - **Capture:** Terry selected it on 2026-10-01 from the dashboard multi-tool
   architecture review. Refined 2026-10-01 against `8dfd2bf1`: the description

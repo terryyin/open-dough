@@ -24,10 +24,13 @@ still include folders and Claude, Codex, and Cursor branch namespaces.
 The dialog's initial Claude selection and boundary-level legacy defaults remain.
 No new model offering, Cursor runtime, session-record variant, session-state
 wording or alert policy, duplicate/creation gate, dynamic discovery, or external
-host registration is promised. Existing specs retain their behavior expectations;
-the source's stronger "specs unchanged" wording has the decision below.
+host registration is promised. Existing specs retain every assertion and behavior
+expectation; the three omitted-host workspace-test calls may add explicit
+`"claude"` arguments under Terry's decision below.
 
-## Current decisions and remaining concern
+<a id="current-decisions-and-remaining-concern"></a>
+
+## Current decisions
 
 - Reuse one browser-safe host description and the existing server `LaunchHost`
   boundary. Native commands, functions, and transport never enter the browser
@@ -49,14 +52,13 @@ the source's stronger "specs unchanged" wording has the decision below.
   access checks, passive final-report fallback, and deliberate done intent.
   The host's existing `readResult` and terminal startup-failure contract stay
   native to that boundary; this story does not redesign them.
-- **Blocking decision for slice 3:** `launch-workspace.spec.ts` calls
-  `launchWorkspace` three times without a host. Its existing tests rely on the
-  very default this story removes, and the dashboard typecheck includes tests.
-  The source also requires every spec to pass unchanged. The human must decide
-  whether adding explicit `"claude"` arguments while preserving all assertions
-  is allowed. The question is pending. Do not implement this conflicting path,
-  weaken the required-host contract, or silently amend the source. Slices 1–2
-  are independently understood; the whole plan is not ready while this remains.
+- **Test-call decision for slice 3:** Terry allowed adding explicit `"claude"`
+  arguments to the three `launchWorkspace` calls in `launch-workspace.spec.ts`
+  on 2026-10-01. Preserve every assertion and expected behavior. The seed now
+  records this distinction: the helper contract requires a host, and these
+  test callers supply their existing intended host explicitly. No pending
+  decision remains; this does not authorize weakening the required-host
+  contract or implementing the story during preparation.
 
 ## Architecture and PFE
 
@@ -177,10 +179,10 @@ the passing Playwright journeys above.
 | Claude model order, Codex Default only, reset on switch, omitted Default, forged model refusal, retained requested label | 1 | `agent-launch-model`, `agent-launch-model-boundary`, `agent-launch-model-entries`, `agent-launch-codex` specs. |
 | Only the matching delivered runtime is dispatched; Cursor stays unavailable | 1 | `agent-launch-refusal` checks neither vendor is called for Cursor; explicit registry lookup review. |
 | UI attach/done availability agrees with real optional operations, with no borrowed operation | 2 | Existing terminal, Codex terminal, Claude done-stop, Codex done, and host-identity specs; workspace-retirement attach/done specs preserve access and passive-report behavior; review one capability authority and retained absent-method refusal checks. |
-| Required explicit host throughout helper/launch-choice contracts and preserved initial Claude selection | 3 | Dashboard typecheck including tests; caller review; existing Claude and Codex start/preparation/options journeys. Subject to the pending source decision. |
+| Required explicit host throughout helper/launch-choice contracts and preserved initial Claude selection | 3 | Dashboard typecheck including tests; caller review; existing Claude and Codex start/preparation/options journeys. Execution will update the three workspace-test callers to explicitly supply Claude under the recorded decision. |
 | Branch prefixes and cross-host/folder collision checks remain unchanged | 3 | `launch-workspace.spec.ts` using actual Git branches and folders, plus installed start journey branch assertions. |
 | Legacy records/actions and valid stored model aliases retain their meaning | 3 (final verification), with model preservation in 1 | `agent-launch-host-identity`, `start-store`, kept/resume specs, full dashboard suite; inspect schema/default diff for unintended compatibility changes. |
-| Every existing dashboard behavior expectation stays green | 3 (final verification) | `npm run test:dashboard` and `npm run typecheck:dashboard`; test-file call changes remain undecided. |
+| Every existing dashboard assertion and behavior expectation stays green | 3 (final verification) | `npm run test:dashboard` and `npm run typecheck:dashboard`; preserve every assertion when adding the three authorized explicit-host arguments. |
 
 ## Slices
 
@@ -249,12 +251,12 @@ every occupied slug, and retains the established start as today. Missing host
 arguments are not accepted by shared helper interfaces; old external data keeps
 its existing compatibility interpretation. New dialogs still select Claude.
 
-First resolve the blocking test-call decision above and align the seed with the
-human's answer. No implementation of the conflicting required-host path begins
-before that decision. Then require host in `LaunchChoices`, `LaunchDialog`,
+Require host in `LaunchChoices`, `LaunchDialog`,
 `LaunchOffers`, `StartWorkflow.establishes`, workspace, definition, options,
 execution/preparation capability and formatter interfaces, and update their
-actual callers. Remove `choices.host ?? "claude"` in launch attempts. Preserve
+actual callers, including adding explicit `"claude"` arguments to the three
+workspace-test calls while preserving all assertions. Remove
+`choices.host ?? "claude"` in launch attempts. Preserve
 the explicit UI initial selection and legacy wire/store defaults. Keep installed
 start scripts and their handoff protocol; do not rebuild those workflows.
 
@@ -263,8 +265,8 @@ retain Cursor collision handling even though Cursor has no runtime. Update the
 host-description facts in `dashboard/AGENT-LAUNCH.md` and `LAUNCH-START.md`,
 leaving their descriptions of still-undelivered sibling work accurate.
 
-Safe stop: the whole selected story is satisfied only after this slice's source
-decision, mapped proof, and full regression verification are complete.
+Safe stop: the whole selected story is satisfied only after this slice's
+mapped proof and full regression verification are complete.
 
 ## Verification and delivery boundaries
 
@@ -293,6 +295,8 @@ cohesive responsibility and preserves its external boundary. No numeric slice
 target or hard limit was supplied; sizing includes implementation, focused proof,
 and cleanup, with no invented timing gate.
 
-The only identified remaining concern is the source's unchanged-spec requirement
-versus required-host calls in slice 3. It requires human clarification, not a
-slice-plan-refinement rewrite. Overall readiness remains not-ready until resolved.
+The unchanged-spec conflict is resolved by Terry's 2026-10-01 test-call decision.
+The current seed and plan agree, the three slices remain bounded with mapped
+proof, and the decisive current-behavior premises have been observed. No blocking
+concern remains. Readiness is recorded through the canonical story-state
+recorder; execution still requires a separate instruction.
