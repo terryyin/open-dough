@@ -172,46 +172,109 @@ artificial workflow gates or a second dialog.
 
 **Identity:** SEED-052#use-codex-from-dashboard
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/192-complete-codex-dashboard-sessions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"671577db0f80f024216372aae606fd0e0a2119056b226c4822b4136d38b9cc36","plan":"33e80364209f168f9f6b4b2155b3c72302c42334c014d6531e10d67445c1e7db"}}
 ```
 
-- **For / why:** A developer who prefers Codex can use the remaining dashboard
-  launch, return and interaction experience established with Claude Code.
-- **Evaluation:** Start the remaining established workflows with Codex and its
-  configured default model, including execution and ad hoc sessions. Find each
-  dashboard-launched session later, see its reported state and attention
-  indicators/alerts, interact through the embedded CLI, close and reconnect to
-  the same conversation, mark it done and reopen it. Existing record-deletion
-  behavior remains available for unknown/unavailable sessions. Applicable
-  scripted setup is consumed without duplication; direct CLI work stays usable.
-- **Boundary:** Own every original Codex promise not delivered by the first
-  story, including live state, embedded interaction/reconnect and session
-  lifecycle controls. Reuse what the first story already proves; if shared code
-  delivered execution or another capability there, verify and complete the
-  remaining gaps rather than rebuilding it. Session state remains local
-  evidence and never establishes story completion. No desktop-app connection,
-  Codex model picker or non-dashboard session discovery.
-- **Value / learning:** Completes useful Codex parity after the first real
-  launch has resolved the initial integration assumptions.
-- **Effort hypothesis:** Unestimated; principal uncertainty is native
-  launch/attach continuity, state semantics and recovery. Assess those with
-  first-story evidence before refining this remainder. The broader lifecycle
-  carries more uncertainty than launch alone; no S/M/L band is assigned.
-- **Workspace:** Reuse dashboard-created workspaces and installed skill
-  handling. Native refinement has read and written its prepared worktree and
-  answered in the same conversation under recorded developer policy. Prove
-  broader workflows and lifecycle behavior independently; that proof does not
-  establish embedded attachment or live-state semantics.
-- **Architecture:** Keep one public boundary per host with private helpers and
-  common workflow, storage and presentation, as the maintained launch contract
-  and Architectural North Star describe. Do not introduce a speculative host
-  framework.
-- **Depends on:** Delivered Codex refinement and its [native acceptance proof](https://github.com/terryyin/open-dough/blob/719a5ef8525788bd7d9288cff8f97c76bf1f5b6b/.planning/slice-plans/189-start-codex-refinement-from-dashboard/PLAN.md)
-  (before-cleanup commit `719a5ef8525788bd7d9288cff8f97c76bf1f5b6b`, `.planning/slice-plans/189-start-codex-refinement-from-dashboard/PLAN.md`).
-  No dependency on Cursor.
-- **Safe stopping point:** Each delivered Codex capability remains usable,
-  independently of Claude Code and Cursor. Undelivered lifecycle promises stay
-  in this story rather than being silently dropped.
+#### Goal and value
+
+A developer who chooses Codex can complete the dashboard's established session
+journey: start work, notice when to return, answer in the embedded native CLI,
+leave and resume the same conversation, and explicitly finish or reopen it.
+The external continuation command remains useful, but requiring it for every
+interaction leaves the dashboard's return experience incomplete.
+
+#### Current basis (reviewed 2026-10-01)
+
+Terry confirms delivered refinement works. The first story already provides
+host-qualified native conversation identity, durable first-input/recovery
+evidence, installed skill activation and mechanical preparation. Execution and
+ad hoc share dispatch; their useful native outcomes still need acceptance.
+Codex's public host currently supplies launch/recovery, whereas observation,
+embedded attachment and done controls are absent. Shared session presentation
+still reads Claude's state vocabulary. Those are the remaining integration
+gaps, rather than another launch dialog or a replacement preparation service.
+
+The [first native acceptance](https://github.com/terryyin/open-dough/blob/719a5ef8525788bd7d9288cff8f97c76bf1f5b6b/.planning/slice-plans/189-start-codex-refinement-from-dashboard/PLAN.md)
+proved external CLI answers in the original conversation and useful refinement
+in its prepared workspace. It did not prove live state, embedded PTY detachment,
+closure of every client, done/reopen, or native execution/ad hoc outcomes.
+Fresh read-only observation with CLI and daemon 0.159.3 found that the same
+historical conversation is not loaded but its latest completed turn remains
+readable. Unloaded does not mean lost or unavailable.
+
+#### Included behavior and key examples
+
+1. **Notice when to return.** A dashboard-recorded Codex session starts working;
+   native evidence later reports an approval/input wait, a reply ready for
+   review, failure or interruption. Its card, Recent sessions and sidebar show
+   the same meaning and use the existing transition-alert contract. Observation
+   neither resumes the conversation nor takes interactive control. Ordinary
+   completed prose questions are ready for review; Needs input requires native
+   waiting evidence, not a guess from the wording.
+2. **Answer and reconnect.** Open that session's embedded CLI, read its history
+   and answer. Close the panel/page or restart the dashboard, then reconnect to
+   the original native thread in its saved workspace and daemon endpoint. Keep
+   context and avoid repeating the launch input, creating a fork or killing an
+   active turn merely because a terminal client disconnected. Native trust and
+   approval prompts retain the developer's configured policy and normal UI.
+3. **Finish and reopen.** Mark a session done; keep the local mark and done-prefix
+   name, end dashboard attachments and stop an active native turn for that
+   conversation. Retain native history. Reopening continues that conversation
+   and clears the local mark after successful attachment. A rename, interrupt
+   or attachment failure is reported honestly; local intent does not establish
+   native stop, story completion or successful reopening.
+4. **Use the remaining starts.** Start planned execution with Codex; the native
+   skill consumes the applicable established-start handoff and produces useful
+   work in that workspace without another claim/setup. Start an ad hoc session
+   with text and with an empty field: text reaches Codex once; empty opens a
+   conversation awaiting the developer's first instruction. Both enter the same
+   session journey, with the configured default model.
+5. **Retain trustworthy history.** Earlier Codex launch records still continue
+   by their original identity. An unreadable endpoint is state unknown; a
+   confirmed missing conversation is unavailable; retained unloaded history
+   stays resumable. One host/endpoint failure does not blank other sessions.
+   Existing local record deletion remains available under its established
+   eligibility rules, never deleting native history or resurrecting a record
+   when an asynchronous observer finishes.
+
+#### Boundaries and future alignment
+
+Refinement was an acceptance example, not a workflow restriction. Reuse common
+workflow/start/storage, terminal transport, session views and alert polling;
+native semantics belong behind one public module per host. Distinguish saved
+conversation identity, current activity and the developer's local done mark.
+See the updated [North Star](../NORTH-STAR.md#agent-launch-as-a-requested-assignment).
+
+No desktop-app integration, external session discovery, model/authentication
+UI or Cursor acceptance is promised. Do not add gates to exclude naturally
+supported workflows. [SEED-067](SEED-067-codex-refinement-launch-reliability.md#resolve-codex-refinement-launch-failures)
+owns the separately Taken launch/desktop-handoff investigation; reuse its fixes
+without duplicating or claiming its unresolved desktop proof. Passive dashboard
+observation and native CLI continuity must work regardless of that exclusion.
+[SEED-066](SEED-066-composable-lightweight-session-options.md#composable-lightweight-session-options)
+owns composable tracking/workspace/landing policy. Consume actual saved session
+context when that work lands; lifecycle must not infer an assignment from the
+existence of a conversation. CI-monitor event delivery remains separate work.
+
+#### Dependencies, questions and sizing
+
+Delivered refinement is the prerequisite; Cursor is not. Reuse its released
+installation/activation proof where unchanged, and independently prove the new
+native lifecycle and execution/ad hoc mechanisms. No new guidance release is
+assumed merely to implement dashboard lifecycle support.
+
+No unresolved product question was found in this review. Native PTY closure,
+interactive ownership, status mapping and per-turn interruption remain empirical
+questions, owned by an early isolated lifecycle probe before dependent changes.
+Do not restart the shared daemon or alter model/approval/trust settings to pass
+it. Failure changes the dependent plan rather than silently reducing the promise.
+
+The planned remainder has eight slices, including feasibility and final native
+acceptance. The largest uncertainty is session continuity and truthful state;
+launch dispatch is already shared. No project S/M/L definitions or time targets
+exist, so no invented band or duration is assigned. Keep one story for now,
+reassessing if the probe reveals a broader integration problem. Each delivered
+capability remains usable; unfinished promises stay visible in this story.
 
 <a id="use-cursor-from-dashboard"></a>
 
@@ -317,9 +380,9 @@ retain them while assessing the remaining capabilities.
 
 - Define project S/M/L bands before assigning comparative estimates; none were
   found, so there is no defensible numerical or band distribution yet.
-- Assess native Codex live-state observation and embedded reconnect before
-  planning the remaining lifecycle support. Current external continuation proof
-  does not establish either capability.
+- The Codex remainder's native lifecycle probe owns the remaining continuity
+  and activity questions before dependent implementation. External continuation
+  proof alone does not settle those questions.
 - Refine authoritative completion evidence and the recent window separately for
   Recently done; do not infer completion from an absent backlog entry.
 

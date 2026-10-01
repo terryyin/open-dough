@@ -134,14 +134,32 @@ parallel ones:
 - Each catalog project's **local folder** is a machine-local fact held by the
   local server, not by the published catalog the browser shares.
 - **Sessions are the machine's, not a project's.** Launch records sit in one
-  store on this machine, and the host's listing is machine-wide (Claude Code
-  lists every session whatever folder it runs in). The page reads them once
+  store on this machine. Observe the recorded host-qualified conversations;
+  Claude's machine-wide listing can supply that observation, while Codex reads
+  the saved native thread and endpoint. The page reads them once
   for every catalog project and holds one session state, apart from project
   selection; cards, Recent sessions, and the Sessions sidebar
   each derive their view by project and identity from it. Actions on one
   session (attach, stop, Mark as done) still run in its project's folder.
   Published observation stays one project at a time; later hosts join the
   same read through their own module.
+
+The Codex remainder extends this existing boundary with record-targeted
+observation and native interaction/lifecycle operations. Normalize native
+activity in each host; common presentation owns its user meaning. Saved
+conversation existence, current native activity and the developer's local done
+mark are distinct: an unloaded Codex thread can retain resumable history, and
+a completed turn does not complete its story. Read-only monitoring must not
+resume a thread or take its interactive control. Reuse the shared polling,
+alerts and terminal transport; keep client detachment distinct from explicit
+per-conversation interruption. Codex launch/recovery and Claude's existing
+lifecycle are the PFE basis; native continuity is tested before broad changes.
+This direction also leaves Cursor a native boundary to prove and lets composable
+session policy supply actual context without adding another registry or assuming
+every conversation has an assignment. Follow Accepted ADRs
+[0001](../docs/adrs/0001-ubiquitous-language-accepted.md),
+[0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+and [0005](../docs/adrs/0005-cross-tool-validation-accepted.md).
 
 Process and filesystem responsibility stays in the existing local loopback
 boundary: the launch endpoint sits beside the read endpoint in the same Vite
