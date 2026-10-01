@@ -23,8 +23,9 @@ Included:
 - The per-host browser spec families.
 - Corrections to `dashboard/AGENT-LAUNCH.md` where it misdescribes the current
   host boundary, and an ADR-impact verdict.
-- Revision of the North Star topic
+- Adding the selected direction to the North Star topic
   [Agent launch as a requested assignment](../../NORTH-STAR.md#agent-launch-as-a-requested-assignment).
+  Its realized statements were already retired during preparation.
 - Queued stories for the recommendations Terry selects.
 
 Excluded, as the story defers: implementing any improvement, adding Cursor,
@@ -84,8 +85,8 @@ and retained design stays explained by code. The review has these sections:
 | Native operations already sit behind one host boundary with optional operations | Slices 1–2 (trace) | `dashboard/server/launchHosts.ts` defines `LaunchHost` (`launch`, optional `recover`, `sessions`, `attach`, `rename`, `stop`, `close`) and `launchHost()` dispatch; `dashboard/server/hosts/{claude,codex}/` hold 3 and 9 modules | Holds |
 | Shared server and browser code branch on host names | Slices 1–2 (findings) | `grep -rnE '=== "codex"\|=== "claude"' dashboard/server dashboard/src` hits `agentLaunches.ts:144,178`, `agentLaunchAdmission.ts:174`, `sessionCapabilities.ts`, `sessionShown.ts:51,55,118`, `StartLaunch.tsx:191`, `LaunchHostModel.tsx:56`, `agentLaunchClient.ts:52`, `launchRecord.ts:28` | Holds |
 | The browser suite has per-host spec families with substitute host processes | Slice 2 (test assessment) | `ls dashboard/tests` shows `agent-launch-codex-*`, `agent-launch-done-codex*`, `agent-terminal-codex*`, and `agent-launch-preparation-codex-*`; `tests/support/codexLaunch.ts` and `codexTerminal.ts` exist | Holds |
-| The North Star topic has statements the code has realized | Slice 4 | `.planning/NORTH-STAR.md:132-133` says "no adapter interface is built ahead of a second host" while `LaunchHost` serves two hosts; the "Codex remainder" paragraph (line 147) describes the closed Codex work | Holds |
-| `dashboard/AGENT-LAUNCH.md` describes the host boundary | Slice 3 | Its section "Native hosts and durable evidence" (line 43) states that common code does not call another host's private helpers; "History, observation and navigation" (line 127) states that host adapters normalize native state | Holds; slice 3 judges accuracy |
+| The North Star topic no longer states realized direction | Slice 4 | At Terry's 2026-10-01 direction, preparation replaced "no adapter interface is built ahead of a second host" with the delivered `LaunchHost` boundary and rewrote the closed "Codex remainder" paragraph as rules for later hosts | Done during preparation |
+| `dashboard/AGENT-LAUNCH.md` describes the current host boundary accurately | Slice 3 | Its section "Native hosts and durable evidence" says common code does not call another host's private helpers; `grep -rn 'hosts/codex\|hosts/claude' dashboard/server dashboard/src` finds imports only in `claudeHost.ts` and `codexHost.ts`. It does not claim shared code is free of host-name branches | Holds; no change needed during preparation. Slice 3 rechecks against the review's findings |
 
 No premise depends on a paid or state-changing observation.
 
@@ -101,7 +102,7 @@ No premise depends on a paid or state-changing observation.
 | Per-host test families assessed | 2 | Test-ownership subsection per concern |
 | Ranked recommendations | 2 | Priority-ordered list ending `REVIEW.md` |
 | `AGENT-LAUNCH.md` matches the code; ADR verdict | 3 | Each corrected statement cites the code it now matches; verdict recorded in `REVIEW.md` |
-| North Star revised to selected direction | 4 | Topic diff: realized statements removed; each remaining statement traces to a selected recommendation |
+| North Star carries the selected direction | 4 | Topic diff: each added statement traces to a selected recommendation; the review link is replaced by that direction |
 | Selected recommendations queued ahead of Cursor; declined ones leave nothing (example 5) | 4 | `read-state` on each new story; backlog order shows them before `SEED-052#use-cursor-from-dashboard`; no story for declined items |
 
 ## Slices
@@ -172,9 +173,8 @@ Status: planned
 Proof: `product-backlog.mjs read-state` shows each new story recorded as
 not-refined and unselected. The `## Backlog list` order puts every selected
 story before `SEED-052#use-cursor-from-dashboard`. No story exists for a
-declined recommendation. The North Star diff removes lines 132–133 and the
-"Codex remainder" paragraph, or restates them as unbuilt direction, and each
-remaining statement traces to a selected recommendation.
+declined recommendation. The North Star diff adds only direction that traces to
+a selected recommendation, and replaces the topic's link to this review.
 
 Behavior: Given the ranked recommendations, execution stops at a checkpoint
 and presents them to Terry, recommending which should precede Cursor. Once
@@ -182,9 +182,9 @@ Terry selects some recommendations, each becomes a canonical story in a
 suitable seed. Each story's Goal names the improvement, and it cites its
 `REVIEW.md` evidence through its lasting content, not through a link to the
 plan. Each story is added with `product-backlog.mjs add --before
-SEED-052#use-cursor-from-dashboard`. The North Star topic keeps only the
-selected unbuilt direction. If Terry declines everything, the topic retires
-its realized statements and the backlog is unchanged.
+SEED-052#use-cursor-from-dashboard`. The North Star topic gains the selected unbuilt
+direction in place of its link to this review. If Terry declines everything,
+the link is removed and the backlog is unchanged.
 
 ## Current decisions
 
