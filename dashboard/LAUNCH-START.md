@@ -1,6 +1,10 @@
-# Dashboard mechanical start and recovery
+# Dashboard launch start
 
-The [agent launch](AGENT-LAUNCH.md) runs the selected installed skill before starting a native session.
+How a story launch establishes its start before the native session, recovers
+it, and applies the dialog's Session choices. [Agent launch](AGENT-LAUNCH.md)
+owns the rest of the launch contract.
+
+## Mechanical start and recovery
 
 The selected installed skill establishes a start only when it ships both its
 start script and its handoff formatter. Otherwise it launches in the project
@@ -63,3 +67,61 @@ Its card offers Start with “Started here, no session yet”; the dialog explai
 that the publication is already established. The kept start is removed only
 when a durable launch record carries those established facts. Records display
 the established workspace without making it a story fact.
+
+## Session choices
+
+A story dialog's Session group stays in view, never behind a disclosure, with
+labeled radio groups. Tracking is Standard or One-shot (“One-shot creates no
+published assignment.”). Standard keeps its workflow's own workspace and
+publication, so Workspace and After checks appear only for One-shot, which
+starts from Isolated workspace and Wait for review. Workspace offers Isolated
+workspace or Default main; After checks offers Wait for review or
+Automatically land. A one-shot dialog's line beside Start names the choices
+(`Default main · One-shot · Wait for review`), that no assignment is published,
+and whether its result waits for review or lands, which Start then authorizes.
+Command details say where the session runs and show the policy's flags after
+the identity, before any options.
+
+The policy's values and flags are the shared definition in the installed
+`dough-execute-plan/scripts/session-policy.mjs`, which the dashboard imports
+from source (`src/launchRequest.ts`); requests, start records and launch records
+keep the semantic `policy`, never flags, and an absent policy is standard.
+Flags are rendered only where a command is written: the start script's
+arguments and the native command line (`/<skill> <identity> --one-shot
+[--default-main] [--auto-land] <options>`). One-shot is offered only when the
+selected host's installation starts the workflow and ships that policy (the
+machine answer's `sessionPolicies`); otherwise the radio is disabled with why,
+and a one-shot choice left from another host disables Start. The boundary
+refuses before any start or native call a one-shot policy the installation
+cannot take, and Default main or Automatically land without one-shot.
+
+A one-shot execution runs `execution-start.mjs start --one-shot` with workspace
+authority, adding `--push-authorized` only for Automatically land and no
+publisher. A one-shot refinement runs `preparation-assignment.mjs start
+--one-shot`. Default main passes the project folder as the workspace on the
+target branch, with no integration checkout. The start publishes nothing; its
+`prepared` receipt becomes the established context (`tracking: "one-shot"`,
+workspace and its `role`, branch, remote/target, `landing`,
+`startingRevision`), which the installed formatter writes as the instruction's
+block and the record keeps. It names no agent, so nothing says Taken or
+Preparing. A kept one-shot start shows its policy and resumes as it was,
+whatever the reopened dialog would choose; once established, it reuses its
+context without rerunning the start. One-shot execution's kept start stays on
+the Backlog card.
+
+### Existing changes in default main
+
+Before a Default main start, the boundary reads the default checkout's
+`git status` (staged, changed, deleted and untracked paths; never content).
+Unless the request names the fingerprint of what it now observes, nothing starts
+and the dialog shows, in place of its choices, “Existing changes in default
+main”, the changed paths and count, “Continuing includes these changes in this
+session's result. When committed, all checkout changes are committed
+together.”, and “Wait for review remains selected” or “Automatically land
+remains selected; verified changes may land without another review.” The
+heading takes the keyboard. Back (or Escape) returns to the choices and text as
+they were, at Start; Continue with existing changes sends the same request with
+the fingerprint and never changes the landing. The fingerprint hashes HEAD, the
+status and each path's size and modification times, so content changed after
+the warning asks again. It is a local comparison, not a kept confirmation, and
+the record keeps no fingerprint. A clean checkout starts without a warning.

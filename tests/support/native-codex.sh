@@ -50,7 +50,7 @@ native_codex_build_command() {
   local transcript=${4:-}
   local bypass_hook_trust=${5:-}
   local inner=(
-    codex exec --ephemeral --ignore-user-config
+    codex exec --ignore-user-config
     -c "sqlite_home=\"${native_codex_state_dir}\""
     -c "log_dir=\"${native_codex_state_dir}\"" --skip-git-repo-check
     --sandbox danger-full-access

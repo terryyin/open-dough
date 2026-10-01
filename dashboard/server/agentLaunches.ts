@@ -15,7 +15,7 @@ import { launchHost } from "./launchHosts.ts";
 import { launchHosts } from "../src/sessionCapabilities.ts";
 import { withStates } from "./launchStates.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
-import { recordedRequest } from "./hostLaunch.ts";
+import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
 import {
   creationOf,
   keptCreations,
@@ -33,6 +33,7 @@ import {
   establishingHosts,
   offeredDefinitions,
   keptStarts,
+  sessionPolicies,
 } from "./launchCatalog.ts";
 import {
   folderExists,
@@ -91,6 +92,10 @@ export class AgentLaunches {
 
   establishingHosts() {
     return establishingHosts();
+  }
+
+  sessionPolicies() {
+    return sessionPolicies();
   }
 
   offeredDefinitions(): Promise<readonly OfferedDefinition[]> {
@@ -192,7 +197,11 @@ export class AgentLaunches {
         ? await started(source, request, folder, this.progress)
         : ({ kind: "none" } as const);
     if (start.kind === "stopped") return start.result;
-    const recording = pending?.request ?? requested;
+    const recording =
+      pending?.request ??
+      (start.kind === "established"
+        ? withStartPolicy(requested, start.policy)
+        : requested);
     const timer = setTimeout(() => {
       controller.abort();
     }, launchTimeoutMs());

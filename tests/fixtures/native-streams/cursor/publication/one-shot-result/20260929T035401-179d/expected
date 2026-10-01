@@ -3,6 +3,8 @@ stream-status: complete
 response: present
 last-start-line: 312
 one-shot-start-observed: true
+ci-observed-shas: 
+ci-unobserved-shas: 8417b461b65a87ec27221129dc08a326e77e93bd
 verdict: pass / only the one-shot result reached remote trunk and its workspace retired
 command: "node .claude/skills/dough-execute-plan/scripts/execution-start.mjs --help 2>&1 || node .claude/skills/dough-execute-plan/scripts/execution-start.mjs 2>&1 | head -80; ls -la /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.Laj2eLmCK7/one-shot-result.NZ2USC/workspace-claim-8HlJkC/; ls notes.txt 2>/dev/null; head -5 notes.txt 2>/dev/null; ls package.json 2>/dev/null; cat package.json 2>/dev/null | head -40"
 command: "node .claude/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs --help 2>&1 | head -40; ls -la; git status; git remote -v; git branch -a; ls .claude/skills/dough-post-change-refactor/SKILL.md; head -80 .claude/skills/dough-land/SKILL.md | rg -n \"Retire|retire|worktree\" -A 3"

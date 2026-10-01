@@ -27,6 +27,8 @@ prepare_substitute_hosts() {
     "${source_dir}/tests/support/native-agent-land-default.sh" \
     "${source_dir}/tests/support/native-agent-one-shot.sh" \
     "${source_dir}/tests/support/native-agent-one-shot-escalation.sh" \
+    "${source_dir}/tests/support/native-agent-one-shot-review.sh" \
+    "${source_dir}/tests/support/native-agent-one-shot-policy.sh" \
     "${source_dir}/tests/support/native-agent-owned-context.sh" \
     "${sentinel_bin}/"
 
@@ -156,23 +158,55 @@ run_substitute_host_journeys() {
 run_substitute_one_shot_journeys() {
   local journey
   prepare_substitute_hosts
-  for journey in one-shot-result one-shot-queued one-shot-escalation; do
+  for journey in one-shot-result one-shot-queued one-shot-escalation \
+    one-shot-review one-shot-refinement one-shot-default-main \
+    one-shot-auto-land one-shot-auto-land-blocked one-shot-established \
+    one-shot-refinement-auto-land; do
     run_substitute_one_shot_journey "${journey}"
   done
+  run_substitute_one_shot_review_pushes one-shot-review \
+    git-publication-native-one-shot-review.sh
+  run_substitute_one_shot_review_pushes one-shot-refinement \
+    git-publication-native-one-shot-refinement.sh
+  substitute_run_passes claude-one-shot-result-unobserved claude one-shot-result \
+    GIT_PUBLICATION_KEEP=1 NATIVE_ONE_SHOT_VARIANT=unobserved
+  run_one_shot_unobserved_counterexamples \
+    "${substitute_artifact}/events.jsonl" claude
+  git_publication_fixture_cleanup
+}
+
+# Whole-run counterexample for review journey $1, whose assessor file in
+# tests/support is $2: a substitute that also pushes its committed result to
+# remote trunk, against that journey's passing run above.
+run_substitute_one_shot_review_pushes() {
+  local journey=$1 work=${substitute_work}
+  git_publication_suite_counterexamples "${source_dir}/tests/support/$2" \
+    "${work}/claude-${journey}.txt"
+  substitute_run "${journey}-pushes" claude "${journey}" \
+    NATIVE_ONE_SHOT_VARIANT=pushes
+  [[ ${substitute_status} -eq 0 ]]
+  native_assessor_rejects "${journey}-pushes" remote \
+    "${work}/${journey}-pushes.txt" fail 'the remote changed'
 }
 
 # One-shot journey $1 through the installed start, delivery and CI completion
 # CLIs (or, escalating, start and admission), then real-state counterexamples
 # on its kept fixture.
 run_substitute_one_shot_journey() {
-  local journey=$1 events
+  local journey=$1 events counterexamples
   substitute_run_passes "claude-${journey}" claude "${journey}" \
     GIT_PUBLICATION_KEEP=1
   events="${substitute_artifact}/events.jsonl"
-  if [[ ${journey} == one-shot-escalation ]]; then
-    run_one_shot_escalation_state_counterexamples "${events}" claude
+  # A journey with its own state counterexamples runs them; the landing
+  # journeys share the one-shot ones.
+  counterexamples="run_${journey//-/_}_state_counterexamples"
+  if declare -F "${counterexamples}" > /dev/null; then
+    "${counterexamples}" "${events}" claude
   else
     run_one_shot_state_counterexamples "${events}" "${journey}" claude
+  fi
+  if [[ ${journey} == one-shot-auto-land ]]; then
+    run_one_shot_auto_land_stream_counterexamples "${events}" claude
   fi
   git_publication_fixture_cleanup
 }

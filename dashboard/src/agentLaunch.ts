@@ -12,6 +12,7 @@ import { creationSchema } from "./launchCreation.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 import { z } from "zod";
 import { offeredShapeSchema } from "./commandOptions.ts";
+import { existingChangesSchema, sessionPolicySchema } from "./launchRequest.ts";
 import { sessionShown } from "./sessionShown.ts";
 import {
   launchSubject,
@@ -91,10 +92,28 @@ export const launchFailureReasons = [
 // expired, or the host exited without a session this boundary could confirm.
 export const launchUncertaintyReasons = ["timed-out", "unconfirmed"] as const;
 
+// The uncommitted changes the default checkout holds, observed before a
+// launch selecting it starts anything: the changed paths (at most
+// `existingChangesShown`, never their content), how many there are, and the
+// fingerprint a confirmation names (`existingChangesSchema`).
+export const existingChangesShown = 50;
+
+export const existingChangesFoundSchema = z.object({
+  kind: z.literal("existing-changes"),
+  paths: z.array(z.string().min(1)).max(existingChangesShown),
+  count: z.number().int().positive(),
+  fingerprint: existingChangesSchema,
+});
+
+export type ExistingChangesFound = z.infer<typeof existingChangesFoundSchema>;
+
 export const launchResultSchema = z.discriminatedUnion("kind", [
   // The record kept, with its session as the host listed it when confirming
   // the launch.
   z.object({ kind: z.literal("launched"), record: launchWithStateSchema }),
+  // Nothing was started: the default checkout holds changes the request did
+  // not confirm, or that changed since it was confirmed.
+  existingChangesFoundSchema,
   z.object({
     kind: z.literal("failed"),
     reason: z.enum(launchFailureReasons),
@@ -131,6 +150,8 @@ export const keptStartSchema = z.object({
   identity: z.string().min(1),
   workspace: z.string().min(1),
   agent: z.string().min(1).optional(),
+  // The kept start's policy, absent for the default.
+  policy: sessionPolicySchema.optional(),
 });
 
 export type KeptStart = z.infer<typeof keptStartSchema>;
@@ -189,6 +210,17 @@ export const launchRecordsSchema = z.object({
   starts: z.array(runningStartSchema),
   definitions: z.array(offeredDefinitionSchema),
   establishingHosts: z
+    .array(
+      z.object({
+        source: z.string(),
+        workflow: z.enum(launchWorkflowNames),
+        host: sessionHostSchema,
+      }),
+    )
+    .default([]),
+  // The projects, workflows, and hosts whose installed skills take the shared
+  // session policy at their start.
+  sessionPolicies: z
     .array(
       z.object({
         source: z.string(),

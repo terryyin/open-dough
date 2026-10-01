@@ -7,6 +7,7 @@
 import { useCallback, useState } from "react";
 import type {
   AgentLaunchRequest,
+  ExistingChangesFound,
   LaunchChoices,
   LaunchWithState,
   LaunchWorkflow,
@@ -27,15 +28,16 @@ export type LaunchAttempts = {
     identity: string,
     workflow: LaunchWorkflow,
   ): LaunchAttempt | undefined;
-  // Starts the workflow on the project's work item in Claude Code, with the
-  // developer's optional instruction, and answers the launched record once
-  // the boundary confirms one.
+  // Starts the workflow on the project's work item in the chosen host, with
+  // the developer's optional instruction, and answers the launched record
+  // once the boundary confirms one, or the default checkout's existing
+  // changes the developer has yet to confirm, with nothing started.
   start(
     sourceId: string,
     work: LaunchWorkItem,
     workflow: LaunchWorkflow,
     choices: LaunchChoices,
-  ): Promise<LaunchWithState | undefined>;
+  ): Promise<LaunchWithState | ExistingChangesFound | undefined>;
   // Starts an ad hoc session in the project, with the developer's optional
   // first message, and answers the launched record once the boundary confirms
   // one. A problem is kept nowhere yet.
@@ -58,8 +60,14 @@ const attemptKey = (
 const adHocKey = (sourceId: string) => attemptKey(sourceId, "", "ad-hoc");
 
 // The choices as the boundary takes them: trimmed text, omitted when empty,
-// and the model and options only when chosen.
-const optionsOf = ({ instruction, model, options }: LaunchChoices) => {
+// and the model, options, policy and confirmation only when chosen.
+const optionsOf = ({
+  instruction,
+  model,
+  options,
+  policy,
+  existingChanges,
+}: LaunchChoices) => {
   const own = instruction.trim();
   return {
     ...(own === "" ? {} : { instruction: own }),
@@ -67,6 +75,8 @@ const optionsOf = ({ instruction, model, options }: LaunchChoices) => {
     ...(options === undefined || options.length === 0
       ? {}
       : { options: [...options] }),
+    ...(policy === undefined ? {} : { policy }),
+    ...(existingChanges === undefined ? {} : { existingChanges }),
   };
 };
 
@@ -98,6 +108,11 @@ export function useLaunchAttempts(
     async (key: string, request: AgentLaunchRequest) => {
       setAttempt(key, { kind: "starting" });
       const answer = await requestAgentLaunch(request);
+      // Nothing started: the dialog asks the developer about the changes.
+      if (answer.kind === "existing-changes") {
+        setAttempt(key, undefined);
+        return answer;
+      }
       if (answer.kind === "launched") {
         ended(request, answer.record);
         setAttempt(key, undefined);
@@ -128,14 +143,18 @@ export function useLaunchAttempts(
     [launch],
   );
 
+  // An ad hoc session selects no default checkout, so it has no changes to
+  // confirm.
   const startAdHoc = useCallback(
-    (sourceId: string, choices: LaunchChoices) =>
-      launch(adHocKey(sourceId), {
+    async (sourceId: string, choices: LaunchChoices) => {
+      const answer = await launch(adHocKey(sourceId), {
         source: sourceId,
         workflow: "ad-hoc",
         host: choices.host ?? "claude",
         ...optionsOf(choices),
-      }),
+      });
+      return answer === undefined || "kind" in answer ? undefined : answer;
+    },
     [launch],
   );
 

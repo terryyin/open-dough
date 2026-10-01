@@ -2,6 +2,7 @@
 import path from "node:path";
 import type { FirstInput } from "../../../src/launchRecord.ts";
 import {
+  launchArguments,
   launchWorkflows,
   type RecordedLaunchRequest,
 } from "../../../src/agentLaunch.ts";
@@ -27,8 +28,7 @@ export function codexInput(
             [
               [
                 `$${spec.skill}`,
-                "identity" in request ? request.identity : "",
-                ...(request.options ?? []),
+                ...("identity" in request ? launchArguments(request) : []),
               ].join(" "),
               established?.handoff.formatted,
               own,

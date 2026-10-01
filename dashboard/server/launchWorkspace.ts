@@ -42,6 +42,17 @@ export function shownWorkspace(project: ProjectFolder, slug: string): string {
   return `${project.shown}/${worktreesFolder}/${slug}`;
 }
 
+// A start's workspace as the page shows it: the project's folder itself when
+// the start took the default checkout, else its workspace under the folder.
+export function shownStartWorkspace(
+  project: ProjectFolder,
+  workspace: string,
+): string {
+  return workspace === project.path
+    ? project.shown
+    : shownWorkspace(project, path.basename(workspace));
+}
+
 export function launchWorkspace(
   project: ProjectFolder,
   title: string,

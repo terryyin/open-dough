@@ -9,7 +9,11 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
-import { installRefinementSkill, openTakenBacklog } from "./launchCardPage.ts";
+import {
+  installRefinementSkill,
+  openTakenBacklog,
+  showOptions,
+} from "./launchCardPage.ts";
 import {
   notRefinedStory,
   publishLaunchJourney,
@@ -47,6 +51,7 @@ for (const [what, options, model] of [
     const { recentSessions } = parts(page);
 
     await refine(notRefinedStory).click();
+    await showOptions(refinementDialog);
     // Selected out of definition order, recorded in it.
     for (const label of options) {
       await refinementDialog.getByRole("checkbox", { name: label }).check();

@@ -34,6 +34,12 @@ See [installed launch options](AGENT-LAUNCH-OPTIONS.md) for host-qualified
 refinement definitions, selection, validation and recovery. Execution and ad hoc
 have no options.
 
+## Start and session choices
+
+How a story's start is established before its native session and recovered,
+and what the dialog's Session choices select, are in
+[launch start](LAUNCH-START.md).
+
 ## Native hosts and durable evidence
 
 `server/launchHosts.ts` dispatches to one public host boundary. Common workflow,
@@ -99,10 +105,6 @@ active first turn, then answer its completed question in that same conversation.
 There is no separate handoff action: the existing launch client releases its
 connection when the native turn completes. Starting input during an active turn
 remains subject to Codex's native rules.
-
-## Mechanical start and recovery
-
-See [mechanical start and recovery](AGENT-START.md) for installed capability, publication authority, workspace selection, durable retained starts, and safe refinement continuation.
 
 ## History, observation and navigation
 

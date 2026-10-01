@@ -11,6 +11,7 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import { installedSkillPath } from "./launchHosts.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
+import { continuedStart, policyArguments } from "./startPolicy.ts";
 import { lostStartArguments, ownerOf } from "./startGit.ts";
 import {
   gatedStart,
@@ -21,7 +22,12 @@ import {
   type PlannedStart,
   type StartAttempt,
 } from "./startLaunch.ts";
-import { establishedStart, record, recordStop } from "./startRecording.ts";
+import {
+  establishedOneShot,
+  establishedStart,
+  record,
+  recordStop,
+} from "./startRecording.ts";
 import { readStartResult, refusal, type StartResult } from "./startResult.ts";
 import {
   keepStart,
@@ -81,7 +87,9 @@ export async function beginStart(
 }
 
 // The start of a story registered in `progress`: keeps it, then runs its
-// script.
+// script. A one-shot start publishes no claim: it names no publisher, takes
+// publication authority only for an automatic landing, and never resumes a
+// claim; one kept with its established context goes on from it as it is.
 async function runningStart(
   source: PublishedSource,
   request: StoryLaunchRequest,
@@ -90,22 +98,31 @@ async function runningStart(
 ): Promise<PlannedStart> {
   // A start kept from an earlier launch of the story is resumed as it was.
   const kept = await keptStart(source.id, request.identity, workflow);
-  const { workspace, branch, model } = await startChoice(
+  const { workspace, branch, model, policy } = await startChoice(
     project,
     request,
     kept,
+    source.ref,
   );
-  const facts = {
+  const oneShot = policy.tracking === "one-shot";
+  if (oneShot && kept?.start !== undefined) {
+    progress.set(source.id, request.identity, "launching");
+    return continuedStart({ workspace, branch, policy }, { start: kept.start });
+  }
+  const where = {
     identity: request.identity,
-    publisherId: kept?.publisherId ?? publisherId(source),
     workspace: workspace.path,
     branch,
     mode: "story-branch",
     remote: "origin",
     target: source.ref,
   } as const;
+  const facts = {
+    ...where,
+    publisherId: kept?.publisherId ?? publisherId(source),
+  } as const;
   const resume =
-    kept === undefined
+    kept === undefined || oneShot
       ? []
       : resumeArguments(kept).length > 0 || kept.start !== undefined
         ? resumeArguments(kept)
@@ -118,7 +135,7 @@ async function runningStart(
       ...kept,
       host: request.host,
       identity: facts.identity,
-      publisherId: facts.publisherId,
+      ...(oneShot ? { policy } : { publisherId: facts.publisherId }),
       workspace: facts.workspace,
       branch: facts.branch,
       ...(model === undefined ? {} : { model }),
@@ -128,23 +145,20 @@ async function runningStart(
   );
   const attempt = runScript(
     [
-      "--integration",
-      project.path,
+      ...policyArguments(policy, project),
       "--workspace",
       facts.workspace,
       "--branch",
       facts.branch,
       "--identity",
       facts.identity,
-      "--publisher-id",
-      facts.publisherId,
+      ...(oneShot ? [] : ["--publisher-id", facts.publisherId]),
       "--mode",
       facts.mode,
       "--remote",
       facts.remote,
       "--target",
       facts.target,
-      "--push-authorized",
       "--workspace-authorized",
       "--host",
       request.host,
@@ -156,9 +170,12 @@ async function runningStart(
   ).then(async (result): Promise<StartAttempt> => {
     // The record follows the script's result even when the launch stopped
     // waiting for it.
-    if (result.kind === "accepted") {
+    if (result.kind === "accepted" || result.kind === "prepared") {
       progress.set(source.id, request.identity, "launching");
-      const start = establishedStart(facts, result, kept?.start);
+      const start =
+        result.kind === "accepted"
+          ? establishedStart(facts, result, kept?.start)
+          : establishedOneShot(where, result, policy);
       await record(() =>
         updateStart(source.id, request.identity, { start }, workflow),
       );
@@ -174,16 +191,18 @@ async function runningStart(
           : undefined;
       return {
         kind: "refused",
-        explanation: refusal(result, owner, {
-          workspace: workspace.shown,
-          branch,
-        }),
+        explanation: refusal(
+          result,
+          owner,
+          { workspace: workspace.shown, branch },
+          oneShot,
+        ),
       };
     } finally {
       progress.clear(source.id, request.identity);
     }
   });
-  return { kind: "running", workspace, branch, attempt };
+  return { kind: "running", workspace, branch, policy, attempt };
 }
 
 // The handoff is written by the selected installation's own formatter.

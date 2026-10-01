@@ -1,9 +1,10 @@
 // One-shot work: the startup command prepares an owned workspace at fetched
-// trunk and publishes nothing; ordinary managed delivery publishes only the
-// result to remote trunk, and a lost push response resumes without a
-// duplicate commit.
+// trunk with workspace authority alone and publishes nothing; the verified
+// result waits there for review, an explicit later landing publishes only that
+// result to remote trunk through ordinary managed delivery, and a lost push
+// response resumes without a duplicate commit.
 import assert from "node:assert/strict";
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
@@ -16,13 +17,11 @@ import {
 } from "./publication-test-fixtures.mjs";
 import {
   createQueuedTrunk,
-  identityA,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
 import { lostPushResponse } from "./workspace-publication-startup-test-fixtures.mjs";
 import { installManagedDelivery } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { deliverThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
-import { startExecution } from "./execution-start.mjs";
 import { refreshDefaultCheckout } from "./maintain-default-checkout.mjs";
 
 const trunkTarget = "refs/heads/main";
@@ -68,12 +67,12 @@ function assertPrepared(started, trunkSha) {
   assert.equal(started.receipt.agent, undefined);
 }
 
-test("an unlisted one-shot result reaches remote trunk as its only commit", async (t) => {
+test("an unlisted one-shot result waits for review without publication authority, then an explicit landing publishes it as its only commit", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const headsBefore = await remoteHeads(trunk.origin);
 
-  const started = await startOneShot(trunk);
+  const started = await startOneShot(trunk, [], { pushAuthorized: false });
   assertPrepared(started, trunk.trunkSha);
   assert.equal(await remoteHeads(trunk.origin), headsBefore);
   const { workspace, branch } = started;
@@ -86,6 +85,19 @@ test("an unlisted one-shot result reaches remote trunk as its only commit", asyn
   );
 
   const result = await commitResult(workspace);
+  // Verified, then stopped for review: nothing reached the remote, the
+  // default checkout stays at trunk, and the result is recoverable from the
+  // retained workspace and its branch.
+  assert.equal(
+    readFileSync(join(workspace, "feature.txt"), "utf8"),
+    "one-shot result\n",
+  );
+  assert.equal(await remoteHeads(trunk.origin), headsBefore);
+  assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
+  assert.equal(await revParse(trunk.integration, branch), result);
+
+  // The developer later asks to land it: delivery uses only the retained
+  // workspace, branch, and starting revision.
   const delivery = await installManagedDelivery(
     trunk,
     trunk.fixture,
@@ -136,56 +148,6 @@ test("a one-shot start with no change publishes nothing and retires cleanly", as
     (await git(trunk.integration, "branch", "--list", started.branch)).stdout,
     "",
   );
-  assert.equal(await remoteHeads(trunk.origin), headsBefore);
-});
-
-test("one-shot refuses admission, missing authority, and Taken work without creating a workspace", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const taken = await startCliResult(trunk, "trunk");
-  assert.equal(taken.receipt.ok, true, taken.stdout);
-  const headsBefore = await remoteHeads(trunk.origin);
-
-  const refusals = [
-    [
-      "admission",
-      startOneShot(
-        trunk,
-        ["--admit", "--link", "seeds/C.md#c", "--title", "C"],
-        {
-          name: "admit",
-        },
-      ),
-      "invalid-request",
-      /--one-shot or --admit/,
-    ],
-    [
-      "Taken identity",
-      startOneShot(trunk, [], { name: "taken", identity: identityA }),
-      "source-refused",
-      /already Taken on fetched trunk/,
-    ],
-  ];
-  for (const [label, pending, status, error] of refusals) {
-    const refused = await pending;
-    assert.equal(refused.code, 1, label);
-    assert.equal(refused.receipt.status, status, label);
-    assert.match(refused.receipt.error, error, label);
-    assert.equal(existsSync(refused.workspace), false, label);
-  }
-
-  const workspace = join(trunk.fixture, "start-unauthorized");
-  const unauthorized = await startExecution({
-    integration: trunk.integration,
-    workspace,
-    branch: "exec/unauthorized",
-    mode: "story-branch",
-    target: "main",
-    oneShot: true,
-    workspaceAuthorized: true,
-  });
-  assert.equal(unauthorized.status, "authority-required");
-  assert.equal(existsSync(workspace), false);
   assert.equal(await remoteHeads(trunk.origin), headsBefore);
 });
 

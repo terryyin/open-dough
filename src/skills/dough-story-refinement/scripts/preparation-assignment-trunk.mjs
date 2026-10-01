@@ -36,61 +36,90 @@ export async function fetchQueuedTrunk(cwd, request) {
   return { ok: true, fetched };
 }
 
-// Creates the owned workspace on its branch at queued fetched trunk when its
-// path does not exist yet, so a refused request leaves nothing behind. The
-// integration checkout, or else the repository context, supplies the
-// repository to create it from. An existing path is the caller's owned
-// workspace, verified by the announcement.
-export async function selectPreparationWorkspace(request) {
+// The repository a start fetches from and creates a missing workspace with:
+// the integration checkout, else the repository context, else an existing
+// workspace itself. A workspace that does not exist yet also needs its
+// branch; without these, the stop that refuses the request.
+export function preparationRepository(request) {
   const { workspace, branch } = request;
-  if (request.continueOnly) {
-    try {
-      if (!existsSync(workspace))
-        throw new Error("the retained workspace is missing");
-      const root = (
-        await git(workspace, "rev-parse", "--show-toplevel")
-      ).stdout.trim();
-      const current = (
-        await git(workspace, "symbolic-ref", "--short", "HEAD")
-      ).stdout.trim();
-      if (
-        realpathSync(root) !== realpathSync(workspace) ||
-        !branch ||
-        current !== branch
-      )
-        throw new Error(
-          "the retained workspace or branch differs from this request",
-        );
-      await revParse(workspace, `refs/heads/${branch}`);
-      return { ok: true };
-    } catch (error) {
-      return stop("continuation-refused", {
-        workspace,
-        error: errorText(error),
-      });
-    }
-  }
-  if (existsSync(workspace)) return { ok: true };
-  const repository = request.integration ?? request.repository;
-  if (!branch || !repository)
-    return stop("invalid-request", {
-      workspace,
-      error:
-        "a workspace that does not exist yet needs --branch and --integration or --repository to create it",
-    });
-  const trunk = await fetchQueuedTrunk(repository, request);
-  if (!trunk.ok) return trunk;
+  const exists = existsSync(workspace);
+  const repository =
+    request.integration ?? request.repository ?? (exists ? workspace : null);
+  if (repository && (exists || branch)) return { ok: true, repository, exists };
+  return stop("invalid-request", {
+    workspace,
+    error:
+      "a workspace that does not exist yet needs --branch and --integration or --repository to create it",
+  });
+}
+
+// Selects the owned workspace at queued fetched trunk `fetched`, creating it
+// on its branch when its path does not exist yet, so a refused request leaves
+// nothing behind.
+export async function selectAtFetchedTrunk(request, repository, fetched) {
   const selected = await selectOwnedWorkspace({
     ...request,
     repository,
-    base: trunk.fetched,
+    base: fetched,
   });
-  if (!selected.ok)
-    return stop("workspace-selection-failed", {
+  if (selected.ok) return selected;
+  const { workspace, branch } = request;
+  return stop("workspace-selection-failed", {
+    workspace,
+    ...(branch ? { branch } : {}),
+    fetched,
+    error: selected.recovery.error,
+  });
+}
+
+// Verifies that a retained start's workspace still exists as its own checkout
+// on its branch, or the stop that refuses continuing it.
+async function verifyRetainedWorkspace(request) {
+  const { workspace, branch } = request;
+  try {
+    if (!existsSync(workspace))
+      throw new Error("the retained workspace is missing");
+    const root = (
+      await git(workspace, "rev-parse", "--show-toplevel")
+    ).stdout.trim();
+    const current = (
+      await git(workspace, "symbolic-ref", "--short", "HEAD")
+    ).stdout.trim();
+    if (
+      realpathSync(root) !== realpathSync(workspace) ||
+      !branch ||
+      current !== branch
+    )
+      throw new Error(
+        "the retained workspace or branch differs from this request",
+      );
+    await revParse(workspace, `refs/heads/${branch}`);
+    return { ok: true };
+  } catch (error) {
+    return stop("continuation-refused", {
       workspace,
-      branch,
-      error: selected.recovery.error,
+      error: errorText(error),
     });
+  }
+}
+
+// Creates a missing owned workspace for an announcement. An existing path is
+// the caller's owned workspace, verified by the announcement. A continuation
+// only verifies its retained workspace.
+export async function selectPreparationWorkspace(request) {
+  if (request.continueOnly) return verifyRetainedWorkspace(request);
+  const located = preparationRepository(request);
+  if (!located.ok) return located;
+  if (located.exists) return { ok: true };
+  const { repository } = located;
+  const trunk = await fetchQueuedTrunk(repository, request);
+  if (!trunk.ok) return trunk;
+  const selected = await selectAtFetchedTrunk(
+    request,
+    repository,
+    trunk.fetched,
+  );
+  if (!selected.ok) return selected;
   return {
     ok: true,
     selection: {

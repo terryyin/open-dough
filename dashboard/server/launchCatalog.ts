@@ -1,8 +1,8 @@
 // Installed workflow capabilities and kept starts in catalog order. These are
 // common project facts; native session observations live in launchStates.
-import path from "node:path";
 import { launchHosts } from "../src/sessionCapabilities.ts";
 import {
+  assignedAgent,
   launchWorkflowNames,
   launchWorkflows,
   type KeptStart,
@@ -11,7 +11,8 @@ import {
 } from "../src/agentLaunch.ts";
 import { catalog } from "../src/publishedSource.ts";
 import { offeredShape } from "../src/commandOptions.ts";
-import { shownWorkspace } from "./launchWorkspace.ts";
+import { shownStartWorkspace } from "./launchWorkspace.ts";
+import { sessionPolicyCapable } from "./launchSessionPolicy.ts";
 import { readDefinition } from "./launchOptions.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { keptStartsByProject } from "./startStore.ts";
@@ -85,20 +86,24 @@ export async function keptStarts(
         .filter(
           (start) => !progress.for(workflow).running(source.id, start.identity),
         )
-        .map((start) => ({
-          workflow,
-          host: start.host,
-          ...(start.model === undefined ? {} : { model: start.model }),
-          source: source.id,
-          identity: start.identity,
-          workspace: shownWorkspace(
-            projectFolder(source),
-            path.basename(start.workspace),
-          ),
-          ...((start.start ?? start.preparation)?.agent === undefined
-            ? {}
-            : { agent: (start.start ?? start.preparation)?.agent }),
-        })),
+        .map((start) => {
+          const established = start.start ?? start.preparation;
+          const agent =
+            established === undefined ? undefined : assignedAgent(established);
+          return {
+            workflow,
+            host: start.host,
+            ...(start.model === undefined ? {} : { model: start.model }),
+            source: source.id,
+            identity: start.identity,
+            workspace: shownStartWorkspace(
+              projectFolder(source),
+              start.workspace,
+            ),
+            ...(agent === undefined ? {} : { agent }),
+            ...(start.policy === undefined ? {} : { policy: start.policy }),
+          };
+        }),
     ),
   );
 }
@@ -109,6 +114,23 @@ export async function establishingHosts() {
       launchHosts.flatMap((host) =>
         launchWorkflowNames.map(async (workflow) =>
           (await startOf(workflow)?.establishes(projectFolder(source), host))
+            ? { source: source.id, workflow, host }
+            : undefined,
+        ),
+      ),
+    ),
+  );
+  return rows.filter((row) => row !== undefined);
+}
+
+// The catalog projects, workflows, and hosts whose installed skills take the
+// shared session policy at their start, in catalog order.
+export async function sessionPolicies() {
+  const rows = await Promise.all(
+    catalog.flatMap((source) =>
+      launchHosts.flatMap((host) =>
+        launchWorkflowNames.map(async (workflow) =>
+          (await sessionPolicyCapable(projectFolder(source), workflow, host))
             ? { source: source.id, workflow, host }
             : undefined,
         ),

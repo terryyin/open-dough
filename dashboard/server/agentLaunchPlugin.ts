@@ -66,6 +66,7 @@ type Answer =
         establishingHosts: Awaited<
           ReturnType<AgentLaunches["establishingHosts"]>
         >;
+        sessionPolicies: Awaited<ReturnType<AgentLaunches["sessionPolicies"]>>;
       };
     }
   | { readonly status: number; readonly body: { record: LaunchWithState } }
@@ -134,6 +135,7 @@ async function answer(
             starts: launches.runningStarts(),
             definitions: await launches.offeredDefinitions(),
             establishingHosts: await launches.establishingHosts(),
+            sessionPolicies: await launches.sessionPolicies(),
           },
         };
       case "launch":

@@ -6,7 +6,12 @@
 // entry here only starts the session. Each entry is the one place its words
 // are spelled; the mechanics are its own module (`./executionStart.ts`).
 
-import type { LaunchWorkflow, StoryLaunchRequest } from "../src/agentLaunch.ts";
+import {
+  assignedAgent,
+  type LaunchWorkflow,
+  type SessionPolicy,
+  type StoryLaunchRequest,
+} from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { EstablishedLaunch } from "./hostLaunch.ts";
 import {
@@ -28,11 +33,41 @@ import type { ProjectFolder } from "./projectFolders.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 import type { StartsWorkflow } from "./startStore.ts";
 
-// Where a running start is, for the words that say what was kept.
+// Where a running start is and the policy it runs with, for the words that
+// say what was kept.
 export type StartPlace = {
   readonly workspace: string;
   readonly branch: string;
+  readonly policy: SessionPolicy;
 };
+
+// What a one-shot start of either workflow says in place of its workflow's
+// own words: it publishes no assignment, so nothing is Taken or Preparing.
+const oneShot = {
+  uncertain: ({ workspace, branch }: StartPlace) =>
+    `The start did not finish within the wait; a one-shot start publishes nothing. The start was kept and goes on in workspace ${workspace} on branch ${branch}; pressing Start again resumes it.`,
+  formatFailed: ({ workspace, branch }: StartPlace) =>
+    `The one-shot start was established, but the installed skill's formatter could not be read, so no session was started. Nothing was published. Workspace ${workspace} on branch ${branch}.`,
+  publishedWithoutSession: ({ workspace }: EstablishedLaunch) =>
+    `No session started; nothing was published. Workspace ${workspace.shown}.`,
+};
+
+const isOneShot = ({ policy }: StartPlace) => policy.tracking === "one-shot";
+
+// The workflow's words, or the one-shot words for a one-shot start.
+function withOneShotWords(spec: StartWorkflow): StartWorkflow {
+  return {
+    ...spec,
+    uncertain: (place) =>
+      isOneShot(place) ? oneShot.uncertain(place) : spec.uncertain(place),
+    formatFailed: (place) =>
+      isOneShot(place) ? oneShot.formatFailed(place) : spec.formatFailed(place),
+    publishedWithoutSession: (launch) =>
+      "tracking" in establishedFacts(launch.handoff.established)
+        ? oneShot.publishedWithoutSession(launch)
+        : spec.publishedWithoutSession(launch),
+  };
+}
 
 export type StartWorkflow = {
   readonly workflow: StartsWorkflow;
@@ -75,7 +110,7 @@ const execution: StartWorkflow = {
   formatFailed: ({ workspace, branch }) =>
     `The story is Taken, but the installed skill's start formatter could not be read, so no session was started. Workspace ${workspace} on branch ${branch}.`,
   publishedWithoutSession: ({ handoff, workspace }) => {
-    const { agent } = establishedFacts(handoff.established);
+    const agent = assignedAgent(establishedFacts(handoff.established));
     return `${agent === undefined ? "Taken" : `Taken by ${agent}`}; no session started. Workspace ${workspace.shown}.`;
   },
 };
@@ -95,14 +130,14 @@ const refinement: StartWorkflow = {
   formatFailed: ({ workspace, branch }) =>
     `The story is Preparing, but the installed skill's formatter could not be read, so no session was started. Workspace ${workspace} on branch ${branch}.`,
   publishedWithoutSession: ({ handoff, workspace }) => {
-    const { agent } = establishedFacts(handoff.established);
+    const agent = assignedAgent(establishedFacts(handoff.established));
     return `${agent === undefined ? "Preparing" : `Preparing as ${agent}`}; no session started. Workspace ${workspace.shown}.`;
   },
 };
 
 const startWorkflows: Partial<Record<LaunchWorkflow, StartWorkflow>> = {
-  execution,
-  refinement,
+  execution: withOneShotWords(execution),
+  refinement: withOneShotWords(refinement),
 };
 
 // The Start a workflow runs, or undefined for one that only starts the

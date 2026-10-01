@@ -3,13 +3,20 @@
 # by native-agent-publication.sh (copied beside it) with ${host}, ${journey}
 # and ${workspace} (the originating checkout) set. Runs the installed CLIs the
 # one-shot guidance names, in its order, so observations come from real
-# repository state: start the owned workspace with --one-shot, commit the
-# result (for a queued story, with its closure), deliver it to trunk, complete
-# CI observation, and retire the workspace and its branch. Emits each command
-# in the host's stream shape through the admission substitute's recorder and
-# sets ${response}.
+# repository state. Asked to land the result: start the owned workspace with
+# --one-shot and workspace authority alone (with --auto-land and push
+# authority when automatic landing is selected), commit the result (for a
+# queued story, with its closure), land it on trunk through delivery, complete
+# CI observation, and retire the workspace and its branch. The review and
+# refinement journeys stop for review (native-agent-one-shot-review.sh); the
+# default-checkout, blocked and established journeys are in
+# native-agent-one-shot-policy.sh. Emits
+# each command in the host's stream shape through the admission substitute's
+# recorder and sets ${response}.
 # NATIVE_ONE_SHOT_WORKSPACE and _BRANCH carry the owned workspace and branch;
 # NATIVE_ONE_SHOT_IDENTITY names the queued story, if any.
+# NATIVE_ONE_SHOT_VARIANT=unobserved delivers without a host session identity,
+# so CI goes unobserved, and keeps the workspace and its branch, reporting both.
 # shellcheck disable=SC2034,SC2154,SC2312 # host, journey, workspace and response are shared with the sourcing substitute.
 
 # shellcheck source=tests/support/native-agent-admission.sh
@@ -18,15 +25,25 @@ source "${0%/*}/native-agent-admission.sh"
 # shellcheck source=tests/support/native-agent-one-shot-escalation.sh
 # shellcheck disable=SC1091
 source "${0%/*}/native-agent-one-shot-escalation.sh"
+# shellcheck source=tests/support/native-agent-one-shot-review.sh
+# shellcheck disable=SC1091
+source "${0%/*}/native-agent-one-shot-review.sh"
+# shellcheck source=tests/support/native-agent-one-shot-policy.sh
+# shellcheck disable=SC1091
+source "${0%/*}/native-agent-one-shot-policy.sh"
 
 native_one_shot_substitute() {
   local execution=${NATIVE_ONE_SHOT_WORKSPACE} branch=${NATIVE_ONE_SHOT_BRANCH}
   local identity=${NATIVE_ONE_SHOT_IDENTITY} skills starting delivered mailbox
-  local accepted line message named=() guard=()
+  local accepted line message named=() guard=() landing=() identityless=()
   skills=$(admission_installed)
   case ${journey} in
     one-shot-result)
       line='One-shot line' message='Add a one-shot line to notes'
+      ;;
+    one-shot-auto-land)
+      line='Auto line' message='Add an automatically landed line to notes'
+      landing=(--auto-land --push-authorized)
       ;;
     one-shot-queued)
       line='Story B line' message="Complete ${identity} as one-shot work"
@@ -37,19 +54,33 @@ native_one_shot_substitute() {
       native_one_shot_escalation_substitute
       return
       ;;
+    one-shot-review)
+      native_one_shot_review_substitute
+      return
+      ;;
+    one-shot-refinement | one-shot-refinement-auto-land)
+      native_one_shot_refinement_substitute
+      return
+      ;;
+    one-shot-default-main | one-shot-auto-land-blocked | one-shot-established)
+      native_one_shot_policy_substitute
+      return
+      ;;
     *) return 1 ;;
   esac
   admission_run node "${skills}/dough-execute-plan/scripts/execution-start.mjs" \
     start --integration "${workspace}" --workspace "${execution}" \
     --branch "${branch}" --mode story-branch --remote origin \
-    --target main --push-authorized --workspace-authorized --one-shot \
+    --target main --workspace-authorized --one-shot "${landing[@]}" \
     "${named[@]}" --host "${host}"
   starting=$(jq -r .startingRevision <<< "${admission_last}")
   printf '%s\n' "${line}" >> "${execution}/notes.txt"
   skills="${execution}/${skills#"${workspace}"/}"
   [[ -z ${identity} ]] || native_one_shot_close_story "${execution}" "${skills}"
   admission_run_in "${execution}" git commit -qam "${message}"
-  admission_run_in "${execution}" node \
+  [[ ${NATIVE_ONE_SHOT_VARIANT:-} != unobserved ]] \
+    || identityless=(env -u CLAUDE_CODE_SESSION_ID)
+  admission_run_in "${execution}" "${identityless[@]}" node \
     "${skills}/dough-execute-plan/scripts/execution-increment-delivery.mjs" \
     deliver --workspace "${execution}" --branch "${branch}" \
     --previously-published-base "${starting}" --target-ref refs/heads/main \
@@ -58,6 +89,10 @@ native_one_shot_substitute() {
   delivered=$(tail -n 1 <<< "${admission_last}")
   mailbox=$(jq -r .observation.directory <<< "${delivered}")
   accepted=$(jq -r .receipt.sha <<< "${delivered}")
+  if [[ ${NATIVE_ONE_SHOT_VARIANT:-} == unobserved ]]; then
+    response="Landed the one-shot result on remote trunk at ${accepted}. CI was unobserved: delivery had no host session identity. The owned workspace ${execution} and its branch ${branch} are kept until CI completes. Existing local changes were preserved."
+    return
+  fi
   admission_run_in "${execution}" node \
     "${skills}/dough-execute-plan/scripts/ci-mailbox.mjs" complete-revision \
     "${mailbox}" "${accepted}"

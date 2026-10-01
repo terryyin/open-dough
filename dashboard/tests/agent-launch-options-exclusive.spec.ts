@@ -15,6 +15,7 @@ import {
   groupedOptions,
   installRefinementSkill,
   openTakenBacklog,
+  showOptions,
 } from "./launchCardPage.ts";
 import {
   notRefinedIdentity,
@@ -47,6 +48,7 @@ test("a group is radios with a No choice and other options stay checkboxes, choo
   const { refine, refinementDialog } = await openTakenBacklog(page, journey);
 
   await refine(notRefinedStory).click();
+  await showOptions(refinementDialog);
   const options = refinementDialog.getByRole("group", { name: "Options" });
   const approach = options.getByRole("group", { name: "Approach" });
   await expect(approach.getByRole("radio")).toHaveCount(3);
@@ -89,6 +91,7 @@ test("choosing No Approach clears the group's choice and leaves the others", asy
   const { refine, refinementDialog } = await openTakenBacklog(page, journey);
 
   await refine(notRefinedStory).click();
+  await showOptions(refinementDialog);
   await refinementDialog
     .getByRole("checkbox", { name: "C", exact: true })
     .check();

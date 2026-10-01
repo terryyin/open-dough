@@ -132,7 +132,7 @@ git_publication_run_journey() {
   authority=$(git_publication_authority_for "${journey}")
   # git_publication_run_native_command reads these call-scope globals.
   native_case_host=${host}
-  native_case_id="publication/${journey}"
+  native_case_id=$(git_publication_case_id "${journey}")
   temporary_dir=${artifact_root}
   candidate=${source_dir}
   transcript="${artifact_root}/events.jsonl"
@@ -147,7 +147,6 @@ git_publication_run_journey() {
   else
     git_publication_create_fixture_for "${journey}" "${artifact_root}"
   fi
-  prompt=$(git_publication_prompt_for "${journey}")
   if git_publication_owned_context_journey "${journey}"; then
     # The fixture already committed the installed guidance to trunk; with no
     # default checkout, the host runs in the retained owned worktree.
@@ -159,12 +158,10 @@ git_publication_run_journey() {
       "${git_publication_fixture_integration}"
     if [[ ${journey} == one-shot-* ]]; then
       git_publication_one_shot_publish_install
+      git_publication_one_shot_prepare "${journey}"
     fi
     if [[ ${journey} == land-default-checkout ]]; then
       git_publication_land_default_publish_install
-    fi
-    if [[ ${journey} == one-shot-escalation ]]; then
-      git_publication_one_shot_escalation_prepare
     fi
     if [[ ${journey} != land-default-checkout ]]; then
       git_publication_fixture_human_before=$(
@@ -180,6 +177,8 @@ git_publication_run_journey() {
     native_run_workspace=${git_publication_fixture_workspace}
   fi
 
+  # Some prompts carry what preparing the fixture established.
+  prompt=$(git_publication_prompt_for "${journey}")
   export NATIVE_PUBLICATION_JOURNEY=${journey}
 
   if [[ ${host} == 'codex' ]]; then
@@ -213,12 +212,8 @@ git_publication_run_journey() {
   elif [[ ${journey} == land-default-checkout ]]; then
     git_publication_observe_land_default "${journey}" \
       "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
-  elif [[ ${journey} == one-shot-escalation ]]; then
-    git_publication_fixture_observe_one_shot_escalation "${journey}" \
-      "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
-    git_publication_one_shot_stop_observers
   elif [[ ${journey} == one-shot-* ]]; then
-    git_publication_fixture_observe_one_shot "${journey}" \
+    git_publication_fixture_observe_one_shot_journey "${journey}" \
       "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
     git_publication_one_shot_stop_observers
   else

@@ -5,6 +5,7 @@ import type {
   RecordedLaunchRequest,
   LaunchResult,
   HostSession,
+  SessionPolicy,
   SessionState,
 } from "../src/agentLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -78,14 +79,30 @@ function adHocLabel(instruction: string | undefined, began: Date): string {
 }
 
 // The request a launch keeps: an ad hoc one titled with its label, the one
-// place the label is derived.
+// place the label is derived, and a story's without the transient
+// confirmation of existing changes.
 export function recordedRequest(
   request: AgentLaunchRequest,
   began: Date,
 ): RecordedLaunchRequest {
-  return request.workflow === "ad-hoc"
-    ? { ...request, title: adHocLabel(request.instruction, began) }
-    : request;
+  if (request.workflow === "ad-hoc")
+    return { ...request, title: adHocLabel(request.instruction, began) };
+  const recorded = { ...request };
+  delete recorded.existingChanges;
+  return recorded;
+}
+
+// A story's recorded request with the policy its start ran with, a kept
+// start's own whatever this launch asked, kept only when it is not the
+// default.
+export function withStartPolicy(
+  request: RecordedLaunchRequest,
+  policy: SessionPolicy,
+): RecordedLaunchRequest {
+  if (request.workflow === "ad-hoc") return request;
+  const recorded = { ...request };
+  delete recorded.policy;
+  return policy.tracking === "standard" ? recorded : { ...recorded, policy };
 }
 
 // What a launch's start established, and how the instruction carries it.

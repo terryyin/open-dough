@@ -38,6 +38,34 @@ The fixture permits publication and withholds planning; stopping after admission
 for the product decision is valid. The state assessor and transcript together
 establish the verdict, with unrelated human changes preserved.
 
+The one-shot session-policy cases phrase each request as the direct
+invocation would (`dough-execute-plan --one-shot --default-main`, `--auto-land`,
+`dough-story-refinement <identity> --one-shot --auto-land`) and embed no
+expected outcome. `publication/one-shot-default-main` works in the originating
+checkout itself, which holds staged, unstaged and untracked edits over an
+unpublished local commit; the result must commit all of it there with nothing
+pushed. In `publication/one-shot-auto-land-blocked`, the fixture sets
+`remote.origin.uploadpack` to a wrapper that publishes another developer's
+prepared Take of the queued story on the first fetch after the workspace
+branch gains a commit, so a native session and the substitute meet the
+competing owner between start and landing. `publication/one-shot-established`
+runs the installed one-shot start itself and hands the session the installed
+`established-start.mjs` block after the skill invocation, as a dashboard
+launch does; the session must not start again.
+
+The landing cases (`publication/one-shot-result`, `-queued`, `-auto-land`)
+expect the owned workspace retired, except that guidance retires it only after
+the CI completion gate passes. A host without a session identity gets a
+delivery receipt with CI `unobserved`; keeping the workspace then passes when
+no CI observation since covered the landed revision and the report names the
+kept workspace or the CI gap. The stream fields `ci-observed-shas` and
+`ci-unobserved-shas` carry that coverage from the delivery and observer
+commands' own output.
+
+Codex runs without `--ephemeral`, because spawning a subagent thread needs the
+parent's persisted rollout. Those rollouts are kept in the developer's Codex
+home with their other sessions, which also keeps the developer's sign-in in place.
+
 ## Native family layers
 
 A native family keeps six layers, each in its own file under `tests/support`

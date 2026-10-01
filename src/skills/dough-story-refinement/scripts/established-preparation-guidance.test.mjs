@@ -81,3 +81,47 @@ test("formatEstablishedPreparation appends optional fields in order and omits ab
     /publishedSha|integration/,
   );
 });
+
+test("an established one-shot preparation names its role and landing, and no assignment", () => {
+  const text = formatEstablishedPreparation({
+    integration: "/p",
+    tracking: "one-shot",
+    identity: "SEED-A#a",
+    workspace: "/p/.worktrees/a",
+    role: "isolated",
+    branch: "claude/a",
+    remote: "origin",
+    target: "main",
+    landing: "review",
+    startingRevision: "s1",
+  });
+  assert.equal(
+    text,
+    [
+      "Established preparation:",
+      "- tracking: one-shot",
+      "- identity: SEED-A#a",
+      "- workspace: /p/.worktrees/a",
+      "- workspace role: isolated",
+      "- branch: claude/a",
+      "- remote: origin",
+      "- target: main",
+      "- landing: review",
+      "- startingRevision: s1",
+      "- integration checkout: /p",
+    ].join("\n"),
+  );
+  assert.doesNotMatch(text, /agent|publishedSha/);
+});
+
+test("the reference continues an established one-shot preparation without an announcement", () => {
+  const at = reference.indexOf(
+    "## Continue an established one-shot preparation",
+  );
+  assert.ok(at > 0);
+  const oneShot = reference.slice(at);
+  assert.match(oneShot, /`tracking: one-shot`/);
+  assert.match(oneShot, /make no\s+announcement or second start/);
+  assert.match(oneShot, /one-shot-refinement\.md#refine-record-and-commit/);
+  assert.match(oneShot, /`landing: review`\s+stops for review/);
+});

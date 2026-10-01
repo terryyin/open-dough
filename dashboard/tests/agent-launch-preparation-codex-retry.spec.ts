@@ -150,6 +150,8 @@ for (const damage of [
       const retained = starts["open-dough"]?.[queuedIdentity];
       if (retained?.preparation === undefined)
         throw new Error("Published preparation missing from fixture start.");
+      if ("tracking" in retained.preparation)
+        throw new Error("Fixture start unexpectedly established one-shot.");
       const preparation = retained.preparation;
       if (damage === "legacy-ownership") delete preparation.publishedSha;
       if (damage === "uncertain-result") delete retained.preparation;

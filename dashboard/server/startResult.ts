@@ -5,8 +5,18 @@
 
 import { z } from "zod";
 
-// What the start command reported, read from its one line of JSON.
+// What the start command reported, read from its one line of JSON. A
+// one-shot start that prepared its workspace published nothing: it reports
+// the revision its result builds on, the default checkout's role when it took
+// that checkout, the fetched trunk, and a selected automatic landing.
 export type StartResult =
+  | {
+      readonly kind: "prepared";
+      readonly startingRevision: string;
+      readonly role?: "default-checkout";
+      readonly fetched?: string;
+      readonly landing?: "auto-land";
+    }
   | {
       readonly kind: "accepted";
       readonly publishedSha: string;
@@ -35,6 +45,15 @@ const acceptedSchema = z.looseObject({
   candidateSha: z.string().min(1).optional(),
   agent: z.string().min(1).optional(),
   plan: z.string().min(1).optional(),
+});
+
+const preparedSchema = z.looseObject({
+  ok: z.literal(true),
+  status: z.literal("prepared"),
+  startingRevision: z.string().min(1),
+  role: z.literal("default-checkout").optional(),
+  fetched: z.string().min(1).optional(),
+  landing: z.literal("auto-land").optional(),
 });
 
 const stoppedSchema = z.looseObject({
@@ -75,6 +94,17 @@ export function readStartResult(stdout: string): StartResult {
         : { candidateSha: facts.candidateSha }),
       ...(facts.agent === undefined ? {} : { agent: facts.agent }),
       ...(facts.plan === undefined ? {} : { plan: facts.plan }),
+    };
+  }
+  const prepared = preparedSchema.safeParse(parsed);
+  if (prepared.success) {
+    const { startingRevision, role, fetched, landing } = prepared.data;
+    return {
+      kind: "prepared",
+      startingRevision,
+      ...(role === undefined ? {} : { role }),
+      ...(fetched === undefined ? {} : { fetched }),
+      ...(landing === undefined ? {} : { landing }),
     };
   }
   const stopped = stoppedSchema.safeParse(parsed);
@@ -144,11 +174,15 @@ const stopReasons: Record<
 
 const unreadableReason =
   "The start command gave no result this dashboard could read, so the story may or may not be Taken.";
+// A one-shot start publishes no claim, whatever became of it.
+const unreadableOneShot =
+  "The start command gave no result this dashboard could read. A one-shot start publishes nothing.";
 
 const keptWords = "The start was kept; pressing Start again resumes it.";
 
 // Whether a start that ended so leaves a claim possibly published or
-// committed: its record is kept and the next launch of the story resumes it.
+// committed, or a one-shot workspace possibly prepared: its record is kept and
+// the next launch of the story resumes it.
 export function keepsStart(result: StartResult): boolean {
   return (
     result.kind === "unreadable" ||
@@ -162,13 +196,16 @@ export function keepsStart(result: StartResult): boolean {
 // claim possibly published was kept), that the start can be resumed, and that
 // nothing was launched.
 export function refusal(
-  result: StartResult,
+  result: Exclude<StartResult, { kind: "accepted" | "prepared" }>,
   owner?: string,
   kept?: { readonly workspace: string; readonly branch: string },
+  oneShot = false,
 ): string {
   const reason =
     result.kind !== "stopped"
-      ? unreadableReason
+      ? oneShot
+        ? unreadableOneShot
+        : unreadableReason
       : (stopReasons[result.status]?.({ stop: result, owner }) ??
         `The start stopped (${result.status})${detail(result)}.`);
   const place =

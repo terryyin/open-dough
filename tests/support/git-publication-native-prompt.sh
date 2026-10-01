@@ -25,6 +25,12 @@ git_publication_prompt_for() {
     one-shot-escalation)
       git_publication_one_shot_escalation_prompt
       ;;
+    one-shot-review)
+      git_publication_one_shot_review_prompt
+      ;;
+    one-shot-refinement)
+      git_publication_one_shot_refinement_prompt
+      ;;
     one-shot-*)
       git_publication_one_shot_prompt "${journey}"
       ;;
@@ -64,6 +70,15 @@ git_publication_prompt_for() {
       printf '%s\n' \
         "Use this project's installed Open Dough guidance. From this owned workspace, publish the verified unpublished candidate onto the authorized remote trunk. A separate default checkout holds a pending human edit; do not stage, reset, stash, or include that edit. Report whether the remote accepted the candidate and that local maintenance is separate."
       ;;
+  esac
+}
+
+# The native case id of journey $1: one-shot refinement, landed or not, is a
+# preparation case; every other journey here is a publication case.
+git_publication_case_id() {
+  case $1 in
+    one-shot-refinement | one-shot-refinement-auto-land) printf 'preparation/%s\n' "$1" ;;
+    *) printf 'publication/%s\n' "$1" ;;
   esac
 }
 

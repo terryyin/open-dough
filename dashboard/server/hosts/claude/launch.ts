@@ -11,6 +11,7 @@
 import type { ExecException } from "node:child_process";
 import { stripVTControlCharacters } from "node:util";
 import {
+  launchArguments,
   launchSubject,
   launchModels,
   launchWorkflows,
@@ -25,7 +26,8 @@ import type {
   HostLaunch,
 } from "../../hostLaunch.ts";
 
-// The workflow's skill on the work item's identity and the flags selected,
+// The workflow's skill on the work item's identity, its policy's flags and
+// the options selected (`launchArguments`),
 // then the established start when the launch has one, then the developer's
 // own instruction, when there is one, each after a blank line; an ad hoc
 // session has only the instruction as typed, or none.
@@ -39,8 +41,7 @@ function claudeInstruction(
   }
   const skill = [
     `/${launchWorkflows[request.workflow].skill}`,
-    request.identity,
-    ...(request.options ?? []),
+    ...launchArguments(request),
   ].join(" ");
   return [skill, established?.formatted, own]
     .filter((part) => part !== undefined && part !== "")

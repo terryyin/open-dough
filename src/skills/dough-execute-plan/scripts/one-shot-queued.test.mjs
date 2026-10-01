@@ -1,8 +1,9 @@
 // Queued one-shot work: the start prepares an owned workspace and publishes
 // nothing unless another owner holds the story or its recorded preparation is
 // not-ready; the result, its backlog completion and its spent story and plan
-// reach remote trunk as one commit under the delivery's ownership guard, with
-// no Taken transition and unfinished siblings intact.
+// wait there for review, and an explicit landing delivers them to remote trunk
+// as one commit under the delivery's ownership guard, with no Taken
+// transition and unfinished siblings intact.
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
@@ -30,6 +31,7 @@ import {
   git,
   lsRemoteSha,
   remoteHeads,
+  revParse,
 } from "./publication-test-fixtures.mjs";
 
 const changedPaths = async (origin, sha) =>
@@ -132,15 +134,25 @@ test("an unrelated remote queue change survives reconciliation of the guarded re
   });
 });
 
-test("a queued no-change conclusion publishes only its cleanup under the guard", async (t) => {
+test("a queued no-change conclusion retains its closure for review until an explicit landing publishes it under the guard", async (t) => {
   const trunk = await createSiblingTrunk();
   t.after(trunk.cleanup);
-  const started = await startQueuedOneShot(trunk);
+  const headsBefore = await remoteHeads(trunk.origin);
+  const started = await startQueuedOneShot(trunk, { pushAuthorized: false });
   assert.equal(started.receipt.ok, true, started.stdout);
 
   const cleanup = await commitQueuedResult(started.workspace, {
     result: false,
   });
+  // Stopped for review: remote trunk still lists B queued and untaken while
+  // its closure waits in the retained workspace.
+  assert.equal(await remoteHeads(trunk.origin), headsBefore);
+  assert.deepEqual(await remoteLists(trunk), {
+    taken: [],
+    queued: ["SEED-A#a", identityB, identityB2],
+  });
+  assert.equal(await revParse(started.workspace, "HEAD"), cleanup);
+
   const fixture = await queuedDelivery(trunk, started.workspace);
   const { delivered, stderr } = await deliverQueued(
     fixture,

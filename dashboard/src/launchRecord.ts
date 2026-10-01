@@ -1,7 +1,10 @@
 // Durable native launch evidence and current session observations.
 import { z } from "zod";
 import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { recordedLaunchRequestSchema } from "./launchRequest.ts";
+import {
+  recordedLaunchRequestSchema,
+  sessionPolicySchema,
+} from "./launchRequest.ts";
 
 // The native identity and display name. Claude additionally needs the alias
 // its attach/stop commands take; other hosts keep their actual conversation ID.
@@ -49,11 +52,30 @@ export type FirstInput = z.infer<typeof firstInputSchema>;
 // marked done.
 export const launchRetentionDays = 30;
 
+// What a one-shot start of either workflow established: no assignment was
+// published, so it names no publisher, published revision, or agent. It
+// names the workspace's actual role (an isolated owned workspace or the
+// default checkout taken as it is), the selected landing, and, when the start
+// reported them, the revision the result builds on and the fetched trunk.
+const oneShotContext = {
+  tracking: z.literal("one-shot"),
+  identity: z.string().min(1),
+  workspace: z.string().min(1),
+  role: sessionPolicySchema.shape.workspace,
+  branch: z.string().min(1),
+  remote: z.string().min(1),
+  target: z.string().min(1),
+  landing: sessionPolicySchema.shape.landing,
+  startingRevision: z.string().min(1).optional(),
+};
+
 // The start a workflow established before its session
 // (`../server/executionStart.ts`): the published claim and the workspace the
 // session runs in, as the installed skill's start command reported them, kept
-// with the launch record and handed to the session in its instruction.
-export const establishedStartSchema = z.object({
+// with the launch record and handed to the session in its instruction. A
+// one-shot start publishes no claim (`tracking: "one-shot"`); a record
+// without `tracking` is a published claim's.
+const claimedStartSchema = z.object({
   identity: z.string().min(1),
   publisherId: z.string().min(1),
   workspace: z.string().min(1),
@@ -68,26 +90,49 @@ export const establishedStartSchema = z.object({
   candidateSha: z.string().min(1).optional(),
 });
 
+export const establishedStartSchema = z.union([
+  z.object({
+    ...oneShotContext,
+    mode: z.literal("story-branch"),
+    fetched: z.string().min(1).optional(),
+  }),
+  claimedStartSchema,
+]);
+
 export type EstablishedStart = z.infer<typeof establishedStartSchema>;
 
 // The preparation a refinement launch established before its session
 // (`../server/preparationStart.ts`): the workspace the session runs in and the
 // announcement published for it, kept with the launch record. It carries no
 // publisher, mode, or plan; `publishedSha` is absent when the workspace
-// already held the assignment.
-export const establishedPreparationSchema = z.object({
-  identity: z.string().min(1),
-  workspace: z.string().min(1),
-  branch: z.string().min(1),
-  remote: z.string().min(1),
-  target: z.string().min(1),
-  publishedSha: z.string().min(1).optional(),
-  agent: z.string().min(1).optional(),
-});
+// already held the assignment. A one-shot preparation publishes no
+// announcement (`tracking: "one-shot"`).
+export const establishedPreparationSchema = z.union([
+  z.object(oneShotContext),
+  z.object({
+    identity: z.string().min(1),
+    workspace: z.string().min(1),
+    branch: z.string().min(1),
+    remote: z.string().min(1),
+    target: z.string().min(1),
+    publishedSha: z.string().min(1).optional(),
+    agent: z.string().min(1).optional(),
+  }),
+]);
 
 export type EstablishedPreparation = z.infer<
   typeof establishedPreparationSchema
 >;
+
+// The facts every established start or preparation shares, with the agent
+// its published assignment names, if any: a one-shot one names none.
+export type EstablishedContext = EstablishedStart | EstablishedPreparation;
+
+export function assignedAgent(
+  established: EstablishedContext,
+): string | undefined {
+  return "agent" in established ? established.agent : undefined;
+}
 
 // A native conversation with first-input evidence, kept until `launchRetentionDays` after
 // the developer marked its session done (`./doneMark.ts`), if they ever do,

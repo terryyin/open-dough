@@ -42,3 +42,42 @@ export function optionsOfferOf(
     ? { kind: "unavailable", why: offered.unavailable }
     : { kind: "offered", ...offered };
 }
+
+// What the dialog says where the options would be, when it cannot offer any:
+// the boundary's words for why, so a refusal and the dialog agree.
+export function optionsLine(
+  offer: OptionsOffer | undefined,
+  skill: string,
+  named: string,
+): string | undefined {
+  const starts = `${named.charAt(0).toUpperCase()}${named.slice(1)} starts straightforwardly.`;
+  switch (offer?.kind) {
+    case undefined:
+      return undefined;
+    case "reading":
+      return "Reading options…";
+    case "unavailable":
+      return `Options are not offered: the installed ${skill} skill in this project ${offer.why}. ${starts}`;
+    case "offered":
+      return offer.options.length === 0
+        ? `The installed ${skill} skill in this project offers no options. ${starts}`
+        : undefined;
+  }
+}
+
+// What the dialog says under the options when a kept selection names flags
+// the offer, once read, no longer has: those flags, in the kept order, are
+// not sent.
+export function notOfferedLine(
+  offer: OptionsOffer | undefined,
+  kept: ReadonlySet<string> | undefined,
+): string | undefined {
+  if (offer === undefined || offer.kind === "reading") return undefined;
+  const offered = new Set(
+    offer.kind === "offered" ? offer.options.map(({ flag }) => flag) : [],
+  );
+  const absent = [...(kept ?? [])].filter((flag) => !offered.has(flag));
+  return absent.length === 0
+    ? undefined
+    : `Not offered any more, so not sent: ${absent.join(", ")}.`;
+}

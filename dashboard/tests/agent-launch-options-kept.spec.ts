@@ -18,6 +18,7 @@ import {
   groupedOptions,
   installRefinementSkill,
   openTakenBacklog,
+  showOptions,
 } from "./launchCardPage.ts";
 import {
   notRefinedIdentity,
@@ -44,6 +45,7 @@ async function refuseAWithC(
   file: string,
   refinementDialog: Locator,
 ) {
+  await showOptions(refinementDialog);
   await refinementDialog.getByRole("radio", { name: "A", exact: true }).check();
   await refinementDialog
     .getByRole("checkbox", { name: "C", exact: true })
@@ -88,6 +90,7 @@ test("a launch the boundary refuses says Launch failed naming the option, and th
   await page.clock.runFor(checkIntervalMs);
   dashboard.claudeScenario("launched");
   await refine(notRefinedStory).click();
+  await showOptions(refinementDialog);
   await expect(
     refinementDialog.getByRole("radio", { name: "A", exact: true }),
   ).toBeChecked();
@@ -147,11 +150,13 @@ test("after a refusal, Cancel drops the kept selection", async ({
   await refuseAWithC(page, file, refinementDialog);
 
   await refine(notRefinedStory).click();
+  await showOptions(refinementDialog);
   await expect(
     refinementDialog.getByRole("radio", { name: "A", exact: true }),
   ).toBeChecked();
   await refinementDialog.getByRole("button", { name: "Cancel" }).click();
   await refine(notRefinedStory).click();
+  await showOptions(refinementDialog);
   await expect(
     refinementDialog.getByRole("radio", { name: "A", exact: true }),
   ).not.toBeChecked();

@@ -2,7 +2,8 @@
 import { hostName } from "./sessionCapabilities.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import type { RecordedLaunchRequest } from "./launchRequest.ts";
-import type { EstablishedPreparation } from "./launchRecord.ts";
+import type { EstablishedContext } from "./launchRecord.ts";
+import { sessionSummary } from "./sessionPolicyWords.ts";
 import { readyBadge } from "./storyPreparation.ts";
 
 // What a launch starts, and the one place each workflow is spelled: its
@@ -20,10 +21,11 @@ type LaunchWorkflowSpec = {
   // a launch may select, if the workflow has any.
   readonly options: string | undefined;
   // In a project whose installed skill establishes the workflow's start: the
-  // sentence its dialog adds and what its card says while the request is
-  // pending.
+  // sentence its dialog's Command details add, the short effect its dialog
+  // keeps beside Start, and what its card says while the request is pending.
   readonly establishes: {
     readonly sentence: string;
+    readonly effect: string;
     readonly pending: string;
     // What the dialog says instead of `sentence` when the start is kept.
     readonly published: string;
@@ -43,6 +45,8 @@ export const launchWorkflows = {
     establishes: {
       sentence:
         "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
+      effect:
+        "Publishes this story's Take to origin; pressing Start authorizes that push.",
       pending: "Preparing execution…",
       published:
         "This story's Take is already published on origin, so Start publishes no second Take.",
@@ -63,6 +67,8 @@ export const launchWorkflows = {
     establishes: {
       sentence:
         "Start also publishes this story's Preparing announcement to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
+      effect:
+        "Publishes this story's Preparing announcement to origin; pressing Start authorizes that push.",
       pending: "Preparing refinement…",
       published:
         "This story's Preparing announcement is already published on origin, so Start publishes no second one.",
@@ -126,8 +132,9 @@ export function launchKindName(workflow: LaunchWorkflow | "ad-hoc"): string {
 // What a consumer of a launch record needs of its request, spelled once: the
 // title, the work item's identity (none when the request has no card to look
 // up), the kind's name, how its session is said to have started, the model it
-// asked for (none for Default), and the options it selected (none when it
-// selected none), spelled as the flags the record kept.
+// asked for (none for Default), the options it selected (none when it
+// selected none), spelled as the flags the record kept, and its session
+// policy (none for the default).
 export function launchSubject(request: RecordedLaunchRequest) {
   const name = launchKindName(request.workflow);
   return {
@@ -145,19 +152,27 @@ export function launchSubject(request: RecordedLaunchRequest) {
       request.options === undefined || request.options.length === 0
         ? undefined
         : `Options: ${request.options.join(" ")} (requested)`,
+    policyWords:
+      request.workflow === "ad-hoc" || request.policy === undefined
+        ? undefined
+        : `Session: ${sessionSummary(request.policy)}`,
   };
 }
 
 // Where a launch's session runs, for a launch whose start or preparation
 // established a workspace: the folder as the page shows a project's,
 // `~/git/<project id>`, then the workspace under it
-// (`~/git/open-dough/.worktrees/<slug>`), never the machine's home directory.
+// (`~/git/open-dough/.worktrees/<slug>`), never the machine's home directory;
+// the project's folder itself when the start took the default checkout.
 // Undefined when nothing was established.
 export function workspaceWords(
   request: RecordedLaunchRequest,
-  established: EstablishedPreparation | undefined,
+  established: EstablishedContext | undefined,
 ): string | undefined {
   if (established === undefined) return undefined;
+  if ("role" in established && established.role === "default-checkout") {
+    return `Workspace ~/git/${request.source} (default main)`;
+  }
   const marker = "/.worktrees/";
   const at = established.workspace.lastIndexOf(marker);
   return `Workspace ${

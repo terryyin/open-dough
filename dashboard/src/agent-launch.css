@@ -1,6 +1,7 @@
-/* A Backlog card's launch actions, their dialog, a launch's answer, a
-   launched session's entry on its card and in the project's Recent sessions,
-   and the actions of the terminal that opens a launched session.
+/* A Backlog card's launch actions, a launch's answer, a launched session's
+   entry on its card and in the project's Recent sessions, and the actions of
+   the terminal that opens a launched session; the launch dialog's own layout
+   is ./launch-dialog.css, its actions sharing these buttons' look.
    Text carries every meaning; the dashed edge of a noted action only repeats
    its note. */
 
@@ -56,88 +57,6 @@
 
 .launch-problem {
   color: var(--problem);
-}
-
-.launch-dialog {
-  box-sizing: border-box;
-  width: min(32rem, calc(100% - 1.5rem));
-  max-height: calc(100dvh - 1.5rem);
-  border: 1px solid var(--edge);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  color: var(--text);
-  background: var(--panel);
-}
-
-.launch-dialog::backdrop {
-  background: rgb(0 0 0 / 45%);
-}
-
-.launch-dialog form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.launch-dialog label {
-  font-weight: 600;
-}
-
-.launch-options {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  min-width: 0;
-  margin: 0;
-  border: 1px solid var(--line);
-  border-radius: 0.25rem;
-  padding: 0.5rem 0.75rem;
-}
-
-.launch-options legend {
-  font-weight: 600;
-}
-
-.launch-options p {
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.launch-options-group {
-  padding: 0.25rem 0.75rem 0.5rem;
-}
-
-.launch-option {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.1rem 0.5rem;
-}
-
-.launch-option .quiet {
-  flex-basis: 100%;
-  padding-left: 1.6rem;
-  font-size: 0.9rem;
-}
-
-.launch-dialog select {
-  align-self: flex-start;
-  max-width: 100%;
-  font: inherit;
-}
-
-.launch-dialog textarea {
-  box-sizing: border-box;
-  width: 100%;
-  font: inherit;
-  resize: vertical;
-}
-
-.launch-dialog-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0.5rem;
 }
 
 .card-sessions {

@@ -1,6 +1,8 @@
 // Publication stream fields beyond what the substitute journeys exercise: a
 // startup conflict receipt is recognized from the start command's own output
-// on every host, and a journey without stream fields is refused.
+// on every host, so are a one-shot start's policy flags, a preparation
+// recheck and the CI coverage a landing's delivery reported, and a journey
+// without stream fields is refused.
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -68,7 +70,8 @@ const streams = {
   ],
 };
 
-function startupFields(host, command, output) {
+// The fields `journey` derives from one command and its output on `host`.
+function journeyFields(journey, host, command, output) {
   const dir = mkdtempSync(join(tmpdir(), "stream-fields-"));
   try {
     const stream = join(dir, "events.jsonl");
@@ -78,13 +81,14 @@ function startupFields(host, command, output) {
         .map((event) => `${JSON.stringify(event)}\n`)
         .join(""),
     );
-    return Object.fromEntries(
-      publicationStreamFields("startup-claim-race", host, stream),
-    );
+    return Object.fromEntries(publicationStreamFields(journey, host, stream));
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
 }
+
+const startupFields = (host, command, output) =>
+  journeyFields("startup-claim-race", host, command, output);
 
 test("a start command's conflict receipt is observed on every host", () => {
   for (const host of Object.keys(streams)) {
@@ -102,6 +106,79 @@ test("a start command's conflict receipt is observed on every host", () => {
       ],
       "false",
       `${host}: another command's output is no startup receipt`,
+    );
+  }
+});
+
+test("one-shot policy flags and a recheck are observed on every host", () => {
+  const oneShot =
+    "node execution-start.mjs start --one-shot --auto-land --push-authorized";
+  const recheck =
+    "node preparation-assignment.mjs start --one-shot --auto-land --push-authorized && node preparation-assignment.mjs recheck --identity SEED-B#b2";
+  for (const host of Object.keys(streams)) {
+    assert.deepEqual(
+      journeyFields("one-shot-auto-land-blocked", host, oneShot, "{}"),
+      {
+        "one-shot-start-observed": "true",
+        "one-shot-push-authorized": "true",
+        "one-shot-default-main": "false",
+        "one-shot-auto-land": "true",
+      },
+      host,
+    );
+    assert.deepEqual(
+      journeyFields("one-shot-refinement-auto-land", host, recheck, "{}"),
+      {
+        "one-shot-preparation-start-observed": "true",
+        "one-shot-preparation-auto-land": "true",
+        "ownership-recheck-observed": "true",
+      },
+      host,
+    );
+  }
+});
+
+test("a landing's CI coverage is observed from delivery on every host", () => {
+  const landed = "a".repeat(40);
+  const deliver = "node execution-increment-delivery.mjs deliver --host cursor";
+  const receipt = (state) =>
+    `{"ok":true,"receipt":{"sha":"${landed}","target":"refs/heads/main"},"observation":{"state":"${state}"}}`;
+  for (const host of Object.keys(streams)) {
+    assert.deepEqual(
+      journeyFields("one-shot-result", host, deliver, receipt("unobserved")),
+      {
+        "one-shot-start-observed": "false",
+        "ci-observed-shas": "",
+        "ci-unobserved-shas": landed,
+      },
+      host,
+    );
+    assert.equal(
+      journeyFields("one-shot-queued", host, deliver, receipt("attached"))[
+        "ci-observed-shas"
+      ],
+      landed,
+      `${host}: an attached receipt is observed coverage`,
+    );
+    assert.equal(
+      journeyFields(
+        "one-shot-auto-land",
+        host,
+        "node ci-mailbox.mjs register-push watch",
+        `CI_OBSERVER {"revision":{"sha":"${landed}","state":"undiscovered"}}`,
+      )["ci-observed-shas"],
+      landed,
+      `${host}: an observer's revision entry is observed coverage`,
+    );
+    assert.equal(
+      journeyFields(
+        "one-shot-result",
+        host,
+        "cat receipt.json",
+        receipt("unobserved"),
+      )["ci-unobserved-shas"],
+      "",
+      `${host}: another command's output is no delivery receipt`,
     );
   }
 });

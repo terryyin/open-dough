@@ -42,6 +42,8 @@ for (const evidence of ["legacy-sha", "lost-result"] as const) {
     const retained = starts["open-dough"]?.[queuedIdentity];
     if (retained?.preparation === undefined)
       throw new Error("Published preparation missing from fixture start.");
+    if ("tracking" in retained.preparation)
+      throw new Error("Fixture start unexpectedly established one-shot.");
     const preparation = retained.preparation;
     if (evidence === "legacy-sha") delete preparation.publishedSha;
     else delete retained.preparation;

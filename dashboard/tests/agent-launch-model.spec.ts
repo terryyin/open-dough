@@ -1,6 +1,6 @@
 // Choosing the model in a launch dialog, on the committed origin of
 // ./agent-launch-card.spec.ts (./launchJourney.ts): every launch dialog offers
-// Model after its instruction field, on Default at each opening, and a chosen
+// Model beside Host after its instruction field, on Default at each opening, and a chosen
 // model reaches the synthetic `claude` (./fixtures/fake-claude) as `--model`.
 // The real `claude` is never reached. How the launch boundary takes a model is
 // ./agent-launch-model-boundary.spec.ts.
@@ -169,7 +169,7 @@ test("Opus launched from a dialog, the same dialog opens again on Default", asyn
   expect(second?.argv).not.toContain("--model");
 });
 
-test("the dialog opens in the instruction field, and Tab reaches Model, Start, then Cancel", async ({
+test("the dialog opens in the instruction field, and Tab reaches Host, Model, the session's tracking, Command details, Cancel, then Start", async ({
   page,
   dashboard,
 }) => {
@@ -180,12 +180,17 @@ test("the dialog opens in the instruction field, and Tab reaches Model, Start, t
   await expect(
     dialog.getByRole("textbox", { name: "Instruction (optional)" }),
   ).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(modelOf(dialog)).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(dialog.getByRole("button", { name: "Start" })).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(dialog.getByRole("button", { name: "Cancel" })).toBeFocused();
+  for (const next of [
+    dialog.getByRole("combobox", { name: "Host" }),
+    modelOf(dialog),
+    dialog.getByRole("radio", { name: "Standard" }),
+    dialog.locator("summary", { hasText: "Command details" }),
+    dialog.getByRole("button", { name: "Cancel" }),
+    dialog.getByRole("button", { name: "Start" }),
+  ]) {
+    await page.keyboard.press("Tab");
+    await expect(next).toBeFocused();
+  }
   expect(dashboard.claudeCalls()).toEqual([]);
 });
 

@@ -15,6 +15,7 @@ export function expectExecutionInput(
 ) {
   const start = record?.start;
   if (start === undefined) throw new Error("Missing established start.");
+  if ("tracking" in start) throw new Error("Unexpected one-shot start.");
   expect(start).toMatchObject({
     identity: queuedIdentity,
     workspace,

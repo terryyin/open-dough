@@ -8,6 +8,7 @@ import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { stored } from "./support/codexLaunch.ts";
+import { showOptions } from "./launchCardPage.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -39,6 +40,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
     name: "Start refinement in Codex",
   });
   await expect(dialog).toContainText("Start also publishes");
+  await showOptions(dialog);
   await dialog.getByRole("checkbox", { name: /Explore/ }).check();
   native.refuseCreation = true;
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
@@ -144,6 +146,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
     await expect(
       dialog.getByLabel("Model", { exact: true }).locator("option"),
     ).toHaveCount(1);
+    await showOptions(dialog);
     await dialog.getByRole("checkbox", { name: /Explore/ }).check();
     await dialog
       .getByLabel("Instruction (optional)", { exact: true })

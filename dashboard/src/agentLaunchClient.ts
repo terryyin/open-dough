@@ -34,9 +34,12 @@ export type LaunchProblem = {
   readonly explanation: string;
 };
 
-// What the card shows: a launched record, or a launch problem.
+// What the card shows: a launched record, or a launch problem; or, for its
+// dialog, the default checkout's existing changes to confirm before anything
+// starts.
 export type LaunchAnswer =
-  Extract<LaunchResult, { readonly kind: "launched" }> | LaunchProblem;
+  | Extract<LaunchResult, { readonly kind: "launched" | "existing-changes" }>
+  | LaunchProblem;
 
 const checkAgents = "Check `claude agents` for it before starting again.";
 

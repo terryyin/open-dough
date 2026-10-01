@@ -3,6 +3,8 @@ stream-status: complete
 response: present
 last-start-line: 393
 one-shot-start-observed: true
+ci-observed-shas: 
+ci-unobserved-shas: 533462887d33d2e5c17f15d16f87cde50f40cf0c
 verdict: pass / the queued story's result and closure reached remote trunk as one commit and its workspace retired
 command: "node .claude/skills/dough-execute-plan/scripts/execution-start.mjs --help 2>&1 || node .claude/skills/dough-execute-plan/scripts/execution-start.mjs start --help 2>&1; ls -la /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.zjNhD2ChFd/one-shot-queued.YI24cC/workspace-claim-BGUVoE/; git -C /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.zjNhD2ChFd/one-shot-queued.YI24cC/workspace-claim-BGUVoE/integration status; git -C /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.zjNhD2ChFd/one-shot-queued.YI24cC/workspace-claim-BGUVoE/integration remote -v; git -C /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.zjNhD2ChFd/one-shot-queued.YI24cC/workspace-claim-BGUVoE/integration branch -a; ls notes.txt 2>/dev/null; cat notes.txt 2>/dev/null; head -n 5 .claude/skills/dough-execute-plan/scripts/execution-start.mjs"
 command: "node .claude/skills/dough-execute-plan/scripts/execution-start.mjs start --integration /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.zjNhD2ChFd/one-shot-queued.YI24cC/workspace-claim-BGUVoE/integration --workspace /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.zjNhD2ChFd/one-shot-queued.YI24cC/workspace-claim-BGUVoE/native-one-shot --branch exec/native-one-shot --identity SEED-B#b --mode story-branch --remote origin --target main --push-authorized --workspace-authorized --one-shot --host cursor --model composer"

@@ -1,6 +1,15 @@
 // Run the shared workflow's deterministic start and format its handoff before
-// the native session begins. An expired wait leaves that start running.
-import type { AgentLaunchRequest, LaunchResult } from "../src/agentLaunch.ts";
+// the native session begins. An expired wait leaves that start running. A
+// start in the default checkout first observes its existing changes: changes
+// the request did not confirm, or that changed since, answer with what was
+// observed, and nothing starts.
+import {
+  policyOf,
+  type AgentLaunchRequest,
+  type LaunchResult,
+  type SessionPolicy,
+} from "../src/agentLaunch.ts";
+import { existingChanges } from "./defaultCheckoutChanges.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { EstablishedLaunch } from "./hostLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -28,6 +37,8 @@ export type Started =
   | ({
       readonly kind: "established";
       readonly workflow: StartWorkflow;
+      // The policy the start ran with, a kept start's own.
+      readonly policy: SessionPolicy;
     } & EstablishedLaunch)
   | { readonly kind: "stopped"; readonly result: LaunchResult };
 
@@ -58,6 +69,12 @@ export async function started(
   }
   const kept = await keptStart(source.id, request.identity, request.workflow);
   requireStartHost(request.host, kept);
+  if (policyOf(kept ?? request).workspace === "default-checkout") {
+    const found = await existingChanges(folder);
+    if (found !== undefined && found.fingerprint !== request.existingChanges) {
+      return { kind: "stopped", result: found };
+    }
+  }
   const scoped = progress.for(request.workflow);
   const planned = await workflow.begin(source, request, folder, scoped);
   if (planned.kind === "not-applicable") {
@@ -69,6 +86,7 @@ export async function started(
   const place = {
     workspace: planned.workspace.shown,
     branch: planned.branch,
+    policy: planned.policy,
   };
   let timer: NodeJS.Timeout | undefined;
   const expiry = new Promise<"expired">((resolve) => {
@@ -104,6 +122,7 @@ export async function started(
     return {
       kind: "established",
       workflow,
+      policy: planned.policy,
       handoff: {
         established,
         formatted: await workflow.format(folder, established, request.host),

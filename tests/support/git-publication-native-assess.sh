@@ -67,6 +67,12 @@ git_publication_assess() {
     land-default-checkout) git_publication_assess_land_default "${obs}" ;;
     admission-*) git_publication_assess_admission "${obs}" "${journey}" ;;
     one-shot-escalation) git_publication_assess_one_shot_escalation "${obs}" ;;
+    one-shot-review) git_publication_assess_one_shot_review "${obs}" ;;
+    one-shot-refinement) git_publication_assess_one_shot_refinement "${obs}" ;;
+    one-shot-default-main) git_publication_assess_one_shot_default_main "${obs}" ;;
+    one-shot-auto-land-blocked) git_publication_assess_one_shot_blocked "${obs}" ;;
+    one-shot-established) git_publication_assess_one_shot_established "${obs}" ;;
+    one-shot-refinement-auto-land) git_publication_assess_one_shot_refinement_auto_land "${obs}" ;;
     one-shot-*) git_publication_assess_one_shot "${obs}" ;;
     *) git_publication_assess_candidate "${obs}" "${journey}" "${response}" ;;
   esac

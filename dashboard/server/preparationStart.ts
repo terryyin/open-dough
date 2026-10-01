@@ -1,13 +1,17 @@
 // Orchestrates one refinement's mechanical start before its native session.
 // The installed command owns publication/ownership; this module spells its
 // arguments and keeps the machine-local start until launch or verified absence.
-// Retrying preserves the selected workspace, branch, and announcement evidence.
+// Retrying preserves the selected workspace, branch, policy, and announcement
+// evidence. A one-shot policy runs `start --one-shot`, in the default checkout
+// when selected, and publishes nothing; its kept established context is reused
+// as it is.
 
 import { realpath } from "node:fs/promises";
 import { resolve } from "node:path";
-import type {
-  EstablishedPreparation,
-  StoryLaunchRequest,
+import {
+  assignedAgent,
+  type EstablishedPreparation,
+  type StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { beforeStart, removeCreatedWorkspace } from "./preparationCleanup.ts";
@@ -24,7 +28,8 @@ import {
   type StartAttempt,
 } from "./startLaunch.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
-import { record } from "./startRecording.ts";
+import { continuedStart, policyArguments } from "./startPolicy.ts";
+import { establishedOneShot, record } from "./startRecording.ts";
 import {
   keepStart,
   keptStart,
@@ -55,10 +60,17 @@ export async function beginPreparation(
   if (!(await establishesPreparation(project, request.host))) {
     const kept = await keptStart(source.id, request.identity, workflow);
     if (kept !== undefined) {
-      const { workspace, branch } = await startChoice(project, request, kept);
+      const { workspace, branch } = await startChoice(
+        project,
+        request,
+        kept,
+        source.ref,
+      );
       return continuationRefusal(
         "The installed preparation command or formatter is unavailable.",
-        kept.preparation?.agent,
+        kept.preparation === undefined
+          ? undefined
+          : assignedAgent(kept.preparation),
         workspace.shown,
         branch,
       );
@@ -82,13 +94,24 @@ async function runningPreparation(
   progress: WorkflowProgress,
 ): Promise<PlannedStart> {
   // A start kept from an earlier launch of the story is resumed as it was:
-  // the same workspace and branch, so the script answers `continued`.
+  // the same workspace, branch and policy, so the script answers `continued`.
   const kept = await keptStart(source.id, request.identity, workflow);
-  const { workspace, branch, model } = await startChoice(
+  const { workspace, branch, model, policy } = await startChoice(
     project,
     request,
     kept,
+    source.ref,
   );
+  const oneShot = policy.tracking === "one-shot";
+  // A kept one-shot preparation that established its context goes on from it
+  // as it is: its workspace may already hold the result.
+  if (oneShot && kept?.preparation !== undefined) {
+    progress.set(source.id, request.identity, "launching");
+    return continuedStart(
+      { workspace, branch, policy },
+      { preparation: kept.preparation },
+    );
+  }
   if (kept?.preparation !== undefined) {
     const preparation = kept.preparation;
     const paths = await Promise.all(
@@ -106,12 +129,17 @@ async function runningPreparation(
       progress.clear(source.id, request.identity);
       return continuationRefusal(
         "The saved start and established preparation disagree.",
-        preparation.agent,
+        assignedAgent(preparation),
         workspace.shown,
         branch,
       );
     }
   }
+  // The assignment an earlier attempt established and published, if any.
+  const assigned =
+    kept?.preparation !== undefined && !("tracking" in kept.preparation)
+      ? kept.preparation
+      : undefined;
   const before = await beforeStart(project, workspace.path, branch);
   // Written ahead of the script, so a start whose result is lost is still
   // known.
@@ -124,16 +152,19 @@ async function runningPreparation(
         workspace: workspace.path,
         branch,
         ...(model === undefined ? {} : { model }),
+        ...(oneShot ? { policy } : {}),
         startedAt: new Date().toISOString(),
       },
       workflow,
     );
   // An old/no-result start is uncertain. Only the script's explicit verified
   // nonacceptance permits another announcement; an established start never does.
+  // A one-shot start announces nothing, so it reruns its start instead.
   const continuing =
+    !oneShot &&
     kept !== undefined &&
     (kept.preparation !== undefined || kept.preparationUnannounced !== true);
-  if (kept !== undefined && !continuing) {
+  if (kept !== undefined && !oneShot && !continuing) {
     // The earlier refusal proves nothing about this attempt. Clear its
     // disposition durably before a new command can publish or lose its result.
     await record(() =>
@@ -145,10 +176,16 @@ async function runningPreparation(
       ),
     );
   }
+  const facts = {
+    identity: request.identity,
+    workspace: workspace.path,
+    branch,
+    remote: "origin",
+    target: source.ref,
+  };
   const attempt = runPreparationCommand(
     [
-      "--integration",
-      project.path,
+      ...policyArguments(policy, project),
       "--workspace",
       workspace.path,
       "--branch",
@@ -159,18 +196,17 @@ async function runningPreparation(
       "origin",
       "--target",
       source.ref,
-      "--push-authorized",
       "--host",
       request.host,
       ...(model === undefined ? [] : ["--model", model]),
-      ...(continuing && kept.preparation !== undefined
+      ...(continuing && assigned !== undefined
         ? [
-            ...(kept.preparation.agent === undefined
+            ...(assigned.agent === undefined
               ? []
-              : ["--expected-agent", kept.preparation.agent]),
-            ...(kept.preparation.publishedSha === undefined
+              : ["--expected-agent", assigned.agent]),
+            ...(assigned.publishedSha === undefined
               ? []
-              : ["--expected-allocation", kept.preparation.publishedSha]),
+              : ["--expected-allocation", assigned.publishedSha]),
           ]
         : []),
     ],
@@ -178,20 +214,19 @@ async function runningPreparation(
     request.host,
     continuing ? "continue" : "start",
   ).then(async (result): Promise<StartAttempt> => {
-    if (result.kind === "established") {
+    if (result.kind === "established" || result.kind === "prepared") {
       progress.set(source.id, request.identity, "launching");
-      const preparation: EstablishedPreparation = {
-        ...kept?.preparation,
-        identity: request.identity,
-        workspace: workspace.path,
-        branch,
-        remote: "origin",
-        target: source.ref,
-        agent: result.agent,
-        ...(result.publishedSha === undefined
-          ? {}
-          : { publishedSha: result.publishedSha }),
-      };
+      const preparation: EstablishedPreparation =
+        result.kind === "prepared"
+          ? establishedOneShot(facts, result, policy)
+          : {
+              ...assigned,
+              ...facts,
+              agent: result.agent,
+              ...(result.publishedSha === undefined
+                ? {}
+                : { publishedSha: result.publishedSha }),
+            };
       await record(() =>
         updateStart(
           source.id,
@@ -204,7 +239,7 @@ async function runningPreparation(
     }
     progress.clear(source.id, request.identity);
     if (continuing) {
-      const agent = kept.preparation?.agent;
+      const agent = assigned?.agent;
       const detail =
         result.kind === "stopped" && result.error
           ? `${result.error.replace(/[.]$/, "")}.`
@@ -231,7 +266,8 @@ async function runningPreparation(
       };
     }
     // A stop that made no assignment leaves nothing to resume and removes the
-    // workspace and branch this launch created.
+    // workspace and branch this launch created; the default checkout existed
+    // before, so it stays.
     await record(() => removeStart(source.id, request.identity, workflow));
     return {
       kind: "refused",
@@ -241,5 +277,5 @@ async function runningPreparation(
       ),
     };
   });
-  return { kind: "running", workspace, branch, attempt };
+  return { kind: "running", workspace, branch, policy, attempt };
 }

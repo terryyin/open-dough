@@ -12,13 +12,18 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { hosts, readHostStream } from "./native-host-stream.mjs";
+import {
+  startCommands,
+  startPattern,
+  withFlag,
+} from "./git-publication-native-stream-starts.mjs";
+import {
+  oneShotFields,
+  oneShotJourneys,
+} from "./git-publication-native-stream-one-shot.mjs";
 
-// An execution-start `start` invocation, whether or not the shell quoted the
-// script path or the subcommand.
-const startPattern = /execution-start\.mjs["']?\s+["']?start["']?(\s|$)/;
 const conflictReceipt = /^\{"ok":false,"status":"conflict"/m;
 const existingReceipt = /\\?"status\\?": ?\\?"existing/;
-const restoredCarry = /\\?"carried\\?": ?\{\\?"restored\\?": ?true/;
 const retirement = /worktree-retirement\.mjs +retire( |$)/;
 const rawGitRetirement =
   /^([A-Za-z_][A-Za-z0-9_]*=[^ ]* +)*git( +-[Cc] +[^ ]+)* +worktree +remove( |$)/;
@@ -27,20 +32,6 @@ const pushWord = /(^|\s)push(?=\s|$)/g;
 const forceFlag = /(^|\s)(--force|-f)([=\s]|$)/;
 
 const flag = (value) => (value ? "true" : "false");
-
-// Distinct execution-start invocations, without --help probes.
-function startCommands(read) {
-  return [
-    ...new Set(
-      read.segments.filter(
-        (segment) => startPattern.test(segment) && !segment.includes("--help"),
-      ),
-    ),
-  ];
-}
-
-const withFlag = (commands, name) =>
-  commands.filter((command) => command.includes(name));
 
 function startupFields(read) {
   return [
@@ -70,30 +61,6 @@ function admissionFields(read) {
     [
       "existing-receipt-observed",
       flag(read.outputs.some((output) => existingReceipt.test(output))),
-    ],
-  ];
-}
-
-function oneShotFields(read) {
-  return [
-    [
-      "one-shot-start-observed",
-      flag(withFlag(startCommands(read), "--one-shot").length > 0),
-    ],
-  ];
-}
-
-function oneShotEscalationFields(read) {
-  const admissions = withFlag(startCommands(read), "--admit");
-  return [
-    ...oneShotFields(read),
-    [
-      "carry-admission-observed",
-      flag(withFlag(admissions, "--carry").length > 0),
-    ],
-    [
-      "edits-carried",
-      flag(read.outputs.some((output) => restoredCarry.test(output))),
     ],
   ];
 }
@@ -180,7 +147,7 @@ const exactJourneys = {
   "preparation-land": preparationLandFields,
   "land-default-checkout": landDefaultCheckoutFields,
   "story-branch-increment": storyBranchIncrementFields,
-  "one-shot-escalation": oneShotEscalationFields,
+  ...oneShotJourneys,
 };
 
 const journeyPrefixes = [

@@ -9,69 +9,45 @@
 // keyboard's return to the action, belong to `LaunchDialog`. On a card whose
 // story this machine started without a session (`resumes`), the dialog names
 // the published claim's host/model and the session opens in its kept workspace.
+// A story's Session choices (`LaunchSessionPolicy`) decide its tracking,
+// workspace and landing; the line beside Start (`StartEffects`) says what
+// follows from them. A kept start shows the policy it was started with.
 
 import { hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { useId, useRef, useState } from "react";
 import {
+  defaultSessionPolicy,
+  launchArguments,
   launchWorkflows,
+  policyOf,
   startPhaseWords,
-  launchModels,
   type KeptStart,
   type LaunchChoices,
+  type SessionPolicy,
   type StartPhase,
   type LaunchWorkflow,
 } from "./agentLaunch.ts";
+import type { SessionPolicyOffer } from "./launchOffers.ts";
+import { StartDetails, StartEffects } from "./StartEffects.tsx";
 import type { LaunchAttempt, LaunchWorkItem } from "./launchAttempts.ts";
-import type { OptionsOffer } from "./optionsOffer.ts";
-import { LaunchDialog, useLaunchDialogLauncher } from "./LaunchDialog.tsx";
+import {
+  notOfferedLine,
+  optionsLine,
+  type OptionsOffer,
+} from "./optionsOffer.ts";
+import { LaunchDialog } from "./LaunchDialog.tsx";
+import type { StartAnswer } from "./LaunchExistingChanges.tsx";
+import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import "./agent-launch.css";
-
-// What the dialog says where the options would be, when it cannot offer any:
-// the boundary's words for why, so a refusal and the dialog agree.
-function optionsLine(
-  offer: OptionsOffer | undefined,
-  skill: string,
-  named: string,
-): string | undefined {
-  const starts = `${named.charAt(0).toUpperCase()}${named.slice(1)} starts straightforwardly.`;
-  switch (offer?.kind) {
-    case undefined:
-      return undefined;
-    case "reading":
-      return "Reading options…";
-    case "unavailable":
-      return `Options are not offered: the installed ${skill} skill in this project ${offer.why}. ${starts}`;
-    case "offered":
-      return offer.options.length === 0
-        ? `The installed ${skill} skill in this project offers no options. ${starts}`
-        : undefined;
-  }
-}
-
-// What the dialog says under the options when a kept selection names flags
-// the offer, once read, no longer has: those flags, in the kept order, are
-// not sent.
-function notOfferedLine(
-  offer: OptionsOffer | undefined,
-  kept: ReadonlySet<string> | undefined,
-): string | undefined {
-  if (offer === undefined || offer.kind === "reading") return undefined;
-  const offered = new Set(
-    offer.kind === "offered" ? offer.options.map(({ flag }) => flag) : [],
-  );
-  const absent = [...(kept ?? [])].filter((flag) => !offered.has(flag));
-  return absent.length === 0
-    ? undefined
-    : `Not offered any more, so not sent: ${absent.join(", ")}.`;
-}
 
 export function StartLaunch({
   work,
   workflow,
   establishesStart: establishesForHost,
   options: optionsForHost,
+  sessionPolicy: sessionPolicyForHost,
   onHostChanged,
   resumes,
   note,
@@ -92,6 +68,11 @@ export function StartLaunch({
     | OptionsOffer
     | undefined
     | ((host: AgentLaunchRequest["host"]) => OptionsOffer | undefined);
+  // Whether the selected host's installed skills take a session policy at
+  // this workflow's start; none offers only standard tracking.
+  readonly sessionPolicy?: (
+    host: AgentLaunchRequest["host"],
+  ) => SessionPolicyOffer;
   // The kept claim's host/model and shown workspace when this Start resumes
   // a start whose claim or announcement is already published.
   readonly resumes?: KeptStart;
@@ -102,12 +83,11 @@ export function StartLaunch({
   // asked for it; its words say it on this card, and Start waits for it.
   readonly phase: StartPhase | undefined;
   // Answers whether a session was launched, which then takes the keyboard.
-  readonly onStart: (choices: LaunchChoices) => Promise<boolean>;
+  readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
 }) {
   const [selectedHost, setHost] =
     useState<AgentLaunchRequest["host"]>("claude");
   const host = resumes?.host ?? selectedHost;
-  const resumesIn = resumes?.workspace;
   const options =
     typeof optionsForHost === "function"
       ? optionsForHost(host)
@@ -132,6 +112,11 @@ export function StartLaunch({
     useLaunchDialogLauncher(starting);
   // The selection of the launch that failed, which the next opening keeps.
   const [kept, setKept] = useState<ReadonlySet<string>>();
+  // The session policy chosen; a failed launch's stays for the next opening.
+  const [chosenPolicy, setPolicy] =
+    useState<SessionPolicy>(defaultSessionPolicy);
+  const policy = resumes === undefined ? chosenPolicy : policyOf(resumes);
+  const words = { workflow, policy, establishesStart, resumes };
   const refused = useRef(false);
   const noteId = `${id}-note`;
   const answerId = `${id}-answer`;
@@ -184,21 +169,15 @@ export function StartLaunch({
               : undefined
           }
           heading={`Start ${named} in ${hostName(host)}`}
-          description={
+          subject={
             <>
-              {hostName(host)} starts a background session on this machine,{" "}
-              {resumesIn === undefined
-                ? "in this project's folder"
-                : `in workspace ${resumesIn}`}
-              , to {verb} <strong>{work.title}</strong> (
-              <span className="card-identity">{work.identity}</span>).
-              {resumesIn !== undefined
-                ? ` ${spec.establishes.published}`
-                : establishes !== undefined && ` ${establishes.sentence}`}
-              {resumes !== undefined &&
-                ` This start requested ${hostName(resumes.host)} with ${resumes.model === undefined ? "Default" : launchModels[resumes.model].name} model.`}
+              <strong>{work.title}</strong>{" "}
+              <span className="card-identity">{work.identity}</span>
             </>
           }
+          description={`${hostName(host)} starts a background session on this machine to ${verb} this story.`}
+          effects={<StartEffects {...words} />}
+          details={<StartDetails {...words} />}
           note={
             note !== undefined && (
               <p className="start-launch-note">
@@ -208,9 +187,20 @@ export function StartLaunch({
             )
           }
           fieldLabel="Instruction (optional)"
-          command={`${host === "codex" ? "$" : "/"}${skill} ${work.identity}`}
+          command={[
+            `${host === "codex" ? "$" : "/"}${skill}`,
+            ...launchArguments({ identity: work.identity, policy }),
+          ].join(" ")}
+          session={{
+            policy,
+            onPolicy: setPolicy,
+            offer: sessionPolicyForHost?.(host) ?? "unavailable",
+            kept: resumes !== undefined,
+            workflowName: named,
+          }}
           optionsReading={options?.kind === "reading"}
           options={options?.kind === "offered" ? options : undefined}
+          optionsLabel={`${name} options`}
           optionsHint="Choose any combination; they apply together. None means straightforward refinement."
           optionsLine={optionsLine(options, skill, named)}
           kept={kept}
@@ -222,7 +212,10 @@ export function StartLaunch({
             setKept(selected);
           }}
           onClose={(launched) => {
-            if (!refused.current) setKept(undefined);
+            if (!refused.current) {
+              setKept(undefined);
+              setPolicy(defaultSessionPolicy);
+            }
             refused.current = false;
             closeDialog(launched);
           }}
