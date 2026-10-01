@@ -6,7 +6,11 @@ import {
   startDashboardServer,
   builtDashboardDir,
 } from "./support/dashboardServer.ts";
-import { openTakenBacklog, installRefinementSkill } from "./launchCardPage.ts";
+import {
+  openTakenBacklog,
+  installRefinementSkill,
+  showOptions,
+} from "./launchCardPage.ts";
 import {
   publishLaunchJourney,
   notRefinedStory,
@@ -49,6 +53,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   native.threadId = String(dashboard.claudeListing()[0]?.["sessionId"]);
   await refine(notRefinedStory).click();
   dialog = page.getByRole("dialog");
+  await showOptions(dialog);
   await dialog.getByRole("checkbox", { name: "Explore", exact: true }).check();
   await dialog.getByRole("combobox", { name: "Model" }).selectOption("opus");
   codexSkill(dashboard.home, "--codex-only"); // Change after page read: host switch must reread its installation.
@@ -64,6 +69,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await expect(
     dialog.getByRole("checkbox", { name: "Explore", exact: true }),
   ).toHaveCount(0);
+  await showOptions(dialog);
   await dialog
     .getByRole("checkbox", { name: "Codex option", exact: true })
     .check();

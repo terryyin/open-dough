@@ -4,7 +4,7 @@
 // where each card's launch actions and dialogs are found, and the project
 // actions row's Start session button and dialog.
 
-import { cpSync } from "node:fs";
+import { cpSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
@@ -20,15 +20,42 @@ import {
 // among them, in the project the dashboard reads (under `home`); its scripts
 // stay out, so the project does not establish a preparation and a launch only
 // starts the session. Answers the file of the options definition.
+const refinementSkill = "dough-story-refinement";
+const shippedReferences = path.join(
+  "src",
+  "skills",
+  refinementSkill,
+  "references",
+);
+
 export function installRefinementSkill(home: string) {
-  const skill = "dough-story-refinement";
   const installed = path.join(home, "git", "open-dough", ".claude", "skills");
   cpSync(
-    path.join("src", "skills", skill, "references"),
-    path.join(installed, skill, "references"),
-    { recursive: true },
+    shippedReferences,
+    path.join(installed, refinementSkill, "references"),
+    {
+      recursive: true,
+    },
   );
-  return path.join(installed, skill, "references", "refinement-options.json");
+  return path.join(
+    installed,
+    refinementSkill,
+    "references",
+    "refinement-options.json",
+  );
+}
+
+// The options definition the real refinement skill ships.
+export function shippedRefinementDefinition() {
+  return JSON.parse(
+    readFileSync(
+      path.join(shippedReferences, "refinement-options.json"),
+      "utf8",
+    ),
+  ) as Record<
+    "options" | "focuses",
+    { flag: string; label: string; summary: string }[]
+  >;
 }
 
 const groupedEntry = (flag: string) => ({
@@ -80,6 +107,16 @@ export async function openTakenBacklog(page: Page, journey: LaunchJourney) {
       name: "Start refinement in Claude Code",
     }),
   };
+}
+
+// Opens a launch dialog's options disclosure, which starts closed; an open
+// one stays open.
+export async function showOptions(dialog: Locator) {
+  const summary = dialog.page().locator("summary", { hasText: "options" });
+  const disclosure = dialog.locator("details", { has: summary });
+  if ((await disclosure.getAttribute("open")) === null) {
+    await disclosure.locator("summary").click();
+  }
 }
 
 export const startSession = (page: Page, project: string) =>

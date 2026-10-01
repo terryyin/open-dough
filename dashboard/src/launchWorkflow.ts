@@ -20,10 +20,11 @@ type LaunchWorkflowSpec = {
   // a launch may select, if the workflow has any.
   readonly options: string | undefined;
   // In a project whose installed skill establishes the workflow's start: the
-  // sentence its dialog adds and what its card says while the request is
-  // pending.
+  // sentence its dialog's Command details add, the short effect its dialog
+  // keeps beside Start, and what its card says while the request is pending.
   readonly establishes: {
     readonly sentence: string;
+    readonly effect: string;
     readonly pending: string;
     // What the dialog says instead of `sentence` when the start is kept.
     readonly published: string;
@@ -43,6 +44,8 @@ export const launchWorkflows = {
     establishes: {
       sentence:
         "Start also publishes this story's Take to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
+      effect:
+        "Publishes this story's Take to origin; pressing Start authorizes that push.",
       pending: "Preparing execution…",
       published:
         "This story's Take is already published on origin, so Start publishes no second Take.",
@@ -63,6 +66,8 @@ export const launchWorkflows = {
     establishes: {
       sentence:
         "Start also publishes this story's Preparing announcement to the project's trunk on origin and creates a workspace under the project folder's .worktrees/; pressing Start authorizes that push.",
+      effect:
+        "Publishes this story's Preparing announcement to origin; pressing Start authorizes that push.",
       pending: "Preparing refinement…",
       published:
         "This story's Preparing announcement is already published on origin, so Start publishes no second one.",

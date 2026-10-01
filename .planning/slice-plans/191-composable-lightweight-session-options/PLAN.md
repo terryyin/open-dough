@@ -386,7 +386,20 @@ because remote acceptance is confirmed.
 
 ### 6. Launch dialogs remain scannable as choices grow
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch*.spec.ts dashboard/tests/launch-workspace.spec.ts dashboard/tests/session-sidebar*.spec.ts dashboard/tests/preparation-legend.spec.ts dashboard/tests/project-keyboard-navigation*.spec.ts dashboard/tests/story-readiness*.spec.ts dashboard/tests/agent-terminal*.spec.ts dashboard/tests/accessible-overview*.spec.ts --workers=2`
+(402 pass, including `agent-launch-dialog-layout.spec.ts` at desktop, 320×640 and
+640×450@2x); `npm run typecheck:dashboard`. Visual review (coordinator-inspected
+screenshots, both hosts, kept start, long title, all 8 options) found and fixed a
+collapsing instruction field and a truncated Model select (dialog now 40rem).
+Learnings: `LaunchDialog` takes `subject`, `effects` (footer line, Start's
+`aria-describedby`), `details` (Command details) and `optionsLabel`;
+`LaunchOptions` owns its disclosure; `LaunchHostModel.tsx`,
+`launchDialogLauncher.ts`, `launch-dialog.css` split out. Slice 7 adds session
+fields and the warning state through these. The command hint no longer uses
+`aria-live`; selections are announced through the summary and checkboxes. The
+UX north-star launch-dialog wording ("current 32rem dialog") is now outdated
+and belongs to wrap-up assimilation.
 Proof: New `agent-launch-dialog-layout.spec.ts`, existing options/model/cancel
 journeys, keyboard focus assertions, and visual review at desktop, 320px and
 200% zoom with long story/path and maximal existing refinement selections.

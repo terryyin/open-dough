@@ -43,9 +43,18 @@ agent `instruction`), with options and focuses presented as one list. Duplicate
 flags, undefined group flags, or a flag in two groups invalidate the whole
 file. Empty or one-member groups remain valid. An exclusive group appears as
 radios at its first member, with “No <group>”; other entries are checkboxes.
-Options show labels, flags and summaries, with “Choose any combination; they
-apply together. None means straightforward refinement.” The command hint adds
-chosen flags in definition order and announces changes politely.
+Options sit in a closed “Refinement options” disclosure whose summary names the
+selected labels and their count, or “None selected”, open or closed. Entries
+show labels and summaries, with “Choose any combination; they apply together.
+None means straightforward refinement.” A closed “Command details” disclosure
+holds the command line, which adds chosen flags in definition order, and the
+longer start explanations and kept-start metadata.
+
+The story dialog reads in one order for eyes and keyboard: story title and
+identity, a one-sentence purpose, the instruction (focused on opening), Host
+and Model on one row (stacked at narrow widths), the disclosures, then Cancel
+and Start. Under a body that scrolls within the viewport, a line always in view
+beside Start says where the session runs and what Start publishes.
 
 No selection means ordinary refinement even without a usable definition. The
 dialog explains reading, empty, missing, unreadable, invalid or wrong-command

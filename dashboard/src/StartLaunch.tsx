@@ -23,49 +23,15 @@ import {
   type LaunchWorkflow,
 } from "./agentLaunch.ts";
 import type { LaunchAttempt, LaunchWorkItem } from "./launchAttempts.ts";
-import type { OptionsOffer } from "./optionsOffer.ts";
-import { LaunchDialog, useLaunchDialogLauncher } from "./LaunchDialog.tsx";
+import {
+  notOfferedLine,
+  optionsLine,
+  type OptionsOffer,
+} from "./optionsOffer.ts";
+import { LaunchDialog } from "./LaunchDialog.tsx";
+import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import "./agent-launch.css";
-
-// What the dialog says where the options would be, when it cannot offer any:
-// the boundary's words for why, so a refusal and the dialog agree.
-function optionsLine(
-  offer: OptionsOffer | undefined,
-  skill: string,
-  named: string,
-): string | undefined {
-  const starts = `${named.charAt(0).toUpperCase()}${named.slice(1)} starts straightforwardly.`;
-  switch (offer?.kind) {
-    case undefined:
-      return undefined;
-    case "reading":
-      return "Reading options…";
-    case "unavailable":
-      return `Options are not offered: the installed ${skill} skill in this project ${offer.why}. ${starts}`;
-    case "offered":
-      return offer.options.length === 0
-        ? `The installed ${skill} skill in this project offers no options. ${starts}`
-        : undefined;
-  }
-}
-
-// What the dialog says under the options when a kept selection names flags
-// the offer, once read, no longer has: those flags, in the kept order, are
-// not sent.
-function notOfferedLine(
-  offer: OptionsOffer | undefined,
-  kept: ReadonlySet<string> | undefined,
-): string | undefined {
-  if (offer === undefined || offer.kind === "reading") return undefined;
-  const offered = new Set(
-    offer.kind === "offered" ? offer.options.map(({ flag }) => flag) : [],
-  );
-  const absent = [...(kept ?? [])].filter((flag) => !offered.has(flag));
-  return absent.length === 0
-    ? undefined
-    : `Not offered any more, so not sent: ${absent.join(", ")}.`;
-}
 
 export function StartLaunch({
   work,
@@ -184,19 +150,41 @@ export function StartLaunch({
               : undefined
           }
           heading={`Start ${named} in ${hostName(host)}`}
-          description={
+          subject={
             <>
-              {hostName(host)} starts a background session on this machine,{" "}
-              {resumesIn === undefined
-                ? "in this project's folder"
-                : `in workspace ${resumesIn}`}
-              , to {verb} <strong>{work.title}</strong> (
-              <span className="card-identity">{work.identity}</span>).
+              <strong>{work.title}</strong>{" "}
+              <span className="card-identity">{work.identity}</span>
+            </>
+          }
+          description={`${hostName(host)} starts a background session on this machine to ${verb} this story.`}
+          effects={
+            <>
+              The session runs{" "}
+              {resumesIn !== undefined
+                ? `in workspace ${resumesIn}`
+                : establishes !== undefined
+                  ? "in a new workspace under .worktrees/"
+                  : "in this project's folder"}
+              .
               {resumesIn !== undefined
                 ? ` ${spec.establishes.published}`
-                : establishes !== undefined && ` ${establishes.sentence}`}
-              {resumes !== undefined &&
-                ` This start requested ${hostName(resumes.host)} with ${resumes.model === undefined ? "Default" : launchModels[resumes.model].name} model.`}
+                : establishes !== undefined && ` ${establishes.effect}`}
+            </>
+          }
+          details={
+            <>
+              {resumesIn === undefined && establishes !== undefined && (
+                <p>{establishes.sentence}</p>
+              )}
+              {resumes !== undefined && (
+                <p>
+                  This start requested {hostName(resumes.host)} with{" "}
+                  {resumes.model === undefined
+                    ? "Default"
+                    : launchModels[resumes.model].name}{" "}
+                  model.
+                </p>
+              )}
             </>
           }
           note={
@@ -211,6 +199,7 @@ export function StartLaunch({
           command={`${host === "codex" ? "$" : "/"}${skill} ${work.identity}`}
           optionsReading={options?.kind === "reading"}
           options={options?.kind === "offered" ? options : undefined}
+          optionsLabel={`${name} options`}
           optionsHint="Choose any combination; they apply together. None means straightforward refinement."
           optionsLine={optionsLine(options, skill, named)}
           kept={kept}
