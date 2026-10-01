@@ -16,9 +16,10 @@ set -euo pipefail
 # .github/workflows/ci.yml.
 readonly ubuntu_version=24.04
 readonly node_version=24
-# CI's dashboard job's commands after `npm ci`, without its --shard argument,
-# stated once and checked the same way. The image runs the Playwright install
-# as root, pinned to the locked version; the container runs the rest.
+# The bare image needs Chromium's system dependencies; native CI already has
+# them. The image runs this bootstrap as root, pinned to the locked version.
+# The container then runs CI's dashboard checks without the --shard argument;
+# tests/ci-container.sh checks the bootstrap and shared checks separately.
 readonly dashboard_install='npx playwright install --with-deps chromium'
 readonly dashboard_steps='npm run typecheck:dashboard
 npm run test:dashboard'

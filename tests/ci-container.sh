@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # scripts/ci-container.sh stops, naming the missing runtime, when no `docker`
 # is on PATH or its daemon cannot be reached, and refuses by name a directory
-# or path outside the checkout, each before any image work; and the Ubuntu and
-# Node versions and the dashboard commands it states are the ones
-# .github/workflows/ci.yml runs.
+# or path outside the checkout, each before any image work. Its Ubuntu and
+# Node versions and dashboard checks agree with .github/workflows/ci.yml;
+# its bare image bootstraps system libraries that native CI already has.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -104,11 +104,17 @@ if grep -vFx -- "ubuntu-${ubuntu_version}" "${temporary_dir}/runners" \
   exit 1
 fi
 
-# The dashboard commands the script states, in order, must be the `run:`
-# commands of ci.yml's dashboard job after `npm ci`, less the --shard argument
-# that splits CI's run across jobs.
+# The diagnostic image bootstraps system libraries on bare Ubuntu; native CI
+# uses the runner's libraries and the locked local Playwright package. Both
+# install Chromium, then run the same dashboard commands in the same order.
+# Keep the bootstrap explicit rather than removing --with-deps from the image.
+dashboard_install=$(stated dashboard_install)
+if [[ ${dashboard_install} != 'npx playwright install --with-deps chromium' ]]; then
+  echo 'FAIL: scripts/ci-container.sh must bootstrap Chromium system dependencies.' >&2
+  exit 1
+fi
 {
-  stated dashboard_install
+  printf '%s\n' 'npx --no-install playwright install chromium'
   stated dashboard_steps
 } > "${temporary_dir}/stated-dashboard"
 awk '
@@ -121,7 +127,7 @@ awk '
 ' "${workflow}" | sed 's/ -- --shard[= ].*$//' > "${temporary_dir}/ci-dashboard"
 if [[ ! -s ${temporary_dir}/ci-dashboard ]] \
   || ! diff -- "${temporary_dir}/stated-dashboard" "${temporary_dir}/ci-dashboard" >&2; then
-  echo 'FAIL: the dashboard commands scripts/ci-container.sh states (<) are not' \
+  echo 'FAIL: the browser-only install and shared dashboard commands (<) are not' \
     "ci.yml's dashboard job after npm ci (>)." >&2
   exit 1
 fi

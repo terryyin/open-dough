@@ -82,7 +82,7 @@ silently restoring routine apt.
 
 ### 1. Establish that the native CI runner can execute every browser check without apt
 Type: Behavior
-Status: planned
+Status: in progress
 Proof: On the execution-owned branch, compare a healthy current-workflow run
 with a browser-only run on the same source revision and selected runner/Node
 versions. Execute all nine existing dashboard shares, inspect test counts and
@@ -216,6 +216,33 @@ points; local repeatability has actual observed proof without a container.
 
 ## Learnings
 
-None from implementation yet. Keep subsequent premise results, accepted proof,
-chosen acquisition bounds and consequential plan changes here. Do not add an
-execution-complete record until authorized execution actually completes.
+Execution authorized by Terry's dough-execute-plan invocation on 2026-10-02.
+Established execution: publisher `dashboard-mac.lan-open-dough`, agent `dbs-chan`,
+Story Branch Mode, workspace and branch as above, integration checkout
+`/Users/terryyin/git/open-dough`, `origin` trunk `main`. Claim/published base
+`5c55714cbee1340ae40180c256038fb9cc6c6111`, starting revision
+`e3f9e4b951818892b9f30db5ba7f4d2ae1dc2276`. Existing planning authority retained.
+Locked `npm ci` and `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/ci-container.sh`
+succeeded in this exact checkout before implementation.
+
+Slice 1 baseline: workflow dispatch run `36942203715`, attempt 1, unchanged
+claim revision, all 13 jobs passed. All nine browser cache restores hit;
+healthy warm installation took 13–24 seconds. Node `v24.21.0`, Ubuntu runner
+image `20260927.320.1`, locked Playwright `1.63.0`. Baseline logs/jobs:
+`/tmp/open-dough-36942203715-baseline.log` and
+`/tmp/open-dough-36942203715-baseline-jobs.json`.
+Probe publication is explicitly authorized by slice 1; hosted suite proof
+remains pending and slice 1 is not accepted as complete.
+
+Probe focused proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/ci-container.sh`
+passed. Its workflow comparison asserts browser-only locked install plus shared
+suite commands; the separate image bootstrap assertion retains `--with-deps`.
+Independent post-change refactoring preserved runtime/assertions, corrected
+bootstrap documentation and moved diagnostic guidance into `tests/ci-container.md`.
+No rerun was needed for those comment/document edits.
+
+CI source: GitHub Actions `terryyin/open-dough`, verified selector `ci.yml`,
+publication/observation target `codex/keep-ci-checks-independent-of-package-mirror-sta`.
+Codex yielded observer: coordinator `/root`, cell `14`, session `97439`, PID
+`47835`, directory `/tmp/dough-ci-501/watch-Mcfmhh`, exact execution checkout
+above. Trunk claim coverage is unobserved; this observer covers branch increments.
