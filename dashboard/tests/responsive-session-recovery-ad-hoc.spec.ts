@@ -58,6 +58,12 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
     .getByRole("button", { name: "Continue session start of Ad hoc session" })
     .click();
   await expect(recoveryOf(page)).toHaveCount(0, { timeout: 30_000 });
+  // The item leaves once the attempt runs again, before it settles.
+  await expect
+    .poll(async () => (await attempts(dashboard))[0]?.outcome?.kind, {
+      timeout: 30_000,
+    })
+    .toBe("launched");
   expect(await attempts(dashboard)).toEqual([
     expect.objectContaining({
       id: uncertain?.id,
