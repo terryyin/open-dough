@@ -152,7 +152,7 @@ It also covers:
 
 ### 3. Maintained launch documentation matches the reviewed boundary
 Type: Behavior
-Status: planned
+Status: done
 Proof: The diff of `dashboard/AGENT-LAUNCH.md` shows each changed statement
 next to the code it now matches. The ADR verdict is recorded in `REVIEW.md`.
 The repository's commit-time lint passes.
@@ -226,6 +226,16 @@ the link is removed and the backlog is unchanged.
   `:187-188` (skipping stop on confirmed absence is shared) that misdescribe
   the code; `docs/dashboard-session-troubleshooting.md` now covers the
   missing-workspace case.
+- **Slice 3 proof (accepted):** `dashboard/AGENT-LAUNCH.md` now names the
+  shared code that still branches on host, the host-name presentation rule
+  for unknown readings and Codex alerts, refusal of a missing project folder
+  only (a removed Codex workspace is not refused; linked to
+  `docs/dashboard-session-troubleshooting.md`), and the done order of
+  `server/doneMarks.ts:39-53`. Each was checked against that code and
+  `server/hosts/codex/terminal.ts:17-24` and `server/agentLaunches.ts:132-135`.
+  `REVIEW.md` "Maintained documentation and ADR verdict" records "No ADR
+  change": the boundary concerns only the dashboard, ADR 0005 already
+  governs it, and Proposed ADR 0008's local layer is not contradicted.
 
 ## Learnings
 

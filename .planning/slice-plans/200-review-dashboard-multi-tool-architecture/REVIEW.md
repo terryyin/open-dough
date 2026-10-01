@@ -1111,6 +1111,58 @@ review ran only these existing unpaid specs: `launch-observations.spec.ts`,
 - **Wording.** S5-2 and the T6-1 and T6-2 labels need Terry's choice of shared
   wording.
 
+## Maintained documentation and ADR verdict
+
+`dashboard/AGENT-LAUNCH.md` was corrected to describe the current code. Line
+numbers are the edited document's. No code changed.
+
+- **Host boundary (`:45-50`).** Old: common code does not call another host's
+  private helpers. New: still true for imports, but shared code branches on
+  host name: dispatch and browser host names and flags
+  (`server/launchHosts.ts:71-73`, `src/sessionCapabilities.ts:5-15`), the Codex
+  model refusal (`server/agentLaunchAdmission.ts:174`,
+  `src/LaunchHostModel.tsx:56`), the Codex-only gates
+  (`server/agentLaunches.ts:144`, `:178`), the Claude alias rule
+  (`src/launchRecord.ts:28`), and host wording in shared messages
+  (`src/agentLaunchClient.ts:52`, `server/agentLaunchAdmission.ts:242`,
+  `src/LaunchSession.tsx:27`). Covers L1-1, L1-2, I3-1, F4-1–F4-3, S5-1, T6-1,
+  T6-2.
+- **Normalized state (`:131-134`).** Old: host adapters normalize native state
+  for shared presentation and alerts. New: adds that shared presentation still
+  words the unknown reading and withholds the alert for an unrecognized Codex
+  state by host name (`src/sessionShown.ts:51`, `:55`, `:118-122`; S5-2, S5-3).
+  The alert rules at `:143` and `:153` are accurate and stay unchanged.
+- **Attachment refusal (`:172-174`).** Old: "missing folder" is refused. New:
+  a missing *project* folder is refused, a removed Codex workspace is not, with
+  a link to `docs/dashboard-session-troubleshooting.md`
+  (`server/agentLaunches.ts:132-135`, `server/hosts/codex/terminal.ts:17-24`;
+  T6-4).
+- **Done order (`:190-192`).** Old: save intent, close attachments, then
+  rename and stop. New: save intent, rename, close attachments, then stop
+  unless the session is confirmed unavailable (`server/doneMarks.ts:25-28`,
+  `:39-47`, `:47`, `:48-53`; R5-3).
+- **Claude done (`:195-196`).** Old: Claude retains `/rename`, listing
+  confirmation, and its listed-or-unknown stop behavior. New: Claude types
+  `/rename` into an open attachment, if any, and waits for the listing; the
+  stop rule is the shared one above (`server/hosts/claude/rename.ts:29-67`,
+  `server/doneMarks.ts:48-53`).
+
+Checked and kept: the dispatch sentence (`:45`, `server/launchHosts.ts:68-76`);
+host-qualified identity and Claude's alias (`:50-54`, R3-1, I3-1); host-less
+actions addressing Claude (`:54`, I3-3); missing Codex endpoints never falling
+back to Claude (`:100-101`); the per-host alert rules (`:143`, `:153`, which
+the new `:132-134` sentence attributes to host name); Claude's immediate
+attachment (`:182`, R6-3); and the shared transport (`:175-176`, R6-1).
+
+**ADR verdict: no ADR change.** The host boundary concerns only the dashboard,
+which no general-purpose agent relies on. ADR 0005 already governs it: minimal
+adapters, shared logic tested once, and no inference of one tool's success from
+another's. The findings apply that decision, and none changes it. Accepted ADRs
+0001 and 0002 §3 are applied by R3-1 and are unchanged. Proposed ADR 0008's
+local layer covers workspace activity and checkout refresh, and calls a launch
+local evidence that never settles a story. No finding contradicts that wording;
+host adapters and native session observation are below its level of detail.
+
 ## Ranking
 
 Each item is a candidate story, and findings that share one improvement are

@@ -43,11 +43,15 @@ and what the dialog's Session choices select, are in
 ## Native hosts and durable evidence
 
 `server/launchHosts.ts` dispatches to one public host boundary. Common workflow,
-records, actions and presentation do not call another host's private helpers.
-Identity is host plus the opaque native conversation ID throughout stores,
-merging, page keys, focus and action lookup. Equal IDs in different hosts stay
-separate. Claude additionally retains its native attach/stop alias; Codex needs
-no fabricated alias. Predecessor actions without host address Claude only.
+records, actions and presentation do not call another host's private helpers,
+but some shared code still branches on host name: dispatch and the browser's
+host names and capability flags, the Codex model refusal, the Codex-only
+duplicate and creation gates in `server/agentLaunches.ts`, the record schema's
+Claude alias rule, and some host wording in shared messages. Identity is host
+plus the opaque native conversation ID throughout stores, merging, page keys,
+focus and action lookup. Equal IDs in different hosts stay separate. Claude
+additionally retains its native attach/stop alias; Codex needs no fabricated
+alias. Predecessor actions without host address Claude only.
 
 Claude runs `claude --bg --name '<project> · <kind> · <title>'` in the project or
 established workspace. Its prompt is `/<skill> <identity> <flags>`, the installed
@@ -125,10 +129,12 @@ when its story changes stage or disappears. Only dashboard-recorded sessions
 appear; another project's records never count on a card.
 
 Host adapters normalize native state for the shared cards, Recent sessions,
-sidebar/counts and alerts; observations are never persisted. Claude reads one
-machine listing. Codex groups recorded targets by saved endpoint, reads metadata
-and only the latest needed turn, without resume, subscription or interactive
-ownership. Endpoint failures leave independent healthy records readable.
+sidebar/counts and alerts; observations are never persisted. Shared presentation
+still uses host name to word an unknown reading and to withhold the alert for
+unrecognized Codex state. Claude reads one machine listing. Codex groups
+recorded targets by saved endpoint, reads metadata and only the latest needed
+turn, without resume, subscription or interactive ownership. Endpoint failures
+leave independent healthy records readable.
 
 Working means active work. Typed native waits mean Needs input with a reason;
 a completed reply means Ready for review, including ordinary prose questions.
@@ -164,9 +170,11 @@ its card or Recent entry until user navigation; reduced motion skips animation.
 Same-origin `/__agent-terminal?source=&host=&session=` admits recorded host-qualified
 sessions in existing project folders. Claude uses `claude attach <native alias>`;
 Codex uses the saved ID, endpoint and workspace with ordinary `codex resume`
-and `--no-alt-screen`. Unknown project/session, missing folder and unavailable
-sessions are refused before attachment. Text frames carry output; bounded input,
-resize and rendered readiness messages share the existing transport.
+and `--no-alt-screen`. Unknown project/session, missing project folder and
+unavailable sessions are refused before attachment; a removed Codex workspace is
+not, as [session troubleshooting](../docs/dashboard-session-troubleshooting.md)
+explains. Text frames carry output; bounded input, resize and rendered readiness
+messages share the existing transport.
 Closing socket/server sends SIGHUP to the attachment client only, retaining
 native work/history and daemon. CLI exit uses code 4000 so the page distinguishes
 ended from disconnected. Codex spawn alone does not establish readiness: native
@@ -181,11 +189,12 @@ Open again, each for the same session. Close restores the originating control.
 Shown entries/cards are outlined and sidebar entry current; closing clears them.
 
 Mark as done uses one operation from card or terminal. It saves local done intent,
-closes dashboard attachments and requests native rename/stop. Codex renames with
-`thread/name/set` and interrupts only the observed nonempty in-progress turn ID;
-completed/unloaded history needs no invented interrupt. A race/refusal never
-retries against a newer turn. Claude retains its attachment `/rename` and listing
-confirmation, then its listed-or-unknown stop behavior. Native history is retained.
+requests native rename, closes dashboard attachments, then requests native stop
+unless the session is confirmed unavailable. Codex renames with `thread/name/set`
+and interrupts only the observed nonempty in-progress turn ID; completed/unloaded
+history needs no invented interrupt. A race/refusal never retries against a
+newer turn. Claude types `/rename` into an open attachment, if any, and waits
+for listing confirmation. Native history is retained.
 
 Recent keeps the done record/name; cards/sidebar exclude it. A bounded diagnostic
 persists when native rename/stop is unconfirmed, while live Working remains
