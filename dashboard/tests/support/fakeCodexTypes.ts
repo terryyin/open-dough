@@ -23,6 +23,7 @@ export type FakeCodex = {
   releaseReads(): void;
   threadId: string;
   hold: boolean;
+  holdCreation: boolean;
   refuseCreation: boolean;
   creationError: unknown;
   refuseInput: boolean;

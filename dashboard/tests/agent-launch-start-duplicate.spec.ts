@@ -1,8 +1,8 @@
 // A second start of a story this server is already starting is refused before
-// any process runs (../server/executionStart.ts `beginStart`), over raw HTTP
+// any second start runs (../server/agentLaunches.ts), over raw HTTP
 // against the real installed `execution-start.mjs` and a real bare origin
-// (./support/startOrigin.ts): the second launch is answered "failed" with
-// reason "already-starting", and origin holds one claim, the project one
+// (./support/startOrigin.ts): the second launch is answered "uncertain" with
+// reason "unconfirmed", and origin holds one claim, the project one
 // workspace, and the synthetic `claude` at most one call. One case holds the
 // first start on origin's `pre-receive` hook so the two overlap
 // deterministically; the other sends the pair at once. A story Taken by
@@ -35,7 +35,7 @@ const request = {
   title: queuedTitle,
 };
 const alreadyStarting =
-  "This story is already starting on this machine, so a second start was not made. Wait for the running start to end; its card shows its progress. Nothing was launched.";
+  "This launch is already being reconciled or submitted. Wait for its result; no duplicate input or conversation was created.";
 
 type Answer = { kind: string; reason?: string; explanation?: string };
 
@@ -92,8 +92,8 @@ test.describe("a second start of the same story", () => {
 
     const second = await answerOf(launch(server, request));
     expect(second).toEqual({
-      kind: "failed",
-      reason: "already-starting",
+      kind: "uncertain",
+      reason: "unconfirmed",
       explanation: alreadyStarting,
     });
     expect(server.claudeCalls()).toEqual([]);
@@ -115,12 +115,12 @@ test.describe("a second start of the same story", () => {
       answerOf(launch(server, request)),
     ]);
     expect(answers.map((answer) => answer.kind).sort()).toEqual([
-      "failed",
       "launched",
+      "uncertain",
     ]);
-    expect(answers.find((answer) => answer.kind === "failed")).toEqual({
-      kind: "failed",
-      reason: "already-starting",
+    expect(answers.find((answer) => answer.kind === "uncertain")).toEqual({
+      kind: "uncertain",
+      reason: "unconfirmed",
       explanation: alreadyStarting,
     });
     expect(await origin.takenProfiles()).toHaveLength(1);

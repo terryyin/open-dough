@@ -46,11 +46,22 @@ and what the dialog's Session choices select, are in
 records, actions and presentation do not call another host's private helpers,
 but some shared code still branches on host name: dispatch and the browser's
 host names and capability flags, the Codex model refusal, the Codex-only
-duplicate and creation gates in `server/agentLaunches.ts`, and some host wording
+creation gate in `server/agentLaunches.ts`, and some host wording
 in shared messages. Identity is host plus the opaque native conversation ID
 throughout stores, merging, page keys, focus and action lookup. Equal IDs in different hosts stay separate. Claude
 additionally retains its native attach/stop alias; Codex needs no fabricated
 alias. Predecessor actions without host address Claude only.
+
+Each dashboard server refuses an overlapping matching launch for every host,
+including ad hoc and workflows without an installed start. Matching uses project,
+host, workflow and story identity, or the exact instruction for ad hoc sessions,
+including blank text. Changing a story's title, instruction, model, options or
+policy does not bypass the gate; distinct subjects remain independent. The gate
+lasts until the launch attempt settles, including reconciliation and recording.
+HTTP caller detachment does not release it. Native work continuing after startup
+does not hold it; installed-start and retained-evidence protections still apply
+when another launch is requested. Separate servers or machines do not share this
+in-flight gate.
 
 Session records are a discriminated union on `host`. Each variant keeps
 `sessionId` and `name`; Claude requires its native `shortId`, while Codex may

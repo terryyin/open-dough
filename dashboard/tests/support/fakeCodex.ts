@@ -51,6 +51,7 @@ export async function installFakeCodex(
     },
     threadId: "native-thread-id",
     hold: false,
+    holdCreation: false,
     refuseCreation: false,
     creationError: { code: -32000, message: "Native creation refused." },
     refuseInput: false,
@@ -139,7 +140,14 @@ export async function installFakeCodex(
             break;
           }
           if (fixture.refuseCreation) refuse(fixture.creationError);
-          else reply({ thread: { id: fixture.threadId } });
+          else {
+            const threadId = fixture.threadId;
+            const created = () => {
+              reply({ thread: { id: threadId } });
+            };
+            if (fixture.holdCreation) waiting.push(created);
+            else created();
+          }
           break;
         case "thread/read":
         case "thread/resume":

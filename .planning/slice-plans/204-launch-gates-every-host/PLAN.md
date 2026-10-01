@@ -111,7 +111,7 @@ observations, not proof that the planned changes are implemented or passing.
 ### 1. One in-flight launch per matching request for every host
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The new duplicate boundary spec and the existing start-duplicate,
 preparation-Codex-recovery, and Codex-lifetime specs pass; dashboard typecheck passes.
 
@@ -200,3 +200,51 @@ review, so a separate slice-plan-refinement pass was unnecessary. Dependencies
 and baseline revision are explicit; recheck overlapping delivered changes at
 execution startup. Readiness is recorded in the canonical story by the shared
 preparation recorder, not inferred from this prose.
+
+## Execution context and accepted proof
+
+Execution authorized by Terry's `dough-execute-plan` invocation on 2026-10-01.
+Established claim: `dbc55abe03c6e8b997721cd196250185313bd772`, publisher
+`dashboard-mac.lan-open-dough`, agent `ebacky-chan`, story-branch mode,
+workspace `/Users/terryyin/git/open-dough/.worktrees/launch-gates-apply-to-every-host`,
+branch `codex/launch-gates-apply-to-every-host`, remote `origin`, trunk `main`.
+Starting revision: `6428a5c1ffb33d26d5ea15c4a9042447c23d2a14`.
+Existing planning authority retained; no numeric slice limit supplied.
+
+Session-record dependency landed at `da3afd04` and was incorporated before
+implementation. Host-description boundary reread; existing `LaunchHost` remains.
+Startup-lifetime sibling is unlanded; current synchronous running registration
+and `finally` release span the whole attempt despite HTTP detachment.
+Checkout-local `npm ci --ignore-scripts --no-audit --no-fund` and dashboard
+typecheck passed; locked metadata unchanged.
+
+CI: GitHub Actions `ci.yml`, execution branch on `terryyin/open-dough`.
+Codex observer `ebacky-chan`: `/tmp/dough-ci-501/watch-n8GCrg`, cell `18`,
+session `73631`, PID `23822`, bound to the execution checkout and branch.
+The claim's trunk CI is unobserved; managed delivery covers branch increments.
+
+### Slice 1
+Prechange: second held blank Claude launch timed out instead of receiving
+`uncertain/unconfirmed`. The real-route command failed for that reason:
+
+```sh
+env -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --workers=4 dashboard/tests/agent-launch-duplicate.spec.ts --grep 'claude: overlapping blank' --timeout=45000
+```
+
+Accepted passing command (terminal exit 0):
+
+```sh
+env -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --workers=4 dashboard/tests/agent-launch-duplicate.spec.ts dashboard/tests/agent-launch-matching-rules.spec.ts dashboard/tests/agent-launch-start-duplicate.spec.ts dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts dashboard/tests/agent-launch-codex-lifetime.spec.ts
+npm run typecheck:dashboard
+```
+
+The new duplicate HTTP spec observes both hosts' instructed/blank ad hoc and
+start-less story counts/refusal, original intent under changed choices, detached
+caller protection, release on settlement/refusal, and distinct-subject admission.
+Matching rules cover project/host/workflow/subject and story choice invariance.
+Existing start cardinality, preparation recovery and Codex lifetime proof remain.
+Setup: real preview/HTTP from `dashboardTest.ts` and `agentLaunchBoundary.ts`;
+only vendor answers are synthetic (`support/codexLaunch.ts`, Claude fixture).
+New `holdCreation` defaults false and holds only native blank creation.
+Coordinator inspected assertions, setup and admission. Independent refactor:
+`none — already clean`, `## REFACTOR COMPLETE`; proof unchanged, no rerun needed.

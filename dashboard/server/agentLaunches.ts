@@ -140,10 +140,7 @@ export class AgentLaunches {
     source: PublishedSource,
     request: AgentLaunchRequest,
   ): Promise<LaunchResult> {
-    if (
-      request.host === "codex" &&
-      [...this.running].some((entry) => sameLaunch(entry.request, request))
-    )
+    if ([...this.running].some((entry) => sameLaunch(entry.request, request)))
       return {
         kind: "uncertain",
         reason: "unconfirmed",
