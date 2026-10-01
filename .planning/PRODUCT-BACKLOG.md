@@ -16,11 +16,11 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Keep the dashboard responsive while session startup settles](seeds/SEED-072-responsive-session-start-reconciliation.md#responsive-session-start-reconciliation) — SEED-072#responsive-session-start-reconciliation ([plan](slice-plans/192-responsive-session-start-reconciliation/PLAN.md))
 - [Show truthful session access after its workspace is retired](seeds/SEED-076-session-after-workspace-retirement.md#session-after-workspace-retirement) — SEED-076#session-after-workspace-retirement ([plan](slice-plans/201-session-after-workspace-retirement/PLAN.md))
+- [Each host has its own session record shape](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#session-record-per-host) — SEED-075#session-record-per-host ([plan](slice-plans/202-session-record-per-host/PLAN.md))
 
 ## Backlog list
 
 - [Shared dashboard code reads one host description](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#one-host-description) — SEED-075#one-host-description
-- [Each host has its own session record shape](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#session-record-per-host) — SEED-075#session-record-per-host
 - [Session meaning and wording are host-neutral](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#host-neutral-session-meaning) — SEED-075#host-neutral-session-meaning
 - [Launch gates apply to every host](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#launch-gates-every-host) — SEED-075#launch-gates-every-host
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
