@@ -5,6 +5,7 @@
 - [Native acceptance story](CONTEXT.md#native-acceptance-story) remains part of this plan.
 - [Execution state and accepted native observations](EXECUTION.md): retained identity/CI observer, accepted slice 1 proof and consequential learning.
 - [Embedded lifecycle proof](LIFECYCLE.md): slices 4–5 and native readiness/blank materialization follow-up.
+- [Workflow startup proof](STARTS.md): slice 6, retained execution handoff and retry.
 
 ## Ordered slices
 
@@ -151,7 +152,7 @@ refinement conversations.
 
 Type: Behavior
 
-Status: todo
+Status: done
 
 Precondition: a planned story in a real isolated fixture origin with installed
 execution-start/formatter support. Trigger: select Codex and Start execution.

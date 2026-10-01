@@ -5,8 +5,8 @@ import { keepsStart, type StartResult } from "./startResult.ts";
 import { removeStart, updateStart, type StartsWorkflow } from "./startStore.ts";
 
 // The established start an accepted result makes: the facts the script ran
-// with, what it reported, and, for a rerun that reports no agent or plan
-// (`existing`), the ones the kept start had.
+// with, what it reported, and, for a rerun (`existing`) that omits claim
+// facts, the ones already retained for this same start.
 export function establishedStart(
   facts: Omit<EstablishedStart, "publishedSha">,
   result: Extract<StartResult, { kind: "accepted" }>,
@@ -14,17 +14,15 @@ export function establishedStart(
 ): EstablishedStart {
   const agent = result.agent ?? earlier?.agent;
   const plan = result.plan ?? earlier?.plan;
+  const startingRevision = result.startingRevision ?? earlier?.startingRevision;
+  const candidateSha = result.candidateSha ?? earlier?.candidateSha;
   return {
     ...facts,
     publishedSha: result.publishedSha,
     ...(agent === undefined ? {} : { agent }),
     ...(plan === undefined ? {} : { plan }),
-    ...(result.startingRevision === undefined
-      ? {}
-      : { startingRevision: result.startingRevision }),
-    ...(result.candidateSha === undefined
-      ? {}
-      : { candidateSha: result.candidateSha }),
+    ...(startingRevision === undefined ? {} : { startingRevision }),
+    ...(candidateSha === undefined ? {} : { candidateSha }),
   };
 }
 
