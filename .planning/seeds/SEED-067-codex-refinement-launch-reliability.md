@@ -15,17 +15,34 @@ scope: story
 
 **Identity:** SEED-067#resolve-codex-refinement-launch-failures
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/194-codex-refinement-handoff-retry/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9810fb8eb1d1d7d208feb7cae8d4126ae4278dbcff2481b20b8c61339f4ed16f","plan":"4fd2289b3b900b0faafdcd7d1e2ff3aa4426a367ca0743fa6a0f6a304ae3a6f6"}}
 ```
 
-**Goal:** Resolve the remaining reported dashboard launch failures: establish
-whether initial desktop ownership violates the intended continuation behavior,
-and preserve one preparation owner when retrying a failed launch.
+**Goal:** Let Terry start refinement from the dashboard and continue the original
+Codex conversation without forking it or creating competing preparation owners
+when a launch fails and is retried.
 
-**Scope:** Investigate transfer to the Codex desktop app and reuse of preparation
-after native refusal for dashboard-started refinement. Preserve the original conversation,
-its fork, both preparation workspaces, their assignments, and configured Codex
-settings. Do not expand into general desktop session management or CI monitoring.
+**Scope:** Establish the initial desktop handoff's actual native ownership and
+lifetime behavior, then repair a confirmed dashboard-caused continuation block.
+Make a retry of a retained refinement start reuse its established preparation;
+when its workspace or ownership evidence is missing or inconsistent, stop with
+the context needed for explicit reconciliation. Keep the start recoverable and
+make no replacement announcement, workspace, conversation or first input in
+that stopped attempt. Preserve configured native settings and the existing
+conservative first-input recovery rule.
+
+Preserve Terry's original conversation, fork, existing workspaces and published
+assignments. This story prevents another duplicate; it does not authorize
+deleting either reported preparation assignment or reconstructing lost drafts.
+Release of an existing assignment remains the developer's decision about its
+exact allocation under the installed lost-workspace procedure.
+
+**Deferred promises:** General desktop management, external conversation
+discovery, live observation, embedded terminal, Mark as done and broader Codex
+execution/ad hoc support remain in SEED-052 / plan 192. Session policy remains
+in SEED-066 / plan 191; CI monitoring remains in SEED-063. The delivered daemon
+startup repair is preserved rather than repeated. Concurrent turn submission is
+governed by Codex's native behavior; this story does not invent that capability.
 
 **Expected:** Starting refinement creates a conversation with the first input
 accepted. The developer can continue that same conversation in the Codex desktop
@@ -45,10 +62,12 @@ app, including answering refinement questions, without having to fork it.
   `~/git/open-dough/.worktrees/monitor-ci-from-the-dashboard-and-deliver-its-st`.
   The first screenshot retained the SEED-066 Preparing assignment as ebacky-chan.
 
-**Remaining uncertainty:** The desktop ownership contract during an active first
-turn, whether the initial refusal remains reproducible, and how retry should
-reconcile a saved preparation whose workspace is missing without publishing a
-second owner. The daemon creation failure has been causally reproduced and repaired.
+**Remaining uncertainty:** Desktop ownership and turn continuity while the
+dashboard's native client remains connected, and whether that reproduces the
+original refusal on the current runtime. This requires an early native probe;
+a protocol substitute cannot establish it. If safe handoff cannot satisfy the
+goal, stop the dependent repair and return the native limitation for a product
+decision. The daemon creation failure has been causally reproduced and repaired.
 
 **Diagnosis observed on 2026-10-01:**
 
@@ -87,11 +106,10 @@ second owner. The daemon creation failure has been causally reproduced and repai
   preparation owner must reconcile that independently rather than recreate it
   blindly.
 
-**Repair boundary:** Terry authorized landing the supported creation repair on
-main on 2026-10-01. The bug-fixing workflow supplies one bounded planless repair,
-with a ten-minute hard limit and no replanning. Starting from a stable home
-directory and preserving a bounded native refusal message address the confirmed
-startup defect. They do not repair or establish the desktop handoff.
+**Delivered repair boundary:** Terry authorized and landed the bounded planless
+creation repair on 2026-10-01. Its ten-minute limit belonged to that completed
+attempt. Stable daemon startup and bounded native refusal details address the
+confirmed startup defect; they do not establish the desktop handoff.
 
 **Resolved portion and later observations:**
 
@@ -110,6 +128,20 @@ startup defect. They do not repair or establish the desktop handoff.
   proving when the original desktop refusal releases ownership.
 - Read-only inspection after that report showed the running daemon's working
   directory as `/Users/terryyin`, confirming recovery from its deleted directory.
+- During this refinement, at source revision `aeac68d810a07c5df97789f1edaebcdc751a4e66`,
+  an isolated real Git/production preparation-script fixture announced Yui-chan
+  for one queued story. Normal retry returned `continued`. After removing only
+  that fixture's clean worktree and its branch, the same request announced
+  Akiho-chan; both profiles remained published for that identity. This establishes
+  a reproducible retry defect matching the reported duplicate-owner class. The
+  precise disappearance of the real SEED-063 branch remains unestablished.
+  The fixture was removed; no user assignment or workspace was changed.
+- A disposable Playwright HTTP probe then followed the actual dashboard path:
+  native creation refusal, retained start, removal of only the fixture workspace
+  and branch, and retry. Retry returned `launched`, left two published preparation
+  profiles for the same identity, and sent one `turn/start`. The native substitute
+  supplied only RPC outcomes; the dashboard and installed preparation script
+  created the duplicate themselves. The temporary probe was assessed and removed.
 
 **Remaining work and disposition:** Establish whether desktop continuation is
 blocked during an active initial turn, repairing any confirmed violation; repair
@@ -118,10 +150,23 @@ daemon repair is retained in Git. Terry requested removal from Taken after
 landing; the unresolved remainder returns to Backlog and its retired execution
 claim is released. Do not treat that return as readiness or start execution.
 
-**Acceptance examples:** A developer launches refinement and answers its questions
-in the original desktop conversation; a second story launches independently.
-If native creation is refused, the dashboard preserves the preparation and reports
-actionable native evidence without claiming a conversation or accepted input.
-Retry preserves the same preparation owner and workspace, or explains the
-required reconciliation when they cannot be reused. A missing workspace and a
-saved preparation must not produce competing published assignments.
+**Key examples:**
+
+1. A dashboard refinement accepts its first input. Terry opens the original
+   task in Codex desktop, follows its work, and answers its refinement question
+   through that same native conversation when input is available. There is no
+   fork, repeated first instruction or forced dashboard/server shutdown. The
+   first turn and saved history survive the handoff.
+2. Native creation refuses a prepared launch. The dashboard reports its bounded
+   cause and retains the established agent, workspace and start. After recovery,
+   retry (including after dashboard restart) continues that exact preparation,
+   creates one conversation and submits the first input once.
+3. After that refusal the saved preparation workspace is missing, or its local
+   ownership record no longer matches the saved assignment. Retry reports the
+   retained agent/workspace and need to reconcile. The same saved start and
+   published profiles survive; there is no new announcement, replacement
+   workspace, native thread or submitted input. Repeating retry stays safe.
+4. Native creation or input acceptance has an uncertain result. Retry reconciles
+   the recorded native identity and original input as today; it does not infer
+   rejection from missing history or launch a replacement conversation. Another
+   story can launch independently of the failed/handed-off one.
