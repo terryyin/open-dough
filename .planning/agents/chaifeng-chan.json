@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "chaifeng-chan",
-  "email": "chaifeng-chan@example.org",
-  "identity": "SEED-075#terminal-resize-crash",
-  "mode": "story-branch",
-  "branch": "codex/terminal-resize-crash",
-  "host": "codex"
-}

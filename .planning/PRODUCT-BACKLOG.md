@@ -18,7 +18,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Keep the dashboard responsive while session startup settles](seeds/SEED-072-responsive-session-start-reconciliation.md#responsive-session-start-reconciliation) — SEED-072#responsive-session-start-reconciliation ([plan](slice-plans/192-responsive-session-start-reconciliation/PLAN.md))
 - [Review dashboard architecture before adding more AI IDE tools](seeds/SEED-069-review-dashboard-multi-tool-architecture.md#review-dashboard-multi-tool-architecture) — SEED-069#review-dashboard-multi-tool-architecture ([plan](slice-plans/200-review-dashboard-multi-tool-architecture/PLAN.md))
 - [Investigate attention from a completed session](seeds/SEED-074-investigate-done-session-alerts.md#investigate-done-session-alerts) — SEED-074#investigate-done-session-alerts
-- [Resolve the dashboard terminal resize crash](seeds/SEED-075-terminal-resize-crash.md#terminal-resize-crash) — SEED-075#terminal-resize-crash
 
 ## Backlog list
 
