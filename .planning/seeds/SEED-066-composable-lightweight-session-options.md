@@ -162,7 +162,7 @@ from today's configured folder alone.
 
 **Identity:** SEED-066#align-one-shot-callers-with-review-default
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/196-align-one-shot-callers-with-review-default/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c89c2432fbb14bed0d68c22e0fb54cf863862286c8193027e47d13b260e279ec","plan":"9a504fcf1036b46807d0049334286d887d2eb73c1c9b550ed6e868758a60064a"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/196-align-one-shot-callers-with-review-default/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c89c2432fbb14bed0d68c22e0fb54cf863862286c8193027e47d13b260e279ec","plan":"d196e5f4338502e8c497981c4d659e5e45fbd209e734f17909d3bcd299e277fc"}}
 ```
 
 **Goal:** Developers and agents relying on one-shot work get guidance, start
