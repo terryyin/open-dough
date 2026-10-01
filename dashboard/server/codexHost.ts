@@ -9,6 +9,7 @@ import { renameCodex, stopCodex } from "./hosts/codex/done.ts";
 import { attachCodex } from "./hosts/codex/terminal.ts";
 import { codexCreationEvidence } from "./hosts/codex/creation.ts";
 import { readCodexResult } from "./hosts/codex/result.ts";
+import { daemonEndpoint } from "./hosts/codex/rpc.ts";
 import { hostDescriptions } from "../src/hostDescription.ts";
 
 export const codexHost: LaunchHost = {
@@ -24,5 +25,8 @@ export const codexHost: LaunchHost = {
   attach: attachCodex,
   rename: renameCodex,
   stop: (...[session, , signal]) => stopCodex(session, signal),
+  prepareSavedSessions: async (signal) => {
+    await daemonEndpoint(signal);
+  },
   close: closeCodexConnections,
 };

@@ -75,7 +75,16 @@ if (process.env.FAKE_CODEX_DAEMON_LOG)
     process.env.FAKE_CODEX_DAEMON_LOG,
     `${JSON.stringify({ cwd: process.cwd() })}\n`,
   );
-process.stdout.write(
+if (process.env.FAKE_CODEX_WAIT_FOR_SOCKET) {
+  const fs = require("node:fs");
+  const started = Date.now();
+  const wait = setInterval(() => {
+    if (Date.now() - started > 5000) process.exit(1);
+    if (!fs.existsSync(process.env.FAKE_CODEX_SOCKET)) return;
+    clearInterval(wait);
+    process.stdout.write(JSON.stringify({ status: "running", socketPath: process.env.FAKE_CODEX_SOCKET }));
+  }, 10);
+} else process.stdout.write(
   JSON.stringify({
     status: "running",
     socketPath: process.env.FAKE_CODEX_SOCKET,

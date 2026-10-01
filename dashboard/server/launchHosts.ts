@@ -65,6 +65,8 @@ export type LaunchHost = {
     signal: AbortSignal,
     recording: LaunchRecording,
   ): Promise<HostLaunch>;
+  // Restore the vendor service for retained sessions without resuming work.
+  prepareSavedSessions?(signal: AbortSignal): Promise<void>;
   close?(): void;
   sessions?: (
     records: readonly LaunchRecord[],

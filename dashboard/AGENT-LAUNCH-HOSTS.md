@@ -64,6 +64,11 @@ without exposing raw stderr; timeout never establishes absence.
 
 Codex discovers/starts the vendor's shared daemon with `codex app-server daemon start`
 from the machine's home directory and connects to its Unix socket. It outlives retired worktrees.
+At dev and preview server startup, retained catalog Codex sessions trigger the
+same idempotent command once, bounded to ten seconds, before passive observation
+and attachment admission. The saved endpoints and identities stay unchanged;
+startup never resumes a conversation or sends input. Missing/refusing Codex
+leaves the dashboard usable with existing unknown observation and recovery.
 `thread/start` receives only the workspace; its returned `thread.id` is the
 conversation ID, never the initialization/session ID. The common store awaits
 durable identity before `turn/start`. First input contains `$<skill> <identity> <flags>`,

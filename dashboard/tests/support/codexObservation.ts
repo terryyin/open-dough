@@ -13,7 +13,7 @@ import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 
 export function observationRecord(
-  server: DashboardServer,
+  server: Pick<DashboardServer, "home">,
   native: FakeCodex,
   id: string,
 ): LaunchRecord & { session: CodexSession } {
@@ -40,7 +40,7 @@ export function observationRecord(
   };
 }
 export function saveObservations(
-  server: DashboardServer,
+  server: Pick<DashboardServer, "home">,
   records: LaunchRecord[],
 ) {
   const folder = path.join(server.home, ".open-dough", "dashboard");

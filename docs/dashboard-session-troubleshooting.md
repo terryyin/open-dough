@@ -1,5 +1,16 @@
 # Dashboard session troubleshooting
 
+After a computer restart, starting the dashboard server automatically starts or
+reuses the Codex background service when saved Codex sessions are retained.
+This applies to both development and built preview servers. Reopening a saved
+session keeps its original conversation, workspace and endpoint. Service startup
+alone never resumes its work or sends a new message.
+
+If Codex is unavailable or refuses to start, saved records remain and the
+dashboard stays usable. Ensure the Codex CLI is available to the dashboard,
+then run `codex app-server daemon start` and retry **Reconnect**. Restarting an
+already-running daemon is never automatic.
+
 Codex terminal attachment uses the conversation's saved workspace and app-server
 endpoint. “Ready for review” describes its native turn; it does not establish
 that the saved directory exists or that attachment will succeed.
