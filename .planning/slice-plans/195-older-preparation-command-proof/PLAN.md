@@ -4,7 +4,7 @@
 
 - Identity: SEED-067#pin-older-preparation-command-proof.
 - Story: [bounded correction](../../seeds/SEED-067-codex-refinement-launch-reliability.md#pin-older-preparation-command-proof).
-- Review: [plan 194](../194-codex-refinement-handoff-retry/PLAN.md), original identity SEED-067#resolve-codex-refinement-launch-failures.
+- Review recovery: `aa488058c4305bd98c7ea049b5713bc2d8df1c24:.planning/slice-plans/194-codex-refinement-handoff-retry/PLAN.md`, with `OBSERVATIONS.md` beside it. Original story recovery is the same commit's `.planning/seeds/SEED-067-codex-refinement-launch-reliability.md#resolve-codex-refinement-launch-failures`; identity SEED-067#resolve-codex-refinement-launch-failures. Plan 194's spent records were removed during wrap-up; this active correction and its scope remain.
 - Related implementation: `8ba333cdb3a74f090e432b5cfdba103d29760cba` adds safe continuation and the older-command scenario; `f5500724cd937250c74dd5964f27c486dd655d5a` fixes fixture typing before publication. `af0bf6ea`, `9e41c72b` preserve native evidence; `f5f134fc7f06d217f012638a0601de21de057732` documents realized handoff. Take `3dc604a9` is claim provenance only. Prior daemon repair and plan 192 work are excluded.
 - Prepared in execution's supplied owned checkout `/Users/terryyin/git/open-dough/.worktrees/codex-refinement-handoff-retry`, branch `codex/codex-refinement-handoff-retry`. Existing integration checkout is `/Users/terryyin/git/open-dough`; review records were published with plan 194's completion increment. Terry authorized queuing this correction first during wrap-up on 2026-10-01; execution remains unauthorized.
 
