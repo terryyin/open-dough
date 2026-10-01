@@ -82,6 +82,15 @@ export type LaunchResult = z.infer<typeof launchResultSchema>;
 // reconciliation, never a fresh start.
 export const agentAcceptEndpoint = `${agentLaunchEndpoint}/accept`;
 
+// A page following an accepted attempt asks here, naming it as `attempt`:
+// the answer comes once the attempt this server runs changes (its
+// publication receipt is noted or it settles), at once when the server runs
+// no such unsettled attempt, or after a bounded wait, and says whether it
+// changed, with the attempt as the server running it knows it (none when no
+// server runs it). The machine's sessions tell the rest, such as a launched
+// session's record.
+export const agentChangedEndpoint = `${agentLaunchEndpoint}/changed`;
+
 export const publicationReceiptSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("none") }),
   z.object({ kind: z.literal("unknown") }),
@@ -122,6 +131,13 @@ export const attemptObservationSchema = launchAttemptSchema.extend({
 });
 
 export type AttemptObservation = z.infer<typeof attemptObservationSchema>;
+
+export const changedAnswerSchema = z.object({
+  changed: z.boolean(),
+  attempt: attemptObservationSchema.optional(),
+});
+
+export type ChangedAnswer = z.infer<typeof changedAnswerSchema>;
 
 // What asking for acceptance answers: the accepted attempt, or what was
 // answered before anything was accepted or started.

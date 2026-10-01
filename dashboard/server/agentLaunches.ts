@@ -6,13 +6,13 @@
 import {
   type Acceptance,
   type AgentLaunchRequest,
+  type ChangedAnswer,
   type AttemptObservation,
   type KeptStart,
   type OfferedDefinition,
   type RunningStart,
   type LaunchWithState,
   type LaunchRecord,
-  type LaunchResult,
 } from "../src/agentLaunch.ts";
 import { catalog, type PublishedSource } from "../src/publishedSource.ts";
 import { launchHost } from "./launchHosts.ts";
@@ -20,11 +20,7 @@ import { launchHosts } from "../src/sessionCapabilities.ts";
 import { withStates } from "./launchStates.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { recordedRequest } from "./hostLaunch.ts";
-import {
-  LaunchAttemptOwner,
-  type Admission,
-  type Unaccepted,
-} from "./launchAttemptOwner.ts";
+import { LaunchAttemptOwner, type Unaccepted } from "./launchAttemptOwner.ts";
 import {
   creationOf,
   keptCreations,
@@ -136,31 +132,35 @@ export class AgentLaunches {
     return this.owner.attempts();
   }
 
+  // Whether the attempt this server runs under `id` changed within `waitMs`
+  // (true at once when it runs no such unsettled attempt), with the attempt
+  // as this server knows it.
+  async changed(id: string, waitMs: number): Promise<ChangedAnswer> {
+    let expired: NodeJS.Timeout | undefined;
+    const waited = new Promise<false>((resolve) => {
+      expired = setTimeout(resolve, waitMs, false);
+      expired.unref();
+    });
+    try {
+      const changed = await Promise.race([
+        this.owner.changed(id).then(() => true),
+        waited,
+      ]);
+      const attempt = this.owner.observation(id);
+      return attempt === undefined ? { changed } : { changed, attempt };
+    } finally {
+      clearTimeout(expired);
+    }
+  }
+
   // Accepts a launch, answering once it is accepted; the launch goes on
   // whatever happens to the caller.
   async accept(
     source: PublishedSource,
     request: AgentLaunchRequest,
   ): Promise<Acceptance> {
-    return (await this.admit(source, request)).answer;
-  }
-
-  // Accepts a launch and answers its outcome once it settles; the caller's
-  // detachment leaves the launch and its durable evidence alive.
-  async launch(
-    source: PublishedSource,
-    request: AgentLaunchRequest,
-  ): Promise<LaunchResult> {
-    const admission = await this.admit(source, request);
-    return "settled" in admission ? admission.settled : admission.answer;
-  }
-
-  private async admit(
-    source: PublishedSource,
-    request: AgentLaunchRequest,
-  ): Promise<Admission> {
     const answer = await this.beforeAcceptance(source, request);
-    if (answer !== undefined) return { answer };
+    if (answer !== undefined) return answer;
     return this.owner.accept(request, (own, notePublication) =>
       attemptRun(source, own, notePublication, this.progress),
     );

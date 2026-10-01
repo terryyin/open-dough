@@ -114,11 +114,10 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
 
     await button.click();
     await dialog.getByRole("button", { name: "Start" }).click();
-    await expect(
-      dialog.getByRole("button", { name: "Starting…" }),
-    ).toBeDisabled();
 
+    // Accepted: the dialog closes while the launch is in flight.
     await expect(dialog).toBeHidden();
+    await expect(button).toBeDisabled();
     await expect(
       page.locator(".project-actions .launch-problem"),
     ).toContainText(

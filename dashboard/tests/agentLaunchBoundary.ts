@@ -2,9 +2,10 @@
 // ./agent-launch-refusal.spec.ts, ./agent-launch-records.spec.ts,
 // ./agent-launch-session-listing.spec.ts, and ./agent-launch-done.spec.ts):
 // one execution launch request for this repository's own story, and its
-// refinement counterpart, sent over raw HTTP to be answered once settled or
-// once accepted, a done mark, a record delete, and what the boundary keeps,
-// read as the machine's sessions and scoped by project.
+// refinement counterpart, sent over raw HTTP to be answered once accepted,
+// or followed to what it settled to (./acceptedAttempts.ts), a done mark, a
+// record delete, and what the boundary keeps, read as the machine's sessions
+// and scoped by project.
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
@@ -16,6 +17,7 @@ import {
 } from "../src/agentLaunch.ts";
 import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
+import { settledOutcome } from "./acceptedAttempts.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { rawRequest, type RawResponse } from "./support/rawHttp.ts";
 
@@ -30,17 +32,39 @@ export const launchRequest = {
 };
 export const refinementRequest = { ...launchRequest, workflow: "refinement" };
 
-export function launch(
+// Asks for a launch and answers what it settled to, as a launch result: the
+// acceptance answer itself when nothing was accepted (or the request was
+// refused), otherwise the accepted attempt's outcome once it settled, a
+// launched one with its record as the machine's sessions list it.
+// Settlement is followed through the attempt's own change answers (or, once
+// no server runs it, what this machine keeps of it), so no read of the
+// machine's sessions, and its host listing, runs before the launch settled.
+export async function launch(
   server: DashboardServer,
   body: unknown,
   headers: Record<string, string> = { Origin: server.origin },
 ): Promise<RawResponse> {
-  return rawRequest({
-    url: `${server.baseURL}${agentLaunchEndpoint}`,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...headers },
-    body: JSON.stringify(body),
+  const accepted = await accept(server, body, headers);
+  if (accepted.status !== 200) return accepted;
+  const answer = JSON.parse(accepted.body) as {
+    kind: string;
+    attempt?: AttemptObservation;
+  };
+  if (answer.kind !== "accepted" || answer.attempt === undefined) {
+    return accepted;
+  }
+  const outcome = await settledOutcome(server, answer.attempt.id);
+  if (outcome.kind !== "launched") {
+    return { ...accepted, body: JSON.stringify(outcome) };
+  }
+  const { session } = outcome;
+  const record = (await machineSessions(server)).find((listed) => {
+    const { host, sessionId } = (
+      listed as { session: { host: string; sessionId: string } }
+    ).session;
+    return host === session.host && sessionId === session.sessionId;
   });
+  return { ...accepted, body: JSON.stringify({ kind: "launched", record }) };
 }
 
 // What a launch of a story already starting on this machine is answered.

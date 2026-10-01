@@ -1,4 +1,5 @@
 // Native connection ownership survives caller detachment and handles racing endings.
+import { agentAcceptEndpoint } from "../src/agentLaunch.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import {
   accept,
@@ -22,7 +23,7 @@ test("an active detached caller still records acknowledgment and a later connect
   const native = protocol;
   if (native === undefined) throw new Error("Missing native fixture.");
   native.hold = true;
-  const response = fetch(`${dashboard.baseURL}/__agent-launch`, {
+  const response = fetch(`${dashboard.baseURL}${agentAcceptEndpoint}`, {
     method: "POST",
     headers: { Origin: dashboard.origin, "Content-Type": "application/json" },
     body: JSON.stringify({ ...refinementRequest, host: "codex" }),

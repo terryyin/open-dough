@@ -5,8 +5,10 @@
 // (execution: not marked Ready for execution; refinement: being prepared)
 // offers the same action, described by that note; the session is asked anyway,
 // and the instruction can say what to do first. A failed or uncertain answer
-// stays on the card with the action. The dialog's mechanics, including the
-// keyboard's return to the action, belong to `LaunchDialog`. On a card whose
+// stays on the card with the action; while the story starts, its card says
+// so (`CardLaunches`) and protects the action (`WorkCard`). The dialog's
+// mechanics, including the keyboard's return to the action, belong to
+// `LaunchDialog`. On a card whose
 // story this machine started without a session (`resumes`), the dialog names
 // the published claim's host/model and the session opens in its kept workspace.
 // A story's Session choices (`LaunchSessionPolicy`) decide its tracking,
@@ -21,11 +23,9 @@ import {
   launchArguments,
   launchWorkflows,
   policyOf,
-  startPhaseWords,
   type KeptStart,
   type LaunchChoices,
   type SessionPolicy,
-  type StartPhase,
   type LaunchWorkflow,
 } from "./agentLaunch.ts";
 import type { SessionPolicyOffer } from "./launchOffers.ts";
@@ -52,7 +52,6 @@ export function StartLaunch({
   resumes,
   note,
   attempt,
-  phase,
   onStart,
 }: {
   readonly onHostChanged?: () => void;
@@ -79,10 +78,7 @@ export function StartLaunch({
   // The workflow's note on this card, if any.
   readonly note: string | undefined;
   readonly attempt: LaunchAttempt | undefined;
-  // The phase of this story's start the server runs now, whichever page
-  // asked for it; its words say it on this card, and Start waits for it.
-  readonly phase: StartPhase | undefined;
-  // Answers whether a session was launched, which then takes the keyboard.
+  // Answers whether the launch was accepted.
   readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
 }) {
   const [selectedHost, setHost] =
@@ -98,16 +94,9 @@ export function StartLaunch({
     typeof establishesForHost === "function"
       ? establishesForHost(host)
       : establishesForHost;
-  const establishes = establishesStart ? spec.establishes : undefined;
-  const pending =
-    phase === undefined
-      ? (establishes?.pending ??
-        spec.pending.replace("Claude Code", hostName(host)))
-      : startPhaseWords(workflow, phase).replace("Claude Code", hostName(host));
   const named = name.toLowerCase();
   const id = useId();
   const starting = attempt?.kind === "starting";
-  const running = starting || phase !== undefined;
   const { launcher, open, openDialog, closeDialog } =
     useLaunchDialogLauncher(starting);
   // The selection of the launch that failed, which the next opening keeps.
@@ -122,7 +111,7 @@ export function StartLaunch({
   const answerId = `${id}-answer`;
   const described = [
     note !== undefined ? noteId : undefined,
-    attempt !== undefined || phase !== undefined ? answerId : undefined,
+    attempt !== undefined && !starting ? answerId : undefined,
   ].filter((part) => part !== undefined);
 
   return (
@@ -138,7 +127,6 @@ export function StartLaunch({
           }
           aria-haspopup="dialog"
           aria-describedby={described.length ? described.join(" ") : undefined}
-          disabled={running}
           onClick={openDialog}
         >
           Start {named}
@@ -149,12 +137,7 @@ export function StartLaunch({
           </span>
         )}
       </p>
-      {running && (
-        <p id={answerId} className="launch-answer quiet">
-          {pending}
-        </p>
-      )}
-      {attempt !== undefined && attempt.kind !== "starting" && !running && (
+      {attempt !== undefined && attempt.kind !== "starting" && (
         <LaunchProblemAnswer id={answerId} problem={attempt} />
       )}
       {open && (
@@ -205,19 +188,18 @@ export function StartLaunch({
           optionsLine={optionsLine(options, skill, named)}
           kept={kept}
           notOfferedLine={notOfferedLine(options, kept)}
-          starting={starting}
           onStart={onStart}
           onRefused={(selected) => {
             refused.current = true;
             setKept(selected);
           }}
-          onClose={(launched) => {
+          onClose={(accepted) => {
             if (!refused.current) {
               setKept(undefined);
               setPolicy(defaultSessionPolicy);
             }
             refused.current = false;
-            closeDialog(launched);
+            closeDialog(accepted);
           }}
         />
       )}

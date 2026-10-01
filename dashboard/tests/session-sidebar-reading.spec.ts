@@ -1,9 +1,10 @@
 // Before the machine's sessions are first read, the Sessions sidebar says so,
 // as Recent sessions does, instead of claiming none are kept; once read with
 // none kept it says so, and with all kept ones marked done it says none is
-// open. A session launched from a card before that first read answers shows
-// on its card at once, keyboard on its entry, and joins the lists the read
-// answers. The page's own dashboard server launches the synthetic `claude`
+// open. A launch from a card before that first read answers shows its
+// startup on its card while the lists keep reading; the read lists its
+// session on the card, keyboard on its entry, and in the lists. The page's
+// own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude).
 
 import { expect, test } from "./dashboardTest.ts";
@@ -68,7 +69,7 @@ test.describe("the Sessions sidebar's reading", () => {
     await expect(entries).toHaveCount(0);
   });
 
-  test("a launch before the first read shows on its card while the lists keep reading, then joins what the read answers", async ({
+  test("a launch before the first read shows its startup on its card while the lists keep reading, then its session joins what the read answers", async ({
     page,
     dashboard,
   }) => {
@@ -87,14 +88,16 @@ test.describe("the Sessions sidebar's reading", () => {
 
     await launch(readyStory, "Execution");
     const own = cardSessions(card(readyStory));
-    await expect(own).toHaveCount(1);
-    await expect(own).toBeFocused();
+    await expect(card(readyStory)).toContainText("Local startup in progress");
     for (const place of [sidebar, recentSessions]) {
       await expect(place).toContainText("Reading sessions…");
     }
     await expect(entries).toHaveCount(0);
+    await expect(own).toHaveCount(0);
 
     answer();
+    await expect(own).toHaveCount(1);
+    await expect(own).toBeFocused();
     await expect(sidebar).not.toContainText("Reading sessions…");
     await expect(recentSessions).not.toContainText("Reading sessions…");
     await expect(entries).toHaveCount(2);

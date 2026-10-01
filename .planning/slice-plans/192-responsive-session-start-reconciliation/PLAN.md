@@ -172,7 +172,24 @@ behavior stays green until slice 2; no intentional failing tests are delivered.
 
 ### 2. Start releases the dashboard while protecting its story
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `dashboard/tests/responsive-session-start.spec.ts` and
+`responsive-session-start-codex.spec.ts` (Claude execution/refinement and ad hoc,
+Codex execution, retained continuation and ad hoc held through the real service;
+pre-submit Cancel/Escape send nothing; lost acknowledgment is uncertain), helpers
+in `dashboard/tests/responsiveStart.ts`. Launch consumer sweep (525) passed.
+Learnings: the browser accepts through `POST /__agent-launch/accept`; the
+full-result `POST /__agent-launch` route is removed. `GET /__agent-launch/changed`
+long-waits on an owned attempt's receipt or settlement so pages reread without
+polling host listings. `storyStartup` (`dashboard/src/storyStartup.ts`) derives
+`submitting | progressing | needs-reconciliation`; `WorkCard` protects the whole
+frame with `<fieldset disabled>`, leaving links usable. Escape needs a window
+keydown capture while submitting (Chrome force-closes on a second Escape).
+Interim: protection ends when the read showing the settled outcome arrives, so a
+Backlog card's actions return before the published read shows Taken — slice 3
+must hold protection until reconciliation. Unowned unsettled attempts show only a
+static explanation and are not protected (slice 4). Not observed: two pages, Codex
+refinement.
 Proof: The new page journey submits each launch mode through the real service
 while work is held. Assert immediate disabled Cancel/Start, Escape suppression,
 immutable submitted choices, modal closure after observed acceptance, all frame

@@ -2,22 +2,20 @@
 // to start a session on this machine in the selected project's folder,
 // with no story or skill and an optional first message of their own. The
 // session is listed in Recent sessions and the Sessions sidebar, like any
-// launched session; no card lists it. A started session opens at once in the
-// page's terminal with the keyboard in it, and Close returns the keyboard to
-// the button. The dialog's mechanics, including the keyboard's return to the
-// button when nothing launched, belong to `LaunchDialog`. A launch that did
-// not start, or may not have, says so beside the button, which stays enabled
-// to start again.
+// launched session; no card lists it. The dialog closes once the local
+// service accepted the launch; while that startup goes on, the button says
+// so beside it and waits for it. A started session then opens in the page's
+// terminal with the keyboard in it, and Close returns the keyboard to the
+// button. The dialog's mechanics, including the keyboard's return to the
+// button when nothing was accepted, belong to `LaunchDialog`. A launch that
+// did not start, or may not have, says so beside the button, which stays
+// enabled to start again. Nothing here makes a card or a story.
 
 import { embeddedTerminal, hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { useId, useState } from "react";
-import {
-  adHocName,
-  type LaunchChoices,
-  type LaunchWithState,
-} from "./agentLaunch.ts";
-import type { LaunchAttempt } from "./launchAttempts.ts";
+import { adHocName, type LaunchChoices } from "./agentLaunch.ts";
+import type { LaunchAttempt, OnLaunched } from "./launchAttempts.ts";
 import { LaunchDialog } from "./LaunchDialog.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
@@ -33,10 +31,12 @@ export function StartSession({
   readonly project: string;
   // The last launch from this row that has not started a session.
   readonly attempt: LaunchAttempt | undefined;
-  // Answers the launched session, which then takes the keyboard.
+  // Answers whether the launch was accepted; its session, once launched, is
+  // presented (`onLaunched`) and then takes the keyboard.
   readonly onStart: (
     choices: LaunchChoices,
-  ) => Promise<LaunchWithState | undefined>;
+    onLaunched: OnLaunched,
+  ) => Promise<boolean>;
 }) {
   const [host, setHost] = useState<AgentLaunchRequest["host"]>("claude");
   const starting = attempt?.kind === "starting";
@@ -54,9 +54,7 @@ export function StartSession({
         className="start-session-button"
         aria-haspopup="dialog"
         aria-label={`Start session in ${project}`}
-        aria-describedby={
-          attempt !== undefined && !starting ? answerId : undefined
-        }
+        aria-describedby={attempt !== undefined ? answerId : undefined}
         disabled={starting}
         onClick={() => {
           setAnnouncement("");
@@ -68,6 +66,11 @@ export function StartSession({
       <p role="log" className="quiet">
         {announcement}
       </p>
+      {attempt?.kind === "starting" && (
+        <p id={answerId} className="launch-answer quiet start-session-answer">
+          Starting a session in {project}… Local startup in progress.
+        </p>
+      )}
       {attempt !== undefined && attempt.kind !== "starting" && (
         <LaunchProblemAnswer
           id={answerId}
@@ -82,17 +85,16 @@ export function StartSession({
           heading={`Start a session in ${project} in ${hostName(host)}`}
           description={`${hostName(host)} starts a background session on this machine, in this project's folder, with no story or skill. It is listed as ${project} · ${adHocName}.`}
           fieldLabel="What would you like to talk about? (optional)"
-          starting={starting}
-          onStart={async (choices) => {
-            const record = await onStart(choices);
-            if (record === undefined || launcher.current === null) {
-              return false;
-            }
-            if (embeddedTerminal(record.session.host))
-              openTerminal({ record, control: launcher.current });
-            setAnnouncement("Ad hoc session started");
-            return true;
-          }}
+          onStart={(choices) =>
+            onStart(choices, (record) => {
+              if (
+                embeddedTerminal(record.session.host) &&
+                launcher.current !== null
+              )
+                openTerminal({ record, control: launcher.current });
+              setAnnouncement("Ad hoc session started");
+            })
+          }
           onClose={closeDialog}
         />
       )}

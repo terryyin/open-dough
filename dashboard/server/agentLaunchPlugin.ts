@@ -1,12 +1,13 @@
 // The local launch boundary, mounted by Vite in dev and preview
 // (`./localBoundaryPlugin.ts`) beside the authenticated read boundary. A same-origin
-// POST to `/__agent-launch` asks to launch an agent on one work item
-// (`./agentLaunches.ts`) and answers its outcome; a same-origin POST to
-// `/__agent-launch/accept` asks the same and answers once the launch's owner
-// accepted it, the launch going on whatever happens to the caller. A
-// same-origin GET answers the machine's sessions: every catalog project's
-// launch records, each naming its project, with each session's current
-// state, and the launch attempts accepted with their receipts and outcomes. A same-origin POST to
+// POST to `/__agent-launch/accept` asks to launch an agent on one work item
+// (`./agentLaunches.ts`) and answers once the launch's owner accepted it,
+// the launch going on whatever happens to the caller; a same-origin GET of
+// `/__agent-launch/changed?attempt=` answers once that accepted attempt
+// changed, or after a bounded wait. A same-origin GET answers the machine's
+// sessions: every catalog project's launch records, each naming its project,
+// with each session's current state, and the launch attempts accepted with
+// their receipts and outcomes. A same-origin POST to
 // `/__agent-launch/done` marks one session it recorded done
 // (`./doneMarks.ts`). A same-origin POST to `/__agent-launch/delete` deletes
 // the record of one session it recorded while Claude Code's listing still
@@ -27,12 +28,13 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, HttpServer, Plugin } from "vite";
 import {
   agentAcceptEndpoint,
+  agentChangedEndpoint,
   agentLaunchEndpoint,
   type Acceptance,
+  type ChangedAnswer,
   type Alerts,
   type AttemptObservation,
   type KeptStart,
-  type LaunchResult,
   type RunningStart,
   type OfferedDefinition,
   type LaunchWithState,
@@ -56,8 +58,13 @@ import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
 
+// How long a wait for an accepted attempt's change is held before it is
+// answered unchanged, for the page to ask again.
+const changeWaitMs = 30_000;
+
 type Answer =
-  | { readonly status: number; readonly body: LaunchResult | Acceptance }
+  | { readonly status: number; readonly body: Acceptance }
+  | { readonly status: number; readonly body: ChangedAnswer }
   | {
       readonly status: number;
       readonly body: {
@@ -146,10 +153,10 @@ async function answer(
             sessionPolicies: await launches.sessionPolicies(),
           },
         };
-      case "launch":
+      case "changed":
         return {
           status: 200,
-          body: await launches.launch(request.source, request.request),
+          body: await launches.changed(request.attempt, changeWaitMs),
         };
       case "accept":
         return {
@@ -197,6 +204,7 @@ function installAgentLaunchMiddleware(
     if (
       url.pathname !== agentLaunchEndpoint &&
       url.pathname !== agentAcceptEndpoint &&
+      url.pathname !== agentChangedEndpoint &&
       url.pathname !== agentDoneEndpoint &&
       url.pathname !== agentDeleteEndpoint
     ) {

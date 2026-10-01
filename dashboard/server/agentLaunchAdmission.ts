@@ -1,9 +1,10 @@
 // Which requests the local launch boundary (`./agentLaunchPlugin.ts`) admits,
-// and the refusal each other one gets: a launch answered once it settles or
-// once it is accepted, a read of the machine's sessions, a done mark on a
-// session it recorded (`./doneMarks.ts`), a delete of a record it kept, and a
-// terminal upgrade (`./agentTerminals.ts`). Every
-// request must come from this dashboard's own origin; a launch, a done mark, a
+// and the refusal each other one gets: a launch answered once it is
+// accepted, a wait for an accepted attempt to change, a read of the
+// machine's sessions, a done mark on a session it recorded
+// (`./doneMarks.ts`), a delete of a record it kept, and a terminal upgrade
+// (`./agentTerminals.ts`). Every request must come from this dashboard's own
+// origin; a launch, a done mark, a
 // delete, or an upgrade must name a catalog project, and a done mark, a delete,
 // or an upgrade a session this dashboard recorded for that project, in its
 // existing folder. A launch's selected options are checked against the
@@ -17,8 +18,10 @@ import {
 } from "../src/sessionReference.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
+import { z } from "zod";
 import {
   agentAcceptEndpoint,
+  agentChangedEndpoint,
   agentLaunchRequestSchema,
   attachOpens,
   launchKindName,
@@ -41,9 +44,10 @@ import { jsonBody } from "./jsonRequestBody.ts";
 
 export type Admitted =
   | { readonly kind: "sessions" }
+  | { readonly kind: "changed"; readonly attempt: string }
   | {
-      // `accept` answers once the launch is accepted, `launch` once it settles.
-      readonly kind: "launch" | "accept";
+      // Answered once the launch is accepted.
+      readonly kind: "accept";
       readonly source: PublishedSource;
       readonly request: AgentLaunchRequest;
     }
@@ -125,10 +129,7 @@ async function deleteRequest(
   return { kind: "delete", source, record };
 }
 
-async function launchRequest(
-  req: IncomingMessage,
-  kind: "launch" | "accept",
-): Promise<Admitted> {
+async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   const parsed = agentLaunchRequestSchema.safeParse(await jsonBody(req));
   if (!parsed.success) {
     throw new RefusedRequest(400, "The launch request is malformed.");
@@ -150,7 +151,7 @@ async function launchRequest(
   const project = projectFolder(source);
   const selected = await withSelectedOptions(request, project);
   return {
-    kind,
+    kind: "accept",
     source,
     request: await withSessionPolicy(selected, project),
   };
@@ -165,7 +166,7 @@ export async function admitted(
   const postOnly = new Map([
     [agentDoneEndpoint, () => doneRequest(req, launches)],
     [agentDeleteEndpoint, () => deleteRequest(req, launches)],
-    [agentAcceptEndpoint, () => launchRequest(req, "accept")],
+    [agentAcceptEndpoint, () => launchRequest(req)],
   ]).get(url.pathname);
   if (postOnly !== undefined) {
     if (req.method !== "POST") {
@@ -173,13 +174,17 @@ export async function admitted(
     }
     return postOnly();
   }
-  if (req.method === "GET") {
-    return { kind: "sessions" };
+  if (req.method !== "GET") {
+    throw new RefusedRequest(405, "Only GET is accepted here.");
   }
-  if (req.method === "POST") {
-    return launchRequest(req, "launch");
+  if (url.pathname === agentChangedEndpoint) {
+    const attempt = z.uuid().safeParse(url.searchParams.get("attempt"));
+    if (!attempt.success) {
+      throw new RefusedRequest(400, "The attempt request is malformed.");
+    }
+    return { kind: "changed", attempt: attempt.data };
   }
-  throw new RefusedRequest(405, "Only GET and POST are accepted here.");
+  return { kind: "sessions" };
 }
 
 // An upgrade attaches only a kept session through its host’s supported

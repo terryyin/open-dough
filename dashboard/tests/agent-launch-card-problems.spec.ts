@@ -88,11 +88,13 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
 
     await start(readyStory).click();
     await dialog.getByRole("button", { name: "Start" }).click();
-    await expect(
-      dialog.getByRole("button", { name: "Starting…" }),
-    ).toBeDisabled();
 
+    // Accepted: the dialog closes while the launch is in flight.
     await expect(dialog).toBeHidden();
+    await expect(card(readyStory)).toContainText(
+      "Starting execution in Claude Code…",
+    );
+    await expect(start(readyStory)).toBeDisabled();
     await expect(card(readyStory)).toContainText(
       "Launch uncertain: Claude Code did not answer in time, so the session may or may not have started. Check claude agents for it before starting again.",
     );

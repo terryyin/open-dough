@@ -1,16 +1,17 @@
 import { sessionKey } from "./sessionReference.ts";
 // A card's launches: on a Backlog card, one Start action per workflow in the
 // order `launchWorkflows` offers them, whatever sessions are listed; on the
-// card of a story whose start the server is running, the phase words of that
-// start (`startPhaseWords`), whichever page started it; on every
+// card of a story starting on this machine, whichever page asked for it, what
+// its local startup is doing (`StartupStatus`); on every
 // card, the story's sessions that have not been marked done (`cardSessionsOf`),
 // newest first, each shown as Recent sessions shows it without the story the
 // card already names, under how many of them need attention, when any do
 // (`attentionSummary`). A Taken card whose story this machine started and
 // holds the start of, with no session yet, also offers Start execution, which
 // opens the session in the kept workspace without a second Take. A launch from
-// the card lists its session here and takes the keyboard to it. Sessions are
-// local evidence: whatever they show, origin alone places the story.
+// the card lists its session here once it settles and takes the keyboard to
+// it. Sessions are local evidence: whatever they show, origin alone places
+// the story.
 
 import { useState } from "react";
 import type { LaunchChoices, LaunchWorkflow } from "./agentLaunch.ts";
@@ -20,10 +21,10 @@ import {
   keptStartNote,
   launchWorkflowNames,
   launchWorkflows,
-  startPhaseWords,
 } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StartLaunch } from "./StartLaunch.tsx";
+import { StartupStatus } from "./StartupStatus.tsx";
 import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { CreationEntry } from "./CreationEntry.tsx";
 import { SessionEntry } from "./SessionEntry.tsx";
@@ -63,20 +64,30 @@ export function CardLaunches({
     const kept = workflow === "refinement" ? keptPreparation : keptOneShot;
     return kept === undefined ? {} : { resumes: kept };
   };
-  const phaseOf = (workflow: LaunchWorkflow) =>
-    launches.startPhaseOf(sourceId, entry.identity, workflow);
-  const phase = phaseOf("execution");
+  const startup = launches.storyStartupOf(sourceId, entry.identity);
   const onStart =
     (workflow: LaunchWorkflow) =>
-    async (choices: LaunchChoices): Promise<StartAnswer> => {
-      const answer = await launches.start(sourceId, entry, workflow, choices);
-      if (answer === undefined) return false;
-      if ("kind" in answer) return answer;
-      setLaunchedHere(sessionKey(answer.session));
-      return true;
-    };
+    (choices: LaunchChoices): Promise<StartAnswer> =>
+      launches.start(sourceId, entry, workflow, choices, (record) => {
+        setLaunchedHere(sessionKey(record.session));
+      });
   return (
     <>
+      {startup !== undefined && (
+        <StartupStatus
+          startup={startup}
+          phase={launches.startPhaseOf(
+            sourceId,
+            entry.identity,
+            startup.workflow,
+          )}
+          establishesStart={launches.establishesStart(
+            sourceId,
+            startup.workflow,
+            startup.host,
+          )}
+        />
+      )}
       {keptStart !== undefined && (
         <StartLaunch
           work={entry}
@@ -86,14 +97,8 @@ export function CardLaunches({
           resumes={keptStart}
           note={keptStartNote}
           attempt={launches.attemptOf(sourceId, entry.identity, "execution")}
-          phase={phase}
           onStart={onStart("execution")}
         />
-      )}
-      {!offersStart && keptStart === undefined && phase !== undefined && (
-        <p className="launch-answer quiet">
-          {startPhaseWords("execution", phase)}
-        </p>
       )}
       {offersStart &&
         launchWorkflowNames.map((workflow) => (
@@ -116,7 +121,6 @@ export function CardLaunches({
                 : launchWorkflows[workflow].note(entry)
             }
             attempt={launches.attemptOf(sourceId, entry.identity, workflow)}
-            phase={phaseOf(workflow)}
             onStart={onStart(workflow)}
           />
         ))}

@@ -40,15 +40,6 @@ export type AttemptRun = (
 // What was answered before anything was accepted or started.
 export type Unaccepted = Exclude<Acceptance, { kind: "accepted" }>;
 
-// A request's admission: answered without acceptance, or accepted with the
-// outcome it settles to.
-export type Admission =
-  | { readonly answer: Unaccepted }
-  | {
-      readonly answer: Extract<Acceptance, { kind: "accepted" }>;
-      readonly settled: Promise<LaunchResult>;
-    };
-
 // The story a launch is of, or undefined for an ad hoc session.
 const storyOf = (request: AgentLaunchRequest) =>
   request.workflow === "ad-hoc" ? undefined : request.identity;
@@ -70,6 +61,11 @@ function attemptOutcome(result: LaunchResult): AttemptOutcome {
 export class LaunchAttemptOwner {
   // The attempts this server accepted, by id, until it closes.
   private readonly owned = new Map<string, OwnedAttempt>();
+  // Each owned attempt's next change while something waits for it, by id.
+  private readonly nextChanges = new Map<
+    string,
+    { readonly change: Promise<void>; readonly tell: () => void }
+  >();
   private closed = false;
 
   // The attempts this machine keeps and those this server owns, oldest
@@ -102,11 +98,11 @@ export class LaunchAttemptOwner {
   async accept(
     request: AgentLaunchRequest,
     run: AttemptRun,
-  ): Promise<Admission> {
+  ): Promise<Acceptance> {
     // Checked and registered in one synchronous step, so of two requests of
     // one story in this server exactly one is accepted.
     const conflict = this.conflicting(request);
-    if (conflict !== undefined) return { answer: conflict };
+    if (conflict !== undefined) return conflict;
     // The confirmation of existing changes is transient: never kept.
     const kept = { ...request };
     if (kept.workflow !== "ad-hoc") delete kept.existingChanges;
@@ -129,18 +125,43 @@ export class LaunchAttemptOwner {
     } catch {
       this.owned.delete(own.attempt.id);
       return {
-        answer: {
-          kind: "failed",
-          reason: "unrecorded",
-          explanation:
-            "This machine's launch evidence could not be written, so the launch was not accepted. Nothing was started or launched.",
-        },
+        kind: "failed",
+        reason: "unrecorded",
+        explanation:
+          "This machine's launch evidence could not be written, so the launch was not accepted. Nothing was started or launched.",
       };
     }
-    return {
-      answer: { kind: "accepted", attempt: this.observed(own.attempt) },
-      settled: this.settle(own, run),
-    };
+    void this.settle(own, run);
+    return { kind: "accepted", attempt: this.observed(own.attempt) };
+  }
+
+  // Settles once the attempt this server runs under `id` changes (its
+  // publication receipt is noted or it settles), or at once when it runs no
+  // such unsettled attempt.
+  changed(id: string): Promise<void> {
+    const own = this.owned.get(id);
+    if (this.closed || own === undefined || own.attempt.outcome !== undefined)
+      return Promise.resolve();
+    const waited = this.nextChanges.get(id);
+    if (waited !== undefined) return waited.change;
+    let tell = () => {};
+    const change = new Promise<void>((resolve) => {
+      tell = resolve;
+    });
+    this.nextChanges.set(id, { change, tell });
+    return change;
+  }
+
+  // The attempt this server accepted under `id`, as it knows it now.
+  observation(id: string): AttemptObservation | undefined {
+    const own = this.owned.get(id);
+    return own && this.observed(own.attempt);
+  }
+
+  // Tells what waits for the attempt's next change that it changed.
+  private changedNow(id: string): void {
+    this.nextChanges.get(id)?.tell();
+    this.nextChanges.delete(id);
   }
 
   // An unsettled attempt this server owns that the request would duplicate:
@@ -176,10 +197,7 @@ export class LaunchAttemptOwner {
 
   // Runs an accepted attempt to its outcome and keeps it; anything the run
   // throws is its uncertain outcome, never an unhandled rejection.
-  private async settle(
-    own: OwnedAttempt,
-    run: AttemptRun,
-  ): Promise<LaunchResult> {
+  private async settle(own: OwnedAttempt, run: AttemptRun): Promise<void> {
     let result: LaunchResult;
     try {
       result = await run(own, (publication) =>
@@ -196,7 +214,6 @@ export class LaunchAttemptOwner {
       outcome: attemptOutcome(result),
       settledAt: new Date().toISOString(),
     });
-    return result;
   }
 
   // Changes an owned attempt and keeps it. When the change cannot be written,
@@ -215,6 +232,7 @@ export class LaunchAttemptOwner {
     } catch {
       // Answered from memory; see above.
     }
+    this.changedNow(id);
   }
 
   // Ends every owned attempt's waits; kept attempts stay as last written,
@@ -224,5 +242,6 @@ export class LaunchAttemptOwner {
     for (const { controller } of this.owned.values()) {
       controller.abort();
     }
+    for (const id of [...this.nextChanges.keys()]) this.changedNow(id);
   }
 }

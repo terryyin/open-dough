@@ -9,19 +9,10 @@
 // acceptance that cannot be kept starts nothing, and a failure after
 // acceptance is the owner's kept outcome rather than a crashed server.
 
-import {
-  chmodSync,
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-} from "node:fs";
+import { chmodSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-import type {
-  AttemptObservation,
-  LaunchAttemptRecord,
-} from "../src/agentLaunch.ts";
+import type { AttemptObservation } from "../src/agentLaunch.ts";
 import {
   accept,
   alreadyStarting,
@@ -32,6 +23,7 @@ import {
   recordsOf,
   runningStarts,
 } from "./agentLaunchBoundary.ts";
+import { keptAttempts as keptOfMachine } from "./acceptedAttempts.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -89,16 +81,7 @@ test.describe("an accepted launch", () => {
 
   const machineStore = () => path.join(server.home, ".open-dough", "dashboard");
 
-  // The attempts kept on this machine, as the file holds them.
-  const keptAttempts = (): LaunchAttemptRecord[] => {
-    const file = path.join(machineStore(), "launch-attempts.json");
-    if (!existsSync(file)) return [];
-    const kept = JSON.parse(readFileSync(file, "utf8")) as Record<
-      string,
-      LaunchAttemptRecord[]
-    >;
-    return Object.values(kept).flat();
-  };
+  const keptAttempts = () => keptOfMachine(server);
 
   const workspaces = (): string[] => {
     const folder = path.join(origin.project, ".worktrees");
@@ -133,7 +116,6 @@ test.describe("an accepted launch", () => {
     // No workflow's launch of the story is accepted while it is unsettled.
     const refinement = { ...request, workflow: "refinement" };
     expect(await answerOf(accept(server, refinement))).toEqual(alreadyStarting);
-    expect(await answerOf(launch(server, refinement))).toEqual(alreadyStarting);
     expect(await answerOf(accept(server, request))).toEqual(alreadyStarting);
     expect(server.claudeCalls()).toEqual([]);
     expect(workspaces()).toHaveLength(1);

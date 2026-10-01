@@ -1,21 +1,26 @@
 // The browser's requests to the local launch boundary
 // (`../server/agentLaunchPlugin.ts`): an ordinary same-origin JSON POST that
-// launches, a GET of the machine's sessions, and a POST that marks one
-// recorded session done. Every launch outcome
-// answers with a launch result; a refusal answers an error the boundary
-// explains. What it answers crossed a process/HTTP boundary, so it is checked
-// as external input. When no launch answer can be trusted, the launch may or
-// may not have started a session, and the result says so.
+// asks the launch owner to accept a launch, a GET that waits for an accepted
+// attempt to change, a GET of the machine's sessions,
+// and a POST that marks one recorded session done. A launch request answers
+// once the owner accepted it, or with what was answered before anything was
+// accepted; a refusal answers an error the boundary explains. What it answers
+// crossed a process/HTTP boundary, so it is checked as external input. When
+// no acceptance answer can be trusted, the launch may or may not have been
+// accepted and started, and the answer says so.
 
 import { z } from "zod";
 import {
+  acceptanceSchema,
+  agentAcceptEndpoint,
   agentLaunchEndpoint,
+  agentChangedEndpoint,
+  changedAnswerSchema,
   launchRecordsSchema,
-  launchResultSchema,
+  type Acceptance,
   type AgentLaunchRequest,
   type LaunchRecord,
   type LaunchWithState,
-  type LaunchResult,
   type MachineAnswer,
 } from "./agentLaunch.ts";
 import {
@@ -34,11 +39,11 @@ export type LaunchProblem = {
   readonly explanation: string;
 };
 
-// What the card shows: a launched record, or a launch problem; or, for its
-// dialog, the default checkout's existing changes to confirm before anything
-// starts.
-export type LaunchAnswer =
-  | Extract<LaunchResult, { readonly kind: "launched" | "existing-changes" }>
+// What asking for a launch answers the page: the attempt the local service
+// accepted, or a launch problem; or, for its dialog, the default checkout's
+// existing changes to confirm before anything starts.
+export type AcceptanceAnswer =
+  | Extract<Acceptance, { readonly kind: "accepted" | "existing-changes" }>
   | LaunchProblem;
 
 const checkAgents = "Check `claude agents` for it before starting again.";
@@ -46,19 +51,19 @@ const checkAgents = "Check `claude agents` for it before starting again.";
 function noTrustedAnswer(
   what: string,
   host: AgentLaunchRequest["host"],
-): LaunchAnswer {
+): AcceptanceAnswer {
   return {
     kind: "uncertain",
-    explanation: `The local dashboard server ${what}, so the session may or may not have started. ${host === "claude" ? checkAgents : "Check the dashboard history and native Codex conversations before starting again."}`,
+    explanation: `The local dashboard server ${what}, so the launch may or may not have been accepted and its session may or may not have started. ${host === "claude" ? checkAgents : "Check the dashboard history and native Codex conversations before starting again."}`,
   };
 }
 
-export async function requestAgentLaunch(
+export async function requestAgentAcceptance(
   request: AgentLaunchRequest,
-): Promise<LaunchAnswer> {
+): Promise<AcceptanceAnswer> {
   let response: Response;
   try {
-    response = await fetch(agentLaunchEndpoint, {
+    response = await fetch(agentAcceptEndpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(request),
@@ -68,7 +73,7 @@ export async function requestAgentLaunch(
   }
   const body: unknown = await response.json().catch(() => undefined);
   if (!response.ok) {
-    // A refusal happens before any host process starts.
+    // A refusal happens before anything is accepted.
     const refused = refusal.safeParse(body);
     return refused.success
       ? {
@@ -80,13 +85,32 @@ export async function requestAgentLaunch(
           request.host,
         );
   }
-  const result = launchResultSchema.safeParse(body);
-  return result.success
-    ? result.data
+  const answer = acceptanceSchema.safeParse(body);
+  return answer.success
+    ? answer.data
     : noTrustedAnswer(
         "answered in a shape this dashboard does not understand",
         request.host,
       );
+}
+
+// Waits for an accepted attempt to change: whether it changed, or undefined
+// when no trustworthy answer came.
+export async function awaitAttemptChange(
+  attempt: string,
+  signal: AbortSignal,
+): Promise<boolean | undefined> {
+  try {
+    const response = await fetch(
+      `${agentChangedEndpoint}?${new URLSearchParams({ attempt }).toString()}`,
+      { signal },
+    );
+    if (!response.ok) return undefined;
+    const answer = changedAnswerSchema.safeParse(await response.json());
+    return answer.success ? answer.data.changed : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 // The machine's sessions: the launch records this machine keeps for every

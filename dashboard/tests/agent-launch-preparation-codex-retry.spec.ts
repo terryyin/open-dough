@@ -9,7 +9,7 @@ import { parts } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { stored } from "./support/codexLaunch.ts";
 import { queuedIdentity, otherQueuedIdentity } from "./support/startOrigin.ts";
-import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
+import { agentAcceptEndpoint } from "../src/agentLaunch.ts";
 import type { StartRecord } from "../server/startStore.ts";
 
 test.use({ preparationHost: "codex" });
@@ -193,7 +193,7 @@ for (const damage of [
     });
     const response = page.waitForResponse(
       (response) =>
-        response.url().endsWith(agentLaunchEndpoint) &&
+        response.url().endsWith(agentAcceptEndpoint) &&
         response.request().method() === "POST",
     );
     await dialog.getByRole("button", { name: "Start", exact: true }).click();

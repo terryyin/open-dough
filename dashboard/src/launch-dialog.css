@@ -187,3 +187,15 @@
   background: var(--quiet);
   border-color: var(--quiet);
 }
+
+/* Everything a submitted launch asked for is disabled at once, without
+   changing the dialog's layout. */
+.launch-dialog-submission {
+  display: contents;
+}
+
+.launch-dialog-cutoff {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--quiet);
+}
