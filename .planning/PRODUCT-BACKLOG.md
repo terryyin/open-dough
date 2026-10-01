@@ -20,6 +20,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Re-optimize CI feedback and test wall time after concurrent story branches land](seeds/SEED-070-reoptimize-ci-test-wall-time.md#reoptimize-ci-test-wall-time) — SEED-070#reoptimize-ci-test-wall-time
 - [Review dashboard architecture before adding more AI IDE tools](seeds/SEED-069-review-dashboard-multi-tool-architecture.md#review-dashboard-multi-tool-architecture) — SEED-069#review-dashboard-multi-tool-architecture
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
