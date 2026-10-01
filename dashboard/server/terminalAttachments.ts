@@ -72,6 +72,14 @@ export class TerminalAttachments {
           )
         : Promise.resolve();
     let reopened = ready ? reopen() : Promise.resolve();
+    const closeUnavailableTerminal = () => {
+      void reopened.then(() => {
+        ws.close(
+          ready ? terminalEndedCode : terminalAttachFailedCode,
+          ready ? "The terminal ended." : `${host.name} could not be attached.`,
+        );
+      });
+    };
     if (!ready)
       ws.send(JSON.stringify({ readiness: "observe" }), { binary: true });
     pty.onData((output) => {
@@ -85,14 +93,7 @@ export class TerminalAttachments {
     // closing.
     pty.onExit(() => {
       if (this.attached.delete(pty)) {
-        void reopened.then(() => {
-          ws.close(
-            ready ? terminalEndedCode : terminalAttachFailedCode,
-            ready
-              ? "The terminal ended."
-              : `${host.name} could not be attached.`,
-          );
-        });
+        closeUnavailableTerminal();
       }
     });
     ws.on("message", (data, isBinary) => {
@@ -117,7 +118,13 @@ export class TerminalAttachments {
         } else if ("input" in message) {
           pty.write(message.input);
         } else {
-          pty.resize(message.resize.cols, message.resize.rows);
+          try {
+            pty.resize(message.resize.cols, message.resize.rows);
+          } catch {
+            // The native descriptor can close before its exit callback arrives.
+            this.detach(pty);
+            closeUnavailableTerminal();
+          }
         }
       }
     });
