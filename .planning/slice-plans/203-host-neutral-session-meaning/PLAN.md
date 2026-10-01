@@ -2,16 +2,30 @@
 
 **Identity:** SEED-075#host-neutral-session-meaning
 **Source:** [refined story](../../seeds/SEED-075-host-neutral-dashboard-before-cursor.md#host-neutral-session-meaning)
-**Authority:** Preparation only; Terry accepted the recommended Codex alert
-policy and requested the original slice plan on 2026-10-01. The current request
-authorizes readiness with an agent-owned wait for the prerequisite's first
-slice. Implementation will start only on Terry's later execution instruction.
+**Authority:** Terry invoked `dough-execute-plan` for this identity on 2026-10-01
+with an established Story Branch start. Execute this plan, including its
+autonomous prerequisite handoff and accepted Codex alert policy.
 **Preparation:** Established one-shot preparation in the default checkout
 `/Users/terryyin/git/open-dough`, branch `main`, starting revision
 `11f748a9b0e58263351e18fb37053cb2d6378221`, remote `origin`, target `main`,
 integration checkout `/Users/terryyin/git/open-dough`, landing `review`.
 No Preparing assignment is published. The original isolated preparation's
 observations remain attributed to its revision below.
+
+**Execution:** Owned checkout
+`/Users/terryyin/git/open-dough/.worktrees/session-meaning-and-wording-are-host-neutral`,
+branch `codex/session-meaning-and-wording-are-host-neutral`, Story Branch Mode,
+publisher `dashboard-mac.lan-open-dough`, agent `ivan-chan`, remote `origin`,
+integration target `main`. The accepted claim and first managed delivery base
+is `cee792a48d17b1685208b5a335e1755dbf8a6438`; starting revision
+`0924aa4f3322c89d9d6cba944b1c3f8d421ac194`. No creation/reuse fact was supplied.
+Ordinary increments publish to `refs/heads/codex/session-meaning-and-wording-are-host-neutral`.
+The claim's trunk CI coverage is unobserved. Existing planning authority is
+retained; no numeric slice target or hard limit is supplied.
+
+`npm ci` completed in this exact checkout and `npm run typecheck:dashboard`
+passed before implementation. The integrated prerequisite leaves the locked
+dependency metadata unchanged, so this preparation remains applicable.
 
 ## Goal and scope
 
@@ -165,7 +179,7 @@ probe owns observation of the owner-held contract after delivery.
 
 ### 1. Observe and integrate the prerequisite's first-slice contract
 Type: Structure
-Status: planned
+Status: done
 Proof: Observe the published candidate and its first-slice delivery evidence,
 integrate it in the execution checkout, inspect its actual description/registry
 exports and existing name consumers, then run `npm run typecheck:dashboard` and
@@ -309,7 +323,7 @@ observable result, its proof and cleanup. Unexpected fixture/interface work or
 integration evidence that invalidates sizing requires revising remaining slices;
 never deliver an intermediate schema/caller mismatch. Execution retains accepted
 proof and completion/review context in this plan for the ordinary retrospective
-and wrap-up; all slices here remain planned.
+and wrap-up; slices 2–5 remain planned.
 
 ## Current decisions and preparation review
 
@@ -335,5 +349,66 @@ and wrap-up; all slices here remain planned.
   not claim the prerequisite is already delivered. After its contract is
   verified, execution continues automatically under the original execution
   instruction. No open goal, scope or handoff decision remains.
-- This preparation does not Take or start execution. The one-shot result stays
-  for review; the later executing agent owns its watch and integration proof.
+- Execution reused the established published claim and completed its autonomous
+  handoff without another start or an invented descriptor. See evidence below.
+
+## Execution evidence
+
+### Slice 1 — prerequisite handoff
+
+Fetched trunk advanced to `103ffacb77d41e6a72ab8d6f464d10bdff558e10`.
+It contains prerequisite implementation `b6f2cb65`, `4e623e37`, `09d5d98a`,
+completion `0e43ebae` and closure `d0bce8ad`. Its spent plan was removed by
+closure; accepted delivery evidence was inspected in historical
+`.planning/slice-plans/205-one-host-description/OBSERVATIONS.md` at
+`0e43ebae12253183d961464f5b064ac0b78f00f3`. Slice 1's descriptor/registry
+and preservation proof are both on trunk. The watch ended after a clean
+fast-forward from the claim to that trunk revision; no published history was
+rewritten and no prerequisite checkout was changed.
+
+The actual browser owner is `dashboard/src/hostDescription.ts`:
+`HostDescription`, `hostDescriptions`, `hostDescription`, offered hosts/models,
+model aliases/names and shared branch namespaces. The server's explicit
+`hostRuntimes` registry and `LaunchHost.description` live in
+`dashboard/server/launchHosts.ts`; `claudeHost.ts` and `codexHost.ts` associate
+their own descriptions. `LaunchHostModel`, `sessionCapabilities`, workflow
+labels and native refusal labels consume these facts. Cursor remains a known
+identity without a delivered runtime. Later slices preserve the delivered
+`hostOperations` projection and explicit-host interfaces.
+
+Current proof in this execution checkout:
+
+```sh
+npm run typecheck:dashboard
+env -u NO_COLOR npm run test:dashboard -- agent-launch-model.spec.ts agent-launch-model-boundary.spec.ts agent-launch-codex.spec.ts agent-launch-refusal.spec.ts
+```
+
+Both commands reached terminal exit 0; the browser command used the quiet
+reporter. The production build and isolated servers use `globalSetup`,
+`publishLaunchJourney`, `dashboardTest`/`dashboardServer` and native protocol
+substitutes supplying only starting conditions and vendor replies. Inspected
+model-spec choice/reset/native-argv assertions, model-boundary stored-request
+and forged-model refusal assertions, Codex dialog/default/native thread/turn
+dispatch and restart assertions, and refusal-spec no-vendor-call assertions.
+Together these reach browser → HTTP → store/native adapter and preserve host
+names, model offerings/defaults, dispatch and unavailable runtime refusal.
+No real vendor or notification was started.
+
+Independent post-change refactor returned `## REFACTOR COMPLETE`: empty
+uncommitted scope, no edits or tests, accepted proof unchanged. The selected
+Prettier invocation against this ignored planning path completed as a no-op;
+the staged check-only commit hook owns lint. No generation is triggered.
+
+### CI observation and delivery
+
+Source: GitHub Actions; verified selector `ci.yml` (push-triggered for the
+execution branch; no existing branch run was returned at verification).
+Observer: `/tmp/dough-ci-501/watch-LkPomH`, coordinator `root-ivan-chan`,
+yielded cell `26`, session `44395`, PID `24803`, bound to this execution
+checkout and `terryyin/open-dough` branch
+`codex/session-meaning-and-wording-are-host-neutral`.
+The documented Codex yielded stream owns one observer; managed increment
+delivery reuses that live matching observer. The runtime has no stream-attach
+operation for a detached managed observer, so the supported stream was armed
+before managed delivery rather than creating a detached worker without a
+notification binding. No separate registration or second observer is used.
