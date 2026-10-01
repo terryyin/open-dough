@@ -15,6 +15,7 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Session meaning and wording are host-neutral](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#host-neutral-session-meaning) — SEED-075#host-neutral-session-meaning ([plan](slice-plans/203-host-neutral-session-meaning/PLAN.md))
+- [Start the Codex service when the dashboard starts](seeds/SEED-078-codex-service-on-dashboard-startup.md#codex-service-on-dashboard-startup) — SEED-078#codex-service-on-dashboard-startup
 
 ## Backlog list
 
