@@ -186,6 +186,26 @@ or claims of readiness.
   boundary in the maintained launch contract. Cursor must prove its native
   identity, observation, attachment and lifecycle independently; Claude's state
   vocabulary and listing read do not establish Cursor behavior.
+- **Native questions:** Settle with native Cursor evidence, assuming no answer:
+  - Can its CLI read a recorded conversation's state without resuming it or
+    taking interactive control, and tell confirmed absence from an unreadable
+    answer? Which native states map to working, waiting (with what reason),
+    review, failed, interrupted and awaiting instruction, and should an
+    unrecognized state alert?
+  - What conversation identifier does it return, before or after first input?
+    Does attach or stop need a separate alias? Is there evidence to keep before
+    identity exists?
+  - Does an interactive CLI process attach to an existing conversation through
+    a PTY? What shows that it is ready? Does it need the original workspace?
+    Does ending that client (SIGHUP) leave the conversation running?
+  - Can it interrupt current work while keeping history, and rename a
+    conversation, with confirmation?
+  - Which ordinary-terminal command continues a recorded conversation, and
+    with which recorded arguments?
+  - Does the dashboard hold a native connection to release on server close,
+    and does a listing depend on the folder it runs in?
+  - Which models can a launch select, how is a skill invoked, and what should
+    the "no trusted answer" hint tell the developer to check?
 - **Depends on:** The chosen Claude Code experience; no dependency on story 7.
 - **Safe stopping point:** Each delivered tool remains usable if later parity
   enhancements are dropped.
