@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "identity": "SEED-066#align-one-shot-callers-with-review-default",
+  "mode": "story-branch",
+  "branch": "codex/align-one-shot-callers-and-starts-with-the-revie",
+  "host": "codex"
+}
