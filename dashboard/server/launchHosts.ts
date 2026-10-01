@@ -18,6 +18,7 @@ import type {
   SessionObservation,
 } from "./hostLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
+import type { SessionResult } from "../src/sessionResult.ts";
 
 export type LaunchHost = {
   readonly name: string;
@@ -45,6 +46,10 @@ export type LaunchHost = {
     folder: ProjectFolder,
     signal: AbortSignal,
   ) => Promise<readonly SessionObservation[]>;
+  readResult?(
+    session: HostSession,
+    signal: AbortSignal,
+  ): Promise<SessionResult>;
   attach?(
     session: HostSession,
     folder: ProjectFolder,

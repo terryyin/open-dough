@@ -2,7 +2,8 @@
 
 **Identity:** SEED-076#session-after-workspace-retirement
 **Source:** [refined story](../../seeds/SEED-076-session-after-workspace-retirement.md#session-after-workspace-retirement)
-**Authority:** Planning only. No Take, implementation, commit, or publication.
+**Authority:** Execution authorized by Terry's `dough-execute-plan` invocation on
+2026-10-01, using the supplied established start in Story Branch Mode.
 **Preparation:** Reused the established workspace
 `/Users/terryyin/git/open-dough/.worktrees/show-truthful-session-access-after-its-workspace`,
 branch `codex/show-truthful-session-access-after-its-workspace`, starting revision
@@ -10,6 +11,17 @@ and published assignment `bb1b005555cbbc0d83cf8d68df7743dbf5a4482a`,
 agent `jackson-chan`, remote `origin`, target `main`, integration checkout
 `/Users/terryyin/git/open-dough`. Git branch, HEAD, worktree listing and
 `refs/worktree/dough/created-for/` confirmed the supplied identity.
+
+**Execution context:** Owned checkout and branch above; identity
+`SEED-076#session-after-workspace-retirement`, publisher
+`dashboard-mac.lan-open-dough`, execution agent `juacompe-chan`, starting revision
+`1ff6dd388f29fc6d2c98cdee49e593448063a2e4`, established published claim
+`1a97994b1e6aa6fbdcc31562aafd7817dc5b4e95`, remote `origin`, trunk `main`.
+Story increments publish to `refs/heads/codex/show-truthful-session-access-after-its-workspace`.
+The remote execution branch was confirmed at the claim. Checkout-bound `npm ci`
+and `npm run typecheck:dashboard` passed; dependencies are local, without the
+planning session's dependency symlink. Existing planning authority is retained
+for bounded replanning; no numeric slice target or hard limit was supplied.
 
 ## Goal and scope
 
@@ -160,7 +172,7 @@ size requires adjusting remaining slices, preserving accepted proof.
 
 ### 1. Establish a passive retained-report contract
 Type: Structure
-Status: planned
+Status: done
 Proof: Bounded read-only native probe of the known saved Codex conversation with
 its absent workspace, observing matching thread ID, completed-turn final report,
 and no resume/start/input/interrupt. Then focused adapter contracts with that
@@ -181,6 +193,41 @@ do not silently switch to native navigation or restore the workspace.
 Safe stop: current dashboard behavior remains green; feasibility is established
 or dependent work is explicitly stopped. No new model turn or fixture report
 counts as native proof.
+
+Accepted proof (2026-10-01): Codex 0.159.3 returned the retained conversation
+`01a0f713-8a12-75b3-980b-998b1a3841f8` through its saved Unix endpoint with
+`initialize`, `initialized`, and `thread/read {threadId, includeTurns:true}` only.
+Its saved workspace lookup returned ENOENT, native status was `notLoaded`, and
+latest completed turn `01a0f720-5643-7d03-bc93-5cae1b02ac40` contained the final
+`agentMessage` with `phase: final_answer`, string `text`, and nullable
+`memoryCitation`, `delivery`, and `questions`. The actual `LaunchHost.readResult`
+adapter returned the exact report: landing at `a5df85d90a`, new story 3, story 2
+not ready, released Preparing assignment, refreshed integration, removed worktree
+and branch, and no product code change. The live machine document was byte-for-byte
+unchanged; its newer `doneAt: 2026-10-01T11:18:09.545Z` was preserved. This newer
+done intent changes the native acceptance precondition, not story scope.
+
+Literal adapter probe: `node --disable-warning=ExperimentalWarning
+--experimental-transform-types --input-type=module` imported `launchHost`, read
+the matching saved record from `~/.open-dough/dashboard/agent-launches.json`, and
+called `launchHost('codex').readResult(record.session,AbortSignal.timeout(10000))`.
+It compared exact final text/turn ID with the prior passive native read, statted
+the saved cwd, and compared before/after document bytes; exit 0. Compact temporary
+native payload `/tmp/open-dough-seed-076-native-report.json` remains only for
+slice 2's real-native report-to-view observation, after which it is disposable.
+
+`npm run typecheck:dashboard` and
+`env -u NO_COLOR npm run test:dashboard -- session-result-codex.spec.ts
+agent-launch-codex-observation-status.spec.ts agent-terminal-codex.spec.ts`
+passed. The four result cases inspect the real host/RPC boundary against vendor
+payloads: exact report with absent cwd and passive method whitelist, id/cwd
+mismatch, refusal/disconnection/cancellation/retry, and latest-result uncertainty.
+The setup checks no cwd creation and closed native connections. Existing focused
+specs preserve native observation, saved-cwd continuation, detach, readiness, and
+done marks. Shared vendor fixtures and recovery were unchanged. Independent
+post-change refactoring returned `none — already clean`; subsequent test lint
+repairs preserve the same setup/assertion semantics. No public report route or
+view is claimed until slice 2.
 
 ### 2. Review retained results when their workspace is unavailable
 Type: Behavior
