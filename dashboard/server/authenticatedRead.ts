@@ -8,7 +8,8 @@
 // when one reachable record was last committed there, or which commit added
 // a listed profile, when, and who committed it (`./ghProfileAddition.ts`), or
 // resolve the story branch a Taken entry's profile records there and read
-// that entry's plan, or its last commit, at the head found.
+// that entry's plan, or its last commit, at the head found, or ask whether it
+// contains a launch's accepted publication (`./containmentRead.ts`).
 // Request refusal: `./localOrigin.ts`; which read a request asks for:
 // `./requestedRead.ts`; performing it: `./performedRead.ts`, on a story
 // branch `./performedBranchRead.ts`, and what it comes to `./readOutcome.ts`;

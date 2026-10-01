@@ -5,7 +5,11 @@
 // listings with `git ls-tree` at that revision — never with hand-constructed
 // display state; each listed agent profile's history is its addition by a
 // commit of its own (./pathHistoryAnswers.ts). A listing and a history read
-// are answered but not observed.
+// are answered but not observed. A comparison of two commits is answered from
+// the repository's own history (./comparisonAnswers.ts) and kept in
+// `compares`. A repository the journey publishes to may be followed
+// (`follows`): its `main` is then the published revision as each request
+// arrives, as GitHub follows pushes, and any of its commits is readable.
 
 import { execFileSync } from "node:child_process";
 import type { Page } from "@playwright/test";
@@ -19,6 +23,7 @@ import {
   rawFileAnswer,
   type OriginAnswer,
 } from "./originAnswers.ts";
+import { comparisonIn } from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 import { commitAnswerIn, commitListIn } from "./pathHistoryAnswers.ts";
 
@@ -59,14 +64,30 @@ function listAt(repoDir: string, revision: string, directory: string) {
   }
 }
 
+// The commit `name` names in the repository, if it names one.
+function commitOf(repoDir: string, name: string): string | undefined {
+  try {
+    return execFileSync(
+      "git",
+      ["-C", repoDir, "rev-parse", "--verify", "--quiet", `${name}^{commit}`],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+    ).trim();
+  } catch {
+    return undefined;
+  }
+}
+
 export type CommittedOrigin = {
   readonly requests: ObservedRequest[];
+  // Each comparison asked, as `<base>...<head>`, in arrival order.
+  readonly compares: string[];
   readonly revision: string;
   readonly repository: string;
   readonly repoDir: string;
+  // Holds "main", "compare", or a repository path's answers until released.
   hold(repositoryPath: string): () => void;
-  // Answers "main", a repository path, or a listed directory with this raw
-  // answer until restore.
+  // Answers "main", "compare", a repository path, or a listed directory with
+  // this raw answer until restore.
   answerWith(what: string, answer: OriginAnswer): () => void;
   advanceTo(revision: string): void;
 };
@@ -77,11 +98,20 @@ export function publishCommittedOrigin(
     readonly repoDir: string;
     readonly revision: string;
     readonly repository: string;
+    readonly follows?: boolean;
   },
 ): Promise<CommittedOrigin> {
   const { repoDir, repository } = options;
   let revision = options.revision;
+  const follows = options.follows === true;
+  // The revision `main` names now.
+  const published = () =>
+    follows ? (commitOf(repoDir, "main") ?? revision) : revision;
+  // Whether a pinned read of `at` is answered.
+  const readable = (at: string) =>
+    follows ? commitOf(repoDir, at) === at : at === revision;
   const requests: ObservedRequest[] = [];
+  const compares: string[] = [];
   const held = new Map<string, Promise<void>>();
   const instead = new Map<string, OriginAnswer>();
 
@@ -90,43 +120,54 @@ export function publishCommittedOrigin(
     if (request.kind === "ref" && request.ref === "main") {
       observe(requests, call);
       await held.get("main");
-      return instead.get("main") ?? commitAnswer(revision);
+      return instead.get("main") ?? commitAnswer(published());
+    }
+    if (request.kind === "compare") {
+      compares.push(`${request.base}...${request.head}`);
+      await held.get("compare");
+      const overridden = instead.get("compare");
+      if (overridden !== undefined) return overridden;
+      return comparisonIn(repoDir, request.base, request.head);
     }
     if (request.kind === "matching-refs") {
       await held.get("main");
-      return asHeadsListing(instead.get("main") ?? commitAnswer(revision));
+      return asHeadsListing(instead.get("main") ?? commitAnswer(published()));
     }
-    if (request.kind === "listing" && request.revision === revision) {
+    if (request.kind === "listing" && readable(request.revision)) {
       const overridden = instead.get(request.path);
       if (overridden !== undefined) {
         return overridden;
       }
-      const listed = listAt(repoDir, revision, request.path);
+      const listed = listAt(repoDir, request.revision, request.path);
       return listed === undefined
         ? noConnection
         : directoryListingAnswer(request.path, listed);
     }
     // Each agent profile listed at the revision was added by a commit of its
     // own; these history reads are answered but not observed.
-    const profiles = () => ({
+    const profiles = (at = published()) => ({
       files: Object.fromEntries(
-        (listAt(repoDir, revision, ".planning/agents") ?? []).map((path) => [
+        (listAt(repoDir, at, ".planning/agents") ?? []).map((path) => [
           path,
           "",
         ]),
       ),
     });
-    if (request.kind === "commit-list" && request.revision === revision) {
+    if (request.kind === "commit-list" && readable(request.revision)) {
       return (
-        commitListIn(profiles(), request.path, request.perPage) ?? noConnection
+        commitListIn(
+          profiles(request.revision),
+          request.path,
+          request.perPage,
+        ) ?? noConnection
       );
     }
     if (request.kind === "commit") {
       return commitAnswerIn([profiles()], request.sha) ?? noConnection;
     }
-    // Only the currently published revision is readable; any other gets no
-    // answer and is not observed.
-    if (request.kind !== "content" || request.revision !== revision) {
+    // Only the currently published revision is readable, or, followed, any
+    // commit; any other gets no answer and is not observed.
+    if (request.kind !== "content" || !readable(request.revision)) {
       return noConnection;
     }
     observe(requests, call);
@@ -141,8 +182,9 @@ export function publishCommittedOrigin(
 
   return Promise.resolve({
     requests,
+    compares,
     get revision() {
-      return revision;
+      return published();
     },
     repository,
     repoDir,

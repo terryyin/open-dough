@@ -147,6 +147,11 @@ test("each entry shows why its session needs attention, or that it does not, the
       await refinementDialog.getByRole("button", { name: "Start" }).click();
     }
     await expect(entries).toHaveCount(before + 1);
+    // The published read that reconciles the start lands before page time
+    // passes, so its wait bound never ends it.
+    await expect(
+      card(title).getByRole("button", { name: "Inspect story" }),
+    ).toBeEnabled();
   }
   // One session's card entry (the second launch: blocked with a reason, then
   // stopped) is rendered as its Recent sessions entry is, so it alone is

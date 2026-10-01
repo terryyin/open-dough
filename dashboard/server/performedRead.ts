@@ -4,8 +4,8 @@
 // are tracked for the request's lifetime, and any failure is worded for this
 // source and what was being read when it failed. Reads on a story branch are
 // performed in `./performedBranchRead.ts`, revision checks in
-// `./performedRevisionCheck.ts`; what a read comes to is
-// `./readOutcome.ts`.
+// `./performedRevisionCheck.ts`, containment in `./containmentRead.ts`; what
+// a read comes to is `./readOutcome.ts`.
 
 import type { IncomingMessage } from "node:http";
 import type { AvatarImages } from "./avatarImages.ts";
@@ -21,6 +21,7 @@ import { performRevisionCheck } from "./performedRevisionCheck.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import type { RevisionChecks } from "./revisionChecks.ts";
 import { withTrackedGh } from "./trackedGh.ts";
+import { performContainmentRead } from "./containmentRead.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import {
   answered,
@@ -41,6 +42,7 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   readingAdditionAt,
   readingBranchHeadOf,
+  readingContainmentAt,
   readingLastCommitAt,
   readingPathAt,
   readingRefOf,
@@ -95,6 +97,8 @@ function readingOf(source: PublishedSource, read: RequestedRead): string {
       return readingAdditionAt(read.path, read.revision);
     case "backlog-at":
       return readingPathAt(source.backlogPath, read.revision);
+    case "containment-at":
+      return readingContainmentAt(read.accepted, read.revision);
   }
 }
 
@@ -162,6 +166,8 @@ export async function perform(
             },
           });
         }
+        case "containment-at":
+          return await performContainmentRead(source, read, signal);
         case "branch-head-at":
           return await performBranchHeadRead(
             { pinned, branches },
@@ -169,35 +175,7 @@ export async function perform(
             read,
             signal,
           );
-        case "commit-time-at": {
-          if (read.onBranch !== undefined) {
-            return await performOnBranch(
-              { pinned, branches },
-              source,
-              read,
-              read.onBranch,
-              signal,
-            );
-          }
-          const reachable = await pathReachableFromRevision(
-            source,
-            read.revision,
-            read.path,
-            pinned.reader(source, read.revision, signal),
-          );
-          if (!reachable) {
-            return unreachable;
-          }
-          return answered({
-            revision: read.revision,
-            path: read.path,
-            committedAt: await pinned.committer(
-              source,
-              read.revision,
-              signal,
-            )(read.path),
-          });
-        }
+        case "commit-time-at":
         case "file-at": {
           if (read.onBranch !== undefined) {
             return await performOnBranch(
@@ -208,23 +186,34 @@ export async function perform(
               signal,
             );
           }
-          const readPinned = pinned.reader(source, read.revision, signal);
-          const reachable = await pathReachableFromRevision(
-            source,
-            read.revision,
-            read.path,
-            readPinned,
-          );
-          if (!reachable) {
+          const { revision, path } = read;
+          const readPinned = pinned.reader(source, revision, signal);
+          if (
+            !(await pathReachableFromRevision(
+              source,
+              revision,
+              path,
+              readPinned,
+            ))
+          ) {
             return unreachable;
           }
-          return answered({
-            revision: read.revision,
-            path: read.path,
-            text: await readPinned(read.path),
-          });
+          return read.kind === "file-at"
+            ? answered({ revision, path, text: await readPinned(path) })
+            : answered({
+                revision,
+                path,
+                committedAt: await pinned.committer(
+                  source,
+                  revision,
+                  signal,
+                )(path),
+              });
         }
         case "ref": {
+          // When the ref was asked, by this server's clock, as launch
+          // attempts settle by it.
+          const askedAt = new Date().toISOString();
           const revision = await resolveRevisionViaGh(
             source.repository,
             source.ref,
@@ -241,7 +230,7 @@ export async function perform(
             signal,
           );
           pinned.remember(source, revision, source.backlogPath, backlog);
-          return answered({ revision, backlog });
+          return answered({ revision, backlog, askedAt });
         }
       }
     });

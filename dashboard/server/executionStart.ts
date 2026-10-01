@@ -28,7 +28,12 @@ import {
   record,
   recordStop,
 } from "./startRecording.ts";
-import { readStartResult, refusal, type StartResult } from "./startResult.ts";
+import {
+  keepsStart,
+  readStartResult,
+  refusal,
+  type StartResult,
+} from "./startResult.ts";
 import {
   keepStart,
   keptStart,
@@ -197,6 +202,7 @@ async function runningStart(
           { workspace: workspace.shown, branch },
           oneShot,
         ),
+        ...(keepsStart(result) ? {} : { publishedNothing: true }),
       };
     } finally {
       progress.clear(source.id, request.identity);

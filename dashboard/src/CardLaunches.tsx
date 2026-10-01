@@ -10,10 +10,12 @@ import { sessionKey } from "./sessionReference.ts";
 // holds the start of, with no session yet, also offers Start execution, which
 // opens the session in the kept workspace without a second Take. A launch from
 // the card lists its session here once it settles and takes the keyboard to
-// it. Sessions are local evidence: whatever they show, origin alone places
+// it. A launch this page asked for whose answer no Start on the card shows,
+// as when origin moved the story to Taken meanwhile, keeps that answer on the
+// card. Sessions are local evidence: whatever they show, origin alone places
 // the story.
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import type { LaunchChoices, LaunchWorkflow } from "./agentLaunch.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import {
@@ -25,10 +27,12 @@ import {
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StartLaunch } from "./StartLaunch.tsx";
 import { StartupStatus } from "./StartupStatus.tsx";
+import { startupProtects } from "./storyStartup.ts";
 import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { CreationEntry } from "./CreationEntry.tsx";
 import { SessionEntry } from "./SessionEntry.tsx";
 import { attentionSummary } from "./sessionShown.ts";
+import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 
 export function CardLaunches({
   sourceId,
@@ -65,6 +69,17 @@ export function CardLaunches({
     return kept === undefined ? {} : { resumes: kept };
   };
   const startup = launches.storyStartupOf(sourceId, entry.identity);
+  const unavailable = startupProtects(startup);
+  const answerId = useId();
+  // The answers of this page's launches that no Start on the card shows.
+  const unshown = launchWorkflowNames.flatMap((workflow) => {
+    if (offersStart || (workflow === "execution" && keptStart !== undefined))
+      return [];
+    const attempt = launches.attemptOf(sourceId, entry.identity, workflow);
+    return attempt === undefined || attempt.kind === "starting"
+      ? []
+      : [{ workflow, problem: attempt }];
+  });
   const onStart =
     (workflow: LaunchWorkflow) =>
     (choices: LaunchChoices): Promise<StartAnswer> =>
@@ -97,6 +112,7 @@ export function CardLaunches({
           resumes={keptStart}
           note={keptStartNote}
           attempt={launches.attemptOf(sourceId, entry.identity, "execution")}
+          unavailable={unavailable}
           onStart={onStart("execution")}
         />
       )}
@@ -121,9 +137,17 @@ export function CardLaunches({
                 : launchWorkflows[workflow].note(entry)
             }
             attempt={launches.attemptOf(sourceId, entry.identity, workflow)}
+            unavailable={unavailable}
             onStart={onStart(workflow)}
           />
         ))}
+      {unshown.map(({ workflow, problem }) => (
+        <LaunchProblemAnswer
+          key={workflow}
+          id={`${answerId}-${workflow}`}
+          problem={problem}
+        />
+      ))}
       {launches.creations
         .filter(
           (record) =>

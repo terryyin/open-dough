@@ -44,6 +44,7 @@ import { ReadProblem } from "./readProblem.ts";
 const okSnapshot = z.object({
   revision: commitSha,
   backlog: z.string(),
+  askedAt: z.iso.datetime().optional(),
 });
 const okFile = z.object({
   revision: commitSha,
@@ -63,9 +64,12 @@ const okCheck = z.object({
     .optional(),
 });
 
+// When the read resolved the ref itself, `askedAt` is when the local server
+// asked for it, by that server's clock.
 export type PublishedSnapshot = {
   readonly revision: string;
   readonly backlog: string;
+  readonly askedAt?: string | undefined;
 };
 
 // Resolves the source's ref to one commit and reads its backlog at that

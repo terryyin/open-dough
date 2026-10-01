@@ -59,6 +59,9 @@ export type PublishedWork = {
   readonly source: PublishedSource;
   readonly revision: string;
   readonly retrievedAt: Date;
+  // When the local server asked for the ref this read resolved, by its own
+  // clock; absent when the revision was resolved before the read.
+  readonly refAskedAt?: string;
   // "" when the backlog records no near-future direction.
   readonly direction: string;
   readonly taken: readonly WorkEntry[];

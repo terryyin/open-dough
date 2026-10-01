@@ -39,9 +39,15 @@ export function establishedFacts(established: Established): EstablishedContext {
   return "start" in established ? established.start : established.preparation;
 }
 
+// A refused start that published nothing says so (`publishedNothing`);
+// otherwise it may have published.
 export type StartAttempt =
   | ({ readonly kind: "established" } & Established)
-  | { readonly kind: "refused"; readonly explanation: string };
+  | {
+      readonly kind: "refused";
+      readonly explanation: string;
+      readonly publishedNothing?: true;
+    };
 
 export type PlannedStart =
   // The installed skill cannot continue from a start: launch as before.

@@ -42,9 +42,17 @@ export function App() {
   const returningFromRoster = useRef(false);
 
   const initialSource = useRef(parseRoute(window.location).route.source);
-  const { source, work, attempt, notice, reading, refresh, selectSource } =
-    usePublishedObservation(initialSource.current);
-  const launches = useAgentLaunches();
+  const {
+    source,
+    work,
+    shown,
+    attempt,
+    notice,
+    reading,
+    refresh,
+    selectSource,
+  } = usePublishedObservation(initialSource.current);
+  const launches = useAgentLaunches({ shown, reading, readAfresh: refresh });
 
   const onReturnToStories = useCallback(() => {
     returningFromRoster.current = true;

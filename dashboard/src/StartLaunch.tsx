@@ -52,6 +52,7 @@ export function StartLaunch({
   resumes,
   note,
   attempt,
+  unavailable = false,
   onStart,
 }: {
   readonly onHostChanged?: () => void;
@@ -78,6 +79,9 @@ export function StartLaunch({
   // The workflow's note on this card, if any.
   readonly note: string | undefined;
   readonly attempt: LaunchAttempt | undefined;
+  // Whether the card's actions are protected while its story starts: the
+  // keyboard returns to the button only once it is available again.
+  readonly unavailable?: boolean;
   // Answers whether the launch was accepted.
   readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
 }) {
@@ -97,8 +101,9 @@ export function StartLaunch({
   const named = name.toLowerCase();
   const id = useId();
   const starting = attempt?.kind === "starting";
-  const { launcher, open, openDialog, closeDialog } =
-    useLaunchDialogLauncher(starting);
+  const { launcher, open, openDialog, closeDialog } = useLaunchDialogLauncher(
+    starting || unavailable,
+  );
   // The selection of the launch that failed, which the next opening keeps.
   const [kept, setKept] = useState<ReadonlySet<string>>();
   // The session policy chosen; a failed launch's stays for the next opening.

@@ -12,14 +12,16 @@
 // stories, Refresh, and project navigation work. An unattached session gets
 // the same cutoff and handoff, with progress beside its own action and no
 // card. A lost acknowledgment is uncertain, never accepted success. Before
-// Start, Cancel and Escape send nothing. Only the delivery of the acceptance
-// answer to the page is held here; the service's admission, publication, and
-// outcome are the real ones.
+// Start, Cancel and Escape send nothing. Once settled, the story's actions
+// return where the published read places it
+// (./responsive-session-reconciliation.spec.ts tells how). Only the delivery
+// of the acceptance answer to the page is held here; the service's admission,
+// publication, and outcome are the real ones.
 
 import { agentAcceptEndpoint } from "../src/agentLaunch.ts";
 import { attempts } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
-import { expect, test as base } from "./dashboardTest.ts";
+import { expect } from "./dashboardTest.ts";
 import {
   countAcceptanceRequests,
   expectOthersWork,
@@ -28,24 +30,10 @@ import {
   holdAcceptanceAnswers,
   instruction,
   openStories,
+  test,
 } from "./responsiveStart.ts";
-import {
-  queuedIdentity,
-  startOrigin,
-  type StartOrigin,
-} from "./support/startOrigin.ts";
+import { queuedIdentity } from "./support/startOrigin.ts";
 
-const test = base.extend<{ origin: StartOrigin }>({
-  // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const origin = await startOrigin();
-    await use(origin);
-    origin.cleanup();
-  },
-  machine: async ({ origin }, use) => {
-    await use(origin.machine);
-  },
-});
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
 for (const start of [
@@ -68,7 +56,7 @@ for (const start of [
     test.setTimeout(120_000);
     const push = origin.holdPushes();
     dashboard.claudeScenario("held");
-    const { story, other } = await openStories(page, origin);
+    const { story, takenStory, other } = await openStories(page, origin);
     const answers = await holdAcceptanceAnswers(page);
 
     await story.getByRole("button", { name: start.action }).click();
@@ -122,12 +110,14 @@ for (const start of [
     );
     await expectProtected(story);
 
-    // Settled: the session is listed and the card's actions return.
+    // Settled: the session is listed and the card's actions return where
+    // the published read places the story.
     dashboard.releaseHeldClaude();
-    await expect(cardSessions(story)).toHaveCount(1, { timeout: 30_000 });
-    await expect(story).not.toContainText("Local startup in progress");
+    const settled = start.workflow === "execution" ? takenStory : story;
+    await expect(cardSessions(settled)).toHaveCount(1, { timeout: 30_000 });
+    await expect(settled).not.toContainText("Local startup in progress");
     await expect(
-      story.getByRole("button", { name: "Inspect story" }),
+      settled.getByRole("button", { name: "Inspect story" }),
     ).toBeEnabled();
     expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
   });
@@ -169,7 +159,7 @@ test("a lost acknowledgment says the launch is uncertain, never accepted, and th
   test.setTimeout(120_000);
   const push = origin.holdPushes();
   dashboard.claudeScenario("held");
-  const { story, other } = await openStories(page, origin);
+  const { story, takenStory, other } = await openStories(page, origin);
   // The service accepts the launch; its answer never reaches the page.
   await page.route(
     (url) => url.pathname === agentAcceptEndpoint,
@@ -194,7 +184,7 @@ test("a lost acknowledgment says the launch is uncertain, never accepted, and th
 
   push.release();
   dashboard.releaseHeldClaude();
-  await expect(cardSessions(story)).toHaveCount(1, { timeout: 30_000 });
+  await expect(cardSessions(takenStory)).toHaveCount(1, { timeout: 30_000 });
 });
 
 test("Start session in Claude Code closes at acceptance while its launch is held, with its progress beside the action and no card", async ({

@@ -1,17 +1,33 @@
-// Shared by the responsive start specs (./responsive-session-start.spec.ts,
-// ./responsive-session-start-codex.spec.ts): the stories a real start origin
-// publishes, the acceptance answers held from the page, and what a submitted
-// dialog, a protected story, and the rest of the page show meanwhile.
+// Shared by the responsive start specs (./responsive-session-start*.spec.ts,
+// ./responsive-session-reconciliation*.spec.ts): a test against a real start
+// origin, the stories it publishes, commits made beside them, the
+// acceptance answers held from the page, and what a submitted dialog, a
+// protected story, and the rest of the page show meanwhile.
 
 import type { Locator, Page } from "@playwright/test";
 import { agentAcceptEndpoint } from "../src/agentLaunch.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
-import { expect } from "./dashboardTest.ts";
+import { expect, test as base } from "./dashboardTest.ts";
 import {
   otherQueuedIdentity,
+  startOrigin,
   type StartOrigin,
 } from "./support/startOrigin.ts";
+
+// A test whose dashboard uses the machine of a real bare origin
+// (./support/startOrigin.ts) with the installed starts.
+export const test = base.extend<{ origin: StartOrigin }>({
+  // eslint-disable-next-line no-empty-pattern
+  origin: async ({}, use) => {
+    const origin = await startOrigin();
+    await use(origin);
+    origin.cleanup();
+  },
+  machine: async ({ origin }, use) => {
+    await use(origin.machine);
+  },
+});
 
 export const instruction = "Keep this exact instruction.";
 
@@ -48,19 +64,23 @@ export function countAcceptanceRequests(page: Page) {
   return () => sent;
 }
 
+// Opens the stories as GitHub publishes the origin, following its pushes:
+// Story A in the Backlog (`story`) and once Taken (`takenStory`), and Story B.
 export async function openStories(page: Page, origin: StartOrigin) {
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: (await origin.originGit("rev-parse", "main")).trim(),
     repository: "terryyin/open-dough",
+    follows: true,
   });
   await page.goto("/");
-  const { backlog } = parts(page);
+  const { backlog, taken } = parts(page);
   const story = backlog.getByRole("article", { name: "Story A" });
+  const takenStory = taken.getByRole("article", { name: "Story A" });
   const other = backlog.getByRole("article", { name: "Story B" });
   await expect(story).toBeVisible();
   await expect(other).toBeVisible();
-  return { published, story, other };
+  return { published, story, takenStory, other };
 }
 
 // A submitted dialog: Starting…, nothing to press or change, Escape ignored.
@@ -115,4 +135,26 @@ export async function expectOthersWork(
   await expect(story).toBeHidden();
   await project.getByRole("radio", { name: "Open Dough" }).click();
   await expect(story).toBeVisible();
+}
+
+// A commit in the origin with `parent`'s tree and `parent` as its only
+// parent, on no branch: a descendant of `parent`, unrelated to its siblings.
+export async function commitOn(
+  origin: StartOrigin,
+  parent: string,
+): Promise<string> {
+  return (
+    await origin.originGit(
+      "-c",
+      "user.name=Another Writer",
+      "-c",
+      "user.email=writer@example.test",
+      "commit-tree",
+      `${parent}^{tree}`,
+      "-p",
+      parent,
+      "-m",
+      "another writer's commit",
+    )
+  ).trim();
 }

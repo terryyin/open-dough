@@ -208,7 +208,27 @@ native recovery direction, not an indefinitely animated card.
 
 ### 3. Reconciled publication restores the current story actions
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `dashboard/tests/responsive-session-reconciliation.spec.ts`
+(late older snapshot, rate-limited and unrelated comparisons stay protected; accepted
+revision with held seed read stays protected until fully read; descendant keeps
+actions; refinement waits for native settlement without comparison),
+`responsive-session-reconciliation-refusals.spec.ts` (concurrent Take → `none`,
+removed story, one-shot fresh-read wait, native refusal after published Take), and
+`authenticated-read-containment.spec.ts` (compare statuses, 404, rate limits,
+validation refusals without `gh`). Launch (486), published-read (135) and
+start-store consumer sweeps passed.
+Learnings: containment is the authenticated read `contains=<sha>&revision=<sha>`
+(`dashboard/server/containmentRead.ts`, GitHub compare). Freshness uses the
+server's `askedAt` on the ref read (`PublishedWork.refAskedAt`), never the browser
+clock. Definitive refusals carry `publishedNothing` → receipt `none`. Specs that
+publish then use the card need `committedOrigin` `follows: true`; wait for
+reconciliation before advancing a paused page clock. Decision: uncertain (`unknown`)
+publication stays unprotected with the existing in-card "Start again" recovery until
+slice 4 supplies outside-card recheck/continuation; slice 4 owns protecting it. A
+failed fresh read is not retried automatically (Refresh recovers; slice 4).
+Fixed a flaky liveness check in `agent-launch-ad-hoc-codex.spec.ts` (polls exit
+after SIGHUP).
 Proof: Extend the page journey with held/out-of-order published reads. Publish
 Take/Preparing through the real installed command on bare origin, then deliver
 an older snapshot, an unrelated revision, the accepted revision and a descendant.
@@ -244,7 +264,9 @@ workspace/native identity and unchanged creation/input counts. Observe refresh
 recovery and published-assignment/native-refusal continuation. If a story disappears,
 its recovery feedback remains discoverable outside the frame.
 
-Behavior: Retained evidence restores unresolved protection before offering launches.
+Behavior: Uncertain (`unknown`) publication and other unresolved outcomes become
+protected here, replacing slice 3's interim in-card "Start again" recovery for them.
+Retained evidence restores unresolved protection before offering launches.
 An active operation may show progress; absent liveness evidence gives a static
 explanation. Recheck observes saved/native/remote evidence. Continuation invokes
 existing verified recovery for that exact attempt; refusal or mismatched ownership

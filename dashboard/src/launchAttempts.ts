@@ -7,7 +7,8 @@
 // with the machine's sessions and is presented by the action that asked for
 // it (`onLaunched`); a failed or uncertain one stays beside that action. Each
 // story's startup, from whichever page, is told from the same attempts
-// (`./storyStartup.ts`).
+// (`./storyStartup.ts`) and, once settled, from the published snapshot shown
+// (`./startupReconciliation.ts`).
 
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -33,6 +34,10 @@ import {
 } from "./pageAttempt.ts";
 import { sessionKey } from "./sessionReference.ts";
 import { storyStartup, type StoryStartup } from "./storyStartup.ts";
+import {
+  useStartupReconciliation,
+  type PublishedShown,
+} from "./startupReconciliation.ts";
 
 export type { LaunchAttempt, OnLaunched } from "./pageAttempt.ts";
 
@@ -79,11 +84,13 @@ export function useLaunchAttempts({
   records,
   reads,
   reread,
+  published,
 }: {
   readonly observed: readonly AttemptObservation[];
   readonly records: readonly LaunchWithState[];
   readonly reads: number;
   readonly reread: () => void;
+  readonly published: PublishedShown;
 }): LaunchAttempts {
   const [attempts, setAttempts] = useState<ReadonlyMap<string, PageAttempt>>(
     new Map(),
@@ -196,18 +203,23 @@ export function useLaunchAttempts({
 
   // Every attempt the machine's sessions name, and those this page had
   // accepted that no read has named yet.
-  const known = (): readonly AttemptObservation[] => {
-    const accepted = [...attempts.values()].flatMap((page) =>
+  const known: readonly AttemptObservation[] = [
+    ...observed,
+    ...[...attempts.values()].flatMap((page) =>
       page.kind === "accepted" &&
       !observed.some((read) => read.id === page.attempt.id)
         ? [page.attempt]
         : [],
-    );
-    return [...observed, ...accepted];
-  };
+    ),
+  ];
+
+  const reconciled = useStartupReconciliation({
+    known,
+    ...published,
+  });
 
   useAttemptChangeWaits(
-    known()
+    known
       .filter((attempt) => attempt.owned && attempt.outcome === undefined)
       .map((attempt) => attempt.id),
     reads,
@@ -225,9 +237,10 @@ export function useLaunchAttempts({
         [...attempts.values()].flatMap((page) =>
           page.kind === "submitting" ? [page.request] : [],
         ),
-        known(),
+        known,
         sourceId,
         identity,
+        reconciled,
       ),
     start,
     startAdHoc,

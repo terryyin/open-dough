@@ -69,6 +69,11 @@ test("a session's attention stays through opening and closing its terminal, clea
   await start(readyStory).click();
   await dialog.getByRole("button", { name: "Start" }).click();
   await expectBoth("Working", false);
+  // The published read that reconciles the start lands before page time
+  // passes, so its wait bound never ends it.
+  await expect(
+    card(readyStory).getByRole("button", { name: "Inspect story" }),
+  ).toBeEnabled();
   const session = await sessionNamedBy(inRecent);
   await markNotReloaded(page);
 

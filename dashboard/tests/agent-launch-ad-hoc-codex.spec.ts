@@ -230,7 +230,17 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       await panel.getByRole("button", { name: "Close", exact: true }).click();
       for (const attach of codexAttaches(native)) {
         await expect.poll(() => codexEnded(native, attach.pid)).toBe("SIGHUP");
-        expect(() => process.kill(attach.pid, 0)).toThrow();
+        // The hang-up is recorded before the attached process exits.
+        await expect
+          .poll(() => {
+            try {
+              process.kill(attach.pid, 0);
+              return "running";
+            } catch {
+              return "ended";
+            }
+          })
+          .toBe("ended");
       }
     } finally {
       await restarted.close();

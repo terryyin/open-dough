@@ -13,6 +13,7 @@ import type {
 import { replaced } from "./sessionRecords.ts";
 import { readMachineSessions } from "./agentLaunchClient.ts";
 import { useLaunchAttempts, type LaunchAttempts } from "./launchAttempts.ts";
+import type { PublishedShown } from "./startupReconciliation.ts";
 import {
   useLaunchRecordActions,
   type LaunchRecordActions,
@@ -53,7 +54,9 @@ type ReadSessions = {
 // What a read of the machine's sessions says besides their records.
 type ReadFacts = Omit<MachineAnswer, "records">;
 
-export function useAgentLaunches(): MachineSessions {
+// `published` is what the page shows of published work, which settled
+// launches reconcile with.
+export function useAgentLaunches(published: PublishedShown): MachineSessions {
   const [sessions, setSessions] = useState<
     {
       readonly known: readonly LaunchWithState[];
@@ -106,6 +109,7 @@ export function useAgentLaunches(): MachineSessions {
     records: known,
     reads: readsSettled,
     reread,
+    published,
   });
 
   useEffect(() => {

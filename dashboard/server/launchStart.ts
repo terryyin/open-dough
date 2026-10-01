@@ -38,7 +38,8 @@ function startTimeoutMs(): number {
 }
 
 // How a launch's start ended: there was none to run, it established the
-// workspace the session opens in, or the launch stops with this answer.
+// workspace the session opens in, or the launch stops with this answer,
+// knowing it published nothing (`publishedNothing`) or not.
 export type Started =
   | { readonly kind: "none" }
   | ({
@@ -47,15 +48,21 @@ export type Started =
       // The policy the start ran with, a kept start's own.
       readonly policy: SessionPolicy;
     } & EstablishedLaunch)
-  | { readonly kind: "stopped"; readonly result: LaunchResult };
+  | {
+      readonly kind: "stopped";
+      readonly result: LaunchResult;
+      readonly publishedNothing?: true;
+    };
 
 function startFailed(
   explanation: string,
+  publishedNothing: boolean,
   reason: "start-refused" | "already-starting" = "start-refused",
 ): Started {
   return {
     kind: "stopped",
     result: { kind: "failed", reason, explanation },
+    ...(publishedNothing ? { publishedNothing } : {}),
   };
 }
 
@@ -100,8 +107,9 @@ export async function started(
   if (planned.kind === "not-applicable") {
     return { kind: "none" };
   }
+  // Refused before its command ran: nothing was published.
   if (planned.kind === "refused") {
-    return startFailed(planned.explanation, planned.reason);
+    return startFailed(planned.explanation, true, planned.reason);
   }
   const place = {
     workspace: planned.workspace.shown,
@@ -132,7 +140,7 @@ export async function started(
     };
   }
   if (attempt.kind === "refused") {
-    return startFailed(attempt.explanation);
+    return startFailed(attempt.explanation, attempt.publishedNothing === true);
   }
   const established: Established =
     "start" in attempt
@@ -151,16 +159,17 @@ export async function started(
     };
   } catch {
     scoped.clear(source.id, request.identity);
-    return startFailed(workflow.formatFailed(place));
+    return startFailed(workflow.formatFailed(place), false);
   }
 }
 
 // What an attempt's start says of publication: an established claim or
 // announcement is published, at the revision the start reported when it
-// reported one; a one-shot start, a launch with no start, or a refusal before
-// the start ran publishes nothing; a start that stopped otherwise may or may
-// not have published. A conversation resumed from its kept record carries
-// the start it was launched with.
+// reported one; a one-shot start, a launch with no start, or a start refused
+// knowing it published nothing publishes nothing; a start that stopped
+// otherwise, its wait expired included, may or may not have published. A
+// conversation resumed from its kept record carries the start it was launched
+// with.
 export function publicationOf(
   start: Started,
   pending: LaunchRecord | undefined,
@@ -178,8 +187,7 @@ export function publicationOf(
       : { kind: "published", revision: established.publishedSha };
   }
   if (start.kind !== "stopped") return { kind: "none" };
-  return start.result.kind === "failed" &&
-    start.result.reason === "already-starting"
+  return start.publishedNothing === true
     ? { kind: "none" }
     : { kind: "unknown" };
 }

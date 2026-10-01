@@ -2,10 +2,11 @@
 // the workflow's local startup words -- its running start's phase when the
 // server names one (`startPhaseWords`) -- marked as local progress that
 // keeps the story's actions unavailable, with an indicator that moves only
-// while the startup is known to progress. An accepted start no server runs
-// and that never settled is said statically, with the existing recovery
-// direction. Published facts stay as origin shows them; nothing here places
-// the story.
+// while the startup is known to progress. A settled start waiting for the
+// published snapshot to show its result says so, with why the last check of
+// it failed, if it did. An accepted start no server runs and that never
+// settled is said statically, with the existing recovery direction.
+// Published facts stay as origin shows them; nothing here places the story.
 
 import {
   launchWorkflows,
@@ -37,9 +38,22 @@ export function StartupStatus({
   // Whether the project's installed skill establishes the workflow's start.
   readonly establishesStart: boolean;
 }) {
-  const { workflow, host, state } = startup;
+  const { workflow, host, state, problem } = startup;
   const spec = launchWorkflows[workflow];
   const named = spec.name.toLowerCase();
+  if (state === "reconciling") {
+    return (
+      <>
+        <p className="launch-answer quiet card-startup card-startup-static">
+          Waiting for published story state: this {named} start settled on this
+          machine, and this story's actions return once origin shows its result.
+        </p>
+        {problem !== undefined && (
+          <p className="card-startup-note quiet">{problem}</p>
+        )}
+      </>
+    );
+  }
   if (state === "needs-reconciliation") {
     return (
       <p className="launch-answer card-startup card-startup-static">
