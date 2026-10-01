@@ -14,8 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Choose workspace and automatic landing independently for lightweight refinement and execution](seeds/SEED-066-composable-lightweight-session-options.md#composable-lightweight-session-options) — SEED-066#composable-lightweight-session-options ([plan](slice-plans/191-composable-lightweight-session-options/PLAN.md))
-
 ## Backlog list
 
 - [Align one-shot callers and starts with the review default](seeds/SEED-066-composable-lightweight-session-options.md#align-one-shot-callers-with-review-default) — SEED-066#align-one-shot-callers-with-review-default
