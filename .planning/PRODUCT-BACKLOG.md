@@ -14,6 +14,8 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
+- [Resolve reported Codex refinement launch failures](seeds/SEED-067-codex-refinement-launch-reliability.md#resolve-codex-refinement-launch-failures) — SEED-067#resolve-codex-refinement-launch-failures
+
 ## Backlog list
 
 - [Complete Codex support for dashboard workflows and sessions](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
