@@ -2,7 +2,8 @@
 import { hostName } from "./sessionCapabilities.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import type { RecordedLaunchRequest } from "./launchRequest.ts";
-import type { EstablishedPreparation } from "./launchRecord.ts";
+import type { EstablishedContext } from "./launchRecord.ts";
+import { sessionSummary } from "./sessionPolicyWords.ts";
 import { readyBadge } from "./storyPreparation.ts";
 
 // What a launch starts, and the one place each workflow is spelled: its
@@ -131,8 +132,9 @@ export function launchKindName(workflow: LaunchWorkflow | "ad-hoc"): string {
 // What a consumer of a launch record needs of its request, spelled once: the
 // title, the work item's identity (none when the request has no card to look
 // up), the kind's name, how its session is said to have started, the model it
-// asked for (none for Default), and the options it selected (none when it
-// selected none), spelled as the flags the record kept.
+// asked for (none for Default), the options it selected (none when it
+// selected none), spelled as the flags the record kept, and its session
+// policy (none for the default).
 export function launchSubject(request: RecordedLaunchRequest) {
   const name = launchKindName(request.workflow);
   return {
@@ -150,19 +152,27 @@ export function launchSubject(request: RecordedLaunchRequest) {
       request.options === undefined || request.options.length === 0
         ? undefined
         : `Options: ${request.options.join(" ")} (requested)`,
+    policyWords:
+      request.workflow === "ad-hoc" || request.policy === undefined
+        ? undefined
+        : `Session: ${sessionSummary(request.policy)}`,
   };
 }
 
 // Where a launch's session runs, for a launch whose start or preparation
 // established a workspace: the folder as the page shows a project's,
 // `~/git/<project id>`, then the workspace under it
-// (`~/git/open-dough/.worktrees/<slug>`), never the machine's home directory.
+// (`~/git/open-dough/.worktrees/<slug>`), never the machine's home directory;
+// the project's folder itself when the start took the default checkout.
 // Undefined when nothing was established.
 export function workspaceWords(
   request: RecordedLaunchRequest,
-  established: EstablishedPreparation | undefined,
+  established: EstablishedContext | undefined,
 ): string | undefined {
   if (established === undefined) return undefined;
+  if ("role" in established && established.role === "default-checkout") {
+    return `Workspace ~/git/${request.source} (default main)`;
+  }
   const marker = "/.worktrees/";
   const at = established.workspace.lastIndexOf(marker);
   return `Workspace ${

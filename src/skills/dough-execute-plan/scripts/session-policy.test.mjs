@@ -7,6 +7,7 @@ import {
   needsPublicationAuthority,
   sessionPolicy,
   sessionPolicyChoices,
+  sessionPolicyFlags,
   sessionPolicyToggles,
   withSelectedLanding,
 } from "./session-policy.mjs";
@@ -71,6 +72,33 @@ test("the invocation flags map one-to-one onto the request options", () => {
   }
   assert.ok(Object.isFrozen(sessionPolicyChoices));
   assert.ok(Object.isFrozen(sessionPolicyChoices.landing.values));
+});
+
+test("a policy renders back to the flags that select it, in choice order", () => {
+  assert.deepEqual(sessionPolicyFlags(sessionPolicy()), []);
+  assert.deepEqual(sessionPolicyFlags(), []);
+  for (const options of [
+    { oneShot: true },
+    { oneShot: true, defaultMain: true },
+    { oneShot: true, autoLand: true },
+    { oneShot: true, defaultMain: true, autoLand: true },
+  ]) {
+    const flags = sessionPolicyFlags(sessionPolicy(options));
+    assert.deepEqual(
+      Object.fromEntries(
+        flags.map((flag) => [sessionPolicyToggles[flag], true]),
+      ),
+      options,
+    );
+  }
+  assert.deepEqual(
+    sessionPolicyFlags({
+      landing: "auto-land",
+      tracking: "one-shot",
+      workspace: "default-checkout",
+    }),
+    ["--one-shot", "--default-main", "--auto-land"],
+  );
 });
 
 test("only tracked work or an automatically landed one-shot result needs publication authority", () => {

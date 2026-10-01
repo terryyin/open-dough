@@ -5,21 +5,24 @@
 // checkout; landing waits for review or lands automatically. A flag selects
 // only its own choice. Which combinations a workflow supports is that
 // workflow's decision, not this module's. Policy spelling has one owner here.
-// No filesystem, Git, or Node-only imports.
+// No filesystem, Git, or Node-only imports. The `@type {const}` casts let a
+// TypeScript caller read each choice's values as literals.
 
 export const sessionPolicyChoices = Object.freeze({
   tracking: Object.freeze({
-    values: Object.freeze(["standard", "one-shot"]),
+    values: Object.freeze(/** @type {const} */ (["standard", "one-shot"])),
     flag: "--one-shot",
     option: "oneShot",
   }),
   workspace: Object.freeze({
-    values: Object.freeze(["isolated", "default-checkout"]),
+    values: Object.freeze(
+      /** @type {const} */ (["isolated", "default-checkout"]),
+    ),
     flag: "--default-main",
     option: "defaultMain",
   }),
   landing: Object.freeze({
-    values: Object.freeze(["review", "auto-land"]),
+    values: Object.freeze(/** @type {const} */ (["review", "auto-land"])),
     flag: "--auto-land",
     option: "autoLand",
   }),
@@ -44,6 +47,14 @@ export function sessionPolicy(options = {}) {
       values[options[option] === true ? 1 : 0],
     ]),
   );
+}
+
+// The invocation flags that select a `policy`, in choice order: one for each
+// choice that is not its default; none for the default policy.
+export function sessionPolicyFlags(policy = {}) {
+  return Object.entries(sessionPolicyChoices)
+    .filter(([choice, { values }]) => policy[choice] === values[1])
+    .map(([, { flag }]) => flag);
 }
 
 // Whether a session's start needs trunk publication authority: tracked work

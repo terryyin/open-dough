@@ -1,0 +1,94 @@
+/* A story launch dialog's Session group (`LaunchSessionPolicy.tsx`) and its
+   confirmation of existing changes (`LaunchExistingChanges.tsx`), after the
+   dialog's own rules (`launch-dialog.css`), which they refine. */
+
+/* The Session group stays in view: each choice is a labeled row of radios,
+   wrapping at narrow widths, with its hint below. */
+.launch-session {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.launch-session > legend {
+  font-weight: 600;
+}
+
+.launch-session-choice {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, max-content) minmax(0, 1fr);
+  gap: 0.15rem 0.75rem;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+/* A legend cannot be a grid item, so it floats into the first column. */
+.launch-session-choice > legend {
+  float: left;
+  grid-column: 1;
+  padding: 0;
+  color: var(--quiet);
+}
+
+.launch-session-values {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 2;
+  gap: 0.15rem 1rem;
+}
+
+.launch-session-values label {
+  font-weight: normal;
+  white-space: nowrap;
+}
+
+.launch-session-hint {
+  grid-column: 2;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--quiet);
+}
+
+.launch-session-kept {
+  margin: 0;
+}
+
+@media (width <= 30rem) {
+  .launch-session-choice {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .launch-session-values,
+  .launch-session-hint {
+    grid-column: 1;
+  }
+}
+
+/* The confirmation of existing changes in the default checkout: its paths
+   wrap rather than widen the dialog, and their list scrolls with the body. */
+.launch-changes h2:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.launch-changes p {
+  margin: 0;
+}
+
+.launch-changes-count,
+.launch-changes-landing {
+  font-weight: 600;
+}
+
+.launch-changes-paths {
+  margin: 0;
+  padding-left: 1.25rem;
+  overflow-wrap: anywhere;
+}

@@ -20,10 +20,17 @@
   background: rgb(0 0 0 / 45%);
 }
 
-.launch-dialog form {
+.launch-dialog form,
+.launch-changes {
   display: flex;
   flex-direction: column;
   max-height: calc(100dvh - 1.5rem - 2px);
+}
+
+/* The choices stay behind the confirmation of existing changes, kept as
+   they were. */
+.launch-dialog form[hidden] {
+  display: none;
 }
 
 .launch-dialog-body {
@@ -154,6 +161,12 @@
 
 .launch-dialog-effects {
   font-size: 0.9rem;
+}
+
+/* The session summary leads the effects on its own line. */
+.launch-dialog-summary {
+  display: block;
+  font-weight: 600;
 }
 
 .launch-dialog-actions {

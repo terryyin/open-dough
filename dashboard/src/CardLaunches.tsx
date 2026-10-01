@@ -24,6 +24,7 @@ import {
 } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StartLaunch } from "./StartLaunch.tsx";
+import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { CreationEntry } from "./CreationEntry.tsx";
 import { SessionEntry } from "./SessionEntry.tsx";
 import { attentionSummary } from "./sessionShown.ts";
@@ -52,14 +53,26 @@ export function CardLaunches({
   const keptPreparation = offersStart
     ? launches.keptStartOf(sourceId, entry.identity, "refinement")
     : undefined;
+  // A one-shot execution publishes no Take, so its kept start stays on the
+  // Backlog card.
+  const keptOneShot = offersStart
+    ? launches.keptStartOf(sourceId, entry.identity, "execution")
+    : undefined;
+  // The kept start a workflow's Start resumes, if any.
+  const resumesOf = (workflow: LaunchWorkflow) => {
+    const kept = workflow === "refinement" ? keptPreparation : keptOneShot;
+    return kept === undefined ? {} : { resumes: kept };
+  };
   const phaseOf = (workflow: LaunchWorkflow) =>
     launches.startPhaseOf(sourceId, entry.identity, workflow);
   const phase = phaseOf("execution");
   const onStart =
-    (workflow: LaunchWorkflow) => async (choices: LaunchChoices) => {
-      const record = await launches.start(sourceId, entry, workflow, choices);
-      if (record === undefined) return false;
-      setLaunchedHere(sessionKey(record.session));
+    (workflow: LaunchWorkflow) =>
+    async (choices: LaunchChoices): Promise<StartAnswer> => {
+      const answer = await launches.start(sourceId, entry, workflow, choices);
+      if (answer === undefined) return false;
+      if ("kind" in answer) return answer;
+      setLaunchedHere(sessionKey(answer.session));
       return true;
     };
   return (
@@ -93,11 +106,12 @@ export function CardLaunches({
               launches.establishesStart(sourceId, workflow, host)
             }
             options={(host) => launches.optionsOffer(sourceId, workflow, host)}
-            {...(workflow === "refinement" && keptPreparation !== undefined
-              ? { resumes: keptPreparation }
-              : {})}
+            sessionPolicy={(host) =>
+              launches.sessionPolicyOffer(sourceId, workflow, host)
+            }
+            {...resumesOf(workflow)}
             note={
-              workflow === "refinement" && keptPreparation !== undefined
+              "resumes" in resumesOf(workflow)
                 ? keptStartNote
                 : launchWorkflows[workflow].note(entry)
             }

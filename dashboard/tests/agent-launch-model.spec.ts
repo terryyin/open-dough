@@ -169,7 +169,7 @@ test("Opus launched from a dialog, the same dialog opens again on Default", asyn
   expect(second?.argv).not.toContain("--model");
 });
 
-test("the dialog opens in the instruction field, and Tab reaches Host, Model, Command details, Cancel, then Start", async ({
+test("the dialog opens in the instruction field, and Tab reaches Host, Model, the session's tracking, Command details, Cancel, then Start", async ({
   page,
   dashboard,
 }) => {
@@ -183,6 +183,7 @@ test("the dialog opens in the instruction field, and Tab reaches Host, Model, Co
   for (const next of [
     dialog.getByRole("combobox", { name: "Host" }),
     modelOf(dialog),
+    dialog.getByRole("radio", { name: "Standard" }),
     dialog.locator("summary", { hasText: "Command details" }),
     dialog.getByRole("button", { name: "Cancel" }),
     dialog.getByRole("button", { name: "Start" }),

@@ -5,12 +5,21 @@
 import { z } from "zod";
 
 // An announced start carries the published commit; a continued one (the
-// workspace already held the assignment) does not.
+// workspace already held the assignment) does not. A one-shot start that
+// prepared its workspace published nothing: it reports the revision its
+// result builds on, the default checkout's role when it took that checkout,
+// and a selected automatic landing.
 export type PreparationResult =
   | {
       readonly kind: "established";
       readonly agent: string;
       readonly publishedSha?: string;
+    }
+  | {
+      readonly kind: "prepared";
+      readonly startingRevision: string;
+      readonly role?: "default-checkout";
+      readonly landing?: "auto-land";
     }
   | {
       readonly kind: "stopped";
@@ -26,6 +35,15 @@ const establishedSchema = z.looseObject({
   status: z.enum(["announced", "continued"]),
   agent: z.string().min(1),
   publishedSha: z.string().min(1).optional(),
+});
+
+const preparedSchema = z.looseObject({
+  ok: z.literal(true),
+  status: z.literal("prepared"),
+  tracking: z.literal("one-shot"),
+  startingRevision: z.string().min(1),
+  role: z.literal("default-checkout").optional(),
+  landing: z.literal("auto-land").optional(),
 });
 
 const stoppedSchema = z.looseObject({
@@ -54,6 +72,16 @@ export function readPreparationResult(stdout: string): PreparationResult {
       kind: "established",
       agent,
       ...(publishedSha === undefined ? {} : { publishedSha }),
+    };
+  }
+  const prepared = preparedSchema.safeParse(parsed);
+  if (prepared.success) {
+    const { startingRevision, role, landing } = prepared.data;
+    return {
+      kind: "prepared",
+      startingRevision,
+      ...(role === undefined ? {} : { role }),
+      ...(landing === undefined ? {} : { landing }),
     };
   }
   const stopped = stoppedSchema.safeParse(parsed);
@@ -90,6 +118,8 @@ const stopReasons: Record<string, (stop: Stop) => string> = {
     `The workspace could not be set up${detail(stop)}.`,
   "workspace-not-isolated": (stop) =>
     `The workspace cannot take a new announcement${detail(stop)}.`,
+  "workspace-assigned": (stop) =>
+    `The workspace holds a published preparation assignment${detail(stop)}.`,
   "workspace-assigned-elsewhere": (stop) =>
     `The workspace still holds another published assignment${detail(stop)}.`,
   "agent-setting-invalid": (stop) =>
@@ -107,7 +137,7 @@ const keptWords = "The start was kept; pressing Start again resumes it.";
 // Whether a start that ended so may have published the announcement: its
 // start is kept and the next launch of the story resumes it.
 export function keepsPreparation(
-  result: Exclude<PreparationResult, { kind: "established" }>,
+  result: Exclude<PreparationResult, { kind: "established" | "prepared" }>,
 ): boolean {
   return result.kind === "unreadable" || result.status === "unpublished";
 }
@@ -116,7 +146,7 @@ export function keepsPreparation(
 // cleanup could not remove (a sentence, or ""), the workspace and branch a
 // kept start goes on in, and that nothing was launched.
 export function preparationRefusal(
-  result: Exclude<PreparationResult, { kind: "established" }>,
+  result: Exclude<PreparationResult, { kind: "established" | "prepared" }>,
   leftBehind = "",
   kept?: { readonly workspace: string; readonly branch: string },
 ): string {

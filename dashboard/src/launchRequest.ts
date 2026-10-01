@@ -2,6 +2,10 @@
 import { z } from "zod";
 import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
+  sessionPolicyChoices,
+  sessionPolicyFlags,
+} from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
+import {
   launchModelAliases,
   launchWorkflowNames,
   type LaunchModel,
@@ -32,6 +36,51 @@ const launchOptions = {
   options: z.array(oneLine).max(launchOptionLimit).optional(),
 };
 
+// A session's policy as the shared definition spells its three choices
+// (`session-policy.mjs`): tracking, workspace, and landing. A request or
+// record without one has the default policy: standard tracking in an isolated
+// workspace, published through the workflow's own lifecycle.
+export const sessionPolicySchema = z.object({
+  tracking: z.enum(sessionPolicyChoices.tracking.values),
+  workspace: z.enum(sessionPolicyChoices.workspace.values),
+  landing: z.enum(sessionPolicyChoices.landing.values),
+});
+
+export type SessionPolicy = z.infer<typeof sessionPolicySchema>;
+
+export const defaultSessionPolicy: SessionPolicy = {
+  tracking: "standard",
+  workspace: "isolated",
+  landing: "review",
+};
+
+// A request's or record's policy, the default when it names none.
+export function policyOf(request: {
+  readonly policy?: SessionPolicy | undefined;
+}): SessionPolicy {
+  return request.policy ?? defaultSessionPolicy;
+}
+
+// What a story's command line takes after its skill, as every host and the
+// dialog spell it: the work item's identity, the flags of its policy, then
+// the options selected.
+export function launchArguments(request: {
+  readonly identity: string;
+  readonly policy?: SessionPolicy | undefined;
+  readonly options?: readonly string[] | undefined;
+}): string[] {
+  return [
+    request.identity,
+    ...sessionPolicyFlags(policyOf(request)),
+    ...(request.options ?? []),
+  ];
+}
+
+// The observed existing changes in the default checkout a developer confirmed
+// may join the session's result: the fingerprint of what the dashboard showed
+// (`../server/defaultCheckoutChanges.ts`). Transient: never recorded.
+export const existingChangesSchema = z.string().regex(/^[0-9a-f]{64}$/);
+
 const storyLaunchRequestSchema = z.object({
   source: z.string().min(1).max(launchTextLimit),
   identity: oneLine,
@@ -39,6 +88,8 @@ const storyLaunchRequestSchema = z.object({
   workflow: z.enum(launchWorkflowNames),
   host: z.enum(agentHosts),
   ...launchOptions,
+  policy: sessionPolicySchema.optional(),
+  existingChanges: existingChangesSchema.optional(),
 });
 
 // A session in a project with no story or skill: the request carries no
@@ -84,12 +135,16 @@ export type LaunchChoices = {
   readonly model?: LaunchModel;
   // The flags selected, absent when none.
   readonly options?: readonly string[];
+  // The session's policy, absent for the default.
+  readonly policy?: SessionPolicy;
+  // The fingerprint of the existing changes the developer confirmed.
+  readonly existingChanges?: string;
 };
 
 // The request a record keeps: an ad hoc one with the label the server
-// derived as its title.
+// derived as its title, and a story's without a confirmation.
 export const recordedLaunchRequestSchema = z.discriminatedUnion("workflow", [
-  storyLaunchRequestSchema,
+  storyLaunchRequestSchema.omit({ existingChanges: true }),
   adHocLaunchRequestSchema.extend({ title: oneLine }),
 ]);
 

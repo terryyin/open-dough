@@ -4,7 +4,7 @@
 // (`execution-starts.json` for execution), resolved through `HOME`, so a
 // story's starts of different workflows are kept apart. A file holds each catalog project's starts by project
 // id and story identity, one per story. A start is written before its script
-// runs (publisher, workspace, branch, model, when), then updated with what the
+// runs (publisher, workspace, branch, model, policy, when), then updated with what the
 // script reports: the established start when it published the Take, or the
 // SHAs its stop's `recovery` carries. The next launch of the same story
 // resumes the kept start with the same publisher, workspace, and branch
@@ -23,6 +23,7 @@ import {
   establishedStartSchema,
   establishedPreparationSchema,
   launchModelAliases,
+  sessionPolicySchema,
   type LaunchWorkflow,
 } from "../src/agentLaunch.ts";
 import {
@@ -39,6 +40,9 @@ export const startRecordSchema = z.object({
   workspace: z.string().min(1),
   branch: z.string().min(1),
   model: z.enum(launchModelAliases).optional(),
+  // The policy the start was asked for, absent for the default: a resumed
+  // start keeps it, whatever a later launch asks.
+  policy: sessionPolicySchema.optional(),
   startedAt: z.iso.datetime(),
   // A stop's `recovery`: what a resume passes back to the script.
   startingRevision: z.string().min(1).optional(),

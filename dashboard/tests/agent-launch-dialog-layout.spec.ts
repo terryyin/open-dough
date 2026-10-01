@@ -2,12 +2,13 @@
 // queued Story C has a long title (./launchJourney.ts fixtures) and a project
 // that installs the real refinement skill's options (./launchCardPage.ts): the
 // instruction takes the keyboard first; host and model share a row on a wide
-// screen and stack, host first, on a narrow one; the refinement options sit in
-// a closed disclosure whose summary names the selection, open or closed; the
-// command line and its flags sit in a closed Command details; the launch's
-// effects and Cancel and Start stay in view under a scrolling body with every
-// option selected, with no horizontal scrolling at 320 CSS pixels or at 200%
-// zoom; Cancel returns the keyboard to Start refinement.
+// screen and stack, host first, on a narrow one; the Session group follows;
+// the refinement options sit in a closed disclosure whose summary names the
+// selection, open or closed; the command line and its flags sit in a closed
+// Command details; the launch's effects and Cancel and Start stay in view
+// under a scrolling body with every option selected, with no horizontal
+// scrolling at 320 CSS pixels or at 200% zoom; Cancel returns the keyboard to
+// Start refinement.
 //
 // 200% zoom is emulated as the browser lays it out: zooming a 1280×900 window
 // to 200% halves its CSS viewport to 640×450 and doubles the device pixels per
@@ -37,13 +38,11 @@ import { notRefinedIdentity } from "./launchJourney.ts";
 const longTitle =
   "Let developers read a very long queued story title that wraps across several lines without widening the dialog: Supercalifragilisticexpialidocious-session-options-with-an-unbroken-name";
 
-type Origin = {
+let published: {
   readonly origin: string;
   readonly revision: string;
   readonly cleanup: () => Promise<void>;
 };
-
-let published: Origin;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
   const trunk = await createPreparationTrunk();
@@ -61,7 +60,7 @@ test.beforeAll(async () => {
   if (revision === undefined) throw new Error("origin has no main");
   published = { origin: trunk.origin, revision, cleanup: trunk.cleanup };
 });
-test.afterAll(() => (published as Origin | undefined)?.cleanup());
+test.afterAll(() => (published as typeof published | undefined)?.cleanup());
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -151,6 +150,7 @@ test("the instruction comes first, the summaries name the selection, and the com
   for (const next of [
     host,
     model,
+    dialog.getByRole("radio", { name: "Standard" }),
     optionsSummary(dialog),
     commandSummary(dialog),
     cancel,

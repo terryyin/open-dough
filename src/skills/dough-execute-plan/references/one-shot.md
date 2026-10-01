@@ -37,6 +37,9 @@ These are not one-shot, even when selected:
 
 ## Start in an owned workspace
 
+A carried [established one-shot start](established-start.md#continue-an-established-one-shot-start)
+continues there instead of running the start command below.
+
 Resolve the same execution context as any Story Branch or Trunk Mode start:
 mode, the owned workspace, and the actual remote and trunk branch it starts
 from. Starting needs authority to create or use that workspace, not to publish.
@@ -44,10 +47,9 @@ Then invoke the start command from [Take or admit work](../SKILL.md#take-or-admi
 with `--one-shot` instead of `--admit`: the originating integration checkout
 when one exists (otherwise the repository context that section describes),
 owned workspace path and branch, mode, actual remote and trunk branch, and
-`--workspace-authorized`. An unlisted request needs no
-`--identity` or `--publisher-id`; supply `--identity` for a queued story, or
-when the request names existing work, so the command can check how fetched
-trunk holds it.
+`--workspace-authorized`. An unlisted request needs no `--identity` or
+`--publisher-id`; supply `--identity` for a queued story, or when the request
+names existing work, so the command can check how fetched trunk holds it.
 
 The command fetches trunk, selects or creates the owned workspace at fetched
 trunk, and publishes nothing: no commit, push, profile, or backlog change. Its

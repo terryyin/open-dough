@@ -1,6 +1,6 @@
 // What a start writes to its store once its script has answered.
 
-import type { EstablishedStart } from "../src/agentLaunch.ts";
+import type { EstablishedStart, SessionPolicy } from "../src/agentLaunch.ts";
 import { keepsStart, type StartResult } from "./startResult.ts";
 import { removeStart, updateStart, type StartsWorkflow } from "./startStore.ts";
 
@@ -8,12 +8,13 @@ import { removeStart, updateStart, type StartsWorkflow } from "./startStore.ts";
 // with, what it reported, and, for a rerun that reports no agent or plan
 // (`existing`), the ones the kept start had.
 export function establishedStart(
-  facts: Omit<EstablishedStart, "publishedSha">,
+  facts: Omit<ClaimedStart, "publishedSha">,
   result: Extract<StartResult, { kind: "accepted" }>,
   earlier: EstablishedStart | undefined,
-): EstablishedStart {
-  const agent = result.agent ?? earlier?.agent;
-  const plan = result.plan ?? earlier?.plan;
+): ClaimedStart {
+  const claimed = earlier !== undefined && "publishedSha" in earlier;
+  const agent = result.agent ?? (claimed ? earlier.agent : undefined);
+  const plan = result.plan ?? (claimed ? earlier.plan : undefined);
   return {
     ...facts,
     publishedSha: result.publishedSha,
@@ -25,6 +26,32 @@ export function establishedStart(
     ...(result.candidateSha === undefined
       ? {}
       : { candidateSha: result.candidateSha }),
+  };
+}
+
+type ClaimedStart = Extract<EstablishedStart, { publishedSha: string }>;
+
+// The established context a prepared one-shot start or preparation makes:
+// the facts it ran with, where it runs (the default checkout's role as the
+// start reported it), the policy's landing, and the revision and fetched
+// trunk the start reported. It names no assignment.
+export function establishedOneShot<Facts extends object>(
+  facts: Facts,
+  result: {
+    readonly startingRevision: string;
+    readonly role?: "default-checkout";
+    readonly landing?: "auto-land";
+    readonly fetched?: string;
+  },
+  policy: SessionPolicy,
+) {
+  return {
+    tracking: "one-shot" as const,
+    ...facts,
+    role: result.role ?? ("isolated" as const),
+    landing: result.landing ?? policy.landing,
+    startingRevision: result.startingRevision,
+    ...(result.fetched === undefined ? {} : { fetched: result.fetched }),
   };
 }
 
@@ -43,7 +70,7 @@ export async function recordStop(
   workflow: StartsWorkflow,
   sourceId: string,
   identity: string,
-  result: Exclude<StartResult, { kind: "accepted" }>,
+  result: Exclude<StartResult, { kind: "accepted" | "prepared" }>,
 ): Promise<void> {
   if (!keepsStart(result)) {
     await removeStart(sourceId, identity, workflow);

@@ -9,19 +9,27 @@
 // keyboard's return to the action, belong to `LaunchDialog`. On a card whose
 // story this machine started without a session (`resumes`), the dialog names
 // the published claim's host/model and the session opens in its kept workspace.
+// A story's Session choices (`LaunchSessionPolicy`) decide its tracking,
+// workspace and landing; the line beside Start (`StartEffects`) says what
+// follows from them. A kept start shows the policy it was started with.
 
 import { hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { useId, useRef, useState } from "react";
 import {
+  defaultSessionPolicy,
+  launchArguments,
   launchWorkflows,
+  policyOf,
   startPhaseWords,
-  launchModels,
   type KeptStart,
   type LaunchChoices,
+  type SessionPolicy,
   type StartPhase,
   type LaunchWorkflow,
 } from "./agentLaunch.ts";
+import type { SessionPolicyOffer } from "./launchOffers.ts";
+import { StartDetails, StartEffects } from "./StartEffects.tsx";
 import type { LaunchAttempt, LaunchWorkItem } from "./launchAttempts.ts";
 import {
   notOfferedLine,
@@ -29,6 +37,7 @@ import {
   type OptionsOffer,
 } from "./optionsOffer.ts";
 import { LaunchDialog } from "./LaunchDialog.tsx";
+import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import "./agent-launch.css";
@@ -38,6 +47,7 @@ export function StartLaunch({
   workflow,
   establishesStart: establishesForHost,
   options: optionsForHost,
+  sessionPolicy: sessionPolicyForHost,
   onHostChanged,
   resumes,
   note,
@@ -58,6 +68,11 @@ export function StartLaunch({
     | OptionsOffer
     | undefined
     | ((host: AgentLaunchRequest["host"]) => OptionsOffer | undefined);
+  // Whether the selected host's installed skills take a session policy at
+  // this workflow's start; none offers only standard tracking.
+  readonly sessionPolicy?: (
+    host: AgentLaunchRequest["host"],
+  ) => SessionPolicyOffer;
   // The kept claim's host/model and shown workspace when this Start resumes
   // a start whose claim or announcement is already published.
   readonly resumes?: KeptStart;
@@ -68,12 +83,11 @@ export function StartLaunch({
   // asked for it; its words say it on this card, and Start waits for it.
   readonly phase: StartPhase | undefined;
   // Answers whether a session was launched, which then takes the keyboard.
-  readonly onStart: (choices: LaunchChoices) => Promise<boolean>;
+  readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
 }) {
   const [selectedHost, setHost] =
     useState<AgentLaunchRequest["host"]>("claude");
   const host = resumes?.host ?? selectedHost;
-  const resumesIn = resumes?.workspace;
   const options =
     typeof optionsForHost === "function"
       ? optionsForHost(host)
@@ -98,6 +112,11 @@ export function StartLaunch({
     useLaunchDialogLauncher(starting);
   // The selection of the launch that failed, which the next opening keeps.
   const [kept, setKept] = useState<ReadonlySet<string>>();
+  // The session policy chosen; a failed launch's stays for the next opening.
+  const [chosenPolicy, setPolicy] =
+    useState<SessionPolicy>(defaultSessionPolicy);
+  const policy = resumes === undefined ? chosenPolicy : policyOf(resumes);
+  const words = { workflow, policy, establishesStart, resumes };
   const refused = useRef(false);
   const noteId = `${id}-note`;
   const answerId = `${id}-answer`;
@@ -157,36 +176,8 @@ export function StartLaunch({
             </>
           }
           description={`${hostName(host)} starts a background session on this machine to ${verb} this story.`}
-          effects={
-            <>
-              The session runs{" "}
-              {resumesIn !== undefined
-                ? `in workspace ${resumesIn}`
-                : establishes !== undefined
-                  ? "in a new workspace under .worktrees/"
-                  : "in this project's folder"}
-              .
-              {resumesIn !== undefined
-                ? ` ${spec.establishes.published}`
-                : establishes !== undefined && ` ${establishes.effect}`}
-            </>
-          }
-          details={
-            <>
-              {resumesIn === undefined && establishes !== undefined && (
-                <p>{establishes.sentence}</p>
-              )}
-              {resumes !== undefined && (
-                <p>
-                  This start requested {hostName(resumes.host)} with{" "}
-                  {resumes.model === undefined
-                    ? "Default"
-                    : launchModels[resumes.model].name}{" "}
-                  model.
-                </p>
-              )}
-            </>
-          }
+          effects={<StartEffects {...words} />}
+          details={<StartDetails {...words} />}
           note={
             note !== undefined && (
               <p className="start-launch-note">
@@ -196,7 +187,17 @@ export function StartLaunch({
             )
           }
           fieldLabel="Instruction (optional)"
-          command={`${host === "codex" ? "$" : "/"}${skill} ${work.identity}`}
+          command={[
+            `${host === "codex" ? "$" : "/"}${skill}`,
+            ...launchArguments({ identity: work.identity, policy }),
+          ].join(" ")}
+          session={{
+            policy,
+            onPolicy: setPolicy,
+            offer: sessionPolicyForHost?.(host) ?? "unavailable",
+            kept: resumes !== undefined,
+            workflowName: named,
+          }}
           optionsReading={options?.kind === "reading"}
           options={options?.kind === "offered" ? options : undefined}
           optionsLabel={`${name} options`}
@@ -211,7 +212,10 @@ export function StartLaunch({
             setKept(selected);
           }}
           onClose={(launched) => {
-            if (!refused.current) setKept(undefined);
+            if (!refused.current) {
+              setKept(undefined);
+              setPolicy(defaultSessionPolicy);
+            }
             refused.current = false;
             closeDialog(launched);
           }}

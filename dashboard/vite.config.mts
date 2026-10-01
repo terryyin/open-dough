@@ -5,11 +5,18 @@ import { agentLaunchPlugin } from "./server/agentLaunchPlugin.ts";
 import { authenticatedReadPlugin } from "./server/authenticatedReadPlugin.ts";
 
 const dashboardRoot = fileURLToPath(new URL(".", import.meta.url));
-// The one product source the dashboard shares: the backlog reader that owns
-// what a published backlog means. The dev server may serve it and nothing else
-// outside the dashboard.
+// The product sources the dashboard shares: the backlog reader that owns
+// what a published backlog means, and the session policy every workflow's
+// start reads. The dev server may serve them and nothing else outside the
+// dashboard.
 const sharedBacklogReader = fileURLToPath(
   new URL("../src/skills/dough-product-backlog/scripts/", import.meta.url),
+);
+const sharedSessionPolicy = fileURLToPath(
+  new URL(
+    "../src/skills/dough-execute-plan/scripts/session-policy.mjs",
+    import.meta.url,
+  ),
 );
 
 // The local authenticated read boundary (`./server/authenticatedRead.ts`) answers
@@ -34,7 +41,9 @@ export default defineConfig(({ command }) => {
       host: loopbackOnly,
       port: 43127,
       strictPort: true,
-      fs: { allow: [dashboardRoot, sharedBacklogReader] },
+      fs: {
+        allow: [dashboardRoot, sharedBacklogReader, sharedSessionPolicy],
+      },
     },
     preview: {
       host: loopbackOnly,

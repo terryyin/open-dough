@@ -9,16 +9,18 @@ import { RefusedRequest } from "./localOrigin.ts";
 import { spawn } from "node:child_process";
 import { stat } from "node:fs/promises";
 import { hostname } from "node:os";
-import path from "node:path";
-import type {
-  EstablishedPreparation,
-  EstablishedStart,
-  StoryLaunchRequest,
+import {
+  policyOf,
+  type EstablishedContext,
+  type EstablishedPreparation,
+  type EstablishedStart,
+  type SessionPolicy,
+  type StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   launchWorkspace,
-  shownWorkspace,
+  shownStartWorkspace,
   type WorkspaceChoice,
 } from "./launchWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -33,9 +35,7 @@ export type Established =
   | { readonly preparation: EstablishedPreparation };
 
 // The facts every established start or preparation shares.
-export function establishedFacts(
-  established: Established,
-): EstablishedPreparation {
+export function establishedFacts(established: Established): EstablishedContext {
   return "start" in established ? established.start : established.preparation;
 }
 
@@ -58,6 +58,8 @@ export type PlannedStart =
       readonly kind: "running";
       readonly workspace: ProjectFolder;
       readonly branch: string;
+      // The policy the start runs with: a kept start's own.
+      readonly policy: SessionPolicy;
       readonly attempt: Promise<StartAttempt>;
     };
 
@@ -72,7 +74,7 @@ function keptChoice(
   return {
     workspace: {
       path: kept.workspace,
-      shown: shownWorkspace(project, path.basename(kept.workspace)),
+      shown: shownStartWorkspace(project, kept.workspace),
     },
     branch: kept.branch,
   };
@@ -92,25 +94,42 @@ export function requireStartHost(
   }
 }
 
-// Where a start goes on: a kept start's workspace, branch and claim model as
-// they were, else a shared workspace choice and the requested claim model.
+// Where a start goes on, and with which policy: a kept start's workspace,
+// branch, claim model and policy as they were, whatever this launch asks;
+// else the requested policy, in the project's default checkout on `target`
+// when it selects that, or in a shared workspace choice.
 export async function startChoice(
   project: ProjectFolder,
   request: StoryLaunchRequest,
   kept: StartRecord | undefined,
-): Promise<WorkspaceChoice & { readonly model: StartRecord["model"] }> {
+  target: string,
+): Promise<
+  WorkspaceChoice & {
+    readonly model: StartRecord["model"];
+    readonly policy: SessionPolicy;
+  }
+> {
   requireStartHost(request.host, kept);
-  return kept === undefined
-    ? {
-        ...launchWorkspace(
+  if (kept !== undefined) {
+    return {
+      ...keptChoice(project, kept),
+      model: kept.model,
+      policy: policyOf(kept),
+    };
+  }
+  const policy = policyOf(request);
+  return {
+    ...(policy.workspace === "default-checkout"
+      ? { workspace: project, branch: target }
+      : launchWorkspace(
           project,
           request.title,
           await takenSlugs(project),
           request.host,
-        ),
-        model: request.model,
-      }
-    : { ...keptChoice(project, kept), model: kept.model };
+        )),
+    model: request.model,
+    policy,
+  };
 }
 
 export async function isFile(file: string): Promise<boolean> {

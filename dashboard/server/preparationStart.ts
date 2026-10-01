@@ -10,7 +10,9 @@
 // workspace follows the shared collision rule (`./launchWorkspace.ts`). A
 // start is kept (`./startStore.ts`) from before its script runs until a
 // session launches from it or it stops with nothing assigned; the next launch
-// of the story reruns the script in the kept workspace and branch.
+// of the story reruns the script in the kept workspace and branch. A one-shot
+// policy runs `start --one-shot`, in the default checkout when selected, and
+// publishes nothing; its kept established context is reused as it is.
 
 import { stat } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
@@ -37,7 +39,8 @@ import {
   type StartAttempt,
 } from "./startLaunch.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
-import { record } from "./startRecording.ts";
+import { continuedStart, policyArguments } from "./startPolicy.ts";
+import { establishedOneShot, record } from "./startRecording.ts";
 import {
   keepStart,
   keptStart,
@@ -108,13 +111,24 @@ async function runningPreparation(
   progress: WorkflowProgress,
 ): Promise<PlannedStart> {
   // A start kept from an earlier launch of the story is resumed as it was:
-  // the same workspace and branch, so the script answers `continued`.
+  // the same workspace, branch and policy, so the script answers `continued`.
   const kept = await keptStart(source.id, request.identity, workflow);
-  const { workspace, branch, model } = await startChoice(
+  const { workspace, branch, model, policy } = await startChoice(
     project,
     request,
     kept,
+    source.ref,
   );
+  const oneShot = policy.tracking === "one-shot";
+  // A kept one-shot preparation that established its context goes on from it
+  // as it is: its workspace may already hold the result.
+  if (oneShot && kept?.preparation !== undefined) {
+    progress.set(source.id, request.identity, "launching");
+    return continuedStart(
+      { workspace, branch, policy },
+      { preparation: kept.preparation },
+    );
+  }
   const before = await beforeStart(project, workspace.path, branch);
   // Written ahead of the script, so a start whose result is lost is still
   // known.
@@ -127,14 +141,21 @@ async function runningPreparation(
       workspace: workspace.path,
       branch,
       ...(model === undefined ? {} : { model }),
+      ...(oneShot ? { policy } : {}),
       startedAt: new Date().toISOString(),
     },
     workflow,
   );
+  const facts = {
+    identity: request.identity,
+    workspace: workspace.path,
+    branch,
+    remote: "origin",
+    target: source.ref,
+  };
   const attempt = runScript(
     [
-      "--integration",
-      project.path,
+      ...policyArguments(policy, project),
       "--workspace",
       workspace.path,
       "--branch",
@@ -145,7 +166,6 @@ async function runningPreparation(
       "origin",
       "--target",
       source.ref,
-      "--push-authorized",
       "--host",
       request.host,
       ...(model === undefined ? [] : ["--model", model]),
@@ -153,20 +173,22 @@ async function runningPreparation(
     project,
     request.host,
   ).then(async (result): Promise<StartAttempt> => {
-    if (result.kind === "established") {
+    if (result.kind === "established" || result.kind === "prepared") {
       progress.set(source.id, request.identity, "launching");
-      const preparation: EstablishedPreparation = {
-        ...kept?.preparation,
-        identity: request.identity,
-        workspace: workspace.path,
-        branch,
-        remote: "origin",
-        target: source.ref,
-        agent: result.agent,
-        ...(result.publishedSha === undefined
-          ? {}
-          : { publishedSha: result.publishedSha }),
-      };
+      const preparation: EstablishedPreparation =
+        result.kind === "prepared"
+          ? establishedOneShot(facts, result, policy)
+          : {
+              ...(kept?.preparation !== undefined &&
+              !("tracking" in kept.preparation)
+                ? kept.preparation
+                : {}),
+              ...facts,
+              agent: result.agent,
+              ...(result.publishedSha === undefined
+                ? {}
+                : { publishedSha: result.publishedSha }),
+            };
       await record(() =>
         updateStart(source.id, request.identity, { preparation }, workflow),
       );
@@ -183,7 +205,8 @@ async function runningPreparation(
       };
     }
     // A stop that made no assignment leaves nothing to resume and removes the
-    // workspace and branch this launch created.
+    // workspace and branch this launch created; the default checkout existed
+    // before, so it stays.
     await record(() => removeStart(source.id, request.identity, workflow));
     return {
       kind: "refused",
@@ -193,7 +216,7 @@ async function runningPreparation(
       ),
     };
   });
-  return { kind: "running", workspace, branch, attempt };
+  return { kind: "running", workspace, branch, policy, attempt };
 }
 
 // The established preparation as the session's instruction carries it,

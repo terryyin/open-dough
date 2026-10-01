@@ -1,14 +1,14 @@
-// Which requests the local launch boundary (`./agentLaunchPlugin.ts`)
-// admits, and the refusal each other one gets: a launch, a read of the
-// machine's sessions, a done mark on a session it recorded
-// (`./doneMarks.ts`), a delete of a record it kept, and a terminal upgrade
-// (`./agentTerminals.ts`). Every request must come from this dashboard's own
-// origin; a launch, a done mark, a delete, or an upgrade must name a catalog
-// project, and a done mark, a delete, or an upgrade a session this dashboard
-// recorded for that project, in its existing folder. A launch's selected
-// options are checked against the project's installed definition and kept in
-// its order (`./launchOptions.ts`).
-// Only terminal admission reads the host listing.
+// Which requests the local launch boundary (`./agentLaunchPlugin.ts`) admits,
+// and the refusal each other one gets: a launch, a read of the machine's
+// sessions, a done mark on a session it recorded (`./doneMarks.ts`), a delete
+// of a record it kept, and a terminal upgrade (`./agentTerminals.ts`). Every
+// request must come from this dashboard's own origin; a launch, a done mark, a
+// delete, or an upgrade must name a catalog project, and a done mark, a delete,
+// or an upgrade a session this dashboard recorded for that project, in its
+// existing folder. A launch's selected options are checked against the
+// project's installed definition and kept in its order (`./launchOptions.ts`),
+// and its session policy against the installation's start
+// (`./launchSessionPolicy.ts`). Only terminal admission reads the host listing.
 
 import {
   sessionHostSchema,
@@ -32,6 +32,7 @@ import { sourceById, type PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches, Recorded } from "./agentLaunches.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import { withSelectedOptions } from "./launchOptions.ts";
+import { withSessionPolicy } from "./launchSessionPolicy.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
 
@@ -176,10 +177,12 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
       "Codex uses its configured default model; a Claude model cannot be selected.",
     );
   }
+  const project = projectFolder(source);
+  const selected = await withSelectedOptions(request, project);
   return {
     kind: "launch",
     source,
-    request: await withSelectedOptions(request, projectFolder(source)),
+    request: await withSessionPolicy(selected, project),
   };
 }
 

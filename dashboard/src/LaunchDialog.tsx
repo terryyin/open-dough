@@ -5,27 +5,35 @@
 // it, unless a launched session took it. Callers supply only the words, and
 // the options a launch may select, or the line saying why there are none.
 // The dialog reads in one order, for eyes and keyboard alike: what is started
-// and why, the instruction, host and model on one row, the options behind a
-// disclosure whose summary names the selection, the command and longer
-// explanations behind Command details, then, always in view below the
-// scrolling body, the launch's effects and Cancel and Start.
+// and why, the instruction, host and model on one row, a story's Session
+// choices, the options behind a disclosure whose summary names the selection,
+// the command and longer explanations behind Command details, then, always in
+// view below the scrolling body, the launch's effects and Cancel and Start.
+// Existing changes Start finds in the default checkout get a confirmation
+// state (`./LaunchExistingChanges.tsx`), with the choices kept behind it.
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import {
-  withChoice,
-  withoutGroup,
-  type OfferedShape,
-} from "./commandOptions.ts";
-import type { AgentLaunchRequest } from "./agentLaunch.ts";
-import { LaunchHostModel } from "./LaunchHostModel.tsx";
-import { LaunchOptions } from "./LaunchOptions.tsx";
+import type { OfferedShape } from "./commandOptions.ts";
 import {
   launchInstructionLimit,
+  type AgentLaunchRequest,
   type LaunchChoices,
   type LaunchModel,
 } from "./agentLaunch.ts";
+import {
+  useExistingChangesConfirmation,
+  type StartAnswer,
+} from "./LaunchExistingChanges.tsx";
+import { LaunchHostModel } from "./LaunchHostModel.tsx";
+import { LaunchOptions, useOptionSelection } from "./LaunchOptions.tsx";
+import {
+  LaunchSessionPolicy,
+  sessionBlocksStart,
+  type LaunchSessionChoices,
+} from "./LaunchSessionPolicy.tsx";
 import "./agent-launch.css";
 import "./launch-dialog.css";
+import "./launch-session.css";
 
 // Mounted only while open, so an action carries no hidden dialog text and each
 // opening starts without an earlier instruction or model choice. A launch that
@@ -42,6 +50,7 @@ export function LaunchDialog({
   note,
   fieldLabel,
   command,
+  session,
   options,
   optionsLabel = "Options",
   optionsReading = false,
@@ -71,6 +80,8 @@ export function LaunchDialog({
   // options' flags, in the order `options` offers them.
   readonly command?: string;
   readonly optionsReading?: boolean;
+  // A story's Session group; none for an ad hoc session.
+  readonly session?: LaunchSessionChoices | undefined;
   readonly options?: OfferedShape | undefined;
   // The name of the options' disclosure.
   readonly optionsLabel?: string;
@@ -81,7 +92,7 @@ export function LaunchDialog({
   // Said under the options when `kept` names flags the offer no longer has.
   readonly notOfferedLine?: string | undefined;
   readonly starting: boolean;
-  readonly onStart: (choices: LaunchChoices) => Promise<boolean>;
+  readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
   readonly onRefused?: (selected: ReadonlySet<string>) => void;
   // Whether a launched session took the keyboard.
   readonly onClose: (launched: boolean) => void;
@@ -93,20 +104,27 @@ export function LaunchDialog({
   const hintId = `${id}-instruction-hint`;
   const effectsId = `${id}-effects`;
   const launched = useRef(false);
-  const [selected, setSelected] = useState<ReadonlySet<string>>(
-    kept ?? new Set(),
+  const selection = useOptionSelection(
+    options,
+    kept,
+    optionsReading,
+    notOfferedLine,
   );
-  const flags = (options?.options ?? [])
-    .map(({ flag }) => flag)
-    .filter((flag) => selected.has(flag));
-  const absent = [...selected].filter(
-    (flag) => !(options?.options ?? []).some((option) => option.flag === flag),
-  );
-  const changedOfferLine =
-    optionsReading || absent.length === 0
-      ? notOfferedLine
-      : `Not offered any more, so not sent: ${absent.join(", ")}.`;
+  const { selected, flags } = selection;
   const [model, setModel] = useState<LaunchModel | "">("");
+  const policy = session?.policy;
+  // Unless a launch found existing changes to confirm, closes with its answer.
+  const confirmation = useExistingChangesConfirmation({
+    id,
+    policy,
+    starting,
+    onStart,
+    ended: (answer) => {
+      launched.current = answer;
+      if (!answer) onRefused?.(selected);
+      dialog.current?.close();
+    },
+  });
 
   useEffect(() => {
     dialog.current?.showModal();
@@ -118,22 +136,22 @@ export function LaunchDialog({
       ref={dialog}
       className="launch-dialog"
       aria-labelledby={headingId}
+      onCancel={confirmation.onCancel}
       onClose={() => {
         onClose(launched.current);
       }}
     >
+      {confirmation.view}
       <form
+        hidden={Boolean(confirmation.view)}
         onSubmit={(event) => {
           event.preventDefault();
-          void onStart({
+          confirmation.start({
             host,
             instruction: instruction.current?.value ?? "",
             ...(model === "" ? {} : { model }),
             ...(flags.length === 0 ? {} : { options: flags }),
-          }).then((started) => {
-            launched.current = started;
-            if (!started) onRefused?.(selected);
-            dialog.current?.close();
+            ...(policy?.tracking === "one-shot" ? { policy } : {}),
           });
         }}
       >
@@ -159,6 +177,9 @@ export function LaunchDialog({
             model={model}
             onModel={setModel}
           />
+          {session !== undefined && (
+            <LaunchSessionPolicy id={id} {...session} />
+          )}
           {options !== undefined && options.options.length > 0 ? (
             <LaunchOptions
               id={id}
@@ -166,20 +187,14 @@ export function LaunchDialog({
               shape={options}
               hint={optionsHint}
               selected={selected}
-              onChoose={(flag, chosen) => {
-                setSelected((current) =>
-                  withChoice(options, current, flag, chosen),
-                );
-              }}
-              onClearGroup={(group) => {
-                setSelected((current) => withoutGroup(current, group));
-              }}
+              onChoose={selection.choose}
+              onClearGroup={selection.clearGroup}
             />
           ) : (
             optionsLine !== undefined && <p className="quiet">{optionsLine}</p>
           )}
-          {changedOfferLine !== undefined && (
-            <p className="quiet">{changedOfferLine}</p>
+          {selection.changedOfferLine !== undefined && (
+            <p className="quiet">{selection.changedOfferLine}</p>
           )}
           {(command !== undefined || details !== undefined) && (
             <details className="launch-disclosure">
@@ -211,10 +226,15 @@ export function LaunchDialog({
               Cancel
             </button>
             <button
+              ref={confirmation.startButton}
               type="submit"
               className="launch-dialog-start"
               aria-describedby={effects !== undefined ? effectsId : undefined}
-              disabled={starting || (optionsReading && selected.size > 0)}
+              disabled={
+                starting ||
+                (optionsReading && selected.size > 0) ||
+                (session !== undefined && sessionBlocksStart(session))
+              }
             >
               {starting ? "Starting…" : "Start"}
             </button>

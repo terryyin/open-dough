@@ -416,7 +416,21 @@ and is required by this plan, not a proactive whole-product manual test.
 
 ### 7. Dashboard launches the selected policy with independent dirty confirmation
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-session-options.spec.ts dashboard/tests/agent-launch-session-kept-start.spec.ts dashboard/tests/agent-launch-session-refusal.spec.ts dashboard/tests/agent-launch-session-choices.spec.ts dashboard/tests/agent-launch-default-checkout-warning.spec.ts dashboard/tests/agent-launch-dialog-layout.spec.ts --workers=2`
+(21 pass) and the broad launch regression plus `session-alerts*` (447 pass);
+`npm run typecheck:dashboard`; `npm run build:dashboard`; skill script tests
+(121 pass). Coordinator inspected warning and 320px one-shot screenshots.
+Learnings: records carry a semantic `policy`; flags render only at command
+boundaries through `sessionPolicyFlags`. `server/defaultCheckoutChanges.ts`
+fingerprints HEAD, porcelain status, and path size/times (paths only).
+`server/launchSessionPolicy.ts` admits one-shot only when the host's
+installation ships `session-policy.mjs`. One-shot established contexts carry no
+agent or `publishedSha`; installed formatters `established-start.mjs` and
+`established-preparation.mjs` now write a one-shot block, which slice 8 must
+re-accept natively. Start/session docs moved to `dashboard/LAUNCH-START.md`.
+`dashboard/README.md` remains over 250 lines (pre-existing). Not separately
+tested: dismissing a dialog while a confirmed launch is in flight.
 Proof: New `agent-launch-session-options.spec.ts` and
 `agent-launch-default-checkout-warning.spec.ts` use real installed startup +
 local bare origin and existing fake Claude/Codex boundaries. Test all four

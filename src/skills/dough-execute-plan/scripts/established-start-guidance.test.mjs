@@ -84,3 +84,54 @@ test("formatEstablishedStart appends optional fields in order and omits absent o
   );
   assert.doesNotMatch(text, /plan:|startingRevision:/);
 });
+
+test("an established one-shot start names its role and landing, and no claim", () => {
+  const text = formatEstablishedStart({
+    fetched: "f1",
+    tracking: "one-shot",
+    identity: "SEED-A#a",
+    workspace: "/p",
+    role: "default-checkout",
+    branch: "main",
+    mode: "story-branch",
+    remote: "origin",
+    target: "main",
+    landing: "auto-land",
+    startingRevision: "s1",
+  });
+  assert.equal(
+    text,
+    [
+      "Established start:",
+      "- tracking: one-shot",
+      "- identity: SEED-A#a",
+      "- workspace: /p",
+      "- workspace role: default-checkout",
+      "- branch: main",
+      "- mode: story-branch",
+      "- remote: origin",
+      "- target: main",
+      "- landing: auto-land",
+      "- startingRevision: s1",
+      "- fetched: f1",
+    ].join("\n"),
+  );
+  assert.doesNotMatch(text, /publisher|publishedSha|agent/);
+});
+
+test("the reference continues an established one-shot start without a claim", () => {
+  const oneShot = section(
+    reference,
+    "## Continue an established one-shot start",
+  );
+  assert.match(oneShot, /`tracking: one-shot`/);
+  assert.match(oneShot, /make no claim, profile, or second start/);
+  for (const field of ["workspace role", "landing", "`fetched`"])
+    assert.ok(oneShot.includes(field), `names ${field}`);
+  assert.match(oneShot, /one-shot\.md#verify-and-retain-the-result/);
+  assert.match(oneShot, /`landing: review`\s+stops for review/);
+  assert.match(
+    read("references/one-shot.md"),
+    /established-start\.md#continue-an-established-one-shot-start/,
+  );
+});

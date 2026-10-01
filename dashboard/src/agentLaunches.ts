@@ -1,4 +1,3 @@
-import type { SessionReference } from "./sessionReference.ts";
 import { sessionKey } from "./sessionReference.ts";
 // Machine sessions and this page's launch attempts have one browser owner.
 
@@ -19,11 +18,12 @@ import {
   useLaunchRecordActions,
   type LaunchRecordActions,
 } from "./launchRecordActions.ts";
-import { optionsOfferOf, type OptionsOffer } from "./optionsOffer.ts";
+import { launchOffers, type LaunchOffers } from "./launchOffers.ts";
 import { usePageVisibility } from "./pageVisibility.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 
 export type MachineSessions = ReadSessions &
+  LaunchOffers &
   LaunchAttempts &
   LaunchRecordActions;
 
@@ -35,18 +35,6 @@ type ReadSessions = {
   readonly records: readonly LaunchWithState[] | undefined;
   // Alert capability at the latest read; unread until supplied.
   readonly alerts: Alerts | undefined;
-  // Installed workflow start capability at the latest read.
-  establishesStart(
-    sourceId: string,
-    workflow: LaunchWorkflow,
-    host?: SessionReference["host"],
-  ): boolean;
-  // Installed options at the latest read; absent for workflows without options.
-  optionsOffer(
-    sourceId: string,
-    workflow: LaunchWorkflow,
-    host?: SessionReference["host"],
-  ): OptionsOffer | undefined;
   // A kept start without a session, if present at the latest read.
   keptStartOf(
     sourceId: string,
@@ -67,21 +55,7 @@ type ReadSessions = {
 type ReadFacts = Omit<MachineAnswer, "records">;
 
 export function useAgentLaunches(): MachineSessions {
-  const [
-    {
-      known,
-      creations,
-      read: readAnswered,
-      alerts,
-      establishing,
-      establishingPreparation,
-      establishingHosts,
-      keptStarts,
-      starts,
-      definitions,
-    },
-    setSessions,
-  ] = useState<
+  const [sessions, setSessions] = useState<
     {
       readonly known: readonly LaunchWithState[];
       readonly read: boolean;
@@ -97,7 +71,16 @@ export function useAgentLaunches(): MachineSessions {
     keptStarts: [],
     starts: [],
     definitions: [],
+    sessionPolicies: [],
   });
+  const {
+    known,
+    creations,
+    read: readAnswered,
+    alerts,
+    keptStarts,
+    starts,
+  } = sessions;
   const setRecords = useCallback(
     (
       change: (known: readonly LaunchWithState[]) => readonly LaunchWithState[],
@@ -209,25 +192,7 @@ export function useAgentLaunches(): MachineSessions {
     records: readAnswered ? known : undefined,
     creations,
     alerts,
-    establishesStart: (sourceId, workflow, host = "claude") =>
-      host !== "claude"
-        ? establishingHosts.some(
-            (entry) =>
-              entry.source === sourceId &&
-              entry.workflow === workflow &&
-              entry.host === host,
-          )
-        : (workflow === "execution"
-            ? establishing
-            : establishingPreparation
-          ).includes(sourceId),
-    optionsOffer: (sourceId, workflow, host) =>
-      optionsOfferOf(
-        readAnswered && !offersReading ? definitions : undefined,
-        sourceId,
-        workflow,
-        host,
-      ),
+    ...launchOffers(sessions, readAnswered && !offersReading),
     keptStartOf: (sourceId, identity, workflow) =>
       keptStarts.find(
         (kept) =>
