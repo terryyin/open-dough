@@ -30,38 +30,88 @@ host lacks unavailable rather than supplied by another host
 
 **Identity:** SEED-075#one-host-description
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/205-one-host-description/PLAN.md","assessment":"not-ready","reasons":["Slice 3 needs human clarification: may existing workspace spec calls add explicit Claude host arguments while preserving all assertions, despite the source requirement that specs pass unchanged?"],"basis":{"document":"ad855a1471c037dafcd35bc23c3cd349f11d027b550283d79a9b16320e422b70","plan":"caaf443be2d5527464fcbfce0e5592e934c9537ff2a1ce129916e8fd7b7da872"}}
 ```
 
-- **For / why:** A maintainer adding a host describes it once instead of
-  editing every shared `=== "codex"` ternary, and no shared fallback silently
-  answers for a host it does not know.
-- **Evaluation:** Shared server and browser code reach host facts — display
-  name, skill sigil, offered models, the "no trusted answer" hint, and whether
-  a host can mark done or attach — through one host description, with no
-  host-name comparison outside the host modules for those facts; every
-  dashboard spec passes unchanged.
-- **Current basis:** Dispatch is a ternary in `server/launchHosts.ts:71-73`.
-  Browser host names and done/attach flags are hard-coded in
-  `src/sessionCapabilities.ts:5-15`, while the server already decides the same
-  from whether the host has `stop`/`attach` (`server/agentLaunchAdmission.ts`).
-  The skill sigil is chosen by name in `src/StartLaunch.tsx:191`; the recovery
-  hint in `src/agentLaunchClient.ts:52` gives Codex text to every non-Claude
-  host. Models are a Codex "no model" refusal in
-  `server/agentLaunchAdmission.ts:174` and `src/LaunchHostModel.tsx:56`, over a
-  shared enum that only knows Claude's models (`src/launchWorkflow.ts`
-  `launchModels`). Branch prefixes are hand-written in `server/startGit.ts:44-50`.
-  Shared helpers default `host = "claude"` (`server/launchWorkspace.ts:60`,
-  `server/launchOptions.ts:34`, `server/executionStart.ts:64`, `:212`,
-  `server/preparationCommand.ts:83`, `:99`, and browser helpers such as
-  `src/launchAttempts.ts`, `src/launchOffers.ts`, `src/optionsOffer.ts`).
-- **Boundary:** Make host parameters required rather than defaulted; each host
-  declares its offered models. Behavior for Claude and Codex stays the same.
-  Stored-record and request schema defaults for host-less data are out of
-  scope.
+- **Goal:** A dashboard maintainer describes each host's shared facts once,
+  so adding a host does not require finding and editing scattered name-based
+  choices. Shared server and browser code consume that description without
+  borrowing another host's facts or operations. Claude and Codex users retain
+  the same launch choices and session actions; this removes an obstacle to
+  adding Cursor in its own story.
+- **Scope:**
+  - One authoritative description per host supplies its display name, skill
+    sigil, offered model aliases and labels, "no trusted answer" hint, branch
+    namespace, and availability of embedded terminal and Mark as done.
+    Shared server and browser consumers use those facts without host-name
+    comparisons for them. Server dispatch selects the matching host boundary
+    without a catch-all host fallback.
+  - Model choices and admission agree with the selected host's offerings.
+    Claude Code keeps Default, Fable (`fable`), Opus (`opus`), and Sonnet
+    (`sonnet`), in that order; Codex keeps Default only. Default omits the
+    model from the request and uses the host's configured setting. Changing
+    host resets the model to Default. A model not offered by that host is
+    refused before native launch, as today.
+  - Browser action availability agrees with the server's own host operations:
+    embedded terminal needs `attach`, and Mark as done needs `stop`. Claude
+    and Codex continue to offer both. A missing host or operation stays
+    unavailable and never runs another host's implementation; this is the
+    existing `LaunchHost` boundary's rule, not a new restriction on hosts.
+  - Shared helper calls and launch choices carry an explicit host rather than
+    silently defaulting omitted arguments to Claude. The launch dialog still
+    initially selects Claude Code. Existing stored-record and external request
+    compatibility defaults remain at their boundaries; this delivery changes
+    neither those defaults nor the interpretation of host-less legacy data.
+  - Workspace branches retain their host namespace, and occupied-slug lookup
+    still considers all existing supported host namespaces, including Cursor
+    branches, as well as workspace folders. Recognizing a branch namespace
+    does not make that host launchable.
+  - Existing Claude and Codex behavior and every dashboard spec remain
+    unchanged. Native commands and transport stay private to their host; the
+    browser receives only the facts it needs. One representation of each fact
+    follows [ADR 0002 — Software development lifecycle principles, §4](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#4-high-cohesion).
+- **Deferred:** Cursor launch support or new model offerings
+  (SEED-052#use-cursor-from-dashboard); session record variants
+  (SEED-075#session-record-per-host); session-state wording, continuation
+  labels, and alert policy (SEED-075#host-neutral-session-meaning); duplicate
+  launch and creation-recovery gates (SEED-075#launch-gates-every-host).
+  Dynamic host discovery or third-party registration is not a delivery promise.
+- **Key examples:**
+  - Open a Claude launch dialog → the heading names Claude Code, Command
+    details use `/dough-story-refinement` for refinement, and Model offers
+    Default, Fable, Opus, and Sonnet. Select Opus and start → Claude receives
+    `--model opus`, and the retained request still identifies Opus.
+  - With Opus selected, change Host to Codex → the heading names Codex,
+    Command details use `$dough-story-refinement`, Model resets to Default
+    and offers no named model. Start → Codex receives no model selection.
+    Submit a Codex request naming `opus` directly → the existing refusal is
+    returned before any native session starts.
+  - A Claude launch has no trustworthy server answer → the uncertainty hint
+    says to check `claude agents`; the same situation for Codex → it says to
+    check dashboard history and native Codex conversations. Neither answer
+    is inferred by treating all other hosts as the opposite host.
+  - Show a recorded Claude or Codex session → embedded terminal and Mark as
+    done remain available under their existing session-state rules, and each
+    action calls that session's own host. Lookup of an unavailable host or an
+    absent operation → no other host supplies the operation.
+  - Start a Codex story titled “Example” with `cursor/example` already
+    present → the workspace slug avoids `example` and the new branch retains
+    the `codex/` prefix, as today; a Claude start retains `claude/`.
+  - A shared options or workspace helper is called without a host → its
+    interface requires the caller to supply one. A predecessor stored record
+    or action request without a host → keeps its existing boundary-level
+    compatibility behavior.
 - **Depends on:** None.
 - **Capture:** Terry selected it on 2026-10-01 from the dashboard multi-tool
-  architecture review.
+  architecture review. Refined 2026-10-01 against `8dfd2bf1`: the description
+  consumers are `dashboard/server/launchHosts.ts`,
+  `dashboard/src/sessionCapabilities.ts`, `dashboard/src/StartLaunch.tsx`,
+  `dashboard/src/LaunchHostModel.tsx`, `dashboard/src/agentLaunchClient.ts`,
+  `dashboard/src/launchWorkflow.ts`, and `dashboard/server/startGit.ts`;
+  admission is `dashboard/server/agentLaunchAdmission.ts`. Existing model
+  and host-switch examples are in `dashboard/tests/agent-launch-model.spec.ts`,
+  `dashboard/tests/agent-launch-model-boundary.spec.ts`, and
+  `dashboard/tests/agent-launch-codex.spec.ts`.
 
 <a id="session-record-per-host"></a>
 
