@@ -33,12 +33,15 @@ import { CreationEntry } from "./CreationEntry.tsx";
 import { SessionEntry } from "./SessionEntry.tsx";
 import { attentionSummary } from "./sessionShown.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
+import { keyboardRestsOn } from "./launchHandoff.ts";
+import { workCard } from "./workFocus.ts";
 
 export function CardLaunches({
   sourceId,
   entry,
   launches,
   offersStart,
+  statusId,
 }: {
   // The project whose work item the card shows.
   sourceId: string;
@@ -47,6 +50,8 @@ export function CardLaunches({
   // Backlog cards only: Taken work offers no launch of its own, except the
   // Start of a start this machine kept.
   offersStart: boolean;
+  // The id of what says the story's startup, which the card is described by.
+  statusId: string;
 }) {
   // The session the developer's own launch from this card just listed.
   const [launchedHere, setLaunchedHere] = useState<string | undefined>();
@@ -73,6 +78,8 @@ export function CardLaunches({
   // No Start is offered before this machine's launch evidence was read: an
   // earlier startup of the story may be unresolved.
   const unoffered = unavailable || launches.attemptEvidence !== "read";
+  const evidenceId = `${statusId}-evidence`;
+  const unread = !unavailable && unoffered ? evidenceId : undefined;
   // A startup in need of reconciliation is answered under Startup
   // recovery, not beside the card's unavailable actions.
   const attemptOf = (workflow: LaunchWorkflow) =>
@@ -93,24 +100,33 @@ export function CardLaunches({
     (workflow: LaunchWorkflow) =>
     (choices: LaunchChoices): Promise<StartAnswer> =>
       launches.start(sourceId, entry, workflow, choices, (record) => {
-        setLaunchedHere(sessionKey(record.session));
+        if (keyboardRestsOn(workCard(entry.identity)))
+          setLaunchedHere(sessionKey(record.session));
       });
   return (
     <>
       {startup !== undefined && (
-        <StartupStatus
-          startup={startup}
-          phase={launches.startPhaseOf(
-            sourceId,
-            entry.identity,
-            startup.workflow,
-          )}
-          establishesStart={launches.establishesStart(
-            sourceId,
-            startup.workflow,
-            startup.host,
-          )}
-        />
+        <div id={statusId} className="card-startup-status">
+          <StartupStatus
+            startup={startup}
+            phase={launches.startPhaseOf(
+              sourceId,
+              entry.identity,
+              startup.workflow,
+            )}
+            establishesStart={launches.establishesStart(
+              sourceId,
+              startup.workflow,
+              startup.host,
+            )}
+          />
+        </div>
+      )}
+      {unread !== undefined && (
+        <p id={unread} className="visually-hidden">
+          Unavailable until this dashboard reads this machine&apos;s launch
+          evidence.
+        </p>
       )}
       {keptStart !== undefined && (
         <StartLaunch
@@ -122,6 +138,7 @@ export function CardLaunches({
           note={keptStartNote}
           attempt={attemptOf("execution")}
           unavailable={unoffered}
+          unavailableReason={unread}
           onStart={onStart("execution")}
         />
       )}
@@ -147,6 +164,7 @@ export function CardLaunches({
             }
             attempt={attemptOf(workflow)}
             unavailable={unoffered}
+            unavailableReason={unread}
             onStart={onStart(workflow)}
           />
         ))}

@@ -72,6 +72,9 @@ test("no story's Start is offered before this machine's launch evidence answers,
   await page.reload();
   await expect(story).toBeVisible();
   await expect(start).toBeDisabled();
+  await expect(start).toHaveAccessibleDescription(
+    /Unavailable until this dashboard reads this machine's launch evidence\./,
+  );
   await expect(
     story.getByRole("button", { name: "Start refinement" }),
   ).toBeDisabled();

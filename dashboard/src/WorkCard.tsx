@@ -2,9 +2,12 @@
 // the Backlog, its recorded facts, slice progress on Taken work, its launches
 // (`./CardLaunches.tsx`), and Inspect story with its detail or source links.
 // While its story starts on this machine (`./storyStartup.ts`), none of the
-// card's actions can run; its facts and source links stay readable.
+// card's actions can run; its facts and source links stay readable, and the
+// card and each unavailable action are described by its startup status
+// (`./protectedFrame.ts`), which the card holds the keyboard on once a
+// launch dialog hands the startup off (`./launchDialogLauncher.ts`).
 
-import { useRef } from "react";
+import { useId, useRef } from "react";
 import { sessionKey } from "./sessionReference.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import { PreparationFacts } from "./PreparationCard.tsx";
@@ -21,6 +24,7 @@ import type { MachineSessions } from "./agentLaunches.ts";
 import { CardLaunches } from "./CardLaunches.tsx";
 import { cardSessionsOf } from "./agentLaunch.ts";
 import { usePageSessions } from "./pageSessions.ts";
+import { ProtectedFrameReason } from "./protectedFrame.ts";
 
 export function WorkCard({
   sourceId,
@@ -58,6 +62,8 @@ export function WorkCard({
   // Every startup of the story protects its frame.
   const starting =
     launches.storyStartupOf(sourceId, entry.identity) !== undefined;
+  const statusId = useId();
+  const reason = starting ? statusId : undefined;
   return (
     <article
       ref={cardRef}
@@ -70,60 +76,65 @@ export function WorkCard({
         .filter(Boolean)
         .join(" ")}
       aria-label={entry.title}
+      aria-describedby={reason}
       {...workCardMarks(entry.identity)}
     >
       <fieldset className="card-frame" disabled={starting}>
-        {priority !== undefined && (
-          <p className="card-priority">Priority {priority}</p>
-        )}
-        <h3>{entry.title}</h3>
-        <p className="card-identity">{entry.identity}</p>
-        <TakenOwnerFacts owner={entry.owner} onOpenRoster={onOpenRoster} />
-        <PreparingFacts
-          preparing={entry.preparing}
-          onOpenRoster={onOpenRoster}
-        />
-        <PreparationFacts preparation={entry.preparation} />
-        {showsSliceProgress && (
-          <SliceProgress
-            planSlices={entry.planSlices}
-            progressSource={entry.progressSource}
-            sliceClock={entry.sliceClock}
+        <ProtectedFrameReason value={reason}>
+          {priority !== undefined && (
+            <p className="card-priority">Priority {priority}</p>
+          )}
+          <h3>{entry.title}</h3>
+          <p className="card-identity">{entry.identity}</p>
+          <TakenOwnerFacts owner={entry.owner} onOpenRoster={onOpenRoster} />
+          <PreparingFacts
+            preparing={entry.preparing}
+            onOpenRoster={onOpenRoster}
           />
-        )}
-        <CardLaunches
-          sourceId={sourceId}
-          entry={entry}
-          launches={launches}
-          offersStart={offersStart}
-        />
-        <p>
-          <button
-            type="button"
-            className="inspect-story"
-            aria-expanded={selected}
-            aria-controls={detailId}
-            onClick={() => {
-              const closing = selected;
-              onSelect(entry.identity);
-              // Closing detail returns focus to this story's card — not to a
-              // different card that may have just been selected.
-              if (closing) {
-                queueMicrotask(() => {
-                  cardRef.current?.focus();
-                });
-              }
-            }}
-          >
-            {selected ? "Hide detail" : "Inspect story"}
-          </button>
-        </p>
-        {selected && <StoryDetail entry={entry} detailId={detailId} />}
-        {!selected && (
-          <ul className="card-links" aria-label="Source links">
-            <WorkSourceLinks entry={entry} />
-          </ul>
-        )}
+          <PreparationFacts preparation={entry.preparation} />
+          {showsSliceProgress && (
+            <SliceProgress
+              planSlices={entry.planSlices}
+              progressSource={entry.progressSource}
+              sliceClock={entry.sliceClock}
+            />
+          )}
+          <CardLaunches
+            sourceId={sourceId}
+            entry={entry}
+            launches={launches}
+            offersStart={offersStart}
+            statusId={statusId}
+          />
+          <p>
+            <button
+              type="button"
+              className="inspect-story"
+              aria-expanded={selected}
+              aria-controls={detailId}
+              aria-describedby={reason}
+              onClick={() => {
+                const closing = selected;
+                onSelect(entry.identity);
+                // Closing detail returns focus to this story's card — not to a
+                // different card that may have just been selected.
+                if (closing) {
+                  queueMicrotask(() => {
+                    cardRef.current?.focus();
+                  });
+                }
+              }}
+            >
+              {selected ? "Hide detail" : "Inspect story"}
+            </button>
+          </p>
+          {selected && <StoryDetail entry={entry} detailId={detailId} />}
+          {!selected && (
+            <ul className="card-links" aria-label="Source links">
+              <WorkSourceLinks entry={entry} />
+            </ul>
+          )}
+        </ProtectedFrameReason>
       </fieldset>
     </article>
   );

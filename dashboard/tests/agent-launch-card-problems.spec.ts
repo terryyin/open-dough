@@ -2,7 +2,7 @@
 // the committed origin of ./agent-launch-card.spec.ts: a definitive answer
 // stays beside the action that was used, which the card keeps, and it lists no
 // session; an uncertain one needs reconciliation under Startup recovery while
-// the card stays protected. The
+// the card stays protected, holding the keyboard it took at handoff. The
 // page's own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
@@ -91,8 +91,10 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
     await start(readyStory).click();
     await dialog.getByRole("button", { name: "Start" }).click();
 
-    // Accepted: the dialog closes while the launch is in flight.
+    // Accepted: the dialog closes while the launch is in flight, and the
+    // keyboard goes to the card, which says so, not to its unavailable Start.
     await expect(dialog).toBeHidden();
+    await expect(card(readyStory)).toBeFocused();
     await expect(card(readyStory)).toContainText(
       "Starting execution in Claude Code…",
     );
@@ -110,6 +112,10 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
     );
     await expect(card(readyStory).locator(".launch-problem")).toHaveCount(0);
     await expect(start(readyStory)).toBeDisabled();
+    await expect(start(readyStory)).toHaveAccessibleDescription(
+      /Startup needs reconciliation/,
+    );
+    await expect(card(readyStory)).toBeFocused();
     await expect(cardSessions(card(readyStory))).toHaveCount(0);
     expect(dashboard.claudeCalls()).toHaveLength(1);
   });

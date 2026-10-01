@@ -13,7 +13,7 @@
 
 import { useId } from "react";
 import {
-  launchWorkflows,
+  startName,
   type AgentLaunchRequest,
   type AttemptObservation,
 } from "./agentLaunch.ts";
@@ -36,12 +36,6 @@ function subjectOf(request: AgentLaunchRequest): string {
   return request.workflow === "ad-hoc"
     ? "Ad hoc session"
     : `${request.title} (${request.identity})`;
-}
-
-function startNamed(request: AgentLaunchRequest): string {
-  return request.workflow === "ad-hoc"
-    ? "session start"
-    : `${launchWorkflows[request.workflow].name.toLowerCase()} start`;
 }
 
 function publicationWords({ publication }: AttemptObservation): string {
@@ -117,7 +111,7 @@ function RecoveryEntry({
   const id = useId();
   const { request, cause, attempt, problem, answer, continuing } = item;
   const subject = subjectOf(request);
-  const named = startNamed(request);
+  const named = startName(request.workflow);
   const continues =
     attempt !== undefined && cause !== "waiting" && cause !== "unacknowledged";
   return (

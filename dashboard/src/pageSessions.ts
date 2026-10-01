@@ -19,6 +19,9 @@ import { workCard } from "./workFocus.ts";
 export type SessionRequest<Record extends LaunchRecord = LaunchRecord> = {
   readonly record: Record;
   readonly control: HTMLElement;
+  // Whether an opened terminal takes the keyboard; it does unless set false,
+  // as when a launch's session opens after the developer moved on.
+  readonly takesKeyboard?: boolean;
 };
 
 // One of the page's operations on a session, answering with `Answer`.

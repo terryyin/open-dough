@@ -22,7 +22,11 @@ import {
 import { useKeyedState } from "./keyedState.ts";
 import type { Unacknowledged } from "./pageAttempt.ts";
 import { laterAttempt, type ShownSnapshot } from "./startupReconciliation.ts";
-import type { ReconciliationCause, StoryStartup } from "./storyStartup.ts";
+import {
+  storiesAsked,
+  type ReconciliationCause,
+  type StoryStartup,
+} from "./storyStartup.ts";
 
 // A startup to recover: its request, why (or `waiting` for published
 // state), what is known of it, and its continuation from this page.
@@ -153,16 +157,14 @@ export function useStartupRecovery({
 
   const recoveriesOf = (sourceId: string): readonly StartupRecoveryItem[] => {
     const listed = shown?.sourceId === sourceId ? shown.identities : undefined;
-    const ofProject = [
-      ...known.map(({ request }) => request),
-      ...unacknowledged.map(({ request }) => request),
-    ].filter((request) => request.source === sourceId);
-    const stories = new Set(
-      ofProject.flatMap((request) =>
-        request.workflow === "ad-hoc" ? [] : [request.identity],
-      ),
+    const stories = storiesAsked(
+      [
+        ...known.map(({ request }) => request),
+        ...unacknowledged.map(({ request }) => request),
+      ],
+      sourceId,
     );
-    const items = [...stories].flatMap((identity) => {
+    const items = stories.flatMap((identity) => {
       const startup = storyStartupOf(sourceId, identity);
       if (startup?.state === "needs-reconciliation")
         return [itemOf(identity, startup.cause ?? "uncertain", startup)];

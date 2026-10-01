@@ -31,7 +31,11 @@ import {
   type LaunchAttempt,
   type OnLaunched,
 } from "./pageAttempt.ts";
-import { storyStartup, type StoryStartup } from "./storyStartup.ts";
+import {
+  storiesAsked,
+  storyStartup,
+  type StoryStartup,
+} from "./storyStartup.ts";
 import {
   useStartupReconciliation,
   type PublishedShown,
@@ -55,6 +59,8 @@ export type LaunchAttempts = StartupRecoveries & {
   ): LaunchAttempt | undefined;
   // The story's startup, from whichever page it was asked.
   storyStartupOf(sourceId: string, identity: string): StoryStartup | undefined;
+  // The startups of the project's stories, from whichever page asked them.
+  storyStartupsOf(sourceId: string): readonly StoryStartup[];
   // Asks the local service to start the workflow on the project's work item
   // in the chosen host, with the developer's optional instruction, and
   // answers whether it was accepted, or the default checkout's existing
@@ -188,6 +194,15 @@ export function useLaunchAttempts({
   });
 
   return {
+    storyStartupsOf: (sourceId) =>
+      storiesAsked(
+        [
+          ...known.map(({ request }) => request),
+          ...asked.submitting,
+          ...asked.unacknowledged.map(({ request }) => request),
+        ],
+        sourceId,
+      ).flatMap((identity) => storyStartupOf(sourceId, identity) ?? []),
     attemptOf: (sourceId, identity, workflow) =>
       shownAttempt(
         attempts.get(attemptKey(sourceId, identity, workflow)),

@@ -299,7 +299,24 @@ explanation, without waiting for the whole agent session.
 
 ### 5. Startup status and focus remain usable without motion
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `dashboard/tests/responsive-session-access.spec.ts` (reduced-motion
+keyboard start: focus on the card at handoff, described disabled actions, status
+distinct from stage/selection, pulse only while progressing and none under reduced
+motion, one polite announcement per transition across reads, no focus theft on
+settlement; keyboard Start session focus and terminal not taking the keyboard;
+refinement with Shown-in-terminal coexistence), `expectStaticallyProtected` in
+recovery specs, pre-read Start reason in `responsive-session-recovery-reads.spec.ts`,
+restored focus assertion in `agent-launch-card-problems.spec.ts`. A mutation check
+confirmed the focus guards are observed. Focused (26), launch (515) and
+focus/overview (135) sweeps passed.
+Learnings: delivered contract documented in `dashboard/AGENT-LAUNCH.md`
+"Startup handoff and reconciliation" and `dashboard/LAUNCH-START.md`; the North
+Star's launch-actions and claim/workspace rows now link there instead of carrying
+built design. An empty visually hidden live region fails the page-layout clipping
+check, so the announcer is only `spoken-only` once it has text. The "story of a
+request" rule now has one home, `storyOf` in `dashboard/src/launchWorkflow.ts`,
+shared by server and browser.
 Proof: New page journey with reduced motion and keyboard submission asserts
 perceivable disabled-action reasons, status text distinct from stage/selection,
 polite transition announcements without poll repetition, and enabled focus target

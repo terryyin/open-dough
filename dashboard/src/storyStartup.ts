@@ -9,9 +9,11 @@
 
 import {
   needsReconciliation,
+  storyOf,
   type AgentLaunchRequest,
   type AttemptObservation,
   type LaunchWorkflow,
+  type StoryLaunchRequest,
 } from "./agentLaunch.ts";
 import type { AskedRequests } from "./pageAttempt.ts";
 import { laterAttempt, type Reconciliation } from "./startupReconciliation.ts";
@@ -31,7 +33,7 @@ export type ReconciliationCause =
 // cause and, for a lost answer, that answer). Every state protects the
 // story.
 export type StoryStartup = {
-  readonly request: AgentLaunchRequest;
+  readonly request: StoryLaunchRequest;
   readonly workflow: LaunchWorkflow;
   readonly host: AgentLaunchRequest["host"];
   readonly state:
@@ -41,6 +43,20 @@ export type StoryStartup = {
   // The accepted attempt it is told from, if any.
   readonly attempt?: AttemptObservation;
 };
+
+// The project's stories, each once, whose startup `requests` may tell.
+export function storiesAsked(
+  requests: readonly AgentLaunchRequest[],
+  sourceId: string,
+): readonly string[] {
+  return [
+    ...new Set(
+      requests.flatMap((request) =>
+        request.source === sourceId ? (storyOf(request) ?? []) : [],
+      ),
+    ),
+  ];
+}
 
 function startupOf(
   request: AgentLaunchRequest,
@@ -72,9 +88,7 @@ export function storyStartup(
   reconciled: (attempt: AttemptObservation) => Reconciliation,
 ): StoryStartup | undefined {
   const of = (request: AgentLaunchRequest) =>
-    request.source === sourceId &&
-    request.workflow !== "ad-hoc" &&
-    request.identity === identity;
+    request.source === sourceId && storyOf(request) === identity;
   const submitting = asked.submitting.find(of);
   if (submitting !== undefined) return startupOf(submitting, "submitting");
   const ofStory = known.filter((attempt) => of(attempt.request));

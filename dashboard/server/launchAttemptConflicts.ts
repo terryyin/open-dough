@@ -6,6 +6,7 @@
 
 import {
   needsReconciliation,
+  storyOf,
   type Acceptance,
   type AgentLaunchRequest,
   type AttemptObservation,
@@ -16,10 +17,6 @@ import { alreadyStarting } from "./startLaunch.ts";
 
 // What was answered before anything was accepted or started.
 export type Unaccepted = Exclude<Acceptance, { kind: "accepted" }>;
-
-// The story a launch is of, or undefined for an ad hoc session.
-const storyOf = (request: AgentLaunchRequest) =>
-  request.workflow === "ad-hoc" ? undefined : request.identity;
 
 const sameStory = (one: AgentLaunchRequest, other: AgentLaunchRequest) => {
   const story = storyOf(one);

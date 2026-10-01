@@ -34,10 +34,24 @@ export const recoveryOf = (page: Page) =>
   page.getByRole("region", { name: "Startup recovery" });
 
 // The story's frame is protected and said statically, with nothing moving
-// and no answer beside its unavailable actions.
+// and no answer beside its unavailable actions, which, like the card, are
+// described by that status.
 export async function expectStaticallyProtected(card: Locator) {
   await expect(card).toContainText(needsReconciliation);
   await expect(card.locator(".card-startup-progressing")).toHaveCount(0);
+  const status = card.locator(".card-startup-static").first();
+  expect(
+    await status.evaluate((element) => [
+      getComputedStyle(element).animationName,
+      getComputedStyle(element, "::before").content,
+    ]),
+  ).toEqual(["none", "none"]);
+  await expect(card).toHaveAccessibleDescription(
+    new RegExp(needsReconciliation),
+  );
+  await expect(
+    card.getByRole("button", { name: "Inspect story" }),
+  ).toHaveAccessibleDescription(new RegExp(needsReconciliation));
   await expect(card.locator(".launch-problem")).toHaveCount(0);
   await expectProtected(card);
 }

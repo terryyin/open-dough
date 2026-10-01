@@ -17,7 +17,7 @@
 
 import { hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
-import { useId, useRef, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 import {
   defaultSessionPolicy,
   launchArguments,
@@ -40,6 +40,8 @@ import { LaunchDialog } from "./LaunchDialog.tsx";
 import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
+import { useFrameDescription } from "./protectedFrame.ts";
+import { workCard } from "./workFocus.ts";
 import "./agent-launch.css";
 
 export function StartLaunch({
@@ -53,6 +55,7 @@ export function StartLaunch({
   note,
   attempt,
   unavailable = false,
+  unavailableReason,
   onStart,
 }: {
   readonly onHostChanged?: () => void;
@@ -83,6 +86,9 @@ export function StartLaunch({
   // this machine's launch evidence was read: the keyboard returns to the
   // button only once it is available again.
   readonly unavailable?: boolean;
+  // The id of what says why the action is unavailable, when the story's
+  // protected frame does not (`./protectedFrame.ts`).
+  readonly unavailableReason?: string | undefined;
   // Answers whether the launch was accepted.
   readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
 }) {
@@ -102,8 +108,11 @@ export function StartLaunch({
   const named = name.toLowerCase();
   const id = useId();
   const starting = attempt?.kind === "starting";
+  // At handoff the keyboard goes to the story's card, which its startup
+  // status describes.
   const { launcher, open, openDialog, closeDialog } = useLaunchDialogLauncher(
     starting || unavailable,
+    useCallback(() => workCard(work.identity), [work.identity]),
   );
   // The selection of the launch that failed, which the next opening keeps.
   const [kept, setKept] = useState<ReadonlySet<string>>();
@@ -115,10 +124,11 @@ export function StartLaunch({
   const refused = useRef(false);
   const noteId = `${id}-note`;
   const answerId = `${id}-answer`;
-  const described = [
+  const described = useFrameDescription(
     note !== undefined ? noteId : undefined,
     attempt !== undefined && !starting ? answerId : undefined,
-  ].filter((part) => part !== undefined);
+    unavailableReason,
+  );
 
   return (
     <div className="start-launch">
@@ -132,7 +142,7 @@ export function StartLaunch({
               : "start-launch-button"
           }
           aria-haspopup="dialog"
-          aria-describedby={described.length ? described.join(" ") : undefined}
+          aria-describedby={described}
           disabled={unavailable}
           onClick={openDialog}
         >

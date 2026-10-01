@@ -11,7 +11,7 @@
 // asked before the attempt settled asks once for a fresh read.
 
 import { useEffect, useRef, useState } from "react";
-import type { AttemptObservation } from "./agentLaunch.ts";
+import { storyOf, type AttemptObservation } from "./agentLaunch.ts";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import {
@@ -62,9 +62,6 @@ export type Reconciliation =
   | { readonly kind: "waiting"; readonly problem?: string }
   | { readonly kind: "unconfirmed" };
 
-const story = (attempt: AttemptObservation) =>
-  attempt.request.workflow === "ad-hoc" ? undefined : attempt.request.identity;
-
 // The later accepted of two attempts, as a story's latest attempt is told.
 export const laterAttempt = (
   one: AttemptObservation | undefined,
@@ -78,7 +75,7 @@ function latestSettled(
 ): readonly AttemptObservation[] {
   const latest = new Map<string, AttemptObservation>();
   for (const attempt of known) {
-    const identity = story(attempt);
+    const identity = storyOf(attempt.request);
     if (identity === undefined) continue;
     const key = JSON.stringify([attempt.request.source, identity]);
     latest.set(key, laterAttempt(latest.get(key), attempt));
@@ -125,7 +122,7 @@ export function useStartupReconciliation({
     return shown === undefined ||
       accepted === undefined ||
       accepted === shown.revision ||
-      !shown.identities.includes(story(attempt) ?? "")
+      !shown.identities.includes(storyOf(attempt.request) ?? "")
       ? []
       : [{ sourceId: shown.sourceId, accepted, revision: shown.revision }];
   });

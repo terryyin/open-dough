@@ -5,6 +5,7 @@
 import { embeddedTerminal, shellCommand } from "./sessionCapabilities.ts";
 import { attachOpens, type LaunchWithState } from "./agentLaunch.ts";
 import { usePageSessions } from "./pageSessions.ts";
+import { useFrameDescription } from "./protectedFrame.ts";
 import "./agent-launch.css";
 
 export function LaunchSession({
@@ -13,6 +14,7 @@ export function LaunchSession({
   readonly record: LaunchWithState;
 }) {
   const { openTerminal } = usePageSessions();
+  const described = useFrameDescription();
   return (
     <>
       <p>
@@ -52,6 +54,7 @@ export function LaunchSession({
           <p className="launch-open">
             <button
               type="button"
+              aria-describedby={described}
               onClick={(event) => {
                 openTerminal({ record, control: event.currentTarget });
               }}

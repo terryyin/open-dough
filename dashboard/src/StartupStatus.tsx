@@ -11,6 +11,7 @@
 
 import {
   launchWorkflows,
+  startName,
   startPhaseWords,
   type StartPhase,
 } from "./agentLaunch.ts";
@@ -46,12 +47,12 @@ export function StartupStatus({
 }) {
   const { workflow, host, state, problem } = startup;
   const spec = launchWorkflows[workflow];
-  const named = spec.name.toLowerCase();
+  const named = startName(workflow);
   if (state === "reconciling") {
     return (
       <>
         <p className="launch-answer quiet card-startup card-startup-static">
-          Waiting for published story state: this {named} start settled on this
+          Waiting for published story state: this {named} settled on this
           machine, and this story's actions return once origin shows its result.
         </p>
         {problem !== undefined && (
@@ -63,10 +64,9 @@ export function StartupStatus({
   if (state === "needs-reconciliation") {
     return (
       <p className="launch-answer card-startup card-startup-static">
-        Startup needs reconciliation:{" "}
-        {reconciliationCause(startup, `${named} start`)} Recheck or continue it
-        under Startup recovery; this story's actions stay unavailable until
-        then.
+        Startup needs reconciliation: {reconciliationCause(startup, named)}{" "}
+        Recheck or continue it under Startup recovery; this story's actions stay
+        unavailable until then.
       </p>
     );
   }

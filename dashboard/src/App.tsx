@@ -12,6 +12,7 @@ import { PreparationLegend } from "./PreparationLegend.tsx";
 import { NearFutureDirection } from "./NearFutureDirection.tsx";
 import { StartSession } from "./StartSession.tsx";
 import { StartupRecovery } from "./StartupRecovery.tsx";
+import { StartupAnnouncer } from "./StartupAnnouncer.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
 import type { OpenRoster } from "./AgentAssignmentFacts.tsx";
 import {
@@ -213,6 +214,10 @@ export function App() {
         {!showsRoster && (
           <StartupRecovery sourceId={source.id} recoveries={launches} />
         )}
+        <StartupAnnouncer
+          sourceId={source.id}
+          startups={launches.storyStartupsOf(source.id)}
+        />
       </div>
       {work && (
         <main hidden={showsRoster}>

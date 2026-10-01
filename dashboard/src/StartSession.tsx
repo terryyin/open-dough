@@ -3,23 +3,26 @@
 // with no story or skill and an optional first message of their own. The
 // session is listed in Recent sessions and the Sessions sidebar, like any
 // launched session; no card lists it. The dialog closes once the local
-// service accepted the launch; while that startup goes on, the button says
-// so beside it and waits for it. A started session then opens in the page's
-// terminal with the keyboard in it, and Close returns the keyboard to the
-// button. The dialog's mechanics, including the keyboard's return to the
-// button when nothing was accepted, belong to `LaunchDialog`. A launch that
-// did not start, or may not have, says so beside the button, which stays
-// enabled to start again. Nothing here makes a card or a story.
+// service accepted the launch, leaving the keyboard on what says, beside the
+// button, that the startup goes on while the button waits for it. A started
+// session then opens in the page's terminal, with the keyboard in it unless
+// the developer moved it meanwhile (`keyboardRestsOn`), and Close returns
+// the keyboard to the button. The dialog's mechanics, including the
+// keyboard's return to the button when nothing was accepted, belong to
+// `LaunchDialog`. A launch that did not start, or may not have, says so
+// beside the button, which stays enabled to start again. Nothing here makes
+// a card or a story.
 
 import { embeddedTerminal, hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
-import { useId, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 import { adHocName, type LaunchChoices } from "./agentLaunch.ts";
 import type { LaunchAttempt, OnLaunched } from "./launchAttempts.ts";
 import { LaunchDialog } from "./LaunchDialog.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { usePageSessions } from "./pageSessions.ts";
+import { keyboardRestsOn } from "./launchHandoff.ts";
 import "./agent-launch.css";
 
 export function StartSession({
@@ -41,8 +44,11 @@ export function StartSession({
   const [host, setHost] = useState<AgentLaunchRequest["host"]>("claude");
   const starting = attempt?.kind === "starting";
   const answerId = useId();
-  const { launcher, open, openDialog, closeDialog } =
-    useLaunchDialogLauncher(starting);
+  const progress = useRef<HTMLParagraphElement>(null);
+  const { launcher, open, openDialog, closeDialog } = useLaunchDialogLauncher(
+    starting,
+    useCallback(() => progress.current, []),
+  );
   const { openTerminal } = usePageSessions();
   const [announcement, setAnnouncement] = useState("");
 
@@ -67,7 +73,12 @@ export function StartSession({
         {announcement}
       </p>
       {attempt?.kind === "starting" && (
-        <p id={answerId} className="launch-answer quiet start-session-answer">
+        <p
+          ref={progress}
+          id={answerId}
+          tabIndex={-1}
+          className="launch-answer quiet start-session-answer"
+        >
           Starting a session in {project}… Local startup in progress.
         </p>
       )}
@@ -91,7 +102,16 @@ export function StartSession({
                 embeddedTerminal(record.session.host) &&
                 launcher.current !== null
               )
-                openTerminal({ record, control: launcher.current });
+                openTerminal({
+                  record,
+                  control: launcher.current,
+                  // The button holds the keyboard once the startup ends,
+                  // if it rested on the startup's progress.
+                  takesKeyboard: keyboardRestsOn(
+                    progress.current,
+                    launcher.current,
+                  ),
+                });
               setAnnouncement("Ad hoc session started");
             })
           }
