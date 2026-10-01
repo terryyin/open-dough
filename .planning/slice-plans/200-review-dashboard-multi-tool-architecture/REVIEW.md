@@ -2,13 +2,18 @@
 
 **Identity:** SEED-069#review-dashboard-multi-tool-architecture
 **Plan:** [PLAN.md](PLAN.md)
-**Reviewed revision:** `6ac22ba8` (branch `claude/review-dashboard-architecture-before-adding-more`)
+**Reviewed revision:** `6ac22ba8` for §§1–4 and `47ef4368` for §§5–6 and the
+later sections (branch `claude/review-dashboard-architecture-before-adding-more`).
+The dashboard code is the same at both revisions. All citations were rechecked at `1cdd476c` (a merge of `main` that changed launch-preparation, launch-record and terminal-panel files), and line numbers are given at `1cdd476c`.
 
 This review traces a refinement launch and an execution launch, for Claude Code
 and for Codex, from the dialog request through admission, preparation handoff,
-workspace selection, recording, and failure or retry recovery. It reads server
-code (`dashboard/server/`) and browser code (`dashboard/src/`). Paths below are
-relative to `dashboard/` unless they start with `src/skills/` or `.planning/`.
+workspace selection, recording, and failure or retry recovery (§§1–4). It then
+traces observation, attention, the done mark, rename, stop, embedded terminal
+attachment, and continuation (§§5–6). It reads server code
+(`dashboard/server/`), browser code (`dashboard/src/`), and the browser specs
+(`dashboard/tests/`). Paths below are relative to `dashboard/` unless they start
+with `src/skills/` or `.planning/`.
 
 The yardstick is the North Star rule that host-specific code stays in one module
 per host behind `LaunchHost` (`server/launchHosts.ts:22-66`). Under ADR 0005,
@@ -37,12 +42,12 @@ The two workflows and two hosts share one path. Host-specific steps are marked.
    `server/agentLaunches.ts:143-152` refuses a duplicate in-flight launch.
    `:177-187` blocks on an unresolved creation.
 5. **Preparation handoff.** `server/launchStart.ts:57-136` runs the workflow
-   start (`server/startWorkflows.ts:98-141`). For execution this is
+   start (`server/startWorkflows.ts:99-142`). For execution this is
    `server/executionStart.ts:75-206`; for refinement it is
    `server/preparationStart.ts`. The start chooses the workspace
    (`server/startLaunch.ts:101-133`) and formats the handoff with the selected
    host's installed formatter (`server/executionStart.ts:209-228`,
-   `server/preparationCommand.ts:55-70`).
+   `server/preparationCommand.ts:96-116`).
 6. **Native launch.** `server/launchRun.ts:34-51` calls `host.launch` for a new
    launch, or `host.recover` when first input is pending.
    - Claude: `server/hosts/claude/launch.ts:133-168`.
@@ -59,18 +64,18 @@ The two workflows and two hosts share one path. Host-specific steps are marked.
 | Responsibility | Shared module(s) | `LaunchHost` operation | Claude Code | Codex |
 | --- | --- | --- | --- | --- |
 | Host dispatch | `server/launchHosts.ts:68-76` | lookup only | `server/claudeHost.ts:21-33` | `server/codexHost.ts:11-22` |
-| Installed skill location | `server/launchHosts.ts:78-87`; callers `server/executionStart.ts:44-72`, `server/preparationCommand.ts:21-50`, `server/launchOptions.ts:34-39`, `server/launchSessionPolicy.ts:33-40` | `installedSkillPath` | `.claude/skills` (`server/claudeHost.ts:23-24`) | `.agents/skills` (`server/codexHost.ts:13-14`) |
-| Workflow start and handoff text | `server/launchStart.ts:57-136`, `server/startWorkflows.ts:72-147`, `server/startLaunch.ts` | none (the installed formatter is chosen by host) | — | — |
+| Installed skill location | `server/launchHosts.ts:78-87`; callers `server/executionStart.ts:44-72`, `server/preparationCommand.ts:25-91`, `server/launchOptions.ts:34-39`, `server/launchSessionPolicy.ts:36-48` | `installedSkillPath` | `.claude/skills` (`server/claudeHost.ts:23-24`) | `.agents/skills` (`server/codexHost.ts:13-14`) |
+| Workflow start and handoff text | `server/launchStart.ts:57-136`, `server/startWorkflows.ts:73-148`, `server/startLaunch.ts` | none (the installed formatter is chosen by host) | — | — |
 | Native instruction | — | `launch` | `claudeInstruction`, `server/hosts/claude/launch.ts:34-49` | `codexInput`, `server/hosts/codex/input.ts:10-51` |
 | Host and model choice | `src/LaunchHostModel.tsx`, `src/sessionCapabilities.ts:3-10`, `src/launchWorkflow.ts:107-122`, `server/agentLaunchAdmission.ts:168-179` | none | `--model` passed through (`server/hosts/claude/launch.ts:145`) | model refused at admission |
-| Start capability offered to the dialog | `server/launchCatalog.ts:24-35`, `:111-124`, `src/launchOffers.ts:38-77` | `installedSkillPath` (indirect) | legacy host-less lists | `establishingHosts` rows |
+| Start capability offered to the dialog | `server/launchCatalog.ts:24-35`, `:109-122`, `src/launchOffers.ts:38-77` | `installedSkillPath` (indirect) | legacy host-less lists | `establishingHosts` rows |
 
 ### Findings
 
 **L1-1 — The list of hosts is spelled in several places.** Confirmed.
 - `server/launchHosts.ts:68-76` dispatches with a `claude`/`codex` ternary.
 - `src/sessionCapabilities.ts:3` keeps a second list (`launchHosts`). The server
-  uses it to loop over hosts (`server/launchCatalog.ts:46`, `:114`, `:131`;
+  uses it to loop over hosts (`server/launchCatalog.ts:46`, `:112`, `:129`;
   `server/agentLaunches.ts:237`).
 - `src/sessionCapabilities.ts:4-10` maps names with a fallback: any host other
   than `claude` or `codex` is named "Cursor".
@@ -91,19 +96,19 @@ look hosts up in a `Partial<Record<host, LaunchHost>>` instead of a ternary.
 Derive the refs in `server/startGit.ts` from `agentHosts`. Reuse the label
 table in `src/AgentAssignmentFacts.tsx` or merge it into the host table.
 
-*Priority:* **before Cursor**. This table is where L1-2, L1-4, and L4-3 land.
+*Priority:* **before Cursor**. This table is where L1-2, L1-4, F4-3, and S5-1 land.
 
 **L1-2 — The model check at `agentLaunchAdmission.ts:174` is a native
 difference that belongs behind the host boundary.** Confirmed.
 - The shared request schema takes only Claude model aliases
-  (`src/launchRequest.ts:35`, from `src/launchWorkflow.ts:107-122`, "The models
+  (`src/launchRequest.ts:36`, from `src/launchWorkflow.ts:107-122`, "The models
   a launch may ask Claude Code for").
 - Codex is then refused by name, with Claude-specific wording
   (`server/agentLaunchAdmission.ts:174-179`).
 - The dialog repeats the same rule (`src/LaunchHostModel.tsx:56`).
 - Kept starts store the same Claude aliases (`server/startStore.ts:42`,
   `src/agentLaunch.ts:147`) and pass them to the start scripts
-  (`server/executionStart.ts:165`, `server/preparationStart.ts:201`).
+  (`server/executionStart.ts:165`, `server/preparationCommand.ts:56`).
 
 Which models a host offers is a native fact. The current code expresses it as a
 shared Claude vocabulary plus a Codex exclusion.
@@ -127,8 +132,8 @@ question.
   no host (`server/launchCatalog.ts:29`, served from
   `server/agentLaunchPlugin.ts:132-133`). That relies on the hidden default
   `host = "claude"` (`server/executionStart.ts:64`,
-  `server/preparationCommand.ts:42`).
-- `server/launchCatalog.ts:111-124` already answers the same fact for every host.
+  `server/preparationCommand.ts:83`).
+- `server/launchCatalog.ts:109-122` already answers the same fact for every host.
 
 So one shared rule is encoded twice, and the old encoding means Claude.
 
@@ -179,14 +184,14 @@ name and call it from `src/StartLaunch.tsx`.
 
 **R1-1 — Preparation handoff is shared, and the host is chosen in one place.**
 - The workflow start, the timeout, and the kept start are host-neutral
-  (`server/launchStart.ts:57-136`, `server/startWorkflows.ts:98-147`).
+  (`server/launchStart.ts:57-136`, `server/startWorkflows.ts:99-148`).
 - The script, formatter, and options files are found through
   `installedSkillPath(host, …)` (`server/launchHosts.ts:78-87`). Callers are
   `server/executionStart.ts:50`, `:67`, `:214-220`;
-  `server/preparationCommand.ts:28`, `:45`, `:60-66`; and
+  `server/preparationCommand.ts:69`, `:86`, `:101-107`; and
   `server/launchOptions.ts:39`.
 - The host is passed to the script as `--host`
-  (`server/executionStart.ts:163-164`, `server/preparationStart.ts:199-200`).
+  (`server/executionStart.ts:163-164`, `server/preparationCommand.ts:54-55`).
 - Each host builds its own native instruction around the same formatted
   handoff (`server/hosts/claude/launch.ts:42-48`,
   `server/hosts/codex/input.ts:26-37`).
@@ -229,7 +234,7 @@ through the `launch` signature (`server/launchHosts.ts:29-36`), keeping
 **W2-2 — Shared helpers silently default the host to Claude.** Confirmed.
 - `server/launchWorkspace.ts:60`, `server/launchOptions.ts:34`,
   `server/executionStart.ts:64`, `:212`, and
-  `server/preparationCommand.ts:42`, `:58` all default `host = "claude"`.
+  `server/preparationCommand.ts:83`, `:99` all default `host = "claude"`.
 - Only `server/launchCatalog.ts:29` relies on the default (see L1-3). Every
   other caller passes the host.
 
@@ -354,7 +359,7 @@ schemas.
 - `sessionKey` keys the store, done, delete, and attach lookups by host plus
   native id (`src/sessionReference.ts:12-14`, `server/launchRecordStore.ts:50`,
   `server/agentLaunchAdmission.ts:104-124`, which call `server/agentLaunches.ts:127`).
-- Retries match on host as well (`src/launchRequest.ts:115-127`).
+- Retries match on host as well (`src/launchRequest.ts:112-124`).
 
 *Reason:* this is the single domain model ADR 0001 and ADR 0002 §3 ask for.
 
@@ -385,7 +390,7 @@ shared writer keeps the store rules, such as never recreating a deleted record
 **F4-1 — The in-flight duplicate refusal at `agentLaunches.ts:144` is a shared
 rule applied to only one host.** Confirmed.
 - The check uses only host-neutral parts: `this.running` and `sameLaunch`
-  (`server/agentLaunches.ts:143-146`, `src/launchRequest.ts:115-127`).
+  (`server/agentLaunches.ts:143-146`, `src/launchRequest.ts:112-124`).
 - Nothing in it is native to Codex.
 - For Claude, a second identical launch is stopped only by the start gate
   (`server/startLaunch.ts:197-205`), which covers only workflows with an
@@ -467,7 +472,7 @@ uncertain answer with no host-specific code.
   timed out, live in `server/hosts/claude/launch.ts:68-121`.
 - Codex's live in `server/hosts/codex/launch.ts:89-128`.
 - Shared code only adds the workflow's "published without session" sentence
-  (`server/launchRun.ts:52-58`, `server/startWorkflows.ts:112-135`).
+  (`server/launchRun.ts:52-58`, `server/startWorkflows.ts:113-136`).
 
 *Reason:* the categories are native. What shared code adds is about the
 workflow, not the host.
@@ -480,11 +485,375 @@ recorded).
 *Reason:* recovering the start belongs to the workflow, and pinning it to the
 host prevents a cross-host takeover.
 
+## 5. Native session observation and lifecycle
+
+Traced path, for both hosts: the page and the alert loop read
+`AgentLaunches.machineSessions` (`server/agentLaunches.ts:71-77`); done,
+delete, and attach read one record through `stateOf` (`:113-119`). Both go
+through `withStates` (`server/launchStates.ts:38-59`), which calls each host's
+`sessions` once. The browser reads the normalized state through
+`src/sessionShown.ts`. Mark as done runs `markSessionDone`
+(`server/doneMarks.ts:14-62`): local intent first, then `rename`, detach,
+and `stop`.
+
+| Responsibility | Shared module(s) | `LaunchHost` operation | Claude Code | Codex |
+| --- | --- | --- | --- | --- |
+| Observation read, deadline, isolation | `server/launchStates.ts:9-59`, `server/agentLaunches.ts:71-77`, `:113-119` | `sessions` (optional) | one machine listing, `observeClaudeSessions` (`server/hosts/claude/runtime.ts:196-223`) | per saved endpoint, `codexSessions` (`server/hosts/codex/sessions.ts:104-165`) |
+| Normalized state vocabulary | `sessionStateSchema`, `src/launchRecord.ts:166-190` | `sessions` returns it | `activityOf` (`server/hosts/claude/runtime.ts:133-150`) | `state` (`server/hosts/codex/sessions.ts:20-102`) |
+| Reading, attention, counts | `src/sessionShown.ts:40-152` | none | — (default wording) | wording and alert branches by name (`:51`, `:55`, `:118`) |
+| Alerts | `server/sessionAlerts.ts:85-161`, `alertReading` (`src/sessionShown.ts:111-131`) | none (reads `machineSessions`) | — | — |
+| Mark as done | `server/doneMarks.ts:14-62`, admission `server/agentLaunchAdmission.ts:126-143`, `src/doneMark.ts:22-37` | `stop` required, `rename` optional | `claude stop <alias>` (`server/hosts/claude/runtime.ts:99-107`) | `turn/interrupt` of the in-progress turn (`server/hosts/codex/done.ts:49-84`) |
+| Done rename | `doneSessionName` (`src/doneMark.ts:35-37`) | `rename` (gets a typing callback) | types `/rename` into the open attachment, waits for the listing (`server/hosts/claude/rename.ts:31-68`) | `thread/name/set` (`server/hosts/codex/done.ts:38-47`) |
+| Delete record | `server/agentLaunchPlugin.ts:96-113`, `recordDeletable` (`src/launchRecord.ts:201-212`) | none | — | — |
+| Browser done and terminal offers | `marksDone`, `embeddedTerminal` (`src/sessionCapabilities.ts:11-16`) | none (restates `stop`, `attach`) | listed by name | listed by name |
+| Server shutdown | `server/agentLaunchPlugin.ts:196-200`, `server/agentLaunches.ts:231-238` | `close` (optional) | none | `closeCodexConnections` (`server/hosts/codex/conversation.ts:16-19`) |
+
+### Findings
+
+**S5-1 — The browser restates which hosts can mark done and attach, by host
+name.** Confirmed.
+- `src/sessionCapabilities.ts:11-16` answers `embeddedTerminal` and
+  `marksDone` with `host === "claude" || host === "codex"`.
+- The server decides the same facts from the optional operations:
+  `server/agentLaunchAdmission.ts:139` (`stop`), `:234` (`attach`),
+  `server/doneMarks.ts:21-24`, and `server/terminalAttachments.ts:45-49`.
+- The browser flags gate every action: `src/LaunchSession.tsx:50`,
+  `src/TerminalSplit.tsx:153`, `src/StartSession.tsx:91`,
+`src/TerminalPanel.tsx:121`, and `src/sessionRecordActions.tsx:22`.
+
+*Consequence for Cursor:* the implementer must edit both functions as well as
+the host module. If the two lists disagree, the page offers an action the
+server refuses, or hides one the server would admit.
+
+*Improvement:* derive both flags from `launchHost(host)?.stop` and `?.attach`
+on the server. Serve them per host in the sessions answer
+(`server/agentLaunchPlugin.ts:126-139`, where `establishingHosts` already
+travels), or hold them in the L1-1 host table with a check that the table
+matches the operations. Then the two functions read that fact.
+
+*Priority:* **before Cursor**. It lands with L1-1.
+
+**S5-2 — The "unknown" reading is worded by host name, and any other host gets
+Claude's words.** Confirmed.
+- `src/sessionShown.ts:48-60`: Codex reads "Live observation unavailable" /
+  "Continue this conversation in Codex". Every other host reads "State
+  unknown" / "Claude Code's session list could not be read".
+
+*Consequence for Cursor:* an unknown Cursor session would be explained as an
+unreadable Claude Code list until someone edits `src/sessionShown.ts`.
+
+*Improvement:* make one shared unknown reading in `src/sessionShown.ts`, worded
+with `hostName(session.host)` (`src/sessionCapabilities.ts:4-10`). The two
+current notes mean different things (an unreadable listing compared with a
+conversation to continue elsewhere), so the shared wording is Terry's decision.
+
+*Priority:* **before Cursor**. It is cheap, and otherwise the wrong host is
+named.
+
+**S5-3 — Whether an unrecognized state alerts depends on the host's name.**
+Confirmed.
+- `src/sessionShown.ts:117-122` suppresses the alert for a Codex
+  `available`/`unknown` state. For Claude the same state alerts as "State not
+  recognized" (`:83-92`, `:124-130`).
+- Both behaviors are tested. `tests/session-alerts.spec.ts` "raises one for
+  each other reading: … and not recognized" covers Claude.
+  `tests/agent-launch-codex-observation-alerts.spec.ts` "… stay silent for
+  unreadable or unrecognized states" covers Codex. Both passed in this review's
+  run.
+- What drives the difference is native. Codex puts a partial read failure in
+  the same shape: "Codex's latest turn could not be read"
+  (`server/hosts/codex/sessions.ts:99-101`), next to unrecognized statuses
+  (`:57-60`, `:72-73`, `:93-97`). Claude uses the shape only for an
+  unrecognized listing state (`server/hosts/claude/runtime.ts:147-148`,
+  `:179-181`).
+- `AGENT-LAUNCH.md:138` and `:148` state both rules.
+
+*Verdict:* the shared rule is that unknown never alerts and unrecognized may.
+That rule is applied by host name because the state vocabulary cannot say
+"partly unread".
+
+*Consequence for Cursor:* the implementer must decide whether Cursor's
+unrecognized states alert, by editing `src/sessionShown.ts`. Otherwise they
+fall under Claude's rule.
+
+*Improvement:* say it in the vocabulary. Either Codex answers an unread latest
+turn as `{ kind: "unknown" }` (`server/hosts/codex/sessions.ts:99-101`), or
+`sessionStateSchema` (`src/launchRecord.ts:169-188`) gains one host-set field
+that `alertReading` reads in place of the name. Whether Codex's unrecognized
+statuses should then alert as Claude's do is a product decision for Terry.
+
+*Priority:* **before Cursor**.
+
+**S5-4 — Host operations take their timing and folder from unstated
+conventions.** Confirmed.
+- **Observation deadline.** Codex settles each endpoint at 9 seconds so that
+  it beats the shared 10-second deadline
+  (`server/hosts/codex/sessions.ts:111-116`, `server/launchStates.ts:9`,
+  `:21-30`). If it misses, the shared race drops every observation for that
+  host (`:23-27`).
+- **Rename deadline.** `rename` has no signal (`server/launchHosts.ts:56-60`).
+  Claude waits 5 seconds (`server/hosts/claude/rename.ts:9`, `:16-23`) and
+  Codex 10 (`server/hosts/codex/done.ts:39`). `stop` gets the shared
+  10-second signal (`server/doneMarks.ts:12`, `:51`).
+- **Folder.** `sessions` receives the home folder for the page and alert reads
+  (`server/agentLaunches.ts:71-77`, `server/projectFolders.ts:27-29`), but the
+  project folder for done, delete, and attach (`server/agentLaunches.ts:113-119`).
+  Claude runs its listing there (`server/hosts/claude/runtime.ts:35-39`).
+  Codex ignores the folder (`server/codexHost.ts:17`).
+
+*Consequence for Cursor:* the implementer has to read shared code to learn
+its time budget. It cannot treat `folder` as the session's project.
+
+*Improvement:* in `server/launchStates.ts`, give `sessions` a signal that aborts
+before the hard expiry. Pass `rename` an `AbortSignal` from
+`server/doneMarks.ts`, as `stop` already gets. State in the `LaunchHost` type
+(`server/launchHosts.ts:43-65`) what `folder` means.
+
+*Priority:* **later**.
+
+**S5-5 — Shared comments still describe a Claude-only, host-less boundary.**
+Confirmed.
+- `server/agentLaunchPlugin.ts:8-12` says delete waits on "Claude Code's
+  listing" and gives the terminal path as `?source=&session=`.
+- `server/agentLaunchPlugin.ts:20-21` says a session "Claude Code no longer
+  lists is refused before any `claude attach`".
+- `src/agentTerminal.ts:3` gives `?source=<project id>&session=<session id>`.
+  The page also sends `host` (`src/useAttachedTerminal.ts:15-20`).
+
+*Consequence for Cursor:* the comments mislead about the shared contract.
+
+*Improvement:* reword them in the first session-side change that touches these
+files.
+
+*Priority:* **later**.
+
+### Retain decisions
+
+**R5-1 — Observation is one shared, bounded, host-isolated read.**
+- `server/launchStates.ts:38-59` groups records by host and calls each host's
+  `sessions` once.
+- A host with no `sessions`, a host that throws, and a host that overruns the
+  deadline are each limited to that host's records, which read unknown
+  (`:17-35`). An omitted target is unknown, never absent (`:53-58`).
+- `tests/launch-observations.spec.ts` proves this with both real host objects
+  substituted. It passed in this review's run.
+
+*Reason:* this is the North Star rule that hosts reuse shared polling, and the
+boundary's rule that an absent operation is unavailable
+(`server/launchHosts.ts:1-2`).
+
+**R5-2 — One state vocabulary, one reading, and one alert loop.**
+- Each host maps its native state into `sessionStateSchema`
+  (`src/launchRecord.ts:166-190`).
+- Attention, labels, and counts are shared (`src/sessionShown.ts:28-38`,
+  `:133-152`).
+- The alert loop, its baseline, and its `osascript` call are host-neutral
+  (`server/sessionAlerts.ts:118-155`).
+- The host supplies only provenance text (`waitingFor`, `description`;
+  `src/launchRecord.ts:182-184`, `server/hosts/codex/sessions.ts:66-68`).
+
+*Reason:* this matches "Each host normalizes its native activity; common
+presentation owns its user meaning". S5-2 and S5-3 are the two places where
+presentation still reads the host's name.
+
+**R5-3 — The done sequence is shared, and native operations stay with each
+host.**
+- Local intent is saved before any native call (`server/doneMarks.ts:25-28`).
+- Each native operation is an attempt with a bounded diagnostic (`:29-38`,
+  `:54-60`; `server/hostLaunch.ts:14-24`).
+- `stop` is skipped only on confirmed absence (`:48-53`). This rule is shared,
+  not Claude's.
+- `rename` gets a typing callback and runs before detachment, because Claude
+  renames through its open attachment (`:39-47`,
+  `server/hosts/claude/rename.ts:41-48`). Codex ignores the callback
+  (`server/hosts/codex/done.ts:38-47`).
+
+*Reason:* the order serves the stricter host at no cost to the other. An
+optional `rename` lets a host with no native rename keep the done name in the
+record only.
+
+**R5-4 — Delete record is host-neutral.**
+`server/agentLaunchPlugin.ts:96-113` rereads state and deletes only
+host-qualified evidence. `recordDeletable` (`src/launchRecord.ts:201-212`)
+names no host.
+
+*Reason:* deleting a record concerns the dashboard's evidence, not the host.
+
+**R5-5 — Monitoring is passive, and shutdown detaches.**
+- Codex observation is read-only (`server/hosts/codex/sessions.ts:1`).
+- Closing a Codex client never interrupts a turn (`server/hosts/codex/rpc.ts:1-2`).
+- On server close, every host's optional `close` runs
+  (`server/agentLaunches.ts:231-238`, `server/hosts/codex/conversation.ts:16-19`).
+
+*Reason:* this matches the North Star's "read-only monitoring must not resume a
+conversation or take its interactive control". The host list used at `:237` is
+L1-1's.
+
+## 6. Continuation and terminal interaction
+
+Traced path: Open terminal (`src/LaunchSession.tsx:50-62`) mounts
+`src/TerminalPanel.tsx`. That mounts `useAttachedTerminal`
+(`src/useAttachedTerminal.ts:32-159`), which opens
+`/__agent-terminal?source&session&host`. Admission (`server/agentLaunchAdmission.ts:218-250`)
+requires a kept record in an existing project folder, a host with `attach`,
+and a state that `attachOpens` (`src/launchRecord.ts:194-196`).
+`TerminalAttachments.connect` (`server/terminalAttachments.ts:41-127`) calls
+`host.attach` and relays the PTY.
+
+| Responsibility | Shared module(s) | `LaunchHost` operation | Claude Code | Codex |
+| --- | --- | --- | --- | --- |
+| Upgrade admission and refusal | `server/agentTerminals.ts:34-104`, `server/agentLaunchAdmission.ts:218-250` | `attach` presence | — | — |
+| Native attach process | — | `attach` returns `{ pty, ready? }` | `claude attach <alias>` in the project folder (`server/hosts/claude/runtime.ts:84-95`, `server/claudeHost.ts:27-29`) | `codex resume --remote … --cd … --no-alt-screen <id>` in the saved workspace (`server/hosts/codex/terminal.ts:5-28`) |
+| Wire protocol | `src/agentTerminal.ts:13-37` | none | — | — |
+| PTY relay, resize, input | `server/terminalAttachments.ts:77-123`, `src/useAttachedTerminal.ts:50-145` | none | — | — |
+| Readiness | `server/terminalAttachments.ts:65-76`, `:103-116`; screen evidence `src/useAttachedTerminal.ts:61-121` | `attach().ready` (optional) | absent: ready at once | composer cursor frame (`server/hosts/codex/terminal.ts:31-41`) |
+| Done reopened by attaching | `server/terminalAttachments.ts:68-74` | none (timed by `ready`) | at attach start | after readiness |
+| Detach and server close | `server/terminalAttachments.ts:129-168`, `server/agentTerminals.ts:114-122` | none | SIGHUP | SIGHUP |
+| Typing into an attachment, ending attachments | `server/terminalAttachments.ts:142-161`, `server/agentTerminals.ts:106-112` | used by `rename` | `/rename` | unused |
+| Continuation shown to the developer | `src/LaunchSession.tsx:21-49`, `shellCommand` (`src/sessionCapabilities.ts:17-19`) | `launch` supplies `continuation` | none | `continuation.args` (`server/hosts/codex/launch.ts:46-58`) |
+
+### Findings
+
+**T6-1 — Attach refusal says "Claude Code" for every host.** Confirmed.
+- `server/agentLaunchAdmission.ts:240-243` refuses an unavailable session with
+  "Claude Code no longer lists this session." The selected host is already looked up
+six lines earlier (`launchHost(record.session.host)`, `:234`), and
+  `server/terminalAttachments.ts:60` already uses `host.name`.
+- Only the Claude path is tested (`tests/agent-terminal-boundary.spec.ts`
+  "refuses an upgrade for a session Claude Code no longer lists, without
+attaching", and `tests/agent-terminal-reopen.spec.ts` "keeps a done session Claude Code no longer lists done when its upgrade is refused").
+
+*Consequence for Cursor:* an unavailable Cursor session would be refused in
+Claude Code's name.
+
+*Improvement:* word the refusal with the selected `LaunchHost`'s `name` in
+`server/agentLaunchAdmission.ts`.
+
+*Priority:* **before Cursor**. It is one line.
+
+**T6-2 — The continuation display is labeled Codex, and its shape requires a
+Codex endpoint.** Confirmed.
+- `src/LaunchSession.tsx:21-29` shows "Continue in Codex" whenever any record
+  has a `continuation`, whatever its host.
+- The shared `continuation` requires `endpoint` (`src/launchRecord.ts:17-25`).
+  Only Codex reads it (`server/hosts/codex/sessions.ts:147`,
+  `server/hosts/codex/done.ts:20`, `server/hosts/codex/terminal.ts:8-10`).
+
+*Consequence for Cursor:* if Cursor records a continuation command, the page
+says "Continue in Codex", and the implementer must invent an `endpoint` or
+edit the shared schema.
+
+*Improvement:* label the line with `hostName(record.session.host)` in
+`src/LaunchSession.tsx`. Move `endpoint` into the Codex variant of I3-1's
+discriminated union. Keep `args` and `notice` shared, and put `workspace`
+where W2-3 decides.
+
+*Priority:* **before Cursor**. It lands with I3-1.
+
+**T6-3 — Codex's resume command is spelled in three places.** Confirmed.
+- `server/hosts/codex/launch.ts:49-57` records `continuation.args`.
+- `server/hosts/codex/terminal.ts:11-21` spawns its own copy and adds
+  `--no-alt-screen`.
+- The shared `src/launchCreation.ts:12-22` builds a picker variant
+  (`--include-non-interactive`).
+
+*Consequence for Cursor:* none beyond I3-2, which already covers
+`src/launchCreation.ts`.
+
+*Improvement:* add one private builder in `server/hosts/codex/terminal.ts`,
+used by `launch.ts` and the attach. The creation command follows I3-2.
+
+*Priority:* **later**.
+
+**T6-4 — A missing saved workspace fails attachment with generic words.**
+Confirmed by reading the code. The cause was demonstrated by SEED-073's
+investigation, and its recurrence is a question.
+- Admission checks only the project folder
+  (`server/agentLaunches.ts:132-135`).
+- Codex spawns in `continuation.workspace` (`server/hosts/codex/terminal.ts:17-24`).
+- An exit before readiness closes with 1011 and "Codex could not be attached"
+  (`server/terminalAttachments.ts:86-95`). The page shows "The session could
+  not be attached" with Reconnect (`src/useAttachedTerminal.ts:124-133`,
+  `src/TerminalPanel.tsx:60-64`).
+- SEED-073's preserved evidence (commit `ae224699`, the seed's last version before `a13ac883` removed it) reproduced the
+  failure with a missing workspace. It found Reconnect cannot repair it, and
+  recorded the remaining acceptance examples.
+
+*Consequence for Cursor:* nothing shared states whether a session's workspace
+must still exist when someone attaches. The implementer decides alone.
+
+*Improvement:* once W2-3 records the session workspace as a common fact,
+`admittedAttach` (`server/agentLaunchAdmission.ts:218-250`) checks it with
+`folderExists` (`server/projectFolders.ts:31-37`). It then refuses with an
+actionable explanation before spawning.
+
+*Priority:* **later**. Terry closed SEED-073 without selecting a repair. The remaining acceptance examples in its last version (commit `ae224699`) are the natural story.
+
+### Retain decisions
+
+**R6-1 — The shared terminal transport is retained.** This is the decision the
+plan requires.
+- A host supplies only `{ pty, ready? }` (`server/launchHosts.ts:48-55`;
+  `server/claudeHost.ts:27-29`; `server/hosts/codex/terminal.ts:5-43`).
+- Everything else is shared, and names no host apart from the host-less attach default `"claude"` (`server/agentLaunchAdmission.ts:226`, I3-3) and the 410 wording (T6-1):
+  - upgrade path, refusal, and origin check (`server/agentTerminals.ts:34-104`,
+    `server/agentLaunchAdmission.ts:218-233`);
+  - the wire protocol (`src/agentTerminal.ts:13-37`);
+  - PTY relay, input, and resize (`server/terminalAttachments.ts:77-123`);
+  - typing, newest-attachment choice, and ending by host-qualified key
+    (`:142-161`);
+  - the browser terminal and its endings (`src/useAttachedTerminal.ts`,
+`src/TerminalPanel.tsx:60-64`).
+- Both hosts pass through the same code. `tests/agent-terminal-boundary.spec.ts`
+  covers Claude and `tests/agent-terminal-codex.spec.ts` covers Codex. Both
+  passed in this review's run.
+
+*Reason:* this matches the North Star's "Hosts reuse the shared … terminal
+transport" and ADR 0005's minimal adapter. The `IPty` type in the boundary
+(`server/launchHosts.ts:3`, `:53`) assumes an attachable CLI process. Whether
+Cursor has one is a Cursor question (CQ-3).
+
+**R6-2 — Detachment stays distinct from interruption.**
+- Closing a socket, switching the panel, or closing the server sends SIGHUP
+  to the client only (`server/terminalAttachments.ts:129-140`, `:163-168`;
+  `server/agentTerminals.ts:114-122`).
+- Native interruption happens only through `stop` from Mark as done
+  (`server/doneMarks.ts:48-53`).
+
+*Reason:* this is the North Star's "client detachment stays distinct from
+explicit per-conversation interruption".
+
+**R6-3 — Readiness is an optional host signal, and shared code times the done
+reopen by it.**
+- `server/terminalAttachments.ts:65-76` and `:103-116` keep a done mark until
+  the host's `ready` accepts a rendered screen. The browser's evidence of a
+  rendered screen is host-neutral (`src/useAttachedTerminal.ts:61-121`).
+- An absent `ready` means ready at once. That is Claude's documented
+  behavior, "Claude retains its immediate admitted-attachment behavior"
+  (`AGENT-LAUNCH.md:175`), and `tests/agent-terminal-reopen.spec.ts` "reopens
+  a session marked done once its attach starts" tests it.
+
+*Reason:* when an attachment counts as ready is native. The shared code needs
+only the predicate. Unlike other optional operations, an absent `ready` means
+"ready at once", not "unavailable", so the implementer must choose it
+deliberately (CQ-3).
+
+**R6-4 — The continuation command is supplied by the host and shown by shared
+code.**
+- The host records `continuation.args` (`src/launchRecord.ts:21`,
+  `server/hosts/codex/launch.ts:49-57`).
+- The page shell-quotes it with the shared `shellCommand`
+  (`src/sessionCapabilities.ts:17-19`, `src/LaunchSession.tsx:28`) and never
+  runs it.
+
+*Reason:* the host owns the native command, and shared code only displays it.
+The label is T6-2's concern.
+
 ## Host-name grep coverage
 
 The review ran
 `grep -rnE '=== "codex"|=== "claude"|!== "codex"|!== "claude"' dashboard/server dashboard/src`
-at `6ac22ba8`.
+at `6ac22ba8`. It was rerun at `47ef4368` (the dashboard code is unchanged) and at `1cdd476c`, with the same 19 hits on the same lines.
 
 | Hit | Disposition |
 | --- | --- |
@@ -493,40 +862,371 @@ at `6ac22ba8`.
 | `server/agentLaunchAdmission.ts:174` | L1-2 |
 | `server/claudeHost.ts:15` | Retained. The host module checks its own session (I3-1 removes the need once the schema is per host). |
 | `server/launchHosts.ts:71`, `:73` | L1-1 (the dispatch ternary) |
-| `server/hosts/codex/terminal.ts:9` | Retained. The check is inside the Codex host module. Terminal detail is deferred to slice 2. |
+| `server/hosts/codex/terminal.ts:9` | R6-1. The check is inside the Codex host module. I3-1 and T6-2 make the type say it. |
 | `src/sessionCapabilities.ts:5`, `:7` (`hostName`) | L1-1 |
-| `src/sessionCapabilities.ts:12`, `:15` | Deferred to session-side |
+| `src/sessionCapabilities.ts:12`, `:15` | S5-1 |
 | `src/launchRecord.ts:28` | I3-1 |
 | `src/agentLaunchClient.ts:52` | F4-3 |
 | `src/launchOffers.ts:57` | L1-3 |
-| `src/sessionShown.ts:51`, `:55`, `:118` | Deferred to session-side |
+| `src/sessionShown.ts:51`, `:55` | S5-2 |
+| `src/sessionShown.ts:118` | S5-3 |
 | `src/LaunchHostModel.tsx:56` | L1-2 |
 | `src/StartLaunch.tsx:191` | L1-4 |
 
-Host literals the grep pattern misses, found by a wider search and covered here:
+The wider check (plan learning) ran
+`grep -rnE '"claude"|"codex"' dashboard/server dashboard/src`, excluding
+`dashboard/server/hosts/`, `claudeHost.ts`, and `codexHost.ts`, at `47ef4368` and again at `1cdd476c`.
+It found 41 hits. The 17 hits from the table above that lie outside the excluded
+files appear again, and every other hit is listed here:
 
-- `= "claude"` defaults: W2-2 and I3-3.
-- `server/startGit.ts:44-50`: L1-1.
-- `src/launchCreation.ts:12-25`: I3-2.
-- `src/launchWorkflow.ts:43`, `:65`: L1-5.
+- `server/launchWorkspace.ts:60`, `server/launchOptions.ts:34`,
+  `server/executionStart.ts:64`, `:212`, `server/preparationCommand.ts:83`,
+`:99`: W2-2.
+- `server/agentLaunchAdmission.ts:226`, `server/startStore.ts:37`, `:124`,
+  `src/agentLaunch.ts:146`, `:183`, `:188`, `src/doneMark.ts:25`,
+  `src/deleteRecord.ts:24`: I3-3.
+- `src/sessionCapabilities.ts:3` (`launchHosts`): L1-1.
+- `src/launchCreation.ts:14`: I3-2 and F4-2 (with T6-3).
+- `src/LaunchDialog.tsx:48`, `src/launchAttempts.ts:140`, `:153`,
+  `src/launchOffers.ts:56`, `:63`, `src/optionsOffer.ts:28`: the browser side of
+  W2-2. These are optional-parameter defaults to `"claude"`. Both dialogs pass
+  `host` (`src/StartSession.tsx:80`, `src/StartLaunch.tsx:162`), so the defaults
+  apply only when a caller omits the host. W2-2's improvement extends to them.
+- `src/StartSession.tsx:41`, `src/StartLaunch.tsx:89`: no finding. These set the
+  dialog's initial selection to Claude Code. The developer sees the choice and
+  can change it (`src/LaunchHostModel.tsx:39-62`), so nothing is substituted.
+  Which host is preselected is a product default.
 
-**Deferred to session-side (slice 2):**
-- `src/sessionCapabilities.ts:11-16` (`embeddedTerminal`, `marksDone`).
-- `src/sessionShown.ts:51`, `:55`, `:118`.
-- `src/LaunchSession.tsx:21-29` ("Continue in Codex", keyed on whether a
-  continuation exists rather than on the host).
-- `server/agentLaunchAdmission.ts:242`. Attach refusal says "Claude Code no
-  longer lists this session" for every host.
-- `server/hosts/codex/terminal.ts:9`.
+Host words that neither pattern matches, found with
+`grep -rn 'Claude Code\|Codex\|claude agents'` outside the host modules:
 
-## 5. Native session observation and lifecycle (slice 2)
+- `server/agentLaunchAdmission.ts:242`: T6-1.
+- `src/LaunchSession.tsx:27`: T6-2.
+- `src/sessionShown.ts:56-57`: S5-2.
+- `server/agentLaunchPlugin.ts:9`, `:20`: S5-5.
+- `server/agentLaunches.ts:185`, `src/launchCreation.ts:24`: F4-2 and I3-2.
+- `src/agentLaunchClient.ts:44`: F4-3.
+- `src/launchWorkflow.ts:43`, `:65`, `:92`, `src/StartLaunch.tsx:105-106`: L1-5.
+- `src/launchWorkflow.ts:107-109`, `src/launchRequest.ts:131`,
+  `src/LaunchHostModel.tsx:3`, `server/agentLaunchAdmission.ts:177`: L1-2.
+- `src/AgentAssignmentFacts.tsx:33-34`: L1-1. Lines `:82` and `:118` are example
+  text in comments.
 
-## 6. Continuation and terminal interaction (slice 2)
+## Test ownership
 
-## Test ownership (slice 2)
+Families were classified from spec headers, titles, and fixture imports.
+`tests/support/codexLaunch.ts` supplies the Codex protocol substitute, with
+`codexTerminal.ts` and `codexObservation.ts` built on it. Claude specs use
+`tests/support/fakeClaude.ts` through `tests/launchJourney.ts` and
+`tests/agentLaunchBoundary.ts`. ADR 0005 asks that shared logic be tested once, with
+each tool's differences tested on their own.
 
-## Cursor questions (slice 2)
+**1. Launch and preparation handoff.**
+- *Shared, proven once:* the workflow start, kept start, and duplicate-start
+  gate (`agent-launch-start*.spec.ts`, `agent-launch-preparation-*.spec.ts`
+  without `codex`, `execution-start-result.spec.ts`,
+  `preparation-start-result.spec.ts`, `start-store.spec.ts`).
+- *Native:* the Claude instruction and `--bg` (`agent-launch-boundary.spec.ts`,
+  `agent-launch-model-boundary.spec.ts`). The Codex input
+  (`agent-launch-codex.spec.ts`, `agent-launch-ad-hoc-codex-input.spec.ts`).
+- *Duplicated:* `agent-launch-start-codex.spec.ts` ("publishes one claim and
+  retries its retained workspace") and `agent-launch-preparation-codex.spec.ts`
+  ("refusal retains its published preparation") prove the shared start rules
+  again through Codex.
+- *Shared but proven for one host only:* none found for the handoff itself.
 
-## Limitations (slice 2)
+**2. Workspace context.**
+- *Shared, once:* `launch-workspace.spec.ts` (slug, numbering, bounds).
+- *Native:* its "Codex shares collisions across host branches" case (the branch
+  prefix), and Codex's continuation workspace
+  (`agent-launch-preparation-codex-continuation.spec.ts`).
+- *One host only:* the card's Workspace line is proven for Claude's `start`
+  and `preparation` facts (`agent-launch-preparation-workspace.spec.ts`). No
+  spec proves a missing session workspace at attach (T6-4).
 
-## Ranking (slice 2)
+**3. Conversation identity and persistence.**
+- *Shared:* host-qualified identity, proven in four places:
+  `agent-launch-host-identity.spec.ts`, `agent-launch-codex.spec.ts` ("keeps
+  equal IDs distinct"), `agent-terminal-done-codex-boundary.spec.ts` ("an equal
+  Claude ID keeps its attachment"), and `launch-observations.spec.ts`
+  (`same-native-id`). Each proves equal-ID separation for a different
+  operation. The overlap is only in the fixtures.
+- *Shared:* store rules (`agent-launch-records.spec.ts`, Claude only).
+- *Native:* Codex early writes and creation evidence
+  (`agent-launch-codex-creation.spec.ts`, `agent-launch-codex-confirmation.spec.ts`).
+
+**4. Failure and retry recovery.**
+- *Native, Claude:* failure categories (`agent-launch-boundary.spec.ts`,
+  `agent-launch-ad-hoc-problems.spec.ts`, `agent-launch-card-problems.spec.ts`).
+- *Native, Codex:* reconciliation (`agent-launch-codex-reconciliation.spec.ts`,
+  `-recovery`, `agent-launch-ad-hoc-codex-recovery.spec.ts`,
+  `agent-launch-preparation-codex-recovery.spec.ts`, `-retry`,
+  `agent-launch-start-codex-recovery.spec.ts`).
+- *One host only:* the in-flight duplicate refusal (F4-1) is proven only for
+  Codex (`agent-launch-preparation-codex-recovery.spec.ts`). No spec shows a
+  duplicate start-less Claude launch, which matches F4-1's finding that none
+  is refused.
+- *Named for one host:* the shared recording-failure rule is proven once,
+  directly on `started()`, with a Codex request
+  (`agent-launch-preparation-store-failure.spec.ts`). It sits beside the Codex
+  family in name only.
+
+**5. Native session observation and lifecycle.**
+- *Shared, once:* the observation seam (`launch-observations.spec.ts`).
+- *Native mapping:* Claude in `agent-launch-session-listing.spec.ts`, Codex in
+  `agent-launch-codex-observation-status.spec.ts` and `-boundary`.
+- *Duplicated:*
+  - Presentation and counts: `agent-launch-card-session-states.spec.ts`,
+    `agent-launch-recent-session-states.spec.ts`, and
+    `session-sidebar-state-edge.spec.ts` (Claude), then again in
+    `agent-launch-codex-observation.spec.ts` ("appear consistently on cards,
+    Recent sessions and sidebar … with their attention counts"). Only the
+    Codex wording (S5-2) justifies the second family.
+  - The alert baseline and de-duplication: `session-alerts.spec.ts` (Claude),
+    then `agent-launch-codex-observation-alerts.spec.ts`. Only S5-3's
+    suppression is a Codex difference.
+  - Done admission refusal: `agent-launch-done-refusal.spec.ts` (Claude) and
+    `agent-launch-done-codex.spec.ts` "unrecorded and cross-origin done
+    requests fail before native reads or writes".
+- *Misplaced:* `agent-launch-done-codex-races.spec.ts` holds "shared Claude stop
+  failure retains intent and current Working …", which substitutes `claude`.
+- *One host only:*
+  - "A late lifecycle or done failure cannot recreate a deleted record" is
+    shared (`server/launchRecordStore.ts:135-159`), but only Codex specs prove
+    it (`agent-launch-done-codex-intent.spec.ts`,
+    `agent-launch-codex-lifetime.spec.ts`,
+    `agent-launch-codex-observation-boundary.spec.ts`).
+  - Delete record (`agent-launch-delete.spec.ts`,
+    `agent-launch-card-delete*.spec.ts`, `agent-launch-recent-delete.spec.ts`)
+    and the sidebar family (`session-sidebar*.spec.ts`) are proven only with
+    Claude. That is acceptable, because the code names no host (R5-4).
+- *Native done:* Claude `/rename` and listing (`agent-launch-done.spec.ts`,
+  `agent-launch-done-stop.spec.ts`). Codex interrupt target
+  (`agent-launch-done-codex-races.spec.ts`).
+
+**6. Continuation and terminal interaction.**
+- *Shared, once:* transport, HMR, and refusal (`agent-terminal-boundary.spec.ts`,
+  Claude). Panel lifetime and reconnect (`agent-terminal-lifetime.spec.ts`).
+  Done and delete from the panel (`agent-terminal-done.spec.ts`,
+  `agent-terminal-delete.spec.ts`).
+- *Native:* the Codex resume arguments and readiness
+  (`agent-terminal-codex.spec.ts`, `agent-terminal-codex-page.spec.ts`).
+  Claude's immediate reopen (`agent-terminal-reopen.spec.ts`,
+  `agent-terminal-done-reopen.spec.ts`).
+- *Duplicated:*
+  - Server close: `agent-terminal-close.spec.ts` (Claude) and
+    `agent-terminal-codex-close.spec.ts` (Codex).
+  - Input, resize, SIGHUP detach, and the 404 and 403 refusals:
+    `agent-terminal-codex.spec.ts`, its first case, repeats
+    `agent-terminal-boundary.spec.ts`.
+  - Keyboard, resize, and reconnect on the page:
+    `agent-terminal-codex-page.spec.ts` repeats `agent-terminal-lifetime.spec.ts`.
+- *One host only:*
+  - Shared readiness gating (`server/terminalAttachments.ts:65-116`) is proven
+    only through Codex, which is natural because only Codex supplies `ready`.
+  - The 410 refusal of an unavailable session is proven only for Claude
+    (T6-1).
+  - The continuation display is proven only for Codex.
+  - Panel header controls (`agent-terminal-avatar.spec.ts`,
+    `agent-terminal-keyboard.spec.ts`, `agent-terminal-maximize.spec.ts`,
+    added after `47ef4368`) are proven only with Claude, which is acceptable
+    because the panel code names no host.
+
+**TO-1 — Shared behavior that a host family proves again.** Confirmed by the
+listings above.
+
+*Consequence for Cursor:* an implementer who copies the Codex families would
+add a third copy of the shared presentation, alert, done-refusal, and terminal
+transport and close proofs.
+
+*Improvement:* keep one host-neutral proof per shared rule, using whichever
+substitute is cheaper. Trim the per-host families to native differences. Move
+the misplaced Claude stop case into `agent-launch-done-stop.spec.ts`. Prove
+the deleted-record rule once without Codex. Use `tests/dashboardTest.ts`
+fixtures, with `codexLaunch.ts` only where Codex is native.
+
+*Priority:* **later**. See the ranking for why it could move earlier.
+
+## Cursor questions
+
+These are open questions for the
+[Cursor story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard).
+Each needs native Cursor evidence. None is a finding, and none assumes an
+answer.
+
+- **CQ-1 (`sessions`, R5-1, S5-3).** Can Cursor's CLI list or read a recorded
+  conversation's state without resuming it or taking interactive control?
+  Can it tell confirmed absence from an unreadable answer? Which native states
+  map to working, waiting (and with what reason), review, failed, interrupted,
+  and awaiting instruction? Should an unrecognized state alert?
+- **CQ-2 (identity, I3-1, R3-2, I3-2).** What identifier does Cursor return for
+  a conversation, and when: before or after first input? Does it need a
+  separate alias for attach or stop, as Claude does? Is there evidence to keep
+  before identity exists?
+- **CQ-3 (`attach`, R6-1, R6-3, T6-4).** Is there an interactive CLI process
+  that attaches to an existing conversation through a PTY? What screen shows
+  that the attachment is ready, if anything does? Does attaching depend on the
+  original workspace still existing?
+- **CQ-4 (detach, R6-2).** Does ending that client (SIGHUP) leave the
+  conversation and its work running?
+- **CQ-5 (`stop`, `rename`, R5-3).** Is there a native way to interrupt current
+  work while keeping history, and to rename a conversation? Can either be
+  confirmed?
+- **CQ-6 (continuation, T6-2, R6-4).** What ordinary-terminal command continues
+  a recorded conversation, and which recorded arguments does it need?
+- **CQ-7 (`close`, S5-4).** Does the dashboard hold any native connection that
+  must be released when the server closes? Does a listing depend on the
+  folder it runs in?
+- **CQ-8 (launch side, L1-2, L1-4, F4-3).** Which models can a launch select?
+  How is a skill invoked (sigil)? What should the "no trusted answer" hint tell
+  the developer to check?
+
+## Limitations
+
+- **Read-only method.** No native Claude, Codex, or Cursor process ran. Native
+  behavior is known only from the code and the substitutes the specs encode,
+  some pinned to observed versions (for example Codex 0.159.3,
+  `server/hosts/codex/sessions.ts:25`, `server/hosts/codex/blank.ts:2`). At `47ef4368`, this
+review ran only these existing unpaid specs: `launch-observations.spec.ts`,
+  `session-alerts.spec.ts`, `agent-launch-codex-observation-alerts.spec.ts`
+  (11 passed), and `agent-terminal-boundary.spec.ts`,
+  `agent-terminal-codex.spec.ts`, `agent-terminal-close.spec.ts`,
+  `agent-terminal-codex-close.spec.ts` (39 passed across dev and preview).
+- **Codex attachment recovery (SEED-073).** SEED-073 was closed without
+  repair at Terry's request. Commit `ae224699` preserved the investigation in
+  the seed: a missing saved workspace reproduces the attachment failure, and
+  Reconnect cannot repair it. That commit also added
+  `docs/dashboard-session-troubleshooting.md`. Commit `a13ac883` ("Close
+  terminal attachment investigation without repair") then removed the seed and
+  its Taken entry from `.planning/PRODUCT-BACKLOG.md`. When the workspace was
+  removed is still unconfirmed. This review assesses recovery only from code
+  (T6-4). It does not establish whether other causes exist or how a
+  retired-workspace conversation should be recovered.
+- **Test classification** comes from headers, titles, and fixture imports, not
+  from every assertion. A "duplicated" judgment means the same shared rule
+  appears in both families. It does not mean the cases are identical.
+- **Cursor.** Nothing here establishes how Cursor behaves (ADR 0005). Each
+  "consequence for Cursor" names only the shared code an implementer would
+  touch.
+- **Wording.** S5-2 and the T6-1 and T6-2 labels need Terry's choice of shared
+  wording.
+
+## Ranking
+
+Each item is a candidate story, and findings that share one improvement are
+merged into one item. "Before Cursor" items change shared code that a Cursor
+implementer would otherwise have to edit, or that would otherwise answer for
+Cursor without Cursor evidence. "Later" items are coherence work that Cursor
+does not depend on.
+
+### Before Cursor
+
+1. **One host description in place of host-name ternaries** (L1-1, L1-4,
+   F4-3, S5-1).
+   - *Change:* dispatch through a `Partial<Record<host, LaunchHost>>`. Keep one
+     browser-safe host table with name, skill sigil, and "no trusted answer"
+     hint. Derive the mark-done and terminal flags from `LaunchHost`'s
+     optional operations. Derive the branch prefixes from `agentHosts`.
+   - *Reuses:* `src/sessionCapabilities.ts`, `server/launchHosts.ts`, and the
+     sessions answer in `server/agentLaunchPlugin.ts`.
+   - *Why first:* items 2 and 6 build on it. It also removes the
+     fallbacks that already answer "Cursor" or give Codex text to any other
+     host.
+2. **Host-neutral session words** (S5-2, T6-1, and T6-2's label).
+   - *Change:* word the unknown reading, the attach refusal, and the
+     continuation label with the host's name.
+   - *Reuses:* `hostName` and `LaunchHost.name`, in `src/sessionShown.ts`,
+     `server/agentLaunchAdmission.ts`, and `src/LaunchSession.tsx`. L1-5 can
+     join if the story stays small.
+   - *Why here:* it is cheap and visible. Otherwise a new host's sessions are
+     explained in Claude's or Codex's name. The wording is Terry's choice.
+3. **Required host parameters** (W2-2, including its browser side).
+   - *Change:* remove the `host = "claude"` defaults from shared server and
+     browser helpers.
+   - *Reuses:* the existing signatures. This is a type-only change.
+   - *Why here:* it is independent and cheap, and it stops silent substitution
+     at any new call site.
+4. **One schema variant per host** (I3-1, plus T6-2's `endpoint`).
+   - *Change:* turn `hostSessionSchema` into a discriminated union by `host`,
+     with `shortId` in Claude's variant and `endpoint` in Codex's.
+   - *Reuses:* `src/launchRecord.ts`.
+   - *Why here:* it decides where Cursor's identity and continuation go
+     before Cursor adds optional fields to a shared shape.
+5. **Alert meaning stated in the vocabulary** (S5-3).
+   - *Change:* express "partly unread" or "do not alert" as a host-set fact,
+     and drop the name check in `alertReading`.
+   - *Reuses:* `sessionStateSchema` in `src/launchRecord.ts` and
+     `server/hosts/codex/sessions.ts`.
+   - *Why here:* otherwise Cursor's unrecognized states inherit Claude's
+     alert rule. It needs Terry's decision on whether Codex's unrecognized
+     states should alert.
+6. **Host-declared models** (L1-2).
+   - *Change:* each host lists its offered models. Admission and the dialog
+     read that list.
+   - *Reuses:* item 1's table, with `launchModels` in `src/launchWorkflow.ts`
+     as Claude's entry.
+   - *Why here:* it depends on item 1. Until it lands, Cursor would extend two
+     ternaries and possibly the shared enum.
+7. **Generic creation evidence and its reconciliation gate** (F4-2, I3-2).
+   - *Change:* apply the unresolved-creation gate to any host that records
+     creation. Carry host-supplied continuation arguments, and word the
+     recovery with the host's name.
+   - *Reuses:* `server/launchRecording.ts` and `src/launchCreation.ts`.
+   - *Why here:* it matters only if Cursor creates identity in stages (CQ-2),
+     so it comes after the cheaper items.
+8. **Duplicate in-flight guard for every host** (F4-1).
+   - *Change:* apply the `sameLaunch` guard to every host, or key it on a
+     declared capability.
+   - *Reuses:* `server/agentLaunches.ts`.
+   - *Why last:* it is a behavior change for Claude, and whether Claude should
+     be guarded is Terry's product decision. Until then, a Cursor implementer has only to
+choose whether to join a name check.
+
+### Later
+
+9. **The session workspace as a checked common fact** (W2-3, T6-4).
+   - *Change:* record the opened workspace on every session. Refuse an attach
+     whose workspace is gone, with an actionable explanation.
+   - *Reuses:* `server/launchRecording.ts`, `server/launchRun.ts`,
+     `admittedAttach`, and `folderExists`.
+   - *Why here:* it covers the remaining acceptance examples in SEED-073's last version (commit `ae224699`). It is first among
+     "later" because it is the one item with a reproduced user-facing failure.
+10. **Resolve the workspace once** (W2-1).
+    - *Change:* pass the resolved workspace through `launch`.
+    - *Reuses:* `server/launchRun.ts` and `server/launchHosts.ts`.
+    - *Why here:* it removes a repeated fallback. It pairs naturally with
+      item 9.
+11. **Prove shared behavior once** (TO-1).
+    - *Change:* consolidate the duplicated shared proofs into host-neutral
+      specs. Keep per-host families for native differences.
+    - *Reuses:* `tests/dashboardTest.ts` and the existing substitutes.
+    - *Why here:* it improves feedback, and Cursor does not depend on it. It
+      could move ahead of the Cursor story if Terry wants Cursor's spec family
+      to start as native-only.
+12. **Explicit operation timing and folder** (S5-4).
+    - *Change:* add a shared observation margin and a rename signal, and state
+      what `folder` means.
+    - *Reuses:* `server/launchStates.ts`, `server/doneMarks.ts`, and
+      `server/launchHosts.ts`.
+    - *Why here:* nothing breaks today. It makes the contract readable.
+13. **One start-capability read path and no host-less defaults** (L1-3,
+    I3-3).
+    - *Change:* read `establishingHosts` for every host, then drop the legacy
+      lists and the defaults once no host-less data remains.
+    - *Reuses:* `src/launchOffers.ts`, `server/launchCatalog.ts`, and the
+      stored-start schemas.
+    - *Why here:* it needs the I3-3 question answered first.
+14. **One Codex resume builder** (T6-3).
+    - *Change:* build the resume command in one private place.
+    - *Reuses:* `server/hosts/codex/terminal.ts`.
+    - *Why here:* it is Codex-internal.
+15. **Pending words as a function of the host** (L1-5).
+    - *Change:* make `pending` take the host's name.
+    - *Reuses:* `src/launchWorkflow.ts`.
+    - *Why here:* it works today, and only its form is fragile. It can join
+      item 2.
+16. **Shared comments match the boundary** (S5-5).
+    - *Change:* reword the stale comments.
+    - *Reuses:* the files themselves.
+    - *Why last:* this is not a story on its own. It belongs with whichever
+      session-side item first touches these files.

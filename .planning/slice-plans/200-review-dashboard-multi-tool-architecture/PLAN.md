@@ -128,7 +128,7 @@ belongs behind the host boundary, or a shared rule applied to only one host.
 
 ### 2. Session-side responsibilities and test ownership are reviewed and ranked
 Type: Behavior
-Status: planned
+Status: done
 Proof: Same independent citation check as slice 1 for the new sections. Every
 host-name grep hit from the premises table appears in a finding or retain
 decision across slices 1–2. The Cursor-questions section contains no claim
@@ -203,6 +203,29 @@ the link is removed and the backlog is unchanged.
   Judgments: `agentLaunches.ts:144` and `:178` are shared rules applied to
   one host (F4-1, F4-2); `agentLaunchAdmission.ts:174` is a native
   difference that belongs behind the boundary (L1-2).
+- **Merge of `main` (`1cdd476c`):** before slice 2's check, `main` had
+  closed SEED-073 without repair (`a13ac883`, which also updated this plan's
+  SEED-073 rows) and changed launch-preparation, launch-record, and
+  terminal-panel code. The branch merged `origin/main` so the review
+  describes current code; no conflicts.
+- **Slice 2 proof (accepted):** `REVIEW.md` §5 (S5-1–S5-5, R5-1–R5-5), §6
+  (T6-1–T6-4, R6-1–R6-4; R6-1 retains the shared terminal transport), Test
+  ownership with TO-1, Cursor questions CQ-1–CQ-8, Limitations, and a
+  16-item Ranking (8 before Cursor). A fresh verifier re-opened every
+  citation in the whole review at `1cdd476c`; its corrections (line drift,
+  T6-1, R6-1, ranking item 1, SEED-073 limitation) were applied. Both greps
+  (19 narrow hits; 41 wide hits outside the host modules) are fully mapped.
+  Existing unpaid specs `launch-observations`, `session-alerts`,
+  `agent-launch-codex-observation-alerts` (11 passed) and
+  `agent-terminal-boundary`, `agent-terminal-codex`, `agent-terminal-close`,
+  `agent-terminal-codex-close` (39 passed) ran at `47ef4368`.
+- **For slice 3:** slice 2 found `dashboard/AGENT-LAUNCH.md` statements at
+  `:45-46` (host-name branches in shared code), `:127-128` (alert meaning
+  re-read by host name), `:183-184` (done order: rename through the open
+  attachment, then detach, then stop — `server/doneMarks.ts:39-53`), and
+  `:187-188` (skipping stop on confirmed absence is shared) that misdescribe
+  the code; `docs/dashboard-session-troubleshooting.md` now covers the
+  missing-workspace case.
 
 ## Learnings
 
