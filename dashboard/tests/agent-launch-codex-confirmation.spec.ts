@@ -45,6 +45,8 @@ test("confirmation clears pending evidence; legacy reload is truthful and connec
   );
   await expect(session).not.toContainText("has not been acknowledged");
   const saved = stored(dashboard.home)[0];
+  if (saved?.session.host !== "codex")
+    throw new Error("Missing saved Codex record.");
   const file = path.join(
     dashboard.home,
     ".open-dough/dashboard/agent-launches.json",
@@ -61,19 +63,25 @@ test("confirmation clears pending evidence; legacy reload is truthful and connec
   await page.reload();
   await expect(session).toContainText("First input accepted");
   await expect(session).not.toContainText("has not been acknowledged");
-  await expect(session).toContainText(
-    saved?.session.sessionId ?? "Missing recorded identity",
-  );
+  await expect(session).toContainText(saved.session.sessionId);
   native.failConnection();
   await expect
-    .poll(() => stored(dashboard.home)[0]?.session.continuation?.notice)
+    .poll(() => {
+      const session = stored(dashboard.home)[0]?.session;
+      return session?.host === "codex"
+        ? session.continuation?.notice
+        : undefined;
+    })
     .toContain("native connection ended");
   await page.reload();
   await expect(session).toContainText("First input accepted");
   await expect(session).toContainText("native connection ended");
   await expect(session).not.toContainText("has not been acknowledged");
-  expect(stored(dashboard.home)[0]?.session.continuation?.args).toEqual(
-    saved?.session.continuation?.args,
+  const current = stored(dashboard.home)[0];
+  if (current?.session.host !== "codex")
+    throw new Error("Missing saved Codex record.");
+  expect(current.session.continuation?.args).toEqual(
+    saved.session.continuation?.args,
   );
   expect(
     native.calls.filter((call) => call.method === "turn/start"),

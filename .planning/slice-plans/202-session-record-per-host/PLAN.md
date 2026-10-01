@@ -2,17 +2,34 @@
 
 **Identity:** SEED-075#session-record-per-host
 **Source:** [refined story](../../seeds/SEED-075-host-neutral-dashboard-before-cursor.md#session-record-per-host)
-**Authority:** Planning only. No Take, implementation, commit, or publication.
+**Authority:** Execution and landing authorized by Terry on 2026-10-01.
 **Preparation:** Established workspace
 `/Users/terryyin/git/open-dough/.worktrees/each-host-has-its-own-session-record-shape`,
 branch `claude/each-host-has-its-own-session-record-shape`, published assignment
 `2cd2e9d662390fb1433ef580b2a9bd91b87e0816`, agent `DavidKo-chan`, remote
 `origin`, target `main`, integration checkout `/Users/terryyin/git/open-dough`.
-**Depends on:** SEED-075#one-host-description is queued ahead of this story.
-Its edits touch `server/claudeHost.ts`, `server/launchHosts.ts`, and
-`server/agentLaunchAdmission.ts` near this plan's edits. Execute this plan on
-trunk after that story lands, and re-read the touched call sites first. Neither
-story's outcome depends on the other's code.
+**Sequencing decision:** Terry authorized proceeding before
+SEED-075#one-host-description lands, on the established Story Branch workspace,
+then landing the finished work. Neither story's outcome depends on the other's
+code. Re-read overlapping call sites when reconciling the landing candidate.
+
+
+## Execution context
+
+- Identity: `SEED-075#session-record-per-host`; publisher:
+  `dashboard-mac.lan-open-dough`; agent: `steven-chan`.
+- Workspace: `/Users/terryyin/git/open-dough/.worktrees/each-host-has-its-own-session-record-shape`;
+  branch: `codex/each-host-has-its-own-session-record-shape`; mode: `story-branch`.
+- Remote: `origin`; landing target: `main`; increment target:
+  `refs/heads/codex/each-host-has-its-own-session-record-shape`.
+- Established claim: `e9fb9d3120dbd32e64e46caa7829872bd2676f18`;
+  starting revision: `a04edf85d0af3abb39f1734401305e008cc5b81b`.
+- Checkout preparation: `npm ci` and `npm run typecheck:dashboard` passed in
+  this checkout with unchanged `package-lock.json`.
+- Replanning: retain existing planning authority; no numeric slice budget is
+  configured. One behavior slice and one focused proof loop bound the work.
+- CI: GitHub Actions `ci.yml`, verified push workflow; repository
+  `terryyin/open-dough`; observation will attach through managed delivery.
 
 ## Goal and scope
 
@@ -87,7 +104,7 @@ operation a host lacks stays unavailable) apply. No conflict was found.
 ### 1. Each host validates and reads its own session variant
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `launch-record-session-rules.spec.ts` green before and after the
 change; listed existing specs unchanged and green; full dashboard suite and
 typecheck green.
@@ -129,3 +146,52 @@ Order inside the slice:
 - Staged lint runs through the repository pre-commit hook (`.githooks/pre-commit`).
 - `npm test` (shell suite) is not affected: no `src/skills` or script file
   changes.
+
+## Verification environment
+
+The first `npm run test:dashboard` exited 1 because the host exports
+`NO_COLOR=1` and Playwright workers set `FORCE_COLOR=1`. Node emits a warning
+for that combination. `quietReporter.ts` correctly refuses passing tests that
+print, and `quiet-reporter.spec.ts`'s passing-child test also refuses the
+warning-producing child. The failed test ID resolved to that passing-child
+example; no session variant assertion failure was observed.
+
+Cause evidence: `node_modules/playwright/lib/runner/index.js` WorkerHost sets
+`FORCE_COLOR: "1"`; `env FORCE_COLOR=1 node -e 'console.log("probe")'` reproduces
+the warning, while `env -u NO_COLOR FORCE_COLOR=1 node -e 'console.log("probe")'`
+does not. The full suite is rerun as
+`env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard`, with every spec and
+assertion retained. This changes command environment only.
+
+## Accepted slice proof
+
+- Schema baseline: new rules spec on unchanged product accepted five existing
+  cases and rejected only the two new cross-host field assertions.
+- Schema and operation focus: `npx playwright test --config dashboard/playwright.config.ts --reporter=line dashboard/tests/launch-record-session-rules.spec.ts dashboard/tests/agent-launch-host-identity.spec.ts dashboard/tests/agent-launch-codex-observation-boundary.spec.ts dashboard/tests/agent-launch-codex-confirmation.spec.ts dashboard/tests/agent-terminal-codex.spec.ts dashboard/tests/agent-launch-codex-recovery.spec.ts dashboard/tests/agent-launch-done-codex.spec.ts dashboard/tests/agent-terminal.spec.ts dashboard/tests/agent-launch-done-stop.spec.ts dashboard/tests/agent-launch-ad-hoc-codex.spec.ts dashboard/tests/agent-launch-codex-lifetime.spec.ts dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-done-codex-intent.spec.ts`
+  passed 41 tests. Pure schema tests exercise both session and launch-record
+  boundaries; native fakes supply only external host responses, and existing
+  journeys exercise the real store, browser, RPC and PTY boundaries.
+- Inspected observations: rules spec's alias/endpoint refusal and parsed
+  cross-host-field absence; host-identity's legacy unknown, missing-endpoint
+  diagnostic, terminal 1011 and no-quarantine assertions; Codex terminal's
+  saved resume arguments/workspace; done's native rename/interruption;
+  recovery's no-resend and one conversation/turn; confirmation's persisted
+  notice/arguments; Claude terminal and done-stop's actual native alias.
+- Independent refactoring removed one redundant guard and extracted only
+  kept-start fixture operations. All files satisfy the 250-line rule.
+- Full proof: `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard > /tmp/dough-session-record-dashboard-final.log 2>&1`
+  exited 0, all specs selected, no retries or reporter output.
+- `npm run typecheck:dashboard` exited 0 after final mechanical lint repairs.
+- `npm run format > /tmp/dough-session-record-format-repaired.log 2>&1` exited
+  0; `git diff --check` passed. Hook-owned lint remains the commit hook's check.
+- Existing Codex specs needed mechanical discriminator narrowing; all their
+  behavioral assertions remain. Missing-continuation recovery retains its
+  original uncertain branch by inspected code, not a separate runtime claim.
+- Full-suite recovery test exposed a pre-existing deadline race: original trace
+  showed 1068ms against 1000ms; the sole start uncertain constructor is
+  timed-out. Raw HTTP body was unavailable. Isolated 507/668ms diagnostic passes
+  were not repair evidence. The corrected same-server fixture holds the first
+  push until after timeout assertions, releases it explicitly, and allows
+  ordinary resumption a 5s bound. All one-claim/workspace/start assertions remain.
+  `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-start-resume.spec.ts --output=/tmp/dough-resume-refactor-results`
+  passed before the final full-suite pass. No runtime behavior changed.

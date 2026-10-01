@@ -3,7 +3,11 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "../dashboardTest.ts";
 import type { FakeCodex, FakeCodexObservation } from "./fakeCodex.ts";
-import type { LaunchRecord, LaunchWithState } from "../../src/agentLaunch.ts";
+import type {
+  CodexSession,
+  LaunchRecord,
+  LaunchWithState,
+} from "../../src/agentLaunch.ts";
 import { machineSessions } from "../agentLaunchBoundary.ts";
 import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
@@ -12,7 +16,7 @@ export function observationRecord(
   server: DashboardServer,
   native: FakeCodex,
   id: string,
-): LaunchRecord {
+): LaunchRecord & { session: CodexSession } {
   return {
     request: {
       source: "open-dough",

@@ -144,7 +144,9 @@ export async function codexSessions(
   const endpoints = new Map<string, LaunchRecord[]>();
   const unknown: SessionObservation[] = [];
   for (const record of records) {
-    const endpoint = record.session.continuation?.endpoint;
+    const session = record.session;
+    const endpoint =
+      session.host === "codex" ? session.continuation?.endpoint : undefined;
     if (endpoint === undefined)
       unknown.push({
         session: record.session,

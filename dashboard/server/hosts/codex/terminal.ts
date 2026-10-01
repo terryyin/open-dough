@@ -5,9 +5,9 @@ import type { LaunchHost } from "../../launchHosts.ts";
 export const attachCodex: NonNullable<LaunchHost["attach"]> = (
   ...[session, , size]
 ) => {
-  const continuation = session.continuation;
-  if (session.host !== "codex" || continuation?.endpoint === undefined)
+  if (session.host !== "codex" || session.continuation === undefined)
     throw new Error("This Codex conversation has no saved endpoint.");
+  const continuation = session.continuation;
   const pty = spawnPty(
     "codex",
     [

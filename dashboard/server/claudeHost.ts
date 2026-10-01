@@ -12,7 +12,7 @@ import {
 import { renameInClaudeCode } from "./hosts/claude/rename.ts";
 
 function nativeAlias(session: HostSession): string {
-  if (session.host !== "claude" || session.shortId === undefined) {
+  if (session.host !== "claude") {
     throw new Error("This is not a Claude Code session.");
   }
   return session.shortId;

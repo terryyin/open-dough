@@ -74,7 +74,9 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
       await expect(pending).toContainText("First input acceptance uncertain");
       await expect(pending).not.toContainText("Refinement started in Codex");
       const record = stored(limited.home)[0];
-      const command = shellCommand(record?.session.continuation?.args ?? []);
+      if (record?.session.host !== "codex")
+        throw new Error("Missing saved Codex record.");
+      const command = shellCommand(record.session.continuation?.args ?? []);
       execFileSync("/bin/sh", ["-c", command], {
         env: { ...process.env, ...native.env },
         stdio: "pipe",

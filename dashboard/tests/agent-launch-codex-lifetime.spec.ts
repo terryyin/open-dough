@@ -35,12 +35,18 @@ test("an active detached caller still records acknowledgment and a later connect
     .toBe("confirmed");
   native.failConnection();
   await expect
-    .poll(() => stored(dashboard.home)[0]?.session.continuation?.notice)
+    .poll(() => {
+      const session = stored(dashboard.home)[0]?.session;
+      return session?.host === "codex"
+        ? session.continuation?.notice
+        : undefined;
+    })
     .toContain("native connection ended");
   await expect.poll(() => native.sockets.size).toBe(0);
-  expect(stored(dashboard.home)[0]?.session.continuation?.args.at(-1)).toBe(
-    native.threadId,
-  );
+  const saved = stored(dashboard.home)[0];
+  if (saved?.session.host !== "codex")
+    throw new Error("Missing saved Codex record.");
+  expect(saved.session.continuation?.args.at(-1)).toBe(native.threadId);
   expect(
     native.calls.filter((call) => call.method === "turn/start"),
   ).toHaveLength(1);
@@ -63,7 +69,12 @@ for (const ending of ["complete", "disconnect"] as const) {
     expect(stored(dashboard.home)[0]?.firstInput?.state).toBe("confirmed");
     if (ending === "disconnect")
       await expect
-        .poll(() => stored(dashboard.home)[0]?.session.continuation?.notice)
+        .poll(() => {
+          const session = stored(dashboard.home)[0]?.session;
+          return session?.host === "codex"
+            ? session.continuation?.notice
+            : undefined;
+        })
         .toContain("native connection ended");
   });
 }

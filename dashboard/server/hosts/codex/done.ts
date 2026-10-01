@@ -17,7 +17,8 @@ async function connected<T>(
   signal: AbortSignal,
   operation: (rpc: CodexRpc) => Promise<T>,
 ): Promise<T> {
-  const endpoint = session.continuation?.endpoint;
+  const endpoint =
+    session.host === "codex" ? session.continuation?.endpoint : undefined;
   if (endpoint === undefined)
     throw new HostOperationFailure("Saved native endpoint is missing.");
   const rpc = new CodexRpc(endpoint, signal);

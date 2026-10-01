@@ -3,8 +3,8 @@
 // a current session/story state. The common durable writer is always awaited.
 import { shellCommand } from "../../../src/sessionCapabilities.ts";
 import { z } from "zod";
-import { launchSubject, type HostSession } from "../../../src/agentLaunch.ts";
-import type { FirstInput } from "../../../src/launchRecord.ts";
+import { launchSubject } from "../../../src/agentLaunch.ts";
+import type { CodexSession, FirstInput } from "../../../src/launchRecord.ts";
 import type { LaunchHost } from "../../launchHosts.ts";
 import type { HostLaunch } from "../../hostLaunch.ts";
 import { codexInput, confirmedFirstInput } from "./input.ts";
@@ -23,7 +23,7 @@ export const launchCodex: LaunchHost["launch"] = async (
   record,
 ): Promise<HostLaunch> => {
   let rpc: CodexRpc | undefined;
-  let session: HostSession | undefined;
+  let session: CodexSession | undefined;
   let evidence: FirstInput = { state: "awaiting" };
   let submitted = false;
   let persisted = false;

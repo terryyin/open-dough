@@ -48,21 +48,23 @@ for (const mode of ["dev", "preview"] as const) {
       if (native === undefined) throw new Error("Missing native fixture");
       await launch(dashboard, { ...refinementRequest, host: "codex" });
       const record = stored(dashboard.home)[0];
+      if (record?.session.host !== "codex")
+        throw new Error("Missing saved Codex record.");
       const before = [...native.calls];
       const terminal = await openCodexTerminal(dashboard, native.threadId);
       expect(await shows(terminal, "original retained history")).toBe(true);
       const attach = codexAttaches(native)[0];
       expect(attach).toMatchObject({
-        cwd: realpathSync(record?.session.continuation?.workspace ?? ""),
+        cwd: realpathSync(record.session.continuation?.workspace ?? ""),
         cols: 80,
         rows: 24,
       });
       expect(attach?.args).toEqual([
         "resume",
         "--remote",
-        record?.session.continuation?.endpoint,
+        record.session.continuation?.endpoint,
         "--cd",
-        record?.session.continuation?.workspace,
+        record.session.continuation?.workspace,
         "--no-alt-screen",
         native.threadId,
       ]);

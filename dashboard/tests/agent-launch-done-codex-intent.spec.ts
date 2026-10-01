@@ -78,7 +78,12 @@ test("a native lifecycle callback retains done intent and a diagnostic before un
   const marked = stored(dashboard.home)[0];
   native.failConnection();
   await expect
-    .poll(() => stored(dashboard.home)[0]?.session.continuation?.notice)
+    .poll(() => {
+      const session = stored(dashboard.home)[0]?.session;
+      return session?.host === "codex"
+        ? session.continuation?.notice
+        : undefined;
+    })
     .toContain("native connection ended");
   expect(stored(dashboard.home)[0]?.doneAt).toBe(marked?.doneAt);
   expect(stored(dashboard.home)[0]?.doneProblem).toBe(marked?.doneProblem);

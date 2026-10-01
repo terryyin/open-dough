@@ -129,8 +129,10 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   const record = stored(dashboard.home).find(
     (entry) => entry.session.host === "codex",
   );
-  expect(record?.request).not.toHaveProperty("model");
-  expect(record?.firstInput).toMatchObject({
+  if (record?.session.host !== "codex")
+    throw new Error("Missing saved Codex record.");
+  expect(record.request).not.toHaveProperty("model");
+  expect(record.firstInput).toMatchObject({
     state: "confirmed",
     turnId: "native-turn-id",
     instruction: `$dough-story-refinement ${notRefinedIdentity} --codex-only\n\nAsk me about scope.`,
@@ -177,7 +179,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     path.join(dashboard.home, "git", "open-dough"),
     native.threadId,
   ];
-  expect(record?.session.continuation?.args).toEqual(expectedArgs);
+  expect(record.session.continuation?.args).toEqual(expectedArgs);
   execFileSync("/bin/sh", ["-c", command], {
     env: { ...process.env, ...native.env },
     stdio: "pipe",

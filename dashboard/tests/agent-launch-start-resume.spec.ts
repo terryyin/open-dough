@@ -11,18 +11,12 @@
 // the SHAs from the workspace HEAD and its parent, and a workspace that is not
 // the isolated claim stops with the script's own reason.
 
-import {
-  readFileSync,
-  readdirSync,
-  writeFileSync,
-  chmodSync,
-  existsSync,
-  rmSync,
-} from "node:fs";
+import { readdirSync, writeFileSync, existsSync, rmSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { launch, launchRequest } from "./agentLaunchBoundary.ts";
+import { keptExecutionStart } from "./support/keptExecutionStart.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -46,9 +40,11 @@ const keptFacts = "~/git/open-dough/.worktrees/prepare-the-queued-start";
 test.describe("a kept execution start", () => {
   let origin: StartOrigin;
   let server: DashboardServer;
+  let start: ReturnType<typeof keptExecutionStart>;
 
   test.beforeEach(async () => {
     origin = await startOrigin();
+    start = keptExecutionStart(origin);
   });
 
   // The dashboard server, its start wait as short or long as the case needs.
@@ -69,27 +65,14 @@ test.describe("a kept execution start", () => {
     origin.cleanup();
   });
 
-  const hook = () => path.join(origin.origin, "hooks", "pre-receive");
-  const keptStarts = () =>
-    path.join(
-      origin.machine,
-      "home/.open-dough/dashboard/execution-starts.json",
-    );
-  const keptStart = () =>
-    (
-      JSON.parse(readFileSync(keptStarts(), "utf8")) as {
-        "open-dough"?: Record<string, Record<string, unknown>>;
-      }
-    )["open-dough"]?.[queuedIdentity];
-
-  function installHook(body: string): void {
-    writeFileSync(hook(), `#!/bin/sh\n${body}`);
-    chmodSync(hook(), 0o755);
-  }
-
   test("a push slower than the start wait is uncertain, finishes, and Start again resumes it with one claim", async () => {
-    await serve(1000);
-    installHook("sleep 3\n");
+    // The wait bounds real Git work on both requests. Hold the first push
+    // until its wait expires, without making the ordinary resume race a
+    // one-second deadline when other tests are running.
+    await serve(5000);
+    const held = path.join(origin.machine, "push-held");
+    writeFileSync(held, "");
+    start.installHook(`while [ -e "${held}" ]; do sleep 0.2; done\n`);
     const first = JSON.parse((await launch(server, request)).body) as {
       kind: string;
       reason: string;
@@ -102,27 +85,28 @@ test.describe("a kept execution start", () => {
     expect(first.explanation).toContain("pressing Start again resumes it");
     expect(server.claudeCalls()).toEqual([]);
     // Written ahead of the script, before any result.
-    expect(keptStart()).toMatchObject({
+    expect(start.read()).toMatchObject({
       identity: queuedIdentity,
       workspace: path.join(origin.project, ".worktrees", slug),
       branch: `claude/${slug}`,
     });
-    expect(keptStart()?.["start"]).toBeUndefined();
+    expect(start.read()?.["start"]).toBeUndefined();
 
     // The script was left to finish, and its result is recorded.
+    rmSync(held);
     await expect
-      .poll(() => keptStart()?.["start"], { timeout: 20_000 })
+      .poll(() => start.read()?.["start"], { timeout: 20_000 })
       .toMatchObject({
         identity: queuedIdentity,
         branch: `claude/${slug}`,
       });
-    rmSync(hook());
+    start.removeHook();
 
     const second = JSON.parse((await launch(server, request)).body) as {
       kind: string;
       record: { start?: { workspace: string; publishedSha: string } };
     };
-    expect(second.kind).toBe("launched");
+    expect(second.kind, JSON.stringify(second)).toBe("launched");
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(readdirSync(path.join(origin.project, ".worktrees"))).toEqual([
       slug,
@@ -133,12 +117,12 @@ test.describe("a kept execution start", () => {
       (await origin.originGit("rev-parse", "main")).trim(),
     );
     // The session carries the start now.
-    expect(keptStart()).toBeUndefined();
+    expect(start.read()).toBeUndefined();
   });
 
   test("a stop that carries recovery keeps its SHAs and Start again resumes with them", async () => {
     await serve(60_000);
-    installHook("echo refused >&2\nexit 1\n");
+    start.installHook("echo refused >&2\nexit 1\n");
     const first = JSON.parse((await launch(server, request)).body) as {
       kind: string;
       reason: string;
@@ -152,11 +136,11 @@ test.describe("a kept execution start", () => {
       "The start was kept; pressing Start again resumes it. Nothing was launched.",
     );
     expect(await origin.takenProfiles()).toEqual([]);
-    const kept = keptStart();
+    const kept = start.read();
     expect(kept?.["candidateSha"]).toMatch(/^[0-9a-f]{40}$/);
     expect(kept?.["startingRevision"]).toMatch(/^[0-9a-f]{40}$/);
 
-    rmSync(hook());
+    start.removeHook();
     const second = JSON.parse((await launch(server, request)).body) as {
       kind: string;
       record: { start?: { candidateSha?: string; workspace: string } };
@@ -173,7 +157,7 @@ test.describe("a kept execution start", () => {
     expect(readdirSync(path.join(origin.project, ".worktrees"))).toEqual([
       slug,
     ]);
-    expect(keptStart()).toBeUndefined();
+    expect(start.read()).toBeUndefined();
   });
 
   // The server dies with the start's push held after the claim commit, so no
@@ -182,7 +166,7 @@ test.describe("a kept execution start", () => {
   async function loseServerAfterClaimCommit(): Promise<void> {
     const held = path.join(origin.machine, "push-held");
     await serve(60_000);
-    installHook(
+    start.installHook(
       `touch ${held}\nwhile [ -e ${held} ]; do sleep 0.2; done\nexit 1\n`,
     );
     void launch(server, request).catch(() => undefined);
@@ -197,9 +181,9 @@ test.describe("a kept execution start", () => {
     // Releases the held hook, which belongs to the server's process group.
     rmSync(held);
     await closing;
-    rmSync(hook());
-    expect(keptStart()?.["start"]).toBeUndefined();
-    expect(keptStart()?.["candidateSha"]).toBeUndefined();
+    start.removeHook();
+    expect(start.read()?.["start"]).toBeUndefined();
+    expect(start.read()?.["candidateSha"]).toBeUndefined();
     expect(await origin.takenProfiles()).toEqual([]);
     await serve(60_000);
   }
@@ -227,7 +211,7 @@ test.describe("a kept execution start", () => {
     expect(
       server.claudeCalls().filter((call) => call.argv[0] === "--bg"),
     ).toHaveLength(1);
-    expect(keptStart()).toBeUndefined();
+    expect(start.read()).toBeUndefined();
   });
 
   test("a lost start whose workspace is not the isolated claim stops with the script's reason", async () => {

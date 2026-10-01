@@ -1,5 +1,5 @@
 // Native connection ownership continues after the HTTP caller detaches.
-import type { HostSession, FirstInput } from "../../../src/launchRecord.ts";
+import type { CodexSession, FirstInput } from "../../../src/launchRecord.ts";
 import type { LaunchRecording } from "../../launchRecording.ts";
 import { CodexRpc } from "./rpc.ts";
 const connections = new Set<CodexRpc>();
@@ -19,7 +19,7 @@ export function closeCodexConnections(): void {
 }
 export function observe(
   rpc: CodexRpc,
-  session: HostSession,
+  session: CodexSession,
   evidence: FirstInput,
   record: LaunchRecording,
 ): void {

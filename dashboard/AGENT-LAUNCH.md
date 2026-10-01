@@ -46,12 +46,20 @@ and what the dialog's Session choices select, are in
 records, actions and presentation do not call another host's private helpers,
 but some shared code still branches on host name: dispatch and the browser's
 host names and capability flags, the Codex model refusal, the Codex-only
-duplicate and creation gates in `server/agentLaunches.ts`, the record schema's
-Claude alias rule, and some host wording in shared messages. Identity is host
-plus the opaque native conversation ID throughout stores, merging, page keys,
-focus and action lookup. Equal IDs in different hosts stay separate. Claude
+duplicate and creation gates in `server/agentLaunches.ts`, and some host wording
+in shared messages. Identity is host plus the opaque native conversation ID
+throughout stores, merging, page keys, focus and action lookup. Equal IDs in different hosts stay separate. Claude
 additionally retains its native attach/stop alias; Codex needs no fabricated
 alias. Predecessor actions without host address Claude only.
+
+Session records are a discriminated union on `host`. Each variant keeps
+`sessionId` and `name`; Claude requires its native `shortId`, while Codex may
+carry a continuation with workspace, endpoint, resume arguments, and an optional
+notice. A parsed session carries only its host's fields. Host modules narrow
+to their own variant; shared presentation reads continuation by field presence.
+Predecessor Codex records without continuation still load, observe as unknown,
+refuse terminal attachment, and retain the missing-endpoint diagnostic when
+marked done. Stored records need no migration.
 
 Claude runs `claude --bg --name '<project> · <kind> · <title>'` in the project or
 established workspace. Its prompt is `/<skill> <identity> <flags>`, the installed

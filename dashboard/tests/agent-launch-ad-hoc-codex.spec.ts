@@ -73,7 +73,8 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
     await expect(recent).toHaveCount(1);
     const saved = stored(dashboard.home)[0];
-    if (saved === undefined) throw new Error("Launch did not save a record.");
+    if (saved?.session.host !== "codex")
+      throw new Error("Missing saved Codex record.");
     const label = saved.request.title;
     expect(label).toMatch(
       blank ? /^\d{1,2} \w{3}, \d\d:\d\d$/ : /^why is the CI slow\?$/,

@@ -11,7 +11,7 @@ import { execFile, type ExecException } from "node:child_process";
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
 import { z } from "zod";
 import type {
-  HostSession,
+  ClaudeSession,
   LaunchRecord,
   SessionState,
 } from "../../../src/agentLaunch.ts";
@@ -126,7 +126,7 @@ const listedSession = z.looseObject({
 // Private Claude listing evidence also confirms launch identities and renames.
 // Shared callers receive only normalized observations for their saved targets.
 type ListedSession = {
-  readonly session: HostSession;
+  readonly session: ClaudeSession;
   readonly sessionState: Extract<SessionState, { kind: "available" }>;
 };
 

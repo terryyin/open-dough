@@ -18,35 +18,36 @@ export function LaunchSession({
       <p>
         Session <code>{record.session.sessionId}</code>
       </p>
-      {record.session.continuation !== undefined && (
-        <>
-          <p>
-            Workspace <code>{record.session.continuation.workspace}</code>
-          </p>
-          <p>
-            Continue in Codex:{" "}
-            <code>{shellCommand(record.session.continuation.args)}</code>
-          </p>
-          <p>
-            {record.firstInput?.state === "confirmed"
-              ? "First input accepted"
-              : record.firstInput?.intent === "blank"
-                ? record.firstInput.state === "not-requested"
-                  ? "Opened without an instruction"
-                  : "Blank conversation persistence unconfirmed"
-                : record.firstInput?.state === "awaiting"
-                  ? "First input awaiting submission"
-                  : "First input acceptance uncertain"}
-          </p>
-          {record.session.continuation.notice !== undefined && (
-            <p className="quiet">{record.session.continuation.notice}</p>
-          )}
-          {record.firstInput?.state !== "confirmed" &&
-            record.firstInput?.explanation !== undefined && (
-              <p className="quiet">{record.firstInput.explanation}</p>
+      {"continuation" in record.session &&
+        record.session.continuation !== undefined && (
+          <>
+            <p>
+              Workspace <code>{record.session.continuation.workspace}</code>
+            </p>
+            <p>
+              Continue in Codex:{" "}
+              <code>{shellCommand(record.session.continuation.args)}</code>
+            </p>
+            <p>
+              {record.firstInput?.state === "confirmed"
+                ? "First input accepted"
+                : record.firstInput?.intent === "blank"
+                  ? record.firstInput.state === "not-requested"
+                    ? "Opened without an instruction"
+                    : "Blank conversation persistence unconfirmed"
+                  : record.firstInput?.state === "awaiting"
+                    ? "First input awaiting submission"
+                    : "First input acceptance uncertain"}
+            </p>
+            {record.session.continuation.notice !== undefined && (
+              <p className="quiet">{record.session.continuation.notice}</p>
             )}
-        </>
-      )}
+            {record.firstInput?.state !== "confirmed" &&
+              record.firstInput?.explanation !== undefined && (
+                <p className="quiet">{record.firstInput.explanation}</p>
+              )}
+          </>
+        )}
       {embeddedTerminal(record.session.host) &&
         attachOpens(record.sessionState) && (
           <p className="launch-open">

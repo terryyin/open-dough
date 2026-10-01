@@ -31,16 +31,17 @@ export const recoverCodex: NonNullable<LaunchHost["recover"]> = async (
   recording,
 ) => {
   const session = record.session;
-  const continuation = session.continuation;
   let evidence = record.firstInput;
   if (
-    continuation === undefined ||
+    session.host !== "codex" ||
+    session.continuation === undefined ||
     evidence === undefined ||
     (evidence.intent !== "blank" && evidence.instruction === undefined)
   )
     return uncertain(
       "The saved first-input intent is unavailable. Continue this recorded Codex conversation; no input was resent.",
     );
+  const continuation = session.continuation;
   const rpc = connection(continuation.endpoint, signal);
   rpc.watchThread(session.sessionId);
   const inspect = (value: unknown) => {

@@ -1,39 +1,40 @@
 // Durable native launch evidence and current session observations.
 import { z } from "zod";
-import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   recordedLaunchRequestSchema,
   sessionPolicySchema,
 } from "./launchRequest.ts";
 
-// The native identity and display name. Claude additionally needs the alias
-// its attach/stop commands take; other hosts keep their actual conversation ID.
-export const hostSessionSchema = z
-  .object({
-    host: z.enum(agentHosts),
-    sessionId: z.string().min(1),
-    shortId: z.string().min(1).optional(),
-    name: z.string(),
-    continuation: z
-      .object({
-        workspace: z.string().min(1),
-        endpoint: z.string().min(1),
-        args: z.array(z.string()),
-        // Context for continuing a conversation after native observation ends.
-        notice: z.string().optional(),
-      })
-      .optional(),
-  })
-  .superRefine((session, context) => {
-    if (session.host === "claude" && session.shortId === undefined) {
-      context.addIssue({
-        code: "custom",
-        path: ["shortId"],
-        message: "Claude session alias is missing.",
-      });
-    }
-  });
+// Each host keeps its native identity and continuation in its own variant.
+const claudeSessionSchema = z.object({
+  host: z.literal("claude"),
+  sessionId: z.string().min(1),
+  shortId: z.string().min(1),
+  name: z.string(),
+});
 
+const codexSessionSchema = z.object({
+  host: z.literal("codex"),
+  sessionId: z.string().min(1),
+  name: z.string(),
+  continuation: z
+    .object({
+      workspace: z.string().min(1),
+      endpoint: z.string().min(1),
+      args: z.array(z.string()),
+      // Context for continuing a conversation after native observation ends.
+      notice: z.string().optional(),
+    })
+    .optional(),
+});
+
+export const hostSessionSchema = z.discriminatedUnion("host", [
+  claudeSessionSchema,
+  codexSessionSchema,
+]);
+
+export type ClaudeSession = z.infer<typeof claudeSessionSchema>;
+export type CodexSession = z.infer<typeof codexSessionSchema>;
 export type HostSession = z.infer<typeof hostSessionSchema>;
 
 export const firstInputSchema = z.object({
