@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "dbs-chan",
+  "email": "dbs-chan@example.org",
+  "identity": "SEED-077#ci-independent-of-package-mirror-stalls",
+  "mode": "story-branch",
+  "branch": "codex/keep-ci-checks-independent-of-package-mirror-sta",
+  "host": "codex"
+}

@@ -16,10 +16,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Session meaning and wording are host-neutral](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#host-neutral-session-meaning) — SEED-075#host-neutral-session-meaning ([plan](slice-plans/203-host-neutral-session-meaning/PLAN.md))
 - [Repair session header controls and avatar preview](seeds/SEED-079-session-header-polish-repair.md#session-header-polish-repair) — SEED-079#session-header-polish-repair
+- [Keep CI checks independent of package mirror stalls](seeds/SEED-077-ci-independent-of-package-mirror-stalls.md#ci-independent-of-package-mirror-stalls) — SEED-077#ci-independent-of-package-mirror-stalls ([plan](slice-plans/207-stable-native-check-prerequisites/PLAN.md))
 
 ## Backlog list
 
-- [Keep CI checks independent of package mirror stalls](seeds/SEED-077-ci-independent-of-package-mirror-stalls.md#ci-independent-of-package-mirror-stalls) — SEED-077#ci-independent-of-package-mirror-stalls
 - [Startup recovery advice comes from the host description](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#startup-advice-from-host-description) — SEED-075#startup-advice-from-host-description
 - [Keep reconciled startups settled under one unresolved-attempt rule](seeds/SEED-072-responsive-session-start-reconciliation.md#durable-startup-reconciliation) — SEED-072#durable-startup-reconciliation
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
