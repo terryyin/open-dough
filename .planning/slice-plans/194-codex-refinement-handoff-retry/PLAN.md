@@ -166,7 +166,7 @@ in Terry's environment remains unchanged and explicitly needs reconciliation.
 
 Type: Behavior
 
-Status: planned
+Status: done — [supported handoff and safeguards](OBSERVATIONS.md#slice-3-supported-handoff-and-safeguards).
 
 Precondition: slice 1 establishes the supported native mechanism and any
 dashboard-caused violation. Trigger: accepted initial launch or reconciliation,

@@ -110,6 +110,12 @@ answers native approval/input requests or interrupts the native turn. Server
 shutdown detaches dashboard connections, leaving the vendor daemon and saved
 conversation alive. Later lifecycle updates cannot recreate a deleted record.
 
+For refinement, open the original conversation in Codex desktop to follow its
+active first turn, then answer its completed question in that same conversation.
+There is no separate handoff action: the existing launch client releases its
+connection when the native turn completes. Starting input during an active turn
+remains subject to Codex's native rules.
+
 Codex live observation, embedded terminal and Mark as done are unavailable;
 cards, Recent sessions and sidebar state say so without inventing attention or
 alerts. Its sidebar still navigates to the story or Recent sessions entry.

@@ -103,7 +103,8 @@ are 0.159.3; configured model/policy and existing daemon remain unchanged.
 Probe exercises production launchCodex/input/RPC/conversation with an
 attempt-local durable writer; HTTP/browser and machine store are omitted.
 Native launch ran after slice 2 delivery. Setup evidence and owned harness
-are in `/tmp/dough-194-native-2UViTC`; accepted evidence awaits judged cleanup.
+were under `/tmp/dough-194-native-2UViTC`; passing artifacts were assessed and
+removed after acceptance under ADR 0005.
 
 ## Slice 2 accepted proof
 
@@ -172,7 +173,7 @@ its completed question and continuing in that same chat without a fork. The
 third item was conditional investigation if handoff failed, not another action.
 
 One temporary read-only native reader corroborated desktop continuation at
-13:58:28 Singapore. `desktop-continuation-history.json` retains the original
+13:58:28 Singapore. `desktop-continuation-history.json` showed the original
 turn/text/skill/question plus user message `01a0f607-f436-7e90-854e-e0d22f33e503`
 (`no idea. let's try unfinished items.\n`) and completed turn
 `01a0f607-f117-7650-a0ea-3f67b751d88e` in the same original thread. The native
@@ -185,5 +186,30 @@ continuity across the existing completion-driven launch-client release. No
 refusal was reproduced, so no causal ownership comparison or speculative
 lifetime remedy is warranted. Active final-client detachment and structured
 approval/input waits were not exercised or claimed. Slice 3 can reuse this
-native proof for the unchanged supported mechanism. Attempt evidence/fixture
-remain under `/tmp/dough-194-native-2UViTC` pending judged cleanup.
+native proof for the unchanged supported mechanism. After both native turns
+completed and owned harness/readers exited, only the attempt root
+`/tmp/dough-194-native-2UViTC` was removed; path absence and no remaining fixture
+subprocess were confirmed. Its probe-only local draft was spent evidence.
+Original vendor chat/history and shared daemon/socket remain untouched;
+daemon still reports running at 0.159.3. The decisive signals above retain
+judged acceptance in this active plan without preserving raw passing artifacts.
+
+## Slice 3 supported handoff and safeguards
+
+No native violation was reproduced; launch/recovery/RPC/conversation are unchanged.
+The accepted slice 1 journey satisfies original desktop continuation across
+completion-driven release. `dashboard/AGENT-LAUNCH.md` now describes opening
+the original chat, answering there, and the absence of a separate handoff action.
+It preserves Codex's native rules for input during an active turn.
+
+`env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-codex-recovery.spec.ts dashboard/tests/agent-launch-codex-reconciliation.spec.ts dashboard/tests/agent-launch-codex-creation.spec.ts --workers=2` exited 0; identical selection listed 7 tests in 4 files. Coordinator inspected real HTTP/browser/store setup and distinguishing assertions: exact configured creation/input/skill; durable uncertainty before submission; shutdown/restart preserving records and host-qualified identity; lost acknowledgment confirming matching history without replay; explicit input refusal permitting only saved input; uncertain history refusing replay; failed identity recording preventing submission and disposing resources.
+
+Reuse the six-test lifetime command in the decisive-premises table: native
+owners and its lifetime spec/support are byte-identical to `aeac68d8`. Inspected
+signals cover caller detachment, completion/disconnection racing confirmation,
+resource disposal and deleted records staying deleted. Both native callers use
+the same observation/retirement owner; retirement closes only the client socket,
+with no interrupt or daemon stop. Fresh native desktop proof, not protocol
+substitution, establishes the same-conversation useful outcome. Active
+final-client detachment and structured waits remain unexercised and unclaimed.
+`git diff --check` exited 0. No new test, generated payload, or native change is needed.
