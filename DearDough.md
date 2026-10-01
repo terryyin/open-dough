@@ -671,7 +671,7 @@ Follow-up: Practice worth keeping; no change requested.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: unknown; installed guidance VERSION 0.3.51 at claim `6ac22ba8`
-  - Evidence: slice 1 verifier: R1-2 and I3-3 partly wrong, two lines asserting Cursor behavior, and one traced-path error. Slice 2 verifier: T6-1, R6-1 and ranking item 1 partly wrong, a stale SEED-073 limitation, and line drift after merge `1cdd476c`. Recorded in plan 200's Execution record.
+  - Evidence: slice 1 verifier: R1-2 and I3-3 partly wrong, two lines asserting Cursor behavior, and one traced-path error. Slice 2 verifier: T6-1, R6-1 and ranking item 1 partly wrong, a stale SEED-073 limitation, and line drift after merge `1cdd476c`. Recorded in `81c3b85b:.planning/slice-plans/200-review-dashboard-multi-tool-architecture/PLAN.md` (Execution record).
   - Observed effect: about a dozen corrections before Terry chose from the ranking; none changed a recommendation's priority.
   - Inference: Qualified. The cost was about 114k and 165k subagent tokens; the corrections mainly protected the evidence later copied into SEED-075's stories.
 
