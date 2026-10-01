@@ -225,29 +225,93 @@ host lacks unavailable rather than supplied by another host
 
 **Identity:** SEED-075#launch-gates-every-host
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/204-launch-gates-every-host/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a4a94c71b5a99ecffa1f68b780ced4a2d852de540dab5ab7755b90914c27491b","plan":"e5744fb086502b42fa879232924e4368133c5fe7a1ba5185f3d49b5582e02b78"}}
 ```
 
-- **For / why:** A developer cannot start the same launch twice by accident,
-  whatever the host, and a host that records creation before native start gets
-  the same reconciliation without a name check in shared code.
-- **Evaluation:** Requesting the same in-flight launch again, for example from
-  two open pages, is refused for Claude as it is for Codex; the
-  unresolved-creation gate and its recovery wording apply to any host that
-  records creation evidence, with recovery arguments the host supplies.
-- **Current basis:** `server/agentLaunches.ts:144` refuses a duplicate only
-  when `request.host === "codex"`; an ad hoc or start-less Claude launch
-  requested twice starts two sessions, since only an installed start is gated
-  (`server/startLaunch.ts:197-205`). The creation gate at
-  `server/agentLaunches.ts:178` is tied to Codex by name, while Codex already
-  enforces its record before native creation (`server/hosts/codex/launch.ts:31-35`);
-  removing the name alone would refuse Claude launches when the record store is
-  unreadable (`server/launchRecordStore.ts:167`). The recovery text and
-  `codex resume` command are spelled in shared code (`server/agentLaunches.ts:185`,
-  `src/launchCreation.ts:12-22`).
-- **Boundary:** Refinement confirms with Terry the Claude behavior change.
-  Claude launches stay allowed when the record store is unreadable unless that
-  is decided otherwise.
+- **Goal:** A developer using the dashboard cannot accidentally submit the
+  same in-flight launch twice, whatever its host. A maintainer adding a host
+  can declare its creation-evidence requirement and native recovery information
+  without adding host-name checks or another host's commands to shared gates.
+  This removes the remaining launch-gate assumptions before Cursor joins.
+- **Scope:**
+  - Apply the existing in-flight duplicate gate across delivered hosts and
+    dashboard launch workflows, including ad hoc sessions and workflows whose
+    installed start is unavailable. Claude gains this protection; Codex keeps
+    its current behavior.
+  - Preserve the existing meaning of the same launch: project, host, workflow,
+    and story identity; for ad hoc sessions, project, host, workflow, and
+    instruction (including a blank instruction). A story's changed title,
+    instruction, model, options, or policy does not bypass its in-flight gate.
+    Different subjects remain independent under the existing admission rules.
+  - While the first attempt is running in the same dashboard server, a second
+    matching request receives an explanation that the launch is already in
+    progress and makes no second workflow start, native session, or input
+    submission. This includes requests from two pages and a retry after the
+    original page detaches. Once the attempt settles, this in-flight gate
+    releases; existing installed-start and retained-evidence rules still apply.
+  - The selected host declares whether native creation requires durable
+    creation evidence. Shared orchestration applies the unresolved-creation
+    and unreadable-evidence gates from that declaration, without checking for
+    Codex by name. Codex continues to save creation evidence before native
+    creation; an unreadable store or a matching unresolved creation prevents
+    another conversation from being created.
+  - A host that does not require creation evidence is not blocked merely
+    because the launch-record store is unreadable. Preserve Claude's current
+    admission behavior; this promises admission to native launch, not successful
+    saving of its result.
+  - Creation recovery in the launch response and dashboard entry names the
+    record's host and uses recovery arguments supplied by that host. Shared
+    code neither constructs a Codex command for another host nor substitutes
+    another host's missing recovery operation. Existing Codex creation records
+    still load and offer the same history inspection using their saved native
+    endpoint and workspace, with no invented conversation ID.
+  - Preserve the existing distinction between an unresolved creation without
+    a trustworthy session identity and a known session whose first input is
+    unconfirmed. This story does not alter Codex's native reconciliation or
+    authorize blindly resending uncertain input.
+- **Deferred promises:** Cursor integration
+  (SEED-052#use-cursor-from-dashboard); adding creation recording to Claude;
+  automatic resolution of unknown creation identities; new recovery UI;
+  coordination between separate dashboard servers or machines; preventing
+  intentional new launches after completion. No stored-record migration is
+  promised; existing saved Codex creation evidence remains usable.
+- **Key examples:**
+  - Two pages request the same Claude ad hoc session while its native launch
+    is pending → only the first launches; the second explains that
+    it is already in progress. The same result applies to a blank ad hoc
+    session and a story launch without an installed start.
+  - An in-flight Codex story launch is retried with different options or a
+    changed instruction → no second start, conversation, or input submission;
+    the original attempt retains its intent, as today.
+  - The caller leaves its page while the launch remains in flight, then another
+    page submits the same request → the gate still prevents a second attempt.
+  - A pending launch for one project, host, workflow, or subject is followed by
+    a different launch under the existing matching rule → the duplicate gate
+    does not block it; other admission rules still decide whether it starts.
+  - A completed ad hoc launch is requested again → the in-flight gate alone
+    does not block a new session. Retained unresolved evidence may still block
+    a host that requires it.
+  - Codex creation returns no trustworthy session ID and the dashboard server
+    restarts → the saved creation still blocks a matching retry; both the
+    response and unresolved-creation entry offer Codex's history inspection
+    with the saved endpoint and workspace, and no new native creation occurs.
+  - The launch-record store is unreadable → Codex is blocked before native
+    creation; Claude still reaches native launch, subject to its
+    other admission rules.
+  - A host requiring creation evidence supplies its own native recovery
+    arguments → the shared gate and entry use that host's name and supplied
+    arguments. Missing recovery support never yields another host's command;
+    this example commits to the shared rule, not delivery of an additional host.
+- **Decision:** Terry confirmed on 2026-10-01: refuse matching in-flight
+  launches for Claude as for Codex, and preserve Claude admission when the
+  launch-record store is unreadable. This gate does not limit a story to one
+  active session after startup has completed.
+- **Slice plan:** [Launch gates apply to every host](../slice-plans/204-launch-gates-every-host/PLAN.md).
 - **Depends on:** SEED-075#session-record-per-host.
 - **Capture:** Terry selected it on 2026-10-01 from the dashboard multi-tool
-  architecture review.
+  architecture review. Refined 2026-10-01 against `a04edf85`:
+  `server/agentLaunches.ts` owns the running set and Codex-only gates;
+  `src/launchRequest.ts` defines matching; `server/launchRecordStore.ts` reads
+  unresolved creation; `server/hosts/codex/launch.ts` saves evidence before
+  native creation; `src/launchCreation.ts` constructs Codex recovery text and
+  arguments used by the response and `src/CreationEntry.tsx`.
