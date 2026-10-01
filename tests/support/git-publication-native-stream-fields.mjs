@@ -12,10 +12,13 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { hosts, readHostStream } from "./native-host-stream.mjs";
+import {
+  preparationStartPattern,
+  startCommands,
+  startPattern,
+  withFlag,
+} from "./git-publication-native-stream-starts.mjs";
 
-// An execution-start `start` invocation, whether or not the shell quoted the
-// script path or the subcommand.
-const startPattern = /execution-start\.mjs["']?\s+["']?start["']?(\s|$)/;
 const conflictReceipt = /^\{"ok":false,"status":"conflict"/m;
 const existingReceipt = /\\?"status\\?": ?\\?"existing/;
 const restoredCarry = /\\?"carried\\?": ?\{\\?"restored\\?": ?true/;
@@ -27,20 +30,6 @@ const pushWord = /(^|\s)push(?=\s|$)/g;
 const forceFlag = /(^|\s)(--force|-f)([=\s]|$)/;
 
 const flag = (value) => (value ? "true" : "false");
-
-// Distinct execution-start invocations, without --help probes.
-function startCommands(read) {
-  return [
-    ...new Set(
-      read.segments.filter(
-        (segment) => startPattern.test(segment) && !segment.includes("--help"),
-      ),
-    ),
-  ];
-}
-
-const withFlag = (commands, name) =>
-  commands.filter((command) => command.includes(name));
 
 function startupFields(read) {
   return [
@@ -79,6 +68,28 @@ function oneShotFields(read) {
     [
       "one-shot-start-observed",
       flag(withFlag(startCommands(read), "--one-shot").length > 0),
+    ],
+  ];
+}
+
+// Whether a one-shot start claimed trunk publication authority.
+function oneShotReviewFields(read) {
+  const oneShotStarts = withFlag(startCommands(read), "--one-shot");
+  return [
+    ...oneShotFields(read),
+    [
+      "one-shot-push-authorized",
+      flag(withFlag(oneShotStarts, "--push-authorized").length > 0),
+    ],
+  ];
+}
+
+function oneShotRefinementFields(read) {
+  const starts = startCommands(read, preparationStartPattern);
+  return [
+    [
+      "one-shot-preparation-start-observed",
+      flag(withFlag(starts, "--one-shot").length > 0),
     ],
   ];
 }
@@ -181,6 +192,8 @@ const exactJourneys = {
   "land-default-checkout": landDefaultCheckoutFields,
   "story-branch-increment": storyBranchIncrementFields,
   "one-shot-escalation": oneShotEscalationFields,
+  "one-shot-review": oneShotReviewFields,
+  "one-shot-refinement": oneShotRefinementFields,
 };
 
 const journeyPrefixes = [

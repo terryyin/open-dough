@@ -19,6 +19,7 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-startup-fixture.sh \
         tests/support/git-publication-native-shared.sh \
         tests/support/git-publication-native-stream-fields.mjs \
+        tests/support/git-publication-native-stream-starts.mjs \
         tests/support/git-publication-native-run.sh \
         tests/support/git-publication-native-evidence.sh \
         tests/support/git-publication-native-prompt.sh
@@ -43,6 +44,29 @@ git_publication_write_evidence_identity() {
       git_publication_closing_input_hash_lines \
         src/skills/dough-execute-plan/scripts/workspace-publication-select.mjs \
         src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs \
+        src/skills/dough-story-refinement/scripts/preparation-assignment.mjs
+      ;;
+    one-shot)
+      git_publication_write_evidence_identity publication
+      native_result_input_hash_lines \
+        tests/support/git-publication-native-one-shot.sh \
+        tests/support/git-publication-native-one-shot-fixture.mjs \
+        tests/support/git-publication-native-one-shot-queued.sh \
+        tests/support/git-publication-native-one-shot-queued-observe.mjs \
+        tests/support/git-publication-native-one-shot-escalation.sh \
+        tests/support/git-publication-native-one-shot-escalation-fixture.mjs \
+        tests/support/git-publication-native-one-shot-retained.sh \
+        tests/support/git-publication-native-one-shot-review.sh \
+        tests/support/git-publication-native-one-shot-refinement.sh \
+        tests/support/git-publication-native-one-shot-refinement-observe.mjs \
+        tests/support/git-publication-native-push-log-observe.mjs \
+        src/skills/dough-execute-plan/SKILL.md \
+        src/skills/dough-execute-plan/references/one-shot.md \
+        src/skills/dough-story-refinement/SKILL.md \
+        src/skills/dough-story-refinement/references/one-shot-refinement.md
+      native_import_closure_input_hash_lines \
+        src/skills/dough-execute-plan/scripts/execution-start.mjs \
+        src/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs \
         src/skills/dough-story-refinement/scripts/preparation-assignment.mjs
       ;;
     land-default-checkout)
@@ -100,6 +124,8 @@ git_publication_evidence_profile() {
     echo owned-context
   elif [[ $1 == land-default-checkout ]]; then
     echo land-default-checkout
+  elif [[ $1 == one-shot-* ]]; then
+    echo one-shot
   else
     echo publication
   fi

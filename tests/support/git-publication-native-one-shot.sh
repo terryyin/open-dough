@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # One-shot journeys for the publication native harness: explicitly requested
-# one-shot work publishes only its verified result to remote trunk and retires
-# its owned workspace; a queued story completed that way reaches trunk as one
-# commit holding its result and its closure, never shown Taken.
-# Fixture, observation, prompt and assessment. Sourced by the runner.
+# one-shot work asked to land publishes only its verified result to remote
+# trunk and retires its owned workspace; a queued story completed that way
+# reaches trunk as one commit holding its result and its closure, never shown
+# Taken. Without a landing request, the review and refinement journeys
+# (git-publication-native-one-shot-review.sh and -refinement.sh) stop for
+# review. Fixture, observation, prompt and assessment. Sourced by the runner.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture and assessor globals.
 
 # shellcheck source=tests/support/git-publication-native-one-shot-queued.sh
@@ -12,6 +14,15 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-nati
 # shellcheck source=tests/support/git-publication-native-one-shot-counterexamples.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-one-shot-counterexamples.sh"
+# shellcheck source=tests/support/git-publication-native-one-shot-retained.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-one-shot-retained.sh"
+# shellcheck source=tests/support/git-publication-native-one-shot-review.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-one-shot-review.sh"
+# shellcheck source=tests/support/git-publication-native-one-shot-refinement.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-one-shot-refinement.sh"
 
 git_publication_fixture_create_one_shot() {
   local source_dir=$1 journey=$2 parent=$3
@@ -46,14 +57,15 @@ git_publication_one_shot_publish_install() {
   git_publication_fixture_plant_human_edit "${integration}"
 }
 
+# The landing journeys' prompts: each asks to land its one-shot result.
 git_publication_one_shot_prompt() {
   local request
   case $1 in
     one-shot-result)
-      request="As one-shot work, add the line 'One-shot line' to the end of notes.txt."
+      request="As one-shot work, add the line 'One-shot line' to the end of notes.txt, and land the result on remote trunk."
       ;;
     one-shot-queued)
-      request="Complete the queued story Story B (${NATIVE_ONE_SHOT_IDENTITY}) from the product backlog as one-shot work."
+      request="Complete the queued story Story B (${NATIVE_ONE_SHOT_IDENTITY}) from the product backlog as one-shot work, and land the result on remote trunk."
       ;;
     *) return 2 ;;
   esac
@@ -103,6 +115,17 @@ git_publication_fixture_observe_one_shot() {
   if [[ ${journey} == one-shot-queued ]]; then
     git_publication_one_shot_observe_closure "${base}" "${tip}" "${planning_paths}"
   fi
+}
+
+# Observes one-shot journey $1 through that journey's observer, with the
+# observer's arguments "$@".
+git_publication_fixture_observe_one_shot_journey() {
+  case $1 in
+    one-shot-escalation) git_publication_fixture_observe_one_shot_escalation "$@" ;;
+    one-shot-review) git_publication_fixture_observe_one_shot_review "$@" ;;
+    one-shot-refinement) git_publication_fixture_observe_one_shot_refinement "$@" ;;
+    *) git_publication_fixture_observe_one_shot "$@" ;;
+  esac
 }
 
 # Stops CI observers the session left running in the fixture's mailbox root.

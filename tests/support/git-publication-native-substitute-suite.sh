@@ -27,6 +27,7 @@ prepare_substitute_hosts() {
     "${source_dir}/tests/support/native-agent-land-default.sh" \
     "${source_dir}/tests/support/native-agent-one-shot.sh" \
     "${source_dir}/tests/support/native-agent-one-shot-escalation.sh" \
+    "${source_dir}/tests/support/native-agent-one-shot-review.sh" \
     "${source_dir}/tests/support/native-agent-owned-context.sh" \
     "${sentinel_bin}/"
 
@@ -158,9 +159,28 @@ run_substitute_host_journeys() {
 run_substitute_one_shot_journeys() {
   local journey
   prepare_substitute_hosts
-  for journey in one-shot-result one-shot-queued one-shot-escalation; do
+  for journey in one-shot-result one-shot-queued one-shot-escalation \
+    one-shot-review one-shot-refinement; do
     run_substitute_one_shot_journey "${journey}"
   done
+  run_substitute_one_shot_review_pushes one-shot-review \
+    git-publication-native-one-shot-review.sh
+  run_substitute_one_shot_review_pushes one-shot-refinement \
+    git-publication-native-one-shot-refinement.sh
+}
+
+# Whole-run counterexample for review journey $1, whose assessor file in
+# tests/support is $2: a substitute that also pushes its committed result to
+# remote trunk, against that journey's passing run above.
+run_substitute_one_shot_review_pushes() {
+  local journey=$1 work=${substitute_work}
+  git_publication_suite_counterexamples "${source_dir}/tests/support/$2" \
+    "${work}/claude-${journey}.txt"
+  substitute_run "${journey}-pushes" claude "${journey}" \
+    NATIVE_ONE_SHOT_VARIANT=pushes
+  [[ ${substitute_status} -eq 0 ]]
+  native_assessor_rejects "${journey}-pushes" remote \
+    "${work}/${journey}-pushes.txt" fail 'the remote changed'
 }
 
 # One-shot journey $1 through the installed start, delivery and CI completion
@@ -173,6 +193,10 @@ run_substitute_one_shot_journey() {
   events="${substitute_artifact}/events.jsonl"
   if [[ ${journey} == one-shot-escalation ]]; then
     run_one_shot_escalation_state_counterexamples "${events}" claude
+  elif [[ ${journey} == one-shot-review ]]; then
+    run_one_shot_review_state_counterexamples "${events}" claude
+  elif [[ ${journey} == one-shot-refinement ]]; then
+    run_one_shot_refinement_state_counterexamples "${events}" claude
   else
     run_one_shot_state_counterexamples "${events}" "${journey}" claude
   fi

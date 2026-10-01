@@ -67,6 +67,8 @@ git_publication_assess() {
     land-default-checkout) git_publication_assess_land_default "${obs}" ;;
     admission-*) git_publication_assess_admission "${obs}" "${journey}" ;;
     one-shot-escalation) git_publication_assess_one_shot_escalation "${obs}" ;;
+    one-shot-review) git_publication_assess_one_shot_review "${obs}" ;;
+    one-shot-refinement) git_publication_assess_one_shot_refinement "${obs}" ;;
     one-shot-*) git_publication_assess_one_shot "${obs}" ;;
     *) git_publication_assess_candidate "${obs}" "${journey}" "${response}" ;;
   esac

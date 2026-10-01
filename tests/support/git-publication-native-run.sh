@@ -132,7 +132,7 @@ git_publication_run_journey() {
   authority=$(git_publication_authority_for "${journey}")
   # git_publication_run_native_command reads these call-scope globals.
   native_case_host=${host}
-  native_case_id="publication/${journey}"
+  native_case_id=$(git_publication_case_id "${journey}")
   temporary_dir=${artifact_root}
   candidate=${source_dir}
   transcript="${artifact_root}/events.jsonl"
@@ -213,12 +213,8 @@ git_publication_run_journey() {
   elif [[ ${journey} == land-default-checkout ]]; then
     git_publication_observe_land_default "${journey}" \
       "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
-  elif [[ ${journey} == one-shot-escalation ]]; then
-    git_publication_fixture_observe_one_shot_escalation "${journey}" \
-      "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
-    git_publication_one_shot_stop_observers
   elif [[ ${journey} == one-shot-* ]]; then
-    git_publication_fixture_observe_one_shot "${journey}" \
+    git_publication_fixture_observe_one_shot_journey "${journey}" \
       "${stream_status}" "${transcript}" "${host}" > "${observations_file}"
     git_publication_one_shot_stop_observers
   else

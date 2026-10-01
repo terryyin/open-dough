@@ -108,7 +108,8 @@ run_native_host() {
     fi
   done < <(
     if [[ -n ${selected_case} ]]; then
-      printf '%s\n' "${selected_case#publication/}"
+      selected_case=${selected_case#publication/}
+      printf '%s\n' "${selected_case#preparation/}"
     else
       host_fresh_journeys "${host}"
     fi
@@ -139,7 +140,8 @@ native_case_known() {
       publication/admission-investigation | publication/admission-continuation | \
       publication/admission-correction | publication/admission-closure | \
       publication/one-shot-result | publication/one-shot-queued | \
-      publication/one-shot-escalation | \
+      publication/one-shot-escalation | publication/one-shot-review | \
+      preparation/one-shot-refinement | \
       publication/startup-owned-context | publication/preparation-land | \
       publication/land-default-checkout | \
       story-branch-increment | \

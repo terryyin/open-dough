@@ -55,7 +55,8 @@ usage: tests/git-publication-native.sh
    or: tests/git-publication-native.sh --native <codex|cursor|claude>
    or: tests/git-publication-native.sh --native HOST --case publication/JOURNEY
    or: tests/git-publication-native.sh --native HOST --case publication/admission-investigation|admission-continuation|admission-correction|admission-closure
-   or: tests/git-publication-native.sh --native HOST --case publication/one-shot-result|one-shot-queued|one-shot-escalation
+   or: tests/git-publication-native.sh --native HOST --case publication/one-shot-result|one-shot-queued|one-shot-escalation|one-shot-review
+   or: tests/git-publication-native.sh --native HOST --case preparation/one-shot-refinement
    or: tests/git-publication-native.sh --native HOST --case publication/startup-owned-context|preparation-land|land-default-checkout
    or: tests/git-publication-native.sh --native codex --case story-branch-increment
    or: tests/git-publication-native.sh --native HOST --case execution-review/pending|ready|failure|skip-retro

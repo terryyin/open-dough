@@ -3,12 +3,13 @@
 # by native-agent-publication.sh (copied beside it) with ${host}, ${journey}
 # and ${workspace} (the originating checkout) set. Runs the installed CLIs the
 # one-shot guidance names, in its order, so observations come from real
-# repository state: start the owned workspace with --one-shot and workspace
-# authority alone, commit the result (for a queued story, with its closure),
-# land it on trunk through delivery, complete CI observation, and retire the
-# workspace and its branch. Emits each command
-# in the host's stream shape through the admission substitute's recorder and
-# sets ${response}.
+# repository state. Asked to land the result: start the owned workspace with
+# --one-shot and workspace authority alone, commit the result (for a queued
+# story, with its closure), land it on trunk through delivery, complete CI
+# observation, and retire the workspace and its branch. The review and
+# refinement journeys stop for review (native-agent-one-shot-review.sh). Emits
+# each command in the host's stream shape through the admission substitute's
+# recorder and sets ${response}.
 # NATIVE_ONE_SHOT_WORKSPACE and _BRANCH carry the owned workspace and branch;
 # NATIVE_ONE_SHOT_IDENTITY names the queued story, if any.
 # shellcheck disable=SC2034,SC2154,SC2312 # host, journey, workspace and response are shared with the sourcing substitute.
@@ -19,6 +20,9 @@ source "${0%/*}/native-agent-admission.sh"
 # shellcheck source=tests/support/native-agent-one-shot-escalation.sh
 # shellcheck disable=SC1091
 source "${0%/*}/native-agent-one-shot-escalation.sh"
+# shellcheck source=tests/support/native-agent-one-shot-review.sh
+# shellcheck disable=SC1091
+source "${0%/*}/native-agent-one-shot-review.sh"
 
 native_one_shot_substitute() {
   local execution=${NATIVE_ONE_SHOT_WORKSPACE} branch=${NATIVE_ONE_SHOT_BRANCH}
@@ -36,6 +40,14 @@ native_one_shot_substitute() {
       ;;
     one-shot-escalation)
       native_one_shot_escalation_substitute
+      return
+      ;;
+    one-shot-review)
+      native_one_shot_review_substitute
+      return
+      ;;
+    one-shot-refinement)
+      native_one_shot_refinement_substitute
       return
       ;;
     *) return 1 ;;

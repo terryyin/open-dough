@@ -292,7 +292,15 @@ and ownership readers; preparation retains its own lifecycle.
 
 ### 3. Observe native adoption before broadening the policy
 Type: Behavior
-Status: blocked — awaiting explicit manual (paid) native-run authority
+Status: blocked — harness cases authored; awaiting explicit manual (paid) native-run authority
+Credential-free proof (accepted): with `PATH=/opt/homebrew/bin:$PATH`,
+`bash tests/git-publication-native-one-shot.sh` (substitutes pass; state and
+whole-run pushing counterexamples rejected), `bash tests/git-publication-native.sh`,
+`bash tests/native-stream-replay.sh`, `bash tests/native-assessor-counterexample-guard.sh`.
+Pending manual probe: `PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native claude --case publication/one-shot-review --results-dir <DIR>`
+and `... --case preparation/one-shot-refinement ...`. The existing
+`one-shot-result`/`one-shot-queued` prompts now explicitly ask to land the
+result; their archived native results no longer match and are not proof.
 Proof: Extend the existing native harness with `publication/one-shot-review` and
 `preparation/one-shot-refinement`. Use actual installed guidance in fresh sessions;
 no expected answer embedded in task prompts. Compare raw commands/stream and
