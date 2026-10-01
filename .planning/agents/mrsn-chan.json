@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "agent": "mrsn-chan",
+  "email": "mrsn-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-075#host-neutral-session-meaning",
+  "host": "codex"
+}
