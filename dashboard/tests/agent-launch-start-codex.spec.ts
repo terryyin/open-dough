@@ -5,6 +5,7 @@ import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { keptStarts } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { expectCodexRetryProgress } from "./support/codexRetryPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { test, expect, stored } from "./support/codexStart.ts";
 import { expectExecutionInput } from "./support/codexStartAssertions.ts";
@@ -26,8 +27,8 @@ test("Codex card start publishes one claim and retries its retained workspace be
   });
   await page.goto("/");
   const { backlog, taken, source } = parts(page);
-  const queued = backlog.getByRole("article", { name: "Story A" });
-  const claimed = taken.getByRole("article", { name: "Story A" });
+  const queued = backlog.getByRole("article", { name: "Story A", exact: true });
+  const claimed = taken.getByRole("article", { name: "Story A", exact: true });
   await queued.getByRole("button", { name: "Start execution" }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("codex");
@@ -102,6 +103,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
     .getByRole("textbox", { name: "Instruction (optional)" })
     .fill("Implement the selected slice.");
   native.refuseCreation = false;
+  native.holdCreation = true;
   native.beforeInput = () => {
     expect(stored(dashboard.home)[0]).toMatchObject({
       start: { workspace, publishedSha: revision },
@@ -110,6 +112,15 @@ test("Codex card start publishes one claim and retries its retained workspace be
     });
   };
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  const observer = await expectCodexRetryProgress(
+    page,
+    claimed,
+    dashboard,
+    "execution",
+  );
+  native.holdCreation = false;
+  native.release();
+  await observer.close();
   const sessions = claimed.getByRole("list", { name: "Sessions" });
   await expect(sessions).toContainText("Execution started in Codex");
   await expect(sessions).toContainText("First input accepted");

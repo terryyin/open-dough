@@ -79,6 +79,7 @@ test.describe("a second start of the same story", () => {
         source: "open-dough",
         identity: queuedIdentity,
         phase: "preparing",
+        host: "claude",
       },
     ]);
 

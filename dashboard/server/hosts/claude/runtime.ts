@@ -177,7 +177,10 @@ function parsedListing(stdout: string): readonly ListedSession[] | undefined {
               : "loaded",
           activity: activityOf(entry.state),
           ...(activityOf(entry.state) === "unknown"
-            ? { description: `Claude Code lists it as ${entry.state}` }
+            ? {
+                description: `Claude Code lists it as ${entry.state}`,
+                unknownReason: "unrecognized",
+              }
             : {}),
           ...(entry.waitingFor === undefined ||
           entry.waitingFor === null ||

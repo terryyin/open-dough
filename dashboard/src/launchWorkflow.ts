@@ -25,7 +25,6 @@ type LaunchWorkflowSpec = {
   readonly name: string;
   readonly verb: string;
   readonly skill: string;
-  readonly pending: string;
   // The file of the installed skill's `references/` that defines the options
   // a launch may select, if the workflow has any.
   readonly options: string | undefined;
@@ -49,7 +48,6 @@ export const launchWorkflows = {
     name: "Execution",
     verb: "execute",
     skill: "dough-execute-plan",
-    pending: "Starting execution in Claude Code…",
     options: undefined,
     establishes: {
       sentence:
@@ -71,7 +69,6 @@ export const launchWorkflows = {
     name: "Refinement",
     verb: "refine",
     skill: "dough-story-refinement",
-    pending: "Starting refinement in Claude Code…",
     options: "refinement-options.json",
     establishes: {
       sentence:
@@ -98,9 +95,9 @@ export const launchWorkflowNames = Object.keys(launchWorkflows) as [
 // The phases of a workflow's start the server runs, in order, and the words
 // a card says for each: the script that fetches, makes the workspace and
 // publishes the Take or Preparing announcement is running (`preparing`), then
-// the script established the start and Claude Code is launching the session
-// (`launching`). Each is the one entry of `launchWorkflows` that says it,
-// spelled once.
+// the script established the start and the selected host is launching the session
+// (`launching`). Preparation words and workflow names come from the same
+// `launchWorkflows` entry; launching words name its actual host.
 export const startPhases = ["preparing", "launching"] as const;
 
 export type StartPhase = (typeof startPhases)[number];
@@ -108,9 +105,12 @@ export type StartPhase = (typeof startPhases)[number];
 export function startPhaseWords(
   workflow: LaunchWorkflow,
   phase: StartPhase,
+  host: AgentLaunchRequest["host"],
 ): string {
   const spec = launchWorkflows[workflow];
-  return phase === "preparing" ? spec.establishes.pending : spec.pending;
+  return phase === "preparing"
+    ? spec.establishes.pending
+    : `Starting ${spec.name.toLowerCase()} in ${hostName(host)}…`;
 }
 
 // The name of the session a project's actions row starts: no story, no skill.

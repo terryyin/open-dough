@@ -114,7 +114,10 @@ async function runningPreparation(
   // A kept one-shot preparation that established its context goes on from it
   // as it is: its workspace may already hold the result.
   if (oneShot && kept?.preparation !== undefined) {
-    progress.set(source.id, request.identity, "launching");
+    progress.set(source.id, request.identity, {
+      phase: "launching",
+      host: request.host,
+    });
     return continuedStart(
       { workspace, branch, policy },
       { preparation: kept.preparation },
@@ -180,7 +183,10 @@ async function runningPreparation(
     continuing ? "continue" : "start",
   ).then(async (result): Promise<StartAttempt> => {
     if (result.kind === "established" || result.kind === "prepared") {
-      progress.set(source.id, request.identity, "launching");
+      progress.set(source.id, request.identity, {
+        phase: "launching",
+        host: request.host,
+      });
       const preparation: EstablishedPreparation =
         result.kind === "prepared"
           ? establishedOneShot(facts, result, policy)

@@ -109,9 +109,10 @@ export const keptStartSchema = z.object({
 export type KeptStart = z.infer<typeof keptStartSchema>;
 
 // A start running in the boundary's server now: the workflow, the project, the
-// story, and the phase it is in. A start kept in the store with no running
-// process is a kept start, never a running one.
+// story, selected host, and the phase it is in. A start kept in the store
+// with no running process is a kept start, never a running one.
 export const runningStartSchema = z.object({
+  host: sessionHostSchema,
   workflow: z.enum(launchWorkflowNames),
   source: z.string().min(1),
   identity: z.string().min(1),

@@ -1,7 +1,8 @@
 // The terminal boundary's contract, shared by the page and the local server
 // (`../server/agentTerminals.ts`): one WebSocket per open terminal at
-// `/__agent-terminal?source=<project id>&session=<session id>`, attached to a
-// session this dashboard launched. The server sends the session's terminal
+// `/__agent-terminal?source=<project id>&host=<host>&session=<session id>`,
+// attached through the recorded session's host. An omitted host addresses
+// predecessor Claude Code records. The server sends the session's terminal
 // output as text frames and readiness controls as binary JSON frames.
 // Rendered screen evidence observes completed native synchronized updates.
 // The page sends only the messages below. The server

@@ -1,19 +1,11 @@
-// The terminal boundary (../server/agentTerminals.ts, admitted by
-// ../server/agentLaunchAdmission.ts) over a raw WebSocket, in dev and preview:
-// a same-origin socket for a session this dashboard launched and Claude Code
-// still lists runs `claude attach <short id>` in the project folder, passes
-// output, input, and size, and ends that attach process when the socket
-// closes, while the session stays listed (server close:
-// ./agent-terminal-close.spec.ts; a session marked done:
-// ./agent-terminal-reopen.spec.ts). Any other upgrade is refused with an HTTP
-// status and no attach. The foreign-Host refusal is proved here: Vite's own
-// host check answers such an HTTP request first, so only this upgrade reaches
-// the shared check's Host test (../server/localOrigin.ts). Which other
-// origins the check refuses is ./agent-launch-refusal.spec.ts and
-// ./authenticated-read-refusal.spec.ts; one cross-site upgrade here proves the
-// check guards this boundary. The synthetic `claude` (./fixtures/fake-claude)
-// stands in for the attached session and records every call; the real one is
-// never reached.
+// Real WebSocket upgrades exercise agentTerminals.ts and agentLaunchAdmission.ts
+// in dev and preview, with fake-claude recording native attach calls.
+// Same-origin recorded sessions pass output, input and size; socket close ends
+// attachment while keeping the session (server close: agent-terminal-close.spec.ts;
+// done marks: agent-terminal-reopen.spec.ts). Refusals never attach.
+// Foreign Host reaches localOrigin.ts here because Vite intercepts plain HTTP.
+// Other origin variations: agent-launch-refusal.spec.ts and
+// authenticated-read-refusal.spec.ts; this suite proves their shared upgrade guard.
 
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
@@ -24,6 +16,7 @@ import {
   lastAttachEnded,
   launched,
   openTerminal,
+  refusedResponse,
   refusedStatus,
   shows,
   terminalUrl,
@@ -199,12 +192,15 @@ for (const mode of ["dev", "preview"] as const) {
       server.claudeSessionBecomes(forgotten.sessionId, "forgotten");
       const attachesBefore = attachCalls(server).length;
 
-      const status = await refusedStatus(
+      const response = await refusedResponse(
         terminalUrl(server, "open-dough", forgotten.sessionId),
         { origin: server.origin },
       );
 
-      expect(status).toBe(410);
+      expect(response.status).toBe(410);
+      expect(JSON.parse(response.body)).toEqual({
+        error: "Claude Code no longer lists this session.",
+      });
       expect(attachCalls(server)).toHaveLength(attachesBefore);
     });
 

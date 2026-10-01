@@ -6,7 +6,7 @@ import type {
   Alerts,
   KeptStart,
   MachineAnswer,
-  StartPhase,
+  RunningStart,
   LaunchWithState,
   LaunchWorkflow,
 } from "./agentLaunch.ts";
@@ -42,12 +42,12 @@ type ReadSessions = {
     identity: string,
     workflow: LaunchWorkflow,
   ): KeptStart | undefined;
-  // The currently running start phase, whichever page requested it.
-  startPhaseOf(
+  // The currently running start, with its actual host, whichever page requested it.
+  runningStartOf(
     sourceId: string,
     identity: string,
     workflow: LaunchWorkflow,
-  ): StartPhase | undefined;
+  ): RunningStart | undefined;
   // Records shown on cards, including this page’s launches before the first read.
   readonly launched: readonly LaunchWithState[];
 };
@@ -204,13 +204,13 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
           kept.source === sourceId &&
           kept.identity === identity,
       ),
-    startPhaseOf: (sourceId, identity, workflow) =>
+    runningStartOf: (sourceId, identity, workflow) =>
       starts.find(
         (running) =>
           running.workflow === workflow &&
           running.source === sourceId &&
           running.identity === identity,
-      )?.phase,
+      ),
     launched: known,
     ...attempts,
     ...recordActions,

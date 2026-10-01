@@ -7,7 +7,12 @@ import {
   refinementRequest,
   machineSessions,
 } from "./agentLaunchBoundary.ts";
-import { shows, refusedStatus, terminalUrl } from "./agentTerminalBoundary.ts";
+import {
+  shows,
+  refusedResponse,
+  refusedStatus,
+  terminalUrl,
+} from "./agentTerminalBoundary.ts";
 import {
   codexAttaches,
   codexEnded,
@@ -106,6 +111,37 @@ for (const mode of ["dev", "preview"] as const) {
         await refusedStatus(unknown.href, { origin: "http://evil.example" }),
       ).toBe(403);
       expect(codexAttaches(native)).toHaveLength(1);
+    });
+    test("exact native missing-target evidence refuses attachment with a Codex explanation", async ({
+      dashboard,
+      codexProtocol: native,
+    }) => {
+      if (native === undefined) throw new Error("Missing native fixture");
+      await launch(dashboard, { ...refinementRequest, host: "codex" });
+      const recordsBefore = stored(dashboard.home);
+      native.observations.set(native.threadId, {
+        status: { type: "idle" },
+        turns: [],
+        metadataError: {
+          code: -32600,
+          message: `thread not loaded: ${native.threadId}`,
+        },
+      });
+      const url = new URL(
+        terminalUrl(dashboard, "open-dough", native.threadId),
+      );
+      url.searchParams.set("host", "codex");
+      const response = await refusedResponse(url.href, {
+        origin: dashboard.origin,
+      });
+
+      expect(response.status).toBe(410);
+      expect(JSON.parse(response.body)).toEqual({
+        error: "This conversation is no longer available in Codex.",
+      });
+      expect(codexAttaches(native)).toEqual([]);
+      expect(dashboard.claudeAttaches()).toEqual([]);
+      expect(stored(dashboard.home)).toEqual(recordsBefore);
     });
     test("failed exit and unconfigured startup preserve done intent; native ready clears only this host's mark", async ({
       dashboard,

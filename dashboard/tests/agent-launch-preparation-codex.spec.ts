@@ -5,6 +5,7 @@ import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { keptStarts, launch, launchRequest } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { expectCodexRetryProgress } from "./support/codexRetryPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { stored } from "./support/codexLaunch.ts";
@@ -34,7 +35,10 @@ test("Codex refusal retains its published preparation; the page resumes the same
     follows: true,
   });
   await page.goto("/");
-  const card = parts(page).backlog.getByRole("article", { name: "Story A" });
+  const card = parts(page).backlog.getByRole("article", {
+    name: "Story A",
+    exact: true,
+  });
   await card.getByRole("button", { name: "Start refinement" }).click();
   await page.getByLabel("Host", { exact: true }).selectOption("codex");
   const dialog = page.getByRole("dialog", {
@@ -153,6 +157,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
       .getByLabel("Instruction (optional)", { exact: true })
       .fill("Focus on the examples.");
     native.refuseCreation = false;
+    native.holdCreation = true;
     native.beforeInput = () => {
       expect(kept()).toBeDefined();
       expect(stored(restarted.home)[0]).toMatchObject({
@@ -161,6 +166,15 @@ test("Codex refusal retains its published preparation; the page resumes the same
       });
     };
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    const observer = await expectCodexRetryProgress(
+      page,
+      card,
+      restarted,
+      "refinement",
+    );
+    native.holdCreation = false;
+    native.release();
+    await observer.close();
     await expect(card.getByRole("list", { name: "Sessions" })).toContainText(
       "Refinement started in Codex",
     );

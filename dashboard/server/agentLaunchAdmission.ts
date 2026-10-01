@@ -10,7 +10,7 @@
 // existing folder. A launch's selected options are checked against the
 // project's installed definition and kept in its order (`./launchOptions.ts`),
 // and its session policy against the installation's start
-// (`./launchSessionPolicy.ts`). Only terminal admission reads the host listing.
+// (`./launchSessionPolicy.ts`). Only terminal admission reads native session availability.
 
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { sessionResultEndpoint } from "../src/sessionResult.ts";
@@ -192,7 +192,7 @@ export async function admitted(
 }
 
 // An upgrade attaches only a kept session through its host’s supported
-// operation, in an existing folder, while the host still may list it.
+// operation, in an existing folder, unless the host confirms it unavailable.
 export async function admittedAttach(
   req: IncomingMessage,
   url: URL,
@@ -209,7 +209,8 @@ export async function admittedAttach(
     sessionId: url.searchParams.get("session") ?? "",
     host: host.data,
   });
-  if (launchHost(record.session.host)?.attach === undefined) {
+  const hostBoundary = launchHost(record.session.host);
+  if (hostBoundary?.attach === undefined) {
     throw new RefusedRequest(
       400,
       "This host cannot open an embedded terminal.",
@@ -217,7 +218,11 @@ export async function admittedAttach(
   }
   const joined = await launches.stateOf(source, record);
   if (!attachOpens(joined.sessionState)) {
-    throw new RefusedRequest(410, "Claude Code no longer lists this session.");
+    throw new RefusedRequest(
+      410,
+      hostBoundary.description.unavailableSessionExplanation ??
+        `The session is no longer available in ${hostBoundary.description.name}.`,
+    );
   }
   return {
     sourceId: source.id,

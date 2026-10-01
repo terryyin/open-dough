@@ -183,6 +183,8 @@ export const sessionStateSchema = z.discriminatedUnion("kind", [
     waitingFor: z.string().optional(),
     // Host-owned provenance when native activity cannot be recognized.
     description: z.string().optional(),
+    // An explicit unfamiliar native answer versus an incomplete activity read.
+    unknownReason: z.enum(["unrecognized", "incomplete"]).optional(),
   }),
   z.object({ kind: z.literal("unavailable") }),
   z.object({ kind: z.literal("unknown") }),

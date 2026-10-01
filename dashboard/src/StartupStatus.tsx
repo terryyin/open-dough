@@ -10,13 +10,11 @@
 // Published facts stay as origin shows them; nothing here places the story.
 
 import {
-  launchWorkflows,
   startName,
   startPhaseWords,
-  type StartPhase,
+  type RunningStart,
 } from "./agentLaunch.ts";
 import type { StoryStartup } from "./storyStartup.ts";
-import { hostName } from "./sessionCapabilities.ts";
 import "./agent-launch.css";
 
 // What is known of a startup in need of reconciliation, by its cause.
@@ -37,16 +35,15 @@ export function reconciliationCause(
 
 export function StartupStatus({
   startup,
-  phase,
+  running,
   establishesStart,
 }: {
   readonly startup: StoryStartup;
-  readonly phase: StartPhase | undefined;
+  readonly running: RunningStart | undefined;
   // Whether the project's installed skill establishes the workflow's start.
   readonly establishesStart: boolean;
 }) {
   const { workflow, host, state, problem } = startup;
-  const spec = launchWorkflows[workflow];
   const named = startName(workflow);
   if (state === "reconciling") {
     return (
@@ -70,13 +67,11 @@ export function StartupStatus({
       </p>
     );
   }
-  const words = (
-    phase === undefined
-      ? establishesStart
-        ? spec.establishes.pending
-        : spec.pending
-      : startPhaseWords(workflow, phase)
-  ).replace("Claude Code", hostName(host));
+  const words = startPhaseWords(
+    workflow,
+    running?.phase ?? (establishesStart ? "preparing" : "launching"),
+    running?.host ?? host,
+  );
   return (
     <>
       <p className="launch-answer quiet card-startup card-startup-progressing">

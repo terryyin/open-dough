@@ -23,9 +23,10 @@ when its story changes stage or disappears. Only dashboard-recorded sessions
 appear; another project's records never count on a card.
 
 Host adapters normalize native state for the shared cards, Recent sessions,
-sidebar/counts and alerts; observations are never persisted. Shared presentation
-still uses host name to word an unknown reading and to withhold the alert for
-unrecognized Codex state. Claude reads one machine listing. Codex groups
+sidebar/counts and alerts; observations are never persisted. Host descriptions
+supply unknown-reading wording, and adapters distinguish explicit unfamiliar
+native states from incomplete reads for shared alerting. Claude reads one machine
+listing. Codex groups
 recorded targets by saved endpoint, reads metadata and only the latest needed
 turn, without resume, subscription or interactive ownership. Endpoint failures
 leave independent healthy records readable.
@@ -35,7 +36,9 @@ a completed reply means Ready for review, including ordinary prose questions.
 Failure/interruption need attention. A blank has Awaiting first instruction.
 An unloaded Codex conversation with retained history remains resumable. Confirmed
 absence means Session unavailable; unreadable/unsupported data stays unknown.
-Unrecognized Codex state keeps native provenance and raises no guessed alert.
+Explicit unrecognized native state keeps its provenance, stays unsettled and
+adds no attention, but entering its reading raises an alert. Unreadable metadata,
+missing active flags and failed latest-turn reads stay quiet.
 A done mark suppresses attention, showing Working while working, Done otherwise.
 Native structured waiting must be supplied by the configured tool/policy; a
 never-policy run does not establish approval parity.
@@ -58,4 +61,3 @@ in browser storage. Closing while focused there restores the Sessions button.
 Wide layout is sidebar/page/terminal; narrow sidebar overlays below the banner,
 terminal stacks above page. Opening a row changes project/history and reveals
 its card or Recent entry until user navigation; reduced motion skips animation.
-
