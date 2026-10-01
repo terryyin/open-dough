@@ -1,4 +1,4 @@
-// The page's one terminal: the right-hand panel showing one Claude Code
+// The page's one terminal: the right-hand panel showing one native
 // session this dashboard launched, attached through the terminal boundary
 // (`./agentTerminal.ts`) for as long as the panel shows it. What the session
 // prints appears in the terminal, what the developer types goes to the
@@ -8,23 +8,20 @@
 // drops, as when the dashboard server restarts, the panel says so and offers
 // to reconnect; when the attached CLI exits on its own, it says the terminal
 // ended and offers to open it again. Either attaches to the same session anew.
-// Each attachment tells the page once it first shows the session's output.
-// Mark as done asks the boundary to rename the session `done-<name>` through
-// this attachment and stop it; the panel closes once it is marked, and says
-// so if it could not be.
+// Each attachment reports native readiness; startup decisions remain interactive.
+// Where supported, Mark as done asks the boundary to finish this session;
+// the panel closes once marked and says if it could not be.
 
-import { useEffect, useRef, useState, type RefObject } from "react";
-import { Terminal } from "@xterm/xterm";
-import { FitAddon } from "@xterm/addon-fit";
+import { useRef, useState } from "react";
+import { marksDone } from "./sessionCapabilities.ts";
 import "@xterm/xterm/css/xterm.css";
 import "./agent-launch.css";
 import "./agent-terminal.css";
-import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
+import { launchSubject } from "./agentLaunch.ts";
 import {
-  agentTerminalEndpoint,
-  terminalEndedCode,
-  type TerminalMessage,
-} from "./agentTerminal.ts";
+  useAttachedTerminal,
+  type TerminalEnding,
+} from "./useAttachedTerminal.ts";
 import {
   notMarkedDone,
   useMarking,
@@ -33,95 +30,10 @@ import {
   type SessionRequest,
 } from "./pageSessions.ts";
 
-function terminalUrl(record: LaunchRecord): string {
-  const query = new URLSearchParams({
-    source: record.request.source,
-    session: record.session.sessionId,
-    host: record.session.host,
-  });
-  const scheme = window.location.protocol === "https:" ? "wss:" : "ws:";
-  return `${scheme}//${window.location.host}${agentTerminalEndpoint}?${query.toString()}`;
-}
-
-// Why the panel's attachment is no longer open, if it is not.
-type Ending = "disconnected" | "ended";
-
 const endings = {
   disconnected: { says: "Disconnected from the session", action: "Reconnect" },
   ended: { says: "The terminal ended", action: "Open again" },
 } as const;
-
-// Attaches a terminal in `element` to the session while it is mounted, anew
-// for each `attempt`, reports once each attachment first shows output, and
-// reports how the attachment ended unless the panel ended it itself.
-// `onAttached` and `onEnded` must keep their identity across renders.
-function useAttachedTerminal(
-  element: RefObject<HTMLDivElement | null>,
-  session: SessionRequest,
-  attempt: number,
-  onAttached: SessionOperation<void>,
-  onEnded: (ending: Ending) => void,
-) {
-  const url = terminalUrl(session.record);
-  useEffect(() => {
-    const screen = element.current;
-    if (screen === null) {
-      return;
-    }
-    const terminal = new Terminal({ cursorBlink: true });
-    const fit = new FitAddon();
-    terminal.loadAddon(fit);
-    terminal.open(screen);
-
-    const socket = new WebSocket(url);
-    const send = (message: TerminalMessage) => {
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify(message));
-      }
-    };
-    const size = () => ({ cols: terminal.cols, rows: terminal.rows });
-    socket.addEventListener("open", () => {
-      send({ resize: size() });
-    });
-    let shown = false;
-    socket.addEventListener("message", (event) => {
-      if (typeof event.data === "string") {
-        terminal.write(event.data);
-        if (!shown) {
-          shown = true;
-          onAttached(session);
-        }
-      }
-    });
-    let current = true;
-    socket.addEventListener("close", (event) => {
-      if (current) {
-        onEnded(event.code === terminalEndedCode ? "ended" : "disconnected");
-      }
-    });
-    const typed = terminal.onData((input) => {
-      send({ input });
-    });
-    const resized = terminal.onResize(() => {
-      send({ resize: size() });
-    });
-    const panelSize = new ResizeObserver(() => {
-      fit.fit();
-    });
-    panelSize.observe(screen);
-    fit.fit();
-    terminal.focus();
-
-    return () => {
-      current = false;
-      panelSize.disconnect();
-      typed.dispose();
-      resized.dispose();
-      socket.close();
-      terminal.dispose();
-    };
-  }, [element, url, session, attempt, onAttached, onEnded]);
-}
 
 export function TerminalPanel({
   session,
@@ -142,7 +54,7 @@ export function TerminalPanel({
   const { record } = session;
   const screen = useRef<HTMLDivElement>(null);
   const [attempt, setAttempt] = useState(0);
-  const [ending, setEnding] = useState<Ending | undefined>();
+  const [ending, setEnding] = useState<TerminalEnding | undefined>();
   // While marking, the attachment's ending the mark causes is not shown.
   const { marking, follow } = useMarking();
   useAttachedTerminal(screen, session, attempt, onAttached, setEnding);
@@ -161,15 +73,17 @@ export function TerminalPanel({
           </p>
         </div>
         <div className="terminal-actions">
-          <button
-            type="button"
-            disabled={marking === "marking"}
-            onClick={() => {
-              follow(onMarkDone(session));
-            }}
-          >
-            Mark as done
-          </button>
+          {marksDone(record.session.host) && (
+            <button
+              type="button"
+              disabled={marking === "marking"}
+              onClick={() => {
+                follow(onMarkDone(session));
+              }}
+            >
+              Mark as done
+            </button>
+          )}
           <button type="button" onClick={onClose}>
             Close
           </button>

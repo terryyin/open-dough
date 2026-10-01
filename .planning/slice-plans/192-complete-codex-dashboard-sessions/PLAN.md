@@ -4,6 +4,7 @@
 - [Planning context](CONTEXT.md): source/preparation, outcome/boundaries, architecture/PFE, decisive premises, proof ownership and verification/sizing.
 - [Native acceptance story](CONTEXT.md#native-acceptance-story) remains part of this plan.
 - [Execution state and accepted native observations](EXECUTION.md): retained identity/CI observer, accepted slice 1 proof and consequential learning.
+- [Embedded lifecycle proof](LIFECYCLE.md): slice 4 and native readiness/blank materialization follow-up.
 
 ## Ordered slices
 
@@ -97,7 +98,7 @@ remains the interaction path.
 
 Type: Behavior
 
-Status: todo
+Status: done
 
 Precondition: saved native continuation and feasible PTY/client lifetime.
 Trigger: Open terminal, answer in the native CLI, resize, close/reload/switch
@@ -178,6 +179,9 @@ Status: todo
 
 Precondition: configured project and the blank-conversation mechanism settled
 by slice 1. Trigger: Start session with text or an empty/whitespace field.
+
+Native precondition clarification: [materialize blank history](LIFECYCLE.md#blank-materialization-learning-for-slice-7)
+before the creator disconnects; readable loaded metadata alone is insufficient.
 
 Postconditions: text is submitted once; blank opens the embedded original
 conversation awaiting the first instruction, with no artificial empty model

@@ -24,8 +24,9 @@ export const claudeHost: LaunchHost = {
     path.join(project.path, ".claude", "skills", skill, ...segments),
   launch: launchClaude,
   sessions: observeClaudeSessions,
-  attach: (session, folder, size) =>
-    attachClaude(nativeAlias(session), folder, size),
+  attach: (session, folder, size) => ({
+    pty: attachClaude(nativeAlias(session), folder, size),
+  }),
   rename: renameInClaudeCode,
   stop: (session, folder, signal) =>
     stopClaude(nativeAlias(session), folder, signal),

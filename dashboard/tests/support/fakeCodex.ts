@@ -2,6 +2,7 @@
 // fixture. Actual HTTP/page code creates and persists every launch record.
 import { createServer } from "node:http";
 import path from "node:path";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { WebSocketServer, type WebSocket } from "ws";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 import { passiveCodexFixture } from "./fakeCodexObservation.ts";
@@ -19,6 +20,12 @@ export async function installFakeCodex(
 ): Promise<FakeCodex> {
   const bin = path.join(tempRoot, "codex-bin");
   installFixtureExecutable("fake-codex", bin, "codex");
+  const terminalRoot = path.join(tempRoot, "codex-terminal");
+  mkdirSync(terminalRoot, { recursive: true });
+  writeFileSync(
+    path.join(terminalRoot, "control.json"),
+    JSON.stringify({ mode: "ready" }),
+  );
   const socket = path.join(tempRoot, "codex.sock");
   const http = createServer();
   const ws = new WebSocketServer({ server: http });
@@ -28,6 +35,7 @@ export async function installFakeCodex(
   const fixture: FakeCodex = {
     binDir: bin,
     env: {
+      FAKE_CODEX_TERMINAL_ROOT: terminalRoot,
       FAKE_CODEX_CLI_LOG: path.join(tempRoot, "cli-resume.jsonl"),
       FAKE_CODEX_DAEMON_LOG: path.join(tempRoot, "daemon-start.jsonl"),
       PATH: [bin, searchPath].join(path.delimiter),

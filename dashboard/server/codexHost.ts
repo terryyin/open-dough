@@ -5,6 +5,7 @@ import { launchCodex } from "./hosts/codex/launch.ts";
 import { closeCodexConnections } from "./hosts/codex/conversation.ts";
 import { recoverCodex } from "./hosts/codex/recovery.ts";
 import { codexSessions } from "./hosts/codex/sessions.ts";
+import { attachCodex } from "./hosts/codex/terminal.ts";
 
 export const codexHost: LaunchHost = {
   name: "Codex",
@@ -13,5 +14,6 @@ export const codexHost: LaunchHost = {
   launch: launchCodex,
   recover: recoverCodex,
   sessions: (...[records, , signal]) => codexSessions(records, signal),
+  attach: attachCodex,
   close: closeCodexConnections,
 };

@@ -1,13 +1,61 @@
 #!/usr/bin/env node
 "use strict";
-// Native daemon discovery substitute only. The RPC fixture owns protocol;
+// Native daemon discovery and ordinary CLI/PTY transport substitute. RPC owns protocol;
 // neither substitute writes product launch records, workspaces or assignments.
 if (process.argv[2] === "resume" && process.env.FAKE_CODEX_CLI_LOG) {
   require("node:fs").appendFileSync(
     process.env.FAKE_CODEX_CLI_LOG,
     `${JSON.stringify(process.argv.slice(2))}\n`,
   );
-  process.exit(0);
+  if (!process.argv.includes("--no-alt-screen")) process.exit(0);
+  const fs = require("node:fs");
+  const root = process.env.FAKE_CODEX_TERMINAL_ROOT;
+  const file = (name) => require("node:path").join(root, name);
+  const pid = process.pid;
+  const append = (name, data) => fs.appendFileSync(file(name), `${JSON.stringify(data)}\n`);
+  const control = JSON.parse(fs.readFileSync(file("control.json"), "utf8"));
+  append("attaches.jsonl", { pid, cwd: process.cwd(), args: process.argv.slice(2), cols: process.stdout.columns, rows: process.stdout.rows });
+  const ended = (reason, code) => { fs.writeFileSync(file(`${pid}.ended`), reason); process.exit(code); };
+  process.on("SIGHUP", () => ended("SIGHUP", 0));
+  process.on("SIGWINCH", () => {
+    append(`${pid}.sizes`, { cols: process.stdout.columns, rows: process.stdout.rows });
+    process.stdout.write(`\r\nresized ${process.stdout.columns}x${process.stdout.rows}\r\n`);
+  });
+  process.stdout.write("\x1b[?2026h\x1b[?25hResuming session…\r\n\x1b[?2026l");
+  if (control.mode === "fail") {
+    process.stdout.write("native resume refused\r\n");
+    setTimeout(() => ended("refused", 1), 50);
+  } else {
+    let ready = false;
+    let line = "";
+    const show = () => {
+      ready = true;
+      process.stdout.write("\x1b[?2026h\x1b[?25h\x1b[2J\x1b[HOpenAI Codex (v0.159.3)\r\noriginal retained history\r\n› Ask Codex to do anything\r\nGPT-6.1-Sol default · configured workspace\r\n\x1b[?2026l");
+    };
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    if (control.mode === "review") process.stdout.write("\x1b[?2026h\x1b[?25lOpenAI Codex (v0.159.3)\r\n› Ask Codex to do anything\r\nHooks need review\r\n\x1b[?2026l");
+    else if (control.mode === "partial") {
+      ready = true;
+      process.stdout.write("\x1b[?2026h\x1b[?25h\x1b[2J\x1b[HOpenAI Codex (v0.159.3)\r\nResuming session…\r\n› Ask Codex to do anything\r\n\x1b[?2026l");
+      process.stdout.write("\x1b[?2026h\x1b[2J\x1b[HOpenAI Codex (v0.159.3)\r\n› retained startup draft\r\nGPT-6.1-Sol default · configured workspace\r\n");
+    }
+    else if (control.mode === "unready") process.stdout.write("\x1b[?2026h\x1b[?25lOpenAI Codex (v0.159.3)\r\nInput disabled.\r\n\x1b[?2026l");
+    else show();
+    process.stdin.on("data", (chunk) => {
+      for (const char of chunk.toString()) {
+        if (char === "\x1b" && control.mode === "review") show();
+        else if (char === "\x1b" && control.mode === "partial") process.stdout.write("\x1b[?2026l");
+        else if (char === "\x1a") ended("Ctrl+Z", 0);
+        else if (char === "\r" || char === "\n") {
+          append(`${pid}.lines`, line);
+          process.stdout.write(`\r\necho ${line}\r\n`);
+          line = "";
+        } else if (ready) line += char;
+      }
+    });
+  }
+  return;
 }
 if (!process.env.FAKE_CODEX_SOCKET) process.exit(1);
 if (

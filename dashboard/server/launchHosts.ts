@@ -49,7 +49,10 @@ export type LaunchHost = {
     session: HostSession,
     folder: ProjectFolder,
     size: { readonly cols: number; readonly rows: number },
-  ): IPty;
+  ): {
+    readonly pty: IPty;
+    readonly ready?: (screen: string, cursorVisible: boolean) => boolean;
+  };
   rename?(
     record: LaunchRecord,
     folder: ProjectFolder,

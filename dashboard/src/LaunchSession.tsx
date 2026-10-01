@@ -27,9 +27,7 @@ export function LaunchSession({
             Continue in Codex:{" "}
             <code>{shellCommand(record.session.continuation.args)}</code>
           </p>
-          <p className="quiet">
-            Embedded terminal and Mark as done are unavailable for Codex.
-          </p>
+          <p className="quiet">Mark as done is unavailable for Codex.</p>
           <p>
             {record.firstInput?.state === "confirmed"
               ? "First input accepted"

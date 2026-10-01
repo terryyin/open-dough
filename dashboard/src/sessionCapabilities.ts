@@ -9,7 +9,7 @@ export function hostName(host: SessionReference["host"]): string {
       : "Cursor";
 }
 export function embeddedTerminal(host: SessionReference["host"]): boolean {
-  return host === "claude";
+  return host === "claude" || host === "codex";
 }
 export function marksDone(host: SessionReference["host"]): boolean {
   return host === "claude";

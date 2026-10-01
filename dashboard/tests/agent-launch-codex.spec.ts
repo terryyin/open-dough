@@ -16,7 +16,6 @@ import {
 import { cardSessions } from "./dashboardPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import { rawRequest } from "./support/rawHttp.ts";
 import { markDone } from "./agentLaunchBoundary.ts";
 import { test, expect, stored, codexSkill } from "./support/codexLaunch.ts";
 import { machineSessions, deleteRecord } from "./agentLaunchBoundary.ts";
@@ -93,7 +92,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await expect(codex.locator(".session-state")).toHaveText("Working");
   await expect(
     codex.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(0);
+  ).toHaveCount(1);
   await expect(codex.getByRole("button", { name: "Mark as done" })).toHaveCount(
     0,
   );
@@ -138,7 +137,14 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await expect(sidebar.entries.filter({ hasText: "Working" })).toHaveCount(2);
   // Both hosts share the opaque ID; the later Codex launch is first among working entries.
   await sidebar.entries.first().getByRole("button").click();
-  await expect(page.locator(".terminal-panel")).toHaveCount(0);
+  await expect(page.locator(".terminal-panel")).toHaveCount(1);
+  await expect(page.locator(".xterm-rows")).toContainText(
+    "original retained history",
+  );
+  await page
+    .getByRole("region", { name: "Terminal" })
+    .getByRole("button", { name: "Close", exact: true })
+    .click();
   const before = dashboard.claudeCalls().length;
   expect(
     (
@@ -146,20 +152,6 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
         source: "open-dough",
         session: native.threadId,
         host: "codex",
-      })
-    ).status,
-  ).toBe(400);
-  expect(
-    (
-      await rawRequest({
-        url: `${dashboard.baseURL}/__agent-terminal?source=open-dough&host=codex&session=${encodeURIComponent(native.threadId)}`,
-        headers: {
-          Origin: dashboard.origin,
-          Connection: "Upgrade",
-          Upgrade: "websocket",
-          "Sec-WebSocket-Version": "13",
-          "Sec-WebSocket-Key": "dGhlIHNhbXBsZSBub25jZQ==",
-        },
       })
     ).status,
   ).toBe(400);
@@ -185,7 +177,12 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     stdio: "pipe",
   });
   expect(
-    JSON.parse(readFileSync(native.env["FAKE_CODEX_CLI_LOG"] ?? "", "utf8")),
+    JSON.parse(
+      readFileSync(native.env["FAKE_CODEX_CLI_LOG"] ?? "", "utf8")
+        .trim()
+        .split("\n")
+        .at(-1) ?? "",
+    ),
   ).toEqual(expectedArgs.slice(1));
   await page.reload();
   await expect(page.getByText(command, { exact: true })).toHaveCount(2);
