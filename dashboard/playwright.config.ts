@@ -1,8 +1,17 @@
 import { availableParallelism } from "node:os";
 import { defineConfig, devices } from "@playwright/test";
+import { dashboardTestMatch } from "./tests/support/testFiles.mjs";
 
 export default defineConfig({
   testDir: "./tests",
+  ...(process.env["OPEN_DOUGH_DASHBOARD_SPLIT"]
+    ? {
+        testMatch: dashboardTestMatch(
+          new URL("./tests/", import.meta.url),
+          process.env["OPEN_DOUGH_DASHBOARD_SPLIT"],
+        ),
+      }
+    : {}),
   outputDir: "./test-results",
   fullyParallel: true,
   // Playwright's default uses half the cores. Each CI dashboard shard job must

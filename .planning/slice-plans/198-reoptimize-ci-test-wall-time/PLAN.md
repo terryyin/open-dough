@@ -53,13 +53,19 @@ run shows that job is the one holding a run over target.
   only from the internal `PWTEST_SHARD_WEIGHTS` environment variable
   (`node_modules/playwright/lib/cli/testActions.js`). It is undocumented and
   still count-based, so the plan does not rely on it.
-- **Per-job budget:** each dashboard job finishes within about 2m10s, which
-  leaves the target margin for runner variance. With 30–42s of setup, each
-  shard's test step stays within about 85s. In the observed run, a shard with
-  about 188s of summed test time took 67s and one with about 380s took 146s.
-  So a shard holding about 225s of summed test time fits. That makes the
-  budget reachable even without slice 1 gains: five duration-balanced shards
-  over today's 1124s, or four after a cut of about 20%.
+- **Fresh duration balance:** slice 1 run `36843265227` has 1294.298s
+  summed browser test time, invalidating the original five-job assumption.
+  Full aggregate hosted speedup is not established: original same 650 cases
+  total 1123.934s, with untouched 613 cases increasing 17.2%. Retain the
+  supported matched local optimization and targeted hosted gains; balance the
+  fresh profile rather than pursue unsafe journey reductions.
+- **Per-job budget:** keep about 2m10s/job, about 85s test step and a
+  conservative 225s summed-case heuristic. Fresh whole-file longest-first
+  round-robin maxima for 4–8 jobs are 351.8/290.2/247.6/218.3/196.6s.
+  Seven is the smallest meeting that heuristic, with shares
+  218.3/202.9/181.6/178.2/174.7/171.4/167.1s. Exact Playwright count-based
+  4–8 shard maxima are 466.602/456.074/334.822/320.624/291.841s, so none
+  meet it. These sums guide the experiment; hosted wall proof remains required.
 - **Keep the CI contract checks:** any change to the dashboard job's `run:`
   steps keeps `tests/ci-container.sh` green. That check compares the steps
   after `npm ci`, less a trailing `-- --shard…` argument, with
@@ -89,7 +95,7 @@ run shows that job is the one holding a run over target.
 
 ### 1. The slowest browser spec families run in less time with the same coverage
 Type: Behavior
-Status: locally validated; first increment awaiting hosted timing evidence
+Status: done — published `300687b8`; local speedup and targeted hosted improvement accepted, aggregate CI timing remains owned by slice 2
 Proof: each optimized spec passes locally with the same assertions or
 justified equivalent coverage, and its local duration drops against a
 same-session baseline. A story-branch CI run shows lower summed test time for
@@ -110,7 +116,7 @@ needs duration-balanced shards rather than a count change.
 
 ### 2. Every dashboard job finishes within the per-job budget, and trunk CI meets the target
 Type: Behavior
-Status: planned
+Status: locally validated; hosted budget and trunk proof pending
 Proof: a story-branch CI run with every dashboard job ≤ about 2m10s and the
 run under 2m30s. After trunk integration, the delivered revision's CI run and
 two reruns (`gh run rerun <id>`) each finish under 2m30s with all jobs
@@ -160,3 +166,8 @@ Hosted CI runs the full suite on every branch push and owns the timing proof.
 - Final synchronization proof: three consecutive `env -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts launch-observations.spec.ts agent-launch-ad-hoc-codex.spec.ts` (5 cases each); three consecutive same command prefix with `taken-agent-profile.spec.ts taken-agent-profile-refresh.spec.ts nerds-cartoon-portrait.spec.ts backlog-preparing.spec.ts` (5 each). All pass. Shared portrait consumers included. `npm run typecheck:dashboard` passed final edits. Independent refactor found none, preserved proof, and `git diff --check` passed. No tests removed/skipped; no production behavior changed.
 - Rejected clock batching: 250ms stepping protects pending transport and rate-limit deadlines; wider stepping can overshoot those conditions. Other heavy families retain distinct publication/restart and damage-case protection; no further credible justified cuts found. Balance using hosted timing in slice 2 remains the supported route to target.
 - Local measurement proves the selected family improvement only. Hosted summed durations and overall CI target remain pending. Conflicting inherited color variables caused diagnostic-only warning failures; proof commands unset `NO_COLOR`, preserving quiet output.
+
+- Slice 1 hosted evidence: exact `300687b8`, run `36843265227`; all 650 browser cases passed, no skips/flakes. All four Playwright and three test-times artifacts present. Dashboard jobs 159/137/120/184s; browser steps 113/103/87/146s; elapsed run 187s. Same-case targeted improvement: launch observations 10.009s → 0.014s, Taken profile 19.100s → 10.906s, all five portrait consumers 36.672s → 33.384s. Selected 37 total 171.087s → 178.019s; total hosted suite increased, so no aggregate hosted improvement claim. Reports decoded privately under `/tmp/seed070-36843265227-reports` and `/tmp/seed070-36835182175-reports`.
+- Managed delivery accepted `300687b8d9431ffb9fc53a427ed3b8dd8b88cd8d` on `refs/heads/codex/re-optimize-ci-feedback-and-test-wall-time-after`. It reported `pendingCi: unobserved`, reason `Codex yielded-cell bridge is unavailable`; no active observer/receipt exists. The required profile watch terminated with failure and its result was inspected; no live watch remains.
+- Sole hosted failure: `tests/git-publication-native-one-shot.sh` took 72.3s against the 71s per-check ceiling; all other jobs passed. No test assertion failed. This is a performance-budget defect, not infrastructure. Shell splitting is excluded by the plan unless shell jobs hold the run over target; dashboard is still critical. Asked the developer whether to include the bounded one-shot shell split; no answer yet. Preserve that restriction and leave the shell path paused. Browser balancing is independently valuable and continues. Do not raise budgets or treat a later green retry as a repair.
+- Slice 2 partition proof: `PATH="/opt/homebrew/bin:$PATH" npm test -- tests/support/dashboard-test-files.test.mjs tests/ci-container.sh` passed all four behavioral node cases and the container contract; `npm run typecheck:dashboard` passed. Real `npx playwright test --config dashboard/playwright.config.ts --list --reporter=json` with unset split selects 650 cases; `OPEN_DOUGH_DASHBOARD_SPLIT=1/7` through `7/7` selects 73/71/122/61/132/103/88 respectively, with exactly the unset 650 stable spec-ID/project pairs once. Invalid `8/7` refuses configuration before running. The partition check explicitly protects unlisted new specs, stale/duplicate timing entries and deterministic assignment. Ordinary unset invocation, one type-check, artifacts, failure reporting, shell shares, runner and timeout settings remain intact. Actual branch/trunk wall-time evidence remains pending.
