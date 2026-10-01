@@ -37,61 +37,75 @@ trunk landing, and lowers compute overhead.
 
 **Identity:** SEED-068#reduce-ci-wall-time
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/193-reduce-ci-wall-time/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"60697846da3423ab5b08e50664db45a3ed776b2875c8a18708ad41c5a735b7b1","plan":"8f033f2a62588d5d58cdfd11e6f55bf6f256563b127467d11389f2d0d441c616"}}
 ```
 
 - **For / why:** Developers and agents collaborating via trunk-based development
   receive faster, trustworthy CI feedback, shortening the cycle time between
   publishing changes and confirming trunk integration.
-- **Goal:** Profile and analyze what takes the longest time in GitHub Actions
-  CI runs, apply `dough-test-optimization` to reduce test execution duration, and
-  optimize or parallelize pipeline jobs, matrix splits, and setup steps so that
-  the overall CI wall time is substantially reduced while preserving full
-  behavioral test coverage.
+- **Goal:** Reduce GitHub Actions CI critical-path wall time to under 2.5 minutes
+  (from ~4 minutes) by profiling bottlenecks, optimizing slow test families using
+  `dough-test-optimization`, and tuning pipeline parallelization and caching in
+  `.github/workflows/ci.yml`, while preserving complete behavioral test coverage.
 - **Scope:**
-  - **Bottleneck analysis:** Inspect recent CI run durations and step timings
-    (e.g., `dashboard` browser shards vs `test` splits vs `lint`, and within
-    jobs: `npm ci`, Playwright browser downloads, type-checking, and test execution).
-  - **Test execution optimization:** Use `dough-test-optimization` to
-    hypothesize, measure, and streamline expensive test families (such as
-    slow browser interactions, redundant test scenarios, heavy fixture setups, or
-    slow shell test execution) while preserving behavioral proof.
-  - **Pipeline and job optimization:** Evaluate and implement CI workflow
-    improvements (in `.github/workflows/ci.yml`), such as caching Playwright
-    binaries or tool downloads, tuning matrix shard/share distributions,
-    optimizing job dependencies, or running independent steps concurrently.
-  - **Measurement and verification:** Compare before-and-after wall time and
-    individual step timings under comparable conditions. Confirm all existing
-    lint, unit, and dashboard test suites continue to run and verify product
-    behavior completely.
-  - **Not included:** Weakening assertions, skipping tests, compromising flakiness
-    detection, or changing product features outside test/CI infrastructure.
-- **Key examples for later refinement:**
-  - Analysis identifies the critical path in CI (e.g., the slowest dashboard
-    Playwright shard or unit test split).
-  - Test suites are optimized via `dough-test-optimization` to eliminate
-    redundant waiting, redundant setup, or slow cases without loss of confidence.
-  - CI jobs or matrix shards are adjusted so workload is balanced and wall time
-    is shortened.
-  - Tool or dependency steps (e.g., Playwright browser installation) are cached
-    or parallelized where safe.
-  - Post-optimization CI runs show a measured reduction in total wall time on
-    comparable commits.
-- **Depends on:** Existing CI workflow (`.github/workflows/ci.yml`) and
-  `dough-test-optimization` skill. No new product prerequisite.
-- **Effort hypothesis:** M — requires profiling CI data, running test
-  optimization loops, and validating workflow changes.
-- **Capture:** Terry requested this story on 2026-10-01 to be placed at the top
-  of the product backlog.
+  - **Critical path analysis & baseline:**
+    - Baseline wall time: ~4 minutes on standard GitHub-hosted runners (`ubuntu-24.04`).
+    - Critical path is dominated by `dashboard` browser shards (`dashboard (1/2)` at
+      ~3m49s, `dashboard (2/2)` at ~3m31s), followed by `test` splits (`test (1/2)` at
+      ~2m06s, `test (2/2)` at ~1m54s), and `lint` at ~52s.
+    - Within `dashboard` jobs: setup takes ~35s (`npm ci` ~4s, Playwright Chromium install
+      ~24-28s, typecheck ~6s), and test execution across 295 tests takes ~3m09s.
+    - Within `test` jobs: heavy shell tests dominate (`tests/git-publication-native.sh` at
+      ~67s, `tests/native-evidence-identity.sh` at ~26s, `tests/git-publication-native-one-shot.sh`
+      at ~19s).
+  - **Pipeline and workflow parallelization (`.github/workflows/ci.yml`):**
+    - Increase `dashboard` matrix shards (e.g. from 2 to 3 or 4) so that browser test execution
+      per runner comfortably finishes in under 1.5 minutes.
+    - Evaluate and implement caching for Playwright Chromium binaries to save ~20–25s setup
+      overhead per shard.
+    - Tune `test` matrix shares if needed to keep unit/shell test splits under 1.5 minutes.
+    - Keep `lint` independent and fast.
+  - **Test execution optimization (`dough-test-optimization`):**
+    - Apply `dough-test-optimization` to identified slowest test families in both Playwright
+      browser suites (e.g. `accessible-overview.spec.ts` ~13.7s, `agent-launch-card-sessions.spec.ts`
+      ~13.6s, `agent-launch-attention.spec.ts` ~9.8s) and shell/unit test suites
+      (e.g. `tests/git-publication-native.sh` ~67s).
+    - Eliminate redundant waiting, repeated heavy fixture setups, or unnecessary polling
+      intervals while preserving behavioral assertions.
+  - **Preserved promises and constraints:**
+    - Full behavioral test coverage and regression protection must be retained. No tests may
+      be skipped or deleted without surviving equivalent proof.
+    - No weakened assertions; no masking flakiness with retries, sleeps, or ignored failures.
+    - Artifact retention (`playwright-report`, `test-results`, `test-times.txt`) and failure
+      reporting remain fully functional for diagnostics.
+    - Standard GitHub-hosted `ubuntu-24.04` runners; no private runner infrastructure required.
+  - **Deferred promises:**
+    - Application feature changes outside CI workflow and test suites.
+    - Moving away from GitHub Actions or introducing paid runner hardware.
+- **Key examples:**
+  - *Full CI run wall time target:* On push to trunk or branch, all CI jobs (lint, unit/shell
+    tests, dashboard browser tests) run concurrently and the slowest job finishes in under
+    2.5 minutes (150s), compared to the ~4-minute baseline.
+  - *Dashboard shards parallelization & caching:* A dashboard shard job restores cached
+    Playwright Chromium binaries (saving ~20-25s) or installs cleanly on cache miss, runs its
+    share of browser tests across increased shards (e.g. 3 or 4 shards), and completes its
+    entire job in under 2 minutes.
+  - *Unit & shell test splits:* Test runner shares balance the test load so that neither share
+    exceeds 1.5 minutes of wall time, with per-job `test-times.txt` uploaded as before.
+  - *Test family optimization:* Running `dough-test-optimization` on a high-cost test family
+    (e.g. `accessible-overview.spec.ts` or `tests/git-publication-native.sh`) refactors shared
+    setup/wait overhead, demonstrably reducing wall time while all assertions pass.
+  - *Accurate failure and artifact retention:* When a test fails in a dashboard shard or test
+    split, the job fails promptly and artifacts (`playwright-report`, `test-results`) are uploaded
+    properly without being masked by optimization or sharding changes.
+- **Depends on:** Existing CI workflow (`.github/workflows/ci.yml`) and `dough-test-optimization` skill.
+- **Effort hypothesis:** M — requires profiling CI data, implementing workflow caching and sharding adjustments, and conducting focused test optimization loops.
+- **Capture:** Terry refined this story on 2026-10-01, selecting a wall time target of under 2.5 minutes and confirming a single combined story spanning pipeline parallelization and test optimization.
 
 ## Open Decisions
 
-- What target wall time is desired (e.g., under 2 minutes vs under 3 minutes)?
-- Which bottleneck contributes the most to wall time: test execution within
-  the dashboard Playwright shards, test execution in the unit test runner, or
-  runner setup / browser installation overhead?
-- How many matrix shards/shares balance speed against GitHub Actions runner
-  concurrency limits?
+- Precise shard count for dashboard browser tests (3 vs 4 shards) to balance runner concurrency against GitHub Actions account limits.
+- Selection of the first test family for `dough-test-optimization` during implementation planning (e.g. Playwright `accessible-overview` vs shell `tests/git-publication-native.sh`).
 
 ## Breadcrumbs
 
