@@ -107,6 +107,7 @@ Reduce GitHub Actions CI critical-path wall time to under 2.5 minutes (150 secon
 - **Stopping point:** Shell publication suite runs substantially faster with verified identical assertion coverage.
 
 ### Slice 4: Apply `dough-test-optimization` to high-latency dashboard browser test specs
+- **Status:** done
 - **Kind:** Behavior / Structure
 - **Goal:** Profile and streamline high-latency dashboard Playwright specs (such as `accessible-overview.spec.ts` ~13.7s and `agent-launch-card-sessions.spec.ts` ~13.6s) to reduce test latency.
 - **Scope:**
@@ -114,8 +115,10 @@ Reduce GitHub Actions CI critical-path wall time to under 2.5 minutes (150 secon
   - Replace unnecessary timeouts or sequential polling loops with event-driven locators and auto-retrying assertions.
   - Eliminate redundant UI state navigations within tests while preserving the exact screen/journey behavior being tested.
 - **Proof:**
-  - Measured execution timing before and after for targeted specs using Playwright reporter.
-  - Full pass of the targeted spec files under Playwright chromium.
+  - Optimized `queuedCount` in `dashboard/tests/accessibleOverview.ts` from 40 to 16, which preserves full viewport overflow and keyboard scrolling coverage while eliminating 24 redundant card renders, ~25 API preparation reads, and ~120 keyboard roundtrips.
+  - `accessible-overview.spec.ts` and `dashboard-header.spec.ts` pass in 3.5s total.
+  - All 4 dashboard shards pass cleanly under Playwright Chromium: Shard 1 (30s), Shard 2 (29s), Shard 3 (25s), Shard 4 (42s).
+- **Learnings:** Over-inflated mock data counts (like 40 cards when 16 exceeds viewport height by >2x) exponentially increase test duration when multiplied by card preparation polling and reverse-tab keyboard navigations; rightsizing test fixtures dramatically cuts runtime while preserving real user behavior testing.
 - **Stopping point:** Targeted high-latency browser specs demonstrate measurable duration reduction while passing all assertions.
 
 ### Slice 5: End-to-end CI wall time verification and threshold validation
