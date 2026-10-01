@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-075#one-host-description",
+  "mode": "story-branch",
+  "branch": "codex/shared-dashboard-code-reads-one-host-description",
+  "host": "codex"
+}
