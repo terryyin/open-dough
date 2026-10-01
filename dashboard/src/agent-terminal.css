@@ -1,7 +1,8 @@
 /* The page split while a terminal is open: the page on the left, and the
    terminal panel on the right, pinned to the window's height while the page
    scrolls beside it. On a narrow window the panel comes first, above the
-   page. */
+   page. Maximized, the panel takes the page column's room, the page with its
+   banner hidden behind it, pinned to the window's height on any window. */
 
 .page-split {
   display: grid;
@@ -14,6 +15,20 @@
 .page-column {
   min-width: 0;
   container: page / inline-size;
+}
+
+/* Maximized, the panel spans the page's column and its own, and the page
+   keeps its width, place, and scroll behind it, unseen, so Restore shows it
+   as it was. */
+.page-maximized > .page-column {
+  grid-row: 1;
+  grid-column: -3;
+  visibility: hidden;
+}
+
+.page-maximized > .terminal-panel {
+  grid-row: 1;
+  grid-column: -3 / -1;
 }
 
 .terminal-panel {
@@ -43,7 +58,28 @@
 .terminal-actions {
   display: flex;
   flex-shrink: 0;
+  align-items: center;
   gap: 0.5rem;
+}
+
+/* Maximize or Restore, and Close: icons whose label and tooltip name the
+   action. */
+.terminal-icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0.3rem;
+}
+
+.terminal-icon svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* The fit addon sizes the terminal to this box, so it must have a size of
@@ -66,6 +102,16 @@
     height: 70dvh;
     border-left: none;
     border-bottom: 1px solid var(--line);
+  }
+
+  .page-maximized > .page-column {
+    grid-column: 1;
+  }
+
+  .page-maximized > .terminal-panel {
+    grid-column: 1;
+    position: sticky;
+    height: 100dvh;
   }
 }
 

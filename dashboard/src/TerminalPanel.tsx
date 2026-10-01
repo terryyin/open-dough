@@ -3,7 +3,8 @@
 // (`./agentTerminal.ts`) for as long as the panel shows it. What the session
 // prints appears in the terminal, what the developer types goes to the
 // session, and the terminal's size follows the panel. Its toolbar names the
-// session and closes the panel; closing it, or opening another session in its
+// session and, by icon controls on the right, maximizes or restores the panel
+// and closes it; closing it, or opening another session in its
 // place, detaches only, so the session keeps running. When the connection
 // drops, as when the dashboard server restarts, the panel says so and offers
 // to reconnect; when the attached CLI exits on its own, it says the terminal
@@ -39,6 +40,8 @@ const endings = {
 export function TerminalPanel({
   session,
   onAttached,
+  maximized,
+  onMaximize,
   onClose,
   onMarkDone,
 }: {
@@ -48,6 +51,10 @@ export function TerminalPanel({
   // Told once each attachment first shows the session's output; it keeps its
   // identity across renders.
   readonly onAttached: SessionOperation<void>;
+  // Whether the panel takes the page column's room, and how it asks to
+  // change that.
+  readonly maximized: boolean;
+  readonly onMaximize: (maximized: boolean) => void;
   readonly onClose: () => void;
   // Answers whether the session was marked done; the panel closes if it was.
   readonly onMarkDone: MarkSessionDone;
@@ -85,8 +92,33 @@ export function TerminalPanel({
               Mark as done
             </button>
           )}
-          <button type="button" onClick={onClose}>
-            Close
+          <button
+            type="button"
+            className="terminal-icon"
+            aria-label={maximized ? "Restore" : "Maximize"}
+            title={maximized ? "Restore" : "Maximize"}
+            onClick={() => {
+              onMaximize(!maximized);
+            }}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              {maximized ? (
+                <path d="M8 4h12v12M4 8h12v12H4z" />
+              ) : (
+                <path d="M4 4h16v16H4z" />
+              )}
+            </svg>
+          </button>
+          <button
+            type="button"
+            className="terminal-icon"
+            aria-label="Close"
+            title="Close"
+            onClick={onClose}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
           </button>
         </div>
       </header>

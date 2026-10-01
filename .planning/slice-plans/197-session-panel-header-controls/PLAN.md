@@ -13,7 +13,7 @@ claim `9ebc123ed78586c483513a62b2f20f3976026e7d`, starting revision
 ## Goal and scope
 
 The terminal panel's header (`dashboard/src/TerminalPanel.tsx`) gains
-icon controls on the right for Maximize/Restore and Close, ⌘Esc for Close, and
+icon controls on the right for Maximize/Restore and Close, ⌘⇧Esc for Close, and
 the session's recorded agent avatar on the left, spanning the title and
 session-ID rows. The running session, its content, Close's detach-only
 meaning, and Mark as done stay as they are.
@@ -22,7 +22,7 @@ Included, per the story: maximized gives the panel the page column's room, keeps
 an open Sessions sidebar beside it, and lasts until Close (opening another
 session stays maximized; the next open after Close, and any reload, start in the
 split). Restore returns to the wide left/right split or the narrow stacked
-layout. ⌘Esc works from the terminal, leaves an open dialog's keys alone, does
+layout. ⌘⇧Esc works from the terminal, leaves an open dialog's keys alone, does
 nothing with no panel, and plain Escape reaches the terminal. The avatar is
 named by accessible label and tooltip; without a recorded agent or an available
 portrait there is no image and no placeholder. No developer identity appears.
@@ -41,7 +41,9 @@ navigation, or Mark as done semantics.
   where `closeTerminal` and the delete path set the terminal to `undefined`.
   Mark as done closes through `closeTerminal`, so it also ends maximized. No
   storage.
-- **⌘Esc follows the ⌘B pattern** (`SessionSidebar.tsx`): a capture-phase
+- **Close's shortcut is ⌘⇧Esc** (Terry, 2026-10-01), because slice 1 showed
+  Chrome and Safari never deliver ⌘Esc to the page.
+- **⌘⇧Esc follows the ⌘B pattern** (`SessionSidebar.tsx`): a capture-phase
   `window` keydown listener with the exact-modifier check and
   `isInsideOpenDialog` (`pageShortcuts.ts`), which runs before xterm consumes
   the key. Plain Escape is never handled.
@@ -79,7 +81,7 @@ navigation, or Mark as done semantics.
 
 ### 1. ⌘Esc reaches the page in the developer's real browsers
 Type: Behavior (probe)
-Status: done — ⌘Esc is withheld; slice 3 awaits Terry's shortcut choice
+Status: done — ⌘Esc is withheld; Terry chose ⌘⇧Esc for slice 3
 Proof: recorded OS-level observation per browser (below), taken by the
 executing agent instead of Terry because System Events keystrokes pass through
 the same OS and browser path as a physical key press.
@@ -103,7 +105,7 @@ same runs ⌘B, ⌘., ⌘⇧Esc (`Escape`, `metaKey` and `shiftKey`), ⌥Esc, �
 
 ### 2. Maximize and restore the panel from icon controls
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/agent-terminal-maximize.spec.ts` on the
 `agent-terminal.spec.ts` journey; `agent-terminal.spec.ts`,
 `agent-terminal-done.spec.ts`, and `session-sidebar-navigation.spec.ts` stay
@@ -119,20 +121,31 @@ and the session stays running; reopening shows the split. On an 800px-or-less
 window, Maximize fills the window and Restore stacks the panel above the page.
 Mark as done remains its text button. Update the North Star terminal-panel text.
 
-### 3. ⌘Esc closes the panel
+Accepted proof (2026-10-01): `npx playwright test --config
+dashboard/playwright.config.ts dashboard/tests/agent-terminal-maximize.spec.ts
+dashboard/tests/agent-terminal.spec.ts dashboard/tests/agent-terminal-done.spec.ts
+dashboard/tests/session-sidebar-navigation.spec.ts` (7 passed) and
+`dashboard/tests/agent-terminal-delete.spec.ts` (1 passed, delete path), plus
+typecheck and lint, after the refactor. `pageTerminal.ts` (`usePageTerminal`)
+now owns the open session and maximized state, so `close()` always ends
+maximized. Maximized keeps the page column laid out but unseen behind the
+panel (`visibility: hidden`), so Restore shows the page at its scroll position.
+
+### 3. ⌘⇧Esc closes the panel
 Type: Behavior
-Status: awaiting Terry's shortcut choice (slice 1: browsers withhold ⌘Esc)
+Status: planned
 Proof: new cases in `agent-terminal-maximize.spec.ts` (or a sibling
 `agent-terminal-keyboard.spec.ts`), mirroring `session-sidebar-keyboard.spec.ts`;
-slice 1's recorded browser results for real delivery.
+slice 1's recorded browser results (⌘⇧Esc delivered in Chrome and Safari)
+for real delivery.
 
-Behavior: maximized with the keyboard in the terminal → `Meta+Escape` → the
+Behavior: maximized with the keyboard in the terminal → `Meta+Shift+Escape` → the
 panel hides, the session keeps running (attach detached, record still
 available, not marked done), and the keyboard returns to the opener; reopening
 shows the split. Plain `Escape` in the terminal reaches the session (the fake
-records it) and the panel stays. With the launch dialog open, `Meta+Escape`
-leaves the panel shown. With no panel, `Meta+Escape` changes nothing. Close's
-tooltip reads `Close (⌘Esc)` while its accessible name stays `Close`. Update
+records it) and the panel stays. With the launch dialog open, `Meta+Shift+Escape`
+leaves the panel shown. With no panel, `Meta+Shift+Escape` changes nothing. Close's
+tooltip reads `Close (⌘⇧Esc)` while its accessible name stays `Close`. Update
 `docs/dashboard-navigation.md` and the North Star text.
 
 ### 4. The header shows the session's agent avatar
@@ -157,15 +170,15 @@ the North Star text.
 | --- | --- | --- |
 | Maximize to page column's room, content retained; Restore to split | 2 | Panel box vs window and page column; same `.xterm-rows` text |
 | Sidebar stays beside maximized panel; switching keeps maximized | 2 | Sidebar visible left of panel; second session's header while maximized |
-| Maximized lasts until Close; next open in split | 2, 3 | Reopen after Close (button and ⌘Esc) shows split |
+| Maximized lasts until Close; next open in split | 2, 3 | Reopen after Close (button and ⌘⇧Esc) shows split |
 | Narrow window maximize/restore | 2 | 800px viewport boxes |
 | Close hides, session runs, keyboard to opener, not Mark as done | 2, 3 | Record still available, not `doneAt`; attach ended; focus |
-| ⌘Esc from terminal; dialog untouched; no panel no-op | 3 | Keyboard cases |
+| ⌘⇧Esc from terminal; dialog untouched; no panel no-op | 3 | Keyboard cases |
 | Plain Escape reaches terminal app | 3 | Fake `claude` line record |
-| ⌘Esc delivered by real browsers | 1 | Terry's per-browser observation |
+| ⌘⇧Esc delivered by real browsers | 1 | Recorded per-browser OS keystroke probe |
 | Agent avatar spanning both rows, named by label and tooltip | 4 | Portrait tile, box heights, accessible name, `title` |
 | No avatar without agent or portrait; no developer identity | 4 | Absent element; no attribution text in panel |
-| Each right-hand action identifiable; Close tooltip includes ⌘Esc | 2, 3 | Role/name and `title` |
+| Each right-hand action identifiable; Close tooltip includes ⌘⇧Esc | 2, 3 | Role/name and `title` |
 | Mark as done unchanged | 2 | `agent-terminal-done.spec.ts` green |
 
 ## Verification
@@ -177,4 +190,6 @@ can break. Hosted CI runs the full suite after publication.
 
 ## Learnings
 
-None yet.
+- Playwright `locator.click()` on a control in the sticky panel scrolls the
+  window first, which a real click does not; box-comparing specs click the
+  header controls with `page.mouse.click` at the control's centre.

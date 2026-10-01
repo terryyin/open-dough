@@ -33,7 +33,7 @@ as a separate, deliberate action.
   agents without risking finishing a session by accident.
 - **Goal:** The terminal/session panel header shows the agent's actual avatar
   beside the title and session ID and offers accessible SVG controls to
-  maximize/restore and to close (hide) the panel, with ⌘Esc for Close, while
+  maximize/restore and to close (hide) the panel, with ⌘⇧Esc for Close, while
   the running session, its content, and Mark as done keep their current
   behavior.
 - **Scope:**
@@ -53,7 +53,7 @@ as a separate, deliberate action.
     control that opened the panel. Reopening from a card or the Sessions
     sidebar attaches to the same session as today. Mark as done remains a
     separate header action with its current semantics.
-  - **⌘Esc invokes Close**, including while the keyboard is in the terminal.
+  - **⌘⇧Esc invokes Close**, including while the keyboard is in the terminal.
     Close's tooltip shows the shortcut. Plain Escape still reaches the
     terminal application. Like the sidebar's ⌘B, the shortcut leaves a key
     pressed inside an open dialog alone, and it does nothing while no panel
@@ -76,13 +76,13 @@ as a separate, deliberate action.
     continues; Restore → back to the left/right split with that content.
   - With the Sessions sidebar open, Maximize → the sidebar stays beside the
     panel; choosing another sidebar entry opens that session still maximized.
-  - Maximized, press ⌘Esc with the keyboard in the terminal → the panel
+  - Maximized, press ⌘⇧Esc with the keyboard in the terminal → the panel
     hides, the session keeps running, the keyboard returns to the opener, and
     Mark as done was not invoked. Reopening the session → it attaches in the
     split.
   - In a terminal application, press plain Escape → the application receives
     it and the panel stays shown.
-  - With the launch dialog open, press ⌘Esc → the dialog keeps its own
+  - With the launch dialog open, press ⌘⇧Esc → the dialog keeps its own
     keyboard and the panel is not closed.
   - A refinement session whose preparation recorded `Ruuf-chan` → the header
     shows Ruuf-chan's avatar spanning the title and ID rows on the left, its
@@ -90,7 +90,7 @@ as a separate, deliberate action.
     appears. An ad-hoc session with no recorded agent → no avatar, title and
     ID rows unchanged.
   - Hover or focus each right-hand action → Maximize/Restore and Close are
-    named by label and tooltip, Close's tooltip includes ⌘Esc, and Mark as
+    named by label and tooltip, Close's tooltip includes ⌘⇧Esc, and Mark as
     done remains separately available where it is offered today.
   - On a narrow window where the panel stacks above the page, Maximize → the
     panel fills the window; Restore → it stacks above the page again.
@@ -102,11 +102,9 @@ as a separate, deliberate action.
   surrounding UI are outside this story. The rejected mockup's top/bottom
   split and project/Taken content are not requested changes. Preserve the
   current session content and unrelated panel behavior.
-- **Verification still needed:** ⌘Esc was selected by Terry but has not been
-  tested. Verify browser compatibility and shortcut delivery with terminal
-  focus in the supported dashboard browsers before claiming acceptance;
-  record any browser reservation or delivery limitation rather than assuming
-  support.
+- **Shortcut delivery:** ⌘Esc, first chosen, never reaches the page in
+  Chrome or Safari on macOS (probe, 2026-10-01), so Terry chose ⌘⇧Esc, which
+  both browsers deliver with the keyboard in a text field.
 - **Dependencies:** None new. The agent comes from the launch record's
   established start or preparation, which may be absent; portraits come from
   the existing agent portrait set, whose Odd-e nerd cartoons are local and
