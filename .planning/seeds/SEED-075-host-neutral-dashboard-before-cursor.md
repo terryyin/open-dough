@@ -30,7 +30,7 @@ host lacks unavailable rather than supplied by another host
 
 **Identity:** SEED-075#one-host-description
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/205-one-host-description/PLAN.md","assessment":"not-ready","reasons":["Slice 3 needs human clarification: may existing workspace spec calls add explicit Claude host arguments while preserving all assertions, despite the source requirement that specs pass unchanged?"],"basis":{"document":"ad855a1471c037dafcd35bc23c3cd349f11d027b550283d79a9b16320e422b70","plan":"caaf443be2d5527464fcbfce0e5592e934c9537ff2a1ce129916e8fd7b7da872"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/205-one-host-description/PLAN.md","assessment":"not-ready","reasons":["Slice 3 needs human clarification: may existing workspace spec calls add explicit Claude host arguments while preserving all assertions, despite the source requirement that specs pass unchanged?"],"basis":{"document":"ad855a1471c037dafcd35bc23c3cd349f11d027b550283d79a9b16320e422b70","plan":"c1104cd84399649833a9c02743050fc1b121b8d1776e35a800bba2bb963170ef"}}
 ```
 
 - **Goal:** A dashboard maintainer describes each host's shared facts once,
@@ -119,7 +119,7 @@ host lacks unavailable rather than supplied by another host
 
 **Identity:** SEED-075#host-neutral-session-meaning
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/203-host-neutral-session-meaning/PLAN.md","assessment":"not-ready","reasons":["SEED-075#one-host-description is undelivered on fetched origin/main at 8dfd2bf19a4a451f66513944b780b9edf9c0d2b9; its shared description contract must be integrated and its consumers observed before this dependent plan is ready."],"basis":{"document":"256e0822beb2b9af9308cae4cbce0b4e238f16333f65dafcde60ee6684813e91","plan":"f1cb2888f293f4e7320199086413c19e1b2acb6e4e2259dbbc6796c4e9bc17e1"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/203-host-neutral-session-meaning/PLAN.md","assessment":"not-ready","reasons":["SEED-075#one-host-description remains undelivered on freshly fetched origin/main at 11f748a9b0e58263351e18fb37053cb2d6378221. Its shared description contract is absent from the current consumers; integrate it and freshly observe those consumers before this dependent plan is ready. The prerequisite itself remains not-ready pending its explicit-host workspace-spec decision."],"basis":{"document":"3a2297bdcb7e983202463d82bc5ae1112ba199b4e502c2822f6311dc9b3250f9","plan":"36f8e5add34fbcdf3ac026ccfbdcbb9643d85477b29de0adaee063479b9ff084"}}
 ```
 
 - **Goal:** A developer reading or continuing dashboard sessions sees each
@@ -204,6 +204,13 @@ host lacks unavailable rather than supplied by another host
   `dashboard/server/agentLaunchPlugin.ts`, and `dashboard/src/agentTerminal.ts`.
 - **Plan:** [Session meaning and wording follow the host](../slice-plans/203-host-neutral-session-meaning/PLAN.md).
 - **Depends on:** SEED-075#one-host-description.
+- **Readiness review (2026-10-01):** Fresh fetched `origin/main` at
+  `11f748a9b0e58263351e18fb37053cb2d6378221` still lacks the shared host
+  description. The prerequisite is refined and planned, but queued and
+  not-ready pending its explicit-host workspace-spec decision. This story's
+  scope and examples remain settled; integrate that contract and observe these
+  consumers against it before reassessing readiness. Preserve the four planned
+  slices without absorbing the prerequisite's work.
 - **Capture:** Terry selected it on 2026-10-01 from the dashboard multi-tool
   architecture review.
 

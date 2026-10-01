@@ -2,15 +2,15 @@
 
 **Identity:** SEED-075#host-neutral-session-meaning
 **Source:** [refined story](../../seeds/SEED-075-host-neutral-dashboard-before-cursor.md#host-neutral-session-meaning)
-**Authority:** Planning only; Terry accepted the recommended Codex alert policy
-and requested a slice plan on 2026-10-01.
-**Preparation:** Reuse the established workspace
-`/Users/terryyin/git/open-dough/.worktrees/session-meaning-and-wording-are-host-neutral`,
-branch `codex/session-meaning-and-wording-are-host-neutral`, agent `mrsn-chan`,
-starting revision and published assignment
-`4f4a7d2bacd8d6de2e60f1b79c635de5c20e1cb6`, remote `origin`, target `main`,
-integration checkout `/Users/terryyin/git/open-dough`. Branch, HEAD, worktree
-listing and `refs/worktree/dough/created-for/` confirmed this identity.
+**Authority:** Preparation only; Terry accepted the recommended Codex alert
+policy and requested the original slice plan on 2026-10-01. The current request
+reassesses execution readiness without implementing the story.
+**Preparation:** Established one-shot preparation in the default checkout
+`/Users/terryyin/git/open-dough`, branch `main`, starting revision
+`11f748a9b0e58263351e18fb37053cb2d6378221`, remote `origin`, target `main`,
+integration checkout `/Users/terryyin/git/open-dough`, landing `review`.
+No Preparing assignment is published. The original isolated preparation's
+observations remain attributed to its revision below.
 
 ## Goal and scope
 
@@ -59,12 +59,19 @@ responsibilities across dashboard code, tests, docs and source guidance:
 | `src/launchWorkflow.ts`, `StartLaunch`, `CardLaunches`, `StartProgress` | Keep one workflow wording function. Carry the actual host through existing running-start progress and polling, including kept-start retries, rather than use a browser's independently selected host. |
 
 The prerequisite [one host description](../../seeds/SEED-075-host-neutral-dashboard-before-cursor.md#one-host-description)
-is still undelivered: fetched `origin/main` at
-`a04edf85d0af3abb39f1734401305e008cc5b81b` still has host-name branches in
-`dashboard/src/sessionCapabilities.ts`, and that story remains not-refined /
-unselected. Do not implement the sibling's descriptor/dispatch/model work here
-or invent its API. Reconcile its published contract before implementing these
-slices, then observe the consumers below against that revision and reassess.
+is still undelivered: a fresh `git fetch origin main` on 2026-10-01 resolved
+`origin/main` to `11f748a9b0e58263351e18fb37053cb2d6378221`, also this
+checkout's HEAD. Its `dashboard/src/sessionCapabilities.ts` still uses
+host-name branches for names and capabilities, and `launchHosts.ts` still
+dispatches by host-name ternary; neither supplies the planned shared description.
+The prerequisite is now refined / planned, but remains queued and not-ready:
+[its plan](../205-one-host-description/PLAN.md#current-decisions-and-remaining-concern)
+awaits the human decision about explicit-host arguments in existing workspace
+specs under its "specs unchanged" constraint. That sibling decision is not a
+scope question for this story. Do not implement its descriptor/dispatch/model
+work here or invent its API. Reconcile its integrated contract before
+implementing these slices, then observe the consumers below against that
+revision and reassess.
 This unresolved prerequisite is a preparation-readiness concern, not a new
 execution permission gate. The session-record variant story is separate;
 preserve its published shape if it integrates during this work.
@@ -92,7 +99,7 @@ was started. This is evidence of the current behavior, not the proposed change.
 | Continuation presentation uses the kept record, not a new native resume | Read `src/LaunchSession.tsx`, `shellCommand` and its `SessionEntry` consumer; workspace/args/notice come directly from the saved continuation, while its label is hard-coded Codex. `agent-launch-codex.spec.ts` supplies a real launched/retained record but does not assert every continuation word. | Slice 2 adds the missing visible continuation preservation assertions for example 2. |
 | An unavailable recorded session is refused before a PTY starts, and the message crosses the upgrade boundary | Baseline Claude terminal spec proves 410 and no attach for a readable omission; `admittedAttach` uses `attachOpens` and currently says Claude Code for every host. Read `AgentTerminals.refuseUpgrade`: it serializes that message as JSON in the HTTP body. Existing `refusedStatus` discards the body. | Slice 3 captures the actual refusal body and native no-attach result for example 3. |
 | Another page can show running-start phase but currently cannot know its host | Baseline start-phases spec starts via HTTP, holds real preparation/native launch, then reloads the page and asserts phase wording. Read all `startPhaseWords` callers and `StartProgress.set/all`, `runningStartSchema`, `useAgentLaunches.startPhaseOf`: host is lost before formatting. Execution and preparation starts both set the progress. | Slice 4 carries host through these consumers for example 4. |
-| A shared host description is available for these consumers | `git fetch origin main`; `git show origin/main:dashboard/src/sessionCapabilities.ts` and the source seed show it is not yet available at the fetched SHA above. | All wording slices depend on the sibling contract; readiness remains not-ready. |
+| A shared host description is available for these consumers | Fresh 2026-10-01 observation: `git fetch origin main`; `git rev-parse origin/main`; `git show origin/main:dashboard/src/sessionCapabilities.ts`; `git show origin/main:.planning/PRODUCT-BACKLOG.md`. Result: `11f748a9b0e58263351e18fb37053cb2d6378221` still has name-based helpers and the prerequisite is queued. Read `dashboard/server/launchHosts.ts`, `dashboard/src/sessionShown.ts`, `dashboard/src/LaunchSession.tsx`, `dashboard/src/launchWorkflow.ts`, `dashboard/src/StartLaunch.tsx`, `dashboard/src/CardLaunches.tsx` and `dashboard/server/agentLaunchAdmission.ts`: the consumers still have the recorded name branches, fixed continuation/refusal text and lost progress host; no integrated description contract can be consumed. | All wording slices depend on the sibling contract; the premise is false and readiness remains not-ready. |
 
 The current pure/native-status assertions in
 `agent-launch-codex-observation-status.spec.ts` and observation-boundary specs
@@ -237,6 +244,11 @@ and wrap-up; all slices here remain planned.
 - Readiness concern: the undelivered host-description prerequisite affects all
   four slices. Its API and integration basis must be observed before recording
   ready. Planning does not absorb that sibling's scope.
+- The 2026-10-01 one-shot review preserves all four planned slices and their
+  proof mappings. The fresh prerequisite observation above does not clear the
+  blocker. No product test was rerun for this preparation-only refresh: the
+  missing contract is directly observable, and another preservation run would
+  not establish it. Historical baseline results are not new readiness proof.
 - No open human goal/scope decision remains. Execution requires a separate
   instruction; publishing this preparation does not take the story or implement
   these slices.
