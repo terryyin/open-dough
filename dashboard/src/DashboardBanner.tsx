@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from "react";
+import { keepHeight } from "./measuredHeight.ts";
 import { ProjectSelect } from "./ProjectSelect.tsx";
 import { SessionsButton } from "./SessionSidebar.tsx";
 import { SourceStatus } from "./SourceStatus.tsx";
@@ -27,22 +28,17 @@ export function DashboardBanner({
   useLayoutEffect(() => {
     const element = banner.current;
     if (!element) return;
-    const measure = () => {
-      document.documentElement.style.setProperty(
-        "--banner-height",
-        `${element.getBoundingClientRect().height}px`,
-      );
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
+    const { measure, stop } = keepHeight(
+      element,
+      document.documentElement,
+      "--banner-height",
+    );
     // Native focus scrolling can run before the resize observer reports a
     // just-closed disclosure. Give that scroll the current footprint now.
     document.addEventListener("focusin", measure, true);
     return () => {
-      observer.disconnect();
       document.removeEventListener("focusin", measure, true);
-      document.documentElement.style.removeProperty("--banner-height");
+      stop();
     };
   }, []);
 

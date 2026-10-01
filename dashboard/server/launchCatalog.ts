@@ -87,9 +87,7 @@ export async function keptStarts(
           (start) => !progress.for(workflow).running(source.id, start.identity),
         )
         .map((start) => {
-          const established = start.start ?? start.preparation;
-          const agent =
-            established === undefined ? undefined : assignedAgent(established);
+          const agent = assignedAgent(start.start ?? start.preparation);
           return {
             workflow,
             host: start.host,

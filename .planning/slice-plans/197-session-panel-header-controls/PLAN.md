@@ -160,7 +160,7 @@ and the terminal's textarea never gets the key (mutation-checked).
 
 ### 4. The header shows the session's agent avatar
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/agent-terminal-avatar.spec.ts` using
 `tests/agentPortrait.ts` helpers where they fit; `nerds-cartoon-portrait.spec.ts`
 and `agent-roster-avatar.spec.ts` stay green.
@@ -173,6 +173,20 @@ panel. A session with `start.agent` naming a nerd whose cartoon the test serves
 shows that cartoon; one whose cartoon is not served, or an ad-hoc session with
 no agent, shows no avatar element and the title and ID rows unchanged. Update
 the North Star text.
+
+Accepted proof (2026-10-01): `npx playwright test --config
+dashboard/playwright.config.ts dashboard/tests/agent-terminal-avatar.spec.ts
+dashboard/tests/nerds-cartoon-portrait.spec.ts dashboard/tests/agent-roster-avatar.spec.ts
+dashboard/tests/agent-terminal.spec.ts dashboard/tests/agent-terminal-maximize.spec.ts`
+(6 passed); after the refactor, `agent-terminal-avatar`, `agent-terminal`,
+`agent-terminal-maximize`, `dashboard-header`, `preparation-legend`,
+`agent-launch-start-codex` and `agent-launch-start-taken` (12 passed), plus
+typecheck and lint. The portrait itself carries the agent as `role="img"`
+name and `title` (`AgentPortrait`'s `label`) instead of a separate wrapper,
+since only `AgentPortrait` knows when a nerd cartoon is missing; with no
+portrait there is no element. Its size follows the measured height of the two
+rows (`keepHeight` in `measuredHeight.ts`, shared with the banner), because
+the rows wrap in the half-width panel.
 
 ## Proof ownership
 

@@ -3,7 +3,8 @@
 // (`./agentTerminal.ts`) for as long as the panel shows it. What the session
 // prints appears in the terminal, what the developer types goes to the
 // session, and the terminal's size follows the panel. Its toolbar names the
-// session and, by icon controls on the right, maximizes or restores the panel
+// session, led by the portrait of the agent its record names, if it has one,
+// and, by icon controls on the right, maximizes or restores the panel
 // and closes it, as Command+Shift+Escape does page-wide, from inside the
 // terminal too, except inside an open dialog (`useCommandShortcut`), while
 // plain Escape still goes to the session; closing it, or opening another
@@ -16,13 +17,17 @@
 // Where supported, Mark as done asks the boundary to finish this session;
 // the panel closes once marked and says if it could not be.
 
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { marksDone } from "./sessionCapabilities.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import "@xterm/xterm/css/xterm.css";
 import "./agent-launch.css";
 import "./agent-terminal.css";
 import { launchSubject } from "./agentLaunch.ts";
+import { AgentPortrait } from "./AgentPortrait.tsx";
+import { keepHeight } from "./measuredHeight.ts";
+import { assignedAgent } from "./launchRecord.ts";
+import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   useAttachedTerminal,
   type TerminalEnding,
@@ -36,6 +41,21 @@ import {
 } from "./pageSessions.ts";
 
 const closeShortcut = { key: "Escape", shift: true } as const;
+
+// Keeps `--terminal-rows-height` on the identity at the height of its title
+// and session rows, however they wrap, so the agent portrait beside them
+// spans both.
+function useRowsHeight(
+  identity: RefObject<HTMLDivElement | null>,
+  rows: RefObject<HTMLDivElement | null>,
+) {
+  useLayoutEffect(() => {
+    const target = identity.current;
+    const measured = rows.current;
+    if (!target || !measured) return;
+    return keepHeight(measured, target, "--terminal-rows-height").stop;
+  }, [identity, rows]);
+}
 
 const endings = {
   disconnected: { says: "Disconnected from the session", action: "Reconnect" },
@@ -67,25 +87,35 @@ export function TerminalPanel({
 }) {
   const { record } = session;
   const screen = useRef<HTMLDivElement>(null);
+  const identity = useRef<HTMLDivElement>(null);
+  const names = useRef<HTMLDivElement>(null);
   const [attempt, setAttempt] = useState(0);
   const [ending, setEnding] = useState<TerminalEnding | undefined>();
   // While marking, the attachment's ending the mark causes is not shown.
   const { marking, follow } = useMarking();
   useAttachedTerminal(screen, session, attempt, onAttached, setEnding);
   useCommandShortcut(closeShortcut, onClose);
+  useRowsHeight(identity, names);
   const attachAgain = () => {
     setEnding(undefined);
     setAttempt((previous) => previous + 1);
   };
   const { title, name } = launchSubject(record.request);
+  const agent = assignedAgent(record.start ?? record.preparation);
+  const agentName = agentNameOf(agent);
   return (
     <section className="terminal-panel" aria-label="Terminal">
       <header className="terminal-toolbar">
-        <div className="terminal-names">
-          <h2>{title}</h2>
-          <p className="quiet">
-            {name} session <code>{record.session.sessionId}</code>
-          </p>
+        <div ref={identity} className="terminal-identity">
+          {agentName !== undefined && (
+            <AgentPortrait name={agentName} label={agent} />
+          )}
+          <div ref={names} className="terminal-names">
+            <h2>{title}</h2>
+            <p className="quiet">
+              {name} session <code>{record.session.sessionId}</code>
+            </p>
+          </div>
         </div>
         <div className="terminal-actions">
           {marksDone(record.session.host) && (

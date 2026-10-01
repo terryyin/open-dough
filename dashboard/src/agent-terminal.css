@@ -51,6 +51,22 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* The session's agent portrait, when it has one, left of the title and
+   session rows and, edge included, as tall as both together, as the panel
+   measures them (`--terminal-rows-height`) however they wrap. */
+.terminal-identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.terminal-identity > .agent-portrait {
+  --portrait-size: calc(
+    var(--terminal-rows-height, 2.5rem) - 2 * var(--portrait-edge)
+  );
+}
+
 .terminal-names {
   min-width: 0;
 }

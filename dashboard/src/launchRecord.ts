@@ -125,13 +125,16 @@ export type EstablishedPreparation = z.infer<
 >;
 
 // The facts every established start or preparation shares, with the agent
-// its published assignment names, if any: a one-shot one names none.
+// its published assignment names, if any: a one-shot one, or none
+// established, names none.
 export type EstablishedContext = EstablishedStart | EstablishedPreparation;
 
 export function assignedAgent(
-  established: EstablishedContext,
+  established: EstablishedContext | undefined,
 ): string | undefined {
-  return "agent" in established ? established.agent : undefined;
+  return established !== undefined && "agent" in established
+    ? established.agent
+    : undefined;
 }
 
 // A native conversation with first-input evidence, kept until `launchRetentionDays` after
