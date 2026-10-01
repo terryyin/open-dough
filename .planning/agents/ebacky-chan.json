@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ebacky-chan",
-  "email": "ebacky-chan@example.org",
-  "identity": "SEED-075#launch-gates-every-host",
-  "mode": "story-branch",
-  "branch": "codex/launch-gates-apply-to-every-host",
-  "host": "codex"
-}

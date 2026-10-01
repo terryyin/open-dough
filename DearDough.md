@@ -704,6 +704,6 @@ Follow-up: Open, unqueued. Preserve yielded tool result objects or their continu
   - Timestamp: unknown (2026-10-01, slice 1 formatting)
   - Tool: Codex
   - Open Dough release: 0.3.52 (installed `dough-update/VERSION` at established start `dbc55abe`)
-  - Evidence: coordinator conversation's first formatter call used `text((await tools.exec_command(...)).output)` and retained no session ID; read-only `ps` found formatter PID 83649; a finite wait established process exit only. Repeated `npm run format` returned PTY 26420, whose terminal exit 0 was observed before the `1dd48501` agent commit. Plan 204 retains the repetition.
+  - Evidence: coordinator conversation's first formatter call used `text((await tools.exec_command(...)).output)` and retained no session ID; read-only `ps` found formatter PID 83649; a finite wait established process exit only. Repeated `npm run format` returned PTY 26420, whose terminal exit 0 was observed before the `1dd48501` agent commit. The proof/format record is recoverable at `17488854ad344b860b9a1a6239942ece77e5a4e5:.planning/slice-plans/204-launch-gates-every-host/PLAN.md`.
   - Observed effect: one unnecessary full formatter invocation and process-exit check; no failed formatting result was presented as passing, and publication waited for verified success.
   - Inference: this is a coordinator evidence-handling error, not a demonstrated gap in Open Dough's existing command-ownership instruction.
