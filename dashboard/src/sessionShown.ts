@@ -4,6 +4,7 @@
 // says how many of its sessions need attention (`./CardLaunches.tsx`).
 
 import type { LaunchWithState } from "./agentLaunch.ts";
+import { hostDescription } from "./hostDescription.ts";
 
 // What a session entry says of its session, and whether the developer is
 // needed there: the same semantic observation for every entry and card.
@@ -45,19 +46,18 @@ export function sessionShown({
   Partial<Pick<LaunchWithState, "session">>): SessionShown {
   const markedDone = doneAt !== undefined;
   switch (sessionState.kind) {
-    case "unknown":
+    case "unknown": {
+      const wording =
+        session === undefined
+          ? undefined
+          : hostDescription(session.host).unknownObservation;
       return {
-        label:
-          session?.host === "codex"
-            ? "Live observation unavailable"
-            : "State unknown",
-        note:
-          session?.host === "codex"
-            ? "Continue this conversation in Codex"
-            : "Claude Code's session list could not be read",
+        label: wording?.label ?? "State unknown",
+        ...(wording === undefined ? {} : { note: wording.note }),
         needsAttention: false,
         tone: "unsettled",
       };
+    }
     case "unavailable":
       return {
         label: markedDone ? "Done" : "Session unavailable",
@@ -106,26 +106,20 @@ export function sessionShown({
 // The reading that tells the developer, when a session enters it: the label
 // of every reading other than Working, for a session not marked done, else
 // nothing. Unlike `needsAttention`, it includes an unavailable or
-// unrecognized state, but not an unknown one: an unreadable listing says
-// nothing about the session.
+// explicitly unrecognized state, but not an incomplete activity read or an
+// unknown observation: unreadable evidence says nothing about the session.
 export function alertReading(
   session: Pick<LaunchWithState, "sessionState" | "doneAt"> &
     Partial<Pick<LaunchWithState, "session">>,
 ): string | undefined {
   if (session.doneAt !== undefined) return undefined;
   if (session.sessionState.kind === "unknown") return undefined;
-  if (
-    session.session?.host === "codex" &&
-    session.sessionState.kind === "available" &&
-    session.sessionState.activity === "unknown"
-  )
-    return undefined;
   const { label } = sessionShown(session);
   return session.sessionState.kind === "available" &&
     (session.sessionState.activity === "working" ||
       session.sessionState.activity === "awaiting-instruction" ||
       (session.sessionState.activity === "unknown" &&
-        session.sessionState.description === undefined))
+        session.sessionState.unknownReason !== "unrecognized"))
     ? undefined
     : label;
 }

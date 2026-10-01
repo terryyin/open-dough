@@ -161,6 +161,15 @@ Machine records, native-state observation, alerts and the Sessions sidebar are
 described in [session history, observation and navigation](AGENT-LAUNCH-HISTORY.md).
 These remain local evidence, independent of published story facts.
 
+Each native adapter distinguishes an explicit unfamiliar status from an
+incomplete observation. Unrecognized Claude Code states and Codex thread,
+active-flag or latest-turn statuses remain unsettled and add no attention;
+entering that reading can raise an alert. Unreadable metadata, missing Codex
+active flags and failed latest-turn reads stay quiet. Shared readings use the
+recorded host's unknown-observation wording and native explanation; the alert
+loop consumes the adapter's meaning rather than checking the host name.
+Startup baseline, deduplication, re-entry and done suppression remain shared.
+
 ## Embedded terminals and local record actions
 
 Same-origin `/__agent-terminal?source=&host=&session=` admits recorded host-qualified

@@ -9,7 +9,10 @@ import {
   type LaunchJourney,
 } from "./launchJourney.ts";
 import { cardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import {
+  expectSidebarSessionShown,
+  sidebarParts,
+} from "./sessionSidebarPage.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import {
   observationRecord as record,
@@ -64,6 +67,30 @@ test("saved Codex states appear consistently on cards, Recent sessions and sideb
       undefined,
       "State not recognized: Codex reported native status: futureNativeStatus",
     ],
+    [
+      "new-flag",
+      { type: "active", activeFlags: ["futureFlag"] },
+      undefined,
+      "State not recognized: Codex reported an unrecognized active status",
+    ],
+    [
+      "new-turn",
+      { type: "idle" },
+      "futureTurnStatus",
+      "State not recognized: Codex reported native turn status: futureTurnStatus",
+    ],
+    [
+      "absent-flags",
+      { type: "active" },
+      undefined,
+      "State not recognized: Codex did not report active status flags",
+    ],
+    [
+      "unreadable-blank",
+      { type: "idle" },
+      undefined,
+      "State not recognized: Codex's latest turn could not be read",
+    ],
   ] as const;
   for (const [id, status, turn] of cases)
     observed(
@@ -89,7 +116,6 @@ test("saved Codex states appear consistently on cards, Recent sessions and sideb
   });
   observed(native, "done", { type: "idle" }, "completed");
   // The blank pre-resume history observed natively is unreadable, not missing.
-  records.push(record(dashboard, native, "unreadable-blank"));
   native.observations.set("unreadable-blank", {
     status: { type: "idle" },
     turns: [],
@@ -130,6 +156,27 @@ test("saved Codex states appear consistently on cards, Recent sessions and sideb
             ),
         )
         .toContain(words);
+      if (
+        [
+          "unreadable",
+          "new-status",
+          "new-flag",
+          "new-turn",
+          "absent-flags",
+          "unreadable-blank",
+        ].includes(id)
+      ) {
+        await expect(
+          entry(cardSessions(card(notRefinedStory)), id),
+        ).not.toHaveClass(/needs-attention/);
+        await expect(entry(recent.getByRole("article"), id)).not.toHaveClass(
+          /needs-attention/,
+        );
+        const row = sidebar.entries.filter({
+          has: page.locator(`button[title^="${words}"]`),
+        });
+        await expectSidebarSessionShown(row, words, "unsettled");
+      }
     }
     await expect(
       card(notRefinedStory).getByText("6 sessions need attention", {

@@ -204,7 +204,7 @@ External wait is intentional and does not justify inventing a timing deadline.
 
 ### 2. Interpret unrecognized observations without a host-name exception
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `agent-launch-codex-observation-alerts.spec.ts` through real
 background polling and substituted `osascript`: after baseline/working,
 unexpected thread, active-flag and turn statuses alert once; unreadable metadata,
@@ -323,7 +323,7 @@ observable result, its proof and cleanup. Unexpected fixture/interface work or
 integration evidence that invalidates sizing requires revising remaining slices;
 never deliver an intermediate schema/caller mismatch. Execution retains accepted
 proof and completion/review context in this plan for the ordinary retrospective
-and wrap-up; slices 2–5 remain planned.
+and wrap-up; slices 3–5 remain planned.
 
 ## Current decisions and preparation review
 
@@ -412,3 +412,65 @@ delivery reuses that live matching observer. The runtime has no stream-attach
 operation for a detached managed observer, so the supported stream was armed
 before managed delivery rather than creating a detached worker without a
 notification binding. No separate registration or second observer is used.
+
+Slice 1 publication was accepted at
+`4ef487ec5ac683d6cecd9ff1f4618a45b76dbecf` on the execution branch, with
+managed observation `reused` for that exact directory. No default-checkout
+maintenance applies to branch publication.
+
+CI attempt `36883015606/1` for that revision is incomplete (`cancelled`),
+not passing evidence. Bounded job/log inspection found all three shell shares,
+lint and seven dashboard shards successful. Dashboard shard 7 was cancelled
+while installing Chromium's Ubuntu dependencies; shard 9's dependency install
+consumed 5m52s of the six-minute job budget and cancellation interrupted
+typecheck before its browser suite ran. Logs show slow package downloads,
+without an assertion failure in either cancelled job. This workflow/setup is
+unchanged by slice 1; no product repair or rerun was invented. Preserve the
+incomplete verdict and require the applicable later registered revision's
+completion receipt. Diagnostic locations:
+`/tmp/host-neutral-ci-36883015606-job7.log` and
+`/tmp/host-neutral-ci-36883015606-job9.log`.
+
+### Slice 2 — observation meaning and alerts
+
+Both native adapters now supply live `unknownReason` (`unrecognized` or
+`incomplete`) for unknown activity in `launchRecord.ts`. Claude's unfamiliar
+native states and Codex's unfamiliar thread/flag/turn statuses are unrecognized;
+missing Codex active flags and failed latest-turn reads are incomplete. Shared
+`alertReading` consumes this fact, with no host-name or description condition.
+`hostDescription` owns the preserved unknown-observation words; a host-less
+attention calculation no longer attributes its unknown note to Claude Code.
+The missing-flags explanation now truthfully says Codex did not report active
+status flags. No durable record, polling loop or notification transport changed.
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- agent-launch-codex-observation agent-launch-recent-session-states.spec.ts session-sidebar-state-edge.spec.ts session-alerts.spec.ts
+npm run typecheck:dashboard
+```
+
+Both commands reached terminal exit 0. The browser selection covers 16 test
+declarations across seven specs without a grep filter. Native-only replies in
+`codexObservation`/`fakeCodexObservation` flow through actual store/HTTP,
+background polling and substituted `osascript`. The alert spec observes
+baseline, waiting, unfamiliar thread/flag/turn alerts once, deduplication,
+working/re-entry, metadata refusal/missing flags/turn-read silence and a
+subsequent review alert. The status spec observes reason/provenance and exact
+missing-target evidence. The page journey observes card/Recent/sidebar
+wording, unsettled tones and no attention for all unfamiliar/incomplete cases
+across reload, aggregate six then seven recognized attention readings,
+unchanged records, absence and Done. The boundary specs preserve independent
+targets, deletion during a pending read, bounded silent endpoints and passive
+native methods. Existing Claude reading/sidebar/alert specs preserve wording,
+all tones, baselining, deduplication, re-entry, done suppression and shutdown.
+
+Inspected both adapters, their launch/listing confirmation consumers,
+`withStates`, live wire schemas, reading/attention/alert consumers,
+card/Recent/sidebar, access/done/delete readers and native test support.
+Recognized-state producers require no new field. Updated maintained
+`AGENT-LAUNCH.md` and its linked `AGENT-LAUNCH-HISTORY.md`, which previously
+documented the old silent-Codex policy.
+
+Independent refactor returned `## REFACTOR COMPLETE`: already clean, no
+edits/tests, all accepted boundaries unchanged and all ten changed files below
+250 lines. Selective Prettier formatting completed successfully; mechanical
+formatting leaves the accepted proof applicable. No generation is triggered.

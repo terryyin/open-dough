@@ -39,17 +39,27 @@ async function state(rpc: CodexRpc, threadId: string): Promise<SessionState> {
   const available = (
     activity: Extract<SessionState, { kind: "available" }>["activity"],
     description?: string,
+    unknownReason?: Extract<
+      SessionState,
+      { kind: "available" }
+    >["unknownReason"],
   ): SessionState => ({
     kind: "available",
     availability,
     activity,
     ...(description === undefined ? {} : { description }),
+    ...(unknownReason === undefined ? {} : { unknownReason }),
   });
   if (status.type === "systemError") return available("failed");
   if (status.type === "active") {
     const flags = status.activeFlags;
+    if (flags === undefined)
+      return available(
+        "unknown",
+        "Codex did not report active status flags",
+        "incomplete",
+      );
     if (
-      flags === undefined ||
       flags.some(
         (flag) => flag !== "waitingOnApproval" && flag !== "waitingOnUserInput",
       )
@@ -57,6 +67,7 @@ async function state(rpc: CodexRpc, threadId: string): Promise<SessionState> {
       return available(
         "unknown",
         "Codex reported an unrecognized active status",
+        "unrecognized",
       );
     if (flags.length > 0)
       return {
@@ -70,7 +81,11 @@ async function state(rpc: CodexRpc, threadId: string): Promise<SessionState> {
     return available("working");
   }
   if (status.type !== "idle" && status.type !== "notLoaded")
-    return available("unknown", `Codex reported native status: ${status.type}`);
+    return available(
+      "unknown",
+      `Codex reported native status: ${status.type}`,
+      "unrecognized",
+    );
   try {
     const latest = turnsSchema.parse(
       await rpc.request("thread/turns/list", {
@@ -94,10 +109,15 @@ async function state(rpc: CodexRpc, threadId: string): Promise<SessionState> {
         return available(
           "unknown",
           `Codex reported native turn status: ${latest.status}`,
+          "unrecognized",
         );
     }
   } catch {
-    return available("unknown", "Codex's latest turn could not be read");
+    return available(
+      "unknown",
+      "Codex's latest turn could not be read",
+      "incomplete",
+    );
   }
 }
 
