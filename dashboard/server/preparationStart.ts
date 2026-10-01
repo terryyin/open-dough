@@ -1,6 +1,7 @@
 // Orchestrates one refinement's mechanical start before its native session.
-// The installed command owns publication/ownership; this module spells its
-// arguments and keeps the machine-local start until launch or verified absence.
+// The installed command owns publication/ownership (its arguments are spelled
+// in `./preparationCommand.ts`); this module keeps the machine-local start
+// until launch or verified absence.
 // Retrying preserves the selected workspace, branch, policy, and announcement
 // evidence. A one-shot policy runs `start --one-shot`, in the default checkout
 // when selected, and publishes nothing; its kept established context is reused
@@ -119,17 +120,17 @@ async function runningPreparation(
       { preparation: kept.preparation },
     );
   }
-  if (kept?.preparation !== undefined) {
-    const preparation = kept.preparation;
-    if (!(await matchesPreparation(preparation, facts))) {
-      progress.clear(source.id, request.identity);
-      return continuationRefusal(
-        "The saved start and established preparation disagree.",
-        assignedAgent(preparation),
-        workspace.shown,
-        branch,
-      );
-    }
+  if (
+    kept?.preparation !== undefined &&
+    !(await matchesPreparation(kept.preparation, facts))
+  ) {
+    progress.clear(source.id, request.identity);
+    return continuationRefusal(
+      "The saved start and established preparation disagree.",
+      assignedAgent(kept.preparation),
+      workspace.shown,
+      branch,
+    );
   }
   // The assignment an earlier attempt established and published, if any.
   const assigned =
@@ -137,6 +138,8 @@ async function runningPreparation(
       ? kept.preparation
       : undefined;
   const before = await beforeStart(project, workspace.path, branch);
+  const updateKept = (change: Parameters<typeof updateStart>[2]) =>
+    record(() => updateStart(source.id, request.identity, change, workflow));
   // Written ahead of the script, so a start whose result is lost is still
   // known.
   if (kept === undefined)
@@ -163,14 +166,7 @@ async function runningPreparation(
   if (kept !== undefined && !oneShot && !continuing) {
     // The earlier refusal proves nothing about this attempt. Clear its
     // disposition durably before a new command can publish or lose its result.
-    await record(() =>
-      updateStart(
-        source.id,
-        request.identity,
-        { preparationUnannounced: false },
-        workflow,
-      ),
-    );
+    await updateKept({ preparationUnannounced: false });
   }
   const attempt = runPreparationCommand(
     {
@@ -196,14 +192,7 @@ async function runningPreparation(
                 ? {}
                 : { publishedSha: result.publishedSha }),
             };
-      await record(() =>
-        updateStart(
-          source.id,
-          request.identity,
-          { preparation, preparationUnannounced: false },
-          workflow,
-        ),
-      );
+      await updateKept({ preparation, preparationUnannounced: false });
       return { kind: "established", preparation };
     }
     progress.clear(source.id, request.identity);
@@ -213,18 +202,14 @@ async function runningPreparation(
         result.kind === "stopped" && result.error
           ? `${result.error.replace(/[.]$/, "")}.`
           : "The installed command could not verify continuation.";
-      return continuationRefusal(detail, agent, workspace.shown, branch);
+      return {
+        ...continuationRefusal(detail, agent, workspace.shown, branch),
+        publishedNothing: true,
+      };
     }
     if (keepsPreparation(result)) {
       if (result.kind === "stopped" && result.unannounced === true) {
-        await record(() =>
-          updateStart(
-            source.id,
-            request.identity,
-            { preparationUnannounced: true },
-            workflow,
-          ),
-        );
+        await updateKept({ preparationUnannounced: true });
       }
       return {
         kind: "refused",
@@ -240,6 +225,7 @@ async function runningPreparation(
     await record(() => removeStart(source.id, request.identity, workflow));
     return {
       kind: "refused",
+      publishedNothing: true,
       explanation: preparationRefusal(
         result,
         await removeCreatedWorkspace(project, workspace.path, branch, before),

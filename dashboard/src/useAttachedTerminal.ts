@@ -30,7 +30,8 @@ export type TerminalEnding = "disconnected" | "ended" | "failed";
 
 // Attaches a terminal in `element` to the session while it is mounted, anew
 // for each `attempt`, reports once each attachment is ready, and
-// reports how the attachment ended unless the panel ended it itself.
+// reports how the attachment ended unless the panel ended it itself. The
+// terminal takes the keyboard unless the request says otherwise.
 // Callbacks must keep their identity across renders; disposed attachments
 // cannot report readiness, workspace refusal or an ending to a later attempt.
 export function useAttachedTerminal(
@@ -45,6 +46,7 @@ export function useAttachedTerminal(
   ) => void,
 ) {
   const url = terminalUrl(session.record);
+  const takesKeyboard = session.takesKeyboard !== false;
   useEffect(() => {
     const screen = element.current;
     if (screen === null) {
@@ -158,7 +160,7 @@ export function useAttachedTerminal(
     });
     panelSize.observe(screen);
     fit.fit();
-    terminal.focus();
+    if (takesKeyboard) terminal.focus();
 
     return () => {
       current = false;
@@ -178,5 +180,6 @@ export function useAttachedTerminal(
     onAttached,
     onEnded,
     onWorkspaceUnavailable,
+    takesKeyboard,
   ]);
 }

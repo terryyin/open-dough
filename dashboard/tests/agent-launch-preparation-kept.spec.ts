@@ -29,6 +29,7 @@ test("a Backlog card offers the resume of a kept preparation start, and Start op
     repoDir: origin.origin,
     revision: (await origin.originGit("rev-parse", "main")).trim(),
     repository: "terryyin/open-dough",
+    follows: true,
   });
   await page.goto("/");
   const { backlog } = parts(page);

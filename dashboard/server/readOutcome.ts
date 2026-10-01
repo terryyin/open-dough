@@ -1,6 +1,7 @@
 // What one performed read of the local authenticated read boundary
 // (`./authenticatedRead.ts`) comes to: an answer, a refusal, or a reported
-// failure. Shared by `./performedRead.ts` and `./performedBranchRead.ts`.
+// failure. Shared by `./performedRead.ts`, `./performedBranchRead.ts`, and
+// `./containmentRead.ts`.
 
 import type { ProfileAddition } from "./ghProfileAddition.ts";
 import type { ReportedFailure } from "./readFailureMessage.ts";
@@ -9,7 +10,13 @@ import type { ReportedFailure } from "./readFailureMessage.ts";
 // (`../src/authenticatedRead.ts`, `../src/authenticatedBranchRead.ts`) checks it.
 export type PinnedFile = { readonly path: string; readonly text: string };
 type Answer =
-  | { readonly revision: string; readonly backlog: string }
+  // The backlog at a revision; with when its ref was asked, when this read
+  // resolved it.
+  | {
+      readonly revision: string;
+      readonly backlog: string;
+      readonly askedAt?: string;
+    }
   | ({ readonly revision: string } & PinnedFile)
   // A revision check, with the head each watched story branch names now, or
   // null when it is no longer published; without branches when the check
@@ -46,6 +53,12 @@ type Answer =
       readonly revision: string;
       readonly branch: string;
       readonly head: string | null;
+    }
+  // Whether the revision contains an accepted revision.
+  | {
+      readonly revision: string;
+      readonly accepted: string;
+      readonly contained: boolean;
     }
   // A path read at a branch head: null when that head does not have it.
   | {

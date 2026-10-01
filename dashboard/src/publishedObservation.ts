@@ -5,7 +5,8 @@
 // when a scheduled revision check (`./revisionCheckSchedule.ts`) finds the
 // selected ref naming another commit; when it finds a story branch the shown
 // progress is read from at another head, only that progress is read again
-// (`./movedBranchProgress.ts`).
+// (`./movedBranchProgress.ts`). What is shown, as launch reconciliation sees
+// it (`shown`), also says whether every detail of it has been read.
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
@@ -15,11 +16,13 @@ import { usePageVisibility } from "./pageVisibility.ts";
 import { defaultSource, type PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { readPublishedWork } from "./publishedWorkRead.ts";
+import { shownSnapshotOf } from "./startupReconciliation.ts";
 import { useObservationAttempt } from "./observationAttempt.ts";
 import { useRevisionCheckSchedule } from "./revisionCheckSchedule.ts";
 import {
   focusedWork,
   restoreSnapshotFocus,
+  unlistedNotice,
   type FocusedWork,
 } from "./workFocus.ts";
 
@@ -29,13 +32,11 @@ type Retrieval = {
   readonly work: PublishedWork | undefined;
   // Said once when a new snapshot no longer lists the work that held focus.
   readonly notice: string;
+  // Whether every detail of the shown snapshot is read.
+  readonly complete: boolean;
 };
 
-function lists(work: PublishedWork, identity: string): boolean {
-  return [...work.taken, ...work.backlog].some(
-    (entry) => entry.identity === identity,
-  );
-}
+const noRetrieval: Retrieval = { work: undefined, notice: "", complete: false };
 
 // No snapshot shown, so no story branch watched.
 const noBranchHeads: StoryBranchHeads = new Map();
@@ -55,10 +56,7 @@ export function usePublishedObservation(
   // The project this dashboard is currently observing. Selecting another
   // project replaces this whole, never merges into what is already shown.
   const [source, setSource] = useState<PublishedSource>(initialSource);
-  const [retrieval, setRetrieval] = useState<Retrieval>({
-    work: undefined,
-    notice: "",
-  });
+  const [retrieval, setRetrieval] = useState<Retrieval>(noRetrieval);
   const {
     attempt,
     checksResumeAt,
@@ -120,10 +118,8 @@ export function usePublishedObservation(
         heldFocus.current = held;
         setRetrieval({
           work: partial,
-          notice:
-            held && !lists(partial, held.identity)
-              ? `${held.title} is no longer listed in the published work.`
-              : "",
+          notice: unlistedNotice(held, partial),
+          complete: false,
         });
         return;
       }
@@ -138,6 +134,7 @@ export function usePublishedObservation(
       (read) => {
         acceptProgress(read);
         if (!reading.signal.aborted) {
+          setRetrieval((last) => ({ ...last, complete: true }));
           setReadSettled(true);
           settleRevealed();
         }
@@ -175,8 +172,11 @@ export function usePublishedObservation(
     }));
   };
 
-  const { work, notice } = retrieval;
-  const shownRevision = work?.revision;
+  const { work, notice, complete } = retrieval;
+  const shown = useMemo(
+    () => work && shownSnapshotOf(work, complete),
+    [work, complete],
+  );
   const watchedHeads = useMemo(
     () => (work === undefined ? noBranchHeads : watchedBranchHeads(work)),
     [work],
@@ -184,7 +184,7 @@ export function usePublishedObservation(
 
   useRevisionCheckSchedule({
     source,
-    shownRevision,
+    shownRevision: work?.revision,
     watchedHeads,
     readSettled,
     visibility,
@@ -232,12 +232,13 @@ export function usePublishedObservation(
     // A revision found for the previous project names nothing here.
     askRead(undefined);
     restart();
-    setRetrieval({ work: undefined, notice: "" });
+    setRetrieval(noRetrieval);
   };
 
   return {
     source,
     work,
+    shown,
     attempt,
     notice,
     reading,

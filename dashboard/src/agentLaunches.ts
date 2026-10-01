@@ -4,7 +4,6 @@ import { sessionKey } from "./sessionReference.ts";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   Alerts,
-  AgentLaunchRequest,
   KeptStart,
   MachineAnswer,
   StartPhase,
@@ -14,6 +13,7 @@ import type {
 import { replaced } from "./sessionRecords.ts";
 import { readMachineSessions } from "./agentLaunchClient.ts";
 import { useLaunchAttempts, type LaunchAttempts } from "./launchAttempts.ts";
+import type { PublishedShown } from "./startupReconciliation.ts";
 import {
   useLaunchRecordActions,
   type LaunchRecordActions,
@@ -54,15 +54,22 @@ type ReadSessions = {
 // What a read of the machine's sessions says besides their records.
 type ReadFacts = Omit<MachineAnswer, "records">;
 
-export function useAgentLaunches(): MachineSessions {
+// `published` is what the page shows of published work, which settled
+// launches reconcile with.
+export function useAgentLaunches(published: PublishedShown): MachineSessions {
   const [sessions, setSessions] = useState<
     {
       readonly known: readonly LaunchWithState[];
       readonly read: boolean;
+      // Which read, counted as asked, answered latest.
+      readonly answeredAsk: number;
       readonly alerts?: Alerts;
     } & Omit<ReadFacts, "alerts">
   >({
     known: [],
+    answeredAsk: 0,
+    attempts: [],
+    attemptsReadable: true,
     creations: [],
     read: false,
     establishing: [],
@@ -80,6 +87,9 @@ export function useAgentLaunches(): MachineSessions {
     alerts,
     keptStarts,
     starts,
+    attempts: observed,
+    attemptsReadable,
+    answeredAsk,
   } = sessions;
   const setRecords = useCallback(
     (
@@ -93,16 +103,39 @@ export function useAgentLaunches(): MachineSessions {
   const deletedAt = useRef(new Map<string, number>());
   const { visibility, settleRevealed } = usePageVisibility();
   const everRead = useRef(false);
+  // How many reads were asked so far.
+  const asks = useRef(0);
   const [readsSettled, setReadsSettled] = useState(0);
   const [offersReading, setOffersReading] = useState(false);
   const [requested, setRequested] = useState(0);
   const lastRequested = useRef(0);
+  const reread = useCallback(() => {
+    setRequested((value) => value + 1);
+  }, []);
+  const attempts = useLaunchAttempts({
+    observed,
+    attemptEvidence: !readAnswered
+      ? readsSettled === 0
+        ? "unread"
+        : "unanswered"
+      : attemptsReadable
+        ? "read"
+        : "unreadable",
+    answeredAsk,
+    asksSoFar: () => asks.current,
+    records: known,
+    reads: readsSettled,
+    reread,
+    published,
+  });
 
   useEffect(() => {
     if (visibility === "hidden") return;
     let current = true;
     const read = () => {
       const askedAt = Date.now();
+      asks.current += 1;
+      const ask = asks.current;
       void readMachineSessions().then((answered) => {
         if (!current) return;
         if (answered !== undefined) {
@@ -115,6 +148,7 @@ export function useAgentLaunches(): MachineSessions {
           setSessions((current) => ({
             known: replaced(kept, current.known, current.read ? askedAt : 0),
             read: true,
+            answeredAsk: ask,
             ...facts,
           }));
         }
@@ -142,39 +176,6 @@ export function useAgentLaunches(): MachineSessions {
     };
   }, [visibility, readsSettled, settleRevealed, requested]);
 
-  // A launch that ended no longer runs its start, and a launched session
-  // carries it: the server removed the kept one.
-  const launchEnded = useCallback(
-    (request: AgentLaunchRequest, record: LaunchWithState | undefined) => {
-      setSessions((current) => ({
-        ...current,
-        known:
-          record === undefined ? current.known : [...current.known, record],
-        starts: current.starts.filter(
-          (running) =>
-            running.source !== request.source ||
-            request.workflow === "ad-hoc" ||
-            running.identity !== request.identity,
-        ),
-        keptStarts:
-          record === undefined
-            ? current.keptStarts
-            : current.keptStarts.filter(
-                (kept) =>
-                  kept.source !== request.source ||
-                  request.workflow === "ad-hoc" ||
-                  kept.workflow !== request.workflow ||
-                  kept.identity !== request.identity,
-              ),
-      }));
-      // A failed/uncertain launch may have established a kept start or native
-      // conversation. Promptly request a read of that durable evidence.
-      if (record === undefined) setRequested((value) => value + 1);
-    },
-    [],
-  );
-  const attempts = useLaunchAttempts(launchEnded);
-
   const setFacts = useCallback((facts: ReadFacts) => {
     setSessions((current) => ({ ...current, ...facts }));
   }, []);
@@ -187,7 +188,7 @@ export function useAgentLaunches(): MachineSessions {
   return {
     rereadOffers: () => {
       setOffersReading(true);
-      setRequested((value) => value + 1);
+      reread();
     },
     records: readAnswered ? known : undefined,
     creations,

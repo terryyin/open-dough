@@ -61,6 +61,11 @@ async function unknownSession(page: Page, dashboard: DashboardServer) {
   });
   const session = await sessionNamedBy(entry);
   await expect(sessionStateOf(entry)).toHaveText("Working");
+  // The published read that reconciles the start lands before page time
+  // passes, so its wait bound never ends it.
+  await expect(
+    card(readyStory).getByRole("button", { name: "Inspect story" }),
+  ).toBeEnabled();
   dashboard.claudeListingFails(true);
   await pace.passOnePace();
   await expect(sessionStateOf(entry)).toHaveText(unknownWords);

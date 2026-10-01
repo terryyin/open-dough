@@ -1,18 +1,80 @@
-// The common native launch/recovery lifetime preserves the original request
-// and established facts while its host owns native input and reconciliation.
+// An accepted launch attempt's run (`./launchAttemptOwner.ts`): its workflow
+// start, then the common native launch/recovery lifetime, which preserves the
+// original request and established facts while its host owns native input
+// and reconciliation.
 import type {
+  PublicationReceipt,
   RecordedLaunchRequest,
   LaunchRecord,
   LaunchResult,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
-import type { Started } from "./launchStart.ts";
+import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
+import { publicationOf, started, type Started } from "./launchStart.ts";
 import { launchHost } from "./launchHosts.ts";
 import { launchRecording } from "./launchRecording.ts";
-import { keepRecord } from "./launchRecordStore.ts";
+import { keepRecord, pendingInputOf } from "./launchRecordStore.ts";
 import { removeStart } from "./startStore.ts";
-export async function launchRun(
+import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
+import type { OwnedAttempt } from "./ownedAttempts.ts";
+import { establishedFacts } from "./startLaunch.ts";
+import type { StartProgress } from "./startProgress.ts";
+
+const defaultLaunchWaitMs = 30_000;
+
+// A bounded launch wait; test configuration may shorten it.
+function launchTimeoutMs(): number {
+  const configured = Number(process.env["DOUGH_LAUNCH_TIMEOUT_MS"]);
+  return Number.isFinite(configured) && configured > 0
+    ? configured
+    : defaultLaunchWaitMs;
+}
+
+export async function attemptRun(
+  source: PublishedSource,
+  { request, controller, attempt }: OwnedAttempt,
+  notePublication: (publication: PublicationReceipt) => Promise<void>,
+  progress: StartProgress,
+): Promise<LaunchResult> {
+  const folder = projectFolder(source);
+  const began = new Date(attempt.acceptedAt);
+  const requested = recordedRequest(request, began);
+  const pending = await pendingInputOf(source.id, request);
+  const start =
+    pending === undefined
+      ? await started(source, request, folder, progress)
+      : ({ kind: "none" } as const);
+  await notePublication(publicationOf(start, pending));
+  if (start.kind === "stopped") return start.result;
+  const recording =
+    pending?.request ??
+    (start.kind === "established"
+      ? withStartPolicy(requested, start.policy)
+      : requested);
+  const timer = setTimeout(() => {
+    controller.abort();
+  }, launchTimeoutMs());
+  try {
+    return await launchRun(
+      source,
+      recording,
+      folder,
+      began,
+      start,
+      controller,
+      pending,
+    );
+  } finally {
+    clearTimeout(timer);
+    if (start.kind === "established") {
+      progress
+        .for(start.workflow.workflow)
+        .clear(source.id, establishedFacts(start.handoff.established).identity);
+    }
+  }
+}
+
+async function launchRun(
   source: PublishedSource,
   recording: RecordedLaunchRequest,
   folder: ProjectFolder,

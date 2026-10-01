@@ -48,8 +48,9 @@ export const readWaitLimitMs = 30_000;
 // What was being read, as a read failure names it: the source's ref while
 // it is still to be resolved, a recorded story branch while its head is
 // resolved, one repository path at a resolved revision, or when that path was
-// last committed as of a resolved revision, or which commit added an agent
-// profile's current allocation as of a resolved revision.
+// last committed as of a resolved revision, which commit added an agent
+// profile's current allocation as of a resolved revision, or whether a
+// resolved revision contains an accepted one.
 export function readingRefOf(
   source: Pick<PublishedSource, "ref" | "repository">,
 ): string {
@@ -73,4 +74,11 @@ export function readingLastCommitAt(path: string, revision: string): string {
 
 export function readingAdditionAt(path: string, revision: string): string {
   return `the commit that added ${path} at ${revision}`;
+}
+
+export function readingContainmentAt(
+  accepted: string,
+  revision: string,
+): string {
+  return `whether ${revision} contains ${accepted}`;
 }

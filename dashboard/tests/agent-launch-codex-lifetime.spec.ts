@@ -1,11 +1,18 @@
 // Native connection ownership survives caller detachment and handles racing endings.
+import { agentAcceptEndpoint } from "../src/agentLaunch.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import {
+  accept,
+  attempts,
   launch,
   refinementRequest,
   machineSessions,
   deleteRecord,
 } from "./agentLaunchBoundary.ts";
+import {
+  builtDashboardDir,
+  startDashboardServer,
+} from "./support/dashboardServer.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -16,7 +23,7 @@ test("an active detached caller still records acknowledgment and a later connect
   const native = protocol;
   if (native === undefined) throw new Error("Missing native fixture.");
   native.hold = true;
-  const response = fetch(`${dashboard.baseURL}/__agent-launch`, {
+  const response = fetch(`${dashboard.baseURL}${agentAcceptEndpoint}`, {
     method: "POST",
     headers: { Origin: dashboard.origin, "Content-Type": "application/json" },
     body: JSON.stringify({ ...refinementRequest, host: "codex" }),
@@ -50,6 +57,72 @@ test("an active detached caller still records acknowledgment and a later connect
   expect(
     native.calls.filter((call) => call.method === "turn/start"),
   ).toHaveLength(1);
+});
+
+test("an accepted launch outlives its caller; server shutdown keeps it unsettled for reconciliation and disposes native connections without interrupting the turn", async ({
+  dashboard,
+  codexProtocol: protocol,
+  machine,
+  github,
+}) => {
+  const native = protocol;
+  if (native === undefined) throw new Error("Missing native fixture.");
+  native.hold = true;
+  const request = { ...refinementRequest, host: "codex" };
+  const answered = JSON.parse((await accept(dashboard, request)).body) as {
+    kind: string;
+    attempt?: { id: string; acceptedAt: string };
+  };
+  expect(answered).toMatchObject({ kind: "accepted", attempt: { request } });
+  // The caller has its answer; the owner goes on to submit the input.
+  await expect
+    .poll(
+      () => native.calls.filter((call) => call.method === "turn/start").length,
+    )
+    .toBe(1);
+  expect(await attempts(dashboard)).toEqual([
+    {
+      id: answered.attempt?.id,
+      request,
+      acceptedAt: answered.attempt?.acceptedAt,
+      // This project's refinement has no installed start to publish.
+      publication: { kind: "none" },
+      owned: true,
+    },
+  ]);
+
+  await dashboard.close();
+  await expect.poll(() => native.sockets.size).toBe(0);
+  expect(native.calls.map((call) => call.method)).not.toContain(
+    "turn/interrupt",
+  );
+  expect(stored(dashboard.home)[0]?.session.sessionId).toBe(native.threadId);
+  const restarted = await startDashboardServer({
+    mode: "preview",
+    prebuilt: builtDashboardDir,
+    machine,
+    github,
+    codexProtocol: protocol,
+    projectFolders: ["open-dough"],
+  });
+  try {
+    // No server owns it now and nothing settled it: it needs reconciliation.
+    expect(await attempts(restarted)).toEqual([
+      {
+        id: answered.attempt?.id,
+        request,
+        acceptedAt: answered.attempt?.acceptedAt,
+        publication: { kind: "none" },
+        owned: false,
+      },
+    ]);
+    expect(
+      native.calls.filter((call) => call.method === "turn/start"),
+    ).toHaveLength(1);
+  } finally {
+    native.release();
+    await restarted.close();
+  }
 });
 
 for (const ending of ["complete", "disconnect"] as const) {

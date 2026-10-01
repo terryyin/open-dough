@@ -64,6 +64,9 @@ export const test = base.extend<{
   machine: string | undefined;
   codexProtocol: FakeCodex | undefined;
   launchTimeoutMs: number | undefined;
+  // How long this page's dashboard waits on a workflow's start before its
+  // launch answers uncertain; the server's own bound when unset.
+  startTimeoutMs: number | undefined;
   afterGitHubStops: (removal: () => void) => void;
   github: FakeGitHub;
   dashboard: DashboardServer;
@@ -73,6 +76,7 @@ export const test = base.extend<{
   machine: [undefined, { option: true }],
   codexProtocol: [undefined, { option: true }],
   launchTimeoutMs: [undefined, { option: true }],
+  startTimeoutMs: [undefined, { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
   github: async ({}, use) => {
@@ -93,6 +97,7 @@ export const test = base.extend<{
       readTimeoutMs,
       projectFolders,
       launchTimeoutMs,
+      startTimeoutMs,
       machine,
       codexProtocol,
     },
@@ -107,6 +112,9 @@ export const test = base.extend<{
       launchTimeoutMs,
       machine,
       codexProtocol,
+      ...(startTimeoutMs === undefined
+        ? {}
+        : { extraEnv: { DOUGH_START_TIMEOUT_MS: String(startTimeoutMs) } }),
     });
     await use(server);
     await server.close();

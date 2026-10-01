@@ -10,14 +10,20 @@
 // published beside the backlog at a pinned revision; which
 // commit a story branch recorded at a pinned revision names now (`branch`);
 // or one path, or its last commit, at a head of that branch (`branch` and
-// `head`). Malformed or mixed parameters are refused here, before any `gh`
-// call.
+// `head`); or whether a pinned revision contains an accepted one
+// (`contains`, `./containmentRead.ts`). Malformed or mixed parameters are
+// refused here (`./refusedParameters.ts`), before any `gh` call.
 
 import {
   commitShaPattern,
   isSafeBranchName,
 } from "../src/authenticatedReadRules.ts";
 import { parseSafeRepositoryPath } from "./reachablePaths.ts";
+import { refused, type RefusedParameters } from "./refusedParameters.ts";
+import {
+  parseContainmentRead,
+  type ContainmentRead,
+} from "./containmentRead.ts";
 import { profileAgentName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 // A story branch as a read names it: the branch, and the head commit this
@@ -26,6 +32,7 @@ export type OnBranch = { readonly branch: string; readonly head: string };
 
 export type RequestedRead =
   | { readonly kind: "ref" }
+  | ContainmentRead
   | {
       readonly kind: "revision-check";
       readonly since: string;
@@ -52,16 +59,6 @@ export type RequestedRead =
       // decides whether the branch and path may be read at all.
       readonly onBranch?: OnBranch;
     };
-
-export type RefusedParameters = {
-  readonly kind: "refused";
-  readonly status: 400;
-  readonly message: string;
-};
-
-function refused(message: string): RefusedParameters {
-  return { kind: "refused", status: 400, message };
-}
 
 // A revision a read is pinned to must already be a resolved commit.
 function isPinnedRevision(revision: string | null): revision is string {
@@ -173,6 +170,7 @@ export function parseAdditionRead(
 export function parseRequestedRead(
   params: URLSearchParams,
 ): RequestedRead | RefusedParameters {
+  if (params.has("contains")) return parseContainmentRead(params);
   const revision = params.get("revision");
   const path = params.get("path");
   const since = params.get("since");

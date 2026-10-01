@@ -39,9 +39,15 @@ export function establishedFacts(established: Established): EstablishedContext {
   return "start" in established ? established.start : established.preparation;
 }
 
+// A refused start that published nothing says so (`publishedNothing`);
+// otherwise it may have published.
 export type StartAttempt =
   | ({ readonly kind: "established" } & Established)
-  | { readonly kind: "refused"; readonly explanation: string };
+  | {
+      readonly kind: "refused";
+      readonly explanation: string;
+      readonly publishedNothing?: true;
+    };
 
 export type PlannedStart =
   // The installed skill cannot continue from a start: launch as before.
@@ -63,7 +69,7 @@ export type PlannedStart =
       readonly attempt: Promise<StartAttempt>;
     };
 
-const alreadyStarting =
+export const alreadyStarting =
   "This story is already starting on this machine, so a second start was not made. Wait for the running start to end; its card shows its progress. Nothing was launched.";
 
 // The workspace a kept start was made in, shown as this host's workspaces are.

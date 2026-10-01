@@ -10,7 +10,15 @@
 // the local bare repository. Nothing here reaches a network.
 
 import { execFile } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -48,8 +56,16 @@ export type StartOrigin = {
   // Has another publisher Take a queued story (the first by default) through
   // the real start command, in a workspace of its own; the Agent it names.
   takenByAnotherAgent(identity?: string): Promise<string>;
+  // Holds every push to origin on its `pre-receive` hook until released.
+  holdPushes(): PushHold;
   // Removes the fixture.
   cleanup(): void;
+};
+
+// A push hold: whether a push reached the hook, and its release.
+export type PushHold = {
+  isHeld(): boolean;
+  release(): void;
 };
 
 async function git(cwd: string, ...args: string[]): Promise<string> {
@@ -171,6 +187,22 @@ export async function startOrigin(
     project,
     originGit,
     takenProfiles,
+    holdPushes() {
+      const held = path.join(machine, "push-held");
+      const released = path.join(machine, "push-released");
+      const hook = path.join(origin, "hooks", "pre-receive");
+      writeFileSync(
+        hook,
+        `#!/bin/sh\ntouch ${held}\nwhile [ ! -e ${released} ]; do sleep 0.2; done\n`,
+      );
+      chmodSync(hook, 0o755);
+      return {
+        isHeld: () => existsSync(held),
+        release: () => {
+          writeFileSync(released, "");
+        },
+      };
+    },
     async takenByAnotherAgent(identity = queuedIdentity) {
       const scripts = path.join(
         project,

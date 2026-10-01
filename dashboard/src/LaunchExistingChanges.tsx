@@ -20,38 +20,54 @@ import type {
   SessionPolicy,
 } from "./agentLaunch.ts";
 
-// What a launch answers its dialog: whether a session was launched, or the
-// default checkout's existing changes to confirm, with nothing started.
+// What asking for a launch answers its dialog: whether the local service
+// accepted it (its startup goes on without the dialog), or the default
+// checkout's existing changes to confirm, with nothing started.
 export type StartAnswer = boolean | ExistingChangesFound;
 
-// A launch dialog's confirmation state: `start` asks for the launch; changes
-// it finds are shown (`view`, the choices hidden behind it) until Back,
-// Escape, or a launch answer, and Continue sends that Start's choices again
-// with the confirmation. Back returns the keyboard to Start (`startButton`)
-// once the choices show again. Any other answer is the dialog's to end with
-// (`ended`).
+// A launch dialog's confirmation state: `start` asks for the launch, which
+// is submitted (`submitting`) from that moment until an answer finds changes;
+// changes it finds are shown (`view`, the choices hidden behind it) until
+// Back, Escape, or a launch answer, and Continue sends that Start's choices
+// again with the confirmation. Back returns the keyboard to Start
+// (`startButton`) once the choices show again. Any other answer is the
+// dialog's to end with (`ended`). While a launch is submitted, nothing
+// dismisses the dialog: neither its cancel nor Escape, wherever the keyboard
+// is once its controls are disabled.
 export function useExistingChangesConfirmation({
   id,
   policy,
-  starting,
   onStart,
   ended,
 }: {
   readonly id: string;
   readonly policy: SessionPolicy | undefined;
-  readonly starting: boolean;
   readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
-  readonly ended: (launched: boolean) => void;
+  readonly ended: (accepted: boolean) => void;
 }): {
   readonly view: ReactNode;
   readonly startButton: RefObject<HTMLButtonElement | null>;
+  readonly submitting: boolean;
   readonly start: (choices: LaunchChoices) => void;
   readonly onCancel: (event: SyntheticEvent) => void;
 } {
   const [found, setFound] = useState<ExistingChangesFound>();
+  const [submitting, setSubmitting] = useState(false);
+  // Set at once, so a second Start before the next render sends nothing.
+  const submitted = useRef(false);
   const asked = useRef<LaunchChoices>(undefined);
   const startButton = useRef<HTMLButtonElement>(null);
   const backToChoices = useRef(false);
+  useEffect(() => {
+    if (!submitting) return;
+    const suppress = (event: KeyboardEvent) => {
+      if (event.key === "Escape") event.preventDefault();
+    };
+    window.addEventListener("keydown", suppress, true);
+    return () => {
+      window.removeEventListener("keydown", suppress, true);
+    };
+  }, [submitting]);
   useEffect(() => {
     if (found === undefined && backToChoices.current) {
       backToChoices.current = false;
@@ -59,11 +75,16 @@ export function useExistingChangesConfirmation({
     }
   }, [found]);
   const start = (choices: LaunchChoices) => {
+    if (submitted.current) return;
+    submitted.current = true;
+    setSubmitting(true);
     void onStart(choices).then((answer) => {
       if (typeof answer !== "object") {
         ended(answer);
         return;
       }
+      submitted.current = false;
+      setSubmitting(false);
       asked.current = choices;
       setFound(answer);
     });
@@ -78,7 +99,7 @@ export function useExistingChangesConfirmation({
         id={id}
         found={found}
         policy={policy}
-        starting={starting}
+        starting={submitting}
         onBack={back}
         onContinue={() => {
           if (asked.current === undefined) return;
@@ -87,9 +108,14 @@ export function useExistingChangesConfirmation({
       />
     ),
     startButton,
+    submitting,
     start,
     onCancel: (event) => {
-      if (found !== undefined && !starting) {
+      if (submitted.current) {
+        event.preventDefault();
+        return;
+      }
+      if (found !== undefined) {
         event.preventDefault();
         back();
       }

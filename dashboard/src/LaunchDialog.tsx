@@ -1,9 +1,12 @@
 // The dialog mechanics shared by every launch action: a modal that focuses
-// its instruction field, sends nothing when dismissed, shows "Starting…" while
-// a launch is in flight, and, with the action's `useLaunchDialogLauncher`
-// (./launchDialogLauncher.ts), returns the keyboard to the action that opened
-// it, unless a launched session took it. Callers supply only the words, and
-// the options a launch may select, or the line saying why there are none.
+// its instruction field and sends nothing when dismissed. Start commits the
+// request at once: its choices, Cancel, and Start become unavailable and
+// "Starting…" shows until the local service answers, which closes the dialog
+// (an accepted startup goes on without it). With the action's
+// `useLaunchDialogLauncher` (./launchDialogLauncher.ts), it returns the
+// keyboard to the action that opened it unless the launch was accepted.
+// Callers supply only the words, and the options a launch may select, or the
+// line saying why there are none.
 // The dialog reads in one order, for eyes and keyboard alike: what is started
 // and why, the instruction, host and model on one row, a story's Session
 // choices, the options behind a disclosure whose summary names the selection,
@@ -24,6 +27,7 @@ import {
   useExistingChangesConfirmation,
   type StartAnswer,
 } from "./LaunchExistingChanges.tsx";
+import { LaunchDialogFooter } from "./LaunchDialogFooter.tsx";
 import { LaunchHostModel } from "./LaunchHostModel.tsx";
 import { LaunchOptions, useOptionSelection } from "./LaunchOptions.tsx";
 import {
@@ -37,8 +41,8 @@ import "./launch-session.css";
 
 // Mounted only while open, so an action carries no hidden dialog text and each
 // opening starts without an earlier instruction or model choice. A launch that
-// failed hands its selection back (`onRefused`) for the next opening to start
-// from (`kept`), so the developer can change it.
+// was not accepted hands its selection back (`onRefused`) for the next
+// opening to start from (`kept`), so the developer can change it.
 export function LaunchDialog({
   heading,
   subject,
@@ -58,7 +62,6 @@ export function LaunchDialog({
   optionsLine,
   kept,
   notOfferedLine,
-  starting,
   onStart,
   onRefused,
   onClose,
@@ -91,19 +94,17 @@ export function LaunchDialog({
   readonly kept?: ReadonlySet<string> | undefined;
   // Said under the options when `kept` names flags the offer no longer has.
   readonly notOfferedLine?: string | undefined;
-  readonly starting: boolean;
   readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
   readonly onRefused?: (selected: ReadonlySet<string>) => void;
-  // Whether a launched session took the keyboard.
-  readonly onClose: (launched: boolean) => void;
+  // Whether the launch was accepted.
+  readonly onClose: (accepted: boolean) => void;
 }) {
   const id = useId();
   const dialog = useRef<HTMLDialogElement>(null);
   const instruction = useRef<HTMLTextAreaElement>(null);
   const headingId = `${id}-heading`;
   const hintId = `${id}-instruction-hint`;
-  const effectsId = `${id}-effects`;
-  const launched = useRef(false);
+  const accepted = useRef(false);
   const selection = useOptionSelection(
     options,
     kept,
@@ -117,14 +118,14 @@ export function LaunchDialog({
   const confirmation = useExistingChangesConfirmation({
     id,
     policy,
-    starting,
     onStart,
     ended: (answer) => {
-      launched.current = answer;
+      accepted.current = answer;
       if (!answer) onRefused?.(selected);
       dialog.current?.close();
     },
   });
+  const { submitting } = confirmation;
 
   useEffect(() => {
     dialog.current?.showModal();
@@ -138,7 +139,7 @@ export function LaunchDialog({
       aria-labelledby={headingId}
       onCancel={confirmation.onCancel}
       onClose={() => {
-        onClose(launched.current);
+        onClose(accepted.current);
       }}
     >
       {confirmation.view}
@@ -155,91 +156,78 @@ export function LaunchDialog({
           });
         }}
       >
-        <div className="launch-dialog-body">
-          <h2 id={headingId}>{heading}</h2>
-          {subject !== undefined && (
-            <p className="launch-dialog-subject">{subject}</p>
-          )}
-          <p>{description}</p>
-          {note}
-          <label htmlFor={`${id}-instruction`}>{fieldLabel}</label>
-          <textarea
-            ref={instruction}
-            id={`${id}-instruction`}
-            aria-describedby={command !== undefined ? hintId : undefined}
-            maxLength={launchInstructionLimit}
-            rows={4}
-          />
-          <LaunchHostModel
-            id={id}
-            host={host}
-            onHost={onHost}
-            model={model}
-            onModel={setModel}
-          />
-          {session !== undefined && (
-            <LaunchSessionPolicy id={id} {...session} />
-          )}
-          {options !== undefined && options.options.length > 0 ? (
-            <LaunchOptions
-              id={id}
-              label={optionsLabel}
-              shape={options}
-              hint={optionsHint}
-              selected={selected}
-              onChoose={selection.choose}
-              onClearGroup={selection.clearGroup}
+        <fieldset className="launch-dialog-submission" disabled={submitting}>
+          <div className="launch-dialog-body">
+            <h2 id={headingId}>{heading}</h2>
+            {subject !== undefined && (
+              <p className="launch-dialog-subject">{subject}</p>
+            )}
+            <p>{description}</p>
+            {note}
+            <label htmlFor={`${id}-instruction`}>{fieldLabel}</label>
+            <textarea
+              ref={instruction}
+              id={`${id}-instruction`}
+              aria-describedby={command !== undefined ? hintId : undefined}
+              maxLength={launchInstructionLimit}
+              rows={4}
             />
-          ) : (
-            optionsLine !== undefined && <p className="quiet">{optionsLine}</p>
-          )}
-          {selection.changedOfferLine !== undefined && (
-            <p className="quiet">{selection.changedOfferLine}</p>
-          )}
-          {(command !== undefined || details !== undefined) && (
-            <details className="launch-disclosure">
-              <summary>Command details</summary>
-              <div className="launch-disclosure-content">
-                {command !== undefined && (
-                  <p id={hintId}>
-                    Sent after <code>{[command, ...flags].join(" ")}</code>.
-                  </p>
-                )}
-                {details}
-              </div>
-            </details>
-          )}
-        </div>
-        <div className="launch-dialog-footer">
-          {effects !== undefined && (
-            <p id={effectsId} className="launch-dialog-effects">
-              {effects}
-            </p>
-          )}
-          <div className="launch-dialog-actions">
-            <button
-              type="button"
-              onClick={() => {
-                dialog.current?.close();
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              ref={confirmation.startButton}
-              type="submit"
-              className="launch-dialog-start"
-              aria-describedby={effects !== undefined ? effectsId : undefined}
-              disabled={
-                starting ||
-                (optionsReading && selected.size > 0) ||
-                (session !== undefined && sessionBlocksStart(session))
-              }
-            >
-              {starting ? "Starting…" : "Start"}
-            </button>
+            <LaunchHostModel
+              id={id}
+              host={host}
+              onHost={onHost}
+              model={model}
+              onModel={setModel}
+            />
+            {session !== undefined && (
+              <LaunchSessionPolicy id={id} {...session} />
+            )}
+            {options !== undefined && options.options.length > 0 ? (
+              <LaunchOptions
+                id={id}
+                label={optionsLabel}
+                shape={options}
+                hint={optionsHint}
+                selected={selected}
+                onChoose={selection.choose}
+                onClearGroup={selection.clearGroup}
+              />
+            ) : (
+              optionsLine !== undefined && (
+                <p className="quiet">{optionsLine}</p>
+              )
+            )}
+            {selection.changedOfferLine !== undefined && (
+              <p className="quiet">{selection.changedOfferLine}</p>
+            )}
+            {(command !== undefined || details !== undefined) && (
+              <details className="launch-disclosure">
+                <summary>Command details</summary>
+                <div className="launch-disclosure-content">
+                  {command !== undefined && (
+                    <p id={hintId}>
+                      Sent after <code>{[command, ...flags].join(" ")}</code>.
+                    </p>
+                  )}
+                  {details}
+                </div>
+              </details>
+            )}
           </div>
-        </div>
+          <LaunchDialogFooter
+            id={id}
+            effects={effects}
+            submitting={submitting}
+            startBlocked={
+              (optionsReading && selected.size > 0) ||
+              (session !== undefined && sessionBlocksStart(session))
+            }
+            startButton={confirmation.startButton}
+            onCancel={() => {
+              dialog.current?.close();
+            }}
+          />
+        </fieldset>
       </form>
     </dialog>
   );

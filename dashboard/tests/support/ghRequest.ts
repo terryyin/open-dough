@@ -9,7 +9,8 @@
 // as one page holds. A
 // branch request asks which commit one published branch head names; a
 // matching-refs request lists every published branch head, conditionally on
-// an `If-None-Match` header's entity tag when one is given.
+// an `If-None-Match` header's entity tag when one is given. A compare request
+// asks how a head commit relates to a base commit.
 export type GhRequest =
   | {
       readonly kind: "ref";
@@ -53,6 +54,12 @@ export type GhRequest =
       // said: 1 asks when the path was last committed rather than its history.
       readonly perPage: number | undefined;
     }
+  | {
+      readonly kind: "compare";
+      readonly repository: string;
+      readonly base: string;
+      readonly head: string;
+    }
   | { readonly kind: "unknown" };
 
 // GitHub's raw media types: both answer a file's raw bytes, labeled with the
@@ -93,6 +100,22 @@ export function parseRequest(argv: readonly string[]): GhRequest {
       kind: "ref",
       repository: ref[1],
       ref: ref[2],
+    };
+  }
+  const compare =
+    /^repos\/([^/]+\/[^/]+)\/compare\/([0-9a-f]{40})\.\.\.([0-9a-f]{40})(?:\?.*)?$/.exec(
+      endpoint,
+    );
+  if (
+    compare?.[1] !== undefined &&
+    compare[2] !== undefined &&
+    compare[3] !== undefined
+  ) {
+    return {
+      kind: "compare",
+      repository: compare[1],
+      base: compare[2],
+      head: compare[3],
     };
   }
   const heads = /^repos\/([^/]+\/[^/]+)\/git\/matching-refs\/heads\/$/.exec(

@@ -31,6 +31,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
     repoDir: origin.origin,
     revision: (await origin.originGit("rev-parse", "main")).trim(),
     repository: "terryyin/open-dough",
+    follows: true,
   });
   await page.goto("/");
   const card = parts(page).backlog.getByRole("article", { name: "Story A" });

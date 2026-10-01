@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 210. Removed local codes are never reused.
+- Highest allocated local number: 211. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -339,6 +339,7 @@ Follow-up: Open, unqueued.
 - Execution: `SEED-060#odd-e-nerds-agent-collection` / plan 177, first related implementation commit `6befd854` - Timestamp: 2026-09-30T14:10:00+08:00 (CI run 36676898928; repairs `57505b5d`, `f70185e6`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown - Evidence: slice 4 delivery ran `npm run format 2>&1 | tail -2; ...` whose output ended "Format failed: unresolved findings" (no-redundant-type-constituents in the new settings spec) yet the chain committed and published `03d6d10a`. The same push failed dashboard shards because `authenticated-project-overview.spec.ts` (exact pinned-read list, not in the agent's focused set) and fake-origin `git show` stderr in launch specs were never run. - Observed effect: two owned repair commits and two failing CI runs for one slice. - Inference: Qualified. The delegation forbade lint and named a focused set chosen from the reachability grep, so specs that enumerate reads were outside it; the coordinator's masked exit status was a separate slip. Not shown to recur in another execution.
 - Execution: `SEED-052#script-refinement-preparation` / plan 186, first related implementation commit `a94806d1` - Timestamp: 2026-09-30T10:46:35Z (CI run 36704446514) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown - Evidence: slice 3's delegated implementation ran only the focused Playwright specs and typecheck; its new `agent-launch-preparation-start.spec.ts` read `JSON.parse(response.body).kind` twice, which failed CI's lint job (`@typescript-eslint/no-unsafe-member-access`, lines 70 and 137) on `b2503ea2` although the commit, whose hook the plan assumed check-only lint, had succeeded. - Observed effect: one failing CI run, one stash-protocol repair cycle and one repair commit (`a9623112`); later delegations then named `node scripts/lint.mjs` and the strict rules, and no further lint failure reached CI in this execution. - Inference: Qualified. A second execution with the same shape (new spec files written under a no-lint delegation); the commit hook's lack of a lint check is not proven here beyond the successful commit.
 - Execution: `SEED-066#composable-lightweight-session-options` / plan 191, first related implementation commit `ef745cb5` - Timestamp: 2026-10-01T01:36:25Z (CI run 36801899574) and 2026-10-01T03:16:46Z (CI run 36809768647) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: modified; revision `0d565a9e`; base 0.3.51 - Evidence: slice 1 reworded `execution-location.md` and its focused set omitted `dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs`, whose regex pinned the old sentence (repair `9ff46944`); slice 5 changed `landWorktree`'s destructured parameters in `dough-land-test-fixtures.mjs` and its proof never ran `npm run typecheck:dashboard`, which `dashboard/tests/preparingJourney.ts` failed with TS2345 (repair `716c933b`). Slice 6's agent found the second break locally before CI reported it. - Observed effect: two failing CI runs and two stash-protocol repair cycles in one execution. - Inference: Qualified. Same shape as earlier rows: delegated proof chosen from changed components missed a text-pinning guidance test and a cross-package type consumer; lint was not the gap here.
+- Execution: `SEED-072#responsive-session-start-reconciliation` / plan 192, first related implementation commit `109fd76b` - Timestamp: 2026-10-01T17:50:33+08:00 and 2026-10-01T18:45:01+08:00 (commit times of `109fd76b` and `b68b1c7b`; the format failures preceded them) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: unknown; installed guidance last updated by `e6a7106c` (base v0.3.51) - Evidence: both delegated refactor passes were told not to run hook-owned lint; the coordinator's `npm run format` then failed on refactor-introduced `no-param-reassign` in `launchAttemptOwner.ts` (slice 1) and `no-unused-vars` after the refactor un-exported the type-only `launchResultSchema` (slice 2). Later refactor briefs named both rules and no further lint failure occurred. - Observed effect: two coordinator code edits after accepted refactor proof, each followed by a focused proof rerun; nothing reached CI. - Inference: Qualified. Same no-lint delegation cause, caught at coordinator formatting rather than CI.
 
 ## DD-192 — A delegated refactor pass ran on each of two tiny guidance changes and edited nothing
 
@@ -452,6 +453,7 @@ Follow-up: Open, unqueued.
   - Evidence: first `deliver` passed `--target-ref claude/review-dashboard-architecture-before-adding-more` and was refused with "authorized target must be a branch ref"; the retry with `refs/heads/…` was accepted.
   - Observed effect: one refused call; no state change.
   - Inference: Qualified. The refusal message made the fix obvious, so this occurrence cost less than the earlier lookups.
+- Execution: `SEED-072#responsive-session-start-reconciliation` / plan 192, first related implementation commit `109fd76b` - Timestamp: 2026-10-01T17:50:33+08:00 (commit time of `109fd76b`; the refused delivery followed it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: unknown; installed guidance last updated by `e6a7106c` (base v0.3.51) - Evidence: the coordinator passed `--target-ref origin/claude/keep-the-dashboard-responsive-while-session-star` and `deliver` refused with "authorized target must be a branch ref"; the retry with `refs/heads/<execution branch>` was accepted with observation attached. - Observed effect: one refused delivery call and one retry; no state changed. - Inference: Qualified. The script refuses the wrong form, so the cost stays small; the guidance still does not name the expected form.
 
 ## DD-197 — New tests that run tools and Git passed on macOS and failed on CI's Linux test job
 
@@ -715,3 +717,21 @@ Follow-up: Open, unqueued. Preserve yielded tool result objects or their continu
   - Evidence: coordinator conversation's first formatter call used `text((await tools.exec_command(...)).output)` and retained no session ID; read-only `ps` found formatter PID 83649; a finite wait established process exit only. Repeated `npm run format` returned PTY 26420, whose terminal exit 0 was observed before the `1dd48501` agent commit. The proof/format record is recoverable at `17488854ad344b860b9a1a6239942ece77e5a4e5:.planning/slice-plans/204-launch-gates-every-host/PLAN.md`.
   - Observed effect: one unnecessary full formatter invocation and process-exit check; no failed formatting result was presented as passing, and publication waited for verified success.
   - Inference: this is a coordinator evidence-handling error, not a demonstrated gap in Open Dough's existing command-ownership instruction.
+
+## DD-211 — A coordinator's paraphrase in a delegation softened a plan promise
+
+Former branch-local code: DD-206; reassigned after concurrent trunk allocation of DD-206.
+
+The delegation restated a slice's safe-stop promise in looser words, and the implementer delivered the looser reading instead of the plan's.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+- Execution: `SEED-072#responsive-session-start-reconciliation` / plan 192, first related implementation commit `109fd76b`
+  - Timestamp: 2026-10-01T19:50:26+08:00 (commit time of `191721a0`; the deviation was reported just before)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed guidance last updated by `e6a7106c` (base v0.3.51)
+  - Evidence: plan 192 slice 3 says "Uncertain publication stays protected pending workflow-owned verification" and its safe stop says "interrupted outcomes remain protected"; the coordinator's slice 3 brief said "interrupted outcomes remain protected (or show the existing static explanation)". The implementer left `unknown` publication unprotected, citing that parenthesis, and asked for confirmation.
+  - Observed effect: the coordinator accepted it as an interim and moved that protection into slice 4 through a plan edit; slice 4 delivered it, with no rework of slice 3 code.
+  - Inference: Qualified. Quoting the plan's mapped promise verbatim, not a summary, would have kept the stricter reading; the harm stayed small because the next slice owned the same outcome.

@@ -8,7 +8,7 @@ import type { LaunchProblem } from "./agentLaunchClient.ts";
 import "./agent-launch.css";
 
 // An explanation's `command` spans, shown as code.
-function LaunchExplanation({ text }: { readonly text: string }) {
+export function LaunchExplanation({ text }: { readonly text: string }) {
   const parts: ReactNode[] = text
     .split("`")
     .map((part, index) =>

@@ -12,7 +12,8 @@ import { creationViewSchema } from "./launchCreation.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 import { z } from "zod";
 import { offeredShapeSchema } from "./commandOptions.ts";
-import { existingChangesSchema, sessionPolicySchema } from "./launchRequest.ts";
+import { sessionPolicySchema } from "./launchRequest.ts";
+import { attemptObservationSchema } from "./launchOutcome.ts";
 import { sessionShown } from "./sessionShown.ts";
 import {
   launchSubject,
@@ -28,6 +29,7 @@ import {
 export * from "./launchWorkflow.ts";
 export * from "./launchRequest.ts";
 export * from "./launchRecord.ts";
+export * from "./launchOutcome.ts";
 
 // One project's launch records among the machine's sessions, oldest first,
 // or undefined while the machine's sessions are not yet read.
@@ -76,57 +78,6 @@ export function openSessionsOf(
     ]
   );
 }
-
-// Why nothing was launched.
-export const launchFailureReasons = [
-  "folder-not-found",
-  "not-installed",
-  "folder-not-trusted",
-  "refused",
-  "unavailable",
-  "start-refused",
-  "already-starting",
-] as const;
-
-// Why a launch may or may not have started a session: the launch wait
-// expired, or the host exited without a session this boundary could confirm.
-export const launchUncertaintyReasons = ["timed-out", "unconfirmed"] as const;
-
-// The uncommitted changes the default checkout holds, observed before a
-// launch selecting it starts anything: the changed paths (at most
-// `existingChangesShown`, never their content), how many there are, and the
-// fingerprint a confirmation names (`existingChangesSchema`).
-export const existingChangesShown = 50;
-
-export const existingChangesFoundSchema = z.object({
-  kind: z.literal("existing-changes"),
-  paths: z.array(z.string().min(1)).max(existingChangesShown),
-  count: z.number().int().positive(),
-  fingerprint: existingChangesSchema,
-});
-
-export type ExistingChangesFound = z.infer<typeof existingChangesFoundSchema>;
-
-export const launchResultSchema = z.discriminatedUnion("kind", [
-  // The record kept, with its session as the host listed it when confirming
-  // the launch.
-  z.object({ kind: z.literal("launched"), record: launchWithStateSchema }),
-  // Nothing was started: the default checkout holds changes the request did
-  // not confirm, or that changed since it was confirmed.
-  existingChangesFoundSchema,
-  z.object({
-    kind: z.literal("failed"),
-    reason: z.enum(launchFailureReasons),
-    explanation: z.string().min(1),
-  }),
-  z.object({
-    kind: z.literal("uncertain"),
-    reason: z.enum(launchUncertaintyReasons),
-    explanation: z.string().min(1),
-  }),
-]);
-
-export type LaunchResult = z.infer<typeof launchResultSchema>;
 
 // Whether the boundary can raise its macOS notifications
 // (`../server/sessionAlerts.ts`): the outcome of the latest `osascript` it
@@ -198,9 +149,13 @@ export type OfferedDefinition = z.infer<typeof offeredDefinitionSchema>;
 // whose installed skill establishes a start (the claim and workspace) when
 // Start execution is pressed, by project id, the projects whose installed
 // skill establishes a preparation when Start refinement is pressed, the starts
-// kept without a session, the starts running now with their phases, and the
-// options each project offers.
+// kept without a session, the starts running now with their phases, the
+// options each project offers, and the launch attempts this machine accepted,
+// with whether its kept attempts could be read (when not, an earlier startup
+// may be unresolved and nothing tells which).
 export const launchRecordsSchema = z.object({
+  attempts: z.array(attemptObservationSchema).default([]),
+  attemptsReadable: z.boolean().default(true),
   records: z.array(launchWithStateSchema),
   creations: z.array(creationViewSchema).default([]),
   alerts: alertsSchema,
