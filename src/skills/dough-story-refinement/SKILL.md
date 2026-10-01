@@ -5,7 +5,8 @@ description: >-
   scope, and key examples in each story's seed, distinguishing promises from
   rejection constraints. Adds UI or architectural
   detail only when needed. `--one-shot` refines a queued story without
-  publishing an assignment and keeps the result for review. Use for
+  publishing an assignment and keeps the result for review, or lands it with
+  `--auto-land`. Use for
   selected-story refinement, not broad problem decomposition, candidate
   selection, or slice sizing.
 ---

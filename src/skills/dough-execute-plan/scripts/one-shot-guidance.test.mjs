@@ -1,6 +1,7 @@
 // One-shot guidance: the start asks for workspace authority alone, the
 // verified result waits in its workspace for review, and only an explicit
-// landing request publishes it, including a queued story's closure.
+// landing request or selected automatic landing publishes it, including a
+// queued story's closure.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -46,7 +47,7 @@ test("a queued no-change closure waits for review like any result", () => {
   const none = section(reference, "## Finish with no change");
   assert.match(
     none,
-    /stop for review as for any result; it lands only on request/,
+    /stop for review as for any result; it lands only on request or under\s+selected automatic landing/,
   );
   const retire = section(reference, "## Retire the workspace");
   assert.match(retire, /landed result's delivery and CI completion/);
@@ -64,4 +65,28 @@ test("selected default checkout work takes that checkout as it is and keeps it",
   assert.match(land, /merge base of its HEAD and fetched\s+trunk/);
   const retire = section(reference, "## Retire the workspace");
   assert.match(retire, /default checkout is never retired/);
+});
+
+test("selected automatic landing publishes the verified result without review, and stops on any blocker", () => {
+  const retain = section(reference, "## Verify and retain the result");
+  assert.match(retain, /unless automatic landing was selected/);
+  const auto = section(reference, "## Land automatically when selected");
+  assert.match(auto, /`--auto-land\s+--push-authorized`/);
+  assert.match(auto, /`landing: "auto-land"`/);
+  assert.match(auto, /never selects automatic landing/);
+  assert.match(auto, /Tracked work refuses\s+`--auto-land`/);
+  assert.match(auto, /verification passes[\s\S]+refactor pass[\s\S]+decision/);
+  assert.match(
+    auto,
+    /\[Land the retained result\]\(#land-the-retained-result\)/,
+  );
+  assert.match(auto, /`--one-shot-identity`/);
+  assert.match(auto, /all checkout content is committed together/);
+  assert.match(auto, /remote acceptance alone completes neither/);
+  assert.match(
+    auto,
+    /`ownership-changed`[\s\S]+`conflict`[\s\S]+second rejection\. Push nothing more/,
+  );
+  assert.match(auto, /resumes the retained candidate/);
+  assert.match(auto, /the default checkout\s+stays/);
 });

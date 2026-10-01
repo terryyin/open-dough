@@ -165,7 +165,7 @@ test("one-shot refinement accepts recorded not-ready preparation and repairs it 
   assert.deepEqual(await remoteProfileNames(trunk), []);
 });
 
-test("a competing holder or automatic landing refuses one-shot refinement before any workspace exists", async (t) => {
+test("a competing holder or automatic landing without publication authority refuses one-shot refinement before any workspace exists", async (t) => {
   const trunk = await createPreparationTrunk();
   t.after(trunk.cleanup);
   const workspace = join(trunk.fixture, "prep-refused");
@@ -174,8 +174,8 @@ test("a competing holder or automatic landing refuses one-shot refinement before
     "--auto-land",
   ]);
   assert.equal(refused.code, 1, JSON.stringify(refused.receipt));
-  assert.equal(refused.receipt.status, "invalid-request");
-  assert.match(refused.receipt.error, /--auto-land/);
+  assert.equal(refused.receipt.status, "authority-required");
+  assert.match(refused.receipt.error, /trunk publication authority/);
 
   await publishAssignment(trunk, "Yui", {
     identity: identityC,

@@ -4,7 +4,7 @@ One-shot refinement refines one story queued in the **Backlog list** without
 publishing a Preparing assignment. It works in an owned workspace at fetched
 trunk, or in the default checkout when that is selected, records the story's
 preparation facts there, and stops with the committed result retained for
-review. Use it only when the developer or parent
+review, or lands it when automatic landing is also selected. Use it only when the developer or parent
 instruction explicitly selects one-shot (`--one-shot` or a clear equivalent)
 for refining that story; never infer it from apparent smallness. Without that
 selection, refine under
@@ -48,8 +48,7 @@ Act on the receipt's `status`:
   assignment. For this story, continue that assignment by running `start`
   without `--one-shot`; otherwise end the other assignment first.
 - `not-queued`, `workspace-selection-failed`, and `invalid-request` stop as
-  they do for an announcement. `invalid-request` also names `--auto-land`,
-  which one-shot refinement does not support.
+  they do for an announcement.
 
 A recorded `not-ready` assessment does not stop the start: refinement may be
 what repairs it.
@@ -94,6 +93,8 @@ workspace: the start named no agent.
 
 ## Stop for review
 
+Unless automatic landing was selected, stop here; with it, continue under
+[Land automatically when selected](#land-automatically-when-selected).
 Report the workspace path and branch, the retained `startingRevision`, the
 result commit, the recorded refinement, approach, and assessment, and any
 unresolved decisions. Say that remote trunk still lists the story in the
@@ -103,6 +104,30 @@ nothing is pushed or retired, and the story is neither Taken nor completed.
 
 A later session that names the retained workspace continues there without
 running `start` again. The default checkout always stays in place.
+
+## Land automatically when selected
+
+When the developer or parent instruction also selects automatic landing
+(`--auto-land` or a clear equivalent), that selection is the developer's
+advance keep instruction for this refinement's result, so it does not wait for
+review. It is independent of the workspace choice. A confirmation that
+existing default-checkout changes may join the result lets them be committed
+with it; it never selects automatic landing. Add `--auto-land
+--push-authorized` to the start: its `prepared` receipt then also carries
+`landing: "auto-land"`, and `authority-required` names missing publication
+authority before any workspace is selected.
+
+Land only once the seed records the story's goal, scope, and key examples, its
+recorded facts and assessment are true, and no decision you need from the
+developer remains open. Then land the committed result as
+[Land or discard on request](#land-or-discard-on-request) describes for a keep,
+ownership recheck included. The story stays queued with the recorded facts:
+landing neither Takes nor completes it, and starts no CI observer.
+
+Stop instead, keeping the committed result and its workspace as they are, and
+report what stopped it, when a decision remains open (it goes to the
+developer), the recheck reports `ownership-changed`, or the landing stops on a
+conflict or a second rejection. Push nothing more after such a stop.
 
 ## Land or discard on request
 
@@ -117,3 +142,21 @@ the recorder wrote. Then close the workspace under
 A default-checkout result holds everything committed there, so an explicit
 keep lands it with [Dough Land](../../dough-land/SKILL.md) from that checkout,
 which lands all of its content and keeps the checkout in place.
+
+Every landing of this result rechecks the story on fetched trunk. Supply this
+command as the candidate check Dough Land's publication runs, so it runs
+before the push and again before the retry after a rejected push:
+
+```text
+node <installed>/scripts/preparation-assignment.mjs recheck \
+  --workspace <workspace> --identity <queued story identity> \
+  --remote <remote> --target <trunk branch>
+```
+
+`queued` lets the push go ahead; a recorded `not-ready` assessment does not
+stop it. `ownership-changed` means another owner now holds the story (a Taken
+entry or an agent profile) or it has left the **Backlog list**: push nothing,
+keep the committed result and its workspace, report the `ownership` and
+`error`, and leave the story to that owner and the developer. A landing whose
+push ended without a clear answer continues as Dough Land's rerun describes,
+from the same commit.

@@ -356,7 +356,18 @@ layer slice with no owned outcome.
 
 ### 5. Explicit auto-land publishes the verified checkout result
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `node --test --test-timeout=600000 src/skills/dough-execute-plan/scripts/default-checkout-session*.test.mjs src/skills/dough-execute-plan/scripts/one-shot*.test.mjs src/skills/dough-execute-plan/scripts/lightweight-auto-land*.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication*.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-delivery*.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery*.test.mjs src/skills/dough-story-refinement/scripts/*.test.mjs src/skills/dough-land/scripts/*.test.mjs src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/session-policy.test.mjs`
+(255 pass; refactor rerun of affected subset 117 pass); install/payload and
+credential-free native suites.
+Learnings: `--one-shot --auto-land` requires `--push-authorized`
+(`needsPublicationAuthority`); prepared receipts carry `landing: "auto-land"`
+only when selected (`withSelectedLanding`), which slice 7 reads. Refinement
+landing (keep or auto-land) runs the new read-only
+`preparation-assignment.mjs recheck` (`queuedOwnershipGuard`) before each push.
+Managed `deliver` is observed only with a coordinator session (`--session-json`
+or Claude session id). Retirement after the CI gate is guidance-enforced only.
+Native one-shot evidence is stale until slice 8.
 Proof: New `lightweight-auto-land.test.mjs`, extended queued/publication-resume
 fixtures, and preparation publication cases cover isolation/default checkout,
 all authorized content, blocker stops, holder changes, lost push response,

@@ -127,6 +127,7 @@ managed_files=(
   dough-story-refinement/scripts/preparation-assignment-request.mjs
   dough-story-refinement/scripts/preparation-assignment-start.mjs
   dough-story-refinement/scripts/preparation-assignment-trunk.mjs
+  dough-story-refinement/scripts/preparation-one-shot-recheck.mjs
   dough-story-refinement/scripts/preparation-one-shot-start.mjs
   dough-land/SKILL.md
   dough-land/scripts/retirement-checks.mjs

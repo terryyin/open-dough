@@ -87,8 +87,12 @@ export function startQueuedOneShot(trunk, options = {}) {
 }
 
 // The agent's result commit for B: its result (unless none was needed),
-// B's backlog completion, its spent story section and its plan.
-export async function commitQueuedResult(workspace, { result = true } = {}) {
+// B's backlog completion, its spent story section and its plan; with
+// `stageAll`, everything else in the checkout too, as in the default checkout.
+export async function commitQueuedResult(
+  workspace,
+  { result = true, stageAll = false } = {},
+) {
   if (result) writeFileSync(join(workspace, "feature.txt"), "B's result\n");
   await backlog(workspace, "complete", "--identity", identityB);
   const seed = readFileSync(join(workspace, seedB), "utf8");
@@ -99,7 +103,7 @@ export async function commitQueuedResult(workspace, { result = true } = {}) {
   );
   rmSync(join(workspace, ".planning/slice-plans/B"), { recursive: true });
   const paths = [backlogFile, seedB, planB, ...(result ? ["feature.txt"] : [])];
-  await git(workspace, "add", "-A", "--", ...paths);
+  await git(workspace, "add", "-A", ...(stageAll ? [] : ["--", ...paths]));
   await git(workspace, "commit", "-qm", "Complete story B as one-shot work");
   return revParse(workspace, "HEAD");
 }

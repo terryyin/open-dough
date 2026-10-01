@@ -6,7 +6,7 @@ import {
   agentModes,
   agentReportError,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { sessionPolicy } from "./session-policy.mjs";
+import { needsPublicationAuthority, sessionPolicy } from "./session-policy.mjs";
 import { stopped } from "./workspace-publication-ownership.mjs";
 import { defaultCheckoutRequest } from "./workspace-publication-select.mjs";
 
@@ -39,9 +39,11 @@ function ownedWorkspaceRequest(requestInput) {
 }
 
 // The normalized request, or the stop that refuses it. A one-shot start
-// publishes no claim, so it needs no publisher and no publication authority:
-// its result waits for review in the owned workspace, or in the default
-// checkout when `--default-main` selects it. An unlisted request has no
+// publishes no claim, so it needs no publisher: its result waits for review in
+// the owned workspace, or in the default checkout when `--default-main`
+// selects it, and needs no publication authority. With `--auto-land` the
+// verified result lands without that review, so the start requires the
+// publication authority up front. An unlisted request has no
 // identity; a supplied identity is checked against fetched trunk. The Git
 // `repository` the start reads and selects from is the supplied integration
 // (default) checkout, else the supplied repository context (an owned worktree
@@ -57,11 +59,10 @@ export function startRequest(requestInput) {
       error:
         "--default-main applies to one-shot work; a tracked start publishes its claim from a separate owned workspace",
     });
-  if (policy.landing !== "review")
+  if (policy.landing !== "review" && !oneShot)
     return stopped("invalid-request", {
-      error: oneShot
-        ? "this start retains a one-shot result for review; --auto-land is not supported"
-        : "--auto-land applies to one-shot work; tracked work publishes through its own lifecycle",
+      error:
+        "--auto-land applies to one-shot work; tracked work publishes through its own lifecycle",
     });
   const required = [
     "workspace",
@@ -114,8 +115,9 @@ export function startRequest(requestInput) {
   const reportError = agentReportError(request);
   if (reportError) return stopped("invalid-request", { error: reportError });
   // Permission to work is separate from permission to publish: only a start
-  // that publishes a claim needs trunk publication authority.
-  const publishes = !oneShot;
+  // that publishes a claim, or a one-shot start whose result lands
+  // automatically, needs trunk publication authority.
+  const publishes = needsPublicationAuthority(policy);
   if (
     !agentModes.includes(request.mode) ||
     request.workspaceAuthorized !== true ||

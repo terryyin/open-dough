@@ -1,6 +1,6 @@
-// One-shot start refusals: automatic landing, admission,
-// missing workspace authority, or Taken work stops before any workspace is
-// created or anything reaches the remote.
+// One-shot start refusals: admission, automatic landing without publication
+// authority, tracked automatic landing, missing workspace authority, or Taken
+// work stops before any workspace is created or anything reaches the remote.
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -21,7 +21,7 @@ function startOneShot(trunk, extra, options) {
   });
 }
 
-test("one-shot refuses admission, automatic landing, missing workspace authority, and Taken work without creating a workspace", async (t) => {
+test("one-shot refuses admission, automatic landing without publication authority, tracked automatic landing, missing workspace authority, and Taken work without creating a workspace", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const taken = await startCliResult(trunk, "trunk");
@@ -42,10 +42,22 @@ test("one-shot refuses admission, automatic landing, missing workspace authority
       /--one-shot or --admit/,
     ],
     [
-      "automatic landing",
-      startOneShot(trunk, ["--auto-land"], { name: "auto-land" }),
+      "automatic landing without publication authority",
+      startOneShot(trunk, ["--auto-land"], {
+        name: "auto-land",
+        pushAuthorized: false,
+      }),
+      "authority-required",
+      /trunk publication authority/,
+    ],
+    [
+      "tracked automatic landing",
+      startCliResult(trunk, "trunk", ["--auto-land"], {
+        name: "tracked-auto-land",
+        identity: "SEED-B#b",
+      }),
       "invalid-request",
-      /--auto-land is not supported/,
+      /--auto-land applies to one-shot work/,
     ],
     [
       "Taken identity",

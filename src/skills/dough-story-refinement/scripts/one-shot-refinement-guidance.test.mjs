@@ -66,3 +66,24 @@ test("selected default checkout refinement keeps that checkout's content and lan
   const land = section(reference, "## Land or discard on request");
   assert.match(land, /Dough Land[\s\S]+keeps the checkout in place/);
 });
+
+test("selected automatic landing lands the refinement as a keep after an ownership recheck, leaving the story queued", () => {
+  const review = section(reference, "## Stop for review");
+  assert.match(review, /Unless automatic landing was selected/);
+  const auto = section(reference, "## Land automatically when selected");
+  assert.match(auto, /`--auto-land\s+--push-authorized`/);
+  assert.match(auto, /`landing: "auto-land"`/);
+  assert.match(auto, /never selects automatic landing/);
+  assert.match(auto, /no decision you need from the\s+developer remains open/);
+  assert.match(auto, /ownership recheck included/);
+  assert.match(
+    auto,
+    /neither Takes nor completes it, and starts no CI observer/,
+  );
+  assert.match(auto, /`ownership-changed`[\s\S]+Push nothing more/);
+  const land = section(reference, "## Land or discard on request");
+  assert.match(land, /preparation-assignment\.mjs recheck/);
+  assert.match(land, /retry after a rejected push/);
+  assert.match(land, /`ownership-changed`[\s\S]+push nothing/);
+  assert.match(land, /from the same commit/);
+});

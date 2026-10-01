@@ -88,6 +88,34 @@ export function start(trunk, workspace, extra, branch) {
 export const oneShot = (trunk, workspace, branch, extra = []) =>
   start(trunk, workspace, ["--one-shot", ...extra], branch);
 
+// The installed `recheck` of story C from `workspace`.
+export const recheck = (workspace) =>
+  runJson([
+    assignmentCli,
+    "recheck",
+    "--workspace",
+    workspace,
+    "--identity",
+    identityC,
+    "--remote",
+    "origin",
+    "--target",
+    "main",
+  ]);
+
+// The installed `recheck` as the candidate check a landing runs on each
+// fetched trunk tip: its stop, or undefined when it reports `queued`. Each
+// receipt is kept in `receipts`.
+export const recheckOnFetch =
+  (workspace, receipts = []) =>
+  async () => {
+    const { receipt } = await recheck(workspace);
+    receipts.push(receipt);
+    if (receipt.ok) return undefined;
+    const { status, ownership, error } = receipt;
+    return { status, fields: { ownership, error } };
+  };
+
 async function recorder(cwd, ...args) {
   const { stdout } = await exec(process.execPath, [backlogCli, ...args], {
     cwd,

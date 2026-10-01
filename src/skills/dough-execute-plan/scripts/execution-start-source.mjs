@@ -12,7 +12,7 @@ import {
   preparedReceipt,
 } from "./execution-start-receipt.mjs";
 import { sameSelectedSource } from "./execution-start-recovery.mjs";
-import { sessionPolicy } from "./session-policy.mjs";
+import { sessionPolicy, withSelectedLanding } from "./session-policy.mjs";
 import {
   selectDefaultCheckout,
   selectOwnedWorkspace,
@@ -35,18 +35,26 @@ async function readOneShotSource({ repository, identity }, ref) {
 // The one-shot start: the owned workspace at fetched trunk, or the default
 // checkout as it is, with nothing published. Its result goes through managed
 // delivery. The default checkout is the workspace itself, so it gets no
-// separate local refresh.
+// separate local refresh. A prepared receipt carries `landing: "auto-land"`
+// when that landing was selected; without it the result waits for review.
 export async function prepareOneShot(request, origin, fetched) {
-  if (sessionPolicy(request).workspace === "default-checkout") {
+  const policy = sessionPolicy(request);
+  if (policy.workspace === "default-checkout") {
     const selected = await selectDefaultCheckout(request);
     if (!selected.ok) return { ...selected, fetched };
-    return defaultCheckoutReceipt(request, selected, fetched);
+    return withSelectedLanding(
+      defaultCheckoutReceipt(request, selected, fetched),
+      policy,
+    );
   }
   const maintained = await maintenance(request);
   const selected = await selectOwnedWorkspace({ ...request, origin });
   if (!selected.ok)
     return { ...selected, fetched, ...reportedMaintenance(maintained) };
-  return preparedReceipt(request, selected, maintained);
+  return withSelectedLanding(
+    preparedReceipt(request, selected, maintained),
+    policy,
+  );
 }
 
 // `read(request, ref, candidateSha)` reads it on fetched trunk; `changed`

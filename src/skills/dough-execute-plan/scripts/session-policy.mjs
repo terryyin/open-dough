@@ -45,3 +45,18 @@ export function sessionPolicy(options = {}) {
     ]),
   );
 }
+
+// Whether a session's start needs trunk publication authority: tracked work
+// publishes its claim, and one-shot work publishes only a result that lands
+// automatically.
+export function needsPublicationAuthority(policy) {
+  return policy.tracking !== "one-shot" || policy.landing === "auto-land";
+}
+
+// A successful start `receipt` that also reports a selected automatic
+// landing; without that selection its result waits for review.
+export function withSelectedLanding(receipt, policy) {
+  return receipt.ok && policy.landing === "auto-land"
+    ? { ...receipt, landing: policy.landing }
+    : receipt;
+}

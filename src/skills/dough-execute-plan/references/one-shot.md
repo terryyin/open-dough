@@ -4,7 +4,8 @@ One-shot work completes an explicitly requested, genuinely trivial outcome
 with no Taken entry or agent profile, and no story or plan left behind. It runs
 in an owned isolated workspace, or in the default checkout when that is
 selected, and stops with its verified result retained there for review; only
-an explicit request to land it publishes that result to remote trunk. It is
+an explicit request to land it, or automatic landing selected with it,
+publishes that result to remote trunk. It is
 a way of tracking the work, not a separate execution path: planless execution,
 verification, refactoring, delivery, and closure stay as they are. It grants
 no permission beyond the current instruction: implementing findings,
@@ -94,7 +95,9 @@ Work only in that workspace. Run the focused verification the outcome needs
 and the [post-change refactor](../../dough-post-change-refactor/SKILL.md) pass,
 then commit the result with plain `git commit`: the start named no agent.
 
-Then stop for review. Report the workspace path and branch, the retained
+Then stop for review, unless automatic landing was selected: then continue
+under [Land automatically when selected](#land-automatically-when-selected).
+Report the workspace path and branch, the retained
 `startingRevision`, the result commit, the verification evidence, and any
 pending issues. For a queued story, also report that remote trunk still lists
 it in the **Backlog list** while its closure waits in the result commit.
@@ -119,6 +122,37 @@ default checkout itself, so supply no separate one to refresh. If the delivery
 result is lost or interrupted,
 [resume the interrupted publication](trunk-publication.md#resume-an-interrupted-publication)
 with the candidate you retained, never by committing or pushing again.
+
+## Land automatically when selected
+
+When the developer or parent instruction also selects automatic landing
+(`--auto-land` or a clear equivalent), that selection is the developer's
+advance authority to publish this verified result, so it does not wait for
+review. It is independent of the workspace choice. A confirmation that
+existing default-checkout changes may join the result lets them be committed
+with it; it never selects automatic landing. Add `--auto-land
+--push-authorized` to the start command: its prepared receipt then also
+carries `landing: "auto-land"`, and `authority-required` names missing
+publication authority before any workspace is selected. Tracked work refuses
+`--auto-land` with `invalid-request`.
+
+Land only once the focused verification passes, the post-change refactor pass
+is done, and no product, scope, or architecture decision remains open. Then
+deliver the committed result as [Land the retained result](#land-the-retained-result)
+describes, without waiting for a landing request: a queued story's closure
+lands in the same commit, with `--one-shot-identity`. In the default checkout,
+all checkout content is committed together and delivered from that checkout.
+Report the accepted SHA and target, and the default checkout's refresh and CI
+observation as their own results: remote acceptance alone completes neither.
+
+Stop instead, keeping the committed result and its workspace as they are, and
+report what stopped it, when verification fails, a decision remains open (it
+goes to the developer), or delivery stops: `ownership-changed`, a
+reconciliation `conflict`, a failed recheck of a reconciled candidate, or a
+second rejection. Push nothing more after such a stop. A lost or interrupted
+delivery result resumes the retained candidate as described above. After the
+landing, [retire the workspace](#retire-the-workspace); the default checkout
+stays.
 
 ## Complete a queued story in the same commit
 
@@ -149,7 +183,8 @@ A supported no-change conclusion, such as behavior that already matches its
 intent, has no product result. Report the evidence. For a queued story, commit
 its closure alone, as in
 [completing a queued story](#complete-a-queued-story-in-the-same-commit), and
-stop for review as for any result; it lands only on request. An unlisted
+stop for review as for any result; it lands only on request or under
+selected automatic landing. An unlisted
 request has nothing to retain: retire an owned workspace.
 
 ## Retire the workspace

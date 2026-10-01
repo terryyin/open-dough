@@ -126,7 +126,8 @@ async function topLevel(checkout) {
 // refresh is not applicable. A rerun starts from real Git state: nothing to
 // commit creates no commit, and a tip the fetched target already contains is
 // not pushed again. Every stop keeps all resources and names the unfinished
-// step. `beforePush` lets a test race another writer against the push.
+// step. `beforePush` lets a test race another writer against the push;
+// `onFetchedTarget` is a calling skill's own check on each fetched target tip.
 export async function landWorktree({
   worktree,
   branch,
@@ -137,6 +138,7 @@ export async function landWorktree({
   createdForWork = true,
   message = "Land reviewed worktree changes",
   beforePush,
+  onFetchedTarget,
 }) {
   const notDone = { refresh: "not-attempted", cleanup: "not-performed" };
   if (!worktree || !branch) {
@@ -186,6 +188,7 @@ export async function landWorktree({
       remote,
       validate: () => true,
       beforePush,
+      onFetchedTarget,
     });
     if (!publication.ok) {
       return { stopped: "publish", commit, publication, ...notDone };

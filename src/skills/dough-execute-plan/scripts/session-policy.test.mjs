@@ -4,9 +4,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
+  needsPublicationAuthority,
   sessionPolicy,
   sessionPolicyChoices,
   sessionPolicyToggles,
+  withSelectedLanding,
 } from "./session-policy.mjs";
 
 test("absent options compose standard tracking in an isolated workspace that waits for review", () => {
@@ -69,6 +71,33 @@ test("the invocation flags map one-to-one onto the request options", () => {
   }
   assert.ok(Object.isFrozen(sessionPolicyChoices));
   assert.ok(Object.isFrozen(sessionPolicyChoices.landing.values));
+});
+
+test("only tracked work or an automatically landed one-shot result needs publication authority", () => {
+  assert.equal(needsPublicationAuthority(sessionPolicy()), true);
+  assert.equal(
+    needsPublicationAuthority(sessionPolicy({ oneShot: true })),
+    false,
+  );
+  assert.equal(
+    needsPublicationAuthority(sessionPolicy({ oneShot: true, autoLand: true })),
+    true,
+  );
+});
+
+test("a successful start receipt reports only a selected automatic landing", () => {
+  const prepared = { ok: true, status: "prepared" };
+  const autoLand = sessionPolicy({ oneShot: true, autoLand: true });
+  assert.deepEqual(withSelectedLanding(prepared, autoLand), {
+    ...prepared,
+    landing: "auto-land",
+  });
+  assert.deepEqual(
+    withSelectedLanding(prepared, sessionPolicy({ oneShot: true })),
+    prepared,
+  );
+  const refused = { ok: false, status: "source-refused" };
+  assert.deepEqual(withSelectedLanding(refused, autoLand), refused);
 });
 
 test("the module imports nothing, so a browser can share it", () => {

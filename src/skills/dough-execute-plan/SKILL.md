@@ -10,7 +10,7 @@ description: >-
   list holds, such as a standalone review, investigation, or maintenance request,
   into Taken before its work starts. Does not decide story scope or quick-path
   eligibility. `--trunk` selects Trunk Mode; omitted mode keeps Story Branch Mode.
-  `--one-shot` keeps explicitly selected trivial work's verified result for review.
+  `--one-shot` keeps selected trivial work's result for review; `--auto-land` lands it.
   `--skip-retro` skips the automatic planned-execution retrospective. `--replan` and
   `--no-replan` choose whether an oversized attempt may continue through planning.
 ---

@@ -4,11 +4,15 @@
 // agent name, or backlog change is made; the result waits in the workspace
 // for review. Another holder of the story (a Taken entry or any agent profile)
 // refuses it, while a recorded not-ready assessment does not: preparation
-// may be what repairs it.
+// may be what repairs it. A prepared receipt carries `landing: "auto-land"`
+// when that landing was selected; without it the result waits for review.
 import { maintenance } from "../../dough-execute-plan/scripts/execution-start-maintenance.mjs";
 import { requireUnheld } from "../../dough-execute-plan/scripts/one-shot-ownership.mjs";
 import { git } from "../../dough-execute-plan/scripts/publication-git.mjs";
-import { sessionPolicy } from "../../dough-execute-plan/scripts/session-policy.mjs";
+import {
+  sessionPolicy,
+  withSelectedLanding,
+} from "../../dough-execute-plan/scripts/session-policy.mjs";
 import {
   backlogPath,
   remoteRef,
@@ -84,22 +88,29 @@ export async function startOneShotPreparation(input) {
   } catch (error) {
     return stop("source-refused", { workspace, fetched, error: error.message });
   }
-  if (sessionPolicy(request).workspace === "default-checkout")
-    return defaultCheckoutPrepared(request, fetched);
+  const policy = sessionPolicy(request);
+  if (policy.workspace === "default-checkout")
+    return withSelectedLanding(
+      await defaultCheckoutPrepared(request, fetched),
+      policy,
+    );
   const selected = await selectAtFetchedTrunk(request, repository, fetched);
   if (!selected.ok) return selected;
   const branch = (
     await git(workspace, "branch", "--show-current")
   ).stdout.trim();
-  return {
-    ok: true,
-    status: "prepared",
-    tracking: "one-shot",
-    identity,
-    workspace,
-    branch,
-    startingRevision: selected.startingRevision,
-    created: selected.created,
-    refresh: await maintenance(request),
-  };
+  return withSelectedLanding(
+    {
+      ok: true,
+      status: "prepared",
+      tracking: "one-shot",
+      identity,
+      workspace,
+      branch,
+      startingRevision: selected.startingRevision,
+      created: selected.created,
+      refresh: await maintenance(request),
+    },
+    policy,
+  );
 }

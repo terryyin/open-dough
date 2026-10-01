@@ -8,6 +8,7 @@ import {
   profileAgentName,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
+  needsPublicationAuthority,
   sessionPolicy,
   sessionPolicyChoices,
 } from "../../dough-execute-plan/scripts/session-policy.mjs";
@@ -19,8 +20,8 @@ import { stop } from "./preparation-assignment-ownership.mjs";
 const publishing = new Set(["start", "abandon"]);
 
 // Why the request's session choices cannot apply to `operation`, or
-// undefined when they can: only `start` takes them, the default checkout is a
-// one-shot workspace, and the result waits for review.
+// undefined when they can: only `start` takes them, and the default checkout
+// and automatic landing apply to one-shot preparation.
 function sessionPolicyError(operation, policy) {
   const chosen = Object.entries(sessionPolicyChoices).filter(
     ([choice, { values }]) => policy[choice] !== values[0],
@@ -30,10 +31,8 @@ function sessionPolicyError(operation, policy) {
     return `session options (${chosen.map(([, { flag }]) => flag).join(", ")}) apply only to start`;
   if (policy.workspace !== "isolated" && policy.tracking !== "one-shot")
     return "--default-main applies to one-shot preparation; an assigned preparation publishes its announcement from a separate owned workspace";
-  if (policy.landing !== "review")
-    return policy.tracking === "one-shot"
-      ? "a one-shot preparation result waits for review; --auto-land is not supported"
-      : "--auto-land applies to one-shot preparation; an assigned preparation lands through its keep";
+  if (policy.landing !== "review" && policy.tracking !== "one-shot")
+    return "--auto-land applies to one-shot preparation; an assigned preparation lands through its keep";
   return undefined;
 }
 
@@ -80,17 +79,20 @@ export function requestOf(operation, input) {
   const policy = sessionPolicy(request);
   const policyError = sessionPolicyError(operation, policy);
   if (policyError) return stop("invalid-request", { error: policyError });
+  // A one-shot start publishes nothing, so it needs no publication authority
+  // unless its result lands automatically.
+  const publishes =
+    publishing.has(operation) && needsPublicationAuthority(policy);
+  if (publishes && request.pushAuthorized !== true)
+    return stop("authority-required", {
+      error: "trunk publication authority must be established",
+    });
   if (policy.workspace === "default-checkout") {
     const located = defaultCheckoutRequest(request);
     if (located.error) return stop("invalid-request", { error: located.error });
     return { ok: true, request: located.request };
   }
-  // A one-shot start publishes nothing, so it needs no publication authority.
   if (!publishing.has(operation)) return { ok: true, request };
-  if (policy.tracking !== "one-shot" && request.pushAuthorized !== true)
-    return stop("authority-required", {
-      error: "trunk publication authority must be established",
-    });
   if (request.integration === request.workspace)
     return stop("invalid-request", {
       error: "preparation requires a separate owned workspace",
