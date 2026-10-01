@@ -93,8 +93,8 @@ native acceptance or granting execution. All slices remain planned.
 ## Execution observations
 
 On 2026-10-01 computer use refused Codex desktop access. Terry then explicitly
-authorized preparing and running the disposable native probe and will observe
-the desktop part. Fixture `/tmp/dough-194-native-2UViTC/refinement` was installed
+authorized preparing and running the disposable native probe and subsequently
+confirmed the desktop observations below. Fixture `/tmp/dough-194-native-2UViTC/refinement` was installed
 by the actual v0.3.51 installer, release commit
 `3bf0011c80be5e2a7834e2a294ed9d96348b3f85`; payload comparison passed.
 Preparation Yui-chan, allocation `269478c57f9b76c999d396d11288e5853b0b5a3a`,
@@ -103,7 +103,7 @@ are 0.159.3; configured model/policy and existing daemon remain unchanged.
 Probe exercises production launchCodex/input/RPC/conversation with an
 attempt-local durable writer; HTTP/browser and machine store are omitted.
 Native launch ran after slice 2 delivery. Setup evidence and owned harness
-are in `/tmp/dough-194-native-2UViTC`; incomplete native evidence remains active.
+are in `/tmp/dough-194-native-2UViTC`; accepted evidence awaits judged cleanup.
 
 ## Slice 2 accepted proof
 
@@ -131,9 +131,10 @@ Existing start/release/abandon and execution's default start subprocess are
 unchanged; reviewed preparingJourney/launchJourney, one-shot fixtures and
 native owned-context consumers retain those commands. This CLI continuation
 operation does not change skill discovery/invocation/native activation.
-Slice 1/3 native desktop acceptance remains separate and pending.
+Slice 1/3 native desktop acceptance is separate from this deterministic proof;
+the accepted slice 1 observation is recorded below.
 
-## Slice 1 native observation — desktop proof pending
+## Slice 1 native acceptance
 
 Candidate `f5500724cd937250c74dd5964f27c486dd655d5a`; actual command
 `node --experimental-transform-types /tmp/dough-194-native-2UViTC/launch.mjs`.
@@ -159,9 +160,30 @@ active usability or final-client detachment during an active turn.
 
 Terry was sent the original link immediately and asked to report active desktop
 read/input behavior and answer the completed question in that original chat.
-That report/answer remains pending. No speculative native lifetime repair is
-accepted; slices 1/3 remain unfinished. Raw incomplete evidence/clean fixture
-remain under `/tmp/dough-194-native-2UViTC`. A single final read preserved in
+A single final pre-report read preserved in
 `history-1790833122551.json` found no desktop answer/new turn; original history
 was intact and status was `notLoaded`. Owned harness TTY 66963/PID 87388 then
 exited 0 after `exit`; the shared daemon and original chat remain available.
+
+Terry subsequently confirmed: “Yep, I can confirm one and two works. Three,
+how do I trigger a handoff? One and two works already.” The numbered observations
+were opening/reading the original chat during its active turn, then answering
+its completed question and continuing in that same chat without a fork. The
+third item was conditional investigation if handoff failed, not another action.
+
+One temporary read-only native reader corroborated desktop continuation at
+13:58:28 Singapore. `desktop-continuation-history.json` retains the original
+turn/text/skill/question plus user message `01a0f607-f436-7e90-854e-e0d22f33e503`
+(`no idea. let's try unfinished items.\n`) and completed turn
+`01a0f607-f117-7650-a0ea-3f67b751d88e` in the same original thread. The native
+agent's reply recorded a local refined draft, without publication. Reader
+closed and exited 0; no coordinator input, replay, daemon action or policy
+override occurred. Native production blob hashes at `af0bf6ea` match `f5500724`.
+
+Accepted: active desktop readability and same-conversation question/answer/work
+continuity across the existing completion-driven launch-client release. No
+refusal was reproduced, so no causal ownership comparison or speculative
+lifetime remedy is warranted. Active final-client detachment and structured
+approval/input waits were not exercised or claimed. Slice 3 can reuse this
+native proof for the unchanged supported mechanism. Attempt evidence/fixture
+remain under `/tmp/dough-194-native-2UViTC` pending judged cleanup.

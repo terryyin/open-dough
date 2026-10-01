@@ -23,8 +23,10 @@
   exited 0. Hook is check-only `npm run --silent lint -- --staged`;
   coordinator selectively formats changed source with installed Prettier.
 - CI: GitHub Actions, verified push-triggered `ci.yml`, target execution branch
-  `codex/codex-refinement-handoff-retry`. Codex yielded observer is cell 28,
-  exec session 93880, PID 81271, directory `/tmp/dough-ci-501/watch-d8IuGM`,
+  `codex/codex-refinement-handoff-retry`. Initial observer stopped cleanly at
+  the desktop-observation boundary, with no unread events and pending CI unobserved.
+  Resumed Codex yielded observer is cell 68, exec session 92463, PID 62388,
+  directory `/tmp/dough-ci-501/watch-nQm6qZ`,
   coordinator `codex-194-01a0f5d4`, runtime in this exact execution checkout.
   The earlier Take on trunk remains unobserved by this branch-bound observer.
 - Existing planning authority is retained; no new numeric slice limit or
@@ -33,7 +35,7 @@
   `af459483`, working on ad hoc startup. Its general Codex session/lifecycle
   ownership remains separate; this execution changes retained preparation retry.
 - Direct desktop access is refused by computer use. Terry authorized a fresh
-  disposable native probe and will observe its desktop handoff; see
+  disposable native probe and confirmed its desktop handoff; see
   [execution observations](OBSERVATIONS.md#execution-observations).
 
 ## Outcome and boundaries
@@ -70,7 +72,7 @@ Follow [the selected existing owners and Accepted ADRs](OBSERVATIONS.md#existing
 
 ## Decisive premises and observations
 
-Read [the recorded observations](OBSERVATIONS.md#decisive-premises-and-observations) before relying on a slice premise. Native feasibility remains unresolved; deterministic protocol proof does not establish desktop continuity.
+Read [the recorded observations](OBSERVATIONS.md#decisive-premises-and-observations) before relying on a slice premise. [Native acceptance](OBSERVATIONS.md#slice-1-native-acceptance) establishes the observed completion-driven handoff; deterministic protocol proof alone does not establish desktop continuity.
 
 ## Proof ownership
 
@@ -89,7 +91,7 @@ Read [the recorded observations](OBSERVATIONS.md#decisive-premises-and-observati
 
 Type: Behavior
 
-Status: in progress — authorized native probe; desktop observation pending.
+Status: done — [native acceptance](OBSERVATIONS.md#slice-1-native-acceptance).
 
 Behavior: in a fresh isolated target project with released installed guidance,
 start a small native dashboard refinement under the current configured policy.
