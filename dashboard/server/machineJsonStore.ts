@@ -2,8 +2,9 @@
 // every repository, shared by each store of the local launch boundary
 // (`./launchRecordStore.ts`). Every read reads the file afresh, so each
 // dashboard server on this machine -- dev and preview alike -- sees every
-// write. A write replaces the file atomically; two writes at the same instant
-// can still race, which is accepted rather than locked against.
+// write. A directory lock beside the file serializes each read-modify-write
+// across dashboard processes, and replacement remains atomic for readers.
+// Lock waits are bounded; an abandoned lock is never removed automatically.
 // A missing file holds the empty document. A file that does not parse, or does
 // not match the document's schema, is unreadable: a read answers it as such
 // and leaves it as it is, and the next write starts a new document and moves
@@ -12,8 +13,17 @@
 // so nothing is silently lost.
 
 import { randomUUID } from "node:crypto";
-import { access, mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import {
+  access,
+  mkdir,
+  readFile,
+  rename,
+  rm,
+  rmdir,
+  writeFile,
+} from "node:fs/promises";
 import path from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import type { ZodType } from "zod";
 
 export type StoreRead<T> =
@@ -61,23 +71,53 @@ async function unreadableCopy(file: string): Promise<string> {
   return `${first}-${new Date().toISOString().replaceAll(":", "-")}`;
 }
 
+async function acquireWriteLock(lock: string): Promise<void> {
+  const deadline = Date.now() + 10_000;
+  for (;;) {
+    try {
+      await mkdir(lock);
+      return;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+      if (Date.now() >= deadline) {
+        throw new Error(
+          `The session store is locked: ${lock}. Nothing was written. Retry after the other writer finishes, or remove the lock only after confirming no writer holds it.`,
+          { cause: error },
+        );
+      }
+      await delay(25);
+    }
+  }
+}
+
 // Rewrites the document with `change` applied to what is kept, replacing the
-// file atomically. An unreadable file is moved aside and `change` starts from
-// the empty document.
+// file atomically. The authoritative read and change both run under the
+// write lock. An unreadable file is moved aside and `change` starts from the
+// empty document.
 export async function replaceMachineJson<T>(
   store: MachineJsonStore<T>,
   change: (stored: T) => T,
 ): Promise<void> {
   const { file } = store;
   await mkdir(path.dirname(file), { recursive: true });
-  const read = await readMachineJson(store);
-  let stored = store.empty;
-  if (read.kind === "unreadable") {
-    await rename(file, await unreadableCopy(file));
-  } else {
-    stored = read.document;
-  }
+  const lock = `${file}.lock`;
+  await acquireWriteLock(lock);
   const temporary = `${file}.${randomUUID()}.tmp`;
-  await writeFile(temporary, `${JSON.stringify(change(stored), null, 2)}\n`);
-  await rename(temporary, file);
+  try {
+    const read = await readMachineJson(store);
+    let stored = store.empty;
+    if (read.kind === "unreadable") {
+      await rename(file, await unreadableCopy(file));
+    } else {
+      stored = read.document;
+    }
+    await writeFile(temporary, `${JSON.stringify(change(stored), null, 2)}\n`);
+    await rename(temporary, file);
+  } finally {
+    try {
+      await rm(temporary, { force: true });
+    } finally {
+      await rmdir(lock);
+    }
+  }
 }

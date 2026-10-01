@@ -110,7 +110,9 @@ remains subject to Codex's native rules.
 
 Machine records live outside repositories in
 `~/.open-dough/dashboard/agent-launches.json`. Dev/preview servers read the file
-afresh and replace it atomically. Unclosed records remain indefinitely; done
+afresh and serialize the complete read-and-replace operation across dashboard
+processes, so concurrent launches and done marks preserve both updates.
+Replacement is atomic. Unclosed records remain indefinitely; done
 records expire after 30 days. Unreadable files are preserved on reads and moved
 to `.unreadable` (with timestamp suffix for an existing copy) on the next write.
 Page/server restarts preserve native identity, workspace, options and evidence.

@@ -10,7 +10,6 @@
 // ./agent-launch-boundary.spec.ts.
 
 import {
-  mkdirSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
@@ -23,6 +22,7 @@ import { expect, test } from "@playwright/test";
 import {
   launch,
   launchRequest,
+  markDone,
   recordsOf,
   title,
 } from "./agentLaunchBoundary.ts";
@@ -31,6 +31,14 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
+import {
+  recordLaunchedDaysAgo,
+  seedStore,
+  storedRecords,
+  storeFile,
+} from "./machineLaunchRecords.ts";
+import { launchWithStateSchema } from "../src/agentLaunch.ts";
+import { alertReading, attentionCount } from "../src/sessionShown.ts";
 
 const launchWaitMs = 4_000;
 
@@ -38,52 +46,6 @@ const launchWaitMs = 4_000;
 // state across the servers it starts.
 function newMachine(): string {
   return mkdtempSync(path.join(tmpdir(), "dough-machine-"));
-}
-
-function storeFile(machine: string): string {
-  return path.join(
-    machine,
-    "home",
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
-}
-
-function seedStore(machine: string, text: string): void {
-  mkdirSync(path.dirname(storeFile(machine)), { recursive: true });
-  writeFileSync(storeFile(machine), text);
-}
-
-// The project's records as the store file holds them, before any retention.
-function storedRecords(machine: string): unknown[] {
-  const store = JSON.parse(readFileSync(storeFile(machine), "utf8")) as Record<
-    string,
-    unknown[]
-  >;
-  return store["open-dough"] ?? [];
-}
-
-function daysAgo(days: number): string {
-  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
-}
-
-function recordLaunchedDaysAgo(
-  days: number,
-  sessionId: string,
-  doneDaysAgo?: number,
-): object {
-  return {
-    request: launchRequest,
-    session: {
-      host: "claude",
-      sessionId,
-      shortId: sessionId.slice(0, 8),
-      name: `Open Dough · Execution · ${title}`,
-    },
-    launchedAt: daysAgo(days),
-    ...(doneDaysAgo === undefined ? {} : { doneAt: daysAgo(doneDaysAgo) }),
-  };
 }
 
 test.describe("launch records kept on this machine", () => {
@@ -125,6 +87,80 @@ test.describe("launch records kept on this machine", () => {
     await Promise.all(servers.splice(0).map((server) => server.close()));
     const restarted = await serverOn("dev");
     expect(await recordsOf(restarted, "open-dough")).toEqual([record]);
+  });
+
+  test("concurrent done marks from separate dashboard processes all survive and suppress later review attention", async () => {
+    const sessionIds = Array.from(
+      Array<unknown>(24).keys(),
+      (index) =>
+        `${String(index).padStart(8, "0")}-0000-4000-8000-000000000001`,
+    );
+    seedStore(
+      machine,
+      JSON.stringify({
+        "open-dough": sessionIds.map((id) => recordLaunchedDaysAgo(1, id)),
+      }),
+    );
+    const dev = await serverOn("dev");
+    const preview = await serverOn("preview");
+    const replies = await Promise.all(
+      sessionIds.map((session, index) =>
+        markDone(index % 2 === 0 ? dev : preview, {
+          source: "open-dough",
+          session,
+        }),
+      ),
+    );
+    expect(replies.map((reply) => reply.status)).toEqual(
+      sessionIds.map(() => 200),
+    );
+    const expected = replies.map((reply) => {
+      const record = launchWithStateSchema.parse(
+        (JSON.parse(reply.body) as { record: unknown }).record,
+      );
+      return { session: record.session.sessionId, doneAt: record.doneAt };
+    });
+    expect(
+      storedRecords(machine).map((entry) => {
+        const record = entry as {
+          session: { sessionId: string };
+          doneAt?: string;
+        };
+        return { session: record.session.sessionId, doneAt: record.doneAt };
+      }),
+    ).toEqual(expected);
+
+    // Native completion can arrive after closure; it must not revive attention.
+    writeFileSync(
+      path.join(machine, "claude-state", "agents.json"),
+      JSON.stringify(
+        sessionIds.map((sessionId) => ({
+          id: sessionId.slice(0, 8),
+          sessionId,
+          cwd: path.join(dev.home, "git", "open-dough"),
+          kind: "bg",
+          startedAt: Date.now(),
+          name: title,
+          state: "done",
+        })),
+      ),
+    );
+    for (const server of [dev, preview]) {
+      const records = (await recordsOf(server, "open-dough")).map((record) =>
+        launchWithStateSchema.parse(record),
+      );
+      expect(records.map((record) => record.sessionState)).toEqual(
+        sessionIds.map(() => ({
+          kind: "available",
+          availability: "retained",
+          activity: "review",
+        })),
+      );
+      expect(attentionCount(records)).toBe(0);
+      expect(records.map(alertReading)).toEqual(
+        sessionIds.map(() => undefined),
+      );
+    }
   });
 
   test("keeps an unclosed record however old, and a done one until 30 days after marking, dropping it on the next write", async () => {
