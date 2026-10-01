@@ -86,7 +86,7 @@ git_publication_field_value() {
 
 # One input-hash line per input a closing journey exercises: Dough Land's
 # guidance and the references it follows, then one per module in the command
-# closure of Land's retirement command and the journey's other given `.mjs`
+# closure of Land's publication check and retirement command and the journey's other given `.mjs`
 # commands, including the scripts those modules spawn.
 git_publication_closing_input_hash_lines() {
   native_result_input_hash_lines \
@@ -94,5 +94,6 @@ git_publication_closing_input_hash_lines() {
     src/skills/dough-manual-testing/references/exploration-workspace.md \
     src/skills/dough-execute-plan/references/maintain-default-checkout.md
   native_import_closure_input_hash_lines \
+    src/skills/dough-land/scripts/queued-closure-check.mjs \
     src/skills/dough-land/scripts/worktree-retirement.mjs "$@"
 }

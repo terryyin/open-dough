@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "aki-chan",
-  "email": "aki-chan@example.org",
-  "identity": "SEED-066#dough-land-kept-one-shot-ownership",
-  "mode": "story-branch",
-  "branch": "codex/check-how-dough-land-handles-a-kept-one-shot-res",
-  "host": "codex"
-}
