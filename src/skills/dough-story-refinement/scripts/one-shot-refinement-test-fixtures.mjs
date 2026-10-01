@@ -66,12 +66,17 @@ async function runJson(args) {
 
 // The installed `start` for story C from the integration checkout; `extra`
 // carries `--one-shot` or the assigned start's publication authority.
-export function start(trunk, workspace, extra, branch) {
+export function start(
+  trunk,
+  workspace,
+  extra,
+  branch,
+  { integration = trunk.integration } = {},
+) {
   return runJson([
     assignmentCli,
     "start",
-    "--integration",
-    trunk.integration,
+    ...(integration === null ? [] : ["--integration", integration]),
     "--workspace",
     workspace,
     ...(branch ? ["--branch", branch] : []),

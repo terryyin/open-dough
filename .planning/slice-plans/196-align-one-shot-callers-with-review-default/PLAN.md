@@ -124,7 +124,7 @@ Walk one representative use under AGENTS.md "Behavior review": a one-shot bug re
 
 ### 2. Owned and tracked starts refuse the repository's main worktree
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add a real-Git CLI test, beside `default-checkout-session-refusal.test.mjs` and reusing its `snapshot` and `createQueuedTrunk` fixtures, through `startCliResult(..., { workspace: trunk.integration, branch: "main",
 integration: null })`. It covers:
 
@@ -223,3 +223,7 @@ No slice-boundary, proof, architecture, or sizing concern remains in this review
 
 - Slice 1: all four literal proof commands above passed (focused Node: 15 tests; payload links, credential-free native one-shot, native evidence identity: exit 0). Inspected guidance assertions observe retained review, conditional retirement, both start locations, and the guarded workflow landing request. Representative queued bug-repair walk reaches that request and its existing ownership/CI path.
 - Independent refactor compacted three guidance files to 250 lines without behavioral changes; affected one-shot guidance assertions passed (8 tests), whitespace check passed, and unchanged implementation/harness proof remains reusable. Coordinator formatting passed. Plan prose reflow preserves every promise and proof obligation; readiness was not renewed.
+- Slice 1 published `e4902583ce1e737a19f26ecd18bc437e3b68a751` to the execution branch, observation reused the recorded mailbox.
+- Slice 2: all four new CLI tests were red before the fix (queued/admitted published, isolated prepared, preparation announced), then green. Their snapshots include raw index, FETCH_HEAD, config, HEAD reflog, file bytes, all local/origin refs and worktrees; no carried ref exists. Full literal regression passed 188/188; credential-free native one-shot passed.
+- Assigned preparation bypasses the owned selector for existing paths; the same shared guard now covers that consumer before fetch. Retained execution/preparation continuations and default-main remain unchanged. This corrects the plan's selector-consumer finding without changing scope.
+- Slice 2 independent refactor consolidated retained-verification refusals, preserving statuses/recovery fields. Replacement command: `PATH=/opt/homebrew/bin:$PATH node --test --test-timeout=600000 src/skills/dough-execute-plan/scripts/default-checkout-session-owned-refusal.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication*.test.mjs` passed 96/96. Unchanged preparation/default-main/native boundaries retain accepted proof. Formatting and whitespace checks passed; no new installed dependency.
