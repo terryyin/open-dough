@@ -146,7 +146,7 @@ Work it includes:
 ### 2. Re-accept the affected native landing journeys
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: manual, paid, triggered by Terry (or by in-session authorization). Each
 command below exits 0 with its results directory retained. No automated or CI
 case is added.
@@ -211,6 +211,64 @@ it with explicit ownership/error forwarding and reran the affected command/model
 checks through the runner. Representative skill behavior review confirms explicit
 invocation, required checkout/remote/target, useful missing-input stop, and named
 ownership refusal preserving the result.
+
+## Accepted slice 2 native proof
+
+Candidate: `df9fb909aba363fc1d5c025070d9dcee1becdc74`. All eight commands
+below exited 0 with complete streams and passing assessments, on first attempt:
+
+```sh
+PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native claude --case publication/preparation-land --results-dir /tmp/dough-199-native/claude/publication-preparation-land
+PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native codex --case publication/preparation-land --results-dir /tmp/dough-199-native/codex/publication-preparation-land
+PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native cursor --case publication/preparation-land --results-dir /tmp/dough-199-native/cursor/publication-preparation-land
+PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native claude --case publication/land-default-checkout --results-dir /tmp/dough-199-native/claude/publication-land-default-checkout
+PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native codex --case publication/land-default-checkout --results-dir /tmp/dough-199-native/codex/publication-land-default-checkout
+PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native cursor --case publication/land-default-checkout --results-dir /tmp/dough-199-native/cursor/publication-land-default-checkout
+PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native claude --case trunk-closure/owned-context --results-dir /tmp/dough-199-native/claude/trunk-closure-owned-context
+PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native claude --case story-branch-closure/source-conflict --results-dir /tmp/dough-199-native/claude/story-branch-closure-source-conflict
+```
+
+Each results root retains `observations.txt`, `events.jsonl`, `response.md`,
+`record`, and `stderr.log` in its host/case attempt directory:
+
+| Host | Case | Attempt |
+| --- | --- | --- |
+| claude | preparation-land | `claude/publication/preparation-land/20261001T095315-4cab` |
+| codex | preparation-land | `codex/publication/preparation-land/20261001T095404-5ab3` |
+| cursor | preparation-land | `cursor/publication/preparation-land/20261001T095412-57d9` |
+| claude | land-default-checkout | `claude/publication/land-default-checkout/20261001T095230-4f99` |
+| codex | land-default-checkout | `codex/publication/land-default-checkout/20261001T095328-03eb` |
+| cursor | land-default-checkout | `cursor/publication/land-default-checkout/20261001T095249-06aa` |
+| claude | trunk owned-context | `claude/trunk-closure/owned-context/20261001T095244-66af` |
+| claude | story source-conflict | `claude/story-branch-closure/source-conflict/20261001T095419-5c73` |
+
+Preparation fixture supplies queued C, behind worktree, concurrent trunk and no
+normal checkout. `git_publication_assess_preparation_land` observes announcement,
+draft/release landing, preserved preamble, no outside changes, installed
+retirement, absent workspace/branch and intact repository. Default fixture plants
+local commit, tracked/untracked edits, remote increment and sibling workspace;
+`git_publication_assess_land_default` observes all work on trunk, preserved other
+writer, clean default at remote, sibling retained and no retirement. All six
+publication transcripts run the installed closure check and report clear with
+empty closures. Closure fixtures and `trunk_closure_assess` / `story_closure_assess`
+observe accepted publication, registration, successful completion and confirmed
+shutdown before retirement, preserved repository/human state, and removed owned
+workspace/branches. Coordinator inspected each retained observations file.
+
+No native rival-ownership refusal is claimed; slice 1 owns that mechanical proof.
+Codex preparation recovered a refused link and failed heredoc audit within the
+same session; corrected commands completed without a wrapper retry. Independent
+post-change refactor found empty scope, so no tests repeated. Formatting passed.
+
+## Delivery state
+
+- Slice 1 accepted revision: `df9fb909aba363fc1d5c025070d9dcee1becdc74` on
+  `origin/codex/check-how-dough-land-handles-a-kept-one-shot-res`.
+- Managed delivery returned `observation.state: unobserved`, reason
+  `Codex yielded-cell bridge is unavailable`; no mailbox or observer was started.
+  Installed managed delivery starts a detached mailbox while the documented
+  yielded stream creates a separate one; no supported existing-mailbox
+  attachment contract is supplied. CI success is not claimed.
 
 ## Learnings
 
