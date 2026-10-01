@@ -247,8 +247,8 @@ See the updated [North Star](../NORTH-STAR.md#agent-launch-as-a-requested-assign
 
 No desktop-app integration, external session discovery, model/authentication
 UI or Cursor acceptance is promised. Do not add gates to exclude naturally
-supported workflows. [SEED-067](SEED-067-codex-refinement-launch-reliability.md#resolve-codex-refinement-launch-failures)
-owns the separately Taken launch/desktop-handoff investigation; reuse its fixes
+supported workflows. [SEED-067](https://github.com/terryyin/open-dough/blob/aa488058c4305bd98c7ea049b5713bc2d8df1c24/.planning/seeds/SEED-067-codex-refinement-launch-reliability.md#resolve-codex-refinement-launch-failures)
+records the completed launch/desktop-handoff investigation; reuse its fixes
 without duplicating or claiming its unresolved desktop proof. Passive dashboard
 observation and native CLI continuity must work regardless of that exclusion.
 [SEED-066](SEED-066-composable-lightweight-session-options.md#composable-lightweight-session-options)
