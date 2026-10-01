@@ -10,6 +10,7 @@
 
 import {
   chmodSync,
+  copyFileSync,
   readFileSync,
   readdirSync,
   rmSync,
@@ -168,5 +169,44 @@ test.describe("a kept preparation start", () => {
     expect(keptStart()).toMatchObject({ identity: queuedIdentity });
     server.claudeScenario("launched");
     await expectResumed();
+  });
+
+  test("an unannounced retry clears its old disposition before a newly published result is lost", async () => {
+    await serve(60_000);
+    server.claudeScenario("launched");
+    installHook("echo refused >&2\nexit 1\n");
+    expect((await ask()).kind).toBe("failed");
+    expect(keptStart()).toMatchObject({ preparationUnannounced: true });
+    expect(await preparing()).toEqual([]);
+    rmSync(hook());
+    // Run the actual installed command, losing only its start stdout. This
+    // transport fault supplies neither an assignment nor a worktree effect.
+    const script = path.join(
+      origin.project,
+      ".claude/skills/dough-story-refinement/scripts/preparation-assignment.mjs",
+    );
+    const original = path.join(
+      path.dirname(script),
+      "preparation-assignment-command.mjs",
+    );
+    copyFileSync(script, original);
+    writeFileSync(
+      script,
+      `import { spawnSync } from "node:child_process";\nconst result = spawnSync(process.execPath, [${JSON.stringify(original)}, ...process.argv.slice(2)], { stdio: ["ignore", process.argv[2] === "start" ? "ignore" : "inherit", "inherit"] });\nprocess.exitCode = result.status ?? 1;\n`,
+    );
+    const uncertain = await ask();
+    expect(uncertain.kind).toBe("failed");
+    expect(uncertain.explanation).toContain("gave no result");
+    expect(keptStart()).toMatchObject({ preparationUnannounced: false });
+    expect(keptStart()?.["preparation"]).toBeUndefined();
+    expect(server.claudeLaunchCalls()).toEqual([]);
+    const profiles = await preparing();
+    expect(profiles).toHaveLength(1);
+    const publication = (await origin.originGit("rev-parse", "main")).trim();
+    await expectResumed();
+    expect(await preparing()).toEqual(profiles);
+    expect((await origin.originGit("rev-parse", "main")).trim()).toBe(
+      publication,
+    );
   });
 });

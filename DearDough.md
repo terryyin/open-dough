@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 202. Removed local codes are never reused.
+- Highest allocated local number: 203. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -487,21 +487,22 @@ Follow-up: Open, unqueued. Align the Codex stream notification contract with dur
   - Observed effect: delivered historical failure still required durable acknowledgment after shutdown; no new repair was manufactured. The same binding was rearmed only after old PID exit.
   - Inference: this second execution reproduces the adapter cursor gap. Notification arrival timing alone does not establish a separate provider defect.
 
-## DD-201 — An unconditional native UI Escape interrupted a restored question
 
-The observation driver assumed Enter always opened the hook-review modal, then sent Escape without inspecting the active native view. On saved-session reconnect the pending question took the foreground, so Escape interrupted the real blocking tool.
+## DD-201 — Managed Codex delivery and yielded stream have no documented attachment seam
 
-Follow-up: Open, unqueued. Inspect the current native modal before sending state-changing keys, and verify all questions are answered before expecting completion. This review authorizes no guidance change.
+Managed increment delivery can create a detached observer and say Codex binding is retained by the caller. The documented yielded-cell stream command instead creates its own mailbox; it accepts no existing directory. The coordinator could not establish that those two paths deliver notifications from the same observer without starting another observer or inventing an adapter.
+
+Follow-up: Open, unqueued. Provide one supported managed-delivery-to-yielded-stream attachment contract. This review authorizes no guidance or runtime change.
 
 ### Occurrences
 
-- Execution: `SEED-052#use-codex-from-dashboard` / plan 192, first related increment `22ff91b009fb90311cf71230e63f760e0fefdedb`
-  - Timestamp: 2026-10-01T06:55:55.870Z
+- Execution: `SEED-067#pin-older-preparation-command-proof` / plan 195, first related implementation commit `94d87f23428d092f9b7885598315f71a018ca39d`
+  - Timestamp: unknown (2026-10-01, first increment delivery before review at 15:07+08:00)
   - Tool: Codex
-  - Open Dough release: unknown; observation fixture installed real 0.3.51
-  - Evidence: [native waiting account](https://github.com/terryyin/open-dough/blob/6dc872978d0ca93fc17a52f9893a6f2a55850b1e/.planning/slice-plans/192-complete-codex-dashboard-sessions/WAITING.md#actual-question-dashboard-state-and-answer); same-ID question screenshot at06:55:55.867Z, Escape immediately afterward, function_call_output aborted by user after79.1s and native turn01a0f63d-5eeb-7181-bc66-1d89a09d1771 interrupted. Corrected same-ID continuation01a0f640-5bd5-77e3-bcb3-acc785409cfa asked one tone question, received actual CLI answer and completed at06:57:19.411Z. Raw passing fixture was inspected before ADR0005 disposal; vendor history retained.
-  - Observed effect: one additional substantive continuation was needed; the original input was not blindly replayed. Whole native thread reported77,035 tokens (63,104 cached input), not a measured charge or an isolated interruption cost.
-  - Inference: the first assessor also expected completion after only one of two questions. Neither harness error establishes a product detach failure.
+  - Open Dough release: 0.3.51 (installed `dough-update/VERSION` in this execution checkout)
+  - Evidence: installed `execution-increment-observation.mjs` calls `startExecutionMailbox`; `ci-host-bridge.mjs` Codex binding says caller retains stream binding. `ci-mailbox.mjs stream` calls `streamMailboxWorker`, which creates a new mailbox; its CLI takes repository/branch rather than an existing mailbox directory. `trunk-publication.md` forbids a separate ordinary-increment observer start. Retained delivery receipt for `94d87f23` accepted the branch publication with `observation.state: unobserved`, reason `Codex yielded-cell bridge is unavailable`; no mailbox was started.
+  - Observed effect: local proof and publication succeeded; automatic CI notification and completion coverage remained unavailable for this execution.
+  - Inference: A missing documented connection, rather than missing host primitives, prevented the coordinator from truthfully asserting a live bridge. An independently verified attachment seam could change this judgment.
 
 ## DD-202 — Interrupted proof commands left preview servers outside the cleanup check
 
@@ -518,3 +519,21 @@ Follow-up: Open, unqueued. Retain owned server process identities through cancel
   - Evidence: implementation return claimed no fixture server remained after interrupted commands. Root ps found PIDs28944/59938; lsof matched ports64224/64536 exactly to native harness server-start records. Root sent SIGTERM only to those owned preview servers and confirmed both absent with a finite local wait. Attachment PIDs29121/60036/77698 were also independently absent. [Cleanup account](https://github.com/terryyin/open-dough/blob/6dc872978d0ca93fc17a52f9893a6f2a55850b1e/.planning/slice-plans/192-complete-codex-dashboard-sessions/WAITING.md#command-outcomes-and-cleanup).
   - Observed effect: two orphan preview servers survived the returned cleanup check; root closed them before acceptance/disposal. Shared daemon and CI observer were untouched.
   - Inference: subprocess cancellation bypassed normal finally cleanup; the report's name-based process filter hid the remaining children. No general native PTY-exit claim follows from this server cleanup.
+
+## DD-203 — An unconditional native UI Escape interrupted a restored question
+
+Former branch-local code: DD-201 at `fff70ca7d0290331878353c7d371f1eecb0f1232:DearDough.md`; reassigned during integration to preserve the independently published DD-201.
+
+The observation driver assumed Enter always opened the hook-review modal, then sent Escape without inspecting the active native view. On saved-session reconnect the pending question took the foreground, so Escape interrupted the real blocking tool.
+
+Follow-up: Open, unqueued. Inspect the current native modal before sending state-changing keys, and verify all questions are answered before expecting completion. This review authorizes no guidance change.
+
+### Occurrences
+
+- Execution: `SEED-052#use-codex-from-dashboard` / plan 192, first related increment `22ff91b009fb90311cf71230e63f760e0fefdedb`
+  - Timestamp: 2026-10-01T06:55:55.870Z
+  - Tool: Codex
+  - Open Dough release: unknown; observation fixture installed real 0.3.51
+  - Evidence: [native waiting account](https://github.com/terryyin/open-dough/blob/6dc872978d0ca93fc17a52f9893a6f2a55850b1e/.planning/slice-plans/192-complete-codex-dashboard-sessions/WAITING.md#actual-question-dashboard-state-and-answer); same-ID question screenshot at06:55:55.867Z, Escape immediately afterward, function_call_output aborted by user after79.1s and native turn01a0f63d-5eeb-7181-bc66-1d89a09d1771 interrupted. Corrected same-ID continuation01a0f640-5bd5-77e3-bcb3-acc785409cfa asked one tone question, received actual CLI answer and completed at06:57:19.411Z. Raw passing fixture was inspected before ADR0005 disposal; vendor history retained.
+  - Observed effect: one additional substantive continuation was needed; the original input was not blindly replayed. Whole native thread reported77,035 tokens (63,104 cached input), not a measured charge or an isolated interruption cost.
+  - Inference: the first assessor also expected completion after only one of two questions. Neither harness error establishes a product detach failure.

@@ -34,7 +34,7 @@ Derive it solely from Git state published to origin.
 - [Queue trunk integration for agents on the same machine](seeds/SEED-008-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
 `;
 
-export const queuedCount = 40;
+export const queuedCount = 16;
 export const queuedTitle = (place: number) =>
   `Queued work number ${place} waits for its turn`;
 const queuedPlaces = Array.from(

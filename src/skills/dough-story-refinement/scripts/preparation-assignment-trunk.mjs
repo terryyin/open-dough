@@ -1,7 +1,7 @@
 // Fetched remote trunk as a queued story's preparation starting point: the
 // story must be queued there, and a workspace that does not exist yet is
 // created at it, never at the integration checkout's local revision.
-import { existsSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import { queueHeading } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
   git,
@@ -43,6 +43,33 @@ export async function fetchQueuedTrunk(cwd, request) {
 // workspace, verified by the announcement.
 export async function selectPreparationWorkspace(request) {
   const { workspace, branch } = request;
+  if (request.continueOnly) {
+    try {
+      if (!existsSync(workspace))
+        throw new Error("the retained workspace is missing");
+      const root = (
+        await git(workspace, "rev-parse", "--show-toplevel")
+      ).stdout.trim();
+      const current = (
+        await git(workspace, "symbolic-ref", "--short", "HEAD")
+      ).stdout.trim();
+      if (
+        realpathSync(root) !== realpathSync(workspace) ||
+        !branch ||
+        current !== branch
+      )
+        throw new Error(
+          "the retained workspace or branch differs from this request",
+        );
+      await revParse(workspace, `refs/heads/${branch}`);
+      return { ok: true };
+    } catch (error) {
+      return stop("continuation-refused", {
+        workspace,
+        error: errorText(error),
+      });
+    }
+  }
   if (existsSync(workspace)) return { ok: true };
   const repository = request.integration ?? request.repository;
   if (!branch || !repository)
