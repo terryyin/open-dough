@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ruuf-chan",
+  "email": "ruuf-chan@example.org",
+  "identity": "SEED-068#reduce-ci-wall-time",
+  "mode": "story-branch",
+  "branch": "cursor/reduce-ci-wall-time",
+  "host": "cursor"
+}
