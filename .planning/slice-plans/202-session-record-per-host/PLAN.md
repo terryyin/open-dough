@@ -195,3 +195,27 @@ assertion retained. This changes command environment only.
   ordinary resumption a 5s bound. All one-claim/workspace/start assertions remain.
   `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-start-resume.spec.ts --output=/tmp/dough-resume-refactor-results`
   passed before the final full-suite pass. No runtime behavior changed.
+
+## Delivery and review
+
+Implementation accepted on `origin` at
+`7c380b080924b251f4b9ef11bf33a8c0536b4491`, target
+`refs/heads/codex/each-host-has-its-own-session-record-shape`. The managed receipt
+reported branch CI unobserved because the installed Codex runtime has no
+supported managed-observer stream attachment (DearDough DD-201); no observer
+was started, so no branch shutdown operation exists. Trunk observation is a
+separate landing boundary.
+
+Retrospective: reviewed original plan/story, human sequencing authorization,
+aggregate owned change, native and shared readers, public schemas, maintained
+launch documentation, test boundaries, and full proof. Claim `e9fb9d31` is
+provenance; `7c380b08` is the only implementation revision. Nearby preparation
+commits and other stories are excluded. No product correction or suite cleanup
+is supported; existing host-neutral wording and capabilities remain explicitly
+deferred. Process review adds one occurrence to existing DD-201.
+
+## Execution complete
+
+Product advice: Keep the current queue order. Complete the existing host
+description, session meaning and launch-gate stories before Cursor; no new
+product work is recommended.

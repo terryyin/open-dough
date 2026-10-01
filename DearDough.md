@@ -542,6 +542,15 @@ Follow-up: Open, unqueued. Provide one supported managed-delivery-to-yielded-str
   - Observed effect: focused proof, all eight native re-acceptance runs, and branch publication passed; automatic CI notification/completion coverage remained unobserved.
   - Inference: same missing attachment contract as the first occurrence. Exposed host primitives alone do not establish delivery from the managed observer; no runtime or guidance repair is authorized here.
 
+
+- Execution: `SEED-075#session-record-per-host` / plan 202, first related implementation commit `7c380b080924b251f4b9ef11bf33a8c0536b4491`
+  - Timestamp: unknown (2026-10-01, first increment delivery; launch clock observed 12:50:54 UTC)
+  - Tool: Codex
+  - Open Dough release: 0.3.52 (installed `dough-update/VERSION` in this execution checkout)
+  - Evidence: managed delivery accepted `7c380b08` on `refs/heads/codex/each-host-has-its-own-session-record-shape` with `observation.state: unobserved`, no mailbox. Installed `execution-increment-observation.mjs` starts a detached mailbox; `ci-host-bridge.mjs` assumes a caller-retained stream; documented `ci-mailbox.mjs stream` creates another mailbox and accepts no existing-directory argument; ordinary managed delivery forbids a separate observer start.
+  - Observed effect: schema, focused operation proof, full dashboard suite and publication passed; ordinary branch notification/completion coverage remained unobserved.
+  - Inference: same missing attachment contract as earlier occurrences; host primitives exist. Landing can use the separate supported trunk-integration stream path. No runtime or guidance repair is authorized here.
+
 ## DD-202 — Interrupted proof commands left preview servers outside the cleanup check
 
 Manually stopped browser proof commands left their preview children alive. A process-name check for the disposable fixture missed them because their argv named the shared dashboard dist directory rather than that fixture.
