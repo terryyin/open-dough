@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Align one-shot callers and starts with the review default](seeds/SEED-066-composable-lightweight-session-options.md#align-one-shot-callers-with-review-default) — SEED-066#align-one-shot-callers-with-review-default ([plan](slice-plans/196-align-one-shot-callers-with-review-default/PLAN.md))
 - [Control the dashboard session panel from its header](seeds/SEED-071-session-panel-header-controls.md#session-panel-header-controls) — SEED-071#session-panel-header-controls ([plan](slice-plans/197-session-panel-header-controls/PLAN.md))
 - [Investigate Codex terminal attachment failure](seeds/SEED-073-investigate-codex-terminal-attachment.md#investigate-codex-terminal-attachment) — SEED-073#investigate-codex-terminal-attachment
 - [Re-optimize CI feedback and test wall time after concurrent story branches land](seeds/SEED-070-reoptimize-ci-test-wall-time.md#reoptimize-ci-test-wall-time) — SEED-070#reoptimize-ci-test-wall-time ([plan](slice-plans/198-reoptimize-ci-test-wall-time/PLAN.md))

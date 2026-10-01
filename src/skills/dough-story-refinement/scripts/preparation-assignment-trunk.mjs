@@ -8,7 +8,10 @@ import {
   revParse,
 } from "../../dough-execute-plan/scripts/publication-git.mjs";
 import { remoteRef } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
-import { selectOwnedWorkspace } from "../../dough-execute-plan/scripts/workspace-publication-select.mjs";
+import {
+  mainWorktreeError,
+  selectOwnedWorkspace,
+} from "../../dough-execute-plan/scripts/workspace-publication-select.mjs";
 import {
   errorText,
   stop,
@@ -108,6 +111,12 @@ async function verifyRetainedWorkspace(request) {
 // only verifies its retained workspace.
 export async function selectPreparationWorkspace(request) {
   if (request.continueOnly) return verifyRetainedWorkspace(request);
+  const error = await mainWorktreeError(request.workspace);
+  if (error)
+    return stop("workspace-selection-failed", {
+      workspace: request.workspace,
+      error,
+    });
   const located = preparationRepository(request);
   if (!located.ok) return located;
   if (located.exists) return { ok: true };

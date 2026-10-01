@@ -5,8 +5,8 @@ with no Taken entry or agent profile, and no story or plan left behind. It runs
 in an owned isolated workspace, or in the default checkout when that is
 selected, and stops with its verified result retained there for review; only
 an explicit request to land it, or automatic landing selected with it,
-publishes that result to remote trunk. It is
-a way of tracking the work, not a separate execution path: planless execution,
+publishes that result to remote trunk. It tracks work without a separate
+execution path: planless execution,
 verification, refactoring, delivery, and closure stay as they are. It grants
 no permission beyond the current instruction: implementing findings,
 publishing drafts, and widening scope still need their own authority.
@@ -99,13 +99,13 @@ then commit the result with plain `git commit`: the start named no agent.
 
 Then stop for review, unless automatic landing was selected: then continue
 under [Land automatically when selected](#land-automatically-when-selected).
-Report the workspace path and branch, the retained
-`startingRevision`, the result commit, the verification evidence, and any
-pending issues. For a queued story, also report that remote trunk still lists
+Report workspace path and branch, retained `startingRevision`, result commit, verification
+evidence, and pending issues. Tell the developer to ask this workflow to
+[land the retained result](#land-the-retained-result), naming the kept workspace.
+For a queued story, also report that remote trunk still lists
 it in the **Backlog list** while its closure waits in the result commit.
 Leave the workspace and its branch in place: nothing is pushed or retired
-until the developer asks to land the result. The default checkout always stays
-in place.
+until the developer asks to land the result. The default checkout always stays in place.
 
 ## Land the retained result
 

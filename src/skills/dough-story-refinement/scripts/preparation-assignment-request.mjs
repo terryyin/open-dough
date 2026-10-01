@@ -9,6 +9,7 @@ import {
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   needsPublicationAuthority,
+  oneShotOnlyChoices,
   sessionPolicy,
   sessionPolicyChoices,
 } from "../../dough-execute-plan/scripts/session-policy.mjs";
@@ -29,10 +30,13 @@ function sessionPolicyError(operation, policy) {
   if (chosen.length === 0) return undefined;
   if (operation !== "start")
     return `session options (${chosen.map(([, { flag }]) => flag).join(", ")}) apply only to start`;
-  if (policy.workspace !== "isolated" && policy.tracking !== "one-shot")
-    return "--default-main applies to one-shot preparation; an assigned preparation publishes its announcement from a separate owned workspace";
-  if (policy.landing !== "review" && policy.tracking !== "one-shot")
-    return "--auto-land applies to one-shot preparation; an assigned preparation lands through its keep";
+  const unsupported = oneShotOnlyChoices(policy)[0];
+  if (unsupported)
+    return `${sessionPolicyChoices[unsupported].flag} applies to one-shot preparation; ${
+      unsupported === "workspace"
+        ? "an assigned preparation publishes its announcement from a separate owned workspace"
+        : "an assigned preparation lands through its keep"
+    }`;
   return undefined;
 }
 
