@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-067#resolve-codex-refinement-launch-failures",
+  "mode": "story-branch",
+  "branch": "codex/codex-refinement-handoff-retry",
+  "host": "codex"
+}
