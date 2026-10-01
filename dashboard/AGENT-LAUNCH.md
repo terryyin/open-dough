@@ -208,9 +208,13 @@ Same-origin `/__agent-terminal?source=&host=&session=` admits recorded host-qual
 sessions in existing project folders. Claude uses `claude attach <native alias>`;
 Codex uses the saved ID, endpoint and workspace with ordinary `codex resume`
 and `--no-alt-screen`. Unknown project/session, missing project folder and
-unavailable sessions are refused before attachment; a removed Codex workspace is
-not, as [session troubleshooting](../docs/dashboard-session-troubleshooting.md)
-explains. Text frames carry output; bounded input, resize and rendered readiness
+unavailable sessions are refused before attachment. Codex checks the saved
+directory at attachment: missing or inconclusive availability opens the same
+session's read-only final report and explains the limitation. Failure before
+native readiness rechecks the directory; only that observation supplies a
+workspace limitation. Other startup failures keep their attachment error, as
+[session troubleshooting](../docs/dashboard-session-troubleshooting.md) explains.
+Text frames carry output; bounded input, resize and rendered readiness
 messages share the existing transport.
 Closing socket/server sends SIGHUP to the attachment client only, retaining
 native work/history and daemon. CLI exit uses code 4000 so the page distinguishes
@@ -248,3 +252,19 @@ stops/renames/marks native work. Failure retains the question and focus; success
 removes every entry, prevents older reads/lifecycle updates restoring it, closes
 any showing terminal and restores next-entry/card/Recent focus with a polite
 “Session record deleted”. No local action changes a published story fact.
+
+## Retained Codex results without their workspace
+
+A saved Codex conversation and its workspace are observed separately. When the
+saved directory is missing or its lookup is inconclusive, story cards, Recent
+sessions and Sessions sidebar selection lead to **Read final report** instead
+of advertising a terminal in that directory. The panel reads the same recorded
+host-qualified conversation through its saved endpoint, shows its final report
+read-only and names the workspace limitation separately from review status.
+
+Close or Command+Shift+Escape returns focus to the invoking control. Selecting
+another session cancels the previous report read. **Retry report** retries that
+same identity after a read failure. Reading changes no native input or done mark;
+**Mark as done** keeps its explicit completion behavior. Missing directories do
+not establish story completion or why the directory was removed. Existing
+workspace continuation and Claude Code behavior keep their terminal path.

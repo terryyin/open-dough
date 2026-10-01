@@ -214,7 +214,15 @@ export function recordDeletable({
 
 // A kept launch record joined with its session's state when it was answered;
 // the state itself is never kept.
+export const workspaceStateSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("available") }),
+  z.object({ kind: z.literal("missing") }),
+  z.object({ kind: z.literal("unknown") }),
+]);
+export type WorkspaceState = z.infer<typeof workspaceStateSchema>;
+
 export const launchWithStateSchema = launchRecordSchema.extend({
+  workspaceState: workspaceStateSchema.optional(),
   sessionState: sessionStateSchema,
 });
 

@@ -16,6 +16,16 @@ export const agentTerminalEndpoint = "/__agent-terminal";
 export const terminalEndedCode = 4000;
 // Native attachment failed before readiness; the existing done intent remains.
 export const terminalAttachFailedCode = 1011;
+export const terminalWorkspaceUnavailableCode = 4001;
+export const terminalWorkspaceUnavailableSchema = z.strictObject({
+  workspaceUnavailable: z.discriminatedUnion("kind", [
+    z.strictObject({ kind: z.literal("missing") }),
+    z.strictObject({ kind: z.literal("unknown") }),
+  ]),
+});
+export type TerminalWorkspaceUnavailable = z.infer<
+  typeof terminalWorkspaceUnavailableSchema
+>["workspaceUnavailable"];
 
 // Binary control frames never become native terminal output.
 export const terminalReadinessSchema = z.strictObject({

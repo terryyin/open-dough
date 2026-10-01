@@ -14,12 +14,13 @@ import { catalog, type PublishedSource } from "../src/publishedSource.ts";
 import { launchHost } from "./launchHosts.ts";
 import { launchHosts } from "../src/sessionCapabilities.ts";
 import { withStates } from "./launchStates.ts";
-import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
+import type { SessionReference } from "../src/sessionReference.ts";
 import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
 import {
   creationOf,
   keptCreations,
   keptRecords,
+  keptSession,
   keptRecordsByProject,
 } from "./launchRecordStore.ts";
 import { creationProblem, creationView } from "./launchCreation.ts";
@@ -123,9 +124,7 @@ export class AgentLaunches {
     source: PublishedSource,
     session: SessionReference,
   ): Promise<Recorded> {
-    const record = (await keptRecords(source.id)).find(
-      (kept) => sessionKey(kept.session) === sessionKey(session),
-    );
+    const record = await keptSession(source.id, session);
     if (record === undefined) {
       return { kind: "unrecorded" };
     }

@@ -19,8 +19,10 @@ across project switches, views, the terminal, and reloads; it is disposable
 per-browser state and starts closed when none is kept. Opening a sidebar entry
 shows its project's stories through the same project selection and URL
 history as a project choice, as one history entry, opens its session in the
-terminal with the keyboard there, and brings its story's card into view once
+terminal with the keyboard there, or opens the read-only final report when a
+Codex saved workspace is missing or cannot be established, and brings its story's card into view once
 that project's stories are read. Command+Shift+Escape closes the terminal
+or final-report
 panel as its Close control does, page-wide and from inside the terminal,
 maximized or not, where plain Escape still goes to the session; the page takes
 it from the browser, except inside an open modal dialog, and with no panel it

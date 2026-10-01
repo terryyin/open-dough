@@ -62,10 +62,15 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
     projectFolders: ["open-dough"],
   });
   try {
-    // The predecessor Codex record has no endpoint, so its observation stays unknown.
+    // The predecessor Codex record has no endpoint or saved workspace, so
+    // both observations stay unknown.
     expect(await recordsOf(server, "open-dough")).toEqual([
       { ...oldClaude, sessionState: { kind: "unavailable" } },
-      { ...other, sessionState: { kind: "unknown" } },
+      {
+        ...other,
+        sessionState: { kind: "unknown" },
+        workspaceState: { kind: "unknown" },
+      },
     ]);
     const before = server.claudeCalls().length;
     const done = await markDone(server, {
@@ -80,6 +85,7 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
       doneAt: expect.any(String),
       doneProblem: expect.stringContaining("Saved native endpoint is missing"),
       sessionState: { kind: "unknown" },
+      workspaceState: { kind: "unknown" },
     });
     const terminal = await openCodexTerminal(server, sessionId);
     expect(await terminal.closed).toBe(1011);
@@ -110,6 +116,10 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
         ),
       }),
     ]);
+    for (const record of marked) {
+      expect(record).not.toHaveProperty("sessionState");
+      expect(record).not.toHaveProperty("workspaceState");
+    }
     expect(readdirSync(path.dirname(storeFile))).toEqual([
       "agent-launches.json",
     ]);

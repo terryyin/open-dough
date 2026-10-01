@@ -1,15 +1,16 @@
 // The page's operations on the sessions it shows: opening one in the page's
-// one terminal (`./TerminalPanel.tsx`), marking one done, and reading one
+// one terminal or final-report panel, marking one done, and reading one
 // again once its terminal attaches, each asked with one request shape. The
 // page provides them (`./TerminalSplit.tsx`), and a session entry on a card,
 // in Recent sessions, or in the Sessions sidebar reaches opening and marking
 // without every component between them passing them along. Each session entry
 // names its session, so the page can find where to bring the entry into view.
-// The page also says which session its terminal shows. Every Mark as done
+// The page also says which session its panel shows. Every Mark as done
 // control follows its mark the same way (`useMarking`).
 
 import { createContext, useContext, useState } from "react";
-import type { LaunchRecord } from "./agentLaunch.ts";
+import type { LaunchRecord, LaunchWithState } from "./agentLaunch.ts";
+import type { SessionAccess } from "./sessionAccess.ts";
 import type { DeleteRecordOutcome } from "./agentLaunchClient.ts";
 import { workCard } from "./workFocus.ts";
 
@@ -27,8 +28,8 @@ export type SessionOperation<
   Record extends LaunchRecord = LaunchRecord,
 > = (request: SessionRequest<Record>) => Answer;
 
-// Shows the session in the page's one terminal.
-export type OpenTerminal = SessionOperation<void>;
+// Shows the session in the page's one terminal or report panel.
+export type OpenSessionPanel = SessionOperation<void>;
 
 // Marks the session done, closing its terminal if the page shows it, and
 // answers whether it was marked. The control that asked gets the keyboard
@@ -44,13 +45,15 @@ export type DeleteSessionRecord = SessionOperation<
 >;
 
 // The page's operations that session entries ask, and the session its
-// terminal shows, if any, from which every entry of that session derives its
-// "Shown in terminal" mark.
+// panel shows, if any, from which every entry derives its current-session mark.
 export type PageSessions = {
-  readonly openTerminal: OpenTerminal;
+  readonly openTerminal: OpenSessionPanel;
+  readonly openResult: OpenSessionPanel;
+  readonly openSession: SessionOperation<void, LaunchWithState>;
+  readonly shownSession:
+    { readonly kind: SessionAccess; readonly key: string } | undefined;
   readonly markDone: MarkSessionDone;
   readonly deleteRecord: DeleteSessionRecord;
-  readonly shownInTerminal: string | undefined;
 };
 
 // The attribute by which a session entry names the session it shows.

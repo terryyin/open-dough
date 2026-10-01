@@ -45,8 +45,10 @@ export function SessionEntry({
   );
   const markedDone = record.doneAt !== undefined;
   const { entryClass, stateWords } = shownSession(record);
-  const inTerminal =
-    usePageSessions().shownInTerminal === sessionKey(record.session);
+  const { shownSession: shown } = usePageSessions();
+  const current = shown?.key === sessionKey(record.session);
+  const inResult = current && shown.kind === "result";
+  const inTerminal = current && shown.kind === "terminal";
 
   useEffect(() => {
     if (takesFocus === true) entry.current?.focus();
@@ -55,7 +57,7 @@ export function SessionEntry({
   return (
     <article
       ref={entry}
-      className={inTerminal ? `${entryClass} in-terminal` : entryClass}
+      className={current ? `${entryClass} in-terminal` : entryClass}
       aria-label={onCard ? `${name} session` : `${name} session for ${title}`}
       tabIndex={-1}
       {...showsSession(sessionKey(record.session))}
@@ -70,6 +72,7 @@ export function SessionEntry({
       )}
       {stateWords}
       {inTerminal && <p className="shown-in-terminal">Shown in terminal</p>}
+      {inResult && <p className="shown-in-terminal">Shown in final report</p>}
       <p>
         {record.firstInput !== undefined &&
         record.firstInput.state !== "confirmed"

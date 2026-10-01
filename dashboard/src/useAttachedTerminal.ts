@@ -8,6 +8,9 @@ import {
   terminalEndedCode,
   terminalAttachFailedCode,
   terminalReadinessSchema,
+  terminalWorkspaceUnavailableSchema,
+  terminalWorkspaceUnavailableCode,
+  type TerminalWorkspaceUnavailable,
   type TerminalMessage,
 } from "./agentTerminal.ts";
 import type { SessionOperation, SessionRequest } from "./pageSessions.ts";
@@ -28,13 +31,18 @@ export type TerminalEnding = "disconnected" | "ended" | "failed";
 // Attaches a terminal in `element` to the session while it is mounted, anew
 // for each `attempt`, reports once each attachment is ready, and
 // reports how the attachment ended unless the panel ended it itself.
-// `onAttached` and `onEnded` must keep their identity across renders.
+// Callbacks must keep their identity across renders; disposed attachments
+// cannot report readiness, workspace refusal or an ending to a later attempt.
 export function useAttachedTerminal(
   element: RefObject<HTMLDivElement | null>,
   session: SessionRequest,
   attempt: number,
   onAttached: SessionOperation<void>,
   onEnded: (ending: TerminalEnding) => void,
+  onWorkspaceUnavailable: (
+    request: SessionRequest,
+    workspace: TerminalWorkspaceUnavailable,
+  ) => void,
 ) {
   const url = terminalUrl(session.record);
   useEffect(() => {
@@ -49,8 +57,9 @@ export function useAttachedTerminal(
 
     const socket = new WebSocket(url);
     socket.binaryType = "arraybuffer";
+    let current = true;
     const send = (message: TerminalMessage) => {
-      if (socket.readyState === WebSocket.OPEN) {
+      if (current && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify(message));
       }
     };
@@ -88,14 +97,16 @@ export function useAttachedTerminal(
         ),
     );
     const attached = () => {
-      if (!shown) {
+      if (current && !shown) {
         shown = true;
         onAttached(session);
       }
     };
     socket.addEventListener("message", (event) => {
+      if (!current) return;
       if (typeof event.data === "string") {
         terminal.write(event.data, () => {
+          if (!current) return;
           if (observeReadiness && frameCompleted && !framePending) {
             frameCompleted = false;
             const buffer = terminal.buffer.active;
@@ -111,18 +122,22 @@ export function useAttachedTerminal(
           } else if (!observeReadiness) attached();
         });
       } else if (event.data instanceof ArrayBuffer) {
-        const control = terminalReadinessSchema.safeParse(
-          JSON.parse(new TextDecoder().decode(event.data)),
+        const payload: unknown = JSON.parse(
+          new TextDecoder().decode(event.data),
         );
+        const control = terminalReadinessSchema.safeParse(payload);
         if (control.success) {
           observeReadiness = control.data.readiness === "observe";
           if (!observeReadiness) attached();
+        } else {
+          const refusal = terminalWorkspaceUnavailableSchema.safeParse(payload);
+          if (refusal.success)
+            onWorkspaceUnavailable(session, refusal.data.workspaceUnavailable);
         }
       }
     });
-    let current = true;
     socket.addEventListener("close", (event) => {
-      if (current) {
+      if (current && event.code !== terminalWorkspaceUnavailableCode) {
         onEnded(
           event.code === terminalEndedCode
             ? "ended"
@@ -155,5 +170,13 @@ export function useAttachedTerminal(
       socket.close();
       terminal.dispose();
     };
-  }, [element, url, session, attempt, onAttached, onEnded]);
+  }, [
+    element,
+    url,
+    session,
+    attempt,
+    onAttached,
+    onEnded,
+    onWorkspaceUnavailable,
+  ]);
 }

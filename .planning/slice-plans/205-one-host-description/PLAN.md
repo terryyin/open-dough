@@ -2,12 +2,12 @@
 
 **Identity:** SEED-075#one-host-description
 **Source:** [refined story](../../seeds/SEED-075-host-neutral-dashboard-before-cursor.md#one-host-description)
-**Authority:** Slice planning only; no implementation, Take, commit, or publication.
-**Preparation:** Existing worktree
-`/Users/terryyin/git/open-dough/.worktrees/shared-dashboard-code-reads-one-host-description`,
-branch `codex/shared-dashboard-code-reads-one-host-description`, agent
-`yilv-chan`, assignment `8dfd2bf19a4a451f66513944b780b9edf9c0d2b9`, remote
-`origin`, target `main`, integration checkout `/Users/terryyin/git/open-dough`.
+**Authority:** Preparation only; no implementation or Take. One-shot refinement
+commits the preparation result locally for review; publication is not selected.
+**Preparation:** Established one-shot refinement in the default checkout
+`/Users/terryyin/git/open-dough`, branch `main`, remote `origin`, target `main`,
+landing `review`, starting revision
+`11f748a9b0e58263351e18fb37053cb2d6378221`. No Preparing assignment.
 
 ## Goal and scope
 
@@ -44,6 +44,11 @@ the source's stronger "specs unchanged" wording has the decision below.
   host-specific dispatch. This plan removes comparisons for its listed facts,
   not all host comparisons throughout the product. Sibling stories retain
   ownership of their record, wording, alert, and launch-gate changes.
+- Preserve the subsequently delivered workspace-retirement behavior: host
+  capability does not alone grant terminal access. Keep workspace and session
+  access checks, passive final-report fallback, and deliberate done intent.
+  The host's existing `readResult` and terminal startup-failure contract stay
+  native to that boundary; this story does not redesign them.
 - **Blocking decision for slice 3:** `launch-workspace.spec.ts` calls
   `launchWorkspace` three times without a host. Its existing tests rely on the
   very default this story removes, and the dashboard typecheck includes tests.
@@ -99,6 +104,33 @@ not start the servers (four pure workspace tests passed). `npm ci
 --ignore-scripts --no-audit --no-fund` installed the locked dependencies in this
 owned worktree. The fresh run below then passed; no product code was changed.
 
+### Current preparation review
+
+Rechecked on 2026-10-01 at `11f748a9` in the default checkout. The description,
+model, uncertainty-hint, workspace, and explicit-host helper premises remain
+as observed above. Since the original review, the host boundary gained native
+result reads and workspace-aware terminal startup failure; browser terminal
+access now passes through `sessionAccess`. These are existing behavior to
+preserve, not additional host facts or a reason to change the story's scope.
+
+- Baseline A, using the exact command below: **116 passed**, 15.2s. Current
+  model choices, own-host actions, legacy host identity, installed Codex starts,
+  refusal, and collision journeys still hold.
+- `npm run typecheck:dashboard`: exit 0, including the current test callers.
+- Baseline B plus the two workspace-retirement checks below: **40 passed**,
+  10.1s. The installed Claude starts/options still work; actual attachment loss
+  opens the passive final report without clearing done intent, and deliberate
+  marking remains distinct from report observation.
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=dot dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-preparation-start.spec.ts dashboard/tests/agent-launch-options-boundary.spec.ts dashboard/tests/agent-launch-options.spec.ts dashboard/tests/session-workspace-retirement-attach.spec.ts dashboard/tests/session-workspace-retirement-done.spec.ts
+```
+
+The setup and assertions in the workspace-retirement attach/done specs reach
+the real dashboard HTTP/WS and page access decisions using the existing native
+protocol fixture. They preserve shared orchestration behavior; they do not
+claim new vendor acceptance. No product or test implementation was changed.
+
 ### Baseline A
 
 ```sh
@@ -144,7 +176,7 @@ the passing Playwright journeys above.
 | One description supplies names, skill sigils, model offerings and labels, and uncertainty hints | 1 | Existing model UI/boundary/entry and Codex journey specs; new public-client failure spec; review all consumers against the same description. |
 | Claude model order, Codex Default only, reset on switch, omitted Default, forged model refusal, retained requested label | 1 | `agent-launch-model`, `agent-launch-model-boundary`, `agent-launch-model-entries`, `agent-launch-codex` specs. |
 | Only the matching delivered runtime is dispatched; Cursor stays unavailable | 1 | `agent-launch-refusal` checks neither vendor is called for Cursor; explicit registry lookup review. |
-| UI attach/done availability agrees with real optional operations, with no borrowed operation | 2 | Existing terminal, Codex terminal, Claude done-stop, Codex done, and host-identity specs; review one capability authority and retained absent-method refusal checks. |
+| UI attach/done availability agrees with real optional operations, with no borrowed operation | 2 | Existing terminal, Codex terminal, Claude done-stop, Codex done, and host-identity specs; workspace-retirement attach/done specs preserve access and passive-report behavior; review one capability authority and retained absent-method refusal checks. |
 | Required explicit host throughout helper/launch-choice contracts and preserved initial Claude selection | 3 | Dashboard typecheck including tests; caller review; existing Claude and Codex start/preparation/options journeys. Subject to the pending source decision. |
 | Branch prefixes and cross-host/folder collision checks remain unchanged | 3 | `launch-workspace.spec.ts` using actual Git branches and folders, plus installed start journey branch assertions. |
 | Legacy records/actions and valid stored model aliases retain their meaning | 3 (final verification), with model preservation in 1 | `agent-launch-host-identity`, `start-store`, kept/resume specs, full dashboard suite; inspect schema/default diff for unintended compatibility changes. |
@@ -183,7 +215,8 @@ Type: Behavior
 Status: planned
 Proof: `agent-terminal.spec.ts`, `agent-terminal-codex.spec.ts`,
 `agent-launch-done-stop.spec.ts`, `agent-launch-done-codex.spec.ts`, and
-`agent-launch-host-identity.spec.ts`, plus capability-authority review.
+`agent-launch-host-identity.spec.ts`, `session-workspace-retirement-attach.spec.ts`,
+and `session-workspace-retirement-done.spec.ts`, plus capability-authority review.
 
 Behavior: Given a recorded Claude or Codex session, its existing session-state
 rules still offer Open terminal and Mark as done, and invoking them reaches
@@ -192,8 +225,9 @@ that host's own operation. No missing operation is supplied by another host.
 Extend the same description/registry solution so browser capability facts and
 server operations cannot drift through independently authored declarations.
 Replace shared name-based capability predicates and align all consumers:
-`LaunchSession`, `TerminalSplit`, `TerminalPanel`, `sessionRecordActions`, and
-`StartSession`. Preserve admission, done, and terminal lifecycle semantics.
+`sessionAccess`, `LaunchSession`, `TerminalSplit`, `TerminalPanel`,
+`sessionRecordActions`, and `StartSession`. Preserve admission, done, terminal
+lifecycle, and workspace-retirement access/final-report semantics.
 Prove current available operations at real action boundaries; inspect absent
 operation guards without introducing a hypothetical vendor adapter or test-only
 host framework. Do not change alerts, continuation labels, or record variants.
