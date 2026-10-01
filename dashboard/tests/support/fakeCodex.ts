@@ -138,24 +138,19 @@ export async function installFakeCodex(
             client.close();
             break;
           }
-          if (fixture.refuseCreation)
-            client.send(
-              JSON.stringify({
-                id: message.id,
-                error: fixture.creationError,
-              }),
-            );
+          if (fixture.refuseCreation) refuse(fixture.creationError);
           else reply({ thread: { id: fixture.threadId } });
           break;
         case "thread/read":
         case "thread/resume":
+          fixture.beforeRead?.(message.params?.["includeTurns"] === true);
           if (fixture.readError)
-            client.send(
-              JSON.stringify({
-                id: message.id,
-                error: { code: -32000, message: "Native thread not found." },
-              }),
-            );
+            refuse({ code: -32000, message: "Native thread not found." });
+          else if (
+            fixture.blankHistoryError &&
+            message.params?.["includeTurns"]
+          )
+            refuse(fixture.blankHistoryError);
           else if (fixture.failRead) client.close();
           else {
             if (message.method === "thread/resume" && fixture.completeOnResume)
@@ -188,12 +183,7 @@ export async function installFakeCodex(
           break;
         case "turn/start": {
           if (fixture.refuseInput) {
-            client.send(
-              JSON.stringify({
-                id: message.id,
-                error: { code: -32000, message: "Native input refused." },
-              }),
-            );
+            refuse({ code: -32000, message: "Native input refused." });
             break;
           }
           fixture.history.push({

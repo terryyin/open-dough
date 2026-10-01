@@ -34,7 +34,10 @@ export const hostSessionSchema = z
 export type HostSession = z.infer<typeof hostSessionSchema>;
 
 export const firstInputSchema = z.object({
-  state: z.enum(["awaiting", "confirmed", "uncertain"]),
+  // not-requested is intentional blank launch intent, never a retryable input.
+  state: z.enum(["awaiting", "confirmed", "uncertain", "not-requested"]),
+  // Awaiting blank materialization must never submit a saved empty turn.
+  intent: z.literal("blank").optional(),
   turnId: z.string().optional(),
   // Exact launch intent retained for native history reconciliation.
   instruction: z.string().optional(),

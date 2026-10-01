@@ -70,3 +70,90 @@ owned review thread 01a0f5cb-e8e5-7123-8fd1-02ebb5ddcff2, terminal exit 0.
 Public producer/caller and proof boundaries stayed unchanged. Read-only
 formatted sizes were <=250, largest 149. Coordinator npm run format passed;
 staged whitespace check passed. No readiness renewal. Slice 7 is next.
+
+## Slice 7 — ad hoc text and intentional blank accepted
+
+Ad hoc text reaches turn/start once with its exact submitted bytes. A blank or
+whitespace field instead records awaiting/blank intent before the materialization
+read, then not-requested/blank after native persistence acknowledgment; neither
+path submits an artificial empty model turn. Only the previously observed
+-32601/list_turns-is-not-supported refusal is tolerated, followed by original
+ID/workspace validation. Other errors, transport loss or mismatched context
+remain uncertain. Recovery retries materialization for that saved blank,
+without resume/new thread/input. A completed deliberate blank may be followed
+by another deliberate Start; incomplete blank/input still recovers conservatively.
+Predecessor confirmed/uncertain records retain their meaning and continuation.
+
+StartSession's remaining Claude-only automatic terminal gate was exposed by
+actual browser checks and now consumes the existing embeddedTerminal capability.
+Blank records describe no instruction, rather than falsely confirmed acceptance;
+failed materialization describes persistence unconfirmed. Live zero-turn state
+still belongs to native observation and the common session presentation.
+
+Coordinator inspected producers/callers, the private materialization helper,
+shared pending selector/schema/presentation/capability consumer and these signals:
+
+- agent-launch-ad-hoc-codex: actual Start session dialog/Default, exact text or
+  zero blank submission, durable awaiting intent before includeTurns read,
+  final no-input evidence, label and terminal focus; saved ID/workspace/endpoint
+  through reload/restart, sidebar navigation, done/name/local mark and successful
+  original-ID reopen. Retained zero-turn metadata is a vendor precondition;
+  production supplies presentation. Owned PTYs receive SIGHUP and become absent.
+- agent-launch-ad-hoc-codex-input: actual HTTP/store exact raw text (including
+  whitespace/control newlines) once, followed by two deliberate blank starts;
+  three distinct IDs, one text submission, no artificial empty turn.
+- agent-launch-ad-hoc-codex-recovery: loss during materialization or input
+  acknowledgment leaves original intent/identity. Actual server restart reads
+  predecessor-shaped uncertainty through the store and recovers original input
+  or blank without resubmission/fork. Error-code/message variations, unreadable
+  transport/history and mismatched ID/workspace remain conservative, then correct
+  same-ID materialization completes. Original request/time/session persist.
+- Current consumers considered: common recording/schema/pending selection,
+  SessionEntry/SidebarEntry/LaunchSession, StartSession/terminal lifecycle,
+  Codex launch/input/recovery, preparation/execution, history, done and alerts.
+  Existing confirmation proof includes genuine predecessor confirmed records.
+
+The first browser run exposed absent auto-opening, not native CLI failure;
+StartSession's capability fix resolved it. A later assertion expected “Awaiting
+instruction”; the existing shared label is “Awaiting first instruction”, so the
+assertion was corrected without changing presentation. Two test typing findings
+were repaired before the accepted command. No native parity is inferred.
+
+Accepted implementation command (26 paths, no name filter; terminal exit 0):
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npx --no-install playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts dashboard/tests/agent-launch-ad-hoc-sessions.spec.ts dashboard/tests/agent-launch-codex-recovery.spec.ts dashboard/tests/agent-launch-codex-confirmation.spec.ts dashboard/tests/agent-launch-ad-hoc-codex.spec.ts dashboard/tests/agent-launch-ad-hoc-codex-recovery.spec.ts dashboard/tests/agent-launch-ad-hoc.spec.ts dashboard/tests/agent-launch-ad-hoc-boundary.spec.ts dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-codex-creation.spec.ts dashboard/tests/agent-launch-codex-reconciliation.spec.ts dashboard/tests/agent-launch-codex-lifetime.spec.ts dashboard/tests/agent-launch-codex-options.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-host-identity.spec.ts dashboard/tests/agent-launch-records.spec.ts dashboard/tests/agent-terminal-codex.spec.ts dashboard/tests/agent-terminal-codex-page.spec.ts dashboard/tests/agent-terminal-codex-close.spec.ts dashboard/tests/agent-terminal-done-codex-page.spec.ts dashboard/tests/agent-launch-done-codex.spec.ts dashboard/tests/agent-launch-done-codex-races.spec.ts dashboard/tests/agent-launch-done-codex-intent.spec.ts dashboard/tests/session-alerts.spec.ts dashboard/tests/session-alerts-unavailable.spec.ts
+npm run typecheck:dashboard
+git diff --check
+```
+
+All terminal exit 0. Fresh implementation and independent refactor used new
+configured CLI agents because the collaboration host reached its agent limit.
+Refactor moved unchanged exact-input/deliberate-blank HTTP assertions to the
+input spec (without unrelated published-story setup) and reused the existing
+fixture refusal helper for creation/input errors. No production refactor;
+native mechanism, public API and browser/lifecycle assertions stayed unchanged.
+Coordinator inspected moved assertions and equivalent native wire replies.
+Only those affected boundaries were rerun, terminal exit 0:
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npx --no-install playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-ad-hoc-codex-input.spec.ts dashboard/tests/agent-launch-ad-hoc-codex-recovery.spec.ts dashboard/tests/agent-launch-codex-reconciliation.spec.ts dashboard/tests/agent-launch-codex-options.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts
+npm run typecheck:dashboard
+git diff --check
+```
+
+Fresh refactor returned ## REFACTOR COMPLETE; no command remained running.
+Formatter found only fixture parameter-alias/non-null assertion mechanics.
+Coordinator used local fixture aliases and a checked accepted-turn precondition;
+observations and behavior stayed unchanged. Final affected proof/typecheck and
+formatter all terminal exit 0:
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npx --no-install playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-ad-hoc-codex-input.spec.ts dashboard/tests/agent-launch-ad-hoc-codex-recovery.spec.ts dashboard/tests/agent-launch-ad-hoc-codex.spec.ts > /tmp/dough-192-ad-hoc-mechanical-proof.log 2>&1
+npm run typecheck:dashboard > /tmp/dough-192-ad-hoc-mechanical-typecheck.log 2>&1
+npm run format > /tmp/dough-192-ad-hoc-final-format.log 2>&1
+```
+
+Changed files <=250 after formatting (largest240). Whole implemented journey is
+available, with native complete-dashboard/materialization/useful-execution and
+configured-policy waiting acceptance still owned by slice 8. No readiness renewal.

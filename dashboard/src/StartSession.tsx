@@ -1,5 +1,5 @@
-// The project actions row's Start session: the developer asks Claude Code to
-// start a background session on this machine in the selected project's folder,
+// The project actions row's Start session: the developer asks the selected host
+// to start a session on this machine in the selected project's folder,
 // with no story or skill and an optional first message of their own. The
 // session is listed in Recent sessions and the Sessions sidebar, like any
 // launched session; no card lists it. A started session opens at once in the
@@ -9,7 +9,7 @@
 // not start, or may not have, says so beside the button, which stays enabled
 // to start again.
 
-import { hostName } from "./sessionCapabilities.ts";
+import { embeddedTerminal, hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { useId, useState } from "react";
 import {
@@ -87,7 +87,7 @@ export function StartSession({
             if (record === undefined || launcher.current === null) {
               return false;
             }
-            if (record.session.host === "claude")
+            if (embeddedTerminal(record.session.host))
               openTerminal({ record, control: launcher.current });
             setAnnouncement("Ad hoc session started");
             return true;

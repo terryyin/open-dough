@@ -30,9 +30,13 @@ export function LaunchSession({
           <p>
             {record.firstInput?.state === "confirmed"
               ? "First input accepted"
-              : record.firstInput?.state === "awaiting"
-                ? "First input awaiting submission"
-                : "First input acceptance uncertain"}
+              : record.firstInput?.intent === "blank"
+                ? record.firstInput.state === "not-requested"
+                  ? "Opened without an instruction"
+                  : "Blank conversation persistence unconfirmed"
+                : record.firstInput?.state === "awaiting"
+                  ? "First input awaiting submission"
+                  : "First input acceptance uncertain"}
           </p>
           {record.session.continuation.notice !== undefined && (
             <p className="quiet">{record.session.continuation.notice}</p>

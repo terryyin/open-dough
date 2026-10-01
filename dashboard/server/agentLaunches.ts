@@ -184,7 +184,8 @@ export class AgentLaunches {
       (record) =>
         sameLaunch(record.request, request) &&
         record.firstInput !== undefined &&
-        record.firstInput.state !== "confirmed",
+        record.firstInput.state !== "confirmed" &&
+        record.firstInput.state !== "not-requested",
     );
     const start =
       pending === undefined

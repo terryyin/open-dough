@@ -18,7 +18,7 @@ export function codexInput(
       ? undefined
       : launchWorkflows[request.workflow];
   return spec === undefined
-    ? [{ type: "text", text: saved ?? own ?? "" }]
+    ? [{ type: "text", text: saved ?? request.instruction ?? "" }]
     : [
         {
           type: "text",

@@ -4,6 +4,7 @@ import type { LaunchHost } from "../../launchHosts.ts";
 import { codexInput, confirmedFirstInput } from "./input.ts";
 import { NativeRefusal } from "./rpc.ts";
 import { connection, observe, retire } from "./conversation.ts";
+import { materializeBlank } from "./blank.ts";
 const historySchema = z.object({
   thread: z.object({
     id: z.string(),
@@ -32,7 +33,11 @@ export const recoverCodex: NonNullable<LaunchHost["recover"]> = async (
   const session = record.session;
   const continuation = session.continuation;
   let evidence = record.firstInput;
-  if (continuation === undefined || evidence?.instruction === undefined)
+  if (
+    continuation === undefined ||
+    evidence === undefined ||
+    (evidence.intent !== "blank" && evidence.instruction === undefined)
+  )
     return uncertain(
       "The saved first-input intent is unavailable. Continue this recorded Codex conversation; no input was resent.",
     );
@@ -51,6 +56,15 @@ export const recoverCodex: NonNullable<LaunchHost["recover"]> = async (
   };
   try {
     await rpc.initialize();
+    if (evidence.intent === "blank") {
+      await materializeBlank(rpc, session.sessionId, continuation.workspace);
+      await recording.session(session, {
+        state: "not-requested",
+        intent: "blank",
+      });
+      retire(rpc);
+      return { kind: "launched", session, sessionState: { kind: "unknown" } };
+    }
     const read = inspect(
       await rpc.request("thread/read", {
         threadId: session.sessionId,

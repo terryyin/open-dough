@@ -29,6 +29,8 @@ export type FakeCodex = {
   loseCreation: boolean;
   failRead: boolean;
   readError: boolean;
+  blankHistoryError?: unknown;
+  beforeRead?: (includeTurns: boolean) => void;
   completeOnResume: boolean;
   resumeStatus?: string;
   history: { id: string; status?: string; items: unknown[] }[];
