@@ -2,8 +2,13 @@
 
 **Identity:** SEED-071#session-panel-header-controls
 **Source:** [refined story](../../seeds/SEED-071-session-panel-header-controls.md#session-panel-header-controls)
-**Authority:** Planning only. No Take, implementation, commit, or publication.
+**Authority:** Executing (Story Branch Mode).
 **Preparation:** Established workspace `/Users/terryyin/git/open-dough/.worktrees/control-the-dashboard-session-panel-from-its-hea`, branch `claude/control-the-dashboard-session-panel-from-its-hea`, remote `origin`, trunk `main`, agent `ruuf-chan`, published assignment `28c89671d28477453cbc0ff8c44f6804ddf44549`, integration checkout `/Users/terryyin/git/open-dough`.
+**Execution:** agent `philip-chan`, Story Branch Mode on remote `origin`
+branch `claude/control-the-dashboard-session-panel-from-its-hea` (trunk `main`),
+claim `9ebc123ed78586c483513a62b2f20f3976026e7d`, starting revision
+`f932ba9b95d5ca55347dcf122c999f631d904e9a`, workspace setup `npm ci` plus
+`npm run typecheck:dashboard` passed.
 
 ## Goal and scope
 
@@ -68,14 +73,16 @@ navigation, or Mark as done semantics.
 | `AgentPortrait` takes the rotation name and renders nothing for an unknown name or a missing nerd cartoon | Slice 4 | Read `AgentPortrait.tsx`; `public/agent-avatars/odd-e-nerds` is absent in this workspace | Confirmed |
 | A page journey can give a launched, listed session a recorded agent by rewriting `~/.open-dough/dashboard/agent-launches.json` under `dashboard.home`, since the server reads that store on every request | Slice 4 | Throwaway spec (deleted) on the `agent-terminal.spec.ts` journey: launch, wait for the store file, add `preparation.agent: "Yui-chan"` to the session record, `recordsOf` and reload | Passed (2026-10-01): the record answers with the agent and `available` state, and the card still offers Open terminal. The store does not exist when `launch()` returns, so the journey must poll for it before rewriting |
 | macOS has no symbolic hotkey bound to Escape on this machine | Slice 1 | `defaults read com.apple.symbolichotkeys AppleSymbolicHotKeys` filtered for key code 53 | No binding |
-| Real browsers deliver ⌘Esc to the page while a text field has focus | Slice 3 | Playwright dispatches through CDP and bypasses OS and browser reservations, so it cannot settle this | **Open: slice 1 probe** |
+| Real browsers deliver ⌘Esc to the page while a text field has focus | Slice 3 | Slice 1 probe | **Refuted (2026-10-01):** Chrome and Safari withhold ⌘Esc; see slice 1 |
 
 ## Ordered slices
 
 ### 1. ⌘Esc reaches the page in the developer's real browsers
 Type: Behavior (probe)
-Status: planned
-Proof: Terry's recorded observation per browser.
+Status: done — ⌘Esc is withheld; slice 3 awaits Terry's shortcut choice
+Proof: recorded OS-level observation per browser (below), taken by the
+executing agent instead of Terry because System Events keystrokes pass through
+the same OS and browser path as a physical key press.
 
 Behavior: a scratch HTML page outside the repository (in the job's temp
 directory) with a focused `<textarea>` and a capture-phase `window` keydown
@@ -84,6 +91,15 @@ dashboard (at least Chrome; Safari if used) → the log shows `Escape` with
 `metaKey: true`, and nothing else (no Force Quit or browser action) happens.
 Record each browser and result here. If any browser withholds ⌘Esc, stop
 slice 3 and return the shortcut choice to Terry; slices 2 and 4 continue.
+
+Result (2026-10-01, macOS 26 on this machine): a local page
+(`http://127.0.0.1` scratch server, focused `<textarea>`, capture-phase
+`window` keydown logger) received real keystrokes sent with
+`osascript … tell application "System Events" to key code 53 using …`.
+In both Google Chrome and Safari, ⌘Esc produced **no** keydown, while in the
+same runs ⌘B, ⌘., ⌘⇧Esc (`Escape`, `metaKey` and `shiftKey`), ⌥Esc, ⌃Esc,
+⇧Esc and plain Escape all reached the page. Nothing else visible happened on
+⌘Esc. ⌘⌥Esc (Force Quit) was not tried.
 
 ### 2. Maximize and restore the panel from icon controls
 Type: Behavior
@@ -105,7 +121,7 @@ Mark as done remains its text button. Update the North Star terminal-panel text.
 
 ### 3. ⌘Esc closes the panel
 Type: Behavior
-Status: planned
+Status: awaiting Terry's shortcut choice (slice 1: browsers withhold ⌘Esc)
 Proof: new cases in `agent-terminal-maximize.spec.ts` (or a sibling
 `agent-terminal-keyboard.spec.ts`), mirroring `session-sidebar-keyboard.spec.ts`;
 slice 1's recorded browser results for real delivery.
