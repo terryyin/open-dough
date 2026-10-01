@@ -4,11 +4,11 @@ The [story dashboard](README.md) starts work on this machine through the same
 launch dialog and local boundary for Claude Code and Codex. Origin alone decides
 story membership, preparation and completion; a launch record is local evidence.
 
-| Workflow | Action | Installed skill |
-| --- | --- | --- |
-| Execution | Start execution | `dough-execute-plan` |
+| Workflow   | Action           | Installed skill          |
+| ---------- | ---------------- | ------------------------ |
+| Execution  | Start execution  | `dough-execute-plan`     |
 | Refinement | Start refinement | `dough-story-refinement` |
-| Ad hoc | Start session | No story or skill |
+| Ad hoc     | Start session    | No story or skill        |
 
 Backlog cards offer execution then refinement. Execution remains available when
 not marked Ready for execution, with that note; refinement remains available
@@ -74,28 +74,28 @@ It confirms through `claude agents --json --all`; an unreadable/unconfirmed
 answer is uncertain. Missing CLI, refusal and untrusted folder are explained
 without exposing raw stderr; timeout never establishes absence.
 
-Codex uses the vendor's shared native daemon, discovered/started by
-`codex app-server daemon start`, and connects to its returned Unix socket.
-`thread/start` receives only the workspace. Its returned `thread.id` is the
-conversation ID; the initialization/session ID is never substituted.
-The common store awaits durable identity before `turn/start`. The first input
-contains `$<skill> <identity> <flags>`, the installed handoff and optional
-instruction, plus native skill input identifying the selected workspace's
-`.agents/skills/<skill>/SKILL.md`. Ad hoc sends only its optional text.
+Codex discovers/starts the vendor's shared daemon with `codex app-server daemon start`
+from the machine's home directory and connects to its Unix socket. It outlives retired worktrees.
+`thread/start` receives only the workspace; its returned `thread.id` is the
+conversation ID, never the initialization/session ID. The common store awaits
+durable identity before `turn/start`. First input contains `$<skill> <identity> <flags>`,
+the installed handoff, optional instruction and native skill input identifying
+the workspace's `.agents/skills/<skill>/SKILL.md`; ad hoc sends only optional text.
 
-An explicit native creation refusal submits no input and keeps preparation.
-Before creation, the launch document keeps workspace/endpoint. Without a trusted
-ID, cards/Recent show a native history picker; Start requires reconciliation.
+Creation refusal submits no input, keeps preparation and reports a validated, bounded
+native error message without dumping error data. A daemon whose working directory was
+removed needs a restart; the dashboard never restarts it automatically. Before creation,
+the launch document keeps workspace/endpoint. Without a trusted ID, cards/Recent show
+a native history picker; Start requires reconciliation.
 Known input is awaiting before submission, uncertain before acknowledgment,
 confirmed by acceptance or matching saved intent in native history. Start reads/
 resumes the saved ID, verifies CWD and preserves original preparation/text.
 Empty, unrelated, unreadable or mismatched history never proves input rejected.
 Only durable no-submission/explicit-refusal evidence permits the saved input in
 that conversation. Store failure prevents submission and explains continuation.
-Confirmation clears pending acceptance explanations; legacy confirmed records
-show acceptance without stale uncertainty. Connection loss has a separate
-continuation notice and retains the command. Neither fact claims live/story
-state; predecessor Claude records remain confirmed.
+Confirmation clears pending acceptance explanations, including legacy stale uncertainty.
+Connection loss retains the command with a separate continuation notice. Neither fact
+claims live/story state; predecessor Claude records remain confirmed.
 Codex records retain the exact native continuation arguments, endpoint and
 workspace. Cards/Recent show a shell-quoted command:
 `codex resume --remote <native Unix endpoint> --cd <recorded workspace> <thread ID>`.

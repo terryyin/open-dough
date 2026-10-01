@@ -3,11 +3,13 @@
 import { createConnection } from "node:net";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { homedir } from "node:os";
 import WebSocket from "ws";
 import { z } from "zod";
 
 const execute = promisify(execFile);
 const daemonSchema = z.object({ socketPath: z.string().min(1) });
+const refusalSchema = z.object({ message: z.string().trim().min(1).max(500) });
 const messageSchema = z.object({
   id: z.union([z.number(), z.string()]).optional(),
   method: z.string().optional(),
@@ -19,6 +21,8 @@ export class NativeRefusal extends Error {}
 
 export async function daemonEndpoint(signal: AbortSignal): Promise<string> {
   const { stdout } = await execute("codex", ["app-server", "daemon", "start"], {
+    // The shared daemon outlives story worktrees, including their retirement.
+    cwd: homedir(),
     signal,
   });
   const { socketPath } = daemonSchema.parse(JSON.parse(stdout));
@@ -85,11 +89,16 @@ export class CodexRpc {
         const waiting = this.pending.get(message.id);
         if (waiting === undefined) return;
         this.pending.delete(message.id);
-        if (message.error !== undefined)
+        if (message.error !== undefined) {
+          const refusal = refusalSchema.safeParse(message.error);
           waiting.reject(
-            new NativeRefusal("Codex refused the native request."),
+            new NativeRefusal(
+              refusal.success
+                ? refusal.data.message
+                : "Codex refused the native request.",
+            ),
           );
-        else waiting.resolve(message.result);
+        } else waiting.resolve(message.result);
       } else if (
         message.method === "turn/completed" &&
         z

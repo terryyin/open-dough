@@ -1,4 +1,5 @@
 // Selected-host defaults and admission are proven before native calls.
+import { readFileSync, realpathSync } from "node:fs";
 import { installRefinementSkill } from "./launchCardPage.ts";
 import { test, expect, codexSkill } from "./support/codexLaunch.ts";
 import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
@@ -27,6 +28,9 @@ test("missing Codex options allow defaults, selected options/model are refused b
     host: "codex",
   });
   expect(response.status).toBe(200);
+  expect(
+    JSON.parse(readFileSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "", "utf8")),
+  ).toEqual({ cwd: realpathSync(dashboard.home) });
   expect(JSON.parse(response.body)).toMatchObject({
     kind: "launched",
     record: { firstInput: { state: "confirmed" } },
@@ -35,4 +39,48 @@ test("missing Codex options allow defaults, selected options/model are refused b
     native.calls.filter((call) => call.method === "turn/start"),
   ).toHaveLength(1);
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
+});
+
+test("native creation refusal exposes a bounded message, never arbitrary error data", async ({
+  dashboard,
+  codexProtocol: protocol,
+}) => {
+  const native = protocol;
+  if (native === undefined) throw new Error("Missing native fixture.");
+  codexSkill(dashboard.home);
+  native.refuseCreation = true;
+  for (const [error, cause] of [
+    [
+      {
+        code: -32600,
+        message:
+          "failed to load configuration: No such file or directory (os error 2)",
+        data: { credential: "private-native-data" },
+      },
+      "failed to load configuration: No such file or directory (os error 2)",
+    ],
+    [
+      { code: -32600, message: { credential: "private-native-data" } },
+      "Codex refused the native request.",
+    ],
+    [
+      { code: -32600, message: "x".repeat(501), data: "private-native-data" },
+      "Codex refused the native request.",
+    ],
+  ] as const) {
+    native.creationError = error;
+    const response = await launch(dashboard, {
+      ...refinementRequest,
+      host: "codex",
+    });
+    expect(JSON.parse(response.body)).toMatchObject({
+      kind: "failed",
+      reason: "refused",
+      explanation: expect.stringContaining(cause),
+    });
+    expect(response.body).not.toContain("private-native-data");
+    expect(
+      native.calls.filter(({ method }) => method === "turn/start"),
+    ).toEqual([]);
+  }
 });

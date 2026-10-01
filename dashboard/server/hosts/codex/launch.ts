@@ -98,8 +98,7 @@ export const launchCodex: LaunchHost["launch"] = async (
       return {
         kind: "failed",
         reason: "refused",
-        explanation:
-          "Codex refused to create a conversation. No first input was submitted.",
+        explanation: `Codex refused to create a conversation. ${error.message} No first input was submitted.`,
       };
     }
     const missing = (error as NodeJS.ErrnoException).code === "ENOENT";

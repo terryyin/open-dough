@@ -14,6 +14,7 @@ export type FakeCodex = {
   threadId: string;
   hold: boolean;
   refuseCreation: boolean;
+  creationError: unknown;
   refuseInput: boolean;
   loseCreation: boolean;
   failRead: boolean;
@@ -46,6 +47,7 @@ export async function installFakeCodex(
     binDir: bin,
     env: {
       FAKE_CODEX_CLI_LOG: path.join(tempRoot, "cli-resume.jsonl"),
+      FAKE_CODEX_DAEMON_LOG: path.join(tempRoot, "daemon-start.jsonl"),
       PATH: [bin, searchPath].join(path.delimiter),
       ...(serve ? { FAKE_CODEX_SOCKET: socket } : {}),
     },
@@ -54,6 +56,7 @@ export async function installFakeCodex(
     threadId: "native-thread-id",
     hold: false,
     refuseCreation: false,
+    creationError: { code: -32000, message: "Native creation refused." },
     refuseInput: false,
     loseCreation: false,
     failRead: false,
@@ -117,7 +120,7 @@ export async function installFakeCodex(
             client.send(
               JSON.stringify({
                 id: message.id,
-                error: { code: -32000, message: "Native creation refused." },
+                error: fixture.creationError,
               }),
             );
           else reply({ thread: { id: fixture.threadId } });
