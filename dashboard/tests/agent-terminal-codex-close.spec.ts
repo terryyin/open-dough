@@ -13,11 +13,10 @@ import { installFakeClaude } from "./support/fakeClaude.ts";
 import { installFakeCodex } from "./support/fakeCodex.ts";
 import {
   codexAttaches,
-  codexEnded,
+  expectCodexHungUp,
   openCodexTerminal,
 } from "./support/codexTerminal.ts";
 import { codexSkill } from "./support/codexLaunch.ts";
-import { processRunning } from "./support/processGroup.ts";
 import { withRestoredEnv } from "./support/testEnv.ts";
 
 type StoredHandler = (
@@ -77,8 +76,7 @@ test("closeServer closes an admitted Codex socket and its PTY while the HTTP ser
     const pid = codexAttaches(native)[0]?.pid ?? 0;
     close();
     expect(await terminal.closed).toBe(1006);
-    await expect.poll(() => codexEnded(native, pid)).toBe("SIGHUP");
-    await expect.poll(() => processRunning(pid)).toBe(false);
+    await expectCodexHungUp(native, pid);
     expect(server.listening).toBe(true);
     expect(
       native.calls.filter((call) => call.method === "turn/interrupt"),
