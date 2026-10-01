@@ -123,7 +123,7 @@ needs duration-balanced shards rather than a count change.
 
 ### 2. Every dashboard job finishes within the per-job budget, and trunk CI meets the target
 Type: Behavior
-Status: integrated; nine-share variance-margin experiment underway; trunk three-run proof pending
+Status: done — integrated `7071e668`, first trunk run and two reruns passed 102/105/121s
 Proof: a story-branch CI run with every dashboard job ≤ about 2m10s and the
 run under 2m30s. After trunk integration, the delivered revision's CI run and
 two reruns (`gh run rerun <id>`) each finish under 2m30s with all jobs
@@ -190,3 +190,10 @@ Hosted CI runs the full suite on every branch push and owns the timing proof.
 
 - Refreshed-list trunk revision `50cd019585340448d08381b1ddc3b5d2940ce2b6`, run `36848681612`: attempts 1/2/3 took 122/129/163s, all jobs green, 653 unique cases passing with no skips/flakes, seven reports and three timing artifacts each. The final attempt fails the promised timing proof; do not erase it with further reruns. Attempt 3's critical dashboard share 1 spent 37s between job start and its first setup step, then 13s installing Chromium, 8s type-checking and 85s in the browser suite. Browser/installation costs stayed comparable with attempts 1/2 (81/84s browser, 14/18s installation); provisioning delay is separate.
 - Next bounded experiment: retain whole-file duration-order round-robin partitioning, use nine dashboard shares, and put the one type-check on share 9, the lightest share. From attempt-3 durations, eight shares' largest summed duration is 197.383s and nine's 165.729s. Including the observed 37s pre-step gap and 28s other setup, eight projects 131.1s before type-check; nine projects 120.5s. Using the worst observed browser-step/summed-test ratio gives nine approximately 128.5s. Nine is the smallest measured projection within the approximately 130s job budget for this observed variance; these are projections and need a new trunk initial run plus two reruns. No installation changes, faster runner, larger timeout or coverage reductions are justified.
+
+- Final delivered trunk proof: accepted `7071e66845c872aab6c60ad3302bcddcf10aed06`, run `36850469767`, attempts 1/2/3 all green in 102/105/121s (<150s each). Dashboard jobs respectively 86/96/75/97/82/98/82/82/92s, 81/99/85/90/77/91/91/89/73s, and 80/92/86/89/84/116/80/92/115s (all <130s). Each attempt contains exactly 653 unique passing browser IDs, unchanged from the integrated suite, no skips/flakes/unexpected cases, nine Playwright reports and three test-times artifacts. Type-check passes once on share 9. All owned watches terminated exit 0. Attempt starts/ends: 10:39:13–10:40:55Z, 10:41:46–10:43:31Z, 10:44:14–10:46:15Z on 2026-10-01; rerun elapsed uses its own start, not the original run creation. Private evidence `/tmp/seed070-36850469767-attempt{1,2,3}-{jobs.json,reports,artifacts.json,watch.log}`.
+- Nine-share real listing proof: unset 653; shares 53/64/98/80/56/44/79/75/104, exactly 653 unique spec-ID/project pairs once. Focused partition/container proof passed after the independent refactor aligned the existing CI partition test with nine shares, and again after publication reconciliation. Only unrelated SEED-075 claim records were incorporated at that boundary; product proof remained applicable. Runner, timeouts, failure reporting, browser installation and assertions unchanged.
+
+## Execution complete
+
+Product advice: retrospective skipped. No retrospective advice or follow-up plan supplied; ordinary closure proceeds under the developer's explicit wrap-up instruction. Lasting partition behavior is maintained in dashboard/tests/README.md and the committed code/tests. Before-cleanup publication preserves this proof and the spent source for Git recovery.
