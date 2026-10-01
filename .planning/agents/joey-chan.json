@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "joey-chan",
+  "email": "joey-chan@example.org",
+  "identity": "SEED-075#startup-advice-from-host-description",
+  "mode": "story-branch",
+  "branch": "codex/startup-recovery-advice-comes-from-the-host-desc",
+  "host": "codex"
+}
