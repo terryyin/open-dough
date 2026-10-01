@@ -1,3 +1,8 @@
+import {
+  sessionResultEndpoint,
+  type SessionResult,
+} from "../src/sessionResult.ts";
+import { launchHost } from "./launchHosts.ts";
 // The local launch boundary, mounted by Vite in dev and preview
 // (`./localBoundaryPlugin.ts`) beside the authenticated read boundary. A same-origin
 // POST to `/__agent-launch` asks to launch an agent on one work item
@@ -51,6 +56,7 @@ import { RefusedRequest } from "./localOrigin.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
 
 type Answer =
+  | { readonly status: number; readonly body: SessionResult }
   | { readonly status: number; readonly body: LaunchResult }
   | {
       readonly status: number;
@@ -115,6 +121,7 @@ async function deleted(
 async function answer(
   req: IncomingMessage,
   url: URL,
+  res: ServerResponse,
   launches: AgentLaunches,
   terminals: AgentTerminals,
   alerts: SessionAlerts,
@@ -122,6 +129,32 @@ async function answer(
   try {
     const request = await admitted(req, url, launches);
     switch (request.kind) {
+      case "result": {
+        const controller = new AbortController();
+        const closed = () => {
+          controller.abort();
+        };
+        const deadline = setTimeout(closed, 10_000);
+        res.on("close", closed);
+        try {
+          const host = launchHost(request.record.session.host);
+          if (host?.readResult === undefined)
+            throw new RefusedRequest(
+              400,
+              "This host cannot read a final report.",
+            );
+          return {
+            status: 200,
+            body: await host.readResult(
+              request.record.session,
+              controller.signal,
+            ),
+          };
+        } finally {
+          clearTimeout(deadline);
+          res.off("close", closed);
+        }
+      }
       case "sessions":
         return {
           status: 200,
@@ -182,6 +215,7 @@ function installAgentLaunchMiddleware(
   middlewares.use((req, res, next) => {
     const url = new URL(req.url ?? "", "http://placeholder");
     if (
+      url.pathname !== sessionResultEndpoint &&
       url.pathname !== agentLaunchEndpoint &&
       url.pathname !== agentDoneEndpoint &&
       url.pathname !== agentDeleteEndpoint
@@ -189,7 +223,7 @@ function installAgentLaunchMiddleware(
       next();
       return;
     }
-    void answer(req, url, launches, terminals, alerts).then((outcome) => {
+    void answer(req, url, res, launches, terminals, alerts).then((outcome) => {
       respond(res, outcome);
     }, next);
   });

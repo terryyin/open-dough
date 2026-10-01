@@ -213,3 +213,19 @@ stops/renames/marks native work. Failure retains the question and focus; success
 removes every entry, prevents older reads/lifecycle updates restoring it, closes
 any showing terminal and restores next-entry/card/Recent focus with a polite
 “Session record deleted”. No local action changes a published story fact.
+
+## Retained Codex results without their workspace
+
+A saved Codex conversation and its workspace are observed separately. When the
+saved directory is missing or its lookup is inconclusive, story cards, Recent
+sessions and Sessions sidebar selection lead to **Read final report** instead
+of advertising a terminal in that directory. The panel reads the same recorded
+host-qualified conversation through its saved endpoint, shows its final report
+read-only and names the workspace limitation separately from review status.
+
+Close or Command+Shift+Escape returns focus to the invoking control. Selecting
+another session cancels the previous report read. **Retry report** retries that
+same identity after a read failure. Reading changes no native input or done mark;
+**Mark as done** keeps its explicit completion behavior. Missing directories do
+not establish story completion or why the directory was removed. Existing
+workspace continuation and Claude Code behavior keep their terminal path.

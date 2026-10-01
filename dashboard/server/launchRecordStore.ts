@@ -35,6 +35,16 @@ export async function keptRecords(
   return (await keptRecordsByProject()).get(sourceId) ?? [];
 }
 
+// One retained host-qualified conversation for a catalog project.
+export async function keptSession(
+  sourceId: string,
+  session: SessionReference,
+): Promise<LaunchRecord | undefined> {
+  return (await keptRecords(sourceId)).find(
+    (record) => sessionKey(record.session) === sessionKey(session),
+  );
+}
+
 // Keeps one known conversation and its first-input evidence, replacing any
 // unresolved creation of that launch.
 export async function keepRecord(

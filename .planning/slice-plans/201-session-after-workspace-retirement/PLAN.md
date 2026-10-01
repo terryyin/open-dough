@@ -23,6 +23,16 @@ and `npm run typecheck:dashboard` passed; dependencies are local, without the
 planning session's dependency symlink. Existing planning authority is retained
 for bounded replanning; no numeric slice target or hard limit was supplied.
 
+**Delivered revision:** `33eb0b69afbca8db3cc860f5d6ca2d9dd74aa17f` (slice 1),
+accepted on the execution branch. CI source is GitHub Actions `ci.yml` (`CI`),
+verified with `gh run list --repo terryyin/open-dough --workflow ci.yml --branch
+codex/show-truthful-session-access-after-its-workspace --event push --limit 1
+--json workflowName`. Codex observer: coordinator `/root`, execution checkout
+above, cell `42`, tool session `72248`, directory `/tmp/dough-ci-501/watch-qG1qAV`,
+PID `16942`; managed delivery reused it and registered the accepted revision.
+The initial trunk claim has no matching trunk observer and remains unobserved;
+ordinary increments are covered on the execution branch, without per-slice CI waits.
+
 ## Goal and scope
 
 A developer can read a retained Codex session's final report inside the dashboard
@@ -213,8 +223,8 @@ the matching saved record from `~/.open-dough/dashboard/agent-launches.json`, an
 called `launchHost('codex').readResult(record.session,AbortSignal.timeout(10000))`.
 It compared exact final text/turn ID with the prior passive native read, statted
 the saved cwd, and compared before/after document bytes; exit 0. Compact temporary
-native payload `/tmp/open-dough-seed-076-native-report.json` remains only for
-slice 2's real-native report-to-view observation, after which it is disposable.
+native payload `/tmp/open-dough-seed-076-native-report.json` was reused for
+slice 2's real-native report-to-view observation and then disposed after judgment.
 
 `npm run typecheck:dashboard` and
 `env -u NO_COLOR npm run test:dashboard -- session-result-codex.spec.ts
@@ -231,7 +241,7 @@ view is claimed until slice 2.
 
 ### 2. Review retained results when their workspace is unavailable
 Type: Behavior
-Status: planned
+Status: done
 Proof: New outside-in report journey selects the same retained session from a
 story card, Recent sessions and sidebar. Remove only a private fixture workspace;
 observe truthful limitation, final report, project/story association, keyboard
@@ -260,6 +270,60 @@ Update maintained launch/navigation and troubleshooting documentation for this
 new behavior. Preserve any unfinished architecture-review direction.
 Safe stop: sessions whose workspace is already observed missing have usable
 review access; the subsequent action-time race is still explicitly slice 3.
+
+Accepted proof (2026-10-01): the real observation/store/HTTP/native boundary and
+browser show the same report from card, Recent sessions and sidebar, preserving
+project/story selection, attention and host-qualified identity. Keyboard opening,
+Command+Shift+Escape/Close focus return, current session marks and the story-card
+outline are observed. Script-shaped report content renders as escaped text.
+Missing directories never get recreated. Real ELOOP lookup remains unknown;
+native read refusal offers retry with no stale text or done write. A held result
+cannot appear under the next session's identity. Deliberate Mark as done survives
+poll/reload and a concurrent retained-record addition; merely opening/closing
+the report leaves document bytes unchanged. Result admission rejects wrong
+source/host/ID, arbitrary endpoint, external origin and wrong method before native
+result access. Filesystem boundary covers available, ENOENT, non-directory and
+ELOOP without changing the session.
+
+Native report-to-view acceptance passed using an isolated exact copy of the live
+Doughnut record (same source/story/host/ID/endpoint/cwd/newer doneAt). Actual
+`/__agent-launch/result` returned the precise landing report; the browser displayed
+that same text and identity, showed no terminal, and returned focus on Close.
+Both the private record document and original live document bytes/hash were
+unchanged; the original cwd remained absent. Literal command:
+`DOUGH_NATIVE_REPORT_ACCEPTANCE=1 env -u NO_COLOR npm run test:dashboard --
+session-workspace-retirement agent-terminal-codex-page.spec.ts
+agent-launch-done-codex-races.spec.ts agent-launch-done-codex-intent.spec.ts
+session-sidebar-navigation.spec.ts agent-terminal.spec.ts` — exit 0, 19 tests in
+8 files before test extraction. The first native attempt failed before report
+assertions because fake published GitHub lacked the Doughnut project response;
+using its existing published-origin fixture fixed that isolated setup gap.
+The owner-specific native acceptance spec and temporary payload were disposed
+after inspection under ADR 0005 §5; deterministic regression fixtures remain.
+
+Independent refactoring consolidated kept host-qualified lookup in the store,
+session admission, and mutually exclusive terminal/report selection with focus.
+It exposed the missing report story-card outline, now covered before acceptance.
+`SessionAccess` and shown-session identity have one owner across current callers;
+terminal, done and delete retain their existing folder and readiness requirements.
+Focused post-refactor proof:
+`env -u NO_COLOR npm run test:dashboard -- session-workspace-retirement.spec.ts
+session-workspace-retirement-done.spec.ts session-result-admission.spec.ts
+agent-terminal-codex-page.spec.ts agent-terminal-done-codex-page.spec.ts
+agent-launch-done-codex-races.spec.ts agent-launch-done-codex-intent.spec.ts
+session-sidebar-navigation.spec.ts agent-terminal.spec.ts
+agent-terminal-maximize.spec.ts agent-terminal-close.spec.ts
+agent-terminal-delete.spec.ts` — exit 0, 23 tests in 12 files.
+`npm run typecheck:dashboard` and `git diff --check` passed. Setup now resides
+in `tests/support/retainedReport.ts`; separate admission and deliberate-done specs
+preserve their assertions. Native reader, report rendering and filesystem
+observation were unchanged by refactoring, so their accepted proof was reused.
+No shared native vendor fixture changed. Maintained launch, navigation and
+troubleshooting documentation describes report access and its conservative limits.
+
+Later-outcome check: hiding terminal continuation only for missing/inconclusive
+saved directories is compatible with slice 3's existing-directory attachment and
+specific fallback after later disappearance. No session/history/state is removed.
 
 ### 3. Explain workspace loss at the attachment boundary
 Type: Behavior

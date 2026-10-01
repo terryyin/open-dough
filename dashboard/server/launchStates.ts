@@ -1,5 +1,6 @@
 // Read each recorded host once and join its normalized target observations.
 // Failure or omission is unknown; only the host confirms native absence.
+import { savedWorkspaceState } from "./sessionWorkspace.ts";
 import type { LaunchRecord, LaunchWithState } from "../src/agentLaunch.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { launchHost } from "./launchHosts.ts";
@@ -50,10 +51,15 @@ export async function withStates(
       ),
     )
   ).flat();
-  return records.map((record) => ({
-    ...record,
-    sessionState: observations.find(
-      (entry) => sessionKey(entry.session) === sessionKey(record.session),
-    )?.sessionState ?? { kind: "unknown" },
-  }));
+  return Promise.all(
+    records.map(async (record) => ({
+      ...record,
+      ...(record.session.host === "codex"
+        ? { workspaceState: await savedWorkspaceState(record.session) }
+        : {}),
+      sessionState: observations.find(
+        (entry) => sessionKey(entry.session) === sessionKey(record.session),
+      )?.sessionState ?? { kind: "unknown" },
+    })),
+  );
 }
