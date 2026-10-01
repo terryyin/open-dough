@@ -171,6 +171,30 @@ codex, and cursor. The closure journeys use Dough Land only for retirement.
 Run them on the hosts their case assigns. Terry chooses the host set at run
 time if cost calls for fewer.
 
+## Execution complete
+
+Product advice: no additional product work recommended. The ownership rule is
+reused in its existing home; refinement retains its necessary identity-specific
+recheck. All five planned examples have mechanical proof, and all eight affected
+native journeys passed. Native ownership-refusal proof remains intentionally
+excluded. No correction story or plan is needed.
+
+Retrospective reviewed the claim `cc865741`, implementation `df9fb909`, and
+native evidence `8e7aa5b9`, excluding pre-start planning as provenance. Aggregate
+command, guidance, model, payload and evidence changes match the approved plan
+and ADRs 0003, 0005 and 0006. No refactoring residue or unsupported new product
+promise was found. Tests drive the actual command and model; native streams
+independently establish guidance use. Process review recorded this execution's
+recurrence of existing DD-201; no new finding code or backlog change. The log is
+587 physical lines, above the existing 500-line warning threshold and below its
+1,000-line ceiling.
+
+Both slices are delivered on the execution branch. The native-evidence commit
+`8e7aa5b93b2096c12f6d62afe2e6755e5c0b3dd1` was accepted there. CI coverage
+remains explicitly unobserved through the known managed-Codex attachment gap.
+No observer was started, so no completion mailbox or shutdown action exists.
+Retain this plan, proof, branch and workspace for story wrap-up.
+
 ## Considered and excluded
 
 - **A native case for the stop.** No existing native journey
