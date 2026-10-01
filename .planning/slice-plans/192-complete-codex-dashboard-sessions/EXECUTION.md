@@ -90,7 +90,8 @@ execution/ad hoc acceptance remain later slices; this probe does not pass them.
   deterministic baseline evidence is retained. SEED-067's preparation allocation
   has landed; no product fix from that work is present at this starting revision.
 - Publication target for increments: origin refs/heads/codex/complete-codex-dashboard-sessions.
-  Previously published base for first delivery: d0d3a12d9f220b3d6eaa3789c0b53e9bdcb5e6be.
+  Slice 1 accepted delivery: 22ff91b009fb90311cf71230e63f760e0fefdedb, same target.
+  Previously published base for slice 2 delivery: 22ff91b009fb90311cf71230e63f760e0fefdedb.
 - CI_OBSERVER: GitHub Actions terryyin/open-dough, verified selector ci.yml,
   target codex/complete-codex-dashboard-sessions, coordinator codex-plan-192-20261001,
   same execution checkout. Directory /tmp/dough-ci-501/watch-kaShmz, PID 3443,
@@ -110,3 +111,65 @@ execution/ad hoc acceptance remain later slices; this probe does not pass them.
   threadId/turnId only. Rename uses thread/name/set, never typing into a busy prompt.
 - Slice 1's decisive lifecycle mechanism is accepted. Structured native waits remain
   pending under never; deterministic shapes do not close that native requirement.
+
+## Slice 2 accepted proof — recorded-target observation seam
+
+The canonical current observation is available (loaded/retained plus semantic
+activity), unavailable (confirmed absence), or unknown (failed/unsupported/omitted
+read). Saved launch records are unchanged. Claude's private listing normalizes
+activity and still confirms launch/rename; Codex observation/capabilities remain
+unimplemented. Shared withStates forwards actual saved targets, isolates thrown
+host errors and bounds unsettled reads by the existing 10-second deadline.
+
+Coordinator inspection: LaunchHost/SessionObservation, launchStates, Claude
+normalizer/listing consumers, launchRecord schema/eligibility, sessionShown,
+SessionAlerts and doneMarks; observing setups/assertions in launch-observations,
+session-listing, host-identity, delete, card/recent-state, alerts and terminal
+boundary/done-reopen specs. Setup uses actual store/server/HTTP/page/WS/PTY with
+native/osascript substitutes; host-object substitutes only cover seam isolation,
+not native Codex parity. Relevant current callers include machineSessions/stateOf,
+launch/done/delete responses, schema/client reads, cards/sidebar/counts/alerts,
+LaunchSession, TerminalSplit, sessionRecordActions, terminal admission,
+AgentTerminals, private launch/rename confirmation and real test-support callers.
+
+Literal affected combined proof command:
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npx --no-install playwright test --config dashboard/playwright.config.ts dashboard/tests/launch-observations.spec.ts dashboard/tests/agent-launch-session-listing.spec.ts dashboard/tests/agent-launch-host-identity.spec.ts dashboard/tests/agent-launch-records.spec.ts dashboard/tests/agent-launch-card-session-states.spec.ts dashboard/tests/agent-launch-recent-session-states.spec.ts dashboard/tests/agent-launch-attention.spec.ts dashboard/tests/agent-launch-attention-clearing.spec.ts dashboard/tests/session-sidebar-state-edge.spec.ts dashboard/tests/session-sidebar-reading.spec.ts dashboard/tests/session-alerts.spec.ts dashboard/tests/session-alerts-unavailable.spec.ts dashboard/tests/agent-launch-done.spec.ts dashboard/tests/agent-launch-done-stop.spec.ts dashboard/tests/agent-launch-done-refusal.spec.ts dashboard/tests/agent-launch-delete.spec.ts dashboard/tests/agent-terminal.spec.ts dashboard/tests/agent-terminal-boundary.spec.ts dashboard/tests/agent-terminal-lifetime.spec.ts dashboard/tests/agent-terminal-close.spec.ts dashboard/tests/agent-terminal-done.spec.ts dashboard/tests/agent-terminal-reopen.spec.ts dashboard/tests/agent-terminal-done-reopen.spec.ts dashboard/tests/agent-launch-card-done.spec.ts dashboard/tests/agent-launch-card-delete.spec.ts dashboard/tests/agent-launch-recent-delete.spec.ts dashboard/tests/agent-launch-ad-hoc-sessions.spec.ts dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-codex-lifetime.spec.ts dashboard/tests/agent-launch-codex-recovery.spec.ts dashboard/tests/agent-launch-codex-reconciliation.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts dashboard/tests/agent-launch-start-taken.spec.ts
+```
+
+Terminal exit 1 had one migrated expectation error: delete's partial working
+state expected retained while live Claude correctly returned loaded. The other
+selected specs passed; serial successors in that delete file were skipped.
+Only the expectation changed, then the complete failed file passed:
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npx --no-install playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-delete.spec.ts
+npm run typecheck:dashboard
+```
+
+Both terminal exit 0. Quiet Playwright last-run.json: passed, failedTests [].
+The initial successful typecheck and final typecheck cover server/page/test
+contracts; no native result is implied. Shared seam assertions observe saved
+context forwarding, equal host IDs, independent throw, omitted-target unknown
+and true deadline abort. HTTP observation asserts every normalized Claude state,
+one listing for all projects and byte-identical durable store. Page assertions
+retain labels/reasons/attention; alerts retain baseline/dedup/unreadable silence;
+terminal/done/reopen and Codex recovery retain their existing external outcomes.
+
+Independent refactor: none — already clean; all 19 changed paths inspected, no
+edits or invalidated proof, tests skipped, git diff --check passed. No readiness
+renewal. Slice 3 is next; native adapter, typed waits and later lifecycle/start
+acceptance remain outstanding.
+
+Formatter found 11 mechanical ESLint findings before staging. Repair clarified
+standalone sessions callbacks with a function-valued property, used explicit null/undefined checks
+and promise-based test stubs with context assertions. Production semantics and
+other proof stayed unchanged. Post-repair npm run typecheck:dashboard and
+`env -u FORCE_COLOR -u NO_COLOR npx --no-install playwright test --config dashboard/playwright.config.ts dashboard/tests/launch-observations.spec.ts`
+both terminal exit 0; the two selected seam tests still observe rejection
+isolation, saved routing, omitted-target unknown and deadline abort.
+The repository lint rule rejects this:void parameter syntax; the equivalent
+function-valued property type replaced it without emitted runtime changes.
+Post-adjustment npm run typecheck:dashboard passed; prior runtime proof remains
+applicable.

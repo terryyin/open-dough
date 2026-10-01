@@ -81,7 +81,7 @@ test.describe("the terminal beside the page", () => {
       expect(await recordsOf(dashboard, "open-dough")).toContainEqual(
         expect.objectContaining({
           session: expect.objectContaining({ sessionId }),
-          sessionState: expect.objectContaining({ kind: "listed" }),
+          sessionState: expect.objectContaining({ kind: "available" }),
         }),
       );
     };

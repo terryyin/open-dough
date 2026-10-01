@@ -10,7 +10,12 @@
 import { execFile, type ExecException } from "node:child_process";
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
 import { z } from "zod";
-import type { ListedSession } from "../../hostLaunch.ts";
+import type {
+  HostSession,
+  LaunchRecord,
+  SessionState,
+} from "../../../src/agentLaunch.ts";
+import type { SessionObservation } from "../../hostLaunch.ts";
 import type { ProjectFolder } from "../../projectFolders.ts";
 
 type ClaudeRun = {
@@ -116,6 +121,32 @@ const listedSession = z.looseObject({
   waitingFor: z.string().nullish().catch(undefined),
 });
 
+// Private Claude listing evidence also confirms launch identities and renames.
+// Shared callers receive only normalized observations for their saved targets.
+type ListedSession = {
+  readonly session: HostSession;
+  readonly sessionState: Extract<SessionState, { kind: "available" }>;
+};
+
+function activityOf(
+  state: string,
+): Extract<SessionState, { kind: "available" }>["activity"] {
+  switch (state) {
+    case "working":
+      return "working";
+    case "blocked":
+      return "waiting";
+    case "done":
+      return "review";
+    case "failed":
+      return "failed";
+    case "stopped":
+      return "interrupted";
+    default:
+      return "unknown";
+  }
+}
+
 function parsedListing(stdout: string): readonly ListedSession[] | undefined {
   let listed: unknown;
   try {
@@ -137,11 +168,15 @@ function parsedListing(stdout: string): readonly ListedSession[] | undefined {
           name: entry.name ?? "",
         },
         sessionState: {
-          kind: "listed",
-          state: entry.state,
-          ...(entry.status === undefined || entry.status === null
-            ? {}
-            : { status: entry.status }),
+          kind: "available",
+          availability:
+            entry.status === undefined || entry.status === null
+              ? "retained"
+              : "loaded",
+          activity: activityOf(entry.state),
+          ...(activityOf(entry.state) === "unknown"
+            ? { description: `Claude Code lists it as ${entry.state}` }
+            : {}),
           ...(entry.waitingFor === undefined ||
           entry.waitingFor === null ||
           entry.waitingFor === ""
@@ -164,4 +199,23 @@ export async function claudeSessions(
   return listing.error || signal.aborted
     ? undefined
     : parsedListing(listing.stdout);
+}
+
+// One machine-wide listing answers only the recorded conversations requested.
+// Listing failure says nothing about existence; a readable omission confirms
+// absence. Native launch and rename confirmation reuse the private listing.
+export async function observeClaudeSessions(
+  records: readonly LaunchRecord[],
+  folder: ProjectFolder,
+  signal: AbortSignal,
+): Promise<readonly SessionObservation[]> {
+  const listed = await claudeSessions(folder, signal);
+  return records.map(({ session }) => ({
+    session,
+    sessionState:
+      listed === undefined
+        ? { kind: "unknown" }
+        : (listed.find((entry) => entry.session.sessionId === session.sessionId)
+            ?.sessionState ?? { kind: "unavailable" }),
+  }));
 }

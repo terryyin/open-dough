@@ -82,7 +82,7 @@ for (const mode of ["dev", "preview"] as const) {
       expect(await recordsOf(server, "open-dough")).toMatchObject([
         {
           session: { sessionId: session.sessionId },
-          sessionState: { kind: "listed" },
+          sessionState: { kind: "available" },
         },
       ]);
     });

@@ -15,7 +15,7 @@ import { claudeHost } from "./claudeHost.ts";
 import type {
   EstablishedLaunch,
   HostLaunch,
-  ListedSession,
+  SessionObservation,
 } from "./hostLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
@@ -40,10 +40,11 @@ export type LaunchHost = {
     recording: LaunchRecording,
   ): Promise<HostLaunch>;
   close?(): void;
-  sessions?(
+  sessions?: (
+    records: readonly LaunchRecord[],
     folder: ProjectFolder,
     signal: AbortSignal,
-  ): Promise<readonly ListedSession[] | undefined>;
+  ) => Promise<readonly SessionObservation[]>;
   attach?(
     session: HostSession,
     folder: ProjectFolder,

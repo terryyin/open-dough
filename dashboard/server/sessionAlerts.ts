@@ -73,7 +73,9 @@ function notification(
     catalog.find((source) => source.id === request.source)?.label ??
     request.source;
   const waitingFor =
-    sessionState.kind === "listed" ? sessionState.waitingFor : undefined;
+    sessionState.kind === "available" && sessionState.activity === "waiting"
+      ? sessionState.waitingFor
+      : undefined;
   return {
     message: waitingFor === undefined ? reading : `${reading}: ${waitingFor}`,
     title: `${project} · ${launchSubject(request).title}`,

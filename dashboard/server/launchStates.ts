@@ -1,42 +1,59 @@
-// Read each recorded host once and join its current observation with local
-// evidence. An unavailable host/listing yields unknown rather than absence.
+// Read each recorded host once and join its normalized target observations.
+// Failure or omission is unknown; only the host confirms native absence.
 import type { LaunchRecord, LaunchWithState } from "../src/agentLaunch.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { launchHost } from "./launchHosts.ts";
+import type { SessionObservation } from "./hostLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
-const listingWaitMs = 10_000;
+const observationWaitMs = 10_000;
+
+// Enforce the common read deadline even if a host cannot settle its transport
+// on abort. Rejection is isolated to this host's records, never other hosts.
+async function observed(
+  records: readonly LaunchRecord[],
+  folder: ProjectFolder,
+): Promise<readonly SessionObservation[]> {
+  const host = records[0]?.session.host;
+  if (host === undefined) return [];
+  const sessions = launchHost(host)?.sessions;
+  if (sessions === undefined) return [];
+  const signal = AbortSignal.timeout(observationWaitMs);
+  let expire: (() => void) | undefined;
+  const expiry = new Promise<readonly SessionObservation[]>((resolve) => {
+    expire = () => {
+      resolve([]);
+    };
+    signal.addEventListener("abort", expire, { once: true });
+  });
+  try {
+    return await Promise.race([sessions(records, folder, signal), expiry]);
+  } catch {
+    return [];
+  } finally {
+    if (expire !== undefined) signal.removeEventListener("abort", expire);
+  }
+}
 
 export async function withStates(
   folder: ProjectFolder,
   records: readonly LaunchRecord[],
 ): Promise<readonly LaunchWithState[]> {
   const hosts = [...new Set(records.map((record) => record.session.host))];
-  const observations = new Map(
+  const observations = (
     await Promise.all(
-      hosts.map(
-        async (host) =>
-          [
-            host,
-            await launchHost(host)?.sessions?.(
-              folder,
-              AbortSignal.timeout(listingWaitMs),
-            ),
-          ] as const,
+      hosts.map((host) =>
+        observed(
+          records.filter((record) => record.session.host === host),
+          folder,
+        ),
       ),
-    ),
-  );
-  return records.map((record) => {
-    const listed = observations.get(record.session.host);
-    return {
-      ...record,
-      sessionState:
-        listed === undefined
-          ? { kind: "unknown" }
-          : (listed.find(
-              (entry) =>
-                sessionKey(entry.session) === sessionKey(record.session),
-            )?.sessionState ?? { kind: "unlisted" }),
-    };
-  });
+    )
+  ).flat();
+  return records.map((record) => ({
+    ...record,
+    sessionState: observations.find(
+      (entry) => sessionKey(entry.session) === sessionKey(record.session),
+    )?.sessionState ?? { kind: "unknown" },
+  }));
 }

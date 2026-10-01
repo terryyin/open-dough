@@ -33,7 +33,7 @@ export async function markSessionDone(
     ({ ...record, doneAt } satisfies LaunchRecord);
   terminals.endAttachments(record.session);
   const { sessionState } = await launches.stateOf(source, record);
-  if (sessionState.kind !== "unlisted") {
+  if (sessionState.kind !== "unavailable") {
     await host.stop(record.session, folder, AbortSignal.timeout(stopWaitMs));
   }
   return marked;

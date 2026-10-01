@@ -150,8 +150,8 @@ test.describe("launch records kept on this machine", () => {
 
     // The fake `claude` never launched them, so it no longer lists them.
     expect(await recordsOf(server, "open-dough")).toEqual([
-      { ...unclosed, sessionState: { kind: "unlisted" } },
-      { ...recentlyDone, sessionState: { kind: "unlisted" } },
+      { ...unclosed, sessionState: { kind: "unavailable" } },
+      { ...recentlyDone, sessionState: { kind: "unavailable" } },
     ]);
     expect(storedRecords(machine)).toHaveLength(3);
 

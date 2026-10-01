@@ -65,7 +65,7 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
     // Only the host that supports observation is listed; no observation of
     // the other conversation means unknown, never unlisted.
     expect(await recordsOf(server, "open-dough")).toEqual([
-      { ...oldClaude, sessionState: { kind: "unlisted" } },
+      { ...oldClaude, sessionState: { kind: "unavailable" } },
       { ...other, sessionState: { kind: "unknown" } },
     ]);
     const before = server.claudeCalls().length;

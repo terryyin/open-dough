@@ -46,7 +46,7 @@ slice adds knowledge only. Clean up only fixture clients/workspaces.
 
 Type: Structure
 
-Status: todo
+Status: done
 
 Internal change: extend the common host observation contract to accept recorded
 targets and normalized native activity/availability, with bounded independent

@@ -87,7 +87,7 @@ test.describe("reopening a session marked done through its terminal", () => {
     const reopened = await recordOf(server, done);
     expect(reopened).toMatchObject({
       session: { sessionId: done.sessionId },
-      sessionState: { kind: "listed" },
+      sessionState: { kind: "available" },
     });
     expect(reopened).not.toHaveProperty("doneAt");
     terminal.socket.close();

@@ -87,7 +87,11 @@ test.describe("marking a recorded session done", () => {
     expect(Date.parse(record.doneAt)).not.toBeNaN();
     expect(record).toMatchObject({
       session: { sessionId: session.sessionId, name: launchName },
-      sessionState: { kind: "listed", state: "stopped" },
+      sessionState: {
+        kind: "available",
+        availability: "retained",
+        activity: "interrupted",
+      },
     });
     expect(record).not.toHaveProperty("sessionState.status");
     // Ctrl+U cleared the draft, so the one line entered is the rename.
@@ -143,7 +147,11 @@ test.describe("marking a recorded session done", () => {
       record: {
         doneAt: expect.any(String),
         session: { name: escName },
-        sessionState: { kind: "listed", state: "stopped" },
+        sessionState: {
+          kind: "available",
+          availability: "retained",
+          activity: "interrupted",
+        },
       },
     });
     expect(await terminal.closed).toBe(4000);
@@ -171,7 +179,11 @@ test.describe("marking a recorded session done", () => {
       record: {
         doneAt: expect.any(String),
         session: { name: launchName },
-        sessionState: { kind: "listed", state: "stopped" },
+        sessionState: {
+          kind: "available",
+          availability: "retained",
+          activity: "interrupted",
+        },
       },
     });
     expect(server.claudeAttaches()).toHaveLength(attachesBefore);

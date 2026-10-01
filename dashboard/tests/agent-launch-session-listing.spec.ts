@@ -1,10 +1,9 @@
 // The machine's sessions as the local launch boundary
 // (../server/agentLaunchPlugin.ts) answers them over raw HTTP: every catalog
 // project's kept launch records, each naming its project, joined by session id
-// with one Claude Code listing, `claude agents --json --all` in the machine's
-// home folder. A session it lists answers `listed` with its `state`, while
-// its process runs its `status`, and, when Claude Code says, what a blocked
-// session is `waitingFor`; one it no longer lists answers `unlisted`; and a
+// with normalized native activity from one Claude Code listing, `claude agents --json --all` in the machine's
+// home folder. A listed session answers available with loaded/retained
+// availability and semantic activity; a confirmed omission is unavailable;
 // listing that fails answers `unknown`. Nothing of it is stored, and with no
 // records kept no `claude` runs. The synthetic `claude`
 // (./fixtures/fake-claude) lists what it launched as the real one does, and
@@ -90,9 +89,9 @@ test.describe("the machine's sessions, each joined with its state", () => {
         (await launch(server, launchRequest)).body,
       ) as { record: WithState };
       expect(record.sessionState).toEqual({
-        kind: "listed",
-        state: "working",
-        status: "busy",
+        kind: "available",
+        availability: "loaded",
+        activity: "working",
       });
       sessions.push(record.session.sessionId);
     }
@@ -104,20 +103,20 @@ test.describe("the machine's sessions, each joined with its state", () => {
 
     const states = await statesOf();
     expect(sessions.map((id) => states.get(id))).toEqual([
-      { kind: "listed", state: "working", status: "busy" },
-      { kind: "listed", state: "working", status: "idle" },
-      { kind: "listed", state: "blocked", status: "waiting" },
+      { kind: "available", availability: "loaded", activity: "working" },
+      { kind: "available", availability: "loaded", activity: "working" },
+      { kind: "available", availability: "loaded", activity: "waiting" },
       {
-        kind: "listed",
-        state: "blocked",
-        status: "waiting",
+        kind: "available",
+        availability: "loaded",
+        activity: "waiting",
         waitingFor: "permission to run npm test",
       },
-      { kind: "listed", state: "done", status: "idle" },
-      { kind: "listed", state: "done" },
-      { kind: "listed", state: "failed" },
-      { kind: "listed", state: "stopped" },
-      { kind: "unlisted" },
+      { kind: "available", availability: "loaded", activity: "review" },
+      { kind: "available", availability: "retained", activity: "review" },
+      { kind: "available", availability: "retained", activity: "failed" },
+      { kind: "available", availability: "retained", activity: "interrupted" },
+      { kind: "unavailable" },
     ]);
     expect(server.claudeCalls().slice(callsBefore)).toEqual([
       { argv: ["agents", "--json", "--all"], cwd: machineFolder(server) },
@@ -133,17 +132,17 @@ test.describe("the machine's sessions, each joined with its state", () => {
     const id = record.session.sessionId;
     server.claudeSessionBecomes(id, "blocked", "input needed");
     expect((await statesOf()).get(id)).toEqual({
-      kind: "listed",
-      state: "blocked",
-      status: "waiting",
+      kind: "available",
+      availability: "loaded",
+      activity: "waiting",
       waitingFor: "input needed",
     });
 
     server.claudeSessionBecomes(id, "working");
     expect((await statesOf()).get(id)).toEqual({
-      kind: "listed",
-      state: "working",
-      status: "busy",
+      kind: "available",
+      availability: "loaded",
+      activity: "working",
     });
   });
 
@@ -163,9 +162,9 @@ test.describe("the machine's sessions, each joined with its state", () => {
 
     server.claudeListingFails(false);
     expect((await statesOf()).get(record.session.sessionId)).toEqual({
-      kind: "listed",
-      state: "working",
-      status: "busy",
+      kind: "available",
+      availability: "loaded",
+      activity: "working",
     });
   });
 
@@ -177,9 +176,9 @@ test.describe("the machine's sessions, each joined with its state", () => {
     server.claudeListsInteractiveSession();
 
     expect((await statesOf()).get(record.session.sessionId)).toEqual({
-      kind: "listed",
-      state: "working",
-      status: "busy",
+      kind: "available",
+      availability: "loaded",
+      activity: "working",
     });
   });
 

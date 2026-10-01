@@ -10,9 +10,10 @@ import type {
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { Established } from "./startLaunch.ts";
 
-export type ListedSession = {
+// An observation of one recorded host-qualified native target.
+export type SessionObservation = {
   readonly session: HostSession;
-  readonly sessionState: Extract<SessionState, { readonly kind: "listed" }>;
+  readonly sessionState: SessionState;
 };
 
 export type HostLaunch =

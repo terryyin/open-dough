@@ -1,18 +1,15 @@
 // How a recorded launch's session reads on the page (`./agentLaunch.ts`):
-// the one reading of Claude Code's listed state, shared by every session
+// the one reading of normalized native activity, shared by every session
 // entry (`./SessionEntry.tsx`) wherever it is listed, and by the card that
 // says how many of its sessions need attention (`./CardLaunches.tsx`).
 
 import type { LaunchWithState } from "./agentLaunch.ts";
 
 // What a session entry says of its session, and whether the developer is
-// needed there: the one reading of the host's state, for every entry and for
-// its story's card. Only the host's `state` decides; whether its process
-// runs, or is idle, does not. A session not marked done needs attention while
-// Claude Code lists it blocked (Needs input, with what it waits for when it
-// says), done (Ready for review), failed, or stopped, and not while it is
-// working. One marked done never does: it is Working while the host says so,
-// and Done otherwise. An unlisted or unknown session, or a state this reading
+// needed there: the same semantic observation for every entry and card.
+// Native waiting, review, failure and interruption need attention; working
+// and awaiting a first instruction do not. Availability does not infer activity. One marked done never does: it is Working while the host says so,
+// and Done otherwise. An unavailable or unknown session, or a state this reading
 // does not know, never needs attention.
 export type SessionShown = {
   readonly label: string;
@@ -23,7 +20,7 @@ export type SessionShown = {
 
 // Which of the reading's kinds a session is, for an entry that marks its
 // kind apart from the others: needing input, ready for review, failed or
-// stopped, working, done, or not settled (unknown, unlisted, or a state this
+// stopped, working, done, or not settled (unknown, unavailable, or an activity this
 // reading does not know).
 export type SessionTone =
   "needs-input" | "ready" | "halted" | "working" | "done" | "unsettled";
@@ -34,10 +31,10 @@ const attentionReadings: ReadonlyMap<
   string,
   { readonly label: string; readonly tone: SessionTone }
 > = new Map([
-  ["blocked", { label: "Needs input", tone: "needs-input" }],
-  ["done", { label: "Ready for review", tone: "ready" }],
+  ["waiting", { label: "Needs input", tone: "needs-input" }],
+  ["review", { label: "Ready for review", tone: "ready" }],
   ["failed", { label: "Session failed", tone: "halted" }],
-  ["stopped", { label: "Session stopped", tone: "halted" }],
+  ["interrupted", { label: "Session stopped", tone: "halted" }],
 ]);
 
 export function sessionShown({
@@ -61,32 +58,42 @@ export function sessionShown({
         needsAttention: false,
         tone: "unsettled",
       };
-    case "unlisted":
+    case "unavailable":
       return {
         label: markedDone ? "Done" : "Session unavailable",
         needsAttention: false,
         tone: markedDone ? "done" : "unsettled",
       };
-    case "listed": {
-      const { state, waitingFor } = sessionState;
-      if (state === "working") {
+    case "available": {
+      const { activity, waitingFor, description } = sessionState;
+      if (activity === "working") {
         return { label: "Working", needsAttention: false, tone: "working" };
       }
       if (markedDone) {
         return { label: "Done", needsAttention: false, tone: "done" };
       }
-      const attention = attentionReadings.get(state);
+      if (activity === "awaiting-instruction") {
+        return {
+          label: "Awaiting first instruction",
+          needsAttention: false,
+          tone: "unsettled",
+        };
+      }
+      const attention = attentionReadings.get(activity);
       if (attention === undefined) {
         return {
-          label: "State not recognized",
-          note: `Claude Code lists it as ${state}`,
+          label:
+            description === undefined
+              ? "State unknown"
+              : "State not recognized",
+          ...(description === undefined ? {} : { note: description }),
           needsAttention: false,
           tone: "unsettled",
         };
       }
       return {
         label: attention.label,
-        ...(state === "blocked" && waitingFor !== undefined
+        ...(activity === "waiting" && waitingFor !== undefined
           ? { note: waitingFor }
           : {}),
         needsAttention: true,
@@ -107,7 +114,13 @@ export function alertReading(
   if (session.doneAt !== undefined) return undefined;
   if (session.sessionState.kind === "unknown") return undefined;
   const { label } = sessionShown(session);
-  return label === "Working" ? undefined : label;
+  return session.sessionState.kind === "available" &&
+    (session.sessionState.activity === "working" ||
+      session.sessionState.activity === "awaiting-instruction" ||
+      (session.sessionState.activity === "unknown" &&
+        session.sessionState.description === undefined))
+    ? undefined
+    : label;
 }
 
 // How many of the listed sessions need attention, by the same reading each

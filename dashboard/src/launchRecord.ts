@@ -103,33 +103,40 @@ export const launchRecordSchema = z.object({
 
 export type LaunchRecord = z.infer<typeof launchRecordSchema>;
 
-// A recorded session as the host lists it at the moment of asking, never
-// stored: `listed` with the host's `state`, only while its process runs its
-// `status`, and, when the host reports one, what a blocked session is
-// `waitingFor`; `unlisted` once the host no longer lists it; `unknown` when
-// the host's listing could not be read.
+// Current native availability and activity, normalized by the host. A retained
+// conversation can be continued even when unloaded. Unknown observation is
+// distinct from confirmed absence; none of this live evidence is stored.
 export const sessionStateSchema = z.discriminatedUnion("kind", [
   z.object({
-    kind: z.literal("listed"),
-    state: z.string(),
-    status: z.string().optional(),
+    kind: z.literal("available"),
+    availability: z.enum(["loaded", "retained"]),
+    activity: z.enum([
+      "working",
+      "waiting",
+      "review",
+      "failed",
+      "interrupted",
+      "awaiting-instruction",
+      "unknown",
+    ]),
     waitingFor: z.string().optional(),
+    // Host-owned provenance when native activity cannot be recognized.
+    description: z.string().optional(),
   }),
-  z.object({ kind: z.literal("unlisted") }),
+  z.object({ kind: z.literal("unavailable") }),
   z.object({ kind: z.literal("unknown") }),
 ]);
 
 export type SessionState = z.infer<typeof sessionStateSchema>;
 
-// Whether a session offers Open terminal: for every session the host still
-// lists, and while its listing is unknown, since the session may still be
-// there.
+// Whether a session offers Open terminal: for each available conversation,
+// including retained history, and while observation is unknown.
 export function attachOpens(sessionState: SessionState): boolean {
-  return sessionState.kind !== "unlisted";
+  return sessionState.kind !== "unavailable";
 }
 
-// Whether a recorded session's record may be deleted: while its listing is
-// unknown, or while the host no longer lists it and it is not marked done
+// Whether a recorded session's record may be deleted: while observation is
+// unknown, or while the conversation is unavailable and it is not marked done
 // (Session unavailable). A session marked done reads Done, not unavailable.
 export function recordDeletable({
   sessionState,
@@ -140,7 +147,7 @@ export function recordDeletable({
 }): boolean {
   return (
     sessionState.kind === "unknown" ||
-    (sessionState.kind === "unlisted" && doneAt === undefined)
+    (sessionState.kind === "unavailable" && doneAt === undefined)
   );
 }
 

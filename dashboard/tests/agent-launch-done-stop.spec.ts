@@ -61,7 +61,7 @@ test.describe("marking a session done by what Claude Code lists", () => {
       record: {
         doneAt: expect.any(String),
         session: { sessionId: session.sessionId, name: launchName },
-        sessionState: { kind: "unlisted" },
+        sessionState: { kind: "unavailable" },
       },
     });
     expect(stopCalls().slice(stopsBefore)).toEqual([]);
@@ -110,7 +110,11 @@ test.describe("marking a session done by what Claude Code lists", () => {
         record: {
           doneAt: expect.any(String),
           session: { sessionId: session.sessionId, name: launchName },
-          sessionState: { kind: "listed", state: "stopped" },
+          sessionState: {
+            kind: "available",
+            availability: "retained",
+            activity: "interrupted",
+          },
         },
       });
     } finally {

@@ -6,7 +6,7 @@ import type { LaunchHost } from "./launchHosts.ts";
 import { launchClaude } from "./hosts/claude/launch.ts";
 import {
   attachClaude,
-  claudeSessions,
+  observeClaudeSessions,
   stopClaude,
 } from "./hosts/claude/runtime.ts";
 import { renameInClaudeCode } from "./hosts/claude/rename.ts";
@@ -23,7 +23,7 @@ export const claudeHost: LaunchHost = {
   installedSkillPath: (project, skill, ...segments) =>
     path.join(project.path, ".claude", "skills", skill, ...segments),
   launch: launchClaude,
-  sessions: claudeSessions,
+  sessions: observeClaudeSessions,
   attach: (session, folder, size) =>
     attachClaude(nativeAlias(session), folder, size),
   rename: renameInClaudeCode,

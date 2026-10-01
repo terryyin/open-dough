@@ -145,8 +145,12 @@ test.describe("deleting a recorded session's record", () => {
           session: { sessionId: session.sessionId },
           sessionState:
             known === "working"
-              ? { kind: "listed", state: "working" }
-              : { kind: "unlisted" },
+              ? {
+                  kind: "available",
+                  availability: "loaded",
+                  activity: "working",
+                }
+              : { kind: "unavailable" },
         },
       });
       expect(await sessionIds()).toContain(session.sessionId);
