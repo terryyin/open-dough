@@ -7,9 +7,13 @@
 // rules are ./agent-launch-options-boundary.spec.ts.
 
 import { rmSync, writeFileSync } from "node:fs";
-import type { Locator } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
+import {
+  untilPageRequestsAnswered,
+  whileNotingChecks,
+} from "./pageRequestNotes.ts";
 import {
   groupedOptions,
   installRefinementSkill,
@@ -35,7 +39,11 @@ const sent = `/dough-story-refinement ${notRefinedIdentity}`;
 
 // Selects A and C, then the project's definition drops --c after the dialog
 // offered it, so Start is refused and the dialog closes.
-async function refuseAWithC(file: string, refinementDialog: Locator) {
+async function refuseAWithC(
+  page: Page,
+  file: string,
+  refinementDialog: Locator,
+) {
   await refinementDialog.getByRole("radio", { name: "A", exact: true }).check();
   await refinementDialog
     .getByRole("checkbox", { name: "C", exact: true })
@@ -47,8 +55,14 @@ async function refuseAWithC(file: string, refinementDialog: Locator) {
       options: groupedOptions.options.slice(0, 2),
     }),
   );
-  await refinementDialog.getByRole("button", { name: "Start" }).click();
-  await expect(refinementDialog).toBeHidden();
+  // A refusal immediately rereads the machine's offers. Settle that read
+  // before a caller changes the definition or advances the paused clock:
+  // the next periodic read is scheduled from this answer, not the refusal.
+  await whileNotingChecks(page, async () => {
+    await refinementDialog.getByRole("button", { name: "Start" }).click();
+    await expect(refinementDialog).toBeHidden();
+    await untilPageRequestsAnswered(page);
+  });
 }
 
 test("a launch the boundary refuses says Launch failed naming the option, and the next opening keeps the selection", async ({
@@ -64,7 +78,7 @@ test("a launch the boundary refuses says Launch failed naming the option, and th
   );
 
   await refine(notRefinedStory).click();
-  await refuseAWithC(file, refinementDialog);
+  await refuseAWithC(page, file, refinementDialog);
   await expect(card(notRefinedStory).locator(".launch-problem")).toContainText(
     "Launch failed: Option --c is not one the installed dough-story-refinement skill",
   );
@@ -100,7 +114,7 @@ test("a kept selection the project no longer offers at all is named, and Start l
   const { refine, refinementDialog } = await openTakenBacklog(page, journey);
 
   await refine(notRefinedStory).click();
-  await refuseAWithC(file, refinementDialog);
+  await refuseAWithC(page, file, refinementDialog);
   // The definition then goes away, and the page's next read of the sessions
   // says so.
   rmSync(file);
@@ -130,7 +144,7 @@ test("after a refusal, Cancel drops the kept selection", async ({
   const { refine, refinementDialog } = await openTakenBacklog(page, journey);
 
   await refine(notRefinedStory).click();
-  await refuseAWithC(file, refinementDialog);
+  await refuseAWithC(page, file, refinementDialog);
 
   await refine(notRefinedStory).click();
   await expect(
