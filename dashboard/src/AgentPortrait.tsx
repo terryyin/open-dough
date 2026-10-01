@@ -49,10 +49,18 @@ const gestureStrips: Readonly<
 // The approved portrait for a recorded agent, by its rotation name. Portraits
 // follow the shared agent rotation, six to an atlas in a three-column, two-row
 // grid of taller cells; the square shown is each cell's center. The portrait
-// is decorative: the agent name beside it carries the meaning.
-export function AgentPortrait({ name }: { name: string }) {
+// is decorative where the agent name beside it carries the meaning; given a
+// `label`, as where no name is shown beside it, it is an image named and
+// titled by that label.
+export function AgentPortrait({
+  name,
+  label,
+}: {
+  name: string;
+  label?: string | undefined;
+}) {
   if (nerdAgentNames.includes(name)) {
-    return <NerdCartoonPortrait name={name} />;
+    return <NerdCartoonPortrait name={name} label={label} />;
   }
   const index = agentNames.indexOf(name);
   if (index < 0) {
@@ -72,7 +80,7 @@ export function AgentPortrait({ name }: { name: string }) {
           ? "agent-portrait"
           : `agent-portrait portrait-gesture${gesture.blend ? " portrait-gesture-blend" : ""}`
       }
-      aria-hidden="true"
+      {...portraitMeaning(label)}
       style={
         {
           "--portrait": avatarUrl(`atlas-${atlas}.webp`),
@@ -95,7 +103,13 @@ export function AgentPortrait({ name }: { name: string }) {
 // A member of the Odd-e nerds is shown by a local cartoon avatar that is not part of
 // the repository. Until the avatar loads, and when it is absent, there is no
 // portrait: the name beside it stands alone.
-function NerdCartoonPortrait({ name }: { name: string }) {
+function NerdCartoonPortrait({
+  name,
+  label,
+}: {
+  name: string;
+  label: string | undefined;
+}) {
   const photo = `${import.meta.env.BASE_URL}agent-avatars/odd-e-nerds/cartoon/${name.toLowerCase()}.webp`;
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
@@ -115,7 +129,7 @@ function NerdCartoonPortrait({ name }: { name: string }) {
   return (
     <span
       className="agent-portrait"
-      aria-hidden="true"
+      {...portraitMeaning(label)}
       style={
         {
           "--portrait": `url("${photo}")`,
@@ -126,4 +140,12 @@ function NerdCartoonPortrait({ name }: { name: string }) {
       }
     />
   );
+}
+
+// A labelled portrait is an image named and titled by its label; otherwise it
+// is hidden from assistive technology.
+function portraitMeaning(label: string | undefined) {
+  return label === undefined
+    ? ({ "aria-hidden": "true" } as const)
+    : ({ role: "img", "aria-label": label, title: label } as const);
 }

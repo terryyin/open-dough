@@ -14,15 +14,16 @@ import { sessionKey } from "./sessionReference.ts";
 // scrolls into view and stays there while the page settles
 // (`./workFocus.ts`). Mark as done, from the panel or from a card's session
 // entry, is one operation here: once the boundary has marked the session, a
-// panel showing it closes. Closing returns the keyboard to the control that
-// opened the panel while it is on the page. A panel another session has
-// already replaced moves no focus when it closes. Once the panel shows output
-// from a session the page holds as done, the page reads that session again,
-// since the boundary reopens a done session its terminal attaches to
-// (`../server/agentTerminals.ts`). Deleting a session's record, from a card
-// or Recent sessions, leaves it on no list, closes a panel showing it, says so
-// in a polite status, and sends the keyboard to the entry beside it, or to the
-// card or Recent sessions. Opening, going to a sidebar entry's session,
+// panel showing it closes. Maximized (`./pageTerminal.ts`), the panel takes
+// the page column's room, beside the sidebar while it is open. Closing
+// returns the keyboard to the control that opened the panel while it is on
+// the page. A panel another session has already replaced moves no focus when
+// it closes. Once the panel shows output from a session the page holds as
+// done, the page reads that session again, since the boundary reopens a done
+// session its terminal attaches to (`../server/agentTerminals.ts`). Deleting
+// a session's record, from a card or Recent sessions, leaves it on no list,
+// closes a panel showing it, says so in a polite status, and sends the
+// keyboard to the entry beside it, or to the card or Recent sessions. Opening, going to a sidebar entry's session,
 // marking, deleting, and reading again each take the same request
 // (`./pageSessions.ts`).
 
@@ -44,12 +45,12 @@ import {
 } from "./SessionSidebar.tsx";
 import type { OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { TerminalPanel } from "./TerminalPanel.tsx";
+import { usePageTerminal } from "./pageTerminal.ts";
 import {
   deletedEntryHome,
   SessionsOnPage,
   type DeleteSessionRecord,
   type MarkSessionDone,
-  type OpenTerminal,
   type SessionOperation,
   type SessionRequest,
 } from "./pageSessions.ts";
@@ -88,17 +89,8 @@ export function TerminalSplit({
   readonly children: ReactNode;
 }) {
   const sidebar = useSessionSidebar(records, alerts);
-  const [terminal, setTerminal] = useState<SessionRequest | undefined>();
-  const openTerminal = useCallback<OpenTerminal>((request) => {
-    setTerminal((current) =>
-      (current === undefined
-        ? undefined
-        : sessionKey(current.record.session)) ===
-      sessionKey(request.record.session)
-        ? current
-        : request,
-    );
-  }, []);
+  const pageTerminal = usePageTerminal();
+  const { terminal, maximized } = pageTerminal;
   // The terminal on the page, and where the keyboard returns once the page,
   // and any change the closing or marking brought, is shown; a return asked
   // for a page since shown with another terminal is dropped.
@@ -120,7 +112,7 @@ export function TerminalSplit({
     if (shown.current !== closed) {
       return;
     }
-    setTerminal(undefined);
+    pageTerminal.close();
     setReturning({
       control: closed.control,
       shows: undefined,
@@ -161,7 +153,7 @@ export function TerminalSplit({
       embeddedTerminal(record.session.host) &&
       attachOpens(record.sessionState)
     ) {
-      openTerminal({ record, control: returnTo });
+      pageTerminal.open({ record, control: returnTo });
     }
     revealSession(record);
   };
@@ -190,7 +182,7 @@ export function TerminalSplit({
       (open === undefined ? undefined : sessionKey(open.record.session)) ===
       sessionKey(record.session);
     if (closes) {
-      setTerminal(undefined);
+      pageTerminal.close();
     }
     setReturning({
       control,
@@ -206,7 +198,7 @@ export function TerminalSplit({
   return (
     <SessionsOnPage
       value={{
-        openTerminal,
+        openTerminal: pageTerminal.open,
         markDone: markSessionDone,
         deleteRecord: deleteSessionRecord,
         shownInTerminal:
@@ -222,7 +214,11 @@ export function TerminalSplit({
       )}
       <div
         className={
-          [sidebar.open && "page-with-sidebar", terminal && "page-split"]
+          [
+            sidebar.open && "page-with-sidebar",
+            terminal && "page-split",
+            maximized && "page-maximized",
+          ]
             .filter(Boolean)
             .join(" ") || undefined
         }
@@ -236,6 +232,8 @@ export function TerminalSplit({
             key={sessionKey(terminal.record.session)}
             session={terminal}
             onAttached={attached}
+            maximized={maximized}
+            onMaximize={pageTerminal.maximize}
             onClose={() => {
               closeTerminal(terminal);
             }}

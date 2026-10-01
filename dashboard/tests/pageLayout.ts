@@ -77,6 +77,14 @@ export async function box(locator: Locator) {
   return found;
 }
 
+// Presses the control with the mouse where it shows. Locator.click() would
+// first scroll the window to bring a pinned control into view, which a
+// developer's click never does, moving the page a journey compares.
+export async function pressWhereShown(control: Locator) {
+  const { x, y, width, height } = await box(control);
+  await control.page().mouse.click(x + width / 2, y + height / 2);
+}
+
 // Each part ends before the next begins, across the page or down it.
 async function expectEachEndsBeforeNext(
   partsInOrder: Locator[],
