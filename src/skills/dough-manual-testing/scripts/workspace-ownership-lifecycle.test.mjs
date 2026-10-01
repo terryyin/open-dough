@@ -167,7 +167,7 @@ test("contextual execution and queued execution keep their own continuations", (
   );
   assert.match(
     execution,
-    /\[One-shot work\]\(one-shot\.md\) supplies the same path and authority with\s+`--one-shot`; the operation bases the workspace on fetched remote trunk/,
+    /\[One-shot work\]\(one-shot\.md\) supplies the same path with `--one-shot` and\s+workspace authority alone; the operation bases the workspace on fetched\s+remote trunk/,
   );
   assert.doesNotMatch(execution, /verified current HEAD/);
 
