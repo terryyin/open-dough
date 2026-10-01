@@ -3,12 +3,11 @@ import { test, expect, stored } from "./support/codexLaunch.ts";
 import { launch, refinementRequest, markDone } from "./agentLaunchBoundary.ts";
 import { launched, openTerminal, shows } from "./agentTerminalBoundary.ts";
 import {
-  openCodexTerminal,
   codexAttaches,
-  codexEnded,
   codexLines,
+  expectCodexHungUp,
+  openCodexTerminal,
 } from "./support/codexTerminal.ts";
-import { processRunning } from "./support/processGroup.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 test("done ends every Codex attachment while an equal Claude ID keeps its attachment, mark and current work", async ({
@@ -41,8 +40,7 @@ test("done ends every Codex attachment while an equal Claude ID keeps its attach
   expect(response.status).toBe(200);
   for (const terminal of terminals) expect(await terminal.closed).toBe(4000);
   for (const attach of codexAttaches(native)) {
-    await expect.poll(() => codexEnded(native, attach.pid)).toBe("SIGHUP");
-    await expect.poll(() => processRunning(attach.pid)).toBe(false);
+    await expectCodexHungUp(native, attach.pid);
     expect(codexLines(native, attach.pid)).toEqual([]);
   }
   expect(dashboard.claudeCalls()).toHaveLength(before);

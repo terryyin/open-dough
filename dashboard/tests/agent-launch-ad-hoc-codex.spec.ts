@@ -11,6 +11,7 @@ import {
   codexAttaches,
   codexEnded,
   codexLines,
+  expectCodexHungUp,
 } from "./support/codexTerminal.ts";
 import {
   builtDashboardDir,
@@ -229,8 +230,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       ).toEqual([]);
       await panel.getByRole("button", { name: "Close", exact: true }).click();
       for (const attach of codexAttaches(native)) {
-        await expect.poll(() => codexEnded(native, attach.pid)).toBe("SIGHUP");
-        expect(() => process.kill(attach.pid, 0)).toThrow();
+        await expectCodexHungUp(native, attach.pid);
       }
     } finally {
       await restarted.close();

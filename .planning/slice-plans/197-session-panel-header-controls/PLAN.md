@@ -193,3 +193,9 @@ can break. Hosted CI runs the full suite after publication.
 - Playwright `locator.click()` on a control in the sticky panel scrolls the
   window first, which a real click does not; box-comparing specs click the
   header controls with `page.mouse.click` at the control's centre.
+- CI repair during slice 3 (run 36841120811 on `4699ad18`, dashboard 1/4):
+  `agent-launch-ad-hoc-codex.spec.ts` checked `kill(pid, 0)` immediately
+  after the fake codex recorded SIGHUP, but the fake records before exiting
+  and macOS keeps unreaped pids answering. All five specs now use
+  `expectCodexHungUp` (`tests/support/codexTerminal.ts`), which polls both;
+  the five codex specs passed (17 tests).
