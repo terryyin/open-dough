@@ -6,7 +6,7 @@
 - Story: [bounded correction](../../seeds/SEED-067-codex-refinement-launch-reliability.md#pin-older-preparation-command-proof).
 - Review: [plan 194](../194-codex-refinement-handoff-retry/PLAN.md), original identity SEED-067#resolve-codex-refinement-launch-failures.
 - Related implementation: `8ba333cdb3a74f090e432b5cfdba103d29760cba` adds safe continuation and the older-command scenario; `f5500724cd937250c74dd5964f27c486dd655d5a` fixes fixture typing before publication. `af0bf6ea`, `9e41c72b` preserve native evidence; `f5f134fc7f06d217f012638a0601de21de057732` documents realized handoff. Take `3dc604a9` is claim provenance only. Prior daemon repair and plan 192 work are excluded.
-- Prepared in execution's supplied owned checkout `/Users/terryyin/git/open-dough/.worktrees/codex-refinement-handoff-retry`, branch `codex/codex-refinement-handoff-retry`. Existing integration checkout is `/Users/terryyin/git/open-dough`; these review records publish with plan 194's completion increment to its execution branch. This correction is neither queued nor authorized for execution.
+- Prepared in execution's supplied owned checkout `/Users/terryyin/git/open-dough/.worktrees/codex-refinement-handoff-retry`, branch `codex/codex-refinement-handoff-retry`. Existing integration checkout is `/Users/terryyin/git/open-dough`; review records were published with plan 194's completion increment. Terry authorized queuing this correction first during wrap-up on 2026-10-01; execution remains unauthorized.
 
 ## Finding and current observations
 
