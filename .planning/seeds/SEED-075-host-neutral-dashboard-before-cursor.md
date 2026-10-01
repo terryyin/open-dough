@@ -69,24 +69,61 @@ host lacks unavailable rather than supplied by another host
 
 **Identity:** SEED-075#session-record-per-host
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/202-session-record-per-host/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bcef4e28c91e68a5778a565e54018550eb50cb450dfc2d1e70e0c3f9ad5f66a7","plan":"1f9b0b74b02cae303b37f1643b4cf6bded25fed822526b0153bd4dc341bb400d"}}
 ```
 
-- **For / why:** A maintainer adding a host gives its identity and continuation
-  their own record variant instead of adding optional fields to a shape that
-  Claude and Codex share.
-- **Evaluation:** A recorded Claude session carries its native short alias and
-  a recorded Codex session carries its saved endpoint, each validated only for
-  its own host; existing launch records still load, and every dashboard spec
-  passes unchanged.
-- **Current basis:** `hostSessionSchema` in `src/launchRecord.ts:11-37` is one
-  shape: the Claude alias rule is a host-name branch at `:28`, and the shared
-  continuation shape (`:17-25`) requires a Codex `endpoint`.
-- **Boundary:** Record shape and its validation only; no change to what is
-  stored for existing sessions.
+- **Goal:** A maintainer adding a host (Cursor next) gives its native identity
+  and continuation their own record variant, instead of adding optional fields
+  to one shape that Claude and Codex share and guarding them by host name.
+  Claude and Codex users see no change; the gain is that the next host's record
+  cannot borrow or break another host's fields.
+- **Scope:**
+  - The kept session record (`hostSessionSchema` in `src/launchRecord.ts`)
+    becomes one variant per host, chosen by `host`. Each variant keeps the
+    shared `sessionId` and `name`.
+  - Claude's variant requires its native short alias (`shortId`). Codex's
+    variant may carry a continuation, and a continuation it carries holds its
+    `workspace`, saved `endpoint`, resume `args`, and optional `notice`.
+    Neither variant carries the other host's fields, and the host-name check
+    in the schema's refinement goes away.
+  - Host code reads its own fields from its own variant: Claude's alias lookup
+    (`server/claudeHost.ts`) and Codex's terminal, done, recovery, observation,
+    and conversation code narrow to their host's variant inside their host
+    module instead of reading optional fields off a shared shape.
+  - Every launch record already on a machine still loads and reads the same.
+    That includes predecessor Codex records with no continuation, which load,
+    observe as unknown, record "Saved native endpoint is missing" when marked
+    done, and refuse Open terminal, as specs already require
+    (`tests/agent-launch-host-identity.spec.ts`,
+    `tests/agent-launch-codex-observation-boundary.spec.ts`). One record failing
+    the schema would fail the whole machine document
+    (`server/launchRecordDocument.ts`), so no variant may become stricter than
+    today's shape for its host.
+  - Every dashboard spec passes unchanged.
+- **Deferred:** A Cursor variant (SEED-052#use-cursor-from-dashboard); the
+  continuation's host-neutral label "Continue in Codex"
+  (SEED-075#host-neutral-session-meaning); migrating or rewriting stored
+  records — nothing stored changes.
+- **Key examples:**
+  - A stored Claude record with `host: "claude"`, a session ID, alias `a1b2`,
+    and a name → loads; attach and stop use `a1b2`.
+  - A stored Codex record with its continuation (workspace, endpoint
+    `ws://127.0.0.1:…`, `codex resume` args) → loads; Open terminal, done, and
+    recovery use that endpoint and workspace, and the page still shows its
+    continuation.
+  - A predecessor Codex record without a continuation → still loads and reads
+    unknown; done records "Saved native endpoint is missing", as today.
+  - A Codex continuation without an endpoint, or a Claude record without an
+    alias → refused, as today.
+  - A Codex record whose native connection ended → keeps its continuation with
+    the notice, as today.
+  - A machine document written before this change, holding both Claude and
+    Codex records and a pending creation → loads with the same sessions shown.
 - **Depends on:** SEED-075#one-host-description.
 - **Capture:** Terry selected it on 2026-10-01 from the dashboard multi-tool
-  architecture review.
+  architecture review. Refined 2026-10-01 against `2cd2e9d6`: the shared shape
+  and its readers are `src/launchRecord.ts:11-37`, `server/claudeHost.ts:14-19`,
+  and `server/hosts/codex/{terminal,done,recovery,conversation,sessions}.ts`.
 
 <a id="host-neutral-session-meaning"></a>
 
