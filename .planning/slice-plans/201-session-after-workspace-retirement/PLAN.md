@@ -452,6 +452,32 @@ and an unnecessary optional chain; no runtime behavior changed.
   was not renewed by execution evidence updates.
 
 
+## Final CI repair and affected review
+
+The first completion operation for `9b982761c1e310b8930d0b3c1ad154baddea4dc5`
+returned exact CI failure and retained shutdown. Run `36866430369`, attempt1,
+`dashboard (1/9)` exposed the same fixture defect separately observed on the
+implementation revision84b26724 (run36865996491, attempt1). Each failed log was
+inspected: Linux's failed native PTY startup emitted plain-text `chdir(2) failed`
+output, but the private startup-test socket parsed every frame as JSON. Production
+transport already distinguishes text output from binary controls correctly.
+The smallest repair makes that socket honor the optional binary flag. It changes
+no product code, native startup setup or original missing-workspace assertions.
+A disposable diagnostic with legitimate text reproduced the exact SyntaxError;
+`env -u NO_COLOR npm run test:dashboard --
+session-workspace-retirement-startup.spec.ts --grep 'startup socket'` was red.
+`env -u NO_COLOR npm run test:dashboard --
+session-workspace-retirement-startup.spec.ts` then passed the original real-PTY
+race and diagnostic; the fixture-only diagnostic was disposed after judgment.
+`npm run typecheck:dashboard` and `git diff --check` passed. Fresh independent
+refactoring found no edits and retained the unchanged original native assertions.
+The checkout was clean at the managed repair boundary, so no work was stashed.
+Mailbox sequences3/4 were separately accounted and acknowledged through installed
+exports, deliveredThrough4, with no remaining events. The affected review was
+resumed only for fixture framing: product behavior, native acceptance and all
+other conclusions remain unchanged; no correction plan is required. Completion
+uses the accepted repair revision at its later boundary, not a rerun of failed CI.
+
 ## Execution retrospective
 
 Reviewed the original execution-ready source and aggregate delivered result at

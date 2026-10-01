@@ -51,8 +51,8 @@ class Socket extends EventEmitter {
   readonly readyState = 1;
   readonly controls: unknown[] = [];
   readonly closes: { code: number; reason: string }[] = [];
-  send(data: string): void {
-    this.controls.push(JSON.parse(data));
+  send(data: string, options?: { binary?: boolean }): void {
+    if (options?.binary) this.controls.push(JSON.parse(data));
   }
   close(code: number, reason: string): void {
     this.closes.push({ code, reason });
