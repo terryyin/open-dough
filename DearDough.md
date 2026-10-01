@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 209. Removed local codes are never reused.
+- Highest allocated local number: 210. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -551,6 +551,14 @@ Follow-up: Open, unqueued. Provide one supported managed-delivery-to-yielded-str
   - Observed effect: schema, focused operation proof, full dashboard suite and publication passed; ordinary branch notification/completion coverage remained unobserved.
   - Inference: same missing attachment contract as earlier occurrences; host primitives exist. Landing can use the separate supported trunk-integration stream path. No runtime or guidance repair is authorized here.
 
+- Execution: `SEED-075#launch-gates-every-host` / plan 204, first related implementation commit `1dd48501ec3a43cc9dcbbfca937653182fe77b95`
+  - Timestamp: unknown (2026-10-01, before slice 1 publication)
+  - Tool: Codex
+  - Open Dough release: 0.3.52 (installed `dough-update/VERSION` at established start `dbc55abe`)
+  - Evidence: the same installed managed-delivery/stream split was inspected. Coordinator armed the documented startup yielded stream first (`watch-n8GCrg`, cell 18, PTY 73631, PID 23822); managed receipts for `1dd48501` and `beb224b6` both reported that exact mailbox reused.
+  - Observed effect: one observer covered both branch increments without creating a detached second observer. Existing startup-before-first-publication wording supplied a usable route for this established claim; ordinary managed delivery still has no existing-directory stream attachment argument.
+  - Inference: this successful startup route limits the earlier conclusion: host primitives can provide coverage when a yielded stream is established first. A single documented managed-to-stream connection would avoid the coordinator's extra adapter-source investigation.
+
 ## DD-202 — Interrupted proof commands left preview servers outside the cleanup check
 
 Manually stopped browser proof commands left their preview children alive. A process-name check for the disposable fixture missed them because their argv named the shared dashboard dist directory rather than that fixture.
@@ -684,3 +692,18 @@ Follow-up: Practice worth keeping; no change requested.
   - Observed effect: about a dozen corrections before Terry chose from the ranking; none changed a recommendation's priority.
   - Inference: Qualified. The cost was about 114k and 165k subagent tokens; the corrections mainly protected the evidence later copied into SEED-075's stories.
 
+
+## DD-210 — Projecting tool output discarded a running formatter's continuation identity
+
+The coordinator printed only `exec_command` output from a yielded formatting call, losing the session ID needed to observe its terminal result. The process finished, but completion could not be established from the retained result. Formatting was repeated with the full returned object, then its terminal success was observed before commit.
+
+Follow-up: Open, unqueued. Preserve yielded tool result objects or their continuation identities before narrowing output; current verification-ownership guidance already requires terminal results. No guidance change is authorized by this observation.
+
+### Occurrences
+- Execution: `SEED-075#launch-gates-every-host` / plan 204, first related implementation commit `1dd48501ec3a43cc9dcbbfca937653182fe77b95`
+  - Timestamp: unknown (2026-10-01, slice 1 formatting)
+  - Tool: Codex
+  - Open Dough release: 0.3.52 (installed `dough-update/VERSION` at established start `dbc55abe`)
+  - Evidence: coordinator conversation's first formatter call used `text((await tools.exec_command(...)).output)` and retained no session ID; read-only `ps` found formatter PID 83649; a finite wait established process exit only. Repeated `npm run format` returned PTY 26420, whose terminal exit 0 was observed before the `1dd48501` agent commit. Plan 204 retains the repetition.
+  - Observed effect: one unnecessary full formatter invocation and process-exit check; no failed formatting result was presented as passing, and publication waited for verified success.
+  - Inference: this is a coordinator evidence-handling error, not a demonstrated gap in Open Dough's existing command-ownership instruction.
