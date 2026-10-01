@@ -6,6 +6,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { WebSocketServer, type WebSocket } from "ws";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 import { answerCodexControl } from "./fakeCodexControl.ts";
+import { closeCodexDaemon, listenForCodexDaemon } from "./fakeCodexDaemon.ts";
 import { passiveCodexFixture } from "./fakeCodexObservation.ts";
 import type { FakeCodex } from "./fakeCodexTypes.ts";
 export type {
@@ -17,7 +18,7 @@ export type {
 export async function installFakeCodex(
   tempRoot: string,
   searchPath: string,
-  serve: boolean,
+  serve: boolean | "on-start",
 ): Promise<FakeCodex> {
   const bin = path.join(tempRoot, "codex-bin");
   installFixtureExecutable("fake-codex", bin, "codex");
@@ -41,6 +42,7 @@ export async function installFakeCodex(
       FAKE_CODEX_DAEMON_LOG: path.join(tempRoot, "daemon-start.jsonl"),
       PATH: [bin, searchPath].join(path.delimiter),
       ...(serve ? { FAKE_CODEX_SOCKET: socket } : {}),
+      ...(serve === "on-start" ? { FAKE_CODEX_WAIT_FOR_SOCKET: "1" } : {}),
     },
     calls: [],
     sockets,
@@ -69,18 +71,7 @@ export async function installFakeCodex(
       for (const client of sockets) client.terminate();
     },
     async close() {
-      for (const client of sockets) client.terminate();
-      await new Promise<void>((resolve) => {
-        ws.close(() => {
-          resolve();
-        });
-      });
-      if (serve)
-        await new Promise<void>((resolve) =>
-          http.close(() => {
-            resolve();
-          }),
-        );
+      await closeCodexDaemon(http, ws, sockets, stopListening);
     },
   };
   ws.on("connection", (client) => {
@@ -239,10 +230,11 @@ export async function installFakeCodex(
       }
     });
   });
-  if (serve)
-    await new Promise<void>((resolve, reject) => {
-      http.once("error", reject);
-      http.listen(socket, resolve);
-    });
+  const stopListening = await listenForCodexDaemon(
+    http,
+    socket,
+    serve,
+    fixture.env["FAKE_CODEX_DAEMON_LOG"] ?? "",
+  );
   return fixture;
 }

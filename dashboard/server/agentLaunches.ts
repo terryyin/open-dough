@@ -33,6 +33,7 @@ import {
   pendingInputOf,
 } from "./launchRecordStore.ts";
 import { creationProblem, creationView } from "./launchCreation.ts";
+import { SavedSessionServices } from "./savedSessionServices.ts";
 import { StartProgress } from "./startProgress.ts";
 import { attemptRun } from "./launchRun.ts";
 import { unconfirmedStart } from "./launchStart.ts";
@@ -63,8 +64,10 @@ export type Recorded =
 export class AgentLaunches {
   private readonly owner = new LaunchAttemptOwner();
   private readonly progress = new StartProgress();
+  private readonly startup = new SavedSessionServices();
 
   async machineSessions(): Promise<readonly LaunchWithState[]> {
+    await this.startup.ready;
     const kept = await keptRecordsByProject();
     return withStates(
       machineFolder(),
@@ -111,6 +114,7 @@ export class AgentLaunches {
     source: PublishedSource,
     record: LaunchRecord,
   ): Promise<LaunchWithState> {
+    await this.startup.ready;
     const [joined] = await withStates(projectFolder(source), [record]);
     return joined ?? { ...record, sessionState: { kind: "unknown" } };
   }
@@ -120,6 +124,7 @@ export class AgentLaunches {
     source: PublishedSource,
     session: SessionReference,
   ): Promise<Recorded> {
+    await this.startup.ready;
     const record = await keptSession(source.id, session);
     if (record === undefined) {
       return { kind: "unrecorded" };
@@ -234,6 +239,7 @@ export class AgentLaunches {
   // Kept attempts stay as last written, for reconciliation; native work goes
   // on.
   close(): void {
+    this.startup.close();
     this.owner.close();
     for (const host of launchHosts) launchHost(host)?.close?.();
   }
