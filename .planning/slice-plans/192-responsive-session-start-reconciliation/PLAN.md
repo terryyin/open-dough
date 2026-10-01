@@ -279,6 +279,8 @@ Start's disabled reason before the first read is not yet an accessible descripti
 (slice 5).
 CI repair: run 36874822221 (`9b7a85ab`) failed `responsive-session-recovery-ad-hoc.spec.ts`
 reading attempts before the continued launch settled; it now polls for the outcome.
+Run 36875594806 (`1af1db40`) failed `agent-launch-attention.spec.ts` capturing card facts while
+preparation was still being read; it now captures them once every preparation is read.
 Proof: Extend recovery specs/page journey for lost acceptance/native/publication
 acknowledgment, failed remote read, server restart on the same machine, page reload,
 project switch, and a second page. Assert static needs-reconciliation explanation,
