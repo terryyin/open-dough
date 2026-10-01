@@ -46,6 +46,8 @@ export const startRecordSchema = z.object({
   // The script's accepted result, once it reported one.
   start: establishedStartSchema.optional(),
   preparation: establishedPreparationSchema.optional(),
+  // A preparation stop explicitly verified no announcement was accepted.
+  preparationUnannounced: z.boolean().optional(),
 });
 
 export type StartRecord = z.infer<typeof startRecordSchema>;

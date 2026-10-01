@@ -3,6 +3,7 @@
 // (`readPreparationResult`); `./preparationStart.ts` runs the command.
 
 import { z } from "zod";
+import type { StartAttempt } from "./startLaunch.ts";
 
 // An announced start carries the published commit; a continued one (the
 // workspace already held the assignment) does not.
@@ -18,6 +19,7 @@ export type PreparationResult =
       readonly error?: string;
       // The agents holding the rotation's names, when every name is held.
       readonly occupied?: readonly string[];
+      readonly unannounced?: true;
     }
   | { readonly kind: "unreadable" };
 
@@ -32,6 +34,7 @@ const stoppedSchema = z.looseObject({
   ok: z.literal(false),
   status: z.string().min(1),
   error: z.string().optional(),
+  unannounced: z.literal(true).optional(),
   occupied: z
     .array(z.looseObject({ agent: z.string().optional().catch(undefined) }))
     .optional()
@@ -58,7 +61,7 @@ export function readPreparationResult(stdout: string): PreparationResult {
   }
   const stopped = stoppedSchema.safeParse(parsed);
   if (!stopped.success) return { kind: "unreadable" };
-  const { status, error, occupied } = stopped.data;
+  const { status, error, occupied, unannounced } = stopped.data;
   const agents = (occupied ?? []).flatMap(({ agent }) =>
     agent === undefined ? [] : [agent],
   );
@@ -67,6 +70,7 @@ export function readPreparationResult(stdout: string): PreparationResult {
     status,
     ...(error === undefined ? {} : { error }),
     ...(agents.length === 0 ? {} : { occupied: agents }),
+    ...(unannounced === undefined ? {} : { unannounced }),
   };
 }
 
@@ -130,4 +134,18 @@ export function preparationRefusal(
       ? ` Workspace ${kept.workspace} on branch ${kept.branch}. ${keptWords}`
       : "";
   return `${reason}${leftBehind}${where} Nothing was launched.`;
+}
+
+// Why a retained preparation cannot safely continue; assignment reconciliation
+// stays explicit rather than implying another announcement is permitted.
+export function continuationRefusal(
+  detail: string,
+  agent: string | undefined,
+  workspace: string,
+  branch: string,
+): Extract<StartAttempt, { kind: "refused" }> {
+  return {
+    kind: "refused",
+    explanation: `The retained preparation${agent === undefined ? "" : ` for ${agent}`} could not continue. ${detail} Workspace ${workspace} on branch ${branch}. The start and published assignment were kept; reconcile their ownership before retrying. Releasing a lost workspace's assignment requires explicit confirmation of its profile and allocation. Nothing was launched.`,
+  };
 }

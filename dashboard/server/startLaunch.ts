@@ -134,9 +134,10 @@ export function runStartCommand(
   script: string,
   args: readonly string[],
   project: ProjectFolder,
+  operation: "start" | "continue" = "start",
 ): Promise<string | undefined> {
   return new Promise((resolve) => {
-    const child = spawn(process.execPath, [script, "start", ...args], {
+    const child = spawn(process.execPath, [script, operation, ...args], {
       cwd: project.path,
       stdio: ["ignore", "pipe", "ignore"],
     });
