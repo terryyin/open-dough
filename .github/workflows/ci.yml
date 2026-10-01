@@ -101,9 +101,10 @@ jobs:
   # discovers it. It runs here as its own check, against controlled GitHub
   # responses: no credentials and no live project contents. One Playwright
   # shard job per shard in the matrix each runs one share of the browser
-  # tests (`--shard`, balanced per test by `fullyParallel`; the count derives
-  # from the matrix) and fails on its own failing test. The
-  # type-check does not depend on the shard, so it runs once, in the first.
+  # spec files (longest-first, dealt round-robin; the count derives from
+  # the matrix) and fails on its own failing test. The
+  # type-check does not depend on the shard, so it runs once, in the last
+  # share, whose recorded browser load is smallest.
   # The suite's globalSetup runs `npm run build:dashboard` itself and fails
   # the shard when the build fails, so no separate build step is needed.
   dashboard:
@@ -113,7 +114,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9]
     steps:
       - uses: actions/checkout@v7
         with:
@@ -133,10 +134,12 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
       - name: Type-check the dashboard
-        if: matrix.shard == 1
+        if: matrix.shard == strategy.job-total
         run: npm run typecheck:dashboard
       - name: Run the dashboard browser suite
-        run: npm run test:dashboard -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+        env:
+          OPEN_DOUGH_DASHBOARD_SPLIT: ${{ matrix.shard }}/${{ strategy.job-total }}
+        run: npm run test:dashboard
       # The HTML report records how many browser tests each shard executed,
       # and on failure it and test-results/ keep the diagnostics, so each
       # shard keeps its own whenever the suite was not cancelled.

@@ -74,6 +74,15 @@ test.describe("record-targeted host observations", () => {
     const claude = claudeHost.sessions;
     const codex = codexHost.sessions;
     let observedSignal: AbortSignal | undefined;
+    const timeout = Object.getOwnPropertyDescriptor(AbortSignal, "timeout");
+    if (timeout === undefined) throw new Error("Missing abort deadline.");
+    const deadline = new AbortController();
+    const waits: number[] = [];
+    // Control only the external deadline, retaining the real observation race.
+    AbortSignal.timeout = (ms) => {
+      waits.push(ms);
+      return deadline.signal;
+    };
     try {
       claudeHost.sessions = (records, observedFolder, signal) => {
         expect(records).toEqual([targets[0]]);
@@ -82,13 +91,24 @@ test.describe("record-targeted host observations", () => {
         return new Promise(() => {});
       };
       codexHost.sessions = () => Promise.resolve([]);
-      expect(
-        (await withStates(folder, targets)).map(
-          ({ sessionState }) => sessionState,
-        ),
-      ).toEqual([{ kind: "unknown" }, { kind: "unknown" }]);
+      let settled = false;
+      const reading = withStates(folder, targets).then((states) => {
+        settled = true;
+        return states;
+      });
+      await new Promise<void>((resolve) => setImmediate(resolve));
+      expect(waits).toEqual([10_000, 10_000]);
+      expect(observedSignal).toBe(deadline.signal);
+      expect(observedSignal?.aborted).toBe(false);
+      expect(settled).toBe(false);
+      deadline.abort();
+      expect((await reading).map(({ sessionState }) => sessionState)).toEqual([
+        { kind: "unknown" },
+        { kind: "unknown" },
+      ]);
       expect(observedSignal?.aborted).toBe(true);
     } finally {
+      Object.defineProperty(AbortSignal, "timeout", timeout);
       if (claude === undefined) delete claudeHost.sessions;
       else claudeHost.sessions = claude;
       if (codex === undefined) delete codexHost.sessions;
