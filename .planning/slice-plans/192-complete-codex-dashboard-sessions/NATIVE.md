@@ -166,9 +166,9 @@ The policy-dependent waiting case has no passing native artifact to retain;
 its requirement, conditions and source assessment stay here. A newly authorized
 case can reuse the accepted mechanism evidence without repeating useful execution.
 
-## Exact remaining native requirement
+## Structured wait conditions and authorized continuation
 
-Structured blocking input/approval waiting remains untested. Read-only
+The original native run left structured blocking input/approval waiting untested. Read-only
 `codex features list` reported default_mode_request_user_input false.
 Matching [tool configuration](https://github.com/openai/codex/blob/rust-v0.159.3/codex-rs/tools/src/tool_config.rs#L17)
 excludes Default without that feature. The matching
@@ -178,8 +178,21 @@ emits a question message and returns acceptance rather than a blocking wait.
 Approval never supplies no approval-wait evidence. Ordinary prose/review and
 asynchronous questions do not clear this acceptance requirement.
 
-No mode/feature/policy/trust workaround was performed. Human decision requested
-for Plan mode only in a disposable acceptance conversation, retaining configured
-model/approval/trust/global settings. Until authorized and observed, or the
-human explicitly changes the requirement, slice 8 stays todo, the story stays
-Taken, and execution completion/retrospective/wrap-up remain unperformed.
+No mode/feature/policy/trust workaround was performed in the prior observations.
+On 2026-10-01 the human authorized Plan mode in the disposable acceptance
+conversation; configured model/approval/trust/global settings remain unchanged.
+[WAITING.md](WAITING.md) records the subsequent native blocking question,
+dashboard projection, CLI answer and completion accepted by root. Fresh
+independent refactor returned no edits with `## REFACTOR COMPLETE`; root format
+exited 0. All slice 8 proof is accepted, with the documented native limitations.
+
+## Resumed observer
+
+After the prior observer stopped and PID 3443 exited, root accounted both
+delivered events. The historical slice 4 HTTP-upgrade timeout was already fixed
+by accepted slice 5; trace and current identity proof justified no new repair.
+The clean CI-repair save/restore created no stash and returned resumed.
+Old mailbox watch-kaShmz delivery progress is 2 through 2.
+On authorized resume the same execution binding was rearmed in cell 321,
+session 40690, PID 64972, mailbox /tmp/dough-ci-501/watch-G3NOJd, in this owned
+checkout. Root owns this observer; the new waiting agent must not touch it.

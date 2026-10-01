@@ -7,7 +7,7 @@
 - [Embedded lifecycle proof](LIFECYCLE.md): slices 4–5 and native readiness/blank materialization follow-up.
 - [Workflow startup proof](STARTS.md): slices 6–7, retained execution and ad hoc blank/text.
 - [Native acceptance](NATIVE.md): accepted execution/lifecycle/blank journeys;
-  structured waiting remains pending under the configured Default/never conditions.
+  [structured input](WAITING.md) accepted using authorized disposable Plan mode.
 
 ## Ordered slices
 
@@ -207,7 +207,7 @@ native parity acceptance remains explicitly pending.
 
 Type: Behavior
 
-Status: todo
+Status: done
 
 Execute the linked [native acceptance story](CONTEXT.md#native-acceptance-story) against
 the actual candidate. Reuse slice 1's still-matching native mechanism evidence
