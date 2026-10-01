@@ -115,6 +115,7 @@ done
 land_inputs=(
   src/skills/dough-land/SKILL.md
   src/skills/dough-land/scripts/worktree-retirement.mjs
+  src/skills/dough-land/scripts/queued-closure-check.mjs
   src/skills/dough-land/scripts/retirement-checks.mjs
   src/skills/dough-manual-testing/references/exploration-workspace.md
   src/skills/dough-execute-plan/references/maintain-default-checkout.md
