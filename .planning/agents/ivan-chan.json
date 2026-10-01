@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ivan-chan",
+  "email": "ivan-chan@example.org",
+  "identity": "SEED-075#host-neutral-session-meaning",
+  "mode": "story-branch",
+  "branch": "codex/session-meaning-and-wording-are-host-neutral",
+  "host": "codex"
+}
