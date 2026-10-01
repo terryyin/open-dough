@@ -22,6 +22,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Keep reconciled startups settled under one unresolved-attempt rule](seeds/SEED-072-responsive-session-start-reconciliation.md#durable-startup-reconciliation) — SEED-072#durable-startup-reconciliation
 - [Check how Dough Land handles a kept one-shot result whose story was taken](seeds/SEED-066-composable-lightweight-session-options.md#dough-land-kept-one-shot-ownership) — SEED-066#dough-land-kept-one-shot-ownership
 - [Review dashboard architecture before adding more AI IDE tools](seeds/SEED-069-review-dashboard-multi-tool-architecture.md#review-dashboard-multi-tool-architecture) — SEED-069#review-dashboard-multi-tool-architecture
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard

@@ -227,14 +227,15 @@ under the existing recovery contract. It never silently creates a replacement.
 
 **Identity:** SEED-072#durable-startup-reconciliation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/206-durable-startup-reconciliation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cac980658944a10ccf1c151a92c4fbab6e393f9e53d1b7f62c457700ded56d9c","plan":"39c4f5651849f8ceeddb1db6399882b495a8b4166a57ec064c0858fcac1a3390"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/206-durable-startup-reconciliation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7d7f0a587e8895e363878a016b6b6d8574151bf4c6ec8482bdbb026d54ae0076","plan":"cc195c8ebda637ff187c842f2eb49e1505323b0cf6c43cfd66e4c2555b8a9b22"}}
 ```
 
 **Goal:** A developer who reopens, reloads, or restarts the dashboard after a
 startup reconciled sees that story's normal actions and no stale recovery item,
 and both the local launch service and the page refuse or protect exactly the
 same unresolved attempts, with recovery wording that reads correctly where it
-is shown.
+is shown. Recheck settles an uncertain Claude Code launch from `claude agents`
+instead of leaving a possibly duplicating Continue as the only exit.
 
 **Scope:** A bounded retrospective correction of
 `SEED-072#responsive-session-start-reconciliation`. Keep a reconciled settled
@@ -242,9 +243,9 @@ attempt settled across pages, reloads and restarts as machine-local launch
 evidence, never a story fact, including after its story leaves the published
 snapshot; apply one unresolved-attempt rule to service admission and story
 protection; form recovery wording where each answer is formed instead of
-rewriting it in the page. Preserve every promise of the original story. No new
-feature promise; the native-outcome exit for an uncertain Claude Code launch
-stays excluded pending a developer decision.
+rewriting it in the page; and, by Terry's decision on 2026-10-01, have Recheck
+verify an uncertain Claude Code story launch through `claude agents`. Preserve
+every promise of the original story.
 
 **Plan:** [bounded correction input and slices](../slice-plans/206-durable-startup-reconciliation/PLAN.md).
 

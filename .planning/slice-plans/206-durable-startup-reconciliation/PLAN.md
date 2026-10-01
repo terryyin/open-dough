@@ -8,7 +8,7 @@ The invoking execution commits these records.
 `/Users/terryyin/git/open-dough/.worktrees/keep-the-dashboard-responsive-while-session-star`,
 branch `claude/keep-the-dashboard-responsive-while-session-star`, remote
 `origin`, target `main`, integration checkout `/Users/terryyin/git/open-dough`.
-Not queued; no preparation assignment.
+Queued 2026-10-01 at Terry's direction; no preparation assignment.
 
 ## Source and provenance
 
@@ -36,7 +36,12 @@ Not queued; no preparation assignment.
   4. Startup recovery rewrites answer prose by substring (`forContinuation` in
      `dashboard/src/StartupRecovery.tsx`), so its words depend on phrasing
      formed elsewhere.
-- Finding 2 is excluded (see Goal and scope).
+  2. A Claude Code launch whose native outcome is uncertain keeps its story
+     protected: Recheck only re-reads attempt evidence (`needsReconciliation`
+     is a pure function of the kept record) and Continue relaunches, which may
+     create a duplicate session.
+- Terry's decision, 2026-10-01: Recheck verifies such a launch through
+  `claude agents`.
 
 ## Goal and scope
 
@@ -44,7 +49,8 @@ A developer who reopens, reloads, or restarts the dashboard after a startup
 reconciled sees that story's normal actions and no stale recovery item. The
 service and the page refuse or protect exactly the same unresolved attempts.
 Recovery wording reads correctly where it is shown because it is formed where
-the answer is formed.
+the answer is formed. Recheck settles an uncertain Claude Code launch from
+Claude Code's own session listing instead of leaving Continue as the only exit.
 
 Included:
 
@@ -61,15 +67,19 @@ Included:
   name no control the place showing them does not offer; the page shows them
   verbatim.
 
+- Recheck of a story attempt whose Claude Code outcome is uncertain reads
+  `claude agents` and settles the attempt from it: exactly one listed session
+  with the attempt's launch name, started in its start folder (project folder
+  or established workspace) at or after the attempt was accepted, and held by
+  no other launch record, is recorded as that attempt's launched session; a
+  readable listing with no such session settles it as not launched. An
+  unreadable listing or more than one candidate leaves it unresolved with that
+  reason. Continue stays available while it is unresolved.
+
 Material exclusions:
 
-- **Finding 2 (pending developer decision):** a Claude Code launch whose native
-  outcome is uncertain has no exit that avoids a possible duplicate session:
-  Recheck cannot clear it and Continue relaunches. This correction must not make
-  it worse: Continue keeps its current behavior, and the shared rule keeps
-  “needs reconciliation” derived from attempt evidence in one place, so a later
-  native-verification or developer-resolution fact can settle it there without
-  reworking admission or protection.
+- A developer-asserted “found it” resolution, and native verification for
+  Codex (which keeps its existing `recover`) or ad hoc launches.
 - Ad hoc launches keep their current admission and Start session behavior; the
   shared rule is story-scoped, as today.
 - No new feature promise, launch mode, host, endpoint semantics beyond the one
@@ -108,11 +118,12 @@ judged result with the attempt it owns.
 | --- | --- |
 | `LaunchAttemptOwner` owns attempt state; `attempts()` answers kept records first, then owned memory; `note` writes whole records through `keepAttempt` | Record reconciliation through the owner (memory and store together) as an optional attempt field, through one validated route beside accept/continue. The owner refuses it for an unknown attempt or one that needs reconciliation and treats repeats as no change. Continuation rebuilds an attempt only from needs-reconciliation attempts, which are never marked, so no mark is lost. |
 | `useStartupReconciliation` judges reconciliation; `latestSettled` / `laterAttempt` select a story's latest attempt | Keep the judge. Skip attempts already marked; report newly reconciled ones once. Drop the “story is listed” condition on asking containment, so a removed story's settled publishing attempt reconciles when the shown revision contains it. |
+| Claude host: `claudeSessions` parses `claude agents --json --all`; launch confirmation matches the printed short id; session names are `<project> · <kind> · <title>` (`claudeSessionName`) | Add native verification to the Claude host adapter, reusing its listing and name, used by the owner when Recheck asks about an uncertain Claude story attempt. The verified outcome is noted through the owner like any outcome and keeps a launch record as confirmation does. No new host-generic platform. |
 | `needsReconciliation` (shared, no Node import) and `storyStartup`; server `conflicting` with its own unsettled-only filter | Move the latest-attempt selection beside `needsReconciliation` and add one shared rule naming a story's unresolved attempt; `storyStartup` and `conflicting`/`notContinued` both use it. Continuation is refused only when the unresolved attempt is a different one. |
 | Answer prose formed in hosts, start results, the owner and the page client; `forContinuation` rewrites it | Remove the rewrite. Each forming site words its direction so it is true wherever its answer is shown (state what is known and what to check; leave pressing a control to the control beside it, which already carries its own guidance, such as `NativeCheck`). |
 
-The shared rule is the one place where a later resolution of finding 2 would
-add evidence; no hook or flexibility is added for it now.
+The shared rule is where the verified native outcome takes effect: once noted,
+the attempt is no longer unresolved for admission or protection.
 
 ## Observed premises
 
@@ -130,6 +141,8 @@ temporary observation specs were deleted after running.
 | Rewritten wording reaches Startup recovery through three places (slice 3). | Read `StartupRecovery.tsx`: `forContinuation` applies to `KnownFacts` outcome explanations, a lost answer's `problem`, and a refused continuation's answer. `grep -rn -i -E "start(ing)? again" dashboard/server dashboard/src` lists the forming sites: `startWorkflows.ts` (3), `startResult.ts`, `preparationResult.ts`, `launchAttemptOwner.ts` (unexpected end), `agentLaunches.ts` (unreadable evidence), `launchRun.ts:111`, `hosts/claude/launch.ts` (4), `hosts/codex/launch.ts` (3), `agentLaunchClient.ts` (lost answer), `launchCreation.ts`, `pageAttempt.ts`. |
 | The cited garbled examples (slice 3 scope). | Partly false as stated. `hosts/codex/launch.ts:78` is Codex first-input evidence shown verbatim by `LaunchSession.tsx` on the session entry, never through `forContinuation`; there “before starting again” reads correctly. `launchRun.ts:111` does garble to “Continue the recorded conversation before continuing.”, but it is reached only for a kept record with unconfirmed first-input evidence on a host without `recover`; `hosts/claude/launch.ts` writes no first-input evidence, so only legacy or hand-edited store content reaches it. A reachable mismatch exists: a lost answer's item (`unacknowledged`) offers no Continue, yet its rewritten problem says “… before continuing”. The structural weakness (page correctness depending on substrings formed elsewhere) is the evidenced correction. |
 | Existing recovery wording assertions slice 3 must update. | `grep -rn -E "continuing resumes|before continuing|then continue|Start again resumes|before starting again|then start again" dashboard/tests`: `responsive-session-recovery.spec.ts:61`, `agent-launch-card-problems.spec.ts:104`, `agent-launch-ad-hoc-problems.spec.ts:38,43,124`, `agent-launch-start-refusal.spec.ts:93`, `agent-launch-codex-creation.spec.ts:86`, `agent-launch-start-resume.spec.ts:78,117`, `agent-launch-preparation-resume.spec.ts:121,149`, `agent-launch-codex-confirmation.spec.ts:59`, `execution-start-result.spec.ts:117-138`. |
+
+| `claude agents --json --all` exposes enough to match an uncertain launch (slice 4). | Ran read-only in `/Users/terryyin/git/open-dough` on 2026-10-01 (local listing, no model call): exit 0, 668 entries, fields `cwd, id, kind, name, pid, sessionId, startedAt, state, status`; `startedAt` is epoch milliseconds. `runtime.ts` `listedSession` currently keeps `id, sessionId, name, state, status, waitingFor`, so `cwd` and `startedAt` must be added to the private parse. The synthetic `claude` double in dashboard fixtures must answer them too. |
 
 Observation command (both temporary specs, passed as observations):
 
@@ -150,6 +163,7 @@ env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/<tempor
 | Page protection unchanged and decided by the same rule | 2: existing recovery/restart/reconciliation specs |
 | Recovery shows answers verbatim; a lost answer's item names no Continue; kept-start unknown publication and Claude timed-out answers read correctly in recovery and beside Start | 3: `responsive-session-recovery.spec.ts`, `responsive-session-recovery-reads.spec.ts`, `agent-launch-card-problems.spec.ts`, `agent-launch-ad-hoc-problems.spec.ts` |
 | `launchRun.ts:111` answer reads correctly where shown | 3: focused check with a forged pending record, as `agent-launch-codex-confirmation.spec.ts` forges legacy evidence |
+| Recheck settles an uncertain Claude story launch: one matching listed session → launched with its session on the card and actions back; readable listing without one → not launched, protection lifts, Continue gone; unreadable or two candidates → still protected with that reason; no `claude --bg` call during Recheck | 4: page journey extending `responsive-session-recovery.spec.ts` / `agent-launch-card-problems.spec.ts` with the synthetic `claude` listing |
 | Start/preparation result wording consumers | 3: `execution-start-result.spec.ts`, `agent-launch-start-resume.spec.ts`, `agent-launch-preparation-resume.spec.ts`, `agent-launch-start-refusal.spec.ts`, `agent-launch-codex-creation.spec.ts` |
 
 Focused command form, per slice, with the specs it owns plus the preserved
@@ -250,6 +264,27 @@ answer for one directs to pressing Start. Card-only refusals may keep naming
 Start where only the card shows them.
 Safe stop: the correction outcome is complete; all earlier proof still green.
 
+### 4. Recheck settles an uncertain Claude Code launch from `claude agents`
+Type: Behavior
+Status: planned
+Proof: Page journey with the synthetic `claude` double: a story launch times
+out (uncertain) after `claude --bg` started a session; Recheck in Startup
+recovery records it as launched, lists the session on the card, restores the
+card's actions and removes the recovery item, with exactly one `claude --bg`
+call. Variants: listing readable with no matching session (wrong name, other
+folder, started before acceptance, or already held by another record) settles
+as not launched and lifts protection; an unreadable listing and two candidates
+keep the story protected with a reason naming why. Raw HTTP: a fresh accept is
+refused before and accepted after a settling Recheck. Keep plan-192 Claude
+specs and slices 1–3 proof green; `npm run typecheck:dashboard`.
+
+Behavior: Given a story attempt whose Claude Code launch is uncertain → the
+developer presses Recheck → the service reads `claude agents` once and settles
+the attempt only from an unambiguous answer, as above; otherwise it keeps the
+attempt unresolved and says why. Continue remains the developer's explicit
+choice while unresolved. Document the rule in `dashboard/AGENT-LAUNCH.md`.
+Safe stop: uncertain Claude launches have a non-duplicating exit.
+
 ## Current decisions
 
 - The reconciliation note lives with the attempt in `launch-attempts.json`,
@@ -260,9 +295,11 @@ Safe stop: the correction outcome is complete; all earlier proof still green.
   for attempts that need reconciliation.
 - One shared unresolved-attempt rule; a continued attempt conflicts only with a
   different unresolved attempt of its story.
-- Finding 2 stays excluded; Continue's native behavior is unchanged.
+- Finding 2 is included by Terry's decision (2026-10-01): Recheck verifies via
+  `claude agents`; Continue's native behavior is unchanged.
 - Cumulative review: three slices, each one externally observable outcome with
   its own proof loop (page persistence, HTTP admission, recovery text) over one
   attempt-evidence model; no host-, workflow- or file-split slice and no
   accumulating special case. Slice 3 depends on slice 2's rule for its wording
-  direction; slices 1 and 2 are independent.
+  direction; slices 1 and 2 are independent. Slice 4 adds one native-evidence
+  outcome on the same model and depends on slice 2's shared rule.
