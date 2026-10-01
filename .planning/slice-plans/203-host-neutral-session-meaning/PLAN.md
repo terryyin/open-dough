@@ -4,7 +4,8 @@
 **Source:** [refined story](../../seeds/SEED-075-host-neutral-dashboard-before-cursor.md#host-neutral-session-meaning)
 **Authority:** Preparation only; Terry accepted the recommended Codex alert
 policy and requested the original slice plan on 2026-10-01. The current request
-reassesses execution readiness without implementing the story.
+authorizes readiness with an agent-owned wait for the prerequisite's first
+slice. Implementation will start only on Terry's later execution instruction.
 **Preparation:** Established one-shot preparation in the default checkout
 `/Users/terryyin/git/open-dough`, branch `main`, starting revision
 `11f748a9b0e58263351e18fb37053cb2d6378221`, remote `origin`, target `main`,
@@ -58,26 +59,52 @@ responsibilities across dashboard code, tests, docs and source guidance:
 | `server/agentLaunchAdmission.ts` → `AgentTerminals` HTTP refusal | Retain capability/record/origin/availability admission. Name the recorded host in the existing refusal; no alternative attach path. |
 | `src/launchWorkflow.ts`, `StartLaunch`, `CardLaunches`, `StartProgress` | Keep one workflow wording function. Carry the actual host through existing running-start progress and polling, including kept-start retries, rather than use a browser's independently selected host. |
 
-The prerequisite [one host description](https://github.com/terryyin/open-dough/blob/0e43ebae12253183d961464f5b064ac0b78f00f3/.planning/seeds/SEED-075-host-neutral-dashboard-before-cursor.md#one-host-description)
-is still undelivered: the latest `git fetch origin main` on 2026-10-01 resolved
-`origin/main` to `285bd2133f071ebd1cd2cf15c6c76b39ea36bd8b`.
-`git show origin/main:dashboard/src/sessionCapabilities.ts` still uses
-host-name branches for names and capabilities, and `launchHosts.ts` still
-dispatches by host-name ternary; neither supplies the planned shared description.
-The prerequisite is now refined / planned / ready in this checkout at
-`fdb99a075ea2788f5938dde03a09a9557415fe6e`:
-[its plan](https://github.com/terryyin/open-dough/blob/0e43ebae12253183d961464f5b064ac0b78f00f3/.planning/slice-plans/205-one-host-description/PLAN.md#current-decisions-and-remaining-concern)
-records Terry's acceptance of explicit-host arguments in the three existing
-workspace-spec calls, preserving their assertions and expected behavior. That
-decision is resolved; readiness of the prerequisite's plan does not establish
-delivery of its contract. It remains queued on fetched remote trunk.
-Do not implement its descriptor/dispatch/model
-work here or invent its API. Reconcile its integrated contract before
-implementing these slices, then observe the consumers below against that
-revision and reassess.
-This unresolved prerequisite is a preparation-readiness concern, not a new
-execution permission gate. The session-record variant story is separate;
-preserve its published shape if it integrates during this work.
+## Prerequisite handoff and autonomous observation
+
+Terry selected parallel execution on 2026-10-01: this agent may start execution
+and watch for **slice 1, Launch choices and answers use the selected host's
+description**, of [the host-description plan](https://github.com/terryyin/open-dough/blob/0e43ebae12253183d961464f5b064ac0b78f00f3/.planning/slice-plans/205-one-host-description/PLAN.md).
+The whole prerequisite story need not finish. Its slice 1 owns the description
+and registry that this story consumes; later capability and explicit-host
+slices may run alongside this work.
+
+Fresh `git fetch origin main` and `git rev-parse origin/main` at this review
+returned `7f2ce02e41278fafed9df3674b187e822d6b48ed`. The prerequisite is Taken,
+but its slice 1 is still planned and its contract is absent. This is an
+owner-held future delivery, not an assumed existing API. The early Structure
+probe below owns waiting, integration and observation before any dependent
+Behavior starts. This replaces the former whole-story readiness blocker.
+
+The executing agent owns the watch in its execution session. Fetch `origin main`,
+inspect the published prerequisite plan and candidate code, then wait 30 seconds
+between checks while the first slice remains undelivered. Use interruptible
+waits of at most 60 seconds; remain responsive to the developer and report
+meaningful changes. Remember the last observed SHA in the conversation and
+inspect again when it changes. Do not ask Terry to notify the agent, require
+another start instruction after delivery, or create a watcher script, service,
+scheduled job or parallel status file. Execution's ordinary durable proof and
+consequential decisions belong in this plan.
+
+A published slice status alone is insufficient. Confirm that its actual
+contract and associated preservation proof are on fetched trunk. If the plan
+has been cleaned up after completion, inspect the delivery history and current
+code instead of waiting forever for a removed plan. Integrate the delivered
+revision through the execution workflow's normal non-force reconciliation in
+this story's own checkout. Never modify the prerequisite's checkout or supply
+its missing descriptor/dispatch/model implementation here. Fetch failure leaves
+the gate closed; retry transient failure and report any access decision that
+needs the developer. An unavailable or incompatible contract keeps dependent
+work stopped; record the evidence and reassess before changing the approach.
+
+After successful verification, continue automatically with this story's four
+Behavior slices. Keep the delivered descriptor and host operations as the
+shared owners. Changes to `sessionCapabilities`, `launchWorkflow`, `StartLaunch`,
+`LaunchSession`, `agentLaunchAdmission`, tests and maintained launch docs may
+intersect with the prerequisite's remaining work: reconcile published changes
+before delivery, preserve both stories' promises, and rerun affected proof.
+Do not undo capability, explicit-host, launch-gate, workspace-access or native
+creation-evidence behavior. Preserve the separately delivered session-record
+shape. No new architecture or product scope is selected by this handoff.
 
 ## Observed premises and proof ownership
 
@@ -97,12 +124,12 @@ was started. This is evidence of the current behavior, not the proposed change.
 
 | Premise and operation consuming it | Literal observation and result | Promise owner |
 | --- | --- | --- |
-| Unexpected Codex status and failed latest-turn read are distinguishable before presentation/notification | Read `server/hosts/codex/sessions.ts` and `tests/support/fakeCodexObservation.ts`; the reader branches on native status or catches the turn-read failure. The baseline alert spec drives both through real polling and currently observes silence for both. | Slice 1 changes only the explicit-status alert policy. |
-| All session surfaces consume the shared reading and preserve conservative unknown/absence meanings | Baseline `agent-launch-codex-observation.spec.ts` reads native replies through HTTP and checks card, Recent and sidebar readings/counts; inspected `SessionEntry`, `SidebarEntry`, `attentionCount`, `alertReading` and `SessionAlerts.poll` consumers. | Slice 1 preserves example 1, example 5's unsettled/count meaning, example 6 and done semantics. |
-| Continuation presentation uses the kept record, not a new native resume | Read `src/LaunchSession.tsx`, `shellCommand` and its `SessionEntry` consumer; workspace/args/notice come directly from the saved continuation, while its label is hard-coded Codex. `agent-launch-codex.spec.ts` supplies a real launched/retained record but does not assert every continuation word. | Slice 2 adds the missing visible continuation preservation assertions for example 2. |
-| An unavailable recorded session is refused before a PTY starts, and the message crosses the upgrade boundary | Baseline Claude terminal spec proves 410 and no attach for a readable omission; `admittedAttach` uses `attachOpens` and currently says Claude Code for every host. Read `AgentTerminals.refuseUpgrade`: it serializes that message as JSON in the HTTP body. Existing `refusedStatus` discards the body. | Slice 3 captures the actual refusal body and native no-attach result for example 3. |
-| Another page can show running-start phase but currently cannot know its host | Baseline start-phases spec starts via HTTP, holds real preparation/native launch, then reloads the page and asserts phase wording. Read all `startPhaseWords` callers and `StartProgress.set/all`, `runningStartSchema`, `useAgentLaunches.startPhaseOf`: host is lost before formatting. Execution and preparation starts both set the progress. | Slice 4 carries host through these consumers for example 4. |
-| A shared host description is available for these consumers | Latest 2026-10-01 observation: `git fetch origin main`; `git rev-parse origin/main`; `git show origin/main:dashboard/src/sessionCapabilities.ts`; `git show origin/main:dashboard/server/launchHosts.ts`; `git show origin/main:.planning/PRODUCT-BACKLOG.md`. Result: `285bd2133f071ebd1cd2cf15c6c76b39ea36bd8b` still has name-based helpers/dispatch and the prerequisite is queued. The earlier consumer trace below these boundaries remains applicable; the prerequisite's local preparation decision at `fdb99a07` changes no product file. No integrated description contract can be consumed. | All wording slices depend on the sibling contract; the premise is false and readiness remains not-ready, despite the prerequisite now being ready for execution locally. |
+| Unexpected Codex status and failed latest-turn read are distinguishable before presentation/notification | Read `server/hosts/codex/sessions.ts` and `tests/support/fakeCodexObservation.ts`; the reader branches on native status or catches the turn-read failure. The baseline alert spec drives both through real polling and currently observes silence for both. | Slice 2 changes only the explicit-status alert policy. |
+| All session surfaces consume the shared reading and preserve conservative unknown/absence meanings | Baseline `agent-launch-codex-observation.spec.ts` reads native replies through HTTP and checks card, Recent and sidebar readings/counts; inspected `SessionEntry`, `SidebarEntry`, `attentionCount`, `alertReading` and `SessionAlerts.poll` consumers. | Slice 2 preserves example 1, example 5's unsettled/count meaning, example 6 and done semantics. |
+| Continuation presentation uses the kept record, not a new native resume | Read `src/LaunchSession.tsx`, `shellCommand` and its `SessionEntry` consumer; workspace/args/notice come directly from the saved continuation, while its label is hard-coded Codex. `agent-launch-codex.spec.ts` supplies a real launched/retained record but does not assert every continuation word. | Slice 3 adds the missing visible continuation preservation assertions for example 2. |
+| An unavailable recorded session is refused before a PTY starts, and the message crosses the upgrade boundary | Baseline Claude terminal spec proves 410 and no attach for a readable omission; `admittedAttach` uses `attachOpens` and currently says Claude Code for every host. Read `AgentTerminals.refuseUpgrade`: it serializes that message as JSON in the HTTP body. Existing `refusedStatus` discards the body. | Slice 4 captures the actual refusal body and native no-attach result for example 3. |
+| Another page can show running-start phase but currently cannot know its host | Baseline start-phases spec starts via HTTP, holds real preparation/native launch, then reloads the page and asserts phase wording. Read all `startPhaseWords` callers and `StartProgress.set/all`, `runningStartSchema`, `useAgentLaunches.startPhaseOf`: host is lost before formatting. Execution and preparation starts both set the progress. | Slice 5 carries host through these consumers for example 4. |
+| The prerequisite's first-slice contract will be delivered by its owner before dependent behavior | Fresh `git fetch origin main`; `git rev-parse origin/main`; inspect the published prerequisite plan and backlog at `7f2ce02e`: the story is Taken, first slice is planned, and code still lacks its contract. Read the first slice's promised browser-safe description and server registry handoff. Delivery cannot be observed before its owner implements and publishes it; no API is invented here. | Slice 1 is the early owner-held delivery probe; it watches and verifies actual consumption before slices 2–5. |
 
 The current pure/native-status assertions in
 `agent-launch-codex-observation-status.spec.ts` and observation-boundary specs
@@ -110,9 +137,58 @@ also consume the live schema. Update expectations for genuine new observation
 facts without changing stored-record fixtures. Vendor substitutes must supply
 native replies only, not the normalized meaning or final wording being proved.
 
+### Current preservation observations
+
+At `7f2ce02e` on 2026-10-01, reran the original baseline command above in
+the default checkout: exit 0 with the quiet reporter. It reaches current native
+observation replies, background alert polling, page readings, HTTP terminal
+admission and launching/preparation progress. The two product changes since the
+original baseline qualify Codex continuation by host and add workspace-aware
+access; neither establishes the future descriptor contract.
+
+The following additional current run also exited 0 with the quiet reporter:
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- agent-launch-codex.spec.ts session-workspace-retirement-attach.spec.ts session-workspace-retirement-done.spec.ts
+```
+
+Its setup and observations reach the real launch/page/store and HTTP/WS access
+boundaries using native protocol substitutes. It confirms current continuation
+presentation, missing-workspace passive report fallback and deliberate done
+intent. Read `LaunchSession` and `sessionAccess`: continuation commands require
+terminal access. Slice 3 preserves that condition; host-neutral labeling must
+not restore commands for unavailable workspaces. These are current behavior
+observations, not proof of the proposed wording or future handoff. The early
+probe owns observation of the owner-held contract after delivery.
+
 ## Ordered slices
 
-### 1. Interpret unrecognized observations without a host-name exception
+### 1. Observe and integrate the prerequisite's first-slice contract
+Type: Structure
+Status: planned
+Proof: Observe the published candidate and its first-slice delivery evidence,
+integrate it in the execution checkout, inspect its actual description/registry
+exports and existing name consumers, then run `npm run typecheck:dashboard` and
+`env -u NO_COLOR npm run test:dashboard -- agent-launch-model.spec.ts agent-launch-model-boundary.spec.ts agent-launch-codex.spec.ts agent-launch-refusal.spec.ts`.
+The real dialog/HTTP/store journeys must retain each host's name, model choices
+and native dispatch. Record the candidate SHA, actual export/consumer locations,
+literal commands and results. File presence, a Ready badge, or a done status
+without the consumed contract is not sufficient proof.
+
+Internal change: Wait autonomously as specified above, then bring the owner's
+delivered description and registry into this execution checkout with unchanged
+external behavior. This enables the immediately following observation-meaning
+Behavior and supplies the same owner for the later wording slices. Choose the
+actual delivered API, including the small wording extension this story needs;
+never build a competing descriptor while waiting. If the contract is missing,
+keep watching without starting dependent edits. If integration or focused proof
+fails, leave this slice planned, diagnose/reassess, and stop dependent slices.
+Safe stop: no dependent product changes have started; the executing agent owns
+waiting and may resume automatically when the verified contract is available.
+External wait is intentional and does not justify inventing a timing deadline.
+
+
+### 2. Interpret unrecognized observations without a host-name exception
 Type: Behavior
 Status: planned
 Proof: Extend `agent-launch-codex-observation-alerts.spec.ts` through real
@@ -123,7 +199,7 @@ recognized transition
 still alerts. Preserve startup baseline, deduplication, re-entry and done
 suppression with `session-alerts.spec.ts`. Extend the observation page journey
 to retain correct unknown wording, provenance and zero attention for these
-observations across card, Recent and sidebar. Run the slice 1 command below.
+observations across card, Recent and sidebar. Run the slice 2 command below.
 
 Behavior: A host reports an explicit unrecognized native state or an incomplete
 observation; shared presentation shows the host's own explanation and alerting
@@ -143,35 +219,37 @@ separate deliveries.
 Safe stop: the observation meaning and notification change are useful together;
 all other presentation and access behavior remains green.
 
-### 2. Name the session's host when presenting continuation
+### 3. Name the session's host when presenting continuation
 Type: Behavior
 Status: planned
 Proof: Extend the mixed-host browser journey in `agent-launch-codex.spec.ts`
 to assert the visible continuation label, exact saved workspace, shell-rendered
 args and optional notice in card and Recent entries across reload. A predecessor
 record without continuation gains no command; use existing observation-boundary
-fixtures. Compare records before/after display and preserve native-call evidence
+fixtures. Use terminal-accessible records for continuation assertions; preserve workspace
+limitations and passive final-report access without restoring unavailable
+terminal commands. Compare records before/after display and preserve native-call evidence
 that rendering did not resume or replace a conversation.
 
 Behavior: Opening an entry with a kept continuation says
 "Continue in <the recorded session's host name>" and preserves its saved
 context. An entry without continuation keeps its existing actions and gets no
 invented command. Derive the label through the same host-description owner as
-slice 1, while preserving `shellCommand` and native args as separate concepts.
+slice 2, while preserving `shellCommand` and native args as separate concepts.
 Do not manufacture a Claude continuation or register Cursor to demonstrate the
 generic wording. Correct existing labels have preservation proof; review the
 shared renderer's descriptor consumption to establish the structural change.
 Safe stop: continuation is presented correctly and no native operation changes.
 
-### 3. Name the recorded host in unavailable-session attach refusals
+### 4. Name the recorded host in unavailable-session attach refusals
 Type: Behavior
 Status: planned
 Proof: Extend `agent-terminal-boundary.spec.ts` and
 `agent-terminal-codex.spec.ts` to read the JSON body of a real refused upgrade.
 After readable Claude omission or exact Codex missing-target evidence, assert
 410, the correct host name and no PTY/attach. Preserve successful native resume
-and detach, origin/record/capability refusal, unknown observation and done-mark
-behavior. Enhance refusal-body observation locally without weakening existing
+and detach, origin/record/capability refusal, unknown observation, workspace
+access and done-mark behavior. Enhance refusal-body observation locally without weakening existing
 status-only consumers.
 
 Behavior: A recorded session whose host supports attach is confirmed unavailable
@@ -185,7 +263,7 @@ actual shared host boundary and host-qualified URL.
 Safe stop: unavailable attachment is correctly explained without changing
 access capabilities or losing stored intent.
 
-### 4. Show the actual launch host throughout pending progress
+### 5. Show the actual launch host throughout pending progress
 Type: Behavior
 Status: planned
 Proof: Extend existing execution/preparation phase browser journeys for Claude
@@ -195,7 +273,7 @@ in launching words on the initiating page, a second page/reload and a Taken
 card observing the running start. Include a kept Codex retry when the page's
 default host differs. Also preserve pending wording for projects without an
 installed start. Assertions must consume real HTTP progress, not fulfill that
-endpoint with a preformatted sentence. Run the slice 4 checks below.
+endpoint with a preformatted sentence. Run the slice 5 checks below.
 
 Behavior: Starting execution or refinement names the host doing that work on
 every page observing it. Workflow words are constructed directly from workflow,
@@ -215,10 +293,10 @@ surfaces of host wording share established owners.
 Commands are from the project root. Extend the named existing specs rather than
 add parallel harnesses:
 
-- Slice 1: `env -u NO_COLOR npm run test:dashboard -- agent-launch-codex-observation agent-launch-recent-session-states.spec.ts session-sidebar-state-edge.spec.ts session-alerts.spec.ts`.
-- Slice 2: `env -u NO_COLOR npm run test:dashboard -- agent-launch-codex.spec.ts agent-launch-codex-observation-boundary.spec.ts`.
-- Slice 3: `env -u NO_COLOR npm run test:dashboard -- agent-terminal-boundary.spec.ts agent-terminal-codex.spec.ts agent-terminal-reopen.spec.ts agent-launch-host-identity.spec.ts`.
-- Slice 4: `env -u NO_COLOR npm run test:dashboard -- agent-launch-start-phases.spec.ts agent-launch-preparation-phases.spec.ts agent-launch-start-card.spec.ts agent-launch-start-codex.spec.ts agent-launch-preparation-codex.spec.ts`.
+- Slice 2: `env -u NO_COLOR npm run test:dashboard -- agent-launch-codex-observation agent-launch-recent-session-states.spec.ts session-sidebar-state-edge.spec.ts session-alerts.spec.ts`.
+- Slice 3: `env -u NO_COLOR npm run test:dashboard -- agent-launch-codex.spec.ts agent-launch-codex-observation-boundary.spec.ts`.
+- Slice 4: `env -u NO_COLOR npm run test:dashboard -- agent-terminal-boundary.spec.ts agent-terminal-codex.spec.ts agent-terminal-reopen.spec.ts agent-launch-host-identity.spec.ts`.
+- Slice 5: `env -u NO_COLOR npm run test:dashboard -- agent-launch-start-phases.spec.ts agent-launch-preparation-phases.spec.ts agent-launch-start-card.spec.ts agent-launch-start-codex.spec.ts agent-launch-preparation-codex.spec.ts`.
 - Changed TypeScript contracts: `npm run typecheck:dashboard`; the in-memory
   progress contract reaches both workflows, so preserve both callers' proof.
 - Before an execution commit, apply the installed post-change-refactoring
@@ -240,18 +318,22 @@ and wrap-up; all slices here remain planned.
 - Four Behavior slices deliver observation interpretation, continuation wording,
   attachment refusal and pending progress. The latter three have separate action
   boundaries and proof loops, so combining them would hide independent results.
-  Slice 1 keeps normalization, reading and alerts together because they prove
+  Slice 2 keeps normalization, reading and alerts together because they prove
   one observation distinction through the current shared owners.
-- No fixable slice-boundary, cumulative-design, proof-ownership or sizing concern
-  was identified. An additional refinement pass is unnecessary.
-- Readiness concern: the undelivered host-description prerequisite affects all
-  four slices. Its API and integration basis must be observed before recording
-  ready. Planning does not absorb that sibling's scope.
-- The 2026-10-01 one-shot review preserves all four planned slices and their
-  proof mappings. The fresh prerequisite observation above does not clear the
-  blocker. No product test was rerun for this preparation-only refresh: the
-  missing contract is directly observable, and another preservation run would
-  not establish it. Historical baseline results are not new readiness proof.
-- No open human goal/scope decision remains. Execution requires a separate
-  instruction; publishing this preparation does not take the story or implement
-  these slices.
+- Retain the four original Behavior boundaries and their mapped proof. Add one
+  Structure probe immediately before the observation-meaning Behavior: it owns
+  the prerequisite handoff, unchanged behavior and the independent integration
+  risk. Five slices result; no slice resplit or numeric sizing exception is
+  needed. Waiting is an explicit external dependency, with no invented deadline.
+- Terry's selected handoff removes the whole-story completion requirement.
+  The missing owner-held first-slice delivery is bounded by the early probe;
+  it remains a gate on dependent edits, not an unresolved preparation decision.
+- Preserve the existing solution, ADR constraints, goal, scope and six examples.
+  The sequence still evolves one description and one shared observation/alert
+  model; it adds no speculative host framework or duplicate native operation.
+- Readiness means ready to start with the autonomous dependency watch. It does
+  not claim the prerequisite is already delivered. After its contract is
+  verified, execution continues automatically under the original execution
+  instruction. No open goal, scope or handoff decision remains.
+- This preparation does not Take or start execution. The one-shot result stays
+  for review; the later executing agent owns its watch and integration proof.

@@ -30,7 +30,7 @@ host lacks unavailable rather than supplied by another host
 
 **Identity:** SEED-075#host-neutral-session-meaning
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/203-host-neutral-session-meaning/PLAN.md","assessment":"not-ready","reasons":["SEED-075#one-host-description is now ready for execution locally, but remains undelivered on freshly fetched origin/main at 285bd2133f071ebd1cd2cf15c6c76b39ea36bd8b. Its shared description contract is absent from current consumers; integrate that contract and freshly observe these consumers before this dependent plan is ready. The explicit-host workspace-spec decision is resolved."],"basis":{"document":"8b5e6a92d84a269de0ce7cc7aaa3210a282c4068771124c6dd3fef803dd7613c","plan":"877cc984b0f1c92dceee47eb59e203b2402988f16d07c57de7b229f52cb7a5ac"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/203-host-neutral-session-meaning/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6f49129e3eaefa62d393edba78f124228078a1694a8aef2acc93cb3cefd4b3ef","plan":"bfe1011d3b600f9dfc78e19c54427be1b8f79ecef7d605c6e71f0acdd6731697"}}
 ```
 
 - **Goal:** A developer reading or continuing dashboard sessions sees each
@@ -114,14 +114,13 @@ host lacks unavailable rather than supplied by another host
   `dashboard/src/launchWorkflow.ts`, `dashboard/src/StartLaunch.tsx`,
   `dashboard/server/agentLaunchPlugin.ts`, and `dashboard/src/agentTerminal.ts`.
 - **Plan:** [Session meaning and wording follow the host](../slice-plans/203-host-neutral-session-meaning/PLAN.md).
-- **Depends on:** SEED-075#one-host-description.
-- **Readiness review (2026-10-01):** Fresh fetched `origin/main` at
-  `285bd2133f071ebd1cd2cf15c6c76b39ea36bd8b` still lacks the shared host
-  description. The prerequisite's explicit-host workspace-spec decision is
-  resolved, and its local preparation at `fdb99a07` is refined / planned / ready.
-  Its contract remains undelivered and the story is still queued remotely. This story's
-  scope and examples remain settled; integrate that contract and observe these
-  consumers against it before reassessing readiness. Preserve the four planned
-  slices without absorbing the prerequisite's work.
+- **Depends on:** The delivered and verified first slice of
+  SEED-075#one-host-description, not that story's completion.
+- **Execution handoff (2026-10-01):** Terry selected readiness with an autonomous
+  wait. The executing agent polls remote trunk itself for the prerequisite's
+  first-slice delivery, integrates and verifies its actual description/registry
+  contract in the plan's early probe, then continues automatically. Until that
+  probe succeeds, no dependent product edits start. The other story's remaining
+  slices may run in parallel. Goal, scope and key examples remain unchanged.
 - **Capture:** Terry selected it on 2026-10-01 from the dashboard multi-tool
   architecture review.
