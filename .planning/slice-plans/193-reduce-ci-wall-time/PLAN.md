@@ -141,3 +141,7 @@ Reduce GitHub Actions CI critical-path wall time to under 2.5 minutes (150 secon
 
 - **Accepted trade-off:** Increasing dashboard shards from 2 to 4 and test shares from 2 to 3 increases the total number of parallel GitHub Actions runner jobs from 5 to 8 (1 lint + 3 test + 4 dashboard). This is well within GitHub Actions concurrent job limits (typically 20 for standard plans) while cutting wall time from ~4m to < 2.5m.
 - **Preserved promises:** No tests skipped, deleted, or masked. Full Playwright HTML reports and test times artifacts uploaded.
+
+## Execution complete
+
+Product advice: Monitor actual wall-clock durations of subsequent CI runs on GitHub Actions to ensure the 4-shard dashboard and 3-share test matrix consistently maintain <2.5m total turnaround. As new Playwright journeys or shell tests are added, keep tests/longest-first updated periodically using recent CI artifacts to prevent load imbalance.
