@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep the dashboard responsive while session startup settles](seeds/SEED-072-responsive-session-start-reconciliation.md#responsive-session-start-reconciliation) — SEED-072#responsive-session-start-reconciliation ([plan](slice-plans/192-responsive-session-start-reconciliation/PLAN.md))
-- [Show truthful session access after its workspace is retired](seeds/SEED-076-session-after-workspace-retirement.md#session-after-workspace-retirement) — SEED-076#session-after-workspace-retirement ([plan](slice-plans/201-session-after-workspace-retirement/PLAN.md))
 - [Launch gates apply to every host](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#launch-gates-every-host) — SEED-075#launch-gates-every-host ([plan](slice-plans/204-launch-gates-every-host/PLAN.md))
 
 ## Backlog list

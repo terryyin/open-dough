@@ -1,3 +1,4 @@
+import { sessionResultEndpoint } from "../src/sessionResult.ts";
 // Which requests the local launch boundary (`./agentLaunchPlugin.ts`) admits,
 // and the refusal each other one gets: a launch, a read of the machine's
 // sessions, a done mark on a session it recorded (`./doneMarks.ts`), a delete
@@ -10,10 +11,7 @@
 // and its session policy against the installation's start
 // (`./launchSessionPolicy.ts`). Only terminal admission reads the host listing.
 
-import {
-  sessionHostSchema,
-  type SessionReference,
-} from "../src/sessionReference.ts";
+import { sessionHostSchema } from "../src/sessionReference.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
 import {
@@ -28,19 +26,25 @@ import {
   deleteRecordRequestSchema,
 } from "../src/deleteRecord.ts";
 import { agentDoneEndpoint, markDoneRequestSchema } from "../src/doneMark.ts";
-import { sourceById, type PublishedSource } from "../src/publishedSource.ts";
-import type { AgentLaunches, Recorded } from "./agentLaunches.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import type { AgentLaunches } from "./agentLaunches.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import { withSelectedOptions } from "./launchOptions.ts";
 import { withSessionPolicy } from "./launchSessionPolicy.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
+import {
+  knownSource,
+  recordedSession,
+  resultRequest,
+} from "./sessionAdmission.ts";
 
 // Enough for the longest request the limits allow, in any UTF-8 spelling.
 const bodyLimitBytes = 32 * 1024;
 
 export type Admitted =
   | { readonly kind: "sessions" }
+  | { readonly kind: "result"; readonly record: LaunchRecord }
   | {
       readonly kind: "launch";
       readonly source: PublishedSource;
@@ -57,14 +61,6 @@ export type Admitted =
       readonly source: PublishedSource;
       readonly record: LaunchRecord;
     };
-
-function knownSource(id: string | null): PublishedSource {
-  const source = id === null ? undefined : sourceById(id);
-  if (source === undefined) {
-    throw new RefusedRequest(404, "Unknown catalog source.");
-  }
-  return source;
-}
 
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -97,29 +93,6 @@ async function jsonBody(req: IncomingMessage): Promise<unknown> {
       throw error;
     }
     throw new RefusedRequest(400, "The request is not JSON.");
-  }
-}
-
-// A kept session and its existing folder, or a refusal.
-async function recordedSession(
-  launches: AgentLaunches,
-  source: PublishedSource,
-  session: SessionReference,
-): Promise<Extract<Recorded, { readonly kind: "recorded" }>> {
-  const recorded = await launches.recorded(source, session);
-  switch (recorded.kind) {
-    case "recorded":
-      return recorded;
-    case "unrecorded":
-      throw new RefusedRequest(
-        404,
-        "This dashboard launched no such session for this project.",
-      );
-    case "folder-not-found":
-      throw new RefusedRequest(
-        404,
-        `The project folder ${recorded.folder.shown} was not found on this machine.`,
-      );
   }
 }
 
@@ -192,6 +165,11 @@ export async function admitted(
   launches: AgentLaunches,
 ): Promise<Admitted> {
   verifyLocalOrigin(req);
+  if (url.pathname === sessionResultEndpoint) {
+    if (req.method !== "GET")
+      throw new RefusedRequest(405, "Only GET is accepted here.");
+    return resultRequest(url);
+  }
   if (url.pathname === agentDoneEndpoint) {
     if (req.method !== "POST") {
       throw new RefusedRequest(405, "Only POST is accepted here.");

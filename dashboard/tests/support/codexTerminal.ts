@@ -45,7 +45,7 @@ export const codexLines = (native: FakeCodex, pid: number): string[] =>
     .map((line) => JSON.parse(line) as string);
 export function codexTerminalMode(
   native: FakeCodex,
-  mode: "ready" | "review" | "unready" | "fail" | "partial",
+  mode: "ready" | "review" | "unready" | "fail" | "partial" | "workspace-loss",
 ) {
   writeFileSync(
     path.join(root(native), "control.json"),

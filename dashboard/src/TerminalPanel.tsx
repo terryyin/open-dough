@@ -39,6 +39,7 @@ import {
   type SessionOperation,
   type SessionRequest,
 } from "./pageSessions.ts";
+import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
 
 const closeShortcut = { key: "Escape", shift: true } as const;
 
@@ -70,6 +71,7 @@ export function TerminalPanel({
   onMaximize,
   onClose,
   onMarkDone,
+  onWorkspaceUnavailable,
 }: {
   // The request that opened the panel, which the panel asks its operations
   // with.
@@ -84,6 +86,10 @@ export function TerminalPanel({
   readonly onClose: () => void;
   // Answers whether the session was marked done; the panel closes if it was.
   readonly onMarkDone: MarkSessionDone;
+  readonly onWorkspaceUnavailable: (
+    request: SessionRequest,
+    workspace: TerminalWorkspaceUnavailable,
+  ) => void;
 }) {
   const { record } = session;
   const screen = useRef<HTMLDivElement>(null);
@@ -93,7 +99,14 @@ export function TerminalPanel({
   const [ending, setEnding] = useState<TerminalEnding | undefined>();
   // While marking, the attachment's ending the mark causes is not shown.
   const { marking, follow } = useMarking();
-  useAttachedTerminal(screen, session, attempt, onAttached, setEnding);
+  useAttachedTerminal(
+    screen,
+    session,
+    attempt,
+    onAttached,
+    setEnding,
+    onWorkspaceUnavailable,
+  );
   useCommandShortcut(closeShortcut, onClose);
   useRowsHeight(identity, names);
   const attachAgain = () => {

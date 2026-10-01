@@ -1,3 +1,4 @@
+import { workspaceLimitation } from "./sessionAccess.ts";
 import { sessionKey } from "./sessionReference.ts";
 // One Sessions sidebar entry (`./SessionSidebar.tsx`): one line, its story's
 // title, cut with an ellipsis when it is long, and, at the end, how long ago
@@ -8,7 +9,7 @@ import { sessionKey } from "./sessionReference.ts";
 // and the launch time are its tooltip. The entry is one control over its
 // whole area, named by its title; opening it goes to its story and its
 // session (`./TerminalSplit.tsx`). It is current, and outlined, while the
-// page's terminal shows its session.
+// page's session panel shows its session.
 
 import { useId } from "react";
 import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
@@ -39,9 +40,11 @@ export function SidebarEntry({
   const launchedAt = new Date(record.launchedAt);
   const now = useTickingNow(sidebarTickMs);
   const current =
-    usePageSessions().shownInTerminal === sessionKey(record.session);
+    usePageSessions().shownSession?.key === sessionKey(record.session);
+  const limitation = workspaceLimitation(record);
   const titleId = useId();
   const tooltip = [
+    ...(limitation === undefined ? [] : [limitation]),
     note === undefined ? label : `${label}: ${note}`,
     `${sourceById(source)?.label ?? source} · ${name}`,
     ...(modelWords === undefined ? [] : [modelWords]),

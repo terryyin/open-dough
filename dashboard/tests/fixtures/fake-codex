@@ -22,7 +22,14 @@ if (process.argv[2] === "resume" && process.env.FAKE_CODEX_CLI_LOG) {
     process.stdout.write(`\r\nresized ${process.stdout.columns}x${process.stdout.rows}\r\n`);
   });
   process.stdout.write("\x1b[?2026h\x1b[?25hResuming session…\r\n\x1b[?2026l");
-  if (control.mode === "fail") {
+  if (control.mode === "workspace-loss") {
+    // The OS started this native process in the checked directory. Lose the
+    // exact saved --cd before native resume becomes ready, then refuse startup.
+    const workspace = process.argv[process.argv.indexOf("--cd") + 1];
+    fs.rmSync(workspace, { recursive: true });
+    process.stdout.write("saved native context disappeared during startup\r\n");
+    setTimeout(() => ended("workspace lost", 1), 50);
+  } else if (control.mode === "fail") {
     process.stdout.write("native resume refused\r\n");
     setTimeout(() => ended("refused", 1), 50);
   } else {

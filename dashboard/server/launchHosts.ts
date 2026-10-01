@@ -18,6 +18,22 @@ import type {
   SessionObservation,
 } from "./hostLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
+import type { SessionResult } from "../src/sessionResult.ts";
+import type { WorkspaceState } from "../src/launchRecord.ts";
+
+export type UnavailableWorkspace = Exclude<
+  WorkspaceState,
+  { kind: "available" }
+>;
+export type TerminalAttachment =
+  | {
+      readonly pty: IPty;
+      readonly ready?: (screen: string, cursorVisible: boolean) => boolean;
+      // Re-observe native context after a failure before readiness, never infer it
+      // from a process exit code.
+      readonly startupFailure?: () => UnavailableWorkspace | undefined;
+    }
+  | { readonly workspaceUnavailable: UnavailableWorkspace };
 
 export type LaunchHost = {
   readonly name: string;
@@ -45,14 +61,15 @@ export type LaunchHost = {
     folder: ProjectFolder,
     signal: AbortSignal,
   ) => Promise<readonly SessionObservation[]>;
+  readResult?(
+    session: HostSession,
+    signal: AbortSignal,
+  ): Promise<SessionResult>;
   attach?(
     session: HostSession,
     folder: ProjectFolder,
     size: { readonly cols: number; readonly rows: number },
-  ): {
-    readonly pty: IPty;
-    readonly ready?: (screen: string, cursorVisible: boolean) => boolean;
-  };
+  ): TerminalAttachment;
   rename?(
     record: LaunchRecord,
     folder: ProjectFolder,

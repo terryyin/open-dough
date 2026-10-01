@@ -48,21 +48,17 @@ function WorkCard({
 }) {
   const cardRef = useRef<HTMLElement>(null);
   const detailId = `story-detail-${entry.identity.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
-  // Outlined while the page's terminal shows one of the card's sessions.
-  const { shownInTerminal } = usePageSessions();
-  const inTerminal = cardSessionsOf(
+  // Outlined while the page's panel shows one of the card's sessions.
+  const { shownSession } = usePageSessions();
+  const inPanel = cardSessionsOf(
     launches.launched,
     sourceId,
     entry.identity,
-  ).some((record) => sessionKey(record.session) === shownInTerminal);
+  ).some((record) => sessionKey(record.session) === shownSession?.key);
   return (
     <article
       ref={cardRef}
-      className={[
-        "card",
-        selected && "card-selected",
-        inTerminal && "in-terminal",
-      ]
+      className={["card", selected && "card-selected", inPanel && "in-terminal"]
         .filter(Boolean)
         .join(" ")}
       aria-label={entry.title}

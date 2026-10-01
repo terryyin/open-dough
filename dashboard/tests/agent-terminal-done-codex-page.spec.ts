@@ -46,7 +46,7 @@ for (const attached of [false, true]) {
         { id: "original-turn", status: attached ? "inProgress" : "completed" },
       ],
     });
-    const { card } = await openStoryStagesJourney(page, journey);
+    const { card, settled } = await openStoryStagesJourney(page, journey);
     const listed = cardSessions(card(notRefinedStory));
     const recent = parts(page)
       .recentSessions.getByRole("article")
@@ -74,6 +74,7 @@ for (const attached of [false, true]) {
     const doneAt = stored(dashboard.home)[0]?.doneAt;
     expect(doneAt).toBeDefined();
     await page.reload();
+    await settled();
     await expect(recent.locator(".session-state")).toHaveText("Done");
     expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
     codexTerminalMode(native, "fail");

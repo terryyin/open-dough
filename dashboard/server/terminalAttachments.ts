@@ -4,11 +4,12 @@ import type { RawData, WebSocket } from "ws";
 import {
   terminalEndedCode,
   terminalAttachFailedCode,
+  terminalWorkspaceUnavailableCode,
   terminalMessageSchema,
   type TerminalMessage,
 } from "../src/agentTerminal.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
-import { launchHost } from "./launchHosts.ts";
+import { launchHost, type UnavailableWorkspace } from "./launchHosts.ts";
 import { setRecordDoneAt } from "./launchRecordStore.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 
@@ -42,6 +43,18 @@ export class TerminalAttachments {
     let pty: IPty;
     let readiness:
       ((screen: string, cursorVisible: boolean) => boolean) | undefined;
+    let startupFailure: (() => UnavailableWorkspace | undefined) | undefined;
+    const unavailableWorkspace = (
+      workspaceUnavailable: UnavailableWorkspace,
+    ) => {
+      if (ws.readyState === ws.OPEN) {
+        ws.send(JSON.stringify({ workspaceUnavailable }), { binary: true });
+        ws.close(
+          terminalWorkspaceUnavailableCode,
+          "Saved workspace unavailable.",
+        );
+      }
+    };
     const host = launchHost(session.session.host);
     try {
       if (host?.attach === undefined) {
@@ -52,8 +65,13 @@ export class TerminalAttachments {
         session.folder,
         initialSize,
       );
+      if ("workspaceUnavailable" in attachment) {
+        unavailableWorkspace(attachment.workspaceUnavailable);
+        return;
+      }
       pty = attachment.pty;
       readiness = attachment.ready;
+      startupFailure = attachment.startupFailure;
     } catch {
       ws.close(
         terminalAttachFailedCode,
@@ -74,6 +92,11 @@ export class TerminalAttachments {
     let reopened = ready ? reopen() : Promise.resolve();
     const closeUnavailableTerminal = () => {
       void reopened.then(() => {
+        const workspace = !ready ? startupFailure?.() : undefined;
+        if (workspace !== undefined) {
+          unavailableWorkspace(workspace);
+          return;
+        }
         ws.close(
           ready ? terminalEndedCode : terminalAttachFailedCode,
           ready ? "The terminal ended." : `${host.name} could not be attached.`,
