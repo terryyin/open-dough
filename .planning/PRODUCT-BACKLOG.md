@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Session meaning and wording are host-neutral](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#host-neutral-session-meaning) — SEED-075#host-neutral-session-meaning ([plan](slice-plans/203-host-neutral-session-meaning/PLAN.md))
 - [Repair session header controls and avatar preview](seeds/SEED-079-session-header-polish-repair.md#session-header-polish-repair) — SEED-079#session-header-polish-repair
 
 ## Backlog list
