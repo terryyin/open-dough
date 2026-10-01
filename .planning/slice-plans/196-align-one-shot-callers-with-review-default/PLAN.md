@@ -270,10 +270,31 @@ if `assertTrunkObserved`/`fetchedMergeBase` move with them. This removes
 parallel test-support paths that already drifted (host session versus none).
 Test-only: no product behavior changes.
 
+### 5. Retry the paid native runs that failed in plan 191
+Type: Behavior
+Status: planned
+Proof (manual, developer-authorized paid runs only; never automated): after
+slices 1–4 are delivered, rerun the two plan 191 slice 8 cases that first
+failed and were accepted only by re-judging saved results under the updated
+landing assessor, never by a fresh run:
+`PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native cursor --case publication/one-shot-auto-land --results-dir <DIR>`
+and
+`PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native.sh --native codex --case publication/one-shot-queued --results-dir <DIR>`.
+Launch them through one detached script with a log, as the plan 191 batch did.
+Record host version, candidate, verdict, and the decisive observations
+(`ci-observed-shas`, `ci-unobserved-shas`, `report-names-kept`, workspace
+retention) in this plan.
+
+Behavior: Each case passes FRESH PROOF on the delivered candidate. A kept
+workspace passes only with its CI unobserved and reported. A failure is
+diagnosed under failed-proof handling; a host-side failure such as plan 191's
+Codex spawn error is reported as inconclusive and rerun once only after its
+stated cause is addressed.
+
 ## Native proof decision
 
-No paid native rerun is required for this correction. Reuse plan 191 slice 8
-evidence (candidates `0d565a9e`/`671b8ff4`) with this justification:
+Beyond slice 5's developer-requested retry, no paid native rerun is required
+for this correction. Reuse plan 191 slice 8 evidence (candidates `0d565a9e`/`671b8ff4`) with this justification:
 
 - Slice 1 adds report wording that names an already-accepted landing path. It
   changes no start, retention, or landing command, so the native assessors'
