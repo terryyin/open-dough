@@ -25,41 +25,100 @@ and further tools.
 
 **Identity:** SEED-069#review-dashboard-multi-tool-architecture
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
 ```
 
-- **For / why:** The dashboard maintainer can expand AI IDE support with clear
-  shared responsibilities and tool-specific boundaries, preserving the developer's
-  established workflow and session experience.
-- **Goal:** Review the architecture using the implemented Claude Code and Codex
-  integrations, identify places to improve, and establish which improvements
-  should precede Cursor or subsequent integrations.
-- **Evaluation:** Produce a review grounded in current code and behavior that
-  explains shared versus tool-specific responsibilities, identifies concrete
-  duplication or coupling with its consequences, and recommends prioritized
-  improvements or an evidence-backed decision to retain the current design.
-  The maintainer can decide what to address before tool expansion.
-- **Scope:** Review dashboard launch and preparation handoff, workspace context,
-  conversation identity and persistence, native session observation and lifecycle,
-  continuation and terminal interaction, and failure/retry recovery. Assess how
-  another tool would fit those boundaries without assuming identical native
-  capabilities or adding abstractions solely for hypothetical tools.
-- **Key examples:** Trace an established workflow through Claude Code and Codex
-  to explain what is shared and why native behavior differs. Assess where adding
-  Cursor would duplicate orchestration or require changes outside its native
-  integration, and cite the responsible code. For each concern, state its impact
-  and a bounded improvement; distinguish confirmed findings from questions that
-  require independent Cursor evidence.
-- **Timing and ordering:** Start once Codex support is mostly implemented, using
-  the then-current implementation and recording any unfinished Codex behavior
-  that limits the review. This story is first in the queued backlog, ahead of
-  Cursor support; it does not interrupt the currently Taken Codex work.
-- **Boundary:** This story captures an architecture review and recommendations.
-  Implementing improvements and adding Cursor remain separately selected work.
-  Consult current Accepted ADRs during the review; architectural decisions and
-  exceptions remain human-owned.
-- **Effort hypothesis:** Unestimated; refine the review's extent against the
-  implemented Codex support before planning.
+**Goal:** Give Terry, as the dashboard maintainer, an evidence-backed review of
+how the delivered Claude Code and Codex integrations divide shared and
+host-specific responsibility, so Terry can decide which improvements precede
+Cursor support. The observable outcome is a decision-ready review; a cohesive
+multi-tool dashboard is the broader ambition it serves.
+
+**Scope:**
+
+- **Required:** Review the current code and behavior across six concerns:
+  launch and preparation handoff, workspace context, conversation identity and
+  persistence, native session observation and lifecycle, continuation and
+  terminal interaction, and failure/retry recovery. For each concern, state
+  which module owns the shared behavior, which native operation each host
+  supplies, and where host knowledge leaks outside its host module, citing
+  files.
+- **Required:** Each finding states its consequence for adding Cursor (what
+  Cursor would have to duplicate or change outside its own host module) and a
+  bounded improvement, ranked by whether it should precede Cursor. A concern
+  whose current design is sound gets an explicit retain decision with its
+  evidence.
+- **Required:** Separate confirmed findings, grounded in Claude Code and Codex
+  code and behavior, from Cursor questions that only native Cursor evidence can
+  settle. Do not presume Cursor shares either host's native capabilities
+  ([ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)).
+- **Required:** Revise the North Star's
+  [agent-launch topic](../NORTH-STAR.md#agent-launch-as-a-requested-assignment)
+  to the reviewed multi-host direction: retire what the code now realizes and
+  keep only the unbuilt direction the review recommends.
+- **Required:** Present the ranked recommendations to Terry. For each one Terry
+  selects, record a canonical story in a suitable seed and queue it ahead of
+  Cursor; record no story for a recommendation Terry declines.
+- **Deferred:** Implementing any improvement, adding Cursor, and observing
+  native Cursor behavior. A paid native observation is out of scope.
+- **Boundary assumption:** The Codex dashboard story is closed. The
+  [Codex terminal attachment investigation](SEED-073-investigate-codex-terminal-attachment.md#investigate-codex-terminal-attachment)
+  is still Taken; the review records its outcome if available, or names
+  attachment recovery as a limitation it could not assess.
+
+**Key examples:**
+
+1. Given Codex and Claude Code launches recorded on one machine, when the
+   review traces a refinement launch through admission, start, recording,
+   observation, attachment, and done mark, then it shows which steps run
+   common orchestration and which call a `LaunchHost` operation, and explains
+   each native difference (for example, Claude chooses its own session id
+   while Codex records a saved thread and endpoint).
+2. Given shared modules that branch on a host name (for example the
+   Codex-only duplicate-launch and creation reconciliation in
+   `dashboard/server/agentLaunches.ts`, or the per-host capability switches in
+   `dashboard/src/sessionCapabilities.ts`), when the review assesses adding
+   Cursor, then it reports each branch Cursor would extend, whether the branch
+   expresses a native difference that belongs behind the host boundary or a
+   shared rule applied to only one host, and a bounded improvement.
+3. Given a concern such as terminal transport, already shared through the host
+   `attach` operation, when the review finds no duplication or coupling, then
+   it records a retain decision with evidence rather than proposing an
+   abstraction for a hypothetical tool.
+4. Given whether Cursor exposes a resumable conversation identity that the
+   dashboard can observe, when no native Cursor evidence exists, then the
+   review lists it as an open question for the Cursor story, not as a finding.
+5. Given ranked recommendations, when Terry selects two and declines one, then
+   two queued stories precede Cursor in the backlog and the declined one leaves
+   no story behind.
+
+**Architecture:**
+
+- **Applicable decisions:**
+  [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) (minimal
+  platform adapters, shared logic tested once, no inference of one tool's
+  success from another's);
+  [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+  §3 (map directly to one domain model); and
+  [ADR 0001](../../docs/adrs/0001-ubiquitous-language-accepted.md). Proposed
+  ADR 0008 and the North Star inform the review and bind nothing. No conflict
+  was found.
+- **Starting evidence (not findings):** Native operations already sit behind
+  the `LaunchHost` boundary in `dashboard/server/launchHosts.ts`, which leaves
+  operations a host lacks unavailable rather than substituting another host.
+  Host modules live in `dashboard/server/hosts/{claude,codex}`. Host-name
+  branches also appear in shared server orchestration (`agentLaunches.ts`,
+  `agentLaunchAdmission.ts`) and in the browser (`sessionCapabilities.ts`,
+  `sessionShown.ts`, `StartLaunch.tsx`, `LaunchHostModel.tsx`,
+  `agentLaunchClient.ts`). The review assesses these against the North Star's
+  rule that host-specific code stays in one module per host.
+- **Recording:** A retained design stays explained by code. Unbuilt direction
+  goes into the North Star topic. Propose a `docs/` design document only for
+  something the code cannot explain, and an ADR only for a decision with
+  impact on general-purpose agents.
+
+**Effort hypothesis:** About one planned session of code reading and tracing,
+with no paid native runs.
 
 ## Breadcrumbs
 
