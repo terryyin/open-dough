@@ -764,3 +764,81 @@ Fresh trunk added planning-only claims through `c220e09d`; integration retains
 those other owners' work without attributing it to this story's product change.
 The historical human stop above is superseded by this authorized repair. Final
 retrospective and CI handoff now resume under the original execution instruction.
+
+
+### Repair publication and restoration
+
+Repair `656de358ddde9bf3e9e5e016aafa8704b84f227d` and planning-only trunk
+integration were accepted at `bee362617b4b6f6c2835e400eeb783b5c7ed2408`
+on the execution branch with observer `watch-4v8x7b` reused. The check-only
+hook's unnecessary-null-fallback finding was repaired mechanically and
+reformatted before commit; the browser's HTMLElement text remains unchanged.
+Installed stash restoration returned `resumed`, OID null, applied false:
+there was no paused work or stash entry to restore. The checkout is clean.
+
+### Automatic retrospective
+
+Recovered original plan/contract at established claim `cee792a`, the six seed
+examples, accepted alert policy and autonomous prerequisite handoff. Reviewed
+selected product patches and current consumers, rather than an ancestry-wide
+net diff containing sibling deliveries. Related manifest:
+
+- `4ef487ec`: prerequisite/setup/evidence provenance.
+- `56f8681f`: host-owned unfamiliar/incomplete observation and alerts.
+- `30fc503c`: saved continuation presentation and integrated browser proof.
+- `07e90c8b`: responsive-startup integration provenance; sibling implementation
+  is excluded from this execution's attribution.
+- `7e5d273e`: combined proof and publication provenance.
+- `9d90a7ad`: recorded-host refusal and HTTP response proof.
+- `1a027123`: planning-only queue integration provenance.
+- `cef712aa`: actual-host running progress, current renderer and proof/docs.
+- `656de358`: Terry-authorized attention-test race repair.
+- `bee36261`: planning-only claims integration/publication provenance.
+
+Excluded prerequisite `b6f2cb65`/`4e623e37`/`09d5d98a` and closure, responsive
+startup `109fd76b` through `1aa5d896` and closure, queued stories `2a7dec40`,
+and other owners' claims `e8f24c07`/`ac1221b2`/`c220e09d`. Their current delivered
+interfaces were inspected where consumed, without claiming their work.
+
+Outcome findings: none. All six examples map to accepted outside-in observations
+above. Unknown availability, incomplete native activity, explicit unfamiliar
+status, attention and done intent remain distinct. One host description owns
+presentation facts; native adapters own observation meaning; shared alerting,
+continuation, admission and progress consume their existing owners. No durable
+record migration, invented runtime, capability or alternate alert loop arose.
+Current `StartupStatus` involvement is required by integrated consumers and
+keeps recovery advice separate. ADR 0002/0005 and the agent-launch North Star
+remain aligned; no decision exception or new architecture topic is needed.
+
+Reviewed whole-suite organization through Playwright configuration, real-build
+setup, longest-first partitioning and existing observation/alert/access/start
+families, including older preservation journeys. New behavior was verified
+through integrated browser/HTTP/native-substitute journeys; available history
+does not establish a red-first E2E development sequence for each slice.
+The CI repair has explicit same-gap red/green proof. Refactor consolidation
+retains meaningful transport, saved-context, progress, placement and passive
+access assertions. No supported additional test consolidation or detail
+downgrade was found. This review did not run or claim a full dashboard suite;
+local acceptance rests on the named focused commands, while final CI is pending.
+
+Process review enabled by project preference and supported coordinator/agent
+history. Added one occurrence to existing `DD-201` in `DearDough.md`, preserving
+its successful-startup qualification and guidance/runtime separation. No new
+finding code, process correction plan or guidance edit. Existing log exceeds
+500 physical lines; its bounded recording warning applies and final size is
+below 1,000. A premature merge attempt after a rejected hook was refused without
+history change and then corrected; no separate generalized issue is asserted.
+
+Product advice reuses existing work: startup recovery advice still owns its
+remaining host-name branch, and the CI mirror-stall story already owns repeated
+package-install cancellations. Preserve their selected priorities and Cursor's
+separate native proof; no new backlog entry or scope expansion is proposed.
+Review classification: unchanged plan outcome, no correction plan. Retained
+observer, target and accepted revision `bee36261` remain pending final CI;
+review completion is not a successful CI claim.
+
+## Execution complete
+
+Product advice: Continue the existing startup-recovery host-description work
+before Cursor integration, and retain the queued CI mirror-stall resilience
+response. No additional product work or priority change is recommended.
