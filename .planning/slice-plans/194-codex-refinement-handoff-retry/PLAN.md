@@ -235,3 +235,10 @@ the original desktop thread and its work survives the supported handoff.
 ## Verification, sizing and construction review
 
 Follow [the literal proof commands and construction review](OBSERVATIONS.md#verification-sizing-and-construction-review); execute-plan owns focused proof, refactoring, hook lint and delivery. All three executable slices and native acceptance above remain required.
+
+## Execution complete
+
+Product advice: preserve the older-installation retry regression with stable
+predecessor evidence in [correction plan 195](../195-older-preparation-command-proof/PLAN.md).
+The correction is planned only; no backlog change or execution is authorized.
+[Retrospective provenance, finding and limits](OBSERVATIONS.md#execution-retrospective).

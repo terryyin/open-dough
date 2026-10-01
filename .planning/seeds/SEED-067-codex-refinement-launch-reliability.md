@@ -170,3 +170,25 @@ claim is released. Do not treat that return as readiness or start execution.
    the recorded native identity and original input as today; it does not infer
    rejection from missing history or launch a replacement conversation. Another
    story can launch independently of the failed/handed-off one.
+
+## Retrospective correction
+
+<a id="pin-older-preparation-command-proof"></a>
+
+### Keep older-installation retry proof independent of the current commit
+
+**Identity:** SEED-067#pin-older-preparation-command-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/195-older-preparation-command-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"eb4d79e4d49ada903b30fb99002fa33c3c669c45877bd9c5bd17156c86ecac86","plan":"eac049a85a1480cec825822bd4ae8593e0456c7fa4123a232c7d34fee0fd3214"}}
+```
+
+**Goal:** Give maintainers reliable regression evidence that retained refinement
+retry safely refuses an installed preparation command without `continue`, even
+after the implementation has been committed.
+
+**Scope:** Correct only the older-command fixture and its distinguishing proof.
+Preserve the real installed-command/Git/browser retry journey, unchanged saved
+start and ownership artifacts, and the independent-story success. No production
+behavior, native handoff or shared workflow change is included.
+
+**Plan:** [bounded correction input and slice](../slice-plans/195-older-preparation-command-proof/PLAN.md).
