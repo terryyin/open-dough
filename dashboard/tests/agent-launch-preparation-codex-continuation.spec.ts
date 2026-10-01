@@ -6,7 +6,6 @@ import { keptStarts, launch, launchRequest } from "./agentLaunchBoundary.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { stored } from "./support/codexLaunch.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
-import type { EstablishedPreparation } from "../src/agentLaunch.ts";
 import type { StartRecord } from "../server/startStore.ts";
 
 test.use({ preparationHost: "codex" });
@@ -38,9 +37,11 @@ for (const evidence of ["legacy-sha", "lost-result"] as const) {
     );
     const starts = JSON.parse(readFileSync(startsFile, "utf8")) as Record<
       string,
-      Record<string, StartRecord & { preparation: EstablishedPreparation }>
+      Record<string, StartRecord>
     >;
-    const retained = starts["open-dough"][queuedIdentity];
+    const retained = starts["open-dough"]?.[queuedIdentity];
+    if (retained?.preparation === undefined)
+      throw new Error("Published preparation missing from fixture start.");
     const preparation = retained.preparation;
     if (evidence === "legacy-sha") delete preparation.publishedSha;
     else delete retained.preparation;

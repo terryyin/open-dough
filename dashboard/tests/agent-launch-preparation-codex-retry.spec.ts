@@ -10,7 +10,6 @@ import { expect, test } from "./support/preparationPage.ts";
 import { stored } from "./support/codexLaunch.ts";
 import { queuedIdentity, otherQueuedIdentity } from "./support/startOrigin.ts";
 import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
-import type { EstablishedPreparation } from "../src/agentLaunch.ts";
 import type { StartRecord } from "../server/startStore.ts";
 
 test.use({ preparationHost: "codex" });
@@ -111,19 +110,20 @@ for (const damage of [
     ) {
       const starts = JSON.parse(readFileSync(startsFile, "utf8")) as Record<
         string,
-        Record<string, StartRecord & { preparation: EstablishedPreparation }>
+        Record<string, StartRecord>
       >;
-      const retained = starts["open-dough"][queuedIdentity];
-      if (damage === "legacy-ownership")
-        delete retained.preparation.publishedSha;
+      const retained = starts["open-dough"]?.[queuedIdentity];
+      if (retained?.preparation === undefined)
+        throw new Error("Published preparation missing from fixture start.");
+      const preparation = retained.preparation;
+      if (damage === "legacy-ownership") delete preparation.publishedSha;
       if (damage === "uncertain-result") delete retained.preparation;
       if (damage === "saved-allocation")
-        retained.preparation.publishedSha = local(
+        preparation.publishedSha = local(
           "rev-parse",
           `${publishedSha}^`,
         ).trim();
-      if (damage === "retained-facts")
-        retained.preparation.workspace = origin.project;
+      if (damage === "retained-facts") preparation.workspace = origin.project;
       writeFileSync(startsFile, JSON.stringify(starts));
     }
     const startBytes = readFileSync(startsFile, "utf8");
