@@ -26,3 +26,4 @@ visibility for multiple agents working in worktrees on one machine.
 - [Split the session entry and terminal split files along their operations](seeds/SEED-052-start-agent-work-from-dashboard.md#split-session-entry-and-terminal-split) — SEED-052#split-session-entry-and-terminal-split
 - [Slice planning states whether it refined and settles every concern it names](seeds/SEED-056-slice-planning-refinement-decision.md#state-refinement-decision) — SEED-056#state-refinement-decision
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
+- [Choose workspace and automatic landing independently for lightweight refinement and execution](seeds/SEED-066-composable-lightweight-session-options.md#composable-lightweight-session-options) — SEED-066#composable-lightweight-session-options
