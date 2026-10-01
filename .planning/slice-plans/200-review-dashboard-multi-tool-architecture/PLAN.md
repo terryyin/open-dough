@@ -57,8 +57,8 @@ and retained design stays explained by code. The review has these sections:
 - **Cursor questions:** questions that need native Cursor evidence, addressed
   to the [Cursor story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard).
 - **Limitations:** including Codex attachment recovery while
-  [SEED-073](../../seeds/SEED-073-investigate-codex-terminal-attachment.md#investigate-codex-terminal-attachment)
-  is unfinished.
+  [SEED-073](https://github.com/terryyin/open-dough/blob/ae22469918f20d03640fe5cd584a89c55eedfc04/.planning/seeds/SEED-073-investigate-codex-terminal-attachment.md#investigation-evidence-2026-10-01)
+  was closed without repair; original workspace-removal timing remains unconfirmed.
 
 ## Applicable decisions and direction
 
@@ -81,7 +81,7 @@ and retained design stays explained by code. The review has these sections:
 | Premise | Consumed by | Observation | Result |
 | --- | --- | --- | --- |
 | The Codex dashboard story is closed, so the review uses a complete Codex integration | Slices 1–2 (scope) | `git log --oneline` shows `fff70ca7 Close completed Codex dashboard workflows and sessions`; `grep '^<a id' .planning/seeds/SEED-052-*.md` has no `use-codex-from-dashboard` anchor | Holds |
-| Codex attachment failure is still under investigation | Slice 2 (limitation) | `.planning/PRODUCT-BACKLOG.md` Taken lists `SEED-073#investigate-codex-terminal-attachment` | Holds; re-read at slice 2 |
+| Codex attachment recovery remains a limitation | Slice 2 (limitation) | SEED-073’s preserved investigation demonstrates missing-workspace attachment failure; Terry closed the investigation without repair | Original removal timing unconfirmed; assess recovery as a limitation |
 | Native operations already sit behind one host boundary with optional operations | Slices 1–2 (trace) | `dashboard/server/launchHosts.ts` defines `LaunchHost` (`launch`, optional `recover`, `sessions`, `attach`, `rename`, `stop`, `close`) and `launchHost()` dispatch; `dashboard/server/hosts/{claude,codex}/` hold 3 and 9 modules | Holds |
 | Shared server and browser code branch on host names | Slices 1–2 (findings) | `grep -rnE '=== "codex"\|=== "claude"' dashboard/server dashboard/src` hits `agentLaunches.ts:144,178`, `agentLaunchAdmission.ts:174`, `sessionCapabilities.ts`, `sessionShown.ts:51,55,118`, `StartLaunch.tsx:191`, `LaunchHostModel.tsx:56`, `agentLaunchClient.ts:52`, `launchRecord.ts:28` | Holds |
 | The browser suite has per-host spec families with substitute host processes | Slice 2 (test assessment) | `ls dashboard/tests` shows `agent-launch-codex-*`, `agent-launch-done-codex*`, `agent-terminal-codex*`, and `agent-launch-preparation-codex-*`; `tests/support/codexLaunch.ts` and `codexTerminal.ts` exist | Holds |

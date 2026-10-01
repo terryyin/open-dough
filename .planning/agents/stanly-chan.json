@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "stanly-chan",
-  "email": "stanly-chan@example.org",
-  "identity": "SEED-073#investigate-codex-terminal-attachment",
-  "mode": "story-branch",
-  "branch": "codex/investigate-codex-terminal-attachment",
-  "host": "codex"
-}
