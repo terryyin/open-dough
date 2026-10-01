@@ -837,6 +837,37 @@ Review classification: unchanged plan outcome, no correction plan. Retained
 observer, target and accepted revision `bee36261` remain pending final CI;
 review completion is not a successful CI claim.
 
+### Wrap-up integration observation
+
+Before cleanup, fetched trunk `ee6f7084` included the separately delivered saved
+Codex service startup fix and other owners' planning claims. History-preserving
+merge `1a1324f4e933312bc740821153e622a0a3c3c58c` used the installed backlog
+adapter. Its sole documentation conflict was resolved by preserving the
+native-host topic extraction and placing new saved-service startup guidance in
+`AGENT-LAUNCH-HOSTS.md`; the incoming terminal-topic extraction stays intact.
+Backlog reconciliation preserves the session-header Taken claim, removes the
+closed Codex-service claim, and retains the existing queue order and startup
+preparation profile. No sibling product work is attributed to this execution.
+
+Combined-candidate proof reached terminal exit 0:
+
+```sh
+npm run typecheck:dashboard
+env -u NO_COLOR npm run test:dashboard -- agent-launch-codex-observation agent-launch-codex.spec.ts agent-launch-codex-startup.spec.ts agent-terminal-codex.spec.ts agent-launch-start-phases.spec.ts agent-launch-preparation-phases.spec.ts agent-launch-attention.spec.ts
+```
+
+Selection has no grep: current real-build/native-substitute journeys preserve
+this story's observation/alerts/continuation/refusal/progress, the authorized
+attention capture repair, and incoming dev/preview saved-service startup.
+The native protocol support and service initialization are exercised through
+actual HTTP/store/polling/terminal and installed-script boundaries. Earlier
+inspected assertions remain unchanged; incoming startup specs supply native
+service conditions rather than the observation outcome. Commands were owned
+through terminal results (typecheck session 71313, browser session 59014).
+All lasting rules already have maintained launch-document homes. Agent-launch
+and UX direction still support active recovery/Cursor work and are retained.
+No follow-up correction plan exists; product advice requires no queue change.
+
 ## Execution complete
 
 Product advice: Continue the existing startup-recovery host-description work
