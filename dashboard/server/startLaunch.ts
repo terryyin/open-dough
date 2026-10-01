@@ -209,7 +209,10 @@ export async function gatedStart(
       explanation: alreadyStarting,
     };
   }
-  progress.set(source.id, request.identity, "preparing");
+  progress.set(source.id, request.identity, {
+    phase: "preparing",
+    host: request.host,
+  });
   try {
     return await start();
   } catch (error) {

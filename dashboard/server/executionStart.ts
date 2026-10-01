@@ -111,7 +111,10 @@ async function runningStart(
   );
   const oneShot = policy.tracking === "one-shot";
   if (oneShot && kept?.start !== undefined) {
-    progress.set(source.id, request.identity, "launching");
+    progress.set(source.id, request.identity, {
+      phase: "launching",
+      host: request.host,
+    });
     return continuedStart({ workspace, branch, policy }, { start: kept.start });
   }
   const where = {
@@ -176,7 +179,10 @@ async function runningStart(
     // The record follows the script's result even when the launch stopped
     // waiting for it.
     if (result.kind === "accepted" || result.kind === "prepared") {
-      progress.set(source.id, request.identity, "launching");
+      progress.set(source.id, request.identity, {
+        phase: "launching",
+        host: request.host,
+      });
       const start =
         result.kind === "accepted"
           ? establishedStart(facts, result, kept?.start)

@@ -109,7 +109,7 @@ export function CardLaunches({
         <div id={statusId} className="card-startup-status">
           <StartupStatus
             startup={startup}
-            phase={launches.startPhaseOf(
+            running={launches.runningStartOf(
               sourceId,
               entry.identity,
               startup.workflow,

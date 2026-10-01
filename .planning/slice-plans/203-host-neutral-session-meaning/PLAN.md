@@ -279,7 +279,7 @@ access capabilities or losing stored intent.
 
 ### 5. Show the actual launch host throughout pending progress
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend existing execution/preparation phase browser journeys for Claude
 and Codex. Hold a real start in preparing, then native launching; assert unchanged
 "Preparing execution…" / "Preparing refinement…", followed by the actual host
@@ -323,7 +323,8 @@ observable result, its proof and cleanup. Unexpected fixture/interface work or
 integration evidence that invalidates sizing requires revising remaining slices;
 never deliver an intermediate schema/caller mismatch. Execution retains accepted
 proof and completion/review context in this plan for the ordinary retrospective
-and wrap-up; slice 5 remains planned.
+and wrap-up; all five slices now have accepted focused proof; the CI ownership decision
+blocks the execution/review handoff.
 
 ## Current decisions and preparation review
 
@@ -621,3 +622,84 @@ above were rerun to terminal exit 0. Inspected the moved type/writer and sole
 caller; admission, native evidence and refused-upgrade assertions remained
 unchanged. All eight changed files remain below 250 lines. Selective Prettier
 completed; no generation is triggered, and hook-owned lint remains with commit.
+
+
+### Slice 4 — publication
+
+The hook's shorthand void-arrow finding in the new refused-body helper was
+repaired with braces and selective reformatting; behavior and accepted proof
+remain unchanged. Slice commit `9d90a7ad9280fae8b43e565068fc3633fd8e09c7`
+was reconciled with planning-only trunk `2a7dec40` through the installed backlog
+merge adapter. Publication was accepted at
+`1a027123c4dbf2930ead6c96be670acd07fa460c`, with the same observer reused.
+The integrated queue includes startup recovery advice and CI mirror-stall
+resilience; neither is implemented here.
+
+### Slice 5 — actual host in pending progress
+
+`StartProgress` keeps host with phase; all five setters in `startLaunch`,
+`executionStart` and `preparationStart` supply the admitted request's host.
+The live `runningStartSchema`, machine response, `runningStartOf` lookup and
+`CardLaunches` retain that fact. `startPhaseWords` constructs launching words
+from workflow/phase/host and preserves preparing words. Current responsive
+startup moved the old pending renderer into `StartupStatus`; its progressing
+expression therefore consumes the shared function directly. This necessary
+consumer edit removes literal Claude Code replacement. The separately queued
+startup-advice story still owns reconciliation/recovery advice. Kept-host
+admission, matching keys, cleanup, durable starts and browser defaults remain
+unchanged. Maintained pending-word documentation and boundary comments agree.
+
+The original planned five-spec command selected 13 declarations but failed
+new ambiguous Story A locators, which also matched unresolved-creation and
+Recent articles. Its six unchanged `agent-launch-start-card.spec.ts` cases
+passed, preserving no-installed-start execution/refinement Claude wording and
+installed-start preparation behavior. Exact accessible card names corrected
+only the four affected journeys. Seven declarations in the corrected four-spec
+run passed, and the changed duplicate-start response expectation's two cases
+passed separately. Typecheck reached terminal exit 0. No separate Codex
+no-installed-start pending journey was added; shared renderer consumption was
+inspected rather than claimed as that additional behavioral observation.
+
+Independent refactoring returned `## REFACTOR COMPLETE`. It renamed the
+progress map to `starts`, extracted oversized native-host documentation into
+`AGENT-LAUNCH-HOSTS.md` while retaining the existing heading/anchor and correcting
+stale shared host-branch prose, and consolidated repeated test journeys into
+`support/startProgressPage.ts` and `support/codexRetryPage.ts`. The only production
+refactor stays within startup progress. No architecture conflict arose.
+
+The moved proof and map implementation invalidated location evidence, so
+replacement proof reached terminal exit 0:
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- agent-launch-start-phases.spec.ts agent-launch-preparation-phases.spec.ts agent-launch-start-codex.spec.ts agent-launch-preparation-codex.spec.ts agent-launch-start-duplicate.spec.ts
+npm run typecheck:dashboard
+git diff --check
+```
+
+Nine declarations across five specs selected without grep. Inspected helper
+callers and observations: real installed start commands run against bare origin;
+held push and held native creation supply preconditions separately. Real HTTP
+assertions observe host/phase, while initiating and second pages show preparing
+then actual-host launching words across reload. Actual published assignments
+produce Taken execution placement and Preparing refinement facts in Backlog;
+settlement clears progress. Saved Codex retries retain published workspace and
+creation/input evidence, observe host Codex through HTTP and initiating/second
+page/reload despite independent Claude browser defaults. Duplicate/simultaneous
+starts preserve one claim/workspace/session and cleanup. The six unaffected
+start-card cases retain their accepted observations without another run.
+
+Inspected every setter, machine producer, live schema, browser lookup/current
+renderer, kept admission and test-support caller. No additional nonempty
+running-start fixtures remain without host. Selective Prettier passed; all 18
+product/test/doc files are below 250 lines (maximum 242). No generation applies.
+Trunk remained `2a7dec40` at the final fetch, with no product integration needed.
+
+### Execution/review handoff remains incomplete
+
+All slices have accepted local proof, but delivered CI failure
+`36887148326/1` remains unresolved. Its other twelve jobs finished successfully;
+the attention-test preparation-facts race is the sole failed job. The known
+responsive-startup repair owner is not duplicated. The human ownership question
+remains pending; no repair, completion record or completion marker is invented.
+Automatic retrospective and final CI completion are deferred at this required
+human-judgment boundary. Retain the plan, checkout, branch and proof for resume.
