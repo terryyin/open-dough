@@ -203,7 +203,11 @@ export async function installManagedDelivery(
       });
       return { sha, branch };
     },
-    stopObserver: (directory) => stopObserver(observer(directory)),
+    // Resolves once the real `stop` command exits; await it before retiring
+    // the workspace whose installed launcher runs that command.
+    async stopObserver(directory) {
+      await stopObserver(observer(directory));
+    },
     stopAtTeardown: deferStop,
   };
 }

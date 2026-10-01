@@ -87,7 +87,7 @@ test("an auto-landed queued result and its closure land as one observed trunk co
   assert.equal(refreshed.result, "advanced", JSON.stringify(refreshed));
   assert.equal(await revParse(trunk.integration, "HEAD"), result);
 
-  fixture.stopObserver(delivered.observation.directory);
+  await fixture.stopObserver(delivered.observation.directory);
   const retired = await runRetirementCommand({
     repository: trunk.integration,
     worktree: started.workspace,
