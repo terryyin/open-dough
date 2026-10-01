@@ -21,7 +21,14 @@ import { useSessionNavigation } from "./sessionNavigation.ts";
 import "./agent-terminal.css";
 
 export function TerminalSplit({
-  sessions: { records, alerts, markDone, deleteRecord, readSession },
+  sessions: {
+    records,
+    alerts,
+    hostOperations,
+    markDone,
+    deleteRecord,
+    readSession,
+  },
   stories,
   children,
 }: {
@@ -29,7 +36,12 @@ export function TerminalSplit({
   // `readSession` keeps its identity across renders.
   readonly sessions: Pick<
     MachineSessions,
-    "records" | "alerts" | "markDone" | "deleteRecord" | "readSession"
+    | "records"
+    | "alerts"
+    | "hostOperations"
+    | "markDone"
+    | "deleteRecord"
+    | "readSession"
   >;
   readonly stories: {
     // The project the developer has chosen to show, read or not.
@@ -42,7 +54,7 @@ export function TerminalSplit({
   readonly children: ReactNode;
 }) {
   const sidebar = useSessionSidebar(records, alerts);
-  const panel = usePageSessionPanel({ markDone, deleteRecord });
+  const panel = usePageSessionPanel({ markDone, deleteRecord, hostOperations });
   const { terminal, result, maximized, markSessionDone } = panel;
   const attached = useCallback<SessionOperation<void>>(
     ({ record }) => {

@@ -19,10 +19,17 @@ integration/workspace/branch/identity, stable machine/project publisher, story
 branch mode, origin/target, push/workspace authority, selected host and optional
 model. Refinement runs `preparation-assignment.mjs start` with the corresponding
 preparation inputs. Each uses its selected installation's own formatter once.
+Shared launch choices, installed capability/definition/options readers,
+workspace selection and formatters require callers to supply the host explicitly.
+The dialog's initial Claude Code choice and host-less external request and
+stored-record compatibility defaults remain at their boundaries.
 The workspace is `<project>/.worktrees/<title slug>`, independent of native host
-worktree features; the branch names the host. Slugs are lowercase hyphenated
-words, accents removed, at most 48 characters, `story` for no usable words,
-and numbered when workspace folders or host branches collide.
+worktree features; the branch uses that host's namespace from
+`src/hostDescription.ts` (`claude/` or `codex/` for current starts). Slugs are
+lowercase hyphenated words, accents removed, at most 48 characters, `story` for
+no usable words, and numbered when workspace folders or any known host namespace
+collide. The same descriptions supply collision lookup for `claude/`, `codex/`
+and `cursor/`; recognizing Cursor branches does not offer a Cursor runtime.
 
 Start runs only when origin is the catalog repository and the story has no
 unresolved [launch attempt](AGENT-LAUNCH.md#startup-handoff-and-reconciliation)

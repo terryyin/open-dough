@@ -9,6 +9,7 @@
 // values are the shared profile vocabulary.
 
 import { creationViewSchema } from "./launchCreation.ts";
+import { hostOperationsSchema } from "./sessionCapabilities.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 import { z } from "zod";
 import { offeredShapeSchema } from "./commandOptions.ts";
@@ -18,9 +19,9 @@ import { sessionShown } from "./sessionShown.ts";
 import {
   launchSubject,
   launchWorkflowNames,
-  launchModelAliases,
   startPhases,
 } from "./launchWorkflow.ts";
+import { launchModelAliases } from "./hostDescription.ts";
 import {
   launchWithStateSchema,
   type LaunchRecord,
@@ -154,6 +155,8 @@ export type OfferedDefinition = z.infer<typeof offeredDefinitionSchema>;
 // with whether its kept attempts could be read (when not, an earlier startup
 // may be unresolved and nothing tells which).
 export const launchRecordsSchema = z.object({
+  // Missing or unread capabilities never borrow an operation from another host.
+  hostOperations: hostOperationsSchema.default({}),
   attempts: z.array(attemptObservationSchema).default([]),
   attemptsReadable: z.boolean().default(true),
   records: z.array(launchWithStateSchema),

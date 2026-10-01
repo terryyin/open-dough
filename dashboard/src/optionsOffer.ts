@@ -25,7 +25,7 @@ export function optionsOfferOf(
   definitions: readonly OfferedDefinition[] | undefined,
   sourceId: string,
   workflow: LaunchWorkflow,
-  host: SessionReference["host"] = "claude",
+  host: SessionReference["host"],
 ): OptionsOffer | undefined {
   if (launchWorkflows[workflow].options === undefined) return undefined;
   if (definitions === undefined) return { kind: "reading" };

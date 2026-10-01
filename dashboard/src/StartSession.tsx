@@ -49,7 +49,7 @@ export function StartSession({
     starting,
     useCallback(() => progress.current, []),
   );
-  const { openTerminal } = usePageSessions();
+  const { openTerminal, hostOperations } = usePageSessions();
   const [announcement, setAnnouncement] = useState("");
 
   return (
@@ -99,7 +99,7 @@ export function StartSession({
           onStart={(choices) =>
             onStart(choices, (record) => {
               if (
-                embeddedTerminal(record.session.host) &&
+                embeddedTerminal(hostOperations, record.session.host) &&
                 launcher.current !== null
               )
                 openTerminal({

@@ -15,13 +15,13 @@ import { useFrameDescription } from "./protectedFrame.ts";
 // unknown or unavailable, with the one status line that says what either could
 // not do or found; once marked or deleted, the entry leaves the card.
 export function CardActions({ record }: { readonly record: LaunchWithState }) {
-  const { markDone } = usePageSessions();
+  const { markDone, hostOperations } = usePageSessions();
   const { marking, follow } = useMarking();
   const [deleteSaid, setDeleteSaid] = useState<string | undefined>();
   const described = useFrameDescription();
   return (
     <>
-      {marksDone(record.session.host) && (
+      {marksDone(hostOperations, record.session.host) && (
         <p className="launch-open">
           <button
             type="button"

@@ -6,8 +6,8 @@
 // (`resumes`) runs in its own workspace with its own policy.
 
 import { hostName } from "./sessionCapabilities.ts";
+import { launchModelName } from "./hostDescription.ts";
 import {
-  launchModels,
   launchWorkflows,
   type KeptStart,
   type LaunchWorkflow,
@@ -81,7 +81,7 @@ export function StartDetails({
           This start requested {hostName(resumes.host)} with{" "}
           {resumes.model === undefined
             ? "Default"
-            : launchModels[resumes.model].name}{" "}
+            : launchModelName(resumes.host, resumes.model)}{" "}
           model.
         </p>
       )}

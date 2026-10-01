@@ -6,11 +6,8 @@ import {
   sessionPolicyChoices,
   sessionPolicyFlags,
 } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
-import {
-  launchModelAliases,
-  launchWorkflowNames,
-  type LaunchModel,
-} from "./launchWorkflow.ts";
+import { launchWorkflowNames } from "./launchWorkflow.ts";
+import { launchModelAliases, type LaunchModel } from "./hostDescription.ts";
 
 export const agentLaunchEndpoint = "/__agent-launch";
 
@@ -126,9 +123,9 @@ export function sameLaunch(
 // What a launch dialog hands its caller: the developer's choices among the
 // request's options, as typed, before the request trims and omits them.
 export type LaunchChoices = {
-  readonly host?: AgentLaunchRequest["host"];
+  readonly host: AgentLaunchRequest["host"];
   readonly instruction: NonNullable<StoryLaunchRequest["instruction"]>;
-  // Absent for Default: Claude Code's own setting applies.
+  // Absent for Default: the selected host's configured setting applies.
   readonly model?: LaunchModel;
   // The flags selected, absent when none.
   readonly options?: readonly string[];
@@ -138,11 +135,11 @@ export type LaunchChoices = {
   readonly existingChanges?: string;
 };
 
-// The choices as a request carries them: Claude Code when no host was
-// chosen, trimmed text omitted when empty, and the model, options, policy
+// The choices as a request carries them: the chosen host, trimmed text
+// omitted when empty, and the model, options, policy
 // and confirmation only when chosen.
 export function requestedChoices({
-  host = "claude",
+  host,
   instruction,
   model,
   options,

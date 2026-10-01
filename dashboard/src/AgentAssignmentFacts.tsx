@@ -17,6 +17,7 @@ import type {
 import { AgentPortrait } from "./AgentPortrait.tsx";
 import { HumanCredit } from "./HumanCredit.tsx";
 import { useFrameDescription } from "./protectedFrame.ts";
+import { hostDescription } from "./hostDescription.ts";
 import "./agent-assignment.css";
 
 // How each recorded mode and host is presented: its label, and the local mark
@@ -30,10 +31,10 @@ const modes: Readonly<Record<AgentMode, { label: string; mark: string }>> = {
   },
 };
 
-const hosts: Readonly<Record<AgentHost, { label: string; mark: string }>> = {
-  claude: { label: "Claude Code", mark: "tool-avatars/claude.png" },
-  codex: { label: "Codex", mark: "tool-avatars/codex.png" },
-  cursor: { label: "Cursor", mark: "tool-avatars/cursor.png" },
+const hostMarks: Readonly<Record<AgentHost, string>> = {
+  claude: "tool-avatars/claude.png",
+  codex: "tool-avatars/codex.png",
+  cursor: "tool-avatars/cursor.png",
 };
 
 // A decorative mark: the label beside it carries the meaning.
@@ -98,7 +99,10 @@ export function RecordedFacts({
       kind: "host",
       ...(developer.host === undefined
         ? { label: "host not recorded", mark: undefined }
-        : hosts[developer.host]),
+        : {
+            label: hostDescription(developer.host).name,
+            mark: hostMarks[developer.host],
+          }),
     },
     {
       kind: "model",

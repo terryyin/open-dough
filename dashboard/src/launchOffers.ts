@@ -16,20 +16,20 @@ export type LaunchOffers = {
   establishesStart(
     sourceId: string,
     workflow: LaunchWorkflow,
-    host?: SessionReference["host"],
+    host: SessionReference["host"],
   ): boolean;
   // Whether the installed skills take a session policy at the workflow's
   // start for the host, at the latest read; `reading` until one answered.
   sessionPolicyOffer(
     sourceId: string,
     workflow: LaunchWorkflow,
-    host?: SessionReference["host"],
+    host: SessionReference["host"],
   ): SessionPolicyOffer;
   // Installed options at the latest read; absent for workflows without options.
   optionsOffer(
     sourceId: string,
     workflow: LaunchWorkflow,
-    host?: SessionReference["host"],
+    host: SessionReference["host"],
   ): OptionsOffer | undefined;
 };
 
@@ -53,14 +53,15 @@ export function launchOffers(
       entry.workflow === workflow &&
       entry.host === host;
   return {
-    establishesStart: (sourceId, workflow, host = "claude") =>
+    // Legacy machine-answer arrays describe Claude installations only.
+    establishesStart: (sourceId, workflow, host) =>
       host !== "claude"
         ? read.establishingHosts.some(isFor(sourceId, workflow, host))
         : (workflow === "execution"
             ? read.establishing
             : read.establishingPreparation
           ).includes(sourceId),
-    sessionPolicyOffer: (sourceId, workflow, host = "claude") =>
+    sessionPolicyOffer: (sourceId, workflow, host) =>
       !answered
         ? "reading"
         : read.sessionPolicies.some(isFor(sourceId, workflow, host))

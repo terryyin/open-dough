@@ -14,8 +14,8 @@ export function LaunchSession({
 }: {
   readonly record: LaunchWithState;
 }) {
-  const { openSession } = usePageSessions();
-  const access = sessionAccess(record);
+  const { openSession, hostOperations } = usePageSessions();
+  const access = sessionAccess(record, hostOperations);
   const limitation = workspaceLimitation(record);
   const described = useFrameDescription();
   return (

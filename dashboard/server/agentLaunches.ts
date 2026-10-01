@@ -76,14 +76,15 @@ export class AgentLaunches {
     return (await keptCreations()).map((record) => creationView(record));
   }
 
-  // Projects with an installed execution start, in catalog order.
+  // Legacy Claude-only machine-answer projection, in catalog order.
+  // Host-qualified capabilities are answered by establishingHosts.
   establishingProjects(): Promise<readonly string[]> {
-    return establishing("execution");
+    return establishing("execution", "claude");
   }
 
-  // Projects with installed preparation and its formatter, in catalog order.
+  // Legacy Claude-only preparation projection, in catalog order.
   establishingPreparation(): Promise<readonly string[]> {
-    return establishing("refinement");
+    return establishing("refinement", "claude");
   }
 
   establishingHosts() {

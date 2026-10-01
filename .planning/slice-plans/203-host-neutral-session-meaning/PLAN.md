@@ -63,7 +63,7 @@ responsibilities across dashboard code, tests, docs and source guidance:
 
 Terry selected parallel execution on 2026-10-01: this agent may start execution
 and watch for **slice 1, Launch choices and answers use the selected host's
-description**, of [the host-description plan](../205-one-host-description/PLAN.md).
+description**, of [the host-description plan](https://github.com/terryyin/open-dough/blob/0e43ebae12253183d961464f5b064ac0b78f00f3/.planning/slice-plans/205-one-host-description/PLAN.md).
 The whole prerequisite story need not finish. Its slice 1 owns the description
 and registry that this story consumes; later capability and explicit-host
 slices may run alongside this work.

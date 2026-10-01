@@ -66,7 +66,7 @@ async function runScript(
 // the start command and formatter, shared by admission and machine reads.
 export async function establishesStart(
   project: ProjectFolder,
-  host: StoryLaunchRequest["host"] = "claude",
+  host: StoryLaunchRequest["host"],
 ): Promise<boolean> {
   const script = (name: string) =>
     installedSkillPath(host, project, executePlanSkill, "scripts", name);
@@ -215,7 +215,7 @@ async function runningStart(
 export async function formattedStart(
   project: ProjectFolder,
   start: EstablishedStart,
-  host: StoryLaunchRequest["host"] = "claude",
+  host: StoryLaunchRequest["host"],
 ): Promise<string> {
   const file = installedSkillPath(
     host,

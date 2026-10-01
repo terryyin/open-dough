@@ -18,6 +18,7 @@ test("puts the workspace under .worktrees on a claude/ branch named for the titl
       project,
       "Start execution with mechanical preparation",
       new Set(),
+      "claude",
     ),
   ).toEqual({
     workspace: {
@@ -31,12 +32,12 @@ test("puts the workspace under .worktrees on a claude/ branch named for the titl
 
 test("numbers the slug when another workspace or branch already has it", () => {
   const taken = new Set(["fix-it", "fix-it-2"]);
-  expect(launchWorkspace(project, "Fix it!", taken).branch).toBe(
+  expect(launchWorkspace(project, "Fix it!", taken, "claude").branch).toBe(
     "claude/fix-it-3",
   );
-  expect(launchWorkspace(project, "Fix it!", new Set(["other"])).branch).toBe(
-    "claude/fix-it",
-  );
+  expect(
+    launchWorkspace(project, "Fix it!", new Set(["other"]), "claude").branch,
+  ).toBe("claude/fix-it");
 });
 
 test("makes a plain, bounded slug from any title", () => {

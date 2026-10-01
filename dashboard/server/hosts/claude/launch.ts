@@ -13,10 +13,13 @@ import { stripVTControlCharacters } from "node:util";
 import {
   launchArguments,
   launchSubject,
-  launchModels,
   launchWorkflows,
   type RecordedLaunchRequest,
 } from "../../../src/agentLaunch.ts";
+import {
+  hostDescriptions,
+  launchModelName,
+} from "../../../src/hostDescription.ts";
 import type { PublishedSource } from "../../../src/publishedSource.ts";
 import { claudeSessions, startClaudeInBackground } from "./runtime.ts";
 import type { ProjectFolder } from "../../projectFolders.ts";
@@ -65,7 +68,7 @@ function printedShortId(stdout: string): string | undefined {
   return backgroundedLine.exec(stripVTControlCharacters(stdout))?.[1];
 }
 
-const checkAgents = "Check `claude agents` for it before starting again.";
+const checkAgents = hostDescriptions.claude.uncertaintyHint;
 
 function timedOut(): HostLaunch {
   return {
@@ -110,7 +113,7 @@ function failedLaunch(
       : {
           kind: "failed",
           reason: "refused",
-          explanation: `Claude Code refused to start a session in ${folder.shown}${model === undefined ? "" : ` with model ${launchModels[model].name}`}. Run \`claude\` in that folder once to see why, then start again.`,
+          explanation: `Claude Code refused to start a session in ${folder.shown}${model === undefined ? "" : ` with model ${launchModelName("claude", model)}`}. Run \`claude\` in that folder once to see why, then start again.`,
         };
   }
   return {

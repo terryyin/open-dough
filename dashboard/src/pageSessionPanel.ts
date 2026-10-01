@@ -25,7 +25,8 @@ type KeyboardReturn = {
 export function usePageSessionPanel({
   markDone,
   deleteRecord,
-}: Pick<MachineSessions, "markDone" | "deleteRecord">) {
+  hostOperations,
+}: Pick<MachineSessions, "markDone" | "deleteRecord" | "hostOperations">) {
   const [panel, setPanel] = useState<Panel | undefined>();
   const [maximized, setMaximized] = useState(false);
   const shown = panel?.request;
@@ -102,10 +103,11 @@ export function usePageSessionPanel({
     return outcome;
   };
   const sessions: PageSessions = {
+    hostOperations,
     openTerminal,
     openResult,
     openSession: (request) => {
-      const access = sessionAccess(request.record);
+      const access = sessionAccess(request.record, hostOperations);
       if (access !== undefined)
         (access === "result" ? openResult : openTerminal)(request);
     },

@@ -75,7 +75,7 @@ export type StartWorkflow = {
   // Whether the project's installed skill can continue from this start.
   establishes(
     project: ProjectFolder,
-    host?: StoryLaunchRequest["host"],
+    host: StoryLaunchRequest["host"],
   ): Promise<boolean>;
   begin(
     source: PublishedSource,

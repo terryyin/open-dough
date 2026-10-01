@@ -1,6 +1,7 @@
 // Shared workspace choice: `.worktrees/<slug>` and the selected host branch.
 // The caller supplies occupied slugs across folders and host branches.
 
+import { hostDescription } from "../src/hostDescription.ts";
 import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
 import path from "node:path";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -57,7 +58,7 @@ export function launchWorkspace(
   project: ProjectFolder,
   title: string,
   taken: ReadonlySet<string>,
-  host: AgentLaunchRequest["host"] = "claude",
+  host: AgentLaunchRequest["host"],
 ): WorkspaceChoice {
   const slug = freeSlug(slugOf(title), taken);
   return {
@@ -65,6 +66,6 @@ export function launchWorkspace(
       path: path.join(project.path, worktreesFolder, slug),
       shown: shownWorkspace(project, slug),
     },
-    branch: `${host}/${slug}`,
+    branch: `${hostDescription(host).branchNamespace}${slug}`,
   };
 }

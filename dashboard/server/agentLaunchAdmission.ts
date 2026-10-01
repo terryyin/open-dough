@@ -129,16 +129,21 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   }
   const request = parsed.data;
   const source = knownSource(request.source);
-  if (launchHost(request.host) === undefined) {
+  const host = launchHost(request.host);
+  if (host === undefined) {
     throw new RefusedRequest(
       400,
       `${launchKindName(request.workflow)} cannot be launched in this host.`,
     );
   }
-  if (request.host === "codex" && request.model !== undefined) {
+  if (
+    request.model !== undefined &&
+    !(request.model in host.description.models)
+  ) {
     throw new RefusedRequest(
       400,
-      "Codex uses its configured default model; a Claude model cannot be selected.",
+      host.description.unofferedModelExplanation ??
+        `${host.name} does not offer this model.`,
     );
   }
   const project = projectFolder(source);

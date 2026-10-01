@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Shared dashboard code reads one host description](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#one-host-description) — SEED-075#one-host-description ([plan](slice-plans/205-one-host-description/PLAN.md))
 - [Session meaning and wording are host-neutral](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#host-neutral-session-meaning) — SEED-075#host-neutral-session-meaning ([plan](slice-plans/203-host-neutral-session-meaning/PLAN.md))
 
 ## Backlog list

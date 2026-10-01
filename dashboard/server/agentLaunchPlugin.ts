@@ -67,7 +67,7 @@ import {
   sessionResultEndpoint,
   type SessionResult,
 } from "../src/sessionResult.ts";
-import { launchHost } from "./launchHosts.ts";
+import { hostOperations, launchHost } from "./launchHosts.ts";
 
 // How long a wait for an accepted attempt's change is held before it is
 // answered unchanged, for the page to ask again.
@@ -83,6 +83,7 @@ type Answer =
         records: readonly LaunchWithState[];
         attempts: readonly AttemptObservation[];
         attemptsReadable: boolean;
+        hostOperations: ReturnType<typeof hostOperations>;
         creations: Awaited<ReturnType<AgentLaunches["creations"]>>;
         alerts: Alerts;
         establishing: readonly string[];
@@ -184,6 +185,7 @@ async function answer(
             records: await launches.machineSessions(),
             attempts,
             attemptsReadable: readable,
+            hostOperations: hostOperations(),
             creations: await launches.creations(),
             alerts: alerts.availability(),
             establishing: await launches.establishingProjects(),

@@ -10,6 +10,7 @@ import {
   stopClaude,
 } from "./hosts/claude/runtime.ts";
 import { renameInClaudeCode } from "./hosts/claude/rename.ts";
+import { hostDescriptions } from "../src/hostDescription.ts";
 
 function nativeAlias(session: HostSession): string {
   if (session.host !== "claude") {
@@ -19,7 +20,8 @@ function nativeAlias(session: HostSession): string {
 }
 
 export const claudeHost: LaunchHost = {
-  name: "Claude Code",
+  name: hostDescriptions.claude.name,
+  description: hostDescriptions.claude,
   installedSkillPath: (project, skill, ...segments) =>
     path.join(project.path, ".claude", "skills", skill, ...segments),
   launch: launchClaude,
