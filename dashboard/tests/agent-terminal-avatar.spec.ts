@@ -148,7 +148,7 @@ test("the header shows the recorded agent's portrait left of its two rows, as ta
   await test.step("a preparation by Yui-chan shows Yui's atlas tile, as tall as both rows, named and titled Yui-chan", async () => {
     await reopenEstablishing({
       preparation: {
-        identity: "SEED-071#session-panel-header-controls",
+        identity: "SEED-001#story",
         ...where,
         agent: "Yui-chan",
       },
@@ -181,7 +181,7 @@ test("the header shows the recorded agent's portrait left of its two rows, as ta
   await test.step("a start by an Odd-e nerds member whose cartoon is served shows that cartoon", async () => {
     await reopenEstablishing({
       start: {
-        identity: "SEED-071#session-panel-header-controls",
+        identity: "SEED-001#story",
         publisherId: "a1b2c3",
         ...where,
         mode: "story-branch",
@@ -201,7 +201,7 @@ test("the header shows the recorded agent's portrait left of its two rows, as ta
     const asked = page.waitForResponse(/\/cartoon\/ruuf\.webp$/);
     await reopenEstablishing({
       start: {
-        identity: "SEED-071#session-panel-header-controls",
+        identity: "SEED-001#story",
         publisherId: "a1b2c3",
         ...where,
         mode: "story-branch",

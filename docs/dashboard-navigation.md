@@ -24,7 +24,8 @@ that project's stories are read. Command+Shift+Escape closes the terminal
 panel as its Close control does, page-wide and from inside the terminal,
 maximized or not, where plain Escape still goes to the session; the page takes
 it from the browser, except inside an open modal dialog, and with no panel it
-does nothing.
+does nothing. Command+Escape is not used: Chrome and Safari on macOS never
+deliver it to the page.
 Show the selected project's name as the banner's Source evidence disclosure.
 Show the three project choices as tab-shaped radio controls, with the selected
 project highlighted. Unmodified Left and Right arrow keys cycle the three
