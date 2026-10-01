@@ -235,7 +235,7 @@ all other presentation and access behavior remains green.
 
 ### 3. Name the session's host when presenting continuation
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the mixed-host browser journey in `agent-launch-codex.spec.ts`
 to assert the visible continuation label, exact saved workspace, shell-rendered
 args and optional notice in card and Recent entries across reload. A predecessor
@@ -323,7 +323,7 @@ observable result, its proof and cleanup. Unexpected fixture/interface work or
 integration evidence that invalidates sizing requires revising remaining slices;
 never deliver an intermediate schema/caller mismatch. Execution retains accepted
 proof and completion/review context in this plan for the ordinary retrospective
-and wrap-up; slices 3–5 remain planned.
+and wrap-up; slices 4–5 remain planned.
 
 ## Current decisions and preparation review
 
@@ -474,3 +474,65 @@ Independent refactor returned `## REFACTOR COMPLETE`: already clean, no
 edits/tests, all accepted boundaries unchanged and all ten changed files below
 250 lines. Selective Prettier formatting completed successfully; mechanical
 formatting leaves the accepted proof applicable. No generation is triggered.
+
+Slice 2 publication was accepted at
+`56f8681f49ace31f30e7d642bdff84f47cdaea03` on the execution branch with
+the same managed observer reused. Its CI attempt `36884430030/1` is incomplete
+(`cancelled`): bounded logs show the same slow Ubuntu dependency downloads
+consuming the six-minute job budget. Shard 5 stopped during installation,
+shard 4's browser run was interrupted after setup consumed 5m32s, and shard 8
+reported cancellation although its recorded steps, browser suite and artifact
+upload completed successfully. Other jobs passed. No assertion failure was
+reported; retain the incomplete verdict rather than treating a setup timeout
+or successful local proof as passing CI. Diagnostic logs are
+`/tmp/host-neutral-ci-36884430030-<job-id>.log` for job IDs
+`110443995754`, `110443995830`, `110443995897`.
+
+### Slice 3 — saved continuation presentation
+
+`LaunchSession` now reads the recorded host's name through `hostName` and its
+shared description. It preserves `sessionAccess` gating, saved workspace,
+`shellCommand` args, optional notice and native operations. Card and Recent
+entries consume this same renderer through `SessionEntry`.
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- agent-launch-codex.spec.ts agent-launch-codex-observation-boundary.spec.ts
+npm run typecheck:dashboard
+```
+
+Both commands reached terminal exit 0; five browser declarations were selected
+without a grep filter. The existing mixed-host journey obtains real launch
+records from native substitutes; `continuationPage.expectMixedContinuation`
+observes exact label/workspace/shell-rendered args and absent/present notice in
+card and Recent through reload and server restart. The helper in
+`support/codexContinuation.ts` observes native saved args/workspace, executes
+the displayed command through `/bin/sh` and checks exact CLI args with quoted
+paths, and supplies a native disconnect that the real adapter turns into a
+saved notice. The journey compares stored records and native passive calls
+before/after rendering. The observation-boundary journey supplies predecessor
+records and native retained history: no continuation gains no command, a
+missing workspace withholds terminal commands, both surfaces preserve passive
+report access, and report reads leave records and native control unchanged.
+Existing independent-target/deletion/silent-endpoint assertions remain green.
+
+Independent refactoring extracted the oversized mixed-host spec's saved
+continuation/CLI/disconnection proof seam into `support/codexContinuation.ts`,
+keeping the existing journey, observation order and production boundaries.
+It returned `## REFACTOR COMPLETE` after terminal exit 0 for:
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- agent-launch-codex.spec.ts
+npm run typecheck:dashboard
+```
+
+The observation-boundary proof stayed unchanged and was reused. Inspected the
+new helper assertions and their current spec callers. Selective formatting
+passed; all five changed files remain below 250 lines (71–245).
+
+Before publication, fetched trunk advanced to
+`1e14e23f` with the responsive-startup story. Its renderer and launch/progress
+changes require published-history integration and affected proof before this
+slice is delivered. Preserve accepted pre-integration proof as attributed here;
+do not treat it as proof of the combined candidate until reverified. Later
+slices must retain asynchronous acceptance/reconciliation as well as the
+prerequisite host-description/operation owners.

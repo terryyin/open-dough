@@ -3,7 +3,7 @@
 // terminal access additionally requires the host capability and `attachOpens`.
 
 import { sessionAccess, workspaceLimitation } from "./sessionAccess.ts";
-import { shellCommand } from "./sessionCapabilities.ts";
+import { hostName, shellCommand } from "./sessionCapabilities.ts";
 import { type LaunchWithState } from "./agentLaunch.ts";
 import { usePageSessions } from "./pageSessions.ts";
 import "./agent-launch.css";
@@ -29,7 +29,7 @@ export function LaunchSession({
             </p>
             {access === "terminal" && (
               <p>
-                Continue in Codex:{" "}
+                Continue in {hostName(record.session.host)}:{" "}
                 <code>{shellCommand(record.session.continuation.args)}</code>
               </p>
             )}

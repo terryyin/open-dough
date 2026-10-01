@@ -1,6 +1,4 @@
 // The real shared host choice, native input, mixed history and continuation journey.
-import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import {
   startDashboardServer,
@@ -23,6 +21,13 @@ import { sidebarParts } from "./sessionSidebarPage.ts";
 import { markDone } from "./agentLaunchBoundary.ts";
 import { test, expect, stored, codexSkill } from "./support/codexLaunch.ts";
 import { machineSessions, deleteRecord } from "./agentLaunchBoundary.ts";
+import { passive } from "./support/codexObservation.ts";
+import { expectMixedContinuation } from "./continuationPage.ts";
+import {
+  expectSavedContinuation,
+  expectResumeCommand,
+  disconnectContinuation,
+} from "./support/codexContinuation.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: LaunchJourney | undefined;
@@ -137,6 +142,20 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     turnId: "native-turn-id",
     instruction: `$dough-story-refinement ${notRefinedIdentity} --codex-only\n\nAsk me about scope.`,
   });
+  const { continuation, args } = expectSavedContinuation(
+    record.session,
+    dashboard.home,
+    native,
+  );
+  const checkContinuation = (notice?: string) =>
+    expectMixedContinuation(page, card(notRefinedStory), continuation, notice);
+  const beforeDisplay = stored(dashboard.home);
+  const sinceDisplay = native.calls.length;
+  await checkContinuation();
+  await page.reload();
+  await checkContinuation();
+  expect(stored(dashboard.home)).toEqual(beforeDisplay);
+  passive(native.calls.slice(sinceDisplay));
   expect(native.sockets.size).toBe(1);
   await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(2);
   const sidebar = sidebarParts(page);
@@ -164,36 +183,21 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     ).status,
   ).toBe(404);
   expect(dashboard.claudeCalls()).toHaveLength(before);
-  const command = await codex
+  const shownCommand = await codex
     .locator("code")
     .filter({ hasText: "--remote" })
     .innerText();
-  const expectedArgs = [
-    "codex",
-    "resume",
-    "--remote",
-    native.env["FAKE_CODEX_SOCKET"] === undefined
-      ? ""
-      : `unix://${native.env["FAKE_CODEX_SOCKET"]}`,
-    "--cd",
-    path.join(dashboard.home, "git", "open-dough"),
-    native.threadId,
-  ];
-  expect(record.session.continuation?.args).toEqual(expectedArgs);
-  execFileSync("/bin/sh", ["-c", command], {
-    env: { ...process.env, ...native.env },
-    stdio: "pipe",
-  });
-  expect(
-    JSON.parse(
-      readFileSync(native.env["FAKE_CODEX_CLI_LOG"] ?? "", "utf8")
-        .trim()
-        .split("\n")
-        .at(-1) ?? "",
-    ),
-  ).toEqual(expectedArgs.slice(1));
+  expectResumeCommand(shownCommand, args, native);
+  const { notice, records: withNotice } = await disconnectContinuation(
+    record.session,
+    dashboard.home,
+    native,
+  );
+  const sinceNotice = native.calls.length;
   await page.reload();
-  await expect(page.getByText(command, { exact: true })).toHaveCount(2);
+  await checkContinuation(notice);
+  expect(stored(dashboard.home)).toEqual(withNotice);
+  passive(native.calls.slice(sinceNotice));
   const port = Number(new URL(dashboard.baseURL).port);
   await dashboard.close();
   await expect.poll(() => native.sockets.size).toBe(0);
@@ -207,7 +211,9 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   });
   try {
     await page.reload();
-    await expect(page.getByText(command, { exact: true })).toHaveCount(2);
+    await checkContinuation(notice);
+    expect(stored(dashboard.home)).toEqual(withNotice);
+    passive(native.calls.slice(sinceNotice));
     expect(await machineSessions(restarted)).toHaveLength(2);
     expect(
       native.calls.filter((call) => call.method === "thread/start"),
