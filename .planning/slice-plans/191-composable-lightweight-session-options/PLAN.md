@@ -537,3 +537,25 @@ overflow at 320px. Simulated warning → confirmation preserved the selected
 review radio. Mobile body scrolls while actions remain visible. This settles
 only the study's layout/interaction; actual product keyboard, zoom, installed
 offers, and launch behavior remain owned by slices 6–7.
+
+## Execution complete
+
+Product advice:
+
+- Queue the bounded correction
+  [SEED-066#align-one-shot-callers-with-review-default](../../seeds/SEED-066-composable-lightweight-session-options.md#align-one-shot-callers-with-review-default)
+  (plan 196, recorded ready): bug-fixing and record-preparation still describe
+  one-shot as delivered to trunk, the review report should name the guarded
+  landing path, tracked starts must refuse the main worktree before `--carry`
+  resets it, and the one-shot-only rule should live once in `session-policy.mjs`.
+- Decide whether Dough Land should refuse or redirect a kept queued one-shot
+  execution result, which today bypasses the `--one-shot-identity` guard; that
+  would need native re-acceptance of the landing journeys.
+- Fold the Codex and Cursor CI session-identity gap (ODF-154) into SEED-063
+  dashboard-owned CI monitoring.
+- Consider showing kept one-shot results on the dashboard; they are invisible on
+  origin by design.
+- The unattached Start session story should reuse the single policy helper.
+- At wrap-up, narrow `.planning/NORTH-STAR.md` "Composable session policy" to the
+  unattached remainder, update `docs/dashboard-ux-ui-north-star.md` (outdated
+  32rem dialog wording, link to this plan).

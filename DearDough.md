@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 200. Removed local codes are never reused.
+- Highest allocated local number: 202. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -129,6 +129,7 @@ Follow-up: Open, unqueued.
 
 - Execution: `SEED-046#ci-verdict-correction` / plan 126, first related implementation commit `9fa45de` - Timestamp: unknown (first increment delivery, between commit `9fa45de` at 2026-09-27T12:43:54+08:00 and the observer start minutes later) - Tool: Cursor - Model: kimi-k3 - Open Dough release: modified; revision `ff3534c`; base 0.3.42 - Evidence: `9fa45de` delivery receipt `observation.state: unobserved` ("host session identity is required to verify the notification bridge"); a manual probe then showed `CI_MONITOR_READY`; explicit `ci-mailbox.mjs start` + `register-push` attached `watch-7YVAZ1`; the next managed delivery reported `observation.state: reused`. - Observed effect: first Cursor occurrence; slice 1's increment was unobserved until the manual start, and the finding's `$CLAUDE_CODE_SESSION_ID` recovery does not apply to Cursor's conversation/generation identity.
 - Execution: `SEED-053#dashboard-browser-navigation` / plan 136, first related implementation commit `8ca2f7eb` - Timestamp: 2026-09-27T22:11:50+08:00 - Tool: Cursor - Open Dough release: 0.3.43 - Evidence: completion input `pendingCi: unobserved` ("host session identity required for Cursor notification bridge"); retained tip `777b797926acfab373a6cd45766e3066cbd9da95` - Observed effect: managed delivery left the story-branch tip unobserved; no Cursor session identity was available to arm the notification bridge - Inference: Same Cursor host-identity gap as the plan 126 occurrence; Claude-only recovery remains inapplicable
+- Execution: `SEED-066#composable-lightweight-session-options` / plan 191, first related implementation commit `ef745cb5` - Timestamp: 2026-10-01T06:03:31Z (native Cursor run `cursor/publication/one-shot-auto-land/20261001T060331-5bc6`, slice 8 acceptance) - Tool: Cursor - Open Dough release: modified; revision `0d565a9e`; base 0.3.51 - Evidence: the native agent's managed `deliver` receipt for landed `063edd4` reported `observation.state: unobserved` ("host session identity is required…"); the agent found `CURSOR_CONVERSATION_ID` set but no supported way to pass it, kept its workspace and reported the gap. Cursor `one-shot-result` in the same batch hand-started an observer and retired; Cursor `one-shot-queued` queried CI once and retired. - Observed effect: three Cursor sessions handled the same missing identity three ways; the acceptance assessor needed a developer decision (kept workspace is compliant when CI went unobserved). - Inference: Same gap as earlier rows, now visible in native acceptance runs rather than a coordinator's own delivery; Codex showed the analogous `unobserved` receipt ("yielded-cell bridge is unavailable").
 
 ## ODF-132 — A delegated implementation agent handed back before finishing its own required proof
 
@@ -337,6 +338,7 @@ Follow-up: Open, unqueued.
 
 - Execution: `SEED-060#odd-e-nerds-agent-collection` / plan 177, first related implementation commit `6befd854` - Timestamp: 2026-09-30T14:10:00+08:00 (CI run 36676898928; repairs `57505b5d`, `f70185e6`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown - Evidence: slice 4 delivery ran `npm run format 2>&1 | tail -2; ...` whose output ended "Format failed: unresolved findings" (no-redundant-type-constituents in the new settings spec) yet the chain committed and published `03d6d10a`. The same push failed dashboard shards because `authenticated-project-overview.spec.ts` (exact pinned-read list, not in the agent's focused set) and fake-origin `git show` stderr in launch specs were never run. - Observed effect: two owned repair commits and two failing CI runs for one slice. - Inference: Qualified. The delegation forbade lint and named a focused set chosen from the reachability grep, so specs that enumerate reads were outside it; the coordinator's masked exit status was a separate slip. Not shown to recur in another execution.
 - Execution: `SEED-052#script-refinement-preparation` / plan 186, first related implementation commit `a94806d1` - Timestamp: 2026-09-30T10:46:35Z (CI run 36704446514) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown - Evidence: slice 3's delegated implementation ran only the focused Playwright specs and typecheck; its new `agent-launch-preparation-start.spec.ts` read `JSON.parse(response.body).kind` twice, which failed CI's lint job (`@typescript-eslint/no-unsafe-member-access`, lines 70 and 137) on `b2503ea2` although the commit, whose hook the plan assumed check-only lint, had succeeded. - Observed effect: one failing CI run, one stash-protocol repair cycle and one repair commit (`a9623112`); later delegations then named `node scripts/lint.mjs` and the strict rules, and no further lint failure reached CI in this execution. - Inference: Qualified. A second execution with the same shape (new spec files written under a no-lint delegation); the commit hook's lack of a lint check is not proven here beyond the successful commit.
+- Execution: `SEED-066#composable-lightweight-session-options` / plan 191, first related implementation commit `ef745cb5` - Timestamp: 2026-10-01T01:36:25Z (CI run 36801899574) and 2026-10-01T03:16:46Z (CI run 36809768647) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: modified; revision `0d565a9e`; base 0.3.51 - Evidence: slice 1 reworded `execution-location.md` and its focused set omitted `dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs`, whose regex pinned the old sentence (repair `9ff46944`); slice 5 changed `landWorktree`'s destructured parameters in `dough-land-test-fixtures.mjs` and its proof never ran `npm run typecheck:dashboard`, which `dashboard/tests/preparingJourney.ts` failed with TS2345 (repair `716c933b`). Slice 6's agent found the second break locally before CI reported it. - Observed effect: two failing CI runs and two stash-protocol repair cycles in one execution. - Inference: Qualified. Same shape as earlier rows: delegated proof chosen from changed components missed a text-pinning guidance test and a cross-package type consumer; lint was not the gap here.
 
 ## DD-192 — A delegated refactor pass ran on each of two tiny guidance changes and edited nothing
 
@@ -433,6 +435,7 @@ Follow-up: Open, unqueued.
   - Evidence: before delivery the coordinator ran `execution-increment-delivery.mjs --help`, grepped `targetRef`, read its lines 60–120, and read `targetBranchName` in `publication-git.mjs`, then invoked `deliver --target-ref refs/heads/claude/make-npm-run-lint-report-no-warnings-or-errors-c`; the established start listed `target: main`.
   - Observed effect: four extra tool calls; delivery was accepted on the first attempt with observation attached.
   - Inference: Qualified. Passing `refs/heads/main` from the established start's `target` was a plausible mistake; whether the script would refuse it was not checked.
+- Execution: `SEED-066#composable-lightweight-session-options` / plan 191, first related implementation commit `ef745cb5` - Timestamp: 2026-10-01T09:36:12+08:00 (commit time of `ef745cb5`; the lookup preceded its delivery) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: modified; revision `0d565a9e`; base 0.3.51 - Evidence: before the first delivery the coordinator grepped the delivery references and script for `--target-ref` and `targetRef`, finding `refs/heads/<branch>` only in `wrap-up-closure-publication.md:39`; the established start listed `target: main`. - Observed effect: three extra tool calls; delivery accepted first time. - Inference: Qualified; same missing statement as the earlier row.
 
 ## DD-197 — New tests that run tools and Git passed on macOS and failed on CI's Linux test job
 
@@ -478,3 +481,35 @@ Follow-up: Open, unqueued. Align the Codex stream notification contract with dur
   - Evidence: retained observer `/tmp/dough-ci-501/watch-kA6yM3`, cell5. `complete-revision` for `cca873af2766128d3409db6c47c1a8beea39a7f6` returned exact success (run36793490950/attempt1) and shutdown retained/unread_actionable_failure for runs36750057215 and36790537801. Installed `readDeliveryProgress` returned deliveredThrough0; only sequences1/2 existed, matching those handled failures and published repairs a8c8d27/3fdae6f. `ci-notify-codex.md` consumer calls notify; `streamMailboxWorker` prints records; neither calls recordDeliveryProgress. Coordinator verified identity/event tuples and acknowledged exactly1/2 through the installed export.
   - Observed effect: Completion could not confirm shutdown despite green CI and previously accepted repairs; another records/recovery boundary was needed.
   - Inference: Durable delivery acknowledgment is missing in this adapter path. CI provider health and product behavior did not cause this retained shutdown.
+
+## DD-201 — The Codex native harness's `--ephemeral` broke every case whose agent spawns a subagent
+
+`tests/support/native-codex.sh` ran `codex exec --ephemeral`; Codex then cannot load a parent thread's context for a spawned subagent, so cases where the installed guidance delegates (queued-story execution, an established start) stop before any change. Credential-free substitutes cannot show this.
+
+Follow-up: Open, unqueued. Removed in `671b8ff4`; rollouts now land in the developer's Codex home.
+
+### Occurrences
+- Execution: `SEED-066#composable-lightweight-session-options` / plan 191, first related implementation commit `ef745cb5`
+  - Timestamp: 2026-10-01T05:44:33Z and 2026-10-01T05:45:48Z (native runs `codex/publication/one-shot-auto-land-blocked/20261001T054433-40a9`, `codex/publication/one-shot-established/20261001T054548-43f9`)
+  - Tool: Claude Code (coordinator); failing host Codex (codex-cli 0.159.3)
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `0d565a9e`; base 0.3.51
+  - Evidence: both stderr logs show `collab spawn failed: … failed to load model context for thread …: no rollout found for thread id`; each agent stopped truthfully with nothing committed. After removing `--ephemeral`, reruns `20261001T071413-68aa` and `20261001T071814-36b1` passed as FRESH PROOF with no spawn error. Codex cases whose agents did not delegate passed in the first batch.
+  - Observed effect: two inconclusive paid sessions, a developer decision, a harness change, and two paid reruns.
+  - Inference: Earlier archived Codex evidence may have passed only for cases without delegation; a harness setting that disables host features belongs in a credential-free check of the adapter's command line where possible.
+
+## DD-202 — Developer-requested paid native runs needed a detached one-command launcher
+
+Paid native acceptance takes minutes per case. The coordinator's first background launch was refused by the host's auto-mode classifier; the developer's `!` command stopped at the prompt's 120-second foreground limit and moved to a 30-minute background cap, and long command lines were hard to copy from the session window. A short script that detached the batch (`nohup … &`) and logged to one file, followed with a log monitor, ran 27 sessions without further intervention once the developer explicitly authorized the coordinator.
+
+Follow-up: Open, unqueued. Practice worth keeping; no guidance change authorized.
+
+### Occurrences
+- Execution: `SEED-066#composable-lightweight-session-options` / plan 191, first related implementation commit `ef745cb5`
+  - Timestamp: unknown (slice 3 probe after `d6301c9e` at 2026-10-01T10:20:17+08:00; slice 8 batch logged 05:2x–06:19:35Z)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `0d565a9e`; base 0.3.51
+  - Evidence: the classifier denial ("Create Unsafe Agents") of the coordinator's backgrounded `tests/git-publication-native.sh --native claude` after the developer asked "could you please do it?"; the developer's reply "this window is weird. I cannot copy"; the `! bash …/probe.sh` run moved to background at 120s; after "I authorize you to do them", `probe8.sh` detached the 27-session batch and a `tail -F | grep` monitor reported each verdict.
+  - Observed effect: one stopped background run, an extra developer round trip, and a second script; afterwards no polling or babysitting.
+  - Inference: Qualified. Host permission behavior is outside Open Dough; the detached launcher plus monitor is the reusable part.
