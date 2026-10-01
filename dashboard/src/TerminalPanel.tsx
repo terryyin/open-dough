@@ -25,6 +25,7 @@ import "./agent-launch.css";
 import "./agent-terminal.css";
 import { launchSubject } from "./agentLaunch.ts";
 import { AgentPortrait } from "./AgentPortrait.tsx";
+import { usePortraitPreview } from "./terminalPortraitPreview.ts";
 import { keepHeight } from "./measuredHeight.ts";
 import { assignedAgent } from "./launchRecord.ts";
 import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -46,7 +47,7 @@ const closeShortcut = { key: "Escape", shift: true } as const;
 
 // Keeps `--terminal-rows-height` on the identity at the height of its title
 // and session rows, however they wrap, so the agent portrait beside them
-// spans both.
+// stays proportionate to both, with its stylesheet's compact cap.
 function useRowsHeight(
   identity: RefObject<HTMLDivElement | null>,
   rows: RefObject<HTMLDivElement | null>,
@@ -111,6 +112,7 @@ export function TerminalPanel({
   );
   useCommandShortcut(closeShortcut, onClose);
   useRowsHeight(identity, names);
+  usePortraitPreview(identity);
   const attachAgain = () => {
     setEnding(undefined);
     setAttempt((previous) => previous + 1);
@@ -136,12 +138,18 @@ export function TerminalPanel({
           {marksDone(hostOperations, record.session.host) && (
             <button
               type="button"
+              className="terminal-icon"
+              aria-label="Mark as done"
+              title="Mark as done"
               disabled={marking === "marking"}
               onClick={() => {
                 follow(onMarkDone(session));
               }}
             >
-              Mark as done
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="9" />
+                <path d="m8 12 3 3 5-6" />
+              </svg>
             </button>
           )}
           <button

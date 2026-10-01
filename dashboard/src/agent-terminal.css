@@ -52,7 +52,7 @@
 }
 
 /* The session's agent portrait, when it has one, left of the title and
-   session rows and, edge included, as tall as both together, as the panel
+   session rows and, edge included, capped at 44px beside both, as the panel
    measures them (`--terminal-rows-height`) however they wrap. */
 .terminal-identity {
   display: flex;
@@ -63,7 +63,7 @@
 
 .terminal-identity > .agent-portrait {
   --portrait-size: calc(
-    var(--terminal-rows-height, 2.5rem) - 2 * var(--portrait-edge)
+    min(var(--terminal-rows-height, 2.5rem), 44px) - 2 * var(--portrait-edge)
   );
 }
 
@@ -75,22 +75,26 @@
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
-/* Maximize or Restore, and Close: icons whose label and tooltip name the
-   action. */
-.terminal-icon {
+/* Every header action has the same quiet icon surface and accessible name. */
+.terminal-toolbar .terminal-icon {
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
-  padding: 0.3rem;
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--quiet);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
 }
 
 .terminal-icon svg {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 18px;
+  height: 18px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
@@ -145,4 +149,41 @@
 
 .terminal-status p {
   margin: 0;
+}
+
+.terminal-toolbar .terminal-icon:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--quiet) 10%, transparent);
+}
+
+.terminal-toolbar .terminal-icon:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.terminal-toolbar .terminal-icon:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Both preview layers share placement so blended gesture portraits remain
+   aligned. The terminal measures room on hover, scroll and resize. */
+.terminal-identity > .agent-portrait::after,
+.terminal-identity > .agent-portrait.portrait-gesture-blend::before {
+  top: var(--terminal-preview-top, 100%);
+  left: var(--terminal-preview-left, 0px);
+  width: var(
+    --terminal-preview-size,
+    calc(3 * (var(--portrait-size) + 2 * var(--portrait-edge)))
+  );
+  height: var(
+    --terminal-preview-size,
+    calc(3 * (var(--portrait-size) + 2 * var(--portrait-edge)))
+  );
+  transform: scale(calc(1 / 3));
+  transform-origin: center center;
+}
+
+.terminal-identity > .agent-portrait:hover::after,
+.terminal-identity > .agent-portrait.portrait-gesture-blend:hover::before {
+  transform: none;
 }
