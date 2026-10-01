@@ -181,7 +181,8 @@ A slice is planned with a required existing suite that cannot pass until a later
 ## ODF-100 — Masked formatter failure
 A formatter piped through tail returns the final pipeline stage's success, allowing subsequent delivery steps after formatter failure.
 
-- **Follow-up:** Open, unqueued; material unresolved consequence retained. **Evidence:** [open-dough](../../DearDough.md#odf-100--a-piped-lint-failure-did-not-stop-publication), [pygardon](../../../pygardon/DearDough.md#odf-100--a-piped-formatter-failure-did-not-stop-the-delivery-command-chain), [doughnut](../../../doughnut/DearDough.md#odf-100--agents-reported-vue-tscs-exit-code-from-a-pipe-into-tail-so-the-coordinator-had-to-rerun-the-typecheck).
+- **Follow-up:** Response delivered; verification open, no new implementation queued. **Evidence:** [open-dough](../../DearDough.md#odf-100--a-piped-lint-failure-did-not-stop-publication), [pygardon](../../../pygardon/DearDough.md#odf-100--a-piped-formatter-failure-did-not-stop-the-delivery-command-chain), [doughnut](../../../doughnut/DearDough.md#odf-100--agents-reported-vue-tscs-exit-code-from-a-pipe-into-tail-so-the-coordinator-had-to-rerun-the-typecheck).
+- **Response / limit:** SEED-065#pre-commit-lint-hook delivers a check-only pre-commit lint hook enabled by `npm ci`. It does not stop `--no-verify` or merge commits, and no later execution has yet shown it on a real masked-status chain.
 
 <a id="odf-101"></a>
 

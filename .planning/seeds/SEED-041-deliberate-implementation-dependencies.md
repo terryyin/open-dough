@@ -83,6 +83,19 @@ them in the dashboard, together with the reason for the sequencing.
 
 ## Open Decisions for Refinement
 
+- Potential benefit, captured for future refinement on 2026-10-01: readiness
+  attributable to explicit implementation dependencies could be computed from
+  their satisfaction, automatically updating the effective story state without
+  manual record edits or launching refinement merely to clear a satisfied
+  dependency. This is an idea, not an accepted implementation or a new readiness
+  promise. The motivating example is Doughnut's first queued story,
+  `SEED-064#story-6`, which has a shared-row prerequisite; that identity belongs
+  to Doughnut, not this repository.
+- How can dependency-derived waiting be distinguished from an assessment whose
+  story, shared context, or plan content basis has changed? `needs-reassessment`
+  also represents that content-basis mismatch: dependency satisfaction alone
+  cannot renew every assessment. What evidence establishes actual prerequisite
+  completion? Absence of Taken work is not proof of dependency completion.
 - Where and how are relationships and their rationale recorded against stable
   story identities, and who maintains them as implementation changes?
 - How is the overall benefit of sequencing evaluated against continued

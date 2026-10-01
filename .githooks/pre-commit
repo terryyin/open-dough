@@ -1,0 +1,4 @@
+#!/bin/sh
+# Refuse a commit whose staged files fail lint. Check-only: never formats,
+# restages, or stashes.
+exec npm run --silent lint -- --staged
