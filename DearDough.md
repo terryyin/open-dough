@@ -448,7 +448,7 @@ Follow-up: Open, unqueued. For a fault injected after a native event, observe th
   - Timestamp: unknown (2026-10-01 resumed execution; CI run36790537801/attempt1)
   - Tool: Codex
   - Open Dough release: unknown
-  - Evidence: CI job110142132390 failed the negative-history test from `3dbb1f77`; fresh repair baseline with original100ms plus explicit `native.history.length === 1` failed expected1/received0. Repair agent `ci_recovery_setup_repair` terminal report/PTY80979 and published `3fdae6f201941ff239bc24a2788590bdf25e88d7` changed both100/250ms setups to await held input acceptance before disconnecting and assert durable uncertainty/ID. PLAN slice5 retains exact command; production unchanged.
+  - Evidence: CI job110142132390 failed the negative-history test from `3dbb1f77`; fresh repair baseline with original100ms plus explicit `native.history.length === 1` failed expected1/received0. Repair agent `ci_recovery_setup_repair` terminal report/PTY80979 and published `3fdae6f201941ff239bc24a2788590bdf25e88d7` changed both100/250ms setups to await held input acceptance before disconnecting and assert durable uncertainty/ID. [Recovered slice5 proof](https://github.com/terryyin/open-dough/blob/719a5ef8525788bd7d9288cff8f97c76bf1f5b6b/.planning/slice-plans/189-start-codex-refinement-from-dashboard/PLAN.md) retains the exact command; production unchanged.
   - Observed effect: One owned repair commit and a pause in native acceptance; all five selected repair tests passed afterward. The original no-resend and history/status assertions remained.
   - Inference: Event-based setup supplies causal evidence that elapsed time alone did not. Cost beyond this repair is unmeasured; native pause also included a separate acceptance-wording correction.
 

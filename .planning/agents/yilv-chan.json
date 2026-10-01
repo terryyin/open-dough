@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "yilv-chan",
-  "email": "yilv-chan@example.org",
-  "identity": "SEED-052#start-codex-refinement-from-dashboard",
-  "mode": "story-branch",
-  "branch": "codex/start-codex-refinement-from-dashboard",
-  "host": "codex"
-}
