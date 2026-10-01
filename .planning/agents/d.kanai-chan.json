@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "d.kanai-chan",
-  "email": "d.kanai-chan@example.org",
-  "identity": "SEED-066#composable-lightweight-session-options",
-  "mode": "story-branch",
-  "branch": "claude/choose-workspace-and-automatic-landing-independe",
-  "host": "claude"
-}

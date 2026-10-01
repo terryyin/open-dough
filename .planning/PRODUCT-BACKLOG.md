@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Resolve reported Codex refinement launch failures](seeds/SEED-067-codex-refinement-launch-reliability.md#resolve-codex-refinement-launch-failures) — SEED-067#resolve-codex-refinement-launch-failures
-- [Choose workspace and automatic landing independently for lightweight refinement and execution](seeds/SEED-066-composable-lightweight-session-options.md#composable-lightweight-session-options) — SEED-066#composable-lightweight-session-options ([plan](slice-plans/191-composable-lightweight-session-options/PLAN.md))
 
 ## Backlog list
 

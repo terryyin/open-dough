@@ -5,7 +5,7 @@
 - Identity: SEED-066#align-one-shot-callers-with-review-default.
 - Story: [bounded correction](../../seeds/SEED-066-composable-lightweight-session-options.md#align-one-shot-callers-with-review-default).
 - Reviewed execution: SEED-066#composable-lightweight-session-options through
-  [plan 191](../191-composable-lightweight-session-options/PLAN.md), commits
+  plan 191 (`97096c95:.planning/slice-plans/191-composable-lightweight-session-options/PLAN.md`), commits
   `ef745cb5..84e2db7f` on branch
   `claude/choose-workspace-and-automatic-landing-independe`.
 - Prepared by the execution retrospective's delegated planner in the supplied
