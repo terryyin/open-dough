@@ -221,6 +221,33 @@ under the existing recovery contract. It never silently creates a replacement.
 - **Effort hypothesis:** Unestimated. The story is refined; the associated slice plan
   owns approach, proof, and execution sizing.
 
+<a id="durable-startup-reconciliation"></a>
+
+### Keep reconciled startups settled under one unresolved-attempt rule
+
+**Identity:** SEED-072#durable-startup-reconciliation
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/206-durable-startup-reconciliation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cac980658944a10ccf1c151a92c4fbab6e393f9e53d1b7f62c457700ded56d9c","plan":"39c4f5651849f8ceeddb1db6399882b495a8b4166a57ec064c0858fcac1a3390"}}
+```
+
+**Goal:** A developer who reopens, reloads, or restarts the dashboard after a
+startup reconciled sees that story's normal actions and no stale recovery item,
+and both the local launch service and the page refuse or protect exactly the
+same unresolved attempts, with recovery wording that reads correctly where it
+is shown.
+
+**Scope:** A bounded retrospective correction of
+`SEED-072#responsive-session-start-reconciliation`. Keep a reconciled settled
+attempt settled across pages, reloads and restarts as machine-local launch
+evidence, never a story fact, including after its story leaves the published
+snapshot; apply one unresolved-attempt rule to service admission and story
+protection; form recovery wording where each answer is formed instead of
+rewriting it in the page. Preserve every promise of the original story. No new
+feature promise; the native-outcome exit for an uncertain Claude Code launch
+stays excluded pending a developer decision.
+
+**Plan:** [bounded correction input and slices](../slice-plans/206-durable-startup-reconciliation/PLAN.md).
+
 ## Breadcrumbs
 
 - Terry's direction in this chat, 2026-10-01: capture this UX/UI improvement

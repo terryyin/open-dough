@@ -346,3 +346,21 @@ all earlier proof still mapped and green.
   none is split by file, layer, host, or test activity. No slice-specific concern
   was found in this review. New admission and containment are explicit work with
   owned proof, rather than presumed existing mechanisms. Final proof is not yet run.
+
+## Execution complete
+
+Product advice:
+- Queue the correction
+  [SEED-072#durable-startup-reconciliation](../../seeds/SEED-072-responsive-session-start-reconciliation.md#durable-startup-reconciliation)
+  ([plan 206](../206-durable-startup-reconciliation/PLAN.md)) ahead of further
+  dashboard host work. Reconciliation is page-only, so reconciled starts lock their
+  cards again on every page open and removed stories leave permanent recovery items.
+  Server admission also accepts a second start while the browser shows a settled
+  uncertain attempt as unresolved, and recovery wording is rewritten from server
+  strings.
+- Decision needed: a Claude Code launch whose native outcome is uncertain keeps its
+  story protected, and Continue may start a duplicate session. Choose native-listing
+  verification on Recheck, a developer "found it" resolution, or another exit. This
+  is excluded from plan 206.
+- For SEED-069 (multi-tool architecture review): each host adapter should state how
+  it verifies an uncertain native launch. Codex has `recover`; Claude Code has none.
