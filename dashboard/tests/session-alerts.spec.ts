@@ -13,96 +13,23 @@
 // the sessions every 100 ms here; "nothing more" is asserted only after the
 // fake `claude` has logged further listings, never after a sleep.
 
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
-import { expect, test as base } from "@playwright/test";
-import {
-  launch,
-  launchRequest,
-  machineFolder,
-  markDone,
-} from "./agentLaunchBoundary.ts";
+import { expect } from "@playwright/test";
+import { launchRequest, markDone } from "./agentLaunchBoundary.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
   waitUntil,
-  type DashboardServer,
 } from "./support/dashboardServer.ts";
-import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
 import { processRunning } from "./support/processGroup.ts";
-
-const alertCheckMs = 100;
-
-const test = base.extend<{ machine: string; server: DashboardServer }>({
-  // Playwright's fixture API requires the empty destructuring pattern.
-  // eslint-disable-next-line no-empty-pattern
-  machine: async ({}, use) => {
-    const machine = mkdtempSync(path.join(tmpdir(), "dough-alerts-"));
-    await use(machine);
-    rmSync(machine, { recursive: true, force: true });
-  },
-  server: async ({ machine }, use) => {
-    const server = await startDashboardServer({
-      mode: "preview",
-      prebuilt: builtDashboardDir,
-      machine,
-      projectFolders: ["open-dough"],
-      alertCheckMs,
-    });
-    await use(server);
-    await server.close();
-  },
-});
-
-// What each notification said: its message, its title, and the sound its
-// script names.
-function notices(server: DashboardServer) {
-  return server.osascriptCalls().map(({ argv }) => ({
-    message: argv.at(-2),
-    title: argv.at(-1),
-    sound: /sound name "([^"]*)"/.exec(argv.join("\n"))?.[1],
-  }));
-}
-
-function messages(server: DashboardServer): (string | undefined)[] {
-  return notices(server).map((notice) => notice.message);
-}
-
-// How many of the server's own session listings the fake `claude` has logged.
-function listings(server: DashboardServer): number {
-  const machine = machineFolder(server);
-  return server
-    .claudeCalls()
-    .filter((call) => call.argv[0] === "agents" && call.cwd === machine).length;
-}
-
-// Waits until the server has read the sessions twice more, so whatever the
-// last change should raise has been raised.
-async function afterFurtherListings(server: DashboardServer): Promise<void> {
-  const before = listings(server);
-  await expect.poll(() => listings(server)).toBeGreaterThanOrEqual(before + 2);
-}
-
-async function start(
-  server: DashboardServer,
-  request: object = launchRequest,
-): Promise<string> {
-  const response = await launch(server, request);
-  return (
-    JSON.parse(response.body) as { record: { session: { sessionId: string } } }
-  ).record.session.sessionId;
-}
-
-async function becomes(
-  server: DashboardServer,
-  sessionId: string,
-  change: ClaudeSessionChange,
-  waitingFor?: string,
-): Promise<void> {
-  server.claudeSessionBecomes(sessionId, change, waitingFor);
-  await afterFurtherListings(server);
-}
+import {
+  afterFurtherListings,
+  alertCheckMs,
+  becomes,
+  messages,
+  notices,
+  start,
+  test,
+} from "./support/sessionAlerts.ts";
 
 test.describe("a session that starts needing the developer raises one macOS notification", () => {
   test("names the project, title, and what it waits for, with a sound, once while it stays, across a reload, and again after working", async ({
@@ -144,7 +71,6 @@ test.describe("a session that starts needing the developer raises one macOS noti
 
   test("raises one for each other reading: ready for review, failed, stopped, unavailable, and not recognized", async ({
     server,
-    machine,
   }) => {
     const changes = [
       "done-live",
@@ -158,23 +84,7 @@ test.describe("a session that starts needing the developer raises one macOS noti
     await afterFurtherListings(server);
     for (const [index, change] of changes.entries()) {
       const id = sessions[index] ?? "?";
-      if (change === "unrecognized") {
-        const file = path.join(machine, "claude-state", "agents.json");
-        const listed = JSON.parse(readFileSync(file, "utf8")) as {
-          sessionId: string;
-          state: string;
-        }[];
-        writeFileSync(
-          file,
-          JSON.stringify(
-            listed.map((each) =>
-              each.sessionId === id ? { ...each, state: "napping" } : each,
-            ),
-          ),
-        );
-      } else {
-        server.claudeSessionBecomes(id, change);
-      }
+      server.claudeSessionBecomes(id, change);
     }
     await expect.poll(() => server.osascriptCalls().length).toBe(5);
     await afterFurtherListings(server);
