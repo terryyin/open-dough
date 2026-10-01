@@ -30,9 +30,9 @@ base it supplies:
   from, as [Take or admit work](../SKILL.md#take-or-admit-work) describes.
   A conflicting or ambiguous claim stops implementation; identical **Taken**
   text alone proves no ownership.
-- [One-shot work](one-shot.md) supplies the same path and authority with
-  `--one-shot`; the operation bases the workspace on fetched remote trunk and
-  publishes nothing.
+- [One-shot work](one-shot.md) supplies the same path with `--one-shot` and
+  workspace authority alone; the operation bases the workspace on fetched
+  remote trunk and publishes nothing.
 - Caller-selected current-branch work records that checkout and creates no
   worktree. An already-supported host-owned execution stays in that same
   recorded checkout and does not switch branches. Publication follows the

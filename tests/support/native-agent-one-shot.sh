@@ -3,9 +3,10 @@
 # by native-agent-publication.sh (copied beside it) with ${host}, ${journey}
 # and ${workspace} (the originating checkout) set. Runs the installed CLIs the
 # one-shot guidance names, in its order, so observations come from real
-# repository state: start the owned workspace with --one-shot, commit the
-# result (for a queued story, with its closure), deliver it to trunk, complete
-# CI observation, and retire the workspace and its branch. Emits each command
+# repository state: start the owned workspace with --one-shot and workspace
+# authority alone, commit the result (for a queued story, with its closure),
+# land it on trunk through delivery, complete CI observation, and retire the
+# workspace and its branch. Emits each command
 # in the host's stream shape through the admission substitute's recorder and
 # sets ${response}.
 # NATIVE_ONE_SHOT_WORKSPACE and _BRANCH carry the owned workspace and branch;
@@ -42,7 +43,7 @@ native_one_shot_substitute() {
   admission_run node "${skills}/dough-execute-plan/scripts/execution-start.mjs" \
     start --integration "${workspace}" --workspace "${execution}" \
     --branch "${branch}" --mode story-branch --remote origin \
-    --target main --push-authorized --workspace-authorized --one-shot \
+    --target main --workspace-authorized --one-shot \
     "${named[@]}" --host "${host}"
   starting=$(jq -r .startingRevision <<< "${admission_last}")
   printf '%s\n' "${line}" >> "${execution}/notes.txt"

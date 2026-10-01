@@ -6,18 +6,32 @@ import {
   agentModes,
   agentReportError,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { sessionPolicy } from "./session-policy.mjs";
 import { stopped } from "./workspace-publication-ownership.mjs";
 
 // The normalized request, or the stop that refuses it. A one-shot start
-// publishes no claim, so it needs no publisher, and an unlisted request has no
-// identity; a supplied identity is checked against fetched trunk. The Git
+// publishes no claim, so it needs no publisher and no publication authority:
+// its result waits in the owned workspace for review. An unlisted request has
+// no identity; a supplied identity is checked against fetched trunk. The Git
 // `repository` the start reads and selects from is the supplied integration
 // (default) checkout, else the supplied repository context (an owned worktree
 // or the common Git directory), else the owned workspace, which must then
 // already exist. Only a supplied integration checkout gets a local refresh or
 // supplies drafts.
 export function startRequest(requestInput) {
-  const oneShot = requestInput.oneShot === true;
+  const policy = sessionPolicy(requestInput);
+  const oneShot = policy.tracking === "one-shot";
+  if (policy.workspace !== "isolated")
+    return stopped("invalid-request", {
+      error:
+        "this start needs a separate owned workspace; --default-main is not supported",
+    });
+  if (policy.landing !== "review")
+    return stopped("invalid-request", {
+      error: oneShot
+        ? "this start retains a one-shot result for review; --auto-land is not supported"
+        : "--auto-land applies to one-shot work; tracked work publishes through its own lifecycle",
+    });
   const required = [
     "workspace",
     "branch",
@@ -75,14 +89,18 @@ export function startRequest(requestInput) {
         });
   const reportError = agentReportError(request);
   if (reportError) return stopped("invalid-request", { error: reportError });
+  // Permission to work is separate from permission to publish: only a start
+  // that publishes a claim needs trunk publication authority.
+  const publishes = !oneShot;
   if (
     !agentModes.includes(request.mode) ||
-    request.pushAuthorized !== true ||
-    request.workspaceAuthorized !== true
+    request.workspaceAuthorized !== true ||
+    (publishes && request.pushAuthorized !== true)
   ) {
     return stopped("authority-required", {
-      error:
-        "mode, workspace and trunk publication authority must be established",
+      error: publishes
+        ? "mode, workspace and trunk publication authority must be established"
+        : "mode and workspace authority must be established",
     });
   }
   if (request.integration === request.workspace)

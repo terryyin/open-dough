@@ -9,6 +9,7 @@ import { readPublishedExecutionSource } from "./execution-source.mjs";
 import { requireOneShotStart } from "./one-shot-ownership.mjs";
 import { preparedReceipt } from "./execution-start-receipt.mjs";
 import { sameSelectedSource } from "./execution-start-recovery.mjs";
+import { sessionPolicy } from "./session-policy.mjs";
 import { selectOwnedWorkspace } from "./workspace-publication-select.mjs";
 import {
   backlogPath,
@@ -42,7 +43,7 @@ export async function prepareOneShot(request, origin, fetched) {
 // trunk it reads rather than drafted anew, so it only changes when the work
 // has meanwhile been listed. A one-shot source publishes no claim to recheck.
 export function startSource(request) {
-  if (request.oneShot === true)
+  if (sessionPolicy(request).tracking === "one-shot")
     return { oneShot: true, read: readOneShotSource };
   if (request.admit === true)
     return {

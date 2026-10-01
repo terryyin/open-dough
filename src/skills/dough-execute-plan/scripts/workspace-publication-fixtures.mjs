@@ -191,7 +191,8 @@ const startCli = fileURLToPath(
 // in one mode; it defaults to the mode. `env` is the command's environment. A
 // null `identity` starts without one, as an unlisted one-shot request does. A
 // null `integration` supplies no default checkout; `workspace` and `branch`
-// name an existing owned worktree instead of the default new one.
+// name an existing owned worktree instead of the default new one. A false
+// `pushAuthorized` withholds trunk publication authority.
 export async function startCliResult(
   trunk,
   mode,
@@ -204,6 +205,7 @@ export async function startCliResult(
     integration = trunk.integration,
     workspace = join(trunk.fixture, `start-${name}`),
     branch = `exec/${name}`,
+    pushAuthorized = true,
   } = {},
 ) {
   const args = [
@@ -223,7 +225,7 @@ export async function startCliResult(
     "origin",
     "--target",
     "main",
-    "--push-authorized",
+    ...(pushAuthorized ? ["--push-authorized"] : []),
     "--workspace-authorized",
     ...extra,
   ];

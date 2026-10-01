@@ -209,6 +209,7 @@ managed_files=(
   dough-execute-plan/scripts/execution-start-recovery.mjs
   dough-execute-plan/scripts/execution-start-receipt.mjs
   dough-execute-plan/scripts/execution-start-request.mjs
+  dough-execute-plan/scripts/session-policy.mjs
   dough-execute-plan/scripts/execution-start-source.mjs
   dough-execute-plan/scripts/execution-source.mjs
   dough-execute-plan/scripts/execution-admission-source.mjs

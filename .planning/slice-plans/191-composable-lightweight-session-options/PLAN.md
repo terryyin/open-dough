@@ -237,7 +237,17 @@ evidence. Each completed slice must leave its applicable proof green.
 
 ### 1. One-shot execution retains its verified result for review
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `node --test --test-timeout=300000 src/skills/dough-execute-plan/scripts/one-shot.test.mjs src/skills/dough-execute-plan/scripts/one-shot-start-refusal.test.mjs src/skills/dough-execute-plan/scripts/one-shot-queued.test.mjs src/skills/dough-story-refinement/scripts/preparation-assignment-announce.test.mjs src/skills/dough-execute-plan/scripts/session-policy.test.mjs src/skills/dough-execute-plan/scripts/one-shot-guidance.test.mjs src/skills/dough-execute-plan/scripts/one-shot-escalation*.test.mjs`
+(36 pass); `/opt/homebrew/bin/bash tests/payload-declaration-links.sh`; credential-free
+`PATH=/opt/homebrew/bin:$PATH bash tests/git-publication-native-one-shot.sh`.
+Learnings: shared normalizer is `scripts/session-policy.mjs` (`sessionPolicy`,
+`sessionPolicyChoices`, `sessionPolicyToggles`), installed via `install.sh`.
+`--default-main`/`--auto-land` are refused with `invalid-request` until slices 4–5.
+One-shot admission escalation now needs push authority explicitly. The native
+one-shot prompts still grant trunk publication and the substitute still lands
+immediately; slices 3 and 8 own changing them. Native harness shells need
+Homebrew bash on this machine.
 Proof: Extend `one-shot.test.mjs` and guidance/installed-run assertions for finish
 without automatic push, retained workspace, and later explicit landing. Add the
 pure policy contract tests as part of this behavior.

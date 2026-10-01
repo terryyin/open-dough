@@ -1,12 +1,13 @@
 # One-shot work
 
-One-shot work completes an explicitly requested, genuinely trivial outcome and
-publishes only its verified result to remote trunk: no Taken entry or agent
-profile, and no story or plan left behind. It is a way of tracking the work,
-not a separate execution path: planless execution, verification, refactoring,
-delivery, and closure stay as they are. It grants no permission beyond the current
-instruction: implementing findings, publishing drafts, and widening scope still
-need their own authority.
+One-shot work completes an explicitly requested, genuinely trivial outcome
+with no Taken entry or agent profile, and no story or plan left behind. It runs
+in an owned isolated workspace and stops with its verified result retained there
+for review; only an explicit request to land it publishes that result to remote
+trunk. It is a way of tracking the work, not a separate execution path:
+planless execution, verification, refactoring, delivery, and closure stay as
+they are. It grants no permission beyond the current instruction: implementing
+findings, publishing drafts, and widening scope still need their own authority.
 
 ## Decide whether one-shot applies
 
@@ -33,14 +34,14 @@ These are not one-shot, even when selected:
 
 ## Start in an owned workspace
 
-Resolve the same execution context and
-[publication preconditions](trunk-publication.md#preconditions) as any Story
-Branch or Trunk Mode start, including the authority to push the result. Then
-invoke the start command from [Take or admit work](../SKILL.md#take-or-admit-work)
+Resolve the same execution context as any Story Branch or Trunk Mode start:
+mode, the owned workspace, and the actual remote and trunk branch it starts
+from. Starting needs authority to create or use that workspace, not to publish.
+Then invoke the start command from [Take or admit work](../SKILL.md#take-or-admit-work)
 with `--one-shot` instead of `--admit`: the originating integration checkout
 when one exists (otherwise the repository context that section describes),
 owned workspace path and branch, mode, actual remote and trunk branch, and
-`--push-authorized --workspace-authorized`. An unlisted request needs no
+`--workspace-authorized`. An unlisted request needs no
 `--identity` or `--publisher-id`; supply `--identity` for a queued story, or
 when the request names existing work, so the command can check how fetched
 trunk holds it.
@@ -51,24 +52,35 @@ one-line result `ok: true, status: "prepared"` carries `startingRevision`,
 `created`, and the default checkout's `maintenance`; retain
 `startingRevision`. A refusal (`ok: false`) starts no work: `invalid-request`
 also names `--one-shot` combined with `--admit`, `authority-required` names
-missing publication authority, and `source-refused` names work fetched trunk
+missing workspace authority, and `source-refused` names work fetched trunk
 shows as Taken, held by an agent profile (execution or preparation), or queued
 with a recorded `not-ready` reason. Then run this project's checkout-bound
 setup under [execution location](execution-location.md) before implementation.
 
-## Verify and deliver the result
+## Verify and retain the result
 
 Work only in that workspace. Run the focused verification the outcome needs
 and the [post-change refactor](../../dough-post-change-refactor/SKILL.md) pass,
 then commit the result with plain `git commit`: the start named no agent.
 
-Deliver it through
+Then stop for review. Report the workspace path and branch, the retained
+`startingRevision`, the result commit, the verification evidence, and any
+pending issues. For a queued story, also report that remote trunk still lists
+it in the **Backlog list** while its closure waits in the result commit.
+Leave the workspace and its branch in place: nothing is pushed or retired
+until the developer asks to land the result.
+
+## Land the retained result
+
+When the developer explicitly asks to land the retained result, in this session
+or a later one that names its workspace, deliver it from that workspace through
 [increment publication](trunk-publication.md#publish-an-execution-increment-or-repair)
-with `previouslyPublishedBase` set to the retained `startingRevision` and the
-target set to remote trunk, even in Story Branch Mode: one-shot work has no
-execution branch or claim to deliver to. After acceptance, refresh the default
-checkout and complete CI observation as for any trunk publication. If the
-delivery result is lost or interrupted,
+with `previouslyPublishedBase` set to the retained `startingRevision` (otherwise
+the merge base of the workspace branch and fetched trunk) and the target set to
+remote trunk, even in Story Branch Mode: one-shot work has no execution branch
+or claim to deliver to. That request is the authority to publish it. After
+acceptance, refresh the default checkout and complete CI observation as for any
+trunk publication. If the delivery result is lost or interrupted,
 [resume the interrupted publication](trunk-publication.md#resume-an-interrupted-publication)
 with the candidate you retained, never by committing or pushing again.
 
@@ -84,7 +96,7 @@ to this story: remove its entry with the product-backlog `complete` command,
 its story section (its seed only when every remaining section is spent), and
 its plan. Sibling stories and other entries stay as they are.
 
-Deliver with `--one-shot-identity <identity>` added to `deliver`, and to
+When landing it, add `--one-shot-identity <identity>` to `deliver`, and to
 `resume` when resuming, so each fetched remote trunk is checked for the story
 before anything is rebased or pushed. The stop
 `ok: false, status: "ownership-changed"` means another owner now holds the
@@ -98,17 +110,19 @@ it by removing the other side's entry.
 ## Finish with no change
 
 A supported no-change conclusion, such as behavior that already matches its
-intent, publishes no result. Report the evidence. For a queued story, commit
-and deliver its closure alone, as in
-[completing a queued story](#complete-a-queued-story-in-the-same-commit); an
-unlisted request publishes nothing. Then retire the workspace.
+intent, has no product result. Report the evidence. For a queued story, commit
+its closure alone, as in
+[completing a queued story](#complete-a-queued-story-in-the-same-commit), and
+stop for review as for any result; it lands only on request. An unlisted
+request has nothing to retain: retire the workspace.
 
 ## Retire the workspace
 
-After the result's delivery and CI completion gates pass, or after a no-change
-conclusion, retire the clean workspace and its branch under Dough Land's
-[Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree). Nothing
-remains to wrap up: the delivered commit already closed any queued story.
+After a landed result's delivery and CI completion gates pass, or after an
+unlisted no-change conclusion, retire the clean workspace and its branch under
+Dough Land's [Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree).
+Nothing remains to wrap up: the delivered commit already closed any queued
+story.
 
 ## Escalate when the work grows
 
@@ -126,8 +140,13 @@ request needs its story: draft it in a suitable seed in the originating
 checkout as [Prepare the story](admit-accepted-work.md#prepare-the-story)
 describes. A queued story keeps its identity, link and title.
 
-Then run the start command with the same workspace and branch, `--identity`,
-`--publisher-id`, and `--admit --link <link> --title <title> --carry`. The
+Admission publishes a claim, so it needs the
+[publication preconditions](trunk-publication.md#preconditions) and authority
+to push it. Without that authority, stop there: report the attempt, its
+evidence, and the edits kept uncommitted in its workspace. Otherwise run the
+start command with the same workspace and branch, `--identity`,
+`--publisher-id`, `--push-authorized --workspace-authorized`, and
+`--admit --link <link> --title <title> --carry`. The
 command parks your edits under `refs/dough/carried/<branch>`, returns the
 workspace to clean fetched trunk, and publishes the ordinary
 [admission](admit-accepted-work.md#act-on-the-result) there; a queued story's
