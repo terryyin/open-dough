@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Choose workspace and automatic landing independently for lightweight refinement and execution](seeds/SEED-066-composable-lightweight-session-options.md#composable-lightweight-session-options) — SEED-066#composable-lightweight-session-options ([plan](slice-plans/191-composable-lightweight-session-options/PLAN.md))
 - [Complete Codex support for dashboard workflows and sessions](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard ([plan](slice-plans/192-complete-codex-dashboard-sessions/PLAN.md))
-- [Keep older-installation retry proof independent of the current commit](seeds/SEED-067-codex-refinement-launch-reliability.md#pin-older-preparation-command-proof) — SEED-067#pin-older-preparation-command-proof ([plan](slice-plans/195-older-preparation-command-proof/PLAN.md))
 
 ## Backlog list
 

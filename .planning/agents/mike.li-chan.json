@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mike.li-chan",
-  "email": "mike.li-chan@example.org",
-  "identity": "SEED-067#pin-older-preparation-command-proof",
-  "mode": "story-branch",
-  "branch": "codex/older-preparation-command-proof",
-  "host": "codex"
-}
