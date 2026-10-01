@@ -148,7 +148,7 @@ mapping. Do not refuse a retained-claim resume (`verifyRetained`): this correcti
 
 ### 3. One home for one-shot-only choices and one-shot context detection
 Type: Structure
-Status: planned
+Status: done
 Proof: Add a `session-policy.test.mjs` contract test for the new pure helper: standard tracking with `default-checkout` and/or `auto-land` reports exactly those choices, and one-shot or the default policy reports none.
 Then run `node --test --test-timeout=600000 src/skills/dough-execute-plan/scripts/session-policy.test.mjs src/skills/dough-execute-plan/scripts/one-shot-start-refusal.test.mjs
 src/skills/dough-execute-plan/scripts/default-checkout-session-refusal.test.mjs src/skills/dough-story-refinement/scripts/*.test.mjs`, `npm run typecheck:dashboard`, and `env -u FORCE_COLOR -u NO_COLOR npx playwright
@@ -227,3 +227,6 @@ No slice-boundary, proof, architecture, or sizing concern remains in this review
 - Slice 2: all four new CLI tests were red before the fix (queued/admitted published, isolated prepared, preparation announced), then green. Their snapshots include raw index, FETCH_HEAD, config, HEAD reflog, file bytes, all local/origin refs and worktrees; no carried ref exists. Full literal regression passed 188/188; credential-free native one-shot passed.
 - Assigned preparation bypasses the owned selector for existing paths; the same shared guard now covers that consumer before fetch. Retained execution/preparation continuations and default-main remain unchanged. This corrects the plan's selector-consumer finding without changing scope.
 - Slice 2 independent refactor consolidated retained-verification refusals, preserving statuses/recovery fields. Replacement command: `PATH=/opt/homebrew/bin:$PATH node --test --test-timeout=600000 src/skills/dough-execute-plan/scripts/default-checkout-session-owned-refusal.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication*.test.mjs` passed 96/96. Unchanged preparation/default-main/native boundaries retain accepted proof. Formatting and whitespace checks passed; no new installed dependency.
+- Slice 2 published `f31cd6e2eaaea6b5889da0114dcd4134c71e26fc` to the execution branch with the same observer.
+- Slice 3: shared pure helper, derived dashboard default, and established-context predicate preserve existing refusal messages/statuses. Literal regression passed 83/83; dashboard typecheck, all five selected Playwright specs (quiet reporter), and payload links passed. Inspected pure-array contract, CLI refusals and unchanged snapshots, dashboard HTTP400/no-host-call assertions, first-input policies, kept-workspace context, and single assigned continuation.
+- Independent refactor moved preparation command argument spelling into the existing command module and saved-context matching into `preparationContext.ts`, preserving realpath comparison, flags, continuation guards, and refusal semantics. Replacement proof: dashboard typecheck and the literal slice 3 Playwright command selecting preparation-start, preparation-resume, session-options, and session-kept-start passed. Unchanged CLI/refusal/payload boundaries retain accepted proof. Formatting/whitespace passed.

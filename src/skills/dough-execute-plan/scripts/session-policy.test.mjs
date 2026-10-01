@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
   needsPublicationAuthority,
+  oneShotOnlyChoices,
   sessionPolicy,
   sessionPolicyChoices,
   sessionPolicyFlags,
@@ -131,4 +132,20 @@ test("a successful start receipt reports only a selected automatic landing", () 
 test("the module imports nothing, so a browser can share it", () => {
   const source = readFileSync(new URL("./session-policy.mjs", import.meta.url));
   assert.doesNotMatch(String(source), /^\s*import\b/m);
+});
+
+test("only non-default workspace and landing choices need one-shot tracking", () => {
+  assert.deepEqual(oneShotOnlyChoices(sessionPolicy()), []);
+  for (const [options, expected] of [
+    [{ defaultMain: true }, ["workspace"]],
+    [{ autoLand: true }, ["landing"]],
+    [{ defaultMain: true, autoLand: true }, ["workspace", "landing"]],
+    [{}, []],
+  ]) {
+    assert.deepEqual(oneShotOnlyChoices(sessionPolicy(options)), expected);
+    assert.deepEqual(
+      oneShotOnlyChoices(sessionPolicy({ ...options, oneShot: true })),
+      [],
+    );
+  }
 });
