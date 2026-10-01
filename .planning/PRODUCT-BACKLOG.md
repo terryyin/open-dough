@@ -15,12 +15,12 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Choose workspace and automatic landing independently for lightweight refinement and execution](seeds/SEED-066-composable-lightweight-session-options.md#composable-lightweight-session-options) — SEED-066#composable-lightweight-session-options ([plan](slice-plans/191-composable-lightweight-session-options/PLAN.md))
+- [Complete Codex support for dashboard workflows and sessions](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard ([plan](slice-plans/192-complete-codex-dashboard-sessions/PLAN.md))
 
 ## Backlog list
 
 - [Reduce CI wall time through test optimization and pipeline parallelization](seeds/SEED-068-reduce-ci-wall-time.md#reduce-ci-wall-time) — SEED-068#reduce-ci-wall-time
 - [Resolve remaining Codex refinement handoff and retry failures](seeds/SEED-067-codex-refinement-launch-reliability.md#resolve-codex-refinement-launch-failures) — SEED-067#resolve-codex-refinement-launch-failures
-- [Complete Codex support for dashboard workflows and sessions](seeds/SEED-052-start-agent-work-from-dashboard.md#use-codex-from-dashboard) — SEED-052#use-codex-from-dashboard
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
 - [Integrate Story Branch closures through an installed command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration) — SEED-008#installed-story-branch-integration
