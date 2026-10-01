@@ -26,7 +26,8 @@ for bounded replanning; no numeric slice target or hard limit was supplied.
 **Delivered revisions:** `33eb0b69afbca8db3cc860f5d6ca2d9dd74aa17f` (slice 1)
 and `34fd7257ee0c0282700e095a225cf369d5ad723d` (slice 2),
 plus `130e8a6d2b4c15cae951777b109552ced66473be` (host-isolation CI repair),
-accepted on the execution branch. CI source is GitHub Actions `ci.yml` (`CI`),
+accepted on the execution branch. CI repairs `130e8a6d2b4c15cae951777b109552ced66473be`
+and `bc98c4ac53100d4fd658bab2f0dc43c86d7e52fa` were also accepted. CI source is GitHub Actions `ci.yml` (`CI`),
 verified with `gh run list --repo terryyin/open-dough --workflow ci.yml --branch
 codex/show-truthful-session-access-after-its-workspace --event push --limit 1
 --json workflowName`. Codex observer: coordinator `/root`, execution checkout
@@ -367,7 +368,7 @@ specific fallback after later disappearance. No session/history/state is removed
 
 ### 3. Explain workspace loss at the attachment boundary
 Type: Behavior
-Status: planned
+Status: done
 Proof: Hold the journey after an existing-workspace observation, remove its
 private directory, then request terminal attachment through the real boundary.
 Assert a specific missing-workspace explanation and usable same-session report
@@ -386,6 +387,53 @@ a done mark. Race-time status/focus lead to the same view from slice 2.
 Safe stop: all story examples have their mapped proof; update remaining docs
 and retain completion/review evidence for authorized execution wrap-up.
 
+Accepted proof (2026-10-01): the Codex host synchronously reuses the saved
+workspace observer before native attachment. Missing/inconclusive observations
+travel through the existing binary WebSocket control channel to the same
+read-only report. Spawn failure or exit before readiness re-observes the saved
+cwd; existing-directory failures retain generic attachment semantics. Readiness
+alone can reopen done intent. No pending asynchronous attach lifecycle was added.
+
+`env -u NO_COLOR npm run test:dashboard -- session-workspace-retirement
+agent-terminal-codex.spec.ts agent-terminal-codex-page.spec.ts
+agent-terminal.spec.ts agent-terminal-resize.spec.ts
+agent-launch-host-identity.spec.ts agent-terminal-done-codex-page.spec.ts`
+passed. The three held-browser attachment cases preserve an actual initial
+available-directory HTTP answer, then remove cwd, establish ELOOP, or lose cwd
+inside the vendor PTY before readiness. Real WS/result boundaries show the exact
+same-session report, missing versus uncertain wording, selected marks, focus and
+Close focus return, no generic terminal failure, no recreated cwd, unchanged
+store/done intent and passive RPCs. The startup case checks original cwd/arguments
+and the exited process. `session-workspace-retirement-startup.spec.ts` schedules
+real directory removal at the external native spawn boundary after a successful
+check, then invokes real node-pty startup with that absent cwd. Product transport
+re-observes absence and emits the limitation without readiness or replacement
+input. Existing selected specs preserve Codex saved context/input/readiness/detach,
+generic failures, legacy missing-endpoint 1011/no Claude substitution, Claude
+selection/Close and both resize-race consumers.
+
+Independent refactoring removed obsolete asynchronous observation wrappers and
+guarded all disposed-attachment callbacks, including a later retry of the same
+request. The real-browser/socket/PTY lifetime regression was extracted to
+`session-workspace-retirement-lifetime.spec.ts`: controlled late readiness,
+workspace-refusal and output events from the old socket cannot redirect the
+current terminal, inject output, request a report or disturb current input;
+store bytes remain unchanged. Refactor proof passed:
+`env -u NO_COLOR npm run test:dashboard --
+session-workspace-retirement-attach.spec.ts session-workspace-retirement.spec.ts
+session-workspace-retirement-done.spec.ts agent-terminal-codex-page.spec.ts
+agent-terminal.spec.ts agent-launch-host-identity.spec.ts
+agent-terminal-done-codex-page.spec.ts
+agent-launch-codex-observation-status.spec.ts`, then
+`env -u NO_COLOR npm run test:dashboard --
+session-workspace-retirement-lifetime.spec.ts` after extraction.
+`npm run typecheck:dashboard` and `git diff --check` passed. Native report
+acceptance, filesystem and spawn/exit transport, and resize proof were unchanged
+and reused. Documentation now covers action-time and failed-start fallback.
+All implementation files remain below 250 lines after formatting. Mechanical
+lint corrections annotate decoded JSON as unknown, remove obsolete test async
+and an unnecessary optional chain; no runtime behavior changed.
+
 ## Current decisions and preparation review
 
 - One observation model keeps conversation, workspace, activity and done intent
@@ -396,8 +444,9 @@ and retain completion/review evidence for authorized execution wrap-up.
   Behaviors. Retired-session review spans layers and entry points because it
   has one coherent user result; the action-time race has a separate trigger and
   proof loop. No independent second outcome or speculative framework is included.
-- No remaining slice-boundary, proof-ownership or sizing concern was found in
-  this review. Native feasibility is not claimed passed: it is bounded by the
-  first slice's stop condition before implementation of dependent behavior.
-- This preparation's readiness assessment is plan review, not execution or
-  publication authority. All slices remain planned.
+- No remaining slice-boundary, proof-ownership or sizing concern was found.
+  Native feasibility and report-to-view acceptance were established in slices
+  1–2; their unchanged boundaries retain that proof. All three slices are done.
+- The original preparation assessment supplied plan readiness; Terry's current
+  execute-plan invocation supplies execution/publication authority. Readiness
+  was not renewed by execution evidence updates.

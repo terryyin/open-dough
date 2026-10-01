@@ -5,6 +5,7 @@ import { launchSubject } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { sessionAccess, type SessionAccess } from "./sessionAccess.ts";
 import { sessionKey } from "./sessionReference.ts";
+import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
 import {
   deletedEntryHome,
   type OpenSessionPanel,
@@ -54,6 +55,14 @@ export function usePageSessionPanel({
     setMaximized(false);
     setPanel({ kind: "result", request });
   }, []);
+  const unavailableWorkspace = useCallback(
+    (request: SessionRequest, workspaceState: TerminalWorkspaceUnavailable) => {
+      if (latest.current !== request) return;
+      const record = { ...request.record, workspaceState };
+      openResult({ ...request, record });
+    },
+    [openResult],
+  );
   const close = (closed: SessionRequest) => {
     if (latest.current !== closed) return;
     setPanel(undefined);
@@ -118,5 +127,6 @@ export function usePageSessionPanel({
     deleted,
     sessions,
     openSession: sessions.openSession,
+    unavailableWorkspace,
   };
 }

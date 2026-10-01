@@ -173,9 +173,13 @@ Same-origin `/__agent-terminal?source=&host=&session=` admits recorded host-qual
 sessions in existing project folders. Claude uses `claude attach <native alias>`;
 Codex uses the saved ID, endpoint and workspace with ordinary `codex resume`
 and `--no-alt-screen`. Unknown project/session, missing project folder and
-unavailable sessions are refused before attachment; a removed Codex workspace is
-not, as [session troubleshooting](../docs/dashboard-session-troubleshooting.md)
-explains. Text frames carry output; bounded input, resize and rendered readiness
+unavailable sessions are refused before attachment. Codex checks the saved
+directory at attachment: missing or inconclusive availability opens the same
+session's read-only final report and explains the limitation. Failure before
+native readiness rechecks the directory; only that observation supplies a
+workspace limitation. Other startup failures keep their attachment error, as
+[session troubleshooting](../docs/dashboard-session-troubleshooting.md) explains.
+Text frames carry output; bounded input, resize and rendered readiness
 messages share the existing transport.
 Closing socket/server sends SIGHUP to the attachment client only, retaining
 native work/history and daemon. CLI exit uses code 4000 so the page distinguishes

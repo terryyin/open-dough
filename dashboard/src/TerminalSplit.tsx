@@ -108,6 +108,7 @@ export function TerminalSplit({
               panel.close(terminal);
             }}
             onMarkDone={markSessionDone}
+            onWorkspaceUnavailable={panel.unavailableWorkspace}
           />
         )}
       </div>

@@ -20,5 +20,11 @@ native endpoint to remain reachable. A completed final agent answer is required;
 the panel does not substitute an older report or show the full transcript.
 
 Existing-workspace Codex sessions and Claude Code retain terminal continuation.
-If the directory disappears after refresh, attachment-time handling is still a
-separate boundary: an attachment failure does not alone prove workspace absence.
+Attachment checks the saved directory again, so disappearance after refresh
+opens the same conversation's read-only report with the missing-workspace
+explanation. An inconclusive action-time lookup explains uncertainty instead.
+If native startup fails before readiness, the dashboard rechecks the directory
+before choosing that report fallback. A generic startup failure or exit code
+does not establish workspace absence: other failures keep their attachment
+error and reconnect action. These fallbacks preserve the developer's done mark,
+never recreate the directory and never resume in a different workspace.

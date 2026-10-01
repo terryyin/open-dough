@@ -51,15 +51,13 @@ export async function withStates(
       ),
     )
   ).flat();
-  return Promise.all(
-    records.map(async (record) => ({
-      ...record,
-      ...(record.session.host === "codex"
-        ? { workspaceState: await savedWorkspaceState(record.session) }
-        : {}),
-      sessionState: observations.find(
-        (entry) => sessionKey(entry.session) === sessionKey(record.session),
-      )?.sessionState ?? { kind: "unknown" },
-    })),
-  );
+  return records.map((record) => ({
+    ...record,
+    ...(record.session.host === "codex"
+      ? { workspaceState: savedWorkspaceState(record.session) }
+      : {}),
+    sessionState: observations.find(
+      (entry) => sessionKey(entry.session) === sessionKey(record.session),
+    )?.sessionState ?? { kind: "unknown" },
+  }));
 }
