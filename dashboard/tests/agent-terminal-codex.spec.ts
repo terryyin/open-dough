@@ -13,6 +13,7 @@ import {
   codexEnded,
   codexLines,
   codexTerminalMode,
+  expectCodexHungUp,
   openCodexTerminal,
 } from "./support/codexTerminal.ts";
 import { processRunning } from "./support/processGroup.ts";
@@ -71,10 +72,7 @@ for (const mode of ["dev", "preview"] as const) {
       expect(await shows(terminal, "resized 120x40")).toBe(true);
       expect(codexLines(native, attach?.pid ?? 0)).toEqual(["answer"]);
       terminal.socket.close();
-      await expect
-        .poll(() => codexEnded(native, attach?.pid ?? 0))
-        .toBe("SIGHUP");
-      await expect.poll(() => processRunning(attach?.pid ?? 0)).toBe(false);
+      await expectCodexHungUp(native, attach?.pid ?? 0);
       expect(await machineSessions(dashboard)).toHaveLength(1);
       expect(
         native.calls.filter((call) =>

@@ -18,6 +18,34 @@ import { managementContext } from "../../dough-execute-plan/scripts/publication-
 import { preserved } from "../../dough-land/scripts/retirement-checks.mjs";
 import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 
+const closureCommand = fileURLToPath(
+  new URL("../../dough-land/scripts/queued-closure-check.mjs", import.meta.url),
+);
+
+export async function runClosureCheckCommand({
+  checkout,
+  remote = "origin",
+  targetRef = "refs/heads/main",
+}) {
+  const args = [
+    closureCommand,
+    "check",
+    "--checkout",
+    checkout,
+    "--remote",
+    remote,
+    "--target-ref",
+    targetRef,
+  ];
+  try {
+    const { stdout } = await promisify(execFile)("node", args);
+    return { code: 0, result: JSON.parse(stdout) };
+  } catch (error) {
+    if (error.code !== 1) throw error;
+    return { code: 1, result: JSON.parse(error.stdout) };
+  }
+}
+
 const retirementCommand = fileURLToPath(
   new URL("../../dough-land/scripts/worktree-retirement.mjs", import.meta.url),
 );
@@ -188,7 +216,20 @@ export async function landWorktree({
       remote,
       validate: () => true,
       beforePush,
-      onFetchedTarget,
+      onFetchedTarget: async (context) => {
+        const { result } = await runClosureCheckCommand({
+          checkout: worktree,
+          remote,
+          targetRef: target,
+        });
+        if (!result.ok) {
+          return {
+            status: result.status,
+            fields: { ownership: result.ownership, error: result.error },
+          };
+        }
+        return onFetchedTarget?.(context);
+      },
     });
     if (!publication.ok) {
       return { stopped: "publish", commit, publication, ...notDone };

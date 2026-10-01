@@ -6,7 +6,12 @@ import {
   agentModes,
   agentReportError,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { needsPublicationAuthority, sessionPolicy } from "./session-policy.mjs";
+import {
+  needsPublicationAuthority,
+  oneShotOnlyChoices,
+  sessionPolicy,
+  sessionPolicyChoices,
+} from "./session-policy.mjs";
 import { stopped } from "./workspace-publication-ownership.mjs";
 import { defaultCheckoutRequest } from "./workspace-publication-select.mjs";
 
@@ -54,15 +59,14 @@ export function startRequest(requestInput) {
   const policy = sessionPolicy(requestInput);
   const oneShot = policy.tracking === "one-shot";
   const defaultCheckout = policy.workspace === "default-checkout";
-  if (defaultCheckout && !oneShot)
+  const unsupported = oneShotOnlyChoices(policy)[0];
+  if (unsupported)
     return stopped("invalid-request", {
-      error:
-        "--default-main applies to one-shot work; a tracked start publishes its claim from a separate owned workspace",
-    });
-  if (policy.landing !== "review" && !oneShot)
-    return stopped("invalid-request", {
-      error:
-        "--auto-land applies to one-shot work; tracked work publishes through its own lifecycle",
+      error: `${sessionPolicyChoices[unsupported].flag} applies to one-shot work; ${
+        unsupported === "workspace"
+          ? "a tracked start publishes its claim from a separate owned workspace"
+          : "tracked work publishes through its own lifecycle"
+      }`,
     });
   const required = [
     "workspace",

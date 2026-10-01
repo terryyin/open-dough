@@ -4,11 +4,13 @@ import { stat } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import type {
   EstablishedPreparation,
+  SessionPolicy,
   StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import { installedSkillPath } from "./launchHosts.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import { isFile, runStartCommand } from "./startLaunch.ts";
+import { policyArguments } from "./startPolicy.ts";
 import {
   readPreparationResult,
   type PreparationResult,
@@ -18,12 +20,51 @@ const refinementSkill = "dough-story-refinement";
 const startScript = "preparation-assignment.mjs";
 const formatterScript = "established-preparation.mjs";
 
+// The selected start and retained assignment spell the installed command's
+// arguments here, beside the command contract they invoke.
 export async function runPreparationCommand(
-  args: readonly string[],
+  start: {
+    readonly identity: string;
+    readonly workspace: string;
+    readonly branch: string;
+    readonly remote: string;
+    readonly target: string;
+    readonly policy: SessionPolicy;
+    readonly host: StoryLaunchRequest["host"];
+    readonly model?: string | undefined;
+    readonly assigned?:
+      Exclude<EstablishedPreparation, { tracking: "one-shot" }> | undefined;
+  },
   project: ProjectFolder,
-  host: StoryLaunchRequest["host"],
   operation: "start" | "continue",
 ): Promise<PreparationResult> {
+  const { host, model, assigned } = start;
+  const args = [
+    ...policyArguments(start.policy, project),
+    "--workspace",
+    start.workspace,
+    "--branch",
+    start.branch,
+    "--identity",
+    start.identity,
+    "--remote",
+    start.remote,
+    "--target",
+    start.target,
+    "--host",
+    host,
+    ...(model === undefined ? [] : ["--model", model]),
+    ...(assigned === undefined
+      ? []
+      : [
+          ...(assigned.agent === undefined
+            ? []
+            : ["--expected-agent", assigned.agent]),
+          ...(assigned.publishedSha === undefined
+            ? []
+            : ["--expected-allocation", assigned.publishedSha]),
+        ]),
+  ];
   const stdout = await runStartCommand(
     installedSkillPath(host, project, refinementSkill, "scripts", startScript),
     args,

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "philip-chan",
-  "email": "philip-chan@example.org",
-  "identity": "SEED-071#session-panel-header-controls",
-  "mode": "story-branch",
-  "branch": "claude/control-the-dashboard-session-panel-from-its-hea",
-  "host": "claude"
-}

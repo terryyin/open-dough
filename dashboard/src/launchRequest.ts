@@ -2,6 +2,7 @@
 import { z } from "zod";
 import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
+  sessionPolicy,
   sessionPolicyChoices,
   sessionPolicyFlags,
 } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
@@ -48,11 +49,7 @@ export const sessionPolicySchema = z.object({
 
 export type SessionPolicy = z.infer<typeof sessionPolicySchema>;
 
-export const defaultSessionPolicy: SessionPolicy = {
-  tracking: "standard",
-  workspace: "isolated",
-  landing: "review",
-};
+export const defaultSessionPolicy: SessionPolicy = sessionPolicy({});
 
 // A request's or record's policy, the default when it names none.
 export function policyOf(request: {

@@ -43,6 +43,11 @@ base it supplies:
   [slice wrap-up](wrap-up.md#deliver-the-change). Codex, Cursor, and Claude
   keep the checkout and authorized target their adapters already record.
 
+Queued, admitted, and isolated one-shot starts require a linked Git worktree
+when selecting an existing owned workspace. The repository's main worktree is
+refused before fetch or parking carried edits. Explicit `--default-main` and
+established continuations retain their own contracts.
+
 If selection stops, preserve and report any partial workspace. Do not publish
 a claim from it and do not start implementation. The shared lifecycle does not
 publish the claim or refresh the default checkout; those stay with

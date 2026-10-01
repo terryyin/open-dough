@@ -1,9 +1,11 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "@playwright/test";
 import WebSocket from "ws";
 import type { FakeCodex } from "./fakeCodex.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { terminalUrl, type Terminal } from "../agentTerminalBoundary.ts";
+import { processRunning } from "./processGroup.ts";
 
 export type CodexAttach = {
   pid: number;
@@ -29,6 +31,12 @@ export const codexAttaches = (native: FakeCodex): CodexAttach[] =>
     .map((line) => JSON.parse(line) as CodexAttach);
 export const codexEnded = (native: FakeCodex, pid: number) =>
   read(native, `${String(pid)}.ended`);
+// The attached codex recorded the hang-up and is gone. It records the reason
+// before exiting, so whether it is gone is only known once it stops running.
+export async function expectCodexHungUp(native: FakeCodex, pid: number) {
+  await expect.poll(() => codexEnded(native, pid)).toBe("SIGHUP");
+  await expect.poll(() => processRunning(pid)).toBe(false);
+}
 export const codexLines = (native: FakeCodex, pid: number): string[] =>
   read(native, `${String(pid)}.lines`)
     .trim()

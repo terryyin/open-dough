@@ -11,11 +11,10 @@ import {
 import { shows } from "./agentTerminalBoundary.ts";
 import {
   codexAttaches,
-  codexEnded,
   codexLines,
+  expectCodexHungUp,
   openCodexTerminal,
 } from "./support/codexTerminal.ts";
-import { processRunning } from "./support/processGroup.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 for (const status of ["active", "idle", "notLoaded"] as const) {
@@ -98,8 +97,7 @@ for (const status of ["active", "idle", "notLoaded"] as const) {
       if (terminal !== undefined) {
         expect(await terminal.closed).toBe(4000);
         const pid = codexAttaches(native)[0]?.pid ?? 0;
-        await expect.poll(() => codexEnded(native, pid)).toBe("SIGHUP");
-        await expect.poll(() => processRunning(pid)).toBe(false);
+        await expectCodexHungUp(native, pid);
         expect(codexLines(native, pid)).toEqual([]);
       }
       expect(await recordsOf(dashboard, "open-dough")).toContainEqual(

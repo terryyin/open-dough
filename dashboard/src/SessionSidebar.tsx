@@ -10,7 +10,7 @@ import { sessionKey } from "./sessionReference.ts";
 // badge of how many sessions need the developer (`attentionCount`), open or
 // closed. Command+B toggles it too, page-wide and from inside the terminal,
 // except inside an open dialog, which keeps its own keyboard
-// (`isInsideOpenDialog`); elsewhere it takes the key
+// (`useCommandShortcut`); elsewhere it takes the key
 // from the browser. Toggling leaves the keyboard where it is, except that
 // closing the sidebar with the keyboard inside it returns the keyboard to the
 // Sessions button. Opening an entry (`./SidebarEntry.tsx`) goes to its story
@@ -37,7 +37,7 @@ import {
 } from "./agentLaunch.ts";
 import { SessionList } from "./SessionEntry.tsx";
 import { SidebarEntry, type OpenSidebarEntry } from "./SidebarEntry.tsx";
-import { isInsideOpenDialog } from "./pageShortcuts.ts";
+import { useCommandShortcut } from "./pageShortcuts.ts";
 import { attentionCount, attentionSummary } from "./sessionShown.ts";
 import "./agent-launch.css";
 import "./session-sidebar.css";
@@ -61,12 +61,7 @@ function keepSidebarOpen(open: boolean): void {
   }
 }
 
-const isToggleShortcut = (event: KeyboardEvent) =>
-  event.metaKey &&
-  !event.ctrlKey &&
-  !event.altKey &&
-  !event.shiftKey &&
-  event.key.toLowerCase() === "b";
+const toggleShortcut = { key: "b" } as const;
 
 // Whether the sidebar is open, and the machine's sessions it lists: held by
 // the page frame (`./TerminalSplit.tsx`), which places the sidebar, and
@@ -126,24 +121,7 @@ export function useSessionSidebar(
     toggle();
     return sessionsButton() ?? undefined;
   };
-  // Listened for while capturing, so the page answers Command+B before any
-  // control on it, the terminal included, handles the key.
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (!isToggleShortcut(event) || isInsideOpenDialog(event.target)) {
-        return;
-      }
-      event.preventDefault();
-      // A held key toggles once.
-      if (!event.repeat) {
-        toggle();
-      }
-    };
-    window.addEventListener("keydown", onKeyDown, true);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown, true);
-    };
-  }, [toggle]);
+  useCommandShortcut(toggleShortcut, toggle);
   return { open, toggle, closeOverPage, records, alerts };
 }
 

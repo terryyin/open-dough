@@ -27,6 +27,22 @@ test("preparation keep and workspace retirement link Dough Land instead of descr
     land,
     /A casual\s+"keep", "looks good", or approval does not invoke it/,
   );
+  assert.match(
+    land,
+    /node <installed>\/dough-land\/scripts\/queued-closure-check\.mjs check --checkout <checkout> --remote <remote> --target-ref refs\/heads\/<branch>/,
+  );
+  assert.match(
+    land,
+    /On each fetched target, before rewriting the candidate and before the retry\s+push/,
+  );
+  assert.match(
+    land,
+    /`ownership-changed`.*Push nothing; keep the checkout, branch, index, and commit/,
+  );
+  assert.match(
+    land,
+    /Do not resolve a backlog reconciliation conflict by removing the other side's\s+entry/,
+  );
   assert.match(land, /## Refresh the default checkout/);
   assert.match(land, /## Retire the worktree/);
   assert.match(land, /git -C <checkout> add -A/);

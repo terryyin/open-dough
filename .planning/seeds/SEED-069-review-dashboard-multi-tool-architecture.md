@@ -70,9 +70,10 @@ multi-tool dashboard is the broader ambition it serves.
 - **Deferred:** Implementing any improvement, adding Cursor, and observing
   native Cursor behavior. A paid native observation is out of scope.
 - **Boundary assumption:** The Codex dashboard story is closed. The
-  [Codex terminal attachment investigation](SEED-073-investigate-codex-terminal-attachment.md#investigate-codex-terminal-attachment)
-  is still Taken; the review records its outcome if available, or names
-  attachment recovery as a limitation it could not assess.
+  [Codex terminal attachment investigation](https://github.com/terryyin/open-dough/blob/ae22469918f20d03640fe5cd584a89c55eedfc04/.planning/seeds/SEED-073-investigate-codex-terminal-attachment.md#investigation-evidence-2026-10-01)
+  was closed without repair at Terry’s request. A missing saved workspace was
+  demonstrated to prevent attachment; its original removal timing remains
+  unconfirmed. The review retains attachment recovery as a limitation.
 
 **Key examples:**
 

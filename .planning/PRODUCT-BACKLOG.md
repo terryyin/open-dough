@@ -14,13 +14,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Align one-shot callers and starts with the review default](seeds/SEED-066-composable-lightweight-session-options.md#align-one-shot-callers-with-review-default) — SEED-066#align-one-shot-callers-with-review-default ([plan](slice-plans/196-align-one-shot-callers-with-review-default/PLAN.md))
-- [Control the dashboard session panel from its header](seeds/SEED-071-session-panel-header-controls.md#session-panel-header-controls) — SEED-071#session-panel-header-controls ([plan](slice-plans/197-session-panel-header-controls/PLAN.md))
-- [Investigate Codex terminal attachment failure](seeds/SEED-073-investigate-codex-terminal-attachment.md#investigate-codex-terminal-attachment) — SEED-073#investigate-codex-terminal-attachment
 - [Re-optimize CI feedback and test wall time after concurrent story branches land](seeds/SEED-070-reoptimize-ci-test-wall-time.md#reoptimize-ci-test-wall-time) — SEED-070#reoptimize-ci-test-wall-time ([plan](slice-plans/198-reoptimize-ci-test-wall-time/PLAN.md))
 - [Keep the dashboard responsive while session startup settles](seeds/SEED-072-responsive-session-start-reconciliation.md#responsive-session-start-reconciliation) — SEED-072#responsive-session-start-reconciliation ([plan](slice-plans/192-responsive-session-start-reconciliation/PLAN.md))
-- [Check how Dough Land handles a kept one-shot result whose story was taken](seeds/SEED-066-composable-lightweight-session-options.md#dough-land-kept-one-shot-ownership) — SEED-066#dough-land-kept-one-shot-ownership ([plan](slice-plans/199-dough-land-kept-one-shot-ownership/PLAN.md))
 - [Review dashboard architecture before adding more AI IDE tools](seeds/SEED-069-review-dashboard-multi-tool-architecture.md#review-dashboard-multi-tool-architecture) — SEED-069#review-dashboard-multi-tool-architecture ([plan](slice-plans/200-review-dashboard-multi-tool-architecture/PLAN.md))
+- [Investigate attention from a completed session](seeds/SEED-074-investigate-done-session-alerts.md#investigate-done-session-alerts) — SEED-074#investigate-done-session-alerts
 
 ## Backlog list
 

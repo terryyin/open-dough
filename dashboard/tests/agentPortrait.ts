@@ -38,6 +38,13 @@ async function expectEnlargedSharply(
   position: string,
 ) {
   await portrait.hover();
+  // The gesture is incidental to the atlas/geometry proof. Let the browser
+  // finish its real animations, then observe their unchanged final state.
+  await portrait.evaluate((element) => {
+    for (const animation of element.getAnimations({ subtree: true })) {
+      animation.finish();
+    }
+  });
   const fileName = (url: string) => new URL(url).pathname.split("/").pop();
   await expect
     .poll(async () => {

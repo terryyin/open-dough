@@ -11,15 +11,13 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
 import { runRetirementCommand } from "../../dough-story-refinement/scripts/dough-land-test-fixtures.mjs";
-import {
-  assertTrunkObserved,
-  autoLandDelivery,
-  deliverFrom,
-  startAutoLand,
-} from "./lightweight-auto-land-test-fixtures.mjs";
 import { refreshDefaultCheckout } from "./maintain-default-checkout.mjs";
 import {
+  assertTrunkObserved,
   commitQueuedResult,
+  deliverQueued,
+  queuedDelivery,
+  startQueuedOneShot,
   createSiblingTrunk,
   identityB,
   identityB2,
@@ -43,14 +41,16 @@ import { lostPushResponse } from "./workspace-publication-startup-test-fixtures.
 // closure; nothing reaches the remote before delivery.
 async function startAndCommit(trunk) {
   const headsBefore = await remoteHeads(trunk.origin);
-  const started = await startAutoLand(trunk);
+  const started = await startQueuedOneShot(trunk, { extra: ["--auto-land"] });
   assert.equal(started.code, 0, started.stdout);
   assert.equal(started.receipt.status, "prepared");
   assert.equal(started.receipt.landing, "auto-land");
   assert.equal(started.receipt.created, true);
   const result = await commitQueuedResult(started.workspace);
   assert.equal(await remoteHeads(trunk.origin), headsBefore);
-  const fixture = await autoLandDelivery(trunk, started.workspace);
+  const fixture = await queuedDelivery(trunk, started.workspace, {
+    excludeInstallation: true,
+  });
   return { started, result, fixture, base: started.receipt.startingRevision };
 }
 
@@ -59,7 +59,9 @@ test("an auto-landed queued result and its closure land as one observed trunk co
   t.after(trunk.cleanup);
   const { started, result, fixture, base } = await startAndCommit(trunk);
 
-  const { delivered, stderr } = await deliverFrom(fixture, { base });
+  const { delivered, stderr } = await deliverQueued(fixture, base, [], {
+    session: fixture.session,
+  });
   assert.equal(delivered?.ok, true, stderr);
   assert.equal(delivered.receipt.sha, result);
   assert.equal(delivered.receipt.target, trunkTarget);
@@ -106,7 +108,9 @@ test("a Take published between the auto-land start and its landing stops deliver
   const { started, result, fixture, base } = await startAndCommit(trunk);
   const take = await rivalTake(trunk);
 
-  const { delivered, code } = await deliverFrom(fixture, { base });
+  const { delivered, code } = await deliverQueued(fixture, base, [], {
+    session: fixture.session,
+  });
   assert.equal(code, 1);
   assert.equal(delivered.status, "ownership-changed");
   assert.equal(delivered.ownership.identity, identityB);
@@ -125,8 +129,8 @@ test("a lost push response of an auto-landed result resumes the retained candida
   t.after(trunk.cleanup);
   const { started, result, fixture, base } = await startAndCommit(trunk);
 
-  const lost = await deliverFrom(fixture, {
-    base,
+  const lost = await deliverQueued(fixture, base, [], {
+    session: fixture.session,
     env: { ...fixture.env, PATH: lostPushResponse(trunk).PATH },
   });
   assert.notEqual(lost.code, 0, lost.stdout);

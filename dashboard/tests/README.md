@@ -103,6 +103,14 @@ Delete record is walked by `agent-launch-delete.spec.ts` (the boundary),
 (a card entry, and what refusals and failures leave), and
 `agent-launch-recent-delete.spec.ts` (a Recent sessions entry).
 
+CI sets `OPEN_DOUGH_DASHBOARD_SPLIT=i/n` to select share `i` of `n` whole
+spec files. `longest-first` orders known files by recorded hosted duration;
+unlisted specs follow sorted, and that order is dealt round-robin across
+shares. Stale and repeated list entries are ignored. With the variable unset,
+`npm run test:dashboard` keeps running the whole suite. The partition check
+in `tests/support/dashboard-test-files.test.mjs` protects discovery of new specs
+and assignment without duplicates or omissions.
+
 A passing run prints nothing (`support/quietReporter.ts`). A failing
 spec is shown with its error, output, and retained trace; a passing spec that
 writes output, or output from the run itself such as global setup, fails the

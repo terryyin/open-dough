@@ -153,15 +153,18 @@ run_substitute_host_journeys() {
     "${work}/journey-land-default-checkout.txt"
 }
 
-# The one-shot journeys, each with its real-state counterexamples, run as
-# their own job.
+# The aggregate keeps the literal focused proof command; CI schedules the
+# result/review and workspace/landing journeys as separate bounded jobs.
 run_substitute_one_shot_journeys() {
+  run_substitute_one_shot_result_journeys
+  run_substitute_one_shot_workspace_journeys
+}
+
+run_substitute_one_shot_result_journeys() {
   local journey
   prepare_substitute_hosts
   for journey in one-shot-result one-shot-queued one-shot-escalation \
-    one-shot-review one-shot-refinement one-shot-default-main \
-    one-shot-auto-land one-shot-auto-land-blocked one-shot-established \
-    one-shot-refinement-auto-land; do
+    one-shot-review one-shot-refinement; do
     run_substitute_one_shot_journey "${journey}"
   done
   run_substitute_one_shot_review_pushes one-shot-review \
@@ -173,6 +176,16 @@ run_substitute_one_shot_journeys() {
   run_one_shot_unobserved_counterexamples \
     "${substitute_artifact}/events.jsonl" claude
   git_publication_fixture_cleanup
+}
+
+run_substitute_one_shot_workspace_journeys() {
+  local journey
+  prepare_substitute_hosts
+  for journey in one-shot-default-main one-shot-auto-land \
+    one-shot-auto-land-blocked one-shot-established \
+    one-shot-refinement-auto-land; do
+    run_substitute_one_shot_journey "${journey}"
+  done
 }
 
 # Whole-run counterexample for review journey $1, whose assessor file in

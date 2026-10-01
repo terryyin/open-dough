@@ -1,3 +1,13 @@
+## 0.3.52 - 2026-10-01
+
+- Add end-to-end Codex dashboard sessions for ad-hoc work, refinement, and execution, including durable blank or exact prompts, saved-conversation observation and recovery, embedded terminal attachment, safe done handling, and reopening the original Codex conversation.
+- Make lightweight refinement and execution sessions composable: keep one-shot results for review by default, optionally land them automatically, or work in the default checkout with an explicit existing-changes confirmation, while sharing host-aware ownership, refusal, and recovery policy.
+- Improve the session panel with the assigned agent portrait, maximize and restore controls, a reliable close action and Command+Shift+Escape shortcut, responsive terminal sizing, and clearer troubleshooting for unavailable Codex workspaces.
+- Install a warning-free pre-commit lint hook, broaden selective lint coverage, and shorten CI feedback by partitioning deterministic and browser tests across more jobs, caching Playwright Chromium, and separating native one-shot checks.
+- Refresh the released story-refinement and execution guidance and runtime payload for one-shot preparation, established-session continuation, default-checkout safety, auto-landing, and the new dashboard launch choices.
+
+Native acceptance was explicitly skipped for `0.3.52` at the maintainer's request as an exception to ADR 0005. Native evidence completed within the included Codex dashboard and one-shot work is retained; native acceptance for the changed dashboard session controls, one-shot refinement and execution, pre-commit and CI behavior, and previously pending requirements remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.51 - 2026-09-30
 
 - Let dashboard-launched refinement establish and publish its Preparing assignment before opening the session, hand the workspace to the refinement skill, preserve uncertain or failed starts for safe resume, and keep interactive Claude Code sessions readable when their listing omits state details.
