@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "steven-chan",
-  "email": "steven-chan@example.org",
-  "identity": "SEED-075#session-record-per-host",
-  "mode": "story-branch",
-  "branch": "codex/each-host-has-its-own-session-record-shape",
-  "host": "codex"
-}
