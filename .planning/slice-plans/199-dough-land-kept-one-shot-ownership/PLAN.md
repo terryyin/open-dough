@@ -102,7 +102,7 @@ Key examples from the story, with their signals:
 ### 1. Dough Land stops a closure that another owner now holds
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: a new `src/skills/dough-land/scripts/queued-closure-check.test.mjs`
 covers examples 1–5 through the Dough Land Git model and the installed command,
 together with the existing `landWorktree` callers listed above. Then
@@ -180,6 +180,46 @@ time if cost calls for fewer.
   model and the installed command, in slice 1. Adding a native case was
   considered and excluded under the story's scope. Native proof of the stop would be a scope addition.
 
+## Execution context and accepted slice 1 proof
+
+- Mode: story-branch; workspace and branch supplied by Established start.
+- Publisher: `dashboard-mac.lan-open-dough`; agent: `aki-chan`.
+- Claim and previously published base: `cc865741f835b7ed9c99483cb345aca0b561ea01`.
+- Starting revision: `1eb982ba221a28f07043a8ecedebc937d1338f6f`.
+- Remote: `origin`; trunk: `main`; increment target:
+  `refs/heads/codex/check-how-dough-land-handles-a-kept-one-shot-res`.
+- Checkout setup: `npm ci`, followed by the existing guidance check through
+  the project runner, passed. Replanning allowed within existing authority;
+  no numeric slice budget is supplied, so boundedness follows the shared gate.
+- Slice 1 proof (exit 0):
+
+```sh
+PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-land/scripts/queued-closure-check.test.mjs src/skills/dough-story-refinement/scripts/dough-land-guidance.test.mjs src/skills/dough-story-refinement/scripts/dough-land.test.mjs src/skills/dough-story-refinement/scripts/dough-land-rerun.test.mjs src/skills/dough-story-refinement/scripts/dough-land-remote-context.test.mjs src/skills/dough-story-refinement/scripts/preparation-assignment-land.test.mjs src/skills/dough-story-refinement/scripts/preparation-assignment-landing-retry.test.mjs src/skills/dough-story-refinement/scripts/preparation-assignment-remote-base.test.mjs src/skills/dough-story-refinement/scripts/preparation-assignment-reuse.test.mjs src/skills/dough-story-refinement/scripts/one-shot-refinement-auto-land.test.mjs src/skills/dough-bug-fixing/scripts/retained-artifacts.test.mjs tests/native-evidence-identity.sh tests/payload-declaration-links.sh tests/execution-payload-update.sh tests/story-payload-update.sh
+```
+
+`retainedResult` and `rival` supply starting conditions. The seven new cases
+observe clear closure and retirement, preparation/execution owner preservation,
+Taken ownership, retry refusal after a racing Take, empty closure for unlisted
+work, accepted-candidate rerun, and usage exit 2. `assertHeld` observes unchanged
+remote and retained HEAD/workspace with refresh/cleanup not done. Guidance
+assertions observe timing and preservation. Existing landing consumers,
+import-closure identity, and installed payload/update checks pass.
+
+Independent post-change refactor: no edits needed; accepted proof remains valid.
+Formatting exposed an unused result-field binding in the model adapter; replaced
+it with explicit ownership/error forwarding and reran the affected command/model
+checks through the runner. Representative skill behavior review confirms explicit
+invocation, required checkout/remote/target, useful missing-input stop, and named
+ownership refusal preserving the result.
+
 ## Learnings
 
-None yet.
+- Declare the new command in `install.sh` and update the installed-module proof,
+  so guidance never refers to an undelivered runtime dependency.
+- A base with no queued entries cannot supply a queued closure. Return clear
+  before parsing the candidate's backlog in that case; this preserves an existing
+  bug-fixing fixture that introduces a noncanonical backlog from no backlog.
+- Refinement's identity-specific recheck remains necessary: its unchanged
+  candidate closes no queued entry, so Dough Land's check cannot replace it.
+- New test fixtures must record the canonical identity explicitly to match
+  profile identities. The initial fixture mismatch was corrected before acceptance.
