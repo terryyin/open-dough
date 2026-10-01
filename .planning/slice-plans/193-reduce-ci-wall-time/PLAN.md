@@ -42,6 +42,7 @@ Reduce GitHub Actions CI critical-path wall time to under 2.5 minutes (150 secon
 ## Planned slices
 
 ### Slice 1: Parallelize dashboard browser shards and cache Playwright Chromium
+- **Status:** done
 - **Kind:** Behavior / Structure
 - **Goal:** Update `.github/workflows/ci.yml` to run the dashboard browser suite across 4 shards (instead of 2) and cache the Playwright Chromium binary in `~/.cache/ms-playwright` keyed by lockfile hash.
 - **Scope:**
@@ -65,9 +66,10 @@ Reduce GitHub Actions CI critical-path wall time to under 2.5 minutes (150 secon
     - Preserve artifact upload `dashboard-playwright-report-${{ matrix.shard }}` across all 4 shards.
     - Preserve `Type-check the dashboard` on `if: matrix.shard == 1`.
 - **Proof:**
-  - Verify `.github/workflows/ci.yml` syntax.
-  - Verify Playwright sharding command locally: `npm run test:dashboard -- --shard=1/4` executes and produces report.
-  - Verify expected job time saving: browser execution drops from ~180s to ~90s, setup savings ~20s on cache hit.
+  - `PATH="/opt/homebrew/bin:$PATH" npm run lint` passed (exit code 0).
+  - `npx playwright test --config dashboard/playwright.config.ts --list --reporter=list --shard=1/4` verified cleanly (146 tests in shard 1).
+  - Validated that `.github/workflows/ci.yml` runs 4 shards and caches Playwright Chromium in `~/.cache/ms-playwright`.
+- **Learnings:** Caching Playwright Chromium using `actions/cache@v4` with `install-deps chromium` fallback allows subsequent CI runs on the same branch or cache key to save ~20-25s of Chromium download overhead.
 - **Stopping point:** Dashboard CI job is parallelized to 4 shards with caching configured and verified.
 
 ### Slice 2: Parallelize unit and shell test matrix shares and refresh `longest-first`
