@@ -79,6 +79,9 @@ export async function expectTerminalPreviewFits(
   // shorter panel, even when its usual triple-size circle cannot fit.
   await page.setViewportSize({ width: 800, height: 160 });
   await expectPreviewContained();
+  // End the previous hover before supplying a new anchor position. Otherwise
+  // the browser can keep the same hover target and its old placement values.
+  await page.mouse.move(0, 0);
   await page.setViewportSize({ width: 800, height: 600 });
   await portrait.evaluate((element) => {
     const shown = element as HTMLElement;
