@@ -23,7 +23,8 @@ and `npm run typecheck:dashboard` passed; dependencies are local, without the
 planning session's dependency symlink. Existing planning authority is retained
 for bounded replanning; no numeric slice target or hard limit was supplied.
 
-**Delivered revision:** `33eb0b69afbca8db3cc860f5d6ca2d9dd74aa17f` (slice 1),
+**Delivered revisions:** `33eb0b69afbca8db3cc860f5d6ca2d9dd74aa17f` (slice 1)
+and `34fd7257ee0c0282700e095a225cf369d5ad723d` (slice 2),
 accepted on the execution branch. CI source is GitHub Actions `ci.yml` (`CI`),
 verified with `gh run list --repo terryyin/open-dough --workflow ci.yml --branch
 codex/show-truthful-session-access-after-its-workspace --event push --limit 1
@@ -32,6 +33,24 @@ above, cell `42`, tool session `72248`, directory `/tmp/dough-ci-501/watch-qG1qA
 PID `16942`; managed delivery reused it and registered the accepted revision.
 The initial trunk claim has no matching trunk observer and remains unobserved;
 ordinary increments are covered on the execution branch, without per-slice CI waits.
+
+**Owned CI repair during slice 3:** run `36861023410`, attempt `1`,
+`dashboard (2/9)` failed on slice 2's accepted revision: the legacy equal-ID
+host-isolation spec's exact machine-response expectation omitted Codex's new
+transient `workspaceState: unknown`. This was a contract-consumer expectation
+gap, not evidence of native identity loss. The minimal local command
+`npm run test:dashboard -- dashboard/tests/agent-launch-host-identity.spec.ts`
+reproduced that exact extra-field assertion failure (and separately emitted the
+known NO_COLOR/FORCE_COLOR warning). The repair aligns the read and done-response
+expectations and explicitly proves native/workspace observations are not persisted.
+`env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-host-identity.spec.ts`
+then passed the single selected case. Independent refactoring found no edits;
+`git diff --check` passed. No product behavior or prior accepted proof changed.
+The failed notification was accounted and acknowledged at mailbox sequence 1.
+Slice 3 remained planned and paused while its ten owned paths were preserved
+through the installed repair-stash operation; resume occurs only after repair
+publication and verified restoration. The exact stash record is retained in
+the coordinator conversation, not copied into another state file.
 
 ## Goal and scope
 
