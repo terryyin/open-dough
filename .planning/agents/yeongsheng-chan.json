@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-069#review-dashboard-multi-tool-architecture",
+  "mode": "story-branch",
+  "branch": "claude/review-dashboard-architecture-before-adding-more",
+  "host": "claude",
+  "model": "opus"
+}

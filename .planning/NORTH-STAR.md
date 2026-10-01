@@ -129,8 +129,12 @@ parallel ones:
 - Each **host** owns how to start and identify its sessions (for Claude Code:
   `claude --bg`, which chooses and prints its own session id, confirmed
   through `claude agents --json`) and how a developer reaches one (`claude attach`).
-  Host-specific code stays in one module per host, added when that host is
-  delivered; no adapter interface is built ahead of a second host.
+  Host-specific code stays in one module per host behind the `LaunchHost`
+  boundary in `dashboard/server/launchHosts.ts`; an operation a host lacks is
+  unavailable, never supplied by another host. Shared code that still branches
+  on a host's name is assessed by the
+  [multi-tool architecture review](seeds/SEED-069-review-dashboard-multi-tool-architecture.md#review-dashboard-multi-tool-architecture)
+  before Cursor joins.
 - Each catalog project's **local folder** is a machine-local fact held by the
   local server, not by the published catalog the browser shares.
 - **Sessions are the machine's, not a project's.** Launch records sit in one
@@ -138,24 +142,21 @@ parallel ones:
   Claude's machine-wide listing can supply that observation, while Codex reads
   the saved native thread and endpoint. The page reads them once
   for every catalog project and holds one session state, apart from project
-  selection; cards, Recent sessions, and the Sessions sidebar
-  each derive their view by project and identity from it. Actions on one
-  session (attach, stop, Mark as done) still run in its project's folder.
-  Published observation stays one project at a time; later hosts join the
-  same read through their own module.
+  selection; cards, Recent sessions,Each host normalizes its native activity; common presentation owns its user
+meaning. Saved conversation existence, current native activity and the
+developer's local done mark are distinct: an unloaded conversation can retain
+resumable history, and a completed turn does not complete its story. Read-only
+monitoring must not resume a conversation or take its interactive control.
+Hosts reuse the shared polling, alerts and terminal transport; client
+detachment stays distinct from explicit per-conversation interruption. Cursor
+proves its own native boundary rather than inheriting Claude's or Codex's, and
+composable session policy supplies actual context without another registry or
+an assumption that every conversation has an assignment. Follow Accepted ADRs
+[0001](../docs/adrs/0001-ubiquitous-language-accepted.md),
+[0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+and [0005](../docs/adrs/0005-cross-tool-validation-accepted.md).
 
-The Codex remainder extends this existing boundary with record-targeted
-observation and native interaction/lifecycle operations. Normalize native
-activity in each host; common presentation owns its user meaning. Saved
-conversation existence, current native activity and the developer's local done
-mark are distinct: an unloaded Codex thread can retain resumable history, and
-a completed turn does not complete its story. Read-only monitoring must not
-resume a thread or take its interactive control. Reuse the shared polling,
-alerts and terminal transport; keep client detachment distinct from explicit
-per-conversation interruption. Codex launch/recovery and Claude's existing
-lifecycle are the PFE basis; native continuity is tested before broad changes.
-This direction also leaves Cursor a native boundary to prove and lets composable
-session policy supply actual context without adding another registry or assuming
+ registry or assuming
 every conversation has an assignment. Follow Accepted ADRs
 [0001](../docs/adrs/0001-ubiquitous-language-accepted.md),
 [0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)

@@ -3,7 +3,13 @@
 // agent composes for it, managed delivery with its ownership guard, and the
 // rival holders another developer publishes through the production commands.
 import assert from "node:assert/strict";
-import { appendFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  appendFileSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { takenHeading } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
@@ -11,6 +17,7 @@ import {
   createWorkspace,
   startPreparation,
 } from "../../dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs";
+import { readRevisionCoverage } from "./ci-mailbox.mjs";
 import { deliverThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import { installManagedDelivery } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { exec, git, revParse } from "./publication-test-fixtures.mjs";
@@ -78,8 +85,8 @@ export async function recordStoryBReady(integration) {
 
 // The one-shot start for queued story B; its branch is the delivery
 // fixture's exec/story.
-export function startQueuedOneShot(trunk, options = {}) {
-  return startCliResult(trunk, "story-branch", ["--one-shot"], {
+export function startQueuedOneShot(trunk, { extra = [], ...options } = {}) {
+  return startCliResult(trunk, "story-branch", ["--one-shot", ...extra], {
     identity: identityB,
     name: "story",
     ...options,
@@ -108,8 +115,28 @@ export async function commitQueuedResult(
   return revParse(workspace, "HEAD");
 }
 
-// Managed delivery installed in the one-shot workspace.
-export async function queuedDelivery(trunk, workspace) {
+// Managed delivery installed in the one-shot workspace. Exclude a test-only
+// installation when it must stay outside landed content and Git status.
+export async function queuedDelivery(
+  trunk,
+  workspace,
+  { excludeInstallation = false } = {},
+) {
+  if (excludeInstallation) {
+    const common = (
+      await git(
+        workspace,
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir",
+      )
+    ).stdout.trim();
+    mkdirSync(join(common, "info"), { recursive: true });
+    appendFileSync(
+      join(common, "info/exclude"),
+      "/.agents/\n/.planning/open-dough.json\n",
+    );
+  }
   const delivery = await installManagedDelivery(
     trunk,
     trunk.fixture,
@@ -118,12 +145,23 @@ export async function queuedDelivery(trunk, workspace) {
   return { ...delivery, execution: workspace };
 }
 
-// The taught `deliver` command for B with its ownership guard.
-export function deliverQueued(fixture, base, extra = []) {
+// The taught `deliver` command, optionally in a host session. B's ownership
+// guard is the default; null identity omits it for unqueued results.
+export function deliverQueued(
+  fixture,
+  base,
+  extra = [],
+  { session, identity = identityB, ...options } = {},
+) {
   return deliverThroughCli(fixture, {
     base,
     host: "cursor",
-    extra: ["--one-shot-identity", identityB, ...extra],
+    ...options,
+    extra: [
+      ...(session ? ["--session-json", JSON.stringify(session)] : []),
+      ...(identity ? ["--one-shot-identity", identity] : []),
+      ...extra,
+    ],
   });
 }
 
@@ -164,4 +202,25 @@ export async function remoteCommitsSince(origin, base) {
     `${base}..main`,
   );
   return stdout.trim().split("\n").filter(Boolean);
+}
+
+// The observer delivery bound for trunk, newly or reused from an earlier
+// delivery that pushed nothing, covers exactly the accepted SHA; CI itself
+// has not concluded.
+export function assertTrunkObserved(delivered) {
+  assert.match(delivered.observation.state, /^(attached|reused)$/);
+  const coverage = readRevisionCoverage(delivered.observation.directory);
+  assert.deepEqual(
+    coverage.map(({ sha }) => sha),
+    [delivered.receipt.sha.toLowerCase()],
+  );
+}
+
+// The merge base of `checkout`'s HEAD and its freshly fetched trunk: the base
+// a default-checkout result extends, its earlier local commits included.
+export async function fetchedMergeBase(checkout) {
+  await git(checkout, "fetch", "-q", "origin");
+  return (
+    await git(checkout, "merge-base", "HEAD", "origin/main")
+  ).stdout.trim();
 }

@@ -6,14 +6,20 @@
 // A policy that cannot be honored is refused before anything starts, so no
 // session silently runs with another location or landing.
 
-import { sessionPolicyFlags } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
+import {
+  oneShotOnlyChoices,
+  sessionPolicyFlags,
+} from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import {
   launchKindName,
   type AgentLaunchRequest,
   type LaunchWorkflow,
   type SessionPolicy,
 } from "../src/agentLaunch.ts";
-import { sessionSummary } from "../src/sessionPolicyWords.ts";
+import {
+  sessionChoiceWords,
+  sessionSummary,
+} from "../src/sessionPolicyWords.ts";
 import { installedSkillPath } from "./launchHosts.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -57,10 +63,11 @@ export async function withSessionPolicy(
   if (request.workflow === "ad-hoc") return request;
   const { policy, ...rest } = request;
   if (policy === undefined || isDefault(policy)) return rest;
-  if (policy.tracking !== "one-shot") {
+  const unsupported = oneShotOnlyChoices(policy);
+  if (unsupported.length > 0) {
     throw new RefusedRequest(
       400,
-      "Default main and Automatically land apply to one-shot sessions; standard tracking publishes through its workflow.",
+      `${sessionChoiceWords.workspace.values["default-checkout"]} and ${sessionChoiceWords.landing.values["auto-land"]} apply to one-shot sessions; standard tracking publishes through its workflow.`,
     );
   }
   if (!(await sessionPolicyCapable(project, request.workflow, request.host))) {

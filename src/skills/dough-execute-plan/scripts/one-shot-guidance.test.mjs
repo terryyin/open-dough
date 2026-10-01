@@ -26,7 +26,45 @@ test("a verified one-shot result stops for review in its retained workspace", ()
   assert.match(retain, /`startingRevision`/);
   assert.match(retain, /nothing is pushed or retired/);
   assert.match(retain, /still lists[\s\S]+closure waits/);
+  assert.match(retain, /ask this workflow to/);
+  assert.match(
+    retain,
+    /\[land the retained result\]\(#land-the-retained-result\), naming the kept workspace/,
+  );
   assert.doesNotMatch(retain, /increment publication|deliver/i);
+});
+
+test("bug fixing reports a one-shot repair as retained until landing", () => {
+  const bugFixing = readFileSync(
+    join(skill, "../dough-bug-fixing/SKILL.md"),
+    "utf8",
+  );
+  const report = section(bugFixing, "## Report the disposition");
+  const repaired = report
+    .split("- **Repaired:**")[1]
+    .split("- **Explained no-change:**")[0];
+  assert.match(
+    repaired,
+    /retained for review unless landing was requested or automatic landing was\s+selected/,
+  );
+  assert.match(repaired, /report its workspace and \[landing request\]/);
+  assert.match(repaired, /Only a landed result proceeds to \[retirement\]/);
+  assert.doesNotMatch(repaired, /One-shot delivery reached\s+trunk/);
+});
+
+test("record-preparation names both one-shot start locations without a claim", () => {
+  const preparation = readFileSync(
+    join(skill, "../dough-product-backlog/references/record-preparation.md"),
+    "utf8",
+  );
+  const quick = section(
+    preparation,
+    "### Accepted work and context-only quick execution",
+  );
+  assert.match(
+    quick,
+    /starts on fetched remote trunk or in the selected default checkout without a\s+claim/,
+  );
 });
 
 test("only an explicit landing request delivers the retained result", () => {

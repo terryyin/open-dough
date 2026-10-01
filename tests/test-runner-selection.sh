@@ -89,3 +89,32 @@ for bad in "${checks}/absent.sh" "${checks}/node-test-files"; do
     exit 1
   fi
 done
+
+# Automatic discovery schedules each one-shot journey group once, while an
+# explicit aggregate selection still names just that aggregate. Across all CI
+# shares the same group jobs occur once and the aggregate never duplicates them.
+cd -- "${source_dir}"
+OPEN_DOUGH_TEST_DIR=tests "${BASH}" scripts/test-jobs.sh \
+  > "${temporary_dir}/one-shot-all.jobs"
+for share in 1 2 3; do
+  OPEN_DOUGH_TEST_DIR=tests OPEN_DOUGH_TEST_SPLIT=${share}/3 \
+    "${BASH}" scripts/test-jobs.sh >> "${temporary_dir}/one-shot-split.jobs"
+done
+OPEN_DOUGH_TEST_DIR=tests "${BASH}" scripts/test-jobs.sh \
+  tests/git-publication-native-one-shot.sh > "${temporary_dir}/one-shot-chosen.jobs"
+node --input-type=module - "${temporary_dir}" << 'JS'
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const directory = process.argv[2];
+const labels = (name) => readFileSync(`${directory}/one-shot-${name}.jobs`, 'utf8')
+  .split('\0').filter(Boolean).map((job) => job.split('\t')[1]);
+const aggregate = 'tests/git-publication-native-one-shot.sh';
+const groups = ['tests/git-publication-native-one-shot-results.sh',
+  'tests/git-publication-native-one-shot-workspaces.sh'];
+for (const name of ['all', 'split']) {
+  const jobs = labels(name);
+  assert.equal(jobs.filter((job) => job === aggregate).length, 0);
+  for (const group of groups) assert.equal(jobs.filter((job) => job === group).length, 1);
+}
+assert.deepEqual(labels('chosen'), [aggregate]);
+JS

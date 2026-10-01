@@ -8,6 +8,7 @@
 
 import {
   assignedAgent,
+  isEstablishedOneShot,
   type LaunchWorkflow,
   type SessionPolicy,
   type StoryLaunchRequest,
@@ -63,7 +64,7 @@ function withOneShotWords(spec: StartWorkflow): StartWorkflow {
     formatFailed: (place) =>
       isOneShot(place) ? oneShot.formatFailed(place) : spec.formatFailed(place),
     publishedWithoutSession: (launch) =>
-      "tracking" in establishedFacts(launch.handoff.established)
+      isEstablishedOneShot(establishedFacts(launch.handoff.established))
         ? oneShot.publishedWithoutSession(launch)
         : spec.publishedWithoutSession(launch),
   };

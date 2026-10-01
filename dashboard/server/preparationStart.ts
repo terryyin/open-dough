@@ -6,15 +6,15 @@
 // when selected, and publishes nothing; its kept established context is reused
 // as it is.
 
-import { realpath } from "node:fs/promises";
-import { resolve } from "node:path";
 import {
   assignedAgent,
+  isEstablishedOneShot,
   type EstablishedPreparation,
   type StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { beforeStart, removeCreatedWorkspace } from "./preparationCleanup.ts";
+import { matchesPreparation } from "./preparationContext.ts";
 import {
   keepsPreparation,
   preparationRefusal,
@@ -28,7 +28,7 @@ import {
   type StartAttempt,
 } from "./startLaunch.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
-import { continuedStart, policyArguments } from "./startPolicy.ts";
+import { continuedStart } from "./startPolicy.ts";
 import { establishedOneShot, record } from "./startRecording.ts";
 import {
   keepStart,
@@ -102,6 +102,13 @@ async function runningPreparation(
     kept,
     source.ref,
   );
+  const facts = {
+    identity: request.identity,
+    workspace: workspace.path,
+    branch,
+    remote: "origin",
+    target: source.ref,
+  };
   const oneShot = policy.tracking === "one-shot";
   // A kept one-shot preparation that established its context goes on from it
   // as it is: its workspace may already hold the result.
@@ -114,18 +121,7 @@ async function runningPreparation(
   }
   if (kept?.preparation !== undefined) {
     const preparation = kept.preparation;
-    const paths = await Promise.all(
-      [workspace.path, preparation.workspace].map((file) =>
-        realpath(file).catch(() => resolve(file)),
-      ),
-    );
-    if (
-      paths[0] !== paths[1] ||
-      preparation.branch !== branch ||
-      preparation.identity !== request.identity ||
-      preparation.remote !== "origin" ||
-      preparation.target !== source.ref
-    ) {
+    if (!(await matchesPreparation(preparation, facts))) {
       progress.clear(source.id, request.identity);
       return continuationRefusal(
         "The saved start and established preparation disagree.",
@@ -137,7 +133,7 @@ async function runningPreparation(
   }
   // The assignment an earlier attempt established and published, if any.
   const assigned =
-    kept?.preparation !== undefined && !("tracking" in kept.preparation)
+    kept?.preparation !== undefined && !isEstablishedOneShot(kept.preparation)
       ? kept.preparation
       : undefined;
   const before = await beforeStart(project, workspace.path, branch);
@@ -176,42 +172,15 @@ async function runningPreparation(
       ),
     );
   }
-  const facts = {
-    identity: request.identity,
-    workspace: workspace.path,
-    branch,
-    remote: "origin",
-    target: source.ref,
-  };
   const attempt = runPreparationCommand(
-    [
-      ...policyArguments(policy, project),
-      "--workspace",
-      workspace.path,
-      "--branch",
-      branch,
-      "--identity",
-      request.identity,
-      "--remote",
-      "origin",
-      "--target",
-      source.ref,
-      "--host",
-      request.host,
-      ...(model === undefined ? [] : ["--model", model]),
-      ...(continuing && assigned !== undefined
-        ? [
-            ...(assigned.agent === undefined
-              ? []
-              : ["--expected-agent", assigned.agent]),
-            ...(assigned.publishedSha === undefined
-              ? []
-              : ["--expected-allocation", assigned.publishedSha]),
-          ]
-        : []),
-    ],
+    {
+      ...facts,
+      policy,
+      host: request.host,
+      model,
+      assigned: continuing ? assigned : undefined,
+    },
     project,
-    request.host,
     continuing ? "continue" : "start",
   ).then(async (result): Promise<StartAttempt> => {
     if (result.kind === "established" || result.kind === "prepared") {

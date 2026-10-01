@@ -20,12 +20,10 @@ import {
 } from "./default-checkout-test-fixtures.mjs";
 import {
   assertTrunkObserved,
-  autoLandDelivery,
-  deliverFrom,
   fetchedMergeBase,
-} from "./lightweight-auto-land-test-fixtures.mjs";
-import {
   commitQueuedResult,
+  deliverQueued,
+  queuedDelivery,
   createSiblingTrunk,
   identityB,
   identityB2,
@@ -86,11 +84,13 @@ test("an auto-landed default-checkout result lands all checkout content, reconci
     "one-shot result",
   );
 
-  const fixture = await autoLandDelivery(trunk, checkout);
+  const fixture = await queuedDelivery(trunk, checkout, {
+    excludeInstallation: true,
+  });
   const base = await fetchedMergeBase(checkout);
   assert.equal(base, trunk.trunkSha);
-  const reconciled = await deliverFrom(fixture, {
-    base,
+  const reconciled = await deliverQueued(fixture, base, [], {
+    session: fixture.session,
     branch: "main",
     identity: null,
   });
@@ -101,12 +101,16 @@ test("an auto-landed default-checkout result lands all checkout content, reconci
   );
   assert.equal(await lsRemoteSha(trunk.origin, trunkTarget), advanced);
   // The rebased candidate is rechecked, then delivered as held proof.
-  const { delivered, stderr } = await deliverFrom(fixture, {
-    base: advanced,
-    branch: "main",
-    identity: null,
-    extra: ["--validated-candidate", reconciled.delivered.candidate],
-  });
+  const { delivered, stderr } = await deliverQueued(
+    fixture,
+    advanced,
+    ["--validated-candidate", reconciled.delivered.candidate],
+    {
+      session: fixture.session,
+      branch: "main",
+      identity: null,
+    },
+  );
   assert.equal(delivered?.ok, true, stderr);
   const accepted = delivered.receipt.sha;
   assert.equal(await lsRemoteSha(trunk.origin, trunkTarget), accepted);
@@ -161,11 +165,13 @@ test("a review-default queued result retained in the default checkout lands on r
   assert.equal(await remoteHeads(trunk.origin), headsBefore);
 
   // Later, the developer asks to land it.
-  const fixture = await autoLandDelivery(trunk, checkout);
+  const fixture = await queuedDelivery(trunk, checkout, {
+    excludeInstallation: true,
+  });
   const base = await fetchedMergeBase(checkout);
   assert.equal(base, trunk.trunkSha);
-  const { delivered, stderr } = await deliverFrom(fixture, {
-    base,
+  const { delivered, stderr } = await deliverQueued(fixture, base, [], {
+    session: fixture.session,
     branch: "main",
   });
   assert.equal(delivered?.ok, true, stderr);

@@ -134,6 +134,13 @@ export function assignedAgent(
   return "agent" in established ? established.agent : undefined;
 }
 
+// Whether established facts name a one-shot context rather than an assignment.
+export function isEstablishedOneShot(
+  established: EstablishedContext,
+): established is Extract<EstablishedContext, { tracking: "one-shot" }> {
+  return "tracking" in established;
+}
+
 // A native conversation with first-input evidence, kept until `launchRetentionDays` after
 // the developer marked its session done (`./doneMark.ts`), if they ever do,
 // with when they did: local evidence only, never a story fact.
