@@ -246,3 +246,32 @@ publication/observation target `codex/keep-ci-checks-independent-of-package-mirr
 Codex yielded observer: coordinator `/root`, cell `14`, session `97439`, PID
 `47835`, directory `/tmp/dough-ci-501/watch-Mcfmhh`, exact execution checkout
 above. Trunk claim coverage is unobserved; this observer covers branch increments.
+
+### Slice 1 probe and owned CI repair
+
+Published probe `e98441593f71e722b032ab08203c43b43a4c1d56` to the execution
+branch; managed receipt reused the observer above. Run `36942598744`, attempt 1,
+executed the same 746 tests, 745 passed and one synchronization assertion failed.
+No library/font/browser-launch error occurred. Browser install 0–1 seconds,
+setup through suite start 11–20 seconds, suites 51–78 seconds and dashboard jobs
+66–100 seconds. Summary/report evidence:
+`/tmp/open-dough-36942598744-probe-summary.json` and
+`/tmp/open-dough-36942598744-reports/`.
+
+Failure `dashboard/tests/agent-launch-attention.spec.ts:164` captured loading
+preparation facts between a separate readiness assertion and snapshot call.
+Repair polls and returns the same accepted snapshot. Disposable deterministic
+DOM-transition diagnostic failed before the repair and passed after it; retained
+at `/tmp/open-dough-attention-diagnostic.txt`, logs
+`/tmp/open-dough-attention-{red,green-diagnostic,green-journey}.log`.
+Focused original journey passed:
+`PATH=/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-attention.spec.ts --workers=1`.
+All six helper calls stay in this spec; no product behavior or retry changes.
+
+Bounded comparable historical-run inspection found only warm cache hits. A
+transient baseline variant will use a new isolated browser-cache key and the
+original `--with-deps` setup on this branch, preserving all checks/budgets. It
+will be restored to browser-only setup before slice 2; no shared cache deletion.
+Cold baseline and full passing browser-only proof remain pending.
+Repair stash receipt (clean, no saved changes):
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-HhDbp3/record.json`.

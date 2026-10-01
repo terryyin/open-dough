@@ -45,16 +45,22 @@ test.use({ projectFolders: ["open-dough", "doughnut"] });
 const one = "1 session needs attention";
 const two = "2 sessions need attention";
 
-// What a card publishes of its story, once every fact is read: everything it
-// shows but its sessions and how many of them need attention.
+// A card's published facts exclude sessions and attention counts. Check readiness
+// on the captured facts: a reread can start between browser calls.
 const publishedFactsOf = async (card: Locator) => {
-  await expect(card).not.toContainText(/Reading [^…]*…/);
-  return card.evaluate((element) => {
-    const copy = element.cloneNode(true) as HTMLElement;
-    const counted = copy.querySelectorAll(".card-sessions, .card-attention");
-    for (const part of counted) part.remove();
-    return copy.textContent;
-  });
+  let facts: string | null = null;
+  await expect
+    .poll(async () => {
+      facts = await card.evaluate((element) => {
+        const copy = element.cloneNode(true) as HTMLElement;
+        const parts = copy.querySelectorAll(".card-sessions, .card-attention");
+        for (const part of parts) part.remove();
+        return copy.textContent;
+      });
+      return facts;
+    })
+    .not.toMatch(/Reading [^…]*…/);
+  return facts;
 };
 
 test.describe("a story's card counts the sessions that need attention", () => {
