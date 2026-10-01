@@ -53,6 +53,19 @@ runs the installed one-shot start itself and hands the session the installed
 `established-start.mjs` block after the skill invocation, as a dashboard
 launch does; the session must not start again.
 
+The landing cases (`publication/one-shot-result`, `-queued`, `-auto-land`)
+expect the owned workspace retired, except that guidance retires it only after
+the CI completion gate passes. A host without a session identity gets a
+delivery receipt with CI `unobserved`; keeping the workspace then passes when
+no CI observation since covered the landed revision and the report names the
+kept workspace or the CI gap. The stream fields `ci-observed-shas` and
+`ci-unobserved-shas` carry that coverage from the delivery and observer
+commands' own output.
+
+Codex runs without `--ephemeral`, because spawning a subagent thread needs the
+parent's persisted rollout. Those rollouts are kept in the developer's Codex
+home with their other sessions, which also keeps the developer's sign-in in place.
+
 ## Native family layers
 
 A native family keeps six layers, each in its own file under `tests/support`

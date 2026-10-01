@@ -170,6 +170,11 @@ run_substitute_one_shot_journeys() {
     git-publication-native-one-shot-review.sh
   run_substitute_one_shot_review_pushes one-shot-refinement \
     git-publication-native-one-shot-refinement.sh
+  substitute_run_passes claude-one-shot-result-unobserved claude one-shot-result \
+    GIT_PUBLICATION_KEEP=1 NATIVE_ONE_SHOT_VARIANT=unobserved
+  run_one_shot_unobserved_counterexamples \
+    "${substitute_artifact}/events.jsonl" claude
+  git_publication_fixture_cleanup
 }
 
 # Whole-run counterexample for review journey $1, whose assessor file in

@@ -15,6 +15,8 @@
 # recorder and sets ${response}.
 # NATIVE_ONE_SHOT_WORKSPACE and _BRANCH carry the owned workspace and branch;
 # NATIVE_ONE_SHOT_IDENTITY names the queued story, if any.
+# NATIVE_ONE_SHOT_VARIANT=unobserved delivers without a host session identity,
+# so CI goes unobserved, and keeps the workspace and its branch, reporting both.
 # shellcheck disable=SC2034,SC2154,SC2312 # host, journey, workspace and response are shared with the sourcing substitute.
 
 # shellcheck source=tests/support/native-agent-admission.sh
@@ -33,7 +35,7 @@ source "${0%/*}/native-agent-one-shot-policy.sh"
 native_one_shot_substitute() {
   local execution=${NATIVE_ONE_SHOT_WORKSPACE} branch=${NATIVE_ONE_SHOT_BRANCH}
   local identity=${NATIVE_ONE_SHOT_IDENTITY} skills starting delivered mailbox
-  local accepted line message named=() guard=() landing=()
+  local accepted line message named=() guard=() landing=() identityless=()
   skills=$(admission_installed)
   case ${journey} in
     one-shot-result)
@@ -76,7 +78,9 @@ native_one_shot_substitute() {
   skills="${execution}/${skills#"${workspace}"/}"
   [[ -z ${identity} ]] || native_one_shot_close_story "${execution}" "${skills}"
   admission_run_in "${execution}" git commit -qam "${message}"
-  admission_run_in "${execution}" node \
+  [[ ${NATIVE_ONE_SHOT_VARIANT:-} != unobserved ]] \
+    || identityless=(env -u CLAUDE_CODE_SESSION_ID)
+  admission_run_in "${execution}" "${identityless[@]}" node \
     "${skills}/dough-execute-plan/scripts/execution-increment-delivery.mjs" \
     deliver --workspace "${execution}" --branch "${branch}" \
     --previously-published-base "${starting}" --target-ref refs/heads/main \
@@ -85,6 +89,10 @@ native_one_shot_substitute() {
   delivered=$(tail -n 1 <<< "${admission_last}")
   mailbox=$(jq -r .observation.directory <<< "${delivered}")
   accepted=$(jq -r .receipt.sha <<< "${delivered}")
+  if [[ ${NATIVE_ONE_SHOT_VARIANT:-} == unobserved ]]; then
+    response="Landed the one-shot result on remote trunk at ${accepted}. CI was unobserved: delivery had no host session identity. The owned workspace ${execution} and its branch ${branch} are kept until CI completes. Existing local changes were preserved."
+    return
+  fi
   admission_run_in "${execution}" node \
     "${skills}/dough-execute-plan/scripts/ci-mailbox.mjs" complete-revision \
     "${mailbox}" "${accepted}"

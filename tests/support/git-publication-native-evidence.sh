@@ -51,7 +51,9 @@ git_publication_write_evidence_identity() {
       git_publication_write_evidence_identity publication
       native_result_input_hash_lines \
         tests/support/git-publication-native-one-shot.sh \
+        tests/support/git-publication-native-one-shot-fixture.sh \
         tests/support/git-publication-native-one-shot-fixture.mjs \
+        tests/support/git-publication-native-one-shot-unobserved.sh \
         tests/support/git-publication-native-one-shot-queued.sh \
         tests/support/git-publication-native-one-shot-queued-observe.mjs \
         tests/support/git-publication-native-one-shot-escalation.sh \

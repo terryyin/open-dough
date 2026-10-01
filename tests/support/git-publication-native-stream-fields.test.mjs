@@ -1,7 +1,8 @@
 // Publication stream fields beyond what the substitute journeys exercise: a
 // startup conflict receipt is recognized from the start command's own output
-// on every host, so are a one-shot start's policy flags and a preparation
-// recheck, and a journey without stream fields is refused.
+// on every host, so are a one-shot start's policy flags, a preparation
+// recheck and the CI coverage a landing's delivery reported, and a journey
+// without stream fields is refused.
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -133,6 +134,51 @@ test("one-shot policy flags and a recheck are observed on every host", () => {
         "ownership-recheck-observed": "true",
       },
       host,
+    );
+  }
+});
+
+test("a landing's CI coverage is observed from delivery on every host", () => {
+  const landed = "a".repeat(40);
+  const deliver = "node execution-increment-delivery.mjs deliver --host cursor";
+  const receipt = (state) =>
+    `{"ok":true,"receipt":{"sha":"${landed}","target":"refs/heads/main"},"observation":{"state":"${state}"}}`;
+  for (const host of Object.keys(streams)) {
+    assert.deepEqual(
+      journeyFields("one-shot-result", host, deliver, receipt("unobserved")),
+      {
+        "one-shot-start-observed": "false",
+        "ci-observed-shas": "",
+        "ci-unobserved-shas": landed,
+      },
+      host,
+    );
+    assert.equal(
+      journeyFields("one-shot-queued", host, deliver, receipt("attached"))[
+        "ci-observed-shas"
+      ],
+      landed,
+      `${host}: an attached receipt is observed coverage`,
+    );
+    assert.equal(
+      journeyFields(
+        "one-shot-auto-land",
+        host,
+        "node ci-mailbox.mjs register-push watch",
+        `CI_OBSERVER {"revision":{"sha":"${landed}","state":"undiscovered"}}`,
+      )["ci-observed-shas"],
+      landed,
+      `${host}: an observer's revision entry is observed coverage`,
+    );
+    assert.equal(
+      journeyFields(
+        "one-shot-result",
+        host,
+        "cat receipt.json",
+        receipt("unobserved"),
+      )["ci-unobserved-shas"],
+      "",
+      `${host}: another command's output is no delivery receipt`,
     );
   }
 });

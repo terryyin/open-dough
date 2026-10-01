@@ -139,3 +139,39 @@ run_one_shot_queued_closure_counterexamples() {
   native_assessor_rejects_observed sibling-section-removed sibling \
     "${obs}" one_shot_observe -- fail 'sibling or another queued entry'
 }
+
+# Rejected kept-workspace cases on a passing kept fixture of the one-shot
+# result landed while CI went unobserved, observed through host $2's
+# transcript $1: its delivery receipt reporting CI attached instead, and a
+# report silent about both the kept workspace and the CI gap.
+run_one_shot_unobserved_counterexamples() {
+  local transcript=$1 host=$2 root=${git_publication_fixture_root}
+  local observed=$1 report="${1%/*}/response.md"
+  local obs="${root}/counterexample.txt"
+  # Prints the state as observed now.
+  # shellcheck disable=SC2329 # Run by name through the shared counterexample forms.
+  unobserved_observe() {
+    git_publication_fixture_observe_one_shot one-shot-result complete \
+      "${observed}" "${host}" "${report}"
+  }
+  unobserved_observe > "${root}/passing.txt"
+  git_publication_suite_counterexamples \
+    "${source_dir}/tests/support/git-publication-native-one-shot.sh" \
+    "${root}/passing.txt"
+
+  observed="${root}/ci-attached.jsonl"
+  sed -E 's/(observation\\*"[^{]*\{\\*"state\\*": ?\\*")unobserved/\1attached/g' \
+    "${transcript}" > "${observed}"
+  native_assessor_rejects_observed ci-observed ci-coverage \
+    "${obs}" unobserved_observe -- fail 'CI observation covered'
+  observed=${transcript}
+
+  report="${root}/silent-report.md"
+  printf 'Done.\n' > "${report}"
+  native_assessor_rejects_observed report-silent report \
+    "${obs}" unobserved_observe -- fail 'names neither'
+  report="${transcript%/*}/response.md"
+
+  git_publication_suite_passes_observed "${obs}" unobserved_observe \
+    -- 'kept, reported, while CI went unobserved'
+}

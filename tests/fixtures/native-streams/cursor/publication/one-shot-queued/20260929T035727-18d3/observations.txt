@@ -1,6 +1,8 @@
 journey: one-shot-queued
 stream-status: complete
 one-shot-start-observed: true
+ci-observed-shas: 
+ci-unobserved-shas: 533462887d33d2e5c17f15d16f87cde50f40cf0c
 base-sha: c834b745611fd6ba352c72039fdd53ec929766eb
 remote-sha: 533462887d33d2e5c17f15d16f87cde50f40cf0c
 base-ancestor: true
