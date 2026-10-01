@@ -186,7 +186,7 @@ promise, Dough Land change, host, or native case.
 
 **Identity:** SEED-066#dough-land-kept-one-shot-ownership
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/198-dough-land-kept-one-shot-ownership/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c97977742b497ff59191e3e49c2b94e98d5737a651cc73f632df3623b61f3335","plan":"893b29f36251ca8ef8988beaf65b9aa08274ba2e4bea8354368dc860ba95bdda"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/199-dough-land-kept-one-shot-ownership/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"738e11ffdd0d4cf8e24c3f2703edd855ee15731bd534a5a7460aeb991aa1e87b","plan":"893b29f36251ca8ef8988beaf65b9aa08274ba2e4bea8354368dc860ba95bdda"}}
 ```
 
 **Goal:** A developer who lands a kept one-shot execution result with Dough Land
@@ -250,7 +250,7 @@ The first premise holds for Takes only. Dough Land therefore changes.
 - One-shot refinement, which already rechecks before Dough Land pushes.
 - Changing one-shot's own guarded landing or the backlog merge adapter.
 
-**Plan:** [Dough Land keeps a queued story's closure off another owner's claim](../slice-plans/198-dough-land-kept-one-shot-ownership/PLAN.md).
+**Plan:** [Dough Land keeps a queued story's closure off another owner's claim](../slice-plans/199-dough-land-kept-one-shot-ownership/PLAN.md).
 
 ## Existing Behavior to Reconcile
 
