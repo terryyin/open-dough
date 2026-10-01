@@ -4,17 +4,21 @@
 // prints appears in the terminal, what the developer types goes to the
 // session, and the terminal's size follows the panel. Its toolbar names the
 // session and, by icon controls on the right, maximizes or restores the panel
-// and closes it; closing it, or opening another session in its
-// place, detaches only, so the session keeps running. When the connection
-// drops, as when the dashboard server restarts, the panel says so and offers
-// to reconnect; when the attached CLI exits on its own, it says the terminal
-// ended and offers to open it again. Either attaches to the same session anew.
+// and closes it, as Command+Shift+Escape does page-wide, from inside the
+// terminal too, except inside an open dialog (`useCommandShortcut`), while
+// plain Escape still goes to the session; closing it, or opening another
+// session in its place, detaches only, so the session keeps running. When
+// the connection drops, as when the dashboard server restarts, the panel
+// says so and offers to reconnect; when the attached CLI exits on its own,
+// it says the terminal ended and offers to open it again. Either attaches to
+// the same session anew.
 // Each attachment reports native readiness; startup decisions remain interactive.
 // Where supported, Mark as done asks the boundary to finish this session;
 // the panel closes once marked and says if it could not be.
 
 import { useRef, useState } from "react";
 import { marksDone } from "./sessionCapabilities.ts";
+import { useCommandShortcut } from "./pageShortcuts.ts";
 import "@xterm/xterm/css/xterm.css";
 import "./agent-launch.css";
 import "./agent-terminal.css";
@@ -30,6 +34,8 @@ import {
   type SessionOperation,
   type SessionRequest,
 } from "./pageSessions.ts";
+
+const closeShortcut = { key: "Escape", shift: true } as const;
 
 const endings = {
   disconnected: { says: "Disconnected from the session", action: "Reconnect" },
@@ -66,6 +72,7 @@ export function TerminalPanel({
   // While marking, the attachment's ending the mark causes is not shown.
   const { marking, follow } = useMarking();
   useAttachedTerminal(screen, session, attempt, onAttached, setEnding);
+  useCommandShortcut(closeShortcut, onClose);
   const attachAgain = () => {
     setEnding(undefined);
     setAttempt((previous) => previous + 1);
@@ -113,7 +120,7 @@ export function TerminalPanel({
             type="button"
             className="terminal-icon"
             aria-label="Close"
-            title="Close"
+            title="Close (⌘⇧Esc)"
             onClick={onClose}
           >
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

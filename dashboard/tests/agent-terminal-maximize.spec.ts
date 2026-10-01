@@ -28,7 +28,7 @@ import {
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import { box } from "./pageLayout.ts";
+import { box, pressWhereShown } from "./pageLayout.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -39,14 +39,6 @@ const windowOf = (page: Page) =>
     width: document.documentElement.clientWidth,
     height: window.innerHeight,
   }));
-
-// Presses the control with the mouse where it shows. Locator.click() would
-// first scroll the window to bring the pinned panel's control into view, which
-// a developer's click never does, moving the page the journey compares.
-async function press(control: Locator) {
-  const { x, y, width, height } = await box(control);
-  await control.page().mouse.click(x + width / 2, y + height / 2);
-}
 
 // The box covers exactly this room, to within half a pixel.
 function expectCovers(
@@ -107,7 +99,7 @@ test.describe("maximizing the terminal panel", () => {
 
     await test.step("the header's icon controls are named by label and tooltip, and Mark as done stays a text button", async () => {
       await expect(control("Maximize")).toHaveAttribute("title", "Maximize");
-      await expect(control("Close")).toHaveAttribute("title", "Close");
+      await expect(control("Close")).toHaveAttribute("title", "Close (⌘⇧Esc)");
       await expect(control("Maximize").locator("svg")).toHaveAttribute(
         "aria-hidden",
         "true",
@@ -122,7 +114,7 @@ test.describe("maximizing the terminal panel", () => {
     const attachedBefore = attachCount();
 
     await test.step("Maximize gives the panel the page column's room, hides the banner and stories, keeps the same session's lines, and offers Restore", async () => {
-      await press(control("Maximize"));
+      await pressWhereShown(control("Maximize"));
       await expect(control("Restore")).toHaveAttribute("title", "Restore");
       await expect(control("Maximize")).toHaveCount(0);
       const room = await windowOf(page);
@@ -140,7 +132,7 @@ test.describe("maximizing the terminal panel", () => {
     });
 
     await test.step("Restore returns the left/right split with the same session's lines", async () => {
-      await press(control("Restore"));
+      await pressWhereShown(control("Restore"));
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();
       await expect(stages).toBeVisible();
@@ -153,7 +145,7 @@ test.describe("maximizing the terminal panel", () => {
     await test.step("with the Sessions sidebar open, the maximized panel stays beside it, and opening another entry shows that session still maximized", async () => {
       await sidebar.button.click();
       await expect(sidebar.sidebar).toBeVisible();
-      await press(control("Maximize"));
+      await pressWhereShown(control("Maximize"));
       await expect(banner).toBeHidden();
       const side = await box(sidebar.sidebar);
       const room = await windowOf(page);
@@ -215,7 +207,7 @@ test.describe("maximizing the terminal panel", () => {
         (await box(pageColumn)).y + 0.5,
       );
 
-      await press(control("Maximize"));
+      await pressWhereShown(control("Maximize"));
       await expect(banner).toBeHidden();
       await expect(stages).toBeHidden();
       expectCovers(await box(panel), {
@@ -225,7 +217,7 @@ test.describe("maximizing the terminal panel", () => {
         height: room.height,
       });
 
-      await press(control("Restore"));
+      await pressWhereShown(control("Restore"));
       await expect(stages).toBeVisible();
       expectCovers(await box(panel), stacked);
       expect(stacked.y + stacked.height).toBeLessThanOrEqual(

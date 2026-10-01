@@ -133,7 +133,7 @@ panel (`visibility: hidden`), so Restore shows the page at its scroll position.
 
 ### 3. ⌘⇧Esc closes the panel
 Type: Behavior
-Status: planned
+Status: done
 Proof: new cases in `agent-terminal-maximize.spec.ts` (or a sibling
 `agent-terminal-keyboard.spec.ts`), mirroring `session-sidebar-keyboard.spec.ts`;
 slice 1's recorded browser results (⌘⇧Esc delivered in Chrome and Safari)
@@ -147,6 +147,16 @@ records it) and the panel stays. With the launch dialog open, `Meta+Shift+Escape
 leaves the panel shown. With no panel, `Meta+Shift+Escape` changes nothing. Close's
 tooltip reads `Close (⌘⇧Esc)` while its accessible name stays `Close`. Update
 `docs/dashboard-navigation.md` and the North Star text.
+
+Accepted proof (2026-10-01): `npx playwright test --config
+dashboard/playwright.config.ts dashboard/tests/agent-terminal-keyboard.spec.ts
+dashboard/tests/agent-terminal-maximize.spec.ts dashboard/tests/agent-terminal.spec.ts
+dashboard/tests/session-sidebar-keyboard.spec.ts` (5 passed before the refactor;
+the refactor reran the three changed specs, 4 passed), plus typecheck and lint.
+`useCommandShortcut` (`pageShortcuts.ts`) now serves ⌘B and ⌘⇧Esc and stops
+the key's propagation, because xterm turns any Escape into ESC for the session
+and ignores a prevented default; the spec observes that no input frame is sent
+and the terminal's textarea never gets the key (mutation-checked).
 
 ### 4. The header shows the session's agent avatar
 Type: Behavior
@@ -199,3 +209,12 @@ can break. Hosted CI runs the full suite after publication.
   and macOS keeps unreaped pids answering. All five specs now use
   `expectCodexHungUp` (`tests/support/codexTerminal.ts`), which polls both;
   the five codex specs passed (17 tests).
+- CI run 36842432098 on `02cd7e86` (test 2/3) failed only on the time budget:
+  `tests/git-publication-native-one-shot.sh` took 71.8s against the 71s
+  ceiling. Trunk's recent range for that job is 12.4–65.4s, and the parallel
+  `codex/align-one-shot-callers-and-starts-with-the-revie` execution hit the
+  same breach and owns the repair (`76969a1c` splits the native one-shot
+  jobs), so this execution does not duplicate it; the story branch takes that
+  split from trunk before wrap-up.
+- A capture-phase `preventDefault` alone does not keep a shortcut from the
+  embedded terminal; page shortcuts must also stop propagation.

@@ -23,6 +23,7 @@ import {
 } from "./launchJourney.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { watchCommandShortcut } from "./pageShortcutsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
@@ -51,24 +52,6 @@ const stillFocused = (page: Page) =>
       document.activeElement.dataset.keyboardWasHere === "yes",
   );
 
-// Whether each Command+B that reached the window had its default prevented,
-// in order.
-async function watchCommandB(page: Page) {
-  await page.evaluate(() => {
-    const seen: boolean[] = [];
-    (window as unknown as { commandB: boolean[] }).commandB = seen;
-    window.addEventListener("keydown", (event) => {
-      if (event.metaKey && event.key.toLowerCase() === "b") {
-        seen.push(event.defaultPrevented);
-      }
-    });
-  });
-  return () =>
-    page.evaluate(
-      () => (window as unknown as { commandB: boolean[] }).commandB,
-    );
-}
-
 test.describe("Command+B and the Sessions sidebar", () => {
   let stagesJourney: StoryStagesJourney;
   test.beforeAll(async () => {
@@ -93,7 +76,7 @@ test.describe("Command+B and the Sessions sidebar", () => {
     await settled();
 
     await test.step("from the page, the keyboard stays where it was and the browser's default is taken", async () => {
-      const commandB = await watchCommandB(page);
+      const commandB = await watchCommandShortcut(page, "Meta+b");
       const inspect = card(takenStory).getByRole("button", {
         name: "Inspect story",
       });
@@ -157,7 +140,7 @@ test.describe("Command+B and the Sessions sidebar", () => {
     const { preparationHelp } = parts(page);
     await expectMembership(page, queued);
     await settled();
-    const commandB = await watchCommandB(page);
+    const commandB = await watchCommandShortcut(page, "Meta+b");
 
     await test.step("the launch dialog, with the sidebar closed", async () => {
       const dialog = page.getByRole("dialog", {
