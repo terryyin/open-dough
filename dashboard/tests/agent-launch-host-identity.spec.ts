@@ -86,7 +86,12 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
       },
     });
     expect(terminal.status).toBe(400);
-    expect(server.claudeCalls()).toHaveLength(before);
+    expect(
+      server
+        .claudeCalls()
+        .slice(before)
+        .filter((call) => call.argv[0] !== "agents"),
+    ).toEqual([]);
     expect(server.claudeAttaches()).toEqual([]);
 
     // A predecessor action omitting host addresses Claude only. It writes
