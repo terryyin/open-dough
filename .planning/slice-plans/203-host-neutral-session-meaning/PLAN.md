@@ -59,16 +59,19 @@ responsibilities across dashboard code, tests, docs and source guidance:
 | `src/launchWorkflow.ts`, `StartLaunch`, `CardLaunches`, `StartProgress` | Keep one workflow wording function. Carry the actual host through existing running-start progress and polling, including kept-start retries, rather than use a browser's independently selected host. |
 
 The prerequisite [one host description](../../seeds/SEED-075-host-neutral-dashboard-before-cursor.md#one-host-description)
-is still undelivered: a fresh `git fetch origin main` on 2026-10-01 resolved
-`origin/main` to `11f748a9b0e58263351e18fb37053cb2d6378221`, also this
-checkout's HEAD. Its `dashboard/src/sessionCapabilities.ts` still uses
+is still undelivered: the latest `git fetch origin main` on 2026-10-01 resolved
+`origin/main` to `285bd2133f071ebd1cd2cf15c6c76b39ea36bd8b`.
+`git show origin/main:dashboard/src/sessionCapabilities.ts` still uses
 host-name branches for names and capabilities, and `launchHosts.ts` still
 dispatches by host-name ternary; neither supplies the planned shared description.
-The prerequisite is now refined / planned, but remains queued and not-ready:
+The prerequisite is now refined / planned / ready in this checkout at
+`fdb99a075ea2788f5938dde03a09a9557415fe6e`:
 [its plan](../205-one-host-description/PLAN.md#current-decisions-and-remaining-concern)
-awaits the human decision about explicit-host arguments in existing workspace
-specs under its "specs unchanged" constraint. That sibling decision is not a
-scope question for this story. Do not implement its descriptor/dispatch/model
+records Terry's acceptance of explicit-host arguments in the three existing
+workspace-spec calls, preserving their assertions and expected behavior. That
+decision is resolved; readiness of the prerequisite's plan does not establish
+delivery of its contract. It remains queued on fetched remote trunk.
+Do not implement its descriptor/dispatch/model
 work here or invent its API. Reconcile its integrated contract before
 implementing these slices, then observe the consumers below against that
 revision and reassess.
@@ -99,7 +102,7 @@ was started. This is evidence of the current behavior, not the proposed change.
 | Continuation presentation uses the kept record, not a new native resume | Read `src/LaunchSession.tsx`, `shellCommand` and its `SessionEntry` consumer; workspace/args/notice come directly from the saved continuation, while its label is hard-coded Codex. `agent-launch-codex.spec.ts` supplies a real launched/retained record but does not assert every continuation word. | Slice 2 adds the missing visible continuation preservation assertions for example 2. |
 | An unavailable recorded session is refused before a PTY starts, and the message crosses the upgrade boundary | Baseline Claude terminal spec proves 410 and no attach for a readable omission; `admittedAttach` uses `attachOpens` and currently says Claude Code for every host. Read `AgentTerminals.refuseUpgrade`: it serializes that message as JSON in the HTTP body. Existing `refusedStatus` discards the body. | Slice 3 captures the actual refusal body and native no-attach result for example 3. |
 | Another page can show running-start phase but currently cannot know its host | Baseline start-phases spec starts via HTTP, holds real preparation/native launch, then reloads the page and asserts phase wording. Read all `startPhaseWords` callers and `StartProgress.set/all`, `runningStartSchema`, `useAgentLaunches.startPhaseOf`: host is lost before formatting. Execution and preparation starts both set the progress. | Slice 4 carries host through these consumers for example 4. |
-| A shared host description is available for these consumers | Fresh 2026-10-01 observation: `git fetch origin main`; `git rev-parse origin/main`; `git show origin/main:dashboard/src/sessionCapabilities.ts`; `git show origin/main:.planning/PRODUCT-BACKLOG.md`. Result: `11f748a9b0e58263351e18fb37053cb2d6378221` still has name-based helpers and the prerequisite is queued. Read `dashboard/server/launchHosts.ts`, `dashboard/src/sessionShown.ts`, `dashboard/src/LaunchSession.tsx`, `dashboard/src/launchWorkflow.ts`, `dashboard/src/StartLaunch.tsx`, `dashboard/src/CardLaunches.tsx` and `dashboard/server/agentLaunchAdmission.ts`: the consumers still have the recorded name branches, fixed continuation/refusal text and lost progress host; no integrated description contract can be consumed. | All wording slices depend on the sibling contract; the premise is false and readiness remains not-ready. |
+| A shared host description is available for these consumers | Latest 2026-10-01 observation: `git fetch origin main`; `git rev-parse origin/main`; `git show origin/main:dashboard/src/sessionCapabilities.ts`; `git show origin/main:dashboard/server/launchHosts.ts`; `git show origin/main:.planning/PRODUCT-BACKLOG.md`. Result: `285bd2133f071ebd1cd2cf15c6c76b39ea36bd8b` still has name-based helpers/dispatch and the prerequisite is queued. The earlier consumer trace below these boundaries remains applicable; the prerequisite's local preparation decision at `fdb99a07` changes no product file. No integrated description contract can be consumed. | All wording slices depend on the sibling contract; the premise is false and readiness remains not-ready, despite the prerequisite now being ready for execution locally. |
 
 The current pure/native-status assertions in
 `agent-launch-codex-observation-status.spec.ts` and observation-boundary specs

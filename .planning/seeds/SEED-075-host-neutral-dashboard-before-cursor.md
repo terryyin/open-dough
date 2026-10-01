@@ -126,7 +126,7 @@ host lacks unavailable rather than supplied by another host
 
 **Identity:** SEED-075#host-neutral-session-meaning
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/203-host-neutral-session-meaning/PLAN.md","assessment":"not-ready","reasons":["SEED-075#one-host-description remains undelivered on freshly fetched origin/main at 11f748a9b0e58263351e18fb37053cb2d6378221. Its shared description contract is absent from the current consumers; integrate it and freshly observe those consumers before this dependent plan is ready. The prerequisite itself remains not-ready pending its explicit-host workspace-spec decision."],"basis":{"document":"3a2297bdcb7e983202463d82bc5ae1112ba199b4e502c2822f6311dc9b3250f9","plan":"36f8e5add34fbcdf3ac026ccfbdcbb9643d85477b29de0adaee063479b9ff084"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/203-host-neutral-session-meaning/PLAN.md","assessment":"not-ready","reasons":["SEED-075#one-host-description is now ready for execution locally, but remains undelivered on freshly fetched origin/main at 285bd2133f071ebd1cd2cf15c6c76b39ea36bd8b. Its shared description contract is absent from current consumers; integrate that contract and freshly observe these consumers before this dependent plan is ready. The explicit-host workspace-spec decision is resolved."],"basis":{"document":"8b5e6a92d84a269de0ce7cc7aaa3210a282c4068771124c6dd3fef803dd7613c","plan":"877cc984b0f1c92dceee47eb59e203b2402988f16d07c57de7b229f52cb7a5ac"}}
 ```
 
 - **Goal:** A developer reading or continuing dashboard sessions sees each
@@ -212,9 +212,10 @@ host lacks unavailable rather than supplied by another host
 - **Plan:** [Session meaning and wording follow the host](../slice-plans/203-host-neutral-session-meaning/PLAN.md).
 - **Depends on:** SEED-075#one-host-description.
 - **Readiness review (2026-10-01):** Fresh fetched `origin/main` at
-  `11f748a9b0e58263351e18fb37053cb2d6378221` still lacks the shared host
-  description. The prerequisite is refined and planned, but queued and
-  not-ready pending its explicit-host workspace-spec decision. This story's
+  `285bd2133f071ebd1cd2cf15c6c76b39ea36bd8b` still lacks the shared host
+  description. The prerequisite's explicit-host workspace-spec decision is
+  resolved, and its local preparation at `fdb99a07` is refined / planned / ready.
+  Its contract remains undelivered and the story is still queued remotely. This story's
   scope and examples remain settled; integrate that contract and observe these
   consumers against it before reassessing readiness. Preserve the four planned
   slices without absorbing the prerequisite's work.
