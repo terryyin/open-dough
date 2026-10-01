@@ -186,32 +186,71 @@ promise, Dough Land change, host, or native case.
 
 **Identity:** SEED-066#dough-land-kept-one-shot-ownership
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/198-dough-land-kept-one-shot-ownership/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c97977742b497ff59191e3e49c2b94e98d5737a651cc73f632df3623b61f3335","plan":"893b29f36251ca8ef8988beaf65b9aa08274ba2e4bea8354368dc860ba95bdda"}}
 ```
 
 **Goal:** A developer who lands a kept one-shot execution result with Dough Land
 instead of the guarded one-shot landing never publishes a queued story's closure
-over another owner's claim.
+over another owner's claim, so a story someone else has taken or is preparing
+keeps its entry, its seed section, and its owner.
+
+#### Observed behavior
+
+A local fixture (bare remote, one-shot workspace whose result commit completes
+queued story A, rival publication on trunk, then Dough Land's publication step
+through the backlog rebase adapter) showed on 2026-10-01:
+
+- A rival **Take** of A makes the rebase adapter stop with a backlog conflict
+  ("removes it while … changes it"). Nothing is pushed.
+- A rival **preparation profile** for A changes no backlog line. The adapter
+  rebases cleanly, and the push publishes the closure. The story's entry and
+  section disappear while the rival profile still names A.
+
+The first premise holds for Takes only. Dough Land therefore changes.
 
 #### Scope
 
-- First observe, without paid native runs: keep a queued one-shot execution
-  result (result plus story closure) in its owned workspace, publish a rival
-  Take of that story to the remote, then run Dough Land on the workspace.
-  Record whether it stops with nothing pushed (for example through the backlog
-  merge adapter's conflict) or publishes the closure over the rival claim.
-- If it stops with nothing pushed, keep Dough Land unchanged and retain the
-  observation as proof; the review report's guarded landing route is enough.
-- If it publishes over the claim, Dough Land runs the same ownership recheck the
-  guarded one-shot landing uses before each push, as one-shot refinement already
-  does, or refuses and names the guarded route. Choosing between redirect and
-  refusal is a human decision at that point. A Dough Land guidance change needs
-  manual paid native re-acceptance of the affected landing journeys.
+- When the context identifies the landing checkout as a kept one-shot execution
+  result of a queued story, Dough Land supplies the one-shot ownership recheck
+  on fetched trunk as its candidate check, before the push and again before the
+  retry after a rejected push. This is the recheck one-shot refinement already
+  supplies. `queued` lets the push go ahead. `ownership-changed` (a Taken entry,
+  an agent profile of either activity, or an entry no longer in the
+  **Backlog list**) pushes nothing. It keeps the commit and workspace and
+  reports the `ownership` and `error`, leaving the story to that owner and the
+  developer.
+- The context that identifies it is the one-shot report or an invocation naming
+  the workspace and its queued identity. A later session that names only the
+  workspace still recognizes the result by its own closure: the candidate
+  removes an entry that fetched trunk lists in the **Backlog list**.
+- A rival Take keeps stopping on the backlog conflict as observed. Dough Land
+  does not resolve that conflict by removing the other side's entry.
+- A Dough Land guidance change needs manual paid native re-acceptance of the
+  affected landing journeys under ADR 0005.
+
+#### Key examples
+
+- Kept one-shot result closing queued A. Trunk unchanged for A → Dough Land
+  rechecks, gets `queued`, publishes the result with A's closure, and retires the
+  workspace as usual.
+- Same result. Another agent has since published a preparation profile for A →
+  the recheck reports `ownership-changed`. Nothing is pushed, the commit and
+  workspace stay, and the report names that agent and activity.
+- Same result. Another agent has since Taken A → the publication stops with
+  nothing pushed, at the recheck or the backlog conflict, and the result is
+  retained.
+- First push rejected because trunk moved. Meanwhile someone took A → the retry
+  rechecks first and pushes nothing.
+- Kept result of an unlisted one-shot request (no backlog entry removed) →
+  Dough Land lands it unchanged, with no recheck.
 
 #### Out of scope
 
 - Unlisted one-shot results, which carry no story to protect.
 - One-shot refinement, which already rechecks before Dough Land pushes.
+- Changing one-shot's own guarded landing or the backlog merge adapter.
+
+**Plan:** [Dough Land keeps a queued story's closure off another owner's claim](../slice-plans/198-dough-land-kept-one-shot-ownership/PLAN.md).
 
 ## Existing Behavior to Reconcile
 
