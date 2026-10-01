@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "d.kanai-chan",
-  "email": "d.kanai-chan@example.org",
-  "identity": "SEED-078#codex-service-on-dashboard-startup",
-  "mode": "story-branch",
-  "branch": "codex/codex-service-on-dashboard-startup",
-  "host": "codex"
-}
