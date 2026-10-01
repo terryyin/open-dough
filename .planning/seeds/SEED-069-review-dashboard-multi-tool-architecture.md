@@ -25,7 +25,7 @@ and further tools.
 
 **Identity:** SEED-069#review-dashboard-multi-tool-architecture
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/199-review-dashboard-multi-tool-architecture/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"06c6da49817f9464cf7d59ed0aa1b70207c3cd9e4c5ddf891b2f79927d0d5c23","plan":"5f81eeb4d2eacf5850b1985279569a4cf51ad169e866dd54adbd3baca8be0655"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/200-review-dashboard-multi-tool-architecture/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"06c6da49817f9464cf7d59ed0aa1b70207c3cd9e4c5ddf891b2f79927d0d5c23","plan":"5f81eeb4d2eacf5850b1985279569a4cf51ad169e866dd54adbd3baca8be0655"}}
 ```
 
 **Goal:** Give Terry, as the dashboard maintainer, an evidence-backed review of
