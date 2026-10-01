@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "juacompe-chan",
-  "email": "juacompe-chan@example.org",
-  "identity": "SEED-076#session-after-workspace-retirement",
-  "mode": "story-branch",
-  "branch": "codex/show-truthful-session-access-after-its-workspace",
-  "host": "codex"
-}
