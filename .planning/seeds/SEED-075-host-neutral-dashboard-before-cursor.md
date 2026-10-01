@@ -30,7 +30,7 @@ host lacks unavailable rather than supplied by another host
 
 **Identity:** SEED-075#one-host-description
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/205-one-host-description/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"143c673d086948e58a126a3fec666dc9b2296ce4240ef03b7d88e087a8f4210b","plan":"1c98ab65ae38f79c0f9d05d05b3adec6577bb43c92e0782220d42e0215febc0a"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/205-one-host-description/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"654fd2ecd47c9ecae9d4c56361736e917308f26e97e2a733c476c1c84cd9ce8b","plan":"dd25213de0983f7fcc82149423024d3923f34d8c242254ab6ccc7b497ae5e9ad"}}
 ```
 
 - **Goal:** A dashboard maintainer describes each host's shared facts once,

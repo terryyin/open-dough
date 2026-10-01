@@ -52,6 +52,10 @@ expectation; the three omitted-host workspace-test calls may add explicit
   access checks, passive final-report fallback, and deliberate done intent.
   The host's existing `readResult` and terminal startup-failure contract stay
   native to that boundary; this story does not redesign them.
+- Preserve the integrated all-host duplicate gate and host-owned creation
+  evidence/recovery contract. Associating descriptions with the existing host
+  boundaries keeps their native `creationEvidence` operation intact; no gate
+  or recovery behavior changes are promised here.
 - **Test-call decision for slice 3:** Terry allowed adding explicit `"claude"`
   arguments to the three `launchWorkspace` calls in `launch-workspace.spec.ts`
   on 2026-10-01. Preserve every assertion and expected behavior. The seed now
@@ -132,6 +136,20 @@ The setup and assertions in the workspace-retirement attach/done specs reach
 the real dashboard HTTP/WS and page access decisions using the existing native
 protocol fixture. They preserve shared orchestration behavior; they do not
 claim new vendor acceptance. No product or test implementation was changed.
+
+### Landing review against advanced trunk
+
+The 2026-10-01 landing replayed only the unpublished readiness commit onto
+`285bd213`, which already contains the earlier preparation and the delivered
+launch-gate story. Reviewed the current seed's shared context and story, this
+plan, and the integrated host-boundary/launch-gate changes. The selected outcome
+and proof mappings still hold; preserve the new creation-evidence method as
+noted above. Dashboard typecheck passed. The combined current-baseline selection
+below passed **156 tests**, 19.1s; no product or test implementation changed.
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=dot dashboard/tests/agent-launch-model.spec.ts dashboard/tests/agent-launch-model-boundary.spec.ts dashboard/tests/agent-launch-model-entries.spec.ts dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-refusal.spec.ts dashboard/tests/launch-workspace.spec.ts dashboard/tests/agent-launch-host-identity.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-terminal.spec.ts dashboard/tests/agent-terminal-codex.spec.ts dashboard/tests/agent-launch-done-stop.spec.ts dashboard/tests/agent-launch-done-codex.spec.ts dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-preparation-start.spec.ts dashboard/tests/agent-launch-options-boundary.spec.ts dashboard/tests/agent-launch-options.spec.ts dashboard/tests/session-workspace-retirement-attach.spec.ts dashboard/tests/session-workspace-retirement-done.spec.ts
+```
 
 ### Baseline A
 
