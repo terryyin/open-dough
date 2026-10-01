@@ -45,86 +45,85 @@ needed to restore and maintain fast feedback (<2.5m, targeting ~2m).
 
 **Identity:** SEED-070#reoptimize-ci-test-wall-time
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/198-reoptimize-ci-test-wall-time/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"04610083082c7d2d77763dfdedbff6273e979310eba9623db6767f19d77aa52b","plan":"e2e26120e8afd9e226eead914628fb302a68837b9e8bbaa2a75f6671e1d7b80e"}}
 ```
 
-- **For / why:** Developers and agents collaborating on trunk receive fast,
-  reliable CI feedback under 2.5 minutes, preventing feedback delays caused by
-  new tests merged from concurrent story branches.
-- **Goal:** Once active concurrent story branches (`SEED-066`, `SEED-052` Codex
-  support, `SEED-067`) have completed and landed on trunk, profile new bottleneck
-  jobs, apply `dough-test-optimization` to newly introduced or shifted slow test
-  families, and rebalance CI matrix shares/shards so trunk CI critical-path wall
-  time stays consistently under 2.5 minutes (targeting ~2 minutes).
-- **Scope:**
-  - **Precondition:** Wait until `SEED-066#composable-lightweight-session-options`,
-    `SEED-052#use-codex-from-dashboard`, and
-    `SEED-067#resolve-codex-refinement-launch-failures` have completed and landed
-    on `main`.
-  - **Trunk profiling & critical-path discovery:**
-    - Inspect recent GitHub Actions runs on `main` via `gh run list --branch main`
-      and `gh run view <run-id>`.
-    - Download test timing artifacts (`gh run download <run-id> -p 'test-times-*' -D /tmp/times`)
-      and Playwright reports (`gh run download <run-id> -p 'dashboard-playwright-report-*' -D /tmp/dash-reports`).
-    - Identify which job (a specific `dashboard` shard, `test` share, or `lint`)
-      is the slowest critical-path bottleneck.
-  - **Targeted test optimization (`dough-test-optimization`):**
-    - Apply `dough-test-optimization` to new or shifted slow test families in
-      both browser suites (e.g. newly added Codex/session specs) and shell/unit
-      suites.
-    - Rightsize inflated mock data and test card counts (as demonstrated in
-      `accessible-overview.spec.ts`, where reducing `queuedCount` from 40 to 16
-      eliminated 24 card renders, ~25 API polling reads, and ~120 keyboard
-      roundtrips while fully preserving overflow and scrolling coverage).
-    - Partition multi-suite monolithic test files into dedicated parallel checks
-      where sequential sub-suites create bottlenecks (as demonstrated when
-      partitioning `tests/git-publication-native-admission.sh` out of
-      `tests/git-publication-native.sh`, cutting its duration from 69s to 27s).
-  - **Matrix rebalancing & `longest-first` refresh:**
-    - Refresh `tests/longest-first` from latest CI timings (`sort -rn /tmp/times/*/test-times.txt | awk -F '\t' '$1 >= 3 { print $2 }'`)
-      so longest jobs start first and distribute evenly across matrix shares.
-    - Verify with `scripts/test-jobs.sh` that all unit/shell tests partition
-      cleanly across `OPEN_DOUGH_TEST_SPLIT=1/3`, `2/3`, `3/3` with 0 duplicates.
-    - Adjust Playwright sharding or matrix share count if necessary.
-  - **Preserved promises and constraints:**
-    - 100% behavioral test coverage must be preserved; no tests skipped, deleted,
-      or assertions weakened.
-    - Diagnostic artifacts (`playwright-report`, `test-results`, `test-times.txt`)
-      and failure reporting remain fully operational.
-    - All changes to `.github/workflows/ci.yml` must satisfy `tests/ci-container.sh`
-      (dashboard `run:` steps after `npm ci` must match `scripts/ci-container.sh`).
-- **Reference from previous effort (`SEED-068` / Plan 193):**
-  - Commit history:
-    - `28df8eb9`: Parallelize dashboard browser shards (4 shards) and cache Playwright Chromium.
-    - `d38a45ab`: Parallelize test matrix (3 shares) and refresh `tests/longest-first`.
-    - `4e79272c`: Partition admission publication journeys into dedicated parallel test (`tests/git-publication-native-admission.sh`).
-    - `45b3c53c`: Streamline large backlog test count (`queuedCount: 16`) in `dashboard/tests/accessibleOverview.ts`.
-    - `09dbcfa1`: CI timeout alignment to 6 minutes.
-    - `0e28f831`: Handle background session polling in `agent-launch-host-identity.spec.ts`.
-  - Recoverable plan: `.planning/slice-plans/193-reduce-ci-wall-time/PLAN.md` in
-    Git history (`0c4f3178`).
-- **Key examples:**
-  - *Precondition check:* CI optimization starts only after all concurrent story
-    branches in `Taken` have completed and integrated into `main`.
-  - *Measured improvement:* CI runs on `main` demonstrate critical-path wall time
-    under 2.5 minutes (e.g. ~2m00s–2m15s), with unit/shell test splits under 1m20s
-    and dashboard shards under 2m00s.
-  - *No regression:* All existing unit, shell, and Playwright tests continue to
-    pass cleanly.
-- **Depends on:** Landing of `SEED-066`, `SEED-052#use-codex-from-dashboard`, and
-  `SEED-067` on `main`.
-- **Effort hypothesis:** S to M — leveraging the established playbook, tooling,
-  and lessons from `SEED-068`.
-- **Capture:** Terry requested this follow-up story on 2026-10-01 to capture the
-  knowledge and ensure a second optimization pass occurs after concurrent branches
-  land.
+**Goal:** Developers and agents collaborating on trunk get CI feedback on each
+published revision within 2.5 minutes again (aiming for about 2 minutes), so
+waiting for CI does not slow trunk-based collaboration now that the Codex
+dashboard, composable session, and Codex refinement work have added tests to
+the suite. This restores the speed achieved by `SEED-068` for the integrated
+suite; it does not set up ongoing CI-time monitoring.
 
-## Open Decisions
+**Scope:**
 
-- Whether any newly added Playwright specs or unit tests require partitioning or
-  fixture rightsizing.
-- Whether dashboard shard count should remain 4 or increase to 5 based on total
-  browser test count after Codex workflows merge.
+- **Start condition (met):** `SEED-066#composable-lightweight-session-options`,
+  `SEED-052#use-codex-from-dashboard`, and
+  `SEED-067#resolve-codex-refinement-launch-failures` have closed and landed on
+  `main` (observed 2026-10-01). Stories taken since then do not hold this
+  story back; their tests are measured as they stand on trunk at execution.
+- **Baseline (trunk, 2026-10-01, runs `36827199430`–`36835182175`):** run
+  duration 2m41s–3m11s. `dashboard (4/4)` is the critical path in every run
+  (2m37s–3m03s); `dashboard (1/4)`, which also type-checks, reaches 2m06s–3m01s
+  while shards 2 and 3 finish in 1m43s–2m09s. `test` shares take 0m53s–1m39s
+  and `lint` 0m38s–1m05s.
+- **Required outcome:** the CI run for the delivered trunk revision, and two
+  reruns of that same revision, each complete in under 2m30s. No single job is
+  left as an outlier that ordinary runner variance pushes past the target.
+- **Means:** whatever the profile of the integrated suite shows is needed,
+  using the `SEED-068` playbook: download trunk timing and Playwright report
+  artifacts, find the critical-path job and slow test families, apply
+  `dough-test-optimization` (for example rightsizing inflated fixtures or
+  splitting sequential multi-suite files), rebalance matrix shares and
+  Playwright shards (shard count may change), and refresh
+  `tests/longest-first`. These are tactics, not individual delivery promises.
+- **Preserved constraints:**
+  - Behavioral coverage stays whole: no test is skipped or deleted, and no
+    assertion is weakened, unless an optimization replaces it with
+    equivalent coverage that `dough-test-optimization` justifies.
+  - Diagnostic artifacts (`playwright-report`, `test-results`,
+    `test-times-*`) and per-job failure reporting keep working.
+  - `.github/workflows/ci.yml` changes keep satisfying `tests/ci-container.sh`
+    (dashboard `run:` steps after `npm ci` match `scripts/ci-container.sh`).
+  - The target is met by changing tests and job structure; faster runners or
+    longer timeouts alone do not count (see Alternatives and Decision).
+  - Unit and shell tests still split across all `test` shares with no
+    duplicate or missing test (`scripts/test-jobs.sh`).
+- **Deferred:** keeping CI under target as later stories add tests, automated
+  CI-duration alerts or budgets, and local full-suite wall time beyond what
+  these changes naturally give.
+
+**Key examples:**
+
+- *Critical-path shard:* `dashboard (4/4)` takes about 3m on trunk while
+  shards 2 and 3 finish near 1m45s → after rebalancing and optimizing its slow
+  specs, every dashboard shard finishes well within the 2m30s run target.
+- *Fixture rightsizing (precedent):* `accessibleOverview.ts` rendered 40
+  queued cards to prove overflow → 16 cards still overflow and scroll, the spec
+  keeps its assertions, and it renders 24 fewer cards.
+- *Sequential file (precedent):* `tests/git-publication-native.sh` ran the
+  admission journeys after its other suites → moving them to
+  `tests/git-publication-native-admission.sh` let both run in parallel shares
+  and the slow share dropped from 69s to 27s.
+- *Delivery proof:* the delivered trunk revision's CI run takes 2m10s and two
+  reruns take 2m05s and 2m20s → met. A rerun taking 2m40s → not met; keep
+  optimizing or report the remaining bottleneck.
+- *No regression:* all unit, shell, and Playwright tests pass in each of those
+  runs, and the uploaded artifacts are still present.
+
+**Depends on:** nothing remaining; the start condition is met.
+
+**Effort hypothesis:** S to M, reusing the `SEED-068` playbook and tooling.
+
+**Reference from `SEED-068` / plan `193`:** commits `28df8eb9` (4 dashboard
+shards, Chromium cache), `d38a45ab` (3 test shares, `tests/longest-first`),
+`4e79272c` (admission publication split), `45b3c53c` (`queuedCount: 16`),
+`09dbcfa1` (6-minute timeouts), `0e28f831` (background polling in
+`agent-launch-host-identity.spec.ts`); recoverable plan
+`.planning/slice-plans/193-reduce-ci-wall-time/PLAN.md` at `0c4f3178`.
+
+**Capture:** Terry requested this follow-up on 2026-10-01 so a second pass
+happens after the concurrent branches land.
 
 ## Breadcrumbs
 
