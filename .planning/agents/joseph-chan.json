@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "agent": "joseph-chan",
+  "email": "joseph-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-075#launch-gates-every-host",
+  "host": "codex"
+}
