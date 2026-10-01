@@ -58,7 +58,7 @@ responsibilities across dashboard code, tests, docs and source guidance:
 | `server/agentLaunchAdmission.ts` → `AgentTerminals` HTTP refusal | Retain capability/record/origin/availability admission. Name the recorded host in the existing refusal; no alternative attach path. |
 | `src/launchWorkflow.ts`, `StartLaunch`, `CardLaunches`, `StartProgress` | Keep one workflow wording function. Carry the actual host through existing running-start progress and polling, including kept-start retries, rather than use a browser's independently selected host. |
 
-The prerequisite [one host description](../../seeds/SEED-075-host-neutral-dashboard-before-cursor.md#one-host-description)
+The prerequisite [one host description](https://github.com/terryyin/open-dough/blob/0e43ebae12253183d961464f5b064ac0b78f00f3/.planning/seeds/SEED-075-host-neutral-dashboard-before-cursor.md#one-host-description)
 is still undelivered: the latest `git fetch origin main` on 2026-10-01 resolved
 `origin/main` to `285bd2133f071ebd1cd2cf15c6c76b39ea36bd8b`.
 `git show origin/main:dashboard/src/sessionCapabilities.ts` still uses
@@ -66,7 +66,7 @@ host-name branches for names and capabilities, and `launchHosts.ts` still
 dispatches by host-name ternary; neither supplies the planned shared description.
 The prerequisite is now refined / planned / ready in this checkout at
 `fdb99a075ea2788f5938dde03a09a9557415fe6e`:
-[its plan](../205-one-host-description/PLAN.md#current-decisions-and-remaining-concern)
+[its plan](https://github.com/terryyin/open-dough/blob/0e43ebae12253183d961464f5b064ac0b78f00f3/.planning/slice-plans/205-one-host-description/PLAN.md#current-decisions-and-remaining-concern)
 records Terry's acceptance of explicit-host arguments in the three existing
 workspace-spec calls, preserving their assertions and expected behavior. That
 decision is resolved; readiness of the prerequisite's plan does not establish

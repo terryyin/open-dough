@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep the dashboard responsive while session startup settles](seeds/SEED-072-responsive-session-start-reconciliation.md#responsive-session-start-reconciliation) — SEED-072#responsive-session-start-reconciliation ([plan](slice-plans/192-responsive-session-start-reconciliation/PLAN.md))
-- [Shared dashboard code reads one host description](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#one-host-description) — SEED-075#one-host-description ([plan](slice-plans/205-one-host-description/PLAN.md))
 
 ## Backlog list
 
