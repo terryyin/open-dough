@@ -188,6 +188,18 @@ portrait there is no element. Its size follows the measured height of the two
 rows (`keepHeight` in `measuredHeight.ts`, shared with the banner), because
 the rows wrap in the half-width panel.
 
+## Execution complete
+
+Product advice: no new backlog story. The session panel now maximizes,
+restores, and closes from header icons, closes with ⌘⇧Esc (⌘Esc never
+reaches the page in Chrome or Safari), and shows the recorded agent's
+portrait. Keep the time-budget breach on
+`tests/git-publication-native-one-shot.sh` with the parallel one-shot
+execution's job split (`76969a1c`) and take it from trunk before wrap-up. The
+North Star UX file was over its 250-line check before this story and its
+Launch actions row keeps growing; consider splitting it when it is next
+restructured.
+
 ## Proof ownership
 
 | Promise (story) | Slice | Observation |
