@@ -7,10 +7,16 @@ import {
 } from "./execution-start-maintenance.mjs";
 import { readPublishedExecutionSource } from "./execution-source.mjs";
 import { requireOneShotStart } from "./one-shot-ownership.mjs";
-import { preparedReceipt } from "./execution-start-receipt.mjs";
+import {
+  defaultCheckoutReceipt,
+  preparedReceipt,
+} from "./execution-start-receipt.mjs";
 import { sameSelectedSource } from "./execution-start-recovery.mjs";
 import { sessionPolicy } from "./session-policy.mjs";
-import { selectOwnedWorkspace } from "./workspace-publication-select.mjs";
+import {
+  selectDefaultCheckout,
+  selectOwnedWorkspace,
+} from "./workspace-publication-select.mjs";
 import {
   backlogPath,
   claimProvenance,
@@ -26,9 +32,16 @@ async function readOneShotSource({ repository, identity }, ref) {
   return {};
 }
 
-// The one-shot start: the owned workspace at fetched trunk, with nothing
-// published. Its result goes through managed delivery.
+// The one-shot start: the owned workspace at fetched trunk, or the default
+// checkout as it is, with nothing published. Its result goes through managed
+// delivery. The default checkout is the workspace itself, so it gets no
+// separate local refresh.
 export async function prepareOneShot(request, origin, fetched) {
+  if (sessionPolicy(request).workspace === "default-checkout") {
+    const selected = await selectDefaultCheckout(request);
+    if (!selected.ok) return { ...selected, fetched };
+    return defaultCheckoutReceipt(request, selected, fetched);
+  }
   const maintained = await maintenance(request);
   const selected = await selectOwnedWorkspace({ ...request, origin });
   if (!selected.ok)

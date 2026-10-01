@@ -1,8 +1,13 @@
-// Select or reuse the owned execution workspace for a Take. Committing the
-// claim there is workspace-publication-claim.mjs; publication of that SHA is a
+// Select or reuse the owned execution workspace for a Take, or take the
+// established default checkout as a session's workspace. Committing the claim
+// there is workspace-publication-claim.mjs; publication of that SHA is a
 // separate step.
-import { existsSync } from "node:fs";
-import { fastForwardToFetchedTrunk } from "./maintain-default-checkout.mjs";
+import { existsSync, realpathSync } from "node:fs";
+import { resolve } from "node:path";
+import {
+  fastForwardToFetchedTrunk,
+  ongoingOperation,
+} from "./maintain-default-checkout.mjs";
 import { git, revParse } from "./publication-git.mjs";
 import {
   createdForRef,
@@ -160,5 +165,78 @@ export async function selectOwnedWorkspace(request) {
         error: `${request.workspace}: ${error.stderr || error.message}`,
       },
     });
+  }
+}
+
+// A request that selects the default checkout as its workspace, normalized so
+// the checkout is its own repository on the target branch with no separate
+// integration checkout, or `{ error }` saying why it cannot name it:
+// `workspace` must be that existing checkout, a supplied integration checkout
+// or repository context must name the same one, and a supplied branch must be
+// the target the checkout works on.
+export function defaultCheckoutRequest(input) {
+  const workspace = resolve(input.workspace);
+  const { integration, repository, branch, target } = input;
+  if (!existsSync(workspace))
+    return {
+      error: `--default-main works in the existing default checkout; ${workspace} does not exist`,
+    };
+  for (const [flag, path] of [
+    ["--integration", integration],
+    ["--repository", repository],
+  ])
+    if (path && resolve(path) !== workspace)
+      return {
+        error: `--default-main works in the default checkout itself; ${flag} must name ${workspace} or be omitted`,
+      };
+  if (branch && branch !== target)
+    return {
+      error: `--default-main works on the target branch ${target}; omit --branch or name ${target}`,
+    };
+  return {
+    request: {
+      ...input,
+      integration: undefined,
+      workspace,
+      repository: workspace,
+      branch: target,
+    },
+  };
+}
+
+// The established default checkout as a session's workspace, taken exactly as
+// it is: its HEAD, index, and working tree, including edits and local commits
+// fetched trunk lacks, are never reset, refreshed, or fast-forwarded, and no
+// worktree or branch is created. It must be the checkout's top level, on the
+// target branch, with no ongoing Git operation; otherwise the stop names why
+// and nothing changes. `startingRevision` is its actual HEAD.
+export async function selectDefaultCheckout({ workspace, target }) {
+  const refused = (error) => stopped("setup-failed", { workspace, error });
+  try {
+    const toplevel = await revParse(workspace, "--show-toplevel");
+    if (toplevel !== realpathSync(workspace))
+      return refused(`${workspace} is not a checkout's top level`);
+    const operation = await ongoingOperation(workspace);
+    if (operation)
+      return refused(
+        `the default checkout has an ongoing Git operation (${operation}); finish or abort it first`,
+      );
+    const branch = (
+      await git(workspace, "branch", "--show-current")
+    ).stdout.trim();
+    if (branch !== target)
+      return refused(
+        `the default checkout is on ${branch ? `branch ${branch}` : "a detached HEAD"}, not the target branch ${target}; switch it to ${target} yourself, or work in an isolated workspace`,
+      );
+    return {
+      ok: true,
+      role: "default-checkout",
+      created: false,
+      workspace,
+      branch,
+      startingRevision: await revParse(workspace, "HEAD"),
+    };
+  } catch (error) {
+    return refused(`${workspace}: ${error.stderr || error.message}`);
   }
 }

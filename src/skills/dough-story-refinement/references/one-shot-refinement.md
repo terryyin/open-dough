@@ -2,8 +2,9 @@
 
 One-shot refinement refines one story queued in the **Backlog list** without
 publishing a Preparing assignment. It works in an owned workspace at fetched
-trunk, records the story's preparation facts there, and stops with the
-committed result retained for review. Use it only when the developer or parent
+trunk, or in the default checkout when that is selected, records the story's
+preparation facts there, and stops with the committed result retained for
+review. Use it only when the developer or parent
 instruction explicitly selects one-shot (`--one-shot` or a clear equivalent)
 for refining that story; never infer it from apparent smallness. Without that
 selection, refine under
@@ -47,11 +48,37 @@ Act on the receipt's `status`:
   assignment. For this story, continue that assignment by running `start`
   without `--one-shot`; otherwise end the other assignment first.
 - `not-queued`, `workspace-selection-failed`, and `invalid-request` stop as
-  they do for an announcement. `invalid-request` also names `--default-main`
-  or `--auto-land`, which one-shot refinement does not support.
+  they do for an announcement. `invalid-request` also names `--auto-land`,
+  which one-shot refinement does not support.
 
 A recorded `not-ready` assessment does not stop the start: refinement may be
 what repairs it.
+
+## Refine in the default checkout
+
+When the developer or parent instruction also selects the default checkout
+(`--default-main` or a clear equivalent), refine directly in this project's
+established default checkout on its trunk branch. Resolve that checkout's
+actual path and current branch; a configured project folder alone does not
+establish them. Run the start above with `--default-main` and `--workspace` set
+to the default checkout; omit `--branch` and `--integration`, or name the trunk
+branch and that same checkout.
+
+The start checks the story on fetched trunk as above, then takes the checkout
+exactly as it is: uncommitted changes and local commits stay, and nothing is
+reset, refreshed, created, or published. Its `prepared` receipt carries
+`role: "default-checkout"`, `workspace`, `branch`, its actual HEAD as
+`startingRevision`, the `fetched` trunk, and `created: false`, with no
+`refresh`. `workspace-selection-failed` refuses a checkout on a branch other
+than trunk or with an ongoing Git operation; report its `error` and leave
+switching branches or finishing the operation to the developer.
+`invalid-request` names a `--branch` or checkout path that does not match, and
+`--default-main` without `--one-shot`.
+
+Existing changes in the checkout need no clean checkout or confirmation: they
+become part of this session's result. When committing below, stage everything
+(`git add -A`) so all checkout content is committed together; never discard,
+stash, or leave out existing content.
 
 ## Refine, record, and commit
 
@@ -75,7 +102,7 @@ refinement until it lands. Leave the workspace and its branch in place:
 nothing is pushed or retired, and the story is neither Taken nor completed.
 
 A later session that names the retained workspace continues there without
-running `start` again.
+running `start` again. The default checkout always stays in place.
 
 ## Land or discard on request
 
@@ -86,3 +113,7 @@ An explicit keep lands it under
 with no assignment release to stage. The story stays queued with the facts
 the recorder wrote. Then close the workspace under
 [Close or retain the workspace](preparation-workspace.md#close-or-retain-the-workspace).
+
+A default-checkout result holds everything committed there, so an explicit
+keep lands it with [Dough Land](../../dough-land/SKILL.md) from that checkout,
+which lands all of its content and keeps the checkout in place.

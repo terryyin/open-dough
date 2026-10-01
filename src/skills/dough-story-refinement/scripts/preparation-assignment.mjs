@@ -7,7 +7,8 @@
 // `abandon` publishes its end alone, leaving the draft in the workspace, or,
 // addressed by profile and allocation from the integration checkout, ends a
 // lost workspace's assignment once the developer confirms it abandoned.
-// `start --one-shot` establishes the workspace and publishes nothing.
+// `start --one-shot` establishes the workspace, or with `--default-main` takes
+// the default checkout as it is, and publishes nothing.
 import { isDirectCliEntry } from "../../dough-execute-plan/scripts/ci-direct-entry.mjs";
 import {
   sessionPolicy,
@@ -29,7 +30,7 @@ const operations = {
 
 const usage =
   "usage: preparation-assignment.mjs start [--integration PATH] [--repository PATH] --workspace PATH [--branch NAME] --identity ID --remote NAME --target BRANCH --push-authorized [--host claude|codex|cursor] [--model TEXT]\n" +
-  "       preparation-assignment.mjs start --one-shot [--integration PATH] [--repository PATH] --workspace PATH [--branch NAME] --identity ID --remote NAME --target BRANCH\n" +
+  "       preparation-assignment.mjs start --one-shot [--default-main] [--integration PATH] [--repository PATH] --workspace PATH [--branch NAME] --identity ID --remote NAME --target BRANCH\n" +
   "       preparation-assignment.mjs release --workspace PATH --identity ID --remote NAME --target BRANCH\n" +
   "       preparation-assignment.mjs abandon [--integration PATH] --workspace PATH --identity ID --remote NAME --target BRANCH --push-authorized\n" +
   "       preparation-assignment.mjs abandon --integration PATH --profile PATH [--allocation SHA --confirmed-abandoned] --remote NAME --target BRANCH --push-authorized";

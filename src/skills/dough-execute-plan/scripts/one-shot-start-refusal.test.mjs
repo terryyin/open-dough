@@ -1,4 +1,4 @@
-// One-shot start refusals: an unsupported session choice, admission,
+// One-shot start refusals: automatic landing, admission,
 // missing workspace authority, or Taken work stops before any workspace is
 // created or anything reaches the remote.
 import assert from "node:assert/strict";
@@ -21,7 +21,7 @@ function startOneShot(trunk, extra, options) {
   });
 }
 
-test("one-shot refuses admission, unsupported session choices, missing workspace authority, and Taken work without creating a workspace", async (t) => {
+test("one-shot refuses admission, automatic landing, missing workspace authority, and Taken work without creating a workspace", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const taken = await startCliResult(trunk, "trunk");
@@ -40,12 +40,6 @@ test("one-shot refuses admission, unsupported session choices, missing workspace
       ),
       "invalid-request",
       /--one-shot or --admit/,
-    ],
-    [
-      "default checkout",
-      startOneShot(trunk, ["--default-main"], { name: "default-main" }),
-      "invalid-request",
-      /--default-main is not supported/,
     ],
     [
       "automatic landing",

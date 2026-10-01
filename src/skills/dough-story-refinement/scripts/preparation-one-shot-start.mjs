@@ -1,16 +1,19 @@
 // Establishes a one-shot preparation of a queued story: its owned workspace
-// at fetched trunk, with nothing published. No assignment profile, agent
-// name, or backlog change is made; the result waits in the workspace for
-// review. Another holder of the story (a Taken entry or any agent profile)
+// at fetched trunk, or the default checkout exactly as it is when
+// `--default-main` selects it, with nothing published. No assignment profile,
+// agent name, or backlog change is made; the result waits in the workspace
+// for review. Another holder of the story (a Taken entry or any agent profile)
 // refuses it, while a recorded not-ready assessment does not: preparation
 // may be what repairs it.
 import { maintenance } from "../../dough-execute-plan/scripts/execution-start-maintenance.mjs";
 import { requireUnheld } from "../../dough-execute-plan/scripts/one-shot-ownership.mjs";
 import { git } from "../../dough-execute-plan/scripts/publication-git.mjs";
+import { sessionPolicy } from "../../dough-execute-plan/scripts/session-policy.mjs";
 import {
   backlogPath,
   remoteRef,
 } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
+import { selectDefaultCheckout } from "../../dough-execute-plan/scripts/workspace-publication-select.mjs";
 import {
   assignedElsewhereError,
   assignmentFields,
@@ -41,6 +44,27 @@ async function assignedWorkspace(request, ref) {
   });
 }
 
+// The default checkout as the preparation's workspace: its role, path,
+// target branch, and actual HEAD beside the fetched trunk it was checked
+// against. Its content is left exactly as it is, so it gets no refresh.
+async function defaultCheckoutPrepared(request, fetched) {
+  const { workspace, identity } = request;
+  const selected = await selectDefaultCheckout(request);
+  if (!selected.ok)
+    return stop("workspace-selection-failed", {
+      workspace,
+      fetched,
+      error: selected.error,
+    });
+  return {
+    ...selected,
+    status: "prepared",
+    tracking: "one-shot",
+    identity,
+    fetched,
+  };
+}
+
 export async function startOneShotPreparation(input) {
   const requested = requestOf("start", input);
   if (!requested.ok) return requested;
@@ -60,6 +84,8 @@ export async function startOneShotPreparation(input) {
   } catch (error) {
     return stop("source-refused", { workspace, fetched, error: error.message });
   }
+  if (sessionPolicy(request).workspace === "default-checkout")
+    return defaultCheckoutPrepared(request, fetched);
   const selected = await selectAtFetchedTrunk(request, repository, fetched);
   if (!selected.ok) return selected;
   const branch = (

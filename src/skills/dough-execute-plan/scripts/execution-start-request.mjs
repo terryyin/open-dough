@@ -8,11 +8,41 @@ import {
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { sessionPolicy } from "./session-policy.mjs";
 import { stopped } from "./workspace-publication-ownership.mjs";
+import { defaultCheckoutRequest } from "./workspace-publication-select.mjs";
+
+// The owned-workspace request, or `{ error }` saying why not: separate from
+// any supplied integration checkout, and existing already when nothing else
+// supplies the repository.
+function ownedWorkspaceRequest(requestInput) {
+  const workspace = resolve(requestInput.workspace);
+  const integration = requestInput.integration
+    ? resolve(requestInput.integration)
+    : undefined;
+  const context = requestInput.repository
+    ? resolve(requestInput.repository)
+    : undefined;
+  if (integration === workspace)
+    return { error: "queued work requires a separate owned workspace" };
+  if (!integration && !context && !existsSync(workspace))
+    return {
+      error:
+        "without --integration or --repository, --workspace must name an existing owned worktree of the repository",
+    };
+  return {
+    request: {
+      ...requestInput,
+      integration,
+      workspace,
+      repository: integration ?? context ?? workspace,
+    },
+  };
+}
 
 // The normalized request, or the stop that refuses it. A one-shot start
 // publishes no claim, so it needs no publisher and no publication authority:
-// its result waits in the owned workspace for review. An unlisted request has
-// no identity; a supplied identity is checked against fetched trunk. The Git
+// its result waits for review in the owned workspace, or in the default
+// checkout when `--default-main` selects it. An unlisted request has no
+// identity; a supplied identity is checked against fetched trunk. The Git
 // `repository` the start reads and selects from is the supplied integration
 // (default) checkout, else the supplied repository context (an owned worktree
 // or the common Git directory), else the owned workspace, which must then
@@ -21,10 +51,11 @@ import { stopped } from "./workspace-publication-ownership.mjs";
 export function startRequest(requestInput) {
   const policy = sessionPolicy(requestInput);
   const oneShot = policy.tracking === "one-shot";
-  if (policy.workspace !== "isolated")
+  const defaultCheckout = policy.workspace === "default-checkout";
+  if (defaultCheckout && !oneShot)
     return stopped("invalid-request", {
       error:
-        "this start needs a separate owned workspace; --default-main is not supported",
+        "--default-main applies to one-shot work; a tracked start publishes its claim from a separate owned workspace",
     });
   if (policy.landing !== "review")
     return stopped("invalid-request", {
@@ -34,7 +65,7 @@ export function startRequest(requestInput) {
     });
   const required = [
     "workspace",
-    "branch",
+    ...(defaultCheckout ? [] : ["branch"]),
     ...(oneShot ? [] : ["identity", "publisherId"]),
     "mode",
     "target",
@@ -42,19 +73,12 @@ export function startRequest(requestInput) {
   for (const field of required)
     if (!requestInput[field])
       return stopped("invalid-request", { error: `missing ${field}` });
-  const workspace = resolve(requestInput.workspace);
-  const integration = requestInput.integration
-    ? resolve(requestInput.integration)
-    : undefined;
-  const context = requestInput.repository
-    ? resolve(requestInput.repository)
-    : undefined;
-  const request = {
-    ...requestInput,
-    integration,
-    workspace,
-    repository: integration ?? context ?? workspace,
-  };
+  const located = defaultCheckout
+    ? defaultCheckoutRequest(requestInput)
+    : ownedWorkspaceRequest(requestInput);
+  if (located.error)
+    return stopped("invalid-request", { error: located.error });
+  const { request } = located;
   if (oneShot && request.admit === true)
     return stopped("invalid-request", {
       error:
@@ -103,14 +127,5 @@ export function startRequest(requestInput) {
         : "mode and workspace authority must be established",
     });
   }
-  if (request.integration === request.workspace)
-    return stopped("invalid-request", {
-      error: "queued work requires a separate owned workspace",
-    });
-  if (!request.integration && !context && !existsSync(request.workspace))
-    return stopped("invalid-request", {
-      error:
-        "without --integration or --repository, --workspace must name an existing owned worktree of the repository",
-    });
   return { ok: true, request };
 }

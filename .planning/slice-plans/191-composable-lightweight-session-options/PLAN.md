@@ -327,7 +327,21 @@ All-host breadth is owned by slice 8; one host's probe cannot prove another.
 
 ### 4. Direct one-shot work uses the default checkout without a clean-main gate
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `node --test --test-timeout=600000 src/skills/dough-execute-plan/scripts/default-checkout-session*.test.mjs src/skills/dough-execute-plan/scripts/one-shot*.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication*.test.mjs src/skills/dough-story-refinement/scripts/*.test.mjs src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/session-policy.test.mjs`
+(202 pass); payload links, credential-free native one-shot suite, native evidence identity.
+Learnings: contract is `--one-shot --default-main --workspace <default checkout>`
+(`--branch` must equal target; `--integration`/`--repository` must name the same
+checkout). `defaultCheckoutRequest`/`selectDefaultCheckout` in
+`workspace-publication-select.mjs` take the checkout as is (no refresh, worktree,
+branch, or push); holder checks read fetched trunk; wrong branch, ongoing Git
+operation, or non-toplevel refuse. Receipt: `role: "default-checkout"`,
+`startingRevision` = actual HEAD, `fetched`, `created: false`, no maintenance.
+Tracked `--default-main` is refused with an explanation. Landing from the
+default checkout is guidance only so far: slice 5 must prove it (merge-base
+base, `--one-shot-identity`). Escalation `--carry` from the default checkout is
+not code-blocked. The one-shot guidance edits make the slice 3 native evidence
+stale; slice 8 re-accepts. Slice 7 must consume the new receipt shape.
 Proof: New `default-checkout-session.test.mjs` exercises actual start entry points
 for both workflows with a real default checkout containing existing changes and
 unpublished commits. Assert path/trunk role, unchanged old content, no extra

@@ -2,12 +2,13 @@
 
 One-shot work completes an explicitly requested, genuinely trivial outcome
 with no Taken entry or agent profile, and no story or plan left behind. It runs
-in an owned isolated workspace and stops with its verified result retained there
-for review; only an explicit request to land it publishes that result to remote
-trunk. It is a way of tracking the work, not a separate execution path:
-planless execution, verification, refactoring, delivery, and closure stay as
-they are. It grants no permission beyond the current instruction: implementing
-findings, publishing drafts, and widening scope still need their own authority.
+in an owned isolated workspace, or in the default checkout when that is
+selected, and stops with its verified result retained there for review; only
+an explicit request to land it publishes that result to remote trunk. It is
+a way of tracking the work, not a separate execution path: planless execution,
+verification, refactoring, delivery, and closure stay as they are. It grants
+no permission beyond the current instruction: implementing findings,
+publishing drafts, and widening scope still need their own authority.
 
 ## Decide whether one-shot applies
 
@@ -58,6 +59,35 @@ shows as Taken, held by an agent profile (execution or preparation), or queued
 with a recorded `not-ready` reason. Then run this project's checkout-bound
 setup under [execution location](execution-location.md) before implementation.
 
+## Work in the default checkout
+
+When the developer or parent instruction also selects the default checkout
+(`--default-main` or a clear equivalent), work directly in this project's
+established default checkout on its trunk branch instead of an owned
+workspace. Resolve that checkout's actual path and current branch; a
+configured project folder alone does not establish them. Run the start command
+with `--one-shot --default-main`, `--workspace` set to the default checkout,
+mode, actual remote and trunk branch, and `--workspace-authorized`, plus
+`--identity` as above. Omit `--branch` and `--integration`, or name the trunk
+branch and that same checkout.
+
+The command fetches trunk and checks a supplied identity there as above, then
+takes the checkout exactly as it is: uncommitted changes and local commits
+stay, and nothing is reset, refreshed, created, or published. Its result
+`ok: true, status: "prepared"` carries `role: "default-checkout"`, the
+`workspace` path, its `branch`, its actual HEAD as `startingRevision`, the
+`fetched` trunk, and `created: false`. `setup-failed` refuses a checkout on a
+branch other than trunk or with an ongoing Git operation; report its `error`
+and leave switching branches or finishing the operation to the developer.
+`invalid-request` names a `--branch` or checkout path that does not match, and
+`--default-main` without `--one-shot`.
+
+Existing changes in the checkout need no clean checkout or confirmation: they
+become part of this session's result. Verify and commit there as below, staging
+everything (`git add -A`) so all checkout content is committed together; never
+discard, stash, or leave out existing content. Report that the result commit
+sits on the checkout's local trunk branch, after any earlier local commits.
+
 ## Verify and retain the result
 
 Work only in that workspace. Run the focused verification the outcome needs
@@ -69,7 +99,8 @@ Then stop for review. Report the workspace path and branch, the retained
 pending issues. For a queued story, also report that remote trunk still lists
 it in the **Backlog list** while its closure waits in the result commit.
 Leave the workspace and its branch in place: nothing is pushed or retired
-until the developer asks to land the result.
+until the developer asks to land the result. The default checkout always stays
+in place.
 
 ## Land the retained result
 
@@ -81,7 +112,11 @@ the merge base of the workspace branch and fetched trunk) and the target set to
 remote trunk, even in Story Branch Mode: one-shot work has no execution branch
 or claim to deliver to. That request is the authority to publish it. After
 acceptance, refresh the default checkout and complete CI observation as for any
-trunk publication. If the delivery result is lost or interrupted,
+trunk publication. A default-checkout result is delivered from that checkout,
+with `previouslyPublishedBase` set to the merge base of its HEAD and fetched
+trunk, because its earlier local commits are part of the result; it is the
+default checkout itself, so supply no separate one to refresh. If the delivery
+result is lost or interrupted,
 [resume the interrupted publication](trunk-publication.md#resume-an-interrupted-publication)
 with the candidate you retained, never by committing or pushing again.
 
@@ -115,15 +150,15 @@ intent, has no product result. Report the evidence. For a queued story, commit
 its closure alone, as in
 [completing a queued story](#complete-a-queued-story-in-the-same-commit), and
 stop for review as for any result; it lands only on request. An unlisted
-request has nothing to retain: retire the workspace.
+request has nothing to retain: retire an owned workspace.
 
 ## Retire the workspace
 
 After a landed result's delivery and CI completion gates pass, or after an
 unlisted no-change conclusion, retire the clean workspace and its branch under
 Dough Land's [Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree).
-Nothing remains to wrap up: the delivered commit already closed any queued
-story.
+The default checkout is never retired. Nothing remains to wrap up: the
+delivered commit already closed any queued story.
 
 ## Escalate when the work grows
 
@@ -132,6 +167,10 @@ complexity, a separate outcome, or failure to converge, stop substantive work
 and escalate it into tracked work before going further, also when replanning
 is disabled (`--no-replan`). If the developer stopped the work, do not
 escalate: report the attempt and its evidence and leave its workspace to them.
+
+Escalation carries edits only out of an owned workspace. An attempt in the
+default checkout stops instead: report the attempt, its evidence, and its
+edits left in the default checkout for the developer.
 
 Keep the attempt's edits uncommitted in the workspace: only uncommitted edits
 are carried, so undo a result commit you already made while keeping its

@@ -55,3 +55,14 @@ test("the refined result records truthful facts, is committed, and waits for rev
   assert.match(land, /explicit keep/);
   assert.match(land, /no assignment release to stage/);
 });
+
+test("selected default checkout refinement keeps that checkout's content and lands through Dough Land", () => {
+  const direct = section(reference, "## Refine in the default checkout");
+  assert.match(direct, /`--default-main`/);
+  assert.match(direct, /actual\s+path and current branch/);
+  assert.match(direct, /nothing is\s+reset, refreshed, created, or published/);
+  assert.match(direct, /need no clean checkout or confirmation/);
+  assert.match(direct, /all checkout content is committed together/);
+  const land = section(reference, "## Land or discard on request");
+  assert.match(land, /Dough Land[\s\S]+keeps the checkout in place/);
+});

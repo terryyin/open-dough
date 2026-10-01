@@ -32,7 +32,10 @@ base it supplies:
   text alone proves no ownership.
 - [One-shot work](one-shot.md) supplies the same path with `--one-shot` and
   workspace authority alone; the operation bases the workspace on fetched
-  remote trunk and publishes nothing.
+  remote trunk and publishes nothing. With `--default-main` it instead takes
+  the default checkout on trunk exactly as it is, creating no worktree or
+  branch, as [work in the default checkout](one-shot.md#work-in-the-default-checkout)
+  describes.
 - Caller-selected current-branch work records that checkout and creates no
   worktree. An already-supported host-owned execution stays in that same
   recorded checkout and does not switch branches. Publication follows the

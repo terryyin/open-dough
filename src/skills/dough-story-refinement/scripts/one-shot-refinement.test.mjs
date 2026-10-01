@@ -165,17 +165,17 @@ test("one-shot refinement accepts recorded not-ready preparation and repairs it 
   assert.deepEqual(await remoteProfileNames(trunk), []);
 });
 
-test("a competing holder or an unsupported session choice refuses one-shot refinement before any workspace exists", async (t) => {
+test("a competing holder or automatic landing refuses one-shot refinement before any workspace exists", async (t) => {
   const trunk = await createPreparationTrunk();
   t.after(trunk.cleanup);
   const workspace = join(trunk.fixture, "prep-refused");
 
-  for (const option of ["--auto-land", "--default-main"]) {
-    const refused = await oneShot(trunk, workspace, "prep/refused", [option]);
-    assert.equal(refused.code, 1, JSON.stringify(refused.receipt));
-    assert.equal(refused.receipt.status, "invalid-request");
-    assert.match(refused.receipt.error, new RegExp(option));
-  }
+  const refused = await oneShot(trunk, workspace, "prep/refused", [
+    "--auto-land",
+  ]);
+  assert.equal(refused.code, 1, JSON.stringify(refused.receipt));
+  assert.equal(refused.receipt.status, "invalid-request");
+  assert.match(refused.receipt.error, /--auto-land/);
 
   await publishAssignment(trunk, "Yui", {
     identity: identityC,

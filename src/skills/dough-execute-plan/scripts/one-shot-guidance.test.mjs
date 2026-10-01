@@ -51,3 +51,17 @@ test("a queued no-change closure waits for review like any result", () => {
   const retire = section(reference, "## Retire the workspace");
   assert.match(retire, /landed result's delivery and CI completion/);
 });
+
+test("selected default checkout work takes that checkout as it is and keeps it", () => {
+  const direct = section(reference, "## Work in the default checkout");
+  assert.match(direct, /`--one-shot --default-main`/);
+  assert.match(direct, /actual path and current branch/);
+  assert.match(direct, /nothing is reset, refreshed, created, or published/);
+  assert.match(direct, /need no clean checkout or confirmation/);
+  assert.match(direct, /all checkout content is committed together/);
+  assert.match(direct, /leave switching branches[\s\S]+to the developer/);
+  const land = section(reference, "## Land the retained result");
+  assert.match(land, /merge base of its HEAD and fetched\s+trunk/);
+  const retire = section(reference, "## Retire the workspace");
+  assert.match(retire, /default checkout is never retired/);
+});
