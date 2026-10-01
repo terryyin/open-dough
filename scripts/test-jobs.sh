@@ -80,6 +80,9 @@ else
   find "${test_dir}" -type f -name '*.sh' ! -path "${test_dir}/support/*" -print0 \
     > "${work_dir}/tests"
   while IFS= read -r -d '' test_file; do
+    # The one-shot aggregate remains available for explicit focused proof;
+    # its two discovered group wrappers own the same journeys in CI.
+    [[ ${test_file} != tests/git-publication-native-one-shot.sh ]] || continue
     add_job shell "${test_file}"
   done < "${work_dir}/tests"
 

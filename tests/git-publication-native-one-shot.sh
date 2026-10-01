@@ -20,4 +20,12 @@ source "${source_dir}/tests/support/git-publication-native-suites.sh"
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/git-publication-native-substitute-suite.sh"
 
-run_substitute_one_shot_journeys
+case ${1:-all} in
+  all) run_substitute_one_shot_journeys ;;
+  results) run_substitute_one_shot_result_journeys ;;
+  workspaces) run_substitute_one_shot_workspace_journeys ;;
+  *)
+    printf 'Unknown one-shot journey group: %s\n' "$1" >&2
+    exit 2
+    ;;
+esac
