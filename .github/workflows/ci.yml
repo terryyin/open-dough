@@ -61,7 +61,7 @@ jobs:
   test:
     name: test (${{ matrix.share }}/${{ strategy.job-total }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 6
     strategy:
       fail-fast: false
       matrix:
@@ -109,7 +109,7 @@ jobs:
   dashboard:
     name: dashboard (${{ matrix.shard }}/${{ strategy.job-total }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 6
     strategy:
       fail-fast: false
       matrix:
