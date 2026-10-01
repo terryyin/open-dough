@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 200. Removed local codes are never reused.
+- Highest allocated local number: 202. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -478,3 +478,43 @@ Follow-up: Open, unqueued. Align the Codex stream notification contract with dur
   - Evidence: retained observer `/tmp/dough-ci-501/watch-kA6yM3`, cell5. `complete-revision` for `cca873af2766128d3409db6c47c1a8beea39a7f6` returned exact success (run36793490950/attempt1) and shutdown retained/unread_actionable_failure for runs36750057215 and36790537801. Installed `readDeliveryProgress` returned deliveredThrough0; only sequences1/2 existed, matching those handled failures and published repairs a8c8d27/3fdae6f. `ci-notify-codex.md` consumer calls notify; `streamMailboxWorker` prints records; neither calls recordDeliveryProgress. Coordinator verified identity/event tuples and acknowledged exactly1/2 through the installed export.
   - Observed effect: Completion could not confirm shutdown despite green CI and previously accepted repairs; another records/recovery boundary was needed.
   - Inference: Durable delivery acknowledgment is missing in this adapter path. CI provider health and product behavior did not cause this retained shutdown.
+
+- Execution: `SEED-052#use-codex-from-dashboard` / plan 192, first related increment `22ff91b009fb90311cf71230e63f760e0fefdedb`
+  - Timestamp: unknown (2026-10-01 human-judgment stop and authorized resume)
+  - Tool: Codex
+  - Open Dough release: unknown; coordinator installed VERSION 0.3.51
+  - Evidence: observer watch-kaShmz, cell19/session4531/PID3443, stopped receipt recordedThrough2/deliveredThrough0/unread2. Sequence2 was own run36813260082/attempt1 on slice4 8020eb2, already corrected by slice5 ca12038b; trace tied the timeout to raw HTTP awaiting a WebSocket upgrade. Root inspected both events and used installed recordDeliveryProgress to acknowledge exactly2 after the clean CI-repair save/restore returned resumed. [Execution account](.planning/slice-plans/192-complete-codex-dashboard-sessions/NATIVE.md#resumed-observer).
+  - Observed effect: delivered historical failure still required durable acknowledgment after shutdown; no new repair was manufactured. The same binding was rearmed only after old PID exit.
+  - Inference: this second execution reproduces the adapter cursor gap. Notification arrival timing alone does not establish a separate provider defect.
+
+## DD-201 — An unconditional native UI Escape interrupted a restored question
+
+The observation driver assumed Enter always opened the hook-review modal, then sent Escape without inspecting the active native view. On saved-session reconnect the pending question took the foreground, so Escape interrupted the real blocking tool.
+
+Follow-up: Open, unqueued. Inspect the current native modal before sending state-changing keys, and verify all questions are answered before expecting completion. This review authorizes no guidance change.
+
+### Occurrences
+
+- Execution: `SEED-052#use-codex-from-dashboard` / plan 192, first related increment `22ff91b009fb90311cf71230e63f760e0fefdedb`
+  - Timestamp: 2026-10-01T06:55:55.870Z
+  - Tool: Codex
+  - Open Dough release: unknown; observation fixture installed real 0.3.51
+  - Evidence: [native waiting account](.planning/slice-plans/192-complete-codex-dashboard-sessions/WAITING.md#actual-question-dashboard-state-and-answer); same-ID question screenshot at06:55:55.867Z, Escape immediately afterward, function_call_output aborted by user after79.1s and native turn01a0f63d-5eeb-7181-bc66-1d89a09d1771 interrupted. Corrected same-ID continuation01a0f640-5bd5-77e3-bcb3-acc785409cfa asked one tone question, received actual CLI answer and completed at06:57:19.411Z. Raw passing fixture was inspected before ADR0005 disposal; vendor history retained.
+  - Observed effect: one additional substantive continuation was needed; the original input was not blindly replayed. Whole native thread reported77,035 tokens (63,104 cached input), not a measured charge or an isolated interruption cost.
+  - Inference: the first assessor also expected completion after only one of two questions. Neither harness error establishes a product detach failure.
+
+## DD-202 — Interrupted proof commands left preview servers outside the cleanup check
+
+Manually stopped browser proof commands left their preview children alive. A process-name check for the disposable fixture missed them because their argv named the shared dashboard dist directory rather than that fixture.
+
+Follow-up: Open, unqueued. Retain owned server process identities through cancellation and verify child exit; a matching-name absence does not establish resource cleanup. This review authorizes no guidance change.
+
+### Occurrences
+
+- Execution: `SEED-052#use-codex-from-dashboard` / plan 192, first related increment `22ff91b009fb90311cf71230e63f760e0fefdedb`
+  - Timestamp: unknown (2026-10-01 root proof acceptance after native waiting return)
+  - Tool: Codex
+  - Open Dough release: unknown; observation fixture installed real 0.3.51
+  - Evidence: implementation return claimed no fixture server remained after interrupted commands. Root ps found PIDs28944/59938; lsof matched ports64224/64536 exactly to native harness server-start records. Root sent SIGTERM only to those owned preview servers and confirmed both absent with a finite local wait. Attachment PIDs29121/60036/77698 were also independently absent. [Cleanup account](.planning/slice-plans/192-complete-codex-dashboard-sessions/WAITING.md#command-outcomes-and-cleanup).
+  - Observed effect: two orphan preview servers survived the returned cleanup check; root closed them before acceptance/disposal. Shared daemon and CI observer were untouched.
+  - Inference: subprocess cancellation bypassed normal finally cleanup; the report's name-based process filter hid the remaining children. No general native PTY-exit claim follows from this server cleanup.
