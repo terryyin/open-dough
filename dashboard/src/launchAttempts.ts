@@ -137,7 +137,7 @@ export function useLaunchAttempts(
         identity: work.identity,
         title: work.title,
         workflow,
-        host: choices.host ?? "claude",
+        host: choices.host,
         ...optionsOf(choices),
       }),
     [launch],
@@ -150,7 +150,7 @@ export function useLaunchAttempts(
       const answer = await launch(adHocKey(sourceId), {
         source: sourceId,
         workflow: "ad-hoc",
-        host: choices.host ?? "claude",
+        host: choices.host,
         ...optionsOf(choices),
       });
       return answer === undefined || "kind" in answer ? undefined : answer;

@@ -80,7 +80,7 @@ export async function runPreparationCommand(
 // the start command and the formatter.
 export async function establishesPreparation(
   project: ProjectFolder,
-  host: StoryLaunchRequest["host"] = "claude",
+  host: StoryLaunchRequest["host"],
 ): Promise<boolean> {
   const script = (name: string) =>
     installedSkillPath(host, project, refinementSkill, "scripts", name);
@@ -96,7 +96,7 @@ export async function establishesPreparation(
 export async function formattedPreparation(
   project: ProjectFolder,
   preparation: EstablishedPreparation,
-  host: StoryLaunchRequest["host"] = "claude",
+  host: StoryLaunchRequest["host"],
 ): Promise<string> {
   const file = installedSkillPath(
     host,

@@ -123,9 +123,9 @@ export function sameLaunch(
 // What a launch dialog hands its caller: the developer's choices among the
 // request's options, as typed, before the request trims and omits them.
 export type LaunchChoices = {
-  readonly host?: AgentLaunchRequest["host"];
+  readonly host: AgentLaunchRequest["host"];
   readonly instruction: NonNullable<StoryLaunchRequest["instruction"]>;
-  // Absent for Default: Claude Code's own setting applies.
+  // Absent for Default: the selected host's configured setting applies.
   readonly model?: LaunchModel;
   // The flags selected, absent when none.
   readonly options?: readonly string[];

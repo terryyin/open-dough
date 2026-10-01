@@ -45,7 +45,7 @@ export function LaunchDialog({
   description,
   effects,
   details,
-  host = "claude",
+  host,
   onHost,
   note,
   fieldLabel,
@@ -63,7 +63,7 @@ export function LaunchDialog({
   onRefused,
   onClose,
 }: {
-  readonly host?: AgentLaunchRequest["host"];
+  readonly host: AgentLaunchRequest["host"];
   readonly onHost?: ((host: AgentLaunchRequest["host"]) => void) | undefined;
   readonly heading: string;
   // What the launch is about, such as a story's title and identity.

@@ -171,7 +171,8 @@ no runtime model or legacy interpretation changes.
 ### 3. Starts and helper calls carry the host explicitly
 
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: [slice 3 delivery](OBSERVATIONS.md#slice-3-accepted-proof).
 Proof: Workspace rules; Claude/Codex installed execution and preparation
 journeys; options UI/boundary specs; host-identity and start-store compatibility;
 typecheck and final full dashboard suite.

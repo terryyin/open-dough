@@ -5,6 +5,7 @@ import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/produ
 export type HostIdentity = (typeof agentHosts)[number];
 export type HostDescription = {
   readonly name: string;
+  readonly branchNamespace: string;
   readonly models: Readonly<Record<string, { readonly name: string }>>;
   readonly skillSigil?: string;
   readonly uncertaintyHint?: string;
@@ -14,6 +15,7 @@ export type HostDescription = {
 export const hostDescriptions = {
   claude: {
     name: "Claude Code",
+    branchNamespace: "claude/",
     skillSigil: "/",
     models: {
       fable: { name: "Fable" },
@@ -24,6 +26,7 @@ export const hostDescriptions = {
   },
   codex: {
     name: "Codex",
+    branchNamespace: "codex/",
     skillSigil: "$",
     models: {},
     uncertaintyHint:
@@ -31,7 +34,7 @@ export const hostDescriptions = {
     unofferedModelExplanation:
       "Codex uses its configured default model; a Claude model cannot be selected.",
   },
-  cursor: { name: "Cursor", models: {} },
+  cursor: { name: "Cursor", branchNamespace: "cursor/", models: {} },
 } as const satisfies Record<HostIdentity, HostDescription>;
 
 export function hostDescription(host: HostIdentity): HostDescription {

@@ -8,6 +8,7 @@ import {
   type KeptStart,
   type OfferedDefinition,
   type LaunchWorkflow,
+  type AgentLaunchRequest,
 } from "../src/agentLaunch.ts";
 import { catalog } from "../src/publishedSource.ts";
 import { offeredShape } from "../src/commandOptions.ts";
@@ -19,14 +20,15 @@ import { keptStartsByProject } from "./startStore.ts";
 import { startOf } from "./startWorkflows.ts";
 import type { StartProgress } from "./startProgress.ts";
 
-// The catalog projects whose installed skill establishes a workflow's start,
-// by id, in catalog order.
+// The catalog projects whose selected host installation establishes a workflow's
+// start, by id, in catalog order.
 export async function establishing(
   workflow: LaunchWorkflow,
+  host: AgentLaunchRequest["host"],
 ): Promise<readonly string[]> {
   const ids = await Promise.all(
     catalog.map(async (source) =>
-      (await startOf(workflow)?.establishes(projectFolder(source)))
+      (await startOf(workflow)?.establishes(projectFolder(source), host))
         ? source.id
         : undefined,
     ),

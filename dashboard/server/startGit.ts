@@ -2,6 +2,7 @@
 // workspaces already use, the Agent that owns a claim on origin's trunk, and
 // the arguments that resume a start lost with the server.
 
+import { hostDescriptions } from "../src/hostDescription.ts";
 import { execFile } from "node:child_process";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
@@ -37,18 +38,21 @@ export async function takenSlugs(project: ProjectFolder): Promise<Set<string>> {
   const folders = await readdir(path.join(project.path, worktreesFolder)).catch(
     (): string[] => [],
   );
+  const namespaces = Object.values(hostDescriptions).map(
+    ({ branchNamespace }) => branchNamespace,
+  );
   const branches = (
     await git(project, [
       "for-each-ref",
       "--format=%(refname:short)",
-      "refs/heads/claude/",
-      "refs/heads/codex/",
-      "refs/heads/cursor/",
+      ...namespaces.map((namespace) => `refs/heads/${namespace}`),
     ])
   )
     .split("\n")
-    .filter((name) => /^(claude|codex|cursor)\//.test(name))
-    .map((name) => name.slice(name.indexOf("/") + 1));
+    .flatMap((name) => {
+      const namespace = namespaces.find((prefix) => name.startsWith(prefix));
+      return namespace === undefined ? [] : [name.slice(namespace.length)];
+    });
   return new Set([...folders, ...branches]);
 }
 

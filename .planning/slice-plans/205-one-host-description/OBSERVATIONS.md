@@ -193,3 +193,35 @@ native creation/recovery/result reads and workspace/session-state rules remain.
   in browser capability modules; absence guards were source-reviewed as planned.
 - Independent refactor: none — already clean; no edits/tests required.
   Accepted proof unchanged. Selective Prettier formatting only.
+
+Slice 2 published: `4e623e37bec504e386d0d5fd4f903126d7154164`, accepted on
+`origin/refs/heads/codex/shared-dashboard-code-reads-one-host-description`.
+Managed receipt: no reconciliation; maintenance not applicable; CI unobserved,
+no observer, same retained Codex bridge limitation.
+
+## Slice 3 accepted proof
+
+Shared launch choices and workspace/definition/options/start-capability/formatter
+helpers now require explicit hosts. Legacy wire/store/action defaults and explicit
+initial Claude selection remain. The catalog's previously omitted helper host
+now comes from its existing Claude-only compatibility projection. Description
+namespaces supply allocation and collision collection for all three identities.
+Only the three authorized workspace-test arguments changed; every assertion remains.
+
+- Focused command: `env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=dot dashboard/tests/launch-workspace.spec.ts dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-preparation-start.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-options-boundary.spec.ts dashboard/tests/agent-launch-options.spec.ts dashboard/tests/agent-launch-host-identity.spec.ts dashboard/tests/start-store.spec.ts` — 49 passed.
+  Collision test creates real host branches/folders and observes `codex/fix-it-5`.
+  Installed scripts operate against isolated origins; assertions observe claim
+  profiles, native CWD/host input, formatter handoff, retained SHAs, selected
+  offers/refusals and compatibility. Native substitutes supply external answers.
+- Additional consumer command: `env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=dot dashboard/tests/agent-launch-start-resume.spec.ts dashboard/tests/agent-launch-preparation-resume.spec.ts dashboard/tests/agent-launch-preparation-kept.spec.ts dashboard/tests/agent-launch-start-card.spec.ts dashboard/tests/agent-launch-preparation-codex-retry.spec.ts dashboard/tests/agent-launch-ad-hoc.spec.ts dashboard/tests/agent-launch-ad-hoc-codex.spec.ts` — 36 passed.
+  Held/refused native and publication preconditions exercise real resume paths;
+  assertions observe original workspace/branch/profile/SHAs, safe refusal without
+  replacement, kept Opus and ad-hoc chosen/initial host and dialog dismissal.
+- Independent refactor found production coherent; extracted unchanged history,
+  observation/navigation prose into `AGENT-LAUNCH-HISTORY.md`, retaining main
+  anchor/link and verifying relative references. No runtime proof invalidated.
+- Final command: `env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- --reporter=dot` — **704 passed (2.3m)**.
+  All dashboard specs, including preserved legacy identity/stores and kept/resume
+  journeys, passed. `npm run typecheck:dashboard` passed; includes server/tests.
+  Playwright built the production browser. No native acceptance is claimed.
+- Selective Prettier formatting completed, followed by check-only commit gate.

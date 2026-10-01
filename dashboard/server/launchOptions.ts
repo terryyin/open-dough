@@ -31,7 +31,7 @@ export async function readDefinition(
   project: ProjectFolder,
   skill: string,
   file: string,
-  host: AgentLaunchRequest["host"] = "claude",
+  host: AgentLaunchRequest["host"],
 ): Promise<ReadDefinition> {
   let text: string;
   try {
