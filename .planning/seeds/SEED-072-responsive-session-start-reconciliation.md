@@ -24,7 +24,7 @@ actions until its temporary local state and published state agree.
 
 **Identity:** SEED-072#durable-startup-reconciliation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/206-durable-startup-reconciliation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b561cbf6c01a84d3aab1b4047d54cccd638bb939fe482cbb30f705594b829c0b","plan":"b9e7fce42baff4a70a346e143df6a320df72dd6ca0852cd53abadceaaba1db16"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/206-durable-startup-reconciliation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"988dacb087a82905e4823108394288514deb5c374e46e980a4f8dd7ea89e6d23","plan":"b9e7fce42baff4a70a346e143df6a320df72dd6ca0852cd53abadceaaba1db16"}}
 ```
 
 **Goal:** A developer who reopens, reloads, or restarts the dashboard after a

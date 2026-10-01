@@ -18,6 +18,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Show changes since readiness review without blocking execution](seeds/SEED-080-readiness-change-indicator.md#readiness-change-indicator) — SEED-080#readiness-change-indicator
 - [Startup recovery advice comes from the host description](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#startup-advice-from-host-description) — SEED-075#startup-advice-from-host-description
 - [Keep reconciled startups settled under one unresolved-attempt rule](seeds/SEED-072-responsive-session-start-reconciliation.md#durable-startup-reconciliation) — SEED-072#durable-startup-reconciliation
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
