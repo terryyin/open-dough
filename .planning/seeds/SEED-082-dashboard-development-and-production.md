@@ -50,7 +50,7 @@ a stable production dashboard that updates when a new release tag is published.
   and shared local dashboard launch/session records. This story does not move,
   isolate, or migrate those records. Separate configuration, including toy
   projects for development and production's real projects, belongs to
-  [SEED-083](SEED-083-persistent-dashboard-project-configuration.md#persistent-dashboard-project-configuration).
+  [SEED-083](https://github.com/terryyin/open-dough/blob/06f8fe0134403acab8677adebfff7695ec5702c6/.planning/seeds/SEED-083-persistent-dashboard-project-configuration.md#persistent-dashboard-project-configuration).
 
 **Key examples:**
 

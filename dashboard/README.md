@@ -49,7 +49,11 @@ configured and offers **Add project**. Add project also stays in the pinned bann
 Its dialog asks for a GitHub repository URL (HTTPS, with or without `.git`, or SSH)
 and Local path, prefilled as `~/git/<repo>`. Add checks the developer's local `gh`
 access and the checkout's origin, derives the default branch, saves the project,
-and selects it. Local path can name a different checkout folder. Cancel or Escape
+and selects it. The repository name supplies the project id and label; duplicate
+repositories or ids are refused because saved sessions are keyed by project id.
+The selected default branch is saved at add time, and the backlog path is
+`.planning/PRODUCT-BACKLOG.md`. Local path must name the checkout root; `~`
+expands to the home folder, and a different checkout folder is allowed. Cancel or Escape
 saves nothing and returns focus to Add project. An invalid entry keeps its values
 and shows the reason beside the field. Projects added in development do not enter
 production's saved list.
