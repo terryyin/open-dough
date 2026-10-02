@@ -106,6 +106,40 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
+<a id="one-active-story-session"></a>
+
+### Prevent a second refinement or execution session for an active story
+
+**Identity:** SEED-052#one-active-story-session
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer using the dashboard can trust disabled Start
+  actions to prevent overlapping refinement and execution on the same story.
+- **Outcome:** A story has at most one active refinement or execution session
+  in total. From the beginning of startup until that session closes, both
+  Start refinement and Start execution are actually disabled. The existing
+  gray appearance must mean the action cannot be invoked, rather than merely
+  discouraging a launch that is still permitted.
+- **Key examples:** While refinement is starting, neither workflow can start
+  another session. While an already-started refinement session remains open,
+  execution and another refinement cannot start. The same exclusion applies
+  while execution is starting or its session remains open. Closing the active
+  session removes this block, subject to the action's other eligibility rules.
+  Separate stories can still have sessions in parallel.
+- **Boundary:** Prevent a second launch even from an already-open dialog or
+  overlapping launch requests; disabled controls must enforce the outcome.
+  Identify startup, open-session, and closed-session states distinctly. An idle
+  turn or detached terminal does not by itself mean the session has closed.
+- **Refinement questions:** Establish which existing session/claim evidence
+  determines that a session remains open or has closed, including failure and
+  recovery, and how launch exclusion is enforced across dashboard views and
+  machines. No locking design is selected by this capture.
+- **Depends on:** No new prerequisite story identified.
+- **Capture:** Terry requested this as the highest-priority queued story on
+  2026-10-02, replacing the tolerance that leaves gray actions clickable.
+
 <a id="split-session-entry-and-terminal-split"></a>
 
 ### Split the session entry and terminal split files along their operations
