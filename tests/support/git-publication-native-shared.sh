@@ -91,6 +91,7 @@ git_publication_field_value() {
 git_publication_closing_input_hash_lines() {
   native_result_input_hash_lines \
     src/skills/dough-land/SKILL.md \
+    src/skills/dough-land/references/completion-attention.md \
     src/skills/dough-manual-testing/references/exploration-workspace.md \
     src/skills/dough-execute-plan/references/maintain-default-checkout.md
   native_import_closure_input_hash_lines \

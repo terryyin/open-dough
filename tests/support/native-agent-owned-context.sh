@@ -43,7 +43,7 @@ native_owned_context_substitute() {
       ;;
     trunk-closure-owned-context)
       native_owned_context_close_trunk "${skills}"
-      response="Published the final closure, CI coverage was not required and the observer shut down, then the worktree and its branch were retired from the repository's Git directory. Refresh was not applicable."
+      response='## STORY WRAP-UP COMPLETE'
       ;;
     *) return 1 ;;
   esac

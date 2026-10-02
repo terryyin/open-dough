@@ -24,6 +24,7 @@ story_closure_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/s
 # assessor-signal: remote-branch branch-remote
 # assessor-signal: control-order control-order
 # assessor-signal: response response
+# assessor-signal: refresh-attention refresh-attention
 story_closure_assess() {
   local observations=$1 remote branch trunk integrated
   remote=$(native_observation_field "${observations}" remote-sha)
@@ -58,8 +59,10 @@ story_closure_assess() {
   grep -Fqx 'branch-remote: absent' "${observations}" || return 1
   grep -Fqx 'cleanup-complete: true' "${observations}" || return 1
   grep -Fqx 'human-edit-preserved: true' "${observations}" || return 1
-  [[ $(story_closure_response_trunk_result \
-    <(native_response_field_read "${observations}")) == true ]] || return 1
+  grep -Eqx 'refresh-attention: (true|false)' "${observations}" || return 1
+  [[ $(closure_response_settled_result \
+    <(native_response_field_read "${observations}") \
+    "$(native_observation_field "${observations}" refresh-attention)") == true ]] || return 1
   grep -Fqx 'harness-inspected: false' "${observations}" || return 1
   native_completion_control_order "${observations}" branch-complete \
     branch-shutdown trunk-setup integration-publication trunk-registration \

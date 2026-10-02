@@ -21,6 +21,7 @@ trunk_closure_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/t
 # assessor-signal: repository-intact repository-intact
 # assessor-signal: other-checkouts other-checkouts
 # assessor-signal: default-checkout default-checkout-present
+# assessor-signal: response response-completion-result
 trunk_closure_assess() {
   local scenario=$1
   local observations=$2
@@ -54,6 +55,7 @@ trunk_closure_assess() {
     ${mailbox_target} == main &&
     ${harness} == false &&
     (${terminal} == stopped || ${terminal} == finished) ]] || return 1
+  grep -Fqx 'response-completion-result: true' "${observations}" || return 1
   [[ ${scenario} != owned-context ]] \
     || trunk_closure_owned_context_assess "${observations}" || return 1
   if [[ ${scenario} == source ]]; then

@@ -7,6 +7,10 @@
 # Sourced by the runner.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture and assessor globals.
 
+# shellcheck source=tests/support/native-response-field.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-response-field.sh"
+
 git_publication_land_default_other_sha=
 
 # Builds the bare origin and the default checkout on main holding the base
@@ -56,7 +60,7 @@ git_publication_land_default_publish_install() {
 
 git_publication_land_default_prompt() {
   printf '%s\n' \
-    "Use this project's installed Open Dough guidance. Use Dough Land: land it. My changes are in this default checkout, ${git_publication_fixture_integration}, which is on main: a tracked edit, a new untracked file and one local commit that is not pushed yet. Remote origin trunk is refs/heads/main, and you have explicit authority to publish there. Report the outcome."
+    "Use this project's installed Open Dough guidance. Use Dough Land: land it. My changes are in this default checkout, ${git_publication_fixture_integration}, which is on main: a tracked edit, a new untracked file and one local commit that is not pushed yet. Remote origin trunk is refs/heads/main, and you have explicit authority to publish there."
 }
 
 # Whether file $2 at revision $1 of origin reads $3.
@@ -104,10 +108,12 @@ git_publication_observe_land_default() {
       && git -C "${checkout}" show-ref --quiet --verify refs/heads/exec/sibling \
       && echo true || echo false
   )"
+  native_response_field_write "${output_file}"
 }
 
 # Signals for rejected cases. A landing that rewrote origin's history breaks
 # both the descent from the other writer's tip and the push log's forced count.
+# assessor-signal: response response
 # assessor-signal: force-push forced-trunk-push-count other-writer-kept
 # assessor-signal: single-landing landing-commit-count
 # assessor-signal: file-landed tracked-edit-landed untracked-landed
@@ -144,6 +150,8 @@ git_publication_assess_land_default() {
     git_publication_assess_fail "the checkout's files landed in ${landing_commit_count} commits, not one"
   elif [[ ${checkout_clean} != true || ${checkout_at_remote} != true ]]; then
     git_publication_assess_fail 'the default checkout is dirty or not at the accepted remote trunk'
+  elif [[ -n $(native_response_field_read <(printf '%s\n' "${obs}") | sed '/^[[:space:]]*$/d') ]]; then
+    git_publication_assess_fail 'settled default-checkout landing emitted an unnecessary recap'
   else
     git_publication_assess_status=pass
     git_publication_assess_reason='default checkout changes landed as one non-forced commit with the local commit, the checkout is clean at the accepted trunk, and nothing was retired'
@@ -167,4 +175,13 @@ checkout-dirty checkout-clean checkout-clean: false | dirty or not at
 checkout-behind checkout-behind checkout-at-remote: false | dirty or not at
 worktree-removed worktree-kept sibling-worktree-present: false | worktree was removed
 EOF2
+  # shellcheck disable=SC2016 # Sed's append command is intentionally literal.
+  native_assessor_rejects_edit success-recap response \
+    '$a\
+  Landed on main. Refresh was already current; cleanup is not applicable.' \
+    fail 'unnecessary recap'
+  # shellcheck disable=SC2016 # Sed's append command is intentionally literal.
+  native_assessor_rejects_edit absent-warning response \
+    '$a\
+  Warning: cleanup was already absent.' fail 'unnecessary recap'
 }

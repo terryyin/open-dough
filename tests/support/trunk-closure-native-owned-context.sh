@@ -57,7 +57,7 @@ trunk_closure_owned_context_state() {
 }
 
 trunk_closure_owned_context_prompt() {
-  printf '%s\n' "Use this project's installed Open Dough guidance. Complete the retained Trunk Mode final-closure candidate described in ${trunk_closure_owned_context_state_file}, including its authorized publication, CI observation handoff, and local resource cleanup. This project has no default checkout. Report the observed closure result. Treat the installed guidance and retained project state as the task inputs; do not inspect parent processes or external test-harness source."
+  printf '%s\n' "Use this project's installed Open Dough guidance. Complete the retained Trunk Mode final-closure candidate described in ${trunk_closure_owned_context_state_file}, including its authorized publication, CI observation handoff, and local resource cleanup. This project has no default checkout. Treat the installed guidance and retained project state as the task inputs; do not inspect parent processes or external test-harness source."
 }
 
 trunk_closure_owned_context_observe() {

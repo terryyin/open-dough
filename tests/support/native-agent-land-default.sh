@@ -21,5 +21,5 @@ native_land_default_substitute() {
   admission_run git fetch -q origin
   admission_run git rebase -q origin/main
   admission_run git push -q origin HEAD:refs/heads/main
-  response="Committed everything on the default checkout, rebased it onto the fetched trunk and published it to remote trunk without force. Refresh was already current; cleanup is not applicable."
+  response=
 }

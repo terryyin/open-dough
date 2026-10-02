@@ -83,6 +83,7 @@ story_closure_write_evidence_identity() {
     tests/support/story-branch-closure-native-observe.sh \
     tests/support/story-branch-closure-native-counterexamples.sh \
     tests/support/story-branch-closure-native-response.sh \
+    tests/support/closure-native-response.sh \
     tests/support/native-response-field.sh \
     tests/support/native-completion-observation.sh \
     tests/support/native-observation.sh \

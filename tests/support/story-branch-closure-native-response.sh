@@ -1,33 +1,19 @@
 #!/usr/bin/env bash
-# Story Branch closure response: its judgment and its counterexamples.
+# Story Branch closure response counterexamples against its assessor.
 # shellcheck disable=SC2312
 
 # shellcheck source=tests/support/native-response-field.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-response-field.sh"
 
-# True when response $1 states the trunk result as a success or pass and no
-# sentence reports trunk, CI, its checks, coverage, receipt, verdict, observer,
-# or watcher failed or unavailable. Sentences end at `.`, `;`, `!`, or `?`
-# before whitespace and at line ends, not at commas. A failure sentence naming
-# none of these, such as a failed push or branch delete, is no trunk failure.
-story_closure_response_trunk_result() {
-  local response
-  response=$(cat -- "$1")
-  if grep -Eiq 'trunk.+(CI|verdict|receipt).+success|success.+trunk|integrat.+success|completion receipt|trunk.+(passed|green)|(passed|green).+trunk' <<< "${response}" \
-    && ! awk '{ gsub(/[.;!?][[:space:]]/, "\n"); print }' <<< "${response}" \
-    | grep -Ei 'trunk|(^|[^[:alpha:]])CI([^[:alpha:]]|$)|coverage|receipt|verdict|observer|watcher|checks?([^[:alpha:]]|$)' \
-      | grep -Eiq 'failed|failing|unavailable|undiscovered|did not pass|not (a )?green'; then
-    printf 'true\n'
-  else
-    printf 'false\n'
-  fi
-}
+# shellcheck source=tests/support/closure-native-response.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/closure-native-response.sh"
 
-# Against the valid observations in $1/valid, a response stating a trunk pass,
-# also beside a failed push, is accepted, and each response reporting trunk
-# CI, its checks, observer, or watcher failed or unavailable is a rejected
-# case of the response signal.
+# With unchanged valid Git/CI/shutdown/cleanup observations, quiet closure and
+# useful refresh reminders pass. Recaps, false success, missing markers, and
+# completion beside unresolved CI are rejected. These are deterministic assessor
+# checks, not proof that a native agent follows the guidance.
 story_closure_response_counterexamples() {
   local work=$1 text expected candidate="$1/candidate"
   while IFS='|' read -r expected text; do
@@ -42,18 +28,22 @@ story_closure_response_counterexamples() {
       }
     fi
   done << 'EOF'
-true|The closure is merged into trunk and CI passed on the merged commit.
-true|- **Trunk (`main`):** I started a watcher for trunk. It passed (run 22).
-true|Trunk CI is green on the integrated commit.
-false|Trunk CI setup failed with HTTP 404, so no trunk receipt exists.
-false|Merged into trunk.\n### Completion receipt (trunk)\n- Remaining CI coverage: unavailable (not a green trunk verdict)
-false|Branch CI passed. Trunk CI failed on the merged commit.
+true|## STORY WRAP-UP COMPLETE
+true|\n## STORY WRAP-UP COMPLETE\n
+true|Default checkout /project/main has uncommitted human edits, so refresh is deferred. Refresh it once those edits are committed.\n## STORY WRAP-UP COMPLETE
+true|The integration checkout at /project/main was preserved with a human uncommitted edit. Rerun refresh after the owner commits it.\n## STORY WRAP-UP COMPLETE
+false|The closure is merged into trunk and CI passed on the merged commit.\n## STORY WRAP-UP COMPLETE
+false|Trunk CI is green on the integrated commit.
+false|Cleanup is not applicable because this is the default checkout.\n## STORY WRAP-UP COMPLETE
+false|The worktree and branches were already absent.\n## STORY WRAP-UP COMPLETE
+false|Default checkout refresh is deferred.\n## STORY WRAP-UP COMPLETE
+false|Trunk CI setup failed with HTTP 404, so no trunk receipt exists. Rerun after restoring the bridge.
+false|Merged into trunk.\nRemaining CI coverage: unavailable (not a green trunk verdict)\n## STORY WRAP-UP COMPLETE
+false|Branch CI passed. Trunk CI failed on the merged commit.\n## STORY WRAP-UP COMPLETE
 false|The merge reached trunk.
-true|Trunk CI passed.\nA decision to delete the branch failed once and was retried.
-true|The push failed due to zsh colon modifiers, so I pushed from bash; trunk CI passed on the merged commit and the trunk observer stopped after its completion receipt.
-false|Trunk CI, however, failed after the merge; trunk passed earlier.
-false|Trunk CI passed, but the trunk observer was unavailable so completion is undiscovered.
-false|Merged into trunk successfully. The trunk checks failed.
-false|Trunk CI passed. The watcher failed to start.
+false|Trunk CI, however, failed after the merge; trunk passed earlier.\n## STORY WRAP-UP COMPLETE
+false|Trunk CI passed, but the trunk observer was unavailable so completion is undiscovered.\n## STORY WRAP-UP COMPLETE
+false|Merged into trunk successfully. The trunk checks failed.\n## STORY WRAP-UP COMPLETE
+false|Trunk CI passed. The watcher failed to start.\n## STORY WRAP-UP COMPLETE
 EOF
 }

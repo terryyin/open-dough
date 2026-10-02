@@ -105,7 +105,7 @@ and declared payload/fixture dependencies here, with no standalone packaging/pro
 
 ### 3. Land and Wrap Up quietly when there is nothing to report
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Direct settled unqualified success emits no recap, at most its minimal
 marker. Reminders/failures/unfinished steps/material limits yield useful facts and next action.
 Proof: AGENTS.md representative behavior review and maintained assessor good/bad paraphrase
@@ -224,10 +224,26 @@ named-session admission, and extracted terminal admission, result response, crea
 and input proof. Coordinator inspected moved boundaries; unchanged accepted proof retained.
 Formatter initially found mechanical lint issues; corrected, affected proof and final formatter
 passed. Earlier test color warning and overlapping trace-output collision resolved by sequential
-runs. No verification remains running. No readiness renewal. Slices 3–5 remain planned.
+runs. No verification remains running. No readiness renewal. Slices 3–5 were planned at that delivery.
 
 Consequential learning: macOS path aliases need the existing direct-entry helper; prepared
 context must update the current owned attempt after publication and survive verification
 reconstruction. Script/dependency copy outside the launch workspace survives retirement.
 Managed Codex delivery currently has no supported retained stream binding: record its
 unobserved receipt truthfully rather than claiming coverage. No observer has been armed.
+
+**Slice 3:** accepted shared `dough-land/references/completion-attention.md` rule via
+Land's retained anchor and Wrap Up/linked instructions. Quiet direct success preserves
+only the existing Wrap Up marker; material issues require facts/consequence/next action.
+CI attention applies only to existing obligations. AGENTS invocation/context/useful-outcome
+walkthrough accepted. Maintained Land/Story Branch/Trunk assessors retain operational gates;
+independently observed dirty/default refresh requires useful attention, never marker-only.
+Clean/no-default cases stay quiet. Native adherence remains pending, not inferred from fixtures.
+Fresh refactor extracted common closure response/refresh helper, declared installed reference,
+proved two-hop links and updated evidence input hashes. Accepted final command (exit 0):
+```sh
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm test -- tests/git-publication-native.sh tests/git-publication-native-owned-context.sh tests/install-public-payload.sh tests/payload-declaration-links.sh tests/native-assessor-counterexamples.sh tests/native-assessor-counterexample-guard.sh tests/native-evidence-identity.sh
+```
+Coordinator inspected source, actual Git/installed fixture and counterexample boundaries;
+formatter passed after literal-sed annotations only. All verification terminal; no readiness
+renewal. Slice-3 publication base `d213f1efec373b098bddd4e83030db2c08693571`; slices 4–5 planned.
