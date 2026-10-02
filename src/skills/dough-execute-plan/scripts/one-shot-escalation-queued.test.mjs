@@ -5,7 +5,12 @@
 // CLI against a local bare remote.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
+import {
+  git,
+  lsRemoteSha,
+  remoteHeads,
+  revParse,
+} from "./publication-test-fixtures.mjs";
 import { startCliResult } from "./workspace-publication-fixtures.mjs";
 import {
   changedPaths,
@@ -17,6 +22,7 @@ import {
   identityB,
   identityB2,
   remoteLists,
+  remoteText,
   rivalPreparation,
   rivalTake,
   seedB,
@@ -80,7 +86,7 @@ test("a grown queued attempt moves its entry to Taken and keeps its edits over t
   assert.deepEqual(workspaceBytes(workspace), restored);
 });
 
-test("escalation takes a queued story whose readiness went stale, and continuation still waits for readiness", async (t) => {
+test("escalation takes a queued Ready story changed since review, and continuation reports the change without renewing its review", async (t) => {
   const trunk = await createSiblingTrunk();
   t.after(trunk.cleanup);
   const { workspace } = await startQueuedOneShot(trunk);
@@ -97,6 +103,9 @@ test("escalation takes a queued story whose readiness went stale, and continuati
     revised,
   );
   await assertOneClaim(trunk, receipt.publishedSha, revised, identityB);
+  const heads = await remoteHeads(trunk.origin);
+  const attempt = workspaceBytes(workspace);
+  const reviewedSource = await remoteText(trunk, revised, seedB);
 
   const continued = await startCliResult(
     trunk,
@@ -104,8 +113,14 @@ test("escalation takes a queued story whose readiness went stale, and continuati
     ["--host", "claude"],
     { identity: identityB, name: "story" },
   );
-  assert.equal(continued.receipt.status, "source-refused", continued.stdout);
-  assert.match(continued.receipt.error, /published preparation is (?!ready)/);
+  assert.equal(continued.code, 0, continued.stdout);
+  assert.equal(continued.receipt.status, "existing", continued.stdout);
+  assert.equal(continued.receipt.changedSinceReview, true);
+  assert.equal(continued.receipt.publishedSha, receipt.publishedSha);
+  assert.equal(await revParse(workspace, "HEAD"), receipt.publishedSha);
+  assert.equal(await remoteHeads(trunk.origin), heads);
+  assert.deepEqual(workspaceBytes(workspace), attempt);
+  assert.equal(await remoteText(trunk, "main", seedB), reviewedSource);
 });
 
 for (const [holder, rival, status] of [

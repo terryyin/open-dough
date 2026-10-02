@@ -760,3 +760,18 @@ Follow-up: Open, unqueued.
   - Evidence: plan 192 slice 3 says "Uncertain publication stays protected pending workflow-owned verification" and its safe stop says "interrupted outcomes remain protected"; the coordinator's slice 3 brief said "interrupted outcomes remain protected (or show the existing static explanation)". The implementer left `unknown` publication unprotected, citing that parenthesis, and asked for confirmation.
   - Observed effect: the coordinator accepted it as an interim and moved that protection into slice 4 through a plan edit; slice 4 delivered it, with no rework of slice 3 code.
   - Inference: Qualified. Quoting the plan's mapped promise verbatim, not a summary, would have kept the stricter reading; the harm stayed small because the next slice owned the same outcome.
+
+## DD-212 — Shared readiness caller analysis missed queued escalation continuation
+
+Changing the shared readiness reader aligned its normal startup consumers but left a queued one-shot escalation test asserting refusal on historical digest mismatch. The implementation report excluded one-shot starts as lacking the assessment fact; that exclusion did not account for the normal continuation invoked after escalation. The focused proof selected startup publication cases, not this reached continuation caller, and the coordinator accepted the exclusion.
+
+Follow-up: Open, unqueued. Trace shared-operation consumers through continuation and recovery paths before retaining a mode-wide unaffected exclusion; require evidence at the consuming boundary. This finding authorizes no guidance change.
+
+### Occurrences
+- Execution: `SEED-080#readiness-change-indicator` / plan 209, first related implementation commit `dc1f5e0dd0ebeef5ceff0ee80de35a411f72036c`
+  - Timestamp: 2026-10-02T00:49:32Z (CI failure log)
+  - Tool: Codex
+  - Open Dough release: 0.3.52
+  - Evidence: original implementation return stated admission/one-shot starts lack the assessment fact. CI run `36947799549`, attempt 1, `test (3/3)` at integrated `e0f41806` failed `one-shot-escalation-queued.test.mjs:107`: expected `source-refused`, actual `existing` with `changedSinceReview: true`. The focused runner reproduced that exact failure; updated assertions passed with the queued and startup-refusal suites.
+  - Observed effect: trunk CI caught an affected consuming assertion omitted from accepted focused proof. Repair changed only the test; Ready continuation, ownership, genuine Not ready refusal and authorization safeguards stayed intact.
+  - Inference: a mode-level exemption hid a reached shared consumer. The green initial startup suites were valid evidence for their boundaries, not for this additional continuation path.
