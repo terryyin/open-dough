@@ -5,19 +5,20 @@
 // workflow, and of the same launch on any host, one at a time is accepted; a story
 // whose earlier attempt no server runs any more and never settled accepts
 // only that attempt's continuation, which runs its kept request again under
-// the same identity. Once a read finds its settled state kept, an attempt is
-// answered from this machine's store rather than from memory
-// (`./ownedAttempts.ts`).
+// the same identity. A settled attempt a page found reconciled with
+// published state keeps when it was (`./launchAttemptReconciliation.ts`).
+// Once a read finds its settled state kept, an attempt is answered from this
+// machine's store rather than from memory (`./ownedAttempts.ts`).
 
 import { randomUUID } from "node:crypto";
 import type {
   Acceptance,
   AgentLaunchRequest,
   AttemptObservation,
-  AttemptOutcome,
   LaunchAttemptRecord,
   LaunchResult,
   PublicationReceipt,
+  ReconciledAnswer,
 } from "../src/agentLaunch.ts";
 import { HostOperationFailure } from "./hostLaunch.ts";
 import {
@@ -29,7 +30,12 @@ import {
   unrecordedAcceptance,
   type Unaccepted,
 } from "./launchAttemptConflicts.ts";
-import { keepAttempt, keptAttempts } from "./launchAttemptStore.ts";
+import { reconcileAttempt } from "./launchAttemptReconciliation.ts";
+import {
+  attemptOutcome,
+  keepAttempt,
+  keptAttempts,
+} from "./launchAttemptStore.ts";
 import { OwnedAttempts, type OwnedAttempt } from "./ownedAttempts.ts";
 
 // Runs an accepted attempt, noting its publication receipt once known.
@@ -37,20 +43,6 @@ export type AttemptRun = (
   own: OwnedAttempt,
   notePublication: (publication: PublicationReceipt) => Promise<void>,
 ) => Promise<LaunchResult>;
-
-// The outcome an attempt keeps: a launched session by reference to its
-// record, or the answer itself.
-function attemptOutcome(result: LaunchResult): AttemptOutcome {
-  return result.kind === "launched"
-    ? {
-        kind: "launched",
-        session: {
-          host: result.record.session.host,
-          sessionId: result.record.session.sessionId,
-        },
-      }
-    : result;
-}
 
 export class LaunchAttemptOwner {
   private readonly owned = new OwnedAttempts();
@@ -153,6 +145,12 @@ export class LaunchAttemptOwner {
       },
       run,
     );
+  }
+
+  // Notes that the project's settled attempt `id` reconciled with published
+  // state, or answers why not.
+  reconcile(sourceId: string, id: string): Promise<ReconciledAnswer> {
+    return reconcileAttempt(this.owned, sourceId, id);
   }
 
   // An unsettled attempt the request would duplicate: one this server runs,

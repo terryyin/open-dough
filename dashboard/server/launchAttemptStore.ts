@@ -3,9 +3,10 @@
 // records: `~/.open-dough/dashboard/launch-attempts.json`, resolved through
 // `HOME`. Each catalog project's attempts are kept by project id. An attempt
 // is written with its exact request before the launch has any side effect,
-// then updated with its publication receipt and its outcome. It references
-// the kept start, creation, or launch record that holds the native evidence;
-// it never copies that evidence and is never a story fact. A settled attempt
+// then updated with its publication receipt, its outcome, and when a page
+// found it reconciled with published state. It references the kept start,
+// creation, or launch record that holds the native evidence; it never copies
+// that evidence and is never a story fact. A settled attempt
 // is dropped `launchRetentionDays` after it settled; an unsettled one is kept
 // until it settles. A continued attempt is the same attempt run again. This
 // server's writes are made one at a time, so attempts accepted together are
@@ -18,7 +19,9 @@ import { z } from "zod";
 import {
   launchAttemptSchema,
   launchRetentionDays,
+  type AttemptOutcome,
   type LaunchAttemptRecord,
+  type LaunchResult,
 } from "../src/agentLaunch.ts";
 import {
   readMachineJson,
@@ -43,6 +46,20 @@ function attemptStore(): MachineJsonStore<StoredAttempts> {
     schema: storeSchema,
     empty: {},
   };
+}
+
+// The outcome an attempt keeps: a launched session by reference to its
+// record, or the answer itself.
+export function attemptOutcome(result: LaunchResult): AttemptOutcome {
+  return result.kind === "launched"
+    ? {
+        kind: "launched",
+        session: {
+          host: result.record.session.host,
+          sessionId: result.record.session.sessionId,
+        },
+      }
+    : result;
 }
 
 let writing: Promise<unknown> = Promise.resolve();

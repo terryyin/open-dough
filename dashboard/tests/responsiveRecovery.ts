@@ -1,8 +1,8 @@
 // Shared by the startup recovery specs (./responsive-session-recovery*.spec.ts):
 // what a story's frame and Startup recovery show of Story A's execution start
 // in need of reconciliation, starting that execution, the workspaces made for
-// it, a server restarted on the same machine and port after the one that
-// accepted it closed with its start let through, and another writer's
+// it, a server restarted on the same machine and port, after the one that
+// accepted it closed with its start let through or as it is, and another writer's
 // removal of Story A from origin's backlog.
 
 import { execFile } from "node:child_process";
@@ -93,6 +93,25 @@ export async function restartAfterPush(
   const closing = dashboard.close();
   push.release();
   await closing;
+  return restartedOn(dashboard, origin, github);
+}
+
+// Closes the server and restarts one on the same machine and port.
+export async function restart(
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+  github: FakeGitHub,
+): Promise<DashboardServer> {
+  await dashboard.close();
+  return restartedOn(dashboard, origin, github);
+}
+
+// A server started on the closed `dashboard`'s machine and port.
+function restartedOn(
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+  github: FakeGitHub,
+): Promise<DashboardServer> {
   return startDashboardServer({
     mode: "preview",
     prebuilt: builtDashboardDir,

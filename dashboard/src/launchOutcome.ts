@@ -98,12 +98,12 @@ export const agentChangedEndpoint = `${agentLaunchEndpoint}/changed`;
 // kept as it was.
 export const agentContinueEndpoint = `${agentLaunchEndpoint}/continue`;
 
-export const continueRequestSchema = z.object({
+// A request about one kept attempt, naming its project and attempt: a
+// continuation or a reconciliation note.
+export const attemptRequestSchema = z.object({
   source: z.string().min(1),
   attempt: z.uuid(),
 });
-
-export type ContinueRequest = z.infer<typeof continueRequestSchema>;
 
 export const publicationReceiptSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("none") }),
@@ -136,6 +136,9 @@ export const launchAttemptSchema = z.object({
   publication: publicationReceiptSchema,
   outcome: attemptOutcomeSchema.optional(),
   settledAt: z.iso.datetime().optional(),
+  // When a page found the settled attempt reconciled with published state
+  // (`./startupReconciliation.ts`), so every page on this machine reads it so.
+  reconciledAt: z.iso.datetime().optional(),
 });
 
 export type LaunchAttemptRecord = z.infer<typeof launchAttemptSchema>;
@@ -156,6 +159,17 @@ export function needsReconciliation(attempt: AttemptObservation): boolean {
     : attempt.outcome.kind === "uncertain" ||
         attempt.publication.kind === "unknown";
 }
+
+// A page asks here to note that a settled attempt reconciled with the
+// published state it shows, naming its project and attempt as a continuation
+// does: the attempt keeps when (`reconciledAt`). An attempt this machine does
+// not keep, or one that is unsettled or needs reconciliation, is refused,
+// kept as it was; noting it again changes nothing.
+export const agentReconciledEndpoint = `${agentLaunchEndpoint}/reconciled`;
+
+export type ReconciledAnswer =
+  | { readonly kind: "reconciled"; readonly attempt: AttemptObservation }
+  | { readonly kind: "refused"; readonly explanation: string };
 
 export const changedAnswerSchema = z.object({
   changed: z.boolean(),

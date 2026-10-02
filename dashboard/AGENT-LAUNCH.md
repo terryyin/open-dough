@@ -63,10 +63,15 @@ attempts.
 A publishing start reconciles when the shown revision is its accepted
 publication or, by the authenticated comparison in
 [GitHub requests](GITHUB-REQUESTS.md), contains it, and its native outcome has
-settled. A refusal that published nothing, or a start that publishes nothing,
-waits for a published read asked after its outcome. An older or unrelated
-snapshot never clears protection. A published start whose session was refused
-reconciles to its Taken card with the kept start's continuation.
+settled, whether or not the shown snapshot still lists its story. A refusal
+that published nothing, or a start that publishes nothing, waits for a
+published read asked after its outcome. An older or unrelated snapshot never
+clears protection. A published start whose session was refused reconciles to
+its Taken card with the kept start's continuation. A reconciled start stays so
+on this machine: the page notes it with its attempt through
+`POST /__agent-launch/reconciled`, which refuses an attempt that is unsettled or
+needs reconciliation, so later pages, reloads, project switches and restarts
+show the story's actions, and no recovery item, without asking GitHub again.
 
 A lost answer, an attempt no running server owns, or an outcome that may or may
 not have published says “Startup needs reconciliation” statically on the card,

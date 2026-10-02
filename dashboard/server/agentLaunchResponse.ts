@@ -9,6 +9,7 @@ import type {
   RunningStart,
   OfferedDefinition,
   LaunchWithState,
+  ReconciledAnswer,
 } from "../src/agentLaunch.ts";
 import type { DeleteRecordAnswer } from "../src/deleteRecord.ts";
 import type { SessionResult } from "../src/sessionResult.ts";
@@ -19,6 +20,7 @@ export type AgentLaunchAnswer =
   | { readonly status: number; readonly body: SessionResult }
   | { readonly status: number; readonly body: Acceptance }
   | { readonly status: number; readonly body: ChangedAnswer }
+  | { readonly status: number; readonly body: ReconciledAnswer }
   | {
       readonly status: number;
       readonly body: {

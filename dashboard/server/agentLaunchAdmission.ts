@@ -4,7 +4,7 @@
 // machine's sessions, a read of a kept session's final report, a done mark on a session it recorded
 // (`./doneMarks.ts`), a delete of a record it kept, and a terminal upgrade
 // (`./agentTerminals.ts`). Every request must come from this dashboard's own
-// origin; a launch, a continuation, a done mark, a
+// origin; a launch, a continuation, a reconciliation note, a done mark, a
 // delete, or an upgrade must name a catalog project, and a done mark, a delete,
 // or an upgrade a session this dashboard recorded for that project, in its
 // existing folder. A launch's selected options are checked against the
@@ -22,7 +22,8 @@ import {
   agentChangedEndpoint,
   agentContinueEndpoint,
   agentLaunchRequestSchema,
-  continueRequestSchema,
+  agentReconciledEndpoint,
+  attemptRequestSchema,
   attachOpens,
   launchKindName,
   type AgentLaunchRequest,
@@ -58,8 +59,10 @@ export type Admitted =
       readonly request: AgentLaunchRequest;
     }
   | {
-      // Answered once the kept attempt is accepted again.
-      readonly kind: "continue";
+      // A continuation, answered once the kept attempt is accepted again, or
+      // a note that a settled attempt a page found reconciled with published
+      // state.
+      readonly kind: "continue" | "reconciled";
       readonly source: PublishedSource;
       readonly attempt: string;
     }
@@ -110,13 +113,17 @@ async function deleteRequest(
   return { kind: "delete", source, record };
 }
 
-async function continueRequest(req: IncomingMessage): Promise<Admitted> {
-  const parsed = continueRequestSchema.safeParse(await jsonBody(req));
+// A request about one of the project's kept attempts.
+async function attemptRequest(
+  req: IncomingMessage,
+  kind: "continue" | "reconciled",
+): Promise<Admitted> {
+  const parsed = attemptRequestSchema.safeParse(await jsonBody(req));
   if (!parsed.success) {
-    throw new RefusedRequest(400, "The continue request is malformed.");
+    throw new RefusedRequest(400, `The ${kind} request is malformed.`);
   }
   return {
-    kind: "continue",
+    kind,
     source: knownSource(parsed.data.source),
     attempt: parsed.data.attempt,
   };
@@ -170,7 +177,8 @@ export async function admitted(
     [agentDoneEndpoint, () => doneRequest(req, launches)],
     [agentDeleteEndpoint, () => deleteRequest(req, launches)],
     [agentAcceptEndpoint, () => launchRequest(req)],
-    [agentContinueEndpoint, () => continueRequest(req)],
+    [agentContinueEndpoint, () => attemptRequest(req, "continue")],
+    [agentReconciledEndpoint, () => attemptRequest(req, "reconciled")],
   ]).get(url.pathname);
   if (postOnly !== undefined) {
     if (req.method !== "POST") {

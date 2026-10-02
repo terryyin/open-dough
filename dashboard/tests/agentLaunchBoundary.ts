@@ -3,9 +3,9 @@
 // ./agent-launch-session-listing.spec.ts, and ./agent-launch-done.spec.ts):
 // one execution launch request for this repository's own story, and its
 // refinement counterpart, sent over raw HTTP to be answered once accepted,
-// or followed to what it settled to (./acceptedAttempts.ts), a done mark, a
-// record delete, and what the boundary keeps, read as the machine's sessions
-// and scoped by project.
+// or followed to what it settled to (./acceptedAttempts.ts), a continuation, a
+// reconciliation note, a done mark, a record delete, and what the boundary
+// keeps, read as the machine's sessions and scoped by project.
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
@@ -14,6 +14,7 @@ import {
   agentAcceptEndpoint,
   agentContinueEndpoint,
   agentLaunchEndpoint,
+  agentReconciledEndpoint,
   type AttemptObservation,
 } from "../src/agentLaunch.ts";
 import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
@@ -131,6 +132,14 @@ export const continueAttempt = (
   attempt: string,
   source = "open-dough",
 ) => post(server, agentContinueEndpoint, { source, attempt });
+
+// Notes that the project's kept attempt `attempt` reconciled with published
+// state, answered with the attempt so noted or why not.
+export const noteReconciled = (
+  server: DashboardServer,
+  attempt: string,
+  source = "open-dough",
+) => post(server, agentReconciledEndpoint, { source, attempt });
 
 export const markDone = (
   server: DashboardServer,

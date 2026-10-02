@@ -4,7 +4,9 @@
 // (`./agentLaunches.ts`) and answers once the launch's owner accepted it,
 // the launch going on whatever happens to the caller; a same-origin POST to
 // `/__agent-launch/continue` asks to continue one kept attempt that needs
-// reconciliation, answered the same way; a same-origin GET of
+// reconciliation, answered the same way; a same-origin POST to
+// `/__agent-launch/reconciled` notes that a settled attempt reconciled with
+// published state, or answers why not; a same-origin GET of
 // `/__agent-launch/changed?attempt=` answers once that accepted attempt
 // changed, or after a bounded wait. A same-origin GET of the session result
 // endpoint reads one kept session's final report through its host, bounded
@@ -36,6 +38,7 @@ import {
   agentChangedEndpoint,
   agentContinueEndpoint,
   agentLaunchEndpoint,
+  agentReconciledEndpoint,
   type LaunchWithState,
   recordDeletable,
 } from "../src/agentLaunch.ts";
@@ -179,6 +182,11 @@ async function answer(
           status: 200,
           body: await launches.continueAttempt(request.source, request.attempt),
         };
+      case "reconciled":
+        return {
+          status: 200,
+          body: await launches.reconcile(request.source, request.attempt),
+        };
       case "done":
         return {
           status: 200,
@@ -212,6 +220,7 @@ function installAgentLaunchMiddleware(
       url.pathname !== agentAcceptEndpoint &&
       url.pathname !== agentChangedEndpoint &&
       url.pathname !== agentContinueEndpoint &&
+      url.pathname !== agentReconciledEndpoint &&
       url.pathname !== agentDoneEndpoint &&
       url.pathname !== agentDeleteEndpoint
     ) {

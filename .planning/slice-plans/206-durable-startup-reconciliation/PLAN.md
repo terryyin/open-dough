@@ -189,7 +189,7 @@ loop including cleanup. Use existing fixtures (`responsiveStart.ts`,
 
 ### 1. A reconciled startup stays reconciled across pages, reloads and restarts
 Type: Behavior
-Status: planned
+Status: done
 Proof: First turn the premise observation into failing page proof: extend the
 first `responsive-session-reconciliation.spec.ts` journey so that, after its
 descendant read, compare answers are rate-limited and the page reloads; the
@@ -216,6 +216,23 @@ today. Attempts that need reconciliation are unaffected. Update
 `dashboard/AGENT-LAUNCH.md` “Startup handoff and reconciliation” to say a
 reconciled start stays so on this machine.
 Safe stop: reconciliation persists; admission and wording unchanged.
+
+Accepted proof: `reconciledAt` on the kept attempt, written only through
+`POST /__agent-launch/reconciled` (`launchAttemptReconciliation.ts`), which
+refuses unknown, other-project, unsettled and needs-reconciliation attempts;
+the page judge skips marked attempts and asks containment for unlisted stories.
+Observed (fail-first, then green) by `responsive-session-reconciliation.spec.ts`
+first journey (reload with compare rate-limited: no disabled buttons, no
+recovery, no new compare), `responsive-session-reconciliation-kept.spec.ts`
+(removed after reconciling: no recovery after Refresh, reload, restart, second
+page; removed before reconciling: one compare on a new page), and the note
+assertions in `agent-launch-continuation.spec.ts`. Command:
+`env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/responsive-session-reconciliation.spec.ts dashboard/tests/responsive-session-reconciliation-kept.spec.ts dashboard/tests/responsive-session-reconciliation-refusals.spec.ts dashboard/tests/authenticated-read-containment.spec.ts dashboard/tests/responsive-session-recovery-restart.spec.ts dashboard/tests/agent-launch-continuation.spec.ts --workers=2 --reporter=line`
+(15 passed after refactor) and `npm run typecheck:dashboard`. Project switch
+shares the reload's machine read and has no separate journey.
+Learning: tests poll the stored `reconciledAt` before reloading so the note
+POST cannot race the reload; compare lists are asserted against the list at
+reconciliation, which includes the page's first ordinary compare.
 
 ### 2. Service admission and story protection follow one unresolved-attempt rule
 Type: Behavior

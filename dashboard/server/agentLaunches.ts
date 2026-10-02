@@ -202,6 +202,10 @@ export class AgentLaunches {
     );
   }
 
+  reconcile(source: PublishedSource, id: string) {
+    return this.owner.reconcile(source.id, id);
+  }
+
   // What is answered before acceptance, with nothing started: a missing
   // folder, a host's creation awaiting reconciliation, or the start's own
   // pre-launch answer.

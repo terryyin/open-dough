@@ -5,13 +5,17 @@
 // (`./publicationContainment.ts`): a changed revision alone, an older snapshot
 // arriving later, or elapsed time never is. An attempt that published
 // nothing, or published at no named revision, is reconciled by a fully read
-// snapshot whose read was asked after it settled. Whether an attempt that may
-// or may not have published did is not told here. Once reconciled, an
-// attempt stays so on this page; while it waits, a page whose snapshot was
-// asked before the attempt settled asks once for a fresh read.
+// snapshot whose read was asked after it settled. Either is reconciled
+// whether or not the snapshot still lists its story. Whether an attempt that
+// may or may not have published did is not told here. Once reconciled, an
+// attempt stays so on this page and is noted with the local service, so every
+// page on this machine reads it so (`reconciledAt`); while it waits, a page
+// whose snapshot was asked before the attempt settled asks once for a fresh
+// read.
 
 import { useEffect, useRef, useState } from "react";
 import { storyOf, type AttemptObservation } from "./agentLaunch.ts";
+import { noteAttemptReconciled } from "./agentLaunchClient.ts";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import {
@@ -112,17 +116,18 @@ export function useStartupReconciliation({
   const [reconciledIds, setReconciledIds] = useState<ReadonlySet<string>>(
     new Set(),
   );
+  // Reconciled on this machine, or found so on this page.
+  const alreadyReconciled = (attempt: AttemptObservation) =>
+    attempt.reconciledAt !== undefined || reconciledIds.has(attempt.id);
   const settled = latestSettled(known).filter(
     (attempt) =>
-      !reconciledIds.has(attempt.id) &&
-      attempt.request.source === shown?.sourceId,
+      !alreadyReconciled(attempt) && attempt.request.source === shown?.sourceId,
   );
   const questions: ContainmentQuestion[] = settled.flatMap((attempt) => {
     const accepted = acceptedRevision(attempt);
     return shown === undefined ||
       accepted === undefined ||
-      accepted === shown.revision ||
-      !shown.identities.includes(storyOf(attempt.request) ?? "")
+      accepted === shown.revision
       ? []
       : [{ sourceId: shown.sourceId, accepted, revision: shown.revision }];
   });
@@ -143,7 +148,7 @@ export function useStartupReconciliation({
   };
 
   const judgedNow = (attempt: AttemptObservation): Reconciliation => {
-    if (reconciledIds.has(attempt.id)) return { kind: "reconciled" };
+    if (alreadyReconciled(attempt)) return { kind: "reconciled" };
     if (attempt.publication.kind === "unknown") return { kind: "unconfirmed" };
     if (
       shown === undefined ||
@@ -171,13 +176,18 @@ export function useStartupReconciliation({
       : { kind: "waiting", problem };
   };
 
-  const nowReconciled = settled
-    .filter((attempt) => judged(attempt).kind === "reconciled")
-    .map((attempt) => attempt.id)
-    .join(" ");
+  // Each newly reconciled attempt is noted once from this page.
+  const newlyReconciled = settled.filter(
+    (attempt) => judged(attempt).kind === "reconciled",
+  );
+  const newlyReconciledNow = useRef(newlyReconciled);
+  newlyReconciledNow.current = newlyReconciled;
+  const nowReconciled = newlyReconciled.map((attempt) => attempt.id).join(" ");
   useEffect(() => {
     if (nowReconciled === "") return;
     setReconciledIds((ids) => new Set([...ids, ...nowReconciled.split(" ")]));
+    for (const attempt of newlyReconciledNow.current)
+      void noteAttemptReconciled(attempt);
   }, [nowReconciled]);
 
   // One fresh read for each waiting attempt whose shown snapshot was asked

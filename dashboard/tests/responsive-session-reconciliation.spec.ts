@@ -6,12 +6,14 @@
 // read snapshot of the accepted revision, or of one that contains it, returns
 // the story's actions once its native outcome settled: an older snapshot
 // arriving late or an unrelated revision keeps them unavailable, while the
-// published stage and facts show as read. The session goes on working.
+// published stage and facts show as read. The session goes on working. Once
+// reconciled, a reload reconciles it again without asking GitHub.
 
 import { attempts } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { commitAnswer, rateLimitedAnswer } from "./originAnswers.ts";
+import { recoveryOf } from "./responsiveRecovery.ts";
 import {
   commitOn,
   expectProtected,
@@ -120,11 +122,30 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(takenStory.getByRole("button", { disabled: true })).toHaveCount(
     0,
   );
-  expect(published.compares).toEqual([
+  const compares = [
     `${accepted}...${before}`,
     `${accepted}...${unrelated}`,
     `${accepted}...${unrelated}`,
-  ]);
+  ];
+  expect(published.compares).toEqual(compares);
+
+  // Reconciled, it stays so on this machine: a reload asks GitHub nothing
+  // again, even while GitHub would refuse the comparison.
+  await expect
+    .poll(async () => (await attempts(dashboard))[0]?.reconciledAt)
+    .toBeDefined();
+  published.answerWith("compare", rateLimitedAnswer());
+  await page.reload();
+  await expect(page.getByRole("status").first()).toContainText(
+    `Published work read at revision ${descendant.slice(0, 7)}`,
+  );
+  await expect(cardSessions(takenStory)).toHaveCount(1);
+  await expect(takenStory.getByRole("button", { disabled: true })).toHaveCount(
+    0,
+  );
+  await expect(takenStory).not.toContainText(waiting);
+  await expect(recoveryOf(page)).toHaveCount(0);
+  expect(published.compares).toEqual(compares);
   expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
 });
 

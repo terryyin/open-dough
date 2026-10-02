@@ -1,7 +1,8 @@
 // The browser's requests to the local launch boundary
 // (`../server/agentLaunchPlugin.ts`): an ordinary same-origin JSON POST that
 // asks the launch owner to accept a launch, or to continue a kept attempt
-// that needs reconciliation, a GET that waits for an accepted
+// that needs reconciliation, or to note that a settled attempt reconciled with
+// published state, a GET that waits for an accepted
 // attempt to change, a GET of the machine's sessions,
 // and a POST that marks one recorded session done. A launch request answers
 // once the owner accepted it, or with what was answered before anything was
@@ -17,6 +18,7 @@ import {
   agentLaunchEndpoint,
   agentChangedEndpoint,
   agentContinueEndpoint,
+  agentReconciledEndpoint,
   changedAnswerSchema,
   launchRecordsSchema,
   type Acceptance,
@@ -114,6 +116,26 @@ async function askAcceptance(
         "answered in a shape this dashboard does not understand",
         host,
       );
+}
+
+// Notes with the local service that a settled attempt reconciled with the
+// published state this page shows, so every page on this machine reads it
+// so. Whatever it answers, or none, changes nothing on this page.
+export async function noteAttemptReconciled(
+  attempt: AttemptObservation,
+): Promise<void> {
+  try {
+    await fetch(agentReconciledEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source: attempt.request.source,
+        attempt: attempt.id,
+      }),
+    });
+  } catch {
+    // Another page judges it again.
+  }
 }
 
 // Waits for an accepted attempt to change: whether it changed, or undefined
