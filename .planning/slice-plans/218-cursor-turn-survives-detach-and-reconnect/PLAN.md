@@ -232,6 +232,10 @@ The terminal contract and host guide are updated.
 
 Safe stopping point: the whole story.
 
+## Execution complete
+
+Product advice: No backlog change. Wrap-up can assimilate the delivered keep and launch-wait behavior. Idle reaping is the documented rule: a visible line whose trimmed text is exactly `done`, then `→ Add a follow-up`, with the working and waiting markers absent. An ordinary finished prompt stays until the server closes. Whether hangup should instead follow the chrome rule (`→ Add a follow-up` with no `ctrl+c to stop` and no `Clarifying Questions`, still keeping any other screen) is a developer decision; correction planning is stopped until that decision.
+
 ## Learnings
 
 Slice 1 probe on 2026-10-02 in this worktree. No product change. Screen read with `@xterm/headless` 6.0.0 from a temporary install in `/tmp/cursor-probe` (`package.json` and `package-lock.json` unchanged) and this worktree's `@lydell/node-pty`, at 120×30, `TERM=xterm-256color`. `cursor-agent --version` printed `2026.10.01-e373342`.
