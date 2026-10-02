@@ -25,7 +25,7 @@ import {
   sessionPolicySchema,
   type LaunchWorkflow,
 } from "../src/agentLaunch.ts";
-import { launchModelAliases } from "../src/hostDescription.ts";
+import { launchModelSchema } from "../src/launchHostOptions.ts";
 import {
   readMachineJson,
   replaceMachineJson,
@@ -39,7 +39,7 @@ export const startRecordSchema = z.object({
   publisherId: z.string().min(1).optional(),
   workspace: z.string().min(1),
   branch: z.string().min(1),
-  model: z.enum(launchModelAliases).optional(),
+  model: launchModelSchema.optional(),
   // The policy the start was asked for, absent for the default: a resumed
   // start keeps it, whatever a later launch asks.
   policy: sessionPolicySchema.optional(),

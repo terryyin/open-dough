@@ -27,11 +27,13 @@ import "./agent-launch.css";
 
 export function StartSession({
   project,
+  sourceId,
   attempt,
   onStart,
 }: {
   // The selected project's name.
   readonly project: string;
+  readonly sourceId: string;
   // The last launch from this row that has not started a session.
   readonly attempt: LaunchAttempt | undefined;
   // Answers whether the launch was accepted; its session, once launched, is
@@ -91,6 +93,7 @@ export function StartSession({
       )}
       {open && (
         <LaunchDialog
+          sourceId={sourceId}
           host={host}
           onHost={setHost}
           heading={`Start a session in ${project} in ${hostName(host)}`}

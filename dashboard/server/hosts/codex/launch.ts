@@ -1,4 +1,4 @@
-// Codex launches use the native configured defaults. Thread creation supplies
+// Codex launches independently delegate untouched settings. Thread creation supplies
 // identity, first-input acceptance supplies confirmation, and neither supplies
 // a current session/story state. The common durable writer is always awaited.
 import { shellCommand } from "../../../src/sessionCapabilities.ts";
@@ -10,9 +10,13 @@ import type { HostLaunch } from "../../hostLaunch.ts";
 import { codexInput, confirmedFirstInput } from "./input.ts";
 import { connection, retire, observe } from "./conversation.ts";
 import { CodexRpc, daemonEndpoint, NativeRefusal } from "./rpc.ts";
+import { codexOptions } from "./options.ts";
 import { materializeBlank } from "./blank.ts";
 
-const threadSchema = z.object({ thread: z.object({ id: z.string().min(1) }) });
+const threadSchema = z.object({
+  thread: z.object({ id: z.string().min(1) }),
+  model: z.unknown().optional(),
+});
 const turnSchema = z.object({ turn: z.object({ id: z.string().min(1) }) });
 export const launchCodex: LaunchHost["launch"] = async (
   source,
@@ -31,12 +35,29 @@ export const launchCodex: LaunchHost["launch"] = async (
     if (record === undefined)
       throw new Error("Durable launch recording is required.");
     const workspace = established?.workspace.path ?? folder.path;
+    if (request.model !== undefined) {
+      let options;
+      try {
+        options = await codexOptions(signal);
+      } catch {
+        throw new NativeRefusal(
+          "The requested model could not be verified. Retry, or use the Codex setting.",
+        );
+      }
+      if (!options.models.some((item) => item.model === request.model))
+        throw new NativeRefusal(
+          "The selected Codex model is no longer available. Choose another model or use the Codex setting.",
+        );
+    }
     const endpoint = await daemonEndpoint(signal);
     await record.creating(workspace, endpoint);
     rpc = connection(endpoint, signal);
     await rpc.initialize();
     const native = threadSchema.parse(
-      await rpc.request("thread/start", { cwd: workspace }),
+      await rpc.request("thread/start", {
+        cwd: workspace,
+        ...(request.model === undefined ? {} : { model: request.model }),
+      }),
     );
     rpc.watchThread(native.thread.id);
     session = {
@@ -59,11 +80,22 @@ export const launchCodex: LaunchHost["launch"] = async (
     };
     const input = codexInput(request, workspace, established);
     const blank = request.workflow === "ad-hoc" && !request.instruction?.trim();
-    evidence = blank
-      ? { state: "awaiting", intent: "blank" }
-      : { ...evidence, instruction: input[0]?.text };
+    const modelMatches =
+      request.model === undefined || native.model === request.model;
+    // The request keeps the intended text, but unverified settings must never
+    // produce saved input that the existing continuation path can submit.
+    evidence = !modelMatches
+      ? {
+          state: "awaiting",
+          explanation:
+            "Codex did not confirm the requested model. No first input was submitted; the conversation was kept.",
+        }
+      : blank
+        ? { state: "awaiting", intent: "blank" }
+        : { ...evidence, instruction: input[0]?.text };
     await record.session(session, evidence);
     persisted = true;
+    if (!modelMatches) throw new Error(evidence.explanation);
     if (blank) {
       await materializeBlank(rpc, native.thread.id, workspace);
       evidence = { state: "not-requested", intent: "blank" };
@@ -101,7 +133,7 @@ export const launchCodex: LaunchHost["launch"] = async (
       return {
         kind: "uncertain",
         reason: signal.aborted ? "timed-out" : "unconfirmed",
-        explanation: `Codex conversation ${session.sessionId} ${persisted ? "is kept for recovery" : "could not be saved in the dashboard; retain its continuation for recovery"}. ${submitted ? "Its first input is not confirmed; do not resend it blindly." : "No first input was submitted."} Continue with \`${shellCommand(session.continuation?.args ?? [])}\`.`,
+        explanation: `Codex conversation ${session.sessionId} ${persisted ? "is kept for recovery" : "could not be saved in the dashboard; retain its continuation for recovery"}. ${evidence.explanation ?? (submitted ? "Its first input is not confirmed; do not resend it blindly." : "No first input was submitted.")} Continue with \`${shellCommand(session.continuation?.args ?? [])}\`.`,
       };
     }
     if (error instanceof NativeRefusal) {

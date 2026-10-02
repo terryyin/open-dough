@@ -12,6 +12,8 @@
 // and its session policy against the installation's start
 // (`./launchSessionPolicy.ts`). Only terminal admission reads native session availability.
 
+import { admitLaunchModel } from "./launchModelAdmission.ts";
+import { launchHostOptionsEndpoint } from "../src/launchHostOptions.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { sessionResultEndpoint } from "../src/sessionResult.ts";
 import { launchHost } from "./launchHosts.ts";
@@ -39,7 +41,11 @@ import type { TerminalSession } from "./agentTerminals.ts";
 import { withSelectedOptions } from "./launchOptions.ts";
 import { withSessionPolicy } from "./launchSessionPolicy.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
-import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
+import {
+  projectFolder,
+  folderExists,
+  type ProjectFolder,
+} from "./projectFolders.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import {
   knownSource,
@@ -49,6 +55,10 @@ import {
 
 export type Admitted =
   | { readonly kind: "sessions" }
+  | {
+      readonly kind: "host-options";
+      readonly host: NonNullable<ReturnType<typeof launchHost>>;
+    }
   | { readonly kind: "result"; readonly record: LaunchRecord }
   | { readonly kind: "changed"; readonly attempt: string }
   | {
@@ -136,17 +146,8 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
       `${launchKindName(request.workflow)} cannot be launched in this host.`,
     );
   }
-  if (
-    request.model !== undefined &&
-    !(request.model in host.description.models)
-  ) {
-    throw new RefusedRequest(
-      400,
-      host.description.unofferedModelExplanation ??
-        `${host.name} does not offer this model.`,
-    );
-  }
   const project = projectFolder(source);
+  await admitLaunchModel(request, host);
   const selected = await withSelectedOptions(request, project);
   return {
     kind: "accept",
@@ -180,6 +181,19 @@ export async function admitted(
   }
   if (req.method !== "GET") {
     throw new RefusedRequest(405, "Only GET is accepted here.");
+  }
+  if (url.pathname === launchHostOptionsEndpoint) {
+    const source = knownSource(url.searchParams.get("source"));
+    const identity = sessionHostSchema.safeParse(url.searchParams.get("host"));
+    const host = identity.success ? launchHost(identity.data) : undefined;
+    if (host?.options === undefined)
+      throw new RefusedRequest(400, "This host cannot offer startup choices.");
+    if (!(await folderExists(projectFolder(source))))
+      throw new RefusedRequest(
+        404,
+        "The project folder is not available on this machine.",
+      );
+    return { kind: "host-options", host };
   }
   if (url.pathname === agentChangedEndpoint) {
     const attempt = z.uuid().safeParse(url.searchParams.get("attempt"));

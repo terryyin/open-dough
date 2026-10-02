@@ -12,6 +12,8 @@ import { readCodexResult } from "./hosts/codex/result.ts";
 import { daemonEndpoint } from "./hosts/codex/rpc.ts";
 import { hostDescriptions } from "../src/hostDescription.ts";
 
+import { codexOptions } from "./hosts/codex/options.ts";
+
 export const codexHost: LaunchHost = {
   name: hostDescriptions.codex.name,
   description: hostDescriptions.codex,
@@ -19,6 +21,7 @@ export const codexHost: LaunchHost = {
   installedSkillPath: (project, skill, ...segments) =>
     path.join(project.path, ".agents", "skills", skill, ...segments),
   launch: launchCodex,
+  options: codexOptions,
   recover: recoverCodex,
   sessions: (...[records, , signal]) => codexSessions(records, signal),
   readResult: readCodexResult,

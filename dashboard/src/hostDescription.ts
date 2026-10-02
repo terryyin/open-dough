@@ -52,8 +52,6 @@ export const hostDescriptions = {
       "Check the dashboard history and native Codex conversations before starting again.",
     nativeCheckAdvice:
       "Check the dashboard history and native Codex conversations before continuing; a recorded conversation is resumed, never submitted again.",
-    unofferedModelExplanation:
-      "Codex uses its configured default model; a Claude model cannot be selected.",
   },
   cursor: { name: "Cursor", branchNamespace: "cursor/", models: {} },
 } as const satisfies Record<HostIdentity, HostDescription>;
@@ -68,13 +66,10 @@ export const launchHosts = agentHosts.filter(
   (host) => hostDescription(host).skillSigil !== undefined,
 );
 
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type LaunchModel = KeysOfUnion<
-  (typeof hostDescriptions)[HostIdentity]["models"]
->;
+export type LaunchModel = string;
 
-// Wire and stored records retain every known alias, including legacy records
-// whose host did not offer their model. Admission separately checks offerings.
+// Static legacy names remain readable; dynamic requested IDs render verbatim.
+// Admission checks each host’s offerings separately.
 export const launchModels = Object.assign(
   {},
   ...agentHosts.map((host) => hostDescription(host).models),
@@ -89,5 +84,10 @@ export function launchModelName(
   host: HostIdentity,
   model: LaunchModel,
 ): string {
-  return hostDescription(host).models[model]?.name ?? launchModels[model].name;
+  const offered = hostDescription(host).models;
+  return Object.hasOwn(offered, model)
+    ? (offered[model]?.name ?? model)
+    : Object.hasOwn(launchModels, model)
+      ? (launchModels[model]?.name ?? model)
+      : model;
 }

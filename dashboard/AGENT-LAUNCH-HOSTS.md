@@ -70,7 +70,13 @@ same idempotent command once, bounded to ten seconds, before passive observation
 and attachment admission. The saved endpoints and identities stay unchanged;
 startup never resumes a conversation or sends input. Missing/refusing Codex
 leaves the dashboard usable with existing unknown observation and recovery.
-`thread/start` receives only the workspace; its returned `thread.id` is the
+A guarded same-origin `GET /__agent-launch/host-options?source=&host=codex`
+uses the registered host to read every `model/list` page. It returns picker
+names, descriptions and supported effort data, never raw configuration or
+credentials; no catalog is persisted. Launch admission and native creation
+recheck explicit models, while an untouched setting needs no catalog read.
+`thread/start` receives the actual workspace and an explicit `model` only when
+selected; its returned `thread.id` is the
 conversation ID, never the initialization/session ID. The common store awaits
 durable identity before `turn/start`. First input contains `$<skill> <identity> <flags>`,
 the installed handoff, optional instruction and native skill input identifying
@@ -117,3 +123,11 @@ active first turn, then answer its completed question in that same conversation.
 There is no separate handoff action: the existing launch client releases its
 connection when the native turn completes. Starting input during an active turn
 remains subject to Codex's native rules.
+
+An explicit creation model must match the native response before initial input.
+The durable identity is kept even if that check fails, with the explanation that
+no first input was sent. Blank startup still materializes without a model turn.
+Requested model IDs remain readable in records and kept starts when the catalog
+changes; predecessor records without a model retain configured-default behavior.
+Claude aliases continue to be admitted only from Claude’s static offerings.
+Effort is inherited from Codex until the effort selector is delivered.

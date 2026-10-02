@@ -24,8 +24,19 @@ modal when the local service has accepted it, before the start or session ends;
 Host initially selects Claude Code and offers Claude Code or Codex. Model opens
 on Default. Claude also offers
 Fable, Opus and Sonnet; a selection sends its `--model` alias before the prompt.
-Codex offers only its configured default and refuses a forged Claude model
-selection. Switching hosts clears the model; no authentication, trust, approval,
+Codex reads the installed host’s model catalog when a new-session dialog opens,
+including all returned pages, and offers “Use Codex setting” beside the discovered
+models and descriptions. This shared interaction covers Start session, Start
+execution and Start refinement. An explicit model ID goes to native creation and
+the launch record; story preparation receives that model before creating the
+session. Blank ad hoc creation sends no artificial prompt. Catalog choices are
+transient, with no cross-launch preference or configuration writes. Discovery
+failure explains the unavailable choices and offers retry; the configured-setting
+path remains usable. Explicit choices are revalidated before creation, and a
+contradictory creation response keeps the conversation identity without sending
+first input or claiming the selection ran. Effort continues to inherit Codex’s
+configuration. Configured defaults are resolved by Codex in the actual launch
+workspace, rather than inferred from catalog recommendations. Switching hosts clears the model; no authentication, trust, approval,
 sandbox, permission or reasoning setting is overridden by the dashboard.
 Requested model/options lines describe requests, never the effective model.
 

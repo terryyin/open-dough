@@ -29,6 +29,8 @@
 // is refused before any host process starts, and a session its host confirms
 // unavailable is refused before native terminal attachment.
 
+import { withResponseSignal } from "./responseSignal.ts";
+import { launchHostOptionsEndpoint } from "../src/launchHostOptions.ts";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, HttpServer, Plugin } from "vite";
 import {
@@ -117,14 +119,25 @@ async function answer(
   try {
     const request = await admitted(req, url, launches);
     switch (request.kind) {
-      case "result": {
-        const controller = new AbortController();
-        const closed = () => {
-          controller.abort();
-        };
-        const deadline = setTimeout(closed, 10_000);
-        res.on("close", closed);
-        try {
+      case "host-options": {
+        return await withResponseSignal(res, async (signal) => {
+          try {
+            if (request.host.options === undefined)
+              throw new Error("Host startup choices unavailable.");
+            return { status: 200, body: await request.host.options(signal) };
+          } catch {
+            return {
+              status: 503,
+              body: {
+                error:
+                  "Codex model choices could not be read. Retry, or use the Codex setting.",
+              },
+            };
+          }
+        });
+      }
+      case "result":
+        return await withResponseSignal(res, async (signal) => {
           const host = launchHost(request.record.session.host);
           if (host?.readResult === undefined)
             throw new RefusedRequest(
@@ -133,16 +146,9 @@ async function answer(
             );
           return {
             status: 200,
-            body: await host.readResult(
-              request.record.session,
-              controller.signal,
-            ),
+            body: await host.readResult(request.record.session, signal),
           };
-        } finally {
-          clearTimeout(deadline);
-          res.off("close", closed);
-        }
-      }
+        });
       case "sessions": {
         const { attempts, readable } = await launches.attempts();
         return {
@@ -207,6 +213,7 @@ function installAgentLaunchMiddleware(
   middlewares.use((req, res, next) => {
     const url = new URL(req.url ?? "", "http://placeholder");
     if (
+      url.pathname !== launchHostOptionsEndpoint &&
       url.pathname !== sessionResultEndpoint &&
       url.pathname !== agentLaunchEndpoint &&
       url.pathname !== agentAcceptEndpoint &&

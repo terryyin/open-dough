@@ -7,7 +7,8 @@ import {
   sessionPolicyFlags,
 } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import { launchWorkflowNames } from "./launchWorkflow.ts";
-import { launchModelAliases, type LaunchModel } from "./hostDescription.ts";
+import { type LaunchModel } from "./hostDescription.ts";
+import { launchModelSchema } from "./launchHostOptions.ts";
 
 export const agentLaunchEndpoint = "/__agent-launch";
 
@@ -30,7 +31,7 @@ const oneLine = z
 // options, if any. Which flags exist is the project's installed definition.
 const launchOptions = {
   instruction: z.string().max(launchInstructionLimit).optional(),
-  model: z.enum(launchModelAliases).optional(),
+  model: launchModelSchema.optional(),
   options: z.array(oneLine).max(launchOptionLimit).optional(),
 };
 

@@ -28,6 +28,7 @@ import {
   type StartAnswer,
 } from "./LaunchExistingChanges.tsx";
 import { LaunchDialogFooter } from "./LaunchDialogFooter.tsx";
+import { useLaunchHostOptions } from "./useLaunchHostOptions.ts";
 import { LaunchHostModel } from "./LaunchHostModel.tsx";
 import { LaunchOptions, useOptionSelection } from "./LaunchOptions.tsx";
 import {
@@ -44,6 +45,7 @@ import "./launch-session.css";
 // was not accepted hands its selection back (`onRefused`) for the next
 // opening to start from (`kept`), so the developer can change it.
 export function LaunchDialog({
+  sourceId,
   heading,
   subject,
   description,
@@ -66,6 +68,7 @@ export function LaunchDialog({
   onRefused,
   onClose,
 }: {
+  readonly sourceId: string;
   readonly host: AgentLaunchRequest["host"];
   readonly onHost?: ((host: AgentLaunchRequest["host"]) => void) | undefined;
   readonly heading: string;
@@ -112,7 +115,15 @@ export function LaunchDialog({
     notOfferedLine,
   );
   const { selected, flags } = selection;
-  const [model, setModel] = useState<LaunchModel | "">("");
+  const [model, setModel] = useState<LaunchModel>("");
+  useEffect(() => {
+    setModel("");
+  }, [sourceId, host]);
+  const catalog = useLaunchHostOptions(sourceId, host);
+  const modelBlocked =
+    host === "codex" &&
+    model !== "" &&
+    !catalog.options?.models.some((item) => item.model === model);
   const policy = session?.policy;
   // Unless a launch found existing changes to confirm, closes with its answer.
   const confirmation = useExistingChangesConfirmation({
@@ -147,6 +158,7 @@ export function LaunchDialog({
         hidden={Boolean(confirmation.view)}
         onSubmit={(event) => {
           event.preventDefault();
+          if (modelBlocked) return;
           confirmation.start({
             host,
             instruction: instruction.current?.value ?? "",
@@ -178,6 +190,7 @@ export function LaunchDialog({
               onHost={onHost}
               model={model}
               onModel={setModel}
+              catalog={catalog}
             />
             {session !== undefined && (
               <LaunchSessionPolicy id={id} {...session} />
@@ -219,6 +232,7 @@ export function LaunchDialog({
             effects={effects}
             submitting={submitting}
             startBlocked={
+              modelBlocked ||
               (optionsReading && selected.size > 0) ||
               (session !== undefined && sessionBlocksStart(session))
             }

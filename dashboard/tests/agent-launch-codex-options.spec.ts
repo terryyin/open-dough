@@ -1,4 +1,4 @@
-// Selected-host defaults and admission are proven before native calls.
+// Selected-host defaults and admission are proven before native creation.
 import { readFileSync, realpathSync } from "node:fs";
 import { installRefinementSkill } from "./launchCardPage.ts";
 import { test, expect, codexSkill } from "./support/codexLaunch.ts";
@@ -6,7 +6,7 @@ import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-test("missing Codex options allow defaults, selected options/model are refused before native calls", async ({
+test("missing Codex options allow defaults, selected options/model are refused before native creation", async ({
   dashboard,
   codexProtocol: protocol,
 }) => {
@@ -21,7 +21,11 @@ test("missing Codex options allow defaults, selected options/model are refused b
       ...changed,
     });
     expect(response.status).toBe(400);
-    expect(native.calls).toEqual([]);
+    expect(
+      native.calls.filter((call) =>
+        ["thread/start", "turn/start"].includes(call.method),
+      ),
+    ).toEqual([]);
   }
   const response = await launch(dashboard, {
     ...refinementRequest,
@@ -29,8 +33,14 @@ test("missing Codex options allow defaults, selected options/model are refused b
   });
   expect(response.status).toBe(200);
   expect(
-    JSON.parse(readFileSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "", "utf8")),
-  ).toEqual({ cwd: realpathSync(dashboard.home) });
+    readFileSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "", "utf8")
+      .trim()
+      .split("\n")
+      .map((line): unknown => JSON.parse(line)),
+  ).toEqual([
+    { cwd: realpathSync(dashboard.home) },
+    { cwd: realpathSync(dashboard.home) },
+  ]);
   expect(JSON.parse(response.body)).toMatchObject({
     kind: "launched",
     record: { firstInput: { state: "confirmed" } },

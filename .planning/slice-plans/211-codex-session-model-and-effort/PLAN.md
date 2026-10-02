@@ -83,7 +83,7 @@ exception was identified. No cross-host native competence claim is made.
 ## Observed premises and proof boundaries
 
 [Retained baseline and native evidence](EVIDENCE.md) distinguish planning
-observations, the slice 1 probe protocol and its completed native result.
+observations, the native result and accepted slice 2 implementation proof.
 
 ## Ordered slices
 
@@ -109,7 +109,7 @@ Production UI/payload/storage proof remains owned by slices 2–3.
 
 ### 2. Choose a discovered model when starting any new Codex session
 Type: Behavior
-Status: planned
+Status: done
 Proof: From each real launch dialog, choose a native catalog model and observe
 that exact ID at native creation and in the production launch record. Observe
 configured-default startup, unavailable discovery, and a model that disappears

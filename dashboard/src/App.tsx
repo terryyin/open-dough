@@ -202,6 +202,7 @@ export function App() {
           )}
           <div className="project-actions-end">
             <StartSession
+              sourceId={source.id}
               project={source.label}
               attempt={launches.adHocAttemptOf(source.id)}
               onStart={(choices, onLaunched) =>

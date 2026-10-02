@@ -141,3 +141,43 @@ conversation's first turn inherits the effective creation settings without
 additional turn overrides. Verify explicit creation values before submitting
 input. The native feasibility prerequisite for dependent slices is satisfied;
 production UI/payload/storage proof still belongs to slices 2–3.
+
+## Slice 2 accepted proof
+
+Implemented shared model discovery/selection across all three new-session origins,
+registered host catalog pagination, explicit admission/native creation, requested
+model persistence and safe labels. Native mismatch retains identity and the original
+request but never saves sendable input or submits a turn. Claude alias admission and
+predecessor records are preserved. No resume controls or config writes were added.
+
+All commands completed with exit 0 in the execution checkout:
+
+```sh
+npm run typecheck:dashboard
+env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-codex-model.spec.ts dashboard/tests/agent-launch-codex-model-boundary.spec.ts dashboard/tests/agent-launch-model.spec.ts dashboard/tests/agent-launch-model-boundary.spec.ts dashboard/tests/agent-launch-model-entries.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-ad-hoc-codex-input.spec.ts dashboard/tests/agent-launch-codex-options.spec.ts dashboard/tests/responsive-session-start-codex.spec.ts dashboard/tests/session-result-codex.spec.ts dashboard/tests/session-result-admission.spec.ts --workers=2
+npm run format
+```
+
+The model browser spec and imported `codexModelCatalogCases.ts` observe exact
+creation payloads, real installed preparation/profile/store writes, blank no-input
+startup, focus/retry/reset/cancel, stale host/project replies, vanished choices and
+safe former-ID rendering. The boundary spec observes same-origin/project/folder/
+method guards, every catalog page, failure/503/retry, durable identity before input,
+independent model omission and blank/nonblank mismatch evidence. `codexStart` and
+`startOrigin` supply installed start scripts and real Git origins; `fakeCodex` supplies
+only native protocol replies. Shared fixture consumers and passive result reads
+passed their regression assertions. Slice 1 native proof remains unchanged.
+
+Independent refactoring extracted model admission, bounded passive-read lifetime,
+native fixture catalog/creation replies and catalog UI cases. Async response reads
+remain awaited inside refusal mapping. Final mechanical host-method binding fixes
+preserve the same boundary; typechecking and formatter/lint passed afterward.
+Earlier failures were missing-file/creation-entry polling races, unavailable catalog
+fixture setup and single-JSON parsing of multi-call daemon JSONL; each repaired
+observation retains the intended assertion. No product failure was waived.
+
+Published slice 1: `bcaabd99c5f24bcffc9393f53c203c74589f2b7e` on the execution
+branch. Managed delivery reported `pendingCi: unobserved`, reason
+`Codex yielded-cell bridge is unavailable`; no observer was created. Local proof
+is accepted without claiming hosted CI coverage. The published claim on main is
+also unobserved. The next increment uses that slice 1 SHA as its published base.
