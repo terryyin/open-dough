@@ -202,6 +202,19 @@ model with the first instruction. Add an instruction, or use your Cursor
 setting. Nothing was launched." It appears on the existing launch-failure line
 beside Start session.
 
+The slice 3 code was committed and pushed as `a406dd10` by an interrupted
+refactor agent, outside coordinator delivery. The developer accepted it as
+slice 3's delivery, and `69634abd` added the final refactor on top.
+
+CI repair (developer-authorized): `agent-session-cursor.spec.ts` expected
+`hostOperations.cursor` without the `launchedSessions` field that `d04999c9`
+added. Trunk has been red on it since `00800bc2`. Both assertions now expect
+`launchedSessions: false`, and the answer type reuses `HostOperations`. The
+spec failed before the fix and passed after it, and typecheck passed.
+`startup-host-words.spec.ts:24` fails intermittently with "Response has been
+disposed". The same failure hit unrelated branches. The developer left it out
+of this story.
+
 ## Current decisions
 
 - `--model` goes on the prompted launch run only, never into the stored resume

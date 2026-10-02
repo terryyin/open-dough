@@ -12,6 +12,7 @@ import {
 } from "./sessionSidebarPage.ts";
 import { agentLaunchEndpoint } from "../src/launchRequest.ts";
 import { hostDescriptions } from "../src/hostDescription.ts";
+import type { HostOperations } from "../src/sessionCapabilities.ts";
 import { cursorHost } from "../server/cursorHost.ts";
 import { expect, test } from "./support/cursorStart.ts";
 
@@ -20,9 +21,7 @@ const unknownWords =
   "Activity unknown: Cursor has no passive status for this session";
 
 type SessionsAnswer = {
-  readonly hostOperations: {
-    readonly cursor?: { readonly attach: boolean; readonly stop: boolean };
-  };
+  readonly hostOperations: HostOperations;
   readonly records: readonly {
     readonly session: { readonly host: string; readonly sessionId: string };
     readonly sessionState: {
@@ -114,7 +113,11 @@ test("a launched Cursor session is visible without borrowed activity, stop, or r
   await expect(recent).not.toContainText("Ready for review");
 
   const answer = await projectedSessions(page);
-  expect(answer.hostOperations.cursor).toEqual({ attach: true, stop: false });
+  expect(answer.hostOperations.cursor).toEqual({
+    attach: true,
+    stop: false,
+    launchedSessions: false,
+  });
   expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual({
     kind: "unknown",
   });
@@ -149,7 +152,11 @@ test("a launched Cursor session is visible without borrowed activity, stop, or r
     recent.getByRole("button", { name: "Delete record…" }),
   ).toHaveCount(1);
   const again = await projectedSessions(page);
-  expect(again.hostOperations.cursor).toEqual({ attach: true, stop: false });
+  expect(again.hostOperations.cursor).toEqual({
+    attach: true,
+    stop: false,
+    launchedSessions: false,
+  });
   expect(cursorRecord(again, cursor.sessionId)?.sessionState).toEqual({
     kind: "unknown",
   });
