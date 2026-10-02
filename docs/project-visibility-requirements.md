@@ -6,6 +6,8 @@
 
 **Source:** Terry Yin's direction in the project-visibility discussion.
 
+**Updated:** 2026-10-02, to distinguish shared solutions from blocking story dependencies.
+
 ## Purpose
 
 Open Dough should provide a graphical view of a project's progress so a
@@ -13,11 +15,11 @@ developer can understand what is happening as agent work becomes more complex.
 Terry expects a visual view to make that work easier to grasp and control; this
 is a product hypothesis to explore through incremental delivery.
 
-Story branches currently provide a clear boundary around unfinished work, and
-Terry has deliberately avoided running dependent stories in parallel. With
-continuous trunk integration and eventually more concurrent work, those
-boundaries will become less obvious. The view should help the developer
-understand the project across stories and agents.
+Stories represent external value and may share internal solutions while
+executing in parallel. Follow [ADR 0002](adrs/0002-software-development-lifecycle-principles-accepted.md#2-decentralized-coordination-through-continuous-integration-of-user-centric-work)
+for shared design, reconciliation, and exceptional blocking sequences. The
+dashboard should make necessary waits understandable without presenting
+ordinary internal dependencies as barriers to parallel work.
 
 The dashboard will develop incrementally. This document captures its intended
 perspectives, sources of state, and local maintenance requirement, without
@@ -207,6 +209,25 @@ or several attributes, or require every story to pass through slice planning.
 Prefer deriving facts from authoritative repository records where sufficient;
 decide what additional explicit metadata is needed through concrete dashboard
 stories.
+
+### Blocking story dependencies
+
+Selected direction for [SEED-041](../.planning/seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies),
+not a claim of delivered behavior: an unresolved blocking dependency prevents
+the dependent story from starting. Record the prerequisite story, why the
+sequence is necessary, completion condition, and resolution evidence.
+
+The supplying story's landing/wrap-up agent discovers its dependents, resolves
+simple cases, attempts bounded reconciliation from each dependent's
+perspective, and stops complicated cases for a developer decision. Remaining
+dependencies continue to block; source disappearance never proves fulfillment.
+The dashboard reads published outcomes. Detailed reconciliation authority and
+completion evidence remain under refinement in the story.
+
+Only the dependent card exposes its dependencies; the
+[North Star](dashboard-ux-ui-north-star.md#blocking-dependencies-inside-a-story-card)
+owns presentation. Informational dependencies that allow parallel execution
+and close multi-agent collaboration are future scope.
 
 ### Recently finished stories
 

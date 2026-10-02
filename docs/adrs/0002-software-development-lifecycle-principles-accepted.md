@@ -6,7 +6,8 @@
 
 **Date:** 2026-09-06
 
-**Revised:** 2026-09-22, at Terry Yin's direction.
+**Revised:** 2026-10-02, at Terry Yin's direction, to clarify internal solution
+dependencies and exceptional blocking sequences.
 
 **Decision makers:** Terry Yin
 
@@ -84,13 +85,17 @@ to an assigned component is insufficient.
 
 #### 2. Decentralized coordination through continuous integration of user-centric work
 
-Solution construction and coordination are decentralized. Each participating
-unit, whether a team, a developer, or an AI agent, can pull a user-centric
-story and focus on solving it independently while keeping the solution
-cohesive with the whole product. The shared understanding established by the
-first principle gives the solution its purpose and bounds, so participants
-can usually proceed without extensive upfront discussion of how to construct
-it.
+Solution construction and coordination are decentralized. Each team,
+developer, or agent pursues a story's external user value while keeping its
+implementation cohesive with the whole product. Internal solution dependencies
+between stories are encouraged where they support cohesion (principle 4).
+Story boundaries do not require isolated implementations.
+
+Shared product understanding gives solutions their purpose and bounds.
+Well-considered, proportionate upfront design can establish a common
+architectural direction; PFE and reconciliation during integration bring
+independently developed work into one cohesive solution. Use either approach
+or both as needed.
 
 Participants must build in small increments, pulling the work needed for
 their story just in time and continuously integrating their changes into the
@@ -102,6 +107,13 @@ must resolve directly so their respective stories form a cohesive system.
 They coordinate just in time, using those stories and shared product goals
 as context, while unaffected participants continue working. Delayed
 integration undermines this coordination model.
+
+Blocking story-level dependencies are exceptional. Require sequencing only
+when proceeding without it would cause serious implementation disorder that
+shared design and ongoing reconciliation cannot reasonably address. Shared
+code or modest convenience alone does not justify blocking. Better
+decentralized collaboration should reduce these waits while enabling more
+shared internal solutions.
 
 Delegated judgment includes considering supporting evidence and consequences
 for affected work, established domain meaning, and Accepted ADRs. It does not
