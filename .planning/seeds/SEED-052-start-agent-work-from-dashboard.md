@@ -155,29 +155,6 @@ or claims of readiness.
 - **Capture:** Terry asked on 2026-09-30 to queue the follow-up recorded by the
   delete's execution retrospective.
 
-<a id="cursor-host-guide-attach"></a>
-
-### State that Cursor supplies embedded attach
-
-**Identity:** SEED-052#cursor-host-guide-attach
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/214-cursor-host-guide-attach/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ff5a6be56fea633912e58ba77a22770b9c9313f489cb649aeca62fb82e3fba58","plan":"e01f332986349d63f446a898b74d16bc38d93f9eb23d753683d82d3d55ec8fb2"}}
-```
-
-**Goal:** A maintainer reading the dashboard host guide can see that Cursor
-supplies the embedded terminal and does not supply stop.
-
-**Scope:** Correct the Cursor paragraph in `dashboard/AGENT-LAUNCH-HOSTS.md`
-so it matches the host this story's predecessor delivered. Launch stays
-`create-chat`, then `cursor-agent --workspace` and `--resume`, storing the
-id, workspace, and resume command, with no alias or endpoint. The paragraph
-says attach is supplied, names `Add a follow-up` as the text that admits the
-terminal, and says stop is absent so Mark as done stays absent. It does not
-change launch, attach, activity wording, or any other host, and it does not
-add stop, rename, or a passive status.
-
-**Plan:** [State Cursor attach in the host guide](../slice-plans/214-cursor-host-guide-attach/PLAN.md).
-
 <a id="cursor-native-activity-and-controls"></a>
 
 ### See Cursor activity and use its native controls
