@@ -149,6 +149,11 @@ Preserve newer Done/reopen/concurrent evidence; stale reports cannot close diffe
 work or resurrect deleted records. Retry returns stored receipt; failed writes yield none.
 Deferred disposal remains owned across error/shutdown/restart under observed contract.
 
+## Execution complete
+
+Product advice: complete the existing SEED-053 native integration/skill acceptance before
+an affected release; preserve SEED-063's CI ownership and existing backlog priorities.
+
 ## Proof ownership and acceptance
 
 | Promise | Proof owner and decisive boundary |
@@ -186,29 +191,21 @@ branch `codex/complete-dashboard-sessions-quietly-and-retain-m`, story-branch `o
 Claim `418e5e52582602f86f83c3a6d99dea432e527118`, start `5659e235bc8d567e034480d208f74ebc6e1dcef5`;
 slice-2 delivery base `9fcbf0397bf1f1d07d809715b5b1e675144e5a4e`. Retain later delivery receipts in execution context.
 
-**Slice 1:** accepted actual native Codex 0.160.0, Claude Code 2.1.287 and Cursor
-2026.10.01-e373342 reporting feasibility. Full commands, native identities, receipt/tool
-signals, refusal diagnoses and user-approved exact fixture-only Claude permission are
-recoverable in this plan at `9fcbf039` and in
-[mechanism acceptance](../../seeds/SEED-053-native-guidance-acceptance.md#quiet-dashboard-completion).
-All owned supervisors/PTYs/receivers ended; assessed disposable probe deleted under ADR 0005.
-Shared daemon/native histories remain untouched. Shipped integration and actual Land/Wrap Up
-native behavior remain pending there before affected release; no native reruns in slice 2.
+**Slice 1:** actual native Codex 0.160.0, Claude Code 2.1.287 and Cursor
+2026.10.01-e373342 feasibility accepted. Literal commands, identities, receipt/tool
+signals and approved fixture-only Claude permission remain in this plan at `9fcbf039`
+and [SEED-053 acceptance](../../seeds/SEED-053-native-guidance-acceptance.md#quiet-dashboard-completion).
+Owned probes/supervisors/PTYs/receivers closed; shared histories untouched. Shipped integration/skill adherence remains pending before affected release.
 
-**Slice 2:** accepted real preview/installed CLI/HTTP/store/polling/rendering proof
-for attention/unfinished retention, exact launch binding, local manual Done, refusals,
-all host inputs, restart, late writers and passive native results. Native transports
-and GitHub answers were synthetic. Literal commands, selected observations, setup,
-refactor effects and formatter repairs remain recoverable in this plan at `d213f1ef`.
-Fresh refactor centralized completion/Done capability and extracted terminal admission,
-result response and creation persistence; all terminal proof/formatter/hook exit 0.
-Locked Node 24.21.0/dependencies/browser setup accepted. No verification remains live.
+**Slice 2:** real preview/installed CLI/HTTP/store/page attention, refusal, binding,
+local Done, restart, late-writer and passive-result proof accepted. Native/GitHub
+transport synthetic. Literal commands, observations and fresh refactor outcomes remain
+in this plan at `d213f1ef`; all proof/format/hook passed. Locked Node 24.21.0,
+dependencies/browser setup accepted; no owned verification remains live.
 
-Consequential learning: macOS path aliases require the existing direct-entry helper;
-prepared context must update the current owned attempt after publication and survive
-verification reconstruction. The prepared script/dependency lives outside the workspace.
-Initial managed deliveries were unobserved without a retained stream binding. Later
-startup/reuse recovery is recorded below; these earlier receipts never proved CI.
+Consequential learning: macOS path aliases use the existing direct-entry helper;
+prepared reporting context/script/dependency survives outside the workspace and late writers.
+Early deliveries were unobserved; subsequent startup/reuse recovery is recorded below.
 
 **Slices 3–4:** accepted quiet shared attention guidance, maintained assessors and
 installed dependencies (`b69852ae`), then explicit quiet report/Done with actual private
@@ -235,7 +232,7 @@ preserve identity/evidence/manual intent. Quiet→fresh quiet→attention clears
 Done; deliberate Done/reopen survives. Failed binding retains native recovery identity
 without first input. Actual Git/native call counts unchanged across all recovery.
 Fresh refactor centralizes identity/retention/receipt precedence and extracts unchanged
-host/change schemas with stable exports. Final proof below, formatter exit 0; hook runs at commit;
+host/change schemas with stable exports. Final proof below, formatter and commit hook exit 0;
 mechanical lint repairs preserve guards/error cause. Native/provider answers synthetic;
 shipped native integration/adherence remains pending in SEED-053. All commands terminal 0:
 ```sh
@@ -246,3 +243,8 @@ PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/b
 PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=3 npm test -- tests/git-publication-native.sh tests/git-publication-native-owned-context.sh
 PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm run typecheck:dashboard
 ```
+
+Retrospective: no outstanding implementation corrections or Accepted ADR conflicts; planning unchanged.
+Manifest: `5659e235` original plan; `418e5e52` claim; `3942fde4`/`9fcbf039` feasibility/approval provenance; `d213f1ef`/`b69852ae`/`4ef5e2e`/`41fee026`/`817594d8` delivered behavior/owned repair. Adjacent `d41fc577` belongs to SEED-052 and is excluded.
+E2E drove behavior and retains real CLI/HTTP/store/page/Git integration; independent input assertions preserve native grammar. Whole-suite read-only review found no justified consolidation; native adherence remains pending, CI pending on retained branch observer.
+Process review recorded ODF-150/DD-201 occurrences in DearDough.md (935 lines; 500-line threshold warning), using available coordinator/tool/agent history; no guidance or backlog edits. EXECUTION RETROSPECTIVE COMPLETE.
