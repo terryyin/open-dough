@@ -6,7 +6,8 @@
 // with no instruction still keeps that id and submits no prompt. A chosen
 // model is `--model <id>` on the prompted run only; Cursor also saves it as
 // its setting. The kept resume command never carries it, and Default omits
-// it. No worktree, trust, or approval flag is passed.
+// it. A blank start with a chosen model is refused before create-chat: no
+// run would apply it. No worktree, trust, or approval flag is passed.
 
 import { spawn, type ChildProcess } from "node:child_process";
 import { z } from "zod";
@@ -144,6 +145,14 @@ export const launchCursor: LaunchHost["launch"] = async (
       kind: "failed",
       reason: "unavailable",
       explanation: "Cursor was not given a first prompt. Nothing was launched.",
+    };
+  }
+  if (prompt === undefined && request.model !== undefined) {
+    return {
+      kind: "failed",
+      reason: "refused",
+      explanation:
+        "Cursor applies a chosen model with the first instruction. Add an instruction, or use your Cursor setting. Nothing was launched.",
     };
   }
   const workspace = established?.workspace.path ?? folder.path;

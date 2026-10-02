@@ -17,8 +17,17 @@ Attach is supplied: the embedded terminal runs that stored command. A visible
 cursor and the text `Add a follow-up` admit it. Stop is not supplied, so Mark
 as done stays absent.
 A client still running when the launch wait ends is the launched session.
-Default omits `--model`. Skills are read from `.agents/skills`, and the prompt
-sigil is `/`.
+Cursor's Model menu lists `cursor-agent models` after "Default (your Cursor
+setting)": each `<id> - <name>` line, with no efforts and no configured model.
+An unreadable list is explained with Retry, and Default stays startable.
+Launch admission rechecks a chosen id against that list and refuses a stale
+one before `create-chat`. A chosen id is sent as `--model <id>` on the
+prompted launch run only; the stored resume command never carries it.
+Cursor also saves it as its model setting for later sessions, and the dialog
+says so; the dashboard does not restore that setting. A blank ad hoc start
+with a chosen model is refused before `create-chat`, because no Cursor run
+would apply it. Default omits `--model`. Skills are read from
+`.agents/skills`, and the prompt sigil is `/`.
 
 Common workflow, records, actions and presentation do not call another host's
 private helpers. Shared wording reads the host description, and alerts consume native
@@ -79,8 +88,9 @@ same idempotent command once, bounded to ten seconds, before passive observation
 and attachment admission. The saved endpoints and identities stay unchanged;
 startup never resumes a conversation or sends input. Missing/refusing Codex
 leaves the dashboard usable with existing unknown observation and recovery.
-A guarded same-origin `GET /__agent-launch/host-options?source=&host=codex`
-uses the registered host to read every `model/list` page. It returns picker
+A guarded same-origin `GET /__agent-launch/host-options?source=&host=` serves
+any registered host whose boundary supplies `options`: Codex and Cursor, whose
+catalog is described above. For Codex it reads every `model/list` page. It returns picker
 names, descriptions and supported effort data, and optionally the configured
 model when `context=project` identifies ad hoc startup in its known folder;
 story discovery reads no parent-folder configuration. It returns no raw
