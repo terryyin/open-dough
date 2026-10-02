@@ -17,7 +17,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Keep CI checks independent of package mirror stalls](seeds/SEED-077-ci-independent-of-package-mirror-stalls.md#ci-independent-of-package-mirror-stalls) — SEED-077#ci-independent-of-package-mirror-stalls ([plan](slice-plans/207-stable-native-check-prerequisites/PLAN.md))
 - [Keep reconciled startups settled under one unresolved-attempt rule](seeds/SEED-072-responsive-session-start-reconciliation.md#durable-startup-reconciliation) — SEED-072#durable-startup-reconciliation ([plan](slice-plans/206-durable-startup-reconciliation/PLAN.md))
 - [Show changes since readiness review without blocking execution](seeds/SEED-080-readiness-change-indicator.md#readiness-change-indicator) — SEED-080#readiness-change-indicator ([plan](slice-plans/209-readiness-change-indicator/PLAN.md))
-- [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard ([plan](slice-plans/210-use-cursor-from-dashboard/PLAN.md))
 
 ## Backlog list
 

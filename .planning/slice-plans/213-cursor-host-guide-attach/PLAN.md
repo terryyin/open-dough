@@ -6,7 +6,7 @@
 ## Correction input
 
 - **Source execution:** SEED-052#use-cursor-from-dashboard, plan
-  [210](../210-use-cursor-from-dashboard/PLAN.md). Provenance commits, oldest
+  [210](https://github.com/terryyin/open-dough/blob/317d0f1c24fdf3cb7b89960d11c7b259bf862b08/.planning/slice-plans/210-use-cursor-from-dashboard/PLAN.md). Provenance commits, oldest
   first: `0ae15498` (Take, not product behavior), `71764841`, `2f21a7be`,
   `8feab5ef`, `91a79050`, `3e5c10d8`, `4541eda4`.
 - **Current finding:** `dashboard/AGENT-LAUNCH-HOSTS.md` says Cursor supplies
