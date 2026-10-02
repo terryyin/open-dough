@@ -131,11 +131,10 @@ parallel ones:
   through `claude agents --json`) and how a developer reaches one (`claude attach`).
   Host-specific code stays in one module per host behind the `LaunchHost`
   boundary in `dashboard/server/launchHosts.ts`; an operation a host lacks is
-  unavailable, never supplied by another host. Before Cursor joins, shared
-  code stops deciding by host name
-  ([SEED-075](seeds/SEED-075-host-neutral-dashboard-before-cursor.md)): it
-  reads host facts (name, skill sigil, offered models, recovery hint, and
-  which operations a host offers) from one host description; each host's
+  unavailable, never supplied by another host. Shared code reads host facts
+  (name, skill sigil, offered models, recovery hint and optional native-check
+  advice) from one host description, and offered operations from the host
+  boundary ([native hosts](../dashboard/AGENT-LAUNCH-HOSTS.md)); each host's
   identity and continuation have their own session record variant; session
   wording names the session's own host and alerting follows facts the host
   reports; and shared launch gates apply to every host rather than to one by

@@ -1,7 +1,8 @@
 # Dashboard native hosts and durable evidence
 
 `src/hostDescription.ts` describes each known host's display name, skill sigil,
-model offerings and labels, untrusted-answer hint and branch namespace once.
+model offerings and labels, untrusted-answer hint, optional native-check advice,
+and branch namespace once.
 Shared server and browser consumers read those facts; native commands and
 transport remain private. `server/launchHosts.ts` selects the matching registered
 public boundary; an unavailable host never uses another host's implementation.
