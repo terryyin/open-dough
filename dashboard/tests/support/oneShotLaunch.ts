@@ -7,6 +7,8 @@ import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import type { SessionPolicy } from "../../src/agentLaunch.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { expectReportingBlock } from "./reportingInputAssertions.ts";
 import {
   keptStarts,
   launchRequest,
@@ -111,7 +113,8 @@ export async function expectEstablishedOneShot({
     ...(defaultMain ? ["--default-main"] : []),
     ...(policy.landing === "auto-land" ? ["--auto-land"] : []),
   ];
-  const [command, , developer] = instruction.split("\n\n");
+  const [command, , reporting, developer, ...extra] = instruction.split("\n\n");
+  expect(extra).toEqual([]);
   expect(command).toBe(
     `${host === "codex" ? "$" : "/"}${workflows[workflow]} ${[queuedIdentity, ...flags].join(" ")}`,
   );
@@ -144,14 +147,12 @@ export async function expectEstablishedOneShot({
     !defaultMain,
   );
 
-  const [record] = (await recordsOf(server, "open-dough")) as Record<
-    string,
-    unknown
-  >[];
-  expect((record?.["request"] as Record<string, unknown>)["policy"]).toEqual(
-    policy,
-  );
-  expect(record?.[workflow === "execution" ? "start" : "preparation"]).toEqual({
+  const [record] = (await recordsOf(server, "open-dough")) as LaunchRecord[];
+  expectReportingBlock(reporting, record?.request, server);
+  if (record?.request.workflow === "ad-hoc" || record === undefined)
+    throw new Error("Missing story launch record.");
+  expect(record.request.policy).toEqual(policy);
+  expect(record[workflow === "execution" ? "start" : "preparation"]).toEqual({
     tracking: "one-shot",
     identity: queuedIdentity,
     workspace,
@@ -168,7 +169,7 @@ export async function expectEstablishedOneShot({
       ? { fetched: startingRevision }
       : {}),
   });
-  expect(record?.[workflow === "execution" ? "preparation" : "start"]).toBe(
+  expect(record[workflow === "execution" ? "preparation" : "start"]).toBe(
     undefined,
   );
   // The session took the start over: nothing is kept for a later launch.

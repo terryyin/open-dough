@@ -1,4 +1,4 @@
-import { reportingInstruction } from "../server/reportingInstruction.ts";
+import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
 // An unattached Cursor session has no story and no start. The fixture
 // `cursor-agent` on PATH prints the create-chat id and records argv. An
 // empty instruction is recorded with no prompt and no skill line. A present
@@ -149,11 +149,7 @@ for (const text of ["", "why is the CI slow?"]) {
         throw new Error("Cursor did not record the instruction.");
       }
       const prompt = prompted.args.at(-1) ?? "";
-      expect(prompt).toBe(
-        [text, reportingInstruction(record.request)]
-          .filter(Boolean)
-          .join("\n\n"),
-      );
+      expectAdHocReportingInput(prompt, text, record.request, dashboard);
       expect(prompt.split("\n\n")[0]).toBe(text);
       expect(prompt.split("\n\n")[0]).not.toContain("dough-");
       expect(prompt).not.toContain("Established ");

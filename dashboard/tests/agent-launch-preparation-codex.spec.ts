@@ -1,3 +1,4 @@
+import { expectReportingBlock } from "./support/reportingInputAssertions.ts";
 // Candidate installed .agents scripts own publication/workspaces. The page
 // chooses Codex; the native substitute supplies only RPC outcomes and IDs.
 import { readFileSync, readdirSync } from "node:fs";
@@ -200,7 +201,14 @@ test("Codex refusal retains its published preparation; the page resumes the same
       path?: string;
     }>;
     const text = input[0]?.text ?? "";
-    const [command, block, instruction] = text.split("\n\n");
+    const [command, block, reporting, instruction, ...extra] =
+      text.split("\n\n");
+    expect(extra).toEqual([]);
+    expectReportingBlock(
+      reporting,
+      stored(restarted.home)[0]?.request,
+      restarted,
+    );
     expect(command).toBe(`$dough-story-refinement ${queuedIdentity} --explore`);
     expect(instruction).toBe("Focus on the examples.");
     expect(text.match(/Established preparation:/g)).toHaveLength(1);

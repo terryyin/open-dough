@@ -1,6 +1,7 @@
 // Effort-only launches resolve their configured model in the actual workspace.
 import { test, expect } from "./support/codexStart.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
 
 test("effort-only story startup validates the actual established workspace rather than the project folder", async ({
   page,
@@ -78,10 +79,18 @@ test("effort-only ad hoc dialog uses the configured model while omitting model o
     cwd: origin.project,
     config: { model_reasoning_effort: "ultra" },
   });
-  expect(
-    native.calls.filter((c) => c.method === "turn/start")[0]?.params,
-  ).toEqual({
+  const turns = native.calls.filter((c) => c.method === "turn/start");
+  expect(turns).toHaveLength(1);
+  const input = turns[0]?.params["input"] as { type: string; text: string }[];
+  const text = input[0]?.text ?? "";
+  expectAdHocReportingInput(
+    text,
+    "Explain the build",
+    stored(dashboard.home)[0]?.request,
+    dashboard,
+  );
+  expect(turns[0]?.params).toEqual({
     threadId: native.threadId,
-    input: [{ type: "text", text: "Explain the build" }],
+    input: [{ type: "text", text }],
   });
 });

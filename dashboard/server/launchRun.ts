@@ -52,28 +52,29 @@ export async function attemptRun(
       : ({ kind: "none" } as const);
   await notePublication(publicationOf(start, pending));
   if (start.kind === "stopped") return start.result;
-  const baseRecording =
-    pending?.request ??
-    (start.kind === "established"
-      ? withStartPolicy(requested, start.policy)
-      : requested);
-  const reporting =
-    pending?.request.reporting ??
-    attempt.reporting ??
-    (await reportingContext(
-      attempt,
-      start.kind === "established" ? start.workspace : folder,
-    ));
-  if (reporting !== undefined) {
-    owned.attempt = { ...owned.attempt, reporting };
-    await keepAttempt(owned.attempt);
-  }
-  const recording =
-    reporting === undefined ? baseRecording : { ...baseRecording, reporting };
-  const timer = setTimeout(() => {
-    controller.abort();
-  }, launchTimeoutMs());
+  let timer: NodeJS.Timeout | undefined;
   try {
+    const baseRecording =
+      pending?.request ??
+      (start.kind === "established"
+        ? withStartPolicy(requested, start.policy)
+        : requested);
+    const reporting =
+      pending?.request.reporting ??
+      attempt.reporting ??
+      (await reportingContext(
+        attempt,
+        start.kind === "established" ? start.workspace : folder,
+      ));
+    if (reporting !== undefined) {
+      owned.attempt = { ...owned.attempt, reporting };
+      await keepAttempt(owned.attempt);
+    }
+    const recording =
+      reporting === undefined ? baseRecording : { ...baseRecording, reporting };
+    timer = setTimeout(() => {
+      controller.abort();
+    }, launchTimeoutMs());
     return await launchRun(
       source,
       recording,

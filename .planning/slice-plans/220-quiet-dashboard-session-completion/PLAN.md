@@ -207,44 +207,39 @@ Locked Node 24.21.0/dependencies/browser setup accepted. No verification remains
 Consequential learning: macOS path aliases require the existing direct-entry helper;
 prepared context must update the current owned attempt after publication and survive
 verification reconstruction. The prepared script/dependency lives outside the workspace.
-Managed Codex delivery has no supported retained stream binding: its receipt is unobserved,
-not CI coverage. No execution observer has been armed; no readiness renewal.
+Initial managed deliveries were unobserved without a retained stream binding. Later
+startup/reuse recovery is recorded below; these earlier receipts never proved CI.
 
-**Slice 3:** accepted shared `dough-land/references/completion-attention.md` rule via
-Land's retained anchor and Wrap Up/linked instructions. Quiet direct success preserves
-only the existing Wrap Up marker; material issues require facts/consequence/next action.
-CI attention applies only to existing obligations. AGENTS invocation/context/useful-outcome
-walkthrough accepted. Maintained Land/Story Branch/Trunk assessors retain operational gates;
-independently observed dirty/default refresh requires useful attention, never marker-only.
-Clean/no-default cases stay quiet. Native adherence remains pending, not inferred from fixtures.
-Fresh refactor extracted common closure response/refresh helper, declared installed reference,
-proved two-hop links and updated evidence input hashes. Accepted final command (exit 0):
-```sh
-PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm test -- tests/git-publication-native.sh tests/git-publication-native-owned-context.sh tests/install-public-payload.sh tests/payload-declaration-links.sh tests/native-assessor-counterexamples.sh tests/native-assessor-counterexample-guard.sh tests/native-evidence-identity.sh
-```
-Coordinator inspected source, actual Git/installed fixture and counterexample boundaries;
-formatter passed after literal-sed annotations only. All verification terminal; no readiness
-renewal. Slice-3 publication base `d213f1efec373b098bddd4e83030db2c08693571`; slices 4–5 planned.
+**Slices 3–4:** accepted quiet shared attention guidance, maintained assessors and
+installed dependencies (`b69852ae`), then explicit quiet report/Done with actual private
+Land/Story Branch/Trunk closure and retirement, durable receipt, no native interruption,
+early Claude binding, Cursor Done, browser restart and independent passive native reading
+(`4ef5e2e`). Full literal commands, observation locations, refactor effects and formatter
+repairs remain in this plan at those published revisions. All local proof and delivery
+gates passed; native guidance adherence remains pending in SEED-053 before release.
 
-**Slice 4:** accepted installed Land/Story Branch/Trunk Wrap Up guidance plus real
-private Git publication, closure/CI receipts (exact success and confirmed shutdown),
-retirement, surviving CLI/receiver/storage/browser. Native/provider transports alone
-are synthetic. Retirement itself leaves sessions open; explicit quiet report persists
-completion/Done before receipt with no stop/name/resume calls. Recent/reload preserves
-Done separately from native Working; quiet reports have no attention panel and passive
-native reading remains available. Early Claude quiet/attention through normal/Recheck
-binds only its launch and survives late writers; Cursor quiet Done needs no stop.
-Guidance is retained before removal; final operation follows settled gates/final wording.
-New `installedCompletionClosure.ts` owns Git/closure observation; `completionCi.ts` owns
-provider substitution only. Fresh independent refactor completed; proof commands:
+**Owned CI repair:** recovered startup/reuse route from DearDough DD-201 and installed
+Codex adapter. GitHub `ci.yml` / display `CI` verified for this execution branch. Observer
+`/tmp/dough-ci-501/watch-YbJYkk`, cell 116, session 1277, PID 34317, coordinator d.kanai-chan,
+checkout above; managed resume accepted `4ef5e2e` with pushCount 0 and recovered this owner.
+Delivered sequence 1: run 37021271369/attempt 1, SHA `4ef5e2e`, seven dashboard jobs and
+test (2/3) failed. All failures inspected; no infrastructure exemption. Slice 5 paused
+before edits; installed stash-save receipt `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-DPBsk4/record.json`
+was clean/oid null. Repair updates obsolete prompt/attempt/recap proof without weakening
+native grammar/developer/settings/ownership/CI gates. Independent input oracle replaces
+circular expected-input construction. Preserved chmod-fault assertion exposed reporting
+bootstrap before cleanup finally; move inside finally clears launching progress, retains
+uncertain durable attempt and launches no native session. Minimal red then green:
 ```sh
-PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-completion-quiet.spec.ts agent-completion-binding.spec.ts agent-completion-cursor.spec.ts agent-completion-attention.spec.ts agent-completion-input.spec.ts session-result-admission.spec.ts session-result-codex.spec.ts --workers=2
-PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=3 npm test -- src/skills/dough-land/scripts/worktree-retirement.test.mjs src/skills/dough-land/scripts/queued-closure-check.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-resume.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-rebased-rerun.test.mjs src/skills/dough-story-wrap-up/scripts/closure-story-integration.test.mjs src/skills/dough-story-wrap-up/scripts/closure-story-branch-cleanup.test.mjs
-PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=3 npm test -- tests/git-publication-native.sh tests/git-publication-native-owned-context.sh tests/install-public-payload.sh tests/payload-declaration-links.sh tests/native-evidence-identity.sh tests/install-all-tools.sh tests/execution-payload-update.sh tests/story-payload-update.sh tests/install-preserves-open-dough-json.sh
-PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-completion-quiet.spec.ts --workers=2
-PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=3 npm test -- tests/install-public-payload.sh tests/payload-declaration-links.sh tests/native-evidence-identity.sh
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-launch-session-options.spec.ts --grep 'one-shot execution · isolated · review' --workers=2
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-launch-codex-model.spec.ts agent-launch-preparation-cursor.spec.ts agent-session-cursor.spec.ts agent-launch-preparation-codex.spec.ts agent-launch-cursor-model.spec.ts agent-launch-acceptance.spec.ts agent-launch-codex-lifetime.spec.ts agent-launch-session-options.spec.ts agent-launch-ad-hoc-cursor.spec.ts agent-launch-start-codex.spec.ts agent-launch-start-codex-recovery.spec.ts --workers=2
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-launch-acceptance.spec.ts --workers=2
 PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm run typecheck:dashboard
 ```
-All terminal exit 0; quiet proof reverified mechanical lint repairs. Final formatter
-passed; files <=250. No owned verification/watch remains live; slice 5 planned.
-Slice-4 publication base `b69852ae9b69e528af296f0489a17246855e0abb`; no readiness renewal.
+First two exit 1 for diagnosed assertions; lifecycle rerun and final commands exit 0.
+Broad proof selected 42 tests/14 files; final acceptance three tests observe no native launch.
+Real installed Git/server/browser/persistence; native transports synthetic. Fresh independent
+refactor: no edits/tests. Formatter passed after redundant optional-chain repair only;
+all changed files <=250, no owned verification remains live. No readiness renewal.
+Repair publication base `4ef5e2e72e31238091858d0534da21b9825bd768`; slice 5 remains planned.

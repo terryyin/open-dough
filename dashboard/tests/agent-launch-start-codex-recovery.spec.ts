@@ -80,6 +80,7 @@ test("execution recovery retains its claim, workspace, handoff and first input w
       original,
       revision,
       profile?.["agent"],
+      dashboard,
     );
     expect(
       native.calls.filter((call) => call.method === "thread/start"),

@@ -15,6 +15,9 @@ import { hostDescriptions } from "../src/hostDescription.ts";
 import type { HostOperations } from "../src/sessionCapabilities.ts";
 import { cursorHost } from "../server/cursorHost.ts";
 import { expect, test } from "./support/cursorStart.ts";
+import { recordsOf } from "./agentLaunchBoundary.ts";
+import type { LaunchRecord } from "../src/launchRecord.ts";
+import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
 
 const instruction = "inspect this session";
 const unknownWords =
@@ -134,9 +137,12 @@ test("a launched Cursor session is visible without borrowed activity, stop, or r
   ).toHaveCount(0);
 
   const callsAfterView = cursor.calls().map((call) => call.args);
-  expect(callsAfterView.map((args) => args.at(-1))).toEqual([
-    "create-chat",
-    instruction,
+  const prompt = callsAfterView[1]?.at(-1) ?? "";
+  const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+  expectAdHocReportingInput(prompt, instruction, record?.request, dashboard);
+  expect(callsAfterView).toEqual([
+    ["create-chat"],
+    ["--workspace", origin.project, "--resume", cursor.sessionId, prompt],
   ]);
   expect(dashboard.claudeCalls()).toEqual([]);
   expect(dashboard.codex.calls).toEqual([]);

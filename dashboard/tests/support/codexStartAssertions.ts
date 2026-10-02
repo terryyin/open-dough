@@ -1,6 +1,7 @@
 // Assertions inspect the actual published claim and forwarded installed handoff.
 import path from "node:path";
-import { reportingInstruction } from "../../server/reportingInstruction.ts";
+import { expectReportingBlock } from "./reportingInputAssertions.ts";
+import type { DashboardServer } from "./dashboardServer.ts";
 import { expect } from "./codexStart.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
@@ -13,6 +14,7 @@ export function expectExecutionInput(
   original: string,
   revision: string,
   agent: unknown,
+  server: DashboardServer,
   changedSinceReview = false,
 ) {
   const start = record?.start;
@@ -51,15 +53,15 @@ export function expectExecutionInput(
       ? ["- readiness: Changed since readiness review"]
       : []),
   ].join("\n");
-  const text = [
-    `$dough-execute-plan ${queuedIdentity}\n\n${handoff}`,
-    record?.request.reporting === undefined
-      ? undefined
-      : reportingInstruction(record.request),
-    "Implement the selected slice.",
-  ]
-    .filter(Boolean)
-    .join("\n\n");
+  const turns = native.calls.filter((call) => call.method === "turn/start");
+  const input = turns[0]?.params["input"] as { type: string; text?: string }[];
+  const text = input[0]?.text ?? "";
+  const [command, block, reporting, developer, ...extra] = text.split("\n\n");
+  expect(command).toBe(`$dough-execute-plan ${queuedIdentity}`);
+  expect(block).toBe(handoff);
+  expectReportingBlock(reporting, record?.request, server);
+  expect(developer).toBe("Implement the selected slice.");
+  expect(extra).toEqual([]);
   expect(native.calls.filter((call) => call.method === "turn/start")).toEqual([
     {
       method: "turn/start",
