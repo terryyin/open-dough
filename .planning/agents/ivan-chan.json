@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ivan-chan",
+  "email": "ivan-chan@example.org",
+  "identity": "SEED-052#announce-record-deletion-first-time",
+  "mode": "story-branch",
+  "branch": "codex/announce-a-deleted-session-record-to-screen-read",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
