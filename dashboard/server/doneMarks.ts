@@ -18,6 +18,16 @@ export async function markSessionDone(
   launches: AgentLaunches,
   terminals: AgentTerminals,
 ): Promise<LaunchRecord> {
+  if (record.completion !== undefined) {
+    const marked = await setRecordDoneAt(
+      source.id,
+      record.session,
+      new Date().toISOString(),
+    );
+    if (marked === undefined)
+      throw new Error("The reporting session was deleted.");
+    return marked;
+  }
   const host = launchHost(record.session.host);
   const stop = host?.stop?.bind(host);
   if (host === undefined || stop === undefined)

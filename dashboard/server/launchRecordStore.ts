@@ -1,6 +1,6 @@
 // Public launch/creation record operations use one machine document and retention rule.
+import { keptAttempts } from "./launchAttemptStore.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
-import { type CreationRecord } from "../src/launchCreation.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import type { AgentLaunchRequest, LaunchRecord } from "../src/agentLaunch.ts";
 import {
@@ -72,6 +72,12 @@ export async function keepRecord(
   sourceId: string,
   record: LaunchRecord,
 ): Promise<void> {
+  const completion =
+    record.request.reporting === undefined
+      ? undefined
+      : (await keptAttempts())?.find(
+          (attempt) => attempt.id === record.request.reporting?.reference,
+        )?.completion;
   await replaceRecords((kept) => ({
     ...kept,
     [sourceId]: [
@@ -80,7 +86,18 @@ export async function keepRecord(
           ? !sameLaunch(entry.request, record.request)
           : sessionKey(entry.session) !== sessionKey(record.session),
       ),
-      record,
+      {
+        ...record,
+        completion:
+          (kept[sourceId] ?? [])
+            .filter((entry): entry is LaunchRecord => "session" in entry)
+            .find(
+              (entry) =>
+                sessionKey(entry.session) === sessionKey(record.session),
+            )?.completion ??
+          completion ??
+          record.completion,
+      },
     ],
   }));
 }
@@ -181,6 +198,7 @@ export async function updateRecord(
       // Native lifecycle evidence never clears newer local done/reopen intent.
       return {
         ...record,
+        completion: entry.completion ?? record.completion,
         doneAt: entry.doneAt,
         doneProblem: entry.doneProblem,
       };
@@ -189,46 +207,9 @@ export async function updateRecord(
   return updated;
 }
 
-// A creation attempt has no session identity. Keep it in this existing document
-// until a known conversation replaces it or native creation explicitly refuses.
-export async function creationOf(
-  request: LaunchRecord["request"],
-): Promise<CreationRecord | "unreadable" | undefined> {
-  const read = await readStoredRecords();
-  if (read.kind === "unreadable") return "unreadable";
-  return read.document[request.source]?.find(
-    (entry): entry is CreationRecord =>
-      !("session" in entry) && sameLaunch(entry.request, request),
-  );
-}
-export async function keepCreation(record: CreationRecord): Promise<void> {
-  await replaceRecords((kept) => ({
-    ...kept,
-    [record.request.source]: [
-      ...(kept[record.request.source] ?? []).filter(
-        (entry) =>
-          "session" in entry || !sameLaunch(entry.request, record.request),
-      ),
-      record,
-    ],
-  }));
-}
-export async function removeCreation(
-  request: LaunchRecord["request"],
-): Promise<void> {
-  await replaceRecords((kept) => ({
-    ...kept,
-    [request.source]: (kept[request.source] ?? []).filter(
-      (entry) => "session" in entry || !sameLaunch(entry.request, request),
-    ),
-  }));
-}
-
-export async function keptCreations(): Promise<CreationRecord[]> {
-  const read = await readStoredRecords();
-  return read.kind === "unreadable"
-    ? []
-    : Object.values(read.document)
-        .flat()
-        .filter((entry): entry is CreationRecord => !("session" in entry));
-}
+export {
+  creationOf,
+  keepCreation,
+  removeCreation,
+  keptCreations,
+} from "./launchCreationStore.ts";

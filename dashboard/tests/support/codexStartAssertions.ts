@@ -1,5 +1,6 @@
 // Assertions inspect the actual published claim and forwarded installed handoff.
 import path from "node:path";
+import { reportingInstruction } from "../../server/reportingInstruction.ts";
 import { expect } from "./codexStart.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
@@ -50,7 +51,15 @@ export function expectExecutionInput(
       ? ["- readiness: Changed since readiness review"]
       : []),
   ].join("\n");
-  const text = `$dough-execute-plan ${queuedIdentity}\n\n${handoff}\n\nImplement the selected slice.`;
+  const text = [
+    `$dough-execute-plan ${queuedIdentity}\n\n${handoff}`,
+    record?.request.reporting === undefined
+      ? undefined
+      : reportingInstruction(record.request),
+    "Implement the selected slice.",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
   expect(native.calls.filter((call) => call.method === "turn/start")).toEqual([
     {
       method: "turn/start",

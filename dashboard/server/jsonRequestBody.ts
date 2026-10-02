@@ -8,13 +8,13 @@ import { RefusedRequest } from "./localOrigin.ts";
 // Enough for the longest request the limits allow, in any UTF-8 spelling.
 const bodyLimitBytes = 32 * 1024;
 
-function readBody(req: IncomingMessage): Promise<string> {
+function readBody(req: IncomingMessage, limitBytes: number): Promise<string> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     let size = 0;
     req.on("data", (chunk: Buffer) => {
       size += chunk.length;
-      if (size > bodyLimitBytes) {
+      if (size > limitBytes) {
         req.destroy();
         reject(new RefusedRequest(413, "The request is too large."));
         return;
@@ -28,12 +28,15 @@ function readBody(req: IncomingMessage): Promise<string> {
   });
 }
 
-export async function jsonBody(req: IncomingMessage): Promise<unknown> {
+export async function jsonBody(
+  req: IncomingMessage,
+  limitBytes = bodyLimitBytes,
+): Promise<unknown> {
   if (!/^application\/json\b/.test(req.headers["content-type"] ?? "")) {
     throw new RefusedRequest(415, "A request here is JSON.");
   }
   try {
-    return JSON.parse(await readBody(req));
+    return JSON.parse(await readBody(req, limitBytes));
   } catch (error) {
     if (error instanceof RefusedRequest) {
       throw error;

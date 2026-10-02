@@ -1,3 +1,4 @@
+import { reportingInstruction } from "../server/reportingInstruction.ts";
 // An unattached Cursor session has no story and no start. The fixture
 // `cursor-agent` on PATH prints the create-chat id and records argv. An
 // empty instruction is recorded with no prompt and no skill line. A present
@@ -148,15 +149,20 @@ for (const text of ["", "why is the CI slow?"]) {
         throw new Error("Cursor did not record the instruction.");
       }
       const prompt = prompted.args.at(-1) ?? "";
-      expect(prompt).toBe(text);
-      expect(prompt).not.toContain("dough-");
+      expect(prompt).toBe(
+        [text, reportingInstruction(record.request)]
+          .filter(Boolean)
+          .join("\n\n"),
+      );
+      expect(prompt.split("\n\n")[0]).toBe(text);
+      expect(prompt.split("\n\n")[0]).not.toContain("dough-");
       expect(prompt).not.toContain("Established ");
       expect(prompted.args).toEqual([
         "--workspace",
         origin.project,
         "--resume",
         cursor.sessionId,
-        text,
+        prompt,
       ]);
       expect(prompted.cwd).toBe(realpathSync(origin.project));
       for (const flag of omitted) expect(prompted.args).not.toContain(flag);
@@ -167,12 +173,12 @@ for (const text of ["", "why is the CI slow?"]) {
       });
       expect(during?.firstInput).toMatchObject({
         state: "uncertain",
-        instruction: text,
+        instruction: prompt,
       });
       expect(during?.request).not.toHaveProperty("identity");
       expect(record.firstInput).toEqual({
         state: "confirmed",
-        instruction: text,
+        instruction: prompt,
       });
     }
 

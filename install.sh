@@ -139,6 +139,7 @@ managed_files=(
   dough-slice-planning/references/architectural-thinking.md
   dough-pfe/SKILL.md
   dough-slice-plan-refinement/SKILL.md
+  dough-execute-plan/scripts/dashboard-completion.mjs
   dough-execute-plan/SKILL.md
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json

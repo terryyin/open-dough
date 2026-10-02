@@ -205,3 +205,29 @@ for admission, reconnecting, Mark as done and Delete record.
 
 See [retained Codex results](AGENT-LAUNCH-TERMINALS.md#retained-codex-results-without-their-workspace)
 for read-only final reports and workspace limitations.
+
+## Retained attention messages
+
+A prompted dashboard launch carries an explicit reporting channel for its project,
+host and accepted launch reference when the installed execution skill supplies
+`scripts/dashboard-completion.mjs`. All three native input builders carry the same
+context; a blank session remains without an instruction. Native permission settings
+still apply to the reporting command.
+
+The installed command accepts `--outcome completed` with a reminder or
+`--outcome unfinished` with the exact issue and next action, plus
+`--message-file <path>` containing the agent's attention response. This operation
+requires a nonempty message; it grants no automatic completion. It stores the
+facts before returning its receipt. Claude can report before its native ID is known:
+that receipt says `pending-native-session`, names only the accepted launch, and
+binds to its native session when the launch is confirmed. It never selects the
+newest session for a story. Optional `--session` must match the confirmed native ID.
+
+Messages are rendered as text on every shared session entry and remain open until
+**Mark as done**. They survive a story's published stage change, dashboard restart,
+and workspace disappearance, and stay readable in Recent sessions after Done.
+**Read attention message** opens the retained text without changing native activity.
+Native terminal access remains independently available where the host supports it.
+The reporting command is prepared from the installed files outside the workspace
+so that workspace retirement cannot remove its executable or dependency. Session
+Done remains local disposition; it does not complete the product story.

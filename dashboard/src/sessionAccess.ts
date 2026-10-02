@@ -30,6 +30,15 @@ export function sessionAccess(
   operations: HostOperations,
 ): SessionAccess | undefined {
   if (
+    record.completion !== undefined &&
+    ((record.session.host === "codex" &&
+      record.workspaceState !== undefined &&
+      record.workspaceState.kind !== "available") ||
+      !embeddedTerminal(operations, record.session.host) ||
+      !attachOpens(record.sessionState))
+  )
+    return "result";
+  if (
     record.session.host === "codex" &&
     record.workspaceState !== undefined &&
     record.workspaceState.kind !== "available"

@@ -1,17 +1,15 @@
-// What a launch answers (`./agentLaunch.ts`): its result once it settles, its
-// acceptance by the local service, and the attempt that service keeps
-// (`../server/agentLaunches.ts`). Why nothing (or maybe nothing) was launched
-// is spelled once here for all three. No Node import, so the browser and the
-// server read the same shapes.
+// Launch results, acceptance and retained attempts share these shapes across
+// browser and server, including why no session (or maybe one) was launched.
 
 import { z } from "zod";
 import {
+  reportingContextSchema,
   agentLaunchEndpoint,
   agentLaunchRequestSchema,
   existingChangesSchema,
   type StoryLaunchRequest,
 } from "./launchRequest.ts";
-import { launchWithStateSchema } from "./launchRecord.ts";
+import { completionSchema, launchWithStateSchema } from "./launchRecord.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 
@@ -135,6 +133,9 @@ export type AttemptOutcome = z.infer<typeof attemptOutcomeSchema>;
 
 export const launchAttemptSchema = z.object({
   id: z.uuid(),
+  reportingOrigin: z.url().optional(),
+  reporting: reportingContextSchema.optional(),
+  completion: completionSchema.optional(),
   request: agentLaunchRequestSchema,
   acceptedAt: z.iso.datetime(),
   publication: publicationReceiptSchema,
@@ -164,7 +165,6 @@ export function needsReconciliation(attempt: AttemptObservation): boolean {
         attempt.publication.kind === "unknown";
 }
 
-// The later accepted of two attempts, as a story's latest attempt is told.
 export const laterAttempt = (
   one: AttemptObservation | undefined,
   other: AttemptObservation,

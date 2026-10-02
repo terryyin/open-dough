@@ -38,6 +38,10 @@ assert_upgraded_execution_payload() {
   local root canonical_root
   for root in .agents/skills .claude/skills; do
     assert_payload "${target}/${root}/dough-update" 0.1.2 with-execution
+    cmp "${newer}/src/skills/dough-execute-plan/scripts/dashboard-completion.mjs" \
+      "${target}/${root}/dough-execute-plan/scripts/dashboard-completion.mjs"
+    cmp "${newer}/src/skills/dough-execute-plan/scripts/ci-direct-entry.mjs" \
+      "${target}/${root}/dough-execute-plan/scripts/ci-direct-entry.mjs"
     # Exercise the installed runtime entrypoint in the platform layout.
     canonical_root=$(cd "${target}/${root}/dough-execute-plan" && pwd -P)
     receipt=$(DOUGH_CI_MAILBOX_ROOT="${temporary_dir}/mailboxes" node "${canonical_root}/scripts/ci-mailbox.mjs" probe)

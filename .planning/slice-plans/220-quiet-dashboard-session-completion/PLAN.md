@@ -87,7 +87,7 @@ revise this plan. The resolved fixture-only approval and recovered evidence are 
 
 ### 2. Retain an agent's attention message on its open dashboard session
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Completed-with-reminder or unfinished-with-exact-reason report is stored
 and acknowledged for its session; visible message leaves it open until Mark as done.
 Proof: Focused real-preview Playwright launch/installed CLI child with actual context and
@@ -178,72 +178,56 @@ receipt and story state remain distinct. Five Behavior slices retain proof/insta
 no speculative framework. No numeric limit supplied: one proof loop/probe stop. Preparation
 found no concern; readiness grants no execution authority; no renewed readiness/completion.
 
-## Execution observation: slice 1 approved native recovery (2026-10-02)
+## Accepted execution evidence (2026-10-02)
 
-Execution: publisher `dashboard-territory.local-open-dough`, agent `d.kanai-chan`, workspace
-`/Users/terryyin/git/open-dough/.worktrees/complete-dashboard-sessions-quietly-and-retain-m`,
+Publisher `dashboard-territory.local-open-dough`, author `d.kanai-chan`, identity above;
+workspace `/Users/terryyin/git/open-dough/.worktrees/complete-dashboard-sessions-quietly-and-retain-m`,
 branch `codex/complete-dashboard-sessions-quietly-and-retain-m`, story-branch `origin/main`.
 Claim `418e5e52582602f86f83c3a6d99dea432e527118`, start `5659e235bc8d567e034480d208f74ebc6e1dcef5`;
-latest accepted execution publication/next delivery base `3942fde4448d89ac19f59ef4f50908c944eb6d6e`.
-Coordinator established locked checkout setup and reran readiness with terminal exit 0:
+slice-2 delivery base `9fcbf0397bf1f1d07d809715b5b1e675144e5a4e`. Retain later delivery receipts in execution context.
+
+**Slice 1:** accepted actual native Codex 0.160.0, Claude Code 2.1.287 and Cursor
+2026.10.01-e373342 reporting feasibility. Full commands, native identities, receipt/tool
+signals, refusal diagnoses and user-approved exact fixture-only Claude permission are
+recoverable in this plan at `9fcbf039` and in
+[mechanism acceptance](../../seeds/SEED-053-native-guidance-acceptance.md#quiet-dashboard-completion).
+All owned supervisors/PTYs/receivers ended; assessed disposable probe deleted under ADR 0005.
+Shared daemon/native histories remain untouched. Shipped integration and actual Land/Wrap Up
+native behavior remain pending there before affected release; no native reruns in slice 2.
+
+**Slice 2:** coordinator accepted real preview/installed CLI/HTTP/store/polling/rendering
+proof in `agent-completion-{attention,binding,cursor,input}.spec.ts`. Only native transport
+and GitHub answers are synthetic; private origins/start and installed candidate files are real.
+Matching durable receipt precedes display; attention/unfinished stay open; refusals cover
+wrong project/host/session/reference, malformed and cross-origin requests. Text escapes,
+retains published stage movement/removal/restart/Done/Recent access, and preserves native
+Working separately. Reported Done is local, including Cursor; no native stop/rename/detach.
+Claude pending receipt claims no native id; normal/Recheck binds the same receipt without a
+second launch. Late attempt/keepRecord/updateRecord writers retain facts. Blank inputs remain
+blank; host grammar, unreported Done, passive native reports and old records retain proof.
+
+Locked Node 24.21.0/dependencies/browser setup accepted. Literal proof commands:
 ```sh
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-completion-attention.spec.ts agent-completion-binding.spec.ts agent-completion-cursor.spec.ts agent-launch-done.spec.ts agent-launch-records.spec.ts agent-launch-start.spec.ts agent-launch-start-codex.spec.ts agent-launch-start-codex-recovery.spec.ts agent-launch-start-cursor.spec.ts agent-launch-ad-hoc-codex-input.spec.ts agent-launch-ad-hoc-cursor.spec.ts session-result-admission.spec.ts session-result-codex.spec.ts session-workspace-retirement-done.spec.ts agent-launch-default-checkout-warning.spec.ts agent-launch-preparation-start.spec.ts agent-launch-unconfirmed-input.spec.ts agent-launch-claude-verification.spec.ts agent-launch-claude-own-record-verification.spec.ts --workers=3
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=3 npm test -- tests/payload-declaration-links.sh tests/install-preserves-open-dough-json.sh tests/install-all-tools.sh tests/execution-payload-update.sh tests/story-payload-update.sh
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-completion-attention.spec.ts agent-completion-binding.spec.ts agent-completion-input.spec.ts agent-completion-cursor.spec.ts agent-launch-done.spec.ts agent-launch-done-codex.spec.ts agent-launch-done-refusal.spec.ts agent-terminal-done.spec.ts session-result-admission.spec.ts session-result-codex.spec.ts agent-launch-preparation-store-failure.spec.ts agent-launch-preparation-start.spec.ts agent-launch-ad-hoc-cursor.spec.ts --workers=2
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-launch-codex-creation.spec.ts --grep 'lost creation identity' --workers=1
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm test -- tests/install-all-tools.sh
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-completion-attention.spec.ts agent-completion-binding.spec.ts agent-completion-cursor.spec.ts agent-completion-input.spec.ts --workers=2
 PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm run typecheck:dashboard
 ```
-Private Git fixtures use actual native dashboard launch builders/modes, installed minimal
-`dough-execute-plan`, stable sibling `tools/report.mjs`, explicit host context and disposable
-loopback receiver. Native-only feasibility: no shipping completion behavior or MCP change.
-Complete literal proof commands (prior launch/trust/refusal details recoverable at publication above):
-```sh
-probe_root=/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-completion-probe-r_xkysjf
-bash "$probe_root/run.sh" "$probe_root" codex
-bash "$probe_root/run.sh" "$probe_root" codex --recover
-bash "$probe_root/run.sh" "$probe_root" codex --retire
-bash "$probe_root/run-resume.sh" "$probe_root" cursor
-bash /var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-completion-probe-r_xkysjf/run-approved-claude.sh /var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-completion-probe-r_xkysjf
-```
-Wrappers prepend that Node/PATH, source `tests/support/native-run-supervise.sh` and call
-`native_run_owned` with `node --experimental-transform-types` and their named `.mjs` runner,
-180-second deadline/5-second grace. Transform flag corrected strip-only rejection before launch.
-Initial Claude/Cursor trust refusals were resolved interactively only for inspected authored
-fixtures; empty PTYs exited 0 without work or override flags. Global permission modes unchanged.
+All terminal exit 0; final four-spec run reverified mechanical lint repair, creation grep
+selected the restart/duplicate-prevention journey. Real install/update across supported roots
+preserves config/coexistence and compares reporting CLI/direct-entry dependency bytes.
+Fresh independent refactor centralized completion/schema/label and Done capability, reuses
+named-session admission, and extracted terminal admission, result response, creation persistence
+and input proof. Coordinator inspected moved boundaries; unchanged accepted proof retained.
+Formatter initially found mechanical lint issues; corrected, affected proof and final formatter
+passed. Earlier test color warning and overlapping trace-output collision resolved by sequential
+runs. No verification remains running. No readiness renewal. Slices 3–5 remain planned.
 
-**Codex 0.160.0 — accepted.** Session `01a0fc63-1513-7fc3-9b21-95e35ffef548`, launch
-`a517e410-1b6e-4fe7-a267-5c69b3e82ca3`. Initial run failed: empty-rollout observation prematurely
-closed receiver; native command/retry saw ECONNREFUSED. Same-session restored-port recovery returned
-receipt `be6cfd86-5471-4af5-bc01-d35e3ec7a153`; retirement continuation returned
-`bcc83df5-e29a-46a3-878e-b86aaacbf2cc`, observed workspace absent, normal native completion;
-both supervisors exit 0. Coordinator inspected native commands/results and matching receipts;
-no stop/rename/interrupt. Explicit ids handle `/var` versus native `/private/var`; shell Node 24.5.0.
-
-**Cursor 2026.10.01-e373342 — accepted.** Original session `1060353f-f482-4273-83bb-338b37724b8e`,
-launch `99932ef9-57cc-42e6-87a1-9b22d2475d5a`, receipt `c0e0c898-07f1-496d-80b8-8da8300b28d9`.
-Builder byte-matched retained input; unchanged continuation args/closed stdin, no second chat,
-exit 0/no stop/rename. Coordinator matched durable/agent acknowledgment to native Read
-`toolu_01M9PYnpEnuFn3dtUmojTiRQ` and Shell `toolu_01QtxdQzHrZRjxcZPfUixV3e` result in readonly
-`/Users/terryyin/.cursor/chats/2666d147112f05500df1cf1ac38ba89d/1060353f-f482-4273-83bb-338b37724b8e/store.db`.
-
-**Claude Code 2.1.287 — accepted with explicit fixture permission.** Original session
-`405d00da-d99b-46fb-a109-df6991095d1b` previously refused reporting as “[Code from External]”;
-that native auto-review denial stopped execution until the user approved only the reviewed initial
-command and a fixture-local exact Bash rule. Added absent `claude-project/.claude/settings.local.json`:
-```text
-Bash(node /var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-completion-probe-r_xkysjf/tools/report.mjs /var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-completion-probe-r_xkysjf/tools/claude-context.json initial)
-```
-[Native permission syntax](https://code.claude.com/docs/en/permissions#use-specifiers-for-fine-grained-control)
-confirms exact command matching; no wildcard, retired allowance, broad/global rule or bypass mode.
-Receiver was restored before documented `claude --bg --resume 405d00da-d99b-46fb-a109-df6991095d1b`;
-printed/listed id confirmed original stopped session woke with saved options, no second session.
-Bash `toolu_012ynKVrVh59CRSuX1wvmd8x` ran exactly approved command; nonerror result, empty stderr,
-`interrupted:false`, receipt `3a8f2ba9-1220-4abf-bdc7-a8fcf52e2f71`, launch
-`4d124382-8f28-4af1-afd1-03e636add468`. Receiver persisted `sessionBound:false` before acknowledgment;
-receipt `pending-native-session` alone claimed no session. Subsequent record reconciled same launch,
-receipt and confirmed native id; agent retained matching acknowledgment. Native `stop_reason:end_turn`
-at `2026-10-02T12:36:14.607Z` preceded owned background stop. Supervisor exit 0; coordinator inspected
-`evidence/claude-approved/{native-tools,native-end-turn,durable-before-binding,bound-receipt}.json`.
-Raw trace: `/Users/terryyin/.claude/projects/-private-var-folders-65-16p4k5qj42qg7l46k2j0nhj40000gn-T-open-dough-completion-probe-r-xkysjf-claude-project/405d00da-d99b-46fb-a109-df6991095d1b.jsonl`.
-
-All supervisors/PTYs terminal; owned receivers/watchdogs ended; shared daemon/native histories untouched.
-Coordinator deleted the assessed owned probe fixtures/snapshots under ADR 0005; native histories
-remain. Slice 1 proof/refactor accepted; no readiness renewed. Slices 2–5 remain planned.
-Feasibility acceptance permits next slice 2 after ordinary slice-1 refactoring/delivery; shipped
-integration and actual Land/Wrap Up native behavior remain pending on all hosts in SEED-053.
+Consequential learning: macOS path aliases need the existing direct-entry helper; prepared
+context must update the current owned attempt after publication and survive verification
+reconstruction. Script/dependency copy outside the launch workspace survives retirement.
+Managed Codex delivery currently has no supported retained stream binding: record its
+unobserved receipt truthfully rather than claiming coverage. No observer has been armed.

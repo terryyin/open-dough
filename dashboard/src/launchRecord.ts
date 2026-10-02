@@ -1,5 +1,7 @@
 // Durable native launch evidence and current session observations.
 import { z } from "zod";
+import { completionSchema } from "./completionReport.ts";
+export { completionSchema, type CompletionReport } from "./completionReport.ts";
 import {
   recordedLaunchRequestSchema,
   sessionPolicySchema,
@@ -163,6 +165,7 @@ export function isEstablishedOneShot(
 // A native conversation with first-input evidence, kept until `launchRetentionDays` after
 // the developer marked its session done (`./doneMark.ts`), if they ever do,
 // with when they did: local evidence only, never a story fact.
+
 export const launchRecordSchema = z.object({
   request: recordedLaunchRequestSchema,
   session: hostSessionSchema,
@@ -172,6 +175,7 @@ export const launchRecordSchema = z.object({
   preparation: establishedPreparationSchema.optional(),
   launchedAt: z.iso.datetime(),
   firstInput: firstInputSchema.optional(),
+  completion: completionSchema.optional(),
   doneAt: z.iso.datetime().optional(),
   // Native operations may fail even though local done intent was retained.
   doneProblem: z.string().max(1_200).optional(),

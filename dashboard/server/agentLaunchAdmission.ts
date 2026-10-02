@@ -1,10 +1,12 @@
 // Local launch admission verifies dashboard origin and known projects for
 // launches, continuations, reconciliation, verification and session actions.
-// Done, delete and upgrade also require a recorded session in an existing folder.
+// Delete, terminal attachment and native Done require an existing folder;
+// reported local Done needs only the retained session.
 // Launch options follow installed definitions and policy follows installed startup.
 // Reads cover attempts, sessions, reports and host choices; only terminal admission
 // reads native session availability.
 
+import { completionEndpoint } from "./completionReporting.ts";
 import { admitLaunchSettings } from "./launchSettingsAdmission.ts";
 import { launchHostOptionsEndpoint } from "../src/launchHostOptions.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
@@ -21,7 +23,6 @@ import {
   agentReconciledEndpoint,
   agentVerifyEndpoint,
   attemptRequestSchema,
-  attachOpens,
   launchKindName,
   type AgentLaunchRequest,
   type LaunchRecord,
@@ -30,7 +31,6 @@ import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
-import type { TerminalSession } from "./agentTerminals.ts";
 import { withSelectedOptions } from "./launchOptions.ts";
 import { withSessionPolicy } from "./launchSessionPolicy.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
@@ -43,7 +43,6 @@ import { jsonBody } from "./jsonRequestBody.ts";
 import {
   knownSource,
   namedSession,
-  recordedSession,
   resultRequest,
 } from "./sessionAdmission.ts";
 
@@ -87,7 +86,10 @@ async function doneRequest(
   launches: AgentLaunches,
 ): Promise<Admitted> {
   const { source, record, folder } = await namedSession(req, launches, "done");
-  if (launchHost(record.session.host)?.stop === undefined) {
+  if (
+    record.completion === undefined &&
+    launchHost(record.session.host)?.stop === undefined
+  ) {
     throw new RefusedRequest(400, "This host cannot mark a session done.");
   }
   return { kind: "done", source, record, folder };
@@ -156,6 +158,7 @@ const postRequests = new Map<
 
 // Every path whose requests this boundary admits or refuses.
 export const launchBoundaryPaths: ReadonlySet<string> = new Set([
+  completionEndpoint,
   launchHostOptionsEndpoint,
   sessionResultEndpoint,
   agentLaunchEndpoint,
@@ -213,43 +216,4 @@ export async function admitted(
   return { kind: "sessions" };
 }
 
-// An upgrade attaches only a kept session through its host’s supported
-// operation, in an existing folder, unless the host confirms it unavailable.
-export async function admittedAttach(
-  req: IncomingMessage,
-  url: URL,
-  launches: AgentLaunches,
-): Promise<TerminalSession> {
-  verifyLocalOrigin(req);
-  const source = knownSource(url.searchParams.get("source"));
-  const host = sessionHostSchema.safeParse(
-    url.searchParams.get("host") ?? "claude",
-  );
-  if (!host.success)
-    throw new RefusedRequest(400, "The session host is malformed.");
-  const { record, folder } = await recordedSession(launches, source, {
-    sessionId: url.searchParams.get("session") ?? "",
-    host: host.data,
-  });
-  const hostBoundary = launchHost(record.session.host);
-  if (hostBoundary?.attach === undefined) {
-    throw new RefusedRequest(
-      400,
-      "This host cannot open an embedded terminal.",
-    );
-  }
-  const joined = await launches.stateOf(source, record);
-  if (!attachOpens(joined.sessionState)) {
-    throw new RefusedRequest(
-      410,
-      hostBoundary.description.unavailableSessionExplanation ??
-        `The session is no longer available in ${hostBoundary.description.name}.`,
-    );
-  }
-  return {
-    sourceId: source.id,
-    session: record.session,
-    markedDone: record.doneAt !== undefined,
-    folder,
-  };
-}
+export { admittedAttach } from "./terminalAdmission.ts";

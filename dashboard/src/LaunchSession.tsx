@@ -14,7 +14,7 @@ export function LaunchSession({
 }: {
   readonly record: LaunchWithState;
 }) {
-  const { openSession, hostOperations } = usePageSessions();
+  const { openSession, openResult, hostOperations } = usePageSessions();
   const access = sessionAccess(record, hostOperations);
   const limitation = workspaceLimitation(record);
   const described = useFrameDescription();
@@ -57,6 +57,19 @@ export function LaunchSession({
           </>
         )}
       {limitation !== undefined && <p className="quiet">{limitation}</p>}
+      {record.completion !== undefined && access !== "result" && (
+        <p className="launch-open">
+          <button
+            type="button"
+            aria-describedby={described}
+            onClick={(event) => {
+              openResult({ record, control: event.currentTarget });
+            }}
+          >
+            Read attention message
+          </button>
+        </p>
+      )}
       {access !== undefined && (
         <p className="launch-open">
           <button

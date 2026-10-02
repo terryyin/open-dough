@@ -1,5 +1,6 @@
 // Native operation availability is supplied by the local boundary, never inferred
 // from a host name. The browser receives facts only, not native implementations.
+import type { LaunchRecord } from "./launchRecord.ts";
 import { z } from "zod";
 import {
   sessionHostSchema,
@@ -31,6 +32,16 @@ export function marksDone(
   host: SessionReference["host"],
 ): boolean {
   return operations[host]?.stop === true;
+}
+// A retained explicit report can be acknowledged locally without native stop.
+export function marksRecordDone(
+  operations: HostOperations,
+  record: LaunchRecord,
+): boolean {
+  return (
+    record.completion !== undefined ||
+    marksDone(operations, record.session.host)
+  );
 }
 export function shellCommand(args: readonly string[]): string {
   return args.map((part) => `'${part.replaceAll("'", "'\\''")}'`).join(" ");

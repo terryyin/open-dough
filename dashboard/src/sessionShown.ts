@@ -1,3 +1,4 @@
+import { completionLabel } from "./completionReport.ts";
 // How a recorded launch's session reads on the page (`./agentLaunch.ts`):
 // the one reading of normalized native activity, shared by every session
 // entry (`./SessionEntry.tsx`) wherever it is listed, and by the card that
@@ -9,9 +10,9 @@ import { hostDescription } from "./hostDescription.ts";
 // What a session entry says of its session, and whether the developer is
 // needed there: the same semantic observation for every entry and card.
 // Native waiting, review, failure and interruption need attention; working
-// and awaiting a first instruction do not. Availability does not infer activity. One marked done never does: it is Working while the host says so,
-// and Done otherwise. An unavailable or unknown session, or a state this reading
-// does not know, never needs attention.
+// and awaiting a first instruction do not. Explicit reports need attention until
+// local Done, with native Working shown separately. Unreported Done retains native
+// Working precedence. Availability and unknown observations never infer activity.
 export type SessionShown = {
   readonly label: string;
   readonly note?: string;
@@ -42,9 +43,24 @@ export function sessionShown({
   sessionState,
   doneAt,
   session,
+  completion,
 }: Pick<LaunchWithState, "sessionState" | "doneAt"> &
-  Partial<Pick<LaunchWithState, "session">>): SessionShown {
+  Partial<Pick<LaunchWithState, "session" | "completion">>): SessionShown {
   const markedDone = doneAt !== undefined;
+  if (completion !== undefined) {
+    const nativeWorking =
+      sessionState.kind === "available" && sessionState.activity === "working"
+        ? { note: "Native session is still working" }
+        : {};
+    return markedDone
+      ? { label: "Done", needsAttention: false, tone: "done", ...nativeWorking }
+      : {
+          label: completionLabel(completion),
+          needsAttention: true,
+          tone: "ready",
+          ...nativeWorking,
+        };
+  }
   switch (sessionState.kind) {
     case "unknown": {
       const wording =
@@ -110,7 +126,7 @@ export function sessionShown({
 // unknown observation: unreadable evidence says nothing about the session.
 export function alertReading(
   session: Pick<LaunchWithState, "sessionState" | "doneAt"> &
-    Partial<Pick<LaunchWithState, "session">>,
+    Partial<Pick<LaunchWithState, "session" | "completion">>,
 ): string | undefined {
   if (session.doneAt !== undefined) return undefined;
   if (session.sessionState.kind === "unknown") return undefined;

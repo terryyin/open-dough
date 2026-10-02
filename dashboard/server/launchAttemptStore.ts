@@ -66,7 +66,7 @@ let writing: Promise<unknown> = Promise.resolve();
 
 // Applies `change` after every earlier write of this server, dropping settled
 // attempts past retention first.
-function replaceAttempts(
+export function replaceAttempts(
   change: (kept: StoredAttempts) => StoredAttempts,
 ): Promise<void> {
   const write = writing.then(() =>
@@ -107,7 +107,15 @@ export function keepAttempt(attempt: LaunchAttemptRecord): Promise<void> {
     return {
       ...kept,
       [sourceId]: attempts.some((entry) => entry.id === attempt.id)
-        ? attempts.map((entry) => (entry.id === attempt.id ? attempt : entry))
+        ? attempts.map((entry) =>
+            entry.id === attempt.id
+              ? {
+                  ...attempt,
+                  reporting: entry.reporting ?? attempt.reporting,
+                  completion: entry.completion ?? attempt.completion,
+                }
+              : entry,
+          )
         : [...attempts, attempt],
     };
   });

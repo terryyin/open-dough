@@ -12,6 +12,7 @@ import { markDoneRequestSchema } from "../src/doneMark.ts";
 import type { AgentLaunches, Recorded } from "./agentLaunches.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import { launchHost } from "./launchHosts.ts";
+import { projectFolder } from "./projectFolders.ts";
 import { keptSession } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
@@ -59,10 +60,13 @@ export async function namedSession(
     throw new RefusedRequest(400, `The ${kind} request is malformed.`);
   }
   const source = knownSource(parsed.data.source);
-  const recorded = await recordedSession(launches, source, {
-    sessionId: parsed.data.session,
-    host: parsed.data.host,
-  });
+  const session = { sessionId: parsed.data.session, host: parsed.data.host };
+  const retained =
+    kind === "done" ? await keptSession(source.id, session) : undefined;
+  if (retained?.completion !== undefined) {
+    return { source, record: retained, folder: projectFolder(source) };
+  }
+  const recorded = await recordedSession(launches, source, session);
   return { source, ...recorded };
 }
 
@@ -87,7 +91,10 @@ export async function resultRequest(
       404,
       "This dashboard launched no such session for this project.",
     );
-  if (launchHost(record.session.host)?.readResult === undefined)
+  if (
+    record.completion === undefined &&
+    launchHost(record.session.host)?.readResult === undefined
+  )
     throw new RefusedRequest(400, "This host cannot read a final report.");
   return { kind: "result", record };
 }
