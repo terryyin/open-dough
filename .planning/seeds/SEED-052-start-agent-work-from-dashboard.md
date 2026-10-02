@@ -140,31 +140,6 @@ or claims of readiness.
 - **Capture:** Terry requested this as the highest-priority queued story on
   2026-10-02, replacing the tolerance that leaves gray actions clickable.
 
-<a id="split-session-entry-and-terminal-split"></a>
-
-### Split the session entry and terminal split files along their operations
-
-**Identity:** SEED-052#split-session-entry-and-terminal-split
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
-```
-
-- **For / why:** A maintainer changing session entries or the terminal panel
-  works in files small enough to read whole, one concern each.
-- **Evaluation:** `dashboard/src/SessionEntry.tsx` (141 lines) and
-  `dashboard/src/TerminalSplit.tsx` (250 lines) each hold one clear
-  concern after the change, with every dashboard spec passing unchanged and no
-  behavior differing.
-- **Current basis:** Session actions now live in `sessionRecordActions.tsx`,
-  and navigation in `sessionNavigation.ts`. Reassess remaining responsibilities
-  before selecting further extraction; do not repeat these delivered splits.
-- **Boundary:** Structure only, along the seams the delete work exposed
-  (Mark as done, Delete record, the shared status line, and the panel's session
-  operations). No new behavior, wording or styling.
-- **Depends on:** None.
-- **Capture:** Terry asked on 2026-09-30 to queue the follow-up recorded by the
-  delete's execution retrospective.
-
 <a id="cursor-reconnect-leaves-the-task-running"></a>
 
 ### Reconnect to a Cursor session without interrupting its running task
