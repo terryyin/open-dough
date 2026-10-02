@@ -20,6 +20,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Recheck verifies only what its host can list, and trusts a launch's own record](seeds/SEED-072-responsive-session-start-reconciliation.md#recheck-verification-fidelity) — SEED-072#recheck-verification-fidelity
 - [Show changes since readiness review without blocking execution](seeds/SEED-080-readiness-change-indicator.md#readiness-change-indicator) — SEED-080#readiness-change-indicator
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
