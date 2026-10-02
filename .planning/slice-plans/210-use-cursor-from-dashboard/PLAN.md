@@ -18,7 +18,7 @@ The existing Preparing assignment remains published; retain this draft for revie
 - Integration checkout: `/Users/terryyin/git/open-dough`
 - Remote: `origin`. Trunk target: `main`. Increment target: the remote execution branch.
 - Published claim: `0ae15498c2de5d3a169dcec8c609c27cd60f3f09` on `origin/main`.
-- Starting revision: `f7d1140011044be2536b0c7aa09f4be7b35b82fc`. Previously published base for the next increment: `8feab5ef02ca73f7b9a8091acdc316213c057344` on `origin/cursor/use-cursor-for-the-established-dashboard-workflows`.
+- Starting revision: `f7d1140011044be2536b0c7aa09f4be7b35b82fc`. Previously published base for the next increment: `91a790501344eebc67a0c30151aa85bd066f906f` on `origin/cursor/use-cursor-for-the-established-dashboard-workflows`.
 - Agent: `stanly-chan`. Publisher: `cursor-mac-lan-use-cursor-from-dashboard`.
 - CI source: GitHub Actions. Workflow selector `ci.yml`, display name `CI`, verified on `main` (`workflowName: CI`). Observer `/tmp/dough-ci-501/watch-aPxS2Q` watches the execution branch. The trunk claim is `pendingCi: unobserved`.
 
@@ -174,8 +174,10 @@ resume command works against the fixture.
 
 ### 4. Show a Cursor session without borrowed activity or controls
 Type: Behavior
-Status: planned
+Status: done
 Proof: Story examples 5 and 6.
+
+Accepted proof: `dashboard/tests/agent-session-cursor.spec.ts` shows the Cursor line `Activity unknown: Cursor has no passive status for this session`, projected operations `{ attach: true, stop: false }`, no Mark as done, and Delete record still present. `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-terminal-cursor.spec.ts dashboard/tests/agent-terminal-codex.spec.ts --workers=2` and `dashboard/tests/agent-launch-codex-observation.spec.ts` also passed, and `npm run typecheck:dashboard` passed.
 
 Behavior: A launched Cursor session is visible. The sessions view does not
 show working, waiting, or review from a Cursor poll. Unknown wording comes

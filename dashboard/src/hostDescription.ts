@@ -61,6 +61,11 @@ export const hostDescriptions = {
     // This invocation spells a skill as `/dough-execute-plan`.
     skillSigil: "/",
     models: {},
+    // No passive status command was observed, so a visible session stays unread.
+    unknownObservation: {
+      label: "Activity unknown",
+      note: "Cursor has no passive status for this session",
+    },
   },
 } as const satisfies Record<HostIdentity, HostDescription>;
 
