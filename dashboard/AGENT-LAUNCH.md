@@ -81,7 +81,20 @@ publication may or may not exist says “Startup needs reconciliation” statica
 on the card, which stays protected, and in the Startup recovery region beside the
 project's actions, which also says when this machine's attempts could not be
 read. Recheck
-reads this machine's evidence and the published state again. Continue posts to
+reads this machine's evidence and the published state again. For a story
+attempt whose Claude Code launch is uncertain after its start settled
+(publication known), Recheck first posts to `POST /__agent-launch/verify`,
+which reads `claude agents` once (`server/launchVerification.ts`). Exactly one
+listed session with the launch's name (`<project> · <kind> · <title>`),
+started in its start folder (the project folder or the kept start's
+workspace) at or after the attempt was accepted, and held by no other launch
+record, is recorded as the attempt's launched session, with a launch record as
+confirmation keeps one; a readable listing with no such session settles it as
+not launched (`not-listed`). Either outcome is kept with the attempt, so it is
+no longer unresolved. An unreadable listing or more than one such session
+leaves it unresolved and the answer says why; Continue stays available. Recheck
+never launches a session. Codex and ad hoc starts are rechecked as before.
+Continue posts to
 `POST /__agent-launch/continue`, which runs the same kept request under the same
 attempt and the existing [start recovery](LAUNCH-START.md#mechanical-start-and-recovery)
 and native rules, or answers why not; it never creates a replacement attempt.

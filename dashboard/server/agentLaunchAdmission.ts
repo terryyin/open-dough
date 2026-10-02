@@ -1,16 +1,17 @@
 // Which requests the local launch boundary (`./agentLaunchPlugin.ts`) admits,
 // and the refusal each other one gets: a launch answered once it is
 // accepted, a wait for an accepted attempt to change, a read of the
-// machine's sessions, a read of a kept session's final report, a done mark on a session it recorded
-// (`./doneMarks.ts`), a delete of a record it kept, and a terminal upgrade
+// machine's sessions, a read of a kept session's final report, a done mark on
+// a session it recorded (`./doneMarks.ts`), a delete of a record it kept, and a terminal upgrade
 // (`./agentTerminals.ts`). Every request must come from this dashboard's own
-// origin; a launch, a continuation, a reconciliation note, a done mark, a
-// delete, or an upgrade must name a catalog project, and a done mark, a delete,
-// or an upgrade a session this dashboard recorded for that project, in its
-// existing folder. A launch's selected options are checked against the
+// origin; a launch, a continuation, a reconciliation note, a launch
+// verification, a done mark, a delete, or an upgrade must name a catalog
+// project, and a done mark, a delete, or an upgrade a session this dashboard
+// recorded for that project, in its existing folder. A launch's selected options are checked against the
 // project's installed definition and kept in its order (`./launchOptions.ts`),
 // and its session policy against the installation's start
-// (`./launchSessionPolicy.ts`). Only terminal admission reads native session availability.
+// (`./launchSessionPolicy.ts`). Only terminal admission reads native session
+// availability.
 
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { sessionResultEndpoint } from "../src/sessionResult.ts";
@@ -21,19 +22,18 @@ import {
   agentAcceptEndpoint,
   agentChangedEndpoint,
   agentContinueEndpoint,
+  agentLaunchEndpoint,
   agentLaunchRequestSchema,
   agentReconciledEndpoint,
+  agentVerifyEndpoint,
   attemptRequestSchema,
   attachOpens,
   launchKindName,
   type AgentLaunchRequest,
   type LaunchRecord,
 } from "../src/agentLaunch.ts";
-import {
-  agentDeleteEndpoint,
-  deleteRecordRequestSchema,
-} from "../src/deleteRecord.ts";
-import { agentDoneEndpoint, markDoneRequestSchema } from "../src/doneMark.ts";
+import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
+import { agentDoneEndpoint } from "../src/doneMark.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
@@ -44,6 +44,7 @@ import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import {
   knownSource,
+  namedSession,
   recordedSession,
   resultRequest,
 } from "./sessionAdmission.ts";
@@ -59,10 +60,10 @@ export type Admitted =
       readonly request: AgentLaunchRequest;
     }
   | {
-      // A continuation, answered once the kept attempt is accepted again, or
-      // a note that a settled attempt a page found reconciled with published
-      // state.
-      readonly kind: "continue" | "reconciled";
+      // A continuation, answered once the kept attempt is accepted again, a
+      // note that a settled attempt a page found reconciled with published
+      // state, or a verification of an uncertain launch.
+      readonly kind: "continue" | "reconciled" | "verify";
       readonly source: PublishedSource;
       readonly attempt: string;
     }
@@ -82,15 +83,7 @@ async function doneRequest(
   req: IncomingMessage,
   launches: AgentLaunches,
 ): Promise<Admitted> {
-  const parsed = markDoneRequestSchema.safeParse(await jsonBody(req));
-  if (!parsed.success) {
-    throw new RefusedRequest(400, "The done request is malformed.");
-  }
-  const source = knownSource(parsed.data.source);
-  const { record, folder } = await recordedSession(launches, source, {
-    sessionId: parsed.data.session,
-    host: parsed.data.host,
-  });
+  const { source, record, folder } = await namedSession(req, launches, "done");
   if (launchHost(record.session.host)?.stop === undefined) {
     throw new RefusedRequest(400, "This host cannot mark a session done.");
   }
@@ -101,22 +94,14 @@ async function deleteRequest(
   req: IncomingMessage,
   launches: AgentLaunches,
 ): Promise<Admitted> {
-  const parsed = deleteRecordRequestSchema.safeParse(await jsonBody(req));
-  if (!parsed.success) {
-    throw new RefusedRequest(400, "The delete request is malformed.");
-  }
-  const source = knownSource(parsed.data.source);
-  const { record } = await recordedSession(launches, source, {
-    sessionId: parsed.data.session,
-    host: parsed.data.host,
-  });
+  const { source, record } = await namedSession(req, launches, "delete");
   return { kind: "delete", source, record };
 }
 
 // A request about one of the project's kept attempts.
 async function attemptRequest(
   req: IncomingMessage,
-  kind: "continue" | "reconciled",
+  kind: "continue" | "reconciled" | "verify",
 ): Promise<Admitted> {
   const parsed = attemptRequestSchema.safeParse(await jsonBody(req));
   if (!parsed.success) {
@@ -162,6 +147,27 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   };
 }
 
+// The requests only a POST may make, by path.
+const postRequests = new Map<
+  string,
+  (req: IncomingMessage, launches: AgentLaunches) => Promise<Admitted>
+>([
+  [agentDoneEndpoint, doneRequest],
+  [agentDeleteEndpoint, deleteRequest],
+  [agentAcceptEndpoint, launchRequest],
+  [agentContinueEndpoint, (req) => attemptRequest(req, "continue")],
+  [agentReconciledEndpoint, (req) => attemptRequest(req, "reconciled")],
+  [agentVerifyEndpoint, (req) => attemptRequest(req, "verify")],
+]);
+
+// Every path whose requests this boundary admits or refuses.
+export const launchBoundaryPaths: ReadonlySet<string> = new Set([
+  sessionResultEndpoint,
+  agentLaunchEndpoint,
+  agentChangedEndpoint,
+  ...postRequests.keys(),
+]);
+
 export async function admitted(
   req: IncomingMessage,
   url: URL,
@@ -173,18 +179,12 @@ export async function admitted(
       throw new RefusedRequest(405, "Only GET is accepted here.");
     return resultRequest(url);
   }
-  const postOnly = new Map([
-    [agentDoneEndpoint, () => doneRequest(req, launches)],
-    [agentDeleteEndpoint, () => deleteRequest(req, launches)],
-    [agentAcceptEndpoint, () => launchRequest(req)],
-    [agentContinueEndpoint, () => attemptRequest(req, "continue")],
-    [agentReconciledEndpoint, () => attemptRequest(req, "reconciled")],
-  ]).get(url.pathname);
+  const postOnly = postRequests.get(url.pathname);
   if (postOnly !== undefined) {
     if (req.method !== "POST") {
       throw new RefusedRequest(405, "Only POST is accepted here.");
     }
-    return postOnly();
+    return postOnly(req, launches);
   }
   if (req.method !== "GET") {
     throw new RefusedRequest(405, "Only GET is accepted here.");

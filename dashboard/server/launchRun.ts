@@ -14,7 +14,7 @@ import { publicationOf, started, type Started } from "./launchStart.ts";
 import { launchHost } from "./launchHosts.ts";
 import { launchRecording } from "./launchRecording.ts";
 import { keepRecord, pendingInputOf } from "./launchRecordStore.ts";
-import { removeStart } from "./startStore.ts";
+import { removeLaunchedStart } from "./startStore.ts";
 import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
 import type { OwnedAttempt } from "./ownedAttempts.ts";
 import { establishedFacts } from "./startLaunch.ts";
@@ -126,10 +126,7 @@ async function launchRun(
     launchedAt: new Date().toISOString(),
   };
   if (evidence.retained === undefined) await keepRecord(source.id, record);
-  const facts = record.start ?? record.preparation;
-  if (facts !== undefined && recording.workflow !== "ad-hoc") {
-    await removeStart(source.id, facts.identity, recording.workflow);
-  }
+  await removeLaunchedStart(source.id, record);
   return {
     kind: "launched",
     record: { ...record, sessionState: launched.sessionState },

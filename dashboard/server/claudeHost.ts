@@ -1,5 +1,6 @@
 // The public Claude Code boundary. Native commands, instruction grammar,
-// listing parsing and rename interaction remain private to this host.
+// listing parsing, launch verification and rename interaction remain private
+// to this host.
 import path from "node:path";
 import type { HostSession } from "../src/agentLaunch.ts";
 import type { LaunchHost } from "./launchHosts.ts";
@@ -10,6 +11,7 @@ import {
   stopClaude,
 } from "./hosts/claude/runtime.ts";
 import { renameInClaudeCode } from "./hosts/claude/rename.ts";
+import { claudeLaunchedSessions } from "./hosts/claude/verification.ts";
 import { hostDescriptions } from "../src/hostDescription.ts";
 
 function nativeAlias(session: HostSession): string {
@@ -25,6 +27,7 @@ export const claudeHost: LaunchHost = {
   installedSkillPath: (project, skill, ...segments) =>
     path.join(project.path, ".claude", "skills", skill, ...segments),
   launch: launchClaude,
+  launchedSessions: claudeLaunchedSessions,
   sessions: observeClaudeSessions,
   attach: (session, folder, size) => ({
     pty: attachClaude(nativeAlias(session), folder, size),

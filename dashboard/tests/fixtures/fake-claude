@@ -26,8 +26,10 @@
 // name unchanged. `claude stop <id>` lists that session stopped, with no `status`.
 //
 // Scenarios: `launched` (default), `refused`, `untrusted`, `hang`, `held`
-// (launches once a `release` file exists), and `unlisted` (reports a session
-// that `agents --json` does not list).
+// (launches once a `release` file exists), `unlisted` (reports a session
+// that `agents --json` does not list), and `launched-hang` (lists its session,
+// then hangs as `hang` does without reporting it). A listed session says where
+// it started (`cwd`) and when (`startedAt`, epoch milliseconds).
 
 const crypto = require("crypto");
 const fs = require("fs");
@@ -182,6 +184,28 @@ if (scenario === "held") {
 const nameAt = args.indexOf("--name");
 const name = nameAt === -1 ? "" : args[nameAt + 1];
 
+// Lists the session this launch started, busy and working; answers its
+// short id.
+function listLaunched() {
+  const sessionId = crypto.randomUUID();
+  const id = sessionId.slice(0, 8);
+  list([
+    ...listed(),
+    {
+      pid: process.pid,
+      id,
+      cwd,
+      kind: "bg",
+      startedAt: Date.now(),
+      sessionId,
+      name,
+      status: "busy",
+      state: "working",
+    },
+  ]);
+  return id;
+}
+
 switch (scenario) {
   case "refused":
     process.stderr.write(
@@ -195,7 +219,9 @@ switch (scenario) {
     );
     process.exitCode = 1;
     return;
+  case "launched-hang":
   case "hang":
+    if (scenario === "launched-hang") listLaunched();
     fs.writeFileSync(path.join(dir, "pid"), String(process.pid));
     for (const signal of ["SIGTERM", "SIGINT"]) {
       process.on(signal, () => {
@@ -206,24 +232,10 @@ switch (scenario) {
     setInterval(() => {}, 1000);
     return;
   default: {
-    const sessionId = crypto.randomUUID();
-    const id = sessionId.slice(0, 8);
-    if (scenario !== "unlisted") {
-      list([
-        ...listed(),
-        {
-          pid: process.pid,
-          id,
-          cwd,
-          kind: "bg",
-          startedAt: Date.now(),
-          sessionId,
-          name,
-          status: "busy",
-          state: "working",
-        },
-      ]);
-    }
+    const id =
+      scenario === "unlisted"
+        ? crypto.randomUUID().slice(0, 8)
+        : listLaunched();
     process.stdout.write(
       `backgrounded · \u001b[36m${id}\u001b[39m · ${name} · trusted\n` +
         `  claude attach ${id}   open the session\n` +

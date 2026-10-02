@@ -63,6 +63,13 @@ export const startStillRunning: Unaccepted = {
     "This story's earlier start is still running on this machine, so it was not continued. Recheck once it ends; nothing new was started.",
 };
 
+export const recheckRunning: Unaccepted = {
+  kind: "uncertain",
+  reason: "unconfirmed",
+  explanation:
+    "This start is being rechecked on this machine, so it was not continued. Wait for that recheck's result; nothing new was started.",
+};
+
 const settledAttempt: Unaccepted = {
   kind: "failed",
   reason: "refused",

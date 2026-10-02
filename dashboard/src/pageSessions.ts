@@ -12,7 +12,7 @@ import { createContext, useContext, useState } from "react";
 import type { LaunchRecord, LaunchWithState } from "./agentLaunch.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import type { SessionAccess } from "./sessionAccess.ts";
-import type { DeleteRecordOutcome } from "./agentLaunchClient.ts";
+import type { DeleteRecordOutcome } from "./sessionRecordRequests.ts";
 import { workCard } from "./workFocus.ts";
 
 // A request about one session the page shows: its launch record, joined with

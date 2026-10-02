@@ -19,24 +19,19 @@ import { launchHost } from "./launchHosts.ts";
 import { launchHosts } from "../src/sessionCapabilities.ts";
 import { withStates } from "./launchStates.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
-import { recordedRequest } from "./hostLaunch.ts";
 import { LaunchAttemptOwner } from "./launchAttemptOwner.ts";
+import { startStillRunning } from "./launchAttemptConflicts.ts";
 import {
-  startStillRunning,
-  type Unaccepted,
-} from "./launchAttemptConflicts.ts";
-import {
-  creationOf,
   keptCreations,
   keptSession,
   keptRecordsByProject,
-  pendingInputOf,
 } from "./launchRecordStore.ts";
-import { creationProblem, creationView } from "./launchCreation.ts";
+import { creationView } from "./launchCreation.ts";
+import { preAcceptanceAnswer } from "./launchPreAcceptance.ts";
 import { SavedSessionServices } from "./savedSessionServices.ts";
 import { StartProgress } from "./startProgress.ts";
 import { attemptRun } from "./launchRun.ts";
-import { unconfirmedStart } from "./launchStart.ts";
+import { verifyLaunch } from "./launchVerification.ts";
 import {
   establishing,
   establishingHosts,
@@ -60,6 +55,9 @@ export type Recorded =
     }
   | { readonly kind: "unrecorded" }
   | { readonly kind: "folder-not-found"; readonly folder: ProjectFolder };
+
+// How long a launch verification waits for its host's session listing.
+const verifyWaitMs = 10_000;
 
 export class AgentLaunches {
   private readonly owner = new LaunchAttemptOwner();
@@ -175,7 +173,7 @@ export class AgentLaunches {
     // evidence or kept start could be mistaken for this request's.
     const answer =
       this.owner.submitted(request) ??
-      (await this.beforeAcceptance(source, request));
+      (await preAcceptanceAnswer(source, request));
     if (answer !== undefined) return answer;
     return this.owner.accept(request, (own, notePublication) =>
       attemptRun(source, own, notePublication, this.progress),
@@ -196,7 +194,7 @@ export class AgentLaunches {
         request.workflow !== "ad-hoc" &&
         this.progress.for(request.workflow).running(source.id, request.identity)
           ? startStillRunning
-          : this.beforeAcceptance(source, request),
+          : preAcceptanceAnswer(source, request),
       (own, notePublication) =>
         attemptRun(source, own, notePublication, this.progress),
     );
@@ -206,37 +204,13 @@ export class AgentLaunches {
     return this.owner.reconcile(source.id, id);
   }
 
-  // What is answered before acceptance, with nothing started: a missing
-  // folder, a host's creation awaiting reconciliation, or the start's own
-  // pre-launch answer.
-  private async beforeAcceptance(
-    source: PublishedSource,
-    request: AgentLaunchRequest,
-  ): Promise<Unaccepted | undefined> {
-    const folder = projectFolder(source);
-    if (!(await folderExists(folder))) {
-      return {
-        kind: "failed",
-        reason: "folder-not-found",
-        explanation: `The project folder ${folder.shown} was not found on this machine. Nothing was launched.`,
-      };
-    }
-    const boundary = launchHost(request.host);
-    const creation = creationProblem(
-      boundary,
-      boundary?.creationEvidence === undefined
-        ? undefined
-        : await creationOf(recordedRequest(request, new Date())),
+  // Settles the project's story attempt `id` whose launch is uncertain from
+  // its host's own session listing, read once and bounded, or answers why it
+  // stays unresolved.
+  verify(source: PublishedSource, id: string) {
+    return this.owner.verify(source.id, id, (attempt) =>
+      verifyLaunch(source, attempt, AbortSignal.timeout(verifyWaitMs)),
     );
-    if (creation !== undefined)
-      return {
-        kind: "uncertain",
-        reason: "unconfirmed",
-        explanation: creation,
-      };
-    return (await pendingInputOf(source.id, request)) === undefined
-      ? unconfirmedStart(source, request, folder)
-      : undefined;
   }
 
   // Detaches native clients and ends launch waits when the server closes.

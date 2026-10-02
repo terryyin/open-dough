@@ -40,9 +40,8 @@ export async function reconcileAttempt(
 ): Promise<ReconciledAnswer> {
   const kept = await keptAttempts();
   if (kept === undefined) return unreadable;
-  const own = owned.get(id);
-  const found = own?.attempt ?? kept.find((attempt) => attempt.id === id);
-  if (found === undefined || found.request.source !== sourceId) return unknown;
+  const found = owned.held(kept, sourceId, id);
+  if (found === undefined) return unknown;
   const observed = owned.observed(found);
   if (observed.outcome === undefined || needsReconciliation(observed))
     return unresolved;
@@ -54,6 +53,6 @@ export async function reconcileAttempt(
   } catch {
     return unrecorded;
   }
-  if (own !== undefined) own.attempt = reconciled;
+  owned.holdAsKept(reconciled);
   return { kind: "reconciled", attempt: owned.observed(reconciled) };
 }

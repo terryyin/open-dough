@@ -4,8 +4,9 @@
 // published snapshot stays reachable. Each says statically what this
 // machine knows of it -- when it was accepted, its publication receipt, its
 // outcome -- and offers Recheck, which reads this machine's evidence and
-// published state afresh, and, for an accepted attempt that needs
-// reconciliation, Continue, which asks the local service to run that same
+// published state afresh, first settling a story launch that may or may not
+// have started from its host's own session listing when it can, and, for an
+// accepted attempt that needs reconciliation, Continue, which asks the local service to run that same
 // attempt again under the existing recovery rules. A continuation that was
 // not accepted says why, with the attempt kept as it was. When this
 // machine's kept attempts cannot be read, the section says an earlier
@@ -99,7 +100,7 @@ function RecoveryEntry({
 }: {
   readonly item: StartupRecoveryItem;
   readonly onContinue: (attempt: AttemptObservation) => void;
-  readonly onRecheck: () => void;
+  readonly onRecheck: (attempt?: AttemptObservation) => void;
 }) {
   const id = useId();
   const { request, cause, attempt, problem, answer, continuing } = item;
@@ -144,7 +145,9 @@ function RecoveryEntry({
         <button
           type="button"
           aria-label={`Recheck ${subject}`}
-          onClick={onRecheck}
+          onClick={() => {
+            onRecheck(attempt);
+          }}
         >
           Recheck
         </button>
@@ -192,7 +195,12 @@ export function StartupRecovery({
             reconciliation. Story starts stay unavailable until it answers.
           </p>
           <p className="startup-recovery-actions">
-            <button type="button" onClick={recoveries.recheckStartups}>
+            <button
+              type="button"
+              onClick={() => {
+                recoveries.recheckStartups();
+              }}
+            >
               Recheck launch evidence
             </button>
           </p>

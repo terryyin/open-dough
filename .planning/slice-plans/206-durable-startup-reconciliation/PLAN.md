@@ -329,7 +329,7 @@ card-only `pageAttempt.ts` refusal.
 
 ### 4. Recheck settles an uncertain Claude Code launch from `claude agents`
 Type: Behavior
-Status: planned
+Status: done
 Proof: Page journey with the synthetic `claude` double: a story launch times
 out (uncertain) after `claude --bg` started a session; Recheck in Startup
 recovery records it as launched, lists the session on the card, restores the
@@ -347,6 +347,25 @@ the attempt only from an unambiguous answer, as above; otherwise it keeps the
 attempt unresolved and says why. Continue remains the developer's explicit
 choice while unresolved. Document the rule in `dashboard/AGENT-LAUNCH.md`.
 Safe stop: uncertain Claude launches have a non-duplicating exit.
+
+Accepted proof: `POST /__agent-launch/verify` (`launchAttemptVerification.ts`,
+`launchVerification.ts`, Claude `hosts/claude/verification.ts` over the
+`claude agents` listing with `cwd` and `startedAt`) settles an uncertain,
+known-publication story attempt (`launchVerifiable`) from Recheck: one
+unheld session with the launch's name in its start folder since acceptance →
+launched with a kept launch record; none → `failed`/`not-listed`; unreadable
+listing or records, or several candidates → unresolved with the reason.
+Continue is refused only while a recheck of that attempt runs. Observed
+fail-first, then green, in `agent-launch-claude-verification.spec.ts` (match
+→ card session, actions back, no recovery, one `claude --bg`; four decoys
+each failing one condition → not launched, raw accept refused before and
+accepted after; unreadable and two candidates stay protected with Continue)
+and `responsive-session-recovery-verification.spec.ts` (an established
+workspace is the start folder, not a project-folder decoy). After refactoring,
+full suite `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=4 --reporter=line`
+760 passed; `npm run typecheck:dashboard` passes. Untested: Continue arriving
+during a running recheck (timing-only guard), an unreadable record file, and
+the "already being rechecked" answer.
 
 ## Current decisions
 

@@ -52,7 +52,7 @@ function claudeInstruction(
 }
 
 // `<project> · <kind> · <title>`, as `claude agents` lists it.
-function claudeSessionName(
+export function claudeSessionName(
   source: PublishedSource,
   request: RecordedLaunchRequest,
 ): string {
@@ -167,5 +167,9 @@ export async function launchClaude(
   const confirmed = listed?.find((entry) => entry.session.shortId === shortId);
   return confirmed === undefined
     ? unconfirmed()
-    : { kind: "launched", ...confirmed };
+    : {
+        kind: "launched",
+        session: confirmed.session,
+        sessionState: confirmed.sessionState,
+      };
 }

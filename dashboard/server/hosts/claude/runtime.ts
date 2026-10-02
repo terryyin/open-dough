@@ -112,6 +112,9 @@ export async function stopClaude(
 // what a blocked session waits for. A `waitingFor` that is not text is left
 // out rather than refusing the whole listing, and so is an entry without a
 // short id or state, such as an interactive session running in a terminal.
+// Where a session started (`cwd`) and when (`startedAt`, epoch milliseconds)
+// are kept only when listed so, for verifying an uncertain launch
+// (`./verification.ts`).
 const listingArgs = ["agents", "--json", "--all"] as const;
 
 const listedSession = z.looseObject({
@@ -121,6 +124,8 @@ const listedSession = z.looseObject({
   state: z.string(),
   status: z.string().nullish(),
   waitingFor: z.string().nullish().catch(undefined),
+  cwd: z.string().optional().catch(undefined),
+  startedAt: z.number().optional().catch(undefined),
 });
 
 // Private Claude listing evidence also confirms launch identities and renames.
@@ -128,6 +133,8 @@ const listedSession = z.looseObject({
 type ListedSession = {
   readonly session: ClaudeSession;
   readonly sessionState: Extract<SessionState, { kind: "available" }>;
+  readonly cwd?: string;
+  readonly startedAt?: number;
 };
 
 function activityOf(
@@ -163,6 +170,10 @@ function parsedListing(stdout: string): readonly ListedSession[] | undefined {
     const entry = parsed.data;
     return [
       {
+        ...(entry.cwd === undefined ? {} : { cwd: entry.cwd }),
+        ...(entry.startedAt === undefined
+          ? {}
+          : { startedAt: entry.startedAt }),
         session: {
           host: "claude",
           sessionId: entry.sessionId,

@@ -20,7 +20,7 @@ import {
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   launchWorkspace,
-  shownStartWorkspace,
+  startWorkspaceFolder,
   type WorkspaceChoice,
 } from "./launchWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -78,10 +78,7 @@ function keptChoice(
   kept: StartRecord,
 ): WorkspaceChoice {
   return {
-    workspace: {
-      path: kept.workspace,
-      shown: shownStartWorkspace(project, kept.workspace),
-    },
+    workspace: startWorkspaceFolder(project, kept.workspace),
     branch: kept.branch,
   };
 }
