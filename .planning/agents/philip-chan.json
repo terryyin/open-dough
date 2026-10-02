@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "philip-chan",
-  "email": "philip-chan@example.org",
-  "identity": "SEED-080#readiness-change-indicator",
-  "mode": "story-branch",
-  "branch": "codex/show-changes-since-readiness-review-without-bloc",
-  "host": "codex"
-}
