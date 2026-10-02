@@ -16,16 +16,13 @@ const assessmentSchema = z.union([
   z.object({ status: z.literal("absent") }),
   z.object({
     status: z.literal("ready"),
+    changedSinceReview: z.boolean(),
     reasons: z.array(z.string()),
   }),
   z.object({
     status: z.literal("not-ready"),
+    changedSinceReview: z.boolean(),
     reasons: z.array(z.string()).min(1),
-  }),
-  z.object({
-    status: z.literal("needs-reassessment"),
-    recorded: z.enum(["ready", "not-ready"]),
-    reasons: z.array(z.string()),
   }),
 ]);
 
@@ -63,14 +60,14 @@ export type WorkPreparation =
         | { readonly kind: "planless" };
       readonly assessment:
         | { readonly status: "absent" }
-        | { readonly status: "ready"; readonly reasons: readonly string[] }
         | {
-            readonly status: "not-ready";
+            readonly status: "ready";
+            readonly changedSinceReview: boolean;
             readonly reasons: readonly string[];
           }
         | {
-            readonly status: "needs-reassessment";
-            readonly recorded: "ready" | "not-ready";
+            readonly status: "not-ready";
+            readonly changedSinceReview: boolean;
             readonly reasons: readonly string[];
           }
         | { readonly status: "unavailable"; readonly problem: string }
@@ -124,13 +121,10 @@ export function assessmentSummaryText(assessment: WorkAssessment): string {
     return "Absent";
   }
   if (assessment.status === "ready") {
-    return "Ready for execution";
+    return `Ready for execution${assessment.changedSinceReview ? "; Changed since readiness review" : ""}`;
   }
   if (assessment.status === "not-ready") {
-    return `Not ready (${assessment.reasons.join("; ")})`;
-  }
-  if (assessment.status === "needs-reassessment") {
-    return `Needs reassessment (recorded ${assessment.recorded})`;
+    return `Not ready (${assessment.reasons.join("; ")})${assessment.changedSinceReview ? "; Changed since readiness review" : ""}`;
   }
   return assessment.problem;
 }

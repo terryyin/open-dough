@@ -92,13 +92,14 @@ export function PreparationFacts({
         {assessment.status === "not-ready" && (
           <span className="badge badge-not-ready">Not ready</span>
         )}
-        {assessment.status === "needs-reassessment" && (
-          <span className="badge badge-needs-reassessment">
-            Needs reassessment
-          </span>
-        )}
+        {(assessment.status === "ready" || assessment.status === "not-ready") &&
+          assessment.changedSinceReview && (
+            <span className="badge badge-changed-since-review">
+              Changed since readiness review
+            </span>
+          )}
         {assessment.status === "plan-association-conflict" && (
-          <span className="badge badge-needs-reassessment">
+          <span className="badge badge-plan-association-conflict">
             Plan association conflict
           </span>
         )}
@@ -148,6 +149,16 @@ export function BadgeLegend() {
         <li>
           <span className="badge badge-ready">Ready for execution</span>
           <span> — green; a separate readiness fact when supported.</span>
+        </li>
+        <li>
+          <span className="badge badge-changed-since-review">
+            Changed since readiness review
+          </span>
+          <span>
+            {" "}
+            — the reviewed content differs; the recorded judgment remains
+            visible.
+          </span>
         </li>
         <li>
           <span className="preparing-activity">Preparing</span>

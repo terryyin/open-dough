@@ -19,7 +19,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
-  const original = (await origin.originGit("rev-parse", "main")).trim();
+  const original = await origin.publishChangedReview();
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: original,
@@ -29,6 +29,21 @@ test("Codex card start publishes one claim and retries its retained workspace be
   const { backlog, taken, source } = parts(page);
   const queued = backlog.getByRole("article", { name: "Story A", exact: true });
   const claimed = taken.getByRole("article", { name: "Story A", exact: true });
+  await expect(
+    queued.getByText("Ready for execution", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    queued.getByText("Changed since readiness review", { exact: true }),
+  ).toBeVisible();
+  await expect(queued).not.toContainText("Not marked Ready for execution");
+  await expect(
+    queued.getByRole("button", { name: "Start execution" }),
+  ).not.toHaveClass(/start-launch-noted/);
+  await queued.getByRole("button", { name: "Inspect story" }).click();
+  await expect(
+    queued.getByRole("region", { name: "Detail for Story A" }),
+  ).toContainText("Changed since readiness review");
+  await queued.getByRole("button", { name: "Hide detail" }).click();
   await queued.getByRole("button", { name: "Start execution" }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("codex");
@@ -106,7 +121,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
   native.holdCreation = true;
   native.beforeInput = () => {
     expect(stored(dashboard.home)[0]).toMatchObject({
-      start: { workspace, publishedSha: revision },
+      start: { workspace, publishedSha: revision, changedSinceReview: true },
       firstInput: { state: "uncertain" },
       session: { sessionId: native.threadId, continuation: { workspace } },
     });
@@ -132,6 +147,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
     original,
     revision,
     profile?.["agent"],
+    true,
   );
   expect(native.calls.filter((call) => call.method === "thread/start")).toEqual(
     [

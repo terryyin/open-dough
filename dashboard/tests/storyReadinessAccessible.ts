@@ -136,6 +136,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndRetry(
   });
   await expect(detail).toBeVisible();
   await expect(detail.getByText("Ready for execution").first()).toBeVisible();
+  await expect(detail).toContainText("Changed since readiness review");
   await expect(detail).toContainText("0 of 5 slices recorded complete");
   await expect(
     detail.getByRole("link", { name: /^Canonical record/ }),
@@ -199,6 +200,11 @@ export async function expectBadgeTextContrastAndReducedMotion(
   await expectReadableContrast(slicePlanned);
   await expectReadableContrast(ready);
   await expectReadableContrast(notReady);
+  const changed = readyCard.getByText("Changed since readiness review", {
+    exact: true,
+  });
+  await expect(changed).toBeVisible();
+  await expectReadableContrast(changed);
   await parts(page).preparationHelp.click();
   const legend = page.getByRole("dialog", { name: "Preparation badges" });
   await expectReadableContrast(

@@ -24,6 +24,7 @@ export type StartResult =
       readonly candidateSha?: string;
       readonly agent?: string;
       readonly plan?: string;
+      readonly changedSinceReview?: boolean;
     }
   | {
       readonly kind: "stopped";
@@ -45,6 +46,7 @@ const acceptedSchema = z.looseObject({
   candidateSha: z.string().min(1).optional(),
   agent: z.string().min(1).optional(),
   plan: z.string().min(1).optional(),
+  changedSinceReview: z.boolean().optional(),
 });
 
 const preparedSchema = z.looseObject({
@@ -94,6 +96,9 @@ export function readStartResult(stdout: string): StartResult {
         : { candidateSha: facts.candidateSha }),
       ...(facts.agent === undefined ? {} : { agent: facts.agent }),
       ...(facts.plan === undefined ? {} : { plan: facts.plan }),
+      ...(facts.changedSinceReview === undefined
+        ? {}
+        : { changedSinceReview: facts.changedSinceReview }),
     };
   }
   const prepared = preparedSchema.safeParse(parsed);

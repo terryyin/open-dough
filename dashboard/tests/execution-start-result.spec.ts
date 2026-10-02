@@ -8,6 +8,8 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
+import { establishedStart } from "../server/startRecording.ts";
+import { establishedStartSchema } from "../src/launchRecord.ts";
 import { lostStartArguments } from "../server/startGit.ts";
 import { readStartResult, refusal } from "../server/startResult.ts";
 
@@ -28,6 +30,46 @@ test("reads an accepted start's published facts", () => {
     candidateSha: "abc123",
     agent: "Yui-chan",
   });
+});
+
+test("change indication survives result reading, durable records and retained existing starts", () => {
+  const parsed = readStartResult(
+    JSON.stringify({
+      ok: true,
+      status: "published",
+      publishedSha: "abc",
+      changedSinceReview: true,
+    }),
+  );
+  expect(parsed).toEqual({
+    kind: "accepted",
+    publishedSha: "abc",
+    changedSinceReview: true,
+  });
+  if (parsed.kind !== "accepted") throw new Error("Missing accepted result");
+  const facts = {
+    identity: "SEED-A#a",
+    publisherId: "p",
+    workspace: "/w",
+    branch: "codex/a",
+    mode: "story-branch" as const,
+    remote: "origin",
+    target: "main",
+  };
+  const kept = establishedStartSchema.parse(
+    establishedStart(facts, parsed, undefined),
+  );
+  expect(kept).toHaveProperty("changedSinceReview", true);
+  expect(
+    establishedStart(facts, { kind: "accepted", publishedSha: "abc" }, kept),
+  ).toHaveProperty("changedSinceReview", true);
+  expect(
+    establishedStart(
+      facts,
+      { kind: "accepted", publishedSha: "abc", changedSinceReview: false },
+      kept,
+    ),
+  ).toHaveProperty("changedSinceReview", false);
 });
 
 test("reads a stop's status, error, and recovery", () => {

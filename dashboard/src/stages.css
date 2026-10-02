@@ -120,8 +120,14 @@
   border-color: var(--line);
 }
 
+.badge-changed-since-review {
+  color: var(--text);
+  background: var(--panel);
+  border-color: var(--edge);
+}
+
 .badge-not-ready,
-.badge-needs-reassessment {
+.badge-plan-association-conflict {
   color: var(--problem);
   background: #f8e8e8;
   border-color: var(--problem);

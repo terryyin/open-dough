@@ -18,7 +18,10 @@ import {
   plannedReady,
   unrefined,
 } from "./storyReadinessFixture.ts";
-import { publishRestoreUnrefined } from "./storyReadinessPublications.ts";
+import {
+  publishAssessedContentChange,
+  publishRestoreUnrefined,
+} from "./storyReadinessPublications.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 
@@ -65,7 +68,8 @@ test("story readiness reads preparation and progress accessibly", async ({
   });
 
   await test.step("badge text, contrast, and reduced-motion settle immediately", async () => {
-    const restored = publishRestoreUnrefined(openDough);
+    publishRestoreUnrefined(openDough);
+    const restored = publishAssessedContentChange(openDough);
     openDoughOrigin.advanceTo(restored);
     await parts(page).refresh.click();
     await expectMembership(page, {

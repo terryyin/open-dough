@@ -39,6 +39,25 @@ export async function expectStartProgress(
     exact: true,
   });
   await page.goto("/");
+  if (workflow === "execution") {
+    await expect(
+      backlogCard.getByText("Ready for execution", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      backlogCard.getByText("Changed since readiness review", { exact: true }),
+    ).toBeVisible();
+    await expect(backlogCard).not.toContainText(
+      "Not marked Ready for execution",
+    );
+    await expect(
+      backlogCard.getByRole("button", { name: "Start execution" }),
+    ).not.toHaveClass(/start-launch-noted/);
+    await backlogCard.getByRole("button", { name: "Inspect story" }).click();
+    await expect(
+      backlogCard.getByRole("region", { name: "Detail for Story A" }),
+    ).toContainText("Changed since readiness review");
+    await backlogCard.getByRole("button", { name: "Hide detail" }).click();
+  }
   await backlogCard.getByRole("button", { name: `Start ${workflow}` }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Host", { exact: true }).selectOption(host);

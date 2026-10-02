@@ -20,6 +20,9 @@ export function establishedStart(
     result.startingRevision ?? (claimed ? earlier.startingRevision : undefined);
   const candidateSha =
     result.candidateSha ?? (claimed ? earlier.candidateSha : undefined);
+  const changedSinceReview =
+    result.changedSinceReview ??
+    (claimed ? earlier.changedSinceReview : undefined);
   return {
     ...facts,
     publishedSha: result.publishedSha,
@@ -27,6 +30,7 @@ export function establishedStart(
     ...(plan === undefined ? {} : { plan }),
     ...(startingRevision === undefined ? {} : { startingRevision }),
     ...(candidateSha === undefined ? {} : { candidateSha }),
+    ...(changedSinceReview === undefined ? {} : { changedSinceReview }),
   };
 }
 

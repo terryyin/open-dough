@@ -135,3 +135,14 @@ test("the reference continues an established one-shot start without a claim", ()
     /established-start\.md#continue-an-established-one-shot-start/,
   );
 });
+
+test("established start passes a change indication without altering its claim", () => {
+  assert.equal(
+    formatEstablishedStart({ ...start, changedSinceReview: true }),
+    `${formatEstablishedStart(start)}\n- readiness: Changed since readiness review`,
+  );
+  assert.equal(
+    formatEstablishedStart({ ...start, changedSinceReview: false }),
+    formatEstablishedStart(start),
+  );
+});

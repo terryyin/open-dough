@@ -59,12 +59,20 @@ test("story-state: closing a sibling story keeps a ready story ready", async (t)
 
   editSeed(project, `\n${secondSection}`, "");
   assert.equal(await assessmentOf(project), "ready");
+  assert.equal(
+    (await readState(project, first)).assessment.changedSinceReview,
+    false,
+  );
 
   // Closing only the anchored section keeps its separating blank line.
   plantSeed(project);
   await recordReady(project);
   editSeed(project, secondSection, "");
   assert.equal(await assessmentOf(project), "ready");
+  assert.equal(
+    (await readState(project, first)).assessment.changedSinceReview,
+    false,
+  );
 });
 
 test("story-state: preparing or editing a sibling story keeps a ready story ready", async (t) => {
@@ -91,10 +99,11 @@ test("story-state: preparing or editing a sibling story keeps a ready story read
 
   const after = await readState(project, first);
   assert.equal(after.assessment.status, "ready");
+  assert.equal(after.assessment.changedSinceReview, false);
   assert.equal(after.basis.document, recorded);
 });
 
-test("story-state: a change to the story's own section needs reassessment", async (t) => {
+test("story-state: a change to the story's own section keeps ready with a change indication", async (t) => {
   const project = scratchProject(t);
   plantSeed(project);
   await recordReady(project);
@@ -106,10 +115,14 @@ test("story-state: a change to the story's own section needs reassessment", asyn
       "**Depends on:** [Second story](#second-story)",
   );
 
-  assert.equal(await assessmentOf(project), "needs-reassessment");
+  assert.equal(await assessmentOf(project), "ready");
+  assert.equal(
+    (await readState(project, first)).assessment.changedSinceReview,
+    true,
+  );
 });
 
-test("story-state: a change to the seed's shared context needs reassessment", async (t) => {
+test("story-state: a change to the seed's shared context keeps ready with a change indication", async (t) => {
   const project = scratchProject(t);
   plantSeed(project);
   await recordReady(project);
@@ -120,7 +133,11 @@ test("story-state: a change to the seed's shared context needs reassessment", as
     "Shared scope for both stories, now narrowed.",
   );
 
-  assert.equal(await assessmentOf(project), "needs-reassessment");
+  assert.equal(await assessmentOf(project), "ready");
+  assert.equal(
+    (await readState(project, first)).assessment.changedSinceReview,
+    true,
+  );
 });
 
 test("story-state: a former whole-seed record stays interpretable and is replaced by a fresh assessment", async (t) => {
@@ -134,6 +151,7 @@ test("story-state: a former whole-seed record stays interpretable and is replace
 
   const former = await readState(project, first);
   assert.equal(former.assessment.status, "ready");
+  assert.equal(former.assessment.changedSinceReview, false);
   assert.equal(former.assessment.basis.document, whole);
   assert.equal(former.basis.document, scoped);
 
@@ -143,12 +161,17 @@ test("story-state: a former whole-seed record stays interpretable and is replace
     "Goal, scope, and examples for the second story, now refined.",
   );
   const outdated = await readState(project, first);
-  assert.equal(outdated.assessment.status, "needs-reassessment");
+  assert.equal(outdated.assessment.status, "ready");
+  assert.equal(outdated.assessment.changedSinceReview, true);
   assert.equal(outdated.assessment.basis.document, whole);
 
   const fresh = await recordReady(project);
   assert.equal(fresh, scoped);
   assert.equal(await assessmentOf(project), "ready");
+  assert.equal(
+    (await readState(project, first)).assessment.changedSinceReview,
+    false,
+  );
 
   editSeed(
     project,
@@ -156,4 +179,8 @@ test("story-state: a former whole-seed record stays interpretable and is replace
     "Goal, scope, and examples for the second story, refined again.",
   );
   assert.equal(await assessmentOf(project), "ready");
+  assert.equal(
+    (await readState(project, first)).assessment.changedSinceReview,
+    false,
+  );
 });

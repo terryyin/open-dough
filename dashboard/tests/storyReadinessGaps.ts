@@ -19,7 +19,7 @@ import {
   unrefined,
 } from "./storyReadinessFixture.ts";
 
-export async function expectNeedsReassessmentAfterContentChange(
+export async function expectChangedReviewAfterContentChange(
   taken: Locator,
   backlog: Locator,
   source: Locator,
@@ -45,23 +45,43 @@ export async function expectNeedsReassessmentAfterContentChange(
     readyCard.getByText("Slice planned", { exact: true }),
   ).toBeVisible();
   await expect(
-    readyCard.getByText("Needs reassessment", { exact: true }),
+    readyCard.getByText("Changed since readiness review", { exact: true }),
   ).toBeVisible();
   await expect(
     readyCard.getByText("Ready for execution", { exact: true }),
-  ).toHaveCount(0);
+  ).toBeVisible();
   await expect(
     blockedCard.getByText("Slice planned", { exact: true }),
   ).toBeVisible();
   await expect(
-    blockedCard.getByText("Needs reassessment", { exact: true }),
+    blockedCard.getByText("Changed since readiness review", { exact: true }),
   ).toBeVisible();
   await expect(
     blockedCard.getByRole("link", { name: /^Slice plan / }),
   ).toHaveAttribute("href", planHref("terryyin/open-dough", nextRevision));
-  await expect(blockedCard.getByText("Not ready", { exact: true })).toHaveCount(
-    0,
-  );
+  await expect(
+    blockedCard.getByText("Not ready", { exact: true }),
+  ).toBeVisible();
+  for (const [card, title, judgment] of [
+    [readyCard, plannedReady.title, "Ready for execution"],
+    [
+      blockedCard,
+      plannedBlocked.title,
+      "Not ready (A blocking decision remains in the plan.)",
+    ],
+  ] as const) {
+    await card.getByText("Preparation facts", { exact: true }).click();
+    await expect(card.getByText("Assessment:")).toContainText(judgment);
+    await expect(card.getByText("Assessment:")).toContainText(
+      "Changed since readiness review",
+    );
+    await card.getByRole("button", { name: "Inspect story" }).click();
+    const detail = card.getByRole("region", { name: `Detail for ${title}` });
+    await expect(detail).toContainText(judgment);
+    await expect(detail).toContainText("Changed since readiness review");
+    await card.getByRole("button", { name: "Hide detail" }).click();
+    await card.getByText("Preparation facts", { exact: true }).click();
+  }
   await expect(
     backlog
       .getByRole("article", { name: unrefined.title })
@@ -96,7 +116,7 @@ export async function expectPlanAssociationConflict(
     readyCard.getByText("Ready for execution", { exact: true }),
   ).toHaveCount(0);
   await expect(
-    readyCard.getByText("Needs reassessment", { exact: true }),
+    readyCard.getByText("Changed since readiness review", { exact: true }),
   ).toHaveCount(0);
   await readyCard.getByText("Preparation facts").click();
   await expect(readyCard.getByText("Assessment:")).toContainText("disagree");
@@ -192,10 +212,10 @@ export async function expectFailedPlanKeepsSupportedFacts(
   await expect(
     readyCard.getByText("Plan association conflict", { exact: true }),
   ).toHaveCount(0);
-  // After content change, ready still needs reassessment when plan agrees.
+  // A fresh assessment remains Ready when plan association agrees.
   await expect(
-    readyCard.getByText("Needs reassessment", { exact: true }),
-  ).toBeVisible();
+    readyCard.getByText("Changed since readiness review", { exact: true }),
+  ).toHaveCount(0);
 
   failPlan();
 }

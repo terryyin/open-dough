@@ -13,6 +13,18 @@ the uncommitted seed and plan for review.
 
 ## Goal and scope
 
+Execution authorized by Terry's `dough-execute-plan` invocation on 2026-10-02.
+Established execution reuses this workspace and branch in Story Branch Mode,
+agent `philip-chan`, publisher `dashboard-mac.lan-open-dough`, remote `origin`,
+integration target `main`. Published claim and first increment base:
+`de8a72e5a77ae7946ed8c8088032a2366c78c725`; starting revision:
+`3373bdbbca59a6de9a725daf7aafa6663fa300b1`. The integration checkout remains
+`/Users/terryyin/git/open-dough`; increments publish to the execution branch.
+Checkout-bound `npm ci` and `npm run typecheck:dashboard` passed before
+implementation. Existing in-scope planning authority is retained; no numeric
+slice budget was supplied. The preparation-only authority above describes the
+original plan preparation, superseded for execution by this invocation.
+
 Developers and executing agents see the last readiness judgment independently
 of changes since that review. A changed story recorded Ready can start normally
 under existing authorization and startup safeguards. Preserve recorded Not ready
@@ -67,59 +79,42 @@ changes under `src/skills/`, never hand-edit installed managed copies.
 
 ## Observed premises and proof boundaries
 
-Observed in this workspace at `57519ee0` on 2026-10-02, with only this
-preparation's seed draft changed:
+The preparation baseline at `57519ee0` on 2026-10-02 reproduced withdrawal of
+Ready/Not ready and startup refusal after reviewed content changed. Its complete
+commands and observations remain in this plan's preparation history at
+`3373bdbb`. The baseline established the shared normalizer and existing
+CLI, committed-origin page, real installed startup and synthetic host-input
+seams used below; it did not prove the new behavior. Preparation's temporary
+dependency symlink was removed; execution uses this checkout's locked install.
 
-- `rg -n 'needs-reassessment|normalizeAssessmentView|assessmentSummaryText|readyBadge' src dashboard tests --glob '!*.md'`
-  reaches the shared normalizer, CLI help, reader tests, dashboard schemas,
-  presentation helpers, badges, Start note and execution startup cases.
-  Reading `product-backlog-story-state.mjs` shows `readStoryState` consumes the
-  normalizer with current and former bases. `execution-source.mjs` consumes
-  that result and requires assessment status Ready. These are shared contract
-  consumers to align, not separate owners of change detection.
-- `node --test tests/support/story-state-assessment-refusals.test.mjs tests/support/story-state-sibling-readiness.test.mjs`
-  passed 7 tests. Real CLI recording/reading of temporary homes establishes
-  that own/shared-context and plan edits produce `needs-reassessment`, sibling
-  edits do not, and stale assessment submissions refuse without rewriting the
-  home. This settles the current reader and recorder paths the slice changes
-  or preserves; it does not prove the new behavior.
-- `node --test src/skills/dough-execute-plan/scripts/workspace-publication-startup-source-cases.mjs src/skills/dough-execute-plan/scripts/established-start-guidance.test.mjs`
-  passed 13 tests. The startup cases commit changed assessed content to an
-  isolated bare origin and run the real start CLI; both ordinary and Ready-looking
-  local copies still get `source-refused`, no workspace and no Take. This
-  reproduces the startup symptom through the consuming operation. Publication
-  authority and unavailable-source cases remain independent safeguards.
-- `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/story-readiness-gaps.spec.ts dashboard/tests/story-readiness.spec.ts dashboard/tests/agent-launch-start-card.spec.ts dashboard/tests/agent-launch-start.spec.ts --workers=2`
-  passed (exit 0). `storyReadinessPublications.ts` commits a shared-context edit,
-  `publishCommittedOrigin` serves those pinned bytes, and the real page asserts
-  Needs reassessment replaces Ready/Not ready. The start HTTP journey runs
-  source skills copied into an isolated project against a bare origin and
-  inspects the synthetic Claude launch instruction. Held-start card cases
-  prove presentation only, not real publication.
-- `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-launch-start-phases.spec.ts --workers=2`
-  passed (exit 0). `support/preparationPage.ts` installs source skills into a
-  disposable project, and `support/startProgressPage.ts` feeds its bare origin
-  to the page, presses Start, and observes actual claim and launch phases for
-  Claude and Codex. The Codex journey additionally observes refusal/retry with
-  one retained workspace and the exact first input through `expectExecutionInput`.
-  This settles the available outside-in proof seam for the new indication.
-- Reading `execution-start-receipt.mjs`, `established-start.mjs`,
-  `dashboard/server/startResult.ts`, `startRecording.ts`, and
-  `dashboard/src/launchRecord.ts` shows no current indication field: the
-  receipt-to-record-to-formatter chain must carry it explicitly. Existing
-  `agent-launch-start.spec.ts` and `support/codexStartAssertions.ts` inspect
-  the host-consumed input; formatter tests alone cannot prove delivery.
+Execution accepted all four focused commands below at terminal exit 0.
+`story-state-assessment-refusals.test.mjs` drives real CLI recording/reading:
+changed Ready, independent plan-only change with a matching document, fresh
+review, changed Not ready preserving reasons/basis, absent assessment and stale
+submission preserving bytes. `story-state-sibling-readiness.test.mjs` preserves
+sibling isolation and former whole-seed interpretation. Real installed startup in `workspace-publication-startup-readiness-cases.mjs`
+observes one Take/workspace, original assessment bytes, Ready-looking local
+copies, Not ready/absent refusal, and continued claim true then fresh-review false.
 
-Dashboard observations used a temporary `node_modules` symlink to the existing
-integration checkout's dependencies, removed after observation. Tests build
-the production dashboard and use isolated preview servers, stores, Git origins
-and synthetic vendor processes; no production claim or native agent ran.
+Committed-origin page assertions in `storyReadinessGaps.ts` and
+`story-readiness-gaps.spec.ts` retain badges/reasons on cards/facts/details and
+clear changes after CLI-recorded published reviews. Accessibility assertions
+cover changed-label contrast and narrow/zoomed detail. `startOrigin` commits
+reviewed-content edits before page loading; phase journeys observe actual
+publication and Claude/Codex input. The Codex retry observes one claim/workspace
+and exact indication-bearing input in `codexStartAssertions.ts`. Durable result
+proof distinguishes an omitted field from explicit false clearing.
+
+The coordinator inspected implementation, fixture preconditions and observing
+assertions at these boundaries. No synthetic vendor result claims native skill
+acceptance. Guidance walkthroughs cover authorized changed Ready, retained
+handoff and genuine Not ready refusal. Take/resume/delivery never renew basis.
 
 ## Ordered slices
 
 ### 1. Changed reviewed content retains its judgment through informed execution
 Type: Behavior
-Status: planned
+Status: done
 Proof: All six story examples, through the CLI, committed-origin page and real
 installed startup boundary described below.
 
@@ -197,7 +192,7 @@ required to repair an interim contract or unproved agent handoff.
 Run focused commands after edits and slice-local cleanup:
 
 ```sh
-node --test tests/support/story-state-*.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs src/skills/dough-execute-plan/scripts/established-start-guidance.test.mjs
+PATH="/opt/homebrew/bin:$PATH" npm test -- tests/support/story-state-*.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs src/skills/dough-execute-plan/scripts/established-start-guidance.test.mjs
 env -u NO_COLOR npm run test:dashboard -- dashboard/tests/story-readiness.spec.ts dashboard/tests/story-readiness-gaps.spec.ts dashboard/tests/story-readiness-accessible.spec.ts dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-launch-start-phases.spec.ts dashboard/tests/execution-start-result.spec.ts --workers=2
 npm run typecheck:dashboard
 git diff --check
@@ -232,3 +227,13 @@ No slice-specific concerns found in this preparation review. The single
 outcome has mapped proof and observed consuming paths; synthetic vendor
 boundaries are explicitly distinguished from native skill-use acceptance.
 No separate slice-plan refinement pass was needed.
+
+Execution retained the outcome and digest rules. An explicit false startup fact
+clears retained change information after a new review; omission preserves older
+handoffs. Independent refactoring consolidated receipt projection, aligned
+conflict CSS naming, extracted preparation documentation, and split startup
+readiness observations without changing assertions. A post-format file-size
+check required the final split. The startup aggregate and committed-origin
+readiness/accessibility suites passed after affected refactors; other accepted
+proof stayed valid. Formatting passed again after the final split; no installed managed copy changed.
+No assessment was renewed during implementation or plan evidence updates.

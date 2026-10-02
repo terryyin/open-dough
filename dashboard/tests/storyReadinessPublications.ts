@@ -4,12 +4,18 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { commitPaths, writePlanning } from "./storyReadinessCli.ts";
+import {
+  commitPaths,
+  recordAssessed,
+  writePlanning,
+} from "./storyReadinessCli.ts";
 import {
   openDoughProductBacklog,
   planBlockedPath,
   planReadyPath,
   planReadyTwoDoneBody,
+  plannedReady,
+  plannedBlocked,
   type ReadinessRepo,
   seedRelative,
 } from "./storyReadinessFixture.ts";
@@ -101,4 +107,32 @@ export function publishRestoreUnrefined(repo: ReadinessRepo): string {
     planReadyPath,
     "Restore unrefined story to published backlog membership",
   );
+}
+
+// A real preparation review records the current digests through the CLI.
+export function publishFreshAssessment(repo: ReadinessRepo): string {
+  for (const [story, plan, assessment, reasons] of [
+    [plannedReady, planReadyPath, "ready", []],
+    [
+      plannedBlocked,
+      planBlockedPath,
+      "not-ready",
+      ["A blocking decision remains in the plan."],
+    ],
+  ] as const) {
+    recordAssessed(repo.directory, story, {
+      refinement: "refined",
+      approach: "planned",
+      plan: `../${plan}`,
+      assessment,
+      reasons: [...reasons],
+    });
+  }
+  const next = commitPaths(
+    repo.directory,
+    [`.planning/${seedRelative}`],
+    "Review current changed content",
+  );
+  repo.advanceTo(next);
+  return next;
 }

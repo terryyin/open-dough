@@ -89,6 +89,7 @@ const claimedStartSchema = z.object({
   plan: z.string().min(1).optional(),
   startingRevision: z.string().min(1).optional(),
   candidateSha: z.string().min(1).optional(),
+  changedSinceReview: z.boolean().optional(),
 });
 
 export const establishedStartSchema = z.union([

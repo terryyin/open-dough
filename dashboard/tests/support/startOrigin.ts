@@ -1,13 +1,6 @@
-// A real bare origin holding one queued, ready story, and the project folder
-// a dashboard server launches in, checked out from it under a fake HOME: the
-// fixture for the specs that run the project's installed
-// `execution-start.mjs` for real (../agent-launch-start.spec.ts). The
-// project folder's selected skill installation is a copy of this repository's
-// source skills, committed like a project that installed them, so the real
-// script runs from the folder. The folder's `origin` is spelled as the
-// catalog repository and rewritten to the bare origin by Git's own
-// `insteadOf`, so the dashboard reads the catalog spelling while Git talks to
-// the local bare repository. Nothing here reaches a network.
+// A bare origin and project checkout with source skills installed for real
+// execution-start journeys. Git insteadOf routes catalog URLs to this local
+// origin; machine holds the fake HOME. No fixture operation reaches a network.
 
 import { execFile } from "node:child_process";
 import {
@@ -16,6 +9,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -30,10 +24,8 @@ import {
 
 const exec = promisify(execFile);
 
-// The story the origin queues: what a launch request for it names.
 export const queuedIdentity = "SEED-A#a";
 export const queuedTitle = "Prepare the queued start";
-// A second queued story, for a spec that needs another card.
 export const otherQueuedIdentity = "SEED-B#b";
 
 const installedSkills = [
@@ -43,26 +35,20 @@ const installedSkills = [
 ] as const;
 
 export type StartOrigin = {
-  // The machine directory to hand `startDashboardServer` (it holds HOME).
   readonly machine: string;
-  // The bare origin's path.
   readonly origin: string;
-  // The project folder, `<machine>/home/git/<project id>`.
   readonly project: string;
-  // What Git reports in the origin, run there.
   originGit(...args: string[]): Promise<string>;
-  // The agent profiles origin's trunk holds, parsed.
   takenProfiles(): Promise<Record<string, unknown>[]>;
-  // Has another publisher Take a queued story (the first by default) through
-  // the real start command, in a workspace of its own; the Agent it names.
+  // Runs the real start for another publisher and returns the claimed agent.
   takenByAnotherAgent(identity?: string): Promise<string>;
   // Holds every push to origin on its `pre-receive` hook until released.
   holdPushes(): PushHold;
-  // Removes the fixture.
+  // Publishes edited content while preserving its reviewed assessment bytes.
+  publishChangedReview(): Promise<string>;
   cleanup(): void;
 };
 
-// A push hold: whether a push reached the hook, and its release.
 export type PushHold = {
   isHeld(): boolean;
   release(): void;
@@ -72,7 +58,6 @@ async function git(cwd: string, ...args: string[]): Promise<string> {
   return (await exec("git", args, { cwd })).stdout;
 }
 
-// One queued, ready story: its seed, plan, and the backlog line.
 function writeStory(
   project: string,
   key: string,
@@ -124,7 +109,6 @@ function writeQueuedStories(project: string): void {
   );
 }
 
-// The catalog repository the project folder's `origin` is spelled as.
 export async function startOrigin(
   repository = "terryyin/open-dough",
   projectId = "open-dough",
@@ -242,6 +226,19 @@ export async function startOrigin(
         (profile) => profile["identity"] === identity,
       );
       return String(taken?.["agent"]);
+    },
+    async publishChangedReview() {
+      const seed = path.join(project, ".planning/seeds/A.md");
+      writeFileSync(
+        seed,
+        readFileSync(seed, "utf8").replace(
+          "Execute A.",
+          "Execute A with changed scope after readiness review.",
+        ),
+      );
+      await git(project, "commit", "-am", "Change reviewed content");
+      await git(project, "push", "origin", "main");
+      return (await originGit("rev-parse", "main")).trim();
     },
     cleanup() {
       rmSync(machine, { recursive: true, force: true });

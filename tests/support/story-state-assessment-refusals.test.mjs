@@ -18,7 +18,7 @@ import {
   twoStorySeed,
 } from "./story-state-fixture.mjs";
 
-test("story-state: content change makes ready outdated and stale submit refuses", async (t) => {
+test("story-state: content change retains ready and stale submit refuses", async (t) => {
   const project = scratchProject(t);
   plantSeed(project);
   const planRelative = "../slice-plans/075-example/PLAN.md";
@@ -50,6 +50,10 @@ test("story-state: content change makes ready outdated and stale submit refuses"
 
   const staleBasis = (await readState(project, first)).basis;
   assert.equal((await readState(project, first)).assessment.status, "ready");
+  assert.equal(
+    (await readState(project, first)).assessment.changedSinceReview,
+    false,
+  );
 
   projectFile(
     project,
@@ -61,11 +65,12 @@ test("story-state: content change makes ready outdated and stale submit refuses"
   );
 
   const outdated = await readState(project, first);
-  assert.equal(outdated.assessment.status, "needs-reassessment");
-  assert.equal(outdated.assessment.recorded, "ready");
+  assert.equal(outdated.assessment.status, "ready");
+  assert.equal(outdated.assessment.changedSinceReview, true);
   assert.notEqual(outdated.basis.document, staleBasis.document);
   assert.equal(outdated.assessment.basis.document, staleBasis.document);
 
+  const beforeRefusal = seedBytes(project);
   const refused = await run(
     project,
     recordArgs(first, {
@@ -80,19 +85,62 @@ test("story-state: content change makes ready outdated and stale submit refuses"
   assert.equal(refused.code, 1);
   assert.match(refused.stderr, /no longer matches/);
   assert.match(refused.stderr, /Nothing was written/);
-  assert.equal(
-    (await readState(project, first)).assessment.status,
-    "needs-reassessment",
-  );
+  assert.equal(seedBytes(project), beforeRefusal);
+  assert.equal((await readState(project, first)).assessment.status, "ready");
 
+  const reviewCurrentStory = await run(
+    project,
+    recordArgs(first, {
+      refinement: "refined",
+      approach: "planned",
+      plan: planRelative,
+      assessment: "ready",
+      expectDocument: outdated.basis.document,
+      expectPlan: outdated.basis.plan,
+    }),
+  );
+  assert.equal(reviewCurrentStory.code, 0, reviewCurrentStory.stderr);
+  const matching = await readState(project, first);
+  assert.equal(matching.assessment.changedSinceReview, false);
   projectFile(
     project,
     "slice-plans/075-example/PLAN.md",
     `${planBody}\n### 2. Extra\nType: Structure\nStatus: planned\n`,
   );
   const afterPlanEdit = await readState(project, first);
-  assert.equal(afterPlanEdit.assessment.status, "needs-reassessment");
+  assert.equal(afterPlanEdit.assessment.status, "ready");
+  assert.equal(afterPlanEdit.assessment.changedSinceReview, true);
   assert.notEqual(afterPlanEdit.basis.plan, staleBasis.plan);
+  assert.equal(afterPlanEdit.basis.document, matching.basis.document);
+  assert.deepEqual(afterPlanEdit.assessment.basis, matching.basis);
+  const fresh = await run(
+    project,
+    recordArgs(first, {
+      refinement: "refined",
+      approach: "planned",
+      plan: planRelative,
+      assessment: "not-ready",
+      reasons: ["Resolve the widened scope"],
+      expectDocument: afterPlanEdit.basis.document,
+      expectPlan: afterPlanEdit.basis.plan,
+    }),
+  );
+  assert.equal(fresh.code, 0, fresh.stderr);
+  const reviewed = await readState(project, first);
+  assert.equal(reviewed.assessment.status, "not-ready");
+  assert.equal(reviewed.assessment.changedSinceReview, false);
+  projectFile(
+    project,
+    seedRelative,
+    seedBytes(project).replace("Scope widened.", "Scope widened again."),
+  );
+  const changedBlocked = await readState(project, first);
+  assert.equal(changedBlocked.assessment.status, "not-ready");
+  assert.equal(changedBlocked.assessment.changedSinceReview, true);
+  assert.deepEqual(changedBlocked.assessment.reasons, [
+    "Resolve the widened scope",
+  ]);
+  assert.deepEqual(changedBlocked.assessment.basis, reviewed.assessment.basis);
 });
 
 test("story-state: ready consistency refusals leave files unchanged", async (t) => {
@@ -140,4 +188,24 @@ test("story-state: ready consistency refusals leave files unchanged", async (t) 
   assert.equal(notReadyWithoutReason.code, 1);
   assert.match(notReadyWithoutReason.stderr, /at least one blocking/);
   assert.equal(seedBytes(project), before);
+});
+
+test("story-state: absent review cannot claim a content change", async (t) => {
+  const project = scratchProject(t);
+  plantSeed(project);
+  await run(
+    project,
+    recordArgs(first, { refinement: "refined", approach: "planless" }),
+  );
+  projectFile(
+    project,
+    seedRelative,
+    seedBytes(project).replace(
+      "Goal, scope, and examples for the first story.",
+      "Changed without any prior review.",
+    ),
+  );
+  assert.deepEqual((await readState(project, first)).assessment, {
+    status: "absent",
+  });
 });

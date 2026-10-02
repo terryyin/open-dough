@@ -12,6 +12,7 @@ export function expectExecutionInput(
   original: string,
   revision: string,
   agent: unknown,
+  changedSinceReview = false,
 ) {
   const start = record?.start;
   if (start === undefined) throw new Error("Missing established start.");
@@ -29,6 +30,7 @@ export function expectExecutionInput(
     startingRevision: original,
     candidateSha: revision,
   });
+  expect(Boolean(start.changedSinceReview)).toBe(changedSinceReview);
   expect(start.publisherId).toMatch(/^dashboard-.+-open-dough$/);
   const handoff = [
     "Established start:",
@@ -44,6 +46,9 @@ export function expectExecutionInput(
     "- plan: slice-plans/A/PLAN.md",
     `- startingRevision: ${original}`,
     `- candidateSha: ${revision}`,
+    ...(changedSinceReview
+      ? ["- readiness: Changed since readiness review"]
+      : []),
   ].join("\n");
   const text = `$dough-execute-plan ${queuedIdentity}\n\n${handoff}\n\nImplement the selected slice.`;
   expect(native.calls.filter((call) => call.method === "turn/start")).toEqual([

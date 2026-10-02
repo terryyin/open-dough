@@ -27,11 +27,24 @@ for (const host of ["claude", "codex"] as const) {
       origin,
       codexProtocol,
     }) => {
+      await origin.publishChangedReview();
       await expectStartProgress(
         { page, dashboard, origin, codexProtocol },
         "execution",
         host,
       );
+      if (host === "claude") {
+        expect(dashboard.claudeLaunchCalls()[0]?.argv.at(-1)).toContain(
+          "- readiness: Changed since readiness review",
+        );
+      } else {
+        const input = codexProtocol?.calls.find(
+          (call) => call.method === "turn/start",
+        );
+        expect(JSON.stringify(input)).toContain(
+          "Changed since readiness review",
+        );
+      }
     });
   });
 }
