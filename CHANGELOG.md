@@ -1,3 +1,11 @@
+## 0.3.54 - 2026-10-02
+
+- Let dashboard-launched Codex sessions discover the native model catalog, select an explicit model and compatible reasoning effort, or independently inherit either Codex setting across ad-hoc, refinement, and execution starts.
+- Carry explicit Codex startup choices through admission, durable launch records, workspace-aware verification, and native creation confirmation, while preserving configured custom defaults and retaining recoverable conversation identities when a selection is refused or contradicted.
+- Prepare the persistent dashboard project-configuration story for its next implementation work.
+
+Native acceptance was explicitly skipped for `0.3.54` at the maintainer's request as an exception to ADR 0005. Native acceptance for the changed Codex model and reasoning-effort discovery, selection, startup, and recovery behavior, together with previously pending requirements, remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.53 - 2026-10-02
 
 - Make dashboard session startup durable and responsive across host boundaries: prevent duplicate launches, retain creation evidence, reconcile uncertain Codex starts, preserve input acceptance, start saved-session services with the dashboard, and derive recovery wording and controls from each native host.
