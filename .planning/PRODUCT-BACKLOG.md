@@ -17,7 +17,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Keep reconciled startups settled under one unresolved-attempt rule](seeds/SEED-072-responsive-session-start-reconciliation.md#durable-startup-reconciliation) — SEED-072#durable-startup-reconciliation ([plan](slice-plans/206-durable-startup-reconciliation/PLAN.md))
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard ([plan](slice-plans/210-use-cursor-from-dashboard/PLAN.md))
 - [Settle retrospective follow-ups during wrap-up](seeds/SEED-082-wrap-up-follow-up-disposition.md#wrap-up-follow-up-disposition) — SEED-082#wrap-up-follow-up-disposition
-- [Choose Codex model and effort when starting a dashboard session](seeds/SEED-081-codex-session-model-and-effort.md#codex-session-model-and-effort) — SEED-081#codex-session-model-and-effort ([plan](slice-plans/211-codex-session-model-and-effort/PLAN.md))
 
 ## Backlog list
 
