@@ -120,8 +120,9 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
       expect(record).not.toHaveProperty("sessionState");
       expect(record).not.toHaveProperty("workspaceState");
     }
-    expect(readdirSync(path.dirname(storeFile))).toEqual([
+    expect(readdirSync(path.dirname(storeFile)).sort()).toEqual([
       "agent-launches.json",
+      "projects-production.json",
     ]);
     const deleted = await deleteRecord(server, {
       source: "open-dough",

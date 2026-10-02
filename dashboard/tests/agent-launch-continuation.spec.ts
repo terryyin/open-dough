@@ -199,6 +199,9 @@ test("unreadable kept attempts are said on the page and refuse starts, leaving t
   );
   await expect(parts(page).project).toBeVisible();
   expect(readFileSync(file, "utf8")).toBe("{ not json");
-  expect(readdirSync(folder)).toEqual(["launch-attempts.json"]);
+  expect(readdirSync(folder).sort()).toEqual([
+    "launch-attempts.json",
+    "projects-production.json",
+  ]);
   expect(dashboard.claudeCalls()).toEqual([]);
 });

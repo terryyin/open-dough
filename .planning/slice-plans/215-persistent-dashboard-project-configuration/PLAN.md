@@ -9,6 +9,7 @@
 - Owned execution checkout: `/Users/terryyin/git/open-dough/.worktrees/persist-dashboard-project-configuration`, branch `codex/persist-dashboard-project-configuration`, reused from the established start. Story Branch Mode.
 - Originating checkout is this execution checkout; integration checkout: `/Users/terryyin/git/open-dough` (not mutated by increment delivery).
 - Starting revision: `8e83ed742bfbcf9b31a3ec9a7b12f34dc278dd89`; published claim and initial candidate: `db6b0da9a8e1707048b8a5134daf9381f9fe7567` on `origin/refs/heads/main` and the remote execution branch. Claim CI is unobserved.
+- Published slice 2: `9137728f9e3b9d89c3e3fbe2ac799a4d020b6f09`, accepted on the execution branch and registered with the retained observer.
 - Published bootstrap synchronization repair: `076ed50a93189af95a053967b9b3899f7ffb8354`, accepted and registered on the execution branch. Slice 2 work and proof were restored intact; its exact pause stash entry was retired.
 - Published owned CI repair: `180b34aafb02c286cd2839aee3e5052cdc9478fb`, accepted on the execution branch and registered with the same observer. Unfinished slice 2 work was restored intact; the exact repair stash entry was retired.
 - Published slice 1: `62c03b0083f1e6a65f42a2151c800eaa8923bc9f`, accepted on the remote execution branch with the retained observer registration.
@@ -170,3 +171,12 @@ All commands run in the execution checkout with `PATH=/tmp/open-dough-node-24.21
 - Direct injected write-failure and cross-process write coordination are untested and not promised by this slice; within-server synchronous writes serialize replacement. Add/remove remain later slices.
 
 - Slice 2 independent refactor: none, already clean; accepted implementation/setup/assertion locations unchanged, no additional tests. All formatted changed dashboard files remain at most 250 lines.
+
+### CI machine-directory expectation repair
+
+- Registered slice-2 SHA `9137728f9e3b9d89c3e3fbe2ac799a4d020b6f09`, run `36981981949`, attempt `1`, jobs `110758325839` and `110758326021`: exact machine-directory assertions in `agent-launch-host-identity.spec.ts:123` and `agent-launch-continuation.spec.ts:202` omitted the newly required production settings file. Both now assert the exact sorted contents including `projects-production.json`. Existing no-session/workspace-state, unchanged malformed bytes, refusal and zero-host-call assertions remain.
+- Red: `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-host-identity.spec.ts --workers=1` and `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-continuation.spec.ts --grep 'unreadable kept attempts' --workers=1` — both exit 1, solely the additional production file. Real preview processes in isolated HOME initialize the production owner; no mocked configuration response.
+- Green: `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-host-identity.spec.ts dashboard/tests/agent-launch-continuation.spec.ts --workers=1` — pass, all three tests; log `/tmp/open-dough-ci913-machine-store-green.log`. `git diff --check` — pass. Typecheck not repeated for string-only expectation changes. Other directory-list callers inspect worktrees, standalone store fixtures, filtered backups or credential traversal and need no corresponding change.
+- The same run retains the independently owned Cursor assertion mismatch; explicit authority remains pending. Slice 3 has not started, so this repair required no unfinished-work stash.
+- Host fresh-agent thread limit prevented a new worker; idle implementation and independent-review workers are reused for separate bounded assignments, preserving role separation.
+- Independent refactor: none, already clean; both complete specs and accepted setup/boundary/assertion locations unchanged. No additional tests.
