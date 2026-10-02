@@ -127,6 +127,7 @@ export function hostOperations(): HostOperations {
       {
         attach: boundary?.attach !== undefined,
         stop: boundary?.stop !== undefined,
+        launchedSessions: boundary?.launchedSessions !== undefined,
       },
     ]),
   );

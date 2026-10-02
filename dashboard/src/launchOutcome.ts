@@ -12,6 +12,7 @@ import {
   type StoryLaunchRequest,
 } from "./launchRequest.ts";
 import { launchWithStateSchema } from "./launchRecord.ts";
+import type { HostOperations } from "./sessionCapabilities.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 
 // Why nothing was launched; `not-listed`: a recheck found the host's own
@@ -215,14 +216,17 @@ export const verifiedAnswerSchema = z.discriminatedUnion("kind", [
 
 // Whether Recheck asks the local service to verify the attempt's launch: a
 // story attempt whose launch is uncertain while its publication is known, so
-// its start settled and its session alone may or may not exist.
+// its start settled and its session alone may or may not exist, and its
+// host boundary offers a listing to verify it against.
 export const launchVerifiable = (
   attempt: AttemptObservation,
+  operations: HostOperations,
 ): attempt is AttemptObservation & { readonly request: StoryLaunchRequest } =>
   attempt.request.workflow !== "ad-hoc" &&
   !attempt.owned &&
   attempt.outcome?.kind === "uncertain" &&
-  attempt.publication.kind !== "unknown";
+  attempt.publication.kind !== "unknown" &&
+  operations[attempt.request.host]?.launchedSessions === true;
 
 export type ReconciledAnswer =
   | { readonly kind: "reconciled"; readonly attempt: AttemptObservation }

@@ -12,7 +12,11 @@ export function hostName(host: SessionReference["host"]): string {
 }
 export const hostOperationsSchema = z.partialRecord(
   sessionHostSchema,
-  z.object({ attach: z.boolean(), stop: z.boolean() }),
+  z.object({
+    attach: z.boolean(),
+    stop: z.boolean(),
+    launchedSessions: z.boolean(),
+  }),
 );
 export type HostOperations = z.infer<typeof hostOperationsSchema>;
 

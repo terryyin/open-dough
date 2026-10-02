@@ -13,6 +13,7 @@ import {
   type StoryLaunchRequest,
   type VerifiedAnswer,
 } from "../src/agentLaunch.ts";
+import { hostOperations } from "./launchHosts.ts";
 import type { Verified } from "./launchVerification.ts";
 import { keepAttempt, keptAttempts } from "./launchAttemptStore.ts";
 import type { OwnedAttempts } from "./ownedAttempts.ts";
@@ -72,7 +73,7 @@ export async function verifyAttempt(
     if (before === "unreadable") return unreadable;
     if (before === undefined) return unknown;
     const observed = owned.observed(before);
-    if (!launchVerifiable(observed)) return unverifiable;
+    if (!launchVerifiable(observed, hostOperations())) return unverifiable;
     const verified = await verify(observed);
     if (verified.kind === "unresolved") return verified;
     // Read again: a continuation may have run it meanwhile.

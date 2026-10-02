@@ -4,13 +4,14 @@
 // failed or while its story is not shown; and the project's latest ad hoc
 // launch when it needs reconciliation, or whose answer this page lost. Each
 // can be rechecked -- a story attempt whose launch is uncertain verified
-// first from its host's own session listing (`requestLaunchVerification`),
+// first when its host offers a session listing (`requestLaunchVerification`),
 // which settles it or says why not, then this machine's attempts and
 // sessions and the published state read afresh -- and an accepted attempt
 // that needs reconciliation continued: the local service runs its kept request again
 // under the same attempt and the existing recovery rules
 // (`requestAttemptContinuation`), or answers why not, the attempt kept.
 
+import type { HostOperations } from "./sessionCapabilities.ts";
 import { useCallback, useEffect } from "react";
 import {
   laterAttempt,
@@ -77,6 +78,7 @@ const existingChanges: LaunchProblem = {
 
 export function useStartupRecovery({
   known,
+  hostOperations,
   unacknowledged,
   attemptEvidence,
   answeredAsk,
@@ -87,6 +89,7 @@ export function useStartupRecovery({
   readAfresh,
 }: {
   readonly known: readonly AttemptObservation[];
+  readonly hostOperations: HostOperations;
   readonly unacknowledged: readonly Unacknowledged[];
   readonly attemptEvidence: AttemptEvidence;
   // Which read of the machine's attempts, counted as asked, answered
@@ -217,7 +220,7 @@ export function useStartupRecovery({
     continueStartup,
     recheckStartups: (attempt) => {
       clearContinuations();
-      if (attempt === undefined || !launchVerifiable(attempt)) {
+      if (attempt === undefined || !launchVerifiable(attempt, hostOperations)) {
         reread();
         readAfresh();
         return;

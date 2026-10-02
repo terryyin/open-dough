@@ -11,6 +11,7 @@
 // need of reconciliation are rechecked and continued outside their frames
 // (`./startupRecoveries.ts`).
 
+import type { HostOperations } from "./sessionCapabilities.ts";
 import { useCallback } from "react";
 import {
   requestedChoices,
@@ -90,6 +91,7 @@ export type LaunchAttempts = StartupRecoveries & {
 // runs gets once it changes. `reads` counts the reads answered so far.
 export function useLaunchAttempts({
   observed,
+  hostOperations,
   attemptEvidence,
   answeredAsk,
   asksSoFar,
@@ -99,6 +101,7 @@ export function useLaunchAttempts({
   published,
 }: {
   readonly observed: readonly AttemptObservation[];
+  readonly hostOperations: HostOperations;
   readonly attemptEvidence: AttemptEvidence;
   // Which read of the machine's sessions, counted as asked, answered
   // latest, and how many were asked so far.
@@ -183,6 +186,7 @@ export function useLaunchAttempts({
     storyStartup(asked, known, sourceId, identity, reconciled);
   const recoveries = useStartupRecovery({
     known,
+    hostOperations,
     unacknowledged: asked.unacknowledged,
     attemptEvidence,
     answeredAsk,

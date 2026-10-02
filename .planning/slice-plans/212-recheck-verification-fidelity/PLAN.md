@@ -151,7 +151,7 @@ cleanup. No paid calls; fixtures only.
 
 ### 1. Recheck asks for native verification only through a host that lists sessions
 Type: Behavior
-Status: planned
+Status: done
 Proof: Fail first with a new Codex page check (e.g.
 `agent-launch-codex-recheck.spec.ts`, on `./support/codexLaunch.ts` with
 `refuseInput`, as observed): Recheck sends no `/verify`, the item shows no
@@ -220,3 +220,27 @@ Safe stop: correction complete.
   be verified, and what evidence settles first) and one correction-owned
   Structure slice; no host-specific special case and no new representation.
   Slices are independent; 3 is last so its refactor runs under 1–2's proof.
+
+## Execution context
+
+- Established execution: `SEED-072#recheck-verification-fidelity`, publisher
+  `dashboard-territory.local-open-dough`, agent `viktor-chan`.
+- Owned execution checkout: `/Users/terryyin/git/open-dough/.worktrees/recheck-verifies-only-what-its-host-can-list-and`;
+  branch `codex/recheck-verifies-only-what-its-host-can-list-and`, Story Branch Mode.
+- Claim published to `origin/main`: `4f36666f06d595905574543cc495bc064231a770`;
+  execution branch also starts there. Starting revision: `9197ed9284608a44092d70c884934a8358f56893`.
+- Setup: `npm ci` and `npm run typecheck:dashboard` succeeded in this checkout.
+- Existing planning authority retained; no numeric slice budget supplied.
+- Claim CI coverage: unobserved; ordinary delivery observes the execution branch.
+
+## Slice 1 accepted proof
+
+- Fail first: `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-codex-recheck.spec.ts --workers=2 --reporter=line`
+  failed both intended assertions: page sent `/verify`; raw verify gave unsupported-listing answer.
+- `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-codex-recheck.spec.ts dashboard/tests/agent-launch-claude-verification.spec.ts dashboard/tests/responsive-session-recovery-verification.spec.ts dashboard/tests/agent-launch-codex-reconciliation.spec.ts dashboard/tests/agent-launch-codex-recovery.spec.ts --workers=2 --reporter=line`: 10 passed.
+- `npm run typecheck:dashboard`: passed.
+- Inspected new Codex spec: uncertain raw launch is the precondition; page Recheck observes evidence/published rereads, no verification, enabled Continue, unchanged attempt and one native launch. Raw HTTP verification observes existing unverifiable answer and unchanged attempt. Existing Claude/Codex verification and recovery journeys preserved.
+- Shared consumers: both predicate callers, sole recovery-hook callers, sessions response/schema, existing attach/stop readers; no test-support object callers.
+- Independent post-change refactor: none — already clean; `## REFACTOR COMPLETE`. No proof invalidated.
+- Formatter initially found parameter mutation in the new fixture; local alias now follows existing Codex test convention. `npm run format` retry passed; semantics and assertions unchanged.
+- Whole dashboard command: `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=4 --reporter=line`: 765 passed (5.2m).

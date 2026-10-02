@@ -116,6 +116,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   }, []);
   const attempts = useLaunchAttempts({
     observed,
+    hostOperations: sessions.hostOperations,
     attemptEvidence: !readAnswered
       ? readsSettled === 0
         ? "unread"
