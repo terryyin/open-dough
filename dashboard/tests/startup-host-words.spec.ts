@@ -20,6 +20,11 @@ test.beforeAll(async () => {
   journey = await publishLaunchJourney();
 });
 test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
+test.afterEach(async ({ page }) => {
+  // Background session reads can outlive the last assertion. Finish their
+  // intercepted answers before Playwright disposes the context's responses.
+  await page.unrouteAll({ behavior: "wait" });
+});
 
 test("without a reported phase, story startup keeps its host and the installed start's Preparing versus Starting choice", async ({
   page,
