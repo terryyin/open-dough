@@ -1,3 +1,4 @@
+import { hasCompletionMessage } from "./completionReport.ts";
 // Passive final report: changing selection cancels the previous identity's read.
 import { useEffect, useRef, useState } from "react";
 import { launchSubject } from "./agentLaunch.ts";
@@ -35,7 +36,7 @@ export function SessionResultPanel({
   const { marking, follow } = useMarking();
   useCommandShortcut({ key: "Escape", shift: true }, onClose);
   useEffect(() => {
-    if (record.completion !== undefined) {
+    if (hasCompletionMessage(record.completion)) {
       setResult({
         kind: "available",
         turnId: record.completion.receipt,

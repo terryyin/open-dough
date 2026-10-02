@@ -78,7 +78,9 @@ published once.
 Retain the exact published closure SHAs, the receipt, remaining coverage, and
 `repository`, the management context a later rerun uses, in available execution
 context. Apply [completion attention](../../dough-land/SKILL.md#completion-attention)
-to the final response.
+to the final response, then use the supplied launch context for the
+[final dashboard operation](../../dough-land/references/dashboard-completion.md)
+after all closure/retirement work and final wording settle.
 
 ## Complete current-branch closure
 
@@ -87,7 +89,9 @@ After the last wrap-up publication this invocation will perform, invoke
 once for that final accepted SHA on the matching observer. Handle its combined
 CI and shutdown receipt, retaining the exact published closure SHAs, that
 receipt, and remaining coverage. Apply [completion attention](../../dough-land/SKILL.md#completion-attention)
-to the final response. Invoke completion only after the final
+to the final response, then use the supplied launch context for the
+[final dashboard operation](../../dough-land/references/dashboard-completion.md)
+after all closure/retirement work and final wording settle. Invoke completion only after the final
 applicable wrap-up publication, never between intermediate
 recovery-record publications.
 
@@ -118,6 +122,9 @@ not that receipt. Invoke
 once for the accepted integrated SHA on that trunk observer and handle its
 combined receipt. With confirmed shutdown as its gate, wrap-up then retires
 the execution resources under the same
-[Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree);
-publication recovery retains the same observer and repeats neither target
+[Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree).
+After retirement and final wording settle, apply the
+[final dashboard operation](../../dough-land/references/dashboard-completion.md)
+with supplied launch context. It does not replace the CI receipt or shutdown gate.
+Publication recovery retains the same observer and repeats neither target
 setup nor an already accepted push.

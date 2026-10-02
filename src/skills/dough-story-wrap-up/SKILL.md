@@ -59,6 +59,12 @@ report. Do not create a parallel registry. Missing identity needed by a later
 action stops that action instead of reconstructing or guessing it after plan
 deletion.
 
+With supplied dashboard reporting context, read and retain
+[dashboard completion](../dough-land/references/dashboard-completion.md), its
+command and a surviving working directory now, before either Trunk Mode `finish`
+or Story Branch retirement can remove the checkout. Prepare any attention file
+outside it; reporting itself remains the final operation.
+
 ## Establish execution completion
 
 Judge completion from the selected work and available execution evidence.
@@ -222,7 +228,8 @@ partial cleanup without repeating already-completed closure. Skip cleanup in dir
 ## Report
 
 Apply Dough Land's shared [completion attention](../dough-land/SKILL.md#completion-attention)
-rule. Keep the selected identity, mode and retained execution context,
+rule and its [final dashboard operation](../dough-land/references/dashboard-completion.md)
+with the supplied launch context, after either closure path has settled. Keep the selected identity, mode and retained execution context,
 before-cleanup and final-closure commits, accepted publication and completion
 receipts, remaining coverage, knowledge and cleanup dispositions in their
 existing operational evidence and lasting homes. Do not produce a success recap

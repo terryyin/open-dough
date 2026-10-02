@@ -137,6 +137,10 @@ publication.
 
 ## Retire the worktree
 
+With supplied dashboard context, read [dashboard completion](references/dashboard-completion.md)
+and retain its reporting command, instructions, and surviving working directory before removal.
+Prepare attention files outside the checkout; reporting remains the final operation.
+
 Retirement is not applicable when the landing checkout is the default
 checkout: nothing is removed, and cleanup is recorded as not applicable.
 Otherwise retire the worktree only when both gates hold, and let the command
@@ -242,4 +246,5 @@ required solely to repeat them.
 ## Completion attention
 
 After operations settle, read and apply the shared
-[completion attention rule](references/completion-attention.md).
+[completion attention rule](references/completion-attention.md), including its
+[final dashboard operation](references/dashboard-completion.md) with supplied reporting context.

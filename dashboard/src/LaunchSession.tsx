@@ -1,3 +1,4 @@
+import { hasCompletionMessage } from "./completionReport.ts";
 // A launch record's native session and its host's continuation capabilities.
 // Every session entry (`./SessionEntry.tsx`) uses this presentation; embedded
 // terminal access additionally requires the host capability and `attachOpens`.
@@ -57,7 +58,7 @@ export function LaunchSession({
           </>
         )}
       {limitation !== undefined && <p className="quiet">{limitation}</p>}
-      {record.completion !== undefined && access !== "result" && (
+      {hasCompletionMessage(record.completion) && access !== "result" && (
         <p className="launch-open">
           <button
             type="button"

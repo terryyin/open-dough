@@ -104,3 +104,53 @@ test("Cursor installed report offers local Done without a native stop capability
     ).status,
   ).toBe(404);
 });
+
+test("Cursor explicit quiet completion is durable local Done without native stop", async ({
+  page,
+  dashboard,
+  origin,
+  cursor,
+}) => {
+  test.setTimeout(120000);
+  const answer = await launch(dashboard, {
+    source: "open-dough",
+    host: "cursor",
+    workflow: "execution",
+    identity: queuedIdentity,
+    title: queuedTitle,
+  });
+  expect(launchResultSchema.parse(JSON.parse(answer.body)).kind).toBe(
+    "launched",
+  );
+  const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+  const command = record?.request.reporting?.command;
+  if (command === undefined)
+    throw new Error("Missing Cursor reporting context");
+  expect(record?.doneAt).toBeUndefined();
+  const before = cursor.calls().length;
+  const receipt = JSON.parse(
+    (
+      await exec("bash", ["-c", `${command} --outcome completed`], {
+        cwd: origin.machine,
+      })
+    ).stdout,
+  ) as Awaited<ReturnType<typeof submitCompletion>>;
+  const [done] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+  expect(done?.completion?.receipt).toBe(receipt.receipt);
+  expect(done?.doneAt).toBe(receipt.receivedAt);
+  expect(cursor.calls()).toHaveLength(before);
+  await publishCommittedOrigin(page, {
+    repoDir: origin.origin,
+    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    repository: "terryyin/open-dough",
+  });
+  await page.goto("/");
+  const recent = parts(page)
+    .recentSessions.getByRole("article")
+    .filter({ hasText: cursor.sessionId });
+  await expect(recent).toContainText("Done");
+  await expect(recent.locator(".session-attention-message")).toHaveCount(0);
+  await expect(
+    recent.getByRole("button", { name: "Read attention message" }),
+  ).toHaveCount(0);
+});

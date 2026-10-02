@@ -22,3 +22,6 @@ Dough Land and Story Wrap Up use this rule after their operations settle:
 
 Without supplied dashboard launch context, direct use makes no dashboard contact;
 do not discover or invent a session to report to.
+
+With supplied dashboard launch context, apply the shared
+[dashboard completion operation](dashboard-completion.md) after final wording settles.

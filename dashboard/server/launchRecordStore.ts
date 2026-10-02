@@ -1,3 +1,4 @@
+import { completedWithoutAttention } from "../src/completionReport.ts";
 // Public launch/creation record operations use one machine document and retention rule.
 import { keptAttempts } from "./launchAttemptStore.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
@@ -78,28 +79,36 @@ export async function keepRecord(
       : (await keptAttempts())?.find(
           (attempt) => attempt.id === record.request.reporting?.reference,
         )?.completion;
-  await replaceRecords((kept) => ({
-    ...kept,
-    [sourceId]: [
-      ...(kept[sourceId] ?? []).filter((entry) =>
-        !("session" in entry)
-          ? !sameLaunch(entry.request, record.request)
-          : sessionKey(entry.session) !== sessionKey(record.session),
-      ),
-      {
-        ...record,
-        completion:
-          (kept[sourceId] ?? [])
-            .filter((entry): entry is LaunchRecord => "session" in entry)
-            .find(
-              (entry) =>
-                sessionKey(entry.session) === sessionKey(record.session),
-            )?.completion ??
-          completion ??
-          record.completion,
-      },
-    ],
-  }));
+  await replaceRecords((kept) => {
+    const existing = (kept[sourceId] ?? []).find(
+      (entry): entry is LaunchRecord =>
+        "session" in entry &&
+        sessionKey(entry.session) === sessionKey(record.session),
+    );
+    const reported = existing?.completion ?? completion ?? record.completion;
+    return {
+      ...kept,
+      [sourceId]: [
+        ...(kept[sourceId] ?? []).filter((entry) =>
+          !("session" in entry)
+            ? !sameLaunch(entry.request, record.request)
+            : sessionKey(entry.session) !== sessionKey(record.session),
+        ),
+        {
+          ...record,
+          completion: reported,
+          doneProblem:
+            existing === undefined ? record.doneProblem : existing.doneProblem,
+          doneAt:
+            existing !== undefined && "session" in existing
+              ? existing.doneAt
+              : reported !== undefined && completedWithoutAttention(reported)
+                ? reported.receivedAt
+                : record.doneAt,
+        },
+      ],
+    };
+  });
 }
 
 // Sets one kept session's done time to `doneAt`, marking it done, or clears

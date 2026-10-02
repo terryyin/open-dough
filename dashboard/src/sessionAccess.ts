@@ -1,3 +1,4 @@
+import { hasCompletionMessage } from "./completionReport.ts";
 // One access decision for cards, Recent sessions and the Sessions sidebar.
 import {
   attachOpens,
@@ -30,7 +31,7 @@ export function sessionAccess(
   operations: HostOperations,
 ): SessionAccess | undefined {
   if (
-    record.completion !== undefined &&
+    hasCompletionMessage(record.completion) &&
     ((record.session.host === "codex" &&
       record.workspaceState !== undefined &&
       record.workspaceState.kind !== "available") ||

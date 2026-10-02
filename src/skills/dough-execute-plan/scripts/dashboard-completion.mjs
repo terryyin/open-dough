@@ -25,15 +25,12 @@ export async function reportCompletion(argv) {
       throw new Error("Malformed reporting arguments.");
     values[name] = argv[index + 1];
   }
-  for (const name of [
-    "origin",
-    "source",
-    "host",
-    "reference",
-    "outcome",
-    "message-file",
-  ])
+  for (const name of ["origin", "source", "host", "reference", "outcome"])
     if (!values[name]) throw new Error(`Missing --${name}.`);
+  if (!["completed", "unfinished"].includes(values.outcome))
+    throw new Error("The outcome must be completed or unfinished.");
+  if (values.outcome === "unfinished" && !values["message-file"])
+    throw new Error("Unfinished work requires --message-file.");
   const origin = new URL(values.origin);
   if (
     origin.protocol !== "http:" ||
@@ -43,7 +40,11 @@ export async function reportCompletion(argv) {
     origin.password
   )
     throw new Error("The reporting origin must be a loopback HTTP origin.");
-  const message = await readFile(values["message-file"], "utf8");
+  const message = values["message-file"]
+    ? await readFile(values["message-file"], "utf8")
+    : "";
+  if (values["message-file"] && !message.trim())
+    throw new Error("An attention message must contain useful text.");
   const response = await fetch(`${origin.origin}/__agent-launch/completion`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Origin: origin.origin },

@@ -7,7 +7,10 @@ import type { IncomingMessage } from "node:http";
 import { z } from "zod";
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import type { ReportingContext } from "../src/launchRequest.ts";
-import { completionSchema } from "../src/completionReport.ts";
+import {
+  completedWithoutAttention,
+  completionSchema,
+} from "../src/completionReport.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { installedSkillPath } from "./launchHosts.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -20,16 +23,19 @@ import { knownSource } from "./sessionAdmission.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 
 export const completionEndpoint = "/__agent-launch/completion";
-const submissionSchema = z.strictObject({
-  source: z.string().min(1),
-  host: sessionHostSchema,
-  reference: completionSchema.shape.reference,
-  session: z.string().min(1).optional(),
-  outcome: completionSchema.shape.outcome,
-  message: completionSchema.shape.message.refine(
-    (value) => value.trim().length > 0,
-  ),
-});
+const submissionSchema = z
+  .strictObject({
+    source: z.string().min(1),
+    host: sessionHostSchema,
+    reference: completionSchema.shape.reference,
+    session: z.string().min(1).optional(),
+    outcome: completionSchema.shape.outcome,
+    message: completionSchema.shape.message,
+  })
+  .refine(
+    (report) =>
+      completedWithoutAttention(report) || report.message.trim().length > 0,
+  );
 
 // Prepare a standalone installed script outside the launch workspace, which may retire.
 // This is an executable copy; the existing attempts/records remain the only evidence stores.
@@ -138,7 +144,8 @@ export async function submitCompletion(req: IncomingMessage) {
     receivedAt: new Date().toISOString(),
   };
   // The attempt is the write-ahead owner while Claude has not printed a native identity.
-  // A pending receipt deliberately names no session and never implies Done.
+  // A pending receipt deliberately names no session; its eventual binding owns local Done.
+  // Reporting never renames/stops native sessions or disposes an attachment.
   try {
     await replaceAttempts((kept) => ({
       ...kept,
@@ -158,7 +165,13 @@ export async function submitCompletion(req: IncomingMessage) {
           )
             return entry;
           write.stored = true;
-          return { ...entry, completion };
+          return {
+            ...entry,
+            completion,
+            ...(completedWithoutAttention(completion)
+              ? { doneAt: completion.receivedAt }
+              : {}),
+          };
         }),
       }));
       if (!write.stored) throw new Error("The reporting session was deleted.");

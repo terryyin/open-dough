@@ -1,4 +1,4 @@
-import { completionLabel } from "./completionReport.ts";
+import { completionLabel, hasCompletionMessage } from "./completionReport.ts";
 import { sessionKey } from "./sessionReference.ts";
 import { hostName } from "./sessionCapabilities.ts";
 // One kept session, shown consistently on cards and in Recent sessions.
@@ -72,7 +72,7 @@ export function SessionEntry({
         </>
       )}
       {stateWords}
-      {record.completion !== undefined && (
+      {hasCompletionMessage(record.completion) && (
         <div className="session-attention-message">
           <p>{completionLabel(record.completion)}</p>
           <pre>{record.completion.message}</pre>
