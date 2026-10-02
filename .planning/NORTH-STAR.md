@@ -32,11 +32,8 @@ After accepted trunk publication, attempt a safe fast-forward when a default
 checkout is supplied; preserve pending local work and report a skipped,
 deferred, stopped, or failed refresh separately. Its absence never blocks owned
 work. Dough Land and wrap-up retain their publication, refresh, retirement,
-review, history-recovery, and CI duties. Terry repurposed
-[SEED-008's closure story](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration)
-on 2026-10-02 to dashboard completion reporting; it no longer owns an installed
-Git-integration command or relocation of those responsibilities. Explicit
-current-checkout work needs no automated ownership or handoff mechanism. Owned
+review, history-recovery, and CI duties. Explicit current-checkout work needs
+no automated ownership or handoff mechanism. Owned
 workspaces use the same remote contract across machines and worktrees.
 
 Keep this direction while the selected stories need it; retire it when lasting
@@ -235,22 +232,3 @@ workflow start establishes the actual context once, and dashboard and native
 adapters consume that context. Default-checkout confirmation stays a launch-time
 acknowledgment that never activates auto-land. Retire this topic when that story
 is delivered; keep any lasting rule in `dashboard/LAUNCH-START.md`.
-
-## Explicit skill completion and retained attention messages
-
-For [quiet dashboard completion](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration),
-Land and Wrap Up keep their operations and report through a skill-referenced
-installed script to the existing local dashboard boundary. Supply explicit
-launch context and associate the report with its recorded host-qualified session;
-retain it in the existing machine-local launch records. Successful completion
-without an attention message can set local Done without interrupting the sender.
-An attention message or unfinished outcome keeps the session open for explicit
-Mark as done, including hosts without native stop. Native activity, an agent's
-last reply, and the story's published lifecycle retain their separate meanings.
-Reuse existing record, browser-origin, and terminal boundaries; no MCP discovery,
-new daemon, or parallel session registry is needed. This changes the earlier
-manual-only session disposition, not Git or CI ownership. It also leaves
-[dashboard-owned CI monitoring](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring)
-with its existing story. Supported by Accepted ADRs 0001, 0002, 0004, and 0006;
-move lasting feature rules to dashboard launch/terminal documentation at wrap-up
-and retire this topic when no active work needs it.

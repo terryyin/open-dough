@@ -18,7 +18,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Reconnect to a Cursor session without interrupting its running task](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-reconnect-leaves-the-task-running) — SEED-052#cursor-reconnect-leaves-the-task-running ([plan](slice-plans/218-cursor-turn-survives-detach-and-reconnect/PLAN.md))
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies ([plan](slice-plans/216-blocking-story-dependencies/PLAN.md))
 - [Announce a deleted session record to screen readers the first time](seeds/SEED-052-start-agent-work-from-dashboard.md#announce-record-deletion-first-time) — SEED-052#announce-record-deletion-first-time ([plan](slice-plans/219-deletion-failure-feedback/PLAN.md))
-- [Complete dashboard sessions quietly and retain messages needing attention](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration) — SEED-008#installed-story-branch-integration ([plan](slice-plans/220-quiet-dashboard-session-completion/PLAN.md))
 
 ## Backlog list
 

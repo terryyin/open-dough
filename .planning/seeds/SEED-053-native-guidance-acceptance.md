@@ -22,7 +22,7 @@ The Cursor acceptance story is closed. Its evidence remains recoverable from the
 ### Accept quiet dashboard completion and retained attention messages
 
 **Identity:** SEED-053#quiet-dashboard-completion
-**Covered work:** [SEED-008's completion story](SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration), [plan 220](../slice-plans/220-quiet-dashboard-session-completion/PLAN.md).
+**Completed implementation:** [SEED-008's completion story](https://github.com/terryyin/open-dough/blob/db75dac39cc8a1aae33e7e881d5c3363730f93c9/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration), [plan 220](https://github.com/terryyin/open-dough/blob/db75dac39cc8a1aae33e7e881d5c3363730f93c9/.planning/slice-plans/220-quiet-dashboard-session-completion/PLAN.md).
 **Outcome:** Developers can rely on the installed completion operation and quiet
 Land/Wrap Up behavior on Codex, Claude Code, and Cursor. This acceptance home
 tracks missing native proof separately from functional implementation; it adds
@@ -55,7 +55,7 @@ affected release under ADR 0005. The slice-1 fixture only proves feasibility.
 No prior evidence was reusable for this new callback mechanism. Paid runs remain
 explicitly invoked; add none to default tests or CI.
 
-**Current state:** [Plan 220's slice-1 observations](../slice-plans/220-quiet-dashboard-session-completion/PLAN.md#execution-observation-slice-1-approved-native-recovery-2026-10-02)
+**Current state:** [Recovered slice-1 observations](https://github.com/terryyin/open-dough/blob/db75dac39cc8a1aae33e7e881d5c3363730f93c9/.planning/slice-plans/220-quiet-dashboard-session-completion/PLAN.md#accepted-execution-evidence-2026-10-02)
 retain accepted Codex reporting, same-session continuation and post-retirement callability,
 and accepted Cursor reporting on its original session. Native fixture trust was resolved
 interactively. Claude's later “Code from External” rejection stopped its path until the
