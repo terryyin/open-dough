@@ -18,7 +18,7 @@ The existing Preparing assignment remains published; retain this draft for revie
 - Integration checkout: `/Users/terryyin/git/open-dough`
 - Remote: `origin`. Trunk target: `main`. Increment target: the remote execution branch.
 - Published claim: `0ae15498c2de5d3a169dcec8c609c27cd60f3f09` on `origin/main`.
-- Starting revision: `f7d1140011044be2536b0c7aa09f4be7b35b82fc`. Previously published base for the next increment: `3e5c10d8f3691f30f64d71ec72dbefe144f824d0` on `origin/cursor/use-cursor-for-the-established-dashboard-workflows`.
+- Starting revision: `f7d1140011044be2536b0c7aa09f4be7b35b82fc`. Previously published base for the next increment: `4541eda47a3d1b7f909320dea343bc66c9ac65e7` on `origin/cursor/use-cursor-for-the-established-dashboard-workflows`. Slice 4 `3e5c10d8` and slice 5 `4541eda4` are `pendingCi: unobserved` because host session identity is required to verify the notification bridge.
 - Agent: `stanly-chan`. Publisher: `cursor-mac-lan-use-cursor-from-dashboard`.
 - CI source: GitHub Actions. Workflow selector `ci.yml`, display name `CI`, verified on `main` (`workflowName: CI`). Observer `/tmp/dough-ci-501/watch-aPxS2Q` watches the execution branch. The trunk claim is `pendingCi: unobserved`.
 
@@ -286,3 +286,7 @@ native acceptance for this story; fixture success does not replace it.
 - CI on `71764841` failed because refusal specs still expected a well-formed
   Cursor request to return 400. Repair `2f21a7be` removed those rows. Slice 2
   stayed planned through that repair.
+
+## Execution complete
+
+Product advice: Leave the queue order as it is. Keep **See Cursor activity and use its native controls** as the next Cursor story. Attach is already delivered; that story should not be expanded to repair the host guide. The unqueued correction `SEED-052#cursor-host-guide-attach` is the follow-up for wrap-up to queue. No other product change is recommended.
