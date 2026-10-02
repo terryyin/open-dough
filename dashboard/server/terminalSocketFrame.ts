@@ -27,6 +27,22 @@ export function terminalMessage(
   }
 }
 
+const notTerminalMessage = 1008;
+
+// A frame that is not a terminal message closes the socket. A terminal
+// message is returned for the caller to apply.
+export function closeUnlessTerminalMessage(
+  ws: WebSocket,
+  data: RawData,
+  isBinary: boolean,
+): TerminalMessage | undefined {
+  const message = terminalMessage(data, isBinary);
+  if (message === undefined) {
+    ws.close(notTerminalMessage, "Not a terminal message.");
+  }
+  return message;
+}
+
 export function refuseWorkspace(
   ws: WebSocket,
   workspaceUnavailable: UnavailableWorkspace,

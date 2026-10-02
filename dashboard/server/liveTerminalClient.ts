@@ -14,11 +14,9 @@ import {
 } from "./detachedIdleWatch.ts";
 import {
   closeClientSocket,
+  closeUnlessTerminalMessage,
   sendControl,
-  terminalMessage,
 } from "./terminalSocketFrame.ts";
-
-const notTerminalMessage = 1008;
 
 type LiveSocket = {
   readonly ws: WebSocket;
@@ -156,11 +154,8 @@ export class LiveTerminalClient {
 
   private listen(socket: LiveSocket): void {
     socket.ws.on("message", (data, isBinary) => {
-      const message = terminalMessage(data, isBinary);
-      if (message === undefined) {
-        socket.ws.close(notTerminalMessage, "Not a terminal message.");
-        return;
-      }
+      const message = closeUnlessTerminalMessage(socket.ws, data, isBinary);
+      if (message === undefined) return;
       if (!this.isTracked()) return;
       if ("screen" in message) {
         if (

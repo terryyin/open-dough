@@ -44,6 +44,7 @@ export async function startCursorDashboard(
   mode: "dev" | "preview",
   cursor: FakeCursor,
   machine: string,
+  options?: { readonly launchTimeoutMs?: number },
 ): Promise<DashboardServer> {
   return startDashboardServer({
     mode,
@@ -52,6 +53,9 @@ export async function startCursorDashboard(
     projectFolders: ["open-dough"],
     pathPrefix: [cursor.binDir],
     extraEnv: { ...cursor.env },
+    ...(options?.launchTimeoutMs === undefined
+      ? {}
+      : { launchTimeoutMs: options.launchTimeoutMs }),
   });
 }
 

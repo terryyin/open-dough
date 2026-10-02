@@ -5,9 +5,12 @@
 // A keep declaration may also name an idle screen. A kept client with no
 // socket whose screen matches that for the declared settle period is hung
 // up; any other screen keeps it. Hosts that declare nothing still receive
-// SIGHUP when their socket closes. `close()` hangs up every client.
+// SIGHUP when their socket closes. A host may instead declare a wait while
+// its launch process is still running: the notice is written, input is
+// dropped, and a client starts after that process exits when the socket is
+// still open. `close()` hangs up every client.
 import type { IPty } from "@lydell/node-pty";
-import type { WebSocket } from "ws";
+import type { RawData, WebSocket } from "ws";
 import {
   terminalAttachFailedCode,
   terminalEndedCode,
@@ -16,7 +19,10 @@ import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import { LiveTerminalClient } from "./liveTerminalClient.ts";
-import { refuseWorkspace } from "./terminalSocketFrame.ts";
+import {
+  closeUnlessTerminalMessage,
+  refuseWorkspace,
+} from "./terminalSocketFrame.ts";
 
 const initialSize = { cols: 80, rows: 24 } as const;
 
@@ -45,6 +51,10 @@ export class TerminalAttachments {
     }
     if ("workspaceUnavailable" in attachment) {
       refuseWorkspace(ws, attachment.workspaceUnavailable);
+      return;
+    }
+    if ("wait" in attachment) {
+      this.holdForLaunch(ws, session, attachment.notice, attachment.wait);
       return;
     }
     const pty = attachment.pty;
@@ -99,6 +109,33 @@ export class TerminalAttachments {
     for (const client of [...this.clients.values()]) {
       client.hangup();
     }
+  }
+
+  // The launch process is still going. The notice is the only output, and
+  // nothing the developer types starts a client. When the process exits,
+  // an open socket attaches through the same path as any other open.
+  private holdForLaunch(
+    ws: WebSocket,
+    session: TerminalSession,
+    notice: string,
+    untilExit: Promise<void>,
+  ): void {
+    if (ws.readyState === ws.OPEN) ws.send(`${notice}\r\n`);
+    let socketOpen = true;
+    const onMessage = (data: RawData, isBinary: boolean) => {
+      closeUnlessTerminalMessage(ws, data, isBinary);
+    };
+    const onClose = () => {
+      socketOpen = false;
+    };
+    ws.on("message", onMessage);
+    ws.on("close", onClose);
+    void untilExit.then(() => {
+      ws.off("message", onMessage);
+      ws.off("close", onClose);
+      if (!socketOpen || ws.readyState !== ws.OPEN) return;
+      this.connect(ws, session);
+    });
   }
 
   // The one live client whose attach result declared keep for this session.

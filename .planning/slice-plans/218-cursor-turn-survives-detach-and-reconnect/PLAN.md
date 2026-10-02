@@ -208,7 +208,8 @@ Safe stopping point: kept clients no longer accumulate memory once idle.
 
 ### 4. Opening during a running launch turn shows a notice, holds input, then opens
 Type: Behavior
-Status: planned
+Status: done
+Accepted: `agent-terminal-cursor-launch.spec.ts` (dev and preview) and `agent-terminal-cursor-launch-page.spec.ts`. Opening during the held launch writes the notice, drops input, and starts no attach; Close and Open show the notice again; after release the open socket reaches `Add a follow-up` through observe then attached, and first input stays uncertain. Real host: `cursor-agent` 2026.10.01-e373342 session `29889916-4263-426d-8e33-5616e0a46e61`, launch wait 8 s, terminal opened at 8.3 s on the notice, typed input left pids 93416 and 93429, then the screen showed `done` and `→ Add a follow-up`.
 Proof: New boundary and page cases in `agent-terminal-cursor.spec.ts` and
 `agent-terminal-cursor-page.spec.ts`, plus the three Cursor launch specs
 unchanged. Real-host check: launch a real Cursor session with an instruction
@@ -255,3 +256,5 @@ Observe and SIGHUP prompt, then Enter: `Run the shell command sleep 40 and then 
 │ ↑/↓ option · ←/→ question · Space select · Enter next/submit · Esc to skip
 ```
 `→ Add a follow-up` marks idle only when `ctrl+c to stop` and `Clarifying Questions` are absent. The terminal cursor stayed hidden in all three states. Longest working output gap was 0.203 s, from `2026-10-02T09:18:24.328Z` to `2026-10-02T09:18:24.531Z`. SIGHUP on chat `4cf3b42a-19fd-4db9-ba20-d75ff14f1e3b`: `pty.kill("SIGHUP")` on pid 90865 at `2026-10-02T09:21:28.903Z`, screen still `$ sleep 40` and `Running`; client exited at `2026-10-02T09:21:28.943Z` (40 ms), exit code 0, signal 1. `sleep 40` (pid 91802, another process group) and `worker-server` (pid 90997) were gone. A later `--resume` client with no further prompt had no line exactly `done` (that word appeared only in the typed instruction). The working turn ended on SIGHUP. Cursor changed no repository files.
+
+Slice 4 real-host check on 2026-10-02 in this worktree, `cursor-agent` 2026.10.01-e373342. Ad-hoc launch of `sleep 40` then `done`, `launchTimeoutMs` 8000, returned `launched` at 8268 ms with first input uncertain (session `29889916-4263-426d-8e33-5616e0a46e61`). The terminal opened at 8298 ms and its output was the notice alone. Typed `not-yet` left pids 93416 and 93429 unchanged. After the turn the screen showed a `done` line outside the instruction and `→ Add a follow-up`, with the title Ready.

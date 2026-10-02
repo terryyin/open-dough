@@ -29,7 +29,14 @@ marker (`Clarifying Questions` with `Red` and `Blue`). A working, waiting, or
 unrecognized screen keeps the client. The next socket for a client that is
 still running joins it, receives readiness at once, and sees a redrawn
 screen. After that idle hangup, the next socket starts a new client, which
-shows the ordinary prompt and takes a follow-up. Input from any joined socket
+shows the ordinary prompt and takes a follow-up. Opening the terminal while
+that session's launch prompt is still running writes "Cursor is still working
+on this session's launch prompt. The terminal opens when it finishes." No
+attach process starts, and typed input is dropped. Closing and opening again
+during that wait writes the notice again. When the launch process exits, the
+open socket attaches through the same readiness path as any other open, and
+the ordinary prompt is shown. That later exit does not confirm the launch
+record's first input. Input from any joined socket
 reaches that same client, and a second open terminal shares it. Closing the
 server still sends SIGHUP to every attachment client, including a kept Cursor
 client. CLI exit uses code 4000 so the page distinguishes
