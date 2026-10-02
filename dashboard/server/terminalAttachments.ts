@@ -2,8 +2,10 @@
 // A host attach result may declare `keep`. This registry then retains that
 // one live client for the session. The client fans its output out, takes
 // input from any joined socket, and stays running when a socket closes.
-// Hosts that declare nothing still receive SIGHUP when their socket closes.
-// `close()` hangs up every client.
+// A keep declaration may also name an idle screen. A kept client with no
+// socket whose screen matches that for the declared settle period is hung
+// up; any other screen keeps it. Hosts that declare nothing still receive
+// SIGHUP when their socket closes. `close()` hangs up every client.
 import type { IPty } from "@lydell/node-pty";
 import type { WebSocket } from "ws";
 import {
@@ -55,6 +57,9 @@ export class TerminalAttachments {
       size: { cols: initialSize.cols, rows: initialSize.rows },
       readiness: attachment.ready,
       startupFailure: attachment.startupFailure,
+      ...(attachment.detachedIdle !== undefined
+        ? { detachedIdle: attachment.detachedIdle }
+        : {}),
       isTracked: () => this.clients.has(pty),
       untrack: () => this.clients.delete(pty),
     });

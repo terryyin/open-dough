@@ -4,8 +4,10 @@
 // The launch argv log is create-chat and a prompted resume, which exits 0.
 // Resume with no prompt is the embedded attach: it is recorded separately,
 // prints the observed `Add a follow-up` prompt, and exits on SIGHUP as
-// cursor-agent does. Working mode also prints `ctrl+c to stop` and redraws
-// that screen on SIGWINCH. It does not write a launch record or a workspace.
+// cursor-agent does. Working mode also prints `ctrl+c to stop`. Idle mode
+// prints the observed `done` reply and that prompt. Waiting mode prints the
+// observed clarifying question. Each mode redraws its screen on SIGWINCH.
+// It does not write a launch record or a workspace.
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -50,12 +52,21 @@ if (args[0] === "create-chat") {
 if (attaching) {
   const pid = process.pid;
   const dir = process.env.FAKE_CURSOR_ATTACH_DIR;
-  const working = process.env.FAKE_CURSOR_ATTACH_MODE === "working";
+  const mode = process.env.FAKE_CURSOR_ATTACH_MODE;
+  const screens = {
+    working: "→ Add a follow-up\r\nctrl+c to stop\r\n",
+    idle: "  done\r\n\r\n  → Add a follow-up\r\n",
+    waiting: [
+      "│ Clarifying Questions",
+      "│ 1. Which do you choose?",
+      "│   › [ ] Red",
+      "│     [ ] Blue",
+      "│ ↑/↓ option · ←/→ question · Space select · Enter next/submit · Esc to skip",
+    ].join("\r\n") + "\r\n",
+  };
   if (dir) fs.mkdirSync(dir, { recursive: true });
   const paint = () => {
-    const body = working
-      ? "→ Add a follow-up\r\nctrl+c to stop\r\n"
-      : "→ Add a follow-up\r\n";
+    const body = screens[mode] ?? "→ Add a follow-up\r\n";
     process.stdout.write(`\x1b[?2026h\x1b[?25h\x1b[2J\x1b[H${body}\x1b[?2026l`);
   };
   process.on("SIGHUP", () => {

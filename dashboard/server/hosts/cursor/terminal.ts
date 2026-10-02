@@ -4,9 +4,12 @@
 // conversation loads, the observed prompt is `→ Add a follow-up`. A visible
 // cursor and that text admit the terminal. The screen does not include the
 // uuid. The result declares keep: closing the socket leaves this process
-// running, and a later terminal for the session joins it.
+// running, and a later terminal for the session joins it. It also declares
+// the idle end rule: a detached client whose screen stays idle is hung up,
+// and the next open starts a new client.
 import { spawn as spawnPty } from "@lydell/node-pty";
 import type { LaunchHost } from "../../launchHosts.ts";
+import { cursorDetachedIdle, cursorIdleSettleMs } from "./idleScreen.ts";
 
 export const attachCursor: NonNullable<LaunchHost["attach"]> = (
   ...[session, , size]
@@ -28,6 +31,10 @@ export const attachCursor: NonNullable<LaunchHost["attach"]> = (
   return {
     pty,
     keep: true,
+    detachedIdle: {
+      settleMs: cursorIdleSettleMs,
+      matches: cursorDetachedIdle,
+    },
     ready(screen, cursorVisible) {
       return cursorVisible && screen.includes("Add a follow-up");
     },

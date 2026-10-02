@@ -29,6 +29,14 @@ export type UnavailableWorkspace = Exclude<
   WorkspaceState,
   { kind: "available" }
 >;
+// With keep: once that client has no socket, a screen that matches is hung
+// up after settleMs. Any other screen keeps the client. Absent means a
+// detached kept client stays until the server closes.
+export type DetachedIdle = {
+  readonly settleMs: number;
+  readonly matches: (screen: string) => boolean;
+};
+
 export type TerminalAttachment =
   | {
       readonly pty: IPty;
@@ -40,6 +48,7 @@ export type TerminalAttachment =
       // code keeps that one client and joins a later socket to it. Absent
       // means closing the socket hangs the client up.
       readonly keep?: true;
+      readonly detachedIdle?: DetachedIdle;
     }
   | { readonly workspaceUnavailable: UnavailableWorkspace };
 

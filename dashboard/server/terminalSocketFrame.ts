@@ -2,6 +2,8 @@
 // client and the attachment registry.
 import type { RawData, WebSocket } from "ws";
 import {
+  terminalAttachFailedCode,
+  terminalEndedCode,
   terminalMessageSchema,
   terminalWorkspaceUnavailableCode,
   type TerminalMessage,
@@ -33,6 +35,24 @@ export function refuseWorkspace(
     ws.send(JSON.stringify({ workspaceUnavailable }), { binary: true });
     ws.close(terminalWorkspaceUnavailableCode, "Saved workspace unavailable.");
   }
+}
+
+// The process is gone. A client that never became ready may instead report
+// the workspace limitation observed for this host.
+export function closeClientSocket(
+  ws: WebSocket,
+  ready: boolean,
+  hostName: string,
+  workspace: UnavailableWorkspace | undefined,
+): void {
+  if (workspace !== undefined) {
+    refuseWorkspace(ws, workspace);
+    return;
+  }
+  ws.close(
+    ready ? terminalEndedCode : terminalAttachFailedCode,
+    ready ? "The terminal ended." : `${hostName} could not be attached.`,
+  );
 }
 
 export function sendControl(

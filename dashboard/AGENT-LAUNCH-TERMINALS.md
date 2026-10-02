@@ -21,11 +21,18 @@ messages share the existing transport.
 Closing a Claude Code or Codex socket sends SIGHUP to that attachment client
 only, retaining native work, history, and daemon. Cursor's attach result
 declares keep: closing its socket, by Close, switching sessions, or a dropped
-connection, leaves that client running. The next socket for the same session
-joins it, receives readiness at once, and sees a redrawn screen. Input
-from any joined socket reaches that same client, and a second open terminal
-shares it. Closing the server still sends SIGHUP to every attachment
-client, including a kept Cursor client. CLI exit uses code 4000 so the page distinguishes
+connection, leaves that client running. A kept Cursor client with no socket
+is hung up only after its screen has shown a line `done`, then
+`→ Add a follow-up`, for 0.203 seconds, and that screen has neither the
+working marker (`→ Add a follow-up` with `ctrl+c to stop`) nor the waiting
+marker (`Clarifying Questions` with `Red` and `Blue`). A working, waiting, or
+unrecognized screen keeps the client. The next socket for a client that is
+still running joins it, receives readiness at once, and sees a redrawn
+screen. After that idle hangup, the next socket starts a new client, which
+shows the ordinary prompt and takes a follow-up. Input from any joined socket
+reaches that same client, and a second open terminal shares it. Closing the
+server still sends SIGHUP to every attachment client, including a kept Cursor
+client. CLI exit uses code 4000 so the page distinguishes
 ended from disconnected. Codex spawn alone does not establish readiness: native
 hook/trust UI remains interactive, and a completed composer frame with visible
 cursor confirms attachment. Refusal preserves done intent; successful original-ID

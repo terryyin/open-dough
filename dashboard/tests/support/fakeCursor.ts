@@ -1,7 +1,8 @@
 // PATH stand-in for `cursor-agent`. The dashboard server and the page create
 // the launch record. Launch argv is create-chat and a prompted resume.
 // A resume with no prompt is a separate attach record and exits on SIGHUP.
-// Working mode paints `ctrl+c to stop` and redraws that screen on SIGWINCH.
+// Working mode paints `ctrl+c to stop`. Idle and waiting modes paint the
+// observed idle reply and clarifying question. Each redraws on SIGWINCH.
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -56,6 +57,7 @@ function readJsonl<T>(file: string): T[] {
 
 export function installFakeCursor(options?: {
   readonly working?: boolean;
+  readonly screen?: "working" | "idle" | "waiting";
 }): FakeCursor {
   const root = mkdtempSync(path.join(tmpdir(), "dough-cursor-"));
   const binDir = path.join(root, "bin");
@@ -64,6 +66,8 @@ export function installFakeCursor(options?: {
   installFixtureExecutable("fake-cursor", binDir, "cursor-agent");
   const attaches = (): CursorAttach[] =>
     readJsonl(path.join(attachDir, "attaches.jsonl"));
+  const screen =
+    options?.screen ?? (options?.working === true ? "working" : undefined);
   return {
     binDir,
     sessionId: cursorSessionId,
@@ -71,7 +75,7 @@ export function installFakeCursor(options?: {
       FAKE_CURSOR_LOG: logPath,
       FAKE_CURSOR_SESSION_ID: cursorSessionId,
       FAKE_CURSOR_ATTACH_DIR: attachDir,
-      ...(options?.working ? { FAKE_CURSOR_ATTACH_MODE: "working" } : {}),
+      ...(screen !== undefined ? { FAKE_CURSOR_ATTACH_MODE: screen } : {}),
     },
     calls() {
       return readJsonl<CursorInvocation>(logPath);

@@ -71,10 +71,14 @@ export async function admit(terminal: CursorTerminal) {
 
 // Closing the socket does not hang the client up. A sent SIGHUP would exit
 // the fixture within this wait, as cursor-agent does.
-export async function stayedUp(cursor: FakeCursor, pid: number) {
+export async function stayedUp(
+  cursor: FakeCursor,
+  pid: number,
+  timeoutMs = 300,
+) {
   const ended = await waitUntil(
     () => !processRunning(pid) || cursor.signals(pid).includes("SIGHUP"),
-    { timeoutMs: 300 },
+    { timeoutMs },
   );
   expect(ended).toBe(false);
   expect(processRunning(pid)).toBe(true);

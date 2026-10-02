@@ -188,7 +188,8 @@ Safe stopping point: no detach interrupts a terminal-started Cursor turn.
 
 ### 3. An idle detached Cursor client ends; a waiting one stays
 Type: Behavior
-Status: planned
+Status: done
+Accepted: `agent-terminal-cursor-idle.spec.ts`. An idle screen (`done`, then `→ Add a follow-up`, no `ctrl+c to stop`) is hung up after the 203 ms settle, and the next open is a new pid that takes a follow-up. A waiting screen and an unrecognized screen stay for 500 ms. Slice 2's working-client specs stayed green.
 Proof: New cases in `agent-terminal-cursor.spec.ts`. Slice 2's specs stay
 green.
 
