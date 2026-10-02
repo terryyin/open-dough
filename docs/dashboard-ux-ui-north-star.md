@@ -82,25 +82,6 @@ The [dashboard navigation guidance](dashboard-navigation.md) describes the pinne
 banner, supporting disclosures, connected stages, and progressive spatial navigation.
 It is part of this temporary design direction and carries the same authority.
 
-## Blocking dependencies inside a story card
-
-Selected direction for SEED-041; not yet delivered. Follow the
-[dependency requirements](project-visibility-requirements.md#blocking-story-dependencies)
-for meaning and lifecycle. Ordinary internal solution dependencies need no
-visualization in this delivery.
-
-On the dependent story's card, offer an expandable **Dependencies** section.
-Its summary makes the start block clear, for example **2 blocking**. Expand
-in place to show each prerequisite story, reason for sequencing, completion
-condition, and resolution. The supplying card needs no reverse annotation;
-no relationship screen or whole-backlog graph is required.
-
-While any dependency is unresolved, make **Start execution** unavailable and
-explain why beside it. Distinguish waiting, satisfied, and developer-decision
-states in text. Clearing one dependency leaves others visible; clearing all
-removes this block without overriding other execution requirements. Preserve
-card position, backlog order, and keyboard access through expansion and updates.
-
 ## Animation explains change
 
 When spatial navigation is introduced, animate viewport movement when focusing
