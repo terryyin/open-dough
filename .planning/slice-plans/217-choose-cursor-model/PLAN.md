@@ -215,6 +215,21 @@ spec failed before the fix and passed after it, and typecheck passed.
 disposed". The same failure hit unrelated branches. The developer left it out
 of this story.
 
+## Execution complete
+
+Product advice: During wrap-up, update the Model paragraph in
+`dashboard/AGENT-LAUNCH.md`. Lines 47–48 still say "Cursor offers only
+Default". They should say that Cursor lists `cursor-agent models` after
+"Default (your Cursor setting)", and that launch rechecks a chosen id before
+`create-chat`. A chosen id goes as `--model` on the prompted run only, and
+Cursor saves it as its own setting. A blank ad hoc start with a chosen model
+is refused. Keep "Default omits `--model`". Also qualify lines 32–33, "no
+cross-launch preference or configuration writes", for Cursor's own write. No
+backlog change. Deferred promises stay deferred: Cursor activity, rename and
+stop, restoring Cursor's setting, and naming it in Default. A need to restore
+the setting stays a hypothesis until developers report the change as a
+surprise.
+
 ## Current decisions
 
 - `--model` goes on the prompted launch run only, never into the stored resume
