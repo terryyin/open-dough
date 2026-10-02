@@ -1,0 +1,41 @@
+#!/usr/bin/env node
+"use strict";
+// Proof stand-in for cursor-agent. Prints the configured create-chat id and
+// records every argv. It does not write a launch record or a workspace.
+const fs = require("node:fs");
+const path = require("node:path");
+
+const args = process.argv.slice(2);
+const log = process.env.FAKE_CURSOR_LOG;
+const home = process.env.HOME;
+let stored = null;
+if (home) {
+  try {
+    stored = fs.readFileSync(
+      path.join(home, ".open-dough", "dashboard", "agent-launches.json"),
+      "utf8",
+    );
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+}
+if (log) {
+  fs.appendFileSync(
+    log,
+    `${JSON.stringify({
+      executable: process.argv[1],
+      args,
+      cwd: process.cwd(),
+      stored,
+    })}\n`,
+  );
+}
+if (args[0] === "create-chat") {
+  const id = process.env.FAKE_CURSOR_SESSION_ID;
+  if (!id) {
+    process.stderr.write("missing session id\n");
+    process.exit(1);
+  }
+  process.stdout.write(`${id}\n`);
+}
+process.exit(0);

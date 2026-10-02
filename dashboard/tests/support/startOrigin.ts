@@ -22,6 +22,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { installedSkillPath } from "../../server/launchHosts.ts";
 import { backlogOf } from "../../../tests/support/product-backlog-fixture.mjs";
 import {
   computeBasis,
@@ -128,7 +129,7 @@ function writeQueuedStories(project: string): void {
 export async function startOrigin(
   repository = "terryyin/open-dough",
   projectId = "open-dough",
-  host: "claude" | "codex" = "claude",
+  host: "claude" | "codex" | "cursor" = "claude",
 ): Promise<StartOrigin> {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-start-"));
   const origin = path.join(machine, "origin.git");
@@ -145,15 +146,11 @@ export async function startOrigin(
   await git(project, "config", `url.${origin}.insteadOf`, spelled);
   writeFileSync(path.join(project, ".gitignore"), ".worktrees/\n");
   writeQueuedStories(project);
+  const folder = { path: project, shown: project };
   for (const skill of installedSkills) {
     cpSync(
       path.join("src", "skills", skill),
-      path.join(
-        project,
-        host === "claude" ? ".claude" : ".agents",
-        "skills",
-        skill,
-      ),
+      installedSkillPath(host, folder, skill),
       { recursive: true },
     );
   }
@@ -204,11 +201,11 @@ export async function startOrigin(
       };
     },
     async takenByAnotherAgent(identity = queuedIdentity) {
-      const scripts = path.join(
-        project,
-        host === "claude"
-          ? ".claude/skills/dough-execute-plan/scripts"
-          : ".agents/skills/dough-execute-plan/scripts",
+      const scripts = installedSkillPath(
+        host,
+        folder,
+        "dough-execute-plan",
+        "scripts",
       );
       await exec(
         process.execPath,

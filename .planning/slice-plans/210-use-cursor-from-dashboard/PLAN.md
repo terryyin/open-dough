@@ -10,6 +10,18 @@ branch `cursor/use-cursor-for-the-established-dashboard-workflows`, starting rev
 target `main`, integration checkout `/Users/terryyin/git/open-dough`.
 The existing Preparing assignment remains published; retain this draft for review.
 
+## Execution
+
+- Mode: story-branch. This execution created the workspace.
+- Workspace: `/Users/terryyin/git/open-dough/.worktrees/use-cursor-for-the-established-dashboard-workflows`
+- Branch: `cursor/use-cursor-for-the-established-dashboard-workflows`
+- Integration checkout: `/Users/terryyin/git/open-dough`
+- Remote: `origin`. Trunk target: `main`. Increment target: the remote execution branch.
+- Published claim: `0ae15498c2de5d3a169dcec8c609c27cd60f3f09` on `origin/main`.
+- Starting revision: `f7d1140011044be2536b0c7aa09f4be7b35b82fc`. Previously published base for the first increment: `0ae15498c2de5d3a169dcec8c609c27cd60f3f09`.
+- Agent: `stanly-chan`. Publisher: `cursor-mac-lan-use-cursor-from-dashboard`.
+- CI source: GitHub Actions. Workflow selector `ci.yml`, display name `CI`, verified on `main` (`workflowName: CI`). Observer `/tmp/dough-ci-501/watch-aPxS2Q` watches the execution branch. The trunk claim is `pendingCi: unobserved`.
+
 ## Goal and scope
 
 A developer can run execution, refinement, and an unattached session on
@@ -95,11 +107,13 @@ dashboard specs below were not executed during planning.
 
 ### 1. Start Cursor execution in the dashboard workspace
 Type: Behavior
-Status: planned
+Status: done
 Proof: Story example 1. A fixture `cursor-agent` records argv and prints a
 UUID from `create-chat`. The card shows that Cursor session. Claude's
 `agent-launch-start.spec.ts` and Codex's `agent-launch-start-codex.spec.ts`
 still pass.
+
+Accepted proof: `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-start-cursor.spec.ts dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts --workers=2` passed after refactor, and `npm run typecheck:dashboard` passed. The observing test is `dashboard/tests/agent-launch-start-cursor.spec.ts` ("a queued story starts Cursor execution in the dashboard workspace and the card shows that session"). Setup is the real installed start script, a bare origin, and the fixture binary on `PATH`. The assertion sees the dialog on Cursor with an empty model, the card text and UUID, the UUID stored before the prompt, argv `--workspace` and `--resume`, the `/dough-execute-plan` handoff, branch `cursor/story-a`, and no forbidden flags.
 
 Behavior: A queued story can start execution and the fixture CLI is
 installed. The developer chooses Cursor, leaves Default, and starts
@@ -186,12 +200,15 @@ Opening the embedded terminal reaches a visible Cursor prompt for the same
 uuid, which is the ready frame this plan has not yet seen. Ending that
 client leaves the uuid resumable.
 
-This is the paid probe. Do it only after slices 1–4. If the CLI rejects the
-argv or the handoff does not commit, stop and revise the Cursor host prompt
-before calling the story done. Do not borrow another host's command to make
-the commit succeed. Record the ready-frame text observed on the real PTY
-in this plan. Slices 1–4 stay valid against the fixture if only the prompt
-wording changes.
+This is the paid probe. Do it only after slices 1–4. Slice 1 confirms the
+first prompt only when that `cursor-agent` process exits 0. The observed
+interactive client stays running, so this probe must treat a still-running
+client as the launched session rather than waiting for it to exit. If the
+CLI rejects the argv or the handoff does not commit, stop and revise the
+Cursor host before calling the story done. Do not borrow another host's
+command to make the commit succeed. Record the ready-frame text observed
+on the real PTY in this plan. Slices 1–4 stay valid against the fixture
+when this probe changes prompt wording or that wait.
 
 No automated `npm` command covers this slice. The proof is the commit, the
 stored uuid, and the recorded ready frame.
@@ -215,4 +232,10 @@ native acceptance for this story; fixture success does not replace it.
 
 ## Learnings
 
-None yet.
+- The fixture exits immediately, and the host confirms the first prompt only
+  when that process exits 0. The interactive client observed on 2026-10-02
+  does not exit, so slice 5 has to accept a still-running client. Slices 2–4
+  keep the fixture contract.
+- An empty ad-hoc instruction makes `cursorPrompt` return undefined, and
+  launch then refuses before `create-chat`. Slice 2 still records that
+  session with no story and no invented skill line.

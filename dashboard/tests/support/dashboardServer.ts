@@ -92,6 +92,8 @@ export async function startDashboardServer(
     // environment to `gh`) would see it, without touching this process's own
     // real environment.
     readonly extraEnv?: Readonly<Record<string, string>>;
+    // Directories placed ahead of the harness binaries on PATH.
+    readonly pathPrefix?: readonly string[];
     // This port, which must be free, instead of any free one: a server
     // restarted on a closed one's port answers the page that server opened.
     readonly port?: number | undefined;
@@ -119,7 +121,11 @@ export async function startDashboardServer(
     ...ghEnv,
     ...claude.env,
     ...codex.env,
-    PATH: [codex.binDir, claude.env["PATH"] ?? ""].join(path.delimiter),
+    PATH: [
+      ...(options.pathPrefix ?? []),
+      codex.binDir,
+      claude.env["PATH"] ?? "",
+    ].join(path.delimiter),
     // Avatars are fetched from the same fake GitHub, never GitHub itself.
     DOUGH_AVATAR_ORIGIN: github.url.replace(/\/$/, ""),
     ...options.extraEnv,

@@ -9,8 +9,10 @@ public boundary; an unavailable host never uses another host's implementation.
 Attach and Mark as done availability is projected from that boundary's actual
 optional `attach` and `stop` operations in the machine-sessions answer. Browser
 controls also honor session state and workspace access; server admission retains
-its own missing-operation checks. Cursor has a known branch namespace but no
-delivered runtime or launch choice.
+its own missing-operation checks. Cursor's module launches with `create-chat`,
+then `cursor-agent --workspace` and `--resume` in the established workspace,
+and stores that id, workspace, and resume command, with no alias or endpoint.
+It supplies no attach or stop, so those controls stay absent.
 
 Common workflow, records, actions and presentation do not call another host's
 private helpers. Shared wording reads the host description, and alerts consume native

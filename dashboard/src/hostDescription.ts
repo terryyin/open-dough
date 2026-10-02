@@ -55,15 +55,21 @@ export const hostDescriptions = {
     unofferedModelExplanation:
       "Codex uses its configured default model; a Claude model cannot be selected.",
   },
-  cursor: { name: "Cursor", branchNamespace: "cursor/", models: {} },
+  cursor: {
+    name: "Cursor",
+    branchNamespace: "cursor/",
+    // This invocation spells a skill as `/dough-execute-plan`.
+    skillSigil: "/",
+    models: {},
+  },
 } as const satisfies Record<HostIdentity, HostDescription>;
 
 export function hostDescription(host: HostIdentity): HostDescription {
   return hostDescriptions[host];
 }
 
-// Offered launch hosts have a skill invocation. Cursor retains its identity
-// without offering a launch. The server still checks runtime availability.
+// Offered launch hosts have a skill invocation. The server still checks
+// runtime availability.
 export const launchHosts = agentHosts.filter(
   (host) => hostDescription(host).skillSigil !== undefined,
 );

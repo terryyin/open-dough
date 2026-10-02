@@ -46,9 +46,10 @@ export function LaunchSession({
                     ? "First input awaiting submission"
                     : "First input acceptance uncertain"}
             </p>
-            {record.session.continuation.notice !== undefined && (
-              <p className="quiet">{record.session.continuation.notice}</p>
-            )}
+            {"notice" in record.session.continuation &&
+              record.session.continuation.notice !== undefined && (
+                <p className="quiet">{record.session.continuation.notice}</p>
+              )}
             {record.firstInput?.state !== "confirmed" &&
               record.firstInput?.explanation !== undefined && (
                 <p className="quiet">{record.firstInput.explanation}</p>

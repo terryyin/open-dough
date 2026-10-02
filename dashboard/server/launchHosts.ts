@@ -14,6 +14,7 @@ import type { LaunchRecording } from "./launchRecording.ts";
 import type { CreationRecord } from "../src/launchCreation.ts";
 import { codexHost } from "./codexHost.ts";
 import { claudeHost } from "./claudeHost.ts";
+import { cursorHost } from "./cursorHost.ts";
 import type {
   EstablishedLaunch,
   HostLaunch,
@@ -97,7 +98,7 @@ export type LaunchHost = {
 const hostRuntimes: Readonly<Record<HostIdentity, LaunchHost | undefined>> = {
   claude: claudeHost,
   codex: codexHost,
-  cursor: undefined,
+  cursor: cursorHost,
 };
 
 export function launchHost(
