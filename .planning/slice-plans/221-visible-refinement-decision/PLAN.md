@@ -50,7 +50,7 @@ Observed before planning; these settle the approach, not the future edit:
 
 ### 1. A planning report makes its refinement decision and remaining concerns clear
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk the refined seed's examples against the changed guidance under
 [AGENTS.md's behavior review](../../../AGENTS.md#behavior-review), recording the
 instruction that yields each result. Review the diff for minimal wording and
@@ -74,6 +74,20 @@ No runtime tests or per-host discovery rechecks are added for this conventional
 wording change. The behavior review proves guidance sufficiency, not native
 planner compliance; installation and native acceptance retain their own owners
 under [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md).
+
+Accepted proof: the six key examples walk to their results through the
+changed bullets: refinement invocation and decision line (ran, not needed with
+reason, deferred as instructed); remaining concerns as `not-ready` reasons;
+permitted interim behavior with a named replacing slice as an accepted
+trade-off; relabeling a proof gap settles nothing; readiness still decided by
+the shared criteria, now linked rather than restated. `git diff --check` and
+`npm run lint` pass; 1,913 → 1,950 words.
+
+Learning: the refactor pass found that "Stay within the triggering instruction"
+restated the report's contents without the decision line, so a planning-only
+report could omit it. Both bullets now name "the refinement decision and
+concern report", a deviation from the two-section limit that keeps one home
+for the report's contents.
 
 ## Current decisions and preparation review
 
