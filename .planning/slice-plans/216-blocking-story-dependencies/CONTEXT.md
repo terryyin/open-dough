@@ -119,3 +119,19 @@ npm test -- tests/support/story-state-browser-import.test.mjs
 Independent refactor named the repeated launch predicate in `CardLaunches.tsx`; the two dependency files plus `agent-launch-start-card.spec.ts` passed again through `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/story-dependencies.spec.ts dashboard/tests/agent-launch-start-dependencies.spec.ts dashboard/tests/agent-launch-start-card.spec.ts --workers=2`, as did typecheck. Other inspected boundaries stayed unchanged. Mechanical lint repairs removed non-null assertions using fixed supplier tuples and a bounds assertion with the same observing meaning; typecheck and `npm run format` passed. `git diff --check` passed. The broader dashboard suite and native-agent reasoning are not claimed.
 
 Fixture-only initial failures were diagnosed: routine Git stderr violated quiet output, refusal wording differed, a same-revision refresh reused canonical cache, and dialog Cancel focus handoff overlapped the focus assertion. Quiet output, actual wording, a new published revision, and awaited focus handoff corrected those prerequisites; passing observations establish the actual UI/start behavior.
+
+## CI repair after slice 2
+
+Run `36997893525`, attempt 1, at `29bd2aa07e7db835d17b819b4e84a0ec09b30f2e` exposed four legacy dashboard fixture assumptions: keyboard traversal expected disabled execution to receive focus, and two cross-project launch journeys omitted the canonical Doughnut source now required by dependency inspection. The repair preserves the production gate, publishes the existing shared canonical fixture, and reads actual enabled actions. Slice 3 remains planned; its paused draft is preserved separately during repair.
+
+With the pinned PATH, terminal exit 0:
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- dashboard/tests/accessible-overview-keyboard.spec.ts dashboard/tests/accessible-overview.spec.ts dashboard/tests/agent-launch-recent-sessions.spec.ts dashboard/tests/agent-launch-attention.spec.ts dashboard/tests/story-dependencies.spec.ts dashboard/tests/agent-launch-start-dependencies.spec.ts --workers=2
+env -u NO_COLOR npm run test:dashboard -- dashboard/tests/accessible-overview-keyboard.spec.ts --workers=2
+npm test -- tests/support/story-dependencies.test.mjs
+```
+
+The keyboard baseline failed on disabled execution focus. Final assertions observe the accessible unavailable-source reason and refinement availability. End navigation retains its viewport assertion, waiting for all 16 unavailable-source facts to settle card heights. The real stale-card start and dependency command observations remain green.
+
+Independent refactor consolidated identical canonical fixture construction in `doughnutProject.ts`; `auto-refresh-project-isolation.spec.ts` imports it and retains its goal, membership, source revision, focus, and schedule assertions. `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/auto-refresh-project-isolation.spec.ts dashboard/tests/agent-launch-recent-sessions.spec.ts dashboard/tests/agent-launch-attention.spec.ts --workers=2` passed. Other accepted boundaries were unchanged. No product behavior changed; no full local CI run is claimed.

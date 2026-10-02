@@ -77,6 +77,16 @@ export async function sessionNamedBy(record: Locator): Promise<string> {
 // The launch actions every Backlog card offers, in the order it offers them.
 export const cardLaunchActions = ["Start execution", "Start refinement"];
 
+// Disabled launch actions remain visible but are outside the keyboard order.
+export async function enabledCardLaunchActions(card: Locator) {
+  const enabled: Locator[] = [];
+  for (const name of cardLaunchActions) {
+    const action = card.getByRole("button", { name });
+    if (await action.isEnabled()) enabled.push(action);
+  }
+  return enabled;
+}
+
 // Every button a shown snapshot offers, and nothing else: the banner's
 // Sessions, the read control, Start session, the badge legend, each Backlog card's launch
 // actions, and each card's Inspect.

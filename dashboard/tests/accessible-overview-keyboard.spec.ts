@@ -4,7 +4,11 @@ import {
   expectFocusedAndIndicated,
   politeRegionsOfferedThenMarked,
 } from "./accessibleReading.ts";
-import { cardLaunchActions, expectMembership, parts } from "./dashboardPage.ts";
+import {
+  enabledCardLaunchActions,
+  expectMembership,
+  parts,
+} from "./dashboardPage.ts";
 import {
   pathsRead,
   publishMovingOrigin,
@@ -32,16 +36,25 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   // Reading order is the order of the page's source: Sessions, the project
   // selector, then the read control, source evidence, direction, Start session and
   // the badge legend, then each card's controls and recorded links by stage (Backlog,
-  // then Taken): a Backlog card's launch actions, then Inspect. In a wide
+  // then Taken): a Backlog card's enabled launch actions, then Inspect. In a wide
   // window Taken stands beside Backlog's first card, so position on screen
   // would order them differently.
   const stopsFor = async (stage: Locator) => {
     const stops: Locator[] = [];
     for (const card of await stage.getByRole("article").all()) {
       if (stage === backlog) {
-        for (const action of cardLaunchActions) {
-          stops.push(card.getByRole("button", { name: action }));
-        }
+        // This overview publishes backlog bytes only: execution stays gated
+        // while canonical dependency facts are unavailable; refinement is a stop.
+        await expect(
+          card.getByRole("button", { name: "Start execution" }),
+        ).toBeDisabled();
+        await expect(
+          card.getByRole("button", { name: "Start execution" }),
+        ).toHaveAccessibleDescription(/dependency facts could not be read/);
+        await expect(
+          card.getByRole("button", { name: "Start refinement" }),
+        ).toBeEnabled();
+        stops.push(...(await enabledCardLaunchActions(card)));
       }
       stops.push(card.getByRole("button", { name: "Inspect story" }));
       stops.push(...(await card.getByRole("link").all()));
@@ -61,9 +74,9 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     ...(await stopsFor(taken)),
   ];
   // Sessions + the selected project radio + Refresh + Source evidence +
-  // Direction + Start session + Legend + two Backlog cards' launch actions + four Inspect +
+  // Direction + Start session + Legend + two Backlog cards' enabled launch actions + four Inspect +
   // five recorded links.
-  expect(stops).toHaveLength(7 + 2 * cardLaunchActions.length + 4 + 5);
+  expect(stops).toHaveLength(7 + 2 + 4 + 5);
 
   await test.step("Tab stops at Sessions, the read control, each card's controls, and every recorded link, and nowhere else", async () => {
     for (const stop of stops) {
