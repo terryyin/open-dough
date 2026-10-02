@@ -50,12 +50,16 @@ Focused commands after the named specs exist: `npm run test:dashboard -- dashboa
 
 ### 1. Pinned release runner is proven before startup wiring
 Type: Structure
-Status: planned
+Status: done
 Proof: Run the disposable tagged-checkout/install/build/preview probe above before product edits that depend on it. Add focused release-runner tests for numeric tag versus prerelease/branch selection, pinned-commit verification, version mismatch, and no-tag error using a local bare origin. Keep `dashboard/tests/authenticated-project-overview.spec.ts` green as the external dev/preview boundary. Keep `tests/install-latest-release.sh` green if the shared resolver changes. Run `npm run typecheck:dashboard` after the runner is added.
 
 Structure: Add the narrow dashboard release staging and preview-runner responsibility used immediately by slice 2. Reuse the existing resolver's tag choice; keep package installation and build in an isolated, versioned directory outside the development checkout and outside shared launch/session JSON files. No developer-visible command changes yet, and existing dev/preview behavior stays green. If the probe fails, stop and replan before wiring the watcher.
 
 Safe stop: existing dashboard commands still run as before; no incomplete watcher is advertised.
+
+Accepted proof (2026-10-02): pre-change `PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH node /tmp/dashboard-release-probe.mjs` passed on a disposable current-HEAD archive, bare origin and tagged checkout before edits: pinned `v0.3.54` fixture commit, locked install/build, loopback HTTP 200 with tagged marker, same-origin boundary 404 and absent-Origin 403. Fixture and server were removed.
+
+`env -u NO_COLOR -u FORCE_COLOR PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm run test:dashboard -- dashboard/tests/production-release-runner.spec.ts dashboard/tests/authenticated-project-overview.spec.ts --workers=1` passed (six runner tests, both overview modes). The runner spec observes numeric/annotated-tag selection, ignored prereleases/branch edits, no-tag rejection, mismatched commit/VERSION refusal, real isolated tagged install/build/preview, Origin guards, preview PID exit and HTTP refusal, and cancellation of a real npm lifecycle child with incomplete-directory removal. `dashboardReleaseFixture.ts` supplies only local repositories/tags/HOME. The existing overview spec observes real browser reads/refreshes, pinned synthetic-gh calls, missing-login behavior and credential absence in both modes. The same wrapper with `npm run typecheck:dashboard` passed. Shared resolver and existing server configuration remain unchanged; installer proof was not triggered. After formatting exposed the 250-line limit, independent refactoring extracted `dashboardReleaseProcess.mjs` without changing the public runner API. The same wrapper with `npm run test:dashboard -- dashboard/tests/production-release-runner.spec.ts --workers=1` and `npm run typecheck:dashboard` passed after extraction; existing overview and feasibility proof remained unchanged. `git diff --check` passed.
 
 ### 2. One watcher command serves the current release beside development
 Type: Behavior
@@ -86,6 +90,16 @@ Safe stop: all story examples are delivered; failed releases do not displace the
 
 ## Current decisions
 
+### Execution context
+
+- Authorized execution: Terry invoked `dough-execute-plan` with an established start on 2026-10-02; the preparation-only authority above describes the earlier planning request.
+- Identity `SEED-082#dashboard-development-and-production`; publisher `dashboard-territory.local-open-dough`; agent `YeongSheng-chan`; mode `story-branch`.
+- Originating and execution checkout: `/Users/terryyin/git/open-dough/.worktrees/separate-dashboard-development-and-production-en`, branch `codex/separate-dashboard-development-and-production-en`; integration checkout `/Users/terryyin/git/open-dough`.
+- Claim accepted on `origin/main`: `4fe8c7a44b5cc90de74095260e92276f51ac5142`; execution branch also published at that revision. Starting revision `31e94b85acc5517f80675d53ea83955346822054`. Increment publication target is `origin/refs/heads/codex/separate-dashboard-development-and-production-en`.
+- Checkout setup: selected Node 24.21.0 from `/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin`, Bash 5 from `/opt/homebrew/bin`; use these first on `PATH`. `node scripts/setup-native.mjs npm` and `npm run typecheck:dashboard` passed against this checkout's unchanged lockfile.
+- No numeric slice budget configured; preserve bounded proof loops. Existing planned-scope replanning authority retained.
+- CI source: GitHub Actions, repository `terryyin/open-dough`, verified `ci.yml` push workflow. The claim on trunk has no matching owned observer and is unobserved. Managed delivery will establish execution-branch observation.
+
 - One product watcher owns tag checks, tagged preparation, production server lifecycle, failure reporting, retry, and cleanup. The developer checkout supplies the watcher and resolver, while each production process runs its tagged app; this is one release model, not separate rules for startup and updates.
 - The watcher polls release tags only. Editing development source does not rebuild or reload the running watcher or production process.
 - Compare release versions numerically using the existing resolver. A tag's source commit is pinned before install/build; a malformed or invalid highest tag is reported, not replaced by a lower tag or branch code.
@@ -94,4 +108,5 @@ Safe stop: all story examples are delivered; failed releases do not displace the
 
 ## Learnings
 
-None yet. Record only observations that change the approach or remaining slices.
+- The runner uses native `.mjs` so the forthcoming npm watcher requires no TypeScript loader and preserves the package's supported Node runtime range. Proof used the repository-selected Node 24.21.0; older supported Node versions were not executed.
+- The test environment inherited conflicting `NO_COLOR` and `FORCE_COLOR`; focused browser proof unsets both. A minimal-fixture empty commit was corrected by persisting a distinct marker; this was test setup, not release behavior.
