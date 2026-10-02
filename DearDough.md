@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 213. Removed local codes are never reused.
+- Highest allocated local number: 214. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -131,6 +131,7 @@ Follow-up: Open, unqueued.
 - Execution: `SEED-053#dashboard-browser-navigation` / plan 136, first related implementation commit `8ca2f7eb` - Timestamp: 2026-09-27T22:11:50+08:00 - Tool: Cursor - Open Dough release: 0.3.43 - Evidence: completion input `pendingCi: unobserved` ("host session identity required for Cursor notification bridge"); retained tip `777b797926acfab373a6cd45766e3066cbd9da95` - Observed effect: managed delivery left the story-branch tip unobserved; no Cursor session identity was available to arm the notification bridge - Inference: Same Cursor host-identity gap as the plan 126 occurrence; Claude-only recovery remains inapplicable
 - Execution: `SEED-066#composable-lightweight-session-options` / plan 191, first related implementation commit `ef745cb5` - Timestamp: 2026-10-01T06:03:31Z (native Cursor run `cursor/publication/one-shot-auto-land/20261001T060331-5bc6`, slice 8 acceptance) - Tool: Cursor - Open Dough release: modified; revision `0d565a9e`; base 0.3.51 - Evidence: the native agent's managed `deliver` receipt for landed `063edd4` reported `observation.state: unobserved` ("host session identity is required…"); the agent found `CURSOR_CONVERSATION_ID` set but no supported way to pass it, kept its workspace and reported the gap. Cursor `one-shot-result` in the same batch hand-started an observer and retired; Cursor `one-shot-queued` queried CI once and retired. - Observed effect: three Cursor sessions handled the same missing identity three ways; the acceptance assessor needed a developer decision (kept workspace is compliant when CI went unobserved). - Inference: Same gap as earlier rows, now visible in native acceptance runs rather than a coordinator's own delivery; Codex showed the analogous `unobserved` receipt ("yielded-cell bridge is unavailable").
 - Execution: `SEED-052#use-cursor-from-dashboard` / plan 210, first related implementation commit `71764841` - Timestamp: unknown (slice 4 `3e5c10d8` at 2026-10-02T11:40:03+08:00 and slice 5 `4541eda4` at 2026-10-02T12:27:54+08:00; both receipts were reported before this review started at 2026-10-02T12:29+08:00) - Tool: Cursor - Open Dough release: modified; revision `0ae15498`; base 0.3.52 - Evidence: the execution reported `observation.state: unobserved` and `pendingCi: unobserved` for `3e5c10d8` and `4541eda47a3d1b7f909320dea343bc66c9ac65e7`, reason `host session identity is required to verify the notification bridge`; earlier observer directory `/tmp/dough-ci-501/watch-aPxS2Q`. The coordinator transcript has four records and does not contain those receipts. - Observed effect: slice 4 and slice 5 CI stay unobserved; this review does not treat that as pass or fail. - Inference: Same Cursor session-identity gap. No replacement observer was started.
+- Execution: `SEED-052#cursor-host-guide-attach` / plan 214, first related implementation commit `f84a7a56` - Timestamp: unknown (delivery of `f84a7a56`, between its commit at 2026-10-02T14:13:42+08:00 and a clock read at 14:15:13+08:00) - Tool: Cursor - Model: claude-opus-5-5 - Open Dough release: 0.3.54 (installed `dough-update/VERSION`) - Evidence: `deliver` from the coordinator's own Shell accepted `f84a7a56` on `refs/heads/cursor/state-that-cursor-supplies-embedded-attach` with `observation.state: unobserved` ("host session identity is required to verify the notification bridge"); an immediate `ci-mailbox.mjs probe` from the same Shell got `CI_MONITOR_READY` from the Cursor hook; `ci-host-bridge.mjs` `resolveHostSession` falls back only to `CLAUDE_CODE_SESSION_ID`, and the coordinator cannot read its Cursor `conversation_id`/`generation_id` for `--session-json`. - Observed effect: the only increment's CI stayed unobserved; no manual observer was started because managed delivery forbids it. - Inference: Same gap; the hook proves Cursor's bridge works, so the missing piece is only identity transfer into `deliver`.
 
 ## ODF-132 — A delegated implementation agent handed back before finishing its own required proof
 
@@ -369,6 +370,14 @@ Follow-up: Open, unqueued.
   - Evidence: four refactor passes on documentation-only slices; slices 1–3 made only rewraps or one-phrase rewordings (about 56k, 78k and 49k subagent tokens); slice 4's pass found two wrong citations in the new seed (`src/launchWorkflow.ts:43,65` for a substitution that is in `src/StartLaunch.tsx:105-106`, and a misdescribed `src/agentTerminal.ts:3`).
   - Observed effect: three passes changed nothing of substance; one corrected story evidence before it was published.
   - Inference: Qualified counter-evidence: on a change whose text carries code citations, the pass can pay off even when no code changed.
+- Execution: `SEED-052#cursor-host-guide-attach` / plan 214, first related implementation commit `f84a7a56`
+  - Timestamp: unknown (2026-10-02, between the guide edit and commit `f84a7a56` at 14:13:42 +08:00)
+  - Tool: Cursor (coordinator and delegated agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.54 (installed `dough-update/VERSION`)
+  - Evidence: the slice changed one clause of `dashboard/AGENT-LAUNCH-HOSTS.md` ("Attach is supplied:") plus a rewrap; the fresh refactor agent reread the skill and references, rechecked the cited `cursorHost.ts:14` and `terminal.ts:30`, and returned `none — already clean` after about 2 minutes.
+  - Observed effect: no edits; it restated a pre-existing overlap with `dashboard/AGENT-LAUNCH-TERMINALS.md` lines 9–12 that the plan already excluded.
+  - Inference: Qualified. Cost only; the citation recheck matches plan 200's counter-evidence but found nothing here.
 
 ## DD-193 — A finished subagent's hand-back was re-delivered until its task was stopped
 
@@ -460,6 +469,7 @@ Follow-up: Open, unqueued.
   - Inference: Qualified. The refusal message made the fix obvious, so this occurrence cost less than the earlier lookups.
 - Execution: `SEED-072#responsive-session-start-reconciliation` / plan 192, first related implementation commit `109fd76b` - Timestamp: 2026-10-01T17:50:33+08:00 (commit time of `109fd76b`; the refused delivery followed it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: unknown; installed guidance last updated by `e6a7106c` (base v0.3.51) - Evidence: the coordinator passed `--target-ref origin/claude/keep-the-dashboard-responsive-while-session-star` and `deliver` refused with "authorized target must be a branch ref"; the retry with `refs/heads/<execution branch>` was accepted with observation attached. - Observed effect: one refused delivery call and one retry; no state changed. - Inference: Qualified. The script refuses the wrong form, so the cost stays small; the guidance still does not name the expected form.
 - Execution: `SEED-072#durable-startup-reconciliation` / plan 206, first related implementation commit `3d82d365` - Timestamp: 2026-10-02T08:16:29+08:00 (commit time of `3d82d365`; the refused delivery followed it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.52 (installed `dough-update/VERSION` at claim `76a298b1`) - Evidence: first `deliver` passed `--target-ref origin/claude/keep-reconciled-startups-settled-under-one-unres` and was refused with "authorized target must be a branch ref"; the retry with `refs/heads/…` was accepted with observation attached. - Observed effect: one refused call; no state change. - Inference: Qualified; the same coordinator mistake as the plan 192 row, one day later, on the same story.
+- Execution: `SEED-052#cursor-host-guide-attach` / plan 214, first related implementation commit `f84a7a56` - Timestamp: 2026-10-02T14:13:42+08:00 (commit time of `f84a7a56`; the lookup followed it) - Tool: Cursor - Model: claude-opus-5-5 - Open Dough release: 0.3.54 (installed `dough-update/VERSION`) - Evidence: before delivery the coordinator ran `execution-increment-delivery.mjs --help`, grepped `targetRef` in the script, then read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. - Observed effect: three extra tool calls; delivery accepted first time. - Inference: Qualified; the same missing statement, now on Cursor with 0.3.54.
 
 ## DD-197 — New tests that run tools and Git passed on macOS and failed on CI's Linux test job
 
@@ -825,3 +835,19 @@ Follow-up: Open, unqueued.
   - Observed effect: no CI failure or rework; the slice's implementer made and reported a consumer-alignment decision the plan had not anticipated, and the coordinator accepted it against the plan's own decision.
   - Inference: Qualified. A premise about who an admission rule reaches is a behavior premise: the consumers are tests that exercise the refused sequence, found by searching for repeated launches of one story, not by function names. Running the whole dashboard suite inside the slice (about 4.5 minutes) caught it before publication, consistent with ODF-150's inference.
 
+
+## DD-214 — A wrap-up applied a documentation correction and also queued it as a follow-up story
+
+The source story's wrap-up rewrote the paragraph its retrospective had found wrong, and in the same commit queued a correction story and plan whose premise quoted the old wording. The follow-up executed against an already-corrected paragraph and delivered one clause.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+- Execution: `SEED-052#cursor-host-guide-attach` / plan 214, first related implementation commit `f84a7a56`
+  - Timestamp: 2026-10-02T14:05:23+08:00 (commit time of wrap-up `317d0f1c`, which created the overlap)
+  - Tool: Cursor
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.54 (installed `dough-update/VERSION`)
+  - Evidence: `317d0f1c` "Record Cursor launch behavior and queue its host-guide follow-up." replaced `It supplies no attach or stop` in `dashboard/AGENT-LAUNCH-HOSTS.md` with the embedded-terminal, `Add a follow-up` and stop-absent sentences, and added this story to `.planning/PRODUCT-BACKLOG.md`; plan 214's Observed premises (at `4541eda4`, before the wrap-up) still said lines 12–15 claim no attach. The established start reported "Changed since readiness review".
+  - Observed effect: a claim, worktree setup, refactor pass, delivery and this review for a change of "Attach is supplied:" plus a rewrap.
+  - Inference: Qualified. One sample. Wrap-up assimilating lasting knowledge overlapped with the correction it was queuing; a check at wrap-up that the queued correction's premise still holds after its own edits would have closed or shrunk the story.

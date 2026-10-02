@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Separate dashboard development and production environments](seeds/SEED-082-dashboard-development-and-production.md#dashboard-development-and-production) — SEED-082#dashboard-development-and-production ([plan](slice-plans/213-dashboard-development-and-production/PLAN.md))
-- [State that Cursor supplies embedded attach](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-host-guide-attach) — SEED-052#cursor-host-guide-attach ([plan](slice-plans/214-cursor-host-guide-attach/PLAN.md))
 
 ## Backlog list
 
