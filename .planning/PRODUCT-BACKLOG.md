@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Separate dashboard development and production environments](seeds/SEED-082-dashboard-development-and-production.md#dashboard-development-and-production) — SEED-082#dashboard-development-and-production ([plan](slice-plans/213-dashboard-development-and-production/PLAN.md))
-- [Persist dashboard project configuration](seeds/SEED-083-persistent-dashboard-project-configuration.md#persistent-dashboard-project-configuration) — SEED-083#persistent-dashboard-project-configuration ([plan](slice-plans/215-persistent-dashboard-project-configuration/PLAN.md))
 
 ## Backlog list
 
