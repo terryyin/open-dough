@@ -476,3 +476,13 @@ CI remains pending on the retained observer and execution branch until the
 coordinator's exact-revision completion operation. Proof limits remain as
 recorded above (warm npm download cache, no live action outage, external runner
 admission variability); none represents an unfulfilled story promise.
+
+Completion recovery: exact revision `43226774216f8d4eb3de0ec516a898d86212749e`
+passed run `36947886626`, attempt 1, but shutdown was retained for unread
+sequence 1 (the already repaired slice 1 run `36942598744`). Exact mailbox
+identity and sole event tuple matched retained repair/red-green/passing proof.
+Installed delivery progress API acknowledged exactly sequence 1; no failure was
+erased or new repair manufactured. Resumed process review added this occurrence
+to existing DD-200 (log now 751 lines; 500-line warning, below 1000). Product
+review/advice remains unchanged. Final records publication requires the same
+exact-revision completion operation and confirmed shutdown.
