@@ -66,7 +66,7 @@ test("a queued story starts Cursor refinement and the published assignment is wh
   await expect(entry).toContainText(cursor.sessionId);
   await expect(
     entry.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(0);
+  ).toHaveCount(1);
 
   const [created, prompted, ...rest] = cursor.calls();
   expect(rest).toEqual([]);

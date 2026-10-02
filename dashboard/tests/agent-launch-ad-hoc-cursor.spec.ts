@@ -83,7 +83,7 @@ for (const text of ["", "why is the CI slow?"]) {
     await expect(recent).toContainText(cursor.sessionId);
     await expect(
       recent.getByRole("button", { name: "Open terminal" }),
-    ).toHaveCount(0);
+    ).toHaveCount(1);
     if (blank) {
       await expect(recent).toContainText("Opened without an instruction");
       await expect(recent).toContainText("Conversation created in Cursor");

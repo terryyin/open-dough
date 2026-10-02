@@ -60,7 +60,7 @@ test("a queued story starts Cursor execution in the dashboard workspace and the 
   await expect(entry).toContainText(cursor.sessionId);
   await expect(
     entry.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(0);
+  ).toHaveCount(1);
 
   const [created, prompted, ...rest] = cursor.calls();
   expect(rest).toEqual([]);

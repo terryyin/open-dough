@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 "use strict";
-// Proof stand-in for cursor-agent. Prints the configured create-chat id and
-// records every argv. It does not write a launch record or a workspace.
+// Proof stand-in for cursor-agent. Prints the configured create-chat id.
+// The launch argv log is create-chat and a prompted resume, which exits 0.
+// Resume with no prompt is the embedded attach: it is recorded separately,
+// prints a visible frame of that uuid, and survives SIGHUP. It does not
+// write a launch record or a workspace.
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -19,7 +22,12 @@ if (home) {
     if (error.code !== "ENOENT") throw error;
   }
 }
-if (log) {
+// Resume with no prompt is attach, not a launch prompt, so it stays out of
+// the launch argv log.
+const resumeAt = args.indexOf("--resume");
+const resumed = resumeAt >= 0 ? args[resumeAt + 1] : undefined;
+const attaching = resumed !== undefined && args.length === resumeAt + 2;
+if (log && !attaching) {
   fs.appendFileSync(
     log,
     `${JSON.stringify({
@@ -38,4 +46,33 @@ if (args[0] === "create-chat") {
   }
   process.stdout.write(`${id}\n`);
 }
-process.exit(0);
+if (attaching) {
+  const pid = process.pid;
+  const dir = process.env.FAKE_CURSOR_ATTACH_DIR;
+  if (dir) fs.mkdirSync(dir, { recursive: true });
+  process.on("SIGHUP", () => {
+    if (dir) fs.appendFileSync(path.join(dir, `${pid}.signals`), "SIGHUP\n");
+  });
+  process.stdin.on("error", () => {});
+  process.stdout.on("error", () => {});
+  process.stdin.resume();
+  if (dir) {
+    fs.appendFileSync(
+      path.join(dir, "attaches.jsonl"),
+      `${JSON.stringify({
+        pid,
+        executable: process.argv[1],
+        cwd: process.cwd(),
+        args,
+        cols: process.stdout.columns,
+        rows: process.stdout.rows,
+        sessionId: resumed,
+      })}\n`,
+    );
+  }
+  process.stdout.write(
+    `\x1b[?2026h\x1b[?25h\x1b[2J\x1b[H${resumed}\r\n\x1b[?2026l`,
+  );
+} else {
+  process.exit(0);
+}

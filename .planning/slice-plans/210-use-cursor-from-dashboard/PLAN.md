@@ -18,7 +18,7 @@ The existing Preparing assignment remains published; retain this draft for revie
 - Integration checkout: `/Users/terryyin/git/open-dough`
 - Remote: `origin`. Trunk target: `main`. Increment target: the remote execution branch.
 - Published claim: `0ae15498c2de5d3a169dcec8c609c27cd60f3f09` on `origin/main`.
-- Starting revision: `f7d1140011044be2536b0c7aa09f4be7b35b82fc`. Previously published base for the next increment: `2f21a7be7e6d6eb5a450ac6cf4f27b7d208edd25` on `origin/cursor/use-cursor-for-the-established-dashboard-workflows`.
+- Starting revision: `f7d1140011044be2536b0c7aa09f4be7b35b82fc`. Previously published base for the next increment: `8feab5ef02ca73f7b9a8091acdc316213c057344` on `origin/cursor/use-cursor-for-the-established-dashboard-workflows`.
 - Agent: `stanly-chan`. Publisher: `cursor-mac-lan-use-cursor-from-dashboard`.
 - CI source: GitHub Actions. Workflow selector `ci.yml`, display name `CI`, verified on `main` (`workflowName: CI`). Observer `/tmp/dough-ci-501/watch-aPxS2Q` watches the execution branch. The trunk claim is `pendingCi: unobserved`.
 
@@ -157,9 +157,11 @@ The terminal still cannot attach.
 
 ### 3. Attach the embedded Cursor terminal
 Type: Behavior
-Status: planned
+Status: done
 Proof: Story example 4. After a recorded Cursor session, the terminal
 process is `cursor-agent --workspace <recorded path> --resume <stored uuid>`.
+
+Accepted proof: `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-terminal-cursor.spec.ts dashboard/tests/agent-terminal-codex.spec.ts --workers=2` and the three Cursor launch specs passed after the attach log was separated from the launch argv log. The terminal spec observes the stored resume argv, a fixture ready frame containing the uuid, no Claude attach and no Codex resume, and a second resume after the client ends.
 
 Behavior: The developer selects the session after the server has restarted.
 Attachment uses Cursor's `attach`. It does not call `claude attach` or
