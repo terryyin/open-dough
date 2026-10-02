@@ -1,5 +1,8 @@
 # Tests
 
+Prepare the [native prerequisites](native-setup.md) once, and again when the
+lockfile changes. Repeated checks reuse them without installation.
+
 Run every check through the runner. `npm test` (or `bash scripts/test.sh`)
 runs the whole suite; naming paths runs exactly those shell checks (`.sh`) or
 `node --test` files (`.mjs`, `.js`):

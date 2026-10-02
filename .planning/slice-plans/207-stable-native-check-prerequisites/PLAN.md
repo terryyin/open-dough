@@ -155,7 +155,7 @@ verdicts with compatible prerequisites and unchanged coverage/budgets.
 
 ### 3. Make repeated native local verification use an identifiable stable setup
 Type: Behavior
-Status: planned
+Status: done
 Proof: On native macOS, follow maintained setup instructions from a clean
 disposable checkout, run the affected native checks and full browser suite,
 then repeat unchanged. Record actual versions plus separate setup/check times;
@@ -369,3 +369,54 @@ Evidence and exact timing accounting: `/tmp/ci-proof2-final-evidence.txt`,
 Independent post-change refactoring and check-only commit hook passed. Managed
 publication reused the retained observer. Slice 2 is accepted; native local
 repeatability and missing-browser validation remain slice 3's responsibility.
+
+### Slice 3 accepted native proof
+
+The check stage now validates the selected Node and locked installed Playwright,
+then launches/closes its actual default headless Chromium with a 15-second bound.
+Missing files/libraries or mismatches stop with prerequisite recovery. Acquisition
+remains explicit and separate. Contributor/test/dashboard guidance shares
+`tests/native-setup.md`; dashboard commands moved to `dashboard/COMMANDS.md`.
+No automatic dependency manager or operating-system update was introduced.
+
+Owned proof-only clone `/tmp/open-dough-native3.mMpVvM/checkout` started at
+`ea7c62c13b14d03070fbbd466636836caa77d2c1`, with current helper/test overlays;
+no mutable dependencies copied or symlinked. A separate isolated browser cache
+made browser acquisition genuinely cold. All proof commands reached terminal
+results before that owned clone/cache were removed, after ownership/revision
+and clean-state checks. Execution/integration checkouts were retained.
+Evidence, exact commands and overlay: `/tmp/open-dough-native3.mMpVvM/`.
+
+Actual native identity: macOS 26.6.2/build 25G83, Node 24.21.0, npm 11.19.0,
+Git 2.50.1 Apple Git-155, Bash 5.3.20, Playwright 1.63.0,
+Chromium 153.0.8010.12/build 1243. Selected PATH was
+`/tmp/open-dough-native-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH`.
+`PLAYWRIGHT_BROWSERS_PATH` named the isolated proof cache.
+
+Timed real commands: `node scripts/setup-native.mjs npm` 1.24 seconds,
+`node scripts/setup-native.mjs browser` 25.10, `node scripts/setup-native.mjs check`
+1.56, focused runner/setup checks 4.74, `npm run typecheck:dashboard` 2.83,
+`env -u NO_COLOR npm run test:dashboard` 195.42. Warm repeat ran only check,
+focused checks, typecheck and full browser: 0.25/4.36/2.93/175.36 seconds.
+Both unfiltered suites exited zero, with 746-test/192-file inventory and actual
+`.last-run.json` passed/empty failedTests; quiet reporter had no failures.
+Dependency and browser marker timestamps were unchanged (cmp passed); app
+index mtime changed 1790901356→1790901591, confirming a fresh production build.
+Host npm download cache was warm; no fully cold registry-cache speed claim.
+
+Focused command in both execution and proof checkout:
+`bash scripts/test.sh tests/native-setup.sh tests/test-runner-selection.sh tests/test-runner-bash.sh tests/test-runner-failure-report.sh`,
+with the selected PATH, passed. Actual absent browser cache and actual host
+Node 24.5 each refused setup with useful recovery. Isolated locked 1.62 versus
+installed 1.63 fixture exercises the maintained entrypoint and refuses before
+launch/acquisition/test marker. Runner failure fixture observes a real controlled
+failure, preserved status/path/output, no continuation, isolation and cleanup.
+No deliberately failing test is committed.
+
+Independent refactoring clarified validation versus acquisition diagnostics,
+kept the same browser/API/options and added bounded stalled-validation proof.
+Selected-PATH `bash scripts/test.sh tests/native-setup.sh` passed in 4.48 seconds;
+other accepted native proof boundaries remain unchanged. Selective Prettier/shfmt
+formatting passed. Linux library absence was not injected; actual launch supplies
+that diagnosis and slice 2 supplies full Linux suite proof. All slice 3 promises
+are accepted without container dependence.

@@ -58,6 +58,12 @@ Open your client project in an AI agent with web and shell access, then ask:
    Report invocation as verified only if you actually observed it. Commit or
    push only when authorized.
 
+## Contributing
+
+Use the [native verification setup](tests/native-setup.md) before running
+checks in this repository. It pins contributor Node and separates bounded
+installation from repeated checks.
+
 ## Inspiration and name
 
 Open Dough is inspired by the [Donut project](https://github.com/nerds-odd-e/doughnut) and the development practices behind it.

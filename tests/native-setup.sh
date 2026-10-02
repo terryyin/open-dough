@@ -79,8 +79,32 @@ printf '%s\n' '0.0.0' > "${temporary_dir}/.node-version"
 refuse node-mismatch npm healthy 'Node prerequisite mismatch: selected 0.0.0'
 [[ ! -e ${temporary_dir}/source-call ]]
 cp -- "${source_dir}/.node-version" "${temporary_dir}/.node-version"
+mv -- "${temporary_dir}/.node-version" "${temporary_dir}/node-version-hidden"
+refuse node-selection-missing check healthy 'selected Node unavailable; run from the repository root with .node-version'
+mv -- "${temporary_dir}/node-version-hidden" "${temporary_dir}/.node-version"
 refuse expired npm healthy 'npm source acquisition deadline expired before launch' 1
 [[ ! -e ${temporary_dir}/source-call ]]
+
+# Check uses Playwright's launch boundary; a missing browser/library must stop
+# the caller's success chain without acquiring a replacement behind its back.
+cat > "${temporary_dir}/node_modules/playwright/index.js" << 'CHECK'
+exports.chromium = { launch: async () => {
+  if (process.env.SOURCE_BEHAVIOR === 'failed') throw new Error('missing fixture browser');
+  if (process.env.SOURCE_BEHAVIOR === 'stalled') {
+    await new Promise(resolve => setTimeout(resolve, 30000));
+  }
+  return { version: () => 'fixture-locked-browser', close: async () => {} };
+} };
+CHECK
+refuse check-missing check failed 'Chromium prerequisite unavailable: missing fixture browser'
+validation_deadline=$("${node}" -e 'console.log(Date.now()+250)')
+refuse check-stalled check stalled 'Chromium prerequisite validation stalled: deadline exceeded' "${validation_deadline}"
+printf '%s\n' '{"packages":{"node_modules/playwright":{"version":"1.62.0"}}}' > "${temporary_dir}/package-lock.json"
+refuse check-lock-change check healthy 'Playwright prerequisite mismatch: locked 1.62.0, installed 1.63.0'
+[[ ! -e ${temporary_dir}/source-call ]]
+printf '%s\n' '{"packages":{"node_modules/playwright":{"version":"1.63.0"}}}' > "${temporary_dir}/package-lock.json"
+(cd -- "${temporary_dir}" && SOURCE_BEHAVIOR=healthy "${node}" "${script}" check) > "${temporary_dir}/healthy-check.log" 2>&1
+expect_in_log "${temporary_dir}/healthy-check.log" -F -- 'Native prerequisites: Chromium fixture-locked-browser'
 
 # Successful calls use the locked CLI and npm's explicitly bounded fetches.
 for stage in npm browser; do

@@ -23,7 +23,14 @@ const deadline =
 if (!Number.isFinite(deadline)) {
   fail("invalid acquisition deadline");
 }
-const selectedNode = readFileSync(".node-version", "utf8").trim();
+let selectedNode;
+try {
+  selectedNode = readFileSync(".node-version", "utf8").trim();
+} catch {
+  fail(
+    "selected Node unavailable; run from the repository root with .node-version",
+  );
+}
 if (process.versions.node !== selectedNode) {
   fail(
     `Node prerequisite mismatch: selected ${selectedNode}, actual ${process.versions.node}; install the version in .node-version`,
@@ -49,26 +56,40 @@ if (stage !== "npm") {
     );
   }
 }
-if (stage === "check") {
-  console.log(
-    `Native prerequisites: Node ${selectedNode}, locked Playwright installed`,
-  );
-  process.exit(0);
-}
-
-const limits = { npm: 45_000, browser: 45_000 };
+// Validate by launching the same default headless Chromium used by the suite.
+// Playwright selects its own locked revision and diagnoses missing libraries.
+const limits = { npm: 45_000, browser: 45_000, check: 15_000 };
+const operation =
+  stage === "check"
+    ? "Chromium prerequisite validation"
+    : `${stage} source acquisition`;
 const remaining = Math.min(limits[stage], deadline - Date.now());
 if (remaining <= 0) {
-  fail(`${stage} source acquisition deadline expired before launch`);
+  fail(`${operation} deadline expired before launch`);
 }
 // Invoke the installed CLI directly: npx must never fetch an unlocked package.
 const command = stage === "npm" ? "npm" : process.execPath;
 const args =
   stage === "npm"
     ? ["ci", "--fetch-retries=0", "--fetch-timeout=20000"]
-    : [resolve("node_modules/playwright/cli.js"), "install", "chromium"];
+    : stage === "browser"
+      ? [resolve("node_modules/playwright/cli.js"), "install", "chromium"]
+      : [
+          "-e",
+          `
+          const { chromium } = require(${JSON.stringify(resolve("node_modules/playwright"))});
+          chromium.launch({ timeout: 10000 }).then(async browser => {
+            console.log('Native prerequisites: Chromium ' + browser.version());
+            await browser.close();
+          }).catch(error => {
+            console.error('Chromium prerequisite unavailable: ' + error.message +
+              '; run node scripts/setup-native.mjs browser or restore host browser libraries');
+            process.exitCode = 1;
+          });
+        `,
+        ];
 console.log(
-  `Native setup: ${stage} source acquisition, at most ${Math.ceil(remaining / 1000)}s`,
+  `Native setup: ${operation}, at most ${Math.ceil(remaining / 1000)}s`,
 );
 const child = spawn(command, args, {
   stdio: "inherit",
@@ -77,7 +98,7 @@ const child = spawn(command, args, {
 });
 let timedOut = false;
 let interruption;
-function stopAcquisition() {
+function stopStage() {
   try {
     process.kill(-child.pid, "SIGKILL");
   } catch {
@@ -86,7 +107,7 @@ function stopAcquisition() {
 }
 function interrupt(signal) {
   interruption = signal;
-  stopAcquisition();
+  stopStage();
 }
 const onInterrupt = () => interrupt("SIGINT");
 const onTerminate = () => interrupt("SIGTERM");
@@ -94,8 +115,8 @@ process.on("SIGINT", onInterrupt);
 process.on("SIGTERM", onTerminate);
 const timer = setTimeout(() => {
   timedOut = true;
-  // Stop npm/Playwright's entire download process group, including retries.
-  stopAcquisition();
+  // Stop the entire stage process group, including browser/download children.
+  stopStage();
 }, remaining);
 const result = await new Promise((done) => {
   child.once("error", (error) => done({ error }));
@@ -106,17 +127,23 @@ process.off("SIGINT", onInterrupt);
 process.off("SIGTERM", onTerminate);
 if (interruption) {
   console.error(
-    `Infrastructure setup: ${stage} source acquisition interrupted (${interruption}). ${recovery}`,
+    `Infrastructure setup: ${operation} interrupted (${interruption}). ${recovery}`,
   );
   process.exit(interruption === "SIGINT" ? 130 : 143);
 }
 if (timedOut) {
-  fail(`${stage} source stalled: acquisition deadline exceeded`);
+  fail(
+    stage === "check"
+      ? `${operation} stalled: deadline exceeded`
+      : `${stage} source stalled: acquisition deadline exceeded`,
+  );
 }
 if (result.error) {
   fail(`${stage} source unavailable: ${result.error.message}`);
 }
 if (result.code !== 0) {
-  fail(`${stage} source acquisition failed (${result.signal ?? result.code})`);
+  fail(`${operation} failed (${result.signal ?? result.code})`);
 }
-console.log(`Native setup: ${stage} acquisition complete`);
+console.log(
+  `Native setup: ${stage === "check" ? "prerequisite validation" : `${stage} acquisition`} complete`,
+);
