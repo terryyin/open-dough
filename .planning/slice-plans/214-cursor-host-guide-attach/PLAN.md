@@ -89,6 +89,14 @@ scope.
 - Claim: `3a68f0c7` published on `origin/main` (starting revision
   `00800bc2`). Readiness was reported as changed since review.
 
+## Execution complete
+
+Product advice: No change to priorities. The guide now matches the delivered
+Cursor host; the queued SEED-052#cursor-native-activity-and-controls story
+remains the next Cursor work. The overlapping Cursor sentences in
+`dashboard/AGENT-LAUNCH-TERMINALS.md` describe terminal admission, are
+correct, and need no separate story.
+
 ## Verification
 
 No numeric slice target or hard limit was supplied. This slice changes one
