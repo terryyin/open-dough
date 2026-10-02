@@ -158,7 +158,8 @@ developer.
 
 ### 2. Detaching a working Cursor terminal keeps the client; reopening joins it
 Type: Behavior
-Status: planned
+Status: done
+Accepted: `agent-terminal-cursor.spec.ts` and `agent-terminal-cursor-page.spec.ts`. A working client gets no SIGHUP on socket close, terminate, or Close; a new socket joins the same pid with `readiness: attached` and shared output. Claude Code and Codex specs were unchanged and green. Real host: `cursor-agent` 2026.10.01-e373342 session `dfddd6fa-5668-4704-8374-1d5ba26fd781`, pid 85849, showed `ctrl+c to stop`, survived socket close, rejoined with `readiness: attached` and live output, and reached Ready.
 Proof: `agent-terminal-cursor.spec.ts` (rewritten) and a new
 `agent-terminal-cursor-page.spec.ts`, plus the Claude Code and Codex terminal
 specs listed above, unchanged. Real-host check: start a dashboard Cursor

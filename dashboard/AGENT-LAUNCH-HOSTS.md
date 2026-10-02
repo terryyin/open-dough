@@ -14,7 +14,9 @@ then `cursor-agent --workspace` and `--resume` in the established workspace,
 and stores that id, workspace, and resume command, with no alias or endpoint.
 The launch does not pass `-w`, `--worktree`, `--trust`, `--force`, or `--yolo`.
 Attach is supplied: the embedded terminal runs that stored command. A visible
-cursor and the text `Add a follow-up` admit it. Stop is not supplied, so Mark
+cursor and the text `Add a follow-up` admit it. That attach result declares
+keep, so a detached terminal leaves the client running and a later open joins
+the same process instead of starting another. Stop is not supplied, so Mark
 as done stays absent.
 A client still running when the launch wait ends is the launched session.
 Default omits `--model`. Skills are read from `.agents/skills`, and the prompt

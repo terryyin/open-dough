@@ -1,5 +1,6 @@
 // One admitted session per WebSocket, attached through its host boundary.
-// Socket/server closure detaches the PTY; output and input use the shared
+// Socket closure hangs up the PTY unless that host's attach result declares
+// keep; server closure hangs up every client. Output and input use the shared
 // terminal protocol. Native startup remains interactive while readiness controls
 // reopening; marking done can type into and end those attachments.
 

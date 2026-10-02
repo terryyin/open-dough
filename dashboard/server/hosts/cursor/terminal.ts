@@ -3,7 +3,8 @@
 // --resume <uuid>`), not another host's attach command. After the
 // conversation loads, the observed prompt is `→ Add a follow-up`. A visible
 // cursor and that text admit the terminal. The screen does not include the
-// uuid.
+// uuid. The result declares keep: closing the socket leaves this process
+// running, and a later terminal for the session joins it.
 import { spawn as spawnPty } from "@lydell/node-pty";
 import type { LaunchHost } from "../../launchHosts.ts";
 
@@ -26,6 +27,7 @@ export const attachCursor: NonNullable<LaunchHost["attach"]> = (
   });
   return {
     pty,
+    keep: true,
     ready(screen, cursorVisible) {
       return cursorVisible && screen.includes("Add a follow-up");
     },

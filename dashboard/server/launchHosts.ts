@@ -36,6 +36,10 @@ export type TerminalAttachment =
       // Re-observe native context after a failure before readiness, never infer it
       // from a process exit code.
       readonly startupFailure?: () => UnavailableWorkspace | undefined;
+      // Set only by a host whose client must survive a closed socket. Shared
+      // code keeps that one client and joins a later socket to it. Absent
+      // means closing the socket hangs the client up.
+      readonly keep?: true;
     }
   | { readonly workspaceUnavailable: UnavailableWorkspace };
 

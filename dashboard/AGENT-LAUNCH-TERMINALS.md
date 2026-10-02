@@ -18,8 +18,14 @@ workspace limitation. Other startup failures keep their attachment error, as
 [session troubleshooting](../docs/dashboard-session-troubleshooting.md) explains.
 Text frames carry output; bounded input, resize and rendered readiness
 messages share the existing transport.
-Closing socket/server sends SIGHUP to the attachment client only, retaining
-native work/history and daemon. CLI exit uses code 4000 so the page distinguishes
+Closing a Claude Code or Codex socket sends SIGHUP to that attachment client
+only, retaining native work, history, and daemon. Cursor's attach result
+declares keep: closing its socket, by Close, switching sessions, or a dropped
+connection, leaves that client running. The next socket for the same session
+joins it, receives readiness at once, and sees a redrawn screen. Input
+from any joined socket reaches that same client, and a second open terminal
+shares it. Closing the server still sends SIGHUP to every attachment
+client, including a kept Cursor client. CLI exit uses code 4000 so the page distinguishes
 ended from disconnected. Codex spawn alone does not establish readiness: native
 hook/trust UI remains interactive, and a completed composer frame with visible
 cursor confirms attachment. Refusal preserves done intent; successful original-ID

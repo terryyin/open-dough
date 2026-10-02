@@ -1,6 +1,7 @@
 // PATH stand-in for `cursor-agent`. The dashboard server and the page create
 // the launch record. Launch argv is create-chat and a prompted resume.
-// A resume with no prompt is a separate attach record and stays up after SIGHUP.
+// A resume with no prompt is a separate attach record and exits on SIGHUP.
+// Working mode paints `ctrl+c to stop` and redraws that screen on SIGWINCH.
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -32,6 +33,8 @@ export type FakeCursor = {
   calls(): CursorInvocation[];
   attaches(): CursorAttach[];
   signals(pid: number): string;
+  input(pid: number): string;
+  sizes(pid: number): { readonly cols: number; readonly rows: number }[];
   cleanup(): void;
 };
 
@@ -51,7 +54,9 @@ function readJsonl<T>(file: string): T[] {
     .map((line) => JSON.parse(line) as T);
 }
 
-export function installFakeCursor(): FakeCursor {
+export function installFakeCursor(options?: {
+  readonly working?: boolean;
+}): FakeCursor {
   const root = mkdtempSync(path.join(tmpdir(), "dough-cursor-"));
   const binDir = path.join(root, "bin");
   const logPath = path.join(root, "argv.jsonl");
@@ -66,6 +71,7 @@ export function installFakeCursor(): FakeCursor {
       FAKE_CURSOR_LOG: logPath,
       FAKE_CURSOR_SESSION_ID: cursorSessionId,
       FAKE_CURSOR_ATTACH_DIR: attachDir,
+      ...(options?.working ? { FAKE_CURSOR_ATTACH_MODE: "working" } : {}),
     },
     calls() {
       return readJsonl<CursorInvocation>(logPath);
@@ -73,6 +79,12 @@ export function installFakeCursor(): FakeCursor {
     attaches,
     signals(pid: number) {
       return readOptional(path.join(attachDir, `${String(pid)}.signals`)) ?? "";
+    },
+    input(pid: number) {
+      return readOptional(path.join(attachDir, `${String(pid)}.input`)) ?? "";
+    },
+    sizes(pid: number) {
+      return readJsonl(path.join(attachDir, `${String(pid)}.sizes`));
     },
     cleanup() {
       for (const attach of attaches()) {
