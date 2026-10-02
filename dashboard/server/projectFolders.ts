@@ -17,14 +17,17 @@ export function projectFolder(source: PublishedSource): ProjectFolder {
   const project = configuredProject(source.id);
   if (project === undefined)
     throw new Error(`Unknown configured project: ${source.id}`);
-  const shown = project.localPath;
+  return localFolder(project.localPath);
+}
+
+export function localFolder(shown: string): ProjectFolder {
   return {
     path:
       shown === "~"
         ? homedir()
         : shown.startsWith("~/")
           ? path.join(homedir(), shown.slice(2))
-          : shown,
+          : path.resolve(shown),
     shown,
   };
 }

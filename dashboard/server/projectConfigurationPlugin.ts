@@ -1,33 +1,106 @@
+import type { IncomingMessage } from "node:http";
 import type { Plugin } from "vite";
-import { projectListEndpoint } from "../src/projectConfiguration.ts";
+import {
+  projectAddEndpoint,
+  projectListEndpoint,
+} from "../src/projectConfiguration.ts";
+import { ProjectInputProblem } from "../src/projectInput.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { publishedProjects } from "./projectConfiguration.ts";
+import { addProject } from "./projectAddition.ts";
+import { jsonBody } from "./jsonRequestBody.ts";
+import { withResponseSignal } from "./responseSignal.ts";
+import { readTimeoutMs } from "./ghRead.ts";
+
+async function answer(
+  req: IncomingMessage,
+  pathname: string,
+  signal: AbortSignal,
+) {
+  verifyLocalOrigin(req);
+  if (pathname === projectListEndpoint) {
+    if (req.method !== "GET")
+      throw new RefusedRequest(405, "Only GET is accepted.");
+    return publishedProjects();
+  }
+  if (req.method !== "POST")
+    throw new RefusedRequest(405, "Only POST is accepted.");
+  const input = await jsonBody(req, signal);
+  if (
+    typeof input !== "object" ||
+    input === null ||
+    !("githubUrl" in input) ||
+    !("localPath" in input) ||
+    typeof input.githubUrl !== "string" ||
+    typeof input.localPath !== "string"
+  )
+    throw new RefusedRequest(400, "The project request is malformed.");
+  return addProject(
+    { githubUrl: input.githubUrl, localPath: input.localPath },
+    signal,
+  );
+}
 
 export function projectConfigurationPlugin(): Plugin {
   return localBoundaryPlugin("dough-project-configuration", (middlewares) => {
+    const pending = new Set<AbortController>();
     middlewares.use((req, res, next) => {
       const url = new URL(req.url ?? "", "http://placeholder");
-      if (url.pathname !== projectListEndpoint) {
+      if (
+        url.pathname !== projectListEndpoint &&
+        url.pathname !== projectAddEndpoint
+      ) {
         next();
         return;
       }
-      res.setHeader("Content-Type", "application/json");
-      res.setHeader("Cache-Control", "no-store");
-      try {
-        verifyLocalOrigin(req);
-        if (req.method !== "GET")
-          throw new RefusedRequest(405, "Only GET is accepted.");
-        res.end(JSON.stringify(publishedProjects()));
-      } catch (error) {
-        res.writeHead(error instanceof RefusedRequest ? error.status : 503);
-        res.end(
-          JSON.stringify({
-            error: error instanceof Error ? error.message : String(error),
-          }),
-        );
-      }
+      const controller = new AbortController();
+      pending.add(controller);
+      const respond = (status: number, body: unknown) => {
+        if (res.destroyed || res.writableEnded) return;
+        res.writeHead(status, {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+        });
+        res.end(JSON.stringify(body));
+      };
+      void withResponseSignal(
+        res,
+        (signal) =>
+          answer(
+            req,
+            url.pathname,
+            AbortSignal.any([signal, controller.signal]),
+          ),
+        readTimeoutMs(),
+      )
+        .then(
+          (body) => {
+            respond(200, body);
+          },
+          (error: unknown) => {
+            respond(
+              error instanceof RefusedRequest
+                ? error.status
+                : error instanceof ProjectInputProblem
+                  ? 400
+                  : 503,
+              {
+                error: error instanceof Error ? error.message : String(error),
+                ...(error instanceof ProjectInputProblem
+                  ? { field: error.field }
+                  : {}),
+              },
+            );
+          },
+        )
+        .finally(() => {
+          pending.delete(controller);
+        });
     });
-    return () => {};
+    return () => {
+      for (const controller of pending) controller.abort();
+      pending.clear();
+    };
   });
 }

@@ -20,7 +20,7 @@ import { commitShaPattern } from "../src/authenticatedReadRules.ts";
 // read resolves before reading the backlog, and what a revision check asks
 // when the branch-head listing fails.
 function refEndpoint(repository: string, ref: string): string {
-  return `repos/${repository}/commits/${ref}`;
+  return `repos/${repository}/commits/${ref.split("/").map(encodeURIComponent).join("/")}`;
 }
 
 function commitNamedBy(sha: string): string {

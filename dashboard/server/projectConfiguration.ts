@@ -12,6 +12,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { ProjectInputProblem } from "../src/projectInput.ts";
 import { productionSeedProjects } from "./projectConfigurationSeed.ts";
 
 export type ProjectEnvironment = "development" | "production";
@@ -107,4 +108,35 @@ export function publishedProjects(): readonly PublishedSource[] {
       backlogPath,
     }),
   );
+}
+
+// Recheck admission at the synchronous write boundary after asynchronous validation.
+export function appendConfiguredProject(project: ConfiguredProject): void {
+  if (problem !== undefined) throw new Error(problem);
+  if (configurationFile === undefined)
+    throw new Error("The dashboard project configuration is not initialized.");
+  if (
+    projects.some(
+      (current) =>
+        current.repository.toLowerCase() === project.repository.toLowerCase(),
+    )
+  ) {
+    throw new ProjectInputProblem(
+      "githubUrl",
+      `${project.repository} is already configured.`,
+    );
+  }
+  if (
+    projects.some(
+      (current) => current.id.toLowerCase() === project.id.toLowerCase(),
+    )
+  ) {
+    throw new ProjectInputProblem(
+      "githubUrl",
+      `The project id ${project.id} is already configured. Projects sharing an id would share session records.`,
+    );
+  }
+  const saved = [...projects, project];
+  writeConfiguration(configurationFile, saved);
+  projects = saved;
 }

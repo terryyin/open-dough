@@ -12,6 +12,7 @@
 // an `If-None-Match` header's entity tag when one is given. A compare request
 // asks how a head commit relates to a base commit.
 export type GhRequest =
+  | { readonly kind: "repository"; readonly repository: string }
   | {
       readonly kind: "ref";
       readonly repository: string;
@@ -91,6 +92,8 @@ function headerArgument(
 
 export function parseRequest(argv: readonly string[]): GhRequest {
   const endpoint = argv.find((arg) => arg.startsWith("repos/")) ?? "";
+  const repository = /^repos\/([^/]+\/[^/]+)$/.exec(endpoint)?.[1];
+  if (repository !== undefined) return { kind: "repository", repository };
   const ref = /^repos\/([^/]+\/[^/]+)\/commits\/(.+)$/.exec(endpoint);
   if (ref?.[1] !== undefined && ref[2] !== undefined) {
     if (/^[0-9a-f]{40}$/.test(ref[2])) {
@@ -99,7 +102,7 @@ export function parseRequest(argv: readonly string[]): GhRequest {
     return {
       kind: "ref",
       repository: ref[1],
-      ref: ref[2],
+      ref: ref[2].split("/").map(decodeURIComponent).join("/"),
     };
   }
   const compare =

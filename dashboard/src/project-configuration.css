@@ -1,0 +1,11 @@
+.project-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: end;
+  gap: 0.4rem;
+}
+.add-project { min-height: 2.75rem; }
+.project-dialog input { min-width: 0; padding: 0.5rem; font: inherit; }
+.project-dialog-actions { display: flex; justify-content: end; gap: 0.5rem; padding: 1rem; }
+.project-dialog-actions button { min-height: 2.75rem; padding: 0.4rem 0.8rem; }

@@ -74,6 +74,12 @@ export function publishMovingFiles(
   const revisions = [published, ...branches.values()];
   githubFor(page).serve(repository, (call) => {
     const { request } = call;
+    if (request.kind === "repository")
+      return Promise.resolve({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ default_branch: ref }),
+      });
     if (request.kind === "ref" && request.ref === ref) {
       observe(requests, call);
       return Promise.resolve(commitAnswer(trunk.revision));

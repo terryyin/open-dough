@@ -30,7 +30,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     parts(page);
 
   // Reading order is the order of the page's source: Sessions, the project
-  // selector, then the read control, source evidence, direction, Start session and
+  // selector, Add project, then the read control, source evidence, direction, Start session and
   // the badge legend, then each card's controls and recorded links by stage (Backlog,
   // then Taken): a Backlog card's launch actions, then Inspect. In a wide
   // window Taken stands beside Backlog's first card, so position on screen
@@ -52,6 +52,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   const stops = [
     page.getByRole("button", { name: "Sessions", exact: true }),
     selectedProject,
+    page.getByRole("button", { name: "Add project", exact: true }),
     refresh,
     sourceEvidence,
     directionToggle,
@@ -60,10 +61,10 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // Sessions + the selected project radio + Refresh + Source evidence +
+  // Sessions + the selected project radio + Add project + Refresh + Source evidence +
   // Direction + Start session + Legend + two Backlog cards' launch actions + four Inspect +
   // five recorded links.
-  expect(stops).toHaveLength(7 + 2 * cardLaunchActions.length + 4 + 5);
+  expect(stops).toHaveLength(8 + 2 * cardLaunchActions.length + 4 + 5);
 
   await test.step("Tab stops at Sessions, the read control, each card's controls, and every recorded link, and nowhere else", async () => {
     for (const stop of stops) {
@@ -135,7 +136,8 @@ test("accessible overview announces reading, the read result, and a failure whil
     expect(await box(status)).toMatchObject({ width: 1, height: 1 });
   });
 
-  // Sessions, the project, then the read control.
+  // Sessions, the project, Add project, then the read control.
+  await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");

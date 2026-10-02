@@ -87,17 +87,22 @@ UI choices stay in the separate
 [UX/UI North Star](../docs/dashboard-ux-ui-north-star.md).
 
 
-For the three-project dashboard, every catalog project is read through the
+For the dashboard, every configured project is read through the
 launching person's local `gh` authentication (Terry's decisions of 2026-09-21
 for Pygardon and 2026-09-23 for Open Dough and Doughnut). Keep
 credential/process responsibility in one narrow loopback read boundary of the
 existing local dashboard launch, shared by dev and built preview. It returns
 published revision and pinned file data for the same browser interpretation;
 no direct browser-to-GitHub path remains. Credentials never enter browser
-assets. Catalog identity bounds the local reader's requests; no arbitrary proxy
+assets. Configured project identity bounds the local reader's requests; no arbitrary proxy
 or new state authority is needed. Selection is transient UI state, with one
 project's observation visible at a time. This direction does not create
 coordination between the observed projects or adopt Proposed ADR 0008.
+Terry's decision of 2026-10-02 adds and removes projects through the dashboard,
+using a GitHub URL and local checkout path. The local server saves one ordered
+project configuration per environment on this machine: built production and
+live development. These are machine-local settings; the observed repository
+continues to own project state.
 
 ## Agent launch as a requested assignment
 
@@ -139,13 +144,13 @@ parallel ones:
   wording names the session's own host and alerting follows facts the host
   reports; and shared launch gates apply to every host rather than to one by
   name.
-- Each catalog project's **local folder** is a machine-local fact held by the
-  local server, not by the published catalog the browser shares.
+- Each configured project's **local folder** is a machine-local fact held by the
+  local server, not by published project state.
 - **Sessions are the machine's, not a project's.** Launch records sit in one
   store on this machine. Observe the recorded host-qualified conversations;
   Claude's machine-wide listing can supply that observation, while Codex reads
   the saved native thread and endpoint. The page reads them once
-  for every catalog project and holds one session state, apart from project
+  for every configured project and holds one session state, apart from project
   selection; cards, Recent sessions, and the Sessions sidebar
   each derive their view by project and identity from it. Actions on one
   session (attach, stop, Mark as done) still run in its project's folder.

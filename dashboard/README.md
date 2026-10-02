@@ -45,7 +45,14 @@ Open Dough, Doughnut, Pygardon, and Terry Talks and their existing refs and fold
 Development starts empty. An existing empty list stays empty; the first saved
 project is the default selection. An unreadable or malformed file is reported
 with its path and left untouched. The empty page explains that no projects are
-configured and shows Add project (unavailable until project registration is added).
+configured and offers **Add project**. Add project also stays in the pinned banner.
+Its dialog asks for a GitHub repository URL (HTTPS, with or without `.git`, or SSH)
+and Local path, prefilled as `~/git/<repo>`. Add checks the developer's local `gh`
+access and the checkout's origin, derives the default branch, saves the project,
+and selects it. Local path can name a different checkout folder. Cancel or Escape
+saves nothing and returns focus to Add project. An invalid entry keeps its values
+and shows the reason beside the field. Projects added in development do not enter
+production's saved list.
 The dashboard reads `.planning/PRODUCT-BACKLOG.md` from the selected project's
 saved repository and ref, resolves that ref to one commit, and reads the backlog
 at that commit. Every project -- public Open Dough and Doughnut as much as

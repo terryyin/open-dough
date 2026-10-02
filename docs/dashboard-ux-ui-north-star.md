@@ -18,9 +18,11 @@ does not accept that ADR, define a workflow state schema, or authorize execution
 - Begin with stories using only committed state published to Git origin,
   including relevant remote branches and history. No developer clone, unpushed
   changes, local locks, or live agent sessions are required sources.
-- Observe one project at a time from the delivered fixed catalog: Open Dough,
-  Doughnut, or Pygardon. Keep the existing selector and local launch. Do not
-  introduce project registration.
+- Observe one configured project at a time. Keep the existing selector and local
+  launch. Add and remove projects through the dashboard using a GitHub URL and
+  local checkout path, saved separately for built production and live development
+  on this machine (Terry's decision of 2026-10-02). Project configuration is
+  machine-local settings; it does not own the observed repository's state.
 - The observed project's Git repository owns authoritative state. No application
   or server database or separately persisted project-state authority. Disposable
   browser storage is optional; losing it must not lose project facts.
@@ -194,7 +196,7 @@ History can explain a record's removal; show a historical fact as historical.
 | A filter has no matches | “No stories match this filter” and a clear reset action. |
 | Some sources fail or records cannot be interpreted | Retain readable facts, identify the gap beside affected content, and provide the source link when available. Do not silently drop the story or convert unreadable data to empty data. |
 | Initial source access fails | Explain the observed failure in plain language, identify the repository/ref when known, and offer Retry. Do not imply the user needs to create stories. |
-| Observed repository is not configured | Explain that the dashboard's observed repository must be configured. Do not substitute a guessed repository or introduce registration UI. |
+| No projects configured | Explain that no projects are configured and offer Add project. Do not substitute a guessed repository. |
 
 ## Visual and accessibility direction
 
@@ -227,48 +229,8 @@ motion, color perception, or a pointer.
 
 ## Focused review and revision
 
-Review the first usable experience against these examples, using actual records
-when available. These are design review criteria, not an executable slice plan:
-
-- The first story opens connected Backlog and Taken stages. A reader can
-  understand their relationship, read each entry and follow its source links.
-  Normal scrolling or reflow is enough until a real navigation need appears.
-- A published queue-to-Taken change places that one card correctly on successful
-  refresh, with no duplicate or invented live status. Any animation clarifies
-  this result and respects reduced motion. Failed refresh leaves membership intact.
-- Keyboard, narrow-screen use, and browser page zoom preserve readable work and
-  access to evidence and refresh. If zoom/focus is added, a reader can return
-  to an overview without losing orientation.
-
-As later stories add the relevant facts, also review:
-
-- A reader locates a Taken story, explains its intended outcome, identifies the
-  recorded developer/mode, and reaches evidence for a completed slice.
-- A story outside the backlog remains discoverable. Refinement and planning can
-  differ independently; a planless story does not look broken.
-- A Trunk Mode story and a Story Branch Mode story lead to the correct published
-  sources. Missing assignment or branch metadata stays visibly unknown.
-- A branch retrieval failure and an old but freshly retrieved commit communicate
-  different situations. Neither produces an invented live status.
-- Partial, conflicting, and empty evidence remain distinguishable. A reader
-  understands the limits of the view without reconstructing Git history.
-- Keyboard and narrow-screen use preserve the overview-to-detail path and source
-  access. Decoration does not compete with story understanding.
-
-Defer local worktree/lock activity, agent communication and takeover, feature
-and structural views, and a recently finished stories view. Features would mean
-maintained, test-protected external behavior; structure would map domain
-organization to code. Neither is a one-to-one story mapping. A finished view
-would first explore Git history rather than restore a maintained completion
-list. Do not reserve disabled navigation or empty panes for these possibilities.
-
-Revisit this guide during development when a real record, prototype review, or
-user observation changes a design assumption. Update the relevant hypothesis
-in place and record the reason briefly; avoid accumulating competing designs.
-Keep firm requirements in the requirements document and durable architectural
-constraints in human-owned ADRs. Retire or reduce this guide once its useful
-direction is embodied in the product and maintained checks, or no longer helps
-the next increment. It is not a permanent parallel specification.
+Follow the [dashboard design review criteria](dashboard-design-review.md) for
+review examples and the revision and retirement of this temporary guide.
 
 ## Launch dialog information hierarchy
 

@@ -8,25 +8,40 @@ import {
 import type { PublishedSource } from "./publishedSource.ts";
 import { projectListEndpoint } from "./projectConfiguration.ts";
 
-const ProjectsContext = createContext<readonly PublishedSource[] | undefined>(
-  undefined,
-);
+type ProjectList = {
+  readonly projects: readonly PublishedSource[];
+  readonly replaceProjects: (projects: readonly PublishedSource[]) => void;
+};
+const ProjectsContext = createContext<ProjectList | undefined>(undefined);
 
 export function ProjectsOnPage({
   projects,
+  replaceProjects,
   children,
 }: {
   readonly projects: readonly PublishedSource[];
+  readonly replaceProjects: ProjectList["replaceProjects"];
   readonly children: ReactNode;
 }) {
-  return <ProjectsContext value={projects}>{children}</ProjectsContext>;
+  return (
+    <ProjectsContext value={{ projects, replaceProjects }}>
+      {children}
+    </ProjectsContext>
+  );
 }
 
 export function useProjects(): readonly PublishedSource[] {
   const projects = useContext(ProjectsContext);
   if (projects === undefined)
     throw new Error("Projects must be loaded before the dashboard opens.");
-  return projects;
+  return projects.projects;
+}
+
+export function useReplaceProjects(): ProjectList["replaceProjects"] {
+  const list = useContext(ProjectsContext);
+  if (list === undefined)
+    throw new Error("Projects must be loaded before they can change.");
+  return list.replaceProjects;
 }
 
 export function firstProject(
@@ -68,5 +83,5 @@ export function useProjectConfiguration() {
       controller.abort();
     };
   }, []);
-  return { projects, problem };
+  return { projects, problem, replaceProjects: setProjects };
 }

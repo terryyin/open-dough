@@ -167,7 +167,7 @@ for (const mode of ["dev", "preview"] as const) {
     ).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Add project" }),
-    ).toBeDisabled();
+    ).toBeEnabled();
     expect(readFileSync(configurationFile(mode), "utf8")).toBe("[]\n");
     expect(server.ghCalls()).toEqual([]);
   });
@@ -204,9 +204,7 @@ test("development first start is empty and refuses the formerly fixed project", 
       "Add a project to see its published work and start sessions.",
     ),
   ).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Add project" }),
-  ).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Add project" })).toBeEnabled();
   const response = await rawRequest({
     url: `${server.baseURL}/__authenticated-read?source=open-dough`,
     headers: { Origin: server.origin },
