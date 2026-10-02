@@ -42,12 +42,12 @@ process, and it stays unexpanded unless the same gap recurs.
 
 **Identity:** SEED-056#state-refinement-decision
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/221-visible-refinement-decision/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a44ddc95373bbe7a77a7bb62a639607149f90f6a7804f2848e8986ccd3d1df81","plan":"fadcf81755383c20a4044ccf4867416d40998bdc9b65f2507e44f4b2932f349d"}}
 ```
 
 - **Goal:** A developer reading a slice planning report can see whether
   slice-plan refinement ran, and if not why, and never receives a plan
-  recorded `ready` whose own report names a concern. The strengthening needed
+  recorded `ready` whose own report names a remaining concern. The strengthening needed
   is small: two clarifications in one skill.
 - **Scope:**
   - **The refinement decision is stated.** The report says which of these
@@ -55,13 +55,22 @@ process, and it stays unexpanded unless the same gap recurs.
     reason (for example, no concern was identified); or refinement was left to
     a later step on the instruction to do so.
   - **A named concern is settled.** A concern the report names is either
-    resolved by refinement or recorded as a `not-ready` reason. A trade-off
+    resolved by refinement or recorded as a `not-ready` reason. The report may
+    explain a resolved concern and its resolution; every concern it still
+    describes as remaining must be a `not-ready` reason. A trade-off
     the planner knowingly accepts, such as an interim state whose replacing
     slice is named, is written in the plan as an accepted trade-off with its
-    replacing slice, and the report does not call it a concern.
+    replacing slice, and the report does not call it a remaining concern.
+    Acceptance must be supported by the existing planning rules; relabeling a
+    blocking concern does not settle it. Neither a refinement pass nor an
+    accepted trade-off establishes readiness by itself: the existing shared
+    readiness criteria still apply.
   - **Where.** The source `src/skills/dough-slice-planning/SKILL.md`, in its
     "Resolve fixable plan concerns" and "Report concern evidence and assess
     readiness" sections. Installed copies change only from a released payload.
+  - **Concision.** Add minimal wording without diluting either the new or
+    existing intentions. Prefer replacing or shortening existing prose;
+    making the skill shorter while preserving its guidance is a plus.
   - **Not included:** making refinement mandatory, a new gate, threshold or
     numeric size limit, any change to `dough-slice-plan-refinement`, to the
     readiness criteria, to `record-state`, or to other skills, and any
@@ -69,17 +78,27 @@ process, and it stays unexpanded unless the same gap recurs.
 - **Key examples:**
   - A written plan has a slice that combines two independent outcomes, fixable
     within the story → refinement runs, and the report says "Refinement: ran",
-    with the concern no longer named.
+    with the concern resolved rather than listed as remaining.
   - A written plan has no concern → the report says "Refinement: not needed,
     no concern identified", and readiness is recorded as before.
-  - A written plan keeps an interim state (a failure shown nowhere until slice
-    6) on purpose → the plan lists it under accepted trade-offs with slice 6;
-    the report names no concern about it; `ready` is recorded.
+  - A written plan deliberately keeps an interim state (a launch failure has
+    no user-facing display until slice 6), permitted by the existing planning
+    rules, with all readiness criteria otherwise satisfied → the plan records
+    the accepted trade-off and slice 6 as its replacement; the report explains
+    it as accepted rather than remaining; `ready` is recorded.
   - Refinement ran and one concern needs a human decision → the report names
     it, says refinement ran, and readiness is recorded `not-ready` with that
     reason.
   - The developer instructs "leave refinement to a later step" → the report
     says so, and any concern named stays a `not-ready` reason.
+  - A proof-ownership gap remains after review, even though the planner calls
+    it an accepted trade-off → the gap remains a concern and a `not-ready`
+    reason; changing its label does not permit `ready`.
+- **Boundary assumptions:** The existing slice-planning and shared readiness
+  rules remain authoritative. The decision line need not use the examples'
+  exact wording; it must state the outcome and the reason when refinement did
+  not run. Reports describe the review actually performed.
+- **Open decisions:** None for this bounded wording change.
 - **Depends on:** None.
 - **Effort hypothesis:** Small: wording in two sections of one skill, with the
   skill's behavior review walked on the examples above.
