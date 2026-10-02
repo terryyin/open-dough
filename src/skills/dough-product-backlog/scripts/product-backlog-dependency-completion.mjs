@@ -122,10 +122,12 @@ export async function supplierCompletion(file, dependency, values) {
           "Planless completion evidence must be readable in the supplier revision.",
         );
     }
+    const receipt = `Condition ${dependency.state === "satisfied" ? "satisfied" : "remains unresolved"}: ${dependency.condition}\nAccepted integration: ${accepted} on ${values.remote}/${target}.`;
+    const summary = dependency.resolution.summary;
     return {
       revision: evidence,
       path: locator,
-      summary: `${dependency.resolution.summary}\nCondition satisfied: ${dependency.condition}\nAccepted integration: ${accepted} on ${values.remote}/${target}.`,
+      summary: summary.endsWith(receipt) ? summary : `${summary}\n${receipt}`,
     };
   });
   if (captured.threw) {

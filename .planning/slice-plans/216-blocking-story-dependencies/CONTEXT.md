@@ -169,3 +169,22 @@ The existing pure plan reader gained the project's bold labels; exact-label, uns
 Guidance review walked generic Land without a completed identity and completed wrap-up: outcome judgment and accepted integration remain distinct; Trunk resolution follows accepted before-cleanup publication, and Story Branch post-integration consumer changes need subsequent publication/completion before retirement. Discovery gaps retain affected context. Reconciliation and developer decisions remain slice 4. `git diff --check` passed; full local CI is not claimed.
 
 Independent refactor: none — already clean; no proof boundaries changed and no tests repeated. Mechanical formatting passed after a local ShellCheck annotation for `platform`, assigned by the sourced argument parser. Changed files stay within 250 lines, and `git diff --check` passed.
+
+## Slice 4 accepted proof
+
+Pinned PATH as above; both commands reached terminal exit 0:
+
+```sh
+npm test -- tests/support/supplier-reconciliation.test.mjs tests/support/supplier-reconciliation-refusal.test.mjs tests/support/supplier-dependency-completion.test.mjs tests/support/supplier-dependency-refusal.test.mjs tests/support/story-dependencies.test.mjs tests/support/story-state-browser-import.test.mjs tests/payload-declaration-links.sh
+npm test -- tests/product-backlog-payload-update.sh
+```
+
+The multi-consumer fixture supplies a completed seconds contract, consumer intent and an existing outdated assumption. Its explicit assumption edit represents bounded agent judgment; assertions verify the edited plan against historical contract evidence and unchanged goal. Real guarded outcome commands resolve direct and bounded consumers independently; another supplier still blocks the direct consumer. They record the literal unspecified-compatibility question and implemented-UI gap after the supplier home has been deleted. Waiting/decision receipts explicitly remain unresolved and repeat byte-identically. Historical outcome/accepted integration/agreement guards apply to all three states; ordinary authoring retains live endpoint checks and historical evidence cannot create a new prerequisite.
+
+Actual start commands refuse the decision and implementation consumers without workspace creation or remote advancement. After dependency resolution, the queued bounded consumer still refuses its separate Not ready judgment; preparation reasons and changed-review indication survive assumption and dependency writes. The initial fixture used canonical admission, whose established authority permits admission despite preparation; replacing that setup with the real `add` command observes the intended ordinary route without changing startup behavior.
+
+Refusal assertions preserve bytes for stale basis/condition, missing evidence, incomplete planned evidence, missing historical supplier, and absent agreement. The installed payload proof and affected existing direct-completion/authoring/import tests passed again. Existing slice 2 `storyDependencyAccessible.ts` observes the same literal question and accessibility; its boundary is unchanged and reused without rerun.
+
+Guidance review uses the fixture's same goals/evidence: settled seconds intent permits a verified assumption adjustment; unspecified compatibility leaves the actual developer question; required consumer UI implementation remains blocked pending separate execution authorization. The procedure requires intent rereading, per-consumer outcomes and retained evidence, never automatically renews Ready, and preserves the wrap-up link's existing anchor. State-transition fixtures do not claim native-agent reasoning.
+
+Independent refactor: none — already clean; accepted proof remains unchanged and no tests were repeated. `npm run format` and `git diff --check` passed; changed files remain within 250 lines.

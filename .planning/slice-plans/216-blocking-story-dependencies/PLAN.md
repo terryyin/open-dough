@@ -57,13 +57,15 @@ proof entry points. These remain constraints of this plan.
   check-only `npm run --silent lint -- --staged`.
 - CI source: GitHub Actions, verified selector `ci.yml`, repository
   `terryyin/open-dough`, branch `codex/capture-and-visualize-beneficial-implementation`.
-  Codex yielded-cell observation is bound to this checkout and `/root`:
-  cell `21`, session `44377`, PID `84391`, mailbox
-  `/tmp/dough-ci-501/watch-7PZYuD`. Managed delivery reuses it and registers
-  accepted branch revisions. Slice 1 accepted and registered:
+  Initial Codex stream (cell `21`, session `44377`, PID `84391`) finished after
+  a GitHub TLS timeout. Its delivered failures were repaired. Slice 3 managed
+  delivery attached `/tmp/dough-ci-501/watch-cWrqJu`, PID `87190`; its worker
+  observes registered revisions, with live Codex notification coverage unavailable.
+  Accepted branch revisions: slice 1
   `8bb73be064a7778470389bd5a458fb70f5a96962`, then slice 2
   `29bd2aa07e7db835d17b819b4e84a0ec09b30f2e`, then CI repair
-  `a0499094210410af66c321ab280864c6a36e575d` (next delivery base).
+  `a0499094210410af66c321ab280864c6a36e575d`, then slice 3
+  `186ef15098d76955723d44d3d2e0960594b54a18` (next delivery base).
 
 ## Ordered slices
 
@@ -180,7 +182,7 @@ requiring reconciliation remain blocked with an explanation.
 
 **Type:** Behavior
 
-**Status:** planned
+**Status:** done
 
 **Behavior:** The supplier agent reads each consumer's goal, scope, and plan.
 A bounded, unambiguous difference is reconciled and then verified before the
@@ -213,6 +215,8 @@ agent is told how to judge and stop. Do not claim native-agent reasoning from
 a mocked protocol. Include a condition requiring consumer implementation;
 verify that it remains blocked and the procedure requests separate execution
 authorization rather than implementing the consumer or declaring satisfaction.
+
+**Accepted proof:** [Slice 4 outcomes, refusal, and guidance review](CONTEXT.md#slice-4-accepted-proof).
 
 ## Proof ownership and execution gates
 

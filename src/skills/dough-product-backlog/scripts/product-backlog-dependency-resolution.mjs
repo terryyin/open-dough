@@ -1,4 +1,4 @@
-// Applies an agent's directly justified condition judgment, never infers it
+// Records an agent's evidenced consumer judgment, never infers it
 // from prose or from the disappearance of a supplier's active home.
 import { resolve } from "node:path";
 import { discoverConsumers } from "./product-backlog-dependency-consumers.mjs";
@@ -39,9 +39,9 @@ export async function resolveDependency(file, values) {
     );
   }
   const dependency = normalizeStoryDependency(payload, values.identity);
-  if (dependency.state !== "satisfied")
+  if (!dependency.resolution)
     throw new BacklogError(
-      "resolve-dependency applies only an explicitly satisfied condition.",
+      "resolve-dependency requires recoverable supplier outcome evidence, including for an unresolved consumer.",
     );
   const discovery = discoverConsumers(file, dependency.supplier.identity);
   const consumer = discovery.consumers.find(

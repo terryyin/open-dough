@@ -132,7 +132,8 @@ decided necessary prerequisite; it never infers one from shared code or order.
 
 discover-consumers --supplier-identity <identity> reads current canonical homes
 and reports reverse agreements plus discovery problems without writing.
-resolve-dependency uses a satisfied --dependency-file and --expect-dependencies;
+resolve-dependency records an evidenced consumer judgment with --dependency-file
+and --expect-dependencies, including waiting or decision-needed after cleanup;
 --accepted-revision <sha> --remote <remote> --target <branch> establish accepted
 supplier integration. Recoverable supplier outcome must show all planned slices
 done (optional --plan), or --planless-complete --completion-file <proof path>.
