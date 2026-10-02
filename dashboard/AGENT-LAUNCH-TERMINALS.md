@@ -50,10 +50,12 @@ Delete record is offered for unknown/unavailable observation on cards/Recent,
 with in-place question, Delete record/Keep and keyboard on Keep. Keep/Escape
 restore the action. It rereads state; newly known state keeps the record with an
 explanation. Deletion forgets only host-qualified dashboard evidence, never
-stops/renames/marks native work. Failure retains the question and focus; success
-removes every entry, prevents older reads/lifecycle updates restoring it, closes
-any showing terminal and restores next-entry/card/Recent focus with a polite
-“Session record deleted”. No local action changes a published story fact.
+stops/renames/marks native work. Failure reports the problem and any available
+reason politely in the entry's persistent status, retains the record, question
+and focus, and enables retry or Keep. Success removes every entry, prevents older
+reads/lifecycle updates restoring it, closes any showing panel and restores
+next-entry/card/Recent focus without a deletion-success announcement. No local
+action changes a published story fact.
 
 ## Retained Codex results without their workspace
 

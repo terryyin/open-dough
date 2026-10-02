@@ -32,7 +32,6 @@ export function usePageSessionPanel({
   const shown = panel?.request;
   const latest = useRef<SessionRequest | undefined>(undefined);
   const [returning, setReturning] = useState<KeyboardReturn | undefined>();
-  const [deleted, setDeleted] = useState<string | undefined>();
   useLayoutEffect(() => {
     latest.current = shown;
   }, [shown]);
@@ -90,7 +89,6 @@ export function usePageSessionPanel({
     );
     const outcome = await deleteRecord(record);
     if (outcome.kind !== "deleted") return outcome;
-    setDeleted("Session record deleted");
     const open = latest.current;
     const closes =
       (open === undefined ? undefined : sessionKey(open.record.session)) ===
@@ -126,7 +124,6 @@ export function usePageSessionPanel({
     maximize: setMaximized,
     close,
     markSessionDone,
-    deleted,
     sessions,
     openSession: sessions.openSession,
     unavailableWorkspace,

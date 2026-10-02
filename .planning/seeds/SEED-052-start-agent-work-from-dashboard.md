@@ -115,8 +115,8 @@ or claims of readiness.
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/219-deletion-failure-feedback/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"952193099b2aed78a1d0902a928a3e7b49c842523a86c3fdf64430035a9f0e6d","plan":"b103ce0d12e4d72efd591d59dc6ec824f50c360acd4dd66f3ff42ab75f575857"}}
 ```
 
-**Goal:** A developer deleting a dashboard session record receives audible
-and visible feedback in that session's entry when deletion fails, so they can
+**Goal:** A developer deleting a dashboard session record receives visible
+feedback in that session's persistent polite status when deletion fails, so they can
 retry or keep the record. Successful deletion removes the entry and returns
 focus without a deletion-success announcement.
 
@@ -150,7 +150,7 @@ every success. The recorded identity and anchor remain unchanged.
 
 1. An unknown/unavailable session record is shown. The developer confirms
    Delete record, but the request fails → the record and confirmation remain;
-   its entry displays and politely announces the failure message, including a
+   its persistent polite status displays the failure message, including a
    returned reason when available. Delete record and Keep are enabled again,
    and focus stays on the confirming control. This works on the first failure.
 2. After a failed attempt, the developer retries and deletion succeeds → the
@@ -181,6 +181,11 @@ and refusal when state becomes known. The success message currently comes from
 by [`TerminalSplit.tsx`](../../dashboard/src/TerminalSplit.tsx). These are
 inspected code and test expectations; no test was run or screen-reader speech
 observed in refinement.
+
+**Clarified 2026-10-02 by the developer during execution:** There is no speech
+requirement. Preserve the existing polite entry-local status and verify its
+exposure and behavior in the browser; actual spoken output is not an acceptance
+requirement. This removes the plan's native screen-reader observation gate.
 
 **Deferred promises:** Redesigning deletion eligibility, confirmation, failure
 wording, or focus destinations; changing other announcements; and a general

@@ -79,11 +79,6 @@ export function TerminalSplit({
   // had open.
   return (
     <SessionsOnPage value={panel.sessions}>
-      {panel.deleted !== undefined && (
-        <p role="status" className="visually-hidden">
-          {panel.deleted}
-        </p>
-      )}
       <div
         className={
           [

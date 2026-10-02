@@ -71,32 +71,99 @@ same command then passed. No tracked dependency changes were made. Fixtures
 use temporary HOME/project directories, local origins, and a synthetic Claude
 Code executable; they do not call paid/native agents or production services.
 
-Browser assertions do not establish actual speech. Slice 1 begins with the
-bounded native observation below before assuming that current failure speech
-is adequate. No native screen-reader result is claimed during preparation.
+Browser assertions establish status exposure and behavior, not actual speech.
+The developer clarified during execution on 2026-10-02 that there is no speech
+requirement; the initially planned native observation gate is removed. Preserve
+the existing polite entry-local status and judge the browser observations below.
+
+## Execution context
+
+Execution began on 2026-10-02 from the caller's established start, without a
+second Take. Identity: `SEED-052#announce-record-deletion-first-time`;
+publisher: `dashboard-territory.local-open-dough`; agent: `ivan-chan`.
+Story Branch Mode uses
+`/Users/terryyin/git/open-dough/.worktrees/announce-a-deleted-session-record-to-screen-read`
+on `codex/announce-a-deleted-session-record-to-screen-read`, publishing
+increments to that branch on `origin`; the eventual integration target is
+`origin/main`. No integration checkout was supplied. The established
+`startingRevision` is `2e26eda0f02f9730475b9b6a872e99e84f5e5625`; the accepted
+claim and initial candidate are
+`d41fc57757ba1e87bb7f517ce4deb94d1e19abac`, confirmed on both remote main and the
+execution branch. `npm ci` and `npm run typecheck:dashboard` passed in this
+checkout without tracked dependency changes. No extra overrun replanning
+permission or slice-size limit was supplied.
+
+The early native probe used an isolated dev server with the existing fake
+GitHub/Claude controls, a temporary HOME, and the published launch fixture.
+Chrome's native accessibility observation of the first confirmation with the
+dashboard directory at mode `0500` showed the entry's failure message and
+EACCES reason, retained confirmation and record, enabled Delete record/Keep,
+and focus on Delete record. After permissions returned to `0700`, retry
+removed the entry and its Recent copy and returned focus to Story B. The
+unchanged baseline still showed its existing success announcement.
+
+VoiceOver was started through its native welcome dialog with its caption-panel
+setting already enabled, but the available native tools did not expose speech
+or the caption output. **Actual first-failure speech remains unobserved, not
+proved silent.** A developer observation was requested in the conversation. The developer then
+clarified that there is no speech requirement; acceptance now rests on the
+entry-local status and browser behavior, with no native speech prerequisite. Fixture
+permissions were restored, the fixture server/repository and temporary harness
+were removed, its browser tab was closed, and VoiceOver was turned off again.
+
+Independent browser proof passed for the uncommitted implementation:
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-card-delete.spec.ts dashboard/tests/agent-launch-card-delete-problems.spec.ts dashboard/tests/agent-launch-recent-delete.spec.ts dashboard/tests/agent-terminal-delete.spec.ts dashboard/tests/accessible-overview-keyboard.spec.ts --workers=2
+npm run typecheck:dashboard
+git diff --check
+```
+
+All exited 0. The first command ran the five named specs without additional
+name filtering. `agent-launch-card-delete-problems.spec.ts`'s card/Recent
+unwritable-directory journeys observe the empty, exposed entry status before
+confirmation, its unchanged element marker after the real failed request,
+failure/reason, retained storage and controls, confirming-control focus, and
+successful retry with quiet success and focus return. `unknownSession` and
+the isolated `dashboardTest` server supply only the starting state and fake
+host. Card and Recent deletion specs observe first/consecutive quiet successes
+alongside storage, membership and focus; terminal deletion and overview
+keyboard journeys preserve panel/native and unrelated announcement proof.
+The coordinator inspected the removed hook state/rendering, persistent status
+wrappers, fixture setup and changed observing assertions. These observations
+establish browser behavior and status exposure; they do not establish speech.
+
+Browser proof is accepted under the developer's clarified requirement.
+Independent refactor review returned `## REFACTOR COMPLETE` with no edits or
+proof invalidation, and `npm run format` exited 0. The coordinator retained
+the existing oversized seed (431 lines), card-delete spec (283), and Recent
+delete spec (294) under a scoped exception: splitting their unrelated stories
+or existing journeys would broaden this slice. The numeric refactor guideline
+is unsatisfied; no human file-size waiver is claimed.
+
+CI uses GitHub Actions `ci.yml`, verified as a push-triggered workflow for
+`terryyin/open-dough` and the authorized execution branch. The documented
+Codex yielded stream was armed before the first increment so managed delivery
+can reuse one observer, following the successful startup/reuse evidence in
+`DearDough.md` DD-201. Observer: `/tmp/dough-ci-501/watch-TpFNB7`, coordinator
+`root`, bound to this execution checkout and branch; cell 14, session 84403,
+PID 5648. The earlier trunk claim's CI is unobserved by this execution.
 
 ## Ordered slices
 
-### 1. Announce failures beside the session and remove success speech
+### 1. Show failures beside the session and remove the success announcement
 
 **Type:** Behavior
-**Status:** planned
+**Status:** done
 
 **Behavior:** The developer confirms deletion of an unknown/unavailable
-session record. Failure remains visible and audible in that entry with retry
+session record. Failure remains visible in its persistent polite status with retry
 or Keep available; success removes the record and restores focus without a
 deletion-success announcement. Known-state refusal retains its own explanation.
 
-Begin with an early probe of the first failed attempt in an isolated fixture
-page, using an available screen reader/browser pair. Observe the failure
-message being spoken while focus stays on Delete record. Use the existing
-unwritable-directory setup and restore permissions afterward. This is a
-plan-slice manual observation under `dough-manual-testing`, bounded to that
-failure and its successful retry, with a ten-minute observation budget. If
-speech cannot be observed, or a failure
-is silent, stop dependent acceptance and revisit this same slice; do not claim
-that a DOM assertion proves speech. Keep any necessary repair within the
-agreed entry-local failure outcome, and escalate a scope/design choice.
+Verify the first failed attempt through the real isolated unwritable-directory
+journey in both entry wrappers. Native screen-reader speech observation is not
+required, as clarified by the developer on 2026-10-02.
 
 Remove `deleted` state, `setDeleted`, and its return field from
 `usePageSessionPanel`, together with the conditional success region in
@@ -120,7 +187,7 @@ affected consumer requires an adjustment.
 
 | Final promise | Outside-in proof owned by slice 1 |
 | --- | --- |
-| First failure is visible and offered in an already exposed entry status, with reason, retry/Keep, record retention, and focus preservation | Extend `agent-launch-card-delete-problems.spec.ts`'s real unwritable-file journey with region identity/exposure checks; inspect `RecentActions` and exercise its exposed entry status. The native probe owns actual speech. |
+| First failure is visible and offered in an already exposed entry status, with reason, retry/Keep, record retention, and focus preservation | Extend `agent-launch-card-delete-problems.spec.ts`'s real unwritable-file journey with region identity/exposure checks; inspect `RecentActions` and exercise its exposed entry status. |
 | First success, consecutive successes, and retry success produce no deletion-success announcement | Negative success-message observations in existing card/recent and failure → retry journeys; confirm success region/state are gone. Other focus/read announcements are allowed. |
 | Records disappear from all views; showing panel closes; native work is not stopped; focus follows existing destinations | Existing card-delete, recent-delete, and terminal-delete journeys, keeping storage and host-call assertions. |
 | Known-state refusal, Keep/Escape, and published-work announcements retain their meanings | Existing refusal/cancellation observations and `accessible-overview-keyboard.spec.ts`; preserve their assertions. |
@@ -149,10 +216,10 @@ state, or unfinished second feature remains.
 ## Plan review
 
 One cohesive Behavior slice owns the selected rule and proof loop, including
-its early native probe and cleanup. A separate Structure slice or preliminary
+its entry-local failure and successful retry journeys. A separate Structure slice or preliminary
 announcement framework would fragment this small outcome. No numeric slice
 target or hard limit was supplied; none is invented. No slice-specific design,
 proof-ownership, or sizing concern remains after construction, so a separate
 slice-plan refinement pass is not needed. Readiness is assessed against this
-plan and the revised story; the native speech premise is bounded by the early
-probe and still needs its actual observation during authorized execution.
+plan and the revised story. The developer's execution-time clarification removes
+the native speech prerequisite without changing the existing polite regions.
