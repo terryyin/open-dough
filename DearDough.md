@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 211. Removed local codes are never reused.
+- Highest allocated local number: 213. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -454,6 +454,7 @@ Follow-up: Open, unqueued.
   - Observed effect: one refused call; no state change.
   - Inference: Qualified. The refusal message made the fix obvious, so this occurrence cost less than the earlier lookups.
 - Execution: `SEED-072#responsive-session-start-reconciliation` / plan 192, first related implementation commit `109fd76b` - Timestamp: 2026-10-01T17:50:33+08:00 (commit time of `109fd76b`; the refused delivery followed it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: unknown; installed guidance last updated by `e6a7106c` (base v0.3.51) - Evidence: the coordinator passed `--target-ref origin/claude/keep-the-dashboard-responsive-while-session-star` and `deliver` refused with "authorized target must be a branch ref"; the retry with `refs/heads/<execution branch>` was accepted with observation attached. - Observed effect: one refused delivery call and one retry; no state changed. - Inference: Qualified. The script refuses the wrong form, so the cost stays small; the guidance still does not name the expected form.
+- Execution: `SEED-072#durable-startup-reconciliation` / plan 206, first related implementation commit `3d82d365` - Timestamp: 2026-10-02T08:16:29+08:00 (commit time of `3d82d365`; the refused delivery followed it) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.52 (installed `dough-update/VERSION` at claim `76a298b1`) - Evidence: first `deliver` passed `--target-ref origin/claude/keep-reconciled-startups-settled-under-one-unres` and was refused with "authorized target must be a branch ref"; the retry with `refs/heads/…` was accepted with observation attached. - Observed effect: one refused call; no state change. - Inference: Qualified; the same coordinator mistake as the plan 192 row, one day later, on the same story.
 
 ## DD-197 — New tests that run tools and Git passed on macOS and failed on CI's Linux test job
 
@@ -751,3 +752,20 @@ Follow-up: Open, unqueued.
   - Evidence: plan 192 slice 3 says "Uncertain publication stays protected pending workflow-owned verification" and its safe stop says "interrupted outcomes remain protected"; the coordinator's slice 3 brief said "interrupted outcomes remain protected (or show the existing static explanation)". The implementer left `unknown` publication unprotected, citing that parenthesis, and asked for confirmation.
   - Observed effect: the coordinator accepted it as an interim and moved that protection into slice 4 through a plan edit; slice 4 delivered it, with no rework of slice 3 code.
   - Inference: Qualified. Quoting the plan's mapped promise verbatim, not a summary, would have kept the stricter reading; the harm stayed small because the next slice owned the same outcome.
+
+## DD-213 — A plan's consumer premise for an admission rule swept function callers, missing specs that relaunch the same story
+
+Plan 206 recorded that callers of the rules slice 2 changed were "only dashboard code and specs … Specs reach them only through the HTTP boundary and pages", from a grep of function names. The new rule refused a fresh start after an uncertain outcome, and 13 tests in 7 specs relaunched the same story over raw HTTP to resume it; the plan treated two of those specs as wording-only consumers for slice 3.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+- Execution: `SEED-072#durable-startup-reconciliation` / plan 206, first related implementation commit `3d82d365`
+  - Timestamp: 2026-10-02T08:43:15+08:00 (commit time of slice 2, `a6fa2461`; the failures were found before it)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.52 (installed `dough-update/VERSION` at claim `76a298b1`)
+  - Evidence: plan 206 premise row "Callers of the rules slice 2 changes are only dashboard code and specs"; slice 2's implementer ran the full dashboard suite, saw 13 failures in `agent-launch-boundary`, `-codex-reconciliation`, `-codex-recovery`, `-preparation-codex-recovery`, `-preparation-resume`, `-start-codex-recovery`, `-start-resume`, and converted them to resume through continuation, reporting the premise gap for the coordinator's judgment (plan 206 slice 2 Learning).
+  - Observed effect: no CI failure or rework; the slice's implementer made and reported a consumer-alignment decision the plan had not anticipated, and the coordinator accepted it against the plan's own decision.
+  - Inference: Qualified. A premise about who an admission rule reaches is a behavior premise: the consumers are tests that exercise the refused sequence, found by searching for repeated launches of one story, not by function names. Running the whole dashboard suite inside the slice (about 4.5 minutes) caught it before publication, consistent with ODF-150's inference.
+

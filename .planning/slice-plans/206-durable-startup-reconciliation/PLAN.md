@@ -385,3 +385,24 @@ the "already being rechecked" answer.
   accumulating special case. Slice 3 depends on slice 2's rule for its wording
   direction; slices 1 and 2 are independent. Slice 4 adds one native-evidence
   outcome on the same model and depends on slice 2's shared rule.
+
+## Execution complete
+
+Product advice: The correction outcome is delivered. The retrospective found
+two current defects in slice 4's Recheck verification and one shared-rule
+residue, planned as the follow-up correction
+[SEED-072#recheck-verification-fidelity](../../seeds/SEED-072-responsive-session-start-reconciliation.md#recheck-verification-fidelity)
+([plan 211](../211-recheck-verification-fidelity/PLAN.md), recorded ready,
+not queued):
+- Recheck of an uncertain Codex story attempt asks for verification and shows
+  "This host offers no session listing…", contrary to `AGENT-LAUNCH.md`.
+- An attempt whose own launch record holds a session can settle as
+  `not-listed` when its kept start is gone or the session is no longer listed.
+- Launch and verification derive the start folder and record policy
+  separately.
+Recommend queueing it ahead of other dashboard launch work. Integration note
+for wrap-up: `SEED-075#startup-advice-from-host-description`, now on main,
+conflicts in `dashboard/src/hostDescription.ts`; keep main's
+`nativeCheckAdvice` and this branch's `uncertaintyHint` wording (no
+"before starting again"), and keep main's host-advice wording out of the
+answers this branch formed at source.

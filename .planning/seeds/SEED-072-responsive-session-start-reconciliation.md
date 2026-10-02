@@ -47,6 +47,33 @@ every promise of the original story.
 
 **Plan:** [bounded correction input and slices](../slice-plans/206-durable-startup-reconciliation/PLAN.md).
 
+<a id="recheck-verification-fidelity"></a>
+
+### Recheck verifies only what its host can list, and trusts a launch's own record
+
+**Identity:** SEED-072#recheck-verification-fidelity
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/211-recheck-verification-fidelity/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fdc936cf96af22c6fa50d584e3f59a5a327da5895a3a2961f3ce4d40212d6a71","plan":"090a8c7b29a991b92f20df3250e78a6bd3aef2ce96a047ae2008cc7c5e4b0223"}}
+```
+
+**Goal:** A developer who presses Recheck on an uncertain story start sees an
+answer true to that start: a Codex start is rechecked as it was before, without
+an answer that its host offers no session listing, and a start whose own launch
+record already holds its session settles as launched, never as "not launched"
+while its card lists that session and its story could be started twice.
+
+**Scope:** A bounded retrospective correction of
+`SEED-072#durable-startup-reconciliation` (plan 206, commits `3d82d365`,
+`a6fa2461`, `f7dbab51`, `1414d5c8`). Recheck asks for native verification only
+for a host whose local service offers a session listing (a host capability,
+not a host name); an attempt whose own launch record already holds a session
+settles as launched before any listing or folder matching; launch and
+verification share one rule for where a story launch started and what record
+it keeps. Preserve every promise of the reviewed story; no new feature promise,
+host, endpoint or retention change.
+
+**Plan:** [bounded correction input and slices](../slice-plans/211-recheck-verification-fidelity/PLAN.md).
+
 ## Breadcrumbs
 
 - Terry's direction in this chat, 2026-10-01: capture this UX/UI improvement
