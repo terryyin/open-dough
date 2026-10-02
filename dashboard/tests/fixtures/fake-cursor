@@ -1,0 +1,78 @@
+#!/usr/bin/env node
+"use strict";
+// Proof stand-in for cursor-agent. Prints the configured create-chat id.
+// The launch argv log is create-chat and a prompted resume, which exits 0.
+// Resume with no prompt is the embedded attach: it is recorded separately,
+// prints the observed `Add a follow-up` prompt, and survives SIGHUP. It does
+// not write a launch record or a workspace.
+const fs = require("node:fs");
+const path = require("node:path");
+
+const args = process.argv.slice(2);
+const log = process.env.FAKE_CURSOR_LOG;
+const home = process.env.HOME;
+let stored = null;
+if (home) {
+  try {
+    stored = fs.readFileSync(
+      path.join(home, ".open-dough", "dashboard", "agent-launches.json"),
+      "utf8",
+    );
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+}
+// Resume with no prompt is attach, not a launch prompt, so it stays out of
+// the launch argv log.
+const resumeAt = args.indexOf("--resume");
+const resumed = resumeAt >= 0 ? args[resumeAt + 1] : undefined;
+const attaching = resumed !== undefined && args.length === resumeAt + 2;
+if (log && !attaching) {
+  fs.appendFileSync(
+    log,
+    `${JSON.stringify({
+      executable: process.argv[1],
+      args,
+      cwd: process.cwd(),
+      stored,
+    })}\n`,
+  );
+}
+if (args[0] === "create-chat") {
+  const id = process.env.FAKE_CURSOR_SESSION_ID;
+  if (!id) {
+    process.stderr.write("missing session id\n");
+    process.exit(1);
+  }
+  process.stdout.write(`${id}\n`);
+}
+if (attaching) {
+  const pid = process.pid;
+  const dir = process.env.FAKE_CURSOR_ATTACH_DIR;
+  if (dir) fs.mkdirSync(dir, { recursive: true });
+  process.on("SIGHUP", () => {
+    if (dir) fs.appendFileSync(path.join(dir, `${pid}.signals`), "SIGHUP\n");
+  });
+  process.stdin.on("error", () => {});
+  process.stdout.on("error", () => {});
+  process.stdin.resume();
+  if (dir) {
+    fs.appendFileSync(
+      path.join(dir, "attaches.jsonl"),
+      `${JSON.stringify({
+        pid,
+        executable: process.argv[1],
+        cwd: process.cwd(),
+        args,
+        cols: process.stdout.columns,
+        rows: process.stdout.rows,
+        sessionId: resumed,
+      })}\n`,
+    );
+  }
+  process.stdout.write(
+    `\x1b[?2026h\x1b[?25h\x1b[2J\x1b[H→ Add a follow-up\r\n\x1b[?2026l`,
+  );
+} else {
+  process.exit(0);
+}

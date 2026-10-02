@@ -6,7 +6,10 @@ uses saved native conversations for terminal attachment and local record actions
 Same-origin `/__agent-terminal?source=&host=&session=` admits recorded host-qualified
 sessions in existing project folders. Claude uses `claude attach <native alias>`;
 Codex uses the saved ID, endpoint and workspace with ordinary `codex resume`
-and `--no-alt-screen`. Unknown project/session, missing project folder and
+and `--no-alt-screen`. Cursor runs the stored
+`cursor-agent --workspace <recorded path> --resume <uuid>`. A visible cursor
+and `Add a follow-up` admit that terminal. Cursor supplies no stop or rename,
+so Mark as done stays absent and Delete record remains. Unknown project/session, missing project folder and
 unavailable sessions are refused before attachment. Codex checks the saved
 directory at attachment: missing or inconclusive availability opens the same
 session's read-only final report and explains the limitation. Failure before

@@ -28,13 +28,27 @@ const codexSessionSchema = z.object({
     .optional(),
 });
 
+// The printed create-chat id, plus the workspace and resume command that
+// continue it. No alias and no endpoint.
+const cursorSessionSchema = z.object({
+  host: z.literal("cursor"),
+  sessionId: z.uuid(),
+  name: z.string(),
+  continuation: z.object({
+    workspace: z.string().min(1),
+    args: z.array(z.string()),
+  }),
+});
+
 export const hostSessionSchema = z.discriminatedUnion("host", [
   claudeSessionSchema,
   codexSessionSchema,
+  cursorSessionSchema,
 ]);
 
 export type ClaudeSession = z.infer<typeof claudeSessionSchema>;
 export type CodexSession = z.infer<typeof codexSessionSchema>;
+export type CursorSession = z.infer<typeof cursorSessionSchema>;
 export type HostSession = z.infer<typeof hostSessionSchema>;
 
 export const firstInputSchema = z.object({

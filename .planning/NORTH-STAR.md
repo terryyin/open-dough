@@ -109,7 +109,7 @@ already reads, so later launch stories extend one model instead of adding
 parallel ones:
 
 - An **agent launch** starts one **workflow** on one work item, through one
-  host (`claude` and `codex` now, `cursor` later, from `agentHosts`), with an
+  host (`claude`, `codex`, and `cursor`, from `agentHosts`), with an
   optional developer instruction. A workflow names the skill it runs and the
   published **activity** (from `agentActivities`) whose assignment it asks
   for: execution runs `dough-execute-plan` and asks for an execution
@@ -187,7 +187,7 @@ table, never a second flow. Model it in the launch vocabulary above.
 | --- | --- | --- |
 | **Workflow** | Gains a `start` kind: what mechanical preparation precedes its session (`execution-start`, `preparation-assignment`, or none for ad hoc). | The one `launchWorkflows` table (`src/agentLaunch.ts`). |
 | **Start** | A workflow's deterministic establishment of a published claim and an owned workspace, run before its session by the project's installed skill script, never reimplemented by the dashboard (PFE: `execution-start.mjs` already fetches, selects the workspace, names the agent, publishes the Take, and reports recovery). | `server/startWorkflows.ts` selects the shared start; `executionStart.ts` and `preparationStart.ts` own their installed command/result boundaries. |
-| **Workspace choice** | Where the start puts its checkout: a path and branch, decided by the dashboard for every host, never by a host's own worktree feature: `<project folder>/.worktrees/<story slug>`. Inside the project folder the folder's trust covers it (Claude Code probed; Codex resolves a linked worktree's trust to its main repository; Cursor inherits trust down the folder tree, observed 2026-09-30), and outside `~/.codex/worktrees` and `~/.cursor/worktrees` those tools' automatic cleanup does not reach it. The branch names the selected host, such as `claude/<slug>` or `codex/<slug>`. | The shared pure function `server/launchWorkspace.ts`; host branches and workspace folders share collision checks. |
+| **Workspace choice** | Where the start puts its checkout: a path and branch, decided by the dashboard for every host, never by a host's own worktree feature: `<project folder>/.worktrees/<story slug>`. Inside the project folder the folder's trust covers it (Claude Code probed; Codex resolves a linked worktree's trust to its main repository; Cursor inherits trust down the folder tree, observed 2026-09-30), and outside `~/.codex/worktrees` and `~/.cursor/worktrees` those tools' automatic cleanup does not reach it. The branch names the selected host, such as `claude/<slug>`, `codex/<slug>`, or `cursor/<slug>`. | The shared pure function `server/launchWorkspace.ts`; host branches and workspace folders share collision checks. |
 | **Established start** | The start's typed result: identity, publisher id, workspace, branch, mode, remote and target, agent, `publishedSha`, `startingRevision`, `candidateSha`, plan. The handoff to the session. | Shared type in `src/agentLaunch.ts`. |
 | **Start record** | Machine-local, write-ahead evidence of one start: written *before* the script runs (publisher id, workspace, branch), updated with the established start, removed when a launch record keeps it. It is what a retry resumes. Never a story fact; origin's Take decides Taken. | `server/startStore.ts`, beside `launchRecordStore.ts` on the same file discipline (one shared JSON-file helper). |
 | **Start progress** | Which phase a running start is in (`preparing`, then `launching`), held in server memory and answered with the machine's sessions so every page shows it. A stored start with no running process is *interrupted*, not running. | `AgentLaunches` (`server/agentLaunches.ts`) owns both, keyed by project and identity. |
@@ -213,7 +213,8 @@ Rules that keep later stories additive:
 - **Host seam.** Host modules own the skill root
   (`.claude/skills` for Claude Code; `.agents/skills` for Codex and Cursor),
   native conversation start in the chosen workspace (Codex daemon `thread/start`
-  with CWD; Cursor `--workspace`, never native `--worktree` / `-w`), and listing. The
+  with CWD; Cursor `--workspace`, never native `--worktree` / `-w`), and listing
+  where the host supplies passive status. Cursor does not. The
   workspace choice is shared, not a host convention. The start and the record are host-agnostic and take
   only `host`, `model`, and the workspace choice. The common contract contains only delivered operations; native helpers remain
   private behind one public module per delivered host.

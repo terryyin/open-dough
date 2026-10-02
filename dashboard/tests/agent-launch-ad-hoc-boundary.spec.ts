@@ -139,11 +139,6 @@ for (const mode of ["dev", "preview"] as const) {
         body: { ...adHocRequest, source: "not-a-real-project" },
       },
       {
-        request: "for Cursor",
-        status: 400,
-        body: { ...adHocRequest, host: "cursor" },
-      },
-      {
         request: "naming an identity",
         status: 400,
         body: { ...adHocRequest, identity: launchRequest.identity },

@@ -1,7 +1,7 @@
 # Dashboard agent launch
 
 The [story dashboard](README.md) starts work on this machine through the same
-launch dialog and local boundary for Claude Code and Codex. Origin alone decides
+launch dialog and local boundary for Claude Code, Codex, and Cursor. Origin alone decides
 story membership, preparation and completion; a launch record is local evidence.
 
 | Workflow   | Action           | Installed skill          |
@@ -21,8 +21,8 @@ sends nothing on Cancel/Escape. Start commits the request at once and closes the
 modal when the local service has accepted it, before the start or session ends;
 [startup handoff](#startup-handoff-and-reconciliation) follows it from there.
 
-Host initially selects Claude Code and offers Claude Code or Codex. Model opens
-on Default. Claude also offers
+Host initially selects Claude Code and offers Claude Code, Codex, or Cursor.
+Model opens on Default. Claude also offers
 Fable, Opus and Sonnet; a selection sends its `--model` alias before the prompt.
 Codex reads the installed host’s model catalog when a new-session dialog opens,
 including all returned pages, and offers “Use Codex setting” beside the discovered
@@ -44,7 +44,8 @@ configured model in the project folder; story starts delegate defaults until the
 workspace is established. Launch validates against that actual workspace and
 checks native effective model/effort before saving any sendable input evidence.
 Unknown configured custom models remain usable with untouched defaults.
-Configured defaults are never inferred from catalog recommendations. Switching
+Configured defaults are never inferred from catalog recommendations. Cursor
+offers only Default, which omits `--model`. Switching
 hosts and fresh openings clear both selections; no authentication, trust, approval,
 sandbox or permission setting is overridden by the dashboard.
 Requested model/options lines describe requests, never the effective model.
@@ -171,7 +172,7 @@ and what the dialog's Session choices select, are in
 
 See [native hosts and durable evidence](AGENT-LAUNCH-HOSTS.md) for the registered
 host boundary, host-qualified identity, native startup and saved creation/input
-evidence, and Codex continuation.
+evidence, and Codex and Cursor continuation.
 
 ## History, observation and navigation
 

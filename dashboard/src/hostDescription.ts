@@ -53,15 +53,26 @@ export const hostDescriptions = {
     nativeCheckAdvice:
       "Check the dashboard history and native Codex conversations before continuing; a recorded conversation is resumed, never submitted again.",
   },
-  cursor: { name: "Cursor", branchNamespace: "cursor/", models: {} },
+  cursor: {
+    name: "Cursor",
+    branchNamespace: "cursor/",
+    // This invocation spells a skill as `/dough-execute-plan`.
+    skillSigil: "/",
+    models: {},
+    // No passive status command was observed, so a visible session stays unread.
+    unknownObservation: {
+      label: "Activity unknown",
+      note: "Cursor has no passive status for this session",
+    },
+  },
 } as const satisfies Record<HostIdentity, HostDescription>;
 
 export function hostDescription(host: HostIdentity): HostDescription {
   return hostDescriptions[host];
 }
 
-// Offered launch hosts have a skill invocation. Cursor retains its identity
-// without offering a launch. The server still checks runtime availability.
+// Offered launch hosts have a skill invocation. The server still checks
+// runtime availability.
 export const launchHosts = agentHosts.filter(
   (host) => hostDescription(host).skillSigil !== undefined,
 );

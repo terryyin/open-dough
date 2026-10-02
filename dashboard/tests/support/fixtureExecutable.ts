@@ -21,7 +21,8 @@ const fixturesDir = path.join(process.cwd(), "dashboard", "tests", "fixtures");
 // extensionless files are ES modules). Only across filesystems, where no link
 // can be made, is it copied.
 export function installFixtureExecutable(
-  fixture: "fake-gh" | "fake-claude" | "fake-osascript" | "fake-codex",
+  fixture:
+    "fake-gh" | "fake-claude" | "fake-osascript" | "fake-codex" | "fake-cursor",
   binDir: string,
   command: string,
 ): void {

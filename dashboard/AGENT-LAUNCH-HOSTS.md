@@ -9,8 +9,15 @@ public boundary; an unavailable host never uses another host's implementation.
 Attach and Mark as done availability is projected from that boundary's actual
 optional `attach` and `stop` operations in the machine-sessions answer. Browser
 controls also honor session state and workspace access; server admission retains
-its own missing-operation checks. Cursor has a known branch namespace but no
-delivered runtime or launch choice.
+its own missing-operation checks. Cursor's module launches with `create-chat`,
+then `cursor-agent --workspace` and `--resume` in the established workspace,
+and stores that id, workspace, and resume command, with no alias or endpoint.
+The launch does not pass `-w`, `--worktree`, `--trust`, `--force`, or `--yolo`.
+The embedded terminal runs that stored command. A visible cursor and the text
+`Add a follow-up` admit it. Stop is not supplied, so Mark as done stays absent.
+A client still running when the launch wait ends is the launched session.
+Default omits `--model`. Skills are read from `.agents/skills`, and the prompt
+sigil is `/`.
 
 Common workflow, records, actions and presentation do not call another host's
 private helpers. Shared wording reads the host description, and alerts consume native
@@ -50,7 +57,8 @@ reading a recovery view does not rewrite the stored record.
 Session records are a discriminated union on `host`. Each variant keeps
 `sessionId` and `name`; Claude requires its native `shortId`, while Codex may
 carry a continuation with workspace, endpoint, resume arguments, and an optional
-notice. A parsed session carries only its host's fields. Host modules narrow
+notice. Cursor requires a continuation with workspace and resume arguments, and
+has no alias or endpoint. A parsed session carries only its host's fields. Host modules narrow
 to their own variant; shared presentation reads continuation by field presence.
 Predecessor Codex records without continuation still load, observe as unknown,
 refuse terminal attachment, and retain the missing-endpoint diagnostic when

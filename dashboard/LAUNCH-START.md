@@ -25,11 +25,11 @@ The dialog's initial Claude Code choice and host-less external request and
 stored-record compatibility defaults remain at their boundaries.
 The workspace is `<project>/.worktrees/<title slug>`, independent of native host
 worktree features; the branch uses that host's namespace from
-`src/hostDescription.ts` (`claude/` or `codex/` for current starts). Slugs are
+`src/hostDescription.ts` (`claude/`, `codex/`, or `cursor/`). Slugs are
 lowercase hyphenated words, accents removed, at most 48 characters, `story` for
 no usable words, and numbered when workspace folders or any known host namespace
-collide. The same descriptions supply collision lookup for `claude/`, `codex/`
-and `cursor/`; recognizing Cursor branches does not offer a Cursor runtime.
+collide. The same descriptions supply collision lookup for `claude/`, `codex/`,
+and `cursor/`.
 
 Start runs only when origin is the catalog repository and the story has no
 unresolved [launch attempt](AGENT-LAUNCH.md#startup-handoff-and-reconciliation)
