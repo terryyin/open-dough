@@ -150,7 +150,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
     );
     await expect(
       dialog.getByLabel("Model", { exact: true }).locator("option"),
-    ).toHaveCount(1);
+    ).toHaveCount(native.models.length + 1);
     await showOptions(dialog);
     await dialog.getByRole("checkbox", { name: /Explore/ }).check();
     await dialog

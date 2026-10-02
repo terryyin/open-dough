@@ -11,6 +11,23 @@ export type FakeCodexObservation = {
 
 export type CodexCall = { method: string; params: Record<string, unknown> };
 export type FakeCodex = {
+  models: Array<{
+    model: string;
+    displayName: string;
+    description: string;
+    supportedReasoningEfforts: Array<{
+      reasoningEffort: string;
+      description: string;
+    }>;
+  }>;
+  modelPageSize: number;
+  catalogError?: unknown;
+  configError?: unknown;
+  holdCatalog: boolean;
+  effectiveModel?: string;
+  effectiveEffort?: string;
+  configuredModel?: string | null;
+  configuredModels?: Record<string, string>;
   readonly binDir: string;
   readonly env: Record<string, string>;
   readonly calls: CodexCall[];

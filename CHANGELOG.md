@@ -1,3 +1,21 @@
+## 0.3.54 - 2026-10-02
+
+- Let dashboard-launched Codex sessions discover the native model catalog, select an explicit model and compatible reasoning effort, or independently inherit either Codex setting across ad-hoc, refinement, and execution starts.
+- Carry explicit Codex startup choices through admission, durable launch records, workspace-aware verification, and native creation confirmation, while preserving configured custom defaults and retaining recoverable conversation identities when a selection is refused or contradicted.
+- Prepare the persistent dashboard project-configuration story for its next implementation work.
+
+Native acceptance was explicitly skipped for `0.3.54` at the maintainer's request as an exception to ADR 0005. Native acceptance for the changed Codex model and reasoning-effort discovery, selection, startup, and recovery behavior, together with previously pending requirements, remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
+## 0.3.53 - 2026-10-02
+
+- Make dashboard session startup durable and responsive across host boundaries: prevent duplicate launches, retain creation evidence, reconcile uncertain Codex starts, preserve input acceptance, start saved-session services with the dashboard, and derive recovery wording and controls from each native host.
+- Keep recorded sessions useful after their original workspace is retired by reading retained Codex reports without resuming them, preserving done marks across concurrent dashboard processes, and hardening terminal resizing, session headers, alerts, and continuation views.
+- Show when a story or slice plan has changed since its last readiness review without discarding the recorded judgment, and carry that signal into execution while preserving fresh published reads during startup settlement.
+- Strengthen lightweight refinement, one-shot execution, Dough Land ownership, and story wrap-up with durable preparation and start requests, safer workspace publication and auto-land cleanup, competing-owner checks, and an explicit disposition for every follow-up.
+- Shorten and stabilize feedback by balancing dashboard specs across nine duration-aware CI jobs, removing incidental browser-test waits, pinning the native Node runtime, bounding prerequisite acquisition, and separating reusable native setup from repeated checks.
+
+Native acceptance was explicitly skipped for `0.3.53` at the maintainer's request as an exception to ADR 0005. Native evidence completed within the included dashboard, Dough Land, and CI work is retained; native acceptance for the changed dashboard startup, recovery, retained-session, readiness, lightweight workflow, wrap-up, and CI behavior, together with previously pending requirements, remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.52 - 2026-10-01
 
 - Add end-to-end Codex dashboard sessions for ad-hoc work, refinement, and execution, including durable blank or exact prompts, saved-conversation observation and recovery, embedded terminal attachment, safe done handling, and reopening the original Codex conversation.

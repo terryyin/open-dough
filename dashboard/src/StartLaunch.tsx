@@ -47,6 +47,7 @@ import "./agent-launch.css";
 
 export function StartLaunch({
   work,
+  sourceId,
   workflow,
   establishesStart: establishesForHost,
   options: optionsForHost,
@@ -61,6 +62,7 @@ export function StartLaunch({
 }: {
   readonly onHostChanged?: () => void;
   readonly work: LaunchWorkItem;
+  readonly sourceId: string;
   readonly workflow: LaunchWorkflow;
   // Whether the project's installed skill establishes a start for this
   // workflow's Start; without it the words are those of a plain session start.
@@ -160,6 +162,7 @@ export function StartLaunch({
       )}
       {open && (
         <LaunchDialog
+          sourceId={sourceId}
           host={host}
           onHost={
             resumes === undefined

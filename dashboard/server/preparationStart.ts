@@ -97,7 +97,7 @@ async function runningPreparation(
   // A start kept from an earlier launch of the story is resumed as it was:
   // the same workspace, branch and policy, so the script answers `continued`.
   const kept = await keptStart(source.id, request.identity, workflow);
-  const { workspace, branch, model, policy } = await startChoice(
+  const { workspace, branch, model, effort, policy } = await startChoice(
     project,
     request,
     kept,
@@ -154,6 +154,7 @@ async function runningPreparation(
         workspace: workspace.path,
         branch,
         ...(model === undefined ? {} : { model }),
+        ...(effort === undefined ? {} : { effort }),
         ...(oneShot ? { policy } : {}),
         startedAt: new Date().toISOString(),
       },
