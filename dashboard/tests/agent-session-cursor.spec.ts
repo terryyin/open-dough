@@ -21,7 +21,11 @@ const unknownWords =
 
 type SessionsAnswer = {
   readonly hostOperations: {
-    readonly cursor?: { readonly attach: boolean; readonly stop: boolean };
+    readonly cursor?: {
+      readonly attach: boolean;
+      readonly stop: boolean;
+      readonly launchedSessions: boolean;
+    };
   };
   readonly records: readonly {
     readonly session: { readonly host: string; readonly sessionId: string };
@@ -114,7 +118,11 @@ test("a launched Cursor session is visible without borrowed activity, stop, or r
   await expect(recent).not.toContainText("Ready for review");
 
   const answer = await projectedSessions(page);
-  expect(answer.hostOperations.cursor).toEqual({ attach: true, stop: false });
+  expect(answer.hostOperations.cursor).toEqual({
+    attach: true,
+    stop: false,
+    launchedSessions: false,
+  });
   expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual({
     kind: "unknown",
   });
@@ -149,7 +157,11 @@ test("a launched Cursor session is visible without borrowed activity, stop, or r
     recent.getByRole("button", { name: "Delete record…" }),
   ).toHaveCount(1);
   const again = await projectedSessions(page);
-  expect(again.hostOperations.cursor).toEqual({ attach: true, stop: false });
+  expect(again.hostOperations.cursor).toEqual({
+    attach: true,
+    stop: false,
+    launchedSessions: false,
+  });
   expect(cursorRecord(again, cursor.sessionId)?.sessionState).toEqual({
     kind: "unknown",
   });

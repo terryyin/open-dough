@@ -10,7 +10,11 @@ import { parts, expectMembership } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 
-for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
+for (const viewport of [
+  { width: 1280, height: 800 },
+  { width: 700, height: 720 },
+  zoomedWindow,
+]) {
   test(`selected project banner remains reachable and evidence readable at ${viewport.width} CSS pixels`, async ({
     page,
   }) => {
@@ -35,7 +39,12 @@ for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
     await expect(
       banner.getByRole("heading", { level: 1, name: "Open Dough" }),
     ).toBeInViewport({ ratio: 1 });
-    for (const control of [project, sourceEvidence, refresh]) {
+    for (const control of [
+      project,
+      banner.getByRole("button", { name: "Add project", exact: true }),
+      sourceEvidence,
+      refresh,
+    ]) {
       await expect(control).toBeInViewport({ ratio: 1 });
     }
     const [selectionBox, refreshBox] = await Promise.all([
