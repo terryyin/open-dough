@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-082#dashboard-development-and-production",
+  "mode": "story-branch",
+  "branch": "codex/separate-dashboard-development-and-production-en",
+  "host": "codex"
+}

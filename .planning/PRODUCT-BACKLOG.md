@@ -15,10 +15,10 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard ([plan](slice-plans/210-use-cursor-from-dashboard/PLAN.md))
+- [Separate dashboard development and production environments](seeds/SEED-082-dashboard-development-and-production.md#dashboard-development-and-production) — SEED-082#dashboard-development-and-production ([plan](slice-plans/213-dashboard-development-and-production/PLAN.md))
 
 ## Backlog list
 
-- [Separate dashboard development and production environments](seeds/SEED-082-dashboard-development-and-production.md#dashboard-development-and-production) — SEED-082#dashboard-development-and-production
 - [Persist dashboard project configuration](seeds/SEED-083-persistent-dashboard-project-configuration.md#persistent-dashboard-project-configuration) — SEED-083#persistent-dashboard-project-configuration
 - [See Cursor activity and use its native controls](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-native-activity-and-controls) — SEED-052#cursor-native-activity-and-controls
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
