@@ -259,6 +259,15 @@ Safe stop: correction complete.
 - Formatter caught an unused fixture callback parameter; record indexes now explicitly select the same one/two inputs. `npm run format` retry passed; observed setup unchanged.
 - Slice 2 accepted publication: `af244145189c3ba0e47f864d0c8432f00b7a4658` on the established execution branch. Managed CI remains unobserved with the same bridge limitation; no observer created.
 
+## CI repair — 36963675618, attempt 1
+
+- Observer startup discovered owned `c6c5a4a0` failure in `dashboard (3/9)`, `agent-launch-duplicate.spec.ts:240`: first concurrent held Claude launch uncertain rather than launched. Managed resume confirmed remote acceptance with zero pushes and recovered observer `/tmp/dough-ci-501/watch-V5539N`.
+- Cause: fixture `fake-claude` atomically replaces its listing but concurrent read/change/write operations overwrite sessions. Deterministic disposable subprocess proof `node /tmp/recheck-212-fake-race.mjs` (preload `/tmp/recheck-212-fake-race.cjs`) forced both readers before replacement: two reported launches, one listed session (red); serialized fixture mutations preserved both sessions (green).
+- Repair touches only synthetic fixture launch/stop/rename listing mutations. Existing simultaneous-launch test observes both actual launched answers and two kept records; done/terminal tests observe typed rename, native stop and listed state.
+- Independent refactor consolidated atomic replacement under the mutation lock, preserving a self-contained 249-line fixture; `## REFACTOR COMPLETE`. Replacement race command passed.
+- `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-duplicate.spec.ts dashboard/tests/agent-launch-done.spec.ts dashboard/tests/agent-launch-done-stop.spec.ts dashboard/tests/agent-terminal-done.spec.ts`: passed. Initial focused invocation's color-variable warning was removed with the explicit environment wrapper; this was independent of the proven listing race.
+- `npm run format`: passed. Product implementation and its accepted assertions unchanged; no repeated full-suite run required for this fixture repair. Completion records saved under the installed CI stash protocol before repair; restored only after publication.
+
 ## Slice 3 accepted proof
 
 - Shared `launchStartContext` owns workspace, policy and established facts; `launchRecord` owns record formation across normal confirmation, verification and durable native input recording. Normal keep/remove ordering and original timestamps/input evidence preserved.
