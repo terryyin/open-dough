@@ -221,3 +221,29 @@ terminal result and is not claimed; replacement terminal proof covers its additi
 Slice 2 was accepted as `0a701c84b0a1ecbe9c3a2e7ed0f8b2d5ac6782c2` on the
 execution branch with the same explicit unobserved-CI receipt. This is slice 3's
 previously published base. No observer exists; hosted success is not asserted.
+
+## Retrospective and recovered observation
+
+Manifest: `bcaabd99` owns native feasibility, `0a701c84` owns model selection,
+and `9c0d6bb4` owns effort selection. Claim `20580ea2` and source preparation
+are provenance; the aggregate range contains no interleaved implementation.
+Original plan/seed promises remain unchanged. Shared startup state, native-host
+ownership and operational records fit the North Star and Accepted ADRs;
+no product correction or queue reprioritization was identified by local review.
+Process review uses retained coordinator/tool reports; deeper raw agent history
+is unavailable. DD-201's prior successful startup route corrected the initial
+coverage assumption; no guidance change is authorized by this review.
+
+All three slice publications initially had unobserved CI. Before completion,
+one documented yielded stream was armed: GitHub Actions `ci.yml` (verified
+push selector), repository `terryyin/open-dough`, execution branch above,
+coordinator `bas-chan`, this checkout; cell 19, session 35356,
+`/tmp/dough-ci-501/watch-x4nPTj`, PID 69697. Managed resume recovered that owner
+and accepted `9c0d6bb4` without another push. Its delivered run 36962208003,
+attempt 1, failed only dashboard (1/9): retained-preparation retry assertions
+mistook new catalog reads for conversation creation. The repair keeps the exact
+prior call prefix, permits only discovery in the appended calls, and retains
+Git/store/profile/no-new-input guarantees. Minimal workspace red: session 45347,
+exit 1. All ten retry, two continuation and one recovery cases passed after repair:
+`env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-preparation-codex-retry.spec.ts dashboard/tests/agent-launch-preparation-codex-continuation.spec.ts dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts --workers=2`
+Terminal session 33356, exit 0. Production unchanged; hosted verdict pending.
