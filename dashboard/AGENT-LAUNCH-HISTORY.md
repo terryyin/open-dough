@@ -29,7 +29,9 @@ native states from incomplete reads for shared alerting. Claude reads one machin
 listing. Codex groups
 recorded targets by saved endpoint, reads metadata and only the latest needed
 turn, without resume, subscription or interactive ownership. Endpoint failures
-leave independent healthy records readable.
+leave independent healthy records readable. Cursor has no passive status
+command, so a visible Cursor session stays Activity unknown: Cursor has no
+passive status for this session. It is not shown as working, waiting, or review.
 
 Working means active work. Typed native waits mean Needs input with a reason;
 a completed reply means Ready for review, including ordinary prose questions.

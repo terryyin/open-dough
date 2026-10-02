@@ -1,7 +1,7 @@
 # Dashboard agent launch
 
 The [story dashboard](README.md) starts work on this machine through the same
-launch dialog and local boundary for Claude Code and Codex. Origin alone decides
+launch dialog and local boundary for Claude Code, Codex, and Cursor. Origin alone decides
 story membership, preparation and completion; a launch record is local evidence.
 
 | Workflow   | Action           | Installed skill          |
@@ -21,11 +21,11 @@ sends nothing on Cancel/Escape. Start commits the request at once and closes the
 modal when the local service has accepted it, before the start or session ends;
 [startup handoff](#startup-handoff-and-reconciliation) follows it from there.
 
-Host initially selects Claude Code and offers Claude Code or Codex. Model opens
-on Default. Claude also offers
+Host initially selects Claude Code and offers Claude Code, Codex, or Cursor.
+Model opens on Default. Claude also offers
 Fable, Opus and Sonnet; a selection sends its `--model` alias before the prompt.
 Codex offers only its configured default and refuses a forged Claude model
-selection. Switching hosts clears the model; no authentication, trust, approval,
+selection. Cursor offers only Default, which omits `--model`. Switching hosts clears the model; no authentication, trust, approval,
 sandbox, permission or reasoning setting is overridden by the dashboard.
 Requested model/options lines describe requests, never the effective model.
 
@@ -119,7 +119,7 @@ and what the dialog's Session choices select, are in
 
 See [native hosts and durable evidence](AGENT-LAUNCH-HOSTS.md) for the registered
 host boundary, host-qualified identity, native startup and saved creation/input
-evidence, and Codex continuation.
+evidence, and Codex and Cursor continuation.
 
 ## History, observation and navigation
 
