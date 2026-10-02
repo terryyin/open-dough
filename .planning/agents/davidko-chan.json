@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "DavidKo-chan",
+  "email": "davidko-chan@example.org",
+  "identity": "SEED-083#persistent-dashboard-project-configuration",
+  "mode": "story-branch",
+  "branch": "codex/persist-dashboard-project-configuration",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
