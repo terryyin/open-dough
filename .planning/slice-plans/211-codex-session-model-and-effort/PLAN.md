@@ -201,6 +201,11 @@ and `AGENT-LAUNCH-HOSTS.md` for effort semantics in this same slice.
 Safe stopping point: the selected story is delivered across new-session
 startup, subject to its recorded proof. Resume remains outside scope.
 
+## Execution complete
+
+Product advice: Keep the current North Star and backlog priorities. Delivered
+startup settings extend the shared launch model; no product correction is needed.
+
 ## Promise ownership
 
 | Final-state promise | Owner and observation |

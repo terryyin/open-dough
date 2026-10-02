@@ -225,7 +225,8 @@ previously published base. No observer exists; hosted success is not asserted.
 ## Retrospective and recovered observation
 
 Manifest: `bcaabd99` owns native feasibility, `0a701c84` owns model selection,
-and `9c0d6bb4` owns effort selection. Claim `20580ea2` and source preparation
+and `9c0d6bb4` owns effort selection; `4a50e086` owns the retry-proof repair.
+Claim `20580ea2` and source preparation
 are provenance; the aggregate range contains no interleaved implementation.
 Original plan/seed promises remain unchanged. Shared startup state, native-host
 ownership and operational records fit the North Star and Accepted ADRs;
