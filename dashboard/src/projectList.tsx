@@ -47,9 +47,18 @@ export function useProjectConfiguration() {
     const controller = new AbortController();
     void fetch(projectListEndpoint, { signal: controller.signal })
       .then(async (response) => {
-        if (!response.ok)
-          throw new Error("The dashboard project list could not be read.");
-        return (await response.json()) as readonly PublishedSource[];
+        const answer: unknown = await response.json();
+        if (!response.ok) {
+          const explanation =
+            typeof answer === "object" &&
+            answer !== null &&
+            "error" in answer &&
+            typeof answer.error === "string"
+              ? answer.error
+              : "The dashboard project list could not be read.";
+          throw new Error(explanation);
+        }
+        return answer as readonly PublishedSource[];
       })
       .then(setProjects, (error: unknown) => {
         if (!controller.signal.aborted)

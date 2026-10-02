@@ -45,6 +45,16 @@ export function App() {
   const { projects, problem } = useProjectConfiguration();
   if (projects === undefined)
     return <p role="status">{problem ?? "Loading projects…"}</p>;
+  if (projects.length === 0)
+    return (
+      <main className="page-header">
+        <h1>No projects configured</h1>
+        <p>Add a project to see its published work and start sessions.</p>
+        <button type="button" disabled>
+          Add project
+        </button>
+      </main>
+    );
   return (
     <ProjectsOnPage projects={projects}>
       <ConfiguredDashboard />

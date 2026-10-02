@@ -7,8 +7,8 @@ import { expect, test } from "@playwright/test";
 import { started } from "../server/launchStart.ts";
 import { StartProgress } from "../server/startProgress.ts";
 import { keptStart } from "../server/startStore.ts";
-import { configuredProjects } from "../server/projectConfiguration.ts";
-const defaultSource = configuredProjects()[0];
+import { productionSeedProjects } from "../server/projectConfigurationSeed.ts";
+const defaultSource = productionSeedProjects[0];
 if (defaultSource === undefined)
   throw new Error("The test requires the seeded first project.");
 import {

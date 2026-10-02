@@ -23,6 +23,7 @@ import {
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { installFakeClaude } from "./support/fakeClaude.ts";
 import { withRestoredEnv } from "./support/testEnv.ts";
+import { configureDevelopmentProjects } from "./support/projectConfiguration.ts";
 
 // What the plugin's `configureServer` hook calls `.use(handler)` with.
 type StoredHandler = (
@@ -43,6 +44,7 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
       { binDir: tempRoot, path: process.env["PATH"] ?? "" },
       { projectFolders: ["open-dough"] },
     );
+    configureDevelopmentProjects(claude.controls.home);
     const restoreEnv = withRestoredEnv(claude.env);
 
     let handler: StoredHandler | undefined;

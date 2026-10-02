@@ -20,12 +20,12 @@ export function projectConfigurationPlugin(): Plugin {
           throw new RefusedRequest(405, "Only GET is accepted.");
         res.end(JSON.stringify(publishedProjects()));
       } catch (error) {
-        if (!(error instanceof RefusedRequest)) {
-          next(error);
-          return;
-        }
-        res.writeHead(error.status);
-        res.end(JSON.stringify({ error: error.message }));
+        res.writeHead(error instanceof RefusedRequest ? error.status : 503);
+        res.end(
+          JSON.stringify({
+            error: error instanceof Error ? error.message : String(error),
+          }),
+        );
       }
     });
     return () => {};

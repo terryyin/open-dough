@@ -25,6 +25,7 @@ import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
 import { endGroup, spawnGroupLeader } from "./processGroup.ts";
 import { listenArgs, ownAddress } from "./viteAddress.ts";
+import { configureDevelopmentProjects } from "./projectConfiguration.ts";
 
 // Playwright runs this suite from the repository root (as `npm run
 // test:dashboard` does); paths are built from that rather than from
@@ -75,6 +76,9 @@ export function buildDashboardTo(outDir: string): void {
 export async function startDashboardServer(
   options: FakeClaudeOptions & {
     readonly mode: "dev" | "preview";
+    // Existing dev journeys get their known projects; false observes a genuine
+    // empty first start. Existing files are always kept, including empty lists.
+    readonly configureDevelopmentProjects?: boolean;
     readonly codex?: boolean;
     readonly codexProtocol?: FakeCodex | undefined;
     // The server's own bound when unset.
@@ -109,6 +113,8 @@ export async function startDashboardServer(
     { binDir: gh.binDir, path: ghEnv["PATH"] ?? "" },
     options,
   );
+  if (options.mode === "dev" && options.configureDevelopmentProjects !== false)
+    configureDevelopmentProjects(claude.controls.home);
   const codex =
     options.codexProtocol ??
     (await installFakeCodex(
