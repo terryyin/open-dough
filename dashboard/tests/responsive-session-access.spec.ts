@@ -58,6 +58,8 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
   await expect(hide).toHaveAttribute("aria-expanded", "true");
 
   const start = story.getByRole("button", { name: "Start execution" });
+  // Focus does not wait for the canonical dependency and machine reads.
+  await expect(start).toBeEnabled();
   await start.focus();
   await page.keyboard.press("Enter");
   const dialog = page.getByRole("dialog", {

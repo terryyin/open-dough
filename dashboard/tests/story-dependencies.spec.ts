@@ -60,6 +60,12 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
     .getByRole("button", { name: "Cancel" })
     .click();
   await expect(
+    page.getByRole("dialog", {
+      name: "Start refinement in Claude Code",
+      includeHidden: true,
+    }),
+  ).toHaveCount(0);
+  await expect(
     card.getByRole("button", { name: "Start refinement" }),
   ).toBeFocused();
   const supplierCard = parts(page).backlog.getByRole("article", {

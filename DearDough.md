@@ -291,7 +291,7 @@ Follow-up: Open, unqueued.
   - Tool: Codex
   - Open Dough release: 0.3.54 (installed execution guidance; product guidance edited separately)
   - Evidence: run 36997893525/attempt 1 on `29bd2aa` failed keyboard/page-wide and cross-project launch fixtures; focused slice 2 proof omitted those callers. Repair `a049909` supplied the existing canonical Doughnut fixture and traversed enabled actions, retaining the production guard. Plan 216 CONTEXT records six affected browser files and independent fixture consolidation proof.
-  - Observed effect: one owned CI repair, an independent refactor, and a pause/stash/restore of slice 3's draft.
+  - Observed effect: two owned CI repair cycles with independent refactors, including a pause/stash/restore of slice 3's draft. Completion also exposed direct keyboard focus before canonical availability in run 37003387678; the passing repair observes enabled execution and canceled-dialog removal without changing production guards.
   - Inference: qualified recurrence of changed-operation caller selection; unavailable dependency facts now affect every new execution action, including legacy fixture callers. No full-suite timing or generalized cost measured.
 
 
@@ -575,7 +575,7 @@ Follow-up: Open, unqueued. Align the Codex stream notification contract with dur
   - Timestamp: unknown (CI repair after slice 2)
   - Tool: Codex
   - Open Dough release: 0.3.54 (installed execution guidance)
-  - Evidence: `/tmp/dough-ci-501/watch-7PZYuD` delivered sequences 1–3 for run 36997893525/attempt 1 on `29bd2aa`; the Codex stream binding notified event payloads without advancing durable delivery. Coordinator inspected the exact SHA/run/attempt/job tuples and used installed `recordDeliveryProgress` to acknowledge only those handled notifications; repair `a049909` was published.
+  - Evidence: `/tmp/dough-ci-501/watch-7PZYuD` delivered sequences 1–3 for run 36997893525/attempt 1 on `29bd2aa`; the Codex stream binding notified event payloads without advancing durable delivery. Coordinator inspected the exact SHA/run/attempt/job tuples and used installed `recordDeliveryProgress` to acknowledge only those handled notifications; repair `a049909` was published. Completion later retained sequence 1 in `watch-cWrqJu`, run 37003387678/attempt 1 on `ce8b9df`, job 110825968667; the coordinator inspected the responsive keyboard failure and acknowledged exactly that delivered sequence while its passing repair underwent independent review.
   - Observed effect: explicit durable acknowledgment was needed beyond stream delivery. No unseen failure was discarded.
   - Inference: same adapter acknowledgment gap; keep the existing unqueued proposal. Internal delegated reasoning is unavailable, so no broader process-cost claim is made.
 
@@ -676,7 +676,7 @@ Follow-up: Open, unqueued. Provide one supported managed-delivery-to-yielded-str
   - Open Dough release: 0.3.54 (installed execution guidance)
   - Evidence: original yielded stream `/tmp/dough-ci-501/watch-7PZYuD` recorded `CI_MONITOR_UNAVAILABLE` for a GitHub TLS handshake timeout and terminal `finished`. Managed delivery of `186ef150` started detached mailbox `/tmp/dough-ci-501/watch-cWrqJu`, reported `attached`, and reused it for `ce8b9df`. Installed Codex binding assumes a caller-retained stream; documented `stream` creates a mailbox rather than attaching this directory.
   - Observed effect: the replacement worker observes registered revisions, but live Codex notifications were reported unavailable; coordinator retained that mailbox for final completion rather than creating another observer.
-  - Inference: recurrence of the attachment-seam gap after a valid initial stream ends. The final completion verdict is a separate obligation; this row claims neither CI success nor a guidance/runtime repair.
+  - Inference: recurrence of the attachment-seam gap after a valid initial stream ends. The replacement later ended after an API connection failure. Completion returned observation_unavailable and retained an unread owned failure; its diagnosis and repair continued. No CI success or guidance/runtime repair is claimed here.
 
 
 ## DD-202 — Interrupted proof commands left preview servers outside the cleanup check
