@@ -17,6 +17,59 @@ Maintainers need host-specific evidence for premise-verification and one-shot gu
 
 The Cursor acceptance story is closed. Its evidence remains recoverable from the commit before this cleanup. The shared cases below stay because later premise work still uses them.
 
+<a id="quiet-dashboard-completion"></a>
+
+### Accept quiet dashboard completion and retained attention messages
+
+**Identity:** SEED-053#quiet-dashboard-completion
+**Covered work:** [SEED-008's completion story](SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration), [plan 220](../slice-plans/220-quiet-dashboard-session-completion/PLAN.md).
+**Outcome:** Developers can rely on the installed completion operation and quiet
+Land/Wrap Up behavior on Codex, Claude Code, and Cursor. This acceptance home
+tracks missing native proof separately from functional implementation; it adds
+no queue assignment or independent execution authority.
+
+**Feasibility prerequisite:** One fresh bounded session per host using the
+dashboard's existing native launch mode and input builder, a private installed
+representative skill, and a disposable launch-scoped receiver. Inspect native
+command use, received facts, and exact host/session association. Representative
+shared coverage must also observe Claude reporting before session binding,
+continuation context, and a callable reporting operation after workspace
+removal. Failure blocks dependent plan-220 slices.
+
+**Integration acceptance after implementation:** On every affected host, fresh
+dashboard launch context reaches the installed operation, the receipt belongs
+to that session, and durable receipt precedes local Done without stopping the
+sending turn. Cover attention retention, retry, and retirement representatively;
+reuse unchanged host integration only with matching mechanism evidence.
+
+**Skill behavior acceptance:** Fresh native Land and Wrap Up use settles the
+existing operations, gives no routine success recap, submits the same useful
+attention text retained by the dashboard when needed, and reports unfinished
+operations or unacknowledged delivery truthfully. Direct use needs no dashboard
+connection. Shared integration success does not prove these skill behaviors.
+
+**Completion criteria:** Required integration evidence on all three hosts plus
+representative Land/Wrap Up behavior evidence or justified reusable proof for
+each requirement; no pending requirement may be called passed. Complete before
+affected release under ADR 0005. The slice-1 fixture only proves feasibility.
+No existing evidence proves this new callback mechanism. Paid runs remain
+explicitly invoked; add none to default tests or CI.
+
+**Current state:** Native feasibility and later integration/skill acceptance
+are pending. [Plan 220's slice-1 observations](../slice-plans/220-quiet-dashboard-session-completion/PLAN.md#execution-observation-slice-1-native-approval-stop-2026-10-02)
+record Codex's real reporting acknowledgment, same-session continuation, and
+post-retirement callable operation after a diagnosed probe-harness recovery.
+Initial fixture trust refusals were resolved through fixture-specific native
+interactive trust without override flags. Cursor then proved real reporting on
+its exact retained session with native tool results and matching durable receipt.
+Claude launched, but its native automatic approval review rejected executing the
+installed operation as “Code from External”; reporting and pre-binding receipt
+remain unproved pending human resolution. No alternate route or permission-mode
+change was used to clear that rejection. Plan-220 execution authorizes only its
+selected bounded feasibility runs; subsequent acceptance selection retains its
+own execution boundary. Actual Land/Wrap Up skill behavior and shipped integration are
+unproved on all three hosts.
+
 ## Shared premise-verification cases
 
 These cases are the shared premise-verification setup. The guidance is delivered.

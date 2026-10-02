@@ -2,282 +2,249 @@
 
 **Identity:** SEED-008#installed-story-branch-integration
 **Source:** [refined story](../../seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration).
-**Prepared:** 2026-10-02. Planning only, in the established preparation workspace.
+**Prepared:** 2026-10-02 in the established preparation workspace.
 
 ## Goal and boundaries
 
-Successful Land and Wrap Up need no recap. A dashboard-started session reports
-explicit completion through an installed skill operation: success without an
-attention message marks that session done; a useful message or unfinished
-outcome stays visible on its card, with the session open until Mark as done.
-Direct invocations stay independent and follow the same quiet-success rule.
+Successful Land and Wrap Up need no recap. An installed operation explicitly reports a
+dashboard-started session's completion: success without attention marks it done;
+useful attention or unfinished work stays visible on its open card until Mark as done.
+Direct use stays independent and follows the same quiet-success rule.
 
-Preserve existing publication, merge judgment, CI observation, refresh, and
-worktree/branch retirement owners and gates. Preserve useful failure, reminder,
-and limitation reporting. An end marker is presentation, never completion
-proof. Session Done remains a local disposition, not product-story completion.
+Preserve publication, merge judgment, CI observation, refresh, retirement owners/gates,
+and useful failure/reminder/limitation reporting. A marker is presentation, not proof;
+Session Done is local disposition, not story completion. Exclude the original Git
+integration command, dashboard resource retirement, MCP discovery/registration, general
+inbound messaging, vendor transport replacement, unrelated skills' auto-completion,
+and generic installer/Git-helper redesign. Dashboard CI belongs to SEED-063.
 
-Exclude the original Git-integration command, dashboard resource retirement,
-MCP registration/discovery, general inbound agent messaging, vendor transport
-replacement, automatic completion for unrelated skills, and general installer
-or Git-helper redesign. Dashboard-owned CI remains SEED-063's responsibility.
+## Direction and existing solutions
 
-## Direction and PFE
-
-Follow [North Star](../../NORTH-STAR.md), “Agent launch as a requested assignment”
-and “Explicit skill completion and retained attention messages”, and the existing
+Follow [North Star](../../NORTH-STAR.md) sections “Agent launch as a requested assignment”
+and “Explicit skill completion and retained attention messages”, and
 [dashboard UI direction](../../../docs/dashboard-ux-ui-north-star.md).
-Accepted ADRs [0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md) and
-[0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-support one meaning/owner per fact and small useful increments.
-[0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md),
-[0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md), and
-[0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-require shared source guidance, self-contained installed dependencies, and the
-existing payload declaration. [0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
-separates deterministic implementation proof from native acceptance.
+Accepted ADRs [0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md)/
+[0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md): one meaning/owner, useful increments.
+[0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)/
+[0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md)/
+[0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md): shared source,
+self-contained dependencies, existing payload; author `src/skills/`, never managed copies.
+[0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md): functional/native proof differ.
 
-PFE findings and choices:
+- Extend `launchRecordDocument.ts`, `launchRecordStore.ts`, `machineJsonStore.ts` with
+  optional completion evidence; retain old records, fresh reads, serialized atomic
+  writes and machine-local sessions outside repositories. Create no second registry.
+- Reuse `launchAttemptStore.ts` identity/write-ahead lifetime before native id exists;
+  bind reports to that recorded session, never a story's newest session. Claude learns
+  its id after first input, so caller-supplied native id cannot be universal.
+- Carry shared context through existing `LaunchHost` input builders; preserve native
+  settings, preparation/start, continuation and blank/ad hoc semantics. No SDK/ACP migration.
+- Extend `agentLaunchPlugin.ts`, admission and `localOrigin.ts` with narrow report/receipt
+  using configured origin and launch-scoped reference. Preserve browser origin guards;
+  request spelling/fields do not mandate a generic protocol/framework.
+- `doneMarks.ts` owns user rename/detach/stop. Reuse local Done without native stop/rename
+  inside a reporting tool request. Cursor has no stop; local Mark as done still works.
+  Preserve existing explicit interruption of other sessions.
+- Reuse shared card/session and retained-report presentation; render submitted text as
+  text. Codex `readResult` remains passive native history, not explicit success authority
+  or a Claude/Cursor prerequisite. Keep reports accessible after story membership changes.
+  Keep `worktree-retirement.mjs` and `trunk-closure.mjs` in their existing domain.
 
-- Reuse `launchRecordDocument.ts`, `launchRecordStore.ts`, and
-  `machineJsonStore.ts`: the machine already retains host-qualified sessions
-  outside repositories, reads fresh records, serializes writes, and replaces
-  them atomically. Add optional completion evidence there; old records without
-  it remain valid. Do not create a second session/result registry.
-- Reuse the accepted launch attempt's identity/write-ahead lifetime
-  (`launchAttemptStore.ts`) when context must exist before a native session id
-  is known. Bind its report to the recorded session; never target the newest
-  session on a story. Claude chooses its id after receiving the first prompt,
-  so a caller-supplied native id cannot be a universal prerequisite.
-- Change existing launch input builders behind `LaunchHost` to carry one shared
-  dashboard context. Preserve native settings, established preparation/start,
-  continuation, and blank/ad hoc launch semantics. No vendor SDK/ACP migration.
-- Extend the existing loopback boundary (`agentLaunchPlugin.ts`, admission,
-  `localOrigin.ts`) with a narrow agent-report request/receipt. A script can use
-  the configured local origin and a launch-scoped reporting reference; keep
-  browser origin refusals intact. Request spelling and field layout are not a
-  generic protocol/framework mandate.
-- `doneMarks.ts` owns user-requested rename/detach/stop. Reuse the local Done
-  mutation for reported completion, without calling native stop/rename from
-  inside the reporting agent's tool request. Cursor has no stop operation in
-  this checkout; reported completion still offers local Mark as done. Existing
-  explicit interruption of other sessions retains its current semantics.
-- Reuse shared session/card presentation and the retained-report surface where
-  appropriate. Codex's passive `readResult` remains a distinct native-history
-  read; it is not the authority for explicit workflow success or a prerequisite
-  for Claude/Cursor messages. Render submitted text as text, as the existing
-  report panel does. Keep the report accessible through the retained session
-  when published story membership changes.
-- Keep `worktree-retirement.mjs` and `trunk-closure.mjs` in their current domain.
-  Author behavior in `src/skills/`; do not edit installed managed copies.
+## Planning premises and observations
 
-## Premises and observations
+Planning observations establish old behavior/seams, not the feature. No native run
+occurred during planning; slice 1 needs real credentialed model execution, not substitutes.
 
-Planning inspected current production and proof consumers; these observations
-bound the proposed work, not proof of the future feature.
-
-| Premise consumed by the plan | Literal observation and result |
+| Premise | Observed source/command and result |
 | --- | --- |
-| Existing local Done persists across restart, but interrupts native work | Read `dashboard/server/doneMarks.ts` and `dashboard/tests/agent-launch-done.spec.ts`; then run `env -u NO_COLOR npm run test:dashboard -- agent-launch-done.spec.ts session-workspace-retirement-done.spec.ts --workers=2`: exit 0. The raw HTTP/terminal journey observes rename, attachment end, native stop, stored Done, and restart. Automatic reporting must not reuse that interruption sequence. |
-| Stored session/result UI survives retired workspaces and preserves concurrent records | The same run executes `session-workspace-retirement-done.spec.ts`: real page/preview server, private removed workspace, synthetic native history, deliberate Done and concurrent record survive polling/reload. Native history is supplied by a stand-in: this proves our store/UI boundary, not agent reporting or retirement. |
-| Current proof runner is usable in this checkout | Initial baseline could not spawn local Vite. `npm ci --ignore-scripts --no-audit --no-fund` installed locked dependencies; the focused rerun passed. No product code or lockfile changed. |
-| New completion evidence can be lost by existing evidence writers unless preserved | `rg -n 'updateRecord\(|keepRecord\(|setRecordDoneAt\(' dashboard` reaches `launchRecording.ts`, `launchRun.ts`, `launchVerification.ts`, `terminalAttachments.ts`, and `doneMarks.ts`. Reading `updateRecord` shows it reconstructs a record and preserves only current Done fields. Extend that preservation for completion facts and prove late native updates cannot erase them. |
-| Machine persistence has suitable serialization and restart semantics | Read `machineJsonStore.ts`, `launchRecordDocument.ts`, `launchAttemptStore.ts`, and their callers; the passing restart/concurrent-record journeys consume the launch store. It is an existing JSON file, not uncertain new storage infrastructure. New report/done races still need focused tests in slice 5. |
-| All hosts have an instruction boundary, but host id timing differs | Read `hosts/codex/input.ts`, `hosts/claude/launch.ts`, `hosts/cursor/prompt.ts`, and launch callers. Codex/Cursor know ids before first input; Claude confirms its printed native id after background launch. Native adoption, context survival, and report-before-record races remain an early probe in slice 1. |
-| Current skills demand success recaps and may retire their own workspace | Read Land's “Stop, rerun, and report” and Wrap Up's “Report” and retirement sections. Wrap Up already has `## STORY WRAP-UP COMPLETE`. Read `trunk-closure.mjs` and retirement CLI/import callers; `tests/git-publication-native.sh` sources both maintained closure-native runners, which exercise these commands. Preserve those gates and update only incompatible success-response assertions. |
-
-Native feasibility costs credentials/model execution and cannot be established
-by shell help, source presence, or substitute processes. Slice 1 bounds this
-premise before dependent implementation. No native run occurred during planning.
+| Local Done persists but interrupts native work | `dashboard/server/doneMarks.ts`, `dashboard/tests/agent-launch-done.spec.ts`; `env -u NO_COLOR npm run test:dashboard -- agent-launch-done.spec.ts session-workspace-retirement-done.spec.ts --workers=2` exited 0. Raw HTTP/terminal journey observes rename, detach, stop, stored Done and restart; reporting must not reuse interruption. |
+| Retired-workspace UI and concurrent records survive | Same run's `session-workspace-retirement-done.spec.ts` uses real page/server, private removed workspace, synthetic native history, deliberate Done and concurrent record across polling/reload. Proves store/UI, not reporting or retirement. |
+| Focused runner available | Missing Vite initially prevented baseline; `npm ci --ignore-scripts --no-audit --no-fund` installed locked dependencies, rerun passed; no product/lockfile changes. |
+| Existing writers can erase new completion fields | `rg -n 'updateRecord\(|keepRecord\(|setRecordDoneAt\(' dashboard` reaches `launchRecording.ts`, `launchRun.ts`, `launchVerification.ts`, `terminalAttachments.ts`, `doneMarks.ts`; `updateRecord` reconstructs fields, preserving only current Done facts. Extend preservation and prove late updates cannot erase completion. |
+| Store already owns restart/serialization | Read `machineJsonStore.ts`, `launchRecordDocument.ts`, `launchAttemptStore.ts` and callers; passing journeys consume that store. New report/Done races belong to slice 5. |
+| Native id timing differs | Read `hosts/codex/input.ts`, `hosts/claude/launch.ts`, `hosts/cursor/prompt.ts` and callers. Codex/Cursor know ids before input; Claude confirms printed id after background launch. Adoption, continuation and early report remain slice-1 premises. |
+| Skills recap and can retire CWD | Read Land “Stop, rerun, and report”, Wrap Up “Report”/retirement and existing `## STORY WRAP-UP COMPLETE`; closure/retirement CLI/import callers and `tests/git-publication-native.sh` with both closure-native runners. Preserve gates; alter only incompatible recap assertions. |
 
 ## Ordered slices
 
 ### 1. Establish launch-to-report feasibility on the three native hosts
 Type: Behavior
 Status: planned
-Proof: One isolated, bounded launch-context/report round trip per host through
-its existing dashboard launch mode; inspect the native trace, received report,
-and session association, rather than accepting self-report or exit 0.
+Behavior: Installed-skill fixture receives explicit dashboard context and calls its
+operation; acknowledgment matches launch/session, no broad tool registration or turn stop.
+Proof: One isolated bounded round trip per host in existing dashboard launch mode;
+inspect native trace, received facts and association, not self-report or exit alone.
 
-Behavior: A maintainer launches a representative installed-skill fixture in a
-private project → the agent receives explicit dashboard context and calls the
-skill-referenced reporting operation → a retained acknowledgment matches that
-same launch/session, with no broadly registered tool and no native turn stopped.
-
-Use a disposable minimal receiver/script and the actual host launch-input
-builders, not a replacement SDK or a direct model call. Bound each run and any
-retry using existing native-run supervision. Exercise receipt before session
-recording for Claude, continuation, and availability after workspace removal;
-choose representative shared coverage instead of every scenario on every host.
-For removed-workspace execution, establish a callable installed location or
-prepare reporting while the workspace still exists, with the settled report
-submitted after operations finish. Do not assume a deleted script/CWD can run.
-
-Track this new integration mechanism in a separate linked native-acceptance
-home before running native checks, under ADR 0005; link its actual home here
-when established. This planning request creates no new queue item or paid run.
-If a host cannot retain context, associate an early report, or acknowledge it
-safely without changing selected scope, stop slices 2–5 and revise this plan.
-Native proof still requires the execution instruction's applicable authority.
-This slice delivers feasibility evidence, not shipping completion behavior.
+Supervise disposable receiver/script runs/retries through actual builders, no SDK/direct
+model calls. Cover Claude receipt before binding, continuation and post-removal callability
+representatively. Use a surviving installed location or prepare before removal/submit after
+settled work, never assume deleted script/CWD callability. Deliver feasibility only.
+Track mechanism acceptance before runs in [SEED-053#quiet-dashboard-completion](../../seeds/SEED-053-native-guidance-acceptance.md#quiet-dashboard-completion),
+which also owns later integration/Land/Wrap Up acceptance on each host, not a new queue
+item. Native runs need selected execution authority, not planning/release authority.
+If context, early association or safe acknowledgment fails within scope, stop 2–5 and
+revise this plan; the current approval stop first requires concrete human resolution.
 
 ### 2. Retain an agent's attention message on its open dashboard session
 Type: Behavior
 Status: planned
-Proof: A new focused Playwright journey launches through the real preview-server
-boundary, runs the candidate installed reporting CLI as a child process with
-that launch's actual context, then observes the message and Mark as done on
-its session card. The native executable is synthetic; the CLI, HTTP boundary,
-record store, polling, and card rendering are real.
+Behavior: Completed-with-reminder or unfinished-with-exact-reason report is stored
+and acknowledged for its session; visible message leaves it open until Mark as done.
+Proof: Focused real-preview Playwright launch/installed CLI child with actual context and
+card/message/Mark as done; native executable synthetic, CLI/HTTP/store/polling/rendering real.
 
-Behavior: A dashboard-started session reports completed work with a reminder,
-or reports unfinished work with its exact reason → the dashboard stores the
-outcome/message and acknowledges the matching session → its card displays the
-message and the session remains open until the developer marks it done.
-
-Deliver the shared context, narrow request/receipt, stored optional completion
-facts, installed CLI and required dependencies, and presentation together.
-Preserve older launch records and all three native input adaptations; a blank
-session submits no unexpected instruction. Include wrong project/host/session,
-unknown launch reference, malformed request and cross-origin refusals at the
-boundary, without weakening existing browser guards. A report before session
-binding cannot acknowledge the wrong session or mark one done.
-
-The message is retained in the existing machine-local store before the receipt
-is returned and is readable after server restart or workspace disappearance.
-Mark as done for a reported outcome is local acknowledgment, even when the
-host lacks stop; existing explicit interruption remains available where it
-already applies. Preserve readable message access after the story leaves its
-published card stage and after manual Done. No report means no new Done action.
-Update feature-local launch/terminal documentation and declared payload/fixture
-dependencies in this slice; no standalone packaging or generic protocol slice.
+Deliver shared context, narrow request/receipt, optional stored facts, installed CLI,
+required dependencies and presentation together. Preserve old records/all three input
+adaptations; blank sessions gain no instruction. Prove wrong project/host/session,
+unknown reference, malformed requests and cross-origin refusals without weaker guards.
+Unbound reports cannot acknowledge a wrong session or mark it done. Persist before
+receipt; survive restart/disappearance. Reported Mark as done is local even without
+host stop; preserve explicit interruption. Keep access after published stage changes
+and manual Done; no report means no new Done. Update feature-local launch/terminal docs
+and declared payload/fixture dependencies here, with no standalone packaging/protocol slice.
 
 ### 3. Land and Wrap Up quietly when there is nothing to report
 Type: Behavior
 Status: planned
-Proof: Representative skill behavior review under AGENTS.md: successful direct
-Land/Wrap Up yields no recap, while publication/CI/cleanup limitations produce
-an actionable message. Update maintained guidance assessors and their good/bad
-paraphrase fixtures where existing mandatory recap checks conflict; deterministic
-checks do not establish native adherence.
+Behavior: Direct settled unqualified success emits no recap, at most its minimal
+marker. Reminders/failures/unfinished steps/material limits yield useful facts and next action.
+Proof: AGENTS.md representative behavior review and maintained assessor good/bad paraphrase
+fixtures replacing conflicting mandatory recap checks; deterministic proof is not native adherence.
 
-Behavior: Direct Land or Wrap Up completes without a material qualification →
-no success summary is emitted, with at most its minimal completion marker.
-A reminder, failure, unfinished step, or material limitation → the agent gives
-useful facts and next action instead of silence, retaining existing truthfulness.
-
-Change the two source skills and relevant linked reporting instructions as one
-common attention rule. Reuse Wrap Up's existing end marker; do not introduce a
-new marker/parser unless the selected host needs one. Successful default-checkout
-“not applicable” or already-absent cleanup is not a warning by itself. Preserve
-required evidence in operations/conversation or relevant lasting homes without
-forcing it into a final user recap. Source and installed tests must keep owning
-publication, containment, backlog reconciliation, shutdown, and recovery gates.
-A non-dashboard invocation attempts no dashboard contact.
+Both source skills/linked instructions share one attention rule and existing Wrap Up marker;
+add no parser/marker unless needed by selected host. Default-checkout “not applicable”/
+already-absent cleanup alone is no warning. Evidence stays in operations/conversation/lasting
+homes. Source/installed checks retain publication, containment, backlog reconciliation,
+shutdown/recovery gates. Direct non-dashboard use makes no dashboard contact.
 
 ### 4. Automatically finish a quiet successful dashboard session
 Type: Behavior
 Status: planned
-Proof: Outside-in Land/Wrap Up fixture journeys run candidate installed guidance
-operations and reporting CLI with real local Git fixtures and a private receiver;
-a browser sees local Done only for explicit successful completion without an
-attention message. Assert receipt/storage precedes Done, and no native stop,
-rename, or premature terminal shutdown reaches the sending agent.
+Behavior: After settled work/final words, explicit success/no attention is the final
+operation; durable Done, acknowledgment and normal minimal response follow for that session.
+Proof: Outside-in candidate installed Land/Wrap Up operations and CLI, real local Git
+fixtures/private receiver/browser. Observe storage/receipt before Done, no native stop,
+rename or premature terminal shutdown reaching sender.
 
-Behavior: The skill finishes its existing operations and settles final words →
-it submits success with no attention message as its final operational step →
-the dashboard durably records it and marks the matching session done. The
-agent can receive the acknowledgment and finish its minimal response normally.
-
-Wire the shared reporting operation into Land and both Wrap Up closure paths,
-using the callable-location/order proven in slice 1. Keep any useful attention
-message identical between the agent response and retained dashboard message.
-A marker, native turn completion, absent message, failed/held operation, missing
-context, or superseded candidate cannot substitute for explicit workflow success.
-
-Apply the existing local Done representation; do not invoke the interrupting
-user-Done flow during the reporting tool call. If attachment disposal is delayed,
-name its owner and prove cleanup cannot interrupt reporting or a newer turn.
-Failed native cosmetic/shutdown work cannot erase a durable report or claim an
-unobserved native stop. No new Cursor stop implementation is required.
+Wire shared operation into Land and both Wrap Up closure paths using slice-1 callability/
+order. Retained attention text equals agent response. Marker, completed native turn,
+silence, failed/held work, missing context or superseded candidate cannot imply success.
+Use local Done, not interrupting user-Done tool flow. If attachment disposal is delayed,
+name its owner/prove no interruption of reporting or newer turn. Failed cosmetic/shutdown
+work cannot erase durable report or claim unobserved stop. No new Cursor stop required.
 
 ### 5. Recover a failed or repeated completion delivery without repeating work
 Type: Behavior
 Status: planned
-Proof: Focused CLI/HTTP/browser fault journeys: receiver unavailable; write failure;
-receipt stored then response lost; concurrent native record update; duplicate
-completion; report for an older launch; restart and deliberate reopen/Done.
-Inspect durable data and native/Git calls, not only the returned exception.
+Behavior: After Git/closure, interrupted reporting preserves message/local unacknowledged
+notice/open session; retry yields one receipt/message/disposition without repeating publication/retirement.
+Proof: Focused CLI/HTTP/browser faults: unavailable receiver, write failure, stored
+receipt/lost response, concurrent native update, duplicate, older launch, restart and
+deliberate reopen/Done. Inspect durable data and native/Git calls, not exceptions alone.
 
-Behavior: Git/closure work has finished but reporting is interrupted → preserve
-the message and report the unacknowledged delivery locally, with the session
-open → retry the same completion after recovery → one receipt/message and the
-correct session disposition, without repeating publication or retirement.
-
-Give the script's report retry a stable completion identity and preserve pending
-message/context outside the retired workspace where needed. Reuse the existing
-store/launch lifetime; keep recovery bounded and visible, without a watcher,
-new daemon, background retry scheduler, or generic message queue. An unavailable
-channel yields no acknowledged-success claim. Refresh connection details after
-restart without changing which launch/session the report belongs to.
-
-Preserve newer local Done/reopen intent and concurrent native evidence; a stale
-completion must not close a different session or newer work. Do not resurrect
-an explicitly deleted record. A stored receipt wins over a lost response on
-retry; a failed write produces no receipt. Any deferred resource disposal stays
-owned through error, server shutdown, and restart under its observed contract.
+Use stable completion identity/existing launch lifetime and pending context/message outside
+retired workspace as needed. Recovery stays bounded/visible, no watcher/daemon/scheduler/queue.
+Unavailable channel cannot claim acknowledgment; restart refresh preserves launch/session.
+Preserve newer Done/reopen/concurrent evidence; stale reports cannot close different/newer
+work or resurrect deleted records. Retry returns stored receipt; failed writes yield none.
+Deferred disposal remains owned across error/shutdown/restart under observed contract.
 
 ## Proof ownership and acceptance
 
-| Source promise | Owner and decisive signal |
+| Promise | Proof owner and decisive boundary |
 | --- | --- |
-| Shared skill-only operation, explicit launch context, all hosts | 1 feasibility probe; 2 real launch/installed-command boundary and host-input tests; native acceptance for each affected host requirement. |
-| Useful attention/unfinished report, visible card, open session and manual Done | 2 real request/store/card journey; 3 skill behavior review; no native stop prerequisite for local acknowledgment. |
-| No recap on direct or dashboard success; truthful limitations | 3 source behavior plus assessor counterexamples; 4 integrated quiet closure; native skill-behavior acceptance. |
-| Automatic Done only from explicit success/no message, no interrupted final words | 4 installed-operation/browser journey and native ordering acceptance; silence/crash/marker counterexamples. |
-| Message survives retirement, native-session closure, and restart | 1 callable-location probe; 2 real persisted report/page restart; 4 actual owned Git workspace retirement and report delivery. |
-| Acknowledgment after durable storage; retries, races, correct session | 2 boundary/store proof; 5 fault journeys and native/Git call counts. |
-| Existing standalone Git, CI and safe retirement gates preserved | 3/4 relevant maintained Land, Trunk and Story Branch closure checks; failures remain actionable rather than suppressed. |
-| Self-contained installed dependencies and preserved project configuration | 2 actual install/update fixtures, payload checks and existing preservation assertions for the new dependency set, all supported layouts. |
+| Skill-only operation/context/all hosts | 1 feasibility; 2 real launch/CLI and host inputs; affected-host native acceptance. |
+| Attention/unfinished message/open card/local Done | 2 real request/store/card; 3 behavior review; native stop is no acknowledgment prerequisite. |
+| Quiet direct/dashboard success/truthful limits | 3 behavior/assessor counterexamples; 4 integrated closure; native skill acceptance. |
+| Done only explicit success/no message, normal final response | 4 installed-operation/browser and native order; silence/crash/marker counterexamples. |
+| Survive retirement/native closure/restart | 1 callability; 2 persistence/page restart; 4 actual owned Git retirement/report. |
+| Durable-before-receipt, races/retry/session | 2 boundary/store; 5 faults/native/Git call counts. |
+| Standalone Git/CI/retirement gates | 3/4 maintained Land, Trunk/Story Branch closure checks; actionable failures. |
+| Installed dependencies/config preservation | 2 actual install/update/payload fixtures and preservation assertions across supported layouts. |
 
-Local focused verification uses `npm run test:dashboard -- <affected specs>`,
-`npm run typecheck:dashboard`, and `npm test -- <affected checks>`. The planning
-baseline above establishes only the stated old behavior. Add new specs to the
-existing suite and run them at their owning slice, alongside the affected Done,
-record/result and launch-input regressions. Use relevant Land/retirement and
-closure checks, `tests/payload-declaration-links.sh`, and an installation/update
-journey covering the new command dependencies; include preservation assertions.
-Do not run the entire suite merely because CI config exists. Broaden local
-checks only for a new affected consumer or unresolved failure. Apply the usual
-execution publication, slice-local refactoring, review and CI gates when
-execution is authorized; planning does not invoke them.
+At owning slices run `npm run test:dashboard -- <affected specs>`, `npm run typecheck:dashboard`,
+`npm test -- <affected checks>`: affected Done/record/result/input regressions, Land/retirement/
+closure checks, `tests/payload-declaration-links.sh`, install/update dependencies/preservation.
+Broaden only for affected consumers/unresolved failure. Preserve execution delivery/CI gates.
 
-Native acceptance: assign the new launch-context/callback mechanism on each
-host, quiet successful skill behavior, attention-message submission, and
-report-before-closure ordering to linked acceptance work. Slice 1 owns the
-blocking feasibility observation; fixtures in slices 2–5 own functional delivery.
-Fresh native skill use must show real command use and resulting retained facts;
-static Markdown, a synthetic CLI, old recap transcripts, or terminal exit 0 are
-insufficient. Reuse existing unchanged installer/host proof only with a stated
-matching mechanism. Complete missing native acceptance before affected release,
-while letting this implementation story finish on functional criteria under
-ADR 0005. Do not silently mark missing native proof passed.
+Linked acceptance owns each host's callback/context, quiet skill behavior, attention and
+report-before-closure. Slice 1 blocks feasibility; 2–5 own functional proof. Require fresh
+real commands/retained facts, not static guidance/synthetic CLI/old recaps/exit 0. Reuse only
+matching unchanged host/installer mechanisms. ADR 0005 permits functional completion before
+native acceptance; complete gaps before affected release, never label them passed.
 
-## Current decisions and review
+One outcome/optional attention drives Done/presentation; native activity, disposition,
+receipt and story state remain distinct. Five Behavior slices retain proof/install/cleanup,
+no speculative framework. No numeric limit supplied: one proof loop/probe stop. Preparation
+found no concern; readiness grants no execution authority; no renewed readiness/completion.
 
-One report has explicit outcome plus an optional attention message. The same
-rule drives local Done and all card/session presentations. Keep native activity,
-local disposition, report receipt, and published story state distinct. Reporting
-never takes over Git, CI, or retirement judgment. No success recap is required.
+## Execution observation: slice 1 native approval stop (2026-10-02)
 
-Cumulative review retained five slices: the first isolates native feasibility;
-subsequent boundaries deliver a retained attention message, quiet skill response,
-quiet auto-completion, and recoverable reporting. Each has one evaluable result
-and its proof, dependencies, installation and local cleanup stay with it. No
-Structure slice or generic abstraction is needed in advance. No project numeric
-slice target/hard limit was supplied; boundedness is judged by one proof loop
-and the explicit probe stop, without invented timing estimates.
+Execution identity above; publisher `dashboard-territory.local-open-dough`, agent
+`d.kanai-chan`, workspace `/Users/terryyin/git/open-dough/.worktrees/complete-dashboard-sessions-quietly-and-retain-m`,
+branch `codex/complete-dashboard-sessions-quietly-and-retain-m`, story-branch, `origin/main`.
+Published/candidate `418e5e52582602f86f83c3a6d99dea432e527118`; starting revision
+`5659e235bc8d567e034480d208f74ebc6e1dcef5`. Coordinator established claim/setup;
+Node 24.21.0, locked dependencies/browser/check/typecheck passed. No product implementation.
 
-No remaining plan concern was identified in this review. Native feasibility is
-unproved today and explicitly bounded by slice 1; failure stops dependent work.
-Readiness is a preparation judgment, not Take, publication or execution authority.
+Probe root below: `run.mjs` uses actual `launchCodex`/`launchClaude`/`launchCursor` inputs/modes,
+private Git fixtures in `.agents/skills/`/`.claude/skills/`, stable `tools/report.mjs`/host context
+JSON and disposable receiver. Cursor wrapper execs unchanged args; no behavior/MCP/permission change.
+
+Literal commands from execution checkout (the probe path variable only shortens spelling):
+```sh
+probe_root=/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-completion-probe-r_xkysjf
+bash "$probe_root/run.sh" "$probe_root" codex
+bash "$probe_root/run.sh" "$probe_root" codex --recover
+bash "$probe_root/run.sh" "$probe_root" codex --retire
+bash "$probe_root/run.sh" "$probe_root" claude
+bash "$probe_root/run.sh" "$probe_root" cursor
+(cd "$probe_root/claude-project" && claude)
+cursor-agent --workspace "$probe_root/cursor-project" --resume 1060353f-f482-4273-83bb-338b37724b8e
+bash "$probe_root/run-resume.sh" "$probe_root" claude
+bash "$probe_root/run-resume.sh" "$probe_root" cursor
+```
+`run.sh`/`run-resume.sh` prepend `/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin`,
+source `tests/support/native-run-supervise.sh`, call `native_run_owned` with
+`node --experimental-transform-types <probe-root>/run.mjs` (or `run-resume.mjs`), 180s/5s grace.
+Transform flag fixed strip-only parameter-property rejection before launch, no product edit.
+Initial Claude/Cursor fixture trust refusals remain under `evidence/claude/`, `evidence/cursor/`.
+Coordinator inspected authored fixtures and accepted only native interactive fixture trust;
+both empty PTYs exited 0, no work or override flags. Recoveries restored original receivers/references.
+
+**Codex 0.160.0 — accepted partial mechanism evidence.** Session `01a0fc63-1513-7fc3-9b21-95e35ffef548`,
+launch `a517e410-1b6e-4fe7-a267-5c69b3e82ca3`. First turn `01a0fc63-1593-7e52-8d1d-e0461aa9ec2f`
+failed: empty-rollout `thread/read` closed receiver; reporting/retry saw `ECONNREFUSED 127.0.0.1:55087`.
+Same-session recovery restored port; turn `01a0fc64-13d4-7392-920a-e25681eeb97d` returned
+receipt `be6cfd86-5471-4af5-bc01-d35e3ec7a153`, completed normally, supervisor exit 0.
+Retirement continuation `01a0fc64-9a17-7e43-98b3-692f945a58ef` called stable operation with `retired`,
+receipt `bcc83df5-e29a-46a3-878e-b86aaacbf2cc`, normal completion/exit 0; `codex-project` absent.
+Coordinator inspected native reads/commands/results and matching durable/agent receipts;
+no interrupt/stop/rename. Host history uses exact ids above; association ignored `/private/var`
+spelling through explicit launch/session id. Native shell Node 24.5.0.
+
+**Cursor 2026.10.01-e373342 — accepted partial mechanism evidence.** Original session
+`1060353f-f482-4273-83bb-338b37724b8e`, launch `99932ef9-57cc-42e6-87a1-9b22d2475d5a`,
+receipt `c0e0c898-07f1-496d-80b8-8da8300b28d9` matched durable and agent acknowledgment.
+`cursorPrompt(request, undefined)` byte-matched original input; `execCursor` used original
+continuation args/closed stdin/no extra flags, no second chat; exit 0, no stop/rename.
+Native history `/Users/terryyin/.cursor/chats/2666d147112f05500df1cf1ac38ba89d/1060353f-f482-4273-83bb-338b37724b8e/store.db`
+read SQLite `mode=ro&immutable=1`; Read `toolu_01M9PYnpEnuFn3dtUmojTiRQ` received context,
+Shell `toolu_01QtxdQzHrZRjxcZPfUixV3e` invoked operation, exit 0/same receipt/native id.
+
+**Claude Code 2.1.287 — approval rejection, reporting unproved.** `launchClaude`/`claude --bg`
+session `405d00da-d99b-46fb-a109-df6991095d1b`; receiver withheld binding until receipt; none arrived.
+Bash `toolu_01AJZJtY6cQx2tWP5dM15E5z` reading `tools/claude-context.json` then executing
+`tools/report.mjs` with context/`initial` was denied: “Permission for this action was denied by
+the Claude Code auto mode classifier. Reason: [Code from External].” Result forbids same
+outcome via another tool/host/later turn, names no clearing observation. No alternate operation,
+allowance rule or permission-mode change. Supervisor exit 1/native waiting observed, then owned
+background cleanup `claude stop`. Trace `/Users/terryyin/.claude/projects/-private-var-folders-65-16p4k5qj42qg7l46k2j0nhj40000gn-T-open-dough-completion-probe-r-xkysjf-claude-project/405d00da-d99b-46fb-a109-df6991095d1b.jsonl`.
+Preserved `evidence/claude-recovered/`: `001-launch-result.json`, `002-pre-binding-observation.json`,
+`004-failure.json`, `005-owned-background-cleanup.json`, `native-listing.json`; scripts/context/fixture remain reviewable.
+
+All supervisors reached terminal results; watchdogs/receivers ended; shared Codex daemon/native
+histories untouched. Coordinator deleted accepted spent `evidence/codex`, `evidence/cursor-recovered`,
+`evidence/cursor-native-trace.txt` under ADR 0005; blocked Claude evidence/recovery inputs remain.
+Slice 1 incomplete: Claude reporting/early binding unproved; 2–5 unstarted, stopped pending human resolution.
+Later shipped integration and actual Land/Wrap Up acceptance remain pending on all hosts in SEED-053.
