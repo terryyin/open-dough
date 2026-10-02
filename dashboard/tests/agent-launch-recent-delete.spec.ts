@@ -3,8 +3,9 @@
 // marked done, both State unknown while the whole listing cannot be read, each
 // offer "Delete record…" with the same question as a card's entry
 // (./agent-launch-card-delete.spec.ts); confirming removes the entry from
-// Recent sessions and the Sessions sidebar, and the keyboard goes to the next
-// Recent sessions entry, else the previous, else the Recent sessions section.
+// Recent sessions and the Sessions sidebar without a success announcement,
+// and the keyboard goes to the next Recent sessions entry, else the previous,
+// else the Recent sessions section.
 // A Recent entry reading Session unavailable offers it too, and one that
 // became known since the page read it keeps its record and says its state is
 // now known. The sidebar's entries in State unknown are each one control with
@@ -161,6 +162,9 @@ test.describe("deleting a Recent sessions entry's record", () => {
       await expect(sidebar.entries).toHaveCount(1);
       await expect(sidebar.sidebar.getByText(notRefinedStory)).toHaveCount(0);
       await expect(markedDone).toBeFocused();
+      await expect(
+        page.getByText("Session record deleted", { exact: true }),
+      ).toHaveCount(0);
       expect(stored()).not.toContain(noList);
       expect(stored()).toContain(done);
       expect(
@@ -175,6 +179,9 @@ test.describe("deleting a Recent sessions entry's record", () => {
       await expect(markedDone).toHaveCount(0);
       await expect(sidebar.entries).toHaveCount(1);
       await expect(working).toBeFocused();
+      await expect(
+        page.getByText("Session record deleted", { exact: true }),
+      ).toHaveCount(0);
       expect(stored()).not.toContain(done);
     });
 
@@ -185,6 +192,9 @@ test.describe("deleting a Recent sessions entry's record", () => {
       await expect(working).toHaveCount(0);
       await expect(sidebar.entries).toHaveCount(0);
       await expect(recent).toBeFocused();
+      await expect(
+        page.getByText("Session record deleted", { exact: true }),
+      ).toHaveCount(0);
       await expectMembership(page, {
         taken: [readyStory],
         backlog: [takenStory],
@@ -273,6 +283,9 @@ test.describe("deleting a Recent sessions entry's record", () => {
       await expect(unavailable).toHaveCount(0);
       await expect(sidebar.entries).toHaveCount(0);
       expect(stored()).not.toContain(gone);
+      await expect(
+        page.getByText("Session record deleted", { exact: true }),
+      ).toHaveCount(0);
       expect(
         dashboard.claudeCalls().filter((call) => call.argv[0] === "stop"),
       ).toEqual([]);

@@ -4,8 +4,8 @@
 // asks in place before it deletes and, once confirmed, takes only the
 // session's record: the entry leaves its card, Recent sessions and the
 // Sessions sidebar, the other session, the card's stage and its attention
-// count stay, the status says so, and the keyboard goes to the next entry or
-// to the card. A Session unavailable entry offers and does the same; a Working
+// count stay, no deletion-success message appears, and the keyboard goes to
+// the next entry or to the card. A Session unavailable entry offers and does the same; a Working
 // or Needs input entry offers none. Origin alone still places the story. The page's own dashboard server
 // drives the synthetic `claude` (./fixtures/fake-claude); the real one is
 // never reached.
@@ -57,7 +57,7 @@ test.describe("deleting a card's session record", () => {
       page,
       stagesJourney,
     );
-    const { recentSessions: recent, status } = parts(page);
+    const { recentSessions: recent } = parts(page);
     const sidebar = sidebarParts(page);
     const queued = {
       taken: [],
@@ -148,7 +148,7 @@ test.describe("deleting a card's session record", () => {
       expect(stored()).toContain(deleted);
     });
 
-    await test.step("Delete record removes the entry from the card, Recent sessions and the sidebar, announces it, and moves the keyboard to the next entry", async () => {
+    await test.step("Delete record removes the entry from the card, Recent sessions and the sidebar without a success announcement, and moves the keyboard to the next entry", async () => {
       await deleteButton(refinement).click();
       await refinement
         .getByRole("button", { name: "Delete record", exact: true })
@@ -158,8 +158,8 @@ test.describe("deleting a card's session record", () => {
       await expect(inRecent("Refinement")).toHaveCount(0);
       await expect(sidebar.entries).toHaveCount(1);
       await expect(
-        status.filter({ hasText: "Session record deleted" }),
-      ).toHaveText("Session record deleted");
+        page.getByText("Session record deleted", { exact: true }),
+      ).toHaveCount(0);
       await expect(execution).toBeFocused();
       await expect(cardSessions(card(readyStory))).toHaveCount(1);
       await expect(inRecent("Execution")).toBeVisible();
@@ -183,6 +183,9 @@ test.describe("deleting a card's session record", () => {
       await expect(inRecent("Execution")).toHaveCount(0);
       await expect(sidebar.entries).toHaveCount(0);
       await expect(card(readyStory)).toBeFocused();
+      await expect(
+        page.getByText("Session record deleted", { exact: true }),
+      ).toHaveCount(0);
       expect(stored()).not.toContain(kept);
       await expectMembership(page, queued);
     });
@@ -197,7 +200,7 @@ test.describe("deleting a card's session record", () => {
       page,
       stagesJourney,
     );
-    const { recentSessions: recent, status } = parts(page);
+    const { recentSessions: recent } = parts(page);
     const sidebar = sidebarParts(page);
     await settled();
     await launch(readyStory, "Execution");
@@ -236,8 +239,8 @@ test.describe("deleting a card's session record", () => {
     ).toHaveCount(0);
     await expect(sidebar.entries).toHaveCount(1);
     await expect(
-      status.filter({ hasText: "Session record deleted" }),
-    ).toHaveText("Session record deleted");
+      page.getByText("Session record deleted", { exact: true }),
+    ).toHaveCount(0);
     await expect(cardSessions(card(readyStory))).toHaveCount(1);
     await expect(kept).toBeVisible();
   });

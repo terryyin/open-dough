@@ -5,8 +5,9 @@
 // finds the state known keeps the record and says "This session's state is
 // now known"; an unwritable record file says "The session record could not be
 // deleted." with the boundary's reason, leaves the buttons and the keyboard
-// where they were, and a retry once it is writable deletes; a read answered
-// after the deletion does not list the session again. The page's own
+// where they were. Card and Recent failures arrive in the same exposed status
+// that was empty before confirmation, and retry deletes without success speech;
+// a read answered after the deletion does not list the session again. The page's own
 // dashboard server drives the synthetic `claude` (./fixtures/fake-claude);
 // the real one is never reached. The page clock stands still unless the
 // journey lets it pass.
@@ -129,37 +130,73 @@ test("a click that finds the state known keeps the record and says so beside the
   ).toEqual([]);
 });
 
-test("an unwritable record file says why in the entry, changes no buttons or keyboard, and a retry once writable deletes", async ({
-  page,
-  dashboard,
-}) => {
-  const s = await unknownSession(page, dashboard);
-  await s.deleteButton.click();
-  const directory = path.join(dashboard.home, ".open-dough", "dashboard");
-  chmodSync(directory, 0o500);
-  try {
-    await s.confirm.click();
+for (const location of ["card", "Recent"] as const) {
+  test(`an unwritable record file reports its first failure in the persistent ${location} entry status, retains buttons and focus, and retries without success speech`, async ({
+    page,
+    dashboard,
+  }) => {
+    const s = await unknownSession(page, dashboard);
+    const entry = location === "card" ? s.entry : s.inRecent;
+    const status = entry.getByRole("status");
+    const confirm = entry.getByRole("button", {
+      name: "Delete record",
+      exact: true,
+    });
+    const keep = entry.getByRole("button", { name: "Keep" });
+    await expect(status).toHaveCount(1);
+    await expect(status).toBeEmpty();
+    expect(
+      await status.evaluate((region) => {
+        region.setAttribute("data-known", "empty-entry-status");
+        for (let at: Element | null = region; at; at = at.parentElement) {
+          const style = getComputedStyle(at);
+          if (
+            style.display === "none" ||
+            style.visibility !== "visible" ||
+            at.hasAttribute("hidden") ||
+            at.getAttribute("aria-hidden") === "true"
+          )
+            return false;
+        }
+        return true;
+      }),
+    ).toBe(true);
+    await entry.getByRole("button", { name: "Delete record…" }).click();
+    const directory = path.join(dashboard.home, ".open-dough", "dashboard");
+    chmodSync(directory, 0o500);
+    try {
+      await confirm.click();
 
-    await expect(s.status).toContainText(
-      "The session record could not be deleted.",
-    );
-    await expect(s.status).toContainText("EACCES");
-    await expect(s.entry.getByText(question)).toBeVisible();
-    await expect(s.confirm).toBeEnabled();
-    await expect(s.keep).toBeEnabled();
-    await expect(s.confirm).toBeFocused();
-    await expect(s.entry).toBeVisible();
-    expect(s.stored()).toContain(s.session);
-  } finally {
-    chmodSync(directory, 0o700);
-  }
+      await expect(status).toContainText(
+        "The session record could not be deleted.",
+      );
+      await expect(status).toContainText("EACCES");
+      await expect(status).toHaveAttribute("data-known", "empty-entry-status");
+      await expect(status).toBeVisible();
+      await expect(entry.getByText(question)).toBeVisible();
+      await expect(confirm).toBeEnabled();
+      await expect(keep).toBeEnabled();
+      await expect(confirm).toBeFocused();
+      await expect(s.entry).toBeVisible();
+      await expect(s.inRecent).toBeVisible();
+      expect(s.stored()).toContain(s.session);
+    } finally {
+      chmodSync(directory, 0o700);
+    }
 
-  await s.confirm.click();
+    await confirm.click();
 
-  await expect(s.entry).toHaveCount(0);
-  await expect(s.inRecent).toHaveCount(0);
-  expect(s.stored()).not.toContain(s.session);
-});
+    await expect(s.entry).toHaveCount(0);
+    await expect(s.inRecent).toHaveCount(0);
+    await expect(
+      location === "card" ? s.card(readyStory) : parts(page).recentSessions,
+    ).toBeFocused();
+    await expect(
+      page.getByText("Session record deleted", { exact: true }),
+    ).toHaveCount(0);
+    expect(s.stored()).not.toContain(s.session);
+  });
+}
 
 test("a read asked before the deletion and answered after it does not bring the entry back", async ({
   page,

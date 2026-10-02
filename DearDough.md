@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 217. Removed local codes are never reused.
+- Highest allocated local number: 219. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -944,3 +944,33 @@ Follow-up: Open, unqueued.
   - Evidence: main CI failed the same test on `00800bc2` (run 36972144306) and `cec1f243` (run 36974074034), both before the claim `aa6b795f`; `d04999c9` had added `launchedSessions` to every host's operations. Story-branch runs 36985568841, 36986717632, 36987804713 and 36988089177 each reported it. Classification took four `gh run view --log-failed` reads, a remote-branch and worktree ownership scan, and a scan of 25 failed runs for the intermittent `startup-host-words.spec.ts:24`. The developer then authorized repair `80ced7ef`.
   - Observed effect: repeated triage of the same non-owned failure across three slices, and two developer decisions before completion.
   - Inference: Qualified. One sample. A startup check of the target trunk's latest CI verdict, carried as a known baseline failure, would have let later notifications be matched to it rather than re-diagnosed.
+
+## DD-218 — A semantic-feedback story acquired an unnecessary native speech gate
+
+Plan 219 required actual first-failure screen-reader speech observation. Execution followed that gate, but the developer clarified that speech was not a requirement. Browser status exposure and the real failure/retry behavior were the accepted proof.
+
+Follow-up: Open, unqueued. Proposal: distinguish semantic live-status requirements from explicitly requested spoken-output proof when refining and planning accessibility work.
+
+### Occurrences
+- Execution: `SEED-052#announce-record-deletion-first-time` / plan 219, first related implementation commit `c70c09f8e029d495ee100a50153012661fe06e87`
+  - Timestamp: unknown (session date 2026-10-02; precise probe and clarification times not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.54 (installed guidance at claim `d41fc577`)
+  - Evidence: `2e26eda0:.planning/slice-plans/219-deletion-failure-feedback/PLAN.md` native observation prerequisite; `c70c09f8:.planning/slice-plans/219-deletion-failure-feedback/PLAN.md`, Execution context, records the isolated real EACCES probe, VoiceOver setup, unavailable speech/caption observation, developer observation request, and subsequent clarification. Conversation: “We don't have a requirement for speech”.
+  - Observed effect: a native fixture/probe and a delivery stop pending developer observation, followed by removal of the speech prerequisite. Browser failure/retry proof remained required and passed.
+  - Inference: Qualified. The execution complied with its initial plan; the later clarification shows a mismatch between that proof gate and the developer's intended requirement. No measured time or token cost is available.
+
+## DD-219 — An unconditional file-size check stopped a refactor with no conceptual candidate
+
+The independent refactor pass found no warranted conceptual change, but stopped because three changed files exceeded the generic 250-line limit. Satisfying that rule would have split unrelated seed stories or existing test journeys beyond the selected deletion-feedback slice.
+
+Follow-up: Open, unqueued. Proposal: make file-size guidance and the conceptual scope gate's precedence explicit, so a pass can report existing oversized files without requiring unrelated decomposition.
+
+### Occurrences
+- Execution: `SEED-052#announce-record-deletion-first-time` / plan 219, first related implementation commit `c70c09f8e029d495ee100a50153012661fe06e87`
+  - Timestamp: unknown (session date 2026-10-02; precise hand-back times not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.54 (installed guidance at claim `d41fc577`)
+  - Evidence: delegated `refactor_deletion` initial Jidoka hand-back and follow-up `## REFACTOR COMPLETE`; `c70c09f8:.planning/slice-plans/219-deletion-failure-feedback/PLAN.md`, Execution context, records seed 431 lines, card-delete spec 283, Recent-delete spec 294, and the coordinator's scoped exception with the numeric guideline explicitly unsatisfied.
+  - Observed effect: an extra coordinator decision and agent follow-up; no refactor edits or repeated tests. No human waiver of the numeric limit was claimed.
+  - Inference: Qualified. This is a scope/precedence conflict, distinct from DD-192's cost of mandatory no-edit refactor passes. The broader value of smaller files was not assessed here.
