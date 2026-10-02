@@ -114,7 +114,7 @@ if [[ ${dashboard_install} != 'npx playwright install --with-deps chromium' ]]; 
   exit 1
 fi
 {
-  printf '%s\n' 'npx playwright install --with-deps chromium'
+  printf '%s\n' 'npx --no-install playwright install chromium'
   stated dashboard_steps
 } > "${temporary_dir}/stated-dashboard"
 awk '

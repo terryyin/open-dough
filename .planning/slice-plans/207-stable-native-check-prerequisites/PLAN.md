@@ -82,7 +82,7 @@ silently restoring routine apt.
 
 ### 1. Establish that the native CI runner can execute every browser check without apt
 Type: Behavior
-Status: in progress
+Status: done
 Proof: On the execution-owned branch, compare a healthy current-workflow run
 with a browser-only run on the same source revision and selected runner/Node
 versions. Execute all nine existing dashboard shares, inspect test counts and
@@ -275,3 +275,27 @@ will be restored to browser-only setup before slice 2; no shared cache deletion.
 Cold baseline and full passing browser-only proof remain pending.
 Repair stash receipt (clean, no saved changes):
 `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-HhDbp3/record.json`.
+
+### Slice 1 accepted proof
+
+Repaired browser-only publication `7ab0732b943c676b8933c92d47f40b31849bd110`
+passed run `36943286746`, attempt 1, all 13 jobs and all 746 browser tests;
+zero unexpected/flaky/skipped. Counts remain 58,69,112,96,66,54,88,83,120.
+Warm install 0–1 seconds, dashboard totals 75–100 seconds versus the warm
+baseline's 75–128 seconds. Actual Node/image/lock versions match the baseline.
+`/tmp/open-dough-36943286746-probe-summary.json` and reports retain observations.
+
+Temporary cold baseline publication `bb0aeae1e04310ac1f63f706eb833426c3191a33`
+passed run `36943475674`, attempt 1, all 13 jobs and 746 tests. All nine isolated
+cache keys missed. Original browser/system install 21–37 seconds, setup through
+suite start 31–51 seconds, dashboard totals 90–118 seconds. Actual Node
+`v24.21.0`, image `20260927.320.1`, Playwright `1.63.0`, Chromium build `1243`.
+Evidence: `/tmp/open-dough-36943475674-baseline-summary.json` and corresponding
+jobs/log/reports. No shared caches were deleted.
+
+Restoration exactly matches passing browser-only workflow and assertions at
+`7ab0732`; focused container consistency proof passed again. Independent
+refactoring found no further candidates. Slice 1's runner-library premise is
+accepted; no apt acquisition is needed for any assigned browser check. Slice 2
+owns final compatible-key cold/warm performance comparison and acquisition bounds.
+All publications reused the retained branch observer; clean repair receipt restored.

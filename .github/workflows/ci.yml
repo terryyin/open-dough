@@ -130,9 +130,9 @@ jobs:
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-cold-baseline-207
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx --no-install playwright install chromium
       - name: Type-check the dashboard
         if: matrix.shard == strategy.job-total
         run: npm run typecheck:dashboard
