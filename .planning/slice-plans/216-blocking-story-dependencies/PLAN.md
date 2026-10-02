@@ -65,7 +65,8 @@ proof entry points. These remain constraints of this plan.
   `8bb73be064a7778470389bd5a458fb70f5a96962`, then slice 2
   `29bd2aa07e7db835d17b819b4e84a0ec09b30f2e`, then CI repair
   `a0499094210410af66c321ab280864c6a36e575d`, then slice 3
-  `186ef15098d76955723d44d3d2e0960594b54a18` (next delivery base).
+  `186ef15098d76955723d44d3d2e0960594b54a18`, then slice 4
+  `ce8b9df6d70457288dac6a2e793e2e3240504fe5` (next delivery base).
 
 ## Ordered slices
 
@@ -217,6 +218,10 @@ verify that it remains blocked and the procedure requests separate execution
 authorization rather than implementing the consumer or declaring satisfaction.
 
 **Accepted proof:** [Slice 4 outcomes, refusal, and guidance review](CONTEXT.md#slice-4-accepted-proof).
+
+## Execution complete
+
+Product advice: Preserve backlog priorities; no new product work recommended.
 
 ## Proof ownership and execution gates
 
