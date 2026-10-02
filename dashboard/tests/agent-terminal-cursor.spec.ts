@@ -75,11 +75,11 @@ async function start(
   });
 }
 
-async function admit(terminal: CursorTerminal, sessionId: string) {
-  expect(await shows(terminal, sessionId)).toBe(true);
+async function admit(terminal: CursorTerminal) {
+  expect(await shows(terminal, "Add a follow-up")).toBe(true);
   expect(terminal.output()).toContain("\x1b[?25h");
   expect(terminal.controls()).toContainEqual({ readiness: "observe" });
-  terminal.send({ cursorVisible: true, screen: [sessionId] });
+  terminal.send({ cursorVisible: true, screen: ["→ Add a follow-up"] });
   await expect
     .poll(() => terminal.controls())
     .toContainEqual({ readiness: "attached" });
@@ -135,7 +135,7 @@ for (const mode of ["dev", "preview"] as const) {
         expect(restored.session).toEqual(recorded.session);
 
         const terminal = await openCursorTerminal(server, sessionId);
-        await admit(terminal, sessionId);
+        await admit(terminal);
         const attach = cursor.attaches()[0];
         expect(attach).toMatchObject({
           cwd: realpathSync(workspace),
@@ -161,7 +161,7 @@ for (const mode of ["dev", "preview"] as const) {
         expect(keptCursor(server.home).session.sessionId).toBe(sessionId);
 
         const resumed = await openCursorTerminal(server, sessionId);
-        await admit(resumed, sessionId);
+        await admit(resumed);
         const again = cursor.attaches()[1];
         expect(again?.args).toEqual([
           "--workspace",

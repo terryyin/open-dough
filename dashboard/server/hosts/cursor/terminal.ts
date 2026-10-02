@@ -1,8 +1,9 @@
 // Interactive resume of one stored Cursor session. The process is the
 // continuation the launch recorded (`cursor-agent --workspace <path>
-// --resume <uuid>`), not another host's attach command. The real PTY ready
-// frame is still unobserved; a visible cursor and the stored session id
-// admit the fixture until that frame is recorded.
+// --resume <uuid>`), not another host's attach command. After the
+// conversation loads, the observed prompt is `→ Add a follow-up`. A visible
+// cursor and that text admit the terminal. The screen does not include the
+// uuid.
 import { spawn as spawnPty } from "@lydell/node-pty";
 import type { LaunchHost } from "../../launchHosts.ts";
 
@@ -26,7 +27,7 @@ export const attachCursor: NonNullable<LaunchHost["attach"]> = (
   return {
     pty,
     ready(screen, cursorVisible) {
-      return cursorVisible && screen.includes(session.sessionId);
+      return cursorVisible && screen.includes("Add a follow-up");
     },
   };
 };

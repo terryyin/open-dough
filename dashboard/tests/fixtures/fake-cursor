@@ -3,8 +3,8 @@
 // Proof stand-in for cursor-agent. Prints the configured create-chat id.
 // The launch argv log is create-chat and a prompted resume, which exits 0.
 // Resume with no prompt is the embedded attach: it is recorded separately,
-// prints a visible frame of that uuid, and survives SIGHUP. It does not
-// write a launch record or a workspace.
+// prints the observed `Add a follow-up` prompt, and survives SIGHUP. It does
+// not write a launch record or a workspace.
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -71,7 +71,7 @@ if (attaching) {
     );
   }
   process.stdout.write(
-    `\x1b[?2026h\x1b[?25h\x1b[2J\x1b[H${resumed}\r\n\x1b[?2026l`,
+    `\x1b[?2026h\x1b[?25h\x1b[2J\x1b[H→ Add a follow-up\r\n\x1b[?2026l`,
   );
 } else {
   process.exit(0);

@@ -18,7 +18,7 @@ The existing Preparing assignment remains published; retain this draft for revie
 - Integration checkout: `/Users/terryyin/git/open-dough`
 - Remote: `origin`. Trunk target: `main`. Increment target: the remote execution branch.
 - Published claim: `0ae15498c2de5d3a169dcec8c609c27cd60f3f09` on `origin/main`.
-- Starting revision: `f7d1140011044be2536b0c7aa09f4be7b35b82fc`. Previously published base for the next increment: `91a790501344eebc67a0c30151aa85bd066f906f` on `origin/cursor/use-cursor-for-the-established-dashboard-workflows`.
+- Starting revision: `f7d1140011044be2536b0c7aa09f4be7b35b82fc`. Previously published base for the next increment: `3e5c10d8f3691f30f64d71ec72dbefe144f824d0` on `origin/cursor/use-cursor-for-the-established-dashboard-workflows`.
 - Agent: `stanly-chan`. Publisher: `cursor-mac-lan-use-cursor-from-dashboard`.
 - CI source: GitHub Actions. Workflow selector `ci.yml`, display name `CI`, verified on `main` (`workflowName: CI`). Observer `/tmp/dough-ci-501/watch-aPxS2Q` watches the execution branch. The trunk claim is `pendingCi: unobserved`.
 
@@ -194,10 +194,12 @@ and attach without pretending to know native activity.
 
 ### 5. Commit once through a real Cursor launch
 Type: Behavior
-Status: planned
+Status: done
 Proof: The story's committing run. A disposable git repository, the real
 `cursor-agent` 2026.10.01-e373342 or a newer installed CLI, and one
 dashboard execution start.
+
+Accepted proof: On 2026-10-02, `cursor-agent` 2026.10.01-e373342 printed `1e53108e-a843-478d-8db5-fcc2cc58b010`, the launch record stored it, and the still-running prompt was the launched session. Commit `0cd5dc1aa0727e84641879d915b90a8c904b7fc3` adds `probe.txt` containing `ready` in the disposable repository. Resume showed `→ Add a follow-up` after the conversation loaded, and a second resume reached that prompt. The screen does not include the uuid. `dashboard/server/hosts/cursor/terminal.ts` admits that text. `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-start-cursor.spec.ts dashboard/tests/agent-launch-preparation-cursor.spec.ts dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts --workers=2` passed after refactor, and `npm run typecheck:dashboard` passed. The ready-frame fixture proof is `dashboard/tests/agent-terminal-cursor.spec.ts`.
 
 Behavior: The developer starts Cursor execution with Default against that
 repository. The real CLI prints a UUID, receives the execution handoff, and
@@ -218,6 +220,40 @@ when this probe changes prompt wording or that wait.
 
 No automated `npm` command covers this slice. The proof is the commit, the
 stored uuid, and the recorded ready frame.
+
+Observed on 2026-10-02 with `cursor-agent` 2026.10.01-e373342. A disposable
+git repository under `~/git/open-dough/.worktrees/` gave SEED-A#a one slice:
+add `probe.txt` containing `ready` and commit it. Trust was not requested.
+`create-chat` printed `1e53108e-a843-478d-8db5-fcc2cc58b010` and the launch
+record stored it. The still-running prompt was the launched session. Commit
+`0cd5dc1aa0727e84641879d915b90a8c904b7fc3` adds only `probe.txt`. The file's
+contents were `ready`.
+
+The resume `cursor-agent --workspace <recorded path> --resume <uuid>` on a
+PTY first paints:
+
+```
+Cursor Agent
+v2026.10.01-e373342
+Tip: Use /plan to plan execution and reach the right outcome faster.
+
+→ Plan, search, build anything
+
+Claude Opus 5.5 300K High                                     Run Everything
+```
+
+After the conversation loads, the visible prompt is:
+
+```
+→ Add a follow-up
+
+Claude Opus 5.5 300K High                                     Run Everything
+~/git/open-dough/.worktrees/cursor-slice5-disposable/dough-start-Y5F1aD/home/
+git/open-dough/.worktrees/prepare-the-queued-start · main
+```
+
+Ending that client left the same uuid resumable: a second resume reached
+that same prompt. The screen does not include the uuid.
 
 ## Verification
 
@@ -240,8 +276,11 @@ native acceptance for this story; fixture success does not replace it.
 
 - The fixture exits immediately, and the host confirms the first prompt only
   when that process exits 0. The interactive client observed on 2026-10-02
-  does not exit, so slice 5 has to accept a still-running client. Slices 2–4
-  keep the fixture contract.
+  does not exit. Slice 5 treats a client still running when the launch wait
+  ends as the launched session. Slices 2–4 keep the fixture contract.
+- The real resume screen does not include the session uuid. After the
+  conversation loads, the visible prompt is `→ Add a follow-up`. The
+  embedded terminal admits that text.
 - An empty ad-hoc instruction makes `cursorPrompt` return undefined. Slice 2
   records that session with no story and no invented skill line.
 - CI on `71764841` failed because refusal specs still expected a well-formed
