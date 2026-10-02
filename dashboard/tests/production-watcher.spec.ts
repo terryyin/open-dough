@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import path from "node:path";
 import { dashboardCommand } from "./support/dashboardCommand.ts";
 import { dashboardReleaseFixture } from "./support/dashboardReleaseFixture.ts";
+import { configureDevelopmentProjects } from "./support/projectConfiguration.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { installFakeGh, fakeGhEnv } from "./support/fakeGh.ts";
 import { startFakeGitHub } from "./support/fakeGitHub.ts";
@@ -71,6 +72,7 @@ test("npm watcher serves the pinned highest release beside hot-reloaded developm
     );
     await fixture.commit("99.0.0", "DEVELOPMENT ONLY");
     await fixture.installDevelopment();
+    configureDevelopmentProjects(fixture.home);
     development = dashboardCommand(fixture.development, env, "dev:dashboard", [
       "--port",
       "0",

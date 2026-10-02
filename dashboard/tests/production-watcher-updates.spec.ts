@@ -5,6 +5,7 @@ import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { dashboardCommand } from "./support/dashboardCommand.ts";
 import { dashboardReleaseFixture } from "./support/dashboardReleaseFixture.ts";
+import { configureDevelopmentProjects } from "./support/projectConfiguration.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { installFakeGh, fakeGhEnv } from "./support/fakeGh.ts";
 import { installFakeClaude } from "./support/fakeClaude.ts";
@@ -37,6 +38,7 @@ test("npm watcher replaces a newer numeric release at the same URL, keeps shared
   try {
     await fixture.publish("1.10.0", { marker: "RELEASE A" });
     await fixture.installDevelopment();
+    configureDevelopmentProjects(fixture.home);
     development = dashboardCommand(fixture.development, env, "dev:dashboard", [
       "--port",
       "0",
