@@ -180,37 +180,26 @@ delivery is explicitly re-observed at integration rather than assumed.
 
 ## Execution context
 
-Terry authorized execution on 2026-10-02. Established identity:
-`SEED-075#startup-advice-from-host-description`; publisher
-`dashboard-mac.lan-open-dough`; agent `joey-chan`; mode `story-branch`.
-Reused execution checkout:
-`/Users/terryyin/git/open-dough/.worktrees/startup-recovery-advice-comes-from-the-host-desc`,
-branch `codex/startup-recovery-advice-comes-from-the-host-desc`.
-Originating/integration checkout: `/Users/terryyin/git/open-dough`.
-Starting revision: `9beaf9729ccbc9f06a1365c87751ee812c665cd9`.
-Accepted claim/candidate: `993006dc60a03200c6e39fefa284971d62e34740` on `origin/main`.
-Increment target: `origin/refs/heads/codex/startup-recovery-advice-comes-from-the-host-desc`.
-No overrun replanning option supplied; retain existing planning authority.
+Terry authorized execution on 2026-10-02. Established identity: `SEED-075#startup-advice-from-host-description`; publisher `dashboard-
+mac.lan-open-dough`; agent `joey-chan`; mode `story-branch`. Reused execution checkout: `/Users/terryyin/git/open-dough/.worktrees/startup-
+recovery-advice-comes-from-the-host-desc`, branch `codex/startup- recovery-advice-comes-from-the-host-desc`. Originating/integration
+checkout: `/Users/terryyin/git/open-dough`. Starting revision: `9beaf9729ccbc9f06a1365c87751ee812c665cd9`. Accepted claim/candidate:
+`993006dc60a03200c6e39fefa284971d62e34740` on `origin/main`. Increment target: `origin/refs/heads/codex/startup- recovery-advice-comes-from-
+the-host-desc`. No overrun replanning option supplied; retain existing planning authority.
 
-Checkout-local `npm ci` and `npm run typecheck:dashboard` passed with the current
-lockfile. Fetched `origin/main` at `57519ee0` contains only unrelated preparation
-beyond the claim; no newly delivered recovery correction affects this consumer.
-CI: GitHub Actions `ci.yml`, push trigger and selector verified for
-`terryyin/open-dough`. Trunk claim predates observation and remains unobserved.
-Observer: Codex yielded-cell bridge, coordinator `/root`, cell `19`, session
-`2311`, PID `81647`, mailbox `/tmp/dough-ci-501/watch-1axyJp`; matching checkout
-and story-branch target. Managed delivery reuses and registers this observer.
-Slice 1 accepted revision/base: `11bc3fab3582c92dfd1c525e80daad7f6ada02c1`
-on that story branch; observation reused, maintenance not applicable.
+Checkout-local `npm ci` and `npm run typecheck:dashboard` passed with the current lockfile. Fetched `origin/main` at `57519ee0` contains
+only unrelated preparation beyond the claim; no newly delivered recovery correction affects this consumer. CI: GitHub Actions `ci.yml`, push
+trigger and selector verified for `terryyin/open-dough`. Trunk claim predates observation and remains unobserved. Observer: Codex yielded-
+cell bridge, coordinator `/root`, cell `19`, session `2311`, PID `81647`, mailbox `/tmp/dough-ci-501/watch-1axyJp`; matching checkout and
+story-branch target. Managed delivery reuses and registers this observer. Slice 1 accepted revision/base:
+`11bc3fab3582c92dfd1c525e80daad7f6ada02c1` on that story branch; observation reused, maintenance not applicable.
 
 ### Slice 1 accepted proof
 
-Optional `nativeCheckAdvice` has one description owner. `RecoveryEntry` renders
-it via `LaunchExplanation` when eligible and present; absence omits both the
-paragraph and accessibility reference. Controls/handlers and uncertainty hints
-remain unchanged. Pre-change, the three-spec command below failed solely at
-the Cursor no-advice assertion (borrowed instructions); supported hosts passed.
-An earlier fixture GET 403 was corrected with same-origin metadata and a 200 assertion.
+Optional `nativeCheckAdvice` has one description owner. `RecoveryEntry` renders it via `LaunchExplanation` when eligible and present;
+absence omits both the paragraph and accessibility reference. Controls/handlers and uncertainty hints remain unchanged. Pre-change, the
+three-spec command below failed solely at the Cursor no-advice assertion (borrowed instructions); supported hosts passed. An earlier fixture
+GET 403 was corrected with same-origin metadata and a 200 assertion.
 
 `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-card-problems.spec.ts dashboard/tests/responsive-session-recovery-ad-hoc.spec.ts dashboard/tests/startup-host-words.spec.ts --workers=2`
 passed. Built-page observations: Claude advice/inline command/accessibility and
@@ -229,21 +218,31 @@ changed; no native acceptance or Cursor operation support is claimed.
 
 ### Slice 2 accepted proof
 
-Verification only: existing `StartupStatus` / `startPhaseWords` remain unchanged.
-Fetched trunk before edits includes unrelated preparation/passive-reader work
-and plan 206's Take, but no delivered recovery correction affecting this consumer.
-`env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-start-card.spec.ts dashboard/tests/agent-launch-start-phases.spec.ts dashboard/tests/agent-launch-preparation-phases.spec.ts dashboard/tests/responsive-session-start-codex.spec.ts dashboard/tests/startup-host-words.spec.ts --workers=2`
-passed. Existing `expectStartProgress` page journeys observe both hosts and
-workflows through independently held publication/native creation, preparation,
-launching, reload and placement. The responsive Codex journey additionally
-observes Starting while native input is held and rejects Preparing then.
-New `startup-host-words` page case supplies owned accepted machine evidence,
-no running phase, and capability facts only: both hosts/workflows and both
-capability choices produce exact Preparing/Starting text, local-progress
-explanation, disabled story controls and no reconciliation status.
-`npm run typecheck:dashboard` passed after literal-array typing was corrected
-with `as const` (no runtime change); `git diff --check` passed. No native
-acceptance is claimed and no production contract or generator trigger changed.
-Independent refactor review: none — already clean; no edits/tests, accepted
-proof unchanged. Slice 2 is test-only and preserves the existing direct status
-implementation and all reconciliation/native operation behavior.
+Verification only: existing `StartupStatus` / `startPhaseWords` remain unchanged. Fetched trunk before edits includes unrelated
+preparation/passive-reader work and plan 206's Take, but no delivered recovery correction affecting this consumer. `env -u NO_COLOR npm run
+test:dashboard -- dashboard/tests/agent-launch-start-card.spec.ts dashboard/tests/agent-launch-start-phases.spec.ts dashboard/tests/agent-
+launch-preparation-phases.spec.ts dashboard/tests/responsive-session-start-codex.spec.ts dashboard/tests/startup-host-words.spec.ts
+--workers=2` passed. Existing `expectStartProgress` page journeys observe both hosts and workflows through independently held
+publication/native creation, preparation, launching, reload and placement. The responsive Codex journey additionally observes Starting while
+native input is held and rejects Preparing then. New `startup-host-words` page case supplies owned accepted machine evidence, no running
+phase, and capability facts only: both hosts/workflows and both capability choices produce exact Preparing/Starting text, local-progress
+explanation, disabled story controls and no reconciliation status. `npm run typecheck:dashboard` passed after literal-array typing was
+corrected with `as const` (no runtime change); `git diff --check` passed. No native acceptance is claimed and no production contract or
+generator trigger changed. Independent refactor review: none — already clean; no edits/tests, accepted proof unchanged. Slice 2 is test-
+only and preserves the existing direct status implementation and all reconciliation/native operation behavior.
+
+Slice 2 accepted revision: `719850274e952e0091a9d4b0c2d1e88363490d90` on the recorded story branch, observation reused, maintenance not
+applicable. `npm run format` and the staged check-only hook passed for this delivery.
+
+## Execution complete
+
+Product advice: No new backlog work recommended. Continue the already selected Cursor integration and durable reconciliation stories in
+their established order.
+
+Retrospective: reviewed original plan at claim, seed contract, both attributable implementation commits (`11bc3fab`, `71985027`), relevant
+unchanged consumers, page journeys, and enabled process history. No defect, architectural conflict, refactoring residue, or actionable
+process finding identified; no correction plan or process-log write. Advice ownership stays with the description while eligibility, workflow
+meaning and native operations retain their owners (ADR 0002 / ADR 0005). Existing integrated startup wording was preserved. E2E proof drove
+the recovery change; new presentation cases supply only prerequisites, and existing native-fixture journeys remain distinct integration
+proof. Full suite/native acceptance unassessed locally; CI remains pending for the accepted story-branch revision until the coordinator's
+bounded completion receipt.
