@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "jacked-chan",
+  "email": "jacked-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-052#split-session-entry-and-terminal-split",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
