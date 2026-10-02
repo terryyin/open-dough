@@ -9,6 +9,7 @@ import {
   observationRecord,
   observed,
   passive,
+  daemonStarts,
 } from "./support/codexObservation.ts";
 import { seedStore, storeFile } from "./machineLaunchRecords.ts";
 import { machineSessions } from "./agentLaunchBoundary.ts";
@@ -60,11 +61,7 @@ test("adding an initially unconfigured retained Codex project prepares its passi
     ).toContainText("Ready for review");
     await page.reload();
     await expect(recent).toContainText("Ready for review", { timeout: 5_000 });
-    expect(
-      readFileSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "", "utf8")
-        .trim()
-        .split("\n"),
-    ).toHaveLength(1);
+    expect(daemonStarts(native)).toHaveLength(1);
     passive(native.calls);
     expect(readFileSync(storeFile(fixture.machine), "utf8")).toBe(bytes);
   } finally {

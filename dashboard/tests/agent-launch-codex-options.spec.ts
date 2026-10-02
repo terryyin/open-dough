@@ -1,8 +1,14 @@
 // Selected-host defaults and admission are proven before native creation.
 import { readFileSync, realpathSync } from "node:fs";
+import path from "node:path";
 import { installRefinementSkill } from "./launchCardPage.ts";
 import { test, expect, codexSkill } from "./support/codexLaunch.ts";
-import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
+import {
+  launch,
+  machineSessions,
+  refinementRequest,
+} from "./agentLaunchBoundary.ts";
+import { daemonStarts, passive } from "./support/codexObservation.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -32,12 +38,9 @@ test("missing Codex options allow defaults, selected options/model are refused b
     host: "codex",
   });
   expect(response.status).toBe(200);
-  expect(
-    readFileSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "", "utf8")
-      .trim()
-      .split("\n")
-      .map((line): unknown => JSON.parse(line)),
-  ).toEqual([
+  // Settings discovery, explicit launch, then one saved-host preparation.
+  expect(daemonStarts(native)).toEqual([
+    { cwd: realpathSync(dashboard.home) },
     { cwd: realpathSync(dashboard.home) },
     { cwd: realpathSync(dashboard.home) },
   ]);
@@ -49,6 +52,20 @@ test("missing Codex options allow defaults, selected options/model are refused b
     native.calls.filter((call) => call.method === "turn/start"),
   ).toHaveLength(1);
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
+  const recordFile = path.join(
+    dashboard.home,
+    ".open-dough",
+    "dashboard",
+    "agent-launches.json",
+  );
+  const before = readFileSync(recordFile, "utf8");
+  const starts = daemonStarts(native);
+  const observedFrom = native.calls.length;
+  await machineSessions(dashboard);
+  await machineSessions(dashboard);
+  expect(daemonStarts(native)).toEqual(starts);
+  expect(readFileSync(recordFile, "utf8")).toBe(before);
+  passive(native.calls.slice(observedFrom));
 });
 
 test("native creation refusal exposes a bounded message, never arbitrary error data", async ({

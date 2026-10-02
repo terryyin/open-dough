@@ -1,5 +1,6 @@
 // Cards, Recent sessions and sidebar consume one recorded native observation.
-import { readFileSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
+import path from "node:path";
 import { pausePageClockAt } from "./dashboardTest.ts";
 import { watchRecordReads } from "./sessionStatePace.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
@@ -13,13 +14,14 @@ import {
   expectSidebarSessionShown,
   sidebarParts,
 } from "./sessionSidebarPage.ts";
-import { test, expect, stored } from "./support/codexLaunch.ts";
+import { test, expect } from "./support/codexLaunch.ts";
 import {
   observationRecord as record,
   saveObservations as save,
   observationStates as states,
   observed,
   passive,
+  daemonStarts,
 } from "./support/codexObservation.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: LaunchJourney;
@@ -128,7 +130,13 @@ test("saved Codex states appear consistently on cards, Recent sessions and sideb
     metadataError: { code: -32600, message: "thread not loaded: missing" },
   });
   save(dashboard, records);
-  const before = JSON.stringify(stored(dashboard.home));
+  const recordFile = path.join(
+    dashboard.home,
+    ".open-dough",
+    "dashboard",
+    "agent-launches.json",
+  );
+  const before = readFileSync(recordFile, "utf8");
   await pausePageClockAt(page, new Date());
   const { passOnePace } = watchRecordReads(page);
   const { card } = await openTakenBacklog(page, journey);
@@ -202,6 +210,7 @@ test("saved Codex states appear consistently on cards, Recent sessions and sideb
     );
   };
   await check();
+  expect(daemonStarts(native)).toEqual([{ cwd: realpathSync(dashboard.home) }]);
   await page.reload();
   await expect(sidebar.button).toBeVisible();
   if (!(await sidebar.sidebar.isVisible())) await sidebar.button.click();
@@ -214,7 +223,7 @@ test("saved Codex states appear consistently on cards, Recent sessions and sideb
     availability: "retained",
     activity: "review",
   });
-  expect(JSON.stringify(stored(dashboard.home))).toBe(before);
+  expect(readFileSync(recordFile, "utf8")).toBe(before);
   observed(native, "work", {
     type: "active",
     activeFlags: ["waitingOnApproval"],
@@ -234,7 +243,6 @@ test("saved Codex states appear consistently on cards, Recent sessions and sideb
   ).toHaveText("Ready for review");
   await expect(sidebar.badge).toHaveAccessibleName("7 sessions need attention");
   passive(native.calls);
-  expect(() =>
-    readFileSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? ""),
-  ).toThrow();
+  expect(daemonStarts(native)).toEqual([{ cwd: realpathSync(dashboard.home) }]);
+  expect(readFileSync(recordFile, "utf8")).toBe(before);
 });
