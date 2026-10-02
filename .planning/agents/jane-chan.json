@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-083#persistent-dashboard-project-configuration",
+  "host": "claude"
+}
