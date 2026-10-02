@@ -18,7 +18,7 @@ The existing Preparing assignment remains published; retain this draft for revie
 - Integration checkout: `/Users/terryyin/git/open-dough`
 - Remote: `origin`. Trunk target: `main`. Increment target: the remote execution branch.
 - Published claim: `0ae15498c2de5d3a169dcec8c609c27cd60f3f09` on `origin/main`.
-- Starting revision: `f7d1140011044be2536b0c7aa09f4be7b35b82fc`. Previously published base for the first increment: `0ae15498c2de5d3a169dcec8c609c27cd60f3f09`.
+- Starting revision: `f7d1140011044be2536b0c7aa09f4be7b35b82fc`. Previously published base for the next increment: `2f21a7be7e6d6eb5a450ac6cf4f27b7d208edd25` on `origin/cursor/use-cursor-for-the-established-dashboard-workflows`.
 - Agent: `stanly-chan`. Publisher: `cursor-mac-lan-use-cursor-from-dashboard`.
 - CI source: GitHub Actions. Workflow selector `ci.yml`, display name `CI`, verified on `main` (`workflowName: CI`). Observer `/tmp/dough-ci-501/watch-aPxS2Q` watches the execution branch. The trunk claim is `pendingCi: unobserved`.
 
@@ -136,10 +136,12 @@ Refinement, ad hoc, and the embedded terminal are still absent.
 
 ### 2. Start Cursor refinement and an unattached session
 Type: Behavior
-Status: planned
+Status: done
 Proof: Story examples 2 and 3, except the embedded open in example 3.
 Refinement carries the preparation handoff. Ad hoc stores a session with no
 story and only the optional instruction.
+
+Accepted proof: `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-preparation-cursor.spec.ts dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts dashboard/tests/agent-launch-ad-hoc-codex.spec.ts --workers=2` passed, and `npm run typecheck:dashboard` passed again after the shared pre-prompt save. Observations are those two Cursor specs: refinement prompt `/dough-story-refinement` plus one preparation handoff and a published Preparing assignment; an empty Start session records no story and no skill line; a typed instruction is the whole prompt.
 
 Behavior: The same Cursor host accepts refinement and Start session. A
 refinement launch's prompt contains the preparation handoff. An unattached
@@ -236,6 +238,8 @@ native acceptance for this story; fixture success does not replace it.
   when that process exits 0. The interactive client observed on 2026-10-02
   does not exit, so slice 5 has to accept a still-running client. Slices 2–4
   keep the fixture contract.
-- An empty ad-hoc instruction makes `cursorPrompt` return undefined, and
-  launch then refuses before `create-chat`. Slice 2 still records that
-  session with no story and no invented skill line.
+- An empty ad-hoc instruction makes `cursorPrompt` return undefined. Slice 2
+  records that session with no story and no invented skill line.
+- CI on `71764841` failed because refusal specs still expected a well-formed
+  Cursor request to return 400. Repair `2f21a7be` removed those rows. Slice 2
+  stayed planned through that repair.

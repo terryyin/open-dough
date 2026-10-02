@@ -1,7 +1,8 @@
 // One Cursor session in the dashboard workspace. `create-chat` prints the id
-// before any prompt; the prompt is then `cursor-agent --workspace <path>
-// --resume <id> <prompt>`. Default omits `--model`. No worktree, trust, or
-// approval flag is passed.
+// before any prompt; a prompt is then `cursor-agent --workspace <path>
+// --resume <id> <prompt>`. An unattached session with no instruction still
+// keeps that id and submits no prompt. Default omits `--model`. No worktree,
+// trust, or approval flag is passed.
 
 import { execFile, type ExecException } from "node:child_process";
 import { z } from "zod";
@@ -101,7 +102,9 @@ export const launchCursor: LaunchHost["launch"] = async (
     throw new Error("Durable launch recording is required.");
   }
   const prompt = cursorPrompt(request, established?.handoff);
-  if (prompt === undefined) {
+  // Only a blank unattached session has no prompt. Any other missing prompt
+  // is refused before create-chat, so a skill launch is never recorded empty.
+  if (prompt === undefined && request.workflow !== "ad-hoc") {
     return {
       kind: "failed",
       reason: "unavailable",
@@ -123,20 +126,28 @@ export const launchCursor: LaunchHost["launch"] = async (
       args: [cursorAgent, ...resumeFlags(workspace, printed.data)],
     },
   };
-  const pending: FirstInput = {
-    state: "uncertain",
-    instruction: prompt,
-    explanation:
-      "Cursor has not confirmed the first prompt. Continue the recorded session before starting again.",
-  };
+  // One save covers both launches. Blank keeps the id and submits no prompt.
+  // A prompt stays unconfirmed until that process exits 0.
+  const first: FirstInput =
+    prompt === undefined
+      ? { state: "not-requested", intent: "blank" }
+      : {
+          state: "uncertain",
+          instruction: prompt,
+          explanation:
+            "Cursor has not confirmed the first prompt. Continue the recorded session before starting again.",
+        };
   try {
-    await record.session(session, pending);
+    await record.session(session, first);
   } catch {
     return {
       kind: "uncertain",
       reason: "unconfirmed",
       explanation: `Cursor printed session ${session.sessionId}, and the dashboard could not save it. No prompt was submitted. Continue with \`${shellCommand(session.continuation.args)}\`.`,
     };
+  }
+  if (prompt === undefined) {
+    return { kind: "launched", session, sessionState: { kind: "unknown" } };
   }
   const submitted = await execCursor(
     [...resumeFlags(workspace, session.sessionId), prompt],
