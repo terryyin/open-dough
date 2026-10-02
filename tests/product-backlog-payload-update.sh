@@ -41,6 +41,8 @@ story_state_payload_files=(
   dough-product-backlog/scripts/product-backlog-story-state-home.mjs
   dough-product-backlog/scripts/product-backlog-story-state-preparation.mjs
   dough-product-backlog/scripts/product-backlog-story-state.mjs
+  dough-product-backlog/scripts/product-backlog-story-dependencies.mjs
+  dough-product-backlog/scripts/product-backlog-story-dependencies-command.mjs
 )
 
 assert_story_state_payload() {

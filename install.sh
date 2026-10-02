@@ -99,6 +99,8 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-story-state-home.mjs
   dough-product-backlog/scripts/product-backlog-story-state-preparation.mjs
   dough-product-backlog/scripts/product-backlog-story-state.mjs
+  dough-product-backlog/scripts/product-backlog-story-dependencies.mjs
+  dough-product-backlog/scripts/product-backlog-story-dependencies-command.mjs
   dough-product-backlog/scripts/product-backlog-take.mjs
   dough-product-backlog/scripts/product-backlog-usage.mjs
   dough-product-backlog/scripts/product-backlog-version.mjs

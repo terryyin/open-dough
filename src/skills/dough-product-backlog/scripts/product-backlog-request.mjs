@@ -22,6 +22,8 @@ export const options = {
   reason: { type: "string", multiple: true },
   "expect-document": { type: "string" },
   "expect-plan": { type: "string" },
+  "dependency-file": { type: "string" },
+  "expect-dependencies": { type: "string" },
   text: { type: "string" },
   clear: { type: "boolean", default: false },
   expect: { type: "string" },

@@ -38,6 +38,10 @@ import {
   recordState,
 } from "./product-backlog-story-state-command.mjs";
 import { preparationRefusal } from "./product-backlog-story-state-home.mjs";
+import {
+  readDependencies,
+  updateDependency,
+} from "./product-backlog-story-dependencies-command.mjs";
 import { takeEntry } from "./product-backlog-take.mjs";
 import { usage } from "./product-backlog-usage.mjs";
 
@@ -182,6 +186,8 @@ const operations = {
   merge,
   "record-state": recordState,
   "read-state": readState,
+  "read-dependencies": readDependencies,
+  "update-dependency": updateDependency,
 };
 
 async function main(argv) {
@@ -211,10 +217,14 @@ try {
 } catch (error) {
   if (error instanceof BacklogError) {
     const named = process.argv[2];
-    const refusal =
-      named === "record-state" || named === "read-state"
-        ? preparationRefusal(error)
-        : error.refusal;
+    const refusal = [
+      "record-state",
+      "read-state",
+      "read-dependencies",
+      "update-dependency",
+    ].includes(named)
+      ? preparationRefusal(error)
+      : error.refusal;
     console.error(refusal);
     process.exit(1);
   }

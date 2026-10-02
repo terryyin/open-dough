@@ -216,4 +216,10 @@ console.log(
     echo "${reader_observation}" >&2
     return 1
   fi
+
+  # Record, read, and refuse real ordinary/one-shot starts using installed
+  # copies after the release source has been moved away.
+  # shellcheck disable=SC2154 # The sourcing test supplies source_dir.
+  node "${source_dir}/tests/support/story-dependencies-installed-observe.mjs" \
+    "${scripts_root}" "${project_root}" "${scratch_root}"
 }
