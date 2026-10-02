@@ -38,8 +38,11 @@ and answers with the attempt; a request it cannot save starts nothing. The
 attempt runs without its caller and keeps its publication receipt and outcome
 for `GET /__agent-launch`; `GET /__agent-launch/changed` waits for an owned
 attempt to change so pages reread without polling hosts. While a story's attempt
-is unresolved, another request for that story, from any workflow, is refused;
-an unreadable attempt file refuses every launch.
+is unresolved (running, or in need of reconciliation as below), another request
+for that story, from any workflow, is refused, and only that attempt's
+continuation resumes it; the page protects the story by the same rule
+(`unresolvedAttempt` in `src/launchOutcome.ts`). An unreadable attempt file
+refuses every launch.
 
 From submission, the dialog says “Starting…” with Cancel, Start and every choice
 unavailable, ignores Escape, and says “Startup is underway and can no longer be
@@ -73,10 +76,11 @@ on this machine: the page notes it with its attempt through
 needs reconciliation, so later pages, reloads, project switches and restarts
 show the story's actions, and no recovery item, without asking GitHub again.
 
-A lost answer, an attempt no running server owns, or an outcome that may or may
-not have published says “Startup needs reconciliation” statically on the card,
-which stays protected, and in the Startup recovery region beside the project's
-actions, which also says when this machine's attempts could not be read. Recheck
+A lost answer, an attempt no running server owns, or an outcome whose session or
+publication may or may not exist says “Startup needs reconciliation” statically
+on the card, which stays protected, and in the Startup recovery region beside the
+project's actions, which also says when this machine's attempts could not be
+read. Recheck
 reads this machine's evidence and the published state again. Continue posts to
 `POST /__agent-launch/continue`, which runs the same kept request under the same
 attempt and the existing [start recovery](LAUNCH-START.md#mechanical-start-and-recovery)

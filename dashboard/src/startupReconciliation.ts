@@ -14,7 +14,11 @@
 // read.
 
 import { useEffect, useRef, useState } from "react";
-import { storyOf, type AttemptObservation } from "./agentLaunch.ts";
+import {
+  laterAttempt,
+  storyOf,
+  type AttemptObservation,
+} from "./agentLaunch.ts";
 import { noteAttemptReconciled } from "./agentLaunchClient.ts";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -65,13 +69,6 @@ export type Reconciliation =
   | { readonly kind: "reconciled" }
   | { readonly kind: "waiting"; readonly problem?: string }
   | { readonly kind: "unconfirmed" };
-
-// The later accepted of two attempts, as a story's latest attempt is told.
-export const laterAttempt = (
-  one: AttemptObservation | undefined,
-  other: AttemptObservation,
-): AttemptObservation =>
-  one === undefined || one.acceptedAt < other.acceptedAt ? other : one;
 
 // The latest attempt of each story, when it is settled.
 function latestSettled(

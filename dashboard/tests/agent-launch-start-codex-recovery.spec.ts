@@ -1,8 +1,15 @@
 // Lost first-input acknowledgment must recover the already published execution
-// and native conversation across a server restart, without another input/claim.
+// and native conversation across a server restart, without another input/claim,
+// when its attempt is continued.
 import { readdirSync } from "node:fs";
 import path from "node:path";
-import { launch, launchRequest, keptStarts } from "./agentLaunchBoundary.ts";
+import {
+  attempts,
+  continued,
+  launch,
+  launchRequest,
+  keptStarts,
+} from "./agentLaunchBoundary.ts";
 import {
   startDashboardServer,
   builtDashboardDir,
@@ -58,7 +65,8 @@ test("execution recovery retains its claim, workspace, handoff and first input w
     launchTimeoutMs: 30_000,
   });
   try {
-    const response = await launch(restarted, request);
+    const [attempt] = await attempts(restarted);
+    const response = await continued(restarted, attempt?.id ?? "");
     expect(JSON.parse(response.body), response.body).toMatchObject({
       kind: "launched",
     });

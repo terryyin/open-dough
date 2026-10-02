@@ -2,10 +2,10 @@
 // (`./agentLaunches.ts`): each is kept with its exact request
 // (`./launchAttemptStore.ts`) before its run has any side effect, then run to
 // its outcome whatever happens to the caller. Of a story's launches in any
-// workflow, and of the same launch on any host, one at a time is accepted; a story
-// whose earlier attempt no server runs any more and never settled accepts
-// only that attempt's continuation, which runs its kept request again under
-// the same identity. A settled attempt a page found reconciled with
+// workflow, and of the same launch on any host, one at a time is accepted; a
+// story whose unresolved attempt (`unresolvedAttempt`) no server runs any
+// more accepts only that attempt's continuation, which runs its kept request
+// again under the same identity. A settled attempt a page found reconciled with
 // published state keeps when it was (`./launchAttemptReconciliation.ts`).
 // Once a read finds its settled state kept, an attempt is answered from this
 // machine's store rather than from memory (`./ownedAttempts.ts`).
@@ -56,11 +56,7 @@ export class LaunchAttemptOwner {
   }> {
     const read = await keptAttempts();
     const kept = read ?? [];
-    const keptIds = new Set(kept.map((attempt) => attempt.id));
-    const attempts = [
-      ...kept,
-      ...this.owned.records().filter((attempt) => !keptIds.has(attempt.id)),
-    ].map((attempt) => this.owned.observed(attempt));
+    const attempts = this.owned.known(kept);
     this.owned.releaseKeptSettled(kept);
     return { attempts, readable: read !== undefined };
   }
@@ -130,10 +126,7 @@ export class LaunchAttemptOwner {
         ? unknownAttempt
         : notContinued(this.owned.observed(now));
     if (stillUnneeded !== undefined) return stillUnneeded;
-    const conflict = this.conflictWith(
-      found.request,
-      kept.filter((attempt) => attempt.id !== id),
-    );
+    const conflict = this.conflictWith(found.request, kept, id);
     if (conflict !== undefined) return conflict;
     return this.admit(
       found.request,
@@ -153,19 +146,18 @@ export class LaunchAttemptOwner {
     return reconcileAttempt(this.owned, sourceId, id);
   }
 
-  // An unsettled attempt the request would duplicate: one this server runs,
-  // or a kept one no server runs.
+  // What the request, or the continuation of the attempt `continued`, would
+  // duplicate among the attempts this machine knows (`conflicting`).
   private conflictWith(
     request: AgentLaunchRequest,
     kept: readonly LaunchAttemptRecord[],
+    continued?: string,
   ): Unaccepted | undefined {
     return conflicting(
       request,
       this.owned.unsettledRequests(),
-      kept.filter(
-        (attempt) =>
-          attempt.outcome === undefined && !this.owned.has(attempt.id),
-      ),
+      this.owned.known(kept),
+      continued,
     );
   }
 

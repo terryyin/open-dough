@@ -1,4 +1,5 @@
-// Protocol evidence decides whether Start may reuse the saved first input.
+// Protocol evidence decides whether continuing an uncertain start may reuse
+// the saved first input; a fresh start of its story is refused meanwhile.
 import { openTakenBacklog } from "./launchCardPage.ts";
 import { cardSessions } from "./dashboardPage.ts";
 import {
@@ -12,6 +13,9 @@ import {
   type LaunchJourney,
 } from "./launchJourney.ts";
 import {
+  accept,
+  attempts,
+  continued,
   launch,
   refinementRequest,
   machineSessions,
@@ -52,12 +56,16 @@ test("explicit input refusal allows the saved input once in the resumed same con
   expect(
     JSON.parse(
       (
-        await launch(dashboard, {
+        await accept(dashboard, {
           ...request,
           instruction: "Changed retry must not replace the saved intent.",
         })
       ).body,
     ),
+  ).toMatchObject({ kind: "failed", reason: "already-starting" });
+  const [uncertain] = await attempts(dashboard);
+  expect(
+    JSON.parse((await continued(dashboard, uncertain?.id ?? "")).body),
   ).toMatchObject({ kind: "launched" });
   const inputs = native.calls.filter((call) => call.method === "turn/start");
   expect(inputs).toHaveLength(2);
@@ -134,17 +142,22 @@ test("unreadable, missing, empty, unrelated and wrong-workspace history never au
     codexProtocol: protocol,
   });
   try {
-    expect(JSON.parse((await launch(resumed, request)).body)).toMatchObject({
+    const [uncertain] = await attempts(resumed);
+    const resume = async () =>
+      JSON.parse(
+        (await continued(resumed, uncertain?.id ?? "")).body,
+      ) as unknown;
+    expect(await resume()).toMatchObject({
       kind: "uncertain",
     });
     native.failRead = false;
     native.readError = true;
-    expect(JSON.parse((await launch(resumed, request)).body)).toMatchObject({
+    expect(await resume()).toMatchObject({
       kind: "uncertain",
     });
     native.readError = false;
     native.history = [];
-    expect(JSON.parse((await launch(resumed, request)).body)).toMatchObject({
+    expect(await resume()).toMatchObject({
       kind: "uncertain",
     });
     native.history = [
@@ -160,11 +173,11 @@ test("unreadable, missing, empty, unrelated and wrong-workspace history never au
         ],
       },
     ];
-    expect(JSON.parse((await launch(resumed, request)).body)).toMatchObject({
+    expect(await resume()).toMatchObject({
       kind: "uncertain",
     });
     native.cwd += "-moved";
-    expect(JSON.parse((await launch(resumed, request)).body)).toMatchObject({
+    expect(await resume()).toMatchObject({
       kind: "uncertain",
     });
     expect(stored(resumed.home)[0]).toEqual(initial);

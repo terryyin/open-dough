@@ -9,7 +9,8 @@
 // one this machine does not keep, is never noted reconciled. When this machine's
 // kept attempts cannot be read, nothing tells which startup is unresolved:
 // the machine's sessions say so, the file stays as it is, and starts are
-// refused.
+// refused. A story whose latest attempt settled uncertain blocks a fresh start
+// the same way (./agent-launch-uncertain-continuation.spec.ts).
 
 import { readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { randomUUID } from "node:crypto";

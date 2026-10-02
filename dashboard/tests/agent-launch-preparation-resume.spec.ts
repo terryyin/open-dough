@@ -1,12 +1,14 @@
-// A kept refinement preparation start is resumed by the next Start
+// A kept refinement preparation start is resumed by the next run of it
 // (../server/preparationStart.ts, ../server/startStore.ts), over raw HTTP
 // against the real installed `preparation-assignment.mjs` and a real bare
 // origin (./support/startOrigin.ts) whose `pre-receive` hook makes the
 // announcement slow or refused: a start that outlasts the wait, an
 // `unpublished` stop, and a `claude` refusal after the announcement each keep
-// the start, and pressing Start again reruns the script in the same workspace
-// and branch, which answers `continued`, opens the session there, and leaves
-// exactly one preparation profile on origin and no kept start.
+// the start. Continuing the attempt that still needs reconciliation -- or,
+// once the announcement is published, pressing Start again -- reruns the
+// script in the same workspace and branch, which answers `continued`, opens
+// the session there, and leaves exactly one preparation profile on origin and
+// no kept start.
 
 import {
   chmodSync,
@@ -18,7 +20,13 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-import { launch, launchRequest, runningStarts } from "./agentLaunchBoundary.ts";
+import {
+  attempts,
+  continued,
+  launch,
+  launchRequest,
+  runningStarts,
+} from "./agentLaunchBoundary.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -92,10 +100,16 @@ test.describe("a kept preparation start", () => {
     return JSON.parse((await launch(server, request)).body) as Answer;
   }
 
-  // The second Start: one session in the kept workspace, one preparation
-  // profile, one workspace, and nothing kept.
-  async function expectResumed(): Promise<void> {
-    const second = await ask();
+  // Continues the story's latest attempt, which still needs reconciliation.
+  async function resume(): Promise<Answer> {
+    const latest = (await attempts(server)).at(-1)?.id ?? "";
+    return JSON.parse((await continued(server, latest)).body) as Answer;
+  }
+
+  // The start resumed by `again`: one session in the kept workspace, one
+  // preparation profile, one workspace, and nothing kept.
+  async function expectResumed(again = resume): Promise<void> {
+    const second = await again();
     expect(second.kind, second.explanation).toBe("launched");
     const workspace = path.join(origin.project, ".worktrees", slug);
     const [call] = server.claudeLaunchCalls().slice(-1);
@@ -111,7 +125,7 @@ test.describe("a kept preparation start", () => {
     expect(keptStart()).toBeUndefined();
   }
 
-  test("a start that outlasts the wait is kept and Start again resumes it with one profile", async () => {
+  test("a start that outlasts the wait is kept and its continuation resumes it with one profile", async () => {
     await serve(1000);
     server.claudeScenario("launched");
     installHook("sleep 3\n");
@@ -128,7 +142,7 @@ test.describe("a kept preparation start", () => {
     });
     // The script was left to finish; the announcement lands.
     await expect.poll(preparing, { timeout: 20_000 }).toHaveLength(1);
-    // Start again is refused while the script still runs.
+    // Its continuation is refused while the script still runs.
     await expect
       .poll(() => runningStarts(server), { timeout: 20_000 })
       .toEqual([]);
@@ -136,7 +150,7 @@ test.describe("a kept preparation start", () => {
     await expectResumed();
   });
 
-  test("an unpublished stop keeps the start and Start again settles it with one profile", async () => {
+  test("an unpublished stop keeps the start and its continuation settles it with one profile", async () => {
     await serve(60_000);
     server.claudeScenario("launched");
     installHook("echo refused >&2\nexit 1\n");
@@ -168,7 +182,7 @@ test.describe("a kept preparation start", () => {
     expect(await preparing()).toHaveLength(1);
     expect(keptStart()).toMatchObject({ identity: queuedIdentity });
     server.claudeScenario("launched");
-    await expectResumed();
+    await expectResumed(ask);
   });
 
   test("an unannounced retry clears its old disposition before a newly published result is lost", async () => {
@@ -194,7 +208,7 @@ test.describe("a kept preparation start", () => {
       script,
       `import { spawnSync } from "node:child_process";\nconst result = spawnSync(process.execPath, [${JSON.stringify(original)}, ...process.argv.slice(2)], { stdio: ["ignore", process.argv[2] === "start" ? "ignore" : "inherit", "inherit"] });\nprocess.exitCode = result.status ?? 1;\n`,
     );
-    const uncertain = await ask();
+    const uncertain = await resume();
     expect(uncertain.kind).toBe("failed");
     expect(uncertain.explanation).toContain("gave no result");
     expect(keptStart()).toMatchObject({ preparationUnannounced: false });

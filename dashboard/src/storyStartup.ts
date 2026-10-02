@@ -8,15 +8,16 @@
 // recovered outside the frame (`./StartupRecovery.tsx`).
 
 import {
-  needsReconciliation,
+  laterAttempt,
   storyOf,
+  unresolvedAttempt,
   type AgentLaunchRequest,
   type AttemptObservation,
   type LaunchWorkflow,
   type StoryLaunchRequest,
 } from "./agentLaunch.ts";
 import type { AskedRequests } from "./pageAttempt.ts";
-import { laterAttempt, type Reconciliation } from "./startupReconciliation.ts";
+import type { Reconciliation } from "./startupReconciliation.ts";
 
 // Why a startup needs reconciliation: the page's answer was lost before any
 // read showed whether it was accepted (`unacknowledged`), no server runs an
@@ -24,6 +25,12 @@ import { laterAttempt, type Reconciliation } from "./startupReconciliation.ts";
 // its session or publication may or may not exist (`uncertain`).
 export type ReconciliationCause =
   "unacknowledged" | "interrupted" | "uncertain";
+
+// Why an accepted attempt that needs reconciliation needs it.
+export const attemptCause = (
+  attempt: AttemptObservation,
+): ReconciliationCause =>
+  attempt.outcome === undefined ? "interrupted" : "uncertain";
 
 // A story's startup: its workflow and host, and whether it is asked from
 // this page and not yet accepted (`submitting`), accepted and run by the
@@ -76,10 +83,10 @@ function startupOf(
 
 // The startup of the project's story `identity`: a request this page
 // submitted (`submitting`) or whose answer it lost (`unacknowledged`)
-// first, then the unsettled attempts known (`known`), one the server runs
-// before one no server runs, then its latest attempt once settled: in need
-// of reconciliation when its session or publication is uncertain, otherwise
-// as `reconciled` judges it.
+// first, then its unresolved attempt (`unresolvedAttempt`): one the server
+// runs before a lost answer, then one no server runs or whose session or
+// publication is uncertain; otherwise its latest attempt once settled, as
+// `reconciled` judges it.
 export function storyStartup(
   asked: AskedRequests,
   known: readonly AttemptObservation[],
@@ -92,32 +99,27 @@ export function storyStartup(
   const submitting = asked.submitting.find(of);
   if (submitting !== undefined) return startupOf(submitting, "submitting");
   const ofStory = known.filter((attempt) => of(attempt.request));
-  const unsettled = ofStory.filter((attempt) => attempt.outcome === undefined);
-  const running = unsettled.find((attempt) => attempt.owned);
-  if (running !== undefined)
-    return startupOf(running.request, "progressing", { attempt: running });
+  const unresolved = unresolvedAttempt(ofStory);
+  if (unresolved?.owned === true)
+    return startupOf(unresolved.request, "progressing", {
+      attempt: unresolved,
+    });
   const lost = asked.unacknowledged.find(({ request }) => of(request));
   if (lost !== undefined)
     return startupOf(lost.request, "needs-reconciliation", {
       cause: "unacknowledged",
       problem: lost.problem.explanation,
     });
-  const interrupted = unsettled[0];
-  if (interrupted !== undefined)
-    return startupOf(interrupted.request, "needs-reconciliation", {
-      cause: "interrupted",
-      attempt: interrupted,
+  if (unresolved !== undefined)
+    return startupOf(unresolved.request, "needs-reconciliation", {
+      cause: attemptCause(unresolved),
+      attempt: unresolved,
     });
   const latest = ofStory.reduce<AttemptObservation | undefined>(
     laterAttempt,
     undefined,
   );
   if (latest === undefined) return undefined;
-  if (needsReconciliation(latest))
-    return startupOf(latest.request, "needs-reconciliation", {
-      cause: "uncertain",
-      attempt: latest,
-    });
   const judged = reconciled(latest);
   if (judged.kind !== "waiting") return undefined;
   return startupOf(latest.request, "reconciling", {

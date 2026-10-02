@@ -11,6 +11,7 @@
 
 import { useCallback, useEffect } from "react";
 import {
+  laterAttempt,
   needsReconciliation,
   type AgentLaunchRequest,
   type AttemptObservation,
@@ -21,8 +22,9 @@ import {
 } from "./agentLaunchClient.ts";
 import { useKeyedState } from "./keyedState.ts";
 import type { Unacknowledged } from "./pageAttempt.ts";
-import { laterAttempt, type ShownSnapshot } from "./startupReconciliation.ts";
+import type { ShownSnapshot } from "./startupReconciliation.ts";
 import {
+  attemptCause,
   storiesAsked,
   type ReconciliationCause,
   type StoryStartup,
@@ -195,11 +197,10 @@ export function useStartupRecovery({
     return adHoc !== undefined && needsReconciliation(adHoc)
       ? [
           ...items,
-          itemOf(
-            "ad-hoc",
-            adHoc.outcome === undefined ? "interrupted" : "uncertain",
-            { request: adHoc.request, attempt: adHoc },
-          ),
+          itemOf("ad-hoc", attemptCause(adHoc), {
+            request: adHoc.request,
+            attempt: adHoc,
+          }),
         ]
       : items;
   };

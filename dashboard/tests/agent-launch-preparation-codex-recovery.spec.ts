@@ -4,7 +4,14 @@ import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { expect, test } from "./support/preparationPage.ts";
 import { stored } from "./support/codexLaunch.ts";
-import { launch, launchRequest, keptStarts } from "./agentLaunchBoundary.ts";
+import {
+  accept,
+  attempts,
+  continued,
+  launch,
+  launchRequest,
+  keptStarts,
+} from "./agentLaunchBoundary.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import {
@@ -77,13 +84,19 @@ test("accepted input with lost acknowledgment resumes its prepared conversation 
     codexProtocol: protocol,
   });
   try {
+    expect(
+      JSON.parse(
+        (
+          await accept(restarted, {
+            ...request,
+            instruction: "Ignore this changed retry text.",
+          })
+        ).body,
+      ),
+    ).toMatchObject({ kind: "failed", reason: "already-starting" });
+    const [uncertain] = await attempts(restarted);
     const answer = JSON.parse(
-      (
-        await launch(restarted, {
-          ...request,
-          instruction: "Ignore this changed retry text.",
-        })
-      ).body,
+      (await continued(restarted, uncertain?.id ?? "")).body,
     ) as { kind: string };
     expect(answer.kind).toBe("launched");
     const recovered = stored(restarted.home)[0];

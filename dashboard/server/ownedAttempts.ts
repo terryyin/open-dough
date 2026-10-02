@@ -34,13 +34,16 @@ export class OwnedAttempts {
     return this.byId.get(id);
   }
 
-  has(id: string): boolean {
-    return this.byId.has(id);
-  }
-
-  // What is held of every owned attempt.
-  records(): LaunchAttemptRecord[] {
-    return [...this.byId.values()].map(({ attempt }) => attempt);
+  // The `kept` attempts and those owned, oldest first, each as this server
+  // knows it (`observed`).
+  known(kept: readonly LaunchAttemptRecord[]): readonly AttemptObservation[] {
+    const keptIds = new Set(kept.map((attempt) => attempt.id));
+    return [
+      ...kept,
+      ...[...this.byId.values()]
+        .map(({ attempt }) => attempt)
+        .filter((attempt) => !keptIds.has(attempt.id)),
+    ].map((attempt) => this.observed(attempt));
   }
 
   // The requests of the owned attempts that have not settled.

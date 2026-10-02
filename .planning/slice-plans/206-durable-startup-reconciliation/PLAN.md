@@ -160,7 +160,7 @@ env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/<tempor
 | Story removed after reconciliation: no Startup recovery item after reload or restart; Recheck not needed | 1: page journey with `removeQueuedStory` |
 | Story removed before this page reconciled, shown revision contains the accepted one: one compare, then reconciled, no item | 1: page journey with the page closed during publication |
 | Stale/unrelated snapshot or failed compare records nothing; needs-reconciliation attempt refused by the note route | 1: existing reconciliation specs stay green; HTTP check in `agent-launch-continuation.spec.ts` |
-| Raw HTTP accept refused for a story whose latest attempt is settled uncertain or of unknown publication, from any workflow; continuation of that attempt still accepted; failed-but-published kept-start continuation still accepted | 2: HTTP boundary in `agent-launch-continuation.spec.ts` plus existing `responsive-session-recovery.spec.ts`, `responsive-session-reconciliation-refusals.spec.ts` |
+| Raw HTTP accept refused for a story whose latest attempt is settled uncertain or of unknown publication, from any workflow; continuation of that attempt still accepted; failed-but-published kept-start continuation still accepted | 2: HTTP boundary in `agent-launch-uncertain-continuation.spec.ts` plus existing `responsive-session-recovery.spec.ts`, `responsive-session-reconciliation-refusals.spec.ts` |
 | Page protection unchanged and decided by the same rule | 2: existing recovery/restart/reconciliation specs |
 | Recovery shows answers verbatim; a lost answer's item names no Continue; kept-start unknown publication and Claude timed-out answers read correctly in recovery and beside Start | 3: `responsive-session-recovery.spec.ts`, `responsive-session-recovery-reads.spec.ts`, `agent-launch-card-problems.spec.ts`, `agent-launch-ad-hoc-problems.spec.ts` |
 | `launchRun.ts:111` answer reads correctly where shown | 3: focused check with a forged pending record, as `agent-launch-codex-confirmation.spec.ts` forges legacy evidence |
@@ -236,7 +236,7 @@ reconciliation, which includes the page's first ordinary compare.
 
 ### 2. Service admission and story protection follow one unresolved-attempt rule
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `agent-launch-continuation.spec.ts` at the HTTP boundary: with a
 story's latest attempt settled `uncertain` (and one with publication `unknown`),
 a raw accept from either workflow is refused with nothing started and the
@@ -257,6 +257,32 @@ decides it for both; `storyStartup` and the server conflict checks use it.
 Correct `dashboard/AGENT-LAUNCH.md` only where its wording differs from the
 delivered rule.
 Safe stop: the raw-HTTP gap is closed; recovery wording unchanged.
+
+Accepted proof: shared `unresolvedAttempt` and `laterAttempt` in
+`launchOutcome.ts`, used by `storyStartup` and server `conflicting`
+(continuation conflicts only with a different unresolved attempt). Observed
+fail-first, then green, in `agent-launch-uncertain-continuation.spec.ts`
+(split from `agent-launch-continuation.spec.ts` during refactoring): a story
+whose latest attempt settled uncertain (publication none, and publication
+unknown) refuses a raw accept from either workflow with attempts unchanged,
+and its continuation is accepted once. Full suite
+`env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=4 --reporter=line`
+755 passed before refactoring; after refactoring the moved and affected specs
+(`agent-launch-continuation`, `agent-launch-uncertain-continuation`,
+`agent-launch-duplicate`, `responsive-session-recovery`,
+`responsive-session-recovery-ad-hoc`, `responsive-session-reconciliation-refusals`)
+24 passed; `npm run typecheck:dashboard` passes.
+Learning: the rule reached 13 tests in 7 specs that started the same story
+again over raw HTTP after an uncertain or unknown-publication outcome
+(`agent-launch-boundary`, `-codex-reconciliation`, `-codex-recovery`,
+`-preparation-codex-recovery`, `-preparation-resume`, `-start-codex-recovery`,
+`-start-resume`); they now resume through continuation, as this slice decides.
+Their answers still say "pressing Start again"; slice 3 owns that wording.
+Untested: a settled `launched` attempt with publication `unknown` alone.
+CI repair during this slice: run 36945195284 failed
+`agent-launch-codex-observation-boundary.spec.ts` "deleting an unreadable saved
+record…" on `3d82d365`; the same flake had already been fixed on main by
+`51c65a77`, cherry-picked as `2e28c114` (32/32 repeated passes locally).
 
 ### 3. Recovery wording is formed where each answer is formed
 Type: Behavior

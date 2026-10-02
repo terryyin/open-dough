@@ -160,6 +160,32 @@ export function needsReconciliation(attempt: AttemptObservation): boolean {
         attempt.publication.kind === "unknown";
 }
 
+// The later accepted of two attempts, as a story's latest attempt is told.
+export const laterAttempt = (
+  one: AttemptObservation | undefined,
+  other: AttemptObservation,
+): AttemptObservation =>
+  one === undefined || one.acceptedAt < other.acceptedAt ? other : one;
+
+// A story's unresolved attempt among its attempts on this machine (`ofStory`),
+// which no fresh start of that story may duplicate and only its own
+// continuation resumes: one a server runs now, else one that never settled
+// and no server runs, else its latest attempt when that needs reconciliation.
+export function unresolvedAttempt(
+  ofStory: readonly AttemptObservation[],
+): AttemptObservation | undefined {
+  const unsettled = ofStory.filter((attempt) => attempt.outcome === undefined);
+  const latest = ofStory.reduce<AttemptObservation | undefined>(
+    laterAttempt,
+    undefined,
+  );
+  return (
+    unsettled.find((attempt) => attempt.owned) ??
+    unsettled[0] ??
+    (latest !== undefined && needsReconciliation(latest) ? latest : undefined)
+  );
+}
+
 // A page asks here to note that a settled attempt reconciled with the
 // published state it shows, naming its project and attempt as a continuation
 // does: the attempt keeps when (`reconciledAt`). An attempt this machine does

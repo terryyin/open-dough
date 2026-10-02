@@ -5,8 +5,8 @@
 // refuses it once: the start wait expiring answers "Launch uncertain" naming
 // workspace and branch and leaves the script to finish, its result recorded
 // by the still-running attempt; a stop that carries `recovery` keeps its SHAs;
-// and pressing Start again resumes the kept start in the same workspace with
-// one claim on origin, never a second workspace. A start lost with the server
+// and continuing that attempt resumes the kept start in the same workspace
+// with one claim on origin, never a second workspace. A start lost with the server
 // (no result, no `recovery`) refuses a fresh start of its story and is resumed
 // from its workspace by its attempt's continuation: the retry derives
 // the SHAs from the workspace HEAD and its parent, and a workspace that is not
@@ -67,7 +67,10 @@ test.describe("a kept execution start", () => {
     origin.cleanup();
   });
 
-  test("a push slower than the start wait is uncertain, finishes, and Start again resumes it with one claim", async () => {
+  // The story's latest attempt, which only its continuation resumes.
+  const latest = async () => (await attempts(server)).at(-1)?.id ?? "";
+
+  test("a push slower than the start wait is uncertain, finishes, and its continuation resumes it with one claim", async () => {
     // The wait bounds real Git work on both requests. Hold the first push
     // until its wait expires, without making the ordinary resume race a
     // one-second deadline when other tests are running.
@@ -100,7 +103,7 @@ test.describe("a kept execution start", () => {
       });
     removeHook(origin);
 
-    const second = await answerOf<Launched>(launch(server, request));
+    const second = await answerOf<Launched>(continued(server, await latest()));
     expect(second.kind, JSON.stringify(second)).toBe("launched");
     await expectOneClaim(origin);
     expect(second.record.start?.workspace).toBe(workspaceOf(origin));
@@ -111,7 +114,7 @@ test.describe("a kept execution start", () => {
     expect(keptStartOf(origin)).toBeUndefined();
   });
 
-  test("a stop that carries recovery keeps its SHAs and Start again resumes with them", async () => {
+  test("a stop that carries recovery keeps its SHAs and its continuation resumes with them", async () => {
     await serve(60_000);
     installHook(origin, "echo refused >&2\nexit 1\n");
     const first = await answerOf<Problem>(launch(server, request));
@@ -128,7 +131,7 @@ test.describe("a kept execution start", () => {
     expect(kept?.["startingRevision"]).toMatch(/^[0-9a-f]{40}$/);
 
     removeHook(origin);
-    const second = await answerOf<Launched>(launch(server, request));
+    const second = await answerOf<Launched>(continued(server, await latest()));
     expect(second.kind).toBe("launched");
     expect(second.record.start).toMatchObject({
       candidateSha: kept?.["candidateSha"],
