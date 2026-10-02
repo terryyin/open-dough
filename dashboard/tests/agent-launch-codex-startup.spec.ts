@@ -2,7 +2,6 @@
 import { test, expect } from "@playwright/test";
 import {
   mkdtempSync,
-  readFileSync,
   rmSync,
   existsSync,
   realpathSync,
@@ -21,6 +20,7 @@ import {
   observationStates,
   observed,
   passive,
+  daemonStarts,
 } from "./support/codexObservation.ts";
 import { openCodexTerminal, codexAttaches } from "./support/codexTerminal.ts";
 import { stored } from "./support/codexLaunch.ts";
@@ -51,14 +51,7 @@ for (const mode of ["dev", "preview"] as const) {
       await expect
         .poll(() => existsSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? ""))
         .toBe(true);
-      expect(
-        JSON.parse(
-          readFileSync(
-            native.env["FAKE_CODEX_DAEMON_LOG"] ?? "",
-            "utf8",
-          ).trim(),
-        ),
-      ).toEqual({ cwd: realpathSync(home) });
+      expect(daemonStarts(native)).toEqual([{ cwd: realpathSync(home) }]);
       expect(
         (await observationStates(server)).map(({ session, sessionState }) => [
           session.sessionId,
@@ -139,17 +132,9 @@ for (const scenario of [
               ],
       );
       if (scenario === "already-running") {
-        expect(
-          readFileSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "", "utf8")
-            .trim()
-            .split("\n"),
-        ).toHaveLength(1);
+        expect(daemonStarts(native)).toHaveLength(1);
         await observationStates(server);
-        expect(
-          readFileSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "", "utf8")
-            .trim()
-            .split("\n"),
-        ).toHaveLength(1);
+        expect(daemonStarts(native)).toHaveLength(1);
       } else if (scenario === "no-sessions") {
         expect(existsSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? "")).toBe(
           false,

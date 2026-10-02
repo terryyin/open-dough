@@ -2,11 +2,8 @@
 // (?project=<id>&view=<stories|roster>) so they work without server path fallbacks.
 
 import { useEffect, useRef, useState } from "react";
-import {
-  defaultSource,
-  sourceById,
-  type PublishedSource,
-} from "./publishedSource.ts";
+import type { PublishedSource } from "./publishedSource.ts";
+import { firstProject, useProjects } from "./projectList.tsx";
 
 export type DashboardView = "stories" | "roster";
 
@@ -15,7 +12,12 @@ export type DashboardRoute = {
   readonly view: DashboardView;
 };
 
-export function buildRouteUrl(projectId: string, view: DashboardView): string {
+export function buildRouteUrl(
+  projectId: string,
+  view: DashboardView,
+  projects: readonly PublishedSource[],
+): string {
+  const defaultSource = firstProject(projects);
   const params = new URLSearchParams();
   if (projectId !== defaultSource.id || view === "roster") {
     params.set("project", projectId);
@@ -27,23 +29,29 @@ export function buildRouteUrl(projectId: string, view: DashboardView): string {
   return query ? `/?${query}` : "/";
 }
 
-export function parseRoute(location: { search: string }): {
+export function parseRoute(
+  location: { search: string },
+  projects: readonly PublishedSource[],
+): {
   readonly route: DashboardRoute;
   readonly normalizedUrl: string | undefined;
 } {
+  const defaultSource = firstProject(projects);
   const params = new URLSearchParams(location.search);
   const projectParam = params.get("project");
   const viewParam = params.get("view");
 
   const validSource =
-    projectParam !== null ? sourceById(projectParam) : defaultSource;
+    projectParam !== null
+      ? projects.find((project) => project.id === projectParam)
+      : defaultSource;
   const isInvalidProject = projectParam !== null && validSource === undefined;
 
   // An invalid project route resolves to the default project's stories and normalizes its URL.
   if (isInvalidProject) {
     return {
       route: { source: defaultSource, view: "stories" },
-      normalizedUrl: buildRouteUrl(defaultSource.id, "stories"),
+      normalizedUrl: buildRouteUrl(defaultSource.id, "stories", projects),
     };
   }
 
@@ -54,7 +62,9 @@ export function parseRoute(location: { search: string }): {
 
   return {
     route: { source, view },
-    normalizedUrl: isInvalidView ? buildRouteUrl(source.id, view) : undefined,
+    normalizedUrl: isInvalidView
+      ? buildRouteUrl(source.id, view, projects)
+      : undefined,
   };
 }
 
@@ -78,7 +88,8 @@ export function useDashboardRoute({
   onReturnToStories: () => void;
   onForwardToRoster: (targetSourceId: string) => void;
 }) {
-  const initial = useRef(parseRoute(window.location));
+  const projects = useProjects();
+  const initial = useRef(parseRoute(window.location, projects));
   if (initial.current.normalizedUrl !== undefined) {
     window.history.replaceState(null, "", initial.current.normalizedUrl);
   }
@@ -88,7 +99,7 @@ export function useDashboardRoute({
     if (next.id === sourceId) {
       return;
     }
-    const nextUrl = buildRouteUrl(next.id, route.view);
+    const nextUrl = buildRouteUrl(next.id, route.view, projects);
     window.history.pushState(null, "", nextUrl);
     setRoute({ source: next, view: route.view });
     selectSource(next);
@@ -96,7 +107,7 @@ export function useDashboardRoute({
 
   const openRoster = (source: PublishedSource) => {
     setRoute({ source, view: "roster" });
-    const nextUrl = buildRouteUrl(source.id, "roster");
+    const nextUrl = buildRouteUrl(source.id, "roster", projects);
     window.history.pushState({ fromPortrait: true }, "", nextUrl);
   };
 
@@ -107,14 +118,18 @@ export function useDashboardRoute({
     if (next.id === sourceId && route.view === "stories") {
       return;
     }
-    window.history.pushState(null, "", buildRouteUrl(next.id, "stories"));
+    window.history.pushState(
+      null,
+      "",
+      buildRouteUrl(next.id, "stories", projects),
+    );
     setRoute({ source: next, view: "stories" });
     selectSource(next);
   };
 
   useEffect(() => {
     const onPopState = () => {
-      const parsed = parseRoute(window.location);
+      const parsed = parseRoute(window.location, projects);
       if (parsed.normalizedUrl) {
         window.history.replaceState(null, "", parsed.normalizedUrl);
       }
@@ -142,7 +157,14 @@ export function useDashboardRoute({
     return () => {
       window.removeEventListener("popstate", onPopState);
     };
-  }, [route, sourceId, selectSource, onReturnToStories, onForwardToRoster]);
+  }, [
+    route,
+    sourceId,
+    selectSource,
+    onReturnToStories,
+    onForwardToRoster,
+    projects,
+  ]);
 
   return {
     route,

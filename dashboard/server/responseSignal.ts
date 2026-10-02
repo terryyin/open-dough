@@ -4,12 +4,13 @@ import type { ServerResponse } from "node:http";
 export async function withResponseSignal<T>(
   res: ServerResponse,
   read: (signal: AbortSignal) => Promise<T>,
+  timeoutMs = 10_000,
 ): Promise<T> {
   const controller = new AbortController();
   const closed = () => {
     controller.abort();
   };
-  const deadline = setTimeout(closed, 10_000);
+  const deadline = setTimeout(closed, timeoutMs);
   res.on("close", closed);
   try {
     return await read(controller.signal);

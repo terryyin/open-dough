@@ -166,25 +166,12 @@ export function launchSubject(request: RecordedLaunchRequest) {
   };
 }
 
-// Where a launch's session runs, for a launch whose start or preparation
-// established a workspace: the folder as the page shows a project's,
-// `~/git/<project id>`, then the workspace under it
-// (`~/git/open-dough/.worktrees/<slug>`), never the machine's home directory;
-// the project's folder itself when the start took the default checkout.
-// Undefined when nothing was established.
+// The local server projects the displayed workspace; established facts retain
+// the actual path for recovery and native continuation.
 export function workspaceWords(
-  request: RecordedLaunchRequest,
   established: EstablishedContext | undefined,
+  shownWorkspace: string | undefined,
 ): string | undefined {
   if (established === undefined) return undefined;
-  if ("role" in established && established.role === "default-checkout") {
-    return `Workspace ~/git/${request.source} (default main)`;
-  }
-  const marker = "/.worktrees/";
-  const at = established.workspace.lastIndexOf(marker);
-  return `Workspace ${
-    at < 0
-      ? established.workspace
-      : `~/git/${request.source}${established.workspace.slice(at)}`
-  }`;
+  return `Workspace ${shownWorkspace ?? established.workspace}${"role" in established && established.role === "default-checkout" ? " (default main)" : ""}`;
 }

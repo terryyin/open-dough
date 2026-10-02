@@ -1,3 +1,4 @@
+import { useProjects } from "./projectList.tsx";
 import { sessionKey } from "./sessionReference.ts";
 // Machine sessions and this page's launch attempts have one browser owner.
 
@@ -58,6 +59,8 @@ type ReadFacts = Omit<MachineAnswer, "records">;
 // `published` is what the page shows of published work, which settled
 // launches reconcile with.
 export function useAgentLaunches(published: PublishedShown): MachineSessions {
+  const projects = useProjects();
+  const lastProjects = useRef(projects);
   const [sessions, setSessions] = useState<
     {
       readonly known: readonly LaunchWithState[];
@@ -164,9 +167,11 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
     if (
       visibility === "revealed" ||
       !everRead.current ||
-      lastRequested.current !== requested
+      lastRequested.current !== requested ||
+      lastProjects.current !== projects
     ) {
       lastRequested.current = requested;
+      lastProjects.current = projects;
       read();
       return () => {
         current = false;
@@ -177,7 +182,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
       current = false;
       clearTimeout(waiting);
     };
-  }, [visibility, readsSettled, settleRevealed, requested]);
+  }, [visibility, readsSettled, settleRevealed, requested, projects]);
 
   const setFacts = useCallback((facts: ReadFacts) => {
     setSessions((current) => ({ ...current, ...facts }));
@@ -188,12 +193,15 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
     deletedAt,
   });
 
+  const configuredKnown = known.filter((record) =>
+    projects.some((project) => project.id === record.request.source),
+  );
   return {
     rereadOffers: () => {
       setOffersReading(true);
       reread();
     },
-    records: readAnswered ? known : undefined,
+    records: readAnswered ? configuredKnown : undefined,
     creations,
     hostOperations: sessions.hostOperations,
     alerts,
@@ -212,7 +220,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
           running.source === sourceId &&
           running.identity === identity,
       ),
-    launched: known,
+    launched: configuredKnown,
     ...attempts,
     ...recordActions,
   };

@@ -78,7 +78,7 @@ export async function sessionNamedBy(record: Locator): Promise<string> {
 export const cardLaunchActions = ["Start execution", "Start refinement"];
 
 // Every button a shown snapshot offers, and nothing else: the banner's
-// Sessions, the read control, Start session, the badge legend, each Backlog card's launch
+// Sessions, Add/Remove project, the read control, Start session, the badge legend, each Backlog card's launch
 // actions, and each card's Inspect.
 export async function expectSnapshotButtons(
   page: Page,
@@ -91,6 +91,8 @@ export async function expectSnapshotButtons(
   const button = (name: string) =>
     page.getByRole("button", { name, exact: true });
   await expect(button("Sessions")).toHaveCount(1);
+  await expect(button("Add project")).toHaveCount(1);
+  await expect(button("Remove project")).toHaveCount(1);
   await expect(
     page.getByRole("button", { name: /^Start session in / }),
   ).toHaveCount(1);
@@ -101,7 +103,7 @@ export async function expectSnapshotButtons(
   }
   await expect(button("Inspect story")).toHaveCount(shown.cards);
   await expect(page.getByRole("button")).toHaveCount(
-    4 + shown.backlogCards * cardLaunchActions.length + shown.cards,
+    6 + shown.backlogCards * cardLaunchActions.length + shown.cards,
   );
 }
 
@@ -180,13 +182,13 @@ export async function expectWholeSnapshot(
   }
 }
 
-// Every button on the page but the banner's Sessions icon, which opens the
-// sidebar of the machine's sessions whatever the project shows, and Start
-// session, which the project actions row offers whatever the read did.
+// Read/snapshot controls exclude the banner's machine Sessions and project
+// configuration actions, and Start session, which needs no published read.
 export const controlsBesideSessions = (page: Page) =>
   page
     .getByRole("button")
     .and(page.locator(":not([aria-label='Sessions'])"))
+    .and(page.locator(":not(.project-controls button)"))
     .filter({ hasNotText: /^Start session$/ });
 
 // A failed read with no earlier snapshot shows the problem and the way to read again, and nothing

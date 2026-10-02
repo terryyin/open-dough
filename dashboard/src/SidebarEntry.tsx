@@ -13,7 +13,7 @@ import { sessionKey } from "./sessionReference.ts";
 
 import { useId } from "react";
 import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
-import { sourceById } from "./publishedSource.ts";
+import { useProjects } from "./projectList.tsx";
 import { shownSession } from "./SessionEntry.tsx";
 import { sessionShown } from "./sessionShown.ts";
 import { elapsedWords } from "./sidebarElapsed.ts";
@@ -33,6 +33,7 @@ export function SidebarEntry({
   readonly record: LaunchWithState;
   readonly onOpen: OpenSidebarEntry;
 }) {
+  const projects = useProjects();
   const { source } = record.request;
   const { title, name, modelWords } = launchSubject(record.request);
   const { entryClass, label, tone } = shownSession(record);
@@ -46,7 +47,7 @@ export function SidebarEntry({
   const tooltip = [
     ...(limitation === undefined ? [] : [limitation]),
     note === undefined ? label : `${label}: ${note}`,
-    `${sourceById(source)?.label ?? source} · ${name}`,
+    `${projects.find((project) => project.id === source)?.label ?? source} · ${name}`,
     ...(modelWords === undefined ? [] : [modelWords]),
     `${record.firstInput !== undefined && record.firstInput.state !== "confirmed" ? "Conversation created" : "Launched"} ${launchedAt.toLocaleString()}`,
   ].join("\n");

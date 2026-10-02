@@ -18,6 +18,7 @@ import {
 } from "./support/codexTerminal.ts";
 import { codexSkill } from "./support/codexLaunch.ts";
 import { withRestoredEnv } from "./support/testEnv.ts";
+import { configureDevelopmentProjects } from "./support/projectConfiguration.ts";
 
 type StoredHandler = (
   req: http.IncomingMessage,
@@ -37,6 +38,7 @@ test("closeServer closes an admitted Codex socket and its PTY while the HTTP ser
     true,
   );
   codexSkill(claude.controls.home);
+  configureDevelopmentProjects(claude.controls.home);
   const restore = withRestoredEnv({ ...claude.env, ...native.env });
   let handler: StoredHandler | undefined;
   const middlewares = {

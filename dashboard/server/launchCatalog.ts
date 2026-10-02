@@ -10,7 +10,7 @@ import {
   type LaunchWorkflow,
   type AgentLaunchRequest,
 } from "../src/agentLaunch.ts";
-import { catalog } from "../src/publishedSource.ts";
+import { configuredProjects } from "./projectConfiguration.ts";
 import { offeredShape } from "../src/commandOptions.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { sessionPolicyCapable } from "./launchSessionPolicy.ts";
@@ -27,7 +27,7 @@ export async function establishing(
   host: AgentLaunchRequest["host"],
 ): Promise<readonly string[]> {
   const ids = await Promise.all(
-    catalog.map(async (source) =>
+    configuredProjects().map(async (source) =>
       (await startOf(workflow)?.establishes(projectFolder(source), host))
         ? source.id
         : undefined,
@@ -44,7 +44,7 @@ export async function offeredDefinitions(): Promise<
   readonly OfferedDefinition[]
 > {
   const read = await Promise.all(
-    catalog.flatMap((source) =>
+    configuredProjects().flatMap((source) =>
       launchHosts.flatMap((host) =>
         launchWorkflowNames.map(async (workflow) => {
           const { skill, options: file } = launchWorkflows[workflow];
@@ -82,7 +82,7 @@ export async function keptStarts(
     execution: await keptStartsByProject("execution"),
     refinement: await keptStartsByProject("refinement"),
   };
-  return catalog.flatMap((source) =>
+  return configuredProjects().flatMap((source) =>
     (["execution", "refinement"] as const).flatMap((workflow) =>
       (kept[workflow].get(source.id) ?? [])
         .filter(
@@ -111,7 +111,7 @@ export async function keptStarts(
 
 export async function establishingHosts() {
   const rows = await Promise.all(
-    catalog.flatMap((source) =>
+    configuredProjects().flatMap((source) =>
       launchHosts.flatMap((host) =>
         launchWorkflowNames.map(async (workflow) =>
           (await startOf(workflow)?.establishes(projectFolder(source), host))
@@ -128,7 +128,7 @@ export async function establishingHosts() {
 // shared session policy at their start, in catalog order.
 export async function sessionPolicies() {
   const rows = await Promise.all(
-    catalog.flatMap((source) =>
+    configuredProjects().flatMap((source) =>
       launchHosts.flatMap((host) =>
         launchWorkflowNames.map(async (workflow) =>
           (await sessionPolicyCapable(projectFolder(source), workflow, host))

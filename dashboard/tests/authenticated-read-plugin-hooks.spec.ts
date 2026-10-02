@@ -21,6 +21,7 @@ import {
 import { waitUntil } from "./support/dashboardServer.ts";
 import { abandonedRequest } from "./support/rawHttp.ts";
 import { withRestoredEnv } from "./support/testEnv.ts";
+import { configureDevelopmentProjects } from "./support/projectConfiguration.ts";
 
 const knownSourceId = "open-dough";
 
@@ -55,7 +56,12 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
     const github = await startFakeGitHub();
     github.serve(everyRepository, hangs);
 
-    const restoreEnv = withRestoredEnv(fakeGhEnv(gh, github.url));
+    const home = path.join(tempRoot, "home");
+    configureDevelopmentProjects(home);
+    const restoreEnv = withRestoredEnv({
+      ...fakeGhEnv(gh, github.url),
+      HOME: home,
+    });
 
     let storedHandler: StoredHandler | undefined;
     const connectStub = {

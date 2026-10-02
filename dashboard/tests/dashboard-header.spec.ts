@@ -10,14 +10,30 @@ import { parts, expectMembership } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 
-for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
-  test(`selected project banner remains reachable and evidence readable at ${viewport.width} CSS pixels`, async ({
+for (const viewport of [
+  { width: 1280, height: 800 },
+  { width: 700, height: 720 },
+  zoomedWindow,
+  { ...zoomedWindow, fontFamily: "Verdana" },
+]) {
+  const fontFamily = "fontFamily" in viewport ? viewport.fontFamily : undefined;
+  test(`selected project banner remains reachable and evidence readable at ${viewport.width} CSS pixels${fontFamily ? ` in ${fontFamily}` : ""}`, async ({
     page,
   }) => {
-    await page.setViewportSize(viewport);
+    await page.setViewportSize({
+      width: viewport.width,
+      height: viewport.height,
+    });
     const origin = await publishMovingOrigin(page);
     origin.push(revision, largeBacklog);
     await page.goto("/");
+    // A wider installed font reproduces the Linux first-row wrapping; the
+    // same geometry, text, disclosure and keyboard promises must still hold.
+    if (fontFamily) {
+      await page.addStyleTag({
+        content: `.banner { font-family: ${fontFamily}, sans-serif; }`,
+      });
+    }
     const { banner, project, sourceEvidence, source, refresh, backlog } =
       parts(page);
     const last = backlog
@@ -35,7 +51,13 @@ for (const viewport of [{ width: 1280, height: 800 }, zoomedWindow]) {
     await expect(
       banner.getByRole("heading", { level: 1, name: "Open Dough" }),
     ).toBeInViewport({ ratio: 1 });
-    for (const control of [project, sourceEvidence, refresh]) {
+    for (const control of [
+      project,
+      banner.getByRole("button", { name: "Add project", exact: true }),
+      banner.getByRole("button", { name: "Remove project", exact: true }),
+      sourceEvidence,
+      refresh,
+    ]) {
       await expect(control).toBeInViewport({ ratio: 1 });
     }
     const [selectionBox, refreshBox] = await Promise.all([

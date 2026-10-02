@@ -14,7 +14,12 @@ Backlog cards offer execution then refinement. Execution remains available when
 not marked Ready for execution, with that note; refinement remains available
 while Preparing, with “Being prepared”. Taken cards offer only a kept execution
 start with no session. The project row offers Start session independently of the
-published read, including when it failed. Projects use `~/git/<project id>`.
+published read, including when it failed. Projects use the local checkout folder in their environment's saved configuration
+(`~/.open-dough/dashboard/projects-production.json` for built preview,
+`projects-development.json` for the dev server). The initial production projects
+keep their existing `~/git/<project id>` folders and ids, so their retained launch
+records remain visible. Project configuration is separate from the shared session
+and launch stores; starting with an empty list does not delete those records.
 
 The modal names story/host/instruction, focuses the optional instruction, and
 sends nothing on Cancel/Escape. Start commits the request at once and closes the

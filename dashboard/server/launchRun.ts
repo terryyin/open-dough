@@ -13,6 +13,7 @@ import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
 import { publicationOf, started, type Started } from "./launchStart.ts";
 import { launchHost } from "./launchHosts.ts";
 import { launchRecording } from "./launchRecording.ts";
+import { shownLaunchWorkspace } from "./launchWorkspace.ts";
 import { launchRecord } from "./launchRecord.ts";
 import { keepRecord, pendingInputOf } from "./launchRecordStore.ts";
 import { removeLaunchedStart } from "./startStore.ts";
@@ -132,6 +133,10 @@ async function launchRun(
   await removeLaunchedStart(source.id, record);
   return {
     kind: "launched",
-    record: { ...record, sessionState: launched.sessionState },
+    record: {
+      ...record,
+      ...shownLaunchWorkspace(record, folder),
+      sessionState: launched.sessionState,
+    },
   };
 }

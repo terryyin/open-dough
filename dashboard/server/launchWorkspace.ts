@@ -2,6 +2,7 @@
 // The caller supplies occupied slugs across folders and host branches.
 
 import { hostDescription } from "../src/hostDescription.ts";
+import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
 import path from "node:path";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -49,9 +50,12 @@ export function shownStartWorkspace(
   project: ProjectFolder,
   workspace: string,
 ): string {
-  return workspace === project.path
-    ? project.shown
-    : shownWorkspace(project, path.basename(workspace));
+  if (workspace === project.path) return project.shown;
+  const relative = path.relative(project.path, workspace);
+  return relative.startsWith(`${worktreesFolder}${path.sep}`) &&
+    !relative.split(path.sep).includes("..")
+    ? `${project.shown}/${relative.split(path.sep).join("/")}`
+    : workspace;
 }
 
 // A start's workspace as a folder of the project.
@@ -75,5 +79,20 @@ export function launchWorkspace(
       shown: shownWorkspace(project, slug),
     },
     branch: `${hostDescription(host).branchNamespace}${slug}`,
+  };
+}
+
+// This is a response projection; the stored start retains its actual workspace.
+export function shownLaunchWorkspace(
+  record: LaunchRecord,
+  project?: ProjectFolder,
+): { readonly shownWorkspace?: string } {
+  const established = record.start ?? record.preparation;
+  if (established === undefined) return {};
+  return {
+    shownWorkspace:
+      project === undefined
+        ? established.workspace
+        : shownStartWorkspace(project, established.workspace),
   };
 }

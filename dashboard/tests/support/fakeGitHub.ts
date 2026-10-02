@@ -90,12 +90,21 @@ export function failsWith(stderr: string): RepositoryAnswerer {
 // (../pathHistoryAnswers.ts).
 export function publishes(published: {
   readonly revision: string;
+  readonly defaultBranch?: string;
   readonly backlog?: string;
   readonly files?: Readonly<Record<string, string>>;
   readonly committed?: Readonly<Record<string, Date>>;
   readonly history?: PathHistories;
 }): RepositoryAnswerer {
   return ({ request }) => {
+    if (request.kind === "repository")
+      return Promise.resolve({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          default_branch: published.defaultBranch ?? "main",
+        }),
+      });
     const commitList =
       request.kind === "commit-list"
         ? commitListIn(published, request.path, request.perPage)

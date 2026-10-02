@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { isInsideOpenDialog } from "./pageShortcuts.ts";
 import { projectRadioName } from "./ProjectSelect.tsx";
-import { adjacentSource, type PublishedSource } from "./publishedSource.ts";
+import type { PublishedSource } from "./publishedSource.ts";
+import { useProjects } from "./projectList.tsx";
 
 // Page-wide Left/Right project cycling. Native project radios, editing, other
 // arrow-operated controls, already-handled keys, modifiers, and an open modal
@@ -174,6 +175,9 @@ export function useProjectKeyboardNavigation({
   readonly source: PublishedSource;
   readonly selectProject: (next: PublishedSource) => void;
 }): void {
+  const projects = useProjects();
+  const projectsRef = useRef(projects);
+  projectsRef.current = projects;
   const sourceRef = useRef(source);
   sourceRef.current = source;
   const selectProjectRef = useRef(selectProject);
@@ -191,7 +195,13 @@ export function useProjectKeyboardNavigation({
         document.activeElement,
       );
       const step = event.key === "ArrowRight" ? 1 : -1;
-      selectProjectRef.current(adjacentSource(sourceRef.current, step));
+      const options = projectsRef.current;
+      const index = options.findIndex(
+        (project) => project.id === sourceRef.current.id,
+      );
+      const next =
+        options[(Math.max(0, index) + step + options.length) % options.length];
+      if (next !== undefined) selectProjectRef.current(next);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {

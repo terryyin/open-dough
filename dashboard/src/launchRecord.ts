@@ -240,6 +240,7 @@ export type WorkspaceState = z.infer<typeof workspaceStateSchema>;
 
 export const launchWithStateSchema = launchRecordSchema.extend({
   workspaceState: workspaceStateSchema.optional(),
+  shownWorkspace: z.string().min(1).optional(),
   sessionState: sessionStateSchema,
 });
 

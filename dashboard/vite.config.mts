@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { projectConfigurationPlugin } from "./server/projectConfigurationPlugin.ts";
 import { agentLaunchPlugin } from "./server/agentLaunchPlugin.ts";
 import { authenticatedReadPlugin } from "./server/authenticatedReadPlugin.ts";
 
@@ -36,7 +37,12 @@ export default defineConfig(({ command }) => {
   }
   return {
     root: dashboardRoot,
-    plugins: [react(), authenticatedReadPlugin(), agentLaunchPlugin()],
+    plugins: [
+      react(),
+      projectConfigurationPlugin(),
+      authenticatedReadPlugin(),
+      agentLaunchPlugin(),
+    ],
     server: {
       host: loopbackOnly,
       port: 43127,

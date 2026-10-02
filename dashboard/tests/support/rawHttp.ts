@@ -67,7 +67,7 @@ export function abandonedRequest(options: RawRequestOptions): {
     // Destroying the request races the server's own answer; either outcome
     // is fine, only the server-side effect is under test here.
   });
-  req.end();
+  req.end(options.body);
   return {
     cutAfter(ms: number) {
       setTimeout(() => {

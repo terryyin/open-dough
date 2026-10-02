@@ -1,5 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 import { keepHeight } from "./measuredHeight.ts";
+import { AddProject } from "./AddProject.tsx";
+import { RemoveProject } from "./RemoveProject.tsx";
 import { ProjectSelect } from "./ProjectSelect.tsx";
 import { SessionsButton } from "./SessionSidebar.tsx";
 import { SourceStatus } from "./SourceStatus.tsx";
@@ -45,7 +47,13 @@ export function DashboardBanner({
   return (
     <header className="banner" ref={banner}>
       <SessionsButton />
-      <ProjectSelect source={source} onSelect={onSelect} />
+      <div className="project-controls">
+        <ProjectSelect source={source} onSelect={onSelect} />
+        <div className="project-configuration-actions">
+          <AddProject onSelect={onSelect} />
+          <RemoveProject source={source} onSelect={onSelect} />
+        </div>
+      </div>
       <SourceStatus
         source={source}
         work={work}

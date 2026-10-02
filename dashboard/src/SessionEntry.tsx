@@ -40,8 +40,8 @@ export function SessionEntry({
     policyWords,
   } = launchSubject(record.request);
   const workspace = workspaceWords(
-    record.request,
     record.start ?? record.preparation,
+    record.shownWorkspace,
   );
   const markedDone = record.doneAt !== undefined;
   const { entryClass, stateWords } = shownSession(record);

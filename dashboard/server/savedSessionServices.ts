@@ -1,42 +1,54 @@
-// The server restores host services once for its retained catalog conversations.
-// This lifecycle never creates or resumes a conversation.
-import { catalog } from "../src/publishedSource.ts";
+// Restore services once per host when configured retained conversations need them.
+// Re-adding a project can expose a host absent at startup. Never create/resume a
+// conversation, and never stop a native session when configuration is removed.
+import { configuredProjects } from "./projectConfiguration.ts";
 import { keptRecordsByProject } from "./launchRecordStore.ts";
+import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
 import { launchHost } from "./launchHosts.ts";
 
 export class SavedSessionServices {
   private readonly controller = new AbortController();
-  readonly ready = this.prepareSavedSessions();
+  private readonly prepared = new Map<string, Promise<void>>();
+  constructor() {
+    void this.refresh();
+  }
 
-  // Once per server lifetime, restore only services needed by retained catalog
-  // conversations. Failure leaves ordinary passive observation/recovery intact.
-  private async prepareSavedSessions(): Promise<void> {
-    const deadline = setTimeout(() => {
-      this.controller.abort();
-    }, 10_000);
+  async refresh(): Promise<void> {
     try {
       const kept = await keptRecordsByProject();
       const hosts = new Set(
-        catalog.flatMap((source) =>
+        configuredProjects().flatMap((source) =>
           (kept.get(source.id) ?? []).map((record) => record.session.host),
         ),
       );
       await Promise.all(
-        [...hosts].map(async (host) => {
-          if (this.controller.signal.aborted) return;
-          try {
-            await launchHost(host)?.prepareSavedSessions?.(
-              this.controller.signal,
-            );
-          } catch {
-            // Missing/refusing CLI never discards records or blocks the dashboard.
-          }
+        [...hosts].map((host) => {
+          const previous = this.prepared.get(host);
+          if (previous) return previous;
+          const preparing = this.prepare(host);
+          this.prepared.set(host, preparing);
+          return preparing;
         }),
       );
     } catch {
-      // Unreadable local evidence establishes no service to start.
+      // Unreadable evidence establishes no service to restore.
+    }
+  }
+
+  private async prepare(host: AgentLaunchRequest["host"]): Promise<void> {
+    if (this.controller.signal.aborted) return;
+    const deadline = new AbortController();
+    const timer = setTimeout(() => {
+      deadline.abort();
+    }, 10_000);
+    try {
+      await launchHost(host)?.prepareSavedSessions?.(
+        AbortSignal.any([this.controller.signal, deadline.signal]),
+      );
+    } catch {
+      // Missing/refusing CLI preserves ordinary passive observation/recovery.
     } finally {
-      clearTimeout(deadline);
+      clearTimeout(timer);
     }
   }
 

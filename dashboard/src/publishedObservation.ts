@@ -13,7 +13,7 @@ import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
 import { readMovedProgress } from "./movedBranchProgress.ts";
 import { watchedBranchHeads } from "./progressSource.ts";
 import { usePageVisibility } from "./pageVisibility.ts";
-import { defaultSource, type PublishedSource } from "./publishedSource.ts";
+import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { readPublishedWork } from "./publishedWorkRead.ts";
 import { shownSnapshotOf } from "./startupReconciliation.ts";
@@ -50,9 +50,7 @@ type ReadRequest = {
   readonly movedBranches?: StoryBranchHeads;
 };
 
-export function usePublishedObservation(
-  initialSource: PublishedSource = defaultSource,
-) {
+export function usePublishedObservation(initialSource: PublishedSource) {
   // The project this dashboard is currently observing. Selecting another
   // project replaces this whole, never merges into what is already shown.
   const [source, setSource] = useState<PublishedSource>(initialSource);

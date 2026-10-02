@@ -225,7 +225,7 @@ test("direct roster load, reload, unknown project fallback, and direct failure k
 
   await test.step("unknown project route resolves to default project stories and normalizes URL", async () => {
     await page.goto("/?project=unknown-project&view=roster");
-    expect(page.url()).toBe(new URL("/", page.url()).href);
+    await expect(page).toHaveURL(new URL("/", page.url()).href);
     const { project } = parts(page);
     await expect(project.getByRole("radio", { checked: true })).toHaveAttribute(
       "value",

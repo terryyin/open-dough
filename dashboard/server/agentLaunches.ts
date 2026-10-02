@@ -14,7 +14,8 @@ import {
   type LaunchWithState,
   type LaunchRecord,
 } from "../src/agentLaunch.ts";
-import { catalog, type PublishedSource } from "../src/publishedSource.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import { configuredProjects } from "./projectConfiguration.ts";
 import { launchHost } from "./launchHosts.ts";
 import { launchHosts } from "../src/sessionCapabilities.ts";
 import { withStates } from "./launchStates.ts";
@@ -62,14 +63,14 @@ const verifyWaitMs = 10_000;
 export class AgentLaunches {
   private readonly owner = new LaunchAttemptOwner();
   private readonly progress = new StartProgress();
-  private readonly startup = new SavedSessionServices();
+  private readonly savedSessionServices = new SavedSessionServices();
 
   async machineSessions(): Promise<readonly LaunchWithState[]> {
-    await this.startup.ready;
+    await this.savedSessionServices.refresh();
     const kept = await keptRecordsByProject();
     return withStates(
       machineFolder(),
-      catalog.flatMap((source) => kept.get(source.id) ?? []),
+      configuredProjects().flatMap((source) => kept.get(source.id) ?? []),
     );
   }
 
@@ -112,7 +113,7 @@ export class AgentLaunches {
     source: PublishedSource,
     record: LaunchRecord,
   ): Promise<LaunchWithState> {
-    await this.startup.ready;
+    await this.savedSessionServices.refresh();
     const [joined] = await withStates(projectFolder(source), [record]);
     return joined ?? { ...record, sessionState: { kind: "unknown" } };
   }
@@ -122,7 +123,7 @@ export class AgentLaunches {
     source: PublishedSource,
     session: SessionReference,
   ): Promise<Recorded> {
-    await this.startup.ready;
+    await this.savedSessionServices.refresh();
     const record = await keptSession(source.id, session);
     if (record === undefined) {
       return { kind: "unrecorded" };
@@ -217,7 +218,7 @@ export class AgentLaunches {
   // Kept attempts stay as last written, for reconciliation; native work goes
   // on.
   close(): void {
-    this.startup.close();
+    this.savedSessionServices.close();
     this.owner.close();
     for (const host of launchHosts) launchHost(host)?.close?.();
   }

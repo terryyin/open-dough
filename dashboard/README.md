@@ -15,7 +15,7 @@ done** there stops it ([Agent launch](AGENT-LAUNCH.md)).
 selected project's folder, with no story, listed in Recent sessions and the
 Sessions sidebar.
 
-The pinned banner shows the selected project in a disclosure and keeps the four
+The pinned banner shows the selected project in a disclosure and keeps the configured
 **Project** choices and SVG **Refresh** control reachable while scrolling. The disclosure opens the repository/ref, full
 source revision, retrieval time (not commit time), and publication warning.
 Close that disclosure to return space to the work, especially at narrow widths
@@ -36,11 +36,36 @@ at narrow widths or high browser zoom.
 One project is observed at a time. Click its tab-shaped **Project** choice in the
 banner; the selected project is highlighted. Keyboard users can Tab to the
 selected choice and use arrow keys to switch projects.
-`src/publishedSource.ts` is the one catalog of the four observable projects
-(Open Dough, Doughnut, Pygardon, and Terry Talks) and what each one needs to be read. It
-reads `.planning/PRODUCT-BACKLOG.md` from the selected project's
-GitHub repository (`master` for Terry Talks, `main` for the others), resolves that ref to one commit, and reads the backlog at
-that commit. Every project -- public Open Dough and Doughnut as much as
+`server/projectConfiguration.ts` owns the saved project list and each project's
+repository, ref, backlog path, and local checkout folder. Each environment keeps
+its ordered list on this machine in `~/.open-dough/dashboard/projects-production.json`
+or `projects-development.json`, resolved through `HOME`. Built preview uses production;
+the live dev server uses development. Only a missing file seeds production with
+Open Dough, Doughnut, Pygardon, and Terry Talks and their existing refs and folders.
+Development starts empty. An existing empty list stays empty; the first saved
+project is the default selection. An unreadable or malformed file is reported
+with its path and left untouched. The empty page explains that no projects are
+configured and offers **Add project**. Add project also stays in the pinned banner.
+Its dialog asks for a GitHub repository URL (HTTPS, with or without `.git`, or SSH)
+and Local path, prefilled as `~/git/<repo>`. Add checks the developer's local `gh`
+access and the checkout's origin, derives the default branch, saves the project,
+and selects it. The repository name supplies the project id and label; duplicate
+repositories or ids are refused because saved sessions are keyed by project id.
+The selected default branch is saved at add time, and the backlog path is
+`.planning/PRODUCT-BACKLOG.md`. Local path must name the checkout root; `~`
+expands to the home folder, and a different checkout folder is allowed. Cancel or Escape
+saves nothing and returns focus to Add project. An invalid entry keeps its values
+and shows the reason beside the field. Projects added in development do not enter
+production's saved list.
+**Remove project** beside the choices asks for confirmation naming the selected
+project. Confirm removes only that environment's configuration entry and selects
+the next project or the empty page. Nothing on disk or GitHub changes: checkouts,
+running sessions, and saved launch/session records remain. Removed sessions leave
+Recent sessions and the Sessions sidebar; adding the same repository restores them.
+Cancel or Escape keeps the entry and returns focus to Remove project.
+The dashboard reads `.planning/PRODUCT-BACKLOG.md` from the selected project's
+saved repository and ref, resolves that ref to one commit, and reads the backlog
+at that commit. Every project -- public Open Dough and Doughnut as much as
 private Pygardon -- is read the same way: through a small local
 authenticated read boundary (`server/authenticatedRead.ts`, reached from the
 browser through `src/authenticatedRead.ts`) that resolves the ref and reads

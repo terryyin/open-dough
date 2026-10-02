@@ -1,13 +1,10 @@
-// Where a catalog project (`../src/publishedSource.ts`) lives on this
-// machine: `~/git/<id>`, fixed per project, and the machine's own home folder,
-// where a read that belongs to no one project runs. Machine-local, and read
-// only by the local launch boundary (`./agentLaunches.ts`), which checks a
-// project folder exists before any host process starts in it.
-
+// Resolves each configured local checkout path for launch and workspace use.
+// The shown form retains ~ while the process path expands it on this machine.
 import { stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { configuredProject } from "./projectConfiguration.ts";
 
 export type ProjectFolder = {
   // Where a process runs.
@@ -17,9 +14,21 @@ export type ProjectFolder = {
 };
 
 export function projectFolder(source: PublishedSource): ProjectFolder {
+  const project = configuredProject(source.id);
+  if (project === undefined)
+    throw new Error(`Unknown configured project: ${source.id}`);
+  return localFolder(project.localPath);
+}
+
+export function localFolder(shown: string): ProjectFolder {
   return {
-    path: path.join(homedir(), "git", source.id),
-    shown: `~/git/${source.id}`,
+    path:
+      shown === "~"
+        ? homedir()
+        : shown.startsWith("~/")
+          ? path.join(homedir(), shown.slice(2))
+          : path.resolve(shown),
+    shown,
   };
 }
 

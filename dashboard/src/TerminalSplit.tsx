@@ -7,7 +7,8 @@ import { sessionKey } from "./sessionReference.ts";
 import { useCallback, type ReactNode } from "react";
 import { SessionResultPanel } from "./SessionResultPanel.tsx";
 import type { MachineSessions } from "./agentLaunches.ts";
-import { sourceById, type PublishedSource } from "./publishedSource.ts";
+import type { PublishedSource } from "./publishedSource.ts";
+import { useProjects } from "./projectList.tsx";
 import {
   SessionSidebar,
   SidebarOnPage,
@@ -53,6 +54,7 @@ export function TerminalSplit({
   };
   readonly children: ReactNode;
 }) {
+  const projects = useProjects();
   const sidebar = useSessionSidebar(records, alerts);
   const panel = usePageSessionPanel({ markDone, deleteRecord, hostOperations });
   const { terminal, result, maximized, markSessionDone } = panel;
@@ -66,7 +68,9 @@ export function TerminalSplit({
   );
   const revealSession = useSessionNavigation(stories.selected, stories.shown);
   const goToSession: OpenSidebarEntry = ({ record, control }) => {
-    const source = sourceById(record.request.source);
+    const source = projects.find(
+      (project) => project.id === record.request.source,
+    );
     if (source !== undefined) {
       stories.show(source);
     }
