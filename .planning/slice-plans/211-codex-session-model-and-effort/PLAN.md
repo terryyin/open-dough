@@ -2,14 +2,16 @@
 
 **Identity:** SEED-081#codex-session-model-and-effort
 **Source:** [refined story](../../seeds/SEED-081-codex-session-model-and-effort.md#codex-session-model-and-effort).
-**Authority:** Terry requested a slice plan after explicitly excluding resume.
-This is preparation only; no implementation, Take or publication is authorized.
-**Preparation:** Reuse workspace
-`/Users/terryyin/git/open-dough/.worktrees/choose-codex-model-and-effort-when-starting-a-da`,
-branch `codex/choose-codex-model-and-effort-when-starting-a-da`, starting revision
-`f7d1140011044be2536b0c7aa09f4be7b35b82fc`, agent `terry-chan`.
-Remote target: `origin/main`. Integration checkout: `/Users/terryyin/git/open-dough`.
-Keep the existing Preparing assignment and retain this uncommitted draft for review.
+**Authority:** Terry invoked dough-execute-plan with the established published start.
+**Execution:** story-branch, publisher `dashboard-mac.lan-open-dough`, agent `bas-chan`.
+Workspace `/Users/terryyin/git/open-dough/.worktrees/choose-codex-model-and-effort-when-starting-a-da`,
+branch `codex/choose-codex-model-and-effort-when-starting-a-da` (reused).
+Starting revision `601aadfa5f9f0d168dbc1bc93a276fa59484ae96`;
+accepted claim `20580ea235ac067a96106db611670f3d9e5f5f72` on `origin/main`.
+Increment target: `origin/refs/heads/codex/choose-codex-model-and-effort-when-starting-a-da`.
+Integration checkout: `/Users/terryyin/git/open-dough` (unchanged).
+Checkout setup: locked `npm ci --ignore-scripts --no-audit --no-fund` and
+`npm run typecheck:dashboard` passed. Existing planning authority retained.
 
 ## Goal and boundaries
 
@@ -80,75 +82,30 @@ exception was identified. No cross-host native competence claim is made.
 
 ## Observed premises and proof boundaries
 
-Observed on 2026-10-02 at the preparation revision above; the only tracked
-changes were this story's preparation records.
-
-| Premise and consuming operation | Observation and result |
-| --- | --- |
-| The installed host supplies varying supported pairs; picker and admission consume them. | Through existing `CodexRpc.initialize`, `model/list` with `{limit:100, includeHidden:false}` returned eight entries, effort descriptions, varying effort sets and `nextCursor:null` on Codex 0.159.3. See the seed's native evidence. Follow pagination when returned; the single observed page is not a limit. |
-| Configured defaults differ from catalog suggestions; startup must preserve that distinction. | `config/read` for this workspace returned Astra/high while the catalog recommended Sol/low. Ephemeral `thread/start` with no overrides returned Astra/high, model-only returned Sol/high, and model plus `config.model_reasoning_effort=low` returned Sol/low. These creation responses consumed the configuration, but no initial model turn was run. Slice 1 bounds that remaining premise. |
-| Both new-session UI origins reach the same model state and request contract. | Reading `StartSession.tsx`, `StartLaunch.tsx`, `LaunchDialog.tsx` and `LaunchHostModel.tsx` traced both callers through request submission. The browser model baseline below exercised the dialog, real server and synthetic CLI for execution, refinement and ad hoc. |
-| Codex IDs must survive admission, mechanical preparation, storage and rendering. | `rg -n 'LaunchModel|launchModelAliases|request\.model|modelWords' dashboard src scripts` found the enum in request, kept-start and start-store schemas, static host admission, and requested-model rendering. Reads of `startLaunch`, `preparationCommand`, `startRecording` and profile `agentReportError` show model text already reaches the installed commands and profiles; broadening only the picker would fail at earlier consumers. Installed-start baseline specs below exercised both workflow paths with defaults. |
-| The HTTP/native fixture measures startup requests rather than supplying dashboard records. | `agent-launch-ad-hoc-codex-input.spec.ts` sends actual HTTP requests and asserts `thread/start`, `turn/start` and persisted first-input evidence; `support/fakeCodex.ts` supplies only native replies. The successful baseline reaches these assertions for text and blank input. New assertions must inspect model/effort payloads and creation responses; a mock cannot prove vendor inference. |
-
-Baseline command:
-
-```sh
-env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-model.spec.ts dashboard/tests/agent-launch-model-boundary.spec.ts dashboard/tests/agent-launch-ad-hoc-codex-input.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts --workers=2
-```
-
-Result: passed, exit 0. The first smaller run failed before behavior because
-`node_modules/.bin/vite` was missing in this worktree. After
-`npm ci --ignore-scripts --no-audit --no-fund`, the command above passed.
-No product fix was required. A second focused baseline also passed (exit 0):
-
-```sh
-env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-dialog-layout.spec.ts dashboard/tests/agent-launch-default-checkout-warning.spec.ts --workers=2
-```
-
-Its actual browser assertions exercise instruction-first focus, narrow/200%
-layout and confirmation that resubmits the same choices. Inspection of
-`LaunchExistingChanges.tsx` confirms that the pending `LaunchChoices` object
-owns that resubmission. Slice 3 adds the new effort to that existing contract.
-These are baseline observations, not proof of unimplemented selections. Existing specs containing recovery are reused only
-for their startup assertions; no new resume acceptance is introduced.
+[Retained baseline and native evidence](EVIDENCE.md) distinguish planning
+observations, the slice 1 probe protocol and its completed native result.
 
 ## Ordered slices
 
 ### 1. Establish native settings on a new conversation's first turn
 Type: Behavior
-Status: planned
+Status: done
 Proof: A bounded native probe consumes explicit model/effort at creation and
 on an initial nonblank turn; inspect native effective configuration and
 per-turn metadata, never the model's self-report.
 
-Behavior: With authenticated installed Codex and one currently offered pair,
-create one disposable conversation using the chosen model and
-`config.model_reasoning_effort`, then submit one minimal instruction through
-`turn/start` using the same native path as dashboard startup. Inspect the
-creation response and native turn configuration/evidence for the actual model
-and effort. If the native API requires explicit turn overrides, exercise those
-and record the single resulting startup rule. Also retain the already observed
-blank creation/no-input proof; do not attach or resume a conversation.
-
-Use the actual disposable startup workspace for `config/read` and creation;
-include unpaid no-override and single-override creation checks there to settle
-context/default behavior before the broader UI work. Configuration discovery
-before an eventual story worktree exists must use delegation wording, not
-assert the parent folder's values as the worktree's.
-
-This probe runs only during authorized execution; the initial turn may incur
-model usage and has not run during planning. Use a disposable local workspace,
-no repository-changing instruction, at most one initial turn, and archive its
-conversation afterward. If the host cannot expose trustworthy per-turn
-settings, or changes an explicit value, stop dependent slices and revise the
-startup approach based on the observed result. Do not diagnose resume, run a
-skill execution, or use a vendor SDK/model API as a substitute for installed
-Codex. Record the literal command/RPC sequence, version, observation location,
-requested/effective values and outcome here when completed.
+Behavior: Establish creation and first-turn inheritance through the bounded
+[native probe protocol](EVIDENCE.md#slice-1-native-probe-protocol). Its disposable
+workspace, independent overrides, one-turn limit and archive requirement remain
+part of this slice. Retain blank creation without input; exclude resume.
 
 Safe stopping point: the actual startup contract is established, with no
 product behavior changed. This is a feasibility probe, not another feature.
+
+Native feasibility passed on 2026-10-02: explicit creation settings applied to
+the first turn without turn overrides. See [literal RPCs, requested/effective
+values and native per-turn observation](EVIDENCE.md#native-feasibility-evidence--2026-10-02).
+Production UI/payload/storage proof remains owned by slices 2–3.
 
 ### 2. Choose a discovered model when starting any new Codex session
 Type: Behavior

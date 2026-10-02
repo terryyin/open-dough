@@ -1,0 +1,143 @@
+# Codex startup evidence
+
+Supporting context and retained proof for [the executable plan](PLAN.md).
+The preparation observations use the story workspace recorded in that plan;
+the completed native probe uses its separately recorded disposable workspace.
+
+## Observed premises and proof boundaries
+
+Observed on 2026-10-02 at preparation revision
+`f7d1140011044be2536b0c7aa09f4be7b35b82fc`; the only tracked
+changes were this story's preparation records.
+
+| Premise and consuming operation | Observation and result |
+| --- | --- |
+| The installed host supplies varying supported pairs; picker and admission consume them. | Through existing `CodexRpc.initialize`, `model/list` with `{limit:100, includeHidden:false}` returned eight entries, effort descriptions, varying effort sets and `nextCursor:null` on Codex 0.159.3. See the seed's native evidence. Follow pagination when returned; the single observed page is not a limit. |
+| Configured defaults differ from catalog suggestions; startup must preserve that distinction. | `config/read` for the story workspace returned Astra/high while the catalog recommended Sol/low. Ephemeral `thread/start` with no overrides returned Astra/high, model-only returned Sol/high, and model plus `config.model_reasoning_effort=low` returned Sol/low. These creation responses consumed the configuration, but no initial model turn was run. Slice 1 bounds that remaining premise. |
+| Both new-session UI origins reach the same model state and request contract. | Reading `StartSession.tsx`, `StartLaunch.tsx`, `LaunchDialog.tsx` and `LaunchHostModel.tsx` traced both callers through request submission. The browser model baseline below exercised the dialog, real server and synthetic CLI for execution, refinement and ad hoc. |
+| Codex IDs must survive admission, mechanical preparation, storage and rendering. | `rg -n 'LaunchModel|launchModelAliases|request\.model|modelWords' dashboard src scripts` found the enum in request, kept-start and start-store schemas, static host admission, and requested-model rendering. Reads of `startLaunch`, `preparationCommand`, `startRecording` and profile `agentReportError` show model text already reaches the installed commands and profiles; broadening only the picker would fail at earlier consumers. Installed-start baseline specs below exercised both workflow paths with defaults. |
+| The HTTP/native fixture measures startup requests rather than supplying dashboard records. | `agent-launch-ad-hoc-codex-input.spec.ts` sends actual HTTP requests and asserts `thread/start`, `turn/start` and persisted first-input evidence; `support/fakeCodex.ts` supplies only native replies. The successful baseline reaches these assertions for text and blank input. New assertions must inspect model/effort payloads and creation responses; a mock cannot prove vendor inference. |
+
+Baseline command:
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-model.spec.ts dashboard/tests/agent-launch-model-boundary.spec.ts dashboard/tests/agent-launch-ad-hoc-codex-input.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts --workers=2
+```
+
+Result: passed, exit 0. The first smaller run failed before behavior because
+`node_modules/.bin/vite` was missing in this worktree. After
+`npm ci --ignore-scripts --no-audit --no-fund`, the command above passed.
+No product fix was required. A second focused baseline also passed (exit 0):
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-dialog-layout.spec.ts dashboard/tests/agent-launch-default-checkout-warning.spec.ts --workers=2
+```
+
+Its actual browser assertions exercise instruction-first focus, narrow/200%
+layout and confirmation that resubmits the same choices. Inspection of
+`LaunchExistingChanges.tsx` confirms that the pending `LaunchChoices` object
+owns that resubmission. Slice 3 adds the new effort to that existing contract.
+These are baseline observations, not proof of unimplemented selections. Existing specs containing recovery are reused only
+for their startup assertions; no new resume acceptance is introduced.
+
+## Slice 1 native probe protocol
+
+Behavior: With authenticated installed Codex and one currently offered pair,
+create one disposable conversation using the chosen model and
+`config.model_reasoning_effort`, then submit one minimal instruction through
+`turn/start` using the same native path as dashboard startup. Inspect the
+creation response and native turn configuration/evidence for the actual model
+and effort. If the native API requires explicit turn overrides, exercise those
+and record the single resulting startup rule. Also retain the already observed
+blank creation/no-input proof; do not attach or resume a conversation.
+
+Use the actual disposable startup workspace for `config/read` and creation;
+include unpaid no-override and single-override creation checks there to settle
+context/default behavior before the broader UI work. Configuration discovery
+before an eventual story worktree exists must use delegation wording, not
+assert the parent folder's values as the worktree's.
+
+This probe runs only during authorized execution; the initial turn may incur
+model usage and has not run during planning. Use a disposable local workspace,
+no repository-changing instruction, at most one initial turn, and archive its
+conversation afterward. If the host cannot expose trustworthy per-turn
+settings, or changes an explicit value, stop dependent slices and revise the
+startup approach based on the observed result. Do not diagnose resume, run a
+skill execution, or use a vendor SDK/model API as a substitute for installed
+Codex. Record the literal command/RPC sequence, version, observation location,
+requested/effective values and outcome here when completed.
+
+## Native feasibility evidence — 2026-10-02
+
+Executed against `codex-cli 0.159.3` using the installed dashboard `CodexRpc`
+and `daemonEndpoint`, without modifying their implementation. Commands:
+
+```sh
+node --experimental-transform-types /tmp/open-dough-seed081-probe/probe.ts
+node --experimental-transform-types /tmp/open-dough-seed081-probe/model-only.ts
+```
+
+Both exited 0. Disposable observation workspace:
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-seed081-workspace-hLhuLv`.
+The scripts and literal request/reply trace remain at
+`/tmp/open-dough-seed081-probe/`; `evidence.json` retains the native notifications
+and turn-context record. Only model/effort fields from `config/read` were retained,
+not raw configuration.
+
+Literal RPC sequence after `CodexRpc.initialize()` (which sends `initialize`
+and `initialized`):
+
+```json
+{"method":"config/read","params":{"cwd":"<disposable observation workspace>","includeLayers":false}}
+{"method":"model/list","params":{"limit":100,"includeHidden":false}}
+{"method":"thread/start","params":{"cwd":"<disposable observation workspace>","ephemeral":true}}
+{"method":"thread/unsubscribe","params":{"threadId":"<preceding ephemeral thread>"}}
+{"method":"thread/start","params":{"cwd":"<disposable observation workspace>","ephemeral":true,"model":"gpt-6.1-sol"}}
+{"method":"thread/unsubscribe","params":{"threadId":"<preceding ephemeral thread>"}}
+{"method":"thread/start","params":{"cwd":"<disposable observation workspace>","ephemeral":true,"config":{"model_reasoning_effort":"low"}}}
+{"method":"thread/unsubscribe","params":{"threadId":"<preceding ephemeral thread>"}}
+{"method":"thread/start","params":{"cwd":"<disposable observation workspace>","model":"gpt-6.1-sol","config":{"model_reasoning_effort":"low"}}}
+{"method":"turn/start","params":{"threadId":"01a0fa57-159c-7532-a9d4-9335804d4537","input":[{"type":"text","text":"Reply with exactly OK. Do not use tools or modify files.","text_elements":[]}]}}
+{"method":"thread/archive","params":{"threadId":"01a0fa57-159c-7532-a9d4-9335804d4537"}}
+```
+
+The separate unpaid model-only check reinitialized a connection, sent
+`thread/start` with the same `cwd`, `ephemeral:true` and `model:"gpt-6-astra"`,
+then unsubscribed its returned thread `01a0fa57-b806-7703-8d92-e33182ec488f`.
+No turn was submitted to any ephemeral thread.
+
+| Requested creation settings | Native effective response |
+| --- | --- |
+| Neither override | `gpt-6.1-sol` / `medium` |
+| Model only: `gpt-6.1-sol` | `gpt-6.1-sol` / `medium` |
+| Model only: `gpt-6-astra` | `gpt-6-astra` / `medium` |
+| Effort only: `low` | `gpt-6.1-sol` / `low` |
+| Explicit pair: `gpt-6.1-sol` / `low` | `gpt-6.1-sol` / `low` |
+
+`config/read` in that workspace established Sol/medium; the catalog returned
+all eight entries and `nextCursor:null`. These defaults differ from the
+previous story-workspace Astra/high observation. This confirms the requirement
+to describe delegation before the actual startup workspace is established;
+parent-folder values cannot be labeled as that future workspace's settings.
+
+Exactly one initial turn ran, using the explicit-pair thread and **no**
+`turn/start` model/effort overrides. Native `turn/completed` reported
+`status:"completed"`, `error:null` and turn ID
+`01a0fa57-15f3-7f60-a87e-578dc3d99534`. The native rollout `turn_context` for
+that ID records `model:"gpt-6.1-sol"`, `effort:"low"` and matching
+`collaboration_mode.settings.model` / `reasoning_effort`. This is native
+per-turn evidence, independent of the model's response. No tool-use item was
+reported; the sole response was `OK`.
+
+`thread/archive` succeeded with `{}`. The archived native evidence is
+`/Users/terryyin/.codex/archived_sessions/rollout-2026-10-02T10-00-06-01a0fa57-159c-7532-a9d4-9335804d4537.jsonl`.
+Existing no-input blank-creation proof above remains valid; no resume,
+attachment or artificial blank-start prompt was exercised.
+
+**Established startup rule:** Supply an explicit model only as `thread/start.model`
+and explicit effort only as `thread/start.config.model_reasoning_effort`;
+omit each delegated setting independently. On this installed host, a new
+conversation's first turn inherits the effective creation settings without
+additional turn overrides. Verify explicit creation values before submitting
+input. The native feasibility prerequisite for dependent slices is satisfied;
+production UI/payload/storage proof still belongs to slices 2–3.
