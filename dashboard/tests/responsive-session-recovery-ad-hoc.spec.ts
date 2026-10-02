@@ -49,6 +49,17 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
     "Ad hoc session · session start in Codex",
   );
   await expect(recovery).toContainText("Startup needs reconciliation");
+  const nativeAdvice =
+    "Check the dashboard history and native Codex conversations before continuing; a recorded conversation is resumed, never submitted again.";
+  await expect(recovery.locator('[id$="-check"]')).toHaveText(nativeAdvice);
+  await expect(
+    recovery.getByRole("button", {
+      name: "Continue session start of Ad hoc session",
+    }),
+  ).toHaveAccessibleDescription(nativeAdvice);
+  await expect(
+    recovery.getByRole("button", { name: "Recheck Ad hoc session" }),
+  ).toBeEnabled();
   await expect(stages.getByRole("article")).toHaveCount(articles);
   await expect(stages.getByRole("article", { name: /ad hoc/i })).toHaveCount(0);
   await expect(stages).not.toContainText("Startup needs reconciliation");

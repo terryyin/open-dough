@@ -57,6 +57,10 @@ unavailable until it settles.”,
 then “Waiting for published story state” once the outcome settled. Only that
 progress shows an indicator, which moves unless reduced motion is requested.
 Local startup never moves the story or shows Taken, Preparing or an owner.
+When no running phase is reported, the installed skill's start-establishment
+capability determines Preparing versus Starting; Starting names the recorded
+host for execution and refinement. These sentences come directly from workflow
+and host facts.
 Story Starts stay unavailable until the page first reads this machine's
 attempts.
 
@@ -79,6 +83,15 @@ and native rules, or answers why not; it never creates a replacement attempt.
 Restart, reload, project switch and a second page recover from that file; a
 removed story keeps its recovery there. An ad hoc start shows its progress
 beside Start session and its recovery in the same region, never a card.
+
+Where Continue is eligible, story and ad hoc recovery use their host description's
+optional native-check advice. Claude Code says “Check `claude agents` before
+continuing: continuing starts its session again unless its kept evidence resumes
+it.” Codex says “Check the dashboard history and native Codex conversations before
+continuing; a recorded conversation is resumed, never submitted again.” Inline
+commands retain code formatting. Without advice, the paragraph and Continue's
+advice description reference are absent; the entry and its eligible controls
+remain. Advice presence does not establish a launch or continuation capability.
 
 At handoff the keyboard goes to what says the startup: the story's card, which
 its status describes, or Start session's progress, never the unavailable action.
