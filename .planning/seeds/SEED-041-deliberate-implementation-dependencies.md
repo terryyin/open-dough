@@ -42,7 +42,7 @@ outside this story.
 
 **Identity:** SEED-041#deliberate-implementation-dependencies
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/216-blocking-story-dependencies/PLAN.md","assessment":"not-ready","reasons":["Slice 4 requires a decision whether moderate reconciliation may implement the unstarted dependent story or only update dependency records and story/plan assumptions."],"basis":{"document":"5d734e87d971dad3f85634f906c868e3b770f11e28278d66e343edd8b8e716f7","plan":"e0eeeaf503b3db494232fdf5f020b3c38ca637a7f688d4a57e762a3be538c7a1"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/216-blocking-story-dependencies/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"06a87bd95e0269ef3a6b00aaeb75e0fb0d9f42ffa8e12ae720a87512e3176d0c","plan":"ed295ca002fd77c589a10dc31a446c5a289bf244e9e9721bd246ae14f36a2ab7"}}
 ```
 
 **Goal:** Developers and agents can recognize, explain, and resolve the rare
@@ -73,6 +73,9 @@ the normal approach.
   and update after resolution. For a complicated case, stop the affected
   reconciliation and wait for a developer decision. Do not clear an unresolved
   dependency merely because the supplying story has finished.
+  Reconciliation updates dependency evidence and existing story/plan assumptions
+  within the dependent story's established goal and scope. It does not implement
+  the unstarted dependent story; that requires its own execution authorization.
 - Resolving one dependency does not clear another. Once every blocking
   dependency is resolved, dependency blocking no longer prevents execution;
   other preparation requirements and execution authorization remain distinct.
@@ -80,13 +83,29 @@ the normal approach.
   of duplicating reconciliation. Retain sufficient resolution evidence before
   source/plan cleanup so dependents remain understandable afterwards.
 
-**UI:** A compact expandable Dependencies section belongs inside the dependent
-story card. Its closed state should make the start block apparent, for example
-"Dependencies · 2 blocking". The expanded state explains each required sequence
-and distinguishes waiting, satisfied, and developer-decision-needed outcomes.
-A satisfied relationship can remain inspectable without appearing blocking.
-Use text as well as visual treatment and support keyboard and touch access.
-No separate relationship screen or whole-backlog graph is needed.
+**UI:** The developer is choosing a story to execute or inspecting why it must
+wait. The dependent story card's expandable Dependencies section makes the
+start block apparent before expansion, for example "Dependencies · 2 blocking".
+Beside the unavailable Start execution action, explain that prerequisites remain
+unresolved. Inspection and Start refinement remain available; dependency
+blocking does not prevent understanding or preparing the story.
+
+On expansion, the developer can identify and follow each supplying story,
+read why sequencing is necessary and what would fulfill it, and distinguish
+waiting, satisfied, and developer-decision-needed outcomes in text. A needed
+decision states the actual question rather than merely labeling a failure.
+Available resolution evidence remains inspectable, including when the supplying
+story's current records have been cleaned up. A satisfied relationship does
+not count as blocking.
+
+After supplier resolution is published, refresh shows the remaining blockers
+without moving the card, changing backlog order, or losing keyboard focus.
+When all are resolved, remove the dependency-derived start block while retaining
+other preparation judgments and execution requirements. An unreadable dependency
+record is an evidence gap with its cause and available source link, never a
+claim that there are no blockers; retry the read when retrieval can recover it.
+Use text as well as visual treatment and support keyboard, touch, and narrow
+screens. No separate relationship screen or whole-backlog graph is needed.
 
 **Key examples:**
 
@@ -111,7 +130,19 @@ No separate relationship screen or whole-backlog graph is needed.
   stays unresolved until reconciliation succeeds.
 - **Developer decision:** Reconciliation requires choosing a behavior that the
   dependent story does not settle. Stop that reconciliation and retain the
-  start block with the decision needed; wait for the developer.
+  start block with the decision needed; wait for the developer. Expanding the
+  dependent card exposes that question and the relevant supplier evidence.
+  The developer can still inspect or refine the dependent story.
+- **Published resolution and refresh:** The card shows two blockers. One
+  resolution is published and the developer refreshes; one blocker remains,
+  the satisfied relationship stays inspectable, and execution stays unavailable.
+  After the second resolution is published, refresh removes the dependency
+  block but preserves an unrelated Not ready judgment. Card position and focus
+  survive both updates.
+- **Unreadable evidence:** A dependency record cannot be interpreted or fetched.
+  Inspecting the card shows the affected evidence gap rather than zero blockers.
+  A successful retry restores the published dependency facts; the actual start
+  workflow still checks its source before claiming or launching execution.
 - **Cleanup and repeated visits:** Landing resolves a dependency. Later wrap-up
   preserves that outcome and its evidence instead of applying the change again.
   Missing source records without fulfillment evidence never imply completion.
@@ -136,7 +167,7 @@ profile names are not durable dependency identities. The dependency is not
 inferred from prose mentions alone. The slice plan selects a separate versioned
 dependency block in this canonical home, interpreted by shared pure readers.
 
-## Planning Decisions and Remaining Question
+## Planning Decisions
 
 - Completion combines the selected supplier's evidenced outcome with accepted
   delivery to the integration target. An increment landing or cleanup alone
@@ -148,10 +179,12 @@ dependency block in this canonical home, interpreted by shared pure readers.
   evidence in each consumer's record without maintaining a reverse registry.
 - Interruption/recovery for a blocker discovered after execution starts is
   outside this start-gate policy. Leave that case for a developer decision.
-- **Unresolved:** May moderate reconciliation implement the unstarted consumer,
-  or only update its dependency record and story/plan assumptions? The latter
-  is the recommendation, not yet a selected answer. Slice 4 remains conditional
-  and the plan is Not ready until this authority boundary is settled.
+- **Selected reconciliation boundary:** Update dependency evidence and existing
+  story/plan assumptions only, within the dependent story's established intent.
+  Each story owns its own goal; supplier completion does not authorize
+  implementing the unstarted consumer. If satisfying the condition still needs
+  consumer implementation or an unsettled product decision, retain the block
+  and report that need rather than clearing it through assumption edits.
 
 **Slice plan:** [Necessary blocking story dependencies](../slice-plans/216-blocking-story-dependencies/PLAN.md).
 
@@ -197,4 +230,13 @@ informational kind or build its supporting mechanisms in this story.
 - 2026-10-02: Terry requested a slice plan. Four Behavior slices are recorded;
   the reconciliation authority question remains open. Planning is authorized,
   implementation is not. Preserve the current backlog position.
+- 2026-10-02 UX/UI refinement: made the developer's inspection, unavailable
+  execution action, decision feedback, published refresh, and evidence recovery
+  journey explicit using the existing dashboard direction. No additional view
+  or dependency kind is proposed; reconciliation authority remains unresolved.
 - [Product backlog](../PRODUCT-BACKLOG.md).
+
+- 2026-10-02: Terry selected the narrower reconciliation boundary: evidence and
+  story/plan assumptions only; dependent implementation needs its own execution
+  authorization. Stories deliver user value rather than separate technical
+  layers. This settles the previously open slice 4 authority question.

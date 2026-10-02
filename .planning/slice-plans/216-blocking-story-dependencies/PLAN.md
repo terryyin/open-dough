@@ -223,14 +223,13 @@ relationship is satisfied. A choice of behavior or architecture that the
 consumer does not settle retains a `decision-needed` block with the actual
 question. Other consumers can still be resolved independently.
 
-**Proposed boundary, not an accepted decision:** Reconciliation updates the
-dependency agreement and existing story/plan assumptions only. Implementing
-the unstarted consumer requires its execution authorization. The user has been
-asked whether bounded dependent implementation should also be allowed. Do not
-implement this slice on the proposal alone; if broader authority is selected,
-revise its scope and proof before execution.
+**Selected boundary:** Reconciliation updates dependency evidence and existing
+story/plan assumptions within the consumer's established goal and scope only.
+Implementing the unstarted consumer requires its own execution authorization.
+If satisfaction still needs consumer implementation, retain the block and
+report the need; assumption edits alone do not prove fulfillment.
 
-Under the proposed boundary, moderate means the consumer's existing intent
+Under this boundary, moderate means the consumer's existing intent
 determines the reconciliation without a new product/architecture choice.
 Complexity is judged from that uncertainty, not an arbitrary score. Preserve
 other readiness reasons and mark changed content through the existing reader;
@@ -246,8 +245,9 @@ on the card. Walk the agent-facing procedure using those same goals and
 evidence, including a refusal to choose unspecified product behavior. The
 fixture proves state transitions; the guidance review assesses whether the
 agent is told how to judge and stop. Do not claim native-agent reasoning from
-a mocked protocol. If implementation reconciliation is authorized, add its
-separate ownership and execution proof before marking this slice ready.
+a mocked protocol. Include a condition requiring consumer implementation;
+verify that it remains blocked and the procedure requests separate execution
+authorization rather than implementing the consumer or declaring satisfaction.
 
 ## Proof ownership and execution gates
 
@@ -274,12 +274,12 @@ every check as a local gate. Conventional skill guidance changes use the
 AGENTS.md behavior review; installation/update/native-host discovery is outside
 scope unless implementation actually changes those contracts.
 
-## Remaining concern and readiness
+## Readiness review
 
-Slice 4's reconciliation authority remains unresolved. The proposed boundary
-avoids starting consumer implementation under supplier ownership, but that is
-not yet the user's selected answer. Record **Not ready** for this concern;
-do not present slice 4 as executable or start earlier slices under this
-planning-only request. No additional boundary or proof-ownership concern was
-identified in this review. Resolving this question requires updating the seed
-and affected slice, then reassessing the current content.
+Terry selected evidence and story/plan assumption reconciliation only; consumer
+implementation requires its own execution authorization. The seed and slice 4
+now agree on that boundary and its proof. The four bounded slices map the
+story's promises, including the UX/UI inspection and recovery examples, to
+observable proof. No remaining blocking preparation concern was identified.
+Record the assessment against the current seed and plan through the shared
+recorder. Preparation readiness does not authorize implementation or Take.
