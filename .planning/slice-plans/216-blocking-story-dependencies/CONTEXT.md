@@ -100,3 +100,22 @@ Actual startup tests in `workspace-publication-startup-dependencies-cases.mjs` e
 `story-dependencies-installed-observe.mjs`, called by fresh/update payload fixtures with the release source unavailable, proves installed read/update plus ordinary/one-shot refusal with no workspace/profile or remote advancement. Both managed roots carry required runtime files. Guidance review walked an explicit necessary prerequisite through required endpoint/basis inputs and useful refusal.
 
 Independent review found no production refactor. After formatting expanded a test past 250 lines, the recovery cases and shared publication setup were split cohesively; the original startup case entry still imports every assertion. `npm test -- src/skills/dough-execute-plan/scripts/workspace-publication-startup-dependencies-cases.mjs` passed again through the pinned runner. All other proof boundaries stayed unchanged. `npm run format` passed after annotating the fixture's caller-supplied `source_dir` for ShellCheck; that comment and mechanical formatting do not change the observed behavior. `git diff --check` passed. Dashboard stale-card/native launch and supplier completion/reconciliation remain slices 2–4.
+
+## Slice 2 accepted proof
+
+All commands use the pinned PATH from slice 1. Each reached terminal exit 0:
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- dashboard/tests/story-dependencies.spec.ts dashboard/tests/agent-launch-start-dependencies.spec.ts dashboard/tests/story-readiness.spec.ts dashboard/tests/story-readiness-accessible.spec.ts dashboard/tests/story-readiness-gaps.spec.ts dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-start-card.spec.ts dashboard/tests/agent-launch-start-refusal.spec.ts --workers=2
+npm run typecheck:dashboard
+npm run build:dashboard
+npm test -- tests/support/story-state-browser-import.test.mjs
+```
+
+`storyDependencyFixture.ts` authors real CLI records and publishes them to the real start-origin fixture; the built browser reads pinned canonical texts. `story-dependencies.spec.ts` observes two, one, then zero blockers; supplier cards have no reverse disclosure. Its assertions preserve priority, preparation, Not ready reasons, inspection/refinement dialogs, refresh focus, and satisfied evidence. Loading/malformed/unreadable facts disable only new execution with accessible reasons. After dependency resolution, the existing noted action returns but the actual installed start still refuses unrelated Not ready without a Take or native launch.
+
+`storyDependencyAccessible.ts` observes keyboard disclosure/visible focus, 44px control, contrast, whole narrow/zoomed text, touch tap, supplier/evidence links, and non-color state/decision/condition/rationale text. `agent-launch-start-dependencies.spec.ts` publishes a blocker after rendering a ready card; UI start crosses the actual installed command, refuses naming the supplier/reason/condition, and leaves Taken profiles, native calls, and session records empty. Synthetic Claude supplies only native-process observation, never the refusal.
+
+Independent refactor named the repeated launch predicate in `CardLaunches.tsx`; the two dependency files plus `agent-launch-start-card.spec.ts` passed again through `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/story-dependencies.spec.ts dashboard/tests/agent-launch-start-dependencies.spec.ts dashboard/tests/agent-launch-start-card.spec.ts --workers=2`, as did typecheck. Other inspected boundaries stayed unchanged. Mechanical lint repairs removed non-null assertions using fixed supplier tuples and a bounds assertion with the same observing meaning; typecheck and `npm run format` passed. `git diff --check` passed. The broader dashboard suite and native-agent reasoning are not claimed.
+
+Fixture-only initial failures were diagnosed: routine Git stderr violated quiet output, refusal wording differed, a same-revision refresh reused canonical cache, and dialog Cancel focus handoff overlapped the focus assertion. Quiet output, actual wording, a new published revision, and awaited focus handoff corrected those prerequisites; passing observations establish the actual UI/start behavior.

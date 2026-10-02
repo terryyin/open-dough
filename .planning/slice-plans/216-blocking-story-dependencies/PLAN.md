@@ -60,7 +60,8 @@ proof entry points. These remain constraints of this plan.
   Codex yielded-cell observation is bound to this checkout and `/root`:
   cell `21`, session `44377`, PID `84391`, mailbox
   `/tmp/dough-ci-501/watch-7PZYuD`. Managed delivery reuses it and registers
-  accepted branch revisions. No revision has been registered yet.
+  accepted branch revisions. Slice 1 accepted and registered:
+  `8bb73be064a7778470389bd5a458fb70f5a96962`; this is the next delivery base.
 
 ## Ordered slices
 
@@ -105,7 +106,7 @@ the dashboard gains its richer presentation; CLI refusal explains it.
 
 **Type:** Behavior
 
-**Status:** planned
+**Status:** done
 
 **Behavior:** The consumer card shows “Dependencies · 2 blocking”; expansion
 lists supplier links, rationale, completion condition, state, and available
@@ -128,6 +129,9 @@ installed-start fixture used by `agent-launch-start*.spec.ts` with a stale-card
 race: publish a blocker after rendering, attempt start, and observe the command
 refusal with no native-process launch. The existing result-parser test alone
 does not own this proof.
+
+**Accepted proof:** [Slice 2 UI and startup observations](CONTEXT.md#slice-2-accepted-proof).
+Refactor and formatting passed; independent readiness semantics are preserved.
 
 **Safe stop:** Developers can inspect and author blockers while resolutions are
 still performed explicitly through the slice 1 command.

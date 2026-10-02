@@ -1,3 +1,4 @@
+import { dependencyStartProblem } from "./storyDependencies.ts";
 import { sessionKey } from "./sessionReference.ts";
 // A card's launches: on a Backlog card, one Start action per workflow in the
 // order `launchWorkflows` offers them, whatever sessions are listed; on the
@@ -86,6 +87,11 @@ export function CardLaunches({
     startup?.state === "needs-reconciliation"
       ? undefined
       : launches.attemptOf(sourceId, entry.identity, workflow);
+  const dependencyProblem = dependencyStartProblem(entry.dependencies);
+  // Dependencies gate a new execution, not continuation of a kept one-shot.
+  const dependencyBlocksStart =
+    keptOneShot === undefined && dependencyProblem !== undefined;
+  const dependencyId = `${statusId}-dependencies`;
   const answerId = useId();
   // The answers of this page's launches that no Start on the card shows.
   const unshown = launchWorkflowNames.flatMap((workflow) => {
@@ -128,6 +134,11 @@ export function CardLaunches({
           evidence.
         </p>
       )}
+      {offersStart && dependencyBlocksStart && (
+        <p id={dependencyId} className="dependency-start-reason">
+          {dependencyProblem}
+        </p>
+      )}
       {keptStart !== undefined && (
         <StartLaunch
           sourceId={sourceId}
@@ -165,8 +176,14 @@ export function CardLaunches({
                 : launchWorkflows[workflow].note(entry)
             }
             attempt={attemptOf(workflow)}
-            unavailable={unoffered}
-            unavailableReason={unread}
+            unavailable={
+              unoffered || (workflow === "execution" && dependencyBlocksStart)
+            }
+            unavailableReason={
+              workflow === "execution" && dependencyBlocksStart
+                ? dependencyId
+                : unread
+            }
             onStart={onStart(workflow)}
           />
         ))}
