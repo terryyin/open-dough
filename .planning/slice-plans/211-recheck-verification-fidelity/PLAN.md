@@ -13,7 +13,7 @@ preparation assignment.
 ## Source and provenance
 
 - Reviewed execution: `SEED-072#durable-startup-reconciliation` through
-  [plan 206](../206-durable-startup-reconciliation/PLAN.md), commits
+  plan 206 (recoverable at `62bb5cbd:.planning/slice-plans/206-durable-startup-reconciliation/PLAN.md`), commits
   `3d82d365`, `a6fa2461`, `f7dbab51`, `1414d5c8` (`2e28c114` is an unrelated
   cherry-picked test fix).
 - Current findings from that execution's retrospective, re-observed at
