@@ -29,11 +29,7 @@ export async function resolveDashboardRelease(developmentRoot, env, signal) {
   const origin = await command("git", ["remote", "get-url", "origin"], options);
   const resolved = await command(
     "bash",
-    [
-      path.join(developmentRoot, "src/install/open-dough-release.sh"),
-      "resolve-url",
-      origin,
-    ],
+    [releaseResolver(developmentRoot), "resolve-url", origin],
     options,
   );
   const [tag, commit, version] = resolved.split("\t");
@@ -48,6 +44,28 @@ export async function resolveDashboardRelease(developmentRoot, env, signal) {
     throw new Error(`Malformed resolved dashboard release: ${resolved}`);
   }
   return { origin, tag, commit, version };
+}
+/** @param {string} developmentRoot */
+function releaseResolver(developmentRoot) {
+  return path.join(developmentRoot, "src/install/open-dough-release.sh");
+}
+/** @param {string} developmentRoot @param {string} candidateVersion @param {string} currentVersion @param {AbortSignal} [signal] */
+export async function compareDashboardReleases(
+  developmentRoot,
+  candidateVersion,
+  currentVersion,
+  signal,
+) {
+  return command(
+    "bash",
+    [
+      releaseResolver(developmentRoot),
+      "compare",
+      candidateVersion,
+      currentVersion,
+    ],
+    { cwd: developmentRoot, ...(signal ? { signal } : {}) },
+  );
 }
 /** @param {string} directory @param {DashboardRelease} release @param {NodeJS.ProcessEnv} [env] */
 export async function verifyDashboardRelease(directory, release, env) {
