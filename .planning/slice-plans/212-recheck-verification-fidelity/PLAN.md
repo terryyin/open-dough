@@ -195,7 +195,7 @@ Safe stop: no own-record attempt is settled “not launched”.
 
 ### 3. Launch and verification share one rule for a story launch's start and record
 Type: Structure
-Status: planned
+Status: done
 Proof: Add to `responsive-session-recovery-verification.spec.ts` that the
 verified launch record carries the kept start's established facts and policy
 and that the kept start is removed, as a confirmed launch's record does. Keep
@@ -257,3 +257,14 @@ Safe stop: correction complete.
 - Existing one-candidate, decoy/held, unreadable listing, ambiguous candidates and established-workspace journeys preserved. Sole verifier caller and record-store/listing consumers inspected.
 - Independent refactor returned `## REFACTOR COMPLETE`; selected proof accounts for both moved own-record cases.
 - Formatter caught an unused fixture callback parameter; record indexes now explicitly select the same one/two inputs. `npm run format` retry passed; observed setup unchanged.
+- Slice 2 accepted publication: `af244145189c3ba0e47f864d0c8432f00b7a4658` on the established execution branch. Managed CI remains unobserved with the same bridge limitation; no observer created.
+
+## Slice 3 accepted proof
+
+- Shared `launchStartContext` owns workspace, policy and established facts; `launchRecord` owns record formation across normal confirmation, verification and durable native input recording. Normal keep/remove ordering and original timestamps/input evidence preserved.
+- `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-claude-verification.spec.ts dashboard/tests/agent-launch-claude-own-record-verification.spec.ts dashboard/tests/responsive-session-recovery-verification.spec.ts dashboard/tests/agent-launch-session-kept-start.spec.ts dashboard/tests/agent-launch-start-resume.spec.ts dashboard/tests/agent-launch-preparation-resume.spec.ts dashboard/tests/responsive-session-recovery.spec.ts --workers=2 --reporter=line`: 19 passed (48.2s).
+- Proof review found default normalized policy could pass on omitted policy. Added an actual one-shot dialog/start variant, without mutating fixture policy. `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/responsive-session-recovery-verification.spec.ts --workers=2 --reporter=line`: 3 passed (14.4s). `npm run typecheck:dashboard`: passed.
+- Inspected parameterized Recheck journey: installed start and native uncertain launch provide precondition; persisted kept facts observed before Recheck, same-name project-folder decoy supplied. Actual written record equals kept facts/policy, including nondefault policy; one record/native launch, corresponding kept start removed, workspace session/cards restored.
+- Consumers traced: execution/preparation choices, established start handoff, run confirmation, verification, native recording creation/update and host adapters. Whole suite still required for Codex durable recording consumer.
+- Independent refactor: none — already clean; `## REFACTOR COMPLETE`. All accepted implementation/setup/assertion boundaries unchanged.
+- `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=4 --reporter=line`: 769 passed (4.8m), including native Codex durable recording consumers. `npm run format`: passed.

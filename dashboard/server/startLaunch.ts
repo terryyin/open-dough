@@ -18,15 +18,12 @@ import {
   type StoryLaunchRequest,
 } from "../src/agentLaunch.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import {
-  launchWorkspace,
-  startWorkspaceFolder,
-  type WorkspaceChoice,
-} from "./launchWorkspace.ts";
+import { launchWorkspace, type WorkspaceChoice } from "./launchWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import { git, repositoryOf, takenSlugs } from "./startGit.ts";
 import type { WorkflowProgress } from "./startProgress.ts";
 import type { StartRecord } from "./startStore.ts";
+import { launchStartContext } from "./launchRecord.ts";
 
 // What a workflow's start established: an execution's start or a refinement's
 // preparation, under the key its launch record keeps it by.
@@ -72,17 +69,6 @@ export type PlannedStart =
 export const alreadyStarting =
   "This story is already starting on this machine, so a second start was not made. Wait for the running start to end; its card shows its progress. Nothing was launched.";
 
-// The workspace a kept start was made in, shown as this host's workspaces are.
-function keptChoice(
-  project: ProjectFolder,
-  kept: StartRecord,
-): WorkspaceChoice {
-  return {
-    workspace: startWorkspaceFolder(project, kept.workspace),
-    branch: kept.branch,
-  };
-}
-
 // A kept claim cannot be reassigned to another host, including when that host
 // would otherwise fall back to a plain launch without an installed start.
 export function requireStartHost(
@@ -114,10 +100,12 @@ export async function startChoice(
 > {
   requireStartHost(request.host, kept);
   if (kept !== undefined) {
+    const context = launchStartContext(project, kept);
     return {
-      ...keptChoice(project, kept),
+      workspace: context.workspace,
+      branch: kept.branch,
       model: kept.model,
-      policy: policyOf(kept),
+      policy: context.policy,
     };
   }
   const policy = policyOf(request);

@@ -11,6 +11,8 @@ import {
   removeCreation,
   updateRecord,
 } from "./launchRecordStore.ts";
+import { launchRecord } from "./launchRecord.ts";
+
 export type LaunchRecording = {
   session(session: HostSession, evidence: FirstInput): Promise<void>;
   creating(workspace: string, endpoint: string): Promise<void>;
@@ -29,14 +31,13 @@ export function launchRecording(
     },
     async session(session: HostSession, firstInput: FirstInput) {
       const record: LaunchRecord = {
-        request,
-        session,
+        ...launchRecord(
+          request,
+          session,
+          facts,
+          retained?.launchedAt ?? began.toISOString(),
+        ),
         firstInput,
-        ...(facts.start === undefined ? {} : { start: facts.start }),
-        ...(facts.preparation === undefined
-          ? {}
-          : { preparation: facts.preparation }),
-        launchedAt: retained?.launchedAt ?? began.toISOString(),
       };
       if (retained === undefined) await keepRecord(request.source, record);
       else if (!(await updateRecord(request.source, record)))

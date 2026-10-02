@@ -9,6 +9,8 @@
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { attempts } from "./agentLaunchBoundary.ts";
+import { policyOf, type LaunchRecord } from "../src/agentLaunch.ts";
+import type { StartRecord } from "../server/startStore.ts";
 import { cardSessions } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import {
@@ -103,49 +105,91 @@ test("Recheck trusts the start's own record after its kept start was removed, ev
   expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
 });
 
-test("Recheck records the session listed in the start's workspace, not one of the same name in the project folder", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  test.setTimeout(120_000);
-  dashboard.claudeScenario("launched-hang");
-  const { story, takenStory } = await openStories(page, origin);
-  await startExecution(page, story);
-  await expect
-    .poll(async () => (await attempts(dashboard))[0]?.outcome?.kind, {
-      timeout: 60_000,
-    })
-    .toBe("uncertain");
-  const [uncertain] = await attempts(dashboard);
-  expect(uncertain?.publication.kind).toBe("published");
-  const [call] = dashboard.claudeLaunchCalls();
-  const [workspace] = worktrees(origin);
-  expect(call?.cwd).toBe(
-    realpathSync(path.join(origin.project, ".worktrees", workspace ?? "")),
-  );
-  const [listed] = dashboard.claudeListing();
-  const argv = call?.argv ?? [];
-  // The same name, since the launch was accepted, in the project folder.
-  dashboard.claudeListsSession({
-    name: argv[argv.indexOf("--name") + 1] ?? "",
-    cwd: realpathSync(origin.project),
-    startedAt: Date.now(),
-  });
-  await expectRecoveryOffered(page);
+for (const tracking of ["standard", "one-shot"] as const) {
+  test(`Recheck records the session listed in the start's workspace with its ${tracking} policy, not one of the same name in the project folder`, async ({
+    page,
+    dashboard,
+    origin,
+  }) => {
+    test.setTimeout(120_000);
+    dashboard.claudeScenario("launched-hang");
+    const { story, takenStory } = await openStories(page, origin);
+    const card = tracking === "standard" ? takenStory : story;
+    await story.getByRole("button", { name: "Start execution" }).click();
+    const dialog = page.getByRole("dialog");
+    if (tracking === "one-shot")
+      await dialog
+        .getByRole("group", { name: "Tracking", exact: true })
+        .getByRole("radio", { name: "One-shot", exact: true })
+        .check();
+    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expect(dialog).toBeHidden();
+    await expect
+      .poll(async () => (await attempts(dashboard))[0]?.outcome?.kind, {
+        timeout: 60_000,
+      })
+      .toBe("uncertain");
+    const [uncertain] = await attempts(dashboard);
+    expect(uncertain?.publication.kind).toBe(
+      tracking === "standard" ? "published" : "none",
+    );
+    const [call] = dashboard.claudeLaunchCalls();
+    const [workspace] = worktrees(origin);
+    expect(call?.cwd).toBe(
+      realpathSync(path.join(origin.project, ".worktrees", workspace ?? "")),
+    );
+    const startsFile = path.join(
+      dashboard.home,
+      ".open-dough/dashboard/execution-starts.json",
+    );
+    const starts = JSON.parse(readFileSync(startsFile, "utf8")) as Record<
+      string,
+      Record<string, StartRecord>
+    >;
+    const kept = starts["open-dough"]?.[queuedIdentity];
+    expect(kept?.start).toBeDefined();
+    expect(policyOf(kept ?? {}).tracking).toBe(tracking);
+    const [listed] = dashboard.claudeListing();
+    const argv = call?.argv ?? [];
+    // The same name, since the launch was accepted, in the project folder.
+    dashboard.claudeListsSession({
+      name: argv[argv.indexOf("--name") + 1] ?? "",
+      cwd: realpathSync(origin.project),
+      startedAt: Date.now(),
+    });
+    await expectRecoveryOffered(page);
 
-  await recoveryOf(page)
-    .getByRole("button", { name: `Recheck ${subject}` })
-    .click();
+    await recoveryOf(page)
+      .getByRole("button", { name: `Recheck ${subject}` })
+      .click();
 
-  await expect(recoveryOf(page)).toHaveCount(0, { timeout: 30_000 });
-  await expect(cardSessions(takenStory)).toHaveCount(1);
-  await expect(
-    takenStory.getByRole("button", { name: "Inspect story" }),
-  ).toBeEnabled();
-  expect((await attempts(dashboard))[0]?.outcome).toEqual({
-    kind: "launched",
-    session: { host: "claude", sessionId: listed?.sessionId },
+    await expect(recoveryOf(page)).toHaveCount(0, { timeout: 30_000 });
+    await expect(cardSessions(card)).toHaveCount(1);
+    await expect(
+      card.getByRole("button", { name: "Inspect story" }),
+    ).toBeEnabled();
+    expect((await attempts(dashboard))[0]?.outcome).toEqual({
+      kind: "launched",
+      session: { host: "claude", sessionId: listed?.sessionId },
+    });
+    const records = JSON.parse(
+      readFileSync(
+        path.join(dashboard.home, ".open-dough/dashboard/agent-launches.json"),
+        "utf8",
+      ),
+    ) as Record<string, LaunchRecord[]>;
+    expect(records["open-dough"]).toHaveLength(1);
+    const [record] = records["open-dough"] ?? [];
+    expect(record?.start).toEqual(kept?.start);
+    expect(record?.preparation).toBeUndefined();
+    expect(record?.request.workflow).toBe("execution");
+    expect(
+      policyOf(record?.request.workflow === "execution" ? record.request : {}),
+    ).toEqual(policyOf(kept ?? {}));
+    const remainingStarts = JSON.parse(
+      readFileSync(startsFile, "utf8"),
+    ) as Record<string, Record<string, StartRecord>>;
+    expect(remainingStarts["open-dough"]?.[queuedIdentity]).toBeUndefined();
+    expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
   });
-  expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-});
+}

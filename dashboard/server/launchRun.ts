@@ -13,6 +13,7 @@ import { projectFolder, type ProjectFolder } from "./projectFolders.ts";
 import { publicationOf, started, type Started } from "./launchStart.ts";
 import { launchHost } from "./launchHosts.ts";
 import { launchRecording } from "./launchRecording.ts";
+import { launchRecord } from "./launchRecord.ts";
 import { keepRecord, pendingInputOf } from "./launchRecordStore.ts";
 import { removeLaunchedStart } from "./startStore.ts";
 import { recordedRequest, withStartPolicy } from "./hostLaunch.ts";
@@ -119,12 +120,14 @@ async function launchRun(
         }
       : launched;
   }
-  const record: LaunchRecord = evidence.retained ?? {
-    request: recording,
-    session: launched.session,
-    ...(start.kind === "established" ? start.handoff.established : {}),
-    launchedAt: new Date().toISOString(),
-  };
+  const record =
+    evidence.retained ??
+    launchRecord(
+      recording,
+      launched.session,
+      start.kind === "established" ? start.handoff.established : {},
+      new Date().toISOString(),
+    );
   if (evidence.retained === undefined) await keepRecord(source.id, record);
   await removeLaunchedStart(source.id, record);
   return {

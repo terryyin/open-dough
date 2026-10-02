@@ -24,6 +24,7 @@ import {
 import type { StartProgress } from "./startProgress.ts";
 import { startOf, type StartWorkflow } from "./startWorkflows.ts";
 import { keptStart } from "./startStore.ts";
+import { launchStartContext } from "./launchRecord.ts";
 
 const defaultStartWaitMs = 120_000;
 
@@ -146,16 +147,21 @@ export async function started(
     "start" in attempt
       ? { start: attempt.start }
       : { preparation: attempt.preparation };
+  const context = launchStartContext(folder, {
+    workspace: planned.workspace.path,
+    policy: planned.policy,
+    ...established,
+  });
   try {
     return {
       kind: "established",
       workflow,
-      policy: planned.policy,
+      policy: context.policy,
       handoff: {
         established,
         formatted: await workflow.format(folder, established, request.host),
       },
-      workspace: planned.workspace,
+      workspace: context.workspace,
     };
   } catch {
     scoped.clear(source.id, request.identity);

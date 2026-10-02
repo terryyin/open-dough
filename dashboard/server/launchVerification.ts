@@ -15,7 +15,6 @@
 // its story is accepted.
 
 import {
-  policyOf,
   type AttemptOutcome,
   type LaunchAttemptRecord,
   type LaunchRecord,
@@ -30,7 +29,7 @@ import {
 } from "./hostLaunch.ts";
 import { launchHost } from "./launchHosts.ts";
 import { keepRecord, readableRecordsByProject } from "./launchRecordStore.ts";
-import { startWorkspaceFolder } from "./launchWorkspace.ts";
+import { launchRecord, launchStartContext } from "./launchRecord.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { keptStart, removeLaunchedStart } from "./startStore.ts";
 
@@ -101,15 +100,16 @@ export async function verifyLaunch(
     kept?.start === undefined && kept?.preparation === undefined
       ? undefined
       : kept;
-  const startedIn =
+  const context =
     established === undefined
-      ? project
-      : startWorkspaceFolder(project, established.workspace);
+      ? undefined
+      : launchStartContext(project, established);
+  const startedIn = context?.workspace ?? project;
   const requested = recordedRequest(request, new Date(acceptedAt));
   const recording =
-    established === undefined
+    context === undefined
       ? requested
-      : withStartPolicy(requested, policyOf(established));
+      : withStartPolicy(requested, context.policy);
   const listed = await host.launchedSessions(
     source,
     recording,
@@ -138,15 +138,12 @@ export async function verifyLaunch(
     kind: "launched",
     session: { host: found.session.host, sessionId: found.session.sessionId },
   };
-  const record: LaunchRecord = {
-    request: recording,
-    session: found.session,
-    ...(established?.start === undefined ? {} : { start: established.start }),
-    ...(established?.preparation === undefined
-      ? {}
-      : { preparation: established.preparation }),
-    launchedAt: new Date().toISOString(),
-  };
+  const record = launchRecord(
+    recording,
+    found.session,
+    context?.facts ?? {},
+    new Date().toISOString(),
+  );
   try {
     await keepRecord(source.id, record);
     await removeLaunchedStart(source.id, record);
