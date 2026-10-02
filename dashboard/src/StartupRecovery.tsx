@@ -18,6 +18,7 @@ import {
   type AttemptObservation,
 } from "./agentLaunch.ts";
 import { Moment } from "./Moment.tsx";
+import { hostDescription } from "./hostDescription.ts";
 import { shortRevision } from "./publishedWork.ts";
 import { hostName } from "./sessionCapabilities.ts";
 import {
@@ -83,22 +84,6 @@ function KnownFacts({ attempt }: { readonly attempt: AttemptObservation }) {
   );
 }
 
-// Where the host's own sessions are checked before continuing.
-function NativeCheck({ host }: { readonly host: AgentLaunchRequest["host"] }) {
-  return host === "claude" ? (
-    <>
-      Check <code>claude agents</code> before continuing: continuing starts its
-      session again unless its kept evidence resumes it.
-    </>
-  ) : (
-    <>
-      Check the dashboard history and native {hostName(host)} conversations
-      before continuing; a recorded conversation is resumed, never submitted
-      again.
-    </>
-  );
-}
-
 function RecoveryEntry({
   item,
   onContinue,
@@ -114,6 +99,9 @@ function RecoveryEntry({
   const named = startName(request.workflow);
   const continues =
     attempt !== undefined && cause !== "waiting" && cause !== "unacknowledged";
+  const nativeCheckAdvice = continues
+    ? hostDescription(request.host).nativeCheckAdvice
+    : undefined;
   return (
     <article
       className="startup-recovery-entry"
@@ -142,9 +130,9 @@ function RecoveryEntry({
         </p>
       )}
       {attempt !== undefined && <KnownFacts attempt={attempt} />}
-      {continues && (
+      {nativeCheckAdvice !== undefined && (
         <p className="quiet" id={`${id}-check`}>
-          <NativeCheck host={request.host} />
+          <LaunchExplanation text={nativeCheckAdvice} />
         </p>
       )}
       <p className="startup-recovery-actions">
@@ -159,7 +147,9 @@ function RecoveryEntry({
           <button
             type="button"
             aria-label={`Continue ${named} of ${subject}`}
-            aria-describedby={`${id}-check`}
+            aria-describedby={
+              nativeCheckAdvice === undefined ? undefined : `${id}-check`
+            }
             disabled={continuing}
             onClick={() => {
               onContinue(attempt);

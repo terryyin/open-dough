@@ -107,6 +107,18 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
     await expect(
       recovery.getByRole("button", { name: /^Continue execution start/ }),
     ).toBeEnabled();
+    const nativeAdvice =
+      "Check claude agents before continuing: continuing starts its session again unless its kept evidence resumes it.";
+    await expect(recovery.locator('[id$="-check"]')).toHaveText(nativeAdvice);
+    await expect(recovery.locator('[id$="-check"] code')).toHaveText(
+      "claude agents",
+    );
+    await expect(
+      recovery.getByRole("button", { name: /^Continue execution start/ }),
+    ).toHaveAccessibleDescription(nativeAdvice);
+    await expect(
+      recovery.getByRole("button", { name: /^Recheck / }),
+    ).toBeEnabled();
     await expect(card(readyStory)).toContainText(
       "Startup needs reconciliation",
     );

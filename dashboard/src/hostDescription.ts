@@ -9,6 +9,7 @@ export type HostDescription = {
   readonly models: Readonly<Record<string, { readonly name: string }>>;
   readonly skillSigil?: string;
   readonly uncertaintyHint?: string;
+  readonly nativeCheckAdvice?: string;
   readonly unofferedModelExplanation?: string;
   readonly unavailableSessionExplanation?: string;
   readonly unknownObservation?: {
@@ -28,6 +29,8 @@ export const hostDescriptions = {
       sonnet: { name: "Sonnet" },
     },
     uncertaintyHint: "Check `claude agents` for it before starting again.",
+    nativeCheckAdvice:
+      "Check `claude agents` before continuing: continuing starts its session again unless its kept evidence resumes it.",
     unavailableSessionExplanation: "Claude Code no longer lists this session.",
     unknownObservation: {
       label: "State unknown",
@@ -47,6 +50,8 @@ export const hostDescriptions = {
     models: {},
     uncertaintyHint:
       "Check the dashboard history and native Codex conversations before starting again.",
+    nativeCheckAdvice:
+      "Check the dashboard history and native Codex conversations before continuing; a recorded conversation is resumed, never submitted again.",
     unofferedModelExplanation:
       "Codex uses its configured default model; a Claude model cannot be selected.",
   },
