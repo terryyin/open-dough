@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-041#deliberate-implementation-dependencies",
+  "mode": "story-branch",
+  "branch": "codex/capture-and-visualize-beneficial-implementation",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
