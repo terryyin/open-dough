@@ -30,7 +30,8 @@ models and descriptions. This shared interaction covers Start session, Start
 execution and Start refinement. An explicit model ID goes to native creation and
 the launch record; story preparation receives that model before creating the
 session. Blank ad hoc creation sends no artificial prompt. Catalog choices are
-transient, with no cross-launch preference or configuration writes. Discovery
+transient: the dashboard keeps no cross-launch preference and writes no
+configuration. Discovery
 failure explains the unavailable choices and offers retry; the configured-setting
 path remains usable. Explicit choices are revalidated before creation, and a
 contradictory creation response keeps the conversation identity without sending
@@ -45,7 +46,13 @@ workspace is established. Launch validates against that actual workspace and
 checks native effective model/effort before saving any sendable input evidence.
 Unknown configured custom models remain usable with untouched defaults.
 Configured defaults are never inferred from catalog recommendations. Cursor
-offers only Default, which omits `--model`. Switching
+lists `cursor-agent models` after “Default (your Cursor setting)”, with the same
+unreadable-list Retry and the same recheck before `create-chat`. A chosen id
+goes as `--model` on the prompted launch run only, never into the stored resume
+command, and the dialog says that Cursor also saves it as its own model
+setting. A blank ad hoc Cursor start with a chosen model is refused, because no
+Cursor run would apply it. Cursor offers no reasoning effort, and Default omits
+`--model`. Switching
 hosts and fresh openings clear both selections; no authentication, trust, approval,
 sandbox or permission setting is overridden by the dashboard.
 Requested model/options lines describe requests, never the effective model.

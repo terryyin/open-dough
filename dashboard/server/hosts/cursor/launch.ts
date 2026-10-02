@@ -3,66 +3,26 @@
 // --resume <id> <prompt>`. That process is the session: exit 0 confirms the
 // first input, any other exit leaves it unconfirmed, and a client still
 // running when the launch wait ends stays running. An unattached session
-// with no instruction still keeps that id and submits no prompt. Default
-// omits `--model`. No worktree, trust, or approval flag is passed.
+// with no instruction still keeps that id and submits no prompt. A chosen
+// model is `--model <id>` on the prompted run only; Cursor also saves it as
+// its setting. The kept resume command never carries it, and Default omits
+// it. A blank start with a chosen model is refused before create-chat: no
+// run would apply it. No worktree, trust, or approval flag is passed.
 
-import {
-  execFile,
-  spawn,
-  type ChildProcess,
-  type ExecException,
-} from "node:child_process";
+import { spawn, type ChildProcess } from "node:child_process";
 import { z } from "zod";
 import { launchSubject } from "../../../src/agentLaunch.ts";
 import type { CursorSession, FirstInput } from "../../../src/launchRecord.ts";
 import { shellCommand } from "../../../src/sessionCapabilities.ts";
 import type { LaunchHost } from "../../launchHosts.ts";
 import type { HostLaunch } from "../../hostLaunch.ts";
+import { cursorAgent, execCursor } from "./exec.ts";
 import { cursorPrompt } from "./prompt.ts";
-
-const cursorAgent = "cursor-agent";
 
 // Abort can arrive during an await. A direct `signal.aborted` check is
 // narrowed for the rest of the function, so read it through this call.
 function aborted(signal: AbortSignal): boolean {
   return signal.aborted;
-}
-
-type CursorRun = {
-  readonly error: ExecException | null;
-  readonly stdout: string;
-  readonly stderr: string;
-};
-
-function execCursor(
-  args: readonly string[],
-  cwd: string,
-  signal: AbortSignal,
-): Promise<CursorRun> {
-  return new Promise((resolve) => {
-    try {
-      const child = execFile(
-        cursorAgent,
-        [...args],
-        {
-          cwd,
-          signal,
-          maxBuffer: 8 * 1024 * 1024,
-          encoding: "utf8",
-        },
-        (error, stdout, stderr) => {
-          resolve({ error, stdout, stderr });
-        },
-      );
-      child.stdin?.end();
-    } catch (error) {
-      resolve({
-        error: error as ExecException,
-        stdout: "",
-        stderr: "",
-      });
-    }
-  });
 }
 
 function resumeFlags(workspace: string, sessionId: string): readonly string[] {
@@ -187,6 +147,14 @@ export const launchCursor: LaunchHost["launch"] = async (
       explanation: "Cursor was not given a first prompt. Nothing was launched.",
     };
   }
+  if (prompt === undefined && request.model !== undefined) {
+    return {
+      kind: "failed",
+      reason: "refused",
+      explanation:
+        "Cursor applies a chosen model with the first instruction. Add an instruction, or use your Cursor setting. Nothing was launched.",
+    };
+  }
   const workspace = established?.workspace.path ?? folder.path;
   const created = await execCursor(["create-chat"], workspace, signal);
   if (aborted(signal)) return timedOut(undefined);
@@ -227,7 +195,11 @@ export const launchCursor: LaunchHost["launch"] = async (
     return { kind: "launched", session, sessionState: { kind: "unknown" } };
   }
   const submitted = await submitPrompt(
-    [...resumeFlags(workspace, session.sessionId), prompt],
+    [
+      ...resumeFlags(workspace, session.sessionId),
+      ...(request.model === undefined ? [] : ["--model", request.model]),
+      prompt,
+    ],
     workspace,
     signal,
   );

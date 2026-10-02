@@ -1,7 +1,8 @@
 // An unattached Cursor session has no story and no start. The fixture
 // `cursor-agent` on PATH prints the create-chat id and records argv. An
 // empty instruction is recorded with no prompt and no skill line. A present
-// instruction is the only prompt text. The project still carries the real
+// instruction is the only prompt text. An empty instruction with a chosen
+// model is refused before create-chat. The project still carries the real
 // installed start script, and this launch does not run it. Claude's ad hoc
 // specs and Codex's ad hoc spec stay the proofs of those hosts.
 
@@ -189,3 +190,35 @@ for (const text of ["", "why is the CI slow?"]) {
     expect(dashboard.claudeLaunchCalls()).toEqual([]);
   });
 }
+
+test("a blank Cursor Start session with a chosen model is refused before create-chat", async ({
+  page,
+  origin,
+  cursor,
+}) => {
+  test.setTimeout(120_000);
+  await publishCommittedOrigin(page, {
+    repoDir: origin.origin,
+    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    repository: "terryyin/open-dough",
+    follows: true,
+  });
+  await page.goto("/");
+  const button = page.getByRole("button", {
+    name: "Start session in Open Dough",
+  });
+  await button.click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
+  await dialog.getByRole("combobox", { name: "Model" }).selectOption("gpt-5.2");
+  await expect(startSessionField(dialog)).toHaveValue("");
+  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+
+  await expect(dialog).toBeHidden();
+  await expect(page.locator(".project-actions .launch-problem")).toHaveText(
+    "Launch failed: Cursor applies a chosen model with the first instruction. Add an instruction, or use your Cursor setting. Nothing was launched.",
+  );
+  await expect(button).toBeEnabled();
+  await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(0);
+  expect(cursor.calls()).toEqual([]);
+});

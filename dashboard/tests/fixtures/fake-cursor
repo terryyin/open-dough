@@ -4,11 +4,30 @@
 // The launch argv log is create-chat and a prompted resume, which exits 0.
 // Resume with no prompt is the embedded attach: it is recorded separately,
 // prints the observed `Add a follow-up` prompt, and survives SIGHUP. It does
-// not write a launch record or a workspace.
+// not write a launch record or a workspace. `models` is logged apart from
+// launch argv and prints FAKE_CURSOR_MODELS; without that file it fails.
 const fs = require("node:fs");
 const path = require("node:path");
 
 const args = process.argv.slice(2);
+if (args[0] === "models") {
+  const modelsLog = process.env.FAKE_CURSOR_MODELS_LOG;
+  if (modelsLog) {
+    fs.appendFileSync(
+      modelsLog,
+      `${JSON.stringify({ args, cwd: process.cwd() })}\n`,
+    );
+  }
+  let listing;
+  try {
+    listing = fs.readFileSync(process.env.FAKE_CURSOR_MODELS ?? "", "utf8");
+  } catch {
+    process.stderr.write("Could not list models\n");
+    process.exit(1);
+  }
+  process.stdout.write(listing);
+  process.exit(0);
+}
 const log = process.env.FAKE_CURSOR_LOG;
 const home = process.env.HOME;
 let stored = null;

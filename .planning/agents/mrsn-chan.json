@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mrsn-chan",
-  "email": "mrsn-chan@example.org",
-  "identity": "SEED-052#cursor-native-activity-and-controls",
-  "mode": "story-branch",
-  "branch": "cursor/choose-a-cursor-model-when-starting-work",
-  "host": "cursor"
-}

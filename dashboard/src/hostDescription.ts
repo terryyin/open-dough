@@ -16,6 +16,19 @@ export type HostDescription = {
     readonly label: string;
     readonly note: string;
   };
+  // Presence offers the host's transient native model catalog in the dialog;
+  // its runtime boundary supplies `options`.
+  readonly modelCatalog?: {
+    readonly defaultLabel: string;
+    readonly reading: string;
+    readonly unreadable: string;
+    readonly defaultNote: string;
+    readonly unavailable: string;
+    readonly stale: string;
+    readonly unverified: string;
+    // Follows a listed model's description when one is chosen.
+    readonly chosenNote?: string;
+  };
 };
 
 export const hostDescriptions = {
@@ -48,6 +61,20 @@ export const hostDescriptions = {
     branchNamespace: "codex/",
     skillSigil: "$",
     models: {},
+    modelCatalog: {
+      defaultLabel: "Use Codex setting",
+      reading: "Reading Codex model choices… You can use the Codex setting.",
+      unreadable:
+        "Codex model choices could not be read. Retry, or use the Codex setting.",
+      defaultNote:
+        "Codex resolves its configured model in the launch workspace.",
+      unavailable:
+        "This model is unavailable. Choose another model or use the Codex setting.",
+      stale:
+        "The selected Codex model is no longer available. Choose another model or use the Codex setting.",
+      unverified:
+        "Codex model choices could not be verified. Retry, or use the Codex setting.",
+    },
     uncertaintyHint:
       "Check the dashboard history and native Codex conversations for it.",
     nativeCheckAdvice:
@@ -59,6 +86,21 @@ export const hostDescriptions = {
     // This invocation spells a skill as `/dough-execute-plan`.
     skillSigil: "/",
     models: {},
+    modelCatalog: {
+      defaultLabel: "Default (your Cursor setting)",
+      reading: "Reading Cursor model choices… You can use your Cursor setting.",
+      unreadable:
+        "Cursor model choices could not be read. Retry, or use your Cursor setting.",
+      defaultNote: "Cursor starts with your current Cursor model setting.",
+      unavailable:
+        "This model is unavailable. Choose another model or use your Cursor setting.",
+      stale:
+        "The selected Cursor model is no longer available. Choose another model or use your Cursor setting.",
+      unverified:
+        "Cursor model choices could not be verified. Retry, or use your Cursor setting.",
+      chosenNote:
+        "Cursor also saves a chosen model as your Cursor setting for later sessions.",
+    },
     // No passive status command was observed, so a visible session stays unread.
     unknownObservation: {
       label: "Activity unknown",
