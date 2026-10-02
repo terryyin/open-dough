@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # scripts/ci-container.sh stops, naming the missing runtime, when no `docker`
 # is on PATH or its daemon cannot be reached, and refuses by name a directory
-# or path outside the checkout, each before any image work; and the Ubuntu and
-# Node versions and the dashboard commands it states are the ones
-# .github/workflows/ci.yml runs.
+# or path outside the checkout, each before any image work. Its Ubuntu and
+# Node versions and dashboard checks agree with .github/workflows/ci.yml;
+# its bare image bootstraps system libraries that native CI already has.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -86,42 +86,54 @@ stated() {
   ' "${script}"
 }
 ubuntu_version=$(stated ubuntu_version)
-node_version=$(stated node_version)
+node_version=$(cat -- "${source_dir}/.node-version")
 if [[ -z ${ubuntu_version} || -z ${node_version} ]]; then
   echo 'FAIL: scripts/ci-container.sh does not state its Ubuntu and Node versions.' >&2
   exit 1
 fi
 
+# The diagnostic image uses the exact shared selection, not latest-v24.x.
+# shellcheck disable=SC2016 # Literal source contract.
+expect_in_log "${script}" -Fx -- 'node_version=$(cat -- "${source_dir}/.node-version")'
+# shellcheck disable=SC2016 # Literal source contract.
+expect_in_log "${script}" -F -- 'base=https://nodejs.org/dist/v${node_version}'
+
 # Every job's runner and every Node setup in the workflow must agree.
 sed -n 's/^[[:space:]]*runs-on:[[:space:]]*//p' "${workflow}" > "${temporary_dir}/runners"
-sed -n 's/^[[:space:]]*node-version:[[:space:]]*//p' "${workflow}" > "${temporary_dir}/nodes"
+sed -n 's/^[[:space:]]*node-version-file:[[:space:]]*//p' "${workflow}" > "${temporary_dir}/nodes"
 expect_in_log "${temporary_dir}/runners" -Fx -- "ubuntu-${ubuntu_version}"
-expect_in_log "${temporary_dir}/nodes" -Fx -- "\"${node_version}\""
+expect_in_log "${temporary_dir}/nodes" -Fx -- ".node-version"
 if grep -vFx -- "ubuntu-${ubuntu_version}" "${temporary_dir}/runners" \
-  || grep -vFx -- "\"${node_version}\"" "${temporary_dir}/nodes"; then
+  || grep -vFx -- ".node-version" "${temporary_dir}/nodes"; then
   printf 'FAIL: ci.yml runs on a version other than ubuntu-%s and Node %s (above).\n' \
     "${ubuntu_version}" "${node_version}" >&2
   exit 1
 fi
 
-# The dashboard commands the script states, in order, must be the `run:`
-# commands of ci.yml's dashboard job after `npm ci`, less the --shard argument
-# that splits CI's run across jobs.
+# The diagnostic image bootstraps system libraries on bare Ubuntu; native CI
+# uses the runner's libraries and the locked local Playwright package. Both
+# install Chromium, then run the same dashboard commands in the same order.
+# Keep the bootstrap explicit rather than removing --with-deps from the image.
+dashboard_install=$(stated dashboard_install)
+if [[ ${dashboard_install} != 'npx playwright install --with-deps chromium' ]]; then
+  echo 'FAIL: scripts/ci-container.sh must bootstrap Chromium system dependencies.' >&2
+  exit 1
+fi
 {
-  stated dashboard_install
+  printf '%s\n' 'node scripts/setup-native.mjs browser'
   stated dashboard_steps
 } > "${temporary_dir}/stated-dashboard"
 awk '
   /^  [^ #]/ { job = ($0 ~ /^  dashboard:[[:space:]]*$/); next }
   job && /^[[:space:]]*(- )?run:/ {
     sub(/^[[:space:]]*(- )?run:[[:space:]]*/, "")
-    if (installed) print
-    else if ($0 == "npm ci") installed = 1
+    if (installed && $0 !~ /^\|$/) print
+    else if ($0 == "node scripts/setup-native.mjs npm") installed = 1
   }
 ' "${workflow}" | sed 's/ -- --shard[= ].*$//' > "${temporary_dir}/ci-dashboard"
 if [[ ! -s ${temporary_dir}/ci-dashboard ]] \
   || ! diff -- "${temporary_dir}/stated-dashboard" "${temporary_dir}/ci-dashboard" >&2; then
-  echo 'FAIL: the dashboard commands scripts/ci-container.sh states (<) are not' \
+  echo 'FAIL: the browser-only install and shared dashboard commands (<) are not' \
     "ci.yml's dashboard job after npm ci (>)." >&2
   exit 1
 fi
