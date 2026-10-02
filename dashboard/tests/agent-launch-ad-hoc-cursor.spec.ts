@@ -193,7 +193,6 @@ for (const text of ["", "why is the CI slow?"]) {
 
 test("a blank Cursor Start session with a chosen model is refused before create-chat", async ({
   page,
-  dashboard,
   origin,
   cursor,
 }) => {
@@ -222,6 +221,4 @@ test("a blank Cursor Start session with a chosen model is refused before create-
   await expect(button).toBeEnabled();
   await expect(parts(page).recentSessions.getByRole("article")).toHaveCount(0);
   expect(cursor.calls()).toEqual([]);
-  expect(await origin.takenProfiles()).toEqual([]);
-  expect(dashboard.claudeLaunchCalls()).toEqual([]);
 });

@@ -180,7 +180,7 @@ Learnings for slice 3:
 
 ### 3. Refuse a model for blank Cursor ad hoc and document the host
 Type: Behavior
-Status: planned
+Status: done
 Proof: A new case in `dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts`:
 `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts --workers=2`.
 The host guide is checked by reading.
@@ -194,6 +194,13 @@ records `not-requested`. The Cursor paragraph and host-options paragraph in
 `--model`, the saved-setting side effect, and the blank refusal.
 
 Safe stopping point: the story is complete.
+
+Accepted proof: the ad hoc Cursor spec passed (3), and passed again after
+the refactor. Typecheck passed. The new case failed with the guard disabled.
+The refusal in `server/hosts/cursor/launch.ts` reads "Cursor applies a chosen
+model with the first instruction. Add an instruction, or use your Cursor
+setting. Nothing was launched." It appears on the existing launch-failure line
+beside Start session.
 
 ## Current decisions
 
