@@ -203,6 +203,7 @@ test("saved Codex states appear consistently on cards, Recent sessions and sideb
   };
   await check();
   await page.reload();
+  await expect(sidebar.button).toBeVisible();
   if (!(await sidebar.sidebar.isVisible())) await sidebar.button.click();
   await check();
   const responses = await states(dashboard);
