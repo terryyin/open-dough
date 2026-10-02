@@ -9,6 +9,7 @@
 - Owned execution checkout: `/Users/terryyin/git/open-dough/.worktrees/persist-dashboard-project-configuration`, branch `codex/persist-dashboard-project-configuration`, reused from the established start. Story Branch Mode.
 - Originating checkout is this execution checkout; integration checkout: `/Users/terryyin/git/open-dough` (not mutated by increment delivery).
 - Starting revision: `8e83ed742bfbcf9b31a3ec9a7b12f34dc278dd89`; published claim and initial candidate: `db6b0da9a8e1707048b8a5134daf9381f9fe7567` on `origin/refs/heads/main` and the remote execution branch. Claim CI is unobserved.
+- Published wider-font CI repair: `3750798b1a28828cfdc3c810fe09731a9d23bea0`, accepted without reconciliation and registered on reused EQYhvD. Pause record mx4YJ3 restored completely; exact own stash entry retired.
 - Published slice 3: `045df11b4d86d49e8e13608337f8f14aec78cf40`, accepted on the execution branch; its initial detached observer registration and later native notification identified run `36989187526/1`.
 - Published machine-directory CI repair: `ec292c237580ec81839a198a862d3363e92896fc`, accepted on the execution branch and registered with the retained observer.
 - Published slice 2: `9137728f9e3b9d89c3e3fbe2ac799a4d020b6f09`, accepted on the execution branch and registered with the retained observer.
@@ -17,7 +18,7 @@
 - Published slice 1: `62c03b0083f1e6a65f42a2151c800eaa8923bc9f`, accepted on the remote execution branch with the retained observer registration.
 - Increment destination: `origin/refs/heads/codex/persist-dashboard-project-configuration`; eventual integration target: `origin/refs/heads/main`.
 - Setup: exact Node `24.21.0` from `/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin`, locked npm and Chromium setup, native prerequisite check and dashboard typecheck passed in this checkout. Commands prepend that Node directory and `/opt/homebrew/bin` to `PATH`.
-- CI: GitHub Actions, verified `ci.yml` push workflow; current Codex coordinator `/root`, yielded cell `173`, stream session `63272`, PID `99788`, mailbox `/tmp/dough-ci-501/watch-Xvrcwc`, bound to this execution checkout and remote execution branch. Managed increment delivery registers accepted revisions with this native stream.
+- CI: GitHub Actions, verified `ci.yml` push workflow; current Codex coordinator `/root`, yielded cell `31`, stream session `72143`, PID `30845`, mailbox `/tmp/dough-ci-501/watch-EQYhvD`, bound to this execution checkout and remote execution branch. Managed increment delivery registers accepted revisions with this native stream.
 - No numeric slice budget or exceptions are configured; judge boundedness by the selected coherent outcome and proof loop. Existing planning authority is retained for remaining-work refinement.
 - Check-only commit hook: `.githooks/pre-commit` runs `npm run --silent lint -- --staged`; coordinator owns `npm run format`, which selects the repository's lintable file kinds and ignores. No generation trigger applies to dashboard source edits.
 - Relevant Accepted ADRs: 0001 (domain names) and 0002 (cohesive single representations). ADR 0008 is Proposed; no Accepted decision conflicts with this work.
@@ -104,8 +105,8 @@ Behavior: In either environment, Add project opens a modal with GitHub URL and L
 
 ### 4. Add project refuses an invalid project with its reason
 Type: Behavior
-Status: planned
-Proof: A journey in `project-add.spec.ts` for the origin mismatch (both repositories named, dialog open, values kept, file unchanged), plus focused server unit proof for each other refusal.
+Status: done
+Proof: A journey in `project-add-refusal.spec.ts` for the origin mismatch (both repositories named, dialog open, values kept, file unchanged), plus focused server unit proof for each other refusal.
 
 Behavior: Add with a non-GitHub URL, a repository `gh` cannot read, a missing folder, a folder that is not a Git checkout, a checkout whose `origin` names another repository, or a repository or id already configured → the dialog stays open with the reason linked to its field, the entered values stay, and nothing is saved. The duplicate-id refusal is justified because records are keyed by id.
 
@@ -221,3 +222,10 @@ All commands run in the execution checkout with `PATH=/tmp/open-dough-node-24.21
 - `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/project-add.spec.ts --workers=1`, `env -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard` and `git diff --check` — pass. Logs `/tmp/open-dough-ci045-{owned-green,layout-final-green,cursor-red,cursor-green,add-green,typecheck}.log`.
 - Unchanged pre-story settlement failure: controlled owned-lock observation `/tmp/open-dough-ci045-acceptance-observation.mjs` proves a live launched outcome precedes its completed write; releasing the lock yields stored launched. Exact comparison against ec292 of acceptance spec, launchAttemptSettlement, launchAttemptStore, machineJsonStore and ownedAttempts exits 0; blame predates this story. Awaiting stored outcome is the proposed test-owner correction; no authority or change on that path. Slice 4 remains planned.
 - Independent refactor removed only the compact banner's duplicate columns declaration; identical inherited computed styles preserve all accepted observations. No additional tests. Coordinator `npm run format` passed; no semantic repairs.
+- Banner repair published as `ecab73db28b20779e50d9f6a7abc49ea458e8c8d`; accepted without reconciliation. Clean pause receipt restored with `resumed`, no entry applied or dropped. Native Xvrcwc worker was lost, terminal stopped/lost and PID absent; managed delivery attached qaIDit. Its duplicate 045 evidence was accounted, then coordinator replacement stopped it with pending ecab unobserved and PID exit confirmed. Native EQYhvD is armed; observer request root includes a trailing slash, so managed recovery/publication supplies that exact `--root` to match its ownership without changing installed guidance.
+
+### Slice 4
+
+- Existing Add behavior required no product edits. `project-add-refusal.spec.ts` owns the actual preview/form/real-Git mismatch journey: both repositories named, dialog and input values retained, linked path error/accessible description, Add still enabled, selection and saved bytes unchanged. Separate spec preserves the positive Add source at its size cap.
+- `project-add-validation.spec.ts` uses isolated development owner, real Git and gh subprocess with fake upstream answers. Nine cases observe invalid URL, unreadable repository, missing/non-checkout/nested folder, origin mismatch, distinct mixed-case repository/id duplicates, and held concurrent metadata reads yielding exactly one append. Every refusal preserves bytes/list and leaves no temporary files.
+- `env -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard` and `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- project-add-refusal.spec.ts project-add-validation.spec.ts --workers=1` — pass, ten cases. Independent refactor reuses `support/testEnv.ts:withRestoredEnv`; fresh typecheck and `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/project-add-validation.spec.ts --workers=1` — pass, nine cases. Browser setup/assertions remain unchanged. Coordinator `npm run format` passed; shared product contracts and accepted positive proof unchanged.
