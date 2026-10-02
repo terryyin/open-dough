@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "viktor-chan",
+  "email": "viktor-chan@example.org",
+  "identity": "SEED-072#recheck-verification-fidelity",
+  "mode": "story-branch",
+  "branch": "codex/recheck-verifies-only-what-its-host-can-list-and",
+  "host": "codex"
+}
