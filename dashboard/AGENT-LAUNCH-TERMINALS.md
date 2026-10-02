@@ -22,11 +22,10 @@ Closing a Claude Code or Codex socket sends SIGHUP to that attachment client
 only, retaining native work, history, and daemon. Cursor's attach result
 declares keep: closing its socket, by Close, switching sessions, or a dropped
 connection, leaves that client running. A kept Cursor client with no socket
-is hung up only after its screen has shown a line `done`, then
-`→ Add a follow-up`, for 0.203 seconds, and that screen has neither the
-working marker (`→ Add a follow-up` with `ctrl+c to stop`) nor the waiting
-marker (`Clarifying Questions` with `Red` and `Blue`). A working, waiting, or
-unrecognized screen keeps the client. The next socket for a client that is
+is hung up only after its screen has shown `→ Add a follow-up` for 0.203
+seconds without `ctrl+c to stop`, `Working`, `Running`, or
+`Clarifying Questions`. A working, waiting, or unrecognized screen keeps the
+client. The next socket for a client that is
 still running joins it, receives readiness at once, and sees a redrawn
 screen. After that idle hangup, the next socket starts a new client, which
 shows the ordinary prompt and takes a follow-up. Opening the terminal while

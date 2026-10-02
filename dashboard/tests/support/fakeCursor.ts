@@ -1,8 +1,10 @@
 // PATH stand-in for `cursor-agent`. The dashboard server and the page create
 // the launch record. Launch argv is create-chat and a prompted resume.
 // A resume with no prompt is a separate attach record and exits on SIGHUP.
-// Working mode paints `ctrl+c to stop`. Idle and waiting modes paint the
-// observed idle reply and clarifying question. Each redraws on SIGWINCH.
+// Working mode paints `ctrl+c to stop`. The default attach screen is the
+// ordinary finished prompt. Waiting mode paints the clarifying question.
+// Unrecognized mode paints neither the prompt nor a question. Each redraws
+// on SIGWINCH.
 // `holdPrompt` keeps the prompted resume until `releasePrompt()`.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -66,7 +68,7 @@ function readJsonl<T>(file: string): T[] {
 
 export function installFakeCursor(options?: {
   readonly working?: boolean;
-  readonly screen?: "working" | "idle" | "waiting";
+  readonly screen?: "working" | "waiting" | "unrecognized";
   readonly holdPrompt?: boolean;
 }): FakeCursor {
   const root = mkdtempSync(path.join(tmpdir(), "dough-cursor-"));

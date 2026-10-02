@@ -98,9 +98,11 @@ Settled by slice 1. The record is in Learnings.
 - Joining a kept client sends `readiness: attached` at once, since the
   client was already admitted. It then nudges the size by one column and
   back, so Cursor redraws.
-- The idle end rule fails safe. It hangs up only when the idle marker is
-  present and no working or waiting marker is. An unrecognized screen keeps
-  the client, so a changed Cursor screen costs memory, never a turn.
+- The idle end rule fails safe. It hangs up a detached client whose screen
+  shows `→ Add a follow-up` with no `ctrl+c to stop`, `Working`, `Running`,
+  or `Clarifying Questions`, after 0.203 s. A working, waiting, or
+  unrecognized screen keeps the client, so a changed Cursor screen costs
+  memory, never a turn. The word `done` is a probe reply, not the idle marker.
 - The launch wait notice reads: "Cursor is still working on this session's
   launch prompt. The terminal opens when it finishes." Input during the wait
   is dropped.
@@ -234,7 +236,7 @@ Safe stopping point: the whole story.
 
 ## Execution complete
 
-Product advice: No backlog change. Wrap-up can assimilate the delivered keep and launch-wait behavior. Idle reaping is the documented rule: a visible line whose trimmed text is exactly `done`, then `→ Add a follow-up`, with the working and waiting markers absent. An ordinary finished prompt stays until the server closes. Whether hangup should instead follow the chrome rule (`→ Add a follow-up` with no `ctrl+c to stop` and no `Clarifying Questions`, still keeping any other screen) is a developer decision; correction planning is stopped until that decision.
+Product advice: No backlog change. Wrap-up can assimilate the delivered keep and launch-wait behavior. The developer chose the chrome rule: a detached client showing `→ Add a follow-up` with no `ctrl+c to stop`, `Working`, `Running`, or `Clarifying Questions` is hung up after 0.203 s. A working, waiting, or unrecognized screen stays. That rule is applied on this branch.
 
 ## Learnings
 

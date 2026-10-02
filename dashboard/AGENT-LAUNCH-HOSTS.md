@@ -18,8 +18,8 @@ cursor and the text `Add a follow-up` admit it. That attach result declares
 keep, so a detached terminal leaves the client running and a later open joins
 the same process instead of starting another, while the screen is working,
 waiting for an answer, or unrecognized. A detached client whose screen stays
-idle — a line `done`, then `→ Add a follow-up`, with neither the working
-marker nor a question waiting on `Red` and `Blue` — is hung up after 0.203
+idle — `→ Add a follow-up` with no `ctrl+c to stop`, `Working`, `Running`,
+or `Clarifying Questions` — is hung up after 0.203
 seconds, and the next open starts a new client. Stop is not supplied, so
 Mark as done stays absent.
 A client still running when the launch wait ends is the launched session.

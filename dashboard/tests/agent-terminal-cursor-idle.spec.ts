@@ -1,6 +1,7 @@
-// A kept Cursor client with no socket. An idle screen hangs that client up
-// and the next open starts another that takes a follow-up. A screen waiting
-// for an answer, or one that matches neither marker, keeps the client.
+// A kept Cursor client with no socket. The ordinary finished prompt hangs
+// that client up, and the next open starts another that takes a follow-up.
+// A screen waiting for an answer, or one that matches neither marker, keeps
+// the client.
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -71,17 +72,20 @@ for (const mode of ["dev", "preview"] as const) {
       mode: launchMode,
     }) => {
       test.setTimeout(120_000);
-      const cursor = installFakeCursor({ screen: "idle" });
+      const cursor = installFakeCursor();
       await withOpenedCursor(
         launchMode,
         cursor,
         async ({ server, sessionId, terminal, pid }) => {
-          await expect.poll(() => terminal.output()).toContain("done");
-          expect(terminal.output()).toContain("→ Add a follow-up");
+          await expect
+            .poll(() => terminal.output())
+            .toContain("→ Add a follow-up");
+          expect(terminal.output()).not.toContain("done");
           expect(terminal.output()).not.toContain("ctrl+c to stop");
+          expect(terminal.output()).not.toContain("Clarifying Questions");
           terminal.send({
             cursorVisible: true,
-            screen: ["  done", "", "  → Add a follow-up"],
+            screen: ["→ Add a follow-up"],
           });
           await expect
             .poll(() => terminal.controls())
@@ -139,12 +143,10 @@ for (const mode of ["dev", "preview"] as const) {
       mode: launchMode,
     }) => {
       test.setTimeout(120_000);
-      const cursor = installFakeCursor();
+      const cursor = installFakeCursor({ screen: "unrecognized" });
       await withOpenedCursor(launchMode, cursor, async ({ terminal, pid }) => {
-        await expect
-          .poll(() => terminal.output())
-          .toContain("→ Add a follow-up");
-        expect(terminal.output()).not.toContain("done");
+        await expect.poll(() => terminal.output()).toContain("Cursor Agent");
+        expect(terminal.output()).not.toContain("Add a follow-up");
         expect(terminal.output()).not.toContain("ctrl+c to stop");
         expect(terminal.output()).not.toContain("Clarifying Questions");
         terminal.socket.close();

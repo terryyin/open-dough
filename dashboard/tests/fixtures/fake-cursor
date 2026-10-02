@@ -5,10 +5,11 @@
 // When FAKE_CURSOR_RELEASE is set, that prompted resume stays up until the
 // release file appears, then exits 0. Resume with no prompt is the embedded
 // attach: it is recorded separately,
-// prints the observed `Add a follow-up` prompt, and exits on SIGHUP as
-// cursor-agent does. Working mode also prints `ctrl+c to stop`. Idle mode
-// prints the observed `done` reply and that prompt. Waiting mode prints the
-// observed clarifying question. Each mode redraws its screen on SIGWINCH.
+// prints the ordinary finished prompt `→ Add a follow-up`, and exits on
+// SIGHUP as cursor-agent does. Working mode also prints `ctrl+c to stop`.
+// Waiting mode prints the observed clarifying question. Unrecognized mode
+// prints neither the prompt nor a question. Each mode redraws its screen
+// on SIGWINCH.
 // It does not write a launch record or a workspace.
 const fs = require("node:fs");
 const path = require("node:path");
@@ -57,7 +58,6 @@ if (attaching) {
   const mode = process.env.FAKE_CURSOR_ATTACH_MODE;
   const screens = {
     working: "→ Add a follow-up\r\nctrl+c to stop\r\n",
-    idle: "  done\r\n\r\n  → Add a follow-up\r\n",
     waiting: [
       "│ Clarifying Questions",
       "│ 1. Which do you choose?",
@@ -65,6 +65,7 @@ if (attaching) {
       "│     [ ] Blue",
       "│ ↑/↓ option · ←/→ question · Space select · Enter next/submit · Esc to skip",
     ].join("\r\n") + "\r\n",
+    unrecognized: "Cursor Agent\r\n",
   };
   if (dir) fs.mkdirSync(dir, { recursive: true });
   const paint = () => {
