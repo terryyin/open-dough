@@ -21,6 +21,12 @@ test.beforeAll(async () => {
 });
 test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 
+test.afterEach(async ({ page }) => {
+  // The page keeps reading startup evidence; finish its route callbacks before
+  // the context fixture disposes their fetched responses.
+  await page.unrouteAll({ behavior: "wait" });
+});
+
 test("without a reported phase, story startup keeps its host and the installed start's Preparing versus Starting choice", async ({
   page,
 }) => {
@@ -29,47 +35,44 @@ test("without a reported phase, story startup keeps its host and the installed s
   let host: "claude" | "codex" = "claude";
   let workflow: "execution" | "refinement" = "execution";
   let establishes = false;
-  await page.route(
-    (url) => url.pathname === agentLaunchEndpoint,
-    async (route) => {
-      const response = await route.fetch({
-        headers: {
-          ...route.request().headers(),
-          Origin: new URL(route.request().url()).origin,
-        },
-      });
-      expect(response.status()).toBe(200);
-      await route.fulfill({
-        response,
-        json: {
-          ...launchRecordsSchema.parse(await response.json()),
-          starts: [],
-          establishing:
-            establishes && workflow === "execution" ? ["open-dough"] : [],
-          establishingPreparation:
-            establishes && workflow === "refinement" ? ["open-dough"] : [],
-          establishingHosts: establishes
-            ? [{ source: "open-dough", host, workflow }]
-            : [],
-          attempts: [
-            {
-              id: "12345678-1234-4123-8123-123456789abc",
-              request: {
-                source: "open-dough",
-                identity: "SEED-B#b",
-                title: readyStory,
-                host,
-                workflow,
-              },
-              acceptedAt: "2026-10-02T00:00:00.000Z",
-              publication: { kind: "none" },
-              owned: true,
+  await page.route(`**${agentLaunchEndpoint}`, async (route) => {
+    const response = await route.fetch({
+      headers: {
+        ...route.request().headers(),
+        Origin: new URL(route.request().url()).origin,
+      },
+    });
+    expect(response.status()).toBe(200);
+    await route.fulfill({
+      response,
+      json: {
+        ...launchRecordsSchema.parse(await response.json()),
+        starts: [],
+        establishing:
+          establishes && workflow === "execution" ? ["open-dough"] : [],
+        establishingPreparation:
+          establishes && workflow === "refinement" ? ["open-dough"] : [],
+        establishingHosts: establishes
+          ? [{ source: "open-dough", host, workflow }]
+          : [],
+        attempts: [
+          {
+            id: "12345678-1234-4123-8123-123456789abc",
+            request: {
+              source: "open-dough",
+              identity: "SEED-B#b",
+              title: readyStory,
+              host,
+              workflow,
             },
-          ],
-        },
-      });
-    },
-  );
+            acceptedAt: "2026-10-02T00:00:00.000Z",
+            publication: { kind: "none" },
+            owned: true,
+          },
+        ],
+      },
+    });
+  });
   const { card } = await openTakenBacklog(page, journey);
   const starting = card(readyStory);
   for (host of ["claude", "codex"] as const) {
@@ -103,37 +106,34 @@ test("without a reported phase, story startup keeps its host and the installed s
 test("a recovery host without native-check advice keeps its controls without borrowed advice or a description reference", async ({
   page,
 }) => {
-  await page.route(
-    (url) => url.pathname === agentLaunchEndpoint,
-    async (route) => {
-      const response = await route.fetch({
-        headers: {
-          ...route.request().headers(),
-          Origin: new URL(route.request().url()).origin,
-        },
-      });
-      expect(response.status()).toBe(200);
-      await route.fulfill({
-        response,
-        json: {
-          ...launchRecordsSchema.parse(await response.json()),
-          attempts: [
-            {
-              id: "12345678-1234-4123-8123-123456789abc",
-              request: {
-                source: "open-dough",
-                host: "cursor",
-                workflow: "ad-hoc",
-              },
-              acceptedAt: "2026-10-02T00:00:00.000Z",
-              publication: { kind: "none" },
-              owned: false,
+  await page.route(`**${agentLaunchEndpoint}`, async (route) => {
+    const response = await route.fetch({
+      headers: {
+        ...route.request().headers(),
+        Origin: new URL(route.request().url()).origin,
+      },
+    });
+    expect(response.status()).toBe(200);
+    await route.fulfill({
+      response,
+      json: {
+        ...launchRecordsSchema.parse(await response.json()),
+        attempts: [
+          {
+            id: "12345678-1234-4123-8123-123456789abc",
+            request: {
+              source: "open-dough",
+              host: "cursor",
+              workflow: "ad-hoc",
             },
-          ],
-        },
-      });
-    },
-  );
+            acceptedAt: "2026-10-02T00:00:00.000Z",
+            publication: { kind: "none" },
+            owned: false,
+          },
+        ],
+      },
+    });
+  });
   await openTakenBacklog(page, journey);
   const recovery = recoveryOf(page);
   await expect(recovery).toContainText(

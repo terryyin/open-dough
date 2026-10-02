@@ -53,9 +53,10 @@ receives a credential; there is no dashboard sign-in and no token-entry UI.
 Reading a project needs only the `gh` access the launching person already
 has -- the same access `gh api repos/terryyin/pygardon/commits/main` proves
 from a terminal -- and works from the ordinary launch route:
-`npm run dev:dashboard`, or `npm run build:dashboard` followed by
-`npm run preview:dashboard`. Both modes mount the identical local read boundary
-from the same Vite configuration, so a built preview needs no separate setup.
+`npm run dev:dashboard`, `npm run watch:dashboard`, or `npm run build:dashboard`
+followed by `npm run preview:dashboard`. Development and built preview mount the
+same local read boundary from their Vite configuration, so a tagged production
+preview needs no separate authentication setup.
 
 Selecting a project replaces the whole view and reads that project afresh. It
 reads once on opening and again when **Refresh** is pressed. While a snapshot
@@ -178,6 +179,26 @@ review changes, published slice progress, record navigation and accessible detai
 ## Commands
 
 See [dashboard commands and native prerequisites](COMMANDS.md).
+
+Run `npm run dev:dashboard` for development at `http://127.0.0.1:43127/` and
+`npm run watch:dashboard` for production at `http://127.0.0.1:4173/`. The watcher
+stays in the development checkout, but production's built browser app and server
+come from origin's highest immutable numeric `vMAJOR.MINOR.PATCH` tag in a
+separate checkout. Development edits and hot reload do not refresh or restart
+production. A higher numeric release replaces production at the same URL;
+branches, lower versions and prereleases do not.
+
+Failed checks or builds keep the working release; failed candidate starts
+restore its previous built server. The watcher reports the problem and retries
+on a later check. Without a qualifying startup tag, production cannot start.
+Keep the command running while using production; Ctrl-C, SIGTERM or closing its
+terminal (SIGHUP) stops its checks and owned processes. If restoring the prior
+server also fails, resolve the reported cause and restart the watcher.
+
+Development and production share the existing real-project catalog and
+machine-local launch/session records. Records survive release changes and
+watcher shutdown. Development testing can act on the same projects and records
+as production; separate project configuration is future work.
 
 ## Tests
 
