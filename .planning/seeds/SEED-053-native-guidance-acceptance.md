@@ -52,23 +52,23 @@ connection. Shared integration success does not prove these skill behaviors.
 representative Land/Wrap Up behavior evidence or justified reusable proof for
 each requirement; no pending requirement may be called passed. Complete before
 affected release under ADR 0005. The slice-1 fixture only proves feasibility.
-No existing evidence proves this new callback mechanism. Paid runs remain
+No prior evidence was reusable for this new callback mechanism. Paid runs remain
 explicitly invoked; add none to default tests or CI.
 
-**Current state:** Native feasibility and later integration/skill acceptance
-are pending. [Plan 220's slice-1 observations](../slice-plans/220-quiet-dashboard-session-completion/PLAN.md#execution-observation-slice-1-native-approval-stop-2026-10-02)
-record Codex's real reporting acknowledgment, same-session continuation, and
-post-retirement callable operation after a diagnosed probe-harness recovery.
-Initial fixture trust refusals were resolved through fixture-specific native
-interactive trust without override flags. Cursor then proved real reporting on
-its exact retained session with native tool results and matching durable receipt.
-Claude launched, but its native automatic approval review rejected executing the
-installed operation as “Code from External”; reporting and pre-binding receipt
-remain unproved pending human resolution. No alternate route or permission-mode
-change was used to clear that rejection. Plan-220 execution authorizes only its
-selected bounded feasibility runs; subsequent acceptance selection retains its
-own execution boundary. Actual Land/Wrap Up skill behavior and shipped integration are
-unproved on all three hosts.
+**Current state:** [Plan 220's slice-1 observations](../slice-plans/220-quiet-dashboard-session-completion/PLAN.md#execution-observation-slice-1-approved-native-recovery-2026-10-02)
+retain accepted Codex reporting, same-session continuation and post-retirement callability,
+and accepted Cursor reporting on its original session. Native fixture trust was resolved
+interactively. Claude's later “Code from External” rejection stopped its path until the
+user explicitly approved the reviewed initial reporting command and an exact fixture-only
+Bash rule. Recovery then resumed the original stopped Claude session: real Bash result,
+matching receipt before session binding, exact reconciliation, retained acknowledgment,
+and normal native `end_turn` were inspected and accepted by the coordinator.
+No global permission mode, broad allowance, unapproved phase, or alternate rejected route
+was used. The three-host fixture evidence establishes mechanism feasibility only, including
+representative early binding, continuation and post-retirement callability. Shipped integration
+and actual quiet Land/Wrap Up skill behavior remain unproved on all three hosts; complete
+that separate acceptance before affected release. Selected plan execution and subsequent
+acceptance selection retain their own authority boundaries.
 
 ## Shared premise-verification cases
 

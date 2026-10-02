@@ -69,7 +69,7 @@ occurred during planning; slice 1 needs real credentialed model execution, not s
 
 ### 1. Establish launch-to-report feasibility on the three native hosts
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Installed-skill fixture receives explicit dashboard context and calls its
 operation; acknowledgment matches launch/session, no broad tool registration or turn stop.
 Proof: One isolated bounded round trip per host in existing dashboard launch mode;
@@ -83,7 +83,7 @@ Track mechanism acceptance before runs in [SEED-053#quiet-dashboard-completion](
 which also owns later integration/Land/Wrap Up acceptance on each host, not a new queue
 item. Native runs need selected execution authority, not planning/release authority.
 If context, early association or safe acknowledgment fails within scope, stop 2–5 and
-revise this plan; the current approval stop first requires concrete human resolution.
+revise this plan. The resolved fixture-only approval and recovered evidence are below.
 
 ### 2. Retain an agent's attention message on its open dashboard session
 Type: Behavior
@@ -178,73 +178,72 @@ receipt and story state remain distinct. Five Behavior slices retain proof/insta
 no speculative framework. No numeric limit supplied: one proof loop/probe stop. Preparation
 found no concern; readiness grants no execution authority; no renewed readiness/completion.
 
-## Execution observation: slice 1 native approval stop (2026-10-02)
+## Execution observation: slice 1 approved native recovery (2026-10-02)
 
-Execution identity above; publisher `dashboard-territory.local-open-dough`, agent
-`d.kanai-chan`, workspace `/Users/terryyin/git/open-dough/.worktrees/complete-dashboard-sessions-quietly-and-retain-m`,
-branch `codex/complete-dashboard-sessions-quietly-and-retain-m`, story-branch, `origin/main`.
-Published/candidate `418e5e52582602f86f83c3a6d99dea432e527118`; starting revision
-`5659e235bc8d567e034480d208f74ebc6e1dcef5`. Coordinator established claim/setup;
-Node 24.21.0, locked dependencies/browser/check/typecheck passed. No product implementation.
-
-Probe root below: `run.mjs` uses actual `launchCodex`/`launchClaude`/`launchCursor` inputs/modes,
-private Git fixtures in `.agents/skills/`/`.claude/skills/`, stable `tools/report.mjs`/host context
-JSON and disposable receiver. Cursor wrapper execs unchanged args; no behavior/MCP/permission change.
-
-Literal commands from execution checkout (the probe path variable only shortens spelling):
+Execution: publisher `dashboard-territory.local-open-dough`, agent `d.kanai-chan`, workspace
+`/Users/terryyin/git/open-dough/.worktrees/complete-dashboard-sessions-quietly-and-retain-m`,
+branch `codex/complete-dashboard-sessions-quietly-and-retain-m`, story-branch `origin/main`.
+Claim `418e5e52582602f86f83c3a6d99dea432e527118`, start `5659e235bc8d567e034480d208f74ebc6e1dcef5`;
+latest accepted execution publication/next delivery base `3942fde4448d89ac19f59ef4f50908c944eb6d6e`.
+Coordinator established locked checkout setup and reran readiness with terminal exit 0:
+```sh
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm run typecheck:dashboard
+```
+Private Git fixtures use actual native dashboard launch builders/modes, installed minimal
+`dough-execute-plan`, stable sibling `tools/report.mjs`, explicit host context and disposable
+loopback receiver. Native-only feasibility: no shipping completion behavior or MCP change.
+Complete literal proof commands (prior launch/trust/refusal details recoverable at publication above):
 ```sh
 probe_root=/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-completion-probe-r_xkysjf
 bash "$probe_root/run.sh" "$probe_root" codex
 bash "$probe_root/run.sh" "$probe_root" codex --recover
 bash "$probe_root/run.sh" "$probe_root" codex --retire
-bash "$probe_root/run.sh" "$probe_root" claude
-bash "$probe_root/run.sh" "$probe_root" cursor
-(cd "$probe_root/claude-project" && claude)
-cursor-agent --workspace "$probe_root/cursor-project" --resume 1060353f-f482-4273-83bb-338b37724b8e
-bash "$probe_root/run-resume.sh" "$probe_root" claude
 bash "$probe_root/run-resume.sh" "$probe_root" cursor
+bash /var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-completion-probe-r_xkysjf/run-approved-claude.sh /var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-completion-probe-r_xkysjf
 ```
-`run.sh`/`run-resume.sh` prepend `/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin`,
-source `tests/support/native-run-supervise.sh`, call `native_run_owned` with
-`node --experimental-transform-types <probe-root>/run.mjs` (or `run-resume.mjs`), 180s/5s grace.
-Transform flag fixed strip-only parameter-property rejection before launch, no product edit.
-Initial Claude/Cursor fixture trust refusals remain under `evidence/claude/`, `evidence/cursor/`.
-Coordinator inspected authored fixtures and accepted only native interactive fixture trust;
-both empty PTYs exited 0, no work or override flags. Recoveries restored original receivers/references.
+Wrappers prepend that Node/PATH, source `tests/support/native-run-supervise.sh` and call
+`native_run_owned` with `node --experimental-transform-types` and their named `.mjs` runner,
+180-second deadline/5-second grace. Transform flag corrected strip-only rejection before launch.
+Initial Claude/Cursor trust refusals were resolved interactively only for inspected authored
+fixtures; empty PTYs exited 0 without work or override flags. Global permission modes unchanged.
 
-**Codex 0.160.0 — accepted partial mechanism evidence.** Session `01a0fc63-1513-7fc3-9b21-95e35ffef548`,
-launch `a517e410-1b6e-4fe7-a267-5c69b3e82ca3`. First turn `01a0fc63-1593-7e52-8d1d-e0461aa9ec2f`
-failed: empty-rollout `thread/read` closed receiver; reporting/retry saw `ECONNREFUSED 127.0.0.1:55087`.
-Same-session recovery restored port; turn `01a0fc64-13d4-7392-920a-e25681eeb97d` returned
-receipt `be6cfd86-5471-4af5-bc01-d35e3ec7a153`, completed normally, supervisor exit 0.
-Retirement continuation `01a0fc64-9a17-7e43-98b3-692f945a58ef` called stable operation with `retired`,
-receipt `bcc83df5-e29a-46a3-878e-b86aaacbf2cc`, normal completion/exit 0; `codex-project` absent.
-Coordinator inspected native reads/commands/results and matching durable/agent receipts;
-no interrupt/stop/rename. Host history uses exact ids above; association ignored `/private/var`
-spelling through explicit launch/session id. Native shell Node 24.5.0.
+**Codex 0.160.0 — accepted.** Session `01a0fc63-1513-7fc3-9b21-95e35ffef548`, launch
+`a517e410-1b6e-4fe7-a267-5c69b3e82ca3`. Initial run failed: empty-rollout observation prematurely
+closed receiver; native command/retry saw ECONNREFUSED. Same-session restored-port recovery returned
+receipt `be6cfd86-5471-4af5-bc01-d35e3ec7a153`; retirement continuation returned
+`bcc83df5-e29a-46a3-878e-b86aaacbf2cc`, observed workspace absent, normal native completion;
+both supervisors exit 0. Coordinator inspected native commands/results and matching receipts;
+no stop/rename/interrupt. Explicit ids handle `/var` versus native `/private/var`; shell Node 24.5.0.
 
-**Cursor 2026.10.01-e373342 — accepted partial mechanism evidence.** Original session
-`1060353f-f482-4273-83bb-338b37724b8e`, launch `99932ef9-57cc-42e6-87a1-9b22d2475d5a`,
-receipt `c0e0c898-07f1-496d-80b8-8da8300b28d9` matched durable and agent acknowledgment.
-`cursorPrompt(request, undefined)` byte-matched original input; `execCursor` used original
-continuation args/closed stdin/no extra flags, no second chat; exit 0, no stop/rename.
-Native history `/Users/terryyin/.cursor/chats/2666d147112f05500df1cf1ac38ba89d/1060353f-f482-4273-83bb-338b37724b8e/store.db`
-read SQLite `mode=ro&immutable=1`; Read `toolu_01M9PYnpEnuFn3dtUmojTiRQ` received context,
-Shell `toolu_01QtxdQzHrZRjxcZPfUixV3e` invoked operation, exit 0/same receipt/native id.
+**Cursor 2026.10.01-e373342 — accepted.** Original session `1060353f-f482-4273-83bb-338b37724b8e`,
+launch `99932ef9-57cc-42e6-87a1-9b22d2475d5a`, receipt `c0e0c898-07f1-496d-80b8-8da8300b28d9`.
+Builder byte-matched retained input; unchanged continuation args/closed stdin, no second chat,
+exit 0/no stop/rename. Coordinator matched durable/agent acknowledgment to native Read
+`toolu_01M9PYnpEnuFn3dtUmojTiRQ` and Shell `toolu_01QtxdQzHrZRjxcZPfUixV3e` result in readonly
+`/Users/terryyin/.cursor/chats/2666d147112f05500df1cf1ac38ba89d/1060353f-f482-4273-83bb-338b37724b8e/store.db`.
 
-**Claude Code 2.1.287 — approval rejection, reporting unproved.** `launchClaude`/`claude --bg`
-session `405d00da-d99b-46fb-a109-df6991095d1b`; receiver withheld binding until receipt; none arrived.
-Bash `toolu_01AJZJtY6cQx2tWP5dM15E5z` reading `tools/claude-context.json` then executing
-`tools/report.mjs` with context/`initial` was denied: “Permission for this action was denied by
-the Claude Code auto mode classifier. Reason: [Code from External].” Result forbids same
-outcome via another tool/host/later turn, names no clearing observation. No alternate operation,
-allowance rule or permission-mode change. Supervisor exit 1/native waiting observed, then owned
-background cleanup `claude stop`. Trace `/Users/terryyin/.claude/projects/-private-var-folders-65-16p4k5qj42qg7l46k2j0nhj40000gn-T-open-dough-completion-probe-r-xkysjf-claude-project/405d00da-d99b-46fb-a109-df6991095d1b.jsonl`.
-Preserved `evidence/claude-recovered/`: `001-launch-result.json`, `002-pre-binding-observation.json`,
-`004-failure.json`, `005-owned-background-cleanup.json`, `native-listing.json`; scripts/context/fixture remain reviewable.
+**Claude Code 2.1.287 — accepted with explicit fixture permission.** Original session
+`405d00da-d99b-46fb-a109-df6991095d1b` previously refused reporting as “[Code from External]”;
+that native auto-review denial stopped execution until the user approved only the reviewed initial
+command and a fixture-local exact Bash rule. Added absent `claude-project/.claude/settings.local.json`:
+```text
+Bash(node /var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-completion-probe-r_xkysjf/tools/report.mjs /var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-completion-probe-r_xkysjf/tools/claude-context.json initial)
+```
+[Native permission syntax](https://code.claude.com/docs/en/permissions#use-specifiers-for-fine-grained-control)
+confirms exact command matching; no wildcard, retired allowance, broad/global rule or bypass mode.
+Receiver was restored before documented `claude --bg --resume 405d00da-d99b-46fb-a109-df6991095d1b`;
+printed/listed id confirmed original stopped session woke with saved options, no second session.
+Bash `toolu_012ynKVrVh59CRSuX1wvmd8x` ran exactly approved command; nonerror result, empty stderr,
+`interrupted:false`, receipt `3a8f2ba9-1220-4abf-bdc7-a8fcf52e2f71`, launch
+`4d124382-8f28-4af1-afd1-03e636add468`. Receiver persisted `sessionBound:false` before acknowledgment;
+receipt `pending-native-session` alone claimed no session. Subsequent record reconciled same launch,
+receipt and confirmed native id; agent retained matching acknowledgment. Native `stop_reason:end_turn`
+at `2026-10-02T12:36:14.607Z` preceded owned background stop. Supervisor exit 0; coordinator inspected
+`evidence/claude-approved/{native-tools,native-end-turn,durable-before-binding,bound-receipt}.json`.
+Raw trace: `/Users/terryyin/.claude/projects/-private-var-folders-65-16p4k5qj42qg7l46k2j0nhj40000gn-T-open-dough-completion-probe-r-xkysjf-claude-project/405d00da-d99b-46fb-a109-df6991095d1b.jsonl`.
 
-All supervisors reached terminal results; watchdogs/receivers ended; shared Codex daemon/native
-histories untouched. Coordinator deleted accepted spent `evidence/codex`, `evidence/cursor-recovered`,
-`evidence/cursor-native-trace.txt` under ADR 0005; blocked Claude evidence/recovery inputs remain.
-Slice 1 incomplete: Claude reporting/early binding unproved; 2–5 unstarted, stopped pending human resolution.
-Later shipped integration and actual Land/Wrap Up acceptance remain pending on all hosts in SEED-053.
+All supervisors/PTYs terminal; owned receivers/watchdogs ended; shared daemon/native histories untouched.
+Coordinator deleted the assessed owned probe fixtures/snapshots under ADR 0005; native histories
+remain. Slice 1 proof/refactor accepted; no readiness renewed. Slices 2–5 remain planned.
+Feasibility acceptance permits next slice 2 after ordinary slice-1 refactoring/delivery; shipped
+integration and actual Land/Wrap Up native behavior remain pending on all hosts in SEED-053.
