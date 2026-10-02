@@ -14,14 +14,26 @@ for (const viewport of [
   { width: 1280, height: 800 },
   { width: 700, height: 720 },
   zoomedWindow,
+  { ...zoomedWindow, fontFamily: "Verdana" },
 ]) {
-  test(`selected project banner remains reachable and evidence readable at ${viewport.width} CSS pixels`, async ({
+  const fontFamily = "fontFamily" in viewport ? viewport.fontFamily : undefined;
+  test(`selected project banner remains reachable and evidence readable at ${viewport.width} CSS pixels${fontFamily ? ` in ${fontFamily}` : ""}`, async ({
     page,
   }) => {
-    await page.setViewportSize(viewport);
+    await page.setViewportSize({
+      width: viewport.width,
+      height: viewport.height,
+    });
     const origin = await publishMovingOrigin(page);
     origin.push(revision, largeBacklog);
     await page.goto("/");
+    // A wider installed font reproduces the Linux first-row wrapping; the
+    // same geometry, text, disclosure and keyboard promises must still hold.
+    if (fontFamily) {
+      await page.addStyleTag({
+        content: `.banner { font-family: ${fontFamily}, sans-serif; }`,
+      });
+    }
     const { banner, project, sourceEvidence, source, refresh, backlog } =
       parts(page);
     const last = backlog

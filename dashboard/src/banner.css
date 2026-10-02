@@ -109,6 +109,7 @@ html {
   .banner {
     grid-template-rows: minmax(2.75rem, auto) auto;
     row-gap: 0.125rem;
+    column-gap: 0.25rem;
     padding-block: 0.375rem;
   }
 
