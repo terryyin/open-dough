@@ -7,6 +7,7 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
+import type { FakeCodex } from "./fakeCodex.ts";
 import { everyRepository, publishes } from "./fakeGitHub.ts";
 
 export const addedRepository = "example/sample-app";
@@ -48,6 +49,7 @@ export function projectAddMachine() {
     async start(
       mode: "dev" | "preview",
       readTimeoutMs?: number,
+      codexProtocol?: FakeCodex,
     ): Promise<DashboardServer> {
       const server = await startDashboardServer({
         mode,
@@ -55,6 +57,7 @@ export function projectAddMachine() {
         configureDevelopmentProjects: false,
         prebuilt: builtDashboardDir,
         readTimeoutMs,
+        codexProtocol,
       });
       server.github.serve(
         everyRepository,

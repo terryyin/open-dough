@@ -54,6 +54,7 @@ for (const viewport of [
     for (const control of [
       project,
       banner.getByRole("button", { name: "Add project", exact: true }),
+      banner.getByRole("button", { name: "Remove project", exact: true }),
       sourceEvidence,
       refresh,
     ]) {

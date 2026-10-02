@@ -6,8 +6,10 @@ import "./project-configuration.css";
 
 export function AddProject({
   onSelect,
+  autoFocus = false,
 }: {
   readonly onSelect?: (source: PublishedSource) => void;
+  readonly autoFocus?: boolean;
 }) {
   const launcher = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -18,11 +20,13 @@ export function AddProject({
         type="button"
         ref={launcher}
         className="add-project"
+        aria-label="Add project"
+        autoFocus={autoFocus}
         onClick={() => {
           setOpen(true);
         }}
       >
-        Add project
+        Add<span className="project-action-target"> project</span>
       </button>
       {open && (
         <AddProjectDialog

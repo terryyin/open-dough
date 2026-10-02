@@ -193,12 +193,15 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
     deletedAt,
   });
 
+  const configuredKnown = known.filter((record) =>
+    projects.some((project) => project.id === record.request.source),
+  );
   return {
     rereadOffers: () => {
       setOffersReading(true);
       reread();
     },
-    records: readAnswered ? known : undefined,
+    records: readAnswered ? configuredKnown : undefined,
     creations,
     hostOperations: sessions.hostOperations,
     alerts,
@@ -217,7 +220,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
           running.source === sourceId &&
           running.identity === identity,
       ),
-    launched: known,
+    launched: configuredKnown,
     ...attempts,
     ...recordActions,
   };

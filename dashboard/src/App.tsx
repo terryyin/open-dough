@@ -12,7 +12,7 @@ export function App() {
         <main className="page-header">
           <h1>No projects configured</h1>
           <p>Add a project to see its published work and start sessions.</p>
-          <AddProject />
+          <AddProject autoFocus />
         </main>
       ) : (
         <ConfiguredDashboard />

@@ -3,11 +3,16 @@ import type { Plugin } from "vite";
 import {
   projectAddEndpoint,
   projectListEndpoint,
+  projectRemoveEndpoint,
 } from "../src/projectConfiguration.ts";
 import { ProjectInputProblem } from "../src/projectInput.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
-import { publishedProjects } from "./projectConfiguration.ts";
+import {
+  configuredProject,
+  publishedProjects,
+  removeConfiguredProject,
+} from "./projectConfiguration.ts";
 import { addProject } from "./projectAddition.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import { withResponseSignal } from "./responseSignal.ts";
@@ -27,6 +32,20 @@ async function answer(
   if (req.method !== "POST")
     throw new RefusedRequest(405, "Only POST is accepted.");
   const input = await jsonBody(req, signal);
+  if (pathname === projectRemoveEndpoint) {
+    if (
+      typeof input !== "object" ||
+      input === null ||
+      !("id" in input) ||
+      typeof input.id !== "string"
+    )
+      throw new RefusedRequest(400, "The project request is malformed.");
+    if (configuredProject(input.id) === undefined)
+      throw new RefusedRequest(404, "The project is not configured.");
+    signal.throwIfAborted();
+    removeConfiguredProject(input.id);
+    return { projects: publishedProjects() };
+  }
   if (
     typeof input !== "object" ||
     input === null ||
@@ -49,7 +68,8 @@ export function projectConfigurationPlugin(): Plugin {
       const url = new URL(req.url ?? "", "http://placeholder");
       if (
         url.pathname !== projectListEndpoint &&
-        url.pathname !== projectAddEndpoint
+        url.pathname !== projectAddEndpoint &&
+        url.pathname !== projectRemoveEndpoint
       ) {
         next();
         return;

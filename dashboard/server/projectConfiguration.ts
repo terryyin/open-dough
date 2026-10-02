@@ -140,3 +140,13 @@ export function appendConfiguredProject(project: ConfiguredProject): void {
   writeConfiguration(configurationFile, saved);
   projects = saved;
 }
+
+// Removing configuration never touches a checkout or retained session evidence.
+export function removeConfiguredProject(id: string): void {
+  if (problem !== undefined) throw new Error(problem);
+  if (configurationFile === undefined)
+    throw new Error("The dashboard project configuration is not initialized.");
+  const saved = projects.filter((project) => project.id !== id);
+  writeConfiguration(configurationFile, saved);
+  projects = saved;
+}

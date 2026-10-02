@@ -53,6 +53,12 @@ and selects it. Local path can name a different checkout folder. Cancel or Escap
 saves nothing and returns focus to Add project. An invalid entry keeps its values
 and shows the reason beside the field. Projects added in development do not enter
 production's saved list.
+**Remove project** beside the choices asks for confirmation naming the selected
+project. Confirm removes only that environment's configuration entry and selects
+the next project or the empty page. Nothing on disk or GitHub changes: checkouts,
+running sessions, and saved launch/session records remain. Removed sessions leave
+Recent sessions and the Sessions sidebar; adding the same repository restores them.
+Cancel or Escape keeps the entry and returns focus to Remove project.
 The dashboard reads `.planning/PRODUCT-BACKLOG.md` from the selected project's
 saved repository and ref, resolves that ref to one commit, and reads the backlog
 at that commit. Every project -- public Open Dough and Doughnut as much as

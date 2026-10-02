@@ -146,10 +146,14 @@ html {
     justify-self: stretch;
   }
 
-  .banner .add-project {
+  .banner .project-configuration-actions {
     grid-column: 3;
     grid-row: 1;
   }
+
+  .source-evidence summary h1 { font-size: 1rem; }
+
+  .project-action-target { display: none; }
 
   .project-choice {
     flex: 1;
