@@ -117,7 +117,7 @@ evidence explaining why that path cannot yet deliver the story.
 
 ### 2. Keep native CI acquisition bounded and cache reuse compatible
 Type: Behavior
-Status: in progress
+Status: done
 Proof: Execute the final workflow with compatible browser cache and with an
 empty cache. Extend the existing native test boundary for any maintained setup
 operation to cover unavailable/stalled sources and incompatible prerequisites.
@@ -338,3 +338,34 @@ successfully in one second. Same-PATH
 `bash scripts/ci-test-times.sh tests/ci-container.sh tests/native-setup.sh tests/ci-lint-setup.sh`
 reported wide existing check/share headroom; both new checks require first-CI
 budget acceptance. Final hosted cold/warm proof remains pending.
+
+### Slice 2 accepted final hosted proof
+
+Publication `79f10aed8067a4446a34c1cece7b7d93800c3171` passed cold push
+run `36945401278` and warm dispatch run `36945682786`, both attempt 1,
+all 13 jobs. All nine exact browser keys missed cold and hit warm. Both executed
+746 expected browser tests with unchanged share counts and zero unexpected,
+flaky or skipped tests. npm cache was warm in both; no fully cold npm-cache
+performance claim is made. Node/image/locked browser match the baseline.
+
+Cold npm acquisition took 2–4 seconds and browser acquisition 7–10 seconds,
+leaving at least 41/35 seconds under stage bounds. Aggregate setup took 12–19
+seconds. Warm browser setup took 0–1 seconds. Cold dashboard jobs took 77–104
+seconds versus baseline 90–118; warm jobs took 79–97 seconds versus 75–128.
+Cold first-job-start to last-job-complete span was 149→150 seconds: the critical
+job executed 22 seconds faster but started 23 seconds later. Runner admission
+variability prevents claiming cold overall elapsed improvement. Warm span was
+129→97 seconds. These are observed single-run comparisons, not percentile claims.
+
+Both runs passed 268 shell checks (90/89/89 shares) under unchanged 71-second
+per-check and 470-second share budgets. Cold maxima 36.4/28.3/38.2 seconds and
+aggregate 300.1/203.7/323.0; warm maxima 36.1/41.2/37.9 and aggregate
+309.9/296.5/319.2. Linux unavailable/stalled/expired lint acquisition fixtures
+passed (5.4 seconds); native setup fixtures passed (4.1 seconds). Live hosted
+outages were not injected; controlled actual-entrypoint failures own that proof.
+
+Evidence and exact timing accounting: `/tmp/ci-proof2-final-evidence.txt`,
+`/tmp/ci-proof2-{36945401278,36945682786}-summary.json`, logs and reports.
+Independent post-change refactoring and check-only commit hook passed. Managed
+publication reused the retained observer. Slice 2 is accepted; native local
+repeatability and missing-browser validation remain slice 3's responsibility.
