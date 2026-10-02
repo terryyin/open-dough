@@ -26,6 +26,8 @@ export type HostDescription = {
     readonly unavailable: string;
     readonly stale: string;
     readonly unverified: string;
+    // Follows a listed model's description when one is chosen.
+    readonly chosenNote?: string;
   };
 };
 
@@ -84,6 +86,21 @@ export const hostDescriptions = {
     // This invocation spells a skill as `/dough-execute-plan`.
     skillSigil: "/",
     models: {},
+    modelCatalog: {
+      defaultLabel: "Default (your Cursor setting)",
+      reading: "Reading Cursor model choices… You can use your Cursor setting.",
+      unreadable:
+        "Cursor model choices could not be read. Retry, or use your Cursor setting.",
+      defaultNote: "Cursor starts with your current Cursor model setting.",
+      unavailable:
+        "This model is unavailable. Choose another model or use your Cursor setting.",
+      stale:
+        "The selected Cursor model is no longer available. Choose another model or use your Cursor setting.",
+      unverified:
+        "Cursor model choices could not be verified. Retry, or use your Cursor setting.",
+      chosenNote:
+        "Cursor also saves a chosen model as your Cursor setting for later sessions.",
+    },
     // No passive status command was observed, so a visible session stays unread.
     unknownObservation: {
       label: "Activity unknown",

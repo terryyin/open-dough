@@ -6,8 +6,18 @@
 import { LaunchReasoningEffort } from "./LaunchReasoningEffort.tsx";
 import type { LaunchHostOptions } from "./launchHostOptions.ts";
 import { hostName, launchHosts } from "./sessionCapabilities.ts";
-import { hostDescription } from "./hostDescription.ts";
+import { hostDescription, type HostDescription } from "./hostDescription.ts";
 import { type AgentLaunchRequest, type LaunchModel } from "./agentLaunch.ts";
+
+function chosenFeedback(
+  item: LaunchHostOptions["models"][number] | undefined,
+  modelCatalog: NonNullable<HostDescription["modelCatalog"]>,
+): string {
+  if (item === undefined) return modelCatalog.unavailable;
+  return [item.description, modelCatalog.chosenNote]
+    .filter((part) => part !== undefined && part !== "")
+    .join(" ");
+}
 
 export function LaunchHostModel({
   id,
@@ -98,9 +108,12 @@ export function LaunchHostModel({
                   ? modelCatalog.reading
                   : model === ""
                     ? modelCatalog.defaultNote
-                    : (catalog.options.models.find(
-                        (item) => item.model === model,
-                      )?.description ?? modelCatalog.unavailable))}
+                    : chosenFeedback(
+                        catalog.options.models.find(
+                          (item) => item.model === model,
+                        ),
+                        modelCatalog,
+                      ))}
             </p>
             {catalog.error && (
               <button type="button" onClick={catalog.retry}>

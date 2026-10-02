@@ -130,7 +130,7 @@ Learnings for slice 2:
 
 ### 2. Choose a Cursor-listed model and launch with it
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/agent-launch-cursor-model.spec.ts` with the
 fixture on `PATH`, plus the existing Cursor launch specs:
 `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-cursor-model.spec.ts dashboard/tests/agent-launch-start-cursor.spec.ts dashboard/tests/agent-launch-preparation-cursor.spec.ts dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts --workers=2`
@@ -157,6 +157,26 @@ failure. The existing Cursor specs keep proving Default omits `--model`.
 
 Safe stopping point: Cursor model choice works for execution, refinement,
 and ad hoc with an instruction.
+
+Accepted proof: the four Cursor specs passed (7), the Codex and Claude guards
+passed (41), and typecheck passed. After the refactor, the new spec passed
+again (3). The parser matched all 246 lines of a real `cursor-agent models`
+run and skipped its `Tip:` line.
+
+Learnings for slice 3:
+
+- The disclosure is `modelCatalog.chosenNote`: "Cursor also saves a chosen
+  model as your Cursor setting for later sessions." It follows a listed
+  model's description in the dialog.
+- `cursor-agent` runs live in `server/hosts/cursor/exec.ts`. Parsing lives in
+  `server/hosts/cursor/options.ts`.
+- `fakeCursor.listModels(undefined)` makes `models` fail. `modelReads()` is
+  logged apart from `calls()`.
+- A blank Cursor ad hoc start with a chosen model passes admission today and
+  records `request.model` without sending `--model`.
+- `agent-session-cursor.spec.ts:117` fails on trunk since `00800bc2`. It
+  expects `hostOperations.cursor` without the `launchedSessions` field that
+  `d04999c9` added. This story does not own that failure.
 
 ### 3. Refuse a model for blank Cursor ad hoc and document the host
 Type: Behavior
