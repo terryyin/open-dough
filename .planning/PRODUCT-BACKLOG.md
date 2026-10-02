@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard ([plan](slice-plans/210-use-cursor-from-dashboard/PLAN.md))
-- [Separate dashboard development and production environments](seeds/SEED-082-dashboard-development-and-production.md#dashboard-development-and-production) — SEED-082#dashboard-development-and-production ([plan](slice-plans/213-dashboard-development-and-production/PLAN.md))
 
 ## Backlog list
 
