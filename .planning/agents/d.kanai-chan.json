@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "d.kanai-chan",
+  "email": "d.kanai-chan@example.org",
+  "identity": "SEED-008#installed-story-branch-integration",
+  "mode": "story-branch",
+  "branch": "codex/complete-dashboard-sessions-quietly-and-retain-m",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
