@@ -15,7 +15,6 @@ set -euo pipefail
 # CI's platform, stated once; tests/ci-container.sh checks these against
 # .github/workflows/ci.yml.
 readonly ubuntu_version=24.04
-readonly node_version=24
 # The bare image needs Chromium's system dependencies; native CI already has
 # them. The image runs this bootstrap as root, pinned to the locked version.
 # The container then runs CI's dashboard checks without the --shard argument;
@@ -76,6 +75,9 @@ if ! docker info > /dev/null 2>&1; then
   exit 1
 fi
 
+node_version=$(cat -- "${source_dir}/.node-version")
+readonly node_version
+
 # A linked worktree's `.git` file points into the common Git directory, so it
 # is mounted too; in a main checkout it is inside the checkout already.
 common_dir=$(git -C "${source_dir}" rev-parse --path-format=absolute --git-common-dir)
@@ -100,7 +102,7 @@ RUN apt-get update \\
  && apt-get install -y --no-install-recommends git \\
  && rm -rf /var/lib/apt/lists/*
 RUN arch=\$(dpkg --print-architecture) && [ "\$arch" != amd64 ] || arch=x64; \\
-    base=https://nodejs.org/dist/latest-v${node_version}.x \\
+    base=https://nodejs.org/dist/v${node_version} \\
  && file=\$(curl -fsSL "\$base/SHASUMS256.txt" | awk -v a="linux-\$arch.tar.xz" '\$2 ~ a"\$" { print \$2 }') \\
  && curl -fsSL "\$base/\$file" | tar -xJ -C /usr/local --strip-components=1 \\
       --exclude=CHANGELOG.md --exclude=LICENSE --exclude=README.md

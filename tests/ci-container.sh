@@ -86,19 +86,25 @@ stated() {
   ' "${script}"
 }
 ubuntu_version=$(stated ubuntu_version)
-node_version=$(stated node_version)
+node_version=$(cat -- "${source_dir}/.node-version")
 if [[ -z ${ubuntu_version} || -z ${node_version} ]]; then
   echo 'FAIL: scripts/ci-container.sh does not state its Ubuntu and Node versions.' >&2
   exit 1
 fi
 
+# The diagnostic image uses the exact shared selection, not latest-v24.x.
+# shellcheck disable=SC2016 # Literal source contract.
+expect_in_log "${script}" -Fx -- 'node_version=$(cat -- "${source_dir}/.node-version")'
+# shellcheck disable=SC2016 # Literal source contract.
+expect_in_log "${script}" -F -- 'base=https://nodejs.org/dist/v${node_version}'
+
 # Every job's runner and every Node setup in the workflow must agree.
 sed -n 's/^[[:space:]]*runs-on:[[:space:]]*//p' "${workflow}" > "${temporary_dir}/runners"
-sed -n 's/^[[:space:]]*node-version:[[:space:]]*//p' "${workflow}" > "${temporary_dir}/nodes"
+sed -n 's/^[[:space:]]*node-version-file:[[:space:]]*//p' "${workflow}" > "${temporary_dir}/nodes"
 expect_in_log "${temporary_dir}/runners" -Fx -- "ubuntu-${ubuntu_version}"
-expect_in_log "${temporary_dir}/nodes" -Fx -- "\"${node_version}\""
+expect_in_log "${temporary_dir}/nodes" -Fx -- ".node-version"
 if grep -vFx -- "ubuntu-${ubuntu_version}" "${temporary_dir}/runners" \
-  || grep -vFx -- "\"${node_version}\"" "${temporary_dir}/nodes"; then
+  || grep -vFx -- ".node-version" "${temporary_dir}/nodes"; then
   printf 'FAIL: ci.yml runs on a version other than ubuntu-%s and Node %s (above).\n' \
     "${ubuntu_version}" "${node_version}" >&2
   exit 1
@@ -114,15 +120,15 @@ if [[ ${dashboard_install} != 'npx playwright install --with-deps chromium' ]]; 
   exit 1
 fi
 {
-  printf '%s\n' 'npx --no-install playwright install chromium'
+  printf '%s\n' 'node scripts/setup-native.mjs browser'
   stated dashboard_steps
 } > "${temporary_dir}/stated-dashboard"
 awk '
   /^  [^ #]/ { job = ($0 ~ /^  dashboard:[[:space:]]*$/); next }
   job && /^[[:space:]]*(- )?run:/ {
     sub(/^[[:space:]]*(- )?run:[[:space:]]*/, "")
-    if (installed) print
-    else if ($0 == "npm ci") installed = 1
+    if (installed && $0 !~ /^\|$/) print
+    else if ($0 == "node scripts/setup-native.mjs npm") installed = 1
   }
 ' "${workflow}" | sed 's/ -- --shard[= ].*$//' > "${temporary_dir}/ci-dashboard"
 if [[ ! -s ${temporary_dir}/ci-dashboard ]] \

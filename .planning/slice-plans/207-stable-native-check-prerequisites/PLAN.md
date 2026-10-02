@@ -117,7 +117,7 @@ evidence explaining why that path cannot yet deliver the story.
 
 ### 2. Keep native CI acquisition bounded and cache reuse compatible
 Type: Behavior
-Status: planned
+Status: in progress
 Proof: Execute the final workflow with compatible browser cache and with an
 empty cache. Extend the existing native test boundary for any maintained setup
 operation to cover unavailable/stalled sources and incompatible prerequisites.
@@ -299,3 +299,42 @@ refactoring found no further candidates. Slice 1's runner-library premise is
 accepted; no apt acquisition is needed for any assigned browser check. Slice 2
 owns final compatible-key cold/warm performance comparison and acquisition bounds.
 All publications reused the retained branch observer; clean repair receipt restored.
+
+### Slice 2 acquisition decisions and focused proof
+
+Selected verification Node `24.21.0` in `.node-version`: this is the patch
+observed in every healthy baseline/probe and verified available from
+[Node's official archive](https://nodejs.org/en/download/archive/v24.21.0).
+The diagnostic helper reads the same value after its runtime refusals; installer
+engine support remains unchanged. Native proof uses a checksum-verified temporary
+archive under `/tmp/open-dough-native-node-24.21.0/`, rather than changing host tools.
+
+CI acquisition receives one 180-second deadline before Node setup. Node/npm-cache
+and browser-cache actions each have a 60-second bound. npm and Chromium stages
+are each capped at 45 seconds and remaining aggregate time; npm fetch timeout is
+20 seconds with zero retries. Browser connections are 20 seconds, with all
+internal retries/processes stopped by the stage bound. Lint downloads have
+5-second connection/20-second total curl bounds and zero retries; the step has
+60 seconds and remaining aggregate time. Named failure steps preserve failure
+and supply infrastructure recovery for action/tool acquisition.
+
+The aggregate leaves 180 seconds in a six-minute dashboard job: the observed
+83-second suite plus 97 seconds for checkout/typecheck/reports/overhead. Browser
+45 seconds exceeds the cold baseline's 37-second maximum (which included apt);
+final cold acquisition must confirm this headroom before acceptance. Exact browser
+cache identity includes OS, architecture and lockfile, with no restore prefix.
+
+Focused command passed:
+`PATH=/tmp/open-dough-native-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH bash scripts/test.sh tests/ci-container.sh tests/native-setup.sh tests/ci-lint-setup.sh`.
+`tests/native-setup.sh` exercises actual entrypoint failures, expired deadline,
+metadata mismatches, real timed process termination and SIGINT/SIGTERM descendant
+cleanup; success markers never appear after failed setup. Container consistency
+assertions preserve every suite command and the separate image bootstrap.
+The lint check extracts the actual workflow shell blocks; Linux GNU-timeout
+unavailable/stalled/expired cases are explicitly unobserved on macOS and await CI.
+
+Same-PATH `node scripts/setup-native.mjs npm` performed real locked installation
+successfully in one second. Same-PATH
+`bash scripts/ci-test-times.sh tests/ci-container.sh tests/native-setup.sh tests/ci-lint-setup.sh`
+reported wide existing check/share headroom; both new checks require first-CI
+budget acceptance. Final hosted cold/warm proof remains pending.
