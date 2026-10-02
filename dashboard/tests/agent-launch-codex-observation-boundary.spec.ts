@@ -63,10 +63,8 @@ test("predecessor without continuation gains no command; missing workspace prese
     ];
     const check = async () => {
       for (const list of entries()) {
-        for (const id of [
-          legacy.session.sessionId,
-          missing.session.sessionId,
-        ]) {
+        for (const { session } of [legacy, missing]) {
+          const id = session.sessionId;
           const entry = list.filter({
             has: page.locator(`code:text-is("${id}")`),
           });
@@ -117,9 +115,8 @@ test("predecessor without continuation gains no command; missing workspace prese
 
 test("endpoint/read failures preserve healthy hosts, saved identity and independent native targets", async ({
   dashboard,
-  codexProtocol,
+  codexProtocol: native,
 }) => {
-  const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
   dashboard.claudeScenario("launched");
   expect((await launch(dashboard, refinementRequest)).status).toBe(200);
@@ -165,9 +162,8 @@ test("endpoint/read failures preserve healthy hosts, saved identity and independ
 
 test("deleting an unreadable saved record while another passive read is pending never recreates it", async ({
   dashboard,
-  codexProtocol,
+  codexProtocol: native,
 }) => {
-  const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture");
   native.observations.set("held", {
     status: { type: "idle" },
@@ -175,11 +171,11 @@ test("deleting an unreadable saved record while another passive read is pending 
     holdRead: true,
   });
   save(dashboard, [record(dashboard, native, "held")]);
-  const pending = states(dashboard);
-  await expect
-    .poll(() => native.calls.filter((c) => c.method === "thread/read").length)
-    .toBe(1);
-  // A second boundary read is explicitly unreadable, admitting established deletion.
+  // One hourly-alert baseline can join held HTTP reads; deletion sees refusal.
+  const pending = Promise.all([states(dashboard), states(dashboard)]);
+  const readCount = () =>
+    native.calls.filter((c) => c.method === "thread/read").length;
+  await expect.poll(readCount).toBeGreaterThanOrEqual(2);
   native.observations.set("held", {
     status: { type: "idle" },
     turns: [],
@@ -195,7 +191,16 @@ test("deleting an unreadable saved record while another passive read is pending 
     ).status,
   ).toBe(200);
   native.releaseReads();
-  await pending;
+  expect((await pending).flat()).toContainEqual(
+    expect.objectContaining({
+      session: expect.objectContaining({ sessionId: "held" }),
+      sessionState: {
+        kind: "available",
+        availability: "loaded",
+        activity: "awaiting-instruction",
+      },
+    }),
+  );
   expect(stored(dashboard.home)).toEqual([]);
   expect(await states(dashboard)).toEqual([]);
   passive(native.calls);
@@ -204,9 +209,8 @@ test("deleting an unreadable saved record while another passive read is pending 
 test("a silent native endpoint reaches its bound without erasing a healthy Codex endpoint", async ({
   dashboard,
   machine,
-  codexProtocol,
+  codexProtocol: native,
 }) => {
-  const native = codexProtocol;
   if (native === undefined || machine === undefined)
     throw new Error("Missing native fixture");
   const silent = await installFakeCodex(
