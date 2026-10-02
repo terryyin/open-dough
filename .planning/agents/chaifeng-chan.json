@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-052#cursor-host-guide-attach",
+  "mode": "story-branch",
+  "branch": "cursor/state-that-cursor-supplies-embedded-attach",
+  "host": "cursor"
+}
