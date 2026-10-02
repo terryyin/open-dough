@@ -8,6 +8,7 @@
     "format": "node scripts/lint.mjs --fix",
     "prepare": "node scripts/install-hooks.mjs",
     "dev:dashboard": "vite --config dashboard/vite.config.mts",
+    "watch:dashboard": "node scripts/watch-dashboard.mjs",
     "typecheck:dashboard": "tsc --build dashboard/tsconfig.json",
     "build:dashboard": "vite build --config dashboard/vite.config.mts",
     "preview:dashboard": "vite preview --config dashboard/vite.config.mts",

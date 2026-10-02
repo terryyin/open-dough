@@ -92,6 +92,23 @@ export async function dashboardReleaseFixture(fullSource = false) {
       env,
       git,
       commit,
+      async installDevelopment() {
+        await exec(
+          "npm",
+          [
+            "ci",
+            "--no-audit",
+            "--no-fund",
+            "--fetch-retries=0",
+            "--fetch-timeout=20000",
+          ],
+          {
+            cwd: development,
+            env,
+            timeout: 180_000,
+          },
+        );
+      },
       async publish(
         version: string,
         options: {

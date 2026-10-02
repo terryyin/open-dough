@@ -63,12 +63,14 @@ Accepted proof (2026-10-02): pre-change `PATH=/tmp/open-dough-node-24.21.0/node-
 
 ### 2. One watcher command serves the current release beside development
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add a focused end-to-end watcher journey (for example `dashboard/tests/production-watcher.spec.ts`) with a disposable origin and HOME. Run the new spec plus `dashboard/tests/authenticated-project-overview.spec.ts` for real dev/preview behavior and `npm run typecheck:dashboard`. It must observe the npm command, highest numeric tag, pinned built browser assets and local boundaries, distinct URLs, a clear no-tag failure, and a source edit changing development without changing or restarting production. Test watcher termination ends its preview child.
 
 Behavior: Given a published numeric tag and a development checkout → the developer runs `npm run watch:dashboard` and may also run dev → production serves the tagged bundle at its loopback URL and development serves current source at its own URL. With no numeric tag, the command reports why production cannot start. Keep the preview port strict so an occupied intended URL is an error, not a silent move.
 
 Safe stop: production is usable from the selected tag; release changes still require restarting the watcher manually until slice 3.
+
+Accepted proof (2026-10-02): `env -u NO_COLOR -u FORCE_COLOR PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm run test:dashboard -- dashboard/tests/production-watcher.spec.ts dashboard/tests/authenticated-project-overview.spec.ts --workers=1` passed. The two watcher tests invoke the real npm command against local tags/HOME and observe no-tag exit/error; highest annotated numeric tag and pinned SHA; tagged browser title/application JS versus branch edits; development HMR while production retains its document sentinel with zero navigations, same preview PID and pinned fresh-page content; local read/launch Origin guards; preview exit/HTTP refusal/directory cleanup while dev stays live; and strict occupied-port refusal preserving the independent listener. `installDevelopment()` supplies a locked dependency install in the fixture. Existing overview proof remains intact. The same wrapper with `npm run typecheck:dashboard` passed. Independent refactoring reused existing `ownAddress` for development startup, then the same wrapper with `npm run test:dashboard -- dashboard/tests/production-watcher.spec.ts --workers=1` and typecheck passed. No product boundary changed in refactoring.
 
 ### 3. A newly published release replaces the running production build
 Type: Behavior
@@ -99,6 +101,7 @@ Safe stop: all story examples are delivered; failed releases do not displace the
 - Checkout setup: selected Node 24.21.0 from `/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin`, Bash 5 from `/opt/homebrew/bin`; use these first on `PATH`. `node scripts/setup-native.mjs npm` and `npm run typecheck:dashboard` passed against this checkout's unchanged lockfile.
 - No numeric slice budget configured; preserve bounded proof loops. Existing planned-scope replanning authority retained.
 - CI source: GitHub Actions, repository `terryyin/open-dough`, verified `ci.yml` push workflow. The claim on trunk has no matching owned observer and is unobserved. Managed delivery will establish execution-branch observation.
+- Slice 1 accepted on `origin/refs/heads/codex/separate-dashboard-development-and-production-en`: `4e076e11ea761a98f8c401e69102228cb8f0b693`. Managed delivery reported `pendingCi: unobserved`, `Codex yielded-cell bridge is unavailable`; no observer was created. The installed managed path cannot attach its detached worker to the supplied yielded-cell stream without a separate startup path, so no bridge readiness was claimed.
 
 - One product watcher owns tag checks, tagged preparation, production server lifecycle, failure reporting, retry, and cleanup. The developer checkout supplies the watcher and resolver, while each production process runs its tagged app; this is one release model, not separate rules for startup and updates.
 - The watcher polls release tags only. Editing development source does not rebuild or reload the running watcher or production process.
@@ -110,3 +113,4 @@ Safe stop: all story examples are delivered; failed releases do not displace the
 
 - The runner uses native `.mjs` so the forthcoming npm watcher requires no TypeScript loader and preserves the package's supported Node runtime range. Proof used the repository-selected Node 24.21.0; older supported Node versions were not executed.
 - The test environment inherited conflicting `NO_COLOR` and `FORCE_COLOR`; focused browser proof unsets both. A minimal-fixture empty commit was corrected by persisting a distinct marker; this was test setup, not release behavior.
+- Slice 2's first journey met an unowned listener on development's default 43127 (explicit Vite port error). Tests now use temporary loopback ports through `--port 0`; default product URLs remain 43127/4173, with strict production binding. The unowned listener was preserved. Default-port live startup on this machine is unobserved; the same CLI lifecycle was proven on isolated ports. Fixture dependencies are installed in their own checkout, with no link to execution dependencies.
