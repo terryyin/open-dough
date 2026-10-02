@@ -112,6 +112,7 @@ export async function startChoice(
 ): Promise<
   WorkspaceChoice & {
     readonly model: StartRecord["model"];
+    readonly effort: StartRecord["effort"];
     readonly policy: SessionPolicy;
   }
 > {
@@ -120,6 +121,7 @@ export async function startChoice(
     return {
       ...keptChoice(project, kept),
       model: kept.model,
+      effort: request.effort,
       policy: policyOf(kept),
     };
   }
@@ -134,6 +136,7 @@ export async function startChoice(
           request.host,
         )),
     model: request.model,
+    effort: request.effort,
     policy,
   };
 }

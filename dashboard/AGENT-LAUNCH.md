@@ -34,10 +34,19 @@ transient, with no cross-launch preference or configuration writes. Discovery
 failure explains the unavailable choices and offers retry; the configured-setting
 path remains usable. Explicit choices are revalidated before creation, and a
 contradictory creation response keeps the conversation identity without sending
-first input or claiming the selection ran. Effort continues to inherit Codex’s
-configuration. Configured defaults are resolved by Codex in the actual launch
-workspace, rather than inferred from catalog recommendations. Switching hosts clears the model; no authentication, trust, approval,
-sandbox, permission or reasoning setting is overridden by the dashboard.
+first input or claiming the selection ran. Reasoning effort offers the host’s
+supported values and descriptions, independently of Model. Both settings default
+to “Use Codex setting”; an incompatible explicit effort stays selected with linked
+feedback until corrected. Blank sessions receive the selected pair without input.
+Explicit effort goes only to native creation’s `config.model_reasoning_effort`,
+never to agent assignment or configuration writes. Ad hoc choices can resolve the
+configured model in the project folder; story starts delegate defaults until their
+workspace is established. Launch validates against that actual workspace and
+checks native effective model/effort before saving any sendable input evidence.
+Unknown configured custom models remain usable with untouched defaults.
+Configured defaults are never inferred from catalog recommendations. Switching
+hosts and fresh openings clear both selections; no authentication, trust, approval,
+sandbox or permission setting is overridden by the dashboard.
 Requested model/options lines describe requests, never the effective model.
 
 ## Startup handoff and reconciliation

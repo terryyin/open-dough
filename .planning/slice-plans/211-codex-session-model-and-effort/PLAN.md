@@ -83,7 +83,7 @@ exception was identified. No cross-host native competence claim is made.
 ## Observed premises and proof boundaries
 
 [Retained baseline and native evidence](EVIDENCE.md) distinguish planning
-observations, the native result and accepted slice 2 implementation proof.
+observations, the native result and accepted implementation proof for all slices.
 
 ## Ordered slices
 
@@ -156,7 +156,7 @@ there is no effort selector and no new conversation-resume behavior.
 
 ### 3. Choose an effort compatible with the new session's model
 Type: Behavior
-Status: planned
+Status: done
 Proof: The same UI-to-native boundary proves an explicit supported pair,
 model-only, effort-only and neither override, and proves incompatible explicit
 pairs cannot be submitted or silently replaced.

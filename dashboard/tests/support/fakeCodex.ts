@@ -1,6 +1,7 @@
 // Protocol-only vendor substitute installed by the existing dashboard server
 // fixture. Actual HTTP/page code creates and persists every launch record.
 import { defaultCodexModels, answerCodexCatalog } from "./fakeCodexCatalog.ts";
+import { answerCodexInput } from "./fakeCodexInput.ts";
 import { answerCodexCreation } from "./fakeCodexCreation.ts";
 import { createServer } from "node:http";
 import path from "node:path";
@@ -128,6 +129,21 @@ export async function installFakeCodex(
         case "initialize":
           reply({ userAgent: "native-substitute" });
           break;
+        case "config/read":
+          if (fixture.configError) {
+            refuse(fixture.configError);
+            break;
+          }
+          reply({
+            config: {
+              model:
+                fixture.configuredModels?.[String(message.params?.["cwd"])] ??
+                (fixture.configuredModel === undefined
+                  ? "native-sol"
+                  : fixture.configuredModel),
+            },
+          });
+          break;
         case "model/list":
           answerCodexCatalog(
             fixture,
@@ -187,53 +203,16 @@ export async function installFakeCodex(
             });
           }
           break;
-        case "turn/start": {
-          if (fixture.refuseInput) {
-            refuse({ code: -32000, message: "Native input refused." });
-            break;
-          }
-          fixture.history.push({
-            id: "native-turn-id",
-            items: [
-              {
-                type: "userMessage",
-                id: "user-input",
-                content: message.params?.["input"],
-              },
-              {
-                type: "reasoning",
-                id: "reasoning-item",
-                summary: [],
-                content: ["protocol fixture reasoning"],
-              },
-              {
-                type: "commandExecution",
-                id: "command-item",
-                command: "native fixture",
-                status: "completed",
-              },
-            ],
-          });
-          fixture.beforeInput?.();
-          const accepted = () => {
-            if (client.readyState !== 1) return;
-            reply({ turn: { id: "native-turn-id", status: "inProgress" } });
-            if (fixture.afterAcceptance === "complete")
-              client.send(
-                JSON.stringify({
-                  method: "turn/completed",
-                  params: {
-                    threadId: fixture.threadId,
-                    turn: { id: "native-turn-id", status: "completed" },
-                  },
-                }),
-              );
-            if (fixture.afterAcceptance === "disconnect") client.close();
-          };
-          if (fixture.hold) waiting.push(accepted);
-          else accepted();
+        case "turn/start":
+          answerCodexInput(
+            fixture,
+            message.params ?? {},
+            waiting,
+            reply,
+            refuse,
+            client,
+          );
           break;
-        }
       }
     });
   });

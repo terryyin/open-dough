@@ -1,12 +1,15 @@
 // Transient installed-host picker data, never a persisted model catalog.
 import { z } from "zod";
 export const launchHostOptionsEndpoint = "/__agent-launch/host-options";
-export const launchModelSchema = z
+export const launchSettingSchema = z
   .string()
   .min(1)
   .max(200)
   .regex(/^[^\r\n]*$/);
+// Retain the model contract for callers that only carry model identity.
+export const launchModelSchema = launchSettingSchema;
 export const launchHostOptionsSchema = z.object({
+  configuredModel: launchModelSchema.optional(),
   models: z.array(
     z.object({
       model: launchModelSchema,

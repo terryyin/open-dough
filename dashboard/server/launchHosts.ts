@@ -41,7 +41,7 @@ export type TerminalAttachment =
 import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
 
 export type LaunchHost = {
-  options?(signal: AbortSignal): Promise<LaunchHostOptions>;
+  options?(signal: AbortSignal, cwd?: string): Promise<LaunchHostOptions>;
   readonly name: string;
   readonly description: HostDescription;
   // Presence requires durable creation evidence. Native advice and inspection

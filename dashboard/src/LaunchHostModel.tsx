@@ -2,6 +2,7 @@
 // that reading order when it does not. Changing the host returns the model to
 // the host's own setting. Codex offerings come from its transient native catalog.
 
+import { LaunchReasoningEffort } from "./LaunchReasoningEffort.tsx";
 import type { LaunchHostOptions } from "./launchHostOptions.ts";
 import { hostName, launchHosts } from "./sessionCapabilities.ts";
 import { hostDescription } from "./hostDescription.ts";
@@ -14,12 +15,16 @@ export function LaunchHostModel({
   model,
   onModel,
   catalog,
+  effort,
+  onEffort,
 }: {
   readonly catalog: {
     options?: LaunchHostOptions;
     error?: string;
     retry: () => void;
   };
+  readonly effort: string;
+  readonly onEffort: (effort: string) => void;
   readonly id: string;
   readonly host: AgentLaunchRequest["host"];
   // Absent when the host is fixed.
@@ -38,6 +43,7 @@ export function LaunchHostModel({
           onChange={(event) => {
             onHost?.(event.target.value as AgentLaunchRequest["host"]);
             onModel("");
+            onEffort("");
           }}
         >
           {launchHosts.map((choice) => (
@@ -104,6 +110,16 @@ export function LaunchHostModel({
           </div>
         )}
       </div>
+      {host === "codex" && (
+        <LaunchReasoningEffort
+          id={id}
+          model={model}
+          effort={effort}
+          onEffort={onEffort}
+          options={catalog.options}
+          error={catalog.error}
+        />
+      )}
     </div>
   );
 }

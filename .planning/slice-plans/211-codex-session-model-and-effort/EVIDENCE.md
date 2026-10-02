@@ -181,3 +181,43 @@ branch. Managed delivery reported `pendingCi: unobserved`, reason
 `Codex yielded-cell bridge is unavailable`; no observer was created. Local proof
 is accepted without claiming hosted CI coverage. The published claim on main is
 also unobserved. The next increment uses that slice 1 SHA as its published base.
+
+## Slice 3 accepted proof
+
+Optional effort extends the same request, start-store and native-creation contract.
+Compatible choices survive model changes; incompatible choices remain visibly
+unresolved. Actual-workspace configuration resolves effort-only validation;
+explicit pairs do not depend on configuration reads. Native effective settings
+are checked before saving sendable input evidence. Custom configured defaults
+remain usable. Effort adds no assignment fact, config write or resume setting.
+
+Final post-refactor commands completed with exit 0:
+
+```sh
+npm run typecheck:dashboard
+env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-codex-model.spec.ts dashboard/tests/agent-launch-codex-model-boundary.spec.ts dashboard/tests/agent-launch-model.spec.ts dashboard/tests/agent-launch-ad-hoc-codex-input.spec.ts dashboard/tests/agent-launch-dialog-layout.spec.ts dashboard/tests/agent-launch-default-checkout-warning.spec.ts dashboard/tests/agent-launch-ad-hoc-codex.spec.ts dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-codex-creation.spec.ts dashboard/tests/agent-launch-codex-confirmation.spec.ts dashboard/tests/agent-launch-start-codex.spec.ts dashboard/tests/agent-launch-preparation-codex.spec.ts --workers=2
+npm run format
+```
+
+The original two Codex model specs import `codexEffortBoundaryCases.ts`,
+`codexEffortDialogCases.ts` and `codexEffortWorkspaceCases.ts`. Their assertions
+observe independent pair/effort/neither and prior model-only payloads, actual
+native config cwd, first-input durable ordering, blank no-turn behavior, mismatch
+identity without sendable evidence, custom/unset/default configuration, read
+failure versus explicit-pair independence, model compatibility, linked feedback,
+Tab order, narrow/200% viewport, reset, stale choices/default retry and Back/Continue
+confirmation. All three UI origins assert the pair in native creation and real
+request/start stores. Existing `codexStart`/`codexLaunch` infrastructure supplies
+real server/store/installed commands; the native fixture supplies only replies.
+
+Independent refactoring extracted the settings hook and native input fixture,
+renamed settings admission and the shared scalar grammar, and split workspace
+journeys while retaining original test registration. The combined 12-spec command
+renewed moved UI/admission/schema/fixture proof (terminal session 71291); native
+slice 1 proof remains unchanged. An earlier run's stale one-option expectation
+was corrected to exact native choices. Interrupted session 16152 had no recovered
+terminal result and is not claimed; replacement terminal proof covers its additions.
+
+Slice 2 was accepted as `0a701c84b0a1ecbe9c3a2e7ed0f8b2d5ac6782c2` on the
+execution branch with the same explicit unobserved-CI receipt. This is slice 3's
+previously published base. No observer exists; hosted success is not asserted.

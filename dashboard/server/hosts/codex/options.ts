@@ -17,6 +17,7 @@ const pageSchema = z.object({
 });
 export async function codexOptions(
   signal: AbortSignal,
+  cwd?: string,
 ): Promise<LaunchHostOptions> {
   const rpc = new CodexRpc(await daemonEndpoint(signal), signal);
   try {
@@ -48,7 +49,19 @@ export async function codexOptions(
         throw new Error("Codex repeated a catalog page.");
       if (cursor !== null) seen.add(cursor);
     } while (cursor !== null);
-    return { models };
+    let configuredModel: string | undefined;
+    if (cwd !== undefined) {
+      const result = z
+        .object({
+          config: z.object({ model: z.string().nullable().optional() }),
+        })
+        .parse(await rpc.request("config/read", { includeLayers: false, cwd }));
+      configuredModel = result.config.model ?? undefined;
+    }
+    return {
+      models,
+      ...(configuredModel === undefined ? {} : { configuredModel }),
+    };
   } finally {
     rpc.close();
   }

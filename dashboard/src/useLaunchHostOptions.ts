@@ -4,7 +4,11 @@ import {
   launchHostOptionsSchema,
   type LaunchHostOptions,
 } from "./launchHostOptions.ts";
-export function useLaunchHostOptions(source: string, host: string) {
+export function useLaunchHostOptions(
+  source: string,
+  host: string,
+  projectContext = false,
+) {
   const [retry, setRetry] = useState(0);
   const [state, setState] = useState<{
     source: string;
@@ -17,7 +21,7 @@ export function useLaunchHostOptions(source: string, host: string) {
     const controller = new AbortController();
     setState({ source, host });
     void fetch(
-      `${launchHostOptionsEndpoint}?${new URLSearchParams({ source, host })}`,
+      `${launchHostOptionsEndpoint}?${new URLSearchParams({ source, host, ...(projectContext ? { context: "project" } : {}) })}`,
       { signal: controller.signal },
     )
       .then(async (response) => {
@@ -40,7 +44,7 @@ export function useLaunchHostOptions(source: string, host: string) {
     return () => {
       controller.abort();
     };
-  }, [source, host, retry]);
+  }, [source, host, retry, projectContext]);
   const current =
     state.source === source && state.host === host ? state : { source, host };
   return {

@@ -37,12 +37,19 @@ test("slow/unavailable discovery retains focus, retry works, host changes and fr
     dialog.getByRole("button", { name: "Retry model choices" }),
   ).toBeVisible();
   await expect(dialog.getByRole("textbox")).toBeFocused();
+  await expect(
+    dialog.getByLabel("Reasoning effort", { exact: true }),
+  ).toHaveValue("");
+  await expect(dialog.getByLabel("Host", { exact: true })).toHaveValue("codex");
   codexProtocol.catalogError = undefined;
   await dialog.getByRole("button", { name: "Retry model choices" }).click();
   await expect(
     dialog.getByLabel("Model", { exact: true }).locator("option"),
   ).toHaveCount(3);
   await dialog.getByLabel("Model", { exact: true }).selectOption("native-sol");
+  await dialog
+    .getByLabel("Reasoning effort", { exact: true })
+    .selectOption("ultra");
   await dialog.getByLabel("Host", { exact: true }).selectOption("claude");
   await expect(dialog.getByLabel("Model", { exact: true })).toHaveValue("");
   await dialog.getByLabel("Host", { exact: true }).selectOption("codex");

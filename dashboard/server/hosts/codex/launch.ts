@@ -10,12 +10,13 @@ import type { HostLaunch } from "../../hostLaunch.ts";
 import { codexInput, confirmedFirstInput } from "./input.ts";
 import { connection, retire, observe } from "./conversation.ts";
 import { CodexRpc, daemonEndpoint, NativeRefusal } from "./rpc.ts";
-import { codexOptions } from "./options.ts";
+import { verifyCodexSettings } from "./startupSettings.ts";
 import { materializeBlank } from "./blank.ts";
 
 const threadSchema = z.object({
   thread: z.object({ id: z.string().min(1) }),
   model: z.unknown().optional(),
+  reasoningEffort: z.unknown().optional(),
 });
 const turnSchema = z.object({ turn: z.object({ id: z.string().min(1) }) });
 export const launchCodex: LaunchHost["launch"] = async (
@@ -35,20 +36,7 @@ export const launchCodex: LaunchHost["launch"] = async (
     if (record === undefined)
       throw new Error("Durable launch recording is required.");
     const workspace = established?.workspace.path ?? folder.path;
-    if (request.model !== undefined) {
-      let options;
-      try {
-        options = await codexOptions(signal);
-      } catch {
-        throw new NativeRefusal(
-          "The requested model could not be verified. Retry, or use the Codex setting.",
-        );
-      }
-      if (!options.models.some((item) => item.model === request.model))
-        throw new NativeRefusal(
-          "The selected Codex model is no longer available. Choose another model or use the Codex setting.",
-        );
-    }
+    const settings = await verifyCodexSettings(request, workspace, signal);
     const endpoint = await daemonEndpoint(signal);
     await record.creating(workspace, endpoint);
     rpc = connection(endpoint, signal);
@@ -57,6 +45,9 @@ export const launchCodex: LaunchHost["launch"] = async (
       await rpc.request("thread/start", {
         cwd: workspace,
         ...(request.model === undefined ? {} : { model: request.model }),
+        ...(request.effort === undefined
+          ? {}
+          : { config: { model_reasoning_effort: request.effort } }),
       }),
     );
     rpc.watchThread(native.thread.id);
@@ -82,20 +73,28 @@ export const launchCodex: LaunchHost["launch"] = async (
     const blank = request.workflow === "ad-hoc" && !request.instruction?.trim();
     const modelMatches =
       request.model === undefined || native.model === request.model;
+    const effortMatches =
+      request.effort === undefined ||
+      (native.reasoningEffort === request.effort &&
+        settings?.models.some(
+          (item) =>
+            item.model === native.model &&
+            item.efforts.some((item) => item.effort === request.effort),
+        ));
+    const settingsMatch = modelMatches && effortMatches;
     // The request keeps the intended text, but unverified settings must never
     // produce saved input that the existing continuation path can submit.
-    evidence = !modelMatches
+    evidence = !settingsMatch
       ? {
           state: "awaiting",
-          explanation:
-            "Codex did not confirm the requested model. No first input was submitted; the conversation was kept.",
+          explanation: `Codex did not confirm the requested ${modelMatches ? "reasoning effort" : "model"}. No first input was submitted; the conversation was kept.`,
         }
       : blank
         ? { state: "awaiting", intent: "blank" }
         : { ...evidence, instruction: input[0]?.text };
     await record.session(session, evidence);
     persisted = true;
-    if (!modelMatches) throw new Error(evidence.explanation);
+    if (!settingsMatch) throw new Error(evidence.explanation);
     if (blank) {
       await materializeBlank(rpc, native.thread.id, workspace);
       evidence = { state: "not-requested", intent: "blank" };

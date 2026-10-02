@@ -15,20 +15,19 @@
 // Existing changes Start finds in the default checkout get a confirmation
 // state (`./LaunchExistingChanges.tsx`), with the choices kept behind it.
 
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import type { OfferedShape } from "./commandOptions.ts";
 import {
   launchInstructionLimit,
   type AgentLaunchRequest,
   type LaunchChoices,
-  type LaunchModel,
 } from "./agentLaunch.ts";
 import {
   useExistingChangesConfirmation,
   type StartAnswer,
 } from "./LaunchExistingChanges.tsx";
 import { LaunchDialogFooter } from "./LaunchDialogFooter.tsx";
-import { useLaunchHostOptions } from "./useLaunchHostOptions.ts";
+import { useLaunchSettings } from "./useLaunchSettings.ts";
 import { LaunchHostModel } from "./LaunchHostModel.tsx";
 import { LaunchOptions, useOptionSelection } from "./LaunchOptions.tsx";
 import {
@@ -46,6 +45,7 @@ import "./launch-session.css";
 // opening to start from (`kept`), so the developer can change it.
 export function LaunchDialog({
   sourceId,
+  projectContext = false,
   heading,
   subject,
   description,
@@ -69,6 +69,7 @@ export function LaunchDialog({
   onClose,
 }: {
   readonly sourceId: string;
+  readonly projectContext?: boolean;
   readonly host: AgentLaunchRequest["host"];
   readonly onHost?: ((host: AgentLaunchRequest["host"]) => void) | undefined;
   readonly heading: string;
@@ -115,15 +116,8 @@ export function LaunchDialog({
     notOfferedLine,
   );
   const { selected, flags } = selection;
-  const [model, setModel] = useState<LaunchModel>("");
-  useEffect(() => {
-    setModel("");
-  }, [sourceId, host]);
-  const catalog = useLaunchHostOptions(sourceId, host);
-  const modelBlocked =
-    host === "codex" &&
-    model !== "" &&
-    !catalog.options?.models.some((item) => item.model === model);
+  const { model, setModel, effort, setEffort, catalog, settingsBlocked } =
+    useLaunchSettings(sourceId, host, projectContext);
   const policy = session?.policy;
   // Unless a launch found existing changes to confirm, closes with its answer.
   const confirmation = useExistingChangesConfirmation({
@@ -158,11 +152,12 @@ export function LaunchDialog({
         hidden={Boolean(confirmation.view)}
         onSubmit={(event) => {
           event.preventDefault();
-          if (modelBlocked) return;
+          if (settingsBlocked) return;
           confirmation.start({
             host,
             instruction: instruction.current?.value ?? "",
             ...(model === "" ? {} : { model }),
+            ...(host !== "codex" || effort === "" ? {} : { effort }),
             ...(flags.length === 0 ? {} : { options: flags }),
             ...(policy?.tracking === "one-shot" ? { policy } : {}),
           });
@@ -190,6 +185,8 @@ export function LaunchDialog({
               onHost={onHost}
               model={model}
               onModel={setModel}
+              effort={effort}
+              onEffort={setEffort}
               catalog={catalog}
             />
             {session !== undefined && (
@@ -232,7 +229,7 @@ export function LaunchDialog({
             effects={effects}
             submitting={submitting}
             startBlocked={
-              modelBlocked ||
+              settingsBlocked ||
               (optionsReading && selected.size > 0) ||
               (session !== undefined && sessionBlocksStart(session))
             }

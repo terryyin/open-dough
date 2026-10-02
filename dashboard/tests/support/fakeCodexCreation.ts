@@ -23,8 +23,18 @@ export function answerCodexCreation(
     const created = () => {
       reply({
         thread: { id: threadId },
-        model: fixture.effectiveModel ?? params["model"] ?? "configured-native",
-        reasoningEffort: "medium",
+        model:
+          fixture.effectiveModel ??
+          params["model"] ??
+          fixture.configuredModels?.[fixture.cwd] ??
+          fixture.configuredModel ??
+          "native-sol",
+        reasoningEffort:
+          fixture.effectiveEffort ??
+          (params["config"] as Record<string, unknown> | undefined)?.[
+            "model_reasoning_effort"
+          ] ??
+          "medium",
       });
     };
     if (fixture.holdCreation) waiting.push(created);

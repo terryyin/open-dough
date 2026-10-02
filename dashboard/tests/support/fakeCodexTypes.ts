@@ -22,8 +22,12 @@ export type FakeCodex = {
   }>;
   modelPageSize: number;
   catalogError?: unknown;
+  configError?: unknown;
   holdCatalog: boolean;
   effectiveModel?: string;
+  effectiveEffort?: string;
+  configuredModel?: string | null;
+  configuredModels?: Record<string, string>;
   readonly binDir: string;
   readonly env: Record<string, string>;
   readonly calls: CodexCall[];

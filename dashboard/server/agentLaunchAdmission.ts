@@ -1,18 +1,12 @@
-// Which requests the local launch boundary (`./agentLaunchPlugin.ts`) admits,
-// and the refusal each other one gets: a launch answered once it is
-// accepted, a wait for an accepted attempt to change, a read of the
-// machine's sessions, a read of a kept session's final report, a done mark on a session it recorded
-// (`./doneMarks.ts`), a delete of a record it kept, and a terminal upgrade
-// (`./agentTerminals.ts`). Every request must come from this dashboard's own
-// origin; a launch, a continuation, a done mark, a
-// delete, or an upgrade must name a catalog project, and a done mark, a delete,
-// or an upgrade a session this dashboard recorded for that project, in its
-// existing folder. A launch's selected options are checked against the
-// project's installed definition and kept in its order (`./launchOptions.ts`),
-// and its session policy against the installation's start
-// (`./launchSessionPolicy.ts`). Only terminal admission reads native session availability.
+// Local launch admission verifies the dashboard origin and known project for
+// launches, continuations, done marks, deletion and terminal upgrades. Done,
+// delete and upgrade also require a recorded session in an existing folder.
+// Launch options follow the installed definition (`./launchOptions.ts`) and
+// policy follows installed startup (`./launchSessionPolicy.ts`). Reads cover
+// attempts, sessions, reports and host choices; only terminal admission reads
+// native session availability.
 
-import { admitLaunchModel } from "./launchModelAdmission.ts";
+import { admitLaunchSettings } from "./launchSettingsAdmission.ts";
 import { launchHostOptionsEndpoint } from "../src/launchHostOptions.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { sessionResultEndpoint } from "../src/sessionResult.ts";
@@ -57,6 +51,7 @@ export type Admitted =
   | { readonly kind: "sessions" }
   | {
       readonly kind: "host-options";
+      readonly cwd?: string;
       readonly host: NonNullable<ReturnType<typeof launchHost>>;
     }
   | { readonly kind: "result"; readonly record: LaunchRecord }
@@ -147,7 +142,7 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
     );
   }
   const project = projectFolder(source);
-  await admitLaunchModel(request, host);
+  await admitLaunchSettings(request, host);
   const selected = await withSelectedOptions(request, project);
   return {
     kind: "accept",
@@ -193,7 +188,13 @@ export async function admitted(
         404,
         "The project folder is not available on this machine.",
       );
-    return { kind: "host-options", host };
+    return {
+      kind: "host-options",
+      host,
+      ...(url.searchParams.get("context") === "project"
+        ? { cwd: projectFolder(source).path }
+        : {}),
+    };
   }
   if (url.pathname === agentChangedEndpoint) {
     const attempt = z.uuid().safeParse(url.searchParams.get("attempt"));

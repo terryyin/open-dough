@@ -21,7 +21,7 @@ import {
   launchWorkflowNames,
   startPhases,
 } from "./launchWorkflow.ts";
-import { launchModelSchema } from "./launchHostOptions.ts";
+import { launchModelSchema, launchSettingSchema } from "./launchHostOptions.ts";
 import {
   launchWithStateSchema,
   type LaunchRecord,
@@ -97,6 +97,7 @@ export type Alerts = z.infer<typeof alertsSchema>;
 export const keptStartSchema = z.object({
   host: sessionHostSchema.default("claude"),
   model: launchModelSchema.optional(),
+  effort: launchSettingSchema.optional(),
   workflow: z.enum(launchWorkflowNames),
   source: z.string().min(1),
   identity: z.string().min(1),

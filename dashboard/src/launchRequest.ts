@@ -8,7 +8,7 @@ import {
 } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import { launchWorkflowNames } from "./launchWorkflow.ts";
 import { type LaunchModel } from "./hostDescription.ts";
-import { launchModelSchema } from "./launchHostOptions.ts";
+import { launchModelSchema, launchSettingSchema } from "./launchHostOptions.ts";
 
 export const agentLaunchEndpoint = "/__agent-launch";
 
@@ -32,6 +32,7 @@ const oneLine = z
 const launchOptions = {
   instruction: z.string().max(launchInstructionLimit).optional(),
   model: launchModelSchema.optional(),
+  effort: launchSettingSchema.optional(),
   options: z.array(oneLine).max(launchOptionLimit).optional(),
 };
 
@@ -128,6 +129,7 @@ export type LaunchChoices = {
   readonly instruction: NonNullable<StoryLaunchRequest["instruction"]>;
   // Absent for Default: the selected host's configured setting applies.
   readonly model?: LaunchModel;
+  readonly effort?: string;
   // The flags selected, absent when none.
   readonly options?: readonly string[];
   // The session's policy, absent for the default.
@@ -143,6 +145,7 @@ export function requestedChoices({
   host,
   instruction,
   model,
+  effort,
   options,
   policy,
   existingChanges,
@@ -152,6 +155,7 @@ export function requestedChoices({
     host,
     ...(own === "" ? {} : { instruction: own }),
     ...(model === undefined ? {} : { model }),
+    ...(effort === undefined ? {} : { effort }),
     ...(options === undefined || options.length === 0
       ? {}
       : { options: [...options] }),

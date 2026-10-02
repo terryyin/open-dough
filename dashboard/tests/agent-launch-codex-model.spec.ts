@@ -41,6 +41,9 @@ for (const workflow of ["execution", "refinement", "ad-hoc"] as const) {
       "Native Luna",
     ]);
     await models.selectOption("native-luna");
+    await dialog
+      .getByLabel("Reasoning effort", { exact: true })
+      .selectOption("low");
     await expect(dialog).toContainText("Host supplied Luna description");
     if (workflow !== "ad-hoc")
       codexProtocol.beforeInput = () => {
@@ -54,7 +57,7 @@ for (const workflow of ["execution", "refinement", "ad-hoc"] as const) {
           ),
         );
         expect(starts).toMatchObject({
-          "open-dough": { "SEED-A#a": { model: "native-luna" } },
+          "open-dough": { "SEED-A#a": { model: "native-luna", effort: "low" } },
         });
       };
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
@@ -74,6 +77,7 @@ for (const workflow of ["execution", "refinement", "ad-hoc"] as const) {
       .toBe(workflow === "ad-hoc" ? "not-requested" : "confirmed");
     const record = stored(dashboard.home)[0];
     expect(record?.request.model).toBe("native-luna");
+    expect(record?.request.effort).toBe("low");
     const workspace =
       workflow === "ad-hoc"
         ? origin.project
@@ -83,7 +87,11 @@ for (const workflow of ["execution", "refinement", "ad-hoc"] as const) {
     ).toEqual([
       {
         method: "thread/start",
-        params: { cwd: workspace, model: "native-luna" },
+        params: {
+          cwd: workspace,
+          model: "native-luna",
+          config: { model_reasoning_effort: "low" },
+        },
       },
     ]);
     if (workflow === "ad-hoc") {
@@ -114,3 +122,7 @@ for (const workflow of ["execution", "refinement", "ad-hoc"] as const) {
 }
 
 import "./codexModelCatalogCases.ts";
+
+import "./codexEffortDialogCases.ts";
+
+import "./codexEffortWorkspaceCases.ts";

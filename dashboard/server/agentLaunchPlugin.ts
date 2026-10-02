@@ -124,7 +124,10 @@ async function answer(
           try {
             if (request.host.options === undefined)
               throw new Error("Host startup choices unavailable.");
-            return { status: 200, body: await request.host.options(signal) };
+            return {
+              status: 200,
+              body: await request.host.options(signal, request.cwd),
+            };
           } catch {
             return {
               status: 503,

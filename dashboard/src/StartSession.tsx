@@ -94,6 +94,7 @@ export function StartSession({
       {open && (
         <LaunchDialog
           sourceId={sourceId}
+          projectContext
           host={host}
           onHost={setHost}
           heading={`Start a session in ${project} in ${hostName(host)}`}

@@ -188,3 +188,5 @@ for (const instruction of ["Do work", undefined] as const) {
     expect(stored(dashboard.home)[0]?.request.instruction).toBe(instruction);
   });
 }
+
+import "./codexEffortBoundaryCases.ts";
