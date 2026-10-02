@@ -22,7 +22,7 @@ restart the dashboard being used for real work.
 
 **Identity:** SEED-082#dashboard-development-and-production
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/213-dashboard-development-and-production/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cdbd93d194e0a40c6e33b32c1ccc2dd5996f77431a74a800905c0d4626c02173","plan":"b83b1b0b7ac0ce0ad44b0dc12c47d09118ad6d73dba1af5e9fff751355bcf227"}}
 ```
 
 **Goal:** A developer can manually test the development environment while using
@@ -36,28 +36,52 @@ a stable production dashboard that updates when a new release tag is published.
 - Run production from a built bundle. Development source edits must not cause
   production to auto-refresh or restart.
 - Start the production watcher through an npm command run from the development
-  environment. The watcher owns starting the production server and watching for
-  new release tags, then deploying the corresponding built bundle and restarting
-  production for that release.
-- Keep the environments distinguishable to the developer using them.
+  checkout. This one command starts the watcher, which starts the production
+  server from the highest numeric `vMAJOR.MINOR.PATCH` tag published on origin.
+  The watcher checks for a newer qualifying tag, builds the dashboard from that
+  tagged source, and restarts production on the new bundle. If no qualifying
+  tag exists at startup, it reports that production cannot start.
+- If a new release cannot be built or started, keep the last working production
+  release available, report the failure, and retry the new release on a later
+  watcher check.
+- Give development and production distinct local URLs so the developer can
+  identify and use each environment.
+- Both environments continue using the existing hardcoded real-project catalog
+  and shared local dashboard launch/session records. This story does not move,
+  isolate, or migrate those records. Separate configuration, including toy
+  projects for development and production's real projects, belongs to
+  [SEED-083](SEED-083-persistent-dashboard-project-configuration.md#persistent-dashboard-project-configuration).
 
-**Key examples for later refinement:**
+**Key examples:**
 
-1. The developer starts the watcher with the npm command and can use production
-   while running development for manual testing.
-2. The developer changes source code and tests it in development; production
-   continues serving its deployed built bundle without auto-refreshing.
-3. A new release tag is published; the watcher detects it and restarts production
-   on the build corresponding to that tag.
+1. Several release tags are published; the developer runs the production
+   watcher npm command from the development checkout; the watcher starts the
+   production server from the highest numeric release tag's built dashboard.
+   The developer can also run development at its own local URL for manual
+   testing.
+2. Production is serving a tagged build; the developer edits dashboard source
+   and tests the change in development; production continues serving the same
+   build without refreshing or restarting.
+3. Production is serving one release; a newer qualifying release tag is
+   published on origin; the watcher builds the dashboard from that tag and
+   restarts production on it.
+4. Production is serving one release; a newer qualifying tag cannot be built
+   or started; production continues serving the last working release, the
+   watcher reports the problem, and a later check retries the new release.
 
-**Open decisions:** Refine the command name, how the environments are identified
-and accessed, which release tags qualify and where they are watched, where a
-release build is produced, and watcher/restart behavior if a release cannot be
-deployed. Clarify any runtime data shared between manual testing and real use.
+**Deferred promise:** Isolating development's projects and local records is not
+part of this delivery. Until the follow-up configuration story, manual testing
+can act on the same real projects as production; developers choose test actions
+accordingly.
+
+**Release convention:** The watcher uses Open Dough's numeric release tags on
+origin under [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md).
+
+**Plan:** [Separate dashboard development and production](../slice-plans/213-dashboard-development-and-production/PLAN.md).
 
 **Capture:** Terry requested this as the first queued backlog story on
 2026-10-02, authorizing capture, commit, and synchronization on main. This record
-captures intended behavior; implementation and slice planning remain pending.
+originally captured intended behavior; implementation remains pending.
 
 ## Breadcrumbs
 
