@@ -35,15 +35,16 @@ import { performAvatarRead, type AvatarOutcome } from "./avatarRead.ts";
 import { perform, type Boundary } from "./performedRead.ts";
 import type { Outcome } from "./readOutcome.ts";
 import { parseRequestedRead } from "./requestedRead.ts";
-import { sourceById, type PublishedSource } from "../src/publishedSource.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import { configuredProject } from "./projectConfiguration.ts";
 // The endpoint paths, shared with the browser.
 import {
   authenticatedAvatarEndpoint,
   authenticatedReadEndpoint,
 } from "../src/authenticatedReadRules.ts";
 
-// Only a request naming a catalog source already known to
-// `../src/publishedSource.ts` is answered; there is no arbitrary
+// Only a request naming a configured project held by
+// `./projectConfiguration.ts` is answered; there is no arbitrary
 // repository, path, or shell command acceptance here. Extra file reads must
 // name a pinned revision and a path reachable from that revision's records.
 // The catalog source an accepted request names, or why it is refused: both
@@ -68,7 +69,7 @@ function admitted(
     };
   }
   const id = params.get("source");
-  const source = id === null ? undefined : sourceById(id);
+  const source = id === null ? undefined : configuredProject(id);
   return (
     source ?? {
       kind: "refused",

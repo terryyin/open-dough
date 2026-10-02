@@ -14,7 +14,8 @@ import {
   type LaunchWithState,
   type LaunchRecord,
 } from "../src/agentLaunch.ts";
-import { catalog, type PublishedSource } from "../src/publishedSource.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import { configuredProjects } from "./projectConfiguration.ts";
 import { launchHost } from "./launchHosts.ts";
 import { launchHosts } from "../src/sessionCapabilities.ts";
 import { withStates } from "./launchStates.ts";
@@ -69,7 +70,7 @@ export class AgentLaunches {
     const kept = await keptRecordsByProject();
     return withStates(
       machineFolder(),
-      catalog.flatMap((source) => kept.get(source.id) ?? []),
+      configuredProjects().flatMap((source) => kept.get(source.id) ?? []),
     );
   }
 

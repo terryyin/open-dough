@@ -1,7 +1,8 @@
 // Catalog and kept host-qualified identity are shared across local session requests.
 // Passive report admission does not require a project or continuation directory.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
-import { sourceById, type PublishedSource } from "../src/publishedSource.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import { configuredProject } from "./projectConfiguration.ts";
 import {
   sessionHostSchema,
   type SessionReference,
@@ -16,7 +17,7 @@ import { keptSession } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 export function knownSource(id: string | null): PublishedSource {
-  const source = id === null ? undefined : sourceById(id);
+  const source = id === null ? undefined : configuredProject(id);
   if (source === undefined) {
     throw new RefusedRequest(404, "Unknown catalog source.");
   }

@@ -2,8 +2,20 @@
 
 **Identity:** SEED-083#persistent-dashboard-project-configuration
 **Source:** [Refined story](../../seeds/SEED-083-persistent-dashboard-project-configuration.md#persistent-dashboard-project-configuration).
-**Authority:** Terry asked on 2026-10-02 for refinement and then a slice plan. This is preparation only: it does not authorize Take, implementation, or publishing the draft.
-**Preparation:** Workspace `/Users/terryyin/git/open-dough/.worktrees/persist-dashboard-project-configuration` on `claude/persist-dashboard-project-configuration`, Preparing assignment `Jane-chan` (`ea47aef3`). Remote target `origin/main`; integration checkout `/Users/terryyin/git/open-dough`.
+**Authority:** Terry invoked `dough-execute-plan` on 2026-10-02 with the established published start below, authorizing execution and story-branch delivery.
+## Execution identity
+
+- Story: `SEED-083#persistent-dashboard-project-configuration`; publisher `dashboard-territory.local-open-dough`; agent `DavidKo-chan`.
+- Owned execution checkout: `/Users/terryyin/git/open-dough/.worktrees/persist-dashboard-project-configuration`, branch `codex/persist-dashboard-project-configuration`, reused from the established start. Story Branch Mode.
+- Originating checkout is this execution checkout; integration checkout: `/Users/terryyin/git/open-dough` (not mutated by increment delivery).
+- Starting revision: `8e83ed742bfbcf9b31a3ec9a7b12f34dc278dd89`; published claim and initial candidate: `db6b0da9a8e1707048b8a5134daf9381f9fe7567` on `origin/refs/heads/main` and the remote execution branch. Claim CI is unobserved.
+- Increment destination: `origin/refs/heads/codex/persist-dashboard-project-configuration`; eventual integration target: `origin/refs/heads/main`.
+- Setup: exact Node `24.21.0` from `/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin`, locked npm and Chromium setup, native prerequisite check and dashboard typecheck passed in this checkout. Commands prepend that Node directory and `/opt/homebrew/bin` to `PATH`.
+- CI: GitHub Actions, verified `ci.yml` push workflow; Codex coordinator `/root`, yielded cell `23`, stream session `55308`, PID `12079`, mailbox `/tmp/dough-ci-501/watch-CkhcLI`, bound to this execution checkout and remote execution branch. Managed increment delivery reuses this observer and registers accepted revisions.
+- No numeric slice budget or exceptions are configured; judge boundedness by the selected coherent outcome and proof loop. Existing planning authority is retained for remaining-work refinement.
+- Check-only commit hook: `.githooks/pre-commit` runs `npm run --silent lint -- --staged`; coordinator owns `npm run format`, which selects the repository's lintable file kinds and ignores. No generation trigger applies to dashboard source edits.
+- Relevant Accepted ADRs: 0001 (domain names) and 0002 (cohesive single representations). ADR 0008 is Proposed; no Accepted decision conflicts with this work.
+
 
 ## Goal and boundaries
 
@@ -61,7 +73,7 @@ Slice 1 also runs the existing specs that import catalog values (`grep -rl "publ
 
 ### 1. One server-held project list feeds browser and server
 Type: Structure
-Status: planned
+Status: done
 Proof: Existing preview and dev specs that select, read, or launch catalog projects stay green unchanged. `npm run typecheck:dashboard` passes.
 
 Structure: Add a server module that owns the project list for its environment, still built from today's four projects, including each folder (`~/git/<id>`). Route `authenticatedRead`, `sessionAdmission`, `agentLaunches`, `launchCatalog`, `sessionAlerts`, `savedSessionServices`, and `projectFolders` through it. Add a loopback endpoint on the existing local boundary that returns the list. The browser loads it before its first published read, and `ProjectSelect`, keyboard navigation, routing, the sidebar, and the terminal split take projects from that loaded list instead of module constants. `publishedSource.ts` keeps only the `PublishedSource` type, extended with the folder on the server side only, so the browser never receives a local path it does not display. This enables slice 2 to swap the list's source for the saved configuration.
@@ -82,7 +94,7 @@ Type: Behavior
 Status: planned
 Proof: New `project-add.spec.ts` covers both slice 3 rows in the proof table. Focused unit proof covers URL parsing (HTTPS with and without `.git`, SSH) and id and name derivation.
 
-Behavior: In either environment, Add project opens a modal with GitHub URL and Local path, prefilled `~/git/<repo>`. Add with a readable repository and a folder whose `origin` names it → the server derives id and name from the repository name and the ref from `.default_branch`, appends the project atomically, and the page selects it and reads its backlog. Launches run in the configured folder, the project survives restart, and the other environment's list is unchanged. Cancel/Escape saves nothing and returns focus. Update both North Stars and the dashboard README to replace "no project registration" with configured projects (Terry, 2026-10-02), keeping their other rules.
+Behavior: In either environment, Add project opens a modal with GitHub URL and Local path, prefilled `~/git/<repo>`. Add with a readable repository and a folder whose `origin` names it → the server derives id and name from the repository name and the ref from `.default_branch`, appends the project atomically, and the page selects it and reads its backlog. Launches run in the configured folder, the project survives restart, and the other environment's list is unchanged. Cancel/Escape saves nothing and returns focus. Replace `launchWorkflow.ts:workspaceWords`’s reconstructed `~/git/<id>` with the server-projected displayed workspace fact so custom-folder launch explanations agree with the actual cwd. Update both North Stars and the dashboard README to replace "no project registration" with configured projects (Terry, 2026-10-02), keeping their other rules.
 
 ### 4. Add project refuses an invalid project with its reason
 Type: Behavior
@@ -109,3 +121,22 @@ Behavior: Remove project on the selected project opens a confirmation naming it 
 
 - A hand-edited configuration with no UI: replaced by Terry's choice of Add and Remove in the dashboard.
 - Editing in place, custom ref or backlog path, per-environment record isolation, toy-project fixtures shipped with development, and a project-registration service or database: excluded or deferred by the story.
+
+## Accepted execution proof
+
+All commands run in the execution checkout with `PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH`. Color variables are cleared because inherited `NO_COLOR` conflicted with Playwright's `FORCE_COLOR` and violated the quiet reporter.
+
+### Slice 1
+
+- Promise/boundary: unchanged selection, pinned published reads and refresh, routes, keyboard navigation, session sidebar and launch admission/cwd in dev and preview, now supplied by the server list.
+- Inspected setup: `dashboardServer.ts` runs real Vite with isolated HOME and fake GitHub/hosts; fixtures supply published records and starting folders, never the loaded list response or browser work.
+- Inspected observations: `authenticated-project-overview.spec.ts` iterates all four repositories and verifies selected backlog, pinned gh calls and refresh in both modes; `agent-launch-boundary.spec.ts` verifies actual host cwd and admission; `agent-roster.spec.ts` verifies exact awaited normalized URL and history; project-keyboard specs verify wrapping/focus/eligibility; `session-sidebar.spec.ts` verifies cross-project labels and navigation. `project-configuration-boundary.spec.ts` verifies four ordered ids, exact public fields without local paths, no-store, local-origin/Host/method refusals and no subprocess calls in both modes.
+- `env -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard` — pass.
+- `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/authenticated-read-subprocess-lifecycle.spec.ts dashboard/tests/project-keyboard-navigation.spec.ts dashboard/tests/authenticated-read-boundary.spec.ts dashboard/tests/agent-launch-start-refusal.spec.ts dashboard/tests/agent-launch-session-listing.spec.ts dashboard/tests/project-keyboard-navigation-focus.spec.ts dashboard/tests/project-keyboard-navigation-eligibility.spec.ts dashboard/tests/session-result-admission.spec.ts dashboard/tests/authenticated-project-overview.spec.ts dashboard/tests/authenticated-read-refusal.spec.ts dashboard/tests/authenticated-read-revision-check.spec.ts dashboard/tests/authenticated-read-containment.spec.ts dashboard/tests/agent-launch-codex-model.spec.ts dashboard/tests/agent-launch-start.spec.ts dashboard/tests/agent-launch-codex-model-boundary.spec.ts dashboard/tests/session-sidebar.spec.ts dashboard/tests/agent-launch-preparation-store-failure.spec.ts dashboard/tests/agent-roster.spec.ts dashboard/tests/agent-launch-boundary.spec.ts dashboard/tests/project-configuration-boundary.spec.ts --workers=1` — pass; all 20 selected specs.
+- `git diff --check` — pass.
+- Learning: asynchronous initial project loading requires the roster test to await the same exact normalized URL. The fixed-folder workspace explanation remains accurate for this slice and is assigned to slice 3 before custom-folder support.
+
+- Independent refactor: `App.tsx` delegates fetch/state to `projectList.tsx:useProjectConfiguration` and status/failure/notice DOM to `PublishedReadStatus.tsx`; every formatted changed dashboard file is at most 250 lines. Server/admission/route/keyboard/sidebar/terminal implementations and earlier observations remain unchanged.
+- Refactor proof: `env -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard` and `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/authenticated-project-overview.spec.ts dashboard/tests/accessible-overview-keyboard.spec.ts dashboard/tests/refresh-focus.spec.ts --workers=1` — pass. Inspected setup remains real server/published-origin fixtures; overview observes loaded list and all four project reads, accessible overview observes persistent live regions, reading/success/failure and retained focus, refresh-focus observes disappearing-work notice and its clearing.
+
+- Formatting repairs: explicit public-field projection, `writeHead` for the refusal status, and an explicit test-source guard replaced three mechanical lint violations. `env -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard` and `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/project-configuration-boundary.spec.ts dashboard/tests/agent-launch-preparation-store-failure.spec.ts --workers=1` — pass; exact public field/refusal assertions and unchanged preparation recording assertions inspect the affected boundaries.

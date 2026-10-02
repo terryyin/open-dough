@@ -8,6 +8,7 @@
 // return value, which this project's Vite treats as a startup post-hook only.
 
 import type { Connect, HttpServer, Plugin } from "vite";
+import { initializeProjectConfiguration } from "./projectConfiguration.ts";
 
 export function localBoundaryPlugin(
   name: string,
@@ -23,9 +24,11 @@ export function localBoundaryPlugin(
   return {
     name,
     configureServer(server) {
+      initializeProjectConfiguration("development");
       cleanup = install(server.middlewares, server.httpServer);
     },
     configurePreviewServer(server) {
+      initializeProjectConfiguration("production");
       cleanup = install(server.middlewares, server.httpServer);
     },
     closeServer() {

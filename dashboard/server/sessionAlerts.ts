@@ -20,7 +20,7 @@ import {
   type Alerts,
   type LaunchWithState,
 } from "../src/agentLaunch.ts";
-import { catalog } from "../src/publishedSource.ts";
+import { configuredProjects } from "./projectConfiguration.ts";
 import { alertReading } from "../src/sessionShown.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 
@@ -70,8 +70,8 @@ function notification(
   { request, sessionState }: LaunchWithState,
 ): { readonly message: string; readonly title: string } {
   const project =
-    catalog.find((source) => source.id === request.source)?.label ??
-    request.source;
+    configuredProjects().find((source) => source.id === request.source)
+      ?.label ?? request.source;
   const waitingFor =
     sessionState.kind === "available" && sessionState.activity === "waiting"
       ? sessionState.waitingFor

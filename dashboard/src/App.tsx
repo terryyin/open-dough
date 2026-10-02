@@ -1,10 +1,13 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { shortRevision } from "./publishedWork.ts";
-import { Moment } from "./Moment.tsx";
+import {
+  ProjectsOnPage,
+  useProjectConfiguration,
+  useProjects,
+} from "./projectList.tsx";
 import { DashboardBanner } from "./DashboardBanner.tsx";
 import { usePublishedObservation } from "./publishedObservation.ts";
 import { WorkStages } from "./WorkStages.tsx";
-import { PublishedReadFailure } from "./PublishedReadFailure.tsx";
+import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
 import { useAgentLaunches } from "./agentLaunches.ts";
 import { RecentSessions } from "./RecentSessions.tsx";
 import { TerminalSplit } from "./TerminalSplit.tsx";
@@ -39,12 +42,26 @@ type RosterOpening = {
 };
 
 export function App() {
+  const { projects, problem } = useProjectConfiguration();
+  if (projects === undefined)
+    return <p role="status">{problem ?? "Loading projects…"}</p>;
+  return (
+    <ProjectsOnPage projects={projects}>
+      <ConfiguredDashboard />
+    </ProjectsOnPage>
+  );
+}
+
+function ConfiguredDashboard() {
+  const projects = useProjects();
   const [opening, setOpening] = useState<RosterOpening | undefined>();
   const latestOpening = useRef<RosterOpening | undefined>(undefined);
   const closed = useRef<RosterOpening | undefined>(undefined);
   const returningFromRoster = useRef(false);
 
-  const initialSource = useRef(parseRoute(window.location).route.source);
+  const initialSource = useRef(
+    parseRoute(window.location, projects).route.source,
+  );
   const {
     source,
     work,
@@ -162,40 +179,12 @@ export function App() {
         onRefresh={refresh}
       />
       <div className="page-header">
-        {/* Both polite regions stay rendered while they have nothing to say:
-            assistive technology speaks a change of text inside a region it
-            already knows, and may never speak one inserted with its text.
-            Neither takes focus. The result names only what was read; the
-            source evidence above already shows it, so it is spoken and not
-            shown twice, while a read under way is said in sight. */}
-        <p
-          role="status"
-          className={
-            attempt.status === "read"
-              ? "announcement spoken-only"
-              : "announcement"
-          }
-        >
-          {reading && (
-            <>
-              Reading published work…
-              {work &&
-                " What is shown is still the snapshot retrieved earlier."}
-            </>
-          )}
-          {attempt.status === "read" && work && (
-            <>
-              Published work read at revision {shortRevision(work.revision)},
-              retrieved <Moment at={work.retrievedAt} />.
-            </>
-          )}
-        </p>
-        {attempt.status === "failed" && (
-          <PublishedReadFailure attempt={attempt} work={work} />
-        )}
-        <p className="announcement" aria-live="polite">
-          {notice}
-        </p>
+        <PublishedReadStatus
+          attempt={attempt}
+          reading={reading}
+          work={work}
+          notice={notice}
+        />
         <div className="project-actions" hidden={showsRoster}>
           {work && (
             <NearFutureDirection key={source.id} direction={work.direction} />

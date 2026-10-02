@@ -1,6 +1,6 @@
 // The server restores host services once for its retained catalog conversations.
 // This lifecycle never creates or resumes a conversation.
-import { catalog } from "../src/publishedSource.ts";
+import { configuredProjects } from "./projectConfiguration.ts";
 import { keptRecordsByProject } from "./launchRecordStore.ts";
 import { launchHost } from "./launchHosts.ts";
 
@@ -17,7 +17,7 @@ export class SavedSessionServices {
     try {
       const kept = await keptRecordsByProject();
       const hosts = new Set(
-        catalog.flatMap((source) =>
+        configuredProjects().flatMap((source) =>
           (kept.get(source.id) ?? []).map((record) => record.session.host),
         ),
       );
