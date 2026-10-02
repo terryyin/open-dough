@@ -83,7 +83,7 @@ test("lost creation identity persists reconciliation requirement across server r
     };
     expect(retry.kind).toBe("uncertain");
     expect(retry.explanation).toContain(
-      "reconcile this machine's launch evidence before starting again",
+      "reconcile this machine's launch evidence with it",
     );
     expect(retry.explanation).toContain(
       path.join(restarted.home, "git/open-dough"),

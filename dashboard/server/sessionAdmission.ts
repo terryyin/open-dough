@@ -6,7 +6,11 @@ import {
   sessionHostSchema,
   type SessionReference,
 } from "../src/sessionReference.ts";
+import type { IncomingMessage } from "node:http";
+import { deleteRecordRequestSchema } from "../src/deleteRecord.ts";
+import { markDoneRequestSchema } from "../src/doneMark.ts";
 import type { AgentLaunches, Recorded } from "./agentLaunches.ts";
+import { jsonBody } from "./jsonRequestBody.ts";
 import { launchHost } from "./launchHosts.ts";
 import { keptSession } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -40,6 +44,26 @@ export async function recordedSession(
         `The project folder ${recorded.folder.shown} was not found on this machine.`,
       );
   }
+}
+
+// The recorded session a done mark or a delete names, in its project.
+export async function namedSession(
+  req: IncomingMessage,
+  launches: AgentLaunches,
+  kind: "done" | "delete",
+) {
+  const schema =
+    kind === "done" ? markDoneRequestSchema : deleteRecordRequestSchema;
+  const parsed = schema.safeParse(await jsonBody(req));
+  if (!parsed.success) {
+    throw new RefusedRequest(400, `The ${kind} request is malformed.`);
+  }
+  const source = knownSource(parsed.data.source);
+  const recorded = await recordedSession(launches, source, {
+    sessionId: parsed.data.session,
+    host: parsed.data.host,
+  });
+  return { source, ...recorded };
 }
 
 export async function resultRequest(

@@ -4,8 +4,12 @@
 // (`./agentLaunches.ts`) and answers once the launch's owner accepted it,
 // the launch going on whatever happens to the caller; a same-origin POST to
 // `/__agent-launch/continue` asks to continue one kept attempt that needs
-// reconciliation, answered the same way; a same-origin GET of
-// `/__agent-launch/changed?attempt=` answers once that accepted attempt
+// reconciliation, answered the same way; a same-origin POST to
+// `/__agent-launch/reconciled` notes that a settled attempt reconciled with
+// published state, or answers why not; a same-origin POST to
+// `/__agent-launch/verify` settles a story attempt whose launch is uncertain
+// from its host's own session listing, or answers why it stays unresolved; a
+// same-origin GET of `/__agent-launch/changed?attempt=` answers once that accepted attempt
 // changed, or after a bounded wait. A same-origin GET of the session result
 // endpoint reads one kept session's final report through its host, bounded
 // and abandoned when the caller leaves. A same-origin GET answers the machine's
@@ -31,22 +35,12 @@
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, HttpServer, Plugin } from "vite";
-import {
-  agentAcceptEndpoint,
-  agentChangedEndpoint,
-  agentContinueEndpoint,
-  agentLaunchEndpoint,
-  type LaunchWithState,
-  recordDeletable,
-} from "../src/agentLaunch.ts";
-import {
-  agentDeleteEndpoint,
-  type DeleteRecordAnswer,
-} from "../src/deleteRecord.ts";
-import { agentDoneEndpoint } from "../src/doneMark.ts";
+import { type LaunchWithState, recordDeletable } from "../src/agentLaunch.ts";
+import type { DeleteRecordAnswer } from "../src/deleteRecord.ts";
 import {
   admitted,
   admittedAttach,
+  launchBoundaryPaths,
   type Admitted,
 } from "./agentLaunchAdmission.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
@@ -56,7 +50,6 @@ import { deleteRecord } from "./launchRecordStore.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
-import { sessionResultEndpoint } from "../src/sessionResult.ts";
 import { hostOperations, launchHost } from "./launchHosts.ts";
 import {
   respondToLaunch,
@@ -179,6 +172,16 @@ async function answer(
           status: 200,
           body: await launches.continueAttempt(request.source, request.attempt),
         };
+      case "reconciled":
+        return {
+          status: 200,
+          body: await launches.reconcile(request.source, request.attempt),
+        };
+      case "verify":
+        return {
+          status: 200,
+          body: await launches.verify(request.source, request.attempt),
+        };
       case "done":
         return {
           status: 200,
@@ -206,15 +209,7 @@ function installAgentLaunchMiddleware(
   );
   middlewares.use((req, res, next) => {
     const url = new URL(req.url ?? "", "http://placeholder");
-    if (
-      url.pathname !== sessionResultEndpoint &&
-      url.pathname !== agentLaunchEndpoint &&
-      url.pathname !== agentAcceptEndpoint &&
-      url.pathname !== agentChangedEndpoint &&
-      url.pathname !== agentContinueEndpoint &&
-      url.pathname !== agentDoneEndpoint &&
-      url.pathname !== agentDeleteEndpoint
-    ) {
+    if (!launchBoundaryPaths.has(url.pathname)) {
       next();
       return;
     }

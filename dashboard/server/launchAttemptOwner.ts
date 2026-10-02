@@ -1,59 +1,49 @@
 // The launch attempts this server accepted for the launch lifetime
 // (`./agentLaunches.ts`): each is kept with its exact request
 // (`./launchAttemptStore.ts`) before its run has any side effect, then run to
-// its outcome whatever happens to the caller. Of a story's launches in any
-// workflow, and of the same launch on any host, one at a time is accepted; a story
-// whose earlier attempt no server runs any more and never settled accepts
-// only that attempt's continuation, which runs its kept request again under
-// the same identity. Once a read finds its settled state kept, an attempt is
-// answered from this machine's store rather than from memory
-// (`./ownedAttempts.ts`).
+// its outcome whatever happens to the caller (`./launchAttemptSettlement.ts`).
+// Of a story's launches in any workflow, and of the same launch on any host,
+// one at a time is accepted; a story whose unresolved attempt
+// (`unresolvedAttempt`) no server runs any more accepts only that attempt's
+// continuation, which runs its kept request again under the same identity. A
+// settled attempt a page found reconciled with published state keeps when it
+// was (`./launchAttemptReconciliation.ts`); a
+// story attempt whose launch is uncertain settles when a recheck finds its
+// host's own evidence unambiguous (`./launchAttemptVerification.ts`).
+// Once a read finds its settled state kept, an attempt is answered from this
+// machine's store rather than from memory (`./ownedAttempts.ts`).
 
 import { randomUUID } from "node:crypto";
 import type {
   Acceptance,
   AgentLaunchRequest,
   AttemptObservation,
-  AttemptOutcome,
   LaunchAttemptRecord,
-  LaunchResult,
-  PublicationReceipt,
+  ReconciledAnswer,
+  VerifiedAnswer,
 } from "../src/agentLaunch.ts";
-import { HostOperationFailure } from "./hostLaunch.ts";
 import {
   alreadySubmitted,
   conflicting,
   notContinued,
+  recheckRunning,
   unknownAttempt,
   unreadableEvidence,
   unrecordedAcceptance,
   type Unaccepted,
 } from "./launchAttemptConflicts.ts";
+import { reconcileAttempt } from "./launchAttemptReconciliation.ts";
+import {
+  verifyAttempt,
+  type LaunchVerifier,
+} from "./launchAttemptVerification.ts";
+import { settleAttempt, type AttemptRun } from "./launchAttemptSettlement.ts";
 import { keepAttempt, keptAttempts } from "./launchAttemptStore.ts";
-import { OwnedAttempts, type OwnedAttempt } from "./ownedAttempts.ts";
-
-// Runs an accepted attempt, noting its publication receipt once known.
-export type AttemptRun = (
-  own: OwnedAttempt,
-  notePublication: (publication: PublicationReceipt) => Promise<void>,
-) => Promise<LaunchResult>;
-
-// The outcome an attempt keeps: a launched session by reference to its
-// record, or the answer itself.
-function attemptOutcome(result: LaunchResult): AttemptOutcome {
-  return result.kind === "launched"
-    ? {
-        kind: "launched",
-        session: {
-          host: result.record.session.host,
-          sessionId: result.record.session.sessionId,
-        },
-      }
-    : result;
-}
+import { OwnedAttempts } from "./ownedAttempts.ts";
 
 export class LaunchAttemptOwner {
   private readonly owned = new OwnedAttempts();
+  private readonly verifying = new Set<string>();
 
   // The attempts this machine keeps and those this server owns, oldest
   // first, an owned attempt as this server knows it; and whether the kept
@@ -64,11 +54,7 @@ export class LaunchAttemptOwner {
   }> {
     const read = await keptAttempts();
     const kept = read ?? [];
-    const keptIds = new Set(kept.map((attempt) => attempt.id));
-    const attempts = [
-      ...kept,
-      ...this.owned.records().filter((attempt) => !keptIds.has(attempt.id)),
-    ].map((attempt) => this.owned.observed(attempt));
+    const attempts = this.owned.known(kept);
     this.owned.releaseKeptSettled(kept);
     return { attempts, readable: read !== undefined };
   }
@@ -126,6 +112,7 @@ export class LaunchAttemptOwner {
     if (found === undefined) return unknownAttempt;
     const unneeded = notContinued(this.owned.observed(found));
     if (unneeded !== undefined) return unneeded;
+    if (this.verifying.has(id)) return recheckRunning;
     const answer = await before(found.request);
     if (answer !== undefined) return answer;
     // Read again: the attempt may have been continued or settled meanwhile.
@@ -138,10 +125,9 @@ export class LaunchAttemptOwner {
         ? unknownAttempt
         : notContinued(this.owned.observed(now));
     if (stillUnneeded !== undefined) return stillUnneeded;
-    const conflict = this.conflictWith(
-      found.request,
-      kept.filter((attempt) => attempt.id !== id),
-    );
+    // A recheck of it may settle it meanwhile.
+    if (this.verifying.has(id)) return recheckRunning;
+    const conflict = this.conflictWith(found.request, kept, id);
     if (conflict !== undefined) return conflict;
     return this.admit(
       found.request,
@@ -155,19 +141,35 @@ export class LaunchAttemptOwner {
     );
   }
 
-  // An unsettled attempt the request would duplicate: one this server runs,
-  // or a kept one no server runs.
+  // Notes that the project's settled attempt `id` reconciled with published
+  // state, or answers why not.
+  reconcile(sourceId: string, id: string): Promise<ReconciledAnswer> {
+    return reconcileAttempt(this.owned, sourceId, id);
+  }
+
+  // Settles the project's story attempt `id` whose launch is uncertain from
+  // what `verify` finds in its host's own evidence, or answers why it stays
+  // unresolved (`./launchAttemptVerification.ts`).
+  verify(
+    sourceId: string,
+    id: string,
+    verify: LaunchVerifier,
+  ): Promise<VerifiedAnswer> {
+    return verifyAttempt(this.owned, this.verifying, sourceId, id, verify);
+  }
+
+  // What the request, or the continuation of the attempt `continued`, would
+  // duplicate among the attempts this machine knows (`conflicting`).
   private conflictWith(
     request: AgentLaunchRequest,
     kept: readonly LaunchAttemptRecord[],
+    continued?: string,
   ): Unaccepted | undefined {
     return conflicting(
       request,
       this.owned.unsettledRequests(),
-      kept.filter(
-        (attempt) =>
-          attempt.outcome === undefined && !this.owned.has(attempt.id),
-      ),
+      this.owned.known(kept),
+      continued,
     );
   }
 
@@ -186,7 +188,7 @@ export class LaunchAttemptOwner {
       this.owned.release(attempt.id);
       return unrecordedAcceptance;
     }
-    void this.settle(own, run);
+    void settleAttempt(this.owned, own, run);
     return { kind: "accepted", attempt: this.owned.observed(attempt) };
   }
 
@@ -201,46 +203,6 @@ export class LaunchAttemptOwner {
   observation(id: string): AttemptObservation | undefined {
     const own = this.owned.get(id);
     return own && this.owned.observed(own.attempt);
-  }
-
-  // Runs an accepted attempt to its outcome and keeps it; anything the run
-  // throws is its uncertain outcome, never an unhandled rejection.
-  private async settle(own: OwnedAttempt, run: AttemptRun): Promise<void> {
-    let result: LaunchResult;
-    try {
-      result = await run(own, (publication) =>
-        this.note(own.attempt.id, { publication }),
-      );
-    } catch (error) {
-      result = {
-        kind: "uncertain",
-        reason: "unconfirmed",
-        explanation: `The launch ended unexpectedly (${new HostOperationFailure(error instanceof Error ? error.message : String(error)).message}), so a session may or may not have started. Check this machine's sessions before starting again.`,
-      };
-    }
-    await this.note(own.attempt.id, {
-      outcome: attemptOutcome(result),
-      settledAt: new Date().toISOString(),
-    });
-  }
-
-  // Changes an owned attempt and keeps it. When the change cannot be written,
-  // this owner still answers it while the store keeps the earlier, more
-  // conservative state; a closed server writes nothing more.
-  private async note(
-    id: string,
-    change: Partial<LaunchAttemptRecord>,
-  ): Promise<void> {
-    const own = this.owned.get(id);
-    if (own === undefined) return;
-    own.attempt = { ...own.attempt, ...change };
-    if (this.owned.closed) return;
-    try {
-      await keepAttempt(own.attempt);
-    } catch {
-      // Answered from memory; see above.
-    }
-    this.owned.changed(id);
   }
 
   // Ends every owned attempt's waits; kept attempts stay as last written,

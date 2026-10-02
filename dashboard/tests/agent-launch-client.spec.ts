@@ -5,10 +5,10 @@ import { expect, test } from "@playwright/test";
 import { requestAgentAcceptance } from "../src/agentLaunchClient.ts";
 
 for (const [host, hint] of [
-  ["claude", "Check `claude agents` for it before starting again."],
+  ["claude", "Check `claude agents` for it."],
   [
     "codex",
-    "Check the dashboard history and native Codex conversations before starting again.",
+    "Check the dashboard history and native Codex conversations for it.",
   ],
 ] as const) {
   for (const failure of ["fetch rejection", "malformed answer"] as const) {

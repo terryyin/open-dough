@@ -1,4 +1,5 @@
-// Uncertain first input retains exact native continuation across restart.
+// Uncertain first input retains exact native continuation across restart,
+// resumed by continuing its attempt.
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -17,6 +18,8 @@ import { cardSessions } from "./dashboardPage.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import {
+  attempts,
+  continued,
   launch,
   refinementRequest,
   machineSessions,
@@ -111,7 +114,8 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
     });
     try {
       expect(await machineSessions(restarted)).toHaveLength(1);
-      const response = await launch(restarted, pendingRequest);
+      const [uncertain] = await attempts(restarted);
+      const response = await continued(restarted, uncertain?.id ?? "");
       expect(JSON.parse(response.body)).toMatchObject({ kind: "launched" });
       expect(stored(restarted.home)[0]).toMatchObject({
         firstInput: { state: "confirmed", turnId: "native-turn-id" },

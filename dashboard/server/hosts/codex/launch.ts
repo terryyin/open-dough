@@ -118,13 +118,13 @@ export const launchCodex: LaunchHost["launch"] = async (
           kind: "failed",
           reason: "not-installed",
           explanation:
-            "Codex (`codex`) was not found on this machine. Install and authenticate it, then start again.",
+            "Codex (`codex`) was not found on this machine. Install and authenticate it to start a conversation.",
         }
       : {
           kind: "uncertain",
           reason: "unconfirmed",
           explanation:
-            "Codex did not provide a trustworthy conversation identity. Check native Codex history before starting again; no second conversation was created automatically.",
+            "Codex did not provide a trustworthy conversation identity. Check native Codex history for the conversation; no second conversation was created automatically.",
         };
   }
 };

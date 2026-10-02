@@ -52,7 +52,7 @@ function claudeInstruction(
 }
 
 // `<project> · <kind> · <title>`, as `claude agents` lists it.
-function claudeSessionName(
+export function claudeSessionName(
   source: PublishedSource,
   request: RecordedLaunchRequest,
 ): string {
@@ -100,7 +100,7 @@ function failedLaunch(
       kind: "failed",
       reason: "not-installed",
       explanation:
-        "Claude Code (`claude`) was not found on this machine. Install it, then start again.",
+        "Claude Code (`claude`) was not found on this machine. Install it to start a session.",
     };
   }
   if (typeof error.code === "number") {
@@ -108,12 +108,12 @@ function failedLaunch(
       ? {
           kind: "failed",
           reason: "folder-not-trusted",
-          explanation: `Claude Code does not trust ${folder.shown} yet. Run \`claude\` in that folder once and accept the trust prompt, then start again.`,
+          explanation: `Claude Code does not trust ${folder.shown} yet. Run \`claude\` in that folder once and accept the trust prompt.`,
         }
       : {
           kind: "failed",
           reason: "refused",
-          explanation: `Claude Code refused to start a session in ${folder.shown}${model === undefined ? "" : ` with model ${launchModelName("claude", model)}`}. Run \`claude\` in that folder once to see why, then start again.`,
+          explanation: `Claude Code refused to start a session in ${folder.shown}${model === undefined ? "" : ` with model ${launchModelName("claude", model)}`}. Run \`claude\` in that folder once to see why.`,
         };
   }
   return {
@@ -167,5 +167,9 @@ export async function launchClaude(
   const confirmed = listed?.find((entry) => entry.session.shortId === shortId);
   return confirmed === undefined
     ? unconfirmed()
-    : { kind: "launched", ...confirmed };
+    : {
+        kind: "launched",
+        session: confirmed.session,
+        sessionState: confirmed.sessionState,
+      };
 }

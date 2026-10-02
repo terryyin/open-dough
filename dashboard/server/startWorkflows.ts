@@ -42,11 +42,16 @@ export type StartPlace = {
   readonly policy: SessionPolicy;
 };
 
+// What every uncertain start says of itself: it was kept, where it goes on,
+// and that it can be resumed there.
+const keptGoingOn = ({ workspace, branch }: StartPlace) =>
+  `The start was kept and goes on in workspace ${workspace} on branch ${branch}, where it can be resumed.`;
+
 // What a one-shot start of either workflow says in place of its workflow's
 // own words: it publishes no assignment, so nothing is Taken or Preparing.
 const oneShot = {
-  uncertain: ({ workspace, branch }: StartPlace) =>
-    `The start did not finish within the wait; a one-shot start publishes nothing. The start was kept and goes on in workspace ${workspace} on branch ${branch}; pressing Start again resumes it.`,
+  uncertain: (place: StartPlace) =>
+    `The start did not finish within the wait; a one-shot start publishes nothing. ${keptGoingOn(place)}`,
   formatFailed: ({ workspace, branch }: StartPlace) =>
     `The one-shot start was established, but the installed skill's formatter could not be read, so no session was started. Nothing was published. Workspace ${workspace} on branch ${branch}.`,
   publishedWithoutSession: ({ workspace }: EstablishedLaunch) =>
@@ -106,8 +111,8 @@ const execution: StartWorkflow = {
     }
     return formattedStart(project, established.start, host);
   },
-  uncertain: ({ workspace, branch }) =>
-    `The start did not finish within the wait, so the story may or may not be Taken. The start was kept and goes on in workspace ${workspace} on branch ${branch}; pressing Start again resumes it.`,
+  uncertain: (place) =>
+    `The start did not finish within the wait, so the story may or may not be Taken. ${keptGoingOn(place)}`,
   formatFailed: ({ workspace, branch }) =>
     `The story is Taken, but the installed skill's start formatter could not be read, so no session was started. Workspace ${workspace} on branch ${branch}.`,
   publishedWithoutSession: ({ handoff, workspace }) => {
@@ -126,8 +131,8 @@ const refinement: StartWorkflow = {
     }
     return formattedPreparation(project, established.preparation, host);
   },
-  uncertain: ({ workspace, branch }) =>
-    `The start did not finish within the wait, so the story may or may not be Preparing. The start was kept and goes on in workspace ${workspace} on branch ${branch}; pressing Start again resumes it.`,
+  uncertain: (place) =>
+    `The start did not finish within the wait, so the story may or may not be Preparing. ${keptGoingOn(place)}`,
   formatFailed: ({ workspace, branch }) =>
     `The story is Preparing, but the installed skill's formatter could not be read, so no session was started. Workspace ${workspace} on branch ${branch}.`,
   publishedWithoutSession: ({ handoff, workspace }) => {

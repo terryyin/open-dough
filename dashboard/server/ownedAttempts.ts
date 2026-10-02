@@ -34,13 +34,34 @@ export class OwnedAttempts {
     return this.byId.get(id);
   }
 
-  has(id: string): boolean {
-    return this.byId.has(id);
+  // The project's attempt `id`, an owned one as held, else as `kept` holds
+  // it.
+  held(
+    kept: readonly LaunchAttemptRecord[],
+    sourceId: string,
+    id: string,
+  ): LaunchAttemptRecord | undefined {
+    const found =
+      this.byId.get(id)?.attempt ?? kept.find((attempt) => attempt.id === id);
+    return found?.request.source === sourceId ? found : undefined;
   }
 
-  // What is held of every owned attempt.
-  records(): LaunchAttemptRecord[] {
-    return [...this.byId.values()].map(({ attempt }) => attempt);
+  // Holds an owned attempt as the store now keeps it.
+  holdAsKept(attempt: LaunchAttemptRecord): void {
+    const own = this.byId.get(attempt.id);
+    if (own !== undefined) own.attempt = attempt;
+  }
+
+  // The `kept` attempts and those owned, oldest first, each as this server
+  // knows it (`observed`).
+  known(kept: readonly LaunchAttemptRecord[]): readonly AttemptObservation[] {
+    const keptIds = new Set(kept.map((attempt) => attempt.id));
+    return [
+      ...kept,
+      ...[...this.byId.values()]
+        .map(({ attempt }) => attempt)
+        .filter((attempt) => !keptIds.has(attempt.id)),
+    ].map((attempt) => this.observed(attempt));
   }
 
   // The requests of the owned attempts that have not settled.

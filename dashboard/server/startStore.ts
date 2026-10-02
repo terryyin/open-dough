@@ -23,6 +23,7 @@ import {
   establishedStartSchema,
   establishedPreparationSchema,
   sessionPolicySchema,
+  type LaunchRecord,
   type LaunchWorkflow,
 } from "../src/agentLaunch.ts";
 import { launchModelAliases } from "../src/hostDescription.ts";
@@ -164,6 +165,17 @@ export async function removeStart(
     );
     return { ...stored, [sourceId]: remaining };
   });
+}
+
+// Removes the story's kept start whose established facts the launched
+// session's record holds: once its session is recorded, the start is spent.
+export async function removeLaunchedStart(
+  sourceId: string,
+  record: LaunchRecord,
+): Promise<void> {
+  const facts = record.start ?? record.preparation;
+  if (facts !== undefined && record.request.workflow !== "ad-hoc")
+    await removeStart(sourceId, facts.identity, record.request.workflow);
 }
 
 // The script arguments that resume a kept start's retained claim commit, when

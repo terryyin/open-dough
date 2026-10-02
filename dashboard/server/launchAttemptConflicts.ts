@@ -1,16 +1,17 @@
 // What the launch attempt owner (`./launchAttemptOwner.ts`) answers instead
 // of accepting or continuing a launch, with nothing started: the launch
-// would duplicate an unsettled attempt of the same story or launch,
-// this machine's kept attempts cannot be read, or the attempt to continue is
-// not one this machine keeps as needing reconciliation.
+// would duplicate an unsettled attempt of the same launch or its story's
+// unresolved attempt, this machine's kept attempts cannot be read, or the
+// attempt to continue is not one this machine keeps as needing
+// reconciliation.
 
 import {
   needsReconciliation,
   storyOf,
+  unresolvedAttempt,
   type Acceptance,
   type AgentLaunchRequest,
   type AttemptObservation,
-  type LaunchAttemptRecord,
 } from "../src/agentLaunch.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import { alreadyStarting } from "./startLaunch.ts";
@@ -62,6 +63,13 @@ export const startStillRunning: Unaccepted = {
     "This story's earlier start is still running on this machine, so it was not continued. Recheck once it ends; nothing new was started.",
 };
 
+export const recheckRunning: Unaccepted = {
+  kind: "uncertain",
+  reason: "unconfirmed",
+  explanation:
+    "This start is being rechecked on this machine, so it was not continued. Wait for that recheck's result; nothing new was started.",
+};
+
 const settledAttempt: Unaccepted = {
   kind: "failed",
   reason: "refused",
@@ -94,31 +102,34 @@ export function alreadySubmitted(
     : undefined;
 }
 
-const interruptedStart =
-  "An earlier start of this story on this machine was interrupted and needs reconciliation, so a second start was not made. Recheck or continue it from Startup recovery. Nothing was launched.";
+// Why a start of a story whose unresolved attempt no server runs is refused:
+// the attempt never settled, or settled while its session or publication may
+// or may not exist.
+const unresolvedStart = (attempt: AttemptObservation) =>
+  `An earlier start of this story on this machine ${attempt.outcome === undefined ? "was interrupted and needs" : "needs"} reconciliation, so a second start was not made. Recheck or continue it from Startup recovery. Nothing was launched.`;
 
-// An unsettled attempt the request would duplicate: the same launch on any
-// host or any workflow's launch of the same story that this server runs (`running`),
-// or a launch of the same story that no server runs any more
-// (`interrupted`), which only its own continuation resumes.
+// What the request would duplicate: the same launch on any host that this
+// server runs (`running`), or the unresolved attempt of its story among the
+// attempts this machine knows (`known`, `unresolvedAttempt`) -- one this
+// server runs, or one only its own continuation resumes. A continuation of
+// the attempt `continued` conflicts only with a different unresolved attempt.
 export function conflicting(
   request: AgentLaunchRequest,
   running: readonly AgentLaunchRequest[],
-  interrupted: readonly LaunchAttemptRecord[],
+  known: readonly AttemptObservation[],
+  continued?: string,
 ): Unaccepted | undefined {
   const submitted = alreadySubmitted(request, running);
   if (submitted !== undefined) return submitted;
-  if (running.some((other) => sameStory(request, other)))
-    return {
-      kind: "failed",
-      reason: "already-starting",
-      explanation: alreadyStarting,
-    };
-  if (interrupted.some((other) => sameStory(request, other.request)))
-    return {
-      kind: "failed",
-      reason: "already-starting",
-      explanation: interruptedStart,
-    };
-  return undefined;
+  const unresolved = unresolvedAttempt(
+    known.filter((attempt) => sameStory(request, attempt.request)),
+  );
+  if (unresolved === undefined || unresolved.id === continued) return undefined;
+  return {
+    kind: "failed",
+    reason: "already-starting",
+    explanation: unresolved.owned
+      ? alreadyStarting
+      : unresolvedStart(unresolved),
+  };
 }

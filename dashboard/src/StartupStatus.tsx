@@ -62,8 +62,12 @@ export function StartupStatus({
     return (
       <p className="launch-answer card-startup card-startup-static">
         Startup needs reconciliation: {reconciliationCause(startup, named)}{" "}
-        Recheck or continue it under Startup recovery; this story's actions stay
-        unavailable until then.
+        {/* A lost answer has no accepted attempt to continue. */}
+        {startup.cause === "unacknowledged"
+          ? "Recheck it"
+          : "Recheck or continue it"}{" "}
+        under Startup recovery; this story's actions stay unavailable until
+        then.
       </p>
     );
   }

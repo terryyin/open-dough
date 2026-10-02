@@ -12,49 +12,27 @@
 import {
   mkdirSync,
   readFileSync,
-  renameSync,
   rmSync,
   symlinkSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
+import {
+  fakeClaudeListing,
+  type ClaudeListingControls,
+} from "./fakeClaudeListing.ts";
+
+export type { ClaudeSessionChange } from "./fakeClaudeListing.ts";
 
 export type FakeClaudeScenario =
-  "launched" | "refused" | "untrusted" | "hang" | "held" | "unlisted";
-
-// What a listed session becomes, as the real `claude agents --json --all`
-// lists it (Claude Code 2.1.284): working with its process busy (`working`)
-// or idle between steps (`working-idle`); blocked, waiting on the developer
-// (`blocked`, with what it waits for when a test gives it); done with its
-// process still running idle (`done-live`) or exited (`done-exited`); failed
-// or stopped with its process exited (`failed`, `stopped`); or no longer
-// listed at all (`forgotten`); or in a state this dashboard does not know
-// (`unrecognized`). Each replaces the session's `state`, `status`,
-// and `waitingFor` whole.
-export type ClaudeSessionChange =
-  | "working"
-  | "working-idle"
-  | "blocked"
-  | "done-live"
-  | "done-exited"
-  | "failed"
-  | "stopped"
-  | "forgotten"
-  | "unrecognized";
-
-const listedAs = {
-  working: { state: "working", status: "busy" },
-  "working-idle": { state: "working", status: "idle" },
-  blocked: { state: "blocked", status: "waiting" },
-  "done-live": { state: "done", status: "idle" },
-  "done-exited": { state: "done" },
-  failed: { state: "failed" },
-  stopped: { state: "stopped" },
-  unrecognized: { state: "napping" },
-} as const;
-
-const replacedFields = new Set(["state", "status", "waitingFor"]);
+  | "launched"
+  | "refused"
+  | "untrusted"
+  | "hang"
+  | "held"
+  | "unlisted"
+  | "launched-hang";
 
 export type ClaudeCall = {
   readonly argv: readonly string[];
@@ -97,7 +75,7 @@ export type FakeClaudeOptions = {
   readonly doneRenameWaitMs?: number | undefined;
 };
 
-export type FakeClaudeControls = {
+export type FakeClaudeControls = ClaudeListingControls & {
   // This server's HOME; project folders are under `<home>/git/`.
   readonly home: string;
   claudeCalls(): ClaudeCall[];
@@ -107,21 +85,9 @@ export type FakeClaudeControls = {
   claudeScenario(scenario: FakeClaudeScenario): void;
   // Lets a `held` launch go on and launch its session.
   releaseHeldClaude(): void;
-  // Changes how the fake lists the session with this id; only a blocked
-  // one may say what it waits for.
-  claudeSessionBecomes(
-    sessionId: string,
-    change: ClaudeSessionChange,
-    waitingFor?: string,
-  ): void;
   // Whether a session's typed `/rename` is left unapplied: the listing keeps
   // the session's name, as when Claude Code is busy.
   claudeRenamesIgnored(ignored: boolean): void;
-  // Whether the fake's session listing fails, answering nothing.
-  claudeListingFails(fails: boolean): void;
-  // Lists an interactive session running in a terminal, as Claude Code
-  // 2.1.285 does: with no short `id` and no `state`.
-  claudeListsInteractiveSession(): void;
   // The pid of a `hang` launch still holding its answer, and the signal that
   // ended it, once one did.
   heldClaudePid(): number | undefined;
@@ -138,8 +104,6 @@ export type FakeClaudeControls = {
   // it, once one did.
   heldOsascriptPid(): number | undefined;
   heldOsascriptEndedBy(): string | undefined;
-  // Every session the fake lists, as `claude agents --json --all` would.
-  claudeListing(): Record<string, unknown>[];
 };
 
 // A PATH directory holding only this Node, for a server that must find no
@@ -218,14 +182,10 @@ export function installFakeClaude(
       .filter((line) => line !== "")
       .map((line) => JSON.parse(line) as T);
   const claudeCalls = () => jsonLines<ClaudeCall>("calls.jsonl");
-  const claudeListing = () =>
-    JSON.parse(readState(state("agents.json")) ?? "[]") as Record<
-      string,
-      unknown
-    >[];
   return {
     env,
     controls: {
+      ...fakeClaudeListing(stateDir, home),
       home,
       claudeCalls,
       claudeLaunchCalls() {
@@ -236,33 +196,6 @@ export function installFakeClaude(
       },
       releaseHeldClaude() {
         writeFileSync(state("release"), "");
-      },
-      claudeListing,
-      claudeSessionBecomes(sessionId, change, waitingFor) {
-        if (waitingFor !== undefined && change !== "blocked") {
-          throw new Error(`A ${change} session waits for nothing.`);
-        }
-        const listed = claudeListing();
-        if (!listed.some((session) => session.sessionId === sessionId)) {
-          throw new Error(`The fake claude lists no session ${sessionId}.`);
-        }
-        const changed = listed.flatMap((session): object[] => {
-          if (session.sessionId !== sessionId) return [session];
-          if (change === "forgotten") return [];
-          const kept = Object.entries(session).filter(
-            ([key]) => !replacedFields.has(key),
-          );
-          return [
-            {
-              ...Object.fromEntries(kept),
-              ...listedAs[change],
-              ...(waitingFor === undefined ? {} : { waitingFor }),
-            },
-          ];
-        });
-        // Replaced whole, so the fake never lists a half-written file.
-        writeFileSync(state("agents.json.next"), JSON.stringify(changed));
-        renameSync(state("agents.json.next"), state("agents.json"));
       },
       osascriptCalls() {
         return jsonLines<OsascriptCall>("osascript-calls.jsonl");
@@ -279,26 +212,6 @@ export function installFakeClaude(
       },
       heldOsascriptEndedBy() {
         return readState(state("osascript.pid.exited"));
-      },
-      claudeListingFails(fails) {
-        if (fails) writeFileSync(state("listing-fails"), "");
-        else rmSync(state("listing-fails"), { force: true });
-      },
-      claudeListsInteractiveSession() {
-        const interactive = {
-          pid: 3394,
-          cwd: home,
-          kind: "interactive",
-          startedAt: Date.now(),
-          sessionId: "3ab4613a-744d-4545-adba-15346379854a",
-          name: "terminal session",
-          status: "busy",
-        };
-        writeFileSync(
-          state("agents.json.next"),
-          JSON.stringify([...claudeListing(), interactive]),
-        );
-        renameSync(state("agents.json.next"), state("agents.json"));
       },
       claudeRenamesIgnored(ignored) {
         if (ignored) writeFileSync(state("renames-ignored"), "");

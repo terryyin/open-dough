@@ -35,12 +35,12 @@ const failures = [
   {
     scenario: "untrusted",
     words:
-      "Launch failed: Claude Code does not trust ~/git/open-dough yet. Run claude in that folder once and accept the trust prompt, then start again.",
+      "Launch failed: Claude Code does not trust ~/git/open-dough yet. Run claude in that folder once and accept the trust prompt.",
   },
   {
     scenario: "refused",
     words:
-      "Launch failed: Claude Code refused to start a session in ~/git/open-dough. Run claude in that folder once to see why, then start again.",
+      "Launch failed: Claude Code refused to start a session in ~/git/open-dough. Run claude in that folder once to see why.",
   },
 ] as const;
 
@@ -121,10 +121,16 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
     await expect(
       page.locator(".project-actions .launch-problem"),
     ).toContainText(
-      "Launch uncertain: Claude Code did not answer in time, so the session may or may not have started. Check claude agents for it before starting again.",
+      "Launch uncertain: Claude Code did not answer in time, so the session may or may not have started. Check claude agents for it.",
     );
     await expect(page.locator(".launch-problem code")).toHaveText(
       "claude agents",
+    );
+    // Startup recovery shows the same answer, as formed.
+    await expect(
+      page.getByRole("region", { name: "Startup recovery" }),
+    ).toContainText(
+      "Its last answer: Claude Code did not answer in time, so the session may or may not have started. Check claude agents for it.",
     );
     await expect(button).toBeEnabled();
     await expect(button).toBeFocused();

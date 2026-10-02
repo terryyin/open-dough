@@ -57,9 +57,12 @@ test.describe("a start whose wait expires", () => {
       "Whether it published its assignment is not known.",
     );
     await expect(recovery).toContainText("may or may not be Taken");
-    // Its answer directs to the control offered beside it.
-    await expect(recovery).toContainText("continuing resumes it");
-    await expect(recovery).not.toContainText("Start again");
+    // Its answer says what was kept, as formed, naming no Start.
+    await expect(recovery).toContainText(
+      "The start was kept and goes on in workspace ~/git/open-dough/.worktrees/",
+    );
+    await expect(recovery).toContainText(", where it can be resumed.");
+    await expect(recovery).not.toContainText(/start again/i);
     await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
 
     // Its start still runs: the continuation is refused, the attempt kept.

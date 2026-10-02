@@ -5,10 +5,12 @@
 // identity and the existing recovery rules, here Codex's recovery of an
 // unconfirmed first input, which resumes the recorded conversation without
 // submitting it again. A continuation the service cannot match to a kept
-// attempt that needs it is refused with nothing started. When this machine's
+// attempt that needs it is refused with nothing started; such an attempt, or
+// one this machine does not keep, is never noted reconciled. When this machine's
 // kept attempts cannot be read, nothing tells which startup is unresolved:
 // the machine's sessions say so, the file stays as it is, and starts are
-// refused.
+// refused. A story whose latest attempt settled uncertain blocks a fresh start
+// the same way (./agent-launch-uncertain-continuation.spec.ts).
 
 import { readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { randomUUID } from "node:crypto";
@@ -19,6 +21,7 @@ import {
   attempts,
   continueAttempt,
   launchRequest,
+  noteReconciled,
   refinementRequest,
 } from "./agentLaunchBoundary.ts";
 import { keptAttempts, settledOutcome } from "./acceptedAttempts.ts";
@@ -95,6 +98,16 @@ test("an attempt a closed server left unsettled blocks a fresh start of its stor
     expect(
       answerOf(await continueAttempt(restarted, accepted.id, "doughnut")),
     ).toMatchObject({ kind: "failed", reason: "refused" });
+    // Nor is it, or an attempt this machine does not keep, noted reconciled.
+    for (const [attempt, source] of [
+      [randomUUID(), "open-dough"],
+      [accepted.id, "doughnut"],
+      [accepted.id, "open-dough"],
+    ] as const) {
+      expect(
+        answerOf(await noteReconciled(restarted, attempt, source)),
+      ).toMatchObject({ kind: "refused" });
+    }
     expect(await attempts(restarted)).toEqual([interrupted]);
 
     const continued = answerOf(await continueAttempt(restarted, accepted.id));
@@ -124,6 +137,21 @@ test("an attempt a closed server left unsettled blocks a fresh start of its stor
     expect(
       answerOf(await continueAttempt(restarted, accepted.id)),
     ).toMatchObject({ kind: "failed", reason: "refused" });
+    // Settled, it is noted reconciled once; noting it again changes nothing.
+    const noted = answerOf(await noteReconciled(restarted, accepted.id));
+    expect(noted).toMatchObject({
+      kind: "reconciled",
+      attempt: { id: accepted.id, outcome, reconciledAt: expect.any(String) },
+    });
+    expect(answerOf(await noteReconciled(restarted, accepted.id))).toEqual(
+      noted,
+    );
+    expect(keptAttempts(restarted)).toEqual([
+      expect.objectContaining({
+        id: accepted.id,
+        reconciledAt: noted.attempt?.reconciledAt,
+      }),
+    ]);
     expect(inputs()).toHaveLength(1);
     expect(stored(restarted.home)).toHaveLength(1);
     expect(stored(restarted.home)[0]?.session.sessionId).toBe(native.threadId);

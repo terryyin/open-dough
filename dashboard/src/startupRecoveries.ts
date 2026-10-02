@@ -3,26 +3,32 @@
 // reconciliation, or still waits for published state after its last check
 // failed or while its story is not shown; and the project's latest ad hoc
 // launch when it needs reconciliation, or whose answer this page lost. Each
-// can be rechecked -- this machine's attempts and sessions and the
-// published state read afresh -- and an accepted attempt that needs
-// reconciliation continued: the local service runs its kept request again
+// can be rechecked -- a story attempt whose launch is uncertain verified
+// first from its host's own session listing (`requestLaunchVerification`),
+// which settles it or says why not, then this machine's attempts and
+// sessions and the published state read afresh -- and an accepted attempt
+// that needs reconciliation continued: the local service runs its kept request again
 // under the same attempt and the existing recovery rules
 // (`requestAttemptContinuation`), or answers why not, the attempt kept.
 
 import { useCallback, useEffect } from "react";
 import {
+  laterAttempt,
+  launchVerifiable,
   needsReconciliation,
   type AgentLaunchRequest,
   type AttemptObservation,
 } from "./agentLaunch.ts";
 import {
   requestAttemptContinuation,
+  requestLaunchVerification,
   type LaunchProblem,
 } from "./agentLaunchClient.ts";
 import { useKeyedState } from "./keyedState.ts";
 import type { Unacknowledged } from "./pageAttempt.ts";
-import { laterAttempt, type ShownSnapshot } from "./startupReconciliation.ts";
+import type { ShownSnapshot } from "./startupReconciliation.ts";
 import {
+  attemptCause,
   storiesAsked,
   type ReconciliationCause,
   type StoryStartup,
@@ -54,7 +60,9 @@ export type StartupRecoveries = {
   recoveriesOf(sourceId: string): readonly StartupRecoveryItem[];
   readonly attemptEvidence: AttemptEvidence;
   readonly continueStartup: (attempt: AttemptObservation) => void;
-  readonly recheckStartups: () => void;
+  // Rechecks the startups, first verifying `attempt`'s launch when it is
+  // uncertain (`launchVerifiable`).
+  readonly recheckStartups: (attempt?: AttemptObservation) => void;
 };
 
 type Continuation =
@@ -195,11 +203,10 @@ export function useStartupRecovery({
     return adHoc !== undefined && needsReconciliation(adHoc)
       ? [
           ...items,
-          itemOf(
-            "ad-hoc",
-            adHoc.outcome === undefined ? "interrupted" : "uncertain",
-            { request: adHoc.request, attempt: adHoc },
-          ),
+          itemOf("ad-hoc", attemptCause(adHoc), {
+            request: adHoc.request,
+            attempt: adHoc,
+          }),
         ]
       : items;
   };
@@ -208,10 +215,22 @@ export function useStartupRecovery({
     recoveriesOf,
     attemptEvidence,
     continueStartup,
-    recheckStartups: () => {
+    recheckStartups: (attempt) => {
       clearContinuations();
-      reread();
-      readAfresh();
+      if (attempt === undefined || !launchVerifiable(attempt)) {
+        reread();
+        readAfresh();
+        return;
+      }
+      void requestLaunchVerification(attempt).then((answer) => {
+        if (answer.kind === "unresolved")
+          settle(attempt.id, {
+            kind: "uncertain",
+            explanation: answer.explanation,
+          });
+        reread();
+        readAfresh();
+      });
     },
   };
 }

@@ -1,9 +1,10 @@
 // The browser's requests to the local launch boundary
 // (`../server/agentLaunchPlugin.ts`): an ordinary same-origin JSON POST that
 // asks the launch owner to accept a launch, or to continue a kept attempt
-// that needs reconciliation, a GET that waits for an accepted
-// attempt to change, a GET of the machine's sessions,
-// and a POST that marks one recorded session done. A launch request answers
+// that needs reconciliation, or to note that a settled attempt reconciled with
+// published state, or to verify an uncertain launch, a GET that waits for an
+// accepted attempt to change, and a GET of the machine's sessions; requests
+// about one recorded session are `./sessionRecordRequests.ts`. A launch request answers
 // once the owner accepted it, or with what was answered before anything was
 // accepted; a refusal answers an error the boundary explains. What it answers
 // crossed a process/HTTP boundary, so it is checked as external input. When
@@ -17,24 +18,34 @@ import {
   agentLaunchEndpoint,
   agentChangedEndpoint,
   agentContinueEndpoint,
+  agentReconciledEndpoint,
+  agentVerifyEndpoint,
   changedAnswerSchema,
   launchRecordsSchema,
   type Acceptance,
   type AgentLaunchRequest,
   type AttemptObservation,
-  type LaunchRecord,
-  type LaunchWithState,
   type MachineAnswer,
+  type VerifiedAnswer,
+  verifiedAnswerSchema,
 } from "./agentLaunch.ts";
-import {
-  agentDeleteEndpoint,
-  deleteRecordAnswerSchema,
-  type DeleteRecordAnswer,
-} from "./deleteRecord.ts";
-import { agentDoneEndpoint, markDoneAnswerSchema } from "./doneMark.ts";
 import { hostDescription } from "./hostDescription.ts";
 
-const refusal = z.object({ error: z.string().min(1) });
+export const refusal = z.object({ error: z.string().min(1) });
+
+// An ordinary same-origin JSON POST.
+export const postJson = (endpoint: string, body: unknown) =>
+  fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+// What names a kept attempt to the boundary.
+const attemptReference = (attempt: AttemptObservation) => ({
+  source: attempt.request.source,
+  attempt: attempt.id,
+});
 
 // Why nothing was, or may not have been, launched. The boundary's reason
 // categories are not needed by the card.
@@ -76,7 +87,7 @@ export function requestAttemptContinuation(
 ): Promise<AcceptanceAnswer> {
   return askAcceptance(
     agentContinueEndpoint,
-    { source: attempt.request.source, attempt: attempt.id },
+    attemptReference(attempt),
     attempt.request.host,
   );
 }
@@ -88,11 +99,7 @@ async function askAcceptance(
 ): Promise<AcceptanceAnswer> {
   let response: Response;
   try {
-    response = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    response = await postJson(endpoint, body);
   } catch {
     return noTrustedAnswer("could not be reached", host);
   }
@@ -114,6 +121,50 @@ async function askAcceptance(
         "answered in a shape this dashboard does not understand",
         host,
       );
+}
+
+// Notes with the local service that a settled attempt reconciled with the
+// published state this page shows, so every page on this machine reads it
+// so. Whatever it answers, or none, changes nothing on this page.
+export async function noteAttemptReconciled(
+  attempt: AttemptObservation,
+): Promise<void> {
+  try {
+    await postJson(agentReconciledEndpoint, attemptReference(attempt));
+  } catch {
+    // Another page judges it again.
+  }
+}
+
+// Asks the local service to settle a story attempt whose launch is uncertain
+// from its host's own session listing: the attempt as settled, or why it
+// stays unresolved, including when no trustworthy answer came.
+export async function requestLaunchVerification(
+  attempt: AttemptObservation,
+): Promise<VerifiedAnswer> {
+  const unanswered = (what: string): VerifiedAnswer => ({
+    kind: "unresolved",
+    explanation: `The local dashboard server ${what}, so whether this launch started its session is still not known.`,
+  });
+  try {
+    const response = await postJson(
+      agentVerifyEndpoint,
+      attemptReference(attempt),
+    );
+    const answered: unknown = await response.json().catch(() => undefined);
+    if (!response.ok) {
+      const refused = refusal.safeParse(answered);
+      return refused.success
+        ? { kind: "unresolved", explanation: refused.data.error }
+        : unanswered(`answered HTTP ${String(response.status)}`);
+    }
+    const answer = verifiedAnswerSchema.safeParse(answered);
+    return answer.success
+      ? answer.data
+      : unanswered("answered in a shape this dashboard does not understand");
+  } catch {
+    return unanswered("could not be reached");
+  }
 }
 
 // Waits for an accepted attempt to change: whether it changed, or undefined
@@ -149,67 +200,5 @@ export async function readMachineSessions(): Promise<
     return answer.success ? answer.data : undefined;
   } catch {
     return undefined;
-  }
-}
-
-// Marks the recorded session done, and answers its marked record with its
-// session's state, or undefined when no trustworthy answer came.
-export async function requestMarkDone(
-  record: LaunchRecord,
-): Promise<LaunchWithState | undefined> {
-  try {
-    const response = await fetch(agentDoneEndpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        source: record.request.source,
-        session: record.session.sessionId,
-        host: record.session.host,
-      }),
-    });
-    if (!response.ok) return undefined;
-    const answer = markDoneAnswerSchema.safeParse(await response.json());
-    return answer.success ? answer.data.record : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-// What asking the boundary to delete a record came to: what it did, or that
-// it could not, with the reason it gave when it gave one.
-export type DeleteRecordOutcome =
-  | DeleteRecordAnswer
-  | { readonly kind: "failed"; readonly reason: string | undefined };
-
-const couldNotDelete = "The session record could not be deleted: ";
-
-// Asks the boundary to delete the recorded session's record.
-export async function requestDeleteRecord(
-  record: LaunchRecord,
-): Promise<DeleteRecordOutcome> {
-  try {
-    const response = await fetch(agentDeleteEndpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        source: record.request.source,
-        session: record.session.sessionId,
-        host: record.session.host,
-      }),
-    });
-    const body: unknown = await response.json().catch(() => undefined);
-    if (!response.ok) {
-      const refused = refusal.safeParse(body);
-      return {
-        kind: "failed",
-        reason: refused.success
-          ? refused.data.error.replace(couldNotDelete, "")
-          : undefined,
-      };
-    }
-    const answer = deleteRecordAnswerSchema.safeParse(body);
-    return answer.success ? answer.data : { kind: "failed", reason: undefined };
-  } catch {
-    return { kind: "failed", reason: undefined };
   }
 }

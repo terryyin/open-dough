@@ -28,7 +28,7 @@ export const hostDescriptions = {
       opus: { name: "Opus" },
       sonnet: { name: "Sonnet" },
     },
-    uncertaintyHint: "Check `claude agents` for it before starting again.",
+    uncertaintyHint: "Check `claude agents` for it.",
     nativeCheckAdvice:
       "Check `claude agents` before continuing: continuing starts its session again unless its kept evidence resumes it.",
     unavailableSessionExplanation: "Claude Code no longer lists this session.",
@@ -49,7 +49,7 @@ export const hostDescriptions = {
     skillSigil: "$",
     models: {},
     uncertaintyHint:
-      "Check the dashboard history and native Codex conversations before starting again.",
+      "Check the dashboard history and native Codex conversations for it.",
     nativeCheckAdvice:
       "Check the dashboard history and native Codex conversations before continuing; a recorded conversation is resumed, never submitted again.",
     unofferedModelExplanation:

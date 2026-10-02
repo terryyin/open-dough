@@ -38,8 +38,11 @@ and answers with the attempt; a request it cannot save starts nothing. The
 attempt runs without its caller and keeps its publication receipt and outcome
 for `GET /__agent-launch`; `GET /__agent-launch/changed` waits for an owned
 attempt to change so pages reread without polling hosts. While a story's attempt
-is unresolved, another request for that story, from any workflow, is refused;
-an unreadable attempt file refuses every launch.
+is unresolved (running, or in need of reconciliation as below), another request
+for that story, from any workflow, is refused, and only that attempt's
+continuation resumes it; the page protects the story by the same rule
+(`unresolvedAttempt` in `src/launchOutcome.ts`). An unreadable attempt file
+refuses every launch.
 
 From submission, the dialog says “Starting…” with Cancel, Start and every choice
 unavailable, ignores Escape, and says “Startup is underway and can no longer be
@@ -67,19 +70,41 @@ attempts.
 A publishing start reconciles when the shown revision is its accepted
 publication or, by the authenticated comparison in
 [GitHub requests](GITHUB-REQUESTS.md), contains it, and its native outcome has
-settled. A refusal that published nothing, or a start that publishes nothing,
-waits for a published read asked after its outcome. An older or unrelated
-snapshot never clears protection. A published start whose session was refused
-reconciles to its Taken card with the kept start's continuation.
+settled, whether or not the shown snapshot still lists its story. A refusal
+that published nothing, or a start that publishes nothing, waits for a
+published read asked after its outcome. An older or unrelated snapshot never
+clears protection. A published start whose session was refused reconciles to
+its Taken card with the kept start's continuation. A reconciled start stays so
+on this machine: the page notes it with its attempt through
+`POST /__agent-launch/reconciled`, which refuses an attempt that is unsettled or
+needs reconciliation, so later pages, reloads, project switches and restarts
+show the story's actions, and no recovery item, without asking GitHub again.
 
-A lost answer, an attempt no running server owns, or an outcome that may or may
-not have published says “Startup needs reconciliation” statically on the card,
-which stays protected, and in the Startup recovery region beside the project's
-actions, which also says when this machine's attempts could not be read. Recheck
-reads this machine's evidence and the published state again. Continue posts to
+A lost answer, an attempt no running server owns, or an outcome whose session or
+publication may or may not exist says “Startup needs reconciliation” statically
+on the card, which stays protected, and in the Startup recovery region beside the
+project's actions, which also says when this machine's attempts could not be
+read. Recheck
+reads this machine's evidence and the published state again. For a story
+attempt whose Claude Code launch is uncertain after its start settled
+(publication known), Recheck first posts to `POST /__agent-launch/verify`,
+which reads `claude agents` once (`server/launchVerification.ts`). Exactly one
+listed session with the launch's name (`<project> · <kind> · <title>`),
+started in its start folder (the project folder or the kept start's
+workspace) at or after the attempt was accepted, and held by no other launch
+record, is recorded as the attempt's launched session, with a launch record as
+confirmation keeps one; a readable listing with no such session settles it as
+not launched (`not-listed`). Either outcome is kept with the attempt, so it is
+no longer unresolved. An unreadable listing or more than one such session
+leaves it unresolved and the answer says why; Continue stays available. Recheck
+never launches a session. Codex and ad hoc starts are rechecked as before.
+Continue posts to
 `POST /__agent-launch/continue`, which runs the same kept request under the same
 attempt and the existing [start recovery](LAUNCH-START.md#mechanical-start-and-recovery)
 and native rules, or answers why not; it never creates a replacement attempt.
+A launch answer is shown there as it was formed, beside the card's Start or Start
+session too: it says what is known and what to check, and leaves the action to
+the control beside it, so an unresolved attempt's answer never directs to Start.
 Restart, reload, project switch and a second page recover from that file; a
 removed story keeps its recovery there. An ad hoc start shows its progress
 beside Start session and its recovery in the same region, never a card.

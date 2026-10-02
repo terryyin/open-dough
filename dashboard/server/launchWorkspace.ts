@@ -54,6 +54,14 @@ export function shownStartWorkspace(
     : shownWorkspace(project, path.basename(workspace));
 }
 
+// A start's workspace as a folder of the project.
+export function startWorkspaceFolder(
+  project: ProjectFolder,
+  workspace: string,
+): ProjectFolder {
+  return { path: workspace, shown: shownStartWorkspace(project, workspace) };
+}
+
 export function launchWorkspace(
   project: ProjectFolder,
   title: string,

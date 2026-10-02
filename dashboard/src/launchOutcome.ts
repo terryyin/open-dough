@@ -9,11 +9,13 @@ import {
   agentLaunchEndpoint,
   agentLaunchRequestSchema,
   existingChangesSchema,
+  type StoryLaunchRequest,
 } from "./launchRequest.ts";
 import { launchWithStateSchema } from "./launchRecord.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 
-// Why nothing was launched.
+// Why nothing was launched; `not-listed`: a recheck found the host's own
+// session listing names no session the launch started.
 export const launchFailureReasons = [
   "folder-not-found",
   "not-installed",
@@ -23,6 +25,7 @@ export const launchFailureReasons = [
   "start-refused",
   "already-starting",
   "unrecorded",
+  "not-listed",
 ] as const;
 
 // Why a launch may or may not have started a session: the launch wait
@@ -98,12 +101,12 @@ export const agentChangedEndpoint = `${agentLaunchEndpoint}/changed`;
 // kept as it was.
 export const agentContinueEndpoint = `${agentLaunchEndpoint}/continue`;
 
-export const continueRequestSchema = z.object({
+// A request about one kept attempt, naming its project and attempt: a
+// continuation, a reconciliation note or a launch verification.
+export const attemptRequestSchema = z.object({
   source: z.string().min(1),
   attempt: z.uuid(),
 });
-
-export type ContinueRequest = z.infer<typeof continueRequestSchema>;
 
 export const publicationReceiptSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("none") }),
@@ -136,6 +139,9 @@ export const launchAttemptSchema = z.object({
   publication: publicationReceiptSchema,
   outcome: attemptOutcomeSchema.optional(),
   settledAt: z.iso.datetime().optional(),
+  // When a page found the settled attempt reconciled with published state
+  // (`./startupReconciliation.ts`), so every page on this machine reads it so.
+  reconciledAt: z.iso.datetime().optional(),
 });
 
 export type LaunchAttemptRecord = z.infer<typeof launchAttemptSchema>;
@@ -156,6 +162,71 @@ export function needsReconciliation(attempt: AttemptObservation): boolean {
     : attempt.outcome.kind === "uncertain" ||
         attempt.publication.kind === "unknown";
 }
+
+// The later accepted of two attempts, as a story's latest attempt is told.
+export const laterAttempt = (
+  one: AttemptObservation | undefined,
+  other: AttemptObservation,
+): AttemptObservation =>
+  one === undefined || one.acceptedAt < other.acceptedAt ? other : one;
+
+// A story's unresolved attempt among its attempts on this machine (`ofStory`),
+// which no fresh start of that story may duplicate and only its own
+// continuation resumes: one a server runs now, else one that never settled
+// and no server runs, else its latest attempt when that needs reconciliation.
+export function unresolvedAttempt(
+  ofStory: readonly AttemptObservation[],
+): AttemptObservation | undefined {
+  const unsettled = ofStory.filter((attempt) => attempt.outcome === undefined);
+  const latest = ofStory.reduce<AttemptObservation | undefined>(
+    laterAttempt,
+    undefined,
+  );
+  return (
+    unsettled.find((attempt) => attempt.owned) ??
+    unsettled[0] ??
+    (latest !== undefined && needsReconciliation(latest) ? latest : undefined)
+  );
+}
+
+// A page asks here to note that a settled attempt reconciled with the
+// published state it shows, naming its project and attempt as a continuation
+// does: the attempt keeps when (`reconciledAt`). An attempt this machine does
+// not keep, or one that is unsettled or needs reconciliation, is refused,
+// kept as it was; noting it again changes nothing.
+export const agentReconciledEndpoint = `${agentLaunchEndpoint}/reconciled`;
+
+// A page's Recheck asks here about a story attempt whose launch is uncertain
+// after its start settled, naming its project and attempt as a continuation
+// does: its host's own session listing is read once, and the attempt settles
+// as launched with the one session it names unambiguously, or as not launched
+// when the listing names none; otherwise it stays unresolved and the answer
+// says why (`../server/launchVerification.ts`).
+export const agentVerifyEndpoint = `${agentLaunchEndpoint}/verify`;
+
+export type VerifiedAnswer =
+  | { readonly kind: "settled"; readonly attempt: AttemptObservation }
+  | { readonly kind: "unresolved"; readonly explanation: string };
+
+export const verifiedAnswerSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("settled"), attempt: attemptObservationSchema }),
+  z.object({ kind: z.literal("unresolved"), explanation: z.string().min(1) }),
+]);
+
+// Whether Recheck asks the local service to verify the attempt's launch: a
+// story attempt whose launch is uncertain while its publication is known, so
+// its start settled and its session alone may or may not exist.
+export const launchVerifiable = (
+  attempt: AttemptObservation,
+): attempt is AttemptObservation & { readonly request: StoryLaunchRequest } =>
+  attempt.request.workflow !== "ad-hoc" &&
+  !attempt.owned &&
+  attempt.outcome?.kind === "uncertain" &&
+  attempt.publication.kind !== "unknown";
+
+export type ReconciledAnswer =
+  | { readonly kind: "reconciled"; readonly attempt: AttemptObservation }
+  | { readonly kind: "refused"; readonly explanation: string };
 
 export const changedAnswerSchema = z.object({
   changed: z.boolean(),

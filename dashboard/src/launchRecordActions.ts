@@ -9,12 +9,12 @@ import type {
   LaunchWithState,
   MachineAnswer,
 } from "./agentLaunch.ts";
+import { readMachineSessions } from "./agentLaunchClient.ts";
 import {
-  readMachineSessions,
   requestDeleteRecord,
   requestMarkDone,
   type DeleteRecordOutcome,
-} from "./agentLaunchClient.ts";
+} from "./sessionRecordRequests.ts";
 
 export type LaunchRecordActions = {
   // Marks a recorded session done, and answers whether the boundary marked

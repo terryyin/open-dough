@@ -14,12 +14,12 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Keep reconciled startups settled under one unresolved-attempt rule](seeds/SEED-072-responsive-session-start-reconciliation.md#durable-startup-reconciliation) — SEED-072#durable-startup-reconciliation ([plan](slice-plans/206-durable-startup-reconciliation/PLAN.md))
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard ([plan](slice-plans/210-use-cursor-from-dashboard/PLAN.md))
 - [Choose Codex model and effort when starting a dashboard session](seeds/SEED-081-codex-session-model-and-effort.md#codex-session-model-and-effort) — SEED-081#codex-session-model-and-effort ([plan](slice-plans/211-codex-session-model-and-effort/PLAN.md))
 
 ## Backlog list
 
+- [Recheck verifies only what its host can list, and trusts a launch's own record](seeds/SEED-072-responsive-session-start-reconciliation.md#recheck-verification-fidelity) — SEED-072#recheck-verification-fidelity
 - [See Cursor activity and use its native controls](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-native-activity-and-controls) — SEED-052#cursor-native-activity-and-controls
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
 - [Integrate Story Branch closures through an installed command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration) — SEED-008#installed-story-branch-integration

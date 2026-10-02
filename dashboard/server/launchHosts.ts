@@ -65,6 +65,18 @@ export type LaunchHost = {
     signal: AbortSignal,
     recording: LaunchRecording,
   ): Promise<HostLaunch>;
+  // The sessions its own listing names that this story launch, started in
+  // `startedIn` at or after `since`, could have started; undefined when the
+  // listing could not be read. A recheck of an uncertain launch settles it
+  // from them (`./launchVerification.ts`).
+  launchedSessions?(
+    source: PublishedSource,
+    request: RecordedLaunchRequest,
+    startedIn: ProjectFolder,
+    since: Date,
+    folder: ProjectFolder,
+    signal: AbortSignal,
+  ): Promise<readonly SessionObservation[] | undefined>;
   // Restore the vendor service for retained sessions without resuming work.
   prepareSavedSessions?(signal: AbortSignal): Promise<void>;
   close?(): void;

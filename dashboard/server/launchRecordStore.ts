@@ -13,9 +13,16 @@ import {
 export async function keptRecordsByProject(): Promise<
   ReadonlyMap<string, readonly LaunchRecord[]>
 > {
+  return (await readableRecordsByProject()) ?? new Map();
+}
+
+// The same, or undefined when the record file could not be read.
+export async function readableRecordsByProject(): Promise<
+  ReadonlyMap<string, readonly LaunchRecord[]> | undefined
+> {
   const read = await readStoredRecords();
   if (read.kind === "unreadable") {
-    return new Map();
+    return undefined;
   }
   const now = Date.now();
   return new Map(

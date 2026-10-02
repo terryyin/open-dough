@@ -188,7 +188,12 @@ for (const mode of ["dev", "preview"] as const) {
       server.claudeScenario("hang");
       const recordsBefore = (await recordsOf(server, "open-dough")).length;
       const started = Date.now();
-      const response = await launch(server, launchRequest);
+      // The previous launch's uncertain outcome leaves its story unresolved,
+      // so this one starts another story.
+      const response = await launch(server, {
+        ...launchRequest,
+        identity: `${identity}-wait`,
+      });
 
       expect(Date.now() - started).toBeGreaterThanOrEqual(launchWaitMs - 100);
       const answer = JSON.parse(response.body) as { explanation: string };
