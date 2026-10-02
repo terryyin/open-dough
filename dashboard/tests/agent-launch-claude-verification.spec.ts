@@ -103,12 +103,46 @@ function recordHolding(dashboard: DashboardServer, sessionId: string) {
   writeFileSync(file, JSON.stringify(kept));
 }
 
+// Holds the page's reads of the project's ref asked once a launch is sent,
+// each answered by the service at once but reaching the page only after a
+// Recheck verification has reached it.
+async function holdReadsSinceLaunchUntilVerified(page: Page) {
+  let launchSent = false;
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/__agent-launch/accept")
+      launchSent = true;
+  });
+  const verified = page
+    .waitForResponse("**/__agent-launch/verify", { timeout: 0 })
+    .catch(() => undefined);
+  await page.route(
+    (url) =>
+      url.pathname === "/__authenticated-read" &&
+      !url.searchParams.has("revision"),
+    async (route) => {
+      const held = launchSent;
+      // Fetched outside the page, so its same-origin mark is restated.
+      const response = await route.fetch({
+        headers: {
+          ...route.request().headers(),
+          "sec-fetch-site": "same-origin",
+        },
+      });
+      if (held) await verified;
+      await route.fulfill({ response });
+    },
+  );
+}
+
 test("Recheck records the one session the uncertain launch started, and the card lists it with its actions back", async ({
   page,
   dashboard,
 }) => {
   test.setTimeout(90_000);
   dashboard.claudeScenario("launched-hang");
+  // The read the uncertain settling asks is still under way when Recheck
+  // answers, so the read asked after the launch settled must still follow.
+  await holdReadsSinceLaunchUntilVerified(page);
   const { card, start } = await uncertainLaunch(page, dashboard);
   const [listed] = dashboard.claudeListing();
   await expect(card).toContainText("Startup needs reconciliation");

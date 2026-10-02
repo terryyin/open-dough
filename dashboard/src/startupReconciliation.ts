@@ -11,7 +11,7 @@
 // attempt stays so on this page and is noted with the local service, so every
 // page on this machine reads it so (`reconciledAt`); while it waits, a page
 // whose snapshot was asked before the attempt settled asks once for a fresh
-// read.
+// read each time it settles.
 
 import { useEffect, useRef, useState } from "react";
 import {
@@ -101,6 +101,10 @@ const askedAfterSettling = (
   shown: ShownSnapshot,
 ) => shown.askedAt > Date.parse(attempt.settledAt ?? "");
 
+// One settling of an attempt.
+const settling = (attempt: AttemptObservation) =>
+  `${attempt.id}@${attempt.settledAt ?? ""}`;
+
 export function useStartupReconciliation({
   known,
   shown,
@@ -187,8 +191,9 @@ export function useStartupReconciliation({
       void noteAttemptReconciled(attempt);
   }, [nowReconciled]);
 
-  // One fresh read for each waiting attempt whose shown snapshot was asked
-  // before it settled.
+  // One fresh read for each settling of a waiting attempt whose shown
+  // snapshot was asked before it settled: settled again (as a Recheck
+  // settles an uncertain launch), it asks again.
   const freshlyAsked = useRef(new Set<string>());
   const readAfreshNow = useRef(readAfresh);
   readAfreshNow.current = readAfresh;
@@ -199,13 +204,13 @@ export function useStartupReconciliation({
         attempt.publication.kind !== "unknown" &&
         !askedAfterSettling(attempt, shown) &&
         judged(attempt).kind === "waiting" &&
-        !freshlyAsked.current.has(attempt.id),
+        !freshlyAsked.current.has(settling(attempt)),
     )
-    .map((attempt) => attempt.id)
+    .map(settling)
     .join(" ");
   useEffect(() => {
     if (stale === "" || reading) return;
-    for (const id of stale.split(" ")) freshlyAsked.current.add(id);
+    for (const key of stale.split(" ")) freshlyAsked.current.add(key);
     readAfreshNow.current();
   }, [stale, reading]);
 
