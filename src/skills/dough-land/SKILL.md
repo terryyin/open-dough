@@ -117,6 +117,15 @@ the checkout, branch, index, and whatever state Git left. Name the conflict or
 contention, and report publication, refresh, and cleanup as not done. Do not
 loop.
 
+## Visit consumers of completed selected work
+
+After accepted publication and before retirement, apply the shared
+[supplier dependency procedure](../dough-product-backlog/references/supplier-dependencies.md)
+when retained context establishes a selected completed supplier. Preserve its
+recoverable outcome before cleanup, publish directly justified consumer updates
+through this authorized landing workflow, and report unresolved work. A generic
+landing or an unfinished increment establishes no supplier completion.
+
 ## Refresh the default checkout
 
 After acceptance, when the landing checkout is the default checkout, it is

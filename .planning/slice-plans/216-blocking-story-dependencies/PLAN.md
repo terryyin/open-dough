@@ -61,7 +61,9 @@ proof entry points. These remain constraints of this plan.
   cell `21`, session `44377`, PID `84391`, mailbox
   `/tmp/dough-ci-501/watch-7PZYuD`. Managed delivery reuses it and registers
   accepted branch revisions. Slice 1 accepted and registered:
-  `8bb73be064a7778470389bd5a458fb70f5a96962`; this is the next delivery base.
+  `8bb73be064a7778470389bd5a458fb70f5a96962`, then slice 2
+  `29bd2aa07e7db835d17b819b4e84a0ec09b30f2e`, then CI repair
+  `a0499094210410af66c321ab280864c6a36e575d` (next delivery base).
 
 ## Ordered slices
 
@@ -140,7 +142,7 @@ still performed explicitly through the slice 1 command.
 
 **Type:** Behavior
 
-**Status:** planned
+**Status:** done
 
 **Behavior:** A completed, integrated supplier's landing/wrap-up finds its
 consumers and resolves each directly satisfied condition. Another unresolved
@@ -168,6 +170,8 @@ handling; add dependency assertions at the consuming operation.
 Review the published guidance's invocation, required context, and useful
 outcome as [AGENTS.md](../../../AGENTS.md) requires. Walk a generic land with no
 completed story and a completed story wrap-up; neither may invent completion.
+
+**Accepted proof:** [Slice 3 command, completion, and recovery observations](CONTEXT.md#slice-3-accepted-proof).
 
 **Safe stop:** Directly satisfied conditions resolve automatically; cases
 requiring reconciliation remain blocked with an explanation.
@@ -224,16 +228,7 @@ justified. Each owns one observable progression and its boundary cases. There
 is no supplied numeric slice duration; none is invented. Keep the shared
 dependency interpretation and update procedure cohesive across slices.
 
-During authorized execution, first reconcile the older preparation checkout
-with current source and confirm the cited entry points still exist. Use the
-repository's execution/refactoring and delivery gates; the current planning
-request authorizes no commit. Run affected CLI/start/closure fixtures and the
-mapped dashboard journeys, plus dashboard typecheck/build when their code
-changes, lint, and `git diff --check`. Broaden tests when shared-reader or
-fixture changes affect additional consumers. Hosted CI does not itself mandate
-every check as a local gate. Conventional skill guidance changes use the
-AGENTS.md behavior review; installation/update/native-host discovery is outside
-scope unless implementation actually changes those contracts.
+Apply the [execution proof gates](CONTEXT.md#execution-proof-gates).
 
 ## Readiness review
 

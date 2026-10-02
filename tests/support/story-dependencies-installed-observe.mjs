@@ -122,3 +122,88 @@ for (const oneShot of [false, true]) {
     "",
   );
 }
+
+// Installed-only completion/discovery imports run with source unavailable.
+const discovered = JSON.parse(
+  call(
+    "discover-consumers",
+    "--supplier-identity",
+    "SEED-PAYLOAD#second-story",
+  ),
+);
+assert.equal(
+  discovered.consumers.some(
+    (entry) => entry.identity === "SEED-PAYLOAD#first-story",
+  ),
+  true,
+);
+assert.deepEqual(discovered.problems, []);
+writeFileSync(
+  join(project, ".planning/installed-outcome.md"),
+  "Selected installed supplier contract outcome was observed.\n",
+);
+git("add", ".planning/installed-outcome.md");
+git("commit", "--quiet", "-m", "Preserve installed supplier completion proof");
+git("push", "--quiet", "dependencies-origin", "main");
+const evidence = git("rev-parse", "HEAD");
+const original = read().dependencies[0];
+writeFileSync(
+  input,
+  JSON.stringify({
+    ...original,
+    state: "satisfied",
+    resolution: {
+      revision: evidence,
+      path: ".planning/seeds/SEED-PAYLOAD-STATE.md#second-story",
+      summary:
+        "Observed supplier contract directly fulfills the selected condition.",
+    },
+  }),
+);
+call(
+  "resolve-dependency",
+  "--identity",
+  "SEED-PAYLOAD#first-story",
+  "--link",
+  link,
+  "--dependency-file",
+  input,
+  "--expect-dependencies",
+  read().basis,
+  "--remote",
+  "dependencies-origin",
+  "--target",
+  "main",
+  "--accepted-revision",
+  evidence,
+  "--planless-complete",
+  "--completion-file",
+  ".planning/installed-outcome.md",
+);
+assert.equal(read().blocking.length, 0);
+const satisfied = read();
+call(
+  "resolve-dependency",
+  "--identity",
+  "SEED-PAYLOAD#first-story",
+  "--link",
+  link,
+  "--dependency-file",
+  input,
+  "--expect-dependencies",
+  satisfied.basis,
+  "--remote",
+  "dependencies-origin",
+  "--target",
+  "main",
+  "--accepted-revision",
+  evidence,
+  "--planless-complete",
+  "--completion-file",
+  ".planning/installed-outcome.md",
+);
+assert.deepEqual(read(), satisfied);
+assert.match(
+  satisfied.dependencies[0].resolution.summary,
+  new RegExp(evidence),
+);

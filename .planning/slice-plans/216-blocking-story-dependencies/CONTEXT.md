@@ -135,3 +135,37 @@ npm test -- tests/support/story-dependencies.test.mjs
 The keyboard baseline failed on disabled execution focus. Final assertions observe the accessible unavailable-source reason and refinement availability. End navigation retains its viewport assertion, waiting for all 16 unavailable-source facts to settle card heights. The real stale-card start and dependency command observations remain green.
 
 Independent refactor consolidated identical canonical fixture construction in `doughnutProject.ts`; `auto-refresh-project-isolation.spec.ts` imports it and retains its goal, membership, source revision, focus, and schedule assertions. `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/auto-refresh-project-isolation.spec.ts dashboard/tests/agent-launch-recent-sessions.spec.ts dashboard/tests/agent-launch-attention.spec.ts --workers=2` passed. Other accepted boundaries were unchanged. No product behavior changed; no full local CI run is claimed.
+
+## Execution proof gates
+
+Use the repository's execution/refactoring and delivery gates. Run affected
+CLI/start/closure fixtures and mapped dashboard journeys, plus dashboard
+typecheck/build when their code changes, hook-owned lint, and `git diff --check`.
+Broaden tests when shared-reader or fixture changes affect additional consumers.
+Hosted CI does not itself mandate every check as a local gate. Conventional
+skill guidance changes use the AGENTS.md behavior review; installation/update
+and native-host discovery checks apply when those contracts change. The older
+preparation checkout and cited entry points were reconciled at established start;
+execution authority comes from the current invocation, not preparation readiness.
+
+## Slice 3 accepted proof
+
+Pinned PATH as above; all commands reached terminal exit 0:
+
+```sh
+npm test -- tests/support/supplier-dependency-completion.test.mjs tests/support/product-backlog-plan-reader.test.mjs tests/support/product-backlog-plan-reader-bold.test.mjs tests/support/story-dependencies.test.mjs tests/support/story-state-browser-import.test.mjs src/skills/dough-story-wrap-up/scripts/closure-story-integration.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-startup-dependencies-cases.mjs
+npm test -- tests/product-backlog-payload-update.sh tests/payload-declaration-links.sh tests/dough-update-guidance-payload.sh tests/install.sh tests/install-preserves-open-dough-json.sh tests/update-adds-new-payload-skill.sh
+env -u NO_COLOR npm run test:dashboard -- dashboard/tests/branch-slice-progress.spec.ts dashboard/tests/taken-slice-progress.spec.ts dashboard/tests/plan-execution-complete-detail.spec.ts --workers=2
+npm test -- tests/support/supplier-dependency-completion.test.mjs tests/product-backlog-payload-update.sh
+npm test -- tests/support/supplier-dependency-refusal.test.mjs src/skills/dough-story-wrap-up/scripts/closure-story-integration.test.mjs
+```
+
+Bare-origin fixtures author dependency records through real commands. Completion assertions observe unfinished increment/unpublished outcome refusal without consumer writes; resolving an unqueued sibling changes only it. Actual startup remains blocked before relationship publication, starts that sibling after publication, and still refuses the two-supplier consumer naming its remaining supplier. Stale condition/basis refusals preserve bytes. Planless completion requires explicit recoverable outcome evidence. Generic queue completion and missing supplier homes release nothing and create no workspace.
+
+Cleanup and replay preserve exact consumer bytes and successfully recover the historical supplier path with `git show`. Closure tests consume the real accepted race/retry receipt, retain a distinct before-cleanup evidence revision, and repeat identically. Installed offline fixtures run discovery, guarded resolution and repeat with release source unavailable. No native-agent reasoning is claimed.
+
+The existing pure plan reader gained the project's bold labels; exact-label, unsupported-status and quoted-fence assertions join existing plain-label/import proof. Existing dashboard plan-progress/detail consumers passed. Historical backlog plan links participate in completion checks, preventing a missing preparation record from silently becoming planless. Payload declarations remain inline because historical readers consume them; installer argument parsing alone was extracted, with install/update consumers checked.
+
+Guidance review walked generic Land without a completed identity and completed wrap-up: outcome judgment and accepted integration remain distinct; Trunk resolution follows accepted before-cleanup publication, and Story Branch post-integration consumer changes need subsequent publication/completion before retirement. Discovery gaps retain affected context. Reconciliation and developer decisions remain slice 4. `git diff --check` passed; full local CI is not claimed.
+
+Independent refactor: none — already clean; no proof boundaries changed and no tests repeated. Mechanical formatting passed after a local ShellCheck annotation for `platform`, assigned by the sourced argument parser. Changed files stay within 250 lines, and `git diff --check` passed.

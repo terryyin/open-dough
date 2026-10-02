@@ -128,6 +128,11 @@ revision was already suitable. If commit conventions, ownership, or recovery
 cannot be resolved, leave the material intact, report the gap, and do not claim
 closure. In Trunk Mode, publish that commit through [wrap-up closure publication](../dough-execute-plan/references/wrap-up-closure-publication.md) before deleting spent history.
 
+Before deletion, follow the shared [supplier dependency procedure](../dough-product-backlog/references/supplier-dependencies.md)
+to discover current consumers and retain recoverable completion evidence. In Trunk
+Mode, resolve and publish consumer changes after accepted before-cleanup publication
+and before `finish` can retire the workspace.
+
 ## Delete spent history, including shared records
 
 After completion and Git recovery are established — including any required Trunk
@@ -206,6 +211,11 @@ Require that procedure's accepted receipt before resource cleanup. The receipt
 is the accepted candidate SHA and the remote trunk ref. A superseded candidate
 is not the receipt. Unresolved integration preserves the execution resources
 and blocks completion. Do not force-push.
+
+After accepted Story Branch supplier integration, [resolve and publish consumers](../dough-product-backlog/references/supplier-dependencies.md#apply-and-publish-a-direct-resolution)
+through the same closure publication/completion procedure before retirement, using
+the resulting accepted SHA and shutdown receipt. Finish or explicitly retain
+unresolved dependency work and evidence in existing active context; report gaps.
 
 ## Remove execution resources safely
 

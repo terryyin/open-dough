@@ -11,7 +11,7 @@ import {
   updateStoryDependency,
 } from "./product-backlog-story-dependencies.mjs";
 
-function pathFor(file, href) {
+export function pathFor(file, href) {
   const directory = dirname(file);
   const project = resolve(directory, "..");
   const path = resolve(directory, splitHref(href).path);

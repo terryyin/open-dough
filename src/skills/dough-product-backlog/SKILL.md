@@ -200,3 +200,6 @@ conflict and report the missing guidance.
 - Summarize changes and reasons briefly.
 - Follow commit conventions when authorized. Backlog maintenance alone does not
   authorize a commit or push.
+
+Supplier landing/wrap-up uses the shared [completion and consumer-resolution procedure](references/supplier-dependencies.md).
+The generic `complete` command changes queue membership only.

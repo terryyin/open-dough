@@ -42,6 +42,8 @@ import {
   readDependencies,
   updateDependency,
 } from "./product-backlog-story-dependencies-command.mjs";
+import { readConsumers } from "./product-backlog-dependency-consumers.mjs";
+import { resolveDependency } from "./product-backlog-dependency-resolution.mjs";
 import { takeEntry } from "./product-backlog-take.mjs";
 import { usage } from "./product-backlog-usage.mjs";
 
@@ -186,6 +188,8 @@ const operations = {
   merge,
   "record-state": recordState,
   "read-state": readState,
+  "discover-consumers": readConsumers,
+  "resolve-dependency": resolveDependency,
   "read-dependencies": readDependencies,
   "update-dependency": updateDependency,
 };
@@ -220,6 +224,8 @@ try {
     const refusal = [
       "record-state",
       "read-state",
+      "discover-consumers",
+      "resolve-dependency",
       "read-dependencies",
       "update-dependency",
     ].includes(named)
