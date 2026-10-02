@@ -101,7 +101,7 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
     await expect(start(readyStory)).toBeDisabled();
     const recovery = page.getByRole("region", { name: "Startup recovery" });
     await expect(recovery).toContainText(
-      "Its last answer: Claude Code did not answer in time, so the session may or may not have started. Check claude agents for it before continuing.",
+      "Its last answer: Claude Code did not answer in time, so the session may or may not have started. Check claude agents for it.",
     );
     await expect(recovery.locator("code").first()).toHaveText("claude agents");
     await expect(

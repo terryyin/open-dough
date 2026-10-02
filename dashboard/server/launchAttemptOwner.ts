@@ -205,7 +205,7 @@ export class LaunchAttemptOwner {
       result = {
         kind: "uncertain",
         reason: "unconfirmed",
-        explanation: `The launch ended unexpectedly (${new HostOperationFailure(error instanceof Error ? error.message : String(error)).message}), so a session may or may not have started. Check this machine's sessions before starting again.`,
+        explanation: `The launch ended unexpectedly (${new HostOperationFailure(error instanceof Error ? error.message : String(error)).message}), so a session may or may not have started. Check this machine's sessions for it.`,
       };
     }
     await this.note(own.attempt.id, {

@@ -85,6 +85,9 @@ reads this machine's evidence and the published state again. Continue posts to
 `POST /__agent-launch/continue`, which runs the same kept request under the same
 attempt and the existing [start recovery](LAUNCH-START.md#mechanical-start-and-recovery)
 and native rules, or answers why not; it never creates a replacement attempt.
+A launch answer is shown there as it was formed, beside the card's Start or Start
+session too: it says what is known and what to check, and leaves the action to
+the control beside it, so an unresolved attempt's answer never directs to Start.
 Restart, reload, project switch and a second page recover from that file; a
 removed story keeps its recovery there. An ad hoc start shows its progress
 beside Start session and its recovery in the same region, never a card.

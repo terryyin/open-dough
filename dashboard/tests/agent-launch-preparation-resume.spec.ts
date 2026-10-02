@@ -132,7 +132,7 @@ test.describe("a kept preparation start", () => {
     const first = await ask();
     expect(first).toMatchObject({ kind: "uncertain", reason: "timed-out" });
     expect(first.explanation).toContain(
-      `The start was kept and goes on in ${kept}; pressing Start again resumes it.`,
+      `The start was kept and goes on in ${kept}, where it can be resumed.`,
     );
     expect(server.claudeLaunchCalls()).toEqual([]);
     expect(keptStart()).toMatchObject({
@@ -160,7 +160,7 @@ test.describe("a kept preparation start", () => {
       reason: "start-refused",
     });
     expect(first.explanation).toContain(
-      `Workspace ~/git/open-dough/.worktrees/${slug} on branch claude/${slug}. The start was kept; pressing Start again resumes it. Nothing was launched.`,
+      `Workspace ~/git/open-dough/.worktrees/${slug} on branch claude/${slug}. The start was kept and can be resumed. Nothing was launched.`,
     );
     expect(server.claudeLaunchCalls()).toEqual([]);
     expect(await preparing()).toEqual([]);

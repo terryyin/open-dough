@@ -29,5 +29,5 @@ export function creationRecovery(record: CreationView): string {
     command === undefined
       ? `Native history inspection is unavailable for ${record.recovery.hostName}. Reconcile`
       : `Inspect native history with \`${command}\` and reconcile`;
-  return `${record.recovery.hostName} conversation creation is unresolved for ${record.request.title}. Workspace: ${record.creation.workspace}. ${inspection} this machine's launch evidence before starting again; no new conversation was created.`;
+  return `${record.recovery.hostName} conversation creation is unresolved for ${record.request.title}. Workspace: ${record.creation.workspace}. ${inspection} this machine's launch evidence with it; no new conversation was created.`;
 }

@@ -9,7 +9,10 @@
 // attempt again under the existing recovery rules. A continuation that was
 // not accepted says why, with the attempt kept as it was. When this
 // machine's kept attempts cannot be read, the section says an earlier
-// startup may still be unresolved.
+// startup may still be unresolved. Answers are shown as they were formed:
+// each says what is known and what to check, true wherever it is shown, and
+// leaves the action to the control beside it; this section adds only its own
+// native check and buttons.
 
 import { useId } from "react";
 import {
@@ -51,15 +54,6 @@ function publicationWords({ publication }: AttemptObservation): string {
   }
 }
 
-// A launch answer as said beside Continue: what the answer directs the
-// developer to do again from the card's Start is done here by continuing.
-function forContinuation(explanation: string): string {
-  return explanation
-    .replaceAll("pressing Start again resumes it", "continuing resumes it")
-    .replaceAll("before starting again", "before continuing")
-    .replaceAll(", then start again", ", then continue");
-}
-
 // What this machine keeps of the accepted attempt.
 function KnownFacts({ attempt }: { readonly attempt: AttemptObservation }) {
   const { outcome } = attempt;
@@ -75,8 +69,7 @@ function KnownFacts({ attempt }: { readonly attempt: AttemptObservation }) {
         "It stopped at the default checkout's unconfirmed changes."
       ) : (
         <>
-          Its last answer:{" "}
-          <LaunchExplanation text={forContinuation(outcome.explanation)} />
+          Its last answer: <LaunchExplanation text={outcome.explanation} />
         </>
       )}
     </p>
@@ -138,7 +131,7 @@ function RecoveryEntry({
       </p>
       {cause === "unacknowledged" && problem !== undefined && (
         <p className="quiet">
-          <LaunchExplanation text={forContinuation(problem)} />
+          <LaunchExplanation text={problem} />
         </p>
       )}
       {attempt !== undefined && <KnownFacts attempt={attempt} />}
@@ -170,13 +163,7 @@ function RecoveryEntry({
         )}
       </p>
       {answer !== undefined && (
-        <LaunchProblemAnswer
-          id={`${id}-answer`}
-          problem={{
-            ...answer,
-            explanation: forContinuation(answer.explanation),
-          }}
-        />
+        <LaunchProblemAnswer id={`${id}-answer`} problem={answer} />
       )}
     </article>
   );

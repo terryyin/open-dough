@@ -83,7 +83,7 @@ test.describe("a kept execution start", () => {
     expect(first.explanation).toContain(
       `workspace ${keptFacts} on branch claude/${slug}`,
     );
-    expect(first.explanation).toContain("pressing Start again resumes it");
+    expect(first.explanation).toContain("where it can be resumed");
     expect(server.claudeCalls()).toEqual([]);
     // Written ahead of the script, before any result.
     expect(keptStartOf(origin)).toMatchObject({
@@ -123,7 +123,7 @@ test.describe("a kept execution start", () => {
       `Workspace ${workspaceOf(origin)} on branch claude/${slug}.`,
     );
     expect(first.explanation).toContain(
-      "The start was kept; pressing Start again resumes it. Nothing was launched.",
+      "The start was kept and can be resumed. Nothing was launched.",
     );
     expect(await origin.takenProfiles()).toEqual([]);
     const kept = keptStartOf(origin);

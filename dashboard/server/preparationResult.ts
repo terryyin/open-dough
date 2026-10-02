@@ -4,6 +4,7 @@
 
 import { z } from "zod";
 import type { StartAttempt } from "./startLaunch.ts";
+import { keptStartWords } from "./startResult.ts";
 
 // An announced start carries the published commit; a continued one (the
 // workspace already held the assignment) does not. A one-shot start that
@@ -136,8 +137,6 @@ const stopReasons: Record<string, (stop: Stop) => string> = {
     `The Preparing announcement could not be confirmed on origin${detail(stop)}.`,
 };
 
-const keptWords = "The start was kept; pressing Start again resumes it.";
-
 // Whether a start that ended so may have published the announcement: its
 // start is kept and the next launch of the story resumes it.
 export function keepsPreparation(
@@ -161,7 +160,7 @@ export function preparationRefusal(
       : "The preparation start gave no result this dashboard could read.";
   const where =
     kept && keepsPreparation(result)
-      ? ` Workspace ${kept.workspace} on branch ${kept.branch}. ${keptWords}`
+      ? ` Workspace ${kept.workspace} on branch ${kept.branch}. ${keptStartWords}`
       : "";
   return `${reason}${leftBehind}${where} Nothing was launched.`;
 }

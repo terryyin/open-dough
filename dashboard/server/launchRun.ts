@@ -108,7 +108,7 @@ async function launchRun(
             kind: "uncertain",
             reason: "unconfirmed",
             explanation:
-              "This conversation's first input is not confirmed. Continue the recorded conversation before starting again.",
+              "This launch's recorded conversation has a first input that is not confirmed, so no other conversation was started. Check the recorded conversation for that input.",
           } as const)
         : await host.recover(pending, controller.signal, evidence);
   if (launched.kind !== "launched") {

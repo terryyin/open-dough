@@ -286,7 +286,7 @@ record…" on `3d82d365`; the same flake had already been fixed on main by
 
 ### 3. Recovery wording is formed where each answer is formed
 Type: Behavior
-Status: planned
+Status: done
 Proof: Remove `forContinuation`; Startup recovery renders answers verbatim.
 Update the recovery assertions to the source wording: kept-start unknown
 publication in `responsive-session-recovery.spec.ts` reads correctly with no
@@ -307,6 +307,25 @@ With slice 2, an unresolved attempt is resumed only by continuation, so no
 answer for one directs to pressing Start. Card-only refusals may keep naming
 Start where only the card shows them.
 Safe stop: the correction outcome is complete; all earlier proof still green.
+
+Accepted proof: `forContinuation` removed; Startup recovery shows answers
+verbatim. Forming sites in `startWorkflows.ts`, `startResult.ts`
+(`keptStartWords`, shared with `preparationResult.ts`), `launchAttemptOwner.ts`,
+`launchRun.ts`, both host `launch.ts`, `hosts/codex/creation.ts`,
+`hostDescription.ts` (`uncertaintyHint`) and `launchCreation.ts` now say what is
+known and what to check without "start again". The card status for a lost
+answer says "Recheck it under Startup recovery" (recovery offers no Continue
+there). Observed in `responsive-session-recovery.spec.ts`,
+`responsive-session-recovery-reads.spec.ts` (no Continue named or offered),
+`agent-launch-card-problems.spec.ts`, `agent-launch-ad-hoc-problems.spec.ts`
+(same text beside Start session and in recovery), new
+`agent-launch-unconfirmed-input.spec.ts` (forged unconfirmed first input), and
+the start/preparation result consumers. Full suite
+`env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=4 --reporter=line`
+756 passed; after refactoring the kept-start consumers reran 19 passed;
+`npm run typecheck:dashboard` passes. Left as shown only on their own entries:
+Codex first-input evidence (`hosts/codex/launch.ts`, session entry) and the
+card-only `pageAttempt.ts` refusal.
 
 ### 4. Recheck settles an uncertain Claude Code launch from `claude agents`
 Type: Behavior

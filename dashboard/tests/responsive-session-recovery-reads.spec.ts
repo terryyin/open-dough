@@ -127,11 +127,17 @@ test("a lost acceptance answer keeps the story protected statically with Recheck
   const recovery = recoveryOf(page);
   const lost = `${needsReconciliation}: the answer to this execution start was lost`;
   await expect(story).toContainText(lost);
+  await expect(story).toContainText("Recheck it under Startup recovery");
+  await expect(story).not.toContainText(/continu/i);
   await expect(story.locator(".card-startup-progressing")).toHaveCount(0);
   await expectProtected(story);
   await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
   await expect(recovery).toContainText(lost);
-  await expect(recovery).toContainText("could not be reached");
+  // The lost answer says what to check and names no Continue it lacks.
+  await expect(recovery).toContainText(
+    "The local dashboard server could not be reached, so the launch may or may not have been accepted and its session may or may not have started. Check claude agents for it.",
+  );
+  await expect(recovery).not.toContainText(/continu/i);
   await expect(recovery.getByRole("button", { name: /^Continue/ })).toHaveCount(
     0,
   );

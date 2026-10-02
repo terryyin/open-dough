@@ -178,7 +178,9 @@ const unreadableReason =
 const unreadableOneShot =
   "The start command gave no result this dashboard could read. A one-shot start publishes nothing.";
 
-const keptWords = "The start was kept; pressing Start again resumes it.";
+// What a stopped start that was kept says of itself, here and for a
+// preparation (`./preparationResult.ts`).
+export const keptStartWords = "The start was kept and can be resumed.";
 
 // Whether a start that ended so leaves a claim possibly published or
 // committed, or a one-shot workspace possibly prepared: its record is kept and
@@ -214,5 +216,5 @@ export function refusal(
   const where = place
     ? ` Workspace ${place.workspace} on branch ${place.branch}.`
     : "";
-  return `${reason}${where}${keepsStart(result) ? ` ${keptWords}` : ""} Nothing was launched.`;
+  return `${reason}${where}${keepsStart(result) ? ` ${keptStartWords}` : ""} Nothing was launched.`;
 }

@@ -27,7 +27,7 @@ export const hostDescriptions = {
       opus: { name: "Opus" },
       sonnet: { name: "Sonnet" },
     },
-    uncertaintyHint: "Check `claude agents` for it before starting again.",
+    uncertaintyHint: "Check `claude agents` for it.",
     unavailableSessionExplanation: "Claude Code no longer lists this session.",
     unknownObservation: {
       label: "State unknown",
@@ -46,7 +46,7 @@ export const hostDescriptions = {
     skillSigil: "$",
     models: {},
     uncertaintyHint:
-      "Check the dashboard history and native Codex conversations before starting again.",
+      "Check the dashboard history and native Codex conversations for it.",
     unofferedModelExplanation:
       "Codex uses its configured default model; a Claude model cannot be selected.",
   },

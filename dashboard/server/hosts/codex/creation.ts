@@ -3,8 +3,7 @@ import type { CreationRecord } from "../../../src/launchCreation.ts";
 
 export function codexCreationEvidence(record?: CreationRecord) {
   return {
-    unreadableAdvice:
-      "Reconcile it with native Codex history before starting again.",
+    unreadableAdvice: "Reconcile it with native Codex history.",
     ...(record === undefined
       ? {}
       : {
