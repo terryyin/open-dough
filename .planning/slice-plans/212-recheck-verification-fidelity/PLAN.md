@@ -172,7 +172,7 @@ Safe stop: Codex Recheck behaves as before; Claude unchanged.
 
 ### 2. An attempt's own launch record settles it as launched
 Type: Behavior
-Status: planned
+Status: done
 Proof: Fail first, as observed, in `agent-launch-claude-verification.spec.ts`:
 after an uncertain launch, keep an own record whose session the listing does
 not name; Recheck settles `launched` with that record's session, the recovery
@@ -244,3 +244,16 @@ Safe stop: correction complete.
 - Independent post-change refactor: none — already clean; `## REFACTOR COMPLETE`. No proof invalidated.
 - Formatter initially found parameter mutation in the new fixture; local alias now follows existing Codex test convention. `npm run format` retry passed; semantics and assertions unchanged.
 - Whole dashboard command: `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=4 --reporter=line`: 765 passed (5.2m).
+- Slice 1 accepted publication: `d04999c9a5ceffa00baea867fef7d5f84f46db86` on `origin/codex/recheck-verifies-only-what-its-host-can-list-and`.
+- Managed delivery reported CI unobserved: Codex yielded-cell bridge unavailable. No observer or shutdown handle was created. Managed delivery's detached start supplies no supported attachment of the Codex yielded stream; a separate stream start is excluded by ordinary managed-delivery guidance. Publication acceptance stands.
+
+## Slice 2 accepted proof
+
+- Fail first: `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-claude-verification.spec.ts dashboard/tests/responsive-session-recovery-verification.spec.ts --grep 'trusts' --workers=2 --reporter=line`: three intended failures (unreadable listing kept own-record attempts unresolved; removed kept start produced `not-listed`).
+- Implementation proof: `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-claude-verification.spec.ts dashboard/tests/responsive-session-recovery-verification.spec.ts --workers=2 --reporter=line`: 7 passed (23.8s).
+- Independent refactor split the expanded Claude spec at cohesive listing/own-record proof boundaries, sharing only uncertain-launch setup in `claudeVerification.ts`; each spec keeps an isolated origin. No production edits.
+- Replacement proof: `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-claude-verification.spec.ts dashboard/tests/agent-launch-claude-own-record-verification.spec.ts dashboard/tests/responsive-session-recovery-verification.spec.ts --workers=2 --reporter=line`: same 7 cases passed (25.9s). `npm run typecheck:dashboard`: passed.
+- Inspected setup/assertions: actual uncertain page launch then persisted own record(s), or persisted own established record with its kept start removed. Recheck observes launched outcome/latest session, recovery removed, actions restored, unchanged record bytes, no verification `agents` call at project cwd and one native launch. The failed-outcome-write state is supplied, rather than injecting that write failure.
+- Existing one-candidate, decoy/held, unreadable listing, ambiguous candidates and established-workspace journeys preserved. Sole verifier caller and record-store/listing consumers inspected.
+- Independent refactor returned `## REFACTOR COMPLETE`; selected proof accounts for both moved own-record cases.
+- Formatter caught an unused fixture callback parameter; record indexes now explicitly select the same one/two inputs. `npm run format` retry passed; observed setup unchanged.

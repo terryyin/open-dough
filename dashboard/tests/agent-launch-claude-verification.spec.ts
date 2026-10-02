@@ -13,64 +13,19 @@ import path from "node:path";
 import type { Page } from "@playwright/test";
 import { accept, attempts, launchRequest } from "./agentLaunchBoundary.ts";
 import { cardSessions } from "./dashboardPage.ts";
-import { expect, test } from "./dashboardTest.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
 import {
-  publishLaunchJourney,
-  readyStory,
-  type LaunchJourney,
-} from "./launchJourney.ts";
+  expect,
+  test,
+  recoveryOf,
+  storyRequest,
+  subject,
+  useUncertainLaunch,
+} from "./claudeVerification.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 
-let journey: LaunchJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishLaunchJourney();
-});
-test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
-
-test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 3_000 });
-
-const subject = `${readyStory} (${identityB})`;
-const storyRequest = {
-  source: "open-dough",
-  identity: identityB,
-  title: readyStory,
-  workflow: "execution",
-  host: "claude",
-};
-const recoveryOf = (page: Page) =>
-  page.getByRole("region", { name: "Startup recovery" });
-
+const uncertainLaunch = useUncertainLaunch();
 const answerKind = async (response: Promise<{ body: string }>) =>
   (JSON.parse((await response).body) as { kind: string; reason?: string }).kind;
-
-// Starts Story B's execution from its card and waits until its launch
-// settled uncertain: what the card, the start and the launch call are.
-async function uncertainLaunch(page: Page, dashboard: DashboardServer) {
-  const opened = await openTakenBacklog(page, journey);
-  await opened.start(readyStory).click();
-  await opened.dialog.getByRole("button", { name: "Start" }).click();
-  await expect
-    .poll(async () => (await attempts(dashboard))[0]?.outcome?.kind, {
-      timeout: 30_000,
-    })
-    .toBe("uncertain");
-  const [call] = dashboard.claudeLaunchCalls();
-  const argv = call?.argv ?? [];
-  const [attempt] = await attempts(dashboard);
-  await expect(
-    recoveryOf(page).getByRole("button", { name: `Recheck ${subject}` }),
-  ).toBeEnabled();
-  return {
-    card: opened.card(readyStory),
-    start: opened.start(readyStory),
-    name: argv[argv.indexOf("--name") + 1] ?? "",
-    cwd: call?.cwd ?? "",
-    acceptedAt: Date.parse(attempt?.acceptedAt ?? ""),
-  };
-}
 
 // Keeps a launch record of another story holding the listed `sessionId`.
 function recordHolding(dashboard: DashboardServer, sessionId: string) {

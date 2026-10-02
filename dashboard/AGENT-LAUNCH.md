@@ -89,7 +89,12 @@ reads this machine's evidence and the published state again. For a story
 attempt whose launch is uncertain after its start settled
 (publication known), and whose host boundary offers a session listing
 (`hostOperations.launchedSessions`), Recheck first posts to `POST /__agent-launch/verify`,
-which reads `claude agents` once (`server/launchVerification.ts`). Exactly one
+which first reads this machine's launch records (`server/launchVerification.ts`).
+A record of the same project, story and workflow launched since the attempt
+was accepted confirms its session: the latest such record settles the attempt
+as launched without reading a session listing or writing another launch record,
+even if the kept start is gone or the session is no longer listed. Otherwise
+verification reads `claude agents` once. Exactly one
 listed session with the launch's name (`<project> · <kind> · <title>`),
 started in its start folder (the project folder or the kept start's
 workspace) at or after the attempt was accepted, and held by no other launch

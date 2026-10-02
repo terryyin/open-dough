@@ -1,6 +1,8 @@
 // Verifying a story attempt whose launch is uncertain from its host's own
-// session listing (`LaunchHost.launchedSessions`), when a page's Recheck asks
-// (`./launchAttemptOwner.ts`). The listing is read once. Of the sessions it
+// record or session listing (`LaunchHost.launchedSessions`), when a page's
+// Recheck asks (`./launchAttemptOwner.ts`). The latest own launch record
+// settles it as launched before any listing is read. Otherwise the listing
+// is read once. Of the sessions it
 // names with the launch's name, started in the folder the launch started in
 // (the project folder, or its kept start's workspace) at or after the
 // attempt was accepted, those another launch record holds are not this
@@ -54,26 +56,14 @@ const ownRecord = (
   record.request.source === request.source &&
   Date.parse(record.launchedAt) >= Date.parse(acceptedAt);
 
-// Of the listed sessions, those no other launch record holds, and the
-// attempt's own records.
+// Of the listed sessions, those no launch record holds. An own record has
+// already settled the attempt before this listing is read.
 function unheld(
   listed: readonly SessionObservation[],
   records: readonly LaunchRecord[],
-  request: StoryLaunchRequest,
-  acceptedAt: string,
 ) {
-  const own = records.filter((record) =>
-    ownRecord(record, request, acceptedAt),
-  );
-  const held = new Set(
-    records
-      .filter((record) => !own.includes(record))
-      .map((record) => sessionKey(record.session)),
-  );
-  return {
-    own,
-    candidates: listed.filter(({ session }) => !held.has(sessionKey(session))),
-  };
+  const held = new Set(records.map((record) => sessionKey(record.session)));
+  return listed.filter(({ session }) => !held.has(sessionKey(session)));
 }
 
 export async function verifyLaunch(
@@ -89,6 +79,19 @@ export async function verifyLaunch(
     return unresolved(
       "This host offers no session listing to recheck the launch against, so whether its session started is still not known.",
     );
+  const records = await readableRecordsByProject();
+  if (records === undefined)
+    return unresolved(
+      "This machine's launch records could not be read, so whether a listed session belongs to this launch is not known.",
+    );
+  const own = (records.get(source.id) ?? [])
+    .filter((record) => ownRecord(record, request, acceptedAt))
+    .sort((a, b) => Date.parse(b.launchedAt) - Date.parse(a.launchedAt))[0];
+  if (own !== undefined)
+    return {
+      kind: "launched",
+      session: { host: own.session.host, sessionId: own.session.sessionId },
+    };
   const check = host.description.uncertaintyHint ?? "";
   const project = projectFolder(source);
   const kept = await keptStart(source.id, request.identity, request.workflow);
@@ -119,17 +122,7 @@ export async function verifyLaunch(
     return unresolved(
       `${host.name}'s session listing could not be read, so whether this launch started its session is still not known. ${check}`.trim(),
     );
-  const records = await readableRecordsByProject();
-  if (records === undefined)
-    return unresolved(
-      "This machine's launch records could not be read, so whether a listed session belongs to this launch is not known.",
-    );
-  const { own, candidates } = unheld(
-    listed,
-    [...records.values()].flat(),
-    request,
-    acceptedAt,
-  );
+  const candidates = unheld(listed, [...records.values()].flat());
   const [found, ...others] = candidates;
   if (found === undefined)
     return {
@@ -145,12 +138,6 @@ export async function verifyLaunch(
     kind: "launched",
     session: { host: found.session.host, sessionId: found.session.sessionId },
   };
-  if (
-    own.some(
-      (record) => sessionKey(record.session) === sessionKey(found.session),
-    )
-  )
-    return outcome;
   const record: LaunchRecord = {
     request: recording,
     session: found.session,
