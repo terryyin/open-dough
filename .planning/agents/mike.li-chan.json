@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-052#use-cursor-from-dashboard",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
