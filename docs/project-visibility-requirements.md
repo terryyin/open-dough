@@ -212,22 +212,33 @@ stories.
 
 ### Blocking story dependencies
 
-Selected direction for [SEED-041](../.planning/seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies),
-not a claim of delivered behavior: an unresolved blocking dependency prevents
-the dependent story from starting. Record the prerequisite story, why the
-sequence is necessary, completion condition, and resolution evidence.
+A blocking dependency is recorded in the dependent story's canonical home,
+separately from preparation: supplier identity and link, required implementation,
+reason for sequencing, completion condition, and waiting, satisfied, or
+decision-needed state. Resolution evidence names a recoverable supplier revision
+and canonical path, the accepted integration revision, and the verification or
+remaining question. Shared code alone does not justify a blocking wait.
 
-The supplying story's landing/wrap-up agent discovers its dependents, resolves
-simple cases, attempts bounded reconciliation from each dependent's
-perspective, and stops complicated cases for a developer decision. Remaining
-dependencies continue to block; source disappearance never proves fulfillment.
-The dashboard reads published outcomes. Detailed reconciliation authority and
-completion evidence remain under refinement in the story.
+An unresolved dependency prevents new execution from starting. Loading,
+unreadable, or malformed dependency facts also prevent a new start. The actual
+start command checks current facts before creating a workspace or publishing a
+Take; an already accepted execution can continue. Refinement and inspection
+remain available. Satisfying every dependency removes this block without
+changing preparation judgments or other execution requirements.
+
+The supplying story's landing or wrap-up discovers current consumers and judges
+each condition against the completed, accepted outcome. It may reconcile bounded
+story or plan assumptions whose answer is settled by the consumer's existing
+intent. Unspecified choices remain decision-needed with the actual developer
+question; conditions requiring consumer implementation stay waiting for separate
+execution authority. Source disappearance, an increment, or queue removal never
+proves fulfillment. The [supplier resolution procedure](../src/skills/dough-product-backlog/references/supplier-dependencies.md)
+owns discovery, evidence, guarded writes, and publication.
 
 Only the dependent card exposes its dependencies; the
-[North Star](dashboard-ux-ui-north-star.md#blocking-dependencies-inside-a-story-card)
-owns presentation. Informational dependencies that allow parallel execution
-and close multi-agent collaboration are future scope.
+[dashboard documentation](../dashboard/README.md#blocking-story-dependencies)
+describes presentation. Informational dependencies that allow parallel execution
+and close multi-agent collaboration remain future scope.
 
 ### Recently finished stories
 

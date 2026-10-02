@@ -24,10 +24,11 @@ import {
 } from "./autoRefreshJourney.ts";
 import {
   doughnutBacklog,
+  doughnutRecords,
   doughnutRepository,
+  doughnutSharedGoal,
   doughnutSharedTitle,
   revisionDoughnut,
-  sharedStoryIdentity,
 } from "./doughnutProject.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {
@@ -45,11 +46,6 @@ import {
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 test.describe("project read isolation of automatic checks", () => {
-  const doughnutSharedGoal = "Doughnut's goal for the shared story.";
-  const doughnutRecords = {
-    ".planning/seeds/SEED-777-shared.md": `# Shared\n\n<a id="shared-story"></a>\n\n### ${doughnutSharedTitle}\n\n**Identity:** ${sharedStoryIdentity}\n\n**Goal:** ${doughnutSharedGoal}\n`,
-  };
-
   // Selects Doughnut, published at its own revision, and waits until its
   // whole snapshot, detail included, is shown; then puts keyboard focus on
   // its shared story's canonical record link.

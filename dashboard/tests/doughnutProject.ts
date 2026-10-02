@@ -14,6 +14,7 @@ export const revisionDoughnut = "d4".repeat(20);
 
 export const sharedStoryIdentity = "SEED-777#shared-story";
 export const doughnutSharedTitle = "Doughnut's telling of the shared story";
+export const doughnutSharedGoal = "Doughnut's goal for the shared story.";
 
 export const doughnutBacklog = `# Product backlog
 
@@ -23,3 +24,18 @@ export const doughnutBacklog = `# Product backlog
 
 - [${doughnutSharedTitle}](seeds/SEED-777-shared.md#shared-story) — ${sharedStoryIdentity}
 `;
+
+// A readable canonical story with no dependency agreement. Execution journeys
+// must publish this source as well as the backlog before they can start it.
+export const doughnutRecords = {
+  ".planning/seeds/SEED-777-shared.md": `# Shared
+
+<a id="shared-story"></a>
+
+### ${doughnutSharedTitle}
+
+**Identity:** ${sharedStoryIdentity}
+
+**Goal:** ${doughnutSharedGoal}
+`,
+};

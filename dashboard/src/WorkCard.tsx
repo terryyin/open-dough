@@ -10,6 +10,7 @@
 import { useId, useRef } from "react";
 import { sessionKey } from "./sessionReference.ts";
 import type { WorkEntry } from "./publishedWork.ts";
+import { DependenciesCard } from "./DependenciesCard.tsx";
 import { PreparationFacts } from "./PreparationCard.tsx";
 import { SliceProgress } from "./SliceProgress.tsx";
 import { WorkSourceLinks } from "./WorkSourceLinks.tsx";
@@ -92,6 +93,7 @@ export function WorkCard({
             onOpenRoster={onOpenRoster}
           />
           <PreparationFacts preparation={entry.preparation} />
+          <DependenciesCard dependencies={entry.dependencies} />
           {showsSliceProgress && (
             <SliceProgress
               planSlices={entry.planSlices}

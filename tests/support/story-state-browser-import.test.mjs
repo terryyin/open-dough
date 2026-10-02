@@ -41,3 +41,22 @@ test("importing the pure story-state reader pulls in no filesystem or Node-only 
   const loaded = await import(pathToFileURL(readerPath).href);
   assert.equal(typeof loaded.readStoryState, "function");
 });
+
+test("importing the pure dependency reader pulls in no filesystem or Node-only module", async () => {
+  const dependencyPath = fileURLToPath(
+    new URL(
+      "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs",
+      import.meta.url,
+    ),
+  );
+  const { specifiers } = importedModules(dependencyPath);
+  for (const specifier of specifiers) {
+    assert.equal(specifier.startsWith("node:"), false, specifier);
+    assert.equal(specifier.includes("product-backlog-store"), false, specifier);
+  }
+  assert.equal(
+    typeof (await import(pathToFileURL(dependencyPath).href))
+      .readStoryDependencies,
+    "function",
+  );
+});

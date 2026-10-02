@@ -13,7 +13,7 @@ import {
   unusableTarget,
 } from "./accessibleOverview.ts";
 import {
-  cardLaunchActions,
+  enabledCardLaunchActions,
   expectMembership,
   openDirection,
   parts,
@@ -197,6 +197,8 @@ test("accessible overview reads a backlog longer than one screen by scrolling th
     taken: ["Repair the installer's update report"],
     backlog: queuedTitles,
   });
+  // Canonical reads can grow the cards after membership first appears.
+  await expect(backlog.locator(".dependency-problem")).toHaveCount(queuedCount);
   const heading = backlog.getByRole("heading", { level: 2 });
   const lastCard = backlog.getByRole("article", {
     name: queuedTitle(queuedCount),
@@ -222,10 +224,15 @@ test("accessible overview reads a backlog longer than one screen by scrolling th
   await test.step("keyboard focus moving back up is never hidden under that heading", async () => {
     await lastLink.focus();
     for (let place = queuedCount - 1; place >= 1; place -= 1) {
-      // Each queued card offers its launch actions and Inspect before its
+      // Each queued card offers its enabled launch actions and Inspect before its
       // Canonical link, so Shift+Tab past them reaches the previous card's
       // recorded link.
-      for (let step = 0; step < cardLaunchActions.length + 2; step += 1) {
+      const card = backlog.getByRole("article", {
+        name: queuedTitle(place + 1),
+        exact: true,
+      });
+      const launches = await enabledCardLaunchActions(card);
+      for (let step = 0; step < launches.length + 2; step += 1) {
         await page.keyboard.press("Shift+Tab");
       }
       const link = backlog

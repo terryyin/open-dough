@@ -8,6 +8,7 @@ import type { SliceClock } from "./sliceClockStart.ts";
 import type { SourceLink } from "./sourceLink.ts";
 import type { WorkPreparation } from "./storyPreparation.ts";
 import type { WorkPlanSlices } from "./storyPlan.ts";
+import type { WorkDependencies } from "./storyDependencies.ts";
 import type { WorkPurpose } from "./storyPurpose.ts";
 import type {
   Preparing,
@@ -34,6 +35,8 @@ export type WorkEntry = {
   // dependent canonical and plan files are read through the local
   // authenticated boundary.
   readonly preparation?: WorkPreparation;
+  // Exceptional prerequisites read from the same pinned canonical home.
+  readonly dependencies?: WorkDependencies;
   // Recorded Goal from the canonical home at this revision.
   readonly purpose?: WorkPurpose;
   // Ordered slices from the associated plan at this revision when planning

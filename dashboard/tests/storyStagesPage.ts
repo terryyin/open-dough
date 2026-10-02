@@ -9,6 +9,7 @@ import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   doughnutBacklog,
+  doughnutRecords,
   doughnutRepository,
   revisionDoughnut,
 } from "./doughnutProject.ts";
@@ -27,7 +28,7 @@ export async function openStoryStagesJourney(
     repository: "terryyin/open-dough",
   });
   const doughnut = await publishMovingOrigin(page, doughnutRepository);
-  doughnut.push(revisionDoughnut, doughnutBacklog, {});
+  doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
   await page.goto("/");
   const { stages, backlog, source, refresh } = parts(page);
   const card = (title: string) => backlog.getByRole("article", { name: title });
@@ -52,6 +53,7 @@ export async function openStoryStagesJourney(
     },
     // Launches the workflow from the story's card, confirming its dialog.
     launch: async (title: string, workflow: Workflow) => {
+      await expect(action(title, workflow)).toBeEnabled();
       await action(title, workflow).click();
       await page
         .getByRole("dialog", { name: `Start ${workflow} in Claude Code` })

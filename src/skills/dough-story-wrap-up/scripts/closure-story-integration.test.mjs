@@ -29,8 +29,14 @@ import {
   plantHumanEdit,
   remoteCommitCount,
   revParse,
-  trunkTarget,
 } from "./closure-git-fixtures.mjs";
+
+import {
+  prepareClosureDependencies,
+  observeClosureDependency,
+} from "./closure-dependency-test-fixtures.mjs";
+
+import "./closure-story-fast-forward-cases.mjs";
 
 const ancestorBacklog = backlogOf([itemA, itemB], [itemC]);
 const storyBacklog = backlogOf([itemB], [itemC]);
@@ -62,9 +68,10 @@ for (const [remote, branch] of [
     await git(integration, "commit", "-m", "ancestor backlog");
     await git(integration, "push", remote, `HEAD:${target}`);
     await git(execution, "rebase", tracking);
+    const dependencies = await prepareClosureDependencies(fixture);
     await writeBacklog(execution, storyBacklog);
     writeFileSync(join(execution, "closure.txt"), "story closure\n");
-    await git(execution, "add", backlogPath, "closure.txt");
+    await git(execution, "add", ".planning", "closure.txt");
     await git(execution, "commit", "-m", "story closure");
     const closureSha = await revParse(execution, "HEAD");
     await git(execution, "push", remote, `HEAD:refs/heads/${executionBranch}`);
@@ -167,9 +174,26 @@ for (const [remote, branch] of [
       executionBranch,
     );
 
+    const resolved = await observeClosureDependency(
+      fixture,
+      dependencies,
+      published.receipt,
+      remote,
+      branch,
+    );
     const commitsAfter = await remoteCommitCount(remoteUrl, target);
     assert.notEqual(commitsAfter, commitsBefore);
     const retry = await publish({});
+    assert.deepEqual(
+      await observeClosureDependency(
+        fixture,
+        dependencies,
+        published.receipt,
+        remote,
+        branch,
+      ),
+      resolved,
+    );
     assert.equal(retry.classification, "already-accepted");
     assert.equal(retry.mergeCount, 0);
     assert.equal(retry.pushCount, 0);
@@ -186,55 +210,3 @@ for (const [remote, branch] of [
     }
   });
 }
-
-test("a fast-forward story tip is the trunk receipt and a later retry does not publish", async (t) => {
-  const fixture = await createCleanTrunkFixture();
-  t.after(fixture.cleanup);
-  const { origin, integration, execution } = fixture;
-  const closureSha = await revParse(execution, "HEAD");
-  await git(execution, "push", "origin", `HEAD:refs/heads/${executionBranch}`);
-  writeFileSync(join(integration, "unrelated.txt"), "unrelated checkout\n");
-  await git(integration, "add", "unrelated.txt");
-  await git(integration, "commit", "-m", "unrelated integration commit");
-  await plantHumanEdit(integration);
-  const integrationBefore = await captureCheckout(integration);
-  const commitsBefore = await remoteCommitCount(origin);
-
-  const published = await publishHistoryPreservingCandidate({
-    ownedWorkspace: execution,
-    publishedTip: closureSha,
-    branch: executionBranch,
-  });
-  assert.equal(published.classification, "published");
-  assert.equal(published.mergeCount, 1);
-  assert.equal(published.pushCount, 1);
-  assert.equal(published.rejectedPushCount, 0);
-  assert.deepEqual(published.adapterStatuses, []);
-  assert.equal(published.supersededSha, null);
-  assert.equal(published.receipt.sha, closureSha);
-  assert.equal(published.receipt.target, trunkTarget);
-  assert.equal(await lsRemoteSha(origin, trunkTarget), closureSha);
-  assert.equal(await isAncestor(execution, closureSha, "origin/main"), true);
-  const publishedTree = (
-    await git(origin, "ls-tree", "-r", "--name-only", trunkTarget)
-  ).stdout;
-  assert.equal(publishedTree.includes("unrelated.txt"), false);
-  assert.equal(publishedTree.includes("human-staged.txt"), false);
-  assert.equal(publishedTree.includes("increment.txt"), true);
-  assert.notEqual(await revParse(integration, "HEAD"), closureSha);
-  assertCheckoutUnchanged(
-    integrationBefore,
-    await captureCheckout(integration),
-  );
-
-  const retry = await publishHistoryPreservingCandidate({
-    ownedWorkspace: execution,
-    publishedTip: closureSha,
-    branch: executionBranch,
-  });
-  assert.equal(retry.classification, "already-accepted");
-  assert.equal(retry.mergeCount, 0);
-  assert.equal(retry.pushCount, 0);
-  assert.equal(await remoteCommitCount(origin), commitsBefore + 1);
-  assert.equal(await lsRemoteSha(origin, trunkTarget), closureSha);
-});

@@ -2,6 +2,7 @@
 import "./workspace-publication-startup-claim-cases.mjs";
 import "./workspace-publication-startup-source-cases.mjs";
 import "./workspace-publication-startup-readiness-cases.mjs";
+import "./workspace-publication-startup-dependencies-cases.mjs";
 import "./workspace-publication-startup-local-copy-cases.mjs";
 import "./workspace-publication-startup-canonical-plan-cases.mjs";
 import "./workspace-publication-startup-plan-link-cases.mjs";

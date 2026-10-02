@@ -236,3 +236,24 @@ and how journeys step page time.
 What each load, Refresh, and revision check asks GitHub, and so what the
 dashboard costs the launching person's API allowance, is described in
 [GitHub requests](GITHUB-REQUESTS.md).
+
+## Blocking story dependencies
+
+A story card with recorded dependencies offers an expandable **Dependencies**
+section. Its summary shows the number blocking execution. Expand it in place to
+read each supplier, sequencing reason, required implementation, completion
+condition, and waiting, satisfied, or developer-decision state. Resolution links
+open recoverable historical evidence; an unresolved decision shows its actual
+question. Only the dependent card shows this relationship.
+
+**Start execution** stays unavailable while any dependency is unresolved or its
+canonical facts are loading or unreadable, with the reason beside the action.
+Inspection and refinement stay available. Clearing one dependency leaves the
+others visible; clearing all removes this block without overriding other start
+requirements. An already accepted execution can continue. Expansion and refresh
+preserve keyboard access, card position, and backlog order. The dashboard reads
+published outcomes at the pinned revision; the actual start command checks
+current canonical facts again before starting.
+
+See the [dependency requirements](../docs/project-visibility-requirements.md#blocking-story-dependencies)
+for meaning and lifecycle.

@@ -23,10 +23,12 @@ import {
   type WorkPreparation,
 } from "./storyPreparation.ts";
 import type { WorkPlanSlices } from "./storyPlan.ts";
+import { dependenciesFor, type WorkDependencies } from "./storyDependencies.ts";
 import type { WorkPurpose } from "./storyPurpose.ts";
 
 type EntryFacts = {
   readonly preparation: WorkPreparation;
+  readonly dependencies: WorkDependencies;
   readonly associatedPlan?: SourceLink;
   readonly planPath?: string;
   readonly purpose: WorkPurpose;
@@ -46,6 +48,7 @@ function withFacts(
       return {
         ...entry,
         preparation: facts.preparation,
+        dependencies: facts.dependencies,
         ...(facts.associatedPlan !== undefined && {
           associatedPlan: facts.associatedPlan,
         }),
@@ -190,6 +193,14 @@ export async function enrichPreparation(
     );
     byIdentity.set(entry.identity, {
       preparation,
+      dependencies: dependenciesFor(
+        entry,
+        path,
+        canonicalText,
+        canonicalProblems,
+        source,
+        revision,
+      ),
       ...(peek.status === "recorded" &&
         peek.approach.kind === "planned" &&
         path !== undefined && {
