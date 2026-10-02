@@ -3,6 +3,10 @@
 **Identity:** SEED-052#cursor-reconnect-leaves-the-task-running
 **Source:** [story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-reconnect-leaves-the-task-running).
 
+## Execution
+
+Story Branch Mode. Workspace `/Users/terryyin/git/open-dough/.worktrees/reconnect-to-a-cursor-session-without-interrupti` on `cursor/reconnect-to-a-cursor-session-without-interrupti`, created for this execution. Integration checkout `/Users/terryyin/git/open-dough`. Increments publish to `origin/cursor/reconnect-to-a-cursor-session-without-interrupti`. Claim `770050b45a17a7cf46069b9f11fd7746bfe6c9bb` is on `origin/main` (`pendingCi: unobserved`). Starting revision `9e2d205d47b848bc16c6177411eac61667009be2`. Agent `joseph-chan`. Publisher `cursor-596b94d2-770f-490b-914a-09a6c8c93bad`. Replanning permission preserved. CI is GitHub Actions workflow `ci.yml` (display name CI); observer `/tmp/dough-ci-501/watch-kx1qXK` covers the story branch.
+
 ## Goal and scope
 
 A developer can close, switch away from, lose, and reconnect the terminal of a
@@ -85,14 +89,7 @@ Observed on 2026-10-02 at `8e83ed74`, `cursor-agent` 2026.10.01-e373342.
   slice 3. `npm view @xterm/headless@6.0.0 version` answered `6.0.0`, and the
   page uses `@xterm/xterm` 6.0.0.
 
-Not yet observed, settled by slice 1:
-
-- A working turn in a terminal client ends when that client gets SIGHUP. This
-  is the reported symptom.
-- What a working, a question-waiting, and an idle client show on screen,
-  through a marker the end rule can read.
-- How often a working client writes output, including during a long tool
-  call.
+Settled by slice 1. The record is in Learnings.
 
 ## Current decisions
 
@@ -107,6 +104,9 @@ Not yet observed, settled by slice 1:
 - The launch wait notice reads: "Cursor is still working on this session's
   launch prompt. The terminal opens when it finishes." Input during the wait
   is dropped.
+- Slice 1: SIGHUP ends a working `cursor-agent` turn, and the screen
+  separates working, idle, and waiting. Slices 2–4 stay. The idle settle
+  period is the longest working output gap, 0.203 s.
 
 ## Proof ownership
 
@@ -132,10 +132,12 @@ Focused proof command shape, as in plan 217:
 
 ### 1. Probe a real Cursor turn under detach
 Type: Probe (premise observation, no product change)
-Status: planned
+Status: done
 Proof: A short record in this plan's Learnings with the literal commands and
-results. Running it costs a few small paid Cursor turns and needs the
-developer's go-ahead at execution.
+results. Accepted: that record. `cursor-agent` 2026.10.01-e373342 ended a
+working turn 40 ms after SIGHUP, and the later resume never showed `done`.
+Working is `ctrl+c to stop`; idle is `done` plus `Add a follow-up` without
+that marker; waiting is `Clarifying Questions` with Red and Blue.
 
 In this trusted worktree, run `cursor-agent create-chat`, then a PTY
 `cursor-agent --workspace <worktree> --resume <id>` at 120×30. Read its
@@ -197,7 +199,7 @@ marker is not hung up.
 
 Includes: a server-side screen for kept clients through `@xterm/headless`
 6.0.0, a new dependency in the same xterm family as the page. The settle
-period comes from the probe's longest working output gap. Fixture idle and
+period is the probe's longest working output gap, 0.203 s. Fixture idle and
 waiting screens use the probe's observed text.
 
 Safe stopping point: kept clients no longer accumulate memory once idle.
@@ -229,4 +231,25 @@ Safe stopping point: the whole story.
 
 ## Learnings
 
-None yet.
+Slice 1 probe on 2026-10-02 in this worktree. No product change. Screen read with `@xterm/headless` 6.0.0 from a temporary install in `/tmp/cursor-probe` (`package.json` and `package-lock.json` unchanged) and this worktree's `@lydell/node-pty`, at 120×30, `TERM=xterm-256color`. `cursor-agent --version` printed `2026.10.01-e373342`.
+`cursor-agent create-chat` returned `00f04627-b3bc-47d0-82a2-ff31674e7f35` (observe), `4cf3b42a-19fd-4db9-ba20-d75ff14f1e3b` (SIGHUP), and `a044a83d-79bd-482d-9647-fe4428a4acdb` (question). Each client was `cursor-agent --workspace /Users/terryyin/git/open-dough/.worktrees/reconnect-to-a-cursor-session-without-interrupti --resume <id>`.
+Observe and SIGHUP prompt, then Enter: `Run the shell command sleep 40 and then reply with the exact word done. Do not edit or create any files.` Question prompt, then Enter: `Use your question tool to offer the choices red or blue. Do not choose an answer. Do not edit or create any files.`
+
+- Working, on every working sample: `→ Add a follow-up` together with `ctrl+c to stop`. Status was a braille spinner plus `Working`, then `$ sleep 40` and `Running`.
+- Idle, after the reply, output stopped, with no `ctrl+c to stop`, `Working`, or `Running`:
+
+```
+  done
+
+  → Add a follow-up
+```
+- Waiting, stable, with no `Add a follow-up`, `ctrl+c to stop`, `Working`, or `Running`:
+
+```
+│ Clarifying Questions
+│ 1. Which do you choose?
+│   › [ ] Red
+│     [ ] Blue
+│ ↑/↓ option · ←/→ question · Space select · Enter next/submit · Esc to skip
+```
+`→ Add a follow-up` marks idle only when `ctrl+c to stop` and `Clarifying Questions` are absent. The terminal cursor stayed hidden in all three states. Longest working output gap was 0.203 s, from `2026-10-02T09:18:24.328Z` to `2026-10-02T09:18:24.531Z`. SIGHUP on chat `4cf3b42a-19fd-4db9-ba20-d75ff14f1e3b`: `pty.kill("SIGHUP")` on pid 90865 at `2026-10-02T09:21:28.903Z`, screen still `$ sleep 40` and `Running`; client exited at `2026-10-02T09:21:28.943Z` (40 ms), exit code 0, signal 1. `sleep 40` (pid 91802, another process group) and `worker-server` (pid 90997) were gone. A later `--resume` client with no further prompt had no line exactly `done` (that word appeared only in the typed instruction). The working turn ended on SIGHUP. Cursor changed no repository files.
