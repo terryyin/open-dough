@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "stanly-chan",
+  "email": "stanly-chan@example.org",
+  "identity": "SEED-052#use-cursor-from-dashboard",
+  "mode": "story-branch",
+  "branch": "cursor/use-cursor-for-the-established-dashboard-workflows",
+  "host": "cursor",
+  "model": "grok-4.7"
+}

@@ -17,11 +17,11 @@ visibility for multiple agents working in worktrees on one machine.
 - [Keep CI checks independent of package mirror stalls](seeds/SEED-077-ci-independent-of-package-mirror-stalls.md#ci-independent-of-package-mirror-stalls) — SEED-077#ci-independent-of-package-mirror-stalls ([plan](slice-plans/207-stable-native-check-prerequisites/PLAN.md))
 - [Keep reconciled startups settled under one unresolved-attempt rule](seeds/SEED-072-responsive-session-start-reconciliation.md#durable-startup-reconciliation) — SEED-072#durable-startup-reconciliation ([plan](slice-plans/206-durable-startup-reconciliation/PLAN.md))
 - [Show changes since readiness review without blocking execution](seeds/SEED-080-readiness-change-indicator.md#readiness-change-indicator) — SEED-080#readiness-change-indicator ([plan](slice-plans/209-readiness-change-indicator/PLAN.md))
+- [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard ([plan](slice-plans/210-use-cursor-from-dashboard/PLAN.md))
 
 ## Backlog list
 
 - [Choose Codex model and effort when starting a dashboard session](seeds/SEED-081-codex-session-model-and-effort.md#codex-session-model-and-effort) — SEED-081#codex-session-model-and-effort
-- [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard
 - [See Cursor activity and use its native controls](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-native-activity-and-controls) — SEED-052#cursor-native-activity-and-controls
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
 - [Integrate Story Branch closures through an installed command](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration) — SEED-008#installed-story-branch-integration
