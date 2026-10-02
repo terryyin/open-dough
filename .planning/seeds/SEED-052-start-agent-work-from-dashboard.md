@@ -205,6 +205,58 @@ dashboard did not launch. Changing Claude Code or Codex controls.
 report activity without attaching remains the story's own proof, not a reason
 to borrow another host.
 
+<a id="cursor-reconnect-leaves-the-task-running"></a>
+
+### Reconnect to a Cursor session without interrupting its running task
+
+**Identity:** SEED-052#cursor-reconnect-leaves-the-task-running
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Goal:** A developer who reconnects to a Cursor session the dashboard launched
+keeps that session's ongoing task running when stopping it violates the
+intended behavior. The story first confirms whether the interruption is a
+violation, then repairs a confirmed violation.
+
+**Scope:** Dashboard reconnect of a Cursor session this dashboard launched.
+Reconnect starts a second `cursor-agent --workspace <path> --resume <uuid>`
+while the original launch process is still that chat, and that second client
+takes the conversation. Record whether that stop is the intended behavior
+before any repair. A confirmed violation changes reconnect so the running turn
+continues. An explained match leaves the product unchanged.
+
+**Constraints:** Claude Code and Codex attach behavior does not establish
+Cursor behavior
+([ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)). Cursor
+changelog notes about queued subagent resumes and non-interrupting follow-ups
+do not establish this reconnect.
+
+**Deferred promises:** Seeing Cursor activity without attaching, choosing a
+model, and rename or stop stay with
+[See Cursor activity and use its native controls](#cursor-native-activity-and-controls).
+
+**Key examples:**
+
+1. A dashboard-launched Cursor session is still working. The developer
+   reconnects. The interruption is a violation of the intended behavior. After
+   the repair, that same reconnect leaves the turn running.
+2. The same reconnect is investigated and the intended behavior is that this
+   interactive resume takes the conversation. No product change is made, and
+   the story records that explanation.
+3. The developer reconnects a Claude Code or Codex session. Those hosts keep
+   their existing attach behavior.
+
+**Evidence:** Observed 2026-10-02. Reconnect uses the stored resume command.
+The launch process remains the session while it is running. No product
+changelog entry records a non-interrupting Cursor reconnect.
+
+**Depends on:** The delivered Cursor dashboard launch. Not on the activity,
+model, and stop story.
+
+**Open decisions:** Whether reconnect is allowed to interrupt a running Cursor
+turn. That question is this story's first result.
+
 <a id="reconcile-recently-done-and-sessions"></a>
 
 ### Review recently done stories alongside their available sessions

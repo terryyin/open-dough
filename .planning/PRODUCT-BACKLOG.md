@@ -18,6 +18,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Reconnect to a Cursor session without interrupting its running task](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-reconnect-leaves-the-task-running) — SEED-052#cursor-reconnect-leaves-the-task-running
 - [Persist dashboard project configuration](seeds/SEED-083-persistent-dashboard-project-configuration.md#persistent-dashboard-project-configuration) — SEED-083#persistent-dashboard-project-configuration
 - [See Cursor activity and use its native controls](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-native-activity-and-controls) — SEED-052#cursor-native-activity-and-controls
 - [Capture and visualize beneficial implementation dependencies between stories](seeds/SEED-041-deliberate-implementation-dependencies.md#deliberate-implementation-dependencies) — SEED-041#deliberate-implementation-dependencies
