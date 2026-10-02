@@ -13,8 +13,9 @@ its own missing-operation checks. Cursor's module launches with `create-chat`,
 then `cursor-agent --workspace` and `--resume` in the established workspace,
 and stores that id, workspace, and resume command, with no alias or endpoint.
 The launch does not pass `-w`, `--worktree`, `--trust`, `--force`, or `--yolo`.
-The embedded terminal runs that stored command. A visible cursor and the text
-`Add a follow-up` admit it. Stop is not supplied, so Mark as done stays absent.
+Attach is supplied: the embedded terminal runs that stored command. A visible
+cursor and the text `Add a follow-up` admit it. Stop is not supplied, so Mark
+as done stays absent.
 A client still running when the launch wait ends is the launched session.
 Default omits `--model`. Skills are read from `.agents/skills`, and the prompt
 sigil is `/`.

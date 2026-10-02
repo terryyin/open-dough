@@ -50,7 +50,7 @@ Observed in this checkout on 2026-10-02 at `4541eda4`.
 
 ### 1. State Cursor attach in the host guide
 Type: Behavior
-Status: planned
+Status: done
 Proof: The Cursor paragraph in `dashboard/AGENT-LAUNCH-HOSTS.md` says attach
 is supplied, names `Add a follow-up` as the text that admits the terminal,
 and says stop is absent. Production modules are unchanged, so
@@ -64,6 +64,30 @@ cursor plus `Add a follow-up` admits it. It says stop is not supplied, so
 Mark as done stays absent. It does not say attach is absent.
 
 Safe stopping point: the guide matches the delivered host.
+
+Accepted proof: `dashboard/AGENT-LAUNCH-HOSTS.md` lines 16–18 now open with
+"Attach is supplied: the embedded terminal runs that stored command", keep
+`Add a follow-up` as the admitting text, and keep "Stop is not supplied, so
+Mark as done stays absent". Inspected against `dashboard/server/cursorHost.ts`
+line 14 (`attach: attachCursor`, no `stop` or `rename`) and
+`dashboard/server/hosts/cursor/terminal.ts` line 30. `git diff --check`
+passes; the refactor pass made no edits.
+
+Learning: wrap-up commit `317d0f1c` had already removed the "supplies no
+attach" claim and added the terminal and stop sentences before this
+execution, so the slice only made the attach statement explicit.
+`dashboard/AGENT-LAUNCH-TERMINALS.md` lines 9–12 still repeat the Cursor
+ready text and missing stop; both are correct and that file stays out of
+scope.
+
+## Execution state
+
+- Mode: Story Branch Mode, branch
+  `cursor/state-that-cursor-supplies-embedded-attach`, workspace
+  `.worktrees/state-that-cursor-supplies-embedded-attach`, target
+  `origin/main`.
+- Claim: `3a68f0c7` published on `origin/main` (starting revision
+  `00800bc2`). Readiness was reported as changed since review.
 
 ## Verification
 
