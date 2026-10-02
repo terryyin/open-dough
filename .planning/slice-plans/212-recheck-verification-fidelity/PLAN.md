@@ -277,3 +277,18 @@ Safe stop: correction complete.
 - Consumers traced: execution/preparation choices, established start handoff, run confirmation, verification, native recording creation/update and host adapters. Whole suite still required for Codex durable recording consumer.
 - Independent refactor: none — already clean; `## REFACTOR COMPLETE`. All accepted implementation/setup/assertion boundaries unchanged.
 - `env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- --workers=4 --reporter=line`: 769 passed (4.8m), including native Codex durable recording consumers. `npm run format`: passed.
+
+- Slice 3 accepted publication: `c6c5a4a01aa70501fa088c8c021753d766f47902` on the execution branch.
+
+## Retrospective
+
+- Manifest: `d04999c9` (capability), `af244145` (record-first), `c6c5a4a0` (shared context/record), `6d063776` (owned CI fixture-race repair). Claim `4f36666f` is provenance only; no interleaved commits. Original plan/seed at that claim and aggregate changes inspected.
+- Product/residue review: none requiring correction. Goal, exclusions and ADR 0002 preserved; feature-local guide updated. Real page/HTTP regressions drove Behavior slices; shared structure retained record timestamps and keep/remove order. Existing launch, continuation, terminal and session consumers covered by final suite. Direction's evidence-first startup handoff remains aligned.
+- Review resumed after fixture-only CI repair: verified atomic fixture listing update and launch/stop/rename regression proof; product conclusions unchanged. Completion records restored by the installed stash operation (`resumed`, own stash dropped).
+- Product advice: no additional product work from this bounded correction; retain current backlog priorities.
+- Process review enabled by project configuration, using this conversation and implementation/refactor returns. Initial managed Codex observation gap matched DD-201; prior successful startup/reuse evidence found during review supplies a supported route. Added one occurrence to DearDough.md; existing log exceeds the 500-line warning threshold. No guidance or backlog changes.
+- Observer now armed for completion publication: GitHub Actions `ci.yml` (verified push trigger/selector), `terryyin/open-dough`, execution branch; coordinator root, checkout above; cell 80, session 48031, PID 43597, directory `/tmp/dough-ci-501/watch-V5539N`. Earlier slice receipts were unobserved. Managed resume registered `c6c5a4a0` on this observer without pushing; delivered failure 36963675618/1 was repaired and its exact sequence 1 acknowledged through the installed delivery-progress export. Accepted repair `6d063776409fb7e1f89f3552c7c93aeebe377a1c` reused this observer and is registered; completion receipt will determine applicable evidence and shutdown.
+
+## Execution complete
+
+Product advice: No additional product work is recommended for this bounded correction; retain current backlog priorities.
