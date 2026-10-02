@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Session meaning and wording are host-neutral](seeds/SEED-075-host-neutral-dashboard-before-cursor.md#host-neutral-session-meaning) — SEED-075#host-neutral-session-meaning ([plan](slice-plans/203-host-neutral-session-meaning/PLAN.md))
 - [Repair session header controls and avatar preview](seeds/SEED-079-session-header-polish-repair.md#session-header-polish-repair) — SEED-079#session-header-polish-repair
-- [Keep CI checks independent of package mirror stalls](seeds/SEED-077-ci-independent-of-package-mirror-stalls.md#ci-independent-of-package-mirror-stalls) — SEED-077#ci-independent-of-package-mirror-stalls ([plan](slice-plans/207-stable-native-check-prerequisites/PLAN.md))
 
 ## Backlog list
 
