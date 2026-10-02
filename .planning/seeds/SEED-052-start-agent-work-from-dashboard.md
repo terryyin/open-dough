@@ -155,73 +155,6 @@ or claims of readiness.
 - **Capture:** Terry asked on 2026-09-30 to queue the follow-up recorded by the
   delete's execution retrospective.
 
-<a id="cursor-native-activity-and-controls"></a>
-
-### Choose a Cursor model when starting work
-
-**Identity:** SEED-052#cursor-native-activity-and-controls
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/217-choose-cursor-model/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d5897703ffc178faabb30c44409ba3a84db77024433794bcf410ad262e890977","plan":"d0038cfa1f48108aa9db0656fefbf7b45464b17f89156b7de250031e060cc98e"}}
-```
-
-**Goal:** A developer starting Cursor work from the dashboard can run it on a
-model Cursor lists for their account, rather than only on Cursor's current
-setting.
-
-**Scope:** This starts from the Cursor launch delivered by
-[Use Cursor for the established dashboard workflows](https://github.com/terryyin/open-dough/blob/317d0f1c24fdf3cb7b89960d11c7b259bf862b08/.planning/seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard).
-With Cursor selected, the launch dialog's Model menu lists the models
-`cursor-agent models` reports, in its order, after Default. Default still omits
-`--model`. A chosen id is sent as `--model <id>` on the launch's prompted run
-only. The stored resume command stays as today, so the embedded terminal uses
-whatever Cursor's setting is then. The record and the agent profile keep the
-chosen id. The dialog says that Cursor also saves a chosen model as its
-setting. An unreadable list is explained with Retry, and Default stays
-startable. Start refuses an id Cursor no longer lists before `create-chat`.
-A blank ad hoc start runs no prompt, so it refuses a chosen model and
-explains why. Reasoning effort stays Codex-only.
-
-**Constraints:** Cursor's own list decides which ids are offered. Claude Code
-and Codex evidence does not establish Cursor behavior
-([ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)). A
-record names a model only when the dashboard sent it.
-
-**Deferred promises:** Cursor session activity, rename, and stop, which wait
-for a Cursor command that supplies them. tmux `persist` sessions. Restoring
-Cursor's setting after a launch. Naming Cursor's current setting in the
-Default label. Discovering sessions the dashboard did not launch. Changing
-Claude Code or Codex.
-
-**Key examples:**
-
-1. Cursor lists `auto - Auto (default)` and `gpt-5.2 - GPT-5.2`. The
-   developer opens Start execution and selects Cursor. The Model choices are
-   "Default (your Cursor setting)", "Auto (default)", and "GPT-5.2", and the
-   dialog says a chosen model also becomes the Cursor setting.
-2. The developer chooses GPT-5.2 and starts. The prompted run is
-   `cursor-agent --workspace <ws> --resume <id> --model gpt-5.2 <prompt>`. The
-   record's request and the agent profile name `gpt-5.2`. The stored resume
-   command has no `--model`.
-3. The developer keeps Default and starts. No Cursor invocation carries
-   `--model`, as today.
-4. `cursor-agent models` fails. The dialog explains that Cursor's model
-   choices could not be read and offers Retry. Starting with Default works.
-5. A start names an id Cursor no longer lists. The dashboard refuses it before
-   `create-chat`, and nothing is recorded.
-6. The developer chooses GPT-5.2 for Start session with no instruction. Start
-   is refused with an explanation that Cursor applies a chosen model with the
-   first instruction. Default with no instruction works as today.
-
-**Depends on:** [Use Cursor for the established dashboard workflows](https://github.com/terryyin/open-dough/blob/317d0f1c24fdf3cb7b89960d11c7b259bf862b08/.planning/seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard).
-
-**Current basis:** On 2026-10-02, `cursor-agent` 2026.10.01-e373342 lists
-models as `<id> - <name>` lines through `cursor-agent models`. It has no
-rename, stop, or status command for an ordinary chat; only tmux `persist`
-sessions list and stop. Its interactive client saves `--model` as the global
-setting in `~/.cursor/cli-config.json`. On 2026-10-02 the maintainer narrowed
-this story to model choice and chose `--model` on the launch run only, with
-the side effect disclosed.
-
 <a id="cursor-reconnect-leaves-the-task-running"></a>
 
 ### Reconnect to a Cursor session without interrupting its running task
@@ -249,9 +182,8 @@ Cursor behavior
 changelog notes about queued subagent resumes and non-interrupting follow-ups
 do not establish this reconnect.
 
-**Deferred promises:** Seeing Cursor activity without attaching, choosing a
-model, and rename or stop stay with
-[See Cursor activity and use its native controls](#cursor-native-activity-and-controls).
+**Deferred promises:** Seeing Cursor activity without attaching, rename, and
+stop, which wait for a Cursor command that supplies them.
 
 **Key examples:**
 
