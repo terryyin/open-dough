@@ -24,7 +24,7 @@ actions until its temporary local state and published state agree.
 
 **Identity:** SEED-072#recheck-verification-fidelity
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/211-recheck-verification-fidelity/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fdc936cf96af22c6fa50d584e3f59a5a327da5895a3a2961f3ce4d40212d6a71","plan":"0e1e54f11628eaaa54a404aee050aecf89e107b41dd88cc9548f45bb87a7a96f"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/212-recheck-verification-fidelity/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"634b284f11600def4fb7f7a2f28cdb4385db0c496c29ac7c119e0f4514648564","plan":"0e1e54f11628eaaa54a404aee050aecf89e107b41dd88cc9548f45bb87a7a96f"}}
 ```
 
 **Goal:** A developer who presses Recheck on an uncertain story start sees an
@@ -43,7 +43,7 @@ verification share one rule for where a story launch started and what record
 it keeps. Preserve every promise of the reviewed story; no new feature promise,
 host, endpoint or retention change.
 
-**Plan:** [bounded correction input and slices](../slice-plans/211-recheck-verification-fidelity/PLAN.md).
+**Plan:** [bounded correction input and slices](../slice-plans/212-recheck-verification-fidelity/PLAN.md).
 
 ## Breadcrumbs
 
