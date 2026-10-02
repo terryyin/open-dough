@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-072#durable-startup-reconciliation",
+  "mode": "story-branch",
+  "branch": "claude/keep-reconciled-startups-settled-under-one-unres",
+  "host": "claude"
+}
