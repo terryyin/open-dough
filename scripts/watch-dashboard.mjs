@@ -14,9 +14,11 @@ const cancellation = new AbortController();
 const stop = () => cancellation.abort();
 process.on("SIGINT", stop);
 process.on("SIGTERM", stop);
+process.on("SIGHUP", stop);
 let staged;
 let preview;
 let candidate;
+let pendingRelease;
 let previewExit;
 try {
   const { values } = parseArgs({
@@ -77,50 +79,101 @@ try {
         `Production dashboard exited unexpectedly (${previewExit.signal ?? previewExit.code}).`,
       );
     }
-    const latest = await resolveDashboardRelease(
-      developmentRoot,
-      process.env,
-      cancellation.signal,
-    );
-    console.log(
-      `Checked production release: ${latest.tag} (${latest.commit}).`,
-    );
-    if (latest.tag === release.tag) {
-      if (latest.commit !== release.commit) {
-        throw new Error(`Published release ${release.tag} changed its commit.`);
+    try {
+      const latest = await resolveDashboardRelease(
+        developmentRoot,
+        process.env,
+        cancellation.signal,
+      );
+      console.log(
+        `Checked production release: ${latest.tag} (${latest.commit}).`,
+      );
+      if (latest.tag === release.tag) {
+        if (latest.commit !== release.commit) {
+          throw new Error(
+            `Published release ${release.tag} changed its commit.`,
+          );
+        }
+        continue;
       }
-      continue;
+      const relation = await compareDashboardReleases(
+        developmentRoot,
+        latest.version,
+        release.version,
+        cancellation.signal,
+      );
+      if (relation !== "newer") continue;
+      if (
+        pendingRelease?.tag === latest.tag &&
+        pendingRelease.commit !== latest.commit
+      ) {
+        throw new Error(`Published release ${latest.tag} changed its commit.`);
+      }
+      pendingRelease = latest;
+      console.log(
+        `Preparing production dashboard ${latest.tag} (${latest.commit}).`,
+      );
+      candidate = await stageDashboardRelease({
+        developmentRoot,
+        release: latest,
+        signal: cancellation.signal,
+      });
+      await preview.stop();
+      preview = undefined;
+      try {
+        preview = await startReleasePreview({
+          directory: candidate.directory,
+          port: productionPort,
+          signal: cancellation.signal,
+        });
+      } catch (error) {
+        cancellation.signal.throwIfAborted();
+        try {
+          preview = await startReleasePreview({
+            directory: staged.directory,
+            port: productionPort,
+            signal: cancellation.signal,
+          });
+        } catch (restorationError) {
+          throw new Error(
+            `${latest.tag} failed: ${error.message}; restoring ${release.tag} also failed: ${restorationError.message}`,
+            { cause: restorationError },
+          );
+        }
+        observePreview(preview);
+        console.log(
+          `Restored production dashboard ${release.tag} at ${preview.url} (preview PID ${preview.pid}).`,
+        );
+        throw error;
+      }
+      // Publish active ownership before retiring the superseded checkout.
+      // A cleanup failure must never make finally delete the live candidate.
+      const retired = staged;
+      staged = candidate;
+      candidate = undefined;
+      release = latest;
+      pendingRelease = undefined;
+      observePreview(preview);
+      console.log(
+        `Production dashboard ${release.tag} at ${preview.url} (preview PID ${preview.pid}).`,
+      );
+      try {
+        await retired.remove();
+      } catch (error) {
+        console.error(
+          `Could not remove retired dashboard ${retired.directory}: ${error.message}`,
+        );
+      }
+    } catch (error) {
+      cancellation.signal.throwIfAborted();
+      if (preview === undefined) throw error;
+      console.error(
+        `Production release check failed${pendingRelease ? ` for ${pendingRelease.tag}` : ""}: ${error.message}\nKeeping ${release.tag} at ${preview.url}; retrying on a later check.`,
+      );
+    } finally {
+      await candidate?.remove();
+      candidate = undefined;
     }
-    const relation = await compareDashboardReleases(
-      developmentRoot,
-      latest.version,
-      release.version,
-      cancellation.signal,
-    );
-    if (relation !== "newer") continue;
-    console.log(
-      `Preparing production dashboard ${latest.tag} (${latest.commit}).`,
-    );
-    candidate = await stageDashboardRelease({
-      developmentRoot,
-      release: latest,
-      signal: cancellation.signal,
-    });
-    await preview.stop();
-    preview = await startReleasePreview({
-      directory: candidate.directory,
-      port: productionPort,
-      signal: cancellation.signal,
-    });
-    // Keep the prior tagged tree until replacement really answers at its URL.
-    await staged.remove();
-    staged = candidate;
-    candidate = undefined;
-    release = latest;
-    observePreview(preview);
-    console.log(
-      `Production dashboard ${release.tag} at ${preview.url} (preview PID ${preview.pid}).`,
-    );
   }
 } catch (error) {
   if (!cancellation.signal.aborted) {
@@ -133,6 +186,7 @@ try {
   await staged?.remove();
   process.off("SIGINT", stop);
   process.off("SIGTERM", stop);
+  process.off("SIGHUP", stop);
 }
 
 /** @param {Awaited<ReturnType<typeof startReleasePreview>>} running */
