@@ -177,6 +177,21 @@ Safe stopping point: The complete bounded story is delivered with one readiness
 meaning across reader, presentation, startup and guidance. No later slice is
 required to repair an interim contract or unproved agent handoff.
 
+## Execution complete
+
+Product advice: No new product backlog recommendation. The shared reader and
+workflow-owned handoff satisfy the bounded outcome and support the existing
+parallel-execution direction without a new readiness policy or warning store.
+
+## Delivery and retrospective
+
+Implementation `dc1f5e0dd0ebeef5ceff0ee80de35a411f72036c` was accepted on
+`origin/codex/show-changes-since-readiness-review-without-bloc`, without replay.
+Outcome/architecture/test review found no correction. Process review recorded
+DearDough DD-201's managed Codex stream attachment gap; no new process proposal.
+CI is unobserved: `Codex yielded-cell bridge is unavailable`; no observer started.
+No completion wait/shutdown can be claimed; preserve this explicit limitation.
+
 ## Proof ownership and checks
 
 | Promise | Owner | Observable proof |
@@ -217,17 +232,13 @@ boundedness assumption is the existing reader/consumer change, not a new
 workflow or persistence mechanism. If implementation exposes a broader contract
 or fixture problem, stop the affected path and refine this plan with evidence.
 
-Apply execution's post-change refactoring, proof acceptance and delivery gates
-when execution is separately authorized. Keep this plan, source and accepted
-proof for retrospective and story wrap-up; do not write an execution-complete
-record during planning. Re-observe changed overlapping startup consumers when
-integrating newer trunk; this baseline makes no claim about future deliveries.
+Keep this plan, source and accepted proof for story wrap-up. Re-observe changed
+overlapping startup consumers when integrating newer trunk.
 
 No slice-specific concerns found in this preparation review. The single
 outcome has mapped proof and observed consuming paths; synthetic vendor
 boundaries are explicitly distinguished from native skill-use acceptance.
 No separate slice-plan refinement pass was needed.
-
 Execution retained the outcome and digest rules. An explicit false startup fact
 clears retained change information after a new review; omission preserves older
 handoffs. Independent refactoring consolidated receipt projection, aligned
