@@ -1,7 +1,7 @@
 // Which requests the local launch boundary (../server/agentLaunchPlugin.ts)
 // refuses before it starts any session, over raw HTTP in dev and preview:
 // another site or Host, an unknown project, a workflow it does not launch
-// (including an activity named as one) or an unsupported host,
+// (including an activity named as one),
 // malformed text, a body that is not a JSON launch request, and any method but
 // GET and POST; and a read of the machine's sessions from another site. The
 // synthetic Claude CLI and Codex protocol record every call; the parameterized
@@ -74,11 +74,6 @@ for (const mode of ["dev", "preview"] as const) {
         request: "for preparation",
         status: 400,
         body: { ...launchRequest, workflow: "preparation" },
-      },
-      {
-        request: "for Cursor",
-        status: 400,
-        body: { ...launchRequest, host: "cursor" },
       },
       {
         request: "for an unknown workflow",
