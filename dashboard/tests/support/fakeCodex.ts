@@ -1,5 +1,8 @@
 // Protocol-only vendor substitute installed by the existing dashboard server
 // fixture. Actual HTTP/page code creates and persists every launch record.
+import { defaultCodexModels, answerCodexCatalog } from "./fakeCodexCatalog.ts";
+import { answerCodexInput } from "./fakeCodexInput.ts";
+import { answerCodexCreation } from "./fakeCodexCreation.ts";
 import { createServer } from "node:http";
 import path from "node:path";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -35,6 +38,9 @@ export async function installFakeCodex(
   const waiting: Array<() => void> = [];
   const passive = passiveCodexFixture();
   const fixture: FakeCodex = {
+    models: defaultCodexModels(),
+    modelPageSize: 100,
+    holdCatalog: false,
     binDir: bin,
     env: {
       FAKE_CODEX_TERMINAL_ROOT: terminalRoot,
@@ -123,22 +129,39 @@ export async function installFakeCodex(
         case "initialize":
           reply({ userAgent: "native-substitute" });
           break;
-        case "thread/start":
-          fixture.cwd = String(message.params?.["cwd"]);
-          fixture.afterCreation?.();
-          if (fixture.loseCreation) {
-            client.close();
+        case "config/read":
+          if (fixture.configError) {
+            refuse(fixture.configError);
             break;
           }
-          if (fixture.refuseCreation) refuse(fixture.creationError);
-          else {
-            const threadId = fixture.threadId;
-            const created = () => {
-              reply({ thread: { id: threadId } });
-            };
-            if (fixture.holdCreation) waiting.push(created);
-            else created();
-          }
+          reply({
+            config: {
+              model:
+                fixture.configuredModels?.[String(message.params?.["cwd"])] ??
+                (fixture.configuredModel === undefined
+                  ? "native-sol"
+                  : fixture.configuredModel),
+            },
+          });
+          break;
+        case "model/list":
+          answerCodexCatalog(
+            fixture,
+            message.params ?? {},
+            waiting,
+            reply,
+            refuse,
+          );
+          break;
+        case "thread/start":
+          answerCodexCreation(
+            fixture,
+            message.params ?? {},
+            waiting,
+            reply,
+            refuse,
+            client,
+          );
           break;
         case "thread/read":
         case "thread/resume":
@@ -180,53 +203,16 @@ export async function installFakeCodex(
             });
           }
           break;
-        case "turn/start": {
-          if (fixture.refuseInput) {
-            refuse({ code: -32000, message: "Native input refused." });
-            break;
-          }
-          fixture.history.push({
-            id: "native-turn-id",
-            items: [
-              {
-                type: "userMessage",
-                id: "user-input",
-                content: message.params?.["input"],
-              },
-              {
-                type: "reasoning",
-                id: "reasoning-item",
-                summary: [],
-                content: ["protocol fixture reasoning"],
-              },
-              {
-                type: "commandExecution",
-                id: "command-item",
-                command: "native fixture",
-                status: "completed",
-              },
-            ],
-          });
-          fixture.beforeInput?.();
-          const accepted = () => {
-            if (client.readyState !== 1) return;
-            reply({ turn: { id: "native-turn-id", status: "inProgress" } });
-            if (fixture.afterAcceptance === "complete")
-              client.send(
-                JSON.stringify({
-                  method: "turn/completed",
-                  params: {
-                    threadId: fixture.threadId,
-                    turn: { id: "native-turn-id", status: "completed" },
-                  },
-                }),
-              );
-            if (fixture.afterAcceptance === "disconnect") client.close();
-          };
-          if (fixture.hold) waiting.push(accepted);
-          else accepted();
+        case "turn/start":
+          answerCodexInput(
+            fixture,
+            message.params ?? {},
+            waiting,
+            reply,
+            refuse,
+            client,
+          );
           break;
-        }
       }
     });
   });

@@ -37,6 +37,7 @@ for (const mode of ["dev", "preview"] as const) {
         mode,
         prebuilt: mode === "preview" ? builtDashboardDir : undefined,
         projectFolders: ["open-dough"],
+        codex: true,
       });
     });
 

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "bas-chan",
-  "email": "bas-chan@example.org",
-  "identity": "SEED-081#codex-session-model-and-effort",
-  "mode": "story-branch",
-  "branch": "codex/choose-codex-model-and-effort-when-starting-a-da",
-  "host": "codex"
-}

@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Use Cursor for the established dashboard workflows](seeds/SEED-052-start-agent-work-from-dashboard.md#use-cursor-from-dashboard) — SEED-052#use-cursor-from-dashboard ([plan](slice-plans/210-use-cursor-from-dashboard/PLAN.md))
-- [Choose Codex model and effort when starting a dashboard session](seeds/SEED-081-codex-session-model-and-effort.md#codex-session-model-and-effort) — SEED-081#codex-session-model-and-effort ([plan](slice-plans/211-codex-session-model-and-effort/PLAN.md))
 - [Recheck verifies only what its host can list, and trusts a launch's own record](seeds/SEED-072-responsive-session-start-reconciliation.md#recheck-verification-fidelity) — SEED-072#recheck-verification-fidelity ([plan](slice-plans/212-recheck-verification-fidelity/PLAN.md))
 
 ## Backlog list

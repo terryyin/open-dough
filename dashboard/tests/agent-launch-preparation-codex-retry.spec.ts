@@ -224,7 +224,11 @@ for (const damage of [
           "refs/worktree/dough/preparation-assignment",
         ),
       ).toBe(allocation);
-    expect(native.calls).toEqual(calls);
+    expect(native.calls.slice(0, calls.length)).toEqual(calls);
+    // Opening the dialog may discover models, but cannot retry native creation/input.
+    const added = native.calls.slice(calls.length);
+    const discovery = new Set(["initialize", "initialized", "model/list"]);
+    expect(added.filter(({ method }) => !discovery.has(method))).toEqual([]);
     expect(stored(dashboard.home)).toEqual([]);
     if (damage === "missing-script") writeFileSync(script, installedBytes);
     // Refusing this retained identity does not impose global preparation uniqueness.

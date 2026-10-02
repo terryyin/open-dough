@@ -94,6 +94,7 @@ export async function keptStarts(
             workflow,
             host: start.host,
             ...(start.model === undefined ? {} : { model: start.model }),
+            ...(start.effort === undefined ? {} : { effort: start.effort }),
             source: source.id,
             identity: start.identity,
             workspace: shownStartWorkspace(

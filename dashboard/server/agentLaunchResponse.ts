@@ -17,7 +17,10 @@ import type { SessionResult } from "../src/sessionResult.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import type { hostOperations } from "./launchHosts.ts";
 
+import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
+
 export type AgentLaunchAnswer =
+  | { readonly status: number; readonly body: LaunchHostOptions }
   | { readonly status: number; readonly body: SessionResult }
   | { readonly status: number; readonly body: Acceptance }
   | { readonly status: number; readonly body: ChangedAnswer }

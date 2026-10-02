@@ -38,7 +38,10 @@ export type TerminalAttachment =
     }
   | { readonly workspaceUnavailable: UnavailableWorkspace };
 
+import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
+
 export type LaunchHost = {
+  options?(signal: AbortSignal, cwd?: string): Promise<LaunchHostOptions>;
   readonly name: string;
   readonly description: HostDescription;
   // Presence requires durable creation evidence. Native advice and inspection

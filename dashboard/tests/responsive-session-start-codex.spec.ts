@@ -53,7 +53,11 @@ test("Start execution closes at acceptance while its Take is held, and continuin
   await expect(story).toContainText("Preparing execution…");
   await expectProtected(story);
   await expectOthersWork(page, other, story);
-  expect(native.calls).toEqual([]);
+  expect(
+    native.calls.filter((call) =>
+      ["thread/start", "turn/start"].includes(call.method),
+    ),
+  ).toEqual([]);
 
   // Codex refuses the conversation after the Take is published: the read of
   // that Take shows the story Taken, with the answer and the kept start.

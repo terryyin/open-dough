@@ -103,7 +103,7 @@ async function runningStart(
 ): Promise<PlannedStart> {
   // A start kept from an earlier launch of the story is resumed as it was.
   const kept = await keptStart(source.id, request.identity, workflow);
-  const { workspace, branch, model, policy } = await startChoice(
+  const { workspace, branch, model, effort, policy } = await startChoice(
     project,
     request,
     kept,
@@ -147,6 +147,7 @@ async function runningStart(
       workspace: facts.workspace,
       branch: facts.branch,
       ...(model === undefined ? {} : { model }),
+      ...(effort === undefined ? {} : { effort }),
       startedAt: new Date().toISOString(),
     },
     workflow,

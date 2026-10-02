@@ -130,6 +130,7 @@ export function CardLaunches({
       )}
       {keptStart !== undefined && (
         <StartLaunch
+          sourceId={sourceId}
           work={entry}
           workflow="execution"
           establishesStart
@@ -145,6 +146,7 @@ export function CardLaunches({
       {offersStart &&
         launchWorkflowNames.map((workflow) => (
           <StartLaunch
+            sourceId={sourceId}
             key={workflow}
             onHostChanged={launches.rereadOffers}
             work={entry}

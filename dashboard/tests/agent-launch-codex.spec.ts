@@ -69,7 +69,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await expect(dialog.getByRole("combobox", { name: "Model" })).toHaveValue("");
   await expect(
     dialog.getByRole("combobox", { name: "Model" }).locator("option"),
-  ).toHaveCount(1);
+  ).toHaveText(["Use Codex setting", "Native Sol", "Native Luna"]);
   await expect(
     dialog.getByRole("checkbox", { name: "Explore", exact: true }),
   ).toHaveCount(0);
