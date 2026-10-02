@@ -83,6 +83,8 @@ test("Start execution closes at acceptance while its Take is held, and continuin
     })
     .toHaveLength(1);
   await expect(claimed).toContainText("Local startup in progress");
+  await expect(claimed).toContainText("Starting execution in Codex…");
+  await expect(claimed).not.toContainText("Preparing execution…");
   await expectProtected(claimed);
   await expect(
     parts(page)
