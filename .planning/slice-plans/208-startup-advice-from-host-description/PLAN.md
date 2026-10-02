@@ -82,7 +82,7 @@ changed, on 2026-10-02:
 
 ### 1. Recovery offers the host's own native-check advice
 Type: Behavior
-Status: planned
+Status: done
 Proof: Story examples 1–3; Claude and Codex page advice, absent advice and
 accessibility references, with existing controls and continuation preserved.
 
@@ -177,3 +177,62 @@ the same; slice 2 preserves and verifies the delivered implementation.
 No slice-specific concerns found in this review: both slices have bounded
 outcomes, mapped examples and observed current premises. Future overlapping
 delivery is explicitly re-observed at integration rather than assumed.
+
+## Execution context
+
+Execution authorized by Terry's `dough-execute-plan` instruction on 2026-10-02.
+Established start: identity `SEED-075#startup-advice-from-host-description`,
+publisher `dashboard-mac.lan-open-dough`, agent `joey-chan`, mode `story-branch`.
+Execution checkout (reused):
+`/Users/terryyin/git/open-dough/.worktrees/startup-recovery-advice-comes-from-the-host-desc`,
+branch `codex/startup-recovery-advice-comes-from-the-host-desc`.
+Originating and integration checkout: `/Users/terryyin/git/open-dough`.
+Starting revision: `9beaf9729ccbc9f06a1365c87751ee812c665cd9`.
+Accepted claim/base: `993006dc60a03200c6e39fefa284971d62e34740` on `origin/main`;
+established candidate is the same revision. Increment target:
+`origin/refs/heads/codex/startup-recovery-advice-comes-from-the-host-desc`.
+No overrun replanning option supplied; retain existing planning authority.
+
+Checkout preparation: `npm ci` and `npm run typecheck:dashboard` passed with
+the current lockfile and worktree-local dependencies. Fetched `origin/main`
+at `57519ee0` contains only an unrelated preparation announcement beyond the
+claim; no newly delivered recovery correction changes the current consumer.
+CI source: GitHub Actions `ci.yml`, verified push trigger and selector for
+`terryyin/open-dough`; story-branch selector currently returns no prior run.
+The trunk claim predates this execution's observation and remains unobserved.
+
+Observer: Codex yielded-cell bridge, coordinator `/root`, cell `19`, session
+`2311`, PID `81647`, mailbox `/tmp/dough-ci-501/watch-1axyJp`; checkout and
+target match this execution. Managed increment delivery reuses this observer
+and registers accepted story-branch revisions. Workflow selector `ci.yml`.
+
+### Slice 1 accepted proof
+
+Descriptions now own optional `nativeCheckAdvice`; `RecoveryEntry` renders
+it through `LaunchExplanation` only when Continue is eligible and advice exists.
+Advice absence omits its paragraph and `aria-describedby` together; controls,
+handlers, uncertainty hints and recovery-answer rewriting are preserved.
+
+Pre-change: the required three-spec command failed solely at the Cursor
+no-advice assertion, displaying borrowed native-conversation instructions;
+Claude and Codex explicit advice assertions passed. A prior fixture GET 403
+was corrected by supplying same-origin metadata, with HTTP 200 asserted.
+
+`env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-card-problems.spec.ts dashboard/tests/responsive-session-recovery-ad-hoc.spec.ts dashboard/tests/startup-host-words.spec.ts --workers=2`
+passed. The production built page observes Claude's full advice and command
+formatting in `agent-launch-card-problems.spec.ts` (hanging synthetic native
+launch), Codex's full advice and same blank-intent continuation with no submitted
+turn in `responsive-session-recovery-ad-hoc.spec.ts` (lost confirmation), and
+advice absence plus enabled Recheck/Continue and no accessibility reference in
+`startup-host-words.spec.ts` (GET evidence supplies an unowned unsettled Cursor
+attempt only). Supported-host Continue accessible descriptions match their
+advice. Existing story protection and controls assertions remain passing.
+
+`npm run typecheck:dashboard` passed, covering the shared typed contract and
+current consumers. Independent refactor review found none — already clean;
+no refactor edits or repeated tests. `npm run format` exposed an unsafe JSON
+spread in the new fixture; parsing with existing `launchRecordsSchema` removed
+it. After that fixture-only correction,
+`env -u NO_COLOR npm run test:dashboard -- dashboard/tests/startup-host-words.spec.ts --workers=2`
+and `npm run typecheck:dashboard` passed again. No native acceptance or Cursor
+operation support is claimed. No generator trigger changed.
