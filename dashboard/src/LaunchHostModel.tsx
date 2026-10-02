@@ -1,6 +1,7 @@
 // A launch dialog's Host and Model, one row when it has room and stacked in
 // that reading order when it does not. Changing the host returns the model to
-// the host's own setting. Codex offerings come from its transient native catalog.
+// the host's own setting. A host with a model catalog offers its transient
+// native choices.
 
 import { LaunchReasoningEffort } from "./LaunchReasoningEffort.tsx";
 import type { LaunchHostOptions } from "./launchHostOptions.ts";
@@ -32,6 +33,7 @@ export function LaunchHostModel({
   readonly model: LaunchModel;
   readonly onModel: (model: LaunchModel) => void;
 }) {
+  const modelCatalog = hostDescription(host).modelCatalog;
   return (
     <div className="launch-dialog-row">
       <div className="launch-dialog-field">
@@ -59,23 +61,22 @@ export function LaunchHostModel({
           id={`${id}-model`}
           value={model}
           aria-describedby={
-            host === "codex" ? `${id}-model-feedback` : undefined
+            modelCatalog === undefined ? undefined : `${id}-model-feedback`
           }
           onChange={(event) => {
             onModel(event.target.value);
           }}
         >
           <option value="">
-            {host === "codex"
-              ? "Use Codex setting"
-              : `Default (your ${hostName(host)} setting)`}
+            {modelCatalog?.defaultLabel ??
+              `Default (your ${hostName(host)} setting)`}
           </option>
-          {host === "codex" &&
+          {modelCatalog !== undefined &&
             model !== "" &&
             !catalog.options?.models.some((item) => item.model === model) && (
               <option value={model}>{model} (unavailable)</option>
             )}
-          {host === "codex" &&
+          {modelCatalog !== undefined &&
             catalog.options?.models.map((item) => (
               <option key={item.model} value={item.model}>
                 {item.name}
@@ -89,18 +90,17 @@ export function LaunchHostModel({
             ),
           )}
         </select>
-        {host === "codex" && (
+        {modelCatalog !== undefined && (
           <div id={`${id}-model-feedback`} className="quiet" aria-live="polite">
             <p>
               {catalog.error ??
                 (catalog.options === undefined
-                  ? "Reading Codex model choices… You can use the Codex setting."
+                  ? modelCatalog.reading
                   : model === ""
-                    ? "Codex resolves its configured model in the launch workspace."
+                    ? modelCatalog.defaultNote
                     : (catalog.options.models.find(
                         (item) => item.model === model,
-                      )?.description ??
-                      "This model is unavailable. Choose another model or use the Codex setting."))}
+                      )?.description ?? modelCatalog.unavailable))}
             </p>
             {catalog.error && (
               <button type="button" onClick={catalog.retry}>

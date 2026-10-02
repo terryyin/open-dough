@@ -4,9 +4,10 @@ import {
   launchHostOptionsSchema,
   type LaunchHostOptions,
 } from "./launchHostOptions.ts";
+import { hostDescription, type HostIdentity } from "./hostDescription.ts";
 export function useLaunchHostOptions(
   source: string,
-  host: string,
+  host: HostIdentity,
   projectContext = false,
 ) {
   const [retry, setRetry] = useState(0);
@@ -17,7 +18,8 @@ export function useLaunchHostOptions(
     error?: string;
   }>({ source, host });
   useEffect(() => {
-    if (host !== "codex") return;
+    const modelCatalog = hostDescription(host).modelCatalog;
+    if (modelCatalog === undefined) return;
     const controller = new AbortController();
     setState({ source, host });
     void fetch(
@@ -25,21 +27,13 @@ export function useLaunchHostOptions(
       { signal: controller.signal },
     )
       .then(async (response) => {
-        if (!response.ok)
-          throw new Error(
-            "Codex model choices could not be read. Retry, or use the Codex setting.",
-          );
+        if (!response.ok) throw new Error(modelCatalog.unreadable);
         const options = launchHostOptionsSchema.parse(await response.json());
         if (!controller.signal.aborted) setState({ source, host, options });
       })
       .catch(() => {
         if (!controller.signal.aborted)
-          setState({
-            source,
-            host,
-            error:
-              "Codex model choices could not be read. Retry, or use the Codex setting.",
-          });
+          setState({ source, host, error: modelCatalog.unreadable });
       });
     return () => {
       controller.abort();

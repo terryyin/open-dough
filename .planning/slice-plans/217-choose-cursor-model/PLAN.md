@@ -94,7 +94,7 @@ Observed on 2026-10-02 in this workspace at `d4ce177c`, `cursor-agent`
 
 ### 1. Key the model catalog on a host fact instead of Codex
 Type: Structure
-Status: planned
+Status: done
 Proof: `env -u NO_COLOR npm run test:dashboard -- dashboard/tests/agent-launch-codex-model.spec.ts dashboard/tests/agent-launch-codex-model-boundary.spec.ts dashboard/tests/agent-launch-codex.spec.ts dashboard/tests/agent-launch-model.spec.ts --workers=2`
 and `npm run typecheck:dashboard` pass with no assertion changes.
 
@@ -108,6 +108,25 @@ stays Codex-only. Cursor gets no catalog yet, so its menu remains Default
 only.
 
 Enables: slice 2's Cursor catalog without a Cursor branch in shared code.
+
+Accepted proof: the four Codex and Claude specs passed (41) with no test
+changes, and typecheck passed. After the refactor, the three Codex specs
+passed again (30).
+
+Learnings for slice 2:
+
+- The fact is `HostDescription.modelCatalog` in `src/hostDescription.ts`, with
+  `defaultLabel`, `reading`, `unreadable`, `defaultNote`, `unavailable`,
+  `stale`, and `unverified`. The last two hold admission's refusals. Codex's
+  thread/start check reads `stale` too.
+- A chosen model's feedback shows its catalog `description`, or `unavailable`
+  when the model is unlisted. No catalog field carries Cursor's
+  saved-setting disclosure yet.
+- Admission calls `host.options(signal)` without a workspace, so Cursor's
+  `options` must not need one. Entries carry `efforts`, so Cursor returns
+  `[]`.
+- A host-options 503 for a host without `modelCatalog` now reads
+  "`<Host>` model choices could not be read." instead of Codex's sentence.
 
 ### 2. Choose a Cursor-listed model and launch with it
 Type: Behavior

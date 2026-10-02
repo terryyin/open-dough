@@ -125,7 +125,8 @@ async function answer(
               status: 503,
               body: {
                 error:
-                  "Codex model choices could not be read. Retry, or use the Codex setting.",
+                  request.host.description.modelCatalog?.unreadable ??
+                  `${request.host.name} model choices could not be read.`,
               },
             };
           }

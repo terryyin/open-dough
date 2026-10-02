@@ -2,6 +2,7 @@
 // never depend on catalog visibility (configured custom models remain usable).
 import type { LaunchHostOptions } from "../../../src/launchHostOptions.ts";
 import type { RecordedLaunchRequest } from "../../../src/agentLaunch.ts";
+import { hostDescriptions } from "../../../src/hostDescription.ts";
 import { codexOptions } from "./options.ts";
 import { NativeRefusal } from "./rpc.ts";
 export async function verifyCodexSettings(
@@ -26,9 +27,7 @@ export async function verifyCodexSettings(
   const model = request.model ?? options.configuredModel;
   const offering = options.models.find((item) => item.model === model);
   if (request.model !== undefined && offering === undefined)
-    throw new NativeRefusal(
-      "The selected Codex model is no longer available. Choose another model or use the Codex setting.",
-    );
+    throw new NativeRefusal(hostDescriptions.codex.modelCatalog.stale);
   if (
     request.effort !== undefined &&
     model !== undefined &&

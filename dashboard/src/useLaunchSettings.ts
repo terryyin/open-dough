@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { AgentLaunchRequest, LaunchModel } from "./agentLaunch.ts";
 import { useLaunchHostOptions } from "./useLaunchHostOptions.ts";
 import { effortBlocked } from "./launchEffort.ts";
+import { hostDescription } from "./hostDescription.ts";
 
 export function useLaunchSettings(
   sourceId: string,
@@ -18,9 +19,9 @@ export function useLaunchSettings(
   }, [sourceId, host]);
   const catalog = useLaunchHostOptions(sourceId, host, projectContext);
   const settingsBlocked =
-    host === "codex" &&
-    ((model !== "" &&
+    (hostDescription(host).modelCatalog !== undefined &&
+      model !== "" &&
       !catalog.options?.models.some((item) => item.model === model)) ||
-      effortBlocked(catalog.options, model, effort));
+    (host === "codex" && effortBlocked(catalog.options, model, effort));
   return { model, setModel, effort, setEffort, catalog, settingsBlocked };
 }
