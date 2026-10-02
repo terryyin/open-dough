@@ -192,6 +192,14 @@ exercise the actual entry point, not a copied implementation.
 Safe stopping point: both environments provide stable native check entry
 points; local repeatability has actual observed proof without a container.
 
+## Execution complete
+
+Product advice: No new product work or priority change recommended. Keep the
+existing backlog direction. Native prerequisite reuse and bounded acquisition
+meet this story; future runner/dependency changes remain subject to the existing
+full CI suite. Cold overall elapsed time depends on runner admission, so retain
+the measured setup/job improvements without claiming a cold workflow speedup.
+
 ## Current decisions and review
 
 - Terry chose native environments, no Docker/Colima dependency, and full-suite
@@ -420,3 +428,51 @@ other accepted native proof boundaries remain unchanged. Selective Prettier/shfm
 formatting passed. Linux library absence was not injected; actual launch supplies
 that diagnosis and slice 2 supplies full Linux suite proof. All slice 3 promises
 are accepted without container dependence.
+
+### Automatic execution retrospective
+
+Reviewed original execution-ready plan at claim `5c55714c`, refined seed,
+current whole-product test/setup responsibilities, Accepted ADRs 0002/0005,
+and the backlog's published-agent/dashboard direction. This CI reliability work
+supports that direction without changing its priorities. Attribution includes
+only these accepted branch publications after the claim: `e9844159` probe,
+`7ab0732b` owned synchronization repair, `bb0aeae1` temporary cold baseline,
+`7607de5a` restoration/proof, `79f10aed` acquisition/cache implementation,
+`ea7c62c1` final hosted proof record, `68bfc97e` native validation/docs/proof.
+No intervening sibling work is included; transient baseline behavior is absent
+from the final workflow. Planning/claim commits supply provenance.
+
+Outcome findings: none requiring correction. Workflow retains scheduling,
+cache and reports; the small setup helper owns acquisition and validation,
+while existing runners retain selection, isolation, cleanup and budgets.
+Exact Node selection is shared; Playwright/lockfile owns browser revision.
+No image/cache manager, retry policy, apt dependency or hidden app-build reuse
+was added. Existing bare-Ubuntu diagnostic bootstrap retains its independent
+library installation. Full native and hosted suite observations support reuse.
+No Accepted ADR conflict or implicated refactoring residue identified.
+
+Test review: existing full browser journeys supplied the decisive Ubuntu-library
+proof before acquisition changes. Focused actual-entrypoint checks mock external
+sources/browser boundary and observe exit/diagnosis/no test continuation,
+real deadlines and descendant termination. Real Chromium/native full-suite
+proof supplies integration that those fixtures cannot. The attention repair
+preserves its journey assertions while returning the same settled snapshot;
+a deterministic transient-state diagnostic established red/green. Selection,
+regression diagnostics and cleanup remain covered by existing runner fixtures.
+No evidence-supported suite consolidation or unrelated optimization proposed.
+
+Process review used retained coordinator/delegate results. Recorded one
+occurrence under existing DD-191 in `DearDough.md`: refactor-introduced SC2312
+was caught by the staged check-only hook, repaired mechanically and never
+published. Proposed carrying known warning-as-error rules in briefs while
+keeping coordinator hook ownership; no guidance changes implemented. Existing
+log 745 lines, accepted candidate 748; 500-line threshold warning, below 1000.
+Broader pre-compaction process details are limited to retained execution evidence;
+no token-cost or universal-cause claim is made.
+
+Correction planning unchanged; no follow-up story/plan or backlog edits.
+Review completed on delivered implementation `68bfc97e`; final completion-record
+CI remains pending on the retained observer and execution branch until the
+coordinator's exact-revision completion operation. Proof limits remain as
+recorded above (warm npm download cache, no live action outage, external runner
+admission variability); none represents an unfulfilled story promise.
