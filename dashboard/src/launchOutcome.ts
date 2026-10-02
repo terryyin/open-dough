@@ -6,12 +6,18 @@ import {
   reportingContextSchema,
   agentLaunchEndpoint,
   agentLaunchRequestSchema,
-  existingChangesSchema,
   type StoryLaunchRequest,
 } from "./launchRequest.ts";
+import { completionReceiptSchema } from "./completionReport.ts";
 import { completionSchema, launchWithStateSchema } from "./launchRecord.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
+import { existingChangesFoundSchema } from "./existingLaunchChanges.ts";
+export {
+  existingChangesFoundSchema,
+  existingChangesShown,
+  type ExistingChangesFound,
+} from "./existingLaunchChanges.ts";
 
 // Why nothing was launched; `not-listed`: a recheck found the host's own
 // session listing names no session the launch started.
@@ -30,21 +36,6 @@ export const launchFailureReasons = [
 // Why a launch may or may not have started a session: the launch wait
 // expired, or the host exited without a session this boundary could confirm.
 export const launchUncertaintyReasons = ["timed-out", "unconfirmed"] as const;
-
-// The uncommitted changes the default checkout holds, observed before a
-// launch selecting it starts anything: the changed paths (at most
-// `existingChangesShown`, never their content), how many there are, and the
-// fingerprint a confirmation names (`existingChangesSchema`).
-export const existingChangesShown = 50;
-
-export const existingChangesFoundSchema = z.object({
-  kind: z.literal("existing-changes"),
-  paths: z.array(z.string().min(1)).max(existingChangesShown),
-  count: z.number().int().positive(),
-  fingerprint: existingChangesSchema,
-});
-
-export type ExistingChangesFound = z.infer<typeof existingChangesFoundSchema>;
 
 // Every answer but a launched session: nothing was started because the
 // default checkout holds changes the request did not confirm, or that changed
@@ -134,8 +125,10 @@ export type AttemptOutcome = z.infer<typeof attemptOutcomeSchema>;
 export const launchAttemptSchema = z.object({
   id: z.uuid(),
   reportingOrigin: z.url().optional(),
+  reportingDeletedAt: z.iso.datetime().optional(),
   reporting: reportingContextSchema.optional(),
   completion: completionSchema.optional(),
+  completionReceipts: z.array(completionReceiptSchema).optional(),
   request: agentLaunchRequestSchema,
   acceptedAt: z.iso.datetime(),
   publication: publicationReceiptSchema,

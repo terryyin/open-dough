@@ -83,3 +83,14 @@ Unreported sessions preserve the existing explicit rename/detach/stop behavior.
 Reading an explicit attention message uses machine-local evidence, independently
 of Codex's passive native final-report reader; no native last reply, inactivity,
 minimal marker or process exit counts as a submitted report.
+
+Completion delivery retains its exact submission beside the surviving reporting
+executable before contacting the receiver. If delivery fails, the operation prints
+an unacknowledged notice and a reporting-only `--retry` command. That command needs
+neither the removed workspace nor the original message file. Each new report has
+its own delivery identity; retry returns the original receipt and preserves newer
+reports and deliberate local Done or reopen. A newer attention or unfinished
+report clears an earlier automatic quiet Done while preserving explicit manual Done.
+Recovery is explicit and bounded;
+there is no background retry. Launch attempts retain receipts for their existing
+machine-local lifetime. Reporting never performs Git or native-session controls.

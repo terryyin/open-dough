@@ -135,7 +135,7 @@ work cannot erase durable report or claim unobserved stop. No new Cursor stop re
 
 ### 5. Recover a failed or repeated completion delivery without repeating work
 Type: Behavior
-Status: planned
+Status: done
 Behavior: After Git/closure, interrupted reporting preserves message/local unacknowledged
 notice/open session; retry yields one receipt/message/disposition without repeating publication/retirement.
 Proof: Focused CLI/HTTP/browser faults: unavailable receiver, write failure, stored
@@ -218,28 +218,31 @@ early Claude binding, Cursor Done, browser restart and independent passive nativ
 repairs remain in this plan at those published revisions. All local proof and delivery
 gates passed; native guidance adherence remains pending in SEED-053 before release.
 
-**Owned CI repair:** recovered startup/reuse route from DearDough DD-201 and installed
-Codex adapter. GitHub `ci.yml` / display `CI` verified for this execution branch. Observer
-`/tmp/dough-ci-501/watch-YbJYkk`, cell 116, session 1277, PID 34317, coordinator d.kanai-chan,
-checkout above; managed resume accepted `4ef5e2e` with pushCount 0 and recovered this owner.
-Delivered sequence 1: run 37021271369/attempt 1, SHA `4ef5e2e`, seven dashboard jobs and
-test (2/3) failed. All failures inspected; no infrastructure exemption. Slice 5 paused
-before edits; installed stash-save receipt `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-DPBsk4/record.json`
-was clean/oid null. Repair updates obsolete prompt/attempt/recap proof without weakening
-native grammar/developer/settings/ownership/CI gates. Independent input oracle replaces
-circular expected-input construction. Preserved chmod-fault assertion exposed reporting
-bootstrap before cleanup finally; move inside finally clears launching progress, retains
-uncertain durable attempt and launches no native session. Minimal red then green:
+**Owned CI repair (`41fee026`):** full diagnoses, literal red/green commands, pause,
+clean installed stash/save/restore and fresh refactor proof remain in this plan at that
+revision. Run 37021271369/attempt 1 on `4ef5e2e` exposed obsolete shared-input consumers
+and failed-bootstrap cleanup; independent assertions and the existing finally fixed both.
+Recovered observer `/tmp/dough-ci-501/watch-YbJYkk`, cell 116/session 1277/PID 34317,
+coordinator d.kanai-chan, branch/checkout above. Managed resume reused it with no push;
+repair delivery reused it. Exact sequence 1 durably acknowledged; observer remains live.
+
+**Slice 5 (2026-10-03):** accepted real installed CLI/receiver/store/page recovery in
+`agent-completion-{recovery,identity,early-recovery,superseded,attempt-loss}.spec.ts` and
+`support/completionRecovery{Faults,Intent}.ts`: actual private Git closure/retirement
+precedes faults; unavailable receiver/EIO/lost acknowledgment retain exact retry data;
+receipt ordering, readonly duplicates, late writers, restart, older sessions and deletion
+preserve identity/evidence/manual intent. Quiet→fresh quiet→attention clears automatic
+Done; deliberate Done/reopen survives. Failed binding retains native recovery identity
+without first input. Actual Git/native call counts unchanged across all recovery.
+Fresh refactor centralizes identity/retention/receipt precedence and extracts unchanged
+host/change schemas with stable exports. Final proof below, formatter exit 0; hook runs at commit;
+mechanical lint repairs preserve guards/error cause. Native/provider answers synthetic;
+shipped native integration/adherence remains pending in SEED-053. All commands terminal 0:
 ```sh
-PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-launch-session-options.spec.ts --grep 'one-shot execution · isolated · review' --workers=2
-PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs
-PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-launch-codex-model.spec.ts agent-launch-preparation-cursor.spec.ts agent-session-cursor.spec.ts agent-launch-preparation-codex.spec.ts agent-launch-cursor-model.spec.ts agent-launch-acceptance.spec.ts agent-launch-codex-lifetime.spec.ts agent-launch-session-options.spec.ts agent-launch-ad-hoc-cursor.spec.ts agent-launch-start-codex.spec.ts agent-launch-start-codex-recovery.spec.ts --workers=2
-PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-launch-acceptance.spec.ts --workers=2
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-completion-recovery.spec.ts agent-completion-identity.spec.ts agent-completion-early-recovery.spec.ts agent-completion-quiet.spec.ts agent-completion-binding.spec.ts agent-completion-cursor.spec.ts agent-completion-attention.spec.ts agent-completion-input.spec.ts session-result-admission.spec.ts session-result-codex.spec.ts agent-launch-done.spec.ts agent-launch-records.spec.ts session-workspace-retirement-done.spec.ts agent-launch-preparation-codex.spec.ts agent-launch-preparation-cursor.spec.ts agent-launch-ad-hoc-cursor.spec.ts agent-launch-cursor-model.spec.ts agent-session-cursor.spec.ts --workers=2
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-completion-recovery.spec.ts agent-completion-identity.spec.ts agent-completion-early-recovery.spec.ts agent-completion-superseded.spec.ts agent-completion-attempt-loss.spec.ts agent-completion-binding.spec.ts agent-completion-attention.spec.ts agent-completion-quiet.spec.ts agent-completion-cursor.spec.ts --workers=2
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH env -u NO_COLOR npm run test:dashboard -- agent-launch-default-checkout-warning.spec.ts --workers=2
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=3 npm test -- tests/install-public-payload.sh tests/payload-declaration-links.sh tests/native-evidence-identity.sh tests/install-all-tools.sh tests/execution-payload-update.sh tests/story-payload-update.sh tests/install-preserves-open-dough-json.sh src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs
+PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=3 npm test -- tests/git-publication-native.sh tests/git-publication-native-owned-context.sh
 PATH=/tmp/open-dough-node-24.21.0/node-v24.21.0-darwin-arm64/bin:/opt/homebrew/bin:$PATH npm run typecheck:dashboard
 ```
-First two exit 1 for diagnosed assertions; lifecycle rerun and final commands exit 0.
-Broad proof selected 42 tests/14 files; final acceptance three tests observe no native launch.
-Real installed Git/server/browser/persistence; native transports synthetic. Fresh independent
-refactor: no edits/tests. Formatter passed after redundant optional-chain repair only;
-all changed files <=250, no owned verification remains live. No readiness renewal.
-Repair publication base `4ef5e2e72e31238091858d0534da21b9825bd768`; slice 5 remains planned.

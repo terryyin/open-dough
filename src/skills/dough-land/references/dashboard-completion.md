@@ -37,6 +37,15 @@ After the receipt, give the ordinary minimal native response; with attention, gi
 exactly the response submitted. Do not perform more substantive work after reporting.
 If delivery fails, report unacknowledged delivery locally and retain the message;
 accepted Git/retirement work stays accepted and is not repeated to retry reporting.
+The operation retains the exact submission beside the surviving prepared executable
+before contacting the receiver. Run its printed `Retry reporting only` command (or
+append `--retry <retained completion file>` to the supplied command) after recovery.
+Retry reads the original context, outcome and message; it needs no surviving message
+file or checkout. Reuse that delivery even when an acknowledgment was lost. A later
+substantive report uses the ordinary outcome/message arguments and its own delivery.
+Older retries return their original receipt without replacing newer messages or
+repeating local Done; deliberate reopen and manual Done remain the developer's intent.
+No background retry is scheduled.
 
 Reporting records local disposition only: it must not rename, detach, stop, or shut
 down its sender or a newer turn. Existing terminal-attachment lifecycle owns its

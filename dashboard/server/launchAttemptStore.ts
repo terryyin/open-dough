@@ -25,11 +25,22 @@ import {
 } from "../src/agentLaunch.ts";
 import {
   readMachineJson,
+  readMachineJsonLocked,
   replaceMachineJson,
   type MachineJsonStore,
 } from "./machineJsonStore.ts";
 
 const retentionMs = launchRetentionDays * 24 * 60 * 60 * 1000;
+
+function attemptWithinRetention(
+  attempt: LaunchAttemptRecord,
+  now: number,
+): boolean {
+  return (
+    attempt.settledAt === undefined ||
+    now - Date.parse(attempt.settledAt) <= retentionMs
+  );
+}
 
 const storeSchema = z.record(z.string(), z.array(launchAttemptSchema));
 
@@ -67,17 +78,15 @@ let writing: Promise<unknown> = Promise.resolve();
 // Applies `change` after every earlier write of this server, dropping settled
 // attempts past retention first.
 export function replaceAttempts(
-  change: (kept: StoredAttempts) => StoredAttempts,
+  change: (kept: StoredAttempts) => StoredAttempts | Promise<StoredAttempts>,
 ): Promise<void> {
   const write = writing.then(() =>
     replaceMachineJson(attemptStore(), (stored) => {
       const now = Date.now();
       const kept: StoredAttempts = {};
       for (const [id, attempts] of Object.entries(stored)) {
-        kept[id] = attempts.filter(
-          (attempt) =>
-            attempt.settledAt === undefined ||
-            now - Date.parse(attempt.settledAt) <= retentionMs,
+        kept[id] = attempts.filter((attempt) =>
+          attemptWithinRetention(attempt, now),
         );
       }
       return change(kept);
@@ -112,11 +121,31 @@ export function keepAttempt(attempt: LaunchAttemptRecord): Promise<void> {
               ? {
                   ...attempt,
                   reporting: entry.reporting ?? attempt.reporting,
+                  reportingDeletedAt:
+                    entry.reportingDeletedAt ?? attempt.reportingDeletedAt,
                   completion: entry.completion ?? attempt.completion,
+                  completionReceipts:
+                    entry.completionReceipts ?? attempt.completionReceipts,
                 }
               : entry,
           )
         : [...attempts, attempt],
     };
   });
+}
+
+// Native binding and reporting share this lock before taking the records lock.
+// Never acquire these locks in the opposite order.
+export async function withKeptAttempts<R>(
+  observe: (attempts: readonly LaunchAttemptRecord[] | undefined) => Promise<R>,
+): Promise<R> {
+  return readMachineJsonLocked(attemptStore(), async (read) =>
+    observe(
+      read.kind === "document"
+        ? Object.values(read.document)
+            .flat()
+            .filter((entry) => attemptWithinRetention(entry, Date.now()))
+        : undefined,
+    ),
+  );
 }

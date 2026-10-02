@@ -96,7 +96,7 @@ async function acquireWriteLock(lock: string): Promise<void> {
 // empty document.
 export async function replaceMachineJson<T>(
   store: MachineJsonStore<T>,
-  change: (stored: T) => T,
+  change: (stored: T) => T | Promise<T>,
 ): Promise<void> {
   const { file } = store;
   await mkdir(path.dirname(file), { recursive: true });
@@ -111,7 +111,10 @@ export async function replaceMachineJson<T>(
     } else {
       stored = read.document;
     }
-    await writeFile(temporary, `${JSON.stringify(change(stored), null, 2)}\n`);
+    await writeFile(
+      temporary,
+      `${JSON.stringify(await change(stored), null, 2)}\n`,
+    );
     await rename(temporary, file);
   } finally {
     try {
@@ -119,5 +122,21 @@ export async function replaceMachineJson<T>(
     } finally {
       await rmdir(lock);
     }
+  }
+}
+
+// Shares the document's writer lock while a related store binds its evidence.
+// It does not rewrite this document; callers cannot fail a second write after disposition.
+export async function readMachineJsonLocked<T, R>(
+  store: MachineJsonStore<T>,
+  observe: (read: StoreRead<T>) => Promise<R>,
+): Promise<R> {
+  await mkdir(path.dirname(store.file), { recursive: true });
+  const lock = `${store.file}.lock`;
+  await acquireWriteLock(lock);
+  try {
+    return await observe(await readMachineJson(store));
+  } finally {
+    await rmdir(lock);
   }
 }

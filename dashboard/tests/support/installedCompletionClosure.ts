@@ -16,15 +16,18 @@ export async function withInstalledCompletionClosure(
   workspace: string,
   closure: CompletionClosure,
   observe: (final: string) => Promise<void>,
+  proofEnv = process.env,
 ): Promise<void> {
   const git = async (...args: string[]) =>
-    (await exec("git", ["-C", workspace, ...args])).stdout.trim();
+    (
+      await exec("git", ["-C", workspace, ...args], { env: proofEnv })
+    ).stdout.trim();
   const installed = path.join(workspace, ".agents/skills");
   const run = async (
     skill: string,
     script: string,
     args: string[],
-    env = process.env,
+    env = proofEnv,
   ) =>
     (
       await exec(

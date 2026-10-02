@@ -1,6 +1,4 @@
-import { completedWithoutAttention } from "../src/completionReport.ts";
 // Public launch/creation record operations use one machine document and retention rule.
-import { keptAttempts } from "./launchAttemptStore.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import type { AgentLaunchRequest, LaunchRecord } from "../src/agentLaunch.ts";
@@ -67,49 +65,7 @@ export async function pendingInputOf(
   );
 }
 
-// Keeps one known conversation and its first-input evidence, replacing any
-// unresolved creation of that launch.
-export async function keepRecord(
-  sourceId: string,
-  record: LaunchRecord,
-): Promise<void> {
-  const completion =
-    record.request.reporting === undefined
-      ? undefined
-      : (await keptAttempts())?.find(
-          (attempt) => attempt.id === record.request.reporting?.reference,
-        )?.completion;
-  await replaceRecords((kept) => {
-    const existing = (kept[sourceId] ?? []).find(
-      (entry): entry is LaunchRecord =>
-        "session" in entry &&
-        sessionKey(entry.session) === sessionKey(record.session),
-    );
-    const reported = existing?.completion ?? completion ?? record.completion;
-    return {
-      ...kept,
-      [sourceId]: [
-        ...(kept[sourceId] ?? []).filter((entry) =>
-          !("session" in entry)
-            ? !sameLaunch(entry.request, record.request)
-            : sessionKey(entry.session) !== sessionKey(record.session),
-        ),
-        {
-          ...record,
-          completion: reported,
-          doneProblem:
-            existing === undefined ? record.doneProblem : existing.doneProblem,
-          doneAt:
-            existing !== undefined && "session" in existing
-              ? existing.doneAt
-              : reported !== undefined && completedWithoutAttention(reported)
-                ? reported.receivedAt
-                : record.doneAt,
-        },
-      ],
-    };
-  });
-}
+export { keepRecord } from "./launchRecordBinding.ts";
 
 // Sets one kept session's done time to `doneAt`, marking it done, or clears
 // it when `doneAt` is undefined, keeping the session like any unclosed one.
@@ -146,7 +102,10 @@ export async function setRecordDoneAt(
           changed = record;
           return record;
         }
-        const next: LaunchRecord = { ...record };
+        const next: LaunchRecord = {
+          ...record,
+          dispositionChangedAt: new Date().toISOString(),
+        };
         delete next.doneAt;
         delete next.doneProblem;
         changed =
@@ -166,28 +125,7 @@ export async function setRecordDoneAt(
   return changed;
 }
 
-// Removes one kept session's record, leaving the project's other records as
-// they are. Answers whether such a record was kept.
-export async function deleteRecord(
-  sourceId: string,
-  session: SessionReference,
-): Promise<boolean> {
-  let deleted = false;
-  await replaceRecords((kept) => {
-    const records = kept[sourceId];
-    if (records === undefined) {
-      return kept;
-    }
-    const remaining = records.filter(
-      (record) =>
-        !("session" in record) ||
-        sessionKey(record.session) !== sessionKey(session),
-    );
-    deleted = remaining.length < records.length;
-    return { ...kept, [sourceId]: remaining };
-  });
-  return deleted;
-}
+export { deleteRecord } from "./launchRecordDeletion.ts";
 
 // Lifecycle updates never recreate evidence the developer has deleted.
 export async function updateRecord(
@@ -208,6 +146,7 @@ export async function updateRecord(
       return {
         ...record,
         completion: entry.completion ?? record.completion,
+        dispositionChangedAt: entry.dispositionChangedAt,
         doneAt: entry.doneAt,
         doneProblem: entry.doneProblem,
       };

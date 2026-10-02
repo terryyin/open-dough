@@ -55,6 +55,7 @@ export function expectReportingBlock(
     /--outcome unfinished[\s\S]+--message-file[\s\S]+exact response/,
     /pending-native-session receipt[\s\S]+only this launch/,
     /does not stop the session or declare the story complete/,
+    /delivery fails[\s\S]+reporting-only --retry[\s\S]+without repeating Git or retirement/,
   ])
     expect(lines[5]).toMatch(rule);
 }
