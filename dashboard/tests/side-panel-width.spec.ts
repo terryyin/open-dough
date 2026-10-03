@@ -21,6 +21,7 @@ import {
   control,
   dragEdge,
   expectEdgeSays,
+  expectStillHolds,
   expectWidth,
   keyStep,
   printedSize,
@@ -78,7 +79,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     await expect
       .poll(() => printedSize(rows))
       .toBeGreaterThan(columnsBefore ?? 0);
-    await expect(rows).toContainText("echo keep this line");
+    await expectStillHolds(terminal, "echo keep this line");
     expect(attaches()).toHaveLength(1);
     // Released off the edge, the drag has ended: the pointer moves freely.
     await page.mouse.move(released.x - 150, released.y);
@@ -130,7 +131,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     // The page's own Left/Right project navigation is not reached.
     expect(projectUrl()).toBe(before);
     await expect(edge).toBeFocused();
-    await expect(rows).toContainText("echo keep this line");
+    await expectStillHolds(terminal, "echo keep this line");
     expect(attaches()).toHaveLength(1);
   });
   const chosen = maximum - 8 * keyStep;

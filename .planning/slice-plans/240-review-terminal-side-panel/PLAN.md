@@ -274,6 +274,12 @@ Learnings for slice 3:
   `flushSync` in the ResizeObserver) or immediate geometry reads see a squeezed page.
 - `dashboard/tests/sidePanelWidthPage.ts` holds reusable width helpers.
 - The 200% case is a 640×450 CSS-pixel proxy without device scale factor.
+- CI repair (run 37133709619, 48e7e820): the synthetic session prints a
+  `resized` line per SIGWINCH, and on CI each keypress produced one, scrolling
+  earlier output out of the visible xterm rows. Preservation checks now scroll
+  the terminal history (`expectStillHolds` in `sidePanelWidthPage.ts`); proof:
+  `--repeat-each 4` of both width specs, 12 passed, plus a forced-resize variant
+  reproducing the CI failure.
 
 ### 3. Recover the shared width after reopening the dashboard
 Type: Behavior

@@ -69,6 +69,18 @@ export async function printedSize(rows: Locator) {
   return last === undefined ? undefined : Number(last[1]);
 }
 
+// Earlier output the terminal still holds, however many size lines the session
+// printed after it: read by scrolling up over the terminal's history, which
+// leaves the keyboard where it is.
+export async function expectStillHolds(terminal: Locator, text: string) {
+  const rows = terminal.locator(".xterm-rows");
+  await terminal.locator(".xterm-screen").hover();
+  await expect(async () => {
+    await terminal.page().mouse.wheel(0, -1000);
+    await expect(rows).toContainText(text, { timeout: 100 });
+  }).toPass();
+}
+
 export async function expectWidth(panel: Locator, width: number) {
   await expect
     .poll(async () => Math.round((await box(panel)).width))
