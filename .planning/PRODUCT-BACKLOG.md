@@ -23,5 +23,7 @@ visibility for multiple agents working in worktrees on one machine.
 - [See and instruct a Cursor agent from the start](seeds/SEED-089-cursor-session-visible-from-the-start.md#cursor-session-interactable-from-the-start) — SEED-089#cursor-session-interactable-from-the-start
 - [Keep a Cursor agent running across a dashboard restart](seeds/SEED-089-cursor-session-visible-from-the-start.md#cursor-runner-survives-dashboard-restart) — SEED-089#cursor-runner-survives-dashboard-restart
 - [Review all story worktree changes in one dashboard UI](seeds/SEED-088-dashboard-story-code-review.md#dashboard-story-code-review) — SEED-088#dashboard-story-code-review
+- [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review
+- [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
 - [Choose workspace and automatic landing for unattached Start session](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-options) — SEED-066#unattached-session-options
