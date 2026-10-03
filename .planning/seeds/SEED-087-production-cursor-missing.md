@@ -27,3 +27,5 @@ scope: bounded repair
 **Scope:** Diagnose the served revision and production watcher; restore the existing released behavior. Any code repair requires confirmed reproduction and related verification within a ten-minute bounded attempt. Changing production to follow main remains the separate SEED-086 story.
 
 **Uncertainty:** The production revision, watcher state, and reason for the missing option are not yet observed.
+
+**Observed resolution (2026-10-03):** The process listening on 127.0.0.1:4173 runs release v0.3.55, started at 08:34:33 SGT. Both localhost:4173 and 127.0.0.1:4173 serve index-CIxKVklK.js. A fresh browser page at 127.0.0.1:4173 offers Claude Code, Codex, and Cursor in Start session. Selecting Cursor updates the dialog to Cursor and loads its native model catalog. No session was launched. No application edit or server restart was required. The originally reported page's loaded revision is unknown; a fresh production view was opened for Terry. Continuous deployment from main stays in SEED-086.
