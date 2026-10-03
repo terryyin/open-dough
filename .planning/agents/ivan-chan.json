@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ivan-chan",
+  "email": "ivan-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-088#review-files-as-folder-tree",
+  "host": "claude",
+  "model": "fable"
+}
