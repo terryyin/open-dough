@@ -90,11 +90,12 @@ another story's open decision stays with that story.
   it, left unobserved and no probe needed.
 - **Needs human engagement** — at least one response from a person is required.
 
-A ready outcome states the outcome, the story link, the workspace holding the
-uncommitted draft, and one concrete next step: slice planning in that
-workspace, or, for Flawless, execution with an explicit instruction to skip
-slice planning. When the story already has an associated plan, the next step
-uses that plan instead of creating another. Name the pending draft and any
+A ready outcome states the outcome, the story link, where the draft is (its
+workspace, and its result commit once committed), and one concrete next step:
+slice planning in that workspace, or, for Flawless, execution with an
+explicit instruction to skip slice planning. When the story already has an
+associated plan, the next step uses that plan instead of creating another.
+Name the pending draft and any
 Preparing assignment as information, not as a request to keep them. Do not
 recap what the seed records, and end without a question or approval request.
 

@@ -127,7 +127,7 @@ its intended outcome.
 ### 2. One-shot refinement reports the same outcome
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend `refinement-outcome-guidance.test.mjs` for one-shot's "Stop for
 review" and "Land automatically when selected". The existing assertions in
 `one-shot-refinement-guidance.test.mjs` stay green unchanged. Behavior review
@@ -141,6 +141,14 @@ Auto-land lands only on a ready outcome and reports it as landed with the next
 step. An open decision or a stop ends as Needs human engagement with the
 result committed and unlanded, as today.
 
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH npm test --
+src/skills/dough-story-refinement/scripts/*.test.mjs` exits 0. Two tests in
+`refinement-outcome-guidance.test.mjs` observe one-shot's "Stop for review"
+and "Land automatically when selected"; the existing
+`one-shot-refinement-guidance.test.mjs` assertions pass unchanged. Behavior
+review walked key example 5 (open decision under auto-land → committed,
+unlanded, Needs human engagement) and a review-mode ready case.
+
 ## Current decisions
 
 - One section in `SKILL.md`, with no new reference file (payload
@@ -152,4 +160,6 @@ result committed and unlanded, as today.
 - Slice 1: the outcome section took `planning.md` to 275 lines, over the
   refactor pass's 250-line limit. It moved, unchanged, into SKILL.md (118
   lines), which already owns the report step and is a declared file.
+- Slice 2: the ready outcome now says where the draft is (its workspace, and
+  its result commit once committed), so one-shot needs no local exception.
 - `npm test` accepts files, not a directory; the local gate uses a glob.
