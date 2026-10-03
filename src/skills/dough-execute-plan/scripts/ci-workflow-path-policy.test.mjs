@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { readCiPathIgnorePolicy } from "./ci-workflow-path-policy.mjs";
+import {
+  isPathIgnored,
+  readCiPathIgnorePolicy,
+} from "./ci-workflow-path-policy.mjs";
 import { checkoutRoot } from "./ci-mailbox-location.mjs";
 import {
   acceptedWorkflow,
@@ -128,4 +131,14 @@ test("duplicate push triggers cannot override branch or path policy", () => {
     ).supported,
     false,
   );
+});
+
+test("isPathIgnored matches a policy prefix and every path beneath it, never a sibling sharing its characters", () => {
+  const pathsIgnore = [".planning/**", "docs/**"];
+  assert.equal(isPathIgnored("docs", pathsIgnore), true);
+  assert.equal(isPathIgnored("docs/adrs/0003.md", pathsIgnore), true);
+  assert.equal(isPathIgnored(".planning/seeds/a\nb.md", pathsIgnore), true);
+  assert.equal(isPathIgnored("docsx/a.md", pathsIgnore), false);
+  assert.equal(isPathIgnored("dashboard/docs/a.md", pathsIgnore), false);
+  assert.equal(isPathIgnored("README.md", []), false);
 });

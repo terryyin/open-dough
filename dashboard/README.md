@@ -207,9 +207,9 @@ See [dashboard commands and native prerequisites](COMMANDS.md).
 
 Run `npm run dev:dashboard` for development at `http://127.0.0.1:43127/` and
 `npm run watch:dashboard` for production at `http://127.0.0.1:4173/`, built in a
-separate checkout from each commit published on origin's `main`. Development
-edits and hot reload never refresh or restart production. The commands guide
-describes update failures, restoration and shutdown.
+separate checkout from qualifying commits published on origin's `main`.
+Development edits and hot reload never refresh or restart production. The
+commands guide describes CI path filtering, failures, restoration and shutdown.
 
 Development and production share the existing real-project catalog and
 machine-local launch/session records, which survive production replacements and

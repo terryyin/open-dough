@@ -46,3 +46,10 @@ export async function recordedBuilds(home: string) {
       return { pid: Number(pid), checkout: checkout ?? "" };
     });
 }
+
+// The commit prefix naming each recorded build's checkout, in build order.
+export async function builtCommitPrefixes(home: string) {
+  return (await recordedBuilds(home)).map((build) =>
+    build.checkout.slice(0, 12),
+  );
+}

@@ -19,6 +19,7 @@ import {
 } from "./support/productionWatcher.ts";
 import {
   buildGateChanges,
+  builtCommitPrefixes,
   holdBuildPath,
   recordedBuilds,
 } from "./support/productionBuildGate.ts";
@@ -157,9 +158,9 @@ test("npm watcher replaces production with each newly published main commit at t
     expect(processRunning(latest.pid)).toBe(true);
     await page.reload();
     await expect(page).toHaveTitle("MAIN C");
-    expect(
-      (await builds()).map((build) => build.checkout.slice(0, 12)),
-    ).toEqual([a, b, c].map((commit) => commit.slice(0, 12)));
+    expect(await builtCommitPrefixes(fixture.home)).toEqual(
+      [a, b, c].map((commit) => commit.slice(0, 12)),
+    );
     await expectSharedRecord(productionUrl);
     await expectSharedRecord(developmentUrl);
     expect(await readFile(store, "utf8")).toBe(stored);

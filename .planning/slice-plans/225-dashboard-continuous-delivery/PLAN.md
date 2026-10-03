@@ -25,8 +25,9 @@ and new project/session stores. Main follows ordinary integration history.
 
 ## Direction and PFE
 
-- Change the existing `scripts/watch-dashboard.mjs` owner and
-  `dashboard/server/productionReleaseRunner.mjs` staging/preview operations.
+- Change the existing `scripts/watch-dashboard.mjs` owner and the
+  `dashboard/server/productionDeployment.mjs` staging/preview operations.
+  The CI-exclusion check is `dashboard/server/productionQualification.mjs`.
   Preserve their temporary checkout, exact-commit verification, locked install,
   real build, strict production port, restoration, and owned-process cleanup.
   Use commit identities consistently through selection, activation, and logs.
@@ -76,11 +77,12 @@ session's seed refinement. Commands ran from the preparation workspace.
 | The public npm watcher reaches the current runner and real staged build/preview | Slice 2 | Read `package.json`, `scripts/watch-dashboard.mjs`, the runner, `dashboardCommand.ts`, and the four `production*.spec.ts` files; ran the command below. All 10 tests passed in 51.2 seconds, including real source markers over browser/HTTP. |
 | Existing faults exercise build retention, startup restoration, retry, origin failure and shutdown | Slice 2 | The same run passed `production-watcher-failures.spec.ts`: published fault-gated source runs actual build/preview, clearing machine-local causes allows retry, PID/HTTP checks observe replacement/restoration, and SIGHUP ends checks and owned processes. Double restoration failure and unexpected preview exit still need slice 2 proof. |
 | Replacement reads the same physical machine record store | Slice 2 | The same run passed `production-watcher-updates.spec.ts`: the test writes an actual launch record under its HOME, both dev/production HTTP boundaries read it before/after replacement, and file bytes survive shutdown. This proves same-store continuity. |
-| Current publication helper cannot express excluded-only changes | Slices 1, 3 | Read `dashboard/tests/support/dashboardReleaseFixture.ts`: `commit(version, marker)` unconditionally writes VERSION and a marker before `git add .` and pushing main. Slice 1 removes that premise from later proof setup. |
+| Current publication helper cannot express excluded-only changes | Slices 1, 3 | Read the publication fixture, now `dashboard/tests/support/publishedMainFixture.ts`: its former `commit(version, marker)` unconditionally writes VERSION and a marker before `git add .` and pushing main. Slice 1 removes that premise from later proof setup. |
 | The existing policy reader accepts this workflow, while coverage classification differs from deployment qualification | Slice 3 | Read both CI modules and ran the three Node test files below: 21 tests passed, including actual workflow parsing and mixed/deletion/rename cases returning indeterminate. |
-| All current consumers of the runner/fixture and changed shared classifier are located | Slices 1–3 | `rg -n 'productionReleaseRunner|dashboardReleaseFixture|dashboardReleaseProcess|watch-dashboard.mjs' --hidden --glob '!.git/**' --glob '!node_modules/**' --glob '!package-lock.json' .` found the watcher, four production specs, their fixture/process modules, and seed links. `rg -n 'ci-workflow-path-policy|ci-path-applicability' src/skills/dough-execute-plan/scripts/*test* tests/*.sh` found the classifier/policy and revision-coverage specs; include coverage consumers in slice 3's regression checks. |
+| All current consumers of the runner/fixture and changed shared classifier are located | Slices 1–3 | `rg -n 'productionReleaseRunner|dashboardReleaseFixture|dashboardReleaseProcess|watch-dashboard.mjs' --hidden --glob '!.git/**' --glob '!node_modules/**' --glob '!package-lock.json' .` found the watcher, four production specs, their fixture/process modules, and seed links; those modules are now `dashboard/server/productionDeployment.mjs`, `dashboard/server/productionProcess.mjs`, and `dashboard/tests/support/publishedMainFixture.ts`. `rg -n 'ci-workflow-path-policy|ci-path-applicability' src/skills/dough-execute-plan/scripts/*test* tests/*.sh` found the classifier/policy and revision-coverage specs; include coverage consumers in slice 3's regression checks. |
 
-Literal baseline commands:
+Literal baseline commands (the runner spec named there is now
+`dashboard/tests/production-deployment.spec.ts`):
 
 ```sh
 PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH NODE_ENV=development node scripts/setup-native.mjs npm
@@ -155,8 +157,9 @@ tag/main identities.
 
 ### 3. CI exclusions govern the complete pending main change range
 Type: Behavior
-Status: planned
+Status: done
 Proof: public watcher journeys use exact-path publications to observe build/activation counts, PID, served content and baseline after skips/failures. Focused policy/qualification tests cover deletion, rename and policy interpretation. Keep shared CI coverage tests green.
+Accepted proof: production*.spec.ts passed 14 (exclusions, qualification-recovery and qualification specs added); typecheck passed; the shared CI suites passed 30 focused and 248 wider tests; payload checks passed.
 
 Behavior: A is running → main B changes only excluded paths → polling keeps
 A without installing, building or restarting. Later qualifying C is compared

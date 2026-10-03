@@ -1,5 +1,6 @@
 // This owner stays in development; the app and server run from pinned
-// origin/main commits built in separate checkouts.
+// origin/main commits built in separate checkouts. A later commit is built only
+// when its own CI push exclusions leave a path changed since the running one.
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { setTimeout as wait } from "node:timers/promises";
@@ -8,6 +9,7 @@ import {
   stageDeployment,
   startDeploymentPreview,
 } from "../dashboard/server/productionDeployment.mjs";
+import { qualifyPublishedRange } from "../dashboard/server/productionQualification.mjs";
 
 const developmentRoot = fileURLToPath(new URL("..", import.meta.url));
 const cancellation = new AbortController();
@@ -68,6 +70,8 @@ try {
   // An ephemeral startup port becomes the fixed production URL for all updates.
   const productionPort = Number(new URL(preview.url).port);
   observePreview(preview);
+  // The last range found to hold only excluded changes; never a failed one.
+  let skippedRange;
   while (!cancellation.signal.aborted) {
     await wait(Number(values["check-interval"]), undefined, {
       signal: cancellation.signal,
@@ -86,8 +90,23 @@ try {
       );
       console.log(`Checked published main: ${latest.commit}.`);
       if (latest.commit === baseline.commit) continue;
+      const range = `${baseline.commit}..${latest.commit}`;
+      if (range === skippedRange) continue;
       // Pin this commit through build and startup even if main moves on.
       selected = latest;
+      const { qualifies } = await qualifyPublishedRange({
+        developmentRoot,
+        baseline,
+        selected,
+        signal: cancellation.signal,
+      });
+      if (!qualifies) {
+        skippedRange = range;
+        console.log(
+          `Skipping production update ${selected.commit}: every change since ${baseline.commit} is excluded by its CI push policy.`,
+        );
+        continue;
+      }
       console.log(`Preparing production dashboard ${selected.commit}.`);
       candidate = await stageDeployment({
         developmentRoot,

@@ -1,42 +1,20 @@
 // Published fault gates leave real npm/Vite build and serving intact.
 import { expect, test } from "@playwright/test";
-import { readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
+import { readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { dashboardCommand } from "./support/dashboardCommand.ts";
 import { publishedMainFixture } from "./support/publishedMainFixture.ts";
 import { processRunning } from "./support/processGroup.ts";
+import {
+  faultGatedPackage,
+  productionFault,
+} from "./support/productionFault.ts";
 import {
   outputCount,
   productionActivation as activation,
   productionDeployments,
   type ProductionWatcher as Watcher,
 } from "./support/productionWatcher.ts";
-
-// Published with a commit: its build/preview script fails while the matching
-// machine-local HOME/fault-<phase> cause exists.
-const productionFault = `
-import { existsSync } from "node:fs";
-import { homedir } from "node:os";
-import path from "node:path";
-const phase = process.argv[2];
-if (existsSync(path.join(homedir(), "fault-" + phase))) {
-  console.error("TRANSIENT " + phase + " FAILURE");
-  process.exit(42);
-}
-`;
-
-// The development package with build and preview gated by productionFault.
-async function faultGatedPackage(development: string) {
-  const packageJson = JSON.parse(
-    await readFile(path.join(development, "package.json"), "utf8"),
-  ) as { scripts: Record<string, string> };
-  for (const phase of ["build", "preview"]) {
-    const script = `${phase}:dashboard`;
-    packageJson.scripts[script] =
-      `node production-fault.mjs ${phase} && ${packageJson.scripts[script]}`;
-  }
-  return `${JSON.stringify(packageJson, null, 2)}\n`;
-}
 
 test("failed builds and real preview activation keep or restore working production, retry the same commit, survive origin failure and stop checks", async ({
   browser,

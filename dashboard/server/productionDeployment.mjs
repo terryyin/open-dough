@@ -54,17 +54,14 @@ export async function verifyPublishedCommit(directory, published, env) {
     );
   }
 }
-/** @param {{developmentRoot: string, published: PublishedCommit, deploymentsRoot?: string, env?: NodeJS.ProcessEnv, signal?: AbortSignal}} options */
-export async function stageDeployment(options) {
-  const { published, env } = options;
-  const deploymentsRoot = path.resolve(
-    options.deploymentsRoot ??
-      path.join(homedir(), ".open-dough/dashboard/deployments"),
-  );
-  const relative = path.relative(
-    path.resolve(options.developmentRoot),
-    deploymentsRoot,
-  );
+/**
+ * Creates an owned directory named for a commit under a machine-home root that
+ * lies outside the development checkout.
+ * @param {string} developmentRoot @param {string} root @param {string} commit
+ */
+export async function ownedCommitDirectory(developmentRoot, root, commit) {
+  const resolved = path.resolve(root);
+  const relative = path.relative(path.resolve(developmentRoot), resolved);
   if (
     relative === "" ||
     (!relative.startsWith(`..${path.sep}`) &&
@@ -72,12 +69,20 @@ export async function stageDeployment(options) {
       !path.isAbsolute(relative))
   ) {
     throw new Error(
-      "Dashboard deployments must be staged outside the development checkout.",
+      "Production dashboard checkouts must be outside the development checkout.",
     );
   }
-  await mkdir(deploymentsRoot, { recursive: true });
-  const directory = await mkdtemp(
-    path.join(deploymentsRoot, `${published.commit.slice(0, 12)}-`),
+  await mkdir(resolved, { recursive: true });
+  return mkdtemp(path.join(resolved, `${commit.slice(0, 12)}-`));
+}
+/** @param {{developmentRoot: string, published: PublishedCommit, deploymentsRoot?: string, env?: NodeJS.ProcessEnv, signal?: AbortSignal}} options */
+export async function stageDeployment(options) {
+  const { published, env } = options;
+  const directory = await ownedCommitDirectory(
+    options.developmentRoot,
+    options.deploymentsRoot ??
+      path.join(homedir(), ".open-dough/dashboard/deployments"),
+    published.commit,
   );
   const commandOptions = {
     cwd: directory,
