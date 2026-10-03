@@ -192,7 +192,7 @@ with its explanation.
 
 ### 5. Explain why there is nothing to review
 Type: Behavior
-Status: planned
+Status: done
 Proof: page journey cases, plus a focused proof of the review workspace rule:
 most recent by `launchedAt`, preparation and start alike, and records without a
 workspace skipped.
@@ -207,6 +207,14 @@ Behavior:
 - When trunk cannot be fetched, the review names the remote and target it
   could not fetch and offers Refresh. It never shows a list against an
   unfetched baseline.
+
+Accepted proof: `dashboard/tests/story-review-nothing.spec.ts` and
+`story-review-workspace.spec.ts` pass. With the other review, admission,
+boundary, card, and workspace-retirement specs, 40 tests pass. The missing
+worktree is checked through `directoryState` in
+`dashboard/server/sessionWorkspace.ts` before any Git runs. Learning: the file
+diff endpoint reports Git's own failure when the worktree disappears after a
+snapshot. No story promise covers that case.
 
 ## Considered and excluded
 

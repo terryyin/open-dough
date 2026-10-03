@@ -4,7 +4,7 @@
 // story commits rename a trunk file and add one, delete another, and change
 // an image; it merged trunk carrying another story's file, trunk moved on
 // since, and it holds a staged, an unstaged, an untracked, and an ignored
-// file.
+// file. A worktree straight off trunk has nothing to review.
 
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -97,12 +97,16 @@ export function storyWorktree(origin: StartOrigin) {
   return { workspace, merged, later };
 }
 
-// Story A's kept launch record, its start naming the worktree.
-export async function keepLaunchRecord(
-  dashboard: DashboardServer,
-  workspace: string,
-) {
-  const record: LaunchRecord = {
+// Story A's worktree straight off trunk, with nothing the story changed.
+export function unchangedWorktree(origin: StartOrigin) {
+  const workspace = path.join(origin.project, ".worktrees", "story-a");
+  git(origin.project, "worktree", "add", "--quiet", "-b", branch, workspace);
+  return { workspace, trunk: git(origin.project, "rev-parse", "main") };
+}
+
+// Story A's launch record, its start naming the worktree.
+export function storyALaunchRecord(workspace: string): LaunchRecord {
+  return {
     request: {
       source: "open-dough",
       identity: queuedIdentity,
@@ -128,13 +132,26 @@ export async function keepLaunchRecord(
     },
     launchedAt: new Date().toISOString(),
   };
+}
+
+// The project's kept launch records, written into the machine store.
+export async function keepLaunchRecords(
+  dashboard: DashboardServer,
+  records: readonly LaunchRecord[],
+) {
   const store = path.join(
     dashboard.home,
     ".open-dough/dashboard/agent-launches.json",
   );
   await mkdir(path.dirname(store), { recursive: true });
-  await writeFile(store, JSON.stringify({ "open-dough": [record] }));
+  await writeFile(store, JSON.stringify({ "open-dough": records }));
 }
+
+// Story A's kept launch record, its start naming the worktree.
+export const keepLaunchRecord = (
+  dashboard: DashboardServer,
+  workspace: string,
+) => keepLaunchRecords(dashboard, [storyALaunchRecord(workspace)]);
 
 // What Git says of the worktree's own index and files.
 export const observed = (workspace: string) => ({

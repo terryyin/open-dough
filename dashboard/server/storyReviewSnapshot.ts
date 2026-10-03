@@ -6,7 +6,10 @@
 // ignored -- into a tree object through a temporary index, and lists what
 // changed from the baseline to that tree. The workspace's own index and
 // status stay as they were; the tree is an ordinary unreachable object of
-// its repository. A step Git cannot take answers why, never a partial list.
+// its repository. A step Git cannot take answers why, never a partial list:
+// a worktree no longer on disk is said to be missing before any Git runs,
+// and a trunk that cannot be fetched names the remote and target, since
+// there is no baseline without it.
 // A file diff of the snapshot is Git's unified diff of that file from the
 // baseline to the tree, detecting a rename against its old path.
 
@@ -23,6 +26,7 @@ import type {
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { GitFailure, runGit } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
+import { directoryState } from "./sessionWorkspace.ts";
 import type {
   AdmittedFileDiff,
   AdmittedReview,
@@ -118,13 +122,15 @@ async function storyReviewSnapshot(
     workspace: shown,
     explanation,
   });
+  if (directoryState(workspace).kind === "missing")
+    return unavailable("The worktree is missing. It was removed or retired.");
   try {
     await git(["fetch", "--quiet", remote, target], {
       GIT_TERMINAL_PROMPT: "0",
     });
   } catch (error) {
     return unavailable(
-      `${remote}/${target} could not be fetched: ${gitProblem(error)}`,
+      `Trunk could not be fetched (target ${target} from remote ${remote}), so there is no baseline to compare with: ${gitProblem(error)}`,
     );
   }
   const index = await mkdtemp(path.join(tmpdir(), "dough-review-"));
