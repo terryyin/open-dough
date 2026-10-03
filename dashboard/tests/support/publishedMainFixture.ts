@@ -13,9 +13,9 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { repoRoot } from "./repositoryRoot.ts";
 
 const exec = promisify(execFile);
-const repoRoot = process.cwd();
 
 // Path contents to publish; `null` deletes the path. Nothing else changes.
 export type PathChanges = Record<string, string | null>;

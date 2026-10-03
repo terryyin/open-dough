@@ -15,10 +15,8 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { repoRoot } from "./support/repositoryRoot.ts";
 
-// Playwright runs this suite from the repository root (as `npm run
-// test:dashboard` does); see ./support/dashboardServer.ts.
-const repoRoot = process.cwd();
 const playwrightBin = path.join(repoRoot, "node_modules", ".bin", "playwright");
 const substitutes = path.join(
   repoRoot,

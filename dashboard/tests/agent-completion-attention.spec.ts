@@ -9,6 +9,7 @@ import { machineSessions } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { rawRequest } from "./support/rawHttp.ts";
+import { repoRoot } from "./support/repositoryRoot.ts";
 import {
   startDashboardServer,
   builtDashboardDir,
@@ -68,7 +69,10 @@ test("installed attention report stays open, durable and readable through stage 
   );
   expect(readFileSync(candidate, "utf8")).toBe(
     readFileSync(
-      "src/skills/dough-execute-plan/scripts/dashboard-completion.mjs",
+      path.join(
+        repoRoot,
+        "src/skills/dough-execute-plan/scripts/dashboard-completion.mjs",
+      ),
       "utf8",
     ),
   );

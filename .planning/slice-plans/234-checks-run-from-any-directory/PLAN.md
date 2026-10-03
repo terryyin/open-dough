@@ -109,7 +109,19 @@ passes as from the root. Pass `checkoutRoot` (or omit `root`) in
 
 ### 2. The dashboard suite finds the repository from its own location
 Type: Behavior
-Status: planned
+Status: done
+Accepted: `support/repositoryRoot.ts` owns `repoRoot`. The inventory sites
+plus seven relative repository paths found by the foreign-directory run
+(`launchCardPage.ts` `shippedReferences`, `production-publication-fixture.spec.ts`,
+`agent-completion-attention.spec.ts`, `agent-completion-binding.spec.ts` (now
+through `recordOperation`), and the three `agent-launch-options*` specs) now use it. From
+`dashboard/`, `agent-launch-preparation-phases.spec.ts` 2 passed and no
+`dashboard/dashboard`. Full suite from `$TMPDIR` with `--config`: first run
+977 passed, 28 failed, all directory-dependent and fixed; second run 1004
+passed, 1 failed (see Learnings); ignored output only `dashboard/dist/`,
+`dashboard/test-results/`, `node_modules/`. `npm run test:dashboard --
+agent-launch-preparation-phases` from `dashboard/tests` exit 0;
+`npm run typecheck:dashboard` exit 0.
 Proof: Rows 3–5 of the proof table. The foreign-directory full run is the
 acceptance signal. Compare its pass count with the root baseline, and run any
 spec that fails there from the root as well, to tell a directory dependency
@@ -170,4 +182,9 @@ existing uses.
 
 ## Learnings
 
-None yet.
+- Slice 2: the suite now has 1005 tests (976 at `f09795ed`). In the second
+  full run from `$TMPDIR`, `agent-launch-cursor-model.spec.ts:35` timed out
+  once on `toContainText("First input accepted")` (5 s) with the "Execution
+  session" article absent. It passed in the first foreign-directory run and
+  15/15 with `--repeat-each=5` from both the root and `$TMPDIR`, so it is a
+  load race, not a directory dependency. Not reproduced; unresolved.

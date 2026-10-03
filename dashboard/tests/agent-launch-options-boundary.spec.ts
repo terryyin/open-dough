@@ -20,6 +20,7 @@ import {
   title,
 } from "./agentLaunchBoundary.ts";
 import { closeOpenSessions } from "./openStorySessionSetup.ts";
+import { repoRoot } from "./support/repositoryRoot.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -57,7 +58,7 @@ for (const mode of ["dev", "preview"] as const) {
     test.beforeEach(() => {
       rmSync(skillFolder(), { recursive: true, force: true });
       cpSync(
-        path.join("src", "skills", skill, "references"),
+        path.join(repoRoot, "src", "skills", skill, "references"),
         path.join(skillFolder(), "references"),
         { recursive: true },
       );

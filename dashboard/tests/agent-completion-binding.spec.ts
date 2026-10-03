@@ -21,6 +21,7 @@ import {
   builtDashboardDir,
 } from "./support/dashboardServer.ts";
 import { rawRequest } from "./support/rawHttp.ts";
+import { recordOperation } from "./support/completionRecovery.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 
 const exec = promisify(execFile);
@@ -155,26 +156,8 @@ for (const quiet of [false, true])
         else expect(bound?.doneAt).toBeUndefined();
         if (bound === undefined) throw new Error("No bound record");
         const stale = { ...bound, completion: undefined, doneAt: undefined };
-        const staleFile = path.join(origin.machine, "stale.json");
-        writeFileSync(staleFile, JSON.stringify(stale));
-        const storeUrl = new URL(
-          `file://${path.resolve("dashboard/server/launchRecordStore.ts")}`,
-        ).href;
-        const write = (operation: string) =>
-          exec(
-            process.execPath,
-            [
-              "--experimental-transform-types",
-              "--input-type=module",
-              "-e",
-              `import {readFileSync} from 'node:fs'; import {${operation}} from ${JSON.stringify(storeUrl)}; await ${operation}('open-dough', JSON.parse(readFileSync(${JSON.stringify(staleFile)}, 'utf8')));`,
-            ],
-            {
-              env: { ...process.env, HOME: server.home, NODE_NO_WARNINGS: "1" },
-            },
-          );
         for (const operation of ["updateRecord", "keepRecord"]) {
-          await write(operation);
+          await recordOperation(server, operation, ["open-dough", stale]);
           const [current] = (await recordsOf(
             server,
             "open-dough",

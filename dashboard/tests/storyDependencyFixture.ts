@@ -5,6 +5,7 @@ import path from "node:path";
 import { test as base } from "./dashboardTest.ts";
 import { startOrigin, type StartOrigin } from "./support/startOrigin.ts";
 import { recordAssessed, writePlanning } from "./storyReadinessCli.ts";
+import { repoRoot } from "./support/repositoryRoot.ts";
 
 export const consumer = {
   identity: "SEED-A#a",
@@ -22,7 +23,7 @@ export const condition =
 export const decision =
   "Which endpoint compatibility behavior does the consumer promise?";
 const cli = path.join(
-  process.cwd(),
+  repoRoot,
   "src/skills/dough-product-backlog/scripts/product-backlog.mjs",
 );
 

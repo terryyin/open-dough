@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { publishedMainFixture } from "./support/publishedMainFixture.ts";
+import { repoRoot } from "./support/repositoryRoot.ts";
 
 const exec = promisify(execFile);
 
@@ -50,7 +51,7 @@ test("a documentation-only publication pushes only its requested paths to origin
       "dashboard/server/productionDeployment.mjs",
     ])
       expect(await origin("show", `${published}:${file}`)).toBe(
-        await readFile(file, "utf8"),
+        await readFile(path.join(repoRoot, file), "utf8"),
       );
   } finally {
     fixture.cleanup();

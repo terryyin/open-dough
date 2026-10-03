@@ -4,13 +4,9 @@
 
 import { chmodSync, copyFileSync, linkSync, mkdirSync } from "node:fs";
 import path from "node:path";
+import { repoRoot } from "./repositoryRoot.ts";
 
-// Playwright runs this suite from the repository root (as `npm run
-// test:dashboard` and the isolated Vite launches both do); paths are built
-// from that rather than from `import.meta.url`, since Playwright's own
-// TypeScript transform loads test files as CommonJS, where `import.meta` is
-// unavailable.
-const fixturesDir = path.join(process.cwd(), "dashboard", "tests", "fixtures");
+const fixturesDir = path.join(repoRoot, "dashboard", "tests", "fixtures");
 
 // Each install hard-links the one committed script instead of copying it:
 // macOS assesses every newly created executable on its first run -- about
