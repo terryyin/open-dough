@@ -1,4 +1,4 @@
-# Project-settings CI repair
+# Execution CI repairs
 
 Part of [the active plan](PLAN.md); slice 2 remains `done`. No voice prerequisite
 or slice 3 completion is claimed here.
@@ -64,3 +64,38 @@ further candidate and reused unchanged proof without tests. The coordinator's
 `npm run format` passed under the same runtime/key-unset prefix; changed files
 remain at most 250 lines. This increment delivers the repair; the managed stash
 is restored afterward.
+
+## Dictation keyboard inventory repair
+
+Registered revision `fcf43c8802a9a92935e1506683f4edba9e7ec0e6` failed
+[run 37097443707, attempt 1](https://github.com/terryyin/open-dough/actions/runs/37097443707),
+job 111130153915, dashboard (9/9). Exact-attempt logs identify one stale
+keyboard inventory: `codexEffortDialogCases.ts` expects Host after the first
+Tab from the instruction field, where the newly added Record button belongs.
+This assertion defect is owned by slice 4; no infrastructure disposition applies.
+
+Slice 5's writer acknowledged quiescence, then managed stash preserved its four
+unfinished production paths. A fresh repair agent reproduced that exact failure
+at current HEAD before editing (terminal exit 1):
+
+```sh
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPENAI_API_KEY -u OPENAI_API_TOKEN PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- dashboard/tests/agent-launch-codex-model.spec.ts --grep 'model changes preserve compatible effort and retain incompatible selection with linked keyboard feedback' --workers=1
+```
+
+The repair adds Record focus and one Tab before the retained Host, Model and
+Reasoning effort checks. All compatibility, linked feedback, Start gating,
+reset and dismissal assertions remain. Root inspected the helper, its sole
+spec caller, actual dialog controls and real Git/start/preview fixture; only
+native Codex transport is substituted. Whole-spec green reached exit 0:
+
+```sh
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPENAI_API_KEY -u OPENAI_API_TOKEN PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- dashboard/tests/agent-launch-codex-model.spec.ts --workers=1
+```
+
+All 12 cases passed. Existing launch layout/model inventories already include
+Record; other Tab consumers exercise unrelated dashboard controls. The omitted
+root-level helper was a slice-4 consumer-review gap, not covered by the narrower
+earlier search. No product code changes. Fresh independent refactoring found
+no candidate, retaining proof without reruns. Coordinator formatting passed;
+changed files remain below 250 lines. Slice 4 stays done and slice 5 planned.
+This increment publishes the repair before managed restoration and resumption.

@@ -89,8 +89,10 @@ start; reuse its published claim without a second Take. Identity:
   registered as `cd8ae88e711c8820df2db8ed15474dd7de8d8170`; the managed stash
   restored slice 3 intact. Slice 3 then published as
   `f8479885631c9ec45dcbc5d992ae7ca801cec203`; the resumed slice 1 proof
-  published as `df507694d35f565620ad333a4f9a5b46e7cccf8c`, this increment's
-  previously published base.
+  published as `df507694d35f565620ad333a4f9a5b46e7cccf8c`. Slice 4 published as
+  `fcf43c8802a9a92935e1506683f4edba9e7ec0e6`, this repair's previously published
+  base. Its [Codex keyboard inventory repair](CI-REPAIR.md#dictation-keyboard-inventory-repair)
+  preserves all model/effort assertions; slice 5 resumes after managed restoration.
 - Node 24.21.0 selected from
   `/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin`.
   Checkout-bound locked setup and applicable command passed:
