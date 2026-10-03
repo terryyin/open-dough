@@ -48,11 +48,13 @@ never-policy run does not establish approval parity.
 The page reads machine records on load, while visible every 15 seconds, and
 when visible again. Attention counts share each entry's reading. The server
 also watches independently every 15 seconds, notifying macOS with Glass when an
-unmarked session enters an alerting reading; its first read establishes baseline,
-changed reason alone never repeats, and returning through working allows a new
-alert. Unknown never alerts; unavailable/unrecognized may. `osascript` receives
-argument text, never interpolated script; absence/refusal is reported in the
-open sidebar, and the watcher continues. Each server has its own alert baseline.
+unmarked session enters an alerting native reading, and once, as “Unread report:
+<completion label>”, when its report arrives, whatever the native reading; its
+first read establishes baseline, changed reason alone never repeats, and
+returning through working allows a new alert. Unknown never alerts;
+unavailable/unrecognized may. `osascript` receives argument text, never
+interpolated script; absence/refusal is reported in the open sidebar, and the
+watcher continues. Each server has its own alert baseline.
 
 Sessions sidebar lists unclosed records across projects: attention first oldest
 first, others newest first. Sessions button badge counts attention only. Rows

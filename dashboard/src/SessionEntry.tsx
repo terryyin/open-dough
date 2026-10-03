@@ -12,7 +12,11 @@ import {
 } from "./agentLaunch.ts";
 import { doneSessionName } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
-import { sessionShown, type SessionTone } from "./sessionShown.ts";
+import {
+  sessionShown,
+  unreadReportWording,
+  type SessionTone,
+} from "./sessionShown.ts";
 import { LaunchSession } from "./LaunchSession.tsx";
 import { showsSession, usePageSessions } from "./pageSessions.ts";
 import { CardActions, RecentActions } from "./sessionRecordActions.tsx";
@@ -130,7 +134,7 @@ export function shownSession(record: LaunchWithState): {
   const { label, note, needsAttention, tone, unreadReport } =
     sessionShown(record);
   const unreadReportWords =
-    unreadReport === undefined ? undefined : `Unread report: ${unreadReport}`;
+    unreadReport === undefined ? undefined : unreadReportWording(unreadReport);
   return {
     label,
     tone,

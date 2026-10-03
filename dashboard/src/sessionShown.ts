@@ -129,11 +129,28 @@ function nativeShown({
   }
 }
 
-// The reading that tells the developer, when a session enters it: the label
-// of every reading other than Working, for a session not marked done, else
-// nothing. Unlike `needsAttention`, it includes an unavailable or
-// explicitly unrecognized state, but not an incomplete activity read or an
-// unknown observation: unreadable evidence says nothing about the session.
+// The words an unread report shows by, wherever it shows or alerts.
+export function unreadReportWording(unreadReport: string): string {
+  return `Unread report: ${unreadReport}`;
+}
+
+// The unread report that tells the developer when it arrives, in its own
+// words, apart from the native reading: nothing once marked done.
+export function alertUnreadReport(
+  session: ReadableSession,
+): string | undefined {
+  const { unreadReport } = sessionShown(session);
+  return unreadReport === undefined
+    ? undefined
+    : unreadReportWording(unreadReport);
+}
+
+// The native reading that tells the developer, when a session enters it,
+// whatever its unread report: the label of every reading other than Working,
+// for a session not marked done, else nothing. Unlike `needsAttention`, it
+// includes an unavailable or explicitly unrecognized state, but not an
+// incomplete activity read or an unknown observation: unreadable evidence says
+// nothing about the session.
 export function alertReading(session: ReadableSession): string | undefined {
   if (session.doneAt !== undefined) return undefined;
   if (session.sessionState.kind === "unknown") return undefined;

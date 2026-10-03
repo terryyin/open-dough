@@ -3,13 +3,14 @@ import { sessionKey } from "../src/sessionReference.ts";
 // local launch boundary (`./agentLaunchPlugin.ts`), which starts it with the
 // boundary and stops it with the same cleanup. One loop, never overlapping,
 // reads the machine's sessions (`./agentLaunches.ts`) every few seconds and
-// remembers each session's last reading (`../src/sessionShown.ts`), per
-// server run: the first read only sets that baseline, a session first seen
-// later counts as having been working, and a session is notified once when
-// it enters a reading that needs the developer, again only after a reading
-// that does not. The notification is `osascript` with the text passed as
-// arguments, never spliced into script text; where it cannot run, or
-// refuses, the loop goes on. Availability is the latest `osascript` outcome,
+// remembers each session's last native reading and unread report
+// (`../src/sessionShown.ts`), per server run: the first read only sets that
+// baseline, a session first seen later counts as having been working with no
+// report, and a session is notified once when it enters a reading that needs
+// the developer, again only after a reading that does not, and once, in the
+// report's own words, when a report arrives unread. The notification is
+// `osascript` with the text passed as arguments, never spliced into script
+// text; where it cannot run, or refuses, the loop goes on. Availability is the latest `osascript` outcome,
 // a probe at start and then each notification, with one of two fixed
 // reasons; raw stderr is never kept or forwarded.
 
@@ -21,7 +22,7 @@ import {
   type LaunchWithState,
 } from "../src/agentLaunch.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
-import { alertReading } from "../src/sessionShown.ts";
+import { alertReading, alertUnreadReport } from "../src/sessionShown.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 
 const defaultCheckMs = 15_000;
@@ -65,28 +66,38 @@ function osascript(
   });
 }
 
-function notification(
+// What a native reading's notification says: the reading, with what the
+// session waits for.
+function readingMessage(
   reading: string,
-  { request, sessionState }: LaunchWithState,
-): { readonly message: string; readonly title: string } {
-  const project =
-    configuredProjects().find((source) => source.id === request.source)
-      ?.label ?? request.source;
+  { sessionState }: LaunchWithState,
+): string {
   const waitingFor =
     sessionState.kind === "available" && sessionState.activity === "waiting"
       ? sessionState.waitingFor
       : undefined;
-  return {
-    message: waitingFor === undefined ? reading : `${reading}: ${waitingFor}`,
-    title: `${project} · ${launchSubject(request).title}`,
-  };
+  return waitingFor === undefined ? reading : `${reading}: ${waitingFor}`;
 }
+
+function notificationTitle({ request }: LaunchWithState): string {
+  const project =
+    configuredProjects().find((source) => source.id === request.source)
+      ?.label ?? request.source;
+  return `${project} · ${launchSubject(request).title}`;
+}
+
+// What a session last read as, for alerting: its native reading and its
+// unread report's words, each that tells the developer, or nothing.
+type Alerting = {
+  readonly reading: string | undefined;
+  readonly report: string | undefined;
+};
 
 export class SessionAlerts {
   private readonly stopped = new AbortController();
-  // Each session's last reading that needs the developer, or nothing; unset
-  // until the first read of this run.
-  private readings: ReadonlyMap<string, string | undefined> | undefined;
+  // Each session's last alerting reading and unread report; unset until the
+  // first read of this run.
+  private lastAlerting: ReadonlyMap<string, Alerting> | undefined;
   // Why the latest `osascript` did not work, or nothing while it did or none
   // has run.
   private unavailable: string | undefined;
@@ -133,24 +144,35 @@ export class SessionAlerts {
 
   private async poll(signal: AbortSignal): Promise<void> {
     const sessions = await this.launches.machineSessions();
-    const before = this.readings;
+    const before = this.lastAlerting;
     const now = sessions.map((session) => ({
       session,
       id: sessionKey(session.session),
-      reading: alertReading(session),
+      alerting: {
+        reading: alertReading(session),
+        report: alertUnreadReport(session),
+      },
     }));
-    this.readings = new Map(now.map(({ id, reading }) => [id, reading]));
+    this.lastAlerting = new Map(now.map(({ id, alerting }) => [id, alerting]));
     if (before === undefined) return;
-    for (const { session, id, reading } of now) {
-      if (reading === undefined || reading === before.get(id) || signal.aborted)
-        continue;
-      const { message, title } = notification(reading, session);
-      await this.attempt([
-        ...notifyScript.flatMap((line) => ["-e", line]),
-        "--",
-        message,
-        title,
-      ]);
+    for (const { session, id, alerting } of now) {
+      const { reading, report } = alerting;
+      const last = before.get(id);
+      const messages = [
+        ...(reading === undefined || reading === last?.reading
+          ? []
+          : [readingMessage(reading, session)]),
+        ...(report === undefined || report === last?.report ? [] : [report]),
+      ];
+      for (const message of messages) {
+        if (signal.aborted) return;
+        await this.attempt([
+          ...notifyScript.flatMap((line) => ["-e", line]),
+          "--",
+          message,
+          notificationTitle(session),
+        ]);
+      }
     }
   }
 

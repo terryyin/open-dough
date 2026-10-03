@@ -103,7 +103,21 @@ the completion label.
 
 ### 2. A report's arrival alerts in its own words
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `session-alerts-unread-report.spec.ts` (split from
+`session-alerts.spec.ts` for size) observes one “Unread report: Completed
+with attention” notice while native working, no repeat on further
+listings, then “Needs input: Which port?”, and none for a session marked
+done that then reports and stops. With `session-alerts.spec.ts`,
+`session-alerts-unavailable.spec.ts`,
+`agent-launch-codex-observation-alerts.spec.ts` and
+`session-unread-report.spec.ts`: 14 passed, and 42 of 42 over three repeats
+at load ~44; the consumer grep selected 55, all passing; typecheck clean. Launch-and-report
+setup is shared in `tests/support/reportedLaunch.ts`. A report and a native
+change seen in the same poll raise two notices, each as it would alone.
+Open observation: one run of `session-unread-report.spec.ts` failed during
+refactoring at load ~40 (whole command 3.1m) with its detail lost; it did
+not recur in 48 later runs at comparable load, so its cause is unknown.
 Proof: example 6 added to `session-alerts.spec.ts` (synthetic `claude` and
 `osascript`, real reporting command); existing `session-alerts*.spec.ts` and
 `agent-launch-codex-observation-alerts.spec.ts` still pass.
