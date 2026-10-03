@@ -20,6 +20,7 @@ import {
   useDashboardRoute,
 } from "./dashboardRoute.ts";
 import { useProjectKeyboardNavigation } from "./projectKeyboardNavigation.ts";
+import type { PublishedSource } from "./publishedSource.ts";
 import {
   focusStages,
   returnFocusTo,
@@ -37,7 +38,20 @@ type RosterOpening = {
   readonly work: FocusedWork | undefined;
 };
 
-export function ConfiguredDashboard() {
+export type DashboardSelection = {
+  readonly source: PublishedSource;
+  readonly select: (source: PublishedSource) => void;
+};
+
+export function ConfiguredDashboard({
+  settingsOpen,
+  onOpenSettings,
+  onDashboardReady,
+}: {
+  readonly settingsOpen: boolean;
+  readonly onOpenSettings: () => void;
+  readonly onDashboardReady: (value: DashboardSelection) => void;
+}) {
   const projects = useProjects();
   const [opening, setOpening] = useState<RosterOpening | undefined>();
   const latestOpening = useRef<RosterOpening | undefined>(undefined);
@@ -84,12 +98,20 @@ export function ConfiguredDashboard() {
     showStories,
   } = useDashboardRoute({
     sourceId: source.id,
+    suspended: settingsOpen,
     selectSource,
     onReturnToStories,
     onForwardToRoster,
   });
 
-  useProjectKeyboardNavigation({ source, selectProject });
+  useProjectKeyboardNavigation({
+    source,
+    selectProject,
+    enabled: !settingsOpen,
+  });
+  useLayoutEffect(() => {
+    onDashboardReady({ source, select: selectProject });
+  });
 
   const openRoster: OpenRoster = (agent, element) => {
     const openingInfo: RosterOpening = {
@@ -160,6 +182,7 @@ export function ConfiguredDashboard() {
         work={work}
         reading={reading}
         failed={attempt.status === "failed"}
+        onOpenSettings={onOpenSettings}
         onSelect={selectProject}
         onRefresh={refresh}
       />

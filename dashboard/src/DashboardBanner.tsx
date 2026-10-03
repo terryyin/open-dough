@@ -1,7 +1,5 @@
 import { useLayoutEffect, useRef } from "react";
 import { keepHeight } from "./measuredHeight.ts";
-import { AddProject } from "./AddProject.tsx";
-import { RemoveProject } from "./RemoveProject.tsx";
 import { ProjectSelect } from "./ProjectSelect.tsx";
 import { SessionsButton } from "./SessionSidebar.tsx";
 import { SourceStatus } from "./SourceStatus.tsx";
@@ -13,6 +11,7 @@ export function DashboardBanner({
   work,
   reading,
   failed,
+  onOpenSettings,
   onSelect,
   onRefresh,
 }: {
@@ -20,6 +19,7 @@ export function DashboardBanner({
   readonly work: PublishedWork | undefined;
   readonly reading: boolean;
   readonly failed: boolean;
+  readonly onOpenSettings: () => void;
   readonly onSelect: (next: PublishedSource) => void;
   readonly onRefresh: () => void;
 }) {
@@ -50,8 +50,13 @@ export function DashboardBanner({
       <div className="project-controls">
         <ProjectSelect source={source} onSelect={onSelect} />
         <div className="project-configuration-actions">
-          <AddProject onSelect={onSelect} />
-          <RemoveProject source={source} onSelect={onSelect} />
+          <button
+            type="button"
+            aria-label="System settings"
+            onClick={onOpenSettings}
+          >
+            System settings
+          </button>
         </div>
       </div>
       <SourceStatus

@@ -3,6 +3,7 @@ import type { Plugin } from "vite";
 import {
   projectAddEndpoint,
   projectListEndpoint,
+  projectSettingsEndpoint,
   projectRemoveEndpoint,
 } from "../src/projectConfiguration.ts";
 import { ProjectInputProblem } from "../src/projectInput.ts";
@@ -10,6 +11,7 @@ import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import {
   configuredProject,
+  projectSettings,
   publishedProjects,
   removeConfiguredProject,
 } from "./projectConfiguration.ts";
@@ -24,10 +26,15 @@ async function answer(
   signal: AbortSignal,
 ) {
   verifyLocalOrigin(req);
-  if (pathname === projectListEndpoint) {
+  if (
+    pathname === projectListEndpoint ||
+    pathname === projectSettingsEndpoint
+  ) {
     if (req.method !== "GET")
       throw new RefusedRequest(405, "Only GET is accepted.");
-    return publishedProjects();
+    return pathname === projectSettingsEndpoint
+      ? projectSettings()
+      : publishedProjects();
   }
   if (req.method !== "POST")
     throw new RefusedRequest(405, "Only POST is accepted.");
@@ -68,6 +75,7 @@ export function projectConfigurationPlugin(): Plugin {
       const url = new URL(req.url ?? "", "http://placeholder");
       if (
         url.pathname !== projectListEndpoint &&
+        url.pathname !== projectSettingsEndpoint &&
         url.pathname !== projectAddEndpoint &&
         url.pathname !== projectRemoveEndpoint
       ) {
