@@ -79,9 +79,23 @@ sentences around them.
 
 ### 1. Proof selection reaches every kind of consumer
 Type: Behavior
-Status: planned
+Status: done
 Proof: replay review of examples 1–6 and 8 against `executable-proof.md`;
 links test.
+
+Accepted proof: links test exit 0. A fresh reviewer reading only
+`executable-proof.md` and the case facts selected each required consumer by
+quoting the new consumer paragraph: the retired-literal search (1, 2, 3),
+whole-page specs plus the one-minute suite under the cheap-suite sentence (4),
+every stand-in "not only those the edit touched" (5), callers not overriding
+the default (6), and focused proof for the private rename (8).
+
+Learnings for slice 2: case 6's end-to-end features were reached only through
+the cheap-suite and actual-use sentences, and "focused-check time" is not
+defined; the reviewer still applied it as intended. `wrap-up.md:37-43` still
+says "do not require every suite or all callers" and limits acceptance to a
+"shared operation or contract"; `delegation.md:41-42` still says "broaden
+testing only when…", split across a line break, so a one-line grep misses it.
 
 Behavior: an agent choosing proof for a change that rewords a message, retires
 a value, changes a default, changes a shared contract's stand-ins, or renders
