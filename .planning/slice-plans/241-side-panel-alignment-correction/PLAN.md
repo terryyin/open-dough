@@ -8,8 +8,9 @@ authorizes no implementation or publication.
 
 ## Provenance
 
-Original contract: [Show story review and terminal in one resizable side panel](../../seeds/SEED-091-dashboard-ui-renovation.md#review-and-terminal-share-side-panel)
-and its plan `240-review-terminal-side-panel` as prepared at `b4ec4e42`.
+Original contract: SEED-091#review-and-terminal-share-side-panel, at
+`3775c64d:.planning/seeds/SEED-091-dashboard-ui-renovation.md`, and its plan
+`b4ec4e42:.planning/slice-plans/240-review-terminal-side-panel/PLAN.md`.
 Reviewed commits: `2c64ac94` (slice 1), `48e7e820` (slice 2), `d02ade82` (CI
 test repair), `594045a2` (slice 3).
 
