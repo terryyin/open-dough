@@ -266,3 +266,17 @@ reading and actions, with no new workflow or deferred capability machinery.
 - Screenshots/height measurements are future execution proof, not obtained
   acceptance. The preparation recorder owns readiness; no plan status or
   execution-complete record is created here.
+
+## Execution complete
+
+Product advice: The card renovation delivered its promises with measured
+density gains (ordinary Backlog card 321.8→185.7px at 1440px). Execute the
+bounded correction
+[Align product guidance, shared styles, and tests with the renovated cards](../../seeds/SEED-091-dashboard-ui-renovation.md#card-renovation-alignment)
+([plan 241](../241-card-renovation-alignment/PLAN.md)) before or alongside the
+next SEED-091 story, since that story reworks the same review and session
+surfaces. It corrects stale README, requirements and assignment guidance, the
+shared `.card-identity` spacing the roster and Recent sessions lost, and
+duplicated card-test walks; it adds no product promise. The remaining 5 s
+launch-answer waits stay with ProjectFindings DD-222. No backlog priority
+change is recommended.

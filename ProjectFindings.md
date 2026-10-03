@@ -178,6 +178,14 @@ Proposal from the review: For a fault injected after a native event, observe tha
   - Evidence: CI runs 37107532924 and 37109262826 (`dashboard (5/9)`) failed `agent-launch-ad-hoc-cursor.spec.ts:138` with two attaches; an unchanged copy failed 13 of 25 under local load and a held page connection failed 5 of 5; repair `aeb9c33d` shares a working fake Cursor fixture. CI run 37111699644 (`dashboard (2/9)`) failed `responsive-session-reconciliation.spec.ts:135` with one extra compare; a probe forcing the CI order failed 4 of 4, also at `aeb9c33d`; repair `a25a762f`, re-fixed for main's paused-clock flow in merge `5f09513c`. The launch-card specs `agent-launch-cursor-model`, `agent-launch-preparation-{codex,cursor,kept}` and `agent-launch-start-{codex,cursor,taken}` failed 7 times in one full local run under load and 18 of 40 at `--repeat-each 4 --workers 16`, passing at `--workers 2`; not seen in CI.
   - Observed effect: three failed CI runs and two repair commits; the launch-card waits remain unrepaired.
   - Inference: Qualified. Both repaired races are DD-199's shape: a fault or state change triggered before a required page event was observed. The launch-card waits use the default expect timeout where the specs already allow a 30 s launch.
+- Execution: `SEED-091#story-card-information-radiator` / plan 231, first related implementation commit `c58dc07d`
+  - Timestamp: unknown (slice 2 implementation, before `dc03853b` committed 2026-10-03T22:31:14+08:00)
+  - Tool: Claude Code (coordinator and delegated agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: a 78-spec card-action run at load about 41 failed `agent-launch-start-codex.spec.ts` "Codex card start publishes one claim…" waiting 5 s for `.launch-problem` while the card still said "Starting execution in Codex…". Temporary timing showed the answer at about 1.8 s idle and 4.3 s under 48 busy loops, mostly in the real Take publication; unchanged HEAD failed the same way at load about 160. `dc03853b` exports `launchWaitMs` (30 s) from `dashboard/tests/support/codexStart.ts` and waits for that answer with it; 2 of 2 passed at load about 160.
+  - Observed effect: one return to implementation; the Codex start wait is repaired. The other launch-card waits listed above were not changed.
+  - Inference: Same cause as the launch-card waits above: a 5 s default against a real start the fixture already bounds at 30 s.
 
 ## Checks whose result depends on where or how they are run (second priority, queued)
 
@@ -305,6 +313,21 @@ command therefore passed without the checkout's locked dev dependencies.
   - Observed effect: the coordinator caught it only by checking for the worktree's own `tsc` after the cheap check passed, at a cost of one reinstall. Every later npm and npx command needed `NODE_ENV=development`.
   - Inference: Qualified. The dashboard deployment runs under `npm run preview:dashboard` (`dashboard/server/productionDeployment.mjs`), and its terminal spawns appear to pass no `env`, so a launched host inherits the server's environment. Proof run with the deployment's tool versions can differ from CI's. This sits close to ODF-087 (a readiness check passing on a substitute), but here the cause and fix are in the dashboard's launch environment.
 
+### DD-226 — Concurrent Playwright runs in one checkout rebuild the shared `dashboard/dist` under each other
+
+The dashboard suite builds production assets into `dashboard/dist` once per run (`dashboard/tests/support/globalSetup.ts`). A second run started from the same checkout rebuilds that directory while the first is still serving it.
+
+#### Occurrences
+
+- Execution: `SEED-091#story-card-information-radiator` / plan 231, first related implementation commit `c58dc07d`
+  - Timestamp: unknown (slice 1 implementation, before `c58dc07d` committed 2026-10-03T21:36:52+08:00)
+  - Tool: Claude Code (delegated implementation agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: the slice 1 agent's full dashboard run gave 1002 passed and 1 failed, `agent-launch-claude-verification.spec.ts` "Recheck records the one session…" (Taken membership heading mismatch), while its other Playwright runs in the same checkout rebuilt `dashboard/dist`; the spec passed 3 of 3 alone and again in a later isolated run.
+  - Observed effect: one unexplained full-run failure and later delegations carrying a "never run two Playwright invocations at once" rule.
+  - Inference: Qualified. The rebuild is the likely cause, but the failing run was not kept and the cause is not reproduced. A per-run output directory or a lock would make overlapping runs safe.
+
 ## Local proof that leaves out what another CI job checks (third priority, not queued)
 
 A change proved locally should not fail a CI job for a reason the local proof
@@ -369,6 +392,21 @@ Ubuntu runner did not.
   - Evidence: CI run 36591803631 `test (1/2)`: `FAIL: counterexample command-only (signal setup-marker) changes signals remote-claim, setup-marker (fields claim-owned, …)`; local `tests/git-publication-native.sh` passed. A repro with one extra commit under the claim gave `claim-owned: false` with `PIPESTATUS` `141 0`. Repaired in `66f96e34`; slice 7 (`abf2fc4f`) fixed three more observer derivations of the same shape.
   - Observed effect: one CI repair cycle (pause, stash, diagnosis agent, refactor pass, publication) during slice 6.
   - Inference: Qualified. A different mechanism from DD-186's load-dependent races. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh` and `tests/helpers/product-backlog-payload-runtime.bash`.
+
+### DD-227 — A one-line layout assertion fitted macOS text widths and failed under CI's Linux fonts
+
+A slice-2 journey asserted that a card's Starts and its note share one line at 1440px. On macOS that content needs 504px of a 537px group; CI's wider Linux fonts wrapped it.
+
+#### Occurrences
+
+- Execution: `SEED-091#story-card-information-radiator` / plan 231, first related implementation commit `c58dc07d`
+  - Timestamp: 2026-10-03T22:34:24+08:00 (failing CI log line, run 37129894062)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: CI run 37129894062 `dashboard (3/9)` on `dc03853b` failed `agent-launch-card-noted-start.spec.ts:60` at `expectOnOneLine` (`pageLayout.ts:149`), top difference 39.56px. A `.start-launch-note { letter-spacing: 0.6em }` injection reproduced it locally. Repair `138f693c` keeps the strict check for the ordinary card (283px of 537px) and adds `expectOnOneLineWhenRoom` (`dashboard/tests/partArrangement.ts`) for the noted card.
+  - Observed effect: one failed CI run and one repair commit.
+  - Inference: Qualified. Layout assertions whose margin is a few percent of a text width depend on the platform's fonts; the other slice-2 one-line checks had about 2x headroom.
 
 ## Native host runs and observations routed through the developer (low priority, not queued)
 

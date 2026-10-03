@@ -191,6 +191,37 @@ covers the dashboard in a dialog and both panels look and behave the same.
   chosen width is remembered, width limits, maximize behavior for the review,
   and keyboard access to resizing.
 
+<a id="card-renovation-alignment"></a>
+
+### Align product guidance, shared styles, and tests with the renovated cards
+
+**Identity:** SEED-091#card-renovation-alignment
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/241-card-renovation-alignment/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6307a4352f88882d3a2217b2985147eadab3d31e72e23afcb66af14c9c0582e5","plan":"5e28c4c3174c43caf0b950d3ed72b2e6651f26891369a5bb7470921c311695e0"}}
+```
+
+**Slice plan:** [Card renovation alignment](../slice-plans/241-card-renovation-alignment/PLAN.md).
+
+**Goal:** A maintainer reading the dashboard's guidance, or changing the
+renovated story cards later, finds documentation that says where each card
+fact is actually shown, roster and session identity lines laid out as before
+the card renovation, and card tests that open detail explicitly and prove each
+focus walk once. This bounded retrospective correction of
+[the story-card renovation](#story-card-information-radiator) adds no product
+promise.
+
+**Scope:**
+
+- Correct the dashboard guidance and code comment that misplace the
+  dependency explanation, assignment metadata, and human-developer and field
+  gaps relative to the card's scan view and inspected detail.
+- Restore the shared story-identity spacing outside the card while keeping the
+  inspected detail as delivered.
+- Move story-detail opening out of the whole-snapshot check into explicit
+  steps, and remove duplicated focus-return walks from the action-group tests.
+- Excludes the remaining launch-answer waits under load, which belong to their
+  own recorded finding, and any change to card behavior or presentation.
+
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).

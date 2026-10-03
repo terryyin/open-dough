@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 224. Removed local codes are never reused.
+- Highest allocated local number: 227. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -218,6 +218,7 @@ Follow-up: Open, unqueued.
 - Execution: `SEED-094#observe-ci-on-codex-and-cursor` / plan 235, first related implementation commit `c02158fc` - Timestamp: unknown (before `c02158fc` committed 2026-10-03T18:33:40+08:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: before the first delivery the coordinator printed `execution-increment-delivery.mjs --help` and inferred `refs/heads/<execution branch>` from Story Branch wording; the established start listed `target: main`. - Observed effect: one bundled read; delivery accepted first time. - Inference: Qualified; same missing statement, low cost.
 - Execution: `SEED-052#unread-report-apart-from-engagement` / plan 238, first related implementation commit `f1221461` - Timestamp: unknown (between the slice 1 commit at 2026-10-03T19:49:17+08:00 and its delivery) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: before the first delivery the coordinator printed `execution-increment-delivery.mjs --help`, grepped `targetRef` in it, and read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. - Observed effect: three extra tool calls; delivery accepted first time. - Inference: Qualified; same missing statement.
 - Execution: `SEED-091#frame-look-checks-one-rule` / plan 236, first related implementation commit `03c9316c` - Timestamp: unknown (delivery of `03c9316c`, after its commit on 2026-10-03) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: first `deliver` passed `--target-ref main` from the established start's `target` and was refused with "authorized target must be a branch ref: main"; the coordinator then grepped the script and read its lines 60–110 before retrying with `refs/heads/<execution branch>`, which was accepted with observation attached. `publish-the-candidate.md:12-13` does name `refs/heads/<target-branch>`, but the coordinator had read only `trunk-publication.md`'s delivery sections. - Observed effect: one refused call and two lookup calls; no state change. - Inference: Qualified; the same missing statement in the references the delivery path directs a coordinator to read.
+- Execution: `SEED-091#story-card-information-radiator` / plan 231, first related implementation commit `c58dc07d` - Timestamp: unknown (before the delivery of `c58dc07d`, committed 2026-10-03T21:36:52+08:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: while slice 1 ran, the coordinator printed `execution-increment-delivery.mjs --help`, grepped `targetRef` in it, and read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. - Observed effect: three extra tool calls; both deliveries were accepted first time. - Inference: Qualified; same missing statement.
 
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
 
@@ -599,3 +600,20 @@ Follow-up: Open, unqueued.
   - Evidence: the slice 2 refactor report says one run of its alert command failed `session-unread-report.spec.ts` (13 passed, 3.1m, load about 40) and that "the rerun overwrote its output"; the coordinator then ran that spec `--repeat-each 6 --workers 6` and the full command `--repeat-each 3` (48 passes at load about 42–44); plan 238 slice 2 records the failure as an open observation.
   - Observed effect: two extra reproduction runs (about one minute) and a flaky-test question left without a cause.
   - Inference: Qualified. The failure may have been load alone, but nothing retained can show it; keeping a failed run's report or `test-results` before rerunning would have answered it. One sample.
+
+## DD-225 — A plan's preparation context named a workspace and branch that the execution's established start had replaced
+
+Plan 231's "Preparation context" records the workspace and branch where it was prepared. A later Take created a different workspace and branch for execution. The plan still names the old ones, and nothing in the plan marks them as superseded by the established start.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+
+- Execution: `SEED-091#story-card-information-radiator` / plan 231, first related implementation commit `c58dc07d`
+  - Timestamp: unknown (slice 1 delegation, before `c58dc07d` committed 2026-10-03T21:36:52+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: plan 231 "Preparation context" names `.worktrees/make-story-cards-modern-compact-information-radi` and branch `codex/make-story-cards-modern-compact-information-radi`; the established start named `.worktrees/make-story-cards-modern-compact-information-radi-2` and `claude/make-story-cards-modern-compact-information-radi-2`. Both slice delegations had to tell the implementation agent to ignore the plan's names.
+  - Observed effect: no wrong-checkout edit; one added caution per delegation.
+  - Inference: Qualified. A delegated agent that reads the plan without that caution could work in the stale preparation workspace if it still exists. One sample.
