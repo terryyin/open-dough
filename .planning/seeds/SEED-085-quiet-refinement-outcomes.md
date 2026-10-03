@@ -24,7 +24,7 @@ another approval interaction. Start streamlining with refinement.
 **Identity:** SEED-085#quiet-refinement-outcomes
 **Slice plan:** [Quiet refinement outcomes](../slice-plans/223-quiet-refinement-outcomes/PLAN.md).
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/223-quiet-refinement-outcomes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fa644c0d6d8edbf4f59f63de871f86c7c8f10ca335358020a9ca5e6c8d7c313d","plan":"635d2d4ed4d7c91377335821a188608b90d702a7028fe41505a59858bbe7ad01"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/223-quiet-refinement-outcomes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"27404f5f9cab1e09918e90406b119b8b9fce6c856b1f426f9e6013e90762a9cf","plan":"1f227642c7ae156198061dad6686993975e938129490dee7774432f641f7d54d"}}
 ```
 
 **Goal:** A developer who finishes refining a story learns at once whether it
@@ -66,10 +66,12 @@ success no longer costs an acknowledgement round trip.
   the outcome with that commit for review, and auto-land lands only on a
   ready outcome, exactly as today when no decision remains.
 - “Flawless” is the refining agent's judgment, reported in prose. Refinement
-  still records `refined` with an unselected approach and grants no planless
+  still records `refined`, preserves an existing selected approach, and leaves
+  the approach unselected when none was selected. It grants no planless
   authority: `planless` requires an explicit human or parent instruction to
   skip planning, which the next-step command supplies when the developer runs
-  it.
+  it. The outcome does not itself create or renew a recorded readiness
+  assessment; the existing preparation review procedure owns that assessment.
 - When several stories are refined together, report one outcome per story.
 
 **Constraints:** Readiness does not authorize planning or implementation
@@ -112,6 +114,18 @@ those sessions report. Neither is a prerequisite.
    listing that decision.
 6. The recorder refuses the story-state write → “Needs human engagement” names
    the refusal and what the developer must resolve.
+7. A story already has a slice plan → refinement preserves the planned
+   approach and plan association, and the next step uses that existing plan
+   rather than creating another. Any readiness assessment follows review of
+   the current story and plan, independently of the reported outcome.
+8. Required context is missing before the seed can be updated → “Needs human
+   engagement” identifies the missing input and who can supply it, explains
+   which activity can resume afterwards, and makes no claim that refinement
+   was recorded.
+9. Two stories are refined together, one understood and one awaiting a scope
+   decision → each gets its own outcome and next step or expected response;
+   the clear story does not acquire the other's decision or lose its useful
+   result.
 
 ## Breadcrumbs
 
@@ -121,4 +135,7 @@ those sessions report. Neither is a prerequisite.
 - 2026-10-03 refinement: added stopped refinements and boundary changes to
   the human-engagement outcome; defined “flawless” against planless sizing and
   authority; deferred dashboard session closure to SEED-008's mechanism.
+- 2026-10-03 refinement follow-up: preserved existing preparation approaches
+  and plan links, separated reported outcomes from recorded assessment, and
+  added examples for an existing plan, unavailable context, and mixed outcomes.
 - [Product backlog](../PRODUCT-BACKLOG.md).

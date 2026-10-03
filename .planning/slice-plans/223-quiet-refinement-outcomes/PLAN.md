@@ -15,9 +15,11 @@ recommended answer when there is one, and what continues afterwards. This
 applies to ordinary and one-shot refinement, direct and dashboard-started.
 
 Unchanged: ordinary refinement leaves its draft uncommitted, and one-shot
-refinement commits it. Recorded facts stay `refined` with an unselected
-approach. “Flawless” grants no planless authority and records neither `ready`
-nor `planless`.
+refinement commits it. Recorded facts stay `refined`; preserve any existing
+selected approach and plan association, otherwise leave the approach
+unselected. “Flawless” grants no planless authority. Reporting an outcome does
+not create or renew `ready` or select `planless`; the existing preparation
+review procedure still owns assessment of the current story and any plan.
 
 Excluded, as the story defers: a dashboard-visible flawless state or new
 story-state value, automatic dashboard session Done for refinement sessions,
@@ -85,6 +87,12 @@ slice planning, uncommitted, no question), 2 (flawless with the skip-planning
 command, state still unselected) and 3 (open decision listed with a
 recommendation). Then the local gate.
 
+Also walk examples 7–9: an existing plan stays associated and supplies the next
+step; missing context before a seed write produces engagement without claiming
+a recorded refinement; mixed stories retain independent outcomes. Pin these
+reporting promises in the same focused guidance test without adding recorder
+or dashboard behavior.
+
 Behavior: a developer refines a story (direct or with an established
 preparation) → the report ends with exactly one outcome per story:
 - **Ready for slice planning** or **Flawless — ready for execution** gives the
@@ -97,8 +105,11 @@ preparation) → the report ends with exactly one outcome per story:
   missing context, and stopped writes, recordings or landings.
 
 The section defines flawless by reference to slice sizing, decisive premises
-and planless authority, and states that flawless records neither `ready` nor
-`planless`. Update the SKILL.md report sentence ("Report the story links,
+and planless authority, preserves existing approaches and plan associations,
+and separates its reported outcome from assessment under the unchanged
+preparation review procedure. It claims no completed seed write when context
+is missing and gives each story an independent outcome. Update the SKILL.md
+report sentence ("Report the story links,
 material constraints and deferred promises, and unresolved decisions") to
 point at the section, keeping the keep/discard and workspace close/retain
 clause. Several stories get one outcome each.
