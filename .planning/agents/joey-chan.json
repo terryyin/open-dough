@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "joey-chan",
+  "email": "joey-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-084#session-instruction-voice-input",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
