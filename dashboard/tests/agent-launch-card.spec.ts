@@ -5,7 +5,8 @@
 // which records what it was asked; the real one is never reached. A launch
 // that did not start is ./agent-launch-card-problems.spec.ts; how a card's
 // sessions stay listed, two launches as two entries newest first, is
-// ./agent-launch-card-sessions.spec.ts.
+// ./agent-launch-card-sessions.spec.ts. A clickable noted Start's look is
+// ./agent-launch-card-noted-start.spec.ts.
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
