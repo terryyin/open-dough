@@ -97,6 +97,31 @@ for (const mode of ["dev", "preview"] as const) {
       );
     });
 
+    test("an empty chat that shows Plan, search, build anything receives the instruction", async ({
+      mode: launchMode,
+    }) => {
+      test.setTimeout(120_000);
+      const cursor = installFakeCursor({ screen: "composer" });
+      await withCursorLaunch(launchMode, cursor, async (server) => {
+        const launched = await launch(server, {
+          source: "open-dough",
+          workflow: "ad-hoc",
+          host: "cursor",
+          instruction,
+        });
+        expect(launched.status).toBe(200);
+        const recorded = keptCursor(server.home);
+        expect(recorded.firstInput).toMatchObject({
+          state: "confirmed",
+          instruction: expect.stringContaining(instruction),
+        });
+        const pid = cursor.attaches()[0]?.pid ?? 0;
+        expect(enteredInstruction(cursor, pid)).toBe(
+          recorded.firstInput?.instruction,
+        );
+      });
+    });
+
     test("an answer typed while the agent is asking reaches that client", async ({
       mode: launchMode,
     }) => {
