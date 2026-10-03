@@ -1,7 +1,7 @@
 // The development checkout supplies this owner, but installation, building,
 // and preview all run in a separate checkout of the selected origin/main commit.
 // Launch/session records remain at their existing machine-home locations.
-import { mkdir, mkdtemp, rm } from "node:fs/promises";
+import { copyFile, mkdir, mkdtemp, readdir, rm } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { stripVTControlCharacters } from "node:util";
@@ -131,6 +131,31 @@ export async function stageDeployment(options) {
       commandOptions,
       180_000,
     );
+    // These machine-local cartoons remain ignored by Git. Raw source photos
+    // and other local files never enter the production checkout or build.
+    const cartoonPath = "dashboard/public/agent-avatars/odd-e-nerds/cartoon";
+    const source = path.join(options.developmentRoot, cartoonPath);
+    const cartoons = await readdir(source, { withFileTypes: true }).catch(
+      (error) => {
+        if (
+          error instanceof Error &&
+          "code" in error &&
+          error.code === "ENOENT"
+        ) {
+          return [];
+        }
+        throw error;
+      },
+    );
+    for (const cartoon of cartoons) {
+      if (!cartoon.isFile() || !cartoon.name.endsWith(".webp")) continue;
+      const destination = path.join(directory, cartoonPath);
+      await mkdir(destination, { recursive: true });
+      await copyFile(
+        path.join(source, cartoon.name),
+        path.join(destination, cartoon.name),
+      );
+    }
     await command("npm", ["run", "build:dashboard"], commandOptions, 120_000);
     return { directory, remove };
   } catch (error) {

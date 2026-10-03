@@ -5,9 +5,11 @@ import { useProjects, useReplaceProjects } from "./projectList.tsx";
 
 export function RemoveProject({
   source,
+  selectedId,
   onSelect,
 }: {
   readonly source: PublishedSource;
+  readonly selectedId: string | undefined;
   readonly onSelect: (source: PublishedSource) => void;
 }) {
   const launcher = useRef<HTMLButtonElement>(null);
@@ -19,7 +21,7 @@ export function RemoveProject({
       <button
         type="button"
         className="remove-project"
-        aria-label="Remove project"
+        aria-label={`Remove project ${source.label}`}
         ref={launcher}
         onClick={() => {
           setOpen(true);
@@ -41,16 +43,11 @@ export function RemoveProject({
             );
             const next = saved[index] ?? saved[0];
             replaceProjects(saved);
-            if (next) onSelect(next);
-            else window.history.replaceState(null, "", "/");
+            if (next && source.id === selectedId) onSelect(next);
             requestAnimationFrame(() => {
-              const destination =
-                document.querySelector<HTMLInputElement>(
-                  ".project-select input:checked",
-                ) ??
-                document.querySelector<HTMLButtonElement>(
-                  "button[aria-label='Add project']",
-                );
+              const destination = document.querySelector<HTMLButtonElement>(
+                "button[aria-label='Add project']",
+              );
               destination?.focus();
             });
           }}

@@ -29,6 +29,32 @@ sends nothing on Cancel/Escape. Start commits the request at once and closes the
 modal when the local service has accepted it, before the start or session ends;
 [startup handoff](#startup-handoff-and-reconciliation) follows it from there.
 
+The same instruction field offers Record and Stop recording. Configure general
+OpenAI access in System settings → OpenAI first; no environment-key fallback
+is used. Missing-key guidance opens those settings and returns to the same
+launch draft. Permission, recording and transcription have visible status.
+Stop releases the microphone before sending one completed clip to the local
+server, which uses its saved key with `gpt-transcribe`. Audio is transient and
+never enters launch records. Clips are bounded to 24,000,000 bytes and requests
+wait at most 60 seconds.
+
+Each successful transcript appends once, preserving existing text. While
+dictation is pending, field edits and Start are unavailable; Cancel and Escape
+remain usable and release capture or abort the request. Closing discards that
+draft and ignores late results. Failures leave typed startup available and
+retry is explicit. Dictation never creates an assignment, workspace or native
+session. Review or edit the text before pressing Start; only that final field
+text follows the existing launch path. Cancellation cannot reverse a provider
+charge already incurred.
+
+The combined instruction remains limited to 4,000 characters, including the
+blank line between existing text and each transcript. Exactly fitting text
+appends normally. An over-length result keeps the original instruction and
+shows the complete editable transcript. Shorten it and choose Add transcript,
+or choose Discard transcript to keep only the original. Start and Record wait
+for that choice; Cancel or Escape closes the launch and clears both transient
+drafts. No words are truncated.
+
 Host initially selects Claude Code and offers Claude Code, Codex, or Cursor.
 Model opens on Default. Claude also offers
 Fable, Opus and Sonnet; a selection sends its `--model` alias before the prompt.

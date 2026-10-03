@@ -2,6 +2,7 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
+import { settings, back } from "./support/systemSettingsPage.ts";
 import {
   addedLocalPath,
   addedRepository,
@@ -23,6 +24,7 @@ test("origin mismatch stays linked to the path, retains both inputs and saves no
     ]);
     const server = await fixture.start("preview");
     await page.goto(server.baseURL);
+    await settings(page).click();
     await page
       .getByRole("button", { name: "Add project", exact: true })
       .click();
@@ -54,6 +56,8 @@ test("origin mismatch stays linked to the path, retains both inputs and saves no
     await expect(
       dialog.getByRole("button", { name: "Add", exact: true }),
     ).toBeEnabled();
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+    await back(page).click();
     await expect(
       page.getByRole("radio", { name: "Open Dough", exact: true }),
     ).toBeChecked();

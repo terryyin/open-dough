@@ -45,6 +45,10 @@ test("model changes preserve compatible effort and retain incompatible selection
   ).toBeEnabled();
   await dialog.getByRole("textbox").focus();
   await page.keyboard.press("Tab");
+  await expect(
+    dialog.getByRole("button", { name: "Record", exact: true }),
+  ).toBeFocused();
+  await page.keyboard.press("Tab");
   await expect(dialog.getByLabel("Host", { exact: true })).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(model).toBeFocused();

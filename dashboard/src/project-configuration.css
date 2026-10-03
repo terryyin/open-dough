@@ -10,3 +10,19 @@
 .project-dialog input { min-width: 0; padding: 0.5rem; font: inherit; }
 .project-dialog-actions { display: flex; justify-content: end; gap: 0.5rem; padding: 1rem; }
 .project-dialog-actions button { min-height: 2.75rem; padding: 0.4rem 0.8rem; }
+
+.system-settings { max-width: 65rem; margin: 0 auto; padding: 1.5rem; }
+.settings-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+.system-settings button { min-height: 2.75rem; padding: 0.4rem 0.8rem; }
+.system-settings section { margin-top: 2rem; }
+.settings-project-list { list-style: none; padding: 0; }
+.settings-project-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--border-color, #bbb); }
+.settings-project-list li > div { min-width: 0; flex: 1 1 24rem; }
+.settings-project-list h3 { margin: 0 0 0.75rem; }
+.settings-project-list dl { margin: 0; }
+.settings-project-list dt { font-weight: 600; }
+.settings-project-list dd { margin: 0 0 0.5rem; overflow-wrap: anywhere; }
+
+.openai-settings-form { display: flex; flex-direction: column; align-items: start; gap: 0.5rem; }
+.openai-settings-form input { box-sizing: border-box; width: min(100%, 32rem); min-width: 0; padding: 0.5rem; font: inherit; }
+.openai-settings-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }

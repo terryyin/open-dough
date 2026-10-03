@@ -211,8 +211,11 @@ Each was generated with OpenAI image editing (`gpt-image-1.5`) from the face in 
 person's local photo (`agent-avatars/odd-e-nerds/<lowercase name>.jpg`), using one shared
 style prompt: adult editorial cartoon portrait, head and shoulders, distinct muted
 background, no text, and no clothing or background carried over from the photo. They
-are local-only: the folder is git-ignored and neither the avatars nor the photos are
-ever committed or published until permission to do so is obtained. A card shows its
+remain git-ignored and are never committed. Production startup and update builds
+copy only the local cartoon WebP files into the isolated production checkout before
+building, making them available on the production server without publishing them
+through Git. Raw source photos and other local files are excluded from that copy.
+A card shows its
 agent's cartoon avatar as the portrait, enlarged on hover like the others; when the
 avatar file is absent it shows the name alone, with no portrait and no error. The
 photos themselves are not displayed.

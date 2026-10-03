@@ -88,7 +88,7 @@ export async function enabledCardLaunchActions(card: Locator) {
 }
 
 // Every button a shown snapshot offers, and nothing else: the banner's
-// Sessions, Add/Remove project, the read control, Start session, the badge legend, each Backlog card's launch
+// Sessions, System settings, the read control, Start session, the badge legend, each Backlog card's launch
 // actions, and each card's Inspect.
 export async function expectSnapshotButtons(
   page: Page,
@@ -101,8 +101,7 @@ export async function expectSnapshotButtons(
   const button = (name: string) =>
     page.getByRole("button", { name, exact: true });
   await expect(button("Sessions")).toHaveCount(1);
-  await expect(button("Add project")).toHaveCount(1);
-  await expect(button("Remove project")).toHaveCount(1);
+  await expect(button("System settings")).toHaveCount(1);
   await expect(
     page.getByRole("button", { name: /^Start session in / }),
   ).toHaveCount(1);
@@ -113,7 +112,7 @@ export async function expectSnapshotButtons(
   }
   await expect(button("Inspect story")).toHaveCount(shown.cards);
   await expect(page.getByRole("button")).toHaveCount(
-    6 + shown.backlogCards * cardLaunchActions.length + shown.cards,
+    5 + shown.backlogCards * cardLaunchActions.length + shown.cards,
   );
 }
 

@@ -50,6 +50,19 @@ reads. Keep readable loading and source problems near the source context. Make
 the header wrap without covering focused content or consuming the usable
 reading area at narrow widths or browser zoom.
 
+The global **System settings** control opens a dedicated machine configuration
+view, including when no projects are configured. Its **Projects** section lists
+configured names, GitHub repositories and local paths, with **Add project** and a
+**Remove project** action for each row. Project management belongs here; the
+banner retains selection and observation controls. Removing an unselected row
+preserves selection; removing the selected row selects its next neighbor or the
+first remaining project. Settings remains available after the last removal.
+**Back to dashboard** and browser Back/Forward restore the preceding valid
+project and story/roster view with useful focus. Opening settings preserves the
+mounted session sidebar and terminal context. Project arrows leave settings
+controls and forms alone. Facts and actions wrap in reading order at narrow
+widths and browser zoom.
+
 Below the banner, show **Near-future direction** as an initially collapsed
 disclosure. Activation reveals its full published text or the existing
 no-direction explanation; activation again collapses it. Preserve the choice

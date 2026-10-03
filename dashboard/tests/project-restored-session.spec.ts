@@ -59,6 +59,7 @@ test("adding an initially unconfigured retained Codex project prepares its passi
     await expect(
       page.getByRole("complementary", { name: "Sessions" }),
     ).toContainText("Ready for review");
+    await expect(page).toHaveURL(/project=sample-app/);
     await page.reload();
     await expect(recent).toContainText("Ready for review", { timeout: 5_000 });
     expect(daemonStarts(native)).toHaveLength(1);

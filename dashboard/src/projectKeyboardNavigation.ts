@@ -171,10 +171,14 @@ function focusAfterProjectSwitch(focused: Element | null): FocusAfterSwitch {
 export function useProjectKeyboardNavigation({
   source,
   selectProject,
+  enabled = true,
 }: {
+  readonly enabled?: boolean;
   readonly source: PublishedSource;
   readonly selectProject: (next: PublishedSource) => void;
 }): void {
+  const enabledRef = useRef(enabled);
+  enabledRef.current = enabled;
   const projects = useProjects();
   const projectsRef = useRef(projects);
   projectsRef.current = projects;
@@ -187,7 +191,7 @@ export function useProjectKeyboardNavigation({
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (!isProjectArrowShortcutEligible(event)) {
+      if (!enabledRef.current || !isProjectArrowShortcutEligible(event)) {
         return;
       }
       event.preventDefault();

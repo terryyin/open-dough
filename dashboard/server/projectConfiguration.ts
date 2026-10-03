@@ -12,6 +12,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import type { ProjectSettings } from "../src/projectConfiguration.ts";
 import { ProjectInputProblem } from "../src/projectInput.ts";
 import { productionSeedProjects } from "./projectConfigurationSeed.ts";
 
@@ -96,7 +97,7 @@ export function configuredProject(id: string): ConfiguredProject | undefined {
   return configuredProjects().find((project) => project.id === id);
 }
 
-// Local paths stay on the server. The browser only receives published-source facts.
+// Published-source reads exclude local machine configuration.
 export function publishedProjects(): readonly PublishedSource[] {
   if (problem !== undefined) throw new Error(problem);
   return configuredProjects().map(
@@ -108,6 +109,12 @@ export function publishedProjects(): readonly PublishedSource[] {
       backlogPath,
     }),
   );
+}
+
+// Settings reads expose only configured identities and their own checkout paths.
+export function projectSettings(): readonly ProjectSettings[] {
+  if (problem !== undefined) throw new Error(problem);
+  return configuredProjects().map(({ id, localPath }) => ({ id, localPath }));
 }
 
 // Recheck admission at the synchronous write boundary after asynchronous validation.

@@ -1,20 +1,6 @@
-// The dialog mechanics shared by every launch action: a modal that focuses
-// its instruction field and sends nothing when dismissed. Start commits the
-// request at once: its choices, Cancel, and Start become unavailable and
-// "Starting…" shows until the local service answers, which closes the dialog
-// (an accepted startup goes on without it). With the action's
-// `useLaunchDialogLauncher` (./launchDialogLauncher.ts), it returns the
-// keyboard to the action that opened it unless the launch was accepted.
-// Callers supply only the words, and the options a launch may select, or the
-// line saying why there are none.
-// The dialog reads in one order, for eyes and keyboard alike: what is started
-// and why, the instruction, host and model on one row, a story's Session
-// choices, the options behind a disclosure whose summary names the selection,
-// the command and longer explanations behind Command details, then, always in
-// view below the scrolling body, the launch's effects and Cancel and Start.
-// Existing changes Start finds in the default checkout get a confirmation
-// state (`./LaunchExistingChanges.tsx`), with the choices kept behind it.
-
+// Shared startup choices and editable instruction; only explicit Start submits.
+// Dismissal releases dictation. A deliberate settings trip keeps this draft
+// mounted, then restores the modal and its field focus.
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import type { OfferedShape } from "./commandOptions.ts";
 import {
@@ -27,6 +13,7 @@ import {
   type StartAnswer,
 } from "./LaunchExistingChanges.tsx";
 import { LaunchDialogFooter } from "./LaunchDialogFooter.tsx";
+import { useLaunchInstruction } from "./LaunchInstruction.tsx";
 import { useLaunchSettings } from "./useLaunchSettings.ts";
 import { LaunchHostModel } from "./LaunchHostModel.tsx";
 import { LaunchOptions, useOptionSelection } from "./LaunchOptions.tsx";
@@ -106,6 +93,7 @@ export function LaunchDialog({
   const id = useId();
   const dialog = useRef<HTMLDialogElement>(null);
   const instruction = useRef<HTMLTextAreaElement>(null);
+  const dictation = useLaunchInstruction(instruction, dialog);
   const headingId = `${id}-heading`;
   const hintId = `${id}-instruction-hint`;
   const accepted = useRef(false);
@@ -142,8 +130,17 @@ export function LaunchDialog({
       ref={dialog}
       className="launch-dialog"
       aria-labelledby={headingId}
-      onCancel={confirmation.onCancel}
+      onCancel={(event) => {
+        confirmation.onCancel(event);
+        if (!submitting) {
+          dictation.cancel();
+        }
+      }}
       onClose={() => {
+        if (dictation.suspended.current) {
+          return;
+        }
+        dictation.cancel();
         onClose(accepted.current);
       }}
     >
@@ -152,7 +149,9 @@ export function LaunchDialog({
         hidden={Boolean(confirmation.view)}
         onSubmit={(event) => {
           event.preventDefault();
-          if (settingsBlocked) return;
+          if (settingsBlocked || dictation.busy) {
+            return;
+          }
           confirmation.start({
             host,
             instruction: instruction.current?.value ?? "",
@@ -178,7 +177,9 @@ export function LaunchDialog({
               aria-describedby={command !== undefined ? hintId : undefined}
               maxLength={launchInstructionLimit}
               rows={4}
+              readOnly={dictation.busy}
             />
+            {dictation.controls}
             <LaunchHostModel
               id={id}
               host={host}
@@ -230,11 +231,13 @@ export function LaunchDialog({
             submitting={submitting}
             startBlocked={
               settingsBlocked ||
+              dictation.busy ||
               (optionsReading && selected.size > 0) ||
               (session !== undefined && sessionBlocksStart(session))
             }
             startButton={confirmation.startButton}
             onCancel={() => {
+              dictation.cancel();
               dialog.current?.close();
             }}
           />

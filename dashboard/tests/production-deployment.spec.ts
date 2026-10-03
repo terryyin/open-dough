@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
   resolvePublishedMain,
@@ -68,6 +68,19 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
     );
     // Main advances after selection; staging still builds the selected commit.
     await fixture.publish(fixture.markerChanges("LATER MAIN"), "Later main");
+    const nerdsPath = "dashboard/public/agent-avatars/odd-e-nerds";
+    const cartoons = path.join(fixture.development, nerdsPath, "cartoon");
+    await mkdir(cartoons, { recursive: true });
+    const cartoon = await readFile(
+      path.join(process.cwd(), "dashboard/public/agent-avatars/atlas-1.webp"),
+    );
+    await writeFile(path.join(cartoons, "stanly.webp"), cartoon);
+    await writeFile(path.join(cartoons, "notes.txt"), "LOCAL NOTES");
+    await writeFile(
+      path.join(fixture.development, nerdsPath, "stanly.jpg"),
+      "PRIVATE RAW PHOTO",
+    );
+    expect(await fixture.git("ls-files", "--", nerdsPath)).toBe("");
     staged = await stageDeployment({
       developmentRoot: fixture.development,
       published,
@@ -102,6 +115,25 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
     const page = await request.get(preview.url);
     expect(page.status()).toBe(200);
     expect(await page.text()).toContain("PINNED DASHBOARD COMMIT");
+    const avatar = await request.get(
+      `${preview.url}/agent-avatars/odd-e-nerds/cartoon/stanly.webp`,
+    );
+    expect(avatar.status()).toBe(200);
+    expect(avatar.headers()["content-type"]).toContain("image/webp");
+    expect(await avatar.body()).toEqual(cartoon);
+    expect(
+      await readdir(
+        path.join(staged.directory, "dashboard/dist/agent-avatars/odd-e-nerds"),
+      ),
+    ).toEqual(["cartoon"]);
+    expect(
+      await readdir(
+        path.join(
+          staged.directory,
+          "dashboard/dist/agent-avatars/odd-e-nerds/cartoon",
+        ),
+      ),
+    ).toEqual(["stanly.webp"]);
     const boundary = `${preview.url}/__authenticated-read?source=unknown`;
     const sameOrigin = await request.get(boundary, {
       headers: { Origin: preview.url },
