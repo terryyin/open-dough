@@ -183,6 +183,16 @@ Learnings:
 - `.xterm-viewport` needs `.terminal-screen .xterm .xterm-viewport` to outweigh
   `xterm.css`; `options.theme = {}` fully restores xterm's own palette.
 
+## Execution complete
+
+Product advice: no change to queued priorities. The next queued
+SEED-091#dashboard-frame-renovation should keep System settings → Terminal
+theme in its renovated settings layout and revisit the Light preset's fixed
+`#ffffff` / `#1f2328` if the dashboard's surface and text tokens change.
+SEED-089#cursor-runner-survives-dashboard-restart (Taken) touches the Cursor
+terminal path; this execution's repair changed `dashboard/tests/support/cursorStart.ts`
+and three Cursor specs, so expect to reconcile there.
+
 ## Considered and excluded
 
 - **Browser `localStorage`.** It would hold the choice per browser, not on this
