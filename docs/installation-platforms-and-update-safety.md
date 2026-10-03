@@ -64,6 +64,17 @@ working-tree helper. The updater:
    must be absent locally before an ordinary update can add them; collisions
    are preserved and refused. An unreadable or unrecognized baseline declaration
    refuses comparison.
+   Before writing, it also finds leftovers: installed files in each native root
+   at paths that some release tag up to latest declared and latest does not.
+   The release tags at the recorded source supply each release's declaration
+   and file blob ids, fetched without file contents into the temporary apply
+   copy; no installed manifest or checksum record is kept. A tag whose
+   declaration cannot be read contributes no paths. A leftover is unedited when
+   its blob id equals the one a declaring release held at that path. An edited
+   leftover, or release history that cannot be fetched, refuses the whole
+   operation before writing, naming each root's edited files and pointing to
+   explicit `--force`. Paths no release declared, including `SOURCE` and
+   `VERSION`, are never leftovers.
 7. Verifies that all installed payload files byte-match the fetched sources in every
    native root and that distributable source, unrelated project files, and home
    guidance remain unchanged. Optional
@@ -73,7 +84,10 @@ working-tree helper. The updater:
 
 An equal recorded version that still matches its recorded release produces no
 installed-file writes. An older unchanged installation advances to the selected
-release. Ordinary update without a supplied URL refuses when the recorded
+release; after its installer succeeds, unedited leftovers are removed, then
+directories that removal left empty, and the result lists the removed files per
+root. An equal recorded version removes no leftovers; the next update to a newer
+release does. Ordinary update without a supplied URL refuses when the recorded
 baseline cannot be established, including missing or malformed SOURCE or
 VERSION, an unavailable tag or source, baseline metadata mismatch, and changed
 or missing managed files, even when the recorded version equals latest. A
@@ -82,7 +96,9 @@ newer record is preserved without a downgrade; an unverifiable newer record is
 unsupported without writes. A malformed VERSION is refused. Explicit `--force`
 skips that comparison and replaces the selected installation with the
 inspected latest payload, then `SOURCE` and `VERSION`, including edited,
-incomplete, equal, or newer files. It does not merge changes or commit
+incomplete, equal, or newer files. After that install it removes and lists
+every leftover, edited or not; when release history cannot be fetched it warns
+and removes none. It does not merge changes or commit
 automatically. Review a resulting diff and start a fresh session in the same
 tool to use replaced guidance.
 
