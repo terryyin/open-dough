@@ -21,94 +21,54 @@ cycle, and each false local failure costs a diagnosis and a rerun.
 
 ## Stories
 
-<a id="expose-timing-races-locally"></a>
+<a id="read-kept-state-after-its-event"></a>
 
-### Keep the dashboard tests' recurring race shapes out by construction
+### Read a launch's kept record only after the event that settles it
 
-**Identity:** SEED-093#expose-timing-races-locally
+**Identity:** SEED-093#read-kept-state-after-its-event
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/233-dashboard-test-race-shapes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1d01fe8c3da3f9b53409ff3efddb803e5c156c30dfa9f5ce74a6448153721416","plan":"e4650150ed9be59171dc6734cc19b04ccfd0ce7d88c8b30ad0874a0c705b880e"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-**For / why:** The agent or maintainer publishing a change needs the dashboard
-suite to give CI's verdict on the first run. Races keep arriving one CI failure
-at a time, and each one pauses the slices in progress for a diagnosis and a
-repair.
+**For / why:** The agent or maintainer publishing a change needs the
+dashboard suite to give CI's verdict on the first run. The ad hoc Cursor start
+spec failed CI run 37098217155 on a race of the "read before its event"
+shape, and each such failure pauses slices for a diagnosis and a repair.
 
-**Goal:** The dashboard browser tests stop producing the race shapes that
-keep failing CI, because shared test support settles the page, drains its
-reads, and orders fault setups for every spec. Individual specs no longer
-repair these shapes one at a time.
+**Goal:** A dashboard spec that asserts a launch's kept record reads it after
+the event that settles the asserted state, so its verdict no longer depends
+on whether the page showed the session before the record was confirmed.
 
 **Findings:**
 [tests whose verdict depends on timing or machine load](../../ProjectFindings.md#tests-whose-verdict-depends-on-timing-or-machine-load-first-priority-queued)
-(DD-186, DD-195, DD-199).
+(DD-195, DD-199).
 
-**Field evidence (refinement, 2026-10-03):**
+**Evidence:**
 
-- Every race named by the findings and CI history is already repaired, and
-  no named spec failed on a revision containing its repair (126 failed runs
-  surveyed). The `read-failure.spec.ts` and `agent-launch-start-taken.spec.ts`
-  CI failures came from their own branches, not races.
-- Races still keep arriving. About 20 test-only race repairs landed between
-  2026-09-28 and 2026-10-03. Most take three shapes:
-  - Acting or measuring before the page settles: `6a8d3608`, `656de358`,
-    `1af1db40`, `79ae5949`, `0d103b4a`, `076ed50a`, `dc402362`.
-  - Disposing the context while intercepted reads are still in flight:
-    `180b34aa`, `0e88f016`.
-  - Injecting a fault before observing the event it depends on: `3fdae6f2`,
-    `02cd7e86`.
-- A generic slow-path run does not separate races from slowness:
-  - Chromium CPU throttling ×4 at 16 workers failed the repaired
-    `startup-host-words.spec.ts` in 16 of 20 runs on plain deadlines.
-  - Random 0–1500 ms delays on local fetches neither raised nor lowered the
-    reverted race's rate of about 1 in 60.
+- `dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts` reads
+  `keptRecord(dashboard.home)` once, right after the recent-session card
+  appears, and later asserts that snapshot's first input is `confirmed`.
+  - The server records `uncertain` before the Cursor client starts and
+    writes `confirmed` only once the instruction is entered.
+  - The spec's later wait for "First input accepted" checks the page, not
+    the earlier snapshot.
+- CI run 37098217155 failed on that assertion with `uncertain`. That the page
+  can show the card before the confirmed write is inferred, not observed.
 
 **Scope:**
 
-- **Teardown drain:** the shared dashboard test fixture finishes the page's
-  intercepted reads before the context is disposed, for every spec. The
-  per-spec copies in `startup-host-words.spec.ts` (two, from a merge) and
-  `project-remove.spec.ts` go.
-- **Settled page:** the shared page helpers that open or reload the dashboard
-  return only once the stages show their cards and the cards' preparation
-  facts are read. Specs that hand-roll that wait use the shared one instead.
-- **Fault after event:** a fault setup observes the event it depends on (for
-  example accepted input) before injecting the fault. Sweep the dashboard
-  specs for setups that use a deadline in place of that event, and convert
-  them.
-- **Repair method:** repairs wait for events. They do not lengthen deadlines,
-  add sleeps, or add retries, because a retry or a longer wait hides the race
-  instead of removing it (`retries: 0` stays).
+- Read the kept record in that spec after the event that settles the
+  asserted state, for example once "First input accepted" is shown.
+- Sweep the dashboard specs for other single reads of kept launch state taken
+  before the event their assertions depend on, and convert them the same way.
+- Repairs wait for events. They do not lengthen deadlines, add sleeps, or add
+  retries (`retries: 0` stays).
 
-**Key examples:**
-
-- A spec intercepts a background read with `page.route` and has no teardown
-  drain of its own. Its last assertion passes while the read is in flight →
-  the test ends → the shared fixture finishes the read before disposal, and
-  the run passes without "Response has been disposed".
-- A spec reloads the stages and immediately measures a card's position or
-  facts → the shared helper returned only after cards and preparation facts
-  arrived → the measurement matches the settled page (no 507.8 versus 586.7
-  shift, no "Reading preparation…").
-- A recovery spec disconnects a native substitute after a short launch
-  deadline → the converted setup first observes the substitute's accepted
-  input, then disconnects → absent history can no longer pass as equal
-  records.
-
-**Deferred:**
-
-- A local slow-path or jitter detector. The refinement probes above found
-  neither one discriminating.
-- A pre-publication repeat run of changed specs.
-- The cause of the single local `agent-launch-start-taken.spec.ts:53` "server
-  could not be reached" failure. It has not recurred in CI and is left to
-  recur through DD-195.
-- Node test races.
+**Key example:** a Cursor ad hoc start with an instruction → the recent
+session card appears while the record is still `uncertain` → the spec reads
+the record only after "First input accepted" shows → it sees `confirmed`.
 
 **Boundary:** This repository's dashboard tests and test support only.
-Published skill guidance about proof selection stays with its DearDough
-findings.
 
 <a id="checks-run-from-any-directory"></a>
 

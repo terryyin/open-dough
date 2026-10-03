@@ -1,7 +1,7 @@
 // Production qualification compares real published trees in owned inspection
 // checkouts; the minimal fixture copies no workflow, so each case publishes
 // the repository's actual CI workflow or a variant of it.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {

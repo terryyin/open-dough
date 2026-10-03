@@ -1,6 +1,6 @@
 // Real npm watcher main-commit replacement, with shared machine evidence and
 // external gh/Claude answers supplied only by disposable origin/host fixtures.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { dashboardCommand } from "./support/dashboardCommand.ts";

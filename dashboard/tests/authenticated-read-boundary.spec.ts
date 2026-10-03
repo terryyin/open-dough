@@ -23,7 +23,7 @@
 // own fake `gh`, so nothing here can leak into -- or race with -- the page
 // journeys' own servers.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   startDashboardServer,
   type DashboardServer,

@@ -1,6 +1,6 @@
 import http from "node:http";
 import { readFileSync } from "node:fs";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   projectAddMachine,
   addedRepository,

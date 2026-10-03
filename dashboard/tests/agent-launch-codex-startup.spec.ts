@@ -1,5 +1,5 @@
 // Saved conversations survive machine restart; startup restores only the daemon.
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./support/pageTest.ts";
 import {
   mkdtempSync,
   rmSync,

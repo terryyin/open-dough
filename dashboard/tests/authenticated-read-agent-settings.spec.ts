@@ -6,7 +6,7 @@
 // and a synthetic `gh` answering from the fake GitHub. What the roster shows
 // from it is ./agent-roster-collection.spec.ts.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   startDashboardServer,
   type DashboardServer,

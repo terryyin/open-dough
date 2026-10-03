@@ -8,7 +8,7 @@
 // anything else is refused before asking GitHub or its avatar host. What the
 // page shows is covered in ./agent-roster-avatar.spec.ts.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   startDashboardServer,
   type DashboardServer,

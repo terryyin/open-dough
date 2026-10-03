@@ -6,7 +6,7 @@ import {
   revision,
 } from "./accessibleOverview.ts";
 import { zoomedWindow } from "./accessibleReading.ts";
-import { parts, expectMembership } from "./dashboardPage.ts";
+import { parts, expectMembership, expectSettledPage } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 
@@ -42,9 +42,7 @@ for (const viewport of [
     // Preparation facts arrive after membership and reflow the cards, which
     // can carry a focused control past the window's edge; measure a settled
     // page. Its 41 reads took about 3.5 seconds on CI.
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0, {
-      timeout: 15_000,
-    });
+    await expectSettledPage(page, undefined, { timeout: 15_000 });
     await last.scrollIntoViewIfNeeded();
     await expect(last).toBeInViewport({ ratio: 1 });
     await expect(

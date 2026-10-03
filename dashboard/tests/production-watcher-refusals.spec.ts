@@ -1,6 +1,6 @@
 // The public watcher refuses unusable options and origins before preparing or
 // serving any production dashboard.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { dashboardCommand } from "./support/dashboardCommand.ts";
 import { publishedMainFixture } from "./support/publishedMainFixture.ts";
 

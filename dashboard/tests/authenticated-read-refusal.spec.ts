@@ -8,7 +8,7 @@
 // in ./authenticated-read-boundary.spec.ts; malformed addition reads in
 // ./authenticated-read-profile-addition.spec.ts.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   startDashboardServer,
   type DashboardServer,

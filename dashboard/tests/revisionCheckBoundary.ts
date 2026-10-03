@@ -5,7 +5,7 @@
 // repository's listing of branch heads, and its `main`, as the case sets
 // them, and records every invocation.
 
-import { test } from "@playwright/test";
+import { test } from "./support/pageTest.ts";
 import {
   startDashboardServer,
   type DashboardServer,

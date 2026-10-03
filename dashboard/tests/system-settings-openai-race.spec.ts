@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { systemSettingsMachine } from "./support/systemSettingsMachine.ts";
 import { apiKey, save, status } from "./support/openAISettingsPage.ts";
 

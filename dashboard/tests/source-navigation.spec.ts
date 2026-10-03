@@ -1,5 +1,5 @@
 import { expect, test } from "./dashboardTest.ts";
-import { openDirection, parts } from "./dashboardPage.ts";
+import { expectSettledPage, openDirection, parts } from "./dashboardPage.ts";
 import {
   card,
   destination,
@@ -80,7 +80,7 @@ test("source navigation opens canonical and plan records at the inspected revisi
   });
 
   await test.step("showing links reads in-repository canonical files and no external or unsafe target", async () => {
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+    await expectSettledPage(page);
     expect(leftTheServer()).toEqual([]);
     const [ref, backlog, ...records] = askedOfGitHub();
     expect([ref, backlog]).toEqual([

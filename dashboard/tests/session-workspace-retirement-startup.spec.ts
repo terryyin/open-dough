@@ -6,7 +6,7 @@ import { mkdtempSync, mkdirSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { WebSocket } from "ws";
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect } from "./support/pageTest.ts";
 import { terminalWorkspaceUnavailableCode } from "../src/agentTerminal.ts";
 
 const native = createRequire(import.meta.url)(

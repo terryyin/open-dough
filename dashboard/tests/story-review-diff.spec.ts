@@ -3,7 +3,7 @@
 // that reads like a header stays a removal, Git's no-newline note marks the
 // line before it, and a binary or mode-only change has no hunks.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { parsedUnifiedDiff } from "../src/unifiedDiff.ts";
 
 test("hunks keep their headers and lines with additions, removals, and context", () => {

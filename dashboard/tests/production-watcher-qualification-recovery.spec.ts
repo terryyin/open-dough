@@ -1,6 +1,6 @@
 // Policy errors and failed builds never move the real npm watcher's comparison
 // baseline; only a successful activation does.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { dashboardCommand } from "./support/dashboardCommand.ts";

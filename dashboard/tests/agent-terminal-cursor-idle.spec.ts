@@ -5,7 +5,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect } from "./support/pageTest.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";

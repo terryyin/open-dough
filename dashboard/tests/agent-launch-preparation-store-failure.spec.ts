@@ -3,7 +3,7 @@
 // Shared started() must preserve its result, including after its wait expires.
 import { chmodSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { started } from "../server/launchStart.ts";
 import { StartProgress } from "../server/startProgress.ts";
 import { keptStart } from "../server/startStore.ts";

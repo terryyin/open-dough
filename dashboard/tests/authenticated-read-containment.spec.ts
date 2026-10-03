@@ -8,7 +8,7 @@
 // before any `gh` call. The page's use of it, against a real origin's history:
 // ./responsive-session-reconciliation.spec.ts.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   startDashboardServer,
   type DashboardServer,

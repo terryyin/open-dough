@@ -1,5 +1,5 @@
 import { launchResultSchema } from "../src/launchOutcome.ts";
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./support/pageTest.ts";
 import { launch, recordsOf } from "./agentLaunchBoundary.ts";
 import { startOrigin } from "./support/startOrigin.ts";
 import {

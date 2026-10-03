@@ -22,7 +22,7 @@
 // own fake `gh`, so nothing here can leak into -- or race with -- the page
 // journeys' own servers.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { processAlive, processRunning } from "./support/processGroup.ts";
 import { everyRepository, hangs } from "./support/fakeGitHub.ts";
 import {

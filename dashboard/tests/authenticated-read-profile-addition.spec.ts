@@ -9,7 +9,7 @@
 // suite's harness (./support/dashboardServer.ts) and
 // ./authenticated-read-boundary.spec.ts's approach.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   startDashboardServer,
   type DashboardServer,

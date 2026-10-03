@@ -10,7 +10,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
 import {
   callsSince,
   contentReads,
@@ -55,8 +55,10 @@ test.describe("project read isolation of automatic checks", () => {
     doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
     const { project, backlog, source } = parts(page);
     await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
-    await expectMembership(page, { taken: [], backlog: [doughnutSharedTitle] });
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+    await expectSettledPage(page, {
+      taken: [],
+      backlog: [doughnutSharedTitle],
+    });
     await expect(source).toContainText(revisionDoughnut);
     const link = backlog
       .getByRole("article", { name: doughnutSharedTitle })

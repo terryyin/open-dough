@@ -1,7 +1,7 @@
 // Per-host native identity and continuation rules, at both the session and
 // durable launch-record boundaries. Native attach, done and recovery journeys
 // remain in their host specs.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { hostSessionSchema, launchRecordSchema } from "../src/launchRecord.ts";
 
 const claude = {

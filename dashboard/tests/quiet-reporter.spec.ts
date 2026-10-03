@@ -4,7 +4,7 @@
 // a failure is named with its error and trace, and output from a passing
 // spec or from the run itself fails the run.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { spawn } from "node:child_process";
 import {
   existsSync,
