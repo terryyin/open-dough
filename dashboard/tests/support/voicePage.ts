@@ -18,6 +18,7 @@ export async function observeMicrophone(page: Page) {
     const voice = {
       tracks: [] as MediaStreamTrack[],
       bytes: 0,
+      requests: [] as AbortSignal[],
       holdPermission: false,
       grant: undefined as (() => void) | undefined,
     };
@@ -54,7 +55,6 @@ export async function observeMicrophone(page: Page) {
     Object.assign(window, { voiceDelivery: delivery });
     const fetch = window.fetch.bind(window);
     window.fetch = async (input, init) => {
-      const response = await fetch(input, init);
       const requestURL = new URL(
         typeof input === "string"
           ? input
@@ -63,6 +63,13 @@ export async function observeMicrophone(page: Page) {
             : input.url,
         window.location.href,
       );
+      if (
+        requestURL.pathname === "/__instruction-transcription" &&
+        init?.signal
+      ) {
+        voice.requests.push(init.signal);
+      }
+      const response = await fetch(input, init);
       if (
         requestURL.pathname === "/__instruction-transcription" &&
         delivery.hold
@@ -91,7 +98,11 @@ export async function observeMicrophone(page: Page) {
   });
 }
 
-export async function recordClip(page: Page, dialog: Locator) {
+export async function recordClip(
+  page: Page,
+  dialog: Locator,
+  beforeStop?: () => void | Promise<void>,
+) {
   const before = await page.evaluate(
     () =>
       (window as unknown as { voiceObservation: { bytes: number } })
@@ -111,6 +122,7 @@ export async function recordClip(page: Page, dialog: Locator) {
         .voiceObservation.bytes > previous,
     before,
   );
+  await beforeStop?.();
   await dialog
     .getByRole("button", { name: "Stop recording", exact: true })
     .click();

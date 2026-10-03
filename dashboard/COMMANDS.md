@@ -54,5 +54,10 @@ sends the completed clip for transcription. Review or edit the appended text,
 then explicitly Start. Audio stays transient, with a 24,000,000-byte upload
 bound and a 60-second request wait; there is no fixed recording duration limit.
 Cancel or Escape ends capture and pending transcription. A failed operation
-leaves typing and explicit retry available. Cancellation may occur after a paid
+leaves the exact draft editable without reopening the dialog. Permission or
+browser failures explain microphone/format recovery; saved-key failures point
+to System settings. Authentication refusal and usage limits explain API access
+recovery, while connection, timeout and unusable-reply failures allow another
+explicit recording or typing. No failed request is retried automatically.
+Cancellation may occur after a paid
 request has already reached OpenAI.

@@ -92,7 +92,8 @@ start; reuse its published claim without a second Take. Identity:
   published as `df507694d35f565620ad333a4f9a5b46e7cccf8c`. Slice 4 published as
   `fcf43c8802a9a92935e1506683f4edba9e7ec0e6`, this repair's previously published
   base. Its [Codex keyboard inventory repair](CI-REPAIR.md#dictation-keyboard-inventory-repair)
-  preserves all model/effort assertions; slice 5 resumes after managed restoration.
+  published as `0f10b8ebda76b66befd890c86825396ac6399d5a`, this increment's
+  previously published base; managed restoration returned slice 5 intact.
 - Node 24.21.0 selected from
   `/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin`.
   Checkout-bound locked setup and applicable command passed:
@@ -155,9 +156,11 @@ passed; this increment delivers the complete path.
 
 ### 5. Unavailable dictation leaves the typed instruction usable
 Type: Behavior
-Status: planned
+Status: done
 Actionable failure categories preserve the field/resources; typing and explicit
 retry work, without automatic paid retries or secret disclosure.
+[Accepted recovery proof](VOICE-RECOVERY.md), independent refactoring and repaired
+coordinator formatting passed; this increment delivers the completed recovery.
 
 ### 6. Shorten an over-length transcript without losing either draft
 Type: Behavior

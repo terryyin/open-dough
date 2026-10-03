@@ -3,12 +3,14 @@ import { voiceProvider } from "./voiceProvider.ts";
 export { expect };
 
 export const test = base.extend<{
+  transcriptionDeadlineMs: number | undefined;
   provider: Awaited<ReturnType<typeof voiceProvider>>;
 }>({
-  // Playwright requires the empty destructuring pattern for a dependency-free fixture.
-  // eslint-disable-next-line no-empty-pattern
-  provider: async ({}, use) => {
-    const provider = await voiceProvider();
+  transcriptionDeadlineMs: [undefined, { option: true }],
+  provider: async ({ transcriptionDeadlineMs }, use) => {
+    const provider = await voiceProvider({
+      deadlineMs: transcriptionDeadlineMs,
+    });
     try {
       await use(provider);
     } finally {

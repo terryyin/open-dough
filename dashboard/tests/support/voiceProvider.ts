@@ -1,9 +1,11 @@
 import { createServer, type ServerResponse } from "node:http";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-export async function voiceProvider() {
+export async function voiceProvider(
+  options: { deadlineMs?: number | undefined } = {},
+) {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-voice-"));
   const calls: Array<{
     authorization: string | undefined;
@@ -17,6 +19,8 @@ export async function voiceProvider() {
   let text = "Do not implement yet";
   let reply: { status: number; body: string } | undefined;
   let disconnected = 0;
+  let networkFailure = false;
+  const deadlineFile = path.join(machine, "deadlines.jsonl");
   const server = createServer((req, res) => {
     void (async () => {
       const chunks: Buffer[] = [];
@@ -46,7 +50,9 @@ export async function voiceProvider() {
         }
         held.delete(res);
       });
-      if (hold) {
+      if (networkFailure) {
+        res.destroy();
+      } else if (hold) {
         held.add(res);
       } else {
         res.writeHead(reply?.status ?? 200, {
@@ -70,7 +76,19 @@ export async function voiceProvider() {
   const url = `http://127.0.0.1:${address.port}/transcriptions`;
   writeFileSync(
     preload,
-    `const original = globalThis.fetch;
+    `const deadlineMs = ${JSON.stringify(options.deadlineMs ?? null)};
+if (deadlineMs !== null) {
+  const originalTimer = globalThis.setTimeout;
+  globalThis.setTimeout = (callback, milliseconds, ...args) => {
+    const stack = new Error().stack ?? '';
+    if (milliseconds === 60000) {
+      require('node:fs').appendFileSync(${JSON.stringify(deadlineFile)}, JSON.stringify({milliseconds, stack}) + ${JSON.stringify("\n")});
+      return originalTimer(callback, deadlineMs, ...args);
+    }
+    return originalTimer(callback, milliseconds, ...args);
+  };
+}
+const original = globalThis.fetch;
 globalThis.fetch = (input, options) => {
   const url = String(typeof input === 'string' || input instanceof URL ? input : input.url);
   if (url === 'https://api.openai.com/v1/audio/transcriptions') return original(${JSON.stringify(url)}, options);
@@ -85,9 +103,27 @@ globalThis.fetch = (input, options) => {
     extraEnv: { NODE_OPTIONS: `--require=${preload}` },
     setText(value: string) {
       text = value;
+      reply = undefined;
+      networkFailure = false;
     },
     reply(status: number, body: string) {
       reply = { status, body };
+    },
+    failNetwork() {
+      networkFailure = true;
+    },
+    deadlines(): Array<{ milliseconds: number; stack: string }> {
+      try {
+        return readFileSync(deadlineFile, "utf8")
+          .trim()
+          .split("\n")
+          .map(
+            (line) =>
+              JSON.parse(line) as { milliseconds: number; stack: string },
+          );
+      } catch {
+        return [];
+      }
     },
     hold() {
       hold = true;

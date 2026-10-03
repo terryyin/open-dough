@@ -2,6 +2,7 @@ import type { Plugin } from "vite";
 import {
   instructionTranscriptionEndpoint,
   instructionTranscriptionFailed,
+  instructionProblems,
 } from "../src/instructionTranscription.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
@@ -36,10 +37,12 @@ export function instructionTranscriptionPlugin(): Plugin {
           });
           res.end(JSON.stringify(body));
         };
+        let requestSignal: AbortSignal | undefined;
         void withResponseSignal(
           res,
           async (callerSignal) => {
             const signal = AbortSignal.any([callerSignal, controller.signal]);
+            requestSignal = callerSignal;
             verifyLocalOrigin(req);
             if (req.method !== "POST") {
               throw new RefusedRequest(405, "Only POST is accepted.");
@@ -58,10 +61,16 @@ export function instructionTranscriptionPlugin(): Plugin {
             (error: unknown) => {
               respond(error instanceof RefusedRequest ? error.status : 503, {
                 error:
-                  error instanceof RefusedRequest ||
-                  error instanceof OpenAICredentialProblem
+                  error instanceof RefusedRequest
                     ? error.message
-                    : instructionTranscriptionFailed,
+                    : error instanceof OpenAICredentialProblem
+                      ? instructionProblems.configuration
+                      : requestSignal?.aborted &&
+                          !controller.signal.aborted &&
+                          !res.destroyed &&
+                          !res.writableEnded
+                        ? instructionProblems.timeout
+                        : instructionTranscriptionFailed,
                 ...(error instanceof RefusedRequest && error.status === 409
                   ? { setupRequired: true }
                   : {}),

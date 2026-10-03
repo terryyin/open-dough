@@ -7,6 +7,9 @@ import {
   instructionSetupRequired,
   instructionRecordingTooLarge,
   instructionTranscriptionFailed,
+  instructionProblems,
+  safeInstructionProblem,
+  microphoneProblem,
 } from "./instructionTranscription.ts";
 
 type Phase = "ready" | "permission" | "recording" | "transcribing";
@@ -59,6 +62,7 @@ export function useInstructionRecording(append: (text: string) => void) {
       setPhase("ready");
       setProblem(message);
     };
+    let readingConfiguration = true;
     try {
       const status = await fetch(openAIConfigurationEndpoint, {
         signal: own.controller.signal,
@@ -68,9 +72,7 @@ export function useInstructionRecording(append: (text: string) => void) {
         return;
       }
       if (!status.ok) {
-        throw new Error(
-          "OpenAI configuration could not be read. Check System settings or type the instruction.",
-        );
+        throw new Error(instructionProblems.configuration);
       }
       if (
         typeof configuration === "object" &&
@@ -82,23 +84,20 @@ export function useInstructionRecording(append: (text: string) => void) {
         failed(instructionSetupRequired);
         return;
       }
+      readingConfiguration = false;
       // DOM declarations assume this capability exists; older browsers and
       // insecure contexts may omit it at runtime.
       const mediaDevices = (
         navigator as { readonly mediaDevices?: Partial<MediaDevices> }
       ).mediaDevices;
       if (!mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
-        throw new Error(
-          "Microphone recording is unavailable in this browser. Type the instruction or use a browser with recording support.",
-        );
+        throw new Error(instructionProblems.unavailable);
       }
       const mimeType = instructionRecordingTypes.find((type) =>
         MediaRecorder.isTypeSupported(type),
       );
       if (!mimeType) {
-        throw new Error(
-          "This browser cannot record a supported audio format. Type the instruction or try another browser.",
-        );
+        throw new Error(instructionProblems.format);
       }
       const stream = await mediaDevices.getUserMedia({ audio: true });
       own.stream = stream;
@@ -150,7 +149,7 @@ export function useInstructionRecording(append: (text: string) => void) {
               return;
             }
             if (typeof answer !== "object" || answer === null) {
-              throw new Error();
+              throw new Error(instructionProblems.empty);
             }
             if (!response.ok) {
               if ("setupRequired" in answer && answer.setupRequired === true) {
@@ -158,7 +157,10 @@ export function useInstructionRecording(append: (text: string) => void) {
               }
               throw new Error(
                 "error" in answer && typeof answer.error === "string"
-                  ? answer.error
+                  ? safeInstructionProblem(
+                      answer.error,
+                      instructionTranscriptionFailed,
+                    )
                   : instructionTranscriptionFailed,
               );
             }
@@ -167,16 +169,17 @@ export function useInstructionRecording(append: (text: string) => void) {
               typeof answer.text !== "string" ||
               !answer.text.trim()
             ) {
-              throw new Error();
+              throw new Error(instructionProblems.empty);
             }
             operation.current = undefined;
             setPhase("ready");
             append(answer.text);
           } catch (error) {
             failed(
-              error instanceof Error && error.message
-                ? error.message
-                : instructionTranscriptionFailed,
+              safeInstructionProblem(
+                error instanceof Error ? error.message : undefined,
+                instructionProblems.network,
+              ),
             );
           }
         })();
@@ -185,11 +188,9 @@ export function useInstructionRecording(append: (text: string) => void) {
       setPhase("recording");
     } catch (error) {
       failed(
-        error instanceof DOMException && error.name === "NotAllowedError"
-          ? "Microphone permission was refused. Allow microphone access to retry, or type the instruction."
-          : error instanceof Error && error.message
-            ? error.message
-            : "Microphone recording could not begin. Type the instruction or retry explicitly.",
+        readingConfiguration
+          ? instructionProblems.configuration
+          : microphoneProblem(error),
       );
     }
   }
