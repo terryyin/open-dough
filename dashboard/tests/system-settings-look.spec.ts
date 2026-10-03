@@ -3,13 +3,14 @@
 // the page and its project dialogs fit a narrow window without sideways
 // scrolling.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { expect, test } from "./support/pageTest.ts";
 import { projectAddMachine } from "./support/projectAddMachine.ts";
 import { back } from "./support/systemSettingsPage.ts";
 import { themeChoice } from "./support/terminalThemeSettingsPage.ts";
 import {
   expectControlContrast,
+  expectReadableAndRecognisable,
   expectReadableContrast,
 } from "./accessibleReading.ts";
 import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
@@ -23,17 +24,11 @@ test.afterEach(async () => fixture.close());
 const settingGroups = ["Projects", "OpenAI", "Terminal theme"];
 
 // Every piece of text a reader reads, and every control, in one area.
-async function expectReadableAndRecognisable(area: Locator) {
-  const texts = area.locator("h2, h3, p, dt, dd, label, [role='alert']");
-  for (const text of await texts.all()) await expectReadableContrast(text);
-  const controls = area.locator("button, input, select");
-  expect(await controls.count()).toBeGreaterThan(0);
-  for (const control of await controls.all()) {
-    if ((await control.getAttribute("type")) !== "password")
-      await expectReadableContrast(control);
-    await expectControlContrast(control);
-  }
-}
+const settingsArea = {
+  texts: "h2, h3, p, dt, dd, label, [role='alert']",
+  controls: "button, input, select",
+  hasControls: true,
+};
 
 async function openSettings(page: Page) {
   const server = await fixture.start("preview");
@@ -60,7 +55,7 @@ test("each setting group is a headed region in one column, with readable text an
     await expect(
       region.getByRole("heading", { level: 2, name, exact: true }),
     ).toBeVisible();
-    await expectReadableAndRecognisable(region);
+    await expectReadableAndRecognisable(region, settingsArea);
   }
   // A further group drops in as one more region in the same column.
   const [projects, ...others] = await Promise.all(regions.map(box));
@@ -80,7 +75,7 @@ test("settings and its project dialogs fit a 420 pixel window without sideways s
   await page.getByRole("button", { name: "Add project", exact: true }).click();
   const add = page.getByRole("dialog", { name: "Add project", exact: true });
   await expect(add.getByRole("textbox", { name: "GitHub URL" })).toBeFocused();
-  await expectReadableAndRecognisable(add);
+  await expectReadableAndRecognisable(add, settingsArea);
   await expect(add).toBeInViewport({ ratio: 1 });
   expect(
     await page.evaluate(
@@ -98,7 +93,7 @@ test("settings and its project dialogs fit a 420 pixel window without sideways s
     exact: true,
   });
   await expect(remove.getByRole("button", { name: "Cancel" })).toBeFocused();
-  await expectReadableAndRecognisable(remove);
+  await expectReadableAndRecognisable(remove, settingsArea);
   await expect(remove).toBeInViewport({ ratio: 1 });
   await remove.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(remove).toBeHidden();

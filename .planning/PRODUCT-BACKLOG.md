@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Give the frame's look checks one rule each](seeds/SEED-091-dashboard-ui-renovation.md#frame-look-checks-one-rule) — SEED-091#frame-look-checks-one-rule ([plan](slice-plans/236-frame-look-checks-one-rule/PLAN.md))
 - [Prove a slice through the consumers of what it changes](seeds/SEED-095-slice-proof-through-consumers.md#prove-slices-through-consumers) — SEED-095#prove-slices-through-consumers ([plan](slice-plans/237-prove-slices-through-consumers/PLAN.md))
 - [Show an unread session report apart from a session needing engagement](seeds/SEED-052-start-agent-work-from-dashboard.md#unread-report-apart-from-engagement) — SEED-052#unread-report-apart-from-engagement ([plan](slice-plans/238-unread-report-apart-from-engagement/PLAN.md))
 

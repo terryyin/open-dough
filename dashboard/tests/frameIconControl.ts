@@ -13,7 +13,11 @@
 /// <reference lib="dom" />
 
 import { expect, type Locator } from "@playwright/test";
-import { contrastRatio, expectReadableContrast } from "./accessibleReading.ts";
+import {
+  colorBehind,
+  contrastRatio,
+  expectReadableContrast,
+} from "./accessibleReading.ts";
 import { box } from "./pageLayout.ts";
 
 // The frame's one control size and icon size, in CSS pixels.
@@ -75,27 +79,19 @@ export async function expectFrameIconControl(
   await expect(tip).toBeInViewport({ ratio: 1 });
   const focus = await control.evaluate((element) => {
     const style = getComputedStyle(element);
-    let background = "rgba(0, 0, 0, 0)";
-    for (
-      let at = element.parentElement;
-      at && (background === "rgba(0, 0, 0, 0)" || background === "transparent");
-      at = at.parentElement
-    ) {
-      background = getComputedStyle(at).backgroundColor;
-    }
     return {
       visible: element.matches(":focus-visible"),
       style: style.outlineStyle,
       width: parseFloat(style.outlineWidth),
       color: style.outlineColor,
-      background,
     };
   });
+  const around = await colorBehind(control, { includingItself: false });
   expect(focus.visible, `${name} shows keyboard focus`).toBe(true);
   expect(focus.style).not.toBe("none");
   expect(focus.width).toBeGreaterThanOrEqual(2);
   expect(
-    contrastRatio(focus.color, focus.background),
+    contrastRatio(focus.color, around),
     `${name} focus outline contrast`,
   ).toBeGreaterThanOrEqual(3);
 }
