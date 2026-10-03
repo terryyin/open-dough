@@ -221,30 +221,75 @@ the attention count, the alert reading, and the unread-report wording.
 ### Acknowledge a session report without ending the session's state
 
 **Identity:** SEED-052#mark-report-read-keeps-session-state
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-052#mark-report-read-keeps-session-state","dependencies":[{"supplier":{"identity":"SEED-052#unread-report-apart-from-engagement","href":"seeds/SEED-052-start-agent-work-from-dashboard.md#unread-report-apart-from-engagement"},"implementation":"The unread-report reading in sessionShown (unreadReport beside the native reading), its sidebar marker and card count, and the session-unread-report page journey.","rationale":"Mark as read clears the unread-report marker and keeps the native reading; neither exists before the supplier delivers them, so this story's examples cannot be built or observed until then. Shared direction or reconciliation cannot substitute, because this story changes the supplier's unread rule and extends its journey.","condition":"The supplier's unread-report reading and its page journey are on origin's trunk.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/239-mark-report-read-keeps-session-state/PLAN.md","assessment":"not-ready","reasons":["Slice 1 premise unobserved: plan 238's unread rule (sessionShown unreadReport) and session-unread-report.spec.ts are not on trunk yet; observe them once SEED-052#unread-report-apart-from-engagement lands, then reassess."],"basis":{"document":"f728a248811ac7198ba42a8851f37a091a4db8c4f3a1d75309a3f65bb9427ac1","plan":"25033b00f36f89f0bb7d41a50969d63b7d0c872b83ab7ff681ffcfcf667f5ac0"}}
 ```
 
-- **For / why:** A developer who has read a session's completion report can
-  acknowledge it while the session keeps working on their next instruction, and
-  still sees that session's live state and any later request for input.
-- **Evaluation:** On a launch with a completion report, the control reads
-  **Mark as read**: it acknowledges the report only, clearing the
-  unread-report marker without stopping, renaming, or detaching the session.
-  The entry keeps showing its live reading: a session marked read while
-  working reads Working, and one that later waits for input shows the
-  needs-input border, moves into the attention group, is counted by the badge,
-  and raises its alert. **Mark as done** then always closes its session.
+**Goal:** A developer who has read a session's completion report can
+acknowledge it while the session keeps working on their next instruction, and
+still sees that session's live state and any later request for input. Today
+acknowledging a report is its Mark as done, which only records local Done
+(`server/doneMarks.ts`), so the entry leaves the card and sidebar and reads Done
+whatever the native session does: a running session reads Done, and a later
+“Needs input” is hidden.
+
+**Scope:**
+
+- A launch whose report is unread offers **Mark as read** where its report's
+  Mark as done is offered today: its card entry and its report panel. Mark as
+  read records, durably and locally, that the report was read. It clears the
+  unread-report marker, its tooltip line, and its share of the card's
+  “N unread reports” line, and does nothing else: it does not stop, rename,
+  detach, or mark the session done.
+- A read session stays an open session: it keeps its card and sidebar entry and
+  the native reading every other open session has, including the attention
+  group, border, badge count, card attention line, and macOS alerts for
+  native readings entered later.
+- The report stays retained and readable after Mark as read
+  (“Read attention message”).
+- Once the report is read, the entry offers **Mark as done**, which does what
+  it does for a session without a report: saves local Done, requests native
+  rename, closes dashboard attachments, and requests native stop unless the
+  session is unavailable. For a host with no native stop (Cursor), it records
+  local Done as a reported session's Mark as done does today. The terminal
+  panel's Mark as done, offered whatever the report state, behaves the same way.
+  Marking a session done also ends any unread report, as today.
 - **Boundary:** Builds on
   [the unread-report marker](#unread-report-apart-from-engagement). No change
   to how reports are delivered or retained; a new instruction to the same
-  session does not mark its report read.
-- **Value / learning:** Today a report's Mark as done only records local Done
-  (`markSessionDone`), yet the entry then reads Done whatever the native
-  session does (`sessionShown`): a running session reads Done, and a later
-  "Needs input" is hidden.
-- **Effort hypothesis:** Unestimated; mostly the control's wording and the
-  marked-done reading for launches with a report.
+  session does not mark its report read. Quiet completion still records local
+  Done on arrival. Records already marked done keep that mark.
+
+**Key examples:**
+
+1. A Claude session reported “Completed with attention”, and the developer gave
+   it a new instruction, so it reads Working with the unread-report marker →
+   they choose Mark as read on its card → the marker and “1 unread report” go;
+   the entry still reads Working with the working border, stays on the card and
+   in the sidebar, and the session keeps running.
+2. That read session then waits for input → it shows “Needs input” with the
+   needs-input border, moves into the attention group, is counted by the badge,
+   and raises a macOS “Needs input” alert.
+3. The developer opens the read session's report → the retained message is
+   still there; the panel offers Mark as done instead of Mark as read.
+4. The developer chooses Mark as done on that read Claude session → it is
+   renamed with the done prefix, detached, and stopped, and leaves the card and
+   sidebar for Recent sessions, as an unreported session does.
+5. A Cursor session's report is marked read → its entry stays open with its
+   native reading; Mark as done then records local Done and the entry leaves
+   the card and sidebar.
+6. A reported session that was marked done before this change → it stays in
+   Recent sessions as Done; nothing asks to mark it read.
+
+**UI:** Mark as read is a plain button in the place of today's report
+Mark as done; it then gives way to Mark as done.
+
+**Effort hypothesis:** A durable read mark beside `doneAt`, the unread rule
+reading it, the controls' wording and placement, and Mark as done using the
+unreported path for reported sessions.
 
 ## Ordering and Scope Reduction
 
