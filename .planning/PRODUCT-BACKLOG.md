@@ -15,7 +15,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Complete dashboard sessions quietly and retain messages needing attention](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration) — SEED-008#installed-story-branch-integration ([plan](slice-plans/220-quiet-dashboard-session-completion/PLAN.md))
-- [Automatically build and restart the production dashboard from main](seeds/SEED-086-dashboard-continuous-delivery.md#dashboard-continuous-delivery) — SEED-086#dashboard-continuous-delivery ([plan](slice-plans/225-dashboard-continuous-delivery/PLAN.md))
 
 ## Backlog list
 
