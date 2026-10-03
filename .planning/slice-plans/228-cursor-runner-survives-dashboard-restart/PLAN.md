@@ -143,7 +143,7 @@ Accepted proof for later slices:
 
 ### 2. The production command starts the runner and leaves it up
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npm run test:dashboard -- production-cursor-runner.spec.ts production-watcher.spec.ts`
 
 Behavior: nothing is running. `npm run watch:dashboard` starts one Cursor
@@ -163,6 +163,24 @@ preview replacement.
 
 Update `dashboard/COMMANDS.md`: the command starts the runner when it is
 absent, and stopping the command does not stop the runner.
+
+Accepted proof for later slices:
+
+- Promise: `npm run watch:dashboard` starts one Cursor runner outside the
+  preview's process group. Replacement, stopping the command, and starting
+  it again leave that runner and the same `cursor-agent`, and a typed
+  follow-up reaches that client.
+- Boundary: `preview.stop()` and the command's `finally` stop only the
+  preview. The runner's process group is its own pid.
+- Setup and observation: `dashboard/tests/production-cursor-runner.spec.ts`,
+  the test "the production command starts one Cursor runner and leaves that
+  client up across replacement and a restart". Setup is
+  `publishedMainFixture(true)` and `watch:dashboard` on port 0. The runner
+  group, the surviving pid, and `after-restart` are asserted there.
+- Command: `npm run test:dashboard -- production-cursor-runner.spec.ts production-watcher.spec.ts`
+- Result: exit 0. Refactor changed no paths, so this proof was not rerun.
+  `scripts/watch-dashboard.mjs` starts the runner once through
+  `ensureCursorRunner` and does not stop it.
 
 ### 3. Show the sessions the runner is holding
 Type: Behavior

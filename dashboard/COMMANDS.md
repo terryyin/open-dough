@@ -18,7 +18,9 @@ lockfile requires npm and browser setup again; ordinary test runs acquire nothin
 Keep `npm run watch:dashboard` running while using production. At startup it
 selects the commit origin's `main` names, installs that commit's locked
 dependencies and builds it in a separate checkout under
-`~/.open-dough/dashboard/deployments/`, then serves exactly that commit. Local
+`~/.open-dough/dashboard/deployments/`, then serves exactly that commit. It
+starts this machine's Cursor runner when none is already accepting
+connections. Local
 commits and edits in the development checkout, and its hot reload, leave that
 production app and server unchanged. Before each build, the watcher copies local
 WebP cartoons from `dashboard/public/agent-avatars/odd-e-nerds/cartoon/` in the
@@ -53,8 +55,9 @@ the running server ends unexpectedly, the command reports the reason and exits;
 resolve the reported cause and start it again.
 
 Ctrl-C, SIGTERM and SIGHUP stop the watcher's checks and owned child processes
-and remove its deployment and inspection checkouts. Independently started
-development remains available. Both environments retain the same real-project
+and remove its deployment and inspection checkouts. Stopping the command does
+not stop the Cursor runner or the Cursor clients it holds. Independently
+started development remains available. Both environments retain the same real-project
 catalog and shared machine-local launch/session records; testing development
 can affect those same projects and records. The watcher never removes those records.
 
