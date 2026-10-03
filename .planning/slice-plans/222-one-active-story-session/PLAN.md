@@ -156,8 +156,8 @@ Start on the card. Update `dashboard/AGENT-LAUNCH.md`'s card paragraph.
 
 ### 5. A clickable noted Start does not look disabled
 Type: Behavior
-Status: planned
-Proof: a Playwright case in `dashboard/tests/agent-launch-card.spec.ts` comparing computed styles in light and dark schemes.
+Status: done
+Proof: Playwright case in `dashboard/tests/agent-launch-card-noted-start.spec.ts` comparing computed styles in light and dark schemes (`env -u FORCE_COLOR -u NO_COLOR NODE_ENV= npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-card-noted-start.spec.ts`).
 
 Behavior: A Backlog card shows Start refinement noted "Being prepared" and
 Start execution noted "Not marked Ready for execution", with no open session.
@@ -207,3 +207,10 @@ Update the CSS header comment.
   `ownOpenSession` still recognizes its own open record.
 - Unset `FORCE_COLOR`/`NO_COLOR` for quiet-reporter-sensitive Playwright runs;
   those env warnings otherwise fail nested quiet output checks.
+
+## Execution complete
+
+Product advice: Reasoned no-change to backlog order. The machine-local one-active-session
+guard matches the seed; deferred multi-machine and auto-close work stays later.
+Quiet completion that sets `doneAt` remains compatible. Leave wrap-up to close
+the Taken entry when CI handoff allows.
