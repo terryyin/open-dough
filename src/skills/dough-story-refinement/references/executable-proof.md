@@ -34,11 +34,11 @@ reaches that consumer: reassess current consumers before relying on it.
 Incompatible purposes each need an observation; equivalent purposes may share
 sufficient proof. When the change has such consumers and the suite covering the
 changed surface runs within the slice's focused-check time, run that suite instead
-of a hand-picked list. A change nothing else observes, such as renaming a private
-helper with no shared contract, text, value, default, or rendered output, keeps
-focused proof. For unresolved domain purpose, ask precisely about that consumer's
-requirement and stop its dependent obligation until answered rather than guessing
-policy.
+of hand-picking the consumers it contains; run consumers outside it as well. A
+change nothing else observes, such as renaming a private helper with no shared
+contract, text, value, default, or rendered output, keeps focused proof. For
+unresolved domain purpose, ask precisely about that consumer's requirement and
+stop its dependent obligation until answered rather than guessing policy.
 
 For artifact-preservation promises, identify installation, physical store, and
 predecessor using project-supplied identities/scope. Same-store continuity proves no

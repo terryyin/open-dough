@@ -123,9 +123,20 @@ alters.
 
 ### 2. Coordinator delegation, return and acceptance hold the consumer selection
 Type: Behavior
-Status: planned
+Status: done
 Proof: replay review of examples 7 and 9 against `delegation.md` and
 `wrap-up.md`, with slice 1's rule; links test.
+
+Accepted proof: links test exit 0. A fresh reviewer reading only the three
+references refused to accept or publish a return leaving a found consumer
+"covered by CI", quoting `wrap-up.md`'s stop (7). It required the launch suite
+despite the plan's "the whole suite is CI's", quoting `delegation.md`'s
+minimum rule with the suite sentence (9). It kept focused proof for a private
+rename. The reviewer read "run that suite instead of a hand-picked list" as
+possibly replacing consumers outside the suite, so `executable-proof.md` now
+says the suite replaces hand-picking the consumers it contains and consumers
+outside it still run. The refactor pass replaced "cheap" with the defining
+"runs within the slice's focused-check time" in both references.
 
 Behavior: a coordinator delegating a slice whose plan names a spec list →
 the delegation states that the list is a minimum and that consumers the change
