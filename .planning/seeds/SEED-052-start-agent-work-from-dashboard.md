@@ -121,7 +121,7 @@ While one is starting or open, the story's Start refinement and Start
 execution cannot be invoked, and they look unavailable. Gray then always means
 "cannot start". This prevents two agents working on the same story and
 workspace, as happened with the overlapping Cursor agents recorded under
-[the Cursor reconnect story](#cursor-reconnect-leaves-the-task-running).
+[the Cursor reconnect story](https://github.com/terryyin/open-dough/blob/c78b9ba0fd30256d145dfe4eb672f3e8e9d7d927/.planning/seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-reconnect-leaves-the-task-running).
 
 **Scope:**
 
