@@ -5,10 +5,17 @@ import {
   queuedTitle,
   revision,
 } from "./accessibleOverview.ts";
-import { expectReadableContrast, zoomedWindow } from "./accessibleReading.ts";
+import { zoomedWindow } from "./accessibleReading.ts";
 import { parts, expectMembership } from "./dashboardPage.ts";
+import { expectFrameIconControl } from "./frameIconControl.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
-import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import {
+  box,
+  expectNoSidewaysScrollAndWholeText,
+  expectSideBySideInOrder,
+} from "./pageLayout.ts";
+import { sidebarParts } from "./sessionSidebarPage.ts";
+import { settings } from "./support/systemSettingsPage.ts";
 
 for (const viewport of [
   { width: 1280, height: 800 },
@@ -51,12 +58,7 @@ for (const viewport of [
     await expect(
       banner.getByRole("heading", { level: 1, name: "Open Dough" }),
     ).toBeInViewport({ ratio: 1 });
-    for (const control of [
-      project,
-      banner.getByRole("button", { name: "System settings", exact: true }),
-      sourceEvidence,
-      refresh,
-    ]) {
+    for (const control of [project, settings(page), sourceEvidence, refresh]) {
       await expect(control).toBeInViewport({ ratio: 1 });
     }
     const [selectionBox, refreshBox] = await Promise.all([
@@ -80,9 +82,14 @@ for (const viewport of [
       ),
     ).toEqual([1, 1, 1, 1]);
     await expect(sourceEvidence).toContainText("Open Dough");
-    await expect(refresh).toHaveAccessibleName("Refresh");
-    await expect(refresh.locator("svg")).toHaveAttribute("aria-hidden", "true");
-    await expectReadableContrast(refresh.locator("svg"), 3);
+    await expectNoSidewaysScrollAndWholeText(page);
+    await expectFrameIconControl(
+      sidebarParts(page).button,
+      "Sessions",
+      "Sessions (⌘B)",
+    );
+    await expectFrameIconControl(refresh, "Refresh");
+    await expectFrameIconControl(settings(page), "System settings");
     await expectNoSidewaysScrollAndWholeText(page);
 
     await sourceEvidence.click();
@@ -110,6 +117,43 @@ for (const viewport of [
         box(focused),
       ]);
       expect(focusBox.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height);
+    }
+  });
+}
+
+for (const width of [1440, 1280]) {
+  test(`banner is one row at ${String(width)} CSS pixels, ending with System settings`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 800 });
+    const origin = await publishMovingOrigin(page);
+    origin.push(revision, largeBacklog);
+    await page.goto("/");
+    const { banner, project, sourceEvidence, refresh } = parts(page);
+    await expect(sourceEvidence).toContainText("Open Dough");
+    const gear = settings(page);
+    const inOrder = [
+      sidebarParts(page).button,
+      sourceEvidence,
+      project,
+      refresh,
+      gear,
+    ];
+    await expectSideBySideInOrder(inOrder);
+    const middles = (await Promise.all(inOrder.map(box))).map(
+      ({ y, height }) => y + height / 2,
+    );
+    for (const middle of middles)
+      expect(middle).toBeCloseTo(middles[0] ?? 0, 0);
+    const controls = banner.locator(
+      "button, input, select, textarea, summary, a[href], [tabindex]",
+    );
+    await expect(controls.last()).toHaveAccessibleName("System settings");
+    const gearBox = await box(gear);
+    for (const right of await controls.evaluateAll((all) =>
+      all.map((element) => element.getBoundingClientRect().right),
+    )) {
+      expect(right).toBeLessThanOrEqual(gearBox.x + gearBox.width + 0.5);
     }
   });
 }

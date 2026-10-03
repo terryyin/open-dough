@@ -97,7 +97,33 @@ of at least 3:1. Build it on the existing `dashboard/tests/accessibleReading.ts`
 
 ### 1. A renovated banner on a shared visual foundation, with the settings gear
 Type: Behavior
-Status: planned
+Status: done — visual acceptance checkpoint awaits Terry (screenshots below)
+Accepted proof: `npm run typecheck:dashboard`; `npx playwright test --config
+dashboard/playwright.config.ts --reporter=line` over
+`accessible-overview-keyboard`, `accessible-overview`, `refresh`,
+`story-readiness-accessible`, `dashboard-header`, `system-settings`,
+`session-sidebar`, `read-failure`, `read-failure-refresh`,
+`project-configuration`, and `project-read-recovery` specs (47 passed); full
+dashboard suite 973 passed (an earlier full run under heavy load had seven
+launch-card `toContainText` timeouts that passed on rerun, recorded below).
+The shared check is `expectFrameIconControl` in
+`dashboard/tests/frameIconControl.ts`; `dashboard-header.spec.ts` "banner is
+one row at {1440,1280} CSS pixels, ending with System settings" pins order and
+the gear's position. Before/after screenshots compared a build of the starting
+revision and of this slice against the same live projects; cards are
+unchanged.
+Learnings: the icon control's tooltip hangs from a zero-size anchor with
+`contain: layout`, so a showing tooltip does not count as overflow in
+`expectNoSidewaysScrollAndWholeText`; reuse it in slices 3–5. The two-row
+banner at the 320px zoomed window is about 124px against the spec's 128px
+limit, so later banner height at narrow widths breaks `dashboard-header.spec.ts`.
+Keyboard order through the banner (Sessions, project choices, Refresh, source
+name, gear) still differs from visual order, as before this slice; changing it
+would change navigation, which the story excludes. `project-configuration.spec.ts`
+sits at the 250-line limit. The full-run launch-card timeouts
+(`agent-launch-cursor-model`, `agent-launch-preparation-{codex,cursor,kept}`,
+`agent-launch-start-{codex,cursor,taken}`) touch no frame code and stay an
+open flakiness defect outside this story.
 Proof: The banner rows of the proof table; `dashboard-header.spec.ts`, `system-settings.spec.ts`, `session-sidebar.spec.ts`, `read-failure*.spec.ts`; the full dashboard Playwright suite once (see Current decisions); before/after screenshots.
 
 Behavior: the dashboard is open on a configured project → the developer looks

@@ -4,6 +4,7 @@ import {
   ConfiguredDashboard,
   type DashboardSelection,
 } from "./ConfiguredDashboard.tsx";
+import { SettingsGear } from "./DashboardBanner.tsx";
 import { SystemSettings } from "./SystemSettings.tsx";
 import { SettingsNavigation } from "./settingsNavigation.ts";
 
@@ -91,13 +92,7 @@ export function App() {
           {projects.length === 0 ? (
             <>
               <header className="banner">
-                <button
-                  type="button"
-                  aria-label="System settings"
-                  onClick={openSettings}
-                >
-                  System settings
-                </button>
+                <SettingsGear onOpen={openSettings} />
               </header>
               <main className="page-header">
                 <h1>No projects configured</h1>

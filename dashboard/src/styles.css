@@ -14,6 +14,31 @@
   /* Room beyond an element's edge for the focus ring below, so scrolling a
      revealed or focused element into view never clips the ring. */
   --focus-ring-clearance: 0.5rem;
+  /* Quiet fills behind a hovered, selected, or failed control. Each keeps the
+     colour drawn over it at its contrast. */
+  --hover: #ecece7;
+  --accent-soft: #e6eef8;
+  --problem-soft: #fbeeee;
+  /* The frame's shared visual foundation: type scale, spacing, radius,
+     elevation, and control sizes. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --page-gutter: clamp(0.75rem, 4vw, 1.5rem);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-pill: 999px;
+  --shadow-1: 0 1px 2px rgb(29 29 27 / 6%), 0 1px 3px rgb(29 29 27 / 6%);
+  --shadow-2: 0 4px 14px rgb(29 29 27 / 18%);
+  --control-size: 2.5rem;
+  --icon-size: 1.25rem;
   font-family: system-ui, sans-serif;
   line-height: 1.45;
   color: var(--text);

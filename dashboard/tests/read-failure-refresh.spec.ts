@@ -15,6 +15,7 @@ import {
   titlesOfA,
   titlesOfB,
 } from "./refreshJourney.ts";
+import { expectFrameIconControl } from "./frameIconControl.ts";
 
 // Each makes the next refresh from A fail, and returns the repair after which
 // `main` names B with B's valid backlog.
@@ -86,6 +87,7 @@ for (const { because, fail, problem: problemText } of failedRefreshes) {
         cards: 4,
       });
       await expect(retry).toBeFocused();
+      await expectFrameIconControl(retry, "Retry");
       await expect(parts(page).reading).toHaveCount(0);
     });
 

@@ -1,3 +1,5 @@
+import { ChevronRight, RefreshCw } from "lucide-react";
+import { Icon, IconButton } from "./Icon.tsx";
 import { Moment } from "./Moment.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -24,20 +26,17 @@ export function SourceStatus({
           button would drop keyboard focus to the page. After a failed
           attempt the same control is named for what pressing it means,
           so one read action is offered, never two competing ones. */}
-      <button
-        type="button"
-        className="refresh"
-        aria-label={failed ? "Retry" : "Refresh"}
-        title={failed ? "Retry" : "Refresh"}
+      <IconButton
+        label={failed ? "Retry" : "Refresh"}
+        icon={RefreshCw}
+        className={failed ? "refresh retry" : "refresh"}
+        groupClassName="refresh-control"
         aria-disabled={reading}
         onClick={onRefresh}
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M20 7v5h-5M20 12a8 8 0 1 0-2.3 5.7M20 12l-3-5" />
-        </svg>
-      </button>
+      />
       <details className="source-evidence" key={source.id}>
         <summary aria-label={`Source evidence for ${source.label}`}>
+          <Icon icon={ChevronRight} />
           <h1>{source.label}</h1>
         </summary>
         <div className="source-evidence-body">

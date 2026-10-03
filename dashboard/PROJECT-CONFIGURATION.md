@@ -10,11 +10,12 @@ Development starts empty. An existing empty list stays empty; the first saved
 project is the default selection. An unreadable or malformed file is reported
 with its path and left untouched. The empty page explains that no projects are
 configured and directs to **System settings → Projects**. The global banner
-keeps the project selector and provides **System settings**, including with no
-projects. Settings lists each configured name, repository and local path;
-**Add project** opens the existing dialog. Back to dashboard and browser
-Back/Forward return to the preceding project/view with useful focus. Opening
-settings preserves the mounted dashboard, Sessions sidebar and attached terminal.
+keeps the project selector and ends with the **System settings** gear at its
+far right, including with no projects. Settings lists each configured name,
+repository and local path; **Add project** opens the existing dialog. Back to
+dashboard and browser Back/Forward return to the preceding project/view with
+useful focus. Opening settings preserves the mounted dashboard, Sessions sidebar
+and attached terminal.
 The dialog asks for a GitHub repository URL (HTTPS, with or without `.git`, or SSH)
 and Local path, prefilled as `~/git/<repo>`. Add checks the developer's local `gh`
 access and the checkout's origin, derives the default branch, saves the project,

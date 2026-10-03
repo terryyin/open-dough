@@ -114,44 +114,29 @@
   white-space: nowrap;
 }
 
-.sessions-toggle-group {
-  position: relative;
-  display: inline-block;
-}
-
-.sessions-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  padding: 0.25rem 0.6rem;
-  border: 1px solid var(--accent);
-  border-radius: 0.35rem;
-  color: var(--accent);
-  background: var(--panel);
-  cursor: pointer;
-}
-
+/* The Sessions button is a frame icon control (./icon-control.css); open, it
+   is marked in the accent, and its count of sessions needing the developer
+   sits on its corner. */
 .sessions-toggle[aria-expanded="true"] {
-  color: var(--panel);
-  background: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .sessions-toggle-attention {
   position: absolute;
-  top: -0.35rem;
-  right: -0.35rem;
-  min-width: 1.15rem;
-  padding: 0 0.3rem;
-  border-radius: 999px;
+  top: calc(-1 * var(--space-1));
+  right: calc(-1 * var(--space-1));
   box-sizing: border-box;
-  font-size: 0.75rem;
+  min-width: 1.125rem;
+  padding: 0 0.3rem;
+  border: 2px solid var(--panel);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
   font-weight: 700;
-  line-height: 1.15rem;
+  line-height: 0.875rem;
   text-align: center;
   color: #fff;
-  background: #c62828;
+  background: var(--problem);
   pointer-events: none;
 }
 

@@ -191,13 +191,13 @@ export async function expectWholeSnapshot(
   }
 }
 
-// Read/snapshot controls exclude the banner's machine Sessions and project
-// configuration actions, and Start session, which needs no published read.
+// Read/snapshot controls exclude the banner's machine Sessions and System
+// settings, and Start session, which needs no published read.
 export const controlsBesideSessions = (page: Page) =>
   page
     .getByRole("button")
     .and(page.locator(":not([aria-label='Sessions'])"))
-    .and(page.locator(":not(.project-controls button)"))
+    .and(page.locator(":not([aria-label='System settings'])"))
     .filter({ hasNotText: /^Start session$/ });
 
 // A failed read with no earlier snapshot shows the problem and the way to read again, and nothing

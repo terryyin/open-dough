@@ -1,0 +1,95 @@
+/* The frame's icon-only controls (./Icon.tsx): one size, one quiet look, the
+   icon drawn in the control's text colour, and a tooltip below the control
+   while it is hovered or holds keyboard focus. */
+
+.icon {
+  flex: none;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.icon-control {
+  position: relative;
+  display: inline-flex;
+}
+
+.icon-button {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: var(--control-size);
+  height: var(--control-size);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font: inherit;
+  color: var(--quiet);
+  background: transparent;
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  color: var(--text);
+  background: var(--hover);
+}
+
+/* Not drawn until shown, so a hidden tooltip takes no room and never reaches
+   past the window; shown, it lies over the page without catching the pointer.
+   It hangs from a point below the control that contains its layout, so the
+   tooltip widens neither the control nor anything around it. */
+.frame-tooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 50%;
+  z-index: 10;
+  width: 0;
+  height: 0;
+  contain: layout;
+  pointer-events: none;
+}
+
+.frame-tooltip > span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateX(-50%);
+  width: max-content;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: var(--panel);
+  background: var(--text);
+  box-shadow: var(--shadow-2);
+}
+
+.tooltip-start > .frame-tooltip {
+  left: 0;
+}
+
+.tooltip-start > .frame-tooltip > span {
+  transform: none;
+}
+
+.tooltip-end > .frame-tooltip {
+  left: 100%;
+}
+
+.tooltip-end > .frame-tooltip > span {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.icon-control:has(> .icon-button:hover, > .icon-button:focus-visible)
+  > .frame-tooltip {
+  display: block;
+}
+
+/* The page-wide focus outline keeps the control's own rounded corners. */
+.icon-button:focus-visible {
+  border-radius: var(--radius-md);
+}

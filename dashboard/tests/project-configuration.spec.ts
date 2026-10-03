@@ -24,6 +24,7 @@ import {
 } from "./machineLaunchRecords.ts";
 import { title } from "./agentLaunchBoundary.ts";
 import { settings } from "./support/systemSettingsPage.ts";
+import { expectFrameIconControl } from "./frameIconControl.ts";
 import { customSavedProjects } from "./support/projectConfiguration.ts";
 
 const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
@@ -166,7 +167,6 @@ for (const mode of ["dev", "preview"] as const) {
     await expect(
       page.getByRole("heading", { name: "No projects configured" }),
     ).toBeVisible();
-    await expect(settings(page)).toBeEnabled();
     await settings(page).click();
     await expect(
       page.getByRole("button", { name: "Add project" }),
@@ -207,7 +207,7 @@ test("development first start is empty and refuses the formerly fixed project", 
       "Open System settings → Projects to add a project and see its published work and start sessions.",
     ),
   ).toBeVisible();
-  await expect(settings(page)).toBeEnabled();
+  await expectFrameIconControl(settings(page), "System settings");
   await settings(page).click();
   await expect(page.getByRole("button", { name: "Add project" })).toBeEnabled();
   const response = await rawRequest({

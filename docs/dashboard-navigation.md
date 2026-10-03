@@ -44,13 +44,16 @@ an open modal help dialog keep their own keyboard behavior and do not change
 the project. Keep manual refresh in this banner. Keep repository/ref, full
 source revision, and retrieval time available through the Source evidence
 disclosure, so detailed metadata does not fill the viewport at browser zoom.
-Render refresh as an SVG icon with the accessible name Refresh, changing to
-Retry after a failed read; preserve its focus and guarded behavior during
-reads. Keep readable loading and source problems near the source context. Make
-the header wrap without covering focused content or consuming the usable
-reading area at narrow widths or browser zoom.
+Render refresh as an icon with the accessible name Refresh, changing to
+Retry in the problem colour after a failed read; preserve its focus and guarded
+behavior during reads. End the banner with the **System settings** gear at the
+far right, after refresh. Every icon-only control in the banner shows its name,
+and its shortcut where it has one, in a tooltip when hovered or focused. Keep
+readable loading and source problems near the source context. Make the header
+wrap without covering focused content or consuming the usable reading area at
+narrow widths or browser zoom.
 
-The global **System settings** control opens a dedicated machine configuration
+The global **System settings** gear opens a dedicated machine configuration
 view, including when no projects are configured. Its **Projects** section lists
 configured names, GitHub repositories and local paths, with **Add project** and a
 **Remove project** action for each row. Project management belongs here; the
@@ -128,7 +131,7 @@ Illustrative compact overview; placeholders are not observed project data:
 
 ```text
 ┌──────────────── pinned viewport-top banner ──────────────┐
-│ ▸ <selected project> [Open Dough] [Doughnut] [Pygardon] [↻] │
+│ [≡] ▸ <project>  [Open Dough|Doughnut|Pygardon] [↻] [⚙]  │
 └──────────────────────────────────────────────────────────┘
 ▸ Near-future direction                                [?]
 

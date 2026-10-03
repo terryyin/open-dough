@@ -152,6 +152,8 @@ test("refresh published work only checks main as time passes, and a Refresh at a
   const timeAtFirstRead = await source.locator("time").innerText();
   await page.clock.setFixedTime(retrievedAgain);
   await refresh.click();
+  // The read control's tooltip shows only while the pointer rests on it.
+  await page.mouse.move(0, 0);
 
   await expectWholeSnapshot(
     page,
