@@ -18,6 +18,7 @@ import {
   startCursorDashboard,
   stayedUp,
 } from "./support/keptCursorTurn.ts";
+import { cursorIdleSettleMs } from "../server/hosts/cursor/idleScreen.ts";
 import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
 import { processRunning } from "./support/processGroup.ts";
 
@@ -93,11 +94,17 @@ for (const mode of ["dev", "preview"] as const) {
             .poll(() => terminal.controls())
             .toContainEqual({ readiness: "attached" });
 
+          // The hangup waits for the idle screen to hold, so it comes no
+          // sooner than the settle period after this close.
+          const detachedAt = performance.now();
           terminal.socket.close();
           await terminal.closed;
-          expect(cursor.signals(pid)).not.toContain("SIGHUP");
-          expect(processRunning(pid)).toBe(true);
-          await expect.poll(() => cursor.signals(pid)).toContain("SIGHUP");
+          await expect
+            .poll(() => cursor.signals(pid), { intervals: [10] })
+            .toContain("SIGHUP");
+          expect(performance.now() - detachedAt).toBeGreaterThanOrEqual(
+            cursorIdleSettleMs,
+          );
           await expect.poll(() => processRunning(pid)).toBe(false);
 
           const next = await openCursorTerminal(server, sessionId);
