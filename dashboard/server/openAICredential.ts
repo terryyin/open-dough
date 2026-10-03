@@ -1,18 +1,15 @@
 // One machine credential, shared by dev and preview. Read afresh for every use;
 // no environment import, cache, or provider request is part of configuration.
-import { randomUUID } from "node:crypto";
 import {
   chmodSync,
   lstatSync,
   mkdirSync,
   readFileSync,
-  renameSync,
-  rmSync,
   unlinkSync,
-  writeFileSync,
 } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
+import { replaceFile } from "./fileReplacement.ts";
 
 // The local JSON admission allows 32 KiB; our canonical file adds one newline.
 // Both writes and reads bound the serialized UTF-8 bytes, not key characters.
@@ -66,7 +63,6 @@ export function readOpenAIAPIKey(): string | undefined {
 export function saveOpenAIAPIKey(apiKey: string): void {
   const file = openAICredentialFile();
   const directory = path.dirname(file);
-  const temporary = `${file}.${randomUUID()}.tmp`;
   const serialized = `${JSON.stringify({ apiKey })}\n`;
   if (Buffer.byteLength(serialized, "utf8") > credentialLimitBytes)
     throw new OpenAICredentialProblem(
@@ -76,18 +72,11 @@ export function saveOpenAIAPIKey(apiKey: string): void {
     mkdirSync(directory, { recursive: true, mode: 0o700 });
     credentialDirectoryIsSafe();
     chmodSync(directory, 0o700);
-    writeFileSync(temporary, serialized, { flag: "wx", mode: 0o600 });
-    renameSync(temporary, file);
+    replaceFile(file, serialized, 0o600);
   } catch {
     throw new OpenAICredentialProblem(
       "The OpenAI API key could not be saved. Check the credential folder permissions and retry; the previous key was kept.",
     );
-  } finally {
-    try {
-      rmSync(temporary, { force: true });
-    } catch {
-      /* Preserve the original safe error. */
-    }
   }
 }
 

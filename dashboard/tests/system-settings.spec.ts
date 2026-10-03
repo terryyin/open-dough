@@ -134,7 +134,7 @@ test("opening settings preserves one running native session and its attached ter
   await startSessionDialog(page, "Sample App")
     .getByRole("button", { name: "Start", exact: true })
     .click();
-  const terminal = page.getByRole("region", { name: "Terminal" });
+  const terminal = page.getByRole("region", { name: "Terminal", exact: true });
   const rows = terminal.locator(".xterm-rows");
   await expect(rows).toContainText("attached");
   await page.keyboard.type("before settings");

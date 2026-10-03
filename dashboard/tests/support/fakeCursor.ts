@@ -74,9 +74,11 @@ function readJsonl<T>(file: string): T[] {
     .map((line) => JSON.parse(line) as T);
 }
 
+export type CursorScreen = "working" | "waiting" | "unrecognized" | "trust";
+
 export function installFakeCursor(options?: {
   readonly working?: boolean;
-  readonly screen?: "working" | "waiting" | "unrecognized" | "trust";
+  readonly screen?: CursorScreen;
   readonly becomeReady?: boolean;
   readonly paintDelayMs?: number;
 }): FakeCursor {

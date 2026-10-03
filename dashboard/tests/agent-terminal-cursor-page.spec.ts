@@ -8,21 +8,13 @@ import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { startSessionField } from "./launchCardPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import { expect, test as cursorTest } from "./support/cursorStart.ts";
-import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
+import { expect, test } from "./support/cursorStart.ts";
 import { waitUntil } from "./support/dashboardServer.ts";
 import { processRunning } from "./support/processGroup.ts";
 
 const instruction = "keep this turn running";
 
-const test = cursorTest.extend<{ cursor: FakeCursor }>({
-  // eslint-disable-next-line no-empty-pattern
-  cursor: async ({}, use) => {
-    const cursor = installFakeCursor({ working: true });
-    await use(cursor);
-    cursor.cleanup();
-  },
-});
+test.use({ cursorScreen: "working" });
 
 function keptRecord(home: string): LaunchRecord {
   const kept = JSON.parse(

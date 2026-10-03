@@ -5,11 +5,9 @@ import {
   openAIRemoveEndpoint,
   openAISaveEndpoint,
 } from "../src/openAIConfiguration.ts";
-import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
-import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
+import { RefusedRequest } from "./localOrigin.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
-import { readTimeoutMs } from "./ghRead.ts";
-import { withResponseSignal } from "./responseSignal.ts";
+import { localJsonEndpointsPlugin } from "./localJsonEndpoints.ts";
 import {
   OpenAICredentialProblem,
   readOpenAIAPIKey,
@@ -22,7 +20,6 @@ async function answer(
   pathname: string,
   signal: AbortSignal,
 ) {
-  verifyLocalOrigin(req);
   if (pathname === openAIConfigurationEndpoint) {
     if (req.method !== "GET")
       throw new RefusedRequest(405, "Only GET is accepted.");
@@ -62,57 +59,18 @@ async function answer(
 }
 
 export function openAIConfigurationPlugin(): Plugin {
-  return localBoundaryPlugin("dough-openai-configuration", (middlewares) => {
-    const pending = new Set<AbortController>();
-    middlewares.use((req, res, next) => {
-      const pathname = new URL(req.url ?? "", "http://placeholder").pathname;
-      if (
-        ![
-          openAIConfigurationEndpoint,
-          openAISaveEndpoint,
-          openAIRemoveEndpoint,
-        ].includes(pathname)
-      ) {
-        next();
-        return;
-      }
-      const controller = new AbortController();
-      pending.add(controller);
-      const respond = (status: number, body: unknown) => {
-        if (res.destroyed || res.writableEnded) return;
-        res.writeHead(status, {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-store",
-        });
-        res.end(JSON.stringify(body));
-      };
-      void withResponseSignal(
-        res,
-        (signal) =>
-          answer(req, pathname, AbortSignal.any([signal, controller.signal])),
-        readTimeoutMs(),
-      )
-        .then(
-          (body) => {
-            respond(200, body);
-          },
-          (error: unknown) => {
-            respond(error instanceof RefusedRequest ? error.status : 503, {
-              error:
-                error instanceof RefusedRequest ||
-                error instanceof OpenAICredentialProblem
-                  ? error.message
-                  : "OpenAI configuration could not be updated. Retry the operation.",
-            });
-          },
-        )
-        .finally(() => {
-          pending.delete(controller);
-        });
-    });
-    return () => {
-      for (const controller of pending) controller.abort();
-      pending.clear();
-    };
-  });
+  return localJsonEndpointsPlugin(
+    "dough-openai-configuration",
+    [openAIConfigurationEndpoint, openAISaveEndpoint, openAIRemoveEndpoint],
+    answer,
+    (error) => ({
+      status: 503,
+      body: {
+        error:
+          error instanceof OpenAICredentialProblem
+            ? error.message
+            : "OpenAI configuration could not be updated. Retry the operation.",
+      },
+    }),
+  );
 }

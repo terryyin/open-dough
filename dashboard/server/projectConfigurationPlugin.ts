@@ -7,8 +7,8 @@ import {
   projectRemoveEndpoint,
 } from "../src/projectConfiguration.ts";
 import { ProjectInputProblem } from "../src/projectInput.ts";
-import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
-import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
+import { RefusedRequest } from "./localOrigin.ts";
+import { localJsonEndpointsPlugin } from "./localJsonEndpoints.ts";
 import {
   configuredProject,
   projectSettings,
@@ -17,15 +17,12 @@ import {
 } from "./projectConfiguration.ts";
 import { addProject } from "./projectAddition.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
-import { withResponseSignal } from "./responseSignal.ts";
-import { readTimeoutMs } from "./ghRead.ts";
 
 async function answer(
   req: IncomingMessage,
   pathname: string,
   signal: AbortSignal,
 ) {
-  verifyLocalOrigin(req);
   if (
     pathname === projectListEndpoint ||
     pathname === projectSettingsEndpoint
@@ -69,66 +66,23 @@ async function answer(
 }
 
 export function projectConfigurationPlugin(): Plugin {
-  return localBoundaryPlugin("dough-project-configuration", (middlewares) => {
-    const pending = new Set<AbortController>();
-    middlewares.use((req, res, next) => {
-      const url = new URL(req.url ?? "", "http://placeholder");
-      if (
-        url.pathname !== projectListEndpoint &&
-        url.pathname !== projectSettingsEndpoint &&
-        url.pathname !== projectAddEndpoint &&
-        url.pathname !== projectRemoveEndpoint
-      ) {
-        next();
-        return;
-      }
-      const controller = new AbortController();
-      pending.add(controller);
-      const respond = (status: number, body: unknown) => {
-        if (res.destroyed || res.writableEnded) return;
-        res.writeHead(status, {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-store",
-        });
-        res.end(JSON.stringify(body));
-      };
-      void withResponseSignal(
-        res,
-        (signal) =>
-          answer(
-            req,
-            url.pathname,
-            AbortSignal.any([signal, controller.signal]),
-          ),
-        readTimeoutMs(),
-      )
-        .then(
-          (body) => {
-            respond(200, body);
+  return localJsonEndpointsPlugin(
+    "dough-project-configuration",
+    [
+      projectListEndpoint,
+      projectSettingsEndpoint,
+      projectAddEndpoint,
+      projectRemoveEndpoint,
+    ],
+    answer,
+    (error) =>
+      error instanceof ProjectInputProblem
+        ? { status: 400, body: { error: error.message, field: error.field } }
+        : {
+            status: 503,
+            body: {
+              error: error instanceof Error ? error.message : String(error),
+            },
           },
-          (error: unknown) => {
-            respond(
-              error instanceof RefusedRequest
-                ? error.status
-                : error instanceof ProjectInputProblem
-                  ? 400
-                  : 503,
-              {
-                error: error instanceof Error ? error.message : String(error),
-                ...(error instanceof ProjectInputProblem
-                  ? { field: error.field }
-                  : {}),
-              },
-            );
-          },
-        )
-        .finally(() => {
-          pending.delete(controller);
-        });
-    });
-    return () => {
-      for (const controller of pending) controller.abort();
-      pending.clear();
-    };
-  });
+  );
 }
