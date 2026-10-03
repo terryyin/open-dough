@@ -80,8 +80,8 @@ has -- the same access `gh api repos/terryyin/pygardon/commits/main` proves
 from a terminal -- and works from the ordinary launch route:
 `npm run dev:dashboard`, `npm run watch:dashboard`, or `npm run build:dashboard`
 followed by `npm run preview:dashboard`. Development and built preview mount the
-same local read boundary from their Vite configuration, so a tagged production
-preview needs no separate authentication setup.
+same local read boundary from their Vite configuration, so the watcher's
+production preview needs no separate authentication setup.
 
 Selecting a project replaces the whole view and reads that project afresh. It
 reads once on opening and again when **Refresh** is pressed. While a snapshot
@@ -206,22 +206,13 @@ review changes, published slice progress, record navigation and accessible detai
 See [dashboard commands and native prerequisites](COMMANDS.md).
 
 Run `npm run dev:dashboard` for development at `http://127.0.0.1:43127/` and
-`npm run watch:dashboard` for production at `http://127.0.0.1:4173/`. The watcher
-stays in the development checkout, but production's built browser app and server
-come from origin's highest immutable numeric `vMAJOR.MINOR.PATCH` tag in a
-separate checkout. Development edits and hot reload do not refresh or restart
-production. A higher numeric release replaces production at the same URL;
-branches, lower versions and prereleases do not.
-
-Failed checks or builds keep the working release; failed candidate starts
-restore its previous built server. The watcher reports the problem and retries
-on a later check. Without a qualifying startup tag, production cannot start.
-Keep the command running while using production; Ctrl-C, SIGTERM or closing its
-terminal (SIGHUP) stops its checks and owned processes. If restoring the prior
-server also fails, resolve the reported cause and restart the watcher.
+`npm run watch:dashboard` for production at `http://127.0.0.1:4173/`, built in a
+separate checkout from qualifying commits published on origin's `main`.
+Development edits and hot reload never refresh or restart production. The
+commands guide describes CI path filtering, failures, restoration and shutdown.
 
 Development and production share the existing real-project catalog and
-machine-local launch/session records. Records survive release changes and
+machine-local launch/session records, which survive production replacements and
 watcher shutdown. Development testing can act on the same projects and records
 as production; separate project configuration is future work.
 

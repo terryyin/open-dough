@@ -1,94 +1,73 @@
-// Tagged lifecycle fault gates leave real npm/Vite build and serving intact.
+// Published fault gates leave real npm/Vite build and serving intact.
 import { expect, test } from "@playwright/test";
-import { readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
+import { readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { dashboardCommand } from "./support/dashboardCommand.ts";
-import { dashboardReleaseFixture } from "./support/dashboardReleaseFixture.ts";
+import { publishedMainFixture } from "./support/publishedMainFixture.ts";
 import { processRunning } from "./support/processGroup.ts";
+import {
+  faultGatedPackage,
+  productionFault,
+} from "./support/productionFault.ts";
+import {
+  outputCount,
+  productionActivation as activation,
+  productionDeployments,
+  type ProductionWatcher as Watcher,
+} from "./support/productionWatcher.ts";
 
-test("failed builds and real preview activation restore working production, retry immutable tags, survive origin failure and stop checks", async ({
+test("failed builds and real preview activation keep or restore working production, retry the same commit, survive origin failure and stop checks", async ({
   browser,
   request,
 }) => {
   test.setTimeout(360_000);
-  const fixture = await dashboardReleaseFixture(true);
-  const releases = path.join(fixture.home, ".open-dough/dashboard/releases");
-  let watcher: ReturnType<typeof dashboardCommand> | undefined;
+  const fixture = await publishedMainFixture(true);
+  const deployments = productionDeployments(fixture.home);
+  let watcher: Watcher | undefined;
   const page = await browser.newPage();
   try {
-    await fixture.publish("1.0.0", { marker: "WORKING A" });
+    const aSha = await fixture.publish(
+      fixture.markerChanges("WORKING A"),
+      "Working A",
+    );
     watcher = dashboardCommand(
       fixture.development,
       fixture.env,
       "watch:dashboard",
       ["--port", "0", "--check-interval", "500"],
     );
-    async function activation(version: string, restored = false) {
-      const expression = new RegExp(
-        `${restored ? "Restored production" : "Production"} dashboard v${version.replaceAll(".", "\\.")} at (http://127\\.0\\.0\\.1:\\d+) \\(preview PID (\\d+)\\)`,
-      );
-      await expect
-        .poll(() => watcher?.output() ?? "", { timeout: 180_000 })
-        .toMatch(expression);
-      const match = expression.exec(watcher?.output() ?? "");
-      if (!match?.[1] || !match[2])
-        throw new Error("Missing preview address/PID");
-      return { url: match[1], pid: Number(match[2]) };
-    }
-    const a = await activation("1.0.0");
+    const a = await activation(watcher, aSha);
     await page.goto(a.url);
     await expect(page).toHaveTitle("WORKING A");
 
-    // The tag gates its own build/start on a machine-local transient cause.
-    // Clearing it never changes source, tag or commit and runs the real scripts.
-    const packagePath = path.join(fixture.development, "package.json");
-    const packageJson = JSON.parse(await readFile(packagePath, "utf8")) as {
-      scripts: Record<string, string>;
-    };
-    await writeFile(
-      path.join(fixture.development, "release-fault.mjs"),
-      `
-import { existsSync } from "node:fs";
-import { homedir } from "node:os";
-import path from "node:path";
-const phase = process.argv[2];
-if (existsSync(path.join(homedir(), "fault-" + phase))) {
-  console.error("TRANSIENT " + phase + " FAILURE");
-  process.exit(42);
-}
-`,
-    );
-    for (const phase of ["build", "preview"]) {
-      const script = `${phase}:dashboard`;
-      packageJson.scripts[script] =
-        `node release-fault.mjs ${phase} && ${packageJson.scripts[script]}`;
-    }
-    await writeFile(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
+    // The commit gates its own build/start on a machine-local transient cause.
+    // Clearing it never changes source or commit and runs the real scripts.
     const buildFault = path.join(fixture.home, "fault-build");
     await writeFile(buildFault, "transient build cause");
-    const bSha = await fixture.publish("1.1.0", { marker: "WORKING B" });
+    const bSha = await fixture.publish(
+      {
+        ...fixture.markerChanges("WORKING B"),
+        "package.json": await faultGatedPackage(fixture.development),
+        "production-fault.mjs": productionFault,
+      },
+      "Working B",
+    );
     await expect
       .poll(() => watcher?.output() ?? "", { timeout: 180_000 })
       .toContain("TRANSIENT build FAILURE");
-    expect(watcher.output()).toContain(
-      "Production release check failed for v1.1.0",
-    );
-    expect(watcher.output()).toContain(`Keeping v1.0.0 at ${a.url}`);
+    expect(watcher.output()).toContain(`Production update failed for ${bSha}`);
+    expect(watcher.output()).toContain(`Keeping ${aSha} at ${a.url}`);
     expect(processRunning(a.pid)).toBe(true);
     await page.reload();
     await expect(page).toHaveTitle("WORKING A");
     await rm(buildFault);
-    const b = await activation("1.1.0");
+    const b = await activation(watcher, bSha);
     expect(b.url).toBe(a.url);
     expect(
-      watcher
-        .output()
-        .match(
-          new RegExp(
-            `Preparing production dashboard v1\\.1\\.0 \\(${bSha}\\)`,
-            "g",
-          ),
-        )?.length ?? 0,
+      outputCount(
+        watcher,
+        new RegExp(`Preparing production dashboard ${bSha}\\.`, "g"),
+      ),
     ).toBeGreaterThanOrEqual(2);
     await expect.poll(() => processRunning(a.pid)).toBe(false);
     await page.reload();
@@ -96,44 +75,41 @@ if (existsSync(path.join(homedir(), "fault-" + phase))) {
 
     const startFault = path.join(fixture.home, "fault-preview");
     // B's gate also reads HOME; make the start cause apply to C only.
-    const faultScript = path.join(fixture.development, "release-fault.mjs");
-    await writeFile(
-      faultScript,
-      (await readFile(faultScript, "utf8")).replace(
-        'existsSync(path.join(homedir(), "fault-" + phase))',
-        'existsSync(path.join(homedir(), "fault-" + phase + "-c"))',
-      ),
-    );
     const cFault = `${startFault}-c`;
     await writeFile(cFault, "transient candidate start cause");
-    const cSha = await fixture.publish("1.2.0", { marker: "WORKING C" });
-    const restored = await activation("1.1.0", true);
+    const cSha = await fixture.publish(
+      {
+        ...fixture.markerChanges("WORKING C"),
+        "production-fault.mjs": productionFault.replace(
+          'existsSync(path.join(homedir(), "fault-" + phase))',
+          'existsSync(path.join(homedir(), "fault-" + phase + "-c"))',
+        ),
+      },
+      "Working C",
+    );
+    const restored = await activation(watcher, bSha, true);
     expect(restored.url).toBe(a.url);
     expect(restored.pid).not.toBe(b.pid);
     await expect.poll(() => processRunning(b.pid)).toBe(false);
     expect(processRunning(restored.pid)).toBe(true);
     await expect
       .poll(() => watcher?.output() ?? "")
-      .toContain("Production release check failed for v1.2.0");
+      .toContain(`Production update failed for ${cSha}`);
     expect(watcher.output()).toContain("TRANSIENT preview FAILURE");
-    expect(watcher.output()).toContain(`Keeping v1.1.0 at ${a.url}`);
+    expect(watcher.output()).toContain(`Keeping ${bSha} at ${a.url}`);
     expect(watcher.output()).not.toContain(
-      `Production dashboard v1.2.0 at ${a.url}`,
+      `Production dashboard ${cSha} at ${a.url}`,
     );
     await page.reload();
     await expect(page).toHaveTitle("WORKING B");
     await rm(cFault);
-    const c = await activation("1.2.0");
+    const c = await activation(watcher, cSha);
     expect(c.url).toBe(a.url);
     expect(
-      watcher
-        .output()
-        .match(
-          new RegExp(
-            `Preparing production dashboard v1\\.2\\.0 \\(${cSha}\\)`,
-            "g",
-          ),
-        )?.length ?? 0,
+      outputCount(
+        watcher,
+        new RegExp(`Preparing production dashboard ${cSha}\\.`, "g"),
+      ),
     ).toBeGreaterThanOrEqual(2);
     await expect.poll(() => processRunning(restored.pid)).toBe(false);
     await page.reload();
@@ -142,19 +118,16 @@ if (existsSync(path.join(homedir(), "fault-" + phase))) {
     await rename(fixture.origin, `${fixture.origin}.unavailable`);
     await expect
       .poll(() => watcher?.output() ?? "", { timeout: 60_000 })
-      .toContain("Failed to fetch tags from");
+      .toContain(`git ls-remote -- ${fixture.origin} refs/heads/main failed`);
     expect(processRunning(c.pid)).toBe(true);
     await page.reload();
     await expect(page).toHaveTitle("WORKING C");
-    expect(watcher.output()).toContain(`Keeping v1.2.0 at ${a.url}`);
+    expect(watcher.output()).toContain(`Keeping ${cSha} at ${a.url}`);
     await rename(`${fixture.origin}.unavailable`, fixture.origin);
-    const checks =
-      watcher.output().match(/Checked production release:/g)?.length ?? 0;
+    const checked = new RegExp(`Checked published main: ${cSha}\\.`, "g");
+    const checks = outputCount(watcher, checked);
     await expect
-      .poll(
-        () =>
-          watcher?.output().match(/Checked production release:/g)?.length ?? 0,
-      )
+      .poll(() => outputCount(watcher, checked))
       .toBeGreaterThan(checks);
     if (watcher.child.pid === undefined) throw new Error("Missing watcher PID");
     process.kill(-watcher.child.pid, "SIGHUP");
@@ -168,10 +141,78 @@ if (existsSync(path.join(homedir(), "fault-" + phase))) {
     expect(watcher.output()).toBe(endedOutput);
     expect(processRunning(c.pid)).toBe(false);
     await expect(request.get(a.url, { timeout: 2_000 })).rejects.toThrow();
-    expect(await readdir(releases)).toEqual([]);
+    expect(await readdir(deployments)).toEqual([]);
     watcher = undefined;
   } finally {
     await page.close();
+    await watcher?.stop();
+    fixture.cleanup();
+  }
+});
+
+test("failed restoration reports both causes, exits and cleans up; an unexpectedly ended preview ends the watcher with cleanup", async ({
+  request,
+}) => {
+  test.setTimeout(360_000);
+  const fixture = await publishedMainFixture(true);
+  const deployments = productionDeployments(fixture.home);
+  let watcher: Watcher | undefined;
+  try {
+    // A publishes the preview gate itself, so restoring A can fail too.
+    const aSha = await fixture.publish(
+      {
+        ...fixture.markerChanges("WORKING A"),
+        "package.json": await faultGatedPackage(fixture.development),
+        "production-fault.mjs": productionFault,
+      },
+      "Working A",
+    );
+    watcher = dashboardCommand(
+      fixture.development,
+      fixture.env,
+      "watch:dashboard",
+      ["--port", "0", "--check-interval", "500"],
+    );
+    const a = await activation(watcher, aSha);
+    await writeFile(path.join(fixture.home, "fault-preview"), "start cause");
+    const bSha = await fixture.publish(
+      fixture.markerChanges("WORKING B"),
+      "Working B",
+    );
+    expect((await watcher.exited).code).toBe(1);
+    await watcher.stop();
+    expect(watcher.output()).toContain(
+      `Production dashboard could not run: ${bSha} failed: `,
+    );
+    expect(watcher.output()).toContain(`; restoring ${aSha} also failed: `);
+    expect(watcher.output().match(/TRANSIENT preview FAILURE/g)).toHaveLength(
+      2,
+    );
+    expect(watcher.output()).not.toContain(`Production dashboard ${bSha} at`);
+    expect(processRunning(a.pid)).toBe(false);
+    await expect(request.get(a.url, { timeout: 2_000 })).rejects.toThrow();
+    expect(await readdir(deployments)).toEqual([]);
+
+    // The next watcher serves current main; its preview then ends unexpectedly.
+    await rm(path.join(fixture.home, "fault-preview"));
+    watcher = dashboardCommand(
+      fixture.development,
+      fixture.env,
+      "watch:dashboard",
+      ["--port", "0", "--check-interval", "500"],
+    );
+    const b = await activation(watcher, bSha);
+    process.kill(-b.pid, "SIGKILL");
+    expect((await watcher.exited).code).toBe(1);
+    await watcher.stop();
+    expect(watcher.output()).toContain(
+      "Production dashboard could not run: Production dashboard exited unexpectedly (SIGKILL).",
+    );
+    expect(processRunning(b.pid)).toBe(false);
+    await expect(request.get(b.url, { timeout: 2_000 })).rejects.toThrow();
+    expect(await readdir(deployments)).toEqual([]);
+    watcher = undefined;
+  } finally {
     await watcher?.stop();
     fixture.cleanup();
   }

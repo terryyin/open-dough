@@ -1,103 +1,67 @@
 // The development checkout supplies this owner, but installation, building,
-// and preview all run in a separate checkout of the resolved release commit.
+// and preview all run in a separate checkout of the selected origin/main commit.
 // Launch/session records remain at their existing machine-home locations.
-import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { stripVTControlCharacters } from "node:util";
-import {
-  command,
-  ownedProcess,
-  stopProcess,
-} from "./dashboardReleaseProcess.mjs";
+import { command, ownedProcess, stopProcess } from "./productionProcess.mjs";
 /**
- * @typedef {{origin: string, tag: string, commit: string, version: string}} DashboardRelease
+ * @typedef {{origin: string, commit: string}} PublishedCommit
  */
 
 /**
+ * Reads the commit origin's main names now; local refs and edits are not inputs.
  * @param {string} developmentRoot
  * @param {NodeJS.ProcessEnv} [env]
  * @param {AbortSignal} [signal]
- * @returns {Promise<DashboardRelease>}
+ * @returns {Promise<PublishedCommit>}
  */
-export async function resolveDashboardRelease(developmentRoot, env, signal) {
+export async function resolvePublishedMain(developmentRoot, env, signal) {
   const options = {
     cwd: developmentRoot,
     ...(env ? { env } : {}),
     ...(signal ? { signal } : {}),
   };
   const origin = await command("git", ["remote", "get-url", "origin"], options);
-  const resolved = await command(
-    "bash",
-    [releaseResolver(developmentRoot), "resolve-url", origin],
+  const listed = await command(
+    "git",
+    ["ls-remote", "--", origin, "refs/heads/main"],
     options,
   );
-  const [tag, commit, version] = resolved.split("\t");
-  if (
-    tag === undefined ||
-    version === undefined ||
-    tag !== `v${version}` ||
-    !/^\d+\.\d+\.\d+$/.test(version) ||
-    commit === undefined ||
-    !/^[0-9a-f]{40}$/.test(commit)
-  ) {
-    throw new Error(`Malformed resolved dashboard release: ${resolved}`);
+  if (listed === "") {
+    throw new Error(`Origin ${origin} has no published main branch.`);
   }
-  return { origin, tag, commit, version };
+  const [commit, ref] = listed.split("\t");
+  if (
+    commit === undefined ||
+    !/^[0-9a-f]{40}$/.test(commit) ||
+    ref !== "refs/heads/main"
+  ) {
+    throw new Error(`Malformed published main reference: ${listed}`);
+  }
+  return { origin, commit };
 }
-/** @param {string} developmentRoot */
-function releaseResolver(developmentRoot) {
-  return path.join(developmentRoot, "src/install/open-dough-release.sh");
-}
-/** @param {string} developmentRoot @param {string} candidateVersion @param {string} currentVersion @param {AbortSignal} [signal] */
-export async function compareDashboardReleases(
-  developmentRoot,
-  candidateVersion,
-  currentVersion,
-  signal,
-) {
-  return command(
-    "bash",
-    [
-      releaseResolver(developmentRoot),
-      "compare",
-      candidateVersion,
-      currentVersion,
-    ],
-    { cwd: developmentRoot, ...(signal ? { signal } : {}) },
-  );
-}
-/** @param {string} directory @param {DashboardRelease} release @param {NodeJS.ProcessEnv} [env] */
-export async function verifyDashboardRelease(directory, release, env) {
+/** @param {string} directory @param {PublishedCommit} published @param {NodeJS.ProcessEnv} [env] */
+export async function verifyPublishedCommit(directory, published, env) {
   const head = await command("git", ["rev-parse", "HEAD"], {
     cwd: directory,
     ...(env ? { env } : {}),
   });
-  if (head !== release.commit) {
+  if (head !== published.commit) {
     throw new Error(
-      `Fetched ${release.tag} commit ${head} did not match resolved ${release.commit}; not falling back to another release or branch.`,
-    );
-  }
-  const version = (
-    await readFile(path.join(directory, "VERSION"), "utf8")
-  ).trim();
-  if (version !== release.version || release.tag !== `v${version}`) {
-    throw new Error(
-      `Highest release ${release.tag} has VERSION ${version}; not falling back to another release or branch.`,
+      `Fetched commit ${head} did not match selected main commit ${published.commit}.`,
     );
   }
 }
-/** @param {{developmentRoot: string, release: DashboardRelease, releasesRoot?: string, env?: NodeJS.ProcessEnv, signal?: AbortSignal}} options */
-export async function stageDashboardRelease(options) {
-  const { release, env } = options;
-  const releasesRoot = path.resolve(
-    options.releasesRoot ??
-      path.join(homedir(), ".open-dough/dashboard/releases"),
-  );
-  const relative = path.relative(
-    path.resolve(options.developmentRoot),
-    releasesRoot,
-  );
+/**
+ * Creates an owned directory named for a commit under a machine-home root that
+ * lies outside the development checkout.
+ * @param {string} developmentRoot @param {string} root @param {string} commit
+ */
+export async function ownedCommitDirectory(developmentRoot, root, commit) {
+  const resolved = path.resolve(root);
+  const relative = path.relative(path.resolve(developmentRoot), resolved);
   if (
     relative === "" ||
     (!relative.startsWith(`..${path.sep}`) &&
@@ -105,12 +69,20 @@ export async function stageDashboardRelease(options) {
       !path.isAbsolute(relative))
   ) {
     throw new Error(
-      "Dashboard releases must be staged outside the development checkout.",
+      "Production dashboard checkouts must be outside the development checkout.",
     );
   }
-  await mkdir(releasesRoot, { recursive: true });
-  const directory = await mkdtemp(
-    path.join(releasesRoot, `${release.tag}-${release.commit.slice(0, 12)}-`),
+  await mkdir(resolved, { recursive: true });
+  return mkdtemp(path.join(resolved, `${commit.slice(0, 12)}-`));
+}
+/** @param {{developmentRoot: string, published: PublishedCommit, deploymentsRoot?: string, env?: NodeJS.ProcessEnv, signal?: AbortSignal}} options */
+export async function stageDeployment(options) {
+  const { published, env } = options;
+  const directory = await ownedCommitDirectory(
+    options.developmentRoot,
+    options.deploymentsRoot ??
+      path.join(homedir(), ".open-dough/dashboard/deployments"),
+    published.commit,
   );
   const commandOptions = {
     cwd: directory,
@@ -120,7 +92,7 @@ export async function stageDashboardRelease(options) {
   const remove = () => rm(directory, { recursive: true, force: true });
   try {
     await command("git", ["init", "--quiet"], commandOptions);
-    // Fetch the inspected commit, never whatever the branch/tag names later.
+    // Fetch the selected commit, never whatever main names later.
     await command(
       "git",
       [
@@ -129,8 +101,8 @@ export async function stageDashboardRelease(options) {
         "--depth",
         "1",
         "--",
-        release.origin,
-        release.commit,
+        published.origin,
+        published.commit,
       ],
       commandOptions,
     );
@@ -146,7 +118,7 @@ export async function stageDashboardRelease(options) {
       ],
       commandOptions,
     );
-    await verifyDashboardRelease(directory, release, env);
+    await verifyPublishedCommit(directory, published, env);
     await command(
       "npm",
       [
@@ -167,7 +139,7 @@ export async function stageDashboardRelease(options) {
   }
 }
 /** @param {{directory: string, port?: number, env?: NodeJS.ProcessEnv, signal?: AbortSignal}} options */
-export async function startReleasePreview(options) {
+export async function startDeploymentPreview(options) {
   const port = options.port ?? 4173;
   const process = ownedProcess(
     "npm",
@@ -222,7 +194,7 @@ export async function startReleasePreview(options) {
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
     throw new Error(
-      `Tagged dashboard preview did not start:\n${process.output()}`,
+      `Production dashboard preview did not start:\n${process.output()}`,
     );
   } catch (error) {
     await stopProcess(process);

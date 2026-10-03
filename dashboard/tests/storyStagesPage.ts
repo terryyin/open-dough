@@ -51,7 +51,10 @@ export async function openStoryStagesJourney(
       await expect(source).toContainText(revision);
       await settled();
     },
-    // Launches the workflow from the story's card, confirming its dialog.
+    // Launches the workflow from the story's card, confirming its dialog, and
+    // waits until the start reconciles: the fresh read its settling asks
+    // makes every card read its preparation again, which takes their Start
+    // actions away meanwhile, so a later launch begins on settled cards.
     launch: async (title: string, workflow: Workflow) => {
       await expect(action(title, workflow)).toBeEnabled();
       await action(title, workflow).click();
@@ -59,6 +62,7 @@ export async function openStoryStagesJourney(
         .getByRole("dialog", { name: `Start ${workflow} in Claude Code` })
         .getByRole("button", { name: "Start" })
         .click();
+      await expect(page.getByText(/this story's actions/)).toHaveCount(0);
     },
   };
 }

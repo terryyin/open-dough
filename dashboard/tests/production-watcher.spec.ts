@@ -3,74 +3,58 @@ import { readFile, writeFile, readdir } from "node:fs/promises";
 import { createServer } from "node:http";
 import path from "node:path";
 import { dashboardCommand } from "./support/dashboardCommand.ts";
-import { dashboardReleaseFixture } from "./support/dashboardReleaseFixture.ts";
+import { publishedMainFixture } from "./support/publishedMainFixture.ts";
 import { configureDevelopmentProjects } from "./support/projectConfiguration.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { installFakeGh, fakeGhEnv } from "./support/fakeGh.ts";
 import { startFakeGitHub } from "./support/fakeGitHub.ts";
 import { ownAddress } from "./support/viteAddress.ts";
+import {
+  productionActivation,
+  productionDeployments,
+  type ProductionWatcher,
+} from "./support/productionWatcher.ts";
 
-test("npm watcher reports no numeric release instead of serving development or a prerelease", async () => {
-  const fixture = await dashboardReleaseFixture(true);
-  let watcher: ReturnType<typeof dashboardCommand> | undefined;
-  try {
-    await fixture.publish("1.0.0-rc.1");
-    watcher = dashboardCommand(
-      fixture.development,
-      fixture.env,
-      "watch:dashboard",
-    );
-    expect((await watcher.exited).code).toBe(1);
-    expect(watcher.output()).toContain("Production dashboard could not run");
-    expect(watcher.output()).toContain("No numeric release tags");
-    expect(watcher.output()).not.toContain("at http://");
-  } finally {
-    await watcher?.stop();
-    fixture.cleanup();
-  }
-});
-
-test("npm watcher serves the pinned highest release beside hot-reloaded development, enforces local boundaries and owns shutdown", async ({
+test("npm watcher serves published main beside hot-reloaded uncommitted development, enforces local boundaries, owns shutdown and restarts at current main", async ({
   browser,
   request,
 }) => {
-  test.setTimeout(240_000);
-  const fixture = await dashboardReleaseFixture(true);
+  test.setTimeout(360_000);
+  const fixture = await publishedMainFixture(true);
   const github = await startFakeGitHub();
   const gh = installFakeGh(fixture.root);
   const env = { ...fixture.env, ...fakeGhEnv(gh, github.url) };
-  const banner = path.join(
-    fixture.development,
-    "dashboard/src/DashboardBanner.tsx",
-  );
-  let watcher: ReturnType<typeof dashboardCommand> | undefined;
+  const bannerPath = "dashboard/src/DashboardBanner.tsx";
+  const banner = path.join(fixture.development, bannerPath);
+  const deployments = productionDeployments(fixture.home);
+  let watcher: ProductionWatcher | undefined;
   let development: ReturnType<typeof dashboardCommand> | undefined;
   const productionPage = await browser.newPage();
   const developmentPage = await browser.newPage();
   try {
-    // Marker changes in real application source become tagged built JS and
+    // Marker changes in real application source become main's built JS and
     // development HMR; the fixture supplies no served pages or watcher outcomes.
+    const pinnedBanner = (await readFile(banner, "utf8")).replace(
+      "<SessionsButton />",
+      '<p data-testid="production-source">PINNED SOURCE</p><SessionsButton />',
+    );
+    const pinned = await fixture.publish(
+      { ...fixture.markerChanges("PINNED MAIN"), [bannerPath]: pinnedBanner },
+      "Pinned main",
+    );
+    // Development differs only through uncommitted local edits.
+    const index = path.join(fixture.development, "dashboard/index.html");
     await writeFile(
-      banner,
-      (await readFile(banner, "utf8")).replace(
-        "<SessionsButton />",
-        '<p data-testid="release-source">PINNED SOURCE</p><SessionsButton />',
+      index,
+      (await readFile(index, "utf8")).replace(
+        /<title>.*?<\/title>/,
+        "<title>DEVELOPMENT ONLY</title>",
       ),
     );
-    await fixture.publish("1.9.0", { marker: "OLDER RELEASE" });
-    const pinned = await fixture.publish("1.10.0", {
-      annotated: true,
-      marker: "PINNED RELEASE",
-    });
-    await fixture.publish("2.0.0-rc.1", { marker: "IGNORED PRERELEASE" });
     await writeFile(
       banner,
-      (await readFile(banner, "utf8")).replace(
-        "PINNED SOURCE",
-        "DEVELOPMENT SOURCE",
-      ),
+      pinnedBanner.replace("PINNED SOURCE", "DEVELOPMENT SOURCE"),
     );
-    await fixture.commit("99.0.0", "DEVELOPMENT ONLY");
     await fixture.installDevelopment();
     configureDevelopmentProjects(fixture.home);
     development = dashboardCommand(fixture.development, env, "dev:dashboard", [
@@ -86,30 +70,23 @@ test("npm watcher serves the pinned highest release beside hot-reloaded developm
       "--port",
       "0",
     ]);
-    await expect
-      .poll(() => watcher?.output() ?? "", { timeout: 180_000 })
-      .toMatch(
-        /Production dashboard v1\.10\.0 at http:\/\/127\.0\.0\.1:\d+ \(preview PID \d+\)/,
-      );
-    expect(watcher.output()).toContain(pinned);
-    const previewPid = Number(/preview PID (\d+)/.exec(watcher.output())?.[1]);
+    const { url: productionUrl, pid: previewPid } = await productionActivation(
+      watcher,
+      pinned,
+    );
+    expect(watcher.output()).toContain(
+      `Preparing production dashboard ${pinned}.`,
+    );
     expect(processRunning(previewPid)).toBe(true);
-    const productionUrl =
-      /Production dashboard v1\.10\.0 at (http:\/\/127\.0\.0\.1:\d+)/.exec(
-        watcher.output(),
-      )?.[1];
-    if (productionUrl === undefined) {
-      throw new Error("Watcher did not report its production URL");
-    }
     expect(productionUrl).not.toBe(developmentUrl);
     await productionPage.goto(productionUrl);
-    await expect(productionPage).toHaveTitle("PINNED RELEASE");
-    await expect(productionPage.getByTestId("release-source")).toHaveText(
+    await expect(productionPage).toHaveTitle("PINNED MAIN");
+    await expect(productionPage.getByTestId("production-source")).toHaveText(
       "PINNED SOURCE",
     );
     await developmentPage.goto(developmentUrl);
     await expect(developmentPage).toHaveTitle("DEVELOPMENT ONLY");
-    await expect(developmentPage.getByTestId("release-source")).toHaveText(
+    await expect(developmentPage.getByTestId("production-source")).toHaveText(
       "DEVELOPMENT SOURCE",
     );
     let productionNavigations = 0;
@@ -126,13 +103,13 @@ test("npm watcher serves the pinned highest release beside hot-reloaded developm
         "EDITED DEVELOPMENT SOURCE",
       ),
     );
-    await expect(developmentPage.getByTestId("release-source")).toHaveText(
+    await expect(developmentPage.getByTestId("production-source")).toHaveText(
       "EDITED DEVELOPMENT SOURCE",
     );
-    await expect(productionPage.getByTestId("release-source")).toHaveText(
+    await expect(productionPage.getByTestId("production-source")).toHaveText(
       "PINNED SOURCE",
     );
-    await expect(productionPage).toHaveTitle("PINNED RELEASE");
+    await expect(productionPage).toHaveTitle("PINNED MAIN");
     expect(productionNavigations).toBe(0);
     expect(
       await productionPage.evaluate(
@@ -145,8 +122,8 @@ test("npm watcher serves the pinned highest release beside hot-reloaded developm
     ]);
     const fresh = await browser.newPage();
     await fresh.goto(productionUrl);
-    await expect(fresh).toHaveTitle("PINNED RELEASE");
-    await expect(fresh.getByTestId("release-source")).toHaveText(
+    await expect(fresh).toHaveTitle("PINNED MAIN");
+    await expect(fresh.getByTestId("production-source")).toHaveText(
       "PINNED SOURCE",
     );
     await fresh.close();
@@ -178,11 +155,9 @@ test("npm watcher serves the pinned highest release beside hot-reloaded developm
     await expect(
       request.get(productionUrl, { timeout: 2_000 }),
     ).rejects.toThrow();
-    expect(
-      await readdir(path.join(fixture.home, ".open-dough/dashboard/releases")),
-    ).toEqual([]);
-    // Stopping production leaves independently launched development usable.
-    await expect(developmentPage.getByTestId("release-source")).toHaveText(
+    expect(await readdir(deployments)).toEqual([]);
+    // SIGTERM (stop) ends production; independently launched development stays usable.
+    await expect(developmentPage.getByTestId("production-source")).toHaveText(
       "EDITED DEVELOPMENT SOURCE",
     );
     expect((await request.get(developmentUrl)).status()).toBe(200);
@@ -205,15 +180,11 @@ test("npm watcher serves the pinned highest release beside hot-reloaded developm
       expect(watcher.output()).toContain(
         `Port ${productionPort} is already in use`,
       );
-      expect(watcher.output()).not.toMatch(/Production dashboard v.* at http:/);
+      expect(watcher.output()).not.toMatch(/Production dashboard \w+ at http:/);
       expect(await (await request.get(productionUrl)).text()).toBe(
         "UNOWNED LISTENER",
       );
-      expect(
-        await readdir(
-          path.join(fixture.home, ".open-dough/dashboard/releases"),
-        ),
-      ).toEqual([]);
+      expect(await readdir(deployments)).toEqual([]);
     } finally {
       await new Promise<void>((resolve, reject) =>
         occupied.close((error) => {
@@ -222,6 +193,41 @@ test("npm watcher serves the pinned highest release beside hot-reloaded developm
         }),
       );
     }
+
+    // A restart establishes current main as the new baseline, even when its
+    // latest commit edits only documentation; SIGINT ends that watcher.
+    const current = await fixture.publish(
+      { "docs/production-restart-note.md": "# Restart note\n" },
+      "Document restart",
+    );
+    watcher = dashboardCommand(fixture.development, env, "watch:dashboard", [
+      "--port",
+      "0",
+    ]);
+    const restarted = await productionActivation(watcher, current);
+    expect(watcher.output()).toContain(
+      `Preparing production dashboard ${current}.`,
+    );
+    expect(watcher.output()).not.toContain(pinned);
+    expect(await readdir(deployments)).toEqual([
+      expect.stringMatching(new RegExp(`^${current.slice(0, 12)}-`)),
+    ]);
+    await productionPage.goto(restarted.url);
+    await expect(productionPage).toHaveTitle("PINNED MAIN");
+    await expect(productionPage.getByTestId("production-source")).toHaveText(
+      "PINNED SOURCE",
+    );
+    if (watcher.child.pid === undefined) throw new Error("Missing watcher PID");
+    process.kill(-watcher.child.pid, "SIGINT");
+    await watcher.exited;
+    await watcher.stop();
+    expect(watcher.output()).not.toContain("could not run");
+    expect(processRunning(restarted.pid)).toBe(false);
+    await expect(
+      request.get(restarted.url, { timeout: 2_000 }),
+    ).rejects.toThrow();
+    expect(await readdir(deployments)).toEqual([]);
+    watcher = undefined;
   } finally {
     await productionPage.close();
     await developmentPage.close();
