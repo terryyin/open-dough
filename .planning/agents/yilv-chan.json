@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "yilv-chan",
+  "email": "yilv-chan@example.org",
+  "identity": "SEED-089#cursor-runner-survives-dashboard-restart",
+  "mode": "story-branch",
+  "branch": "cursor/cursor-runner-survives-dashboard-restart",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
