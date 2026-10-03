@@ -12,17 +12,8 @@ scope: unknown
 ## Why This Matters
 
 A developer starts a story in Cursor from the dashboard and then leaves the
-terminal. The agent should already be running that story, and opening the
-terminal later should join that same process. The developer should not have
-to restart the runner or start another `cursor-agent` to continue.
-
-The launch contract already says the runner types the instruction when the
-screen shows `Add a follow-up` or `Plan, search, build anything`, and that
-closing the terminal leaves the client running. The real `cursor-agent` screen
-matches the prompt text and still never receives the instruction. After a
-successful write, the same contract hangs the process up once the empty
-composer has been showing for 0.203 seconds with no terminal open, so the next
-open starts another process.
+terminal. That agent should already be running the story, and opening the
+terminal later should join the same process.
 
 ## Stories
 
@@ -32,85 +23,54 @@ open starts another process.
 
 **Identity:** SEED-097#cursor-agent-stays-joinable
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/242-cursor-agent-stays-joinable/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"adc8e499b51412f4ec6e9efc3a2fe9474942a677b0dbc4e115f71dcc2a47aff6","plan":"45ca05ccb872f2f8d627c3b011e46de4335e54a3af470738f5404e3314947e21"}}
 ```
 
-**For / why:** The developer who starts a story in Cursor from the dashboard
-needs that agent to receive the story and remain the same process, so they
-can close the terminal and open it again without restarting the session.
+**Goal:** A developer who starts a story in Cursor from the dashboard gets
+that story into the agent, then can close the terminal and open it again on
+the same process. The agent keeps running the story in the background, and
+the story card shows whether that process is at the follow-up prompt,
+working, or waiting for an answer.
 
-**Goal:** The runner types the launch instruction into the composer that
-current `cursor-agent` actually paints, the launch record then says that
-input was accepted, and that same process stays running so a later terminal
-joins it. This includes the time the screen is the empty follow-up prompt
-and no terminal is open.
+**Scope:**
 
-**Expected:** A kept `cursor-agent` whose screen shows `→ Plan, search, build
-anything` or `→ Add a follow-up` receives the launch instruction once. The
-record changes from uncertain to accepted. Closing the dashboard or the
-terminal does not hang that process up. Opening the terminal again joins it
-and shows its current screen. The story card shows the runner's screen
-label — at the follow-up prompt, working, or waiting for an answer — instead
-of always saying Cursor has no passive status.
-
-**Actual:** On 2026-10-03, dashboard launch
-`48a770b3-33c1-4eba-9564-625f33685ca2` for
-`SEED-052#mark-report-read-keeps-session-state` stayed uncertain. The runner
-labeled the screen "at the follow-up prompt". The chat store contains no copy
-of `/dough-execute-plan SEED-052#mark-report-read-keeps-session-state`. The
-first recorded user message, at 21:10 +0800, was `jjkmk,m.m,.m.,`. The process
-was still alive the next morning, about ten hours later, after its worktree
-directory was gone, because the instruction was never entered and the idle
-hangup therefore never armed.
-
-**Evidence:**
-
-- `cursor-agent` `2026.10.01-e373342`, resumed with `--workspace` and
-  `--resume` in `/Users/terryyin/git/open-dough`, painted `→ Plan, search,
-  build anything`. Fed through `KeptClientScreen`, `cursorReady`, and
-  `cursorDetachedIdle` from commit `8a9c88c3`: the idle label and the
-  composer text matched, `cursorVisible` stayed false, and
-  `completedFrame` stayed false. The stream sent `ESC [?25l` after the
-  prompt and no `ESC [?2026h` or `ESC [?2026l]`. `ESC [?25h` appeared only
-  in the shutdown bytes.
-- `LaunchInstruction` returns before `cursorReady` until a synchronized
-  frame has finished, and `cursorReady` also requires a visible cursor.
-  The test stand-in in `dashboard/tests/fixtures/fake-cursor` sends
-  `ESC [?2026h`, `ESC [?25h`, the prompt, and `ESC [?2026l`, so the
-  empty-composer test passes on a screen the real agent does not paint.
-- The written idle rule in `dashboard/AGENT-LAUNCH-TERMINALS.md` hangs a
-  detached client up after 0.203 seconds on that prompt, once the
-  instruction has been entered. The next open starts a new client.
-- The story card's "Activity unknown" text comes from
-  `unknownObservation` in `dashboard/src/hostDescription.ts`. The runner's
-  label is read only by Running Cursor sessions, and only while the
-  process is still held.
-- A temp directory stopped on "Workspace Trust Required", with the cursor
-  hidden and no synchronized frame. The dashboard launch does not pass
-  `--trust`. The story session above was not on that screen.
-
-**Acceptance examples:**
-
-- Resume current `cursor-agent` on an empty chat in a trusted workspace.
-  The screen shows `→ Plan, search, build anything`, the terminal cursor
-  is hidden, and the stream has no synchronized-update frame. The kept
-  client receives the launch instruction, and the launch record says the
-  first input was accepted. The chat's first user message is that
+- The runner types the launch instruction once into the empty composer
+  current `cursor-agent` paints: the screen shows `→ Plan, search, build
+  anything` or `→ Add a follow-up`, the terminal cursor stays hidden, and
+  the stream has no synchronized-update frame. The launch record then says
+  the first input was accepted. The chat's first user message is that
   instruction.
-- Close the terminal while that process is on the empty follow-up prompt.
-  The same process is still alive. Opening the terminal joins it and does
+- Closing the dashboard or the terminal leaves that process running. This
+  includes a working screen and the empty follow-up prompt. Opening the
+  terminal again joins that process and shows its current screen. It does
   not start a second `cursor-agent`.
-- Close the terminal while the screen is working. The same process keeps
-  working, and opening the terminal joins it.
-- The story card for that session shows the runner's current screen label.
+- The story card shows the label the runner already reads from that
+  screen: "at the follow-up prompt", "working", or "waiting for an answer".
+  It no longer says activity is unknown while the runner holds the process.
+  When the runner is not running or cannot be reached, the card says that,
+  and it does not start an agent.
+- An untrusted workspace stays on its trust prompt. The launch does not
+  pass `--trust`, does not type the story there, and does not record the
+  first input as accepted.
+- Stopping the runner still hangs up the processes it holds. This story
+  does not keep an agent alive across a runner restart, and it does not
+  require `cursor-agent persist`.
 
-**Boundary:** The dashboard's Cursor launch, the machine-local Cursor
-runner, and the story card's reading of that runner. An untrusted
-workspace's trust prompt is in scope only so a launch stopped there is not
-recorded as the story having been typed.
+**Key examples:**
 
-**Depends on:** none
-
-**Safe stopping point:** A launched Cursor agent receives its story in the
-real composer and the same process can be joined again after the terminal
-closes, including from the empty composer.
+- A trusted workspace's empty chat shows `→ Plan, search, build anything`,
+  with the terminal cursor hidden and no synchronized-update frame → the
+  dashboard keeps that client for a story launch → the client receives the
+  launch instruction once, the launch record says the first input was
+  accepted, and that instruction is the chat's first user message.
+- That process is on the empty follow-up prompt → the developer closes the
+  terminal → the same process is still alive. Opening the terminal joins
+  it and does not start another `cursor-agent`.
+- That process is working → the developer closes the terminal → it keeps
+  working. Opening the terminal joins the same process, and the story card
+  says "working" while the runner holds it.
+- The runner is not running → the story card says the runner is not
+  running and shows no screen label. Nothing on the card starts an agent.
+- A new directory shows "Workspace Trust Required" → the kept client does
+  not receive the story instruction, and the launch record does not say
+  the first input was accepted.
