@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mrsn-chan",
-  "email": "mrsn-chan@example.org",
-  "identity": "SEED-088#dashboard-story-code-review",
-  "mode": "story-branch",
-  "branch": "claude/review-all-story-worktree-changes-in-one-dashboa",
-  "host": "claude"
-}

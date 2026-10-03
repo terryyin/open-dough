@@ -8,7 +8,9 @@ SEED-088#dashboard-story-code-review.
 ## Provenance and finding
 
 The reviewed story is
-[SEED-088#dashboard-story-code-review](../../seeds/SEED-088-dashboard-story-code-review.md#dashboard-story-code-review).
+SEED-088#dashboard-story-code-review, recoverable with its plan at
+`f7a7c7b0:.planning/seeds/SEED-088-dashboard-story-code-review.md` and
+`f7a7c7b0:.planning/slice-plans/226-dashboard-story-code-review/PLAN.md`.
 It was executed through plan 226, slices 1–5, in commits `23eba318`,
 `389bb8f1`, `e63074a2`, `312a1bb4`, and `6ff2c450`.
 
