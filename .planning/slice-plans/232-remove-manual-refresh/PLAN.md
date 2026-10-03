@@ -197,6 +197,20 @@ Accepted proof:
   this change does not touch. All 14 failing files reran green (41 passed)
   under the same load. Hosted CI holds the authoritative full-suite result.
 
+## Execution complete
+
+Product advice:
+
+- Plan 230 (SEED-091 dashboard frame), now executing in its own worktree,
+  restyles the read control this story removed. Whichever lands second drops
+  230's Refresh/Retry icon rows and their `read-failure*`/`dashboard-header`
+  assertions, as the coordination note above records.
+- `docs/dashboard-tech-stack.md:251` still advises "Use manual refresh
+  initially"; wrap-up should bring that read-strategy sentence in line with
+  automatic checks.
+- No new product work is recommended: the story's key examples hold, and its
+  deferral (no automatic recovery for a failed first read) stands.
+
 ## Current decisions
 
 - **Clean environment for local commands.** This session inherits
