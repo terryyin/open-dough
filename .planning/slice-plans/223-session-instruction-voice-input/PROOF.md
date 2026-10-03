@@ -5,6 +5,9 @@ Supporting evidence for [the active plan](PLAN.md); slice status remains there.
 [Project-settings CI repair](CI-REPAIR.md) records the later stale-consumer
 failure, diagnosed correction and focused proof without changing slice status.
 
+[Real microphone observation](VOICE-PROBE.md) records the successful clip and
+the developer-authorized omission of the additional usefulness-review click.
+
 ## Proof ownership and local gates
 
 | Final promise | Owning slice and observation |
@@ -162,8 +165,8 @@ same runtime/key-unset prefix; no unresolved findings remain.
 Root inspected the credential owner, status-only local boundary, sibling form,
 Vite mounting, fixture and named assertions. Implementation and final independent
 refactoring are accepted; coordinator formatting passed before this delivery.
-Real microphone
-and provider entitlement/usefulness remain slice 1 obligations.
+At that delivery, real microphone and provider entitlement/usefulness remained
+slice 1 obligations.
 
 Terminal exit 0 for these literal commands, with the runtime/key-unset prefix:
 

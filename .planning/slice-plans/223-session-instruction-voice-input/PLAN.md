@@ -87,7 +87,9 @@ start; reuse its published claim without a second Take. Identity:
   `e646e078e2c9c9b1d5d1437d5b6e89bb6dc807ed`; managed delivery reused the
   observer below. Its [stale-consumer CI repair](CI-REPAIR.md) published and
   registered as `cd8ae88e711c8820df2db8ed15474dd7de8d8170`; the managed stash
-  restored slice 3 intact. This is the next increment's previously published base.
+  restored slice 3 intact. Slice 3 then published as
+  `f8479885631c9ec45dcbc5d992ae7ca801cec203`, the next increment's
+  previously published base.
 - Node 24.21.0 selected from
   `/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin`.
   Checkout-bound locked setup and applicable command passed:
@@ -118,9 +120,11 @@ contracts; summaries here preserve canonical progress, not narrower scope.
 
 ### 1. A representative spoken instruction becomes a usable transcript
 Type: Behavior
-Status: planned
+Status: done
 One actual microphone clip, one `gpt-transcribe` request, useful editable draft.
-Operator pending; no paid request/capture yet. Dependent voice work stays stopped.
+Real clip/API succeeded; [editable draft observed](VOICE-PROBE.md). Terry chose
+to skip the additional usefulness-review click. Independent evidence refactoring
+and coordinator formatting passed; this increment delivers the probe evidence.
 
 ### 2. Manage configured projects in System settings
 Type: Behavior
@@ -195,14 +199,21 @@ observation still showed Ready, Record enabled and Stop disabled. Cancel then
 reported microphone released/no launch; the tab closed. The exact server was
 terminated (exit 143, PID absent) and its owned ignored harness removed.
 
-Actual microphone, MIME/bytes, model access/decoding, latency and useful edited
-draft remain unobserved. Slice 1 stays planned; do not substitute synthetic
-speech. Independently supported settings slices 2–3 are complete, while 4–6
-remain dependent. Execution stops here with Taken, branch/worktree, active plan
-and accepted proof preserved; no retrospective or execution-complete marker.
-Resume at slice 1 when the operator is available to record/review one real clip;
-reprepare the disposable probe and recheck current model guidance then.
+At the earlier stop, actual microphone, MIME/bytes, model access/decoding, latency
+and useful edited draft remained unobserved. The resumed real probe now establishes
+capture/decoding and an editable draft. Terry chose to skip the additional
+usefulness-review click; the [resumed observation](VOICE-PROBE.md) retains that
+omission without claiming his endorsement. Slice 1 evidence is accepted under
+that explicit omission; do not substitute synthetic speech. Independently supported settings
+slices 2–3 are complete. The earlier execution stopped with Taken, branch/worktree,
+active plan and accepted proof preserved, without a retrospective or
+execution-complete marker. Its operator-availability stop is now resolved;
+after slice 1 delivery, dependent dictation slices 4–6 can proceed.
 
-The retained CI observer is stopped through the Codex adapter after this
-increment's publication. The final handoff owns its exact shutdown receipt and
-reports any then-pending CI as unobserved; its mailbox retains recovery evidence.
+The prior CI observer stopped after slice 3, with that revision then pending
+and unobserved. Its sole unread failure had already been accounted for by the
+published settings-test repair. On resume, exact request/result identity and
+absence of PID 30052 were confirmed before rearming the same coordinator key.
+Current Codex observer: coordinator `ziqing-chan-root`, cell `7`, session
+`51712`, PID `54101`, mailbox `/tmp/dough-ci-501/watch-0CY0YG`. It covers the
+execution branch; managed delivery attaches each accepted increment.
