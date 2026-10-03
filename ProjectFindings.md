@@ -17,9 +17,11 @@ executions, not commands, retries, or repairs.
    Four executions (plans 160, 186, 187, 189) with four failed CI runs, each
    stopping slices for a stash, diagnosis, repair, and publication cycle, plus
    local full-selection failures that cost a diagnosis without a cause. One
-   failure (`agent-launch-start-taken.spec.ts:53`) is still unexplained. Story:
-   [Keep the dashboard tests' recurring race shapes out by construction](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#expose-timing-races-locally)
-   (DD-186, DD-195, DD-199).
+   failure (`agent-launch-start-taken.spec.ts:53`) is still unexplained.
+   Shared test support now drains intercepted reads, settles the page, and
+   orders the cross-server lock fault after its event. Remaining story:
+   [Read a launch's kept record only after the event that settles it](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#read-kept-state-after-its-event)
+   (DD-195, DD-199).
 2. **Checks whose result depends on where or how they are run — second,
    queued.** Six executions (plans 140, 147, 157, 160, 185, 217), the most
    frequent group. None reached CI: each cost a failed local run, a diagnosis,
@@ -90,8 +92,8 @@ mailbox race was repaired in the published `ci-mailbox-worker-process.mjs`,
 so that half was a product defect; its test and the other findings here are
 this repository's own.
 
-**Follow-up:** queued first:
-[Keep the dashboard tests' recurring race shapes out by construction](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#expose-timing-races-locally).
+**Follow-up:** queued:
+[Read a launch's kept record only after the event that settles it](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#read-kept-state-after-its-event).
 
 ### DD-186 — Two timing races passed every local run and failed only under CI's load, each on a trunk-merge revision
 
@@ -115,6 +117,7 @@ in unthrottled local runs; each needed an in-run repair.
 Across one execution, three large parallel Playwright selections each failed one existing spec that the change did not touch; each passed on isolated rerun and CI stayed green.
 
 #### Occurrences
+
 - Execution: `SEED-052#script-refinement-preparation` / plan 186, first related implementation commit `a94806d1`
   - Timestamp: unknown (session date 2026-09-30; slices 3, 6 and 7)
   - Tool: Claude Code (coordinator and delegated agents)
@@ -135,6 +138,13 @@ Across one execution, three large parallel Playwright selections each failed one
   - Timestamp: 2026-10-03
   - Evidence: a survey of 126 failed CI runs from 2026-09-29 to 2026-10-03 found no "server could not be reached" failure of `agent-launch-start-taken.spec.ts:53`; its one CI failure (run 36750057215) came from its branch's added `host` field.
   - Inference: The local failure has not recurred and its cause is left to recur here. It is outside that story's scope.
+- Execution: `SEED-093#expose-timing-races-locally` / plan 233, first related implementation commit `7b6ddcce`
+  - Timestamp: 2026-10-03, before commit `7b6ddcce` (2026-10-03T17:53:24+08:00)
+  - Tool: Claude Code (coordinator and delegated agent)
+  - Model: claude-opus-5-5
+  - Evidence: one full `npm run test:dashboard` at load average about 72 gave 966 passed, 6 failed. The failures were `agent-completion-binding.spec.ts:30` (4 cases), `agent-completion-attention.spec.ts:20`, and `agent-completion-early-recovery.spec.ts:24`. Each was an `expect.poll` on `claudeLaunchCalls().length` that still saw 0 after the default 5 s, in the test body, among the run's first tests. The same 6 passed at load about 20.
+  - Observed effect: one bounded diagnosis. The slice was accepted with these failures reported as outside its scope.
+  - Inference: Qualified. Slowness under heavy load, not an ordering race found in the spec. Lengthening the wait is excluded by the race story's repair method, and a slow-path detector remains deferred, so the cause stays open here.
 
 ### DD-199 — Recovery failure setup used a deadline before establishing accepted input
 
@@ -234,6 +244,7 @@ lints (4,779 `no-undef` errors).
 A plan wrote its focused Playwright command as `cd dashboard && npx playwright test tests/…`, but the dashboard fixtures copy `src/skills/…` relative to the current directory, so the command only works from the workspace root. Its first run also built `dashboard/dashboard/dist`, which the lint step then scanned.
 
 #### Occurrences
+
 - Execution: `SEED-061#select-refinement-options-from-dashboard` / plan 185, first related implementation commit `06c65127`
   - Timestamp: 2026-09-30T18:19:53+08:00 (slice 1, before commit `06c65127`)
   - Tool: Claude Code (coordinator and delegated agents)
@@ -248,6 +259,7 @@ A plan wrote its focused Playwright command as `cd dashboard && npx playwright t
 The plan's focused Playwright commands used the default reporter. Under the agents' shell, a passing run printed no summary, and two agents reran the same selection with `--reporter` just to report counts.
 
 #### Occurrences
+
 - Execution: `SEED-052#cursor-native-activity-and-controls` / plan 217, first related implementation commit `7053bc62`
   - Timestamp: unknown (slice 1 implementation and refactor, between the claim at 2026-10-02T16:31:54+08:00 and `7053bc62` at 16:42:11+08:00)
   - Tool: Cursor (delegated agents)
@@ -299,6 +311,7 @@ Node suites passed and only CI's `dashboard` job failed.
 Two of the four commits published for one execution failed CI's `test` job for environment reasons that macOS runs could not show; the plan named the Linux container proof only for its last slice.
 
 #### Occurrences
+
 - Execution: `SEED-065#pre-commit-lint-hook` / plan 190, first related implementation commit `42437c58` - Timestamp: 2026-09-30T22:03:00+08:00 (CI runs 36725631259 on `42437c58` and 36726848028 on `0e6e2bbe`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.51 - Evidence: `42437c58` failed `test (2/2)`: the clean-`.sh` hook test staged a shell file and `shfmt: spawnSync shfmt ENOENT` refused the commit, because only CI's `lint` job installs shellcheck and shfmt; repair `6be8fccc` (skip when either tool is absent). `0e6e2bbe` failed `test (2/2)` with `fatal: cannot use /dev/stdin as an exclude file`, Git on Linux rejecting the piped `--exclude-from=/dev/stdin` that slice 1's own `--staged` code introduced (slice 2 spread it to the ESLint list); repaired inside slice 3's commit `8a165806` after that slice's agent ran `scripts/ci-container.sh` and saw six hook tests fail. The plan's slice 1 and 2 proof commands were local `node --test` runs; `scripts/ci-container.sh` appears only in slice 3's proof. Slice 1's report said existing tests "don't skip either" for missing shell tools, which held for their `.mjs`-only fixtures but was not checked against the CI job's tools.
   - Observed effect: two failed CI runs, one dedicated repair commit and one repair folded into a slice commit, and one CI-repair stash of finished slice 2 work; the dedicated repair skipped its own refactor pass.
   - Inference: Qualified. Tests that spawn Git or lint tools depend on the runner's tools and Git build, and the plan only proved them under CI's conditions at its final slice. Running the container proof for any slice that adds such tests would have surfaced both failures before publication; this run's one container run took the agent a few minutes.
@@ -385,6 +398,7 @@ Paid native acceptance takes minutes per case. The coordinator's first backgroun
 Proposal from the review: Practice worth keeping; no guidance change authorized.
 
 #### Occurrences
+
 - Execution: `SEED-066#composable-lightweight-session-options` / plan 191, first related implementation commit `ef745cb5`
   - Timestamp: unknown (slice 3 probe after `d6301c9e` at 2026-10-01T10:20:17+08:00; slice 8 batch logged 05:2x–06:19:35Z)
   - Tool: Claude Code

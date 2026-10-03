@@ -3,7 +3,11 @@
 //
 // A spec waits for the event it depends on: a shown fact, a recorded state,
 // a held request reaching its handler. It never waits out a deadline, sleeps,
-// or retries in the hope that the event has happened by then.
+// or retries in the hope that the event has happened by then. When the state
+// it needs leaves no trace the test can see, it adds an observation of its
+// own, such as a test-side loader in the server, rather than a sleep. Only a
+// check that something does not happen waits out a window, because no event
+// marks that absence.
 //
 // One such event is shared by every page spec: the page's intercepted reads
 // finishing. A route handler may still be reading its fetched answer when the

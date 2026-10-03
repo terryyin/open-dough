@@ -110,6 +110,55 @@ repair these shapes one at a time.
 Published skill guidance about proof selection stays with its DearDough
 findings.
 
+<a id="read-kept-state-after-its-event"></a>
+
+### Read a launch's kept record only after the event that settles it
+
+**Identity:** SEED-093#read-kept-state-after-its-event
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why:** The agent or maintainer publishing a change needs the
+dashboard suite to give CI's verdict on the first run. The ad hoc Cursor start
+spec failed CI run 37098217155 on a race of the "read before its event"
+shape, and each such failure pauses slices for a diagnosis and a repair.
+
+**Goal:** A dashboard spec that asserts a launch's kept record reads it after
+the event that settles the asserted state, so its verdict no longer depends
+on whether the page showed the session before the record was confirmed.
+
+**Findings:**
+[tests whose verdict depends on timing or machine load](../../ProjectFindings.md#tests-whose-verdict-depends-on-timing-or-machine-load-first-priority-queued)
+(DD-195, DD-199).
+
+**Evidence:**
+
+- `dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts` reads
+  `keptRecord(dashboard.home)` once, right after the recent-session card
+  appears, and later asserts that snapshot's first input is `confirmed`.
+  - The server records `uncertain` before the Cursor client starts and
+    writes `confirmed` only once the instruction is entered.
+  - The spec's later wait for "First input accepted" checks the page, not
+    the earlier snapshot.
+- CI run 37098217155 failed on that assertion with `uncertain`. That the page
+  can show the card before the confirmed write is inferred, not observed.
+
+**Scope:**
+
+- Read the kept record in that spec after the event that settles the
+  asserted state, for example once "First input accepted" is shown.
+- Sweep the dashboard specs for other single reads of kept launch state taken
+  before the event their assertions depend on, and convert them the same way.
+- Repairs wait for events. They do not lengthen deadlines, add sleeps, or add
+  retries (`retries: 0` stays).
+
+**Key example:** a Cursor ad hoc start with an instruction → the recent
+session card appears while the record is still `uncertain` → the spec reads
+the record only after "First input accepted" shows → it sees `confirmed`.
+
+**Boundary:** This repository's dashboard tests and test support only.
+
 <a id="checks-run-from-any-directory"></a>
 
 ### Run a check from any directory and get CI's result
