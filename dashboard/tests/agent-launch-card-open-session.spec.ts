@@ -14,6 +14,7 @@ import {
   cardSessionOf,
   cardSessions,
   expectMembership,
+  expectSettledPage,
   parts,
 } from "./dashboardPage.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
@@ -211,8 +212,7 @@ test.describe("a story's card while its session is open", () => {
       const otherCard = parts(other).backlog.getByRole("article", {
         name: readyStory,
       });
-      await expect(otherCard).toBeVisible();
-      await expect(other.getByText("Reading preparation…")).toHaveCount(0);
+      await expectSettledPage(other);
       await otherCard.getByRole("button", { name: "Start execution" }).click();
       await other
         .getByRole("dialog", { name: "Start execution in Claude Code" })

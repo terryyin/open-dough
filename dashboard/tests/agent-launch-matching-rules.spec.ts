@@ -1,5 +1,5 @@
 // One matching contract serves both in-flight and retained-evidence lookup.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { sameLaunch, type AgentLaunchRequest } from "../src/launchRequest.ts";
 
 const story: AgentLaunchRequest = {

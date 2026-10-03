@@ -1,5 +1,5 @@
 // The disposable origin receives exactly the path changes a test publishes.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import path from "node:path";

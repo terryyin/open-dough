@@ -4,7 +4,8 @@
 // story commits rename a trunk file and add one, delete another, and change
 // an image; it merged trunk carrying another story's file, trunk moved on
 // since, and it holds a staged, an unstaged, an untracked, and an ignored
-// file. A worktree straight off trunk has nothing to review.
+// file. A worktree straight off trunk has nothing to review, and a story whose
+// first commit landed on trunk has only its later changes to review.
 
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -35,6 +36,13 @@ const image = (last: number) =>
 // The unstaged edit's added line, too long for the review to show unscrolled.
 export const wideLine = `more ${"wide ".repeat(80)}`;
 
+// Story A's worktree on its branch, started from the project's trunk.
+function addStoryWorktree(project: string) {
+  const workspace = path.join(project, ".worktrees", "story-a");
+  git(project, "worktree", "add", "--quiet", "-b", branch, workspace, "main");
+  return workspace;
+}
+
 // Story A's worktree as the review should find it, and the trunk commit the
 // story merged, which is the review's baseline.
 export function storyWorktree(origin: StartOrigin) {
@@ -48,8 +56,7 @@ export function storyWorktree(origin: StartOrigin) {
   commitAll(project, "trunk files");
   git(project, "push", "--quiet", "origin", "main");
 
-  const workspace = path.join(project, ".worktrees", "story-a");
-  git(project, "worktree", "add", "--quiet", "-b", branch, workspace, "main");
+  const workspace = addStoryWorktree(project);
   git(workspace, "mv", "old.txt", "new.txt");
   writeFileSync(path.join(workspace, "new.txt"), `${lines("old")}renamed\n`);
   commitAll(workspace, "rename with a small edit");
@@ -99,9 +106,27 @@ export function storyWorktree(origin: StartOrigin) {
 
 // Story A's worktree straight off trunk, with nothing the story changed.
 export function unchangedWorktree(origin: StartOrigin) {
-  const workspace = path.join(origin.project, ".worktrees", "story-a");
-  git(origin.project, "worktree", "add", "--quiet", "-b", branch, workspace);
+  const workspace = addStoryWorktree(origin.project);
   return { workspace, trunk: git(origin.project, "rev-parse", "main") };
+}
+
+// Story A's worktree whose first commit landed on trunk, which is the
+// review's baseline, then a later commit and an edit trunk does not have.
+export function landedWorktree(origin: StartOrigin) {
+  const project = origin.project;
+  writeFileSync(path.join(project, "edited.txt"), lines("edited"));
+  commitAll(project, "trunk file");
+  git(project, "push", "--quiet", "origin", "main");
+
+  const workspace = addStoryWorktree(project);
+  writeFileSync(path.join(workspace, "landed.txt"), "landed slice\n");
+  commitAll(workspace, "landed slice");
+  git(workspace, "push", "--quiet", "origin", "HEAD:main");
+  const landed = git(workspace, "rev-parse", "HEAD");
+  writeFileSync(path.join(workspace, "later.txt"), "later slice\n");
+  commitAll(workspace, "later slice");
+  writeFileSync(path.join(workspace, "edited.txt"), `${lines("edited")}more\n`);
+  return { workspace, landed };
 }
 
 // Story A's launch record, its start naming the worktree.

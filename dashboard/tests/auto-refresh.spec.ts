@@ -12,6 +12,7 @@ import { expect, githubFor, test } from "./dashboardTest.ts";
 import {
   expectMembership,
   expectOwnersNotRecorded,
+  expectSettledPage,
   expectWholeSnapshot,
   parts,
 } from "./dashboardPage.ts";
@@ -84,8 +85,7 @@ test("auto refresh: quiet main is only checked, and newly published main appears
 
   await test.step("B is found by the next check, within 30 seconds, and read at exactly B", async () => {
     expect(await passTimeUntilChecked(page)).toBeLessThanOrEqual(15_250);
-    await expectMembership(page, titlesOfB);
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+    await expectSettledPage(page, titlesOfB);
     await expectWholeSnapshot(
       page,
       { revision: revisionB, titles: titlesOfB },
@@ -157,8 +157,7 @@ test("auto refresh: main moving again while B's backlog is read leaves one snaps
   releaseBacklogAtB();
 
   await test.step("B's membership, detail, and evidence are all B's", async () => {
-    await expectMembership(page, titlesOfB);
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+    await expectSettledPage(page, titlesOfB);
     await expectWholeSnapshot(
       page,
       { revision: revisionB, titles: titlesOfB },

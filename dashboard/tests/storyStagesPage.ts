@@ -6,7 +6,7 @@
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
+import { expectSettledPage, parts } from "./dashboardPage.ts";
 import {
   doughnutBacklog,
   doughnutRecords,
@@ -30,16 +30,11 @@ export async function openStoryStagesJourney(
   const doughnut = await publishMovingOrigin(page, doughnutRepository);
   doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
   await page.goto("/");
-  const { stages, backlog, source } = parts(page);
+  const { backlog, source } = parts(page);
   const card = (title: string) => backlog.getByRole("article", { name: title });
   const action = (title: string, workflow: Workflow) =>
     card(title).getByRole("button", { name: `Start ${workflow}` });
-  // Every card's preparation facts are read. Cards come first: until they are
-  // shown (as just after a reload), no card says it is still reading.
-  const settled = async () => {
-    await expect(stages.getByRole("article").first()).toBeVisible();
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
-  };
+  const settled = () => expectSettledPage(page);
   return {
     card,
     action,

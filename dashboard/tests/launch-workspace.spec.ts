@@ -7,7 +7,7 @@ import { mkdtempSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { takenSlugs } from "../server/startGit.ts";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { launchWorkspace, slugOf } from "../server/launchWorkspace.ts";
 
 const project = { path: "/home/dev/git/open-dough", shown: "~/git/open-dough" };

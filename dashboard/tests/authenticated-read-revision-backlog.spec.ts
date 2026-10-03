@@ -4,7 +4,7 @@
 // browser: it never resolves `main` again. Revision checks:
 // ./authenticated-read-revision-check.spec.ts.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   startDashboardServer,
   type DashboardServer,

@@ -7,6 +7,7 @@ import {
 } from "./accessibleReading.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
+import { expectFrameIconControl } from "./frameIconControl.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 import {
@@ -65,11 +66,7 @@ for (const viewport of [
     await expect(
       page.getByRole("region", { name: "Preparation badges" }),
     ).not.toBeVisible();
-    await expect(launcher).toHaveText("?");
-    const target = await box(launcher);
-    expect(target.width).toBeGreaterThanOrEqual(44);
-    expect(target.height).toBeGreaterThanOrEqual(44);
-    await expectReadableContrast(launcher);
+    await expectFrameIconControl(launcher, "Preparation badge legend");
 
     await launcher.scrollIntoViewIfNeeded();
     const scroll = await page.evaluate(() => window.scrollY);

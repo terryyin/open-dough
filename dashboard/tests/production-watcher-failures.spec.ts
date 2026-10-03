@@ -1,5 +1,5 @@
 // Published fault gates leave real npm/Vite build and serving intact.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { dashboardCommand } from "./support/dashboardCommand.ts";

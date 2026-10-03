@@ -11,7 +11,12 @@
 
 import { readFileSync } from "node:fs";
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership, openDirection, parts } from "./dashboardPage.ts";
+import {
+  expectMembership,
+  expectSettledPage,
+  openDirection,
+  parts,
+} from "./dashboardPage.ts";
 import {
   notLoggedIn,
   publishFiles,
@@ -113,7 +118,7 @@ for (const mode of ["dev", "preview"] as const) {
             "href",
             `https://github.com/${published.repository}/blob/${published.revision}/${published.queuedPath}#queued`,
           );
-          await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+          await expectSettledPage(page);
           await expect(
             takenCard.getByText("Not recorded", { exact: true }),
           ).toBeVisible();

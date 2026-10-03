@@ -1,22 +1,20 @@
 /* The agent roster: every agent of the rotation with its larger portrait and
-   published assignment, the agent it was opened from marked, and Back at the
-   top. Members reflow from a grid to one column at narrow widths. */
+   published assignment, the agent it was opened from marked, and Back, a
+   frame button (./frame-controls.css), at the top over the frame's heading.
+   Members reflow from a grid to one column at narrow widths. */
 
 .agent-roster > * + * {
-  margin-top: 0.75rem;
+  margin-top: var(--space-3);
 }
 
-.roster-back {
-  font: inherit;
-  color: var(--accent);
-  background: transparent;
-  border: 1px solid var(--accent);
-  border-radius: 0.25rem;
-  padding: 0.2rem 0.55rem;
-  cursor: pointer;
+.agent-roster > h2 {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-strong);
+  letter-spacing: -0.01em;
 }
 
 .roster-source {
+  font-size: var(--text-sm);
   color: var(--quiet);
 }
 
@@ -24,7 +22,7 @@
   list-style: none;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .roster-member {
@@ -32,8 +30,8 @@
   align-content: start;
   gap: 0.3rem;
   border: 1px solid var(--line);
-  border-radius: 0.35rem;
-  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
   background: var(--panel);
   overflow-wrap: anywhere;
 }

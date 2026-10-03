@@ -1,7 +1,7 @@
 // An instructed Cursor launch starts one kept terminal client and enters the
 // instruction when that client's screen is ready. Opening the terminal joins
 // that client. A screen that is not ready does not receive the instruction.
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect } from "./support/pageTest.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { shows } from "./agentTerminalBoundary.ts";
 import { installFakeCursor } from "./support/fakeCursor.ts";

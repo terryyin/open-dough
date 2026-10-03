@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ivan-chan",
-  "email": "ivan-chan@example.org",
-  "identity": "SEED-091#dashboard-frame-renovation",
-  "mode": "story-branch",
-  "branch": "claude/modernize-and-streamline-the-dashboard-frame",
-  "host": "claude"
-}

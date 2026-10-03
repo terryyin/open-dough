@@ -6,7 +6,7 @@
 // `claude`. Story launches are ./agent-launch-boundary.spec.ts. The synthetic
 // `claude` (./fixtures/fake-claude) records every call.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   launch,
   launchRequest,

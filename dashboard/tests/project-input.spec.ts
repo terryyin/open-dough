@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { githubRepository, projectIdentity } from "../src/projectInput.ts";
 import { shownStartWorkspace } from "../server/launchWorkspace.ts";
 import { workspaceWords } from "../src/launchWorkflow.ts";

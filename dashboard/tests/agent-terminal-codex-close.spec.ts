@@ -4,7 +4,7 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { agentLaunchPlugin } from "../server/agentLaunchPlugin.ts";
 import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
 import { shows, type Terminal } from "./agentTerminalBoundary.ts";

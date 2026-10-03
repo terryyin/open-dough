@@ -8,33 +8,18 @@
   justify-content: flex-end;
 }
 
-.preparation-help-button,
-.preparation-legend-actions button {
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  border: 1px solid var(--edge);
-  border-radius: 0.35rem;
-  padding: 0.35rem 0.75rem;
-  font: inherit;
-  color: var(--accent);
-  background: var(--panel);
-  cursor: pointer;
-}
-
-.preparation-help-button {
-  border-radius: 50%;
-  font-weight: 700;
-}
-
+/* The badge legend: a quiet card over the page, like the frame's other
+   dialogs, with Close on a bar above its reading area. */
 .preparation-legend-dialog {
   box-sizing: border-box;
   width: min(36rem, calc(100% - 1.5rem));
   max-height: calc(100dvh - 1.5rem);
-  border: 1px solid var(--edge);
-  border-radius: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
   padding: 0;
   color: var(--text);
   background: var(--panel);
+  box-shadow: var(--shadow-2);
 }
 
 .preparation-legend-dialog[open] {
@@ -49,11 +34,17 @@
 .preparation-legend-actions {
   display: flex;
   justify-content: flex-end;
-  padding: 0.5rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   border-bottom: 1px solid var(--line);
+  background: var(--surface);
 }
 
 .preparation-legend-content {
   overflow: auto;
-  padding: 0.75rem 1rem;
+  padding: var(--space-4) var(--space-5);
+}
+
+.preparation-legend-content h2 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-strong);
 }

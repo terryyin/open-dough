@@ -23,7 +23,10 @@ import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { usePageSessions } from "./pageSessions.ts";
 import { keyboardRestsOn } from "./launchHandoff.ts";
+import { SquareTerminal } from "lucide-react";
+import { Icon } from "./Icon.tsx";
 import "./agent-launch.css";
+import "./frame-controls.css";
 
 export function StartSession({
   project,
@@ -59,7 +62,7 @@ export function StartSession({
       <button
         ref={launcher}
         type="button"
-        className="start-session-button"
+        className="frame-button"
         aria-haspopup="dialog"
         aria-label={`Start session in ${project}`}
         aria-describedby={attempt !== undefined ? answerId : undefined}
@@ -69,6 +72,7 @@ export function StartSession({
           openDialog();
         }}
       >
+        <Icon icon={SquareTerminal} />
         Start session
       </button>
       <p role="log" className="quiet">

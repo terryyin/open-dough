@@ -8,7 +8,7 @@ import { expectReadableContrast, zoomedWindow } from "./accessibleReading.ts";
 import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 import { expectMark } from "./agentPortrait.ts";
 import { contentPathsRead, publishCommittedOrigin } from "./committedOrigin.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
 import { noConnection } from "./originAnswers.ts";
 import {
   publishPreparingJourney,
@@ -51,8 +51,7 @@ test("a queued card shows Preparing and its developer from published assignments
     origin.advanceTo(revision);
     await page.reload();
     await expect(source).toContainText(revision);
-    await expectMembership(page, { taken: [], backlog: order });
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+    await expectSettledPage(page, { taken: [], backlog: order });
   };
   const expectNotPreparing = async (title: string) => {
     await expect(card(title)).not.toContainText("Preparing");

@@ -1,4 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
+import { Settings } from "lucide-react";
+import { IconButton } from "./Icon.tsx";
 import { keepHeight } from "./measuredHeight.ts";
 import { ProjectSelect } from "./ProjectSelect.tsx";
 import { SessionsButton } from "./SessionSidebar.tsx";
@@ -41,19 +43,23 @@ export function DashboardBanner({
   return (
     <header className="banner" ref={banner}>
       <SessionsButton />
-      <div className="project-controls">
-        <ProjectSelect source={source} onSelect={onSelect} />
-        <div className="project-configuration-actions">
-          <button
-            type="button"
-            aria-label="System settings"
-            onClick={onOpenSettings}
-          >
-            System settings
-          </button>
-        </div>
-      </div>
+      <ProjectSelect source={source} onSelect={onSelect} />
       <SourceStatus source={source} work={work} />
+      <SettingsGear onOpen={onOpenSettings} />
     </header>
+  );
+}
+
+// The entry to System settings: the gear at the far end of the banner, on
+// the dashboard and on the page shown while no project is configured.
+export function SettingsGear({ onOpen }: { readonly onOpen: () => void }) {
+  return (
+    <IconButton
+      label="System settings"
+      icon={Settings}
+      align="end"
+      groupClassName="settings-control"
+      onClick={onOpen}
+    />
   );
 }

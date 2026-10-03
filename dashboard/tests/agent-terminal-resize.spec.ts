@@ -2,7 +2,7 @@
 // WebSocket dependencies are replaced to hold the closed-fd/onExit race still.
 import { EventEmitter } from "node:events";
 import { createRequire } from "node:module";
-import { expect, test as base } from "@playwright/test";
+import { expect, test as base } from "./support/pageTest.ts";
 import type { IPty } from "@lydell/node-pty";
 import type { WebSocket } from "ws";
 import {

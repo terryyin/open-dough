@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { systemSettingsMachine } from "./support/systemSettingsMachine.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 

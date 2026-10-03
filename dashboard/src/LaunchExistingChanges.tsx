@@ -192,12 +192,17 @@ function LaunchExistingChanges({
       </div>
       <div className="launch-dialog-footer">
         <div className="launch-dialog-actions">
-          <button type="button" onClick={onBack} disabled={starting}>
+          <button
+            type="button"
+            className="frame-button"
+            onClick={onBack}
+            disabled={starting}
+          >
             Back
           </button>
           <button
             type="button"
-            className="launch-dialog-start"
+            className="frame-button frame-button-primary"
             onClick={onContinue}
             disabled={starting}
           >

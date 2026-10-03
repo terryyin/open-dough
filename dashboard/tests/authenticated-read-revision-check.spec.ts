@@ -12,7 +12,7 @@
 // ./authenticated-read-boundary.spec.ts and
 // ./authenticated-read-refusal.spec.ts.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { commitAnswer } from "./originAnswers.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import {

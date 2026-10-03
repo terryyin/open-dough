@@ -6,7 +6,7 @@
 import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect } from "./support/pageTest.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { refusedStatus, terminalUrl } from "./agentTerminalBoundary.ts";
 import { waitUntil, type DashboardServer } from "./support/dashboardServer.ts";

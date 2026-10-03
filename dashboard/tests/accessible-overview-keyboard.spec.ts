@@ -35,11 +35,11 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     parts(page);
 
   // Reading order is the order of the page's source: Sessions, the project
-  // selector, System settings, then source evidence, direction, Start session
-  // and the badge legend, then each card's controls and recorded links by
-  // stage (Backlog, then Taken): a Backlog card's enabled launch actions, then
-  // Inspect. In a wide window Taken stands beside Backlog's first card, so
-  // position on screen would order them differently.
+  // selector, source evidence, System settings, then direction, Start
+  // session and the badge legend, then each card's controls and recorded links
+  // by stage (Backlog, then Taken): a Backlog card's enabled launch actions,
+  // then Inspect. In a wide window Taken stands beside Backlog's first card,
+  // so position on screen would order them differently.
   const stopsFor = async (stage: Locator) => {
     const stops: Locator[] = [];
     for (const card of await stage.getByRole("article").all()) {
@@ -66,15 +66,15 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   const stops = [
     page.getByRole("button", { name: "Sessions", exact: true }),
     selectedProject,
-    page.getByRole("button", { name: "System settings", exact: true }),
     sourceEvidence,
+    page.getByRole("button", { name: "System settings", exact: true }),
     directionToggle,
     page.getByRole("button", { name: "Start session in Open Dough" }),
     parts(page).preparationHelp,
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // Sessions + selected project radio + System settings + Source evidence +
+  // Sessions + selected project radio + Source evidence + System settings +
   // Direction + Start session + Legend + two Backlog cards' enabled launch
   // actions + four Inspect + five recorded links.
   expect(stops).toHaveLength(7 + 2 + 4 + 5);
@@ -151,11 +151,12 @@ test("accessible overview announces reading, the read result, and a failure whil
     expect(await box(status)).toMatchObject({ width: 1, height: 1 });
   });
 
-  // Sessions, the project, then System settings.
+  // Sessions, the project, the source evidence, then System settings.
   const settings = page.getByRole("button", {
     name: "System settings",
     exact: true,
   });
+  await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");

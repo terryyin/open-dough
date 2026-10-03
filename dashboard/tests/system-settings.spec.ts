@@ -1,11 +1,12 @@
 import { readFileSync } from "node:fs";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { projectAddMachine } from "./support/projectAddMachine.ts";
 import { addProjectOnPage } from "./support/projectAddPage.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { startSessionDialog } from "./launchCardPage.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { settings, back } from "./support/systemSettingsPage.ts";
+import { expectFrameIconControl } from "./frameIconControl.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
@@ -30,6 +31,7 @@ test("global settings has narrow local facts, returns to roster with focus, and 
   await expect(
     page.getByRole("heading", { name: "Agent roster", exact: true }),
   ).toBeVisible();
+  await expectFrameIconControl(settings(page), "System settings");
   await settings(page).click();
   await expect(
     page.getByRole("heading", { name: "System settings", exact: true }),

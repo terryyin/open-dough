@@ -1,0 +1,57 @@
+/* What the frame says in place of, or beside, the published work: a read
+   under way, a failed read, and the page shown while projects load, cannot
+   be read, or are none. */
+
+/* A failed read, near the source it failed to read: the problem styling,
+   with its heading saying in words what the colour and mark repeat. */
+.read-problem {
+  border: 1px solid var(--problem);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  background: var(--problem-soft);
+}
+
+.read-problem h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-md);
+  font-weight: var(--weight-strong);
+  color: var(--problem);
+}
+
+.read-problem p {
+  margin-top: var(--space-1);
+}
+
+/* The read under way, or the latest notice, said quietly under the banner. */
+.page-header > .announcement {
+  font-size: var(--text-sm);
+  color: var(--quiet);
+}
+
+/* What the frame shows in place of the dashboard: projects still loading or
+   unreadable, or none configured. */
+.frame-state {
+  margin: var(--space-5) max(var(--page-gutter), calc((100% - 40rem) / 2));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  background: var(--panel);
+  box-shadow: var(--shadow-1);
+}
+
+.frame-state h1 {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-strong);
+}
+
+.frame-state p {
+  color: var(--quiet);
+}
+
+.frame-state h1 + p {
+  margin-top: var(--space-2);
+}

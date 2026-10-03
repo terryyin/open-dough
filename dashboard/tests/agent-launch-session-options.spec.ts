@@ -11,7 +11,7 @@
 // push).
 
 import { realpathSync } from "node:fs";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { installFakeCodex, type FakeCodex } from "./support/fakeCodex.ts";

@@ -6,7 +6,7 @@
 // HTTP is ./agent-launch-options-boundary.spec.ts and
 // ./agent-launch-options-groups.spec.ts.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { agentLaunchRequestSchema } from "../src/agentLaunch.ts";
 import {
   inDefinitionOrder,

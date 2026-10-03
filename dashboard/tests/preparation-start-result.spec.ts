@@ -2,7 +2,7 @@
 // (../server/preparationResult.ts `readPreparationResult`) and the one table
 // that words a stop (`preparationRefusal`).
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   preparationRefusal,
   readPreparationResult,

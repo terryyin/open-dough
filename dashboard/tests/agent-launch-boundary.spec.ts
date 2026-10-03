@@ -9,7 +9,7 @@
 // (./fixtures/fake-claude) on each server's PATH records every call; the
 // real one is never reached.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   identity,
   launch,

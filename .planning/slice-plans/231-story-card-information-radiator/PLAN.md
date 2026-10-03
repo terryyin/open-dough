@@ -65,7 +65,7 @@ PFE outcome: change existing card presentation and inspection in place.
   Scope card presentation changes to their actual consumers; prove unchanged
   consumers when shared behavior or styles do change.
 - Reuse the `:root` visual tokens in `styles.css`. The frame story's
-  [plan](../230-dashboard-frame-renovation/PLAN.md) expands that foundation and
+  [plan](https://github.com/terryyin/open-dough/blob/3c6e5e1002217db658f05c280b6362f3f08d2968/.planning/slice-plans/230-dashboard-frame-renovation/PLAN.md) expands that foundation and
   introduces the shared icon wrapper. Adopt its published foundation when
   available; do not create a competing token system or introduce a component
   library. This plan adds no dependency requirement of its own.

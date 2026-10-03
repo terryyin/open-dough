@@ -5,7 +5,7 @@
 // Records naming no workspace, another identity, or another project are
 // passed over, and none at all leaves the story with nothing to review.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { reviewWorkspaceOf } from "../src/storyReview.ts";
 

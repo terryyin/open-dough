@@ -8,7 +8,8 @@
 // (./fixtures/fake-claude) and `osascript` (./fixtures/fake-osascript) are all
 // the server reaches; a real notification is never raised.
 
-import { expect, test as base, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect, test as base } from "./support/pageTest.ts";
 import {
   launch,
   launchRequest,

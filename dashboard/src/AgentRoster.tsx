@@ -6,16 +6,19 @@
 // Back returns to the stories the roster was opened from.
 
 import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { ArrowLeft } from "lucide-react";
 import type { RosterMember } from "./assignmentRoster.ts";
 import { RecordedFacts } from "./AgentAssignmentFacts.tsx";
 import { HumanCredit } from "./HumanCredit.tsx";
 import { AgentPortrait } from "./AgentPortrait.tsx";
+import { Icon } from "./Icon.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { shortRevision, type PublishedWork } from "./publishedWork.ts";
 import {
   agentIdentity,
   agentNames,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import "./frame-controls.css";
 import "./agent-roster.css";
 
 const activities = { execution: "Taken", preparation: "Preparing" } as const;
@@ -127,7 +130,8 @@ export function AgentRoster({
   return (
     <section className="agent-roster" aria-labelledby="agent-roster-heading">
       <p>
-        <button type="button" className="roster-back" onClick={onBack}>
+        <button type="button" className="frame-button" onClick={onBack}>
+          <Icon icon={ArrowLeft} />
           Back to stories
         </button>
       </p>

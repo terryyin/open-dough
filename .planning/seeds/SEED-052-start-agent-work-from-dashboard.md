@@ -140,6 +140,37 @@ relative to the launch epic was not selected. It stays here as one canonical
 unqueued candidate rather than disappearing from the discussion or being
 silently added to the launch critical path.
 
+<a id="unread-report-apart-from-engagement"></a>
+
+### Show an unread session report apart from a session needing engagement
+
+**Identity:** SEED-052#unread-report-apart-from-engagement
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer scanning the Sessions sidebar can trust its left
+  border to mean that a session has stopped and needs their engagement, and
+  still notices a report from a session that they should read.
+- **Evaluation:** A launch whose completion report is not marked done, while its
+  native session is working, shows the working border and stays in its
+  launch-time place in the sidebar; an unread-report marker (for example a
+  message icon with a faint background tint, not another border) shows on its
+  entry. If that session then waits for input, its entry shows the needs-input
+  border and moves up as other sessions needing engagement do. The banner badge
+  counts only sessions needing engagement. The story card keeps the report until
+  Mark as done and names it as an unread report, separately from "needs
+  attention", with the same wording on the card, the sidebar tooltip, and the
+  badge label. A report's arrival still raises the macOS alert.
+- **Boundary:** No change to how reports are delivered, retained, or marked
+  done; a new instruction to the same session does not mark its report done.
+- **Value / learning:** Since completion reports arrived on 2026-10-02, a report
+  shows the green ready border ahead of the native state (`sessionShown`), so a
+  session working on the developer's next instruction reads as ready, and a
+  real "Needs input" is hidden behind an old report.
+- **Effort hypothesis:** Unestimated; mostly the shared session reading, its
+  sidebar ordering, and the attention count and wording.
+
 ## Ordering and Scope Reduction
 
 Stories 2 and 3 make return and interaction useful; refinement launch and
@@ -187,6 +218,10 @@ implementation; refinement and executable planning are later selections.
   interaction, slight priority for interaction, independent recent sessions and
   recently done stories, and existing local project/tool setup assumed.
 - [Product backlog](../PRODUCT-BACKLOG.md).
+- Terry's 2026-10-03 request: keep the sidebar's left border for sessions that
+  stopped and need engagement, mark an unread report another way without
+  reordering, keep the report's macOS alert, and queue this as backlog priority
+  one; work directly on main and sync with origin.
 - [Current dashboard behavior](../../dashboard/README.md).
 - [Project visibility requirements](../../docs/project-visibility-requirements.md).
 - [Dashboard UX/UI direction](../../docs/dashboard-ux-ui-north-star.md).

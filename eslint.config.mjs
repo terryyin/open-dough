@@ -61,5 +61,30 @@ export default defineConfig(
       ],
     },
   },
+  {
+    // Dashboard specs run under the shared page-test base, whose `page`
+    // finishes its intercepted reads before teardown.
+    files: ["dashboard/tests/**/*.{ts,mts,tsx}"],
+    ignores: [
+      "dashboard/tests/support/pageTest.ts",
+      // Run by the quiet-reporter proof under their own configuration.
+      "dashboard/tests/fixtures/quiet-reporter/*.proof.ts",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@playwright/test",
+              importNames: ["test", "default"],
+              message:
+                "Import `test` from dashboard/tests/support/pageTest.ts (or a fixture module built on it) so the page drains its intercepted reads.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   prettier,
 );

@@ -3,6 +3,7 @@ import { projectAddEndpoint } from "./projectConfiguration.ts";
 import { githubRepository, type ProjectField } from "./projectInput.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import "./launch-dialog.css";
+import "./frame-controls.css";
 
 type AddedProject = {
   readonly project: PublishedSource;
@@ -84,6 +85,7 @@ export function AddProjectDialog({
             <input
               ref={urlField}
               id={`${id}-url`}
+              className="frame-input"
               value={githubUrl}
               required
               autoComplete="off"
@@ -105,6 +107,7 @@ export function AddProjectDialog({
             <label htmlFor={`${id}-path`}>Local path</label>
             <input
               id={`${id}-path`}
+              className="frame-input"
               value={localPath}
               required
               autoComplete="off"
@@ -122,10 +125,16 @@ export function AddProjectDialog({
             )}
           </div>
           <div className="project-dialog-actions">
-            <button type="button" onClick={() => dialog.current?.close()}>
+            <button
+              type="button"
+              className="frame-button"
+              onClick={() => dialog.current?.close()}
+            >
               Cancel
             </button>
-            <button type="submit">{submitting ? "Adding…" : "Add"}</button>
+            <button type="submit" className="frame-button frame-button-primary">
+              {submitting ? "Adding…" : "Add"}
+            </button>
           </div>
         </fieldset>
       </form>

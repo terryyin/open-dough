@@ -1,5 +1,5 @@
 // The terminal panel's header maximizes and restores the panel and closes it
-// by icon controls named by label and tooltip, on the journey of
+// by frame icon controls named by label and tooltip, on the journey of
 // ./agent-terminal.spec.ts: maximized, the panel takes the page column's
 // room, the banner and stories hidden behind it, with the same session still
 // attached; an open Sessions sidebar stays beside it, and opening another of
@@ -29,6 +29,7 @@ import {
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { box, pressWhereShown } from "./pageLayout.ts";
+import { expectFrameIconControl } from "./frameIconControl.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -97,35 +98,22 @@ test.describe("maximizing the terminal panel", () => {
     await page.keyboard.press("Enter");
     await expect(rows).toContainText("echo keep this line");
 
-    await test.step("the header's icon controls are named by label and tooltip, including Mark as done are quiet compact SVG buttons", async () => {
-      await expect(control("Maximize")).toHaveAttribute("title", "Maximize");
-      await expect(control("Close")).toHaveAttribute("title", "Close (⌘⇧Esc)");
-      await expect(control("Maximize").locator("svg")).toHaveAttribute(
-        "aria-hidden",
-        "true",
-      );
+    await test.step("the header's icon controls, Mark as done included, are quiet, compact frame icon controls named by label and tooltip", async () => {
+      await expectFrameIconControl(control("Mark as done"), "Mark as done");
+      await expectFrameIconControl(control("Maximize"), "Maximize");
+      await expectFrameIconControl(control("Close"), "Close", "Close (⌘⇧Esc)");
       for (const name of ["Mark as done", "Maximize", "Close"]) {
         const button = control(name);
-        await expect(button.locator("svg")).toHaveAttribute(
-          "aria-hidden",
-          "true",
-        );
         await expect(button).toHaveText("");
         await expect(button).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-        await expect(button).toHaveCSS("border-top-width", "0px");
-        const bounds = await box(button);
-        expect(bounds.width).toBe(36);
-        expect(bounds.height).toBe(36);
+        await expect(button).toHaveCSS("border-top-color", "rgba(0, 0, 0, 0)");
       }
-      await expect(control("Mark as done")).toHaveAttribute(
-        "title",
-        "Mark as done",
-      );
       await control("Maximize").hover();
       await expect(control("Maximize")).not.toHaveCSS(
         "background-color",
         "rgba(0, 0, 0, 0)",
       );
+      await page.mouse.move(0, 0);
     });
 
     const split = {
@@ -136,7 +124,7 @@ test.describe("maximizing the terminal panel", () => {
 
     await test.step("Maximize gives the panel the page column's room, hides the banner and stories, keeps the same session's lines, and offers Restore", async () => {
       await pressWhereShown(control("Maximize"));
-      await expect(control("Restore")).toHaveAttribute("title", "Restore");
+      await expectFrameIconControl(control("Restore"), "Restore");
       await expect(control("Maximize")).toHaveCount(0);
       const room = await windowOf(page);
       expectCovers(await box(panel), {

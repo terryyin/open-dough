@@ -7,7 +7,7 @@
 // records every call, so each refusal proves none was made; the real one is
 // never reached.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { markDone, recordsOf } from "./agentLaunchBoundary.ts";
 import { closeOpenSessions } from "./openStorySessionSetup.ts";
 import { launched } from "./agentTerminalBoundary.ts";

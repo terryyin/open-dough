@@ -6,9 +6,9 @@
 
 import { cpSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, type Locator, type Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectSettledPage, parts } from "./dashboardPage.ts";
 import {
   notRefinedStory,
   readyStory,
@@ -87,11 +87,10 @@ export async function openTakenBacklog(page: Page, journey: LaunchJourney) {
   });
   await page.goto("/");
   const { backlog, taken } = parts(page);
-  await expectMembership(page, {
+  await expectSettledPage(page, {
     taken: [takenStory],
     backlog: [readyStory, notRefinedStory],
   });
-  await expect(page.getByText("Reading preparation…")).toHaveCount(0);
   const card = (title: string) => backlog.getByRole("article", { name: title });
   return {
     card,

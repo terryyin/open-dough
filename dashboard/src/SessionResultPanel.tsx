@@ -17,6 +17,7 @@ import {
   type MarkSessionDone,
   type SessionRequest,
 } from "./pageSessions.ts";
+import "./frame-controls.css";
 import "./session-result.css";
 
 export function SessionResultPanel({
@@ -103,6 +104,7 @@ export function SessionResultPanel({
             record.doneAt === undefined && (
               <button
                 type="button"
+                className="frame-button"
                 disabled={marking === "marking"}
                 onClick={() => {
                   follow(onMarkDone(session));
@@ -111,7 +113,12 @@ export function SessionResultPanel({
                 Mark as done
               </button>
             )}
-          <button type="button" onClick={onClose} title="Close (⌘⇧Esc)">
+          <button
+            type="button"
+            className="frame-button"
+            onClick={onClose}
+            title="Close (⌘⇧Esc)"
+          >
             Close
           </button>
         </div>

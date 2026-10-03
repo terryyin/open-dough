@@ -47,7 +47,7 @@ function Stage({
       </header>
       <UnreadableProfiles profiles={unreadableProfiles} />
       {entries.length === 0 ? (
-        <p className="quiet">No {name} entries are recorded.</p>
+        <p className="quiet stage-empty">No {name} entries are recorded.</p>
       ) : (
         <ol className="cards">
           {entries.map((entry, index) => (

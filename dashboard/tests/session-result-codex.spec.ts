@@ -3,7 +3,7 @@
 import { mkdtempSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import { launchHost } from "../server/launchHosts.ts";
 import type { HostSession } from "../src/agentLaunch.ts";
 import { installFakeCodex, type FakeCodex } from "./support/fakeCodex.ts";

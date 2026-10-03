@@ -8,7 +8,7 @@
 // that check only. Answers and GitHub's 304:
 // ./authenticated-read-revision-check.spec.ts.
 
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/pageTest.ts";
 import {
   commitAnswer,
   notLoggedIn,

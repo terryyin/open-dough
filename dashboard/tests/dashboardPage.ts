@@ -144,6 +144,26 @@ export async function expectMembership(
   );
 }
 
+// The page once every shown card's preparation facts are read. Cards come
+// first: until the stages show them -- these titles, or else a first card --
+// no card says it is still reading, as just after a reload, so that absence
+// alone settles nothing. `timeout` bounds only the wait for the reading to
+// end.
+export async function expectSettledPage(
+  page: Page,
+  membership?: { readonly taken: string[]; readonly backlog: string[] },
+  { timeout }: { readonly timeout?: number } = {},
+) {
+  if (membership === undefined) {
+    await expect(parts(page).stages.getByRole("article").first()).toBeVisible();
+  } else {
+    await expectMembership(page, membership);
+  }
+  await expect(page.getByText("Reading preparation…")).toHaveCount(0, {
+    ...(timeout !== undefined && { timeout }),
+  });
+}
+
 // Every Taken card, once the agent profiles beside the backlog are read, says
 // no owner is recorded -- the project publishes none -- and none says the
 // profiles could not be read.
@@ -186,13 +206,13 @@ export async function expectWholeSnapshot(
   }
 }
 
-// Snapshot controls exclude the banner's machine Sessions and project
-// configuration actions, and Start session, which needs no published read.
+// Snapshot controls exclude the banner's machine Sessions and System
+// settings, and Start session, which needs no published read.
 export const controlsBesideSessions = (page: Page) =>
   page
     .getByRole("button")
     .and(page.locator(":not([aria-label='Sessions'])"))
-    .and(page.locator(":not(.project-controls button)"))
+    .and(page.locator(":not([aria-label='System settings'])"))
     .filter({ hasNotText: /^Start session$/ });
 
 // A failed read with no earlier snapshot shows the problem and the way to read

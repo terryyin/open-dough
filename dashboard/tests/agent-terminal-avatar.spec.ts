@@ -175,7 +175,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     // name beside it.
     await expect(panel.getByRole("img")).toHaveCount(1);
     await expect(panel.locator("img")).toHaveCount(0);
-    await expect(panel.locator(".terminal-toolbar")).toHaveText(
+    await expect(panel.locator(".terminal-identity")).toHaveText(
       `${title}Ad hoc session ${sessionId}`,
     );
   });

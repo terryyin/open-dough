@@ -10,7 +10,7 @@
 
 import type { Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
 import {
   callsSince,
   contentReads,
@@ -33,8 +33,9 @@ async function expectGapClosedAtB(page: Page) {
   const claimsCard = backlog.getByRole("article", { name: claimsStory });
   const from = githubFor(page).calls.length;
   await page.reload();
+  await expect(claimsCard).toBeVisible();
+  await expectSettledPage(page);
   await expect(claimsCard).not.toContainText(gap);
-  await expect(page.getByText("Reading preparation…")).toHaveCount(0);
   await claimsCard.getByRole("button", { name: "Inspect story" }).click();
   await expect(claimsCard).toContainText(`${claimsStory}, as published at B.`);
   await expect(source).toContainText(revisionB);
@@ -62,8 +63,7 @@ test("auto refresh recovery: an unavailable detail of B stays labeled, is not re
 
   await test.step("B is shown, with the unavailable record labeled on its own card", async () => {
     expect(await passTimeUntilChecked(page)).toBeLessThanOrEqual(15_250);
-    await expectMembership(page, titlesOfB);
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+    await expectSettledPage(page, titlesOfB);
     await expect(source).toContainText(revisionB);
     await expect(claimsCard).toContainText(gap);
     await expect(problem).toHaveCount(0);
@@ -119,7 +119,7 @@ test("auto refresh recovery: a detail of B still unread at the wait bound is lab
     await expect(problem).toContainText("What is shown is what it read");
     await expect(problem).not.toContainText("added nothing");
     await expect(claimsCard).toContainText(gap);
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+    await expectSettledPage(page);
     await expect(source).toContainText(revisionB);
   });
 
