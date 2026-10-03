@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator ([plan](slice-plans/231-story-card-information-radiator/PLAN.md))
 - [Acknowledge a session report without ending the session's state](seeds/SEED-052-start-agent-work-from-dashboard.md#mark-report-read-keeps-session-state) — SEED-052#mark-report-read-keeps-session-state ([plan](slice-plans/239-mark-report-read-keeps-session-state/PLAN.md))
-- [Run a check from any directory and get CI's result](seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory) — SEED-093#checks-run-from-any-directory ([plan](slice-plans/234-checks-run-from-any-directory/PLAN.md))
 
 ## Backlog list
 

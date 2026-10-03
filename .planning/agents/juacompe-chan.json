@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "juacompe-chan",
-  "email": "juacompe-chan@example.org",
-  "identity": "SEED-093#checks-run-from-any-directory",
-  "mode": "story-branch",
-  "branch": "claude/run-a-check-from-any-directory-and-get-ci-s-resu",
-  "host": "claude"
-}
