@@ -103,6 +103,13 @@ background up the chain, and Node picks the first painted one, so no function
 crosses into the browser. The two older walks now also treat zero-alpha
 colours other than `rgba(0, 0, 0, 0)` as unpainted.
 
+## Execution complete
+
+Product advice: no change. The queued story-card renovation
+([plan 231](../231-story-card-information-radiator/PLAN.md)) can now pass its
+card selectors to the shared `expectReadableAndRecognisable` instead of copying
+an area check.
+
 ## Current decisions
 
 - Run npm and Playwright without the inherited `NODE_ENV=production` and
