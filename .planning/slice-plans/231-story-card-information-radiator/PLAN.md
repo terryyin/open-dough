@@ -19,11 +19,8 @@ terminal contents, lifecycle rules, launch policy, and source reads keep their
 existing responsibilities. No search, sorting, new statuses, zoom, dark theme,
 or new launch/review capability is promised.
 
-The source's proposed visibility split remains a proposal. This plan describes
-that direction so it is reviewable, but slice 1 must not implement the disputed
-visibility change until Terry settles it. Keep independently supported styling,
-warning preservation, and action-group work available without treating the
-proposal as accepted.
+Terry accepted the source's scan-first visibility split on 2026-10-03; slice 1
+implements it.
 
 ## Preparation context
 
@@ -53,7 +50,7 @@ PFE outcome: change existing card presentation and inspection in place.
   fact parser, readiness calculation, or lifecycle model.
 - `StoryDetail.tsx` already reveals purpose, assessment, slice evidence,
   product advice, and pinned sources from the same entry without another read.
-  Extend that journey to reach the proposed secondary facts. `WorkSourceLinks`
+  Extend that journey to reach the accepted secondary facts. `WorkSourceLinks`
   remains the shared link policy for card and detail, including disputed plans.
 - `CardLaunches.tsx` owns Start availability, notes, failures, startup state,
   Review changes, and session entries. Group its offered actions while leaving
@@ -88,7 +85,7 @@ needed for this presentation change.
 | Ordinary Backlog cards expose readable titles, priorities, badges, and actions with less secondary clutter | 1 (reading), 2 (actions) | Same-fixture before/after screenshots and measured card heights at 1440px, plus default-visible versus inspected-fact assertions. Compare settled cards with the same titles, facts, session state, viewport, and font; do not impose a universal height |
 | Preparing and assigned developer remain apparent; missing/conflicting assignments remain explicit | 1 | Extend `backlog-preparing.spec.ts` and `agent-roster.spec.ts`: summaries show the agreed scan facts, inspection exposes metadata and human credit, portrait/Back preserve focus and card context |
 | Preparation/readiness remain independent, including Planless, absent, Changed since review, unavailable, and conflict states | 1 | Extend `story-readiness.spec.ts` and `story-readiness-gaps.spec.ts` against CLI-committed records. Warning summaries are visible while long explanations remain reachable |
-| Taken count, clock, awaiting-wrap-up state, and branch/trunk-copy qualifications remain meaningful | 1 | `branch-slice-progress.spec.ts`, `taken-slice-progress.spec.ts`, `taken-slice-clock.spec.ts`, and `taken-execution-complete.spec.ts`; retain count semantics and short visible provenance, move exact branch/revision only if agreed |
+| Taken count, clock, awaiting-wrap-up state, and branch/trunk-copy qualifications remain meaningful | 1 | `branch-slice-progress.spec.ts`, `taken-slice-progress.spec.ts`, `taken-slice-clock.spec.ts`, and `taken-execution-complete.spec.ts`; retain count semantics and short visible provenance, move exact branch/revision into inspection |
 | Purpose, full identity, assignment metadata, dependencies, evidence, and product advice remain reachable through inspection | 1 | Extend `storyReadinessDetail.ts`, `story-dependencies.spec.ts`, and `plan-execution-complete-detail.spec.ts`. Opening/closing detail reads no additional source; inspect request counts and the named detail region |
 | Links retain their snapshot and conflict meanings; startup does not strand links behind disabled Inspect | 1, preserved in 2 | Adapt `source-navigation.spec.ts` to the agreed inspection journey without dropping target/unsafe-link assertions. `responsive-session-start.spec.ts` and its `expectProtected` helper still observe readable links while every action is disabled |
 | Launch actions share a wrapping group, inspection/review actions another, with existing names and effects | 2 | Extend `agent-launch-card-open-session.spec.ts` and `story-review.spec.ts`: measure controls on the same line when space permits, operate both groups, close/cancel and verify useful focus return |
@@ -112,7 +109,10 @@ an observation of the proposed design.
 | Existing offered actions, open-session gating, launch errors, review, and roster return can be preserved during slice 2 | `env -u NODE_ENV -u npm_config_local_prefix -u npm_package_json ./node_modules/.bin/playwright test --config dashboard/playwright.config.ts --reporter=line --workers=2 dashboard/tests/agent-launch-card-open-session.spec.ts dashboard/tests/agent-launch-card-problems.spec.ts dashboard/tests/story-review.spec.ts dashboard/tests/agent-roster.spec.ts` | 7 passed, 13.1s. These journeys invoke the launch/review boundaries, observe disabled Starts and visible failures, and open/close roster and review; synthetic hosts avoid real agent launches |
 | Inspection adds no source read; dependency warnings/gating and awaiting-wrap-up semantics can remain unchanged in both slices | `env -u NODE_ENV -u npm_config_local_prefix -u npm_package_json ./node_modules/.bin/playwright test --config dashboard/playwright.config.ts --reporter=line --workers=2 dashboard/tests/story-readiness.spec.ts dashboard/tests/story-dependencies.spec.ts dashboard/tests/taken-execution-complete.spec.ts` | 4 passed, 6.0s. `storyReadinessDetail.ts` checks unchanged request counts after inspection; dependency tests distinguish execution/refinement availability; completion tests distinguish recorded completion from wrap-up |
 | Moving shared summaries/styles could affect roster/dialog/session consumers | `rg -n 'WorkCard|PreparationFacts|TakenOwnerFacts|PreparingFacts|RecordedFacts|StartLaunch|StoryDetail|WorkSourceLinks' dashboard/src`; read `AgentRoster.tsx`, `agent-launch.css`, `styles.css`, and the corresponding browser helpers | Confirmed the shared consumers described under PFE. Existing tests often assert default-view metadata or Tab stops; update their journey when presentation changes, retaining semantic, source-target, focus and availability assertions |
-| Renovated-frame tokens are not yet part of the inspected product revision | Read `styles.css`, the frame story and plan; `git diff --name-only HEAD..origin/main -- dashboard/src package.json .planning/seeds/SEED-091-dashboard-ui-renovation.md` after preparation `start` fetched `4a02456e26a64dbaa20d9d11ffc17ab1175ea773` | Existing colour tokens available; frame foundation still planned/Taken. Remote advance at inspection added only another preparation announcement. Final visual alignment needs that foundation or a human decision about the source promise |
+| The renovated-frame foundation is published for card styling to reuse | `git fetch origin` to trunk `5ca96acd`; read the `:root` tokens in `dashboard/src/styles.css` and the shared `dashboard/src/Icon.tsx` and its consumers; the frame story was closed in `48964786` | Type, spacing, radius, shadow, control and icon-size tokens and the shared icon wrapper are on trunk. Slice 1 reuses them; no substitute foundation is needed |
+
+On 2026-10-03, after the frame renovation landed, the three baseline commands
+above ran together again at trunk `5ca96acd`: 23 passed, 1.4m.
 
 These passes establish current behavior only. They do not establish reduced
 height, the proposed visibility split, renovated-frame alignment, or acceptance
@@ -132,8 +132,8 @@ are available without another read, and useful focus and stage context survive.
 Taken count/clock/completion and short source qualifications stay apparent.
 During startup, evidence links stay readable despite protected actions.
 
-Before product edits, settle the source visibility decision and update the seed
-and this plan together. Recheck the frame's published visual foundation. Capture
+Implement the accepted scan/detail split recorded in the seed's UI section,
+reusing the frame's published visual foundation. Capture
 a representative ordinary Backlog card, Preparing card, branch Taken card,
 warning card, and card with a session at 1440px and 420px using the inspected
 browser fixtures. Retain the baseline's revision and conditions outside product
@@ -217,18 +217,12 @@ reading and actions, with no new workflow or deferred capability machinery.
 
 ## Current decisions and remaining concerns
 
-- **Slice 1 visibility decision:** the seed's scan-first split is recommended,
-  not accepted. Terry may retain mode/branch and source links in the scan view,
-  or move assignment into detail. Do not interpret this plan request or silence
-  as deciding that choice. Align source and plan before the dependent edit.
-- **Slice 1 and final visual proof:** the renovated-frame foundation is still
-  pending at the observed revision. Inspect it when published and reuse it;
-  final alignment remains unproved until the cards can be compared with it.
-  Do not copy another worktree's unfinished foundation or invent a substitute
-  while reporting the source's alignment promise complete.
+- **Slice 1 visibility:** Terry accepted the seed's scan-first split on
+  2026-10-03.
+- **Frame foundation:** published on trunk; slice 1 and the final screenshots
+  reuse and compare against it.
 - No remaining slice-boundary, cumulative-design or proof-ownership concern
-  was identified in this review. The two concerns above are source/availability
-  concerns, not a reason to invoke plan refinement to make a human decision.
+  was identified in this review.
 - Screenshots/height measurements are future execution proof, not obtained
   acceptance. The preparation recorder owns readiness; no plan status or
   execution-complete record is created here.
