@@ -76,7 +76,7 @@ a second terminal implementation, or a catalog of Cursor's trust wording.
 
 ### 1. Enter the launch instruction into the Cursor terminal
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npm run test:dashboard -- agent-terminal-cursor-launch.spec.ts agent-terminal-cursor-launch-page.spec.ts agent-launch-cursor-model.spec.ts agent-launch-start-cursor.spec.ts agent-launch-preparation-cursor.spec.ts agent-launch-ad-hoc-cursor.spec.ts agent-terminal-cursor.spec.ts agent-terminal-cursor-idle.spec.ts agent-terminal-boundary.spec.ts`
 
 Behavior: the developer starts Cursor work that carries an instruction
@@ -144,3 +144,40 @@ launch-wait notice, and the attach wait that existed only for it. Update
 - No numeric slice target or hard limit was supplied. This slice is one proof
   loop: the launch instruction and the terminal the developer sees are the
   same client.
+- The launch client's screen size is `cursorTerminalSize` on the process it
+  was spawned with. The registry does not keep a second size.
+
+## Accepted proof
+
+Promise: an instructed Cursor start shows that kept client, accepts typing,
+and does not show a launch-wait notice or start a second agent. The same
+client covers a typed answer, close-and-reopen while working, a model only on
+the first process, a non-ready screen that later receives the instruction,
+and an idle finished prompt that ends so the next open can take a follow-up.
+Claude still passes output, input, and close through the shared client.
+
+Boundary: Cursor launch and the kept terminal (`dashboard/server/hosts/cursor/launch.ts`,
+`dashboard/server/launchInstruction.ts`, `dashboard/server/terminalAttachments.ts`).
+
+Setup: `dashboard/tests/fixtures/fake-cursor` and `dashboard/tests/support/keptCursorTurn.ts`.
+
+Observations: `dashboard/tests/agent-terminal-cursor-launch.spec.ts` (instructed
+launch, typed answer, trust-then-ready, exit does not confirm, abort leaves
+the client), `dashboard/tests/agent-terminal-cursor-launch-page.spec.ts`,
+`dashboard/tests/agent-launch-cursor-model.spec.ts`,
+`dashboard/tests/agent-terminal-cursor-idle.spec.ts`, and
+`dashboard/tests/agent-terminal-boundary.spec.ts`.
+
+Command: `npm run test:dashboard -- agent-terminal-cursor-launch.spec.ts agent-terminal-cursor-launch-page.spec.ts agent-launch-cursor-model.spec.ts agent-launch-start-cursor.spec.ts agent-launch-preparation-cursor.spec.ts agent-launch-ad-hoc-cursor.spec.ts agent-terminal-cursor.spec.ts agent-terminal-cursor-idle.spec.ts agent-terminal-boundary.spec.ts`
+
+Result: pass, after the refactor as well. Session, completion, and the Cursor
+terminal page specs passed on the same launch: `agent-session-cursor.spec.ts`,
+`agent-completion-cursor.spec.ts`, `agent-terminal-cursor-page.spec.ts`.
+
+## Execution
+
+Story Branch Mode. Workspace
+`.worktrees/see-and-instruct-a-cursor-agent-from-the-start`, branch
+`cursor/see-and-instruct-a-cursor-agent-from-the-start`. Claim
+`4981f17b7494882974712c33cd83142a288ca4c8` is on `origin/main`. The increment
+publishes to that execution branch, not to trunk.

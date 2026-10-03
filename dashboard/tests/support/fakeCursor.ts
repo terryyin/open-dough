@@ -1,11 +1,11 @@
 // PATH stand-in for `cursor-agent`. The dashboard server and the page create
-// the launch record. Launch argv is create-chat and a prompted resume.
-// A resume with no prompt is a separate attach record and exits on SIGHUP.
-// Working mode paints `ctrl+c to stop`. The default attach screen is the
-// ordinary finished prompt. Waiting mode paints the clarifying question.
-// Unrecognized mode paints neither the prompt nor a question. Each redraws
-// on SIGWINCH.
-// `holdPrompt` keeps the prompted resume until `releasePrompt()`.
+// the launch record. Launch argv is create-chat. A resume with no prompt
+// argument, including `--model` and no prompt, is a separate attach record
+// and exits on SIGHUP. Working mode paints `ctrl+c to stop`. The default
+// attach screen is the ordinary finished prompt. Waiting mode paints the
+// clarifying question. Trust mode paints a screen that is not ready for an
+// instruction. Unrecognized mode paints neither the prompt nor a question.
+// Each redraws on SIGWINCH. `showReady()` repaints the ordinary prompt.
 // `models` prints the configured listing in the observed layout, or fails.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -35,11 +35,7 @@ export type CursorAttach = {
   readonly cols: number;
   readonly rows: number;
   readonly sessionId: string;
-};
-
-export type HeldPrompt = {
-  readonly pid: number;
-  readonly args: readonly string[];
+  readonly stored: string | null;
 };
 
 export type FakeCursor = {
@@ -57,9 +53,8 @@ export type FakeCursor = {
   signals(pid: number): string;
   input(pid: number): string;
   sizes(pid: number): { readonly cols: number; readonly rows: number }[];
-  heldPrompts(): HeldPrompt[];
-  heldInput(pid: number): string;
-  releasePrompt(): void;
+  // Repaint the ordinary follow-up prompt on the running terminal client.
+  showReady(): void;
   cleanup(): void;
 };
 
@@ -81,8 +76,9 @@ function readJsonl<T>(file: string): T[] {
 
 export function installFakeCursor(options?: {
   readonly working?: boolean;
-  readonly screen?: "working" | "waiting" | "unrecognized";
-  readonly holdPrompt?: boolean;
+  readonly screen?: "working" | "waiting" | "unrecognized" | "trust";
+  readonly becomeReady?: boolean;
+  readonly paintDelayMs?: number;
 }): FakeCursor {
   const root = mkdtempSync(path.join(tmpdir(), "dough-cursor-"));
   const binDir = path.join(root, "bin");
@@ -90,8 +86,7 @@ export function installFakeCursor(options?: {
   const modelsPath = path.join(root, "models.txt");
   const modelsLogPath = path.join(root, "models.jsonl");
   const attachDir = path.join(root, "attach");
-  const holdDir = path.join(root, "hold");
-  const releasePath = path.join(root, "release");
+  const readyPath = path.join(root, "ready");
   installFixtureExecutable("fake-cursor", binDir, "cursor-agent");
   const attaches = (): CursorAttach[] =>
     readJsonl(path.join(attachDir, "attaches.jsonl"));
@@ -113,8 +108,6 @@ export function installFakeCursor(options?: {
     );
   };
   listModels(cursorModels);
-  const heldPrompts = (): HeldPrompt[] =>
-    readJsonl(path.join(holdDir, "holds.jsonl"));
   const screen =
     options?.screen ?? (options?.working === true ? "working" : undefined);
   return {
@@ -127,12 +120,12 @@ export function installFakeCursor(options?: {
       FAKE_CURSOR_MODELS: modelsPath,
       FAKE_CURSOR_MODELS_LOG: modelsLogPath,
       ...(screen !== undefined ? { FAKE_CURSOR_ATTACH_MODE: screen } : {}),
-      ...(options?.holdPrompt === true
-        ? {
-            FAKE_CURSOR_RELEASE: releasePath,
-            FAKE_CURSOR_HOLD_DIR: holdDir,
-          }
+      ...(options?.becomeReady === true
+        ? { FAKE_CURSOR_BECOME_READY: readyPath }
         : {}),
+      ...(options?.paintDelayMs === undefined
+        ? {}
+        : { FAKE_CURSOR_PAINT_DELAY_MS: String(options.paintDelayMs) }),
     },
     calls() {
       return readJsonl<CursorInvocation>(logPath);
@@ -151,21 +144,10 @@ export function installFakeCursor(options?: {
     sizes(pid: number) {
       return readJsonl(path.join(attachDir, `${String(pid)}.sizes`));
     },
-    heldPrompts,
-    heldInput(pid: number) {
-      return readOptional(path.join(holdDir, `${String(pid)}.input`)) ?? "";
-    },
-    releasePrompt() {
-      writeFileSync(releasePath, "");
+    showReady() {
+      writeFileSync(readyPath, "");
     },
     cleanup() {
-      for (const held of heldPrompts()) {
-        try {
-          process.kill(held.pid, "SIGTERM");
-        } catch {
-          // Already gone.
-        }
-      }
       for (const attach of attaches()) {
         try {
           process.kill(attach.pid, "SIGTERM");

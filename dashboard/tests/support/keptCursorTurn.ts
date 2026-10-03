@@ -1,6 +1,7 @@
 // Setup and admission for a working Cursor terminal client. The boundary
 // spec drives detach, join, and server shutdown against these helpers.
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
@@ -37,6 +38,35 @@ export function codexResumeLog(server: DashboardServer): string {
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return "";
     throw error;
+  }
+}
+
+export function enteredInstruction(cursor: FakeCursor, pid: number): string {
+  return cursor.input(pid).replace(/\r$/u, "");
+}
+
+// Starts one dashboard around `cursor` and removes the machine directory
+// afterwards. The body sees the running server.
+export async function withCursorLaunch(
+  mode: "dev" | "preview",
+  cursor: FakeCursor,
+  body: (server: DashboardServer) => Promise<void>,
+  launchTimeoutMs?: number,
+): Promise<void> {
+  const machine = mkdtempSync(path.join(tmpdir(), "dough-cursor-launch-"));
+  let server: DashboardServer | undefined;
+  try {
+    server = await startCursorDashboard(
+      mode,
+      cursor,
+      machine,
+      launchTimeoutMs === undefined ? undefined : { launchTimeoutMs },
+    );
+    await body(server);
+  } finally {
+    await server?.close();
+    cursor.cleanup();
+    rmSync(machine, { recursive: true, force: true });
   }
 }
 
@@ -87,6 +117,7 @@ export async function stayedUp(
   expect(ended).toBe(false);
   expect(processRunning(pid)).toBe(true);
   expect(cursor.signals(pid)).not.toContain("SIGHUP");
-  expect(cursor.attaches()).toHaveLength(1);
-  expect(cursor.attaches()[0]?.pid).toBe(pid);
+  expect(
+    cursor.attaches().filter((attach) => processRunning(attach.pid)),
+  ).toEqual([expect.objectContaining({ pid })]);
 }

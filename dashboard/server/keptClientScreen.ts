@@ -19,7 +19,13 @@ const { Terminal: HeadlessTerminal } = require("@xterm/headless") as {
 
 export class KeptClientScreen {
   private readonly terminal: Terminal;
+  private readonly csi: { dispose(): void }[];
   private pending: Promise<void> = Promise.resolve();
+  // The page starts hidden and learns `?25` from the stream. A screen that
+  // never shows the cursor is not ready for an instruction.
+  private cursorOn = false;
+  private framePending = false;
+  private frameDone = false;
 
   constructor(cols: number, rows: number) {
     // The buffer is proposed API on this build. The page reads the same
@@ -29,6 +35,40 @@ export class KeptClientScreen {
       rows,
       allowProposedApi: true,
     });
+    const mode = (enabled: boolean, params: number[]) => {
+      if (params.includes(2026)) {
+        this.framePending = enabled;
+        if (!enabled) this.frameDone = true;
+      }
+      if (params.includes(25)) this.cursorOn = enabled;
+      return false;
+    };
+    const values = (params: (number | number[])[]) =>
+      params.filter((item): item is number => typeof item === "number");
+    this.csi = [
+      this.terminal.parser.registerCsiHandler(
+        { prefix: "?", final: "h" },
+        (params) => mode(true, values(params)),
+      ),
+      this.terminal.parser.registerCsiHandler(
+        { prefix: "?", final: "l" },
+        (params) => mode(false, values(params)),
+      ),
+    ];
+  }
+
+  cursorVisible(): boolean {
+    return this.cursorOn;
+  }
+
+  // A synchronized update (`?2026`) has finished and none is open. The page
+  // reports readiness on that same boundary.
+  completedFrame(): boolean {
+    return this.frameDone && !this.framePending;
+  }
+
+  takeFrame(): void {
+    this.frameDone = false;
   }
 
   write(data: string): void {
@@ -66,6 +106,7 @@ export class KeptClientScreen {
   }
 
   dispose(): void {
+    for (const handler of this.csi) handler.dispose();
     this.terminal.dispose();
   }
 }

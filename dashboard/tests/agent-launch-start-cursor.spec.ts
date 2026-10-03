@@ -11,14 +11,13 @@ import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, test } from "./support/cursorStart.ts";
-import type { CursorInvocation } from "./support/fakeCursor.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 
-function recordsIn(call: CursorInvocation): LaunchRecord[] {
-  if (call.stored === null) return [];
-  const document = JSON.parse(call.stored) as Record<string, LaunchRecord[]>;
+function recordsIn(stored: string | null): LaunchRecord[] {
+  if (stored === null) return [];
+  const document = JSON.parse(stored) as Record<string, LaunchRecord[]>;
   return document["open-dough"] ?? [];
 }
 
@@ -62,16 +61,19 @@ test("a queued story starts Cursor execution in the dashboard workspace and the 
     entry.getByRole("button", { name: "Open terminal" }),
   ).toHaveCount(1);
 
-  const [created, prompted, ...rest] = cursor.calls();
-  expect(rest).toEqual([]);
-  if (created === undefined || prompted === undefined) {
-    throw new Error("Cursor did not record create-chat and the prompt.");
+  expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
+  const created = cursor.calls()[0];
+  if (created === undefined) {
+    throw new Error("Cursor did not record create-chat.");
   }
-  expect(created.args).toEqual(["create-chat"]);
   expect(created.executable.endsWith(`${path.sep}cursor-agent`)).toBe(true);
   expect(created.stored).toBeNull();
   const workspace = path.join(origin.project, ".worktrees", "story-a");
-  const [keptDuringPrompt] = recordsIn(prompted);
+  const client = cursor.attaches()[0];
+  if (client === undefined) {
+    throw new Error("Cursor did not start a terminal client.");
+  }
+  const [keptDuringPrompt] = recordsIn(client.stored);
   expect(keptDuringPrompt?.session).toMatchObject({
     host: "cursor",
     sessionId: cursor.sessionId,
@@ -90,14 +92,13 @@ test("a queued story starts Cursor execution in the dashboard workspace and the 
     ),
   ) as Record<string, LaunchRecord[]>;
   const [record] = kept["open-dough"] ?? [];
-  const prompt = prompted.args.at(-1) ?? "";
-  expect(prompted.executable.endsWith(`${path.sep}cursor-agent`)).toBe(true);
-  expect(prompted.args).toEqual([
+  const prompt = cursor.input(client.pid).replace(/\r$/u, "");
+  expect(client.executable.endsWith(`${path.sep}cursor-agent`)).toBe(true);
+  expect(client.args).toEqual([
     "--workspace",
     workspace,
     "--resume",
     cursor.sessionId,
-    prompt,
   ]);
   expect(record?.session).toMatchObject({
     host: "cursor",
@@ -114,7 +115,7 @@ test("a queued story starts Cursor execution in the dashboard workspace and the 
     },
   });
   for (const flag of omitted) {
-    expect(prompted.args).not.toContain(flag);
+    expect(client.args).not.toContain(flag);
     expect(
       record?.session.host === "cursor" ? record.session.continuation.args : [],
     ).not.toContain(flag);

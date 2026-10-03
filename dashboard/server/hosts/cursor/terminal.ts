@@ -6,15 +6,42 @@
 // uuid. The result declares keep: closing the socket leaves this process
 // running, and a later terminal for the session joins it. It also declares
 // the idle end rule: a detached client whose screen stays idle is hung up,
-// and the next open starts a new client. While the launch prompt's process
-// is still running, the result is a wait: no client starts until it exits.
-import { spawn as spawnPty } from "@lydell/node-pty";
+// and the next open starts a new client. A launch that already kept a
+// client is joined instead of started again.
+import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
 import type { LaunchHost } from "../../launchHosts.ts";
 import { cursorDetachedIdle, cursorIdleSettleMs } from "./idleScreen.ts";
-import { runningPromptExit } from "./runningPrompt.ts";
 
-const launchWaitNotice =
-  "Cursor is still working on this session's launch prompt. The terminal opens when it finishes.";
+export const cursorTerminalSize = { cols: 80, rows: 24 } as const;
+
+export function cursorReady(screen: string, cursorVisible: boolean): boolean {
+  return cursorVisible && screen.includes("Add a follow-up");
+}
+
+// Attach and an instructed launch share this declaration. A visible cursor
+// and `Add a follow-up` admit the terminal. A detached idle screen hangs
+// the client up after the settle period.
+export const cursorKeptTerminal = {
+  ready: cursorReady,
+  detachedIdle: {
+    settleMs: cursorIdleSettleMs,
+    matches: cursorDetachedIdle,
+  },
+};
+
+export function spawnCursorPty(
+  command: string,
+  args: readonly string[],
+  cwd: string,
+  size: { readonly cols: number; readonly rows: number },
+): IPty {
+  return spawnPty(command, [...args], {
+    name: "xterm-256color",
+    cwd,
+    cols: size.cols,
+    rows: size.rows,
+  });
+}
 
 export const attachCursor: NonNullable<LaunchHost["attach"]> = (
   ...[session, , size]
@@ -22,30 +49,14 @@ export const attachCursor: NonNullable<LaunchHost["attach"]> = (
   if (session.host !== "cursor") {
     throw new Error("This is not a Cursor session.");
   }
-  const wait = runningPromptExit(session.sessionId);
-  if (wait !== undefined) {
-    return { wait, notice: launchWaitNotice };
-  }
   const { continuation } = session;
   const [command, ...args] = continuation.args;
   if (command === undefined) {
     throw new Error("This Cursor conversation has no saved resume command.");
   }
-  const pty = spawnPty(command, args, {
-    name: "xterm-256color",
-    cwd: continuation.workspace,
-    cols: size.cols,
-    rows: size.rows,
-  });
   return {
-    pty,
+    pty: spawnCursorPty(command, args, continuation.workspace, size),
     keep: true,
-    detachedIdle: {
-      settleMs: cursorIdleSettleMs,
-      matches: cursorDetachedIdle,
-    },
-    ready(screen, cursorVisible) {
-      return cursorVisible && screen.includes("Add a follow-up");
-    },
+    ...cursorKeptTerminal,
   };
 };

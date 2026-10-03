@@ -137,12 +137,16 @@ test("a launched Cursor session is visible without borrowed activity, stop, or r
   ).toHaveCount(0);
 
   const callsAfterView = cursor.calls().map((call) => call.args);
-  const prompt = callsAfterView[1]?.at(-1) ?? "";
+  const client = cursor.attaches()[0];
+  const prompt = cursor.input(client?.pid ?? 0).replace(/\r$/u, "");
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expectAdHocReportingInput(prompt, instruction, record?.request, dashboard);
-  expect(callsAfterView).toEqual([
-    ["create-chat"],
-    ["--workspace", origin.project, "--resume", cursor.sessionId, prompt],
+  expect(callsAfterView).toEqual([["create-chat"]]);
+  expect(client?.args).toEqual([
+    "--workspace",
+    origin.project,
+    "--resume",
+    cursor.sessionId,
   ]);
   expect(dashboard.claudeCalls()).toEqual([]);
   expect(dashboard.codex.calls).toEqual([]);

@@ -2,28 +2,21 @@
 // out; input and resize from any socket reach the process. Keep leaves the
 // process running when its last socket drops, and an idle screen then hangs
 // it up after the settle period. Otherwise the last close hangs it up.
-// The registry decides which clients are still live.
+// A launch instruction is entered from the server-side screen and holds that
+// idle rule until the write. The registry decides which clients are still live.
 import type { IPty } from "@lydell/node-pty";
 import type { WebSocket } from "ws";
 import type { DetachedIdle, UnavailableWorkspace } from "./launchHosts.ts";
-import { setRecordDoneAt } from "./launchRecordStore.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import {
   detachedIdleWatch,
   type DetachedIdleWatch,
 } from "./detachedIdleWatch.ts";
+import { JoinedSockets } from "./joinedSockets.ts";
 import {
-  closeClientSocket,
-  closeUnlessTerminalMessage,
-  sendControl,
-} from "./terminalSocketFrame.ts";
-
-type LiveSocket = {
-  readonly ws: WebSocket;
-  readonly reopen: () => Promise<unknown>;
-  ready: boolean;
-  reopened: Promise<unknown>;
-};
+  LaunchInstruction,
+  type LaunchInstructionInput,
+} from "./launchInstruction.ts";
 
 type LiveTerminalClientInput = {
   readonly pty: IPty;
@@ -36,6 +29,8 @@ type LiveTerminalClientInput = {
     ((screen: string, cursorVisible: boolean) => boolean) | undefined;
   readonly startupFailure: (() => UnavailableWorkspace | undefined) | undefined;
   readonly detachedIdle?: DetachedIdle;
+  // Absent when this client was not started with a launch instruction.
+  readonly launchInput?: LaunchInstructionInput;
   // The registry's live set. Messages are ignored once the client is gone,
   // and hangup is a no-op the second time.
   readonly isTracked: () => boolean;
@@ -46,36 +41,65 @@ export class LiveTerminalClient {
   readonly pty: IPty;
   readonly key: string;
   readonly keep: boolean;
-  private readonly hostName: string;
-  private readonly sockets: LiveSocket[] = [];
-  private readonly readiness:
-    ((screen: string, cursorVisible: boolean) => boolean) | undefined;
-  private readonly startupFailure:
-    (() => UnavailableWorkspace | undefined) | undefined;
+  // Resolves when the first completed screen has been judged, or the client
+  // has exited. Later screens can still accept the instruction. Already
+  // resolved when this client has no launch instruction.
+  readonly firstScreen: Promise<void>;
+  private readonly sockets: JoinedSockets;
   private readonly isTracked: () => boolean;
   private readonly untrack: () => boolean;
   private idle: DetachedIdleWatch | undefined;
-  private admitted: boolean;
   private size: { cols: number; rows: number };
+  private readonly launch: LaunchInstruction | undefined;
 
   constructor(input: LiveTerminalClientInput) {
     this.pty = input.pty;
     this.key = input.key;
     this.keep = input.keep;
-    this.hostName = input.hostName;
-    this.readiness = input.readiness;
-    this.startupFailure = input.startupFailure;
     this.isTracked = input.isTracked;
     this.untrack = input.untrack;
+    this.size = { cols: input.size.cols, rows: input.size.rows };
+    this.sockets = new JoinedSockets({
+      hostName: input.hostName,
+      admitted: input.admitted,
+      readiness: input.readiness,
+      startupFailure: input.startupFailure,
+      isTracked: () => this.isTracked(),
+      writeInput: (data) => {
+        this.pty.write(data);
+      },
+      resize: (cols, rows) => {
+        this.resize(cols, rows);
+      },
+      onDropped: (remaining) => {
+        this.socketDropped(remaining);
+      },
+    });
     this.idle = detachedIdleWatch(input.detachedIdle, input.size, {
       isTracked: () => this.isTracked(),
-      detached: () => this.sockets.length === 0,
+      detached: () => !this.sockets.hasOpen(),
       hangup: () => {
         this.hangup();
       },
     });
-    this.admitted = input.admitted;
-    this.size = { cols: input.size.cols, rows: input.size.rows };
+    this.launch =
+      input.launchInput === undefined
+        ? undefined
+        : new LaunchInstruction(input.launchInput, input.size, {
+            tracked: () => this.isTracked(),
+            writeInstruction: (data) => {
+              try {
+                this.pty.write(data);
+                return true;
+              } catch {
+                return false;
+              }
+            },
+            holdReleased: () => {
+              if (!this.sockets.hasOpen()) this.idle?.watch();
+            },
+          });
+    this.firstScreen = this.launch?.firstScreen ?? Promise.resolve();
   }
 
   // Registers process output and exit. Call once, after the registry tracks
@@ -83,61 +107,38 @@ export class LiveTerminalClient {
   watch(): void {
     this.pty.onData((output) => {
       this.idle?.write(output);
-      if (this.sockets.length === 0) this.idle?.watch();
-      for (const socket of [...this.sockets]) {
-        void socket.reopened.then(() => {
-          if (socket.ws.readyState === socket.ws.OPEN) {
-            socket.ws.send(output);
-          }
-        });
+      this.launch?.write(output);
+      if (!this.sockets.hasOpen() && !this.launch?.holdsIdle()) {
+        this.idle?.watch();
       }
+      this.sockets.send(output);
     });
     // Exited on its own. A socket-only detach does not reach this for a
     // kept client, because that client stays tracked.
     this.pty.onExit(() => {
+      this.launch?.clientExited();
       this.releaseIdle();
       if (!this.untrack()) return;
-      for (const socket of [...this.sockets]) {
-        this.closeSocket(socket);
-      }
+      this.sockets.closeAll();
     });
   }
 
   attach(ws: WebSocket, session: TerminalSession, joining: boolean): void {
     this.idle?.hold();
-    const socket: LiveSocket = {
-      ws,
-      reopen: () =>
-        session.markedDone
-          ? setRecordDoneAt(session.sourceId, session.session, undefined).catch(
-              () => undefined,
-            )
-          : Promise.resolve(),
-      ready: false,
-      reopened: Promise.resolve(),
-    };
-    if (this.admitted) {
-      socket.ready = true;
-      socket.reopened = joining ? Promise.resolve() : socket.reopen();
-    }
-    this.sockets.push(socket);
-    this.listen(socket);
-    if (!this.admitted && this.readiness !== undefined) {
-      sendControl(ws, { readiness: "observe" });
-    } else if (joining && this.admitted) {
-      // The client was already admitted, so the new socket does not wait.
-      // The one-column nudge makes the native client redraw for this socket.
-      sendControl(ws, { readiness: "attached" });
+    this.sockets.attach(ws, session, joining);
+    if (joining) {
+      // Output from before this socket is still on the client. The nudge
+      // makes it paint that screen again.
       this.redraw();
     }
   }
 
   hasOpenSocket(): boolean {
-    return this.sockets.length > 0;
+    return this.sockets.hasOpen();
   }
 
   attachedSockets(): readonly WebSocket[] {
-    return this.sockets.map((socket) => socket.ws);
+    return this.sockets.attached();
   }
 
   // SIGHUP. The registry uses this for a host that did not declare keep, and
@@ -152,49 +153,15 @@ export class LiveTerminalClient {
     }
   }
 
-  private listen(socket: LiveSocket): void {
-    socket.ws.on("message", (data, isBinary) => {
-      const message = closeUnlessTerminalMessage(socket.ws, data, isBinary);
-      if (message === undefined) return;
-      if (!this.isTracked()) return;
-      if ("screen" in message) {
-        if (
-          !this.admitted &&
-          this.readiness?.(message.screen.join("\n"), message.cursorVisible)
-        ) {
-          this.admit();
-        }
-      } else if ("input" in message) {
-        this.pty.write(message.input);
-      } else {
-        try {
-          this.idle?.resize(message.resize.cols, message.resize.rows);
-          this.pty.resize(message.resize.cols, message.resize.rows);
-          this.size = {
-            cols: message.resize.cols,
-            rows: message.resize.rows,
-          };
-        } catch {
-          // The native descriptor can close before its exit callback arrives.
-          this.lostDescriptor();
-        }
-      }
-    });
-    socket.ws.on("close", () => {
-      this.dropSocket(socket);
-    });
-  }
-
-  private admit(): void {
-    if (this.admitted) return;
-    this.admitted = true;
-    for (const socket of [...this.sockets]) {
-      if (socket.ready) continue;
-      socket.ready = true;
-      socket.reopened = socket.reopen();
-      void socket.reopened.then(() => {
-        sendControl(socket.ws, { readiness: "attached" });
-      });
+  private resize(cols: number, rows: number): void {
+    try {
+      this.idle?.resize(cols, rows);
+      this.launch?.resize(cols, rows);
+      this.pty.resize(cols, rows);
+      this.size = { cols, rows };
+    } catch {
+      // The native descriptor can close before its exit callback arrives.
+      this.lostDescriptor();
     }
   }
 
@@ -206,8 +173,10 @@ export class LiveTerminalClient {
     const { cols, rows } = this.size;
     try {
       this.idle?.resize(cols + 1, rows);
+      this.launch?.resize(cols + 1, rows);
       this.pty.resize(cols + 1, rows);
       this.idle?.resize(cols, rows);
+      this.launch?.resize(cols, rows);
       this.pty.resize(cols, rows);
     } catch {
       this.lostDescriptor();
@@ -218,30 +187,16 @@ export class LiveTerminalClient {
     const idle = this.idle;
     this.idle = undefined;
     idle?.dispose();
+    this.launch?.dispose();
   }
 
-  private dropSocket(socket: LiveSocket): void {
-    const index = this.sockets.indexOf(socket);
-    if (index < 0) return;
-    this.sockets.splice(index, 1);
+  private socketDropped(remaining: number): void {
     if (!this.keep) this.hangup();
-    else if (this.sockets.length === 0) this.idle?.watch();
+    else if (remaining === 0 && !this.launch?.holdsIdle()) this.idle?.watch();
   }
 
   private lostDescriptor(): void {
-    const sockets = [...this.sockets];
     this.hangup();
-    for (const socket of sockets) this.closeSocket(socket);
-  }
-
-  private closeSocket(socket: LiveSocket): void {
-    void socket.reopened.then(() => {
-      closeClientSocket(
-        socket.ws,
-        socket.ready,
-        this.hostName,
-        socket.ready ? undefined : this.startupFailure?.(),
-      );
-    });
+    this.sockets.closeAll();
   }
 }

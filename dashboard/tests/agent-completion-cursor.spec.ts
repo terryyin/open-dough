@@ -38,9 +38,10 @@ test("Cursor installed report offers local Done without a native stop capability
   if (record?.request.reporting === undefined)
     throw new Error("Missing Cursor context");
   const context = record.request.reporting;
-  expect(cursor.calls().at(-1)?.args.at(-1)).toContain(context.command);
-  expect(cursor.calls()[0]?.args).toEqual(["create-chat"]);
-  expect(cursor.calls().at(-1)?.args.slice(0, 4)).toEqual([
+  expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
+  const client = cursor.attaches()[0];
+  expect(cursor.input(client?.pid ?? 0)).toContain(context.command);
+  expect(client?.args.slice(0, 4)).toEqual([
     "--workspace",
     record.start?.workspace,
     "--resume",

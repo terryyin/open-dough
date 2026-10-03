@@ -61,8 +61,10 @@ async function join(
     quiet = !grew;
     if (grew) painted = cursor.sizes(pid).length;
   }
-  expect(cursor.attaches()).toHaveLength(1);
-  expect(cursor.attaches()[0]?.pid).toBe(pid);
+  expect(cursor.attaches().some((attach) => attach.pid === pid)).toBe(true);
+  expect(
+    cursor.attaches().filter((attach) => processRunning(attach.pid)),
+  ).toEqual([expect.objectContaining({ pid })]);
   expect(processRunning(pid)).toBe(true);
   return terminal;
 }
@@ -105,7 +107,20 @@ for (const mode of ["dev", "preview"] as const) {
           "--resume",
           sessionId,
         ]);
-        expect(cursor.attaches()).toEqual([]);
+        expect(cursor.calls().map((call) => call.args)).toEqual([
+          ["create-chat"],
+        ]);
+        expect(cursor.attaches()).toHaveLength(1);
+        const client = cursor.attaches()[0];
+        expect(client?.args).toEqual([
+          "--workspace",
+          workspace,
+          "--resume",
+          sessionId,
+        ]);
+        expect(cursor.input(client?.pid ?? 0).replace(/\r$/u, "")).toBe(
+          recorded.firstInput?.instruction,
+        );
 
         await server.close();
         server = undefined;
@@ -118,7 +133,7 @@ for (const mode of ["dev", "preview"] as const) {
 
         const terminal = await openCursorTerminal(server, sessionId);
         await admit(terminal);
-        const attach = cursor.attaches()[0];
+        const attach = cursor.attaches()[1];
         expect(attach).toMatchObject({
           cwd: realpathSync(workspace),
           cols: 80,
@@ -129,10 +144,10 @@ for (const mode of ["dev", "preview"] as const) {
         expect(attach?.executable.endsWith(`${path.sep}cursor-agent`)).toBe(
           true,
         );
-        expect(cursor.calls().map((call) => call.args.at(-1))).toEqual([
-          "create-chat",
-          instruction,
+        expect(cursor.calls().map((call) => call.args)).toEqual([
+          ["create-chat"],
         ]);
+        expect(cursor.attaches()).toHaveLength(2);
         expect(server.claudeAttaches()).toEqual([]);
         expect(codexResumeLog(server)).toBe("");
         const pid = attach?.pid ?? 0;
@@ -181,8 +196,8 @@ for (const mode of ["dev", "preview"] as const) {
                   next.output() === added(),
               )
               .toBe(true);
-            expect(cursor.attaches()).toHaveLength(1);
-            expect(cursor.attaches()[0]?.pid).toBe(pid);
+            expect(cursor.attaches()).toHaveLength(2);
+            expect(cursor.attaches()[1]?.pid).toBe(pid);
             return next;
           });
 

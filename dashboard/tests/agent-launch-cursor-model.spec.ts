@@ -14,6 +14,7 @@ import { startSessionField } from "./launchCardPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, test } from "./support/cursorStart.ts";
 import { cursorModels } from "./support/fakeCursor.ts";
+import { processRunning } from "./support/processGroup.ts";
 import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
 
 const savedNote =
@@ -79,20 +80,21 @@ test("execution on a Cursor-listed model sends it on the prompted run only and d
     exact: true,
   });
   await expect(entry).toContainText("First input accepted");
-  const [created, prompted, ...rest] = cursor.calls();
-  expect(rest).toEqual([]);
-  expect(created?.args).toEqual(["create-chat"]);
+  expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
   const workspace = path.join(origin.project, ".worktrees", "story-a");
-  const prompt = prompted?.args.at(-1) ?? "";
+  const client = cursor.attaches()[0];
+  if (client === undefined) {
+    throw new Error("Cursor did not start a terminal client.");
+  }
+  const prompt = cursor.input(client.pid).replace(/\r$/u, "");
   expect(prompt.split("\n\n")[0]).toMatch(/^\/dough-execute-plan /);
-  expect(prompted?.args).toEqual([
+  expect(client.args).toEqual([
     "--workspace",
     workspace,
     "--resume",
     cursor.sessionId,
     "--model",
     "gpt-5.2",
-    prompt,
   ]);
   const record = keptRecord(dashboard.home);
   expect(record.request.model).toBe("gpt-5.2");
@@ -109,6 +111,17 @@ test("execution on a Cursor-listed model sends it on the prompted run only and d
       ],
     },
   });
+  await expect.poll(() => cursor.signals(client.pid)).toContain("SIGHUP");
+  expect(processRunning(client.pid)).toBe(false);
+  await entry.getByRole("button", { name: "Open terminal" }).click();
+  await expect.poll(() => cursor.attaches()).toHaveLength(2);
+  expect(cursor.attaches()[1]?.args).toEqual([
+    "--workspace",
+    workspace,
+    "--resume",
+    cursor.sessionId,
+  ]);
+  expect(cursor.input(cursor.attaches()[1]?.pid ?? 0)).not.toContain("gpt-5.2");
   expect(await origin.takenProfiles()).toEqual([
     expect.objectContaining({ host: "cursor", model: "gpt-5.2" }),
   ]);
@@ -169,22 +182,23 @@ test("an unreadable Cursor list is explained, Retry rereads it, and Default stil
   await expect(parts(page).recentSessions.getByRole("article")).toContainText(
     "First input accepted",
   );
-  const [created, prompted, ...rest] = cursor.calls();
-  expect(rest).toEqual([]);
-  expect(created?.args).toEqual(["create-chat"]);
-  const prompt = prompted?.args.at(-1) ?? "";
+  expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
+  const client = cursor.attaches()[0];
+  if (client === undefined) {
+    throw new Error("Cursor did not start a terminal client.");
+  }
+  const prompt = cursor.input(client.pid).replace(/\r$/u, "");
   expectAdHocReportingInput(
     prompt,
     "why is the CI slow?",
     keptRecord(dashboard.home).request,
     dashboard,
   );
-  expect(prompted?.args).toEqual([
+  expect(client.args).toEqual([
     "--workspace",
     origin.project,
     "--resume",
     cursor.sessionId,
-    prompt,
   ]);
   expect(keptRecord(dashboard.home).request).not.toHaveProperty("model");
 });

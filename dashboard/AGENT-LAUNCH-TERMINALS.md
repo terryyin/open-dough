@@ -6,8 +6,16 @@ uses saved native conversations for terminal attachment and local record actions
 Same-origin `/__agent-terminal?source=&host=&session=` admits recorded host-qualified
 sessions in existing project folders. Claude uses `claude attach <native alias>`;
 Codex uses the saved ID, endpoint and workspace with ordinary `codex resume`
-and `--no-alt-screen`. Cursor runs the stored
-`cursor-agent --workspace <recorded path> --resume <uuid>`. A visible cursor
+and `--no-alt-screen`. An instructed Cursor launch starts one kept client,
+`cursor-agent --workspace <recorded path> --resume <uuid>`, before the panel
+opens. `--model` is an argument of that first client only. The stored resume
+command omits it, and a later open does not send it. The launch instruction
+is written into that client when its server-side screen has a visible cursor
+and `Add a follow-up`, and the record then says the first input was accepted.
+Until that screen, the instruction is not written, the record stays uncertain,
+and the developer can still type. The client exiting does not accept it.
+Opening the terminal joins that same client and shows its output. There is
+no launch-wait notice and no second client. A visible cursor
 and `Add a follow-up` admit that terminal. Cursor supplies no stop or rename,
 so native Mark as done stays absent for unreported sessions and Delete record remains. Unknown project/session, missing project folder and
 unavailable sessions are refused before attachment. Codex checks the saved
@@ -25,17 +33,11 @@ connection, leaves that client running. A kept Cursor client with no socket
 is hung up only after its screen has shown `→ Add a follow-up` for 0.203
 seconds without `ctrl+c to stop`, `Working`, `Running`, or
 `Clarifying Questions`. A working, waiting, or unrecognized screen keeps the
-client. The next socket for a client that is
+client. Idle hangup waits until the launch instruction has been entered,
+then uses that rule. The next socket for a client that is
 still running joins it, receives readiness at once, and sees a redrawn
 screen. After that idle hangup, the next socket starts a new client, which
-shows the ordinary prompt and takes a follow-up. Opening the terminal while
-that session's launch prompt is still running writes "Cursor is still working
-on this session's launch prompt. The terminal opens when it finishes." No
-attach process starts, and typed input is dropped. Closing and opening again
-during that wait writes the notice again. When the launch process exits, the
-open socket attaches through the same readiness path as any other open, and
-the ordinary prompt is shown. That later exit does not confirm the launch
-record's first input. Input from any joined socket
+shows the ordinary prompt and takes a follow-up. Input from any joined socket
 reaches that same client, and a second open terminal shares it. Closing the
 server still sends SIGHUP to every attachment client, including a kept Cursor
 client. CLI exit uses code 4000 so the page distinguishes

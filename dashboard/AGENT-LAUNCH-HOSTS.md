@@ -10,30 +10,38 @@ Attach and Mark as done availability is projected from that boundary's actual
 optional `attach` and `stop` operations in the machine-sessions answer. Browser
 controls also honor session state and workspace access; server admission retains
 its own missing-operation checks. Cursor's module launches with `create-chat`,
-then `cursor-agent --workspace` and `--resume` in the established workspace,
-and stores that id, workspace, and resume command, with no alias or endpoint.
-The launch does not pass `-w`, `--worktree`, `--trust`, `--force`, or `--yolo`.
-Attach is supplied: the embedded terminal runs that stored command. A visible
-cursor and the text `Add a follow-up` admit it. That attach result declares
-keep, so a detached terminal leaves the client running and a later open joins
-the same process instead of starting another, while the screen is working,
-waiting for an answer, or unrecognized. A detached client whose screen stays
-idle — `→ Add a follow-up` with no `ctrl+c to stop`, `Working`, `Running`,
-or `Clarifying Questions` — is hung up after 0.203
+then one kept terminal client, `cursor-agent --workspace` and `--resume` in
+the established workspace, and stores that id, workspace, and resume command,
+with no alias or endpoint. The launch does not pass `-w`, `--worktree`,
+`--trust`, `--force`, or `--yolo`. The instruction is written into that
+client when its server-side screen has a visible cursor and the text
+`Add a follow-up`. The record then says the first input was accepted. A
+screen that is not ready does not receive the instruction, the record stays
+uncertain, and the developer can still type. When that same client later
+becomes ready, it receives the instruction. The client exiting does not
+accept the instruction. The launch attempt settles once the client is running
+and that uncertain record is saved; acceptance of a later screen is recorded
+after the attempt returns. The launch wait's abort does not kill the client.
+Opening the terminal joins that client and shows its output. There is no
+launch-wait notice and no second `cursor-agent`. A blank ad hoc start still
+creates the session, submits nothing, and starts the client when opened.
+Attach is supplied: a later open with no client already kept runs the stored
+command. A visible cursor and the text `Add a follow-up` admit it. That
+attach result declares keep, so a detached terminal leaves the client running
+and a later open joins the same process instead of starting another, while
+the screen is working, waiting for an answer, or unrecognized. Idle hangup
+waits until the launch instruction has been entered, then a detached client
+whose screen stays idle — `→ Add a follow-up` with no `ctrl+c to stop`,
+`Working`, `Running`, or `Clarifying Questions` — is hung up after 0.203
 seconds, and the next open starts a new client. Stop is not supplied, so
 Mark as done stays absent.
-A client still running when the launch wait ends is the launched session.
-That process is kept, keyed by session, until it exits. While it runs, attach
-answers with a wait: the terminal writes "Cursor is still working on this
-session's launch prompt. The terminal opens when it finishes." and drops
-input, then starts the terminal client through the ordinary readiness path
-after the process exits. That exit does not confirm the first input.
 Cursor's Model menu lists `cursor-agent models` after "Default (your Cursor
 setting)": each `<id> - <name>` line, with no efforts and no configured model.
 An unreadable list is explained with Retry, and Default stays startable.
 Launch admission rechecks a chosen id against that list and refuses a stale
-one before `create-chat`. A chosen id is sent as `--model <id>` on the
-prompted launch run only; the stored resume command never carries it.
+one before `create-chat`. A chosen id is sent as `--model <id>` on that
+first terminal client only; the stored resume command never carries it, and
+opening again does not send it.
 Cursor also saves it as its model setting for later sessions, and the dialog
 says so; the dashboard does not restore that setting. A blank ad hoc start
 with a chosen model is refused before `create-chat`, because no Cursor run

@@ -15,13 +15,12 @@ import { startSessionField } from "./launchCardPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, test } from "./support/cursorStart.ts";
-import type { CursorInvocation } from "./support/fakeCursor.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 
-function recordsIn(call: CursorInvocation): LaunchRecord[] {
-  if (call.stored === null) return [];
-  const document = JSON.parse(call.stored) as Record<string, LaunchRecord[]>;
+function recordsIn(stored: string | null): LaunchRecord[] {
+  if (stored === null) return [];
+  const document = JSON.parse(stored) as Record<string, LaunchRecord[]>;
   return document["open-dough"] ?? [];
 }
 
@@ -128,41 +127,40 @@ for (const text of ["", "why is the CI slow?"]) {
       expect(record.session.continuation.args).not.toContain(flag);
     }
 
-    const calls = cursor.calls();
-    const [created, prompted, ...rest] = calls;
-    expect(rest).toEqual([]);
+    expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
+    const created = cursor.calls()[0];
     if (created === undefined) {
       throw new Error("Cursor did not record create-chat.");
     }
-    expect(created.args).toEqual(["create-chat"]);
     expect(created.executable.endsWith(`${path.sep}cursor-agent`)).toBe(true);
     expect(created.cwd).toBe(realpathSync(origin.project));
     expect(created.stored).toBeNull();
+    await expect.poll(() => cursor.attaches()).toHaveLength(1);
+    const client = cursor.attaches()[0];
+    if (client === undefined) {
+      throw new Error("Cursor did not start a terminal client.");
+    }
+    expect(client.args).toEqual([
+      "--workspace",
+      origin.project,
+      "--resume",
+      cursor.sessionId,
+    ]);
+    expect(client.cwd).toBe(realpathSync(origin.project));
+    for (const flag of omitted) expect(client.args).not.toContain(flag);
     if (blank) {
-      expect(prompted).toBeUndefined();
+      expect(cursor.input(client.pid)).toBe("");
       expect(record.firstInput).toEqual({
         state: "not-requested",
         intent: "blank",
       });
     } else {
-      if (prompted === undefined) {
-        throw new Error("Cursor did not record the instruction.");
-      }
-      const prompt = prompted.args.at(-1) ?? "";
+      const prompt = cursor.input(client.pid).replace(/\r$/u, "");
       expectAdHocReportingInput(prompt, text, record.request, dashboard);
       expect(prompt.split("\n\n")[0]).toBe(text);
       expect(prompt.split("\n\n")[0]).not.toContain("dough-");
       expect(prompt).not.toContain("Established ");
-      expect(prompted.args).toEqual([
-        "--workspace",
-        origin.project,
-        "--resume",
-        cursor.sessionId,
-        prompt,
-      ]);
-      expect(prompted.cwd).toBe(realpathSync(origin.project));
-      for (const flag of omitted) expect(prompted.args).not.toContain(flag);
-      const [during] = recordsIn(prompted);
+      const [during] = recordsIn(client.stored);
       expect(during?.session).toMatchObject({
         host: "cursor",
         sessionId: cursor.sessionId,
@@ -188,7 +186,7 @@ for (const text of ["", "why is the CI slow?"]) {
     await sidebar.button.click();
     await expect(sidebar.entries).toHaveCount(1);
     await expect(sidebar.entry(title)).toBeVisible();
-    expect(cursor.calls()).toHaveLength(blank ? 1 : 2);
+    expect(cursor.calls()).toHaveLength(1);
     expect(dashboard.claudeLaunchCalls()).toEqual([]);
   });
 }

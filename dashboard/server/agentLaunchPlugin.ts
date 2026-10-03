@@ -48,6 +48,7 @@ import {
 } from "./agentLaunchAdmission.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
 import { AgentTerminals } from "./agentTerminals.ts";
+import { bindCursorTerminal } from "./hosts/cursor/keptTerminal.ts";
 import { markSessionDone } from "./doneMarks.ts";
 import { deleteRecord } from "./launchRecordStore.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
@@ -213,6 +214,9 @@ function installAgentLaunchMiddleware(
   const terminals = new AgentTerminals(httpServer, (req, url) =>
     admittedAttach(req, url, launches),
   );
+  bindCursorTerminal(({ pty, session, ...kept }) =>
+    terminals.keep(session, pty, kept),
+  );
   middlewares.use((req, res, next) => {
     const url = new URL(req.url ?? "", "http://placeholder");
     if (!launchBoundaryPaths.has(url.pathname)) {
@@ -224,6 +228,7 @@ function installAgentLaunchMiddleware(
     }, next);
   });
   return () => {
+    bindCursorTerminal(undefined);
     alerts.close();
     terminals.close();
     launches.close();

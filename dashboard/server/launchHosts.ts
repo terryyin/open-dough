@@ -50,10 +50,7 @@ export type TerminalAttachment =
       readonly keep?: true;
       readonly detachedIdle?: DetachedIdle;
     }
-  | { readonly workspaceUnavailable: UnavailableWorkspace }
-  // The host's launch process is still running. Write `notice`, drop input,
-  // and attach again after `wait` if the socket is still open.
-  | { readonly wait: Promise<void>; readonly notice: string };
+  | { readonly workspaceUnavailable: UnavailableWorkspace };
 
 import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
 

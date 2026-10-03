@@ -5,26 +5,31 @@
 // A keep declaration may also name an idle screen. A kept client with no
 // socket whose screen matches that for the declared settle period is hung
 // up; any other screen keeps it. Hosts that declare nothing still receive
-// SIGHUP when their socket closes. A host may instead declare a wait while
-// its launch process is still running: the notice is written, input is
-// dropped, and a client starts after that process exits when the socket is
-// still open. `close()` hangs up every client.
+// SIGHUP when their socket closes. A launch may keep its client before any
+// socket: a later open joins that client. `close()` hangs up every client.
 import type { IPty } from "@lydell/node-pty";
-import type { RawData, WebSocket } from "ws";
+import type { WebSocket } from "ws";
 import {
   terminalAttachFailedCode,
   terminalEndedCode,
 } from "../src/agentTerminal.ts";
+import type { HostSession } from "../src/agentLaunch.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
-import { launchHost } from "./launchHosts.ts";
-import type { TerminalSession } from "./agentTerminals.ts";
-import { LiveTerminalClient } from "./liveTerminalClient.ts";
 import {
-  closeUnlessTerminalMessage,
-  refuseWorkspace,
-} from "./terminalSocketFrame.ts";
+  launchHost,
+  type DetachedIdle,
+  type UnavailableWorkspace,
+} from "./launchHosts.ts";
+import type { TerminalSession } from "./agentTerminals.ts";
+import type { LaunchInstructionInput } from "./launchInstruction.ts";
+import { LiveTerminalClient } from "./liveTerminalClient.ts";
+import { refuseWorkspace } from "./terminalSocketFrame.ts";
 
 const initialSize = { cols: 80, rows: 24 } as const;
+
+export type KeptLaunch = LaunchInstructionInput & {
+  readonly detachedIdle?: DetachedIdle;
+};
 
 export class TerminalAttachments {
   private readonly clients = new Map<IPty, LiveTerminalClient>();
@@ -53,13 +58,8 @@ export class TerminalAttachments {
       refuseWorkspace(ws, attachment.workspaceUnavailable);
       return;
     }
-    if ("wait" in attachment) {
-      this.holdForLaunch(ws, session, attachment.notice, attachment.wait);
-      return;
-    }
     const pty = attachment.pty;
-    const client = new LiveTerminalClient({
-      pty,
+    const client = this.watchClient(pty, {
       key,
       hostName,
       keep: attachment.keep === true,
@@ -70,12 +70,67 @@ export class TerminalAttachments {
       ...(attachment.detachedIdle !== undefined
         ? { detachedIdle: attachment.detachedIdle }
         : {}),
+    });
+    client.attach(ws, session, false);
+  }
+
+  // Starts one kept client before any socket. A later open joins it. The
+  // promise resolves when the first screen has been judged or the client
+  // has exited. The launch wait's abort does not reach this process.
+  keep(session: HostSession, pty: IPty, launch: KeptLaunch): Promise<void> {
+    const key = sessionKey(session);
+    if (this.keptClient(key) !== undefined) {
+      try {
+        pty.kill("SIGHUP");
+      } catch {
+        // The client already kept for this session is the one that stays.
+      }
+      return Promise.resolve();
+    }
+    const client = this.watchClient(pty, {
+      key,
+      hostName: launchHost(session.host)?.name ?? session.host,
+      keep: true,
+      admitted: false,
+      size: { cols: pty.cols, rows: pty.rows },
+      readiness: launch.ready,
+      startupFailure: undefined,
+      ...(launch.detachedIdle === undefined
+        ? {}
+        : { detachedIdle: launch.detachedIdle }),
+      launchInput: launch,
+    });
+    return client.firstScreen;
+  }
+
+  // Tracks the client before `watch`, so an exit during startup can still
+  // find it. The screen size is the caller's: attach uses the size it
+  // spawned, and a launch uses the process it already started.
+  private watchClient(
+    pty: IPty,
+    input: {
+      readonly key: string;
+      readonly hostName: string;
+      readonly keep: boolean;
+      readonly admitted: boolean;
+      readonly size: { readonly cols: number; readonly rows: number };
+      readonly readiness:
+        ((screen: string, cursorVisible: boolean) => boolean) | undefined;
+      readonly startupFailure:
+        (() => UnavailableWorkspace | undefined) | undefined;
+      readonly detachedIdle?: DetachedIdle;
+      readonly launchInput?: LaunchInstructionInput;
+    },
+  ): LiveTerminalClient {
+    const client = new LiveTerminalClient({
+      ...input,
+      pty,
       isTracked: () => this.clients.has(pty),
       untrack: () => this.clients.delete(pty),
     });
     this.clients.set(pty, client);
     client.watch();
-    client.attach(ws, session, false);
+    return client;
   }
 
   // Types `input` into the newest open attachment to this session, and
@@ -109,33 +164,6 @@ export class TerminalAttachments {
     for (const client of [...this.clients.values()]) {
       client.hangup();
     }
-  }
-
-  // The launch process is still going. The notice is the only output, and
-  // nothing the developer types starts a client. When the process exits,
-  // an open socket attaches through the same path as any other open.
-  private holdForLaunch(
-    ws: WebSocket,
-    session: TerminalSession,
-    notice: string,
-    untilExit: Promise<void>,
-  ): void {
-    if (ws.readyState === ws.OPEN) ws.send(`${notice}\r\n`);
-    let socketOpen = true;
-    const onMessage = (data: RawData, isBinary: boolean) => {
-      closeUnlessTerminalMessage(ws, data, isBinary);
-    };
-    const onClose = () => {
-      socketOpen = false;
-    };
-    ws.on("message", onMessage);
-    ws.on("close", onClose);
-    void untilExit.then(() => {
-      ws.off("message", onMessage);
-      ws.off("close", onClose);
-      if (!socketOpen || ws.readyState !== ws.OPEN) return;
-      this.connect(ws, session);
-    });
   }
 
   // The one live client whose attach result declared keep for this session.

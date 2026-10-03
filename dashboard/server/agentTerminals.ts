@@ -9,7 +9,8 @@ import type { Duplex } from "node:stream";
 import type { HttpServer } from "vite";
 import { WebSocketServer } from "ws";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
-import { TerminalAttachments } from "./terminalAttachments.ts";
+import { TerminalAttachments, type KeptLaunch } from "./terminalAttachments.ts";
+import type { IPty } from "@lydell/node-pty";
 import type { HostSession } from "../src/agentLaunch.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -102,6 +103,11 @@ export class AgentTerminals {
     this.sockets.handleUpgrade(req, socket, head, (ws) => {
       this.attachments.connect(ws, session);
     });
+  }
+
+  // Keeps a client started at launch, before any socket. Opening joins it.
+  keep(session: HostSession, pty: IPty, launch: KeptLaunch): Promise<void> {
+    return this.attachments.keep(session, pty, launch);
   }
 
   type(session: SessionReference, input: string): boolean {

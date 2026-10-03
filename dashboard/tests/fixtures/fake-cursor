@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 "use strict";
 // Proof stand-in for cursor-agent. Prints the configured create-chat id.
-// The launch argv log is create-chat and a prompted resume, which exits 0.
-// When FAKE_CURSOR_RELEASE is set, that prompted resume stays up until the
-// release file appears, then exits 0. Resume with no prompt is the embedded
-// attach: it is recorded separately,
-// prints the ordinary finished prompt `→ Add a follow-up`, and exits on
-// SIGHUP as cursor-agent does. Working mode also prints `ctrl+c to stop`.
-// Waiting mode prints the observed clarifying question. Unrecognized mode
-// prints neither the prompt nor a question. Each mode redraws its screen
-// on SIGWINCH.
+// The launch argv log is create-chat. A resume with no prompt argument is
+// the terminal client, including `--model <id>` and no prompt: it is
+// recorded as an attach, prints the ordinary finished prompt
+// `→ Add a follow-up`, and exits on SIGHUP as cursor-agent does. Working
+// mode also prints `ctrl+c to stop`. Waiting mode prints the observed
+// clarifying question. Trust mode prints a non-ready screen. Unrecognized
+// mode prints neither the prompt nor a question. Each mode redraws its
+// screen on SIGWINCH. FAKE_CURSOR_BECOME_READY, once that file exists,
+// repaints the ordinary prompt. FAKE_CURSOR_PAINT_DELAY_MS waits that long
+// before the first paint.
 // It does not write a launch record or a workspace. `models` is logged apart
 // from launch argv and prints FAKE_CURSOR_MODELS; without that file it fails.
 const fs = require("node:fs");
@@ -47,11 +48,22 @@ if (home) {
     if (error.code !== "ENOENT") throw error;
   }
 }
-// Resume with no prompt is attach, not a launch prompt, so it stays out of
-// the launch argv log.
+// A resume with no prompt argument is the terminal client, including
+// `--model <id>`. A prompt argument is not. The client stays out of the
+// launch argv log.
+const valuedFlags = new Set(["--workspace", "--resume", "--model"]);
+const positionals = [];
+for (let i = 0; i < args.length; i += 1) {
+  if (valuedFlags.has(args[i])) {
+    i += 1;
+    continue;
+  }
+  if (args[i].startsWith("-")) continue;
+  positionals.push(args[i]);
+}
 const resumeAt = args.indexOf("--resume");
 const resumed = resumeAt >= 0 ? args[resumeAt + 1] : undefined;
-const attaching = resumed !== undefined && args.length === resumeAt + 2;
+const attaching = resumed !== undefined && positionals.length === 0;
 if (log && !attaching) {
   fs.appendFileSync(
     log,
@@ -74,7 +86,7 @@ if (args[0] === "create-chat") {
 if (attaching) {
   const pid = process.pid;
   const dir = process.env.FAKE_CURSOR_ATTACH_DIR;
-  const mode = process.env.FAKE_CURSOR_ATTACH_MODE;
+  let mode = process.env.FAKE_CURSOR_ATTACH_MODE;
   const screens = {
     working: "→ Add a follow-up\r\nctrl+c to stop\r\n",
     waiting: [
@@ -85,6 +97,7 @@ if (attaching) {
       "│ ↑/↓ option · ←/→ question · Space select · Enter next/submit · Esc to skip",
     ].join("\r\n") + "\r\n",
     unrecognized: "Cursor Agent\r\n",
+    trust: "Do you trust this workspace?\r\n",
   };
   if (dir) fs.mkdirSync(dir, { recursive: true });
   const paint = () => {
@@ -125,42 +138,26 @@ if (attaching) {
         cols: process.stdout.columns,
         rows: process.stdout.rows,
         sessionId: resumed,
+        stored,
       })}\n`,
     );
   }
-  paint();
-} else if (process.env.FAKE_CURSOR_RELEASE && resumed !== undefined) {
-  holdUntilRelease(process.env.FAKE_CURSOR_RELEASE);
+  const delay = Number(process.env.FAKE_CURSOR_PAINT_DELAY_MS || 0);
+  if (delay > 0) setTimeout(paint, delay);
+  else paint();
+  const readyFile = process.env.FAKE_CURSOR_BECOME_READY;
+  if (readyFile) {
+    const timer = setInterval(() => {
+      if (fs.existsSync(readyFile)) {
+        clearInterval(timer);
+        mode = "";
+        paint();
+      }
+    }, 20);
+  }
+} else if (resumed !== undefined) {
+  process.stderr.write("a prompt argument is not a terminal client\n");
+  process.exit(2);
 } else {
   process.exit(0);
-}
-
-// A prompted launch that outlives the launch wait. Stdin is recorded and
-// does not end the process. The process exits 0 once `release` exists.
-function holdUntilRelease(release) {
-  const pid = process.pid;
-  const dir = process.env.FAKE_CURSOR_HOLD_DIR;
-  if (dir) {
-    fs.mkdirSync(dir, { recursive: true });
-    fs.appendFileSync(
-      path.join(dir, "holds.jsonl"),
-      `${JSON.stringify({ pid, args })}\n`,
-    );
-  }
-  const inputPath = dir ? path.join(dir, `${pid}.input`) : undefined;
-  process.stdin.on("error", () => {});
-  process.stdin.on("data", (chunk) => {
-    if (inputPath) fs.appendFileSync(inputPath, chunk);
-  });
-  process.stdin.resume();
-  const timer = setInterval(() => {
-    if (fs.existsSync(release)) {
-      clearInterval(timer);
-      process.exit(0);
-    }
-  }, 20);
-  process.on("SIGTERM", () => {
-    clearInterval(timer);
-    process.exit(0);
-  });
 }
