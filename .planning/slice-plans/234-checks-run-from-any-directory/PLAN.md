@@ -164,6 +164,17 @@ non-root uses and string-embedded `process.cwd()` pass.
 This comes last because the rule fails until slices 1 and 2 remove the
 existing uses.
 
+## Execution complete
+
+Product advice: The story's outcome is delivered with no correction needed, so
+its findings (DD-168, DD-178, DD-194) can be resolved at wrap-up and the second
+priority group in `ProjectFindings.md` narrowed to DD-162, DD-216 and DD-220.
+The first-priority timing class gained a new DD-222 occurrence: another test
+racing the 203 ms detached idle watch (repaired) and the unrepaired
+launch-card default 5 s waits under local load, which again cost a
+diagnosis here. Recommend queueing a bounded story for those launch-card
+waits next, ahead of further SEED-093 directory work.
+
 ## Current decisions
 
 - **Clean environment for local commands.** This session inherits

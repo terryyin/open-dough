@@ -185,6 +185,14 @@ Proposal from the review: For a fault injected after a native event, observe tha
   - Evidence: CI runs 37107532924 and 37109262826 (`dashboard (5/9)`) failed `agent-launch-ad-hoc-cursor.spec.ts:138` with two attaches; an unchanged copy failed 13 of 25 under local load and a held page connection failed 5 of 5; repair `aeb9c33d` shares a working fake Cursor fixture. CI run 37111699644 (`dashboard (2/9)`) failed `responsive-session-reconciliation.spec.ts:135` with one extra compare; a probe forcing the CI order failed 4 of 4, also at `aeb9c33d`; repair `a25a762f`, re-fixed for main's paused-clock flow in merge `5f09513c`. The launch-card specs `agent-launch-cursor-model`, `agent-launch-preparation-{codex,cursor,kept}` and `agent-launch-start-{codex,cursor,taken}` failed 7 times in one full local run under load and 18 of 40 at `--repeat-each 4 --workers 16`, passing at `--workers 2`; not seen in CI.
   - Observed effect: three failed CI runs and two repair commits; the launch-card waits remain unrepaired.
   - Inference: Qualified. Both repaired races are DD-199's shape: a fault or state change triggered before a required page event was observed. The launch-card waits use the default expect timeout where the specs already allow a 30 s launch.
+- Execution: `SEED-093#checks-run-from-any-directory` / plan 234, first related implementation commit `048d0947`
+  - Timestamp: 2026-10-03T22:16:38+08:00 (failing CI log line, run 37128988653)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: CI run 37128988653 (`dashboard (1/9)`) on `5f550850` failed `agent-terminal-cursor-idle.spec.ts:98`, a "no SIGHUP yet" check right after the detached socket closed; the hangup follows the same 203 ms idle settle (`cursorIdleSettleMs`). A 250 ms lag probe after `terminal.closed` reproduced it in dev and preview; repair `85cb7d44` asserts the SIGHUP comes no sooner than the settle after the close, 60 of 60 under 16 busy loops. Separately, a full suite run from `$TMPDIR` failed `agent-launch-cursor-model.spec.ts:35` once (5 s `toContainText("First input accepted")`), then passed 15 of 15 at `--repeat-each=5` from the root and from `$TMPDIR` (plan 234 Learnings).
+  - Observed effect: one failed CI run, a repair stash, diagnosis, and repair commit between slices 2 and 3; the launch-card wait stays unrepaired.
+  - Inference: Qualified. The idle race is a third test assuming its own event loop beats the 203 ms detached idle watch. The cursor-model miss matches this finding's launch-card waits under local load.
 
 ## Checks whose result depends on where or how they are run (second priority, queued)
 
