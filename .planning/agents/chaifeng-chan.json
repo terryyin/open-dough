@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-052#mark-report-read-keeps-session-state",
+  "mode": "story-branch",
+  "branch": "cursor/acknowledge-a-session-report-without-ending-the",
+  "host": "cursor",
+  "model": "gemini-3.8-flash-high"
+}
