@@ -13,6 +13,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { optionsDefinitionSchema } from "../src/commandOptions.ts";
 import { expect, test } from "./dashboardTest.ts";
+import { repoRoot } from "./support/repositoryRoot.ts";
 import {
   installRefinementSkill,
   openTakenBacklog,
@@ -39,7 +40,13 @@ test.afterAll(() => (journey as LaunchJourney | undefined)?.cleanup());
 test.use({ projectFolders: ["open-dough"] });
 
 const skill = "dough-story-refinement";
-const definitionPath = path.join("src", "skills", skill, "references");
+const definitionPath = path.join(
+  repoRoot,
+  "src",
+  "skills",
+  skill,
+  "references",
+);
 const realDefinition = path.join(definitionPath, "refinement-options.json");
 
 test("the shipped definition is valid and gives every option and focus a summary", () => {

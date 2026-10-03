@@ -4,6 +4,7 @@ import path from "node:path";
 import { launched } from "./agentTerminalBoundary.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { launch, refinementRequest, markDone } from "./agentLaunchBoundary.ts";
+import { repoRoot } from "./support/repositoryRoot.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 for (const refusal of ["rename", "interrupt"] as const) {
@@ -161,7 +162,7 @@ test("shared Claude stop failure retains intent and current Working without expo
   if (native === undefined) throw new Error("Missing native fixture");
   // Native process substitute fails only stop; ordinary fixture supplies launch/listing.
   const fixturePath = path.join(
-    process.cwd(),
+    repoRoot,
     "dashboard",
     "tests",
     "fixtures",

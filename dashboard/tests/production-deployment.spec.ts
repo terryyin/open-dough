@@ -9,6 +9,7 @@ import {
 } from "../server/productionDeployment.mjs";
 import { publishedMainFixture } from "./support/publishedMainFixture.ts";
 import { processRunning } from "./support/processGroup.ts";
+import { repoRoot } from "./support/repositoryRoot.ts";
 
 test("deployment selects origin main's commit, never local commits or edits", async () => {
   const fixture = await publishedMainFixture();
@@ -72,7 +73,7 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
     const cartoons = path.join(fixture.development, nerdsPath, "cartoon");
     await mkdir(cartoons, { recursive: true });
     const cartoon = await readFile(
-      path.join(process.cwd(), "dashboard/public/agent-avatars/atlas-1.webp"),
+      path.join(repoRoot, "dashboard/public/agent-avatars/atlas-1.webp"),
     );
     await writeFile(path.join(cartoons, "stanly.webp"), cartoon);
     await writeFile(path.join(cartoons, "notes.txt"), "LOCAL NOTES");

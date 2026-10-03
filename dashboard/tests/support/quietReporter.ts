@@ -25,6 +25,7 @@ function text(chunk: string | Buffer): string {
 
 // Paths under the working directory are shown relative to it.
 function shown(file: string): string {
+  // eslint-disable-next-line no-restricted-syntax -- shows paths relative to where the run started, not the repository root
   const relative = path.relative(process.cwd(), file);
   return relative.startsWith("..") ? file : relative;
 }

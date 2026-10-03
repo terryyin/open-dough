@@ -15,6 +15,7 @@ import {
   takenStory,
   type LaunchJourney,
 } from "./launchJourney.ts";
+import { repoRoot } from "./support/repositoryRoot.ts";
 
 // Installs the real refinement skill's references, its options definition
 // among them, in the project the dashboard reads (under `home`); its scripts
@@ -22,6 +23,7 @@ import {
 // starts the session. Answers the file of the options definition.
 const refinementSkill = "dough-story-refinement";
 const shippedReferences = path.join(
+  repoRoot,
   "src",
   "skills",
   refinementSkill,

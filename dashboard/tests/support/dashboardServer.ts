@@ -30,12 +30,8 @@ import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { endGroup, spawnGroupLeader } from "./processGroup.ts";
 import { listenArgs, ownAddress } from "./viteAddress.ts";
 import { configureDevelopmentProjects } from "./projectConfiguration.ts";
+import { repoRoot } from "./repositoryRoot.ts";
 
-// Playwright runs this suite from the repository root (as `npm run
-// test:dashboard` does); paths are built from that rather than from
-// `import.meta.url`, since Playwright's own TypeScript transform loads test
-// files as CommonJS, where `import.meta` is unavailable.
-const repoRoot = process.cwd();
 const viteBin = path.join(repoRoot, "node_modules", ".bin", "vite");
 
 // Built once per suite run by ./globalSetup.ts; every preview server that is

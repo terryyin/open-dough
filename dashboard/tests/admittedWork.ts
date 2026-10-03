@@ -15,10 +15,10 @@ import {
   scratchRepo,
   writePlanning,
 } from "./storyReadinessCli.ts";
+import { repoRoot } from "./support/repositoryRoot.ts";
 
-// Playwright loads test helpers as CommonJS, where import.meta is unavailable.
 const startCli = join(
-  process.cwd(),
+  repoRoot,
   "src/skills/dough-execute-plan/scripts/execution-start.mjs",
 );
 

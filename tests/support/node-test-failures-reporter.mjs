@@ -83,6 +83,7 @@ export default async function* failuresOnly(source) {
       const heading = fileFailures.length
         ? "captured output of"
         : "output from passing";
+      // eslint-disable-next-line no-restricted-syntax -- shows paths relative to where the run started, not the repository root
       yield `${heading} ${path.relative(process.cwd(), file) || file}:\n${indent(output)}\n`;
     }
   }

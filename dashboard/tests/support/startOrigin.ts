@@ -16,6 +16,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { repoRoot } from "./repositoryRoot.ts";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { backlogOf } from "../../../tests/support/product-backlog-fixture.mjs";
 import {
@@ -135,7 +136,7 @@ export async function startOrigin(
   const folder = { path: project, shown: project };
   for (const skill of installedSkills) {
     cpSync(
-      path.join("src", "skills", skill),
+      path.join(repoRoot, "src", "skills", skill),
       installedSkillPath(host, folder, skill),
       { recursive: true },
     );

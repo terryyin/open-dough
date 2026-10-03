@@ -4,9 +4,8 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, rmSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { repoRoot } from "./support/repositoryRoot.ts";
 
-// Playwright loads test helpers as CommonJS, where import.meta is unavailable.
-const repoRoot = process.cwd();
 const cli = join(
   repoRoot,
   "src/skills/dough-product-backlog/scripts/product-backlog.mjs",

@@ -9,13 +9,14 @@ import {
   qualifyPublishedRange,
 } from "../server/productionQualification.mjs";
 import { publishedMainFixture } from "./support/publishedMainFixture.ts";
+import { repoRoot } from "./support/repositoryRoot.ts";
 
 const pushExclusions =
   '    paths-ignore:\n      - ".planning/**"\n      - "docs/**"\n';
 
 async function qualificationFixture() {
   const fixture = await publishedMainFixture();
-  const workflow = await readFile(ciWorkflowPath, "utf8");
+  const workflow = await readFile(path.join(repoRoot, ciWorkflowPath), "utf8");
   expect(workflow).toContain(`  push:\n${pushExclusions}`);
   const inspectionsRoot = path.join(fixture.root, "inspections");
   const qualify = async (from: string, to: string) => {

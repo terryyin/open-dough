@@ -113,7 +113,7 @@ test("a discovery advisory is nonterminal, while stopped observation and timeout
           branch: "main",
           maxDurationMs: 60_000,
         },
-        { root: process.cwd(), storage },
+        { storage },
       );
       registerPushedRevision(directory, sha);
       publishJson(join(directory, "coverage"), `${sha}.json`, {
@@ -122,7 +122,6 @@ test("a discovery advisory is nonterminal, while stopped observation and timeout
       });
       let time = 0;
       const result = await awaitRevision(directory, sha, {
-        root: process.cwd(),
         storage,
         deadlineMs: 20,
         now: () => time,
@@ -150,7 +149,7 @@ function pendingMailbox(t) {
       branch: "main",
       maxDurationMs: 60_000,
     },
-    { root: process.cwd(), storage },
+    { storage },
   );
   registerPushedRevision(directory, sha);
   return { directory, storage };
@@ -160,7 +159,6 @@ test("dead, ended, and unreadable observation evidence have explicit bounded res
   await t.test("dead worker", async (t) => {
     const { directory, storage } = pendingMailbox(t);
     const result = await awaitRevision(directory, sha, {
-      root: process.cwd(),
       storage,
       workerLiveness: () => "dead",
     });
@@ -172,7 +170,6 @@ test("dead, ended, and unreadable observation evidence have explicit bounded res
     const { directory, storage } = pendingMailbox(t);
     publishJson(directory, "result.json", { status: "finished" });
     const result = await awaitRevision(directory, sha, {
-      root: process.cwd(),
       storage,
       workerLiveness: () => "alive",
     });
@@ -184,7 +181,6 @@ test("dead, ended, and unreadable observation evidence have explicit bounded res
     const { directory, storage } = pendingMailbox(t);
     writeFileSync(join(directory, "coverage", `${sha}.json`), "not json");
     const result = await awaitRevision(directory, sha, {
-      root: process.cwd(),
       storage,
       workerLiveness: () => "alive",
     });

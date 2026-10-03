@@ -5,6 +5,7 @@ import { createServer, request } from "node:http";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { DashboardServer } from "./dashboardServer.ts";
+import { repoRoot } from "./repositoryRoot.ts";
 
 const exec = promisify(execFile);
 export const quote = (part: string) => `'${part.replaceAll("'", "'\\''")}'`;
@@ -31,7 +32,7 @@ export async function recordOperation(
   args: unknown[],
 ) {
   const url = new URL(
-    `file://${path.resolve("dashboard/server/launchRecordStore.ts")}`,
+    `file://${path.join(repoRoot, "dashboard/server/launchRecordStore.ts")}`,
   ).href;
   return exec(
     process.execPath,

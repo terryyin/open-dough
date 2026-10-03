@@ -15,11 +15,11 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator ([plan](slice-plans/231-story-card-information-radiator/PLAN.md))
-- [Run a check from any directory and get CI's result](seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory) — SEED-093#checks-run-from-any-directory ([plan](slice-plans/234-checks-run-from-any-directory/PLAN.md))
 - [Show story review and terminal in one resizable side panel](seeds/SEED-091-dashboard-ui-renovation.md#review-and-terminal-share-side-panel) — SEED-091#review-and-terminal-share-side-panel ([plan](slice-plans/240-review-terminal-side-panel/PLAN.md))
 
 ## Backlog list
 
+- [Launch-card specs give CI's verdict on a loaded machine](seeds/SEED-093-local-checks-agree-with-ci.md#launch-card-waits-hold-under-load) — SEED-093#launch-card-waits-hold-under-load
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
