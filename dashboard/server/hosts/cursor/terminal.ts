@@ -1,13 +1,14 @@
-// Interactive resume of one stored Cursor session. The process is the
-// continuation the launch recorded (`cursor-agent --workspace <path>
-// --resume <uuid>`), not another host's attach command. After the
-// conversation loads, the observed prompt is `→ Add a follow-up`. A visible
-// cursor and that text admit the terminal. The screen does not include the
-// uuid. The result declares keep: closing the socket leaves this process
-// running, and a later terminal for the session joins it. It also declares
-// the idle end rule: a detached client whose screen stays idle is hung up,
-// and the next open starts a new client. A launch that already kept a
-// client is joined instead of started again.
+// Interactive resume of one stored Cursor session, run inside the Cursor
+// runner rather than the dashboard server. The process is the continuation
+// the launch recorded (`cursor-agent --workspace <path> --resume <uuid>`),
+// not another host's attach command. After the conversation loads, the
+// observed prompt is `→ Add a follow-up`. A visible cursor and that text
+// admit the terminal. The screen does not include the uuid. The result
+// declares keep: closing the socket leaves this process running, and a later
+// terminal for the session joins it. It also declares the idle end rule: a
+// detached client whose screen stays idle is hung up, and the next open
+// starts a new client. A launch that already kept a client is joined instead
+// of started again. Closing the dashboard does not hang this process up.
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
 import type { LaunchHost } from "../../launchHosts.ts";
 import { cursorDetachedIdle, cursorIdleSettleMs } from "./idleScreen.ts";

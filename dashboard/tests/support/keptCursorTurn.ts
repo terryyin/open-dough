@@ -14,6 +14,7 @@ import {
 } from "./dashboardServer.ts";
 import type { FakeCursor } from "./fakeCursor.ts";
 import type { CursorTerminal } from "./cursorTerminal.ts";
+import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { processRunning } from "./processGroup.ts";
 
 export function keptCursor(home: string): LaunchRecord {
@@ -65,6 +66,7 @@ export async function withCursorLaunch(
     await body(server);
   } finally {
     await server?.close();
+    await stopCursorRunner(path.join(machine, "home"));
     cursor.cleanup();
     rmSync(machine, { recursive: true, force: true });
   }

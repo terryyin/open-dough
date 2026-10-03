@@ -91,7 +91,7 @@ outlives the dashboard server.
 
 ### 1. A Cursor session survives the dashboard server
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npm run test:dashboard -- agent-terminal-cursor-runner.spec.ts agent-terminal-cursor.spec.ts agent-terminal-cursor-idle.spec.ts agent-terminal-boundary.spec.ts`
 
 Behavior: the developer starts Cursor work whose terminal is the kept client
@@ -125,6 +125,21 @@ Update `dashboard/AGENT-LAUNCH-TERMINALS.md` so server close no longer
 SIGHUPs a Cursor client, and so the runner owns that client. If the launch
 is still the headless running prompt, stop this slice. Do not wrap that
 prompt.
+
+Accepted proof for later slices:
+
+- Promise: stopping the dashboard server leaves the same Cursor client
+  running, and a later server on that machine types into it.
+- Boundary: `server.close()` ends the server's process group. The runner's
+  group is its own pid. The second server reuses that runner and the same
+  `cursor-agent` pid.
+- Setup and observation: `restartedDashboardTypesSameClient` in
+  `dashboard/tests/support/cursorRunnerRestart.ts`, called from
+  `dashboard/tests/agent-terminal-cursor-runner.spec.ts`.
+- Command: `npm run test:dashboard -- agent-terminal-cursor-runner.spec.ts agent-terminal-cursor.spec.ts agent-terminal-cursor-idle.spec.ts agent-terminal-boundary.spec.ts`
+- Result: exit 0. The refactor rerun is the one that counts; the journey
+  had moved into `cursorRunnerRestart.ts`. `launch.ts` still calls
+  `keepCursorClient`.
 
 ### 2. The production command starts the runner and leaves it up
 Type: Behavior
@@ -197,3 +212,9 @@ Update `dashboard/AGENT-LAUNCH-TERMINALS.md` with this list.
 - No numeric slice target or hard limit was supplied. Each slice is one
   proof loop: the server restart, the production command, and the list.
 - Do not start slice 1 until plan 227's kept terminal is the Cursor launch.
+  That terminal is on trunk: `launch.ts` starts it with `spawnCursorPty` and
+  `cursorKeptTerminal`, and `TerminalAttachments.close` still hangs it up.
+- Story Branch Mode. Take `b07ce1625813e14fe0177df8653f1a9b387aca52` is on
+  `origin/main`. Execution branch `cursor/cursor-runner-survives-dashboard-restart`
+  starts at `9a4bb9d71f4fbc2cf5681371d8ad7556ffa74778`. Publisher
+  `20a3ce04-8f3f-47d0-abe4-6809419ba85c`. The trunk Take is unobserved.

@@ -39,8 +39,18 @@ still running joins it, receives readiness at once, and sees a redrawn
 screen. After that idle hangup, the next socket starts a new client, which
 shows the ordinary prompt and takes a follow-up. Input from any joined socket
 reaches that same client, and a second open terminal shares it. Closing the
-server still sends SIGHUP to every attachment client, including a kept Cursor
-client. CLI exit uses code 4000 so the page distinguishes
+server sends SIGHUP to Claude Code and Codex attachment clients. It does not
+send SIGHUP to a Cursor client: one machine-local Cursor runner owns that
+client, in its own process group, outside the dashboard server. The
+development server starts the runner when it is not already accepting
+connections and does not restart a runner that is; two overlapping starts
+still leave one runner. The dashboard attaches through the runner and does
+not spawn `cursor-agent` itself. The runner applies the keep and idle rules
+above, including while the dashboard server is down. Stopping the runner
+hangs up the processes it holds and leaves none behind. When the runner
+cannot be reached, the dashboard starts no `cursor-agent`. After a new
+runner is up and holds nothing for that chat, opening the terminal resumes
+the chat as a new process. CLI exit uses code 4000 so the page distinguishes
 ended from disconnected. Codex spawn alone does not establish readiness: native
 hook/trust UI remains interactive, and a completed composer frame with visible
 cursor confirms attachment. Refusal preserves done intent; successful original-ID

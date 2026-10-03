@@ -1,7 +1,8 @@
 // One Cursor session in the dashboard workspace. `create-chat` prints the id
-// before any prompt. An instruction then starts one kept terminal client,
-// `cursor-agent --workspace <path> --resume <id>` plus `--model` only when
-// one was chosen. The instruction is written into that client when its
+// before any prompt. An instruction then starts one kept terminal client in
+// the machine-local Cursor runner, `cursor-agent --workspace <path>
+// --resume <id>` plus `--model` only when one was chosen. This process does
+// not spawn that agent. The instruction is written into that client when its
 // screen is ready for one. The record stays uncertain until that write, and
 // the client exiting does not accept it. The launch returns once the client
 // is running and the first screen has been judged, or the launch wait
@@ -10,7 +11,8 @@
 // still keeps the id and starts no client. The stored resume command never
 // carries `--model`, and Default omits it. A blank start with a chosen
 // model is refused before create-chat: no run would apply it. No worktree,
-// trust, or approval flag is passed.
+// trust, or approval flag is passed. When the runner cannot be reached, no
+// `cursor-agent` is started.
 
 import { z } from "zod";
 import { launchSubject } from "../../../src/agentLaunch.ts";
@@ -18,14 +20,10 @@ import type { CursorSession, FirstInput } from "../../../src/launchRecord.ts";
 import { shellCommand } from "../../../src/sessionCapabilities.ts";
 import type { LaunchHost } from "../../launchHosts.ts";
 import type { HostLaunch } from "../../hostLaunch.ts";
-import { cursorAgent, execCursor } from "./exec.ts";
-import { keepCursorTerminal } from "./keptTerminal.ts";
+import { cursorAgent } from "./exec.ts";
 import { cursorPrompt } from "./prompt.ts";
-import {
-  cursorKeptTerminal,
-  cursorTerminalSize,
-  spawnCursorPty,
-} from "./terminal.ts";
+import { execOnRunner, keepCursorClient } from "./runnerClient.ts";
+import { cursorTerminalSize } from "./terminal.ts";
 
 // Abort can arrive during an await. A direct `signal.aborted` check is
 // narrowed for the rest of the function, so read it through this call.
@@ -42,6 +40,15 @@ function notInstalled(): HostLaunch {
     kind: "failed",
     reason: "not-installed",
     explanation: `Cursor (\`${cursorAgent}\`) was not found on this machine. Install and authenticate it, then start again.`,
+  };
+}
+
+function runnerUnreachable(): HostLaunch {
+  return {
+    kind: "failed",
+    reason: "unavailable",
+    explanation:
+      "The Cursor runner on this machine could not be reached. No agent was started.",
   };
 }
 
@@ -111,11 +118,12 @@ export const launchCursor: LaunchHost["launch"] = async (
     };
   }
   const workspace = established?.workspace.path ?? folder.path;
-  const created = await execCursor(["create-chat"], workspace, signal);
+  const created = await execOnRunner(["create-chat"], workspace, signal);
   if (aborted(signal)) return timedOut(undefined);
-  if (created.error?.code === "ENOENT") return notInstalled();
+  if (created === undefined) return runnerUnreachable();
+  if (created.errorCode === "ENOENT") return notInstalled();
   const printed = z.uuid().safeParse(created.stdout.trim());
-  if (created.error !== null || !printed.success) return noSessionId();
+  if (created.failed || !printed.success) return noSessionId();
   const session: CursorSession = {
     host: "cursor",
     sessionId: printed.data,
@@ -149,34 +157,33 @@ export const launchCursor: LaunchHost["launch"] = async (
     return { kind: "launched", session, sessionState: { kind: "unknown" } };
   }
   if (aborted(signal)) return timedOut(session);
-  let pty;
-  try {
-    pty = spawnCursorPty(
-      cursorAgent,
-      [
-        ...resumeFlags(workspace, session.sessionId),
-        ...(request.model === undefined ? [] : ["--model", request.model]),
-      ],
-      workspace,
-      cursorTerminalSize,
-    );
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT")
-      return notInstalled();
-    return {
-      kind: "uncertain",
-      reason: "unconfirmed",
-      explanation: `Cursor kept session ${session.sessionId}. The first prompt was not confirmed. Continue with \`${shellCommand(session.continuation.args)}\`.`,
-    };
-  }
-  const firstScreen = keepCursorTerminal({
-    pty,
+  const kept = keepCursorClient({
+    command: cursorAgent,
+    args: [
+      ...resumeFlags(workspace, session.sessionId),
+      ...(request.model === undefined ? [] : ["--model", request.model]),
+    ],
+    cwd: workspace,
+    cols: cursorTerminalSize.cols,
+    rows: cursorTerminalSize.rows,
+    sourceId: source.id,
     session,
     instruction: prompt,
-    onEntered: () =>
-      record.session(session, { state: "confirmed", instruction: prompt }),
-    ...cursorKeptTerminal,
   });
-  await Promise.race([firstScreen, untilAbort(signal)]);
+  const outcome = await Promise.race([
+    kept,
+    untilAbort(signal).then(() => "aborted" as const),
+  ]);
+  if (outcome !== "aborted") {
+    if (outcome.kind === "unreachable") return runnerUnreachable();
+    if (outcome.kind === "missing") return notInstalled();
+    if (outcome.kind === "failed") {
+      return {
+        kind: "uncertain",
+        reason: "unconfirmed",
+        explanation: `Cursor kept session ${session.sessionId}. The first prompt was not confirmed. Continue with \`${shellCommand(session.continuation.args)}\`.`,
+      };
+    }
+  }
   return { kind: "launched", session, sessionState: { kind: "unknown" } };
 };
