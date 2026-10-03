@@ -22,3 +22,7 @@
 .settings-project-list dl { margin: 0; }
 .settings-project-list dt { font-weight: 600; }
 .settings-project-list dd { margin: 0 0 0.5rem; overflow-wrap: anywhere; }
+
+.openai-settings-form { display: flex; flex-direction: column; align-items: start; gap: 0.5rem; }
+.openai-settings-form input { box-sizing: border-box; width: min(100%, 32rem); min-width: 0; padding: 0.5rem; font: inherit; }
+.openai-settings-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }

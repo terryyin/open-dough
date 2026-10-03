@@ -48,6 +48,7 @@ export type DashboardServer = {
   readonly outDir: string | undefined;
   readonly github: FakeGitHub;
   readonly codex: FakeCodex;
+  output(): string;
   ghCalls(): string[][];
   ghPid(): number | undefined;
   ghExitedBy(): string | undefined;
@@ -195,6 +196,7 @@ export async function startDashboardServer(
     outDir,
     github,
     codex,
+    output: outputText,
     ghCalls() {
       return github.calls.map((call) => [...call.argv]);
     },

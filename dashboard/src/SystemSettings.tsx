@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { OpenAISettings } from "./OpenAISettings.tsx";
 import { AddProject } from "./AddProject.tsx";
 import { RemoveProject } from "./RemoveProject.tsx";
 import { useProjects } from "./projectList.tsx";
@@ -108,6 +109,7 @@ export function SystemSettings({
           </ul>
         )}
       </section>
+      <OpenAISettings />
     </main>
   );
 }

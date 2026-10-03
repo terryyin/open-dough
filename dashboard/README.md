@@ -41,6 +41,9 @@ Open **System settings → Projects** to add or remove projects and inspect thei
 repository and local checkout paths, including when the project list is empty.
 [Project configuration](PROJECT-CONFIGURATION.md) describes validation, saved
 order, environment-specific storage, removal and retained sessions.
+**System settings → OpenAI** saves, replaces or removes general OpenAI access on
+this machine. [OpenAI access](OPENAI-ACCESS.md) explains private storage, shared
+development/production credentials and configured-versus-verified status.
 
 The dashboard reads `.planning/PRODUCT-BACKLOG.md` from the selected project's
 saved repository and ref, resolves that ref to one commit, and reads the backlog

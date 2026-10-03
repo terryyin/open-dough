@@ -156,3 +156,85 @@ blank lines in the linked context/contracts were trimmed; tracked and new-file
 whitespace checks passed. All changed/new files remain at most 250 lines.
 The coordinator's repaired `npm run format` reached terminal exit 0 under the
 same runtime/key-unset prefix; no unresolved findings remain.
+
+## Accepted slice 3 proof
+
+Root inspected the credential owner, status-only local boundary, sibling form,
+Vite mounting, fixture and named assertions. Implementation and final independent
+refactoring are accepted; coordinator formatting passed before this delivery.
+Real microphone
+and provider entitlement/usefulness remain slice 1 obligations.
+
+Terminal exit 0 for these literal commands, with the runtime/key-unset prefix:
+
+```sh
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPENAI_API_KEY -u OPENAI_API_TOKEN PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- dashboard/tests/system-settings-openai.spec.ts dashboard/tests/system-settings-openai-recovery.spec.ts dashboard/tests/openai-configuration-boundary.spec.ts dashboard/tests/system-settings.spec.ts dashboard/tests/system-settings-project-management.spec.ts --workers=1
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPENAI_API_KEY -u OPENAI_API_TOKEN PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- dashboard/tests/system-settings-openai.spec.ts dashboard/tests/system-settings-openai-recovery.spec.ts dashboard/tests/openai-configuration-boundary.spec.ts --workers=1
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPENAI_API_KEY -u OPENAI_API_TOKEN PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- dashboard/tests/openai-configuration-boundary.spec.ts --workers=1
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPENAI_API_KEY -u OPENAI_API_TOKEN PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- dashboard/tests/system-settings-openai-race.spec.ts --workers=1
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPENAI_API_KEY -u OPENAI_API_TOKEN PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH npm run typecheck:dashboard
+```
+
+The full selection contains 11 Chromium cases, additionally confirmed with
+`--list --reporter=list`. After it passed, test-only temporary-permission and
+egress observations were strengthened and all five OpenAI cases passed again.
+Exact mutation-response bodies were then added; all three boundary cases passed.
+The later three race cases and final strict typecheck also passed.
+
+- `system-settings-openai.spec.ts`: actual empty-development page saves;
+  password field clears/focuses, private JSON contains the synthetic key,
+  directory/final modes are 0700/0600, temporary files are observed as 0600;
+  empty Save preserves bytes and leaving/reopening clears an unsaved draft.
+  Actual restart and simultaneous preview share the same credential; replacement
+  and removal become visible to the original process on its next read. Separate
+  project files stay unchanged. Browser storage/URL/rendered text and server logs
+  contain no saved key; browser HTTP(S) and server-provider egress counts are zero.
+- `system-settings-openai-recovery.spec.ts`: actual traversal/write permissions
+  deny Save/Remove; predecessor bytes, configured status and failed-save draft
+  survive. Explicit retries succeed; no temporary file remains.
+- `openai-configuration-boundary.spec.ts`: actual dev/preview HTTP refuses foreign
+  origin/host, wrong methods/content type, malformed/empty/newline/oversized bodies
+  without changing the predecessor or contacting a provider. Read/Save/Remove
+  expose exactly `{configured: boolean}`. Malformed/unreadable files yield safe
+  errors without secret echo, reseeding or synthetic-environment-key import;
+  real form replacement and Retry status recover.
+- `system-settings-openai-race.spec.ts`: holds delivery of an actual service GET
+  snapshot (false, true, or malformed-file error), performs real Save/Remove,
+  then releases it. Final UI status/input/error and actual credential bytes or
+  absence show old reads cannot overwrite the mutation's feedback.
+
+`openAISettingsMachine` supplies isolated HOME and real dev/preview/files.
+Its preload blocks/counts non-loopback provider fetches and observes permissions
+after the real temporary write; it does not simulate configuration/persistence.
+Only synthetic credentials are supplied. `dashboardServer.output()` is additive
+observation access; existing settings journeys cover its unchanged callers.
+Existing local-origin, bounded JSON and mounting contracts remain unchanged.
+
+Failures were diagnosed: successful Save focused a still-disabled input; focus
+now follows the pending-state render. A data URL was incorrectly counted as
+provider egress; the observation now counts HTTP(S). Three late real-status/error
+responses reproduced stale feedback before the revision guard; all passed after
+it. Root also moved invalidation after the empty-Save guard, since an empty Save
+does not mutate storage. Typecheck passed after this narrow order correction;
+successful-operation observations and service/file proof remain unchanged.
+
+An independent refactor made Save reuse Read/Remove's directory-safety guard;
+the five OpenAI persistence/recovery/boundary cases passed again. Root then found
+and reproduced in both modes an exactly admitted 32,768-byte JSON Save producing
+a 32,769-byte file that the reader rejected. Read/write now share one serialized
+UTF-8 bound including the newline; Save checks it before touching storage.
+`openai-configuration-size.spec.ts` observes exact ASCII/multibyte bodies,
+actual bytes, subsequent configured read, replacement/removal and no egress.
+Root inspected its real HTTP assertions and the shared bound. Terminal exit 0:
+
+```sh
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPENAI_API_KEY -u OPENAI_API_TOKEN PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH npm run test:dashboard -- dashboard/tests/openai-configuration-size.spec.ts dashboard/tests/openai-configuration-boundary.spec.ts --workers=1
+env -u NODE_ENV -u NO_COLOR -u FORCE_COLOR -u OPENAI_API_KEY -u OPENAI_API_TOKEN PATH=/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin:$PATH npm run typecheck:dashboard
+```
+
+Five cases passed. Launch JSON admission and other accepted boundaries stayed
+unchanged. Fresh final independent review found no further candidate; no edits
+or tests were needed. Managed CI pause/restore preserved the reviewed credential
+files; only the separate test-contract repair and its proof link were added.
+The coordinator's `npm run format` reached terminal exit 0 under the same
+runtime/key-unset prefix; all changed/new files remain at most 250 lines.

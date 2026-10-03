@@ -83,6 +83,11 @@ start; reuse its published claim without a second Take. Identity:
   Accepted claim and initially published base/candidate:
   `6a866b4170cb743a92d286f02c0e6706d9001a80`. `git ls-remote` confirmed the
   execution branch holds that SHA; the owned checkout was clean at entry.
+- Slice 2 published and registered on the execution branch as
+  `e646e078e2c9c9b1d5d1437d5b6e89bb6dc807ed`; managed delivery reused the
+  observer below. Its [stale-consumer CI repair](CI-REPAIR.md) published and
+  registered as `cd8ae88e711c8820df2db8ed15474dd7de8d8170`; the managed stash
+  restored slice 3 intact. This is the next increment's previously published base.
 - Node 24.21.0 selected from
   `/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin`.
   Checkout-bound locked setup and applicable command passed:
@@ -123,13 +128,15 @@ Status: done
 One global settings view; relocate existing project management and preserve
 navigation, selection, validation, storage, running sessions and terminal context.
 Implementation/refactor proof [accepted](PROOF.md#accepted-slice-2-proof);
-formatter passed. This increment publishes the completed slice.
+published with the test-contract CI repair recorded above.
 
 ### 3. Configure general OpenAI access in System settings
 Type: Behavior
-Status: planned
+Status: done
 Save/replace/remove one private machine credential, status-only reads, restart
 and shared dev/preview visibility; no validation request or environment fallback.
+Implementation/refactor proof [accepted](PROOF.md#accepted-slice-3-proof);
+formatter passed. This increment publishes the completed slice.
 
 ### 4. Dictate, review, and start with the edited instructions
 Type: Behavior
@@ -179,14 +186,23 @@ shortening/add/discard and prove the reviewed native text handoff.
 
 ## Learnings
 
-Slice 1: a disposable probe is ready at `http://127.0.0.1:43189`, using the
-actual unchanged `LaunchDialog` in an isolated Vite mount. Start is disabled;
-no native launcher is mounted. Harness `node_modules/.cache/voice-probe-084/`
-and server session `24402` are owned temporary resources. Page and module HTTP
-smokes passed; no recording or provider request has occurred. Actual microphone,
-MIME/bytes, model access/decoding, latency and useful edited draft remain
-unobserved pending operator participation. Do not mark this slice complete or
-reuse synthetic speech as its proof. Slices 4–6 remain dependent on this gap;
-proceed with independently supported settings slices 2–3 as the probe's stop
-contract allows. Retain the probe for the operator, then stop its exact server
-and remove its owned harness after accounting for any result.
+Slice 1: an isolated Vite probe mounted the actual unchanged `LaunchDialog`
+with Start disabled and no native launcher. Page/module smokes passed, but the
+operator recorded no clip and no provider request occurred. Original server
+session `24402` became unreachable; the same one-request harness was restored
+in coordinator session `95464`, PID `56325`, without a paid retry. Final Chrome
+observation still showed Ready, Record enabled and Stop disabled. Cancel then
+reported microphone released/no launch; the tab closed. The exact server was
+terminated (exit 143, PID absent) and its owned ignored harness removed.
+
+Actual microphone, MIME/bytes, model access/decoding, latency and useful edited
+draft remain unobserved. Slice 1 stays planned; do not substitute synthetic
+speech. Independently supported settings slices 2–3 are complete, while 4–6
+remain dependent. Execution stops here with Taken, branch/worktree, active plan
+and accepted proof preserved; no retrospective or execution-complete marker.
+Resume at slice 1 when the operator is available to record/review one real clip;
+reprepare the disposable probe and recheck current model guidance then.
+
+The retained CI observer is stopped through the Codex adapter after this
+increment's publication. The final handoff owns its exact shutdown receipt and
+reports any then-pending CI as unobserved; its mailbox retains recovery evidence.
