@@ -47,6 +47,8 @@ cursor confirms attachment. Refusal preserves done intent; successful original-I
 attachment clears it. Claude retains its immediate admitted-attachment behavior.
 
 One page terminal shows story/workflow/session with Close and Mark as done.
+It uses the terminal theme chosen in System settings and follows a new choice
+without re-attaching; its panel edge takes the theme's background.
 Switching sessions detaches the prior one; switching projects keeps it attached.
 Reload has no terminal. Disconnection offers Reconnect; native attach exit offers
 Open again, each for the same session. Close restores the originating control.

@@ -135,7 +135,7 @@ Learnings:
 
 ### 2. Every embedded terminal uses the saved theme
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/agent-terminal-theme.spec.ts` on
 `dashboardTest.ts` with the synthetic `claude`.
 
@@ -164,6 +164,24 @@ Local gates: the new spec, the existing `agent-terminal.spec.ts`,
 `agent-terminal-reopen.spec.ts` and `agent-launch-ad-hoc-terminal.spec.ts`
 (the attachment they cover changes), `npm run typecheck:dashboard`, and
 `npm run lint`.
+
+Accepted proof (2026-10-03):
+`env -u NODE_ENV npm run test:dashboard -- dashboard/tests/agent-terminal-theme.spec.ts dashboard/tests/agent-terminal.spec.ts dashboard/tests/agent-terminal-reopen.spec.ts dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts dashboard/tests/system-settings-terminal-theme.spec.ts dashboard/tests/terminal-theme-boundary.spec.ts dashboard/tests/system-settings.spec.ts --reporter=list`
+(13 passed), typecheck and lint. `agent-terminal-theme.spec.ts` asserts the
+computed colours of `.xterm-rows`, `.xterm-scrollable-element`,
+`.xterm-viewport` and `.terminal-screen` for Default, Solarized Dark (live,
+after reopen, after reload), Light and Default again, the earlier echo kept,
+an empty `.terminal-status`, and no extra `claudeAttaches()` on the live
+switch. Removing the live `options.theme` update or the viewport rule makes
+it fail.
+
+Learnings:
+
+- `SavedTerminalThemeProvider` in `src/savedTerminalTheme.ts` reads the theme
+  once for the page; Settings and terminals use `useSavedTerminalTheme()` /
+  `useShownTerminalTheme()`.
+- `.xterm-viewport` needs `.terminal-screen .xterm .xterm-viewport` to outweigh
+  `xterm.css`; `options.theme = {}` fully restores xterm's own palette.
 
 ## Considered and excluded
 

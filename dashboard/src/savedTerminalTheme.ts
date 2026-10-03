@@ -1,7 +1,19 @@
-// The terminal theme saved on this machine, as the page knows it. `saved`
-// changes only when a read answers or a save succeeds, so anything that follows
-// it never shows an unsaved choice.
-import { useCallback, useEffect, useRef, useState } from "react";
+// The terminal theme saved on this machine, as the page knows it. The page
+// reads it once (`SavedTerminalThemeProvider`) and shares that reading with
+// System settings and every embedded terminal (`useSavedTerminalTheme`).
+// `saved` changes only when a read answers or a save succeeds, so anything
+// that follows it never shows an unsaved choice.
+import {
+  createContext,
+  createElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   terminalThemeEndpoint,
   terminalThemeSaveEndpoint,
@@ -53,7 +65,7 @@ export type SavedTerminalTheme = {
   readonly save: (theme: TerminalThemeId) => Promise<void>;
 };
 
-export function useSavedTerminalTheme(): SavedTerminalTheme {
+function useTerminalThemeReading(): SavedTerminalTheme {
   const [saved, setSaved] = useState<TerminalThemeId>();
   const [readProblem, setReadProblem] = useState<string>();
   const [reads, setReads] = useState(0);
@@ -88,5 +100,39 @@ export function useSavedTerminalTheme(): SavedTerminalTheme {
     setSaved(await terminalThemeRequest(theme));
     setReadProblem(undefined);
   }, []);
-  return { saved, readProblem, reread, save };
+  return useMemo(
+    () => ({ saved, readProblem, reread, save }),
+    [saved, readProblem, reread, save],
+  );
+}
+
+// Without a provider nothing has been read, so terminals show Default and a
+// save is refused.
+const sharedReading = createContext<SavedTerminalTheme>({
+  saved: undefined,
+  readProblem: undefined,
+  reread: () => undefined,
+  save: () =>
+    Promise.reject(new Error("The terminal theme could not be saved.")),
+});
+
+export function SavedTerminalThemeProvider({
+  children,
+}: {
+  readonly children: ReactNode;
+}) {
+  return createElement(
+    sharedReading.Provider,
+    { value: useTerminalThemeReading() },
+    children,
+  );
+}
+
+export function useSavedTerminalTheme(): SavedTerminalTheme {
+  return useContext(sharedReading);
+}
+
+// The theme terminals show: the saved one, or Default until one is read.
+export function useShownTerminalTheme(): TerminalThemeId {
+  return useSavedTerminalTheme().saved ?? "default";
 }

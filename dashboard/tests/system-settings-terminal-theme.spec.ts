@@ -3,11 +3,13 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { systemSettingsMachine } from "./support/systemSettingsMachine.ts";
 import {
+  computedPalettes,
   sample,
   sampleColor,
   sampleScreen,
   terminalThemeFile,
   themeChoice,
+  type ComputedPalette,
 } from "./support/terminalThemeSettingsPage.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;
@@ -16,19 +18,8 @@ test.beforeEach(() => {
 });
 test.afterEach(async () => fixture.close());
 
-// Background, foreground and the red sample of each palette, as computed.
-const palettes = {
-  Default: ["rgb(0, 0, 0)", "rgb(255, 255, 255)", "rgb(204, 0, 0)"],
-  Light: ["rgb(255, 255, 255)", "rgb(31, 35, 40)", "rgb(207, 34, 46)"],
-  "Solarized Dark": [
-    "rgb(0, 43, 54)",
-    "rgb(131, 148, 150)",
-    "rgb(220, 50, 47)",
-  ],
-} as const;
-
-async function expectShown(page: Page, label: keyof typeof palettes) {
-  const [background, foreground, red] = palettes[label];
+async function expectShown(page: Page, label: ComputedPalette) {
+  const { background, foreground, red } = computedPalettes[label];
   await expect(themeChoice(page).locator("option:checked")).toHaveText(label);
   await expect(sample(page)).toContainText(`Sample: ${label}`);
   await expect(sampleScreen(page)).toHaveCSS("background-color", background);

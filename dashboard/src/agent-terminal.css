@@ -103,12 +103,18 @@
 }
 
 /* The fit addon sizes the terminal to this box, so it must have a size of
-   its own rather than take one from its content. */
+   its own rather than take one from its content. It and xterm's viewport,
+   which xterm.css paints black, take the terminal theme's background
+   (`--terminal-background`), so a light theme has no black edge. */
 .terminal-screen {
   flex: 1;
   min-height: 0;
   padding: 0.4rem;
-  background: #000;
+  background: var(--terminal-background, #000);
+}
+
+.terminal-screen .xterm .xterm-viewport {
+  background-color: var(--terminal-background, #000);
 }
 
 @media (max-width: 800px) {

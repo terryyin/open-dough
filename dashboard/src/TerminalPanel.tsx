@@ -12,12 +12,19 @@
 // the connection drops, as when the dashboard server restarts, the panel
 // says so and offers to reconnect; when the attached CLI exits on its own,
 // it says the terminal ended and offers to open it again. Either attaches to
-// the same session anew.
+// the same session anew. The terminal, and the panel's edge around it, show
+// the theme saved in System settings.
 // Each attachment reports native readiness; startup decisions remain interactive.
 // Where supported, Mark as done asks the boundary to finish this session;
 // the panel closes once marked and says if it could not be.
 
-import { useLayoutEffect, useRef, useState, type RefObject } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from "react";
 import { marksDone } from "./sessionCapabilities.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import "@xterm/xterm/css/xterm.css";
@@ -42,6 +49,8 @@ import {
   type SessionRequest,
 } from "./pageSessions.ts";
 import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
+import { useShownTerminalTheme } from "./savedTerminalTheme.ts";
+import { terminalPalette } from "./terminalThemes.ts";
 
 const closeShortcut = { key: "Escape", shift: true } as const;
 
@@ -120,6 +129,7 @@ export function TerminalPanel({
   const { title, name } = launchSubject(record.request);
   const agent = assignedAgent(record.start ?? record.preparation);
   const agentName = agentNameOf(agent);
+  const { background } = terminalPalette(useShownTerminalTheme());
   return (
     <section className="terminal-panel" aria-label="Terminal">
       <header className="terminal-toolbar">
@@ -194,7 +204,11 @@ export function TerminalPanel({
           </>
         )}
       </div>
-      <div ref={screen} className="terminal-screen" />
+      <div
+        ref={screen}
+        className="terminal-screen"
+        style={{ "--terminal-background": background } as CSSProperties}
+      />
     </section>
   );
 }
