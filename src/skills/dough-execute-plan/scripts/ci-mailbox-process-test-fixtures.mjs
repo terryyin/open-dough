@@ -73,15 +73,13 @@ if (process.argv[3] === 'list') {
 })();
 `;
 
-export async function setupProcessMailbox(
-  t,
-  startArguments = ["--execution", "owner/repo", "main", "60000"],
+// The environment of a process fixture rooted at `directory`: mailboxes live
+// there, and its `gh` answers `run list` with the runs `releaseRun` released.
+export function processMailboxEnvironment(
+  directory,
   { observeWorkerRechecks = false } = {},
 ) {
-  const directory = mkdtempSync(join(tmpdir(), "ci-process-test-"));
-  const teardown = fixtureTeardown(directory);
-  t.after(teardown.cleanup);
-  const env = {
+  return {
     ...process.env,
     DOUGH_CI_MAILBOX_ROOT: directory,
     TMPDIR: directory,
@@ -98,6 +96,17 @@ export async function setupProcessMailbox(
         }
       : {}),
   };
+}
+
+export async function setupProcessMailbox(
+  t,
+  startArguments = ["--execution", "owner/repo", "main", "60000"],
+  options = {},
+) {
+  const directory = mkdtempSync(join(tmpdir(), "ci-process-test-"));
+  const teardown = fixtureTeardown(directory);
+  t.after(teardown.cleanup);
+  const env = processMailboxEnvironment(directory, options);
   const { stdout } = await exec(
     process.execPath,
     [launcher, "start", ...startArguments],

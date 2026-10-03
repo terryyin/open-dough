@@ -1,12 +1,15 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { once } from "node:events";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { completingFixture } from "./ci-codex-lifecycle-test-fixtures.mjs";
-import { runDocumentedCodexHostBinding } from "./ci-notify-codex-test-fixtures.mjs";
+import { readDeliveryProgress } from "./ci-mailbox.mjs";
+import {
+  processBackedCodexTools,
+  runDocumentedCodexHostBinding,
+} from "./ci-notify-codex-test-fixtures.mjs";
 import {
   deferChildExit,
   fixtureTeardown,
@@ -15,48 +18,22 @@ import { waitForFile } from "./watch-ci-test-fixtures.mjs";
 
 const documentedKey = "ci-watch-execution:OWNER/REPO:BRANCH:COORDINATOR";
 
-// Bridges a real, disposable child process's stdout into the documented
-// Codex cell's `tools.exec_command`/`write_stdin` shape, so the cell's own
-// consume/deliver/store logic runs against genuine process bytes instead of
-// hand-written synthetic chunks.
-function bridgeCodexStream(child) {
-  let buffer = "";
-  let closed = false;
-  child.stdout.on("data", (chunk) => {
-    buffer += chunk.toString();
-  });
-  child.once("close", () => {
-    closed = true;
-  });
-  const closeEvent = once(child, "close");
-  const drain = () => {
-    const output = buffer;
-    buffer = "";
-    return output;
-  };
-  const nextChunk = async () => {
-    if (buffer === "" && !closed)
-      await Promise.race([once(child.stdout, "data"), closeEvent]);
-    return {
-      output: drain(),
-      session_id: closed ? undefined : String(child.pid),
-    };
-  };
-  return {
-    exec_command: async () => nextChunk(),
-    write_stdin: async () => nextChunk(),
-  };
-}
-
 test("documented Codex host binding reports lost observation, not finished, when a real disposable stream process exits without terminal evidence", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ci-codex-loss-test-"));
   const teardown = fixtureTeardown(root);
   t.after(teardown.cleanup);
-  const child = spawn(process.execPath, [completingFixture, root], {
-    env: { ...process.env, DOUGH_CI_MAILBOX_ROOT: root, TMPDIR: root },
+  const env = { ...process.env, DOUGH_CI_MAILBOX_ROOT: root, TMPDIR: root };
+  let child;
+  // The documented stream command runs this disposable fixture instead, so
+  // the cell's own consume/deliver/store logic reads genuine process bytes.
+  const { tools } = processBackedCodexTools({
+    env,
+    startStream: () => {
+      child = spawn(process.execPath, [completingFixture, root], { env });
+      deferChildExit(teardown, child, "SIGKILL");
+      return child;
+    },
   });
-  deferChildExit(teardown, child, "SIGKILL");
-  const tools = bridgeCodexStream(child);
 
   const notifications = [];
   const texts = [];
@@ -94,6 +71,7 @@ test("documented Codex host binding reports lost observation, not finished, when
   assert.equal(failures.length, 2);
   assert.match(failures[0].failedJobs[0].name, /backend failure/);
   assert.match(failures[1].failedJobs[0].name, /frontend timeout/);
+  assert.deepEqual(readDeliveryProgress(directory), { deliveredThrough: 2 });
 
   assert.equal(
     notifications.filter((event) => event.type === "CI_MONITOR_UNAVAILABLE")

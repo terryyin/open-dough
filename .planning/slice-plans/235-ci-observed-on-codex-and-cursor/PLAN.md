@@ -177,9 +177,31 @@ single route.
 ### 3. A failure notified to a Codex coordinator no longer holds completion open
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: example 5 and the existing Codex lifecycle and completion tests, as
 tabled above.
+
+Accepted proof (2026-10-03): `ci-codex-delivery-acknowledgment.test.mjs` runs
+the binding documented in `ci-notify-codex.md` against a real
+`ci-mailbox.mjs stream`. Two notified failures are acknowledged, and
+`complete-revision` on the green revision returns `success` with confirmed
+shutdown and `deliveredThrough: 2`, with no manual `recordDeliveryProgress`.
+When the consumer stops reading, a later failure stays unread and completion
+returns `retained` / `unread_actionable_failure` with `deliveredThrough: 1`.
+A third test pins that `acknowledge` accepts only published records and never
+moves progress backward. Both example 5 tests were red with
+`deliveredThrough: 0`. The `deliveredThrough: 0` tests whose stream output is
+never consumed are unchanged; `ci-notify-codex.test.mjs` and
+`ci-codex-observation-loss-lifecycle.test.mjs` now consume and acknowledge.
+
+Learnings: the binding acknowledges after `notify` through
+`ci-mailbox.mjs acknowledge DIRECTORY SEQUENCE`, because the yielded isolate
+cannot import Node modules and acknowledging on emission would count unread
+records. A failed acknowledgment leaves records unread, so completion keeps
+the observer. Doc-binding tests whose `exec_command` mock answered every call
+with stream output now use the shared `processBackedCodexTools`. Like the stop
+binding, the acknowledgment interpolates the mailbox directory unquoted; a
+`DOUGH_CI_MAILBOX_ROOT` with spaces would break both.
 
 Behavior: Codex yielded stream has handed two failure records to the
 coordinator, and both are repaired → `complete-revision` on the green

@@ -13,6 +13,7 @@ test("documented Codex host binding notifies pre-yield events after yield, then 
   ].join("");
   const firstEventEnd = stream.indexOf("\n", stream.indexOf("\n") + 1) + 1;
   const launches = [];
+  const acknowledgments = [];
   const notifications = [];
   const texts = [];
   const stores = [];
@@ -29,6 +30,10 @@ test("documented Codex host binding notifies pre-yield events after yield, then 
     },
     tools: {
       exec_command: async (request) => {
+        if (request.cmd.includes(" acknowledge ")) {
+          acknowledgments.push({ request, notified: notifications.length });
+          return { output: "", session_id: undefined };
+        }
         launches.push(request);
         return { output: stream.slice(0, firstEventEnd), session_id: "sess-1" };
       },
@@ -75,6 +80,18 @@ test("documented Codex host binding notifies pre-yield events after yield, then 
       { event: { type: "CI_FAILURE", runId: 41 }, afterYield: true },
       { event: { type: "CI_INCOMPLETE", runId: 42 }, afterYield: true },
     ],
+  );
+  assert.deepEqual(
+    acknowledgments.map(({ request, notified }) => ({
+      cmd: request.cmd,
+      workdir: request.workdir,
+      notified,
+    })),
+    [1, 2].map((sequence) => ({
+      cmd: `node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs acknowledge ${mailbox} ${sequence}`,
+      workdir: "/ABSOLUTE/VERIFIED/CHECKOUT_ROOT",
+      notified: sequence,
+    })),
   );
   assert.equal(stores.length, 1);
   assert.equal(stores[0][0], key);
@@ -130,6 +147,7 @@ test("documented Codex host binding reports lost observation, not finished, when
   const receipt = `CI_OBSERVER ${JSON.stringify({ directory: mailbox, pid: 11 })}\n`;
   const failure = `${JSON.stringify({ sequence: 1, event: { type: "CI_FAILURE", runId: 41 } })}\n`;
   const launches = [];
+  const acknowledgments = [];
   const notifications = [];
   const texts = [];
   const stores = [];
@@ -143,6 +161,10 @@ test("documented Codex host binding reports lost observation, not finished, when
     yield_control: async () => {},
     tools: {
       exec_command: async (request) => {
+        if (request.cmd.includes(" acknowledge ")) {
+          acknowledgments.push(request.cmd);
+          throw new Error("acknowledgment did not land");
+        }
         launches.push(request);
         return { output: receipt, session_id: "sess-2" };
       },
@@ -165,8 +187,12 @@ test("documented Codex host binding reports lost observation, not finished, when
   assert.equal(texts[0].directory, mailbox);
   assert.equal(texts[0].pid, 11);
 
-  // The prior failure was still delivered; loss does not swallow it.
+  // The prior failure was still delivered; loss does not swallow it. Its
+  // failed acknowledgment leaves it unread without ending the stream reads.
   assert.deepEqual(notifications[0], { type: "CI_FAILURE", runId: 41 });
+  assert.deepEqual(acknowledgments, [
+    `node /ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs acknowledge ${mailbox} 1`,
+  ]);
   assert.equal(notifications.length, 2);
   assert.equal(notifications[1].type, "CI_MONITOR_UNAVAILABLE");
   assert.equal(notifications[1].key, key);
