@@ -181,3 +181,9 @@ Story Branch Mode. Workspace
 `cursor/see-and-instruct-a-cursor-agent-from-the-start`. Claim
 `4981f17b7494882974712c33cd83142a288ca4c8` is on `origin/main`. The increment
 publishes to that execution branch, not to trunk.
+
+## Execution complete
+
+Product advice: No further product change. A dashboard-launched Cursor session
+can be seen and instructed from the start. Keeping that agent across a
+dashboard restart is already the next queued story.
