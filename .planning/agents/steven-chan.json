@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "steven-chan",
+  "email": "steven-chan@example.org",
+  "identity": "SEED-091#card-renovation-alignment",
+  "mode": "story-branch",
+  "branch": "claude/align-product-guidance-shared-styles-and-tests-w",
+  "host": "claude"
+}
