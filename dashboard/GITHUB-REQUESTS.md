@@ -3,8 +3,7 @@
 What the [story dashboard](README.md) asks GitHub through the launching
 person's own `gh`, and so what it costs their GitHub API allowance.
 
-Each load of the dashboard, and each Refresh, makes two authenticated `gh`
-requests for membership, plus one per record not already read at that revision
+Each load of the dashboard makes two authenticated `gh` requests for membership, plus one per record not already read at that revision
 for preparation and detail, and, once per revision, one listing of the agent
 profile directory plus one per profile listed there, and, for each readable
 profile, one listing of its history and one request per commit walked back to

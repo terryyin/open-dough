@@ -126,7 +126,7 @@ reloads) was done here.
 
 ### 2. The dashboard has no manual read control, and says how it recovers
 Type: Behavior
-Status: planned
+Status: done
 Proof: All rows of the proof table owned by slice 2; the removal sweep; `npm run typecheck:dashboard`; lint; the full dashboard Playwright suite once (see Current decisions).
 
 Behavior: the dashboard is open → the developer looks at the banner and
@@ -168,6 +168,35 @@ Includes:
   where another retrieval may help" principle; other controls still follow
   it.
 
+Accepted proof:
+
+- Removal sweep result: only the story review's Refresh
+  (`story-review-refresh.spec.ts`, `story-review-nothing.spec.ts`), the terminal
+  theme's Retry (`terminal-theme-boundary.spec.ts`,
+  `system-settings-terminal-theme.spec.ts`), the new no-Retry assertions
+  (`auto-refresh-recovery`, `auto-refresh-rate-limit`,
+  `authenticated-project-overview`), and the unrelated
+  `savedSessionServices.refresh()` remain.
+- `dashboard-header.spec.ts` asserts no banner button named Refresh or Retry
+  at all four viewports; `expectSnapshotButtons` counts four fixed buttons.
+- `auto-refresh-recovery.spec.ts` and `auto-refresh-rate-limit.spec.ts` assert
+  the reworded alert and no Retry, then recover through `passTimeUntilChecked`.
+- `authenticated-project-overview.spec.ts` and `project-read-recovery.spec.ts`
+  assert the reload message, then restore access and `page.reload()`.
+- Non-control steps of the deleted specs moved to scheduled checks:
+  `auto-refresh-recovery.spec.ts` (a duplicate-listing backlog keeps A whole),
+  `accessible-overview-keyboard.spec.ts` (reading/result/failure announcements),
+  and `story-readiness-accessible.spec.ts` (the next read withdraws the
+  "no longer listed" notice).
+- The refactor renamed the observation's `refresh` to `readAfresh` and split
+  the detail-gap tests into `auto-refresh-detail-recovery.spec.ts`.
+- Typecheck and lint pass. Focused specs green, including
+  `responsive-session-reconciliation*` (12 passed after the refactor). The full
+  `npm run test:dashboard` ran 946 passed, 24 failed at load average ~60 on
+  16 cores: Vite startup, socket hang-up, and timeout failures, mostly in specs
+  this change does not touch. All 14 failing files reran green (41 passed)
+  under the same load. Hosted CI holds the authoritative full-suite result.
+
 ## Current decisions
 
 - **Clean environment for local commands.** This session inherits
@@ -200,3 +229,7 @@ Includes:
   `system-settings-terminal-theme.spec.ts`); that purpose-specific control stays.
 - A scheduled check at an unchanged revision reads nothing; tests needing a
   same-revision read reload instead.
+- `passTimeUntilAsked` gives up after 60 s of page time, so a longer directed
+  rate-limit wait needs `checksAskedWhilePassing` first.
+- Coordination with plan 230: this story is landing first, so 230 drops its
+  Refresh/Retry icon rows.

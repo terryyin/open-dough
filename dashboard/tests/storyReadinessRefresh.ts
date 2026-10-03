@@ -26,8 +26,6 @@ import {
 export async function expectFailedCheckKeepsPriorRevision(
   page: Page,
   source: Locator,
-  refresh: Locator,
-  retry: Locator,
   problem: Locator,
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
@@ -42,8 +40,6 @@ export async function expectFailedCheckKeepsPriorRevision(
   await expect(problem).toContainText("Published work could not be read");
   await expect(problem).toContainText("earlier snapshot");
   await expect(source).toContainText(retainedRevision);
-  await expect(retry).toBeVisible();
-  await expect(refresh).toHaveCount(0);
 
   await expect(
     taken
@@ -70,8 +66,6 @@ export async function expectFailedCheckKeepsPriorRevision(
   await page.reload();
   await expect(problem).toHaveCount(0);
   await expect(source).toContainText(retainedRevision);
-  await expect(refresh).toBeVisible();
-  await expect(retry).toHaveCount(0);
   await expect.poll(() => origin.requests.length).toBeGreaterThan(afterFail);
 }
 

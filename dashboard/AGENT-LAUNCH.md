@@ -117,7 +117,7 @@ cancelled here.” Acceptance closes it; a refusal stays beside the action, and 
 lost answer is uncertain, never accepted. Until the start reconciles, the
 story's whole card frame is protected wherever origin lists it: no action
 button runs, including alternate launches, Inspect story and card session
-actions, while facts and source links stay readable and other cards, Refresh,
+actions, while facts and source links stay readable and other cards,
 navigation, the Sessions sidebar and the terminal work. Its dashed edge joins
 the selection and “Shown in terminal” marks. Its status says the start phase
 (“Preparing execution…” / “Preparing refinement…”, then “Starting execution

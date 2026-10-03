@@ -56,8 +56,7 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
 
   await pausePageClock(page);
   await page.goto("/");
-  const { project, source, backlog, taken, refresh, retry, problem } =
-    parts(page);
+  const { project, source, backlog, taken, problem } = parts(page);
 
   await test.step("baseline membership arrives with supported preparation facts", async () => {
     await expectMembership(page, {
@@ -131,8 +130,6 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
     await expectFailedCheckKeepsPriorRevision(
       page,
       source,
-      refresh,
-      retry,
       problem,
       openDough,
       openDoughOrigin,

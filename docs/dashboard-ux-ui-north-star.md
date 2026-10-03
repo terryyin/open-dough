@@ -73,7 +73,7 @@ override Accepted decisions. No exception is proposed.
 
 Do not require readers to interpret raw Git history to answer the ordinary questions.
 Make the underlying records available when they need to verify an answer. Keep the
-interaction observational: browse, inspect, refresh, and follow source links. A Backlog
+interaction observational: browse, inspect, and follow source links. A Backlog
 card's **Start execution** and **Start refinement** ask Claude Code on this machine to
 execute or refine the story and change no published fact. Assignment and reprioritization
 stay outside this design. Zoom must not invent facts to answer these questions.
@@ -88,8 +88,8 @@ It is part of this temporary design direction and carries the same authority.
 
 When spatial navigation is introduced, animate viewport movement when focusing
 work or returning to the overview, using short, interruptible transitions to
-help preserve orientation. After a successful explicit refresh, motion can
-explain observed placement or order changes for the same identity between the
+help preserve orientation. When an automatic check reads a new snapshot,
+motion can explain observed placement or order changes for the same identity between the
 previous and new snapshots. Start with a small transition if it clarifies that
 change; continuous card travel between stages and an animation engine are not
 first-story acceptance criteria. Apply the new facts as one coherent snapshot;
@@ -176,7 +176,7 @@ History can explain a record's removal; show a historical fact as historical.
 | No Taken work or an empty backlog | Say that no Taken entries or backlog entries were recorded. Keep other discovered stories visible. |
 | A filter has no matches | “No stories match this filter” and a clear reset action. |
 | Some sources fail or records cannot be interpreted | Retain readable facts, identify the gap beside affected content, and provide the source link when available. Do not silently drop the story or convert unreadable data to empty data. |
-| Initial source access fails | Explain the observed failure in plain language, identify the repository/ref when known, and offer Retry. Do not imply the user needs to create stories. |
+| Initial source access fails | Explain the observed failure in plain language, identify the repository/ref when known, and direct the user to reload the page once access is restored. Do not imply the user needs to create stories. |
 | No projects configured | Explain that no projects are configured and direct to System settings → Projects to add the first project. Keep settings reachable after the last removal. Do not substitute a guessed repository. |
 
 ## Visual and accessibility direction

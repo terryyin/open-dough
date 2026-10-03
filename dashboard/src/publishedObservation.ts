@@ -1,12 +1,13 @@
 // The selected project's observation, apart from how the page presents it:
 // which project is observed, its last snapshot, the latest attempt (kept by
 // `./observationAttempt.ts`), and focus kept across a snapshot's replacement.
-// Reads happen on opening, on Refresh or Retry, on selecting a project, and
-// when a scheduled revision check (`./revisionCheckSchedule.ts`) finds the
-// selected ref naming another commit; when it finds a story branch the shown
-// progress is read from at another head, only that progress is read again
-// (`./movedBranchProgress.ts`). What is shown, as launch reconciliation sees
-// it (`shown`), also says whether every detail of it has been read.
+// Reads happen on opening, on selecting a project, when launch reconciliation
+// asks to read afresh, and when a scheduled revision check
+// (`./revisionCheckSchedule.ts`) finds the selected ref naming another commit;
+// when it finds a story branch the shown progress is read from at another
+// head, only that progress is read again (`./movedBranchProgress.ts`). What
+// is shown, as launch reconciliation sees it (`shown`), also says whether
+// every detail of it has been read.
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
@@ -64,11 +65,11 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     findUnchanged,
     restart,
   } = useObservationAttempt();
-  // Opening the page asks for the first read; Refresh, named Retry after a
-  // failed attempt, asks for another. Selecting a different project also
-  // starts a fresh read, through the `source` dependency below. Otherwise a
-  // read is asked only when a revision check finds the ref naming another
-  // commit, and it reads exactly that commit.
+  // Opening the page asks for the first read; launch reconciliation may ask
+  // for another. Selecting a different project also starts a fresh read,
+  // through the `source` dependency below. Otherwise a read is asked only when
+  // a revision check finds the ref naming another commit, and it reads exactly
+  // that commit.
   const [readRequest, setReadRequest] = useState<ReadRequest>({
     asked: 1,
     revision: undefined,
@@ -209,7 +210,9 @@ export function usePublishedObservation(initialSource: PublishedSource) {
   }, [work]);
 
   const reading = attempt.status === "reading";
-  const refresh = () => {
+  // Launch reconciliation's fresh read of the ref; one already under way
+  // stands for it.
+  const readAfresh = () => {
     if (!reading) {
       askRead(undefined);
     }
@@ -240,7 +243,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     attempt,
     notice,
     reading,
-    refresh,
+    readAfresh,
     selectSource,
   };
 }

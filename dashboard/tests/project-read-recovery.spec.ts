@@ -1,7 +1,7 @@
 // A failed read of one project -- here Pygardon, published to the same fake
 // GitHub as Open Dough and Doughnut (./publishedOrigin.ts) -- is recovered in
 // the browser without losing project context: switching stays available,
-// Retry reads the project once access is restored, and a later failure keeps
+// reloading reads the project once access is restored, and a later failure keeps
 // only that project's previous snapshot. No real credentials change.
 // Server-side failure categories are covered by
 // authenticated-read-boundary.spec.ts; subprocess timeout is covered by
@@ -95,7 +95,7 @@ test.describe("project read recovery", () => {
 
     await pausePageClock(page);
     await page.goto("/");
-    const { project, direction, source, problem, retry, refresh } = parts(page);
+    const { project, direction, source, problem } = parts(page);
     const pygardon = project.getByRole("radio", {
       name: "Pygardon",
       exact: true,
@@ -107,7 +107,7 @@ test.describe("project read recovery", () => {
       await pygardon.check();
       await expectProblemAndNoSnapshot(
         page,
-        "The local GitHub CLI is not logged in, so main of terryyin/pygardon could not be read. Run `gh auth login` (check with `gh auth status`), then press Retry.",
+        "The local GitHub CLI is not logged in, so main of terryyin/pygardon could not be read. Run `gh auth login` (check with `gh auth status`), then reload the page.",
         pygardonRepository,
       );
     });
@@ -120,8 +120,6 @@ test.describe("project read recovery", () => {
       await expectMembership(page, { taken: [], backlog: [doughnutTitle] });
       await expect(source).toContainText(doughnutRevision);
       await expect(problem).toHaveCount(0);
-      await expect(refresh).toBeVisible();
-      await expect(retry).toHaveCount(0);
     });
 
     await test.step("returning to Pygardon while access is still unavailable starts a fresh, still-failing read -- not stale Doughnut data", async () => {
@@ -145,8 +143,6 @@ test.describe("project read recovery", () => {
       await expect(direction).toContainText(pygardonDirection);
       await expect(source).toContainText(pygardonRevision);
       await expect(problem).toHaveCount(0);
-      await expect(refresh).toBeVisible();
-      await expect(retry).toHaveCount(0);
     });
 
     await test.step("a later failed check keeps only Pygardon's previous snapshot, with the failure reported alongside it", async () => {
@@ -165,8 +161,6 @@ test.describe("project read recovery", () => {
       await expect(source).toContainText(pygardonRevision);
       await expect(page.locator("body")).not.toContainText(doughnutTitle);
       await expect(page.locator("body")).not.toContainText(openDoughTitle);
-      await expect(retry).toBeVisible();
-      await expect(refresh).toHaveCount(0);
     });
   });
 
@@ -197,7 +191,8 @@ test.describe("project read recovery", () => {
       await expect(problem).toContainText(
         "The local GitHub CLI did not answer within 2 seconds while reading main of terryyin/pygardon.",
       );
-      await expect(controlsBesideSessions(page)).toHaveAccessibleName("Retry");
+      await expect(problem).toContainText("Reload the page to read again.");
+      await expect(controlsBesideSessions(page)).toHaveCount(0);
       await expect(page.getByRole("article")).toHaveCount(0);
 
       releaseRef();

@@ -10,7 +10,7 @@ import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   expectBadgeTextContrastAndReducedMotion,
   expectKeyboardOpensAndClosesDetail,
-  expectNarrowZoomKeepsLabelsEvidenceAndRetry,
+  expectNarrowZoomKeepsLabelsEvidenceAndFailure,
   expectNewSnapshotPreservesOrAnnouncesIdentity,
 } from "./storyReadinessAccessible.ts";
 import {
@@ -68,20 +68,26 @@ test("story readiness reads preparation and progress accessibly", async ({
     );
   });
 
-  await test.step("badge text, contrast, and reduced-motion settle immediately", async () => {
+  await test.step("the next newly read snapshot withdraws the removal announcement", async () => {
     publishRestoreUnrefined(openDough);
     const restored = publishAssessedContentChange(openDough);
     openDoughOrigin.advanceTo(restored);
     await passTimeUntilChecked(page);
+    await expect(parts(page).source).toContainText(restored);
     await expectMembership(page, {
       taken: [plannedReady.title],
       backlog: [unrefined.title, plannedBlocked.title],
     });
+    await expect(parts(page).reading).toHaveCount(0);
+    await expect(parts(page).notice).toBeEmpty();
+  });
+
+  await test.step("badge text, contrast, and reduced-motion settle immediately", async () => {
     await expectBadgeTextContrastAndReducedMotion(page, taken, backlog);
   });
 
-  await test.step("at 320px and 400% zoom, labels, evidence, and Retry stay reachable", async () => {
-    await expectNarrowZoomKeepsLabelsEvidenceAndRetry(
+  await test.step("at 320px and 400% zoom, labels, evidence, and the read failure stay reachable", async () => {
+    await expectNarrowZoomKeepsLabelsEvidenceAndFailure(
       page,
       taken,
       backlog,

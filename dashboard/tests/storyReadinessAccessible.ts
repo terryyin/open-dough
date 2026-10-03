@@ -114,7 +114,7 @@ export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
   await expect(notice).toHaveAttribute("data-known", "[aria-live='polite']");
 }
 
-export async function expectNarrowZoomKeepsLabelsEvidenceAndRetry(
+export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   page: Page,
   taken: Locator,
   backlog: Locator,
@@ -159,16 +159,15 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndRetry(
 
   const restore = origin.answerWith("main", rateLimitedAnswer());
   await passTimeUntilChecked(page, 502);
-  const { retry, problem, source } = parts(page);
+  const { problem, source } = parts(page);
   await expect(problem).toContainText("Published work could not be read");
-  await retry.scrollIntoViewIfNeeded();
-  await expect(retry).toBeInViewport({ ratio: 1 });
+  await problem.scrollIntoViewIfNeeded();
+  await expect(problem).toBeInViewport();
   await expect(source).toBeVisible();
   await expectNoSidewaysScrollAndWholeText(page);
   restore();
   await passTimeUntilChecked(page);
   await expect(problem).toHaveCount(0);
-  await expect(parts(page).refresh).toBeVisible();
 }
 
 export async function expectBadgeTextContrastAndReducedMotion(

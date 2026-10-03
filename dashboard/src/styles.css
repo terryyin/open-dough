@@ -60,7 +60,7 @@ code,
   font-size: 0.85rem;
 }
 
-/* One visible focus indication for every link, the read control, and the
+/* One visible focus indication for every link, every button, and the
    groups that receive focus only when it is returned to them. */
 :focus-visible {
   outline: 3px solid var(--accent);

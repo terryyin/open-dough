@@ -39,7 +39,11 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
   await expect(
     page.getByRole("article", { name: plannedReady.title }),
   ).toBeVisible();
-  const { project, preparationHelp, refresh } = parts(page);
+  const { banner, project, preparationHelp } = parts(page);
+  const settings = banner.getByRole("button", {
+    name: "System settings",
+    exact: true,
+  });
   await expect(
     project.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();
@@ -56,7 +60,7 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
     expect(new URL(page.url()).searchParams.get("project")).toBeNull();
     await dialog.getByRole("button", { name: "Close", exact: true }).click();
     await expect(dialog).not.toBeVisible();
-    await refresh.focus();
+    await settings.focus();
     await page.keyboard.press("ArrowRight");
     await expect(
       project.getByRole("radio", { name: "Doughnut", exact: true }),
@@ -98,7 +102,7 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
   });
 
   await test.step("already-prevented arrow events keep the selection", async () => {
-    await refresh.focus();
+    await settings.focus();
     await page.evaluate(() => {
       const prevent = (event: KeyboardEvent) => {
         if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
@@ -133,8 +137,10 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
 test("modified arrow keys do not cycle projects", async ({ page }) => {
   await publishCatalogProjects(page);
   await page.goto("/");
-  const { project, refresh } = parts(page);
-  await refresh.focus();
+  const { banner, project } = parts(page);
+  await banner
+    .getByRole("button", { name: "System settings", exact: true })
+    .focus();
 
   for (const key of [
     "Shift+ArrowRight",
