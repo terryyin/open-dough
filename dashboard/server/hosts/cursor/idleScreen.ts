@@ -14,8 +14,8 @@ export const cursorIdleSettleMs = 203;
 const workingScreenMarkers = ["Working", "Running", "ctrl+c to stop"] as const;
 
 // Cursor's empty composer. Older builds say "Add a follow-up". The current
-// build says "Plan, search, build anything". Either line, with a visible
-// cursor, is ready for the launch instruction.
+// build says "Plan, search, build anything". Either line is ready for the
+// launch instruction. A hidden cursor does not withhold it.
 const composerPrompts = [
   "Add a follow-up",
   "Plan, search, build anything",

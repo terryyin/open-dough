@@ -1,7 +1,8 @@
 // Enters one launch instruction into a kept client once its server-side
-// screen is ready, and holds idle hangup until that write. The first
-// completed screen, or the client exiting, settles the launch wait. A later
-// screen can still accept the instruction.
+// screen is ready, and holds idle hangup until that write. A ready screen
+// settles the launch wait even when no synchronized frame arrived. A screen
+// that is not ready still waits for a completed frame. The client exiting
+// also settles the wait. A later screen can still accept the instruction.
 import { KeptClientScreen } from "./keptClientScreen.ts";
 
 export type LaunchInstructionInput = {
@@ -76,12 +77,13 @@ export class LaunchInstruction {
       this.announce();
       return;
     }
-    if (!screen.completedFrame()) return;
+    const ready = this.launch.ready(screen.text(), screen.cursorVisible());
+    // The host's ready rule is enough to enter the instruction and settle
+    // the wait. A screen that is not ready still waits until a frame has
+    // finished before that wait settles.
+    if (!screen.completedFrame() && !ready) return;
     screen.takeFrame();
-    if (
-      !this.entered &&
-      this.launch.ready(screen.text(), screen.cursorVisible())
-    ) {
+    if (!this.entered && ready) {
       this.entered = true;
       const instruction = this.launch.instruction.endsWith("\r")
         ? this.launch.instruction
