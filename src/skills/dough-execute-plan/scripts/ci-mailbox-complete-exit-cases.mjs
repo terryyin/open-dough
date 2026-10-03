@@ -139,10 +139,7 @@ test("completion does not confirm shutdown for a worker whose liveness stays unk
     checkedBy: { runId: 1, attemptId: 1 },
   });
 
-  const result = await completeRevision(directory, sha, {
-    root: process.cwd(),
-    storage,
-  });
+  const result = await completeRevision(directory, sha, { storage });
   assert.equal(result.verdict, "success");
   assert.equal(result.shutdown.status, "unconfirmed");
   assert.equal(result.shutdown.limitation, "observer_liveness_unknown");

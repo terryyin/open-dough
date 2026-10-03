@@ -91,8 +91,14 @@ Observed 2026-10-03 at `f09795ed` in this workspace, with `NODE_ENV` unset
 
 ### 1. The CI-mailbox completion cases give the root's result from any directory
 Type: Behavior
-Status: planned
-Proof: Rows 1–2 of the proof table.
+Status: done
+Proof: Rows 1–2 of the proof table. Accepted: the three case files omit
+`root`, so the mailbox calls use the default `checkoutRoot`. Before, from
+`src/skills`, `node --test dough-execute-plan/scripts/ci-mailbox-complete.test.mjs`
+failed 2 of 25 with "CI mailbox belongs to another checkout"; after, 25 of 25
+from `src/skills` and from `$TMPDIR` (absolute path), and
+`ci-mailbox-await.test.mjs` 20 of 20 both ways. `scripts/test.sh` with both
+files exits 0 from the root and from `src/skills`.
 
 Behavior: an agent in `src/skills` (or anywhere) → runs
 `node --test dough-execute-plan/scripts/ci-mailbox-complete.test.mjs` → it

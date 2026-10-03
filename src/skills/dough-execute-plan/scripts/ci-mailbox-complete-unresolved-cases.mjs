@@ -188,10 +188,7 @@ test("unconfirmed shutdown names the limitation and does not stop another worker
     state: "success",
     checkedBy: { runId: 1, attemptId: 1 },
   });
-  const result = await completeRevision(directory, sha, {
-    root: process.cwd(),
-    storage,
-  });
+  const result = await completeRevision(directory, sha, { storage });
   assert.equal(result.verdict, "success");
   assert.equal(result.shutdown.status, "unconfirmed");
   assert.match(
