@@ -47,13 +47,13 @@ Included scope is the story's scope. Material exclusions:
   `process.cwd()` call in test code, with a message that names the two root
   owners. Its scope is `dashboard/tests/**`, `tests/**`, and under
   `src/skills/*/scripts/` the `*.test.mjs`, `*-cases.mjs`, and `*fixture*.mjs`
-  files. Three existing uses are not the root. Each keeps an inline disable
+  files. Two existing uses are not the root. Each keeps an inline disable
   that gives its reason: `dashboard/tests/support/quietReporter.ts:28` and
   `tests/support/node-test-failures-reporter.mjs:86` show paths relative to
-  where the run started, and
-  `tests/support/git-publication-native-one-shot-escalation-fixture.mjs:60`
-  saves the directory to restore later. `process.cwd()` inside a string
-  written into a fake executable is not a call and stays allowed.
+  where the run started. `process.cwd()` inside a string written into a fake
+  executable or generated file (such as
+  `tests/support/git-publication-native-one-shot-escalation-fixture.mjs:60`)
+  is not a call and stays allowed.
 
 Accepted ADRs: [0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
 favours small, inexpensive change. Test-only changes; no ADR conflict. No North
@@ -148,12 +148,17 @@ then take the residue found by the foreign-directory run separately.
 
 ### 3. Lint keeps test code from taking the root from the working directory
 Type: Behavior
-Status: planned
-Proof: Row 6 of the proof table.
+Status: done
+Proof: Row 6 of the proof table. Accepted: a `no-restricted-syntax` object in
+`eslint.config.mjs` matches `process.cwd()` calls in the scoped test files.
+Scratch files with that call in `dashboard/tests/support/`, `tests/`, and a
+`src/skills` `*-cases.mjs` made `npm run lint` fail, naming each with the
+message; a scratch product script was not flagged; the string at
+`agent-launch-done-codex-races.spec.ts:175` passes; final `npm run lint` exit 0.
 
 Behavior: a contributor writes `process.cwd()` as a root in test code → runs
 `npm run lint` (or the pre-commit hook) → lint fails, naming the file and
-pointing to `repositoryRoot.ts` or `checkoutRoot`. The three annotated
+pointing to `repositoryRoot.ts` or `checkoutRoot`. The two annotated
 non-root uses and string-embedded `process.cwd()` pass.
 
 This comes last because the rule fails until slices 1 and 2 remove the
@@ -188,3 +193,8 @@ existing uses.
   session" article absent. It passed in the first foreign-directory run and
   15/15 with `--repeat-each=5` from both the root and `$TMPDIR`, so it is a
   load race, not a directory dependency. Not reproduced; unresolved.
+- CI run 37128988653 failed `agent-terminal-cursor-idle.spec.ts:98` on
+  `5f550850`: the "no SIGHUP yet" check lost to the 203 ms idle settle under
+  load (a 250 ms lag probe reproduced it). Repaired in `85cb7d44`: the spec
+  now asserts the SIGHUP comes no sooner than `cursorIdleSettleMs` after the
+  close.

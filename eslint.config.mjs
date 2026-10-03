@@ -86,5 +86,27 @@ export default defineConfig(
       ],
     },
   },
+  {
+    // Test code finds the repository from its own location, so checks run
+    // from any directory.
+    files: [
+      "dashboard/tests/**",
+      "tests/**",
+      "src/skills/*/scripts/**/*.test.mjs",
+      "src/skills/*/scripts/**/*-cases.mjs",
+      "src/skills/*/scripts/**/*fixture*.mjs",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.object.name='process'][callee.property.name='cwd']",
+          message:
+            "Do not take the repository root from the working directory. Use `repoRoot` from dashboard/tests/support/repositoryRoot.ts in dashboard tests, or `checkoutRoot` from src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs elsewhere.",
+        },
+      ],
+    },
+  },
   prettier,
 );
