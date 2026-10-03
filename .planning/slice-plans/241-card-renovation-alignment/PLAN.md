@@ -3,8 +3,8 @@
 **Identity:** SEED-091#card-renovation-alignment
 **Source:** [correction story](../../seeds/SEED-091-dashboard-ui-renovation.md#card-renovation-alignment),
 a bounded retrospective correction of
-[SEED-091#story-card-information-radiator](../../seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator)
-and its plan [231](../231-story-card-information-radiator/PLAN.md).
+[SEED-091#story-card-information-radiator](https://github.com/terryyin/open-dough/blob/bf0d9ad52cfbe4c0a01fac4907361016f1f8d7d5/.planning/seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator)
+and its plan [231](https://github.com/terryyin/open-dough/blob/bf0d9ad52cfbe4c0a01fac4907361016f1f8d7d5/.planning/slice-plans/231-story-card-information-radiator/PLAN.md).
 **Provenance:** reviewed commits `c58dc07d` (slice 1, compact reading),
 `dc03853b` (slice 2, action groups) and `138f693c` (CI repair) on
 `claude/make-story-cards-modern-compact-information-radi-2`, base `07641aca`.
