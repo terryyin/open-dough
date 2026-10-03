@@ -149,6 +149,13 @@ and "Land automatically when selected"; the existing
 review walked key example 5 (open decision under auto-land → committed,
 unlanded, Needs human engagement) and a review-mode ready case.
 
+## Execution complete
+
+Product advice: no change. The outcome rule now lives in Story Refinement's
+SKILL.md and one-shot reports it; the story's deferrals (a dashboard-visible
+flawless state, automatic refinement-session Done) stay with SEED-008's queued
+quiet dashboard session completion, which may adopt them later.
+
 ## Current decisions
 
 - One section in `SKILL.md`, with no new reference file (payload
