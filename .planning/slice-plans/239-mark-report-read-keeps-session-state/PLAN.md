@@ -168,3 +168,14 @@ Learnings:
 - Claude's rename goes through an open attachment, so the report-panel path
   shows the rename only by the Recent entry's line; the terminal-panel test
   proves the native listing name.
+
+## Execution complete
+
+Product advice: no change to backlog priorities. The story's promises are
+delivered as planned. For wrap-up, consider these:
+
+- Recent sessions now reads "Named `done-…`" for Claude or Codex records that
+  were reported and marked done locally before this change, although they were
+  never renamed. The story excludes migration, so this is display-only.
+- The read endpoint's refusals (no unread report, unknown session) have no
+  test of their own.
