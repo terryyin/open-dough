@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "philip-chan",
-  "email": "philip-chan@example.org",
-  "identity": "SEED-087#production-cursor-missing",
-  "mode": "story-branch",
-  "branch": "codex/production-cursor-missing",
-  "host": "codex"
-}
