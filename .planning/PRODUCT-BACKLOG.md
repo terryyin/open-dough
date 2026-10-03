@@ -16,10 +16,10 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Prove a slice through the consumers of what it changes](seeds/SEED-095-slice-proof-through-consumers.md#prove-slices-through-consumers) — SEED-095#prove-slices-through-consumers ([plan](slice-plans/237-prove-slices-through-consumers/PLAN.md))
 - [Type the story into Cursor's empty chat](seeds/SEED-096-cursor-empty-chat-prompt.md#cursor-empty-chat-receives-instruction) — SEED-096#cursor-empty-chat-receives-instruction
+- [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator ([plan](slice-plans/231-story-card-information-radiator/PLAN.md))
 
 ## Backlog list
 
-- [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator ([plan](slice-plans/231-story-card-information-radiator/PLAN.md))
 - [Acknowledge a session report without ending the session's state](seeds/SEED-052-start-agent-work-from-dashboard.md#mark-report-read-keeps-session-state) — SEED-052#mark-report-read-keeps-session-state
 - [Run a check from any directory and get CI's result](seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory) — SEED-093#checks-run-from-any-directory
 - [Show story review and terminal in one resizable side panel](seeds/SEED-091-dashboard-ui-renovation.md#review-and-terminal-share-side-panel) — SEED-091#review-and-terminal-share-side-panel

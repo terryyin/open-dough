@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "identity": "SEED-091#story-card-information-radiator",
+  "mode": "story-branch",
+  "branch": "claude/make-story-cards-modern-compact-information-radi-2",
+  "host": "claude"
+}
