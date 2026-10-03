@@ -57,7 +57,6 @@ project-read-recovery.spec.ts
 accessible-overview-keyboard.spec.ts
 auto-refresh-unusable-branch.spec.ts
 agent-launch-card-sessions.spec.ts
-refresh.spec.ts
 agent-roster.spec.ts
 agent-launch-codex.spec.ts
 source-navigation.spec.ts
@@ -73,7 +72,6 @@ agent-launch-preparation-codex-continuation.spec.ts
 agent-launch-preparation-kept.spec.ts
 agent-terminal-maximize.spec.ts
 session-alerts-unavailable.spec.ts
-read-failure-refresh.spec.ts
 nerds-cartoon-portrait.spec.ts
 agent-terminal-codex-page.spec.ts
 agent-launch-done-codex-races.spec.ts
@@ -113,7 +111,6 @@ agent-launch-preparation-phases.spec.ts
 taken-execution-complete.spec.ts
 agent-launch-preparation-codex-recovery.spec.ts
 session-sidebar-keyboard.spec.ts
-refresh-focus.spec.ts
 agent-launch-codex-confirmation.spec.ts
 agent-launch-codex-lifetime.spec.ts
 authenticated-read-subprocess-lifecycle.spec.ts

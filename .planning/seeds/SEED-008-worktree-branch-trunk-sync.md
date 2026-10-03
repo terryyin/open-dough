@@ -129,7 +129,7 @@ Terry's 2026-09-22 Pygardon report described repeated observer setup and handle
 transcription, early provisional coverage notifications, and a separate closure
 observer cycle. No raw transcript established the repeated-setup cause. The
 full investigation is retained in Git at `1352844` and linked findings
-[ODF-069](../../docs/maintainer/finding-names.md#odf-069).
+[ODF-069](../../docs/maintainer/near-term-watch-list.md#odf-069).
 Later source review corrected the claimed production readiness command: it was
 a test substitute. Current story scope replaces the earlier idle-expiry
 and ref-watching proposals; do not implement those historical mechanisms.

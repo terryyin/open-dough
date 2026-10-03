@@ -60,7 +60,7 @@ test("a reconciled Take whose story is then removed leaves no recovery after a r
 
   await removeQueuedStory(origin);
   const removal = (await origin.originGit("rev-parse", "main")).trim();
-  await parts(page).refresh.click();
+  await page.reload();
   await expectRemovedSettled(page, removal);
   await page.reload();
   await expectRemovedSettled(page, removal);

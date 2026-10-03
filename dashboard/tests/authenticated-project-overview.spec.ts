@@ -4,7 +4,7 @@
 // which launches a synthetic `gh` on this test's own isolated PATH
 // (./support/dashboardServer.ts) answering from this test's fake GitHub
 // (./support/fakeGitHub.ts). Nothing here stubs the boundary or hands the
-// page a prebuilt `PublishedWork`: opening, selecting, and refreshing a project
+// page a prebuilt `PublishedWork`: opening, selecting, and reloading a project
 // must resolve its configured ref, read its backlog and reachable records
 // pinned to that exact revision, and render
 // them -- with no read of GitHub from the browser itself.
@@ -39,7 +39,7 @@ const credentialMarker = "gho_should-never-reach-a-browser-4c3b2a1f0e9d";
 test.use({ baseURL: undefined });
 
 for (const mode of ["dev", "preview"] as const) {
-  test(`authenticated project overview: each catalog project opens and refreshes through the local boundary; missing gh login reports a read failure (${mode} launch mode)`, async ({
+  test(`authenticated project overview: each catalog project opens and reloads through the local boundary; missing gh login reports a read failure that a reload after restored access recovers (${mode} launch mode)`, async ({
     page,
     github,
   }) => {
@@ -74,13 +74,7 @@ for (const mode of ["dev", "preview"] as const) {
     });
     try {
       await page.goto(server.baseURL);
-      const {
-        project: selector,
-        direction,
-        source,
-        refresh,
-        problem,
-      } = parts(page);
+      const { project: selector, direction, source, problem } = parts(page);
 
       for (const published of projects) {
         const calls = observed.get(published.repository) ?? [];
@@ -136,9 +130,9 @@ for (const mode of ["dev", "preview"] as const) {
           expectPinnedGhCalls(calls, published, mode);
         });
 
-        await test.step(`refreshing ${published.label} resolves ${published.ref} again through local gh`, async () => {
+        await test.step(`reloading ${published.label} resolves ${published.ref} again through local gh`, async () => {
           const before = calls.length;
-          await refresh.click();
+          await page.reload();
           await expect(source).toContainText(published.revision);
           await expect.poll(() => calls.length).toBeGreaterThan(before);
           expect(calls[before]?.argv).toEqual([
@@ -158,10 +152,30 @@ for (const mode of ["dev", "preview"] as const) {
           .getByRole("radio", { name: "Doughnut", exact: true })
           .check();
         await expect(problem).toContainText(
-          "The local GitHub CLI is not logged in, so main of nerds-odd-e/doughnut could not be read. Run `gh auth login` (check with `gh auth status`), then press Retry.",
+          "The local GitHub CLI is not logged in, so main of nerds-odd-e/doughnut could not be read. Run `gh auth login` (check with `gh auth status`), then reload the page.",
         );
         await expect(page.getByRole("article")).toHaveCount(0);
-        await expect(page.getByRole("button", { name: "Retry" })).toBeVisible();
+        await expect(problem).toContainText("Reload the page to read again.");
+        await expect(page.getByRole("button", { name: "Retry" })).toHaveCount(
+          0,
+        );
+      });
+
+      await test.step("after access is restored, reloading shows the selected project's published work", async () => {
+        const doughnut = projects.find(
+          (published) => published.repository === "nerds-odd-e/doughnut",
+        );
+        if (doughnut === undefined) {
+          throw new Error("Missing the Doughnut catalog project.");
+        }
+        await publishFiles(page, publicationOf(doughnut));
+        await page.reload();
+        await expectMembership(page, {
+          taken: [doughnut.taken],
+          backlog: [doughnut.queued],
+        });
+        await expect(source).toContainText(doughnut.revision);
+        await expect(problem).toHaveCount(0);
       });
 
       await test.step("the browser only ever asked its own server; nothing credential-like reached it", async () => {

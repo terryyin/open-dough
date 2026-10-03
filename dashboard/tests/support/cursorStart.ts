@@ -1,13 +1,20 @@
 // Real Git origin and installed execution-start. Only cursor-agent is a fixture.
+// A spec sets `cursorScreen` to choose the attach screen the fixture paints.
 import { test as base } from "../dashboardTest.ts";
-import { installFakeCursor, type FakeCursor } from "./fakeCursor.ts";
+import {
+  installFakeCursor,
+  type CursorScreen,
+  type FakeCursor,
+} from "./fakeCursor.ts";
 import { startOrigin, type StartOrigin } from "./startOrigin.ts";
 export { expect } from "../dashboardTest.ts";
 
 export const test = base.extend<{
   origin: StartOrigin;
+  cursorScreen: CursorScreen | undefined;
   cursor: FakeCursor;
 }>({
+  cursorScreen: [undefined, { option: true }],
   // eslint-disable-next-line no-empty-pattern
   origin: async ({}, use) => {
     const origin = await startOrigin(
@@ -21,9 +28,10 @@ export const test = base.extend<{
   machine: async ({ origin }, use) => {
     await use(origin.machine);
   },
-  // eslint-disable-next-line no-empty-pattern
-  cursor: async ({}, use) => {
-    const cursor = installFakeCursor();
+  cursor: async ({ cursorScreen }, use) => {
+    const cursor = installFakeCursor(
+      cursorScreen === undefined ? {} : { screen: cursorScreen },
+    );
     await use(cursor);
     cursor.cleanup();
   },
@@ -38,11 +46,6 @@ test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
 
 // Cursor keeps working after its launch instruction, so the launch client is
 // not hung up as idle before the page's terminal joins it.
-export const workingCursorTest = test.extend<{ cursor: FakeCursor }>({
-  // eslint-disable-next-line no-empty-pattern
-  cursor: async ({}, use) => {
-    const cursor = installFakeCursor({ screen: "working" });
-    await use(cursor);
-    cursor.cleanup();
-  },
+export const workingCursorTest = test.extend({
+  cursorScreen: "working",
 });

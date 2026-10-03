@@ -61,7 +61,7 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
   });
 
   await page.goto("/");
-  const { project, source, backlog, taken, refresh } = parts(page);
+  const { project, source, backlog, taken } = parts(page);
   const readyCard = taken.getByRole("article", { name: plannedReady.title });
 
   await test.step("membership and order arrive before inventing not-refined", async () => {
@@ -164,12 +164,11 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
     await expectReadyDetailZeroComplete(taken, openDoughOrigin);
   });
 
-  await test.step("after publishing two done slices with accepted proof, refresh shows two of five", async () => {
+  await test.step("after publishing two done slices with accepted proof, a reload shows two of five", async () => {
     await expectReadyDetailTwoCompleteAfterPublish(
       page,
       taken,
       source,
-      refresh,
       openDough,
       openDoughOrigin,
       publishTwoSlicesDone,

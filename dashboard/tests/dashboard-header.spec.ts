@@ -41,8 +41,7 @@ for (const viewport of [
         content: `.banner { font-family: ${fontFamily}, sans-serif; }`,
       });
     }
-    const { banner, project, sourceEvidence, source, refresh, backlog } =
-      parts(page);
+    const { banner, project, sourceEvidence, source, backlog } = parts(page);
     const last = backlog
       .getByRole("article", { name: queuedTitle(queuedCount) })
       .getByRole("link", { name: /^Canonical record/ });
@@ -58,17 +57,13 @@ for (const viewport of [
     await expect(
       banner.getByRole("heading", { level: 1, name: "Open Dough" }),
     ).toBeInViewport({ ratio: 1 });
-    for (const control of [project, settings(page), sourceEvidence, refresh]) {
+    for (const control of [project, settings(page), sourceEvidence]) {
       await expect(control).toBeInViewport({ ratio: 1 });
     }
-    const [selectionBox, refreshBox] = await Promise.all([
-      box(project),
-      box(refresh),
-    ]);
-    expect(
-      selectionBox.x + selectionBox.width <= refreshBox.x ||
-        selectionBox.y >= refreshBox.y + refreshBox.height,
-    ).toBe(true);
+    // The page keeps itself up to date; the banner offers no read control.
+    await expect(
+      banner.getByRole("button", { name: /^(Refresh|Retry)$/ }),
+    ).toHaveCount(0);
     const pinned = await box(banner);
     expect(pinned.y).toBe(0);
     expect(pinned.height).toBeLessThan(viewport.height / 2);
@@ -82,13 +77,11 @@ for (const viewport of [
       ),
     ).toEqual([1, 1, 1, 1]);
     await expect(sourceEvidence).toContainText("Open Dough");
-    await expectNoSidewaysScrollAndWholeText(page);
     await expectFrameIconControl(
       sidebarParts(page).button,
       "Sessions",
       "Sessions (⌘B)",
     );
-    await expectFrameIconControl(refresh, "Refresh");
     await expectFrameIconControl(settings(page), "System settings");
     await expectNoSidewaysScrollAndWholeText(page);
 
@@ -101,7 +94,6 @@ for (const viewport of [
     await warning.scrollIntoViewIfNeeded();
     await expect(warning).toBeInViewport({ ratio: 1 });
     await expect(warning).toContainText("not commit time");
-    await expect(refresh).toBeInViewport({ ratio: 1 });
     await expect(sourceEvidence).toBeInViewport({ ratio: 1 });
     await expectNoSidewaysScrollAndWholeText(page);
     await sourceEvidence.click();
@@ -129,16 +121,10 @@ for (const width of [1440, 1280]) {
     const origin = await publishMovingOrigin(page);
     origin.push(revision, largeBacklog);
     await page.goto("/");
-    const { banner, project, sourceEvidence, refresh } = parts(page);
+    const { banner, project, sourceEvidence } = parts(page);
     await expect(sourceEvidence).toContainText("Open Dough");
     const gear = settings(page);
-    const inOrder = [
-      sidebarParts(page).button,
-      sourceEvidence,
-      project,
-      refresh,
-      gear,
-    ];
+    const inOrder = [sidebarParts(page).button, sourceEvidence, project, gear];
     await expectSideBySideInOrder(inOrder);
     const middles = (await Promise.all(inOrder.map(box))).map(
       ({ y, height }) => y + height / 2,
@@ -158,7 +144,7 @@ for (const width of [1440, 1280]) {
   });
 }
 
-test("banner project selection and icon refresh read the selected project's actual published work", async ({
+test("banner project selection reads the selected project's actual published work", async ({
   page,
 }) => {
   await page.setViewportSize(zoomedWindow);
@@ -166,12 +152,11 @@ test("banner project selection and icon refresh read the selected project's actu
   openDough.push(revision, largeBacklog);
   const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
   const doughnutRevision = "d".repeat(40);
-  const nextRevision = "e".repeat(40);
   const backlog = (title: string) =>
     `# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [${title}](seeds/SEED-001.md#story) — SEED-001#story\n`;
   doughnut.push(doughnutRevision, backlog("Doughnut's next story"));
   await page.goto("/");
-  const { project, source, sourceEvidence, refresh } = parts(page);
+  const { project, source, sourceEvidence } = parts(page);
   await expect(source).toContainText(revision);
   const openDoughChoice = project.getByRole("radio", {
     name: "Open Dough",
@@ -196,13 +181,6 @@ test("banner project selection and icon refresh read the selected project's actu
   await expect(source).toContainText("main");
   await sourceEvidence.click();
   await expect(source).toContainText(doughnutRevision);
-  doughnut.push(nextRevision, backlog("Doughnut's refreshed story"));
-  await refresh.click();
-  await expectMembership(page, {
-    taken: [],
-    backlog: ["Doughnut's refreshed story"],
-  });
-  await expect(source).toContainText(nextRevision);
   expect(openDough.requests).toHaveLength(2);
-  expect(doughnut.requests).toHaveLength(4);
+  expect(doughnut.requests).toHaveLength(2);
 });

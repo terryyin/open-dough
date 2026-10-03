@@ -10,7 +10,13 @@
 // reconciled, a reload reconciles it again without asking GitHub.
 
 import { attempts } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import {
+  passTimeUntilAsked,
+  passTimeUntilChecked,
+  pausePageClock,
+} from "./autoRefreshJourney.ts";
+import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
+import { cardSessions } from "./dashboardPage.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
 import { commitAnswer, rateLimitedAnswer } from "./originAnswers.ts";
@@ -39,8 +45,8 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   const before = (await origin.originGit("rev-parse", "main")).trim();
   const push = origin.holdPushes();
   dashboard.claudeScenario("held");
+  await pausePageClock(page);
   const { published, story, takenStory } = await openStories(page, origin);
-  const { refresh } = parts(page);
 
   await story.getByRole("button", { name: "Start execution" }).click();
   await page
@@ -49,11 +55,12 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
     .click();
   await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
 
-  // A read asked before the Take is published answers only after it settles,
-  // with the revision before it.
+  // A check asked before the Take is published, and the fresh read the
+  // start's settling asks, answer only after it settles, with the revision
+  // before it.
   published.answerWith("main", commitAnswer(before));
   const releaseRef = published.hold("main");
-  await refresh.click();
+  await passTimeUntilAsked(page);
   push.release();
   await expect
     .poll(async () => (await attempts(dashboard))[0]?.publication, {
@@ -70,16 +77,13 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(story).toContainText(waiting);
   await expectProtected(story);
 
-  // That snapshot was asked before the Take settled, so once it is shown the
-  // page reads `main` afresh exactly once; the revision is still the one before.
-  const mainReads = () =>
-    published.requests.filter(({ request }) => request.kind === "ref").length;
-  const readsBeforeShown = mainReads();
+  // The held reads answer with the revision before the Take. Every read they
+  // lead to is answered before `main` moves, so none lands late.
   releaseRef();
-  await expect.poll(mainReads).toBe(readsBeforeShown + 1);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${before.slice(0, 7)}`,
   );
+  await untilPageRequestsAnswered(page);
   await expect(story).toContainText(waiting);
   await expectProtected(story);
   await expect(takenStory).toHaveCount(0);
@@ -89,13 +93,13 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   const unrelated = await commitOn(origin, before);
   published.answerWith("main", commitAnswer(unrelated));
   const restoreCompare = published.answerWith("compare", rateLimitedAnswer());
-  await refresh.click();
+  await passTimeUntilChecked(page);
   await expect(story).toContainText(
     `GitHub limited the rate of the local GitHub CLI's requests (HTTP 403) while reading whether ${unrelated} contains ${accepted}.`,
   );
   await expectProtected(story);
   restoreCompare();
-  await refresh.click();
+  await page.reload();
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${unrelated.slice(0, 7)}`,
   );
@@ -107,7 +111,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   // every fact of the snapshot.
   const releaseSeed = published.hold(".planning/seeds/A.md");
   published.answerWith("main", commitAnswer(accepted));
-  await refresh.click();
+  await passTimeUntilChecked(page);
   await expect(takenStory).toBeVisible();
   await expect(story).toHaveCount(0);
   await expect(takenStory).toContainText(waiting);
@@ -126,7 +130,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   // A later revision containing it keeps them.
   const descendant = await commitOn(origin, accepted);
   published.answerWith("main", commitAnswer(descendant));
-  await refresh.click();
+  await passTimeUntilChecked(page);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${descendant.slice(0, 7)}`,
   );
@@ -167,8 +171,8 @@ test("a refinement's announcement, read before its session settles, keeps the st
 }) => {
   test.setTimeout(120_000);
   dashboard.claudeScenario("held");
+  await pausePageClock(page);
   const { published, story } = await openStories(page, origin);
-  const { refresh } = parts(page);
 
   await story.getByRole("button", { name: "Start refinement" }).click();
   await page
@@ -183,7 +187,7 @@ test("a refinement's announcement, read before its session settles, keeps the st
   const accepted = (await origin.originGit("rev-parse", "main")).trim();
 
   // The announcement is read while the session is still starting.
-  await refresh.click();
+  await passTimeUntilChecked(page);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${accepted.slice(0, 7)}`,
   );

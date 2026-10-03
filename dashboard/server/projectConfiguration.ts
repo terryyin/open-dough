@@ -1,13 +1,6 @@
 // The local dashboard server owns one saved project list for its launch mode.
 // Only ENOENT permits seeding; unreadable files stay untouched and admit no project.
-import { randomUUID } from "node:crypto";
-import {
-  mkdirSync,
-  readFileSync,
-  renameSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
@@ -15,6 +8,7 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ProjectSettings } from "../src/projectConfiguration.ts";
 import { ProjectInputProblem } from "../src/projectInput.ts";
 import { productionSeedProjects } from "./projectConfigurationSeed.ts";
+import { replaceFile } from "./fileReplacement.ts";
 
 export type ProjectEnvironment = "development" | "production";
 export type ConfiguredProject = PublishedSource & {
@@ -51,15 +45,7 @@ function writeConfiguration(
   saved: readonly ConfiguredProject[],
 ): void {
   mkdirSync(path.dirname(file), { recursive: true });
-  const temporary = `${file}.${randomUUID()}.tmp`;
-  try {
-    writeFileSync(temporary, `${JSON.stringify(saved, null, 2)}\n`, {
-      flag: "wx",
-    });
-    renameSync(temporary, file);
-  } finally {
-    rmSync(temporary, { force: true });
-  }
+  replaceFile(file, `${JSON.stringify(saved, null, 2)}\n`);
 }
 
 export function initializeProjectConfiguration(next: ProjectEnvironment): void {

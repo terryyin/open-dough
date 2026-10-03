@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test as machineTest } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
+import { pausePageClock, passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import {
   expectControlContrast,
   expectReadableContrast,
@@ -84,17 +85,18 @@ test("the row below the banner, the stages, and the connector read clearly in th
 test("an empty stage and a failed read are said in the frame's look, whole in a narrow window", async ({
   page,
 }) => {
+  await pausePageClock(page);
   const origin = await publishMovingOrigin(page);
   origin.push("e1".repeat(20), emptyBacklog);
   await page.setViewportSize(narrowWindow);
   await page.goto("/");
-  const { backlog, refresh, problem } = parts(page);
+  const { backlog, problem } = parts(page);
   const empty = backlog.getByText("No Backlog entries are recorded.");
   await expect(empty).toBeVisible();
   await expectReadableContrast(empty);
 
   origin.answerWith("main", rateLimitedAnswer());
-  await refresh.click();
+  await passTimeUntilChecked(page, 502);
   const heading = problem.getByRole("heading", {
     name: "Published work could not be read",
   });

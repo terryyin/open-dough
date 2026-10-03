@@ -44,13 +44,12 @@ export function PublishedReadFailure({
         {work && attempt.checksResumeAt ? (
           <>
             As GitHub asked, automatic checks wait until{" "}
-            <Moment at={attempt.checksResumeAt} />. Press Retry to read again
-            sooner.
+            <Moment at={attempt.checksResumeAt} />.
           </>
         ) : work ? (
-          `Automatic checks continue every ${String(checkIntervalMs / 1000)} seconds while this page is visible. Press Retry to read again now.`
+          `Automatic checks continue every ${String(checkIntervalMs / 1000)} seconds while this page is visible.`
         ) : (
-          "Press Retry to read again."
+          "Reload the page to read again."
         )}
       </p>
     </div>

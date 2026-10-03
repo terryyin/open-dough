@@ -1,5 +1,5 @@
 // Owns one mounted xterm/WebSocket attachment, including native readiness frames.
-import { useEffect, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import type { LaunchRecord } from "./agentLaunch.ts";
@@ -14,6 +14,8 @@ import {
   type TerminalMessage,
 } from "./agentTerminal.ts";
 import type { SessionOperation, SessionRequest } from "./pageSessions.ts";
+import { useShownTerminalTheme } from "./savedTerminalTheme.ts";
+import { terminalThemes } from "./terminalThemes.ts";
 
 function terminalUrl(record: LaunchRecord): string {
   const query = new URLSearchParams({
@@ -31,7 +33,8 @@ export type TerminalEnding = "disconnected" | "ended" | "failed";
 // Attaches a terminal in `element` to the session while it is mounted, anew
 // for each `attempt`, reports once each attachment is ready, and
 // reports how the attachment ended unless the panel ended it itself. The
-// terminal takes the keyboard unless the request says otherwise.
+// terminal takes the keyboard unless the request says otherwise, and shows the
+// theme saved in System settings, following a change without re-attaching.
 // Callbacks must keep their identity across renders; disposed attachments
 // cannot report readiness, workspace refusal or an ending to a later attempt.
 export function useAttachedTerminal(
@@ -47,12 +50,26 @@ export function useAttachedTerminal(
 ) {
   const url = terminalUrl(session.record);
   const takesKeyboard = session.takesKeyboard !== false;
+  const theme = terminalThemes[useShownTerminalTheme()].theme;
+  // The theme a new attachment starts with, and the live terminal a theme
+  // change applies to, kept out of the attachment's dependencies so a change
+  // never reopens the socket.
+  const latestTheme = useRef(theme);
+  const live = useRef<Terminal | undefined>(undefined);
+  useEffect(() => {
+    latestTheme.current = theme;
+    if (live.current) live.current.options.theme = theme;
+  }, [theme]);
   useEffect(() => {
     const screen = element.current;
     if (screen === null) {
       return;
     }
-    const terminal = new Terminal({ cursorBlink: true });
+    const terminal = new Terminal({
+      cursorBlink: true,
+      theme: latestTheme.current,
+    });
+    live.current = terminal;
     const fit = new FitAddon();
     terminal.loadAddon(fit);
     terminal.open(screen);
@@ -170,6 +187,7 @@ export function useAttachedTerminal(
       typed.dispose();
       resized.dispose();
       socket.close();
+      if (live.current === terminal) live.current = undefined;
       terminal.dispose();
     };
   }, [

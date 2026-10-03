@@ -110,7 +110,7 @@ export function useObservationAttempt() {
   };
 
   // A failed attempt says when checks resume from the same wait the schedule
-  // obeys, so a later failure that directs none (a manual Retry refused for
+  // obeys, so a later failure that directs none (a fresh read refused for
   // another reason) still reports the wait GitHub asked for.
   const { latest } = attempts;
   const attempt: Attempt =

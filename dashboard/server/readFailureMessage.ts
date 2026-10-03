@@ -35,18 +35,18 @@ function failureMessage(
 ): string {
   const reason =
     error instanceof GhFailure ? error.reason : { kind: "failed" as const };
-  const checkAccess = `Check that \`gh auth status\` succeeds and that this login can read ${source.repository}, then press Retry.`;
+  const checkAccess = `Check that \`gh auth status\` succeeds and that this login can read ${source.repository}, then reload the page.`;
   switch (reason.kind) {
     case "not-logged-in":
-      return `The local GitHub CLI is not logged in, so ${reading} could not be read. Run \`gh auth login\` (check with \`gh auth status\`), then press Retry.`;
+      return `The local GitHub CLI is not logged in, so ${reading} could not be read. Run \`gh auth login\` (check with \`gh auth status\`), then reload the page.`;
     case "not-installed":
-      return `The GitHub CLI (\`gh\`) could not be started, so ${reading} could not be read. Install \`gh\` and run \`gh auth login\`, then press Retry.`;
+      return `The GitHub CLI (\`gh\`) could not be started, so ${reading} could not be read. Install \`gh\` and run \`gh auth login\`, then reload the page.`;
     case "unreachable":
       return `The local GitHub CLI could not reach GitHub while reading ${reading}.`;
     case "rate-limited": {
       const wait =
         reason.waitSeconds === undefined
-          ? "Wait before pressing Retry."
+          ? "Wait before reloading the page."
           : `GitHub asked to wait ${String(reason.waitSeconds)} seconds before asking again.`;
       return `GitHub limited the rate of the local GitHub CLI's requests (HTTP ${String(reason.status)}) while reading ${reading}. ${wait}`;
     }

@@ -7,6 +7,7 @@ import {
 import { SettingsGear } from "./DashboardBanner.tsx";
 import { SystemSettings } from "./SystemSettings.tsx";
 import { SettingsNavigation } from "./settingsNavigation.ts";
+import { SavedTerminalThemeProvider } from "./savedTerminalTheme.ts";
 
 export function App() {
   const { projects, problem, replaceProjects } = useProjectConfiguration();
@@ -85,50 +86,52 @@ export function App() {
       </p>
     );
   return (
-    <ProjectsOnPage projects={projects} replaceProjects={replaceProjects}>
-      <SettingsNavigation.Provider
-        value={(onReturn) => {
-          returnToLaunch.current = onReturn;
-          openSettings();
-        }}
-      >
-        <div hidden={settings}>
-          {projects.length === 0 ? (
-            <>
-              <header className="banner">
-                <SettingsGear onOpen={openSettings} />
-              </header>
-              <main className="frame-state">
-                <h1>No projects configured</h1>
-                <p>
-                  Open System settings → Projects to add a project and see its
-                  published work and start sessions.
-                </p>
-              </main>
-            </>
-          ) : (
-            <ConfiguredDashboard
-              settingsOpen={settings}
-              onOpenSettings={openSettings}
-              onDashboardReady={(value) => {
-                if (dashboard.current?.source.id !== value.source.id)
-                  setSelected(value.source.id);
-                dashboard.current = value;
+    <SavedTerminalThemeProvider>
+      <ProjectsOnPage projects={projects} replaceProjects={replaceProjects}>
+        <SettingsNavigation.Provider
+          value={(onReturn) => {
+            returnToLaunch.current = onReturn;
+            openSettings();
+          }}
+        >
+          <div hidden={settings}>
+            {projects.length === 0 ? (
+              <>
+                <header className="banner">
+                  <SettingsGear onOpen={openSettings} />
+                </header>
+                <main className="frame-state">
+                  <h1>No projects configured</h1>
+                  <p>
+                    Open System settings → Projects to add a project and see its
+                    published work and start sessions.
+                  </p>
+                </main>
+              </>
+            ) : (
+              <ConfiguredDashboard
+                settingsOpen={settings}
+                onOpenSettings={openSettings}
+                onDashboardReady={(value) => {
+                  if (dashboard.current?.source.id !== value.source.id)
+                    setSelected(value.source.id);
+                  dashboard.current = value;
+                }}
+              />
+            )}
+          </div>
+          {settings && (
+            <SystemSettings
+              selectedId={selected ?? dashboard.current?.source.id}
+              onSelect={(source) => {
+                dashboard.current?.select(source);
+                setSelected(source.id);
               }}
+              onBack={back}
             />
           )}
-        </div>
-        {settings && (
-          <SystemSettings
-            selectedId={selected ?? dashboard.current?.source.id}
-            onSelect={(source) => {
-              dashboard.current?.select(source);
-              setSelected(source.id);
-            }}
-            onBack={back}
-          />
-        )}
-      </SettingsNavigation.Provider>
-    </ProjectsOnPage>
+        </SettingsNavigation.Provider>
+      </ProjectsOnPage>
+    </SavedTerminalThemeProvider>
   );
 }

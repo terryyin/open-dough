@@ -129,7 +129,7 @@ test("a story removed while its startup needs reconciliation keeps that recovery
     await page.reload();
     await expectStaticallyProtected(takenStory);
     await removeQueuedStory(origin);
-    await parts(page).refresh.click();
+    await page.reload();
     await expect(
       parts(page).stages.getByRole("article", { name: "Story A" }),
     ).toHaveCount(0);

@@ -15,6 +15,7 @@ import {
   rateLimitedAnswer,
 } from "./publishedOrigin.ts";
 import { box } from "./pageLayout.ts";
+import { pausePageClock, passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import {
   backlogB,
   openAtA,
@@ -30,16 +31,15 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   origin.push(revisionB, backlogB);
   await page.goto("/");
   await expectMembership(page, titlesOfB);
-  const { project, sourceEvidence, directionToggle, backlog, taken, refresh } =
+  const { project, sourceEvidence, directionToggle, backlog, taken } =
     parts(page);
 
   // Reading order is the order of the page's source: Sessions, the project
-  // selector, the read control, source evidence, System settings, then
-  // direction, Start session and
-  // the badge legend, then each card's controls and recorded links by stage (Backlog,
-  // then Taken): a Backlog card's enabled launch actions, then Inspect. In a wide
-  // window Taken stands beside Backlog's first card, so position on screen
-  // would order them differently.
+  // selector, source evidence, System settings, then direction, Start
+  // session and the badge legend, then each card's controls and recorded links
+  // by stage (Backlog, then Taken): a Backlog card's enabled launch actions,
+  // then Inspect. In a wide window Taken stands beside Backlog's first card,
+  // so position on screen would order them differently.
   const stopsFor = async (stage: Locator) => {
     const stops: Locator[] = [];
     for (const card of await stage.getByRole("article").all()) {
@@ -66,7 +66,6 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   const stops = [
     page.getByRole("button", { name: "Sessions", exact: true }),
     selectedProject,
-    refresh,
     sourceEvidence,
     page.getByRole("button", { name: "System settings", exact: true }),
     directionToggle,
@@ -75,12 +74,12 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // Sessions + selected project radio + Refresh + Source evidence +
-  // System settings + Direction + Start session + Legend + two Backlog cards'
-  // enabled launch actions + four Inspect + five recorded links.
-  expect(stops).toHaveLength(8 + 2 + 4 + 5);
+  // Sessions + selected project radio + Source evidence + System settings +
+  // Direction + Start session + Legend + two Backlog cards' enabled launch
+  // actions + four Inspect + five recorded links.
+  expect(stops).toHaveLength(7 + 2 + 4 + 5);
 
-  await test.step("Tab stops at Sessions, the read control, each card's controls, and every recorded link, and nowhere else", async () => {
+  await test.step("Tab stops at Sessions, the banner's controls, each card's controls, and every recorded link, and nowhere else", async () => {
     for (const stop of stops) {
       await page.keyboard.press("Tab");
       await expectFocusedAndIndicated(page, stop);
@@ -130,12 +129,14 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   });
 });
 
-test("accessible overview announces reading, the read result, and a failure while focus stays on the read control", async ({
+test("accessible overview announces reading, the read result, and a failure while focus stays where it is", async ({
   page,
 }) => {
-  const retrievedB = new Date("2026-09-20T12:00:00.000Z");
+  await pausePageClock(page);
   const origin = await openAtA(page);
-  const { refresh, retry, status, notice, problem } = parts(page);
+  const { source, status, notice, problem } = parts(page);
+  const retrievedA =
+    (await source.locator("time").getAttribute("datetime")) ?? "";
 
   await test.step("both polite regions are offered before they have anything new to say", async () => {
     await expect(status).toContainText(
@@ -150,17 +151,21 @@ test("accessible overview announces reading, the read result, and a failure whil
     expect(await box(status)).toMatchObject({ width: 1, height: 1 });
   });
 
-  // Sessions, the project, then the read control.
+  // Sessions, the project, the source evidence, then System settings.
+  const settings = page.getByRole("button", {
+    name: "System settings",
+    exact: true,
+  });
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
-  await expect(refresh).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(settings).toBeFocused();
 
-  await test.step("Space asks for a read, which the known status region reports as under way", async () => {
+  await test.step("a check that finds B starts a read, which the known status region reports as under way", async () => {
     origin.push(revisionB, backlogB);
     const releaseFileAtB = origin.hold(revisionB);
-    await page.clock.setFixedTime(retrievedB);
-    await page.keyboard.press("Space");
+    await passTimeUntilChecked(page);
     await expect(status).toHaveText(
       "Reading published work… What is shown is still the snapshot retrieved earlier.",
     );
@@ -168,8 +173,7 @@ test("accessible overview announces reading, the read result, and a failure whil
     // A read under way is said nowhere else, so it is said in sight.
     await expect(status).toBeInViewport({ ratio: 1 });
     expect((await box(status)).height).toBeGreaterThanOrEqual(16);
-    await expect(refresh).toHaveAttribute("aria-disabled", "true");
-    await expect(refresh).toBeFocused();
+    await expect(settings).toBeFocused();
     releaseFileAtB();
   });
 
@@ -180,9 +184,11 @@ test("accessible overview announces reading, the read result, and a failure whil
         `^Published work read at revision ${revisionB.slice(0, 7)}, retrieved [^.]+\\.$`,
       ),
     );
+    const retrievedB = await source.locator("time").getAttribute("datetime");
+    expect(retrievedB).not.toBe(retrievedA);
     await expect(status.locator("time")).toHaveAttribute(
       "datetime",
-      retrievedB.toISOString(),
+      retrievedB ?? "",
     );
     await expect(status).toHaveAttribute("data-known", "[role='status']");
     await expect(notice).toHaveAttribute("data-known", "[aria-live='polite']");
@@ -192,20 +198,21 @@ test("accessible overview announces reading, the read result, and a failure whil
       true,
       true,
     ]);
-    await expect(refresh).toBeFocused();
+    await expect(settings).toBeFocused();
   });
 
-  await test.step("Enter asks again; a failure is an alert, and focus stays on the same control", async () => {
+  await test.step("a failed check is an alert, and focus stays where it is", async () => {
+    const readsBefore = pathsRead(origin).length;
     const restore = origin.answerWith("main", rateLimitedAnswer());
-    await page.keyboard.press("Enter");
+    await passTimeUntilChecked(page, 502);
     await expect(problem).toContainText(
       "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403)",
     );
-    expect(pathsRead(origin)).toHaveLength(5);
+    expect(pathsRead(origin)).toHaveLength(readsBefore);
     await expect(status).toBeEmpty();
     await expect(status).toHaveAttribute("data-known", "[role='status']");
     await expect(status).toHaveCount(1);
-    await expect(retry).toBeFocused();
+    await expect(settings).toBeFocused();
     restore();
   });
 });

@@ -1,11 +1,11 @@
 // Selecting a project starts one read that only that selection may complete.
-// This is the cross-project analog of ./refresh.spec.ts and
-// ./refresh-focus.spec.ts, which already prove the same-project overlapping
-// read case (a second refresh outrunning or replacing an earlier one); this
-// file proves the same `../src/publishedObservation.ts` rule -- one
-// `AbortController` per read, an abort-check before every `setRetrieval`, and
-// a synchronous state-clear in `selectSource` -- also holds when the overlap
-// crosses a *project* switch, not just a same-project refresh, including when
+// This is the cross-project analog of ./auto-refresh.spec.ts, which already
+// proves the same-project overlapping read case (main moving again while a
+// read is under way); this file proves the same
+// `../src/publishedObservation.ts` rule -- one `AbortController` per read, an
+// abort-check before every `setRetrieval`, and a synchronous state-clear in
+// `selectSource` -- also holds when the overlap crosses a *project* switch,
+// not just a same-project read, including when
 // the deselected project's read answers late with success, answers late with
 // failure, or when the person returns to a project whose earlier read is
 // still outstanding elsewhere.
@@ -19,8 +19,8 @@
 // it never fires, even seconds later -- so there is no later moment at which
 // a late answer could still take effect. Releasing the held mock only lets
 // this suite's own test-side route handler finish; it reaches nothing on the
-// page. This matches ./refresh.spec.ts's own held-response races, which also
-// assert immediately after release.
+// page. This matches ./auto-refresh.spec.ts's own held-response races, which
+// also assert immediately after release.
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
@@ -124,8 +124,8 @@ test.describe("project read isolation", () => {
 
     await test.step("Doughnut's held read answers late with success, after Open Dough is already shown", async () => {
       releaseDoughnut();
-      // Immediate assertions, matching ./refresh.spec.ts's own held-response
-      // races: nothing about the page depends on this release, so there is
+      // Immediate assertions, matching ./auto-refresh.spec.ts's own
+      // held-response races: nothing about the page depends on this release, so there is
       // no later moment at which it could still take effect.
       await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);
       await expect(source).toContainText(revisionOpenDoughSecond);
@@ -145,7 +145,7 @@ test.describe("project read isolation", () => {
     page,
   }) => {
     const { openDough, doughnut } = await openBothOrigins(page);
-    const { project, refresh, source } = parts(page);
+    const { project, source } = parts(page);
 
     const releaseDoughnut = doughnut.hold("main");
     await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
@@ -172,7 +172,6 @@ test.describe("project read isolation", () => {
         backlog: [openDoughSharedTitleSecond],
       });
       await expect(source).toContainText(revisionOpenDoughSecond);
-      await expect(refresh).toHaveAccessibleName("Refresh");
       expect(doughnut.requests).toHaveLength(1);
     });
   });

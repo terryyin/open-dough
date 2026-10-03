@@ -43,13 +43,13 @@ test("a queued card shows Preparing and its developer from published assignments
     repository: "terryyin/open-dough",
   });
   await page.goto("/");
-  const { backlog, taken, source, refresh } = parts(page);
+  const { backlog, taken, source } = parts(page);
   const card = (title: string) => backlog.getByRole("article", { name: title });
   const badges = (title: string) =>
     card(title).locator(".badge").allTextContents();
   const show = async (revision: string) => {
     origin.advanceTo(revision);
-    await refresh.click();
+    await page.reload();
     await expect(source).toContainText(revision);
     await expectMembership(page, { taken: [], backlog: order });
     await expect(page.getByText("Reading preparation…")).toHaveCount(0);
@@ -165,7 +165,7 @@ test("a queued card shows Preparing and its developer from published assignments
   });
 
   await test.step("two preparation assignments for one entry are shown as conflicting records", async () => {
-    await refresh.click();
+    await page.reload();
     const [first, second] = preparers.conflicting;
     await expect(card(storyA).locator(".owner-summary")).toHaveText([
       `${first} · host not recorded · model not recorded`,

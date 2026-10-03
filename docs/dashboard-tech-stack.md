@@ -248,8 +248,9 @@ Follow pagination and detect truncated tree responses. Traverse the relevant
 subtrees when necessary. Bound requests, file sizes, history exploration, and
 timeouts; expose an incomplete view if limits prevent a complete read. Read
 history where a requested fact needs it, not every commit on every refresh.
-Use manual refresh initially, conditional requests when supported, and explicit
-rate-limit/error states rather than tight polling. GitHub documents
+Check the published revision on a paced schedule while the page is visible, use
+conditional requests when supported, and show explicit rate-limit/error states
+rather than polling tightly. GitHub documents
 [conditional requests and rate-limit handling](https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api).
 
 The Node adapter should expose a small read endpoint for this fixed project and

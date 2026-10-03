@@ -157,6 +157,41 @@
   margin-top: var(--space-1);
 }
 
+/* The terminal theme group: its choice beside its name, then a sample in
+   the chosen theme's own colours (./terminalThemes.ts), framed like a field. */
+.terminal-theme-settings-choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.terminal-theme-settings-choice label,
+.terminal-theme-sample figcaption {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.terminal-theme-sample {
+  max-width: 40rem;
+  margin: 0;
+}
+
+.terminal-theme-sample figcaption {
+  margin-bottom: var(--space-1);
+}
+
+.terminal-theme-sample pre {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-md);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-sm);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 @container settings (max-width: 40rem) {
   .settings-section {
     padding: var(--space-4);

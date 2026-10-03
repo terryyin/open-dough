@@ -6,6 +6,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { projectAddMachine } from "./support/projectAddMachine.ts";
 import { back } from "./support/systemSettingsPage.ts";
+import { themeChoice } from "./support/terminalThemeSettingsPage.ts";
 import {
   expectControlContrast,
   expectReadableContrast,
@@ -18,13 +19,13 @@ test.beforeEach(() => {
 });
 test.afterEach(async () => fixture.close());
 
-const settingGroups = ["Projects", "OpenAI"];
+const settingGroups = ["Projects", "OpenAI", "Terminal theme"];
 
 // Every piece of text a reader reads, and every control, in one area.
 async function expectReadableAndRecognisable(area: Locator) {
   const texts = area.locator("h2, h3, p, dt, dd, label, [role='alert']");
   for (const text of await texts.all()) await expectReadableContrast(text);
-  const controls = area.locator("button, input");
+  const controls = area.locator("button, input, select");
   expect(await controls.count()).toBeGreaterThan(0);
   for (const control of await controls.all()) {
     if ((await control.getAttribute("type")) !== "password")
@@ -40,6 +41,7 @@ async function openSettings(page: Page) {
     page.getByRole("heading", { name: "System settings", exact: true }),
   ).toBeFocused();
   await expect(page.getByText("API key:", { exact: false })).toBeVisible();
+  await expect(themeChoice(page)).toBeEnabled();
 }
 
 test("each setting group is a headed region in one column, with readable text and recognisable controls", async ({
@@ -60,9 +62,11 @@ test("each setting group is a headed region in one column, with readable text an
     await expectReadableAndRecognisable(region);
   }
   // A further group drops in as one more region in the same column.
-  const [projects, openAI] = await Promise.all(regions.map(box));
-  expect(openAI?.x).toBeCloseTo(projects?.x ?? Number.NaN, 0);
-  expect(openAI?.width).toBeCloseTo(projects?.width ?? Number.NaN, 0);
+  const [projects, ...others] = await Promise.all(regions.map(box));
+  for (const other of others) {
+    expect(other.x).toBeCloseTo(projects?.x ?? Number.NaN, 0);
+    expect(other.width).toBeCloseTo(projects?.width ?? Number.NaN, 0);
+  }
 });
 
 test("settings and its project dialogs fit a 420 pixel window without sideways scrolling", async ({

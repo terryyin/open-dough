@@ -126,7 +126,7 @@ test("each Taken card shows its recorded slice progress as a bar and count, or t
 
   await page.goto("/");
 
-  const { taken, backlog: queue, source, refresh } = parts(page);
+  const { taken, backlog: queue, source } = parts(page);
   await expectMembership(page, {
     taken: [counted, planless, unreadable],
     backlog: [queued],
@@ -183,12 +183,12 @@ test("each Taken card shows its recorded slice progress as a bar and count, or t
     await expect(detail.locator(".slice-list > li")).toHaveCount(3);
   });
 
-  await test.step("after a refresh, the bar shows the plan recorded at the new revision", async () => {
+  await test.step("after a reload, the bar shows the plan recorded at the new revision", async () => {
     await publishFiles(
       page,
       publishedAt(revisionB, ["done", "done", "planned"]),
     );
-    await refresh.click();
+    await page.reload();
     await expect(source).toContainText(revisionB);
     const bar = card(counted).getByRole("img", {
       name: "2 of 3 slices recorded complete",

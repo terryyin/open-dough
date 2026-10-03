@@ -19,7 +19,7 @@ export type ProjectArrowEligibility = {
   readonly target: EventTarget | null;
 };
 
-type FocusAfterSwitch = "refresh" | "selected-project" | "unchanged";
+type FocusAfterSwitch = "selected-project" | "unchanged";
 
 function isProjectRadio(target: EventTarget | null): boolean {
   return (
@@ -119,26 +119,10 @@ export function isProjectArrowShortcutEligible(
   return true;
 }
 
-function isReadControl(element: Element): boolean {
-  if (!(element instanceof HTMLElement)) {
-    return false;
-  }
-  const name = element.getAttribute("aria-label");
-  return name === "Refresh" || name === "Retry";
-}
-
 function focusSelectedProjectRadio(): void {
   document
     .querySelector<HTMLInputElement>(
       `input[type="radio"][name="${projectRadioName}"]:checked`,
-    )
-    ?.focus();
-}
-
-function focusReadControl(): void {
-  document
-    .querySelector<HTMLElement>(
-      'button[aria-label="Refresh"], button[aria-label="Retry"]',
     )
     ?.focus();
 }
@@ -153,14 +137,11 @@ function focusStillUseful(): boolean {
   );
 }
 
-// Banner read control survives a project switch by role; story/roster content
+// Banner controls keep focus across a project switch; story/roster content
 // does not. Capture the intent before React replaces the observation.
 function focusAfterProjectSwitch(focused: Element | null): FocusAfterSwitch {
   if (!(focused instanceof HTMLElement) || !focused.isConnected) {
     return "selected-project";
-  }
-  if (isReadControl(focused)) {
-    return "refresh";
   }
   if (isProjectRadio(focused) || focused.closest(".banner")) {
     return "unchanged";
@@ -220,10 +201,6 @@ export function useProjectKeyboardNavigation({
     previousSourceId.current = source.id;
     const planned = focusAfterSwitch.current;
     focusAfterSwitch.current = undefined;
-    if (planned === "refresh") {
-      focusReadControl();
-      return;
-    }
     if (planned === "unchanged") {
       return;
     }

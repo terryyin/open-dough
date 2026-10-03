@@ -8,153 +8,168 @@ allocation (DD-NNN) and removed-finding recovery references. An occurrence in
 this repository alone does not make a cause project-specific. Original finding
 codes and occurrence evidence are retained.
 
-Reviewed on 2026-09-29 against `d68fcde4`. Frequency counts distinct
+Reviewed on 2026-10-03 against `99292557`. Frequency counts distinct
 executions, not commands, retries, or repairs.
 
 ## Priority assessment
 
-1. **Native acceptance harness observations that do not match what the native
-   agent did — first, correction done.** Two executions remain (plans 139 and 154),
-   after DD-179's harness observation faults were resolved: an assessor
-   ordering defect that cost a transcript investigation, and a loosened
-   assessor that accepted failure reports. Story:
-   the assessor counterexample discipline's remaining-gaps correction, done at
-   `b6a3ac18` (story and plan recoverable from
-   `b6a3ac18:.planning/seeds/SEED-055-trustworthy-project-proof.md` and
-   `b6a3ac18:.planning/slice-plans/168-assessor-counterexample-gaps/PLAN.md`)
-   (DD-160, DD-175, ODF-087's harness facet; the counterexample helper and its
-   guard landed, and this correction closes what they still miss).
-2. **Native host runs and observations routed through the developer — low,
-   not queued.** Two executions with a cost (plans 139 and 150) and one where
-   the agent found a free route itself (plan 152). The cost was a few developer
-   round trips, and some of that friction is intended while paid native runs
-   stay manual-only.
-3. **Local checks whose result differs from CI's — low, not queued.** Five
-   executions (plans 140, 146, 147, 157, 165), one finding each. DD-187 (a
-   `pipefail` pipeline that git could lose to SIGPIPE) cost one CI repair. DD-168 and DD-178
-   (tests that take the repository root from the working directory) had no
-   delivery impact and each needs a small fix. DD-162 came from a coordinator-prescribed
-   direct run that bypassed the runner's existing guard. DD-171 matches
-   published ODF-003 (a consumer check missing non-import consumers); ODF-003's
-   plan 104 occurrence failed in the same `dashboard/tests/preparingJourney.ts`.
-4. **Behavior audits that miss guidance-directed actions (DD-113) — low, not
+1. **Tests whose verdict depends on timing or machine load — first, queued.**
+   Four executions (plans 160, 186, 187, 189) with four failed CI runs, each
+   stopping slices for a stash, diagnosis, repair, and publication cycle, plus
+   local full-selection failures that cost a diagnosis without a cause. One
+   failure (`agent-launch-start-taken.spec.ts:53`) is still unexplained. Story:
+   [Keep the dashboard tests' recurring race shapes out by construction](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#expose-timing-races-locally)
+   (DD-186, DD-195, DD-199).
+2. **Checks whose result depends on where or how they are run — second,
+   queued.** Six executions (plans 140, 147, 157, 160, 185, 217), the most
+   frequent group. None reached CI: each cost a failed local run, a diagnosis,
+   or a rerun. Four of the six share one cause, a repository root taken from
+   the working directory (DD-168, DD-178, DD-194), and each fix is small.
+   Story:
+   [Run a check from any directory and get CI's result](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory)
+   (DD-168, DD-178, DD-194).
+3. **Local proof that leaves out what another CI job checks — third, not
+   queued.** Four executions (plans 146, 165, 190, 191) with five failed CI
+   runs. DD-171 recurred in plan 191 with the same error in the same file as
+   plan 146. CI history from 2026-09-29 to 2026-10-03 shows these causes in
+   only about three of 122 failed runs (DD-171, DD-187, DD-197).
+4. **Native host runs and observations routed through the developer — low,
+   not queued.** Three executions with a cost (plans 139, 150, 191) and one
+   where the agent found a free route itself (plan 152). The cost is a few
+   developer round trips, and some of that friction is intended while paid
+   native runs stay manual-only. DD-205 records a practice that removed the
+   babysitting once the developer authorized the run.
+5. **Native observation drivers that act without checking host state — low,
+   not queued.** One execution (plan 192), two findings, both repaired in that
+   run.
+6. **Behavior audits that miss guidance-directed actions (DD-113) — low, not
    queued.** One execution; plan 121 (`178e0346`) corrected its missed merge,
    and no recurrence is recorded.
+7. **Layout proof that checks arrangement but not usable content (DD-184) —
+   low, not queued.** One execution, fixed one slice later.
 
-Resolved and removed on 2026-09-29, each confirmed at `d68fcde4`
-(recovery: `d68fcde4:ProjectFindings.md`):
+Resolved and removed on 2026-10-03, each confirmed at `99292557`
+(recovery: `99292557:ProjectFindings.md` and `99292557:DearDough.md`):
 
-- DD-114 (a runner setting reached checks that start the runner):
-  `scripts/test.sh` unsets `${!OPEN_DOUGH_TEST_@}` after listing jobs, and
-  `tests/test-runner-split.sh` fails on any inherited `OPEN_DOUGH_TEST_*`.
-- DD-164 (negated assessor counterexamples never failed): every negated
-  assessor call now sits in an `if` condition or is a function's return
-  status, and native counterexamples run through
-  `git_publication_suite_expect_rejected`.
-- DD-166 (host `NODE_ENV` reached the dashboard build):
-  `dashboard/vite.config.mts` sets `NODE_ENV=production` for every build.
+- DD-160 (a counterexample removed two signals at once) and DD-175 (a loosened
+  assessor accepted on its old counterexamples): the counterexample helper
+  refuses a case whose change spans two signals, and the remaining-gaps
+  correction closed with all five slices done (story and plan recoverable from
+  `b6a3ac18:.planning/seeds/SEED-055-trustworthy-project-proof.md` and
+  `b6a3ac18:.planning/slice-plans/168-assessor-counterexample-gaps/PLAN.md`).
+  No later execution records an assessor verdict that differed from what the
+  native agent did.
+- DD-204 (the Codex native harness's `--ephemeral` broke cases whose agent
+  spawns a subagent; moved from DearDough.md in this review):
+  `tests/support/native-codex.sh` no longer passes `--ephemeral` (`671b8ff4`).
+- The lint half of DD-178 and DD-194 (a stray git-ignored `dist` build failed
+  `npm run format`): `scripts/lint.mjs` lists files through
+  `git ls-files --exclude-standard`, so ignored build output is not linted.
+  Their working-directory half stays open below.
 
-Resolved and removed on 2026-09-29, confirmed at `1dfb75ee`
-(recovery: `3f0f1ad3:ProjectFindings.md`):
+Earlier removals: DD-114, DD-164, DD-166 (2026-09-29, recovery
+`d68fcde4:ProjectFindings.md`); DD-158 (2026-09-29, recovery
+`3f0f1ad3:ProjectFindings.md`); DD-179 (2026-09-30, recovery
+`34ceff06:ProjectFindings.md`). DD-155 and DD-159 were returned to
+DearDough.md on 2026-09-29.
 
-- DD-158 (local paired A/B runs under load spent proving a CI-judged budget):
-  `scripts/ci-test-times.sh` reports each job's and share total's recent trunk
-  CI range against `tests/time-budget` with a wide or thin verdict, and
-  `tests/time-budget.md` limits local timing to thin headroom, projected from
-  the recent highest CI value.
+## Tests whose verdict depends on timing or machine load (first priority, queued)
 
-Resolved and removed on 2026-09-30 (recovery: `34ceff06:ProjectFindings.md`):
+A test in this repository should give the same verdict on a loaded developer
+machine, an idle one, and CI's runner. Each finding below is a test that
+raced: it passed in ordinary local runs and failed under CI's load, or failed
+locally under load and passed in isolation. Every identified race was repaired
+in its own execution, so what stays open is the class. New races keep arriving
+one failed CI run at a time, and test repairs of the same shape continued after
+these records (`02cd7e86`, `c35ce6f8`, `1af1db40`).
 
-- DD-179 (native harness observation and host shell shims failed on real
-  hosts): plan 163 replays real Claude, Codex, and Cursor streams through one
-  shared reader in the free suite, a guard refuses host-stream parsing
-  outside it, and every harness shim is checked under each login-shell
-  profile (plan at
-  `2b20ed61:.planning/slice-plans/163-native-harness-replay/PLAN.md`). Its residue, continued-command
-  reading and corpus admission, was corrected afterwards (plan at
-  `79d5e22d:.planning/slice-plans/169-native-harness-replay-corrections/PLAN.md`).
+CI history from 2026-09-29 to 2026-10-03 (122 failed runs of 600, 85 of them
+in the `dashboard` job) agrees: five dashboard specs failed on three to five
+unrelated branches each without failing on trunk, about 25 runs. DD-186's
+mailbox race was repaired in the published `ci-mailbox-worker-process.mjs`,
+so that half was a product defect; its test and the other findings here are
+this repository's own.
 
-Returned to DearDough.md on 2026-09-29: DD-155 (plan-number collision, the
-published slice-planning allocation rule, catalog ODF-106) and DD-159
-(a diagnosis misread; its own inference rules out a suite defect). Both had
-moved here only for DearDough's line ceiling.
+**Follow-up:** queued first:
+[Keep the dashboard tests' recurring race shapes out by construction](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#expose-timing-races-locally).
 
-## Native acceptance harness observations that do not match what the native agent did (first priority)
+### DD-186 — Two timing races passed every local run and failed only under CI's load, each on a trunk-merge revision
 
-Native acceptance ([ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md))
-judges a paid native run through this repository's fixtures, substitute
-actors, stream observation, host shell shims, and assessors. Each finding below
-is a place where that machinery reported something other than what the native
-agent did. A paid run was then wasted, or the verdict needed a human reading
-the transcript. The DearDough finding ODF-087 (native agents skipping a
-published gate) has the same harness facet: its plan 147 occurrence passed
-because the assessor observes only the retired outcome. That finding stays in
-DearDough because its cause is guidance-following; the assessor story below
-owns its harness facet.
-
-Each concrete fault below was repaired in its own execution: `afa43926`
-(DD-160) and plan 158 (`8dff3ac0`, DD-175).
-
-**Follow-up:** done at `b6a3ac18`, the assessor counterexample discipline's
-remaining-gaps correction,
-for DD-160, DD-175, and ODF-087's harness facet, after the counterexample
-helper and its guard landed.
-
-Assessor reads still unproved after the counterexample helper landed, each
-found while migrating its suite: `trunk_closure_assess` never reads the
-`response-completion-result` it observes; `native_journey_state_assess` never
-reads `other-tool-root-claude-preserved`; `git_publication_assess`'s prose
-`inconclusive` path has no rejected case; and
-`git_publication_assess_print_fields` has no caller.
-
-### DD-160 — An escalation counterexample removed two signals at once, hiding an assessor ordering defect
-
-Plan 139 slice 1 planned "admission with no prior one-shot edits (admitted up
-front) → inconclusive". The counterexample removed the `--one-shot` start and
-the carried edits together, so an assessor that checked a clean workspace
-before checking whether anything was carried still passed it. The first paid
-run showed the uncovered shape: the agent started one-shot, edited nothing, and
-admitted with `--carry`, and the assessor reported fail instead of the story's
-inconclusive.
+A CI mailbox completion confirmed shutdown while its exiting worker showed a
+bare `[node]` command, and the dev-mode overview spec counted a second
+`commits/main` lookup from StrictMode's aborted first read. Neither reproduced
+in unthrottled local runs; each needed an in-run repair.
 
 #### Occurrences
 
-- Execution: `SEED-028#native-one-shot-escalation` / plan 139, first related implementation commit `23663a21`
-  - Timestamp: 2026-09-28 (paid run 1, results `test-results/native-escalation-1`, before `afa43926`); exact time unknown
+- Execution: `SEED-052#card-session-residue` / plan 160, first related implementation commit `26099a6a`
+  - Timestamp: CI failures on `f5f4dce6` (2026-09-29T19:51:19+08:00) and `d83bb839` (2026-09-29T21:56:22+08:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5[1m]
-  - Open Dough release: modified; revision 0466e5ba
-  - Evidence: `23663a21:tests/support/git-publication-native-one-shot-escalation.sh` counterexample "Admitted up front" and assessor order. Run 1 observations `one-shot-start-observed: true`, `edits-carried: false`, `workspace-edits:` empty → `fail`. Corrected in `afa43926` with a separate "admitted before editing" counterexample.
-  - Observed effect: a transcript investigation and a correction commit before run 2; the paid run itself was needed anyway, because its fixture also had to change.
-  - Inference: Qualified. Counterexamples that vary one planned signal at a time would have exposed the ordering; proof acceptance checked each named case, not whether each case isolated its signal.
+  - Evidence: runs 36564344723 (`'unknown' !== 'dead'`, repaired in `4e0b2420`) and 36578884226 (`expectPinnedGhCalls` at `catalogProjectRecords.ts:107`, repaired in `bb5ee6a1`); red reproductions needed a stub `process.title` and CDP CPU throttling; 48 local runs under 16 `yes` processes passed.
+  - Observed effect: two stash, diagnose, repair, publish, and restore cycles, with slices paused.
+  - Inference: Qualified. Timing-sensitive proof here needs a deliberate slow-path reproduction; plain local load did not expose either race.
 
-### DD-175 — A loosened assessor was accepted on its old counterexamples, not on what it newly accepts
+### DD-195 — Full-selection local runs flaked in existing specs that passed isolated and in CI
 
-Plan 154 slice 3 narrowed a native response check's rejection to admit one reconstructed Cursor line. Its proof, the implementer, refactor, and coordinator acceptance checked only that existing counterexamples kept their verdicts; the retrospective then found four failure reports the new check accepts.
+Across one execution, three large parallel Playwright selections each failed one existing spec that the change did not touch; each passed on isolated rerun and CI stayed green.
 
-**Response to this instance:** plan 158 (`8dff3ac0`) judges Story Branch
-closure responses by sentence and rejects any trunk CI, check, observer, or
-watcher failure. Accepting a widened assessor only on its old
-counterexamples remains open.
+#### Occurrences
+- Execution: `SEED-052#script-refinement-preparation` / plan 186, first related implementation commit `a94806d1`
+  - Timestamp: unknown (session date 2026-09-30; slices 3, 6 and 7)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-sonnet-5-5
+  - Open Dough release: unknown
+  - Evidence: slice 3 selection (234 specs) failed `agent-launch-card-delete.spec.ts:51`, then passed 24 of 24 isolated repeats; slice 6 selection failed it again and passed with the preparation specs; slice 7 selection failed `agent-launch-start-taken.spec.ts:53` ("server could not be reached") and passed on rerun; CI runs `a3c3ea29`, `a9623112`, `d8d42ef6`, `38d53df9`, `7bf821a4`, `ac880042` succeeded.
+  - Observed effect: each failure cost a bounded diagnosis (rerun, read of the spec's dependence on start code) without a cause found.
+  - Inference: Qualified. A read-only review found neither spec using the new shared progress or kept-start code, so load on a machine running other workloads is plausible; not reproduced. Flakiness is a defect even when a rerun passes, so the cause stays open.
+- Execution: `SEED-065#warning-free-lint` / plan 187, CI repair commit `6a8d3608`
+  - Timestamp: 2026-09-30T20:09:39+08:00 (failing CI job's log time)
+  - Tool: Claude Code (coordinator and delegated agent)
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed guidance VERSION 0.3.50
+  - Evidence: CI run 36712853079, job "dashboard (1/2)", on `96838533` failed `agent-launch-card-delete.spec.ts:51` (`cardTop` expected 507.8125, received 586.71875). The run's Playwright trace shows `settled()` in `dashboard/tests/storyStagesPage.ts` passing right after `page.reload()`, before any card rendered, and preparation facts arriving after `before` was measured; a route delay reproduced the exact values. Repair `6a8d3608` makes `settled()` wait for a card first; `--repeat-each=10` and the 18 specs using the helper pass.
+  - Observed effect: one failed CI job, one diagnosis, and one repair commit.
+  - Inference: A cause is now evidenced for the `agent-launch-card-delete.spec.ts:51` failures above: a test-helper race that load widens, not product behavior. `agent-launch-start-taken.spec.ts:53` is not explained by it.
+- Refinement check: `SEED-093#expose-timing-races-locally`
+  - Timestamp: 2026-10-03
+  - Evidence: a survey of 126 failed CI runs from 2026-09-29 to 2026-10-03 found no "server could not be reached" failure of `agent-launch-start-taken.spec.ts:53`; its one CI failure (run 36750057215) came from its branch's added `host` field.
+  - Inference: The local failure has not recurred and its cause is left to recur here. It is outside that story's scope.
+
+### DD-199 — Recovery failure setup used a deadline before establishing accepted input
+
+Former branch-local code: DD-197; reassigned after concurrent trunk allocation of DD-197.
+
+The lost-acknowledgment setup let a short launch deadline disconnect the native substitute without first observing that it accepted the input. An equality between two absent records could pass and conceal the missing precondition. This differs from ODF-067's fixture-computed Git refusal: the operation was attempted here, but its required intermediate event was unproved.
+
+Proposal from the review: For a fault injected after a native event, observe that event before triggering the fault; keep negative-history and no-resend assertions. No guidance change is authorized by this review.
 
 #### Occurrences
 
-- Execution: `SEED-008#closure-proof-and-harness-correction` / plan 154, first related implementation commit `d1204cd7`; Timestamp: unknown (slice 3 accepted before `1e3880ed`, 2026-09-29T15:29:21+08:00); Tool: Claude Code; Model: claude-opus-5-5[1m]; Open Dough release: unknown; installed guidance last updated by `b37292dd`
-  - Evidence: `story_closure_response_trunk_result` at `1e3880ed` returns true for "Trunk CI passed. The watcher failed to start." and three similar lines, false at `a51510d2`; follow-up plan 158. Observed effect: one follow-up correction. Inference: qualified; widening an assessor needs paraphrased failure cases on the side it newly admits (ADR 0005 §2's recorded bad outputs).
+- Execution: `SEED-052#start-codex-refinement-from-dashboard` / plan 189, first related implementation commit `05f3e4a9fa018eba5be122b729f5b78f0e4cce70`
+  - Timestamp: unknown (2026-10-01 resumed execution; CI run36790537801/attempt1)
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: CI job110142132390 failed the negative-history test from `3dbb1f77`; fresh repair baseline with original100ms plus explicit `native.history.length === 1` failed expected1/received0. Repair agent `ci_recovery_setup_repair` terminal report/PTY80979 and published `3fdae6f201941ff239bc24a2788590bdf25e88d7` changed both100/250ms setups to await held input acceptance before disconnecting and assert durable uncertainty/ID. [Recovered slice5 proof](https://github.com/terryyin/open-dough/blob/719a5ef8525788bd7d9288cff8f97c76bf1f5b6b/.planning/slice-plans/189-start-codex-refinement-from-dashboard/PLAN.md) retains the exact command; production unchanged.
+  - Observed effect: One owned repair commit and a pause in native acceptance; all five selected repair tests passed afterward. The original no-resend and history/status assertions remained.
+  - Inference: Event-based setup supplies causal evidence that elapsed time alone did not. Cost beyond this repair is unmeasured; native pause also included a separate acceptance-wording correction.
 
-## Local checks whose result differs from CI's (low priority, not selected)
+## Checks whose result depends on where or how they are run (second priority, queued)
 
 This repository's checks should give CI's result however they are run
-locally: directly or through `scripts/test.sh`, from any directory, under the
-host's shell and environment, and with the focused proof a change selects. Each
-finding below is a local run whose result differed from CI's. Two earlier
-members of this family were resolved one at a time and are removed above:
-DD-114 (runner settings) and DD-166 (host `NODE_ENV`). Their mechanisms
-differ from the open findings, so this is not counted as a recurrence.
+locally: directly or through `scripts/test.sh`, from any directory, and under
+an agent's non-interactive shell. Each finding below is a local run whose
+result or output depended on how it was started.
 
-DD-171's cause matches published ODF-003, tracked in
-[DearDough.md](DearDough.md); this group keeps its project facet, the
-dashboard's typed import of a skill test fixture.
+DD-168, DD-178, and DD-194 share one cause: a test takes the repository root
+from `process.cwd()`. It is still present in
+`ci-mailbox-complete-unresolved-cases.mjs`,
+`ci-mailbox-complete-exit-cases.mjs`, `dashboard/tests/support/dashboardServer.ts`,
+and `dashboard/tests/support/fixtureExecutable.ts`.
+
+**Follow-up:** queued second:
+[Run a check from any directory and get CI's result](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory) (DD-168,
+DD-178, DD-194). DD-162 and DD-216 have other causes, so it leaves them open.
 
 ### DD-162 — A shell check run directly failed locally because its substitute host resolved macOS Bash 3.2
 
@@ -215,6 +230,47 @@ lints (4,779 `no-undef` errors).
   - Observed effect: one failed formatter run and a diagnosis; nothing published.
   - Inference: Qualified. Same class as DD-168; deriving the root from the file's location would make every directory behave like CI.
 
+### DD-194 — A plan's literal focused proof command failed from its stated directory and left build output that broke the format gate
+
+A plan wrote its focused Playwright command as `cd dashboard && npx playwright test tests/…`, but the dashboard fixtures copy `src/skills/…` relative to the current directory, so the command only works from the workspace root. Its first run also built `dashboard/dashboard/dist`, which the lint step then scanned.
+
+#### Occurrences
+- Execution: `SEED-061#select-refinement-options-from-dashboard` / plan 185, first related implementation commit `06c65127`
+  - Timestamp: 2026-09-30T18:19:53+08:00 (slice 1, before commit `06c65127`)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-sonnet-5-5
+  - Open Dough release: unknown; installed guidance VERSION 0.3.49
+  - Evidence: plan 185 "Outside-in proof" focused run and the slice 1 delegation both gave `cd dashboard && npx playwright test tests/agent-launch-start.spec.ts …`; the slice 1 agent's report says it failed in test setup and reran from the workspace root; the coordinator's next `npm run format` then reported 4812 eslint errors, all in `dashboard/dashboard/dist/assets/index-*.js` (git-ignored, but linted), cleared by deleting `dashboard/dashboard`. Plan 185 "Decisive premises" lists nine observed premises and none is the focused command.
+  - Observed effect: one failed proof run, one failed format run, and a diagnosis round before the first commit; later delegations carried the corrected root-based command.
+  - Inference: Qualified. The plan's command was taken from earlier plans' form rather than run once when planned; a premise check of the literal proof command would have caught it. The lint scanning ignored build output is a separate repository quirk and is not attributed to guidance.
+
+### DD-216 — Literal proof commands printed no pass counts, so agents reran passing suites
+
+The plan's focused Playwright commands used the default reporter. Under the agents' shell, a passing run printed no summary, and two agents reran the same selection with `--reporter` just to report counts.
+
+#### Occurrences
+- Execution: `SEED-052#cursor-native-activity-and-controls` / plan 217, first related implementation commit `7053bc62`
+  - Timestamp: unknown (slice 1 implementation and refactor, between the claim at 2026-10-02T16:31:54+08:00 and `7053bc62` at 16:42:11+08:00)
+  - Tool: Cursor (delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.54 (installed `dough-update/VERSION`)
+  - Evidence: plan 217 slice 1 proof is `env -u NO_COLOR npm run test:dashboard -- … --workers=2` with no reporter. The slice 1 implementer reported "The run exited 0 but printed no summary, so I'm rerunning with the list reporter" (41 passed). The slice 1 refactor agent reported "The test run exited 0 but printed no pass count, so I'm rerunning it with the line reporter" (30 passed). From slice 2 the coordinator added `--reporter=line` to delegated commands, and there were no further count reruns.
+  - Observed effect: two extra Playwright runs of 30–41 tests each.
+  - Inference: Qualified. Diagnosed at refinement on 2026-10-03: the dashboard's quiet reporter (`dashboard/playwright.config.ts`) and the Node runner print nothing on a passing run by design; the shell was not the cause.
+
+## Local proof that leaves out what another CI job checks (third priority, not queued)
+
+A change proved locally should not fail a CI job for a reason the local proof
+never exercised. Each finding below passed its focused local proof and failed
+a different CI job: the dashboard's type check of a skill test fixture, the
+Linux `test` job's tools and Git build, and a pipeline that only the Ubuntu
+runner lost to SIGPIPE.
+
+DD-171's cause matches published ODF-003 and ODF-150, tracked in
+[DearDough.md](DearDough.md); this group keeps its project facet, the
+dashboard's typed import of a skill test fixture, which no local gate checks.
+The pre-commit hook runs lint only.
+
 ### DD-171 — A Land test-fixture signature change failed only the dashboard's TypeScript check
 
 `dashboard/tests/preparingJourney.ts` imports `landWorktree` from
@@ -232,23 +288,21 @@ Node suites passed and only CI's `dashboard` job failed.
   - Evidence: CI run `36507473752` job `dashboard (1/2)`: TS2345 at `preparingJourney.ts(88,38)`; repair `de81cb96` (`identity = undefined`), then `npm run typecheck:dashboard` and `backlog-preparing.spec.ts` passed.
   - Observed effect: one red CI run, a repair stash cycle, and one repair commit.
   - Inference: Qualified. A consumer search limited to `src/skills` misses the dashboard's typed imports; running `npm run typecheck:dashboard` when a shared fixture's signature changes would catch it locally.
+- Execution: `SEED-066#composable-lightweight-session-options` / plan 191, first related implementation commit `ef745cb5`
+  - Timestamp: 2026-10-01T03:16:46Z (CI run 36809768647)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Evidence: slice 5 changed `landWorktree`'s destructured parameters in `dough-land-test-fixtures.mjs`; its proof never ran `npm run typecheck:dashboard`, and `dashboard/tests/preparingJourney.ts` failed with TS2345 again; repair `716c933b`. Recorded in DearDough.md DD-191's plan 191 row, which keeps the delegation facet.
+  - Observed effect: one red CI run and a stash-protocol repair cycle; the same file and error as plan 146.
 
-### DD-186 — Two timing races passed every local run and failed only under CI's load, each on a trunk-merge revision
+### DD-197 — New tests that run tools and Git passed on macOS and failed on CI's Linux test job
 
-A CI mailbox completion confirmed shutdown while its exiting worker showed a
-bare `[node]` command, and the dev-mode overview spec counted a second
-`commits/main` lookup from StrictMode's aborted first read. Neither reproduced
-in unthrottled local runs; each needed an in-run repair.
+Two of the four commits published for one execution failed CI's `test` job for environment reasons that macOS runs could not show; the plan named the Linux container proof only for its last slice.
 
 #### Occurrences
-
-- Execution: `SEED-052#card-session-residue` / plan 160, first related implementation commit `26099a6a`
-  - Timestamp: CI failures on `f5f4dce6` (2026-09-29T19:51:19+08:00) and `d83bb839` (2026-09-29T21:56:22+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5[1m]
-  - Evidence: runs 36564344723 (`'unknown' !== 'dead'`, repaired in `4e0b2420`) and 36578884226 (`expectPinnedGhCalls` at `catalogProjectRecords.ts:107`, repaired in `bb5ee6a1`); red reproductions needed a stub `process.title` and CDP CPU throttling; 48 local runs under 16 `yes` processes passed.
-  - Observed effect: two stash, diagnose, repair, publish, and restore cycles, with slices paused.
-  - Inference: Qualified. Timing-sensitive proof here needs a deliberate slow-path reproduction; plain local load did not expose either race.
+- Execution: `SEED-065#pre-commit-lint-hook` / plan 190, first related implementation commit `42437c58` - Timestamp: 2026-09-30T22:03:00+08:00 (CI runs 36725631259 on `42437c58` and 36726848028 on `0e6e2bbe`) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.51 - Evidence: `42437c58` failed `test (2/2)`: the clean-`.sh` hook test staged a shell file and `shfmt: spawnSync shfmt ENOENT` refused the commit, because only CI's `lint` job installs shellcheck and shfmt; repair `6be8fccc` (skip when either tool is absent). `0e6e2bbe` failed `test (2/2)` with `fatal: cannot use /dev/stdin as an exclude file`, Git on Linux rejecting the piped `--exclude-from=/dev/stdin` that slice 1's own `--staged` code introduced (slice 2 spread it to the ESLint list); repaired inside slice 3's commit `8a165806` after that slice's agent ran `scripts/ci-container.sh` and saw six hook tests fail. The plan's slice 1 and 2 proof commands were local `node --test` runs; `scripts/ci-container.sh` appears only in slice 3's proof. Slice 1's report said existing tests "don't skip either" for missing shell tools, which held for their `.mjs`-only fixtures but was not checked against the CI job's tools.
+  - Observed effect: two failed CI runs, one dedicated repair commit and one repair folded into a slice commit, and one CI-repair stash of finished slice 2 work; the dedicated repair skipped its own refactor pass.
+  - Inference: Qualified. Tests that spawn Git or lint tools depend on the runner's tools and Git build, and the plan only proved them under CI's conditions at its final slice. Running the container proof for any slice that adds such tests would have surfaced both failures before publication; this run's one container run took the agent a few minutes.
 
 ### DD-187 — A `git log | grep -q` observation under `pipefail` flipped on CI when git lost the race to SIGPIPE
 
@@ -268,7 +322,7 @@ Ubuntu runner did not.
   - Observed effect: one CI repair cycle (pause, stash, diagnosis agent, refactor pass, publication) during slice 6.
   - Inference: Qualified. A different mechanism from DD-186's load-dependent races. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh` and `tests/helpers/product-backlog-payload-runtime.bash`.
 
-## Native host runs and observations routed through the developer (low priority, not selected)
+## Native host runs and observations routed through the developer (low priority, not queued)
 
 Paid native runs are manual-only in this repository (`tests/README.md`). Plans
 and coordinators have then sent to the developer runs or observations the agent
@@ -323,7 +377,65 @@ Plan 152 slice 1 said only Terry could run the PTY attach/rename probe because s
   - Observed effect: no developer wait for the probe; the busy-session rename, which does need a model turn, stayed unobserved and bounded by the plan's fallback.
   - Inference: Practice. Planning assumed a cost without checking a zero-cost route for the observation.
 
-## Behavior audits that miss guidance-directed actions (low priority, not selected)
+### DD-205 — Developer-requested paid native runs needed a detached one-command launcher
+
+Former branch-local code: DD-202; reassigned after concurrent trunk allocation of DD-202.
+
+Paid native acceptance takes minutes per case. The coordinator's first background launch was refused by the host's auto-mode classifier; the developer's `!` command stopped at the prompt's 120-second foreground limit and moved to a 30-minute background cap, and long command lines were hard to copy from the session window. A short script that detached the batch (`nohup … &`) and logged to one file, followed with a log monitor, ran 27 sessions without further intervention once the developer explicitly authorized the coordinator.
+
+Proposal from the review: Practice worth keeping; no guidance change authorized.
+
+#### Occurrences
+- Execution: `SEED-066#composable-lightweight-session-options` / plan 191, first related implementation commit `ef745cb5`
+  - Timestamp: unknown (slice 3 probe after `d6301c9e` at 2026-10-01T10:20:17+08:00; slice 8 batch logged 05:2x–06:19:35Z)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `0d565a9e`; base 0.3.51
+  - Evidence: the classifier denial ("Create Unsafe Agents") of the coordinator's backgrounded `tests/git-publication-native.sh --native claude` after the developer asked "could you please do it?"; the developer's reply "this window is weird. I cannot copy"; the `! bash …/probe.sh` run moved to background at 120s; after "I authorize you to do them", `probe8.sh` detached the 27-session batch and a `tail -F | grep` monitor reported each verdict.
+  - Observed effect: one stopped background run, an extra developer round trip, and a second script; afterwards no polling or babysitting.
+  - Inference: Qualified. Host permission behavior is outside Open Dough; the detached launcher plus monitor is the reusable part.
+
+## Native observation drivers that act without checking host state (low priority, not queued)
+
+Observation of a real host through this repository's dashboard fixtures sends
+keys and starts servers on the developer's machine. Each finding below is a
+driver step that assumed the host's state instead of reading it.
+
+### DD-202 — Interrupted proof commands left preview servers outside the cleanup check
+
+Manually stopped browser proof commands left their preview children alive. A process-name check for the disposable fixture missed them because their argv named the shared dashboard dist directory rather than that fixture.
+
+Proposal from the review: Retain owned server process identities through cancellation and verify child exit; a matching-name absence does not establish resource cleanup. This review authorizes no guidance change.
+
+#### Occurrences
+
+- Execution: `SEED-052#use-codex-from-dashboard` / plan 192, first related increment `22ff91b009fb90311cf71230e63f760e0fefdedb`
+  - Timestamp: unknown (2026-10-01 root proof acceptance after native waiting return)
+  - Tool: Codex
+  - Open Dough release: unknown; observation fixture installed real 0.3.51
+  - Evidence: implementation return claimed no fixture server remained after interrupted commands. Root ps found PIDs28944/59938; lsof matched ports64224/64536 exactly to native harness server-start records. Root sent SIGTERM only to those owned preview servers and confirmed both absent with a finite local wait. Attachment PIDs29121/60036/77698 were also independently absent. [Cleanup account](https://github.com/terryyin/open-dough/blob/6dc872978d0ca93fc17a52f9893a6f2a55850b1e/.planning/slice-plans/192-complete-codex-dashboard-sessions/WAITING.md#command-outcomes-and-cleanup).
+  - Observed effect: two orphan preview servers survived the returned cleanup check; root closed them before acceptance/disposal. Shared daemon and CI observer were untouched.
+  - Inference: subprocess cancellation bypassed normal finally cleanup; the report's name-based process filter hid the remaining children. No general native PTY-exit claim follows from this server cleanup.
+
+### DD-203 — An unconditional native UI Escape interrupted a restored question
+
+Former branch-local code: DD-201 at `fff70ca7d0290331878353c7d371f1eecb0f1232:DearDough.md`; reassigned during integration to preserve the independently published DD-201.
+
+The observation driver assumed Enter always opened the hook-review modal, then sent Escape without inspecting the active native view. On saved-session reconnect the pending question took the foreground, so Escape interrupted the real blocking tool.
+
+Proposal from the review: Inspect the current native modal before sending state-changing keys, and verify all questions are answered before expecting completion. This review authorizes no guidance change.
+
+#### Occurrences
+
+- Execution: `SEED-052#use-codex-from-dashboard` / plan 192, first related increment `22ff91b009fb90311cf71230e63f760e0fefdedb`
+  - Timestamp: 2026-10-01T06:55:55.870Z
+  - Tool: Codex
+  - Open Dough release: unknown; observation fixture installed real 0.3.51
+  - Evidence: [native waiting account](https://github.com/terryyin/open-dough/blob/6dc872978d0ca93fc17a52f9893a6f2a55850b1e/.planning/slice-plans/192-complete-codex-dashboard-sessions/WAITING.md#actual-question-dashboard-state-and-answer); same-ID question screenshot at06:55:55.867Z, Escape immediately afterward, function_call_output aborted by user after79.1s and native turn01a0f63d-5eeb-7181-bc66-1d89a09d1771 interrupted. Corrected same-ID continuation01a0f640-5bd5-77e3-bcb3-acc785409cfa asked one tone question, received actual CLI answer and completed at06:57:19.411Z. Raw passing fixture was inspected before ADR0005 disposal; vendor history retained.
+  - Observed effect: one additional substantive continuation was needed; the original input was not blindly replayed. Whole native thread reported77,035 tokens (63,104 cached input), not a measured charge or an isolated interruption cost.
+  - Inference: the first assessor also expected completion after only one of two questions. Neither harness error establishes a product detach failure.
+
+## Behavior audits that miss guidance-directed actions (low priority, not queued)
 
 Open Dough's behavior is carried by both scripts and the skill guidance that
 directs agents, so an audit of where a behavior happens has to cover both.
@@ -341,7 +453,7 @@ The planning audit listed only the scripts that create agent-authored commits. I
   - Evidence: plan 119's PFE names the scripts that create commits (`--author` / `commit-tree`). `publish-the-candidate.md` "Preserve published history" and `product-backlog-git-merge.mjs` `commitAcceptedMerge` still make an agent-authored integration merge without the credit, as merge `199ae44` shows. Correction plan 121.
   - Observed effect: one follow-up correction story. Qualified inference: an audit that greps scripts for commit creation cannot see commits that guidance directs.
 
-## Layout proof that checks arrangement but not usable content (low priority, not selected)
+## Layout proof that checks arrangement but not usable content (low priority, not queued)
 
 ### DD-184 — A layout slice proved where columns sit but not that the page inside them stayed usable
 
@@ -372,5 +484,6 @@ and 1,540px.
 - Moved from `DearDough.md` at `d68fcde4` on 2026-09-29: DD-173, DD-175, and
   ODF-096's plans 142 and 146 occurrences as DD-179 (recovery:
   `d68fcde4:DearDough.md`).
-- Removed as resolved on 2026-09-29: DD-114, DD-164, DD-166; returned to
-  DearDough.md: DD-155, DD-159 (recovery: `d68fcde4:ProjectFindings.md`).
+- Moved from `DearDough.md` at `99292557` on 2026-10-03: DD-194, DD-195,
+  DD-197, DD-199, DD-202, DD-203, DD-204, DD-205, DD-216 (recovery:
+  `99292557:DearDough.md`). DD-204 was removed as resolved in the same review.

@@ -16,13 +16,15 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Keep a Cursor agent running across a dashboard restart](seeds/SEED-089-cursor-session-visible-from-the-start.md#cursor-runner-survives-dashboard-restart) — SEED-089#cursor-runner-survives-dashboard-restart ([plan](slice-plans/228-cursor-runner-survives-dashboard-restart/PLAN.md))
 - [Prove that a story's landed slices leave its review](seeds/SEED-088-dashboard-story-code-review.md#prove-landed-slices-leave-the-review) — SEED-088#prove-landed-slices-leave-the-review ([plan](slice-plans/228-prove-landed-slices-leave-the-review/PLAN.md))
-- [Choose and persist a theme for all embedded terminals](seeds/SEED-090-dashboard-terminal-theme.md#shared-terminal-theme) — SEED-090#shared-terminal-theme ([plan](slice-plans/229-shared-terminal-theme/PLAN.md))
 - [Modernize and streamline the dashboard frame](seeds/SEED-091-dashboard-ui-renovation.md#dashboard-frame-renovation) — SEED-091#dashboard-frame-renovation ([plan](slice-plans/230-dashboard-frame-renovation/PLAN.md))
+- [Keep the dashboard tests' recurring race shapes out by construction](seeds/SEED-093-local-checks-agree-with-ci.md#expose-timing-races-locally) — SEED-093#expose-timing-races-locally ([plan](slice-plans/233-dashboard-test-race-shapes/PLAN.md))
 
 ## Backlog list
 
+- [Keep CI observed for Codex and Cursor executions](seeds/SEED-094-ci-observation-for-codex-and-cursor.md#observe-ci-on-codex-and-cursor) — SEED-094#observe-ci-on-codex-and-cursor
+- [Prove a slice through the consumers of what it changes](seeds/SEED-095-slice-proof-through-consumers.md#prove-slices-through-consumers) — SEED-095#prove-slices-through-consumers
+- [Run a check from any directory and get CI's result](seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory) — SEED-093#checks-run-from-any-directory
 - [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator
-- [Remove the dashboard's manual refresh button and its dead code](seeds/SEED-092-remove-dashboard-manual-refresh.md#remove-manual-refresh) — SEED-092#remove-manual-refresh
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring

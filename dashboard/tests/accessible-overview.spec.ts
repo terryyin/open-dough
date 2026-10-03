@@ -1,3 +1,4 @@
+import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
 import { expect, test } from "./dashboardTest.ts";
 import {
   largeBacklog,
@@ -45,8 +46,7 @@ test("accessible overview reflows long published work for a narrow window and pa
     backlog: { revision, answer: rawFileAnswer(longBacklog) },
   });
   await page.goto("/");
-  const { stages, backlog, taken, connector, direction, source, refresh } =
-    parts(page);
+  const { stages, backlog, taken, connector, direction, source } = parts(page);
   const connectorMeaning = stages.getByText("not a dependency between entries");
   const arrow = stages.locator("svg").first();
   const longCard = taken.getByRole("article", { name: longTitle });
@@ -105,15 +105,13 @@ test("accessible overview reflows long published work for a narrow window and pa
     await expectInside(longCard, taken);
   });
 
-  await test.step("source evidence, direction, and the read control stay reachable", async () => {
+  await test.step("source evidence and direction stay reachable", async () => {
     await parts(page).sourceEvidence.click();
     await expectInside(source.getByText(revision), source);
     await expect(source.locator("time")).toBeVisible();
     await parts(page).sourceEvidence.click();
     await openDirection(page);
     await expect(direction).toContainText("Derive it solely from Git state");
-    await refresh.scrollIntoViewIfNeeded();
-    await expect(refresh).toBeInViewport({ ratio: 1 });
   });
 
   await test.step("browser zoom is left to the reader", async () => {
@@ -157,20 +155,21 @@ test("accessible overview keeps empty groups and their connection readable in a 
   await expectStackedInOrder([direction, backlog, connector, taken]);
 });
 
-test("accessible overview keeps a read problem, the retained work, and the read control reachable in a narrow window", async ({
+test("accessible overview keeps a read problem and the retained work reachable in a narrow window", async ({
   page,
 }) => {
   await page.setViewportSize(zoomedWindow);
   const origin = await publishMovingOrigin(page);
   origin.push(revision, longBacklog);
+  await pausePageClock(page);
   await page.goto("/");
-  const { stages, source, refresh, retry, problem } = parts(page);
+  const { stages, source, problem } = parts(page);
   await expect(stages.getByRole("article")).toHaveCount(5);
 
   const missing = "f".repeat(40);
   origin.push(missing, longBacklog);
   origin.answerWith(missing, notFoundAnswer());
-  await refresh.click();
+  await passTimeUntilChecked(page);
 
   // The problem names a path and a 40-character revision no line can hold.
   await expect(problem).toContainText(
@@ -180,8 +179,8 @@ test("accessible overview keeps a read problem, the retained work, and the read 
   await expectStackedInOrder([source, problem, stages]);
   await expect(problem.locator("time")).toHaveCount(2);
   await expect(source).toContainText(revision);
-  await retry.scrollIntoViewIfNeeded();
-  await expect(retry).toBeInViewport({ ratio: 1 });
+  await problem.scrollIntoViewIfNeeded();
+  await expect(problem).toBeInViewport();
 });
 
 test("accessible overview reads a backlog longer than one screen by scrolling the page", async ({

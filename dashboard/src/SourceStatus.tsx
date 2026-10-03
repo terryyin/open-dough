@@ -1,40 +1,21 @@
-import { ChevronRight, RefreshCw } from "lucide-react";
-import { Icon, IconButton } from "./Icon.tsx";
+import { ChevronRight } from "lucide-react";
+import { Icon } from "./Icon.tsx";
 import { Moment } from "./Moment.tsx";
 import "./frame-controls.css";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 
 // The current project's Git evidence: which project and ref are configured,
-// and, once read, at which revision and when. The manual read control lives
-// here too, since it acts on this same evidence, not on the selected project.
+// and, once read, at which revision and when.
 export function SourceStatus({
   source,
   work,
-  reading,
-  failed,
-  onRefresh,
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
-  readonly reading: boolean;
-  readonly failed: boolean;
-  readonly onRefresh: () => void;
 }) {
   return (
     <section className="source" aria-label="Published Git state">
-      {/* Unavailable while reading, yet still focusable: a disabled
-          button would drop keyboard focus to the page. After a failed
-          attempt the same control is named for what pressing it means,
-          so one read action is offered, never two competing ones. */}
-      <IconButton
-        label={failed ? "Retry" : "Refresh"}
-        icon={RefreshCw}
-        className={failed ? "refresh retry" : "refresh"}
-        groupClassName="refresh-control"
-        aria-disabled={reading}
-        onClick={onRefresh}
-      />
       <details className="source-evidence frame-disclosure" key={source.id}>
         <summary aria-label={`Source evidence for ${source.label}`}>
           <Icon icon={ChevronRight} />

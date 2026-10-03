@@ -1,3 +1,16 @@
+## 0.3.56 - 2026-10-03
+
+- Deliver quiet dashboard completion reports for Codex, Cursor, and Claude Code without interrupting native sessions, preserve actionable attention and recovery details, and prepare dashboard-owned CI follow-up.
+- Serve production from pinned, CI-qualifying `main` commits and publish only the requested build paths, while keeping watcher tests isolated from inherited package and environment settings.
+- Allow only one open story session per machine, atomically refuse competing starts across dashboard servers, and keep a recoverable local start available when its session has not launched yet.
+- Add reviewed voice dictation for session instructions with machine-local OpenAI credentials in System settings, resilient transcription recovery, and project management moved into the same settings area.
+- Open a fixed story review from its card, browse the landed files and unified diffs without a separate file browser, and clearly explain when there is nothing to review.
+- Show a dashboard-launched Cursor agent in its terminal from the beginning, retain the runner across dashboard restarts, and share one saved terminal theme across embedded terminals.
+- Remove the manual Refresh and Retry controls now that published changes refresh automatically, ship production nerd avatars, and make server Git operations use one runner.
+- Remove unedited files dropped by a newer Open Dough payload during update, refuse locally edited leftovers by default, and let forced updates remove them deliberately.
+
+Native acceptance was explicitly skipped for `0.3.56` at the maintainer's request as an exception to ADR 0005. Native evidence completed within the included work is retained; native acceptance for the changed completion reporting, production deployment, session admission, instruction dictation, story review, Cursor terminal lifecycle, terminal theme, automatic refresh, and update cleanup behavior, together with previously pending requirements, remains pending and is not reported as passing. The credential-free deterministic release check passed.
+
 ## 0.3.55 - 2026-10-03
 
 - Start Cursor ad-hoc, refinement, and execution sessions from the dashboard, select a Cursor-listed model, attach the embedded terminal, and preserve a running turn through terminal detach and reconnect while retiring idle detached clients.

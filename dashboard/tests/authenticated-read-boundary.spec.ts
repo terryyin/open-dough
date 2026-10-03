@@ -63,7 +63,7 @@ test.describe("authenticated read boundary (dev launch mode)", () => {
     expect(response.headers["cache-control"]).toBe("no-store");
     expect(JSON.parse(response.body)).toEqual({
       error:
-        "The local GitHub CLI is not logged in, so main of terryyin/pygardon could not be read. Run `gh auth login` (check with `gh auth status`), then press Retry.",
+        "The local GitHub CLI is not logged in, so main of terryyin/pygardon could not be read. Run `gh auth login` (check with `gh auth status`), then reload the page.",
     });
     expect(response.body).not.toContain(secretMarker);
     expect(response.body).not.toContain("GH_TOKEN");

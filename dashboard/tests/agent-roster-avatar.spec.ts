@@ -99,7 +99,7 @@ test("each assignment credits the committer who added its profile's current allo
   page.on("request", (request) => pageRequests.push(request.url()));
   await page.goto("/");
 
-  const { taken, backlog, project, refresh, reading } = parts(page);
+  const { taken, backlog, project, reading } = parts(page);
   await expectMembership(page, { taken: [takenStory], backlog: [queuedStory] });
   const takenCard = taken.getByRole("article", { name: takenStory });
   const preparingCard = backlog.getByRole("article", { name: queuedStory });
@@ -145,12 +145,12 @@ test("each assignment credits the committer who added its profile's current allo
     await expect(member("Mana-chan").locator(".owner-human")).toHaveCount(0);
   });
 
-  await test.step("showing the avatar again, after Back and a Refresh at the same revision, reads the avatar host no more", async () => {
+  await test.step("showing the avatar again, after Back and a reload at the same revision, reads the avatar host no more", async () => {
     await back.click();
     const refsRead = () =>
       origin.requests.filter(({ request }) => request.kind === "ref").length;
     const before = refsRead();
-    await refresh.click();
+    await page.reload();
     await expect.poll(refsRead).toBeGreaterThan(before);
     await expect(reading).toHaveCount(0);
     await expectAvatar(
@@ -180,7 +180,7 @@ test("each assignment credits the committer who added its profile's current allo
   await test.step("at a new revision, each card shows only its new allocation's human, and an account already fetched is not read again", async () => {
     await back.click();
     origin.moveTrunk(secondRevision);
-    await refresh.click();
+    await page.reload();
     const { revision } = secondRevision;
     await expectAvatar(
       page,

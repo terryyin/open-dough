@@ -24,9 +24,6 @@ export function parts(page: Page) {
     // The selected project's sessions launched from this dashboard.
     recentSessions: page.getByRole("region", { name: "Recent sessions" }),
     source: page.getByRole("region", { name: "Published Git state" }),
-    refresh: page.getByRole("button", { name: "Refresh" }),
-    // The same read control, as it is named after a failed attempt.
-    retry: page.getByRole("button", { name: "Retry" }),
     problem: page.getByRole("alert"),
     // The read status is always on the page, so that a change of its text is
     // spoken; it says what the latest read is doing or what it read.
@@ -88,12 +85,11 @@ export async function enabledCardLaunchActions(card: Locator) {
 }
 
 // Every button a shown snapshot offers, and nothing else: the banner's
-// Sessions, System settings, the read control, Start session, the badge legend, each Backlog card's launch
-// actions, and each card's Inspect.
+// Sessions, System settings, Start session, the badge legend, each Backlog
+// card's launch actions, and each card's Inspect.
 export async function expectSnapshotButtons(
   page: Page,
   shown: {
-    readonly readControl: "Refresh" | "Retry";
     readonly backlogCards: number;
     readonly cards: number;
   },
@@ -105,14 +101,13 @@ export async function expectSnapshotButtons(
   await expect(
     page.getByRole("button", { name: /^Start session in / }),
   ).toHaveCount(1);
-  await expect(button(shown.readControl)).toHaveCount(1);
   await expect(parts(page).preparationHelp).toHaveCount(1);
   for (const action of cardLaunchActions) {
     await expect(button(action)).toHaveCount(shown.backlogCards);
   }
   await expect(button("Inspect story")).toHaveCount(shown.cards);
   await expect(page.getByRole("button")).toHaveCount(
-    5 + shown.backlogCards * cardLaunchActions.length + shown.cards,
+    4 + shown.backlogCards * cardLaunchActions.length + shown.cards,
   );
 }
 
@@ -191,7 +186,7 @@ export async function expectWholeSnapshot(
   }
 }
 
-// Read/snapshot controls exclude the banner's machine Sessions and System
+// Snapshot controls exclude the banner's machine Sessions and System
 // settings, and Start session, which needs no published read.
 export const controlsBesideSessions = (page: Page) =>
   page
@@ -200,8 +195,8 @@ export const controlsBesideSessions = (page: Page) =>
     .and(page.locator(":not([aria-label='System settings'])"))
     .filter({ hasNotText: /^Start session$/ });
 
-// A failed read with no earlier snapshot shows the problem and the way to read again, and nothing
-// that only a snapshot could say.
+// A failed read with no earlier snapshot shows the problem and the way to read
+// again, and nothing that only a snapshot could say.
 export async function expectProblemAndNoSnapshot(
   page: Page,
   problemText: string,
@@ -213,7 +208,8 @@ export async function expectProblemAndNoSnapshot(
   await expect(problem).toContainText(
     "No published work is shown, because none has been read.",
   );
-  await expect(controlsBesideSessions(page)).toHaveAccessibleName("Retry");
+  await expect(problem).toContainText("Reload the page to read again.");
+  await expect(controlsBesideSessions(page)).toHaveCount(0);
   await expect(parts(page).reading).toHaveCount(0);
   await expect(stages).toHaveCount(0);
   await expect(page.getByRole("article")).toHaveCount(0);

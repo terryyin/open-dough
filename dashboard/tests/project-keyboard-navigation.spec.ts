@@ -35,9 +35,13 @@ test("unmodified Left and Right cycle catalog projects with wrap without selecto
     checkDirection: false,
   });
 
-  const { refresh } = parts(page);
-  await refresh.focus();
-  await expect(refresh).toBeFocused();
+  // A banner control keeps focus across the switch.
+  const settings = parts(page).banner.getByRole("button", {
+    name: "System settings",
+    exact: true,
+  });
+  await settings.focus();
+  await expect(settings).toBeFocused();
 
   await test.step("Right advances Open Dough → Doughnut → Pygardon → Terry Talks → Open Dough", async () => {
     for (const published of [
@@ -47,9 +51,9 @@ test("unmodified Left and Right cycle catalog projects with wrap without selecto
       openDoughProject,
     ]) {
       await page.keyboard.press("ArrowRight");
-      await expect(refresh).toBeFocused();
+      await expect(settings).toBeFocused();
       await expectSelectedProject(page, published, { checkDirection: false });
-      await expect(refresh).toBeFocused();
+      await expect(settings).toBeFocused();
     }
   });
 
@@ -61,9 +65,9 @@ test("unmodified Left and Right cycle catalog projects with wrap without selecto
       openDoughProject,
     ]) {
       await page.keyboard.press("ArrowLeft");
-      await expect(refresh).toBeFocused();
+      await expect(settings).toBeFocused();
       await expectSelectedProject(page, published, { checkDirection: false });
-      await expect(refresh).toBeFocused();
+      await expect(settings).toBeFocused();
     }
   });
 
@@ -124,8 +128,10 @@ test("keyboard project selection reuses history and roster view retention", asyn
     backlog: [queuedStory],
   });
 
-  const { refresh, project } = parts(page);
-  await refresh.focus();
+  const { banner, project } = parts(page);
+  await banner
+    .getByRole("button", { name: "System settings", exact: true })
+    .focus();
   await page.keyboard.press("ArrowRight");
   expectRoute(page, { project: "doughnut", view: null });
   await expectMembership(page, { taken: [doughnutStory], backlog: [] });

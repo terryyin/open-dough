@@ -315,6 +315,12 @@ at narrow width and 200% zoom keeps every control reachable.
   `aria-hidden`, so the control's accessible name is not announced twice.
   Remove superseded `title` assertions only where the shared check replaces
   them.
+- **The banner's read control is gone on `main`.** The dashboard no longer
+  has a Refresh/Retry button in the source status. When reconciling with
+  `main`, drop this plan's Refresh/Retry styling, its Lucide icon, and its
+  icon-control and tooltip assertions on that control (`dashboard-header.spec.ts`,
+  `read-failure*.spec.ts`), and place the gear at the far right of the
+  remaining controls. Do not restore the button.
 
 ## Execution complete
 

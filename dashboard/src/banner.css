@@ -1,15 +1,13 @@
 /* The pinned banner: one row on a wide page column. Sessions, the project's
-   name opening its source evidence, the project choices, the read control,
-   and System settings at the far end. Every control is one control height,
+   name opening its source evidence, the project choices, and System settings
+   at the far end. Every control is one control height,
    and the icon controls share one look (./icon-control.css). */
 .banner {
   position: sticky;
   top: 0;
   z-index: 5;
   display: grid;
-  grid-template-columns:
-    auto minmax(0, 1fr) auto var(--control-size)
-    var(--control-size);
+  grid-template-columns: auto minmax(0, 1fr) auto var(--control-size);
   grid-template-rows: minmax(var(--control-size), auto);
   align-items: start;
   gap: var(--space-1) var(--space-2);
@@ -38,7 +36,7 @@
 }
 
 .banner .settings-control {
-  grid-column: 5;
+  grid-column: 4;
   grid-row: 1;
 }
 
@@ -80,7 +78,7 @@ html {
     padding-block: var(--space-2);
   }
 
-  /* The name, the read control and System settings share the first row;
+  /* The name and System settings share the first row;
      Sessions starts the second, before the project choices. */
   .banner .source {
     grid-column: 1 / 4;
@@ -132,39 +130,4 @@ html {
 
 .source-note {
   margin-top: 0.25rem;
-}
-
-/* The read control lies at the end of the first row, before System
-   settings, though it belongs to the source evidence it reads. */
-.source > .refresh-control {
-  position: absolute;
-  top: var(--space-2);
-  right: calc(var(--page-gutter) + var(--control-size) + var(--space-2));
-}
-
-@container page (max-width: 800px) {
-  .source > .refresh-control {
-    right: calc(var(--page-gutter) + var(--control-size) + var(--space-1));
-  }
-}
-
-@container page (max-width: 400px) {
-  .source > .refresh-control {
-    top: var(--space-1);
-  }
-}
-
-/* After a failed read the same control offers Retry in the problem colour. */
-.refresh.retry {
-  border-color: var(--problem);
-  color: var(--problem);
-  background: var(--problem-soft);
-}
-
-/* Reading is announced in the page; the dashed edge and quiet fill repeat it. */
-.refresh[aria-disabled="true"] {
-  border: 1px dashed var(--edge);
-  color: var(--quiet);
-  background: var(--surface);
-  cursor: default;
 }
