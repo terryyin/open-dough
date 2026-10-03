@@ -133,7 +133,7 @@ does today.
 
 ### 1. Guidance and shared identity styling match the delivered card boundary
 Type: Structure
-Status: planned
+Status: done
 Proof: Slice-1 rows of the proof table; before/after `.card-identity` measurement recorded below as accepted proof; focused command over `agent-roster.spec.ts`, `agent-launch-card-sessions.spec.ts`, `story-review.spec.ts`, `story-review-action.spec.ts`, `agent-launch-card-noted-start.spec.ts`, `story-readiness.spec.ts`, `story-dependencies.spec.ts`, `profile-addition-latency.spec.ts`; `typecheck:dashboard` only if a `.tsx` changes beyond its comment.
 
 Correction: removes the guidance drift (findings 1–3) and the uncontained
@@ -161,6 +161,32 @@ change on any card.
   `story-detail.css`. Capture after values with the same fixtures and viewport.
 
 Safe stopping point: guidance and shared styles are aligned; tests unchanged.
+
+Accepted proof (execution checkout
+`.worktrees/align-product-guidance-shared-styles-and-tests-w`, base `67deea72`):
+
+- Focused command (slice-1 Proof list) passed: 13 passed. No typecheck; the
+  only `.tsx` change is the `AssignmentDetail` comment.
+- `.card-identity` measurement, Chromium 1440x900, root 16px, with a
+  disposable spec (removed) over `publishRosterOrigins` and the preparation
+  page fixtures. Offset is top minus preceding sibling's bottom:
+
+  | Consumer | margin-top before → after | Offset before → after |
+  | --- | --- | --- |
+  | Roster assignment (`.roster-assignment`, after `p.roster-title`) | 0 → 2.4px | 2.39 → 4.78 |
+  | Recent-sessions entry (after `h3`) | 0 → 2.4px | 0 → 2.39 |
+  | Story detail (after `h4`) | 0 → 0 | 4 → 4 |
+  | Review dialog subject (inline span) | 0 → 2.4px, no effect | −16 → −16 |
+  | Launch dialog subject (inline span) | 0 → 2.4px, no effect | −16 → −16 |
+
+- Guidance traced to code: `DependenciesCard` (`WorkCard.tsx`) /
+  `story-dependencies.spec.ts`; `DeveloperName`, `PreparingFacts` /
+  `agent-roster.spec.ts`; `AssignmentDetail` / `backlog-preparing.spec.ts`;
+  `HumanCreditGap` / `profile-addition-latency.spec.ts`.
+
+Learning: the roster's `MemberAssignment` shows mode, host, model and human
+credit but no branch context, so the requirements text places branch context
+in the inspected detail only.
 
 ### 2. Card tests open detail explicitly and own each focus walk once
 Type: Structure

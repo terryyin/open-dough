@@ -31,6 +31,10 @@
   font-size: 0.95rem;
 }
 
+.story-detail .card-identity {
+  margin-top: 0;
+}
+
 .story-purpose,
 .product-advice {
   white-space: pre-wrap;
