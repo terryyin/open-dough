@@ -291,6 +291,32 @@ arrangement; and keyboard resizing with visible focus and accessible width.
 inspection for refinement, not a rendered observation or visual acceptance
 review.
 
+<a id="side-panel-review-reopen-and-close-alignment"></a>
+
+### Align the side panel's same-review opening, report close shortcut, and proof
+
+**Identity:** SEED-091#side-panel-review-reopen-and-close-alignment
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/241-side-panel-alignment-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0d783ec2df588620f11a74774f23623fcb5061ed29d395a8d96282b3d7237b2b","plan":"c8c590274cbf5a931a4cec5c2f13860c0845e44be813168118b3d80a005c5c26"}}
+```
+
+**Slice plan:** [Side panel alignment correction](../slice-plans/241-side-panel-alignment-correction/PLAN.md).
+
+**Goal:** A developer using the shared side panel gets feedback when activating
+Review changes for the review already shown, and maintainers read one accurate
+account of the panel's review opening and Close shortcut, with proof that pays
+for its cost. This bounded correction follows the retrospective of
+[the shared side panel](#review-and-terminal-share-side-panel).
+
+**Scope:** focus the review already shown when its Review changes control is
+activated again, keeping its fixed snapshot until Refresh; align the
+maintained review contract, the page-frame comment, and the UX/UI North Star
+selection sentence with that behavior and with the review occupying the panel;
+give the final report's Command+Shift+Escape one shared owner with the review
+and terminal; remove the tautological header-look test and trim repeated
+malformed-width rounds. No new feature promise, report chrome redesign, or
+change to snapshot, width, or session semantics.
+
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).

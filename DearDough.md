@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 224. Removed local codes are never reused.
+- Highest allocated local number: 225. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -549,6 +549,15 @@ Follow-up: Open, unqueued.
 
 - Execution: `SEED-093#expose-timing-races-locally` / plan 233, first related implementation commit `7b6ddcce` - Timestamp: 2026-10-03T17:25:25+08:00 (`node_modules/.package-lock.json` write time of the first `npm ci`) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.54 (installed `dough-update/VERSION`) - Evidence: the first `npm ci` printed "audited 1 package", and the worktree's `node_modules` had 14 empty scope directories and no `.bin`; `npm config get omit` returned `dev` with `NODE_ENV=production`; `../../node_modules/.bin/eslint` exists. `npm ci --include=dev` then installed the locked dev tools, and lint and `npx playwright --version` ran from the worktree. - Observed effect: the readiness gate passed on its first command. The coordinator caught the problem only because the install output looked odd, before delegating; four tool calls. - Inference: Qualified. A nested worktree hides a missing local install whenever the parent checkout has one; a check that the command's tool resolves inside the selected checkout would expose it.
 
+- Execution: `SEED-091#review-and-terminal-share-side-panel` / plan 240, first related implementation commit `2c64ac94`
+  - Timestamp: unknown (readiness check at execution start, before `2c64ac94` committed 2026-10-03T23:09:50+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: plan 240 "Decisive premises" recorded `npm ci --include=dev --ignore-scripts` in this workspace for an earlier `codex/` branch name; the coordinator reused it and ran `env -u NODE_ENV npm run typecheck:dashboard`, which exited 0. The slice 1 agent then found the worktree's `node_modules` empty, no `./node_modules/.bin/playwright`, and that the typecheck had used the parent checkout's `tsc`; it ran `npm ci --include=dev --ignore-scripts` itself.
+  - Observed effect: the readiness gate passed without a local install, despite DD-220 already being recorded; the implementation agent absorbed the setup, so the cost was small.
+  - Inference: Qualified. Planning-time install evidence that names the workspace does not prove the install is still there at execution; a gate whose command resolves its tool inside the checkout (for example `./node_modules/.bin/...`) would have failed.
+
 ## DD-221 — An asynchronous CI repair's repeated reproductions ran beside the slice's full suite on one machine
 
 While slice 5's full suite and refactor tests ran in the execution checkout, a CI repair reproduced its failure with many repeated, many-worker runs in a separate checkout on the same machine. The combined load produced failures caused by load alone in both, and longer proof.
@@ -599,3 +608,20 @@ Follow-up: Open, unqueued.
   - Evidence: the slice 2 refactor report says one run of its alert command failed `session-unread-report.spec.ts` (13 passed, 3.1m, load about 40) and that "the rerun overwrote its output"; the coordinator then ran that spec `--repeat-each 6 --workers 6` and the full command `--repeat-each 3` (48 passes at load about 42–44); plan 238 slice 2 records the failure as an open observation.
   - Observed effect: two extra reproduction runs (about one minute) and a flaky-test question left without a cause.
   - Inference: Qualified. The failure may have been load alone, but nothing retained can show it; keeping a failed run's report or `test-results` before rerunning would have answered it. One sample.
+
+## DD-225 — A width proof read terminal output from visible rows whose count depended on host resize timing
+
+The slice 2 journey asserted that earlier terminal output survived resizing by reading xterm's visible rows. The synthetic session prints one line per SIGWINCH. Locally, rapid key resizes merged into a few signals; on CI each keypress produced one, scrolling the line out of view. Local `--repeat-each 4` passed, and CI failed on its first run.
+
+Follow-up: none; repaired in the same execution (`d02ade82`).
+
+### Occurrences
+
+- Execution: `SEED-091#review-and-terminal-share-side-panel` / plan 240, first related implementation commit `2c64ac94`
+  - Timestamp: 2026-10-03T15:37:04Z (CI job failure, run 37133709619, job "dashboard (6/9)")
+  - Tool: Claude Code (delegated implementation agent; coordinator ran the repair)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: CI received text "resized 71x46resized 74x46 … resized 120x46" with no "echo keep this line" at `side-panel-width.spec.ts:133`; the repair agent reproduced the failure locally with 30 forced resize pairs; the fix `expectStillHolds` scrolls the terminal history.
+  - Observed effect: one CI repair cycle (stash, repair and refactor agents, extra publication) before slice 3 could be delivered.
+  - Inference: Qualified. Repeating a test locally does not expose a dependence on event coalescing that differs on CI; asserting kept output independent of scroll position avoids it. One sample.

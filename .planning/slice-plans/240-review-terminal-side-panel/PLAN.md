@@ -358,3 +358,14 @@ are explicit trade-offs, replaced by slices 2 and 3 respectively.
 
 The preparation recorder owns the readiness assessment. This plan creates no
 execution identity, Take, publication, or execution-complete record.
+
+## Execution complete
+
+Product advice: the shared panel delivered its story with no regression. A
+small, optional correction —
+[side panel alignment](../241-side-panel-alignment-correction/PLAN.md)
+(SEED-091#side-panel-review-reopen-and-close-alignment) — fixes the silent
+same-review activation and its contradicting docs, gives the report's Close
+shortcut one owner, and trims proof. Consider queueing it before the
+SEED-088 review stories, which build on the same review panel. No other
+priority change is suggested.
