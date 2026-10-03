@@ -53,7 +53,7 @@ not become a second authority for story state.
 
 **Identity:** SEED-089#cursor-runner-survives-dashboard-restart
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/228-cursor-runner-survives-dashboard-restart/PLAN.md","assessment":"not-ready","reasons":["Slices 1–3 attach to the kept Cursor terminal from plan 227. On 9407c60 that launch is still the headless running prompt, and server close still hangs up kept clients. Reassess once plan 227 is on trunk."],"basis":{"document":"e4fc264a87db1aa5e99ac56eb057c05e2f5e36ba6f60cfb68f9cb4f51f9a064b","plan":"9e851df0432ca0ccfff23f79b8e3f402bcaa7a36a3ab5e2dee1f465adc44a963"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/228-cursor-runner-survives-dashboard-restart/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"aa6d18555884db436e56afb9f9c8a9b2f9095f4428f59638689b2d40abab32cd","plan":"9e851df0432ca0ccfff23f79b8e3f402bcaa7a36a3ab5e2dee1f465adc44a963"}}
 ```
 
 **Goal:** A developer who has a Cursor agent working can restart the
