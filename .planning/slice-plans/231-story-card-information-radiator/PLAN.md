@@ -202,6 +202,11 @@ to the Start; it now returns focus only while the keyboard still rests there
 (`launchDialogLauncher.ts`, asserted by `expectEscapeReturnsThenTabMovesOn`).
 The Codex start test's 5s answer wait flaked under load; it now waits for the
 start's own `launchWaitMs` bound.
+CI repair (run 37129894062, `dashboard (3/9)` on `dc03853b`): the noted card's
+Starts and note need 504px of a 537px group on macOS and wrapped under Linux
+fonts. The ordinary card keeps its strict one-line check; the noted card uses
+`expectOnOneLineWhenRoom` (`dashboard/tests/partArrangement.ts`), reproduced by a
+letter-spacing injection before the fix.
 
 Behavior: a card offers launch and inspection/review actions → the developer
 scans or operates those actions → related buttons share a line when space

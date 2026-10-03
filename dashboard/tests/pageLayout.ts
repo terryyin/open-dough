@@ -1,8 +1,20 @@
 // How the page lies in the window, measured by asking the browser. The
 // whole-page measurements look at every element on the page, so they name no
-// part of the stylesheet; the others compare the boxes of parts a journey found.
+// part of the stylesheet; how parts a journey found lie against one another is
+// compared in partArrangement.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
+import { box } from "./partArrangement.ts";
+
+export {
+  box,
+  expectInReadingOrder,
+  expectInside,
+  expectOnOneLine,
+  expectOnOneLineWhenRoom,
+  expectSideBySideInOrder,
+  expectStackedInOrder,
+} from "./partArrangement.ts";
 
 // Text held in a box of one pixel is shown to no one by sight: it is kept for
 // assistive technology, which is given it whole. Neither whole-page measurement
@@ -100,97 +112,12 @@ export async function expectNoSidewaysScrollIn(page: Page, area: Locator) {
   ).toEqual([]);
 }
 
-export async function box(locator: Locator) {
-  const found = await locator.boundingBox();
-  if (!found) {
-    throw new Error(`No visible box for ${locator.toString()}`);
-  }
-  return found;
-}
-
 // Presses the control with the mouse where it shows. Locator.click() would
 // first scroll the window to bring a pinned control into view, which a
 // developer's click never does, moving the page a journey compares.
 export async function pressWhereShown(control: Locator) {
   const { x, y, width, height } = await box(control);
   await control.page().mouse.click(x + width / 2, y + height / 2);
-}
-
-// Each part ends before the next begins, across the page or down it.
-async function expectEachEndsBeforeNext(
-  partsInOrder: Locator[],
-  start: "x" | "y",
-  extent: "width" | "height",
-) {
-  const boxes = await Promise.all(partsInOrder.map(box));
-  boxes.slice(1).forEach((next, index) => {
-    const previous = boxes[index];
-    expect(
-      (previous?.[start] ?? 0) + (previous?.[extent] ?? 0),
-      `part ${index + 1} ends before part ${index + 2} begins`,
-    ).toBeLessThanOrEqual(next[start] + 0.5);
-  });
-}
-
-export async function expectSideBySideInOrder(partsInOrder: Locator[]) {
-  await expectEachEndsBeforeNext(partsInOrder, "x", "width");
-}
-
-export async function expectStackedInOrder(partsInOrder: Locator[]) {
-  await expectEachEndsBeforeNext(partsInOrder, "y", "height");
-}
-
-// The controls share one line, side by side in their order.
-export async function expectOnOneLine(controls: Locator[]) {
-  const tops = await Promise.all(
-    controls.map(async (control) => (await box(control)).y),
-  );
-  for (const top of tops)
-    expect(Math.abs(top - (tops[0] ?? 0))).toBeLessThanOrEqual(1);
-  await expectSideBySideInOrder(controls);
-}
-
-// The parts read in their order: each follows the one before it on the same
-// line or starts on a later line, never reaching beyond the area.
-export async function expectInReadingOrder(area: Locator, parts: Locator[]) {
-  const around = await box(area);
-  const boxes = await Promise.all(parts.map(box));
-  boxes.forEach((each, index) => {
-    expect(each.x, `part ${index + 1} inside`).toBeGreaterThanOrEqual(around.x);
-    expect(each.x + each.width, `part ${index + 1} inside`).toBeLessThanOrEqual(
-      around.x + around.width,
-    );
-  });
-  boxes.slice(1).forEach((next, index) => {
-    const previous = boxes[index];
-    if (previous === undefined) return;
-    // Parts whose heights overlap share a line, as a note does its control.
-    const sameLine =
-      next.y < previous.y + previous.height - 1 &&
-      next.y + next.height > previous.y + 1;
-    if (sameLine)
-      expect(
-        previous.x + previous.width,
-        `part ${index + 2} follows on its line`,
-      ).toBeLessThanOrEqual(next.x);
-    else
-      expect(
-        next.y,
-        `part ${index + 2} on a later line`,
-      ).toBeGreaterThanOrEqual(previous.y + previous.height - 1);
-  });
-}
-
-export async function expectInside(inner: Locator, outer: Locator) {
-  const [inside, around] = await Promise.all([box(inner), box(outer)]);
-  expect(inside.x).toBeGreaterThanOrEqual(around.x - 0.5);
-  expect(inside.x + inside.width).toBeLessThanOrEqual(
-    around.x + around.width + 0.5,
-  );
-  expect(inside.y).toBeGreaterThanOrEqual(around.y - 0.5);
-  expect(inside.y + inside.height).toBeLessThanOrEqual(
-    around.y + around.height + 0.5,
-  );
 }
 
 // Every control in an area, such as a dialog's scrolling body, can be scrolled

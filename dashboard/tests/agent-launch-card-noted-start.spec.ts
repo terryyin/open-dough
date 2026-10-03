@@ -33,7 +33,7 @@ import {
   expectInReadingOrder,
   expectNoSidewaysScrollAndWholeText,
   expectOnOneLine,
-  expectSideBySideInOrder,
+  expectOnOneLineWhenRoom,
 } from "./pageLayout.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -78,11 +78,14 @@ test.describe("a Backlog card's Starts", () => {
     const note = launchGroup(card(notRefinedStory)).getByText(notReadyNote);
     await page.setViewportSize({ width: 1440, height: 900 });
     await expectOnOneLine(startsOf(readyStory));
-    await expectOnOneLine(startsOf(notRefinedStory));
-    // The note stays beside the Start it describes, before the next one.
+    // The noted card's line holds both Starts and the note only where this
+    // platform's text leaves it room; the note follows the Start it
+    // describes, before the next one, either way.
+    const notedLaunches = launchGroup(card(notRefinedStory));
+    await expectOnOneLineWhenRoom(notedLaunches, startsOf(notRefinedStory));
     const execution = action(notRefinedStory, "Execution");
     const refinement = action(notRefinedStory, "Refinement");
-    await expectSideBySideInOrder([execution, note, refinement]);
+    await expectInReadingOrder(notedLaunches, [execution, note, refinement]);
 
     for (const window of [narrowWindow, twiceZoomedWindow]) {
       await page.setViewportSize(window);
