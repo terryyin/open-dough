@@ -17,6 +17,27 @@ without piecing together individual commits or session outputs.
 
 ## Story
 
+<a id="review-files-as-folder-tree"></a>
+
+### Browse a review's changed files as a collapsible folder tree
+
+**Identity:** SEED-088#review-files-as-folder-tree
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** A developer reviewing a story sees its changed files organized in
+their folder structure rather than as a flat list, and can collapse and expand
+folders to focus on one area of a large change. Each file's change kind is
+visible at a glance without spending width on words.
+
+**Scope:** Builds on the
+[story review](../../dashboard/AGENT-LAUNCH.md#story-review). Folders start
+expanded. Added, modified, and deleted files (and renames, if shown) are told
+apart by styling, not by status wording; deleted files are distinguishable from
+the rest. To be refined: whether single-child folder chains are compacted, and
+the exact style per change kind.
+
 <a id="review-selected-commits"></a>
 
 ### Review the combined changes of selected story commits
@@ -70,3 +91,6 @@ integration between the two snapshots is shown.
   would make a starting-revision baseline show trunk changes as story changes.
 - `dashboard/server/defaultCheckoutChanges.ts` already reads the default
   checkout's changed paths with `git status`.
+- Terry's 2026-10-04 request: capture at the top of the backlog a folder-tree
+  view of the review's changed files, expanded by default, with change kind
+  (including deletion) shown by style rather than wording to save space.
