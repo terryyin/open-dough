@@ -154,6 +154,21 @@ Proposal from the review: For a fault injected after a native event, observe tha
   - Observed effect: One owned repair commit and a pause in native acceptance; all five selected repair tests passed afterward. The original no-resend and history/status assertions remained.
   - Inference: Event-based setup supplies causal evidence that elapsed time alone did not. Cost beyond this repair is unmeasured; native pause also included a separate acceptance-wording correction.
 
+### DD-221 — Two dashboard specs raced a page read under CI load, and launch-card waits miss under local load
+
+`agent-launch-ad-hoc-cursor.spec.ts` assumed the auto-opened terminal panel joined the launch client within the detached idle watch's 203 ms, while the default fake Cursor looked idle at once. `responsive-session-reconciliation.spec.ts` moved the origin before the page's one fresh read after a stale snapshot. Both passed locally and failed in CI. Separately, launch-card specs wait the default 5 s for text that a real start or publish can take longer to produce under heavy local load.
+
+#### Occurrences
+
+- Execution: `SEED-091#dashboard-frame-renovation` / plan 230, first related implementation commit `fdcc45f6`
+  - Timestamp: 2026-10-03T15:48:39+08:00 (first failing CI log line, run 37107532924)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.54 (installed `dough-update/VERSION` at claim `bb9cda47`)
+  - Evidence: CI runs 37107532924 and 37109262826 (`dashboard (5/9)`) failed `agent-launch-ad-hoc-cursor.spec.ts:138` with two attaches; an unchanged copy failed 13 of 25 under local load and a held page connection failed 5 of 5; repair `aeb9c33d` shares a working fake Cursor fixture. CI run 37111699644 (`dashboard (2/9)`) failed `responsive-session-reconciliation.spec.ts:135` with one extra compare; a probe forcing the CI order failed 4 of 4, also at `aeb9c33d`; repair `a25a762f`, re-fixed for main's paused-clock flow in merge `5f09513c`. The launch-card specs `agent-launch-cursor-model`, `agent-launch-preparation-{codex,cursor,kept}` and `agent-launch-start-{codex,cursor,taken}` failed 7 times in one full local run under load and 18 of 40 at `--repeat-each 4 --workers 16`, passing at `--workers 2`; not seen in CI.
+  - Observed effect: three failed CI runs and two repair commits; the launch-card waits remain unrepaired.
+  - Inference: Qualified. Both repaired races are DD-199's shape: a fault or state change triggered before a required page event was observed. The launch-card waits use the default expect timeout where the specs already allow a 30 s launch.
+
 ## Checks whose result depends on where or how they are run (second priority, queued)
 
 This repository's checks should give CI's result however they are run
