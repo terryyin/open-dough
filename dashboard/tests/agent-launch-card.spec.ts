@@ -142,9 +142,10 @@ test("starting sends the instruction after the execution command in the Open Dou
   await expect(entry).toHaveAccessibleName(cardSessionName("Execution"));
   await expect(dialog).toBeHidden();
   await expect(entry).toBeFocused();
-  await expect(start(notRefinedStory)).toBeEnabled();
+  await expect(start(notRefinedStory)).toBeDisabled();
+  await expect(refine(notRefinedStory)).toBeDisabled();
   await expect(start(notRefinedStory)).toHaveAccessibleDescription(
-    "Not marked Ready for execution",
+    /Not marked Ready for execution/,
   );
   await expect(sessionStateOf(entry)).toHaveText("Working");
   await expect(entry).toContainText("Execution started in Claude Code");
@@ -174,10 +175,11 @@ test("starting sends the instruction after the execution command in the Open Dou
       cwd: folder,
     },
   ]);
-  // Only the launched card lists a session.
+  // Only the launched card lists a session; its Starts stay unavailable.
   await expect(cardSessions(card(readyStory))).toHaveCount(0);
   await expect(start(readyStory)).toBeEnabled();
-  await expect(refine(notRefinedStory)).toBeEnabled();
+  await expect(refine(notRefinedStory)).toBeDisabled();
+  await expect(start(notRefinedStory)).toBeDisabled();
 });
 
 test("starting refinement sends its instruction in the Open Dough folder and lists its session beside both Start actions", async ({
@@ -208,8 +210,8 @@ test("starting refinement sends its instruction in the Open Dough folder and lis
   await expect(refinementEntry).toContainText(
     "Refinement started in Claude Code",
   );
-  await expect(refine(notRefinedStory)).toBeEnabled();
-  await expect(start(notRefinedStory)).toBeEnabled();
+  await expect(refine(notRefinedStory)).toBeDisabled();
+  await expect(start(notRefinedStory)).toBeDisabled();
 
   const folder = realpathSync(path.join(dashboard.home, "git", "open-dough"));
   expect(dashboard.claudeLaunchCalls()).toEqual([

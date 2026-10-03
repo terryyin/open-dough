@@ -79,12 +79,15 @@ that need attention. Each card concern has one owner:
 `agent-launch-card.spec.ts` the Start actions, their dialogs, what a launch
 sends, and the keyboard on the newest entry; `agent-launch-card-sessions.spec.ts`
 which sessions a card lists, newest first, in each stage;
-`agent-launch-card-session-states.spec.ts` that an entry stays on its card in
-every state, without Open terminal when unavailable and with it when unknown,
-and survives a restarted server, a reload, and a project switch;
-`agent-launch-recent-session-states.spec.ts` what each state shows on a Recent
-sessions entry, and on one card entry, which is rendered the same way; and
-`agent-launch-attention.spec.ts` how many of a card's sessions need attention.
+`agent-launch-card-open-session.spec.ts` that those Starts stay unavailable
+while an open session remains, return after Mark as done or Delete record, and
+a dialog opened beforehand is refused; `agent-launch-card-session-states.spec.ts`
+that an entry stays on its card in every state, without Open terminal when
+unavailable and with it when unknown, and survives a restarted server, a
+reload, and a project switch; `agent-launch-recent-session-states.spec.ts` what
+each state shows on a Recent sessions entry, and on one card entry, which is
+rendered the same way; and `agent-launch-attention.spec.ts` how many of a
+card's sessions need attention.
 The ad hoc session started from Start session is walked by
 `agent-launch-ad-hoc-boundary.spec.ts` (the boundary: label, arguments,
 refusals, the record), `agent-launch-ad-hoc.spec.ts` (the button, dialog, and

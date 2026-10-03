@@ -55,7 +55,7 @@ const publishedFactsOf = async (card: Locator) => {
         }
         const copy = element.cloneNode(true) as HTMLElement;
         const counted = copy.querySelectorAll(
-          ".card-sessions, .card-attention",
+          ".card-sessions, .card-attention, .card-session-open-reason",
         );
         for (const part of counted) part.remove();
         return copy.textContent;

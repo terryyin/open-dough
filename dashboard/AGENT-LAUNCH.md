@@ -12,9 +12,12 @@ story membership, preparation and completion; a launch record is local evidence.
 
 Backlog cards offer execution then refinement. Execution remains available when
 not marked Ready for execution, with that note; refinement remains available
-while Preparing, with “Being prepared”. Taken cards offer only a kept execution
-start with no session. The project row offers Start session independently of the
-published read, including when it failed. Projects use the local checkout folder in their environment's saved configuration
+while Preparing, with “Being prepared”. While a card lists an open session for
+its story, every Start on that card is disabled and described by why: the story
+has an open session to mark done or delete before another can start. Taken cards
+offer only a kept execution start with no session, and that Start is disabled
+the same way while an open session remains. The project row offers Start session
+independently of the published read, including when it failed. Projects use the local checkout folder in their environment's saved configuration
 (`~/.open-dough/dashboard/projects-production.json` for built preview,
 `projects-development.json` for the dev server). The initial production projects
 keep their existing `~/git/<project id>` folders and ids, so their retained launch

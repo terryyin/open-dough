@@ -135,8 +135,8 @@ behavior is unchanged.
 
 ### 4. A story's card offers no Start while its session is open
 Type: Behavior
-Status: planned
-Proof: `dashboard/tests/agent-launch-card-sessions.spec.ts` (revised) and a new card case using the committed-origin journey (`launchJourney.ts`, `storyStagesPage.ts`) with the synthetic `claude`.
+Status: done
+Proof: `dashboard/tests/agent-launch-card-open-session.spec.ts` (committed-origin journey) and revised `agent-launch-card-sessions.spec.ts`. Command: `env -u FORCE_COLOR -u NO_COLOR NODE_ENV= npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-card-open-session.spec.ts dashboard/tests/agent-launch-card-sessions.spec.ts`.
 
 Behavior: A Backlog card lists an open session for its story, whichever
 workflow launched it. Start execution and Start refinement are disabled and

@@ -1,19 +1,21 @@
 import { dependencyStartProblem } from "./storyDependencies.ts";
 import { sessionKey } from "./sessionReference.ts";
 // A card's launches: on a Backlog card, one Start action per workflow in the
-// order `launchWorkflows` offers them; a second start of a story that already
-// has an open session is refused at the launch boundary; on the
-// card of a story starting on this machine, whichever page asked for it, what
-// its local startup is doing (`StartupStatus`), with the answer of one in
-// need of reconciliation left to Startup recovery; on every
-// card, the story's sessions that have not been marked done (`cardSessionsOf`),
-// newest first, each shown as Recent sessions shows it without the story the
-// card already names, under how many of them need attention, when any do
+// order `launchWorkflows` offers them; while the card lists an open session
+// (`cardSessionsOf`), every Start is unavailable and described why
+// (`openSessionStartReason`), and the launch boundary refuses a second start
+// the same way; on the card of a story starting on this machine, whichever
+// page asked for it, what its local startup is doing (`StartupStatus`), with
+// the answer of one in need of reconciliation left to Startup recovery; on
+// every card, the story's sessions that have not been marked done, newest
+// first, each shown as Recent sessions shows it without the story the card
+// already names, under how many of them need attention, when any do
 // (`attentionSummary`). A Taken card whose story this machine started and
 // holds the start of, with no session yet, also offers Start execution, which
-// opens the session in the kept workspace without a second Take. A launch from
-// the card lists its session here once it settles and takes the keyboard to
-// it. A launch this page asked for whose answer no Start on the card shows,
+// opens the session in the kept workspace without a second Take — and that
+// Start is unavailable the same way while an open session remains. A launch
+// from the card lists its session here once it settles and takes the keyboard
+// to it. A launch this page asked for whose answer no Start on the card shows,
 // as when origin moved the story to Taken meanwhile, keeps that answer on the
 // card. Sessions are local evidence: whatever they show, origin alone places
 // the story.
@@ -26,6 +28,7 @@ import {
   keptStartNote,
   launchWorkflowNames,
   launchWorkflows,
+  openSessionStartReason,
 } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StartLaunch } from "./StartLaunch.tsx";
@@ -58,6 +61,7 @@ export function CardLaunches({
   // The session the developer's own launch from this card just listed.
   const [launchedHere, setLaunchedHere] = useState<string | undefined>();
   const sessions = cardSessionsOf(launches.launched, sourceId, entry.identity);
+  const hasOpenSession = sessions.length > 0;
   const attention = attentionSummary(sessions);
   const keptStart = offersStart
     ? undefined
@@ -82,6 +86,7 @@ export function CardLaunches({
   const unoffered = unavailable || launches.attemptEvidence !== "read";
   const evidenceId = `${statusId}-evidence`;
   const unread = !unavailable && unoffered ? evidenceId : undefined;
+  const sessionOpenId = `${statusId}-session-open`;
   // A startup in need of reconciliation is answered under Startup
   // recovery, not beside the card's unavailable actions.
   const attemptOf = (workflow: LaunchWorkflow) =>
@@ -93,6 +98,19 @@ export function CardLaunches({
   const dependencyBlocksStart =
     keptOneShot === undefined && dependencyProblem !== undefined;
   const dependencyId = `${statusId}-dependencies`;
+  // Open session and unread evidence gate every Start; dependency layers on
+  // for a Backlog execution Start only. Kept-start Start execution shares the
+  // open-session and unread gates, not the dependency one.
+  const startBlocked = unoffered || hasOpenSession;
+  const startBlockedReason = hasOpenSession ? sessionOpenId : unread;
+  const startUnavailable = (workflow: LaunchWorkflow) =>
+    startBlocked || (workflow === "execution" && dependencyBlocksStart);
+  const startUnavailableReason = (workflow: LaunchWorkflow) =>
+    hasOpenSession
+      ? sessionOpenId
+      : workflow === "execution" && dependencyBlocksStart
+        ? dependencyId
+        : unread;
   const answerId = useId();
   // The answers of this page's launches that no Start on the card shows.
   const unshown = launchWorkflowNames.flatMap((workflow) => {
@@ -135,6 +153,14 @@ export function CardLaunches({
           evidence.
         </p>
       )}
+      {hasOpenSession && (
+        <p
+          id={sessionOpenId}
+          className="visually-hidden card-session-open-reason"
+        >
+          {openSessionStartReason}
+        </p>
+      )}
       {offersStart && dependencyBlocksStart && (
         <p id={dependencyId} className="dependency-start-reason">
           {dependencyProblem}
@@ -150,8 +176,8 @@ export function CardLaunches({
           resumes={keptStart}
           note={keptStartNote}
           attempt={attemptOf("execution")}
-          unavailable={unoffered}
-          unavailableReason={unread}
+          unavailable={startBlocked}
+          unavailableReason={startBlockedReason}
           onStart={onStart("execution")}
         />
       )}
@@ -177,14 +203,8 @@ export function CardLaunches({
                 : launchWorkflows[workflow].note(entry)
             }
             attempt={attemptOf(workflow)}
-            unavailable={
-              unoffered || (workflow === "execution" && dependencyBlocksStart)
-            }
-            unavailableReason={
-              workflow === "execution" && dependencyBlocksStart
-                ? dependencyId
-                : unread
-            }
+            unavailable={startUnavailable(workflow)}
+            unavailableReason={startUnavailableReason(workflow)}
             onStart={onStart(workflow)}
           />
         ))}
@@ -206,7 +226,7 @@ export function CardLaunches({
           <CreationEntry key={record.launchedAt} record={record} />
         ))}
       {attention !== undefined && <p className="card-attention">{attention}</p>}
-      {sessions.length > 0 && (
+      {hasOpenSession && (
         <ol className="card-sessions" aria-label="Sessions">
           {sessions.toReversed().map((record) => (
             <li key={sessionKey(record.session)}>

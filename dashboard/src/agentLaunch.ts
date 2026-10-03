@@ -126,6 +126,11 @@ export type RunningStart = z.infer<typeof runningStartSchema>;
 // took or prepared the story and no session was started from it.
 export const keptStartNote = "Started here, no session yet";
 
+// Why every Start on a story's card is unavailable while that story still has
+// an open session listed there (`cardSessionsOf`).
+export const openSessionStartReason =
+  "This story has an open session. Mark it done or delete its record to start another.";
+
 // The options a project's installed skill offers for one workflow's launch,
 // read from its definition at each read of the machine's sessions, or why the
 // project has no usable definition for it (the boundary's words, which finish
