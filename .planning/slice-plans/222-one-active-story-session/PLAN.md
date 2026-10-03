@@ -115,8 +115,8 @@ uses, and the probe showed its reach.
 
 ### 3. Two dashboard servers on this machine accepting one story at once start one
 Type: Behavior
-Status: planned
-Proof: a new case in `dashboard/tests/agent-launch-records.spec.ts` (or a sibling spec), run red before the change and green after. To make the race deterministic, the test holds `launch-attempts.json.lock`, the directory lock another server's read-modify-write holds. It sends server B's accept for S, then writes server A's unsettled attempt for S into the file and releases the lock. Before the change, B reads outside the lock and accepts. After the change, B waits for the lock, reads A's attempt, and is refused. The lock wait is bounded at 10 s (`machineJsonStore.ts` `acquireWriteLock`), well beyond the test's hold. A second case sends real simultaneous accepts from servers A and B (`serverOn("dev")`, `serverOn("preview")`) and asserts exactly one acceptance.
+Status: done
+Proof: `dashboard/tests/agent-launch-cross-server-accept.spec.ts` — lock-hold refuse, simultaneous same-story one acceptance, different stories both accepted. Ran red before the locked keep and green after (`env -u FORCE_COLOR -u NO_COLOR NODE_ENV= npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-cross-server-accept.spec.ts`).
 
 Behavior: Two dashboard servers share this machine's evidence. Each receives
 an accept for story S, in the same or different workflows, while the other's
@@ -203,3 +203,7 @@ Update the CSS header comment.
   (`sameLaunch`) as own, not only `outcome.kind === "launched"`, or recovery
   continues break when a conversation record already exists under an uncertain
   outcome.
+- Under-lock self-exclusion must keep a continued attempt in `known` so
+  `ownOpenSession` still recognizes its own open record.
+- Unset `FORCE_COLOR`/`NO_COLOR` for quiet-reporter-sensitive Playwright runs;
+  those env warnings otherwise fail nested quiet output checks.

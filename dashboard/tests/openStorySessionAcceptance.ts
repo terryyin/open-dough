@@ -68,7 +68,11 @@ export const nothingStarted = async (
 ): Promise<void> => {
   expect(push.isHeld()).toBe(false);
   expect(await origin.takenProfiles()).toEqual([]);
-  expect(server.claudeCalls()).toEqual([]);
+  // A session listing (`agents`) may run for the alert baseline once an open
+  // record is seeded; that is not a start.
+  expect(
+    server.claudeCalls().filter((call) => call.argv[0] !== "agents"),
+  ).toEqual([]);
   expect(await runningStarts(server)).toEqual([]);
   expect(await keptStarts(server)).toEqual([]);
   if (keptAttempts) expect(await attempts(server)).toEqual([]);
