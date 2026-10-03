@@ -10,9 +10,10 @@ import { submitCompletion, completionEndpoint } from "./completionReporting.ts";
 import { markSessionDone } from "./doneMarks.ts";
 import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";
 import { hostOperations } from "./launchHosts.ts";
-import { deleteRecord } from "./launchRecordStore.ts";
+import { deleteRecord, setRecordReportRead } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { withResponseSignal } from "./responseSignal.ts";
+import { noSuchSession } from "./sessionAdmission.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
 import { sessionResultResponse } from "./sessionResultResponse.ts";
 import {
@@ -43,6 +44,21 @@ async function markedDone(
     terminals,
   );
   return launches.stateOf(source, marked);
+}
+
+// A read mark on the admitted session's unread report, with its current
+// state; nothing native is touched.
+async function markedRead(
+  { source, record }: Extract<Admitted, { readonly kind: "read" }>,
+  launches: AgentLaunches,
+): Promise<LaunchWithState> {
+  const read = await setRecordReportRead(
+    source.id,
+    record.session,
+    record.completion.receipt,
+  );
+  if (read === undefined) throw noSuchSession();
+  return launches.stateOf(source, read);
 }
 
 // A delete of the admitted recorded session's record, made only while the
@@ -168,6 +184,11 @@ export async function answer(
         return {
           status: 200,
           body: { record: await markedDone(request, launches, terminals) },
+        };
+      case "read":
+        return {
+          status: 200,
+          body: { record: await markedRead(request, launches) },
         };
       case "delete":
         return { status: 200, body: await deleted(request, launches) };

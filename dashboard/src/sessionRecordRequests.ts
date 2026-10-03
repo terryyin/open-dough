@@ -1,7 +1,8 @@
 // The browser's requests about one session this machine recorded, to the
 // local launch boundary (`../server/agentLaunchPlugin.ts`): a POST that marks
-// it done, and one that deletes its record. What each answers crossed a
-// process/HTTP boundary, so it is checked as external input.
+// it done, one that marks its report read, and one that deletes its record.
+// What each answers crossed a process/HTTP boundary, so it is checked as
+// external input.
 
 import type { LaunchRecord, LaunchWithState } from "./agentLaunch.ts";
 import { postJson, refusal } from "./agentLaunchClient.ts";
@@ -11,6 +12,7 @@ import {
   type DeleteRecordAnswer,
 } from "./deleteRecord.ts";
 import { agentDoneEndpoint, markDoneAnswerSchema } from "./doneMark.ts";
+import { agentReadEndpoint, markReadAnswerSchema } from "./readMark.ts";
 
 // What names a recorded session to the boundary.
 const sessionReference = (record: LaunchRecord) => ({
@@ -31,6 +33,24 @@ export async function requestMarkDone(
     );
     if (!response.ok) return undefined;
     const answer = markDoneAnswerSchema.safeParse(await response.json());
+    return answer.success ? answer.data.record : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// Marks the recorded session's report read, and answers its record with its
+// session's state, or undefined when no trustworthy answer came.
+export async function requestMarkRead(
+  record: LaunchRecord,
+): Promise<LaunchWithState | undefined> {
+  try {
+    const response = await postJson(
+      agentReadEndpoint,
+      sessionReference(record),
+    );
+    if (!response.ok) return undefined;
+    const answer = markReadAnswerSchema.safeParse(await response.json());
     return answer.success ? answer.data.record : undefined;
   } catch {
     return undefined;

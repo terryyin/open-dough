@@ -12,6 +12,7 @@ import {
   type PageSessions,
   type SessionRequest,
   type MarkSessionDone,
+  type MarkSessionRead,
   type DeleteSessionRecord,
 } from "./pageSessions.ts";
 
@@ -24,9 +25,13 @@ type KeyboardReturn = {
 
 export function usePageSessionPanel({
   markDone,
+  markRead,
   deleteRecord,
   hostOperations,
-}: Pick<MachineSessions, "markDone" | "deleteRecord" | "hostOperations">) {
+}: Pick<
+  MachineSessions,
+  "markDone" | "markRead" | "deleteRecord" | "hostOperations"
+>) {
   const [panel, setPanel] = useState<Panel | undefined>();
   const [maximized, setMaximized] = useState(false);
   const shown = panel?.request;
@@ -79,6 +84,18 @@ export function usePageSessionPanel({
       close(open);
     return true;
   };
+  const markSessionRead: MarkSessionRead = async ({ record }) => {
+    const read = await markRead(record);
+    if (read === undefined) return false;
+    // A report panel showing the session shows it as marked read.
+    setPanel((current) =>
+      current?.kind === "result" &&
+      sessionKey(current.request.record.session) === sessionKey(read.session)
+        ? { ...current, request: { ...current.request, record: read } }
+        : current,
+    );
+    return true;
+  };
   const deleteSessionRecord: DeleteSessionRecord = async ({
     record,
     control,
@@ -114,6 +131,7 @@ export function usePageSessionPanel({
         ? undefined
         : { kind: panel.kind, key: sessionKey(panel.request.record.session) },
     markDone: markSessionDone,
+    markRead: markSessionRead,
     deleteRecord: deleteSessionRecord,
   };
   return {

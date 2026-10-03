@@ -61,6 +61,7 @@ export async function keepRecord(
             completion: reported,
             dispositionChangedAt:
               existing?.dispositionChangedAt ?? record.dispositionChangedAt,
+            reportRead: existing?.reportRead ?? record.reportRead,
             doneProblem:
               existing === undefined
                 ? record.doneProblem

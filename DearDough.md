@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 224. Removed local codes are never reused.
+- Highest allocated local number: 225. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -218,6 +218,7 @@ Follow-up: Open, unqueued.
 - Execution: `SEED-094#observe-ci-on-codex-and-cursor` / plan 235, first related implementation commit `c02158fc` - Timestamp: unknown (before `c02158fc` committed 2026-10-03T18:33:40+08:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: before the first delivery the coordinator printed `execution-increment-delivery.mjs --help` and inferred `refs/heads/<execution branch>` from Story Branch wording; the established start listed `target: main`. - Observed effect: one bundled read; delivery accepted first time. - Inference: Qualified; same missing statement, low cost.
 - Execution: `SEED-052#unread-report-apart-from-engagement` / plan 238, first related implementation commit `f1221461` - Timestamp: unknown (between the slice 1 commit at 2026-10-03T19:49:17+08:00 and its delivery) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: before the first delivery the coordinator printed `execution-increment-delivery.mjs --help`, grepped `targetRef` in it, and read `targetBranchName` in `publication-git.mjs`; the established start listed `target: main`. - Observed effect: three extra tool calls; delivery accepted first time. - Inference: Qualified; same missing statement.
 - Execution: `SEED-091#frame-look-checks-one-rule` / plan 236, first related implementation commit `03c9316c` - Timestamp: unknown (delivery of `03c9316c`, after its commit on 2026-10-03) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: first `deliver` passed `--target-ref main` from the established start's `target` and was refused with "authorized target must be a branch ref: main"; the coordinator then grepped the script and read its lines 60–110 before retrying with `refs/heads/<execution branch>`, which was accepted with observation attached. `publish-the-candidate.md:12-13` does name `refs/heads/<target-branch>`, but the coordinator had read only `trunk-publication.md`'s delivery sections. - Observed effect: one refused call and two lookup calls; no state change. - Inference: Qualified; the same missing statement in the references the delivery path directs a coordinator to read.
+- Execution: `SEED-052#mark-report-read-keeps-session-state` / plan 239, first related implementation commit `46340f4a` - Timestamp: unknown (before the first delivery, after `46340f4a` committed 2026-10-03T22:05:42+08:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: before the first delivery the coordinator printed `execution-increment-delivery.mjs --help` and inferred `refs/heads/<execution branch>` from Story Branch wording; the established start listed `target: main`. - Observed effect: one extra call; delivery accepted first time. - Inference: Qualified; same missing statement, low cost.
 
 ## ODF-201 — Codex stream notifications leave handled failures unread at completion
 
@@ -463,6 +464,14 @@ Follow-up: Open, unqueued. Responses 2c5ff71 (0.3.43) and fcc29fad (0.3.48) are 
   - Evidence: plan 206 premise row "Callers of the rules slice 2 changes are only dashboard code and specs"; slice 2's implementer ran the full dashboard suite, saw 13 failures in `agent-launch-boundary`, `-codex-reconciliation`, `-codex-recovery`, `-preparation-codex-recovery`, `-preparation-resume`, `-start-codex-recovery`, `-start-resume`, and converted them to resume through continuation, reporting the premise gap for the coordinator's judgment (plan 206 slice 2 Learning).
   - Observed effect: no CI failure or rework; the slice's implementer made and reported a consumer-alignment decision the plan had not anticipated, and the coordinator accepted it against the plan's own decision.
   - Inference: Qualified. A premise about who an admission rule reaches is a behavior premise: the consumers are tests that exercise the refused sequence, found by searching for repeated launches of one story, not by function names. Running the whole dashboard suite inside the slice (about 4.5 minutes) caught it before publication, consistent with ODF-150's inference.
+- Execution: `SEED-052#mark-report-read-keeps-session-state` / plan 239, first related implementation commit `46340f4a`
+  - Timestamp: unknown (slice 2 implementation, before `21db0097` committed 2026-10-03T22:26:34+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: plan 239 premise "Existing specs that rely on a report's Mark as done being local-only" came from `grep -n "Mark as done" dashboard/tests/agent-completion-*.spec.ts`; slice 2's consumer run then failed `agent-completion-binding.spec.ts` (4 variants calling the boundary `markDone` and expecting no Claude stop) and `agent-completion-recovery.spec.ts` (counting native controls), neither of which the grep named; the implementer aligned both (plan 239 slice 2 accepted proof).
+  - Observed effect: no CI failure or rework; one extra consumer run inside the slice.
+  - Inference: Qualified. Same class as the plan 206 row: a premise about which tests rely on a behavior was swept by UI wording, while two specs exercised it through the HTTP boundary and native-call counts.
 
 ## ODF-203 — A wrap-up applied a documentation correction and also queued it as a follow-up story
 
@@ -599,3 +608,20 @@ Follow-up: Open, unqueued.
   - Evidence: the slice 2 refactor report says one run of its alert command failed `session-unread-report.spec.ts` (13 passed, 3.1m, load about 40) and that "the rerun overwrote its output"; the coordinator then ran that spec `--repeat-each 6 --workers 6` and the full command `--repeat-each 3` (48 passes at load about 42–44); plan 238 slice 2 records the failure as an open observation.
   - Observed effect: two extra reproduction runs (about one minute) and a flaky-test question left without a cause.
   - Inference: Qualified. The failure may have been load alone, but nothing retained can show it; keeping a failed run's report or `test-results` before rerunning would have answered it. One sample.
+
+## DD-225 — A plan dropped one observable signal of a story example without saying so
+
+Story example 2 promises that a read session's later "Needs input" also raises a macOS alert. Plan 239's key-example table kept the example's other signals and left out the alert, with no note that it was dropped or why. The slice 1 implementer noticed and reported it as unasserted.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+
+- Execution: `SEED-052#mark-report-read-keeps-session-state` / plan 239, first related implementation commit `46340f4a`
+  - Timestamp: unknown (slice 1 hand-back, before `46340f4a` committed 2026-10-03T22:05:42+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: SEED-052 `#mark-report-read-keeps-session-state` key example 2 ("raises a macOS “Needs input” alert"); plan 239 key-example row 2 lists only the label, edge, attention group and badge; slice 1 hand-back "Untested or open points" names the alert as not asserted; the retrospective read `alertReading` in `dashboard/src/sessionShown.ts`, which depends on `doneAt` and the native state only.
+  - Observed effect: the promise holds by construction but has no observation of its own for a read session; acceptance relied on reading the code.
+  - Inference: Qualified. Low cost here because Mark as read cannot change the alert input. A plan narrowing a story example's signals is the kind of change the proof-mapping step should state with a reason. One sample.

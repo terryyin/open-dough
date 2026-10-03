@@ -18,7 +18,10 @@ export async function markSessionDone(
   launches: AgentLaunches,
   terminals: AgentTerminals,
 ): Promise<LaunchRecord> {
-  if (record.completion !== undefined) {
+  const host = launchHost(record.session.host);
+  const stop = host?.stop?.bind(host);
+  // A reported session on a host without native stop is acknowledged locally.
+  if (record.completion !== undefined && stop === undefined) {
     const marked = await setRecordDoneAt(
       source.id,
       record.session,
@@ -28,8 +31,6 @@ export async function markSessionDone(
       throw new Error("The reporting session was deleted.");
     return marked;
   }
-  const host = launchHost(record.session.host);
-  const stop = host?.stop?.bind(host);
   if (host === undefined || stop === undefined)
     throw new Error("This host cannot mark a session done.");
   const doneAt = new Date().toISOString();

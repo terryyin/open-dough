@@ -18,7 +18,7 @@ and the developer can still type. The client exiting does not accept it.
 Opening the terminal joins that same client and shows its output. There is
 no launch-wait notice and no second client. A visible cursor
 and `Add a follow-up` or `Plan, search, build anything` admit that terminal. Cursor supplies no stop or rename,
-so native Mark as done stays absent for unreported sessions and Delete record remains. Unknown project/session, missing project folder and
+so Mark as done is offered only for a reported session, as local Done, and Delete record remains. Unknown project/session, missing project folder and
 unavailable sessions are refused before attachment. Codex checks the saved
 directory at attachment: missing or inconclusive availability opens the same
 session's read-only final report and explains the limitation. Failure before
@@ -80,7 +80,7 @@ Reload has no terminal. Disconnection offers Reconnect; native attach exit offer
 Open again, each for the same session. Close restores the originating control.
 Shown entries/cards are outlined and sidebar entry current; closing clears them.
 
-For an unreported session, Mark as done uses one operation from card or terminal. It saves local done intent,
+Mark as done uses one operation from card, report panel or terminal. It saves local done intent,
 requests native rename, closes dashboard attachments, then requests native stop
 unless the session is confirmed unavailable. Codex renames with `thread/name/set`
 and interrupts only the observed nonempty in-progress turn ID; completed/unloaded
@@ -122,15 +122,14 @@ same identity after a read failure. Reading changes no native input or done mark
 not establish story completion or why the directory was removed. Existing
 workspace continuation and Claude Code behavior keep their terminal path.
 
-## Explicit reports and local Done
+## Explicit reports, Mark as read and Mark as done
 
-A session with a retained completion/attention report offers local **Mark as done**
-on its card and report panel, including Cursor, which has no native stop operation.
-This acknowledgment changes only the retained Done disposition. It does not rename,
-stop or detach the native session and can be used after its workspace disappears.
+A session with an unread completion/attention report offers **Mark as read** on
+its card and report panel; it keeps the report read and leaves the session open.
+**Mark as done** then closes a reported session as above. Cursor, which has no
+native stop operation, records local Done only, also after its workspace disappears.
 An observed native Working signal remains visible separately beside the attention
 or local Done label.
-Unreported sessions preserve the existing explicit rename/detach/stop behavior.
 Reading an explicit attention message uses machine-local evidence, independently
 of Codex's passive native final-report reader; no native last reply, inactivity,
 minimal marker or process exit counts as a submitted report.

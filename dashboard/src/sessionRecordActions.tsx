@@ -4,19 +4,20 @@ import { useEffect, useRef, useState } from "react";
 import { recordDeletable, type LaunchWithState } from "./agentLaunch.ts";
 import {
   notDeleted,
-  notMarkedDone,
   nowKnown,
-  useMarking,
   usePageSessions,
+  useReportOrDoneMark,
 } from "./pageSessions.ts";
 import { useFrameDescription } from "./protectedFrame.ts";
 
-// A card entry's Mark as done, and its Delete record… while its state is
-// unknown or unavailable, with the one status line that says what either could
-// not do or found; once marked or deleted, the entry leaves the card.
+// A card entry's Mark as read while its report is unread, else its Mark as
+// done, and its Delete record… while its state is unknown or unavailable,
+// with the one status line that says what any could not do or found. Once
+// read, the entry stays and offers Mark as done in the same place; once
+// marked done or deleted, the entry leaves the card.
 export function CardActions({ record }: { readonly record: LaunchWithState }) {
-  const { markDone, hostOperations } = usePageSessions();
-  const { marking, follow } = useMarking();
+  const { markDone, markRead, hostOperations } = usePageSessions();
+  const { label, marking, notMarkedSaid, mark } = useReportOrDoneMark(record);
   const [deleteSaid, setDeleteSaid] = useState<string | undefined>();
   const described = useFrameDescription();
   return (
@@ -29,16 +30,20 @@ export function CardActions({ record }: { readonly record: LaunchWithState }) {
             disabled={marking === "marking"}
             onClick={(event) => {
               setDeleteSaid(undefined);
-              follow(markDone({ record, control: event.currentTarget }));
+              const request = { record, control: event.currentTarget };
+              mark(
+                () => markRead(request),
+                () => markDone(request),
+              );
             }}
           >
-            Mark as done
+            {label}
           </button>
         </p>
       )}
       <DeleteRecord record={record} say={setDeleteSaid} />
       <p role="status" className="launch-problem">
-        {deleteSaid ?? (marking === "not-marked" && notMarkedDone)}
+        {deleteSaid ?? (marking === "not-marked" && notMarkedSaid)}
       </p>
     </>
   );

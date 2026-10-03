@@ -107,10 +107,9 @@ export async function observeLaterCompletionIntent(options: {
     text,
   );
   await recent.getByRole("button", { name: "Read final report" }).click();
-  await page
-    .getByRole("region", { name: "Final report" })
-    .getByRole("button", { name: "Mark as done" })
-    .click();
+  const panel = page.getByRole("region", { name: "Final report" });
+  await panel.getByRole("button", { name: "Mark as read" }).click();
+  await panel.getByRole("button", { name: "Mark as done" }).click();
   await expect.poll(() => stored(receiver.home)[0]?.doneAt).toBeDefined();
   const manualDone = stored(receiver.home)[0]?.doneAt;
   expect((await reportingChild(retry, cwd, env)).ok).toBe(true);

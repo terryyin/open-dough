@@ -57,15 +57,17 @@ test("retired closure retries unavailable receiver, real write fault and lost ac
       expect(gitBefore).toMatch(/push/);
       expect(gitBefore).toMatch(/worktree remove/);
       const nativeControls = () =>
-        native.calls.filter((call) =>
-          [
-            "turn/start",
-            "thread/resume",
-            "turn/interrupt",
-            "thread/name/set",
-          ].includes(call.method),
-        ).length;
-      const nativeBefore = nativeControls();
+        native.calls
+          .filter((call) =>
+            [
+              "turn/start",
+              "thread/resume",
+              "turn/interrupt",
+              "thread/name/set",
+            ].includes(call.method),
+          )
+          .map((call) => call.method);
+      const nativeBefore = nativeControls().length;
       await publishCommittedOrigin(page, {
         repoDir: origin.origin,
         revision: final,
@@ -156,7 +158,11 @@ test("retired closure retries unavailable receiver, real write fault and lost ac
         ).rejects.toThrow("The reporting session was deleted");
         expect(stored(again.home)).toHaveLength(0);
         expect(readFileSync(git.log, "utf8")).toBe(gitBefore);
-        expect(nativeControls()).toBe(nativeBefore);
+        // Only the developer's own Mark as done renames; no retry repeats
+        // native work.
+        expect(nativeControls().slice(nativeBefore)).toEqual([
+          "thread/name/set",
+        ]);
       } finally {
         await again.close();
       }

@@ -9,7 +9,7 @@ import { launch, recordsOf, markDone } from "./agentLaunchBoundary.ts";
 import { queuedIdentity, queuedTitle } from "./support/startOrigin.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
+import { cardSessions, parts } from "./dashboardPage.ts";
 
 const exec = promisify(execFile);
 
@@ -89,11 +89,26 @@ test("Cursor installed report offers local Done without a native stop capability
     card.getByRole("button", { name: "Read attention message" }),
   ).toBeVisible();
   const before = cursor.calls().length;
+  const listed = cardSessions(card);
+  await card.getByRole("button", { name: "Mark as read" }).click();
+  // Read, the session stays open on its card, now offering Mark as done.
+  await expect(
+    card.getByRole("button", { name: "Mark as done" }),
+  ).toBeVisible();
+  await expect(listed).toHaveCount(1);
+  await expect(card.locator(".session-unread-report")).toHaveCount(0);
+  const [read] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+  expect(read?.doneAt).toBeUndefined();
+  expect(read?.reportRead).toBe(receipt.receipt);
   await card.getByRole("button", { name: "Mark as done" }).click();
-  await expect(card.locator(".session-attention-message")).toHaveCount(0);
+  await expect(listed).toHaveCount(0);
   expect(cursor.calls()).toHaveLength(before);
   const [done] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(done?.doneAt).toBeDefined();
+  expect(done?.doneProblem).toBeUndefined();
+  const recent = parts(page).recentSessions.getByRole("article");
+  await expect(recent.locator(".session-state")).toContainText("Done");
+  await expect(recent).not.toContainText("Named done-");
   expect(done?.completion?.receipt).toBe(receipt.receipt);
   expect(
     (

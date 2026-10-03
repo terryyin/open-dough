@@ -1,6 +1,10 @@
 // Catalog and kept host-qualified identity are shared across local session requests.
 // Passive report admission does not require a project or continuation directory.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
+import {
+  reportUnread,
+  type CompletionReport,
+} from "../src/completionReport.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { configuredProject } from "./projectConfiguration.ts";
 import {
@@ -23,6 +27,14 @@ export function knownSource(id: string | null): PublishedSource {
     throw new RefusedRequest(404, "Unknown catalog source.");
   }
   return source;
+}
+
+// The refusal for a session this dashboard keeps no record of in the project.
+export function noSuchSession(): RefusedRequest {
+  return new RefusedRequest(
+    404,
+    "This dashboard launched no such session for this project.",
+  );
 }
 
 // Refuses a GET whose query does not name exactly these parameters, once each.
@@ -51,10 +63,7 @@ export async function recordedSession(
     case "recorded":
       return recorded;
     case "unrecorded":
-      throw new RefusedRequest(
-        404,
-        "This dashboard launched no such session for this project.",
-      );
+      throw noSuchSession();
     case "folder-not-found":
       throw new RefusedRequest(
         404,
@@ -86,6 +95,31 @@ export async function namedSession(
   return { source, ...recorded };
 }
 
+// The recorded session a read mark names, in its project, while its report is
+// unread. Only the retained record is needed: nothing native is touched.
+export async function unreadReportSession(req: IncomingMessage): Promise<{
+  readonly source: PublishedSource;
+  readonly record: LaunchRecord & { readonly completion: CompletionReport };
+}> {
+  const parsed = markDoneRequestSchema.safeParse(await jsonBody(req));
+  if (!parsed.success) {
+    throw new RefusedRequest(400, "The read request is malformed.");
+  }
+  const source = knownSource(parsed.data.source);
+  const record = await keptSession(source.id, {
+    sessionId: parsed.data.session,
+    host: parsed.data.host,
+  });
+  if (record === undefined) {
+    throw noSuchSession();
+  }
+  const { completion } = record;
+  if (completion === undefined || !reportUnread(record)) {
+    throw new RefusedRequest(400, "This session has no unread report.");
+  }
+  return { source, record: { ...record, completion } };
+}
+
 export async function resultRequest(
   url: URL,
 ): Promise<{ readonly kind: "result"; readonly record: LaunchRecord }> {
@@ -96,11 +130,7 @@ export async function resultRequest(
   if (!host.success || !sessionId)
     throw new RefusedRequest(400, "The result session is malformed.");
   const record = await keptSession(source.id, { host: host.data, sessionId });
-  if (record === undefined)
-    throw new RefusedRequest(
-      404,
-      "This dashboard launched no such session for this project.",
-    );
+  if (record === undefined) throw noSuchSession();
   if (
     record.completion === undefined &&
     launchHost(record.session.host)?.readResult === undefined

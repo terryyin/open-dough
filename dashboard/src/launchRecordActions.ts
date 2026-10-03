@@ -1,7 +1,8 @@
 import { sessionKey } from "./sessionReference.ts";
 // What the developer does to a recorded session from this page: mark it
-// done, delete its record, or read it again at once. Each answer replaces or
-// removes the record among the machine's sessions (`./agentLaunches.ts`).
+// done, mark its report read, delete its record, or read it again at once.
+// Each answer replaces or removes the record among the machine's sessions
+// (`./agentLaunches.ts`).
 
 import { useCallback, type RefObject } from "react";
 import type {
@@ -13,6 +14,7 @@ import { readMachineSessions } from "./agentLaunchClient.ts";
 import {
   requestDeleteRecord,
   requestMarkDone,
+  requestMarkRead,
   type DeleteRecordOutcome,
 } from "./sessionRecordRequests.ts";
 
@@ -20,6 +22,11 @@ export type LaunchRecordActions = {
   // Marks a recorded session done, and answers whether the boundary marked
   // it.
   readonly markDone: (record: LaunchRecord) => Promise<boolean>;
+  // Marks a recorded session's report read, and answers the record as the
+  // boundary marked it, or undefined when it did not.
+  readonly markRead: (
+    record: LaunchRecord,
+  ) => Promise<LaunchWithState | undefined>;
   // Deletes a recorded session's record, and answers what came of it. A
   // deleted session is listed nowhere on the page, not even by a read asked
   // before the deletion; a session the boundary finds known keeps its record,
@@ -65,6 +72,15 @@ export function useLaunchRecordActions({
     [replaceRecord],
   );
 
+  const markRead = useCallback(
+    async (record: LaunchRecord) => {
+      const read = await requestMarkRead(record);
+      if (read !== undefined) replaceRecord(read);
+      return read;
+    },
+    [replaceRecord],
+  );
+
   const deleteRecord = useCallback(
     async (record: LaunchRecord) => {
       const answer = await requestDeleteRecord(record);
@@ -97,5 +113,5 @@ export function useLaunchRecordActions({
     [replaceRecord, setFacts],
   );
 
-  return { markDone, deleteRecord, readSession };
+  return { markDone, markRead, deleteRecord, readSession };
 }
