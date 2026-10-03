@@ -35,14 +35,22 @@ import {
   type RunningCursorSessions,
 } from "./cursorRunnerSessions.ts";
 import { hostDescription } from "./hostDescription.ts";
+import {
+  terminalHandoffAttach,
+  terminalHandoffHeader,
+} from "./agentTerminal.ts";
 
 export const refusal = z.object({ error: z.string().min(1) });
 
 // An ordinary same-origin JSON POST.
-export const postJson = (endpoint: string, body: unknown) =>
+export const postJson = (
+  endpoint: string,
+  body: unknown,
+  headers?: Readonly<Record<string, string>>,
+) =>
   fetch(endpoint, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify(body),
   });
 
@@ -81,8 +89,16 @@ function noTrustedAnswer(
 
 export function requestAgentAcceptance(
   request: AgentLaunchRequest,
+  // Start session opens the terminal for this launch. The server then keeps
+  // that Cursor client until the socket joins.
+  attachTerminal = false,
 ): Promise<AcceptanceAnswer> {
-  return askAcceptance(agentAcceptEndpoint, request, request.host);
+  return askAcceptance(
+    agentAcceptEndpoint,
+    request,
+    request.host,
+    attachTerminal,
+  );
 }
 
 // Asks the local service to continue the project's kept attempt that needs
@@ -101,10 +117,17 @@ async function askAcceptance(
   endpoint: string,
   body: unknown,
   host: AgentLaunchRequest["host"],
+  attachTerminal = false,
 ): Promise<AcceptanceAnswer> {
   let response: Response;
   try {
-    response = await postJson(endpoint, body);
+    response = await postJson(
+      endpoint,
+      body,
+      attachTerminal
+        ? { [terminalHandoffHeader]: terminalHandoffAttach }
+        : undefined,
+    );
   } catch {
     return noTrustedAnswer("could not be reached", host);
   }

@@ -22,12 +22,8 @@ import type { LaunchHost } from "../../launchHosts.ts";
 import type { HostLaunch } from "../../hostLaunch.ts";
 import { cursorAgent } from "./exec.ts";
 import { cursorPrompt } from "./prompt.ts";
-import {
-  execOnRunner,
-  holdCursorClient,
-  keepCursorClient,
-  releaseCursorHold,
-} from "./runnerClient.ts";
+import { execOnRunner, keepCursorClient } from "./runnerClient.ts";
+import { terminalHandoffRequested } from "../../terminalHandoff.ts";
 import { cursorTerminalSize } from "./terminal.ts";
 
 // Abort can arrive during an await. A direct `signal.aborted` check is
@@ -162,14 +158,11 @@ export const launchCursor: LaunchHost["launch"] = async (
     return { kind: "launched", session, sessionState: { kind: "unknown" } };
   }
   if (aborted(signal)) return timedOut(session);
-  // Join the client this keep starts before the page opens its terminal.
-  // The idle rule then leaves that one agent in place for the page to attach.
-  void holdCursorClient({
-    sourceId: source.id,
-    session,
-    markedDone: false,
-    folder,
-  });
+  // Start session opens a terminal for this client. Idle waits for that
+  // socket instead of ending the launch's agent and making the open start
+  // another. A launch that does not open one still ends a detached follow-up
+  // after the idle settle.
+  const attachTerminal = terminalHandoffRequested();
   const kept = keepCursorClient({
     command: cursorAgent,
     args: [
@@ -182,13 +175,13 @@ export const launchCursor: LaunchHost["launch"] = async (
     sourceId: source.id,
     session,
     instruction: prompt,
+    ...(attachTerminal ? { handoff: true } : {}),
   });
   const outcome = await Promise.race([
     kept,
     untilAbort(signal).then(() => "aborted" as const),
   ]);
   if (outcome !== "aborted" && outcome.kind !== "kept") {
-    releaseCursorHold(session);
     if (outcome.kind === "unreachable") {
       return runnerUnreachable();
     }

@@ -152,6 +152,7 @@ export function useLaunchAttempts({
           ...requestedChoices(choices),
         },
         onLaunched,
+        choices.host === "cursor",
       )) === true,
     [launch],
   );

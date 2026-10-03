@@ -41,25 +41,22 @@ import { AgentLaunches } from "./agentLaunches.ts";
 import { AgentTerminals } from "./agentTerminals.ts";
 import { respondToLaunch } from "./agentLaunchResponse.ts";
 import {
-  closeCursorHolds,
   ensureCursorRunner,
+  releaseCursorHandoffs,
 } from "./hosts/cursor/runnerClient.ts";
 import { answer } from "./launchBoundaryAnswer.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
 
-async function installAgentLaunchMiddleware(
+function installAgentLaunchMiddleware(
   middlewares: Connect.Server,
   httpServer: HttpServer | null,
-): Promise<() => void> {
+): { close: () => void; ready: Promise<boolean> } {
   const launches = new AgentLaunches();
   const alerts = new SessionAlerts(launches);
   const terminals = new AgentTerminals(httpServer, (req, url) =>
     admittedAttach(req, url, launches),
   );
-  // The runner outlives this server. Start it when it is not already
-  // accepting, and wait so a launch does not time out on that startup.
-  await ensureCursorRunner();
   middlewares.use((req, res, next) => {
     const url = new URL(req.url ?? "", "http://placeholder");
     if (!launchBoundaryPaths.has(url.pathname)) {
@@ -70,11 +67,16 @@ async function installAgentLaunchMiddleware(
       respondToLaunch(res, outcome);
     }, next);
   });
-  return () => {
-    closeCursorHolds();
-    alerts.close();
-    terminals.close();
-    launches.close();
+  return {
+    // The runner outlives this server. `ready` settles before Vite listens,
+    // after this middleware and close are already in place.
+    ready: ensureCursorRunner(),
+    close: () => {
+      void releaseCursorHandoffs();
+      alerts.close();
+      terminals.close();
+      launches.close();
+    },
   };
 }
 

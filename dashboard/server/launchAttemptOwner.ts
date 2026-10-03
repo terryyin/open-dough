@@ -17,6 +17,10 @@
 // machine's store rather than from memory (`./ownedAttempts.ts`).
 
 import { randomUUID } from "node:crypto";
+import {
+  rememberTerminalHandoff,
+  terminalHandoffRequested,
+} from "./terminalHandoff.ts";
 import type {
   Acceptance,
   AgentLaunchRequest,
@@ -192,6 +196,7 @@ export class LaunchAttemptOwner {
     run: AttemptRun,
     continued?: string,
   ): Promise<Acceptance> {
+    const attachTerminal = terminalHandoffRequested();
     // Checked and registered in one step so one story accepts once per server.
     // Machine evidence is empty here; the locked keep rechecks it.
     const local = this.conflictWith(request, [], new Map(), continued);
@@ -218,6 +223,7 @@ export class LaunchAttemptOwner {
       this.owned.release(attempt.id);
       return unrecordedAcceptance;
     }
+    rememberTerminalHandoff(attempt.id, attachTerminal);
     void settleAttempt(this.owned, own, run);
     return { kind: "accepted", attempt: this.owned.observed(attempt) };
   }

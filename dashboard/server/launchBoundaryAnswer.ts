@@ -15,6 +15,11 @@ import { RefusedRequest } from "./localOrigin.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
 import { sessionResultResponse } from "./sessionResultResponse.ts";
+import { withTerminalHandoff } from "./terminalHandoff.ts";
+import {
+  terminalHandoffAttach,
+  terminalHandoffHeader,
+} from "../src/agentTerminal.ts";
 
 // How long a wait for an accepted attempt's change is held before it is
 // answered unchanged, for the page to ask again.
@@ -126,10 +131,14 @@ export async function answer(
       case "accept":
         return {
           status: 200,
-          body: await launches.accept(
-            request.source,
-            request.request,
-            `http://${req.headers.host}`,
+          body: await withTerminalHandoff(
+            req.headers[terminalHandoffHeader] === terminalHandoffAttach,
+            () =>
+              launches.accept(
+                request.source,
+                request.request,
+                `http://${req.headers.host}`,
+              ),
           ),
         };
       case "continue":

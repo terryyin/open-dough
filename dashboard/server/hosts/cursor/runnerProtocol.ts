@@ -27,6 +27,8 @@ export const cursorRunnerKeepRequest = z.object({
   sourceId: z.string().min(1),
   session: hostSessionSchema,
   instruction: z.string(),
+  // The page opens a terminal for this launch. Idle waits for that socket.
+  handoff: z.boolean().optional(),
 });
 
 export type CursorRunnerKeepRequest = z.infer<typeof cursorRunnerKeepRequest>;
@@ -48,11 +50,6 @@ export const cursorRunnerSessionsResult = z.object({
 export type CursorRunnerSessionsResult = z.infer<
   typeof cursorRunnerSessionsResult
 >;
-
-// The attach query flag that joins the client `/keep` is starting and does
-// not spawn another agent. The dashboard client and the runner both read it.
-export const cursorRunnerAttachHoldName = "hold";
-export const cursorRunnerAttachHoldValue = "1";
 
 // The admitted terminal session, carried on the attach query. The runner
 // accepts it only when the session host is Cursor.

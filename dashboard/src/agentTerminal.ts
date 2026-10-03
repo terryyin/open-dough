@@ -13,6 +13,12 @@ import { z } from "zod";
 
 export const agentTerminalEndpoint = "/__agent-terminal";
 
+// Start session sends this on accept. The launch then waits for that page's
+// terminal socket before the idle rule can hang the client up. Other launches
+// do not send it.
+export const terminalHandoffHeader = "x-open-dough-terminal";
+export const terminalHandoffAttach = "attach";
+
 // A WebSocket close code in the range RFC 6455 leaves to applications.
 export const terminalEndedCode = 4000;
 // Native attachment failed before readiness; the existing done intent remains.

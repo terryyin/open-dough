@@ -130,6 +130,8 @@ export class LiveTerminalClient {
   attach(ws: WebSocket, session: TerminalSession, joining: boolean): void {
     this.idle?.hold();
     this.sockets.attach(ws, session, joining);
+    // The socket is open, so releasing a launch handoff does not start idle.
+    this.launch?.releaseHandoff();
     if (joining) {
       // Output from before this socket is still on the client. The nudge
       // makes it paint that screen again.
@@ -140,6 +142,10 @@ export class LiveTerminalClient {
   // The client's current screen, after its writes have settled.
   screenText(): Promise<string> {
     return this.idle?.text() ?? Promise.resolve("");
+  }
+
+  releaseHandoff(): void {
+    this.launch?.releaseHandoff();
   }
 
   hasOpenSocket(): boolean {

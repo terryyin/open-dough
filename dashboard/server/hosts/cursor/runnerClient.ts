@@ -1,10 +1,9 @@
 // The dashboard's calls into the Cursor runner: a finished cursor-agent run,
-// a kept terminal client, one browser socket bridged to that client, a launch
-// hold that joins that client until the page attaches, and a read of the
-// sessions that runner holds. The read does not start a runner or an agent.
-// Starting and stopping the runner process lives in runnerProcess.ts. The
-// launch hold lives in launchHold.ts. Callers outside this host still reach
-// those operations here.
+// a kept terminal client, one browser socket bridged to that client, release
+// of a launch handoff when this server closes, and a read of the sessions
+// that runner holds. The read does not start a runner or an agent. Starting
+// and stopping the runner process lives in runnerProcess.ts. Callers outside
+// this host still reach those operations here.
 import http from "node:http";
 import { homedir } from "node:os";
 import { WebSocket, type RawData } from "ws";
@@ -26,16 +25,23 @@ import {
   ensureCursorRunner,
   stopCursorRunner,
 } from "./runnerProcess.ts";
-import {
-  closeCursorHolds,
-  cursorRunnerAttachUrl,
-  holdCursorClient,
-  releaseCursorHold,
-} from "./launchHold.ts";
+import { cursorRunnerAttachUrl } from "./runnerAttach.ts";
 
 export type { CursorRunnerExec };
 export { ensureCursorRunner, stopCursorRunner };
-export { closeCursorHolds, holdCursorClient, releaseCursorHold };
+
+// Drops launch handoffs on this server's way out. A client the page has not
+// joined then follows the idle rule. This does not start a runner, and it
+// does not signal one the runner itself is keeping for another reason.
+export async function releaseCursorHandoffs(home = homedir()): Promise<void> {
+  const port = await acceptingCursorRunnerPort(home);
+  if (port === undefined) return;
+  try {
+    await postJson(port, "/release-handoffs", {});
+  } catch {
+    // The runner is already gone.
+  }
+}
 
 // The wire request, narrowed to a Cursor session. The runner rejects any
 // other host.
@@ -217,7 +223,6 @@ export async function bridgeCursorTerminal(
   });
   runner.on("open", () => {
     opened = true;
-    releaseCursorHold(session.session);
     for (const message of pending) {
       runner.send(message.data, { binary: message.binary });
     }

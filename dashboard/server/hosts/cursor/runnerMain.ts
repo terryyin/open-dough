@@ -4,7 +4,7 @@
 import http from "node:http";
 import { existsSync } from "node:fs";
 import { mkdir, rename, rm, writeFile } from "node:fs/promises";
-import { WebSocket, WebSocketServer } from "ws";
+import { WebSocketServer } from "ws";
 import type { CursorSession } from "../../../src/launchRecord.ts";
 import type { TerminalSession } from "../../agentTerminals.ts";
 import { keptSession, updateRecord } from "../../launchRecordStore.ts";
@@ -17,8 +17,6 @@ import {
   readCursorRunnerAddress,
 } from "./runnerPaths.ts";
 import {
-  cursorRunnerAttachHoldName,
-  cursorRunnerAttachHoldValue,
   cursorRunnerAttachSession,
   cursorRunnerExecRequest,
   cursorRunnerKeepRequest,
@@ -141,6 +139,12 @@ async function answer(
     });
     return;
   }
+  if (url.pathname === "/release-handoffs") {
+    await readJson(req).catch(() => undefined);
+    attachments.releaseHandoffs();
+    sendJson(res, 200, { kind: "kept" });
+    return;
+  }
   if (url.pathname !== "/keep") {
     sendJson(res, 404, { kind: "failed" });
     return;
@@ -170,6 +174,7 @@ async function answer(
     await attachments.keep(session, pty, {
       instruction: body.instruction,
       ...cursorKeptTerminal,
+      ...(body.handoff === true ? { handoff: true } : {}),
       onEntered: () =>
         confirmInstruction(body.sourceId, session, body.instruction),
     });
@@ -204,17 +209,8 @@ server.on("upgrade", (req, socket, head) => {
     socket.destroy();
     return;
   }
-  const hold =
-    url.searchParams.get(cursorRunnerAttachHoldName) ===
-    cursorRunnerAttachHoldValue;
   sockets.handleUpgrade(req, socket, head, (ws) => {
-    if (!hold) {
-      attachments.connect(ws, session);
-      return;
-    }
-    void attachments.joinKept(ws, session).then((joined) => {
-      if (!joined && ws.readyState === WebSocket.OPEN) ws.close();
-    });
+    attachments.connect(ws, session);
   });
 });
 

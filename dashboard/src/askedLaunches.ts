@@ -75,9 +75,10 @@ export function useAskedLaunches({
       key: string,
       request: AgentLaunchRequest,
       onLaunched: OnLaunched,
+      attachTerminal = false,
     ): Promise<StartAnswer> => {
       setPage(key, { kind: "submitting", request });
-      const answer = await requestAgentAcceptance(request);
+      const answer = await requestAgentAcceptance(request, attachTerminal);
       // Nothing started: the dialog asks the developer about the changes.
       if (answer.kind === "existing-changes") {
         setPage(key, undefined);

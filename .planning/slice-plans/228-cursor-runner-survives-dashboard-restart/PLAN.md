@@ -256,10 +256,12 @@ Accepted proof:
   `origin/main`. Execution branch `cursor/cursor-runner-survives-dashboard-restart`
   starts at `9a4bb9d71f4fbc2cf5681371d8ad7556ffa74778`. Publisher
   `20a3ce04-8f3f-47d0-abe4-6809419ba85c`. The trunk Take is unobserved.
-- CI repair of run 37112939180. The dashboard waits until the runner is
-  accepting before it listens. An instructed launch holds that one client
-  until the page joins it. The runner address and log are machine files
-  beside the launch store. Slice statuses stay done.
+- CI repair of runs 37112939180 and 37115912302. Middleware and close are
+  installed before the server waits for the runner. Start session asks for
+  a terminal handoff; a story launch and an HTTP launch do not, so a
+  detached follow-up still ends after the idle settle. The runner address
+  and log are machine files beside the launch store. Slice statuses stay
+  done.
 
 ## Execution complete
 
