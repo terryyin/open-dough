@@ -48,7 +48,8 @@ development/production credentials and configured-versus-verified status.
 **System settings → Terminal theme** chooses the colour theme for embedded terminals
 (Default, Light, Solarized Dark or Solarized Light) and saves the choice at once
 in `~/.open-dough/dashboard/terminal-theme.json`, which development and
-production share on this machine.
+production share on this machine. A failed save keeps the saved theme and offers
+Retry; other open dashboard windows use a new choice after a reload.
 
 The dashboard reads `.planning/PRODUCT-BACKLOG.md` from the selected project's
 saved repository and ref, resolves that ref to one commit, and reads the backlog
