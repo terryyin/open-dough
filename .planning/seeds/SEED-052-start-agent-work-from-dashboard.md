@@ -112,33 +112,87 @@ or claims of readiness.
 
 **Identity:** SEED-052#one-active-story-session
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/222-one-active-story-session/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e2ff792c2eb887d97bb92446a23153bd406c99f72b07a00a2ad03669a682bc29","plan":"9d93953e4cdcc9d14fa415459f8c8c6bb88ab10ae7973213ec60ee21d47cbc69"}}
 ```
 
-- **For / why:** A developer using the dashboard can trust disabled Start
-  actions to prevent overlapping refinement and execution on the same story.
-- **Outcome:** A story has at most one active refinement or execution session
-  in total. From the beginning of startup until that session closes, both
-  Start refinement and Start execution are actually disabled. The existing
-  gray appearance must mean the action cannot be invoked, rather than merely
-  discouraging a launch that is still permitted.
-- **Key examples:** While refinement is starting, neither workflow can start
-  another session. While an already-started refinement session remains open,
-  execution and another refinement cannot start. The same exclusion applies
-  while execution is starting or its session remains open. Closing the active
-  session removes this block, subject to the action's other eligibility rules.
-  Separate stories can still have sessions in parallel.
-- **Boundary:** Prevent a second launch even from an already-open dialog or
-  overlapping launch requests; disabled controls must enforce the outcome.
-  Identify startup, open-session, and closed-session states distinctly. An idle
-  turn or detached terminal does not by itself mean the session has closed.
-- **Refinement questions:** Establish which existing session/claim evidence
-  determines that a session remains open or has closed, including failure and
-  recovery, and how launch exclusion is enforced across dashboard views and
-  machines. No locking design is selected by this capture.
-- **Depends on:** No new prerequisite story identified.
-- **Capture:** Terry requested this as the highest-priority queued story on
-  2026-10-02, replacing the tolerance that leaves gray actions clickable.
+**Goal:** A developer starting work from the dashboard can trust that a story
+has at most one refinement or execution session from this machine at a time.
+While one is starting or open, the story's Start refinement and Start
+execution cannot be invoked, and they look unavailable. Gray then always means
+"cannot start". This prevents two agents working on the same story and
+workspace, as happened with the overlapping Cursor agents recorded under
+[the Cursor reconnect story](#cursor-reconnect-leaves-the-task-running).
+
+**Scope:**
+
+- A story's active session is either a startup on this machine that has not
+  reconciled, or a dashboard-launched refinement or execution session for that
+  story that has not been closed. Either one blocks both workflows' Starts,
+  whichever workflow it runs and whatever its tracking. That includes Standard
+  and One-shot sessions and a Taken card's kept-start Start execution.
+- The session closes only when the developer marks it done or deletes its
+  record. Nothing else counts as a close: not an idle turn, a detached or
+  closed terminal, an ended native process, Session unavailable, or the story
+  moving between lists. A Cursor session, which offers no Mark as done, closes
+  through Delete record. Once the session closes, the Starts return under their
+  other existing eligibility rules.
+- Every place a Start can be pressed enforces the block, and so does the local
+  launch boundary. A dialog that was opened before the session became active,
+  another page, and overlapping requests from other dashboard processes on this
+  machine all get a refusal that starts nothing. As with other refusals, the
+  dialog closes and the refusal stays beside the card's Start. Startup is already enforced this way through the unresolved launch
+  attempt, so the open-session state extends that rule rather than adding a
+  second one.
+- A disabled Start is described by why: the story has an open session, which is
+  listed on the card, and closing it lets a new one start. The startup state
+  keeps its existing card status. Startup, open session, and closed are
+  distinct states in what the developer sees.
+- A Start that stays clickable never uses the disabled look. "Being prepared"
+  and "Not marked Ready for execution" remain clickable notes, with a look that
+  is distinct from disabled. Their wording stays as it is.
+- Separate stories, ad hoc sessions, and other projects keep starting in
+  parallel.
+
+**Deferred promises:** Excluding sessions on other machines or sessions started
+outside the dashboard. Across machines, a published Take already removes a
+Backlog card's Starts. A published Preparing from elsewhere leaves Start
+clickable with its note. Closing a session automatically from native state.
+Refusing to reopen a done session while another session of the story is open.
+Adding Mark as done for Cursor.
+
+**Key examples:**
+
+1. A developer presses Start refinement on a Backlog story. During
+   "Preparing refinement…", the card's actions stay protected as they are
+   today. Once the session is listed on the card, Start refinement and Start
+   execution stay disabled and gray. Their description says the story has an
+   open session to close first.
+2. A refinement session from this dashboard has published Preparing and ended
+   its turn idle. The developer closes its terminal. Both Starts stay
+   disabled. The developer marks the session done. Start refinement returns
+   with its "Being prepared" note, clickable and not gray, and Start execution
+   returns under its readiness note.
+3. A developer opened the Start execution dialog before another page started
+   refinement on the same story. When they press Start, the dialog closes,
+   a refusal beside the Start says the story already has an open session,
+   and nothing starts. Two pages or servers that press Start at the same moment start one
+   session.
+4. A Cursor execution session is open on a story. Both Starts stay disabled
+   until the developer uses Delete record on that session.
+5. Story A has an open execution session. Story B's Starts, and Start session
+   on the project, remain available.
+6. Another machine published Preparing on a story, and this machine has no
+   session for it. Start refinement shows "Being prepared" and stays
+   clickable, in the distinct noted look.
+
+**Decided 2026-10-03 by the developer:** Only an explicit close (Mark as done or
+Delete record) lifts the block. A published Preparing or a missing Ready mark
+with no session on this machine keeps Start clickable, in a look that is not
+gray.
+
+**Depends on:** No new prerequisite story identified.
+
+**Open decisions:** None for goal or scope.
 
 <a id="cursor-reconnect-leaves-the-task-running"></a>
 
