@@ -216,6 +216,19 @@ worktree is checked through `directoryState` in
 diff endpoint reports Git's own failure when the worktree disappears after a
 snapshot. No story promise covers that case.
 
+## Execution complete
+
+Product advice:
+- Execute the bounded correction
+  [SEED-088#prove-landed-slices-leave-the-review](../../seeds/SEED-088-dashboard-story-code-review.md#prove-landed-slices-leave-the-review)
+  (plan 228). It adds a page journey for key example 2, which has no observing
+  proof yet.
+- Then take the next review story in this seed (`review-selected-commits` or
+  `review-changes-since-last-review`). Both can reuse the snapshot, the
+  stateless file diff, and the `exactReads` route.
+- A file diff opened after its worktree disappears reports Git's own failure.
+  Consider it when refining the next review story.
+
 ## Considered and excluded
 
 - **A diff rendering library** (diff2html, Monaco). Git's output plus a small

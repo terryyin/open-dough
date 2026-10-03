@@ -129,6 +129,31 @@ it adds no project state and decides nothing about the story.
    been retired. The review states the situation and names the worktree it
    looked for.
 
+<a id="prove-landed-slices-leave-the-review"></a>
+
+### Prove that a story's landed slices leave its review
+
+**Identity:** SEED-088#prove-landed-slices-leave-the-review
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/228-prove-landed-slices-leave-the-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c956bdcc3a10dcb9018c1c8ef1c7fe9be49d9530b25025de7f0fcfdab96bf400","plan":"32aed28a31fac42e0b214cd41fe356d0b2be1f6c88e50b141325b1187b763ecd"}}
+```
+
+- **Goal:** A developer reviewing a story whose earlier slices already landed
+  on trunk can rely on a page journey that proves the review shows only the
+  unlanded changes. This corrects the delivered story
+  [Review all story worktree changes in one dashboard UI](#dashboard-story-code-review)
+  (reviewed commits `23eba318..6ff2c450`). Its key example 2 has no observing
+  proof. It adds no feature promise.
+- **Scope:**
+  - Add one review journey in which a story commit is already on fetched
+    trunk and a later story commit is not.
+  - Assert that the review lists only the later commit's files and that the
+    baseline is the landed commit.
+  - Keep the merge-base baseline unchanged. A change is in scope only if the
+    journey shows that the behavior differs from the story.
+- **Plan:** [Plan 228](../slice-plans/228-prove-landed-slices-leave-the-review/PLAN.md)
+  holds the findings, proof, and slice.
+
 <a id="review-selected-commits"></a>
 
 ### Review the combined changes of selected story commits
