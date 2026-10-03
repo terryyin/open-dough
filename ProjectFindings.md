@@ -113,6 +113,13 @@ in unthrottled local runs; each needed an in-run repair.
   - Evidence: runs 36564344723 (`'unknown' !== 'dead'`, repaired in `4e0b2420`) and 36578884226 (`expectPinnedGhCalls` at `catalogProjectRecords.ts:107`, repaired in `bb5ee6a1`); red reproductions needed a stub `process.title` and CDP CPU throttling; 48 local runs under 16 `yes` processes passed.
   - Observed effect: two stash, diagnose, repair, publish, and restore cycles, with slices paused.
   - Inference: Qualified. Timing-sensitive proof here needs a deliberate slow-path reproduction; plain local load did not expose either race.
+- Execution: `SEED-095#prove-slices-through-consumers` / plan 237, first related implementation commit `f7285fad`
+  - Timestamp: 2026-10-03T11:27:10Z (failing CI job's log time)
+  - Tool: Claude Code (coordinator and delegated agents)
+  - Model: claude-opus-5-5
+  - Evidence: run 37119610401, job "test (3/3)", on markdown-only `f7285fad` failed `ci-codex-completion.test.mjs` "exact/ancestor pending to success" (`Missing expected exception`, ESRCH): the test asserted the stream PID was released right after a confirmed shutdown, which the product's liveness rule (the `4e0b2420` repair above) confirms for an unwinding or zombie PID. 12 parallel local runs passed; keeping the PID as `(node)` for 1.5 s reproduced it. Repair `2929df75` asserts the liveness reader instead.
+  - Observed effect: one stash, diagnose, repair, refactor, publish, and restore cycle between slices 1 and 2.
+  - Inference: The same race as this finding's mailbox half, left in a test that still assumed PID release after the product's "dead" rule changed.
 
 ### DD-195 — Full-selection local runs flaked in existing specs that passed isolated and in CI
 

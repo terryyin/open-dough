@@ -159,3 +159,11 @@ unrun known consumer. Link to slice 1's rule rather than restating it.
 Wrap-up records the response and its first containing release on ODF-150 and
 ODF-107 in `docs/maintainer/finding-names.md`, as the story's completion
 requires.
+
+## Execution complete
+
+Product advice: no change to priorities. The CI repair's timing race adds
+evidence to the queued
+[read a launch's kept record only after the event that settles it](../../seeds/SEED-093-local-checks-agree-with-ci.md#read-kept-state-after-its-event)
+class (DD-186 occurrence in `ProjectFindings.md`). Whether consumer-based
+proof reduces CI-found consumer failures is judged from later executions.
