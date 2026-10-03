@@ -21,6 +21,8 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Expose timing races in this repository's tests before CI does](seeds/SEED-093-local-checks-agree-with-ci.md#expose-timing-races-locally) — SEED-093#expose-timing-races-locally
+- [Run a check from any directory and get CI's result](seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory) — SEED-093#checks-run-from-any-directory
 - [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
