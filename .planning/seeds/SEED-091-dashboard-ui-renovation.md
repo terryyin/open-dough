@@ -297,7 +297,7 @@ review.
 
 **Identity:** SEED-091#side-panel-review-reopen-and-close-alignment
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/241-side-panel-alignment-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0d783ec2df588620f11a74774f23623fcb5061ed29d395a8d96282b3d7237b2b","plan":"c8c590274cbf5a931a4cec5c2f13860c0845e44be813168118b3d80a005c5c26"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/241-side-panel-alignment-correction/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f680f33ac1e451c95261d8c6ee76ac3f65681a1aad13495f49819e9e7cb77eb3","plan":"78bcb4c04b643f562c49f77ff74b417a51566ff0098a5f79b542163a4b83ec75"}}
 ```
 
 **Slice plan:** [Side panel alignment correction](../slice-plans/241-side-panel-alignment-correction/PLAN.md).
@@ -310,8 +310,9 @@ for its cost. This bounded correction follows the retrospective of
 
 **Scope:** focus the review already shown when its Review changes control is
 activated again, keeping its fixed snapshot until Refresh; align the
-maintained review contract, the page-frame comment, and the UX/UI North Star
-selection sentence with that behavior and with the review occupying the panel;
+maintained review contract and the page-frame comment with that behavior;
+state in the UX/UI North Star that the side panel is multi-purpose and holds
+one item at a time, leaving review details to the review contract;
 give the final report's Command+Shift+Escape one shared owner with the review
 and terminal; remove the tautological header-look test and trim repeated
 malformed-width rounds. No new feature promise, report chrome redesign, or
