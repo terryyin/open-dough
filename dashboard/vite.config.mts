@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { projectConfigurationPlugin } from "./server/projectConfigurationPlugin.ts";
 import { openAIConfigurationPlugin } from "./server/openAIConfigurationPlugin.ts";
+import { instructionTranscriptionPlugin } from "./server/instructionTranscriptionPlugin.ts";
 import { agentLaunchPlugin } from "./server/agentLaunchPlugin.ts";
 import { authenticatedReadPlugin } from "./server/authenticatedReadPlugin.ts";
 
@@ -42,6 +43,7 @@ export default defineConfig(({ command }) => {
       react(),
       projectConfigurationPlugin(),
       openAIConfigurationPlugin(),
+      instructionTranscriptionPlugin(),
       authenticatedReadPlugin(),
       agentLaunchPlugin(),
     ],

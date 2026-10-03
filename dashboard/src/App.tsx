@@ -5,6 +5,7 @@ import {
   type DashboardSelection,
 } from "./ConfiguredDashboard.tsx";
 import { SystemSettings } from "./SystemSettings.tsx";
+import { SettingsNavigation } from "./settingsNavigation.ts";
 
 export function App() {
   const { projects, problem, replaceProjects } = useProjectConfiguration();
@@ -16,6 +17,7 @@ export function App() {
   const dashboard = useRef<DashboardSelection | undefined>(undefined);
   const opener = useRef<HTMLElement | undefined>(undefined);
   const wasSettings = useRef(settings);
+  const returnToLaunch = useRef<(() => void) | undefined>(undefined);
   const openSettings = () => {
     opener.current =
       document.activeElement instanceof HTMLElement
@@ -59,6 +61,13 @@ export function App() {
   }, []);
   useLayoutEffect(() => {
     if (wasSettings.current && !settings) {
+      if (returnToLaunch.current) {
+        const resume = returnToLaunch.current;
+        returnToLaunch.current = undefined;
+        resume();
+        wasSettings.current = settings;
+        return;
+      }
       const destination = opener.current?.isConnected
         ? opener.current
         : document.querySelector<HTMLElement>(
@@ -72,48 +81,55 @@ export function App() {
     return <p role="status">{problem ?? "Loading projects…"}</p>;
   return (
     <ProjectsOnPage projects={projects} replaceProjects={replaceProjects}>
-      <div hidden={settings}>
-        {projects.length === 0 ? (
-          <>
-            <header className="banner">
-              <button
-                type="button"
-                aria-label="System settings"
-                onClick={openSettings}
-              >
-                System settings
-              </button>
-            </header>
-            <main className="page-header">
-              <h1>No projects configured</h1>
-              <p>
-                Open System settings → Projects to add a project and see its
-                published work and start sessions.
-              </p>
-            </main>
-          </>
-        ) : (
-          <ConfiguredDashboard
-            settingsOpen={settings}
-            onOpenSettings={openSettings}
-            onDashboardReady={(value) => {
-              if (dashboard.current?.source.id !== value.source.id)
-                setSelected(value.source.id);
-              dashboard.current = value;
+      <SettingsNavigation.Provider
+        value={(onReturn) => {
+          returnToLaunch.current = onReturn;
+          openSettings();
+        }}
+      >
+        <div hidden={settings}>
+          {projects.length === 0 ? (
+            <>
+              <header className="banner">
+                <button
+                  type="button"
+                  aria-label="System settings"
+                  onClick={openSettings}
+                >
+                  System settings
+                </button>
+              </header>
+              <main className="page-header">
+                <h1>No projects configured</h1>
+                <p>
+                  Open System settings → Projects to add a project and see its
+                  published work and start sessions.
+                </p>
+              </main>
+            </>
+          ) : (
+            <ConfiguredDashboard
+              settingsOpen={settings}
+              onOpenSettings={openSettings}
+              onDashboardReady={(value) => {
+                if (dashboard.current?.source.id !== value.source.id)
+                  setSelected(value.source.id);
+                dashboard.current = value;
+              }}
+            />
+          )}
+        </div>
+        {settings && (
+          <SystemSettings
+            selectedId={selected ?? dashboard.current?.source.id}
+            onSelect={(source) => {
+              dashboard.current?.select(source);
+              setSelected(source.id);
             }}
+            onBack={back}
           />
         )}
-      </div>
-      {settings && (
-        <SystemSettings
-          selectedId={selected ?? dashboard.current?.source.id}
-          onSelect={(source) => {
-            dashboard.current?.select(source);
-            setSelected(source.id);
-          }}
-          onBack={back}
-        />
-      )}
+      </SettingsNavigation.Provider>
     </ProjectsOnPage>
   );
 }

@@ -241,3 +241,6 @@ or tests were needed. Managed CI pause/restore preserved the reviewed credential
 files; only the separate test-contract repair and its proof link were added.
 The coordinator's `npm run format` reached terminal exit 0 under the same
 runtime/key-unset prefix; all changed/new files remain at most 250 lines.
+
+[Accepted slice 4 proof](VOICE-DICTATION.md) records shared dialog/provider
+journeys, lifecycle cleanup, affected keyboard consumers and preparation.

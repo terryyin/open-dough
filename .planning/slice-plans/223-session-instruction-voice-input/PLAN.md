@@ -88,7 +88,8 @@ start; reuse its published claim without a second Take. Identity:
   observer below. Its [stale-consumer CI repair](CI-REPAIR.md) published and
   registered as `cd8ae88e711c8820df2db8ed15474dd7de8d8170`; the managed stash
   restored slice 3 intact. Slice 3 then published as
-  `f8479885631c9ec45dcbc5d992ae7ca801cec203`, the next increment's
+  `f8479885631c9ec45dcbc5d992ae7ca801cec203`; the resumed slice 1 proof
+  published as `df507694d35f565620ad333a4f9a5b46e7cccf8c`, this increment's
   previously published base.
 - Node 24.21.0 selected from
   `/tmp/open-dough-release-node-0.3.55/node-v24.21.0-darwin-arm64/bin`.
@@ -144,9 +145,11 @@ formatter passed. This increment publishes the completed slice.
 
 ### 4. Dictate, review, and start with the edited instructions
 Type: Behavior
-Status: planned
+Status: done
 Shared dialog recording-to-review-to-explicit-Start journey, saved-key consumer,
 bounded local/provider request and complete dismissal/late-result cleanup.
+[Implementation/refactor proof](VOICE-DICTATION.md) and coordinator preparation
+passed; this increment delivers the complete path.
 
 ### 5. Unavailable dictation leaves the typed instruction usable
 Type: Behavior
