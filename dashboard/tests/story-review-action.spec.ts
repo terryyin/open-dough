@@ -1,8 +1,10 @@
 // Review changes on Story A's card, offered by its kept launch record
 // (./support/storyReviewWorktree.ts): it joins Inspect story in the card's
 // inspection group, on one line beside it when the card is wide enough and
-// next in reading order when it is not, below the launch group's Starts;
-// closing the review or the detail returns the keyboard usefully.
+// next in reading order when it is not, below the launch group's Starts, and
+// the keyboard reaches it from Inspect story. Closing the review returns the
+// keyboard in ./story-review.spec.ts; closing the detail, in
+// ./storyReadinessScan.ts and ./accessible-overview-keyboard.spec.ts.
 
 import { expect, test } from "./support/preparationPage.ts";
 import {
@@ -11,7 +13,6 @@ import {
   launchGroup,
 } from "./cardControls.ts";
 import {
-  expectEscapeReturnsThenTabMovesOn,
   expectFocusedAndIndicated,
   narrowWindow,
   twiceZoomedWindow,
@@ -27,7 +28,7 @@ import {
   unchangedWorktree,
 } from "./support/storyReviewWorktree.ts";
 
-test("the inspection group shares a line below the launch group, wraps in reading order, and returns the keyboard on closing", async ({
+test("the inspection group shares a line below the launch group, wraps in reading order, and the keyboard reaches Review changes from Inspect story", async ({
   page,
   dashboard,
   origin,
@@ -53,6 +54,8 @@ test("the inspection group shares a line below the launch group, wraps in readin
   await expectStackedInOrder([launchGroup(card), inspectionGroup(card)]);
   for (const window of [narrowWindow, twiceZoomedWindow]) {
     await page.setViewportSize(window);
+    // Each window starts from a newly read page, with no detail or review open.
+    await page.reload();
     await expectInReadingOrder(card, [...starts, inspect, action]);
     await inspect.focus();
     await page.keyboard.press("Enter");
@@ -65,12 +68,5 @@ test("the inspection group shares a line below the launch group, wraps in readin
     await expectFocusedAndIndicated(page, action);
     await page.keyboard.press("Enter");
     await expect(review).toBeVisible();
-    await expectEscapeReturnsThenTabMovesOn(page, {
-      opener: action,
-      dialog: review,
-      next: detail.getByRole("link").first(),
-    });
-    await hide.press("Enter");
-    await expectFocusedAndIndicated(page, card);
   }
 });

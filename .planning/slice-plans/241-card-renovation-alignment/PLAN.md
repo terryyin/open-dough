@@ -190,7 +190,7 @@ in the inspected detail only.
 
 ### 2. Card tests open detail explicitly and own each focus walk once
 Type: Structure
-Status: planned
+Status: done
 Proof: Slice-2 rows of the proof table; focused command over the five snapshot specs, `agent-launch-card-noted-start.spec.ts`, `story-review-action.spec.ts`, `story-review.spec.ts`, `accessible-overview-keyboard.spec.ts`, `story-readiness-accessible.spec.ts`, `source-navigation.spec.ts`; `typecheck:dashboard`.
 
 Correction: removes a hidden synthetic interaction from an assertion helper
@@ -217,6 +217,28 @@ observation they make.
 - Update helper and spec header comments that name the moved ownership.
 
 Safe stopping point: the correction is complete.
+
+Accepted proof (base `7121af72`):
+
+- Focused command (slice-2 Proof list) passed: 27 passed;
+  `typecheck:dashboard` clean. After the refactor moved the explicit opener
+  into `inspectDashboardStory` (`refreshJourney.ts`), the five snapshot specs
+  passed again: 16 passed.
+- `expectWholeSnapshot` requires exactly one open `Detail for` region; a
+  disposable spec calling it with no detail open failed with
+  `Expected: 1 Received: 0`.
+- Opened details: `inspectDashboardStory` (Dashboard story, present at A and B)
+  in `auto-refresh.spec.ts` test 2, `auto-refresh-recovery.spec.ts` test 1,
+  `auto-refresh-rate-limit.spec.ts` and both `read-failure.spec.ts` reload
+  sites; the other journeys already open a named card's detail by click.
+- Focus-walk owners as in the proof table; duplicates removed from
+  `agent-launch-card-noted-start.spec.ts` (Hide detail walk) and
+  `story-review-action.spec.ts` (review Escape and Hide detail tail).
+  `story-review.spec.ts`'s Escape-then-Tab reaches Story B's Start execution.
+
+Learning: `story-review-action.spec.ts` walks two windows in one test; with
+the close walks gone, each window reloads the page so it starts with no detail
+or review open.
 
 ## Execution, verification, and design assessment
 

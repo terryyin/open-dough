@@ -31,6 +31,7 @@ import {
   backlogB,
   backlogC,
   dashboardStory,
+  inspectDashboardStory,
   revisionA,
   revisionB,
   revisionC,
@@ -147,6 +148,7 @@ test("auto refresh: main moving again while B's backlog is read leaves one snaps
 }) => {
   const origin = await openSettledAtA(page);
   const { source, problem } = parts(page);
+  await inspectDashboardStory(page);
   const beforeB = githubFor(page).calls.length;
   origin.push(revisionB, backlogB, recordsAt("B"));
   const releaseBacklogAtB = origin.hold(revisionB);

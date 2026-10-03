@@ -5,7 +5,8 @@
 // own index and status stay as they were. Selecting a file shows its diff
 // with added and removed lines marked in text, the rename against its old
 // path, the deletion as all lines removed, and the image as having no textual
-// diff; hiding the file browser leaves the diff in place with more room.
+// diff; hiding the file browser leaves the diff in place with more room;
+// closing the review returns the keyboard to Review changes, and Tab moves on.
 // Requests the launch boundary does not admit are refused before any Git
 // runs: trunk is not fetched and no file is written.
 
@@ -15,6 +16,8 @@ import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
 } from "../src/storyReview.ts";
+import { expectEscapeReturnsThenTabMovesOn } from "./accessibleReading.ts";
+import { parts } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
@@ -233,7 +236,13 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   });
   expect(observed(workspace)).toEqual(before);
 
-  await page.keyboard.press("Escape");
-  await expect(review).toBeHidden();
-  await expect(action).toBeFocused();
+  // Closing the review returns the keyboard to Review changes, and the next
+  // Tab reaches the next card's first Start.
+  await expectEscapeReturnsThenTabMovesOn(page, {
+    opener: action,
+    dialog: review,
+    next: parts(page)
+      .backlog.getByRole("article", { name: "Story B" })
+      .getByRole("button", { name: "Start execution" }),
+  });
 });

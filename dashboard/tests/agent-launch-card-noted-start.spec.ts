@@ -1,7 +1,8 @@
 // A Backlog card's Starts on the committed story-stages origin: they share
 // the card's launch group's line, each note beside the Start it describes,
 // when the card is wide enough, and wrap in reading order, by keyboard, at
-// 420px and the 200% zoom proxy, before Inspect story in the inspection group.
+// 420px and the 200% zoom proxy, before Inspect story in the inspection group;
+// a cancelled launch dialog returns the keyboard to its Start, and Tab moves on.
 // A clickable noted Start on a story-stages preparing revision keeps a look
 // distinct from a disabled Start on the same page, in light and dark schemes.
 // Backlog-card launch behavior on a committed origin is ./agent-launch-card.spec.ts;
@@ -61,7 +62,6 @@ test.describe("a Backlog card's Starts", () => {
     page,
     dashboard,
   }) => {
-    dashboard.claudeScenario("launched");
     const { card, action, settled } = await openStoryStagesJourney(
       page,
       stagesJourney,
@@ -100,8 +100,8 @@ test.describe("a Backlog card's Starts", () => {
         note,
         refinement,
       ]);
-      // The keyboard walks the launch group, then the inspection group;
-      // a cancelled Start and a closed detail return it usefully.
+      // The keyboard walks the launch group, then the inspection group, and
+      // a cancelled Start returns it to that Start.
       await execution.focus();
       await page.keyboard.press("Tab");
       await expectFocusedAndIndicated(page, refinement);
@@ -115,13 +115,6 @@ test.describe("a Backlog card's Starts", () => {
         dialog,
         next: inspect(notRefinedStory),
       });
-      await page.keyboard.press("Enter");
-      const hide = inspectionGroup(card(notRefinedStory)).getByRole("button", {
-        name: "Hide detail",
-      });
-      await expectFocusedAndIndicated(page, hide);
-      await page.keyboard.press("Enter");
-      await expectFocusedAndIndicated(page, card(notRefinedStory));
     }
     expect(dashboard.claudeLaunchCalls()).toHaveLength(0);
   });
