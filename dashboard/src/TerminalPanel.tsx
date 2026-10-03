@@ -18,11 +18,14 @@
 // the panel closes once marked and says if it could not be.
 
 import { useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { CircleCheck, Maximize2, Minimize2, X } from "lucide-react";
 import { marksDone } from "./sessionCapabilities.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import "@xterm/xterm/css/xterm.css";
 import "./agent-launch.css";
+import "./frame-controls.css";
 import "./agent-terminal.css";
+import { IconButton } from "./Icon.tsx";
 import { launchSubject } from "./agentLaunch.ts";
 import { AgentPortrait } from "./AgentPortrait.tsx";
 import { usePortraitPreview } from "./terminalPortraitPreview.ts";
@@ -136,50 +139,29 @@ export function TerminalPanel({
         </div>
         <div className="terminal-actions">
           {marksDone(hostOperations, record.session.host) && (
-            <button
-              type="button"
-              className="terminal-icon"
-              aria-label="Mark as done"
-              title="Mark as done"
+            <IconButton
+              label="Mark as done"
+              icon={CircleCheck}
               disabled={marking === "marking"}
               onClick={() => {
                 follow(onMarkDone(session));
               }}
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <circle cx="12" cy="12" r="9" />
-                <path d="m8 12 3 3 5-6" />
-              </svg>
-            </button>
+            />
           )}
-          <button
-            type="button"
-            className="terminal-icon"
-            aria-label={maximized ? "Restore" : "Maximize"}
-            title={maximized ? "Restore" : "Maximize"}
+          <IconButton
+            label={maximized ? "Restore" : "Maximize"}
+            icon={maximized ? Minimize2 : Maximize2}
             onClick={() => {
               onMaximize(!maximized);
             }}
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              {maximized ? (
-                <path d="M8 4h12v12M4 8h12v12H4z" />
-              ) : (
-                <path d="M4 4h16v16H4z" />
-              )}
-            </svg>
-          </button>
-          <button
-            type="button"
-            className="terminal-icon"
-            aria-label="Close"
-            title="Close (⌘⇧Esc)"
+          />
+          <IconButton
+            label="Close"
+            shortcut="⌘⇧Esc"
+            icon={X}
+            align="end"
             onClick={onClose}
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
+          />
         </div>
       </header>
       <div role="status" className="terminal-status">
@@ -188,7 +170,11 @@ export function TerminalPanel({
         {ending && marking !== "marking" && (
           <>
             <p>{endings[ending].says}</p>
-            <button type="button" onClick={attachAgain}>
+            <button
+              type="button"
+              className="frame-button"
+              onClick={attachAgain}
+            >
               {endings[ending].action}
             </button>
           </>

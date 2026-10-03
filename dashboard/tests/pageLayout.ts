@@ -33,12 +33,15 @@ const pastTheWindow = `(() => {
 
 // Elements whose content is wider than they are, cut short, or ended with an
 // ellipsis: text that a reader could not read whole. One-line text is readable
-// when its content fits and no ancestor clips it.
-const notReadWhole = `(() => {
+// when its content fits and no ancestor clips it. Parts cut by design, inside
+// any of the `cutByDesign` selectors, are not counted.
+const notReadWhole = (cutByDesign: readonly string[]) => `(() => {
   const keptFromSight = ${keptFromSight};
+  const cutByDesign = ${JSON.stringify(cutByDesign.join(", "))};
   return [...document.body.querySelectorAll("*")]
     .filter((element) => {
       if (!(element instanceof HTMLElement) || keptFromSight(element) || element.getBoundingClientRect().height === 0) return false;
+      if (cutByDesign !== "" && element.closest(cutByDesign)) return false;
       const tooNarrowForItsContent =
         element.clientWidth > 0 && element.scrollWidth > element.clientWidth + 1;
       // A native form control (the project selector) renders and clips its
@@ -58,7 +61,13 @@ const notReadWhole = `(() => {
     .map((element) => element.tagName + ": " + (element.textContent ?? "").slice(0, 60));
 })()`;
 
-export async function expectNoSidewaysScrollAndWholeText(page: Page) {
+// The page fits the window and its text is read whole, apart from parts that
+// are cut by design and read whole elsewhere, such as a Sessions sidebar
+// entry's title, or a terminal's own scrolling screen.
+export async function expectNoSidewaysScrollAndWholeText(
+  page: Page,
+  cutByDesign: readonly string[] = [],
+) {
   expect(
     await page.evaluate(
       "document.documentElement.scrollWidth <= document.documentElement.clientWidth",
@@ -66,7 +75,10 @@ export async function expectNoSidewaysScrollAndWholeText(page: Page) {
     "the page does not scroll sideways",
   ).toBe(true);
   expect(await page.evaluate(pastTheWindow), "past the window").toEqual([]);
-  expect(await page.evaluate(notReadWhole), "not read whole").toEqual([]);
+  expect(
+    await page.evaluate(notReadWhole(cutByDesign)),
+    "not read whole",
+  ).toEqual([]);
 }
 
 export async function box(locator: Locator) {

@@ -218,7 +218,28 @@ all use the frame style. Cards inside the stages are unchanged.
 
 ### 4. Sessions sidebar and terminal panel chrome
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run typecheck:dashboard`; 191 passed over
+`agent-terminal`, `session-sidebar`, `dashboard-header`, and 65 related specs
+(`agent-completion-*`, `agent-launch-*`, `session-workspace-retirement*`,
+`responsive-session-access`, `session-alerts-unavailable`,
+`frame-overview-look`, `system-settings*`, `preparation-legend`,
+`backlog-preparing`, `accessible-overview`, `frame-sessions-look`); after the
+refactor, 28 passed over the `expectFrameIconControl` callers and
+`agent-terminal-keyboard`. `agent-terminal-maximize.spec.ts` runs the shared
+check on Mark as done, Maximize, Restore, and Close ("Close (⌘⇧Esc)");
+`frame-sessions-look.spec.ts` checks the Sessions button, sidebar and panel
+contrast, and narrow and zoomed fit (passed 16 of 16 repeated). No xterm
+option, `.terminal-screen` rule, or card selector changed.
+Learnings: the Running Cursor sessions list the seed names is not built yet
+(only the North Star describes it), so there was nothing to restyle; whoever
+builds it reuses the sidebar entry rules. A positioned `.icon-control` paints
+over earlier positioned neighbours, so the terminal portrait got a `z-index`;
+slice 5's roster portraits may need the same. xterm refits asynchronously
+after a resize, so a layout check with an open terminal waits for
+`.xterm-screen` to fit `.terminal-screen` and passes `.terminal-screen` and
+`.sidebar-title` to `expectNoSidewaysScrollAndWholeText`'s new `cutByDesign`
+list. `tooltipOf` in `frameIconControl.ts` finds a control's tooltip.
 Proof: The terminal and sidebar rows of the proof table.
 
 Behavior: the developer opens the Sessions sidebar and a session terminal →

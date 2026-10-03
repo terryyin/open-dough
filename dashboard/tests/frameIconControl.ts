@@ -29,6 +29,11 @@ export async function expectDecorativeIcon(area: Locator) {
   await expect(icon).toHaveClass(/\blucide\b/);
 }
 
+// The tooltip of a frame icon control: its neighbour that says these words.
+export function tooltipOf(control: Locator, words: string) {
+  return control.locator("xpath=..").getByText(words, { exact: true });
+}
+
 export async function expectFrameIconControl(
   control: Locator,
   name: string,
@@ -36,8 +41,7 @@ export async function expectFrameIconControl(
 ) {
   const page = control.page();
   const restOffControls = () => page.mouse.move(0, 0);
-  // The tooltip is the control's neighbour that says its words.
-  const tip = control.locator("xpath=..").getByText(tooltip, { exact: true });
+  const tip = tooltipOf(control, tooltip);
   const icon = control.locator("svg");
 
   await expect(control).toHaveAccessibleName(name);

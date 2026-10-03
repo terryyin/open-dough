@@ -28,9 +28,15 @@
   cursor: pointer;
 }
 
-.icon-button:hover {
+.icon-button:hover:where(:not(:disabled)) {
   color: var(--text);
   background: var(--hover);
+}
+
+/* A control that cannot act now, as Mark as done while it marks. */
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 /* Not drawn until shown, so a hidden tooltip takes no room and never reaches
