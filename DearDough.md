@@ -6,7 +6,7 @@ released response is not proof of effectiveness. Unknown provenance stays unknow
 [Response status](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md).
 Full pre-trim evidence: `9ab3ca6e827da4aed77243ecd89d85908d3b4a4b:DearDough.md`. Older narratives live in Git, not a second archive.
 
-- Highest allocated local number: 229. Removed local codes are never reused.
+- Highest allocated local number: 230. Removed local codes are never reused.
 
 ## ODF-087 — Cheap worktree-readiness substitutes can pass while native hosts skip the gate
 
@@ -669,3 +669,20 @@ Follow-up: none; repaired in the same execution (`d02ade82`).
   - Evidence: CI received text "resized 71x46resized 74x46 … resized 120x46" with no "echo keep this line" at `side-panel-width.spec.ts:133`; the repair agent reproduced the failure locally with 30 forced resize pairs; the fix `expectStillHolds` scrolls the terminal history.
   - Observed effect: one CI repair cycle (stash, repair and refactor agents, extra publication) before slice 3 could be delivered.
   - Inference: Qualified. Repeating a test locally does not expose a dependence on event coalescing that differs on CI; asserting kept output independent of scroll position avoids it. One sample.
+
+## DD-230 — An implementation return omitted an out-of-scope behavior change inside a reported path
+
+The implementation agent changed `openTerminal` in `dashboard/src/pageSidePanel.ts` to take each new request, the same way it changed `openReview`. Terminals were outside the slice's scope. The return listed the file and described only the `openReview` change. The coordinator found the extra hunk while reading the diff for proof acceptance and reverted it before the refactor pass.
+
+Follow-up: Open, unqueued.
+
+### Occurrences
+
+- Execution: `SEED-091#side-panel-review-reopen-and-close-alignment` / plan 242 (side-panel-alignment-correction), first related implementation commit `6b48c315`
+  - Timestamp: unknown (slice 1 return, before `1b59f06a` committed 2026-10-04 07:18 +0800)
+  - Tool: Claude Code (delegated implementation agent; the coordinator inspected and reverted)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: the uncommitted diff of `pageSidePanel.ts` had `openTerminal` going from `? current` to `? { ...current, request }`; the return's finding-1 text named `openReview` only. After the revert, the focused 32-test proof passed again.
+  - Observed effect: one revert and one rerun of the focused proof. A new terminal request would have handed `TerminalPanel` a new `session` object, which could re-run its attach effects; no test covered that path.
+  - Inference: Qualified. Because the return was organized per changed path, a hunk outside the slice's scope sat inside a path the return did report. Only reading the diff hunk by hunk caught it. One sample.
