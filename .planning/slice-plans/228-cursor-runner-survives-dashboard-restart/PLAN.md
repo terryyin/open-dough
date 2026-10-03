@@ -256,3 +256,13 @@ Accepted proof:
   `origin/main`. Execution branch `cursor/cursor-runner-survives-dashboard-restart`
   starts at `9a4bb9d71f4fbc2cf5681371d8ad7556ffa74778`. Publisher
   `20a3ce04-8f3f-47d0-abe4-6809419ba85c`. The trunk Take is unobserved.
+
+## Execution complete
+
+Product advice: No backlog change. This story stays the Taken runner item;
+nothing beside it needs reordering from this result.
+
+At wrap-up, the temporary North Star topic can be retired. Its own condition
+is met: the runner lifetime is now in `dashboard/AGENT-LAUNCH-TERMINALS.md`,
+and the production command's leave-it-up rule is in `dashboard/COMMANDS.md`.
+The Sessions row already states the list.
