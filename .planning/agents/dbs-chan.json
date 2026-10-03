@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "dbs-chan",
-  "email": "dbs-chan@example.org",
-  "identity": "SEED-056#state-refinement-decision",
-  "mode": "story-branch",
-  "branch": "claude/slice-planning-states-whether-it-refined-and-set",
-  "host": "claude"
-}
