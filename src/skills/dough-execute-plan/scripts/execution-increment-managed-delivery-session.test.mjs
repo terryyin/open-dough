@@ -1,6 +1,7 @@
 // Managed-delivery session input: explicit identity stays authoritative over
 // the ambient Claude Code session, malformed input is not rescued, and other
-// hosts never adopt the Claude variable.
+// hosts never adopt the Claude variable. A Cursor coordinator is identified by
+// its own conversation variable and keeps its real generation as the gate.
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
@@ -11,8 +12,10 @@ import {
 } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import {
   claudeHookInput,
+  cursorHookInput,
   deliverThroughCli,
   invokeInstalledClaudeHook,
+  invokeInstalledCursorHook,
 } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 
 const trunkTarget = "refs/heads/main";
@@ -66,6 +69,7 @@ test("Cursor and Codex delivery never adopt the ambient Claude session", async (
   const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
   const env = { ...fixture.env, CLAUDE_CODE_SESSION_ID: ambient };
+  delete env.CURSOR_CONVERSATION_ID;
 
   const cursor = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -79,7 +83,7 @@ test("Cursor and Codex delivery never adopt the ambient Claude session", async (
   });
   assert.equal(cursor.publication, "accepted");
   assert.equal(cursor.observation.state, "unobserved");
-  assert.match(cursor.observation.reason, /host session identity is required/);
+  assert.match(cursor.observation.reason, /CURSOR_CONVERSATION_ID is unset/);
   assert.equal(existsSync(fixture.storage), false);
 
   const codex = await fixture.deliverManagedExecutionIncrement({
@@ -98,6 +102,60 @@ test("Cursor and Codex delivery never adopt the ambient Claude session", async (
   assert.equal(
     codex.observation.reason,
     "Codex yielded-cell bridge is unavailable",
+  );
+  assert.equal(existsSync(fixture.storage), false);
+});
+
+for (const receipt of ["with", "without"]) {
+  test(`a Cursor coordinator's delivery from its own Shell is observed in its real generation, ${receipt} the deliver receipt in the hook output`, async (t) => {
+    const fixture = await createManagedFixture();
+    t.after(fixture.cleanup);
+    const env = { ...fixture.env, CURSOR_CONVERSATION_ID: "conv-1" };
+    delete env.CLAUDE_CODE_SESSION_ID;
+
+    const { delivered, stdout } = await deliverThroughCli(fixture, {
+      host: "cursor",
+      base: fixture.trunkSha,
+      env,
+    });
+    assert.equal(delivered.publication, "accepted");
+    assert.equal(delivered.observation.state, "attached");
+
+    fixture.releaseFailure(delivered.receipt.sha, "main");
+    await waitForFailureEvent(delivered.observation.directory);
+    const output = receipt === "with" ? stdout : "";
+    const notified = await invokeInstalledCursorHook(
+      fixture,
+      cursorHookInput("conv-1", "coordinator-real-turn", output),
+      env,
+    );
+    assert.match(notified.additional_context ?? "", /CI_FAILURE/);
+    assert.match(
+      notified.additional_context,
+      new RegExp(delivered.receipt.sha, "i"),
+    );
+  });
+}
+
+test("a Cursor delivery without its conversation identity reports a gap naming CURSOR_CONVERSATION_ID and keeps publication", async (t) => {
+  const fixture = await createManagedFixture();
+  t.after(fixture.cleanup);
+  const env = { ...fixture.env };
+  delete env.CURSOR_CONVERSATION_ID;
+  delete env.CLAUDE_CODE_SESSION_ID;
+
+  const { delivered } = await deliverThroughCli(fixture, {
+    host: "cursor",
+    base: fixture.trunkSha,
+    env,
+  });
+  assert.equal(delivered.publication, "accepted");
+  assert.equal(delivered.observation.state, "unobserved");
+  assert.match(delivered.observation.reason, /CURSOR_CONVERSATION_ID is unset/);
+  assert.match(delivered.observation.reason, /--session-json/);
+  assert.equal(
+    await lsRemoteSha(fixture.origin, trunkTarget),
+    delivered.receipt.sha,
   );
   assert.equal(existsSync(fixture.storage), false);
 });

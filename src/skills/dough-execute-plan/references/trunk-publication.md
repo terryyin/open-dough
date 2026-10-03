@@ -93,6 +93,8 @@ Run `deliver` through the coordinator's own Bash or Shell tool so the observer
 belongs to the session that will receive CI events. On Claude Code,
 `--host claude` takes that coordinator's identity from its
 `CLAUDE_CODE_SESSION_ID`; do not probe, start, or build session JSON for it.
+On Cursor, `--host cursor` takes that coordinator's identity from its
+`CURSOR_CONVERSATION_ID` in the same way.
 An explicit `--session-json` stays authoritative when a caller must name a
 different owner, and malformed session JSON stops delivery instead of falling
 back to another identity. If no identity is available, the receipt reports an

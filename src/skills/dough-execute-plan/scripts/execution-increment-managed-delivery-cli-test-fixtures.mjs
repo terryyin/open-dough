@@ -1,6 +1,6 @@
 // Host-shell view of a managed-delivery fixture: the installed `deliver`
 // command with its taught arguments, and the installed Claude Code hook as the
-// host invokes it after a tool call.
+// host invokes it after a tool call, and the installed Cursor hook likewise.
 import { execFile } from "node:child_process";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -65,6 +65,29 @@ export const claudeHookInput = (session_id, extra = {}) => ({
 // What the fixture's installed Claude Code hook returns for one tool call.
 export function invokeInstalledClaudeHook(fixture, input, env) {
   return invokeHostHook("claude", input, {
+    hookPath: join(fixture.skill, "scripts/ci-host-hook.mjs"),
+    cwd: fixture.execution,
+    env,
+  });
+}
+
+// A Cursor coordinator's postToolUse for one Shell call in its own generation.
+export const cursorHookInput = (
+  conversation_id,
+  generation_id,
+  output = "",
+) => ({
+  conversation_id,
+  generation_id,
+  cursor_version: "1.0.0",
+  hook_event_name: "postToolUse",
+  tool_name: "Shell",
+  tool_output: JSON.stringify({ output, exitCode: 0 }),
+});
+
+// What the fixture's installed Cursor hook returns for one tool call.
+export function invokeInstalledCursorHook(fixture, input, env) {
+  return invokeHostHook("cursor", input, {
     hookPath: join(fixture.skill, "scripts/ci-host-hook.mjs"),
     cwd: fixture.execution,
     env,

@@ -113,8 +113,25 @@ not a hypothesis.
 ### 1. A Cursor coordinator's managed delivery is observed from its own Shell
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: examples 1, 2, 6 and the session test, as tabled above.
+
+Accepted proof (2026-10-03): `execution-increment-managed-delivery-session.test.mjs`
+"a Cursor coordinator's delivery from its own Shell is observed in its real
+generation, with/without the deliver receipt in the hook output", "a Cursor
+delivery without its conversation identity reports a gap naming
+CURSOR_CONVERSATION_ID and keeps publication", and "Cursor and Codex delivery
+never adopt the ambient Claude session". The hook assertion was red (`''`)
+with the identity fix alone, as premise 3 predicted. The related CI set passes.
+
+Learnings: the generation fix lives in `ci-host-hook.mjs`. A managed-delivery
+generation never replaces a recorded one and passes the gate; the owner's next
+real hook adopts its own generation in place of the managed value. Adopting on
+the first real hook, not only on seeing the receipt, covers a Shell output
+without the receipt. `managedDeliveryGeneration` is exported from
+`ci-mailbox-location.mjs`, because a gaps test replaces the installed hook with
+a stub that the bridge must not import. Codex has no ambient identity entry in
+`ci-host-bridge.mjs`; slice 2 replaces its `verifyHostBridge` and bind branches.
 
 Behavior: Cursor coordinator with `CURSOR_CONVERSATION_ID` in its Shell, no
 live observer → `deliver --host cursor` without `--session-json` → the
