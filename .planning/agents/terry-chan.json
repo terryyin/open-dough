@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "terry-chan",
+  "email": "terry-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-085#quiet-refinement-outcomes",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
