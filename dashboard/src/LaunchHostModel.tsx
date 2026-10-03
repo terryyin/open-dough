@@ -50,6 +50,7 @@ export function LaunchHostModel({
         <label htmlFor={`${id}-host`}>Host</label>
         <select
           id={`${id}-host`}
+          className="frame-input"
           value={host}
           disabled={onHost === undefined}
           onChange={(event) => {
@@ -69,6 +70,7 @@ export function LaunchHostModel({
         <label htmlFor={`${id}-model`}>Model</label>
         <select
           id={`${id}-model`}
+          className="frame-input"
           value={model}
           aria-describedby={
             modelCatalog === undefined ? undefined : `${id}-model-feedback`
@@ -116,7 +118,11 @@ export function LaunchHostModel({
                       ))}
             </p>
             {catalog.error && (
-              <button type="button" onClick={catalog.retry}>
+              <button
+                type="button"
+                className="frame-button"
+                onClick={catalog.retry}
+              >
                 Retry model choices
               </button>
             )}

@@ -22,6 +22,7 @@ export function LaunchReasoningEffort({
       <label htmlFor={`${id}-effort`}>Reasoning effort</label>
       <select
         id={`${id}-effort`}
+        className="frame-input"
         value={effort}
         aria-describedby={`${id}-effort-feedback`}
         aria-invalid={blocked || undefined}

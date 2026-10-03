@@ -1,5 +1,8 @@
 import { useRef } from "react";
+import { CircleHelp } from "lucide-react";
+import { IconButton } from "./Icon.tsx";
 import { BadgeLegend } from "./PreparationCard.tsx";
+import "./frame-controls.css";
 import "./preparation-legend.css";
 
 // The browser's modal top layer makes the rest of the dashboard inert,
@@ -13,20 +16,18 @@ export function PreparationLegend() {
 
   return (
     <div className="preparation-help">
-      <button
+      <IconButton
         ref={launcher}
-        type="button"
-        className="preparation-help-button"
-        aria-label="Preparation badge legend"
+        label="Preparation badge legend"
+        icon={CircleHelp}
+        align="end"
         aria-haspopup="dialog"
         onClick={() => {
           readingPosition.current = { x: window.scrollX, y: window.scrollY };
           dialog.current?.showModal();
           close.current?.focus({ preventScroll: true });
         }}
-      >
-        <span aria-hidden="true">?</span>
-      </button>
+      />
       <dialog
         ref={dialog}
         className="preparation-legend-dialog"
@@ -50,6 +51,7 @@ export function PreparationLegend() {
           <button
             ref={close}
             type="button"
+            className="frame-button"
             onClick={() => dialog.current?.close()}
           >
             Close

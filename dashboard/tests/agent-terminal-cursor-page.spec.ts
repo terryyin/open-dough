@@ -8,13 +8,11 @@ import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { startSessionField } from "./launchCardPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import { expect, test } from "./support/cursorStart.ts";
+import { expect, workingCursorTest as test } from "./support/cursorStart.ts";
 import { waitUntil } from "./support/dashboardServer.ts";
 import { processRunning } from "./support/processGroup.ts";
 
 const instruction = "keep this turn running";
-
-test.use({ cursorScreen: "working" });
 
 function keptRecord(home: string): LaunchRecord {
   const kept = JSON.parse(

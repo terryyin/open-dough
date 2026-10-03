@@ -15,6 +15,7 @@ import {
   passTimeUntilChecked,
   pausePageClock,
 } from "./autoRefreshJourney.ts";
+import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { cardSessions } from "./dashboardPage.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
@@ -76,10 +77,13 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(story).toContainText(waiting);
   await expectProtected(story);
 
+  // The held reads answer with the revision before the Take. Every read they
+  // lead to is answered before `main` moves, so none lands late.
   releaseRef();
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${before.slice(0, 7)}`,
   );
+  await untilPageRequestsAnswered(page);
   await expect(story).toContainText(waiting);
   await expectProtected(story);
   await expect(takenStory).toHaveCount(0);

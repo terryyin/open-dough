@@ -15,11 +15,11 @@ visibility for multiple agents working in worktrees on one machine.
 ## Taken
 
 - [Keep a Cursor agent running across a dashboard restart](seeds/SEED-089-cursor-session-visible-from-the-start.md#cursor-runner-survives-dashboard-restart) — SEED-089#cursor-runner-survives-dashboard-restart ([plan](slice-plans/228-cursor-runner-survives-dashboard-restart/PLAN.md))
-- [Modernize and streamline the dashboard frame](seeds/SEED-091-dashboard-ui-renovation.md#dashboard-frame-renovation) — SEED-091#dashboard-frame-renovation ([plan](slice-plans/230-dashboard-frame-renovation/PLAN.md))
 - [Keep CI observed for Codex and Cursor executions](seeds/SEED-094-ci-observation-for-codex-and-cursor.md#observe-ci-on-codex-and-cursor) — SEED-094#observe-ci-on-codex-and-cursor ([plan](slice-plans/235-ci-observed-on-codex-and-cursor/PLAN.md))
 
 ## Backlog list
 
+- [Give the frame's look checks one rule each](seeds/SEED-091-dashboard-ui-renovation.md#frame-look-checks-one-rule) — SEED-091#frame-look-checks-one-rule
 - [Prove a slice through the consumers of what it changes](seeds/SEED-095-slice-proof-through-consumers.md#prove-slices-through-consumers) — SEED-095#prove-slices-through-consumers
 - [Read a launch's kept record only after the event that settles it](seeds/SEED-093-local-checks-agree-with-ci.md#read-kept-state-after-its-event) — SEED-093#read-kept-state-after-its-event
 - [Run a check from any directory and get CI's result](seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory) — SEED-093#checks-run-from-any-directory

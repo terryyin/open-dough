@@ -1,5 +1,6 @@
 import type { PublishedSource } from "./publishedSource.ts";
 import { useProjects } from "./projectList.tsx";
+import "./project-select.css";
 
 // Shared with page-wide project arrow navigation so native radios and the
 // shortcut recognize the same control group.

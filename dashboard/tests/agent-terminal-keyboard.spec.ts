@@ -25,6 +25,7 @@ import {
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
 import { pressWhereShown } from "./pageLayout.ts";
+import { tooltipOf } from "./frameIconControl.ts";
 import { watchCommandShortcut } from "./pageShortcutsPage.ts";
 import { processRunning } from "./support/processGroup.ts";
 
@@ -92,7 +93,7 @@ test.describe("Command+Shift+Escape and the terminal panel", () => {
     const closeKeyTaken = await watchCommandShortcut(page, closeKey);
 
     await test.step("Close's tooltip names the shortcut while its accessible name stays Close", async () => {
-      await expect(control("Close")).toHaveAttribute("title", "Close (⌘⇧Esc)");
+      await expect(tooltipOf(control("Close"), "Close (⌘⇧Esc)")).toHaveCount(1);
       await expect(panel.getByRole("button", { name: "Close" })).toHaveCount(1);
     });
 

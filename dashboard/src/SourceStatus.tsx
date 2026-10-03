@@ -1,4 +1,7 @@
+import { ChevronRight } from "lucide-react";
+import { Icon } from "./Icon.tsx";
 import { Moment } from "./Moment.tsx";
+import "./frame-controls.css";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 
@@ -13,8 +16,9 @@ export function SourceStatus({
 }) {
   return (
     <section className="source" aria-label="Published Git state">
-      <details className="source-evidence" key={source.id}>
+      <details className="source-evidence frame-disclosure" key={source.id}>
         <summary aria-label={`Source evidence for ${source.label}`}>
+          <Icon icon={ChevronRight} />
           <h1>{source.label}</h1>
         </summary>
         <div className="source-evidence-body">

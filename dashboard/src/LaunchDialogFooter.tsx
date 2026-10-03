@@ -4,6 +4,7 @@
 // Cancel and Start, which says "Starting…" while the request is on its way.
 
 import type { ReactNode, RefObject } from "react";
+import "./frame-controls.css";
 
 export function LaunchDialogFooter({
   id,
@@ -38,6 +39,7 @@ export function LaunchDialogFooter({
       <div className="launch-dialog-actions">
         <button
           type="button"
+          className="frame-button"
           aria-describedby={submitting ? cutoffId : undefined}
           onClick={onCancel}
         >
@@ -46,7 +48,7 @@ export function LaunchDialogFooter({
         <button
           ref={startButton}
           type="submit"
-          className="launch-dialog-start"
+          className="frame-button frame-button-primary"
           aria-describedby={effects !== undefined ? effectsId : undefined}
           disabled={startBlocked}
         >

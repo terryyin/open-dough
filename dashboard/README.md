@@ -22,8 +22,8 @@ source revision, retrieval time (not commit time), and publication warning.
 Close that disclosure to return space to the work, especially at narrow widths
 or high browser zoom.
 
-**Near-future direction** starts collapsed below the banner, opposite the **?**
-help control. Click its title or use Enter/Space to read the complete published direction (or its no-direction
+**Near-future direction** starts collapsed below the banner, opposite the
+**Preparation badge legend** help control. Click its title or use Enter/Space to read the complete published direction (or its no-direction
 explanation), then activate it again to collapse. A new read of the same project
 preserves this choice, including after a failed read; selecting another project
 starts collapsed. Opening or closing it makes no source request.
@@ -203,6 +203,25 @@ commands guide describes CI path filtering, failures, restoration and shutdown.
 Development and production keep separate project lists and share machine-local
 launch/session records. Records survive production replacements and watcher shutdown.
 Development testing can act on the same projects and records as production.
+
+## Look and controls
+
+The frame (banner, Sessions sidebar, terminal panel chrome, System settings,
+dialogs, stage containers, and page states) draws on one shared foundation:
+colour, type, spacing, radius, elevation, and control-size tokens on `:root` in
+`src/styles.css`; `Icon` and `IconButton` in `src/Icon.tsx`, which wrap the
+bundled `lucide-react` glyphs at one size and stroke and hide them from
+assistive technology; and the frame button, field, and disclosure classes in
+`src/frame-controls.css`. Extend these rather than adding another token set or
+a component library. Light theme only.
+
+Icon-only controls are kept for familiar frame actions (sessions, help,
+settings, panel controls). Each keeps its accessible name and shows it, with
+its shortcut where it has one, in a styled tooltip on hover and on keyboard
+focus; the tooltip is hidden from assistive technology so the name is
+announced once. Labelled actions keep their text and may add a leading icon.
+Text meets 4.5:1 contrast, and controls, icons, and focus outlines meet 3:1.
+`tests/frameIconControl.ts` checks an icon-only control against all of this.
 
 ## Tests
 

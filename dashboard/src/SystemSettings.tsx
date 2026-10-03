@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Icon } from "./Icon.tsx";
 import { OpenAISettings } from "./OpenAISettings.tsx";
 import { TerminalThemeSettings } from "./TerminalThemeSettings.tsx";
 import { refusalMessage } from "./refusalMessage.ts";
@@ -10,6 +12,7 @@ import {
   type ProjectSettings,
 } from "./projectConfiguration.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import "./frame-controls.css";
 import "./project-configuration.css";
 
 export function SystemSettings({
@@ -51,25 +54,32 @@ export function SystemSettings({
   }, [projects, retry]);
   return (
     <main className="system-settings">
-      <div className="settings-heading">
+      <div className="settings-bar">
         <h1 ref={heading} tabIndex={-1}>
           System settings
         </h1>
-        <button type="button" onClick={onBack}>
+        <button type="button" className="frame-button" onClick={onBack}>
+          <Icon icon={ArrowLeft} />
           Back to dashboard
         </button>
       </div>
-      <section aria-labelledby="settings-projects-heading">
-        <div className="settings-heading">
+      <section
+        className="settings-section"
+        aria-labelledby="settings-projects-heading"
+      >
+        <div className="settings-section-heading">
           <h2 id="settings-projects-heading">Projects</h2>
           <AddProject onSelect={onSelect} />
         </div>
-        <p>Configure projects for this dashboard on this machine.</p>
+        <p className="settings-note">
+          Configure projects for this dashboard on this machine.
+        </p>
         {problem && (
-          <div role="alert">
+          <div role="alert" className="settings-problem">
             {problem}{" "}
             <button
               type="button"
+              className="frame-button"
               onClick={() => {
                 setRetry(retry + 1);
               }}
@@ -79,7 +89,9 @@ export function SystemSettings({
           </div>
         )}
         {projects.length === 0 ? (
-          <p>No projects configured. Add a project to get started.</p>
+          <p className="settings-empty">
+            No projects configured. Add a project to get started.
+          </p>
         ) : (
           <ul className="settings-project-list">
             {projects.map((source) => (

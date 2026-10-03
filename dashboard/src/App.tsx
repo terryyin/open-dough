@@ -4,6 +4,7 @@ import {
   ConfiguredDashboard,
   type DashboardSelection,
 } from "./ConfiguredDashboard.tsx";
+import { SettingsGear } from "./DashboardBanner.tsx";
 import { SystemSettings } from "./SystemSettings.tsx";
 import { SettingsNavigation } from "./settingsNavigation.ts";
 import { SavedTerminalThemeProvider } from "./savedTerminalTheme.ts";
@@ -79,7 +80,11 @@ export function App() {
     wasSettings.current = settings;
   }, [settings]);
   if (projects === undefined)
-    return <p role="status">{problem ?? "Loading projects…"}</p>;
+    return (
+      <p role="status" className="frame-state">
+        {problem ?? "Loading projects…"}
+      </p>
+    );
   return (
     <SavedTerminalThemeProvider>
       <ProjectsOnPage projects={projects} replaceProjects={replaceProjects}>
@@ -93,15 +98,9 @@ export function App() {
             {projects.length === 0 ? (
               <>
                 <header className="banner">
-                  <button
-                    type="button"
-                    aria-label="System settings"
-                    onClick={openSettings}
-                  >
-                    System settings
-                  </button>
+                  <SettingsGear onOpen={openSettings} />
                 </header>
-                <main className="page-header">
+                <main className="frame-state">
                   <h1>No projects configured</h1>
                   <p>
                     Open System settings → Projects to add a project and see its

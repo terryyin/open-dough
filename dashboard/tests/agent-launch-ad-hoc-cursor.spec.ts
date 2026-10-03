@@ -17,9 +17,7 @@ import { parts } from "./dashboardPage.ts";
 import { startSessionField } from "./launchCardPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import { expect, test } from "./support/cursorStart.ts";
-
-test.use({ cursorScreen: "working" });
+import { expect, workingCursorTest as test } from "./support/cursorStart.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 
@@ -175,10 +173,13 @@ for (const text of ["", "why is the CI slow?"]) {
         instruction: prompt,
       });
       expect(during?.request).not.toHaveProperty("identity");
-      expect(record.firstInput).toEqual({
-        state: "confirmed",
-        instruction: prompt,
-      });
+      // Acceptance is saved after the launch returns, so read it again.
+      await expect
+        .poll(() => keptRecord(dashboard.home).firstInput)
+        .toEqual({
+          state: "confirmed",
+          instruction: prompt,
+        });
     }
 
     expect(await origin.takenProfiles()).toEqual([]);

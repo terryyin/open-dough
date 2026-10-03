@@ -1,34 +1,8 @@
-/* The connected stages: Backlog, the taking of work, and Taken. The page
-   around them, and the text styles their cards share with it, are in
-   styles.css. main.tsx loads that first, so that a rule here decides where
-   both say something equally specific, as a card's corners do under focus. */
-
-/* Backlog, the taking of work, and Taken, left to right in reading order. */
-.stages {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 11rem minmax(0, 1fr);
-  gap: 1rem 0;
-  align-items: start;
-}
-
-.stage {
-  border: 1px solid var(--line);
-  border-radius: 0.5rem;
-  padding: 0 1rem 1rem;
-  background: var(--panel);
-}
-
-.stage-header {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 0 1rem;
-  margin-bottom: 0.75rem;
-  border-bottom: 1px solid var(--line);
-  padding: 0.75rem 0 0.5rem;
-  background: var(--panel);
-}
+/* The connected stages' cards. The stages around them, and the taking of
+   work between them, are in stage-frame.css; the page around them, and the
+   text styles their cards share with it, are in styles.css. main.tsx loads
+   that first, so that a rule here decides where both say something equally
+   specific, as a card's corners do under focus. */
 
 .cards {
   list-style: none;
@@ -170,34 +144,6 @@
   font-weight: 600;
 }
 
-.connector {
-  margin-top: 3.5rem;
-  text-align: center;
-}
-
-/* Side by side, the connector's column is all that lies between the two
-   stages, and the arrow runs across it from just short of Backlog's edge to
-   just short of Taken's, so that it joins them; the words beneath keep clear
-   of both. The head is drawn up to the arrow's own edge, so it is not clipped
-   there. */
-.connector-arrow {
-  width: calc(100% - 4px);
-  height: 1rem;
-  overflow: visible;
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 2;
-}
-
-.connector-label,
-.connector-note {
-  padding: 0 1rem;
-}
-
-.connector-label {
-  font-weight: 600;
-}
-
 /* A long stage keeps its name and count in sight while its cards scroll with
    the page, where the window is tall enough to spare the room; focus brought
    back up the page stops below that heading rather than under it. */
@@ -211,30 +157,5 @@
   .card,
   .card a {
     scroll-margin-top: 5rem;
-  }
-}
-
-/* A narrow page column -- a narrow window, a wide one under browser zoom, or
-   one sharing its width with the Sessions sidebar or the terminal
-   (./agent-terminal.css) -- shows the same three parts in the same order, top
-   to bottom, with the arrow pointing down. */
-@container page (max-width: 48rem) {
-  .stages {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .connector {
-    margin-top: 0;
-  }
-
-  .connector-label,
-  .connector-note {
-    padding: 0;
-  }
-
-  .connector-arrow {
-    width: 3rem;
-    height: 3rem;
-    transform: rotate(90deg);
   }
 }
