@@ -168,7 +168,8 @@ from `process.cwd()`. It is still present in
 and `dashboard/tests/support/fixtureExecutable.ts`.
 
 **Follow-up:** queued second:
-[Run a check from any directory and get CI's result](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory).
+[Run a check from any directory and get CI's result](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory) (DD-168,
+DD-178, DD-194). DD-162 and DD-216 have other causes, so it leaves them open.
 
 ### DD-162 — A shell check run directly failed locally because its substitute host resolved macOS Bash 3.2
 
@@ -255,7 +256,7 @@ The plan's focused Playwright commands used the default reporter. Under the agen
   - Open Dough release: 0.3.54 (installed `dough-update/VERSION`)
   - Evidence: plan 217 slice 1 proof is `env -u NO_COLOR npm run test:dashboard -- … --workers=2` with no reporter. The slice 1 implementer reported "The run exited 0 but printed no summary, so I'm rerunning with the list reporter" (41 passed). The slice 1 refactor agent reported "The test run exited 0 but printed no pass count, so I'm rerunning it with the line reporter" (30 passed). From slice 2 the coordinator added `--reporter=line` to delegated commands, and there were no further count reruns.
   - Observed effect: two extra Playwright runs of 30–41 tests each.
-  - Inference: Qualified. The cause of the empty summary (reporter selection under a non-TTY shell, or output projection) was not diagnosed.
+  - Inference: Qualified. Diagnosed at refinement on 2026-10-03: the dashboard's quiet reporter (`dashboard/playwright.config.ts`) and the Node runner print nothing on a passing run by design; the shell was not the cause.
 
 ## Local proof that leaves out what another CI job checks (third priority, not queued)
 
