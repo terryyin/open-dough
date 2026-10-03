@@ -98,7 +98,7 @@ topic is needed.
 | At least one hand-rolled preparation wait can pass before any card renders | Slice 2 | Read `auto-refresh-detail-recovery.spec.ts:33-37`: after `page.reload()`, `not.toContainText(gap)` and the count-zero wait both pass while the card is absent | Unguarded |
 | A card's preparation read is a page request that a route can hold | Slice 2 proof | DD-195's CI repair evidence: "a route delay reproduced the exact values" for card preparation arriving late | Routable. The endpoint is identified during the slice |
 | `agent-terminal-cursor-launch.spec.ts:190` sleeps 300 ms before reading the kept first-input state | Slice 3 | Read lines 186-191; during slice 3, `server/hosts/cursor/launch.ts:130-140` and a probe | **Contradicted**: the server records `uncertain` before it spawns the client, so the sleep is an absence window after the exit, not a wait for the state |
-| `agent-launch-cross-server-accept.spec.ts:79` sleeps 250 ms so the accept "reaches the locked write" | Slice 4 | Read lines 76-79 and `server/machineJsonStore.ts:74-90`: the server retries `mkdir` every 25 ms and leaves no observable trace | **Unsettled**: no event is known. Slice 4 opens with a probe |
+| `agent-launch-cross-server-accept.spec.ts:79` sleeps 250 ms so the accept "reaches the locked write" | Slice 4 | Read lines 76-79 and `server/machineJsonStore.ts:74-90`: the server retries `mkdir` every 25 ms and leaves no observable trace | **Settled by the probe**: a test-side `--import` loader marks the server's refused `mkdir` of the lock |
 
 ## Outside-in proof
 
@@ -175,7 +175,7 @@ record that in the learnings. Do not widen the slice.
 ### 4. The cross-server accept waits on the lock as an observed event
 
 Type: Structure (fault setup ordered after its event), probe first
-Status: planned
+Status: done
 Proof: first, the probe. The test must observe, using only test-side means,
 that the second server's accept is waiting on the held attempts lock. One
 option is watching the lock's parent directory or the server's retry
@@ -264,3 +264,19 @@ seam would be a scope decision for the developer. Slices 1–3 stand without it.
   - This is a read of kept state ordered before its event. The page showing
     the card before the confirmed write is inferred, not observed. It is
     outside this plan's slices and is surfaced as follow-up.
+- Slice 4 accepted proof:
+  - The sleep ordered a real fault. The accept reads `launch-attempts.json`
+    unlocked before `acquireWriteLock`, and the test's write is not atomic.
+    So the first attempt must be written only once the accept waits on the
+    lock.
+  - The server runs out of process, and a refused `mkdir` raises no `fs.watch`
+    event. A test-written `--import` loader, passed through `NODE_OPTIONS` as
+    `agent-completion-early-recovery.spec.ts` already does, writes a marker
+    when `mkdir` of the attempts lock fails with `EEXIST`. The spec polls that
+    marker before writing the first attempt.
+  - Removing the lock hold, or moving the accept after the wait, failed the
+    poll. `agent-launch-cross-server-accept.spec.ts` at
+    `--repeat-each=20 --workers=8` gave 60 passed at load about 4–10, also
+    after the refactor that derives the lock path once from the machine.
+  - The two `promises.mkdir` loaders were not shared: one marks a refusal and
+    the other holds an acquisition, and they share only a few lines.
