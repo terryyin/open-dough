@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-084#session-instruction-voice-input",
+  "mode": "story-branch",
+  "branch": "codex/dictate-additional-instructions-when-starting-a",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

@@ -17,10 +17,10 @@ visibility for multiple agents working in worktrees on one machine.
 - [Complete dashboard sessions quietly and retain messages needing attention](seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration) — SEED-008#installed-story-branch-integration ([plan](slice-plans/220-quiet-dashboard-session-completion/PLAN.md))
 - [Automatically build and restart the production dashboard from main](seeds/SEED-086-dashboard-continuous-delivery.md#dashboard-continuous-delivery) — SEED-086#dashboard-continuous-delivery ([plan](slice-plans/225-dashboard-continuous-delivery/PLAN.md))
 - [Prevent a second refinement or execution session for an active story](seeds/SEED-052-start-agent-work-from-dashboard.md#one-active-story-session) — SEED-052#one-active-story-session ([plan](slice-plans/222-one-active-story-session/PLAN.md))
+- [Dictate additional instructions when starting a session](seeds/SEED-084-session-instruction-voice-input.md#session-instruction-voice-input) — SEED-084#session-instruction-voice-input ([plan](slice-plans/223-session-instruction-voice-input/PLAN.md))
 
 ## Backlog list
 
-- [Dictate additional instructions when starting a session](seeds/SEED-084-session-instruction-voice-input.md#session-instruction-voice-input) — SEED-084#session-instruction-voice-input
 - [Finish refinement quietly with a clear next step or explicit human response](seeds/SEED-085-quiet-refinement-outcomes.md#quiet-refinement-outcomes) — SEED-085#quiet-refinement-outcomes
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
 - [Choose workspace and automatic landing for unattached Start session](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-options) — SEED-066#unattached-session-options
