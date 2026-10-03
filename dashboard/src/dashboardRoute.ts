@@ -39,7 +39,9 @@ export function parseRoute(
   const defaultSource = firstProject(projects);
   const params = new URLSearchParams(location.search);
   const projectParam = params.get("project");
-  const viewParam = params.get("view");
+  const requestedView = params.get("view");
+  const viewParam =
+    requestedView === "settings" ? params.get("returnView") : requestedView;
 
   const validSource =
     projectParam !== null
@@ -79,28 +81,38 @@ export function isFromPortrait(state: unknown): boolean {
 
 export function useDashboardRoute({
   sourceId,
+  suspended = false,
   selectSource,
   onReturnToStories,
   onForwardToRoster,
 }: {
   sourceId: string;
+  suspended?: boolean;
   selectSource: (next: PublishedSource) => void;
   onReturnToStories: () => void;
   onForwardToRoster: (targetSourceId: string) => void;
 }) {
   const projects = useProjects();
   const initial = useRef(parseRoute(window.location, projects));
-  if (initial.current.normalizedUrl !== undefined) {
+  if (!suspended && initial.current.normalizedUrl !== undefined) {
     window.history.replaceState(null, "", initial.current.normalizedUrl);
+    initial.current = { ...initial.current, normalizedUrl: undefined };
   }
   const [route, setRoute] = useState<DashboardRoute>(initial.current.route);
+  const settingsSelection = useRef<PublishedSource | undefined>(undefined);
 
   const selectProject = (next: PublishedSource) => {
     if (next.id === sourceId) {
       return;
     }
     const nextUrl = buildRouteUrl(next.id, route.view, projects);
-    window.history.pushState(null, "", nextUrl);
+    if (!suspended) window.history.pushState(null, "", nextUrl);
+    else {
+      settingsSelection.current = next;
+      const params = new URLSearchParams(window.location.search);
+      params.set("project", next.id);
+      window.history.replaceState(window.history.state, "", `/?${params}`);
+    }
     setRoute({ source: next, view: route.view });
     selectSource(next);
   };
@@ -127,44 +139,58 @@ export function useDashboardRoute({
     selectSource(next);
   };
 
+  const onPopStateRef = useRef<() => void>(() => {});
+  onPopStateRef.current = () => {
+    if (new URLSearchParams(window.location.search).get("view") === "settings")
+      return;
+    const savedSelection = settingsSelection.current;
+    if (
+      savedSelection &&
+      projects.some((project) => project.id === savedSelection.id)
+    ) {
+      window.history.replaceState(
+        null,
+        "",
+        buildRouteUrl(savedSelection.id, route.view, projects),
+      );
+    }
+    settingsSelection.current = undefined;
+    const parsed = parseRoute(window.location, projects);
+    if (parsed.normalizedUrl) {
+      window.history.replaceState(null, "", parsed.normalizedUrl);
+    }
+    const nextRoute = parsed.route;
+    const targetSource = nextRoute.source;
+    const targetView = nextRoute.view;
+
+    if (targetView !== route.view) {
+      if (targetView === "stories" && route.view === "roster") {
+        onReturnToStories();
+      } else if (targetView === "roster" && route.view === "stories") {
+        onForwardToRoster(targetSource.id);
+      }
+      setRoute(nextRoute);
+    } else if (nextRoute.source.id !== route.source.id) {
+      setRoute(nextRoute);
+    }
+
+    if (targetSource.id !== sourceId) {
+      selectSource(targetSource);
+    }
+  };
+
   useEffect(() => {
+    // Keep one subscription while the app opens/closes its global view. A
+    // synchronous render in another popstate listener must not remove ours
+    // before this same event reaches it.
     const onPopState = () => {
-      const parsed = parseRoute(window.location, projects);
-      if (parsed.normalizedUrl) {
-        window.history.replaceState(null, "", parsed.normalizedUrl);
-      }
-      const nextRoute = parsed.route;
-      const targetSource = nextRoute.source;
-      const targetView = nextRoute.view;
-
-      if (targetView !== route.view) {
-        if (targetView === "stories" && route.view === "roster") {
-          onReturnToStories();
-        } else if (targetView === "roster" && route.view === "stories") {
-          onForwardToRoster(targetSource.id);
-        }
-        setRoute(nextRoute);
-      } else if (nextRoute.source.id !== route.source.id) {
-        setRoute(nextRoute);
-      }
-
-      if (targetSource.id !== sourceId) {
-        selectSource(targetSource);
-      }
+      onPopStateRef.current();
     };
-
     window.addEventListener("popstate", onPopState);
     return () => {
       window.removeEventListener("popstate", onPopState);
     };
-  }, [
-    route,
-    sourceId,
-    selectSource,
-    onReturnToStories,
-    onForwardToRoster,
-    projects,
-  ]);
+  }, []);
 
   return {
     route,

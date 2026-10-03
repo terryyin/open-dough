@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Dictate additional instructions when starting a session](seeds/SEED-084-session-instruction-voice-input.md#session-instruction-voice-input) — SEED-084#session-instruction-voice-input ([plan](slice-plans/223-session-instruction-voice-input/PLAN.md))
 - [See and instruct a Cursor agent from the start](seeds/SEED-089-cursor-session-visible-from-the-start.md#cursor-session-interactable-from-the-start) — SEED-089#cursor-session-interactable-from-the-start ([plan](slice-plans/227-cursor-agent-visible-from-the-start/PLAN.md))
 - [Review all story worktree changes in one dashboard UI](seeds/SEED-088-dashboard-story-code-review.md#dashboard-story-code-review) — SEED-088#dashboard-story-code-review ([plan](slice-plans/226-dashboard-story-code-review/PLAN.md))
 

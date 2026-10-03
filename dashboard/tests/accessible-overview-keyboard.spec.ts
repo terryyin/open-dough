@@ -34,7 +34,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     parts(page);
 
   // Reading order is the order of the page's source: Sessions, the project
-  // selector, Add project, Remove project, then the read control, source evidence,
+  // selector, System settings, then the read control, source evidence,
   // direction, Start session and
   // the badge legend, then each card's controls and recorded links by stage (Backlog,
   // then Taken): a Backlog card's enabled launch actions, then Inspect. In a wide
@@ -66,8 +66,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   const stops = [
     page.getByRole("button", { name: "Sessions", exact: true }),
     selectedProject,
-    page.getByRole("button", { name: "Add project", exact: true }),
-    page.getByRole("button", { name: "Remove project", exact: true }),
+    page.getByRole("button", { name: "System settings", exact: true }),
     refresh,
     sourceEvidence,
     directionToggle,
@@ -76,10 +75,10 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // Sessions + selected project radio + Add project + Remove project + Refresh +
+  // Sessions + selected project radio + System settings + Refresh +
   // Source evidence + Direction + Start session + Legend + two Backlog cards'
   // enabled launch actions + four Inspect + five recorded links.
-  expect(stops).toHaveLength(9 + 2 + 4 + 5);
+  expect(stops).toHaveLength(8 + 2 + 4 + 5);
 
   await test.step("Tab stops at Sessions, the read control, each card's controls, and every recorded link, and nowhere else", async () => {
     for (const stop of stops) {
@@ -151,13 +150,12 @@ test("accessible overview announces reading, the read result, and a failure whil
     expect(await box(status)).toMatchObject({ width: 1, height: 1 });
   });
 
-  // Sessions, the project, Add project, Remove project, then the read control.
-  await page.keyboard.press("Tab");
+  // Sessions, the project, System settings, then the read control.
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await expect(
-    page.getByRole("button", { name: "Remove project", exact: true }),
+    page.getByRole("button", { name: "System settings", exact: true }),
   ).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(refresh).toBeFocused();

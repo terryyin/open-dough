@@ -18,6 +18,14 @@ export async function addProjectOnPage(page: Page) {
     },
     { timeout: 5_000 },
   );
+  if (
+    !(await page
+      .getByRole("heading", { name: "System settings", exact: true })
+      .isVisible())
+  )
+    await page
+      .getByRole("button", { name: "System settings", exact: true })
+      .click();
   await page.getByRole("button", { name: "Add project", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Add project", exact: true });
   const url = dialog.getByRole("textbox", { name: "GitHub URL" });
@@ -30,6 +38,9 @@ export async function addProjectOnPage(page: Page) {
   await expect(local).toHaveValue(addedLocalPath);
   await dialog.getByRole("button", { name: "Add", exact: true }).click();
   await expect(dialog).toBeHidden();
+  await page
+    .getByRole("button", { name: "Back to dashboard", exact: true })
+    .click();
   await expect(
     page.getByRole("radio", { name: "Sample App", exact: true }),
   ).toBeChecked();

@@ -37,33 +37,15 @@ at narrow widths or high browser zoom.
 One project is observed at a time. Click its tab-shaped **Project** choice in the
 banner; the selected project is highlighted. Keyboard users can Tab to the
 selected choice and use arrow keys to switch projects.
-`server/projectConfiguration.ts` owns the saved project list and each project's
-repository, ref, backlog path, and local checkout folder. Each environment keeps
-its ordered list on this machine in `~/.open-dough/dashboard/projects-production.json`
-or `projects-development.json`, resolved through `HOME`. Built preview uses production;
-the live dev server uses development. Only a missing file seeds production with
-Open Dough, Doughnut, Pygardon, and Terry Talks and their existing refs and folders.
-Development starts empty. An existing empty list stays empty; the first saved
-project is the default selection. An unreadable or malformed file is reported
-with its path and left untouched. The empty page explains that no projects are
-configured and offers **Add project**. Add project also stays in the pinned banner.
-Its dialog asks for a GitHub repository URL (HTTPS, with or without `.git`, or SSH)
-and Local path, prefilled as `~/git/<repo>`. Add checks the developer's local `gh`
-access and the checkout's origin, derives the default branch, saves the project,
-and selects it. The repository name supplies the project id and label; duplicate
-repositories or ids are refused because saved sessions are keyed by project id.
-The selected default branch is saved at add time, and the backlog path is
-`.planning/PRODUCT-BACKLOG.md`. Local path must name the checkout root; `~`
-expands to the home folder, and a different checkout folder is allowed. Cancel or Escape
-saves nothing and returns focus to Add project. An invalid entry keeps its values
-and shows the reason beside the field. Projects added in development do not enter
-production's saved list.
-**Remove project** beside the choices asks for confirmation naming the selected
-project. Confirm removes only that environment's configuration entry and selects
-the next project or the empty page. Nothing on disk or GitHub changes: checkouts,
-running sessions, and saved launch/session records remain. Removed sessions leave
-Recent sessions and the Sessions sidebar; adding the same repository restores them.
-Cancel or Escape keeps the entry and returns focus to Remove project.
+
+Open **System settings → Projects** to add or remove projects and inspect their
+repository and local checkout paths, including when the project list is empty.
+[Project configuration](PROJECT-CONFIGURATION.md) describes validation, saved
+order, environment-specific storage, removal and retained sessions.
+**System settings → OpenAI** saves, replaces or removes general OpenAI access on
+this machine. [OpenAI access](OPENAI-ACCESS.md) explains private storage, shared
+development/production credentials and configured-versus-verified status.
+
 The dashboard reads `.planning/PRODUCT-BACKLOG.md` from the selected project's
 saved repository and ref, resolves that ref to one commit, and reads the backlog
 at that commit. Every project -- public Open Dough and Doughnut as much as
@@ -212,10 +194,9 @@ separate checkout from qualifying commits published on origin's `main`.
 Development edits and hot reload never refresh or restart production. The
 commands guide describes CI path filtering, failures, restoration and shutdown.
 
-Development and production share the existing real-project catalog and
-machine-local launch/session records, which survive production replacements and
-watcher shutdown. Development testing can act on the same projects and records
-as production; separate project configuration is future work.
+Development and production keep separate project lists and share machine-local
+launch/session records. Records survive production replacements and watcher shutdown.
+Development testing can act on the same projects and records as production.
 
 ## Tests
 

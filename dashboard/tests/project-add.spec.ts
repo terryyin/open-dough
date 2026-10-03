@@ -139,6 +139,9 @@ for (const mode of ["preview", "dev"] as const) {
   }) => {
     const server = await fixture.start(mode);
     await page.goto(server.baseURL);
+    await page
+      .getByRole("button", { name: "System settings", exact: true })
+      .click();
     const button = page.getByRole("button", {
       name: "Add project",
       exact: true,
@@ -162,7 +165,11 @@ for (const mode of ["preview", "dev"] as const) {
       await page.keyboard.press("ArrowLeft");
       if (mode === "preview")
         await expect(
-          page.getByRole("radio", { name: "Open Dough", exact: true }),
+          page.getByRole("radio", {
+            name: "Open Dough",
+            exact: true,
+            includeHidden: true,
+          }),
         ).toBeChecked();
       if (dismissal === "Escape") await page.keyboard.press("Escape");
       else await dialog.getByRole("button", { name: "Cancel" }).click();

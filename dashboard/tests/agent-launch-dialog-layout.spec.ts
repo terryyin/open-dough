@@ -1,7 +1,7 @@
 // The launch dialog's reading order and fit, on a committed origin whose
 // queued Story C has a long title (./launchJourney.ts fixtures) and a project
 // that installs the real refinement skill's options (./launchCardPage.ts): the
-// instruction takes the keyboard first; host and model share a row on a wide
+// instruction takes the keyboard first, then Record; host/model share a row
 // screen and stack, host first, on a narrow one; the Session group follows;
 // the refinement options sit in a closed disclosure whose summary names the
 // selection, open or closed; the command line and its flags sit in a closed
@@ -145,9 +145,9 @@ test("the instruction comes first, the summaries name the selection, and the com
   await expect(command).toHaveText(
     `/dough-story-refinement ${notRefinedIdentity}`,
   );
-
   // Keyboard order follows the reading order.
   for (const next of [
+    dialog.getByRole("button", { name: "Record", exact: true }),
     host,
     model,
     dialog.getByRole("radio", { name: "Standard" }),

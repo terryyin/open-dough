@@ -5,7 +5,9 @@
 // key, and takes it from the browser and from those controls; a held key acts
 // once. What they leave alone: a key pressed inside an open dialog, as the
 // launch dialog or the badge legend, which keeps its own keyboard. Project
-// arrow navigation (`./projectKeyboardNavigation.ts`) shares that.
+// arrow navigation (`./projectKeyboardNavigation.ts`) shares that. Machine
+// settings suspends these dashboard shortcuts even when blank-space clicks
+// leave the keyboard on the body outside its controls.
 
 import { useEffect, useRef } from "react";
 
@@ -37,7 +39,11 @@ export function useCommandShortcut(
   const { key, shift = false } = shortcut;
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (!matches(event, key, shift) || isInsideOpenDialog(event.target)) {
+      if (
+        !matches(event, key, shift) ||
+        isInsideOpenDialog(event.target) ||
+        document.querySelector(".system-settings") !== null
+      ) {
         return;
       }
       // Taken from the browser and from every control below the window, the

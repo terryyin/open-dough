@@ -13,8 +13,14 @@ test.beforeEach(() => {
 });
 test.afterEach(async () => fixture.close());
 
-const removeButton = (page: import("@playwright/test").Page) =>
-  page.getByRole("button", { name: "Remove project", exact: true });
+const removeButton = (
+  page: import("@playwright/test").Page,
+  label = "Sample App",
+) => page.getByRole("button", { name: `Remove project ${label}`, exact: true });
+const openSettings = (page: import("@playwright/test").Page) =>
+  page.getByRole("button", { name: "System settings", exact: true }).click();
+const back = (page: import("@playwright/test").Page) =>
+  page.getByRole("button", { name: "Back to dashboard", exact: true }).click();
 
 test("removing a configured project retains its checkout and records, hides sessions, persists and re-add restores them", async ({
   page,
@@ -53,6 +59,7 @@ test("removing a configured project retains its checkout and records, hides sess
   await expect(sidebar).toContainText("Retained sample session");
   const file = fixture.configurationFile("preview");
   const before = readFileSync(file, "utf8");
+  await openSettings(page);
   for (const dismissal of ["Cancel", "Escape"]) {
     await removeButton(page).focus();
     await page.keyboard.press("Enter");
@@ -65,7 +72,11 @@ test("removing a configured project retains its checkout and records, hides sess
     await page.keyboard.press("ArrowLeft");
     await page.keyboard.press("ArrowRight");
     await expect(
-      page.getByRole("radio", { name: "Sample App", exact: true }),
+      page.getByRole("radio", {
+        name: "Sample App",
+        exact: true,
+        includeHidden: true,
+      }),
     ).toBeChecked();
     await page.keyboard.press("Tab");
     await expect(
@@ -100,6 +111,7 @@ test("removing a configured project retains its checkout and records, hides sess
     });
     await dialog.getByRole("button", { name: "Remove", exact: true }).click();
     await expect(dialog).toBeHidden();
+    await back(page);
     await expect(
       page.getByRole("radio", { name: "Sample App", exact: true }),
     ).toHaveCount(0);
@@ -108,6 +120,9 @@ test("removing a configured project retains its checkout and records, hides sess
     ).toBeChecked();
     await expect(
       page.getByRole("radio", { name: "Open Dough", exact: true }),
+    ).not.toBeFocused();
+    await expect(
+      page.getByRole("button", { name: "System settings", exact: true }),
     ).toBeFocused();
     await expect(recent).not.toContainText("Retained sample session", {
       timeout: 1_000,
@@ -158,13 +173,14 @@ test("removing the last project leaves a persistent focused empty state", async 
   const server = await fixture.start("dev");
   await page.goto(server.baseURL);
   await addProjectOnPage(page);
+  await openSettings(page);
   await removeButton(page).click();
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Remove", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "No projects configured" }),
+    page.getByRole("heading", { name: "System settings", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Add project", exact: true }),
@@ -175,9 +191,14 @@ test("removing the last project leaves a persistent focused empty state", async 
   ).toEqual([]);
   await page.reload();
   await expect(
+    page.getByRole("heading", { name: "System settings", exact: true }),
+  ).toBeVisible();
+  await back(page);
+  await expect(
     page.getByRole("heading", { name: "No projects configured" }),
   ).toBeVisible();
   await addProjectOnPage(page);
+  await openSettings(page);
   await expect(removeButton(page)).toBeEnabled();
 });
 
@@ -189,14 +210,18 @@ test("removing the first project selects its next neighbor and reads that projec
   await expect(
     page.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();
-  await removeButton(page).click();
+  await openSettings(page);
+  await removeButton(page, "Open Dough").click();
   await page
     .getByRole("dialog", { name: "Remove Open Dough?", exact: true })
     .getByRole("button", { name: "Remove", exact: true })
     .click();
+  await back(page);
   const next = page.getByRole("radio", { name: "Doughnut", exact: true });
   await expect(next).toBeChecked();
-  await expect(next).toBeFocused();
+  await expect(
+    page.getByRole("button", { name: "System settings", exact: true }),
+  ).toBeFocused();
   await expect(
     page.getByRole("region", { name: "Published Git state" }),
   ).toContainText("nerds-odd-e/doughnut");

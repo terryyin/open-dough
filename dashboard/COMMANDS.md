@@ -63,3 +63,29 @@ For a different loopback production port, use
 port fails rather than silently choosing another URL. `build:dashboard` and
 `preview:dashboard` remain available for manually previewing the current
 checkout; use the watcher for production from published `main`.
+
+To dictate startup instructions, open System settings → OpenAI and explicitly
+save an API key. It configures general OpenAI access on this machine; saving
+makes no paid validation request. Development and production share the private
+`~/.open-dough/dashboard/credentials/openai.json` store. Replace or remove the
+key in settings; saved reads show status only. No environment key is imported
+or used as a fallback.
+
+In a launch dialog, Record requests microphone permission and Stop recording
+sends the completed clip for transcription. Review or edit the appended text,
+then explicitly Start. Audio stays transient, with a 24,000,000-byte upload
+bound and a 60-second request wait; there is no fixed recording duration limit.
+Cancel or Escape ends capture and pending transcription. A failed operation
+leaves the exact draft editable without reopening the dialog. Permission or
+browser failures explain microphone/format recovery; saved-key failures point
+to System settings. Authentication refusal and usage limits explain API access
+recovery, while connection, timeout and unusable-reply failures allow another
+explicit recording or typing. No failed request is retried automatically.
+Cancellation may occur after a paid
+request has already reached OpenAI.
+
+Instructions have a 4,000-character limit, including the blank line between
+existing text and a transcript. If a transcript does not fit, the original
+stays intact and the complete transcript appears for editing. Shorten it until
+Add transcript is available, or choose Discard transcript. Start and Record
+remain unavailable until that review is resolved; neither draft is truncated.

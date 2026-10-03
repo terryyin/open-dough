@@ -14,8 +14,20 @@ import { parts } from "./dashboardPage.ts";
 import { startSessionField } from "./launchCardPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import { expect, test } from "./support/cursorStart.ts";
-import type { CursorInvocation } from "./support/fakeCursor.ts";
+import { expect, test as base } from "./support/cursorStart.ts";
+import {
+  installFakeCursor,
+  type CursorInvocation,
+} from "./support/fakeCursor.ts";
+
+const test = base.extend({
+  // eslint-disable-next-line no-empty-pattern
+  cursor: async ({}, use) => {
+    const cursor = installFakeCursor({ holdPrompt: true });
+    await use(cursor);
+    cursor.cleanup();
+  },
+});
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 
@@ -72,12 +84,19 @@ for (const text of ["", "why is the CI slow?"]) {
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
     const recent = parts(page).recentSessions.getByRole("article");
-    await expect(recent).toHaveCount(1);
-    const record = keptRecord(dashboard.home);
-    if (record.session.host !== "cursor") {
-      throw new Error("The recorded session is not Cursor.");
+    // Hold the real child until its uncertain durable record is observed.
+    // A visible session alone does not mean its first input is accepted.
+    let initialRecord: LaunchRecord;
+    try {
+      if (blank) await expect(recent).toHaveCount(1);
+      else await expect.poll(() => cursor.heldPrompts()).toHaveLength(1);
+      initialRecord = keptRecord(dashboard.home);
+      if (!blank) expect(initialRecord.firstInput?.state).toBe("uncertain");
+    } finally {
+      cursor.releasePrompt();
     }
-    const title = record.request.title;
+    await expect(recent).toHaveCount(1);
+    const title = initialRecord.request.title;
     expect(title).toMatch(
       blank ? /^\d{1,2} \w{3}, \d\d:\d\d$/ : /^why is the CI slow\?$/,
     );
@@ -93,6 +112,10 @@ for (const text of ["", "why is the CI slow?"]) {
     } else {
       await expect(recent).toContainText("First input accepted");
       await expect(recent).toContainText("Ad hoc session started in Cursor");
+    }
+    const record = keptRecord(dashboard.home);
+    if (record.session.host !== "cursor") {
+      throw new Error("The recorded session is not Cursor.");
     }
     await expect(
       parts(page).backlog.getByRole("article", {

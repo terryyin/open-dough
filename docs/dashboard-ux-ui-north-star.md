@@ -19,7 +19,7 @@ does not accept that ADR, define a workflow state schema, or authorize execution
   including relevant remote branches and history. No developer clone, unpushed
   changes, local locks, or live agent sessions are required sources.
 - Observe one configured project at a time. Keep the existing selector and local
-  launch. Add and remove projects through the dashboard using a GitHub URL and
+  launch. Add and remove projects through **System settings → Projects** using a GitHub URL and
   local checkout path, saved separately for built production and live development
   on this machine (Terry's decision of 2026-10-02). Project configuration is
   machine-local settings; it does not own the observed repository's state.
@@ -177,7 +177,7 @@ History can explain a record's removal; show a historical fact as historical.
 | A filter has no matches | “No stories match this filter” and a clear reset action. |
 | Some sources fail or records cannot be interpreted | Retain readable facts, identify the gap beside affected content, and provide the source link when available. Do not silently drop the story or convert unreadable data to empty data. |
 | Initial source access fails | Explain the observed failure in plain language, identify the repository/ref when known, and offer Retry. Do not imply the user needs to create stories. |
-| No projects configured | Explain that no projects are configured and offer Add project. Do not substitute a guessed repository. |
+| No projects configured | Explain that no projects are configured and direct to System settings → Projects to add the first project. Keep settings reachable after the last removal. Do not substitute a guessed repository. |
 
 ## Visual and accessibility direction
 

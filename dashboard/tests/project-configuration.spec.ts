@@ -23,6 +23,7 @@ import {
   storeFile,
 } from "./machineLaunchRecords.ts";
 import { title } from "./agentLaunchBoundary.ts";
+import { settings } from "./support/systemSettingsPage.ts";
 import { customSavedProjects } from "./support/projectConfiguration.ts";
 
 const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
@@ -165,6 +166,8 @@ for (const mode of ["dev", "preview"] as const) {
     await expect(
       page.getByRole("heading", { name: "No projects configured" }),
     ).toBeVisible();
+    await expect(settings(page)).toBeEnabled();
+    await settings(page).click();
     await expect(
       page.getByRole("button", { name: "Add project" }),
     ).toBeEnabled();
@@ -201,9 +204,11 @@ test("development first start is empty and refuses the formerly fixed project", 
   ).toBeVisible();
   await expect(
     page.getByText(
-      "Add a project to see its published work and start sessions.",
+      "Open System settings → Projects to add a project and see its published work and start sessions.",
     ),
   ).toBeVisible();
+  await expect(settings(page)).toBeEnabled();
+  await settings(page).click();
   await expect(page.getByRole("button", { name: "Add project" })).toBeEnabled();
   const response = await rawRequest({
     url: `${server.baseURL}/__authenticated-read?source=open-dough`,
