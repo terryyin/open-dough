@@ -21,7 +21,6 @@ visibility for multiple agents working in worktrees on one machine.
 ## Backlog list
 
 - [Acknowledge a session report without ending the session's state](seeds/SEED-052-start-agent-work-from-dashboard.md#mark-report-read-keeps-session-state) — SEED-052#mark-report-read-keeps-session-state
-- [Read a launch's kept record only after the event that settles it](seeds/SEED-093-local-checks-agree-with-ci.md#read-kept-state-after-its-event) — SEED-093#read-kept-state-after-its-event
 - [Run a check from any directory and get CI's result](seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory) — SEED-093#checks-run-from-any-directory
 - [Show story review and terminal in one resizable side panel](seeds/SEED-091-dashboard-ui-renovation.md#review-and-terminal-share-side-panel) — SEED-091#review-and-terminal-share-side-panel
 - [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator

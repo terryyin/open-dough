@@ -13,15 +13,16 @@ executions, not commands, retries, or repairs.
 
 ## Priority assessment
 
-1. **Tests whose verdict depends on timing or machine load — first, queued.**
-   Four executions (plans 160, 186, 187, 189) with four failed CI runs, each
-   stopping slices for a stash, diagnosis, repair, and publication cycle, plus
-   local full-selection failures that cost a diagnosis without a cause. One
-   failure (`agent-launch-start-taken.spec.ts:53`) is still unexplained.
+1. **Tests whose verdict depends on timing or machine load — first, not
+   queued.** Four executions (plans 160, 186, 187, 189) with four failed CI
+   runs, each stopping slices for a stash, diagnosis, repair, and publication
+   cycle, plus local full-selection failures that cost a diagnosis without a
+   cause. One failure (`agent-launch-start-taken.spec.ts:53`) is still
+   unexplained.
    Shared test support now drains intercepted reads, settles the page, and
-   orders the cross-server lock fault after its event. Remaining story:
-   [Read a launch's kept record only after the event that settles it](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#read-kept-state-after-its-event)
-   (DD-195, DD-199).
+   orders the cross-server lock fault after its event, and the ad hoc Cursor
+   start spec rereads its kept record until acceptance is saved (`aeb9c33d`;
+   DD-195, DD-199).
 2. **Checks whose result depends on where or how they are run — second,
    queued.** Seven executions (plans 140, 147, 157, 160, 185, 217, 228), the
    most frequent group. None reached CI: each cost a failed local run, a diagnosis,
@@ -77,7 +78,7 @@ Earlier removals: DD-114, DD-164, DD-166 (2026-09-29, recovery
 `34ceff06:ProjectFindings.md`). DD-155 and DD-159 were returned to
 DearDough.md on 2026-09-29.
 
-## Tests whose verdict depends on timing or machine load (first priority, queued)
+## Tests whose verdict depends on timing or machine load (first priority, not queued)
 
 A test in this repository should give the same verdict on a loaded developer
 machine, an idle one, and CI's runner. Each finding below is a test that
@@ -93,9 +94,6 @@ unrelated branches each without failing on trunk, about 25 runs. DD-186's
 mailbox race was repaired in the published `ci-mailbox-worker-process.mjs`,
 so that half was a product defect; its test and the other findings here are
 this repository's own.
-
-**Follow-up:** queued:
-[Read a launch's kept record only after the event that settles it](.planning/seeds/SEED-093-local-checks-agree-with-ci.md#read-kept-state-after-its-event).
 
 ### DD-186 — Two timing races passed every local run and failed only under CI's load, each on a trunk-merge revision
 
