@@ -2,16 +2,17 @@ import { sessionKey } from "./sessionReference.ts";
 // The Sessions sidebar: the machine's sessions still open, from every
 // catalog project whichever is selected, those that need the developer
 // first, then the rest (`openSessionsOf`), each one line: its story's title
-// and how long ago it was launched, its state marked by the edge of the entry
-// (`shownSession`) with the details in its tooltip, and, while the server cannot
-// raise its macOS alerts (`alerts`), a quiet "Alerts unavailable" note with
-// why, in the open sidebar only. It sits beside the page, left of it, and the
-// Sessions icon button at the start of the banner opens and closes it, with a
-// badge of how many sessions need the developer (`attentionCount`), open or
-// closed. Command+B toggles it too, page-wide and from inside the terminal,
-// except inside an open dialog, which keeps its own keyboard
-// (`useCommandShortcut`); elsewhere it takes the key
-// from the browser. Toggling leaves the keyboard where it is, except that
+// and how long ago it was launched, its session's own state marked by the
+// edge of the entry (`shownSession`), an unread report by its own mark, with
+// the details in its tooltip, and, while the server cannot raise its macOS
+// alerts (`alerts`), a quiet "Alerts unavailable" note with why, in the open
+// sidebar only. It sits beside the page, left of it, and the Sessions icon
+// button at the start of the banner opens and closes it, with a badge of how
+// many sessions need the developer (`attentionCount`), open or closed, which
+// an unread report alone never counts. Command+B toggles it too, page-wide
+// and from inside the terminal, except inside an open dialog, which keeps its
+// own keyboard (`useCommandShortcut`); elsewhere it takes the key from the
+// browser. Toggling leaves the keyboard where it is, except that
 // closing the sidebar with the keyboard inside it returns the keyboard to the
 // Sessions button. Opening an entry (`./SidebarEntry.tsx`) goes to its story
 // and its session through the page frame (`./TerminalSplit.tsx`), and on a

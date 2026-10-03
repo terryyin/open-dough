@@ -66,7 +66,18 @@ and `npm run lint`, as the repository's commit hooks require.
 
 ### 1. An unread report is its own mark beside the session's native reading
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `session-unread-report.spec.ts` “an unread report is its own
+mark beside the session's native reading” passes, observing examples 1–5
+through real launches, the installed reporting command and
+`claudeSessionBecomes` (example 4 marks done while natively blocked; the
+marked-done-while-working reading stays with `agent-completion-attention.spec.ts`).
+The consumer grep selects 54 specs, all passing; the other completion specs
+(11) and typecheck pass. The refactor pass moved the card's attention line,
+unread-report line and session list into `CardSessions.tsx` to keep
+`CardLaunches.tsx` under the size limit. Learning: a Claude native-state
+change reaches the sidebar only with a paused page clock and
+`watchRecordReads().passOnePace` (`sessionStatePace.ts`).
 Proof: examples 1–5 in `session-unread-report.spec.ts`; update
 `agent-completion-attention.spec.ts:109` to expect “Working” and
 “Unread report: Completed with attention”; consumer specs above.

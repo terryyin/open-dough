@@ -7,10 +7,8 @@ import { sessionKey } from "./sessionReference.ts";
 // the same way; on the card of a story starting on this machine, whichever
 // page asked for it, what its local startup is doing (`StartupStatus`), with
 // the answer of one in need of reconciliation left to Startup recovery; on
-// every card, the story's sessions that have not been marked done, newest
-// first, each shown as Recent sessions shows it without the story the card
-// already names, under how many of them need attention, when any do
-// (`attentionSummary`). A Taken card whose story this machine started and
+// every card, the story's sessions that have not been marked done
+// (`./CardSessions.tsx`). A Taken card whose story this machine started and
 // holds the start of, with no session yet, also offers Start execution, which
 // opens the session in the kept workspace without a second Take — and that
 // Start is unavailable the same way while an open session remains. A launch
@@ -35,8 +33,7 @@ import { StartLaunch } from "./StartLaunch.tsx";
 import { StartupStatus } from "./StartupStatus.tsx";
 import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { CreationEntry } from "./CreationEntry.tsx";
-import { SessionEntry } from "./SessionEntry.tsx";
-import { attentionSummary } from "./sessionShown.ts";
+import { CardSessions } from "./CardSessions.tsx";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { keyboardRestsOn } from "./launchHandoff.ts";
 import { workCard } from "./workFocus.ts";
@@ -63,7 +60,6 @@ export function CardLaunches({
   const [launchedHere, setLaunchedHere] = useState<string | undefined>();
   const sessions = cardSessionsOf(launches.launched, sourceId, entry.identity);
   const hasOpenSession = sessions.length > 0;
-  const attention = attentionSummary(sessions);
   const keptStart = offersStart
     ? undefined
     : launches.keptStartOf(sourceId, entry.identity, "execution");
@@ -231,20 +227,7 @@ export function CardLaunches({
         sourceId={sourceId}
         work={entry}
       />
-      {attention !== undefined && <p className="card-attention">{attention}</p>}
-      {hasOpenSession && (
-        <ol className="card-sessions" aria-label="Sessions">
-          {sessions.toReversed().map((record) => (
-            <li key={sessionKey(record.session)}>
-              <SessionEntry
-                record={record}
-                onCard
-                takesFocus={launchedHere === sessionKey(record.session)}
-              />
-            </li>
-          ))}
-        </ol>
-      )}
+      <CardSessions sessions={sessions} launchedHere={launchedHere} />
     </>
   );
 }

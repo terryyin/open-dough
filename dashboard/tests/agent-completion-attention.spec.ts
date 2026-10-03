@@ -105,8 +105,9 @@ test("installed attention report stays open, durable and readable through stage 
   await expect(queued.locator(".session-attention-message script")).toHaveCount(
     0,
   );
-  await expect(queued.locator(".session-state")).toContainText(
-    "Native session is still working",
+  await expect(queued.locator(".session-state")).toHaveText("Working");
+  await expect(queued.locator(".session-unread-report")).toHaveText(
+    "Unread report: Completed with attention",
   );
   await expect(
     queued.getByRole("button", { name: "Mark as done" }),

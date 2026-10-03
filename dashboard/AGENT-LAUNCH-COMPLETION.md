@@ -23,8 +23,15 @@ is confirmed. It never selects the
 newest session for a story. Optional `--session` must match the confirmed native ID.
 
 Messages are rendered as text on every shared session entry and remain open until
-**Mark as done**. They survive a story's published stage change, dashboard restart,
-and workspace disappearance, and stay readable in Recent sessions after Done.
+**Mark as done**. Until then the report is unread: an entry keeps its session's
+native reading — its words, its edge, its place in the Sessions sidebar, and
+whether the badge and the card's attention line count it — and shows the report
+apart, as “Unread report: <completion label>” in its state words and sidebar
+tooltip and as a message mark on its sidebar entry; a card says how many of its
+sessions hold one (“1 unread report”) in a line of its own. A new instruction to
+the session does not mark its report done. Messages survive a story's published
+stage change, dashboard restart, and workspace disappearance, and stay readable
+in Recent sessions after Done.
 **Read attention message** opens the retained text without changing native activity.
 Quiet completion offers no attention message or empty explicit report. Passive native
 final-report access remains independent, where the host supplies it.
@@ -35,6 +42,6 @@ Done remains local disposition; it does not complete the product story.
 
 Reporting never renames, detaches, or stops its sender. Terminal attachment lifecycle
 retains attachment ownership; completion reporting schedules no delayed disposal.
-Native Working remains visible separately, and a receipt claims no native shutdown
-or cosmetic rename. Direct Land/Wrap Up without supplied context makes no dashboard
-contact. Other workflows receive the channel without gaining automatic completion.
+A session marked done with a report reads Done, with native Working as its note.
+A receipt claims no native shutdown or cosmetic rename. Direct Land/Wrap Up
+without supplied context makes no dashboard contact. Other workflows receive the channel without gaining automatic completion.

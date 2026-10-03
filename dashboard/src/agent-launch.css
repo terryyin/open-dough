@@ -59,9 +59,11 @@
   margin-top: 0.45rem;
 }
 
-/* How many of a card's sessions need attention: its words say so, quietly,
-   without color or motion. */
-.card-attention {
+/* How many of a card's sessions need attention, and, in a line of its own,
+   how many hold unread reports: their words say so, quietly, without color
+   or motion. */
+.card-attention,
+.card-unread-reports {
   margin-top: 0.45rem;
   font-size: 0.9rem;
   font-weight: 600;

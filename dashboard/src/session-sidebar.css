@@ -4,8 +4,9 @@
    on the right: sidebar | page | terminal. On a narrow window, where the
    terminal stacks above the page, it overlays the page from the left, below
    the pinned banner so the Sessions button stays in reach. An entry is one line;
-   its state shows by its left border, and its tooltip and hidden label carry
-   the words (`./SidebarEntry.tsx`). */
+   its state shows by its left border, an unread report by its own mark and
+   tint, and its tooltip and hidden words carry the words
+   (`./SidebarEntry.tsx`). */
 
 .page-with-sidebar {
   display: grid;
@@ -125,6 +126,13 @@
   border-radius: var(--radius-md);
 }
 
+/* An entry whose session holds an unread report is faintly tinted across its
+   whole area, whatever its edge; the entry the terminal shows keeps its own
+   fill. */
+.session-sidebar .sidebar-entry.has-unread-report {
+  background: color-mix(in srgb, var(--accent) 7%, var(--panel));
+}
+
 .session-sidebar .sidebar-entry.in-terminal {
   outline: 3px solid var(--accent);
   outline-offset: 1px;
@@ -172,6 +180,20 @@
   font-size: var(--text-sm);
   font-weight: 600;
   line-height: 1.4;
+}
+
+/* An unread report's mark: a small message icon before the elapsed time,
+   in the accent. */
+.sidebar-unread-report {
+  flex: none;
+  display: inline-flex;
+  align-self: center;
+  color: var(--accent);
+}
+
+.sidebar-unread-report svg {
+  width: var(--text-sm);
+  height: var(--text-sm);
 }
 
 .sidebar-elapsed {
