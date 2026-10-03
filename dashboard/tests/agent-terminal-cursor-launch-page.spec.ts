@@ -5,23 +5,13 @@
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { startSessionField } from "./launchCardPage.ts";
-import { expect, test as cursorTest } from "./support/cursorStart.ts";
-import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
+import { expect, workingCursorTest as test } from "./support/cursorStart.ts";
 import { keptCursor } from "./support/keptCursorTurn.ts";
 import { processRunning } from "./support/processGroup.ts";
 
 const instruction = "hold this launch";
 const notice =
   "Cursor is still working on this session's launch prompt. The terminal opens when it finishes.";
-
-const test = cursorTest.extend<{ cursor: FakeCursor }>({
-  // eslint-disable-next-line no-empty-pattern
-  cursor: async ({}, use) => {
-    const cursor = installFakeCursor({ screen: "working" });
-    await use(cursor);
-    cursor.cleanup();
-  },
-});
 
 test("an instructed Cursor start shows that run and accepts typing", async ({
   page,

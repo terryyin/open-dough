@@ -35,3 +35,16 @@ export const test = base.extend<{
   },
 });
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
+
+// Cursor is still working on the entered instruction, as it is once a prompt
+// is submitted. A page terminal therefore joins the launched client whenever
+// its socket arrives; an idle screen would let the detached idle rule hang
+// that client up first and start a second one.
+export const workingCursorTest = test.extend<{ cursor: FakeCursor }>({
+  // eslint-disable-next-line no-empty-pattern
+  cursor: async ({}, use) => {
+    const cursor = installFakeCursor({ screen: "working" });
+    await use(cursor);
+    cursor.cleanup();
+  },
+});

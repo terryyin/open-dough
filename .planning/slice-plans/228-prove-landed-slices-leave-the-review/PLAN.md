@@ -86,6 +86,14 @@ unchanged.
   There, `npm ci` skips dev dependencies, and `tsc` silently resolves from the
   dashboard deployment's `node_modules`. Set `NODE_ENV=development` before
   installing and running the checks.
+- CI repair (run 37104730394, `dashboard (5/9)`): adding this plan's spec
+  changed what ran in that split, which exposed a race in
+  `agent-launch-ad-hoc-cursor.spec.ts`. Its fake Cursor showed an idle screen,
+  so the detached-idle rule could hang up the launched client before the
+  page's terminal attached. The page then started a second client, and the
+  spec's single-attach check failed. A 1 s socket delay reproduced it every
+  time. The specs that open a started Cursor session now share
+  `workingCursorTest` from `dashboard/tests/support/cursorStart.ts`.
 
 ## Execution complete
 
