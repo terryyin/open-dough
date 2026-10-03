@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "aki-chan",
+  "email": "aki-chan@example.org",
+  "identity": "SEED-085#quiet-refinement-outcomes",
+  "mode": "story-branch",
+  "branch": "claude/finish-refinement-quietly-with-a-clear-next-step",
+  "host": "claude"
+}
