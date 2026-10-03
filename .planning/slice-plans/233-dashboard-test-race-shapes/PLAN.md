@@ -143,7 +143,7 @@ Preserved behavior: every existing spec keeps its verdict.
 
 Type: Structure (test-suite correction: hand-rolled settle waits, one of
 which is unguarded)
-Status: planned
+Status: done
 Proof: a support spec holds one card's preparation read with `page.route`. It
 shows the helper still pending while the read is held, then resolved once the
 read is released and the facts show. The 15 converted files pass with
@@ -221,5 +221,23 @@ seam would be a scope decision for the developer. Slices 1–3 stand without it.
     about 20. This shape is outside this plan's slices; it is surfaced for a
     developer decision.
   - In the first repeat run, `startup-host-words.spec.ts:78` waited for
-    `.launch-answer` text after `page.reload()`. That is slice 2's
-    settled-page shape.
+    `.launch-answer` text after `page.reload()`. Slice 2 found this is not the
+    settled-page shape. The answer comes from the routed launch records, and
+    `toHaveText` already waits for the fact it asserts. It was slowness under
+    load, not an ordering race, and it stays unconverted.
+- Slice 2 accepted proof:
+  - `expectSettledPage(page, membership?, { timeout }?)` lives in
+    `dashboard/tests/dashboardPage.ts`; the plan's `support/` path does not
+    exist. `timeout` bounds only the reading wait, for
+    `dashboard-header.spec.ts`'s existing 15 s.
+  - `dashboard/tests/settled-page.spec.ts` holds two `/__authenticated-read`
+    requests: the source-only snapshot read, which gives a page with no cards,
+    and one card's canonical record read (`path=<record>`), which keeps that
+    card reading its preparation. It shows the helper pending in each state,
+    then resolved once the card shows its facts. Dropping either wait from the
+    helper failed it 3 of 3.
+  - The support spec, the 11 converted spec files, and
+    `startup-host-words.spec.ts` at `--repeat-each=3` gave 75 passed at load
+    about 10–15. `npm run lint` and `npm run typecheck:dashboard` pass.
+  - The shared helpers' roughly 70 consumers keep the same two waits in the
+    same order. They were covered by the typecheck, not run.

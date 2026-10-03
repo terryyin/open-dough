@@ -9,6 +9,7 @@
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import {
   expectMembership,
+  expectSettledPage,
   expectWholeSnapshot,
   parts,
 } from "./dashboardPage.ts";
@@ -101,8 +102,7 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
     const beforeSeen = githubFor(page).calls.length;
     await setPageVisibility(page, "visible");
     await checkedAtOnce(page);
-    await expectMembership(page, titlesOfB);
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+    await expectSettledPage(page, titlesOfB);
     await expectWholeSnapshot(
       page,
       { revision: revisionB, titles: titlesOfB },

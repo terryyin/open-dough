@@ -14,6 +14,7 @@
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import {
   expectMembership,
+  expectSettledPage,
   expectSnapshotButtons,
   expectWholeSnapshot,
   parts,
@@ -116,8 +117,7 @@ test("auto refresh recovery: a failed check, then a failed read of B's backlog, 
     restoreBacklogAtB();
     const passed = await passTimeUntilChecked(page);
     expectSteadyPace(14_000 + passed);
-    await expectMembership(page, titlesOfB);
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+    await expectSettledPage(page, titlesOfB);
     await expectWholeSnapshot(
       page,
       { revision: revisionB, titles: titlesOfB },
@@ -184,8 +184,7 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
   await test.step("the next check finds the repaired B, publishes it whole, and withdraws the failure", async () => {
     origin.push(revisionB, backlogB, recordsAt("B"));
     await passTimeUntilChecked(page);
-    await expectMembership(page, titlesOfB);
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+    await expectSettledPage(page, titlesOfB);
     await expectWholeSnapshot(
       page,
       { revision: revisionB, titles: titlesOfB },

@@ -4,7 +4,7 @@
 
 import { expect, type Page } from "@playwright/test";
 import { githubFor, pausePageClockAt } from "./dashboardTest.ts";
-import { expectMembership } from "./dashboardPage.ts";
+import { expectSettledPage } from "./dashboardPage.ts";
 import { headsEtag } from "./originAnswers.ts";
 import { isHeadsCheck } from "./originObservation.ts";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
@@ -65,8 +65,7 @@ export async function openSettledAtA(page: Page): Promise<MovingOrigin> {
   const origin = await publishMovingOrigin(page);
   origin.push(revisionA, backlogA, recordsAt("A"));
   await page.goto("/");
-  await expectMembership(page, titlesOfA);
-  await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+  await expectSettledPage(page, titlesOfA);
   return origin;
 }
 

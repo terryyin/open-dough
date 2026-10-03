@@ -13,6 +13,7 @@
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import {
   expectMembership,
+  expectSettledPage,
   expectWholeSnapshot,
   parts,
 } from "./dashboardPage.ts";
@@ -115,8 +116,7 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
     const passed = await passTimeUntilChecked(page);
     expect(75_000 + passed).toBeGreaterThanOrEqual(100_000);
     expect(75_000 + passed).toBeLessThanOrEqual(120_250);
-    await expectMembership(page, titlesOfB);
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+    await expectSettledPage(page, titlesOfB);
     await expectWholeSnapshot(
       page,
       { revision: revisionB, titles: titlesOfB },
