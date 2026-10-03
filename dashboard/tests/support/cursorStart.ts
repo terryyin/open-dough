@@ -35,3 +35,14 @@ export const test = base.extend<{
   },
 });
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
+
+// Cursor keeps working after its launch instruction, so the launch client is
+// not hung up as idle before the page's terminal joins it.
+export const workingCursorTest = test.extend<{ cursor: FakeCursor }>({
+  // eslint-disable-next-line no-empty-pattern
+  cursor: async ({}, use) => {
+    const cursor = installFakeCursor({ screen: "working" });
+    await use(cursor);
+    cursor.cleanup();
+  },
+});

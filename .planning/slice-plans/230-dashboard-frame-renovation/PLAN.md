@@ -200,6 +200,14 @@ the frame heading weight. `expectDecorativeIcon` in `frameIconControl.ts`
 checks icons inside text buttons. The "Loading projects…" panel shows too
 briefly for a look test and shares `.frame-state` with the tested no-projects
 state.
+CI repair (runs 37107532924 and 37109262826, `dashboard (5/9)`):
+`agent-launch-ad-hoc-cursor.spec.ts` saw two Cursor attaches because the
+default fake Cursor looked idle at once and the detached idle watch hung the
+launch client up before the auto-opened panel joined under load. The spec now
+uses the shared `workingCursorTest` fixture in `tests/support/cursorStart.ts`
+and polls the saved first-input record; reproduced 13 of 25 before, 90 of 90
+after. The separate local launch-card 5 s waits under load stay open, as
+recorded in slice 1.
 Proof: The row-below-banner rows of the proof table.
 
 Behavior: the developer reads the overview → Near-future direction, Start
