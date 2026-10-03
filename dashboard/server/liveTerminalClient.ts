@@ -6,6 +6,7 @@
 // idle rule until the write. The registry decides which clients are still live.
 import type { IPty } from "@lydell/node-pty";
 import type { WebSocket } from "ws";
+import type { HostSession } from "../src/hostSession.ts";
 import type { DetachedIdle, UnavailableWorkspace } from "./launchHosts.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import {
@@ -23,6 +24,7 @@ type LiveTerminalClientInput = {
   readonly key: string;
   readonly hostName: string;
   readonly keep: boolean;
+  readonly session: HostSession;
   readonly admitted: boolean;
   readonly size: { readonly cols: number; readonly rows: number };
   readonly readiness:
@@ -41,6 +43,7 @@ export class LiveTerminalClient {
   readonly pty: IPty;
   readonly key: string;
   readonly keep: boolean;
+  readonly session: HostSession;
   // Resolves when the first completed screen has been judged, or the client
   // has exited. Later screens can still accept the instruction. Already
   // resolved when this client has no launch instruction.
@@ -56,6 +59,7 @@ export class LiveTerminalClient {
     this.pty = input.pty;
     this.key = input.key;
     this.keep = input.keep;
+    this.session = input.session;
     this.isTracked = input.isTracked;
     this.untrack = input.untrack;
     this.size = { cols: input.size.cols, rows: input.size.rows };
@@ -131,6 +135,11 @@ export class LiveTerminalClient {
       // makes it paint that screen again.
       this.redraw();
     }
+  }
+
+  // The client's current screen, after its writes have settled.
+  screenText(): Promise<string> {
+    return this.idle?.text() ?? Promise.resolve("");
   }
 
   hasOpenSocket(): boolean {

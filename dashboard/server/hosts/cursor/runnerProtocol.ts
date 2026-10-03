@@ -1,6 +1,7 @@
 // The Cursor runner's request and result shapes. The dashboard client and the
 // runner process both use this module, so each field has one definition.
 import { z } from "zod";
+import { cursorHeldLabelSchema } from "../../../src/cursorHeldLabel.ts";
 import { hostSessionSchema } from "../../../src/hostSession.ts";
 
 export const cursorRunnerExecRequest = z.object({
@@ -33,6 +34,20 @@ export type CursorRunnerKeepRequest = z.infer<typeof cursorRunnerKeepRequest>;
 export const cursorRunnerKeepResult = z.object({
   kind: z.enum(["kept", "missing", "failed"]),
 });
+
+// One read of the clients this runner holds. It starts nothing.
+export const cursorRunnerSessionsResult = z.object({
+  sessions: z.array(
+    z.object({
+      session: hostSessionSchema,
+      label: cursorHeldLabelSchema,
+    }),
+  ),
+});
+
+export type CursorRunnerSessionsResult = z.infer<
+  typeof cursorRunnerSessionsResult
+>;
 
 // The admitted terminal session, carried on the attach query. The runner
 // accepts it only when the session host is Cursor.

@@ -10,6 +10,7 @@ import type { TerminalSession } from "../../agentTerminals.ts";
 import { keptSession, updateRecord } from "../../launchRecordStore.ts";
 import { TerminalAttachments } from "../../terminalAttachments.ts";
 import { execCursor } from "./exec.ts";
+import { cursorSessionLabel } from "./idleScreen.ts";
 import {
   cursorRunnerAddressFile,
   cursorRunnerDirectory,
@@ -99,11 +100,28 @@ async function answer(
   req: http.IncomingMessage,
   res: http.ServerResponse,
 ): Promise<void> {
+  const url = new URL(req.url ?? "/", "http://127.0.0.1");
+  // A read of the clients already held. It starts no process.
+  if (req.method === "GET" && url.pathname === "/sessions") {
+    const held = await attachments.held();
+    sendJson(res, 200, {
+      sessions: held.flatMap((client) =>
+        client.session.host === "cursor"
+          ? [
+              {
+                session: client.session,
+                label: cursorSessionLabel(client.screen),
+              },
+            ]
+          : [],
+      ),
+    });
+    return;
+  }
   if (req.method !== "POST") {
     sendJson(res, 404, { kind: "failed" });
     return;
   }
-  const url = new URL(req.url ?? "/", "http://127.0.0.1");
   if (url.pathname === "/exec") {
     const body = cursorRunnerExecRequest.parse(await readJson(req));
     const abort = new AbortController();

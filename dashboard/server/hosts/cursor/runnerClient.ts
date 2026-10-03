@@ -1,20 +1,26 @@
 // The dashboard's calls into the Cursor runner: a finished cursor-agent run,
-// a kept terminal client, and one browser socket bridged to that client.
-// Starting and stopping the runner process lives in runnerProcess.ts. Callers
-// outside this host still reach those two operations here.
+// a kept terminal client, one browser socket bridged to that client, and a
+// read of the sessions that runner holds. The read does not start a runner
+// or an agent. Starting and stopping the runner process lives in
+// runnerProcess.ts. Callers outside this host still reach those two
+// operations here.
 import http from "node:http";
 import { homedir } from "node:os";
 import { WebSocket, type RawData } from "ws";
 import { terminalAttachFailedCode } from "../../../src/agentTerminal.ts";
+import type { CursorRunnerStatus } from "../../../src/cursorRunnerSessions.ts";
 import type { CursorSession } from "../../../src/hostSession.ts";
 import type { TerminalSession } from "../../agentTerminals.ts";
 import {
   cursorRunnerExecResult,
   cursorRunnerKeepResult,
+  cursorRunnerSessionsResult,
   type CursorRunnerExec,
   type CursorRunnerKeepRequest,
+  type CursorRunnerSessionsResult,
 } from "./runnerProtocol.ts";
 import {
+  acceptingCursorRunnerPort,
   cursorRunnerPort,
   ensureCursorRunner,
   stopCursorRunner,
@@ -89,6 +95,62 @@ export async function execOnRunner(
     return parsed.success ? parsed.data : undefined;
   } catch {
     return undefined;
+  }
+}
+
+export type CursorRunnerSessionsRead =
+  | {
+      readonly kind: "running";
+      readonly sessions: CursorRunnerSessionsResult["sessions"];
+    }
+  | { readonly kind: Exclude<CursorRunnerStatus, "running"> };
+
+function getJson(port: number, pathname: string): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const req = http.request(
+      {
+        host: "127.0.0.1",
+        port,
+        path: pathname,
+        method: "GET",
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (chunk: Buffer) => chunks.push(chunk));
+        res.on("end", () => {
+          try {
+            resolve(JSON.parse(Buffer.concat(chunks).toString("utf8")));
+          } catch (error) {
+            reject(error instanceof Error ? error : new Error("Unreadable."));
+          }
+        });
+      },
+    );
+    req.setTimeout(2_000, () => {
+      req.destroy(new Error("The Cursor runner did not answer."));
+    });
+    req.on("error", reject);
+    req.end();
+  });
+}
+
+// The sessions a runner that is already up is holding. A missing runner is
+// not running. A runner that accepts a connection and does not answer this
+// read cannot be reached. Neither case starts a runner or an agent.
+export async function readCursorRunnerSessions(
+  home = homedir(),
+): Promise<CursorRunnerSessionsRead> {
+  const port = await acceptingCursorRunnerPort(home);
+  if (port === undefined) return { kind: "not-running" };
+  try {
+    const parsed = cursorRunnerSessionsResult.safeParse(
+      await getJson(port, "/sessions"),
+    );
+    return parsed.success
+      ? { kind: "running", sessions: parsed.data.sessions }
+      : { kind: "unreachable" };
+  } catch {
+    return { kind: "unreachable" };
   }
 }
 

@@ -3,13 +3,15 @@
 // Delete, terminal attachment and native Done require an existing folder;
 // reported local Done needs only the retained session.
 // Launch options follow installed definitions and policy follows installed startup.
-// Reads cover attempts, sessions, reports and host choices; only terminal admission
-// reads native session availability.
+// Reads cover attempts, sessions, reports, host choices, and the Cursor
+// runner's held sessions; only terminal admission reads native session
+// availability. The held-sessions read starts nothing.
 
 import { completionEndpoint } from "./completionReporting.ts";
 import { admitLaunchSettings } from "./launchSettingsAdmission.ts";
 import { launchHostOptionsEndpoint } from "../src/launchHostOptions.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
+import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
 import { sessionResultEndpoint } from "../src/sessionResult.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
@@ -48,6 +50,7 @@ import {
 
 export type Admitted =
   | { readonly kind: "sessions" }
+  | { readonly kind: "cursor-sessions" }
   | {
       readonly kind: "host-options";
       readonly cwd?: string;
@@ -163,6 +166,7 @@ export const launchBoundaryPaths: ReadonlySet<string> = new Set([
   sessionResultEndpoint,
   agentLaunchEndpoint,
   agentChangedEndpoint,
+  cursorRunnerSessionsEndpoint,
   ...postRequests.keys(),
 ]);
 
@@ -205,6 +209,9 @@ export async function admitted(
         ? { cwd: projectFolder(source).path }
         : {}),
     };
+  }
+  if (url.pathname === cursorRunnerSessionsEndpoint) {
+    return { kind: "cursor-sessions" };
   }
   if (url.pathname === agentChangedEndpoint) {
     const attempt = z.uuid().safeParse(url.searchParams.get("attempt"));

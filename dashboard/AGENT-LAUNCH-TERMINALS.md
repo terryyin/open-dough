@@ -50,7 +50,20 @@ above, including while the dashboard server is down. Stopping the runner
 hangs up the processes it holds and leaves none behind. When the runner
 cannot be reached, the dashboard starts no `cursor-agent`. After a new
 runner is up and holds nothing for that chat, opening the terminal resumes
-the chat as a new process. CLI exit uses code 4000 so the page distinguishes
+the chat as a new process. The Sessions sidebar offers **Running Cursor
+sessions** without opening a terminal. That list says whether the Cursor
+runner is running. Each row is one session the runner holds: the project,
+what was started, and one label from that client's current screen. The
+ordinary follow-up prompt (`→ Add a follow-up` with none of `ctrl+c to stop`,
+`Working`, `Running`, or `Clarifying Questions`) is "at the follow-up
+prompt". A screen with `Working`, `Running`, or `ctrl+c to stop` is
+"working". Any other held screen, including a question or a trust prompt, is
+"waiting for an answer". Choosing a row opens that session's terminal on the
+client the runner holds. When the runner is not running, or cannot be
+reached, the list says so, shows no sessions, and offers nothing that starts
+an agent. The launch-record lists stay as they are. The list does not change
+story state. There is no dashboard control to stop or restart the runner.
+CLI exit uses code 4000 so the page distinguishes
 ended from disconnected. Codex spawn alone does not establish readiness: native
 hook/trust UI remains interactive, and a completed composer frame with visible
 cursor confirms attachment. Refusal preserves done intent; successful original-ID

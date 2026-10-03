@@ -156,15 +156,23 @@ export function ensureCursorRunner(home = homedir()): Promise<boolean> {
   return started;
 }
 
+// The port of a runner that is already accepting connections. Undefined when
+// none is. This does not start a runner.
+export async function acceptingCursorRunnerPort(
+  home = homedir(),
+): Promise<number | undefined> {
+  const address = readCursorRunnerAddress(home);
+  if (address === undefined) return undefined;
+  return (await portAccepting(address.port)) ? address.port : undefined;
+}
+
 // The port of this home's runner, after starting it when none is accepting.
 // Undefined when that runner cannot be reached.
 export async function cursorRunnerPort(
   home = homedir(),
 ): Promise<number | undefined> {
   if (!(await ensureCursorRunner(home))) return undefined;
-  const address = readCursorRunnerAddress(home);
-  if (address === undefined) return undefined;
-  return (await portAccepting(address.port)) ? address.port : undefined;
+  return acceptingCursorRunnerPort(home);
 }
 
 // Ends the runner and the processes it holds. A missing runner is already

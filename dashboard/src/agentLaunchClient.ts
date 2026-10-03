@@ -29,6 +29,11 @@ import {
   type VerifiedAnswer,
   verifiedAnswerSchema,
 } from "./agentLaunch.ts";
+import {
+  cursorRunnerSessionsEndpoint,
+  runningCursorSessionsSchema,
+  type RunningCursorSessions,
+} from "./cursorRunnerSessions.ts";
 import { hostDescription } from "./hostDescription.ts";
 
 export const refusal = z.object({ error: z.string().min(1) });
@@ -197,6 +202,21 @@ export async function readMachineSessions(): Promise<
     const response = await fetch(agentLaunchEndpoint);
     if (!response.ok) return undefined;
     const answer = launchRecordsSchema.safeParse(await response.json());
+    return answer.success ? answer.data : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// Whether the Cursor runner is running, and the sessions it holds. Undefined
+// when no trustworthy answer came. This read starts no agent.
+export async function readRunningCursorSessions(): Promise<
+  RunningCursorSessions | undefined
+> {
+  try {
+    const response = await fetch(cursorRunnerSessionsEndpoint);
+    if (!response.ok) return undefined;
+    const answer = runningCursorSessionsSchema.safeParse(await response.json());
     return answer.success ? answer.data : undefined;
   } catch {
     return undefined;

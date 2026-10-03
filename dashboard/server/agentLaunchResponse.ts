@@ -13,6 +13,7 @@ import type {
   VerifiedAnswer,
 } from "../src/agentLaunch.ts";
 import type { DeleteRecordAnswer } from "../src/deleteRecord.ts";
+import type { RunningCursorSessions } from "../src/cursorRunnerSessions.ts";
 import type { SessionResult } from "../src/sessionResult.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import type { hostOperations } from "./launchHosts.ts";
@@ -28,6 +29,7 @@ export type AgentLaunchAnswer =
     }
   | { readonly status: number; readonly body: LaunchHostOptions }
   | { readonly status: number; readonly body: SessionResult }
+  | { readonly status: number; readonly body: RunningCursorSessions }
   | { readonly status: number; readonly body: Acceptance }
   | { readonly status: number; readonly body: ChangedAnswer }
   | { readonly status: number; readonly body: ReconciledAnswer }

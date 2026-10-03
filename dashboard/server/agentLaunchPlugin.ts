@@ -16,7 +16,9 @@
 // sessions: every catalog project's launch records, each naming its project,
 // with each session's current state, and the launch attempts accepted with
 // their receipts and outcomes, and whether those kept could be read. A
-// same-origin POST to
+// same-origin GET of `/__agent-launch/cursor-sessions` reads whether the
+// Cursor runner is running and which sessions it holds, and starts nothing.
+// A same-origin POST to
 // `/__agent-launch/done` marks one session it recorded done
 // (`./doneMarks.ts`). A same-origin POST to `/__agent-launch/delete` deletes
 // the record of one session it recorded while its host's observation still
@@ -48,6 +50,7 @@ import {
 } from "./agentLaunchAdmission.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
 import { AgentTerminals } from "./agentTerminals.ts";
+import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";
 import { ensureCursorRunner } from "./hosts/cursor/runnerClient.ts";
 import { markSessionDone } from "./doneMarks.ts";
 import { deleteRecord } from "./launchRecordStore.ts";
@@ -139,6 +142,8 @@ async function answer(
       }
       case "result":
         return await sessionResultResponse(request.record, res);
+      case "cursor-sessions":
+        return { status: 200, body: await heldCursorSessions() };
       case "sessions": {
         const { attempts, readable } = await launches.attempts();
         return {

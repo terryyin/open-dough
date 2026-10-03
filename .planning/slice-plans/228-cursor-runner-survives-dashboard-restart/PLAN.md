@@ -184,7 +184,7 @@ Accepted proof for later slices:
 
 ### 3. Show the sessions the runner is holding
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npm run test:dashboard -- cursor-runner-sessions.spec.ts`
 
 Behavior: the developer opens **Running Cursor sessions** from the Sessions
@@ -201,6 +201,26 @@ shows no sessions, and offers nothing that starts an agent. The launch-record
 lists stay as they are. The list does not change story state.
 
 Update `dashboard/AGENT-LAUNCH-TERMINALS.md` with this list.
+
+Accepted proof:
+
+- Promise: opening **Running Cursor sessions** from the Sessions sidebar
+  lists each client the runner holds, with the project, what was started,
+  and one screen label. Choosing a row opens that client. A runner that is
+  down or unreachable says so, lists nothing, and starts no agent.
+- Boundary: `readCursorRunnerSessions` uses `acceptingCursorRunnerPort` and
+  does not start a runner. `cursorSessionLabel` in `idleScreen.ts` is the
+  three labels. `GET /__agent-launch/cursor-sessions` returns that join
+  with launch records.
+- Setup and observation: `dashboard/tests/cursor-runner-sessions.spec.ts`.
+  `holdSession` launches an ad hoc client before the page has a terminal.
+  `openRunningList` opens the sidebar and then the list. The working,
+  waiting, and trust tests click the row. The follow-up test reads
+  `at the follow-up prompt` on the same pid. The down and unreachable
+  tests add no `cursor-agent` call.
+- Command: `npm run test:dashboard -- cursor-runner-sessions.spec.ts`
+- Result: exit 0. Refactor left this boundary in place, so the proof was
+  not rerun.
 
 ## Considered and excluded
 
