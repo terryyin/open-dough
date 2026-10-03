@@ -96,7 +96,14 @@ test("real stream identity supports pending exact and ancestor completion", asyn
         assert.equal(finished.verdict, verdict);
         if (verdict === "success") {
           assert.equal(finished.shutdown.status, "confirmed");
-          assert.throws(() => process.kill(attached.pid, 0), { code: "ESRCH" });
+          // Confirmed shutdown can precede the PID's release (a zombie, or a
+          // Linux node process still unwinding), so the product's liveness
+          // reader, not the PID, proves the stream ended; teardown awaits the
+          // child's exit before the fixture is removed.
+          assert.equal(
+            checkMailboxWorkerLiveness(identity, attached.directory),
+            "dead",
+          );
         } else {
           assert.equal(finished.shutdown.status, "retained");
           assert.equal(

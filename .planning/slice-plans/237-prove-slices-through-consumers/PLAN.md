@@ -97,6 +97,12 @@ says "do not require every suite or all callers" and limits acceptance to a
 "shared operation or contract"; `delegation.md:41-42` still says "broaden
 testing only when…", split across a line break, so a one-line grep misses it.
 
+CI repair after slice 1 (run 37119610401): `ci-codex-completion.test.mjs`
+asserted ESRCH for the stream's PID right after a confirmed shutdown. The
+product counts a zombie or unwinding PID as dead, so the PID could still answer
+on a loaded Linux runner. The test now asserts the product's liveness reader
+instead; the fixture teardown already awaits the child's exit.
+
 Behavior: an agent choosing proof for a change that rewords a message, retires
 a value, changes a default, changes a shared contract's stand-ins, or renders
 into a shared page → reads `executable-proof.md` → its selection includes the
