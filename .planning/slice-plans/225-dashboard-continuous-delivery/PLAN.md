@@ -248,6 +248,7 @@ concern was identified in this preparation review.
 
 - Slice 1: the fixture commits only the paths a test passes through `changes`; files a test writes into `development` otherwise stay uncommitted local edits. Origin main starts empty until a test calls `push()` or `publish()`, so main-based startup cases need an explicit first publication. The minimal (non-full-source) fixture copies no workflow; slice 3 copies `.github` policy when it uses that mode.
 - Slice 2: the watcher logs `Checked published main: <sha>.` before deciding; slice 3's qualification belongs between that check and `Preparing`, leaving the baseline unchanged on a skip. `tests/support/productionBuildGate.ts` (`builds.log` ordinals and `hold-build-<n>`) gives exact build counts for negative-deployment proof. The minimal fixture starts from an empty commit and copies nothing. Superseded checkouts are removed after the activation log, so single-entry deployment-directory checks poll.
+- CI repair (run 37087713827 on slice 3): the shared `launch` test helper now waits for a start to reconcile, so a following launch never clicks a Start action disabled by the post-settle preparation re-read.
 
 ## Execution complete
 
