@@ -4,8 +4,10 @@
 // attempt, and is answered already-starting. Accepts for different stories
 // from the two servers are both accepted. Proven over raw HTTP with
 // serverOn("dev") and serverOn("preview") sharing one start-origin machine.
+// The held-lock case observes the second accept reach the locked write through
+// a loader that marks the server's first refused lock acquisition.
 
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
@@ -36,13 +38,17 @@ test.describe("cross-server accept of one story", () => {
   let push: PushHold;
   const servers: DashboardServer[] = [];
 
-  async function serverOn(mode: "dev" | "preview"): Promise<DashboardServer> {
+  async function serverOn(
+    mode: "dev" | "preview",
+    extraEnv: Readonly<Record<string, string>> = {},
+  ): Promise<DashboardServer> {
     const server = await startDashboardServer({
       mode,
       prebuilt: mode === "preview" ? builtDashboardDir : undefined,
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 30_000,
+      extraEnv,
     });
     servers.push(server);
     return server;
@@ -59,24 +65,54 @@ test.describe("cross-server accept of one story", () => {
     origin.cleanup();
   });
 
-  const attemptsFile = (server: DashboardServer) =>
-    path.join(server.home, ".open-dough", "dashboard", "launch-attempts.json");
+  // The machine's attempts file, known before its servers start so a loader
+  // can name its lock.
+  const attemptsFile = () =>
+    path.join(
+      origin.machine,
+      "home",
+      ".open-dough",
+      "dashboard",
+      "launch-attempts.json",
+    );
 
-  const attemptsLock = (server: DashboardServer) =>
-    `${attemptsFile(server)}.lock`;
+  const attemptsLock = () => `${attemptsFile()}.lock`;
+
+  // Loaded into the server: marks `waited` once a lock acquisition finds the
+  // attempts lock held, the only place the store retries `mkdir` of it.
+  function lockWaitLoader(lock: string, waited: string): string {
+    const loader = path.join(origin.machine, "lock-wait.mjs");
+    writeFileSync(
+      loader,
+      `import fs from 'node:fs'; import promises from 'node:fs/promises'; import {syncBuiltinESMExports} from 'node:module';
+const original = promises.mkdir;
+promises.mkdir = async (directory, ...args) => {
+ try { return await original(directory, ...args); }
+ catch (error) {
+  if (error?.code === 'EEXIST' && String(directory) === ${JSON.stringify(lock)}) fs.writeFileSync(${JSON.stringify(waited)}, 'waited');
+  throw error;
+ }
+}; syncBuiltinESMExports();`,
+    );
+    return loader;
+  }
 
   test("while the attempt lock is held, a second server waits, then refuses after the first attempt is written", async () => {
     test.setTimeout(120_000);
-    const preview = await serverOn("preview");
+    const waited = path.join(origin.machine, "lock-waited");
+    const loader = lockWaitLoader(attemptsLock(), waited);
+    const preview = await serverOn("preview", {
+      NODE_OPTIONS: `--import=${JSON.stringify(loader)}`,
+    });
     preview.claudeScenario("held");
 
-    const folder = path.dirname(attemptsFile(preview));
-    mkdirSync(folder, { recursive: true });
-    mkdirSync(attemptsLock(preview));
+    mkdirSync(path.dirname(attemptsFile()), { recursive: true });
+    mkdirSync(attemptsLock());
 
     const pending = accept(preview, request);
-    // The accept must reach the locked write before A's attempt is visible.
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    // The accept waits on the held lock, past its unlocked reads, before A's
+    // attempt is visible.
+    await expect.poll(() => existsSync(waited)).toBe(true);
 
     const first: LaunchAttemptRecord = {
       id: "aaaaaaaa-0000-4000-8000-0000000000aa",
@@ -91,10 +127,10 @@ test.describe("cross-server accept of one story", () => {
       publication: { kind: "unknown" },
     };
     writeFileSync(
-      attemptsFile(preview),
+      attemptsFile(),
       `${JSON.stringify({ "open-dough": [first] }, null, 2)}\n`,
     );
-    rmSync(attemptsLock(preview), { recursive: true });
+    rmSync(attemptsLock(), { recursive: true });
 
     expect(await answerOf(pending)).toMatchObject({
       kind: "failed",
