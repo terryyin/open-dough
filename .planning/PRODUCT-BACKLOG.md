@@ -16,13 +16,13 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Prove a slice through the consumers of what it changes](seeds/SEED-095-slice-proof-through-consumers.md#prove-slices-through-consumers) — SEED-095#prove-slices-through-consumers ([plan](slice-plans/237-prove-slices-through-consumers/PLAN.md))
 - [Show an unread session report apart from a session needing engagement](seeds/SEED-052-start-agent-work-from-dashboard.md#unread-report-apart-from-engagement) — SEED-052#unread-report-apart-from-engagement ([plan](slice-plans/238-unread-report-apart-from-engagement/PLAN.md))
+- [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator ([plan](slice-plans/231-story-card-information-radiator/PLAN.md))
 
 ## Backlog list
 
 - [Acknowledge a session report without ending the session's state](seeds/SEED-052-start-agent-work-from-dashboard.md#mark-report-read-keeps-session-state) — SEED-052#mark-report-read-keeps-session-state
 - [Run a check from any directory and get CI's result](seeds/SEED-093-local-checks-agree-with-ci.md#checks-run-from-any-directory) — SEED-093#checks-run-from-any-directory
 - [Show story review and terminal in one resizable side panel](seeds/SEED-091-dashboard-ui-renovation.md#review-and-terminal-share-side-panel) — SEED-091#review-and-terminal-share-side-panel
-- [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator
 - [Review only what changed since the last review](seeds/SEED-088-dashboard-story-code-review.md#review-changes-since-last-review) — SEED-088#review-changes-since-last-review
 - [Review the combined changes of selected story commits](seeds/SEED-088-dashboard-story-code-review.md#review-selected-commits) — SEED-088#review-selected-commits
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
