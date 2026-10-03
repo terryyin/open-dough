@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "terry-chan",
-  "email": "terry-chan@example.org",
-  "identity": "SEED-095#prove-slices-through-consumers",
-  "mode": "story-branch",
-  "branch": "claude/prove-a-slice-through-the-consumers-of-what-it-c",
-  "host": "claude"
-}

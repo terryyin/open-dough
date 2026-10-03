@@ -14,7 +14,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Prove a slice through the consumers of what it changes](seeds/SEED-095-slice-proof-through-consumers.md#prove-slices-through-consumers) — SEED-095#prove-slices-through-consumers ([plan](slice-plans/237-prove-slices-through-consumers/PLAN.md))
 - [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator ([plan](slice-plans/231-story-card-information-radiator/PLAN.md))
 
 ## Backlog list
