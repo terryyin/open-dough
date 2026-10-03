@@ -18,7 +18,6 @@ visibility for multiple agents working in worktrees on one machine.
 - [Automatically build and restart the production dashboard from main](seeds/SEED-086-dashboard-continuous-delivery.md#dashboard-continuous-delivery) — SEED-086#dashboard-continuous-delivery ([plan](slice-plans/225-dashboard-continuous-delivery/PLAN.md))
 - [Prevent a second refinement or execution session for an active story](seeds/SEED-052-start-agent-work-from-dashboard.md#one-active-story-session) — SEED-052#one-active-story-session ([plan](slice-plans/222-one-active-story-session/PLAN.md))
 - [Dictate additional instructions when starting a session](seeds/SEED-084-session-instruction-voice-input.md#session-instruction-voice-input) — SEED-084#session-instruction-voice-input ([plan](slice-plans/223-session-instruction-voice-input/PLAN.md))
-- [Finish refinement quietly with a clear next step or explicit human response](seeds/SEED-085-quiet-refinement-outcomes.md#quiet-refinement-outcomes) — SEED-085#quiet-refinement-outcomes ([plan](slice-plans/223-quiet-refinement-outcomes/PLAN.md))
 
 ## Backlog list
 
