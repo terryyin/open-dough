@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "jackson-chan",
+  "email": "jackson-chan@example.org",
+  "identity": "SEED-052#mark-report-read-keeps-session-state",
+  "mode": "story-branch",
+  "branch": "claude/acknowledge-a-session-report-without-ending-the",
+  "host": "claude"
+}
