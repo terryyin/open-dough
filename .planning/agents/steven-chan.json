@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "steven-chan",
-  "email": "steven-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-091#dashboard-frame-renovation",
-  "host": "claude",
-  "model": "opus"
-}
