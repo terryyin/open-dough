@@ -45,9 +45,7 @@ test("failed builds and real preview activation restore working production, retr
     const packageJson = JSON.parse(await readFile(packagePath, "utf8")) as {
       scripts: Record<string, string>;
     };
-    await writeFile(
-      path.join(fixture.development, "release-fault.mjs"),
-      `
+    const releaseFault = `
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
@@ -56,17 +54,21 @@ if (existsSync(path.join(homedir(), "fault-" + phase))) {
   console.error("TRANSIENT " + phase + " FAILURE");
   process.exit(42);
 }
-`,
-    );
+`;
     for (const phase of ["build", "preview"]) {
       const script = `${phase}:dashboard`;
       packageJson.scripts[script] =
         `node release-fault.mjs ${phase} && ${packageJson.scripts[script]}`;
     }
-    await writeFile(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
     const buildFault = path.join(fixture.home, "fault-build");
     await writeFile(buildFault, "transient build cause");
-    const bSha = await fixture.publish("1.1.0", { marker: "WORKING B" });
+    const bSha = await fixture.publish("1.1.0", {
+      marker: "WORKING B",
+      changes: {
+        "package.json": `${JSON.stringify(packageJson, null, 2)}\n`,
+        "release-fault.mjs": releaseFault,
+      },
+    });
     await expect
       .poll(() => watcher?.output() ?? "", { timeout: 180_000 })
       .toContain("TRANSIENT build FAILURE");
@@ -96,17 +98,17 @@ if (existsSync(path.join(homedir(), "fault-" + phase))) {
 
     const startFault = path.join(fixture.home, "fault-preview");
     // B's gate also reads HOME; make the start cause apply to C only.
-    const faultScript = path.join(fixture.development, "release-fault.mjs");
-    await writeFile(
-      faultScript,
-      (await readFile(faultScript, "utf8")).replace(
-        'existsSync(path.join(homedir(), "fault-" + phase))',
-        'existsSync(path.join(homedir(), "fault-" + phase + "-c"))',
-      ),
-    );
     const cFault = `${startFault}-c`;
     await writeFile(cFault, "transient candidate start cause");
-    const cSha = await fixture.publish("1.2.0", { marker: "WORKING C" });
+    const cSha = await fixture.publish("1.2.0", {
+      marker: "WORKING C",
+      changes: {
+        "release-fault.mjs": releaseFault.replace(
+          'existsSync(path.join(homedir(), "fault-" + phase))',
+          'existsSync(path.join(homedir(), "fault-" + phase + "-c"))',
+        ),
+      },
+    });
     const restored = await activation("1.1.0", true);
     expect(restored.url).toBe(a.url);
     expect(restored.pid).not.toBe(b.pid);

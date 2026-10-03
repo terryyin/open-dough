@@ -98,8 +98,9 @@ new main-selection or exclusion behavior that the slices must prove.
 
 ### 1. Disposable origins publish exactly the requested paths
 Type: Structure
-Status: planned
+Status: done
 Proof: focused fixture assertions inspect the actual pushed commit's path diff and unchanged VERSION/application bytes for a documentation-only publication; the existing production specs remain green with no product behavior change.
+Accepted proof: `dashboard/tests/production-publication-fixture.spec.ts` ("a documentation-only publication pushes only its requested paths to origin main") observes origin main's SHA/parent, the exact `diff --name-status -z` (M/D/A), and unchanged VERSION, package.json, index.html and runner bytes. `NODE_ENV=development npm run test:dashboard -- dashboard/tests/production*.spec.ts --reporter=line --workers=2` passed 11 tests; `npm run typecheck:dashboard` passed.
 
 Internal change: give the current fixture explicit commit/push operations whose
 path changes come from the test. Keep marker edits explicit for real browser
@@ -241,4 +242,4 @@ concern was identified in this preparation review.
 
 ## Learnings
 
-None beyond the observed premises above.
+- Slice 1: the fixture commits only the paths a test passes through `changes`; files a test writes into `development` otherwise stay uncommitted local edits. Origin main starts empty until a test calls `push()` or `publish()`, so main-based startup cases need an explicit first publication. The minimal (non-full-source) fixture copies no workflow; slice 3 copies `.github` policy when it uses that mode.

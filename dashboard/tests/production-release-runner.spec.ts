@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import {
   resolveDashboardRelease,
@@ -16,7 +16,11 @@ test("release runner selects the highest numeric tag and peeled annotated commit
     await fixture.publish("1.9.0");
     const commit = await fixture.publish("1.10.0", { annotated: true });
     await fixture.publish("2.0.0-rc.1");
-    await fixture.commit("99.0.0", "untagged development");
+    await fixture.commit(
+      fixture.releaseChanges("99.0.0", "untagged development"),
+      "untagged development",
+    );
+    await fixture.push();
     expect(
       await resolveDashboardRelease(fixture.development, fixture.env),
     ).toEqual({
@@ -50,7 +54,11 @@ test("release runner verifies the exact resolved commit before running tagged co
       fixture.development,
       fixture.env,
     );
-    await fixture.commit("1.0.0", "unpublished branch change");
+    await fixture.commit(
+      fixture.releaseChanges("1.0.0", "unpublished branch change"),
+      "unpublished branch change",
+    );
+    await fixture.push();
     await expect(
       verifyDashboardRelease(fixture.development, release, fixture.env),
     ).rejects.toThrow("did not match resolved");
@@ -97,7 +105,11 @@ test("release runner installs, builds, and serves isolated pinned source with th
       fixture.development,
       fixture.env,
     );
-    await fixture.commit("2.0.0", "DEVELOPMENT BRANCH ONLY");
+    await fixture.commit(
+      fixture.releaseChanges("2.0.0", "DEVELOPMENT BRANCH ONLY"),
+      "DEVELOPMENT BRANCH ONLY",
+    );
+    await fixture.push();
     staged = await stageDashboardRelease({
       developmentRoot: fixture.development,
       release,
@@ -167,24 +179,19 @@ test("release runner cancellation ends an installing release's children and remo
       version: "1.0.0",
       scripts: { prepare: "node hold.cjs" },
     };
-    await writeFile(
-      path.join(fixture.development, "package.json"),
-      JSON.stringify(manifest),
-    );
-    await writeFile(
-      path.join(fixture.development, "package-lock.json"),
-      JSON.stringify({
-        name: manifest.name,
-        version: manifest.version,
-        lockfileVersion: 3,
-        packages: { "": manifest },
-      }),
-    );
-    await writeFile(
-      path.join(fixture.development, "hold.cjs"),
-      'require("node:fs").writeFileSync(require("node:path").join(process.env.HOME, "install.pid"), String(process.pid)); setInterval(() => {}, 1000);',
-    );
-    await fixture.publish("1.0.0");
+    await fixture.publish("1.0.0", {
+      changes: {
+        "package.json": JSON.stringify(manifest),
+        "package-lock.json": JSON.stringify({
+          name: manifest.name,
+          version: manifest.version,
+          lockfileVersion: 3,
+          packages: { "": manifest },
+        }),
+        "hold.cjs":
+          'require("node:fs").writeFileSync(require("node:path").join(process.env.HOME, "install.pid"), String(process.pid)); setInterval(() => {}, 1000);',
+      },
+    });
     const release = await resolveDashboardRelease(
       fixture.development,
       fixture.env,

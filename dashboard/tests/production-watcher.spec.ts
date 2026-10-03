@@ -39,10 +39,8 @@ test("npm watcher serves the pinned highest release beside hot-reloaded developm
   const github = await startFakeGitHub();
   const gh = installFakeGh(fixture.root);
   const env = { ...fixture.env, ...fakeGhEnv(gh, github.url) };
-  const banner = path.join(
-    fixture.development,
-    "dashboard/src/DashboardBanner.tsx",
-  );
+  const bannerPath = "dashboard/src/DashboardBanner.tsx";
+  const banner = path.join(fixture.development, bannerPath);
   let watcher: ReturnType<typeof dashboardCommand> | undefined;
   let development: ReturnType<typeof dashboardCommand> | undefined;
   const productionPage = await browser.newPage();
@@ -50,27 +48,30 @@ test("npm watcher serves the pinned highest release beside hot-reloaded developm
   try {
     // Marker changes in real application source become tagged built JS and
     // development HMR; the fixture supplies no served pages or watcher outcomes.
-    await writeFile(
-      banner,
-      (await readFile(banner, "utf8")).replace(
-        "<SessionsButton />",
-        '<p data-testid="release-source">PINNED SOURCE</p><SessionsButton />',
-      ),
+    const pinnedBanner = (await readFile(banner, "utf8")).replace(
+      "<SessionsButton />",
+      '<p data-testid="release-source">PINNED SOURCE</p><SessionsButton />',
     );
-    await fixture.publish("1.9.0", { marker: "OLDER RELEASE" });
+    await fixture.publish("1.9.0", {
+      marker: "OLDER RELEASE",
+      changes: { [bannerPath]: pinnedBanner },
+    });
     const pinned = await fixture.publish("1.10.0", {
       annotated: true,
       marker: "PINNED RELEASE",
     });
     await fixture.publish("2.0.0-rc.1", { marker: "IGNORED PRERELEASE" });
-    await writeFile(
-      banner,
-      (await readFile(banner, "utf8")).replace(
-        "PINNED SOURCE",
-        "DEVELOPMENT SOURCE",
-      ),
+    await fixture.commit(
+      {
+        ...fixture.releaseChanges("99.0.0", "DEVELOPMENT ONLY"),
+        [bannerPath]: pinnedBanner.replace(
+          "PINNED SOURCE",
+          "DEVELOPMENT SOURCE",
+        ),
+      },
+      "DEVELOPMENT ONLY",
     );
-    await fixture.commit("99.0.0", "DEVELOPMENT ONLY");
+    await fixture.push();
     await fixture.installDevelopment();
     configureDevelopmentProjects(fixture.home);
     development = dashboardCommand(fixture.development, env, "dev:dashboard", [

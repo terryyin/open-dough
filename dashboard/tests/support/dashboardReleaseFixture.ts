@@ -1,4 +1,4 @@
-// Local release publication with the actual current dashboard/package scripts.
+// Disposable origin publication with the actual current dashboard/package scripts.
 // Every repository, release directory, and machine HOME belongs to this test.
 import { execFile } from "node:child_process";
 import {
@@ -16,6 +16,9 @@ import { promisify } from "node:util";
 const exec = promisify(execFile);
 const repoRoot = process.cwd();
 
+// Path contents to publish; `null` deletes the path. Nothing else changes.
+export type PathChanges = Record<string, string | null>;
+
 export async function dashboardReleaseFixture(fullSource = false) {
   const root = mkdtempSync(path.join(tmpdir(), "dough-dashboard-release-"));
   const development = path.join(root, "development");
@@ -29,16 +32,20 @@ export async function dashboardReleaseFixture(fullSource = false) {
     (await exec("git", args, { cwd: development, env })).stdout.trim();
   try {
     if (fullSource) {
-      const files = (
-        await exec(
-          "git",
-          ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
-          { cwd: repoRoot },
-        )
-      ).stdout
-        .split("\0")
-        .filter(Boolean);
-      for (const file of files) {
+      // The live working tree: new names included, deleted tracked paths not.
+      const listed = async (...args: string[]) =>
+        (
+          await exec("git", ["ls-files", "-z", ...args], { cwd: repoRoot })
+        ).stdout
+          .split("\0")
+          .filter(Boolean);
+      const deleted = new Set(await listed("--deleted"));
+      for (const file of await listed(
+        "--cached",
+        "--others",
+        "--exclude-standard",
+      )) {
+        if (deleted.has(file)) continue;
         const destination = path.join(development, file);
         mkdirSync(path.dirname(destination), { recursive: true });
         cpSync(path.join(repoRoot, file), destination);
@@ -58,31 +65,44 @@ export async function dashboardReleaseFixture(fullSource = false) {
       env,
     });
     await git("remote", "add", "origin", origin);
-    const commit = async (version: string, marker = version) => {
-      writeFileSync(path.join(development, "VERSION"), `${version}\n`);
-      writeFileSync(path.join(development, "fixture-marker"), marker);
-      if (fullSource) {
-        const index = path.join(development, "dashboard/index.html");
-        writeFileSync(
-          index,
-          readFileSync(index, "utf8").replace(
-            /<title>.*?<\/title>/,
-            `<title>${marker}</title>`,
-          ),
-        );
+    const record = (message: string) =>
+      git("-c", "core.hooksPath=/dev/null", "commit", "--quiet", "-m", message);
+    await git("add", "--all");
+    await record("Fixture source");
+    // Commits exactly the requested path changes on local main.
+    const commit = async (changes: PathChanges, message: string) => {
+      const paths = Object.keys(changes);
+      if (paths.length === 0) throw new Error("No fixture path changes");
+      for (const [file, content] of Object.entries(changes)) {
+        const destination = path.join(development, file);
+        if (content === null) rmSync(destination);
+        else {
+          mkdirSync(path.dirname(destination), { recursive: true });
+          writeFileSync(destination, content);
+        }
       }
-      await git("add", ".");
-      await git(
-        "-c",
-        "core.hooksPath=/dev/null",
-        "commit",
-        "--quiet",
-        "-m",
-        `Release fixture ${marker}`,
-      );
-      await git("push", "--quiet", "origin", "main");
+      await git("add", "--all", "--", ...paths);
+      await record(message);
       return git("rev-parse", "HEAD");
     };
+    const push = () => git("push", "--quiet", "origin", "main");
+    // A real browser journey's visible marker: the served page title.
+    const markerChanges = (marker: string): PathChanges => {
+      const changes: PathChanges = { "fixture-marker": marker };
+      if (fullSource) {
+        const index = path.join(development, "dashboard/index.html");
+        changes["dashboard/index.html"] = readFileSync(index, "utf8").replace(
+          /<title>.*?<\/title>/,
+          `<title>${marker}</title>`,
+        );
+      }
+      return changes;
+    };
+    // Temporary tag-era publication; main-based delivery replaces it.
+    const releaseChanges = (version: string, marker = version) => ({
+      VERSION: `${version}\n`,
+      ...markerChanges(marker),
+    });
     return {
       root,
       development,
@@ -92,6 +112,9 @@ export async function dashboardReleaseFixture(fullSource = false) {
       env,
       git,
       commit,
+      push,
+      markerChanges,
+      releaseChanges,
       async installDevelopment() {
         await exec(
           "npm",
@@ -113,17 +136,25 @@ export async function dashboardReleaseFixture(fullSource = false) {
         version: string,
         options: {
           annotated?: boolean;
+          changes?: PathChanges;
           marker?: string;
           versionFile?: string;
         } = {},
       ) {
         const sha = await commit(
-          options.versionFile ?? version,
-          options.marker ?? version,
+          {
+            ...releaseChanges(
+              options.versionFile ?? version,
+              options.marker ?? version,
+            ),
+            ...options.changes,
+          },
+          `Release fixture ${options.marker ?? version}`,
         );
         if (options.annotated)
           await git("tag", "-a", `v${version}`, "-m", `Version ${version}`);
         else await git("tag", `v${version}`);
+        await push();
         await git("push", "--quiet", "origin", "--tags");
         return sha;
       },

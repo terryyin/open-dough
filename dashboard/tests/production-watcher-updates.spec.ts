@@ -101,7 +101,11 @@ test("npm watcher replaces a newer numeric release at the same URL, keeps shared
     // All three publications are visible to a subsequent real origin check.
     await fixture.publish("1.9.9", { marker: "LOWER RELEASE" });
     await fixture.publish("2.0.0-rc.1", { marker: "PRERELEASE" });
-    await fixture.commit("99.0.0", "BRANCH ONLY");
+    await fixture.commit(
+      fixture.releaseChanges("99.0.0", "BRANCH ONLY"),
+      "BRANCH ONLY",
+    );
+    await fixture.push();
     const checksBefore =
       watcher.output().match(/Checked production release:/g)?.length ?? 0;
     await expect
