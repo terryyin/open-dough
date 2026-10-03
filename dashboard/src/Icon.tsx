@@ -5,7 +5,7 @@
 // hovered or holds keyboard focus. The tooltip is hidden from assistive
 // technology too, so the name is announced once.
 
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 import type { LucideIcon } from "lucide-react";
 import "./icon-control.css";
 
@@ -44,6 +44,8 @@ export function IconButton({
   readonly groupClassName?: string;
   // What sits beside the control, such as a count.
   readonly children?: ReactNode;
+  // The button itself, for a caller that returns the keyboard to it.
+  readonly ref?: Ref<HTMLButtonElement>;
 } & Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "aria-label" | "title" | "type" | "children"

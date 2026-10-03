@@ -1,6 +1,7 @@
 import { ChevronRight, RefreshCw } from "lucide-react";
 import { Icon, IconButton } from "./Icon.tsx";
 import { Moment } from "./Moment.tsx";
+import "./frame-controls.css";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 
@@ -34,7 +35,7 @@ export function SourceStatus({
         aria-disabled={reading}
         onClick={onRefresh}
       />
-      <details className="source-evidence" key={source.id}>
+      <details className="source-evidence frame-disclosure" key={source.id}>
         <summary aria-label={`Source evidence for ${source.label}`}>
           <Icon icon={ChevronRight} />
           <h1>{source.label}</h1>

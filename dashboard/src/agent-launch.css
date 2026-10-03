@@ -18,7 +18,6 @@
 }
 
 .start-launch-button,
-.start-session-button,
 .launch-open button,
 .terminal-toolbar button,
 .launch-dialog-actions button {
@@ -36,7 +35,6 @@
 }
 
 .start-launch-button:disabled,
-.start-session-button:disabled,
 .launch-open button:disabled,
 .launch-dialog-actions button:disabled {
   color: var(--quiet);

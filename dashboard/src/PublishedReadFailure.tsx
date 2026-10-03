@@ -2,6 +2,8 @@
 // when, what the shown snapshot is then (what this attempt read, the earlier
 // snapshot, or none), and when automatic checks resume.
 
+import { TriangleAlert } from "lucide-react";
+import { Icon } from "./Icon.tsx";
 import { Moment } from "./Moment.tsx";
 import type { FailedAttempt } from "./observationAttempt.ts";
 import { shortRevision, type PublishedWork } from "./publishedWork.ts";
@@ -16,7 +18,10 @@ export function PublishedReadFailure({
 }) {
   return (
     <div role="alert" className="read-problem">
-      <h2>Published work could not be read</h2>
+      <h2>
+        <Icon icon={TriangleAlert} />
+        Published work could not be read
+      </h2>
       <p>{attempt.problem}</p>
       <p>
         This attempt failed at <Moment at={attempt.at} />

@@ -47,37 +47,9 @@
   font-size: var(--text-sm);
 }
 
-.source-evidence summary {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  width: fit-content;
-  min-height: var(--control-size);
-  padding-inline: var(--space-1) var(--space-2);
-  border-radius: var(--radius-md);
-  list-style: none;
-  cursor: pointer;
-}
-
-.source-evidence summary::-webkit-details-marker {
-  display: none;
-}
-
-.source-evidence summary:hover {
-  background: var(--hover);
-}
-
-.source-evidence summary .icon {
-  color: var(--quiet);
-}
-
-.source-evidence[open] summary .icon {
-  transform: rotate(90deg);
-}
-
 .source-evidence summary h1 {
   font-size: var(--text-lg);
-  font-weight: 650;
+  font-weight: var(--weight-strong);
   letter-spacing: -0.01em;
 }
 

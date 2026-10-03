@@ -1,7 +1,9 @@
 /* The frame's text buttons and text fields: one control height, the shared
    radius, and an edge that stands out from what is behind it. A button may
    lead with an icon (./Icon.tsx); its text still names it. The primary
-   button, filled in the accent, is a page's or dialog's one main action. */
+   button, filled in the accent, is a page's or dialog's one main action.
+   A frame disclosure opens with its heading, led by a chevron that turns
+   while it is open. */
 
 .frame-button {
   box-sizing: border-box;
@@ -68,8 +70,37 @@
   background: var(--surface);
 }
 
+.frame-disclosure > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: fit-content;
+  min-height: var(--control-size);
+  padding-inline: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  list-style: none;
+  cursor: pointer;
+}
+
+.frame-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.frame-disclosure > summary:hover {
+  background: var(--hover);
+}
+
+.frame-disclosure > summary .icon {
+  color: var(--quiet);
+}
+
+.frame-disclosure[open] > summary .icon {
+  transform: rotate(90deg);
+}
+
 /* The page-wide focus outline keeps the control's own rounded corners. */
 .frame-button:focus-visible,
-.frame-input:focus-visible {
+.frame-input:focus-visible,
+.frame-disclosure > summary:focus-visible {
   border-radius: var(--radius-md);
 }

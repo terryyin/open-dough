@@ -180,7 +180,26 @@ with no layout change.
 
 ### 3. The row below the banner, the stages' frame, and the frame states
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run typecheck:dashboard`; full dashboard suite 978
+passed; after the CSS split and refactor, 171 passed over
+`direction-disclosure`, `preparation-legend`, `accessible-overview`,
+`project-configuration`, `dashboard-header`, `frame-overview-look`,
+`published-work`, `agent-launch-ad-hoc`, `read-failure`, `refresh`,
+`responsive-session`, `story-readiness-accessible`, `project-read-recovery`,
+`session-sidebar`, `system-settings`, `project-selection`,
+`authenticated-project-overview`, `source-navigation`, and `auto-refresh`. The
+help control passes `expectFrameIconControl` in `preparation-legend.spec.ts`;
+`frame-overview-look.spec.ts` checks the row, stages, connector, empty stage,
+failed read, and no-projects state at 420px and the zoomed window. The CSS
+diff touches no card, card-session, or xterm selector.
+Learnings: the help control moved from ≥44px to the shared 40px control, still
+above the 24px minimum target. `stage-frame.css` and `frame-states.css` load
+after `styles.css` in `main.tsx` and rely on that order. `--weight-strong` is
+the frame heading weight. `expectDecorativeIcon` in `frameIconControl.ts`
+checks icons inside text buttons. The "Loading projects…" panel shows too
+briefly for a look test and shares `.frame-state` with the tested no-projects
+state.
 Proof: The row-below-banner rows of the proof table.
 
 Behavior: the developer reads the overview → Near-future direction, Start

@@ -28,6 +28,8 @@
   --text-md: 1rem;
   --text-lg: 1.125rem;
   --text-xl: 1.25rem;
+  /* The weight of the frame's headings and of the labels that lead a part. */
+  --weight-strong: 650;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -149,22 +151,6 @@ main {
   font-size: 0.9rem;
 }
 
-.read-problem {
-  border: 1px solid var(--problem);
-  border-left-width: 4px;
-  border-radius: 0.35rem;
-  padding: 0.6rem 1rem;
-  background: var(--panel);
-}
-
-.read-problem h2 {
-  color: var(--problem);
-}
-
-.read-problem p {
-  margin-top: 0.35rem;
-}
-
 .direction {
   flex: 1;
   min-width: 0;
@@ -180,14 +166,14 @@ main {
 .project-actions {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 /* Start session and the help, at the end opposite the direction. */
 .project-actions-end {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: var(--space-2);
   margin-left: auto;
 }
 
@@ -197,14 +183,18 @@ main {
   margin: 0;
 }
 
-.direction summary {
-  cursor: pointer;
-  width: fit-content;
-  padding-block: 0.5rem;
+/* The direction opens below its heading as a quiet panel of its own. */
+.direction summary h2 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-strong);
 }
 
-.direction summary h2 {
-  display: inline;
+.direction details > p {
+  margin-top: var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  background: var(--panel);
 }
 
 .direction-text {

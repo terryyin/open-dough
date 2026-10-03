@@ -20,6 +20,15 @@ import { box } from "./pageLayout.ts";
 const frameControlSize = 40;
 const frameIconSize = 20;
 
+// A Lucide glyph a control or heading leads with, hidden from assistive
+// technology so that only its words are announced.
+export async function expectDecorativeIcon(area: Locator) {
+  const icon = area.locator("svg");
+  await expect(icon).toHaveCount(1);
+  await expect(icon).toHaveAttribute("aria-hidden", "true");
+  await expect(icon).toHaveClass(/\blucide\b/);
+}
+
 export async function expectFrameIconControl(
   control: Locator,
   name: string,
@@ -32,9 +41,7 @@ export async function expectFrameIconControl(
   const icon = control.locator("svg");
 
   await expect(control).toHaveAccessibleName(name);
-  await expect(icon).toHaveCount(1);
-  await expect(icon).toHaveAttribute("aria-hidden", "true");
-  await expect(icon).toHaveClass(/\blucide\b/);
+  await expectDecorativeIcon(control);
   const [controlBox, iconBox] = await Promise.all([box(control), box(icon)]);
   expect(controlBox.width, `${name} width`).toBeCloseTo(frameControlSize, 0);
   expect(controlBox.height, `${name} height`).toBeCloseTo(frameControlSize, 0);
