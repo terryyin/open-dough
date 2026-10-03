@@ -162,3 +162,21 @@ the force removal.
   six stranded files as unedited leftovers (example 1).
 - Explicit `--force` stays usable when release history is unavailable: it
   installs, removes nothing, and warns. No automated test covers that branch.
+
+## Execution complete
+
+Product advice: The story's goal and all three key examples are delivered; no
+correction plan. For story wrap-up:
+
+- Assimilate the leftover rule into
+  `docs/installation-platforms-and-update-safety.md` (update steps and the
+  `--force` paragraph): ordinary update removes unedited leftovers and lists
+  them, refuses edited ones and an unavailable release history before writes,
+  and `--force` removes every leftover, or none when history is unavailable.
+- Owner choice: whether the two release-history-unavailable branches (ordinary
+  refusal, force continuing without removal) need automated proof; today they
+  are untested.
+- This repository's six stranded files are removed by its first `dough-update`
+  to a release that ships this change, so a release soon also fixes the
+  failing `closure-publication.mjs` load here. The deferred already-current
+  path stays deferred.
