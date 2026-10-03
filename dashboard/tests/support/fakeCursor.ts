@@ -1,6 +1,11 @@
 // PATH stand-in for `cursor-agent`. The dashboard server and the page create
 // the launch record. Launch argv is create-chat and a prompted resume.
-// A resume with no prompt is a separate attach record and stays up after SIGHUP.
+// A resume with no prompt is a separate attach record and exits on SIGHUP.
+// Working mode paints `ctrl+c to stop`. The default attach screen is the
+// ordinary finished prompt. Waiting mode paints the clarifying question.
+// Unrecognized mode paints neither the prompt nor a question. Each redraws
+// on SIGWINCH.
+// `holdPrompt` keeps the prompted resume until `releasePrompt()`.
 // `models` prints the configured listing in the observed layout, or fails.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -32,6 +37,11 @@ export type CursorAttach = {
   readonly sessionId: string;
 };
 
+export type HeldPrompt = {
+  readonly pid: number;
+  readonly args: readonly string[];
+};
+
 export type FakeCursor = {
   readonly binDir: string;
   readonly env: Readonly<Record<string, string>>;
@@ -45,6 +55,11 @@ export type FakeCursor = {
   ): void;
   attaches(): CursorAttach[];
   signals(pid: number): string;
+  input(pid: number): string;
+  sizes(pid: number): { readonly cols: number; readonly rows: number }[];
+  heldPrompts(): HeldPrompt[];
+  heldInput(pid: number): string;
+  releasePrompt(): void;
   cleanup(): void;
 };
 
@@ -64,13 +79,19 @@ function readJsonl<T>(file: string): T[] {
     .map((line) => JSON.parse(line) as T);
 }
 
-export function installFakeCursor(): FakeCursor {
+export function installFakeCursor(options?: {
+  readonly working?: boolean;
+  readonly screen?: "working" | "waiting" | "unrecognized";
+  readonly holdPrompt?: boolean;
+}): FakeCursor {
   const root = mkdtempSync(path.join(tmpdir(), "dough-cursor-"));
   const binDir = path.join(root, "bin");
   const logPath = path.join(root, "argv.jsonl");
   const modelsPath = path.join(root, "models.txt");
   const modelsLogPath = path.join(root, "models.jsonl");
   const attachDir = path.join(root, "attach");
+  const holdDir = path.join(root, "hold");
+  const releasePath = path.join(root, "release");
   installFixtureExecutable("fake-cursor", binDir, "cursor-agent");
   const attaches = (): CursorAttach[] =>
     readJsonl(path.join(attachDir, "attaches.jsonl"));
@@ -92,6 +113,10 @@ export function installFakeCursor(): FakeCursor {
     );
   };
   listModels(cursorModels);
+  const heldPrompts = (): HeldPrompt[] =>
+    readJsonl(path.join(holdDir, "holds.jsonl"));
+  const screen =
+    options?.screen ?? (options?.working === true ? "working" : undefined);
   return {
     binDir,
     sessionId: cursorSessionId,
@@ -101,6 +126,13 @@ export function installFakeCursor(): FakeCursor {
       FAKE_CURSOR_ATTACH_DIR: attachDir,
       FAKE_CURSOR_MODELS: modelsPath,
       FAKE_CURSOR_MODELS_LOG: modelsLogPath,
+      ...(screen !== undefined ? { FAKE_CURSOR_ATTACH_MODE: screen } : {}),
+      ...(options?.holdPrompt === true
+        ? {
+            FAKE_CURSOR_RELEASE: releasePath,
+            FAKE_CURSOR_HOLD_DIR: holdDir,
+          }
+        : {}),
     },
     calls() {
       return readJsonl<CursorInvocation>(logPath);
@@ -113,7 +145,27 @@ export function installFakeCursor(): FakeCursor {
     signals(pid: number) {
       return readOptional(path.join(attachDir, `${String(pid)}.signals`)) ?? "";
     },
+    input(pid: number) {
+      return readOptional(path.join(attachDir, `${String(pid)}.input`)) ?? "";
+    },
+    sizes(pid: number) {
+      return readJsonl(path.join(attachDir, `${String(pid)}.sizes`));
+    },
+    heldPrompts,
+    heldInput(pid: number) {
+      return readOptional(path.join(holdDir, `${String(pid)}.input`)) ?? "";
+    },
+    releasePrompt() {
+      writeFileSync(releasePath, "");
+    },
     cleanup() {
+      for (const held of heldPrompts()) {
+        try {
+          process.kill(held.pid, "SIGTERM");
+        } catch {
+          // Already gone.
+        }
+      }
       for (const attach of attaches()) {
         try {
           process.kill(attach.pid, "SIGTERM");

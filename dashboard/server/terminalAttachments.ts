@@ -1,199 +1,147 @@
 // Native PTY/WebSocket attachments and readiness, ordered by attachment time.
+// A host attach result may declare `keep`. This registry then retains that
+// one live client for the session. The client fans its output out, takes
+// input from any joined socket, and stays running when a socket closes.
+// A keep declaration may also name an idle screen. A kept client with no
+// socket whose screen matches that for the declared settle period is hung
+// up; any other screen keeps it. Hosts that declare nothing still receive
+// SIGHUP when their socket closes. A host may instead declare a wait while
+// its launch process is still running: the notice is written, input is
+// dropped, and a client starts after that process exits when the socket is
+// still open. `close()` hangs up every client.
 import type { IPty } from "@lydell/node-pty";
 import type { RawData, WebSocket } from "ws";
 import {
-  terminalEndedCode,
   terminalAttachFailedCode,
-  terminalWorkspaceUnavailableCode,
-  terminalMessageSchema,
-  type TerminalMessage,
+  terminalEndedCode,
 } from "../src/agentTerminal.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
-import { launchHost, type UnavailableWorkspace } from "./launchHosts.ts";
-import { setRecordDoneAt } from "./launchRecordStore.ts";
+import { launchHost } from "./launchHosts.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
+import { LiveTerminalClient } from "./liveTerminalClient.ts";
+import {
+  closeUnlessTerminalMessage,
+  refuseWorkspace,
+} from "./terminalSocketFrame.ts";
 
 const initialSize = { cols: 80, rows: 24 } as const;
-const notTerminalMessage = 1008;
-
-function terminalMessage(
-  data: RawData,
-  isBinary: boolean,
-): TerminalMessage | undefined {
-  if (isBinary) {
-    return undefined;
-  }
-  try {
-    const parsed = terminalMessageSchema.safeParse(
-      JSON.parse((data as Buffer).toString("utf8")),
-    );
-    return parsed.success ? parsed.data : undefined;
-  } catch {
-    return undefined;
-  }
-}
 
 export class TerminalAttachments {
-  private readonly attached = new Map<
-    IPty,
-    { readonly key: string; readonly ws: WebSocket }
-  >();
+  private readonly clients = new Map<IPty, LiveTerminalClient>();
 
   connect(ws: WebSocket, session: TerminalSession): void {
-    let pty: IPty;
-    let readiness:
-      ((screen: string, cursorVisible: boolean) => boolean) | undefined;
-    let startupFailure: (() => UnavailableWorkspace | undefined) | undefined;
-    const unavailableWorkspace = (
-      workspaceUnavailable: UnavailableWorkspace,
-    ) => {
-      if (ws.readyState === ws.OPEN) {
-        ws.send(JSON.stringify({ workspaceUnavailable }), { binary: true });
-        ws.close(
-          terminalWorkspaceUnavailableCode,
-          "Saved workspace unavailable.",
-        );
-      }
-    };
+    const key = sessionKey(session.session);
+    const existing = this.keptClient(key);
+    if (existing !== undefined) {
+      existing.attach(ws, session, true);
+      return;
+    }
     const host = launchHost(session.session.host);
+    let hostName = host?.name ?? session.session.host;
+    let attachment;
     try {
       if (host?.attach === undefined) {
         throw new Error("This host cannot attach.");
       }
-      const attachment = host.attach(
-        session.session,
-        session.folder,
-        initialSize,
-      );
-      if ("workspaceUnavailable" in attachment) {
-        unavailableWorkspace(attachment.workspaceUnavailable);
-        return;
-      }
-      pty = attachment.pty;
-      readiness = attachment.ready;
-      startupFailure = attachment.startupFailure;
+      hostName = host.name;
+      attachment = host.attach(session.session, session.folder, initialSize);
     } catch {
-      ws.close(
-        terminalAttachFailedCode,
-        `${host?.name ?? session.session.host} could not be attached.`,
-      );
+      ws.close(terminalAttachFailedCode, `${hostName} could not be attached.`);
       return;
     }
-    this.attached.set(pty, { key: sessionKey(session.session), ws });
-    // Native startup decisions must remain interactive before readiness.
-    // A host with a readiness signal reopens only after that signal arrives.
-    let ready = readiness === undefined;
-    const reopen = () =>
-      session.markedDone
-        ? setRecordDoneAt(session.sourceId, session.session, undefined).catch(
-            () => undefined,
-          )
-        : Promise.resolve();
-    let reopened = ready ? reopen() : Promise.resolve();
-    const closeUnavailableTerminal = () => {
-      void reopened.then(() => {
-        const workspace = !ready ? startupFailure?.() : undefined;
-        if (workspace !== undefined) {
-          unavailableWorkspace(workspace);
-          return;
-        }
-        ws.close(
-          ready ? terminalEndedCode : terminalAttachFailedCode,
-          ready ? "The terminal ended." : `${host.name} could not be attached.`,
-        );
-      });
-    };
-    if (!ready)
-      ws.send(JSON.stringify({ readiness: "observe" }), { binary: true });
-    pty.onData((output) => {
-      void reopened.then(() => {
-        if (ws.readyState === ws.OPEN) {
-          ws.send(output);
-        }
-      });
-    });
-    // Exited on its own, not ended by `detach`, whose socket is already
-    // closing.
-    pty.onExit(() => {
-      if (this.attached.delete(pty)) {
-        closeUnavailableTerminal();
-      }
-    });
-    ws.on("message", (data, isBinary) => {
-      const message = terminalMessage(data, isBinary);
-      if (message === undefined) {
-        ws.close(notTerminalMessage, "Not a terminal message.");
-      } else if (this.attached.has(pty)) {
-        if ("screen" in message) {
-          if (
-            !ready &&
-            readiness?.(message.screen.join("\n"), message.cursorVisible)
-          ) {
-            ready = true;
-            reopened = reopen();
-            void reopened.then(() => {
-              if (ws.readyState === ws.OPEN)
-                ws.send(JSON.stringify({ readiness: "attached" }), {
-                  binary: true,
-                });
-            });
-          }
-        } else if ("input" in message) {
-          pty.write(message.input);
-        } else {
-          try {
-            pty.resize(message.resize.cols, message.resize.rows);
-          } catch {
-            // The native descriptor can close before its exit callback arrives.
-            this.detach(pty);
-            closeUnavailableTerminal();
-          }
-        }
-      }
-    });
-    ws.on("close", () => {
-      this.detach(pty);
-    });
-  }
-
-  // SIGHUP, as a closed terminal sends: the native CLI detaches and the session
-  // keeps running.
-  private detach(pty: IPty): void {
-    if (!this.attached.delete(pty)) {
+    if ("workspaceUnavailable" in attachment) {
+      refuseWorkspace(ws, attachment.workspaceUnavailable);
       return;
     }
-    try {
-      pty.kill("SIGHUP");
-    } catch {
-      // Already gone.
+    if ("wait" in attachment) {
+      this.holdForLaunch(ws, session, attachment.notice, attachment.wait);
+      return;
     }
+    const pty = attachment.pty;
+    const client = new LiveTerminalClient({
+      pty,
+      key,
+      hostName,
+      keep: attachment.keep === true,
+      admitted: attachment.ready === undefined,
+      size: { cols: initialSize.cols, rows: initialSize.rows },
+      readiness: attachment.ready,
+      startupFailure: attachment.startupFailure,
+      ...(attachment.detachedIdle !== undefined
+        ? { detachedIdle: attachment.detachedIdle }
+        : {}),
+      isTracked: () => this.clients.has(pty),
+      untrack: () => this.clients.delete(pty),
+    });
+    this.clients.set(pty, client);
+    client.watch();
+    client.attach(ws, session, false);
   }
 
   // Types `input` into the newest open attachment to this session, and
   // answers whether one was open.
   type(session: SessionReference, input: string): boolean {
-    const newest = [...this.attached]
-      .filter(([, attachment]) => attachment.key === sessionKey(session))
+    const key = sessionKey(session);
+    const newest = [...this.clients.values()]
+      .filter((client) => client.key === key && client.hasOpenSocket())
       .at(-1);
-    newest?.[0].write(input);
+    newest?.pty.write(input);
     return newest !== undefined;
   }
 
-  // Ends every attachment to this session: its attach process detaches, and
-  // its socket closes as an ended terminal.
+  // Ends every attachment to this session: its client hangs up, and its
+  // sockets close as an ended terminal.
   endAttachments(session: SessionReference): void {
-    for (const [pty, attachment] of [...this.attached]) {
-      if (attachment.key === sessionKey(session)) {
-        this.detach(pty);
-        attachment.ws.close(terminalEndedCode, "The terminal ended.");
+    const key = sessionKey(session);
+    for (const client of [...this.clients.values()]) {
+      if (client.key !== key) continue;
+      const sockets = client.attachedSockets();
+      client.hangup();
+      for (const socket of sockets) {
+        socket.close(terminalEndedCode, "The terminal ended.");
       }
     }
   }
 
-  // Detaches every native client; the admission boundary closes its sockets.
+  // Hangs up every native client, including one kept with no socket. The
+  // admission boundary closes its sockets.
   close(): void {
-    for (const pty of [...this.attached.keys()]) {
-      this.detach(pty);
+    for (const client of [...this.clients.values()]) {
+      client.hangup();
     }
+  }
+
+  // The launch process is still going. The notice is the only output, and
+  // nothing the developer types starts a client. When the process exits,
+  // an open socket attaches through the same path as any other open.
+  private holdForLaunch(
+    ws: WebSocket,
+    session: TerminalSession,
+    notice: string,
+    untilExit: Promise<void>,
+  ): void {
+    if (ws.readyState === ws.OPEN) ws.send(`${notice}\r\n`);
+    let socketOpen = true;
+    const onMessage = (data: RawData, isBinary: boolean) => {
+      closeUnlessTerminalMessage(ws, data, isBinary);
+    };
+    const onClose = () => {
+      socketOpen = false;
+    };
+    ws.on("message", onMessage);
+    ws.on("close", onClose);
+    void untilExit.then(() => {
+      ws.off("message", onMessage);
+      ws.off("close", onClose);
+      if (!socketOpen || ws.readyState !== ws.OPEN) return;
+      this.connect(ws, session);
+    });
+  }
+
+  // The one live client whose attach result declared keep for this session.
+  private keptClient(key: string): LiveTerminalClient | undefined {
+    return [...this.clients.values()].find(
+      (client) => client.keep && client.key === key,
+    );
   }
 }

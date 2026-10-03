@@ -14,9 +14,20 @@ then `cursor-agent --workspace` and `--resume` in the established workspace,
 and stores that id, workspace, and resume command, with no alias or endpoint.
 The launch does not pass `-w`, `--worktree`, `--trust`, `--force`, or `--yolo`.
 Attach is supplied: the embedded terminal runs that stored command. A visible
-cursor and the text `Add a follow-up` admit it. Stop is not supplied, so Mark
-as done stays absent.
+cursor and the text `Add a follow-up` admit it. That attach result declares
+keep, so a detached terminal leaves the client running and a later open joins
+the same process instead of starting another, while the screen is working,
+waiting for an answer, or unrecognized. A detached client whose screen stays
+idle — `→ Add a follow-up` with no `ctrl+c to stop`, `Working`, `Running`,
+or `Clarifying Questions` — is hung up after 0.203
+seconds, and the next open starts a new client. Stop is not supplied, so
+Mark as done stays absent.
 A client still running when the launch wait ends is the launched session.
+That process is kept, keyed by session, until it exits. While it runs, attach
+answers with a wait: the terminal writes "Cursor is still working on this
+session's launch prompt. The terminal opens when it finishes." and drops
+input, then starts the terminal client through the ordinary readiness path
+after the process exits. That exit does not confirm the first input.
 Cursor's Model menu lists `cursor-agent models` after "Default (your Cursor
 setting)": each `<id> - <name>` line, with no efforts and no configured model.
 An unreadable list is explained with Retry, and Default stays startable.

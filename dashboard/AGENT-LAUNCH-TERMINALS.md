@@ -18,8 +18,27 @@ workspace limitation. Other startup failures keep their attachment error, as
 [session troubleshooting](../docs/dashboard-session-troubleshooting.md) explains.
 Text frames carry output; bounded input, resize and rendered readiness
 messages share the existing transport.
-Closing socket/server sends SIGHUP to the attachment client only, retaining
-native work/history and daemon. CLI exit uses code 4000 so the page distinguishes
+Closing a Claude Code or Codex socket sends SIGHUP to that attachment client
+only, retaining native work, history, and daemon. Cursor's attach result
+declares keep: closing its socket, by Close, switching sessions, or a dropped
+connection, leaves that client running. A kept Cursor client with no socket
+is hung up only after its screen has shown `→ Add a follow-up` for 0.203
+seconds without `ctrl+c to stop`, `Working`, `Running`, or
+`Clarifying Questions`. A working, waiting, or unrecognized screen keeps the
+client. The next socket for a client that is
+still running joins it, receives readiness at once, and sees a redrawn
+screen. After that idle hangup, the next socket starts a new client, which
+shows the ordinary prompt and takes a follow-up. Opening the terminal while
+that session's launch prompt is still running writes "Cursor is still working
+on this session's launch prompt. The terminal opens when it finishes." No
+attach process starts, and typed input is dropped. Closing and opening again
+during that wait writes the notice again. When the launch process exits, the
+open socket attaches through the same readiness path as any other open, and
+the ordinary prompt is shown. That later exit does not confirm the launch
+record's first input. Input from any joined socket
+reaches that same client, and a second open terminal shares it. Closing the
+server still sends SIGHUP to every attachment client, including a kept Cursor
+client. CLI exit uses code 4000 so the page distinguishes
 ended from disconnected. Codex spawn alone does not establish readiness: native
 hook/trust UI remains interactive, and a completed composer frame with visible
 cursor confirms attachment. Refusal preserves done intent; successful original-ID

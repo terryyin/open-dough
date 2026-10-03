@@ -2,14 +2,14 @@
 // before any prompt; a prompt is then `cursor-agent --workspace <path>
 // --resume <id> <prompt>`. That process is the session: exit 0 confirms the
 // first input, any other exit leaves it unconfirmed, and a client still
-// running when the launch wait ends stays running. An unattached session
+// running when the launch wait ends stays running until that process exits.
+// That later exit does not confirm the first input. An unattached session
 // with no instruction still keeps that id and submits no prompt. A chosen
 // model is `--model <id>` on the prompted run only; Cursor also saves it as
 // its setting. The kept resume command never carries it, and Default omits
 // it. A blank start with a chosen model is refused before create-chat: no
 // run would apply it. No worktree, trust, or approval flag is passed.
 
-import { spawn, type ChildProcess } from "node:child_process";
 import { z } from "zod";
 import { launchSubject } from "../../../src/agentLaunch.ts";
 import type { CursorSession, FirstInput } from "../../../src/launchRecord.ts";
@@ -18,84 +18,10 @@ import type { LaunchHost } from "../../launchHosts.ts";
 import type { HostLaunch } from "../../hostLaunch.ts";
 import { cursorAgent, execCursor } from "./exec.ts";
 import { cursorPrompt } from "./prompt.ts";
-
-// Abort can arrive during an await. A direct `signal.aborted` check is
-// narrowed for the rest of the function, so read it through this call.
-function aborted(signal: AbortSignal): boolean {
-  return signal.aborted;
-}
+import { aborted, submitPrompt } from "./runningPrompt.ts";
 
 function resumeFlags(workspace: string, sessionId: string): readonly string[] {
   return ["--workspace", workspace, "--resume", sessionId];
-}
-
-type SubmittedPrompt =
-  | { readonly kind: "confirmed" }
-  | { readonly kind: "unconfirmed" }
-  | { readonly kind: "not-installed" }
-  | { readonly kind: "running" }
-  | { readonly kind: "not-started" };
-
-function fromExit(code: number | null): SubmittedPrompt {
-  return code === 0 ? { kind: "confirmed" } : { kind: "unconfirmed" };
-}
-
-function fromSpawnError(error: unknown): SubmittedPrompt {
-  return (error as NodeJS.ErrnoException).code === "ENOENT"
-    ? { kind: "not-installed" }
-    : { kind: "unconfirmed" };
-}
-
-// The launch wait aborts when its timer ends. That signal must not be given
-// to the prompt: it would kill the child, and the interactive client is
-// already the launched session. Output is discarded so a long client is not
-// stopped by a full buffer. The session record is written before this starts.
-function submitPrompt(
-  args: readonly string[],
-  cwd: string,
-  signal: AbortSignal,
-): Promise<SubmittedPrompt> {
-  if (aborted(signal)) return Promise.resolve({ kind: "not-started" });
-  return new Promise((resolve) => {
-    let settled = false;
-    let child: ChildProcess;
-    const finish = (result: SubmittedPrompt) => {
-      if (settled) return;
-      settled = true;
-      signal.removeEventListener("abort", onAbort);
-      resolve(result);
-    };
-    const onAbort = () => {
-      finish(
-        child.exitCode === null && child.signalCode === null
-          ? { kind: "running" }
-          : fromExit(child.exitCode),
-      );
-    };
-    try {
-      child = spawn(cursorAgent, [...args], { cwd });
-    } catch (error) {
-      finish(fromSpawnError(error));
-      return;
-    }
-    child.stdin?.on("error", () => {});
-    child.stdin?.end();
-    child.stdout?.on("error", () => {});
-    child.stdout?.resume();
-    child.stderr?.on("error", () => {});
-    child.stderr?.resume();
-    child.once("error", (error) => {
-      finish(fromSpawnError(error));
-    });
-    child.once("exit", (code) => {
-      finish(fromExit(code));
-    });
-    if (aborted(signal)) {
-      onAbort();
-      return;
-    }
-    signal.addEventListener("abort", onAbort);
-  });
 }
 
 function notInstalled(): HostLaunch {
@@ -171,8 +97,9 @@ export const launchCursor: LaunchHost["launch"] = async (
     },
   };
   // One save covers both launches. Blank keeps the id and submits no prompt.
-  // A prompt stays unconfirmed until that process exits 0. A client that is
-  // still running when the launch wait ends is the launched session.
+  // A prompt stays unconfirmed until that process exits 0 before the launch
+  // wait ends. A client still running then is kept until it exits, and that
+  // later exit does not confirm the first input.
   const first: FirstInput =
     prompt === undefined
       ? { state: "not-requested", intent: "blank" }
@@ -195,6 +122,8 @@ export const launchCursor: LaunchHost["launch"] = async (
     return { kind: "launched", session, sessionState: { kind: "unknown" } };
   }
   const submitted = await submitPrompt(
+    session.sessionId,
+    cursorAgent,
     [
       ...resumeFlags(workspace, session.sessionId),
       ...(request.model === undefined ? [] : ["--model", request.model]),

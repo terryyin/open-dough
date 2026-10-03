@@ -29,6 +29,14 @@ export type UnavailableWorkspace = Exclude<
   WorkspaceState,
   { kind: "available" }
 >;
+// With keep: once that client has no socket, a screen that matches is hung
+// up after settleMs. Any other screen keeps the client. Absent means a
+// detached kept client stays until the server closes.
+export type DetachedIdle = {
+  readonly settleMs: number;
+  readonly matches: (screen: string) => boolean;
+};
+
 export type TerminalAttachment =
   | {
       readonly pty: IPty;
@@ -36,8 +44,16 @@ export type TerminalAttachment =
       // Re-observe native context after a failure before readiness, never infer it
       // from a process exit code.
       readonly startupFailure?: () => UnavailableWorkspace | undefined;
+      // Set only by a host whose client must survive a closed socket. Shared
+      // code keeps that one client and joins a later socket to it. Absent
+      // means closing the socket hangs the client up.
+      readonly keep?: true;
+      readonly detachedIdle?: DetachedIdle;
     }
-  | { readonly workspaceUnavailable: UnavailableWorkspace };
+  | { readonly workspaceUnavailable: UnavailableWorkspace }
+  // The host's launch process is still running. Write `notice`, drop input,
+  // and attach again after `wait` if the socket is still open.
+  | { readonly wait: Promise<void>; readonly notice: string };
 
 import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
 

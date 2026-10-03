@@ -1,23 +1,27 @@
 // A recorded Cursor session, after the dashboard server restarts, attaches
-// through the stored continuation. The fixture admits that resume and still
-// accepts the same uuid after the terminal client ends.
-import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
+// through the stored continuation. While that client is working, closing or
+// dropping its socket leaves the process running, and a new socket joins the
+// same pid. The fixture admits that resume, paints the working marker, and
+// exits on SIGHUP when the server closes.
+import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test as base, expect } from "@playwright/test";
-import type { LaunchRecord } from "../src/launchRecord.ts";
 import { launch } from "./agentLaunchBoundary.ts";
-import { shows, refusedStatus, terminalUrl } from "./agentTerminalBoundary.ts";
-import {
-  builtDashboardDir,
-  startDashboardServer,
-  type DashboardServer,
-} from "./support/dashboardServer.ts";
+import { refusedStatus, terminalUrl } from "./agentTerminalBoundary.ts";
+import { waitUntil, type DashboardServer } from "./support/dashboardServer.ts";
 import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
 import {
   openCursorTerminal,
   type CursorTerminal,
 } from "./support/cursorTerminal.ts";
+import {
+  admit,
+  codexResumeLog,
+  keptCursor,
+  startCursorDashboard,
+  stayedUp,
+} from "./support/keptCursorTurn.ts";
 import { processRunning } from "./support/processGroup.ts";
 
 const instruction = "continue this session";
@@ -29,66 +33,44 @@ const test = base.extend<{
   mode: ["preview", { option: true }],
   // eslint-disable-next-line no-empty-pattern
   cursor: async ({}, use) => {
-    const cursor = installFakeCursor();
+    const cursor = installFakeCursor({ working: true });
     await use(cursor);
     cursor.cleanup();
   },
 });
 
-function keptCursor(home: string): LaunchRecord {
-  const kept = JSON.parse(
-    readFileSync(
-      path.join(home, ".open-dough", "dashboard", "agent-launches.json"),
-      "utf8",
-    ),
-  ) as Record<string, LaunchRecord[]>;
-  const [record] = kept["open-dough"] ?? [];
-  if (record?.session.host !== "cursor") {
-    throw new Error("Missing recorded Cursor session.");
-  }
-  return record;
-}
-
-function codexResumeLog(server: DashboardServer): string {
-  const file = server.codex.env["FAKE_CODEX_CLI_LOG"];
-  if (file === undefined) throw new Error("Missing Codex resume log.");
-  try {
-    return readFileSync(file, "utf8");
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return "";
-    throw error;
-  }
-}
-
-async function start(
-  mode: "dev" | "preview",
+async function join(
+  server: DashboardServer,
   cursor: FakeCursor,
-  machine: string,
-): Promise<DashboardServer> {
-  return startDashboardServer({
-    mode,
-    prebuilt: mode === "preview" ? builtDashboardDir : undefined,
-    machine,
-    projectFolders: ["open-dough"],
-    pathPrefix: [cursor.binDir],
-    extraEnv: { ...cursor.env },
-  });
-}
-
-async function admit(terminal: CursorTerminal) {
-  expect(await shows(terminal, "Add a follow-up")).toBe(true);
-  expect(terminal.output()).toContain("\x1b[?25h");
-  expect(terminal.controls()).toContainEqual({ readiness: "observe" });
-  terminal.send({ cursorVisible: true, screen: ["→ Add a follow-up"] });
+  sessionId: string,
+  pid: number,
+): Promise<CursorTerminal> {
+  const sizes = cursor.sizes(pid).length;
+  const terminal = await openCursorTerminal(server, sessionId);
   await expect
     .poll(() => terminal.controls())
-    .toContainEqual({ readiness: "attached" });
+    .toEqual([{ readiness: "attached" }]);
+  await expect.poll(() => terminal.output()).toContain("ctrl+c to stop");
+  await expect.poll(() => cursor.sizes(pid).length).toBeGreaterThan(sizes);
+  let painted = cursor.sizes(pid).length;
+  let quiet = false;
+  while (!quiet) {
+    const grew = await waitUntil(() => cursor.sizes(pid).length !== painted, {
+      timeoutMs: 100,
+    });
+    quiet = !grew;
+    if (grew) painted = cursor.sizes(pid).length;
+  }
+  expect(cursor.attaches()).toHaveLength(1);
+  expect(cursor.attaches()[0]?.pid).toBe(pid);
+  expect(processRunning(pid)).toBe(true);
+  return terminal;
 }
 
 for (const mode of ["dev", "preview"] as const) {
   test.describe(`Cursor embedded terminal (${mode})`, () => {
     test.use({ mode });
-    test("a restarted server resumes the stored Cursor uuid and leaves it resumable", async ({
+    test("a working Cursor client survives detach and a new socket joins it", async ({
       cursor,
       mode: launchMode,
     }) => {
@@ -98,7 +80,7 @@ for (const mode of ["dev", "preview"] as const) {
       );
       let server: DashboardServer | undefined;
       try {
-        server = await start(launchMode, cursor, machine);
+        server = await startCursorDashboard(launchMode, cursor, machine);
         const launched = await launch(server, {
           source: "open-dough",
           workflow: "ad-hoc",
@@ -127,7 +109,7 @@ for (const mode of ["dev", "preview"] as const) {
 
         await server.close();
         server = undefined;
-        server = await start(launchMode, cursor, machine);
+        server = await startCursorDashboard(launchMode, cursor, machine);
         const restored = keptCursor(server.home);
         if (restored.session.host !== "cursor") {
           throw new Error("Missing recorded Cursor session.");
@@ -153,25 +135,56 @@ for (const mode of ["dev", "preview"] as const) {
         ]);
         expect(server.claudeAttaches()).toEqual([]);
         expect(codexResumeLog(server)).toBe("");
-
-        terminal.socket.close();
         const pid = attach?.pid ?? 0;
-        await expect.poll(() => cursor.signals(pid)).toContain("SIGHUP");
-        expect(processRunning(pid)).toBe(true);
-        expect(keptCursor(server.home).session.sessionId).toBe(sessionId);
 
-        const resumed = await openCursorTerminal(server, sessionId);
-        await admit(resumed);
-        const again = cursor.attaches()[1];
-        expect(again?.args).toEqual([
-          "--workspace",
-          workspace,
-          "--resume",
-          sessionId,
-        ]);
-        expect(again?.pid).not.toBe(pid);
-        expect(processRunning(pid)).toBe(true);
-        expect(keptCursor(server.home).session).toEqual(recorded.session);
+        await test.step("closing the socket leaves the working client running", async () => {
+          terminal.socket.close();
+          await terminal.closed;
+          await stayedUp(cursor, pid);
+          expect(keptCursor(server?.home ?? "").session.sessionId).toBe(
+            sessionId,
+          );
+        });
+
+        const joined =
+          await test.step("a new socket joins the same pid", async () => {
+            const next = await join(
+              server as DashboardServer,
+              cursor,
+              sessionId,
+              pid,
+            );
+            next.send({ input: "kept-turn" });
+            await expect.poll(() => cursor.input(pid)).toContain("kept-turn");
+            expect(keptCursor(server?.home ?? "").session).toEqual(
+              recorded.session,
+            );
+            return next;
+          });
+
+        const alongside =
+          await test.step("a second open socket shares that client", async () => {
+            const before = joined.output();
+            const next = await openCursorTerminal(
+              server as DashboardServer,
+              sessionId,
+            );
+            await expect
+              .poll(() => next.controls())
+              .toEqual([{ readiness: "attached" }]);
+            await expect.poll(() => next.output()).toContain("ctrl+c to stop");
+            const added = () => joined.output().slice(before.length);
+            await expect
+              .poll(
+                () =>
+                  added().includes("ctrl+c to stop") &&
+                  next.output() === added(),
+              )
+              .toBe(true);
+            expect(cursor.attaches()).toHaveLength(1);
+            expect(cursor.attaches()[0]?.pid).toBe(pid);
+            return next;
+          });
 
         const attached = cursor.attaches().length;
         const unknown = new URL(terminalUrl(server, "open-dough", "unknown"));
@@ -186,7 +199,30 @@ for (const mode of ["dev", "preview"] as const) {
         expect(cursor.attaches()).toHaveLength(attached);
         expect(server.claudeAttaches()).toEqual([]);
         expect(codexResumeLog(server)).toBe("");
-        resumed.socket.close();
+
+        await test.step("a dropped connection still leaves that client to rejoin", async () => {
+          joined.socket.terminate();
+          alongside.socket.terminate();
+          await joined.closed;
+          await alongside.closed;
+          await stayedUp(cursor, pid);
+          const again = await join(
+            server as DashboardServer,
+            cursor,
+            sessionId,
+            pid,
+          );
+          again.socket.close();
+          await again.closed;
+          await stayedUp(cursor, pid);
+        });
+
+        await test.step("closing the server hangs the kept client up", async () => {
+          await server?.close();
+          server = undefined;
+          await expect.poll(() => cursor.signals(pid)).toContain("SIGHUP");
+          await expect.poll(() => processRunning(pid)).toBe(false);
+        });
       } finally {
         await server?.close();
         rmSync(machine, { recursive: true, force: true });
