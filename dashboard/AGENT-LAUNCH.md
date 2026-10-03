@@ -270,7 +270,8 @@ whatever the panel showed: a terminal detaches without ending or marking its
 session done, and opening a session afterwards replaces the review. Each
 opening, including after Close or replacement, reads a fresh snapshot for the
 project and story it names; a read still pending for an earlier story never
-answers a later one. Maximize/Restore keeps the snapshot and selection. The
+answers a later one. Maximize/Restore and resizing the panel by its edge
+keep the snapshot and selection without reading again. The
 header names the story and offers Refresh, Maximize/Restore and Close as frame
 icon controls shared with the terminal. Close or Command+Shift+Escape returns
 the keyboard to Review changes, or to the story's card when that control is

@@ -17,6 +17,7 @@ import {
   type MarkSessionDone,
   type SessionRequest,
 } from "./pageSessions.ts";
+import { SidePanelEdge } from "./SidePanelEdge.tsx";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./session-result.css";
@@ -93,6 +94,7 @@ export function SessionResultPanel({
       className="side-panel session-result-panel"
       aria-label="Final report"
     >
+      <SidePanelEdge />
       <header className="side-panel-header">
         <div className="side-panel-names">
           <h2>{title}</h2>

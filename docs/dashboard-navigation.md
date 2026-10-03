@@ -24,7 +24,16 @@ Codex saved workspace is missing or cannot be established, and brings its story'
 that project's stories are read. The page's one right-side panel shows one
 item at a time: a session's terminal, a read-only final report, or a story's
 review opened by **Review changes** on its card; opening one replaces the
-other, and the dashboard beside it stays usable. Command+Shift+Escape closes
+other, and the dashboard beside it stays usable. Its left edge is a
+focusable, named separator that says the panel's width in pixels: dragging it,
+or Left (wider) and Right (narrower) while it holds the keyboard, changes one
+preferred width shared by every panel content, kept across closing, the
+Sessions sidebar and Maximize/Restore for the page's lifetime, and starting at
+half the room. Neither the panel nor the dashboard becomes narrower than
+20rem, measured in the room beside the open sidebar; where that room cannot
+hold both, or the window is 800px wide or narrower, the panel stacks above
+the dashboard and offers no edge, as it does while maximized, and more room
+recovers the preferred width. Command+Shift+Escape closes
 the panel as its Close control does, page-wide and from inside the terminal,
 maximized or not, where plain Escape still goes to the session; the page takes
 it from the browser, except inside an open modal dialog or System settings,

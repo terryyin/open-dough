@@ -28,6 +28,7 @@ import { CircleCheck } from "lucide-react";
 import { marksDone } from "./sessionCapabilities.ts";
 import { PanelControls } from "./PanelControls.tsx";
 import "@xterm/xterm/css/xterm.css";
+import { SidePanelEdge } from "./SidePanelEdge.tsx";
 import "./agent-launch.css";
 import "./frame-controls.css";
 import "./side-panel.css";
@@ -132,6 +133,7 @@ export function TerminalPanel({
   const { background } = terminalPalette(useShownTerminalTheme());
   return (
     <section className="side-panel" aria-label="Terminal">
+      <SidePanelEdge />
       <header className="side-panel-header">
         <div ref={identity} className="terminal-identity">
           {agentName !== undefined && (

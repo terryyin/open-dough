@@ -1,13 +1,23 @@
 /* The page split while the side panel is open, whether it shows a terminal
    (./agent-terminal.css), a final report, or a story review: the page on the
    left, and the panel on the right, pinned to the window's height while the
-   page scrolls beside it. On a narrow window the panel comes first, above the
-   page. Maximized, the panel takes the page column's room, the page with its
-   banner hidden behind it, pinned to the window's height on any window. */
+   page scrolls beside it. The panel takes the width its edge chose
+   (`--side-panel-width`, ./sidePanelWidth.ts), or half the room until then,
+   right of the Sessions sidebar's column (./session-sidebar.css) while it is
+   open. Where the room holds no usable split, as on a narrow window, the
+   panel is stacked above the page. Maximized, the panel takes the page
+   column's room, the page with its banner hidden behind it, pinned to the
+   window's height in either arrangement. */
 
 .page-split {
+  --side-panel-track: var(--side-panel-width, minmax(0, 1fr));
+
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) var(--side-panel-track);
+}
+
+.page-with-sidebar.page-split {
+  grid-template-columns: 18rem minmax(0, 1fr) var(--side-panel-track);
 }
 
 /* The page's own width, which the sidebar and the side panel share the
@@ -41,6 +51,41 @@
   height: 100dvh;
   border-left: 1px solid var(--line);
   background: var(--panel);
+}
+
+/* The edge that resizes the panel (./SidePanelEdge.tsx): a strip across the
+   panel's left border, wide enough to grab, with a grip at its middle that
+   takes the accent while pointed at or holding the keyboard. */
+.side-panel-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -0.4rem;
+  z-index: 2;
+  width: 0.8rem;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.side-panel-edge::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: calc(50% - 2px);
+  width: 4px;
+  height: 2.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--edge);
+  transform: translateY(-50%);
+}
+
+.side-panel-edge:hover::after,
+.side-panel-edge:focus-visible::after {
+  background: var(--accent);
+}
+
+.side-panel-edge:focus-visible {
+  outline-offset: -3px;
 }
 
 /* The panel's header: the shown session's or story's title and identity on
@@ -81,26 +126,46 @@
   gap: var(--space-1);
 }
 
+/* Stacked: the panel above the page in the page's column. */
+.page-split.page-stacked {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.page-stacked > .side-panel {
+  grid-row: 1;
+  grid-column: -2;
+  position: static;
+  height: 70dvh;
+  border-left: none;
+  border-bottom: 1px solid var(--line);
+}
+
+.page-stacked > .page-column {
+  grid-row: 2;
+  grid-column: -2;
+}
+
+/* Stacked beside the open sidebar, the panel sits above the page right of
+   it; on a narrow window the sidebar overlays the page instead. */
+.page-with-sidebar.page-split.page-stacked {
+  grid-template-columns: 18rem minmax(0, 1fr);
+}
+
+.page-with-sidebar.page-stacked > .session-sidebar {
+  grid-row: 1 / span 2;
+}
+
 @media (max-width: 800px) {
-  .page-split {
+  .page-with-sidebar.page-split.page-stacked {
     grid-template-columns: minmax(0, 1fr);
   }
+}
 
-  .side-panel {
-    position: static;
-    order: -1;
-    height: 70dvh;
-    border-left: none;
-    border-bottom: 1px solid var(--line);
-  }
+.page-stacked.page-maximized > .page-column {
+  grid-row: 1;
+}
 
-  .page-maximized > .page-column {
-    grid-column: 1;
-  }
-
-  .page-maximized > .side-panel {
-    grid-column: 1;
-    position: sticky;
-    height: 100dvh;
-  }
+.page-stacked.page-maximized > .side-panel {
+  position: sticky;
+  height: 100dvh;
 }

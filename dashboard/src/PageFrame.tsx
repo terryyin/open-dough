@@ -3,10 +3,10 @@ import { sessionKey } from "./sessionReference.ts";
 // The panel shows one item: a session's terminal or final report, or a story's
 // review. Sidebar navigation reveals the chosen project/story without
 // remounting the page. pageSidePanel owns selection, current marks,
-// maximization and focus return; terminal readiness alone rereads a done
-// record after native attachment.
+// maximization and focus return; sidePanelWidth its width beside the page;
+// terminal readiness alone rereads a done record after native attachment.
 
-import { useCallback, type ReactNode } from "react";
+import { useCallback, useRef, type CSSProperties, type ReactNode } from "react";
 import { SessionResultPanel } from "./SessionResultPanel.tsx";
 import type { MachineSessions } from "./agentLaunches.ts";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -23,6 +23,7 @@ import { ReviewsOnPage } from "./pageReviews.ts";
 import { usePageSidePanel } from "./pageSidePanel.ts";
 import { SessionsOnPage, type SessionOperation } from "./pageSessions.ts";
 import { useSessionNavigation } from "./sessionNavigation.ts";
+import { SidePanelEdgeOnPage, useSidePanelWidth } from "./sidePanelWidth.ts";
 import "./side-panel.css";
 
 export function PageFrame({
@@ -62,6 +63,12 @@ export function PageFrame({
   const sidebar = useSessionSidebar(records, alerts);
   const panel = usePageSidePanel({ markDone, deleteRecord, hostOperations });
   const { terminal, result, review, maximized, markSessionDone } = panel;
+  const frame = useRef<HTMLDivElement>(null);
+  const { stacked, edge } = useSidePanelWidth(
+    frame,
+    panel.shown !== undefined,
+    sidebar.open,
+  );
   const attached = useCallback<SessionOperation<void>>(
     ({ record }) => {
       if (record.doneAt !== undefined) {
@@ -88,58 +95,68 @@ export function PageFrame({
   return (
     <SessionsOnPage value={panel.sessions}>
       <ReviewsOnPage value={panel.openReview}>
-        <div
-          className={
-            [
-              sidebar.open && "page-with-sidebar",
-              panel.shown !== undefined && "page-split",
-              maximized && "page-maximized",
-            ]
-              .filter(Boolean)
-              .join(" ") || undefined
-          }
-        >
-          <SessionSidebar {...sidebar} onOpen={goToSession} />
-          <SidebarOnPage value={sidebar}>
-            <div className="page-column">{children}</div>
-          </SidebarOnPage>
-          {result && (
-            <SessionResultPanel
-              key={sessionKey(result.record.session)}
-              session={result}
-              onClose={() => {
-                panel.close(result);
-              }}
-              onMarkDone={markSessionDone}
-            />
-          )}
-          {terminal && (
-            <TerminalPanel
-              key={sessionKey(terminal.record.session)}
-              session={terminal}
-              onAttached={attached}
-              maximized={maximized}
-              onMaximize={panel.maximize}
-              onClose={() => {
-                panel.close(terminal);
-              }}
-              onMarkDone={markSessionDone}
-              onWorkspaceUnavailable={panel.unavailableWorkspace}
-            />
-          )}
-          {review && (
-            <StoryReviewPanel
-              // Each story's review, and each opening of one, reads anew.
-              key={`${review.source}\n${review.identity}`}
-              request={review}
-              maximized={maximized}
-              onMaximize={panel.maximize}
-              onClose={() => {
-                panel.close(review);
-              }}
-            />
-          )}
-        </div>
+        <SidePanelEdgeOnPage value={maximized ? undefined : edge}>
+          <div
+            ref={frame}
+            className={
+              [
+                sidebar.open && "page-with-sidebar",
+                panel.shown !== undefined && "page-split",
+                panel.shown !== undefined && stacked && "page-stacked",
+                maximized && "page-maximized",
+              ]
+                .filter(Boolean)
+                .join(" ") || undefined
+            }
+            style={
+              edge &&
+              ({
+                "--side-panel-width": `${String(edge.width)}px`,
+              } as CSSProperties)
+            }
+          >
+            <SessionSidebar {...sidebar} onOpen={goToSession} />
+            <SidebarOnPage value={sidebar}>
+              <div className="page-column">{children}</div>
+            </SidebarOnPage>
+            {result && (
+              <SessionResultPanel
+                key={sessionKey(result.record.session)}
+                session={result}
+                onClose={() => {
+                  panel.close(result);
+                }}
+                onMarkDone={markSessionDone}
+              />
+            )}
+            {terminal && (
+              <TerminalPanel
+                key={sessionKey(terminal.record.session)}
+                session={terminal}
+                onAttached={attached}
+                maximized={maximized}
+                onMaximize={panel.maximize}
+                onClose={() => {
+                  panel.close(terminal);
+                }}
+                onMarkDone={markSessionDone}
+                onWorkspaceUnavailable={panel.unavailableWorkspace}
+              />
+            )}
+            {review && (
+              <StoryReviewPanel
+                // Each story's review, and each opening of one, reads anew.
+                key={`${review.source}\n${review.identity}`}
+                request={review}
+                maximized={maximized}
+                onMaximize={panel.maximize}
+                onClose={() => {
+                  panel.close(review);
+                }}
+              />
+            )}
+          </div>
+        </SidePanelEdgeOnPage>
       </ReviewsOnPage>
     </SessionsOnPage>
   );

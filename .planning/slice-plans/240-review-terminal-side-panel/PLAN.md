@@ -222,7 +222,7 @@ Learnings for remaining slices:
 
 ### 2. Choose a usable panel width by mouse or keyboard
 Type: Behavior
-Status: planned
+Status: done
 Proof: Slice-2 table rows through `side-panel-width.spec.ts`, preserving the slice-1 switching proof and terminal maximize/keyboard/Codex page observations.
 
 Behavior: either review or terminal occupies the normal split → the developer
@@ -252,6 +252,28 @@ Update maintained sizing/accessibility guidance with the implemented behavior.
 Safe stopping point: panel resizing is useful and accessible, with width shared
 through the current page lifetime. Reload still starts at half width; this
 explicit interim behavior is replaced by slice 3.
+
+Delivered 2026-10-03. Accepted proof: the literal baseline Playwright prefix over
+`side-panel-width.spec.ts` (drag/keys, clamping, aria values, attach count,
+terminal resize output, review selection without another read, sidebar
+clamping/recovery, no edge while maximized, close/reopen) and
+`side-panel-width-stacking.spec.ts` (420px and 640×450 reading for both
+contents, wide geometry returns), plus the slice-1 proof set and the changed
+consumers `frame-sessions-look`, `project-keyboard-navigation*`,
+`session-sidebar`, `-reading`, `-navigation-cases`, `-keyboard`,
+`agent-terminal`, `-close`, `-avatar`, `agent-launch-codex`,
+`story-review-workspace/-diff` and `agent-terminal-done-codex-page`: 56 passed
+after refactoring; typecheck passed. CI for slice 1 (2c64ac94) passed.
+
+Learnings for slice 3:
+- `useSidePanelWidth` (`dashboard/src/sidePanelWidth.ts`) holds the preferred
+  width in px; `choose()` is the only user-choice path. Persist only `choose()`
+  results, never the derived clamped width. Usable minima are 20rem per side;
+  narrow (≤800px) or too little room stacks with no edge.
+- Room-dependent state must be updated before paint (layout effect and
+  `flushSync` in the ResizeObserver) or immediate geometry reads see a squeezed page.
+- `dashboard/tests/sidePanelWidthPage.ts` holds reusable width helpers.
+- The 200% case is a 640×450 CSS-pixel proxy without device scale factor.
 
 ### 3. Recover the shared width after reopening the dashboard
 Type: Behavior

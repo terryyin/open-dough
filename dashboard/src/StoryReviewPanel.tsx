@@ -22,6 +22,7 @@ import {
 import { changedFiles, SnapshotView } from "./StoryReviewSnapshotView.tsx";
 import type { StoryReviewRequest } from "./pageReviews.ts";
 import { useReviewRead } from "./useReviewRead.ts";
+import { SidePanelEdge } from "./SidePanelEdge.tsx";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./story-review.css";
@@ -60,6 +61,7 @@ export function StoryReviewPanel({
       className="side-panel story-review-panel"
       aria-label="Review changes"
     >
+      <SidePanelEdge />
       <header className="side-panel-header">
         <div className="side-panel-names">
           <h2 id={headingId}>{title}</h2>

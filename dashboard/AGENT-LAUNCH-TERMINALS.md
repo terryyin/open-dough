@@ -81,6 +81,9 @@ without re-attaching; its panel edge takes the theme's background.
 Switching sessions, or opening a story review, detaches the prior one without
 ending or marking it done; switching projects keeps it attached. Opening
 different panel content returns a maximized panel to the normal split.
+Resizing the panel by its edge
+([navigation](../docs/dashboard-navigation.md)) fits the attached terminal to
+the new width without attaching again.
 Reload has no terminal. Disconnection offers Reconnect; native attach exit offers
 Open again, each for the same session. Close restores the originating control,
 or the session's story card when that control is no longer shown.
