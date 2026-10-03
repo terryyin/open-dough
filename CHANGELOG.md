@@ -1,3 +1,14 @@
+## 0.3.55 - 2026-10-03
+
+- Start Cursor ad-hoc, refinement, and execution sessions from the dashboard, select a Cursor-listed model, attach the embedded terminal, and preserve a running turn through terminal detach and reconnect while retiring idle detached clients.
+- Serve production from the highest published numeric release alongside development, automatically replace it when a newer release appears, and retain or restore the working dashboard when a release check, build, or startup fails.
+- Persist separate development and production project lists, add validated GitHub repositories with local checkout paths, and remove configured projects while preserving their checkouts and saved sessions.
+- Record and display blocking story dependencies, enforce them at execution startup, and resolve consumer agreements from completed and integrated supplier evidence while retaining unresolved developer decisions.
+- Verify uncertain launches using each native host's actual listing capabilities and durable records, keep deletion failures visible while removing success announcements, and preserve project controls in compact layouts.
+- Make slice planning report its refinement decision and distinguish accepted interim trade-offs from remaining concerns; prepare follow-up work for voice input, quiet refinement outcomes, and one active story session.
+
+Native acceptance was explicitly skipped for `0.3.55` at the maintainer's request as an exception to ADR 0005. Native evidence completed within the included work is retained; native acceptance for the changed Cursor launch, model choice and terminal lifecycle, production release updates, project configuration, story dependencies, launch verification, deletion feedback, planning guidance, and previously pending requirements remains pending and is not reported as passing. The credential-free deterministic release check and full dashboard browser suite passed.
+
 ## 0.3.54 - 2026-10-02
 
 - Let dashboard-launched Codex sessions discover the native model catalog, select an explicit model and compatible reasoning effort, or independently inherit either Codex setting across ad-hoc, refinement, and execution starts.
