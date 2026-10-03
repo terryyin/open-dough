@@ -25,6 +25,21 @@ export function knownSource(id: string | null): PublishedSource {
   return source;
 }
 
+// Refuses a GET whose query does not name exactly these parameters, once each.
+export function requireExactQuery(
+  url: URL,
+  names: readonly string[],
+  request: string,
+): void {
+  const keys = [...url.searchParams.keys()];
+  if (
+    keys.length !== names.length ||
+    new Set(keys).size !== names.length ||
+    keys.some((key) => !names.includes(key))
+  )
+    throw new RefusedRequest(400, `The ${request} request is malformed.`);
+}
+
 // A kept session and its existing folder, or a refusal.
 export async function recordedSession(
   launches: AgentLaunches,
@@ -74,13 +89,7 @@ export async function namedSession(
 export async function resultRequest(
   url: URL,
 ): Promise<{ readonly kind: "result"; readonly record: LaunchRecord }> {
-  const keys = [...url.searchParams.keys()];
-  if (
-    keys.length !== 3 ||
-    new Set(keys).size !== 3 ||
-    keys.some((key) => !["source", "host", "session"].includes(key))
-  )
-    throw new RefusedRequest(400, "The result request is malformed.");
+  requireExactQuery(url, ["source", "host", "session"], "result");
   const source = knownSource(url.searchParams.get("source"));
   const host = sessionHostSchema.safeParse(url.searchParams.get("host"));
   const sessionId = url.searchParams.get("session");

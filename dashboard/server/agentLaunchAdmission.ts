@@ -3,14 +3,17 @@
 // Delete, terminal attachment and native Done require an existing folder;
 // reported local Done needs only the retained session.
 // Launch options follow installed definitions and policy follows installed startup.
-// Reads cover attempts, sessions, reports and host choices; only terminal admission
-// reads native session availability.
+// Reads cover attempts, sessions, reports, host choices and story reviews
+// (`./storyReviewAdmission.ts`); only terminal admission reads native session
+// availability.
 
 import { completionEndpoint } from "./completionReporting.ts";
 import { admitLaunchSettings } from "./launchSettingsAdmission.ts";
 import { launchHostOptionsEndpoint } from "../src/launchHostOptions.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { sessionResultEndpoint } from "../src/sessionResult.ts";
+import { storyReviewEndpoint } from "../src/storyReview.ts";
+import { reviewRequest, type AdmittedReview } from "./storyReviewAdmission.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
@@ -54,6 +57,7 @@ export type Admitted =
       readonly host: NonNullable<ReturnType<typeof launchHost>>;
     }
   | { readonly kind: "result"; readonly record: LaunchRecord }
+  | AdmittedReview
   | { readonly kind: "changed"; readonly attempt: string }
   | {
       // Answered once the launch is accepted.
@@ -156,13 +160,19 @@ const postRequests = new Map<
   [agentVerifyEndpoint, (req) => attemptRequest(req, "verify")],
 ]);
 
+// The reads only a GET may make with exactly their parameters, by path.
+const exactReads = new Map<string, (url: URL) => Promise<Admitted>>([
+  [sessionResultEndpoint, resultRequest],
+  [storyReviewEndpoint, reviewRequest],
+]);
+
 // Every path whose requests this boundary admits or refuses.
 export const launchBoundaryPaths: ReadonlySet<string> = new Set([
   completionEndpoint,
   launchHostOptionsEndpoint,
-  sessionResultEndpoint,
   agentLaunchEndpoint,
   agentChangedEndpoint,
+  ...exactReads.keys(),
   ...postRequests.keys(),
 ]);
 
@@ -172,10 +182,11 @@ export async function admitted(
   launches: AgentLaunches,
 ): Promise<Admitted> {
   verifyLocalOrigin(req);
-  if (url.pathname === sessionResultEndpoint) {
+  const exactRead = exactReads.get(url.pathname);
+  if (exactRead !== undefined) {
     if (req.method !== "GET")
       throw new RefusedRequest(405, "Only GET is accepted here.");
-    return resultRequest(url);
+    return exactRead(url);
   }
   const postOnly = postRequests.get(url.pathname);
   if (postOnly !== undefined) {

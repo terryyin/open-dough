@@ -118,7 +118,7 @@ which carries `stdout` and `stderr`. Node's `ExecException` type is not an
 
 ### 2. Open a story's review and see its changed files
 Type: Behavior
-Status: planned
+Status: done
 Proof: a new page journey (for example `story-review.spec.ts`) and a boundary
 case in it for refusals.
 
@@ -135,6 +135,21 @@ or a path parameter is refused, and nothing runs.
 Builds the review workspace rule, the snapshot (fetch, merge-base,
 temporary-index tree, name-status), the review endpoint, and the review view
 with its file browser.
+
+Accepted proof: `npm run test:dashboard -- story-review.spec.ts` passes. With
+the card, admission, and session-result specs, 28 tests pass.
+Learnings for slices 3–5:
+- The rule is `reviewWorkspaceOf` in `dashboard/src/storyReview.ts`.
+- The snapshot is in `dashboard/server/storyReviewSnapshot.ts`. Its
+  `unavailable` answer covers a failed fetch or Git step. A missing worktree
+  currently reads as Node's "spawn git ENOENT", which slice 5 replaces.
+- GET admission is shared through `exactReads` and `requireExactQuery`, and
+  `dashboard/server/storyReviewAdmission.ts` holds the review's admission.
+- The view is `dashboard/src/StoryReviewAction.tsx`. It is not named
+  `StoryReview.tsx` because ESLint fails on a case-only clash with
+  `storyReview.ts`.
+- Not yet tested: a record that names only `preparation`, and the 405
+  refusal.
 
 ### 3. Read a selected file's diff and make room for it
 Type: Behavior

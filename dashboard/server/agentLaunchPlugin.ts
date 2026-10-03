@@ -12,7 +12,10 @@
 // same-origin GET of `/__agent-launch/changed?attempt=` answers once that accepted attempt
 // changed, or after a bounded wait. A same-origin GET of the session result
 // endpoint reads one kept session's final report through its host, bounded
-// and abandoned when the caller leaves. A same-origin GET answers the machine's
+// and abandoned when the caller leaves. A same-origin GET of the story review
+// endpoint takes a snapshot of one story's launch workspace
+// (`./storyReviewSnapshot.ts`), bounded and abandoned the same way. A
+// same-origin GET answers the machine's
 // sessions: every catalog project's launch records, each naming its project,
 // with each session's current state, and the launch attempts accepted with
 // their receipts and outcomes, and whether those kept could be read. A
@@ -34,6 +37,7 @@
 // unavailable is refused before native terminal attachment.
 
 import { sessionResultResponse } from "./sessionResultResponse.ts";
+import { storyReviewResponse } from "./storyReviewSnapshot.ts";
 import { submitCompletion, completionEndpoint } from "./completionReporting.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -138,6 +142,8 @@ async function answer(
       }
       case "result":
         return await sessionResultResponse(request.record, res);
+      case "review":
+        return await storyReviewResponse(request, res);
       case "sessions": {
         const { attempts, readable } = await launches.attempts();
         return {

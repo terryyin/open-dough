@@ -77,9 +77,12 @@ export function launchArguments(request: {
 // (`../server/defaultCheckoutChanges.ts`). Transient: never recorded.
 export const existingChangesSchema = z.string().regex(/^[0-9a-f]{64}$/);
 
+// A work item's identity as a request names it.
+export const workIdentitySchema = oneLine;
+
 const storyLaunchRequestSchema = z.object({
   source: z.string().min(1).max(launchTextLimit),
-  identity: oneLine,
+  identity: workIdentitySchema,
   title: oneLine,
   workflow: z.enum(launchWorkflowNames),
   host: z.enum(agentHosts),
