@@ -92,7 +92,7 @@ here, after which this repository's installed copies are updated as usual.
 
 ### 1. Ordinary update removes unedited leftovers and lists them
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh tests/update-removes-dropped-files.sh` (ordinary
 case) plus `bash scripts/test.sh tests/update-*.sh tests/install*.sh
 tests/*-payload-update.sh`
@@ -111,6 +111,17 @@ output, unparsed tags contributing nothing) and removal after a successful
 install in the ordinary path. Check whether `dough-update/SKILL.md` already
 relays the apply output as the reported result; change its wording only if the
 removed-file list would otherwise be dropped.
+
+Accepted proof: `tests/update-removes-dropped-files.sh` (fixture tags 0.0.9
+with an unreadable declaration, 0.1.0, 0.1.1, 0.1.2; `removed_listing` per
+platform equals A and B, empty directory gone, directory with a project file
+kept, payload bytes and VERSION at 0.1.2, `assert_project_files_kept`, no fetch
+noise) and the update/install/payload-update set, all green. Leftover logic
+lives in `src/install/open-dough-release-leftovers.sh`
+(`find_release_leftovers` writes `<work root>/leftovers-<platform>` with
+`unedited|edited<TAB>path` before writes; `remove_found_leftovers` runs after
+the installer). `dough-update/SKILL.md` steps 5d and 7 now permit and report
+the removal.
 
 ### 2. Edited leftovers stop an ordinary update; force removes them
 Type: Behavior
@@ -133,4 +144,11 @@ unchanged in both runs.
 
 ## Learnings
 
-None yet.
+- A failed release-history fetch refuses the ordinary update before writes,
+  like the existing baseline-fetch failure (ADR 0004 decision 5).
+- Reading each release's `install.sh` lazily from a blob-free GitHub fetch cost
+  about 23 s for 60 tags; one batched blob fetch avoids that.
+- Release-tag listing is shared through `list_release_tags`
+  (`open-dough-release-resolve.sh`).
+- Against the real source, this repository's installed roots report exactly the
+  six stranded files as unedited leftovers (example 1).

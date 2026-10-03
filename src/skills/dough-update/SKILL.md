@@ -88,7 +88,9 @@ Ordinary Open Dough release updates remain available from the recorded source.
       If apply reports that HEAD is not the pinned latest, stop. Do not fetch
       or check out replacement files after inspection. Proceed only if the
       inspected files write solely to the release-declared payload paths
-      under both native skill roots, each updater's `SOURCE` and `VERSION`
+      under both native skill roots, removal there of files at paths an
+      earlier release declared and this release does not, each updater's
+      `SOURCE` and `VERSION`
       records, and the managed host-hook settings they register
       (`.codex/hooks.json`, `.cursor/hooks.json`, and `.claude/settings.json`) in the captured
       target project, preserving distributable source, unrelated project
@@ -121,8 +123,8 @@ Ordinary Open Dough release updates remain available from the recorded source.
    may be incomplete, that the last successful record was left unchanged, and
    that explicit `--force` reinstall is the recovery path.
 7. Report the helper's source URL, release tag and commit, running tool and
-   native skill root, all installed payload paths, previous version or
-   unknown, and actual outcome. After a replacement,
+   native skill root, all installed payload paths, the files it removed from
+   each root, previous version or unknown, and actual outcome. After a replacement,
    tell the user to start a fresh session in the same tool, then invoke
    `/dough-update` in Cursor or Claude Code, or `$dough-update` in Codex, to
    use the updated guidance. Do not claim an update succeeded if fetching,

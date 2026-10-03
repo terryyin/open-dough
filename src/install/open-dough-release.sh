@@ -20,6 +20,9 @@ source "${script_dir}/open-dough-release-resolve.sh"
 # shellcheck source=src/install/open-dough-release-baseline.sh
 source "${script_dir}/open-dough-release-baseline.sh"
 # shellcheck disable=SC1091
+# shellcheck source=src/install/open-dough-release-leftovers.sh
+source "${script_dir}/open-dough-release-leftovers.sh"
+# shellcheck disable=SC1091
 # shellcheck source=src/install/open-dough-release-apply.sh
 source "${script_dir}/open-dough-release-apply.sh"
 
