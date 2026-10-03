@@ -224,3 +224,14 @@ release, and the responses on ODF-154, ODF-201 and ODF-202 in
 
 - 2026-10-03 (Terry, refinement): the skill's own observer; Codex arms its
   stream at start; there is no second attach path.
+
+## Execution complete
+
+Product advice: no correction. Managed delivery's bridge probe and bind can
+acknowledge unread records from the same coordinator's older observers without
+surfacing them in the receipt. This was already true on Claude Code and now
+also applies to Cursor; it needs a failure between the last tool hook and the
+probe, so pursue it only if observed. The Codex stop and acknowledge bindings
+interpolate the mailbox directory unquoted, which matters only for a
+`DOUGH_CI_MAILBOX_ROOT` with spaces. The native paid Codex and Cursor runs and
+the ODF-154, ODF-201 and ODF-202 responses remain for wrap-up.
