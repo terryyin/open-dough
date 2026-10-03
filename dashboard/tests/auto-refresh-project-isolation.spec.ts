@@ -9,7 +9,7 @@
 // "nothing changed" is asserted immediately after the release.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
+import { expect, githubFor, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   callsSince,
@@ -18,6 +18,7 @@ import {
   openSettledAtA,
   passTimeUntilAsked,
   passTimeUntilChecked,
+  pausePageClock,
   recordsAt,
   headsCheckArgv,
   headsChecks,
@@ -150,7 +151,7 @@ test.describe("project read isolation of automatic checks", () => {
   test("a deselected project's late detail read never lands in the newly selected project's view or schedule", async ({
     page,
   }) => {
-    await pausePageClockAt(page, new Date("2026-09-23T09:00:00.000Z"));
+    await pausePageClock(page);
     const openDough = await publishMovingOrigin(page);
     openDough.push(revisionA, backlogA, recordsAt("A"));
     const releaseDetail = openDough.hold(

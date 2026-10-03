@@ -136,7 +136,7 @@ test("read failure and retry ends a stalled read as a read problem at the wait b
   origin.push(revisionA, backlogA);
   const releaseRef = origin.hold("main");
   await page.goto("/");
-  const { retry, problem, status } = parts(page);
+  const { problem, status } = parts(page);
   await expect(status).toHaveText("Reading published work…");
   // The held ref request has reached GitHub through the local `gh`.
   await expect.poll(() => pathsRead(origin)).toEqual(["main"]);
@@ -168,8 +168,8 @@ test("read failure and retry ends a stalled read as a read problem at the wait b
     await expect(problem).toBeVisible();
   });
 
-  await test.step("Retry reads once more and publishes the first snapshot", async () => {
-    await retry.click();
+  await test.step("a reload reads once more and publishes the first snapshot", async () => {
+    await page.reload();
     await expectWholeSnapshot(
       page,
       { revision: revisionA, titles: titlesOfA },
@@ -204,9 +204,9 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
     firstFailure.toISOString(),
   );
 
-  await test.step("a Retry that fails too reports that attempt, still with no snapshot", async () => {
+  await test.step("a reload that fails too reports that attempt, still with no snapshot", async () => {
     await page.clock.setFixedTime(secondFailure);
-    await retry.click();
+    await page.reload();
     await expect(problem.locator("time")).toHaveAttribute(
       "datetime",
       secondFailure.toISOString(),

@@ -52,10 +52,16 @@ export function contentReads(calls: readonly GhCall[]): string[] {
   );
 }
 
+// Pauses the page clock before the page opens, so page time passes only when
+// a step lets it, as passTimeUntilAsked and passTimeUntilChecked do.
+export async function pausePageClock(page: Page): Promise<void> {
+  await pausePageClockAt(page, opened);
+}
+
 // Opens the page at A with its clock paused, and waits until the whole
 // snapshot, detail included, has been read.
 export async function openSettledAtA(page: Page): Promise<MovingOrigin> {
-  await pausePageClockAt(page, opened);
+  await pausePageClock(page);
   const origin = await publishMovingOrigin(page);
   origin.push(revisionA, backlogA, recordsAt("A"));
   await page.goto("/");

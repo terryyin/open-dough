@@ -46,7 +46,6 @@ export async function expectReadyDetailTwoCompleteAfterPublish(
   page: Page,
   taken: Locator,
   source: Locator,
-  refresh: Locator,
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
   publishTwoSlicesDone: (repo: ReadinessRepo) => string,
@@ -55,7 +54,7 @@ export async function expectReadyDetailTwoCompleteAfterPublish(
   origin.advanceTo(nextRevision);
   origin.requests.splice(0, origin.requests.length);
 
-  await refresh.click();
+  await page.reload();
   await expect(source).toContainText(nextRevision);
 
   const readyCard = taken.getByRole("article", { name: plannedReady.title });

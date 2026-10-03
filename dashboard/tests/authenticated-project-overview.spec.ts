@@ -74,13 +74,7 @@ for (const mode of ["dev", "preview"] as const) {
     });
     try {
       await page.goto(server.baseURL);
-      const {
-        project: selector,
-        direction,
-        source,
-        refresh,
-        problem,
-      } = parts(page);
+      const { project: selector, direction, source, problem } = parts(page);
 
       for (const published of projects) {
         const calls = observed.get(published.repository) ?? [];
@@ -136,9 +130,9 @@ for (const mode of ["dev", "preview"] as const) {
           expectPinnedGhCalls(calls, published, mode);
         });
 
-        await test.step(`refreshing ${published.label} resolves ${published.ref} again through local gh`, async () => {
+        await test.step(`reloading ${published.label} resolves ${published.ref} again through local gh`, async () => {
           const before = calls.length;
-          await refresh.click();
+          await page.reload();
           await expect(source).toContainText(published.revision);
           await expect.poll(() => calls.length).toBeGreaterThan(before);
           expect(calls[before]?.argv).toEqual([

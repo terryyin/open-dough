@@ -13,7 +13,7 @@
 // (./support/fakeGitHub.ts) only publishes commits and fails answers. The
 // page's clock is paused and advanced by the test.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import {
   expectMembership,
@@ -49,13 +49,13 @@ const claimsStory = "Publish shared backlog claims";
 const claimsRecord = ".planning/seeds/SEED-040-claims.md";
 const gap = "The canonical record could not be read for preparation facts.";
 
-// Asking again (Refresh, or Retry after a failed attempt) reads the claims
-// record at B and closes its gap, reading nothing at any other revision.
-async function expectGapClosedAtB(page: Page, askAgain: Locator) {
+// Reloading the page reads the claims record at B and closes its gap,
+// reading nothing at any other revision.
+async function expectGapClosedAtB(page: Page) {
   const { source, backlog, problem } = parts(page);
   const claimsCard = backlog.getByRole("article", { name: claimsStory });
   const from = githubFor(page).calls.length;
-  await askAgain.click();
+  await page.reload();
   await expect(claimsCard).not.toContainText(gap);
   await expect(page.getByText("Reading preparation…")).toHaveCount(0);
   await claimsCard.getByRole("button", { name: "Inspect story" }).click();
@@ -156,11 +156,11 @@ test("auto refresh recovery: a failed check, then a failed read of B's backlog, 
   });
 });
 
-test("auto refresh recovery: an unavailable detail of B stays labeled, is not read again while main stays at B, and manual Refresh reads it at the same revision", async ({
+test("auto refresh recovery: an unavailable detail of B stays labeled, is not read again while main stays at B, and a reload reads it at the same revision", async ({
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, backlog, problem, refresh } = parts(page);
+  const { source, backlog, problem } = parts(page);
   const recordsB = recordsAt("B");
   const { [claimsRecord]: claimsAtB, ...withoutClaims } = recordsB;
   expect(claimsAtB).toBeDefined();
@@ -187,13 +187,13 @@ test("auto refresh recovery: an unavailable detail of B stays labeled, is not re
     await expect(claimsCard).toContainText(gap);
   });
 
-  await test.step("manual Refresh reads the record again at B, and the gap closes", async () => {
+  await test.step("a reload reads the record again at B, and the gap closes", async () => {
     origin.push(revisionB, backlogB, recordsB);
-    await expectGapClosedAtB(page, refresh);
+    await expectGapClosedAtB(page);
   });
 });
 
-test("auto refresh recovery: a detail of B still unread at the wait bound is labeled as a gap, the failed attempt says B's membership was read, an unchanged check keeps that failure and reads nothing, and Retry reads the detail at B", async ({
+test("auto refresh recovery: a detail of B still unread at the wait bound is labeled as a gap, the failed attempt says B's membership was read, an unchanged check keeps that failure and reads nothing, and a reload reads the detail at B", async ({
   page,
 }) => {
   const origin = await openSettledAtA(page);
@@ -243,8 +243,8 @@ test("auto refresh recovery: a detail of B still unread at the wait bound is lab
     await expect(retry).toBeVisible();
   });
 
-  await test.step("Retry reads the record again at B, and the gap closes", async () => {
+  await test.step("a reload reads the record again at B, and the gap closes", async () => {
     releaseClaims();
-    await expectGapClosedAtB(page, retry);
+    await expectGapClosedAtB(page);
   });
 });

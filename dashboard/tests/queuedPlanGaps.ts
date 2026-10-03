@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
+import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { planHref } from "./queuedPlanNavigation.ts";
@@ -25,7 +26,7 @@ export async function expectChangedQueuedAssociations(
   repo: ReadinessRepo,
   origin: CommittedOrigin,
 ) {
-  const { backlog, source, refresh } = parts(page);
+  const { backlog, source } = parts(page);
   const card = backlog.getByRole("article", { name: plannedBlocked.title });
   const plan = card.getByRole("link", { name: /^Slice plan / });
   const publish = async (paths: string[], message: string) => {
@@ -36,7 +37,7 @@ export async function expectChangedQueuedAssociations(
     );
     repo.advanceTo(revision);
     origin.advanceTo(revision);
-    await refresh.click();
+    await passTimeUntilChecked(page);
     await expect(source).toContainText(revision);
     await expectMembership(page, {
       taken: [plannedReady.title],

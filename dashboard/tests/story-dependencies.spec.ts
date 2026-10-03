@@ -1,4 +1,5 @@
 import { writePlanning } from "./storyReadinessCli.ts";
+import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
 import { expect } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
@@ -27,6 +28,7 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
     repository: "terryyin/open-dough",
     follows: true,
   });
+  await pausePageClock(page);
   await page.goto("/");
   const card = parts(page).backlog.getByRole("article", {
     name: consumer.title,
@@ -82,10 +84,8 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
 
   recordDependency(origin, 0, "satisfied", revision);
   const one = await publishDependencies(origin);
-  const release = published.hold("main");
-  await parts(page).refresh.click();
   await card.focus();
-  release();
+  await passTimeUntilChecked(page);
   await expect(parts(page).source).toContainText(one);
   await expect(card).toBeFocused();
   await expect(summary).toHaveText("Dependencies · 1 blocking");
@@ -102,7 +102,7 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
 
   recordDependency(origin, 1, "satisfied", revision);
   const both = await publishDependencies(origin);
-  await parts(page).refresh.click();
+  await passTimeUntilChecked(page);
   await expect(parts(page).source).toContainText(both);
   await expect(summary).toHaveText("Dependencies · 0 blocking");
   await expect(execution).toBeEnabled();
@@ -174,7 +174,7 @@ test("malformed and unreadable dependency facts block execution without blocking
   );
   const unreadRevision = await publishDependencies(origin);
   published.answerWith(".planning/seeds/A.md", notFoundAnswer());
-  await parts(page).refresh.click();
+  await page.reload();
   await expect(parts(page).source).toContainText(unreadRevision);
   await expect(card.locator(".dependency-problem")).not.toContainText(
     "not valid JSON",

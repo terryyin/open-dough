@@ -1,6 +1,6 @@
-// Refresh and isolation observations for story readiness: failed refresh
-// retention, Retry, project-switch rejection of late held reads, and no
-// re-read after settlement across a steady check interval.
+// Read and isolation observations for story readiness: a failed check's
+// retention and recovery on reload, project-switch rejection of late held
+// reads, and no re-read after settlement across a steady check interval.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import {
@@ -23,7 +23,8 @@ import {
   unrefined,
 } from "./storyReadinessFixture.ts";
 
-export async function expectFailedRefreshKeepsPriorRevision(
+export async function expectFailedCheckKeepsPriorRevision(
+  page: Page,
   source: Locator,
   refresh: Locator,
   retry: Locator,
@@ -37,7 +38,7 @@ export async function expectFailedRefreshKeepsPriorRevision(
   const restore = origin.answerWith("main", rateLimitedAnswer());
   origin.requests.splice(0, origin.requests.length);
 
-  await refresh.click();
+  await passTimeUntilChecked(page, 502);
   await expect(problem).toContainText("Published work could not be read");
   await expect(problem).toContainText("earlier snapshot");
   await expect(source).toContainText(retainedRevision);
@@ -66,7 +67,7 @@ export async function expectFailedRefreshKeepsPriorRevision(
 
   restore();
   const afterFail = origin.requests.length;
-  await retry.click();
+  await page.reload();
   await expect(problem).toHaveCount(0);
   await expect(source).toContainText(retainedRevision);
   await expect(refresh).toBeVisible();
@@ -77,7 +78,6 @@ export async function expectFailedRefreshKeepsPriorRevision(
 export async function expectProjectSwitchRejectsLateHeldRead(
   page: Page,
   project: Locator,
-  refresh: Locator,
   openDoughOrigin: CommittedOrigin,
   openDough: ReadinessRepo,
   doughnut: ReadinessRepo,
@@ -90,7 +90,7 @@ export async function expectProjectSwitchRejectsLateHeldRead(
   await expect(parts(page).source).toContainText(openDough.revision);
 
   const releaseMain = openDoughOrigin.hold("main");
-  await refresh.click();
+  await page.reload();
   await expect(parts(page).reading).toBeVisible();
 
   await project.getByRole("radio", { name: "Doughnut", exact: true }).check();

@@ -1,3 +1,4 @@
+import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
 import { expect, test } from "./dashboardTest.ts";
 import {
   largeBacklog,
@@ -163,14 +164,15 @@ test("accessible overview keeps a read problem, the retained work, and the read 
   await page.setViewportSize(zoomedWindow);
   const origin = await publishMovingOrigin(page);
   origin.push(revision, longBacklog);
+  await pausePageClock(page);
   await page.goto("/");
-  const { stages, source, refresh, retry, problem } = parts(page);
+  const { stages, source, retry, problem } = parts(page);
   await expect(stages.getByRole("article")).toHaveCount(5);
 
   const missing = "f".repeat(40);
   origin.push(missing, longBacklog);
   origin.answerWith(missing, notFoundAnswer());
-  await refresh.click();
+  await passTimeUntilChecked(page);
 
   // The problem names a path and a 40-character revision no line can hold.
   await expect(problem).toContainText(

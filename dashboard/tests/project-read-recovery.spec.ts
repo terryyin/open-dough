@@ -8,6 +8,7 @@
 // authenticated-read-subprocess-lifecycle.spec.ts.
 
 import { type Page } from "@playwright/test";
+import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
 import { expect, test } from "./dashboardTest.ts";
 import {
   controlsBesideSessions,
@@ -85,13 +86,14 @@ async function publishOpenDoughAndDoughnut(page: Page): Promise<void> {
 }
 
 test.describe("project read recovery", () => {
-  test("an unavailable Pygardon read shows an actionable, project-specific failure while another project remains selectable; restoring access and pressing Retry reads Pygardon; a later failed Refresh keeps only Pygardon's previous snapshot", async ({
+  test("an unavailable Pygardon read shows an actionable, project-specific failure while another project remains selectable; restoring access and reloading reads Pygardon; a later failed check keeps only Pygardon's previous snapshot", async ({
     page,
   }) => {
     await publishOpenDoughAndDoughnut(page);
     const pygardonOrigin = await publishMovingOrigin(page, pygardonRepository);
     const restoreLogin = pygardonOrigin.answerWith("main", notLoggedIn);
 
+    await pausePageClock(page);
     await page.goto("/");
     const { project, direction, source, problem, retry, refresh } = parts(page);
     const pygardon = project.getByRole("radio", {
@@ -131,10 +133,10 @@ test.describe("project read recovery", () => {
       await expect(page.getByRole("article")).toHaveCount(0);
     });
 
-    await test.step("restoring existing access and pressing Retry reads Pygardon's actual published work", async () => {
+    await test.step("restoring existing access and reloading reads Pygardon's actual published work", async () => {
       restoreLogin();
       pygardonOrigin.push(pygardonRevision, pygardonBacklog);
-      await retry.click();
+      await page.reload();
       await expectMembership(page, {
         taken: [pygardonTakenTitle],
         backlog: [pygardonQueuedTitle],
@@ -147,9 +149,9 @@ test.describe("project read recovery", () => {
       await expect(retry).toHaveCount(0);
     });
 
-    await test.step("a later failed Refresh keeps only Pygardon's previous snapshot, with the failure reported alongside it", async () => {
+    await test.step("a later failed check keeps only Pygardon's previous snapshot, with the failure reported alongside it", async () => {
       pygardonOrigin.answerWith("main", unexplainedFailure);
-      await refresh.click();
+      await passTimeUntilChecked(page, 502);
       await expect(problem).toContainText(
         "The local authenticated read failed while reading main of terryyin/pygardon.",
       );
@@ -172,7 +174,7 @@ test.describe("project read recovery", () => {
     // Yet long enough that the ordinary Open Dough read finishes under load.
     test.use({ readTimeoutMs: 2_000 });
 
-    test("the bounded stalled-read timeout resolves into the same ordinary recoverable failure as any other cause, and Retry after restored access succeeds", async ({
+    test("the bounded stalled-read timeout resolves into the same ordinary recoverable failure as any other cause, and a reload after restored access succeeds", async ({
       page,
     }) => {
       await publishOpenDough(page);
@@ -183,7 +185,7 @@ test.describe("project read recovery", () => {
       const releaseRef = pygardonOrigin.hold("main");
 
       await page.goto("/");
-      const { project, problem, retry } = parts(page);
+      const { project, problem } = parts(page);
       await expectMembership(page, { taken: [], backlog: [openDoughTitle] });
 
       await project
@@ -200,7 +202,7 @@ test.describe("project read recovery", () => {
 
       releaseRef();
       pygardonOrigin.push(pygardonRevision, pygardonBacklog);
-      await retry.click();
+      await page.reload();
       await expectMembership(page, {
         taken: [pygardonTakenTitle],
         backlog: [pygardonQueuedTitle],

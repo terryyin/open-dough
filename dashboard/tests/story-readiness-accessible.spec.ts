@@ -3,6 +3,7 @@
 // shared accessibility helpers against the real CLI-committed fixture.
 
 import { expectQueuedPlanFocusDuringEnrichment } from "./queuedPlanFocus.ts";
+import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
@@ -10,7 +11,7 @@ import {
   expectBadgeTextContrastAndReducedMotion,
   expectKeyboardOpensAndClosesDetail,
   expectNarrowZoomKeepsLabelsEvidenceAndRetry,
-  expectRefreshPreservesOrAnnouncesIdentity,
+  expectNewSnapshotPreservesOrAnnouncesIdentity,
 } from "./storyReadinessAccessible.ts";
 import {
   buildOpenDoughReadinessRepo,
@@ -38,8 +39,9 @@ test("story readiness reads preparation and progress accessibly", async ({
     repository: openDoughRepository,
   });
 
+  await pausePageClock(page);
   await page.goto("/");
-  const { taken, backlog, refresh } = parts(page);
+  const { taken, backlog } = parts(page);
 
   await test.step("CLI-committed membership and labeled badges arrive", async () => {
     await expectMembership(page, {
@@ -57,11 +59,10 @@ test("story readiness reads preparation and progress accessibly", async ({
     await expectKeyboardOpensAndClosesDetail(page, taken);
   });
 
-  await test.step("refresh preserves identity focus or announces removal", async () => {
-    await expectRefreshPreservesOrAnnouncesIdentity(
+  await test.step("a newly read snapshot preserves identity focus or announces removal", async () => {
+    await expectNewSnapshotPreservesOrAnnouncesIdentity(
       page,
       backlog,
-      refresh,
       openDough,
       openDoughOrigin,
     );
@@ -71,7 +72,7 @@ test("story readiness reads preparation and progress accessibly", async ({
     publishRestoreUnrefined(openDough);
     const restored = publishAssessedContentChange(openDough);
     openDoughOrigin.advanceTo(restored);
-    await parts(page).refresh.click();
+    await passTimeUntilChecked(page);
     await expectMembership(page, {
       taken: [plannedReady.title],
       backlog: [unrefined.title, plannedBlocked.title],
@@ -84,7 +85,6 @@ test("story readiness reads preparation and progress accessibly", async ({
       page,
       taken,
       backlog,
-      parts(page).refresh,
       openDoughOrigin,
     );
   });
@@ -102,6 +102,7 @@ test("queued plan focus deferral respects deliberate movement and a removed asso
     revision: repo.revision,
     repository: openDoughRepository,
   });
+  await pausePageClock(page);
   await page.goto("/");
   await expectQueuedPlanFocusDuringEnrichment(page, repo, origin);
 });

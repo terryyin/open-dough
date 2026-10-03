@@ -95,7 +95,7 @@ Retry controls remain.
 
 ### 1. Tests read published changes without pressing the control
 Type: Structure
-Status: planned
+Status: done
 Proof: Every migrated spec green with its original assertions; the control still exists and is still pressed only by specs that test the control itself (`refresh.spec.ts`, `read-failure-refresh.spec.ts`, `refresh-focus.spec.ts`, the control-specific steps of keyboard and header specs).
 
 Internal change: in each spec or journey helper that presses Refresh/Retry
@@ -113,6 +113,16 @@ tests and assertions.
 
 Split point: if the migration overruns, split by spec family (story readiness,
 sessions and launches, the rest) and keep each family green on its own.
+
+Accepted proof: `env -u NODE_ENV npx playwright test --config dashboard/playwright.config.ts`
+on every changed spec and every spec importing a changed helper (50 files,
+96 passed), `--repeat-each=3` on the check-based specs (90 passed), and after
+the refactor every spec importing `autoRefreshJourney.ts`,
+`storyReadinessRefresh.ts`, or `storyReadinessAccessible.ts` (44 passed);
+typecheck and lint pass. No shared helper was needed beyond `pausePageClock`,
+which the refactor extracted into `autoRefreshJourney.ts`. The planned slice 2
+change to `auto-refresh-recovery.spec.ts` (same-revision detail gap now
+reloads) was done here.
 
 ### 2. The dashboard has no manual read control, and says how it recovers
 Type: Behavior
@@ -175,4 +185,18 @@ Includes:
 
 ## Learnings
 
-None yet.
+- Control-only steps left for slice 2: `refresh.spec.ts`,
+  `refresh-focus.spec.ts`, `read-failure-refresh.spec.ts`; the keyboard specs
+  that focus the read control as the arrow-key starting point
+  (`project-keyboard-navigation*.spec.ts`); `dashboard-header.spec.ts` icon
+  test; the last Retry step of `read-failure.spec.ts`; the manual Retry steps of
+  `auto-refresh-rate-limit.spec.ts`; `responsiveStart.ts` `expectOthersWork`;
+  and `refresh`/`retry` visibility assertions in `storyReadinessRefresh.ts`
+  (`expectFailedCheckKeepsPriorRevision`), `storyReadinessAccessible.ts`,
+  `accessible-overview`, `project-read-recovery`, `auto-refresh-recovery`,
+  `auto-refresh`, `project-read-isolation`, and `parts()` helpers.
+- The removal sweep's `name: "(Refresh|Retry)"` also matches the terminal
+  theme's own Retry (`terminal-theme-boundary.spec.ts`,
+  `system-settings-terminal-theme.spec.ts`); that purpose-specific control stays.
+- A scheduled check at an unchanged revision reads nothing; tests needing a
+  same-revision read reload instead.

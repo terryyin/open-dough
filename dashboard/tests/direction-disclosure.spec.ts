@@ -1,3 +1,4 @@
+import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { openDirection, parts } from "./dashboardPage.ts";
 import {
@@ -65,22 +66,15 @@ test("same-project refresh retains expanded and collapsed choices through loadin
 }) => {
   const origin = await publishMovingOrigin(page);
   origin.push(revisionA, withDirection(fullDirection));
+  await pausePageClock(page);
   await page.goto("/");
-  const {
-    direction,
-    directionToggle,
-    refresh,
-    retry,
-    source,
-    reading,
-    problem,
-  } = parts(page);
+  const { direction, directionToggle, source, reading, problem } = parts(page);
   const body = direction.locator("p");
   await openDirection(page);
 
   origin.push(revisionB, withDirection("The next published direction."));
-  const release = origin.hold("main");
-  await refresh.click();
+  const release = origin.hold(revisionB);
+  await passTimeUntilChecked(page);
   await expect(reading).toBeVisible();
   await expect(body).toBeVisible();
   await expect(body).toHaveText(fullDirection);
@@ -90,17 +84,17 @@ test("same-project refresh retains expanded and collapsed choices through loadin
   await expect(body).toHaveText("The next published direction.");
 
   const restore = origin.answerWith("main", rateLimitedAnswer());
-  await refresh.click();
+  await passTimeUntilChecked(page, 502);
   await expect(problem).toBeVisible();
   await expect(body).toBeVisible();
   await expect(body).toHaveText("The next published direction.");
   await directionToggle.click();
-  await retry.click();
+  await passTimeUntilChecked(page, 502);
   await expect(problem).toBeVisible();
   await expect(body).toBeHidden();
   restore();
   origin.push(revisionA, withDirection(fullDirection));
-  await retry.click();
+  await passTimeUntilChecked(page);
   await expect(source).toContainText(revisionA);
   await expect(body).toBeHidden();
   await expect(problem).toHaveCount(0);

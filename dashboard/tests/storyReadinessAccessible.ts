@@ -1,6 +1,6 @@
 // Accessibility observations for story readiness: keyboard detail, identity
-// focus across refresh, narrow/zoomed reading, badge text and contrast,
-// reduced-motion settling, and polite announcements. Fixtures remain
+// focus across a newly read snapshot, narrow/zoomed reading, badge text and
+// contrast, reduced-motion settling, and polite announcements. Fixtures remain
 // CLI-committed Git bytes.
 
 import { expect, type Locator, type Page } from "@playwright/test";
@@ -11,6 +11,7 @@ import {
   politeRegionsOfferedThenMarked,
   zoomedWindow,
 } from "./accessibleReading.ts";
+import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { rateLimitedAnswer } from "./originAnswers.ts";
@@ -55,10 +56,9 @@ export async function expectKeyboardOpensAndClosesDetail(
   ).toHaveAttribute("aria-expanded", "false");
 }
 
-export async function expectRefreshPreservesOrAnnouncesIdentity(
+export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
   page: Page,
   backlog: Locator,
-  refresh: Locator,
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
 ) {
@@ -73,12 +73,10 @@ export async function expectRefreshPreservesOrAnnouncesIdentity(
     .getByRole("link", { name: /^Slice plan / });
   const keptRevision = publishDropUnrefined(openDough);
   origin.advanceTo(keptRevision);
-  // Same hold-then-focus pattern as refresh-focus: Refresh takes focus, then
-  // identity focus is restored while the next snapshot is still held.
-  const releaseKept = origin.hold("main");
-  await refresh.click();
+  // Focus stays on the plan while the next snapshot is read, and its identity
+  // focus is restored once that snapshot replaces the shown one.
   await queuedPlan.focus();
-  releaseKept();
+  await passTimeUntilChecked(page);
   await expect(parts(page).source).toContainText(keptRevision);
 
   await expectMembership(page, {
@@ -91,9 +89,7 @@ export async function expectRefreshPreservesOrAnnouncesIdentity(
 
   const restored = publishRestoreUnrefined(openDough);
   origin.advanceTo(restored);
-  const releaseRestored = origin.hold("main");
-  await refresh.click();
-  releaseRestored();
+  await passTimeUntilChecked(page);
   await expectMembership(page, {
     taken: [plannedReady.title],
     backlog: [unrefined.title, plannedBlocked.title],
@@ -104,11 +100,9 @@ export async function expectRefreshPreservesOrAnnouncesIdentity(
   });
   const removedRevision = publishDropUnrefined(openDough);
   origin.advanceTo(removedRevision);
-  const releaseRemoved = origin.hold("main");
-  await refresh.click();
   await unrefinedCard.focus();
   await expect(notice).toBeEmpty();
-  releaseRemoved();
+  await passTimeUntilChecked(page);
   await expectMembership(page, {
     taken: [plannedReady.title],
     backlog: [plannedBlocked.title],
@@ -124,7 +118,6 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndRetry(
   page: Page,
   taken: Locator,
   backlog: Locator,
-  refresh: Locator,
   origin: CommittedOrigin,
 ) {
   await page.setViewportSize(zoomedWindow);
@@ -165,7 +158,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndRetry(
   await legend.getByRole("button", { name: "Close" }).click();
 
   const restore = origin.answerWith("main", rateLimitedAnswer());
-  await refresh.click();
+  await passTimeUntilChecked(page, 502);
   const { retry, problem, source } = parts(page);
   await expect(problem).toContainText("Published work could not be read");
   await retry.scrollIntoViewIfNeeded();
@@ -173,7 +166,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndRetry(
   await expect(source).toBeVisible();
   await expectNoSidewaysScrollAndWholeText(page);
   restore();
-  await retry.click();
+  await passTimeUntilChecked(page);
   await expect(problem).toHaveCount(0);
   await expect(parts(page).refresh).toBeVisible();
 }

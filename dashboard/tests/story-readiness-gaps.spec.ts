@@ -3,7 +3,8 @@
 // never planted in fixtures.
 
 import { expectChangedQueuedAssociations } from "./queuedPlanGaps.ts";
-import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
+import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
+import { expect, test } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import {
@@ -25,7 +26,7 @@ import {
 } from "./storyReadinessGaps.ts";
 import { expectMalformedExternalAndLegacy } from "./storyReadinessRecordGaps.ts";
 import {
-  expectFailedRefreshKeepsPriorRevision,
+  expectFailedCheckKeepsPriorRevision,
   expectNoRereadAfterSettlement,
   expectProjectSwitchRejectsLateHeldRead,
 } from "./storyReadinessRefresh.ts";
@@ -53,8 +54,7 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
     repository: doughnutRepository,
   });
 
-  // The page clock stands still unless a step lets page time pass.
-  await pausePageClockAt(page, new Date("2026-09-23T09:00:00.000Z"));
+  await pausePageClock(page);
   await page.goto("/");
   const { project, source, backlog, taken, refresh, retry, problem } =
     parts(page);
@@ -74,10 +74,10 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
 
   await test.step("changed assessed content without reassessment retains judgment with a change indication and keeps planning facts", async () => {
     await expectChangedReviewAfterContentChange(
+      page,
       taken,
       backlog,
       source,
-      refresh,
       openDough,
       openDoughOrigin,
       publishAssessedContentChange,
@@ -87,7 +87,7 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
   await test.step("a fresh published assessment clears changes for both recorded judgments", async () => {
     const next = publishFreshAssessment(openDough);
     openDoughOrigin.advanceTo(next);
-    await refresh.click();
+    await passTimeUntilChecked(page);
     await expect(source).toContainText(next);
     for (const [list, title, judgment] of [
       [taken, plannedReady.title, "Ready for execution"],
@@ -111,7 +111,6 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
       page,
       taken,
       source,
-      refresh,
       openDough,
       openDoughOrigin,
       publishConflictingPlanAssociation,
@@ -123,14 +122,14 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
       page,
       backlog,
       source,
-      refresh,
       openDough,
       openDoughOrigin,
     );
   });
 
-  await test.step("failed refresh keeps prior evidence labeled with its original revision; Retry recovers", async () => {
-    await expectFailedRefreshKeepsPriorRevision(
+  await test.step("a failed check keeps prior evidence labeled with its original revision; a reload recovers", async () => {
+    await expectFailedCheckKeepsPriorRevision(
+      page,
       source,
       refresh,
       retry,
@@ -146,7 +145,6 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
     await expectProjectSwitchRejectsLateHeldRead(
       page,
       project,
-      refresh,
       openDoughOrigin,
       openDough,
       doughnut,
@@ -177,6 +175,7 @@ test("queued plan navigation follows changed associations and qualifies unsuppor
     revision: repo.revision,
     repository: openDoughRepository,
   });
+  await pausePageClock(page);
   await page.goto("/");
   await expectChangedQueuedAssociations(page, repo, origin);
 });
