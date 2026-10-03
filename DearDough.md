@@ -36,7 +36,7 @@ Former local code: DD-095 (plan 126 Cursor occurrence only).
 
 Cursor’s first managed delivery lacks conversation/generation identity, requiring a manual observer start and registration.
 
-Follow-up: queued, not resolved: [Keep CI observed for Codex and Cursor executions](.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md#observe-ci-on-codex-and-cursor) — SEED-094#observe-ci-on-codex-and-cursor.
+Follow-up: delivered, unreleased: SEED-094#observe-ci-on-codex-and-cursor (story and plan recoverable at `0dc71704:.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md` and `0dc71704:.planning/slice-plans/235-ci-observed-on-codex-and-cursor/PLAN.md`). `deliver --host cursor` takes the coordinator from `CURSOR_CONVERSATION_ID` and keeps its real hook generation as the gate. Native Cursor evaluation not yet run.
 
 - Execution: `SEED-046#ci-verdict-correction` / plan 126, first related implementation commit `9fa45de` - Timestamp: unknown (first increment delivery, between commit `9fa45de` at 2026-09-27T12:43:54+08:00 and the observer start minutes later) - Tool: Cursor - Model: kimi-k3 - Open Dough release: modified; revision `ff3534c`; base 0.3.42 - Evidence: `9fa45de` delivery receipt `observation.state: unobserved` ("host session identity is required to verify the notification bridge"); a manual probe then showed `CI_MONITOR_READY`; explicit `ci-mailbox.mjs start` + `register-push` attached `watch-7YVAZ1`; the next managed delivery reported `observation.state: reused`. - Observed effect: first Cursor occurrence; slice 1's increment was unobserved until the manual start, and the finding's `$CLAUDE_CODE_SESSION_ID` recovery does not apply to Cursor's conversation/generation identity.
 - Execution: `SEED-053#dashboard-browser-navigation` / plan 136, first related implementation commit `8ca2f7eb` - Timestamp: 2026-09-27T22:11:50+08:00 - Tool: Cursor - Open Dough release: 0.3.43 - Evidence: completion input `pendingCi: unobserved` ("host session identity required for Cursor notification bridge"); retained tip `777b797926acfab373a6cd45766e3066cbd9da95` - Observed effect: managed delivery left the story-branch tip unobserved; no Cursor session identity was available to arm the notification bridge - Inference: Same Cursor host-identity gap as the plan 126 occurrence; Claude-only recovery remains inapplicable
@@ -222,7 +222,7 @@ Former branch-local code: DD-198; moved with this execution’s findings after t
 
 The Codex stream binding delivered failure notifications, but neither its consumer nor the stream worker advanced the mailbox's durable delivery cursor. After both failures were repaired, completion returned green CI while retaining shutdown for those same unread events. This is distinct from ODF-144's lost-worker notices: the worker was live and the stale events were actual repaired CI failures.
 
-Follow-up: queued, not resolved: [Keep CI observed for Codex and Cursor executions](.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md#observe-ci-on-codex-and-cursor) — SEED-094#observe-ci-on-codex-and-cursor. Align the Codex stream notification contract with durable delivery acknowledgment, preserving unseen actionable failures. No guidance or script change is authorized by this review.
+Follow-up: delivered, unreleased: SEED-094#observe-ci-on-codex-and-cursor (story and plan recoverable at `0dc71704:.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md` and `0dc71704:.planning/slice-plans/235-ci-observed-on-codex-and-cursor/PLAN.md`). The documented Codex binding acknowledges each notified batch through `ci-mailbox.mjs acknowledge`; unnotified records still retain shutdown. Native Codex evaluation not yet run.
 
 ### Occurrences
 
@@ -303,7 +303,7 @@ Former local code: DD-201.
 
 Managed increment delivery can create a detached observer and say Codex binding is retained by the caller. The documented yielded-cell stream command instead creates its own mailbox; it accepts no existing directory. The coordinator could not establish that those two paths deliver notifications from the same observer without starting another observer or inventing an adapter.
 
-Follow-up: queued, not resolved: [Keep CI observed for Codex and Cursor executions](.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md#observe-ci-on-codex-and-cursor) — SEED-094#observe-ci-on-codex-and-cursor. Provide one supported managed-delivery-to-yielded-stream attachment contract. This review authorizes no guidance or runtime change.
+Follow-up: delivered, unreleased: SEED-094#observe-ci-on-codex-and-cursor (story and plan recoverable at `0dc71704:.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md` and `0dc71704:.planning/slice-plans/235-ci-observed-on-codex-and-cursor/PLAN.md`). A Codex execution arms its yielded stream at execution start and `deliver --host codex` reuses it; without one the receipt names that step. `--codex-bridge-available` is removed. Native Codex evaluation not yet run.
 
 ### Occurrences
 

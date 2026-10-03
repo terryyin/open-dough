@@ -138,8 +138,8 @@ A new observer labels a non-ancestor sibling revision as this execution’s bran
 ## ODF-154 — Missing Cursor coordinator identity
 Cursor’s first managed delivery lacks conversation/generation identity, requiring a manual observer start and registration.
 
-- **Follow-up:** queued, not resolved: [Keep CI observed for Codex and Cursor executions](../../.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md#observe-ci-on-codex-and-cursor) — SEED-094#observe-ci-on-codex-and-cursor. Selected under the authorized 2026-10-03 runbook. **Evidence:** [open-dough](../../DearDough.md#odf-154--cursor-managed-delivery-lacks-its-coordinator-session-identity).
-- **Response / limit:** No response: `resolveHostSession` falls back only to CLAUDE_CODE_SESSION_ID. Six Cursor executions, latest 0.3.54; each loses CI observation.
+- **Follow-up:** delivered, unreleased: SEED-094#observe-ci-on-codex-and-cursor (story and plan recoverable at `0dc71704:.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md` and `0dc71704:.planning/slice-plans/235-ci-observed-on-codex-and-cursor/PLAN.md`). **Evidence:** [open-dough](../../DearDough.md#odf-154--cursor-managed-delivery-lacks-its-coordinator-session-identity).
+- **Response / limit:** Delivered on main, first containing release pending: `deliver --host cursor` takes the coordinator from `CURSOR_CONVERSATION_ID`, and a managed-delivery generation no longer replaces the coordinator's real hook generation. Native Cursor evaluation (paid, manual) not yet run. Before it: six Cursor executions, latest 0.3.54, each lost CI observation.
 
 <a id="odf-156"></a>
 
@@ -220,16 +220,16 @@ Managed delivery accepts only `refs/heads/<branch>` for `--target-ref`, but its 
 ## ODF-201 — Codex stream leaves delivered failures unacknowledged
 The Codex stream binding notifies CI failures without advancing the durable delivery cursor, so completion retains shutdown for failures already repaired.
 
-- **Follow-up:** queued, not resolved: [Keep CI observed for Codex and Cursor executions](../../.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md#observe-ci-on-codex-and-cursor) — SEED-094#observe-ci-on-codex-and-cursor. Selected under the authorized 2026-10-03 runbook. **Evidence:** [open-dough](../../DearDough.md#odf-201--codex-stream-notifications-leave-handled-failures-unread-at-completion).
-- **Response / limit:** No response. Nine Open Dough Codex executions, latest 0.3.54.
+- **Follow-up:** delivered, unreleased: SEED-094#observe-ci-on-codex-and-cursor (story and plan recoverable at `0dc71704:.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md` and `0dc71704:.planning/slice-plans/235-ci-observed-on-codex-and-cursor/PLAN.md`). **Evidence:** [open-dough](../../DearDough.md#odf-201--codex-stream-notifications-leave-handled-failures-unread-at-completion).
+- **Response / limit:** Delivered on main, first containing release pending: the documented Codex binding acknowledges each notified batch through `ci-mailbox.mjs acknowledge`; a record never notified still retains shutdown. Native Codex evaluation (paid, manual) not yet run. Before it: nine Open Dough Codex executions, latest 0.3.54.
 
 <a id="odf-202"></a>
 
 ## ODF-202 — Managed Codex delivery lacks observer attachment
 Managed delivery under Codex has no supported binding to the yielded stream observer, and guidance forbids the separate stream start that would cover it, so publications go unobserved.
 
-- **Follow-up:** queued, not resolved: [Keep CI observed for Codex and Cursor executions](../../.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md#observe-ci-on-codex-and-cursor) — SEED-094#observe-ci-on-codex-and-cursor. Selected under the authorized 2026-10-03 runbook. **Evidence:** [open-dough](../../DearDough.md#odf-202--managed-codex-delivery-and-yielded-stream-have-no-documented-attachment-seam), [pygardon](../../../pygardon/DearDough.md#odf-202--managed-codex-delivery-has-no-attachment-for-its-detached-observer), [doughnut](../../../doughnut/DearDough.md#odf-202--managed-codex-delivery-left-ci-unobserved-without-a-retained-stream-binding).
-- **Response / limit:** No response; `Codex yielded-cell bridge is unavailable` remains in `ci-host-bridge.mjs` at 0.3.55. Thirteen Open Dough, six Pygardon (releases unknown) and one Doughnut Codex executions, latest 0.3.54. Arming the yielded stream before first delivery worked in Open Dough plans 203 and 204.
+- **Follow-up:** delivered, unreleased: SEED-094#observe-ci-on-codex-and-cursor (story and plan recoverable at `0dc71704:.planning/seeds/SEED-094-ci-observation-for-codex-and-cursor.md` and `0dc71704:.planning/slice-plans/235-ci-observed-on-codex-and-cursor/PLAN.md`). **Evidence:** [open-dough](../../DearDough.md#odf-202--managed-codex-delivery-and-yielded-stream-have-no-documented-attachment-seam), [pygardon](../../../pygardon/DearDough.md#odf-202--managed-codex-delivery-has-no-attachment-for-its-detached-observer), [doughnut](../../../doughnut/DearDough.md#odf-202--managed-codex-delivery-left-ci-unobserved-without-a-retained-stream-binding).
+- **Response / limit:** Delivered on main, first containing release pending: a Codex execution arms its yielded stream at execution start, `deliver --host codex` reuses it, and without one the receipt names that step; `--codex-bridge-available` is removed. Native Codex evaluation (paid, manual) not yet run. Before it: Thirteen Open Dough, six Pygardon (releases unknown) and one Doughnut Codex executions, latest 0.3.54. Arming the yielded stream before first delivery worked in Open Dough plans 203 and 204.
 
 <a id="odf-203"></a>
 

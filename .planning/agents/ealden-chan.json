@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ealden-chan",
-  "email": "ealden-chan@example.org",
-  "identity": "SEED-094#observe-ci-on-codex-and-cursor",
-  "mode": "story-branch",
-  "branch": "claude/keep-ci-observed-for-codex-and-cursor-executions",
-  "host": "claude"
-}
