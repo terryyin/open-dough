@@ -16,7 +16,6 @@ visibility for multiple agents working in worktrees on one machine.
 
 - [Keep a Cursor agent running across a dashboard restart](seeds/SEED-089-cursor-session-visible-from-the-start.md#cursor-runner-survives-dashboard-restart) — SEED-089#cursor-runner-survives-dashboard-restart ([plan](slice-plans/228-cursor-runner-survives-dashboard-restart/PLAN.md))
 - [Keep CI observed for Codex and Cursor executions](seeds/SEED-094-ci-observation-for-codex-and-cursor.md#observe-ci-on-codex-and-cursor) — SEED-094#observe-ci-on-codex-and-cursor ([plan](slice-plans/235-ci-observed-on-codex-and-cursor/PLAN.md))
-- [Give the frame's look checks one rule each](seeds/SEED-091-dashboard-ui-renovation.md#frame-look-checks-one-rule) — SEED-091#frame-look-checks-one-rule ([plan](slice-plans/236-frame-look-checks-one-rule/PLAN.md))
 
 ## Backlog list
 

@@ -192,29 +192,6 @@ covers the dashboard in a dialog and both panels look and behave the same.
   chosen width is remembered, width limits, maximize behavior for the review,
   and keyboard access to resizing.
 
-<a id="frame-look-checks-one-rule"></a>
-
-### Give the frame's look checks one rule each
-
-**Identity:** SEED-091#frame-look-checks-one-rule
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/236-frame-look-checks-one-rule/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bb17a0c35718ecc19d2d45c00d92b84e125caf0f50b518489b18232eb0c866a3","plan":"1983ac246abc032e04a478853ac12f381a78c25fa79f3ec84e19e8f23aa078b7"}}
-```
-
-**Goal:** A maintainer writing the next dashboard look check, such as the story
-cards' renovation, finds one rule for the colour behind an element and one
-check that an area's text reads clearly and its controls are recognisable, so
-look checks stop copying divergent variants.
-
-**Scope:** The dashboard's browser-test support only: the background walk
-repeated in `expectReadableContrast`, `expectControlContrast`, and
-`expectFrameIconControl`, and the two `expectReadableAndRecognisable` copies in
-`system-settings-look.spec.ts` and `frame-launch-look.spec.ts`. No product
-change and no weaker contrast assertion. This is a retrospective correction of
-the frame renovation ([story](https://github.com/terryyin/open-dough/blob/3c6e5e1002217db658f05c280b6362f3f08d2968/.planning/seeds/SEED-091-dashboard-ui-renovation.md#dashboard-frame-renovation) and [plan](https://github.com/terryyin/open-dough/blob/3c6e5e1002217db658f05c280b6362f3f08d2968/.planning/slice-plans/230-dashboard-frame-renovation/PLAN.md) at `3c6e5e10`); its
-[plan](../slice-plans/236-frame-look-checks-one-rule/PLAN.md) holds the
-findings, preserved promises, and proof.
-
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).
