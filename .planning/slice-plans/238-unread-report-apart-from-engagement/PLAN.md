@@ -132,3 +132,14 @@ Changes: `server/sessionAlerts.ts` remembers each session's unread report
 alongside its native reading and alerts on either change; `alertReading` reads
 only the native reading; `AGENT-LAUNCH-HISTORY.md`'s alert sentence names the
 report alert.
+
+## Execution complete
+
+Product advice: no new product work. The delivered reading matches the story's
+goal and key examples; the open load-time failure of
+`session-unread-report.spec.ts` stays an observation (DD-224). For wrap-up:
+the UX North Star's Sessions sidebar row says to keep attention visible
+“without … reordering entries when their state changes”, while the sidebar
+has grouped attention first since before this story and this story's examples
+2–3 move entries between groups; the developer may want that sentence to name
+the sidebar's grouping as the intended exception.
