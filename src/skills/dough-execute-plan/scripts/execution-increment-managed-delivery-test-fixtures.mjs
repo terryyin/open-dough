@@ -103,6 +103,7 @@ export async function createManagedFixture({
   return {
     ...base,
     preferredAlias,
+    teardown,
     cleanup: teardown.cleanup,
     ...(await installManagedDelivery(
       teardown,

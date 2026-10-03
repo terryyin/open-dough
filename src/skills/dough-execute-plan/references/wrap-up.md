@@ -197,8 +197,10 @@ and continue that unfinished obligation only.
    The receipt is the accepted SHA, the authorized target,
    and the observation result (attached, reused, or an explicit coverage gap).
    Do not run a separate observer probe, start, or `register-push` for this
-   managed path, and do not copy mailbox directories by hand. A pending human
-   edit on that checkout stays out of the published commit.
+   managed path, and do not copy mailbox directories by hand. A Codex
+   coordinator's yielded stream armed at execution start is the observer this
+   delivery reuses. A pending human edit on that checkout stays out of the
+   published commit.
    When the selected checkout is the default checkout, follow its
    [direct edit](maintain-default-checkout.md#direct-edit) checks before
    mutating it. A local commit or a local merge stays a local

@@ -101,6 +101,11 @@ back to another identity. If no identity is available, the receipt reports an
 unobserved coverage gap naming the missing source while publication acceptance
 stands; the next `deliver` from the coordinator's own tool, or with its
 `--session-json`, attaches observation without a manual observer start.
+On Codex, the yielded stream armed at execution start under
+[ci-notify-codex.md](ci-notify-codex.md) is the observer `--host codex`
+reuses for every increment and repair. Without a live stream, the receipt
+reports an unobserved gap naming that arming step; once the stream is armed,
+the next `deliver` reuses it.
 A pre-rebase unpublished SHA is not the receipt. After confirmation of a
 publication whose target is remote trunk, attempt a refresh under
 [Refresh eligibility](maintain-default-checkout.md#refresh-eligibility).

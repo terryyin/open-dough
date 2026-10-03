@@ -143,8 +143,28 @@ the Cursor identity source next to the Claude one.
 ### 2. A Codex coordinator's start-time stream is the observer managed delivery reuses
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: examples 3, 4, 6, as tabled above.
+
+Accepted proof (2026-10-03): `execution-increment-managed-delivery-codex.test.mjs`
+pins example 3 (a stream started with the installed launcher; two
+`deliver --host codex` both `reused` with its directory, coverage holds both
+SHAs, one launch) and example 4 (no stream: `unobserved`, reason names
+`ci-mailbox.mjs stream --execution owner/project main` and
+`ci-notify-codex.md`, no storage; `reused` after arming; the CLI rejects
+`--codex-bridge-available`). Example 3 already passed before the change, as
+premise 4 predicted; example 4 and the flag test were red. The session test
+keeps its assertions with the new Codex reason.
+
+Learnings: the deliver parser now treats every flag as taking a value and
+rejects a `--…` token in a value's place. The Codex coverage-gap reason lives
+in `execution-increment-observation.mjs`; `ci-host-bridge.mjs` serves only the
+hook hosts. For slice 3, `streamMailboxWorker` prints `{"sequence":N,"event":…}`
+lines after publishing each record, and the documented binding in
+`ci-notify-codex.md` keeps only `event`. Acknowledging in the binding after
+`notify` fits example 5; it needs a CLI acknowledgment command because the
+isolate cannot import Node modules. Acknowledging on emission would count
+records the coordinator never read.
 
 Behavior: Codex coordinator that armed `ci-mailbox.mjs stream` at execution
 start → `deliver --host codex` for each increment and repair → every receipt

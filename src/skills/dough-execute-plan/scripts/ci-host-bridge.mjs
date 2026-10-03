@@ -1,5 +1,5 @@
-// Invoke the installed host notification bridge. Cursor and Claude use the
-// hook script; Codex readiness is supplied by the caller when tools exist.
+// Invoke the installed host notification bridge: the hook script Cursor and
+// Claude Code coordinators share.
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { fileURLToPath } from "node:url";
@@ -111,17 +111,7 @@ export async function verifyHostBridge({
   env,
   root,
   storage,
-  codexBridgeAvailable,
 }) {
-  if (host === "codex") {
-    return {
-      ready: codexBridgeAvailable === true,
-      reason:
-        codexBridgeAvailable === true
-          ? undefined
-          : "Codex yielded-cell bridge is unavailable",
-    };
-  }
   if (!session?.conversation_id && !session?.session_id) {
     return {
       ready: false,
@@ -154,12 +144,6 @@ export async function bindHostObserver({
   hookPath = defaultHook,
   env,
 }) {
-  if (host === "codex") {
-    return {
-      attached: true,
-      context: "codex stream binding retained by caller",
-    };
-  }
   const output = await invokeHostHook(host, hookInput(host, session, receipt), {
     hookPath,
     cwd: workspace,

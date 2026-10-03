@@ -99,9 +99,9 @@ test("Cursor and Codex delivery never adopt the ambient Claude session", async (
   });
   assert.equal(codex.publication, "accepted");
   assert.equal(codex.observation.state, "unobserved");
-  assert.equal(
+  assert.match(
     codex.observation.reason,
-    "Codex yielded-cell bridge is unavailable",
+    /no live Codex yielded stream observes owner\/project main/,
   );
   assert.equal(existsSync(fixture.storage), false);
 });

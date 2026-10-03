@@ -29,7 +29,6 @@ export async function deliverManagedExecutionIncrement(request) {
     env = process.env,
     root,
     storage,
-    codexBridgeAvailable,
     register,
     validate,
     validatedCandidate,
@@ -84,7 +83,6 @@ export async function deliverManagedExecutionIncrement(request) {
     env,
     root: observerRoot,
     storage: observerStorage,
-    codexBridgeAvailable,
   });
 
   // Queued one-shot work stops on a fetched target tip where another owner
@@ -187,17 +185,18 @@ export async function deliverManagedExecutionIncrement(request) {
 function argumentsOf(argv) {
   if (argv[0] !== "deliver") {
     throw new Error(
-      "usage: execution-increment-delivery.mjs deliver --workspace PATH --branch NAME --previously-published-base SHA --target-ref REF --repo OWNER/REPO [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--authority publish|local-only] [--session-json JSON] [--max-duration-ms MS] [--codex-bridge-available] [--validated-candidate SHA] [--default-checkout PATH] [--one-shot-identity ID]",
+      "usage: execution-increment-delivery.mjs deliver --workspace PATH --branch NAME --previously-published-base SHA --target-ref REF --repo OWNER/REPO [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--authority publish|local-only] [--session-json JSON] [--max-duration-ms MS] [--validated-candidate SHA] [--default-checkout PATH] [--one-shot-identity ID]",
     );
   }
   const result = { authority: "publish" };
   for (let index = 1; index < argv.length; index += 1) {
     const flag = argv[index];
-    if (flag === "--codex-bridge-available") {
-      result.codexBridgeAvailable = true;
-      continue;
-    }
-    if (!flag.startsWith("--") || index + 1 >= argv.length) {
+    // Every flag carries a value; a flag in a value's place is unknown.
+    if (
+      !flag.startsWith("--") ||
+      index + 1 >= argv.length ||
+      argv[index + 1].startsWith("--")
+    ) {
       throw new Error(`invalid argument ${flag}`);
     }
     const key = flag
