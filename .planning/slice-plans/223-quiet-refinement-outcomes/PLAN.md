@@ -30,11 +30,10 @@ continuation into planning or execution.
 
 - Extend the existing report step. Story Refinement's
   [SKILL.md](../../../src/skills/dough-story-refinement/SKILL.md) "Refine and
-  report" points at
-  [planning.md](../../../src/skills/dough-story-refinement/references/planning.md),
-  which owns the conversation and scope rules. Add the outcome rule there as one
-  section and link it from the report sentence. Do not add a new reference
-  file: `install.sh` `managed_files` already declares `SKILL.md`, `planning.md`
+  report" owns the report sentence. The outcome rule is one section,
+  "Report the refinement outcome", directly after it in SKILL.md (moved from
+  planning.md during Slice 1's refactor; see Learnings). Do not add a new
+  reference file: `install.sh` `managed_files` already declares `SKILL.md`, `planning.md`
   and `one-shot-refinement.md`, but a new file would need maintainer promotion
   (ADR 0003).
 - Flawless reuses existing rules and defines no new criteria:
@@ -71,7 +70,7 @@ review walks key examples 1–3 through the edited guidance and is recorded in
 this plan. No paid native run is planned; native checks remain manual.
 
 Local gate: the focused test files listed in each slice, then
-`PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-story-refinement/scripts`
+`PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-story-refinement/scripts/*.test.mjs`
 because existing refinement guidance tests read the same files. Run
 `npm run lint` for formatting. CI runs the full suite after publication.
 
@@ -80,9 +79,9 @@ because existing refinement guidance tests read the same files. Run
 ### 1. Ordinary refinement ends with one of three outcomes
 
 Type: Behavior
-Status: planned
-Proof: `refinement-outcome-guidance.test.mjs` asserts the planning.md outcome
-section and the SKILL.md link. Behavior review walks key examples 1 (ready for
+Status: done
+Proof: `refinement-outcome-guidance.test.mjs` asserts the SKILL.md outcome
+section and the report sentence's link to it. Behavior review walks key examples 1 (ready for
 slice planning, uncommitted, no question), 2 (flawless with the skip-planning
 command, state still unselected) and 3 (open decision listed with a
 recommendation). Then the local gate.
@@ -114,6 +113,17 @@ material constraints and deferred promises, and unresolved decisions") to
 point at the section, keeping the keep/discard and workspace close/retain
 clause. Several stories get one outcome each.
 
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH npm test --
+src/skills/dough-story-refinement/scripts/refinement-outcome-guidance.test.mjs
+src/skills/dough-story-refinement/scripts/one-shot-refinement-guidance.test.mjs
+src/skills/dough-story-refinement/scripts/established-preparation-guidance.test.mjs
+src/skills/dough-execute-plan/scripts/execution-completion-record-guidance.test.mjs`
+exits 0; six tests observe `markdownSection(SKILL.md, "## Report the refinement
+outcome")` and the "Refine and report" sentence. All
+`src/skills/dough-story-refinement/scripts/*.test.mjs` pass. Behavior review
+walked examples 1, 2, 3, 7, 8 and 9 through the edited guidance; each yields
+its intended outcome.
+
 ### 2. One-shot refinement reports the same outcome
 
 Type: Behavior
@@ -124,8 +134,8 @@ review" and "Land automatically when selected". The existing assertions in
 walks key example 5 (auto-land with an open decision stays committed and
 unlanded, outcome Needs human engagement). Then the local gate.
 
-Behavior: a one-shot refinement in review mode → reports the planning.md
-outcome together with the existing review facts: workspace, branch,
+Behavior: a one-shot refinement in review mode → reports the SKILL.md
+outcome (`../SKILL.md#report-the-refinement-outcome`) together with the existing review facts: workspace, branch,
 `startingRevision`, result commit, recorded facts, and not visible on trunk.
 Auto-land lands only on a ready outcome and reports it as landed with the next
 step. An open decision or a stop ends as Needs human engagement with the
@@ -133,10 +143,13 @@ result committed and unlanded, as today.
 
 ## Current decisions
 
-- One section in `planning.md`, with no new reference file (payload
+- One section in `SKILL.md`, with no new reference file (payload
   declaration above).
 - Reporting only: no recorder, story-state, dashboard or script change.
 
 ## Learnings
 
-None yet.
+- Slice 1: the outcome section took `planning.md` to 275 lines, over the
+  refactor pass's 250-line limit. It moved, unchanged, into SKILL.md (118
+  lines), which already owns the report step and is a declared file.
+- `npm test` accepts files, not a directory; the local gate uses a glob.
