@@ -186,6 +186,29 @@ before writing the first attempt, and the spec passes with
 If no test-side observation exists, stop this slice and record why. A product
 seam would be a scope decision for the developer. Slices 1–3 stand without it.
 
+## Execution complete
+
+Product advice:
+
+- Add a story to SEED-093 for the stale kept-record read in
+  `agent-launch-ad-hoc-cursor.spec.ts`. It reads the record once at line 80
+  and asserts `confirmed` at line 173, which explains CI run 37098217155.
+  - It is the remaining known race of this story's family: state read before
+    its event.
+  - Read the record after "First input accepted" shows. That is small.
+  - Place it ahead of `SEED-093#checks-run-from-any-directory`, because it
+    still fails CI.
+- Keep the `agent-completion-*` first-launch polls as evidence for the
+  timing-or-machine-load finding rather than a story for now.
+  - They failed 6 times in one full run at load about 72 and passed at
+    load about 20.
+  - Lengthening their wait is excluded, and the story deferred a slow-path
+    detector. Decide them together with that deferral.
+- DD-220, readiness passing through the parent checkout's dependencies, is
+  related to `SEED-093#checks-run-from-any-directory`. Weigh it when that
+  story is refined.
+- No other backlog change.
+
 ## Current decisions
 
 - The proof is deterministic ordering, not stress. Throttling and jitter
