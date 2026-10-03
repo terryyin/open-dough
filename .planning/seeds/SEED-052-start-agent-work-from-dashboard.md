@@ -112,7 +112,7 @@ or claims of readiness.
 
 **Identity:** SEED-052#one-active-story-session
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/222-one-active-story-session/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e2ff792c2eb887d97bb92446a23153bd406c99f72b07a00a2ad03669a682bc29","plan":"9d93953e4cdcc9d14fa415459f8c8c6bb88ab10ae7973213ec60ee21d47cbc69"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/222-one-active-story-session/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e323cb52d1cb78d046c5a3f7e6107b03d37afc115af9863c0fd1c77d852f65f0","plan":"9d93953e4cdcc9d14fa415459f8c8c6bb88ab10ae7973213ec60ee21d47cbc69"}}
 ```
 
 **Goal:** A developer starting work from the dashboard can trust that a story
@@ -193,6 +193,8 @@ gray.
 **Depends on:** No new prerequisite story identified.
 
 **Open decisions:** None for goal or scope.
+
+<a id="reconcile-recently-done-and-sessions"></a>
 
 ### Review recently done stories alongside their available sessions
 
