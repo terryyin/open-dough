@@ -140,82 +140,6 @@ relative to the launch epic was not selected. It stays here as one canonical
 unqueued candidate rather than disappearing from the discussion or being
 silently added to the launch critical path.
 
-<a id="unread-report-apart-from-engagement"></a>
-
-### Show an unread session report apart from a session needing engagement
-
-**Identity:** SEED-052#unread-report-apart-from-engagement
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/238-unread-report-apart-from-engagement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b501ac50a853bb7bc91985c953d211d6f00455662eb21c36d437330459c3c416","plan":"56a38d5ec1ebb00a5a0c5fc2c354b7cfc89ee7fc87868812fbf187d6447727bb"}}
-```
-
-**Goal:** A developer scanning the Sessions sidebar can trust an entry's left
-border, its place in the attention group, and the banner badge to mean that the
-session itself has stopped and needs their engagement, and still notices a
-completion report they have not yet read. Since completion reports arrived on
-2026-10-02, an unread report has replaced the session's native reading
-(`sessionShown`): a session working on the developer's next instruction reads
-as ready with the green border, and a real "Needs input" is hidden behind an old
-report.
-
-**Scope:**
-
-- One shared reading keeps two independent facts for a session: its native
-  reading (label, tone, needs attention), as it is without any report, and
-  whether it has an unread report — a completion report not yet marked done.
-  An unread report no longer changes the label, tone, border, needs-attention
-  flag, sidebar group, or badge count.
-- Every place that shows a session's state follows that native reading: card
-  and sidebar entries, the sidebar's grouping and order, the banner badge, the
-  card's attention line, and the macOS alert reading. The badge's count and
-  label cover only sessions needing engagement, worded as the card's attention
-  line (“1 session needs attention”).
-- An unread report adds its own marker, worded “Unread report: <completion
-  label>” (for example “Unread report: Completed with attention”) wherever the
-  entry states its state: the card entry's state words and the sidebar
-  tooltip. A card whose sessions hold unread reports says so in a line of its
-  own, “1 unread report” / “N unread reports”, beside, not inside, its
-  “needs attention” line.
-- A report's arrival still raises the macOS alert, named by the same unread
-  report words. A native reading entered while a report is unread alerts as it
-  would without the report.
-- **Boundary:** No change to how reports are delivered, retained, shown in
-  full, or marked done; a new instruction to the same session does not mark
-  its report done. Marked done keeps its current reading. The badge does not
-  count unread reports.
-
-**Key examples:**
-
-1. A Claude session reports “Completed with attention” and its native state is
-   done (“Ready for review”) → its entry shows the ready border in the
-   attention group, the unread-report marker, and the tooltip line
-   “Unread report: Completed with attention”; the badge counts it once; the
-   story card shows “1 session needs attention” and “1 unread report”; the
-   report's arrival raised a macOS alert.
-2. The developer gives that session a new instruction without Mark as done, and
-   native state becomes working → the entry shows “Working” with the working
-   border and moves to its launch-time place among sessions not needing
-   engagement, keeping the unread-report marker; the badge no longer counts it;
-   the card still shows “1 unread report” and no attention line for it.
-3. That session then waits for input → the entry shows “Needs input” with the
-   needs-input border and moves up into the attention group as any session
-   needing engagement does; the badge counts it; a macOS “Needs input” alert
-   is raised; the unread-report marker remains.
-4. The developer marks the report done → the marker, tooltip line, and the
-   card's unread-report line disappear; the entry reads as marked done does
-   today.
-5. A session whose native observation is unavailable or unknown has an unread
-   report → it shows that unsettled reading and the marker, is not counted by
-   the badge, and stays out of the attention group.
-
-**UI:** The unread-report marker is a small message icon on the sidebar entry,
-before the elapsed time, with a faint background tint across the entry; it is
-not a border. Its words are in the tooltip and, hidden from sight, for
-assistive technology. Card entries show the same words in their state line.
-
-**Effort hypothesis:** Mostly the shared session reading, its sidebar ordering,
-the attention count, the alert reading, and the unread-report wording.
-
 ## Ordering and Scope Reduction
 
 Stories 2 and 3 make return and interaction useful; refinement launch and
@@ -263,10 +187,6 @@ implementation; refinement and executable planning are later selections.
   interaction, slight priority for interaction, independent recent sessions and
   recently done stories, and existing local project/tool setup assumed.
 - [Product backlog](../PRODUCT-BACKLOG.md).
-- Terry's 2026-10-03 request: keep the sidebar's left border for sessions that
-  stopped and need engagement, mark an unread report another way without
-  reordering, keep the report's macOS alert, and queue this as backlog priority
-  one; work directly on main and sync with origin.
 - [Current dashboard behavior](../../dashboard/README.md).
 - [Project visibility requirements](../../docs/project-visibility-requirements.md).
 - [Dashboard UX/UI direction](../../docs/dashboard-ux-ui-north-star.md).

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "bas-chan",
-  "email": "bas-chan@example.org",
-  "identity": "SEED-052#unread-report-apart-from-engagement",
-  "mode": "story-branch",
-  "branch": "claude/show-an-unread-session-report-apart-from-a-sessi",
-  "host": "claude"
-}
