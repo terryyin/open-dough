@@ -30,31 +30,58 @@ the perceived production/development difference.
 ### Choose and persist a theme for all embedded terminals
 
 **Identity:** SEED-090#shared-terminal-theme
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/229-shared-terminal-theme/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8475e332e746a951c50bdcbaab402f18cb7626605f2d6425dfe9d80286360244","plan":"68dbabc766d740aa32f393e9ee0f574acb9dc7842544350e1facdaf336a08adb"}}
+```
 
-**Goal:** A developer can choose a named terminal theme in dashboard Settings
-once and have that choice remembered and applied to every embedded xterm window.
+**Goal:** A developer watching agent sessions can choose a named terminal theme
+in dashboard System settings once and have that choice remembered and applied to
+every embedded xterm window, so agent output reads consistently in the palette
+they find readable.
 
 **Scope:**
 
-- Add a terminal theme selector to the existing Settings UI, with named presets
-  and a default matching today's appearance.
-- Persist the selected theme through the dashboard's settings mechanism so it
-  survives page reloads and dashboard restarts.
+- Add a Terminal theme section to System settings with four named presets:
+  **Default** (today's appearance, xterm's white-on-black default), **Light**
+  (dark text on a light background matching the dashboard), **Solarized Dark**,
+  and **Solarized Light**. Each preset defines readable foreground, background,
+  cursor, selection, and ANSI colours.
+- The selector is a labelled, keyboard-operable choice that shows the saved
+  preset. Beside it, a small sample in the selected palette shows ordinary text
+  and the ANSI colours, because Settings hides the dashboard and its terminal
+  panel while the developer chooses.
+- Choosing a preset saves it immediately; there is no separate Save step. If
+  saving fails, Settings shows an alert with Retry and keeps showing the last
+  saved preset, and terminals keep the saved theme.
+- Persist the selection with the dashboard's other machine settings under
+  `~/.open-dough/dashboard/`, so it survives page reloads and dashboard
+  restarts and is one preference for this dashboard on this machine.
 - Apply the same selection to all embedded xterm windows, regardless of agent
-  host or project. Update open terminals when the selection changes and use it
-  when opening or reopening a terminal, without restarting its agent session.
+  host or project. Terminals open in the page update when the selection
+  changes, and a terminal opened or reopened afterwards uses it, without
+  restarting its agent session.
 - Use the same theme selection behavior in development and production.
+
+**Deferred promises:**
+
+- Live update of terminals in other already-open browser windows; they use the
+  saved theme after reload or when opening a terminal.
+- Custom or edited palettes, font settings, and per-project or per-session
+  overrides.
+- Making CLI applications emit styling they do not already emit, and
+  diagnosing the perceived production/development styling difference.
 
 **Key examples:**
 
-- With no saved choice, terminals use the default theme.
-- A developer chooses another preset in Settings: every open terminal adopts
-  it, and a subsequently opened terminal uses it too.
+- With no saved choice, Settings shows Default selected with its sample, and
+  terminals look as they do today.
+- A developer with an agent terminal open opens System settings and chooses
+  Solarized Dark: the sample changes immediately; returning to the dashboard,
+  the open terminal shows Solarized Dark with its session and scrollback
+  intact, and a terminal opened next also uses it.
 - After reloading the page or restarting the dashboard, Settings still shows
-  that preset and terminals use it.
-- Choosing the default again persists that choice and restores its palette.
-
-**Refinement questions:** Choose the preset catalogue and confirm the existing
-settings persistence scope. Keep this one shared preference rather than adding
-per-project or per-session overrides. Palette selection does not require CLI
-applications to emit styling they do not already emit.
+  Solarized Dark and terminals use it.
+- The settings write fails when the developer chooses Light: an alert with
+  Retry appears, the selector and sample return to Solarized Dark, and
+  terminals stay Solarized Dark until a retry succeeds.
+- Choosing Default again persists that choice and restores today's palette.
