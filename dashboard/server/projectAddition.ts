@@ -1,7 +1,5 @@
-import { execFile } from "node:child_process";
 import { realpath } from "node:fs/promises";
 import path from "node:path";
-import { promisify } from "node:util";
 import {
   githubRepository,
   projectIdentity,
@@ -14,8 +12,7 @@ import {
 } from "./projectConfiguration.ts";
 import { folderExists, localFolder } from "./projectFolders.ts";
 import { runGh } from "./ghRead.ts";
-
-const execute = promisify(execFile);
+import { runGit } from "./gitRunner.ts";
 
 export async function addProject(input: ProjectInput, signal: AbortSignal) {
   // Unreadable settings admit no writes or external validation.
@@ -35,25 +32,19 @@ export async function addProject(input: ProjectInput, signal: AbortSignal) {
     );
   let origin: string;
   try {
-    const options = {
-      cwd: folder.path,
-      signal,
-      encoding: "utf8" as const,
-      maxBuffer: 64 * 1024,
-    };
-    const { stdout } = await execute(
-      "git",
+    const options = { cwd: folder.path, signal, maxBuffer: 64 * 1024 };
+    const { stdout } = await runGit(
       ["rev-parse", "--is-inside-work-tree"],
       options,
     );
     if (stdout.trim() !== "true") throw new Error("Not a checkout");
     const top = (
-      await execute("git", ["rev-parse", "--show-toplevel"], options)
+      await runGit(["rev-parse", "--show-toplevel"], options)
     ).stdout.trim();
     if ((await realpath(top)) !== (await realpath(folder.path)))
       throw new Error("Choose the checkout root");
     origin = (
-      await execute("git", ["remote", "get-url", "origin"], options)
+      await runGit(["remote", "get-url", "origin"], options)
     ).stdout.trim();
   } catch {
     if (signal.aborted) throw signal.reason;
@@ -78,7 +69,7 @@ export async function addProject(input: ProjectInput, signal: AbortSignal) {
     ).trim();
     if (ref === "" || ref === "null")
       throw new Error("No usable default branch");
-    await execute("git", ["check-ref-format", "--branch", ref], {
+    await runGit(["check-ref-format", "--branch", ref], {
       signal,
       maxBuffer: 64 * 1024,
     });

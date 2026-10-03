@@ -1,19 +1,25 @@
 // Ends a workspace a stopped preparation start created: the worktree and the
 // branch this launch made, and nothing that existed before it ran the start.
 
-import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
+import { defaultGitOutputLimit, GitFailure, runGit } from "./gitRunner.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
-function tryGit(
+// Whether git succeeded, with what it printed to stderr.
+async function tryGit(
   cwd: string,
   args: readonly string[],
 ): Promise<{ ok: boolean; text: string }> {
-  return new Promise((resolve) => {
-    execFile("git", [...args], { cwd, encoding: "utf8" }, (...done) => {
-      resolve({ ok: !done[0], text: done[2].trim() });
+  try {
+    const { stderr } = await runGit(args, {
+      cwd,
+      maxBuffer: defaultGitOutputLimit,
     });
-  });
+    return { ok: true, text: stderr.trim() };
+  } catch (error) {
+    if (!(error instanceof GitFailure)) throw error;
+    return { ok: false, text: error.stderr.trim() };
+  }
 }
 
 async function branchExists(

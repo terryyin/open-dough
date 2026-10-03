@@ -8,24 +8,18 @@
 // changed again after the warning is noticed without reading its content. It
 // is a local comparison, never a kept confirmation.
 
-import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import { lstat } from "node:fs/promises";
 import path from "node:path";
-import { promisify } from "node:util";
 import {
   existingChangesShown,
   type ExistingChangesFound,
 } from "../src/agentLaunch.ts";
+import { runGit } from "./gitRunner.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
-const exec = promisify(execFile);
-
 async function gitOutput(cwd: string, args: readonly string[]) {
-  const { stdout } = await exec("git", ["-C", cwd, ...args], {
-    encoding: "utf8",
-    maxBuffer: 64 * 1024 * 1024,
-  });
+  const { stdout } = await runGit(args, { cwd, maxBuffer: 64 * 1024 * 1024 });
   return stdout;
 }
 

@@ -100,7 +100,7 @@ PFE findings and choices:
 
 ### 1. One Git runner for the dashboard server
 Type: Structure
-Status: planned
+Status: done
 Proof: `npm run test:dashboard -- agent-launch-default-checkout-warning.spec.ts launch-workspace.spec.ts agent-launch-preparation-stops.spec.ts project-add-validation.spec.ts` stays green, and `npm run typecheck:dashboard` passes.
 
 Internal change: add one server module that runs Git in a checkout, taking
@@ -109,6 +109,12 @@ limit. Move `defaultCheckoutChanges.ts`, `startGit.ts`, `preparationCleanup.ts`,
 and `projectAddition.ts` onto it. Each caller keeps its own failure meaning
 (empty text, ok/text, or a thrown problem) and behaves as before. Enables
 slice 2, which needs the environment option for the temporary index.
+
+Accepted proof: `npm run typecheck:dashboard` passes, and the four named specs
+plus `execution-start-result.spec.ts` (a `startGit` consumer) pass, 26 tests.
+Learning: `runGit` (`dashboard/server/gitRunner.ts`) rejects with `GitFailure`,
+which carries `stdout` and `stderr`. Node's `ExecException` type is not an
+`Error` to the linter.
 
 ### 2. Open a story's review and see its changed files
 Type: Behavior
