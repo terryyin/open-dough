@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "aki-chan",
+  "email": "aki-chan@example.org",
+  "identity": "SEED-091#story-card-information-radiator",
+  "mode": "story-branch",
+  "branch": "cursor/make-story-cards-modern-compact-information-radi",
+  "host": "cursor",
+  "model": "gemini-3.8-flash-high"
+}
