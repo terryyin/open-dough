@@ -33,6 +33,8 @@ const installedSkills = [
   "dough-execute-plan",
   "dough-product-backlog",
   "dough-story-refinement",
+  "dough-land",
+  "dough-story-wrap-up",
 ] as const;
 
 export type StartOrigin = {

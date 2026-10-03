@@ -1,55 +1,20 @@
 // Durable native launch evidence and current session observations.
 import { z } from "zod";
+import { completionSchema } from "./completionReport.ts";
+export { completionSchema, type CompletionReport } from "./completionReport.ts";
 import {
   recordedLaunchRequestSchema,
   sessionPolicySchema,
 } from "./launchRequest.ts";
 
-// Each host keeps its native identity and continuation in its own variant.
-const claudeSessionSchema = z.object({
-  host: z.literal("claude"),
-  sessionId: z.string().min(1),
-  shortId: z.string().min(1),
-  name: z.string(),
-});
-
-const codexSessionSchema = z.object({
-  host: z.literal("codex"),
-  sessionId: z.string().min(1),
-  name: z.string(),
-  continuation: z
-    .object({
-      workspace: z.string().min(1),
-      endpoint: z.string().min(1),
-      args: z.array(z.string()),
-      // Context for continuing a conversation after native observation ends.
-      notice: z.string().optional(),
-    })
-    .optional(),
-});
-
-// The printed create-chat id, plus the workspace and resume command that
-// continue it. No alias and no endpoint.
-const cursorSessionSchema = z.object({
-  host: z.literal("cursor"),
-  sessionId: z.uuid(),
-  name: z.string(),
-  continuation: z.object({
-    workspace: z.string().min(1),
-    args: z.array(z.string()),
-  }),
-});
-
-export const hostSessionSchema = z.discriminatedUnion("host", [
-  claudeSessionSchema,
-  codexSessionSchema,
-  cursorSessionSchema,
-]);
-
-export type ClaudeSession = z.infer<typeof claudeSessionSchema>;
-export type CodexSession = z.infer<typeof codexSessionSchema>;
-export type CursorSession = z.infer<typeof cursorSessionSchema>;
-export type HostSession = z.infer<typeof hostSessionSchema>;
+import { hostSessionSchema } from "./hostSession.ts";
+export {
+  hostSessionSchema,
+  type ClaudeSession,
+  type CodexSession,
+  type CursorSession,
+  type HostSession,
+} from "./hostSession.ts";
 
 export const firstInputSchema = z.object({
   // not-requested is intentional blank launch intent, never a retryable input.
@@ -163,6 +128,7 @@ export function isEstablishedOneShot(
 // A native conversation with first-input evidence, kept until `launchRetentionDays` after
 // the developer marked its session done (`./doneMark.ts`), if they ever do,
 // with when they did: local evidence only, never a story fact.
+
 export const launchRecordSchema = z.object({
   request: recordedLaunchRequestSchema,
   session: hostSessionSchema,
@@ -172,7 +138,9 @@ export const launchRecordSchema = z.object({
   preparation: establishedPreparationSchema.optional(),
   launchedAt: z.iso.datetime(),
   firstInput: firstInputSchema.optional(),
+  completion: completionSchema.optional(),
   doneAt: z.iso.datetime().optional(),
+  dispositionChangedAt: z.iso.datetime().optional(),
   // Native operations may fail even though local done intent was retained.
   doneProblem: z.string().max(1_200).optional(),
 });

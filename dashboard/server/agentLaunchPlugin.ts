@@ -33,6 +33,8 @@
 // is refused before any host process starts, and a session its host confirms
 // unavailable is refused before native terminal attachment.
 
+import { sessionResultResponse } from "./sessionResultResponse.ts";
+import { submitCompletion, completionEndpoint } from "./completionReporting.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, HttpServer, Plugin } from "vite";
@@ -51,7 +53,7 @@ import { deleteRecord } from "./launchRecordStore.ts";
 import { localBoundaryPlugin } from "./localBoundaryPlugin.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
-import { hostOperations, launchHost } from "./launchHosts.ts";
+import { hostOperations } from "./launchHosts.ts";
 import {
   respondToLaunch,
   type AgentLaunchAnswer,
@@ -109,6 +111,8 @@ async function answer(
   alerts: SessionAlerts,
 ): Promise<AgentLaunchAnswer> {
   try {
+    if (url.pathname === completionEndpoint)
+      return { status: 200, body: await submitCompletion(req) };
     const request = await admitted(req, url, launches);
     switch (request.kind) {
       case "host-options": {
@@ -133,18 +137,7 @@ async function answer(
         });
       }
       case "result":
-        return await withResponseSignal(res, async (signal) => {
-          const host = launchHost(request.record.session.host);
-          if (host?.readResult === undefined)
-            throw new RefusedRequest(
-              400,
-              "This host cannot read a final report.",
-            );
-          return {
-            status: 200,
-            body: await host.readResult(request.record.session, signal),
-          };
-        });
+        return await sessionResultResponse(request.record, res);
       case "sessions": {
         const { attempts, readable } = await launches.attempts();
         return {
@@ -174,7 +167,11 @@ async function answer(
       case "accept":
         return {
           status: 200,
-          body: await launches.accept(request.source, request.request),
+          body: await launches.accept(
+            request.source,
+            request.request,
+            `http://${req.headers.host}`,
+          ),
         };
       case "continue":
         return {

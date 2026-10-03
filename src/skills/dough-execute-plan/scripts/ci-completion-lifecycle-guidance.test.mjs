@@ -21,6 +21,7 @@ const closurePublication = read(
   "dough-execute-plan/references/wrap-up-closure-publication.md",
 );
 const storyWrapUp = read("dough-story-wrap-up/SKILL.md");
+const attention = read("dough-land/references/completion-attention.md");
 
 test("review overlaps pending CI and one completion operation owns final handoff", () => {
   assert.match(
@@ -90,7 +91,23 @@ test("Trunk Mode and Story Branch closure share one completion operation before 
   );
   assert.match(
     closurePublication,
-    /combined[\s\S]+CI and shutdown receipt[\s\S]+report the exact[\s\S]+published closure SHAs/,
+    /combined[\s\S]+CI and shutdown receipt[\s\S]+retain(?:ing)? the exact[\s\S]+published closure SHAs[\s\S]+receipt[\s\S]+remaining coverage/,
+  );
+  assert.match(
+    closurePublication,
+    /Apply \[completion attention\][\s\S]+final response/,
+  );
+  assert.match(
+    attention,
+    /successful completion[\s\S]+nothing requiring attention[\s\S]+no recap/,
+  );
+  assert.match(
+    attention,
+    /Keep operational evidence[\s\S]+command results[\s\S]+conversation context/,
+  );
+  assert.match(
+    attention,
+    /silence and a marker never prove completion[\s\S]+publication, observation, shutdown, recovery, or retirement gates/,
   );
   assert.match(
     closurePublication,
@@ -128,7 +145,10 @@ test("Trunk Mode and Story Branch closure share one completion operation before 
     closurePublication,
     /then explicitly stop the trunk observer/,
   );
-  assert.match(storyWrapUp, /completion receipt \(CI verdict/);
+  assert.match(
+    storyWrapUp,
+    /Keep[\s\S]+accepted publication and completion\s+receipts, remaining coverage[\s\S]+operational evidence/,
+  );
   assert.match(storyWrapUp, /Local-only[\s\S]+does not push/);
   assert.match(
     monitor,

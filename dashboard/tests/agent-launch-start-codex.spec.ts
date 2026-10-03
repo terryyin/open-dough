@@ -147,6 +147,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
     original,
     revision,
     profile?.["agent"],
+    dashboard,
     true,
   );
   expect(native.calls.filter((call) => call.method === "thread/start")).toEqual(

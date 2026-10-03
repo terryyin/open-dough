@@ -92,7 +92,8 @@ for (const model of ["opus", undefined] as const) {
       const [call] = server.claudeLaunchCalls();
       expect(call?.cwd).toBe(realpathSync(workspace));
       const instruction = call?.argv.at(-1) ?? "";
-      const [skill, block, developer] = instruction.split("\n\n");
+      const [skill, block, reporting, developer] = instruction.split("\n\n");
+      expect(reporting).toContain("Dashboard reporting context:");
       expect(skill).toBe(`/dough-story-refinement ${queuedIdentity}`);
       expect(developer).toBe("Focus on the examples.");
       const lines = (block ?? "").split("\n");
@@ -168,8 +169,11 @@ test.describe("refinement of a project whose installed skill lacks the preparati
     expect(existsSync(path.join(origin.project, ".worktrees"))).toBe(false);
     const [call] = server.claudeLaunchCalls();
     expect(call?.cwd).toBe(realpathSync(origin.project));
-    expect(call?.argv.at(-1)).toBe(
-      `/dough-story-refinement ${queuedIdentity}\n\nFocus on the examples.`,
+    const [skill, reporting, developer] = (call?.argv.at(-1) ?? "").split(
+      "\n\n",
     );
+    expect(skill).toBe(`/dough-story-refinement ${queuedIdentity}`);
+    expect(reporting).toContain("Dashboard reporting context:");
+    expect(developer).toBe("Focus on the examples.");
   });
 });

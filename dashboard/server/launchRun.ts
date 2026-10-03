@@ -22,6 +22,9 @@ import type { OwnedAttempt } from "./ownedAttempts.ts";
 import { establishedFacts } from "./startLaunch.ts";
 import type { StartProgress } from "./startProgress.ts";
 
+import { keepAttempt } from "./launchAttemptStore.ts";
+import { reportingContext } from "./completionReporting.ts";
+
 const defaultLaunchWaitMs = 30_000;
 
 // A bounded launch wait; test configuration may shorten it.
@@ -34,10 +37,12 @@ function launchTimeoutMs(): number {
 
 export async function attemptRun(
   source: PublishedSource,
-  { request, controller, attempt }: OwnedAttempt,
+  own: OwnedAttempt,
   notePublication: (publication: PublicationReceipt) => Promise<void>,
   progress: StartProgress,
 ): Promise<LaunchResult> {
+  const owned = own;
+  const { request, controller, attempt } = owned;
   const folder = projectFolder(source);
   const began = new Date(attempt.acceptedAt);
   const requested = recordedRequest(request, began);
@@ -48,15 +53,29 @@ export async function attemptRun(
       : ({ kind: "none" } as const);
   await notePublication(publicationOf(start, pending));
   if (start.kind === "stopped") return start.result;
-  const recording =
-    pending?.request ??
-    (start.kind === "established"
-      ? withStartPolicy(requested, start.policy)
-      : requested);
-  const timer = setTimeout(() => {
-    controller.abort();
-  }, launchTimeoutMs());
+  let timer: NodeJS.Timeout | undefined;
   try {
+    const baseRecording =
+      pending?.request ??
+      (start.kind === "established"
+        ? withStartPolicy(requested, start.policy)
+        : requested);
+    const reporting =
+      pending?.request.reporting ??
+      attempt.reporting ??
+      (await reportingContext(
+        attempt,
+        start.kind === "established" ? start.workspace : folder,
+      ));
+    if (reporting !== undefined) {
+      owned.attempt = { ...owned.attempt, reporting };
+      await keepAttempt(owned.attempt);
+    }
+    const recording =
+      reporting === undefined ? baseRecording : { ...baseRecording, reporting };
+    timer = setTimeout(() => {
+      controller.abort();
+    }, launchTimeoutMs());
     return await launchRun(
       source,
       recording,

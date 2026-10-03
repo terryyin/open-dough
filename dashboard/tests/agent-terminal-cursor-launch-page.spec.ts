@@ -9,6 +9,7 @@ import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
 import { waitUntil } from "./support/dashboardServer.ts";
 import { keptCursor } from "./support/keptCursorTurn.ts";
 import { processRunning } from "./support/processGroup.ts";
+import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
 
 const instruction = "hold this launch";
 const notice =
@@ -101,8 +102,13 @@ test("opening during a running Cursor launch shows the notice, then the ordinary
     await expect.poll(() => processRunning(pid)).toBe(false);
     expect(recorded.firstInput).toMatchObject({
       state: "uncertain",
-      instruction,
     });
+    expectAdHocReportingInput(
+      recorded.firstInput?.instruction ?? "",
+      instruction,
+      recorded.request,
+      dashboard,
+    );
   } finally {
     cursor.releasePrompt();
   }

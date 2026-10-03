@@ -60,6 +60,17 @@ bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
 expected_source=$(cd -- "${source_dir}" && pwd -P)
 for skill_root in "${skill_roots[@]}"; do
   assert_payload_bytes_match "${source_dir}/src/skills" "${target}/${skill_root}"
+  # Load the installed shared attention rule through Wrap Up's actual relative
+  # link. The byte assertion above proves this is the candidate guidance, not
+  # a maintained local copy. This is installed-use structure, not native proof.
+  grep -Fq '(../dough-land/SKILL.md#completion-attention)' \
+    "${target}/${skill_root}/dough-story-wrap-up/SKILL.md"
+  grep -Fxq '## Completion attention' \
+    "${target}/${skill_root}/dough-story-wrap-up/../dough-land/SKILL.md"
+  grep -Fq '(references/completion-attention.md)' \
+    "${target}/${skill_root}/dough-land/SKILL.md"
+  grep -Fxq '# Completion attention' \
+    "${target}/${skill_root}/dough-land/references/completion-attention.md"
   recorded_source=$(cat "${target}/${skill_root}/dough-update/SOURCE")
   [[ "${recorded_source}" == "${expected_source}" ]]
 done

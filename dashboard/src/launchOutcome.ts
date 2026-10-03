@@ -1,19 +1,23 @@
-// What a launch answers (`./agentLaunch.ts`): its result once it settles, its
-// acceptance by the local service, and the attempt that service keeps
-// (`../server/agentLaunches.ts`). Why nothing (or maybe nothing) was launched
-// is spelled once here for all three. No Node import, so the browser and the
-// server read the same shapes.
+// Launch results, acceptance and retained attempts share these shapes across
+// browser and server, including why no session (or maybe one) was launched.
 
 import { z } from "zod";
 import {
+  reportingContextSchema,
   agentLaunchEndpoint,
   agentLaunchRequestSchema,
-  existingChangesSchema,
   type StoryLaunchRequest,
 } from "./launchRequest.ts";
-import { launchWithStateSchema } from "./launchRecord.ts";
+import { completionReceiptSchema } from "./completionReport.ts";
+import { completionSchema, launchWithStateSchema } from "./launchRecord.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
+import { existingChangesFoundSchema } from "./existingLaunchChanges.ts";
+export {
+  existingChangesFoundSchema,
+  existingChangesShown,
+  type ExistingChangesFound,
+} from "./existingLaunchChanges.ts";
 
 // Why nothing was launched; `not-listed`: host listing names no launched
 // session; `session-open`: an open launch record of the story remains.
@@ -37,19 +41,6 @@ export const unreadableLaunchRecordsExplanation =
 
 // Why a launch may or may not have started a session: timed-out or unconfirmed.
 export const launchUncertaintyReasons = ["timed-out", "unconfirmed"] as const;
-
-// Uncommitted default-checkout changes before a launch selects it: paths (at
-// most `existingChangesShown`), count, and fingerprint (`existingChangesSchema`).
-export const existingChangesShown = 50;
-
-export const existingChangesFoundSchema = z.object({
-  kind: z.literal("existing-changes"),
-  paths: z.array(z.string().min(1)).max(existingChangesShown),
-  count: z.number().int().positive(),
-  fingerprint: existingChangesSchema,
-});
-
-export type ExistingChangesFound = z.infer<typeof existingChangesFoundSchema>;
 
 // Every answer but a launched session: nothing was started because the
 // default checkout holds changes the request did not confirm, or that changed
@@ -138,6 +129,11 @@ export type AttemptOutcome = z.infer<typeof attemptOutcomeSchema>;
 
 export const launchAttemptSchema = z.object({
   id: z.uuid(),
+  reportingOrigin: z.url().optional(),
+  reportingDeletedAt: z.iso.datetime().optional(),
+  reporting: reportingContextSchema.optional(),
+  completion: completionSchema.optional(),
+  completionReceipts: z.array(completionReceiptSchema).optional(),
   request: agentLaunchRequestSchema,
   acceptedAt: z.iso.datetime(),
   publication: publicationReceiptSchema,
@@ -167,7 +163,6 @@ export function needsReconciliation(attempt: AttemptObservation): boolean {
         attempt.publication.kind === "unknown";
 }
 
-// The later accepted of two attempts, as a story's latest attempt is told.
 export const laterAttempt = (
   one: AttemptObservation | undefined,
   other: AttemptObservation,

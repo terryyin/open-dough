@@ -112,6 +112,8 @@ managed_files=(
   dough-story-refinement/scripts/preparation-one-shot-recheck.mjs
   dough-story-refinement/scripts/preparation-one-shot-start.mjs
   dough-land/SKILL.md
+  dough-land/references/completion-attention.md
+  dough-land/references/dashboard-completion.md
   dough-land/scripts/retirement-checks.mjs
   dough-land/scripts/worktree-retirement.mjs
   dough-land/scripts/queued-closure-check.mjs
@@ -120,6 +122,7 @@ managed_files=(
   dough-slice-planning/references/architectural-thinking.md
   dough-pfe/SKILL.md
   dough-slice-plan-refinement/SKILL.md
+  dough-execute-plan/scripts/dashboard-completion.mjs
   dough-execute-plan/SKILL.md
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json

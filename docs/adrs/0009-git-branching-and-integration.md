@@ -199,9 +199,9 @@ work is blocked or checkout ownership is missing.
 
 Installed execute-plan publication and default-checkout maintenance guidance
 own the implemented contract for callers, recovery, and proof.
-[Integrate Story Branch closures through an installed command](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration)
-owns the remaining migration to remote-based startup and a shared remote-first
-lifecycle with optional local refresh. The
+The former [installed Story Branch integration candidate](https://github.com/terryyin/open-dough/blob/db75dac39cc8a1aae33e7e881d5c3363730f93c9/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration)
+was deferred when Terry repurposed it to dashboard completion reporting on
+2026-10-02. The
 [visibility requirements](../project-visibility-requirements.md) distinguish
 published progress from local operational evidence. These records express the
 selected planning direction; execution follows its own authorization.

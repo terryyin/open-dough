@@ -16,6 +16,7 @@ trunk_closure_write_assessor_observation() {
     printf 'product-shutdown: true\nforced-stop: false\n'
     printf 'checkout-present-after: false\ncleanup-complete: true\n'
     printf 'cleanup-observer-state: stopped\nbranch-present: false\n'
+    printf 'response-completion-result: true\n'
     printf 'provider-candidate-calls: %s\nharness-inspected: false\ncontrol-order:\n' "${provider_calls}"
     if [[ ${scenario} == source ]]; then
       if [[ ${order} == normal ]]; then
@@ -57,6 +58,7 @@ observer-missing cleanup-observer cleanup-observer-state: missing
 observer-running cleanup-observer cleanup-observer-state: running
 worktree-kept worktree checkout-present-after: true
 branch-kept branch branch-present: true
+recap response response-completion-result: false
 EOF
   trunk_closure_write_assessor_observation \
     "${work}/early-shutdown.txt" source success none 1 early

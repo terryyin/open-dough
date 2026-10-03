@@ -1,3 +1,4 @@
+import { reportingInstruction } from "../../reportingInstruction.ts";
 // Starting one Claude Code session for the local launch boundary
 // (`../../agentLaunches.ts`) and classifying the outcome: the instruction and name
 // a session starts with, run through `claude --bg` (`./runtime.ts`),
@@ -31,22 +32,26 @@ import type {
 
 // The workflow's skill on the work item's identity, its policy's flags and
 // the options selected (`launchArguments`),
-// then the established start when the launch has one, then the developer's
-// own instruction, when there is one, each after a blank line; an ad hoc
-// session has only the instruction as typed, or none.
+// then the established start, reporting context and developer instruction, each
+// after a blank line. Prompted ad hoc text stays first, followed by its reporting
+// context; a blank session has no instruction.
 function claudeInstruction(
   request: RecordedLaunchRequest,
   established: EstablishedHandoff | undefined,
 ): string | undefined {
   const own = request.instruction?.trim();
   if (request.workflow === "ad-hoc") {
-    return own ? request.instruction : undefined;
+    return own
+      ? [request.instruction, reportingInstruction(request)]
+          .filter(Boolean)
+          .join("\n\n")
+      : undefined;
   }
   const skill = [
     `/${launchWorkflows[request.workflow].skill}`,
     ...launchArguments(request),
   ].join(" ");
-  return [skill, established?.formatted, own]
+  return [skill, established?.formatted, reportingInstruction(request), own]
     .filter((part) => part !== undefined && part !== "")
     .join("\n\n");
 }

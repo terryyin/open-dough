@@ -14,6 +14,7 @@ import { startSessionField } from "./launchCardPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, test } from "./support/cursorStart.ts";
 import { cursorModels } from "./support/fakeCursor.ts";
+import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
 
 const savedNote =
   "Cursor also saves a chosen model as your Cursor setting for later sessions.";
@@ -171,12 +172,19 @@ test("an unreadable Cursor list is explained, Retry rereads it, and Default stil
   const [created, prompted, ...rest] = cursor.calls();
   expect(rest).toEqual([]);
   expect(created?.args).toEqual(["create-chat"]);
+  const prompt = prompted?.args.at(-1) ?? "";
+  expectAdHocReportingInput(
+    prompt,
+    "why is the CI slow?",
+    keptRecord(dashboard.home).request,
+    dashboard,
+  );
   expect(prompted?.args).toEqual([
     "--workspace",
     origin.project,
     "--resume",
     cursor.sessionId,
-    "why is the CI slow?",
+    prompt,
   ]);
   expect(keptRecord(dashboard.home).request).not.toHaveProperty("model");
 });

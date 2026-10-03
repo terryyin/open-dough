@@ -10,7 +10,8 @@ tracking, Default main with its existing changes, or Automatically land),
 **Recent sessions** lists those launches, newest first, the **Sessions**
 sidebar lists every project's open sessions, those needing attention first, each one line of title and elapsed time, its button badged with how many need attention,
 **Open terminal** shows a launch's session beside the page, and **Mark as
-done** there stops it ([Agent launch](AGENT-LAUNCH.md)).
+done** records local Done for a reported session; for an unreported session it
+stops native work ([Agent launch](AGENT-LAUNCH.md)).
 **Start session** on the project actions row starts an ad hoc session in the
 selected project's folder, with no story, listed in Recent sessions and the
 Sessions sidebar.

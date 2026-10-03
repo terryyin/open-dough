@@ -166,9 +166,21 @@ export function requestedChoices({
 
 // The request a record keeps: an ad hoc one with the label the server
 // derived as its title, and a story's without a confirmation.
+export const reportingContextSchema = z.object({
+  origin: z.url(),
+  reference: z.uuid(),
+  command: z.string().min(1),
+});
+export type ReportingContext = z.infer<typeof reportingContextSchema>;
+
 export const recordedLaunchRequestSchema = z.discriminatedUnion("workflow", [
-  storyLaunchRequestSchema.omit({ existingChanges: true }),
-  adHocLaunchRequestSchema.extend({ title: oneLine }),
+  storyLaunchRequestSchema
+    .omit({ existingChanges: true })
+    .extend({ reporting: reportingContextSchema.optional() }),
+  adHocLaunchRequestSchema.extend({
+    title: oneLine,
+    reporting: reportingContextSchema.optional(),
+  }),
 ]);
 
 export type RecordedLaunchRequest = z.infer<typeof recordedLaunchRequestSchema>;

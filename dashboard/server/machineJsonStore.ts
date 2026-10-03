@@ -131,3 +131,19 @@ export async function replaceMachineJson<T>(
     }
   }
 }
+
+// Shares the document's writer lock while a related store binds its evidence.
+// It does not rewrite this document; callers cannot fail a second write after disposition.
+export async function readMachineJsonLocked<T, R>(
+  store: MachineJsonStore<T>,
+  observe: (read: StoreRead<T>) => Promise<R>,
+): Promise<R> {
+  await mkdir(path.dirname(store.file), { recursive: true });
+  const lock = `${store.file}.lock`;
+  await acquireWriteLock(lock);
+  try {
+    return await observe(await readMachineJson(store));
+  } finally {
+    await rmdir(lock);
+  }
+}

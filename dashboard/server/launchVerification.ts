@@ -70,6 +70,7 @@ export async function verifyLaunch(
   {
     request,
     acceptedAt,
+    reporting,
   }: LaunchAttemptRecord & { request: StoryLaunchRequest },
   signal: AbortSignal,
 ): Promise<Verified> {
@@ -106,10 +107,12 @@ export async function verifyLaunch(
       : launchStartContext(project, established);
   const startedIn = context?.workspace ?? project;
   const requested = recordedRequest(request, new Date(acceptedAt));
-  const recording =
+  const baseRecording =
     context === undefined
       ? requested
       : withStartPolicy(requested, context.policy);
+  const recording =
+    reporting === undefined ? baseRecording : { ...baseRecording, reporting };
   const listed = await host.launchedSessions(
     source,
     recording,

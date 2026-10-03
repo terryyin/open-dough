@@ -14,7 +14,7 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 
 assert_all_roots() {
-  local target=$1 version=$2 marker=$3 source=$4 platform dest
+  local target=$1 version=$2 marker=$3 source=$4 platform dest script
   for platform in codex claude; do
     dest=$(bash "${source_dir}/src/install/open-dough-release.sh" destination "${target}" "${platform}")
     if [[ -n "${marker}" ]]; then
@@ -31,6 +31,10 @@ assert_all_roots() {
         "$(dirname -- "${dest}")/dough-story-wrap-up/SKILL.md"
       [[ $(cat "${dest}/VERSION") == "${version}" ]]
     fi
+    for script in dashboard-completion.mjs ci-direct-entry.mjs; do
+      cmp "${source_dir}/src/skills/dough-execute-plan/scripts/${script}" \
+        "$(dirname -- "${dest}")/dough-execute-plan/scripts/${script}"
+    done
     [[ $(cat "${dest}/SOURCE") == "${source}" ]]
   done
   assert_sentinels "${target}"
@@ -77,10 +81,8 @@ assert_payload_unchanged() {
   fi
 }
 
-# Any entry context gives a clean project the same two physical roots, bytes,
-# and both native hook registrations (including a path with spaces). The codex
-# and cursor hints select the same .agents entry root, so cursor represents
-# both here; the default codex hint installs fresh below.
+# Entry contexts share both physical roots and native registrations, including
+# paths with spaces. Cursor covers shared .agents; default Codex installs below.
 for entry in cursor claude; do
   target="${temporary_dir}/fresh ${entry}"
   prepare_target "${target}"
@@ -231,8 +233,6 @@ fi
 [[ "${output}" == *'unsafe-hooks-destination'* ]]
 [[ $(snapshot_path_state "${unsafe_target}") == "${before}" ]]
 [[ ! -e "${unsafe_target}/.agents/skills/dough-update" ]]
-
-# Nonempty unrelated hooks are owned by tests/install-ci-host-hooks.sh (Slice 2).
 
 # A no-URL update from one old root restores missing shared integrations.
 fixture="${temporary_dir}/fixture.git"

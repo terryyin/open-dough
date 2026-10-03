@@ -85,6 +85,7 @@ test("an accepted launch outlives its caller; server shutdown keeps it unsettled
       id: answered.attempt?.id,
       request,
       acceptedAt: answered.attempt?.acceptedAt,
+      reportingOrigin: dashboard.origin,
       // This project's refinement has no installed start to publish.
       publication: { kind: "none" },
       owned: true,
@@ -112,6 +113,7 @@ test("an accepted launch outlives its caller; server shutdown keeps it unsettled
         id: answered.attempt?.id,
         request,
         acceptedAt: answered.attempt?.acceptedAt,
+        reportingOrigin: dashboard.origin,
         publication: { kind: "none" },
         owned: false,
       },

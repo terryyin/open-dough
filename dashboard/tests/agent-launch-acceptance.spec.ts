@@ -109,6 +109,7 @@ test.describe("an accepted launch", () => {
         id,
         request,
         acceptedAt: answered.attempt?.acceptedAt,
+        reportingOrigin: server.origin,
         publication: { kind: "unknown" },
       },
     ]);
@@ -221,10 +222,12 @@ test.describe("an accepted launch", () => {
         id: answered.attempt?.id,
         request,
         acceptedAt: answered.attempt?.acceptedAt,
+        reportingOrigin: server.origin,
         publication: { kind: "unknown" },
       },
     ]);
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(await runningStarts(server)).toEqual([]);
+    expect(server.claudeLaunchCalls()).toEqual([]);
   });
 });

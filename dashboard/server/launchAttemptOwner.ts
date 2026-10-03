@@ -75,6 +75,7 @@ export class LaunchAttemptOwner {
   async accept(
     request: AgentLaunchRequest,
     run: AttemptRun,
+    reportingOrigin?: string,
   ): Promise<Acceptance> {
     if ((await keptAttempts()) === undefined) return unreadableEvidence;
     // The confirmation of existing changes is transient: never kept.
@@ -86,6 +87,7 @@ export class LaunchAttemptOwner {
         id: randomUUID(),
         request: keptRequest,
         acceptedAt: new Date().toISOString(),
+        ...(reportingOrigin === undefined ? {} : { reportingOrigin }),
         publication: {
           kind: request.workflow === "ad-hoc" ? "none" : "unknown",
         },
@@ -134,6 +136,9 @@ export class LaunchAttemptOwner {
         request: found.request,
         acceptedAt: found.acceptedAt,
         publication: found.publication,
+        reportingOrigin: found.reportingOrigin,
+        reporting: found.reporting,
+        completion: found.completion,
       },
       run,
       id,

@@ -1,5 +1,5 @@
 // Record actions shared by card and Recent sessions entries.
-import { hostName, marksDone } from "./sessionCapabilities.ts";
+import { hostName, marksRecordDone } from "./sessionCapabilities.ts";
 import { useEffect, useRef, useState } from "react";
 import { recordDeletable, type LaunchWithState } from "./agentLaunch.ts";
 import {
@@ -21,7 +21,7 @@ export function CardActions({ record }: { readonly record: LaunchWithState }) {
   const described = useFrameDescription();
   return (
     <>
-      {marksDone(hostOperations, record.session.host) && (
+      {marksRecordDone(hostOperations, record) && (
         <p className="launch-open">
           <button
             type="button"

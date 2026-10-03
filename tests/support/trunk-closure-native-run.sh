@@ -28,6 +28,7 @@ trunk_closure_write_evidence_identity() {
     tests/support/git-publication-native-host.sh \
     tests/support/trunk-closure-native-run.sh \
     tests/support/trunk-closure-native-assess.sh \
+    tests/support/closure-native-response.sh \
     tests/support/trunk-closure-native-observe.sh \
     tests/support/trunk-closure-native-counterexamples.sh \
     tests/support/native-completion-observation.sh \
@@ -103,7 +104,7 @@ trunk_closure_prompt_for() {
     trunk_closure_owned_context_prompt
     return
   fi
-  printf '%s\n' "Use this project's installed Open Dough guidance. Complete the retained Trunk Mode final-closure candidate described in .planning/execution-state.txt, including its authorized publication, CI observation handoff, and local resource cleanup. Preserve the pending human edit in the separate default checkout and report the observed closure result. Treat the installed guidance and retained project state as the task inputs; do not inspect parent processes or external test-harness source."
+  printf '%s\n' "Use this project's installed Open Dough guidance. Complete the retained Trunk Mode final-closure candidate described in .planning/execution-state.txt, including its authorized publication, CI observation handoff, and local resource cleanup. Preserve the pending human edit in the separate default checkout. Treat the installed guidance and retained project state as the task inputs; do not inspect parent processes or external test-harness source."
 }
 
 trunk_closure_run_journey() {

@@ -19,7 +19,7 @@ story_closure_write_assessor_observation() {
       'local-branch-present: false' \
       'cleanup-observer-states: exec/story: stopped,main: finished' \
       'branch-remote: absent' 'cleanup-complete: true' \
-      'human-edit-preserved: true' 'control-order:' \
+      'human-edit-preserved: true' "refresh-attention: ${3:-false}" 'control-order:' \
       '  branch-complete' '  branch-shutdown' '  trunk-setup' \
       '  integration-publication' '  trunk-registration' '  trunk-complete' \
       '  trunk-ci-release' '  trunk-coverage-success' '  trunk-shutdown' \
@@ -34,7 +34,7 @@ run_story_closure_assessor_counterexamples() {
   valid="${work}/valid"
   # shellcheck disable=SC2064
   trap "rm -rf -- '${work}'" RETURN
-  printf '%s\n' 'Trunk CI is green on the integrated commit.' > "${work}/response"
+  printf '%s\n' '## STORY WRAP-UP COMPLETE' > "${work}/response"
   story_closure_write_assessor_observation "${valid}" "${work}/response"
   native_assessor_counterexamples "${story_closure_assess_file}" "${valid}" \
     -- story_closure_assess
@@ -65,7 +65,12 @@ run_story_closure_assessor_counterexamples() {
   native_assessor_rejects_edit ci-release-before-registration control-order \
     '/^  trunk-ci-release$/d; s/^  trunk-registration$/  trunk-ci-release\
   trunk-registration/'
+  native_assessor_rejects_edit silent-deferred-refresh refresh-attention \
+    's/refresh-attention: false/refresh-attention: true/'
+  native_assessor_rejects_edit missing-refresh-observation refresh-attention \
+    '/^refresh-attention:/d'
   story_closure_response_counterexamples "${work}"
+  story_closure_refresh_attention_counterexamples "${work}"
   story_closure_retire_counterexamples "${work}"
 }
 
@@ -137,6 +142,7 @@ story_closure_expected_observation() {
     'branch-remote: present' \
     'cleanup-complete: false' \
     'human-edit-preserved: true' \
+    'refresh-attention: true' \
     'control-order:' \
     'harness-inspected: false' \
     'response:'
@@ -174,4 +180,32 @@ run_story_closure_observer_counterexamples() {
     || failure='integrated observation changed its fields or order'
   [[ -z ${failure} ]] || printf 'FAIL: Story Branch observer: %s\n' "${failure}" >&2
   [[ -z ${failure} ]]
+}
+
+# Actual checkout states decide whether marker-only is sufficient. These
+# temporary repositories are starting conditions, not product publication.
+story_closure_refresh_attention_counterexamples() {
+  local work=$1 checkout="$1/default" sha required
+  git init -q -b main "${checkout}"
+  printf 'base\n' > "${checkout}/product.txt"
+  git -C "${checkout}" add product.txt
+  git -C "${checkout}" -c user.name=Fixture \
+    -c user.email=fixture@example.invalid commit -qm base
+  sha=$(git -C "${checkout}" rev-parse HEAD)
+  [[ $(closure_refresh_attention '' "${sha}") == false ]]
+  [[ $(closure_refresh_attention "${checkout}" "${sha}") == false ]]
+  printf 'human edit\n' >> "${checkout}/product.txt"
+  required=$(closure_refresh_attention "${checkout}" "${sha}")
+  [[ ${required} == true ]]
+  printf '%s\n' '## STORY WRAP-UP COMPLETE' > "${work}/response"
+  story_closure_write_assessor_observation "${work}/quiet" "${work}/response"
+  native_assessor_counterexamples "${story_closure_assess_file}" "${work}/quiet" \
+    -- story_closure_assess
+  story_closure_write_assessor_observation "${work}/silent" "${work}/response" "${required}"
+  native_assessor_rejects silent-material-refresh refresh-attention "${work}/silent"
+  printf '%s\n' \
+    'Default checkout /project/main has uncommitted human edits; refresh is deferred. Refresh it once the owner commits those edits.' \
+    '## STORY WRAP-UP COMPLETE' > "${work}/response"
+  story_closure_write_assessor_observation "${work}/attention" "${work}/response" "${required}"
+  story_closure_assess "${work}/attention"
 }

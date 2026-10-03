@@ -1,3 +1,4 @@
+import { completionLabel, hasCompletionMessage } from "./completionReport.ts";
 import { sessionKey } from "./sessionReference.ts";
 import { hostName } from "./sessionCapabilities.ts";
 // One kept session, shown consistently on cards and in Recent sessions.
@@ -71,6 +72,12 @@ export function SessionEntry({
         </>
       )}
       {stateWords}
+      {hasCompletionMessage(record.completion) && (
+        <div className="session-attention-message">
+          <p>{completionLabel(record.completion)}</p>
+          <pre>{record.completion.message}</pre>
+        </div>
+      )}
       {inTerminal && <p className="shown-in-terminal">Shown in terminal</p>}
       {inResult && <p className="shown-in-terminal">Shown in final report</p>}
       <p>
@@ -87,7 +94,7 @@ export function SessionEntry({
       <p className="launch-local">
         Local: launched from this dashboard on this machine.
       </p>
-      {markedDone && (
+      {markedDone && record.completion === undefined && (
         <p>
           {record.doneProblem === undefined ? "Named" : "Intended name"}{" "}
           <code>{doneSessionName(record.session)}</code>

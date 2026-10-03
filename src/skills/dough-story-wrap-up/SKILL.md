@@ -59,6 +59,12 @@ report. Do not create a parallel registry. Missing identity needed by a later
 action stops that action instead of reconstructing or guessing it after plan
 deletion.
 
+With supplied dashboard reporting context, read and retain
+[dashboard completion](../dough-land/references/dashboard-completion.md), its
+command and a surviving working directory now, before either Trunk Mode `finish`
+or Story Branch retirement can remove the checkout. Prepare any attention file
+outside it; reporting itself remains the final operation.
+
 ## Establish execution completion
 
 Judge completion from the selected work and available execution evidence.
@@ -231,17 +237,17 @@ partial cleanup without repeating already-completed closure. Skip cleanup in dir
 
 ## Report
 
-Report selected work and identity, completion judgment, mode and retained
-checkout/branch/remote/target, before-cleanup and final-closure commits when
-deletion happened, Trunk Mode published closure SHAs, the
-completion receipt (CI verdict or exact unresolved reason with shutdown
-evidence), remaining CI coverage, assimilated knowledge, deleted paths, Story
-Branch saved tip and integration/push results to the authorized trunk target,
-each refresh result (including not applicable), worktree and branch cleanup
-results (remote deletion only when verified absent), preserved material and
-resources, and any gap. Distinguish a new merge from an already-integrated tip,
-integration from refused cleanup, an accepted trunk receipt from a superseded
-candidate, committed pending publication from an accepted receipt, and completed
+Apply Dough Land's shared [completion attention](../dough-land/SKILL.md#completion-attention)
+rule and its [final dashboard operation](../dough-land/references/dashboard-completion.md)
+with the supplied launch context, after either closure path has settled. Keep the selected identity, mode and retained execution context,
+before-cleanup and final-closure commits, accepted publication and completion
+receipts, remaining coverage, knowledge and cleanup dispositions in their
+existing operational evidence and lasting homes. Do not produce a success recap
+solely to repeat them.
+
+When attention is needed, report the affected facts and next action. Distinguish
+accepted trunk publication from a superseded candidate, integration from refused
+cleanup, committed pending publication from an accepted receipt, and completed
 wrap-up from a refusal that left files intact. End successful closure with
 `## STORY WRAP-UP COMPLETE`. Missing context, unfinished work, unresolved
 recovery/integration, required push, unpublished Trunk Mode closure, retained

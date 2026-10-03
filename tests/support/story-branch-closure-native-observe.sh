@@ -92,6 +92,8 @@ story_closure_observe() {
     printf 'branch-remote: %s\ncleanup-complete: %s\nhuman-edit-preserved: %s\n' \
       "${branch_remote}" "$([[ -f ${story_closure_cleanup_marker} ]] && echo true || echo false)" \
       "$([[ ${human_after} == "${story_closure_human_before}" ]] && echo true || echo false)"
+    printf 'refresh-attention: %s\n' "$(closure_refresh_attention \
+      "${story_closure_integration}" "${candidate}")"
     printf 'control-order:\n'
     sed 's/^/  /' "${story_closure_control_log}"
     printf 'harness-inspected: %s\n' "$(native_harness_inspected 'story-branch-closure-native|native harness|source-conflict' "${transcript}")"

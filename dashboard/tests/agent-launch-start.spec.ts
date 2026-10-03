@@ -197,6 +197,12 @@ test.describe("execution start of a project whose installed skill cannot continu
         ".claude/skills/dough-execute-plan/scripts/established-start.mjs",
       ),
     );
+    rmSync(
+      path.join(
+        origin.project,
+        ".claude/skills/dough-execute-plan/scripts/dashboard-completion.mjs",
+      ),
+    );
     expect(await establishingProjects(server)).toEqual([]);
 
     server.claudeScenario("launched");

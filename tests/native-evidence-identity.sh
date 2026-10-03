@@ -114,6 +114,9 @@ done
 # that omits one keeps its recorded evidence bound after that input changes.
 land_inputs=(
   src/skills/dough-land/SKILL.md
+  src/skills/dough-land/references/completion-attention.md
+  src/skills/dough-land/references/dashboard-completion.md
+  src/skills/dough-execute-plan/scripts/dashboard-completion.mjs
   src/skills/dough-land/scripts/worktree-retirement.mjs
   src/skills/dough-land/scripts/queued-closure-check.mjs
   src/skills/dough-land/scripts/retirement-checks.mjs

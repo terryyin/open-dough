@@ -1,3 +1,4 @@
+import { expectReportingBlock } from "./support/reportingInputAssertions.ts";
 // A refinement launch on Cursor establishes its preparation before the
 // session, over the page, the real installed preparation start, and a bare
 // origin (./support/startOrigin.ts). The fixture `cursor-agent` on PATH
@@ -136,8 +137,9 @@ test("a queued story starts Cursor refinement and the published assignment is wh
     instruction: prompt,
   });
   expect(keptDuringPrompt?.firstInput?.instruction).toBe(prompt);
-  const [skill, block, developer, ...extra] = prompt.split("\n\n");
+  const [skill, block, reporting, developer, ...extra] = prompt.split("\n\n");
   expect(extra).toEqual([]);
+  expectReportingBlock(reporting, record?.request, dashboard);
   expect(skill).toBe(`/dough-story-refinement ${queuedIdentity}`);
   expect(developer).toBe(instruction);
   expect(prompt).not.toContain("dough-execute-plan");

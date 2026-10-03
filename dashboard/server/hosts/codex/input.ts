@@ -1,3 +1,4 @@
+import { reportingInstruction } from "../../reportingInstruction.ts";
 // Codex's exact first input; its text is retained before native submission.
 import path from "node:path";
 import type { FirstInput } from "../../../src/launchRecord.ts";
@@ -19,7 +20,16 @@ export function codexInput(
       ? undefined
       : launchWorkflows[request.workflow];
   return spec === undefined
-    ? [{ type: "text", text: saved ?? request.instruction ?? "" }]
+    ? [
+        {
+          type: "text",
+          text:
+            saved ??
+            [request.instruction ?? "", reportingInstruction(request)]
+              .filter(Boolean)
+              .join("\n\n"),
+        },
+      ]
     : [
         {
           type: "text",
@@ -31,6 +41,7 @@ export function codexInput(
                 ...("identity" in request ? launchArguments(request) : []),
               ].join(" "),
               established?.handoff.formatted,
+              reportingInstruction(request),
               own,
             ]
               .filter((part) => part !== undefined && part !== "")

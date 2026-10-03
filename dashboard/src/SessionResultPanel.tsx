@@ -1,3 +1,4 @@
+import { hasCompletionMessage } from "./completionReport.ts";
 // Passive final report: changing selection cancels the previous identity's read.
 import { useEffect, useRef, useState } from "react";
 import { launchSubject } from "./agentLaunch.ts";
@@ -6,7 +7,7 @@ import {
   sessionResultSchema,
   type SessionResult,
 } from "./sessionResult.ts";
-import { marksDone } from "./sessionCapabilities.ts";
+import { marksRecordDone } from "./sessionCapabilities.ts";
 import { workspaceLimitation } from "./sessionAccess.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import {
@@ -35,6 +36,14 @@ export function SessionResultPanel({
   const { marking, follow } = useMarking();
   useCommandShortcut({ key: "Escape", shift: true }, onClose);
   useEffect(() => {
+    if (hasCompletionMessage(record.completion)) {
+      setResult({
+        kind: "available",
+        turnId: record.completion.receipt,
+        text: record.completion.message,
+      });
+      return;
+    }
     const controller = new AbortController();
     let current = true;
     setResult(undefined);
@@ -67,6 +76,7 @@ export function SessionResultPanel({
       controller.abort();
     };
   }, [
+    record.completion,
     record.request.source,
     record.session.host,
     record.session.sessionId,
@@ -89,7 +99,7 @@ export function SessionResultPanel({
           </p>
         </div>
         <div className="terminal-actions">
-          {marksDone(hostOperations, record.session.host) &&
+          {marksRecordDone(hostOperations, record) &&
             record.doneAt === undefined && (
               <button
                 type="button"

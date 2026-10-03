@@ -169,6 +169,7 @@ export class AgentLaunches {
   async accept(
     source: PublishedSource,
     request: AgentLaunchRequest,
+    reportingOrigin?: string,
   ): Promise<Acceptance> {
     // A matching launch still running is answered before its own creation
     // evidence or kept start could be mistaken for this request's.
@@ -176,8 +177,11 @@ export class AgentLaunches {
       this.owner.submitted(request) ??
       (await preAcceptanceAnswer(source, request));
     if (answer !== undefined) return answer;
-    return this.owner.accept(request, (own, notePublication) =>
-      attemptRun(source, own, notePublication, this.progress),
+    return this.owner.accept(
+      request,
+      (own, notePublication) =>
+        attemptRun(source, own, notePublication, this.progress),
+      reportingOrigin,
     );
   }
 
