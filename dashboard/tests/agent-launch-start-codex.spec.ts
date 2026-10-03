@@ -7,7 +7,7 @@ import { keptStarts } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectCodexRetryProgress } from "./support/codexRetryPage.ts";
 import { parts } from "./dashboardPage.ts";
-import { test, expect, stored } from "./support/codexStart.ts";
+import { test, expect, launchWaitMs, stored } from "./support/codexStart.ts";
 import { expectExecutionInput } from "./support/codexStartAssertions.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 
@@ -54,8 +54,10 @@ test("Codex card start publishes one claim and retries its retained workspace be
     .fill("Implement the selected slice.");
   native.refuseCreation = true;
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  // The answer follows the Take's real publication and Codex's refusal.
   await expect(queued.locator(".launch-problem")).toContainText(
     "Codex refused to create a conversation.",
+    { timeout: launchWaitMs },
   );
   const [profile] = await origin.takenProfiles();
   expect(profile).toMatchObject({

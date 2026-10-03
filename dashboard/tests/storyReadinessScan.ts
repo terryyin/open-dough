@@ -1,5 +1,6 @@
 // The story readiness scan view at reading widths: a card reads whole beside
-// its badges, and the keyboard goes from the card to its detail and back.
+// its badges and its action groups in reading order, and the keyboard goes
+// from the card to its detail and back.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import {
@@ -7,7 +8,15 @@ import {
   narrowWindow,
   twiceZoomedWindow,
 } from "./accessibleReading.ts";
-import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import {
+  expectInReadingOrder,
+  expectNoSidewaysScrollAndWholeText,
+} from "./pageLayout.ts";
+import {
+  cardLaunchActions,
+  inspectionGroup,
+  launchGroup,
+} from "./cardControls.ts";
 import { plannedBlocked, plannedReady } from "./storyReadinessFixture.ts";
 
 // At 420px and at the 640x450 proxy for 200% browser zoom, a card's scan view
@@ -41,6 +50,21 @@ export async function expectScanToDetailAt420AndTwiceZoom(
     await expect(
       blockedCard.getByText("Not ready", { exact: true }),
     ).toBeVisible();
+    // Not ready does not itself disable Start execution, and the Backlog
+    // card's Starts and Inspect story read in order, whole, within the card.
+    await expect(
+      launchGroup(blockedCard).getByRole("button", {
+        name: "Start execution",
+      }),
+    ).toBeEnabled();
+    await expectInReadingOrder(blockedCard, [
+      ...cardLaunchActions.map((name) =>
+        launchGroup(blockedCard).getByRole("button", { name }),
+      ),
+      inspectionGroup(blockedCard).getByRole("button", {
+        name: "Inspect story",
+      }),
+    ]);
     // Secondary facts wait in the detail.
     await expect(readyCard).not.toContainText(plannedReady.identity);
     await expect(readyCard.getByRole("link")).toHaveCount(0);

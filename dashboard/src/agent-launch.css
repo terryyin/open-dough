@@ -5,8 +5,16 @@
    dashed edge only repeats the note beside it. Quiet gray is reserved for a
    disabled Start that cannot be invoked. */
 
-.start-launch {
-  margin-top: 0.45rem;
+/* In the card's launch group (stages.css), each Start keeps its note beside
+   it, and a Start's answer takes a line of its own right below it, before
+   the next Start. */
+.card-launch-group > .start-launch {
+  display: contents;
+}
+
+.card-launch-group > .start-launch > .launch-answer {
+  flex-basis: 100%;
+  margin-top: 0;
 }
 
 .start-launch-action {

@@ -31,6 +31,20 @@ export async function expectFocusedAndIndicated(page: Page, stop: Locator) {
   expect(indication.width).toBeGreaterThanOrEqual(2);
 }
 
+// Escape closes the dialog and returns the keyboard to the action that opened
+// it at once; a Tab right after it moves on to `next`, and the dialog's
+// closing does not take the keyboard back.
+export async function expectEscapeReturnsThenTabMovesOn(
+  page: Page,
+  { opener, dialog, next }: { opener: Locator; dialog: Locator; next: Locator },
+) {
+  await page.keyboard.press("Escape");
+  await expect(opener).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(dialog).toHaveCount(0);
+  await expectFocusedAndIndicated(page, next);
+}
+
 // Whether assistive technology is offered each polite region at all, whatever
 // it currently says: rendered, and not hidden by itself or anything around it.
 // Each region is marked too, so that later text is known to arrive in the

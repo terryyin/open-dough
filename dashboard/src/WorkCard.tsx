@@ -2,9 +2,11 @@
 // Its scan view leads with the title, then its priority in the Backlog, the
 // assigned or preparing developer, preparation and readiness badges,
 // dependencies, slice progress on Taken work with a brief source
-// qualification, and its launches (`./CardLaunches.tsx`). Inspect story
-// opens the secondary detail (`./StoryDetail.tsx`): identity, assignment
-// records, explanations, evidence, and source links, from facts already read.
+// qualification, its launches (`./CardLaunches.tsx`), and its inspection
+// group: Inspect story, which opens the secondary detail (`./StoryDetail.tsx`)
+// of identity, assignment records, explanations, evidence, and source links,
+// from facts already read, and Review changes (`./StoryReviewAction.tsx`) when
+// offered.
 // While its story starts on this machine (`./storyStartup.ts`), none of the
 // card's actions can run, Inspect story included; its facts stay readable and
 // its source links are shown on the card, so none waits behind that
@@ -29,6 +31,7 @@ import {
 import { workCardMarks } from "./workFocus.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { CardLaunches } from "./CardLaunches.tsx";
+import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import { cardSessionsOf } from "./agentLaunch.ts";
 import { usePageSessions } from "./pageSessions.ts";
 import { ProtectedFrameReason } from "./protectedFrame.ts";
@@ -115,7 +118,11 @@ export function WorkCard({
             offersStart={offersStart}
             statusId={statusId}
           />
-          <p>
+          <div
+            className="card-action-group card-inspection-group"
+            role="group"
+            aria-label="Inspection actions"
+          >
             <button
               type="button"
               className="inspect-story"
@@ -136,7 +143,12 @@ export function WorkCard({
             >
               {selected ? "Hide detail" : "Inspect story"}
             </button>
-          </p>
+            <StoryReviewAction
+              records={launches.records}
+              sourceId={sourceId}
+              work={entry}
+            />
+          </div>
           {selected && <StoryDetail entry={entry} detailId={detailId} />}
           {!selected && starting && (
             <ul className="card-links" aria-label="Source links">

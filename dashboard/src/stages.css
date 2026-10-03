@@ -52,6 +52,16 @@
   flex-basis: 100%;
 }
 
+/* A card's related actions, its launch group and its inspection group, each
+   on one line while the card is wide enough and wrapping in reading order when
+   it is not. */
+.card-action-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
 .card-priority {
   font-weight: 600;
 }

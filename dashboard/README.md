@@ -143,12 +143,16 @@ The dashboard never logs in on its own.
 Each story card is read at two levels. Its scan view leads with the title,
 then the backlog priority and the assigned or preparing developer, preparation
 and readiness badges, dependencies and evidence warnings, a Taken story's slice
-count with its clock or completion and a short source qualification, launch
-actions and feedback, and its sessions. **Inspect story** opens its detail from
-facts already read: full identity, purpose, what the assignment records,
-preparation and dependency explanations, the exact progress branch and
-revision, slice evidence, product advice, and source links; **Hide detail**
-returns focus to the card.
+count with its clock or completion and a short source qualification, its
+launch group, its sessions, and its inspection group. The launch group holds
+**Start execution** and **Start refinement**, each with its note and any launch
+answer beside it; the inspection group holds **Inspect story** and, when
+offered, **Review changes**. Each group's actions share a line when the card is
+wide enough and wrap in reading order when it is not. **Inspect story** opens
+its detail from facts already read: full identity, purpose, what the
+assignment records, preparation and dependency explanations, the exact
+progress branch and revision, slice evidence, product advice, and source
+links; **Hide detail** returns focus to the card.
 
 [Agent assignments and roster](AGENT-ASSIGNMENTS.md) describes who holds or
 prepares each story, the agent roster, and the credited human developer.

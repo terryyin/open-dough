@@ -28,6 +28,7 @@ import {
   type StoryStagesJourney,
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { launchGroup } from "./cardControls.ts";
 import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -171,11 +172,13 @@ test.describe("a story's card while its session is open", () => {
       await page.reload();
       await settled();
       const takenCard = taken.getByRole("article", { name: readyStory });
-      const keptStart = takenCard.getByRole("button", {
+      const keptStart = launchGroup(takenCard).getByRole("button", {
         name: "Start execution",
       });
       await expect(cardSessions(takenCard)).toHaveCount(1);
-      await expect(takenCard).toContainText("Started here, no session yet");
+      await expect(launchGroup(takenCard)).toContainText(
+        "Started here, no session yet",
+      );
       await expect(keptStart).toBeDisabled();
       await expect(keptStart).toHaveAccessibleDescription(
         openSessionDescription,

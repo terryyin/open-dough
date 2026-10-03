@@ -140,6 +140,47 @@ export async function expectStackedInOrder(partsInOrder: Locator[]) {
   await expectEachEndsBeforeNext(partsInOrder, "y", "height");
 }
 
+// The controls share one line, side by side in their order.
+export async function expectOnOneLine(controls: Locator[]) {
+  const tops = await Promise.all(
+    controls.map(async (control) => (await box(control)).y),
+  );
+  for (const top of tops)
+    expect(Math.abs(top - (tops[0] ?? 0))).toBeLessThanOrEqual(1);
+  await expectSideBySideInOrder(controls);
+}
+
+// The parts read in their order: each follows the one before it on the same
+// line or starts on a later line, never reaching beyond the area.
+export async function expectInReadingOrder(area: Locator, parts: Locator[]) {
+  const around = await box(area);
+  const boxes = await Promise.all(parts.map(box));
+  boxes.forEach((each, index) => {
+    expect(each.x, `part ${index + 1} inside`).toBeGreaterThanOrEqual(around.x);
+    expect(each.x + each.width, `part ${index + 1} inside`).toBeLessThanOrEqual(
+      around.x + around.width,
+    );
+  });
+  boxes.slice(1).forEach((next, index) => {
+    const previous = boxes[index];
+    if (previous === undefined) return;
+    // Parts whose heights overlap share a line, as a note does its control.
+    const sameLine =
+      next.y < previous.y + previous.height - 1 &&
+      next.y + next.height > previous.y + 1;
+    if (sameLine)
+      expect(
+        previous.x + previous.width,
+        `part ${index + 2} follows on its line`,
+      ).toBeLessThanOrEqual(next.x);
+    else
+      expect(
+        next.y,
+        `part ${index + 2} on a later line`,
+      ).toBeGreaterThanOrEqual(previous.y + previous.height - 1);
+  });
+}
+
 export async function expectInside(inner: Locator, outer: Locator) {
   const [inside, around] = await Promise.all([box(inner), box(outer)]);
   expect(inside.x).toBeGreaterThanOrEqual(around.x - 0.5);

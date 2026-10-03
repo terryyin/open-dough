@@ -1,4 +1,8 @@
-// A clickable noted Start on a story-stages preparing revision: its look stays
+// A Backlog card's Starts on the committed story-stages origin: they share
+// the card's launch group's line, each note beside the Start it describes,
+// when the card is wide enough, and wrap in reading order, by keyboard, at
+// 420px and the 200% zoom proxy, before Inspect story in the inspection group.
+// A clickable noted Start on a story-stages preparing revision keeps a look
 // distinct from a disabled Start on the same page, in light and dark schemes.
 // Backlog-card launch behavior on a committed origin is ./agent-launch-card.spec.ts;
 // the page's own dashboard server launches the synthetic `claude`
@@ -14,6 +18,23 @@ import {
   type StoryStagesJourney,
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import {
+  cardLaunchActions,
+  inspectionGroup,
+  launchGroup,
+} from "./cardControls.ts";
+import {
+  expectEscapeReturnsThenTabMovesOn,
+  expectFocusedAndIndicated,
+  narrowWindow,
+  twiceZoomedWindow,
+} from "./accessibleReading.ts";
+import {
+  expectInReadingOrder,
+  expectNoSidewaysScrollAndWholeText,
+  expectOnOneLine,
+  expectSideBySideInOrder,
+} from "./pageLayout.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -26,7 +47,7 @@ const launchPaint = (button: Locator) =>
     return { color: style.color, borderColor: style.borderColor };
   });
 
-test.describe("a clickable noted Start", () => {
+test.describe("a Backlog card's Starts", () => {
   let stagesJourney: StoryStagesJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
@@ -36,7 +57,73 @@ test.describe("a clickable noted Start", () => {
     (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
   );
 
-  test("does not look disabled in light and dark schemes", async ({
+  test("share the launch group's line at 1440px and wrap in reading order, by keyboard, at 420px and 200% zoom", async ({
+    page,
+    dashboard,
+  }) => {
+    dashboard.claudeScenario("launched");
+    const { card, action, settled } = await openStoryStagesJourney(
+      page,
+      stagesJourney,
+    );
+    await settled();
+    const startsOf = (title: string) =>
+      cardLaunchActions.map((name) =>
+        launchGroup(card(title)).getByRole("button", { name }),
+      );
+    const inspect = (title: string) =>
+      inspectionGroup(card(title)).getByRole("button", {
+        name: "Inspect story",
+      });
+    const note = launchGroup(card(notRefinedStory)).getByText(notReadyNote);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expectOnOneLine(startsOf(readyStory));
+    await expectOnOneLine(startsOf(notRefinedStory));
+    // The note stays beside the Start it describes, before the next one.
+    const execution = action(notRefinedStory, "Execution");
+    const refinement = action(notRefinedStory, "Refinement");
+    await expectSideBySideInOrder([execution, note, refinement]);
+
+    for (const window of [narrowWindow, twiceZoomedWindow]) {
+      await page.setViewportSize(window);
+      await expectNoSidewaysScrollAndWholeText(page);
+      for (const title of [readyStory, notRefinedStory])
+        await expectInReadingOrder(card(title), [
+          ...startsOf(title),
+          inspect(title),
+        ]);
+      await expectInReadingOrder(card(notRefinedStory), [
+        execution,
+        note,
+        refinement,
+      ]);
+      // The keyboard walks the launch group, then the inspection group;
+      // a cancelled Start and a closed detail return it usefully.
+      await execution.focus();
+      await page.keyboard.press("Tab");
+      await expectFocusedAndIndicated(page, refinement);
+      await page.keyboard.press("Enter");
+      const dialog = page.getByRole("dialog", {
+        name: "Start refinement in Claude Code",
+      });
+      await expect(dialog).toBeVisible();
+      await expectEscapeReturnsThenTabMovesOn(page, {
+        opener: refinement,
+        dialog,
+        next: inspect(notRefinedStory),
+      });
+      await page.keyboard.press("Enter");
+      const hide = inspectionGroup(card(notRefinedStory)).getByRole("button", {
+        name: "Hide detail",
+      });
+      await expectFocusedAndIndicated(page, hide);
+      await page.keyboard.press("Enter");
+      await expectFocusedAndIndicated(page, card(notRefinedStory));
+    }
+    expect(dashboard.claudeLaunchCalls()).toHaveLength(0);
+  });
+
+  test("a clickable noted Start does not look disabled in light and dark schemes", async ({
     page,
     dashboard,
   }) => {

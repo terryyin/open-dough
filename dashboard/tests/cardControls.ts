@@ -1,6 +1,7 @@
-// What a card offers: its launch actions, and Inspect story, which opens its
-// detail from the snapshot already read and is named Hide detail while that
-// detail is open. One story's detail is open at a time.
+// What a card offers: its launch actions in its launch group, and in its
+// inspection group Inspect story, which opens its detail from the snapshot
+// already read and is named Hide detail while that detail is open. One story's
+// detail is open at a time.
 
 import { expect, type Locator } from "@playwright/test";
 
@@ -42,3 +43,10 @@ export async function someInspectedDetail(stages: Locator): Promise<Locator> {
   }
   return detail;
 }
+
+// A card's launch group (its Starts) and its inspection group (Inspect story,
+// and Review changes when offered).
+export const launchGroup = (card: Locator) =>
+  card.getByRole("group", { name: "Launch actions" });
+export const inspectionGroup = (card: Locator) =>
+  card.getByRole("group", { name: "Inspection actions" });

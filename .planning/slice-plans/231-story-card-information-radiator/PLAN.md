@@ -184,8 +184,24 @@ improves action density; it is not required to make this reading result valid.
 
 ### 2. Compact action groups with clear availability and recovery
 Type: Behavior
-Status: planned
+Status: done
 Proof: The slice-2 rows above; the second baseline command plus `story-dependencies.spec.ts`, `responsive-session-start.spec.ts`, `responsive-session-start-codex.spec.ts`, `accessible-overview-keyboard.spec.ts`, and the updated `story-readiness-accessible.spec.ts`.
+Accepted proof: the slice-2 focused set with every `agent-launch-ad-hoc*`,
+`agent-launch-card*`, `agent-launch-start*`, `responsive-session-*`,
+`story-review*`, `session-sidebar-*`, `agent-roster*` spec and the `codexStart`
+users passed (182), then the post-refactor rerun (37) and `typecheck:dashboard`.
+Starts share a `role=group` "Launch actions" line and Inspect story/Review
+changes an "Inspection actions" line at 1440px; both wrap in reading order and
+operate by keyboard at 420px and 640×450 (`agent-launch-card-noted-start.spec.ts`,
+`story-review-action.spec.ts`); failures stay stacked under their Start
+(`agent-launch-card-problems.spec.ts`); a Not ready badge leaves Start execution
+enabled (`storyReadinessScan.ts`). Same-fixture card heights fell further
+(ordinary Backlog 225.2→185.7px; card with a session 404.4→364.8px at 1440px).
+Learnings: the launch dialog's deferred focus return could pull a quick Tab back
+to the Start; it now returns focus only while the keyboard still rests there
+(`launchDialogLauncher.ts`, asserted by `expectEscapeReturnsThenTabMovesOn`).
+The Codex start test's 5s answer wait flaked under load; it now waits for the
+start's own `launchWaitMs` bound.
 
 Behavior: a card offers launch and inspection/review actions → the developer
 scans or operates those actions → related buttons share a line when space

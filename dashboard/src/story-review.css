@@ -6,10 +6,6 @@
    and code lines inside the diff, never the page. Its actions share the launch actions' look
    (./agent-launch.css). */
 
-.story-review-action {
-  margin-top: 0.45rem;
-}
-
 .story-review {
   box-sizing: border-box;
   width: min(64rem, calc(100% - 1.5rem));
