@@ -32,6 +32,14 @@ export class DetachedIdleWatch {
     this.clear();
   }
 
+  // The visible screen, after the writes so far have settled.
+  async text(): Promise<string> {
+    const screen = this.screen;
+    if (screen === undefined) return "";
+    await screen.settled();
+    return this.screen === screen ? screen.text() : "";
+  }
+
   // No socket remains. Read the screen after its writes settle.
   watch(): void {
     const screen = this.screen;

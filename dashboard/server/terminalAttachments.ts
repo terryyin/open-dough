@@ -63,6 +63,7 @@ export class TerminalAttachments {
       key,
       hostName,
       keep: attachment.keep === true,
+      session: session.session,
       admitted: attachment.ready === undefined,
       size: { cols: initialSize.cols, rows: initialSize.rows },
       readiness: attachment.ready,
@@ -91,6 +92,7 @@ export class TerminalAttachments {
       key,
       hostName: launchHost(session.host)?.name ?? session.host,
       keep: true,
+      session,
       admitted: false,
       size: { cols: pty.cols, rows: pty.rows },
       readiness: launch.ready,
@@ -112,6 +114,7 @@ export class TerminalAttachments {
       readonly key: string;
       readonly hostName: string;
       readonly keep: boolean;
+      readonly session: HostSession;
       readonly admitted: boolean;
       readonly size: { readonly cols: number; readonly rows: number };
       readonly readiness:
@@ -158,12 +161,32 @@ export class TerminalAttachments {
     }
   }
 
+  // Launch handoffs end here. A client with no socket then follows the idle
+  // rule. One the page already joined stays until that socket drops.
+  releaseHandoffs(): void {
+    for (const client of this.clients.values()) client.releaseHandoff();
+  }
+
   // Hangs up every native client, including one kept with no socket. The
   // admission boundary closes its sockets.
   close(): void {
     for (const client of [...this.clients.values()]) {
       client.hangup();
     }
+  }
+
+  // The kept clients this registry still holds, each with its current screen.
+  // Reading the screen starts nothing.
+  async held(): Promise<
+    readonly { readonly session: HostSession; readonly screen: string }[]
+  > {
+    const clients = [...this.clients.values()].filter((client) => client.keep);
+    return Promise.all(
+      clients.map(async (client) => ({
+        session: client.session,
+        screen: await client.screenText(),
+      })),
+    );
   }
 
   // The one live client whose attach result declared keep for this session.

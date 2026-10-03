@@ -20,7 +20,12 @@ import { sessionKey } from "./sessionReference.ts";
 // switches, views, the terminal, and reloads, and without it, as when storage
 // cannot be used, the sidebar starts closed. Toggling it, or opening an entry,
 // is page state only: it changes no story fact, stage, or session. Entries are
-// local evidence of launches, not story facts.
+// local evidence of launches, not story facts. The open sidebar also offers
+// Running Cursor sessions (`./RunningCursorSessions.tsx`): whether the Cursor
+// runner is running, and each session it holds, as working, waiting for an
+// answer, or at the follow-up prompt. Choosing one opens that terminal. When
+// the runner is down or unreachable, the list says so and shows nothing. That
+// list is live process status, not story progress.
 
 import {
   createContext,
@@ -37,6 +42,7 @@ import {
 } from "./agentLaunch.ts";
 import { PanelLeft } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
+import { RunningCursorSessions } from "./RunningCursorSessions.tsx";
 import { SessionList } from "./SessionEntry.tsx";
 import { SidebarEntry, type OpenSidebarEntry } from "./SidebarEntry.tsx";
 import { useCommandShortcut } from "./pageShortcuts.ts";
@@ -176,6 +182,7 @@ export function SessionSidebar({
       hidden={!open}
     >
       <h2 id="session-sidebar-heading">Sessions</h2>
+      <RunningCursorSessions shown={open} records={records} onOpen={onOpen} />
       {open && alerts?.available === false && (
         <p className="quiet">Alerts unavailable: {alerts.reason}</p>
       )}

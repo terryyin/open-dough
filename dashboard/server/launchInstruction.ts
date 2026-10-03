@@ -8,6 +8,9 @@ export type LaunchInstructionInput = {
   readonly instruction: string;
   readonly ready: (screen: string, cursorVisible: boolean) => boolean;
   readonly onEntered: () => Promise<void>;
+  // The page's terminal is part of this launch. Idle waits until that socket
+  // joins, or the dashboard releases the handoff.
+  readonly handoff?: boolean;
 };
 
 export class LaunchInstruction {
@@ -15,6 +18,7 @@ export class LaunchInstruction {
   private chain: Promise<void> = Promise.resolve();
   private entered = false;
   private holding = true;
+  private handoff: boolean;
   private announced = false;
   private resolveFirst: () => void = () => {};
   readonly firstScreen: Promise<void>;
@@ -28,6 +32,7 @@ export class LaunchInstruction {
       readonly holdReleased: () => void;
     },
   ) {
+    this.handoff = launch.handoff === true;
     this.screen = new KeptClientScreen(size.cols, size.rows);
     this.firstScreen = new Promise<void>((resolve) => {
       this.resolveFirst = resolve;
@@ -86,7 +91,7 @@ export class LaunchInstruction {
         this.announce();
         return;
       }
-      this.releaseHold();
+      if (!this.handoff) this.releaseHold();
       try {
         await this.launch.onEntered();
       } catch {
@@ -100,6 +105,14 @@ export class LaunchInstruction {
     if (this.announced) return;
     this.announced = true;
     this.resolveFirst();
+  }
+
+  // The page's terminal joined, or the dashboard is closing. A socket that is
+  // already open keeps the idle rule quiet; with none, the settle starts.
+  releaseHandoff(): void {
+    if (!this.handoff) return;
+    this.handoff = false;
+    this.releaseHold();
   }
 
   private releaseHold(): void {

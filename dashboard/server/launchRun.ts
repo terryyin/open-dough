@@ -24,6 +24,7 @@ import type { StartProgress } from "./startProgress.ts";
 
 import { keepAttempt } from "./launchAttemptStore.ts";
 import { reportingContext } from "./completionReporting.ts";
+import { takeTerminalHandoff, withTerminalHandoff } from "./terminalHandoff.ts";
 
 const defaultLaunchWaitMs = 30_000;
 
@@ -43,6 +44,7 @@ export async function attemptRun(
 ): Promise<LaunchResult> {
   const owned = own;
   const { request, controller, attempt } = owned;
+  const attachTerminal = takeTerminalHandoff(attempt.id);
   const folder = projectFolder(source);
   const began = new Date(attempt.acceptedAt);
   const requested = recordedRequest(request, began);
@@ -76,14 +78,8 @@ export async function attemptRun(
     timer = setTimeout(() => {
       controller.abort();
     }, launchTimeoutMs());
-    return await launchRun(
-      source,
-      recording,
-      folder,
-      began,
-      start,
-      controller,
-      pending,
+    return await withTerminalHandoff(attachTerminal, () =>
+      launchRun(source, recording, folder, began, start, controller, pending),
     );
   } finally {
     clearTimeout(timer);

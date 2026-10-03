@@ -10,26 +10,64 @@
 import type { Connect, HttpServer, Plugin } from "vite";
 import { initializeProjectConfiguration } from "./projectConfiguration.ts";
 
+type BoundaryCleanup = () => void;
+
+// A ready pair installs its middleware and publishes `close` before `ready`
+// settles, so a caller that does not await this hook still has `closeServer`.
+type BoundaryReady = {
+  readonly close: BoundaryCleanup;
+  readonly ready: Promise<unknown>;
+};
+
+type BoundaryInstallResult =
+  BoundaryCleanup | Promise<BoundaryCleanup> | BoundaryReady;
+
+function isReady(installed: BoundaryInstallResult): installed is BoundaryReady {
+  return (
+    typeof installed === "object" &&
+    "close" in installed &&
+    !(installed instanceof Promise)
+  );
+}
+
 export function localBoundaryPlugin(
   name: string,
   install: (
     middlewares: Connect.Server,
     httpServer: HttpServer | null,
-  ) => () => void,
+  ) => BoundaryInstallResult,
 ): Plugin {
   // Set by whichever of the two launch-mode hooks below actually runs (dev
   // XOR preview, never both in one process); read by the matching close
   // hook.
-  let cleanup: (() => void) | undefined;
+  let cleanup: BoundaryCleanup | undefined;
+  // Assigns cleanup before the first await when `install` can say so, then
+  // waits for `ready` so Vite does not listen early.
+  async function mount(
+    middlewares: Connect.Server,
+    httpServer: HttpServer | null,
+  ): Promise<void> {
+    const installed = install(middlewares, httpServer);
+    if (typeof installed === "function") {
+      cleanup = installed;
+      return;
+    }
+    if (isReady(installed)) {
+      cleanup = installed.close;
+      await installed.ready;
+      return;
+    }
+    cleanup = await installed;
+  }
   return {
     name,
-    configureServer(server) {
+    async configureServer(server) {
       initializeProjectConfiguration("development");
-      cleanup = install(server.middlewares, server.httpServer);
+      await mount(server.middlewares, server.httpServer);
     },
-    configurePreviewServer(server) {
+    async configurePreviewServer(server) {
       initializeProjectConfiguration("production");
-      cleanup = install(server.middlewares, server.httpServer);
+      await mount(server.middlewares, server.httpServer);
     },
     closeServer() {
       cleanup?.();

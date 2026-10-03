@@ -31,6 +31,14 @@ export function ProjectsOnPage({
   );
 }
 
+// The catalog label for a launch's project, or the id when it is not listed.
+export function projectLabel(
+  projects: readonly PublishedSource[],
+  sourceId: string,
+): string {
+  return projects.find((project) => project.id === sourceId)?.label ?? sourceId;
+}
+
 export function useProjects(): readonly PublishedSource[] {
   const projects = useContext(ProjectsContext);
   if (projects === undefined)

@@ -144,8 +144,12 @@ test("removing a configured project retains its checkout and records, hides sess
       ({ id }) => id,
     ),
   ).toEqual(["open-dough", "doughnut", "pygardon", "terry-talks"]);
+  // Removing a project leaves the runner's address and log. They are not a
+  // project record.
   expect(readdirSync(path.dirname(file)).sort()).toEqual([
     "agent-launches.json",
+    "cursor-runner.json",
+    "cursor-runner.log",
     "projects-production.json",
   ]);
   await fixture.stop(server);

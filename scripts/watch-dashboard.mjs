@@ -1,7 +1,10 @@
 // This owner stays in development; the app and server run from pinned
 // origin/main commits built in separate checkouts. A later commit is built only
 // when its own CI push exclusions leave a path changed since the running one.
-import { fileURLToPath } from "node:url";
+import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 import { setTimeout as wait } from "node:timers/promises";
 import {
@@ -58,6 +61,9 @@ try {
     published: baseline,
     signal: cancellation.signal,
   });
+  // The runner is its own process group. Replacement and shutdown below stop
+  // the preview only; they do not signal this runner.
+  await startCursorRunner(staged.directory, cancellation.signal);
   preview = await startDeploymentPreview({
     directory: staged.directory,
     port: Number(values.port),
@@ -181,6 +187,54 @@ try {
   process.off("SIGINT", stop);
   process.off("SIGTERM", stop);
   process.off("SIGHUP", stop);
+}
+
+// This development checkout's runner, from a checkout that has its
+// dependencies installed. A start that cannot run leaves production serving.
+// The command never stops a runner that did start.
+/** @param {string} stagedDirectory @param {AbortSignal} signal */
+async function startCursorRunner(stagedDirectory, signal) {
+  if (signal.aborted) return;
+  const installed = path.join(developmentRoot, "node_modules", "zod");
+  const root = existsSync(installed) ? developmentRoot : stagedDirectory;
+  const moduleUrl = pathToFileURL(
+    path.join(root, "dashboard/server/hosts/cursor/runnerProcess.ts"),
+  ).href;
+  const child = spawn(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--input-type=module",
+      "--eval",
+      `import { ensureCursorRunner } from ${JSON.stringify(moduleUrl)};
+       if (!(await ensureCursorRunner())) process.exitCode = 1;`,
+    ],
+    { cwd: root, env: process.env, stdio: ["ignore", "pipe", "pipe"] },
+  );
+  let output = "";
+  child.stdout.on("data", (chunk) => {
+    output += chunk.toString("utf8");
+  });
+  child.stderr.on("data", (chunk) => {
+    output += chunk.toString("utf8");
+  });
+  const abort = () => {
+    try {
+      child.kill("SIGTERM");
+    } catch {
+      // The helper already exited.
+    }
+  };
+  signal.addEventListener("abort", abort, { once: true });
+  const code = await new Promise((resolve) => {
+    child.once("error", () => resolve(1));
+    child.once("exit", (exitCode) => resolve(exitCode ?? 1));
+  });
+  signal.removeEventListener("abort", abort);
+  if (signal.aborted || code === 0) return;
+  console.error(
+    `Cursor runner was not started${output.trim() ? `: ${output.trim()}` : "."}`,
+  );
 }
 
 /** @param {Awaited<ReturnType<typeof startDeploymentPreview>>} running */

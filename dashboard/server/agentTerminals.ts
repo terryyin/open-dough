@@ -1,6 +1,8 @@
 // One admitted session per WebSocket, attached through its host boundary.
 // Socket closure hangs up the PTY unless that host's attach result declares
-// keep; server closure hangs up every client. Output and input use the shared
+// keep; server closure hangs up every client this process holds. A Cursor
+// session is bridged to the machine-local runner, which holds that client,
+// so closing this server does not hang it up. Output and input use the shared
 // terminal protocol. Native startup remains interactive while readiness controls
 // reopening; marking done can type into and end those attachments.
 
@@ -9,10 +11,10 @@ import type { Duplex } from "node:stream";
 import type { HttpServer } from "vite";
 import { WebSocketServer } from "ws";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
-import { TerminalAttachments, type KeptLaunch } from "./terminalAttachments.ts";
-import type { IPty } from "@lydell/node-pty";
 import type { HostSession } from "../src/agentLaunch.ts";
+import { TerminalAttachments } from "./terminalAttachments.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
+import { bridgeCursorTerminal } from "./hosts/cursor/runnerClient.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
@@ -101,13 +103,12 @@ export class AgentTerminals {
       return;
     }
     this.sockets.handleUpgrade(req, socket, head, (ws) => {
+      if (session.session.host === "cursor") {
+        void bridgeCursorTerminal(ws, session);
+        return;
+      }
       this.attachments.connect(ws, session);
     });
-  }
-
-  // Keeps a client started at launch, before any socket. Opening joins it.
-  keep(session: HostSession, pty: IPty, launch: KeptLaunch): Promise<void> {
-    return this.attachments.keep(session, pty, launch);
   }
 
   type(session: SessionReference, input: string): boolean {

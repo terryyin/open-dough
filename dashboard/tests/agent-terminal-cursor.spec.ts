@@ -1,8 +1,9 @@
-// A recorded Cursor session, after the dashboard server restarts, attaches
-// through the stored continuation. While that client is working, closing or
-// dropping its socket leaves the process running, and a new socket joins the
-// same pid. The fixture admits that resume, paints the working marker, and
-// exits on SIGHUP when the server closes.
+// A recorded Cursor session stays in the Cursor runner when the dashboard
+// server restarts, and the new server joins that same client. While that
+// client is working, closing or dropping its socket leaves the process
+// running, and a new socket joins the same pid. The fixture admits that
+// resume and paints the working marker. Closing the server does not hang
+// the client up.
 import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -23,6 +24,7 @@ import {
   stayedUp,
 } from "./support/keptCursorTurn.ts";
 import { processRunning } from "./support/processGroup.ts";
+import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
 
 const instruction = "continue this session";
 
@@ -133,7 +135,7 @@ for (const mode of ["dev", "preview"] as const) {
 
         const terminal = await openCursorTerminal(server, sessionId);
         await admit(terminal);
-        const attach = cursor.attaches()[1];
+        const attach = cursor.attaches()[0];
         expect(attach).toMatchObject({
           cwd: realpathSync(workspace),
           cols: 80,
@@ -147,7 +149,7 @@ for (const mode of ["dev", "preview"] as const) {
         expect(cursor.calls().map((call) => call.args)).toEqual([
           ["create-chat"],
         ]);
-        expect(cursor.attaches()).toHaveLength(2);
+        expect(cursor.attaches()).toHaveLength(1);
         expect(server.claudeAttaches()).toEqual([]);
         expect(codexResumeLog(server)).toBe("");
         const pid = attach?.pid ?? 0;
@@ -196,8 +198,8 @@ for (const mode of ["dev", "preview"] as const) {
                   next.output() === added(),
               )
               .toBe(true);
-            expect(cursor.attaches()).toHaveLength(2);
-            expect(cursor.attaches()[1]?.pid).toBe(pid);
+            expect(cursor.attaches()).toHaveLength(1);
+            expect(cursor.attaches()[0]?.pid).toBe(pid);
             return next;
           });
 
@@ -232,14 +234,14 @@ for (const mode of ["dev", "preview"] as const) {
           await stayedUp(cursor, pid);
         });
 
-        await test.step("closing the server hangs the kept client up", async () => {
+        await test.step("closing the server leaves the kept client running", async () => {
           await server?.close();
           server = undefined;
-          await expect.poll(() => cursor.signals(pid)).toContain("SIGHUP");
-          await expect.poll(() => processRunning(pid)).toBe(false);
+          await stayedUp(cursor, pid, 500);
         });
       } finally {
         await server?.close();
+        await stopCursorRunner(path.join(machine, "home"));
         rmSync(machine, { recursive: true, force: true });
       }
     });

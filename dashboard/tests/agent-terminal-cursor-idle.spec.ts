@@ -18,6 +18,7 @@ import {
   startCursorDashboard,
   stayedUp,
 } from "./support/keptCursorTurn.ts";
+import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
 import { processRunning } from "./support/processGroup.ts";
 
 const instruction = "continue this session";
@@ -59,6 +60,7 @@ async function withOpenedCursor(
     await body({ server, sessionId, terminal, pid });
   } finally {
     await server?.close();
+    await stopCursorRunner(path.join(machine, "home"));
     cursor.cleanup();
     rmSync(machine, { recursive: true, force: true });
   }

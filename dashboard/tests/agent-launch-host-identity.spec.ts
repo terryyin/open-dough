@@ -120,8 +120,12 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
       expect(record).not.toHaveProperty("sessionState");
       expect(record).not.toHaveProperty("workspaceState");
     }
+    // The runner's address and log sit beside the store. They are not a
+    // quarantined copy of these records.
     expect(readdirSync(path.dirname(storeFile)).sort()).toEqual([
       "agent-launches.json",
+      "cursor-runner.json",
+      "cursor-runner.log",
       "projects-production.json",
     ]);
     const deleted = await deleteRecord(server, {

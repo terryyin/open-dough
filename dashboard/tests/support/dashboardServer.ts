@@ -6,7 +6,10 @@
 // A test that restarts a server on the same machine state passes a `machine`
 // directory it owns, which holds HOME and the fake `claude`'s state and
 // outlives each server, and, to keep an open page's address, the `port` the
-// closed server had.
+// closed server had. The Cursor runner listens from that HOME and is not in
+// this server's process group, so closing the server leaves it. When this
+// helper owns the machine directory, close stops that runner before the
+// directory is removed.
 // Every page journey gets its own server this way (../dashboardTest.ts), and the
 // boundary specs start their own, so PATH/env mutation and each fake
 // GitHub's answers never leak between tests.
@@ -23,6 +26,7 @@ import {
 } from "./fakeClaude.ts";
 import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
+import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { endGroup, spawnGroupLeader } from "./processGroup.ts";
 import { listenArgs, ownAddress } from "./viteAddress.ts";
 import { configureDevelopmentProjects } from "./projectConfiguration.ts";
@@ -41,6 +45,8 @@ export const builtDashboardDir = path.join(repoRoot, "dashboard", "dist");
 export type DashboardServer = {
   readonly baseURL: string;
   readonly origin: string;
+  // The Vite process. Its process group is the one `close` ends.
+  readonly pid: number;
   // The directory this preview-mode server serves, so a test can inspect the
   // actual static assets -- for example, to confirm no credential-like
   // marker was ever written into them. `undefined` in dev mode, which serves
@@ -105,6 +111,7 @@ export async function startDashboardServer(
   },
 ): Promise<DashboardServer> {
   const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-dashboard-"));
+  const ownsMachine = options.machine === undefined;
   const ownsGitHub = options.github === undefined;
   const github = options.github ?? (await startFakeGitHub());
   const gh = installFakeGh(tempRoot);
@@ -171,6 +178,7 @@ export async function startDashboardServer(
   const outputText = () => Buffer.concat(output).toString("utf8");
 
   const closeOwned = async () => {
+    if (ownsMachine) await stopCursorRunner(claude.controls.home);
     if (options.codexProtocol === undefined) await codex.close();
     if (ownsGitHub) {
       await github.close();
@@ -193,6 +201,7 @@ export async function startDashboardServer(
   return {
     baseURL,
     origin: baseURL,
+    pid: child.pid ?? 0,
     outDir,
     github,
     codex,
