@@ -283,7 +283,7 @@ Learnings for slice 3:
 
 ### 3. Recover the shared width after reopening the dashboard
 Type: Behavior
-Status: planned
+Status: done
 Proof: Slice-3 table row through the width journey, plus `session-sidebar-stays-as-left.spec.ts` when changing shared preference code.
 
 Behavior: a developer chooses a split width → they reload and reopen either
@@ -303,6 +303,17 @@ Document that this preference is local, disposable, and shared across contents.
 
 Safe stopping point: the complete story outcome is delivered with shared width
 recovery and no deferred-capability machinery.
+
+Delivered 2026-10-03. Accepted proof: the literal baseline Playwright prefix over
+`side-panel-width-kept.spec.ts` (UI-chosen width recovered for the other
+content after reload; fresh context at half width; narrow reload, room limit and
+Maximize leave the saved choice; malformed values fall back without touching
+other preferences; refused storage still resizes for the page), plus
+`side-panel-width`, `-stacking`, `story-panel-switching`, `-replacement`,
+`session-sidebar-stays-as-left` and `agent-terminal-maximize`: 13 passed after
+refactoring; typecheck passed. A mutation removing the read failed the three
+reload tests. The refused-storage rule now lives in `keptPreference.ts`, shared
+with the Sessions sidebar preference.
 
 ## Execution, verification and design assessment
 

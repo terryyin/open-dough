@@ -28,9 +28,13 @@ other, and the dashboard beside it stays usable. Its left edge is a
 focusable, named separator that says the panel's width in pixels: dragging it,
 or Left (wider) and Right (narrower) while it holds the keyboard, changes one
 preferred width shared by every panel content, kept across closing, the
-Sessions sidebar and Maximize/Restore for the page's lifetime, and starting at
-half the room. Neither the panel nor the dashboard becomes narrower than
-20rem, measured in the room beside the open sidebar; where that room cannot
+Sessions sidebar and Maximize/Restore, and starting at half the room. That
+preference is local to this browser and disposable: a reload recovers it for
+either content, and where the browser keeps none, refuses storage, or keeps an
+unusable value, the panel starts at half the room and still resizes for the
+page's lifetime. A width the room or Maximize imposes never replaces it.
+Neither the panel nor the dashboard becomes narrower than 20rem, measured in
+the room beside the open sidebar; where that room cannot
 hold both, or the window is 800px wide or narrower, the panel stacks above
 the dashboard and offers no edge, as it does while maximized, and more room
 recovers the preferred width. Command+Shift+Escape closes

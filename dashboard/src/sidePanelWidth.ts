@@ -2,13 +2,14 @@
 // keeps one preferred width, chosen by dragging the panel's edge or with its
 // Left and Right keys (`./SidePanelEdge.tsx`), and it serves whatever the
 // panel shows, across closing and reopening, the Sessions sidebar, and
-// Maximize/Restore, for the page's lifetime. Until one is chosen, the panel
-// takes half the room. What the panel takes is derived from that preference
-// and the room the page and the panel share, beside the sidebar when it is
-// open: neither becomes narrower than its usable minimum. Where that room
-// cannot hold both, or the window is narrow, the panel stacks above the page
-// and offers no edge. A limit the room sets never changes the preference, so
-// more room recovers it.
+// Maximize/Restore, and is kept in this browser's disposable storage, so a
+// reload recovers it. Until one is chosen, or where the browser keeps none,
+// the panel takes half the room. What the panel takes is derived from that
+// preference and the room the page and the panel share, beside the sidebar
+// when it is open: neither becomes narrower than its usable minimum. Where
+// that room cannot hold both, or the window is narrow, the panel stacks above
+// the page and offers no edge. A limit the room sets never changes the
+// preference, so more room recovers it.
 
 import {
   createContext,
@@ -20,6 +21,7 @@ import {
   type RefObject,
 } from "react";
 import { flushSync } from "react-dom";
+import { keep, readKept } from "./keptPreference.ts";
 
 // The frame's narrow window, where the Sessions sidebar overlays the page
 // (`./session-sidebar.css`) and the panel stacks above it.
@@ -43,6 +45,14 @@ type SidePanelLayout =
       readonly maximum: number;
       readonly step: number;
     };
+
+// The preferred width this browser keeps, in CSS px, if a usable one is kept.
+const preferredWidthKey = "open-dough.sidePanel.width";
+
+function readPreferredWidth(): number | undefined {
+  const kept = Number(readKept(preferredWidthKey));
+  return Number.isFinite(kept) && kept > 0 ? kept : undefined;
+}
 
 const clamp = (value: number, minimum: number, maximum: number) =>
   Math.min(Math.max(value, minimum), maximum);
@@ -123,7 +133,7 @@ export function useSidePanelWidth(
   shown: boolean,
   sidebarOpen: boolean,
 ): { stacked: boolean; edge: SidePanelEdgeState | undefined } {
-  const [preferred, setPreferred] = useState<number | undefined>();
+  const [preferred, setPreferred] = useState(readPreferredWidth);
   const narrow = useSyncExternalStore(watchNarrow, () => narrowQuery().matches);
   const room = useRoom(frame, shown, sidebarOpen);
   const layout: SidePanelLayout | undefined =
@@ -139,7 +149,9 @@ export function useSidePanelWidth(
   const choose = useCallback(
     (width: number) => {
       if (minimum === undefined || maximum === undefined) return;
-      setPreferred(Math.round(clamp(width, minimum, maximum)));
+      const chosen = Math.round(clamp(width, minimum, maximum));
+      setPreferred(chosen);
+      keep(preferredWidthKey, String(chosen));
     },
     [minimum, maximum],
   );

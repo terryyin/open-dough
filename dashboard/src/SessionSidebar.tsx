@@ -46,6 +46,7 @@ import { IconButton } from "./Icon.tsx";
 import { RunningCursorSessions } from "./RunningCursorSessions.tsx";
 import { SessionList } from "./SessionEntry.tsx";
 import { SidebarEntry, type OpenSidebarEntry } from "./SidebarEntry.tsx";
+import { keep, readKept } from "./keptPreference.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import { attentionCount, attentionSummary } from "./sessionShown.ts";
 import "./agent-launch.css";
@@ -54,21 +55,12 @@ import "./session-sidebar.css";
 const sidebarId = "session-sidebar";
 const sidebarOpenKey = "open-dough.sessionSidebar.open";
 
-function readSidebarOpen(): boolean {
-  try {
-    return window.localStorage.getItem(sidebarOpenKey) === "true";
-  } catch {
-    return false;
-  }
-}
+// Unkept, the sidebar starts closed.
+const readSidebarOpen = () => readKept(sidebarOpenKey) === "true";
 
-function keepSidebarOpen(open: boolean): void {
-  try {
-    window.localStorage.setItem(sidebarOpenKey, String(open));
-  } catch {
-    // Unkept, the sidebar only starts closed next time.
-  }
-}
+const keepSidebarOpen = (open: boolean) => {
+  keep(sidebarOpenKey, String(open));
+};
 
 const toggleShortcut = { key: "b" } as const;
 
