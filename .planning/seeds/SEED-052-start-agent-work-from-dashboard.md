@@ -216,6 +216,36 @@ assistive technology. Card entries show the same words in their state line.
 **Effort hypothesis:** Mostly the shared session reading, its sidebar ordering,
 the attention count, the alert reading, and the unread-report wording.
 
+<a id="mark-report-read-keeps-session-state"></a>
+
+### Acknowledge a session report without ending the session's state
+
+**Identity:** SEED-052#mark-report-read-keeps-session-state
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer who has read a session's completion report can
+  acknowledge it while the session keeps working on their next instruction, and
+  still sees that session's live state and any later request for input.
+- **Evaluation:** On a launch with a completion report, the control reads
+  **Mark as read**: it acknowledges the report only, clearing the
+  unread-report marker without stopping, renaming, or detaching the session.
+  The entry keeps showing its live reading: a session marked read while
+  working reads Working, and one that later waits for input shows the
+  needs-input border, moves into the attention group, is counted by the badge,
+  and raises its alert. **Mark as done** then always closes its session.
+- **Boundary:** Builds on
+  [the unread-report marker](#unread-report-apart-from-engagement). No change
+  to how reports are delivered or retained; a new instruction to the same
+  session does not mark its report read.
+- **Value / learning:** Today a report's Mark as done only records local Done
+  (`markSessionDone`), yet the entry then reads Done whatever the native
+  session does (`sessionShown`): a running session reads Done, and a later
+  "Needs input" is hidden.
+- **Effort hypothesis:** Unestimated; mostly the control's wording and the
+  marked-done reading for launches with a report.
+
 ## Ordering and Scope Reduction
 
 Stories 2 and 3 make return and interaction useful; refinement launch and
@@ -267,6 +297,10 @@ implementation; refinement and executable planning are later selections.
   stopped and need engagement, mark an unread report another way without
   reordering, keep the report's macOS alert, and queue this as backlog priority
   one; work directly on main and sync with origin.
+- Terry's follow-up the same day: a report's Mark as done acknowledges the
+  report only, so make it Mark as read and keep the live session state, queued
+  as the next backlog item after the taken unread-report story; work directly
+  on main and sync with origin.
 - [Current dashboard behavior](../../dashboard/README.md).
 - [Project visibility requirements](../../docs/project-visibility-requirements.md).
 - [Dashboard UX/UI direction](../../docs/dashboard-ux-ui-north-star.md).
