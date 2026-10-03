@@ -20,6 +20,7 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Backlog list
 
+- [Remove installed files that a newer release no longer declares](seeds/SEED-001-install-and-update-open-dough.md#remove-files-a-release-dropped) — SEED-001#remove-files-a-release-dropped
 - [Review all story worktree changes in one dashboard UI](seeds/SEED-088-dashboard-story-code-review.md#dashboard-story-code-review) — SEED-088#dashboard-story-code-review
 - [Monitor CI from the dashboard and deliver its state to the execution session](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring) — SEED-063#dashboard-owned-ci-monitoring
 - [Choose workspace and automatic landing for unattached Start session](seeds/SEED-066-composable-lightweight-session-options.md#unattached-session-options) — SEED-066#unattached-session-options
