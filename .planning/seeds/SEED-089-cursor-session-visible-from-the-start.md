@@ -138,69 +138,138 @@ start. A dashboard restart may still stop the agent.
 
 **Identity:** SEED-089#cursor-runner-survives-dashboard-restart
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/228-cursor-runner-survives-dashboard-restart/PLAN.md","assessment":"not-ready","reasons":["Slices 1–3 attach to the kept Cursor terminal from plan 227. On 9407c60 that launch is still the headless running prompt, and server close still hangs up kept clients. Reassess once plan 227 is on trunk."],"basis":{"document":"e4fc264a87db1aa5e99ac56eb057c05e2f5e36ba6f60cfb68f9cb4f51f9a064b","plan":"9e851df0432ca0ccfff23f79b8e3f402bcaa7a36a3ab5e2dee1f465adc44a963"}}
 ```
 
-**Goal:** A developer can restart the dashboard while a Cursor agent is
-working and then attach again to that same agent, still see it, and still
-instruct it.
-
-**Current behavior, for refinement:**
-
-- The opening Cursor process is a child of the dashboard process. It is not
-  detached. Restarting the dashboard stops it.
-- The dashboard remembers that this process is still running only in memory.
-  After a restart that memory is gone. If the process had survived, the new
-  dashboard would not know, and opening the terminal could start a second
-  agent.
-- Closing the dashboard's terminal is a different action. After the first
-  story, that close leaves a working Cursor run going. This story is about
-  the dashboard process itself stopping.
-- Claude Code and Codex already keep their work across that restart. They do
-  not need a new owner.
-
-**Agreed direction:** A local Cursor runner owns the Cursor processes and
-stays up when the dashboard restarts. The dashboard attaches to a session the
-runner is already holding, instead of being the parent of `cursor-agent`.
-The runner is the stable process; restarting the runner would still stop the
-agents it holds. Codex and Claude Code do not go through this runner.
+**Goal:** A developer who has a Cursor agent working can restart the
+dashboard, including when production replaces the dashboard server, and then
+see that same agent, instruct it, and see which Cursor sessions are still
+running.
 
 **Scope:**
 
-- Restarting the dashboard leaves a working Cursor agent running.
-- Opening the terminal after that restart shows that same agent and accepts
-  instructions. It does not start a second agent.
-- The runner remains up across ordinary dashboard restarts.
-- Claude Code and Codex stay unchanged.
+- A machine-local Cursor runner owns every Cursor terminal process this
+  product starts. The dashboard server is not the parent of `cursor-agent`.
+  Restarting or replacing the dashboard server leaves the runner and the
+  agents it holds running. Opening a terminal after that attaches to the
+  process the runner already holds and does not start a second agent.
+- Production starts with the existing command, `npm run watch:dashboard`.
+  The first time, and any later time the runner is not already running, that
+  command starts one runner and the watcher that serves the dashboard. When
+  the runner is already running, the command leaves it alone and does not
+  start a second one. The watcher's replacement of the dashboard server does
+  not restart the runner.
+- Stopping that production command stops the watcher and the dashboard server
+  the watcher owns. It does not stop the runner. Starting the command again
+  reuses the runner that is still up.
+- The development server uses that same runner. If the runner is absent,
+  starting the development server starts it once, detached from that server.
+  Restarting the development server does not restart the runner. Development
+  and production show the same held sessions.
+- A launch instruction the first story has not yet entered stays with the
+  runner across the dashboard restart. The restart does not enter it, does
+  not confirm the session record, and does not start another agent. Cursor's
+  own trust or login prompt stays on that same process for the developer to
+  answer.
+- The runner applies the existing keep and idle-end rules to the process it
+  holds, including while the dashboard is down. Closing the dashboard server
+  no longer sends SIGHUP to a Cursor client. Claude Code and Codex stay
+  unchanged and do not go through this runner.
+- Do not start a second Cursor agent on a chat that already has one. When the
+  dashboard cannot confirm that the runner holds nothing for that chat, it
+  does not start one. It says the runner is not running, or that it cannot
+  be reached.
+- Stopping the runner stops the Cursor processes it holds and leaves none
+  behind. The dashboard then shows that the runner is not running and lists
+  no live sessions. It does not start a replacement agent. After the runner
+  is started again and holds nothing for that chat, opening the terminal
+  resumes the chat as a new process.
+- The runner is not an authority for story state, backlog membership,
+  assignments, or progress. It only holds live Cursor processes. Session
+  records stay the machine-local records they already are.
+  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture.md)
+  is Proposed and still does not choose a service split.
+  [ADR 0000](../../docs/adrs/0000-use-adrs-accepted.md) keeps this design with
+  the feature.
+- A reboot of the machine still stops the runner and its agents. This story
+  does not add a dashboard control to stop or restart the runner, and the
+  runner does not adopt a Cursor process it did not start.
+
+**UI:**
+
+The dashboard has a **Running Cursor sessions** list, opened from the
+Sessions sidebar without opening a terminal. It states whether the Cursor
+runner is running. When the runner is running, each row is one session it
+holds: the project, what the developer started (story execution, refinement,
+or an ad-hoc session), and whether that session is working, waiting for an
+answer, or at the follow-up prompt. Choosing a row opens that session's
+terminal on the process the runner already holds. When the runner is not
+running, or cannot be reached, the list says so, shows no live sessions, and
+offers no action that starts an agent.
+
+**Architecture:**
+
+Today the Cursor process is a child of the dashboard server, and the server
+remembers that it is alive only in memory. Production makes that fatal:
+`npm run watch:dashboard` replaces the dashboard server when a qualifying
+commit is published, and that replacement stops the server's process group.
+The runner has to sit outside that group.
+
+The runner is one process per machine, in its own process group. It is not a
+child of the dashboard server and not a child of the watcher. Stopping or
+replacing either of those does not signal the runner. The production command
+and the development server start the runner only when nothing is already
+accepting connections, including when two starts overlap, and never restart
+a runner that is. Both find it at a stable machine-local address that
+outlives the dashboard server process. A replaced dashboard asks the runner
+which sessions it holds and attaches through the runner. It does not trust
+its own previous memory, and it does not spawn `cursor-agent` itself.
+
+The runner's stop ends the processes it holds, so a later runner cannot meet
+a leftover `cursor-agent` and the dashboard cannot start a second one beside
+it. Terry confirmed this lifetime on 2026-10-03: stopping the production
+command leaves the runner up, development uses that same runner, the
+dashboard has no control to stop or restart it, and a machine reboot still
+stops it.
 
 **Key examples:**
 
-1. A Cursor execution is visible and working in the dashboard. The developer
-   restarts the dashboard. The agent is still working, and opening its
-   terminal shows that same run.
-2. After the restart the developer types a follow-up. The same agent receives
-   it.
-3. The developer restarts the dashboard while the agent is waiting for an
-   answer. The question is still there, and the answer still reaches that
-   agent.
-
-**Open decisions for refinement:**
-
-- The runner's process shape: a small local process the dashboard starts when
-  it is absent, or another owner with the same lifetime.
-- How a restarted dashboard finds the runner's live sessions and attaches to
-  the existing terminal without starting another `cursor-agent`.
-- What a restart of the runner itself does, and how the dashboard says so.
-- Whether a Cursor process that the first story has not yet made into a
-  terminal is in scope. The selected order assumes this story keeps the
-  terminal from the first story.
+1. Production is up from `npm run watch:dashboard`, and a Cursor execution is
+   working. The watcher replaces the dashboard server. The agent keeps
+   working. Running Cursor sessions shows that session as working. Opening
+   its terminal shows that same run and does not start a second agent.
+2. After that replacement the developer types a follow-up. The same agent
+   receives it.
+3. The dashboard is restarted while the agent is waiting for an answer. The
+   list still shows waiting. The question is still there, and the answer
+   reaches that agent.
+4. Nothing is running. The developer starts `npm run watch:dashboard` once.
+   That starts the watcher and one runner. A Cursor session started
+   afterwards is held by that runner.
+5. The developer stops the production command and starts it again while the
+   agent is working. The runner was still up, so the command does not start
+   a second runner. The agent is still listed and still working.
+6. The runner process is stopped. Its agents stop. The dashboard says the
+   runner is not running and lists no live sessions. It does not start a
+   replacement agent. Starting the production command again starts one
+   runner. Opening the terminal then resumes the chat, because the runner
+   holds nothing for it.
+7. The runner is already up, and the developer is using the development
+   dashboard. It shows the same held session. Restarting the development
+   server leaves the agent running.
+8. The dashboard restarts while Cursor is showing its own trust or login
+   prompt. After the dashboard is back, that prompt is still there. The
+   developer answers it in the terminal. The launch instruction is not
+   entered as that answer, and the session record stays unconfirmed until
+   the instruction is actually entered.
 
 **Depends on:** [See and instruct a Cursor agent from the start](#cursor-session-interactable-from-the-start).
 Without that terminal, keeping the process would preserve a run the developer
 still cannot see or instruct.
 
 **Safe stopping point:** A dashboard restart no longer stops the Cursor agent
-or replaces it with a second one. Restarting the runner may still stop it.
+or replaces it with a second one. The developer can see which sessions the
+runner still holds. Stopping the runner still stops the agents it holds.
 
 ## Ordering and Scope Reduction
 
@@ -212,14 +281,18 @@ as long as the dashboard stays up.
 ## Open Decisions
 
 No unresolved choice changes this split or order. Terry selected both stories
-and this order on 2026-10-03. The first story's refinement decisions are in
-its section. The second story's decisions remain for its own refinement.
+and this order on 2026-10-03. Each story's refinement decisions are in its
+section.
 
 ## Breadcrumbs
 
 - Terry's 2026-10-03 review of a dashboard-launched Cursor execution that was
   recording finished slices while the terminal showed only the launch-wait
   notice.
+- Terry's 2026-10-03 refinement direction: the Cursor runner stays up when
+  the dashboard service restarts, the production command starts the watcher
+  and the runner together the first time, and the dashboard shows the status
+  of the sessions that runner is holding.
 - [Embedded terminals](../../dashboard/AGENT-LAUNCH-TERMINALS.md), including
   the kept Cursor client and the launch-wait notice.
 - [SEED-052](SEED-052-start-agent-work-from-dashboard.md), the parent launch

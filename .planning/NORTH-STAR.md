@@ -175,7 +175,10 @@ boundary: the launch endpoint sits beside the read endpoint in the same Vite
 launch, reuses its loopback and same-origin refusal before any process starts,
 passes fixed argument arrays (never a shell string), and keeps launch records
 in the common machine-local store. Native runtime infrastructure stays owned
-by its host; the dashboard adds no database or daemon. The browser holds
+by its host. The dashboard adds no database and no daemon for story state.
+Cursor's terminal process is the exception in
+[The Cursor runner outlives the dashboard server](#the-cursor-runner-outlives-the-dashboard-server).
+Claude Code and Codex stay with their hosts. The browser holds
 only transient dialog and request state and derives what a card shows from the
 published snapshot plus launch records. This extends, and does not replace,
 the read boundary topic above and ADR 0008's origin authority.
@@ -259,3 +262,34 @@ standalone observer, hook bridge, and completion wait are unchanged. This is
 supported by Accepted ADRs 0001, 0004, 0005, and 0006. Move the lasting
 feature rules to the dashboard launch documentation at wrap-up, and retire
 this topic when Codex and Cursor delivery no longer need it.
+
+## The Cursor runner outlives the dashboard server
+
+Cursor's agent is the terminal process. Claude Code and Codex keep their work
+outside the attached terminal, so closing the dashboard does not stop them.
+For [Keep a Cursor agent running across a dashboard restart](seeds/SEED-089-cursor-session-visible-from-the-start.md#cursor-runner-survives-dashboard-restart),
+one machine-local Cursor runner owns those terminal processes. It is not a
+child of the dashboard server or of the production watcher.
+`npm run watch:dashboard` starts it when it is absent, together with the
+watcher, and never restarts a runner that is already up. Replacing or
+stopping the dashboard server does not signal the runner. Stopping the
+production command does not either. The development server uses the same
+runner and starts it only when it is absent.
+
+The dashboard attaches through the runner and does not spawn `cursor-agent`
+itself. Launch records stay the session identity. The runner holds live
+processes only: it is not a second authority for story state, backlog
+membership, or progress. When the runner cannot be reached, the dashboard
+starts no Cursor agent. Stopping the runner ends the processes it holds.
+The dashboard lists the sessions the runner holds, as live process status,
+not as story progress. Claude Code and Codex do not use this runner.
+
+There is still no database. This topic revises the launch topic's refusal of
+a daemon only for Cursor's terminal process. Retire it when that lifetime is
+in the dashboard terminal documentation. Follow Accepted
+[ADR 0000](../docs/adrs/0000-use-adrs-accepted.md),
+[ADR 0001](../docs/adrs/0001-ubiquitous-language-accepted.md),
+[ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
+and [ADR 0005](../docs/adrs/0005-cross-tool-validation-accepted.md).
+[ADR 0008](../docs/adrs/0008-project-dashboard-domain-and-architecture.md)
+remains Proposed and does not choose this split.
