@@ -97,7 +97,7 @@ of at least 3:1. Build it on the existing `dashboard/tests/accessibleReading.ts`
 
 ### 1. A renovated banner on a shared visual foundation, with the settings gear
 Type: Behavior
-Status: done — visual acceptance checkpoint awaits Terry (screenshots below)
+Status: done — look accepted by Terry at the visual checkpoint, 2026-10-03
 Accepted proof: `npm run typecheck:dashboard`; `npx playwright test --config
 dashboard/playwright.config.ts --reporter=line` over
 `accessible-overview-keyboard`, `accessible-overview`, `refresh`,
@@ -151,7 +151,23 @@ requested change to the look is made in slice 1's surfaces before continuing.
 
 ### 2. System settings as a renovated page
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `npm run typecheck:dashboard`; `npx playwright test --config
+dashboard/playwright.config.ts --reporter=line dashboard/tests/system-settings
+dashboard/tests/project-add dashboard/tests/project-remove
+dashboard/tests/project-configuration dashboard/tests/openai-configuration
+dashboard/tests/dashboard-header.spec.ts
+dashboard/tests/session-instruction-voice.spec.ts` (65 passed), plus
+`project-restored-session`, `project-selection`, and
+`authenticated-read-agent-settings` (34 passed). The new
+`system-settings-look.spec.ts` checks each section as a headed region in one
+column with ≥4.5:1 text and ≥3:1 control contrast (`expectControlContrast` in
+`accessibleReading.ts`), and the page and both project dialogs at 420px.
+Learnings: `dashboard/src/frame-controls.css` holds `.frame-button`,
+`.frame-button-primary`, and `.frame-input` for slice 5's launch dialog
+buttons, which still use `agent-launch.css`'s older outline style. A label
+split around `.project-action-target` needs one wrapping span inside an
+inline-flex button, or the gap doubles the space.
 Proof: The settings rows of the proof table.
 
 Behavior: the developer activates the gear → a settings page with a header

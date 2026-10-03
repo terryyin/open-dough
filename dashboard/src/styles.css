@@ -18,6 +18,8 @@
      colour drawn over it at its contrast. */
   --hover: #ecece7;
   --accent-soft: #e6eef8;
+  /* A hovered accent-filled control, darker so its text keeps contrast. */
+  --accent-strong: #154b85;
   --problem-soft: #fbeeee;
   /* The frame's shared visual foundation: type scale, spacing, radius,
      elevation, and control sizes. */

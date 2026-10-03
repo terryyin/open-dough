@@ -1,7 +1,10 @@
 import { useRef, useState } from "react";
+import { Plus } from "lucide-react";
+import { Icon } from "./Icon.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useReplaceProjects } from "./projectList.tsx";
 import { AddProjectDialog } from "./AddProjectDialog.tsx";
+import "./frame-controls.css";
 import "./project-configuration.css";
 
 export function AddProject({
@@ -19,14 +22,17 @@ export function AddProject({
       <button
         type="button"
         ref={launcher}
-        className="add-project"
+        className="frame-button frame-button-primary"
         aria-label="Add project"
         autoFocus={autoFocus}
         onClick={() => {
           setOpen(true);
         }}
       >
-        Add<span className="project-action-target"> project</span>
+        <Icon icon={Plus} />
+        <span>
+          Add<span className="project-action-target"> project</span>
+        </span>
       </button>
       {open && (
         <AddProjectDialog

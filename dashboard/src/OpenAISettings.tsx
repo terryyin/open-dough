@@ -5,6 +5,7 @@ import {
   openAISaveEndpoint,
   type OpenAIConfigurationStatus,
 } from "./openAIConfiguration.ts";
+import "./frame-controls.css";
 
 async function configurationRequest(
   endpoint: string,
@@ -110,9 +111,14 @@ export function OpenAISettings() {
     }
   }
   return (
-    <section aria-labelledby="settings-openai-heading">
-      <h2 id="settings-openai-heading">OpenAI</h2>
-      <p role="status">
+    <section
+      className="settings-section"
+      aria-labelledby="settings-openai-heading"
+    >
+      <div className="settings-section-heading">
+        <h2 id="settings-openai-heading">OpenAI</h2>
+      </div>
+      <p role="status" className="openai-status">
         API key:{" "}
         {status === undefined
           ? "Status unavailable"
@@ -120,7 +126,7 @@ export function OpenAISettings() {
             ? "Configured"
             : "Not configured"}
       </p>
-      <p>
+      <p className="settings-note">
         A saved key configures general OpenAI access on this machine. Saving
         does not verify it with OpenAI or make a paid request.
       </p>
@@ -135,6 +141,7 @@ export function OpenAISettings() {
         <input
           ref={input}
           id="openai-api-key"
+          className="frame-input"
           type="password"
           autoComplete="off"
           value={apiKey}
@@ -144,12 +151,17 @@ export function OpenAISettings() {
           }}
         />
         <div className="openai-settings-actions">
-          <button type="submit" disabled={busy}>
+          <button
+            type="submit"
+            className="frame-button frame-button-primary"
+            disabled={busy}
+          >
             Save API key
           </button>
           {(status?.configured || problem) && (
             <button
               type="button"
+              className="frame-button"
               disabled={busy}
               onClick={() => {
                 void update(true);
@@ -160,12 +172,17 @@ export function OpenAISettings() {
           )}
         </div>
       </form>
-      {busy && <p role="status">Updating OpenAI configuration…</p>}
+      {busy && (
+        <p role="status" className="settings-note">
+          Updating OpenAI configuration…
+        </p>
+      )}
       {problem && (
-        <div role="alert">
+        <div role="alert" className="settings-problem">
           {problem}{" "}
           <button
             type="button"
+            className="frame-button"
             disabled={busy}
             onClick={() => {
               setRetry(retry + 1);

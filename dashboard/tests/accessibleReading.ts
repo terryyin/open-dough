@@ -112,6 +112,41 @@ export async function expectReadableContrast(locator: Locator, minimum = 4.5) {
   ).toBeGreaterThanOrEqual(minimum);
 }
 
+// A control needs 3:1 between what outlines it, its edge or else its fill,
+// and the color behind it, so it is recognised as a control.
+export async function expectControlContrast(locator: Locator, minimum = 3) {
+  const colors = await locator.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const shown = (color: string) =>
+      !/^rgba\(.*,\s*0\)$/.test(color) && color !== "transparent";
+    let behind = "rgba(0, 0, 0, 0)";
+    for (
+      let at = element.parentElement;
+      at && !shown(behind);
+      at = at.parentElement
+    )
+      behind = getComputedStyle(at).backgroundColor;
+    return {
+      edges:
+        parseFloat(style.borderTopWidth) > 0
+          ? [style.borderTopColor].filter(shown)
+          : [],
+      fill: [style.backgroundColor].filter(shown),
+      behind,
+    };
+  });
+  const best = Math.max(
+    0,
+    ...[...colors.edges, ...colors.fill].map((color) =>
+      contrastRatio(color, colors.behind),
+    ),
+  );
+  expect(
+    best,
+    `control contrast of ${(await locator.getAttribute("aria-label")) ?? (await locator.textContent())}`,
+  ).toBeGreaterThanOrEqual(minimum);
+}
+
 // Detail and cards must settle immediately under reduced motion: no authored
 // transition or animation that would delay placement or focus.
 export async function expectImmediateMotion(locator: Locator) {

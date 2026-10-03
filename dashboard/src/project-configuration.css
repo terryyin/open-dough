@@ -1,20 +1,215 @@
-.add-project, .remove-project { min-height: 2.75rem; }
-.project-dialog input { min-width: 0; padding: 0.5rem; font: inherit; }
-.project-dialog-actions { display: flex; justify-content: end; gap: 0.5rem; padding: 1rem; }
-.project-dialog-actions button { min-height: 2.75rem; padding: 0.4rem 0.8rem; }
+/* System settings (./SystemSettings.tsx): a bar holding the page's name and
+   the way back, then one card per setting group, all in one centred column.
+   A further group is one more .settings-section. Buttons and fields share
+   the frame's look (./frame-controls.css). */
 
-.system-settings { max-width: 65rem; margin: 0 auto; padding: 1.5rem; }
-.settings-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
-.system-settings button { min-height: 2.75rem; padding: 0.4rem 0.8rem; }
-.system-settings section { margin-top: 2rem; }
-.settings-project-list { list-style: none; padding: 0; }
-.settings-project-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--border-color, #bbb); }
-.settings-project-list li > div { min-width: 0; flex: 1 1 24rem; }
-.settings-project-list h3 { margin: 0 0 0.75rem; }
-.settings-project-list dl { margin: 0; }
-.settings-project-list dt { font-weight: 600; }
-.settings-project-list dd { margin: 0 0 0.5rem; overflow-wrap: anywhere; }
+.system-settings {
+  --settings-column: 60rem;
+  container: settings / inline-size;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  margin: 0;
+  padding-bottom: var(--space-5);
+}
 
-.openai-settings-form { display: flex; flex-direction: column; align-items: start; gap: 0.5rem; }
-.openai-settings-form input { box-sizing: border-box; width: min(100%, 32rem); min-width: 0; padding: 0.5rem; font: inherit; }
-.openai-settings-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.settings-bar {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  width: 100%;
+  padding: var(--space-2)
+    max(var(--page-gutter), calc((100% - var(--settings-column)) / 2));
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  box-shadow: var(--shadow-1);
+}
+
+.settings-bar h1 {
+  font-size: var(--text-xl);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.settings-section {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: min(var(--settings-column), calc(100% - 2 * var(--page-gutter)));
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--panel);
+  box-shadow: var(--shadow-1);
+}
+
+.settings-section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  min-height: var(--control-size);
+}
+
+.settings-section h2 {
+  font-size: var(--text-lg);
+  font-weight: 650;
+}
+
+.settings-note,
+.settings-empty {
+  font-size: var(--text-sm);
+  color: var(--quiet);
+}
+
+.settings-problem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--problem);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--problem);
+  background: var(--problem-soft);
+}
+
+.settings-project-list {
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.settings-project-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+}
+
+.settings-project-list li + li {
+  border-top: 1px solid var(--line);
+}
+
+.settings-project-list li > div {
+  min-width: 0;
+  flex: 1 1 24rem;
+}
+
+.settings-project-list h3 {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+
+/* Each fact's name beside its value, stacked when the column is narrow. */
+.settings-project-list dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--space-1) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.settings-project-list dt {
+  color: var(--quiet);
+}
+
+.settings-project-list dd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+.openai-status {
+  font-weight: 600;
+}
+
+.openai-settings-form {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.openai-settings-form label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.openai-settings-form input {
+  width: min(100%, 32rem);
+}
+
+.openai-settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+@container settings (max-width: 40rem) {
+  .settings-section {
+    padding: var(--space-4);
+  }
+
+  .settings-project-list li {
+    padding: var(--space-3);
+  }
+
+  .settings-project-list dl {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .settings-project-list dd + dt {
+    margin-top: var(--space-2);
+  }
+}
+
+/* The Add project and Remove project dialogs: a quiet card over the page,
+   its actions on a footer below the body. */
+.launch-dialog.project-dialog {
+  width: min(32rem, calc(100% - 1.5rem));
+  border-color: var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+}
+
+.project-dialog .launch-dialog-body {
+  gap: var(--space-2);
+  padding: var(--space-5);
+}
+
+.project-dialog h2 {
+  font-size: var(--text-lg);
+  font-weight: 650;
+}
+
+.project-dialog .launch-dialog-body p[role="alert"] {
+  color: var(--problem);
+}
+
+.project-dialog label {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.project-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}

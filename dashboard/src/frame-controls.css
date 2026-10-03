@@ -1,0 +1,75 @@
+/* The frame's text buttons and text fields: one control height, the shared
+   radius, and an edge that stands out from what is behind it. A button may
+   lead with an icon (./Icon.tsx); its text still names it. The primary
+   button, filled in the accent, is a page's or dialog's one main action. */
+
+.frame-button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--control-size);
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--text);
+  background: var(--panel);
+  cursor: pointer;
+}
+
+.frame-button:hover:not(:disabled) {
+  background: var(--hover);
+}
+
+.frame-button .icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.frame-button-primary {
+  border-color: var(--accent);
+  color: var(--panel);
+  background: var(--accent);
+  box-shadow: var(--shadow-1);
+}
+
+.frame-button-primary:hover:not(:disabled) {
+  border-color: var(--accent-strong);
+  background: var(--accent-strong);
+}
+
+.frame-button:disabled {
+  border-color: var(--line);
+  color: var(--quiet);
+  background: var(--surface);
+  box-shadow: none;
+  cursor: default;
+}
+
+.frame-input {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: var(--control-size);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-md);
+  font: inherit;
+  color: var(--text);
+  background: var(--panel);
+}
+
+.frame-input:disabled {
+  color: var(--quiet);
+  background: var(--surface);
+}
+
+/* The page-wide focus outline keeps the control's own rounded corners. */
+.frame-button:focus-visible,
+.frame-input:focus-visible {
+  border-radius: var(--radius-md);
+}
