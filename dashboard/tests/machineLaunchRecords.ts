@@ -50,3 +50,48 @@ export function recordLaunchedDaysAgo(
     ...(doneDaysAgo === undefined ? {} : { doneAt: daysAgo(doneDaysAgo) }),
   };
 }
+
+// An open launch record for a story, shaped for Claude, Codex, or Cursor so
+// acceptance tests can seed the machine store without launching.
+export function openStoryRecord(
+  host: "claude" | "codex" | "cursor",
+  sessionId: string,
+  story: {
+    readonly source: string;
+    readonly identity: string;
+    readonly title: string;
+    readonly workflow: string;
+  } = launchRequest,
+): object {
+  const name = `Open Dough · Execution · ${story.title}`;
+  const session =
+    host === "claude"
+      ? {
+          host,
+          sessionId,
+          shortId: sessionId.slice(0, 8),
+          name,
+        }
+      : host === "codex"
+        ? { host, sessionId, name }
+        : {
+            host,
+            sessionId,
+            name,
+            continuation: {
+              workspace: "/tmp",
+              args: ["agent", "--resume", sessionId],
+            },
+          };
+  return {
+    request: {
+      source: story.source,
+      identity: story.identity,
+      title: story.title,
+      workflow: story.workflow,
+      host,
+    },
+    session,
+    launchedAt: new Date().toISOString(),
+  };
+}

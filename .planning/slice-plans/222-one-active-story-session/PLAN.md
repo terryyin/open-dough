@@ -87,8 +87,8 @@ Enables: slice 2, whose refusal would otherwise break these specs.
 
 ### 2. The launch boundary refuses a story start while that story has an open session
 Type: Behavior
-Status: planned
-Proof: new cases in `dashboard/tests/agent-launch-acceptance.spec.ts` over real HTTP, with the whole dashboard suite green.
+Status: done
+Proof: new cases in `dashboard/tests/agent-launch-open-session.spec.ts` and `dashboard/tests/agent-launch-open-session-continue.spec.ts` (split from acceptance) over real HTTP; `NODE_ENV= npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-acceptance.spec.ts dashboard/tests/agent-launch-open-session.spec.ts dashboard/tests/agent-launch-open-session-continue.spec.ts` green. Whole suite green for launch coverage; `production-watcher-failures` and `quiet-reporter` remain out-of-scope pre-existing failures.
 
 Behavior: This machine keeps an open refinement or execution launch record
 (Claude, Codex or Cursor) for story S. A `POST /__agent-launch/accept` for S in
@@ -199,3 +199,7 @@ Update the CSS header comment.
   `distinctStoryRequest` cover relaunch and sibling-story cases. Concurrent
   “two at once” under a future open-session refusal may answer `failed` or
   `uncertain` for the second start while still keeping one claim/workspace.
+- Continue must treat an open record of the continued attempt's exact launch
+  (`sameLaunch`) as own, not only `outcome.kind === "launched"`, or recovery
+  continues break when a conversation record already exists under an uncertain
+  outcome.

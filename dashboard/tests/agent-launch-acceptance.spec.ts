@@ -9,6 +9,9 @@
 // same launch is answered as already submitted. An
 // acceptance that cannot be kept starts nothing, and a failure after
 // acceptance is the owner's kept outcome rather than a crashed server.
+// Open-session refusal of a story start is
+// `./agent-launch-open-session.spec.ts` and
+// `./agent-launch-open-session-continue.spec.ts`.
 
 import { chmodSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import path from "node:path";

@@ -74,8 +74,13 @@ attempt to change so pages reread without polling hosts. While a story's attempt
 is unresolved (running, or in need of reconciliation as below), another request
 for that story, from any workflow, is refused, and only that attempt's
 continuation resumes it; the page protects the story by the same rule
-(`unresolvedAttempt` in `src/launchOutcome.ts`). An unreadable attempt file
-refuses every launch.
+(`unresolvedAttempt` in `src/launchOutcome.ts`). While a story already has an
+open launch record on this machine (any host, not marked done), another
+request for that story is refused with reason `session-open` until the
+session is marked done or its record deleted; a continuation is refused the
+same way unless every open record of the story is that attempt's own launch
+(`sameLaunch`) or its launched session. An
+unreadable attempt file or launch-record file refuses every story launch.
 
 From submission, the dialog says “Starting…” with Cancel, Start and every choice
 unavailable, ignores Escape, and says “Startup is underway and can no longer be

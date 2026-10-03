@@ -42,7 +42,7 @@ export function projectSessionsOf(
 }
 
 // Whether a session is still open: not marked done.
-const isOpen = (record: LaunchRecord) => record.doneAt === undefined;
+export const isOpen = (record: LaunchRecord) => record.doneAt === undefined;
 
 // The sessions a story's card lists, oldest first, in whatever stage origin
 // shows the story: every launch record of the project's work item that has

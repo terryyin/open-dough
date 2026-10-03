@@ -217,19 +217,20 @@ test.describe("launch records kept on this machine", () => {
     expect(await recordsOf(server, "open-dough")).toEqual([]);
     expect(readFileSync(storeFile(machine), "utf8")).toBe(unreadable);
 
+    // Story starts refuse an unreadable store; an ad hoc launch still writes
+    // and moves the unreadable copy aside.
     server.claudeScenario("launched");
-    const { record } = JSON.parse(
-      (await launch(server, distinctStoryRequest("unreadable-1"))).body,
-    ) as { record: unknown };
+    const adHoc = { source: "open-dough", workflow: "ad-hoc", host: "claude" };
+    const { record } = JSON.parse((await launch(server, adHoc)).body) as {
+      record: unknown;
+    };
     expect(await recordsOf(server, "open-dough")).toEqual([record]);
     expect(readFileSync(`${storeFile(machine)}.unreadable`, "utf8")).toBe(
       unreadable,
     );
     const unreadableAgain = "[ still not launch records";
     seedStore(machine, unreadableAgain);
-    const second = JSON.parse(
-      (await launch(server, distinctStoryRequest("unreadable-2"))).body,
-    ) as {
+    const second = JSON.parse((await launch(server, adHoc)).body) as {
       record: unknown;
     };
     expect(await recordsOf(server, "open-dough")).toEqual([second.record]);

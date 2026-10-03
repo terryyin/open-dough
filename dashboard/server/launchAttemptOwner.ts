@@ -6,6 +6,9 @@
 // one at a time is accepted; a story whose unresolved attempt
 // (`unresolvedAttempt`) no server runs any more accepts only that attempt's
 // continuation, which runs its kept request again under the same identity. A
+// story that already has an open launch record on this machine is refused
+// until that session is marked done or its record deleted, except a
+// continuation whose open record is that attempt's own launched session. A
 // settled attempt a page found reconciled with published state keeps when it
 // was (`./launchAttemptReconciliation.ts`); a
 // story attempt whose launch is uncertain settles when a recheck finds its
@@ -19,6 +22,7 @@ import type {
   AgentLaunchRequest,
   AttemptObservation,
   LaunchAttemptRecord,
+  LaunchRecord,
   ReconciledAnswer,
   VerifiedAnswer,
 } from "../src/agentLaunch.ts";
@@ -39,6 +43,7 @@ import {
 } from "./launchAttemptVerification.ts";
 import { settleAttempt, type AttemptRun } from "./launchAttemptSettlement.ts";
 import { keepAttempt, keptAttempts } from "./launchAttemptStore.ts";
+import { readableRecordsByProject } from "./launchRecordStore.ts";
 import { OwnedAttempts } from "./ownedAttempts.ts";
 
 export class LaunchAttemptOwner {
@@ -73,9 +78,10 @@ export class LaunchAttemptOwner {
   ): Promise<Acceptance> {
     const kept = await keptAttempts();
     if (kept === undefined) return unreadableEvidence;
+    const records = await readableRecordsByProject();
     // Checked and registered in one synchronous step, so of two requests of
     // one story in this server exactly one is accepted.
-    const conflict = this.conflictWith(request, kept);
+    const conflict = this.conflictWith(request, kept, records);
     if (conflict !== undefined) return conflict;
     // The confirmation of existing changes is transient: never kept.
     const keptRequest = { ...request };
@@ -127,7 +133,8 @@ export class LaunchAttemptOwner {
     if (stillUnneeded !== undefined) return stillUnneeded;
     // A recheck of it may settle it meanwhile.
     if (this.verifying.has(id)) return recheckRunning;
-    const conflict = this.conflictWith(found.request, kept, id);
+    const records = await readableRecordsByProject();
+    const conflict = this.conflictWith(found.request, kept, records, id);
     if (conflict !== undefined) return conflict;
     return this.admit(
       found.request,
@@ -159,16 +166,19 @@ export class LaunchAttemptOwner {
   }
 
   // What the request, or the continuation of the attempt `continued`, would
-  // duplicate among the attempts this machine knows (`conflicting`).
+  // duplicate among the attempts and open launch records this machine knows
+  // (`conflicting`).
   private conflictWith(
     request: AgentLaunchRequest,
     kept: readonly LaunchAttemptRecord[],
+    records: ReadonlyMap<string, readonly LaunchRecord[]> | undefined,
     continued?: string,
   ): Unaccepted | undefined {
     return conflicting(
       request,
       this.owned.unsettledRequests(),
       this.owned.known(kept),
+      records,
       continued,
     );
   }

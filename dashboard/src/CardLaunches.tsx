@@ -1,7 +1,8 @@
 import { dependencyStartProblem } from "./storyDependencies.ts";
 import { sessionKey } from "./sessionReference.ts";
 // A card's launches: on a Backlog card, one Start action per workflow in the
-// order `launchWorkflows` offers them, whatever sessions are listed; on the
+// order `launchWorkflows` offers them; a second start of a story that already
+// has an open session is refused at the launch boundary; on the
 // card of a story starting on this machine, whichever page asked for it, what
 // its local startup is doing (`StartupStatus`), with the answer of one in
 // need of reconciliation left to Startup recovery; on every

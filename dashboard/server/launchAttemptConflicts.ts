@@ -1,25 +1,35 @@
 // What the launch attempt owner (`./launchAttemptOwner.ts`) answers instead
 // of accepting or continuing a launch, with nothing started: the launch
 // would duplicate an unsettled attempt of the same launch or its story's
-// unresolved attempt, this machine's kept attempts cannot be read, or the
+// unresolved attempt, the story already has an open session on this machine,
+// this machine's kept attempts or launch records cannot be read, or the
 // attempt to continue is not one this machine keeps as needing
 // reconciliation.
 
 import {
+  isOpen,
   needsReconciliation,
+  sessionOpenExplanation,
   storyOf,
+  unreadableLaunchRecordsExplanation,
   unresolvedAttempt,
   type Acceptance,
   type AgentLaunchRequest,
   type AttemptObservation,
+  type LaunchRecord,
+  type RecordedLaunchRequest,
 } from "../src/agentLaunch.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
+import { sessionKey } from "../src/sessionReference.ts";
 import { alreadyStarting } from "./startLaunch.ts";
 
 // What was answered before anything was accepted or started.
 export type Unaccepted = Exclude<Acceptance, { kind: "accepted" }>;
 
-const sameStory = (one: AgentLaunchRequest, other: AgentLaunchRequest) => {
+const sameStory = (
+  one: AgentLaunchRequest | RecordedLaunchRequest,
+  other: AgentLaunchRequest | RecordedLaunchRequest,
+) => {
   const story = storyOf(one);
   return (
     story !== undefined &&
@@ -33,6 +43,12 @@ export const unreadableEvidence: Unaccepted = {
   reason: "unrecorded",
   explanation:
     "This machine's launch evidence (~/.open-dough/dashboard/launch-attempts.json) could not be read, so an earlier start may still need reconciliation. Repair or move that file aside before starting; nothing was started.",
+};
+
+export const unreadableLaunchRecords: Unaccepted = {
+  kind: "failed",
+  reason: "unrecorded",
+  explanation: unreadableLaunchRecordsExplanation,
 };
 
 export const unrecordedAcceptance: Unaccepted = {
@@ -77,6 +93,12 @@ const settledAttempt: Unaccepted = {
     "This start no longer needs reconciliation, so nothing was continued.",
 };
 
+export const sessionOpen: Unaccepted = {
+  kind: "failed",
+  reason: "session-open",
+  explanation: sessionOpenExplanation,
+};
+
 // Why an attempt is not continued, when it is not: it runs now, or it needs
 // no reconciliation.
 export function notContinued(
@@ -108,15 +130,38 @@ export function alreadySubmitted(
 const unresolvedStart = (attempt: AttemptObservation) =>
   `An earlier start of this story on this machine ${attempt.outcome === undefined ? "was interrupted and needs" : "needs"} reconciliation, so a second start was not made. Recheck or continue it from Startup recovery. Nothing was launched.`;
 
+// The session the continued attempt already launched, when its outcome names
+// one, or any open record of that attempt's exact launch (`sameLaunch`): a
+// continuation may proceed while those alone stay open, including when the
+// launch settled uncertain after creating its conversation.
+const ownOpenSession = (
+  record: LaunchRecord,
+  known: readonly AttemptObservation[],
+  continued?: string,
+) => {
+  if (continued === undefined) return false;
+  const attempt = known.find((entry) => entry.id === continued);
+  if (attempt === undefined) return false;
+  if (sameLaunch(attempt.request, record.request)) return true;
+  return (
+    attempt.outcome?.kind === "launched" &&
+    sessionKey(record.session) === sessionKey(attempt.outcome.session)
+  );
+};
+
 // What the request would duplicate: the same launch on any host that this
-// server runs (`running`), or the unresolved attempt of its story among the
+// server runs (`running`), the unresolved attempt of its story among the
 // attempts this machine knows (`known`, `unresolvedAttempt`) -- one this
-// server runs, or one only its own continuation resumes. A continuation of
-// the attempt `continued` conflicts only with a different unresolved attempt.
+// server runs, or one only its own continuation resumes -- or an open
+// launch record of its story among `records` (undefined when that file
+// could not be read). A continuation of the attempt `continued` conflicts
+// only with a different unresolved attempt, and with an open session that
+// is not that attempt's own launch record or launched session.
 export function conflicting(
   request: AgentLaunchRequest,
   running: readonly AgentLaunchRequest[],
   known: readonly AttemptObservation[],
+  records: ReadonlyMap<string, readonly LaunchRecord[]> | undefined,
   continued?: string,
 ): Unaccepted | undefined {
   const submitted = alreadySubmitted(request, running);
@@ -124,12 +169,22 @@ export function conflicting(
   const unresolved = unresolvedAttempt(
     known.filter((attempt) => sameStory(request, attempt.request)),
   );
-  if (unresolved === undefined || unresolved.id === continued) return undefined;
-  return {
-    kind: "failed",
-    reason: "already-starting",
-    explanation: unresolved.owned
-      ? alreadyStarting
-      : unresolvedStart(unresolved),
-  };
+  if (unresolved !== undefined && unresolved.id !== continued) {
+    return {
+      kind: "failed",
+      reason: "already-starting",
+      explanation: unresolved.owned
+        ? alreadyStarting
+        : unresolvedStart(unresolved),
+    };
+  }
+  if (storyOf(request) === undefined) return undefined;
+  if (records === undefined) return unreadableLaunchRecords;
+  const open = (records.get(request.source) ?? []).filter(
+    (record) => sameStory(request, record.request) && isOpen(record),
+  );
+  if (open.some((record) => !ownOpenSession(record, known, continued))) {
+    return sessionOpen;
+  }
+  return undefined;
 }
