@@ -12,6 +12,7 @@ import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
   expectControlContrast,
+  expectReadableAndRecognisable,
   expectReadableContrast,
   narrowWindow,
   twiceZoomedWindow,
@@ -33,19 +34,12 @@ import {
   type LongTitleOrigin,
 } from "./longTitleLaunch.ts";
 
-// Every piece of text a reader reads in a dialog, and every control that can
-// be used now; a disabled control is exempt from the control contrast.
-async function expectReadableAndRecognisable(dialog: Locator) {
-  const texts = dialog.locator("h2, p, label, legend, summary");
-  for (const text of await texts.all())
-    if (await text.isVisible()) await expectReadableContrast(text);
-  const controls = dialog.locator("button, select, textarea");
-  for (const control of await controls.all()) {
-    if (!(await control.isVisible())) continue;
-    await expectReadableContrast(control);
-    if (await control.isEnabled()) await expectControlContrast(control);
-  }
-}
+// Every piece of text a reader reads in a dialog, and every control.
+const launchDialog = {
+  texts: "h2, p, label, legend, summary",
+  controls: "button, select, textarea",
+  hasControls: false,
+};
 
 test.describe("launch dialogs in the frame's look", () => {
   let published: LongTitleOrigin;
@@ -66,7 +60,7 @@ test.describe("launch dialogs in the frame's look", () => {
     await dialog.locator("summary", { hasText: "Command details" }).click();
     for (const summary of await dialog.locator("summary").all())
       await expectDecorativeIcon(summary);
-    await expectReadableAndRecognisable(dialog);
+    await expectReadableAndRecognisable(dialog, launchDialog);
 
     const start = dialog.getByRole("button", { name: "Start", exact: true });
     const cancel = dialog.getByRole("button", { name: "Cancel" });
@@ -98,7 +92,7 @@ test.describe("launch dialogs in the frame's look", () => {
         await expect(session).toBeVisible();
         await expectNoSidewaysScrollIn(page, session);
         await expectEveryControlReachable(session);
-        await expectReadableAndRecognisable(session);
+        await expectReadableAndRecognisable(session, launchDialog);
       });
     });
   }

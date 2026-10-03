@@ -65,7 +65,7 @@ cards, and any new look assertion.
 
 ### 1. One background rule and one area check
 Type: Structure
-Status: planned
+Status: done
 
 Move the background walk into one function in `accessibleReading.ts` with one
 "nothing painted" recogniser, used by `expectReadableContrast`,
@@ -85,6 +85,23 @@ over `system-settings-look`, `frame-launch-look`, `frame-overview-look`,
 green. One deliberate local probe, reverted before
 commit, lowers a frame button's edge colour and shows the shared area check
 still fails in both look specs.
+
+Accepted proof: `npm run typecheck:dashboard` clean; the Playwright command
+above selected 51 tests in 18 files (substring matching also selects the
+`system-settings-*` and `project-configuration-boundary` specs), every named
+spec among them, all passed. The probe set `.frame-button`'s border to
+`var(--panel)` in `dashboard/src/frame-controls.css`: the shared area check
+failed with "control contrast of Cancel" in `system-settings-look` (Add project
+dialog) and "control contrast of Record" in both `frame-launch-look` area
+checks, then was reverted. Locations: `painted`, `colorBehind`, and
+`expectReadableAndRecognisable` in `accessibleReading.ts`; `settingsArea`
+(`hasControls: true`) and `launchDialog` (`hasControls: false`) in the two
+look specs.
+
+Learnings: the background walk runs as one `evaluate` that returns every
+background up the chain, and Node picks the first painted one, so no function
+crosses into the browser. The two older walks now also treat zero-alpha
+colours other than `rgba(0, 0, 0, 0)` as unpainted.
 
 ## Current decisions
 
