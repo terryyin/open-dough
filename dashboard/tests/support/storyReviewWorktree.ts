@@ -129,8 +129,12 @@ export function landedWorktree(origin: StartOrigin) {
   return { workspace, landed };
 }
 
-// Story A's launch record, its start naming the worktree.
-export function storyALaunchRecord(workspace: string): LaunchRecord {
+// Story A's launch record, its start naming the worktree, of the session
+// given, as one the synthetic `claude` lists.
+export function storyALaunchRecord(
+  workspace: string,
+  { sessionId, shortId } = { sessionId: "story-a-session", shortId: "story-a" },
+): LaunchRecord {
   return {
     request: {
       source: "open-dough",
@@ -141,8 +145,8 @@ export function storyALaunchRecord(workspace: string): LaunchRecord {
     },
     session: {
       host: "claude",
-      sessionId: "story-a-session",
-      shortId: "story-a",
+      sessionId,
+      shortId,
       name: "Story A",
     },
     start: {

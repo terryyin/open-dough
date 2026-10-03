@@ -1,7 +1,7 @@
 // The page's operations on the sessions it shows: opening one in the page's
 // one terminal or final-report panel, marking one done, and reading one
 // again once its terminal attaches, each asked with one request shape. The
-// page provides them (`./TerminalSplit.tsx`), and a session entry on a card,
+// page provides them (`./PageFrame.tsx`), and a session entry on a card,
 // in Recent sessions, or in the Sessions sidebar reaches opening and marking
 // without every component between them passing them along. Each session entry
 // names its session, so the page can find where to bring the entry into view.
@@ -122,7 +122,7 @@ export const SessionsOnPage = createContext<PageSessions | undefined>(
 export function usePageSessions(): PageSessions {
   const sessions = useContext(SessionsOnPage);
   if (sessions === undefined) {
-    throw new Error("A session is shown outside the page's TerminalSplit.");
+    throw new Error("A session is shown outside the page's PageFrame.");
   }
   return sessions;
 }

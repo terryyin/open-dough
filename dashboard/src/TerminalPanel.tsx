@@ -4,11 +4,10 @@
 // prints appears in the terminal, what the developer types goes to the
 // session, and the terminal's size follows the panel. Its toolbar names the
 // session, led by the portrait of the agent its record names, if it has one,
-// and, by icon controls on the right, maximizes or restores the panel
-// and closes it, as Command+Shift+Escape does page-wide, from inside the
-// terminal too, except inside an open dialog (`useCommandShortcut`), while
-// plain Escape still goes to the session; closing it, or opening another
-// session in its place, detaches only, so the session keeps running. When
+// and, by the panel's icon controls on the right (`./PanelControls.tsx`),
+// maximizes or restores the panel and closes it, while plain Escape still
+// goes to the session; closing it, or opening another session or a story
+// review in its place, detaches only, so the session keeps running. When
 // the connection drops, as when the dashboard server restarts, the panel
 // says so and offers to reconnect; when the attached CLI exits on its own,
 // it says the terminal ended and offers to open it again. Either attaches to
@@ -25,12 +24,13 @@ import {
   type CSSProperties,
   type RefObject,
 } from "react";
-import { CircleCheck, Maximize2, Minimize2, X } from "lucide-react";
+import { CircleCheck } from "lucide-react";
 import { marksDone } from "./sessionCapabilities.ts";
-import { useCommandShortcut } from "./pageShortcuts.ts";
+import { PanelControls } from "./PanelControls.tsx";
 import "@xterm/xterm/css/xterm.css";
 import "./agent-launch.css";
 import "./frame-controls.css";
+import "./side-panel.css";
 import "./agent-terminal.css";
 import { IconButton } from "./Icon.tsx";
 import { launchSubject } from "./agentLaunch.ts";
@@ -54,8 +54,6 @@ import {
 import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
 import { useShownTerminalTheme } from "./savedTerminalTheme.ts";
 import { terminalPalette } from "./terminalThemes.ts";
-
-const closeShortcut = { key: "Escape", shift: true } as const;
 
 // Keeps `--terminal-rows-height` on the identity at the height of its title
 // and session rows, however they wrap, so the agent portrait beside them
@@ -122,7 +120,6 @@ export function TerminalPanel({
     setEnding,
     onWorkspaceUnavailable,
   );
-  useCommandShortcut(closeShortcut, onClose);
   useRowsHeight(identity, names);
   usePortraitPreview(identity);
   const attachAgain = () => {
@@ -134,20 +131,20 @@ export function TerminalPanel({
   const agentName = agentNameOf(agent);
   const { background } = terminalPalette(useShownTerminalTheme());
   return (
-    <section className="terminal-panel" aria-label="Terminal">
-      <header className="terminal-toolbar">
+    <section className="side-panel" aria-label="Terminal">
+      <header className="side-panel-header">
         <div ref={identity} className="terminal-identity">
           {agentName !== undefined && (
             <AgentPortrait name={agentName} label={agent} />
           )}
-          <div ref={names} className="terminal-names">
+          <div ref={names} className="side-panel-names">
             <h2>{title}</h2>
             <p className="quiet">
               {name} session <code>{record.session.sessionId}</code>
             </p>
           </div>
         </div>
-        <div className="terminal-actions">
+        <div className="side-panel-actions">
           {marksDone(hostOperations, record.session.host) && (
             <IconButton
               label="Mark as done"
@@ -158,19 +155,10 @@ export function TerminalPanel({
               }}
             />
           )}
-          <IconButton
-            label={maximized ? "Restore" : "Maximize"}
-            icon={maximized ? Minimize2 : Maximize2}
-            onClick={() => {
-              onMaximize(!maximized);
-            }}
-          />
-          <IconButton
-            label="Close"
-            shortcut="⌘⇧Esc"
-            icon={X}
-            align="end"
-            onClick={onClose}
+          <PanelControls
+            maximized={maximized}
+            onMaximize={onMaximize}
+            onClose={onClose}
           />
         </div>
       </header>

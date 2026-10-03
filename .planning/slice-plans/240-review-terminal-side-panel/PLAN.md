@@ -160,7 +160,7 @@ width. No owner-held or paid premise needs an early probe slice.
 
 ### 1. Review and session work through one coherent panel
 Type: Behavior
-Status: planned
+Status: done
 Proof: Slice-1 table rows; updated four review page specs plus `story-panel-switching.spec.ts`, `agent-terminal-maximize.spec.ts`, `agent-terminal-keyboard.spec.ts`, `agent-terminal-codex-page.spec.ts`, `session-workspace-retirement.spec.ts`, `system-settings.spec.ts`, and affected session navigation/theme journeys.
 
 Behavior: a story has an eligible review workspace and a session can be opened
@@ -193,6 +193,32 @@ Safe stopping point: useful review/terminal/report switching and coherent
 controls work at the existing half-width and narrow arrangement. Edge resizing
 arrives in slice 2; persistent width arrives in slice 3. All affected current
 journeys are green at this delivery boundary.
+
+Delivered 2026-10-03. Accepted proof: the literal baseline Playwright prefix over
+the four review specs, `story-panel-switching.spec.ts`,
+`story-panel-replacement.spec.ts` (held review of A never answers B; report/review
+replacement and fresh reopen; shared header look), `agent-terminal-maximize`,
+`-keyboard`, `-codex-page`, `-avatar`, `agent-launch-codex`,
+`session-workspace-retirement`, `session-sidebar-stays-as-left`,
+`system-settings`, `agent-terminal-theme`, `session-sidebar-navigation`, plus the
+panel-operation consumers `agent-terminal-done/-delete/-close/-reopen/-done-reopen/-lifetime/-codex-close/-done-codex-page`,
+`agent-launch-card-delete/-recent-delete/-card-done/-done/-codex`,
+`story-review-workspace` and `story-review-diff`: 55 passed after refactoring;
+`npm run typecheck:dashboard` passed.
+
+Learnings for remaining slices:
+- The shared panel now lives in `PageFrame.tsx` (was `TerminalSplit.tsx`) and
+  `pageSidePanel.ts` (`usePageSidePanel`, was `pageSessionPanel.ts`); reviews
+  open through `pageReviews.ts` into `StoryReviewPanel.tsx`; common chrome is
+  `PanelControls.tsx`. Split/frame/maximized/narrow rules moved to
+  `side-panel.css` (`.side-panel`, `.side-panel-header`); `agent-terminal.css`
+  keeps terminal-only rules. Slice 2's width rule belongs in `side-panel.css`
+  and `session-sidebar.css`, which still repeats the half-width columns.
+- Maximization is stored on the shown content, so content changes start split.
+- The review in the narrow stacked arrangement relies on the shared frame rule
+  without its own assertion; slice 2's 420px proof covers both contents.
+- A fake `claude` attach records the record's `shortId`; assert attach counts
+  before filtering to avoid vacuous checks.
 
 ### 2. Choose a usable panel width by mouse or keyboard
 Type: Behavior

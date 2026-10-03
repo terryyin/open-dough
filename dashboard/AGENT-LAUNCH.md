@@ -264,6 +264,18 @@ only the project, the work identity and, for a file diff, the snapshot's
 object IDs and paths, never a filesystem path
 (`server/storyReviewAdmission.ts`, `server/storyReviewSnapshot.ts`).
 
+The review opens in the page's one side panel, beside a dashboard that stays
+usable, not in a modal dialog (`src/StoryReviewPanel.tsx`). It replaces
+whatever the panel showed: a terminal detaches without ending or marking its
+session done, and opening a session afterwards replaces the review. Each
+opening, including after Close or replacement, reads a fresh snapshot for the
+project and story it names; a read still pending for an earlier story never
+answers a later one. Maximize/Restore keeps the snapshot and selection. The
+header names the story and offers Refresh, Maximize/Restore and Close as frame
+icon controls shared with the terminal. Close or Command+Shift+Escape returns
+the keyboard to Review changes, or to the story's card when that control is
+no longer shown. A review is not a session: it marks no session entry as shown.
+
 ## Retained Codex results without their workspace
 
 See [retained Codex results](AGENT-LAUNCH-TERMINALS.md#retained-codex-results-without-their-workspace)

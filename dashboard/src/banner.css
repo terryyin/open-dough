@@ -69,8 +69,8 @@ html {
   scroll-padding-bottom: var(--focus-ring-clearance);
 }
 
-/* A narrow page column (./agent-terminal.css), whether the window is narrow
-   or the Sessions sidebar or the terminal shares it, takes a second row. */
+/* A narrow page column (./side-panel.css), whether the window is narrow
+   or the Sessions sidebar or the side panel shares it, takes a second row. */
 @container page (max-width: 800px) {
   .banner {
     grid-template-rows: minmax(var(--control-size), auto) auto;

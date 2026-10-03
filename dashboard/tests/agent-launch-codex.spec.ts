@@ -169,7 +169,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await expect(sidebar.entries.filter({ hasText: "Working" })).toHaveCount(1);
   // Both hosts share the opaque ID; the open Codex session is the sidebar entry.
   await sidebar.entries.first().getByRole("button").click();
-  await expect(page.locator(".terminal-panel")).toHaveCount(1);
+  await expect(page.locator(".side-panel")).toHaveCount(1);
   await expect(page.locator(".xterm-rows")).toContainText(
     "original retained history",
   );

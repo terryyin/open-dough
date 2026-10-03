@@ -3,7 +3,8 @@
 // ./agent-terminal.spec.ts: maximized, the panel takes the page column's
 // room, the banner and stories hidden behind it, with the same session still
 // attached; an open Sessions sidebar stays beside it, and opening another of
-// its entries keeps the panel maximized; Restore returns the split. Close
+// its entries shows that session in the normal split, as any change of the
+// panel's content does; Restore returns the split. Close
 // hides the panel and leaves the session running and not marked done, and the
 // next opened session shows in the split. On a narrow window, maximized fills
 // the window and Restore stacks the panel above the page again. The page's own
@@ -151,7 +152,7 @@ test.describe("maximizing the terminal panel", () => {
       expect(attachCount()).toBe(attachedBefore);
     });
 
-    await test.step("with the Sessions sidebar open, the maximized panel stays beside it, and opening another entry shows that session still maximized", async () => {
+    await test.step("with the Sessions sidebar open, the maximized panel stays beside it, and opening another entry shows that session in the normal split", async () => {
       await sidebar.button.click();
       await expect(sidebar.sidebar).toBeVisible();
       await pressWhereShown(control("Maximize"));
@@ -171,7 +172,13 @@ test.describe("maximizing the terminal panel", () => {
       );
       await expect(panel).toContainText(`Execution session ${second}`);
       await expect(rows).toContainText(`attached ${shortId(second)}`);
-      await expect(control("Restore")).toBeVisible();
+      await expect(control("Maximize")).toBeVisible();
+      await expect(control("Restore")).toHaveCount(0);
+      await expect(banner).toBeVisible();
+      const splitBesideSidebar = await box(panel);
+      expect(splitBesideSidebar.x).toBeGreaterThan(besideSidebar.x + 1);
+      expect(splitBesideSidebar.width).toBeLessThan(besideSidebar.width - 1);
+      await pressWhereShown(control("Maximize"));
       await expect(banner).toBeHidden();
       expectCovers(await box(panel), besideSidebar);
     });

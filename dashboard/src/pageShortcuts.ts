@@ -1,6 +1,6 @@
 // Page-wide Command shortcuts: the Sessions sidebar's Command+B
-// (`./SessionSidebar.tsx`) and the terminal panel's Command+Shift+Escape
-// (`./TerminalPanel.tsx`). Each is listened for while capturing, so the page
+// (`./SessionSidebar.tsx`) and the side panel's Command+Shift+Escape
+// (`./PanelControls.tsx`). Each is listened for while capturing, so the page
 // answers it before any control on it, the terminal included, handles the
 // key, and takes it from the browser and from those controls; a held key acts
 // once. What they leave alone: a key pressed inside an open dialog, as the

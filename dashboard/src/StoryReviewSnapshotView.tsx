@@ -1,4 +1,4 @@
-// A story review's snapshot (`./storyReview.ts`) as its dialog shows it: the
+// A story review's snapshot (`./storyReview.ts`) as its panel shows it: the
 // worktree, its branch and the baseline it compares against, and the story's
 // changed files with their change kinds in a file browser the developer can
 // hide or show. Selecting a file reads its diff (`./StoryReviewFileDiff.tsx`).

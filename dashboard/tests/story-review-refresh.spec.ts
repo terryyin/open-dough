@@ -4,7 +4,8 @@
 // list nor the open diff, even when another file is selected and the first
 // reopened. Refresh takes a new snapshot that lists the new file and shows
 // the edit in the still selected file's diff, leaves the keyboard on Refresh,
-// and announces that it is done.
+// and announces that it is done. Closing the review and editing the worktree
+// meanwhile, reopening it reads a fresh snapshot with that edit.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
@@ -24,8 +25,9 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   const { workspace } = storyWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("dialog", { name: "Review changes" });
+  const action = card.getByRole("button", { name: "Review changes" });
+  await action.click();
+  const review = page.getByRole("region", { name: "Review changes" });
   const listed = [
     "Added fresh/new.txt",
     "Deleted gone.txt",
@@ -102,5 +104,20 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     await expect(
       review.getByRole("button", { name: "Hide files" }),
     ).toBeVisible();
+  });
+
+  await test.step("an edit made while the review is closed is in the snapshot the reopened review reads", async () => {
+    await review.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(review).toHaveCount(0);
+    await expect(action).toBeFocused();
+    writeFileSync(path.join(workspace, "while-closed.txt"), "closed\n");
+    await action.click();
+    const reopened = review.getByRole("list", { name: "9 changed files" });
+    await expect(reopened).toContainText("Added while-closed.txt");
+    // A fresh opening: nothing selected and no refresh announced.
+    await expect(
+      reopened.getByRole("button", { name: "Modified unstaged.txt" }),
+    ).toHaveAttribute("aria-pressed", "false");
+    await expect(review.getByRole("status").first()).toHaveText("");
   });
 });

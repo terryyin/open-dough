@@ -3,10 +3,12 @@
 // session keeps running and is not marked done, the keyboard returns to the
 // control that opened it, and reopening shows the split. Plain Escape in the
 // terminal still reaches the session. An open dialog, as the launch dialog,
-// keeps the key, and with no panel the key changes nothing. The page's own
-// dashboard server launches and attaches the synthetic `claude`
-// (./fixtures/fake-claude), which records each line entered in its terminal;
-// the real one is never reached.
+// keeps the key, and with no panel the key changes nothing. When the control
+// that opened the panel is gone, as a Sessions sidebar entry once the sidebar
+// is hidden, closing returns the keyboard to the session's story card instead.
+// The page's own dashboard server launches and attaches the synthetic
+// `claude` (./fixtures/fake-claude), which records each line entered in its
+// terminal; the real one is never reached.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -24,6 +26,7 @@ import {
   type StoryStagesJourney,
 } from "./launchJourney.ts";
 import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { sidebarParts } from "./sessionSidebarPage.ts";
 import { pressWhereShown } from "./pageLayout.ts";
 import { tooltipOf } from "./frameIconControl.ts";
 import { watchCommandShortcut } from "./pageShortcutsPage.ts";
@@ -195,6 +198,22 @@ test.describe("Command+Shift+Escape and the terminal panel", () => {
       await expect(rows).toContainText(`attached ${session.slice(0, 8)}`);
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();
+    });
+
+    await test.step("with its opener gone, Command+Shift+Escape returns the keyboard to the session's story card", async () => {
+      const sidebar = sidebarParts(page);
+      await control("Close").click();
+      await expect(panel).toHaveCount(0);
+      await sidebar.button.click();
+      await sidebar.entry(readyStory).click();
+      await expect(rows).toContainText(`attached ${session.slice(0, 8)}`);
+      // Command+B hides the sidebar, and the entry that opened the panel
+      // with it.
+      await page.keyboard.press("Meta+B");
+      await expect(sidebar.sidebar).toBeHidden();
+      await page.keyboard.press(closeKey);
+      await expect(panel).toHaveCount(0);
+      await expect(card(readyStory)).toBeFocused();
     });
   });
 });

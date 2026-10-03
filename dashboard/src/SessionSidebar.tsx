@@ -15,7 +15,7 @@ import { sessionKey } from "./sessionReference.ts";
 // browser. Toggling leaves the keyboard where it is, except that
 // closing the sidebar with the keyboard inside it returns the keyboard to the
 // Sessions button. Opening an entry (`./SidebarEntry.tsx`) goes to its story
-// and its session through the page frame (`./TerminalSplit.tsx`), and on a
+// and its session through the page frame (`./PageFrame.tsx`), and on a
 // narrow window closes the sidebar lying over the page. Whether it is open is
 // this browser's disposable preference (`sidebarOpenKey`): it survives project
 // switches, views, the terminal, and reloads, and without it, as when storage
@@ -73,7 +73,7 @@ function keepSidebarOpen(open: boolean): void {
 const toggleShortcut = { key: "b" } as const;
 
 // Whether the sidebar is open, and the machine's sessions it lists: held by
-// the page frame (`./TerminalSplit.tsx`), which places the sidebar, and
+// the page frame (`./PageFrame.tsx`), which places the sidebar, and
 // reached by the banner's Sessions button.
 export type SidebarState = {
   readonly open: boolean;
@@ -93,7 +93,7 @@ export const SidebarOnPage = createContext<SidebarState | undefined>(undefined);
 function useSidebar(): SidebarState {
   const sidebar = useContext(SidebarOnPage);
   if (sidebar === undefined) {
-    throw new Error("The Sessions button is outside the page's TerminalSplit.");
+    throw new Error("The Sessions button is outside the page's PageFrame.");
   }
   return sidebar;
 }

@@ -18,6 +18,7 @@ import {
   type SessionRequest,
 } from "./pageSessions.ts";
 import "./frame-controls.css";
+import "./side-panel.css";
 import "./session-result.css";
 
 export function SessionResultPanel({
@@ -89,17 +90,17 @@ export function SessionResultPanel({
   const { title, name } = launchSubject(record.request);
   return (
     <section
-      className="terminal-panel session-result-panel"
+      className="side-panel session-result-panel"
       aria-label="Final report"
     >
-      <header className="terminal-toolbar">
-        <div className="terminal-names">
+      <header className="side-panel-header">
+        <div className="side-panel-names">
           <h2>{title}</h2>
           <p>
             {name} session <code>{record.session.sessionId}</code>
           </p>
         </div>
-        <div className="terminal-actions">
+        <div className="side-panel-actions">
           {marksRecordDone(hostOperations, record) &&
             record.doneAt === undefined && (
               <button

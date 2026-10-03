@@ -130,7 +130,16 @@ export function unlistedNotice(
 
 // The stages hold the keyboard position when no particular work does.
 export function focusStages(): void {
-  document.querySelector<HTMLElement>(`[${stagesAttribute}]`)?.focus();
+  stages()?.focus();
+}
+
+const stages = () =>
+  document.querySelector<HTMLElement>(`[${stagesAttribute}]`);
+
+// Where the keyboard is useful once what held it left the page: the work's
+// card while the page shows it, else the stages.
+export function workHome(identity: string | undefined): HTMLElement | null {
+  return (identity === undefined ? undefined : workCard(identity)) ?? stages();
 }
 
 // Membership arrives before derived links. Retain a missing role while its

@@ -1,0 +1,106 @@
+/* The page split while the side panel is open, whether it shows a terminal
+   (./agent-terminal.css), a final report, or a story review: the page on the
+   left, and the panel on the right, pinned to the window's height while the
+   page scrolls beside it. On a narrow window the panel comes first, above the
+   page. Maximized, the panel takes the page column's room, the page with its
+   banner hidden behind it, pinned to the window's height on any window. */
+
+.page-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+/* The page's own width, which the sidebar and the side panel share the
+   window with, decides how the page lays itself out (`@container page`), so
+   it lays out as on a narrow window whenever its column is that narrow. */
+.page-column {
+  min-width: 0;
+  container: page / inline-size;
+}
+
+/* Maximized, the panel spans the page's column and its own, and the page
+   keeps its width, place, and scroll behind it, unseen, so Restore shows it
+   as it was. */
+.page-maximized > .page-column {
+  grid-row: 1;
+  grid-column: -3;
+  visibility: hidden;
+}
+
+.page-maximized > .side-panel {
+  grid-row: 1;
+  grid-column: -3 / -1;
+}
+
+.side-panel {
+  position: sticky;
+  top: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  border-left: 1px solid var(--line);
+  background: var(--panel);
+}
+
+/* The panel's header: the shown session's or story's title and identity on
+   the left, and the frame's icon controls (./icon-control.css) on the right:
+   the content's own operations, then the panel's (./PanelControls.tsx). */
+.side-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.side-panel-names {
+  min-width: 0;
+}
+
+.side-panel-names h2 {
+  font-size: var(--text-md);
+  font-weight: var(--weight-strong);
+  line-height: 1.35;
+}
+
+.side-panel-names p {
+  font-size: var(--text-xs);
+  color: var(--quiet);
+}
+
+.side-panel-names code {
+  font-size: inherit;
+}
+
+.side-panel-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+@media (max-width: 800px) {
+  .page-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .side-panel {
+    position: static;
+    order: -1;
+    height: 70dvh;
+    border-left: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .page-maximized > .page-column {
+    grid-column: 1;
+  }
+
+  .page-maximized > .side-panel {
+    grid-column: 1;
+    position: sticky;
+    height: 100dvh;
+  }
+}
