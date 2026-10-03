@@ -259,3 +259,25 @@ manual-only session disposition, not Git or CI ownership. It also leaves
 with its existing story. Supported by Accepted ADRs 0001, 0002, 0004, and 0006;
 move lasting feature rules to dashboard launch/terminal documentation at wrap-up
 and retire this topic when no active work needs it.
+
+## Dashboard-owned CI observation and session delivery
+
+For [dashboard-owned CI monitoring](seeds/SEED-063-dashboard-owned-ci-monitoring.md#dashboard-owned-ci-monitoring),
+an execution session started with `--external-ci` registers each accepted
+publication through the same installed reporting CLI and loopback boundary as
+explicit skill completion. It starts no observer and does not wait at
+completion.
+
+The dashboard runs the session workspace's installed observer engine under its
+own mailbox root, so standalone hooks never claim those mailboxes. It keeps
+registrations and per-revision CI state in the existing machine-local launch
+records. When a failure needs action, it wakes the session through an optional
+`deliver` operation on the host boundary. That operation's presence alone
+decides whether the option is offered. Claude Code continues an exited session
+with `--bg --resume` and types into a loaded one.
+
+Lost observation or delivery stays visible and never becomes success. The
+standalone observer, hook bridge, and completion wait are unchanged. This is
+supported by Accepted ADRs 0001, 0004, 0005, and 0006. Move the lasting
+feature rules to the dashboard launch documentation at wrap-up, and retire
+this topic when Codex and Cursor delivery no longer need it.
