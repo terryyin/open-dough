@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "identity": "SEED-086#dashboard-continuous-delivery",
+  "mode": "story-branch",
+  "branch": "claude/automatically-build-and-restart-the-production-d",
+  "host": "claude"
+}
