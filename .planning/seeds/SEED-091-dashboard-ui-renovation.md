@@ -268,9 +268,44 @@ the [UX/UI North Star](../../docs/dashboard-ux-ui-north-star.md) and
 inspection for refinement, not an observation of rendered cards or a visual
 acceptance review.
 
+<a id="review-and-terminal-share-side-panel"></a>
+
+### Show story review and terminal in one resizable side panel
+
+**Identity:** SEED-091#review-and-terminal-share-side-panel
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** A developer reviewing a story's changes or working in a session
+terminal uses one cohesive right-side panel for either, and can drag its edge to
+give the review or terminal the width the task needs, so reviewing no longer
+covers the dashboard in a dialog and both panels look and behave the same.
+
+**Scope:**
+
+- Show the [story review](../../dashboard/AGENT-LAUNCH.md#story-review) in the
+  right side panel where the terminal shows today, instead of a modal dialog.
+- The review and the terminal are exclusive in that panel: opening a review
+  closes the terminal, and only one review shows at a time. The developer
+  closes the review the same way as the terminal.
+- One panel design for both: header and controls share styling and use the
+  Lucide icons introduced by the
+  [frame renovation](#dashboard-frame-renovation) for Close and the other panel
+  controls.
+- New for both review and terminal: the developer drags the panel's edge with
+  the mouse to resize it.
+- To be refined: what opening a terminal does to an open review, whether the
+  chosen width is remembered, width limits, maximize behavior for the review,
+  and keyboard access to resizing.
+
 ## Breadcrumbs
 
 - [Product backlog](../PRODUCT-BACKLOG.md).
 - Terry's 2026-10-03 request: capture the frame renovation as the first queued
   item and the story tag improvement as the second; work directly on main and
   sync with origin. These are captured stories awaiting refinement and planning.
+- Terry's 2026-10-03 request: capture moving the story review from its dialog
+  into the terminal's right side panel, exclusive with the terminal and
+  resizable by dragging for both, as the fourth backlog priority; work directly
+  on main and sync with origin.
