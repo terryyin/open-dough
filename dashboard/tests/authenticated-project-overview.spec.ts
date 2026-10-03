@@ -103,31 +103,35 @@ for (const mode of ["dev", "preview"] as const) {
           const takenCard = page.getByRole("article", {
             name: published.taken,
           });
+          const queuedCard = page.getByRole("article", {
+            name: published.queued,
+          });
+          await expectSettledPage(page);
+          await expect(
+            takenCard.getByText("Not recorded", { exact: true }),
+          ).toBeVisible();
+          // Each story's source links are read in its detail.
+          await takenCard
+            .getByRole("button", { name: "Inspect story" })
+            .click();
           await expect(
             takenCard.getByRole("link", { name: /^Canonical record/ }),
           ).toHaveAttribute(
             "href",
             `https://github.com/${published.repository}/blob/${published.revision}/${published.takenPath}`,
           );
-          const queuedCard = page.getByRole("article", {
-            name: published.queued,
-          });
-          await expect(
-            queuedCard.getByRole("link", { name: /^Canonical record/ }),
-          ).toHaveAttribute(
-            "href",
-            `https://github.com/${published.repository}/blob/${published.revision}/${published.queuedPath}#queued`,
-          );
-          await expectSettledPage(page);
-          await expect(
-            takenCard.getByText("Not recorded", { exact: true }),
-          ).toBeVisible();
           await queuedCard
             .getByRole("button", { name: "Inspect story" })
             .click();
           const detail = queuedCard.getByRole("region", {
             name: `Detail for ${published.queued}`,
           });
+          await expect(
+            detail.getByRole("link", { name: /^Canonical record/ }),
+          ).toHaveAttribute(
+            "href",
+            `https://github.com/${published.repository}/blob/${published.revision}/${published.queuedPath}#queued`,
+          );
           await expect(detail).toContainText(published.purpose);
         });
 

@@ -51,14 +51,19 @@ export async function expectFailedCheckKeepsPriorRevision(
       .getByRole("article", { name: plannedBlocked.title })
       .getByText("Readiness unavailable", { exact: true }),
   ).toBeVisible();
+  // The retained snapshot's links stay pinned to it in each story's detail.
+  const readyCard = taken.getByRole("article", { name: plannedReady.title });
+  await readyCard.getByRole("button", { name: "Inspect story" }).click();
   await expect(
-    taken.locator(`a[href*="/blob/${retainedRevision}/"]`).first(),
+    readyCard.locator(`a[href*="/blob/${retainedRevision}/"]`).first(),
   ).toBeVisible();
 
+  const blockedCard = backlog.getByRole("article", {
+    name: plannedBlocked.title,
+  });
+  await blockedCard.getByRole("button", { name: "Inspect story" }).click();
   await expect(
-    backlog
-      .getByRole("article", { name: plannedBlocked.title })
-      .getByRole("link", { name: /^Slice plan / }),
+    blockedCard.getByRole("link", { name: /^Slice plan / }),
   ).toHaveAttribute("href", planHref("terryyin/open-dough", retainedRevision));
 
   restore();

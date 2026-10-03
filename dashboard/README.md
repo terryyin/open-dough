@@ -140,52 +140,22 @@ Check `gh auth status`, then confirm, for example,
 does, reload the page (or, with a snapshot shown, let the next check find it).
 The dashboard never logs in on its own.
 
-Each **Taken** card shows who holds that work, from the agent profile published
-beside the backlog (`.planning/agents/<name>-chan.json`) at the same revision,
-for example "Akiho-chan · Trunk Mode · Claude Code · <model>". A Story Branch
-Mode profile's branch is shown as branch context, never as work on trunk. A host
-or model the profile does not record is shown as not recorded, and a Taken entry
-without a profile shows "Owner not recorded". A profile the shared reader cannot
-read, or one naming another agent than its file, is listed with the Taken stage
-as unreadable and matched to no entry. A revision without a profile directory
-simply has no profiles. What a profile means is decided by the shared profile
-module under `src/skills/dough-product-backlog/scripts/`.
+Each story card is read at two levels. Its scan view leads with the title,
+then the backlog priority and the assigned or preparing developer, preparation
+and readiness badges, dependencies and evidence warnings, a Taken story's slice
+count with its clock or completion and a short source qualification, its
+launch group, its sessions, and its inspection group. The launch group holds
+**Start execution** and **Start refinement**, each with its note and any launch
+answer beside it; the inspection group holds **Inspect story** and, when
+offered, **Review changes**. Each group's actions share a line when the card is
+wide enough and wrap in reading order when it is not. **Inspect story** opens
+its detail from facts already read: full identity, purpose, what the
+assignment records, preparation and dependency explanations, the exact
+progress branch and revision, slice evidence, product advice, and source
+links; **Hide detail** returns focus to the card.
 
-A queued card named by a published preparation assignment shows **Preparing**
-and that developer, keeping its priority and badges; it is never a Taken owner.
-It disappears when preparation lands or is abandoned. Unreadable profiles show
-"Preparation assignment unknown"; two assignments show as conflicting records.
-
-Each agent portrait on a Taken or Preparing card opens the selected project's
-**Agent roster**: all 29 agents with portraits and assignments recorded at the
-shown revision (Taken or Preparing, task title/identity, mode, host, model, or
-"No assignment recorded"). Work not in the backlog keeps identity with a title
-gap; an unreadable profile leaves its agent uncertain, and a failed snapshot or
-profile read leaves every assignment unknown. It comes from the same snapshot as
-cards, with no read of its own; selecting another project replaces its source.
-Stories and roster views have project-aware URLs (`/?project=<id>` and
-`/?project=<id>&view=roster`, with default stories at `/`). Browser
-Back/Forward and **Back to stories** keep the URL, selected project, view, and
-focus coherent; direct roster visits focus the roster heading. An invalid
-project URL resolves to the default project's stories and normalizes the URL.
-
-Each assignment, on its Taken or Preparing card and in the roster, names the
-**human developer** credited for it: the Git committer of the commit that
-added its profile's current allocation. The local boundary lists that
-profile's history at the shown revision (its ten latest changes) and walks it
-back until the change that added the file, so a later modification of the
-profile names nobody, and a removal ends the walk before an older allocation of
-the same rotating name. When no addition is found, the adding commit names no
-usable committer, or the history cannot be read, the card and roster say the
-human developer is unknown and why, never guessing from another commit.
-Beside a credited name is the avatar of the GitHub account GitHub matched to
-that committer. The local boundary fetches it from the avatar address GitHub
-named for that account (only https on GitHub's avatar host, bounded in size,
-time, and image type) and keeps it in the running process by that address, so
-each avatar version is read from GitHub once however often it is shown, and a
-changed one is read afresh; the page names only a profile and revision to the
-local boundary. Without a matched account or a usable, fetched avatar, the
-name keeps its initials. Neither name nor avatar says anyone is working now.
+[Agent assignments and roster](AGENT-ASSIGNMENTS.md) describes who holds or
+prepares each story, the agent roster, and the credited human developer.
 
 [Story preparation and progress](STORY-PREPARATION.md) describes readiness,
 review changes, published slice progress, record navigation and accessible detail.

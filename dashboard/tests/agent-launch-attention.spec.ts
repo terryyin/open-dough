@@ -48,7 +48,7 @@ const publishedFactsOf = async (card: Locator) => {
         // Readiness and capture share one browser turn: a new snapshot may
         // begin reading after a separate readiness assertion has passed.
         if (
-          !element.querySelector(".preparation-detail") ||
+          !element.querySelector(".card-preparation .badge-row") ||
           /Reading [^…]*…/.test(element.textContent)
         ) {
           return null;

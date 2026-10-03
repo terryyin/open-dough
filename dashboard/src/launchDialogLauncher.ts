@@ -1,7 +1,8 @@
 // The action's side of a launch dialog (`LaunchDialog`): its button, whether
 // the dialog is open, and the keyboard's return. A dialog closed without an
 // accepted launch returns the keyboard to the button once it can take it
-// again: at once, or when a launch still in flight has answered. A dialog
+// again: at once, or when a launch still in flight has answered, unless the
+// developer has moved the keyboard elsewhere meanwhile. A dialog
 // closed at handoff, whose startup goes on without it while the button is
 // unavailable, leaves the keyboard on the startup's status (`handoff`), an
 // enabled place that says what is under way; when that startup ends, the
@@ -44,8 +45,14 @@ export function useLaunchDialogLauncher(
     const when = returnsFocus.current;
     returnsFocus.current = undefined;
     if (heldUnavailable) return;
-    const restsOnHandoff = keyboardRestsOn(target);
-    if (when === "at-once" || restsOnHandoff) launcher.current?.focus();
+    // The return follows the dialog's close event, after the developer may
+    // already have moved the keyboard on; it moves the keyboard only from
+    // where the closing left it.
+    const rests =
+      when === "at-once"
+        ? keyboardRestsOn(launcher.current)
+        : keyboardRestsOn(target);
+    if (rests) launcher.current?.focus();
   }, [open, starting, heldUnavailable, handoff]);
   return {
     launcher,

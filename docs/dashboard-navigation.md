@@ -141,7 +141,8 @@ Illustrative compact overview; placeholders are not observed project data:
 │  └──────────────────┘            └───────────────────┘    │
 └──────────────────────────────────────────────────────────┘
 
-Each work card → readable title, identity, stage/priority, source links
+Each work card → readable title, stage/priority, developer, badges, warnings;
+Inspect story → identity, assignment records, evidence, source links
 ```
 
 Do not hide already-readable entry information just to create a zoom interaction.

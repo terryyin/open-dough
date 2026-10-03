@@ -1,13 +1,16 @@
 // A launch from a Backlog card that did not start, or may not have started, on
 // the committed origin of ./agent-launch-card.spec.ts: a definitive answer
-// stays beside the action that was used, which the card keeps, and it lists no
-// session; an uncertain one needs reconciliation under Startup recovery while
-// the card stays protected, holding the keyboard it took at handoff. The
+// stays beside the action that was used, which the card keeps, on a line of its
+// own right below that action in its launch group, and it lists no session; an
+// uncertain one needs reconciliation under Startup recovery while the card
+// stays protected, holding the keyboard it took at handoff. The
 // page's own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "./dashboardTest.ts";
 import { cardSessions } from "./dashboardPage.ts";
+import { inspectionGroup, launchGroup } from "./cardControls.ts";
+import { expectOnOneLine, expectStackedInOrder } from "./pageLayout.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
 import {
   publishLaunchJourney,
@@ -37,7 +40,10 @@ test.describe("without the project's folder", () => {
     page,
     dashboard,
   }) => {
-    const { card, start, dialog } = await openTakenBacklog(page, journey);
+    const { card, start, refine, dialog } = await openTakenBacklog(
+      page,
+      journey,
+    );
 
     await start(readyStory).click();
     await dialog.getByRole("button", { name: "Start" }).click();
@@ -49,6 +55,10 @@ test.describe("without the project's folder", () => {
     await expect(start(readyStory)).toHaveAccessibleDescription(
       /The project folder ~\/git\/open-dough was not found/,
     );
+    // The answer sits below Start execution, before Start refinement.
+    const answer = launchGroup(card(readyStory)).getByText(folderNotFound);
+    await expect(answer).toBeVisible();
+    await expectStackedInOrder([start(readyStory), answer, refine(readyStory)]);
     await expect(cardSessions(card(readyStory))).toHaveCount(0);
     expect(dashboard.claudeCalls()).toEqual([]);
   });
@@ -74,6 +84,17 @@ test.describe("without the project's folder", () => {
     await expect(start(readyStory)).toBeEnabled();
     await expect(start(readyStory)).toHaveAccessibleDescription("");
     await expect(card(readyStory).locator(".launch-answer")).toHaveCount(1);
+    // Both Starts keep their line; the answer follows the Start it describes,
+    // before the inspection group.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expectOnOneLine([start(readyStory), refine(readyStory)]);
+    await expectStackedInOrder([
+      refine(readyStory),
+      launchGroup(card(readyStory)).getByText(folderNotFound),
+      inspectionGroup(card(readyStory)).getByRole("button", {
+        name: "Inspect story",
+      }),
+    ]);
     expect(dashboard.claudeCalls()).toEqual([]);
   });
 });
@@ -122,6 +143,11 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
     await expect(card(readyStory)).toContainText(
       "Startup needs reconciliation",
     );
+    // What startup says leads the card's unavailable launch group.
+    await expectStackedInOrder([
+      card(readyStory).getByText(/^Startup needs reconciliation/),
+      launchGroup(card(readyStory)),
+    ]);
     await expect(card(readyStory).locator(".launch-problem")).toHaveCount(0);
     await expect(start(readyStory)).toBeDisabled();
     await expect(start(readyStory)).toHaveAccessibleDescription(

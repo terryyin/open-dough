@@ -134,6 +134,8 @@ test("project selection shows each project's own overview, and returning to a pr
     const sharedCard = page.getByRole("article", {
       name: doughnutSharedTitle,
     });
+    // Its identity and source links are read in its detail.
+    await sharedCard.getByRole("button", { name: "Inspect story" }).click();
     await expect(sharedCard).toContainText(sharedStoryIdentity);
     const link = sharedCard.getByRole("link", { name: /^Canonical record/ });
     await expect(link).toHaveAttribute(
@@ -163,6 +165,7 @@ test("project selection shows each project's own overview, and returning to a pr
     const sharedCard = page.getByRole("article", {
       name: openDoughSharedTitle,
     });
+    await sharedCard.getByRole("button", { name: "Inspect story" }).click();
     const link = sharedCard.getByRole("link", { name: /^Canonical record/ });
     await expect(link).toHaveAttribute(
       "href",

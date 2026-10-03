@@ -1,8 +1,9 @@
 // Recorded slice progress as a Taken card shows it: one segment per slice,
 // filled for each slice recorded complete, and the count in words. It is a
 // count of recorded statuses, not an estimate of how complete the story is,
-// shown with when the current slice started, and where those slices
-// were published when that is not plainly trunk. When the plan there records
+// shown with when the current slice started, and, briefly, where those slices
+// were published when that is not plainly trunk (the exact branch and
+// revision are in the story's detail). When the plan there records
 // its execution as complete, the card says it awaits wrap-up and how long ago
 // it completed instead, or shows the record's gap. The slices, the record,
 // and the clock's start come from whatever the snapshot already read; nothing
@@ -58,11 +59,14 @@ export function PlanSlicesNote({
 
 // Where recorded slices were read, when it is not plainly trunk: trunk's copy
 // when no profile says where the work is published, or the recorded story
-// branch, which is never work in trunk. Shared by the card and the detail.
+// branch, which is never work in trunk. Shared by the card and the detail;
+// the card's brief form leaves the exact branch and revision to the detail.
 export function ProgressSourceLabel({
   progressSource,
+  brief = false,
 }: {
   progressSource: ProgressSource | undefined;
+  brief?: boolean;
 }) {
   switch (progressSource?.kind) {
     case undefined:
@@ -77,6 +81,11 @@ export function ProgressSourceLabel({
         </p>
       );
     case "branch":
+      if (brief) {
+        return (
+          <p className="progress-source">From story branch; not in trunk.</p>
+        );
+      }
       return (
         <p className="progress-source">
           From branch <code>{progressSource.branch}</code> at{" "}
@@ -129,7 +138,7 @@ export function SliceProgress({
   if (planSlices.status !== "interpreted") {
     return (
       <div className="card-progress">
-        <ProgressSourceLabel progressSource={progressSource} />
+        <ProgressSourceLabel progressSource={progressSource} brief />
         <PlanSlicesNote planSlices={planSlices} />
       </div>
     );
@@ -138,7 +147,6 @@ export function SliceProgress({
   const done = recordedCompleteCount(slices);
   return (
     <div className="card-progress">
-      <ProgressSourceLabel progressSource={progressSource} />
       <div className="slice-bar" role="img" aria-labelledby={countId}>
         {slices.map((slice) => (
           <span
@@ -152,10 +160,13 @@ export function SliceProgress({
           />
         ))}
       </div>
-      <p id={countId} className="slice-count">
-        {done} of {slices.length} slices recorded complete
-      </p>
-      <SliceProgressState completion={completion} sliceClock={sliceClock} />
+      <div className="slice-facts">
+        <p id={countId} className="slice-count">
+          {done} of {slices.length} slices recorded complete
+        </p>
+        <SliceProgressState completion={completion} sliceClock={sliceClock} />
+      </div>
+      <ProgressSourceLabel progressSource={progressSource} brief />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 // The human developer credited for a published assignment: who committed its
 // profile's current allocation (`./assignmentAttribution.ts`), or why that is
 // not known, with the matched GitHub account's avatar beside a credited name.
-// Shown on story cards and in the agent roster.
+// Shown in a story's detail and in the agent roster; a card's scan view keeps
+// only the short warning that it is unknown (`HumanCreditGap`).
 
 import { useState } from "react";
 import type { AgentAssignment } from "./agentAssignments.ts";
@@ -82,6 +83,25 @@ export function HumanCredit({ developer }: { developer: AgentAssignment }) {
         <p className="owner-human assignment-gap">
           Human developer unknown. {human.problem}
         </p>
+      );
+  }
+}
+
+// The short warning a card's scan view keeps beside a developer whose credited
+// human is unknown; why it is unknown is in the story's detail
+// (`HumanCredit`). Nothing while reading or once credited.
+export function HumanCreditGap({ developer }: { developer: AgentAssignment }) {
+  switch (developer.human.status) {
+    case "loading":
+    case "credited":
+      return null;
+    case "no-addition":
+    case "unnamed":
+    case "unavailable":
+      return (
+        <span className="owner-human-gap assignment-gap">
+          Human developer unknown
+        </span>
       );
   }
 }

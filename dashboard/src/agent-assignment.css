@@ -1,11 +1,27 @@
-/* Who holds a Taken card's work, or is preparing a queued card's work: the
-   developer summary with its agent portrait opener and the mode and host marks
-   beside their labels, the credited human developer with their avatar,
-   branch context, and unreadable profiles. */
+/* Who holds a Taken card's work, or is preparing a queued card's work: on the
+   card, each developer's agent portrait opener and name; in its detail, the
+   developer summary with the mode and host marks beside their labels, the
+   credited human developer with their avatar, and branch context; and
+   unreadable profiles. */
 
+/* On a card's scan line: Preparing, then each developer's portrait and
+   name. */
 .card-owner {
-  margin-top: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
   overflow-wrap: anywhere;
+}
+
+/* In a story's detail, each assignment's records and credit. */
+.assignment-detail > div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.assignment-detail > div + div {
+  margin-top: var(--space-2);
 }
 
 .preparing-activity {

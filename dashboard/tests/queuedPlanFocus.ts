@@ -18,14 +18,18 @@ export async function expectQueuedPlanFocusDuringEnrichment(
 ) {
   const { backlog, project } = parts(page);
   const card = backlog.getByRole("article", { name: plannedBlocked.title });
-  const plan = card.getByRole("link", { name: /^Slice plan / });
+  // The plan link is in the story's detail, which stays open across snapshots.
+  await card.getByRole("button", { name: "Inspect story" }).click();
+  const plan = card
+    .getByRole("region", { name: `Detail for ${plannedBlocked.title}` })
+    .getByRole("link", { name: /^Slice plan / });
   await expect(plan).toBeVisible();
 
   // Membership temporarily drops the derived link. While canonical reading is
   // held, a deliberate move away from fallback card wins over deferred focus.
   for (const movedTo of [
     project.getByRole("radio", { checked: true }),
-    card.getByRole("button", { name: "Inspect story" }),
+    card.getByRole("button", { name: "Hide detail" }),
   ]) {
     const seed = join(repo.directory, ".planning", seedRelative);
     writeFileSync(seed, `${readFileSync(seed, "utf8")}\n`);

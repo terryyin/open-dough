@@ -1,11 +1,15 @@
-// Accessible detail for one selected work entry: purpose, assessment, recorded
-// slice completion and evidence, the plan's recorded execution completion and
-// product advice, and pinned source links. Taken membership, readiness,
-// recorded completion, and story closure stay distinct. Prospective Proof is
-// never described as a passed result.
+// Accessible detail for one selected work entry, the secondary reading of its
+// card: full identity, purpose, what its assignment records (mode, host,
+// model, credited human developer, branch), assessment, where its slices were
+// read with the exact branch and revision, recorded slice completion and
+// evidence, the plan's recorded execution completion and product advice, and
+// pinned source links. It reveals already-loaded facts and reads nothing.
+// Taken membership, readiness, recorded completion, and story closure stay
+// distinct. Prospective Proof is never described as a passed result.
 
 import type { WorkEntry } from "./publishedWork.ts";
 import { WorkSourceLinks } from "./WorkSourceLinks.tsx";
+import { AssignmentDetail } from "./AssignmentRecords.tsx";
 import { PlanSlicesNote, ProgressSourceLabel } from "./SliceProgress.tsx";
 import {
   recordedCompleteCount,
@@ -17,6 +21,7 @@ import {
   type WorkPreparation,
 } from "./storyPreparation.ts";
 import type { WorkPurpose } from "./storyPurpose.ts";
+import type { ProgressSource } from "./progressSource.ts";
 
 function PurposeBlock({ purpose }: { purpose: WorkPurpose | undefined }) {
   if (purpose === undefined || purpose.status === "loading") {
@@ -47,8 +52,8 @@ function AssessmentBlock({
   if (preparation.status === "not-recorded") {
     return (
       <p>
-        Assessment: Not recorded. Free-form Status prose is not used to infer
-        readiness.
+        Assessment: Not recorded. No structured story-state block is recorded.
+        Free-form Status prose is not used to infer preparation or readiness.
       </p>
     );
   }
@@ -79,7 +84,7 @@ function AssessmentBlock({
   return (
     <div>
       <h4>Preparation and readiness</h4>
-      <ul>
+      <ul className="detail-facts">
         <li>
           Refinement: {refinement === "refined" ? "Refined" : "Not refined"}
         </li>
@@ -124,16 +129,26 @@ function SliceItem({ slice }: { slice: PlanSlice }) {
   );
 }
 
+// Where the slices were read, with the exact branch and revision, then the
+// slices themselves or why they cannot be counted.
 function PlanSlicesBlock({
   planSlices,
+  progressSource,
 }: {
   planSlices: WorkPlanSlices | undefined;
+  progressSource: ProgressSource | undefined;
 }) {
+  const source = <ProgressSourceLabel progressSource={progressSource} />;
   if (planSlices === undefined) {
     return <PlanSlicesNote planSlices={{ status: "loading" }} />;
   }
   if (planSlices.status !== "interpreted") {
-    return <PlanSlicesNote planSlices={planSlices} />;
+    return (
+      <div>
+        {source}
+        <PlanSlicesNote planSlices={planSlices} />
+      </div>
+    );
   }
 
   const done = recordedCompleteCount(planSlices.slices);
@@ -141,6 +156,7 @@ function PlanSlicesBlock({
   return (
     <div>
       <h4>Recorded slice progress</h4>
+      {source}
       <p>
         {done} of {total} slices recorded complete
       </p>
@@ -204,13 +220,18 @@ export function StoryDetail({
       className="story-detail"
       aria-label={`Detail for ${entry.title}`}
     >
-      <PurposeBlock purpose={entry.purpose} />
-      <AssessmentBlock preparation={entry.preparation} />
       <div>
-        <ProgressSourceLabel progressSource={entry.progressSource} />
-        <PlanSlicesBlock planSlices={entry.planSlices} />
-        <ExecutionCompleteBlock planSlices={entry.planSlices} />
+        <h4>Identity</h4>
+        <p className="card-identity">{entry.identity}</p>
       </div>
+      <PurposeBlock purpose={entry.purpose} />
+      <AssignmentDetail owner={entry.owner} preparing={entry.preparing} />
+      <AssessmentBlock preparation={entry.preparation} />
+      <PlanSlicesBlock
+        planSlices={entry.planSlices}
+        progressSource={entry.progressSource}
+      />
+      <ExecutionCompleteBlock planSlices={entry.planSlices} />
       <div>
         <h4>Pinned source links</h4>
         <ul className="card-links" aria-label="Pinned source links">

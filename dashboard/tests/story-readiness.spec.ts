@@ -148,16 +148,26 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
     expect(distinctFiles.size).toBe(5);
   });
 
-  await test.step("opening already-loaded preparation facts costs no extra read", async () => {
+  await test.step("opening already-loaded preparation facts and identity costs no extra read", async () => {
+    // The scan view keeps the badges; what they summarize, and the story's
+    // full identity, are inspected detail.
+    await expect(readyCard.getByText("Approach:")).toHaveCount(0);
+    await expect(readyCard).not.toContainText(plannedReady.identity);
     const before = openDoughOrigin.requests.length;
-    await readyCard.getByText("Preparation facts").click();
-    await expect(readyCard.getByText("Approach:")).toContainText(
-      "Slice planned",
-    );
-    await expect(readyCard.getByText("Assessment:")).toContainText(
+    await readyCard.getByRole("button", { name: "Inspect story" }).click();
+    const detail = readyCard.getByRole("region", {
+      name: `Detail for ${plannedReady.title}`,
+    });
+    await expect(detail.getByText("Approach:")).toContainText("Slice planned");
+    await expect(detail.getByText("Assessment:")).toContainText(
       "Ready for execution",
     );
+    await expect(detail.locator(".card-identity")).toHaveText(
+      plannedReady.identity,
+    );
     expect(openDoughOrigin.requests.length).toBe(before);
+    await readyCard.getByRole("button", { name: "Hide detail" }).click();
+    await expect(readyCard).toBeFocused();
   });
 
   await test.step("inspecting Taken detail shows purpose and zero of five slices recorded complete without extra reads", async () => {

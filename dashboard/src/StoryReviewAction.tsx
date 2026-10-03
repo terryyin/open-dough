@@ -5,7 +5,7 @@
 // (`./StoryReviewSnapshotView.tsx`) unchanged until the developer uses
 // Refresh, which takes a new one in its place, keeps the keyboard where it
 // is, and announces when it is done. Closing the review returns the keyboard
-// to the action on the card.
+// to the action on the card, unless the developer already moved it on.
 
 import { useEffect, useId, useRef, useState } from "react";
 import type { LaunchRecord } from "./launchRecord.ts";
@@ -18,6 +18,7 @@ import {
 } from "./storyReview.ts";
 import { changedFiles, SnapshotView } from "./StoryReviewSnapshotView.tsx";
 import { useReviewRead } from "./useReviewRead.ts";
+import { keyboardRestsOn } from "./launchHandoff.ts";
 import "./story-review.css";
 
 // The review of one story, taken when it opens and again on Refresh.
@@ -148,7 +149,7 @@ export function StoryReviewAction({
   if (reviewWorkspaceOf(records, sourceId, work.identity) === undefined)
     return null;
   return (
-    <div className="story-review-action">
+    <div>
       <button
         ref={action}
         type="button"
@@ -167,7 +168,8 @@ export function StoryReviewAction({
           title={work.title}
           onClose={() => {
             setOpen(false);
-            action.current?.focus();
+            // Unless the developer already moved the keyboard on.
+            if (keyboardRestsOn(action.current)) action.current?.focus();
           }}
         />
       )}

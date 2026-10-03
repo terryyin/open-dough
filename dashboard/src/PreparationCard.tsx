@@ -1,34 +1,13 @@
-// Card-facing preparation and readiness: badges, legend, and the expandable
-// facts that open already-loaded content without another source read.
+// Card-facing preparation and readiness: the scan view's badges and the
+// problems that leave them unknown, and the badge legend. What each badge
+// summarizes is explained in the story's inspected detail
+// (`./StoryDetail.tsx`), from the same already-loaded facts.
 
 import {
-  assessmentSummaryText,
   preparationBadge,
   readyBadge,
-  type WorkAssessment,
   type WorkPreparation,
 } from "./storyPreparation.ts";
-
-function AssessmentSummary({ assessment }: { assessment: WorkAssessment }) {
-  return assessmentSummaryText(assessment);
-}
-
-function ApproachSummary({
-  approach,
-}: {
-  approach: Extract<
-    WorkPreparation,
-    { readonly status: "recorded" }
-  >["approach"];
-}) {
-  if (approach.kind === "planned") {
-    return `Slice planned (${approach.plan})`;
-  }
-  if (approach.kind === "planless") {
-    return "Planless";
-  }
-  return "Unselected";
-}
 
 export function PreparationFacts({
   preparation,
@@ -47,13 +26,6 @@ export function PreparationFacts({
         <p className="badge-row">
           <span className="badge badge-not-recorded">Not recorded</span>
         </p>
-        <details className="preparation-detail">
-          <summary>Preparation facts</summary>
-          <p>
-            No structured story-state block is recorded. Free-form Status prose
-            is not used to infer preparation or readiness.
-          </p>
-        </details>
       </div>
     );
   }
@@ -107,21 +79,6 @@ export function PreparationFacts({
           <span className="badge badge-not-ready">Readiness unavailable</span>
         )}
       </p>
-      <details className="preparation-detail">
-        <summary>Preparation facts</summary>
-        <ul>
-          <li>
-            Refinement:{" "}
-            {preparation.refinement === "refined" ? "Refined" : "Not refined"}
-          </li>
-          <li>
-            Approach: <ApproachSummary approach={preparation.approach} />
-          </li>
-          <li>
-            Assessment: <AssessmentSummary assessment={assessment} />
-          </li>
-        </ul>
-      </details>
     </div>
   );
 }

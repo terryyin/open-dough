@@ -135,9 +135,11 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
   const { source, stages, problem } = parts(page);
   const retrievedA =
     (await source.locator("time").getAttribute("datetime")) ?? "";
-  const canonicalOfDashboardStory = stages
-    .getByRole("article", { name: dashboardStory })
-    .getByRole("link", { name: /^Canonical record/ });
+  const dashboardCard = stages.getByRole("article", { name: dashboardStory });
+  await dashboardCard.getByRole("button", { name: "Inspect story" }).click();
+  const canonicalOfDashboardStory = dashboardCard.getByRole("link", {
+    name: /^Canonical record/,
+  });
   await canonicalOfDashboardStory.focus();
   origin.push(
     revisionC,
@@ -173,7 +175,10 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
       "datetime",
       retrievedA,
     );
-    await expect(stages.getByRole("region")).toHaveCount(2);
+    // The two stages; the inspected story's detail is a region of its card.
+    await expect(
+      stages.getByRole("region").and(page.locator(":not(.story-detail)")),
+    ).toHaveCount(2);
     await expect(stages.getByRole("article")).toHaveCount(4);
     await expect(canonicalOfDashboardStory).toHaveAttribute(
       "href",

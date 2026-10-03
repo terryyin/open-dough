@@ -1,57 +1,21 @@
 // Card-facing assignments: who holds Taken work and who is preparing queued
 // work, from the recorded agent profile facts, or the explicit gap when none
-// is recorded or readable. Branch context is shown as context only; it never
-// says that branch work has reached trunk. Preparing is an annotation on the
-// queued card, never a stage or a claim that an agent is running. The human
-// developer credited for an assignment is shown beside it (`./HumanCredit.tsx`).
+// is recorded or readable. A card's scan view shows each developer's portrait
+// (which opens the roster) and name, and every gap; what the assignment
+// records beyond its agent is in the story's inspected detail
+// (`./AssignmentRecords.tsx`). Preparing is an annotation on the queued card,
+// never a stage or a claim that an agent is running.
 
 import type {
   AgentAssignment,
-  AgentHost,
-  AgentMode,
-  AgentOwner,
   Preparing,
   TakenOwner,
   UnreadableProfile,
 } from "./agentAssignments.ts";
 import { AgentPortrait } from "./AgentPortrait.tsx";
-import { HumanCredit } from "./HumanCredit.tsx";
+import { HumanCreditGap } from "./HumanCredit.tsx";
 import { useFrameDescription } from "./protectedFrame.ts";
-import { hostDescription } from "./hostDescription.ts";
 import "./agent-assignment.css";
-
-// How each recorded mode and host is presented: its label, and the local mark
-// shown beside it (an original symbol for each mode and each host's official
-// mark). See dashboard/public/AVATARS.md for provenance.
-const modes: Readonly<Record<AgentMode, { label: string; mark: string }>> = {
-  trunk: { label: "Trunk Mode", mark: "mode-icons/trunk.svg" },
-  "story-branch": {
-    label: "Story Branch Mode",
-    mark: "mode-icons/story-branch.svg",
-  },
-};
-
-const hostMarks: Readonly<Record<AgentHost, string>> = {
-  claude: "tool-avatars/claude.png",
-  codex: "tool-avatars/codex.png",
-  cursor: "tool-avatars/cursor.png",
-};
-
-// A decorative mark: the label beside it carries the meaning.
-function OwnerMark({ file }: { file: string | undefined }) {
-  if (file === undefined) {
-    return null;
-  }
-  return (
-    <img
-      className="owner-mark"
-      src={`${import.meta.env.BASE_URL}${file}`}
-      alt=""
-      width={16}
-      height={16}
-    />
-  );
-}
 
 // Opens the agent roster at the named agent, from the control that asked, so
 // that closing the roster can return focus to it.
@@ -82,78 +46,28 @@ function PortraitOpener({
   );
 }
 
-// What an assignment records beyond its agent, for example
-// "Trunk Mode · Claude Code · claude-opus"; a preparation assignment records
-// no mode. Each fact is its own group so a visual mark stays beside the label
-// it belongs to; an unrecorded host keeps its text gap and gets no mark.
-export function RecordedFacts({
-  developer,
-}: {
-  developer: AgentAssignment & { readonly mode?: AgentMode };
-}) {
-  const facts = [
-    ...(developer.mode === undefined
-      ? []
-      : [{ kind: "mode", ...modes[developer.mode] }]),
-    {
-      kind: "host",
-      ...(developer.host === undefined
-        ? { label: "host not recorded", mark: undefined }
-        : {
-            label: hostDescription(developer.host).name,
-            mark: hostMarks[developer.host],
-          }),
-    },
-    {
-      kind: "model",
-      label: developer.model ?? "model not recorded",
-      mark: undefined,
-    },
-  ];
-  return facts.map(({ kind, label, mark }, index) => (
-    <span key={kind}>
-      {index > 0 && " · "}
-      <span className={`owner-fact owner-${kind}`}>
-        <OwnerMark file={mark} />
-        {label}
-      </span>
-    </span>
-  ));
-}
-
-// The one-line developer summary, for example
-// "Akiho-chan · Trunk Mode · Claude Code · claude-opus", led by the agent's
-// portrait.
-function DeveloperSummary({
+// The scan view of a developer: the agent's portrait, which opens the
+// roster, its name, and a short warning when its credited human is unknown.
+function DeveloperName({
   developer,
   onOpenRoster,
 }: {
-  developer: AgentAssignment & { readonly mode?: AgentMode };
+  developer: AgentAssignment;
   onOpenRoster: OpenRoster;
 }) {
   return (
-    <p className="owner-summary">
+    <>
       <span className="owner-fact owner-agent">
         <PortraitOpener developer={developer} onOpenRoster={onOpenRoster} />
         {developer.agent}
       </span>
-      {" · "}
-      <RecordedFacts developer={developer} />
-    </p>
+      <HumanCreditGap developer={developer} />
+    </>
   );
 }
 
-function BranchContext({ owner }: { owner: AgentOwner }) {
-  if (owner.mode === "trunk") {
-    return <p className="owner-branch">Trunk: {owner.branch}</p>;
-  }
-  return (
-    <p className="owner-branch">
-      Branch context: {owner.branch} (story branch work; not on trunk)
-    </p>
-  );
-}
-
+// Who holds Taken work, as the card's scan view shows it: each developer's
+// portrait and name, or the gap that leaves the owner unknown.
 export function TakenOwnerFacts({
   owner,
   onOpenRoster,
@@ -174,22 +88,23 @@ export function TakenOwnerFacts({
     return <p className="card-owner">Owner not recorded</p>;
   }
   return (
-    <div className="card-owner">
+    <p className="card-owner">
       {owner.assignments.map((each) => (
-        <div key={each.agent}>
-          <DeveloperSummary developer={each} onOpenRoster={onOpenRoster} />
-          <HumanCredit developer={each} />
-          <BranchContext owner={each} />
-        </div>
+        <DeveloperName
+          key={each.agent}
+          developer={each}
+          onOpenRoster={onOpenRoster}
+        />
       ))}
-    </div>
+    </p>
   );
 }
 
-// A queued entry's published preparation assignment: Preparing and the
-// assigned developer. Nothing is shown when none is recorded, since Preparing
-// is not a stage every entry passes through; unread profiles and more than
-// one assignment for the entry are shown as uncertainty.
+// A queued entry's published preparation assignment, as the card's scan view
+// shows it: Preparing and the assigned developer. Nothing is shown when none
+// is recorded, since Preparing is not a stage every entry passes through;
+// unread profiles and more than one assignment for the entry are shown as
+// uncertainty.
 export function PreparingFacts({
   preparing,
   onOpenRoster,
@@ -209,21 +124,24 @@ export function PreparingFacts({
   }
   const { assignments: preparers } = preparing;
   return (
-    <div className="card-owner card-preparing">
-      <p className="preparing-activity">Preparing</p>
-      {preparers.map((each) => (
-        <div key={each.agent}>
-          <DeveloperSummary developer={each} onOpenRoster={onOpenRoster} />
-          <HumanCredit developer={each} />
-        </div>
-      ))}
+    <>
+      <p className="card-owner card-preparing">
+        <span className="preparing-activity">Preparing</span>
+        {preparers.map((each) => (
+          <DeveloperName
+            key={each.agent}
+            developer={each}
+            onOpenRoster={onOpenRoster}
+          />
+        ))}
+      </p>
       {preparers.length > 1 && (
         <p className="assignment-gap">
           Conflicting records: {preparers.length} preparation assignments name
           this entry.
         </p>
       )}
-    </div>
+    </>
   );
 }
 

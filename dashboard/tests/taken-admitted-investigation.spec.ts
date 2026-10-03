@@ -38,21 +38,23 @@ test("an admitted investigation that was never queued shows its purpose, owner, 
   const card = parts(page).taken.getByRole("article", {
     name: admitted.title,
   });
-  await expect(card).toContainText(
-    "Yui-chan · Story Branch Mode · Claude Code · claude-opus-5-5",
-  );
-  await expect(card).toContainText(
-    `Branch context: ${admitted.branch} (story branch work; not on trunk)`,
-  );
+  await expect(card.locator(".owner-agent")).toHaveText("Yui-chan");
   await expect(card.getByText("Refined", { exact: true })).toBeVisible();
   await expect(
     card.getByText("Ready for execution", { exact: true }),
   ).toHaveCount(0);
-  await card.getByText("Preparation facts").click();
-  await expect(card).toContainText("Approach: Unselected");
-  await expect(card).toContainText("Assessment: Absent");
+  // The assignment's records, preparation facts, and purpose are detail.
   await card.getByRole("button", { name: "Inspect story" }).click();
-  await expect(
-    card.getByRole("region", { name: `Detail for ${admitted.title}` }),
-  ).toContainText(admitted.purpose);
+  const detail = card.getByRole("region", {
+    name: `Detail for ${admitted.title}`,
+  });
+  await expect(detail).toContainText(
+    "Yui-chan · Story Branch Mode · Claude Code · claude-opus-5-5",
+  );
+  await expect(detail).toContainText(
+    `Branch context: ${admitted.branch} (story branch work; not on trunk)`,
+  );
+  await expect(detail).toContainText("Approach: Unselected");
+  await expect(detail).toContainText("Assessment: Absent");
+  await expect(detail).toContainText(admitted.purpose);
 });

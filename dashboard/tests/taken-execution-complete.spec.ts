@@ -176,10 +176,18 @@ test("a Taken card whose plan records its execution as complete shows it awaitin
     await expect(progress(onBranch)).toContainText(complete);
     await expect(progress(onBranch)).toContainText("Completed 40 min ago");
     await expect(progress(onBranch)).toContainText(
-      `From branch ${branch} at ${branchHead.slice(0, 7)}; not in trunk.`,
+      "From story branch; not in trunk.",
     );
     await expect(progress(onBranch)).not.toContainText("Current slice started");
     await expect(progress(onBranch)).not.toContainText("0 of 3");
+    // The exact branch and revision are the detail's.
+    await expect(card(onBranch)).not.toContainText(branch);
+    await card(onBranch).getByRole("button", { name: "Inspect story" }).click();
+    await expect(
+      card(onBranch).getByRole("region", { name: `Detail for ${onBranch}` }),
+    ).toContainText(
+      `From branch ${branch} at ${branchHead.slice(0, 7)}; not in trunk.`,
+    );
   });
 
   await test.step("a Trunk Mode record of no product change is complete, and the detail shows that advice", async () => {

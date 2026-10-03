@@ -1,8 +1,9 @@
 import { dependencyStartProblem } from "./storyDependencies.ts";
 import { sessionKey } from "./sessionReference.ts";
 // A card's launches: on a Backlog card, one Start action per workflow in the
-// order `launchWorkflows` offers them; while the card lists an open session
-// (`cardSessionsOf`), every Start is unavailable and described why
+// order `launchWorkflows` offers them, together in the card's launch group,
+// each with its note and answer beside it; while the card lists an open
+// session (`cardSessionsOf`), every Start is unavailable and described why
 // (`openSessionStartReason`), and the launch boundary refuses a second start
 // the same way; on the card of a story starting on this machine, whichever
 // page asked for it, what its local startup is doing (`StartupStatus`), with
@@ -15,7 +16,8 @@ import { sessionKey } from "./sessionReference.ts";
 // from the card lists its session here once it settles and takes the keyboard
 // to it. A launch this page asked for whose answer no Start on the card shows,
 // as when origin moved the story to Taken meanwhile, keeps that answer on the
-// card, with Review changes (`./StoryReviewAction.tsx`) whatever its sessions.
+// card. Review changes belongs to the card's inspection group
+// (`./WorkCard.tsx`).
 // Sessions are local evidence: whatever they show, origin places the story.
 
 import { useId, useState } from "react";
@@ -37,7 +39,6 @@ import { CardSessions } from "./CardSessions.tsx";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { keyboardRestsOn } from "./launchHandoff.ts";
 import { workCard } from "./workFocus.ts";
-import { StoryReviewAction } from "./StoryReviewAction.tsx";
 
 export function CardLaunches({
   sourceId,
@@ -163,48 +164,58 @@ export function CardLaunches({
           {dependencyProblem}
         </p>
       )}
-      {keptStart !== undefined && (
-        <StartLaunch
-          sourceId={sourceId}
-          work={entry}
-          workflow="execution"
-          establishesStart
-          options={undefined}
-          resumes={keptStart}
-          note={keptStartNote}
-          attempt={attemptOf("execution")}
-          unavailable={startBlocked}
-          unavailableReason={startBlockedReason}
-          onStart={onStart("execution")}
-        />
+      {(keptStart !== undefined || offersStart) && (
+        <div
+          className="card-action-group card-launch-group"
+          role="group"
+          aria-label="Launch actions"
+        >
+          {keptStart !== undefined && (
+            <StartLaunch
+              sourceId={sourceId}
+              work={entry}
+              workflow="execution"
+              establishesStart
+              options={undefined}
+              resumes={keptStart}
+              note={keptStartNote}
+              attempt={attemptOf("execution")}
+              unavailable={startBlocked}
+              unavailableReason={startBlockedReason}
+              onStart={onStart("execution")}
+            />
+          )}
+          {offersStart &&
+            launchWorkflowNames.map((workflow) => (
+              <StartLaunch
+                sourceId={sourceId}
+                key={workflow}
+                onHostChanged={launches.rereadOffers}
+                work={entry}
+                workflow={workflow}
+                establishesStart={(host) =>
+                  launches.establishesStart(sourceId, workflow, host)
+                }
+                options={(host) =>
+                  launches.optionsOffer(sourceId, workflow, host)
+                }
+                sessionPolicy={(host) =>
+                  launches.sessionPolicyOffer(sourceId, workflow, host)
+                }
+                {...resumesOf(workflow)}
+                note={
+                  "resumes" in resumesOf(workflow)
+                    ? keptStartNote
+                    : launchWorkflows[workflow].note(entry)
+                }
+                attempt={attemptOf(workflow)}
+                unavailable={startUnavailable(workflow)}
+                unavailableReason={startUnavailableReason(workflow)}
+                onStart={onStart(workflow)}
+              />
+            ))}
+        </div>
       )}
-      {offersStart &&
-        launchWorkflowNames.map((workflow) => (
-          <StartLaunch
-            sourceId={sourceId}
-            key={workflow}
-            onHostChanged={launches.rereadOffers}
-            work={entry}
-            workflow={workflow}
-            establishesStart={(host) =>
-              launches.establishesStart(sourceId, workflow, host)
-            }
-            options={(host) => launches.optionsOffer(sourceId, workflow, host)}
-            sessionPolicy={(host) =>
-              launches.sessionPolicyOffer(sourceId, workflow, host)
-            }
-            {...resumesOf(workflow)}
-            note={
-              "resumes" in resumesOf(workflow)
-                ? keptStartNote
-                : launchWorkflows[workflow].note(entry)
-            }
-            attempt={attemptOf(workflow)}
-            unavailable={startUnavailable(workflow)}
-            unavailableReason={startUnavailableReason(workflow)}
-            onStart={onStart(workflow)}
-          />
-        ))}
       {unshown.map(({ workflow, problem }) => (
         <LaunchProblemAnswer
           key={workflow}
@@ -222,11 +233,6 @@ export function CardLaunches({
         .map((record) => (
           <CreationEntry key={record.launchedAt} record={record} />
         ))}
-      <StoryReviewAction
-        records={launches.records}
-        sourceId={sourceId}
-        work={entry}
-      />
       <CardSessions sessions={sessions} launchedHere={launchedHere} />
     </>
   );

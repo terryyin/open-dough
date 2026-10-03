@@ -42,9 +42,10 @@ for (const viewport of [
       });
     }
     const { banner, project, sourceEvidence, source, backlog } = parts(page);
+    // The last card's last control.
     const last = backlog
       .getByRole("article", { name: queuedTitle(queuedCount) })
-      .getByRole("link", { name: /^Canonical record/ });
+      .getByRole("button", { name: "Inspect story" });
     await expect(last).toBeVisible();
     // Preparation facts arrive after membership and reflow the cards, which
     // can carry a focused control past the window's edge; measure a settled

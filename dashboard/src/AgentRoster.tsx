@@ -8,7 +8,7 @@
 import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import type { RosterMember } from "./assignmentRoster.ts";
-import { RecordedFacts } from "./AgentAssignmentFacts.tsx";
+import { RecordedFacts } from "./AssignmentRecords.tsx";
 import { HumanCredit } from "./HumanCredit.tsx";
 import { AgentPortrait } from "./AgentPortrait.tsx";
 import { Icon } from "./Icon.tsx";

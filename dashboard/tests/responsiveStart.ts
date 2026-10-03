@@ -106,7 +106,11 @@ export async function expectProtected(card: Locator) {
   await expect(
     card.getByRole("button", { name: "Inspect story" }),
   ).toBeDisabled();
-  const link = card.getByRole("link").first();
+  // Source links, secondary detail otherwise, stay readable on the protected
+  // card rather than behind its unavailable Inspect story.
+  const link = card
+    .getByRole("list", { name: "Source links" })
+    .getByRole("link", { name: /^Canonical record / });
   await expect(link).toBeVisible();
   await expect(link).toHaveAttribute("href", /.+/);
 }
@@ -119,6 +123,10 @@ export async function expectOthersWork(
 ) {
   const { project } = parts(page);
   await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
+  // An unprotected card keeps its source links in its detail.
+  await expect(other.getByRole("list", { name: "Source links" })).toHaveCount(
+    0,
+  );
   await other.getByRole("button", { name: "Inspect story" }).click();
   await expect(
     other.getByRole("button", { name: "Hide detail" }),

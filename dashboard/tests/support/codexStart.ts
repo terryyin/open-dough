@@ -17,4 +17,9 @@ export const test = base.extend<{ origin: StartOrigin }>({
     await use(origin.machine);
   },
 });
-test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
+// The service's bounded launch wait. A start's answer comes after a real
+// Take publication (push, workspace, formatter) and the native exchange, which
+// under machine load can take several seconds, so a page waiting on that
+// answer waits as long as the start itself may.
+export const launchWaitMs = 30_000;
+test.use({ projectFolders: ["open-dough"], launchTimeoutMs: launchWaitMs });

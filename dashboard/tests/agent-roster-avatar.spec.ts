@@ -15,6 +15,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
+import { inspectedDetail } from "./cardControls.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { avatarPathsRead } from "./avatarAnswers.ts";
 import {
@@ -110,8 +111,14 @@ test("each assignment credits the committer who added its profile's current allo
 
   await test.step("the Taken card shows the addition committer with their avatar from the local boundary, and the unmatched Preparing human keeps initials", async () => {
     const { revision } = firstRevision;
-    await expectAvatar(page, takenCard, credited, creditedWidth, revision);
-    await expectInitials(preparingCard, preparer, "PP");
+    await expectAvatar(
+      page,
+      await inspectedDetail(takenCard),
+      credited,
+      creditedWidth,
+      revision,
+    );
+    await expectInitials(await inspectedDetail(preparingCard), preparer, "PP");
     for (const card of [takenCard, preparingCard]) {
       await expect(card).not.toContainText(modifier);
       await expect(card).not.toContainText(olderAllocator);
@@ -155,7 +162,7 @@ test("each assignment credits the committer who added its profile's current allo
     await expect(reading).toHaveCount(0);
     await expectAvatar(
       page,
-      takenCard,
+      await inspectedDetail(takenCard),
       credited,
       creditedWidth,
       firstRevision.revision,
@@ -184,7 +191,7 @@ test("each assignment credits the committer who added its profile's current allo
     const { revision } = secondRevision;
     await expectAvatar(
       page,
-      takenCard,
+      await inspectedDetail(takenCard),
       reallocator,
       reallocatorWidth,
       revision,
@@ -192,7 +199,13 @@ test("each assignment credits the committer who added its profile's current allo
     await expect(takenCard).not.toContainText(credited);
     // The Preparing agent's new allocation credits the account the Taken
     // card showed before: its avatar is served from the boundary's memory.
-    await expectAvatar(page, preparingCard, credited, creditedWidth, revision);
+    await expectAvatar(
+      page,
+      await inspectedDetail(preparingCard),
+      credited,
+      creditedWidth,
+      revision,
+    );
     await openRoster("Akiho-chan");
     await expectAvatar(
       page,
@@ -220,8 +233,11 @@ test("each assignment credits the committer who added its profile's current allo
     await expect(roster).not.toContainText("Human developer");
     await expect(roster.locator(".human-avatar")).toHaveCount(0);
     await back.click();
-    await expect(taken).not.toContainText("Human developer");
-    await expect(taken.locator(".human-avatar")).toHaveCount(0);
+    for (const card of await taken.getByRole("article").all()) {
+      await inspectedDetail(card);
+      await expect(card).not.toContainText("Human developer");
+      await expect(card.locator(".human-avatar")).toHaveCount(0);
+    }
   });
 
   await test.step("the page itself never asked GitHub or its avatar host", () => {

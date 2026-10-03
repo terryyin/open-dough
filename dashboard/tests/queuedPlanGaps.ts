@@ -46,6 +46,10 @@ export async function expectChangedQueuedAssociations(
     return revision;
   };
   await expect(card.getByText("Not ready", { exact: true })).toBeVisible();
+  // Source links are in the story's detail, which stays open across the
+  // snapshots below.
+  await expect(card.getByRole("link")).toHaveCount(0);
+  await card.getByRole("button", { name: "Inspect story" }).click();
   await expect(plan).toHaveAttribute(
     "href",
     planHref("terryyin/open-dough", repo.revision),
@@ -66,7 +70,6 @@ export async function expectChangedQueuedAssociations(
     "href",
     planHref("terryyin/open-dough", revision, planReadyPath),
   );
-  await card.getByRole("button", { name: "Inspect story" }).click();
   await expect(card).toContainText("0 of 5 slices recorded complete");
 
   writePlanning(
