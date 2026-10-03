@@ -42,8 +42,9 @@ export function runnersFor(home: string): number {
   ).length;
 }
 
-// The development server starts the runner without waiting to listen, so the
-// address file appears after the server's own URL.
+// The development server waits until this home's runner is accepting, so the
+// address file is present once the server's URL is. The poll still covers a
+// runner that publishes a moment later.
 export async function liveRunner(
   home: string,
 ): Promise<{ port: number; pid: number }> {

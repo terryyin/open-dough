@@ -15,7 +15,7 @@ export function localBoundaryPlugin(
   install: (
     middlewares: Connect.Server,
     httpServer: HttpServer | null,
-  ) => () => void,
+  ) => (() => void) | Promise<() => void>,
 ): Plugin {
   // Set by whichever of the two launch-mode hooks below actually runs (dev
   // XOR preview, never both in one process); read by the matching close
@@ -23,13 +23,13 @@ export function localBoundaryPlugin(
   let cleanup: (() => void) | undefined;
   return {
     name,
-    configureServer(server) {
+    async configureServer(server) {
       initializeProjectConfiguration("development");
-      cleanup = install(server.middlewares, server.httpServer);
+      cleanup = await install(server.middlewares, server.httpServer);
     },
-    configurePreviewServer(server) {
+    async configurePreviewServer(server) {
       initializeProjectConfiguration("production");
-      cleanup = install(server.middlewares, server.httpServer);
+      cleanup = await install(server.middlewares, server.httpServer);
     },
     closeServer() {
       cleanup?.();

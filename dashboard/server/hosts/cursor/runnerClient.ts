@@ -1,9 +1,10 @@
 // The dashboard's calls into the Cursor runner: a finished cursor-agent run,
-// a kept terminal client, one browser socket bridged to that client, and a
-// read of the sessions that runner holds. The read does not start a runner
-// or an agent. Starting and stopping the runner process lives in
-// runnerProcess.ts. Callers outside this host still reach those two
-// operations here.
+// a kept terminal client, one browser socket bridged to that client, a launch
+// hold that joins that client until the page attaches, and a read of the
+// sessions that runner holds. The read does not start a runner or an agent.
+// Starting and stopping the runner process lives in runnerProcess.ts. The
+// launch hold lives in launchHold.ts. Callers outside this host still reach
+// those operations here.
 import http from "node:http";
 import { homedir } from "node:os";
 import { WebSocket, type RawData } from "ws";
@@ -25,9 +26,16 @@ import {
   ensureCursorRunner,
   stopCursorRunner,
 } from "./runnerProcess.ts";
+import {
+  closeCursorHolds,
+  cursorRunnerAttachUrl,
+  holdCursorClient,
+  releaseCursorHold,
+} from "./launchHold.ts";
 
 export type { CursorRunnerExec };
 export { ensureCursorRunner, stopCursorRunner };
+export { closeCursorHolds, holdCursorClient, releaseCursorHold };
 
 // The wire request, narrowed to a Cursor session. The runner rejects any
 // other host.
@@ -170,11 +178,6 @@ export async function keepCursorClient(
   }
 }
 
-function attachUrl(port: number, session: TerminalSession): string {
-  const payload = Buffer.from(JSON.stringify(session)).toString("base64url");
-  return `ws://127.0.0.1:${String(port)}/attach?session=${payload}`;
-}
-
 // Forwards one admitted browser socket to the runner. The runner's own
 // terminal registry owns the client. Closing this socket drops the join and
 // does not hang the client up.
@@ -196,7 +199,7 @@ export async function bridgeCursorTerminal(
     fail();
     return;
   }
-  const runner = new WebSocket(attachUrl(port, session), {
+  const runner = new WebSocket(cursorRunnerAttachUrl(port, session), {
     perMessageDeflate: false,
   });
   const pending: { data: RawData; binary: boolean }[] = [];
@@ -214,6 +217,7 @@ export async function bridgeCursorTerminal(
   });
   runner.on("open", () => {
     opened = true;
+    releaseCursorHold(session.session);
     for (const message of pending) {
       runner.send(message.data, { binary: message.binary });
     }

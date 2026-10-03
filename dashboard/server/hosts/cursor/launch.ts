@@ -22,7 +22,12 @@ import type { LaunchHost } from "../../launchHosts.ts";
 import type { HostLaunch } from "../../hostLaunch.ts";
 import { cursorAgent } from "./exec.ts";
 import { cursorPrompt } from "./prompt.ts";
-import { execOnRunner, keepCursorClient } from "./runnerClient.ts";
+import {
+  execOnRunner,
+  holdCursorClient,
+  keepCursorClient,
+  releaseCursorHold,
+} from "./runnerClient.ts";
 import { cursorTerminalSize } from "./terminal.ts";
 
 // Abort can arrive during an await. A direct `signal.aborted` check is
@@ -157,6 +162,14 @@ export const launchCursor: LaunchHost["launch"] = async (
     return { kind: "launched", session, sessionState: { kind: "unknown" } };
   }
   if (aborted(signal)) return timedOut(session);
+  // Join the client this keep starts before the page opens its terminal.
+  // The idle rule then leaves that one agent in place for the page to attach.
+  void holdCursorClient({
+    sourceId: source.id,
+    session,
+    markedDone: false,
+    folder,
+  });
   const kept = keepCursorClient({
     command: cursorAgent,
     args: [
@@ -174,16 +187,19 @@ export const launchCursor: LaunchHost["launch"] = async (
     kept,
     untilAbort(signal).then(() => "aborted" as const),
   ]);
-  if (outcome !== "aborted") {
-    if (outcome.kind === "unreachable") return runnerUnreachable();
-    if (outcome.kind === "missing") return notInstalled();
-    if (outcome.kind === "failed") {
-      return {
-        kind: "uncertain",
-        reason: "unconfirmed",
-        explanation: `Cursor kept session ${session.sessionId}. The first prompt was not confirmed. Continue with \`${shellCommand(session.continuation.args)}\`.`,
-      };
+  if (outcome !== "aborted" && outcome.kind !== "kept") {
+    releaseCursorHold(session);
+    if (outcome.kind === "unreachable") {
+      return runnerUnreachable();
     }
+    if (outcome.kind === "missing") {
+      return notInstalled();
+    }
+    return {
+      kind: "uncertain",
+      reason: "unconfirmed",
+      explanation: `Cursor kept session ${session.sessionId}. The first prompt was not confirmed. Continue with \`${shellCommand(session.continuation.args)}\`.`,
+    };
   }
   return { kind: "launched", session, sessionState: { kind: "unknown" } };
 };

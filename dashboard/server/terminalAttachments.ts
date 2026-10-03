@@ -8,7 +8,8 @@
 // SIGHUP when their socket closes. A launch may keep its client before any
 // socket: a later open joins that client. `close()` hangs up every client.
 import type { IPty } from "@lydell/node-pty";
-import type { WebSocket } from "ws";
+import { setTimeout as delay } from "node:timers/promises";
+import { WebSocket } from "ws";
 import {
   terminalAttachFailedCode,
   terminalEndedCode,
@@ -33,6 +34,24 @@ export type KeptLaunch = LaunchInstructionInput & {
 
 export class TerminalAttachments {
   private readonly clients = new Map<IPty, LiveTerminalClient>();
+
+  // Joins the client `/keep` is starting or already holds. It never spawns
+  // another agent. A launch opens this before the page's terminal so the
+  // idle rule cannot hang that client up and have the page start a second one.
+  async joinKept(ws: WebSocket, session: TerminalSession): Promise<boolean> {
+    const key = sessionKey(session.session);
+    const deadline = Date.now() + 20_000;
+    while (Date.now() < deadline) {
+      if (ws.readyState !== WebSocket.OPEN) return false;
+      const existing = this.keptClient(key);
+      if (existing !== undefined) {
+        existing.attach(ws, session, false);
+        return true;
+      }
+      await delay(20);
+    }
+    return false;
+  }
 
   connect(ws: WebSocket, session: TerminalSession): void {
     const key = sessionKey(session.session);

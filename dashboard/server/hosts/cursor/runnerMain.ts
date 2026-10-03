@@ -4,7 +4,7 @@
 import http from "node:http";
 import { existsSync } from "node:fs";
 import { mkdir, rename, rm, writeFile } from "node:fs/promises";
-import { WebSocketServer } from "ws";
+import { WebSocket, WebSocketServer } from "ws";
 import type { CursorSession } from "../../../src/launchRecord.ts";
 import type { TerminalSession } from "../../agentTerminals.ts";
 import { keptSession, updateRecord } from "../../launchRecordStore.ts";
@@ -17,6 +17,8 @@ import {
   readCursorRunnerAddress,
 } from "./runnerPaths.ts";
 import {
+  cursorRunnerAttachHoldName,
+  cursorRunnerAttachHoldValue,
   cursorRunnerAttachSession,
   cursorRunnerExecRequest,
   cursorRunnerKeepRequest,
@@ -202,8 +204,17 @@ server.on("upgrade", (req, socket, head) => {
     socket.destroy();
     return;
   }
+  const hold =
+    url.searchParams.get(cursorRunnerAttachHoldName) ===
+    cursorRunnerAttachHoldValue;
   sockets.handleUpgrade(req, socket, head, (ws) => {
-    attachments.connect(ws, session);
+    if (!hold) {
+      attachments.connect(ws, session);
+      return;
+    }
+    void attachments.joinKept(ws, session).then((joined) => {
+      if (!joined && ws.readyState === WebSocket.OPEN) ws.close();
+    });
   });
 });
 
