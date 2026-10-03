@@ -17,11 +17,10 @@ A new instruction does not mark a report read, and quiet completion still
 records local Done on arrival. Records already marked done stay done, with no
 migration.
 
-**Prerequisite:** the unread-report marker comes from
-[plan 238](../238-unread-report-apart-from-engagement/PLAN.md): `sessionShown`
-reads the native state and adds `unreadReport` for a report while `doneAt` is
-unset. This plan changes that unread rule. It cannot start until 238 is on
-trunk; that dependency is recorded on the story.
+**Prerequisite:** the unread-report marker is on trunk: `sessionShown`
+(`dashboard/src/sessionShown.ts`) reads the native state and adds
+`unreadReport` for a report while `doneAt` is unset. This plan changes that
+unread rule. The story's recorded dependency on it is satisfied.
 
 **Common rule:** the record keeps `reportRead`, the receipt of the report the
 developer read. A report is unread while the record is not marked done and
@@ -36,19 +35,19 @@ architectural concern; no ADR or North Star topic applies.
 
 | Premise | Consumed by | Observation | Result |
 | --- | --- | --- | --- |
-| Plan 238's unread rule exists: `sessionShown` returns `unreadReport` only from `completion` and `doneAt`, and `session-unread-report.spec.ts` drives a Claude report through the real reporting command | Slice 1 (start) | Not observable until 238 lands. When slice 1 starts, read `dashboard/src/sessionShown.ts` and `dashboard/tests/session-unread-report.spec.ts` on trunk | Pending: the recorded dependency blocks start. If the shape differs, refine this plan before slice 1 changes code |
+| The unread rule exists: `sessionShown` returns `unreadReport` only from `completion` and `doneAt`, the report carries a uuid `receipt` for `reportRead` to keep, and `session-unread-report.spec.ts` drives a Claude report through the real reporting command | Slice 1 | Read `dashboard/src/sessionShown.ts:51-64` and `src/completionReport.ts:7` on trunk at `da0d17c1`; `unset NODE_ENV; npm run test:dashboard -- --grep "an unread report is its own mark" --reporter=line` | Confirmed: 1 passed; its step 4 (`:162-176`) chooses the card's Mark as done |
 | A reported session's Mark as done only sets local `doneAt`, with no rename, detach, or stop | Slice 2 | Read `dashboard/server/doneMarks.ts:20-29` | Confirmed |
 | Admission accepts Mark as done for a host without native stop only when the record has a report, so read Cursor sessions keep a local Done | Slice 2 | Read `dashboard/server/agentLaunchAdmission.ts:100-111` and `src/sessionCapabilities.ts:37-45` (`marksRecordDone`) | Confirmed |
 | Mark as done is offered by three controls: the card (`CardActions`, `marksRecordDone`), the report panel (`SessionResultPanel`, `marksRecordDone` with `doneAt` unset), and the terminal panel (`TerminalPanel`, host `stop` only); all three call `pageSessionPanel.markSessionDone` → `POST` done → `markSessionDone` | Slices 1 and 2 | Read `src/sessionRecordActions.tsx:17-40`, `src/SessionResultPanel.tsx:103-116`, `src/TerminalPanel.tsx:151-160`, `src/TerminalSplit.tsx:108,121`, `src/pageSessionPanel.ts:72-81`, `server/launchBoundaryAnswer.ts:33-45,167` | Confirmed |
 | Rebinding a native session rebuilds the record from the incoming one and carries over named kept fields (`completion`, `dispositionChangedAt`, `doneProblem`, `doneAt`), so a new kept field is lost unless it is carried over too | Slice 1 | Read `server/launchRecordBinding.ts:45-74` | Confirmed: `reportRead` must be carried over the same way |
 | Record setters change one session's record by `replaceRecords` and set `dispositionChangedAt` for Done | Slice 1 | Read `server/launchRecordStore.ts:74-120` (`setRecordDoneAt`) | Confirmed: the read setter follows the same pattern without touching `dispositionChangedAt` |
-| A page journey can launch and report (Claude, Cursor), and observe Claude `stop` and rename calls through the synthetic host | Proof of both slices | `unset NODE_ENV; npm run test:dashboard -- --grep "Cursor installed report offers local Done\|Mark as done on a card's session Claude Code no longer lists\|Claude early attention report binds through normal launch" --reporter=line`; `dashboard.claudeCalls()` filtering `stop` in `tests/agent-launch-card-done.spec.ts:69-91` | 3 passed (16.9s) |
+| A page journey can launch and report (Claude, Cursor), and observe Claude `stop` and rename calls through the synthetic host | Proof of both slices | `unset NODE_ENV; npm run test:dashboard -- --grep "Cursor installed report offers local Done\|Mark as done on a card's session Claude Code no longer lists\|Claude early attention report binds through normal launch" --reporter=line`; `dashboard.claudeCalls()` filtering `stop` in `tests/agent-launch-card-done.spec.ts:69-91` | 3 passed (re-run with the unread-report journey on `da0d17c1`: 4 passed, 11.0s) |
 | Existing specs that rely on a report's Mark as done being local-only | Slice 2 consumers | `grep -n "Mark as done" dashboard/tests/agent-completion-*.spec.ts` | `agent-completion-cursor.spec.ts:92` (card, Cursor), `agent-completion-attention.spec.ts:112` (button visible on an unread report) and `:213-235` (Codex report panel: Done, then no `turn/interrupt` or `thread/name/set`). The last changes: the read session's Mark as done now renames and interrupts |
 | Product docs describe a report's Mark as done as local-only acknowledgment | Slices 1 and 2 cleanup | Read `dashboard/AGENT-LAUNCH-COMPLETION.md:25-28` and `dashboard/AGENT-LAUNCH-TERMINALS.md:122-130` | Confirmed: restate as Mark as read, then Mark as done as for any session |
 
 ## Key examples and proof
 
-Proof extends plan 238's page journey `dashboard/tests/session-unread-report.spec.ts`
+Proof extends the page journey `dashboard/tests/session-unread-report.spec.ts`
 (Claude via the synthetic `claude` and the real reporting command) and
 `agent-completion-cursor.spec.ts`.
 
@@ -76,7 +75,7 @@ Status: planned
 Proof: examples 1–3 added to `session-unread-report.spec.ts`; focused
 unit checks of the unread rule (newer receipt, done record); and the consumer
 specs above. `agent-completion-attention.spec.ts:112` now expects
-“Mark as read” on the unread report, and plan 238's example 4 step in
+“Mark as read” on the unread report, and step 4 in
 `session-unread-report.spec.ts` (Mark as done clears the marker) chooses
 Mark as read from the card instead, since the card no longer offers
 Mark as done while a report is unread.
