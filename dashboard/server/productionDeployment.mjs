@@ -119,10 +119,13 @@ export async function stageDeployment(options) {
       commandOptions,
     );
     await verifyPublishedCommit(directory, published, env);
+    // The build needs dev dependencies whatever NODE_ENV the shell inherited:
+    // npm otherwise omits them under an inherited `production`.
     await command(
       "npm",
       [
         "ci",
+        "--include=dev",
         "--no-audit",
         "--no-fund",
         "--fetch-retries=0",

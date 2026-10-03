@@ -14,11 +14,11 @@ visibility for multiple agents working in worktrees on one machine.
 
 ## Taken
 
-- [Review all story worktree changes in one dashboard UI](seeds/SEED-088-dashboard-story-code-review.md#dashboard-story-code-review) — SEED-088#dashboard-story-code-review ([plan](slice-plans/226-dashboard-story-code-review/PLAN.md))
 - [Keep a Cursor agent running across a dashboard restart](seeds/SEED-089-cursor-session-visible-from-the-start.md#cursor-runner-survives-dashboard-restart) — SEED-089#cursor-runner-survives-dashboard-restart ([plan](slice-plans/228-cursor-runner-survives-dashboard-restart/PLAN.md))
 
 ## Backlog list
 
+- [Prove that a story's landed slices leave its review](seeds/SEED-088-dashboard-story-code-review.md#prove-landed-slices-leave-the-review) — SEED-088#prove-landed-slices-leave-the-review
 - [Modernize and streamline the dashboard frame](seeds/SEED-091-dashboard-ui-renovation.md#dashboard-frame-renovation) — SEED-091#dashboard-frame-renovation
 - [Make story cards modern, compact information radiators](seeds/SEED-091-dashboard-ui-renovation.md#story-card-information-radiator) — SEED-091#story-card-information-radiator
 - [Remove the dashboard's manual refresh button and its dead code](seeds/SEED-092-remove-dashboard-manual-refresh.md#remove-manual-refresh) — SEED-092#remove-manual-refresh

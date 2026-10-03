@@ -34,6 +34,9 @@ export async function publishedMainFixture(fullSource = false) {
   try {
     if (fullSource) {
       // The live working tree: new names included, deleted tracked paths not.
+      // Agent avatar images are left out: the page loads them by URL, so no
+      // build or check needs them, and their size would otherwise be copied,
+      // hashed, fetched, and built into every deployment.
       const listed = async (...args: string[]) =>
         (
           await exec("git", ["ls-files", "-z", ...args], { cwd: repoRoot })
@@ -46,7 +49,11 @@ export async function publishedMainFixture(fullSource = false) {
         "--others",
         "--exclude-standard",
       )) {
-        if (deleted.has(file)) continue;
+        if (
+          deleted.has(file) ||
+          file.startsWith("dashboard/public/agent-avatars/")
+        )
+          continue;
         const destination = path.join(development, file);
         mkdirSync(path.dirname(destination), { recursive: true });
         cpSync(path.join(repoRoot, file), destination);
@@ -124,6 +131,9 @@ export async function publishedMainFixture(fullSource = false) {
           "npm",
           [
             "ci",
+            // Development needs its dev dependencies whatever NODE_ENV the
+            // test run inherited.
+            "--include=dev",
             "--no-audit",
             "--no-fund",
             "--fetch-retries=0",

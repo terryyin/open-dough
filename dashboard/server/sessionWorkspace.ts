@@ -2,13 +2,11 @@
 import { statSync } from "node:fs";
 import type { HostSession, WorkspaceState } from "../src/launchRecord.ts";
 
-export function savedWorkspaceState(session: HostSession): WorkspaceState {
-  const workspace =
-    session.host === "codex" ? session.continuation?.workspace : undefined;
-  if (workspace === undefined) return { kind: "unknown" };
+// Whether a directory is there: unknown when the observation itself failed.
+export function directoryState(directory: string): WorkspaceState {
   try {
     return {
-      kind: statSync(workspace).isDirectory() ? "available" : "missing",
+      kind: statSync(directory).isDirectory() ? "available" : "missing",
     };
   } catch (error) {
     const code = (error as NodeJS.ErrnoException).code;
@@ -16,4 +14,12 @@ export function savedWorkspaceState(session: HostSession): WorkspaceState {
       kind: code === "ENOENT" || code === "ENOTDIR" ? "missing" : "unknown",
     };
   }
+}
+
+export function savedWorkspaceState(session: HostSession): WorkspaceState {
+  const workspace =
+    session.host === "codex" ? session.continuation?.workspace : undefined;
+  return workspace === undefined
+    ? { kind: "unknown" }
+    : directoryState(workspace);
 }

@@ -1,0 +1,210 @@
+/* A story review (./StoryReviewAction.tsx): a modal capped to the viewport
+   whose header, Refresh, and Close stay in view while its body scrolls. The
+   file browser sits beside the selected file's diff, which takes the
+   browser's room while it is hidden, and both wrap below each other on a
+   narrow screen. Paths keep their lines and scroll inside the file browser,
+   and code lines inside the diff, never the page. Its actions share the launch actions' look
+   (./agent-launch.css). */
+
+.story-review-action {
+  margin-top: 0.45rem;
+}
+
+.story-review {
+  box-sizing: border-box;
+  width: min(64rem, calc(100% - 1.5rem));
+  max-height: calc(100dvh - 1.5rem);
+  border: 1px solid var(--edge);
+  border-radius: 0.5rem;
+  padding: 0;
+  overflow: hidden;
+  color: var(--text);
+  background: var(--panel);
+}
+
+.story-review[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.story-review::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+.story-review-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem 1rem;
+}
+
+.story-review-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.story-review-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.story-review-subject {
+  margin: 0.2rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.story-review-subject strong {
+  font-weight: 600;
+}
+
+.story-review-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.75rem 1rem 1rem;
+}
+
+.story-review-body p {
+  margin: 0;
+}
+
+.story-review-body code {
+  overflow-wrap: anywhere;
+}
+
+.story-review-facts {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+}
+
+.story-review-facts > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+  min-width: 0;
+}
+
+.story-review-facts dt {
+  font-weight: 600;
+}
+
+.story-review-facts dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.story-review-workarea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.story-review-files {
+  flex: 0 1 18rem;
+  min-width: 0;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.story-review-files h3,
+.story-review-diff h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.story-review-files ul {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A path keeps its line; the browser scrolls sideways instead. */
+.story-review-files li {
+  white-space: nowrap;
+}
+
+.story-review-files button {
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  padding: 0.1rem 0.3rem;
+  font: inherit;
+  text-align: start;
+  color: inherit;
+  background: none;
+  cursor: pointer;
+}
+
+.story-review-files button[aria-pressed="true"] {
+  border-color: var(--edge);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.story-review-files li code {
+  overflow-wrap: normal;
+}
+
+.story-review-kind {
+  display: inline-block;
+  min-width: 5.5rem;
+  color: var(--quiet);
+}
+
+.story-review-diff {
+  flex: 1 1 28rem;
+  min-width: 0;
+}
+
+/* Code lines keep their spacing and scroll sideways here; each line's
+   leading +, -, or space says whether it was added, removed, or kept. */
+.story-review-code {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+}
+
+.story-review-hunk {
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.story-review-hunk li {
+  padding: 0 0.5rem;
+  white-space: pre;
+}
+
+.story-review-hunk-header,
+.story-review-note {
+  color: var(--quiet);
+}
+
+.story-review-hunk-header {
+  background: color-mix(in srgb, var(--quiet) 10%, transparent);
+}
+
+.story-review-added {
+  background: color-mix(in srgb, var(--ready) 14%, transparent);
+}
+
+.story-review-removed {
+  background: color-mix(in srgb, var(--problem) 14%, transparent);
+}
+
+.story-review-diff h3 .story-review-kind {
+  min-width: 0;
+}

@@ -3,26 +3,26 @@
 // the arguments that resume a start lost with the server.
 
 import { hostDescriptions } from "../src/hostDescription.ts";
-import { execFile } from "node:child_process";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
+import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { worktreesFolder } from "./launchWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
-export function git(
+// What git printed, or "" when the call failed.
+export async function git(
   project: Pick<ProjectFolder, "path">,
   args: readonly string[],
 ): Promise<string> {
-  return new Promise((resolve) => {
-    execFile(
-      "git",
-      ["-C", project.path, ...args],
-      { encoding: "utf8" },
-      (error, stdout) => {
-        resolve(error ? "" : stdout);
-      },
-    );
-  });
+  try {
+    const { stdout } = await runGit(args, {
+      cwd: project.path,
+      maxBuffer: defaultGitOutputLimit,
+    });
+    return stdout;
+  } catch {
+    return "";
+  }
 }
 
 // `owner/name` of a GitHub remote URL, however it is spelled.

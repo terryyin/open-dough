@@ -17,8 +17,8 @@ import { sessionKey } from "./sessionReference.ts";
 // from the card lists its session here once it settles and takes the keyboard
 // to it. A launch this page asked for whose answer no Start on the card shows,
 // as when origin moved the story to Taken meanwhile, keeps that answer on the
-// card. Sessions are local evidence: whatever they show, origin alone places
-// the story.
+// card, with Review changes (`./StoryReviewAction.tsx`) whatever its sessions.
+// Sessions are local evidence: whatever they show, origin places the story.
 
 import { useId, useState } from "react";
 import type { LaunchChoices, LaunchWorkflow } from "./agentLaunch.ts";
@@ -40,6 +40,7 @@ import { attentionSummary } from "./sessionShown.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { keyboardRestsOn } from "./launchHandoff.ts";
 import { workCard } from "./workFocus.ts";
+import { StoryReviewAction } from "./StoryReviewAction.tsx";
 
 export function CardLaunches({
   sourceId,
@@ -225,6 +226,11 @@ export function CardLaunches({
         .map((record) => (
           <CreationEntry key={record.launchedAt} record={record} />
         ))}
+      <StoryReviewAction
+        records={launches.records}
+        sourceId={sourceId}
+        work={entry}
+      />
       {attention !== undefined && <p className="card-attention">{attention}</p>}
       {hasOpenSession && (
         <ol className="card-sessions" aria-label="Sessions">
