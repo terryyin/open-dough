@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "d.kanai-chan",
+  "email": "d.kanai-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-091#story-card-information-radiator",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
